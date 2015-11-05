@@ -278,12 +278,13 @@ window.DatastoreForm = (function($, DatastoreForm) {
 
             // Invalid json preview
             var path = $filePath.val();
+            var text;
             if (path.endsWith("json")) {
-                var text = "Canot Preview JSON files";
+                text = "Canot Preview JSON files";
                 StatusBox.show(text, $filePath, true);
                 return;
             } else if (path.endsWith("xlsx")) {
-                var text = "Canot Preview Excel files";
+                text = "Canot Preview Excel files";
                 StatusBox.show(text, $filePath, true);
                 return;
             }
@@ -764,7 +765,7 @@ window.GridView = (function($, GridView) {
             })
             .then(function() {
                 if (event.scrollToColumn) {
-                    DataCart.scrollToDatasetColumn();
+                    DataCart.scrollToDatasetColumn(event.showToolTip);
                 }
                 Tips.refresh();
             })
@@ -1081,7 +1082,7 @@ window.DataCart = (function($, DataCart) {
         emptyAllCarts();
     };
 
-    DataCart.scrollToDatasetColumn = function() {
+    DataCart.scrollToDatasetColumn = function(showToolTip) {
         var $table = $("#worksheetTable");
         var $datasetWrap = $('#datasetWrap');
         var colNum = $cartArea.find(".colSelected").data("colnum");
@@ -1092,6 +1093,21 @@ window.DataCart = (function($, DataCart) {
 
         $datasetWrap.scrollLeft(position - (dataWrapWidth / 2) +
                                 (columnWidth / 2));
+
+        if (showToolTip) {
+            var $header = $column.children(".header");
+            $header.tooltip({
+                "title"    : "Focused Column",
+                "placement": "top",
+                "trigger"  : "manual",
+                "container": "#exploreView"
+            });
+
+            $header.tooltip("show");
+            setTimeout(function() {
+                $header.tooltip("destroy");
+            }, 1000);
+        }
     };
 
     DataCart.overflowShadow = function() {
@@ -1160,7 +1176,7 @@ window.DataCart = (function($, DataCart) {
 
     function appendCartItem(cart, colNum, val) {
         var $cart = $("#selectedTable-" + cart.dsName);
-        var $li = $('<li style="font-size:13px;" class="colWrap" ' +
+        var $li = $('<li class="colWrap" ' +
                         'data-colnum="' + colNum + '">' +
                         '<span class="colName textOverflow">' +
                             val +
@@ -1343,10 +1359,11 @@ window.DataCart = (function($, DataCart) {
         var $datasetIcon = $('#dataset-' + tableName);
 
         if ($datasetIcon.hasClass('active')) {
-            DataCart.scrollToDatasetColumn();
+            DataCart.scrollToDatasetColumn(true);
         } else {
             var clickEvent = $.Event('click');
             clickEvent.scrollToColumn = true;
+            clickEvent.showToolTip = true;
             $datasetIcon.trigger(clickEvent);
         }
     }
@@ -4187,6 +4204,7 @@ window.ExportTarget = (function($, ExportTarget) {
         // return;
         var numTypes = exportTargets.length;
         var gridHtml = "";
+        var numGrids;
         for (var i = 0; i < numTypes; i++) {
             var name = exportTargets[i].name;
             var targetTypeId = name.replace(/\s/g, '');
@@ -4198,7 +4216,7 @@ window.ExportTarget = (function($, ExportTarget) {
             gridHtml += '<div class="title">' + name +
                             '</div>' +
                             '<div class="gridArea">';
-            var numGrids = exportTargets[i].targets.length;
+            numGrids = exportTargets[i].targets.length;
             for (var j = 0; j < numGrids; j++) {
                 gridHtml += getGridHtml(exportTargets[i].targets[j]);
             }    
@@ -4206,7 +4224,7 @@ window.ExportTarget = (function($, ExportTarget) {
                         '</div>';
         }
         $exportView.find('.gridItems').html(gridHtml);
-        var numGrids = $exportView.find('.grid-unit').length;
+        numGrids = $exportView.find('.grid-unit').length;
         $exportView.find('.numExportTargets').html(numGrids);
 
     }
