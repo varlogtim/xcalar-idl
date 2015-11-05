@@ -7,14 +7,14 @@ window.UDF = (function($, UDF) {
     var $filePath    = $("#udf-filePath");
 
     var editor;
-    var storedPython = {};
+    var storedUDF = {};
 
     UDF.setup = function() {
         setupUDF();
     };
 
     UDF.initialize = function() {
-        setupUDFList();
+        initializeUDFList();
         uploadDefaultUDF();
     };
 
@@ -22,12 +22,8 @@ window.UDF = (function($, UDF) {
         // clear CodeMirror
         editor.setValue("");
         editor.clearHistory();
-        storedPython = {};
+        storedUDF = {};
         $('#udf-fnMenu').empty().append('<li name="blank">Blank Function</li>');
-    };
-
-    UDF.restoreUDFs = function(udfs) {
-        storedPython = udfs;
     };
 
     UDF.getEditor = function() {
@@ -35,23 +31,74 @@ window.UDF = (function($, UDF) {
     };
 
     UDF.getUDFs = function() {
-        return (storedPython);
+        return (storedUDF);
     };
 
-    function setupUDFList() {
+    function initializeUDFList() {
         var $listDropdown = $("#udf-fnMenu");
-        var li;
         var $blankFunc = $listDropdown.find('li[name=blank]');
-        for (var udf in storedPython) {
-            li = '<li>' + udf + '</li>';
-            $blankFunc.after(li);
+        var li;
+
+        updaetUDF()
+        .always(function() {
+            for (var udf in storedUDF) {
+                li = '<li>' + udf + '</li>';
+                $blankFunc.after(li);
+            }
+        });
+    }
+
+    function updaetUDF() {
+        var deferred = jQuery.Deferred();
+
+        XcalarListXdfs("*", "User*")
+        .then(function(listXdfsObj) {
+            var len = listXdfsObj.numXdfs;
+            var udfs = listXdfsObj.fnDescs;
+            var moduleName;
+
+            for (var i = 0; i < len; i++) {
+                moduleName = udfs[i].fnName.split(":")[0];
+
+                if (!storedUDF.hasOwnProperty(moduleName)) {
+                    // this means modueName exists
+                    // when user fetch this module,
+                    // the entire string will cached here
+                    storedUDF[moduleName] = null;
+                }
+            }
+
+            deferred.resolve();
+        })
+        .fail(deferred.reject);
+
+        return (deferred.promise());
+    }
+
+    function getEntireUDF(moduleName) {
+        var deferred = jQuery.Deferred();
+
+        if (!storedUDF.hasOwnProperty(moduleName)) {
+            var error = "UDF: " + moduleName + " not  exists";
+            throw error;
         }
+
+        var entireString = storedUDF[moduleName];
+        if (entireString == null) {
+            XcalarDownloadPython(moduleName)
+            .then(deferred.resolve)
+            .fail(deferred.reject);
+        } else {
+            deferred.resolve(entireString);
+        }
+
+        return (deferred.promise());
     }
 
     function storePython(moduleName, entireString) {
         var $listDropdown = $("#udf-fnMenu");
 
-        if (storedPython.hasOwnProperty(moduleName)) {
+        if (storedUDF.hasOwnProperty(moduleName)) {
             // the case of overwrite a module
             $listDropdown.children().filter(function() {
                 return $(this).text() === moduleName;
@@ -61,48 +108,8 @@ window.UDF = (function($, UDF) {
         var $blankFunc = $listDropdown.children('li[name=blank]');
         var li = '<li>' + moduleName + '</li>';
         $blankFunc.after(li);
-        storedPython[moduleName] = entireString;
+        storedUDF[moduleName] = entireString;
     }
-
-    // function updateUDF(moduleName) {
-    //     XcalarListXdfs("*", "User*")
-    //     .then(function(listXdfsObj) {
-    //         var i;
-    //         var len = listXdfsObj.numXdfs;
-    //         var udfs = listXdfsObj.fnDescs;
-    //         var moduleMap = {};
-    //         var modules = [];
-
-    //         for (i = 0; i < len; i++) {
-    //             modules.push(udfs[i].fnName);
-    //         }
-
-    //         modules.sort();
-
-    //         var moduleLi = "";
-    //         var fnLi = "";
-    //         for (i = 0; i < len; i++) {
-    //             var udf = modules[i].split(":");
-    //             var moduleName = udf[0];
-    //             var fnName = udf[1];
-
-    //             if (!moduleMap.hasOwnProperty(moduleName)) {
-    //                 moduleMap[moduleName] = true;
-    //                 moduleLi += "<li>" + moduleName + "</li>";
-    //             }
-
-    //             fnLi += '<li data-module="' + moduleName + '">' +
-    //                         fnName +
-    //                     '</li>';
-    //         }
-
-    //         $udfModuleList.find(".list").html(moduleLi);
-    //         $udfFuncList.find(".list").html(fnLi);
-    //     })
-    //     .fail(function(error) {
-    //         console.error("List UDF Fails!", error);
-    //     });
-    // }
 
     function uploadDefaultUDF() {
         multiJoinUDFUpload();
@@ -223,20 +230,23 @@ window.UDF = (function($, UDF) {
         // select one option
         $listSection.on("click", ".list li", function(event) {
             var $li = $(this);
-            var val = $li.text();
+            var moduleName = $li.text();
             event.stopPropagation();
 
             $listSection.removeClass('open');
             $listDropdown.hide();
 
-            $template.val(val);
+            $template.val(moduleName);
 
             if ($li.attr("name") === "blank") {
                 $downloadBtn.addClass("hidden");
                 editor.setValue("");
             } else {
                 $downloadBtn.removeClass("hidden");
-                editor.setValue(storedPython[val]);
+                getEntireUDF(moduleName)
+                .then(function(entireString) {
+                    editor.setValue(entireString);
+                });
             }
         });
         /* end of function input section */
@@ -281,7 +291,7 @@ window.UDF = (function($, UDF) {
     function uploadPython(moduleName, entireString, isFnInputSection) {
         var deferred = jQuery.Deferred();
 
-        if (storedPython.hasOwnProperty(moduleName)) {
+        if (storedUDF.hasOwnProperty(moduleName)) {
             var msg = "Python module " + moduleName + " already exists," +
                         " do you want to replcae it with this module?";
             Alert.show({
@@ -312,6 +322,7 @@ window.UDF = (function($, UDF) {
                     $browserBtn.val("");
                     $filePath.val("");
                 }
+
                 DatastoreForm.update();
                 deferred.resolve();
             })
