@@ -294,7 +294,7 @@ window.TestSuite = (function($, TestSuite) {
             })
             .fail(function(error) {
                 console.error(error, "flightTestPart1");
-                TestSuite.fail(deferred, testName, currentTestNumber);
+                TestSuite.fail(deferred, testName, currentTestNumber, error);
             });
         }
 
@@ -324,7 +324,7 @@ window.TestSuite = (function($, TestSuite) {
             })
             .fail(function(error) {
                 console.error(error, "flightTestPart2");
-                TestSuite.fail(deferred, testName, currentTestNumber);
+                TestSuite.fail(deferred, testName, currentTestNumber, error);
             });
         }
 
@@ -345,7 +345,7 @@ window.TestSuite = (function($, TestSuite) {
             })
             .fail(function(error) {
                 console.error(error, "flightTestPart3");
-                TestSuite.fail(deferred, testName, currentTestNumber);
+                TestSuite.fail(deferred, testName, currentTestNumber, error);
             });
         }
 
@@ -368,7 +368,7 @@ window.TestSuite = (function($, TestSuite) {
             })
             .fail(function(error) {
                 console.error(error, "flightTestPart4");
-                TestSuite.fail(deferred, testName, currentTestNumber);
+                TestSuite.fail(deferred, testName, currentTestNumber, error);
             });
         }
 
@@ -392,7 +392,7 @@ window.TestSuite = (function($, TestSuite) {
             })
             .fail(function(error) {
                  console.error(error, "flightTestPart5");
-                 TestSuite.fail(deferred, testName, currentTestNumber);
+                 TestSuite.fail(deferred, testName, currentTestNumber, error);
             });
         }
 
@@ -422,7 +422,7 @@ window.TestSuite = (function($, TestSuite) {
             })
             .fail(function(error) {
                 console.error(error, "flightTestPart6");
-                TestSuite.fail(deferred, testName, currentTestNumber);
+                TestSuite.fail(deferred, testName, currentTestNumber, error);
             });
         }
 
@@ -447,7 +447,7 @@ window.TestSuite = (function($, TestSuite) {
                     })
                     .fail(function(error) {
                         console.error(error, "flightTestPart7");
-                        TestSuite.fail(deferred, testName, currentTestNumber);
+                        TestSuite.fail(deferred, testName, currentTestNumber, error);
                     });
                 }, 500);
             }, 500);
@@ -472,12 +472,13 @@ window.TestSuite = (function($, TestSuite) {
                 if ($("#numPages").text().indexOf("70,242") > -1) {
                     flightTestPart9();
                 } else {
-                    TestSuite.fail(deferred, testName, currentTestNumber);
+                    TestSuite.fail(deferred, testName, currentTestNumber,
+                                    "num pages not 70,242");
                 }
             })
             .fail(function(error) {
                 console.error(error, "flightTestPart8");
-                TestSuite.fail(deferred, testName, currentTestNumber);
+                TestSuite.fail(deferred, testName, currentTestNumber, error);
             });
         }
 
@@ -506,7 +507,7 @@ window.TestSuite = (function($, TestSuite) {
             })
             .fail(function(error) {
                 console.error(error, "flightTestPart9");
-                TestSuite.fail(deferred, testName, currentTestNumber);
+                TestSuite.fail(deferred, testName, currentTestNumber, error);
             });
         }
     }
@@ -609,10 +610,11 @@ window.TestSuite = (function($, TestSuite) {
             if ($("#numPages").text().indexOf("1,953") > -1) {
                 TestSuite.pass(deferred, testName, currentTestNumber);
             } else {
-                TestSuite.fail(deferred, testName, currentTestNumber);
+                TestSuite.fail(deferred, testName, currentTestNumber,
+                                'Num pages is not 1,953');
             }
-        }).fail(function() {
-            TestSuite.fail(deferred, testName, currentTestNumber);
+        }).fail(function(error) {
+            TestSuite.fail(deferred, testName, currentTestNumber, error);
         });
     }
 
@@ -646,8 +648,8 @@ window.TestSuite = (function($, TestSuite) {
             console.log("This test is witness to GUI-1900");
             TestSuite.pass(deferred, testName, currentTestNumber);
         })
-        .fail(function() {
-            TestSuite.fail(deferred, testName, currentTestNumber);
+        .fail(function(error) {
+            TestSuite.fail(deferred, testName, currentTestNumber, error);
         });
     }
 
@@ -670,8 +672,8 @@ window.TestSuite = (function($, TestSuite) {
         .then(function() {
             TestSuite.pass(deferred, testName, currentTestNumber);
         })
-        .fail(function() {
-            TestSuite.fail(deferred, testName, currentTestNumber);
+        .fail(function(error) {
+            TestSuite.fail(deferred, testName, currentTestNumber, error);
         });
     }
 
@@ -712,6 +714,9 @@ window.TestSuite = (function($, TestSuite) {
                 $("#statsModal .modalBottom button").click();
                 TestSuite.pass(deferred, testName, currentTestNumber);
             }, 1000);
+        })
+        .fail(function(error) {
+            TestSuite.fail(deferred, testName, currentTestNumber, error);
         });
     }
 
@@ -724,8 +729,8 @@ window.TestSuite = (function($, TestSuite) {
             $("#quickAggHeader #closeAgg .icon").click();
             TestSuite.pass(deferred, testName, currentTestNumber);
         })
-        .fail(function() {
-            TestSuite.fail(deferred, testName, currentTestNumber);
+        .fail(function(error) {
+            TestSuite.fail(deferred, testName, currentTestNumber, error);
         });
     }
 
@@ -742,8 +747,8 @@ window.TestSuite = (function($, TestSuite) {
             $("#quickAggHeader #closeAgg .icon").click();
             TestSuite.pass(deferred, testName, currentTestNumber);
         })
-        .fail(function() {
-            TestSuite.fail(deferred, testName, currentTestNumber);
+        .fail(function(error) {
+            TestSuite.fail(deferred, testName, currentTestNumber, error);
         });
 
     }
