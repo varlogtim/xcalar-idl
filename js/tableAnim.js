@@ -1778,6 +1778,7 @@ function addMenuBehaviors($mainMenu) {
     var subMenuId = $mainMenu.data('submenu');
     var outerHeight;
     var innerHeight;
+    var hideTimeout;
 
     if (subMenuId) {
         $subMenu = $('#' + subMenuId);
@@ -1793,6 +1794,7 @@ function addMenuBehaviors($mainMenu) {
         $subMenu.on('mouseenter', '.subMenuArea', function() {
             var className = $(this).siblings(':visible').attr('class');
             $mainMenu.find('.' + className).addClass('selected');
+            clearTimeout(hideTimeout);
         });
         
         // prevents input from closing unless you hover over a different li
@@ -1840,6 +1842,7 @@ function addMenuBehaviors($mainMenu) {
                 if (!$li.hasClass('inputSelected')) {
                     $subMenu.find('.inputSelected').removeClass('inputSelected');
                 }
+                clearTimeout(hideTimeout);
             },
             "mouseleave": function() {
                 $subMenu.find('li').removeClass('selected');
@@ -1883,14 +1886,22 @@ function addMenuBehaviors($mainMenu) {
             $mainMenu.addClass('hovering');
             $li.addClass('selected');
             var hasSubMenu = $li.hasClass('parentMenu');
+            
 
             if (!hasSubMenu || $li.hasClass('unavailable')) {
                 if ($subMenu) {
-                    $subMenu.hide();
+                    if (event.keyTriggered) {
+                        $subMenu.hide();
+                    } else {
+                        hideTimeout = setTimeout(function() {
+                            $subMenu.hide();
+                        }, 150);
+                    }
                 }
                 return;
             }
 
+            clearTimeout(hideTimeout);
             var subMenuClass = $li.data('submenu');
             if (event.keyTriggered) { // mouseenter triggered by keypress
                 showSubMenu($li, subMenuClass);
@@ -2183,7 +2194,7 @@ function addMenuKeyboardNavigation($menu, $subMenu) {
                     var newIndex = (index + direction + numSubLis) % numSubLis;
                     $highlightedSubLi = $subLis.eq(newIndex);
                 } else {
-                    index = (direction === -1) ? (numLis - 1) : 0;
+                    index = (direction === -1) ? (numSubLis - 1) : 0;
                     $highlightedSubLi = $subLis.eq(index);
                 }
                 $highlightedSubLi.addClass('selected');
