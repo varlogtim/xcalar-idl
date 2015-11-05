@@ -273,29 +273,17 @@ function setupMainPanelsTab() {
 }
 
 function setupHiddenTable(tableName) {
-    var deferred = jQuery.Deferred();
-
-    setTableMeta(tableName)
-    .then(function() {
-        var tableId = xcHelper.getTableId(tableName);
-        var table = gTables[tableId];
-        table.active = false;
-
-        var index = getIndex(gTables[tableId].tableName);
-        if (index && index.length > 0) {
-            table.tableCols = index;
-        } else {
-            console.warn("Not stored", tableName);
-        }  
-
-        deferred.resolve();
-    })
-    .fail(function(error) {
-        console.error("setupHiddenTable fails!", error);
-        deferred.reject(error);
-    });
-
-    return (deferred.promise());
+    var tableId = xcHelper.getTableId(tableName);
+    var table = gTables[tableId];
+    table.tableName = tableName;
+    table.tableId = tableId;
+    table.active = false;
+    var index = getIndex(gTables[tableId].tableName);
+    if (index && index.length > 0) {
+        table.tableCols = index;
+    } else {
+        console.warn("Not stored", tableName);
+    }
 }
 
 function setupLogout() {
@@ -776,19 +764,7 @@ function initializeTable() {
                 delete tableMap[tableName];
                 ++tableCount;
 
-                promises.push((function(tName) {
-                    var innerDeferred = jQuery.Deferred();
-
-                    setupHiddenTable(tName)
-                    .then(innerDeferred.resolve)
-                    .fail(function(thriftError) {
-                        failures.push("set hidden table " + tName +
-                                     "fails: " + thriftError.error);
-                        innerDeferred.resolve(error);
-                    });
-
-                    return (innerDeferred.promise());
-                }).bind(this, tableName));
+                setupHiddenTable(tableName);
             }
         }
 
@@ -810,19 +786,7 @@ function initializeTable() {
             delete tableMap[tableName];
             ++tableCount;
 
-            promises.push((function(tName) {
-                var innerDeferred = jQuery.Deferred();
-
-                setupHiddenTable(tName)
-                .then(innerDeferred.resolve)
-                .fail(function(thriftError) {
-                    failures.push("set no sheet table " + tName +
-                                    "fails: " + thriftError.error);
-                    innerDeferred.resolve(error);
-                });
-
-                return (innerDeferred.promise());
-            }).bind(this, tableName));
+            setupHiddenTable(tableName);
         }
 
         // setup leftover tables
@@ -922,7 +886,7 @@ function documentReadyIndexFunction() {
 
             console.log('%c Have fun with Xcalar Insight! ',
             'background: linear-gradient(to bottom, #378cb3, #5cb2e8); ' +
-            'color: #ffffff; font-size:30px; font-family:Open Sans;');
+            'color: #ffffff; font-size:20px; font-family:Open Sans, Arial;');
         })
         .fail(function(error) {
             if (typeof error === "string"){

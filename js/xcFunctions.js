@@ -986,11 +986,7 @@ window.xcFunction = (function($, xcFunction) {
                         "tableName"      : newTableName,
                         "tableId"        : newTableId
                     }
-                    
-                    return (setIndexedTableMeta(tableResult));
-                })
-                .then(function(ret) {
-                    deferred.resolve(ret);
+                    deferred.resolve(setIndexedTableMeta(tableResult));
                 })
                 .fail(function(error) {
                     WSManager.removeTable(newTableId);
@@ -1060,9 +1056,7 @@ window.xcFunction = (function($, xcFunction) {
                     "tableId"        : newTableId
                 };
 
-                return (setIndexedTableMeta(tableResult));
-            })
-            .then(function() {
+                setIndexedTableMeta(tableResult);
                 reindexedTableName = getNewTableInfo(newTableName).tableName;
                 XcalarIndexFromTable(newTableName, groupByField,
                                      reindexedTableName, false, {
@@ -1088,9 +1082,8 @@ window.xcFunction = (function($, xcFunction) {
                         "tableId"        : reindexedTableId
                     };
 
-                    return (setIndexedTableMeta(tableResult));
-                })
-                .then(function() {
+                    setIndexedTableMeta(tableResult);
+
                     deferred.resolve({
                         "newTableCreated": true,
                         "setMeta"        : false,
@@ -1137,9 +1130,7 @@ window.xcFunction = (function($, xcFunction) {
                     "tableName"      : tableName,
                     "tableId"        : xcHelper.getTableId(tableName)
                 };
-                return (setIndexedTableMeta(tableResult));
-            })
-            .then(function() {
+                setIndexedTableMeta(tableResult);
 
                 var currTableName = tableName;
                 var currTableId = xcHelper.getTableId(currTableName);
@@ -1198,7 +1189,8 @@ window.xcFunction = (function($, xcFunction) {
                                                     // set the meta data in xcFunctions.groupBy
                                                     return (promiseWrapper(tableResult));
                                                 } else {
-                                                    return (setIndexedTableMeta(tableResult));
+                                                    var result = setIndexedTableMeta(tableResult);
+                                                    return (promiseWrapper(result));
                                                 }
                                             });
                         currExec++;
@@ -1496,31 +1488,25 @@ window.xcFunction = (function($, xcFunction) {
         var deferred = jQuery.Deferred();
 
         if (tableResult.newTableCreated === false) {
-            deferred.resolve({
+            return ({
                 "newTableCreated": false,
                 "setMeta"        : true,
                 "tableName"      : tableResult.tableName,
                 "tableId"        : tableResult.tableId
             });
-
-            return (deferred.promise());
         }
 
-        setupHiddenTable(tableResult.tableName)
-        .then(function() {
-            var table = gTables[tableResult.tableId];
-            RightSideBar.addTables([table], IsActive.Inactive);
+        setupHiddenTable(tableResult.tableName);
+        var table = gTables[tableResult.tableId];
+        RightSideBar.addTables([table], IsActive.Inactive);
 
-            deferred.resolve({
-                "newTableCreated": true,
-                "setMeta"        : true,
-                "tableName"      : tableResult.tableName,
-                "tableId"        : tableResult.tableId
-            });
-        })
-        .fail(deferred.reject);
+        return ({
+            "newTableCreated": true,
+            "setMeta"        : true,
+            "tableName"      : tableResult.tableName,
+            "tableId"        : tableResult.tableId
+        });
 
-        return (deferred.promise());
     }
 
     // For xcFuncion.join, deepy copy of right table and left table columns
