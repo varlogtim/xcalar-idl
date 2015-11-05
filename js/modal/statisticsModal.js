@@ -676,7 +676,7 @@ window.STATSManager = (function($, STATSManager, d3) {
                 };
 
                 XcalarIndexFromTable(tableName, colName, newTableName,
-                                     XcalarOrderingT.XcalarOrderingUnsorted,
+                                     XcalarOrderingT.XcalarOrderingUnordered,
                                      sqlOptions)
                 .then(function() {
                     // Aggregate count on origingal already remove the null value!
@@ -1480,7 +1480,7 @@ window.STATSManager = (function($, STATSManager, d3) {
             };
 
             return XcalarIndexFromTable(mapTable, mapCol, indexTable,
-                                        XcalarOrderingT.XcalarOrderingUnsorted,
+                                        XcalarOrderingT.XcalarOrderingUnordered,
                                         sqlOptions);
         })
         .then(function() {

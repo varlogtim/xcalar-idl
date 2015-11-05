@@ -599,7 +599,7 @@ function XcalarIndexFromTable(srcTablename, key, tablename, ordering,
 
         jQuery.when(def1, def2)
         .then(function(ret1, ret2) {
-            if (ordering != XcalarOrderingT.XcalarOrderingUnsorted) {
+            if (ordering != XcalarOrderingT.XcalarOrderingUnordered) {
                 // XXX TODO: Add sort asc or desc
                 SQL.add("Sort Table", sqlOptions, ret2);
             } else {

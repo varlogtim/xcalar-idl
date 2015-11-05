@@ -977,7 +977,7 @@ window.xcFunction = (function($, xcFunction) {
                 };
 
                 XcalarIndexFromTable(tableName, colName, newTableName, 
-                                     XcalarOrderingT.XcalarOrderingUnsorted,
+                                     XcalarOrderingT.XcalarOrderingUnordered,
                                      sqlOptions)
                 .then(function() {
                     var tablCols = xcHelper.deepCopy(table.tableCols);
@@ -1065,7 +1065,7 @@ window.xcFunction = (function($, xcFunction) {
                 reindexedTableName = getNewTableInfo(newTableName).tableName;
                 XcalarIndexFromTable(newTableName, groupByField,
                                      reindexedTableName,
-                                     XcalarOrderingT.XcalarOrderingUnsorted, {
+                                     XcalarOrderingT.XcalarOrderingUnordered, {
                           "operation"   : SQLOps.GroupbyIndex,
                           "tableName"   : newTableName,
                           "key"         : groupByField,
