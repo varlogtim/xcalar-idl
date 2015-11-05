@@ -791,7 +791,7 @@ function generateColDropDowns() {
             '<ul class="sort">' +
                 '<li class="sort">' +
                 '<span class="sortUp"></span>A-Z</li>' +
-                '<li class="revSort unavailable">' +
+                '<li class="revSort">' +
                 '<span class="sortDown"></span>Z-A</li>' +
             '</ul>' +
             '<ul class="multiTextAlign">' +

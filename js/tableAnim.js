@@ -2133,8 +2133,10 @@ function addMenuKeyboardNavigation($menu, $subMenu) {
                 return; // key not supported
         }
 
-        event.preventDefault();
-        // console.log(numLis);
+        if (!enter) {
+            event.preventDefault();
+        }
+       
         var $highlightedLi = $lis.filter(function() {
             return ($(this).hasClass('selected'));
         });
@@ -2144,7 +2146,7 @@ function addMenuKeyboardNavigation($menu, $subMenu) {
         if ($subMenu) {
             var $subLis = $subMenu.find('li:visible');
             var numSubLis = $subLis.length;
-            $highlightedSubLi = $subMenu.find('li.selected');
+            $highlightedSubLi = $subLis.filter('.selected');
         }
 
         if (enter) {
@@ -2502,7 +2504,6 @@ function addColMenuActions() {
     });
     
     $subMenu.on('mouseup', 'li.revSort', function(event) {
-        return; //XX revSort is currently unavailable
         if (event.which !== 1) {
             return;
         }

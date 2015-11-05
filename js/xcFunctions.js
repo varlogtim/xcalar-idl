@@ -170,6 +170,12 @@ window.xcFunction = (function($, xcFunction) {
         var direction = (order === SortDirection.Forward) ? "ASC" : "DESC";
         var backFieldName;
         var frontFieldName;
+        var xcOrder;
+        if (order === SortDirection.Backward) {
+            xcOrder = XcalarOrderingT.XcalarOrderingDescending;
+        } else {
+            xcOrder = XcalarOrderingT.XcalarOrderingAscending;
+        }
 
         switch (pCol.func.func) {
             case ("pull"):
@@ -187,13 +193,18 @@ window.xcFunction = (function($, xcFunction) {
         .then(function(nodeArray) {
             if (XcalarApisTStr[nodeArray.node[0].api] === "XcalarApiIndex") {
                 var indexInput = nodeArray.node[0].input.indexInput;
-                if ((indexInput.ordering ===
-                    XcalarOrderingT.XcalarOrderingAscending ||
-                    indexInput.ordering === 
-                    XcalarOrderingT.XcalarOrderingDescending)&&
+                if ((indexInput.ordering === xcOrder)&&
                     indexInput.keyName === backFieldName) {
+                    var textOrder;
+                    if (direction === "ASC") {
+                        textOrder = "ascending";
+                    } else {
+                        textOrder = "descending";
+                    }
                     Alert.error("Table already sorted",
-                            "Current table is already sorted on this column");
+                            "Current table is already sorted on this column" +
+                            " in " + textOrder + " order"
+                            );
                     console.log("Already sorted");
                     deferred.reject("Already sorted on current column");
                     return;
@@ -227,10 +238,11 @@ window.xcFunction = (function($, xcFunction) {
                 "newTableName": newTableName,
                 "sorted"      : true
             };
+
+            
                  
             XcalarIndexFromTable(tableName, backFieldName, newTableName,
-                                 XcalarOrderingT.XcalarOrderingAscending,
-                                 sqlOptions)
+                                 xcOrder, sqlOptions)
             .then(function() {
                 // sort do not change groupby stats of the table
                 STATSManager.copy(tableId, newTableId);
