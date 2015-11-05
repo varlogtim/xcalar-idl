@@ -117,7 +117,7 @@ function commitToStorage(atStartUp) {
     storage[KVKeys.HOLD] = KVStore.isHold();
 
     storage[KVKeys.STATS] = STATSManager.getStatsCols();
-    storage[KVKeys.UDF] = RightSideBar.getUDFs();
+    storage[KVKeys.UDF] = UDF.getUDFs();
 
     if (atStartUp) {
         storage[KVKeys.USER] = UserSettings.getSettings();
@@ -178,7 +178,7 @@ function readFromStorage() {
                 UserSettings.restore(gInfos[KVKeys.USER]);
             }
             if (gInfos[KVKeys.UDF]) {
-                RightSideBar.restoreUDFs(gInfos[KVKeys.UDF]);
+                UDF.restoreUDFs(gInfos[KVKeys.UDF]);
             }
         } else {
             emptyAllStorage(true);
