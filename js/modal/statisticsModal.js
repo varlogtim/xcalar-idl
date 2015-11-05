@@ -114,8 +114,6 @@ window.STATSManager = (function($, STATSManager, d3) {
         });
 
         $sortSection.on("click", ".desc .iconWrapper", function() {
-            // XXX invalid it now, coming soon!
-            return;
             sortData(sortMap.desc, statsCol);
         });
 
@@ -830,12 +828,13 @@ window.STATSManager = (function($, STATSManager, d3) {
         var width  = chartWidth - marginLeft * 2;
 
         // x range and y range
+        var maxHeight = Math.max(tableInfo.max, nullCount);
         var x = d3.scale.ordinal()
                         .rangeRoundBands([0, width], .1, 0)
                         .domain(data.map(function(d) { return d[xName]; }));
         var y = d3.scale.linear()
                         .range([height, 0])
-                        .domain([-(tableInfo.max * .02), tableInfo.max]);
+                        .domain([-(maxHeight * .02), maxHeight]);
         var xWidth = x.rangeBand();
         // 5.1 is the width of a char in .xlabel
         var charLenToFit = Math.max(1, Math.floor(xWidth / 5.1) - 1);
@@ -1342,35 +1341,17 @@ window.STATSManager = (function($, STATSManager, d3) {
     }
 
     function runSort(newOrder, curStatsCol) {
-        var deferred = jQuery.Deferred();
+        var deferred  = jQuery.Deferred();
         var tableInfo = curStatsCol.groupByInfo.buckets[bucketNum];
-        var tableName;
-        var newTableName;
-        var colName;
 
         if (newOrder === sortMap.asc) {
             if (tableInfo.ascTable != null) {
                 deferred.resolve();
             } else {
                 // get a sort table
-                tableName = tableInfo.table;
-                newTableName = getNewName(tableName, ".asc");
-                colName = (bucketNum === 0) ? statsColName : bucketColName;
-
-                var sqlOptions = {
-                    "operation"   : SQLOps.ProfileAction,
-                    "action"      : "sort",
-                    "tableName"   : tableName,
-                    "colName"     : colName,
-                    "newTableName": newTableName,
-                    "sorted"      : true
-                };
-
-                XcalarIndexFromTable(tableName, colName, newTableName,
-                                     XcalarOrderingT.XcalarOrderingAscending,
-                                     sqlOptions)
-                .then(function() {
-                    tableInfo.ascTable = newTableName;
+                sortHelper(newOrder)
+                .then(function(sortedTable) {
+                    tableInfo.ascTable = sortedTable;
                     deferred.resolve();
                 })
                 .fail(deferred.reject);
@@ -1380,9 +1361,47 @@ window.STATSManager = (function($, STATSManager, d3) {
                 deferred.resolve();
             } else {
                 // get a reverse sort table
+                sortHelper(newOrder)
+                .then(function(sortedTable) {
+                    tableInfo.descTable = sortedTable;
+                    deferred.resolve();
+                })
+                .fail(deferred.reject);
             }
         } else {
             deferred.resolve();
+        }
+
+        function sortHelper(sortOrder) {
+            var innerDeferred = jQuery.Deferred();
+            var tableName = tableInfo.table;
+            var newTableName = getNewName(tableName, "." + sortOrder);
+            var colName = (bucketNum === 0) ? statsColName : bucketColName;
+
+            var sqlOptions = {
+                "operation"   : SQLOps.ProfileAction,
+                "action"      : "sort",
+                "tableName"   : tableName,
+                "colName"     : colName,
+                "newTableName": newTableName,
+                "sorted"      : true,
+                "order"       : sortOrder
+            };
+
+            var xcOrder;
+            if (sortOrder === sortMap.desc) {
+                xcOrder = XcalarOrderingT.XcalarOrderingDescending;
+            } else {
+                xcOrder = XcalarOrderingT.XcalarOrderingAscending;
+            }
+
+            XcalarIndexFromTable(tableName, colName, newTableName, xcOrder, sqlOptions)
+            .then(function() {
+                innerDeferred.resolve(newTableName);
+            })
+            .fail(innerDeferred.reject);
+
+            return (innerDeferred.promise());
         }
 
         return (deferred.promise());
