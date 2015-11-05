@@ -319,6 +319,7 @@ window.DagPanel = (function($, DagPanel) {
             addMenuKeyboardNavigation($menu);
             $('body').addClass('noSelection');
         });
+
     }
 
     function setupRightClickDropdown() {
@@ -334,7 +335,15 @@ window.DagPanel = (function($, DagPanel) {
             var $target = $(e.target);
             var $dagWrap = $target.closest('.dagWrap');
 
-            if ($dagWrap.length !== 0) {
+            $target = $(e.target).closest('.dagTable:not(.dataStore) .dagTableIcon');
+            var $secondTarget = $(e.target).closest('.dagTable:not(.dataStore) .icon');
+            if ($target.length) { 
+                $target.trigger('click');
+                return false;
+            } else if ($secondTarget.length) {
+                $secondTarget.trigger('click');
+                return false;
+            } else if ($dagWrap.length !== 0) {
                 $('.menu').hide().removeClass('leftColMenu');
                 $('#dagSchema').hide();
                 $menu.data('dagid', $dagWrap.attr('id'));
@@ -1071,6 +1080,24 @@ window.Dag = (function($, Dag) {
         var $currentIcon;
         var $menu = $dagWrap.find('.dagDropDown');
         
+        $dagWrap[0].oncontextmenu = function(e) {
+           
+            var $target = $(e.target).closest('.actionType');
+           
+            if ($target.length) { 
+                $target.trigger('click');
+                e.preventDefault();
+                e.stopPropagation();
+            } else {
+                var $secondTarget = $(e.target).closest('.dagTable.dataStore');
+                if ($secondTarget.length) { 
+                    $secondTarget.trigger('click');
+                    e.preventDefault();
+                    e.stopPropagation();
+                }
+            }
+        };
+
         $dagWrap.on('click', '.dagTable.dataStore, .actionType', function() {
             $('.menu').hide();
             removeMenuKeyboardNavigation();

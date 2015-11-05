@@ -813,6 +813,14 @@ function createTableHeader(tableId) {
         }
     }, ".tableTitle .text");
 
+    $xcTheadWrap[0].oncontextmenu = function(e) {
+        var $target = $(e.target).closest('.dropdownBox');
+        if ($target.length) {
+            $target.trigger('click');
+            e.preventDefault();
+        }
+    };
+
     $xcTheadWrap.on('click', '.tableTitle > .dropdownBox', function() {
         var classes   = "tableMenu";
         var $dropdown = $(this);
@@ -1428,6 +1436,14 @@ function addColListeners($table, tableId) {
         xcHelper.removeSelectionRange();
         lastSelectedCell = gFnBarOrigin;
     });
+    
+    $thead[0].oncontextmenu = function(e) {
+        var $target = $(e.target).closest('.dropdownBox');
+        if ($target.length) {
+            $target.trigger('click');
+            e.preventDefault();
+        }
+    };
 
     $thead.on("click", ".header .flex-right > .dropdownBox", function() {
         var options = {"type": "thDropdown"};
