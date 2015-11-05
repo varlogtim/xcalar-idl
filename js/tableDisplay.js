@@ -638,7 +638,7 @@ function generateColumnHeadHTML(columnClass, color, newColid, option) {
         columnClass += " userHidden";
     }
 
-    var readOnlyProp = (columnName === "") ? "" : "readonly";
+    var readOnlyProp = (columnName === "") ? "" : 'readonly tabindex="-1"';
     var tooltip = columnClass.indexOf("indexedColumn") < 0 ? "" :
                      ' title="Indexed Column" data-toggle="tooltip" ' +
                      'data-placement="top" data-container="body"';
