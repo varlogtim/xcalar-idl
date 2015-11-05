@@ -67,7 +67,9 @@ XcalarApisT = {
   'XcalarApiCreateDht' : 58,
   'XcalarApiKeyAppend' : 59,
   'XcalarApiKeyReplaceIfEqual' : 60,
-  'XcalarApiDeleteDht' : 61
+  'XcalarApiDeleteDht' : 61,
+  'XcalarApiDownloadPython' : 62,
+  'XcalarApiSupportSend' : 63
 };
 XcalarApisTStr = {0 : 'XcalarApiUnknown',
 1 : 'XcalarApiGetVersion',
@@ -130,5 +132,7 @@ XcalarApisTStr = {0 : 'XcalarApiUnknown',
 58 : 'XcalarApiCreateDht',
 59 : 'XcalarApiKeyAppend',
 60 : 'XcalarApiKeyReplaceIfEqual',
-61 : 'XcalarApiDeleteDht'
+61 : 'XcalarApiDeleteDht',
+62 : 'XcalarApiDownloadPython',
+63 : 'XcalarApiSupportSend'
 };

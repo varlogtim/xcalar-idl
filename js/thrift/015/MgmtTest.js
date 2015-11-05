@@ -844,7 +844,7 @@
 
         queryName = "testQuery";
 
-        xcalarQuery(thriftHandle, queryName, query, false, "")
+        xcalarQuery(thriftHandle, queryName, query, false, "", false)
         .done(function(queryOutput) {
             printResult(queryOutput);
             pass(deferred, testName, currentTestNumber);
@@ -862,7 +862,7 @@
         var locaQueryName = "aggr query";
 
         console.log("submit query" + query);
-        xcalarQuery(thriftHandle, locaQueryName, query, false, "")
+        xcalarQuery(thriftHandle, locaQueryName, query, false, "", false)
         .done(function(queryOutput) {
             printResult(queryOutput);
 
@@ -1054,17 +1054,26 @@
     }
 
     function testExport(deferred, testName, currentTestNumber) {
-        var target = new DfExportTargetT();
-        target.type = DsTargetTypeT.DsTargetODBCType;
-        target.name = "MySql_Test";
         var specInput = new DsInitExportSpecificInputT();
-        specInput.odbcInput = new DsInitExportODBCInputT();
-        specInput.odbcInput.tableName = "mgmtdTestTable";
-        numColumns = 4;
-        columns = ["column1", "column2", "column3", "column4"];
+        specInput.sfInput = new DsInitExportSFInputT();
+        specInput.sfInput.fileName = "mgmtdTest" +
+                                     Math.floor(Math.random()*10000) + ".csv";
+        specInput.sfInput.format = DfFormatTypeT.DfFormatCsv;
+        specInput.sfInput.formatArgs = new DsInitExportFormatSpecificArgsT();
+        specInput.sfInput.formatArgs.csv = new DsInitExportCSVArgsT();
+        specInput.sfInput.formatArgs.csv.fieldDelim = ",";
+        specInput.sfInput.formatArgs.csv.recordDelim = "\n";
 
-        xcalarExport(thriftHandle, "yelp/user-votes.funny-gt900-average",
-                     specInput, numColumns, columns)
+        var target = new DsExportTargetT();
+        target.type = DsTargetTypeT.DsTargetSFType;
+        target.name = "Default";
+        var numColumns = 2;
+        var columns = ["user_id", "name"];
+
+        xcalarExport(thriftHandle, "yelp/user-votes.funny-gt900",
+                     target, specInput, 
+                     DsExportCreateRuleT.DsExportCreateOnly,
+                     numColumns, columns)
         .done(function(status) {
             printResult(status);
             pass(deferred, testName, currentTestNumber);
@@ -1224,6 +1233,20 @@
         })
     }
 
+    // Witness to bug 2020
+    function testApiMapStringToString(deferred, testName, currentTestNumber) {
+        var evalString = "string(user_id)"
+
+        xcalarApiMap(thriftHandle, "castUserId", evalString, origTable,
+                     "user_id2")
+        .done(function(filterOutput) {
+            pass(deferred, testName, currentTestNumber);
+        })
+        .fail(function(reason) {
+            fail(deferred, testName, currentTestNumber, reason);
+        });
+    }
+
     // Witness to bug 238
     function testApiMapLongEvalString(deferred, testName, currentTestNumber) {
         var evalString = "add(votes.funny, 1)"
@@ -1269,7 +1292,9 @@
     }
 
     function testApiKeyAddOrReplace(deferred, testName, currentTestNumber, keyName, keyValue) {
-        xcalarKeyAddOrReplace(thriftHandle, keyName, keyValue, true)
+        xcalarKeyAddOrReplace(thriftHandle,
+                              XcalarApiKeyScopeT.XcalarApiKeyScopeGlobal,
+                              keyName, keyValue, true)
         .done(function(status) {
             printResult(status);
             pass(deferred, testName, currentTestNumber);
@@ -1290,18 +1315,26 @@
 
     function testApiKeyAppend(deferred, testName, currentTestNumber) {
         // Insert original key
-        xcalarKeyAddOrReplace(thriftHandle, "myotherkey", "a", false)
+        xcalarKeyAddOrReplace(thriftHandle,
+                              XcalarApiKeyScopeT.XcalarApiKeyScopeGlobal,
+                              "myotherkey", "a", false)
         .then(function() {
             // Append first 'a'
-            return xcalarKeyAppend(thriftHandle, "myotherkey", "a");
+            return xcalarKeyAppend(thriftHandle,
+                                   XcalarApiKeyScopeT.XcalarApiKeyScopeGlobal,
+                                   "myotherkey", "a");
         })
         .then(function() {
             // Append second 'a'
-            return xcalarKeyAppend(thriftHandle, "myotherkey", "a");
+            return xcalarKeyAppend(thriftHandle,
+                                   XcalarApiKeyScopeT.XcalarApiKeyScopeGlobal,
+                                   "myotherkey", "a");
         })
         .then(function() {
             // Lookup. Make sure result is 'aaa'
-            return xcalarKeyLookup(thriftHandle, "myotherkey");
+            return xcalarKeyLookup(thriftHandle,
+                                   XcalarApiKeyScopeT.XcalarApiKeyScopeGlobal,
+                                   "myotherkey");
         })
         .then(function(lookupOutput) {
             if (lookupOutput.value != "aaa") {
@@ -1318,20 +1351,28 @@
 
     function testApiKeyReplaceIfEqual(deferred, testName, currentTestNumber) {
         // Insert original key
-        xcalarKeyAddOrReplace(thriftHandle, "yourkey", "b", false)
+        xcalarKeyAddOrReplace(thriftHandle,
+                              XcalarApiKeyScopeT.XcalarApiKeyScopeGlobal,
+                              "yourkey", "b", false)
         .then(function() {
             // Try replacing with incorrect oldValue
-            xcalarKeyReplaceIfEqual(thriftHandle, "yourkey", "wrongvalue", "c")
+            xcalarKeyReplaceIfEqual(thriftHandle,
+                                   XcalarApiKeyScopeT.XcalarApiKeyScopeGlobal,
+                                   "yourkey", "wrongvalue", "c")
             .then(function() {
                 var reason = "Expected failure due to incorrect oldValue."
                 fail(deferred, testName, currentTestNumber, reason);
             })
             .fail(function(reason) {
                 // Try replacing with correct oldValue
-                xcalarKeyReplaceIfEqual(thriftHandle, "yourkey", "b", "c")
+                xcalarKeyReplaceIfEqual(thriftHandle,
+                                   XcalarApiKeyScopeT.XcalarApiKeyScopeGlobal,
+                                   "yourkey", "b", "c")
                 .then(function() {
                     // Lookup. Make sure result is as expected
-                    return xcalarKeyLookup(thriftHandle, "yourkey");
+                    return xcalarKeyLookup(thriftHandle,
+                                   XcalarApiKeyScopeT.XcalarApiKeyScopeGlobal,
+                                   "yourkey");
                 })
                 .then(function(lookupOutput) {
                     if (lookupOutput.value != "c") {
@@ -1352,7 +1393,9 @@
     }
 
     function testApiKeyLookup(deferred, testName, currentTestNumber) {
-        xcalarKeyLookup(thriftHandle, "mykey")
+        xcalarKeyLookup(thriftHandle,
+                        XcalarApiKeyScopeT.XcalarApiKeyScopeGlobal,
+                        "mykey")
         .done(function(lookupOutput) {
             printResult(lookupOutput);
             if (lookupOutput.value != "myvalue2") {
@@ -1368,7 +1411,8 @@
     }
 
     function testApiKeyDelete(deferred, testName, currentTestNumber) {
-        xcalarKeyDelete(thriftHandle, "mykey")
+        xcalarKeyDelete(thriftHandle,
+                        XcalarApiKeyScopeT.XcalarApiKeyScopeGlobal, "mykey")
         .done(function(status) {
             printResult(status);
             pass(deferred, testName, currentTestNumber);
@@ -1379,7 +1423,9 @@
     }
 
     function testApiKeyBogusLookup(deferred, testName, currentTestNumber) {
-        xcalarKeyLookup(thriftHandle, "mykey")
+        xcalarKeyLookup(thriftHandle,
+                        XcalarApiKeyScopeT.XcalarApiKeyScopeGlobal,
+                        "mykey")
         .done(function(lookupOutput) {
             printResult(lookupOutput);
             var reason = "lookup did not fail";
@@ -1387,6 +1433,60 @@
         })
         .fail(function(reason) {
             pass(deferred, testName, currentTestNumber);
+        });
+    }
+
+    function testApiKeySessions(deferred, testName, currentTestNumber) {
+        var session1 = "mgmtdTestApiKeySessions1" + (new Date().getTime());
+        var session2 = "mgmtdTestApiKeySessions2" + (new Date().getTime());
+
+        var keyName = "sessionKey";
+
+        xcalarApiSessionDelete(thriftHandle, "*")
+        .then(function() {
+	        // Start in brand new sesion...
+	        return xcalarApiSessionNew(thriftHandle, session1, false, "");
+        })
+        .then(function() {
+            // ... and add a key.
+    	    return xcalarKeyAddOrReplace(thriftHandle,
+                			      XcalarApiKeyScopeT.XcalarApiKeyScopeSession,
+                                  keyName, "x", false);
+        })
+        .then(function() {
+            // Make sure it exists in this session.
+            return xcalarKeyLookup(thriftHandle,
+                                  XcalarApiKeyScopeT.XcalarApiKeyScopeSession,
+                                  keyName);
+        })
+        .then(function(lookupOutput) {
+            if (lookupOutput.value === "x") {
+                // Create a new session and switch to it.
+                return xcalarApiSessionNew(thriftHandle, session2, false, "");
+            } else {
+                fail(deferred, testName, currentTestNumber,
+                     "Failed lookup. Expected x got " + lookupOutput.value);
+            }
+        })
+        .then(function() {
+            return xcalarApiSessionSwitch(thriftHandle, session2, session1);
+        })
+        .then (function() {
+            // Make sure the key we created in the other session doesn't turn up
+            // in this one.
+            xcalarKeyLookup(thriftHandle,
+                            XcalarApiKeyScopeT.XcalarApiKeyScopeSession,
+                            keyName)
+            .then(function() {
+                fail(deferred, testName, currentTestNumber,
+                     "Lookup in session2 should have failed.");
+            })
+            .fail(function(reason) {
+                pass(deferred, testName, currentTestNumber);
+            });
+        })
+        .fail(function(reason) {
+            fail(deferred, testName, currentTestNumber, reason);
         });
     }
 
@@ -1524,15 +1624,20 @@
         .then(startCreateDhtTest, startCreateDhtTest);
     }
 
-    function testUploadPython(deferred, testName, currentTestNumber) {
-        xcalarApiUploadPython(thriftHandle, "MgmtTest",
-            "def strLength( strVal ):\n  return \"%d\" % len(strVal)\n")
-        .done(function(status) {
-            if (status == StatusT.StatusOk) {
+    function testUploadDownloadPython(deferred, testName, currentTestNumber) {
+        var pythonCode =
+            "def strLength( strVal ):\n  return \"%d\" % len(strVal)\n";
+        xcalarApiUploadPython(thriftHandle, "MgmtTest", pythonCode)
+        .then(function() {
+            return xcalarApiDownloadPython(thriftHandle, "MgmtTest");
+        })
+        .then(function(downloadPythonOutput) {
+            if (downloadPythonOutput.pythonSrc === pythonCode) {
                 pass(deferred, testName, currentTestNumber);
             } else {
-                var reason = "status = " + status;
-                fail(deferred, testName, currentTestNumber, reason);
+                fail(deferred, testName, currentTestNumber,
+                     "Incorrect python source downloaded: " +
+                     downloadPythonOutput.pythonSrc);
             }
         })
         .fail(function(reason) {
@@ -1543,7 +1648,7 @@
     function testPyExecOnLoad(deferred, testName, currentTestNumber) {
         var fs = require('fs');
 
-        var content = fs.read('PyExecOnLoadTest.py');
+        var content = fs.read(system.env['MGMTDTEST_DIR'] + '/PyExecOnLoadTest.py');
 
         xcalarApiUploadPython(thriftHandle, "PyExecOnLoadTest", content)
         .done(function(uploadPythonOutput) {
@@ -1713,6 +1818,16 @@
         });
     }
 
+    function testSupportSend(deferred, testName, currentTestNumber) {
+        xcalarApiSupportSend(thriftHandle)
+        .done(function(status) {
+            pass(deferred, testName, currentTestNumber);
+        })
+        .fail(function(reason){
+            fail(deferred, testName, currentTestNumber, reason);
+        });
+    }
+
     passes            = 0;
     fails             = 0;
     skips             = 0;
@@ -1720,7 +1835,12 @@
     defaultTimeout    = 256000;
     disableIsPass     = true;
 
-    thriftHandle   = xcalarConnectThrift("localhost", 9090);
+    var fs2 = require('fs');
+    var content = fs2.read(system.env['MGMTDTEST_DIR'] + '/test-config.cfg');
+    var port = content.slice(content.indexOf('Thrift.Port'))
+    port = port.slice(port.indexOf('=') + 1, port.indexOf('\n'))
+
+    thriftHandle   = xcalarConnectThrift("localhost", port);
     loadArgs       = null;
     loadOutput     = null;
     origDataset    = null;
@@ -1804,7 +1924,7 @@
     addTestCase(testCases, testDestroyDatasetInUse, "destroy dataset in use", defaultTimeout, TestCaseDisabled, "");
     addTestCase(testCases, testAddExportTarget, "add export target", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testCases, testListExportTargets, "list export targets", defaultTimeout, TestCaseEnabled, "");
-    addTestCase(testCases, testExport, "export", defaultTimeout, TestCaseDisabled, "");
+    addTestCase(testCases, testExport, "export", defaultTimeout, TestCaseEnabled, "");
 
     addTestCase(testCases, testMakeRetina, "makeRetina", defaultTimeout, TestCaseDisabled, "");
     addTestCase(testCases, testListRetinas, "listRetinas", defaultTimeout, TestCaseDisabled, "");
@@ -1816,13 +1936,16 @@
     addTestCase(testCases, testListParametersInRetina, "listParametersInRetina", defaultTimeout, TestCaseDisabled, "");
 
     addTestCase(testCases, testListFiles, "list files", defaultTimeout, TestCaseEnabled, "");
-    addTestCase(testCases, testUploadPython, "upload python", defaultTimeout, TestCaseEnabled, "");
+    addTestCase(testCases, testUploadDownloadPython, "upload and download python", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testCases, testPyExecOnLoad, "python during load", defaultTimeout, TestCaseEnabled, "");
 
 
     // Witness to bug 238
     addTestCase(testCases, testApiMapLongEvalString, "Map long eval string", defaultTimeout, TestCaseEnabled, "238");
     addTestCase(testCases, testApiFilterLongEvalString, "Filter long eval string", defaultTimeout, TestCaseEnabled, "238");
+
+    // Witness to bug 2020
+    addTestCase(testCases, testApiMapStringToString, "cast string to string", defaultTimeout, TestCaseEnabled, "2020");
 
     addTestCase(testCases, testApiKeyAdd, "key add", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testCases, testApiKeyReplace, "key replace", defaultTimeout, TestCaseEnabled, "");
@@ -1848,6 +1971,10 @@
     // temporarily disabled due to bug 973
     addTestCase(testCases, testShutdown, "shutdown", defaultTimeout, TestCaseDisabled, "98");
 
+    addTestCase(testCases, testSupportSend, "support send", defaultTimeout, TestCaseDisabled, "");
+
+    // XXX Currently, this must be last because it ends in a different session.
+    addTestCase(testCases, testApiKeySessions, "key sessions", defaultTimeout, TestCaseEnabled, "");
 
     runTestSuite(testCases);
 }();

@@ -5,6 +5,11 @@
 //
 
 
+XcalarApiKeyScopeT = {
+  'XcalarApiKeyScopeGlobal' : 1,
+  'XcalarApiKeyScopeUser' : 2,
+  'XcalarApiKeyScopeSession' : 3
+};
 XcalarApiException = function(args) {
   this.status = null;
   if (args) {
@@ -804,6 +809,112 @@ XcalarApiUploadPythonOutputT.prototype.write = function(output) {
   return;
 };
 
+XcalarApiDownloadPythonInputT = function(args) {
+  this.moduleName = null;
+  if (args) {
+    if (args.moduleName !== undefined) {
+      this.moduleName = args.moduleName;
+    }
+  }
+};
+XcalarApiDownloadPythonInputT.prototype = {};
+XcalarApiDownloadPythonInputT.prototype.read = function(input) {
+  input.readStructBegin();
+  while (true)
+  {
+    var ret = input.readFieldBegin();
+    var fname = ret.fname;
+    var ftype = ret.ftype;
+    var fid = ret.fid;
+    if (ftype == Thrift.Type.STOP) {
+      break;
+    }
+    switch (fid)
+    {
+      case 1:
+      if (ftype == Thrift.Type.STRING) {
+        this.moduleName = input.readString().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 0:
+        input.skip(ftype);
+        break;
+      default:
+        input.skip(ftype);
+    }
+    input.readFieldEnd();
+  }
+  input.readStructEnd();
+  return;
+};
+
+XcalarApiDownloadPythonInputT.prototype.write = function(output) {
+  output.writeStructBegin('XcalarApiDownloadPythonInputT');
+  if (this.moduleName !== null && this.moduleName !== undefined) {
+    output.writeFieldBegin('moduleName', Thrift.Type.STRING, 1);
+    output.writeString(this.moduleName);
+    output.writeFieldEnd();
+  }
+  output.writeFieldStop();
+  output.writeStructEnd();
+  return;
+};
+
+XcalarApiDownloadPythonOutputT = function(args) {
+  this.pythonSrc = null;
+  if (args) {
+    if (args.pythonSrc !== undefined) {
+      this.pythonSrc = args.pythonSrc;
+    }
+  }
+};
+XcalarApiDownloadPythonOutputT.prototype = {};
+XcalarApiDownloadPythonOutputT.prototype.read = function(input) {
+  input.readStructBegin();
+  while (true)
+  {
+    var ret = input.readFieldBegin();
+    var fname = ret.fname;
+    var ftype = ret.ftype;
+    var fid = ret.fid;
+    if (ftype == Thrift.Type.STOP) {
+      break;
+    }
+    switch (fid)
+    {
+      case 1:
+      if (ftype == Thrift.Type.STRING) {
+        this.pythonSrc = input.readString().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 0:
+        input.skip(ftype);
+        break;
+      default:
+        input.skip(ftype);
+    }
+    input.readFieldEnd();
+  }
+  input.readStructEnd();
+  return;
+};
+
+XcalarApiDownloadPythonOutputT.prototype.write = function(output) {
+  output.writeStructBegin('XcalarApiDownloadPythonOutputT');
+  if (this.pythonSrc !== null && this.pythonSrc !== undefined) {
+    output.writeFieldBegin('pythonSrc', Thrift.Type.STRING, 1);
+    output.writeString(this.pythonSrc);
+    output.writeFieldEnd();
+  }
+  output.writeFieldStop();
+  output.writeStructEnd();
+  return;
+};
+
 XcalarApiListXdfsOutputT = function(args) {
   this.numXdfs = null;
   this.fnDescs = null;
@@ -960,9 +1071,13 @@ XcalarApiKeyValuePairT.prototype.write = function(output) {
 };
 
 XcalarApiKeyAddOrReplaceInputT = function(args) {
+  this.scope = null;
   this.persist = null;
   this.kvPair = null;
   if (args) {
+    if (args.scope !== undefined) {
+      this.scope = args.scope;
+    }
     if (args.persist !== undefined) {
       this.persist = args.persist;
     }
@@ -986,13 +1101,20 @@ XcalarApiKeyAddOrReplaceInputT.prototype.read = function(input) {
     switch (fid)
     {
       case 1:
+      if (ftype == Thrift.Type.I32) {
+        this.scope = input.readI32().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 2:
       if (ftype == Thrift.Type.BOOL) {
         this.persist = input.readBool().value;
       } else {
         input.skip(ftype);
       }
       break;
-      case 2:
+      case 3:
       if (ftype == Thrift.Type.STRUCT) {
         this.kvPair = new XcalarApiKeyValuePairT();
         this.kvPair.read(input);
@@ -1011,13 +1133,18 @@ XcalarApiKeyAddOrReplaceInputT.prototype.read = function(input) {
 
 XcalarApiKeyAddOrReplaceInputT.prototype.write = function(output) {
   output.writeStructBegin('XcalarApiKeyAddOrReplaceInputT');
+  if (this.scope !== null && this.scope !== undefined) {
+    output.writeFieldBegin('scope', Thrift.Type.I32, 1);
+    output.writeI32(this.scope);
+    output.writeFieldEnd();
+  }
   if (this.persist !== null && this.persist !== undefined) {
-    output.writeFieldBegin('persist', Thrift.Type.BOOL, 1);
+    output.writeFieldBegin('persist', Thrift.Type.BOOL, 2);
     output.writeBool(this.persist);
     output.writeFieldEnd();
   }
   if (this.kvPair !== null && this.kvPair !== undefined) {
-    output.writeFieldBegin('kvPair', Thrift.Type.STRUCT, 2);
+    output.writeFieldBegin('kvPair', Thrift.Type.STRUCT, 3);
     this.kvPair.write(output);
     output.writeFieldEnd();
   }
@@ -1027,9 +1154,13 @@ XcalarApiKeyAddOrReplaceInputT.prototype.write = function(output) {
 };
 
 XcalarApiKeyAppendInputT = function(args) {
+  this.scope = null;
   this.key = null;
   this.suffix = null;
   if (args) {
+    if (args.scope !== undefined) {
+      this.scope = args.scope;
+    }
     if (args.key !== undefined) {
       this.key = args.key;
     }
@@ -1053,13 +1184,20 @@ XcalarApiKeyAppendInputT.prototype.read = function(input) {
     switch (fid)
     {
       case 1:
+      if (ftype == Thrift.Type.I32) {
+        this.scope = input.readI32().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 2:
       if (ftype == Thrift.Type.STRING) {
         this.key = input.readString().value;
       } else {
         input.skip(ftype);
       }
       break;
-      case 2:
+      case 3:
       if (ftype == Thrift.Type.STRING) {
         this.suffix = input.readString().value;
       } else {
@@ -1077,13 +1215,18 @@ XcalarApiKeyAppendInputT.prototype.read = function(input) {
 
 XcalarApiKeyAppendInputT.prototype.write = function(output) {
   output.writeStructBegin('XcalarApiKeyAppendInputT');
+  if (this.scope !== null && this.scope !== undefined) {
+    output.writeFieldBegin('scope', Thrift.Type.I32, 1);
+    output.writeI32(this.scope);
+    output.writeFieldEnd();
+  }
   if (this.key !== null && this.key !== undefined) {
-    output.writeFieldBegin('key', Thrift.Type.STRING, 1);
+    output.writeFieldBegin('key', Thrift.Type.STRING, 2);
     output.writeString(this.key);
     output.writeFieldEnd();
   }
   if (this.suffix !== null && this.suffix !== undefined) {
-    output.writeFieldBegin('suffix', Thrift.Type.STRING, 2);
+    output.writeFieldBegin('suffix', Thrift.Type.STRING, 3);
     output.writeString(this.suffix);
     output.writeFieldEnd();
   }
@@ -1093,10 +1236,14 @@ XcalarApiKeyAppendInputT.prototype.write = function(output) {
 };
 
 XcalarApiKeyReplaceIfEqualInputT = function(args) {
+  this.scope = null;
   this.key = null;
   this.oldValue = null;
   this.newValue = null;
   if (args) {
+    if (args.scope !== undefined) {
+      this.scope = args.scope;
+    }
     if (args.key !== undefined) {
       this.key = args.key;
     }
@@ -1123,20 +1270,27 @@ XcalarApiKeyReplaceIfEqualInputT.prototype.read = function(input) {
     switch (fid)
     {
       case 1:
-      if (ftype == Thrift.Type.STRING) {
-        this.key = input.readString().value;
+      if (ftype == Thrift.Type.I32) {
+        this.scope = input.readI32().value;
       } else {
         input.skip(ftype);
       }
       break;
       case 2:
       if (ftype == Thrift.Type.STRING) {
-        this.oldValue = input.readString().value;
+        this.key = input.readString().value;
       } else {
         input.skip(ftype);
       }
       break;
       case 3:
+      if (ftype == Thrift.Type.STRING) {
+        this.oldValue = input.readString().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 4:
       if (ftype == Thrift.Type.STRING) {
         this.newValue = input.readString().value;
       } else {
@@ -1154,19 +1308,90 @@ XcalarApiKeyReplaceIfEqualInputT.prototype.read = function(input) {
 
 XcalarApiKeyReplaceIfEqualInputT.prototype.write = function(output) {
   output.writeStructBegin('XcalarApiKeyReplaceIfEqualInputT');
+  if (this.scope !== null && this.scope !== undefined) {
+    output.writeFieldBegin('scope', Thrift.Type.I32, 1);
+    output.writeI32(this.scope);
+    output.writeFieldEnd();
+  }
   if (this.key !== null && this.key !== undefined) {
-    output.writeFieldBegin('key', Thrift.Type.STRING, 1);
+    output.writeFieldBegin('key', Thrift.Type.STRING, 2);
     output.writeString(this.key);
     output.writeFieldEnd();
   }
   if (this.oldValue !== null && this.oldValue !== undefined) {
-    output.writeFieldBegin('oldValue', Thrift.Type.STRING, 2);
+    output.writeFieldBegin('oldValue', Thrift.Type.STRING, 3);
     output.writeString(this.oldValue);
     output.writeFieldEnd();
   }
   if (this.newValue !== null && this.newValue !== undefined) {
-    output.writeFieldBegin('newValue', Thrift.Type.STRING, 3);
+    output.writeFieldBegin('newValue', Thrift.Type.STRING, 4);
     output.writeString(this.newValue);
+    output.writeFieldEnd();
+  }
+  output.writeFieldStop();
+  output.writeStructEnd();
+  return;
+};
+
+XcalarApiKeyLookupInputT = function(args) {
+  this.scope = null;
+  this.key = null;
+  if (args) {
+    if (args.scope !== undefined) {
+      this.scope = args.scope;
+    }
+    if (args.key !== undefined) {
+      this.key = args.key;
+    }
+  }
+};
+XcalarApiKeyLookupInputT.prototype = {};
+XcalarApiKeyLookupInputT.prototype.read = function(input) {
+  input.readStructBegin();
+  while (true)
+  {
+    var ret = input.readFieldBegin();
+    var fname = ret.fname;
+    var ftype = ret.ftype;
+    var fid = ret.fid;
+    if (ftype == Thrift.Type.STOP) {
+      break;
+    }
+    switch (fid)
+    {
+      case 1:
+      if (ftype == Thrift.Type.I32) {
+        this.scope = input.readI32().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 2:
+      if (ftype == Thrift.Type.STRING) {
+        this.key = input.readString().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      default:
+        input.skip(ftype);
+    }
+    input.readFieldEnd();
+  }
+  input.readStructEnd();
+  return;
+};
+
+XcalarApiKeyLookupInputT.prototype.write = function(output) {
+  output.writeStructBegin('XcalarApiKeyLookupInputT');
+  if (this.scope !== null && this.scope !== undefined) {
+    output.writeFieldBegin('scope', Thrift.Type.I32, 1);
+    output.writeI32(this.scope);
+    output.writeFieldEnd();
+  }
+  if (this.key !== null && this.key !== undefined) {
+    output.writeFieldBegin('key', Thrift.Type.STRING, 2);
+    output.writeString(this.key);
     output.writeFieldEnd();
   }
   output.writeFieldStop();
@@ -1220,6 +1445,72 @@ XcalarApiKeyLookupOutputT.prototype.write = function(output) {
   if (this.value !== null && this.value !== undefined) {
     output.writeFieldBegin('value', Thrift.Type.STRING, 1);
     output.writeString(this.value);
+    output.writeFieldEnd();
+  }
+  output.writeFieldStop();
+  output.writeStructEnd();
+  return;
+};
+
+XcalarApiKeyDeleteInputT = function(args) {
+  this.scope = null;
+  this.key = null;
+  if (args) {
+    if (args.scope !== undefined) {
+      this.scope = args.scope;
+    }
+    if (args.key !== undefined) {
+      this.key = args.key;
+    }
+  }
+};
+XcalarApiKeyDeleteInputT.prototype = {};
+XcalarApiKeyDeleteInputT.prototype.read = function(input) {
+  input.readStructBegin();
+  while (true)
+  {
+    var ret = input.readFieldBegin();
+    var fname = ret.fname;
+    var ftype = ret.ftype;
+    var fid = ret.fid;
+    if (ftype == Thrift.Type.STOP) {
+      break;
+    }
+    switch (fid)
+    {
+      case 1:
+      if (ftype == Thrift.Type.I32) {
+        this.scope = input.readI32().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 2:
+      if (ftype == Thrift.Type.STRING) {
+        this.key = input.readString().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      default:
+        input.skip(ftype);
+    }
+    input.readFieldEnd();
+  }
+  input.readStructEnd();
+  return;
+};
+
+XcalarApiKeyDeleteInputT.prototype.write = function(output) {
+  output.writeStructBegin('XcalarApiKeyDeleteInputT');
+  if (this.scope !== null && this.scope !== undefined) {
+    output.writeFieldBegin('scope', Thrift.Type.I32, 1);
+    output.writeI32(this.scope);
+    output.writeFieldEnd();
+  }
+  if (this.key !== null && this.key !== undefined) {
+    output.writeFieldBegin('key', Thrift.Type.STRING, 2);
+    output.writeString(this.key);
     output.writeFieldEnd();
   }
   output.writeFieldStop();
@@ -2136,7 +2427,7 @@ XcalarApiIndexInputT = function(args) {
   this.source = null;
   this.keyName = null;
   this.dstTable = null;
-  this.preserveOrder = null;
+  this.ordering = null;
   if (args) {
     if (args.dhtName !== undefined) {
       this.dhtName = args.dhtName;
@@ -2150,8 +2441,8 @@ XcalarApiIndexInputT = function(args) {
     if (args.dstTable !== undefined) {
       this.dstTable = args.dstTable;
     }
-    if (args.preserveOrder !== undefined) {
-      this.preserveOrder = args.preserveOrder;
+    if (args.ordering !== undefined) {
+      this.ordering = args.ordering;
     }
   }
 };
@@ -2200,8 +2491,8 @@ XcalarApiIndexInputT.prototype.read = function(input) {
       }
       break;
       case 5:
-      if (ftype == Thrift.Type.BOOL) {
-        this.preserveOrder = input.readBool().value;
+      if (ftype == Thrift.Type.I32) {
+        this.ordering = input.readI32().value;
       } else {
         input.skip(ftype);
       }
@@ -2237,9 +2528,9 @@ XcalarApiIndexInputT.prototype.write = function(output) {
     this.dstTable.write(output);
     output.writeFieldEnd();
   }
-  if (this.preserveOrder !== null && this.preserveOrder !== undefined) {
-    output.writeFieldBegin('preserveOrder', Thrift.Type.BOOL, 5);
-    output.writeBool(this.preserveOrder);
+  if (this.ordering !== null && this.ordering !== undefined) {
+    output.writeFieldBegin('ordering', Thrift.Type.I32, 5);
+    output.writeI32(this.ordering);
     output.writeFieldEnd();
   }
   output.writeFieldStop();
@@ -6320,6 +6611,7 @@ XcalarApiQueryInputT = function(args) {
   this.batch = null;
   this.targetName = null;
   this.queryStr = null;
+  this.sameSession = null;
   if (args) {
     if (args.querySession !== undefined) {
       this.querySession = args.querySession;
@@ -6335,6 +6627,9 @@ XcalarApiQueryInputT = function(args) {
     }
     if (args.queryStr !== undefined) {
       this.queryStr = args.queryStr;
+    }
+    if (args.sameSession !== undefined) {
+      this.sameSession = args.sameSession;
     }
   }
 };
@@ -6387,6 +6682,13 @@ XcalarApiQueryInputT.prototype.read = function(input) {
         input.skip(ftype);
       }
       break;
+      case 6:
+      if (ftype == Thrift.Type.BOOL) {
+        this.sameSession = input.readBool().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
       default:
         input.skip(ftype);
     }
@@ -6421,6 +6723,11 @@ XcalarApiQueryInputT.prototype.write = function(output) {
   if (this.queryStr !== null && this.queryStr !== undefined) {
     output.writeFieldBegin('queryStr', Thrift.Type.STRING, 5);
     output.writeString(this.queryStr);
+    output.writeFieldEnd();
+  }
+  if (this.sameSession !== null && this.sameSession !== undefined) {
+    output.writeFieldBegin('sameSession', Thrift.Type.BOOL, 6);
+    output.writeBool(this.sameSession);
     output.writeFieldEnd();
   }
   output.writeFieldStop();
@@ -6817,7 +7124,7 @@ XcalarApiDagNodeNamePatternInputT.prototype.write = function(output) {
 DhtArgsT = function(args) {
   this.upperBound = null;
   this.lowerBound = null;
-  this.preserveOrder = null;
+  this.ordering = null;
   if (args) {
     if (args.upperBound !== undefined) {
       this.upperBound = args.upperBound;
@@ -6825,8 +7132,8 @@ DhtArgsT = function(args) {
     if (args.lowerBound !== undefined) {
       this.lowerBound = args.lowerBound;
     }
-    if (args.preserveOrder !== undefined) {
-      this.preserveOrder = args.preserveOrder;
+    if (args.ordering !== undefined) {
+      this.ordering = args.ordering;
     }
   }
 };
@@ -6859,8 +7166,8 @@ DhtArgsT.prototype.read = function(input) {
       }
       break;
       case 3:
-      if (ftype == Thrift.Type.BOOL) {
-        this.preserveOrder = input.readBool().value;
+      if (ftype == Thrift.Type.I32) {
+        this.ordering = input.readI32().value;
       } else {
         input.skip(ftype);
       }
@@ -6886,9 +7193,9 @@ DhtArgsT.prototype.write = function(output) {
     output.writeDouble(this.lowerBound);
     output.writeFieldEnd();
   }
-  if (this.preserveOrder !== null && this.preserveOrder !== undefined) {
-    output.writeFieldBegin('preserveOrder', Thrift.Type.BOOL, 3);
-    output.writeBool(this.preserveOrder);
+  if (this.ordering !== null && this.ordering !== undefined) {
+    output.writeFieldBegin('ordering', Thrift.Type.I32, 3);
+    output.writeI32(this.ordering);
     output.writeFieldEnd();
   }
   output.writeFieldStop();
@@ -7081,6 +7388,7 @@ XcalarApiInputT = function(args) {
   this.keyAppendInput = null;
   this.keyReplaceIfEqualInput = null;
   this.deleteDhtInput = null;
+  this.downloadPythonInput = null;
   if (args) {
     if (args.loadInput !== undefined) {
       this.loadInput = args.loadInput;
@@ -7234,6 +7542,9 @@ XcalarApiInputT = function(args) {
     }
     if (args.deleteDhtInput !== undefined) {
       this.deleteDhtInput = args.deleteDhtInput;
+    }
+    if (args.downloadPythonInput !== undefined) {
+      this.downloadPythonInput = args.downloadPythonInput;
     }
   }
 };
@@ -7512,8 +7823,9 @@ XcalarApiInputT.prototype.read = function(input) {
       }
       break;
       case 34:
-      if (ftype == Thrift.Type.STRING) {
-        this.keyLookupInput = input.readString().value;
+      if (ftype == Thrift.Type.STRUCT) {
+        this.keyLookupInput = new XcalarApiKeyLookupInputT();
+        this.keyLookupInput.read(input);
       } else {
         input.skip(ftype);
       }
@@ -7527,8 +7839,9 @@ XcalarApiInputT.prototype.read = function(input) {
       }
       break;
       case 36:
-      if (ftype == Thrift.Type.STRING) {
-        this.keyDeleteInput = input.readString().value;
+      if (ftype == Thrift.Type.STRUCT) {
+        this.keyDeleteInput = new XcalarApiKeyDeleteInputT();
+        this.keyDeleteInput.read(input);
       } else {
         input.skip(ftype);
       }
@@ -7646,6 +7959,14 @@ XcalarApiInputT.prototype.read = function(input) {
       if (ftype == Thrift.Type.STRUCT) {
         this.deleteDhtInput = new XcalarApiDeleteDhtInputT();
         this.deleteDhtInput.read(input);
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 52:
+      if (ftype == Thrift.Type.STRUCT) {
+        this.downloadPythonInput = new XcalarApiDownloadPythonInputT();
+        this.downloadPythonInput.read(input);
       } else {
         input.skip(ftype);
       }
@@ -7827,8 +8148,8 @@ XcalarApiInputT.prototype.write = function(output) {
     output.writeFieldEnd();
   }
   if (this.keyLookupInput !== null && this.keyLookupInput !== undefined) {
-    output.writeFieldBegin('keyLookupInput', Thrift.Type.STRING, 34);
-    output.writeString(this.keyLookupInput);
+    output.writeFieldBegin('keyLookupInput', Thrift.Type.STRUCT, 34);
+    this.keyLookupInput.write(output);
     output.writeFieldEnd();
   }
   if (this.keyAddOrReplaceInput !== null && this.keyAddOrReplaceInput !== undefined) {
@@ -7837,8 +8158,8 @@ XcalarApiInputT.prototype.write = function(output) {
     output.writeFieldEnd();
   }
   if (this.keyDeleteInput !== null && this.keyDeleteInput !== undefined) {
-    output.writeFieldBegin('keyDeleteInput', Thrift.Type.STRING, 36);
-    output.writeString(this.keyDeleteInput);
+    output.writeFieldBegin('keyDeleteInput', Thrift.Type.STRUCT, 36);
+    this.keyDeleteInput.write(output);
     output.writeFieldEnd();
   }
   if (this.topInput !== null && this.topInput !== undefined) {
@@ -7914,6 +8235,11 @@ XcalarApiInputT.prototype.write = function(output) {
   if (this.deleteDhtInput !== null && this.deleteDhtInput !== undefined) {
     output.writeFieldBegin('deleteDhtInput', Thrift.Type.STRUCT, 51);
     this.deleteDhtInput.write(output);
+    output.writeFieldEnd();
+  }
+  if (this.downloadPythonInput !== null && this.downloadPythonInput !== undefined) {
+    output.writeFieldBegin('downloadPythonInput', Thrift.Type.STRUCT, 52);
+    this.downloadPythonInput.write(output);
     output.writeFieldEnd();
   }
   output.writeFieldStop();
@@ -8632,6 +8958,7 @@ XcalarApiOutputResultT = function(args) {
   this.sessionListOutput = null;
   this.getQueryOutput = null;
   this.uploadPythonOutput = null;
+  this.downloadPythonOutput = null;
   if (args) {
     if (args.getVersionOutput !== undefined) {
       this.getVersionOutput = args.getVersionOutput;
@@ -8731,6 +9058,9 @@ XcalarApiOutputResultT = function(args) {
     }
     if (args.uploadPythonOutput !== undefined) {
       this.uploadPythonOutput = args.uploadPythonOutput;
+    }
+    if (args.downloadPythonOutput !== undefined) {
+      this.downloadPythonOutput = args.downloadPythonOutput;
     }
   }
 };
@@ -9011,6 +9341,14 @@ XcalarApiOutputResultT.prototype.read = function(input) {
         input.skip(ftype);
       }
       break;
+      case 34:
+      if (ftype == Thrift.Type.STRUCT) {
+        this.downloadPythonOutput = new XcalarApiDownloadPythonOutputT();
+        this.downloadPythonOutput.read(input);
+      } else {
+        input.skip(ftype);
+      }
+      break;
       default:
         input.skip(ftype);
     }
@@ -9185,6 +9523,11 @@ XcalarApiOutputResultT.prototype.write = function(output) {
   if (this.uploadPythonOutput !== null && this.uploadPythonOutput !== undefined) {
     output.writeFieldBegin('uploadPythonOutput', Thrift.Type.STRUCT, 33);
     this.uploadPythonOutput.write(output);
+    output.writeFieldEnd();
+  }
+  if (this.downloadPythonOutput !== null && this.downloadPythonOutput !== undefined) {
+    output.writeFieldBegin('downloadPythonOutput', Thrift.Type.STRUCT, 34);
+    this.downloadPythonOutput.write(output);
     output.writeFieldEnd();
   }
   output.writeFieldStop();
