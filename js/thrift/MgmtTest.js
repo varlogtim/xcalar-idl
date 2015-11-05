@@ -321,7 +321,7 @@
     function testIndexDatasetIntSync(deferred, testName, currentTestNumber) {
         xcalarIndexDataset(thriftHandle,
                            loadOutput.dataset.name, "review_count",
-                           "yelp/user-review_count", "", false)
+                           "yelp/user-review_count", "", XcalarOrderingT.XcalarOrderingUnordered)
         .done(function(syncIndexOutput) {
             printResult(syncIndexOutput);
             pass(deferred, testName, currentTestNumber);
@@ -333,7 +333,7 @@
 
     function testIndexDatasetInt(deferred, testName, currentTestNumber) {
         xcalarIndexDataset(thriftHandle, loadOutput.dataset.name,
-                           "votes.funny", "yelp/user-votes.funny", "", false)
+                           "votes.funny", "yelp/user-votes.funny", "", XcalarOrderingT.XcalarOrderingUnordered)
         .done(function(indexOutput) {
             printResult(indexOutput);
             origTable = indexOutput.tableName;
@@ -346,7 +346,7 @@
 
     function testIndexDatasetStr(deferred, testName, currentTestNumber) {
         xcalarIndexDataset(thriftHandle, loadOutput.dataset.name,
-                           "user_id", "yelp/user-user_id", "", false)
+                           "user_id", "yelp/user-user_id", "", XcalarOrderingT.XcalarOrderingUnordered)
         .done(function(indexStrOutput) {
             printResult(indexStrOutput);
             origStrTable = indexStrOutput.tableName;
@@ -359,7 +359,7 @@
 
     function testIndexTable(deferred, testName, currentTestNumber) {
         xcalarIndexTable(thriftHandle, origStrTable,
-                         "name", "yelp/user-name", "", "", false)
+                         "name", "yelp/user-name", "", XcalarOrderingT.XcalarOrderingUnordered)
         .done(function(indexStrOutput) {
             printResult(indexStrOutput);
             pass(deferred, testName, currentTestNumber);
@@ -384,7 +384,7 @@
         workItem.input.indexInput.dstTable.tableId = XcalarApiTableIdInvalidT;
         workItem.input.indexInput.keyName = "keyName";
         workItem.input.indexInput.dhtName = "";
-        workItem.input.indexInput.perserveOrder = false;
+        workItem.input.indexInput.ordering = XcalarOrderingT.XcalarOrderingUnordered;
 
         xcalarApiGetQuery(thriftHandle, workItem)
         .done(function(getQueryOutput) {
@@ -431,7 +431,7 @@
 
     function testIndexDatasetBogus(deferred, testName, currentTestNumber) {
          xcalarIndexDataset(thriftHandle, loadOutput.dataset.name,
-                            "garbage", "yelp/user-garbage", "", false)
+                            "garbage", "yelp/user-garbage", "", XcalarOrderingT.XcalarOrderingUnordered)
          .done(function(bogusIndexOutput) {
              printResult(bogusIndexOutput);
              pass(deferred, testName, currentTestNumber);
@@ -443,7 +443,7 @@
 
     function testIndexTable2(deferred, testName, currentTestNumber) {
         xcalarIndexTable(thriftHandle, origStrTable,
-                         "yelping_since", "yelp/user-yelping_since", "", "", false)
+                         "yelping_since", "yelp/user-yelping_since", "", XcalarOrderingT.XcalarOrderingUnordered)
         .done(function(indexStrOutput2) {
             printResult(indexStrOutput2);
             pass(deferred, testName, currentTestNumber);
@@ -455,7 +455,7 @@
 
     function testIndexTableBogus(deferred, testName, currentTestNumber) {
         xcalarIndexTable(thriftHandle, origTable,
-                         "garbage2", "yelp/user-garbage2", "", false)
+                         "garbage2", "yelp/user-garbage2", "", XcalarOrderingT.XcalarOrderingUnordered)
         .done(function(bogusIndexOutput2) {
             printResult(bogusIndexOutput2);
             pass(deferred, testName, currentTestNumber);
@@ -1071,7 +1071,7 @@
         var columns = ["user_id", "name"];
 
         xcalarExport(thriftHandle, "yelp/user-votes.funny-gt900",
-                     target, specInput, 
+                     target, specInput,
                      DsExportCreateRuleT.DsExportCreateOnly,
                      numColumns, columns)
         .done(function(status) {
@@ -1601,7 +1601,7 @@
 
         function createDhtSuccessFn(status) {
             xcalarIndexDataset(thriftHandle, yelpUserDataset,
-                               "average_stars", "yelp/user-average_stars", dhtName, false)
+                               "average_stars", "yelp/user-average_stars", dhtName, XcalarOrderingT.XcalarOrderingUnordered)
             .done(indexDatasetSuccessFn)
             .fail(function(status) {
                 var reason = "Index dataset returned status: " + StatusTStr[status]
@@ -1611,7 +1611,7 @@
 
         function startCreateDhtTest(status) {
             console.log("deleteDht returned status: " + StatusTStr[status]);
-            xcalarApiCreateDht(thriftHandle, dhtName, 5.0, 0.0, false)
+            xcalarApiCreateDht(thriftHandle, dhtName, 5.0, 0.0, XcalarOrderingT.XcalarOrderingUnordered)
             .done(createDhtSuccessFn)
             .fail(function(status) {
                 var reason = "createDht returned status: " + StatusTStr[status]
@@ -1778,7 +1778,7 @@
 */
     // Witness to bug 103
     function testBulkDeleteTables(deferred, testName, currentTestNumber) {
-        xcalarBulkDeleteNodes(thriftHandle, "yelp*", SourceTypeT.SrcTable)
+        xcalarBulkDeleteNodes(thriftHandle, "*", SourceTypeT.SrcTable)
         .done(function(deleteTablesOutput) {
             printResult(deleteTablesOutput);
 
@@ -1937,7 +1937,8 @@
 
     addTestCase(testCases, testListFiles, "list files", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testCases, testUploadDownloadPython, "upload and download python", defaultTimeout, TestCaseEnabled, "");
-    addTestCase(testCases, testPyExecOnLoad, "python during load", defaultTimeout, TestCaseEnabled, "");
+    // XXX: file referenced by this test is nonexistant
+    addTestCase(testCases, testPyExecOnLoad, "python during load", defaultTimeout, TestCaseDisabled, "");
 
 
     // Witness to bug 238

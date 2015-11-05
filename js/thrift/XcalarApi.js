@@ -160,7 +160,7 @@ function xcalarLoad(thriftHandle, url, name, format, maxSampleSize, loadArgs) {
 }
 
 function xcalarIndexDatasetWorkItem(datasetName, keyName, dstTableName,
-                                    dhtName, preserveOrder) {
+                                    dhtName, ordering) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
     workItem.input.indexInput = new XcalarApiIndexInputT();
@@ -175,23 +175,23 @@ function xcalarIndexDatasetWorkItem(datasetName, keyName, dstTableName,
     workItem.input.indexInput.dstTable.tableId = XcalarApiTableIdInvalidT;
     workItem.input.indexInput.keyName = keyName;
     workItem.input.indexInput.dhtName = dhtName;
-    workItem.input.indexInput.preserveOrder = preserveOrder;
+    workItem.input.indexInput.ordering = ordering;
     return (workItem);
 }
 
 function xcalarIndexDataset(thriftHandle, datasetName, keyName, dstTableName,
-                            dhtName, preserveOrder) {
+                            dhtName, ordering) {
     var deferred = jQuery.Deferred();
 
     if (verbose) {
         console.log("xcalarIndexDataset(datasetName = " + datasetName +
                     ", keyName = " + keyName + ", dstTableName = " +
-                    dstTableName + ", preserveOrder = " + preserveOrder + ")");
+                    dstTableName + ", ordering = " + ordering + ")");
     }
 
     var workItem = xcalarIndexDatasetWorkItem(datasetName, keyName,
                                               dstTableName, dhtName,
-                                              preserveOrder);
+                                              ordering);
     thriftHandle.client.queueWorkAsync(workItem)
     .then(function(result) {
         var indexOutput = result.output.outputResult.indexOutput;
@@ -216,7 +216,7 @@ function xcalarIndexDataset(thriftHandle, datasetName, keyName, dstTableName,
 }
 
 function xcalarIndexTableWorkItem(srcTableName, dstTableName, keyName, dhtName,
-                                  preserveOrder) {
+                                  ordering) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
     workItem.input.indexInput = new XcalarApiIndexInputT();
@@ -231,23 +231,23 @@ function xcalarIndexTableWorkItem(srcTableName, dstTableName, keyName, dhtName,
     workItem.input.indexInput.dstTable.tableId = XcalarApiTableIdInvalidT;
     workItem.input.indexInput.keyName = keyName;
     workItem.input.indexInput.dhtName = dhtName;
-    workItem.input.indexInput.preserveOrder = preserveOrder;
+    workItem.input.indexInput.ordering = ordering;
     return (workItem);
 }
 
 function xcalarIndexTable(thriftHandle, srcTableName, keyName, dstTableName,
-                          dhtName, preserveOrder) {
+                          dhtName, ordering) {
     var deferred = jQuery.Deferred();
 
     if (verbose) {
         console.log("xcalarIndexTable(srcTableName = " + srcTableName +
                    ", keyName = " + keyName + ", dstTableName = " +
-                    dstTableName + ", dhtName = " + dhtName + 
-                    ", preserveOrder = " + preserveOrder + ")");
+                    dstTableName + ", dhtName = " + dhtName +
+                    ", ordering = " + ordering + ")");
     }
 
     var workItem = xcalarIndexTableWorkItem(srcTableName, dstTableName,
-                                            keyName, dhtName, preserveOrder);
+                                            keyName, dhtName, ordering);
 
     thriftHandle.client.queueWorkAsync(workItem)
     .then(function(result) {
@@ -1539,7 +1539,7 @@ function xcalarListExportTargets(thriftHandle, typePattern, namePattern) {
     return (deferred.promise());
 }
 
-function xcalarExportWorkItem(tableName, target, specInput, createRule, 
+function xcalarExportWorkItem(tableName, target, specInput, createRule,
                               numColumns, columns) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
@@ -1565,13 +1565,13 @@ function xcalarExport(thriftHandle, tableName, target, specInput, createRule,
         console.log("xcalarExport(tableName = " + tableName +
                     ", target.type = " + DsTargetTypeTStr[target.type] +
                     ", target.name = " + target.name +
-                    ", createRule = " + createRule + 
+                    ", createRule = " + createRule +
                     ", numColumns = " + numColumns +
                     ", columns = [" + columns + "]" +
                     ")");
     }
 
-    var workItem = xcalarExportWorkItem(tableName, target, specInput, createRule, 
+    var workItem = xcalarExportWorkItem(tableName, target, specInput, createRule,
                                         numColumns, columns);
 
     thriftHandle.client.queueWorkAsync(workItem)
@@ -2610,7 +2610,7 @@ function xcalarApiGetQuery(thriftHandle, workItem) {
     return (deferred.promise());
 }
 
-function xcalarApiCreateDhtWorkItem(dhtName, upperBound, lowerBound, preserveOrder) {
+function xcalarApiCreateDhtWorkItem(dhtName, upperBound, lowerBound, ordering) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
     workItem.input.createDhtInput = new XcalarApiCreateDhtInputT();
@@ -2620,20 +2620,20 @@ function xcalarApiCreateDhtWorkItem(dhtName, upperBound, lowerBound, preserveOrd
     workItem.input.createDhtInput.dhtName = dhtName;
     workItem.input.createDhtInput.dhtArgs.upperBound = upperBound;
     workItem.input.createDhtInput.dhtArgs.lowerBound = lowerBound;
-    workItem.input.createDhtInput.dhtArgs.preserveOrder = preserveOrder;
+    workItem.input.createDhtInput.dhtArgs.ordering = ordering;
 
     return (workItem);
 }
 
-function xcalarApiCreateDht(thriftHandle, dhtName, upperBound, lowerBound, preserveOrder) {
+function xcalarApiCreateDht(thriftHandle, dhtName, upperBound, lowerBound, ordering) {
     var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarApiCreateDht(dhtName = " + dhtName + ", upperBound = " +
-                    upperBound + ", lowerBound = " + lowerBound + 
-                    ", preserveOrder = " + preserveOrder + ")");
+                    upperBound + ", lowerBound = " + lowerBound +
+                    ", ordering = " + ordering + ")");
     }
 
-    var workItem = xcalarApiCreateDhtWorkItem(dhtName, upperBound, lowerBound, preserveOrder);
+    var workItem = xcalarApiCreateDhtWorkItem(dhtName, upperBound, lowerBound, ordering);
 
     thriftHandle.client.queueWorkAsync(workItem)
     .then(function(result) {
