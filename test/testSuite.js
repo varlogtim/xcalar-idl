@@ -400,7 +400,7 @@ window.TestSuite = (function($, TestSuite) {
        function flightTestPart5() {
             $("#udfBtn").click();
             $("#udf-tabs div[data-tab='udf-fnSection'] .label").click();
-            var editor = RightSideBar.getEditor();
+            var editor = UDF.getEditor();
             editor.setValue('def ymd(year, month, day):\n' +
                             '    if int(month) < 10:\n' +
                             '        month = "0" + month\n' +
