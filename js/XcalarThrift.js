@@ -1447,7 +1447,7 @@ function XcalarExecuteRetina(retName, params) {
     return (deferred.promise());
 }
 
-function XcalarKeyLookup(key) {
+function XcalarKeyLookup(key, scope) {
     if (tHandle == null) {
         return (promiseWrapper(null));
     }
@@ -1457,7 +1457,11 @@ function XcalarKeyLookup(key) {
         return (deferred.promise());
     }
 
-    xcalarKeyLookup(tHandle, XcalarApiKeyScopeT.XcalarApiKeyScopeGlobal, key)
+    if (scope == null) {
+        scope = XcalarApiKeyScopeT.XcalarApiKeyScopeGlobal;
+    }
+
+    xcalarKeyLookup(tHandle, scope, key)
     .then(deferred.resolve)
     .fail(function(error) {
         // it's normal to find an unexisted key.
@@ -1473,7 +1477,7 @@ function XcalarKeyLookup(key) {
     return (deferred.promise());
 }
 
-function XcalarKeyPut(key, value, persist) {
+function XcalarKeyPut(key, value, persist, scope) {
     if (tHandle == null) {
         return (promiseWrapper(null));
     }
@@ -1486,8 +1490,12 @@ function XcalarKeyPut(key, value, persist) {
     if (persist == null) {
         persist = false;
     }
-    xcalarKeyAddOrReplace(tHandle, XcalarApiKeyScopeT.XcalarApiKeyScopeGlobal,
-                          key, value, persist)
+
+    if (scope == null) {
+        scope = XcalarApiKeyScopeT.XcalarApiKeyScopeGlobal;
+    }
+
+    xcalarKeyAddOrReplace(tHandle, scope, key, value, persist)
     .then(deferred.resolve)
     .fail(function(error) {
         deferred.reject(thriftLog("XcalarKeyPut", error));
@@ -1496,7 +1504,7 @@ function XcalarKeyPut(key, value, persist) {
     return (deferred.promise());
 }
 
-function XcalarKeyDelete(key) {
+function XcalarKeyDelete(key, scope) {
     if (tHandle == null) {
         return (promiseWrapper(null));
     }
@@ -1506,7 +1514,11 @@ function XcalarKeyDelete(key) {
         return (deferred.promise());
     }
 
-    xcalarKeyDelete(tHandle, XcalarApiKeyScopeT.XcalarApiKeyScopeGlobal, key)
+    if (scope == null) {
+        scope = XcalarApiKeyScopeT.XcalarApiKeyScopeGlobal;
+    }
+
+    xcalarKeyDelete(tHandle, scope, key)
     .then(deferred.resolve)
     .fail(function(error) {
         var thriftError = thriftLog("XcalarKeyDelete", error);

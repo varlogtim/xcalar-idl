@@ -203,7 +203,7 @@ window.WorkbookModal = (function($, WorkbookModal) {
                                     'class="waitingIcon"></div>');
                 $('#workbookModalWaitingIcon').css({
                     left: '50%',
-                    top: '50%'
+                    top : '50%'
                 }).fadeIn();
                 WKBKManager.copyWKBK(workbookId, workbookName)
                 .then(function(id) {
@@ -632,9 +632,9 @@ window.WKBKManager = (function($, WKBKManager) {
                 console.warn("Error!", wkbkId, "is missing.");
             }
 
-            KVStore.put(wkbkInfoKey, JSON.stringify(newWKBKInfo), true)
+            KVStore.put(wkbkInfoKey, JSON.stringify(newWKBKInfo), true, gKVScope.WKBK)
             .then(function() {
-                return (KVStore.get(activeWKBKKey));
+                return (KVStore.get(activeWKBKKey, gKVScope.WKBK));
             })
             .then(function(activeId) {
                 innerDeferred.resolve(activeId, newWKBKInfo, sessionInfo);
@@ -653,7 +653,7 @@ window.WKBKManager = (function($, WKBKManager) {
                 if (wkbkId == null) {
                     innerDeferred.reject("No workbook for the user");
                 } else {
-                    KVStore.delete(activeWKBKKey)
+                    KVStore.delete(activeWKBKKey, gKVScope.WKBK)
                     .always(function() {
                         innerDeferred.reject("No workbook for the user");
                     });
@@ -726,7 +726,7 @@ window.WKBKManager = (function($, WKBKManager) {
         .then(function(output) {
             sessionInfo = output;
             // console.log(sessionInfo);
-            return (KVStore.getAndParse(wkbkInfoKey));
+            return (KVStore.getAndParse(wkbkInfoKey, gKVScope.WKBK));
         })
         .then(function(wkbkInfo) {
             deferred.resolve(wkbkInfo, sessionInfo);
@@ -793,7 +793,7 @@ window.WKBKManager = (function($, WKBKManager) {
 
             wkbkInfo.workbooks[workbook.id] = workbook;
 
-            return (KVStore.put(wkbkInfoKey, JSON.stringify(wkbkInfo), true));
+            return (KVStore.put(wkbkInfoKey, JSON.stringify(wkbkInfo), true, gKVScope.WKBK));
         })
         .then(function() {
             // in case KVStore has some remants about wkbkId, clear it
@@ -802,8 +802,8 @@ window.WKBKManager = (function($, WKBKManager) {
             var gStorageKey = generateKey(workbook.id, "gInfo");
             var gLogKey     = generateKey(workbook.id, "gLog");
 
-            var def1 = XcalarKeyDelete(gStorageKey);
-            var def2 = XcalarKeyDelete(gLogKey);
+            var def1 = XcalarKeyDelete(gStorageKey, gKVScope.META);
+            var def2 = XcalarKeyDelete(gLogKey, gKVScope.LOG);
 
             jQuery.when(def1, def2)
             .always(function() {
@@ -847,7 +847,7 @@ window.WKBKManager = (function($, WKBKManager) {
 
         if (activeWKBKId == null) {
             // case that creat a totaly new workbook
-            KVStore.put(activeWKBKKey, wkbkId, true)
+            KVStore.put(activeWKBKKey, wkbkId, true, gKVScope.WKBK)
             .then(function() {
                 location.reload();
             });
@@ -889,7 +889,7 @@ window.WKBKManager = (function($, WKBKManager) {
             return (XcalarSwitchToWorkbook(toWkbkName, fromWkbkName));
         })
         .then(function() {
-            return (KVStore.put(activeWKBKKey, wkbkId, true));
+            return (KVStore.put(activeWKBKKey, wkbkId, true, gKVScope.WKBK));
         })
         .then(function() {
             location.reload();
@@ -944,13 +944,13 @@ window.WKBKManager = (function($, WKBKManager) {
             // delete all active work book key
             for (var user in userInfo.users) {
                 var key = generateKey(user, "activeWorkbook");
-                promises.push(KVStore.delete.bind(this, key));
+                promises.push(KVStore.delete.bind(this, key, gKVScope.WKBK));
             }
 
             return (chain(promises));
         })
         .then(function() {
-            return (KVStore.delete(wkbkInfoKey));
+            return (KVStore.delete(wkbkInfoKey, gKVScope.WKBK));
         })
         .then(function() {
             console.log("empty all workbook related info");
@@ -966,7 +966,7 @@ window.WKBKManager = (function($, WKBKManager) {
 
     // helper for WKBKManager.copyWKBK
     function copyHelper(srcId, newId) {
-        var deferred      = jQuery.Deferred();
+        var deferred = jQuery.Deferred();
 
         var oldStorageKey = generateKey(srcId, "gInfo");
         var oldLogKey     = generateKey(srcId, "gLog");
@@ -974,16 +974,16 @@ window.WKBKManager = (function($, WKBKManager) {
         var newLogKey     = generateKey(newId, "gLog");
 
         // copy all info to new key
-        KVStore.getAndParse(oldStorageKey)
+        KVStore.getAndParse(oldStorageKey, gKVScope.META)
         .then(function(gInfos) {
             gInfos[KVKeys.HOLD] = false;
-            return KVStore.put(newStorageKey, JSON.stringify(gInfos), true);
+            return KVStore.put(newStorageKey, JSON.stringify(gInfos), true, gKVScope.META);
         })
         .then(function() {
-            return (KVStore.get(oldLogKey));
+            return (KVStore.get(oldLogKey, gKVScope.LOG));
         })
         .then(function(value) {
-            return (KVStore.put(newLogKey, value, true));
+            return (KVStore.put(newLogKey, value, true, gKVScope.LOG));
         })
         .then(deferred.resolve)
         .fail(deferred.reject);
@@ -998,9 +998,9 @@ window.WKBKManager = (function($, WKBKManager) {
         var storageKey = generateKey(wkbkId, "gInfo");
         var logKey     = generateKey(wkbkId, "gLog");
 
-        XcalarKeyDelete(storageKey)
+        XcalarKeyDelete(storageKey, gKVScope.META)
         .then(function() {
-            return (XcalarKeyDelete(logKey));
+            return (XcalarKeyDelete(logKey, gKVScope.LOG));
         })
         .then(function() {
             console.log("Delete workbook", wkbkId);
@@ -1046,7 +1046,7 @@ window.WKBKManager = (function($, WKBKManager) {
         workbook.modified = xcHelper.getTimeInMS();  // store modified data
         workbook.curUser = username;  // store current user
 
-        return (KVStore.put(wkbkInfoKey, JSON.stringify(wkbkInfo), true));
+        return (KVStore.put(wkbkInfoKey, JSON.stringify(wkbkInfo), true, gKVScope.WKBK));
     }
 
     return (WKBKManager);

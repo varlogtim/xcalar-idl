@@ -6,7 +6,7 @@ window.Authentication = (function($, Authentication) {
         var deferred = jQuery.Deferred();
         var username = sessionStorage.getItem("xcalar-username");
 
-        KVStore.getAndParse(authKey)
+        KVStore.getAndParse(authKey, gKVScope.AUTH)
         .then(function(users) {
             users = users || {};
 
@@ -17,7 +17,7 @@ window.Authentication = (function($, Authentication) {
                 };
 
                 users[username].hashTag = generateHashTag();
-                KVStore.put(authKey, JSON.stringify(users), true);
+                KVStore.put(authKey, JSON.stringify(users), true, gKVScope.AUTH);
             }
 
             user = users[username];
@@ -32,8 +32,8 @@ window.Authentication = (function($, Authentication) {
         return (deferred.promise());
     };
 
-    Authentication.getUsers = function() {
-        return (user);
+    Authentication.getCurrentUser = function() {
+       return (user);
     };
 
     Authentication.getHashId = function() {
@@ -41,11 +41,11 @@ window.Authentication = (function($, Authentication) {
 
         user.idCount += 1;
 
-        KVStore.getAndParse(authKey)
+        KVStore.getAndParse(authKey, gKVScope.AUTH)
         .then(function(users) {
             users[user.username] = user;
 
-            return KVStore.put(authKey, JSON.stringify(users), true);
+            return KVStore.put(authKey, JSON.stringify(users), true, gKVScope.AUTH);
         })
         .fail(function(error) {
             console.error("Save Authentication fails", error);
@@ -57,7 +57,7 @@ window.Authentication = (function($, Authentication) {
     Authentication.clear = function() {
         // this clear all users' info
         user = null;
-        return (KVStore.delete(authKey));
+        return (KVStore.delete(authKey, gKVScope.AUTH));
     };
 
     function generateHashTag() {

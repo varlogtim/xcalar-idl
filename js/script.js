@@ -20,6 +20,23 @@ var gRescol = {
 };
 var gResrow = {};
 var gMinTableWidth = 30;
+// XXX this part should change to right scope after backend fix
+/*
+  "AUTH": Authentication info (should be XcalarApiKeyScopeSession)
+  "PREF": user preference info (XXX this should be XcalarApiKeyScopeUser, no support yet!)
+  "WKBK": Workbook info (XXX this should be XcalarApiKeyScopeUser, no support yet!)
+  "META": all meta data need for UI (XXX this should be XcalarApiKeyScopeUser, no support yet!)
+  "LOG" : SQL Log (this use append) (XXX this should be XcalarApiKeyScopeUser, no support yet!)
+  "FLAG": special commitFlag to make sure UI have right to write (should be XcalarApiKeyScopeSession)
+ */
+var gKVScope = {
+    "AUTH": XcalarApiKeyScopeT.XcalarApiKeyScopeGlobal,
+    "PREF": XcalarApiKeyScopeT.XcalarApiKeyScopeGlobal,
+    "WKBK": XcalarApiKeyScopeT.XcalarApiKeyScopeGlobal,
+    "META": XcalarApiKeyScopeT.XcalarApiKeyScopeGlobal,
+    "LOG" : XcalarApiKeyScopeT.XcalarApiKeyScopeGlobal,
+    "FLAG": XcalarApiKeyScopeT.XcalarApiKeyScopeGlobal
+};
 var gTables = {}; // This is the main global array containing structures
                     // Stores TableMeta structs
 var gOrphanTables = [];

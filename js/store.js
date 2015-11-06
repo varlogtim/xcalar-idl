@@ -123,7 +123,7 @@ function commitToStorage(atStartUp) {
         storage[KVKeys.USER] = UserSettings.setSettings();
     }
 
-    KVStore.put(KVStore.gStorageKey, JSON.stringify(storage), true)
+    KVStore.put(KVStore.gStorageKey, JSON.stringify(storage), true, gKVScope.META)
     .then(function() {
         var d = new Date();
         var t = xcHelper.getDate("-", d) + " " + d.toLocaleTimeString();
@@ -290,17 +290,17 @@ window.KVStore = (function($, KVStore) {
 
         // not persist, only store in memory as a flag,
         // when the flag matches, current UI can commit
-        XcalarKeyPut(KVStore.commitKey, commitFlag, false)
+        XcalarKeyPut(KVStore.commitKey, commitFlag, false, gKVScope.FLAG)
         .then(deferred.resolve)
         .fail(deferred.reject);
 
         return (deferred.promise());
     };
 
-    KVStore.get = function(key) {
+    KVStore.get = function(key, scope) {
         var deferred = jQuery.Deferred();
 
-        XcalarKeyLookup(key)
+        XcalarKeyLookup(key, scope)
         .then(function(value) {
             if (value != null && value.value != null) {
                 deferred.resolve(value.value);
@@ -466,10 +466,10 @@ window.KVStore = (function($, KVStore) {
         });
     };
 
-    KVStore.getAndParse = function(key) {
+    KVStore.getAndParse = function(key, scope) {
         var deferred = jQuery.Deferred();
 
-        XcalarKeyLookup(key)
+        XcalarKeyLookup(key, scope)
         .then(function(value) {
             // "" can not be JSO.parse
             if (value != null && value.value != null && value.value !== "") {
@@ -478,8 +478,6 @@ window.KVStore = (function($, KVStore) {
                     deferred.resolve(value);
                 } catch(err) {
                     console.error(err, value, key);
-                    // KVStore.delete(key);
-                    // KVStore.log(err.message);
                     deferred.reject(err);
                 }
             } else {
@@ -494,7 +492,7 @@ window.KVStore = (function($, KVStore) {
         return (deferred.promise());
     };
 
-    KVStore.put = function(key, value, persist) {
+    KVStore.put = function(key, value, persist, scope) {
         var deferred = jQuery.Deferred();
 
         if (safeMode) {
@@ -502,37 +500,43 @@ window.KVStore = (function($, KVStore) {
             return (deferred.promise());
         }
 
-        XcalarKeyLookup(KVStore.commitKey)
-        .then(function(val) {
-            var innerDeferred = jQuery.Deferred();
-            // when commitFlag and val == null, it meanse that the workbook
-            // is not set up yet or no workbook yet
-            if (commitFlag == null && val == null ||
-                val != null && val.value === commitFlag)
-            {
-                XcalarKeyPut(key, value, persist)
-                .then(innerDeferred.resolve);
-            } else {
-                innerDeferred.reject("commit key not match");
-            }
-
-            return (innerDeferred.promise());
-        })
+        checkHelper()
         .then(function() {
-            deferred.resolve();
+            return (XcalarKeyPut(key, value, persist, scope));
         })
+        .then(deferred.resolve)
         .fail(function(error) {
             console.error("Put to KV Store fails!", error);
             deferred.reject(error);
         });
 
+        function checkHelper() {
+            var innerDeferred = jQuery.Deferred();
+            if (KVStore.commitKey == null) {
+                // when workbook is not set up yet or no workbook yet
+                innerDeferred.resolve();
+            } else {
+                XcalarKeyLookup(KVStore.commitKey, gKVScope.FLAG)
+                .then(function(val) {
+                    if (val.value === commitFlag) {
+                        innerDeferred.resolve();
+                    } else {
+                        innerDeferred.reject("commit key not match");
+                    }
+                })
+                .fail(innerDeferred.reject);
+            }
+
+            return (innerDeferred.promise());
+        }
+
         return (deferred.promise());
     };
 
-    KVStore.delete = function(key) {
+    KVStore.delete = function(key, scope) {
         var deferred = jQuery.Deferred();
 
-        XcalarKeyDelete(key)
+        XcalarKeyDelete(key, scope)
         .then(function() {
             deferred.resolve();
         })
@@ -547,7 +551,7 @@ window.KVStore = (function($, KVStore) {
     KVStore.hold = function() {
         var deferred = jQuery.Deferred();
 
-        KVStore.getAndParse(KVStore.gStorageKey)
+        KVStore.getAndParse(KVStore.gStorageKey, gKVScope.META)
         .then(function(gInfos) {
             if (!gInfos) {
                 console.log("KVStore is empty!");
@@ -603,13 +607,13 @@ window.KVStore = (function($, KVStore) {
             return;
         }
 
-        XcalarKeyLookup(KVStore.gStorageKey)
+        XcalarKeyLookup(KVStore.gStorageKey, gKVScope.META)
         .then(function(output) {
             if (output) {
                 var gInfos = JSON.parse(output.value);
                 gInfos.holdStatus = false;
                 return (XcalarKeyPut(KVStore.gStorageKey,
-                                     JSON.stringify(gInfos), true));
+                                     JSON.stringify(gInfos), true), gKVScope.META);
             } else {
                 console.error("Output is empty");
                 return (promiseWrapper(null));
@@ -627,7 +631,7 @@ window.KVStore = (function($, KVStore) {
     KVStore.log = function(error) {
         var log = {};
         log.error = error;
-        KVStore.put(KVStore.gLogKey, JSON.stringify(log), true);
+        KVStore.put(KVStore.gLogKey, JSON.stringify(log), true, gKVScope.LOG);
     };
 
     function getWKBKLists() {
