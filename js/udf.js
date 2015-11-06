@@ -311,7 +311,7 @@ window.UDF = (function($, UDF) {
 
         if (storedUDF.hasOwnProperty(moduleName)) {
             var msg = "Python module " + moduleName + " already exists," +
-                        " do you want to replcae it with this module?";
+                        " do you want to replace it with this module?";
             Alert.show({
                     "title"     : "Duplicate Module",
                     "msg"       : msg,

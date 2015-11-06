@@ -180,6 +180,11 @@ window.TestSuite = (function($, TestSuite) {
         var intervalTime = 200;
         var timeLimit = timeLimit || 10000;
         var timeElapsed = 0;
+        options = options || {};
+        var notExists = options.notExists // if true, we're actualy doing a
+        // check to make sure the element DOESN"T exist
+        var optional = options.optional // if true, existence of element is
+        // optional and we return deferred.resolve regardless
 
         if (typeof elemSelectors === "string") {
             elemSelectors = [elemSelectors];
@@ -193,7 +198,7 @@ window.TestSuite = (function($, TestSuite) {
             var $elem;
             for (var i = 0; i < numItems; i++) {
                 $elem = $(elemSelectors[i]);
-                if (options && options.notExist) {
+                if (options.notExist) {
                     if ($elem.length !== 0) {
                         allElemsPresent = false;
                         break;
@@ -205,14 +210,18 @@ window.TestSuite = (function($, TestSuite) {
             }
             if (allElemsPresent) {
                 clearInterval(interval);
-                setTimeout(deferred.resolve, 100);
+                deferred.resolve(true);
             } else if (timeElapsed >= timeLimit) {
-                console.log(elemSelectors, options);
                 var error = "time limit of " + timeLimit +
                             "ms exceeded in function: " + caller;
-                console.warn(error);
                 clearInterval(interval);
-                deferred.reject(error);
+                if (!optional) {
+                    console.log(elemSelectors, options);
+                    console.warn(error);
+                    deferred.reject(error);
+                } else {
+                    deferred.resolve();
+                }
             }
             timeElapsed += intervalTime;
         }, intervalTime);
@@ -341,7 +350,8 @@ window.TestSuite = (function($, TestSuite) {
             checkExists(".flexWrap.flex-mid" +
                         " input[value='ArrDelay_integer']:eq(0)")
             .then(function() {
-                flightTestPart3_2();
+                // flightTestPart3_2();
+                flightTestPart4();
             })
             .fail(function(error) {
                 console.error(error, "flightTestPart3");
@@ -410,13 +420,21 @@ window.TestSuite = (function($, TestSuite) {
             $(".submitSection #udf-fnName").val("ymd");
             $("#udf-fnUpload").click();
 
-            checkExists("#alertHeader:visible .text:contains('SUCCESS')")
-            .then(function() {
-                flightTestPart6();
-            })
-            .fail(function(error) {
-                 console.error(error, "flightTestPart5");
-                 TestSuite.fail(deferred, testName, currentTestNumber, error);
+            checkExists("#alertHeader:visible .text:contains('Duplicate Module')",
+                        3000, {optional: true})
+            .then(function(found) {
+                if (found) {
+                    $("#alertActions .confirm").click();
+                }
+                checkExists("#alertHeader:visible .text:contains('SUCCESS')")
+                .then(function() {
+                    flightTestPart6();
+                })
+                .fail(function(error) {
+                     console.error(error, "flightTestPart5");
+                     TestSuite.fail(deferred, testName, currentTestNumber,
+                                    error);
+                });
             });
         }
 
