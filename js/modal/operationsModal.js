@@ -944,10 +944,17 @@ window.OperationsModal = (function($, OperationsModal) {
                         return (true);
                     }
                     if ($categoryInput.val() === "string functions") {
-                        if ($functionInput.val() !== "cut") {
+                        if ($functionInput.val() !== "cut" && 
+                            $functionInput.val() !== "substring") {
                             return (true);
-                        } else if (index !== 1) {
-                            return (true);
+                        } else {
+                            if ($functionInput.val() === "substring") {
+                                if (index === 0) {
+                                    return (true);
+                                }
+                            } else if (index !== 1) {
+                                return (true);
+                            } 
                         }
                     }
                 }
