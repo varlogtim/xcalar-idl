@@ -341,7 +341,7 @@ window.TestSuite = (function($, TestSuite) {
             checkExists(".flexWrap.flex-mid" +
                         " input[value='ArrDelay_integer']:eq(0)")
             .then(function() {
-                flightTestPart4();
+                flightTestPart3_2();
             })
             .fail(function(error) {
                 console.error(error, "flightTestPart3");
@@ -349,6 +349,30 @@ window.TestSuite = (function($, TestSuite) {
             });
         }
 
+        // Add genRand
+        function flightTestPart3_2() {
+            var tableId = (WSManager.getWorksheets())[0].tables[0];
+            trigOpModal(tableId, "ArrDelay_integer", "map")
+            .then(function() {
+                $("#categoryList .dropdown .icon").trigger(fakeEvent.click);
+                $("#categoryMenu li[data-category='5']").trigger(fakeEvent.mouseup);
+                $("#functionList .dropdown .icon").trigger(fakeEvent.click);
+                $("#functionsMenu li:contains('genUnique')").trigger(fakeEvent.mouseup);
+                $($(".argumentTable .argument")[0]).val("$ArrDelay_integer");
+                $($(".argumentTable .argument")[1]).val("uniqueNum");
+                $("#operationsModal .modalBottom .confirm").click();
+                return (checkExists(".flexWrap.flex-mid" +
+                        " input[value='uniqueNum']:eq(0)"))
+            })
+            .then(function() {
+                flightTestPart4();
+            })
+            .fail(function(error) {
+                console.error(error, "flightTestPart3-2");
+                TestSuite.fail(deferred, testName, currentTestNumber);
+            });
+        }
+        
         // Filter flight table
         function flightTestPart4() {
             
