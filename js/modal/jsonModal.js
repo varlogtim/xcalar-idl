@@ -145,10 +145,12 @@ window.JSONModal = (function($, JSONModal) {
         return (str.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&"));
     }
 
-    function clearSearch() {
+    function clearSearch(event, noFocus) {
         $jsonText.find('.highlightedText').contents().unwrap();
         $searchInput.val("");
-        $searchInput.focus();
+        if (!noFocus) {
+            $searchInput.focus();
+        }
         $counter.find('.position, .total').html('');
         numMatches = 0;
         $searchInput.css("padding-right", 25);
@@ -227,7 +229,7 @@ window.JSONModal = (function($, JSONModal) {
         $(document).off(".jsonModal");
         $matches = [];
         $('.modalHighlighted').removeClass('modalHighlighted');
-        clearSearch();
+        clearSearch(null, true);
         $('#jsonSearch').addClass('closed');
 
         var fadeOutTime = gMinModeOn ? 0 : 300;
