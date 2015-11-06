@@ -565,6 +565,7 @@ function getTextWidth(el, val) {
     } else {
         text = val;
     }
+    text = text.replace(/\</g, "&lt;").replace(/\>/g, "&gt;");
     
     tempDiv = $('<div>' + text + '</div>');
     tempDiv.css({

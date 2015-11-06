@@ -311,6 +311,8 @@ window.JSONModal = (function($, JSONModal) {
 
         for (var key in obj) {
             var value = obj[key];
+            key = key.replace(/\</g, "&lt;")
+                     .replace(/\>/g, "&gt;");
 
             switch (typeof value) {
                 case ('string'):

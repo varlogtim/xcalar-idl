@@ -350,8 +350,8 @@ window.TestSuite = (function($, TestSuite) {
             checkExists(".flexWrap.flex-mid" +
                         " input[value='ArrDelay_integer']:eq(0)")
             .then(function() {
-                // flightTestPart3_2();
-                flightTestPart4();
+                flightTestPart3_2();
+                // flightTestPart4();
             })
             .fail(function(error) {
                 console.error(error, "flightTestPart3");

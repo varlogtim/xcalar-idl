@@ -1176,10 +1176,11 @@ window.DataCart = (function($, DataCart) {
 
     function appendCartItem(cart, colNum, val) {
         var $cart = $("#selectedTable-" + cart.dsName);
+        var escapedVal = val.replace(/\</g, "&lt;").replace(/\>/g, "&gt;");
         var $li = $('<li class="colWrap" ' +
                         'data-colnum="' + colNum + '">' +
                         '<span class="colName textOverflow">' +
-                            val +
+                            escapedVal +
                         '</span>' +
                         '<div class="removeCol">' +
                             '<span class="closeIcon"></span>' +
@@ -2794,6 +2795,8 @@ window.DataSampleTable = (function($, DataSampleTable) {
         var th = "";
 
         var columnsType = [];  // track column type
+        var numKeys = jsonKeys.length;
+        numKeys = Math.min(1000, numKeys); // limit to 1000 ths
 
         currentRow = 0;
 
@@ -2803,12 +2806,12 @@ window.DataSampleTable = (function($, DataSampleTable) {
 
         // table rows
         tr = getTableRowsHTML(jsonKeys, jsons, columnsType);
-        if (jsonKeys.length > 0) {
+        if (numKeys > 0) {
             th += '<th class="rowNumHead"><div class="header">' +
                   '</div></th>';
         }
         // table header
-        for (var i = 0; i < jsonKeys.length; i++) {
+        for (var i = 0; i < numKeys; i++) {
             var key     = jsonKeys[i];
             var thClass = "th col" + (i + 1);
             var type    = columnsType[i];
@@ -2869,7 +2872,9 @@ window.DataSampleTable = (function($, DataSampleTable) {
             tr += '<td class="lineMarker"><div class="idSpan">' +
                     (currentRow + i + 1) + '</div></td>';
             // loop through each td, parse object, and add to table cell
-            for (var j = 0; j < jsonKeys.length; j++) {
+            var numKeys = jsonKeys.length;
+            numKeys = Math.min(1000, numKeys); // limit to 1000 ths
+            for (var j = 0; j < numKeys; j++) {
                 var key = jsonKeys[j];
                 var val = json[key];
                 // Check type
