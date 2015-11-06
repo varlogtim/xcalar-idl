@@ -2886,7 +2886,7 @@ html.microsoft {
     }
     .argumentSection {
         .transition (opacity 0.3s);
-        .size (@height: 230px);
+        .size (@min-height: 230px);
     }
 
     .border {
@@ -2989,9 +2989,6 @@ html.microsoft {
     }
 
     &.numArgs0 {
-        .argumentSection {
-            height: 245px;
-        }
         .stepChainImg {
             .image("/images/stepChainsTrimmed.png", 50%, 50%);
             .size (27px, 83px);
@@ -3008,7 +3005,7 @@ html.microsoft {
     }
     &.numArgs4 {
         .argumentSection {
-            height: 270px;
+            min-height: 270px;
 
             .descriptionText {
                 // XXX this part is for groupby description
@@ -3034,12 +3031,13 @@ html.microsoft {
         .font (@size: 13px);
         b {
             display: inline-block;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
         }
 
         .descriptionText {
             margin-bottom: 10px;
-            height: 40px;
+            min-height: 40px;
+            line-height: 16px;
         }
     }
 
@@ -3192,7 +3190,7 @@ html.microsoft {
     }
 
     .modalBottom {
-        padding: 0px 15px 10px 0px;
+        padding: 4px 15px 10px 0px;
         border-radius: 0 0 3px 3px;
 
         .btn {
