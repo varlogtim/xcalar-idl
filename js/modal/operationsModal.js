@@ -278,20 +278,21 @@ window.OperationsModal = (function($, OperationsModal) {
     };
 
     OperationsModal.show = function(newTableId, newColNum, operator) {
+        tableId = newTableId;
+        var tableCols = gTables[tableId].tableCols;
+        var currentCol = tableCols[newColNum - 1];
+        colNum = newColNum;
+        colName = currentCol.name;
+        $('#xcTable-' + newTableId).find('.col' + colNum)
+                                   .addClass('modalHighlighted');
+
         XcalarListXdfs("*", "User*")
         .done(function(listXdfsObj) {
             udfUpdateOperatorsMap(listXdfsObj.fnDescs);
 
-            tableId = newTableId;
-            var tableCols = gTables[tableId].tableCols;
-            var currentCol = tableCols[newColNum - 1];
-            // groupby and aggregates stick to num 6,
-            // filter and map use 0-5;
-            colNum = newColNum;
-            colName = currentCol.name;
             operatorName = operator.toLowerCase().trim();
-
-            $operationsModal.find('.operationsModalHeader .text').text(operator);
+            $operationsModal.find('.operationsModalHeader .text')
+                            .text(operator);
 
             var colNames = [];
             tableCols.forEach(function(col) {
@@ -301,6 +302,9 @@ window.OperationsModal = (function($, OperationsModal) {
                     colNames.push('$' + col.name);
                 }
             });
+            
+            // groupby and aggregates stick to num 6,
+            // filter and map use 0-5;
 
             corrector = new xcHelper.Corrector(colNames);
 
@@ -361,9 +365,7 @@ window.OperationsModal = (function($, OperationsModal) {
                 $operationsModal.fadeIn(400);
             }
 
-            $table.find('.header').click(fillInputFromColumn)
-                    .end()
-                    .find('.col' + colNum).addClass('modalHighlighted');
+            $table.find('.header').click(fillInputFromColumn);
             $table.find('.header').mousedown(keepInputFocused);
 
             $('body').on('keydown', listHighlightListener);
