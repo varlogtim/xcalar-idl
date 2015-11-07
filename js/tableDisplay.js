@@ -827,10 +827,10 @@ function generateColDropDowns() {
             '<li class="tdCopy">Copy to clipboard</li>' +
         '</ul>';
 
-    var $mainFrame = $('#mainFrame');
-    $mainFrame.append(mainMenuHTML);
-    $mainFrame.append(subMenuHTML);
-    $mainFrame.append(cellMenuHTML);
+    var $workspacePanel = $('#workspacePanel');
+    $workspacePanel.append(mainMenuHTML);
+    $workspacePanel.append(subMenuHTML);
+    $workspacePanel.append(cellMenuHTML);
 }
 
 function generateTableDropDown() {
@@ -920,7 +920,7 @@ function generateTableDropDown() {
             '<div class="subMenuArea"></div>' +
         '</div>';
 
-    var $mainFrame = $('#mainFrame');
-    $mainFrame.append(tableMenuHTML);
-    $mainFrame.append(subMenuHTML);
+    var $workspacePanel = $('#workspacePanel');
+    $workspacePanel.append(tableMenuHTML);
+    $workspacePanel.append(subMenuHTML);
 }
