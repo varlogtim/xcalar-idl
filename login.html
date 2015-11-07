@@ -33,7 +33,7 @@
       <div class="text">
         Username: 
       </div>
-      <input id="loginNameBox" name="httpd_username" autofocus>
+      <input id="loginNameBox" name="httpd_username" autofocus required>
     </div>
     <br><br>
     <div id="loginPassword">
@@ -67,10 +67,14 @@ $(document).ready(function() {
     }, 4500);
     
     $('#loginButton').click(function(event) {
-        // XXX prevent form to submit, temporary use
-        event.preventDefault();
 
         var username = $("#loginNameBox").val();
+        if (username === "") {
+            return;
+        }
+
+        // XXX prevent form to submit, temporary use
+        event.preventDefault();
         console.log("username:", username);
         console.log("password: "+$("#loginPasswordBox").val());
         sessionStorage.setItem("xcalar-username", username);

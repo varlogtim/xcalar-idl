@@ -237,7 +237,7 @@ function setupMainPanelsTab() {
         if ($curTab.hasClass("active")) {
             return;
         }
-        var lastTabId = $tabs.filter(".active").attr("id"); 
+        var lastTabId = $tabs.filter(".active").attr("id");
         $tabs.removeClass("active");
         $('.mainPanel').removeClass('active');
         $curTab.addClass("active");
@@ -290,7 +290,6 @@ function setupLogout() {
     var $userName = $("#userName");
     var $popOut = $("#userNamePopout");
     var username = sessionStorage.getItem("xcalar-username");
-    username = username || "Vikram Joshi";
 
     $userName.text(username);
     $popOut.find(".text").text(username);
@@ -316,12 +315,12 @@ function setupLogout() {
             return (KVStore.release());
         })
         .then(function() {
+            sessionStorage.setItem("xcalar-username", "");
             window.location = "dologout.html";
         })
         .fail(function(error) {
             Alert.error("Signout fails", error);
         });
-
     });
 }
 
@@ -542,7 +541,7 @@ function documentReadyGeneralFunction() {
     $(window).blur(function() {
         $('.menu').hide();
         removeMenuKeyboardNavigation();
-    })
+    });
 
     function tableScroll(scrollType, isUp) {
         if (!$("#workspaceTab").hasClass("active") ||
@@ -857,6 +856,10 @@ function checkXcalarVersionMatch() {
 
 function documentReadyIndexFunction() {
     $(document).ready(function() {
+        var username = sessionStorage.getItem("xcalar-username");
+        if (username == null || username === "") {
+            window.location = "login.html";
+        }
         gMinModeOn = true; // startup use min mode;
         Compatible.check();
 
