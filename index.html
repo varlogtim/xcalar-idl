@@ -6,14 +6,11 @@
   <link href='3rd/fonts/sourcecodepro/sourcecodepro.css' rel='stylesheet' type='text/css'>
   <link href='3rd/fonts/opensans/opensans.css' rel='stylesheet' type='text/css'>
   <link href="/stylesheets/css/style.css" rel="stylesheet" type="text/css">
-  <link rel="stylesheet"
-        href="bower_components/fontawesome/css/font-awesome.min.css">
-  <script src="bower_components/jquery/dist/jquery.min.js"></script>
-
-  <link rel="stylesheet" href="bower_components/CodeMirror/lib/codemirror.css">
 </head>
-
 <body class="hideScroll">
+<div id="initialLoadScreen">
+  <div class="waitingIcon"></div>
+</div>
 <div id="container" class="mainContainer">
   <!-- Top Menu Bar -->
   <div id="menuBar" class="clearfix no-selection">
@@ -2550,6 +2547,8 @@
   <!-- End Of MultiCast Modal -->
 </div>
 <!-- END CONTAINER -->
+<link rel="stylesheet" href="bower_components/CodeMirror/lib/codemirror.css">
+<script src="bower_components/jquery/dist/jquery.min.js"></script>
 <script src="3rd/d3.min.js" charset="utf-8"></script>
 <script src="3rd/jquery-ui.js" charset="utf-8"></script>
 <script src="bower_components/jquery.dotdotdot/src/js/jquery.dotdotdot.min.js"></script>

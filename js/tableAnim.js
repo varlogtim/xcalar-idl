@@ -3666,7 +3666,7 @@ function moveFirstColumn($targetTable) {
 
 function showWaitCursor() {
     var waitCursor = '<style id="waitCursor" type="text/css">' +
-                        '*{cursor: wait !important;}' +
+                        '*{cursor: progress !important;}' +
                     '</style>';
     $(document.head).append(waitCursor);
 }

@@ -96,6 +96,21 @@ body {
     pointer-events: all;
 }
 
+#initialLoadScreen {
+    width: 100%;
+    height: ~"calc(100% - 152px)";
+    z-index: 9999;
+    position: fixed;
+    top: 79px;
+    cursor: wait;
+    cursor: progress;
+    .waitingIcon {
+    //     display: block;
+    //     .center-align();
+    //     background-image: '/images/spin2.gif';
+    }
+}
+
 /* For Both worksheet menu bar and bottom area bar */
 .workspaceBar, .topBar {
     .position(relative);

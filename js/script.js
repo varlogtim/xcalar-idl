@@ -926,6 +926,9 @@ function documentReadyIndexFunction() {
                 }
                 Alert.error(title, error, options);
             }
+        })
+        .always(function() {
+            $('#initialLoadScreen').remove();
         });
     });
 }

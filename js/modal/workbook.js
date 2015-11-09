@@ -658,8 +658,9 @@ window.WKBKManager = (function($, WKBKManager) {
                         innerDeferred.reject("No workbook for the user");
                     });
                 }
-
+                $('#initialLoadScreen').remove();
                 WorkbookModal.forceShow();
+
             } else {
                 var wkbkName = wkbkInfo.workbooks[wkbkId].name;
                 var numSessions = sessionInfo.numSessions;
