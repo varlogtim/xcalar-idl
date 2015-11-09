@@ -1186,6 +1186,18 @@ window.xcHelper = (function($, xcHelper) {
         return (tableRight >= 0) && (tableLeft <= windowWidth);
     };
 
+    xcHelper.autoTooltip = function(ele) {
+        var $ele = $(ele);
+        if (ele.offsetWidth < ele.scrollWidth){
+            $ele.attr({
+                'data-container': 'body',
+                'data-toggle'   : 'tooltip'
+            });
+        } else {
+            $ele.removeAttr('data-container data-toggle');
+        }
+    };
+
     return (xcHelper);
 }(jQuery, {}));
 

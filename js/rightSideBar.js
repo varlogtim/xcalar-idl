@@ -641,15 +641,7 @@ window.RightSideBar = (function($, RightSideBar) {
 
         $('#tableListSections').find(".tableListSection").on("mouseenter",
                                         ".tableName, .aggStrWrap", function(){
-            var $this = $(this);
-            if (this.offsetWidth < this.scrollWidth){
-                $this.attr({
-                    'data-container': 'body',
-                    'data-toggle'   : 'tooltip'
-                });
-            } else {
-                $this.removeAttr('title data-container data-toggle');
-            }
+            xcHelper.autoTooltip(this);
         });
 
         $("#submitTablesBtn").click(function() {

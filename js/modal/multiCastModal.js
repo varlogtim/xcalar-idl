@@ -90,16 +90,8 @@ window.MultiCastModal = (function($, MultiCastModal) {
             }
         });
 
-        $modal.on("mouseenter", ".tooltipTag", function(){
-            var $this = $(this);
-            if (this.offsetWidth < this.scrollWidth){
-                $this.attr({
-                    "data-container": "body",
-                    "data-toggle"   : "tooltip"
-                });
-            } else {
-                $this.removeAttr('title data-container data-toggle');
-            }
+        $modal.on("mouseenter", ".tooltipOverflow", function(){
+            xcHelper.autoTooltip(this);
         });
     };
 
@@ -213,7 +205,7 @@ window.MultiCastModal = (function($, MultiCastModal) {
                         colTypes[colNum] + " -> " + newType +
                         '" data-toggle="tooltip" data-placement="top" ' +
                         'data-container="body" ' +
-                        'class="area textOverflow tooltipTag" ' +
+                        'class="area textOverflow tooltipOverflow" ' +
                         'data-col="' + colNum + '">' +
                         colNames[colNum] + " : " +
                         '<span class="oldType">' +
@@ -403,7 +395,7 @@ window.MultiCastModal = (function($, MultiCastModal) {
                             '<div title="' + colName +
                             '" data-toggle="tooltip" data-placement="top" ' +
                             'data-container="body" ' +
-                            'class="columnTab textOverflow tooltipTag">' +
+                            'class="columnTab textOverflow tooltipOverflow">' +
                                 colName +
                                 '<span class="tick icon"></span>' +
                             '</div>' +

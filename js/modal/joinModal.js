@@ -218,15 +218,7 @@ window.JoinModal = (function($, JoinModal) {
         });
 
         $joinModal.on("mouseenter", ".tooltipOverflow", function(){
-            var $this = $(this);
-            if (this.offsetWidth < this.scrollWidth){
-                $this.attr({
-                    'data-container': 'body',
-                    'data-toggle'   : 'tooltip'
-                });
-            } else {
-                $this.removeAttr('title data-container data-toggle');
-            }
+            xcHelper.autoTooltip(this);
         });
 
         $joinModal.draggable({
