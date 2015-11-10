@@ -34,7 +34,8 @@ window.STATSManager = (function($, STATSManager, d3) {
     var statsInfos = {};
 
     // data with initial value
-    var isFinish;
+    var curTableId = null;
+    var curColNum = null;
     var resultSetId = null;
     var totalRows = null;
     var groupByData = [];
@@ -67,12 +68,6 @@ window.STATSManager = (function($, STATSManager, d3) {
 
         $statsModal.on("click", ".cancel, .close", function() {
             closeStats();
-            // makes sure that close profile happens after profile sql
-            if (isFinish) {
-                SQL.add("Close Profile", {
-                    "operation": SQLOps.ProfileClose
-                });
-            }
         });
 
         $statsModal.draggable({
@@ -210,6 +205,9 @@ window.STATSManager = (function($, STATSManager, d3) {
             return (deferred.promise());
         }
 
+        curTableId = tableId;
+        curColNum = colNum;
+
         var colName = col.func.args[0];
         statsInfos[tableId] = statsInfos[tableId] || {};
 
@@ -227,32 +225,25 @@ window.STATSManager = (function($, STATSManager, d3) {
                     "buckets"   : {}
                 }
             };
+        } else if (statsCol.modalId === $statsModal.data("id")) {
+            // when same modal open twice
+            deferred.resolve();
+            return (deferred.promise());
         }
 
         var curStatsCol = statsCol;
-        isFinish = false;
 
         generateStats(table)
         .then(function() {
-            isFinish = true;
 
             SQL.add("Profile", {
                 "operation": SQLOps.Profile,
                 "tableName": table.tableName,
                 "tableId"  : tableId,
                 "colNum"   : colNum,
-                "colName"  : colName
+                "colName"  : colName,
+                "modalId"  : statsCol.modalId
             });
-
-            // makes sure that close profile happens after profile sql
-            // timeout is for the fadeIn effect of modal
-            setTimeout(function() {
-                if (!isModalVisible(statsCol)) {
-                    SQL.add("Close Profile", {
-                        "operation": SQLOps.ProfileClose
-                    });
-                }
-            }, 500);
 
             commitToStorage();
             deferred.resolve();
@@ -275,6 +266,8 @@ window.STATSManager = (function($, STATSManager, d3) {
         resetScrollBar();
         freePointer();
 
+        curTableId = null;
+        curColNum = null;
         totalRows = null;
         groupByData = [];
         bucketNum = 0;
@@ -1328,8 +1321,12 @@ window.STATSManager = (function($, STATSManager, d3) {
             curStatsCol.groupByInfo.isComplete = true;
             refreshStats(true);
             SQL.add("Profile Sort", {
-                "operation": SQLOps.ProfileSort,
-                "order"    : newOrder
+                "operation" : SQLOps.ProfileSort,
+                "order"     : newOrder,
+                "tableId"   : curTableId,
+                "colNum"    : curColNum,
+                "bucketSize": bucketNum,
+                "modalId"   : statsCol.modalId
             });
             commitToStorage();
         })
@@ -1438,7 +1435,10 @@ window.STATSManager = (function($, STATSManager, d3) {
             refreshStats(true);
             SQL.add("Profile Bucketing", {
                 "operation" : SQLOps.ProfileBucketing,
-                "bucketSize": newBucketNum
+                "bucketSize": newBucketNum,
+                "tableId"   : curTableId,
+                "colNum"    : curColNum,
+                "modalId"   : statsCol.modalId
             });
             commitToStorage();
         })

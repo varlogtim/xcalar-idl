@@ -27,18 +27,23 @@ window.Replay = (function($, Replay) {
         }
 
         if (hashTag == null) {
-            hashTag = Authentication.getUsers().hashTag;
+            hashTag = Authentication.getCurrentUser().hashTag;
         }
 
+        // filter out auto-triggered sql
+        sqls = sqls.filter(sqlFilter);
         // assume the usernode is empty
         var promises = [];
 
-        for (var i = 0; i < sqls.length; i++) {
-            promises.push(Replay.execSql.bind(this, sqls[i]));
+        for (var i = 0, len = sqls.length; i < len; i++) {
+            var prevSql = (i === 0) ? null : sqls[i - 1];
+            var nextSql = (i === len - 1) ? null : sqls[i + 1];
+            promises.push(Replay.execSql.bind(this, sqls[i], prevSql, nextSql));
         }
 
         chain(promises)
         .then(function() {
+            console.log("Replay Finished!");
             deferred.resolve();
         })
         .fail(function() {
@@ -51,7 +56,7 @@ window.Replay = (function($, Replay) {
         return (deferred.promise());
     };
 
-    Replay.execSql = function(sql) {
+    Replay.execSql = function(sql, prevSql, nextSql) {
         var deferred = jQuery.Deferred();
         var options = sql.options;
 
@@ -70,6 +75,10 @@ window.Replay = (function($, Replay) {
             $(tab).click();
         }
 
+        options = $.extend(options, {
+            "prevReplay": prevSql,
+            "nextReplay": nextSql
+        });
         execSql(operation, options)
         .then(function() {
             console.log("Replay", operation, "finished!");
@@ -86,12 +95,6 @@ window.Replay = (function($, Replay) {
     function execSql(operation, options) {
         var deferred = jQuery.Deferred();
 
-        if (options.sqlType === SQLType.Fail) {
-            console.log(operation, "is a fail handler, will be auto-triggered");
-            deferred.resolve();
-            return (deferred.promise());
-        }
-
         switch (operation) {
             case SQLOps.DSLoad:
                 return replayLoadDS(options);
@@ -105,28 +108,14 @@ window.Replay = (function($, Replay) {
                 return replayAggregate(options);
             case SQLOps.Map:
                 return replayMap(options);
-            case SQLOps.JoinMap:
-                break;
-            case SQLOps.GroupbyMap:
-                break;
-            case SQLOps.CheckIndex:
-                break;
             case SQLOps.Join:
                 return replayJoin(options);
             case SQLOps.GroupBy:
                 return replayGroupBy(options);
-            case SQLOps.GroupByIndex:
-                break;
             case SQLOps.RenameTable:
                 return replayRename(options);
-            case SQLOps.RenameOrphanTable:
-                break;
             case SQLOps.DeleteTable:
                 return replayDeleteTable(options);
-            case SQLOps.PreviewDS:
-                break;
-            case SQLOps.DestroyPreviewDS:
-                break;
             case SQLOps.DestroyDS:
                 return replayDestroyDS(options);
             case SQLOps.ExportTable:
@@ -191,38 +180,28 @@ window.Replay = (function($, Replay) {
                 return replayDSDropBack(options);
             case SQLOps.DelFolder:
                 return replayDelFolder(options);
-            case SQLOps.ProfileAction:
-                break;
             case SQLOps.Profile:
                 return replayProfile(options);
             case SQLOps.ProfileSort:
                 return replayProfileSort(options);
             case SQLOps.ProfileBucketing:
                 return replayProfileBucketing(options);
-            case SQLOps.ProfileClose:
-                return replayProfileClose();
             case SQLOps.QuickAgg:
                 return replayQuickAgg(options);
-            case SQLOps.QuickAggAction:
-                break;
             case SQLOps.AddDS:
                 return replayAddDS(options);
             case SQLOps.SplitCol:
                 return replaySplitCol(options);
-            case SQLOps.SplitColMap:
-                break;
             case SQLOps.ChangeType:
                 return replayChangeType(options);
-            case SQLOps.ChangeTypeMap:
-                break;
             default:
                 console.error("Unknown operation", operation);
                 deferred.reject("Unknown operation");
                 break;
         }
 
-        console.log(operation, "will be auto-triggered");
-        deferred.resolve();
+        console.error(operation, "get into invalid area!");
+        deferred.reject("invalid area!");
         return (deferred.promise());
     }
 
@@ -378,6 +357,28 @@ window.Replay = (function($, Replay) {
         tabMap[SQLOps.AddDS] = Tab.DS;
         tabMap[SQLOps.SplitCol] = Tab.WS;
         tabMap[SQLOps.ChangeType] = Tab.WS;
+    }
+
+    function sqlFilter(sql) {
+        var options = sql.options || {};
+
+        switch (options.operation) {
+            case SQLType.Fail:
+            case SQLOps.JoinMap:
+            case SQLOps.GroupbyMap:
+            case SQLOps.CheckIndex:
+            case SQLOps.GroupByIndex:
+            case SQLOps.RenameOrphanTable:
+            case SQLOps.PreviewDS:
+            case SQLOps.DestroyPreviewDS:
+            case SQLOps.ProfileAction:
+            case SQLOps.QuickAggAction:
+            case SQLOps.SplitColMap:
+            case SQLOps.ChangeTypeMap:
+                return false;
+            default:
+                return true;
+        }
     }
 
     function replayLoadDS(options) {
@@ -1022,98 +1023,142 @@ window.Replay = (function($, Replay) {
         return (promiseWrapper(null));
     }
 
-    function replayProfile(options) {
+    function replayProfile(options, keepOpen) {
         var deferred = jQuery.Deferred();
-        var args = getArgs(options);
-        var timeCnt = 0;
-        var timer;
+        var tableId  = getTableId(options.tableId);
+        var colNum   = options.colNum;
 
-        STATSManager.run.apply(window, args)
+        if (!keepOpen) {
+            keepOpen = profileKeepOpenCheck(options);
+        }
+
+        STATSManager.run(tableId, colNum)
         .then(function() {
-            timer = setInterval(function() {
-                if ($("#statsModal .groupbyChart .barArea").length > 0) {
-                    // make sure graphisc shows up
-                    clearInterval(timer);
-                    deferred.resolve();
-                } else {
-                    console.info("profile graphics not showing up yet!");
-                    timeCnt += checkTime;
-                    if (timeCnt > outTime) {
-                        clearInterval(timer);
-                        console.error("Time out!");
-                        deferred.reject("Time out");
-                    }
-                }
-            }, checkTime);
+            var checkFunc = function() {
+                return ($("#statsModal .groupbyChart .barArea").length > 0);
+            };
+
+            return (checkHelper(checkFunc));
         })
+        .then(function() {
+            if (keepOpen) {
+                return promiseWrapper(null);
+            } else {
+                var callback = function() {
+                    $("#statsModal .close").click();
+                };
+                return (delayAction(callback, "Show Profile"));
+            }
+        })
+        .then(deferred.resolve)
         .fail(deferred.reject);
 
         return (deferred.promise());
     }
 
-    function replayProfileSort(options) {
+    function replayProfileSort(options, keepOpen) {
         // UI simulation
-        var deferred = jQuery.Deferred();
-        var order = options.order;
+        var deferred   = jQuery.Deferred();
+        var order      = options.order;
+        var bucketSize = options.bucketSize;
 
-        var $icon = $("#statsModal .sortSection ." + order + " .iconWrapper");
-        $icon.click();
+        if (!keepOpen) {
+            keepOpen = profileKeepOpenCheck(options);
+        }
 
-        var timeCnt = 0;
-        var timer = setInterval(function() {
-            if ($icon.hasClass("active")) {
-                // when ds is deleted
-                clearInterval(timer);
-                deferred.resolve();
+        profileSortHelper()
+        .then(function() {
+            var $icon = $("#statsModal .sortSection ." + order + " .iconWrapper");
+            $icon.click();
+
+            var checkFunc = function() {
+                return ($icon.hasClass("active"));
+            };
+
+            return (checkHelper(checkFunc));
+        })
+        .then(function() {
+            if (keepOpen) {
+                return promiseWrapper(null);
             } else {
-                // when table not craeted yet
-                console.info("profile sort not finished!");
-                timeCnt += checkTime;
-                if (timeCnt > outTime) {
-                    clearInterval(timer);
-                    console.error("Time out!");
-                    deferred.reject("Time out");
-                }
+                var callback = function() {
+                    $("#statsModal .close").click();
+                };
+                return delayAction(callback, "Show Profile Sort");
             }
-        }, checkTime);
+        })
+        .then(deferred.resolve)
+        .fail(deferred.reject);
+
+        function profileSortHelper() {
+            if (bucketSize === 0) {
+                options = $.extend(options, {
+                    "operation": SQLOps.Profile
+                });
+                return replayProfile(options, true);
+            } else {
+                return replayProfileBucketing(options, true);
+            }
+        }
 
         return (deferred.promise());
     }
 
-    function replayProfileBucketing(options) {
+    function replayProfileBucketing(options, keepOpen) {
         var deferred = jQuery.Deferred();
         var bucketSize = options.bucketSize;
 
-        var $statsModal = $("#statsModal");
-        var $rangeSection = $statsModal.find(".rangeSection");
-        var $input = $("#stats-step");
-        $rangeSection.find(".text.range").click();
-        $input.val(bucketSize);
-        $input.trigger(fakeEvent.enter);
+        options = $.extend(options, {
+            "operation": SQLOps.Profile
+        });
 
-        var timeCnt = 0;
-        var timer = setInterval(function() {
-            if ($statsModal.find(".loadingSection").hasClass("hidden")) {
-                // when ds is deleted
-                clearInterval(timer);
-                deferred.resolve();
+        if (!keepOpen) {
+            keepOpen = profileKeepOpenCheck(options);
+        }
+
+        replayProfile(options, true)
+        .then(function() {
+            var $statsModal = $("#statsModal");
+            var $rangeSection = $statsModal.find(".rangeSection");
+            var $input = $("#stats-step");
+            $rangeSection.find(".text.range").click();
+            $input.val(bucketSize);
+            $input.trigger(fakeEvent.enter);
+
+            var checkFunc = function() {
+                return ($statsModal.find(".loadingSection").hasClass("hidden"));
+            };
+
+            return (checkHelper(checkFunc));
+        })
+        .then(function() {
+            if (keepOpen) {
+                return promiseWrapper(null);
             } else {
-                // when table not craeted yet
-                console.info("profile bucketing not finished!");
-                timeCnt += checkTime;
-                if (timeCnt > outTime) {
-                    clearInterval(timer);
-                    console.error("Time out!");
-                    deferred.reject("Time out");
-                }
+                var callback = function() {
+                    $("#statsModal .close").click();
+                };
+                return delayAction(callback, "Show Profile Bucketing");
             }
-        }, checkTime);
+        })
+        .then(deferred.resolve)
+        .fail(deferred.reject);
+
         return (deferred.promise());
     }
 
-    function replayProfileClose() {
-        $("#statsModal .modalHeader .close").click();
-        return (promiseWrapper(null));
+    function profileKeepOpenCheck(options) {
+        var nextSql = options.nextReplay || {};
+        var nextOptions = nextSql.options || {};
+        if (nextOptions.operation === SQLOps.ProfileSort ||
+            nextOptions.operation === SQLOps.ProfileBucketing)
+        {
+            if (options.modalId === nextOptions.modalId) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     function replayQuickAgg(options) {
@@ -1175,6 +1220,49 @@ window.Replay = (function($, Replay) {
         // XXX not test yet!
         var args = getArgs(options);
         return (ColManager.changeType.apply(window, args));
+    }
+
+    function checkHelper(checkFunc, msg) {
+        var deferred = jQuery.Deferred();
+        var timeCnt = 0;
+        var timer = setInterval(function() {
+            if (msg != null) {
+                console.log("Check:", msg, "Count:", timeCnt);
+            }
+
+            if (checkFunc() === true) {
+                // make sure graphisc shows up
+                clearInterval(timer);
+                deferred.resolve();
+            } else {
+                console.info("check not pass yet!");
+                timeCnt += checkTime;
+                if (timeCnt > outTime) {
+                    clearInterval(timer);
+                    console.error("Time out!");
+                    deferred.reject("Time out");
+                }
+            }
+        }, checkTime);
+
+        return (deferred.promise());
+    }
+
+    function delayAction(callback, msg, time) {
+        var deferred = jQuery.Deferred();
+
+        time = time || 5000;
+
+        if (msg != null) {
+            console.log(msg, "dealy time:", time, "ms");
+        }
+
+        setTimeout(function() {
+            callback();
+            deferred.resolve();
+        }, time);
+
+        return (deferred.promise());
     }
 
     return (Replay);
