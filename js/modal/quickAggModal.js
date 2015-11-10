@@ -91,6 +91,10 @@ window.AggModal = (function($, AggModal) {
             var scrollTop = $(this).scrollTop();
             $mainAgg2.find(".labelContainer").scrollTop(scrollTop);
         });
+
+        $aggModal.on("mouseenter", ".tooltipOverflow", function() {
+            xcHelper.autoTooltip(this);
+        });
     };
 
     AggModal.show = function(tableId, type) {
@@ -501,12 +505,18 @@ window.AggModal = (function($, AggModal) {
         });
 
         function applyAggResult(value) {
+            var html = '<span class="textOverflow tooltipOverflow" ' +
+                        'title="' + value +
+                        '" data-toggle="tooltip" data-placement="top" ' +
+                        'data-container="body">' +
+                            value +
+                        '</span>';
             $("#mainAgg1").find(".aggCol:not(.labels)").eq(col)
-                .find(".aggTableField:not(.colLabel)").eq(row).html(value);
+                .find(".aggTableField:not(.colLabel)").eq(row).html(html);
 
             dups.forEach(function(colNum) {
                 $("#mainAgg1").find(".aggCol:not(.labels)").eq(colNum)
-                    .find(".aggTableField:not(.colLabel)").eq(row).html(value);
+                    .find(".aggTableField:not(.colLabel)").eq(row).html(html);
             });
         }
 
