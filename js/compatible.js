@@ -4,10 +4,12 @@ window.Compatible = (function($, Compatible) {
     window.isBrowserMicrosoft = false;
     window.isBrowseChrome = false;
     window.isBrowseFireFox = false;
+    window.isSystemMac = false;
 
     Compatible.check = function() {
         stringCheck();
         browserCheck();
+        systemCheck();
     };
 
     function stringCheck() {
@@ -41,17 +43,18 @@ window.Compatible = (function($, Compatible) {
     }
 
     function browserCheck() {
-        if (/MSIE 10/i.test(navigator.userAgent)) {
+        var userAgent = navigator.userAgent;
+        if (/MSIE 10/i.test(userAgent)) {
            // this is internet explorer 10
             window.isBrowserMicrosoft = true;
         }
 
-        if (/MSIE 9/i.test(navigator.userAgent) || /rv:11.0/i.test(navigator.userAgent)) {
+        if (/MSIE 9/i.test(userAgent) || /rv:11.0/i.test(userAgent)) {
             // this is internet explorer 9 and 11
             window.isBrowserMicrosoft = true;
         }
 
-        if (/Edge\/12./i.test(navigator.userAgent)) {
+        if (/Edge\/12./i.test(userAgent)) {
            // this is Microsoft Edge
             window.isBrowserMicrosoft = true;
         }
@@ -59,12 +62,18 @@ window.Compatible = (function($, Compatible) {
             $('html').addClass('microsoft');
         }
 
-        if (/chrome/i.test(navigator.userAgent)) {
+        if (/chrome/i.test(userAgent)) {
             window.isBrowseChrome = true;
         }
 
-        if (/firefox/i.test(navigator.userAgent)) {
+        if (/firefox/i.test(userAgent)) {
             window.isBrowseFireFox = true;
+        }
+    }
+
+    function systemCheck() {
+        if (/MAC/i.test(navigator.platform)) {
+            window.isSystemMac = true;
         }
     }
 

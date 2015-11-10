@@ -1576,7 +1576,9 @@ function addColListeners($table, tableId) {
             return (!$(this).hasClass(tableId));
         }).remove();
 
-        if (event.ctrlKey || event.metaKey) {
+        if (isSystemMac && event.metaKey ||
+            !isSystemMac && event.ctrl)
+        {
             // ctrl key: multi selection
             multiSelection();
         } else if (event.shiftKey) {
@@ -1665,13 +1667,13 @@ function addColListeners($table, tableId) {
 
     // right click the open colMenu
     $tbody[0].oncontextmenu = function(event) {
-        var $el = $(event.target).closest(".highlightBox");
-
-        if ($el.length === 0) {
+        var $el = $(event.target);
+        var $td = $el.closest("td");
+        var $div = $td.children('.clickable');
+        if ($div.length === 0) {
+            // when click sth like row marker cell, rowGrab
             return false;
         }
-
-        var $td = $el.parent();
 
         var yCoor = Math.max(event.pageY, $el.offset().top + $el.height() - 10);
         var colNum = xcHelper.parseColNum($td);
@@ -1680,7 +1682,13 @@ function addColListeners($table, tableId) {
         $(".tooltip").hide();
         resetColMenuInputs($el);
 
-        dropdownClick($el, {
+        if ($td.find(".highlightBox").length === 0) {
+            // same as singleSelection()
+            $(".highlightBox").remove();
+            highlightCell($td, tableId, rowNum, colNum);
+        }
+
+        dropdownClick($div, {
             "type"      : "tdDropdown",
             "colNum"    : colNum,
             "rowNum"    : rowNum,
