@@ -39,7 +39,7 @@ window.UDF = (function($, UDF) {
         var $blankFunc = $listDropdown.find('li[name=blank]');
         var li;
 
-        updaetUDF()
+        updateUDF()
         .always(function() {
             for (var udf in storedUDF) {
                 li = '<li>' + udf + '</li>';
@@ -48,7 +48,7 @@ window.UDF = (function($, UDF) {
         });
     }
 
-    function updaetUDF() {
+    function updateUDF() {
         var deferred = jQuery.Deferred();
 
         XcalarListXdfs("*", "User*")
@@ -190,6 +190,11 @@ window.UDF = (function($, UDF) {
                            " please choose a file you want to upload.";
 
                 StatusBox.show(text, $filePath, true, 190);
+            } else if (moduleName.length >
+                       XcalarApisConstantsT.XcalarApiMaxPyModuleNameLen) {
+                text = "File Name is too long, please use less than 255 chars.";
+
+                StatusBox.show(text, $filePath, true, 190);
             } else {
                 var reader = new FileReader();
                 reader.onload = function(event) {
@@ -263,14 +268,26 @@ window.UDF = (function($, UDF) {
                 text = "Module name is empty, please input a module name.";
                 StatusBox.show(text, $fnName, true, 50);
                 return;
+            } else if (fileName.length >
+                XcalarApisConstantsT.XcalarApiMaxPyModuleNameLen) {
+                text = "Module name is too long, please keep to less than 255"+
+                       " characters in length.";
+                StatusBox.show(text, $fnName, true, 50);
+                return;
             }
-
             // Get code written and call thrift call to upload
             var entireString = editor.getValue();
             if (entireString.trim() === "") {
                 text = "Function field is empty, please input a function.";
                 StatusBox.show(text, $('.CodeMirror'), false, 30,
                                 { "side": "left" });
+                return;
+            } else if (entireString.trim().length >
+                       XcalarApisConstantsT.XcalarApiMaxPyModuleSrcLen) {
+                text = "File is too large. Please break into smaller files "+
+                        "(<10MB)";
+                StatusBox.show(text, $(".CodeMirror"), false, 30,
+                               {"side":"left"});
                 return;
             }
 

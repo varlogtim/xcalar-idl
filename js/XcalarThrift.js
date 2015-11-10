@@ -1022,7 +1022,7 @@ function generateFilterString(operator, value1, value2, value3) {
     return (filterStr);
 }
 
-function XcalarFilterHelper(filterStr, srcTablename, dstTablename,
+function XcalarFilter(evalStr, srcTablename, dstTablename,
                             sqlOptions) {
     if (tHandle == null) {
         return (promiseWrapper(null));
@@ -1033,17 +1033,21 @@ function XcalarFilterHelper(filterStr, srcTablename, dstTablename,
         return (deferred.promise());
     }
 
-    if (filterStr === "") {
-        console.error("Unknown op " + filterStr);
-        deferred.reject("Unknown op " + filterStr);
+    if (evalStr === "") {
+        console.error("Unknown op " + evalStr);
+        deferred.reject("Unknown op " + evalStr);
+        return (deferred.promise());
+    } else if (evalStr.length > XcalarApisConstantsT.XcalarApiMaxEvalStringLen)
+    {
+        deferred.reject(thriftLog("XcalarFilter", "Eval string too long"));
         return (deferred.promise());
     }
     getUnsortedTableName(srcTablename)
     .then(function(unsortedSrcTablename) {
         var workItem = xcalarFilterWorkItem(unsortedSrcTablename, dstTablename,
-                                            filterStr);
+                                            evalStr);
 
-        var def1 = xcalarFilter(tHandle, filterStr, unsortedSrcTablename,
+        var def1 = xcalarFilter(tHandle, evalStr, unsortedSrcTablename,
                                 dstTablename);
         var def2 = XcalarGetQuery(workItem);
         jQuery.when(def1, def2)
@@ -1070,6 +1074,11 @@ function XcalarMap(newFieldName, evalStr, srcTablename, dstTablename,
         return (deferred.promise());
     }
     
+    if (evalStr.length > XcalarApisConstantsT.XcalarApiMaxEvalStringLen) {
+        deferred.reject(thriftLog("XcalarMap", "Eval string too long"));
+        return (deferred.promise());
+    }
+
     getUnsortedTableName(srcTablename)
     .then(function(unsortedSrcTablename) {
         var workItem = xcalarApiMapWorkItem(evalStr, unsortedSrcTablename,
@@ -1146,6 +1155,10 @@ function XcalarAggregateHelper(srcTablename, evalStr, sqlOptions) {
     if (evalStr === "") {
         deferred.reject("bug!:" + op);
         return (deferred.promise());
+    } else if (evalStr.length > XcalarApisConstantsT.XcalarApiMaxEvalStirngLen)
+    {
+        deferred.reject(thriftLog("XcalarMap", "Eval string too long"));
+        return (deferred.promise());
     }
 
     var dstDagName = srcTablename.split("#")[0] + "-aggregate" +
@@ -1212,6 +1225,10 @@ function XcalarGroupBy(operator, newColName, oldColName, tableName,
     var evalStr = generateAggregateString(oldColName, operator);
     if (evalStr === "") {
         deferred.reject("Wrong operator! " + operator);
+        return (deferred.promise());
+    } else if (evalStr.length > XcalarApisConstantsT.XcalarApiMaxEvalStringLen)
+    {
+        deferred.reject(thriftLog("XcalarGroupBy", "Eval string too long"));
         return (deferred.promise());
     }
     getUnsortedTableName(tableName)

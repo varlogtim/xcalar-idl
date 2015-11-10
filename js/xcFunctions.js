@@ -44,7 +44,7 @@ window.xcFunction = (function($, xcFunction) {
             "fltOptions"  : fltOptions
         };
 
-        XcalarFilterHelper(fltStr, tableName, newTableName, sqlOptions)
+        XcalarFilter(fltStr, tableName, newTableName, sqlOptions)
         .then(function() {
             return (setgTable(newTableName, tablCols));
         })
