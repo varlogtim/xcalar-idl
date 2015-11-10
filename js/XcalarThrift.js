@@ -211,7 +211,7 @@ function getUnsortedTableName(tableName, otherTableName) {
                 var indexInput = nodeArray.node[0].input.indexInput;
                 if (indexInput.ordering ===
                     XcalarOrderingT.XcalarOrderingAscending ||
-                    indexInput.ordering ==
+                    indexInput.ordering ===
                     XcalarOrderingT.XcalarOrderingDescending) {
                     // Find parent and return parent's name
                     xcHelper.assert(indexInput.source.isTable);
@@ -230,11 +230,13 @@ function getUnsortedTableName(tableName, otherTableName) {
         .then(function(na1, na2) {
             var unsortedName1 = tableName;
             var unsortedName2 = otherTableName;
+            var indexInput;
+
             if (XcalarApisTStr[na1.node[0].api] === "XcalarApiIndex") {
-                var indexInput = na1.node[0].input.indexInput;
+                indexInput = na1.node[0].input.indexInput;
                 if (indexInput.ordering ===
                     XcalarOrderingT.XcalarOrderingAscending ||
-                    indexInput.ordering ==
+                    indexInput.ordering ===
                     XcalarOrderingT.XcalarOrderingDescending) {
                     // Find parent and return parent's name
                     xcHelper.assert(indexInput.source.isTable);
@@ -244,10 +246,10 @@ function getUnsortedTableName(tableName, otherTableName) {
                 }
             }
             if (XcalarApisTStr[na2.node[0].api] === "XcalarApiIndex") {
-                var indexInput = na2.node[0].input.indexInput;
+                indexInput = na2.node[0].input.indexInput;
                 if (indexInput.ordering ===
                     XcalarOrderingT.XcalarOrderingAscending ||
-                    indexInput.ordering ==
+                    indexInput.ordering ===
                     XcalarOrderingT.XcalarOrderingDescending) {
                     // Find parent and return parent's name
                     xcHelper.assert(indexInput.source.isTable);
@@ -446,8 +448,7 @@ function XcalarListExportTargets(typePattern, namePattern) {
     return (deferred.promise());
 }
 
-function XcalarExport(tableName, exportName, targetName, numColumns, columns,
-                      sqlOptions) {
+function XcalarExport(tableName, exportName, targetName, numColumns, columns, sqlOptions) {
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return (promiseWrapper(null));
     }
@@ -559,7 +560,7 @@ function XcalarIndexFromDataset(datasetName, key, tablename, sqlOptions) {
     var dhtName = ""; // XXX TODO fill in later
     // XXX TRUE IS WRONG, THIS IS JUST TEMPORARY TO GET STUFF TO WORK
     var workItem = xcalarIndexDatasetWorkItem(datasetName, key, tablename,
-                                              dhtName, 
+                                              dhtName,
                                       XcalarOrderingT.XcalarOrderingUnordered);
     var def1 = xcalarIndexDataset(tHandle, datasetName, key, tablename,
                                   dhtName,
@@ -599,7 +600,7 @@ function XcalarIndexFromTable(srcTablename, key, tablename, ordering,
 
         jQuery.when(def1, def2)
         .then(function(ret1, ret2) {
-            if (ordering != XcalarOrderingT.XcalarOrderingUnordered) {
+            if (ordering !== XcalarOrderingT.XcalarOrderingUnordered) {
                 // XXX TODO: Add sort asc or desc
                 SQL.add("Sort Table", sqlOptions, ret2);
             } else {

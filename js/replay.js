@@ -43,11 +43,12 @@ window.Replay = (function($, Replay) {
 
         chain(promises)
         .then(function() {
-            console.log("Replay Finished!");
+            alert("Replay Finished!");
             deferred.resolve();
         })
-        .fail(function() {
-            deferred.reject();
+        .fail(function(error) {
+            alert("Replay Fails!");
+            deferred.reject(error);
         })
         .always(function() {
             gMinModeOn = mindModeCache;
@@ -304,7 +305,7 @@ window.Replay = (function($, Replay) {
         argsMap[SQLOps.Profile] = ["tableId", "colNum"];
         argsMap[SQLOps.QuickAgg] = ["tableId", "type"];
         argsMap[SQLOps.AddDS] = ["name", "format", "path"];
-        argsMap[SQLOps.ExportTable] = ["tableName", "exportName"];
+        argsMap[SQLOps.ExportTable] = ["tableName", "exportName", "targetName", "numCols", "columns"];
         argsMap[SQLOps.SplitCol] = ["colNum", "tableId",
                                     "delimiter", "numColToGet"];
         argsMap[SQLOps.ChangeType] = ["colTypeInfos", "tableId"];
@@ -389,88 +390,65 @@ window.Replay = (function($, Replay) {
     function replayCreatWorksheet(options) {
         var deferred = jQuery.Deferred();
         // this is a UI simulation replay
-        var dsName    = options.dsName;
-        var columns   = options.columns;
-        var tableName = options.tableName;
+        var dsName     = options.dsName;
+        var columns    = options.columns;
+        var tableName  = options.tableName;
+        var $mainFrame = $("#mainFrame");
+        var $grid      = DS.getGridByName(dsName);
+        var originTableLen;
 
-        var timer;
-        var timer2;
-
-        var timeCnt  = 0;
-        var timeCnt2 = 0;
-
-        var $grid = DS.getGridByName(dsName);
         $grid.click();
+        var chekFunc = function() {
+            return ($grid.find('.waitingIcon').length === 0);
+        };
 
-        timer = setInterval(function() {
-            if ($grid.find('.waitingIcon').length === 0) {
-                // when sample table is loaded
-                clearInterval(timer);
+        checkHelper(chekFunc, "data sample table is ready")
+        .then(function() {
+            // when sample table is loaded
+            var $inputs = $("#worksheetTable .editableHead");
+            // make sure only have this cart
+            DataCart.clear();
 
-                var $inputs = $("#worksheetTable .editableHead");
-                // make sure only have this cart
-                DataCart.clear();
-
-                // add to data cart
-                for (var i = 0, len = columns.length; i < len; i++) {
-                    var colName = columns[i];
-                    // skip DATA column
-                    if (colName === "DATA") {
-                        continue;
-                    }
-
-                    $inputs.filter(function() {
-                        return $(this).val() === colName;
-                    }).click();
+            // add to data cart
+            for (var i = 0, len = columns.length; i < len; i++) {
+                var colName = columns[i];
+                // skip DATA column
+                if (colName === "DATA") {
+                    continue;
                 }
 
-                var name = xcHelper.getTableName(tableName);
-                $("#DataCart .tableNameEdit").val(name);
-
-                var $mainFrame = $("#mainFrame");
-                var originTableLen = $mainFrame.find(".xcTableWrap").length;
-
-                // delay 2 seconds to show UI
-                console.log("Show Data Cart for 2s...");
-                setTimeout(function() {
-                    $("#submitDSTablesBtn").click();
-
-                    timer2 = setInterval(function() {
-                        var tableLenDiff = $mainFrame.find(".xcTableWrap").length -
-                                            originTableLen;
-
-                        if (tableLenDiff === 1) {
-                            // when new table created
-                            clearInterval(timer2);
-                            deferred.resolve();
-                        } else if (tableLenDiff === 0) {
-                            // when table not craeted yet
-                            console.info("table not ready!");
-
-                            timeCnt2 += checkTime;
-                            if (timeCnt2 > outTime) {
-                                clearInterval(timer2);
-                                console.error("Time out!");
-                                deferred.reject("Time out");
-                            }
-
-                        } else {
-                            clearInterval(timer2);
-                            console.error("replay load table error!");
-                            deferred.reject();
-                        }
-                    }, checkTime);
-                }, 2000);
-            } else {
-                console.info("data sample table not ready!");
-                timeCnt += checkTime;
-                if (timeCnt > outTime) {
-                    clearInterval(timer);
-                    console.error("Time out!");
-                    deferred.reject("Time out");
-                }
+                $inputs.filter(function() {
+                    return $(this).val() === colName;
+                }).click();
             }
-        }, checkTime);
+
+            var name = xcHelper.getTableName(tableName);
+            $("#DataCart .tableNameEdit").val(name);
+
+            originTableLen = $mainFrame.find(".xcTableWrap").length;
+
+            var callback = function() {
+                $("#submitDSTablesBtn").click();
+            };
+            // delay 2 seconds to show UI
+            return delayAction(callback, "Show Data Cart", 2000);
+        })
+        .then(function() {
+            var checkFunc2 = function() {
+                var tableLenDiff = $mainFrame.find(".xcTableWrap").length -
+                                    originTableLen;
+                if (tableLenDiff === 1) {
+                    return true; // pass check
+                } else if (tableLenDiff === 0) {
+                    return false; // keep checking
+                } else {
+                    return null; // error case, fail check
+                }
+            };
+            return checkHelper(checkFunc2, "xc table is ready");
+        })
+        .then(deferred.resolve)
+        .fail(deferred.reject);
 
         return (deferred.promise());
     }
@@ -491,13 +469,12 @@ window.Replay = (function($, Replay) {
         // this is a UI simulation replay
         xcFunction.aggregate.apply(window, args)
         .then(function() {
-            // delay 2 seconds to show Alert Modal
-            console.log("Show alert modal for 5s...");
-            setTimeout(function() {
-                $("#alertModal").find(".close").click();
-                deferred.resolve();
-            }, 5000);
+            var callback = function() {
+                $("#alertModal .close").click();
+            };
+            return (delayAction(callback, "Show alert modal"));
         })
+        .then(deferred.resolve)
         .fail(deferred.reject);
 
         return (deferred.promise());
@@ -573,67 +550,62 @@ window.Replay = (function($, Replay) {
         }
 
         var dSLen = $gridView.find(".ds").length;
-        var timer;
-        var timeCnt = 0;
 
         DS.remove($ds);
 
-        console.log("Show alert modal for 5s...");
-        setTimeout(function() {
-            $("#alertModal").find(".confirm").click();
+        var callback = function() {
+            $("#alertModal .confirm").click();
+        };
 
-            timer = setInterval(function() {
+        delayAction(callback, "Show alert modal")
+        .then(function() {
+            var checkFunc = function() {
                 var dsLenDiff = $gridView.find(".ds").length - dSLen;
 
                 if (dsLenDiff === -1) {
-                    // when ds is deleted
-                    clearInterval(timer);
-                    deferred.resolve();
+                    // when ds is deleted, pass check
+                    return true;
                 } else if (dsLenDiff === 0) {
-                    // when table not craeted yet
-                    console.info("destroy dataset not finished!");
-
-                    timeCnt += checkTime;
-                    if (timeCnt > outTime) {
-                        clearInterval(timer);
-                        console.error("Time out!");
-                        deferred.reject("Time out");
-                    }
+                    // when table not craeted yet, keep checking
+                    return false;
                 } else {
-                    clearInterval(timer);
-                    console.error("replay destroy dataset error!");
-                    deferred.reject();
+                    // error case, fail check
+                    return null;
                 }
-            }, checkTime);
-        }, 5000);
+            };
+            return checkHelper(checkFunc, "DataSet is deleted");
+        })
+        .then(deferred.resolve)
+        .fail(deferred.reject);
 
         return (deferred.promise());
     }
 
     function replayAddNewCol(options) {
         // UI simulation
-        var deferred = jQuery.Deferred();
-        var tableId = getTableId(options.tableId);
-        var $colMenu = $("#colMenu-" + tableId);
+        var deferred  = jQuery.Deferred();
+        var tableId   = getTableId(options.tableId);
+        var $mainMenu = $("#colMenu .addColumn.parentMenu");
+        var $subMenu  = $("#colSubMenu");
         var $li;
 
         $("#xcTable-" + tableId + " .th.col" + options.siblColNum +
                                                 " .dropdownBox").click();
         if (options.direction === "L") {
-            $li = $colMenu.find(".addColumns.addColLeft");
+            $li = $subMenu.find(".addColumn .addColLeft");
         } else {
-            $li = $colMenu.find(".addColumns.addColRight");
+            $li = $subMenu.find(".addColumn .addColRight");
         }
 
-        $li.mouseenter();
+        $mainMenu.trigger(fakeEvent.mouseenter);
 
-        console.log("Show col menu for 2s...");
-
-        setTimeout(function() {
-            $li.mouseleave();
+        var callback = function() {
             $li.trigger(fakeEvent.mouseup);
-            deferred.resolve();
-        }, 2000);
+        };
+
+        delayAction(callback, "Show Col Menu", 2000)
+        .then(deferred.resolve)
+        .fail(deferred.reject);
 
         return (deferred.promise());
     }
@@ -758,19 +730,19 @@ window.Replay = (function($, Replay) {
         // UI simulation
         var deferred = jQuery.Deferred();
         var tableId = getTableId(options.tableId);
-        var $li = $("#tableMenu-" + tableId + " .archiveTable");
+        var $li = $("#tableMenu .archiveTable");
 
         $("#xcTheadWrap-" + tableId + " .dropdownBox").click();
 
         $li.mouseenter();
 
-        console.log("Show table menu for 2s...");
-
-        setTimeout(function() {
+        var callback = function() {
             $li.mouseleave();
             $li.trigger(fakeEvent.mouseup);
-            deferred.resolve();
-        }, 2000);
+        };
+        delayAction(callback, "Show Table Menu", 2000)
+        .then(deferred.resolve)
+        .fail(deferred.reject);
 
         return (deferred.promise());
     }
@@ -806,19 +778,19 @@ window.Replay = (function($, Replay) {
         // UI simulation
         var deferred = jQuery.Deferred();
         var tableId = getTableId(options.tableId);
-        var $li = $("#tableMenu-" + tableId + " .hideTable");
+        var $li = $("#tableMenu .hideTable");
 
         $("#xcTheadWrap-" + tableId + " .dropdownBox").click();
 
         $li.mouseenter();
 
-        console.log("Show table menu for 2s...");
-
-        setTimeout(function() {
+        var callback = function() {
             $li.mouseleave();
             $li.trigger(fakeEvent.mouseup);
-            deferred.resolve();
-        }, 2000);
+        };
+        delayAction(callback, "Show Table Menu", 2000)
+        .then(deferred.resolve)
+        .fail(deferred.reject);
 
         return (deferred.promise());
     }
@@ -827,19 +799,19 @@ window.Replay = (function($, Replay) {
         // UI simulation
         var deferred = jQuery.Deferred();
         var tableId = getTableId(options.tableId);
-        var $li = $("#tableMenu-" + tableId + " .unhideTable");
+        var $li = $("#tableMenu .unhideTable");
 
         $("#xcTheadWrap-" + tableId + " .dropdownBox").click();
 
         $li.mouseenter();
 
-        console.log("Show table menu for 2s...");
-
-        setTimeout(function() {
+        var callback = function() {
             $li.mouseleave();
             $li.trigger(fakeEvent.mouseup);
-            deferred.resolve();
-        }, 2000);
+        };
+        delayAction(callback, "Show Table Menu", 2000)
+        .then(deferred.resolve)
+        .fail(deferred.reject);
 
         return (deferred.promise());
     }
@@ -851,31 +823,23 @@ window.Replay = (function($, Replay) {
 
         $("#addWorksheet").click();
 
-        var timeCnt = 0;
-
-        var timer = setInterval(function() {
+        var checkFunc = function() {
             var wsLenDiff = WSManager.getWSLen() - originWSLen;
-
             if (wsLenDiff === 1) {
-                // when ds is deleted
-                clearInterval(timer);
-                deferred.resolve();
+                // when worksheet is added, pass check
+                return true;
             } else if (wsLenDiff === 0) {
-                // when table not craeted yet
-                console.info("add worksheet not finished!");
-
-                timeCnt += checkTime;
-                if (timeCnt > outTime) {
-                    clearInterval(timer);
-                    console.error("Time out!");
-                    deferred.reject("Time out");
-                }
+                // when worksheet not craeted yet, keep checking
+                return false;
             } else {
-                clearInterval(timer);
-                console.error("add worksheet error!");
-                deferred.reject();
+                // invalid case, fail check
+                return null;
             }
-        }, checkTime);
+        };
+
+        checkHelper(checkFunc, "Worksheet added")
+        .then(deferred.resolve)
+        .fail(deferred.reject);
 
         return (deferred.promise());
     }
@@ -895,10 +859,9 @@ window.Replay = (function($, Replay) {
 
         $("#worksheetTab-" + wsIndex).click();
 
-        console.log("Wait for 2s...");
-        setTimeout(function() {
-            deferred.resolve();
-        }, 2000);
+        delayAction(null, "Wait", 2000)
+        .then(deferred.resolve)
+        .fail(deferred.reject);
 
         return (deferred.promise());
     }
@@ -909,49 +872,45 @@ window.Replay = (function($, Replay) {
         var originWSLen = WSManager.getWSLen();
         var wsIndex     = options.worksheetIndex;
         var tableAction = options.tableAction;
-        var timer;
-        var timeCnt = 0;
 
         if (originWSLen === 1) {
             // invalid deletion
             console.error("This worksheet should not be deleted!");
-            deferred.reject();
+            deferred.reject("This worksheet should not be deleted!");
         }
 
         $("#worksheetTab-" + wsIndex + " .delete").click();
 
-        console.log("Wait for 2s...");
-        setTimeout(function() {
-            if (tableAction === "delete") {
-                $("#alertActions").find(".deleteTale").click();
-            } else if (tableAction === "archive") {
-                $("#alertActions").find(".archiveTable").click();
-            }
-
-            timer = setInterval(function() {
-                var wsLenDiff = WSManager.getWSLen() - originWSLen;
-
-                if (wsLenDiff === -1) {
-                    // when ds is deleted
-                    clearInterval(timer);
-                    deferred.resolve();
-                } else if (wsLenDiff === 0) {
-                    // when table not craeted yet
-                    console.info("delete worksheet not finished!");
-
-                    timeCnt += checkTime;
-                    if (timeCnt > outTime) {
-                        clearInterval(timer);
-                        console.error("Time out!");
-                        deferred.reject("Time out");
-                    }
-                } else {
-                    clearInterval(timer);
-                    console.error("delete worksheet error!");
-                    deferred.reject();
+        var callback = function() {
+            if ($("#alertModal").is(":visible")) {
+                if (tableAction === "delete") {
+                    $("#alertActions .deleteTale").click();
+                } else if (tableAction === "archive") {
+                    $("#alertActions .archiveTable").click();
                 }
-            }, checkTime);
-        }, 2000);
+            }
+        };
+
+        delayAction(callback, "Wait", 2000)
+        .then(function() {
+            var checkFunc = function() {
+                var wsLenDiff = WSManager.getWSLen() - originWSLen;
+                if (wsLenDiff === -1) {
+                    // when worksheet is deleted, pass check
+                    return true;
+                } else if (wsLenDiff === 0) {
+                    // when worksheet not delet yet, keep checking
+                    return false;
+                } else {
+                    // invalid case, fail check
+                    return null;
+                }
+            };
+
+            return checkHelper(checkFunc, "Woksheet is deleted");
+        })
+        .then(deferred.resolve)
+        .fail(deferred.reject);
 
         return (deferred.promise());
     }
@@ -1163,16 +1122,16 @@ window.Replay = (function($, Replay) {
 
     function replayQuickAgg(options) {
         var deferred = jQuery.Deferred();
-        var args     = getArgs(options);
+        var args = getArgs(options);
 
         AggModal.show.apply(window, args)
         .then(function() {
-            console.log("Show quickAgg modal for 5s");
-            setTimeout(function() {
+            var callback = function() {
                 $("#closeAgg").click();
-                deferred.resolve();
-            }, 5000);
+            };
+            return delayAction(callback, "Show Quick Agg");
         })
+        .then(deferred.resolve)
         .fail(deferred.reject);
 
         return (deferred.promise());
@@ -1188,25 +1147,20 @@ window.Replay = (function($, Replay) {
         var deferred = jQuery.Deferred();
         
         options.tableName = changeTableName(options.tableName);
-        options.exportName = changeTableName(options.exportName);
 
         var args = getArgs(options);
+        var callback = function() {
+            $("#alertHeader .close").click();
+        };
 
+        // XXX a potential here is that if exportName exists in
+        // backend, it fails to export because of name confilict
         xcFunction.exportTable.apply(window, args)
         .then(function() {
-            console.log("Show alert modal for 5s...");
-            setTimeout(function() {
-                $("#alertHeader .close").click();
-                deferred.resolve();
-            }, 5000);
+            return delayAction(callback, "Show alert modal");
         })
-        .fail(function(error) {
-            console.log("Show alert modal for 5s...");
-            setTimeout(function() {
-                $("#alertHeader .close").click();
-                deferred.reject(error);
-            }, 5000);
-        });
+        .then(deferred.resolve)
+        .fail(deferred.resolve); // still resolve even fail!
 
         return (deferred.promise());
     }
@@ -1227,13 +1181,16 @@ window.Replay = (function($, Replay) {
         var timeCnt = 0;
         var timer = setInterval(function() {
             if (msg != null) {
-                console.log("Check:", msg, "Count:", timeCnt);
+                console.log("Check:", msg, "Timer:", timeCnt);
             }
 
-            if (checkFunc() === true) {
+            var res = checkFunc();
+            if (res === true) {
                 // make sure graphisc shows up
                 clearInterval(timer);
                 deferred.resolve();
+            } else if (res === null) {
+                deferred.reject("Check Error!");
             } else {
                 console.info("check not pass yet!");
                 timeCnt += checkTime;
@@ -1258,7 +1215,9 @@ window.Replay = (function($, Replay) {
         }
 
         setTimeout(function() {
-            callback();
+            if (callback != null) {
+                callback();
+            }
             deferred.resolve();
         }, time);
 

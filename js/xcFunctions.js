@@ -193,8 +193,9 @@ window.xcFunction = (function($, xcFunction) {
         .then(function(nodeArray) {
             if (XcalarApisTStr[nodeArray.node[0].api] === "XcalarApiIndex") {
                 var indexInput = nodeArray.node[0].input.indexInput;
-                if ((indexInput.ordering === xcOrder)&&
-                    indexInput.keyName === backFieldName) {
+                if ((indexInput.ordering === xcOrder) &&
+                    indexInput.keyName === backFieldName)
+                {
                     var textOrder;
                     if (direction === "ASC") {
                         textOrder = "ascending";
@@ -817,11 +818,12 @@ window.xcFunction = (function($, xcFunction) {
             "operation" : SQLOps.ExportTable,
             "tableName" : tableName,
             "exportName": exportName,
-            "exportPath": targetName
+            "targetName": targetName,
+            "numCols"   : numCols,
+            "columns"   : columns
         };
 
-        XcalarExport(tableName, exportName, targetName, numCols, columns,
-                     sqlOptions)
+        XcalarExport(tableName, exportName, targetName, numCols, columns, sqlOptions)
         .then(function() {
             // add alert
             // var ins = "Widget location: " +
@@ -988,7 +990,7 @@ window.xcFunction = (function($, xcFunction) {
                     "sorted"      : false
                 };
 
-                XcalarIndexFromTable(tableName, colName, newTableName, 
+                XcalarIndexFromTable(tableName, colName, newTableName,
                                      XcalarOrderingT.XcalarOrderingUnordered,
                                      sqlOptions)
                 .then(function() {
@@ -1002,7 +1004,7 @@ window.xcFunction = (function($, xcFunction) {
                         "setMeta"        : false,
                         "tableName"      : newTableName,
                         "tableId"        : newTableId
-                    }
+                    };
                     deferred.resolve(setIndexedTableMeta(tableResult));
                 })
                 .fail(function(error) {
@@ -1250,9 +1252,6 @@ window.xcFunction = (function($, xcFunction) {
     // table that is sorted on a mapped column
     // It returns the 1.groupby col 2.indexed col 3.data col
     function extractColTableColsHelper(origTableName, gbColName, indexedColName) {
-                                                     
-        var tableCols = [];
-
         // set up the groupby column
         var escapedName = gbColName;
         if (gbColName.indexOf('.') > -1) {
@@ -1503,8 +1502,6 @@ window.xcFunction = (function($, xcFunction) {
     }
 
     function setIndexedTableMeta(tableResult) {
-        var deferred = jQuery.Deferred();
-
         if (tableResult.newTableCreated === false) {
             return ({
                 "newTableCreated": false,
