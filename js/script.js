@@ -223,17 +223,46 @@ function setupMenuBar() {
 }
 
 function setupFunctionBar() {
+    var $functionArea = $('#functionArea');
+    var searchHelper = new xcHelper.SearchBar($functionArea, {
+        "removeSelected": function() {
+            $('.xcTable:visible').find('.selectedCell')
+                                 .removeClass('selectedCell');
+        },
+        "highlightSelected": function($match) {
+            highlightColumn($match);
+        },
+        "scrollMatchIntoView": function($match) {
+            var $mainFrame = $('#mainFrame');
+            var mainFrameWidth = $mainFrame.width();
+            var matchOffsetLeft = $match.offset().left;
+            var scrollLeft = $mainFrame.scrollLeft();
+            var matchWidth = $match.width();
+            if (matchOffsetLeft > mainFrameWidth - matchWidth) {
+                $mainFrame.scrollLeft(matchOffsetLeft + scrollLeft - ((mainFrameWidth - matchWidth) / 2));
+            } else if (matchOffsetLeft < 25) {
+                $mainFrame.scrollLeft(matchOffsetLeft + scrollLeft - ((mainFrameWidth - matchWidth) / 2));
+            }
+        },
+        "ignore" : "="
+    });
+    searchHelper.setup();
+
     $("#fnBar").on({
-        // "input": function() {
-        //     if ($(".scratchpad").has(gFnBarOrigin).length !== 0 &&
-        //         $(this).val().indexOf("=") === 0) {
-        //         enterEquationMode();
-        //     }
-        // },
+        "input": function(event) {
+            var val = $(this).val();
+            var trimmedVal = val.trim();
+            if (trimmedVal.indexOf('=') !== 0) {
+                $functionArea.addClass('searching');
+                var args = {value: trimmedVal, searchBar: searchHelper};
+                ColManager.execCol({func: {func: 'search'}}, null, args);
+            } else {
+                $functionArea.removeClass('searching');
+            }
+        },
         "keyup": function(event) {
             if (event.which === keyCode.Enter) {
                 functionBarEnter(gFnBarOrigin);
-                $(this).blur().addClass("entered");
             }
         },
         "mousedown": function() {
@@ -241,8 +270,19 @@ function setupFunctionBar() {
         },
         "blur": function() {
             $(this).removeClass("inFocus");
+           
+            searchHelper.clearSearch(function() {
+                 $functionArea.removeClass('searching');
+            });
         }
     });
+
+    // $('#functionArea').on('mousedown', '.arrows', function(e) {
+    //     e.preventDefault();
+    //     e.stopPropagation();
+    // });
+
+
 }
 
 function setupMainPanelsTab() {

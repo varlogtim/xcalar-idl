@@ -2848,55 +2848,65 @@ function closeMenu($menu) {
 }
 
 function functionBarEnter($colInput) {
-    if (!$colInput) {
-        return;
-    }
+    var $fnBar = $("#fnBar")
+    var fnBarVal = $fnBar.val();
+    var fnBarValTrim = fnBarVal.trim();
+    
+    // if (!$colInput) {
+    //     return;
+    // }
     gFnBarOrigin = $colInput;
+    if (fnBarValTrim.indexOf('=') !== 0) {
+        // ColManager.execCol({func: {func: 'search'}}, null, fnBarValTrim);
+    } else if ($colInput) {
+        var $table   = $colInput.closest('.dataTable');
+        var tableId  = xcHelper.parseTableId($table);
+        var colNum   = xcHelper.parseColNum($colInput);
+        var table    = xcHelper.getTableFromId(tableId);
+        var tableCol = table.tableCols[colNum - 1];
+        var colName  = tableCol.name;
+        $fnBar.blur().addClass("entered");
 
-    var $fnBar = $("#fnBar").removeClass("inFocus");
+        if (tableCol.isNewCol && colName === "") {
+            // when it's new column and do not give name yet
+            var text = "Column name is not confirmed yet, " +
+                    "please fill in the column name and press enter to confirm";
+            StatusBox.show(text, $colInput);
+            return;
+        }
 
-    var $table   = $colInput.closest('.dataTable');
-    var tableId  = xcHelper.parseTableId($table);
-    var colNum   = xcHelper.parseColNum($colInput);
-    var table    = xcHelper.getTableFromId(tableId);
-    var tableCol = table.tableCols[colNum - 1];
-    var colName  = tableCol.name;
+        $fnBar.removeClass("inFocus");
+        
+        var newFuncStr = '"' + colName + '" ' + fnBarValTrim;
+        var oldUsrStr  = tableCol.userStr;
 
-    if (tableCol.isNewCol && colName === "") {
-        // when it's new column and do not give name yet
-        var text = "Column name is not confirmed yet, " +
-                "please fill in the column name and press enter to confirm";
-        StatusBox.show(text, $colInput);
+        $colInput.blur();
+        // when usrStr not change
+        if (newFuncStr === oldUsrStr) {
+            return;
+        }
+
+        $colInput.closest('th').removeClass('unusedCell');
+        $table.find('td:nth-child(' + colNum + ')').removeClass('unusedCell');
+
+        var progCol = parseFunc(newFuncStr, colNum, table, true);
+        // add sql
+        SQL.add("Pull Column", {
+            "operation": "pullCol",
+            "tableName": table.tableName,
+            "colName"  : progCol.name,
+            "colIndex" : progCol.index
+        });
+
+        ColManager.execCol(progCol, tableId)
+        .then(function() {
+            updateTableHeader(tableId);
+            RightSideBar.updateTableInfo(tableId);
+            commitToStorage();
+        });
+    } else {
         return;
     }
-
-    var newFuncStr = '"' + colName + '" ' + $fnBar.val().trim();
-    var oldUsrStr  = tableCol.userStr;
-
-    $colInput.blur();
-    // when usrStr not change
-    if (newFuncStr === oldUsrStr) {
-        return;
-    }
-
-    $colInput.closest('th').removeClass('unusedCell');
-    $table.find('td:nth-child(' + colNum + ')').removeClass('unusedCell');
-
-    var progCol = parseFunc(newFuncStr, colNum, table, true);
-    // add sql
-    SQL.add("Pull Column", {
-        "operation": "pullCol",
-        "tableName": table.tableName,
-        "colName"  : progCol.name,
-        "colIndex" : progCol.index
-    });
-
-    ColManager.execCol(progCol, tableId)
-    .then(function() {
-        updateTableHeader(tableId);
-        RightSideBar.updateTableInfo(tableId);
-        commitToStorage();
-    });
 }
 
 function parseFunc(funcString, colNum, table, modifyCol) {
@@ -3139,9 +3149,9 @@ function resetColMenuInputs($el) {
 }
 
 function highlightColumn($el, keepOthersSelected) {
-    var index    = xcHelper.parseColNum($el);
+    var index   = xcHelper.parseColNum($el);
     var tableId = xcHelper.parseTableId($el.closest('.dataTable'));
-    var $table = $('#xcTable-' + tableId);
+    var $table  = $('#xcTable-' + tableId);
     if (!keepOthersSelected) {
         $('.selectedCell').removeClass('selectedCell');
     }

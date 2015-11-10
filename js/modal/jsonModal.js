@@ -19,6 +19,7 @@ window.JSONModal = (function($, JSONModal) {
         "minWidth"  : minWidth,
         "noTabFocus": true
     });
+    var searchHelper;
 
     JSONModal.setup = function() {
         $('#jsonModal .closeJsonModal').click(function() {
@@ -90,16 +91,30 @@ window.JSONModal = (function($, JSONModal) {
     };
 
     function addEventListeners() {
+        var $searchArea = $('#jsonSearch');
+        searchHelper = new xcHelper.SearchBar($searchArea, {
+            "removeSelected": function() {
+                $jsonText.find('.selected').removeClass('selected');
+            },
+            "highlightSelected": function($match) {
+                $match.addClass('selected');
+            },
+            "scrollMatchIntoView": function($match) {
+                scrollMatchIntoView($match);
+            }
+        });
+
+        searchHelper.setup();
+
         $searchInput.on('input', function() {
             searchText();
         });
-        $jsonModal.find('.closeBox').click(clearSearch);
-        $jsonModal.find('.arrows').mousedown(function(event) {
-            event.preventDefault();
-            event.stopPropagation();
+        $jsonModal.find('.closeBox').click(function() {
+            searchHelper.clearSearch(function() {
+                var focus = true;
+                clearSearch(focus);
+            });
         });
-        $jsonModal.find('.upArrow').click(cycleMatchUp);
-        $jsonModal.find('.downArrow').click(cycleMatchDown);
         $jsonModal.find('.searchIcon').click(toggleSearch);
 
         $jsonArea.on({
@@ -116,7 +131,6 @@ window.JSONModal = (function($, JSONModal) {
                     "isArray"  : isArray,
                     "noAnimate": true
                 };
-                // console.log(colNum, tableId, nameInfo, pullColOptions)
                 ColManager.pullCol(colNum, tableId, nameInfo, pullColOptions)
                 .always(function() {
                     closeJSONModal();
@@ -306,19 +320,19 @@ window.JSONModal = (function($, JSONModal) {
     // updates search after split or remove jsonWrap
     function updateSearchResults() {
         $jsonText = $jsonModal.find('.prettyJson:visible');
-        $matches = $jsonText.find('.highlightedText');
-        numMatches = $matches.length;
+        searchHelper.$matches = $jsonText.find('.highlightedText');
+        searchHelper.numMatches = searchHelper.$matches.length;
 
         //XXX this isn't complete, not handling case of middle json being removed
-        if (matchIndex > numMatches) {
+        if (matchIndex > searchHelper.numMatches) {
             matchIndex = 0;
         }
 
         if ($searchInput.val().length !== 0) {
          
-            $counter.find('.total').text("of " + numMatches);
+            $counter.find('.total').text("of " + searchHelper.numMatches);
 
-            if (numMatches > 0) {
+            if (searchHelper.numMatches > 0) {
                 $counter.find('.position').text(matchIndex + 1);
             } else {
                 $counter.find('.position').text(0);
@@ -328,8 +342,6 @@ window.JSONModal = (function($, JSONModal) {
 
     function jsonModalDocumentEvent($jsonTd, isArray) {
         $(document).on("keydown.jsonModal", function(event) {
-            cycleMatches(event);
-
             if (event.which === keyCode.Escape) {
                 closeJSONModal();
                 return false;
@@ -342,7 +354,7 @@ window.JSONModal = (function($, JSONModal) {
         var text = $searchInput.val().toLowerCase();
         if (text === "") {
             $counter.find('.position, .total').html('');
-            numMatches = 0;
+            searchHelper.numMatches = 0;
             $searchInput.css("padding-right", 25);
             return;
         }
@@ -350,7 +362,7 @@ window.JSONModal = (function($, JSONModal) {
             return ($(this).text().toLowerCase().indexOf(text) !== -1);
         });
         
-        text = escapeRegExp(text);
+        text = xcHelper.escapeRegExp(text);
         var regex = new RegExp(text, "gi");
 
         $targets.each(function() {
@@ -361,86 +373,34 @@ window.JSONModal = (function($, JSONModal) {
             });
             $(this).html(foundText);
         });
-        $matches = $jsonText.find('.highlightedText');
-        numMatches = $matches.length;
+        searchHelper.$matches = $jsonText.find('.highlightedText');
+        searchHelper.numMatches = searchHelper.$matches.length;
         matchIndex = 0;
-        var position = Math.min(1, numMatches);
+        var position = Math.min(1, searchHelper.numMatches);
         $counter.find('.position').text(position);
-        $counter.find('.total').text('of ' + numMatches);
+        $counter.find('.total').text('of ' + searchHelper.numMatches);
         $searchInput.css("padding-right", $counter.width() + 25);
 
-        $matches.eq(0).addClass('selected');
-        if (numMatches !== 0) {
-            scrollMatchIntoView($matches.eq(0));
+        searchHelper.$matches.eq(0).addClass('selected');
+        if (searchHelper.numMatches !== 0) {
+            scrollMatchIntoView(searchHelper.$matches.eq(0));
         }
     }
 
-    function escapeRegExp(str) {
-        return (str.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&"));
-    }
-
-    function clearSearch(event, noFocus) {
+    function clearSearch(focus) {
         $jsonText.find('.highlightedText').contents().unwrap();
-        $searchInput.val("");
-        if (!noFocus) {
+        if (focus) {
             $searchInput.focus();
         }
-        $counter.find('.position, .total').html('');
-        numMatches = 0;
-        $searchInput.css("padding-right", 25);
-    }
-
-    function cycleMatches(event) {
-        var $lastMousedownTarget = gMouseEvents.getLastMouseDownTarget();
-        if (numMatches === 0 ||
-            $lastMousedownTarget.closest('#jsonSearch').length === 0) {
-            return;
-        }
-        if (event.which === keyCode.Up || event.which === keyCode.Down ||
-            event.which === keyCode.Enter) {
-            if (event.preventDefault) {
-                event.preventDefault();
-            }
-            if (event.which === keyCode.Up) {
-                matchIndex--;
-                if (matchIndex < 0) {
-                    matchIndex = numMatches - 1;
-                }
-                var val = $searchInput.val();
-                
-            } else if (event.which === keyCode.Down ||
-                       event.which === keyCode.Enter) {
-                matchIndex++;
-                if (matchIndex >= numMatches) {
-                    matchIndex = 0;
-                }
-            }
-            $jsonText.find('.selected').removeClass('selected');
-            var $selectedMatch = $matches.eq(matchIndex);
-            $selectedMatch.addClass('selected');
-            $counter.find('.position').text(matchIndex + 1);
-            scrollMatchIntoView($selectedMatch);
-        }
-    }
-
-    function cycleMatchDown(event) {
-        var evt = {which: keyCode.Down};
-        cycleMatches(evt);
-    }
-
-    function cycleMatchUp(event) {
-        var evt = {which: keyCode.Up};
-        cycleMatches(evt);
+        $searchInput.css("padding-right", 25).val("");
     }
 
     function scrollMatchIntoView($match) {
-        // var $modalWindow = $jsonArea.find('.prettyJson');
         var $modalWindow = $match.closest('.prettyJson');
         var modalHeight = $modalWindow.height();
         var scrollTop = $modalWindow.scrollTop();
         var matchOffsetTop = $match.position().top;
         if (matchOffsetTop > (scrollTop + modalHeight - 35)) {
-            // $modalWindow.scrollTop(matchOffsetTop - (modalHeight / 2));
             $modalWindow.scrollTop(matchOffsetTop + 40 - (modalHeight / 2));
         } else if (matchOffsetTop < (scrollTop - 25)) {
             $modalWindow.scrollTop(matchOffsetTop + 30 - (modalHeight / 2));
@@ -464,12 +424,13 @@ window.JSONModal = (function($, JSONModal) {
 
     function closeJSONModal() {
         $(document).off(".jsonModal");
-        $matches = [];
+        searchHelper.$matches = [];
         $('.modalHighlighted').removeClass('modalHighlighted');
-        clearSearch(null, true);
+        searchHelper.clearSearch(function() {
+            clearSearch();
+        });
         $('#jsonSearch').addClass('closed');
         $('.jsonModalHighlightBox').remove();
-        // $('.modalHighlighted').removeClass('modalHighlighted');
         toggleModal(null, true, 200);
 
         $jsonModal.hide();
@@ -523,12 +484,12 @@ window.JSONModal = (function($, JSONModal) {
             fillJsonArea(jsonObj, $jsonTd, isArray);
             if (!isModalOpen) {
                 $jsonText = $jsonModal.find('.prettyJson:visible');
-                $matches = $jsonText.find('.highlightedText');
+                searchHelper.$matches = $jsonText.find('.highlightedText');
             }
         } else {
             fillJsonArea(jsonObj, $jsonTd, isArray);
             $jsonText = $jsonModal.find('.prettyJson:visible');
-            $matches = $jsonText.find('.highlightedText');
+            searchHelper.$matches = $jsonText.find('.highlightedText');
         }
     }
 

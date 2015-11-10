@@ -664,6 +664,118 @@ window.xcHelper = (function($, xcHelper) {
         WSManager.unlockTable(tableId);
     };
 
+    xcHelper.SearchBar = function($searchArea, options) {
+        this.$searchArea = $searchArea;
+        this.$searchInput = $searchArea.find('input');
+        this.$counter = $searchArea.find('.counter');
+        this.$position = this.$counter.find('.position');
+        this.$total = this.$counter.find('.total');
+        this.$arrows = $searchArea.find('.arrows');
+        this.$upArrow = $searchArea.find('.upArrow');
+        this.$downArrow = $searchArea.find('.downArrow');
+        this.options = options || {};
+        this.matchIndex = null;
+        this.numMatches = 0;
+        this.$matches = [];
+        return (this);
+    }
+
+    xcHelper.SearchBar.prototype = {
+        setup: function() {
+            var searchBar = this;
+            var options = searchBar.options || {};
+            var $searchInput = searchBar.$searchInput;
+
+            $searchInput.on({
+                "keydown": function(event) {
+                    if (searchBar.numMatches === 0) {
+                        return;
+                    }
+                    if (event.which === keyCode.Up ||
+                        event.which === keyCode.Down ||
+                        event.which === keyCode.Enter) {
+                        // if ignore value exists in the input, do not search
+                        if (options.ignore &&
+                            $searchInput.val().trim()
+                                        .indexOf(options.ignore) !== -1) {
+                            return;
+                        }
+
+                        if (event.preventDefault) {
+                            event.preventDefault();
+                        }
+                        var $matches = searchBar.$matches;
+
+                        if (event.which === keyCode.Up) {
+                            searchBar.matchIndex--;
+                            if (searchBar.matchIndex < 0) {
+                                searchBar.matchIndex = searchBar.numMatches - 1;
+                            }
+                            
+                        } else if (event.which === keyCode.Down ||
+                                   event.which === keyCode.Enter) {
+                            searchBar.matchIndex++;
+                            if (searchBar.matchIndex >= searchBar.numMatches) {
+                                searchBar.matchIndex = 0;
+                            }
+                        }
+                        if (options.removeSelected) {
+                            options.removeSelected();
+                        }
+                        var $selectedMatch = $matches.eq(searchBar.matchIndex);
+                        if (options.highlightSelected) {
+                            options.highlightSelected($selectedMatch);
+                        }
+                        $selectedMatch.addClass('selected');
+                        searchBar.$position.html(searchBar.matchIndex + 1);
+                        if (options.scrollMatchIntoView) {
+                            options.scrollMatchIntoView($selectedMatch);
+                        }
+                    }
+                }
+            });
+            searchBar.$arrows.mousedown(function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+            });
+
+            searchBar.$downArrow.click(function(e) {
+                var evt = {which: keyCode.Down, type: 'keydown'};
+                $searchInput.trigger(evt);
+            });
+
+            searchBar.$upArrow.click(function(e) {
+                var evt = {which: keyCode.Up, type: 'keydown'};
+                $searchInput.trigger(evt);
+            });
+        },
+        highlightSelected: function($match) {
+            if (this.options.highlightSelected) {
+                return (this.options.highlightSelected($match));
+            } else {
+                return (undefined);
+            }
+        },
+        scrollMatchIntoView: function($match) {
+            if (this.options.scrollMatchIntoView) {
+                return (this.options.scrollMatchIntoView($match));
+            } else {
+                return (undefined);
+            }
+        },
+        clearSearch: function(callback) {
+            var searchBar = this;
+            searchBar.$position.html("");
+            searchBar.$total.html("");
+            searchBar.matchIndex = 0;
+            searchBar.$matches = [];
+            searchBar.numMatches = 0;
+            if (typeof callback === "function") {
+                callback();
+            }
+        }
+    }
+
     // an object used for global Modal Actions
     xcHelper.Modal = function($modal, options) {
         /* options incluade:
@@ -1206,6 +1318,10 @@ window.xcHelper = (function($, xcHelper) {
             $ele.removeAttr('data-container data-toggle');
         }
     };
+
+    xcHelper.escapeRegExp = function(str) {
+        return (str.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&"));
+    }
 
     return (xcHelper);
 }(jQuery, {}));

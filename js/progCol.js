@@ -381,7 +381,7 @@ window.ColManager = (function($, ColManager) {
 
         var promises = [];
         for (i = numColInfos - 1; i >= 0; i--) {
-            promises.push(chagneTypeHelper.bind(this, i));
+            promises.push(changeTypeHelper.bind(this, i));
         }
 
         chain(promises)
@@ -410,7 +410,7 @@ window.ColManager = (function($, ColManager) {
 
         return (deferred.promise());
 
-        function chagneTypeHelper(index) {
+        function changeTypeHelper(index) {
             var innerDeferred = jQuery.Deferred();
 
             var curTableName = newTableNames[index + 1];
@@ -904,7 +904,10 @@ window.ColManager = (function($, ColManager) {
                     deferred.reject(error);
                 });
                 break;
-
+            case ("search"):
+                searchColNames(args.value, args.searchBar);
+                deferred.resolve();
+                break;
             case (undefined):
                 console.warn("Blank col?");
                 deferred.resolve();
@@ -1798,6 +1801,44 @@ window.ColManager = (function($, ColManager) {
                 value +   
             '</div>';
         return (html);
+    }
+
+    function searchColNames(val, searchBar) {
+        val = val.toLowerCase();
+        var $functionArea = $('#functionArea');
+        var $headerInputs = $('.xcTable:visible').find('.editableHead');
+        if (val === "") {
+            searchBar.clearSearch(function() {
+                $('.xcTable:visible').find('.selectedCell')
+                                     .removeClass('selectedCell');
+                $functionArea.removeClass('searching');
+            });
+            return;
+        }
+       
+        var $matchedInputs = $headerInputs.filter(function() {
+            return ($(this).val().toLowerCase().indexOf(val) !== -1);
+        });
+        var numMatches = $matchedInputs.length;
+        var position = Math.min(1, numMatches);
+        searchBar.$matches = $matchedInputs.closest('th');
+        searchBar.numMatches = numMatches;
+        $functionArea.find('.position').html(position);
+        $functionArea.find('.total').html('of ' + numMatches);
+        $('.xcTable:visible').find('.selectedCell').removeClass('selectedCell');
+
+        if (numMatches !== 0) {
+            searchBar.scrollMatchIntoView(searchBar.$matches.eq(0));
+            searchBar.highlightSelected(searchBar.$matches.eq(0));
+        }
+    }
+
+    function clearColSearch($headerInputs, searchBar) {
+        $headerInputs.closest('th').removeClass('selectedCell');
+        $('#functionArea').find('.position, .total').html("");
+        searchBar.matchIndex = 0;
+        searchBar.$matches = [];
+        searchBar.numMatches = 0;
     }
 
     return (ColManager);

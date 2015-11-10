@@ -183,6 +183,61 @@
     #functionArea {
         .flex(4 1 380px);
         .flex-display;
+        position: relative;
+
+        &.searching {
+            .closeBox, .counter, .arrows {
+                display: inline-block;
+            }
+            #fnBar {
+                padding-right: 48px;
+            }
+        }
+
+        .closeIcon(@topOff: 5px, @rightOff: 76px);
+        .closeBox {
+            display: none !important;
+            .size(19px, 19px);
+            box-shadow: 0px 0px 1px 0px rgba(0,0,0,0.5);
+            .icon {
+                background-position-y: 45%;
+            }
+        }
+        .counter {
+            .position(absolute, @top: 1px, @right: 68px);
+            .size (@height: 30px);
+            .font(@color: @color-text-graySoft, @size: 14px);
+            pointer-events: none;
+        }
+
+        .arrows {
+            float: left;
+            display: inline-block;
+            > div {
+                .size(14px, 11px);
+                display: inline-block;
+                float: left;
+            }
+            .closeIcon(@topOff: 4px, @rightOff: 19px);
+            .iconWrap {
+                .size(19px, 19px);
+                box-shadow: 0px 1px 1px 0px rgba(0,0,0,0.5);
+            }
+            .upArrow {
+                right: 42px !important;
+            }
+            .upArrow .icon {
+                .image("/images/arrow-up-thin.png", 50%, 50%);
+                background-position-y: 45%;
+            }
+            .downArrow .icon {
+                .image("/images/arrow-down-thin.png", 50%, 50%);
+            }
+        }
+
+        .closeBox, .counter, .arrows {
+            display: none;
+        }
     }
 
     #fnBar {
