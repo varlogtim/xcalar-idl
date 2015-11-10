@@ -3237,13 +3237,17 @@ function adjustRowHeights(newCells, rowIndex, tableId) {
 
 function addTableListeners(tableId) {
     var $xcTableWrap = $('#xcTableWrap-' + tableId);
-
+    var oldId = gActiveTableId;
     $xcTableWrap.mousedown(function() {
         if (gActiveTableId === tableId) {
             return;
         } else {
             gActiveTableId = tableId;
-            focusTable(tableId);
+            var focusDag;
+            if (oldId !== gActiveTableId) {
+                focusDag = true;
+            }
+            focusTable(tableId, focusDag);
         }
     }).scroll(function() {
         $(this).scrollLeft(0); // prevent scrolling when colmenu is open
@@ -3381,7 +3385,7 @@ function moveTableTitlesAnimated(tableId, oldWidth, widthChange, speed) {
     }
 }
 
-function focusTable(tableId) {
+function focusTable(tableId, focusDag) {
     if (WSManager.getWSFromTable(tableId) !== WSManager.getActiveWS())
     {
         console.warn("Table not in current worksheet");
@@ -3399,6 +3403,10 @@ function focusTable(tableId) {
         $('#rowInput').val(0).data('val', 0);
     } else {
         generateFirstVisibleRowNum();
+    }
+    if (focusDag) {
+        var tableFocused = true;
+        Dag.focusDagForActiveTable(null, tableFocused);
     }
 
     Tips.refresh();

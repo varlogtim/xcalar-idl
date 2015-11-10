@@ -32,6 +32,7 @@ window.DagPanel = (function($, DagPanel) {
                 if ($dagPanel.hasClass('midway')) {
                     $('#mainFrame').addClass('midway');
                 }
+                Dag.focusDagForActiveTable();
             } else if (wasOnWorksheetPanel) {
                 // hide dag panel
                 $dagPanel.addClass('hidden');
@@ -714,9 +715,11 @@ window.Dag = (function($, Dag) {
 
             var $dagWrap = $('#dagWrap-' + tableId);
             $dagWrap.append(innerDag);
+
+            Dag.focusDagForActiveTable(tableId);
+
             var $dagImage = $dagWrap.find('.dagImage');
             
-
             var fullCanvas = true;
             var canvas = createCanvas($dagWrap, fullCanvas);
             var ctx = canvas.getContext('2d');
@@ -1055,6 +1058,70 @@ window.Dag = (function($, Dag) {
             "data-original-title": "Table '" + tableName + "' has been dropped"
         });
     };
+
+    Dag.focusDagForActiveTable = function(tableId, tableFocused) {
+        // tableId given only when initial dag is created
+        var activeTableId;
+        var $dagWrap;
+        var $dag;
+        if (tableId) {
+            activeTableId = tableId;
+            $dagWrap = $('#dagWrap-' + activeTableId);
+            $dag = $dagWrap.find('.dagImageWrap');
+            var isDagVisible = checkIfDagWrapVisible($dagWrap);
+            if (!isDagVisible) {
+                var dagWidth = $dag.width();
+                $dag.scrollLeft(dagWidth);
+            }
+        } else {
+            activeTableId = gActiveTableId;
+            $dagWrap = $('#dagWrap-' + activeTableId);
+            $dag = $dagWrap.find('.dagImageWrap');
+            if (!$dag.length) {
+                return;
+            }
+            if (tableFocused) {
+                if (checkIfDagWrapVisible($dagWrap)) {
+                    return;
+                }
+            }
+            var dagWidth = $dag.width();
+            $dag.scrollLeft(dagWidth);
+            var dagPanelHeight;
+            if ($dagPanel.hasClass('midway')) {
+                dagPanelHeight = $('#mainFrame').height() / 2 - 10;
+            } else if ($dagPanel.hasClass('full')) {
+                dagPanelHeight = $("#mainFrame").height() - 152;
+            }
+            var scrollTop = $dagPanel.find('.dagArea').scrollTop();
+            var dagTop = $dagWrap.position().top;
+
+            
+            if (dagTop - 95 + $dagPanel.scrollTop() === 0) {
+                $dagPanel.scrollTop(0);
+            } else {
+                $dagPanel.find('.dagArea').scrollTop(scrollTop + dagTop - 16);
+            }
+        }     
+    };
+
+    function checkIfDagWrapVisible($dagWrap) {
+        if (!$dagWrap.is(':visible')) {
+            return (false);
+        }
+        if ($dagPanel.hasClass('hidden')) {
+            return (false);
+        }
+        var $dagArea = $dagPanel.find('.dagArea');
+        var dagHeight = $dagWrap.height();
+        var dagAreaHeight = $dagArea.height();
+        var dagTop = $dagWrap.position().top;
+        console.log(dagTop, dagAreaHeight)
+        if (dagTop - 30 > dagAreaHeight || dagTop + dagHeight < 50) {
+            return (false);
+        }
+        return (true);
+    }
 
     function wrapText(ctx, text, x, y, maxWidth, lineHeight) {
         var words = text.split(/-| /);
