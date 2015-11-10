@@ -1547,8 +1547,6 @@ function addColListeners($table, tableId) {
                 return false;
             }
 
-            $input.prop("readonly", true);
-
             var colNum = xcHelper.parseColNum($input);
             ColManager.renameCol(colNum, tableId, colName);
         }
@@ -1739,8 +1737,8 @@ function highlightCell($td, tableId, rowNum, colNum, isShift, options) {
     // the actual cell
     options = options || {};
     if (options.jsonModal && $td.find('.jsonModalHighlightBox').length !== 0) {
-         $td.find('.jsonModalHighlightBox').data().count++;
-         return;
+        $td.find('.jsonModalHighlightBox').data().count++;
+        return;
     }
 
     var border = 5;
@@ -2006,45 +2004,6 @@ function addMenuBehaviors($mainMenu) {
             timer.hovering = setTimeout(hovering, 200);
         });
 
-        function showSubMenu($li, subMenuClass) {
-            if ($li.hasClass('selected')) {
-                $subMenu.show();
-                $subMenu.children('ul').hide();
-                $subMenu.find('li').removeClass('selected');
-                $subMenu.find('.' + subMenuClass).show();
-                var top = $li.offset().top + 30;
-                var left = $li.offset().left + 155;
-                var shiftedLeft = false;
-
-                // move submenu to left if overflowing to the right
-                var viewportRight;
-                var $rightSideBar = $('#rightSideBar');
-                if (!$rightSideBar.hasClass('poppedOut')) {
-                    viewportRight = $rightSideBar.offset().left;
-                } else {
-                    viewportRight = $(window).width();
-                }
-                if (left + $subMenu.width() > viewportRight) {
-                    $subMenu.addClass('left');
-                    shiftedLeft = true;
-                    top -= 29;
-                } else {
-                    $subMenu.removeClass('left');
-                }
-
-                // move submenu up if overflowing to the bottom
-                var viewportBottom = $(window).height();
-                if (top + $subMenu.height() > viewportBottom) {
-                    top -= $subMenu.height();
-                    if (shiftedLeft) {
-                        top += 29;
-                    }
-                }
-
-                $subMenu.css({left: left, top: top});
-            }
-        }
-
         // $(document).keydown(function(e) {
         //     var scrollTop;
         //     if (e.which === keyCode.Up) {
@@ -2056,6 +2015,45 @@ function addMenuBehaviors($mainMenu) {
         //     }
         // });
 
+    }
+
+    function showSubMenu($li, subMenuClass) {
+        if ($li.hasClass('selected')) {
+            $subMenu.show();
+            $subMenu.children('ul').hide();
+            $subMenu.find('li').removeClass('selected');
+            $subMenu.find('.' + subMenuClass).show();
+            var top = $li.offset().top + 30;
+            var left = $li.offset().left + 155;
+            var shiftedLeft = false;
+
+            // move submenu to left if overflowing to the right
+            var viewportRight;
+            var $rightSideBar = $('#rightSideBar');
+            if (!$rightSideBar.hasClass('poppedOut')) {
+                viewportRight = $rightSideBar.offset().left;
+            } else {
+                viewportRight = $(window).width();
+            }
+            if (left + $subMenu.width() > viewportRight) {
+                $subMenu.addClass('left');
+                shiftedLeft = true;
+                top -= 29;
+            } else {
+                $subMenu.removeClass('left');
+            }
+
+            // move submenu up if overflowing to the bottom
+            var viewportBottom = $(window).height();
+            if (top + $subMenu.height() > viewportBottom) {
+                top -= $subMenu.height();
+                if (shiftedLeft) {
+                    top += 29;
+                }
+            }
+
+            $subMenu.css({left: left, top: top});
+        }
     }
 
     function scrollMenu(scrollUp) {
@@ -2257,13 +2255,14 @@ function addMenuKeyboardNavigation($menu, $subMenu) {
             }
             if ($highlightedLi.length &&
                 $highlightedLi.hasClass('parentMenu')) {
+                var e;
                 // if mainmenu li is highlighted and has a submenu
                 if (keyCodeNum === keyCode.Right) {
                     if ($subMenu.is(':visible')) {
                         if (!$highlightedSubLi.length) {
                             // select first sub menu li if sub menu is open
                             // but no sub menu li is highlighted
-                            var e = $.Event('mouseenter');
+                            e = $.Event('mouseenter');
                             e.keyTriggered = true;
                             $highlightedLi.trigger(e);
                             var $subLis = $subMenu.find('li:visible');
@@ -2271,13 +2270,13 @@ function addMenuKeyboardNavigation($menu, $subMenu) {
                             if ($subLis.find('input').length > 0) {
                                 $subLis.find('input').eq(0).focus();
                             }
-                        } else { 
+                        } else {
                             // close menus if sub menu li is already highlighted
                             closeMenu($menu.add($subMenu));
                         }
                     } else {
                         // open submenu and highlight first li
-                        var e = $.Event('mouseenter');
+                        e = $.Event('mouseenter');
                         e.keyTriggered = true;
                         $highlightedLi.trigger(e);
                         var $subLis = $subMenu.find('li:visible');

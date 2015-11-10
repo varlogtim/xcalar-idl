@@ -32,7 +32,7 @@ window.ColManager = (function($, ColManager) {
         if (winWidth > 1400) {
             width = 700;
         } else if (winWidth > 1100) {
-             width = 600;
+            width = 600;
         } else {
             width = 500;
         }
@@ -751,7 +751,8 @@ window.ColManager = (function($, ColManager) {
 
         curCol.name = newName;
         $table.find('.editableHead.col' + colNum).val(newName)
-                                                .attr("value", newName);
+                                                .attr("value", newName)
+                                                .prop("readonly", true);
 
         // adjust rightsidebar column name
         $('#activeTablesList').find('.tableInfo[data-id=' + tableId + ']')
