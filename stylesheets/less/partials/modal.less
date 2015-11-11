@@ -2589,7 +2589,9 @@ html.microsoft {
     .noSelection;
 
     .modalInstruction {
-        padding: 3px 12px 3px 12px;
+        padding: 5px 12px 5px 12px;
+        height: 60px;
+
         .icon {
             margin-top: 9px;
         }
@@ -2599,13 +2601,11 @@ html.microsoft {
         .size(@height: 80px);
         padding: 5px 10px;
 
-        > div {
-            float: left;
-            .size(@height: 100%);
-        }
-
         .castSection {
-            .size(@width: 17%);
+            .size(@width: 17%, @height: 100%);
+            float: left;
+            margin-left: 15px;
+
             .btn {
                 .vertical-align;
                 left: 5px;
@@ -2616,37 +2616,11 @@ html.microsoft {
             }
         }
 
-        .resultSection {
-            .size(@width: 70%);
-            padding: 0 10px;
-            overflow-y: auto;
-            .font(@size: 12px, @weight: bold, @line-height: 25px, @color: @color-text-midGray);
-
-            .area {
-                .size(@width: 33%, @height: 25px);
-                padding: 0 3px;
-                float: left;
-                white-space: nowrap;
-                margin-bottom: -1px;
-                margin-left: -1px;
-                border: 1px solid rgba(0, 0, 0, 0.2);
-
-                > span {
-                    text-transform: capitalize;
-
-                    &.highlight {
-                        color: @color-text-blue;
-                    }
-                }
-
-                &:nth-last-child(-n+3) {
-                    margin-bottom: 0;
-                }
-            }
-        }
-
         .selectSection {
-            .size(@width: 13%);
+            .size(@width: 13%, @height: 100%);
+            float: right;
+            margin-right: 15px;
+
             .buttonGroup {
                 .size(@width: 120px);
                 float: right;
@@ -2692,11 +2666,100 @@ html.microsoft {
     }
 
     .modalMain {
-        .size(@height: ~"calc(100% - 235px)");
+        .size(@height: ~"calc(100% - 237px)");
         padding: 20px 10px 0 10px;
 
+        > div {
+            float: left;
+        }
+
+        .resultContainer {
+            .size(@width: 295px, @height: 100%);
+
+            .header {
+                .size(@height: 43px);
+                margin-bottom: 1px;
+                background: #e6e6e6;
+                border: 1px solid #bdbdbd;
+                .rounded(3px 3px 0 0);
+                box-shadow: 0px 2px 1px rgba(0, 0, 0, 0.2);
+
+                .row {
+                    .size(@height: 41px);
+                    text-align: center;
+                    .font(@size: 12px, @line-height: 41px, @color: @color-text-darkGray);
+
+                    > div {
+                        padding: 0;
+                    }
+                }
+            }
+
+            .content {
+                .size(@height: ~"calc(100% - 44px)");
+                overflow-y: scroll;
+                border: 1px solid #e9e9e9;
+                border-top: none;
+
+                .row {
+                    &:nth-child(odd) {
+                        background: #fbfbfb;
+                    }
+
+                    &:nth-child(even) {
+                        background: #f0f0f0;
+                    }
+
+                    .newType {
+                        background: rgba(204, 235, 204, 0.6);
+
+                        &.highlight {
+                            background: rgba(197, 225, 241, 0.6);
+                        }
+                    }
+                }
+            }
+
+            .row {
+                .size(@height: 30px);
+                .font(@size: 11px, @weight: bold, @line-height: 30px, @color: @color-text-midGray);
+
+                > div {
+                    float: left;
+                    white-space: nowrap;
+                    padding: 0 10px;
+                    border-right: 1px solid #bdbdbd;
+                    .size(@width: 95px);
+                    .textOverflow;
+
+                    &:last-child {
+                        border-right: none;
+                        .size(@width: ~"calc(100% - 190px)");
+                    }
+
+                    &.newType {
+                        color: @color-text-blue;
+                    }
+
+                    &.oldType, &.newType {
+                        text-transform: capitalize;
+                    }
+                }
+            }
+        }
+
+        .dividerContainer {
+            .size(@width: 15px, @height: 100%);
+
+            .divider {
+                .size(@width: 1px, @height: 100%);
+                .center-align;
+                background-color: @color-join-divider;
+            }
+        }
+
         .tableContainer {
-            .size(100%, 100%);
+            .size(@width: ~"calc(100% - 310px)", @height: 100%);
             .rounded(3px 3px 0 0);
             border: 1px solid #e9e9e9;
 

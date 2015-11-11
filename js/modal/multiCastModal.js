@@ -6,13 +6,18 @@ window.MultiCastModal = (function($, MultiCastModal) {
     var $castBtn = $("#multiCast-cast");
 
     var minHeight = 500;
-    var minWidth  = 1000;
+    var minWidth  = 600;
 
     var curTableId;
     var newColTypes = [];
     var colNames = [];
     var colTypes = [];
     var recTypes = [];
+
+    var modalHelper = new xcHelper.Modal($modal, {
+        "minHeight": minHeight,
+        "minWidth" : minWidth
+    });
 
     MultiCastModal.setup = function() {
         $modal.resizable({
@@ -83,7 +88,7 @@ window.MultiCastModal = (function($, MultiCastModal) {
             updateTypeInfo(true);
         });
 
-        $modal.on("click", ".area", function() {
+        $modal.on("click", ".row", function() {
             var colNum = $(this).data("col");
             if (colNum != null) {
                 scrollToColumn($table.find("th.col" + colNum));
@@ -97,7 +102,7 @@ window.MultiCastModal = (function($, MultiCastModal) {
 
     MultiCastModal.show = function(tableId) {
         curTableId = tableId;
-        centerPositionElement($modal);
+        modalHelper.setup($modal);
 
         if (gMinModeOn) {
             $modalBg.show();
@@ -132,6 +137,8 @@ window.MultiCastModal = (function($, MultiCastModal) {
 
     function closeMultiCastModal() {
         var fadeOutTime = gMinModeOn ? 0 : 300;
+        modalHelper.clear();
+
         $modal.hide();
         $modalBg.fadeOut(fadeOutTime);
         $table.html("");
@@ -181,6 +188,8 @@ window.MultiCastModal = (function($, MultiCastModal) {
         var html = "";
         var len = newColTypes.length;
         var count = 0;
+        var colName;
+        var oldType;
         var newType;
         var newTypeClass;
 
@@ -201,20 +210,21 @@ window.MultiCastModal = (function($, MultiCastModal) {
                 $table.find("th.col" + colNum).removeClass("highlight");
             }
 
-            html += '<div title="' + colNames[colNum] + " : " +
-                        colTypes[colNum] + " -> " + newType +
+            colName = colNames[colNum];
+            oldType = colTypes[colNum];
+            html += '<div class="row" data-col="' + colNum + '">' +
+                        '<div title="' + colName + '" ' +
                         '" data-toggle="tooltip" data-placement="top" ' +
                         'data-container="body" ' +
-                        'class="area textOverflow tooltipOverflow" ' +
-                        'data-col="' + colNum + '">' +
-                        colNames[colNum] + " : " +
-                        '<span class="oldType">' +
-                            colTypes[colNum] +
-                        '</span>' +
-                        ' -> ' +
-                        '<span class="' + newTypeClass + '">' +
+                        'class="colName tooltipOverflow">' +
+                            colName +
+                        '</div>' +
+                        '<div class="oldType">' +
+                            oldType +
+                        '</div>' +
+                        '<div class="' + newTypeClass + '">' +
                             newType +
-                        '</span>' +
+                        '</div>' +
                     '</div>';
             count++;
         }
@@ -236,12 +246,6 @@ window.MultiCastModal = (function($, MultiCastModal) {
             setTimeout(function() {
                 $castBtn.tooltip("destroy");
             }, 1000);
-        }
-
-        // padding part
-        len = (3 - count % 3) % 3;
-        for (var i = 0; i < len; i++) {
-            html += '<div class="area textOverflow"></div>';
         }
 
         $resultSection.html(html);
