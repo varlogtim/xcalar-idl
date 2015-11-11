@@ -368,7 +368,12 @@ window.ColManager = (function($, ColManager) {
             query += 'map --eval "' + mapStrings[i] +
                     '" --srctable "' + srctable +
                     '" --fieldName "' + fieldNames[i] +
-                    '" --dsttable "' + dsttable + '";';
+                    '" --dsttable "' + dsttable + '"';
+
+            if (i !== numColInfos - 1) {
+                query += ';';
+            }
+
             srctable = dsttable;
         }
 
@@ -385,10 +390,8 @@ window.ColManager = (function($, ColManager) {
         WSManager.addTable(finalTableId);
 
         var queryName = xcHelper.randName("changeType");
-        XcalarQuery(queryName, query)
-        .then(function() {
-            return (XcalarQueryCheck(queryName));
-        })
+
+        XcalarQueryWithCheck(queryName, query)
         .then(function() {
             var mapOptions = { "replaceColumn": true };
             var curTableCols = tableCols;
@@ -420,7 +423,7 @@ window.ColManager = (function($, ColManager) {
                 "tableId"     : tableId,
                 "newTableName": finalTable,
                 "colTypeInfos": colTypeInfos
-            });
+            }, query);
 
             commitToStorage();
             deferred.resolve();

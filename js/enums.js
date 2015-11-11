@@ -191,6 +191,5 @@ var SQLOps = {
     QuickAgg: "quickAgg",
     SplitCol: "splitCol",
     SplitColMap: "spltColMap",
-    ChangeType: "changeType",
-    ChangeTypeMap: "changeTypeMap"
+    ChangeType: "changeType"
 };

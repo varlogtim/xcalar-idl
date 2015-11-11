@@ -63,7 +63,6 @@ window.SQL = (function($, SQL) {
             case SQLOps.ProfileAction:
             case SQLOps.QuickAggAction:
             case SQLOps.SplitColMap:
-            case SQLOps.ChangeTypeMap:
             case SQLOps.JoinMap:
             case SQLOps.GroupbyMap:
                 return ("");
@@ -182,8 +181,6 @@ window.SQL = (function($, SQL) {
                 // fallthrough
             case (SQLOps.SplitCol):
                 // fallthrough
-            case (SQLOps.ChangeType):
-                // fallthrough
                 // XXX should export tables have an effect?
                 break;
 
@@ -209,7 +206,7 @@ window.SQL = (function($, SQL) {
             case (SQLOps.ProfileAction):
             case (SQLOps.QuickAggAction):
             case (SQLOps.SplitColMap):
-            case (SQLOps.ChangeTypeMap):
+            case (SQLOps.ChangeType):
                 string += cli;
                 break;
             default:

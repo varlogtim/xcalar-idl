@@ -1277,19 +1277,24 @@ function XcalarQuery(queryName, queryString) {
 }
 
 function XcalarQueryCheck(queryName) {
+    if (tHandle == null) {
+        return (promiseWrapper(null));
+    }
+
     var deferred = jQuery.Deferred();
+
     if (insertError(arguments.callee, deferred)) {
         return (deferred.promise());
     }
 
-    var checkTime = 500; // 0.5s per check
+    var checkTime = 1000; // 1s per check
     var timer = setInterval(function() {
         xcalarQueryState(tHandle, queryName)
         .then(function(queryStateOutput) {
             var state = queryStateOutput.queryState;
             if (state === QueryStateT.qrFinished) {
                 clearInterval(timer);
-                deferred.resolve();
+                deferred.resolve(queryStateOutput);
             } else if (state === QueryStateT.qrError) {
                 clearInterval(timer);
                 deferred.reject(queryStateOutput);
@@ -1300,6 +1305,22 @@ function XcalarQueryCheck(queryName) {
             deferred.reject(error);
         });
     }, checkTime);
+
+    return (deferred.promise());
+}
+
+function XcalarQueryWithCheck(queryName, queryString) {
+    var deferred = jQuery.Deferred();
+    if (insertError(arguments.callee, deferred)) {
+        return (deferred.promise());
+    }
+
+    XcalarQuery(queryName, queryString)
+    .then(function() {
+        return (XcalarQueryCheck(queryName));
+    })
+    .then(deferred.resolve)
+    .fail(deferred.reject);
 
     return (deferred.promise());
 }
