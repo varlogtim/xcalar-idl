@@ -2852,13 +2852,11 @@ function functionBarEnter($colInput) {
     var fnBarVal = $fnBar.val();
     var fnBarValTrim = fnBarVal.trim();
     
-    // if (!$colInput) {
-    //     return;
-    // }
+    if (!$colInput) {
+        return;
+    }
     gFnBarOrigin = $colInput;
-    if (fnBarValTrim.indexOf('=') !== 0) {
-        // ColManager.execCol({func: {func: 'search'}}, null, fnBarValTrim);
-    } else if ($colInput) {
+    if (fnBarValTrim.indexOf('=') === 0) {
         var $table   = $colInput.closest('.dataTable');
         var tableId  = xcHelper.parseTableId($table);
         var colNum   = xcHelper.parseColNum($colInput);
@@ -2888,7 +2886,10 @@ function functionBarEnter($colInput) {
 
         $colInput.closest('th').removeClass('unusedCell');
         $table.find('td:nth-child(' + colNum + ')').removeClass('unusedCell');
-
+        var isValid = checkFuncSyntaxValidity(fnBarValTrim);
+        if (!isValid) {
+            return;
+        }
         var progCol = parseFunc(newFuncStr, colNum, table, true);
         // add sql
         SQL.add("Pull Column", {
@@ -2904,9 +2905,28 @@ function functionBarEnter($colInput) {
             RightSideBar.updateTableInfo(tableId);
             commitToStorage();
         });
-    } else {
-        return;
     }
+}
+
+function checkFuncSyntaxValidity(funcStr) {
+    if (funcStr.indexOf("(") === -1 || funcStr.indexOf(")") === -1) {
+        return (false);
+    }
+
+    var count = 0
+    var strLen = funcStr.length;
+    for (var i = 0; i < strLen; i++) {
+        if (funcStr[i] === "(") {
+            count++;
+        } else if (funcStr[i] === ")") {
+            count--;
+        }
+        if (count < 0) {
+            return (false);
+        }
+    }
+
+    return (count === 0);
 }
 
 function parseFunc(funcString, colNum, table, modifyCol) {

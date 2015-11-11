@@ -1318,7 +1318,6 @@ window.ColManager = (function($, ColManager) {
 
             columnTypes.push(tableCols[i].type); // initial type
         }
-
         // loop through table tr and start building html
         for (var row = 0, numRows = jsonData.length; row < numRows; row++) {
             var dataValue = parseRowJSON(jsonData[row]);
@@ -1355,6 +1354,8 @@ window.ColManager = (function($, ColManager) {
                 if (col !== dataIndex) {
                     if (nested == null) {
                         console.error('Error this value should not be empty');
+                    } else if (nested === "") {
+                        tdValue = "";
                     }
 
                     var nestedLength = nested.length;
@@ -1675,7 +1676,9 @@ window.ColManager = (function($, ColManager) {
         var nested = key.replace(/\]/g, "")
                         .replace(/\[/g, ".")
                         .match(/([^\\.]|\\.)+/g);
-
+        if (nested == null) {
+            return ("");
+        }
         for (var i = 0; i < nested.length; i++) {
             nested[i] = nested[i].replace(/\\./g, "\.");
         }
