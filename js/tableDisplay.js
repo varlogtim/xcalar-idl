@@ -473,7 +473,7 @@ function startBuildTable(tableId, tablesToRemove) {
 }
 
 function buildInitialTable(progCols, tableId, jsonObj, keyName) {
-    var table = xcHelper.getTableFromId(tableId);
+    var table = gTables[tableId];
     table.tableCols = progCols;
     table.keyName = keyName;
     var dataIndex = generateTableShell(table.tableCols, tableId);

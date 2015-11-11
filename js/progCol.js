@@ -345,10 +345,35 @@ window.ColManager = (function($, ColManager) {
         var deferred = jQuery.Deferred();
 
         var numColInfos = colTypeInfos.length;
-        var currentWS   = WSManager.getActiveWS();
         var table       = gTables[tableId];
         var tableName   = table.tableName;
         var tableCols   = table.tableCols;
+
+        var tableNamePart = tableName.split("#")[0];
+        var fieldNames = [];
+        var mapStrings = [];
+        var srctable = tableName;
+        var dsttable;
+        var query = "";
+
+        for (var i = 0; i < numColInfos; i++) {
+            var colInfo = colTypeInfos[i];
+            var col = tableCols[colInfo.colNum - 1];
+
+            dsttable = tableNamePart + Authentication.getHashId();
+            // here use front col name to generate newColName
+            fieldNames[i] = col.name + "_" + colInfo.type;
+            mapStrings[i] = mapStrHelper(col.func.args[0], colInfo.type);
+
+            query += 'map --eval "' + mapStrings[i] +
+                    '" --srctable "' + srctable +
+                    '" --fieldName "' + fieldNames[i] +
+                    '" --dsttable "' + dsttable + '";';
+            srctable = dsttable;
+        }
+
+        var finalTable   = dsttable;
+        var finalTableId = xcHelper.getTableId(finalTable);
 
         var msg = StatusMessageTStr.ChangeType;
         var msgObj = {
@@ -356,44 +381,44 @@ window.ColManager = (function($, ColManager) {
             "operation": SQLOps.ChangeType
         };
         var msgId = StatusMessage.addMsg(msgObj);
-        var tableNamePart = tableName.split("#")[0];
-        var newTableNames = [];
-        var newFieldNames = [];
-        var mapStrings = [];
-
         xcHelper.lockTable(tableId);
+        WSManager.addTable(finalTableId);
 
-        var i;
-        var colInfo;
-        var col;
-        for (i = numColInfos - 1; i >= 0; i--) {
-            newTableNames[i] = tableNamePart + Authentication.getHashId();
-            colInfo = colTypeInfos[i];
-            col = tableCols[colInfo.colNum - 1];
-            // here use front col name to generate newColName
-            newFieldNames[i] = col.name + "_" + colInfo.type;
-            mapStrings[i] = mapStrHelper(col.func.args[0], colInfo.type);
-        }
+        var queryName = xcHelper.randName("changeType");
+        XcalarQuery(queryName, query)
+        .then(function() {
+            return (XcalarQueryCheck(queryName));
+        })
+        .then(function() {
+            var mapOptions = { "replaceColumn": true };
+            var curTableCols = tableCols;
 
-        // this makes it easy to get previous table name
-        // when index === numColInfos
-        newTableNames[numColInfos] = tableName;
+            for (var j = 0; j < numColInfos; j++) {
+                var curColNum = colTypeInfos[j].colNum;
+                curTableCols = xcHelper.mapColGenerate(curColNum, fieldNames[j],
+                                    mapStrings[j], curTableCols, mapOptions);
+            }
 
-        var promises = [];
-        for (i = numColInfos - 1; i >= 0; i--) {
-            promises.push(changeTypeHelper.bind(this, i));
-        }
-
-        chain(promises)
-        .then(function(newTableId) {
+            var tableProperties = {
+                "bookmarks" : xcHelper.deepCopy(table.bookmarks),
+                "rowHeights": xcHelper.deepCopy(table.rowHeights)
+            };
+            // map do not change groupby stats of the table
+            STATSManager.copy(tableId, finalTableId);
+            return (setgTable(finalTable, curTableCols, null, tableProperties));
+        })
+        .then(function() {
+            return (refreshTable(finalTable, tableName));
+        })
+        .then(function() {
             xcHelper.unlockTable(tableId, true);
-            StatusMessage.success(msgId, false, newTableId);
+            StatusMessage.success(msgId, false, finalTableId);
 
             SQL.add("Change Data Type", {
                 "operation"   : SQLOps.ChangeType,
                 "tableName"   : tableName,
                 "tableId"     : tableId,
-                "newTableName": newTableNames[0],
+                "newTableName": finalTable,
                 "colTypeInfos": colTypeInfos
             });
 
@@ -402,6 +427,7 @@ window.ColManager = (function($, ColManager) {
         })
         .fail(function(error) {
             xcHelper.unlockTable(tableId);
+            WSManager.removeTable(finalTableId);
 
             Alert.error("Change Data Type Fails", error);
             StatusMessage.fail(StatusMessageTStr.SplitColumnFailed, msgId);
@@ -409,63 +435,6 @@ window.ColManager = (function($, ColManager) {
         });
 
         return (deferred.promise());
-
-        function changeTypeHelper(index) {
-            var innerDeferred = jQuery.Deferred();
-
-            var curTableName = newTableNames[index + 1];
-            var newTableName = newTableNames[index];
-            var fieldName    = newFieldNames[index];
-            var mapString    = mapStrings[index];
-            var newTableId   = xcHelper.getTableId(newTableName);
-            var curColNum    = colTypeInfos[index].colNum;
-
-            var sqlOptions = {
-                "operation"   : SQLOps.ChangeTypeMap,
-                "action"      : "map",
-                "tableName"   : curTableName,
-                "newTableName": newTableName,
-                "fieldName"   : fieldName,
-                "mapString"   : mapString
-            };
-
-            WSManager.addTable(newTableId, currentWS);
-
-            XcalarMap(fieldName, mapString, curTableName, newTableName, sqlOptions)
-            .then(function() {
-                var mapOptions   = { "replaceColumn": true };
-                var curTableId   = xcHelper.getTableId(curTableName);
-                var curTableCols = gTables[curTableId].tableCols;
-
-                var newTablCols  = xcHelper.mapColGenerate(curColNum, fieldName,
-                                        mapString, curTableCols, mapOptions);
-                var tableProperties = {
-                    "bookmarks" : xcHelper.deepCopy(table.bookmarks),
-                    "rowHeights": xcHelper.deepCopy(table.rowHeights)
-                };
-
-                // map do not change groupby stats of the table
-                STATSManager.copy(curTableId, newTableId);
-
-                return (setgTable(newTableName, newTablCols, null, tableProperties));
-            })
-            .then(function() {
-                var refreshOptions = {};
-                if (index > 0) {
-                    refreshOptions = { "lockTable": true };
-                }
-                return (refreshTable(newTableName, curTableName, refreshOptions));
-            })
-            .then(function() {
-                innerDeferred.resolve(newTableId);
-            })
-            .fail(function(error) {
-                WSManager.removeTable(newTableId);
-                innerDeferred.reject(error);
-            });
-
-            return (innerDeferred.promise());
-        }
 
         function mapStrHelper(colName, colType) {
             var mapStr = "";

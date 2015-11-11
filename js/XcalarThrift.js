@@ -1276,6 +1276,34 @@ function XcalarQuery(queryName, queryString) {
     return (deferred.promise());
 }
 
+function XcalarQueryCheck(queryName) {
+    var deferred = jQuery.Deferred();
+    if (insertError(arguments.callee, deferred)) {
+        return (deferred.promise());
+    }
+
+    var checkTime = 500; // 0.5s per check
+    var timer = setInterval(function() {
+        xcalarQueryState(tHandle, queryName)
+        .then(function(queryStateOutput) {
+            var state = queryStateOutput.queryState;
+            if (state === QueryStateT.qrFinished) {
+                clearInterval(timer);
+                deferred.resolve();
+            } else if (state === QueryStateT.qrError) {
+                clearInterval(timer);
+                deferred.reject(queryStateOutput);
+            }
+        })
+        .fail(function(error) {
+            clearInterval(timer);
+            deferred.reject(error);
+        });
+    }, checkTime);
+
+    return (deferred.promise());
+}
+
 function XcalarGetDag(tableName) {
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return (promiseWrapper(null));
