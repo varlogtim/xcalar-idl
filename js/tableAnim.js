@@ -3152,6 +3152,13 @@ function dropdownClick($el, options) {
         left = $el[0].getBoundingClientRect().right - $menu.width();
         $menu.css('left', left).addClass('leftColMenu');
     }
+    //positioning if td menu is below the screen
+    if (options.type === "tdDropdown") {
+        if (top + $menu.height() + 5 > $(window).height()) {
+            top -= ($menu.height() + 20);
+            $menu.css('top', top);
+        }
+    }
 
     addMenuKeyboardNavigation($menu, $subMenu);
 
