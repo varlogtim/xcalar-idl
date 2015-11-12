@@ -349,6 +349,7 @@ function setupLogout() {
     var username = sessionStorage.getItem("xcalar-username");
 
     $userName.text(username);
+    $('#userNameArea').show();
     $popOut.find(".text").text(username);
 
     $userName.click(function(event) {
