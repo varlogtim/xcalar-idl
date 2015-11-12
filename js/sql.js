@@ -1,5 +1,6 @@
 window.SQL = (function($, SQL) {
     var history = [];
+    var sqlToCommit = "";
     var $textarea = $('#rightBarTextArea');
     var $machineTextarea = $('#rightBarMachineTextArea');
 
@@ -10,11 +11,14 @@ window.SQL = (function($, SQL) {
             return;
         }
 
-        history.push({
+        var sql = {
             "title"  : title,
             "options": options,
             "cli"    : cli
-        });
+        };
+        history.push(sql);
+
+        sqlToCommit += JSON.stringify(sql) + ",";
 
         $textarea.append(getCliHTML(title, options));
         $machineTextarea.append(getCliMachine(title, options, cli));
@@ -23,21 +27,61 @@ window.SQL = (function($, SQL) {
         SQL.scrollToBottom($machineTextarea);
     };
 
+    SQL.commit = function() {
+        var deferred = jQuery.Deferred();
+        if (sqlToCommit === "") {
+            deferred.resolve();
+            return (deferred.promise());
+        }
+
+        KVStore.append(KVStore.gLogKey, sqlToCommit, true, gKVScope.LOG)
+        .then(function() {
+            sqlToCommit = "";
+            deferred.resolve();
+        })
+        .fail(deferred.reject);
+
+        return (deferred.promise());
+    };
+
     SQL.getHistory = function() {
         return (history);
     };
 
-    SQL.restoreFromHistory = function(oldCliHistory) {
-        history = oldCliHistory;
-        history.forEach(function(record) {
-            record.options = record.options || {};
-            $textarea.append(getCliHTML(record.title, record.options));
-            $machineTextarea.append(getCliMachine(record.title,
-                                                  record.options,
-                                                  record.cli));
-            SQL.scrollToBottom($textarea);
-            SQL.scrollToBottom($machineTextarea);
-        });
+    SQL.restore = function() {
+        var deferred = jQuery.Deferred();
+
+        KVStore.get(KVStore.gLogKey, gKVScope.LOG)
+        .then(function(value) {
+            if (value != null) {
+                try {
+                    var len = value.length;
+                    if (value.charAt(len - 1) === ",") {
+                        value = value.substring(0, len - 1);
+                    }
+                    var sqlStr = "[" + value + "]";
+                    history = JSON.parse(sqlStr);
+                } catch(err) {
+                    deferred.reject(err);
+                }
+            }
+        })
+        .then(function() {
+            history.forEach(function(record) {
+                record.options = record.options || {};
+                $textarea.append(getCliHTML(record.title, record.options));
+                $machineTextarea.append(getCliMachine(record.title,
+                                                      record.options,
+                                                      record.cli));
+                SQL.scrollToBottom($textarea);
+                SQL.scrollToBottom($machineTextarea);
+            });
+
+            deferred.resolve();
+        })
+        .fail(deferred.reject);
+
+        return (deferred.promise());
     };
 
     SQL.clear = function() {

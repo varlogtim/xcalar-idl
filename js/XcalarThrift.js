@@ -1622,7 +1622,7 @@ function XcalarKeyReplaceIfEqual(key, scope, oldValue, newValue) {
     return (deferred.promise());
 }
 
-function XcalarKeyAppend(scope, key, stuffToAppend) {
+function XcalarKeyAppend(key, stuffToAppend, persist, scope) {
     if (tHandle == null) {
         return (promiseWrapper(null));
     }
@@ -1631,13 +1631,21 @@ function XcalarKeyAppend(scope, key, stuffToAppend) {
         return (deferred.promise());
     }
 
+    if (scope == null) {
+        scope = XcalarApiKeyScopeT.XcalarApiKeyScopeGlobal;
+    }
+
     xcalarKeyAppend(tHandle, scope, key, stuffToAppend)
     .then(deferred.resolve)
     .fail(function(error) {
-        var thriftError = thriftLog("XcalarKeyAppend", error);
-        if (thriftError.status === StatusT.StatusKvEntryNotFound) {
-            deferred.resolve();
+        if (error === StatusT.StatusKvEntryNotFound) {
+            console.info("Append fails as key not found, put key instead");
+            // if append fails because key not found, put value instead
+            xcalarKeyAddOrReplace(tHandle, scope, key, stuffToAppend, persist)
+            .then(deferred.resolve)
+            .fail(deferred.reject);
         } else {
+            var thriftError = thriftLog("XcalarKeyAppend", error);
             deferred.reject(thriftError);
         }
     });

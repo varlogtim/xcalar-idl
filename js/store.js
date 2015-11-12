@@ -87,7 +87,6 @@ var KVKeys = {
     "WS"   : "worksheets",
     "DS"   : "gDSObj",
     "HOLD" : "holdStatus",
-    "SQL"  : "sql",
     "CLI"  : "scratchPad",
     "CART" : "datacarts",
     "STATS": "statsCols",
@@ -109,7 +108,6 @@ function commitToStorage(atStartUp) {
     };
 
     storage[KVKeys.DS] = DS.getHomeDir();
-    storage[KVKeys.SQL] = SQL.getHistory();
     storage[KVKeys.CLI] = CLIBox.getCli();
 
     storage[KVKeys.CART] = DataCart.getCarts();
@@ -124,6 +122,9 @@ function commitToStorage(atStartUp) {
     }
 
     KVStore.put(KVStore.gStorageKey, JSON.stringify(storage), true, gKVScope.META)
+    .then(function() {
+        return (SQL.commit());
+    })
     .then(function() {
         var d = new Date();
         var t = xcHelper.getDate("-", d) + " " + d.toLocaleTimeString();
@@ -160,9 +161,6 @@ function readFromStorage() {
             if (gInfos[KVKeys.DS]) {
                 gDSObjFolder = gInfos[KVKeys.DS];
             }
-            if (gInfos[KVKeys.SQL]) {
-                SQL.restoreFromHistory(gInfos[KVKeys.SQL]);
-            }
             if (gInfos[KVKeys.CLI]) {
                 CLIBox.restore(gInfos[KVKeys.CLI]);
             }
@@ -175,10 +173,14 @@ function readFromStorage() {
             if (gInfos[KVKeys.USER]) {
                 UserSettings.restore(gInfos[KVKeys.USER]);
             }
+
+            return (SQL.restore());
         } else {
             emptyAllStorage(true);
+            return (promiseWrapper(null));
         }
-
+    })
+    .then(function() {
         return (XcalarGetDatasets());
     })
     .then(function(datasets) {
@@ -510,25 +512,23 @@ window.KVStore = (function($, KVStore) {
             deferred.reject(error);
         });
 
-        function checkHelper() {
-            var innerDeferred = jQuery.Deferred();
-            if (KVStore.commitKey == null) {
-                // when workbook is not set up yet or no workbook yet
-                innerDeferred.resolve();
-            } else {
-                XcalarKeyLookup(KVStore.commitKey, gKVScope.FLAG)
-                .then(function(val) {
-                    if (val.value === commitFlag) {
-                        innerDeferred.resolve();
-                    } else {
-                        innerDeferred.reject("commit key not match");
-                    }
-                })
-                .fail(innerDeferred.reject);
-            }
+        return (deferred.promise());
+    };
 
-            return (innerDeferred.promise());
+    KVStore.append = function(key, value, persist, scope) {
+        var deferred = jQuery.Deferred();
+
+        if (safeMode) {
+            deferred.resolve();
+            return (deferred.promise());
         }
+
+        checkHelper()
+        .then(function() {
+            return (XcalarKeyAppend(key, value, persist, scope));
+        })
+        .then(deferred.resolve)
+        .fail(deferred.reject);
 
         return (deferred.promise());
     };
@@ -628,11 +628,25 @@ window.KVStore = (function($, KVStore) {
         return (isHold);
     };
 
-    KVStore.log = function(error) {
-        var log = {};
-        log.error = error;
-        KVStore.put(KVStore.gLogKey, JSON.stringify(log), true, gKVScope.LOG);
-    };
+    function checkHelper() {
+        var deferred = jQuery.Deferred();
+        if (KVStore.commitKey == null) {
+            // when workbook is not set up yet or no workbook yet
+            deferred.resolve();
+        } else {
+            XcalarKeyLookup(KVStore.commitKey, gKVScope.FLAG)
+            .then(function(val) {
+                if (val.value === commitFlag) {
+                    deferred.resolve();
+                } else {
+                    deferred.reject("commit key not match");
+                }
+            })
+            .fail(deferred.reject);
+        }
+
+        return (deferred.promise());
+    }
 
     function getWKBKLists() {
         var deferred = jQuery.Deferred();
