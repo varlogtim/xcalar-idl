@@ -10,6 +10,7 @@ window.MultiCastModal = (function($, MultiCastModal) {
 
     var curTableId;
     var newColTypes = [];
+    var suggColFlags = [];
     var colNames = [];
     var colTypes = [];
     var recTypes = [];
@@ -60,32 +61,13 @@ window.MultiCastModal = (function($, MultiCastModal) {
             closeMultiCastModal();
         });
 
-        $modal.on("click", "th", function() {
-            var $th = $(this);
-
-            if ($th.hasClass("unselectable")) {
-                return;
-            }
-
-            if ($th.hasClass("colSelected")) {
-                deSelectCols($th);
-            } else {
-                selectCols($th);
-            }
-        });
-
-        $modal.on("click", ".selectAll", function() {
-            var $ths = $table.find("th:not(.unselectable):not(.colSelected)");
-            selectCols($ths);
-        });
-
-        $modal.on("click", ".deSelectAll", function() {
+        $("#multiCast-clear").click(function() {
             var $ths = $table.find("th.colSelected");
             deSelectCols($ths);
         });
 
         $castBtn.click(function() {
-            updateTypeInfo(true);
+            smartSuggest();
         });
 
         $modal.on("click", ".row", function() {
@@ -114,6 +96,7 @@ window.MultiCastModal = (function($, MultiCastModal) {
         }
 
         buildTable(tableId);
+        smartSuggest();
 
         var $lists = $table.find(".header:not(.unselectable) .listSection");
 
@@ -121,7 +104,6 @@ window.MultiCastModal = (function($, MultiCastModal) {
             "onSelect": function($li) {
                 var $list  = $li.closest(".list");
                 var $input = $list.siblings(".text");
-                // var colNum = parseInt($list.data("col"));
                 var type   = $li.text();
 
                 $input.val(type);
@@ -147,6 +129,7 @@ window.MultiCastModal = (function($, MultiCastModal) {
         $(document).off(".multiCastModal");
 
         newColTypes = [];
+        suggColFlags = [];
         colNames = [];
         colTypes = [];
         recTypes = [];
@@ -157,14 +140,26 @@ window.MultiCastModal = (function($, MultiCastModal) {
         var colNum;
         var $th;
         var newColType;
+        var $input;
 
         $ths.each(function() {
             $th = $(this);
             colNum = parseInt($th.data("col"));
-            $table.find(".col" + colNum).addClass("colSelected");
 
-            newColType = $th.find(".listSection input").val();
-            newColTypes[colNum] = newColType;
+            $input = $th.find(".listSection input");
+            newColType = $input.val();
+
+            if (newColType === colTypes[colNum]) {
+                newColTypes[colNum] = null;
+                $table.find(".col" + colNum).removeClass("colSelected");
+                $input.addClass("initialType");
+            } else {
+                newColTypes[colNum] = newColType;
+                $table.find(".col" + colNum).addClass("colSelected");
+                $input.removeClass("initialType");
+            }
+
+            suggColFlags[colNum] = false;
         });
 
         updateTypeInfo();
@@ -178,13 +173,45 @@ window.MultiCastModal = (function($, MultiCastModal) {
             $th = $(this);
             colNum = parseInt($th.data("col"));
             $table.find(".col" + colNum).removeClass("colSelected");
+            $th.find(".listSection input").val(colTypes[colNum])
+                                        .addClass("initialType");
             newColTypes[colNum] = null;
         });
 
         updateTypeInfo();
     }
 
-    function updateTypeInfo(isSmart) {
+    function smartSuggest() {
+        var newType;
+        var $th;
+        var $input;
+
+        for (var colNum = 1, len = recTypes.length; colNum < len; colNum++) {
+            newType = recTypes[colNum];
+            if (newType == null) {
+                continue; // unselectable case
+            }
+
+            $th = $table.find("th.col" + colNum);
+            $input = $th.find(".listSection input").val(newType);
+
+            if (newType === colTypes[colNum]) {
+                $table.find(".col" + colNum).removeClass("colSelected");
+                $input.addClass("initialType");
+                newColTypes[colNum] = null;
+                suggColFlags[colNum] = false;
+            } else {
+                $table.find(".col" + colNum).addClass("colSelected");
+                $input.removeClass("initialType");
+                newColTypes[colNum] = newType;
+                suggColFlags[colNum] = true;
+            }
+        }
+
+        updateTypeInfo(true);
+    }
+
+    function updateTypeInfo(isFromSmartSugg) {
         var html = "";
         var len = newColTypes.length;
         var count = 0;
@@ -201,8 +228,7 @@ window.MultiCastModal = (function($, MultiCastModal) {
 
             newTypeClass = "newType";
 
-            if (isSmart && newType !== recTypes[colNum]) {
-                newType = newColTypes[colNum] = recTypes[colNum];
+            if (suggColFlags[colNum]) {
                 newTypeClass += " highlight";
                 $table.find("th.col" + colNum).addClass("highlight")
                         .find(".text").val(newType);
@@ -229,23 +255,21 @@ window.MultiCastModal = (function($, MultiCastModal) {
             count++;
         }
 
-        if (isSmart && count === 0) {
-            $castBtn.tooltip({
-                "title"    : "Please select the column you want to cast",
-                "placement": "right",
-                "animation": "true",
-                "container": "#multiCastModal",
-                "trigger"  : "manual",
-                "template" : '<div class="tooltip error" role="tooltip">' +
-                                '<div class="tooltip-arrow"></div>' +
-                                '<div class="tooltip-inner"></div>' +
-                            '</div>'
-            });
+        if (count === 0) {
+            html += '<div class="instruction">';
+            if (isFromSmartSugg) {
+                html += 'No smart cast recommendation,<br>';
+            }
 
-            $castBtn.tooltip("show");
-            setTimeout(function() {
-                $castBtn.tooltip("destroy");
-            }, 1000);
+            html += 'please select columns you want to cast.' +
+                    '</div>';
+        }
+
+        var $label = $modal.find(".resultContainer .title .label");
+        if (isFromSmartSugg) {
+            $label.text("Smart Cast Result");
+        } else {
+            $label.text("Cast Result");
         }
 
         $resultSection.html(html);
@@ -346,12 +370,14 @@ window.MultiCastModal = (function($, MultiCastModal) {
     }
 
     function buildTable(tableId) {
+        var validTyps = ["string", "integer", "float"];
         var tableCols = gTables[tableId].tableCols;
+        var list;
         var html = '<thead>' +
                         '<tr>';
 
         var $tbody = $("#xcTable-" + tableId).find("tbody").clone(true);
-        $tbody.find("tr:gt(14)").remove();
+        $tbody.find("tr:gt(17)").remove();
         $tbody.find(".col0").remove();
         $tbody.find(".jsonElement").remove();
         $tbody.find(".indexedColumn").removeClass('indexedColumn');
@@ -377,22 +403,32 @@ window.MultiCastModal = (function($, MultiCastModal) {
                 type === "undefined")
             {
                 thClass += " unselectable";
+                recTypes[colNum] = null;
             } else {
                 recTypes[colNum] = suggestType($tbody, colNum, type);
+            }
+
+            list = "";
+            for (var j = 0; j < validTyps.length; j++) {
+                if (validTyps[j] === type) {
+                    list += '<li class="initialType">';
+                } else {
+                    list += '<li>';
+                }
+
+                list += validTyps[j] + '</li>';
             }
 
             html += '<th class="' + thClass + '" data-col="' + colNum + '">' +
                         '<div class="header">' +
                             '<div class="listSection">' +
-                                '<input class="text no-selection" ' +
+                                '<input class="text no-selection initialType" ' +
                                 'value="' + type + '" disabled>' +
                                 '<div class="iconWrapper dropdown">' +
                                     '<span class="icon"></span>' +
                                 '</div>' +
                                 '<ul class="list" data-col="' + colNum + '">' +
-                                    '<li>string</li>' +
-                                    '<li>integer</li>' +
-                                    '<li>float</li>' +
+                                    list +
                                 '</ul>' +
                             '</div>' +
                             '<div class="colPadding"></div>' +
@@ -401,7 +437,6 @@ window.MultiCastModal = (function($, MultiCastModal) {
                             'data-container="body" ' +
                             'class="columnTab textOverflow tooltipOverflow">' +
                                 colName +
-                                '<span class="tick icon"></span>' +
                             '</div>' +
                         '</div>' +
                     '</th>';

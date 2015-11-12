@@ -2586,7 +2586,7 @@ html.microsoft {
 
 /* Multi-cast Modal */
 #multiCastModal {
-    .modalBuilder(1000px, 600px);
+    .modalBuilder(900px, 550px);
     .noSelection;
 
     .modalInstruction {
@@ -2599,47 +2599,46 @@ html.microsoft {
     }
 
     .modalTopMain {
-        .size(@height: 80px);
-        padding: 5px 10px;
+        .size(@height: 1px);
+    }
 
-        .castSection {
-            .size(@width: 17%, @height: 100%);
+    .modalMain {
+        .size(@height: ~"calc(100% - 158px)");
+        padding: 5px 10px 0 10px;
+
+        > div {
             float: left;
-            margin-left: 15px;
 
-            .btn {
-                .vertical-align;
-                left: 5px;
+            .title {
+                .size(@height: 45px);
+                padding: 0 5px;
+                line-height: 40px;
 
-                .icon {
-                    .image("/images/smart-cast.png", 50%, 50%)
+                .label {
+                    .font(@size: 13px, @weight: 700, @color: @color-text-midGray);
                 }
             }
         }
 
-        .selectSection {
-            .size(@width: 13%, @height: 100%);
-            float: right;
-            margin-right: 15px;
+        .resultContainer {
+            .size(@width: 303px, @height: 100%);
+            padding-right: 7px;
+            margin-right: 7px;
+            border-right: 1px solid @color-join-divider;
 
-            .buttonGroup {
-                .size(@width: 120px);
-                float: right;
-                padding-left: 17px;
-                .vertical-align;
-
+            .title {
                 .modifyButton {
                     cursor: pointer;
-                    // margin-top: 4px;
                     float: right;
-                    clear: both;
 
                     > span {
                         float: right;
                     }
 
                     .icon {
+                        .position(relative, @top: 10px);
                        .size(19px, 19px);
+                       .image("/images/select-none.png", 50%, 50%);
                     }
 
                     .text {
@@ -2647,35 +2646,8 @@ html.microsoft {
                         text-align: right;
                         margin-right: 10px;
                     }
-
-                    &.selectAll {
-                        .icon {
-                            .image("/images/select-all.png", 50%, 50%);
-                        }
-                    }
-
-                    &.deSelectAll {
-                        .icon {
-                            .image("/images/select-none.png", 50%, 50%);
-                        }
-
-                        margin-top: 5px;
-                    }
                 }
             }
-        }
-    }
-
-    .modalMain {
-        .size(@height: ~"calc(100% - 237px)");
-        padding: 20px 10px 0 10px;
-
-        > div {
-            float: left;
-        }
-
-        .resultContainer {
-            .size(@width: 295px, @height: 100%);
 
             .header {
                 .size(@height: 43px);
@@ -2697,10 +2669,17 @@ html.microsoft {
             }
 
             .content {
-                .size(@height: ~"calc(100% - 44px)");
+                .size(@height: ~"calc(100% - 89px)");
                 overflow-y: scroll;
                 border: 1px solid #e9e9e9;
                 border-top: none;
+
+                .instruction {
+                    padding: 0 10px;
+                    margin-top: 10px;
+                    .font(@size: 12px, @color: @color-text-lightGray);
+                    text-align: center;
+                }
 
                 .row {
                     &:nth-child(odd) {
@@ -2709,6 +2688,11 @@ html.microsoft {
 
                     &:nth-child(even) {
                         background: #f0f0f0;
+                    }
+
+
+                    &:last-child {
+                        border-bottom: 1px solid #bdbdbd;
                     }
 
                     .newType {
@@ -2749,26 +2733,33 @@ html.microsoft {
             }
         }
 
-        .dividerContainer {
-            .size(@width: 15px, @height: 100%);
-
-            .divider {
-                .size(@width: 1px, @height: 100%);
-                .center-align;
-                background-color: @color-join-divider;
-            }
-        }
-
         .tableContainer {
             .size(@width: ~"calc(100% - 310px)", @height: 100%);
-            .rounded(3px 3px 0 0);
-            border: 1px solid #e9e9e9;
+
+            .title {
+                .btn {
+                    .position(relative, @top: 8px);
+                    .size(@width: 120px, @height: 25px);
+                    float: right;
+                    text-align: left;
+                    padding-right: 15px;
+                    line-height: 25px;
+                    font-size: 11px;
+
+                    .icon {
+                        .image("/images/smart-cast.png", 3px, 50%);
+                        background-size: 13px 20px;
+                    }
+                }
+            }
 
             .tableSection {
-                .size(@height: 100%);
+                .size(@height: ~"calc(100% - 45px)");
                 overflow-x: auto;
                 overflow-y: hidden;
                 .position(relative);
+                .rounded(3px 3px 0 0);
+                border: 1px solid #e9e9e9;
             }
 
             .background {
@@ -2879,6 +2870,10 @@ html.microsoft {
                             text-align: left;
                             // padding-left: 5px;
                         }
+
+                        .initialType {
+                            color: @color-text-lightGray;
+                        }
                     }
 
                     .colPadding {
@@ -2895,7 +2890,6 @@ html.microsoft {
                         float: left;
                         .rounded;
                         box-shadow: 1px 1px 1px 1px rgba(0,0,0,.1);
-                        cursor: pointer;
                         white-space: nowrap;
                         margin-top: 7px;
                         padding-left: 10px;
@@ -2926,10 +2920,6 @@ html.microsoft {
                         pointer-events: none;
                         .iconWrapper {
                             background: #c5c5c5;
-                        }
-
-                        .text {
-                            color: #d9d9d9;
                         }
                     }
                 }

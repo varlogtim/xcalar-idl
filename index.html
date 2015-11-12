@@ -2521,43 +2521,33 @@
       </div>
     </section>
     <!-- Top Section -->
-    <section class="modalTopMain">
-      <div class="castSection">
-        <button id="multiCast-cast" class="btn btnMid iconBtn">
-          <span class="icon"></span>
-          SMART CAST
-        </button>
-      </div>
-      <div class="selectSection">
-        <div class="buttonGroup">
-          <div class="selectAll modifyButton">
-            <span class="icon"></span>
-            <span class="text">Select All</span>
-          </div>
-          <div class="deSelectAll modifyButton">
+    <section class="modalTopMain"></section>
+    <!-- Main Section -->
+    <section class="modalMain">
+       <div class="resultContainer">
+        <div class="title">
+          <span class="label">Cast Result</span>
+          <div id="multiCast-clear" class="modifyButton">
             <span class="icon"></span>
             <span class="text">Clear All</span>
           </div>
         </div>
-      </div>
-    </section>
-    <!-- Main Section -->
-    <section class="modalMain">
-       <div class="resultContainer">
         <div class="header">
           <div class="row">
             <div class="colName">Column Name</div>
-            <div class="oldType">Oringinal</div>
+            <div class="oldType">Original</div>
             <div class="newType">New Type</div>
           </div>
         </div>
         <div id="multiCast-result" class="content"></div>
       </div>
-      <div class="dividerContainer">
-        <div class="divider"></div>
-      </div>
       <div id="multiCast-tableContainer"class="tableContainer">
-        <!-- <div class="tabSection"></div> -->
+        <div class="title">
+           <button id="multiCast-cast" class="btn btnMid iconBtn">
+              <span class="icon"></span>
+              SMART CAST
+            </button>
+        </div>
         <div class="tableSection">
           <div class="background"></div>
           <table id="multiCast-table" class="multiCastTable dataTable"></table>
