@@ -616,11 +616,10 @@ window.xcHelper = (function($, xcHelper) {
             !$tableWrap.hasClass('tableLocked'))
         {
             // tableWrap may not exist during multijoin on self
-            // var $lockedIcon = $('<div class="lockedIcon">' +
-            //                 '<img src="/images/biglocklight.png" /></div>');
             var $lockedIcon = $('<div class="lockedIcon">' +
                                 '<img src="' + paths.hourglass + '" /></div>');
             var tableHeight = $tableWrap.find('.xcTbodyWrap').height();
+            var tbodyHeight = $tableWrap.find('tbody').height();
             var mainFrameHeight = $('#mainFrame').height();
             var topPos = 100 * ((tableHeight / mainFrameHeight) / 2);
 
@@ -630,8 +629,7 @@ window.xcHelper = (function($, xcHelper) {
             $tableWrap.addClass('tableLocked').append($lockedIcon);
             $tableWrap.find('.xcTbodyWrap').append('<div class="tableCover">' +
                                                    '</div>');
-
-            $tableWrap.find('.tableCover').height(tableHeight - 40);
+            $tableWrap.find('.tableCover').height(tbodyHeight);
             $('#rowScroller-' + tableId).addClass('locked');
             moveTableTitles();
         }
