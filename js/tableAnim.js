@@ -2125,7 +2125,7 @@ function addMenuKeyboardNavigation($menu, $subMenu) {
     $(document).on('keydown.menuNavigation', function(event) {
         listHighlight(event);
     });
-    var $lis = $menu.find('li:visible');
+    var $lis = $menu.find('li:visible:not(.unavailable)');
     var numLis = $lis.length;
 
     function listHighlight(event) {
@@ -2988,11 +2988,6 @@ function dropdownClick($el, options) {
         $menu = $('#tableMenu');
         $subMenu = $('#tableSubMenu');
         $allMenus = $menu.add($subMenu);
-        if (WSManager.getWSLen() <= 1) {
-            $menu.find(".moveToWorksheet").addClass("unavailable");
-        } else {
-            $menu.find(".moveToWorksheet").removeClass("unavailable");
-        }
     
         // case that should close table menu
         if ($menu.is(":visible")) {
@@ -3002,6 +2997,17 @@ function dropdownClick($el, options) {
         menuHeight = $(window).height() - 116;
         $menu.css('max-height', menuHeight);
         $menu.children('.menuWrap').css('max-height', menuHeight);
+        if (options.classes && options.classes.indexOf('locked') !== -1) {
+            $menu.find('li:not(.hideTable, .unhideTable)')
+                  .addClass('unavailable');
+        } else {
+            $menu.find('li').removeClass('unavailable');
+        }
+        if (WSManager.getWSLen() <= 1) {
+            $menu.find(".moveToWorksheet").addClass("unavailable");
+        } else {
+            $menu.find(".moveToWorksheet").removeClass("unavailable");
+        }
     } else if (options.type === "thDropdown") {
         $menu = $('#colMenu');
         $subMenu = $('#colSubMenu');
