@@ -5,8 +5,8 @@ window.JSONModal = (function($, JSONModal) {
     var $searchInput = $('#jsonSearch').find('input');
     var $jsonText = $jsonModal.find('.prettyJson');
     var $counter = $('#jsonSearch').find('.counter');
-    var $matches;
-    var numMatches = 0;
+    // var $matches;
+    // var numMatches = 0;
     var matchIndex;
     var isDataCol;
     var comparisonObjs = {};
@@ -35,8 +35,8 @@ window.JSONModal = (function($, JSONModal) {
         });
 
         $jsonModal.draggable({
-            handle: '.jsonDragArea',
-            cursor: '-webkit-grabbing',
+            handle     : '.jsonDragArea',
+            cursor     : '-webkit-grabbing',
             containment: "window"
         });
 
@@ -49,7 +49,7 @@ window.JSONModal = (function($, JSONModal) {
 
         $jsonArea.sortable({
             revert: 300,
-            axis: "x",
+            axis  : "x",
             handle: ".jsonDragHandle"
             // containment: "parent"
         });
@@ -74,10 +74,9 @@ window.JSONModal = (function($, JSONModal) {
             $(".xcTable").find(".highlightBox").remove();
             $jsonModal.find(".jsonDragArea").text(tableTitle);
             $searchInput.val("");
-            centerPositionElement($jsonModal);
-            jsonModalDocumentEvent($jsonTd, isArray);
+            modalHelper.setup();
+            jsonModalDocumentEvent();
             $("body").addClass("hideScroll");
-
         }
         
         refreshJsonModal($jsonTd, isArray, isModalOpen); // shows json modal
@@ -219,8 +218,7 @@ window.JSONModal = (function($, JSONModal) {
                 $highlightBox.remove();
             }
 
-            // handle removal of comparisons 
-            var numCheckMarks = $jsonArea.find('.checkMark.on').length;
+            // handle removal of comparisons
             var isMainCheckmark = $jsonWrap.find('.checkMark.first')
                                            .length !== 0;
             
@@ -307,8 +305,8 @@ window.JSONModal = (function($, JSONModal) {
 
     function decreaseModalSize() {
         var currentWidth = $jsonModal.width();
-        var minWidth = Math.min(500, currentWidth);
-        var desiredWidth = Math.max(jsonData.length * 200, minWidth);
+        var minW = Math.min(500, currentWidth);
+        var desiredWidth = Math.max(jsonData.length * 200, minW);
 
         if (currentWidth > desiredWidth) {
             var newWidth = Math.max(desiredWidth, currentWidth - 100);
@@ -340,7 +338,7 @@ window.JSONModal = (function($, JSONModal) {
         }
     }
 
-    function jsonModalDocumentEvent($jsonTd, isArray) {
+    function jsonModalDocumentEvent() {
         $(document).on("keydown.jsonModal", function(event) {
             if (event.which === keyCode.Escape) {
                 closeJSONModal();
@@ -439,6 +437,7 @@ window.JSONModal = (function($, JSONModal) {
         $jsonArea.empty();
         $jsonModal.width(500);
         $modalBackground.removeClass('light');
+        modalHelper.clear();
 
         jsonData = [];
         comparisonObjs = {};
@@ -538,7 +537,7 @@ window.JSONModal = (function($, JSONModal) {
             var matches = comparisonObjs[obj[0]].matches;
             var partials = comparisonObjs[obj[0]].partial;
             var nonMatches = comparisonObjs[obj[0]].unmatched;
-            var activeObj = {matches:[], partial: [], unmatched: []};
+            var activeObj = {matches: [], partial: [], unmatched: []};
             var tempPartials = [];
             var numMatches = matches.length;
             var numPartials = partials.length;
@@ -576,7 +575,7 @@ window.JSONModal = (function($, JSONModal) {
             }
             for (var i = 0; i < numPartials; i++) {
                 var key = Object.keys(partials[i])[0];
-                var possiblePartial = partials[i];
+                // var possiblePartial = partials[i];
                 var tempActiveObj = {};
                 var tempObj;
                 if (jsonObjs.hasOwnProperty(key)) {
@@ -596,7 +595,7 @@ window.JSONModal = (function($, JSONModal) {
             }
             for (var i = 0; i < nonMatches.length; i++) {
                 var key = Object.keys(nonMatches[i])[0];
-                var nonMatch = nonMatches[i];
+                // var nonMatch = nonMatches[i];
                 var tempActiveObj = {};
                 tempActiveObj[key] = jsonObjs[key];
                 activeObj.unmatched.push(tempActiveObj);
@@ -643,10 +642,11 @@ window.JSONModal = (function($, JSONModal) {
             }
 
             for (var i = 0; i < indices.length; i++) {
-                comparisonObjs[indices[i]] = { matches: matchedJsons[i],
-                                               partial: partialMatchedJsons[i],
-                                               unmatched: unmatchedJsons[i]
-                                            };
+                comparisonObjs[indices[i]] = {
+                    matches  : matchedJsons[i],
+                    partial  : partialMatchedJsons[i],
+                    unmatched: unmatchedJsons[i]
+                };
             }
             for (var i = 2; i < numObjs; i++) {
                 compare(jsonObjs[i], indices[i], true);
@@ -655,7 +655,7 @@ window.JSONModal = (function($, JSONModal) {
     }
 
     function displayComparison(jsons) {
-        var matchTypes = 3;
+        // var matchTypes = 3;
         for (var obj in jsons) {
             var html = "";
             for (var matchType in jsons[obj]) {
@@ -686,12 +686,11 @@ window.JSONModal = (function($, JSONModal) {
         }
     }
 
-    function deepCompare () {
+    function deepCompare() {
         var leftChain;
         var rightChain;
 
-        function compare2Objects (x, y) {
-
+        function compare2Objects(x, y) {
             // check if both are NaN
             if (isNaN(x) && isNaN(y) && typeof x === 'number'
                 && typeof y === 'number') {
@@ -735,7 +734,7 @@ window.JSONModal = (function($, JSONModal) {
                         leftChain.push(x);
                         rightChain.push(y);
 
-                        if (!compare2Objects (x[p], y[p])) {
+                        if (!compare2Objects(x[p], y[p])) {
                             return (false);
                         }
 
@@ -790,7 +789,7 @@ window.JSONModal = (function($, JSONModal) {
     function getJsonWrapHtml() {
         var html = '<div class="jsonWrap">';
         if (isDataCol) {
-            html += 
+            html +=
             '<div class="optionsBar">' +
                 '<div class="dragHandle jsonDragHandle"></div>' +
                 '<div class="vertLine"></div>' +
@@ -833,23 +832,26 @@ window.JSONModal = (function($, JSONModal) {
         // return;
         if (isDataCol && !isHide) {
             // setTimeout(function() {
-                xcHelper.toggleModal("all", isHide, {
-                    "fadeOutTime": time
-                });
+            xcHelper.toggleModal("all", isHide, {
+                "fadeOutTime": time
+            });
             // }, 0);
         }
 
-        if (isHide) { 
-            var $table = $('.xcTable').removeClass('jsonModalOpen');
-            var $tableWrap = $('.xcTableWrap').removeClass('jsonModalOpen');
+        var $table;
+        var $tableWrap;
+        if (isHide) {
+            $table = $('.xcTable').removeClass('jsonModalOpen');
+            $tableWrap = $('.xcTableWrap').removeClass('jsonModalOpen');
+
             $table.find('.modalHighlighted')
                   .removeClass('modalHighlighted jsonModalOpen');
             $('.modalOpen').removeClass('modalOpen');
             $('.tableCover').remove();
-        } else { 
+        } else {
             if (isDataCol) {
-                var $table = $('.xcTable:visible').addClass('jsonModalOpen');
-                var $tableWrap = $('.xcTableWrap:visible')
+                $table = $('.xcTable:visible').addClass('jsonModalOpen');
+                $tableWrap = $('.xcTableWrap:visible')
                                   .addClass('jsonModalOpen');
 
                 $table.find('.jsonElement').addClass('modalHighlighted');
@@ -878,7 +880,7 @@ window.JSONModal = (function($, JSONModal) {
                 $jsonTd.addClass('modalHighlighted');
                 setTimeout(function() {
                     $jsonTd.addClass('jsonModalOpen');
-                }); 
+                });
             }
         }
     }

@@ -2212,12 +2212,13 @@ function addMenuKeyboardNavigation($menu, $subMenu) {
 
         if (!lateral) {
             var index;
+            var newIndex;
             if ($subMenu && $subMenu.is(':visible')) {
                 // navigate vertically through sub menu if it's open
                 if ($highlightedSubLi.length) {
                     index = $subLis.index($highlightedSubLi);
                     $highlightedSubLi.removeClass('selected');
-                    var newIndex = (index + direction + numSubLis) % numSubLis;
+                    newIndex = (index + direction + numSubLis) % numSubLis;
                     $highlightedSubLi = $subLis.eq(newIndex);
                 } else {
                     index = (direction === -1) ? (numSubLis - 1) : 0;
@@ -2229,7 +2230,7 @@ function addMenuKeyboardNavigation($menu, $subMenu) {
                 if ($highlightedLi.length) {// When a li is highlighted                    
                     index = $lis.index($highlightedLi);    
                     $highlightedLi.removeClass('selected');
-                    var newIndex = (index + direction + numLis) % numLis;
+                    newIndex = (index + direction + numLis) % numLis;
                     $highlightedLi = $lis.eq(newIndex);
                 } else {
                     index = (direction === -1) ? (numLis - 1) : 0;
@@ -2241,8 +2242,10 @@ function addMenuKeyboardNavigation($menu, $subMenu) {
                 var menuHeight = $menu.height();
                 var liTop = $highlightedLi.position().top;
                 var liHeight = 30;
+                var currentScrollTop;
+
                 if (liTop > menuHeight - liHeight) {
-                    var currentScrollTop = $menu.find('.menuWrap').scrollTop();
+                    currentScrollTop = $menu.find('.menuWrap').scrollTop();
                     var newScrollTop = liTop - menuHeight + liHeight +
                                        currentScrollTop;
                     $menu.find('.menuWrap').scrollTop(newScrollTop);
@@ -2250,7 +2253,7 @@ function addMenuKeyboardNavigation($menu, $subMenu) {
                         $menu.addClass('disableMouseEnter');
                     }
                 } else if (liTop < 0) {
-                    var currentScrollTop = $menu.find('.menuWrap').scrollTop();
+                    currentScrollTop = $menu.find('.menuWrap').scrollTop();
                     $menu.find('.menuWrap').scrollTop(currentScrollTop + liTop);
                     if ($menu.hasClass('hovering')) {
                         $menu.addClass('disableMouseEnter');
@@ -2848,7 +2851,7 @@ function closeMenu($menu) {
 }
 
 function functionBarEnter($colInput) {
-    var $fnBar = $("#fnBar")
+    var $fnBar = $("#fnBar");
     var fnBarVal = $fnBar.val();
     var fnBarValTrim = fnBarVal.trim();
     
@@ -2913,7 +2916,7 @@ function checkFuncSyntaxValidity(funcStr) {
         return (false);
     }
 
-    var count = 0
+    var count = 0;
     var strLen = funcStr.length;
     for (var i = 0; i < strLen; i++) {
         if (funcStr[i] === "(") {

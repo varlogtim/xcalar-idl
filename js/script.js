@@ -244,12 +244,12 @@ function setupFunctionBar() {
                 $mainFrame.scrollLeft(matchOffsetLeft + scrollLeft - ((mainFrameWidth - matchWidth) / 2));
             }
         },
-        "ignore" : "="
+        "ignore": "="
     });
     searchHelper.setup();
 
     $("#fnBar").on({
-        "input": function(event) {
+        "input": function() {
             var val = $(this).val();
             var trimmedVal = val.trim();
             if (trimmedVal.indexOf('=') !== 0) {
@@ -272,7 +272,7 @@ function setupFunctionBar() {
             $(this).removeClass("inFocus");
            
             searchHelper.clearSearch(function() {
-                 $functionArea.removeClass('searching');
+                $functionArea.removeClass('searching');
             });
         }
     });

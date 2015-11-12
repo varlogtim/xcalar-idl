@@ -130,7 +130,7 @@ window.ExportModal = (function($, ExportModal) {
         })
         .fail(function(error) {
             console.error(error);
-        }); 
+        });
 
         var tableName = gTables[tableId].tableName;
         exportTableName = tableName;
@@ -223,18 +223,21 @@ window.ExportModal = (function($, ExportModal) {
         var foundColsArray = [];
         var numColsFound = 0;
         var numFrontColNames = frontColNames.length;
-        for (var i = 0; i < numTableCols; i++) {
+        var i;
+
+        for (i = 0; i < numTableCols; i++) {
             if (tableCols[i].name !== "DATA") {
                 colsArray.push(tableCols[i]);
             }
         }
         numTableCols--; // DATA col was removed
 
-        for (var i = 0; i < numFrontColNames; i++) {
+        for (i = 0; i < numFrontColNames; i++) {
             var colFound = false;
             var tableCol;
+            var j;
 
-            for (var j = 0; j < numTableCols; j++) {
+            for (j = 0; j < numTableCols; j++) {
                 tableCol = colsArray[j];
                 if (frontColNames[i] === tableCol.name) {
                     if (tableCol.func.args) {
@@ -251,7 +254,7 @@ window.ExportModal = (function($, ExportModal) {
             }
 
             if (!colFound) {
-                for (var j = 0; j < numTableCols; j++) {
+                for (j = 0; j < numTableCols; j++) {
                     tableCol = colsArray[j];
                     if (frontColNames[i] === tableCol.name) {
                         backCols.push(tableCol.func.args[0]);
@@ -392,14 +395,12 @@ window.ExportModal = (function($, ExportModal) {
 
     function addColumnSelectListeners() {
         var $table = $('#xcTable-' + tableId);
-        var $header;
-        var $th;
         var tableCols = gTables[tableId].tableCols;
 
         // select ths that are not arrays or objects
         var $ths = $table.find('.header').filter(function() {
-            $header = $(this);
-            $th = $header.parent();
+            var $header = $(this);
+            var $th = $header.parent();
             var colNum = xcHelper.parseColNum($th) - 1;
             if (colNum === -1) {
                 return false;
@@ -474,7 +475,6 @@ window.ExportModal = (function($, ExportModal) {
                 }
             }
             focusedHeader = $th;
-            
         });
     }
 

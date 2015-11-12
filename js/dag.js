@@ -338,7 +338,7 @@ window.DagPanel = (function($, DagPanel) {
 
             $target = $(e.target).closest('.dagTable:not(.dataStore) .dagTableIcon');
             var $secondTarget = $(e.target).closest('.dagTable:not(.dataStore) .icon');
-            if ($target.length) { 
+            if ($target.length) {
                 $target.trigger('click');
                 return false;
             } else if ($secondTarget.length) {
@@ -1070,8 +1070,7 @@ window.Dag = (function($, Dag) {
             $dag = $dagWrap.find('.dagImageWrap');
             var isDagVisible = checkIfDagWrapVisible($dagWrap);
             if (!isDagVisible) {
-                var dagWidth = $dag.width();
-                $dag.scrollLeft(dagWidth);
+                $dag.scrollLeft($dag.width());
             }
         } else {
             activeTableId = gActiveTableId;
@@ -1085,17 +1084,16 @@ window.Dag = (function($, Dag) {
                     return;
                 }
             }
-            var dagWidth = $dag.width();
-            $dag.scrollLeft(dagWidth);
-            var dagPanelHeight;
-            if ($dagPanel.hasClass('midway')) {
-                dagPanelHeight = $('#mainFrame').height() / 2 - 10;
-            } else if ($dagPanel.hasClass('full')) {
-                dagPanelHeight = $("#mainFrame").height() - 152;
-            }
+
+            $dag.scrollLeft($dag.width());
+            // var dagPanelHeight;
+            // if ($dagPanel.hasClass('midway')) {
+            //     dagPanelHeight = $('#mainFrame').height() / 2 - 10;
+            // } else if ($dagPanel.hasClass('full')) {
+            //     dagPanelHeight = $("#mainFrame").height() - 152;
+            // }
             var scrollTop = $dagPanel.find('.dagArea').scrollTop();
             var dagTop = $dagWrap.position().top;
-
             
             if (dagTop - 95 + $dagPanel.scrollTop() === 0) {
                 $dagPanel.scrollTop(0);
@@ -1116,7 +1114,7 @@ window.Dag = (function($, Dag) {
         var dagHeight = $dagWrap.height();
         var dagAreaHeight = $dagArea.height();
         var dagTop = $dagWrap.position().top;
-        console.log(dagTop, dagAreaHeight)
+        console.log(dagTop, dagAreaHeight);
         if (dagTop - 30 > dagAreaHeight || dagTop + dagHeight < 50) {
             return (false);
         }
@@ -1151,13 +1149,13 @@ window.Dag = (function($, Dag) {
            
             var $target = $(e.target).closest('.actionType');
            
-            if ($target.length) { 
+            if ($target.length) {
                 $target.trigger('click');
                 e.preventDefault();
                 e.stopPropagation();
             } else {
                 var $secondTarget = $(e.target).closest('.dagTable.dataStore');
-                if ($secondTarget.length) { 
+                if ($secondTarget.length) {
                     $secondTarget.trigger('click');
                     e.preventDefault();
                     e.stopPropagation();
@@ -1901,7 +1899,7 @@ window.Dag = (function($, Dag) {
                 break;
             case ('indexInput'):
                 info.type = "sort";
-                if (value.ordering != XcalarOrderingT.XcalarOrderingUnordered) {
+                if (value.ordering !== XcalarOrderingT.XcalarOrderingUnordered) {
                     if (value.source.isTable) {
                         info.tooltip = "Sorted by " + value.keyName;
                     } else {
@@ -1909,7 +1907,7 @@ window.Dag = (function($, Dag) {
                     }
                     info.text = "sorted on " + value.keyName;
                 } else {
-                    info.type = "index"
+                    info.type = "index";
                     if (value.source.isTable) {
                         info.tooltip = "Indexed by " + value.keyName;
                     } else {
@@ -1957,7 +1955,6 @@ window.Dag = (function($, Dag) {
     }
 
     /* Generation of dag elements and canvas lines */
-
     function createCanvas($dagWrap, full) {
         var dagWidth = $dagWrap.find('.dagImage > div').width();
         var dagHeight = $dagWrap.find('.dagImage > div').height();

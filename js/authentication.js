@@ -33,7 +33,7 @@ window.Authentication = (function($, Authentication) {
     };
 
     Authentication.getCurrentUser = function() {
-       return (user);
+        return (user);
     };
 
     Authentication.getHashId = function() {

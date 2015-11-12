@@ -676,7 +676,7 @@ window.xcHelper = (function($, xcHelper) {
         this.numMatches = 0;
         this.$matches = [];
         return (this);
-    }
+    };
 
     xcHelper.SearchBar.prototype = {
         setup: function() {
@@ -737,12 +737,12 @@ window.xcHelper = (function($, xcHelper) {
                 e.stopPropagation();
             });
 
-            searchBar.$downArrow.click(function(e) {
+            searchBar.$downArrow.click(function() {
                 var evt = {which: keyCode.Down, type: 'keydown'};
                 $searchInput.trigger(evt);
             });
 
-            searchBar.$upArrow.click(function(e) {
+            searchBar.$upArrow.click(function() {
                 var evt = {which: keyCode.Up, type: 'keydown'};
                 $searchInput.trigger(evt);
             });
@@ -772,7 +772,7 @@ window.xcHelper = (function($, xcHelper) {
                 callback();
             }
         }
-    }
+    };
 
     // an object used for global Modal Actions
     xcHelper.Modal = function($modal, options) {
@@ -1319,7 +1319,7 @@ window.xcHelper = (function($, xcHelper) {
 
     xcHelper.escapeRegExp = function(str) {
         return (str.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&"));
-    }
+    };
 
     return (xcHelper);
 }(jQuery, {}));

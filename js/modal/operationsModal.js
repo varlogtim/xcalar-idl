@@ -946,7 +946,7 @@ window.OperationsModal = (function($, OperationsModal) {
                         return (true);
                     }
                     if ($categoryInput.val() === "string functions") {
-                        if ($functionInput.val() !== "cut" && 
+                        if ($functionInput.val() !== "cut" &&
                             $functionInput.val() !== "substring") {
                             return (true);
                         } else {
@@ -956,7 +956,7 @@ window.OperationsModal = (function($, OperationsModal) {
                                 }
                             } else if (index !== 1) {
                                 return (true);
-                            } 
+                            }
                         }
                     }
                 }

@@ -1195,7 +1195,7 @@ window.RightSideBar = (function($, RightSideBar) {
         var offset = $('#rightSideBar').offset();
         $('#rightSideBar').css({
             left: offset.left,
-            top: offset.top
+            top : offset.top
         });
 
     }

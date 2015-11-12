@@ -139,7 +139,7 @@ window.CLIBox = (function($, CLIBox) {
             if (textLen === 0) {
                 return;
             }
- 
+
             var textNode = $editableCli[0].firstChild;
             var range = document.createRange();
             range.setStart(textNode, textLen);

@@ -270,7 +270,7 @@ window.UDF = (function($, UDF) {
                 return;
             } else if (fileName.length >
                 XcalarApisConstantsT.XcalarApiMaxPyModuleNameLen) {
-                text = "Module name is too long, please keep to less than 255"+
+                text = "Module name is too long, please keep to less than 255" +
                        " characters in length.";
                 StatusBox.show(text, $fnName, true, 50);
                 return;
@@ -284,10 +284,10 @@ window.UDF = (function($, UDF) {
                 return;
             } else if (entireString.trim().length >
                        XcalarApisConstantsT.XcalarApiMaxPyModuleSrcLen) {
-                text = "File is too large. Please break into smaller files "+
+                text = "File is too large. Please break into smaller files " +
                         "(<10MB)";
                 StatusBox.show(text, $(".CodeMirror"), false, 30,
-                               {"side":"left"});
+                               {"side": "left"});
                 return;
             }
 

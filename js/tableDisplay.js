@@ -774,18 +774,18 @@ function generateColDropDowns() {
             '</ul>' +
             '<ul class="changeDataType">';
 
-        types.forEach(function(type) {
-            subMenuHTML +=
-                '<li class="flexContainer flexRow typeList type-' +
-                    type.toLowerCase() + '">' +
-                    '<div class="flexWrap flex-left">' +
-                        '<span class="type icon"></span>' +
-                    '</div>' +
-                    '<div class="flexWrap flex-right">' +
-                        '<span class="label">' + type + '</span>' +
-                    '</div>' +
-                '</li>';
-        });
+    types.forEach(function(type) {
+        subMenuHTML +=
+            '<li class="flexContainer flexRow typeList type-' +
+                type.toLowerCase() + '">' +
+                '<div class="flexWrap flex-left">' +
+                    '<span class="type icon"></span>' +
+                '</div>' +
+                '<div class="flexWrap flex-right">' +
+                    '<span class="label">' + type + '</span>' +
+                '</div>' +
+            '</li>';
+    });
     subMenuHTML +=
             '</ul>' +
             '<ul class="sort">' +
@@ -801,18 +801,18 @@ function generateColDropDowns() {
             '</ul>' +
             '<ul class="multiChangeDataType">';
 
-        types.forEach(function(type) {
-            subMenuHTML +=
-                '<li class="flexContainer flexRow typeList type-' +
-                    type.toLowerCase() + '">' +
-                    '<div class="flexWrap flex-left">' +
-                        '<span class="type icon"></span>' +
-                    '</div>' +
-                    '<div class="flexWrap flex-right">' +
-                        '<span class="label">' + type + '</span>' +
-                    '</div>' +
-                '</li>';
-        });
+    types.forEach(function(type) {
+        subMenuHTML +=
+            '<li class="flexContainer flexRow typeList type-' +
+                type.toLowerCase() + '">' +
+                '<div class="flexWrap flex-left">' +
+                    '<span class="type icon"></span>' +
+                '</div>' +
+                '<div class="flexWrap flex-right">' +
+                    '<span class="label">' + type + '</span>' +
+                '</div>' +
+            '</li>';
+    });
     subMenuHTML +=
             '</ul>' +
             '<div class="subMenuArea"></div>' +
