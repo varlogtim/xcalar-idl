@@ -252,14 +252,14 @@ window.MultiCastModal = (function($, MultiCastModal) {
     }
 
     function suggestType($tbody, colNum, type) {
-        if (type === "decimal" || type === "boolean") {
+        if (type === "float" || type === "boolean") {
             return type;
         }
 
         var $tds = $tbody.find("td.col" + colNum + "");
         var isNumber;
         var isInteger;
-        var isDecimal;
+        var isFloat;
         var isOnly10;
         var isBoolean;
 
@@ -275,14 +275,14 @@ window.MultiCastModal = (function($, MultiCastModal) {
                 if (isNaN(num)) {
                     isNumber = false;
                     isInteger = false;
-                    isDecimal = false;
+                    isFloat = false;
                 } else {
                     isNumber = true;
                     if ((isInteger == null || isInteger) &&
                         Number.isInteger(num))
                     {
                         isInteger = true;
-                        isDecimal = false;
+                        isFloat = false;
 
                         if ((isOnly10 == null || isOnly10) &&
                             (num === 0 || num === 1))
@@ -292,7 +292,7 @@ window.MultiCastModal = (function($, MultiCastModal) {
                             isOnly10 = false;
                         }
                     } else {
-                        isDecimal = true;
+                        isFloat = true;
                         isInteger = false;
                     }
                 }
@@ -306,8 +306,8 @@ window.MultiCastModal = (function($, MultiCastModal) {
                 return "boolean";
             }
             return "integer";
-        } else if (isDecimal) {
-            return "decimal";
+        } else if (isFloat) {
+            return "float";
         } else if (isBoolean) {
             return "boolean";
         }
@@ -392,7 +392,7 @@ window.MultiCastModal = (function($, MultiCastModal) {
                                 '<ul class="list" data-col="' + colNum + '">' +
                                     '<li>string</li>' +
                                     '<li>integer</li>' +
-                                    '<li>decimal</li>' +
+                                    '<li>float</li>' +
                                 '</ul>' +
                             '</div>' +
                             '<div class="colPadding"></div>' +

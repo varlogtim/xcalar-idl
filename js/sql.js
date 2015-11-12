@@ -242,7 +242,7 @@ window.SQL = (function($, SQL) {
     //         case ("integer"):
     //             string += " DfInt64";
     //             break;
-    //         case ("decimal"):
+    //         case ("float"):
     //             string += " DfFloat64";
     //             break;
     //         case ("boolean"):

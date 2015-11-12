@@ -2610,7 +2610,7 @@ function addColMenuActions() {
                     return true; // continue to next iteration
                 }
                 colVal = parseInt(colVal);
-            } else if ($header.hasClass("type-decimal")) {
+            } else if ($header.hasClass("type-float")) {
                 if (colVal === "") {
                     hasCheckExist = true;
                     return true; // continue to next iteration
@@ -3038,7 +3038,7 @@ function dropdownClick($el, options) {
         var shouldNotFilter = options.isMutiCol ||
                             (
                                 columnType !== "string" &&
-                                columnType !== "decimal" &&
+                                columnType !== "float" &&
                                 columnType !== "integer" &&
                                 columnType !== "boolean"
                             );

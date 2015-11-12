@@ -220,7 +220,7 @@ window.AggModal = (function($, AggModal) {
             for (var i = 0; i < funLen; i++) {
                 wholeTable += '<div class="aggTableField">';
 
-                if (cols.type === "integer" || cols.type === "decimal") {
+                if (cols.type === "integer" || cols.type === "float") {
                     // XXX now agg on child of array is not supported
                     if (isChildOfArray) {
                         wholeTable += "Not Supported";
@@ -275,9 +275,9 @@ window.AggModal = (function($, AggModal) {
                 } else if (i > j) {
                     wholeTable += whiteBackground;
                     wholeTable += ">See other";
-                } else if ((cols.type === "integer" || cols.type === "decimal")
+                } else if ((cols.type === "integer" || cols.type === "float")
                            && (vertCols.type === "integer" ||
-                               vertCols.type === "decimal"))
+                               vertCols.type === "float"))
                 {
                     // XXX now agg on child of array is not supported
                     if (isChildOfArray) {
@@ -347,7 +347,7 @@ window.AggModal = (function($, AggModal) {
             var cols   = aggCols[j].col;
             var colNum = aggCols[j].colNum;
 
-            if (cols.type === "integer" || cols.type === "decimal") {
+            if (cols.type === "integer" || cols.type === "float") {
                 // for duplicated columns, no need to trigger thrift call
                 if (dupCols[j]) {
                     // console.log("Duplicated column", j);
@@ -375,7 +375,7 @@ window.AggModal = (function($, AggModal) {
                         }
                         var vertCols = aggCols[i].col;
                         if (vertCols.type !== "integer" &&
-                            vertCols.type !== "decimal")
+                            vertCols.type !== "float")
                         {
                             continue;
                         }
@@ -406,7 +406,7 @@ window.AggModal = (function($, AggModal) {
             var cols   = aggCols[j].col;
             var colNum = aggCols[j].colNum;
             // Skip DATA!
-            if (cols.type === "integer" || cols.type === "decimal") {
+            if (cols.type === "integer" || cols.type === "float") {
                 // for duplicated columns, no need to trigger thrift call
                 if (dupCols[j]) {
                     // console.log("Duplicated column", j);

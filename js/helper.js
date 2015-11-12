@@ -78,11 +78,11 @@ window.xcHelper = (function($, xcHelper) {
             type = valType;
             // get specific type
             if (type === "number") {
-                // the case when type is decimal
-                if (oldType === "decimal" ||
-                    xcHelper.isDecimal(val))
+                // the case when type is float
+                if (oldType === "float" ||
+                    xcHelper.isFloat(val))
                 {
-                    type = "decimal";
+                    type = "float";
                 } else {
                     type = "integer";
                 }
@@ -93,7 +93,7 @@ window.xcHelper = (function($, xcHelper) {
             }
 
             var isAllNum = (valType === "number") &&
-                           ((oldType === "decimal") || (oldType === "integer"));
+                           ((oldType === "float") || (oldType === "integer"));
             if (oldType != null && oldType !== "undefined" &&
                 oldType !== type && !isAllNum)
             {
@@ -338,7 +338,7 @@ window.xcHelper = (function($, xcHelper) {
         return s[0].toUpperCase() + s.slice(1);
     };
 
-    xcHelper.isDecimal = function(num) {
+    xcHelper.isFloat = function(num) {
         return (num % 1 !== 0);
     };
 

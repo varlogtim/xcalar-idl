@@ -412,7 +412,7 @@ window.ExportModal = (function($, ExportModal) {
             return (!isObj &&
                     ($header.hasClass('type-string') ||
                     $header.hasClass('type-integer') ||
-                    $header.hasClass('type-decimal')));
+                    $header.hasClass('type-float')));
 
         }).parent();
 
@@ -480,7 +480,7 @@ window.ExportModal = (function($, ExportModal) {
 
     function selectColumn($cells, colNum) {
         var colType = gTables[tableId].tableCols[colNum - 1].type;
-        var validTypes = ['string', 'integer', 'decimal'];
+        var validTypes = ['string', 'integer', 'float'];
         if (validTypes.indexOf(colType) === -1) {
             return;
         }

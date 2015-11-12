@@ -687,7 +687,7 @@ function generateColumnHeadHTML(columnClass, color, newColid, option) {
 }
 
 function generateColDropDowns() {
-    var types = ['Boolean', 'Integer', 'Decimal', 'String'];
+    var types = ['Boolean', 'Integer', 'Float', 'String'];
 
     var mainMenuHTML =
         '<div id="colMenu" class="menu mainMenu" data-submenu="colSubMenu">' +

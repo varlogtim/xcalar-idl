@@ -1075,7 +1075,7 @@ input {
             }
         }
 
-        &.type-string.type-integer.type-decimal.type-boolean {
+        &.type-string.type-integer.type-float.type-boolean {
             // case that no type to change
             .multiColumn {
                 &.multiChangeDataType {
@@ -1127,18 +1127,6 @@ input {
 
     &.type-boolean {
         .type-boolean {
-            display: none;
-        }
-    }
-
-    &.type-integer {
-        .type-integer {
-            display: none;
-        }
-    }
-
-    &.type-decimal {
-        .type-decimal {
             display: none;
         }
     }

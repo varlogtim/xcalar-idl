@@ -445,7 +445,7 @@ window.ColManager = (function($, ColManager) {
                 case ("boolean"):
                     mapStr += "bool(";
                     break;
-                case ("decimal"):
+                case ("float"):
                     mapStr += "float(";
                     break;
                 case ("integer"):
@@ -1393,10 +1393,10 @@ window.ColManager = (function($, ColManager) {
                 //define type of the column
                 columnTypes[col] = xcHelper.parseColType(tdValue,
                                                          columnTypes[col]);
-                // XXX This part try to detect edge case of decimal, doese not
+                // XXX This part try to detect edge case of float, doese not
                 // need it right now
                 // if (columnTypes[col] === "integer" || 
-                //     columnTypes[col] === "decimal") 
+                //     columnTypes[col] === "float") 
                 // {
                 //     var str = '"' + tableCols[col].name + '":' + tdValue;
                 //     var index = jsonData[row].indexOf(str) + str.length;
@@ -1405,7 +1405,7 @@ window.ColManager = (function($, ColManager) {
                 //     if (next === ".") {
                 //         var end = jsonData[row].indexOf(",", index);
                 //         tdValue += jsonData[row].substring(index, end);
-                //         columnTypes[col] = "decimal";
+                //         columnTypes[col] = "float";
                 //     }
                 // }
             }
@@ -1453,7 +1453,7 @@ window.ColManager = (function($, ColManager) {
             $header.removeClass("type-mixed")
                     .removeClass("type-string")
                     .removeClass("type-integer")
-                    .removeClass("type-decimal")
+                    .removeClass("type-float")
                     .removeClass("type-object")
                     .removeClass("type-array")
                     .removeClass("type-undefined")
@@ -1462,7 +1462,11 @@ window.ColManager = (function($, ColManager) {
                     .removeClass("childOfArray");
 
             $header.addClass('type-' + columnType);
-            $header.find('.iconHelper').attr('title', columnType);
+            var adjustedColType = columnType;
+            if (columnType === "integer" || columnType === "float") {
+                adjustedColType = "number";
+            }
+            $header.find('.iconHelper').attr('title', adjustedColType);
 
             if (tableCols[i].name === "recordNum") {
                 $header.addClass('recordNum');
@@ -1561,7 +1565,7 @@ window.ColManager = (function($, ColManager) {
         $header.removeClass("type-mixed")
                .removeClass("type-string")
                .removeClass("type-integer")
-               .removeClass("type-decimal")
+               .removeClass("type-float")
                .removeClass("type-object")
                .removeClass("type-array")
                .removeClass("type-boolean")

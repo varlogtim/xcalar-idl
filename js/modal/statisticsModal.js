@@ -301,7 +301,7 @@ window.STATSManager = (function($, STATSManager, d3) {
             var aggkey = aggKeys[i];
             if (statsCol.aggInfo[aggkey] == null) {
                 // should do aggreagte
-                if (type === "integer" || type === "decimal") {
+                if (type === "integer" || type === "float") {
                     promise = runAgg(tableName, aggkey, statsCol);
                     promises.push(promise);
                 } else {

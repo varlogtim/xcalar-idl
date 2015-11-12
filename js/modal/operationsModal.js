@@ -1405,7 +1405,7 @@ window.OperationsModal = (function($, OperationsModal) {
             }
         }
 
-        // the remaining case is decimal and integer, both is number
+        // the remaining case is float and integer, both is number
         tmpArg = Number(arg);
 
         if (isNaN(tmpArg)) {
@@ -1415,14 +1415,14 @@ window.OperationsModal = (function($, OperationsModal) {
             };
         }
 
-        if (types.indexOf("decimal") > -1) {
-            // if arg is integer, it could be a decimal
+        if (types.indexOf("float") > -1) {
+            // if arg is integer, it could be a float
             return null;
         }
 
         if (types.indexOf("integer") > -1) {
             if (tmpArg % 1 !== 0) {
-                argType = "decimal";
+                argType = "float";
 
                 return {
                     "validType"  : types,
@@ -1499,12 +1499,12 @@ window.OperationsModal = (function($, OperationsModal) {
             types.push("integer");
         }
 
-        // decimal
-        // XXX not sure if decimal should also include integer
+        // float
+        // XXX not sure if float should also include integer
         typeShift = (1 << DfFieldTypeT.DfFloat32) |
                     (1 << DfFieldTypeT.DfFloat64);
         if ((typeId & typeShift) > 0) {
-            types.push("decimal");
+            types.push("float");
         }
 
         // boolean

@@ -989,7 +989,7 @@ window.JoinModal = (function($, JoinModal) {
 
     function contextCheck($table, colNum, type) {
         // only check number and string
-        if (type !== "integer" && type !== "decimal" && type !== "string") {
+        if (type !== "integer" && type !== "float" && type !== "string") {
             return {"max": 0, "min": 0, "total": 0, "variance": 0};
         }
 
