@@ -466,8 +466,16 @@ window.xcFunction = (function($, xcFunction) {
         })
         .then(function(nTableName) {
             // final table is ready, just need to set the columns to pull out
+            
+            var newColIndex;
+            if (isIncSample) {
+                newColIndex = getIndexOfFirstGroupByCol(groupByCols, columns);
+            } else {
+                newColIndex = 1;
+            }
+
             var newProgCol = ColManager.newCol({
-                "index"   : 1,
+                "index"   : newColIndex,
                 "name"    : newColName,
                 "width"   : gNewCellWidth,
                 "isNewCol": false,
@@ -478,80 +486,15 @@ window.xcFunction = (function($, xcFunction) {
                 }
             });
 
-            var $table     = xcHelper.getElementByTableId(tableId, "xcTable");
-            var $dataCol   = $table.find('th.dataCol');
-            var dataColNum = xcHelper.parseColNum($dataCol) - 1;
-
             var tablCols = [];
-            tablCols[0] = newProgCol;
 
-            var indexedColNum = -1;
-            if (groupByCols.length === 1) {
-                for (var i = 0; i < numCols; i++) {
-                    if (columns[i].name === indexedColName &&
-                        columns[i].func.args) {
-                        indexedColNum = i;
-                        break;
-                    }
-                }
-            }
-
-            if (indexedColNum === -1) {
-                if (groupByCols.length === 1) {
-                    frontIndexedColName = getFrontColName(indexedColName, tableId);
-                    tablCols[1] = ColManager.newCol({
-                        "index"   : 2,
-                        "name"    : frontIndexedColName,
-                        "width"   : gNewCellWidth,
-                        "isNewCol": false,
-                        "userStr" : '"' + indexedColName + '" = pull(' +
-                                    indexedColName + ')',
-                        "func": {
-                            "func": "pull",
-                            "args": [indexedColName]
-                        }
-                    });
-                } else {
-                    // Pull out each individual one by doing maps
-                    for (var i = 0; i < groupByCols.length; i++) {
-                        var colName = groupByCols[i];
-                        var frontColName =  getFrontColName(colName, tableId);
-
-                        tablCols[1 + i] = ColManager.newCol({
-                        "index"   : 2 + i,
-                        "name"    : frontColName,
-                        "width"   : gNewCellWidth,
-                        "isNewCol": false,
-                        "userStr" : '"' + colName + '" = pull(' +
-                                    colName + ')',
-                        "func": {
-                            "func": "pull",
-                            "args": [colName]
-                        }
-                        });
-                    }
-                }
+            if (isIncSample) {
+                tablCols = xcHelper.deepCopy(columns);
+                tablCols.splice(newColIndex - 1, 0, newProgCol);
             } else {
-                tablCols[1] = xcHelper.deepCopy(table.tableCols[indexedColNum]);
-                tablCols[1].index = 2;
+                tablCols = setupFinalGroupByColumns(tableId, groupByCols,
+                                                    newProgCol, indexedColName);
             }
-            // Note that if include sample a.b should not be escaped to a\.b
-            if (!isIncSample && tablCols[1].name.indexOf('.') > -1) {
-                for (var i = 0; i < tablCols.length - 1; i++) {
-                    if (tablCols[i + 1].name.indexOf('.') === -1) {
-                        continue;
-                    }
-                    var newEscapedName = tablCols[i + 1].name.replace(/\./g,
-                                                                    "\\\.");
-                    tablCols[i + 1].userStr = tablCols[i + 1].name +
-                                            '" = pull(' + newEscapedName + ')';
-                    tablCols[i + 1].func.args = [newEscapedName];
-                }
-            }
-
-            tablCols[1 + groupByCols.length] =
-                                 xcHelper.deepCopy(table.tableCols[dataColNum]);
-            tablCols[tablCols.length - 1].index = tablCols.length;
             WSManager.addTable(xcHelper.getTableId(nTableName),
                                 currWorksheetIdx);
 
@@ -922,6 +865,101 @@ window.xcFunction = (function($, xcFunction) {
 
         return (deferred.promise());
     };
+
+    function getIndexOfFirstGroupByCol(groupByCols, tableCols) {
+        var numTableCols = tableCols.length;
+        var numGroupByCols = groupByCols.length;
+        for (var i = 0; i < numTableCols; i++) {
+            for (var j = 0; j < numGroupByCols; j++) {
+                if (tableCols[i].func.args && tableCols[i].func.args[0] === 
+                    groupByCols[j]) {
+                    return (i + 1);
+                }
+            }
+        }
+        return (1);
+    }
+
+    function setupFinalGroupByColumns(tableId, groupByCols, newProgCol,
+        indexedColName) {
+        var table = xcHelper.getTableFromId(tableId);
+        var columns = table.tableCols;
+        var $table     = xcHelper.getElementByTableId(tableId, "xcTable");
+        var $dataCol   = $table.find('th.dataCol');
+        var dataColNum = xcHelper.parseColNum($dataCol) - 1;
+        var numCols = columns.length;
+        var tablCols = [];
+        tablCols[0] = newProgCol;
+        var indexedColNum = -1;
+        var frontIndexedColName;
+        if (groupByCols.length === 1) {
+            for (var i = 0; i < numCols; i++) {
+                if (columns[i].name === indexedColName &&
+                    columns[i].func.args) {
+                    indexedColNum = i;
+                    break;
+                }
+            }
+        }
+
+        if (indexedColNum === -1) {
+            if (groupByCols.length === 1) {
+                frontIndexedColName = getFrontColName(indexedColName, tableId);
+                tablCols[1] = ColManager.newCol({
+                    "index"   : 2,
+                    "name"    : frontIndexedColName,
+                    "width"   : gNewCellWidth,
+                    "isNewCol": false,
+                    "userStr" : '"' + indexedColName + '" = pull(' +
+                                indexedColName + ')',
+                    "func": {
+                        "func": "pull",
+                        "args": [indexedColName]
+                    }
+                });
+            } else {
+                // Pull out each individual one by doing maps
+                for (var i = 0; i < groupByCols.length; i++) {
+                    var colName = groupByCols[i];
+                    var frontColName =  getFrontColName(colName, tableId);
+
+                    tablCols[1 + i] = ColManager.newCol({
+                    "index"   : 2 + i,
+                    "name"    : frontColName,
+                    "width"   : gNewCellWidth,
+                    "isNewCol": false,
+                    "userStr" : '"' + colName + '" = pull(' +
+                                colName + ')',
+                    "func": {
+                        "func": "pull",
+                        "args": [colName]
+                    }
+                    });
+                }
+            }
+        } else {
+            tablCols[1] = xcHelper.deepCopy(table.tableCols[indexedColNum]);
+            tablCols[1].index = 2;
+        }
+        // Note that if include sample a.b should not be escaped to a\.b
+        if (tablCols[1].name.indexOf('.') > -1) {
+            for (var i = 0; i < tablCols.length - 1; i++) {
+                if (tablCols[i + 1].name.indexOf('.') === -1) {
+                    continue;
+                }
+                var newEscapedName = tablCols[i + 1].name.replace(/\./g,
+                                                                "\\\.");
+                tablCols[i + 1].userStr = tablCols[i + 1].name +
+                                        '" = pull(' + newEscapedName + ')';
+                tablCols[i + 1].func.args = [newEscapedName];
+            }
+        }
+
+        tablCols[1 + groupByCols.length] =
+                             xcHelper.deepCopy(table.tableCols[dataColNum]);
+        tablCols[tablCols.length - 1].index = tablCols.length;
+        return (tablCols);
+    }
 
     function getFrontColName(backColName, tableId) {
         var columns = xcHelper.getTableFromId(tableId).tableCols;
