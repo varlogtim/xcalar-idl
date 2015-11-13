@@ -1,8 +1,8 @@
  // ========== Modal CSS ==========
-.modalBuilder(@w, @h) {
+.modalContainer {
     display: none;
     .position(absolute, 0, 0, 0, 0);
-    .size(@width: @w, @height: @h, @max-width: 99%, @max-height: 99%);
+    .size(@max-width: 99%, @max-height: 99%);
     .rounded;
     z-index: 40;
     box-shadow: 0px 0px 10px 3px rgba(0,0,0, .4);
@@ -60,10 +60,15 @@
             .flex(0 0 58px);
             .background('/images/exclamation.png', 32px, 32px);
         }
+
         .text {
             .flex(0 0 ~"calc(100% - 58px)");
             .font(@weight: bold, @size: 12px, @color: @color-text-instructions);
             overflow: hidden;
+        }
+
+        b {
+            color: @color-text-blue;
         }
     }
 
@@ -72,29 +77,25 @@
         border-top: 3px solid rgba(1, 1, 1, 0.18);
         background: @color-join-background;
         color: @color-text-darkGray;
-        .noSelection;
-        cursor: default;
+        .no-selection;
     }
 
     .modalMain {
         background-color: @color-white;
-        .noSelection;
-        cursor: default;
+        .no-selection;
     }
 
     .modalSubMain {
         .size(@width: 100%);
         background: @color-join-background;
         color: @color-text-darkGray;
-        .noSelection;
-        cursor: default;
+        .no-selection;
     }
 
     .modalBottom {
         .size(@width: 100%, @height: 50px);
         background-color: @color-white;
-        .noSelection;
-        cursor: default;
+        .no-selection;
 
         .btn {
             float: right;
@@ -396,7 +397,7 @@
     }
 
     .closeJsonModal {
-        .modalBuilder.modalHeader.close();
+        .modalContainer.modalHeader.close();
         .position(@top: 3px, @right: 4px);
     }
 
@@ -495,7 +496,7 @@
 
 /* Quick Aggregate Modal */
 #quickAggDialog {
-    .modalBuilder(920px, 670px);
+    .size(@width: 920px, @height: 670px);
     resize: horizontal;
 
     #aggInputSection {
@@ -656,7 +657,7 @@
 
 /* Join Modal */
 #joinModal {
-    .modalBuilder(920px, 670px);
+    .size(@width: 920px, @height: 670px);
     resize: both;
 
     .modalTopMain {
@@ -1179,13 +1180,12 @@ html.microsoft {
 
 /* Alert Modal */
 #alertModal {
-    .modalBuilder(500px, auto);
+    .size(@width: 500px, @height: auto);
     bottom: auto;
     z-index: 100;
 
     .modalHeader {
         text-transform: uppercase;
-        .cursor-move;
     }
 
     #alertContent {
@@ -1288,13 +1288,7 @@ html.microsoft {
 
 /* Workbook Modal */
 #workbookModal, #dataFlowModal {
-    .modalBuilder(1000px, 625px);
-
-    .modalInstruction {
-        b {
-            color: @color-text-blue;
-        }
-    }
+    .size(@width: 1000px, @height: 625px);
 
     .modalTopMain {
         .size(@height: 100px);
@@ -1338,7 +1332,6 @@ html.microsoft {
         .position(relative);
         .size(@height: ~"calc(100% - 260px)");
         padding: 10px;
-        .noSelection;
         .flex-display;
         .flex-flow(row);
 
@@ -1761,8 +1754,7 @@ html.microsoft {
 
 /* File Browser Modal */
 #fileBrowserModal {
-    .modalBuilder(800px, 670px);
-    .size(@max-width: none, @max-height: none);
+    .size(@width: 800px, @height: 670px, @max-width: none, @max-height: none);
     text-transform: capitalize;
     overflow: visible;
 
@@ -1895,7 +1887,6 @@ html.microsoft {
         .position(relative);
         .size(@height: ~"calc(100% - 300px)");
         padding: 5px 0;
-        .noSelection;
 
         .titleSection {
             .size(@width: ~"calc(100% - 22px)", @height: 40px);
@@ -2089,8 +2080,7 @@ html.microsoft {
 
 /* Profile Modal */
 #profileModal {
-    .modalBuilder(850px, 415px);
-    display: none;
+    .size(@width: 850px, @height: 415px);
 
     &.noScrollBar {
         .size(@height: 370px);
@@ -2116,16 +2106,7 @@ html.microsoft {
         cursor: pointer;
     }
 
-    .modalInstruction {
-        .noSelection;
-
-        b {
-            color: @color-text-blue;
-        }
-    }
-
     .modalTopMain {
-        .noSelection;
         .size(@height: ~"calc(100% - 309px)", @min-height: 105px);
         .position(relative);
         padding: 5px 0;
@@ -2506,14 +2487,10 @@ html.microsoft {
 
 /* Export Modal */
 #exportModal {
-    .modalBuilder(520px, auto);
+    .size(@width: 520px, @height: auto);
     margin: 0 !important;
     overflow: visible !important;
     bottom: auto !important;
-
-    .modalHeader {
-        .cursor-move;
-    }
 
     .modalTopMain {
         // .size(@height: 100px);
@@ -2585,7 +2562,7 @@ html.microsoft {
 
 /* Multi-cast Modal */
 #multiCastModal {
-    .modalBuilder(900px, 550px);
+    .size(@width: 900px, @height: 550px);
     .noSelection;
 
     .modalInstruction {
@@ -2935,7 +2912,7 @@ html.microsoft {
 /* End Of Multi-cast Modal */
 
 #dagParameterModal {
-    .modalBuilder(920px, 300px);
+    .size(@width: 920px, @height: 300px);
 
     .transition(height 0.5s);
 
@@ -3240,7 +3217,7 @@ html.microsoft {
 }
 
 #addScheduleModal {
-    .modalBuilder(500px, auto);
+    .size(@width: 500px, @height: auto);
     bottom: auto;
     right: auto;
     overflow: visible;
@@ -3291,7 +3268,7 @@ html.microsoft {
 }
 
 #operationsModal {
-    .modalBuilder(720px, auto);
+    .size(@width: 720px, @height: auto);
     overflow: visible;
     bottom: auto;
 
