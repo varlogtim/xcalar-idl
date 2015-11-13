@@ -407,7 +407,7 @@ window.ColManager = (function($, ColManager) {
                 "rowHeights": xcHelper.deepCopy(table.rowHeights)
             };
             // map do not change groupby stats of the table
-            STATSManager.copy(tableId, finalTableId);
+            Profile.copy(tableId, finalTableId);
             return (setgTable(finalTable, curTableCols, null, tableProperties));
         })
         .then(function() {
@@ -616,7 +616,7 @@ window.ColManager = (function($, ColManager) {
                 };
 
                 // map do not change groupby stats of the table
-                STATSManager.copy(curTableId, newTableId);
+                Profile.copy(curTableId, newTableId);
 
                 return (setgTable(newTableName, newTablCols, null, tableProperties));
             })

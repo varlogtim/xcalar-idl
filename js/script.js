@@ -728,7 +728,7 @@ function startupFunctions() {
         loadMonitorPanel();
         DagPanel.setup();
         FileBrowser.setup();
-        STATSManager.setup();
+        Profile.setup();
         ExportModal.setup();
         deferred.resolve();
     })

@@ -113,7 +113,7 @@ function commitToStorage(atStartUp) {
     storage[KVKeys.CART] = DataCart.getCarts();
     storage[KVKeys.HOLD] = KVStore.isHold();
 
-    storage[KVKeys.STATS] = STATSManager.getStatsCols();
+    storage[KVKeys.STATS] = Profile.getCache();
 
     if (atStartUp) {
         storage[KVKeys.USER] = UserSettings.getSettings();
@@ -168,7 +168,7 @@ function readFromStorage() {
                 DataCart.restore(gInfos[KVKeys.CART]);
             }
             if (gInfos[KVKeys.STATS]) {
-                STATSManager.restore(gInfos[KVKeys.STATS]);
+                Profile.restore(gInfos[KVKeys.STATS]);
             }
             if (gInfos[KVKeys.USER]) {
                 UserSettings.restore(gInfos[KVKeys.USER]);

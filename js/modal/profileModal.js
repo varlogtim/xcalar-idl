@@ -1,6 +1,6 @@
-window.STATSManager = (function($, STATSManager, d3) {
-    var $statsModal = $("#statsModal");
-    var $modalBg    = $("#modalBackground");
+window.Profile = (function($, Profile, d3) {
+    var $modal   = $("#profileModal");
+    var $modalBg = $("#modalBackground");
 
     // constants
     var aggKeys = ["min", "average", "max", "count", "sum"];
@@ -46,18 +46,18 @@ window.STATSManager = (function($, STATSManager, d3) {
 
     var minHeight = 415;
     var minWidth  = 750;
-    var modalHelper = new xcHelper.Modal($statsModal, {
+    var modalHelper = new xcHelper.Modal($modal, {
        "minHeight": minHeight,
        "minWidth" : minWidth
     });
 
-    STATSManager.setup = function() {
-        $statsModal.resizable({
-            handles    : "n, e, s, w, se",
-            minHeight  : minHeight,
-            minWidth   : minWidth,
-            containment: "document",
-            resize     : function() {
+    Profile.setup = function() {
+        $modal.resizable({
+            "handles"    : "n, e, s, w, se",
+            "minHeight"  : minHeight,
+            "minWidth"   : minWidth,
+            "containment": "document",
+            "resize"     : function() {
                 if (statsCol.groupByInfo &&
                     statsCol.groupByInfo.isComplete === true)
                 {
@@ -66,17 +66,17 @@ window.STATSManager = (function($, STATSManager, d3) {
             }
         });
 
-        $statsModal.on("click", ".cancel, .close", function() {
-            closeStats();
+        $modal.on("click", ".cancel, .close", function() {
+            closeProfileModal();
         });
 
-        $statsModal.draggable({
+        $modal.draggable({
             "handle": ".modalHeader",
             "cursor": "-webkit-grabbing"
         });
 
         // show tootip in barArea and do not let in blink in padding
-        $statsModal.on("mouseover", ".barArea", function(event) {
+        $modal.on("mouseover", ".barArea", function(event) {
             event.stopPropagation();
             resetTooltip();
             // XXX g tag can not use addClass, fix it if it's not true
@@ -85,20 +85,20 @@ window.STATSManager = (function($, STATSManager, d3) {
         });
 
         // only trigger in padding area btw bars
-        $statsModal.on("mouseover", ".groupbyChart", function(event) {
+        $modal.on("mouseover", ".groupbyChart", function(event) {
             event.stopPropagation();
         });
 
-        $statsModal.on("mouseover", resetTooltip);
+        $modal.on("mouseover", resetTooltip);
 
-        $statsModal.on("click", ".bar-extra, .bar, .xlabel", function() {
+        $modal.on("click", ".bar-extra, .bar, .xlabel", function() {
             percentageLabel = !percentageLabel;
             buildGroupGraphs();
             highlightBar();
         });
 
         // event on sort section
-        var $sortSection = $statsModal.find(".sortSection");
+        var $sortSection = $modal.find(".sortSection");
 
         $sortSection.on("click", ".asc .iconWrapper", function() {
             sortData(sortMap.asc, statsCol);
@@ -113,7 +113,7 @@ window.STATSManager = (function($, STATSManager, d3) {
         });
 
         // event on range section
-        var $rangeSection = $statsModal.find(".rangeSection");
+        var $rangeSection = $modal.find(".rangeSection");
         var $rangeInput = $("#stats-step");
         $rangeSection.on("click", ".rangeBtn", function() {
             $rangeSection.toggleClass("range");
@@ -174,15 +174,15 @@ window.STATSManager = (function($, STATSManager, d3) {
         });
     };
 
-    STATSManager.getStatsCols = function() {
+    Profile.getCache = function() {
         return (statsInfos);
     };
 
-    STATSManager.restore = function(oldInfos) {
+    Profile.restore = function(oldInfos) {
         statsInfos = oldInfos;
     };
 
-    STATSManager.copy = function(oldTableId, newTableId) {
+    Profile.copy = function(oldTableId, newTableId) {
         if (statsInfos[oldTableId] == null) {
             return;
         }
@@ -193,7 +193,7 @@ window.STATSManager = (function($, STATSManager, d3) {
         statsInfos[newTableId] = statsInfos[oldTableId];
     };
 
-    STATSManager.run = function(tableId, colNum) {
+    Profile.show = function(tableId, colNum) {
         var deferred = jQuery.Deferred();
 
         var table = gTables[tableId];
@@ -225,7 +225,7 @@ window.STATSManager = (function($, STATSManager, d3) {
                     "buckets"   : {}
                 }
             };
-        } else if (statsCol.modalId === $statsModal.data("id")) {
+        } else if (statsCol.modalId === $modal.data("id")) {
             // when same modal open twice
             deferred.resolve();
             return (deferred.promise());
@@ -235,7 +235,6 @@ window.STATSManager = (function($, STATSManager, d3) {
 
         generateStats(table)
         .then(function() {
-
             SQL.add("Profile", {
                 "operation": SQLOps.Profile,
                 "tableName": table.tableName,
@@ -256,12 +255,12 @@ window.STATSManager = (function($, STATSManager, d3) {
         return (deferred.promise());
     };
 
-    function closeStats() {
+    function closeProfileModal() {
         var fadeOutTime = gMinModeOn ? 0 : 300;
-        $statsModal.hide();
+        $modal.hide();
         $modalBg.fadeOut(fadeOutTime);
 
-        $statsModal.find(".groupbyChart").empty();
+        $modal.find(".groupbyChart").empty();
         modalHelper.clear();
         resetScrollBar();
         freePointer();
@@ -274,16 +273,16 @@ window.STATSManager = (function($, STATSManager, d3) {
         order = sortMap.origin;
         statsCol = null;
         percentageLabel = false;
-        $statsModal.removeData("id");
+        $modal.removeData("id");
 
-        $statsModal.find(".min-range .text").off();
-        $modalBg.off("mouseover.statsModal");
+        $modal.find(".min-range .text").off();
+        $modalBg.off("mouseover.profileModal");
         // turn off scroll bar event
-        $statsModal.find(".scrollBar").off();
-        $(document).off(".statsModal");
+        $modal.find(".scrollBar").off();
+        $(document).off(".profileModal");
         $("#stats-rowInput").off();
 
-        $statsModal.find(".rangeSection").removeClass("range")
+        $modal.find(".rangeSection").removeClass("range")
                     .find("input").val("");
     }
 
@@ -332,7 +331,7 @@ window.STATSManager = (function($, STATSManager, d3) {
                     innerDeferred.resolve();
                 }
 
-                showStats();
+                showProfile();
             })
             .fail(function(error) {
                 console.error(error);
@@ -343,9 +342,9 @@ window.STATSManager = (function($, STATSManager, d3) {
         } else if (statsCol.groupByInfo.isComplete !== "running") {
             promise = runGroupby(table, statsCol, bucketNum);
             promises.push(promise);
-            showStats();
+            showProfile();
         } else {
-            showStats();
+            showProfile();
         }
 
         xcHelper.when.apply(window, promises)
@@ -362,36 +361,36 @@ window.STATSManager = (function($, STATSManager, d3) {
         return (deferred.promise());
     }
 
-    function showStats() {
+    function showProfile() {
         modalHelper.setup();
         setupScrollBar();
 
         if (gMinModeOn) {
             $modalBg.show();
-            $statsModal.show().data("id", statsCol.modalId);
+            $modal.show().data("id", statsCol.modalId);
             refreshStats();
         } else {
             $modalBg.fadeIn(300, function() {
-                $statsModal.fadeIn(180)
+                $modal.fadeIn(180)
                         .data("id", statsCol.modalId);
                 refreshStats();
             });
         }
 
         // hide scroll bar first
-        $statsModal.addClass("noScrollBar");
-        $statsModal.find(".scrollSection").hide();
-        $modalBg.on("mouseover.statsModal", resetTooltip);
+        $modal.addClass("noScrollBar");
+        $modal.find(".scrollSection").hide();
+        $modalBg.on("mouseover.profileModal", resetTooltip);
     }
 
-    // refresh stats
+    // refresh profile
     function refreshStats(resetRefresh) {
         var deferred = jQuery.Deferred();
 
-        var $aggInfoSection = $statsModal.find(".aggInfoSection");
-        var $loadingSection = $statsModal.find(".loadingSection");
-        var $loadHiddens    = $statsModal.find(".loadHidden");
-        var $loadDisables   = $statsModal.find(".loadDisable");
+        var $aggInfoSection = $modal.find(".aggInfoSection");
+        var $loadingSection = $modal.find(".loadingSection");
+        var $loadHiddens    = $modal.find(".loadHidden");
+        var $loadDisables   = $modal.find(".loadDisable");
 
         var instruction = "Profile of <b>" + statsCol.colName + ".</b><br>";
 
@@ -470,7 +469,7 @@ window.STATSManager = (function($, STATSManager, d3) {
             deferred.resolve();
         }
 
-        $statsModal.find(".modalInstruction .text").html(instruction);
+        $modal.find(".modalInstruction .text").html(instruction);
 
         return (deferred.promise());
     }
@@ -516,7 +515,7 @@ window.STATSManager = (function($, STATSManager, d3) {
 
             // modal is open and is for that column
             if (isModalVisible(curStatsCol)) {
-                $statsModal.find(".aggInfoSection ." + aggkey)
+                $modal.find(".aggInfoSection ." + aggkey)
                         .removeClass("animatedEllipsis")
                         .text(res.toLocaleString());
             }
@@ -805,7 +804,7 @@ window.STATSManager = (function($, STATSManager, d3) {
         var xName = tableInfo.colName;
         var yName = noBucket ? statsColName : bucketColName;
 
-        var $section = $statsModal.find(".groubyInfoSection");
+        var $section = $modal.find(".groubyInfoSection");
         var data = groupByData;
         var dataLen = data.length;
 
@@ -836,9 +835,9 @@ window.STATSManager = (function($, STATSManager, d3) {
         var barAreas;
 
         if (initial) {
-            $statsModal.find(".groupbyChart").empty();
+            $modal.find(".groupbyChart").empty();
 
-            chart = d3.select("#statsModal .groupbyChart")
+            chart = d3.select("#profileModal .groupbyChart")
                 .attr("width", chartWidth)
                 .attr("height", chartHeight + 2)
                 .style("position", "relative")
@@ -849,9 +848,9 @@ window.STATSManager = (function($, STATSManager, d3) {
 
             $(".bartip").remove();
         } else if (resize) {
-            chart = d3.select("#statsModal .groupbyChart .barChart");
+            chart = d3.select("#profileModal .groupbyChart .barChart");
 
-            d3.select("#statsModal .groupbyChart")
+            d3.select("#profileModal .groupbyChart")
                 .attr("width", chartWidth)
                 .attr("height", chartHeight + 2)
                 .style("left", left);
@@ -917,7 +916,7 @@ window.STATSManager = (function($, STATSManager, d3) {
             return;
         }
 
-        chart = d3.select("#statsModal .groupbyChart .barChart");
+        chart = d3.select("#profileModal .groupbyChart .barChart");
         // rect bars
         barAreas = chart.selectAll(".barArea").data(data);
         // update
@@ -1097,7 +1096,7 @@ window.STATSManager = (function($, STATSManager, d3) {
     }
 
     function resetScrollBar() {
-        var $section = $statsModal.find(".scrollSection");
+        var $section = $modal.find(".scrollSection");
         if (totalRows <= numRowsToFetch) {
 
             if (gMinModeOn) {
@@ -1106,11 +1105,11 @@ window.STATSManager = (function($, STATSManager, d3) {
                 $section.slideUp(100);
             }
 
-            $statsModal.addClass("noScrollBar");
+            $modal.addClass("noScrollBar");
             return;
         }
 
-        $statsModal.removeClass("noScrollBar");
+        $modal.removeClass("noScrollBar");
 
         if (gMinModeOn) {
             $section.show();
@@ -1122,7 +1121,7 @@ window.STATSManager = (function($, STATSManager, d3) {
         
         var $maxRange = $section.find(".max-range");
         var $rowInput = $("#stats-rowInput").val(1).data("rowNum", 1);
-        $statsModal.find(".scroller").css("transform", "");
+        $modal.find(".scroller").css("transform", "");
 
         // set width of elements
         $maxRange.text(totalRows.toLocaleString());
@@ -1133,7 +1132,7 @@ window.STATSManager = (function($, STATSManager, d3) {
     }
 
     function setupScrollBar() {
-        var $section = $statsModal.find(".scrollSection");
+        var $section = $modal.find(".scrollSection");
         var $scrollerArea = $section.find(".rowScrollArea");
         // move scroll bar event, setup it here since we need statsCol info
         var $scrollerBar = $scrollerArea.find(".scrollBar");
@@ -1150,11 +1149,11 @@ window.STATSManager = (function($, STATSManager, d3) {
             event.stopPropagation();
             isDragging = true;
             $scroller.addClass("scrolling");
-            $statsModal.addClass("dragging");
+            $modal.addClass("dragging");
         });
 
         $(document).on({
-            "mouseup.statsModal": function() {
+            "mouseup.profileModal": function() {
                 if (isDragging === true) {
                     $scroller.removeClass("scrolling");
                     var mouseX = event.pageX - $scrollerBar.offset().left;
@@ -1163,11 +1162,11 @@ window.STATSManager = (function($, STATSManager, d3) {
                     // make sure rowPercent in [0, 1]
                     rowPercent = Math.min(1, Math.max(0, rowPercent));
                     positionScrollBar(rowPercent);
-                    $statsModal.removeClass("dragging");
+                    $modal.removeClass("dragging");
                 }
                 isDragging = false;
             },
-            "mousemove.statsModal": function(event) {
+            "mousemove.profileModal": function(event) {
                 if (isDragging) {
                     var mouseX = event.pageX - $scrollerBar.offset().left;
                     var rowPercent = mouseX / $scrollerBar.width();
@@ -1263,7 +1262,7 @@ window.STATSManager = (function($, STATSManager, d3) {
             // disable another fetching data event till this one done
             $section.addClass("disabled");
 
-            var $loadingSection = $statsModal.find(".loadingSection");
+            var $loadingSection = $modal.find(".loadingSection");
             var loadTimer = setTimeout(function() {
                 // if the loading time is long, show the waiting icon
                 $loadingSection.removeClass("hidden");
@@ -1294,9 +1293,9 @@ window.STATSManager = (function($, STATSManager, d3) {
     }
 
     function resetSortSection() {
-        $statsModal.find(".sortSection").find(".active").removeClass("active")
-                    .end()
-                    .find("." + order + " .iconWrapper").addClass("active");
+        $modal.find(".sortSection").find(".active").removeClass("active")
+                .end()
+                .find("." + order + " .iconWrapper").addClass("active");
     }
 
     function sortData(newOrder, curStatsCol) {
@@ -1577,7 +1576,7 @@ window.STATSManager = (function($, STATSManager, d3) {
         if (rowNum == null) {
             rowNum = Number($("#stats-rowInput").val());
         }
-        var $chart = $statsModal.find(".groubyInfoSection .groupbyChart .barChart");
+        var $chart = $modal.find(".groubyInfoSection .groupbyChart .barChart");
 
         $chart.find(".barArea.highlight").removeClass("highlight");
         var $barArea = $chart.find(".barArea[data-rowNum=" + rowNum + "]");
@@ -1607,8 +1606,8 @@ window.STATSManager = (function($, STATSManager, d3) {
     }
 
     function isModalVisible(curStatsCol) {
-        return ($statsModal.is(":visible") &&
-                $statsModal.data("id") === curStatsCol.modalId);
+        return ($modal.is(":visible") &&
+                $modal.data("id") === curStatsCol.modalId);
     }
 
     function failureHandler(curStatsCol, error) {
@@ -1617,11 +1616,11 @@ window.STATSManager = (function($, STATSManager, d3) {
             // turn gMinModeOn so that hide modalBg in clostStats()
             // has no delay affect to Alert.error()
             gMinModeOn = true;
-            closeStats();
+            closeProfileModal();
             gMinModeOn = false;
             Alert.error("Profile Fails", error);
         }
     }
 
-    return (STATSManager);
+    return (Profile);
 }(jQuery, {}, d3));

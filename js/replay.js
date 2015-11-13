@@ -991,10 +991,10 @@ window.Replay = (function($, Replay) {
             keepOpen = profileKeepOpenCheck(options);
         }
 
-        STATSManager.run(tableId, colNum)
+        Profile.show(tableId, colNum)
         .then(function() {
             var checkFunc = function() {
-                return ($("#statsModal .groupbyChart .barArea").length > 0);
+                return ($("#profileModal .groupbyChart .barArea").length > 0);
             };
 
             return (checkHelper(checkFunc));
@@ -1004,7 +1004,7 @@ window.Replay = (function($, Replay) {
                 return promiseWrapper(null);
             } else {
                 var callback = function() {
-                    $("#statsModal .close").click();
+                    $("#profileModal .close").click();
                 };
                 return (delayAction(callback, "Show Profile"));
             }
@@ -1027,7 +1027,7 @@ window.Replay = (function($, Replay) {
 
         profileSortHelper()
         .then(function() {
-            var $icon = $("#statsModal .sortSection ." + order + " .iconWrapper");
+            var $icon = $("#profileModal .sortSection ." + order + " .iconWrapper");
             $icon.click();
 
             var checkFunc = function() {
@@ -1041,7 +1041,7 @@ window.Replay = (function($, Replay) {
                 return promiseWrapper(null);
             } else {
                 var callback = function() {
-                    $("#statsModal .close").click();
+                    $("#profileModal .close").click();
                 };
                 return delayAction(callback, "Show Profile Sort");
             }
@@ -1077,15 +1077,15 @@ window.Replay = (function($, Replay) {
 
         replayProfile(options, true)
         .then(function() {
-            var $statsModal = $("#statsModal");
-            var $rangeSection = $statsModal.find(".rangeSection");
+            var $modal = $("#profileModal");
+            var $rangeSection = $modal.find(".rangeSection");
             var $input = $("#stats-step");
             $rangeSection.find(".text.range").click();
             $input.val(bucketSize);
             $input.trigger(fakeEvent.enter);
 
             var checkFunc = function() {
-                return ($statsModal.find(".loadingSection").hasClass("hidden"));
+                return ($modal.find(".loadingSection").hasClass("hidden"));
             };
 
             return (checkHelper(checkFunc));
@@ -1095,7 +1095,7 @@ window.Replay = (function($, Replay) {
                 return promiseWrapper(null);
             } else {
                 var callback = function() {
-                    $("#statsModal .close").click();
+                    $("#profileModal .close").click();
                 };
                 return delayAction(callback, "Show Profile Bucketing");
             }

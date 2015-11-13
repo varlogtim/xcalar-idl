@@ -246,7 +246,7 @@ window.xcFunction = (function($, xcFunction) {
                                  xcOrder, sqlOptions)
             .then(function() {
                 // sort do not change groupby stats of the table
-                STATSManager.copy(tableId, newTableId);
+                Profile.copy(tableId, newTableId);
 
                 return (setgTable(newTableName, tablCols, null, null));
             })
@@ -576,7 +576,7 @@ window.xcFunction = (function($, xcFunction) {
             // map do not change groupby stats of the table
             var oldTableId = xcHelper.getTableId(tableName);
             newTableId = xcHelper.getTableId(newTableName);
-            STATSManager.copy(oldTableId, newTableId);
+            Profile.copy(oldTableId, newTableId);
 
             return (setgTable(newTableName, tablCols, null, tableProperties));
         })

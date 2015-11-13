@@ -1577,7 +1577,7 @@ function addColListeners($table, tableId) {
         }).remove();
 
         if (isSystemMac && event.metaKey ||
-            !isSystemMac && event.ctrl)
+            !isSystemMac && event.ctrlKey)
         {
             // ctrl key: multi selection
             multiSelection();
@@ -2579,7 +2579,7 @@ function addColMenuActions() {
         }
         var colNum = $colMenu.data('colNum');
         tableId = $colMenu.data('tableId');
-        STATSManager.run(tableId, colNum);
+        Profile.show(tableId, colNum);
     });
 
     $cellMenu.on('mouseup', '.tdFilter, .tdExclude', function(event) {
