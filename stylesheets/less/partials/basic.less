@@ -37,7 +37,7 @@ body {
 
 .mainContainer {
     .position(relative);
-    .size(@height: 100vh, @min-height: 260px, @min-width: 1024px);
+    .size(@height: 100vh, @min-height: 260px, @min-width: 824px);
     font-size: 14px;
     overflow: hidden;
 }
@@ -214,6 +214,7 @@ body {
     .action-gradient;
     box-shadow: 0px 1px 1px 0 rgba(0, 0, 0, 0.7);
     .font(@family: @font-base, @color: @color-text-transparentWhite);
+    .textOverflowOneLine;
 
     &:hover, &:focus {
        .action-inverse-gradient;
@@ -2509,6 +2510,115 @@ body.tooltipOff {
                 span {
                     opacity: 0.4;
                 }
+            }
+        }
+    }
+}
+
+@media screen and (max-width: 1024px) {
+    #worksheetBar .workspaceArea:first-child {
+        display: none;
+    }
+    #datastorePanel {
+        #contentHeaderLeft {
+            .flex(0 0 200px);
+            .buttonArea {
+                .flex(1 1 100px);
+                width: 100%;
+            }
+        }
+        #contentHeaderRight {
+            .flex(0 0 25%);
+        }
+        .contentViewLeft {
+            width: 200px !important;
+            .mainButtonArea .btn {
+                width: 180px;
+                padding-right: 4px;
+                .textOverflowOneLine;
+            }
+            .headingArea {
+                text-align: center !important;
+                padding-right: 50px;
+            }
+            .listView .grid-unit {
+                width: 180px !important;
+            }
+        }
+        .contentViewRight {
+            width: 25% !important;
+            .btnLarge {
+                width: 92% !important;
+            }
+            .title {
+                width: 92% !important;
+            }
+            .selectedTable {
+                width: 92% !important;
+            }
+            .colName {
+                width: ~"calc(100% - 25px)" !important;
+            }
+        }
+        .dataStoreFormView, .contentViewMid {
+            width: ~"calc(75% - 200px)" !important;
+            min-width: 0px;
+            left: 200px;
+        }
+        .dataStoreFormView {
+            .contentViewMidWrap {
+                width: 100%;
+                min-width: 0px;
+            }
+            .btnMid {
+                width: 100px;
+            }
+            #fileNameSelector.optionsOpen input {
+                min-width: ~"calc(100% - 310px)" !important;
+            }
+            #csvDelim {
+                .listSection {
+                    width: ~"calc(100% - 120px)" !important;
+                }
+                .wrapper {
+                    width: 50% !important;
+                    margin-right: 0 !important;
+                }
+                .list {
+                    width: 100% !important;
+                }
+            }
+
+            .previewMode {
+                #filePath {
+                    width: 100% !important;
+                }
+                #fileName {
+                    width: 100% !important;
+                }
+            }
+        }
+        .formHelp {
+            h2 {
+                margin-bottom: 4px;
+            }
+            p {
+                height: 42px;
+                line-height: 14px;
+            }
+            .contentViewMidWrap {
+                min-width: 0px;
+                width: 100%;
+            }
+        }
+
+        #exportView  {
+            .contentViewMid {
+                width: ~"calc(100% - 200px)" !important;
+                min-width: 0px;
+            }
+            .contentViewMidWrap {
+                width: 85% !important;
             }
         }
     }

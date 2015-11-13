@@ -89,8 +89,8 @@ input {
 /* Form Data View Section */
 .dataStoreFormView {
     display: block;
-    .position(fixed, @top: 78px, @left: 255px);
-    .size(@width: ~"calc(100% - 510px)", @height: ~"calc(100% - 152px)", @min-width: 514px);
+    .position(absolute, @top: 37px, @left: 255px);
+    .size(@width: ~"calc(100% - 510px)", @height: ~"calc(100% - 37px)", @min-width: 514px);
     background-color: @color-background-white;
     font-size: 13px;
     overflow: hidden;
@@ -520,6 +520,8 @@ input {
             padding: 0 5px;
             display: inline-block;
             background: #b6b6b6;
+            max-width: 55%;
+            .textOverflowOneLine;
 
             &.active {
                 .action-gradient;
@@ -1227,7 +1229,7 @@ input {
         background-color: @color-background-darkGray;
         box-shadow: inset 2px 2px 6px 0 rgba(0,0,0,.3);
         border-left: 1px solid rgba(0, 0, 0, 0.25);
-        float: left;
+        float: right;
 
         .buttonArea {
             margin-top: 4px;
@@ -1319,7 +1321,7 @@ input {
         visibility: visible;
         width: ~"calc(100% - 255px)";
         min-width: 640px;
-        height: ~"calc(100% - 152px)";
+        height: ~"calc(100% - 37px)";
     }
 
     .formHelp {

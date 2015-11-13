@@ -362,6 +362,8 @@
                     
                     #connectionInfo {
                         float: left;
+                        .textOverflowOneLine;
+                        width: ~"calc(100% - 458px)";
                         #virNodeText {
                             padding-left: 10px;
                         }
@@ -570,7 +572,7 @@
 
                     .statsHeadingBar {
                         .font(@size: 13px, @color: @color-text-darkGray, @weight: bold, @line-height: 25px);
-                        .size(@width: 245px, @height: 25px);
+                        .size(@width: 95%, @max-width: 245px, @height: 25px);
                         background-color: #f4f4f4;
                         .rounded;
                         padding: 0 0 0 7px;
@@ -579,7 +581,8 @@
                         cursor: pointer;
 
                         &.small {
-                            width: 210px;
+                            max-width: 210px;
+                            width: 95%;
                         }
 
                         .arrow {
@@ -631,14 +634,16 @@
                         overflow-x: hidden;
                         overflow-y: auto;
                         height: ~"calc(100% - 25px)";
-                        margin-bottom: 5px;
+                        width: 95%;
+                        margin: 0 auto 5px auto;
                         ul {
-                            width: 245px;
+                            width: 100%;
+                            max-width: 245px;
                             margin: 0 auto;
                             
                             li {
                                 .font(@size: 11px, @color: @color-text-midlightGray, @weight: bold);
-                                .size(@width: 225px, @height: 17px);
+                                .size(@width: 100%, @max-width: 225px, @height: 17px);
                                 margin-top: 6px;
                                 padding-left: 6px;
                                 .rounded;
@@ -919,11 +924,12 @@
                 }
 
                 .buttonArea {
-                    margin: 2px 18px 10px 0 ;
+                    margin: 2px 18px 0 0 ;
                     float: right;
 
                     .btn {
                         margin-right: 12px;
+                        margin-bottom: 10px;
                         padding-right: 10px;
                     }
                 }
