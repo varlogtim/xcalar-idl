@@ -767,6 +767,7 @@ window.GridView = (function($, GridView) {
                 if (event.scrollToColumn) {
                     DataCart.scrollToDatasetColumn(event.showToolTip);
                 }
+                $('#datasetWrap').removeClass('error');
                 Tips.refresh();
             })
             .fail(function(error) {
@@ -775,6 +776,7 @@ window.GridView = (function($, GridView) {
                                 "</div>";
                 console.error(error.error);
                 $('#dataSetTableWrap').html(errorHTML);
+                $('#datasetWrap').addClass('error');
             });
         });
 
