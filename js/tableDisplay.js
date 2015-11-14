@@ -841,6 +841,10 @@ function generateTableDropDown() {
             '<li class="unhideTable">Unhide Table</li>' +
             // '<li class="deleteTable">Delete Table</li>' + XXX temporary
             '<li class="exportTable">Export Table</li>' +
+            '<li class="visualize">' +
+            '    <a href="tableau.html" target="_blank" '+
+            'style="text-decoration:none;color:#838383">Visualize in Tableau</a>' +
+            '</li>' +
             '<li class="delAllDuplicateCols">Delete All Duplicates</li>' +
             '<li class="quickAgg parentMenu" data-submenu="quickAgg">' +
                 'Quick Aggregates' +
