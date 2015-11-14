@@ -1575,11 +1575,12 @@ function addColListeners($table, tableId) {
         $highlightBoxs.filter(function() {
             return (!$(this).hasClass(tableId));
         }).remove();
-
+    
         if (isSystemMac && event.metaKey ||
             !isSystemMac && event.ctrlKey)
         {
             // ctrl key: multi selection
+
             multiSelection();
         } else if (event.shiftKey) {
             // shift key: multi selection from minIndex to maxIndex
@@ -1657,9 +1658,11 @@ function addColListeners($table, tableId) {
 
             if ($td.find('.highlightBox').length > 0) {
                 // deselect
+                console.log('ya')
                 unHighlightCell($td);
                 isUnSelect = true;
             } else {
+                
                 highlightCell($td, tableId, rowNum, colNum);
             }
         }

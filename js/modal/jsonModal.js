@@ -5,8 +5,6 @@ window.JSONModal = (function($, JSONModal) {
     var $searchInput = $('#jsonSearch').find('input');
     var $jsonText = $jsonModal.find('.prettyJson');
     var $counter = $('#jsonSearch').find('.counter');
-    // var $matches;
-    // var numMatches = 0;
     var matchIndex;
     var isDataCol;
     var comparisonObjs = {};
@@ -47,10 +45,18 @@ window.JSONModal = (function($, JSONModal) {
             containment: "document"
         });
 
+        var initialIndex;
+
         $jsonArea.sortable({
             revert: 300,
             axis  : "x",
-            handle: ".jsonDragHandle"
+            handle: ".jsonDragHandle",
+            start: function(event, ui) {
+                initialIndex = $(ui.item).index();
+            },
+            stop: function(event, ui) {
+                resortJsons(initialIndex, $(ui.item).index());
+            }
             // containment: "parent"
         });
 
@@ -152,7 +158,7 @@ window.JSONModal = (function($, JSONModal) {
                           .removeClass('active comparison');
 
                 //designate any other active checkmark as the anchor
-                $jsonArea.find('.checkMark.on').addClass('first');
+                $jsonArea.find('.checkMark.on').eq(0).addClass('first');
 
                 $jsonArea.find('.comparison').find('.prettyJson.secondary')
                                              .empty();
@@ -177,7 +183,6 @@ window.JSONModal = (function($, JSONModal) {
             if ($checkMarks.length > 1) {
                 var indices = [];
                 var objs = [];
-
                 if (multipleComparison) {
                     compare(jsonData[newComparisonNum], newComparisonNum,
                             multipleComparison);
@@ -187,6 +192,7 @@ window.JSONModal = (function($, JSONModal) {
                         indices.push(index);
                         objs.push(jsonData[index]);
                     });
+
                     compare(objs, indices);
                 }
                 displayComparison(comparisonObjs);
@@ -219,24 +225,42 @@ window.JSONModal = (function($, JSONModal) {
             }
 
             // handle removal of comparisons
-            var isMainCheckmark = $jsonWrap.find('.checkMark.first')
+            var isCheckmarkOn = $jsonWrap.find('.checkMark.on')
                                            .length !== 0;
-            
-            $jsonWrap.find('.remove').tooltip('destroy');
-            $jsonWrap.remove();
-            if (isMainCheckmark) {
-                $jsonArea.find('.checkMark.on').addClass('first');
-            }
-
-            var numCheckMarks = $jsonWrap.find('.checkMark.on').length;
-            if (numCheckMarks === 1) {
-                $jsonArea.find('.comparison').find('.prettyJson.secondary')
-                                             .empty();
-                $jsonArea.find('.comparison').removeClass('comparison');
-            }
-
             var index = $jsonWrap.index();
+            $jsonWrap.find('.remove').tooltip('destroy');
+            
+            if ($jsonWrap.find('.checkMark.on').length) {
+                $jsonWrap.find('.checkMark').click();
+            }
+
+            $jsonWrap.remove();
+
+            if ($jsonArea.find('.jsonWrap').length === 1) {
+                var $checkMark = $jsonArea.find('.checkMark')
+                                          .addClass('single');
+                var title = "Select another data cell from a table to compare";
+                if ($checkMark.attr('title')) {
+                    $checkMark.attr('title', title);
+                } else {
+                     $checkMark.attr('data-original-title', title);
+                }        
+            }
+            
             jsonData.splice(index, 1);
+            delete comparisonObjs[index];
+
+            var numJsons = jsonData.length;
+            for (var i = index; i <= numJsons; i++) {
+                if (comparisonObjs[i]) {
+                    comparisonObjs[i - 1] = comparisonObjs[i];
+                    delete comparisonObjs[i];
+                }
+            }
+            if (comparisonObjs[numJsons]) {
+                delete comparisonObjs[numJsons];
+            }
+
             decreaseModalSize();
             updateSearchResults();
             searchText();
@@ -269,7 +293,6 @@ window.JSONModal = (function($, JSONModal) {
         var index = $jsonWrap.index();
         jsonData.splice(index + 1, 0, jsonData[index]);
         $jsonWrap.after($jsonClone);
-        // $jsonArea.append($jsonClone);
         $jsonClone.removeClass('active comparison');
         $jsonClone.find('.selected').removeClass('selected');
         $jsonClone.find('.checkMark').removeClass('on first');
@@ -281,6 +304,22 @@ window.JSONModal = (function($, JSONModal) {
                                 .find('td.col' + jsonWrapData.colnum)
                                 .find('.jsonModalHighlightBox');
         $highlightBox.data().count++;
+
+        var $checkMark = $jsonArea.find('.checkMark').removeClass('single');
+        var title = "Click to select for comparison";
+        if ($checkMark.attr('title')) {
+            $checkMark.attr('title', title);
+        } else {
+            $checkMark.attr('data-original-title', title);
+        }
+
+        var numData = jsonData.length;
+        for (var i = numData - 1; i > index; i--) {
+            if (comparisonObjs[i]) {
+                comparisonObjs[i + 1] = comparisonObjs[i];
+                delete comparisonObjs[i];
+            }
+        }
 
         increaseModalSize();
 
@@ -490,6 +529,16 @@ window.JSONModal = (function($, JSONModal) {
             $jsonText = $jsonModal.find('.prettyJson:visible');
             searchHelper.$matches = $jsonText.find('.highlightedText');
         }
+        if (isModalOpen) {
+            var $checkMark = $jsonArea.find('.checkMark.single')
+                                      .removeClass('single');
+            var title = "Click to select for comparison";
+            if ($checkMark.attr('title')) {
+                $checkMark.attr('title', title);
+            } else {
+                $checkMark.attr('data-original-title', title);
+            }
+        }
     }
 
     function fillJsonArea(jsonObj, $jsonTd, isArray) {
@@ -531,7 +580,7 @@ window.JSONModal = (function($, JSONModal) {
                 partialMatchedJsons.push([]);
             }
         }
-        
+
         if (multiple) {
             var obj = Object.keys(comparisonObjs);
             var matches = comparisonObjs[obj[0]].matches;
@@ -575,7 +624,6 @@ window.JSONModal = (function($, JSONModal) {
             }
             for (var i = 0; i < numPartials; i++) {
                 var key = Object.keys(partials[i])[0];
-                // var possiblePartial = partials[i];
                 var tempActiveObj = {};
                 var tempObj;
                 if (jsonObjs.hasOwnProperty(key)) {
@@ -595,7 +643,6 @@ window.JSONModal = (function($, JSONModal) {
             }
             for (var i = 0; i < nonMatches.length; i++) {
                 var key = Object.keys(nonMatches[i])[0];
-                // var nonMatch = nonMatches[i];
                 var tempActiveObj = {};
                 tempActiveObj[key] = jsonObjs[key];
                 activeObj.unmatched.push(tempActiveObj);
@@ -655,7 +702,6 @@ window.JSONModal = (function($, JSONModal) {
     }
 
     function displayComparison(jsons) {
-        // var matchTypes = 3;
         for (var obj in jsons) {
             var html = "";
             for (var matchType in jsons[obj]) {
@@ -793,11 +839,7 @@ window.JSONModal = (function($, JSONModal) {
             '<div class="optionsBar">' +
                 '<div class="dragHandle jsonDragHandle"></div>' +
                 '<div class="vertLine"></div>' +
-                '<div class="checkMark multiple" data-toggle="tooltip"' +
-                    'data-container="body" ' +
-                    'title="Click to select for comparison">' +
-                '</div>' +
-                '<div class="checkMark one" data-toggle="tooltip"' +
+                '<div class="checkMark single" data-toggle="tooltip"' +
                     'data-container="body" ' +
                     'title="Select another data cell from a table to compare">' +
                 '</div>' +
@@ -826,6 +868,40 @@ window.JSONModal = (function($, JSONModal) {
         }
 
         return (html);
+    }
+
+    function resortJsons(initialIndex, newIndex) {
+        var json = jsonData.splice(initialIndex, 1)[0];
+        jsonData.splice(newIndex, 0, json);
+        
+        var min = Math.min(initialIndex, newIndex);
+        var max = Math.max(initialIndex, newIndex);
+        var keys = Object.keys(comparisonObjs);
+        if (initialIndex === newIndex) {
+            return;
+        }
+
+        var tempObj = comparisonObjs[initialIndex];
+        delete comparisonObjs[initialIndex];
+
+        if (initialIndex > newIndex) {
+            for (var i = initialIndex - 1; i >= newIndex; i--) {
+                if (comparisonObjs[i]) {
+                    comparisonObjs[i + 1] = comparisonObjs[i];
+                    delete comparisonObjs[i];
+                }
+            }
+        } else if (initialIndex < newIndex) {
+            for (var i = initialIndex + 1; i <= newIndex; i++) {
+                if (comparisonObjs[i]) {
+                    comparisonObjs[i - 1] = comparisonObjs[i];
+                    delete comparisonObjs[i];
+                }
+            }
+        }
+        if (tempObj) {
+            comparisonObjs[newIndex] = tempObj;
+        }
     }
 
     function toggleModal($jsonTd, isHide, time) {
