@@ -237,14 +237,19 @@ window.JSONModal = (function($, JSONModal) {
             $jsonWrap.remove();
 
             if ($jsonArea.find('.jsonWrap').length === 1) {
-                var $checkMark = $jsonArea.find('.checkMark')
+                var $checkMarks = $jsonArea.find('.checkMark')
                                           .addClass('single');
                 var title = "Select another data cell from a table to compare";
-                if ($checkMark.attr('title')) {
-                    $checkMark.attr('title', title);
-                } else {
-                     $checkMark.attr('data-original-title', title);
-                }        
+                var $checkMark;
+
+                $checkMarks.each(function() {
+                    $checkMark = $(this);
+                    if ($checkMark.attr('title')) {
+                        $checkMark.attr('title', title);
+                    } else {
+                        $checkMark.attr('data-original-title', title);
+                    }    
+                });  
             }
             
             jsonData.splice(index, 1);
@@ -298,6 +303,11 @@ window.JSONModal = (function($, JSONModal) {
         $jsonClone.find('.checkMark').removeClass('on first');
         $jsonClone.find('.prettyJson.secondary').empty();
 
+        if (!$jsonWrap.hasClass('comparison')) {
+            var scrollTop = $jsonWrap.find('.prettyJson.primary').scrollTop();
+            $jsonClone.find('.prettyJson.primary').scrollTop(scrollTop);
+        }
+
         var jsonWrapData = $jsonClone.data();
         var $highlightBox = $('#xcTable-' + jsonWrapData.tableid)
                                 .find('.row' + jsonWrapData.rownum)
@@ -305,13 +315,19 @@ window.JSONModal = (function($, JSONModal) {
                                 .find('.jsonModalHighlightBox');
         $highlightBox.data().count++;
 
-        var $checkMark = $jsonArea.find('.checkMark').removeClass('single');
+        var $checkMarks = $jsonArea.find('.checkMark').removeClass('single');
         var title = "Click to select for comparison";
-        if ($checkMark.attr('title')) {
-            $checkMark.attr('title', title);
-        } else {
-            $checkMark.attr('data-original-title', title);
-        }
+        var $checkMark;
+
+        $checkMarks.each(function() {
+            $checkMark = $(this);
+            if ($checkMark.attr('title')) {
+                $checkMark.attr('title', title);
+            } else {
+                $checkMark.attr('data-original-title', title);
+            }
+        });
+      
 
         var numData = jsonData.length;
         for (var i = numData - 1; i > index; i--) {
@@ -505,6 +521,18 @@ window.JSONModal = (function($, JSONModal) {
         }
         jsonData.push(jsonObj);
 
+        if (gMinModeOn || isModalOpen) {
+            fillJsonArea(jsonObj, $jsonTd, isArray);
+            if (!isModalOpen) {
+                $jsonText = $jsonModal.find('.prettyJson:visible');
+                searchHelper.$matches = $jsonText.find('.highlightedText');
+            }
+        } else {
+            fillJsonArea(jsonObj, $jsonTd, isArray);
+            $jsonText = $jsonModal.find('.prettyJson:visible');
+            searchHelper.$matches = $jsonText.find('.highlightedText');
+        }
+
         if (!isModalOpen) {
             var height = Math.min(500, $(window).height());
             $jsonModal.height(height).width(500);
@@ -518,26 +546,21 @@ window.JSONModal = (function($, JSONModal) {
             }
         }
 
-        if (gMinModeOn || isModalOpen) {
-            fillJsonArea(jsonObj, $jsonTd, isArray);
-            if (!isModalOpen) {
-                $jsonText = $jsonModal.find('.prettyJson:visible');
-                searchHelper.$matches = $jsonText.find('.highlightedText');
-            }
-        } else {
-            fillJsonArea(jsonObj, $jsonTd, isArray);
-            $jsonText = $jsonModal.find('.prettyJson:visible');
-            searchHelper.$matches = $jsonText.find('.highlightedText');
-        }
+        
         if (isModalOpen) {
-            var $checkMark = $jsonArea.find('.checkMark.single')
+            var $checkMarks = $jsonArea.find('.checkMark')
                                       .removeClass('single');
+            var $checkMark;
             var title = "Click to select for comparison";
-            if ($checkMark.attr('title')) {
-                $checkMark.attr('title', title);
-            } else {
-                $checkMark.attr('data-original-title', title);
-            }
+            $checkMarks.each(function() {
+                $checkMark = $(this);
+                if ($checkMark.attr('title')) {
+                    $checkMark.attr('title', title);
+                } else {
+                    $checkMark.attr('data-original-title', title);
+                }
+            });
+            
         }
     }
 
@@ -551,11 +574,10 @@ window.JSONModal = (function($, JSONModal) {
         } else {
             prettyJson = '{' + prettyJson + '}';
         }
-        var $jsonWrap = $(getJsonWrapHtml());
-        $jsonWrap.find('.prettyJson.primary').html(prettyJson);
-        $jsonArea.append($jsonWrap);
 
-        addDataToJsonWrap($jsonWrap, $jsonTd, isArray);
+        $jsonArea.append(getJsonWrapHtml(prettyJson));
+
+        addDataToJsonWrap($jsonArea, $jsonTd, isArray);
     }
 
     function compare(jsonObjs, indices, multiple) {
@@ -815,7 +837,8 @@ window.JSONModal = (function($, JSONModal) {
         return (true);
     }
 
-    function addDataToJsonWrap($jsonWrap, $jsonTd, isArray) {
+    function addDataToJsonWrap($jsonArea, $jsonTd, isArray) {
+        var $jsonWrap = $jsonArea.find('.jsonWrap:last');
         var rowNum = xcHelper.parseRowNum($jsonTd.closest('tr'));
         var colNum = xcHelper.parseColNum($jsonTd);
         var tableId = xcHelper.parseTableId($jsonTd.closest('table'));
@@ -832,7 +855,7 @@ window.JSONModal = (function($, JSONModal) {
         
     }
 
-    function getJsonWrapHtml() {
+    function getJsonWrapHtml(prettyJson) {
         var html = '<div class="jsonWrap">';
         if (isDataCol) {
             html +=
@@ -860,11 +883,15 @@ window.JSONModal = (function($, JSONModal) {
                     '<div class="icon"></div>' +
                 '</div>' +
             '</div>' +
-            '<div class="prettyJson primary"></div>' +
+            '<div class="prettyJson primary">' +
+                prettyJson +
+            '</div>' +
             '<div class="prettyJson secondary"></div>' +
             '</div>';
         } else {
-            html += '<div class="prettyJson singleView primary"></div></div>';
+            html += '<div class="prettyJson singleView primary">' +
+                prettyJson +
+            '</div></div>';
         }
 
         return (html);
