@@ -410,9 +410,9 @@ input {
     }
 }
 
-/* For both worksheet table and datastore table */
+/* Currently used for worksheet table, dataset preview, join modal, smartcast */
 .dataTable {
-    .size(@width: 520px);
+    .size(@width: 0px);
     border-collapse: separate;
     border-spacing: 0px;
     margin-right: 5px;
@@ -432,9 +432,6 @@ input {
         .font(@size: 11px, @line-height: 15px, @family: @font-code);
         overflow: hidden;
         padding: 2px;
-    }
-
-    td/*, th */{
         vertical-align: middle;
         text-align: center;
 
@@ -448,10 +445,6 @@ input {
     }
 
     tbody tr {
-        td:first-child {
-            padding: 0 !important;
-        }
-
         &:nth-child(odd) {
             background-color: @color-table-lightGray;
             td {
@@ -462,9 +455,6 @@ input {
                 &:nth-child(even) {
                     background-color: @color-table-midGray;
                 }
-                &:first-child {
-                    background-color: @color-table-col-darkestGray;
-                }
                 &.indexedColumn {
                     background-color: @color-table-indexed-blue !important;
                 }
@@ -473,6 +463,9 @@ input {
                 }
                 &.selectedCol {
                     background-color: @color-selectedCell-dark;
+                }
+                &.colSelected {
+                    background-color: @color-selectedCell-dark !important;
                 }
                 &.jsonElement, &.dataCol {
                     background-color: @color-table-col-green !important;
@@ -489,9 +482,6 @@ input {
                 &:nth-child(even) {
                     background-color: @color-table-col-lightGray;
                 }
-                &:first-child {
-                    background-color: @color-table-col-darkGray;
-                }
                 &.indexedColumn {
                     background-color: @color-table-indexed-lightBlue !important;
                 } 
@@ -500,6 +490,9 @@ input {
                 }
                 &.selectedCol {
                     background-color: @color-selectedCell-light;
+                }
+                &.colSelected {
+                    background-color: @color-selectedCell-light !important;
                 }
                 &.jsonElement, &.dataCol {
                     background-color: @color-table-col-lightGreen !important;
@@ -516,13 +509,6 @@ input {
             }
             &:nth-child(even) {
                 background-color: #DDDDDD;
-            }
-            &:first-child {
-                background-color: #BDBDBD;
-                .idSpan {
-                    background-color: #BDBDBD;
-                    border-right-color: #E1E1E1;
-                }
             }
             &.indexedColumn {
                 background-color: #CBD1D6 !important;
@@ -544,13 +530,6 @@ input {
             border-right-color: #E1E1E1 !important;
         }
     }
-
-    &.xcTable {
-        tbody tr td:first-child {
-            border-right: 5px solid white;
-        }
-    }
-    
     th.unusedCell {
         background-color: @colorOpaque-blankGrayDark;
         .editableHead {
@@ -564,19 +543,6 @@ input {
         }
         &:nth-child(even) {
             background-color: @colorOpaque-blankGrayDark;
-        }
-    }
-
-    tbody td:first-child {
-        .noSelection;
-        overflow: visible;
-        border-left: 5px solid @color-white;
-    }
-
-    thead th:first-child {
-        background-color: @color-background-darkGray;
-        .header {
-            z-index: 3;
         }
     }
 
@@ -597,18 +563,6 @@ input {
             .transition(opacity 0.3s);
             content: "";
             opacity: 0;
-        }
-    }
-
-    th:first-child {
-        .header::after {
-            width: ~"calc(100% + 10px)";
-            left: -5px;
-        }
-        &.rowNumHead {
-            .header::after {
-                z-index: 3;
-            }
         }
     }
 
@@ -714,6 +668,66 @@ input {
     }
 }
 
+.xcTable, .datasetTable {
+    thead {
+        th:first-child {
+            background-color: @color-background-darkGray;
+            .header {
+                z-index: 3;
+                &::after {
+                    width: ~"calc(100% + 10px)";
+                    left: -5px;
+                }
+            }
+            &.rowNumHead {
+                .header::after {
+                    z-index: 3;
+                }
+            }
+        }
+    }
+    tbody {
+        td:first-child {
+            padding: 0;
+            .noSelection;
+            overflow: visible;
+            border-left: 5px solid @color-white;
+        }
+
+        tr {
+            &:nth-child(odd) {
+                td:first-child {
+                    background-color: @color-table-col-darkestGray;
+                }
+            }
+            &:nth-child(even) {
+                td:first-child {
+                    background-color: @color-table-col-darkGray;
+                }
+            }
+           
+        }              
+    }
+
+    &:not(.tableLocked) tbody tr:not(.notDragging):hover, tbody tr.dragging {
+        td {
+            &:first-child {
+                background-color: #BDBDBD;
+                .idSpan {
+                    background-color: #BDBDBD;
+                    border-right-color: #E1E1E1;
+                }
+            }
+        }
+    }
+}
+
+.multiCastTable, .joinTable {
+    td:first-child {
+        border-left: 5px solid white;
+    }
+}
+
 
 .unavailable {
     // For features that haven't been implemented yet
@@ -745,18 +759,16 @@ input {
     opacity: 1.0 !important;
 }
 
-.xcTable ul, .xcTheadWrap ul, .menu {
-    .position(absolute);
-    .size(@width: 170px);
-    list-style: none;
-    padding: 0px;
-    display: inline-block;
-    z-index: 20;
-    box-shadow: 0px 0px 1px 3px rgba(0,0,0,.05);
+.visible {
+    visibility: visible;
 }
 
 .menu {
     .position(fixed);
+    .size(@width: 170px);
+    list-style: none;
+    padding: 0px;
+    box-shadow: 0px 0px 1px 3px rgba(0,0,0,.05);
     display:none;
     background-color: @color-white;
     z-index: 20;
@@ -1182,26 +1194,6 @@ input {
 ul.menu.leftColMenu::before {
     border-color: @color-selectedCell-dark @color-selectedCell-dark;
 }
-
-ul.menu li:hover > ul {
-    .transition-delay (.15s);
-}
-
-ul.menu li > ul {
-    .transition-delay (.15s);
-}
-
-// DATA Column should not have duplicate and sort option
-th.dataCol .menu {
-    .duplicate, .sort {
-        display: none;
-    }
-}
-
-.visible {
-    visibility: visible;
-}
-
 
 .subMenu li {
     &.subColUnselected {
@@ -2514,6 +2506,8 @@ body.tooltipOff {
         }
     }
 }
+
+// styling for small screen sizes below 1024px
 
 @media screen and (max-width: 1024px) {
     #worksheetBar .workspaceArea:first-child {

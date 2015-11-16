@@ -1485,10 +1485,6 @@ table.datasetTable {
     display: inline-block;
     overflow: hidden;
 
-    .datasetTable {
-        width: 0px;
-    }
-
     .loadError {
         color: @color-table-red;
         margin-left: 15px;
@@ -1506,8 +1502,8 @@ table.datasetTable {
         .position(absolute, @top: 0);
         .size(@width: inherit, @height: 40px);
         cursor: pointer;
-
        .dataTableHeader;
+
        .editableHead {
             .noSelection;
             cursor: pointer;
@@ -1528,7 +1524,7 @@ table.datasetTable {
 
         .flexWrap.flex-left {
             .flex(0 0 24px);
-            margin: 0px 0 0 0px;
+            margin: 0;
             overflow: hidden;
             .size(@height: 30px);
             .colIcon-gray-gradient();

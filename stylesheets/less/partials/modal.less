@@ -902,6 +902,7 @@
             }
         }
 
+
         &.multiClause {
             #multiJoin {
                 .flex(0 0 275px);
@@ -1037,34 +1038,6 @@
                 }
             }
 
-            tr:nth-child(odd)  td:first-child {
-                background-color: @color-table-darkGray;
-            }
-
-            tr:nth-child(even) td:first-child {
-                background-color: @color-table-lightGray;     
-            }
-
-            tr:nth-child(odd):hover  td:first-child {
-                background-color: #D7D7D7 !important;
-            }
-
-            tr:nth-child(even):hover td:first-child {
-                background-color: #DDDDDD !important;    
-            }
-
-            tr:nth-child(odd):hover  td.colSelected {
-                background-color: #BFCCD4 !important;
-            }
-
-            tr:nth-child(even):hover td.colSelected {
-                background-color: #BFCCD4 !important;
-            }
-
-            tbody td {
-                padding: 2px !important;
-            }
-
             .addedBarTextWrap {
                 word-break: break-all;
                 white-space: nowrap;
@@ -1085,6 +1058,13 @@
             cursor: pointer;
             padding: 0 2px;
             white-space: nowrap;
+        }
+
+        .colSelected {
+            .columnTab{
+                .action-gradient;
+                color: white;
+            }
         }
 
         .unselectable .columnTab {
@@ -1119,21 +1099,6 @@
             .rounded;
             background: @color-join-background;
             box-shadow: 0px 2px 2px 0 @color-join-drop-shadow inset;
-        }
-
-        tr:nth-child(odd) td.colSelected {
-            background-color: @color-selectedCell-dark !important;
-        }
-
-        tr:nth-child(even) td.colSelected {
-            background-color: @color-selectedCell-light !important;
-        }
-
-        .colSelected {
-            .columnTab{
-                .action-gradient;
-                color: white;
-            }
         }
     }
     .modalBottom {
@@ -2659,7 +2624,7 @@ html.microsoft {
                     }
 
 
-                    &:last-child {
+                    &:last-child > div {
                         border-bottom: 1px solid #bdbdbd;
                     }
 
@@ -2767,44 +2732,6 @@ html.microsoft {
                     }
                 }
 
-                tbody td {
-                    padding: 2px !important;
-                }
-
-                tr:nth-child(odd) td.colSelected {
-                    background-color: @color-selectedCell-dark !important;
-                }
-
-                tr:nth-child(even) td.colSelected {
-                    background-color: @color-selectedCell-light !important;
-                }
-
-
-                tr:nth-child(odd)  td:first-child {
-                    background-color: @color-table-darkGray;
-                }
-
-                tr:nth-child(even) td:first-child {
-                    background-color: @color-table-lightGray;
-                }
-
-                tr:nth-child(odd):hover  td:first-child {
-                    background-color: #D7D7D7 !important;
-                }
-
-                tr:nth-child(even):hover td:first-child {
-                    background-color: #DDDDDD !important;
-                }
-
-                tr:nth-child(odd):hover  td.colSelected {
-                    background-color: #BFCCD4 !important;
-                }
-
-                tr:nth-child(even):hover td.colSelected {
-                    background-color: #BFCCD4 !important;
-                }
-
-
                 .addedBarTextWrap {
                     word-break: break-all;
                     white-space: nowrap;
@@ -2860,8 +2787,8 @@ html.microsoft {
                         box-shadow: 1px 1px 1px 1px rgba(0,0,0,.1);
                         white-space: nowrap;
                         margin-top: 7px;
-                        padding-left: 10px;
-                        padding-right: 17px;
+                        padding-left: 8px;
+                        padding-right: 8px;
                         .font(@weight: bold, @size: 13px, @line-height: 25px, @color: @color-text-midGray);
 
                         .icon {
