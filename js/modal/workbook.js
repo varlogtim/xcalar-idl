@@ -257,7 +257,7 @@ window.WorkbookModal = (function($, WorkbookModal) {
         });
 
         // choose an option
-        $optionSection.on("click", ".select-item", function(event){
+        $optionSection.on("click", ".radioWrap", function(event){
             var $option = $(this);
             var no = Number($option.data("no"));
 

@@ -367,11 +367,11 @@
 }
 
 // style for radio check
-.radio-check(@h: 20px) {
+.radioWrap {
     display: inline-block;
+    .size(@height: 20px);
     .position(relative);
-    .size(@height: @h);
-    .font(@size: 13px, @line-height: @h);
+    .font(@size: 13px, @line-height: 20px);
     .noSelection;
     cursor: pointer;
 
@@ -386,6 +386,7 @@
             .image("/images/radioDot.png", 50%, 50%);
             display: none;
         }
+
         &.checked {
             .image("/images/radioChecked.png");
             .dot {
@@ -393,7 +394,6 @@
             }
         }
     }
-
 
     .label {
         float: left;

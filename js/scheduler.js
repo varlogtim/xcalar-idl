@@ -115,7 +115,7 @@ window.Scheduler = (function(Scheduler, $) {
         var $freqSection = $schedulesView.find(".frequencySection");
         var $freq2 = $freqSection.find(".freq2");
 
-        $freqSection.on("click", ".select-item", function() {
+        $freqSection.on("click", ".radioWrap", function() {
             var $option = $(this);
             var $datepickerPart = $timeSection.find(".datePickerPart");
 
@@ -337,7 +337,7 @@ window.Scheduler = (function(Scheduler, $) {
         var time    = $scheduleTime.val().trim();
         var timeObj = $scheduleTime.data("date");
         var repeat  = $scheduleForm.find(".frequencySection .radio.checked")
-                                    .closest(".select-item").data("option");
+                                    .closest(".radioWrap").data("option");
 
         var isDayPerMonth = (repeat === scheduleFreq.dayPerMonth);
 
@@ -431,9 +431,9 @@ window.Scheduler = (function(Scheduler, $) {
         var $checkBox;
        
         if (isNew) {
-            $checkBox = $freqSection.find(".select-item").eq(0);
+            $checkBox = $freqSection.find(".radioWrap").eq(0);
         } else {
-            $checkBox = $freqSection.find('.select-item[data-option="' +
+            $checkBox = $freqSection.find('.radioWrap[data-option="' +
                                             schedule.repeat + '"]');
         }
 

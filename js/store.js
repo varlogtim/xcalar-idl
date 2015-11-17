@@ -612,8 +612,8 @@ window.KVStore = (function($, KVStore) {
             if (output) {
                 var gInfos = JSON.parse(output.value);
                 gInfos.holdStatus = false;
-                return (XcalarKeyPut(KVStore.gStorageKey,
-                                     JSON.stringify(gInfos), true), gKVScope.META);
+                return XcalarKeyPut(KVStore.gStorageKey,
+                                     JSON.stringify(gInfos), true, gKVScope.META);
             } else {
                 console.error("Output is empty");
                 return (promiseWrapper(null));

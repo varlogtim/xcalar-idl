@@ -131,9 +131,9 @@ window.UDF = (function($, UDF) {
 
         /* switch between UDF sections */
         var $sections = $("#udfSection .mainSection");
-        var $radios   = $("#udf-tabs .select-item .radio");
+        var $radios   = $("#udf-tabs .radioWrap .radio");
 
-        $("#udf-tabs").on("click", ".select-item", function() {
+        $("#udf-tabs").on("click", ".radioWrap", function() {
             var $option = $(this);
             var tabId = $option.data("tab");
 

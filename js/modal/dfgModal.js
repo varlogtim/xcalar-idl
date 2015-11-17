@@ -149,7 +149,7 @@ window.DataFlowModal = (function($, DataFlowModal) {
             submitForm();
         });
 
-        $dfgModal.find(".select-item").click(function() {
+        $dfgModal.find(".radioWrap").click(function() {
             var $option = $(this);
             $radios.removeClass("checked");
             $option.find(".radio").addClass("checked");
@@ -252,7 +252,7 @@ window.DataFlowModal = (function($, DataFlowModal) {
     }
 
     function resetDFGModal() {
-        $dfgModal.find('.select-item').eq(0).click();
+        $dfgModal.find('.radioWrap').eq(0).click();
         $modalMain.find('.listBox').removeClass('selected');
         $modalMain.find('.dataFlowGroup').removeClass('unavailable');
         $newGroupNameInput.val("");
