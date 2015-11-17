@@ -612,7 +612,7 @@ window.TestSuite = (function($, TestSuite) {
     }
 
     function multiJoinTest(deferred, testName, currentTestNumber) {
-        var dsName = "schedule" + Math.floor(Math.random() * 100);
+        var dsName = "schedule" + Math.floor(Math.random() * 1000);
         // Import schedule dataset
         $("#dataStoresTab").click();
         $("#importDataButton").click();
@@ -753,7 +753,7 @@ window.TestSuite = (function($, TestSuite) {
             setTimeout(function() {
                 assert($(".barArea .xlabel").eq(0).text() === "134");
                 assert($(".barArea .xlabel").eq(7).text() === "626");
-                $("#statsModal .modalBottom button").click();
+                $("#profileModal .modalBottom button").click();
                 TestSuite.pass(deferred, testName, currentTestNumber);
             }, 1000);
         })

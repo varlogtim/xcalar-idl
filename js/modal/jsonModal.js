@@ -356,6 +356,7 @@ window.JSONModal = (function($, JSONModal) {
             var newWidth = Math.min(desiredWidth, currentWidth + 200);
             $jsonModal.width(newWidth);
 
+            // center modal only if already somewhat centered
             if ((winWidth - currentWidth) / 2 + 100 > offsetLeft &&
                 (winWidth - currentWidth) / 2 - 100 < offsetLeft) {
                 centerPositionElement($jsonModal, {horizontalOnly: true});
