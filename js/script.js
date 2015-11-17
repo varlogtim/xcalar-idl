@@ -916,8 +916,11 @@ function documentReadyIndexFunction() {
     $(document).ready(function() {
         var username = sessionStorage.getItem("xcalar-username");
         if (username == null || username === "") {
+
             window.location = "login.html";
+            return;
         }
+        $('.mainContainer').show();
         gMinModeOn = true; // startup use min mode;
         Compatible.check();
 

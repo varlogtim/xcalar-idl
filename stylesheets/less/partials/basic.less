@@ -40,6 +40,7 @@ body {
     .size(@height: 100vh, @min-height: 260px, @min-width: 824px);
     font-size: 14px;
     overflow: hidden;
+    display: none;
 }
 
 [xc-safeMode="true"] {
@@ -1650,6 +1651,12 @@ ul.inputMenu {
 #bottomTabArea {
     .size(@height: 39px);
     background: #36444d url("/images/bg_page.png") repeat right top;
+    &:hover {
+        .inActive .delete {
+            .transition(opacity 0.1s);
+            opacity: 0.15 !important;
+        }
+    }
 }
 
 #addWorksheet {
@@ -1816,7 +1823,7 @@ ul.inputMenu {
                 }
 
                 .delete {
-                    visibility: hidden;
+                    opacity: 0;
                     .icon {
                         background-image: url(/images/worksheet/ws_close_hover.png);
                     }
@@ -1841,7 +1848,8 @@ ul.inputMenu {
                     color: @color-white;
                     border: 1px solid @color-table-borderGray;
                     .delete {
-                        visibility: visible;
+                        .transition(opacity 0s);
+                        opacity: 1 !important;
                     }
                 }
             }

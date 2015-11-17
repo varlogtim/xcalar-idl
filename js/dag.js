@@ -1350,7 +1350,8 @@ window.Dag = (function($, Dag) {
                     break;
                 }
             }
-
+            $('.columnOriginInfo').remove();
+            $dagPanel.find('.highlighted').removeClass('highlighted');
             var parents = $dagTable.data('parents').split(',');
             addRenameColumnInfo(name, backName, $dagTable, $dagWrap);
             highlightColumnSource(tableId, $dagWrap, name);
@@ -1369,6 +1370,8 @@ window.Dag = (function($, Dag) {
                 // click is occuring on the scrollbar
                 return;
             }
+        } else if ($target.closest('#dagSchema').length) {
+            return;
         }
 
         $('.columnOriginInfo').remove();
