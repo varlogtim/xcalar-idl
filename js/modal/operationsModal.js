@@ -640,7 +640,7 @@ window.OperationsModal = (function($, OperationsModal) {
         }
     }
 
-    function listHighlight($input, keyCodeNum) {
+    function listHighlight($input, keyCodeNum, event) {
         var direction;
         if (keyCodeNum === keyCode.Up) {
             direction = -1;
@@ -650,6 +650,8 @@ window.OperationsModal = (function($, OperationsModal) {
             // key code not supported
             return;
         }
+        event.preventDefault();
+        event.stopPropagation();
         var $lis = $input.siblings('.list').find('li:visible');
         var numLis = $lis.length;
 
@@ -1627,9 +1629,11 @@ window.OperationsModal = (function($, OperationsModal) {
         if ($list.length !== 0) {
             var $input = $list.siblings('input');
             if (event.which === keyCode.Down) {
-                listHighlight($input, keyCode.Down);
+                listHighlight($input, keyCode.Down, event);
             } else if (event.which === keyCode.Up) {
-                listHighlight($input, keyCode.Up);
+                listHighlight($input, keyCode.Up, event);
+            } else if (event.which === keyCode.Right) {
+                $input.trigger(fakeEvent.enter);
             }
         }
     }
