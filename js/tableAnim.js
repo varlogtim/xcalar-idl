@@ -3093,6 +3093,10 @@ function dropdownClick($el, options) {
         }
     }
 
+    if (options.type !== "tdDropdown") {
+        $('.highlightBox').remove();
+    }
+
     $(".menu:visible").hide();
     removeMenuKeyboardNavigation();
     $(".leftColMenu").removeClass("leftColMenu");
