@@ -571,25 +571,30 @@ window.AggModal = (function($, AggModal) {
         function applyCorrResult(value) {
             var isNumeric = jQuery.isNumeric(value);
             var bg;
-
+            var html = '<span class="textOverflow tooltipOverflow" ' +
+                        'title="' + value +
+                        '" data-toggle="tooltip" data-placement="top" ' +
+                        'data-container="body">' +
+                            value +
+                        '</span>';
             if (isNumeric) {
                 value = parseFloat(value);
                 if (value > 0) {
                     bg = "rgba(66, 158, 212," + value + ")";
 
                     $("#mainAgg2").find(".aggCol:not(.labels)").eq(col)
-                    .find(".aggTableField:not(.colLabel)").eq(row).html(value)
+                    .find(".aggTableField:not(.colLabel)").eq(row).html(html)
                     .css("background-color", bg);
                 } else {
                     bg = "rgba(200, 200, 200," + (-1 * value) + ")";
 
                     $("#mainAgg2").find(".aggCol:not(.labels)").eq(col)
-                    .find(".aggTableField:not(.colLabel)").eq(row).html(value)
+                    .find(".aggTableField:not(.colLabel)").eq(row).html(html)
                     .css("background-color", bg);
                 }
             } else {
                 $("#mainAgg2").find(".aggCol:not(.labels)").eq(col)
-                .find(".aggTableField:not(.colLabel)").eq(row).html(value);
+                .find(".aggTableField:not(.colLabel)").eq(row).html(html);
             }
 
             var $container;
@@ -600,7 +605,7 @@ window.AggModal = (function($, AggModal) {
                 $container = $("#mainAgg2").find(".aggCol:not(.labels)")
                                 .eq(colNum)
                                 .find(".aggTableField:not(.colLabel)")
-                                .eq(row).html(value);
+                                .eq(row).html(html);
 
                 if (isNumeric) {
                     $container.css("background-color", bg);
@@ -618,7 +623,7 @@ window.AggModal = (function($, AggModal) {
                     $container = $("#mainAgg2").find(".aggCol:not(.labels)")
                                 .eq(newCol)
                                 .find(".aggTableField:not(.colLabel)")
-                                .eq(newRow).html(value);
+                                .eq(newRow).html(html);
 
                     if (isNumeric) {
                         $container.css("background-color", bg);
