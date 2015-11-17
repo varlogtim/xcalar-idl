@@ -867,7 +867,7 @@ function generateTableDropDown() {
             //     '<ul class="subMenu">' +
             //         '<li style="text-align: center" class="clickable">' +
             //             '<span>Worksheet Name</span>' +
-            //             '<div class="listSection">' +
+            //             '<div class="dropDownList">' +
             //                 '<input class="wsName" type="text" width="100px" ' +
             //                     'placeholder="click to see options"/>' +
             //                 '<ul class="list"></ul>' +
@@ -898,7 +898,7 @@ function generateTableDropDown() {
             '<ul class="moveToWorksheet">' +
                 '<li style="text-align: center" class="clickable">' +
                     '<span>Worksheet Name</span>' +
-                    '<div class="listSection">' +
+                    '<div class="dropDownList">' +
                         '<input class="wsName" type="text" width="100px" ' +
                             'placeholder="click to see options"/>' +
                         '<ul class="list"></ul>' +

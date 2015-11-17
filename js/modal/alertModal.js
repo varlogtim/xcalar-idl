@@ -17,7 +17,7 @@ window.Alert = (function($, Alert){
             "cursor": "-webkit-grabbing"
         });
 
-        xcHelper.dropdownList($alertModal.find(".listSection"), {
+        xcHelper.dropdownList($alertModal.find(".dropDownList"), {
             "onSelect": function($li) {
                 $alertOptionInput.val($li.text()).focus();
             }

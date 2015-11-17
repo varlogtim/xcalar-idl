@@ -516,7 +516,7 @@
         }
 
         #aggOp {
-            .dropDownList(201px, 25px);
+            .styleDropDownList(201px, 25px);
             margin-top: 16px;
 
             .text, .list li {
@@ -676,7 +676,7 @@
         }
 
         #joinType {
-            .dropDownList(201px, 25px);
+            .styleDropDownList(201px, 25px);
             margin-top: 16px;
             .text, .list li {
                 .font(@weight: 600);
@@ -1177,8 +1177,8 @@ html.microsoft {
                 float: left;
             }
 
-            .listSection {
-                 .dropDownList(165px, 20px);
+            .dropDownList {
+                .styleDropDownList(165px, 20px);
 
                 .size(@width: 165px, @height: 30px);
                 .position(absolute, @left: 44%);
@@ -1715,8 +1715,8 @@ html.microsoft {
     text-transform: capitalize;
     overflow: visible;
 
-    .listSection {
-        .dropDownList(450px, 25px);
+    .dropDownList {
+        .styleDropDownList(450px, 25px);
         .text, .list li {
             font-size: 12px;
         }
@@ -1739,7 +1739,7 @@ html.microsoft {
             .size(@width: 90%, @height: 25px);
             margin: 0px auto;
 
-            .listSection {
+            .dropDownList {
                 text-transform: none;
                 width: 60%;
                 .text {
@@ -2017,7 +2017,7 @@ html.microsoft {
                     outline: none;
                 }
             }
-            .listSection {
+            .dropDownList {
                 text-transform: uppercase;
                 .size(@width: ~"calc(100% - 110px)");
                 .list {
@@ -2497,12 +2497,8 @@ html.microsoft {
         }
 
         .exportPathSection {
-            .listSection {
-                .dropDownList(~"calc(100% - 115px)", 25px);
-                .text {
-                    cursor: default;
-                    .noSelection;
-                }
+            .dropDownList {
+                .styleDropDownList(~"calc(100% - 115px)", 25px);
             }
         }
     }
@@ -2748,8 +2744,8 @@ html.microsoft {
                         box-shadow: 0px 1px 1px 0px rgba(0, 0, 0, 0.2);
                     }
 
-                    .listSection {
-                        .dropDownList(100%, 25px);
+                    .dropDownList {
+                        .styleDropDownList(100%, 25px);
 
                         .iconWrapper .icon {
                             position: static;
@@ -3166,15 +3162,10 @@ html.microsoft {
         }
     }
 
-    .listSection {
-        
-        .dropDownList(~"calc(100% - 180px)", 25px);
+    .dropDownList {
+        .styleDropDownList(~"calc(100% - 180px)", 25px);
         margin-left: 90px;
         float: none;
-        .text {
-            cursor: default;
-            .noSelection;
-        }
     }
     .modalBottom {
         .btn {
@@ -3201,8 +3192,8 @@ html.microsoft {
         } 
     }
 
-    .listSection {
-        .dropDownList(395px, 22px);
+    .dropDownList {
+        .styleDropDownList(395px, 22px);
         box-shadow: none;
         margin-left: 15px;
         top: -2px;
@@ -3297,7 +3288,7 @@ html.microsoft {
             .dropdown {
                 .gray-gradient;
             }
-            .listSection {
+            .dropDownList {
                 box-shadow: none;
             }
            .argumentSection {
@@ -3532,7 +3523,7 @@ html.microsoft {
                         padding-right: 25px;
                     }
 
-                    .listSection {
+                    .dropDownList {
                         .size(@width: 100%, @height: 25px);
                         margin-left: 0;
                         top: 0px;

@@ -233,12 +233,8 @@ input {
                 .size(@width:110px, @height: 30px, @min-width: 110px);
                 outline: none;
 
-                .listSection {
-                    .dropDownList(110px, 30px, true);
-                    .text {
-                        cursor: default;
-                        .noSelection;
-                    }
+                .dropDownList {
+                    .styleDropDownList(110px, 30px, true);
                 }
             }
         }
@@ -317,8 +313,8 @@ input {
         font-style: italic;
     }
 
-    .listSection {
-        .dropDownList(~"calc(100% - 110px)", 30px);
+    .dropDownList {
+        .styleDropDownList(~"calc(100% - 110px)", 30px);
 
         &.disabled {
             opacity: 0.7;
@@ -326,9 +322,7 @@ input {
         }
 
         .text {
-            .noSelection;
             box-shadow: inset 0 1px 2px rgba(0,0,0,0.3);
-            cursor: default;
         }
 
         .list {
@@ -759,7 +753,6 @@ input {
 
 /* Content Left */
 #datastorePanel {
-
     .contentViewLeft {
         width: 255px;
         height: 100%;
@@ -837,43 +830,37 @@ input {
             background-color: @color-background-bottomGrayMed;
             cursor: default;
 
-            // inner function
-            ._gridViewButton(@order, @url) {
+            .gridViewBtn {
                 .flex(1 1 auto);
-                .flex-order(@order);
                 height: 100%;
                 cursor: pointer;
                 .gray-gradient;
                 &:hover {
                     .gray-inverse-gradient;
                 }
+
                 &.disabled {
                     opacity: 0.3;
                     background: @color-background-darkGray;
                     cursor: default;
                     pointer-events: none;
-                    &#deleteFolderBtn {
-                        box-shadow: inset -11px 0px 8px -10px rgba(0, 0, 0, 0.8);
-                    }
                 }
                 .icon {
-                    display: inline-block;
+                    .size(25px, 25px);
                     margin: 3px 5px 3px 8px;
-                    .background(@url, 25px, 25px);
                     float: left;
                 }
 
                 .label {
                     display: inline-block;
                     .transition (opacity 0.6s);
-                    .font(@size: 11px, @line-height: 32px, @family: @font-base, @color: @color-text-black);
+                    .font(@size: 11px, @line-height: 32px, @color: @color-text-black);
                     text-align: center;
                     float: left;
                 }
             }
 
             .backBtn {
-                ._gridViewButton(1, "/images/datastore/btn-upper-folder.png");
                 .label {
                     font-size: 12px;
                 }
@@ -881,16 +868,29 @@ input {
                     .gray-inverse-gradient;
                     opacity: 1.0;
                 }
+
+                .icon {
+                    .image("/images/datastore/btn-upper-folder.png");
+                }
             }
             .addBtn {
-                ._gridViewButton(2, "/images/datastore/btn-add-folder.png");
                 border-left: 1px solid rgba(118, 118, 118, 0.5);
                 border-right: 1px solid rgba(118, 118, 118, 0.5);
+                .icon {
+                    .image("/images/datastore/btn-add-folder.png");
+                }
             }
+
             .deleteBtn {
-                ._gridViewButton(3, "/images/datastore/btn-delete-folder.png");
                 box-shadow: inset -11px 0px 8px -10px rgba(0, 0, 0, 0.3);
                 border-right: none;
+                .icon {
+                    .image("/images/datastore/btn-delete-folder.png");
+                }
+
+                &.disabled {
+                    box-shadow: inset -11px 0px 8px -10px rgba(0, 0, 0, 0.8);
+                }
             }
         }
     }
@@ -912,8 +912,8 @@ input {
                 display: none;
             }
         }
-        .gridItems {
 
+        .gridItems {
             &.gridView {
                 overflow: auto;
                 .grid-unit.hidden {
@@ -1103,7 +1103,6 @@ input {
             }
         }
     }
-
     /* End Of Content Left */
 
     /* Content Mid */
@@ -1284,7 +1283,6 @@ input {
 }
 
 #exportView {
-
     .gridViewWrapper {
         border-top: none;
     }
@@ -1337,12 +1335,6 @@ input {
             margin-left: 5%;
             max-width: 750px;
         }
-        .listSection {
-            width: 320px;
-            input {
-                width: 100%;
-            }
-        }
     }
     .importFormRow {
         .flex-display();
@@ -1363,8 +1355,8 @@ input {
             line-height: 25px;
 
         }
-        .listSection {
-            .dropDownList(320px, 25px, true);
+        .dropDownList {
+            .styleDropDownList(320px, 25px, true);
             .list li {
                 font-size: 14px;
                 &.unavailable {
@@ -1373,8 +1365,6 @@ input {
                 }
             }
             .text {
-                cursor: default;
-                .noSelection;
                 font-size: 14px;
             }
         }

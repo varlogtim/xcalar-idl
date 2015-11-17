@@ -98,7 +98,7 @@ window.MultiCastModal = (function($, MultiCastModal) {
         buildTable(tableId);
         smartSuggest();
 
-        var $lists = $table.find(".header:not(.unselectable) .listSection");
+        var $lists = $table.find(".header:not(.unselectable) .dropDownList");
 
         xcHelper.dropdownList($lists, {
             "onSelect": function($li) {
@@ -146,7 +146,7 @@ window.MultiCastModal = (function($, MultiCastModal) {
             $th = $(this);
             colNum = parseInt($th.data("col"));
 
-            $input = $th.find(".listSection input");
+            $input = $th.find(".dropDownList input");
             newColType = $input.val();
 
             if (newColType === colTypes[colNum]) {
@@ -173,7 +173,7 @@ window.MultiCastModal = (function($, MultiCastModal) {
             $th = $(this);
             colNum = parseInt($th.data("col"));
             $table.find(".col" + colNum).removeClass("colSelected");
-            $th.find(".listSection input").val(colTypes[colNum])
+            $th.find(".dropDownList input").val(colTypes[colNum])
                                         .addClass("initialType");
             newColTypes[colNum] = null;
         });
@@ -193,7 +193,7 @@ window.MultiCastModal = (function($, MultiCastModal) {
             }
 
             $th = $table.find("th.col" + colNum);
-            $input = $th.find(".listSection input").val(newType);
+            $input = $th.find(".dropDownList input").val(newType);
 
             if (newType === colTypes[colNum]) {
                 $table.find(".col" + colNum).removeClass("colSelected");
@@ -421,7 +421,7 @@ window.MultiCastModal = (function($, MultiCastModal) {
 
             html += '<th class="' + thClass + '" data-col="' + colNum + '">' +
                         '<div class="header">' +
-                            '<div class="listSection">' +
+                            '<div class="dropDownList">' +
                                 '<input class="text no-selection initialType" ' +
                                 'value="' + type + '" disabled>' +
                                 '<div class="iconWrapper dropdown">' +

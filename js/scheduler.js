@@ -132,10 +132,10 @@ window.Scheduler = (function(Scheduler, $) {
         });
 
         // dropdown list event
-        xcHelper.dropdownList($freq2.find(".listSection"), {
+        xcHelper.dropdownList($freq2.find(".dropDownList"), {
             "onSelect": function($li) {
                 var text = $li.text();
-                $li.closest(".listSection").find("input").val(text);
+                $li.closest(".dropDownList").find("input").val(text);
             },
             "container": "#schedulesView"
         });
@@ -357,7 +357,7 @@ window.Scheduler = (function(Scheduler, $) {
 
         var freq = null;
         if (isDayPerMonth) {
-            var $inputs   = $scheduleForm.find(".freq2 .listSection .text");
+            var $inputs   = $scheduleForm.find(".freq2 .dropDownList .text");
             var radixText = $inputs.eq(0).val();
             var dayText   = $inputs.eq(1).val();
 
@@ -441,18 +441,18 @@ window.Scheduler = (function(Scheduler, $) {
 
         var $freq2 = $freqSection.find(".freq2");
         if ($checkBox.data("option") === scheduleFreq.dayPerMonth) {
-            $freq2.find(".listSection.radix .list li").filter(function() {
+            $freq2.find(".dropDownList.radix .list li").filter(function() {
                 return $(this).text() === schedule.freq.radix;
             }).click();
 
-            $freq2.find(".listSection.day .list li").filter(function() {
+            $freq2.find(".dropDownList.day .list li").filter(function() {
                 return $(this).text() === schedule.freq.day;
             }).click();
         } else {
-            $freq2.find(".listSection").each(function() {
-                var $listSection = $(this);
-                var liText = $listSection.find("li:first-child").text();
-                $listSection.find("input").val(liText);
+            $freq2.find(".dropDownList").each(function() {
+                var $dropDownList = $(this);
+                var liText = $dropDownList.find("li:first-child").text();
+                $dropDownList.find("input").val(liText);
             });
         }
 

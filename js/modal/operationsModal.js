@@ -127,7 +127,7 @@ window.OperationsModal = (function($, OperationsModal) {
             $li.removeClass("openli")
                 .closest(".hint").removeClass("openList").hide()
                 .siblings(".argument").val($li.text())
-                .closest(".listSection").removeClass("open");
+                .closest(".dropDownList").removeClass("open");
         });
 
         $lastInputFocused = $operationsModal.find('.argument:first');
@@ -163,7 +163,7 @@ window.OperationsModal = (function($, OperationsModal) {
             'input': function() {
                 // Suggest column name
                 var $input = $(this);
-                if ($input.closest(".listSection").hasClass("colNameSection")) {
+                if ($input.closest(".dropDownList").hasClass("colNameSection")) {
                     // for new column name, do not suggest anything
                     return;
                 }
@@ -229,7 +229,7 @@ window.OperationsModal = (function($, OperationsModal) {
 
         $operationsModal.on('click', function() {
             var $mousedownTarget = gMouseEvents.getLastMouseDownTarget();
-            if ($mousedownTarget.closest('.listSection').length === 0) {
+            if ($mousedownTarget.closest('.dropDownList').length === 0) {
                 var dropdownHidden = false;
                 $menus.each(function() {
                     if ($(this).is(':visible')) {
@@ -518,10 +518,10 @@ window.OperationsModal = (function($, OperationsModal) {
                 .append('<li class="openli">' + corrected + '</li>')
                 .addClass("openList")
                 .show();
-            $input.closest('.listSection').addClass('open');
+            $input.closest('.dropDownList').addClass('open');
         } else {
             $ul.empty().removeClass("openList").hide()
-                .closest(".listSection").removeClass("open");
+                .closest(".dropDownList").removeClass("open");
         }
     }
 
@@ -633,7 +633,7 @@ window.OperationsModal = (function($, OperationsModal) {
     }
 
     function closeListIfNeeded($input) {
-        var parentId = $input.closest('.listSection').attr('id');
+        var parentId = $input.closest('.dropDownList').attr('id');
         var $mousedownTarget = gMouseEvents.getLastMouseDownTarget();
         if ($mousedownTarget.closest('#' + parentId).length === 0) {
             hideDropdowns();
@@ -840,7 +840,7 @@ window.OperationsModal = (function($, OperationsModal) {
                     autoGenColName = getAutoGenColName(colName + "_" + func);
                 }
 
-                $rows.eq(numArgs).find('.listSection').addClass('colNameSection')
+                $rows.eq(numArgs).find('.dropDownList').addClass('colNameSection')
                                 .end()
                                 .find('input').val(autoGenColName)
                                 .end()
@@ -867,7 +867,7 @@ window.OperationsModal = (function($, OperationsModal) {
                                 ' resultant column';
                 autoGenColName = getAutoGenColName(colName + "_" + func);
 
-                $rows.eq(numArgs).find('.listSection')
+                $rows.eq(numArgs).find('.dropDownList')
                                     .addClass('colNameSection')
                                 .end()
                                 .find('input').val(autoGenColName)
@@ -882,7 +882,7 @@ window.OperationsModal = (function($, OperationsModal) {
                     'Include Sample</span>';
 
                 $rows.eq(numArgs)
-                        .find('.listSection').addClass('checkboxSection')
+                        .find('.dropDownList').addClass('checkboxSection')
                         .end()
                         .find('input').val("").attr("type", "checkbox")
                                                 .attr("checked", false)
@@ -937,11 +937,11 @@ window.OperationsModal = (function($, OperationsModal) {
         $argInputs.each(function(index) {
             var $input = $(this);
 
-            if ($input.closest('.listSection').hasClass('checkboxSection')) {
+            if ($input.closest('.dropDownList').hasClass('checkboxSection')) {
                 return (true);
             }
 
-            if (!$input.closest('listSection').hasClass('.colNameSection')) {
+            if (!$input.closest('dropDownList').hasClass('.colNameSection')) {
                 // if map, some args can be blank
                 if (operatorName === "map") {
                     if ($categoryInput.val() === "user-defined functions") {
@@ -1039,7 +1039,7 @@ window.OperationsModal = (function($, OperationsModal) {
             var type   = null;
 
             // col name field, do not add quote
-            if ($input.closest(".listSection").hasClass("colNameSection")) {
+            if ($input.closest(".dropDownList").hasClass("colNameSection")) {
                 arg = arg.replace(/\$/g, '');
                 type = getColumnTypeFromArg(arg);
             } else if (arg.indexOf(colPrefix) >= 0) {
@@ -1077,7 +1077,7 @@ window.OperationsModal = (function($, OperationsModal) {
             typeid = $input.data('typeid');
             var text;
             // col name field, do not add quote
-            if ($input.closest(".listSection").hasClass("colNameSection")) {
+            if ($input.closest(".dropDownList").hasClass("colNameSection")) {
                 arg = arg.replace(/\$/g, '');
             } else if (arg.indexOf(colPrefix) >= 0) {
                 // if it contains a column name

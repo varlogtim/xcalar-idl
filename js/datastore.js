@@ -212,9 +212,9 @@ window.DatastoreForm = (function($, DatastoreForm) {
         });
 
         // set up dropdown list for csv args
-        xcHelper.dropdownList($csvDelim.find(".listSection"), {
+        xcHelper.dropdownList($csvDelim.find(".dropDownList"), {
             "onSelect": function($li) {
-                var $input = $li.closest(".listSection").find(".text");
+                var $input = $li.closest(".dropDownList").find(".text");
                 switch ($li.attr("name")) {
                     case "default":
                         if ($input.attr("id") === "fieldText") {
@@ -257,7 +257,7 @@ window.DatastoreForm = (function($, DatastoreForm) {
                     event.stopPropagation();
 
                     if (val !== "") {
-                        $input.closest(".listSection")
+                        $input.closest(".dropDownList")
                             .find(".text").val(val).removeClass("nullVal");
                         $input.val("").blur();
                         hideDropdownMenu();
@@ -587,7 +587,7 @@ window.DatastoreForm = (function($, DatastoreForm) {
     }
 
     function hideDropdownMenu() {
-        $("#importDataView .listSection").removeClass("open")
+        $("#importDataView .dropDownList").removeClass("open")
                             .find(".list").hide();
         $csvDelim.find(".delimVal").val("");
     }
@@ -4203,7 +4203,7 @@ window.ExportTarget = (function($, ExportTarget) {
     };
 
     function hideDropdownMenu() {
-        $form.find(".listSection").removeClass("open")
+        $form.find(".dropDownList").removeClass("open")
                                   .find(".list").hide();
     }
 

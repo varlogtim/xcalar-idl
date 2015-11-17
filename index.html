@@ -28,7 +28,7 @@
       <div id="dataStoresTab" class="mainMenuTab">
         <span class="icon db-icon"></span>Data Stores
       </div>
-      <!-- 
+      <!--
       <div id="schedulerTab" class="mainMenuTab">
         <span class="icon scheduler-icon"></span>Scheduler
       </div> -->
@@ -307,7 +307,7 @@
       <div class="modalTopMain clearfix">
         <section class="step">
           <b>Category: </b>
-          <div id="categoryList" class="listSection">
+          <div id="categoryList" class="dropDownList">
               <input class="text autocomplete" placeholder="aggregate"
                 spellcheck="false" required tabindex="10">
               <div class="iconWrapper dropdown">
@@ -321,7 +321,7 @@
         <div class="border"></div>
         <section class="step inactive">
           <b>Function: </b>
-          <div id="functionList" class="listSection">
+          <div id="functionList" class="dropDownList">
               <input class="text autocomplete" disabled required tabindex="10">
               <div class="iconWrapper dropdown">
                 <span class="icon"></span>
@@ -349,7 +349,7 @@
                   <tr>
                     <td>
                       <div class="inputWrap">
-                        <div class="listSection">
+                        <div class="dropDownList">
                           <input class="argument" type="text" tabindex="10"
                                 spellcheck="false">
                           <div class="argIconWrap">
@@ -367,7 +367,7 @@
                   <tr>
                     <td>
                       <div class="inputWrap">
-                         <div class="listSection">
+                         <div class="dropDownList">
                           <input class="argument" type="text" tabindex="10"
                                 spellcheck="false">
                           <div class="argIconWrap">
@@ -385,7 +385,7 @@
                   <tr>
                     <td>
                       <div class="inputWrap">
-                         <div class="listSection">
+                         <div class="dropDownList">
                           <input class="argument" type="text" tabindex="10"
                                 spellcheck="false">
                           <div class="argIconWrap">
@@ -403,7 +403,7 @@
                   <tr>
                     <td>
                       <div class="inputWrap">
-                         <div class="listSection">
+                         <div class="dropDownList">
                           <input class="argument" type="text" tabindex="10"
                                 spellcheck="false">
                           <div class="argIconWrap">
@@ -421,7 +421,7 @@
                   <tr id="agrTable-udfModule">
                     <td>
                       <div class="inputWrap">
-                        <div class="listSection udfSection">
+                        <div class="dropDownList udfSection">
                           <input class="argument text textNoCap" type="text" 
                                 spellcheck="false" disabled>
                           <div class="iconWrapper">
@@ -439,7 +439,7 @@
                   <tr id="agrTable-udfFunc">
                     <td>
                       <div class="inputWrap">
-                        <div class="listSection udfSection">
+                        <div class="dropDownList udfSection">
                           <input class="argument text textNoCap" type="text"
                                   tabindex="10" spellcheck="false">
                           <div class="iconWrapper">
@@ -532,7 +532,7 @@
                title="A valid name with no special characters" required>
                <!-- file formt -->
                <div id="fileFormat">
-                <div id="fileFormatList" class="listSection">
+                <div id="fileFormatList" class=" dropDownList">
                   <input class="text hint" type="text" value="Format"
                         disabled>
                   <div class="iconWrapper">
@@ -571,7 +571,7 @@
               <!-- Field Delimiter -->
               <section id="fieldDelim" class="wrapper">
                 <span class="label">Field Delimiter:</span>
-                <div class="listSection">
+                <div class="dropDownList">
                   <input id="fieldText" class="text" type="text" disabled>
                   <div class="iconWrapper">
                       <span class="icon"></span>
@@ -591,7 +591,7 @@
               <!-- Line Delimiter -->
               <section id="lineDelim" class="wrapper">
                 <span class="label">Line Delimiter:</span>
-                <div class="listSection">
+                <div class="dropDownList">
                   <input id="lineText" class="text" type="text" disabled>
                   <div class="iconWrapper">
                       <span class="icon"></span>
@@ -612,7 +612,7 @@
             <div id="udfArgs" class="hidden clearfix default-hidden">
               <section class="wrapper">
                 <span class="label">Module Name:</span>
-                <div id="udfArgs-moduleList" class="listSection">
+                <div id="udfArgs-moduleList" class="dropDownList">
                   <input class="text" type="text" spellcheck="false" disabled>
                   <div class="iconWrapper">
                     <span class="icon"></span>
@@ -622,7 +622,7 @@
               </section>
               <section class="wrapper">
                 <span class="label">Function Name:</span>
-                <div id="udfArgs-funcList" class="listSection">
+                <div id="udfArgs-funcList" class="dropDownList">
                   <input class="text" type="text" spellcheck="false" disabled>
                   <div class="iconWrapper">
                     <span class="icon"></span>
@@ -734,7 +734,7 @@
             </div>
             <!-- Grid Views of ds -->
             <div class="gridViewButtonArea no-selection">
-              <div id="backFolderBtn"  class="backBtn disabled"
+              <div id="backFolderBtn"  class="gridViewBtn backBtn disabled"
                   title="See previous folders" data-container="body"
                   data-toggle="tooltip" data-placement="bottom"
                   ondrop="dsDropBack(event)"
@@ -743,13 +743,13 @@
                 <div class="icon"></div>
                 <div class="label">..</div>
               </div>
-              <div id="addFolderBtn" class="addBtn" title="Add New Folder"
+              <div id="addFolderBtn" class="gridViewBtn addBtn" title="Add New Folder"
                   data-container="body"
                   data-toggle="tooltip" data-placement="bottom">
                 <div class="icon"></div>
                 <div class="label">NEW</div>
               </div>
-              <div id="deleteFolderBtn" class="deleteBtn disabled" 
+              <div id="deleteFolderBtn" class="gridViewBtn deleteBtn disabled" 
                   title="Delete folder or dataset" data-container="body"
                   data-toggle="tooltip" data-placement="bottom">
                 <div class="icon"></div>
@@ -901,7 +901,7 @@
                   <!-- file path -->
                   <div id="targetTypeSelector" class="importFormRow">
                     <label for="targetTypeList">Target Type:</label>
-                    <div id="targetTypeList" class="listSection">
+                    <div id="targetTypeList" class="dropDownList">
                       <input class="text hint" type="text" value=""
                             disabled>
                       <div class="iconWrapper">
@@ -1211,7 +1211,7 @@
                     </div>
                     <div class="label">The</div>
                   </div>
-                  <div class="listSection radix">
+                  <div class="dropDownList radix">
                     <input class="text" value="First" disabled spellcheck="false">
                     <div class="iconWrapper">
                       <span class="icon"></span>
@@ -1224,7 +1224,7 @@
                       <li>Last</li>
                     </ul>
                   </div>
-                  <div class="listSection day">
+                  <div class="dropDownList day">
                     <input class="text" value="Sunday" disabled spellcheck="false">
                     <div class="iconWrapper">
                       <span class="icon"></span>
@@ -1477,7 +1477,7 @@
             <section class="templateSection">
               <div class="sectionContainer">
                 <!-- template dropdown menu -->
-                <div id="udf-fnList" class="listSection">
+                <div id="udf-fnList" class="dropDownList">
                   <input id="udf-fnTemplate" class="text" 
                          placeholder="Choose your template" disabled>
                   <div class="iconWrapper">
@@ -1737,7 +1737,7 @@
     <section id="aggInputSection" class="modalTopMain">
       <div class="text">Table Name:</div>
       <input id="aggRoundedInput" type="textbox" disabled>
-      <div id="aggOp" class="listSection">
+      <div id="aggOp" class="dropDownList">
         <div class="text">Aggregate Functions</div>
         <div class="iconWrapper">
             <div class="icon"></div>
@@ -1830,7 +1830,7 @@
     <section class="modalTopMain">
       <div class="text">New Table Name:</div>
       <input id="joinRoundedInput" type="textbox" required spellcheck="false">
-      <div id="joinType" class="listSection">
+      <div id="joinType" class="dropDownList">
         <div class="text">Inner Join</div>
         <div class="iconWrapper">
             <div class="icon"></div>
@@ -2007,7 +2007,7 @@
     <section class="modalTopMain">
       <!-- title section -->
       <h3>Select a schedule:</h3>
-      <div class="listSection scheduleList">
+      <div class="dropDownList scheduleList">
         <input class="text focusable scheduleListInput" type="text" value="" spellcheck="false" readonly="">
         <div class="iconWrapper">
             <span class="icon"></span>
@@ -2053,7 +2053,7 @@
       </div>
       <div class="options">
         <span id="alertOptionLabel" class="label"></span>
-        <div class="listSection">
+        <div class="dropDownList">
             <input id="alertOptionInput" type="text" spellcheck="false"
                    placeholder="click to see options">
             <ul id="alertlist" class="list"></ul>
@@ -2184,8 +2184,7 @@
            <!-- name -->
         </section>
         <!-- workbook list section -->
-        <section id="workbookLists" class="listSection">
-        </section>
+        <section id="workbookLists" class="listSection"></section>
       </section>
     </section>
     <!-- Button Section -->
@@ -2218,7 +2217,7 @@
       <div class="topSection">
         <!-- Location -->
         <div class="label">location:</div>
-        <div id="fileBrowserPath" class="listSection">
+        <div id="fileBrowserPath" class="dropDownList">
           <div class="text" contenteditable></div>
           <div class="iconWrapper"
               title="Click to see history" data-toggle="tooltip"
@@ -2310,7 +2309,7 @@
       <!-- Input for file format -->
       <section class="inputSection">
         <div class="label">file format:</div>
-        <div id="fileBrowserFormat" class="listSection">
+        <div id="fileBrowserFormat" class="dropDownList">
           <div class="text">all</div>
           <div class="iconWrapper">
             <div class="icon"></div>
@@ -2460,7 +2459,7 @@
       <!-- export path section -->
       <div class="exportPathSection formRow">
         <span class="label">Location:</span>
-        <div id="exportLists" class="listSection">
+        <div id="exportLists" class="dropDownList">
             <input id="exportPath" class="text" type="text" value="Local Filesystem" spellcheck="false" readonly>
             <div class="iconWrapper">
                 <span class="icon"></span>

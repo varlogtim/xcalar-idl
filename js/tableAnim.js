@@ -992,9 +992,9 @@ function addTableMenuActions() {
         $list.empty().append( WSManager.getWSLists(true));
     });
 
-    xcHelper.dropdownList($subMenu.find(".listSection"), {
+    xcHelper.dropdownList($subMenu.find(".dropDownList"), {
         "onSelect": function($li) {
-            var $input = $li.closest(".listSection").find(".wsName");
+            var $input = $li.closest(".dropDownList").find(".wsName");
             $input.val($li.text()).focus();
         }
     });
@@ -1876,7 +1876,7 @@ function addMenuBehaviors($mainMenu) {
             "mouseleave": function() {
                 $subMenu.find('li').removeClass('selected');
                 var $li = $(this);
-                $li.find('.listSection').removeClass("open")
+                $li.find('.dropDownList').removeClass("open")
                     .find('.list').hide();
                 // $li.removeClass('selected');
                 $('.tooltip').remove();

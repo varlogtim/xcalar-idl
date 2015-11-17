@@ -214,9 +214,9 @@ window.UDF = (function($, UDF) {
         /* end of upload file section */
 
         /* function input section */
-        var $listSection = $("#udf-fnList");
+        var $dropDownList = $("#udf-fnList");
 
-        xcHelper.dropdownList($listSection, {
+        xcHelper.dropdownList($dropDownList, {
             "onSelect": function($li) {
                 var moduleName = $li.text();
 
@@ -239,7 +239,7 @@ window.UDF = (function($, UDF) {
         $("#udfSection .rightBarContent").click(function(event) {
             event.stopPropagation();
 
-            $listSection.removeClass('open');
+            $dropDownList.removeClass('open');
             $listDropdown.hide();
         });
 

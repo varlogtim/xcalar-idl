@@ -506,18 +506,13 @@
                     }
 
                     // for dropdown list
-                    .listSection {
-                        .dropDownList(150px, 30px);
+                    .dropDownList {
+                        .styleDropDownList(150px, 30px);
                         box-shadow: 0px 0px 2px 1px rgba(0, 0, 0, 0.2);
                         font-weight: 600;
 
                         &.day {
                             margin-left: 10px;
-                        }
-
-                        input {
-                            .noSelection;
-                            cursor: default;
                         }
                     }
 
@@ -540,7 +535,7 @@
                         margin-top: 20px;
 
                         &.inActive {
-                            .listSection, .textSection {
+                            .textSection, .dropDownList {
                                 pointer-events: none;
                                 opacity: 0.7;
                             }

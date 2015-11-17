@@ -357,12 +357,12 @@ window.FileBrowser = (function($, FileBrowser) {
     }
 
     function clear(isALL) {
-        var $listSections = $fileBrowser.find('.listSection');
+        var $dropDownLists = $fileBrowser.find('.dropDownList');
 
         $fileBrowser.find('.active').removeClass('active');
 
-        $listSections.removeClass("open");
-        $listSections.find(".list").hide();
+        $dropDownLists.removeClass("open")
+                        .find(".list").hide();
 
         $fileName.val("");
 

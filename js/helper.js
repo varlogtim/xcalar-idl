@@ -403,7 +403,7 @@ window.xcHelper = (function($, xcHelper) {
     };
 
     // handle dropdown list generally
-    xcHelper.dropdownList = function($listSection, options) {
+    xcHelper.dropdownList = function($dropDownList, options) {
         options = options || {};
         /*
          * options includ:
@@ -413,30 +413,30 @@ window.xcHelper = (function($, xcHelper) {
             onSelect: callback to trigger when select an item on list, $li will
                       be passed into the callback
             container: will hide all other list in the container when focus on
-                       this one. Default is $listSectin.parent()
+                       this one. Default is $dropDownList.parent()
          *
          * Note that options can be extented if nesessary
          */
         var $container = options.container ? $(options.container) :
-                                              $listSection.parent();
+                                              $dropDownList.parent();
          // toggle list section
         if (options.onlyClickIcon) {
-            $listSection.on("click", ".icon", function(event) {
+            $dropDownList.on("click", ".icon", function(event) {
                 event.stopPropagation();
-                toggleDropdownMenu($(this).closest(".listSection"));
+                toggleDropdownMenu($(this).closest(".dropDownList"));
             });
         } else {
-            $listSection.on("click", function(event) {
+            $dropDownList.on("click", function(event) {
                 event.stopPropagation();
                 toggleDropdownMenu($(this));
             });
         }
 
-        $listSection.on("mousedown", function() {
+        $dropDownList.on("mousedown", function() {
             if (event.which === 1) {
                 // stop propagation of left mousedown
                 // because hide dropdown is triggered by it
-                // should invalid that when mousedown on listSection
+                // should invalid that when mousedown on dropDownList
                 event.stopPropagation();
                 var mousedownTarget;
                 if ($(this).find('input').length === 1) {
@@ -448,8 +448,8 @@ window.xcHelper = (function($, xcHelper) {
             }
         });
 
-         // on click a list
-        $listSection.on({
+        // on click a list
+        $dropDownList.on({
             "click": function(event) {
                 var keepOpen = false;
 
@@ -472,29 +472,29 @@ window.xcHelper = (function($, xcHelper) {
             }
         }, ".list li");
 
-        function toggleDropdownMenu($curlistSection) {
-            if ($curlistSection.hasClass("open")) {    // close dropdown
+        function toggleDropdownMenu($curlDropDownList) {
+            if ($curlDropDownList.hasClass("open")) {    // close dropdown
                 hideDropdowns();
             } else {                                // open dropdown
                 hideDropdowns();
-                var $lists = $curlistSection.find(".list");
+                var $lists = $curlDropDownList.find(".list");
                 if ($lists.children().length === 0) {
                     return;
                 }
-                $curlistSection.addClass("open");
+                $curlDropDownList.addClass("open");
                 $lists.show().addClass("openList");
             }
         }
 
         function hideDropdowns() {
-            var $sections = $container.find(".listSection");
+            var $sections = $container.find(".dropDownList");
             $sections.find(".list").hide().removeClass("openList");
             $sections.removeClass("open");
         }
     };
 
     xcHelper.hideDropdowns = function($container) {
-        var $sections = $container.find(".listSection");
+        var $sections = $container.find(".dropDownList");
         $sections.find(".list").hide().removeClass("openList");
         $sections.removeClass("open");
     };
