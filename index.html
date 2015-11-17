@@ -6,12 +6,20 @@
   <link href='3rd/fonts/sourcecodepro/sourcecodepro.css' rel='stylesheet' type='text/css'>
   <link href='3rd/fonts/opensans/opensans.css' rel='stylesheet' type='text/css'>
   <link href="/stylesheets/css/style.css" rel="stylesheet" type="text/css">
+  <script type="text/javascript">
+    (function() {
+      var username = sessionStorage.getItem("xcalar-username");
+      if (username == null || username === "") {
+          window.location = "login.html";
+      }
+    })();
+  </script>
 </head>
-<body class="hideScroll">
+<body class="hideScroll" style="background-color:rgb(56,71,79);">
 <div id="initialLoadScreen">
   <div class="waitingIcon"></div>
 </div>
-<div id="container" class="mainContainer">
+<div id="container" class="mainContainer" style="display:none;">
   <!-- Top Menu Bar -->
   <div id="menuBar" class="clearfix no-selection">
     <div id="workbookBtn" class="btn btnSmall" data-toggle="tooltip" 
