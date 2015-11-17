@@ -347,14 +347,19 @@ window.JSONModal = (function($, JSONModal) {
         var numJsons = jsonData.length;
         var winWidth = $(window).width();
         var currentWidth = $jsonModal.width();
-        var maxWidth = winWidth - $jsonModal.offset().left;
+        var offsetLeft = $jsonModal.offset().left;
+        var maxWidth = winWidth - offsetLeft;
         
         var desiredWidth = Math.min(numJsons * 200, maxWidth);
     
         if (currentWidth < desiredWidth) {
             var newWidth = Math.min(desiredWidth, currentWidth + 200);
             $jsonModal.width(newWidth);
-            centerPositionElement($jsonModal, {horizontalOnly: true});
+
+            if ((winWidth - currentWidth) / 2 + 100 > offsetLeft &&
+                (winWidth - currentWidth) / 2 - 100 < offsetLeft) {
+                centerPositionElement($jsonModal, {horizontalOnly: true});
+            }
         }
     }
 
@@ -362,11 +367,16 @@ window.JSONModal = (function($, JSONModal) {
         var currentWidth = $jsonModal.width();
         var minW = Math.min(500, currentWidth);
         var desiredWidth = Math.max(jsonData.length * 200, minW);
+        var winWidth = $(window).width();
+        var offsetLeft = $jsonModal.offset().left;
 
         if (currentWidth > desiredWidth) {
             var newWidth = Math.max(desiredWidth, currentWidth - 100);
             $jsonModal.width(newWidth);
-            centerPositionElement($jsonModal, {horizontalOnly: true});
+            if ((winWidth - currentWidth) / 2 + 100 > offsetLeft &&
+                (winWidth - currentWidth) / 2 - 100 < offsetLeft) {
+                centerPositionElement($jsonModal, {horizontalOnly: true});
+            }
         }
     }
 
