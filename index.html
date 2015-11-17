@@ -7,11 +7,13 @@
   <link href='3rd/fonts/opensans/opensans.css' rel='stylesheet' type='text/css'>
   <link href="/stylesheets/css/style.css" rel="stylesheet" type="text/css">
   <script type="text/javascript">
+    var redirectToLogin = false;
     (function() {
-      var username = sessionStorage.getItem("xcalar-username");
-      if (username == null || username === "") {
-          window.location = "login.html";
-      }
+        var username = sessionStorage.getItem("xcalar-username");
+        if (username == null || username === "") {
+            redirectToLogin = true;
+            window.location = "login.html";
+        }
     })();
   </script>
 </head>
@@ -20,6 +22,11 @@
   <div class="waitingIcon"></div>
 </div>
 <div id="container" class="mainContainer" style="display:none;">
+  <script type="text/javascript">
+    if (!redirectToLogin) {
+        document.getElementById('container').style.display = 'block';
+    }
+  </script>
   <!-- Top Menu Bar -->
   <div id="menuBar" class="clearfix no-selection">
     <div id="workbookBtn" class="btn btnSmall" data-toggle="tooltip" 

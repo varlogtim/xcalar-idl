@@ -913,7 +913,6 @@ function checkXcalarVersionMatch() {
 }
 
 function documentReadyIndexFunction() {
-    $('.mainContainer').show();
     $(document).ready(function() {
         gMinModeOn = true; // startup use min mode;
         Compatible.check();
