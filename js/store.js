@@ -620,6 +620,13 @@ window.KVStore = (function($, KVStore) {
             }
         })
         .then(function() {
+            // should keep in sync with commitToStorage
+            return (SQL.commit());
+        })
+        .then(function() {
+            return (XcalarSaveWorkbooks("*"));
+        })
+        .then(function() {
             location.reload();
         });
     };
