@@ -243,7 +243,9 @@ window.Alert = (function($, Alert){
         var $cancelBtn  = $btnSection.find(".cancel");
         if (!options.isAlert) {
             if (options.noCancel) {
-                $cancelBtn.hide();
+                $alertModal.find(".close, .cancel").hide();
+            } else {
+                $alertModal.find(".close, .cancel").show();
             }
 
             if (options.buttons) {

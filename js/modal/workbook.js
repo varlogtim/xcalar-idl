@@ -707,7 +707,7 @@ window.WKBKManager = (function($, WKBKManager) {
                 console.warn("Entering in safe mode of", wkbkId);
             }
 
-            return (KVStore.setup(username, gStorageKey, gLogKey));
+            return KVStore.setup(username, gStorageKey, gLogKey);
         })
         .then(deferred.resolve)
         .fail(function(error) {

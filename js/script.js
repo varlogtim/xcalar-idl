@@ -372,12 +372,12 @@ function setupLogout() {
         .then(function() {
             return (KVStore.release());
         })
-        .then(function() {
+        .fail(function(error) {
+            console.error(error);
+        })
+        .always(function() {
             sessionStorage.setItem("xcalar-username", "");
             window.location = "dologout.html";
-        })
-        .fail(function(error) {
-            Alert.error("Signout fails", error);
         });
     });
 }
@@ -942,6 +942,9 @@ function documentReadyIndexFunction() {
             console.log('%c Have fun with Xcalar Insight! ',
             'background: linear-gradient(to bottom, #378cb3, #5cb2e8); ' +
             'color: #ffffff; font-size:20px; font-family:Open Sans, Arial;');
+
+            // start heartbeat check
+            Support.heartbeatCheck();
         })
         .fail(function(error) {
             if (typeof error === "string"){

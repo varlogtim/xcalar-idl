@@ -272,11 +272,8 @@ window.KVStore = (function($, KVStore) {
     var isHold   = false;
     var safeMode = false;
     var safeTimer;
-    var commitFlag;
 
     KVStore.setup = function(usrname, gStorageKey, gLogKey) {
-        var deferred = jQuery.Deferred();
-
         KVStore.user = usrname;
         KVStore.gStorageKey = gStorageKey;
         KVStore.gLogKey = gLogKey;
@@ -288,15 +285,7 @@ window.KVStore = (function($, KVStore) {
             safe = false;
         }
 
-        commitFlag = "commit" + Math.floor((Math.random() * 10000) + 1);
-
-        // not persist, only store in memory as a flag,
-        // when the flag matches, current UI can commit
-        XcalarKeyPut(KVStore.commitKey, commitFlag, false, gKVScope.FLAG)
-        .then(deferred.resolve)
-        .fail(deferred.reject);
-
-        return (deferred.promise());
+        return (Support.setup());
     };
 
     KVStore.get = function(key, scope) {
@@ -502,7 +491,7 @@ window.KVStore = (function($, KVStore) {
             return (deferred.promise());
         }
 
-        checkHelper()
+        Support.commitCheck()
         .then(function() {
             return (XcalarKeyPut(key, value, persist, scope));
         })
@@ -523,7 +512,7 @@ window.KVStore = (function($, KVStore) {
             return (deferred.promise());
         }
 
-        checkHelper()
+        Support.commitCheck()
         .then(function() {
             return (XcalarKeyAppend(key, value, persist, scope));
         })
@@ -634,26 +623,6 @@ window.KVStore = (function($, KVStore) {
     KVStore.isHold = function() {
         return (isHold);
     };
-
-    function checkHelper() {
-        var deferred = jQuery.Deferred();
-        if (KVStore.commitKey == null) {
-            // when workbook is not set up yet or no workbook yet
-            deferred.resolve();
-        } else {
-            XcalarKeyLookup(KVStore.commitKey, gKVScope.FLAG)
-            .then(function(val) {
-                if (val.value === commitFlag) {
-                    deferred.resolve();
-                } else {
-                    deferred.reject("commit key not match");
-                }
-            })
-            .fail(deferred.reject);
-        }
-
-        return (deferred.promise());
-    }
 
     function getWKBKLists() {
         var deferred = jQuery.Deferred();
