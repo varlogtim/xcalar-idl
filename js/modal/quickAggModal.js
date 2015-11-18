@@ -509,7 +509,7 @@ window.AggModal = (function($, AggModal) {
                         'title="' + value +
                         '" data-toggle="tooltip" data-placement="top" ' +
                         'data-container="body">' +
-                            value +
+                            value.toFixed(3)+
                         '</span>';
             $("#mainAgg1").find(".aggCol:not(.labels)").eq(col)
                 .find(".aggTableField:not(.colLabel)").eq(row).html(html);
@@ -575,7 +575,7 @@ window.AggModal = (function($, AggModal) {
                         'title="' + value +
                         '" data-toggle="tooltip" data-placement="top" ' +
                         'data-container="body">' +
-                            value +
+                            value.toFixed(3) +
                         '</span>';
             if (isNumeric) {
                 value = parseFloat(value);
