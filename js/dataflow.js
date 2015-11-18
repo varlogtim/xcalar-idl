@@ -23,12 +23,12 @@ window.DFG = (function($, DFG) {
                                         {"index": 0, "type": "table", "left": 861, "top": 32, "title": "joinTable-82736#fr26"}
                                     ],
                                     "operations": [
-                                        {"tooltip": "Indexed on recordNum", "type": "sort", "parents": "recordNum", "left": 70, "top": 4, "classes": "dagIcon filter filtergt"},
+                                        {"tooltip": "Indexed on recordNum", "type": "index", "parents": "recordNum", "left": 70, "top": 4, "classes": "dagIcon index index"},
                                         {"tooltip": "Filtered table \"classes3#fr22\" where class_id is greater than 1.", "type": "filter", "parents": "class_id", "left": 283, "top": 4, "classes": "dagIcon filter filtergt"},
-                                        {"tooltip": "Indexed by class_id", "type": "sort", "parents": "class_id", "left": 497, "top": 4, "classes": "dagIcon filter filtergt"},
-                                        {"tooltip": "Indexed on recordNum", "type": "sort", "parents": "recordNum", "left": 283, "top": 69, "classes": "dagIcon filter filtergt"},
-                                        {"tooltip": "Indexed by class_id", "type": "sort", "parents": "class_id", "left": 497, "top": 69, "classes": "dagIcon filter filtergt"},
-                                        {"tooltip": "Inner Join between table \"classes3#fr28\" and table \"schedule4#fr27\"", "type": "join", "parents": "classes3#fr28 & schedule4#fr27", "left": 711, "top": 36, "classes": "dagIcon filter filtergt"}
+                                        {"tooltip": "Sorted by class_id", "type": "sort", "parents": "class_id", "left": 497, "top": 4, "classes": "dagIcon sort sort"},
+                                        {"tooltip": "Indexed on recordNum", "type": "index", "parents": "recordNum", "left": 283, "top": 69, "classes": "dagIcon index index"},
+                                        {"tooltip": "Sorted by class_id", "type": "sort", "parents": "class_id", "left": 497, "top": 69, "classes": "dagIcon sort sort"},
+                                        {"tooltip": "Inner Join between table \"classes3#fr28\" and table \"schedule4#fr27\"", "type": "join", "parents": "classes3#fr28 & schedule4#fr27", "left": 711, "top": 36, "classes": "dagIcon join inner"}
                                     ],
                                     "height": 155,
                                     "width" : 945

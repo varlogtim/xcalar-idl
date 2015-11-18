@@ -682,7 +682,7 @@ window.Dag = (function($, Dag) {
                         tableId + '">' +
                         '<div data-toggle="tooltip" data-container="body" ' +
                         'data-placement="top" title="Add Data Flow" ' +
-                        'class="btn btnSmall addDataFlow btnInactive">' +
+                        'class="btn btnSmall addDataFlow">' +
                             '<span class="icon"></span>' +
                         '</div>' +
                         '<div data-toggle="tooltip" data-container="body" ' +
