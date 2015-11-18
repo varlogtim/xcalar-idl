@@ -1805,8 +1805,6 @@ function addMenuBehaviors($mainMenu) {
     var $subMenu;
     var $allMenus = $mainMenu;
     var subMenuId = $mainMenu.data('submenu');
-    var outerHeight;
-    var innerHeight;
     var hideTimeout;
 
     if (subMenuId) {
@@ -1953,81 +1951,6 @@ function addMenuBehaviors($mainMenu) {
         }
     }, "li");
 
-    if ($mainMenu.find('.scrollArea').length !== 0) {
-        var $scrollAreas = $mainMenu.find('.scrollArea');
-        var $menuWrap = $mainMenu.children('.menuWrap');
-        var $ul = $mainMenu.find('ul');
-        var timer = {
-            "fadeIn"           : null,
-            "fadeOut"          : null,
-            "setMouseMoveFalse": null,
-            "hovering"         : null,
-            "scroll"           : null
-        };
-        var isMouseMoving = false;
-        var isMouseInScroller = false;
-
-        $mainMenu.mouseleave(function() {
-            clearTimeout(timer.fadeIn);
-            $scrollAreas.removeClass('active');
-        });
-
-        $mainMenu.mouseenter(function() {
-            outerHeight = $mainMenu.height();
-            innerHeight = $ul.height();
-        });
-
-        $mainMenu.mousemove(function() {
-            clearTimeout(timer.fadeOut);
-            clearTimeout(timer.setMouseMoveFalse);
-            isMouseMoving = true;
-
-            timer.fadeIn = setTimeout(fadeIn, 200);
-
-            timer.fadeOut = setTimeout(fadeOut, 600);
-
-            timer.setMouseMoveFalse = setTimeout(setMouseMoveFalse, 50);
-        });
-
-        $scrollAreas.mouseenter(function() {
-            isMouseInScroller = true;
-            $(this).addClass('mouseover');
-
-            if ($subMenu) {
-                $subMenu.hide();
-            }
-            var scrollUp = $(this).hasClass('top');
-            scrollMenu(scrollUp);
-        });
-
-        $scrollAreas.mouseleave(function() {
-            isMouseInScroller = false;
-            clearTimeout(timer.scroll);
-
-            var scrollUp = $(this).hasClass('top');
-
-            if (scrollUp) {
-                $scrollAreas.eq(1).removeClass('stopped');
-            } else {
-                $scrollAreas.eq(0).removeClass('stopped');
-            }
-
-            timer.hovering = setTimeout(hovering, 200);
-        });
-
-        // $(document).keydown(function(e) {
-        //     var scrollTop;
-        //     if (e.which === keyCode.Up) {
-        //         scrollTop = $menuWrap.scrollTop();
-        //         $menuWrap.scrollTop(scrollTop - 30);
-        //     } else if (e.which === keyCode.Down) {
-        //         scrollTop = $menuWrap.scrollTop();
-        //         $menuWrap.scrollTop(scrollTop + 30);
-        //     }
-        // });
-
-    }
-
     function showSubMenu($li, subMenuClass) {
         if ($li.hasClass('selected')) {
             $subMenu.show();
@@ -2067,9 +1990,105 @@ function addMenuBehaviors($mainMenu) {
         }
     }
 
+    if ($mainMenu.find('.scrollArea').length !== 0) {
+        var listScroller = new ListScroller($mainMenu, $subMenu);
+        listScroller.setup();
+    }
+}
+
+ListScroller = function($menu, $subMenu) {
+    this.$menu = $menu;
+    this.$ul = $menu.children('ul'); 
+    this.$scrollAreas = $menu.find('.scrollArea');
+    this.$subMenu = $subMenu;
+
+    /* 
+    $menu needs to have the following structure:
+        <div>
+            <ul>
+            </ul>
+            <div class="scrollArea top"></div>
+            <div class="scrollArea bottom"></div>
+        </div>
+
+    where the outer div has the same height as the ul
+    */
+
+    return (this);
+};
+
+ListScroller.prototype.setup = function() {
+    var listScroller = this;
+    var $menu = this.$menu;
+    var $subMenu = this.$subMenu;
+    var $ul = this.$ul;
+    var $scrollAreas = this.$scrollAreas;
+    var outerHeight;
+    var innerHeight;
+    var isMouseInScroller = false;
+    var isMouseMoving = false;
+    var timer = {
+        "fadeIn"           : null,
+        "fadeOut"          : null,
+        "setMouseMoveFalse": null,
+        "hovering"         : null,
+        "scroll"           : null
+    };
+    
+
+    $menu.mouseleave(function() {
+        clearTimeout(timer.fadeIn);
+        $scrollAreas.removeClass('active');
+    });
+
+    $menu.mouseenter(function() {
+        outerHeight = $menu.height();
+        innerHeight = $ul[0].scrollHeight;
+    });
+
+    $menu.mousemove(function() {
+        clearTimeout(timer.fadeOut);
+        clearTimeout(timer.setMouseMoveFalse);
+        isMouseMoving = true;
+        
+        timer.fadeIn = setTimeout(fadeIn, 200);
+
+        timer.fadeOut = setTimeout(fadeOut, 600);
+
+        timer.setMouseMoveFalse = setTimeout(setMouseMoveFalse, 50);
+    });
+
+    $scrollAreas.mouseenter(function() {
+        isMouseInScroller = true;
+        $(this).addClass('mouseover');
+
+        if ($subMenu) {
+            $subMenu.hide();
+        }
+        var scrollUp = $(this).hasClass('top');
+        scrollMenu(scrollUp);
+    });
+
+    $scrollAreas.mouseleave(function() {
+        isMouseInScroller = false;
+        clearTimeout(timer.scroll);
+
+        var scrollUp = $(this).hasClass('top');
+
+        if (scrollUp) {
+            $scrollAreas.eq(1).removeClass('stopped');
+        } else {
+            $scrollAreas.eq(0).removeClass('stopped');
+        }
+
+        timer.hovering = setTimeout(hovering, 200);
+    });
+
+
     function scrollMenu(scrollUp) {
         var top;
-        var scrollTop = $menuWrap.scrollTop();
+        var scrollTop = $ul.scrollTop();
+
         if (scrollUp) { // scroll upwards
             if (scrollTop === 0) {
                 $scrollAreas.eq(0).addClass('stopped');
@@ -2077,7 +2096,7 @@ function addMenuBehaviors($mainMenu) {
             }
             timer.scroll = setTimeout(function() {
                 top = scrollTop - 7;
-                $menuWrap.scrollTop(top);
+                $ul.scrollTop(top);
                 scrollMenu(scrollUp);
             }, 30);
         } else { // scroll downwards
@@ -2085,11 +2104,10 @@ function addMenuBehaviors($mainMenu) {
                 $scrollAreas.eq(1).addClass('stopped');
                 return;
             }
-            // console.log(outerHeight, innerHeight);
 
             timer.scroll = setTimeout(function() {
                 top = scrollTop + 7;
-                $menuWrap.scrollTop(top);
+                $ul.scrollTop(top);
                 scrollMenu(scrollUp);
             }, 30);
         }
@@ -2117,11 +2135,6 @@ function addMenuBehaviors($mainMenu) {
             $scrollAreas.removeClass('mouseover');
         }
     }
-
-    // the following behavior isn't great...
-    // $colMenu.on('mouseup', 'input', function() {
-    //     $(this).select();
-    // });
 }
 
 function addMenuKeyboardNavigation($menu, $subMenu) {
@@ -2248,16 +2261,16 @@ function addMenuKeyboardNavigation($menu, $subMenu) {
                 var currentScrollTop;
 
                 if (liTop > menuHeight - liHeight) {
-                    currentScrollTop = $menu.find('.menuWrap').scrollTop();
+                    currentScrollTop = $menu.find('ul').scrollTop();
                     var newScrollTop = liTop - menuHeight + liHeight +
                                        currentScrollTop;
-                    $menu.find('.menuWrap').scrollTop(newScrollTop);
+                    $menu.find('ul').scrollTop(newScrollTop);
                     if ($menu.hasClass('hovering')) {
                         $menu.addClass('disableMouseEnter');
                     }
                 } else if (liTop < 0) {
-                    currentScrollTop = $menu.find('.menuWrap').scrollTop();
-                    $menu.find('.menuWrap').scrollTop(currentScrollTop + liTop);
+                    currentScrollTop = $menu.find('ul').scrollTop();
+                    $menu.find('ul').scrollTop(currentScrollTop + liTop);
                     if ($menu.hasClass('hovering')) {
                         $menu.addClass('disableMouseEnter');
                     }
@@ -3002,7 +3015,7 @@ function dropdownClick($el, options) {
         }
         menuHeight = $(window).height() - 116;
         $menu.css('max-height', menuHeight);
-        $menu.children('.menuWrap').css('max-height', menuHeight);
+        $menu.children('ul').css('max-height', menuHeight);
         if (options.classes && options.classes.indexOf('locked') !== -1) {
             $menu.find('li:not(.hideTable, .unhideTable)')
                   .addClass('unavailable');
@@ -3031,7 +3044,7 @@ function dropdownClick($el, options) {
         }
         menuHeight = $(window).height() - 152;
         $menu.css('max-height', menuHeight);
-        $menu.children('.menuWrap').css('max-height', menuHeight);
+        $menu.children('ul').css('max-height', menuHeight);
         // $menu.children('ul').css('max-height', $(window).height() - 152);
 
         // XXX Use CSS to show the options
@@ -3146,15 +3159,15 @@ function dropdownClick($el, options) {
     }
 
     $menu.css({"top": top, "left": left}).show();
-    $menu.children('.menuWrap').scrollTop(0);
+    $menu.children('ul').scrollTop(0);
 
-    // size menu and menuWrap so it
-    var ulHeight = $menu.find('ul').height();
+    // size menu and ul
+    var ulHeight = $menu.find('ul')[0].scrollHeight;
     if (ulHeight > $menu.height()) {
-        $menu.children('div').css('max-height', menuHeight);
+        $menu.children('ul').css('max-height', menuHeight);
         $menu.find('.scrollArea').show();
     } else {
-        $menu.children('div').css('max-height', 'auto');
+        $menu.children('ul').css('max-height', 'auto');
         $menu.find('.scrollArea').hide();
     }
     // set scrollArea states

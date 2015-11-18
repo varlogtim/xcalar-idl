@@ -1,9 +1,10 @@
 window.OperationsModal = (function($, OperationsModal) {
     var $operationsModal = $('#operationsModal');
     var $categoryInput = $('#categoryList').find('.autocomplete');
-    var $categoryMenu = $('#categoryMenu');
+    var $categoryUl = $('#categoryMenu').find('ul');
     var $functionInput = $('#functionList').find('.autocomplete');
     var $functionsMenu = $('#functionsMenu');
+    var $functionsUl = $functionsMenu.find('ul');
     var $menus = $('#categoryMenu, #functionsMenu');
     var colNum = "";
     var colName = "";
@@ -92,8 +93,11 @@ window.OperationsModal = (function($, OperationsModal) {
                 $operationsModal.find('li.highlighted')
                                 .removeClass('highlighted');
                 // show all list options when use icon to trigger
-                $list.show()
-                    .children().sort(sortHTML).prependTo($list).show();
+                $list.show().find('li').sort(sortHTML)
+                                       .prependTo($list.children('ul'))
+                                       .show();
+
+                showOrHideScrollers($list);
             }
         });
 
@@ -104,6 +108,9 @@ window.OperationsModal = (function($, OperationsModal) {
                 allowInputChange = false;
             },
             'mouseup': function(event) {
+                if (event.which !== 1) {
+                    return;
+                }
                 listMouseup(event, $(this));
             }
         }, 'li');
@@ -111,12 +118,21 @@ window.OperationsModal = (function($, OperationsModal) {
         // for all lists (including hint li in argument table)
         $operationsModal.find('.list').on({
             'mouseenter': function() {
+                if ($(this).closest('.list').hasClass('disableMouseEnter')) {
+                    $(this).closest('.list').removeClass('disableMouseEnter');
+                    return;
+                }
                 $operationsModal.find('li.highlighted')
                                 .removeClass('highlighted');
                 $(this).addClass('highlighted');
+                $(this).closest('.list').addClass('hovering');
             },
             'mouseleave': function() {
+                if ($(this).closest('.list').hasClass('disableMouseEnter')) {
+                    return;
+                }
                 $(this).removeClass('highlighted');
+                $(this).closest('.list').removeClass('hovering');
             }
         }, 'li');
 
@@ -248,6 +264,11 @@ window.OperationsModal = (function($, OperationsModal) {
             allowInputChange = true;
         });
 
+        var categoryListScroller = new ListScroller($('#categoryMenu'));
+        var functionsListScroller = new ListScroller($functionsMenu);
+        categoryListScroller.setup();
+        functionsListScroller.setup();
+
         $operationsModal.draggable({
             handle     : '.operationsModalHeader',
             containment: 'window',
@@ -263,7 +284,7 @@ window.OperationsModal = (function($, OperationsModal) {
             allowInputChange = true;
             event.stopPropagation();
             var value = $li.text();
-            var $input = $li.parent().siblings('.autocomplete');
+            var $input = $li.closest('.list').siblings('.autocomplete');
 
             hideDropdowns();
             $input.val(value);
@@ -333,13 +354,14 @@ window.OperationsModal = (function($, OperationsModal) {
             toggleModalDisplay(false);
 
             $categoryInput.focus();
-            if ($categoryMenu.find('li').length === 1) {
-                var val = $categoryMenu.find('li').text();
+            if ($categoryUl.find('li').length === 1) {
+                var val = $categoryUl.find('li').text();
                 $categoryInput.val(val).change();
                 enterInput(0);
                 $operationsModal.find('.circle1').addClass('filled');
                 $functionInput.focus();
             }
+            $operationsModal.find('.list').removeClass('hovering');
         });
     };
 
@@ -461,7 +483,7 @@ window.OperationsModal = (function($, OperationsModal) {
                     '</li>';
         }
 
-        $categoryMenu.html(html);
+        $categoryUl.html(html);
     }
 
     function setupOperatorsMap(opArray) {
@@ -539,7 +561,9 @@ window.OperationsModal = (function($, OperationsModal) {
                     $(this).text().toLowerCase().indexOf(value) !== -1);
         }).show();
 
-        $visibleLis.sort(sortHTML).prependTo($list);
+        $visibleLis.sort(sortHTML).prependTo($list.find('ul'));
+
+        showOrHideScrollers($list);
 
         if (value === "") {
             return;
@@ -550,9 +574,10 @@ window.OperationsModal = (function($, OperationsModal) {
         for (var i = $visibleLis.length; i >= 0; i--) {
             var $li = $visibleLis.eq(i);
             if ($li.text().startsWith(value)) {
-                $list.prepend($li);
+                $list.find('ul').prepend($li);
             }
         }
+
     }
 
     function hideDropdowns() {
@@ -652,6 +677,7 @@ window.OperationsModal = (function($, OperationsModal) {
         }
         event.preventDefault();
         event.stopPropagation();
+        var $menu = $input.siblings('.list');
         var $lis = $input.siblings('.list').find('li:visible');
         var numLis = $lis.length;
 
@@ -689,10 +715,27 @@ window.OperationsModal = (function($, OperationsModal) {
         $highlightedLi.addClass('highlighted');
         $input.val(val);
 
-        // setting cursor to the end doesn't work unless we use timeout
-        setTimeout(function() {
-            $input[0].selectionStart = $input[0].selectionEnd = val.length;
-        }, 0);
+
+        var menuHeight = $menu.height();
+        var liTop = $highlightedLi.position().top;
+        var liHeight = 30;
+        var currentScrollTop;
+
+        if (liTop > menuHeight - liHeight) {
+            currentScrollTop = $menu.find('ul').scrollTop();
+            var newScrollTop = liTop - menuHeight + liHeight +
+                               currentScrollTop;
+            $menu.find('ul').scrollTop(newScrollTop);
+            if ($menu.hasClass('hovering')) {
+                $menu.addClass('disableMouseEnter');
+            }
+        } else if (liTop < 0) {
+            currentScrollTop = $menu.find('ul').scrollTop();
+            $menu.find('ul').scrollTop(currentScrollTop + liTop);
+            if ($menu.hasClass('hovering')) {
+                $menu.addClass('disableMouseEnter');
+            }
+        }
     }
 
     function isOperationValid(inputNum) {
@@ -705,7 +748,7 @@ window.OperationsModal = (function($, OperationsModal) {
         } else if (inputNum === 1) {
             var categoryIndex = categoryNames.indexOf(category);
             if (categoryIndex > -1) {
-                var matches = $functionsMenu.find('li').filter(function() {
+                var matches = $functionsUl.find('li').filter(function() {
                     return ($(this).text().toLowerCase() === func);
                 });
                 return (matches.length > 0);
@@ -727,18 +770,36 @@ window.OperationsModal = (function($, OperationsModal) {
         StatusBox.show(text, $target, isFormMode, offset);
     }
 
+    function showOrHideScrollers($list) {
+        var menuHeight = $(window).height() - $list.offset().top;
+        $list.css('max-height', menuHeight);
+        $list.children('ul').css('max-height', menuHeight);
+
+        var ulHeight = $list.find('ul')[0].scrollHeight;
+
+        if (ulHeight > $list.height()) {
+            $list.children('ul').css('max-height', menuHeight);
+            $list.find('.scrollArea').show();
+        } else {
+            $list.children('ul').css('max-height', 'auto');
+            $list.find('.scrollArea').hide();
+        }
+        // set scrollArea states
+        $list.find('.scrollArea.top').addClass('stopped');
+        $list.find('.scrollArea.bottom').removeClass('stopped');
+    }
     function updateFunctionsList() {
         var category = $categoryInput.val().trim().toLowerCase();
         var index = categoryNames.indexOf(category);
 
-        $functionsMenu.empty();
+        $functionsUl.empty();
         clearInput(1);
         // invalid category
         if (index < 0) {
             return;
         }
 
-        var $categoryLi = $categoryMenu.find('li').filter(function() {
+        var $categoryLi = $categoryUl.find('li').filter(function() {
             return ($(this).text().toLowerCase() === category);
         });
         var categoryNum = $categoryLi.data('category');
@@ -750,7 +811,7 @@ window.OperationsModal = (function($, OperationsModal) {
         }
         var $list = $(html);
 
-        $list.sort(sortHTML).prependTo($functionsMenu);
+        $list.sort(sortHTML).prependTo($functionsUl);
         $functionsMenu.data('category', category);
         fillInputPlaceholder(1);
     }
@@ -765,7 +826,7 @@ window.OperationsModal = (function($, OperationsModal) {
             return;
         }
 
-        var $categoryLi = $categoryMenu.find('li').filter(function() {
+        var $categoryLi = $categoryUl.find('li').filter(function() {
             return ($(this).text() === categoryNames[categoryIndex]);
         });
         var categoryNum = $categoryLi.data('category');

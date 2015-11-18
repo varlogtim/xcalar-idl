@@ -691,7 +691,6 @@ function generateColDropDowns() {
 
     var mainMenuHTML =
         '<div id="colMenu" class="menu mainMenu" data-submenu="colSubMenu">' +
-        '<div class="menuWrap">' +
         '<ul>' +
             '<li class="addColumn parentMenu" data-submenu="addColumn">' +
                 'Add a column' +
@@ -736,7 +735,6 @@ function generateColDropDowns() {
             '<li class="tdUnnest tdDropdown">Pull all</li>' +
             '<li class="tdCopy tdDropdown">Copy to clipboard</li>' +
         '</ul>' +
-        '</div>' +
         '<div class="scrollArea top"><div class="arrow"></div></div>' +
         '<div class="scrollArea bottom"><div class="arrow"></div></div>' +
         '</div>';
@@ -837,7 +835,6 @@ function generateTableDropDown() {
 
     var tableMenuHTML =
         '<div id="tableMenu" class="menu tableMenu" data-submenu="tableSubMenu">' +
-        '<div class="menuWrap">' +
         '<ul>' +
             '<li class="archiveTable">Archive Table</li>' +
             '<li class="hideTable">Hide Table</li>' +
@@ -884,7 +881,6 @@ function generateTableDropDown() {
             //     '<div class="dropdownBox"></div>' +
             // '</li>' +
         '</ul>' +
-        '</div>' +
         '<div class="scrollArea top"><div class="arrow"></div></div>' +
         '<div class="scrollArea bottom"><div class="arrow"></div></div>' +
         '</div>';
