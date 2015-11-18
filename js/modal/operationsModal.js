@@ -386,22 +386,22 @@ window.OperationsModal = (function($, OperationsModal) {
                         .removeClass('minimized');
         $input.closest('tbody').find('div').removeClass('minimized');
         $input.focus();
-        $('body').on('keyup', opModalKeyListener);
+        $('body').on('keydown', opModalKeyListener);
         centerPositionElement($operationsModal);
     }
 
     function unminimizeTable() {
         $operationsModal.find('.minimized').removeClass('minimized');
-        $('body').off('keyup', opModalKeyListener);
+        $('body').off('keydown', opModalKeyListener);
         centerPositionElement($operationsModal);
     }
 
     function opModalKeyListener(event) {
         if (event.which === keyCode.Enter ||
             event.which === keyCode.Escape) {
-            setTimeout(function() {
+                // event.preventDefault();
+                event.stopPropagation();
                 unminimizeTable();
-            }, 0);
         }
     }
 
@@ -1628,12 +1628,23 @@ window.OperationsModal = (function($, OperationsModal) {
                                     .find('.list:visible');
         if ($list.length !== 0) {
             var $input = $list.siblings('input');
-            if (event.which === keyCode.Down) {
-                listHighlight($input, keyCode.Down, event);
-            } else if (event.which === keyCode.Up) {
-                listHighlight($input, keyCode.Up, event);
-            } else if (event.which === keyCode.Right) {
-                $input.trigger(fakeEvent.enter);
+            switch (event.which) {
+                case (keyCode.Down): 
+                case (keyCode.Up):
+                    listHighlight($input, event.which, event);
+                    break;
+                case (keyCode.Right):
+                    $input.trigger(fakeEvent.enter);
+                    break;
+                case (keyCode.Enter):
+                    if (!$input.is(':focus')) {
+                        event.stopPropagation();
+                        event.preventDefault();
+                        $input.trigger(fakeEvent.enter);
+                    }
+                    break;
+                default: 
+                    break;
             }
         }
     }

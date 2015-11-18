@@ -51,6 +51,8 @@ function thriftLog(title, errRes) {
 
     var alertError;
 
+    $('.mainContainer').show();
+
     if (status === StatusT.StatusConnReset) {
         // This is bad, connection was lost so UI cannot do anything
         // LOCK THE SCREEN
