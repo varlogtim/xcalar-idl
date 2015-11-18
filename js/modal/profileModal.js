@@ -1534,7 +1534,7 @@ window.Profile = (function($, Profile, d3) {
                                         XcalarOrderingT.XcalarOrderingAscending,
                                         sqlOptions);
         })
-        .then(function () {
+        .then(function() {
             var def1 = getAggResult(bucketColName, finalTable, aggMap.max);
             var def2 = getAggResult(bucketColName, finalTable, aggMap.sum);
             return (xcHelper.when(def1, def2));

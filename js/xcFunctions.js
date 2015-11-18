@@ -1381,10 +1381,8 @@ window.xcFunction = (function($, xcFunction) {
         var len = lColNums.length;
 
         // validation check
-        if (len !== rColNums.length || len < 1) {
-            deferred.reject("Invalid parameters in join");
-            return (deferred.promise());
-        }
+        xcHelper.assert((len === rColNums.length && len >= 1),
+                        "Invalid parameters in join");
 
         if (len === 1) {
             // single join

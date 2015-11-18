@@ -1244,9 +1244,10 @@ window.xcHelper = (function($, xcHelper) {
         return (mainDeferred.promise());
     };
 
-    xcHelper.assert = function(statement) {
+    xcHelper.assert = function(statement, error) {
+        error = error || "Assert fail!";
         if (!statement) {
-            console.error("Assert fail!");
+            throw error;
         }
     };
 

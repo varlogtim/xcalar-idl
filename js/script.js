@@ -632,10 +632,7 @@ function documentReadyGeneralFunction() {
             var rowToGo;
 
             // validation check
-            if (lastRowNum == null) {
-                console.error("Error case!");
-                return false;
-            }
+            xcHelper.assert((lastRowNum != null), "Error Case!");
 
             if (scrollType === "homeEnd") {
                 // isUp === true for home button, false for end button

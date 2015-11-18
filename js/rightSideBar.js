@@ -141,10 +141,8 @@ window.RightSideBar = (function($, RightSideBar) {
         var validAction = ["add", "delete"];
 
         // validation check
-        if (validAction.indexOf(action) < 0) {
-            deferred.reject("Invalid action!");
-            return (deferred.promise());
-        }
+        xcHelper.assert(validAction.indexOf(action) >= 0);
+
         var $tableList;
 
         if (tableType === TableType.InActive) {

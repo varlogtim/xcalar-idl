@@ -373,6 +373,8 @@ window.WorkbookModal = (function($, WorkbookModal) {
 
     // helper function for toggle in option section
     function switchAction(no) {
+        xcHelper.assert((no >= 0 && no <= 2), "Invalid action");
+
         var $inputSection = $workbookModal.find(".inputSection");
         var $mainSection  = $workbookModal.find(".modalMain");
 
@@ -409,7 +411,6 @@ window.WorkbookModal = (function($, WorkbookModal) {
                 $workbookModal.find(".modalBottom .confirm").text("COPY");
                 break;
             default:
-                console.error("Invalid action!");
                 break;
         }
     }

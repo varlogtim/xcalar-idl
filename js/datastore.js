@@ -1699,11 +1699,6 @@ window.DataPreview = (function($, DataPreview) {
         var loadURL  = $("#filePath").val().trim();
         var refId;
 
-        if (loadURL == null) {
-            deferred.reject("Invalid loadURL");
-            return (deferred.promise());
-        }
-
         $("#importDataForm").on("keypress.preview", function(event) {
             if (event.which === keyCode.Enter) {
                 $("#preview-apply").click();
@@ -1869,7 +1864,7 @@ window.DataPreview = (function($, DataPreview) {
             $previewTable.removeClass("has-delimiter").empty();
             toggleSuggest(false, true);
         }
-        
+
         $(window).off("resize", resizePreivewTable);
         $("#importDataForm").off("keypress.preview");
 
@@ -2973,10 +2968,9 @@ window.DS = (function ($, DS) {
 
     // Create dsObj for new dataset/folder
     DS.create = function(options) {
+        options = options || {};
         // validation check
-        if (!options || !options.name) {
-            return (null);
-        }
+        xcHelper.assert((options.name != null), "Invalid Parameters");
 
         var id       = options.id || (dsObjId++);
         var name     = options.name.trim();
