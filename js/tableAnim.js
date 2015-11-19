@@ -762,8 +762,12 @@ function createTableHeader(tableId) {
     // if (table != null) {
     //     tableName = table.tableName;
     // }
+    var tableTitleClass = "";
+    if ($('.xcTable').length === 1) {
+        tableTitleClass = " tblTitleSelected";
+    }
 
-    var html = '<div class="tableTitle">' +
+    var html = '<div class="tableTitle ' + tableTitleClass + '">' +
                     '<div class="tableGrab"></div>' +
                     '<div class="text" spellcheck="false" contenteditable></div>' +
                     '<div class="dropdownBox">' +
@@ -772,6 +776,7 @@ function createTableHeader(tableId) {
                 '</div>';
 
     $xcTheadWrap.prepend(html);
+
     //  title's Format is tablename  [cols]
     updateTableHeader(tableId);
 
