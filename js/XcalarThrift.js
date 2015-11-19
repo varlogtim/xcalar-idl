@@ -1366,7 +1366,10 @@ function XcalarListFiles(url) {
 }
 
 // XXX TODO THIS NEEDS TO HAVE A SQL.ADD
-function XcalarMakeRetina(retName, tableName) {
+// This tableArray refers to all the ending tables in the DFG.
+// If you have 2 DFs in your DFG, put the last table of both DFs into the
+// tableArray
+function XcalarMakeRetina(retName, tableArray) {
     if (retName === "" || retName == null ||
         tableName === "" || tableName == null ||
         [null, undefined].indexOf(tHandle) !== -1) {
@@ -1377,13 +1380,14 @@ function XcalarMakeRetina(retName, tableName) {
     if (insertError(arguments.callee, deferred)) {
         return (deferred.promise());
     }
-
-    xcalarMakeRetina(tHandle, retName, tableName)
+    deferred.resolve(StatusT.StatusOk);
+    /**
+    xcalarMakeRetina(tHandle, retName, tableArray)
     .then(deferred.resolve)
     .fail(function(error) {
         deferred.reject(thriftLog("XcalarMakeRetina", error));
     });
-
+    */
     return (deferred.promise());
 }
         
@@ -1400,34 +1404,17 @@ function XcalarListRetinas() {
         return (deferred.promise());
     }
 
+    var temp = {};
+    temp.numRetinas = 2;
+    temp.retinaDescs = ["retina1", "retina2"];
+    deferred.resolve(temp);
+    /**
     xcalarListRetinas(tHandle)
     .then(deferred.resolve)
     .fail(function(error) {
         deferred.reject(thriftLog("XcalarListRetinas", error));
     });
-
-    return (deferred.promise());
-}
-
-// XXX TODO THIS NEEDS TO HAVE SQL.ADD
-function XcalarUpdateRetina(retName, dagNodeId, funcApiEnum,
-                            parameterizedInput) {
-    if ([null, undefined].indexOf(tHandle) !== -1) {
-        return (promiseWrapper(null));
-    }
-
-    var deferred = jQuery.Deferred();
-    if (insertError(arguments.callee, deferred)) {
-        return (deferred.promise());
-    }
-
-    xcalarUpdateRetina(tHandle, retName, dagNodeId, funcApiEnum,
-                        parameterizedInput)
-    .then(deferred.resolve)
-    .fail(function(error) {
-        deferred.reject(thriftLog("XcalarUpdateRetina", error));
-    });
-
+    */
     return (deferred.promise());
 }
 
@@ -1442,19 +1429,65 @@ function XcalarGetRetina(retName) {
         return (deferred.promise());
     }
 
+    var temp = {};
+    temp.retinaDesc = {};
+    temp.retinaDesc.retinaName = retName;
+    temp.retinaDag = {}; // This is the GetDag output.
+                         // Basically what you get when you call XcalarGetDag
+    deferred.resolve(temp);
+    
+    /**
     xcalarGetRetina(retName)
     .then(deferred.resolve)
     .fail(function(error) {
         deferred.reject(thriftLog("XcalarGetRetina", error));
     });
+    */
+    return (deferred.promise());
+}
 
+// XXX TODO THIS NEEDS TO HAVE SQL.ADD
+// paramType must be either of the following:
+// XcalarApisT.XcalarApiBulkLoad,
+// XcalarApisT.XcalarApiFilter,
+// XcalarApisT.XcalarApiExport
+// paramValue is what the parameterized part is called
+// For example, in load, the datasetUrl is parameterizable, and your url can
+// be something like "file:///<directory>/<subDir>/file<number>.csv" <- paramValue
+// For eval string, you will pass in something like "filter(gt(column1, \"hello\""))"
+// replaced with "filter(<opera>(<colName>, <val>))"
+// val = \"hello\"
+// <argument> is used to denote a parameter
+function XcalarUpdateRetina(retName, dagNodeId, paramType, paramValue) {
+    if ([null, undefined].indexOf(tHandle) !== -1) {
+        return (promiseWrapper(null));
+    }
+
+    var deferred = jQuery.Deferred();
+    if (insertError(arguments.callee, deferred)) {
+        return (deferred.promise());
+    }
+
+    deferred.resolve(StatusT.StatusOk);
+    /**
+    xcalarUpdateRetina(tHandle, retName, dagNodeId, funcApiEnum,
+                        parameterizedInput)
+    .then(deferred.resolve)
+    .fail(function(error) {
+        deferred.reject(thriftLog("XcalarUpdateRetina", error));
+    });
+    */
     return (deferred.promise());
 }
 
 // XXX TODO SQL.ADD
-function XcalarAddParameterToRetina(retName, varName, defaultVal) {
+// param has 2 string values: param.parameterName, param.parameterValue
+// params is an array of param.
+// For example, if my paramValue was "filter(<opera>(<colName>, <val>))"
+// then, params = [{"parameterName":"opera", "parameterValue":"lt"},
+// {"pN":"colName", "pV":"column5"}, {, "pV":"\"hello\""}]
+function XcalarExecuteRetina(retName, params) {
     if (retName === "" || retName == null ||
-        varName === "" || varName == null ||
         [null, undefined].indexOf(tHandle) !== -1) {
         return (promiseWrapper(null));
     }
@@ -1464,12 +1497,18 @@ function XcalarAddParameterToRetina(retName, varName, defaultVal) {
         return (deferred.promise());
     }
 
-    xcalarAddParameterToRetina(tHandle, retName, varName, defaultVal)
+    deferred.resolve(StatusT.StatusOk);
+
+    /**
+    var randomTableName = "table" + Math.floor(Math.random() * 1000000000 + 1);
+
+    xcalarExecuteRetina(tHandle, retName, randomTableName,
+                        retName + ".csv", params)
     .then(deferred.resolve)
     .fail(function(error) {
-        deferred.reject(thriftLog("XcalarAddParameterToRetina", error));
+        deferred.reject(thriftLog("XcalarExecuteRetina", error));
     });
-
+    */
     return (deferred.promise());
 }
 
@@ -1483,19 +1522,104 @@ function XcalarListParametersInRetina(retName) {
         return (deferred.promise());
     }
 
+    var temp = {};
+    temp.numParameters = 3;
+    var temp1 = {};
+    temp1.parameterName = "param1";
+    temp1.parameterValue = "5";
+    var temp2 = {};
+    temp2.parameterName = "param2";
+    temp2.parameterValue = "test2";
+    var temp3 = {};
+    temp3.parameterName = "param3";
+    temp3.parameterValue = "testing3";
+    temp.parameters = [temp1, temp2, temp3];
+    deferred.resolve(temp);
+
+    /**
     xcalarListParametersInRetina(tHandle, retName)
     .then(deferred.resolve)
     .fail(function(error) {
         deferred.reject(thriftLog("XcalarListParametersInRetina", error));
     });
-
+    */
     return (deferred.promise());
 }
 
-// XXX TODO SQL.ADD
-function XcalarExecuteRetina(retName, params) {
-    if (retName === "" || retName == null ||
-        [null, undefined].indexOf(tHandle) !== -1) {
+function XcalarDeleteRetina(retName) {
+    if ([null, undefined].indexOf(tHandle) !== -1) {
+        return (promiseWrapper(null));
+    }
+
+    var deferred = jQuery.Deferred();
+    if (insertError(arguments.callee, deferred)) {
+        return (deferred.promise());
+    }
+    deferred.resolve(StatusT.StatusOk);
+    /**
+    xcalarApiDeleteRetina(tHandle, retName)
+    .then(deferred.resolve)
+    .fail(function(error) {
+        deferred.reject(thriftLog("XcalarApiDeleteRetina", error));
+    });*/
+}
+
+function XcalarDeleteSched(schedName) {
+    if ([null, undefined].indexOf(tHandle) !== -1) {
+        return (promiseWrapper(null));
+    }
+
+    var deferred = jQuery.Deferred();
+    if (insertError(arguments.callee, deferred)) {
+        return (deferred.promise());
+    }
+    deferred.resolve(StatusT.StatusOk);
+    /**
+    xcalarDeleteSchedTask(tHandle, schedName)
+    .then(deferred.resolve)
+    .fail(function(error) {
+        deferred.reject(thriftLog("XcalarDeleteSchedule", error));
+    });
+    */
+}
+
+// SchedInSec means number of seconds after schedule call is issued to run first
+// iteration of schedule
+// period means time in seconds between two runs
+// recurCount means number of times to run this schedule
+// type has only one possible parameter StQuery. This field is for future use
+// arg is of type executeRetinaInputT, which has fields: retinaName, numParameters,
+// and array of parameters
+// struct XcalarApiExecuteRetinaInputT {
+//  1: string retinaName
+//  2: i64 numParameters
+//  3: list<XcalarApiParameterT> parameters
+// }
+function XcalarCreateSched(schedName, schedInSec, period, recurCount, type, arg)
+{
+    if ([null, undefined].indexOf(tHandle) !== -1) {
+        return (promiseWrapper(null));
+    }
+
+    var deferred = jQuery.Deferred();
+    if (insertError(arguments.callee, deferred)) {
+        return (deferred.promise());
+    }
+    deferred.resolve(StatusT.StatusOk);
+    
+    /**
+    xcalarScheduleTask(tHandle, schedName, schedInSec, period, recurCount, type,
+                       arg)
+    .then(deferred.resolve)
+    .fail(function(error) {
+        deferred.reject(thriftLog("XcalarCreateSchedule", error));
+    });
+    */
+}
+
+// namePattern is just thge star based naming pattern that we use
+function XcalarListSchedules(namePattern) {
+    if ([null, undefined].indexOf(tHandle) !== -1) {
         return (promiseWrapper(null));
     }
 
@@ -1504,16 +1628,21 @@ function XcalarExecuteRetina(retName, params) {
         return (deferred.promise());
     }
 
-    var randomTableName = "table" + Math.floor(Math.random() * 1000000000 + 1);
-
-    xcalarExecuteRetina(tHandle, retName, randomTableName,
-                        retName + ".csv", params)
+    var temp = {};
+    temp.numSchedTask = 2;
+    temp.schedTaskInfo = [];
+    temp.schedTaskInfo.push({"name": "scheduleNameHere",
+                             "lastExecTime": 109049573, // Unix timestamp
+                             "lastExecStatus": StatusT.StatusOk // StatusT stuff
+                             });
+    deferred.resolve(temp)
+    /**
+    xcalarListSchedTask(tHandle, namePattern)
     .then(deferred.resolve)
     .fail(function(error) {
-        deferred.reject(thriftLog("XcalarExecuteRetina", error));
+        deferred.reject(thriftLog("XcalarCreateSchedule", error));
     });
-
-    return (deferred.promise());
+    */
 }
 
 function XcalarKeyLookup(key, scope) {
