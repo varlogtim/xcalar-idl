@@ -1366,9 +1366,16 @@ function XcalarListFiles(url) {
 }
 
 // XXX TODO THIS NEEDS TO HAVE A SQL.ADD
-// This tableArray refers to all the ending tables in the DFG.
+// This tableArray is an array of structs.
+// Each struct is of the form: numColumns, tableName, columnNames
+// TableName is of the form namedInput columnNames is just an array of strings
+// that correspond to the column names
 // If you have 2 DFs in your DFG, put the last table of both DFs into the
 // tableArray
+// When you call makeRetina, we duplicate the DAG, append an export DAG node,
+// and give it all new DagNodeIds. So when you call updateRetina, make sure to
+// pass in the DagNodeIds that are part of this new Retina instead of the
+// original DAG
 function XcalarMakeRetina(retName, tableArray) {
     if (retName === "" || retName == null ||
         tableName === "" || tableName == null ||
