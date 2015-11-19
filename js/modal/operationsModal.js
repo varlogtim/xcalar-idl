@@ -420,10 +420,11 @@ window.OperationsModal = (function($, OperationsModal) {
 
     function opModalKeyListener(event) {
         if (event.which === keyCode.Enter ||
-            event.which === keyCode.Escape) {
-                // event.preventDefault();
-                event.stopPropagation();
-                unminimizeTable();
+            event.which === keyCode.Escape)
+        {
+            // event.preventDefault();
+            event.stopPropagation();
+            unminimizeTable();
         }
     }
 
@@ -1093,7 +1094,6 @@ window.OperationsModal = (function($, OperationsModal) {
 
         // get colType first
         var existingTypes = {};
-
         $argInputs.each(function() {
             var $input = $(this);
             var arg    = $input.val().trim();
@@ -1120,6 +1120,7 @@ window.OperationsModal = (function($, OperationsModal) {
             }
         });
 
+        var errorText;
         // XXX this part may still have potential bugs
         $argInputs.each(function() {
             var $input = $(this);
@@ -1136,7 +1137,7 @@ window.OperationsModal = (function($, OperationsModal) {
             }
 
             typeid = $input.data('typeid');
-            var text;
+
             // col name field, do not add quote
             if ($input.closest(".dropDownList").hasClass("colNameSection")) {
                 arg = arg.replace(/\$/g, '');
@@ -1170,10 +1171,10 @@ window.OperationsModal = (function($, OperationsModal) {
                         if (colTypes[i] != null) {
                             if (types.indexOf(colTypes[i]) < 0) {
                                 isPassing = false;
-                                text = "Invalid type for the field," +
+                                errorText = "Invalid type for the field," +
                                             " wanted: " + types.join("/") +
                                             ", but provided: " + colTypes[i];
-                                StatusBox.show(text, $input);
+                                StatusBox.show(errorText, $input);
                                 return (false);
                             }
                         } else {
@@ -1186,10 +1187,10 @@ window.OperationsModal = (function($, OperationsModal) {
 
                 if (checkRes != null) {
                     isPassing = false;
-                    text = "Invalid type for the field," +
+                    errorText = "Invalid type for the field," +
                                 " wanted: " + checkRes.validType.join("/") +
                                 ", but provided: " + checkRes.currentType;
-                    StatusBox.show(text, $input);
+                    StatusBox.show(errorText, $input);
                     return (false);
                 }
                 arg = formatArgumentInput(arg, typeid, existingTypes);
@@ -1229,7 +1230,11 @@ window.OperationsModal = (function($, OperationsModal) {
         if (isPassing) {
             $operationsModal.find('.close').trigger('click', {slow: true});
         } else {
-            // show some kinda error message
+            // XXX if this error message is too general,
+            // can show different msg in aggreagte(),
+            // filter(), groupBy() and map()
+            errorText = "Invalid input";
+            StatusBox.show(errorText, $argInputs.eq(-1));
             modalHelper.enableSubmit();
         }
     }
@@ -1690,7 +1695,7 @@ window.OperationsModal = (function($, OperationsModal) {
         if ($list.length !== 0) {
             var $input = $list.siblings('input');
             switch (event.which) {
-                case (keyCode.Down): 
+                case (keyCode.Down):
                 case (keyCode.Up):
                     listHighlight($input, event.which, event);
                     break;
@@ -1704,7 +1709,7 @@ window.OperationsModal = (function($, OperationsModal) {
                         $input.trigger(fakeEvent.enter);
                     }
                     break;
-                default: 
+                default:
                     break;
             }
         }
