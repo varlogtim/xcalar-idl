@@ -308,6 +308,18 @@ window.ColManager = (function($, ColManager) {
         newCol.func.args = [escapedName];
         newCol.userStr = usrStr;
 
+        var sqlOptions = {
+            "operation"     : SQLOps.PullCol,
+            "tableName"     : tableName,
+            "tableId"       : tableId,
+            "siblColName"   : siblColName,
+            "newColName"    : newColName,
+            "colNum"        : colNum,
+            "direction"     : direction,
+            "nameInfo"      : nameInfo,
+            "pullColOptions": pullColOptions
+        };
+
         ColManager.execCol(newCol, tableId)
         .then(function() {
             updateTableHeader(tableId);
@@ -322,21 +334,13 @@ window.ColManager = (function($, ColManager) {
                         " .editableHead").focus();
 
             // add sql
-            SQL.add("Pull Column", {
-                "operation"     : SQLOps.PullCol,
-                "tableName"     : tableName,
-                "tableId"       : tableId,
-                "siblColName"   : siblColName,
-                "newColName"    : newColName,
-                "colNum"        : colNum,
-                "direction"     : direction,
-                "nameInfo"      : nameInfo,
-                "pullColOptions": pullColOptions
-            });
-
+            SQL.add("Pull Column", sqlOptions);
             deferred.resolve();
         })
-        .fail(deferred.reject);
+        .fail(function(error) {
+            SQL.errorLog("Pull Column", sqlOptions, null, error);
+            deferred.reject(error);
+        });
 
         return (deferred.promise());
     };
@@ -390,6 +394,13 @@ window.ColManager = (function($, ColManager) {
         xcHelper.lockTable(tableId);
         WSManager.addTable(finalTableId);
 
+        var sqlOptions = {
+            "operation"   : SQLOps.ChangeType,
+            "tableName"   : tableName,
+            "tableId"     : tableId,
+            "newTableName": finalTable,
+            "colTypeInfos": colTypeInfos
+        };
         var queryName = xcHelper.randName("changeType");
 
         XcalarQueryWithCheck(queryName, query)
@@ -417,14 +428,7 @@ window.ColManager = (function($, ColManager) {
             xcHelper.unlockTable(tableId, true);
             StatusMessage.success(msgId, false, finalTableId);
 
-            SQL.add("Change Data Type", {
-                "operation"   : SQLOps.ChangeType,
-                "tableName"   : tableName,
-                "tableId"     : tableId,
-                "newTableName": finalTable,
-                "colTypeInfos": colTypeInfos
-            }, query);
-
+            SQL.add("Change Data Type", sqlOptions, query);
             commitToStorage();
             deferred.resolve();
         })
@@ -434,6 +438,7 @@ window.ColManager = (function($, ColManager) {
 
             Alert.error("Change Data Type Fails", error);
             StatusMessage.fail(StatusMessageTStr.SplitColumnFailed, msgId);
+            SQL.errorLog("Change Data Type", sqlOptions, query, error);
             deferred.reject(error);
         });
 

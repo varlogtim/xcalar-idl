@@ -351,7 +351,9 @@ function XcalarLoad(url, format, datasetName, fieldDelim, recordDelim,
         deferred.resolve(ret1);
     })
     .fail(function(error1, error2) {
-        deferred.reject(thriftLog("XcalarLoad", error1, error2));
+        var thriftError = thriftLog("XcalarLoad", error1, error2);
+        SQL.errorLog("Load Dataset", sqlOptions, null, thriftError);
+        deferred.reject(thriftError);
     });
 
     return (deferred.promise());
@@ -384,7 +386,9 @@ function XcalarAddODBCExportTarget(targetName, connStr) {
         deferred.resolve(ret1);
     })
     .fail(function(error) {
-        deferred.reject(thriftLog("XcalarAddExportTarget", error));
+        var thriftError = thriftLog("XcalarAddExportTarget", error);
+        // SQL.errorLog("Add Export Target", sqlOptions, null, thriftError);
+        deferred.reject(thriftError);
     });
 
     return (deferred.promise());
@@ -417,7 +421,9 @@ function XcalarAddLocalFSExportTarget(targetName, path) {
         deferred.resolve(ret1);
     })
     .fail(function(error) {
-        deferred.reject(thriftLog("XcalarAddExportTarget", error));
+        var thriftError = thriftLog("XcalarAddExportTarget", error);
+        // SQL.errorLog("Add Export Target", sqlOptions, null, thriftError);
+        deferred.reject(thriftError);
     });
 
     return (deferred.promise());
@@ -444,7 +450,9 @@ function XcalarListExportTargets(typePattern, namePattern) {
         deferred.resolve(ret1);
     })
     .fail(function(error) {
-        deferred.reject(thriftLog("XcalarListExportTargets", error));
+        var thriftError = thriftLog("XcalarListExportTargets", error);
+        // SQL.errorLog("Add Export Target", sqlOptions, null, thriftError);
+        deferred.reject(thriftError);
     });
 
     return (deferred.promise());
@@ -515,7 +523,9 @@ function XcalarExport(tableName, exportName, targetName, numColumns, columns, sq
             deferred.resolve(ret1);
         })
         .fail(function(error) {
-            deferred.reject(thriftLog("XcalarExport", error));
+            var thriftError = thriftLog("XcalarExport", error);
+            // SQL.errorLog("Add Export Target", sqlOptions, null, thriftError);
+            deferred.reject(thriftError);
         });
     });
     return (deferred.promise());
@@ -543,7 +553,9 @@ function XcalarDestroyDataset(dsName, sqlOptions) {
         deferred.resolve(ret1);
     })
     .fail(function(error1, error2) {
-        deferred.reject(thriftLog("XcalarDestroyDataset", error1, error2));
+        var thriftError = thriftLog("XcalarDestroyDataset", error1, error2);
+        SQL.errorLog("Destroy Dataset", sqlOptions, null, thriftError);
+        deferred.reject(thriftError);
     });
 
     return (deferred.promise());
@@ -573,15 +585,16 @@ function XcalarIndexFromDataset(datasetName, key, tablename, sqlOptions) {
         SQL.add("Index Dataset", sqlOptions, ret2);
         deferred.resolve(ret1);
     })
-    .fail(function(error) {
-        deferred.reject(thriftLog("XcalarIndexFromDataset", error));
+    .fail(function(error1, error2) {
+        var thriftError = thriftLog("XcalarIndexFromDataset", error1, error2);
+        SQL.errorLog("Index Dataset", sqlOptions, null, thriftError);
+        deferred.reject(thriftError);
     });
 
     return (deferred.promise());
 }
 
-function XcalarIndexFromTable(srcTablename, key, tablename, ordering,
-                              sqlOptions) {
+function XcalarIndexFromTable(srcTablename, key, tablename, ordering, sqlOptions) {
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return (promiseWrapper(null));
     }
@@ -610,8 +623,14 @@ function XcalarIndexFromTable(srcTablename, key, tablename, ordering,
             }
             deferred.resolve(ret1);
         })
-        .fail(function(error) {
-            deferred.reject(thriftLog("XcalarIndexFromTable", error));
+        .fail(function(error1, error2) {
+            var thriftError = thriftLog("XcalarIndexFromTable", error1, error2);
+            if (ordering !== XcalarOrderingT.XcalarOrderingUnordered) {
+                SQL.errorLog("Sort Table", sqlOptions, null, thriftError);
+            } else {
+                SQL.errorLog("Index Table", sqlOptions, null, thriftError);
+            }
+            deferred.reject(thriftError);
         });
     });
     return (deferred.promise());
@@ -635,8 +654,10 @@ function XcalarDeleteTable(tableName, sqlOptions) {
         SQL.add("Delete Table", sqlOptions, ret2);
         deferred.resolve(ret1);
     })
-    .fail(function(error) {
-        deferred.reject(thriftLog("XcalarDeleteTable", error));
+    .fail(function(error1, error2) {
+        var thriftError = thriftLog("XcalarDeleteTable", error1, error2);
+        SQL.errorLog("Delete Table", sqlOptions, null, thriftError);
+        deferred.reject(thriftError);
     });
 
     return (deferred.promise()); */
@@ -660,8 +681,10 @@ function XcalarRenameTable(oldTableName, newTableName, sqlOptions) {
         SQL.add("Rename Table", sqlOptions, ret2);
         deferred.resolve(ret1);
     })
-    .fail(function(error) {
-        deferred.reject(thriftLog("XcalarRenameTable", error));
+    .fail(function(error1, error2) {
+        var thriftError = thriftLog("XcalarRenameTable", error1, error2);
+        SQL.errorLog("Rename Table", sqlOptions, null, thriftError);
+        deferred.reject(thriftError);
     });
 
     return (deferred.promise());
@@ -1025,8 +1048,7 @@ function generateFilterString(operator, value1, value2, value3) {
     return (filterStr);
 }
 
-function XcalarFilter(evalStr, srcTablename, dstTablename,
-                            sqlOptions) {
+function XcalarFilter(evalStr, srcTablename, dstTablename, sqlOptions) {
     if (tHandle == null) {
         return (promiseWrapper(null));
     }
@@ -1058,16 +1080,17 @@ function XcalarFilter(evalStr, srcTablename, dstTablename,
             SQL.add("Filter", sqlOptions, ret2);
             deferred.resolve(ret1);
         })
-        .fail(function(error) {
-            deferred.reject(thriftLog("XcalarFilter", error));
+        .fail(function(error1, error2) {
+            var thriftError = thriftLog("XcalarFilter", error1, error2);
+            SQL.errorLog("Filter", sqlOptions, null, thriftError);
+            deferred.reject(thriftError);
         });
     });
 
     return (deferred.promise());
 }
 
-function XcalarMap(newFieldName, evalStr, srcTablename, dstTablename,
-                   sqlOptions) {
+function XcalarMap(newFieldName, evalStr, srcTablename, dstTablename, sqlOptions) {
     if (tHandle == null) {
         return (promiseWrapper(null));
     }
@@ -1095,8 +1118,10 @@ function XcalarMap(newFieldName, evalStr, srcTablename, dstTablename,
             SQL.add("Map", sqlOptions, ret2);
             deferred.resolve(ret1);
         })
-        .fail(function(error) {
-            deferred.reject(thriftLog("XcalarMap", error));
+        .fail(function(error1, error2) {
+            var thriftError = thriftLog("XcalarMap", error1, error2);
+            SQL.errorLog("Map", sqlOptions, null, thriftError);
+            deferred.reject(thriftError);
         });
     });
     return (deferred.promise());
@@ -1180,8 +1205,10 @@ function XcalarAggregateHelper(srcTablename, evalStr, sqlOptions) {
             SQL.add("Aggregate", sqlOptions, ret2);
             deferred.resolve(ret1, dstDagName);
         })
-        .fail(function(error) {
-            deferred.reject(thriftLog("XcalarAggregate", error));
+        .fail(function(error1, error2) {
+            var thriftError = thriftLog("XcalarAggregate", error1, error2);
+            SQL.errorLog("Aggregate", sqlOptions, null, thriftError);
+            deferred.reject(thriftError);
         });
     });
 
@@ -1210,8 +1237,10 @@ function XcalarJoin(left, right, dst, joinType, sqlOptions) {
             SQL.add("Join", sqlOptions, ret2);
             deferred.resolve(ret1);
         })
-        .fail(function(error) {
-            deferred.reject(thriftLog("XcalarJoin", error));
+        .fail(function(error1, error2) {
+            var thriftError = thriftLog("XcalarJoin", error1, error2);
+            SQL.errorLog("Join", sqlOptions, null, thriftError);
+            deferred.reject(thriftError);
         });
     });
 
@@ -1246,8 +1275,10 @@ function XcalarGroupBy(operator, newColName, oldColName, tableName,
             SQL.add("Group By", sqlOptions, ret2);
             deferred.resolve(ret1);
         })
-        .fail(function(error) {
-            deferred.reject(thriftLog("XcalarGroupBy", error));
+        .fail(function(error1, error2) {
+            var thriftError = thriftLog("XcalarGroupBy", error1, error2);
+            SQL.errorLog("Group By", sqlOptions, null, thriftError);
+            deferred.reject(thriftError);
         });
     });
     return (deferred.promise());

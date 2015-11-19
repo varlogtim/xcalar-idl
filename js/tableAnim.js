@@ -2377,7 +2377,6 @@ function addColMenuActions() {
         });
 
         SQL.add("Add New Column", sqlOptions);
-        commitToStorage();
     });
 
     $colMenu.on('mouseup', '.deleteColumn', function(event) {

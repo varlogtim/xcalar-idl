@@ -331,6 +331,12 @@ window.RightSideBar = (function($, RightSideBar) {
             $li.find(".addTableBtn.selected")
                     .removeClass("selected");
             failures.push(tableName + ": {" + error.error + "}");
+            SQL.errorLog("RightSideBar Table Actions", {
+                "operation": SQLOps.TableBulkActions,
+                "action"   : action,
+                "tableName": tableName,
+                "tableType": tableType
+            }, null, error);
         }
     };
 

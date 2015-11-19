@@ -128,7 +128,8 @@ var AggrOp = {
 };
 
 var SQLType = {
-    Fail: "fail handler"
+    Fail: "fail handler",
+    Error: "error"
 };
 
 var SQLOps = {

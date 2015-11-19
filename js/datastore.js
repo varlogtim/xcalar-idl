@@ -2962,7 +2962,6 @@ window.DS = (function ($, DS) {
         // forcus on folder's label for renaming
         DS.getGrid(ds.id).click()
                     .find('.label').focus();
-        commitToStorage();
     };
 
     // Create dsObj for new dataset/folder
@@ -3955,7 +3954,6 @@ function dsDropIn($grid, $target) {
             "targetDSId"  : targetId,
             "targetDSName": targetDS.name
         });
-        commitToStorage();
     }
 }
 
@@ -4000,7 +3998,6 @@ function dsInsert($grid, $sibling, isBefore) {
             "siblingDSName": siblingDs.name,
             "isBefore"     : isBefore
         });
-        commitToStorage();
     }
 }
 
@@ -4024,7 +4021,6 @@ function dsBack($grid) {
             "newFolderId"  : grandPaId,
             "newFolderName": grandPaDs.name
         });
-        commitToStorage();
     }
 }
 

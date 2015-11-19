@@ -16,6 +16,7 @@ window.SQL = (function($, SQL) {
             "options": options,
             "cli"    : cli
         };
+
         history.push(sql);
 
         sqlToCommit += JSON.stringify(sql) + ",";
@@ -26,6 +27,29 @@ window.SQL = (function($, SQL) {
         SQL.scrollToBottom($textarea);
         SQL.scrollToBottom($machineTextarea);
     };
+
+    SQL.errorLog = function(title, options, cli, error) {
+        options = options || {};
+        if ($.isEmptyObject(options)) {
+            console.warn("Options for", title, "is empty!");
+            return;
+        }
+
+        var sql = {
+            "title"  : title,
+            "options": options,
+            "sqlType": SQLType.Error,
+            "error"  : error
+        };
+
+        if (cli != null) {
+            sql.cli = cli;
+        }
+
+        history.push(sql);
+
+        sqlToCommit += JSON.stringify(sql) + ",";
+    }
 
     SQL.commit = function() {
         var deferred = jQuery.Deferred();

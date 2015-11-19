@@ -362,9 +362,13 @@ window.Replay = (function($, Replay) {
 
     function sqlFilter(sql) {
         var options = sql.options || {};
+        var sqlType = options.sqlType;
+
+        if (sqlType === SQLType.Fail || sqlType === SQLType.Error) {
+            return false;
+        }
 
         switch (options.operation) {
-            case SQLType.Fail:
             case SQLOps.JoinMap:
             case SQLOps.GroupbyMap:
             case SQLOps.CheckIndex:
