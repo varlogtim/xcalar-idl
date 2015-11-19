@@ -1003,7 +1003,7 @@ window.OperationsModal = (function($, OperationsModal) {
                 return (true);
             }
 
-            if (!$input.closest('dropDownList').hasClass('.colNameSection')) {
+            if (!$input.closest('.dropDownList').hasClass('colNameSection')) {
                 // if map, some args can be blank
                 if (operatorName === "map") {
                     if ($categoryInput.val() === "user-defined functions") {
@@ -1204,6 +1204,28 @@ window.OperationsModal = (function($, OperationsModal) {
             return;
         }
 
+        // name duplication check
+        var $nameInput;
+        switch(operatorName) {
+            case ('map'):
+                $nameInput = $argInputs.eq(args.length - 1);
+                isPassing = !ColManager.checkColDup($nameInput, null,
+                                                tableId, true);
+                break;
+            case ('group by'):
+                // check new col name
+                $nameInput = $argInputs.eq(2);
+                isPassing = !ColManager.checkColDup($nameInput, null, tableId);
+                break;
+            default:
+                break;
+        }
+
+        if (!isPassing) {
+            modalHelper.enableSubmit();
+            return;
+        }
+
         var func = $functionInput.val().trim();
         var funcLower = func.substring(0, 1).toLowerCase() + func.substring(1);
         var funcCapitalized = func.substr(0, 1).toUpperCase() + func.substr(1);
@@ -1312,14 +1334,8 @@ window.OperationsModal = (function($, OperationsModal) {
                 return (false);
             }
         }
-        // check new col name
-        var newColName  = args[2];
-        var isDuplicate = ColManager.checkColDup($argInputs.eq(2), null,
-                                                 tableId);
-        if (isDuplicate) {
-            return (false);
-        }
 
+        var newColName  = args[2];
         var isIncSample = $argInputs.eq(3).is(':checked');
 
         xcFunction.groupBy(operator, tableId, indexedColNames, groupbyColName,
@@ -1332,14 +1348,6 @@ window.OperationsModal = (function($, OperationsModal) {
         var $nameInput = $operationsModal.find('.argument')
                                            .eq(numArgs - 1);
         var newColName = args.splice(numArgs - 1, 1)[0];
-
-        var parseCol    = true;
-        var isDuplicate = ColManager.checkColDup($nameInput, null,
-                                                tableId, parseCol);
-        if (isDuplicate) {
-            return (false);
-        }
-
         var mapStr = formulateMapString(operator, args);
 
         xcFunction.map(colNum, tableId, newColName, mapStr);

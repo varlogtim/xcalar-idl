@@ -1545,14 +1545,14 @@ function addColListeners($table, tableId) {
         var $input = $(event.target);
         if (event.which === keyCode.Enter && !$input.prop("readonly")) {
             var colName = $input.val().trim();
+            var colNum = xcHelper.parseColNum($input);
 
             if (colName === "" ||
-                ColManager.checkColDup($input, null, tableId))
+                ColManager.checkColDup($input, null, tableId, false, colNum))
             {
                 return false;
             }
 
-            var colNum = xcHelper.parseColNum($input);
             ColManager.renameCol(colNum, tableId, colName);
         }
     });
@@ -2402,14 +2402,14 @@ function addColMenuActions() {
         if (event.which === keyCode.Enter) {
             var $input  = $(this);
             var colName = $input.val().trim();
+            var colNum  = $colMenu.data('colNum');
 
             if (colName === "" ||
-                ColManager.checkColDup($input, null, tableId))
+                ColManager.checkColDup($input, null, tableId, false, colNum))
             {
                 return false;
             }
 
-            var colNum = $colMenu.data('colNum');
             tableId = $colMenu.data('tableId');
 
             ColManager.renameCol(colNum, tableId, colName);

@@ -893,7 +893,7 @@ window.ColManager = (function($, ColManager) {
         return (deferred.promise());
     };
 
-    ColManager.checkColDup = function ($input, $inputs, tableId, parseCol) {
+    ColManager.checkColDup = function ($input, $inputs, tableId, parseCol, colNum) {
         // $inputs checks the names of $inputs, tableId is used to check
         // back column names. You do not need both
         var name        = $input.val().trim();
@@ -930,15 +930,19 @@ window.ColManager = (function($, ColManager) {
             var tableCols = gTables[tableId].tableCols;
             var numCols = tableCols.length;
             for (var i = 0; i < numCols; i++) {
-                if (tableCols[i].func.args) {
-                    var backName = tableCols[i].func.args[0];
-                    if (name === backName) {
-                        title = "A column is already using this name, " +
+                if (colNum != null && colNum - 1 === i) {
+                    continue;
+                }
+
+                // check both backend name and front name
+                if (tableCols[i].name === name ||
+                    (tableCols[i].func.args && tableCols[i].func.args[0] === name))
+                {
+                    title = "A column is already using this name, " +
                                 "please use another name.";
-                        isDuplicate = true;
-                        break;
-                    }
-                }   
+                    isDuplicate = true;
+                    break;
+                }
             }
         }
         
