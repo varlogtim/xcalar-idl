@@ -223,7 +223,7 @@ window.DataFlowModal = (function($, DataFlowModal) {
         var groupName = $newGroupNameInput.val().trim();
         var isValid;
         // when in first step
-        if ($confirmBtn.hasClass("next")) {
+        if (!$dfgModal.hasClass("exportMode")) {
 
             if ($radios.eq(0).hasClass('checked')) {
                 isValid = xcHelper.validate([
