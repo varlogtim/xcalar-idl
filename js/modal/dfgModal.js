@@ -1,12 +1,15 @@
 window.DataFlowModal = (function($, DataFlowModal) {
     var $dfgModal = $('#dataFlowModal');
     var $dfPreviews = $('#dataFlowPreviews');
+    var $dfExport = $("#dataFlowExport");
+    var $dfTable  = $("#dataFlowTable");
     var $modalBackground = $("#modalBackground");
     var $modalMain = $dfgModal.find('.modalMain');
     var $sideListSection = $dfgModal.find('.sideListSection');
     var $previewSection = $dfgModal.find('.previewSection');
     var $radios = $dfgModal.find('.radio');
     var $newGroupNameInput = $('#newGroupNameInput');
+    var $confirmBtn = $("#dataFlowModalConfirm");
     var tableName;
 
     var minHeight = 400;
@@ -81,11 +84,12 @@ window.DataFlowModal = (function($, DataFlowModal) {
 
         $dfgModal.show();
         setupDFGImage($dagWrap);
+        setupDFGTable();
 
         $newGroupNameInput.focus();
     };
 
-    function saveDataFlow(groupName, isNewGroup) {
+    function saveDataFlow(groupName, columns) {
         var tables = [];
         var operations = [];
         var table;
@@ -135,7 +139,11 @@ window.DataFlowModal = (function($, DataFlowModal) {
         };
         var existingGroups = DFG.getAllGroups();
         var group = existingGroups[groupName] || {dataFlows: [], schedules: []};
-        group.dataFlows.push({name: tableName, canvasInfo: canvasInfo});
+        group.dataFlows.push({
+            "name"      : tableName,
+            "columns"   : columns,
+            "canvasInfo": canvasInfo
+        });
         DFG.setGroup(groupName, group);
     }
 
@@ -163,6 +171,10 @@ window.DataFlowModal = (function($, DataFlowModal) {
             }
         });
 
+        $dfgModal.on("mouseenter", ".tooltipOverflow", function(){
+            xcHelper.autoTooltip(this);
+        });
+
         $modalMain.find(".listSection").on("click", ".listBox", function() {
             var $groupLi = $(this);
             if ($groupLi.parent().hasClass('unavailable')) {
@@ -172,47 +184,104 @@ window.DataFlowModal = (function($, DataFlowModal) {
             $modalMain.find('.listBox').removeClass('selected');
             $groupLi.addClass('selected');
         });
+
+        $dfTable.on("click", "th", function() {
+            var $th = $(this);
+            var colNum = $th.data("col");
+            if ($th.hasClass("colSelected")) {
+                // deselect column
+                $dfTable.find(".col" + colNum).removeClass("colSelected");
+            } else {
+                $dfTable.find(".col" + colNum).addClass("colSelected");
+            }
+        });
+    }
+
+    function exportStep() {
+        $dfgModal.addClass("exportMode");
+        $confirmBtn.removeClass("next").text("Save");
+        $previewSection.find(".titleSection .text")
+                        .text("Choose columns to export");
+        $dfPreviews.hide();
+        $dfExport.show();
     }
 
     function submitForm() {
         var groupName = $newGroupNameInput.val().trim();
         var isValid;
-        var newGroup = true;
-        if ($radios.eq(0).hasClass('checked')) {
-            
-            isValid = xcHelper.validate([
-                {
-                    "$selector": $newGroupNameInput,
-                    "text"     : "Please fill out this field.",
-                    "check"    : function() {
-                        return (groupName === "");
+        // when in first step
+        if ($confirmBtn.hasClass("next")) {
+
+            if ($radios.eq(0).hasClass('checked')) {
+                isValid = xcHelper.validate([
+                    {
+                        "$selector": $newGroupNameInput,
+                        "text"     : "Please fill out this field.",
+                        "check"    : function() {
+                            return (groupName === "");
+                        }
                     }
-                }
-            ]);
-        } else {
-            isValid = xcHelper.validate([
-                {
-                    "$selector": $sideListSection.find('.listBox').eq(0),
-                    "text"     : "No group selected.",
-                    "check"    : function() {
-                        return ($modalMain.find('.listBox.selected')
-                                          .length === 0);
+                ]);
+            } else {
+                isValid = xcHelper.validate([
+                    {
+                        "$selector": $sideListSection.find('.listBox').eq(0),
+                        "text"     : "No group selected.",
+                        "check"    : function() {
+                            return ($modalMain.find('.listBox.selected')
+                                              .length === 0);
+                        }
                     }
-                }
-            ]);
-        }
-        
-        if (!isValid) {
+                ]);
+            }
+
+            if (!isValid) {
+                return;
+            }
+
+            exportStep();
             return;
         }
+
+        var $ths = $dfTable.find("th.colSelected");
+        if ($ths.length === 0) {
+            var $tablePadding = $dfExport.find(".tablePadding");
+            $tablePadding.tooltip({
+                "title"    : "Please Selected Columns you want to export",
+                "placement": "top",
+                "animation": "true",
+                "container": "#dataFlowModal",
+                "trigger"  : "manual",
+                "template" : '<div class="tooltip error" role="tooltip">' +
+                                    '<div class="tooltip-arrow"></div>' +
+                                    '<div class="tooltip-inner"></div>' +
+                                '</div>'
+            });
+
+            $tablePadding.tooltip("show");
+            setTimeout(function() {
+                $tablePadding.tooltip("destroy");
+            }, 1000);
+            return;
+        }
+
+        var columns = [];
+        var tableId = xcHelper.getTableId(tableName);
+        var tableCols = gTables[tableId].tableCols;
+        $ths.each(function() {
+            var colNum = Number($(this).data("col"));
+            var colName = tableCols[colNum - 1].func.args[0];
+            columns.push(colName);
+        });
+
+
         if (groupName === "") {
-            newGroup = false;
             groupName = $sideListSection.find('.listBox.selected')
                                         .find('.label')
                                         .text();
         }
         
-        saveDataFlow(groupName, newGroup);
+        saveDataFlow(groupName, columns);
 
         modalHelper.submit();
         closeDFGModal();
@@ -252,10 +321,16 @@ window.DataFlowModal = (function($, DataFlowModal) {
     }
 
     function resetDFGModal() {
-        $dfgModal.find('.radioWrap').eq(0).click();
+        $dfgModal.removeClass("exportMode")
+                .find('.radioWrap').eq(0).click();
         $modalMain.find('.listBox').removeClass('selected');
         $modalMain.find('.dataFlowGroup').removeClass('unavailable');
         $newGroupNameInput.val("");
+        $dfExport.hide();
+        $dfPreviews.show();
+        $dfTable.empty();
+        $previewSection.find(".titleSection .text").text("Preview");
+        $confirmBtn.text("Next").addClass("next");
         $(document).off('keypress.dfgModal');
     }
 
@@ -284,6 +359,50 @@ window.DataFlowModal = (function($, DataFlowModal) {
             html += '</ul></div>';
         }
         $sideListSection.find('.listSection').html(html);
+    }
+
+    function setupDFGTable() {
+        var tableId = xcHelper.getTableId(tableName);
+        var tableCols = gTables[tableId].tableCols;
+        var html = '<thead>' +
+                        '<tr>';
+
+        for (var i = 0, len = tableCols.length; i < len; i++) {
+            var colName = tableCols[i].name;
+
+
+            if (colName === "DATA") {
+                continue;
+            }
+
+            var type    = tableCols[i].type;
+            var colNum  = i + 1;
+            var thClass = "col" + colNum + " type-" + type;
+
+            html += '<th class="' + thClass + '" data-col="' + colNum + '">' +
+                        '<div class="header">' +
+                            '<div title="' + colName +
+                            '" data-toggle="tooltip" data-placement="top" ' +
+                            'data-container="body" ' +
+                            'class="columnTab textOverflow tooltipOverflow">' +
+                                colName +
+                            '</div>' +
+                        '</div>' +
+                    '</th>';
+        }
+
+        html += '</tr></thead>';
+
+        var $tbody = $("#xcTable-" + tableId).find("tbody").clone(true);
+        $tbody.find("tr:gt(17)").remove();
+        $tbody.find(".col0").remove();
+        $tbody.find(".jsonElement").remove();
+        $tbody.find(".indexedColumn").removeClass('indexedColumn');
+        $tbody.find(".addedBarTextWrap.clickable").removeClass("clickable");
+
+        html += $tbody.html();
+
+        $dfTable.html(html);
     }
 
     return (DataFlowModal);
