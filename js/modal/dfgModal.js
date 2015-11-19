@@ -107,8 +107,11 @@ window.DataFlowModal = (function($, DataFlowModal) {
                 "type"    : $dagTable.data('type') || 'table',
                 "left"    : parseInt($dagTable.css('left')),
                 "top"     : parseInt($dagTable.css('top')),
-                "title"   : $dagTable.find('.tableTitle').text()
+                "title"   : $dagTable.find('.tableTitle').text(),
             };
+            if ($dagTable.hasClass('dataStore')) {
+                table.url = $dagTable.data('url');
+            }
             tables.push(table);
         });
 
@@ -122,6 +125,8 @@ window.DataFlowModal = (function($, DataFlowModal) {
             operation = {
                 "tooltip": tooltip,
                 "type"   : $operation.data('type'),
+                "column" : $operation.data('column'),
+                "info"   : $operation.data('info'),
                 "parents": $operation.find('.parentsTitle').text(),
                 "left"   : parseInt($operation.css('left')),
                 "top"    : parseInt($operation.css('top')),

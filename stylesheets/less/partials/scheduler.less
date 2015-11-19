@@ -709,16 +709,146 @@
         .image("/images/dag-background.png", right, top, repeat);
 
         .midContentHeader {
-            height: 35px;
+            height: 55px;
+            overflow: visible;
+
+            .leftSection {
+                float: left;
+                height: 48px;
+                .textOverflowOneLine;
+            }
+            .retTabSection {
+                .position(relative, @top: -5px);
+                display: inline-block;
+                float: right;
+
+                input:focus {
+                    outline: none;
+                }
+                .retTab {
+                    .position(relative, @top: 14px);
+                    .size(@width: 105px, @height: 30px);
+                    display: inline-block;
+                    float: right;
+                    margin-right: 8px;
+
+                    .tabWrap {
+                        .position(relative);
+                        .size(@width: 100%, @height: 30px);
+                        line-height: 30px;
+                        .rounded;
+                        border: 1px solid #979797;
+                        background: rgba(219, 219, 219, 1);
+                        cursor: pointer;
+
+                        .retTitle {
+                            .size(@width: ~"calc(100% - 20px)");
+                            display: inline-block;
+                            .font(@weight: bold, @size: 14px);
+                            float: left;
+                            background: transparent;
+                            text-align: left;
+                            padding-left: 10px;
+                            color: #989898;
+                            cursor: pointer;
+                        }
+
+                        .caret {
+                            display: inline-block;
+                            .size(@width: 20px, @height: 30px);
+                            cursor: pointer;
+                            .icon {
+                                .background("/images/retina/retDown.png", 13px, 8px);
+                            }
+                        }
+                    }
+
+                    &.unconfirmed .tabWrap{
+                        opacity: 0.7;
+                        .retTitle {
+                            cursor: text;
+                        }
+                        .caret {
+                            cursor: default;
+                        }
+                    }
+
+                    &.active {
+                        .tabWrap {
+                            background: #c3c3c3;
+                            .rounded(3px 3px 0 0);
+                            border-bottom: none;
+                            .retTitle {
+                                color: #4d4d4d;
+                            }
+                            .caret .icon {
+                                background-image: url(/images/retina/retDownActive.png);
+                            }
+                        }
+                        .retPopUp {
+                            display: block;
+                            z-index: 10;
+                        }
+                    }
+
+                    .retPopUp {
+                        .position(absolute, @top: 30px, @left: -335px);
+                        .size(@width: 440px, @height: 289px);
+                        display: none;
+                        background: @color-white;
+                        .rounded(0 0 3px 3px);
+                        box-shadow: 0px 3px 6px 0 rgba(0, 0, 0, 0.3);
+
+                        .divider {
+                            .size(@width: 100%, @height: 4px);
+                            background: #979797;
+                        }
+                        .inputSection {
+                            .size(@width: 100%, @height: 45px);
+                            background: #eaeaea;
+                            box-shadow: 0px 3px 3px 0 rgba(0, 0, 0, 0.4);
+                            padding: 7px 10px;
+                            .newParam {
+                                .size(@width: 194px);
+                                display: inline-block;
+                                float: left;
+                                padding-left: 9px;
+                                box-shadow: inset -2px 0px 2px 0 rgba(0, 0, 0, 0.3);
+                                .font(@weight: bold, @size: 13px);
+                                color: #cccccc;
+                                .input-placeholder(#cccccc);
+                            }
+                            .addParam {
+                                .size(@width: 214px, @height: 30px);
+                                display: inline-block;
+                                margin-left: 12px;
+                                .rounded;
+                                box-shadow: 1px 1px 4px 0 rgba(0, 0, 0, 0.8);
+                                padding-top: 5px;
+                                .icon {
+                                    float: left;
+                                    margin: 0px 8px 0 6px;
+                                    .background("/images/retina/retNewParam.png", 24px, 23px);
+                                }
+                                .label {
+                                    .size(@width: 170px);
+                                    .font(@weight: bold, @size: 12px);
+                                    color: @color-text-cyan;
+                                }
+                            }
+                        }
+
+                        .parameterTable;
+                    }
+                }
+        }
 
             h2 {
-                display: inline-block;
-                float: left;
+                display: block;
             }
 
             .schedulesList {
                 display: inline-block;
-                float: right;
                 line-height: 26px;
                 margin-right: 40px;
                 li {
@@ -736,8 +866,16 @@
             height: ~"calc(100% - 35px)";
             .dagImage {
                 margin-bottom: 4px; // otherwise theres weird vertical scrolling
-                .dagTable, .actionTypeWrap {
-                    cursor: auto;
+            }
+            .dagTable {
+                cursor: auto;
+                &.dataStore {
+                    cursor: pointer;
+                }
+            }
+            .actionType {
+                &.filter {
+                    cursor: pointer;
                 }
             }
             canvas {

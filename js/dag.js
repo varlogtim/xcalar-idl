@@ -685,12 +685,6 @@ window.Dag = (function($, Dag) {
                         'class="btn btnSmall addDataFlow">' +
                             '<span class="icon"></span>' +
                         '</div>' +
-                        '<div data-toggle="tooltip" data-container="body" ' +
-                        'data-placement="top" title="Create New Retina" ' +
-                        'class="btn btnSmall addRet btnInactive">' +
-                            '<span class="icon"></span>' +
-                        '</div>' +
-                        '<div class="retTabSection"></div>' +
                     '</div>' +
                 '</div>' +
                 '</div>';
@@ -862,10 +856,8 @@ window.Dag = (function($, Dag) {
             $dagImage.width($dagImage.width());
             $dagWrap.find('.joinWrap').eq(0).remove();
 
-            var dropdown = getDagDropDownHTML();
-            $dagWrap.append(dropdown);
             addDagEventListeners($dagWrap);
-            appendRetinas();
+            // appendRetinas();  // XX currently not appending retinas to dag
             if (!dagAdded) {
                 preventUnintendedScrolling();
             }
@@ -1144,60 +1136,7 @@ window.Dag = (function($, Dag) {
     function addDagEventListeners($dagWrap) {
         var $currentIcon;
         var $menu = $dagWrap.find('.dagDropDown');
-        
-        $dagWrap[0].oncontextmenu = function(e) {
-           
-            var $target = $(e.target).closest('.actionType');
-           
-            if ($target.length) {
-                $target.trigger('click');
-                e.preventDefault();
-                e.stopPropagation();
-            } else {
-                var $secondTarget = $(e.target).closest('.dagTable.dataStore');
-                if ($secondTarget.length) {
-                    $secondTarget.trigger('click');
-                    e.preventDefault();
-                    e.stopPropagation();
-                }
-            }
-        };
-
-        $dagWrap.on('click', '.dagTable.dataStore, .actionType', function() {
-            $('.menu').hide();
-            removeMenuKeyboardNavigation();
-            $('.leftColMenu').removeClass('leftColMenu');
-            $currentIcon = $(this);
-            var el = $(this);
-            //position colMenu
-            var topMargin = 0;
-            var leftMargin = 0;
-            var top = el[0].getBoundingClientRect().bottom + topMargin;
-            var left = el[0].getBoundingClientRect().left + leftMargin;
-            // var offsetTop = $('#workspaceBar')[0].getBoundingClientRect()
-            //                                      .bottom;
-            if ($('#dagPanel').hasClass('midway')) {
-                top -= $('#dagPanel').offset().top;
-            }       
-            $menu.css({'top': top, 'left': left});
-            $menu.show();
-
-            //positioning if dropdown menu is on the right side of screen
-            var leftBoundary = $('#rightSideBar')[0].getBoundingClientRect()
-                                                    .left;
-            if ($menu[0].getBoundingClientRect().right > leftBoundary) {
-                left = el[0].getBoundingClientRect().right - $menu.width();
-                $menu.css('left', left).addClass('leftColMenu');
-            }
-            $menu.find('.subMenu').each(function() {
-                if ($(this)[0].getBoundingClientRect().right > leftBoundary) {
-                    $menu.find('.subMenu').addClass('leftColMenu');
-                }
-            });
-            addMenuKeyboardNavigation($menu);
-            $('body').addClass('noSelection');
-        });
-
+      
         $dagWrap.on('mouseenter', '.dagTable.Ready', function() {
             var $dagTable = $(this);
             var timer = setTimeout(function(){
@@ -1224,23 +1163,6 @@ window.Dag = (function($, Dag) {
             }
             $('#dagSchema').remove();
             scrollPosition = -1;
-        });
-
-        addMenuBehaviors($menu);
-
-        $menu.find('.createParamQuery').mouseup(function(event) {
-            if (event.which !== 1) {
-                return;
-            }
-            DagModal.show($currentIcon);
-        });
-
-        //XX both dropdown options will do the same thing
-        $menu.find('.modifyParams').mouseup(function(event) {
-            if (event.which !== 1) {
-                return;
-            }
-            DagModal.show($currentIcon);
         });
 
     }
@@ -1557,7 +1479,7 @@ window.Dag = (function($, Dag) {
         // List All Retinas and now append to first table
         XcalarListRetinas()
         .then(function(listRetinasOutput) {
-            // console.log(listRetinasOutput);
+            console.log(listRetinasOutput);
             var len =  listRetinasOutput.numRetinas;
             var retinas = listRetinasOutput.retinaDescs;
             var promises = [];
@@ -1571,16 +1493,6 @@ window.Dag = (function($, Dag) {
         .fail(function(error) {
             console.error("appendRetinas fails!", error);
         });
-    }
-
-    function getDagDropDownHTML() {
-        var html =
-        '<ul class="menu dagDropDown">' +
-            '<li class="createParamQuery">Create Parameterized Query</li>' +
-            '<li class="modifyParams">Modify Existing Parameters</li>' +
-            // '<li class="listParams">List of ? Parameters</li>' +
-        '</ul>';
-        return (html);
     }
 
     function drawDagNode(dagNode, prop, dagArray, html, index, parentChildMap,

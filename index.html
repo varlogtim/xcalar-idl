@@ -132,50 +132,6 @@
       </div>
     </div>
     <!-- End Of Dag Panel -->
-    <!-- dag Parameter Modal -->
-    <div id="dagParameterModal" class="modalContainer">
-      <div class="modalHeader">
-        <span class="text">Parameterize Query</span>
-        <div class="close">
-          <span class="icon"></span>
-        </div>
-      </div> 
-      <div class="modalInstruction">
-        <div class="icon"></div>
-        <div class="text">To covert this query into a parameterized query,
-        please click the add new parameterized query button and drag and drop
-        the parameters into their appropriate places.</div>
-      </div> 
-      <div class="modalTopMain clearfix">
-        <div class="templateSection clearfix retinaModalSection">
-          <span class="heading">Current Query:</span>
-          <table class="templateTable">
-            <tr class="template"></tr>
-          </table>
-          <div id="addNewParameterizedQuery" class="btn btnLarge">
-            <span class="icon"></span>ADD NEW PARAMETERIZED QUERY
-          </div>
-        </div>
-        <div class="border"></div>
-        <div class="currentParameterList retinaModalSection">
-          <span class="heading">Current Parameter List:</span>
-          <div class="draggableParams"></div>
-        </div>
-        <div class="border"></div>
-        <div class="editableParamQuery retinaModalSection">
-          <span class="heading">Parameterized Query:</span>
-          <table class="editableTable">
-            <tr class="editableRow"></tr>
-          </table>
-        </div>
-      </div>
-      <div class="defaultListSection"></div>
-      <div class="modalBottom clearfix">
-        <div class="btn btnMid confirm">SAVE</div>
-        <div class="btn btnMid cancel">CANCEL</div>
-      </div>
-    </div>
-    <!-- End Of Parameter Modal -->
     <!-- DATAFLOW MODAL -->
   <div id="dataFlowModal" class="modalContainer">
     <!-- DATAFLOW Header -->
@@ -1047,8 +1003,83 @@
         </div>
         <div class="midContent">
           <div class="midContentHeader">
-            <h2></h2>
-            <ul class="schedulesList"></ul>
+            <div class="leftSection">
+              <h2></h2>
+              <ul class="schedulesList"></ul>
+            </div>
+            <div class="retTabSection">
+              <!-- <div class="retTab">
+                <div class="tabWrap">
+                  <input type="text" class="retTitle textOverflow" disabled>
+                  <div class="caret"><span class="icon"></span></div>
+                </div>
+                <div class="retPopUp">
+                  <div class="divider"></div>
+                  <div class="inputSection">
+                    <input class="newParam" type="text" placeholder="Input New Parameter">
+                    <div class="btn addParam">
+                      <span class="icon"></span>
+                      <span class="label">CREATE NEW PARAMETER</span>
+                    </div>
+                  </div>
+                  <div class="tableContainer">
+                    <div class="tableWrapper">
+                      <table>
+                        <thead>
+                          <tr>
+                            <th>
+                              <div class="thWrap">Current Parameter</div>
+                            </th>
+                            <th>
+                              <div class="thWrap">Default Value</div>
+                            </th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr class="unfilled">
+                            <td class="paramName"></td>
+                            <td>
+                              <div class="paramVal"></div>
+                              <div class="delete paramDelete">
+                                <span class="icon"></span>
+                              </div>
+                            </td>
+                          </tr>
+                          <tr class="unfilled">
+                            <td class="paramName"></td>
+                            <td>
+                              <div class="paramVal"></div>
+                              <div class="delete paramDelete"><span class="icon"></span></div>
+                            </td>
+                          </tr>
+                          <tr class="unfilled">
+                            <td class="paramName"></td>
+                            <td>
+                              <div class="paramVal"></div>
+                              <div class="delete paramDelete"><span class="icon"></span></div>
+                            </td>
+                          </tr>
+                          <tr class="unfilled">
+                            <td class="paramName"></td>
+                            <td>
+                              <div class="paramVal"></div>
+                              <div class="delete paramDelete"><span class="icon"></span></div>
+                            </td>
+                          </tr>
+                          <tr class="unfilled">
+                            <td class="paramName"></td>
+                            <td>
+                              <div class="paramVal"></div>
+                              <div class="delete paramDelete"><span class="icon"></span></div>
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              </div> -->
+            </div>
           </div>
           <div class="midContentMain"></div>
         </div>
@@ -1285,6 +1316,50 @@
       </div>
       <!-- END schedulesView -->
     </div>
+      <!-- dag Parameter Modal -->
+    <div id="dagParameterModal" class="modalContainer">
+      <div class="modalHeader">
+        <span class="text">Parameterize Query</span>
+        <div class="close">
+          <span class="icon"></span>
+        </div>
+      </div> 
+      <div class="modalInstruction">
+        <div class="icon"></div>
+        <div class="text">To covert this query into a parameterized query,
+        please click the add new parameterized query button and drag and drop
+        the parameters into their appropriate places.</div>
+      </div> 
+      <div class="modalTopMain clearfix">
+        <div class="templateSection clearfix retinaModalSection">
+          <span class="heading">Current Query:</span>
+          <table class="templateTable">
+            <tr class="template"></tr>
+          </table>
+          <div id="addNewParameterizedQuery" class="btn btnLarge">
+            <span class="icon"></span>ADD NEW PARAMETERIZED QUERY
+          </div>
+        </div>
+        <div class="border"></div>
+        <div class="currentParameterList retinaModalSection">
+          <span class="heading">Current Parameter List:</span>
+          <div class="draggableParams"></div>
+        </div>
+        <div class="border"></div>
+        <div class="editableParamQuery retinaModalSection">
+          <span class="heading">Parameterized Query:</span>
+          <table class="editableTable">
+            <tr class="editableRow"></tr>
+          </table>
+        </div>
+      </div>
+      <div class="defaultListSection"></div>
+      <div class="modalBottom clearfix">
+        <div class="btn btnMid confirm">SAVE</div>
+        <div class="btn btnMid cancel">CANCEL</div>
+      </div>
+    </div>
+    <!-- End Of Parameter Modal -->
   </div>
   <!-- END SCHEDULER PANEL -->
 

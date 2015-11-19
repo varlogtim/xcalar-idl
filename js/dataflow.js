@@ -123,6 +123,8 @@ window.DFGPanel = (function($, DFGPanel) {
         addListeners();
         setupViewToggling();
         updateList();
+        setupDagDropdown();
+        setupRetinaTab();
     };
 
     DFGPanel.refresh = function() {
@@ -148,6 +150,220 @@ window.DFGPanel = (function($, DFGPanel) {
         $dfgView.find('.midContentHeader .schedulesList').html(list);
     };
 
+    DFGPanel.updateRetinaTab = function(retName) {
+        var deferred = jQuery.Deferred();
+        var $retTabSection = $('.retTabSection');
+        var retClass = "retTab";
+        // var inputVal = "";
+        var isNewRetina = false;
+
+        var html =
+            '<div class="' + retClass + '">' +
+                '<div class="tabWrap">' +
+                    '<input type="text" class="retTitle" val="' + retName +
+                    '">' +
+                    '<div class="caret">' +
+                        '<span class="icon"></span>' +
+                    '</div>' +
+                '</div>' +
+                '<div class="retPopUp">' +
+                    '<div class="divider"></div>' +
+                    '<div class="inputSection">' +
+                        '<input class="newParam" type="text"' +
+                        ' placeholder="Input New Parameter">' +
+                        '<div class="btn addParam">' +
+                            '<span class="icon"></span>' +
+                            '<span class="label">' +
+                                'CREATE NEW PARAMETER' +
+                            '</span>' +
+                        '</div>' +
+                    '</div>' +
+                    '<div class="tableContainer">' +
+                        '<div class="tableWrapper">' +
+                            '<table>' +
+                                '<thead>' +
+                                    '<tr>' +
+                                        '<th>' +
+                                            '<div class="thWrap">' +
+                                                'Current Parameter' +
+                                            '</div>' +
+                                        '</th>' +
+                                        '<th>' +
+                                            '<div class="thWrap">' +
+                                                'Default Value' +
+                                            '</div>' +
+                                        '</th>' +
+                                    '</tr>' +
+                                '</thead>' +
+                                '<tbody>';
+        for (var t = 0; t < 7; t++) {
+            html += '<tr class="unfilled">' +
+                        '<td class="paramName"></td>' +
+                        '<td>' +
+                            '<div class="paramVal"></div>' +
+                            '<div class="delete paramDelete">' +
+                                '<span class="icon"></span>' +
+                            '</div>' +
+                        '</td>' +
+                   '</tr>';
+        }
+
+        html += '</tbody></table></div></div></div></div>';
+
+        var $retTab = $(html);
+        $retTab.data('retname', retName);
+        $retTabSection.html($retTab);
+
+
+        var $input = $retTab.find('.retTitle');
+        $input.val(retName);
+        if ($retTabSection.find('.retTitle[disabled="disabled"]')
+                          .length === 0) {
+            $input.attr('disabled', 'disabled');
+        }
+        var $tbody = $retTab.find('tbody');
+        // Only disable the first retina
+        XcalarListParametersInRetina(retName)
+        .then(function(output) {
+            var num = output.numParameters;
+            var params = output.parameters;
+            for (var i = 0; i < num; i++) {
+                var param = params[i];
+                var paramName = param.parameterName;
+                var paramVal = param.parameterValue;
+                DFGPanel.addParamToRetina($tbody, paramName, paramVal);
+            }
+            deferred.resolve();
+        })
+        .fail(function(error) {
+            console.error("list retina parameters fails!");
+            deferred.reject(error);
+        });
+
+        return (deferred.promise());
+    };
+
+    DFGPanel.addParamToRetina = function($tbody, name, val) {
+        var $trs = $tbody.find('.unfilled');
+        // Now only allow to add 7 parameters
+        if ($trs.length > 0) {
+            var $tr = $trs.eq(0);
+            $tr.find('.paramName').html(name);
+            if (val) {
+                $tr.find('.paramVal').html(val);
+            }
+            $tr.removeClass('unfilled');
+        }
+    };
+
+    function setupRetinaTab() {
+        // Remove focus when click other places other than retinaArea
+        var $retTabSection = $('.retTabSection');
+        // add new retina
+        $retTabSection.on('mousedown', '.retPopUp', function(event){
+            event.stopPropagation();
+        });
+
+        // toggle open retina pop up
+        $retTabSection.on('mousedown', '.retTab', function(event) {
+            event.stopPropagation();
+            var $tab = $(this);
+            if ($tab.hasClass('unconfirmed')) {
+                return;
+            }
+            // the tab is open, close it
+            if ($tab.hasClass('active')) {
+                $tab.removeClass('active');
+            } else {
+                $dagPanel.find('.retTab.active').removeClass('active');
+                $tab.addClass('active');
+                $(document).on('mousedown.closeRetTab', function(event) {
+                    if ($(event.target).closest('#statusBox').length) {
+                        return;
+                    }
+                    $tab.removeClass('active');
+                    $(document).off('mousedown.closeRetTab');
+                });
+            }
+        });
+
+        $retTabSection.on('keyup', '.newParam', function(event){
+            event.preventDefault();
+            if (event.which !== keyCode.Enter) {
+                return;
+            }
+            var $btn = $(this).siblings('.addParam');
+            $btn.click();
+        });
+
+        // create new parameters to retina
+        $retTabSection.on('click', '.addParam', function(event) {
+            event.stopPropagation();
+            var $btn = $(this);
+            var $input = $btn.prev('.newParam');
+            var paramName = jQuery.trim($input.val());
+            var text;
+
+            // empty input
+            if (paramName === "") {
+                text = "Please input a valid parameter name!";
+                StatusBox.show(text, $input, true);
+                $input.val("");
+                return;
+            }
+
+            var $retPopUp = $btn.closest('.retPopUp');
+            var $tbody = $retPopUp.find('tbody');
+
+            // var retName = $retPopUp.closest('.retTab').data('retname');
+            // console.log('New Parameter in retina:', retName,
+            //             'parameter name:',paramName);
+
+            // Check name conflict
+            var isNameConflict = false;
+            $tbody.find('tr:not(.unfilled)').each(function(index, tr) {
+                if (isNameConflict === true) {
+                    return;
+                }
+                var $tr = $(tr);
+                var name = $tr.find('.paramName').html();
+                if (paramName === name) {
+                    isNameConflict = true;
+                }
+            });
+            if (isNameConflict === true) {
+                text = "Parameter " + paramName + " already exists!";
+                StatusBox.show(text, $input, true);
+                return;
+            }
+
+            $input.val("");
+            DFGPanel.addParamToRetina($tbody, paramName);
+        });
+
+        // delete retina para
+        $retTabSection.on('click', '.paramDelete', function(event) {
+            event.stopPropagation();
+            var $delBtn = $(this);
+            var $tr = $delBtn.closest('tr');
+            var $tbody = $tr.parent();
+            var paramName = $tr.find('.paramName').text();
+            var options = {};
+            options.title = 'DELETE RETINA PARAMETER';
+            options.msg = 'Are you sure you want to delete parameter ' +
+                           paramName + '?';
+            options.isCheckBox = true;
+            options.confirm = function() {
+                $tr.find('.paramName').empty();
+                $tr.find('.paramVal').empty();
+                $tr.addClass('unfilled');
+                $tbody.append($tr);
+            };
+
+            Alert.show(options);
+        });
+    }
+
     function addListeners() {
         $listSection.on('click', '.dataFlowGroup', function() {
             var $dfg = $(this);
@@ -159,6 +375,7 @@ window.DFGPanel = (function($, DFGPanel) {
             $header.text(groupName);
             drawDags(groupName);
             DFGPanel.listSchedulesInHeader(groupName);
+            DFGPanel.updateRetinaTab(groupName);
             
             $listSection.find('.listBox').removeClass('selected');
             $groupLi.addClass('selected');
@@ -237,11 +454,38 @@ window.DFGPanel = (function($, DFGPanel) {
                 html += getOperationHtml(operations[j]);
             }
             html += '</div></div></div>';
+
+
         }
         $dfgView.find('.midContentMain').html(html);
         $dfgView.find('.dagImage').each(function() {
             DFG.drawCanvas($(this), true);
         });
+
+        // var retinaSign = '<div class="retinaArea" data-tableid="' +
+        //                 // tableId + 
+        //                 '">' +
+        //                 '<div data-toggle="tooltip" data-container="body" ' +
+        //                 'data-placement="top" title="Add Data Flow" ' +
+        //                 'class="btn btnSmall addDataFlow">' +
+        //                     '<span class="icon"></span>' +
+        //                 '</div>' +
+        //                 '<div data-toggle="tooltip" data-container="body" ' +
+        //                 'data-placement="top" title="Create New Retina" ' +
+        //                 'class="btn btnSmall addRet btnInactive">' +
+        //                     '<span class="icon"></span>' +
+        //                 '</div>' +
+        //             '</div>' ;
+    }
+
+    function getDagDropDownHTML() {
+        var html =
+        '<ul class="menu dagDropDown">' +
+            '<li class="createParamQuery">Create Parameterized Query</li>' +
+            '<li class="modifyParams">Modify Existing Parameters</li>' +
+            // '<li class="listParams">List of ? Parameters</li>' +
+        '</ul>';
+        return (html);
     }
 
     function getTableHtml(table) {
@@ -253,9 +497,13 @@ window.DFGPanel = (function($, DFGPanel) {
         }
         var html =
         '<div class="dagTable ' + table.type + '" data-index="' + table.index +
-        '" data-children="' + table.children + '" data-type="' + table.type +
-        '" style="top: ' + table.top + 'px; left: ' + table.left + 'px; ' +
-        'position: absolute;">' +
+        '" data-children="' + table.children + '" data-type="' +
+        table.type + '"';
+        if (icon === 'dataStoreIcon') {
+            html += ' data-url="' + table.url + '"';
+        }
+        html += ' style="top: ' + table.top + 'px; left: ' + table.left +
+        'px; position: absolute;">' +
             '<div class="' + icon + '"></div>' +
             '<div class="icon"></div>' +
             '<span class="tableTitle" data-toggle="tooltip" ' +
@@ -269,9 +517,11 @@ window.DFGPanel = (function($, DFGPanel) {
 
     function getOperationHtml(operation) {
         var html =
-        '<div class="actionType" style="top: ' + operation.top + 'px; left: ' +
+        '<div class="actionType ' + operation.type + '" style="top: '
+        + operation.top + 'px; left: ' +
         operation.left + 'px; position: absolute;" ' +
-        'data-type="' + operation.type + '"  data-toggle="tooltip" ' +
+        'data-type="' + operation.type + '" data-info="' + operation.info +
+        '" data-column="' + operation.column + '" data-toggle="tooltip" ' +
         'data-placement="top" data-container="body" title="' +
         operation.tooltip + '">' +
             '<div class="actionTypeWrap">' +
@@ -284,6 +534,94 @@ window.DFGPanel = (function($, DFGPanel) {
         '</div>';
 
         return (html);
+    }
+
+    function setupDagDropdown() {
+        var dropdownHtml = getDagDropDownHTML();
+        var $dagArea = $dfgView.find('.midContent');
+        $dfgView.find('.midContent').append(dropdownHtml);
+
+        var $currentIcon;
+        
+        var $menu = $dagArea.find('.dagDropDown');
+
+        $dagArea[0].oncontextmenu = function(e) {
+           
+            var $target = $(e.target).closest('.actionType');
+           
+            if ($target.length) {
+                $target.trigger('click');
+                e.preventDefault();
+                e.stopPropagation();
+            } else {
+                var $secondTarget = $(e.target).closest('.dagTable.dataStore');
+                if ($secondTarget.length) {
+                    $secondTarget.trigger('click');
+                    e.preventDefault();
+                    e.stopPropagation();
+                }
+            }
+        };
+
+        $dagArea.on('click', '.dagTable.dataStore, .actionType', function() {
+            $('.menu').hide();
+            removeMenuKeyboardNavigation();
+            $('.leftColMenu').removeClass('leftColMenu');
+            $currentIcon = $(this);
+
+
+            if ($currentIcon.hasClass('actionType')) {
+                if (!$currentIcon.find('.dagIcon').hasClass('filter')) {
+                    return;
+                }
+            }
+
+
+
+            var el = $(this);
+            //position colMenu
+            var topMargin = 0;
+            var leftMargin = 0;
+            var top = el[0].getBoundingClientRect().bottom + topMargin;
+            var left = el[0].getBoundingClientRect().left + leftMargin;
+
+            $menu.css({'top': top, 'left': left});
+            $menu.show();
+
+            //positioning if dropdown menu is on the right side of screen
+            var leftBoundary = $('#rightSideBar')[0].getBoundingClientRect()
+                                                    .left;
+            if ($menu[0].getBoundingClientRect().right > leftBoundary) {
+                left = el[0].getBoundingClientRect().right - $menu.width();
+                $menu.css('left', left).addClass('leftColMenu');
+            }
+            $menu.find('.subMenu').each(function() {
+                if ($(this)[0].getBoundingClientRect().right > leftBoundary) {
+                    $menu.find('.subMenu').addClass('leftColMenu');
+                }
+            });
+            addMenuKeyboardNavigation($menu);
+            $('body').addClass('noSelection');
+        });
+
+
+        addMenuBehaviors($menu);
+
+        $menu.find('.createParamQuery').mouseup(function(event) {
+            if (event.which !== 1) {
+                return;
+            }
+            DagModal.show($currentIcon);
+        });
+
+        //XX both dropdown options will do the same thing
+        $menu.find('.modifyParams').mouseup(function(event) {
+            if (event.which !== 1) {
+                return;
+            }
+            DagModal.show($currentIcon);
+        });
+
     }
 
     function updateList() {
