@@ -2249,7 +2249,7 @@ window.DagModal = (function($, DagModal){
         $dagModal.find('.template').html(defaultText);
         $dagModal.find('.editableRow').html(editableText);
         var $dagWrap = $currentIcon.closest('.dagWrap');
-        var draggableInputs = generateDraggableParams($dagWrap);
+        var draggableInputs = generateDraggableParams();
         $dagModal.find('.draggableParams').append(draggableInputs);
         if ($('.draggableDiv').length === 0) {
             $dagModal.addClass('minimized');
@@ -2400,27 +2400,26 @@ window.DagModal = (function($, DagModal){
         });
     }
 
-    function generateDraggableParams($dagWrap) {
+    function generateDraggableParams() {
         var html = "";
         //XX use id to get current parameters to loop and create draggable divs
-        $dagWrap.find('.retTabSection tbody')
-                .find('tr:not(".unfilled")').each(function() {
-                    var value = $(this).find('.paramName').text();
-                    html += '<div id="draggableParam' + value +
-                        '" class="draggableDiv" ' +
-                        'draggable="true" ' +
-                        'ondragstart="DagModal.paramDragStart(event)" ' +
-                        'ondragend="DagModal.paramDragEnd(event)" ' +
-                        'ondrop="return false" ' +
-                        'title="click and hold to drag" ' +
-                        'contenteditable="false">' +
-                            '<div class="icon"></div>' +
-                            '<span class="delim"><</span>' +
-                            '<span class="value">' + value + '</span>' +
-                            '<span class="delim">></span>' +
-                            '<div class="close"><span>+</span></div>' +
-                        '</div>';
-                });
+        $('.retTabSection tbody').find('tr:not(".unfilled")').each(function() {
+            var value = $(this).find('.paramName').text();
+            html += '<div id="draggableParam' + value +
+                '" class="draggableDiv" ' +
+                'draggable="true" ' +
+                'ondragstart="DagModal.paramDragStart(event)" ' +
+                'ondragend="DagModal.paramDragEnd(event)" ' +
+                'ondrop="return false" ' +
+                'title="click and hold to drag" ' +
+                'contenteditable="false">' +
+                    '<div class="icon"></div>' +
+                    '<span class="delim"><</span>' +
+                    '<span class="value">' + value + '</span>' +
+                    '<span class="delim">></span>' +
+                    '<div class="close"><span>+</span></div>' +
+                '</div>';
+        });
         return (html);
     }
 

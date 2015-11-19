@@ -35,7 +35,8 @@ window.DFG = (function($, DFG) {
                                 }
                             }
                         ],
-                        "schedules": []
+                        "schedules": [],
+                        "parameters": []
                     }};
     DFG.restoreGroups = function() {
 
@@ -155,13 +156,13 @@ window.DFGPanel = (function($, DFGPanel) {
         var $retTabSection = $('.retTabSection');
         var retClass = "retTab";
         // var inputVal = "";
-        var isNewRetina = false;
+        var dfGroup = DFG.getAllGroups()[retName];
+        var hasRetina = dfGroup.hasRetina;
 
         var html =
             '<div class="' + retClass + '">' +
                 '<div class="tabWrap">' +
-                    '<input type="text" class="retTitle" val="' + retName +
-                    '">' +
+                    '<input type="text" class="retTitle" value="Parameters">' +
                     '<div class="caret">' +
                         '<span class="icon"></span>' +
                     '</div>' +
@@ -216,29 +217,40 @@ window.DFGPanel = (function($, DFGPanel) {
 
 
         var $input = $retTab.find('.retTitle');
-        $input.val(retName);
         if ($retTabSection.find('.retTitle[disabled="disabled"]')
                           .length === 0) {
             $input.attr('disabled', 'disabled');
         }
         var $tbody = $retTab.find('tbody');
-        // Only disable the first retina
-        XcalarListParametersInRetina(retName)
-        .then(function(output) {
-            var num = output.numParameters;
-            var params = output.parameters;
-            for (var i = 0; i < num; i++) {
+
+        if (hasRetina) {
+            XcalarListParametersInRetina(retName)
+            .then(function(output) {
+                var num = output.numParameters;
+                var params = output.parameters;
+                for (var i = 0; i < num; i++) {
+                    var param = params[i];
+                    var paramName = param.parameterName;
+                    var paramVal = param.parameterValue;
+                    DFGPanel.addParamToRetina($tbody, paramName, paramVal);
+                }
+                deferred.resolve();
+            })
+            .fail(function(error) {
+                console.error("list retina parameters fails!");
+                deferred.reject(error);
+            });
+        } else {
+            var params = dfGroup.parameters;
+            var numParams = dfGroup.parameters.length;
+            for (var i = 0; i < numParams; i++) {
                 var param = params[i];
                 var paramName = param.parameterName;
                 var paramVal = param.parameterValue;
                 DFGPanel.addParamToRetina($tbody, paramName, paramVal);
             }
-            deferred.resolve();
-        })
-        .fail(function(error) {
-            console.error("list retina parameters fails!");
-            deferred.reject(error);
-        });
+        }
+        
 
         return (deferred.promise());
     };
@@ -339,6 +351,9 @@ window.DFGPanel = (function($, DFGPanel) {
 
             $input.val("");
             DFGPanel.addParamToRetina($tbody, paramName);
+
+            //XX if retina doesn't exist in backend, we should add to parameter
+            // list
         });
 
         // delete retina para
@@ -500,7 +515,7 @@ window.DFGPanel = (function($, DFGPanel) {
         '" data-children="' + table.children + '" data-type="' +
         table.type + '"';
         if (icon === 'dataStoreIcon') {
-            html += ' data-url="' + table.url + '"';
+            html += ' data-url="' + table.url + '" data-id="' + table.id + '"';
         }
         html += ' style="top: ' + table.top + 'px; left: ' + table.left +
         'px; position: absolute;">' +
@@ -516,12 +531,14 @@ window.DFGPanel = (function($, DFGPanel) {
     }
 
     function getOperationHtml(operation) {
+        //XX TODO: loop through operation data instead
         var html =
         '<div class="actionType ' + operation.type + '" style="top: '
         + operation.top + 'px; left: ' +
         operation.left + 'px; position: absolute;" ' +
         'data-type="' + operation.type + '" data-info="' + operation.info +
-        '" data-column="' + operation.column + '" data-toggle="tooltip" ' +
+        '" data-id="' + operation.id + '" data-column="' + operation.column +
+        '" data-toggle="tooltip" ' +
         'data-placement="top" data-container="body" title="' +
         operation.tooltip + '">' +
             '<div class="actionTypeWrap">' +

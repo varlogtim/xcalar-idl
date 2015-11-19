@@ -111,6 +111,7 @@ window.DataFlowModal = (function($, DataFlowModal) {
             };
             if ($dagTable.hasClass('dataStore')) {
                 table.url = $dagTable.data('url');
+                table.id = $dagTable.data('id');
             }
             tables.push(table);
         });
@@ -127,6 +128,7 @@ window.DataFlowModal = (function($, DataFlowModal) {
                 "type"   : $operation.data('type'),
                 "column" : $operation.data('column'),
                 "info"   : $operation.data('info'),
+                "id"     : $operation.data('id'),
                 "parents": $operation.find('.parentsTitle').text(),
                 "left"   : parseInt($operation.css('left')),
                 "top"    : parseInt($operation.css('top')),
@@ -143,13 +145,20 @@ window.DataFlowModal = (function($, DataFlowModal) {
             "width"     : $dagImage.width()
         };
         var existingGroups = DFG.getAllGroups();
-        var group = existingGroups[groupName] || {dataFlows: [], schedules: []};
+        var group = existingGroups[groupName] || new DFGConstructor();
         group.dataFlows.push({
             "name"      : tableName,
             "columns"   : columns,
             "canvasInfo": canvasInfo
         });
         DFG.setGroup(groupName, group);
+    }
+
+    function DFGConstructor() {
+        this.dataFlows = [];
+        this.schedules = [];
+        this.parameters = [];
+        this.hasRetina = false;
     }
 
     function addModalEvents() {

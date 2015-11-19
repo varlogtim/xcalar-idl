@@ -1454,10 +1454,12 @@ function XcalarGetRetina(retName) {
 }
 
 // XXX TODO THIS NEEDS TO HAVE SQL.ADD
+
 // paramType must be either of the following:
 // XcalarApisT.XcalarApiBulkLoad,
 // XcalarApisT.XcalarApiFilter,
 // XcalarApisT.XcalarApiExport
+
 // paramValue is what the parameterized part is called
 // For example, in load, the datasetUrl is parameterizable, and your url can
 // be something like "file:///<directory>/<subDir>/file<number>.csv" <- paramValue
