@@ -951,10 +951,7 @@ window.ColManager = (function($, ColManager) {
                 "placement": "top",
                 "trigger"  : "manual",
                 "container": "#" + container,
-                "template" : '<div class="tooltip error" role="tooltip">' +
-                                '<div class="tooltip-arrow"></div>' +
-                                '<div class="tooltip-inner"></div>' +
-                             '</div>'
+                "template" : TooltipTemplate.Error
             });
 
             $toolTipTarget.tooltip('show');

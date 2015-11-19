@@ -637,10 +637,7 @@ window.JoinModal = (function($, JoinModal) {
                     "animation": "true",
                     "container": "#" + $modal.attr("id"),
                     "trigger"  : "manual",
-                    "template" : '<div class="tooltip error" role="tooltip">' +
-                                    '<div class="tooltip-arrow"></div>' +
-                                    '<div class="tooltip-inner"></div>' +
-                                '</div>'
+                    "template" : TooltipTemplate.Error
                 });
 
                 $suggErrorArea.tooltip("show");
@@ -835,10 +832,7 @@ window.JoinModal = (function($, JoinModal) {
             "animation": "true",
             "container": id,
             "trigger"  : "manual",
-             "template" : '<div class="tooltip error" role="tooltip">' +
-                            '<div class="tooltip-arrow"></div>' +
-                            '<div class="tooltip-inner"></div>' +
-                        '</div>'
+             "template" : TooltipTemplate.Error
         });
 
         $columnTab.tooltip("show");

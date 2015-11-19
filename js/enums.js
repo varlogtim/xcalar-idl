@@ -193,3 +193,11 @@ var SQLOps = {
     SplitColMap: "spltColMap",
     ChangeType: "changeType"
 };
+
+var TooltipTemplate = {
+    "Error": '<div class="tooltip error" role="tooltip">' +
+                    '<div class="tooltip-arrow"></div>' +
+                    '<div class="tooltip-inner"></div>' +
+                '</div>'
+};
+

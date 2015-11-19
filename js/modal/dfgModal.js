@@ -265,10 +265,7 @@ window.DataFlowModal = (function($, DataFlowModal) {
                 "animation": "true",
                 "container": "#dataFlowModal",
                 "trigger"  : "manual",
-                "template" : '<div class="tooltip error" role="tooltip">' +
-                                    '<div class="tooltip-arrow"></div>' +
-                                    '<div class="tooltip-inner"></div>' +
-                                '</div>'
+                "template" : TooltipTemplate.Error
             });
 
             $tablePadding.tooltip("show");

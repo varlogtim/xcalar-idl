@@ -118,6 +118,7 @@ window.Alert = (function($, Alert){
         modalHelper.clear();
 
         if ($modalContainer) {
+            $alertModal.hide();
             $modalContainer.css("z-index", 40);
             return;
         }
