@@ -892,7 +892,6 @@
             .action-gradient;
             border-top-left-radius: 2px;
             border-top-right-radius: 2px;
-            width: 170px;
             padding: 0 4px;
             .flex-display;
             .justify-content(center);
@@ -912,7 +911,7 @@
         }
 
         .background {
-            width: 90px;
+            width: ~"calc(100% - 80px)";
             height: 100%;
             border-radius: 3px;
             background-color: #F4F4F4;
@@ -977,7 +976,7 @@
             overflow-y: auto;
             overflow-x: hidden;
             max-height: 200px;
-            width: 170px;
+            width: 230px;
             padding: 0px;
             padding-top: 0px;
 
@@ -985,7 +984,7 @@
                 height: 20px;
                 white-space: nowrap;
                 overflow: hidden;
-                width: 180px !important;
+                width: 240px;
                 cursor: auto;
                 &:hover {
                     background-color: rgba(99, 178, 225, 0.15);
@@ -1004,6 +1003,7 @@
                     white-space: nowrap;
                     text-align: left;
                     width: 72px;
+                    width: 132px;
                     line-height: 20px;
                     .textOverflow;
                     cursor: pointer;
