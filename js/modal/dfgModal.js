@@ -157,6 +157,10 @@ window.DataFlowModal = (function($, DataFlowModal) {
             submitForm();
         });
 
+        $dfgModal.on("click", ".back", function() {
+            backToDFGView();
+        });
+
         $dfgModal.find(".radioWrap").click(function() {
             var $option = $(this);
             $radios.removeClass("checked");
@@ -201,9 +205,18 @@ window.DataFlowModal = (function($, DataFlowModal) {
         $dfgModal.addClass("exportMode");
         $confirmBtn.removeClass("next").text("Save");
         $previewSection.find(".titleSection .text")
-                        .text("Choose columns to export");
+                       .text("Choose columns to export");
         $dfPreviews.hide();
         $dfExport.show();
+    }
+
+    function backToDFGView() {
+        $dfgModal.removeClass("exportMode");
+        $confirmBtn.addClass("next").text("Next");
+        $previewSection.find(".titleSection .text")
+                       .text("Preview");
+        $dfExport.hide();
+        $dfPreviews.show();
     }
 
     function submitForm() {
