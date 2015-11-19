@@ -467,6 +467,8 @@ function XcalarExport(tableName, exportName, targetName, numColumns, columns, sq
     if (insertError(arguments.callee, deferred)) {
         return (deferred.promise());
     }
+
+    deferred.resolve();/**
     var target = new DsExportTargetT();
     target.type = DsTargetTypeT.DsTargetUnknownType;
     target.name = targetName;
@@ -527,7 +529,7 @@ function XcalarExport(tableName, exportName, targetName, numColumns, columns, sq
             // SQL.errorLog("Add Export Target", sqlOptions, null, thriftError);
             deferred.reject(thriftError);
         });
-    });
+    });*/
     return (deferred.promise());
 }
 

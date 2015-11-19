@@ -4,14 +4,16 @@
 <script src="/3rd/jquery.min.js" type="text/javascript"></script>
 <script src="https://online.tableau.com/javascripts/api/tableau-2.min.js" 
         type="text/javascript"></script>
-<body style="background: #686868">
+<body>
     <div id="tableauViz" width="500px" height="500px">
     </div>
     <script>
     function initializeViz() {
         var placeholderDiv = document.getElementById("tableauViz");
         var
-        url="https://10ay.online.tableau.com/t/xcalartableaucloud/views/NetAppTab/Dashboard1";
+        url="https://10ay.online.tableau.com/t/xcalartableaucloud/views/BankData/Overview?:embed=y&:showShareOptions=true&:display_count=no";
+        // var
+        // url="https://10ay.online.tableau.com/t/xcalartableaucloud/views/NetAppTab/Dashboard1";
         var options = {
             width: placeholderDiv.offsetWidth,
             height: placeholderDiv.offsetHeight,
@@ -25,7 +27,7 @@
         viz = new tableau.Viz(placeholderDiv, url, options);
     }
     $(initializeViz);
-    setTimeout(function() {$("iframe").height("1000px");}, 500);
+    setTimeout(function() {$("iframe").height("100%");}, 500);
     </script>
 </body>
 </html>
