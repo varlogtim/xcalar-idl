@@ -2383,8 +2383,7 @@ window.DataPreview = (function($, DataPreview) {
                 if ($.isNumeric(tdText)) {
                     // header is string and td is number
                     // valid this td
-                    score += 250;
-                    break;
+                    score += 30;
                 } else if (tdText === "" || tdText == null) {
                     // td is null but header is not
                     score += 10;
