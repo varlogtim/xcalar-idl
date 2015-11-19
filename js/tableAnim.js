@@ -3103,8 +3103,7 @@ function dropdownClick($el, options) {
                 $menu.find(".tdUnnest").addClass("hidden");
             } else {
                 $menu.find(".tdJsonModal").removeClass("hidden");
-                $menu.find(".tdUnnest").removeClass("hidden");
-            }
+                $menu.find(".tdUnnest").removeClass("hidden");              }
         } else {
             $menu.find(".tdJsonModal").addClass("hidden");
             $menu.find(".tdUnnest").addClass("hidden");
@@ -3167,13 +3166,16 @@ function dropdownClick($el, options) {
     $menu.children('ul').scrollTop(0);
 
     // size menu and ul
-    var ulHeight = $menu.find('ul')[0].scrollHeight;
-    if (ulHeight > $menu.height()) {
-        $menu.children('ul').css('max-height', menuHeight);
-        $menu.find('.scrollArea').show();
-    } else {
-        $menu.children('ul').css('max-height', 'auto');
-        $menu.find('.scrollArea').hide();
+    var $ul = $menu.find('ul');
+    if ($ul.length > 0) {
+        var ulHeight = $menu.find('ul')[0].scrollHeight;
+        if (ulHeight > $menu.height()) {
+            $menu.children('ul').css('max-height', menuHeight);
+            $menu.find('.scrollArea').show();
+        } else {
+            $menu.children('ul').css('max-height', 'auto');
+            $menu.find('.scrollArea').hide();
+        }
     }
     // set scrollArea states
     $menu.find('.scrollArea.top').addClass('stopped');
