@@ -348,19 +348,20 @@ window.ColManager = (function($, ColManager) {
         var table       = gTables[tableId];
         var tableName   = table.tableName;
         var tableCols   = table.tableCols;
+        var currentWS   = WSManager.getActiveWS();
 
         var tableNamePart = tableName.split("#")[0];
+        var tableNames = [];
         var fieldNames = [];
         var mapStrings = [];
-        var srctable = tableName;
-        var dsttable;
         var query = "";
+        var srctable = tableName;
 
         for (var i = 0; i < numColInfos; i++) {
             var colInfo = colTypeInfos[i];
             var col = tableCols[colInfo.colNum - 1];
 
-            dsttable = tableNamePart + Authentication.getHashId();
+            tableNames[i] = tableNamePart + Authentication.getHashId();
             // here use front col name to generate newColName
             fieldNames[i] = col.name + "_" + colInfo.type;
             mapStrings[i] = mapStrHelper(col.func.args[0], colInfo.type);
@@ -368,16 +369,16 @@ window.ColManager = (function($, ColManager) {
             query += 'map --eval "' + mapStrings[i] +
                     '" --srctable "' + srctable +
                     '" --fieldName "' + fieldNames[i] +
-                    '" --dsttable "' + dsttable + '"';
+                    '" --dsttable "' + tableNames[i] + '"';
 
             if (i !== numColInfos - 1) {
                 query += ';';
             }
 
-            srctable = dsttable;
+            srctable = tableNames[i];
         }
 
-        var finalTable   = dsttable;
+        var finalTable   = tableNames[numColInfos - 1];
         var finalTableId = xcHelper.getTableId(finalTable);
 
         var msg = StatusMessageTStr.ChangeType;
@@ -395,20 +396,19 @@ window.ColManager = (function($, ColManager) {
         .then(function() {
             var mapOptions = { "replaceColumn": true };
             var curTableCols = tableCols;
+            var promises = [];
 
             for (var j = 0; j < numColInfos; j++) {
                 var curColNum = colTypeInfos[j].colNum;
+                var curTable  = tableNames[j];
+                var archive   = (j === numColInfos - 1) ? false : true;
+
                 curTableCols = xcHelper.mapColGenerate(curColNum, fieldNames[j],
                                     mapStrings[j], curTableCols, mapOptions);
+                promises.push(setTableHelper.bind(this, curTable, curTableCols, currentWS, table, archive));
             }
 
-            var tableProperties = {
-                "bookmarks" : xcHelper.deepCopy(table.bookmarks),
-                "rowHeights": xcHelper.deepCopy(table.rowHeights)
-            };
-            // map do not change groupby stats of the table
-            Profile.copy(tableId, finalTableId);
-            return (setgTable(finalTable, curTableCols, null, tableProperties));
+            return chain(promises);
         })
         .then(function() {
             return (refreshTable(finalTable, tableName));
@@ -463,6 +463,30 @@ window.ColManager = (function($, ColManager) {
             mapStr += colName + ")";
 
             return (mapStr);
+        }
+
+        function setTableHelper(curTableName, curTableCols, curWS, srcTable, archive) {
+            var innerDeferred = jQuery.Deferred();
+            var curTableId = xcHelper.getTableId(curTableName);
+            var srcTableId = srcTable.tableId;
+            var tableProperties = {
+                "bookmarks" : xcHelper.deepCopy(srcTable.bookmarks),
+                "rowHeights": xcHelper.deepCopy(srcTable.rowHeights)
+            };
+
+            setgTable(curTableName, curTableCols, null, tableProperties)
+            .then(function() {
+                // map do not change groupby stats of the table
+                Profile.copy(srcTableId, curTableId);
+                WSManager.addTable(curTableId, curWS);
+                if (archive) {
+                    archiveTable(curTableId, ArchiveTable.Keep);
+                }
+            })
+            .then(innerDeferred.resolve)
+            .fail(innerDeferred.reject);
+
+            return (innerDeferred.promise());
         }
     };
 
