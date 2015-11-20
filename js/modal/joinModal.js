@@ -79,13 +79,12 @@ window.JoinModal = (function($, JoinModal) {
             var isMultiJoin = $mainJoin.hasClass("multiClause");
 
             if (!isMultiJoin && $mainJoin.find("th.colSelected").length !== 2) {
-                /**
                 Alert.show({
                     "title"  : "Cannot Join",
                     "msg"    : "Select 2 columns to join by",
                     "modal"  : $joinModal,
                     "isAlert": true
-                });*/
+                });
                 return;
             }
             
