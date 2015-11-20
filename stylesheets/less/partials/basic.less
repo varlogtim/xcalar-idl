@@ -764,6 +764,19 @@ input {
         overflow: hidden;
     }
 
+    // XXX temporary fix
+    &.subMenu.tableMenu {
+        overflow: visible !important;
+
+        ul.moveToWorksheet, .dupToWorksheet {
+            overflow: visible !important;
+
+            .wsList {
+                overflow: visible !important;
+            }
+        }
+    }
+
     li {
         .position(relative);
         .size(@height: 30px);

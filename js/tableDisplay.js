@@ -874,7 +874,7 @@ function generateTableDropDown() {
             //             '<div class="dropDownList">' +
             //                 '<input class="wsName" type="text" width="100px" ' +
             //                     'placeholder="click to see options"/>' +
-            //                 '<ul class="list"></ul>' +
+            //                 '<ul class="list wsList"></ul>' +
             //             '</div>' +
             //         '</li>' +
             //         '<li style="text-align: center" class="clickable">' +
@@ -904,7 +904,7 @@ function generateTableDropDown() {
                     '<div class="dropDownList">' +
                         '<input class="wsName" type="text" width="100px" ' +
                             'placeholder="click to see options"/>' +
-                        '<ul class="list"></ul>' +
+                        '<ul class="list wsList"></ul>' +
                     '</div>' +
                 '</li>' +
                 '<div class="subMenuArea"></div>' +
