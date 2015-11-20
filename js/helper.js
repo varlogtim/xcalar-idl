@@ -1,18 +1,4 @@
 window.xcHelper = (function($, xcHelper) {
-
-    xcHelper.getTableFromId = function(tableId) {
-        return (gTables[tableId]);
-    };
-
-    xcHelper.getElementByTableId = function(tableId, prefix) {
-        var $ele = $('#' + prefix + '-' + tableId);
-        if ($ele.length === 0) {
-            return (null);
-        } else {
-            return ($ele);
-        }
-    };
-
     xcHelper.parseTableId = function(idOrEl) {
         // can pass in a string or jQuery element
         var id;
@@ -230,9 +216,8 @@ window.xcHelper = (function($, xcHelper) {
         if (tableId === "all") {
             $tableWrap = $('.xcTableWrap:visible');
         } else {
-            $tableWrap = xcHelper.getElementByTableId(tableId, "xcTableWrap");
+            $tableWrap = $("#xcTableWrap-" + tableId);
         }
-        
 
         options = options || {};
 
@@ -605,12 +590,9 @@ window.xcHelper = (function($, xcHelper) {
 
     xcHelper.lockTable = function(tableId) {
         // lock worksheet as well
-        if (tableId == null) {
-            console.error("Invalid Parameters!");
-            return;
-        }
+        xcHelper.assert((tableId != null), "Invalid Parameters!");
 
-        var $tableWrap  = xcHelper.getElementByTableId(tableId, "xcTableWrap");
+        var $tableWrap = $("#xcTableWrap-" + tableId);
         if ($tableWrap != null &&
             $tableWrap.length !== 0 &&
             !$tableWrap.hasClass('tableLocked'))
@@ -633,31 +615,22 @@ window.xcHelper = (function($, xcHelper) {
             $('#rowScroller-' + tableId).addClass('locked');
             moveTableTitles();
         }
-        
-        var table = xcHelper.getTableFromId(tableId);
-        table.isLocked = true;
 
-        // XXX Remove it when use tableId replae tableName
-
-
+        gTables[tableId].isLocked = true;
         WSManager.lockTable(tableId);
     };
 
     xcHelper.unlockTable = function(tableId, isHidden) {
-        var table = gTables[tableId];
+        xcHelper.assert((tableId != null), "Invalid Parameters!");
 
-        if (isHidden) {
-            table.isLocked = false;
-        } else {
-            table.isLocked = false;
-            var $tableWrap = xcHelper.getElementByTableId(tableId, "xcTableWrap");
+        gTables[tableId].isLocked = false;
+        if (!isHidden) {
+            var $tableWrap = $("#xcTableWrap-" + tableId);
             $tableWrap.find('.lockedIcon').remove();
             $tableWrap.find('.tableCover').remove();
             $tableWrap.removeClass('tableLocked');
             $('#rowScroller-' + tableId).removeClass('locked');
         }
-
-        // XXX Remove it when use tableId replae tableName
 
         WSManager.unlockTable(tableId);
     };

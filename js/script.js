@@ -58,7 +58,7 @@ var PB = 1024 * TB;
 function infScrolling(tableId) {
     var $rowScroller = $('#rowScrollerArea');
     var scrollCount = 0;
-    var $xcTbodyWrap = xcHelper.getElementByTableId(tableId, 'xcTbodyWrap');
+    var $xcTbodyWrap = $('#xcTbodyWrap-' + tableId);
 
     $xcTbodyWrap.scroll(function() {
         if (gMouseStatus === "movingTable") {
@@ -73,9 +73,9 @@ function infScrolling(tableId) {
         removeMenuKeyboardNavigation();
         $('.highlightBox').remove();
 
-        var table = xcHelper.getTableFromId(tableId);
+        var table = gTables[tableId];
         focusTable(tableId);
-        var $table = xcHelper.getElementByTableId(tableId, 'xcTable');
+        var $table = $('#xcTable-' + tableId);
 
         if ($table.height() < $('#mainFrame').height()) {
             // prevent scrolling on a short table
@@ -479,7 +479,7 @@ function documentReadyGeneralFunction() {
         $('#mainFrame').find('.colGrab').height(30);
         clearTimeout(timer);
         timer = setTimeout(function() {
-            var table = xcHelper.getTableFromId(gActiveTableId);
+            var table = gTables[gActiveTableId];
             if (table && table.resultSetCount !== 0) {
                 generateFirstVisibleRowNum();
             }
@@ -607,8 +607,13 @@ function documentReadyGeneralFunction() {
         {
             return false;
         }
-        if ($('.menu:visible').length !== 0) {
-            return false;
+
+        var $visibleMenu = $('.menu:visible');
+        if ($visibleMenu.length !== 0) {
+            // if the menu is only .tdMenu, allow scroll
+            if ($visibleMenu.length > 1 || !$visibleMenu.hasClass("tdMenu")) {
+                return false;
+            }
         }
 
         var tableId = gActiveTableId;

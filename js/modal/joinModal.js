@@ -459,7 +459,7 @@ window.JoinModal = (function($, JoinModal) {
             }).click();
 
             if (colNum > 0) {
-                var $table = xcHelper.getElementByTableId(tableId, "xcTable");
+                var $table = $("#xcTable-" + tableId);
                 var dataColNum = $table.find('tbody .jsonElement').index();
                 if (colNum >= dataColNum) {
                     colNum--;

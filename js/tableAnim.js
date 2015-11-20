@@ -18,8 +18,7 @@ function generateFirstVisibleRowNum(rowScrollerMove) {
         if (!isNaN(firstRowNum)) {
             $('#rowInput').val(firstRowNum).data('val', firstRowNum);
             if (rowScrollerMove && isTableScrollable(activeTableId)) {
-                RowScroller.move(firstRowNum,
-                    xcHelper.getTableFromId(activeTableId).resultSetCount);
+                RowScroller.move(firstRowNum, gTables[activeTableId].resultSetCount);
             }
         }
     }
@@ -104,7 +103,7 @@ function gRescolMouseUp() {
     reenableTextSelection();
     gRescol.table.find('.rowGrab').width(gRescol.table.width());
     if (!gRescol.isDatastore) {
-        var table = xcHelper.getTableFromId(gRescol.tableId);
+        var table = gTables[gRescol.tableId];
         var progCol = table.tableCols[gRescol.index - 1];
         
         if (rescol.newWidth === 15) {
@@ -177,7 +176,7 @@ function gResrowMouseMove(event) {
 function gResrowMouseUp() {
     var newRowHeight = gResrow.targetTd.outerHeight();
     var rowNum = xcHelper.parseRowNum(gResrow.targetTd.parent()) + 1;
-    var rowObj = xcHelper.getTableFromId(gResrow.tableId).rowHeights;
+    var rowObj = gTables[gResrow.tableId].rowHeights;
     // structure of rowObj is rowObj {pageNumber:{rowNumber: height}}
     var pageNum = Math.floor((rowNum - 1) / gNumEntriesPerPage);
     gMouseStatus = null;
@@ -186,7 +185,7 @@ function gResrowMouseUp() {
     $('body').removeClass('hideScroll');
     $table = $('#xcTable-' + gResrow.tableId);
     $table.find('tr').removeClass('notDragging dragging');
-    if (xcHelper.getTableFromId(gActiveTableId).resultSetCount !== 0) {
+    if (gTables[gActiveTableId].resultSetCount !== 0) {
         generateFirstVisibleRowNum();
     }
 
@@ -269,7 +268,7 @@ function dragdropMouseDown(el, event) {
     createDropTargets();
 
     var timer;
-    if (xcHelper.getTableFromId(dragObj.tableId).tableCols.length > 50) {
+    if (gTables[dragObj.tableId].tableCols.length > 50) {
         timer = 100;
     } else {
         timer = 40;
@@ -588,7 +587,7 @@ function autosizeCol(el, options) {
     var index = xcHelper.parseColNum(el);
     var $table = el.closest('.dataTable');
     var tableId = xcHelper.parseTableId($table);
-    var table = xcHelper.getTableFromId(tableId);
+    var table = gTables[tableId];
 
     var includeHeader = options.includeHeader || false;
     var fitAll = options.fitAll || false;
@@ -925,7 +924,7 @@ function addTableMenuActions() {
             return;
         }
         tableId = $tableMenu.data('tableId');
-        var tableName = xcHelper.getTableFromId(tableId).tableName;
+        var tableName = gTables[tableId].tableName;
 
         var msg = "Are you sure you want to delete table " + tableName + "?";
         Alert.show({
@@ -1084,8 +1083,8 @@ function addTableMenuActions() {
                 return false;
             }
             tableId = $tableMenu.data('tableId');
-            var table    = xcHelper.getTableFromId(tableId);
-            var wsIndex  = $option.data("worksheet");
+            var table   = gTables[tableId];
+            var wsIndex = $option.data("worksheet");
 
             WSManager.copyTable(table.tableName, newTableName, wsIndex);
 
@@ -1392,7 +1391,7 @@ function addColListeners($table, tableId) {
         }
 
         var colNum = xcHelper.parseColNum(gFnBarOrigin);
-        var table = xcHelper.getTableFromId(tableId);
+        var table = gTables[tableId];
         var userStr = table.tableCols[colNum - 1].userStr;
         userStr = userStr.substring(userStr.indexOf('='));
         $fnBar.val(userStr);
@@ -2883,7 +2882,7 @@ function functionBarEnter($colInput) {
         var $table   = $colInput.closest('.dataTable');
         var tableId  = xcHelper.parseTableId($table);
         var colNum   = xcHelper.parseColNum($colInput);
-        var table    = xcHelper.getTableFromId(tableId);
+        var table    = gTables[tableId];
         var tableCol = table.tableCols[colNum - 1];
         var colName  = tableCol.name;
         $fnBar.blur().addClass("entered");
@@ -3244,7 +3243,7 @@ function addRowListeners(newCells) {
     newCells.find('.idSpan').click(function() {
         var tableId = xcHelper.parseTableId($(this).closest('table'));
         var rowNum = parseInt($(this).closest('tr').attr('class').substring(3));
-        if (xcHelper.getTableFromId(tableId).bookmarks.indexOf(rowNum) < 0) {
+        if (gTables[tableId].bookmarks.indexOf(rowNum) < 0) {
             bookmarkRow(rowNum, tableId);
         } else {
             unbookmarkRow(rowNum, tableId);
@@ -3253,7 +3252,7 @@ function addRowListeners(newCells) {
 }
 
 function adjustRowHeights(newCells, rowIndex, tableId) {
-    var rowObj = xcHelper.getTableFromId(tableId).rowHeights;
+    var rowObj = gTables[tableId].rowHeights;
     var numRows = newCells.length;
     var pageNum = Math.floor(rowIndex / gNumEntriesPerPage);
     var lastPageNum = pageNum + Math.ceil(numRows / gNumEntriesPerPage);
@@ -3441,7 +3440,7 @@ function focusTable(tableId, focusDag) {
     gActiveTableId = tableId;
     RowScroller.update(tableId);
 
-    if (xcHelper.getTableFromId(tableId).resultSetCount === 0) {
+    if (gTables[tableId].resultSetCount === 0) {
         $('#rowInput').val(0).data('val', 0);
     } else {
         generateFirstVisibleRowNum();
@@ -3480,7 +3479,7 @@ function bookmarkRow(rowNum, tableId) {
     td.addClass('rowBookmarked');
     td.find('.idSpan').attr('title', 'bookmarked');
     RowScroller.addBookMark(rowNum, tableId);
-    var table = xcHelper.getTableFromId(tableId);
+    var table = gTables[tableId];
     if (table.bookmarks.indexOf(rowNum) < 0) {
         table.bookmarks.push(rowNum);
     }
@@ -3492,7 +3491,7 @@ function unbookmarkRow(rowNum, tableId) {
     td.removeClass('rowBookmarked');
     td.find('.idSpan').attr('title', '');
     RowScroller.removeBookMark(rowNum, tableId);
-    var table = xcHelper.getTableFromId(tableId);
+    var table = gTables[tableId];
     var index = table.bookmarks.indexOf(rowNum);
     table.bookmarks.splice(index, 1);
 }
@@ -3821,8 +3820,7 @@ window.RowScroller = (function($, RowScroller) {
             if ($rowScroller.hasClass('locked')) {
                 return;
             }
-            var table = xcHelper.getTableFromId(tableId);
-            
+            var table = gTables[tableId];
             var mouseX = event.pageX - $rowScroller.offset().left;
             var rowPercent = mouseX / $(this).width();
 
@@ -3951,7 +3949,7 @@ window.RowScroller = (function($, RowScroller) {
 
         $rowScrollerArea.append(rowScrollerHTML);
 
-        var rows = xcHelper.getTableFromId(tableId).bookmarks;
+        var rows = gTables[tableId].bookmarks;
         for (var i = 0, numRows = rows.length; i < numRows; i++) {
             RowScroller.addBookMark(rows[i], tableId);
         }
@@ -3969,7 +3967,7 @@ window.RowScroller = (function($, RowScroller) {
 
     RowScroller.update = function(tableId) {
         var $numPages = $("#numPages");
-        var table = xcHelper.getTableFromId(gActiveTableId);
+        var table = gTables[gActiveTableId];
         showRowScroller(tableId);
         var inputWidth = 50;
         if (!gActiveTableId || $.isEmptyObject(table)) {
@@ -3992,7 +3990,7 @@ window.RowScroller = (function($, RowScroller) {
 
     // for book mark tick
     RowScroller.addBookMark = function(rowNum, tableId) {
-        var table = xcHelper.getTableFromId(tableId);
+        var table = gTables[tableId];
         var leftPos = 100 * (rowNum / table.resultSetCount);
         var bookmark =
             '<div class="bookmark bkmkRow' + rowNum + '"' +
@@ -4014,7 +4012,7 @@ window.RowScroller = (function($, RowScroller) {
         if (!gActiveTableId) {
             return;
         }
-        var table = xcHelper.getTableFromId(gActiveTableId);
+        var table = gTables[gActiveTableId];
         var resultSetCount   = table.resultSetCount;
         var resultTextLength = ("" + resultSetCount).length;
 

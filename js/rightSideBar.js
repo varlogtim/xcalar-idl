@@ -99,7 +99,7 @@ window.RightSideBar = (function($, RightSideBar) {
         var $tableList = $('#activeTablesList .tableInfo[data-id="' +
                             tableId + '"]');
         var $timeLine = $tableList.closest(".timeLine");
-        var table = xcHelper.getTableFromId(tableId);
+        var table = gTables[tableId];
 
         RightSideBar.addTables([table], IsActive.Inactive);
 

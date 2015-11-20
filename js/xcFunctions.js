@@ -10,7 +10,7 @@ window.xcFunction = (function($, xcFunction) {
     xcFunction.filter = function(colNum, tableId, fltOptions) {
         var deferred = jQuery.Deferred();
 
-        var table        = xcHelper.getTableFromId(tableId);
+        var table        = gTables[tableId];
         var tableName    = table.tableName;
         var frontColName = table.tableCols[colNum].name;
         var backColName  = table.tableCols[colNum].func.args[0];
@@ -73,7 +73,7 @@ window.xcFunction = (function($, xcFunction) {
     xcFunction.aggregate = function(colNum, tableId, aggrOp) {
         var deferred = jQuery.Deferred();
 
-        var table        = xcHelper.getTableFromId(tableId);
+        var table        = gTables[tableId];
         var tableName    = table.tableName;
         var frontColName = table.tableCols[colNum].name;
         var backColName  = table.tableCols[colNum].func.args[0];
@@ -163,7 +163,7 @@ window.xcFunction = (function($, xcFunction) {
     xcFunction.sort = function(colNum, tableId, order) {
         var deferred = jQuery.Deferred();
 
-        var table     = xcHelper.getTableFromId(tableId);
+        var table     = gTables[tableId];
         var tableName = table.tableName;
         var tablCols  = xcHelper.deepCopy(table.tableCols);
         var pCol      = tablCols[colNum - 1];
@@ -402,7 +402,7 @@ window.xcFunction = (function($, xcFunction) {
             return (deferred.promise());
         }
 
-        var table     = xcHelper.getTableFromId(tableId);
+        var table     = gTables[tableId];
         var tableName = table.tableName;
         var currWorksheetIdx = WSManager.getWSFromTable(tableId);
         var columns = table.tableCols;
@@ -614,14 +614,14 @@ window.xcFunction = (function($, xcFunction) {
 
         var lColNum    = lOptions.colNum;
         var lTableId   = lOptions.tableId;
-        var lTable     = xcHelper.getTableFromId(lTableId);
+        var lTable     = gTables[lTableId];
         var lTableName = lTable.tableName;
         var lFieldName = lOptions.fieldName;
         var lMapString = lOptions.mapString;
 
         var rColNum    = rOptions.colNum;
         var rTableId   = rOptions.tableId;
-        var rTable     = xcHelper.getTableFromId(rTableId);
+        var rTable     = gTables[rTableId];
         var rTableName = rTable.tableName;
         var rFieldName = rOptions.fieldName;
         var rMapString = rOptions.mapString;
@@ -880,12 +880,11 @@ window.xcFunction = (function($, xcFunction) {
         return (1);
     }
 
-    function setupFinalGroupByColumns(tableId, groupByCols, newProgCol,
-        indexedColName) {
-        var table = xcHelper.getTableFromId(tableId);
+    function setupFinalGroupByColumns(tableId, groupByCols, newProgCol, indexedColName) {
+        var table = gTables[tableId];
         var columns = table.tableCols;
-        var $table     = xcHelper.getElementByTableId(tableId, "xcTable");
-        var $dataCol   = $table.find('th.dataCol');
+        var $table = $("#xcTable-" + tableId);
+        var $dataCol = $table.find('th.dataCol');
         var dataColNum = xcHelper.parseColNum($dataCol) - 1;
         var numCols = columns.length;
         var tablCols = [];
@@ -962,7 +961,7 @@ window.xcFunction = (function($, xcFunction) {
     }
 
     function getFrontColName(backColName, tableId) {
-        var columns = xcHelper.getTableFromId(tableId).tableCols;
+        var columns = gTables[tableId].tableCols;
         var numCols = columns.length;
         var frontColName = backColName;
         for (var i = 0; i < numCols; i++) {
@@ -985,7 +984,7 @@ window.xcFunction = (function($, xcFunction) {
     // check if table has correct index
     function checkTableIndex(colName, tableId) {
         var deferred = jQuery.Deferred();
-        var table     = xcHelper.getTableFromId(tableId);
+        var table     = gTables[tableId];
         var tableName = table.tableName;
         var parentIndexedWrongly = false;
         var unsortedTableName = tableName;
@@ -1076,7 +1075,7 @@ window.xcFunction = (function($, xcFunction) {
 
             var mapStr = "multiJoinModule:multiJoin(";
             groupByField = xcHelper.randName("multiGroupBy", 5);
-            var originTable = xcHelper.getTableFromId(tableId);
+            var originTable = gTables[tableId];
             var originTableName = originTable.tableName;
             newTableName = getNewTableInfo(originTableName).tableName;
             var currWorksheetIdx = WSManager.getWSFromTable(tableId);
@@ -1348,7 +1347,7 @@ window.xcFunction = (function($, xcFunction) {
     }
 
     function getProgCol(colName, tableId) {
-        var columns = xcHelper.getTableFromId(tableId).tableCols;
+        var columns = gTables[tableId].tableCols;
         var numCols = columns.length;
         var progCol;
         for (var i = 0; i < numCols; i++) {
@@ -1362,7 +1361,6 @@ window.xcFunction = (function($, xcFunction) {
     }
 
     function getMultiGroupByProgCol(tableCols, colName, tableId) {
-        
         tableCols = xcHelper.deepCopy(tableCols);
         var numCols = tableCols.length;
         var progCol = getProgCol(colName, tableId);

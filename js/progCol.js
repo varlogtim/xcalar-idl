@@ -53,7 +53,7 @@ window.ColManager = (function($, ColManager) {
     };
 
     ColManager.setupProgCols = function(tableId) {
-        var keyName = xcHelper.getTableFromId(tableId).keyName;
+        var keyName = gTables[tableId].keyName;
         // We cannot rely on addCol to create a new progCol object because
         // add col relies on gTableCol entry to determine whether or not to add
         // the menus specific to the main key
@@ -77,7 +77,7 @@ window.ColManager = (function($, ColManager) {
     ColManager.addCol = function(colNum, tableId, name, options) {
         var $tableWrap = $("#xcTableWrap-" + tableId);
         var $table     = $tableWrap.find(".xcTable");
-        var table      = xcHelper.getTableFromId(tableId);
+        var table      = gTables[tableId];
         var numCols    = table.tableCols.length;
         var newColid   = colNum;
 
@@ -1586,7 +1586,7 @@ window.ColManager = (function($, ColManager) {
             columnType = "undefined";
         }
 
-        var table = xcHelper.getTableFromId(tableId);
+        var table = gTables[tableId];
         table.tableCols[newColid - 1].type = columnType;
 
         // add class to th
@@ -1714,7 +1714,7 @@ window.ColManager = (function($, ColManager) {
 
     function insertColHelper(index, tableId, progCol) {
          // tableCols is an array of ProgCol obj
-        var tableCols = xcHelper.getTableFromId(tableId).tableCols;
+        var tableCols = gTables[tableId].tableCols;
 
         for (var i = tableCols.length - 1; i >= index; i--) {
             tableCols[i].index += 1;
@@ -1725,7 +1725,7 @@ window.ColManager = (function($, ColManager) {
     }
 
     function removeColHelper(index, tableId) {
-        var tableCols = xcHelper.getTableFromId(tableId).tableCols;
+        var tableCols = gTables[tableId].tableCols;
         var removed   = tableCols[index];
 
         for (var i = index + 1; i < tableCols.length; i++) {
@@ -1740,7 +1740,7 @@ window.ColManager = (function($, ColManager) {
     function delColHelper(cellNum, colNum, tableId, multipleCols, colId, noAnim) {
         // cellNum is the th's colnumber, colNum refers to gTables colNum
         var deferred = jQuery.Deferred();
-        var table      = xcHelper.getTableFromId(tableId);
+        var table      = gTables[tableId];
         var numCols    = table.tableCols.length;
         var $tableWrap = $("#xcTableWrap-" + tableId);
 

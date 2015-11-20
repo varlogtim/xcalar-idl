@@ -140,7 +140,7 @@ function addTable(tableName, oldTableName, afterStartup, tablesToRemove, lockTab
                             .removeClass("dagWrapToRemove");
         changeTableId(oldId, tableId);
 
-        var table    = xcHelper.getTableFromId(tableId);
+        var table    = gTables[tableId];
         var progCols = getIndex(table.tableName);
 
         table.tableCols = progCols;
@@ -167,10 +167,10 @@ function changeTableId(oldId, newId) {
 }
 
 function parallelConstruct(tableId, tablesToRemove, afterStartup) {
-    var table = xcHelper.getTableFromId(tableId);
     var deferred  = jQuery.Deferred();
     var deferred1 = startBuildTable(tableId, tablesToRemove);
     var deferred2 = Dag.construct(tableId);
+    var table = gTables[tableId];
 
     jQuery.when(deferred1, deferred2)
     .then(function() {
@@ -409,9 +409,9 @@ function TableMeta() {
 // start the process of building table
 function startBuildTable(tableId, tablesToRemove) {
     var deferred   = jQuery.Deferred();
-    var table      = xcHelper.getTableFromId(tableId);
+    var table      = gTables[tableId];
     var tableName  = table.tableName;
-    var progCols   = gTables[tableId].tableCols;
+    var progCols   = table.tableCols;
     var notIndexed = !(progCols && progCols.length > 0);
 
     getFirstPage(table, notIndexed)

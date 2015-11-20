@@ -64,7 +64,7 @@ function goToPage(rowNumber, numRowsToAdd, direction, loop, info,
     info = info || {};
 
     var tableId = info.tableId;
-    var table = xcHelper.getTableFromId(tableId);
+    var table = gTables[tableId];
     var $table;
 
     if (rowNumber >= table.resultSetMax) {
@@ -103,7 +103,7 @@ function goToPage(rowNumber, numRowsToAdd, direction, loop, info,
             info.missingRows.push(position);
         }
 
-        $table = xcHelper.getElementByTableId(tableId, "xcTable");
+        $table = $("#xcTable-" + tableId);
         prepullTableHeight = $table.height();
 
         info.numRowsAdded += jsonLen;

@@ -656,8 +656,9 @@ window.Dag = (function($, Dag) {
 
     Dag.construct = function(tableId) {
         var deferred = jQuery.Deferred();
-        var table = xcHelper.getTableFromId(tableId);
+        var table = gTables[tableId];
         var tableName = table.tableName;
+
         drawDag(tableName)
         .then(function(dagDrawing) {
             var activeWS = WSManager.getActiveWS();
