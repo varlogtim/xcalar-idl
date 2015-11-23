@@ -210,7 +210,7 @@
       <section class="previewSection">
         <!-- title section -->
         <section class="titleSection">
-          <div class="text">Preview</div>
+          <div class="text textOverflow">Preview</div>
         </section>
         <!-- Data Flow list section -->
         <section id="dataFlowPreviews" class="listSection"></section>
@@ -1002,21 +1002,26 @@
           </div>
         </div>
         <div class="midContent">
+          <!-- midContentHeader -->
           <div class="midContentHeader">
             <div class="leftSection">
               <h2></h2>
               <ul class="schedulesList"></ul>
             </div>
-            <div class="retTabSection">
-              <!-- <div class="retTab">
+            <!-- Retina Tab Section -->
+            <div class="retTabSection no-selection hidden">
+              <div class="retTab">
                 <div class="tabWrap">
-                  <input type="text" class="retTitle textOverflow" disabled>
-                  <div class="caret"><span class="icon"></span></div>
+                  <span class="retTitle">Parameters</span>
+                  <div class="caret">
+                    <span class="icon"></span>
+                  </div>
                 </div>
+                <!-- retPopUp -->
                 <div class="retPopUp">
                   <div class="divider"></div>
                   <div class="inputSection">
-                    <input class="newParam" type="text" placeholder="Input New Parameter">
+                    <input class="newParam" type="text" placeholder="Input New Parameter" spellcheck="false">
                     <div class="btn addParam">
                       <span class="icon"></span>
                       <span class="label">CREATE NEW PARAMETER</span>
@@ -1035,52 +1040,17 @@
                             </th>
                           </tr>
                         </thead>
-                        <tbody>
-                          <tr class="unfilled">
-                            <td class="paramName"></td>
-                            <td>
-                              <div class="paramVal"></div>
-                              <div class="delete paramDelete">
-                                <span class="icon"></span>
-                              </div>
-                            </td>
-                          </tr>
-                          <tr class="unfilled">
-                            <td class="paramName"></td>
-                            <td>
-                              <div class="paramVal"></div>
-                              <div class="delete paramDelete"><span class="icon"></span></div>
-                            </td>
-                          </tr>
-                          <tr class="unfilled">
-                            <td class="paramName"></td>
-                            <td>
-                              <div class="paramVal"></div>
-                              <div class="delete paramDelete"><span class="icon"></span></div>
-                            </td>
-                          </tr>
-                          <tr class="unfilled">
-                            <td class="paramName"></td>
-                            <td>
-                              <div class="paramVal"></div>
-                              <div class="delete paramDelete"><span class="icon"></span></div>
-                            </td>
-                          </tr>
-                          <tr class="unfilled">
-                            <td class="paramName"></td>
-                            <td>
-                              <div class="paramVal"></div>
-                              <div class="delete paramDelete"><span class="icon"></span></div>
-                            </td>
-                          </tr>
-                        </tbody>
+                        <tbody></tbody>
                       </table>
                     </div>
                   </div>
                 </div>
-              </div> -->
+                <!-- End of retPopUp -->
+              </div>
             </div>
+            <!-- End Of Retina Tab Section -->
           </div>
+          <!-- End of midContentHeader -->
           <div class="midContentMain"></div>
         </div>
       </div>
@@ -1336,9 +1306,6 @@
           <table class="templateTable">
             <tr class="template"></tr>
           </table>
-          <div id="addNewParameterizedQuery" class="btn btnLarge">
-            <span class="icon"></span>ADD NEW PARAMETERIZED QUERY
-          </div>
         </div>
         <div class="border"></div>
         <div class="currentParameterList retinaModalSection">
@@ -1353,7 +1320,7 @@
           </table>
         </div>
       </div>
-      <div class="defaultListSection"></div>
+      <div id="dagModleParamList" class="defaultListSection"></div>
       <div class="modalBottom clearfix">
         <div class="btn btnMid confirm">SAVE</div>
         <div class="btn btnMid cancel">CANCEL</div>

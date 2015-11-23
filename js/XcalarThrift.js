@@ -1410,9 +1410,10 @@ function XcalarListFiles(url) {
 // pass in the DagNodeIds that are part of this new Retina instead of the
 // original DAG
 function XcalarMakeRetina(retName, tableArray) {
-    if (retName === "" || retName == null ||
-        tableName === "" || tableName == null ||
-        [null, undefined].indexOf(tHandle) !== -1) {
+    if ([null, undefined].indexOf(tHandle) !== -1 ||
+        retName === "" || retName == null ||
+        tableArray == null || tableArray.length > 0)
+    {
         return (promiseWrapper(null));
     }
 
@@ -1604,6 +1605,7 @@ function XcalarDeleteRetina(retName) {
     .fail(function(error) {
         deferred.reject(thriftLog("XcalarApiDeleteRetina", error));
     });*/
+    return (deferred.promise());
 }
 
 function XcalarDeleteSched(schedName) {

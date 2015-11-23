@@ -154,13 +154,6 @@ window.DataFlowModal = (function($, DataFlowModal) {
         DFG.setGroup(groupName, group);
     }
 
-    function DFGConstructor() {
-        this.dataFlows = [];
-        this.schedules = [];
-        this.parameters = [];
-        this.hasRetina = false;
-    }
-
     function addModalEvents() {
         $dfgModal.on("click", ".close, .cancel", function(event) {
             event.stopPropagation();
@@ -219,7 +212,7 @@ window.DataFlowModal = (function($, DataFlowModal) {
         $dfgModal.addClass("exportMode");
         $confirmBtn.removeClass("next").text("Save");
         $previewSection.find(".titleSection .text")
-                       .text("Choose columns to export");
+                       .text("Export columns of " + tableName);
         $dfPreviews.hide();
         $dfExport.show();
     }
@@ -298,13 +291,14 @@ window.DataFlowModal = (function($, DataFlowModal) {
             columns.push(colName);
         });
 
-
+        var isNewGroup = true;
         if (groupName === "") {
+            isNewGroup = false;
             groupName = $sideListSection.find('.listBox.selected')
                                         .find('.label')
                                         .text();
         }
-        
+
         saveDataFlow(groupName, columns);
 
         modalHelper.submit();
@@ -312,8 +306,9 @@ window.DataFlowModal = (function($, DataFlowModal) {
 
         // refresh dataflow lists in modal and scheduler panel
         setupDFGList();
-        DFGPanel.refresh();
-        // modalHelper.enableSubmit();
+
+        DFGPanel.updateDFG(groupName, isNewGroup);
+        modalHelper.enableSubmit();
     }
 
     function setupDFGImage($dagWrap) {
@@ -328,10 +323,8 @@ window.DataFlowModal = (function($, DataFlowModal) {
         // var destCtx = destinationCanvas.getContext('2d');
         // destCtx.drawImage(originalCanvas, 0, 0);
         $dfPreviews.html($dagImage);
-
         DFG.drawCanvas($dagImage);
     }
-
 
     function closeDFGModal() {
         modalHelper.clear();
@@ -357,7 +350,6 @@ window.DataFlowModal = (function($, DataFlowModal) {
         $confirmBtn.text("Next").addClass("next");
         $(document).off('keypress.dfgModal');
     }
-
 
     function setupDFGList() {
         var groups = DFG.getAllGroups();

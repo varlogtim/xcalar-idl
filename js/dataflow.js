@@ -1,49 +1,112 @@
-window.DFG = (function($, DFG) {
-    // var dfGroups = {};
-    // var dfGroups = {
-    //                     "group1": [{name: 'yelpUsers', dataFlow:{}},
-    //                                 {name: 'yelpReviews', dataFlow: {}}],
-    //                     "group2": [{name: 'classes', dataFlow:{}},
-    //                                {name: 'schedules', dataFlow: {}}]
-    //                 };
+function DFGConstructor() {
+    this.dataFlows = [];
+    this.schedules = [];
+    this.parameters = [];
+    this.paramMap = {};
+    this.retinaNodes = {};
 
-    var dfGroups = {"group1": {
-                        "dataFlows": [
-                            {
-                                "name"      : "joinTable-82736#fr26",
-                                "canvasInfo": {
-                                    "tables": [
-                                        {"index": 7, "children": "5", "type": "dataStore", "left": 10, "top": 0, "title": "Dataset classes"},
-                                        {"index": 5, "children": "3", "type": "table", "left": 220, "top": 0, "title": "classes3#fr22"},
-                                        {"index": 3, "children": "1", "type": "table", "left": 433, "top": 0, "title": "classes3#fr24"},
-                                        {"index": 1, "children": "0", "type": "table", "left": 647, "top": 0, "title": "classes3#fr28"},
-                                        {"index": 6, "children": "4", "type": "dataStore", "left": 223, "top": 65, "title": "Dataset schedule"},
-                                        {"index": 4, "children": "2", "type": "table", "left": 433, "top": 65, "title": "schedule4#fr23"},
-                                        {"index": 2, "children": "0", "type": "table", "left": 647, "top": 65, "title": "schedule4#fr27"},
-                                        {"index": 0, "type": "table", "left": 861, "top": 32, "title": "joinTable-82736#fr26"}
-                                    ],
-                                    "operations": [
-                                        {"tooltip": "Indexed on recordNum", "type": "index", "parents": "recordNum", "left": 70, "top": 4, "classes": "dagIcon index index"},
-                                        {"tooltip": "Filtered table \"classes3#fr22\" where class_id is greater than 1.", "type": "filter", "parents": "class_id", "left": 283, "top": 4, "classes": "dagIcon filter filtergt"},
-                                        {"tooltip": "Sorted by class_id", "type": "sort", "parents": "class_id", "left": 497, "top": 4, "classes": "dagIcon sort sort"},
-                                        {"tooltip": "Indexed on recordNum", "type": "index", "parents": "recordNum", "left": 283, "top": 69, "classes": "dagIcon index index"},
-                                        {"tooltip": "Sorted by class_id", "type": "sort", "parents": "class_id", "left": 497, "top": 69, "classes": "dagIcon sort sort"},
-                                        {"tooltip": "Inner Join between table \"classes3#fr28\" and table \"schedule4#fr27\"", "type": "join", "parents": "classes3#fr28 & schedule4#fr27", "left": 711, "top": 36, "classes": "dagIcon join inner"}
-                                    ],
-                                    "height": 155,
-                                    "width" : 945
-                                }
-                            }
-                        ],
-                        "schedules": [],
-                        "parameters": []
-                    }};
+    return (this);
+}
+
+// XXX TODO: add another constructor with an obj as arguments
+// for restore use
+
+DFGConstructor.prototype = {
+    "addRetinaNode": function(dagNodeId, paramInfo) {
+        this.retinaNodes[dagNodeId] = paramInfo;
+    },
+
+    "getRetinaNode": function(dagNodeId) {
+        return this.retinaNodes[dagNodeId];
+    },
+
+    "addParameter": function(name, val) {
+        xcHelper.assert(!this.paramMap.hasOwnProperty(name), "Invalid name");
+
+        this.parameters.push(name);
+        this.paramMap[name] = val;
+    },
+
+    "getParameter": function(paramName) {
+        return this.paramMap[paramName];
+    },
+
+    "updateParameter": function(name, val) {
+        xcHelper.assert(this.paramMap.hasOwnProperty(name), "Invalid name");
+        this.paramMap[name] = val;
+    },
+
+    "checkParamInUse": function(paramName) {
+        var str = "<" + paramName + ">";
+        var retinsNodes = this.retinaNodes;
+
+        for (var dagNodeId in retinsNodes) {
+            var dagQuery = retinsNodes[dagNodeId].paramQuery;
+            for (var i = 0, len = dagQuery.length; i < len; i++) {
+                if (dagQuery[i].indexOf(str) >= 0) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    },
+
+    "removeParameter": function(name) {
+        var index = this.parameters.indexOf(name);
+
+        xcHelper.assert((index >= 0), "Invalid name");
+
+        this.parameters.splice(index, 1);
+        delete this.paramMap[name];
+    }
+};
+
+window.DFG = (function($, DFG) {
+    var dfGroups = {};
+
+    // var dfGroups = {"group1": {
+    //                     "dataFlows": [
+    //                         {
+    //                             "name"      : "joinTable-82736#fr26",
+    //                             "canvasInfo": {
+    //                                 "tables": [
+    //                                     {"index": 7, "children": "5", "type": "dataStore", "left": 10, "top": 0, "title": "Dataset classes"},
+    //                                     {"index": 5, "children": "3", "type": "table", "left": 220, "top": 0, "title": "classes3#fr22"},
+    //                                     {"index": 3, "children": "1", "type": "table", "left": 433, "top": 0, "title": "classes3#fr24"},
+    //                                     {"index": 1, "children": "0", "type": "table", "left": 647, "top": 0, "title": "classes3#fr28"},
+    //                                     {"index": 6, "children": "4", "type": "dataStore", "left": 223, "top": 65, "title": "Dataset schedule"},
+    //                                     {"index": 4, "children": "2", "type": "table", "left": 433, "top": 65, "title": "schedule4#fr23"},
+    //                                     {"index": 2, "children": "0", "type": "table", "left": 647, "top": 65, "title": "schedule4#fr27"},
+    //                                     {"index": 0, "type": "table", "left": 861, "top": 32, "title": "joinTable-82736#fr26"}
+    //                                 ],
+    //                                 "operations": [
+    //                                     {"tooltip": "Indexed on recordNum", "type": "index", "parents": "recordNum", "left": 70, "top": 4, "classes": "dagIcon index index"},
+    //                                     {"tooltip": "Filtered table \"classes3#fr22\" where class_id is greater than 1.", "type": "filter", "parents": "class_id", "left": 283, "top": 4, "classes": "dagIcon filter filtergt"},
+    //                                     {"tooltip": "Sorted by class_id", "type": "sort", "parents": "class_id", "left": 497, "top": 4, "classes": "dagIcon sort sort"},
+    //                                     {"tooltip": "Indexed on recordNum", "type": "index", "parents": "recordNum", "left": 283, "top": 69, "classes": "dagIcon index index"},
+    //                                     {"tooltip": "Sorted by class_id", "type": "sort", "parents": "class_id", "left": 497, "top": 69, "classes": "dagIcon sort sort"},
+    //                                     {"tooltip": "Inner Join between table \"classes3#fr28\" and table \"schedule4#fr27\"", "type": "join", "parents": "classes3#fr28 & schedule4#fr27", "left": 711, "top": 36, "classes": "dagIcon join inner"}
+    //                                 ],
+    //                                 "height": 155,
+    //                                 "width" : 945
+    //                             }
+    //                         }
+    //                     ],
+    //                     "schedules": [],
+    //                     "parameters": [],
+    //                     "retina": {}
+    //                 }};
     DFG.restoreGroups = function() {
 
     };
 
     DFG.getAllGroups = function() {
         return (dfGroups);
+    };
+
+    DFG.getGroup = function(groupName) {
+        return dfGroups[groupName];
     };
 
     DFG.setGroup = function(groupName, group) {
@@ -110,6 +173,61 @@ window.DFG = (function($, DFG) {
         }
     };
 
+    DFG.createRetina = function(retName, isNew) {
+        var deferred = jQuery.Deferred();
+        var dfg = dfGroups[retName];
+
+        var tableArray = [];
+        dfg.dataFlows.forEach(function(dataFlow) {
+            var tableName   = dataFlow.name;
+            var columnNames = dataFlow.columns;
+            var numColumns  = columnNames.length;
+
+            tableArray.push({
+                "tableName"  : tableName,
+                "numColumns" : numColumns,
+                "columnNames": columnNames
+            });
+        });
+
+        console.log(retName, tableArray);
+
+        makeRetinaHelper()
+        .then(deferred.resolve)
+        .fail(deferred.reject);
+
+        return (deferred.promise());
+
+        function makeRetinaHelper() {
+            var innerDeferred = jQuery.Deferred();
+            if (isNew) {
+                return XcalarMakeRetina(retName, tableArray);
+            } else {
+                XcalarDeleteRetina(retName)
+                .then(function() {
+                    return XcalarMakeRetina(retName);
+                })
+                .then(function() {
+                    // XXX TODO: check if the way to update params list is right
+                    var promises = [];
+                    var retinaNodes = dfg.retinaNodes;
+                    for (var dagNodeId in retinaNodes) {
+                        var node = retinaNodes[dagNodeId];
+                        console.log(node);
+                        promises.push(XcalarUpdateRetina.bind(this, retName,
+                                dagNodeId, node.paramType, node.paramValue));
+                    }
+
+                    return chain(promises);
+                })
+                .then(innerDeferred.resolve)
+                .fail(innerDeferred.reject);
+            }
+
+            return (innerDeferred.promise());
+        }
+    };
+
     return (DFG);
 
 }(jQuery, {}));
@@ -119,8 +237,13 @@ window.DFGPanel = (function($, DFGPanel) {
     var $listSection = $dfgView.find('.listSection');
     var $header = $dfgView.find('.midContentHeader h2');
     var $addGroupBtn = $dfgView.find('.mainButtonArea').find('.addGroup');
+    var $retTabSection = $dfgView.find('.retTabSection');
+
+    var currentDFG = null;
 
     DFGPanel.setup = function() {
+        DagParamModal.setup();
+        AddScheduleModal.setup();
         addListeners();
         setupViewToggling();
         updateList();
@@ -128,8 +251,23 @@ window.DFGPanel = (function($, DFGPanel) {
         setupRetinaTab();
     };
 
-    DFGPanel.refresh = function() {
-        updateList();
+    DFGPanel.updateDFG = function(groupName, isNewGroup) {
+        // XXX TODO: disable the dfg when creating retina
+        DFG.createRetina(groupName, isNewGroup)
+        .then(function() {
+            // XXX TODO:
+            // 1. enable the dfg when retain is created
+            // 2. updateList should use the correct dagNode Id
+            // and append export table (call XcalarGetRetina(retName))
+            updateList();
+        })
+        .fail(function(error) {
+            console.error(error);
+        });
+    };
+
+    DFGPanel.getCurrentDFG = function() {
+        return (currentDFG);
     };
 
     DFGPanel.listSchedulesInHeader = function(groupName) {
@@ -152,51 +290,8 @@ window.DFGPanel = (function($, DFGPanel) {
     };
 
     DFGPanel.updateRetinaTab = function(retName) {
-        var deferred = jQuery.Deferred();
-        var $retTabSection = $('.retTabSection');
-        var retClass = "retTab";
-        // var inputVal = "";
-        var dfGroup = DFG.getAllGroups()[retName];
-        var hasRetina = dfGroup.hasRetina;
-
-        var html =
-            '<div class="' + retClass + '">' +
-                '<div class="tabWrap">' +
-                    '<input type="text" class="retTitle" value="Parameters">' +
-                    '<div class="caret">' +
-                        '<span class="icon"></span>' +
-                    '</div>' +
-                '</div>' +
-                '<div class="retPopUp">' +
-                    '<div class="divider"></div>' +
-                    '<div class="inputSection">' +
-                        '<input class="newParam" type="text"' +
-                        ' placeholder="Input New Parameter">' +
-                        '<div class="btn addParam">' +
-                            '<span class="icon"></span>' +
-                            '<span class="label">' +
-                                'CREATE NEW PARAMETER' +
-                            '</span>' +
-                        '</div>' +
-                    '</div>' +
-                    '<div class="tableContainer">' +
-                        '<div class="tableWrapper">' +
-                            '<table>' +
-                                '<thead>' +
-                                    '<tr>' +
-                                        '<th>' +
-                                            '<div class="thWrap">' +
-                                                'Current Parameter' +
-                                            '</div>' +
-                                        '</th>' +
-                                        '<th>' +
-                                            '<div class="thWrap">' +
-                                                'Default Value' +
-                                            '</div>' +
-                                        '</th>' +
-                                    '</tr>' +
-                                '</thead>' +
-                                '<tbody>';
+        var html = "";
+        // XXX TODO: suuport more than 7 parameters in retina
         for (var t = 0; t < 7; t++) {
             html += '<tr class="unfilled">' +
                         '<td class="paramName"></td>' +
@@ -209,53 +304,20 @@ window.DFGPanel = (function($, DFGPanel) {
                    '</tr>';
         }
 
-        html += '</tbody></table></div></div></div></div>';
+        var $tbody = $retTabSection.find(".tableContainer table tbody");
+        $tbody.html(html);
 
-        var $retTab = $(html);
-        $retTab.data('retname', retName);
-        $retTabSection.html($retTab);
+        var dfg = DFG.getGroup(retName);
+        var paramMap = dfg.paramMap;
 
+        dfg.parameters.forEach(function(paramName) {
+            addParamToRetina($tbody, paramName, paramMap[paramName]);
+        });
 
-        var $input = $retTab.find('.retTitle');
-        if ($retTabSection.find('.retTitle[disabled="disabled"]')
-                          .length === 0) {
-            $input.attr('disabled', 'disabled');
-        }
-        var $tbody = $retTab.find('tbody');
-
-        if (hasRetina) {
-            XcalarListParametersInRetina(retName)
-            .then(function(output) {
-                var num = output.numParameters;
-                var params = output.parameters;
-                for (var i = 0; i < num; i++) {
-                    var param = params[i];
-                    var paramName = param.parameterName;
-                    var paramVal = param.parameterValue;
-                    DFGPanel.addParamToRetina($tbody, paramName, paramVal);
-                }
-                deferred.resolve();
-            })
-            .fail(function(error) {
-                console.error("list retina parameters fails!");
-                deferred.reject(error);
-            });
-        } else {
-            var params = dfGroup.parameters;
-            var numParams = dfGroup.parameters.length;
-            for (var i = 0; i < numParams; i++) {
-                var param = params[i];
-                var paramName = param.parameterName;
-                var paramVal = param.parameterValue;
-                DFGPanel.addParamToRetina($tbody, paramName, paramVal);
-            }
-        }
-        
-
-        return (deferred.promise());
+        $retTabSection.removeClass("hidden");
     };
 
-    DFGPanel.addParamToRetina = function($tbody, name, val) {
+    function addParamToRetina($tbody, name, val) {
         var $trs = $tbody.find('.unfilled');
         // Now only allow to add 7 parameters
         if ($trs.length > 0) {
@@ -266,11 +328,16 @@ window.DFGPanel = (function($, DFGPanel) {
             }
             $tr.removeClass('unfilled');
         }
-    };
+    }
 
     function setupRetinaTab() {
+        $dfgView.on("mousedown", function() {
+            if ($(event.target).closest('#statusBox').length) {
+                return;
+            }
+            $dfgView.find(".retTab").removeClass("active");
+        });
         // Remove focus when click other places other than retinaArea
-        var $retTabSection = $('.retTabSection');
         // add new retina
         $retTabSection.on('mousedown', '.retPopUp', function(event){
             event.stopPropagation();
@@ -280,22 +347,12 @@ window.DFGPanel = (function($, DFGPanel) {
         $retTabSection.on('mousedown', '.retTab', function(event) {
             event.stopPropagation();
             var $tab = $(this);
-            if ($tab.hasClass('unconfirmed')) {
-                return;
-            }
-            // the tab is open, close it
             if ($tab.hasClass('active')) {
+                // close it tab
                 $tab.removeClass('active');
             } else {
-                $dagPanel.find('.retTab.active').removeClass('active');
+                // open tab
                 $tab.addClass('active');
-                $(document).on('mousedown.closeRetTab', function(event) {
-                    if ($(event.target).closest('#statusBox').length) {
-                        return;
-                    }
-                    $tab.removeClass('active');
-                    $(document).off('mousedown.closeRetTab');
-                });
             }
         });
 
@@ -313,47 +370,46 @@ window.DFGPanel = (function($, DFGPanel) {
             event.stopPropagation();
             var $btn = $(this);
             var $input = $btn.prev('.newParam');
-            var paramName = jQuery.trim($input.val());
-            var text;
+            var paramName = $input.val().trim();
 
-            // empty input
-            if (paramName === "") {
-                text = "Please input a valid parameter name!";
-                StatusBox.show(text, $input, true);
-                $input.val("");
+            var isValid = xcHelper.validate([
+                {
+                    "$selector": $input
+                },
+                {
+                    "$selector": $input,
+                    "text"     : "Parameter name contains invalid character!",
+                    "check"    : function() {
+                        return /\W/.test(paramName);
+                    }
+                }
+            ]);
+
+            if (!isValid) {
                 return;
             }
 
-            var $retPopUp = $btn.closest('.retPopUp');
-            var $tbody = $retPopUp.find('tbody');
-
-            // var retName = $retPopUp.closest('.retTab').data('retname');
-            // console.log('New Parameter in retina:', retName,
-            //             'parameter name:',paramName);
-
+            var $tbody = $btn.closest(".retPopUp").find('tbody');
             // Check name conflict
             var isNameConflict = false;
             $tbody.find('tr:not(.unfilled)').each(function(index, tr) {
-                if (isNameConflict === true) {
-                    return;
-                }
-                var $tr = $(tr);
-                var name = $tr.find('.paramName').html();
+                var name = $(tr).find('.paramName').html();
                 if (paramName === name) {
                     isNameConflict = true;
+                    return false; // exist loop
                 }
             });
-            if (isNameConflict === true) {
-                text = "Parameter " + paramName + " already exists!";
-                StatusBox.show(text, $input, true);
+
+            if (isNameConflict) {
+                var text = "Parameter " + paramName + " already exists!";
+                StatusBox.show(text, $input);
                 return;
             }
 
-            $input.val("");
-            DFGPanel.addParamToRetina($tbody, paramName);
+            DFG.getGroup(currentDFG).addParameter(paramName);
 
-            //XX if retina doesn't exist in backend, we should add to parameter
-            // list
+            addParamToRetina($tbody, paramName);
+            $input.val("");
         });
 
         // delete retina para
@@ -362,20 +418,21 @@ window.DFGPanel = (function($, DFGPanel) {
             var $delBtn = $(this);
             var $tr = $delBtn.closest('tr');
             var $tbody = $tr.parent();
+            var $paramName = $tr.find('.paramName');
             var paramName = $tr.find('.paramName').text();
-            var options = {};
-            options.title = 'DELETE RETINA PARAMETER';
-            options.msg = 'Are you sure you want to delete parameter ' +
-                           paramName + '?';
-            options.isCheckBox = true;
-            options.confirm = function() {
-                $tr.find('.paramName').empty();
-                $tr.find('.paramVal').empty();
-                $tr.addClass('unfilled');
-                $tbody.append($tr);
-            };
+            var dfg = DFG.getGroup(currentDFG);
 
-            Alert.show(options);
+            if (dfg.checkParamInUse(paramName)) {
+                var text = "This parameter is in use!";
+                StatusBox.show(text, $paramName);
+                return;
+            }
+
+            $tr.find('.paramName').empty();
+            $tr.find('.paramVal').empty();
+            $tr.addClass('unfilled');
+            $tbody.append($tr); // this move the tr to last row
+            dfg.removeParameter(paramName);
         });
     }
 
@@ -386,12 +443,14 @@ window.DFGPanel = (function($, DFGPanel) {
             if ($groupLi.hasClass('selected')) {
                 return;
             }
+
             var groupName = $groupLi.find('.label').text();
+            currentDFG = groupName;
             $header.text(groupName);
             drawDags(groupName);
             DFGPanel.listSchedulesInHeader(groupName);
             DFGPanel.updateRetinaTab(groupName);
-            
+
             $listSection.find('.listBox').removeClass('selected');
             $groupLi.addClass('selected');
 
@@ -413,7 +472,7 @@ window.DFGPanel = (function($, DFGPanel) {
     }
 
     function setupViewToggling() {
-        $schedulesView = $('#schedulesView');
+        var $schedulesView = $('#schedulesView');
 
         $('#schedulerTopBar').find('.buttonArea').click(function() {
             var $button = $(this);
@@ -435,10 +494,12 @@ window.DFGPanel = (function($, DFGPanel) {
     }
 
     function drawDags(groupName) {
-        var group = DFG.getAllGroups()[groupName];
-        var numDataFlows = group.dataFlows.length;
         var html = "";
+        var group = DFG.getGroup(groupName);
+
+        var numDataFlows = group.dataFlows.length;
         for (var i = 0; i < numDataFlows; i++) {
+            var dataFlow = group.dataFlows[i];
             html += '<div class="dagWrap clearfix">' +
                         '<div class="header clearfix">' +
                             '<div class="btn btnSmall infoIcon">' +
@@ -448,37 +509,34 @@ window.DFGPanel = (function($, DFGPanel) {
                                 '<span>Table: </span>' +
                                 '<span class="tableName" draggable="true" ' +
                                 'ondragstart="xcDrag(event)">' +
-                                    group.dataFlows[i].name +
+                                    dataFlow.name +
                                 '</span>' +
                             '</div>' +
                         '</div>' +
                         '<div class="dagImageWrap">' +
                             '<div class="dagImage" style="width:' +
-                            group.dataFlows[i].canvasInfo.width + 'px;height:' +
-                            group.dataFlows[i].canvasInfo.height + 'px;">';
+                            dataFlow.canvasInfo.width + 'px;height:' +
+                            dataFlow.canvasInfo.height + 'px;">';
 
-            var tables = group.dataFlows[i].canvasInfo.tables;
-            var numTables = tables.length;
-            for (var j = 0; j < numTables; j++) {
+            var tables = dataFlow.canvasInfo.tables;
+            for (var j = 0, numTables = tables.length; j < numTables; j++) {
                 html += getTableHtml(tables[j]);
             }
 
-            var operations = group.dataFlows[i].canvasInfo.operations;
-            var numOperations = operations.length;
-            for (var j = 0; j < numOperations; j++) {
+            var operations = dataFlow.canvasInfo.operations;
+            for (var j = 0, numOps = operations.length; j < numOps; j++) {
                 html += getOperationHtml(operations[j]);
             }
             html += '</div></div></div>';
-
-
         }
+
         $dfgView.find('.midContentMain').html(html);
         $dfgView.find('.dagImage').each(function() {
             DFG.drawCanvas($(this), true);
         });
 
         // var retinaSign = '<div class="retinaArea" data-tableid="' +
-        //                 // tableId + 
+        //                 // tableId +
         //                 '">' +
         //                 '<div data-toggle="tooltip" data-container="body" ' +
         //                 'data-placement="top" title="Add Data Flow" ' +
@@ -497,8 +555,6 @@ window.DFGPanel = (function($, DFGPanel) {
         var html =
         '<ul class="menu dagDropDown">' +
             '<li class="createParamQuery">Create Parameterized Query</li>' +
-            '<li class="modifyParams">Modify Existing Parameters</li>' +
-            // '<li class="listParams">List of ? Parameters</li>' +
         '</ul>';
         return (html);
     }
@@ -563,9 +619,8 @@ window.DFGPanel = (function($, DFGPanel) {
         var $menu = $dagArea.find('.dagDropDown');
 
         $dagArea[0].oncontextmenu = function(e) {
-           
             var $target = $(e.target).closest('.actionType');
-           
+
             if ($target.length) {
                 $target.trigger('click');
                 e.preventDefault();
@@ -593,8 +648,6 @@ window.DFGPanel = (function($, DFGPanel) {
                 }
             }
 
-
-
             var el = $(this);
             //position colMenu
             var topMargin = 0;
@@ -621,29 +674,19 @@ window.DFGPanel = (function($, DFGPanel) {
             $('body').addClass('noSelection');
         });
 
-
         addMenuBehaviors($menu);
 
         $menu.find('.createParamQuery').mouseup(function(event) {
             if (event.which !== 1) {
                 return;
             }
-            DagModal.show($currentIcon);
+            DagParamModal.show($currentIcon);
         });
-
-        //XX both dropdown options will do the same thing
-        $menu.find('.modifyParams').mouseup(function(event) {
-            if (event.which !== 1) {
-                return;
-            }
-            DagModal.show($currentIcon);
-        });
-
     }
 
     function updateList() {
         resetDFGView();
-        
+
         var groups = DFG.getAllGroups();
         var html = "";
         var numGroups = 0;
@@ -834,5 +877,484 @@ window.AddScheduleModal = (function($, AddScheduleModal) {
     }
 
     return (AddScheduleModal);
+
+}(jQuery, {}));
+
+window.DagParamModal = (function($, DagParamModal){
+    var $dagParamModal = $("#dagParameterModal");
+    var $modalBg = $("#modalBackground");
+
+    var $paramLists = $("#dagModleParamList");
+    var $editableRow = $dagParamModal.find('.editableRow');
+
+    DagParamModal.setup = function() {
+        $dagParamModal.find('.cancel, .close').click(function() {
+            closeDagParamModal();
+        });
+
+        $dagParamModal.find('.confirm').click(function() {
+            storeRetina();
+        });
+
+        $dagParamModal.on('click', '.draggableDiv .close', function() {
+            var value = $(this).siblings('.value').text();
+            $(this).parent().remove();
+
+            var $dups = $editableRow.find('.editableParamDiv .value').filter(function() {
+                return ($(this).text() === value);
+            });
+
+            if ($dups.length > 0) {
+                return;
+            }
+
+            $paramLists.find('.paramName').filter(function() {
+                return ($(this).text() === value);
+            }).closest('tr').remove();
+
+            var newRow = '<tr class="unfilled">' +
+                            '<td class="paramName"></td>' +
+                            '<td>' +
+                                '<input class="paramVal" />' +
+                                '<div class="options">' +
+                                     '<div class="option paramEdit">' +
+                                        '<span class="icon"></span>' +
+                                    '</div>' +
+                                '</div>' +
+                            '</td>' +
+                       '</tr>';
+            $paramLists.find('tr:last').after(newRow);
+        });
+
+        $dagParamModal.on('focus', '.paramVal', function() {
+            $(this).next().find('.paramEdit').addClass('selected');
+        });
+
+        $dagParamModal.on('blur', '.paramVal', function() {
+            $(this).next().find('.paramEdit').removeClass('selected');
+        });
+
+        $dagParamModal.on('click', '.paramEdit', function() {
+            $(this).closest('td').find('paramVal').focus();
+        });
+
+        $dagParamModal.on('keypress', '.editableParamDiv', function(event) {
+            return (event.which !== keyCode.Enter);
+        });
+
+        $dagParamModal.draggable({
+            handle     : '.modalHeader',
+            containment: 'window',
+            cursor     : '-webkit-grabbing'
+        });
+    };
+
+    DagParamModal.show = function($currentIcon) {
+        var type = $currentIcon.data('type');
+        var id = $currentIcon.data('id');
+        var dfgName = DFGPanel.getCurrentDFG();
+
+        $dagParamModal.data({
+            "id" : id,
+            "dfg": dfgName
+        });
+        var defaultText = ""; // The html corresponding to Current Query:
+        var editableText = ""; // The html corresponding to Parameterized Query:
+        if ($currentIcon.hasClass('dataStore')) {
+            defaultText += '<td>Load</td>';
+            defaultText += '<td><div class="boxed large">' +
+                            $currentIcon.data('url') +
+                            '</div></td>';
+            editableText += "<td class='static'>Load</td>";
+            editableText += '<td>' +
+                                '<div class="editableParamDiv boxed ' +
+                                'large load" ' +
+                                'ondragover="DagParamModal.allowParamDrop(event)"' +
+                                'ondrop="DagParamModal.paramDrop(event)" ' +
+                                'data-target="0" ' +
+                                'contenteditable="true" ' +
+                                'spellcheck="false"></div>' +
+                            '</td>';
+        } else { // not a datastore but a table
+            defaultText += "<td>" + type + "</td>";
+            defaultText += "<td><div class='boxed medium'>" +
+                            $currentIcon.data('column') +
+                            "</div></td>";
+            editableText += "<td class='static'>" + type + "</td>";
+        }
+
+        if (type === "filter") {
+            var filterInfo = $currentIcon.data('info') + " ";
+            var parenIndex = filterInfo.indexOf("(");
+            var abbrFilterType = filterInfo.slice(0, parenIndex);
+            var filterValue = filterInfo.slice(filterInfo.indexOf(',') + 2,
+                                                  filterInfo.indexOf(')'));
+            var filterTypeMap = {
+                "gt"   : ">",
+                "ge"   : "&ge;",
+                "eq"   : "=",
+                "lt"   : "<",
+                "le"   : "&le;",
+                "regex": "regex",
+                "like" : "like",
+                "not"  : "not"
+            };
+
+            defaultText += "<td class='static'>by</td>";
+            defaultText += "<td><div class='boxed small'>" +
+                            filterTypeMap[abbrFilterType] + "</div></td>";
+            defaultText += "<td><div class='boxed medium'>" +
+                            filterValue + "</div></td>";
+
+            editableText += getParameterInputHTML(0) +
+                            '<td class="static">by</td>' +
+                            getParameterInputHTML(1) +
+                            getParameterInputHTML(2);
+            
+        } else if ($currentIcon.hasClass('dataStore')) {
+            // do nothing
+        } else { // index, sort, map etc to be added in later
+            defaultText += "<td>by</td>";
+        }
+
+        $dagParamModal.find('.template').html(defaultText);
+        $editableRow.html(editableText);
+
+        // var $dagWrap = $currentIcon.closest('.dagWrap');
+        var draggableInputs = "";
+        DFG.getGroup(dfgName).parameters.forEach(function(paramName) {
+            draggableInputs += generateDraggableParams(paramName);
+        });
+
+        $dagParamModal.find('.draggableParams').html(draggableInputs);
+
+        generateParameterDefaultList();
+        populateSavedFields(id, dfgName);
+
+        $dagParamModal.show();
+        centerPositionElement($dagParamModal);
+
+        $modalBg.fadeIn(200);
+    };
+
+    DagParamModal.paramDragStart = function(event) {
+        event.dataTransfer.effectAllowed = "copyMove";
+        event.dataTransfer.dropEffect = "copy";
+        event.dataTransfer.setData("text", event.target.id);
+        event.stopPropagation();
+        var origin;
+        if ($(event.target).parent().hasClass('draggableParams')) {
+            origin = 'home';
+        } else {
+            origin = $(event.target).parent().data('target');
+        }
+
+        $editableRow.data('origin', origin);
+    };
+
+    DagParamModal.paramDragEnd = function (event) {
+        event.stopPropagation();
+        $editableRow.data('copying', false);
+    };
+
+    DagParamModal.paramDrop = function(event) {
+        event.stopPropagation();
+        var $dropTarget = $(event.target);
+        var paramId = event.dataTransfer.getData("text");
+        if (!$dropTarget.hasClass('editableParamDiv')) {
+            return; // only allow dropping into the appropriate boxes
+        }
+
+        var $draggableParam = $('#' + paramId).clone();
+        var data = $editableRow.data('origin');
+
+        if (data !== 'home') {
+            // the drag origin is from another box, therefore we're moving the
+            // div so we have to remove it from its old location
+            $editableRow.find('.editableParamDiv').filter(function() {
+                return ($(this).data('target') === data);
+            }).find('#' + paramId + ':first').remove();
+            // we remove the dragging div from its source
+        }
+
+        $dropTarget.append($draggableParam);
+
+        var paramName = $draggableParam.find('.value').text();
+        var paramRow = $paramLists.find('.paramName').filter(function() {
+            return ($(this).text() === paramName);
+        });
+
+        if (paramRow.length === 0) {
+            var dfg = DFG.getGroup($dagParamModal.data("dfg"));
+            var paramVal = dfg.getParameter(paramName) || "";
+            var $row = $paramLists.find(".unfilled:first");
+            $row.find(".paramName").text(paramName)
+                .end()
+                .find(".paramVal").val(paramVal)
+                .end()
+                .removeClass("unfilled");
+        }
+    };
+
+    DagParamModal.allowParamDrop = function(event) {
+        event.preventDefault();
+    };
+
+    function storeRetina() {
+        //XX need to check if all default inputs are filled
+        var retName = $dagParamModal.data("dfg");
+        var dfg = DFG.getGroup(retName);
+        var dagNodeId = $dagParamModal.data("id");
+
+        var $paramPart = $dagParamModal.find(".editableTable");
+        var $editableDivs = $paramPart.find('.editableParamDiv');
+
+        updateRetina()
+        .then(function(paramInfo) {
+            // store meta
+            dfg.addRetinaNode(dagNodeId, paramInfo);
+
+            $dagParamModal.find(".tableWrapper tbody tr").not(".unfilled").each(function() {
+                var name = $(this).find(".paramName").text();
+                var val  = $(this).find(".paramVal").val();
+
+                dfg.updateParameter(name, val);
+            });
+
+            DFGPanel.updateRetinaTab(retName);
+
+            commitToStorage();
+            closeDagParamModal();
+            // show success message??
+        })
+        .fail(function(error) {
+            Alert.error("Update Params fails", error);
+        });
+
+        return;
+
+        function updateRetina() {
+            var deferred  = jQuery.Deferred();
+            var operation = $paramPart.find("td:first").text();
+            var paramType = null;
+            var paramValue;
+            var paramQuery;
+            // var paramInput = new XcalarApiParamInputT();
+
+            switch (operation) {
+                case ("filter"):
+                    paramType = XcalarApisT.XcalarApiFilter;
+
+                    var filterText = $editableDivs.eq(1).text().trim();
+                    var str1 = $editableDivs.eq(0).text()
+                                                  .replace(/\+/g, "")
+                                                  .trim();
+                    var str2 = $editableDivs.eq(2).text()
+                                                  .replace(/\+/g, "")
+                                                  .trim();
+                    var filter;
+                    // Only support these filter now
+                    switch (filterText) {
+                        case (">"):
+                            filter = "gt";
+                            break;
+                        case ("<"):
+                            filter = "lt";
+                            break;
+                        case (">="):
+                            filter = "ge";
+                            break;
+                        case ("<="):
+                            filter = "le";
+                            break;
+                        case ("="):
+                            filter = "eq";
+                            break;
+                        default:
+                            deferred.reject("currently not supported filter");
+                            return (deferred.promise());
+                    }
+                    paramValue = filter + "(" + str1 + "," + str2 + ")";
+                    // paramInput.paramFilter = new XcalarApiParamFilterT();
+                    // paramInput.paramFilter.filterStr = str;
+                    paramQuery = [str1, filterText, str2];
+                    break;
+                case ("Load"):
+                    paramType = XcalarApisT.XcalarApiBulkLoad;
+                    paramValue = $editableDivs.eq(0).text()
+                                            .replace(/\+/g, "")
+                                            .trim();
+                    // paramInput.paramLoad = new XcalarApiParamLoadT();
+                    // paramInput.paramLoad.datasetUrl = str;
+                    paramQuery = [paramValue];
+                    break;
+                case ("Export"):
+                    // XX TODO: add export
+                    deferred.reject("TODO: Add export");
+                    break;
+                default:
+                    console.warn("currently not supported");
+                    break;
+            }
+
+            if (paramType == null) {
+                deferred.reject("currently not supported");
+            } else {
+                XcalarUpdateRetina(retName, dagNodeId, paramType, paramValue)
+                .then(function() {
+                    var paramInfo = {
+                        "paramType" : paramType,
+                        "paramValue": paramValue,
+                        "paramQuery": paramQuery
+                    };
+                    deferred.resolve(paramInfo);
+                })
+                .fail(deferred.reject);
+            }
+
+            return (deferred.promise());
+        }
+    }
+
+    function getParameterInputHTML(inputNum) {
+        var td = '<td>' +
+                    '<div class="editableParamDiv boxed medium" ' +
+                    'ondragover="DagParamModal.allowParamDrop(event)"' +
+                    'ondrop="DagParamModal.paramDrop(event)" ' +
+                    'data-target="' + inputNum + '" ' +
+                    'contenteditable="true" ' +
+                    'spellcheck="false"></div>' +
+                '</td>';
+        return (td);
+    }
+
+    function populateSavedFields(dagNodeId, retName) {
+        var dfg = DFG.getGroup(retName);
+        var retinaNode = dfg.getRetinaNode(dagNodeId);
+        var paramMap = dfg.paramMap;
+        var nameMap = {};
+
+        if (retinaNode != null && retinaNode.paramQuery != null) {
+            var $editableDivs = $editableRow.find(".editableParamDiv");
+
+            retinaNode.paramQuery.forEach(function(query, index) {
+                var html = "";
+                var len = query.length;
+                var p = 0;
+                var startIndex;
+                var endIndex;
+                var paramName;
+
+                while (p < len) {
+                    startIndex = query.indexOf("<", p);
+                    if (startIndex < 0) {
+                        // do not find <,
+                        html += query.substring(p);
+                        break;
+                    }
+
+                    html += query.substring(p, startIndex);
+                    endIndex = query.indexOf(">", startIndex);
+                    if (endIndex < 0) {
+                        // do not find >,
+                        html += "&lt;" + query.substring(startIndex + 1);
+                        break;
+                    }
+
+                    // when find a "<>"
+                    paramName = query.substring(startIndex + 1, endIndex);
+                    if (!paramMap.hasOwnProperty(paramName)) {
+                        // string btw "<>" is not a param name
+                        html += "&lt;" + paramName + "&gt;";
+                    } else {
+                        nameMap[paramName] = true;
+                        html += generateDraggableParams(paramName);
+                    }
+
+                    p = endIndex + 1;
+                }
+
+                $editableDivs.eq(index).html(html);
+            });
+
+            var $tbody = $dagParamModal.find(".tableWrapper tbody");
+            // keep the order of paramName the in dfg.parameters
+            dfg.parameters.forEach(function(paramName) {
+                if (nameMap.hasOwnProperty(paramName)) {
+                    $tbody.find(".unfilled:first")
+                            .removeClass("unfilled")
+                            .find(".paramName").text(paramName)
+                            .next().find(".paramVal")
+                            .val(paramMap[paramName]);
+                }
+            });
+        }
+    }
+
+    function generateParameterDefaultList() {
+        var html = '<div class="tableContainer">' +
+                        '<div class="tableWrapper">' +
+                            '<table>' +
+                                '<thead>' +
+                                    '<tr>' +
+                                        '<th>' +
+                                            '<div class="thWrap">' +
+                                                'Parameter' +
+                                            '</div>' +
+                                        '</th>' +
+                                        '<th>' +
+                                            '<div class="thWrap">' +
+                                                'Default' +
+                                            '</div>' +
+                                        '</th>' +
+                                    '</tr>' +
+                                '</thead>' +
+                                '<tbody>';
+        for (var i = 0; i < 6; i++) {
+            html += '<tr class="unfilled">' +
+                        '<td class="paramName"></td>' +
+                        '<td>' +
+                            '<input class="paramVal" />' +
+                            '<div class="options">' +
+                                 '<div class="option paramEdit">' +
+                                    '<span class="icon"></span>' +
+                                '</div>' +
+                            '</div>' +
+                        '</td>' +
+                   '</tr>';
+        }
+        html += '</tbody></table></div></div>';
+
+        $paramLists.html(html);
+    }
+
+    function generateDraggableParams(paramName) {
+        var html = '<div id="draggableParam-' + paramName +
+                '" class="draggableDiv" ' +
+                'draggable="true" ' +
+                'ondragstart="DagParamModal.paramDragStart(event)" ' +
+                'ondragend="DagParamModal.paramDragEnd(event)" ' +
+                'ondrop="return false" ' +
+                'title="click and hold to drag" ' +
+                'contenteditable="false">' +
+                    '<div class="icon"></div>' +
+                    '<span class="delim"><</span>' +
+                    '<span class="value">' + paramName + '</span>' +
+                    '<span class="delim">></span>' +
+                    '<div class="close"><span>+</span></div>' +
+                '</div>';
+
+        return (html);
+    }
+
+    function closeDagParamModal() {
+        $dagParamModal.hide();
+        $editableRow.empty();
+        $dagParamModal.find('.draggableParams').empty();
+        $paramLists.empty();
+        $modalBg.fadeOut(200);
+    }
+
+    return (DagParamModal);
 
 }(jQuery, {}));

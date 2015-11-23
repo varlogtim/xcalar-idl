@@ -2910,18 +2910,10 @@ html.microsoft {
 /* End Of Multi-cast Modal */
 
 #dagParameterModal {
-    .size(@width: 920px, @height: 300px);
+    .size(@width: 920px, @height: 670px);
     bottom: auto;
     right: auto;
     .transition(height 0.5s);
-
-    &.minimized {
-        height: 265px;
-    }
-    
-    &.enlarged {
-        height: 670px;
-    }
 
     .modalInstruction {
         box-shadow: 0 3px 3px 0px rgba(0,0,0,.2);
@@ -3055,12 +3047,7 @@ html.microsoft {
         }
     }
 
-    .currentParameterList + .border {
-        display: none;
-    }
-
     .editableParamQuery {
-        display: none;
         td:first-child {
             text-transform: capitalize;
         }
@@ -3097,7 +3084,6 @@ html.microsoft {
     }
 
     .defaultListSection {
-        display: none;
         padding: 15px 15px 0px 15px;
         .parameterTable();
         .tableContainer {
@@ -3182,24 +3168,6 @@ html.microsoft {
                     }
                 }
             }
-        }
-    }
-
-    #addNewParameterizedQuery {
-        text-align: center;
-        float: right;
-        color: @color-text-cyan;
-        width: 240px;
-
-        .icon {
-            .size(@width: 20px, @height: 100%);
-            .image("/images/dagIcons/plus-soft-white.png", 0, 50%);
-            float: left;
-            margin-left: 3px;
-        }
-
-        &.btnInactive {
-            color: @color-white;
         }
     }
     

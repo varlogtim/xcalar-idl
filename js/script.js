@@ -932,7 +932,6 @@ function documentReadyIndexFunction() {
             WorkbookModal.setup();
             Scheduler.setup();
             DataFlowModal.setup();
-            AddScheduleModal.setup();
             DFGPanel.setup();
             MultiCastModal.setup();
         })

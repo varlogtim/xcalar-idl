@@ -717,10 +717,15 @@
                 height: 48px;
                 .textOverflowOneLine;
             }
+
             .retTabSection {
                 .position(relative, @top: -5px);
                 display: inline-block;
                 float: right;
+
+                &.hidden {
+                    display: none;
+                }
 
                 input:focus {
                     outline: none;
@@ -760,16 +765,6 @@
                             .icon {
                                 .background("/images/retina/retDown.png", 13px, 8px);
                             }
-                        }
-                    }
-
-                    &.unconfirmed .tabWrap{
-                        opacity: 0.7;
-                        .retTitle {
-                            cursor: text;
-                        }
-                        .caret {
-                            cursor: default;
                         }
                     }
 
