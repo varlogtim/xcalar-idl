@@ -1710,6 +1710,9 @@ function XcalarKeyLookup(key, scope) {
         if (error === StatusT.StatusKvEntryNotFound) {
             console.warn("Stataus", error, "Key, not found");
             deferred.resolve(null);
+        } else if (error === StatusT.StatusKvStoreNotFound) {
+            console.warn("Stataus", error, "kvStore, not found");
+            deferred.resolve(null);
         } else {
             var thriftError = thriftLog("XcalarKeyLookup", error);
             deferred.reject(thriftError);
@@ -1766,6 +1769,9 @@ function XcalarKeyDelete(key, scope) {
         var thriftError = thriftLog("XcalarKeyDelete", error);
         if (thriftError.status === StatusT.StatusKvEntryNotFound) {
             deferred.resolve();
+        } else if (error === StatusT.StatusKvStoreNotFound) {
+            console.warn("Stataus", error, "kvStore, not found");
+            deferred.resolve(null);
         } else {
             deferred.reject(thriftError);
         }
@@ -1789,6 +1795,9 @@ function XcalarKeyReplaceIfEqual(key, scope, oldValue, newValue) {
         var thriftError = thriftLog("XcalarKeyReplaceIfEqual", error);
         if (thriftError.status === StatusT.StatusKvEntryNotFound) {
             deferred.resolve();
+        } else if (error === StatusT.StatusKvStoreNotFound) {
+            console.warn("Stataus", error, "kvStore, not found");
+            deferred.resolve(null);
         } else {
             deferred.reject(thriftError);
         }
@@ -1813,8 +1822,10 @@ function XcalarKeyAppend(key, stuffToAppend, persist, scope) {
     xcalarKeyAppend(tHandle, scope, key, stuffToAppend)
     .then(deferred.resolve)
     .fail(function(error) {
-        if (error === StatusT.StatusKvEntryNotFound) {
-            console.info("Append fails as key not found, put key instead");
+        if (error === StatusT.StatusKvEntryNotFound ||
+            error === StatusT.StatusKvStoreNotFound)
+        {
+            console.info("Append fails as key or kvStore not found, put key instead");
             // if append fails because key not found, put value instead
             xcalarKeyAddOrReplace(tHandle, scope, key, stuffToAppend, persist)
             .then(deferred.resolve)
@@ -1827,7 +1838,6 @@ function XcalarKeyAppend(key, stuffToAppend, persist, scope) {
 
     return (deferred.promise());
 }
-   
 
 function XcalarGetStats(numNodes) {
     if (tHandle == null) {
