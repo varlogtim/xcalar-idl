@@ -96,6 +96,9 @@ window.DatastoreForm = (function($, DatastoreForm) {
     var $udfModuleList = $("#udfArgs-moduleList");
     var $udfFuncList = $("#udfArgs-funcList");
 
+    var lastFieldDelim = "\\t";
+    var lastLineDelim = "\\n";
+
     DatastoreForm.setup = function() {
         var $csvCheckBox = $("#csvPromoteCheckbox"); // promote header checkbox
         var $udfCheckbox = $("#udfCheckbox"); // udf checkbox
@@ -336,6 +339,12 @@ window.DatastoreForm = (function($, DatastoreForm) {
             var funcName   = "";
 
             var isValid;
+            if (dsFormat === "CSV") {
+                lastFieldDelim = $("#fieldText").val();
+                lastLineDelim = $("#lineText").val();
+            } else if (dsFormat === "raw") {
+                lastLineDelim = $("#lineText").val();
+            }
             if ($udfCheckbox.find(".checkbox").hasClass("checked")) {
                 var $moduleInput = $udfModuleList.find("input");
                 var $funcInput = $udfFuncList.find("input");
@@ -594,8 +603,8 @@ window.DatastoreForm = (function($, DatastoreForm) {
 
     function resetDelimiter() {
         // to show \t, \ should be escaped
-        $("#fieldText").val("\\t").removeClass("nullVal");
-        $("#lineText").val("\\n").removeClass("nullVal");
+        $("#fieldText").val(lastFieldDelim).removeClass("nullVal");
+        $("#lineText").val(lastLineDelim).removeClass("nullVal");
     }
 
     function resetUdfSection() {

@@ -468,7 +468,6 @@ function XcalarExport(tableName, exportName, targetName, numColumns, columns, sq
         return (deferred.promise());
     }
 
-    deferred.resolve();
     var target = new DsExportTargetT();
     target.type = DsTargetTypeT.DsTargetUnknownType;
     target.name = targetName;
@@ -517,16 +516,16 @@ function XcalarExport(tableName, exportName, targetName, numColumns, columns, sq
         var def1 = xcalarExport(tHandle, tableName, target, specInput,
                                 DsExportCreateRuleT.DsExportCreateOnly,
                                 numColumns, columns);
-        // var def2 = XcalarGetQuery(workItem);
-        var def2 = jQuery.Deferred().resolve().promise();
+        var def2 = XcalarGetQuery(workItem);
+        // var def2 = jQuery.Deferred().resolve().promise();
         jQuery.when(def1, def2)
         .then(function(ret1, ret2) {
-            // SQL.add("Export Table", sqlOptions, ret2);
+            SQL.add("Export Table", sqlOptions, ret2);
             deferred.resolve(ret1);
         })
         .fail(function(error) {
             var thriftError = thriftLog("XcalarExport", error);
-            // SQL.errorLog("Add Export Target", sqlOptions, null, thriftError);
+            SQL.errorLog("Add Export Target", sqlOptions, null, thriftError);
             deferred.reject(thriftError);
         });
     });
@@ -1711,7 +1710,7 @@ function XcalarKeyLookup(key, scope) {
     .fail(function(error) {
         // it's normal to find an unexisted key.
         if (error === StatusT.StatusKvEntryNotFound) {
-            console.warn("Stataus", error, "Key, not found");
+            console.warn("Status", error, "Key, not found");
             deferred.resolve(null);
         } else if (error === StatusT.StatusKvStoreNotFound) {
             console.warn("Stataus", error, "kvStore, not found");
