@@ -1135,11 +1135,14 @@
           <!-- midContentForm -->
           <div id="scheduleForm" class="midContentForm new">
             <section class="heading no-selection">
-              <div id="scheduleForm-edit" class="iconWrap" data-toggle="tooltip"
+              <div id="scheduleForm-edit" class="btnMid" 
+              data-toggle="tooltip"
               data-placement="top" data-container="body" title="Edit Schedule">
-                <span class="icon"></span>
+                <span class="iconWrap">
+                  <div class="icon"></div>
+                </span>
+                <span class="text">NEW SCHEDULE</span>
               </div>
-              <span class="text">NEW SCHEDULE</span>
             </section>
             <section class="content">
               <div class="nameSection">
@@ -1148,7 +1151,7 @@
               </div>
               <div class="divider"></div>
               <!-- time section -->
-              <div class="timeSection">
+              <div class="timeSection" id="startTimeSection">
                 <div class="text">Start Time:</div>
                 <div class="datePickerPart">
                   <input class="date" type="text">
@@ -1234,7 +1237,8 @@
                   </div> -->
                 </div>
                 <!-- part2 -->
-                <!-- <div class="freq2 inActive">
+                <!--
+                <div class="freq2 inActive">
                   <div class="radioWrap" data-option="dayPerMonth">
                     <div class="radio">
                       <span class="dot"></span>
@@ -1278,8 +1282,8 @@
               <!-- divider -->
               <div class="divider"></div>
               <div class="recurSection">
-                <div class="text">Repeat Time:</div>
-                <input type="number">
+                <div class="text">Number of Runs:</div>
+                <input type="number" placeholder="how many times to run this">
               </div>
             </section>
             <section class="buttonArea">
@@ -2653,7 +2657,6 @@
 <script src="bower_components/CodeMirror/lib/codemirror.js"></script>
 <script src="bower_components/CodeMirror/addon/edit/matchbrackets.js"></script>
 <script src="bower_components/CodeMirror/mode/python/python.js"></script>
-
 <script src="/js/thrift/thrift.js" type="text/javascript"></script>
 <script src="/js/thrift/DataFormatEnums_types.js" type="text/javascript"></script>
 <script src="/js/thrift/LibApisEnums_types.js" type="text/javascript"></script>

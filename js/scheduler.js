@@ -63,6 +63,7 @@ window.Scheduler = (function(Scheduler, $) {
             "dayNamesMin"    : ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
             "minDate"        : 0,
             "beforeShow"     : function() {
+                $dateInput.datepicker("setDate", new Date());
                 var $el = $("#ui-datepicker-div");
 
                 $el.addClass("schedulerDatePicker")
@@ -75,7 +76,7 @@ window.Scheduler = (function(Scheduler, $) {
                         "left": "0"
                     });
                 }, 0);
-            }
+            },
         });
 
         $dateInput.on("keydown", function() {
@@ -627,11 +628,13 @@ window.Scheduler = (function(Scheduler, $) {
                         .removeClass("inActive")
                         .data("schedule", null)
                         .find(".heading .text").text("NEW SCHEDULE");
+            $scheduleForm.find("#scheduleForm-edit").removeClass("btn");
         } else {
             $scheduleForm.removeClass("new")
                         .addClass("inActive")
                         .data("schedule", schedule.name)
-                        .find(".heading .text").text("MODIFIED SCHEDULE");
+                        .find(".heading .text").text("MODIFY SCHEDULE");
+            $scheduleForm.find("#scheduleForm-edit").addClass("btn");
         }
 
         resetScheduleForm();
@@ -660,7 +663,6 @@ window.Scheduler = (function(Scheduler, $) {
                     '<div class="scheduleName">' +
                       name +
                     '</div>' +
-                    '<div class="checkMark"></div>' +
                   '</div>' +
                '</li>';
         return (html);
@@ -704,6 +706,9 @@ window.Scheduler = (function(Scheduler, $) {
         date = date || new Date();
 
         $timePicker.fadeIn(200);
+        var timeStamp = showTimeHelper(date);
+        $scheduleForm.find(".timeSection .time").val(timeStamp)
+                     .data("date", date);
         showTimeHelper(date);
         $(document).on("mousedown.timePicker", function() {
             var $el = $(event.target);
