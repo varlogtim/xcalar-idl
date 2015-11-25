@@ -63,9 +63,11 @@ window.Scheduler = (function(Scheduler, $) {
             "dayNamesMin"    : ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
             "minDate"        : 0,
             "beforeShow"     : function() {
-                $dateInput.datepicker("setDate", new Date());
-                var $el = $("#ui-datepicker-div");
+                if ($scheduleForm.hasClass("new")) {
+                    $dateInput.datepicker("setDate", new Date());
+                }
 
+                var $el = $("#ui-datepicker-div");
                 $el.addClass("schedulerDatePicker")
                     .appendTo($timeSection.find(".datePickerPart"));
 
@@ -76,7 +78,7 @@ window.Scheduler = (function(Scheduler, $) {
                         "left": "0"
                     });
                 }, 0);
-            },
+            }
         });
 
         $dateInput.on("keydown", function() {
@@ -628,13 +630,13 @@ window.Scheduler = (function(Scheduler, $) {
                         .removeClass("inActive")
                         .data("schedule", null)
                         .find(".heading .text").text("NEW SCHEDULE");
-            $scheduleForm.find("#scheduleForm-edit").removeClass("btn");
+            $("#scheduleForm-edit").removeClass("btn");
         } else {
             $scheduleForm.removeClass("new")
                         .addClass("inActive")
                         .data("schedule", schedule.name)
                         .find(".heading .text").text("MODIFY SCHEDULE");
-            $scheduleForm.find("#scheduleForm-edit").addClass("btn");
+            $("#scheduleForm-edit").addClass("btn");
         }
 
         resetScheduleForm();
@@ -703,7 +705,12 @@ window.Scheduler = (function(Scheduler, $) {
         }
 
         var date = $scheduleForm.find(".timeSection .time").data("date");
-        date = date || new Date();
+        if (date == null) {
+            // new date is one minute faster than current time
+            // which is a valid time
+            date = new Date();
+            date.setMinutes(date.getMinutes() + 1);
+        }
 
         $timePicker.fadeIn(200);
         var timeStamp = showTimeHelper(date);
