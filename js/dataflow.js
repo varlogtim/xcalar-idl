@@ -1,16 +1,14 @@
-function DFGConstructor(name) {
+function DFGConstructor(name, options) {
+    options = options || {};
     this.name = name;
-    this.dataFlows = [];
-    this.schedules = [];
-    this.parameters = [];
-    this.paramMap = {};
-    this.retinaNodes = {};
+    this.dataFlows = options.dataFlows || [];
+    this.schedules = options.schedules || [];
+    this.parameters = options.parameters || [];
+    this.paramMap = options.paramMap || {};
+    this.retinaNodes = options.retinaNodes || {};
 
     return (this);
 }
-
-// XXX TODO: add another constructor with an obj as arguments
-// for restore use
 
 DFGConstructor.prototype = {
     "addRetinaNode": function(dagNodeId, paramInfo) {
@@ -121,8 +119,12 @@ window.DFG = (function($, DFG) {
     //                     "parameters": [],
     //                     "retina": {}
     //                 }};
-    DFG.restoreGroups = function() {
+    DFG.restore = function(groups) {
+        dfGroups = {};
 
+        for (var name in groups) {
+            dfGroups[name] = new DFGConstructor(name, groups[name]);
+        }
     };
 
     DFG.getAllGroups = function() {
@@ -262,7 +264,18 @@ window.DFGPanel = (function($, DFGPanel) {
     var $listSection = $dfgView.find('.listSection');
     var $header = $dfgView.find('.midContentHeader h2');
     var $addGroupBtn = $dfgView.find('.mainButtonArea').find('.addGroup');
+
     var $retTabSection = $dfgView.find('.retTabSection');
+    var retinaTrLen = 7;
+    var retinaTr = '<tr class="unfilled">' +
+                        '<td class="paramName"></td>' +
+                        '<td>' +
+                            '<div class="paramVal"></div>' +
+                            '<div class="delete paramDelete">' +
+                                '<span class="icon"></span>' +
+                            '</div>' +
+                        '</td>' +
+                   '</tr>';
 
     var currentDFG = null;
 
@@ -316,17 +329,8 @@ window.DFGPanel = (function($, DFGPanel) {
 
     DFGPanel.updateRetinaTab = function(retName) {
         var html = "";
-        // XXX TODO: suuport more than 7 parameters in retina
-        for (var t = 0; t < 7; t++) {
-            html += '<tr class="unfilled">' +
-                        '<td class="paramName"></td>' +
-                        '<td>' +
-                            '<div class="paramVal"></div>' +
-                            '<div class="delete paramDelete">' +
-                                '<span class="icon"></span>' +
-                            '</div>' +
-                        '</td>' +
-                   '</tr>';
+        for (var i = 0; i < retinaTrLen; i++) {
+            html += retinaTr;
         }
 
         var $tbody = $retTabSection.find(".tableContainer table tbody");
@@ -344,15 +348,22 @@ window.DFGPanel = (function($, DFGPanel) {
 
     function addParamToRetina($tbody, name, val) {
         var $trs = $tbody.find('.unfilled');
-        // Now only allow to add 7 parameters
-        if ($trs.length > 0) {
-            var $tr = $trs.eq(0);
-            $tr.find('.paramName').html(name);
-            if (val) {
-                $tr.find('.paramVal').html(val);
-            }
-            $tr.removeClass('unfilled');
+        var $tr;
+
+        if ($trs.length === 0) {
+            $tr = $(retinaTr);
+            $tbody.append($tr);
+            xcHelper.scrollToBottom($tbody.closest(".tableWrapper"));
+        } else {
+            $tr = $trs.eq(0);
         }
+
+        $tr.find('.paramName').html(name);
+        if (val != null) {
+            $tr.find('.paramVal').html(val);
+        }
+
+        $tr.removeClass('unfilled');
     }
 
     function setupRetinaTab() {
@@ -360,7 +371,7 @@ window.DFGPanel = (function($, DFGPanel) {
             if ($(event.target).closest('#statusBox').length) {
                 return;
             }
-            $dfgView.find(".retTab").removeClass("active");
+            $retTabSection.find(".retTab").removeClass("active");
         });
         // Remove focus when click other places other than retinaArea
         // add new retina
@@ -442,7 +453,7 @@ window.DFGPanel = (function($, DFGPanel) {
             event.stopPropagation();
             var $delBtn = $(this);
             var $tr = $delBtn.closest('tr');
-            var $tbody = $tr.parent();
+            var $tbody = $tr.closest("tbody");
             var $paramName = $tr.find('.paramName');
             var paramName = $tr.find('.paramName').text();
             var dfg = DFG.getGroup(currentDFG);
@@ -453,10 +464,11 @@ window.DFGPanel = (function($, DFGPanel) {
                 return;
             }
 
-            $tr.find('.paramName').empty();
-            $tr.find('.paramVal').empty();
-            $tr.addClass('unfilled');
-            $tbody.append($tr); // this move the tr to last row
+            $tr.remove();
+            if ($tbody.find("tr").length < retinaTrLen) {
+                $tbody.append(retinaTr);
+            }
+
             dfg.removeParameter(paramName);
         });
     }
@@ -725,7 +737,7 @@ window.DFGPanel = (function($, DFGPanel) {
                           '<span class="icon"></span>' +
                         '</div>' +
                         '<div class="label">' + group + '</div>' +
-                        '<div class="checkmark"></div>' +
+                        // '<div class="checkmark"></div>' +
                       '</div>' +
                       '<ul class="sublist list">';
 
@@ -904,10 +916,24 @@ window.AddScheduleModal = (function($, AddScheduleModal) {
 
 window.DagParamModal = (function($, DagParamModal){
     var $dagParamModal = $("#dagParameterModal");
-    var $modalBg = $("#modalBackground");
+    var $modalBg       = $("#modalBackground");
+    var modalHelper    = new xcHelper.Modal($dagParamModal, { "noResize": true });
 
-    var $paramLists = $("#dagModleParamList");
+    var $paramLists  = $("#dagModleParamList");
     var $editableRow = $dagParamModal.find('.editableRow');
+
+    var paramListTrLen = 6;
+    var trTemplate = '<tr class="unfilled">' +
+                        '<td class="paramName"></td>' +
+                        '<td>' +
+                            '<input class="paramVal" spellcheck="false" disabled/>' +
+                            '<div class="options">' +
+                                '<div class="option paramEdit">' +
+                                    '<span class="icon"></span>' +
+                                '</div>' +
+                            '</div>' +
+                        '</td>' +
+                    '</tr>';
 
     DagParamModal.setup = function() {
         $dagParamModal.find('.cancel, .close').click(function() {
@@ -930,22 +956,14 @@ window.DagParamModal = (function($, DagParamModal){
                 return;
             }
 
-            $paramLists.find('.paramName').filter(function() {
+            var $tbody = $paramLists.find("tbody");
+            $tbody.find('.paramName').filter(function() {
                 return ($(this).text() === value);
             }).closest('tr').remove();
 
-            var newRow = '<tr class="unfilled">' +
-                            '<td class="paramName"></td>' +
-                            '<td>' +
-                                '<input class="paramVal" />' +
-                                '<div class="options">' +
-                                     '<div class="option paramEdit">' +
-                                        '<span class="icon"></span>' +
-                                    '</div>' +
-                                '</div>' +
-                            '</td>' +
-                       '</tr>';
-            $paramLists.find('tr:last').after(newRow);
+            if ($tbody.find("tr").length < paramListTrLen) {
+                $tbody.append(trTemplate);
+            }
         });
 
         $dagParamModal.on('focus', '.paramVal', function() {
@@ -957,7 +975,7 @@ window.DagParamModal = (function($, DagParamModal){
         });
 
         $dagParamModal.on('click', '.paramEdit', function() {
-            $(this).closest('td').find('paramVal').focus();
+            $(this).closest('td').find('.paramVal').focus();
         });
 
         $dagParamModal.on('keypress', '.editableParamDiv', function(event) {
@@ -1053,10 +1071,17 @@ window.DagParamModal = (function($, DagParamModal){
         generateParameterDefaultList();
         populateSavedFields(id, dfgName);
 
-        $dagParamModal.show();
-        centerPositionElement($dagParamModal);
-
-        $modalBg.fadeIn(200);
+        modalHelper.setup();
+        if (gMinModeOn) {
+            $modalBg.show();
+            $dagParamModal.show();
+            Tips.refresh();
+        } else {
+            $modalBg.fadeIn(300, function() {
+                $dagParamModal.fadeIn(180);
+                Tips.refresh();
+            });
+        }
     };
 
     DagParamModal.paramDragStart = function(event) {
@@ -1102,25 +1127,37 @@ window.DagParamModal = (function($, DagParamModal){
         $dropTarget.append($draggableParam);
 
         var paramName = $draggableParam.find('.value').text();
-        var paramRow = $paramLists.find('.paramName').filter(function() {
+        var $paramRow = $paramLists.find('.paramName').filter(function() {
             return ($(this).text() === paramName);
         });
 
-        if (paramRow.length === 0) {
+        if ($paramRow.length === 0) {
             var dfg = DFG.getGroup($dagParamModal.data("dfg"));
             var paramVal = dfg.getParameter(paramName) || "";
-            var $row = $paramLists.find(".unfilled:first");
-            $row.find(".paramName").text(paramName)
-                .end()
-                .find(".paramVal").val(paramVal)
-                .end()
-                .removeClass("unfilled");
+            addParamToLists(paramName, paramVal);
         }
     };
 
     DagParamModal.allowParamDrop = function(event) {
         event.preventDefault();
     };
+
+    function addParamToLists(paramName, paramVal) {
+        var $tbody = $paramLists.find("tbody");
+        var $row = $tbody.find(".unfilled:first");
+
+        if ($row.length === 0) {
+            $row = $(trTemplate);
+            $tbody.append($row);
+            xcHelper.scrollToBottom($paramLists.closest(".tableWrapper"));
+        }
+
+        $row.find(".paramName").text(paramName)
+            .end()
+            .find(".paramVal").val(paramVal).removeAttr("disabled")
+            .end()
+            .removeClass("unfilled");
+    }
 
     function storeRetina() {
         //XX need to check if all default inputs are filled
@@ -1302,55 +1339,21 @@ window.DagParamModal = (function($, DagParamModal){
                 $editableDivs.eq(index).html(html);
             });
 
-            var $tbody = $dagParamModal.find(".tableWrapper tbody");
             // keep the order of paramName the in dfg.parameters
             dfg.parameters.forEach(function(paramName) {
                 if (nameMap.hasOwnProperty(paramName)) {
-                    $tbody.find(".unfilled:first")
-                            .removeClass("unfilled")
-                            .find(".paramName").text(paramName)
-                            .next().find(".paramVal")
-                            .val(paramMap[paramName]);
+                    addParamToLists(paramName, paramMap[paramName]);
                 }
             });
         }
     }
 
     function generateParameterDefaultList() {
-        var html = '<div class="tableContainer">' +
-                        '<div class="tableWrapper">' +
-                            '<table>' +
-                                '<thead>' +
-                                    '<tr>' +
-                                        '<th>' +
-                                            '<div class="thWrap">' +
-                                                'Parameter' +
-                                            '</div>' +
-                                        '</th>' +
-                                        '<th>' +
-                                            '<div class="thWrap">' +
-                                                'Default' +
-                                            '</div>' +
-                                        '</th>' +
-                                    '</tr>' +
-                                '</thead>' +
-                                '<tbody>';
-        for (var i = 0; i < 6; i++) {
-            html += '<tr class="unfilled">' +
-                        '<td class="paramName"></td>' +
-                        '<td>' +
-                            '<input class="paramVal" />' +
-                            '<div class="options">' +
-                                 '<div class="option paramEdit">' +
-                                    '<span class="icon"></span>' +
-                                '</div>' +
-                            '</div>' +
-                        '</td>' +
-                   '</tr>';
+        var html = "";
+        for (var i = 0; i < paramListTrLen; i++) {
+            html += trTemplate;
         }
-        html += '</tbody></table></div></div>';
-
-        $paramLists.html(html);
+        $paramLists.find("tbody").html(html);
     }
 
     function generateDraggableParams(paramName) {
@@ -1373,11 +1376,17 @@ window.DagParamModal = (function($, DagParamModal){
     }
 
     function closeDagParamModal() {
+        modalHelper.clear();
+        var fadeOutTime = gMinModeOn ? 0 : 300;
+
         $dagParamModal.hide();
+        $modalBg.fadeOut(fadeOutTime, function() {
+            Tips.refresh();
+        });
+
         $editableRow.empty();
         $dagParamModal.find('.draggableParams').empty();
-        $paramLists.empty();
-        $modalBg.fadeOut(200);
+        $paramLists.find("tbody").empty();
     }
 
     return (DagParamModal);

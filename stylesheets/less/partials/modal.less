@@ -1601,6 +1601,10 @@ html.microsoft {
         .back {
             display: inline-block;
         }
+
+        .modalMain .previewSection .titleSection .buttonGroup {
+            display: inline-block !important;
+        }
     }
 
     .back {
@@ -1622,10 +1626,11 @@ html.microsoft {
     }
     .modalMain {
         height: ~"calc(100% - 250px)";
-        .titleSection {
-            padding: 10px 20px;
-            .font(@color: @color-text-columnList, @weight: bold);
-        }
+        // .titleSection {
+        //     padding: 10px 20px;
+        //     .font(@color: @color-text-columnList, @weight: bold);
+        // }
+
         .sideListSection {
             width: 230px;
             .flex(0 0 230px);
@@ -1682,6 +1687,54 @@ html.microsoft {
         }
 
         .previewSection {
+            .titleSection {
+                padding: 10px;
+                .font(@color: @color-text-columnList);
+
+                .titleWrap {
+                    .size(@width: 70%);
+                    .font(@weight: bold);
+                    white-space: nowrap;
+                    float: left;
+                }
+
+                .buttonGroup {
+                    display: none;
+                    .size(@width: 30%, @height: 20px);
+                    line-height: 20px;
+                    float: right;
+
+                    .modifyDSButton {
+                        .size(@height: 100%);
+                        float: right;
+                        cursor: pointer;
+
+                        .icon {
+                            .size(19px, 19px);
+                        }
+
+                        .text {
+                            .position(relative, @top: -2px);
+                        }
+
+                        &.selectAll {
+                            .icon {
+                                .size(19px, 19px);
+                                .image("/images/select-all.png", 50%, 50%);
+                            }
+                        }
+
+                        &.clear {
+                            margin-right: 10px;
+
+                            .icon {
+                                .image("/images/select-none.png", 50%, 50%);
+                            }
+                        }
+                    }
+                }
+            }
+
             .tableSection {
                 .size(@height: ~"calc(100% - 42px)");
                 box-shadow: inset 0px 0px 1px rgba(0, 0, 0, 0.5);
@@ -2910,7 +2963,7 @@ html.microsoft {
 /* End Of Multi-cast Modal */
 
 #dagParameterModal {
-    .size(@width: 920px, @height: 670px);
+    .size(@width: 920px, @height: 640px);
     bottom: auto;
     right: auto;
     .transition(height 0.5s);
@@ -3087,7 +3140,7 @@ html.microsoft {
         padding: 15px 15px 0px 15px;
         .parameterTable();
         .tableContainer {
-            height: auto;
+            height: 273px;
             display: inline-block;
             overflow: hidden;
             .rounded(5px);

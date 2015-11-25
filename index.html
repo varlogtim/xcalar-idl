@@ -210,7 +210,21 @@
       <section class="previewSection">
         <!-- title section -->
         <section class="titleSection">
-          <div class="text textOverflow">Preview</div>
+          <div class="titleWrap textOverflow">
+            <span class="text">Preview</span>
+          </div>
+          <div class="buttonGroup">
+            <!-- select all btn -->
+            <div class="selectAll modifyDSButton">
+              <span class="icon"></span>
+              <span class="text">Select All</span>
+            </div>
+            <!-- clear all btn -->
+            <div class="clear modifyDSButton">
+              <span class="icon"></span>
+              <span class="text">Clear All</span>
+            </div>
+          </div>
         </section>
         <!-- Data Flow list section -->
         <section id="dataFlowPreviews" class="listSection"></section>
@@ -1335,10 +1349,30 @@
           </table>
         </div>
       </div>
-      <div id="dagModleParamList" class="defaultListSection"></div>
+      <!-- defaultListSection -->
+      <div class="defaultListSection">
+        <div class="tableContainer">
+          <div class="tableWrapper">
+            <table id="dagModleParamList">
+              <thead>
+                <tr>
+                  <th>
+                    <div class="thWrap">Parameter</div>
+                  </th>
+                  <th>
+                    <div class="thWrap">Value</div>
+                  </th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      <!-- end of defaultListSection -->
       <div class="modalBottom clearfix">
-        <div class="btn btnMid confirm">SAVE</div>
-        <div class="btn btnMid cancel">CANCEL</div>
+        <button class="btn btnMid confirm">SAVE</button>
+        <button class="btn btnMid cancel">CANCEL</button>
       </div>
     </div>
     <!-- End Of Parameter Modal -->

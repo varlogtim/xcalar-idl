@@ -107,8 +107,9 @@ window.DataFlowModal = (function($, DataFlowModal) {
                 "type"    : $dagTable.data('type') || 'table',
                 "left"    : parseInt($dagTable.css('left')),
                 "top"     : parseInt($dagTable.css('top')),
-                "title"   : $dagTable.find('.tableTitle').text(),
+                "title"   : $dagTable.find('.tableTitle').text()
             };
+
             if ($dagTable.hasClass('dataStore')) {
                 table.url = $dagTable.data('url');
                 table.id = $dagTable.data('id');
@@ -206,12 +207,20 @@ window.DataFlowModal = (function($, DataFlowModal) {
                 $dfTable.find(".col" + colNum).addClass("colSelected");
             }
         });
+
+        $dfgModal.on("click", ".modifyDSButton.selectAll", function() {
+            $dfTable.find("td, th").addClass("colSelected");
+        });
+
+        $dfgModal.on("click", ".modifyDSButton.clear", function() {
+            $dfTable.find(".colSelected").removeClass("colSelected");
+        });
     }
 
     function exportStep() {
         $dfgModal.addClass("exportMode");
         $confirmBtn.removeClass("next").text("Save");
-        $previewSection.find(".titleSection .text")
+        $previewSection.find(".titleSection .titleWrap .text")
                        .text("Export columns of " + tableName);
         $dfPreviews.hide();
         $dfExport.show();
@@ -220,7 +229,7 @@ window.DataFlowModal = (function($, DataFlowModal) {
     function backToDFGView() {
         $dfgModal.removeClass("exportMode");
         $confirmBtn.addClass("next").text("Next");
-        $previewSection.find(".titleSection .text")
+        $previewSection.find(".titleSection .titleWrap .text")
                        .text("Preview");
         $dfExport.hide();
         $dfPreviews.show();
@@ -346,7 +355,7 @@ window.DataFlowModal = (function($, DataFlowModal) {
         $dfExport.hide();
         $dfPreviews.show();
         $dfTable.empty();
-        $previewSection.find(".titleSection .text").text("Preview");
+        $previewSection.find(".titleSection .titleWrap .text").text("Preview");
         $confirmBtn.text("Next").addClass("next");
         $(document).off('keypress.dfgModal');
     }

@@ -749,8 +749,11 @@ window.xcHelper = (function($, xcHelper) {
 
     // an object used for global Modal Actions
     xcHelper.Modal = function($modal, options) {
-        /* options incluade:
+        /* options include:
          * focusOnOpen: if set true, will focus on confirm btn when open modal
+         * noResize: if set true, will not reszie the modal
+         * noCenter: if set true, will not center the modal
+         * noTabFocus: if set true, press tab will use browser's default behavior
          */
         this.$modal = $modal;
         this.options = options || {};
@@ -900,7 +903,7 @@ window.xcHelper = (function($, xcHelper) {
                     throw "undefined element!";
                 }
                 return ($ele.is(":visible") && !$ele.is("[disabled]") &&
-                        !$ele.is("[readonly]"));
+                        !$ele.is("[readonly]") && !$ele.hasClass("unavailable"));
             }
         },
 
@@ -1293,6 +1296,14 @@ window.xcHelper = (function($, xcHelper) {
 
     xcHelper.escapeRegExp = function(str) {
         return (str.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&"));
+    };
+
+    xcHelper.scrollToBottom = function($target) {
+        // scroll to bottom
+        var scrollDiff = $target[0].scrollHeight - $target.height();
+        if (scrollDiff > 0) {
+            $target.scrollTop(scrollDiff);
+        }
     };
 
     return (xcHelper);
