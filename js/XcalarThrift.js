@@ -1625,6 +1625,7 @@ function XcalarDeleteSched(schedName) {
         deferred.reject(thriftLog("XcalarDeleteSchedule", error));
     });
     */
+    return (deferred.promise());
 }
 
 // SchedInSec means number of seconds after schedule call is issued to run first
@@ -1659,6 +1660,7 @@ function XcalarCreateSched(schedName, schedInSec, period, recurCount, type, arg)
         deferred.reject(thriftLog("XcalarCreateSchedule", error));
     });
     */
+    return (deferred.promise());
 }
 
 // namePattern is just thge star based naming pattern that we use
@@ -1687,6 +1689,7 @@ function XcalarListSchedules(namePattern) {
         deferred.reject(thriftLog("XcalarCreateSchedule", error));
     });
     */
+    return (deferred.promise());
 }
 
 function XcalarKeyLookup(key, scope) {

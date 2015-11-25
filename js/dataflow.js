@@ -1,4 +1,5 @@
-function DFGConstructor() {
+function DFGConstructor(name) {
+    this.name = name;
     this.dataFlows = [];
     this.schedules = [];
     this.parameters = [];
@@ -31,6 +32,19 @@ DFGConstructor.prototype = {
         return this.paramMap[paramName];
     },
 
+    "getAllParameters": function() {
+        var res = [];
+        var paramMap = this.paramMap;
+        for (var paramName in paramMap) {
+            res.push({
+                "parameterName" : paramName,
+                "parameterValue": paramMap[paramName]
+            });
+        }
+
+        return res;
+    },
+
     "updateParameter": function(name, val) {
         xcHelper.assert(this.paramMap.hasOwnProperty(name), "Invalid name");
         this.paramMap[name] = val;
@@ -59,6 +73,16 @@ DFGConstructor.prototype = {
 
         this.parameters.splice(index, 1);
         delete this.paramMap[name];
+    },
+
+    "updateSchedule": function() {
+        var promises = [];
+        var dfgName = this.name;
+        this.schedules.forEach(function(scheduleName) {
+            promises.push(Scheduler.updateDFG.bind(this, scheduleName, dfgName));
+        });
+
+        return chain(promises);
     }
 };
 
@@ -208,6 +232,7 @@ window.DFG = (function($, DFG) {
                     return XcalarMakeRetina(retName);
                 })
                 .then(function() {
+                    // XXX TODO: handle the buggy dagNodeId (new id is different from old one)
                     // XXX TODO: check if the way to update params list is right
                     var promises = [];
                     var retinaNodes = dfg.retinaNodes;
@@ -807,19 +832,16 @@ window.AddScheduleModal = (function($, AddScheduleModal) {
 
     function submitForm() {
         var selectedSchedule = $scheduleListInput.val();
-        // var schedules = Scheduler.getAllSchedules();
 
-        // add group to schedule
-        Scheduler.addDFG(selectedSchedule, groupName);
-
-        // add schedule to group
-        var groups = DFG.getAllGroups();
-        var group = groups[groupName];
-        group.schedules.push(selectedSchedule);
-
-        DFGPanel.listSchedulesInHeader(groupName);
-
-        closeModal();
+        // XXX TODO: add waiting icon if the promise takes too long
+        Scheduler.addDFG(selectedSchedule, groupName)
+        .then(function() {
+            DFGPanel.listSchedulesInHeader(groupName);
+            closeModal();
+        })
+        .fail(function(error) {
+            Alert.error("Add schedule fails", error);
+        });
     }
 
     function addModalEvents() {
@@ -1123,6 +1145,9 @@ window.DagParamModal = (function($, DagParamModal){
 
             DFGPanel.updateRetinaTab(retName);
 
+            return dfg.updateSchedule();
+        })
+        .then(function() {
             commitToStorage();
             closeDagParamModal();
             // show success message??

@@ -36,8 +36,6 @@ window.Scheduler = (function(Scheduler, $) {
     var schedules = [];
     var scheduleLookUpMap = {};
 
-    var debug = true; // XXX only for debug use
-
     Scheduler.setup = function() {
         // click on schedule list
         $scheduleLists.on("click", ".scheduleList", function() {
@@ -165,57 +163,8 @@ window.Scheduler = (function(Scheduler, $) {
     };
 
     Scheduler.restore = function(oldSchedules) {
-        // XXX only for debug use
-        if (debug) {
-            oldSchedules = [
-                {
-                    "name"     : "schedule1",
-                    "startTime": 1443141062968,
-                    "dateText" : "9/24/2015",
-                    "timeText" : "05 : 31 PM",
-                    "repeat"   : "hourly",
-                    "freq"     : null,
-                    "created"  : 1443141062968,
-                    "modified" : 1443141062968,
-                    "DFGs"     : [
-                        {
-                            "name"       : "DFG1",
-                            "initialTime": 1443141062968,
-                            "status"     : "normal"
-                        },
-                        {
-                            "name"       : "DFG2",
-                            "initialTime": 1443141062968,
-                            "status"     : "normal"
-                        }
-                    ]
-                },
-                {
-                    "name"     : "schdeule2",
-                    "startTime": 1443486662000,
-                    "dateText" : "9/24/2015",
-                    "timeText" : "05 : 31 PM",
-                    "repeat"   : "dayPerMonth",
-                    "freq"     : {
-                        "radix": "Last",
-                        "day"  : "Monday"
-                    },
-                    "created" : 1443141062968,
-                    "modified": 1443141062968,
-                    "DFGs"    : [
-                        {
-                            "name"       : "DFG1",
-                            "initialTime": 1443486662000,
-                            "status"     : "normal"
-                        },
-                        {
-                            "name"       : "DFG2",
-                            "initialTime": 1443486662000,
-                            "status"     : "normal"
-                        }
-                    ]
-                }
-            ];
+        if (oldSchedules == null) {
+            return;
         }
 
         var html = "";
@@ -242,26 +191,116 @@ window.Scheduler = (function(Scheduler, $) {
         }
     };
 
-    Scheduler.addDFG = function(scheduleName, DFGName) {
+    Scheduler.addDFG = function(scheduleName, dfgName) {
+        var deferred = jQuery.Deferred();
         var schedule = scheduleLookUpMap[scheduleName];
-        var DFGs = schedule.DFGs;
+        var dfg = DFG.getGroup(dfgName);
 
         // validation check
-        for (var i = 0, len = DFGs.length; i < len; i++) {
-            if (DFGs[i].name === DFGName) {
-                console.error("Duplicated DFGName!");
-                return;
+        for (var i = 0, len = schedule.DFGs.length; i < len; i++) {
+            if (schedule.DFGs[i].name === dfgName) {
+                deferred.reject("Duplicated DFGName");
+                return (deferred.promise());
             }
         }
 
-        getNextRunTime(schedule);
-        var DFG = {
-            "name"       : DFGName,
-            "initialTime": schedule.startTime,
-            "status"     : "normal"
-        };
+        var args = getScheduleArgs(schedule, dfg);
+        console.log(args);
 
-        DFGs.push(DFG);
+        XcalarCreateSched.apply(window, args)
+        .then(function() {
+            // add dfg to schedule
+            var DFG = {
+                "name"         : dfgName,
+                "initialTime"  : schedule.startTime,
+                "status"       : "normal",
+                "backSchedName": args[0]
+            };
+
+            schedule.DFGs.push(DFG);
+            // add schedule to dfg
+            dfg.schedules.push(scheduleName);
+
+            deferred.resolve();
+        })
+        .fail(deferred.reject);
+
+        return (deferred.promise());
+    };
+
+    Scheduler.updateDFG = function(scheduleName, dfgName) {
+        var deferred = jQuery.Deferred();
+        var schedule = scheduleLookUpMap[scheduleName];
+        var dfg = DFG.getGroup(dfgName);
+        var index = -1;
+
+        // validation check
+        for (var i = 0, len = schedule.DFGs.length; i < len; i++) {
+            if (schedule.DFGs[i].name === dfgName) {
+                index = i;
+                break;
+            }
+        }
+        xcHelper.assert((index >= 0), "Invalid dfg in schedule");
+
+        var args;
+        var backSchedName = schedule.DFGs[index].backSchedName;
+
+        XcalarDeleteSched(backSchedName)
+        .then(function() {
+            args = getScheduleArgs(schedule, dfg);
+            console.log(args);
+
+            return XcalarCreateSched.apply(window, args);
+        })
+        .then(function() {
+            // add dfg to schedule
+            var DFG = {
+                "name"         : dfgName,
+                "initialTime"  : schedule.startTime,
+                "status"       : "normal",
+                "backSchedName": args[0]
+            };
+
+            schedule.DFGs[index] = DFG;
+            deferred.resolve();
+        })
+        .fail(deferred.reject);
+
+        return (deferred.promise());
+    };
+
+    Scheduler.removeDFG = function(scheduleName, dfgName) {
+        var deferred = jQuery.Deferred();
+        var schedule = scheduleLookUpMap[scheduleName];
+        var dfg = DFG.getGroup(dfgName);
+
+        var index = -1;
+         // validation check
+        for (var i = 0, len = schedule.DFGs.length; i < len; i++) {
+            if (schedule.DFGs[i].name === dfgName) {
+                index = i;
+                break;
+            }
+        }
+        xcHelper.assert((index >= 0), "Invalid dfg in schedule");
+
+        var index2 = dfg.schedules.indexOf(scheduleName);
+        xcHelper.assert((index2 >= 0), "Invalid schedule in dfg");
+
+        var backSchedName = schedule.DFGs[index].backSchedName;
+
+        XcalarDeleteSched(backSchedName)
+        .then(function() {
+            // delete dfg in schedule
+            schedule.DFGs.splice(index, 1);
+            // delete schedule in dfg
+            dfg.schedules.splice(index2, 1);
+            deferred.resolve();
+        })
+        .fail(deferred.reject);
+
+        return (deferred.promise());
     };
 
     Scheduler.hasDFG = function(scheduleName, DFGName) {
@@ -279,11 +318,31 @@ window.Scheduler = (function(Scheduler, $) {
         return (schedules);
     };
 
-    function saveScheduleForm() {
-        var $scheduleName = $scheduleForm.find(".nameSection input");
-        var $scheduleDate = $scheduleForm.find(".timeSection .date");
-        var $scheduleTime = $scheduleForm.find(".timeSection .time");
+    function getScheduleArgs(schedule, dfg) {
+        getNextRunTime(schedule);
 
+        var backSchedName = schedule.name + "-" + dfg.name;
+        var schedInSec = (schedule.startTime - new Date().getTime()) / 1000;
+        schedInSec = Math.max(Math.round(schedInSec, 0));
+
+        var period = getRepeatPeriod(schedule);
+        var recurCount = schedule.recur;
+        var parameters = dfg.getAllParameters();
+        var type = "StQuery"; // XXX buggy type
+        var arg = {
+            "retinaName"   : dfg.name,
+            "numParameters": parameters.length,
+            "parameters"   : parameters
+        };
+
+        return [backSchedName, schedInSec, period, recurCount, type, arg];
+    }
+
+    function saveScheduleForm() {
+        var $scheduleName  = $scheduleForm.find(".nameSection input");
+        var $scheduleDate  = $scheduleForm.find(".timeSection .date");
+        var $scheduleTime  = $scheduleForm.find(".timeSection .time");
+        var $scheduleRecur = $scheduleForm.find(".recurSection input");
         // validation
         var isValid = xcHelper.validate([
             {
@@ -310,6 +369,9 @@ window.Scheduler = (function(Scheduler, $) {
                 "callback" : function() {
                     $scheduleTime.focus();
                 }
+            },
+            {
+                "$selector": $scheduleRecur
             }
         ]);
 
@@ -333,6 +395,7 @@ window.Scheduler = (function(Scheduler, $) {
             return;
         }
 
+        var recur   = Number($scheduleRecur.val().trim());
         var date    = $scheduleDate.val().trim();
         var time    = $scheduleTime.val().trim();
         var timeObj = $scheduleTime.data("date");
@@ -381,7 +444,8 @@ window.Scheduler = (function(Scheduler, $) {
             "timeText" : time,
             "repeat"   : repeat,
             "freq"     : freq,
-            "modified" : currentTime
+            "modified" : currentTime,
+            "recur"    : recur
         };
 
         if (isNewSchedule) {
@@ -392,19 +456,11 @@ window.Scheduler = (function(Scheduler, $) {
     }
 
     function resetScheduleForm() {
-        var schedule;
         var name = $scheduleForm.data("schedule");
         var isNew = (name == null) ? true : false;
+        var schedule = isNew ? {} : scheduleLookUpMap[name];
+
         var text;
-
-        if (isNew) {
-            // new schedule
-            schedule = {};
-        } else {
-            // modify schedule
-            schedule = scheduleLookUpMap[name];
-        }
-
         var $nameInput = $scheduleForm.find(".nameSection input");
         text = schedule.name || "";
         $nameInput.val(text);
@@ -456,6 +512,10 @@ window.Scheduler = (function(Scheduler, $) {
             });
         }
 
+        var $recurInput = $scheduleForm.find(".recurSection input");
+        text = schedule.recur || "";
+        $recurInput.val(text);
+
         if (isNew) {
             $nameInput.focus();
         }
@@ -481,17 +541,33 @@ window.Scheduler = (function(Scheduler, $) {
     }
 
     function updateSchedule(schedule, option) {
-        var srcName = schedule.name;
+        // XXX TODO: remove the code to fetch scheduleName when update
+        var scheduleName = schedule.name;
+        var oldSchedule = schedule;
+
         schedule = $.extend(schedule, option);
 
-        delete scheduleLookUpMap[srcName];
-        scheduleLookUpMap[schedule.name] = schedule;
+        scheduleLookUpMap[scheduleName] = schedule;
 
-        var $li = $scheduleLists.find('.scheduleList[data-name="' + srcName + '"]');
-        $li.attr("data-name", schedule.name)
-            .data("name", schedule.name)
-            .find(".scheduleName").text(schedule.name)
-            .end().click();
+        var promises = [];
+        schedule.DFGs.forEach(function(scheduleDFG) {
+            var dfgName = scheduleDFG.name;
+            promises.push(Scheduler.updateDFG.bind(this, scheduleName, dfgName));
+        });
+
+        chain(promises)
+        .then(function() {
+            // var $li = $scheduleLists.find('.scheduleList[data-name="' + srcName + '"]');
+            // $li.attr("data-name", schedule.name)
+            //     .data("name", schedule.name)
+            //     .find(".scheduleName").text(schedule.name);
+            // update info on this schedule
+            listSchedule(scheduleName);
+        })
+        .fail(function(error) {
+            Alert.error("Update Schedule Fails", error);
+            scheduleLookUpMap[scheduleName] = oldSchedule;
+        });
     }
 
     function listSchedule(name) {
@@ -516,30 +592,32 @@ window.Scheduler = (function(Scheduler, $) {
         // title
         text = schedule.name || "New Schedule";
         $scheduleInfos.find(".heading").text(text);
-
+        // create
         text = getTime(schedule.created) || "N/A";
         $scheduleInfos.find(".created .text").text(text);
-
+        // last modified
         text = getTime(schedule.modified) || "N/A";
         $scheduleInfos.find(".modified .text").text(text);
-
+        // frequency
         text = schedule.repeat || "N/A";
         if (schedule.repeat === scheduleFreq.dayPerMonth) {
             text = schedule.freq.radix + " " + schedule.freq.day + " " +
                     " of every month";
         }
-
         $scheduleInfos.find(".frequency .text").text(text);
-
+        // recur
+        text = schedule.recur || "N/A";
+        $scheduleInfos.find(".recur .text").text(text);
 
         // update schedule tables
         var $scheduleTable = $("#scheduleTable");
+        // dfg list
         var html = getDFGListHTML(schedule.DFGs);
         $scheduleTable.find(".mainSection").html(html);
-
+        // last run
         text = getTime(schedule.lastRun) || "N/A";
         $scheduleTable.find(".bottomSection .lastRunInfo .text").text(text);
-
+        // next run
         text = getTime(schedule.startTime) || "N/A";
         $scheduleTable.find(".bottomSection .nextRunInfo .text").text(text);
 
@@ -548,8 +626,7 @@ window.Scheduler = (function(Scheduler, $) {
             $scheduleForm.addClass("new")
                         .removeClass("inActive")
                         .data("schedule", null)
-                        .find(".heading .text").text("NEW SCHEDULE")
-                        .end();
+                        .find(".heading .text").text("NEW SCHEDULE");
         } else {
             $scheduleForm.removeClass("new")
                         .addClass("inActive")
@@ -699,6 +776,27 @@ window.Scheduler = (function(Scheduler, $) {
         $timePicker.data("date", date);
 
         return (hours + " : " + minutes + " " + ampm);
+    }
+
+    function getRepeatPeriod(schedule) {
+        var oneHour = 3600; // 1 hour = 3600s
+
+        switch (schedule.repeat) {
+            case scheduleFreq.dayPerMonth:
+                throw "repeat certain day per moth not support";
+            case scheduleFreq.hourly:
+                return oneHour;
+            case scheduleFreq.daily:
+                return 24 * oneHour; // one day
+            case scheduleFreq.weekly:
+                return 7 * 24 * oneHour; // one week
+            case scheduleFreq.biweekly:
+                return 14 * 24 * oneHour; // two weeks
+            case scheduleFreq.monthly:
+                throw "Not support yet!";
+            default:
+                throw "Invalid option!";
+        }
     }
 
     function getNextRunTime(schedule) {

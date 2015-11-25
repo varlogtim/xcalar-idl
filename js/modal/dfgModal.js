@@ -144,8 +144,8 @@ window.DataFlowModal = (function($, DataFlowModal) {
             "height"    : $dagImage.height(),
             "width"     : $dagImage.width()
         };
-        var existingGroups = DFG.getAllGroups();
-        var group = existingGroups[groupName] || new DFGConstructor();
+
+        var group = DFG.getGroup(groupName) || new DFGConstructor(groupName);
         group.dataFlows.push({
             "name"      : tableName,
             "columns"   : columns,
