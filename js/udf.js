@@ -8,6 +8,9 @@ window.UDF = (function($, UDF) {
     var $listDropdown = $("#udf-fnMenu");
 
     var editor;
+    var udfDefault = "# PLEASE TAKE NOTE: \n" +
+                    "# UDFs can only support\n" +
+                    "# return values of type String\n\n";
     var storedUDF = {};
 
     UDF.setup = function() {
@@ -21,7 +24,7 @@ window.UDF = (function($, UDF) {
 
     UDF.clear = function() {
         // clear CodeMirror
-        editor.setValue("");
+        editor.setValue(udfDefault);
         editor.clearHistory();
         storedUDF = {};
         $('#udf-fnMenu').empty().append('<li name="blank">Blank Function</li>');
@@ -129,6 +132,8 @@ window.UDF = (function($, UDF) {
             "matchBrackets": true
         });
 
+        editor.setValue(udfDefault);
+
         /* switch between UDF sections */
         var $sections = $("#udfSection .mainSection");
         var $radios   = $("#udf-tabs .radioWrap .radio");
@@ -224,7 +229,7 @@ window.UDF = (function($, UDF) {
 
                 if ($li.attr("name") === "blank") {
                     $downloadBtn.addClass("disabled");
-                    editor.setValue("");
+                    editor.setValue(udfDefault);
                 } else {
                     $downloadBtn.removeClass("disabled");
                     getEntireUDF(moduleName)
@@ -391,6 +396,7 @@ window.UDF = (function($, UDF) {
     function multiJoinUDFUpload() {
         var moduleName = "multiJoinModule";
         var entireString =
+            udfDefault +
             'def multiJoin(*arg):\n' +
                 '\tstri = ""\n' +
                 '\tfor a in arg:\n' +
@@ -408,6 +414,7 @@ window.UDF = (function($, UDF) {
     function defaultUDFUpload() {
         var moduleName = "default";
         var entireString =
+        udfDefault +
         'import sys\n' +
         '# For 2.7\n' +
         'sys.path.append("/usr/local/lib/python2.7/dist-packages/apache_log_parser-1.6.1.dev-py2.7.egg")\n' +
