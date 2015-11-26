@@ -325,9 +325,10 @@ window.UDF = (function($, UDF) {
 
     function uploadUDF(moduleName, entireString, isFnInputSection) {
         var deferred = jQuery.Deferred();
-
+        moduleName = moduleName.toLowerCase();
         if (storedUDF.hasOwnProperty(moduleName)) {
-            var msg = "Python module " + moduleName + " already exists," +
+            var msg = "Python module " + moduleName + " already exists " +
+                        "(module name is case insensitive)," +
                         " do you want to replace it with this module?";
             Alert.show({
                     "title"     : "Duplicate Module",
