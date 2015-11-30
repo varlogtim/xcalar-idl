@@ -14,6 +14,8 @@ window.FileBrowser = (function($, FileBrowser) {
     var $sortSection   = $("#fileBrowserSort");
     var $sortMenu      = $("#fileBrowserSortMenu");
 
+    var $loadSection   = $fileBrowserMain.find(".loadingSection");
+
     var $filePath      = $("#filePath");
 
     /* Contants */
@@ -40,21 +42,21 @@ window.FileBrowser = (function($, FileBrowser) {
     });
 
     FileBrowser.show = function() {
+        modalHelper.setup();
+
+        if (gMinModeOn) {
+            $modalBackground.show().addClass("open");
+            $fileBrowser.show().focus();
+        } else {
+            $modalBackground.fadeIn(300, function() {
+                $fileBrowser.fadeIn(180).focus();
+            });
+        }
+
         var openingBrowser = true;
         retrievePaths($filePath.val(), openingBrowser)
         .then(function(result) {
-            modalHelper.setup();
-
-            if (gMinModeOn) {
-                $modalBackground.show().addClass("open");
-                $fileBrowser.show().focus();
-                showHandler(result);
-            } else {
-                $modalBackground.fadeIn(300, function() {
-                    $fileBrowser.fadeIn(180).focus();
-                    showHandler(result);
-                });
-            }
+            showHandler(result);
         })
         .fail(function(result) {
             closeAll();
@@ -400,6 +402,12 @@ window.FileBrowser = (function($, FileBrowser) {
 
     function listFiles(path, openingBrowser) {
         var deferred = jQuery.Deferred();
+
+        $fileBrowser.addClass("loadMode");
+        var timer = setTimeout(function() {
+            $loadSection.show();
+        }, 500);
+
         XcalarListFiles(path)
         .then(function(listFilesOutput) {
             clear();
@@ -419,6 +427,11 @@ window.FileBrowser = (function($, FileBrowser) {
             } else {
                 deferred.reject(error);
             }
+        })
+        .always(function() {
+            $fileBrowser.removeClass("loadMode");
+            clearTimeout(timer);
+            $loadSection.hide();
         });
 
         return (deferred.promise());

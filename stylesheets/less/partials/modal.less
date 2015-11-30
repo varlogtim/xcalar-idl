@@ -1851,6 +1851,14 @@ html.microsoft {
     text-transform: capitalize;
     overflow: visible;
 
+    &.loadMode {
+        pointer-events: none;
+
+        .cancel, .close {
+            pointer-events: auto;
+        }
+    }
+
     .dropDownList {
         .styleDropDownList(450px, 25px);
         .text, .list li {
@@ -1980,6 +1988,16 @@ html.microsoft {
         .position(relative);
         .size(@height: ~"calc(100% - 300px)");
         padding: 5px 0;
+
+        .loadingSection {
+            display: none;
+            .size(@width: 100%, @height: 100%);
+            .position(absolute);
+            .waitingIcon {
+                display: block;
+                .center-align;
+            }
+        }
 
         .titleSection {
             .size(@width: ~"calc(100% - 22px)", @height: 40px);
