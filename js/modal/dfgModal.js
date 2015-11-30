@@ -33,6 +33,10 @@ window.DataFlowModal = (function($, DataFlowModal) {
             "minWidth"   : minWidth,
             "containment": "document"
         });
+
+        $dfExport.scroll(function(){
+            $(this).scrollTop(0);
+        });
         
         addModalEvents();
         setupDFGList();
