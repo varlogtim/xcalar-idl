@@ -1317,67 +1317,6 @@
       </div>
       <!-- END schedulesView -->
     </div>
-      <!-- dag Parameter Modal -->
-    <div id="dagParameterModal" class="modalContainer">
-      <div class="modalHeader">
-        <span class="text">Parameterize Query</span>
-        <div class="close">
-          <span class="icon"></span>
-        </div>
-      </div> 
-      <div class="modalInstruction">
-        <div class="icon"></div>
-        <div class="text">To covert this query into a parameterized query,
-        please click the add new parameterized query button and drag and drop
-        the parameters into their appropriate places.</div>
-      </div> 
-      <div class="modalTopMain clearfix">
-        <div class="templateSection clearfix retinaModalSection">
-          <span class="heading">Current Query:</span>
-          <table class="templateTable">
-            <tr class="template"></tr>
-          </table>
-        </div>
-        <div class="border"></div>
-        <div class="currentParameterList retinaModalSection">
-          <span class="heading">Current Parameter List:</span>
-          <div class="draggableParams"></div>
-        </div>
-        <div class="border"></div>
-        <div class="editableParamQuery retinaModalSection">
-          <span class="heading">Parameterized Query:</span>
-          <table class="editableTable">
-            <tr class="editableRow"></tr>
-          </table>
-        </div>
-      </div>
-      <!-- defaultListSection -->
-      <div class="defaultListSection">
-        <div class="tableContainer">
-          <div class="tableWrapper">
-            <table id="dagModleParamList">
-              <thead>
-                <tr>
-                  <th>
-                    <div class="thWrap">Parameter</div>
-                  </th>
-                  <th>
-                    <div class="thWrap">Value</div>
-                  </th>
-                </tr>
-              </thead>
-              <tbody></tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-      <!-- end of defaultListSection -->
-      <div class="modalBottom clearfix">
-        <button class="btn btnMid confirm">SAVE</button>
-        <button class="btn btnMid cancel">CANCEL</button>
-      </div>
-    </div>
-    <!-- End Of Parameter Modal -->
   </div>
   <!-- END SCHEDULER PANEL -->
 
@@ -1898,6 +1837,68 @@
     </section>
   </div>
   <!-- End Of Quick Aggregates Modal -->
+
+  <!-- dag Parameter Modal -->
+  <div id="dagParameterModal" class="modalContainer">
+    <div class="modalHeader">
+      <span class="text">Parameterize Query</span>
+      <div class="close">
+        <span class="icon"></span>
+      </div>
+    </div> 
+    <div class="modalInstruction">
+      <div class="icon"></div>
+      <div class="text">To covert this query into a parameterized query,
+      please click the add new parameterized query button and drag and drop
+      the parameters into their appropriate places.</div>
+    </div> 
+    <div class="modalTopMain clearfix">
+      <div class="templateSection clearfix retinaModalSection">
+        <span class="heading">Current Query:</span>
+        <table class="templateTable">
+          <tr class="template"></tr>
+        </table>
+      </div>
+      <div class="border"></div>
+      <div class="currentParameterList retinaModalSection">
+        <span class="heading">Current Parameter List:</span>
+        <div class="draggableParams"></div>
+      </div>
+      <div class="border"></div>
+      <div class="editableParamQuery retinaModalSection">
+        <span class="heading">Parameterized Query:</span>
+        <table class="editableTable">
+          <tr class="editableRow"></tr>
+        </table>
+      </div>
+    </div>
+    <!-- defaultListSection -->
+    <div class="defaultListSection">
+      <div class="tableContainer">
+        <div class="tableWrapper">
+          <table id="dagModleParamList">
+            <thead>
+              <tr>
+                <th>
+                  <div class="thWrap">Parameter</div>
+                </th>
+                <th>
+                  <div class="thWrap">Value</div>
+                </th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    <!-- end of defaultListSection -->
+    <div class="modalBottom clearfix">
+      <button class="btn btnMid confirm">SAVE</button>
+      <button class="btn btnMid cancel">CANCEL</button>
+    </div>
+  </div>
+  <!-- End Of Parameter Modal -->
 
   <!-- Join Modal -->
   <div id="joinModal" class="modalContainer">

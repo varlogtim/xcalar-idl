@@ -798,7 +798,7 @@ window.xcHelper = (function($, xcHelper) {
 
             // center modal
             if (!options.noCenter) {
-                centerPositionElement($modal);
+                centerPositionElement($modal, {limitTop: true});
             }
 
             // XXX to find the visiable btn, must show the modal first

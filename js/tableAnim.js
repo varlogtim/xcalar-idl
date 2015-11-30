@@ -3780,6 +3780,9 @@ function centerPositionElement($target, options) {
         var winHeight   = $window.height();
         var modalHeight = $target.height();
         var top  = ((winHeight - modalHeight) / 2);
+        if (options.limitTop) {
+            top = Math.max(top, 0);
+        }
     }
     
     var winWidth    = $window.width();

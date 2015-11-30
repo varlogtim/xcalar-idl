@@ -13,10 +13,12 @@ function DFGConstructor(name, options) {
 DFGConstructor.prototype = {
     "addRetinaNode": function(dagNodeId, paramInfo) {
         this.retinaNodes[dagNodeId] = paramInfo;
+        $('#schedulerPanel').find('[data-id=' + dagNodeId + ']')
+                            .addClass('hasParam');
     },
 
     "getRetinaNode": function(dagNodeId) {
-        return this.retinaNodes[dagNodeId];
+        return (this.retinaNodes[dagNodeId]);
     },
 
     "addParameter": function(name, val) {
@@ -27,7 +29,7 @@ DFGConstructor.prototype = {
     },
 
     "getParameter": function(paramName) {
-        return this.paramMap[paramName];
+        return (this.paramMap[paramName]);
     },
 
     "getAllParameters": function() {
@@ -40,7 +42,7 @@ DFGConstructor.prototype = {
             });
         }
 
-        return res;
+        return (res);
     },
 
     "updateParameter": function(name, val) {
@@ -56,12 +58,12 @@ DFGConstructor.prototype = {
             var dagQuery = retinsNodes[dagNodeId].paramQuery;
             for (var i = 0, len = dagQuery.length; i < len; i++) {
                 if (dagQuery[i].indexOf(str) >= 0) {
-                    return true;
+                    return (true);
                 }
             }
         }
 
-        return false;
+        return (false);
     },
 
     "removeParameter": function(name) {
@@ -80,7 +82,7 @@ DFGConstructor.prototype = {
             promises.push(Scheduler.updateDFG.bind(this, scheduleName, dfgName));
         });
 
-        return chain(promises);
+        return (chain(promises));
     }
 };
 
@@ -132,7 +134,7 @@ window.DFG = (function($, DFG) {
     };
 
     DFG.getGroup = function(groupName) {
-        return dfGroups[groupName];
+        return (dfGroups[groupName]);
     };
 
     DFG.setGroup = function(groupName, group) {
@@ -227,11 +229,11 @@ window.DFG = (function($, DFG) {
         function makeRetinaHelper() {
             var innerDeferred = jQuery.Deferred();
             if (isNew) {
-                return XcalarMakeRetina(retName, tableArray);
+                return (XcalarMakeRetina(retName, tableArray));
             } else {
                 XcalarDeleteRetina(retName)
                 .then(function() {
-                    return XcalarMakeRetina(retName);
+                    return (XcalarMakeRetina(retName));
                 })
                 .then(function() {
                     // XXX TODO: handle the buggy dagNodeId (new id is different from old one)
@@ -245,7 +247,7 @@ window.DFG = (function($, DFG) {
                                 dagNodeId, node.paramType, node.paramValue));
                     }
 
-                    return chain(promises);
+                    return (chain(promises));
                 })
                 .then(innerDeferred.resolve)
                 .fail(innerDeferred.reject);
@@ -535,6 +537,7 @@ window.DFGPanel = (function($, DFGPanel) {
         var group = DFG.getGroup(groupName);
 
         var numDataFlows = group.dataFlows.length;
+        var retinaNodes = group.retinaNodes;
         for (var i = 0; i < numDataFlows; i++) {
             var dataFlow = group.dataFlows[i];
             html += '<div class="dagWrap clearfix">' +
@@ -556,13 +559,26 @@ window.DFGPanel = (function($, DFGPanel) {
                             dataFlow.canvasInfo.height + 'px;">';
 
             var tables = dataFlow.canvasInfo.tables;
+            var hasParam;
             for (var j = 0, numTables = tables.length; j < numTables; j++) {
-                html += getTableHtml(tables[j]);
+                hasParam = false;
+                if (tables[j].id !== undefined) {
+                    if (retinaNodes[tables[j].id]) {
+                        hasParam = true;
+                    }
+                }
+                html += getTableHtml(tables[j], hasParam);
             }
 
             var operations = dataFlow.canvasInfo.operations;
             for (var j = 0, numOps = operations.length; j < numOps; j++) {
-                html += getOperationHtml(operations[j]);
+                hasParam = false;
+                if (operations[j].id !== undefined) {
+                    if (retinaNodes[operations[j].id]) {
+                        hasParam = true;
+                    }
+                }
+                html += getOperationHtml(operations[j], hasParam);
             }
             html += '</div></div></div>';
         }
@@ -596,15 +612,20 @@ window.DFGPanel = (function($, DFGPanel) {
         return (html);
     }
 
-    function getTableHtml(table) {
+    function getTableHtml(table, hasParam) {
         var icon;
         if (table.type === 'table') {
             icon = 'dagTableIcon';
         } else {
             icon = 'dataStoreIcon';
         }
+        var paramClass = "";
+        if (hasParam) {
+            paramClass = " hasParam";
+        }
         var html =
-        '<div class="dagTable ' + table.type + '" data-index="' + table.index +
+        '<div class="dagTable ' + table.type + paramClass + '" data-index="' +
+        table.index +
         '" data-children="' + table.children + '" data-type="' +
         table.type + '"';
         if (icon === 'dataStoreIcon') {
@@ -623,11 +644,15 @@ window.DFGPanel = (function($, DFGPanel) {
         return (html);
     }
 
-    function getOperationHtml(operation) {
+    function getOperationHtml(operation, hasParam) {
         //XX TODO: loop through operation data instead
+        var paramClass = "";
+        if (hasParam) {
+            paramClass = " hasParam";
+        }
         var html =
-        '<div class="actionType ' + operation.type + '" style="top: '
-        + operation.top + 'px; left: ' +
+        '<div class="actionType ' + operation.type + paramClass +
+        '" style="top: ' + operation.top + 'px; left: ' +
         operation.left + 'px; position: absolute;" ' +
         'data-type="' + operation.type + '" data-info="' + operation.info +
         '" data-id="' + operation.id + '" data-column="' + operation.column +
@@ -1029,16 +1054,6 @@ window.DagParamModal = (function($, DagParamModal){
             var abbrFilterType = filterInfo.slice(0, parenIndex);
             var filterValue = filterInfo.slice(filterInfo.indexOf(',') + 2,
                                                   filterInfo.indexOf(')'));
-            var filterTypeMap = {
-                "gt"   : ">",
-                "ge"   : "&ge;",
-                "eq"   : "=",
-                "lt"   : "<",
-                "le"   : "&le;",
-                "regex": "regex",
-                "like" : "like",
-                "not"  : "not"
-            };
 
             defaultText += "<td class='static'>by</td>";
             defaultText += "<td><div class='boxed small'>" +
@@ -1142,6 +1157,17 @@ window.DagParamModal = (function($, DagParamModal){
         event.preventDefault();
     };
 
+    var filterTypeMap = {
+        "gt"   : ">",
+        "ge"   : "&ge;",
+        "eq"   : "=",
+        "lt"   : "<",
+        "le"   : "&le;",
+        "regex": "regex",
+        "like" : "like",
+        "not"  : "not"
+    };
+
     function addParamToLists(paramName, paramVal) {
         var $tbody = $paramLists.find("tbody");
         var $row = $tbody.find(".unfilled:first");
@@ -1173,7 +1199,9 @@ window.DagParamModal = (function($, DagParamModal){
             // store meta
             dfg.addRetinaNode(dagNodeId, paramInfo);
 
-            $dagParamModal.find(".tableWrapper tbody tr").not(".unfilled").each(function() {
+            $dagParamModal.find(".tableWrapper tbody tr")
+                          .not(".unfilled").each(function() {
+
                 var name = $(this).find(".paramName").text();
                 var val  = $(this).find(".paramVal").val();
 
@@ -1182,7 +1210,7 @@ window.DagParamModal = (function($, DagParamModal){
 
             DFGPanel.updateRetinaTab(retName);
 
-            return dfg.updateSchedule();
+            return (dfg.updateSchedule());
         })
         .then(function() {
             commitToStorage();
