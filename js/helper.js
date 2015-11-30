@@ -767,6 +767,7 @@ window.xcHelper = (function($, xcHelper) {
             var $modal  = this.$modal;
             var options = this.options || {};
 
+            $("body").addClass("no-selection");
             xcHelper.removeSelectionRange();
             // hide tooltip when open the modal
             $(".tooltip").hide();
@@ -925,6 +926,7 @@ window.xcHelper = (function($, xcHelper) {
             this.$modal.find(".focusable").off(".xcModal")
                                       .removeClass("focusable");
             this.enableSubmit();
+            $("body").removeClass("no-selection");
         }
     };
 

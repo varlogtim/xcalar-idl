@@ -1662,11 +1662,9 @@ function addColListeners($table, tableId) {
 
             if ($td.find('.highlightBox').length > 0) {
                 // deselect
-                console.log('ya')
                 unHighlightCell($td);
                 isUnSelect = true;
             } else {
-                
                 highlightCell($td, tableId, rowNum, colNum);
             }
         }
@@ -2002,11 +2000,11 @@ function addMenuBehaviors($mainMenu) {
 
 ListScroller = function($menu, $subMenu) {
     this.$menu = $menu;
-    this.$ul = $menu.children('ul'); 
+    this.$ul = $menu.children('ul');
     this.$scrollAreas = $menu.find('.scrollArea');
     this.$subMenu = $subMenu;
 
-    /* 
+    /*
     $menu needs to have the following structure:
         <div>
             <ul>
@@ -2139,7 +2137,7 @@ ListScroller.prototype.setup = function() {
             $scrollAreas.removeClass('mouseover');
         }
     }
-}
+};
 
 function addMenuKeyboardNavigation($menu, $subMenu) {
     $(document).on('keydown.menuNavigation', function(event) {
@@ -3101,7 +3099,8 @@ function dropdownClick($el, options) {
                 $menu.find(".tdUnnest").addClass("hidden");
             } else {
                 $menu.find(".tdJsonModal").removeClass("hidden");
-                $menu.find(".tdUnnest").removeClass("hidden");              }
+                $menu.find(".tdUnnest").removeClass("hidden");
+            }
         } else {
             $menu.find(".tdJsonModal").addClass("hidden");
             $menu.find(".tdUnnest").addClass("hidden");
