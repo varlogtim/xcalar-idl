@@ -1,4 +1,20 @@
-var tHandle = xcalarConnectThrift(hostname, portNumber.toString());
+var tHandle;
+
+function setupThrift() {
+    setupHostName();
+    tHandle = xcalarConnectThrift(hostname, portNumber.toString());
+}
+
+function setupHostName() {
+    if (hostname == null || hostname === "") {
+        var url = window.location.href;
+        var lastBackSlash = url.lastIndexOf("/");
+        url = url.substring(0, lastBackSlash);
+        // XXX when backend support the split of "http://"("https://"),
+        // we do not need the following code
+        hostname = url.split("http://")[1];
+    }
+}
 // for convenience, add the function list here and make them
 // comment in deafult
 var funcFailPercentage = {

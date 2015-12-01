@@ -918,6 +918,7 @@ function documentReadyIndexFunction() {
     $(document).ready(function() {
         gMinModeOn = true; // startup use min mode;
         Compatible.check();
+        setupThrift();
 
         checkXcalarVersionMatch()
         .then(startupFunctions)
