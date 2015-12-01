@@ -959,6 +959,16 @@ window.DagParamModal = (function($, DagParamModal){
                             '</div>' +
                         '</td>' +
                     '</tr>';
+    var filterTypeMap = {
+        "gt"   : ">",
+        "ge"   : "&ge;",
+        "eq"   : "=",
+        "lt"   : "<",
+        "le"   : "&le;",
+        "regex": "regex",
+        "like" : "like",
+        "not"  : "not"
+    };
 
     DagParamModal.setup = function() {
         $dagParamModal.find('.cancel, .close').click(function() {
@@ -1007,6 +1017,14 @@ window.DagParamModal = (function($, DagParamModal){
             return (event.which !== keyCode.Enter);
         });
 
+        $dagParamModal.on("click", ".editableTable .defaultParam", function() {
+            var $div = $(this);
+            var target = $div.data("target");
+            var defaultVal = $dagParamModal.find(".templateTable .boxed")
+                                            .eq(target).text();
+            $div.siblings(".editableParamDiv").text(defaultVal);
+        });
+
         $dagParamModal.draggable({
             handle     : '.modalHeader',
             containment: 'window',
@@ -1030,21 +1048,15 @@ window.DagParamModal = (function($, DagParamModal){
             defaultText += '<td><div class="boxed large">' +
                             $currentIcon.data('url') +
                             '</div></td>';
+
             editableText += "<td class='static'>Load</td>";
-            editableText += '<td>' +
-                                '<div class="editableParamDiv boxed ' +
-                                'large load" ' +
-                                'ondragover="DagParamModal.allowParamDrop(event)"' +
-                                'ondrop="DagParamModal.paramDrop(event)" ' +
-                                'data-target="0" ' +
-                                'contenteditable="true" ' +
-                                'spellcheck="false"></div>' +
-                            '</td>';
+            editableText += getParameterInputHTML(0, "large load");
         } else { // not a datastore but a table
             defaultText += "<td>" + type + "</td>";
             defaultText += "<td><div class='boxed medium'>" +
                             $currentIcon.data('column') +
                             "</div></td>";
+
             editableText += "<td class='static'>" + type + "</td>";
         }
 
@@ -1061,10 +1073,10 @@ window.DagParamModal = (function($, DagParamModal){
             defaultText += "<td><div class='boxed medium'>" +
                             filterValue + "</div></td>";
 
-            editableText += getParameterInputHTML(0) +
+            editableText += getParameterInputHTML(0, "medium") +
                             '<td class="static">by</td>' +
-                            getParameterInputHTML(1) +
-                            getParameterInputHTML(2);
+                            getParameterInputHTML(1, "medium") +
+                            getParameterInputHTML(2, "medium allowEmpty");
             
         } else if ($currentIcon.hasClass('dataStore')) {
             // do nothing
@@ -1157,17 +1169,6 @@ window.DagParamModal = (function($, DagParamModal){
         event.preventDefault();
     };
 
-    var filterTypeMap = {
-        "gt"   : ">",
-        "ge"   : "&ge;",
-        "eq"   : "=",
-        "lt"   : "<",
-        "le"   : "&le;",
-        "regex": "regex",
-        "like" : "like",
-        "not"  : "not"
-    };
-
     function addParamToLists(paramName, paramVal) {
         var $tbody = $paramLists.find("tbody");
         var $row = $tbody.find(".unfilled:first");
@@ -1187,12 +1188,26 @@ window.DagParamModal = (function($, DagParamModal){
 
     function storeRetina() {
         //XX need to check if all default inputs are filled
+        var $paramPart = $dagParamModal.find(".editableTable");
+        var $editableDivs = $paramPart.find('.editableParamDiv');
+        var isValid = true;
+
+        $editableDivs.each(function() {
+            var $div = $(this);
+            if (!$div.hasClass("allowEmpty") && $div.text().trim() === "") {
+                isValid = false;
+                StatusBox.show("Please fill out this field", $div);
+                return false;
+            }
+        });
+
+        if (!isValid) {
+            return;
+        }
+
         var retName = $dagParamModal.data("dfg");
         var dfg = DFG.getGroup(retName);
         var dagNodeId = $dagParamModal.data("id");
-
-        var $paramPart = $dagParamModal.find(".editableTable");
-        var $editableDivs = $paramPart.find('.editableParamDiv');
 
         updateRetina()
         .then(function(paramInfo) {
@@ -1200,7 +1215,7 @@ window.DagParamModal = (function($, DagParamModal){
             dfg.addRetinaNode(dagNodeId, paramInfo);
 
             $dagParamModal.find(".tableWrapper tbody tr")
-                          .not(".unfilled").each(function() {
+            .not(".unfilled").each(function() {
 
                 var name = $(this).find(".paramName").text();
                 var val  = $(this).find(".paramVal").val();
@@ -1306,14 +1321,26 @@ window.DagParamModal = (function($, DagParamModal){
         }
     }
 
-    function getParameterInputHTML(inputNum) {
+    function getParameterInputHTML(inputNum, extraClass) {
+        var divClass = "editableParamDiv boxed";
+        if (extraClass != null) {
+            divClass += " " + extraClass;
+        }
         var td = '<td>' +
-                    '<div class="editableParamDiv boxed medium" ' +
-                    'ondragover="DagParamModal.allowParamDrop(event)"' +
-                    'ondrop="DagParamModal.paramDrop(event)" ' +
-                    'data-target="' + inputNum + '" ' +
-                    'contenteditable="true" ' +
-                    'spellcheck="false"></div>' +
+                    '<div class="tdWrapper">' +
+                        '<div class="' + divClass + '" ' +
+                        'ondragover="DagParamModal.allowParamDrop(event)"' +
+                        'ondrop="DagParamModal.paramDrop(event)" ' +
+                        'data-target="' + inputNum + '" ' +
+                        'contenteditable="true" ' +
+                        'spellcheck="false"></div>' +
+                        '<div title="Default Value" ' +
+                        'data-target="' + inputNum + '" ' +
+                        'class="defaultParam iconWrap" data-toggle="tooltip" ' +
+                        'data-placement="top" data-container="body">' +
+                            '<span class="icon"></span>' +
+                        '</div>' +
+                    '</div>' +
                 '</td>';
         return (td);
     }

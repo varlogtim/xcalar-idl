@@ -3156,6 +3156,26 @@ html.microsoft {
             text-transform: capitalize;
         }
 
+        .tdWrapper {
+            .position(relative);
+
+            .iconWrap {
+                .position(absolute, @top: 5px, @right: 3px);
+                .size(20px, 20px);
+                cursor: pointer;
+                .gray-gradient;
+
+                &:hover {
+                    .gray-inverse-gradient;
+                }
+
+                .icon {
+                    .size(20px, 20px);
+                    .image("/images/columnSelect.png", 50%, 50%);
+                }
+            }
+        }
+
         .editableParamDiv {
             margin: 0px 5px;
             padding: 0px 25px 0px 5px;
