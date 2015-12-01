@@ -236,12 +236,12 @@ window.Alert = (function($, Alert){
 
         if (options.modal) {
             var $container = options.modal;
-            $container.css("z-index", 10);
+            $container.css("z-index", 15);
         }
 
         // set confirm button
         var $confirmBtn = $btnSection.find(".confirm");
-        var $cancelBtn  = $btnSection.find(".cancel");
+        // var $cancelBtn  = $btnSection.find(".cancel");
         if (!options.isAlert) {
             if (options.noCancel) {
                 $alertModal.find(".close, .cancel").hide();
