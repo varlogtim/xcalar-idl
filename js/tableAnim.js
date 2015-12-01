@@ -1012,19 +1012,16 @@ function addTableMenuActions() {
                 $input.siblings(".list").find("li").filter(function() {
                     return ($(this).text() === wsName); });
 
-            var isValid  = xcHelper.validate([
+            var isValid = xcHelper.validate([
                 {
-                    "$selector": $input,
-                    "forMode"  : true
+                    "$selector": $input
                 },
                 {
                     "$selector": $input,
+                    "text"     : ErrorTextTStr.InvalidWSInList,
                     "check"    : function () {
                         return ($option.length === 0);
-                    },
-                    "text": "Invalid worksheet name, please choose a " +
-                                 "worksheet in the pop up list!",
-                    "forMode": true
+                    }
                 }
             ]);
 
@@ -1044,17 +1041,15 @@ function addTableMenuActions() {
 
     $tableMenu.on('keypress', '.dupToWorksheet input', function(event) {
         if (event.which === keyCode.Enter) {
-            var $li             = $(this).closest(".dupToWorksheet");
+            var $li = $(this).closest(".dupToWorksheet");
             // there are two inputs in the sectin, so not use $(this)
             var $wsInput        = $li.find(".wsName");
             var $tableNameInput = $li.find(".tableName");
             // validation check
-            var isValid         = xcHelper.validate([
-                { "$selector": $wsInput,
-                  "formMode" : true
+            var isValid = xcHelper.validate([
+                { "$selector": $wsInput
                 },
-                { "$selector": $tableNameInput,
-                  "formMode" : true
+                { "$selector": $tableNameInput
                 }
             ]);
 
@@ -1062,8 +1057,8 @@ function addTableMenuActions() {
                 return false;
             }
 
-            var wsName       = jQuery.trim($wsInput.val());
-            var newTableName = jQuery.trim($tableNameInput.val());
+            var wsName       = $wsInput.val().trim();
+            var newTableName = $tableNameInput.val().trim();
 
             var $option = $li.find(".list li").filter(function() {
                 return ($(this).text() === wsName);
@@ -1071,12 +1066,10 @@ function addTableMenuActions() {
             // XXX also need to check table name conflict
             isValid = xcHelper.validate({
                 "$selector": $wsInput,
+                "text"     : ErrorTextTStr.InvalidWSInList,
                 "check"    : function() {
                     return ($option.length === 0);
-                },
-                "text": "Invalid worksheet name, " +
-                             "please choose a worksheet in the pop up list!",
-                "formMode": true
+                }
             });
 
             if (!isValid) {
@@ -2284,8 +2277,7 @@ function addColMenuActions() {
             if (delim.trim() === "") {
                 if (delim.length === 0) {
                     // when this field is empty
-                    var errorText = "Please fill out this field.";
-                    StatusBox.show(errorText, $delimInput);
+                    StatusBox.show(ErrorTextTStr.NoEmpty, $delimInput);
                     return;
                 }
                 // cast of space/tab
@@ -2315,16 +2307,15 @@ function addColMenuActions() {
             var isValid = xcHelper.validate([
                 {
                     "$selector": $numInput,
-                    "text"     : "Invalid input, please input a number",
+                    "text"     : ErrorTextTStr.OnlyNumber,
                     "check"    : function() {
                         return (isNaN(num) || !Number.isInteger(num));
                     }
                 },
                 {
                     "$selector": $numInput,
-                    "check"    : function() { return (num < 1); },
-                    "text"     : "Ivalid number, " +
-                                "please specify a number bigger than 0"
+                    "text"     : ErrorTextTStr.OnlyPositiveNumber,
+                    "check"    : function() { return (num < 1); }
                 }
             ]);
 

@@ -520,10 +520,10 @@ window.xcHelper = (function($, xcHelper) {
 
             if (ele.check != null) {
                 notValid = ele.check(val);
-                error = ele.text || "Invalid Inputs.";
+                error = ele.text || ErrorTextTStr.InvalidField;
             } else {
                 notValid = (jQuery.trim(val) === "");
-                error = ele.text || "Please fill out this field.";
+                error = ele.text || ErrorTextTStr.NoEmpty;
             }
 
             if (notValid) {
@@ -535,7 +535,7 @@ window.xcHelper = (function($, xcHelper) {
                     StatusBox.show(error, $e, ele.formMode);
                     ele.callback();
                 } else if (ele.isAlert) {
-                    Alert.error("Invalid Filed", text);
+                    Alert.error(ErrorTextTStr.InvalidField, text);
                 } else {
                     StatusBox.show(error, $e, ele.formMode);
                 }

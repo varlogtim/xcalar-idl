@@ -514,7 +514,7 @@ window.DagPanel = (function($, DagPanel) {
             // XXX temporarily hiding delete table
             '<li class="deleteTableDescendants unavailable" data-toggle="tooltip" ' +
                 'data-placement="bottom" data-container="body" ' +
-                'title="Coming Soon">' +
+                'title="' + TooltipTStr.ComingSoon + '">' +
                 'Delete Table & Descendants' +
             '</li>' +
         '</ul>';

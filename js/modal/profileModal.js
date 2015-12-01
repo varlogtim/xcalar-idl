@@ -148,20 +148,20 @@ window.Profile = (function($, Profile, d3) {
                 var isValid = xcHelper.validate([
                     {
                         "$selector": $rangeInput,
+                        "text"     : ErrorTextTStr.NoBucketOnStr,
                         "check"    : function() {
                             return (statsCol.type === "string");
-                        },
-                        "text": "Column type is string, cannot bucket into range."
+                        }
                     },
                     {
                         "$selector": $rangeInput
                     },
                     {
                         "$selector": $rangeInput,
+                        "text"     : ErrorTextTStr.OnlyPositiveNumber,
                         "check"    : function() {
                             return (Number(val) <= 0);
-                        },
-                        "text": "Cannot bucket into range less than or equal to 0"
+                        }
                     }
                 ]);
 

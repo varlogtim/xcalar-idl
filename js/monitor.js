@@ -30,7 +30,7 @@ window.MonitorPanel = (function($, MonitorPanel) {
                     $("#monitor-queries").addClass("active");
                     break;
                 case ("setupButton"):
-                    // comming soon
+                    // coming soon
                     break;
                 default:
                     break;

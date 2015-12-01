@@ -240,7 +240,6 @@ window.DataFlowModal = (function($, DataFlowModal) {
     }
 
     function submitForm() {
-        var groupName = $newGroupNameInput.val().trim();
         var isValid;
         // when in first step
         if (!$dfgModal.hasClass("exportMode")) {
@@ -248,18 +247,14 @@ window.DataFlowModal = (function($, DataFlowModal) {
             if ($radios.eq(0).hasClass('checked')) {
                 isValid = xcHelper.validate([
                     {
-                        "$selector": $newGroupNameInput,
-                        "text"     : "Please fill out this field.",
-                        "check"    : function() {
-                            return (groupName === "");
-                        }
+                        "$selector": $newGroupNameInput
                     }
                 ]);
             } else {
                 isValid = xcHelper.validate([
                     {
                         "$selector": $sideListSection.find('.listBox').eq(0),
-                        "text"     : "No group selected.",
+                        "text"     : ErrorTextTStr.NoGroupSelect,
                         "check"    : function() {
                             return ($modalMain.find('.listBox.selected')
                                               .length === 0);
@@ -276,6 +271,7 @@ window.DataFlowModal = (function($, DataFlowModal) {
             return;
         }
 
+        var groupName = $newGroupNameInput.val().trim();
         var $ths = $dfTable.find("th.colSelected");
         if ($ths.length === 0) {
             var $tablePadding = $dfExport.find(".tablePadding");

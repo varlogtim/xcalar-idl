@@ -168,18 +168,24 @@ window.ExportModal = (function($, ExportModal) {
             columnsVal = columnsVal.substring(0, columnsVal.length - 1);
         }
 
-        var isValid  = xcHelper.validate([
+        var isValid = xcHelper.validate([
+            {
+                "$selector": $exportName
+            },
             {
                 "$selector": $exportName,
-                "text"     : "Invalid table name.",
+                "text"     : ErrorTextTStr.NoSpecialChar,
                 "check"    : function() {
                     return (exportName === "" || 
                             !(/^[0-9a-zA-Z]+$/).test(exportName));
                 }
             },
             {
+                "$selector": $exportColumns
+            },
+            {
                 "$selector": $exportColumns,
-                "text"     : "Please enter valid column names.",
+                "text"     : ErrorTextTStr.InvalidColName,
                 "check"    : function() {
 
                     return (columnsVal.length === 0 ||

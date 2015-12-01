@@ -385,11 +385,11 @@ window.DatastoreForm = (function($, DatastoreForm) {
                 isValid = xcHelper.validate([
                     {
                         "$selector": $moduleInput,
-                        "text"     : "Please choose a module."
+                        "text"     : ErrorTextTStr.NoEmptyList
                     },
                     {
                         "$selector": $funcInput,
-                        "text"     : "Please choose a function."
+                        "text"     : ErrorTextTStr.NoEmptyList
                     }
                 ]);
 
@@ -410,15 +410,13 @@ window.DatastoreForm = (function($, DatastoreForm) {
                     "check"    : function() {
                         return (dsFormat == null);
                     },
-                    "text": "No file format is selected," +
-                            " please choose a file format!"
+                    "text": ErrorTextTStr.NoEmptyList
                 },
                 {
                     "$selector": $fileName,
                     "check"    : DS.has,
                     "formMode" : true,
-                    "text"     : "Dataset with the name " + dsName +
-                                 " already exits. Please choose another name."
+                    "text"     : ErrorTextTStr.DSNameConfilct
                 }
             ]);
 
@@ -1581,30 +1579,25 @@ window.DataPreview = (function($, DataPreview) {
 
         $("#preview-apply").click(function() {
             var $fileName = $("#fileName");
-            var dsName = $fileName.val().trim();
             var isValid = xcHelper.validate([
                 // check for "" should be kept for preview mode
                 // since it does't submit the form
                 {
                    "$selector": $fileName,
-                    "check"    : function() {
-                        return (dsName === "");
-                    },
-                    "formMode": true,
-                    "text"    : "Please fill out this field"
+                    "formMode": true
                 },
                 {
                     "$selector": $fileName,
                     "check"    : DS.has,
                     "formMode" : true,
-                    "text"     : "Dataset with the name " + dsName +
-                                 " already exits. Please choose another name."
+                    "text"     : ErrorTextTStr.DSNameConfilct
                 }
             ]);
 
             if (!isValid) {
                 return;
             }
+
             // add alert
             if (dsFormat === "CSV" &&
                 (delimiter === "" || !hasHeader))
@@ -3728,28 +3721,26 @@ window.DS = (function ($, DS) {
         rename: function(newName) {
             newName = newName.trim();
 
+            if (newName === "") {
+                // not allow empty name
+                return (this);
+            }
+
             var self   = this;
             var parent = DS.getDSObj(self.parentId);
             //check name confliction
             var isValid = xcHelper.validate([
                 {
                     "$selector": DS.getGrid(self.id),
-                    "text"     : "Name cannot be empty",
-                    "check"    : function() {
-                        return (newName === "");
-                    }
-                },
-                {
-                    "$selector": DS.getGrid(self.id),
-                    "text"     : "Ivalid name, cannot contain speical characters",
+                    "text"     : ErrorTextTStr.NoSpecialChar,
                     "check"    : function() {
                         return (/[^a-zA-Z\d\s:]/.test(newName));
                     }
                 },
                 {
                     "$selector": DS.getGrid(self.id),
-                    "text"     : 'Folder "' + newName +
-                                 '" already exists, please use another name!',
+                    "text"     : ErrorTextWReplaceTStr.FolderConflict
+                                    .replace('<name>', newName),
                     "check": function() {
                         return (parent.checkNameConflict(self.id, newName,
                                                          self.isFolder));
@@ -4191,14 +4182,14 @@ window.ExportTarget = (function($, ExportTarget) {
         var isValid  = xcHelper.validate([
             {
                 "$selector": $targetTypeInput,
-                "text"     : "Please choose a target type.",
+                "text"     : ErrorTextTStr.NoEmptyList,
                 "check"    : function() {
                     return (targetType === "");
                 }
             },
             {
                 "$selector": $nameInput,
-                "text"     : "Please enter a valid name.",
+                "text"     : ErrorTextTStr.NoEmpty,
                 "check"    : function() {
                     return (name === "");
                 }

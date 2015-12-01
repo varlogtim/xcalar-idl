@@ -416,7 +416,7 @@ window.DFGPanel = (function($, DFGPanel) {
                 },
                 {
                     "$selector": $input,
-                    "text"     : "Parameter name contains invalid character!",
+                    "text"     : ErrorTextTStr.NoSpecialChar,
                     "check"    : function() {
                         return /\W/.test(paramName);
                     }
@@ -1200,7 +1200,7 @@ window.DagParamModal = (function($, DagParamModal){
             var $div = $(this);
             if (!$div.hasClass("allowEmpty") && $div.text().trim() === "") {
                 isValid = false;
-                StatusBox.show("Please fill out this field", $div);
+                StatusBox.show(ErrorTextTStr.NoEmpty, $div);
                 return false;
             }
         });

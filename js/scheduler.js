@@ -353,7 +353,7 @@ window.Scheduler = (function(Scheduler, $) {
             },
             {
                 "$selector": $scheduleDate,
-                "text"     : "Please fill out this field.",
+                "text"     : ErrorTextTStr.NoEmpty,
                 "check"    : function() {
                     var $div = $scheduleDate.closest(".datePickerPart");
                     if ($div.hasClass("inActive")) {
@@ -361,17 +361,10 @@ window.Scheduler = (function(Scheduler, $) {
                     } else {
                         return ($scheduleDate.val() === "");
                     }
-                },
-                "callback": function() {
-                    $scheduleDate.focus();
                 }
             },
             {
-                "$selector": $scheduleTime,
-                "text"     : "Please fill out this field.",
-                "callback" : function() {
-                    $scheduleTime.focus();
-                }
+                "$selector": $scheduleTime
             },
             {
                 "$selector": $scheduleRecur

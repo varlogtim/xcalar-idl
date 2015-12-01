@@ -135,7 +135,7 @@ window.WorkbookModal = (function($, WorkbookModal) {
                     {
                         "$selector": $workbookInput,
                         "formMode" : true,
-                        "text"     : "Workbook " + workbookName + " already exists!",
+                        "text"     : ErrorTextWReplaceTStr.WKBKConflict.replace("<name>", workbookName),
                         "check"    : function() {
                             for (var i = 0, len = curUsers.length; i < len; i++) {
                                 var wkbks = curUsers[i].workbooks;
@@ -159,7 +159,7 @@ window.WorkbookModal = (function($, WorkbookModal) {
             if (activeActionNo !== 0) {
                 isValid = xcHelper.validate({
                     "$selector": $btn,
-                    "text"     : "Please select a workbook!",
+                    "text"     : ErrorTextTStr.NoWKBKSelect,
                     "check"    : function() {
                         return ($workbookLists.find(".active").length === 0);
                     }

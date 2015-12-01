@@ -34,9 +34,45 @@ StatusMessageTStr = {
 }
 
 TooltipTStr = {
-'ComingSoon' : 'Coming Soon'
+'ComingSoon': 'Coming Soon'
 }
 
+ErrorTextTStr = {
+    'NoEmpty': 'Please fill out this field.',
+
+    'InvalidField': "Invalid Field.",
+
+    'NoSpecialChar': "Please input a valid name with no special characters",
+
+    'NoEmptyList': 'Please choose an option on the dropdown list.',
+
+    'DSNameConfilct': 'Dataset with the same name already exits. ' +
+                        'Please choose another name.',
+
+    'InvalidWSInList': 'Invalid worksheet name, please choose a ' +
+                        'worksheet in the pop up list.',
+
+    'OnlyNumber': 'Please input a number.',
+
+    'OnlyPositiveNumber': 'Please input a number bigger than 0.',
+
+    'NoWKBKSelect': "No Workbook selected.",
+
+    'NoGroupSelect': 'No group selected.',
+
+    'InvalidColName': 'Invalid column names.',
+
+    'NoBucketOnStr': 'Column type is string, cannot bucket into range.',
+
+}
+
+ErrorTextWReplaceTStr = {
+    'FolderConflict': 'Foler "<name>" already exists, ' +
+                        'please choose another name.',
+
+    'WKBKConflict': 'Workbook "<name>" already exists, ' +
+                    'please choose another name.',
+}
 
 TipsTStr = {
     "Scrollbar": "Scroll Table Here",

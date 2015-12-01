@@ -890,7 +890,7 @@ window.JSONModal = (function($, JSONModal) {
                 '<div class="btn btnDeselected binaryIcon" ' +
                 'data-toggle="tooltip"' +
                     'data-container="body" ' +
-                    'title="coming soon">' +
+                    'title="' + TooltipTStr.ComingSoon + '">' +
                     '<div class="icon"></div>' +
                 '</div>' +
             '</div>' +
