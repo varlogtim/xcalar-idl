@@ -248,14 +248,6 @@ window.UDF = (function($, UDF) {
             "container": "#udfSection"
         });
 
-
-        $("#udfSection .rightBarContent").click(function(event) {
-            event.stopPropagation();
-
-            $dropDownList.removeClass('open');
-            $listDropdown.hide();
-        });
-
         $downloadBtn.click(function() {
             var moduleName = $template.val();
 

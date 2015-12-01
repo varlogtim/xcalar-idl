@@ -821,10 +821,6 @@ window.AddScheduleModal = (function($, AddScheduleModal) {
             }
         });
 
-        $(document).on("mousedown.addScheduleModal", function() {
-            xcHelper.hideDropdowns($modal);
-        });
-
         centerPositionElement($modal);
         updateModalList();
         $modal.show();

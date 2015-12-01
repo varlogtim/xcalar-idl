@@ -63,10 +63,6 @@ window.FileBrowser = (function($, FileBrowser) {
             StatusBox.show(result.error, $filePath, true);
         });
 
-        $(document).on("mousedown.fileBrowser", function() {
-            xcHelper.hideDropdowns($fileBrowser);
-        });
-
         $(document).on("keydown.fileBrowser", function(event) {
             // up to parent folder
             if (event.which === keyCode.Backspace) {

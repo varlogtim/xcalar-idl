@@ -104,10 +104,10 @@ window.DatastoreForm = (function($, DatastoreForm) {
         var $udfCheckbox = $("#udfCheckbox"); // udf checkbox
         resetUdfSection();
 
-        $("#importDataView").click(function(event){
-            event.stopPropagation();
-            hideDropdownMenu();
-        });
+        // $("#importDataView").click(function(event){
+        //     event.stopPropagation();
+        //     hideDropdownMenu();
+        // });
 
         // udf checkbox
         $udfCheckbox.click(function() {
@@ -4081,10 +4081,10 @@ window.ExportTarget = (function($, ExportTarget) {
 
     ExportTarget.setup = function() {
 
-        $form.click(function(event){
-            event.stopPropagation();
-            hideDropdownMenu();
-        });
+        // $form.click(function(event){
+        //     event.stopPropagation();
+        //     hideDropdownMenu();
+        // });
 
         xcHelper.dropdownList($targetTypeList, {
             "onSelect": function($li) {

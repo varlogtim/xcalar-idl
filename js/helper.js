@@ -470,6 +470,9 @@ window.xcHelper = (function($, xcHelper) {
                 }
                 $curlDropDownList.addClass("open");
                 $lists.show().addClass("openList");
+                $(document).on('click.closeDropDown', function() {
+                    hideDropdowns();
+                });
                 if (typeof onOpen === "function") {
                     onOpen($curlDropDownList);
                 }
@@ -480,6 +483,7 @@ window.xcHelper = (function($, xcHelper) {
             var $sections = $container.find(".dropDownList");
             $sections.find(".list").hide().removeClass("openList");
             $sections.removeClass("open");
+            $(document).off('click.closeDropDown');
         }
     };
 
@@ -487,6 +491,7 @@ window.xcHelper = (function($, xcHelper) {
         var $sections = $container.find(".dropDownList");
         $sections.find(".list").hide().removeClass("openList");
         $sections.removeClass("open");
+        $(document).off('click.closeDropDown');
     };
 
     xcHelper.validate = function(eles) {
