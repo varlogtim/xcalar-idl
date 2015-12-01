@@ -702,9 +702,6 @@
 
 /* ========== Gradient Color ========== */
 .linear-gradient(@origin: left, @start: #ffffff, @stop: #000000) {
-    & when (@origin = 'top left') {
-        @origin: ~"top left";
-    }
     background: -webkit-linear-gradient(@origin, @start, @stop);
     background: -moz-linear-gradient(@origin, @start, @stop);
     background: -o-linear-gradient(@origin, @start, @stop);
@@ -726,7 +723,7 @@
         background: linear-gradient(to left, @start, @stop);
     }
 
-    .parser('top left') {
+    .parser(~"top left") {
         background: linear-gradient(to bottom left, @start, @stop);
     }
 
