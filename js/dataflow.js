@@ -882,6 +882,7 @@ window.AddScheduleModal = (function($, AddScheduleModal) {
     }
 
     function addModalEvents() {
+        var scheduleListScroller = new ListScroller($list.find('.list'));
         xcHelper.dropdownList($list, {
             "onSelect": function($li) {
                 if ($li.hasClass("hint")) {
@@ -893,6 +894,9 @@ window.AddScheduleModal = (function($, AddScheduleModal) {
                 }
 
                 $scheduleListInput.val($li.text());
+            },
+            "onOpen": function() {
+                return (scheduleListScroller.showOrHideScrollers());
             }
         });
 

@@ -48,6 +48,8 @@ window.ExportModal = (function($, ExportModal) {
             });
         });
 
+        var exportListScroller = new ListScroller($('#exportLists .list'));
+
         xcHelper.dropdownList($("#exportLists"), {
             "onSelect": function($li) {
                 if ($li.hasClass("hint")) {
@@ -59,6 +61,9 @@ window.ExportModal = (function($, ExportModal) {
                 }
 
                 $exportPath.val($li.text());
+            },
+            "onOpen": function() {
+                return (exportListScroller.showOrHideScrollers());
             }
         });
 

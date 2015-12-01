@@ -13,6 +13,8 @@ window.OperationsModal = (function($, OperationsModal) {
     var categoryNames = [];
     var functionsMap = {};
     var $lastInputFocused;
+    var categoryListScroller;
+    var functionsListScroller;
     
     var modalHelper = new xcHelper.Modal($operationsModal, {
         "noResize": true
@@ -97,7 +99,11 @@ window.OperationsModal = (function($, OperationsModal) {
                                        .prependTo($list.children('ul'))
                                        .show();
 
-                showOrHideScrollers($list);
+                if ($list.attr('id') === "categoryMenu") {
+                    categoryListScroller.showOrHideScrollers();
+                } else {
+                    functionsListScroller.showOrHideScrollers();
+                }
             }
         });
 
@@ -264,10 +270,8 @@ window.OperationsModal = (function($, OperationsModal) {
             allowInputChange = true;
         });
 
-        var categoryListScroller = new ListScroller($('#categoryMenu'));
-        var functionsListScroller = new ListScroller($functionsMenu);
-        categoryListScroller.setup();
-        functionsListScroller.setup();
+        categoryListScroller = new ListScroller($('#categoryMenu'));
+        functionsListScroller = new ListScroller($functionsMenu);
 
         $operationsModal.draggable({
             handle     : '.operationsModalHeader',
@@ -564,7 +568,11 @@ window.OperationsModal = (function($, OperationsModal) {
 
         $visibleLis.sort(sortHTML).prependTo($list.find('ul'));
 
-        showOrHideScrollers($list);
+        if ($list.attr('id') === "categoryMenu") {
+            categoryListScroller.showOrHideScrollers();
+        } else {
+            functionsListScroller.showOrHideScrollers();
+        }
 
         if (value === "") {
             return;
@@ -771,24 +779,6 @@ window.OperationsModal = (function($, OperationsModal) {
         StatusBox.show(text, $target, isFormMode, offset);
     }
 
-    function showOrHideScrollers($list) {
-        var menuHeight = $(window).height() - $list.offset().top;
-        $list.css('max-height', menuHeight);
-        $list.children('ul').css('max-height', menuHeight);
-
-        var ulHeight = $list.find('ul')[0].scrollHeight;
-
-        if (ulHeight > $list.height()) {
-            $list.children('ul').css('max-height', menuHeight);
-            $list.find('.scrollArea').show();
-        } else {
-            $list.children('ul').css('max-height', 'auto');
-            $list.find('.scrollArea').hide();
-        }
-        // set scrollArea states
-        $list.find('.scrollArea.top').addClass('stopped');
-        $list.find('.scrollArea.bottom').removeClass('stopped');
-    }
     function updateFunctionsList() {
         var category = $categoryInput.val().trim().toLowerCase();
         var index = categoryNames.indexOf(category);

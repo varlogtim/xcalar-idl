@@ -406,7 +406,11 @@
                           <div class="argIconWrap">
                             <span class="icon"></span>
                           </div>
-                          <ul class="list hint"></ul>
+                          <div class="list hint">
+                            <ul></ul>
+                            <div class="scrollArea top"><div class="arrow"></div></div>
+                            <div class="scrollArea bottom"><div class="arrow"></div></div>
+                          </div>
                         </div>
                       </div>
                     </td> 
@@ -424,7 +428,11 @@
                           <div class="iconWrapper">
                             <span class="icon"></span>
                           </div>
-                          <ul class="list"></ul>
+                          <div class="list">
+                            <ul></ul>
+                            <div class="scrollArea top"><div class="arrow"></div></div>
+                            <div class="scrollArea bottom"><div class="arrow"></div></div>
+                          </div>
                         </div>
                       </div>
                     </td>
@@ -442,7 +450,11 @@
                           <div class="iconWrapper">
                             <span class="icon"></span>
                           </div>
-                          <ul class="list"></ul>
+                          <div class="list">
+                            <ul></ul>
+                            <div class="scrollArea top"><div class="arrow"></div></div>
+                            <div class="scrollArea bottom"><div class="arrow"></div></div>
+                          </div>
                         </div>
                       </div>
                     </td> 
@@ -535,14 +547,18 @@
                   <div class="iconWrapper">
                     <span class="icon"></span>
                   </div>
-                  <ul id="fileFormatMenu" class="list">
-                    <li class="hint">Format</li>
-                    <li name="CSV">CSV</li>
-                    <li name="JSON">JSON</li>
-                    <li name="EXCEL">Excel</li>
-                    <li name="RAW">Raw</li>
-                    <li name="RANDOM">Random</li>
-                  </ul>
+                  <div id="fileFormatMenu" class="list">
+                    <ul>
+                      <li class="hint">Format</li>
+                      <li name="CSV">CSV</li>
+                      <li name="JSON">JSON</li>
+                      <li name="EXCEL">Excel</li>
+                      <li name="RAW">Raw</li>
+                      <li name="RANDOM">Random</li>
+                    </ul>
+                    <div class="scrollArea top"><div class="arrow"></div></div>
+                    <div class="scrollArea bottom"><div class="arrow"></div></div>
+                  </div>
                 </div>
               </div>
               <!-- udf checkbox -->
@@ -574,15 +590,19 @@
                       <span class="icon"></span>
                   </div>
                   <!-- dropdown menu -->
-                  <ul class="list">
-                    <li name="default">Default (\t)</li>
-                     <li name="comma">Comma (,)</li>
-                    <li name="null" class="nullVal">Null</li>
-                    <li name="other" class="other">
-                      <span>Other</span>
-                      <input class="delimVal" type="text" spellcheck="false">
-                    </li>
-                  </ul>
+                  <div class="list">
+                    <ul>
+                      <li name="default">Default (\t)</li>
+                       <li name="comma">Comma (,)</li>
+                      <li name="null" class="nullVal">Null</li>
+                      <li name="other" class="other">
+                        <span>Other</span>
+                        <input class="delimVal" type="text" spellcheck="false">
+                      </li>
+                    </ul>
+                    <div class="scrollArea top"><div class="arrow"></div></div>
+                    <div class="scrollArea bottom"><div class="arrow"></div></div>
+                  </div>
                 </div>
               </section>
               <!-- Line Delimiter -->
@@ -594,14 +614,18 @@
                       <span class="icon"></span>
                   </div>
                   <!-- dropdown menu -->
-                  <ul class="list">
-                    <li name="default">Default (\n)</li>
-                    <li name="null" class="nullVal">Null</li>
-                    <li name="other" class="other">
-                      <span>Other</span>
-                      <input class="delimVal" type="text" spellcheck="false">
-                    </li>
-                  </ul>
+                  <div class="list">
+                    <ul>
+                      <li name="default">Default (\n)</li>
+                      <li name="null" class="nullVal">Null</li>
+                      <li name="other" class="other">
+                        <span>Other</span>
+                        <input class="delimVal" type="text" spellcheck="false">
+                      </li>
+                    </ul>
+                    <div class="scrollArea top"><div class="arrow"></div></div>
+                    <div class="scrollArea bottom"><div class="arrow"></div></div>
+                  </div>
                 </div>
               </section>
             </div>
@@ -614,7 +638,11 @@
                   <div class="iconWrapper">
                     <span class="icon"></span>
                   </div>
-                  <ul class="list"></ul>
+                  <div class="list">
+                    <ul></ul>
+                    <div class="scrollArea top"><div class="arrow"></div></div>
+                    <div class="scrollArea bottom"><div class="arrow"></div></div>
+                  </div>
                 </div>
               </section>
               <section class="wrapper">
@@ -624,7 +652,11 @@
                   <div class="iconWrapper">
                     <span class="icon"></span>
                   </div>
-                  <ul class="list"></ul>
+                  <div class="list">
+                    <ul></ul>
+                    <div class="scrollArea top"><div class="arrow"></div></div>
+                    <div class="scrollArea bottom"><div class="arrow"></div></div>
+                  </div>
                 </div>
               </section>
             </div>
@@ -1540,9 +1572,13 @@
                   <div class="iconWrapper">
                     <span class="icon"></span>
                   </div>
-                  <ul id="udf-fnMenu" class="list">
-                    <li name="blank">Blank Function</li>
-                  </ul>
+                  <div id="udf-fnMenu" class="list">
+                    <ul>
+                      <li name="blank">Blank Function</li>
+                    </ul>
+                    <div class="scrollArea top"><div class="arrow"></div></div>
+                    <div class="scrollArea bottom"><div class="arrow"></div></div>
+                  </div>
                 </div>
                 <!-- Download Teamplate -->
                 <div class="downloadSection">
@@ -2131,8 +2167,13 @@
         <div class="iconWrapper">
             <span class="icon"></span>
         </div>
-        <ul class="list" style="display: none;">
-        </ul>
+        <div class="list" style="display: none;">
+          <ul>
+          </ul>
+          <div class="scrollArea top"><div class="arrow"></div></div>
+          <div class="scrollArea bottom"><div class="arrow"></div></div>
+        </div>
+        
       </div>
       <!-- <div class="or">or</div> -->
       <h3>or create a new schedule:</h3>
@@ -2437,11 +2478,15 @@
           <div class="iconWrapper">
             <div class="icon"></div>
           </div>
-          <ul class="list">
-            <li class="select">all</li>
-            <li>json</li>
-            <li>csv</li>
-          </ul>
+          <div class="list">
+            <ul>
+              <li class="select">all</li>
+              <li>json</li>
+              <li>csv</li>
+            </ul>
+            <div class="scrollArea top"><div class="arrow"></div></div>
+            <div class="scrollArea bottom"><div class="arrow"></div></div>
+          </div>
         </div>
       </section>
     </section>
@@ -2587,17 +2632,21 @@
             <div class="iconWrapper">
                 <span class="icon"></span>
             </div>
-            <ul class="list">
-               <li class="hint">Choose a connector</li>
-               <li>Google BigQuery</li>
-               <li>Amazon RedShift</li>
-               <li>Amazon S3</li>
-               <li>HDFS</li>
-               <li>Local Filesystem</li>
-               <li>Oracle Exadata</li>
-               <li>HP Vertica</li>
-               <li>Teradata</li>
-            </ul>
+            <div class="list">
+              <ul>
+                <li class="hint">Choose a connector</li>
+                <li>Google BigQuery</li>
+                <li>Amazon RedShift</li>
+                <li>Amazon S3</li>
+                <li>HDFS</li>
+                <li>Local Filesystem</li>
+                <li>Oracle Exadata</li>
+                <li>HP Vertica</li>
+                <li>Teradata</li>
+              </ul>
+              <div class="scrollArea top"><div class="arrow"></div></div>
+              <div class="scrollArea bottom"><div class="arrow"></div></div>
+            </div>
           </div>
       </div>
       <div class="exportColumnsSection formRow">

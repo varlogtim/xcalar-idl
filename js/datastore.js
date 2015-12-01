@@ -122,7 +122,8 @@ window.DatastoreForm = (function($, DatastoreForm) {
                 $udfArgs.addClass("hidden");
             }
         });
-
+        var udfModuleListScroller = new ListScroller($udfModuleList.find('.list'),
+                                                {container: '#importDataView'});
         // dropdown list for udf modules and function names
         xcHelper.dropdownList($udfModuleList, {
             "onSelect": function($li) {
@@ -144,9 +145,14 @@ window.DatastoreForm = (function($, DatastoreForm) {
                         return $(this).data("module") === module;
                     }).removeClass("hidden");
             },
+            "onOpen": function() {
+                return (udfModuleListScroller.showOrHideScrollers());
+            },
             "container": "#importDataView"
         });
 
+        var udfFuncListScroller = new ListScroller($udfFuncList.find('.list'),
+                                                {container: '#importDataView'});
         xcHelper.dropdownList($udfFuncList, {
             "onSelect": function($li) {
                 var func = $li.text();
@@ -158,6 +164,9 @@ window.DatastoreForm = (function($, DatastoreForm) {
 
                 $input.val(func);
             },
+            "onOpen": function() {
+                return (udfFuncListScroller.showOrHideScrollers());
+            },
             "container": "#importDataView"
         });
 
@@ -165,6 +174,9 @@ window.DatastoreForm = (function($, DatastoreForm) {
         $csvCheckBox.click(function() {
             $(this).find(".checkbox").toggleClass("checked");
         });
+
+        var formatListScroller = new ListScroller($('#fileFormatMenu'),
+                                                {container: '#importDataView'});
 
         // set up dropdown list for formats
         xcHelper.dropdownList($formatLists, {
@@ -211,9 +223,19 @@ window.DatastoreForm = (function($, DatastoreForm) {
                         break;
                 }
             },
+            "onOpen": function() {
+                return (formatListScroller.showOrHideScrollers());
+            },
             "container": "#importDataView"
         });
 
+        var csvDelimListScroller = new ListScroller($('#fieldDelim').find('.list'),
+                                        {container: '#importDataView'});
+
+        // var csvDelimListScroller = new ListScroller($csvDelim.find('.list'),
+        //                                 {container: '#importDataView'});
+        var lineDelimListScroller = new ListScroller($('#lineDelim').find('.list'),
+                                        {container: '#importDataView'});
         // set up dropdown list for csv args
         xcHelper.dropdownList($csvDelim.find(".dropDownList"), {
             "onSelect": function($li) {
@@ -239,6 +261,14 @@ window.DatastoreForm = (function($, DatastoreForm) {
                         // keep list open
                         return true;
                 }
+            },
+            "onOpen": function($li) {
+                if ($li.parent().attr('id') === 'fieldDelim') {
+                    return (csvDelimListScroller.showOrHideScrollers());
+                } else {
+                    return (lineDelimListScroller.showOrHideScrollers());
+                }
+                
             },
             "container": "#importDataView"
         });
@@ -566,8 +596,8 @@ window.DatastoreForm = (function($, DatastoreForm) {
                         '</li>';
             }
 
-            $udfModuleList.find(".list").html(moduleLi);
-            $udfFuncList.find(".list").html(fnLi);
+            $udfModuleList.find("ul").html(moduleLi);
+            $udfFuncList.find("ul").html(fnLi);
         })
         .fail(function(error) {
             console.error("List UDF Fails!", error);

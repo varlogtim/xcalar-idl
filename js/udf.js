@@ -6,6 +6,7 @@ window.UDF = (function($, UDF) {
     var $browserBtn   = $("#udf-fileBrowser");
     var $filePath     = $("#udf-filePath");
     var $listDropdown = $("#udf-fnMenu");
+    // var udfListScroller;
 
     var editor;
     var udfDefault = "# PLEASE TAKE NOTE: \n" +
@@ -27,7 +28,8 @@ window.UDF = (function($, UDF) {
         editor.setValue(udfDefault);
         editor.clearHistory();
         storedUDF = {};
-        $('#udf-fnMenu').empty().append('<li name="blank">Blank Function</li>');
+        $listDropdown.find('ul').empty()
+                                .append('<li name="blank">Blank Function</li>');
     };
 
     UDF.getEditor = function() {
@@ -101,12 +103,12 @@ window.UDF = (function($, UDF) {
     function storePython(moduleName, entireString) {
         if (storedUDF.hasOwnProperty(moduleName)) {
             // the case of overwrite a module
-            $listDropdown.children().filter(function() {
+            $listDropdown.find('li').filter(function() {
                 return $(this).text() === moduleName;
             }).remove();
         }
 
-        var $blankFunc = $listDropdown.children('li[name=blank]');
+        var $blankFunc = $listDropdown.find('li[name=blank]');
         var li = '<li>' + moduleName + '</li>';
         $blankFunc.after(li);
         storedUDF[moduleName] = entireString;
@@ -218,6 +220,8 @@ window.UDF = (function($, UDF) {
         });
         /* end of upload file section */
 
+        var udfListScroller = new ListScroller($listDropdown);
+
         /* function input section */
         var $dropDownList = $("#udf-fnList");
 
@@ -238,8 +242,12 @@ window.UDF = (function($, UDF) {
                     });
                 }
             },
+            "onOpen": function() {
+                return (udfListScroller.showOrHideScrollers());
+            },
             "container": "#udfSection"
         });
+
 
         $("#udfSection .rightBarContent").click(function(event) {
             event.stopPropagation();

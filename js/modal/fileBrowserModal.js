@@ -295,8 +295,13 @@ window.FileBrowser = (function($, FileBrowser) {
             }
         }, ".text");
 
+        var formatListScroller = new ListScroller($formatSection.find('.list'));
+
         xcHelper.dropdownList($formatSection, {
             "onSelect" : formatSectionHandler,
+            "onOpen": function() {
+                return (formatListScroller.showOrHideScrollers());
+            },
             "container": "#fileBrowserModal"
         });
 
