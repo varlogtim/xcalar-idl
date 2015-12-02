@@ -42,7 +42,7 @@ ErrorTextTStr = {
 
     'InvalidField': "Invalid Field.",
 
-    'NoSpecialChar': "Please input a valid name with no special characters",
+    'NoSpecialChar': "Please input a valid name with no special characters.",
 
     'NoEmptyList': 'Please choose an option on the dropdown list.',
 

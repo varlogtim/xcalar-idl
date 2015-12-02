@@ -418,7 +418,7 @@ window.DFGPanel = (function($, DFGPanel) {
                     "$selector": $input,
                     "text"     : ErrorTextTStr.NoSpecialChar,
                     "check"    : function() {
-                        return /\W/.test(paramName);
+                        return xcHelper.hasSpecialChar(paramName);
                     }
                 }
             ]);

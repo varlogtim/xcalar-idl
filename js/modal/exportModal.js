@@ -176,8 +176,7 @@ window.ExportModal = (function($, ExportModal) {
                 "$selector": $exportName,
                 "text"     : ErrorTextTStr.NoSpecialChar,
                 "check"    : function() {
-                    return (exportName === "" || 
-                            !(/^[0-9a-zA-Z]+$/).test(exportName));
+                    return xcHelper.hasSpecialChar(exportName);
                 }
             },
             {

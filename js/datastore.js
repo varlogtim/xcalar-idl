@@ -3734,7 +3734,7 @@ window.DS = (function ($, DS) {
                     "$selector": DS.getGrid(self.id),
                     "text"     : ErrorTextTStr.NoSpecialChar,
                     "check"    : function() {
-                        return (/[^a-zA-Z\d\s:]/.test(newName));
+                        return xcHelper.hasSpecialChar(newName, true);
                     }
                 },
                 {

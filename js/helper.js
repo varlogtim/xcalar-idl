@@ -494,6 +494,14 @@ window.xcHelper = (function($, xcHelper) {
         $(document).off('click.closeDropDown');
     };
 
+    xcHelper.hasSpecialChar = function(str, allowSpace) {
+        if (allowSpace) {
+            return /[^a-zA-Z\d\s:]/.test(str);
+        } else {
+            return /[^a-zA-Z\d]/.test(str);
+        }
+    };
+
     xcHelper.validate = function(eles) {
         /*
          * eles is an object or an array of object, each object includes:
@@ -1491,4 +1499,4 @@ ListScroller.prototype.showOrHideScrollers = function() {
     // set scrollArea states
     $list.find('.scrollArea.top').addClass('stopped');
     $list.find('.scrollArea.bottom').removeClass('stopped');
-}
+};
