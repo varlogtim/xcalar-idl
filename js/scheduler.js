@@ -380,14 +380,11 @@ window.Scheduler = (function(Scheduler, $) {
         var schedule = isNewSchedule ? null : scheduleLookUpMap[srcScheduleName];
 
         var name = $scheduleName.val().trim();
-        var error;
 
         if (isNewSchedule && scheduleLookUpMap[name] != null ||
             name !== srcScheduleName && scheduleLookUpMap[name] != null)
         {
-            error = "Schedule " + name + " already exists, " +
-                        "please use another name";
-            StatusBox.show(error, $scheduleName);
+            StatusBox.show(ErrorTextTStr.ScheduleConflict, $scheduleName);
             return;
         }
 
@@ -408,9 +405,7 @@ window.Scheduler = (function(Scheduler, $) {
         var currentTime = new Date().getTime();
 
         if (!isDayPerMonth && startTime < currentTime) {
-            error = time + " on " + date +
-                        " is not a valid time, pleas choose another time";
-            StatusBox.show(error, $scheduleTime);
+            StatusBox.show(ErrorTextTStr.TimeExpire, $scheduleTime);
             return;
         }
 

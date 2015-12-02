@@ -177,31 +177,23 @@ window.UDF = (function($, UDF) {
             var val  = $filePath.val().trim();
             var file = $browserBtn[0].files[0];
             var path;
+
             if (typeof file !== "object") {
                 path = "";
             } else {
                 path = file.name;
             }
-            
+
             var moduleName = path.substring(0, path.indexOf("."));
             var $submitBtn = $(this);
-            var text;
 
             if (val === "") {
-                text = "File Path is empty," +
-                           " please choose a file you want to upload.";
-
-                StatusBox.show(text, $filePath, true, 190);
+                StatusBox.show(ErrorTextTStr.NoEmpty, $filePath, true, 190);
             } else if (path === "") {
-                text = "File Path is invalid," +
-                           " please choose a file you want to upload.";
-
-                StatusBox.show(text, $filePath, true, 190);
+                StatusBox.show(ErrorTextTStr.InvalidFilePath, $filePath, true, 190);
             } else if (moduleName.length >
                        XcalarApisConstantsT.XcalarApiMaxPyModuleNameLen) {
-                text = "File Name is too long, please use less than 255 chars.";
-
-                StatusBox.show(text, $filePath, true, 190);
+                StatusBox.show(ErrorTextTStr.LongFileName, $filePath, true, 190);
             } else {
                 var reader = new FileReader();
                 reader.onload = function(event) {
@@ -268,31 +260,28 @@ window.UDF = (function($, UDF) {
 
         $("#udf-fnUpload").click(function() {
             var fileName = $fnName.val();
-            var text;
+
             if (fileName === "") {
-                text = "Module name is empty, please input a module name.";
-                StatusBox.show(text, $fnName, true, 50);
+                StatusBox.show(ErrorTextTStr.NoEmpty, $fnName, true, 50);
                 return;
             } else if (fileName.length >
                 XcalarApisConstantsT.XcalarApiMaxPyModuleNameLen) {
-                text = "Module name is too long, please keep to less than 255" +
-                       " characters in length.";
-                StatusBox.show(text, $fnName, true, 50);
+                StatusBox.show(ErrorTextTStr.LongFileName, $fnName, true, 50);
                 return;
             }
             // Get code written and call thrift call to upload
             var entireString = editor.getValue();
-            if (entireString.trim() === "") {
-                text = "Function field is empty, please input a function.";
-                StatusBox.show(text, $('.CodeMirror'), false, 30,
-                                { "side": "left" });
+
+            if (entireString.trim() === "" ||
+                entireString.trim() === udfDefault.trim())
+            {
+                StatusBox.show(ErrorTextTStr.NoEmptyFn, $('.CodeMirror'), false,
+                                30, { "side": "left" });
                 return;
             } else if (entireString.trim().length >
                        XcalarApisConstantsT.XcalarApiMaxPyModuleSrcLen) {
-                text = "File is too large. Please break into smaller files " +
-                        "(<10MB)";
-                StatusBox.show(text, $(".CodeMirror"), false, 30,
-                               {"side": "left"});
+                StatusBox.show(ErrorTextTStr.LargeFile, $(".CodeMirror"), false,
+                                30, { "side": "left" });
                 return;
             }
 

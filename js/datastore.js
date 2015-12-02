@@ -306,14 +306,11 @@ window.DatastoreForm = (function($, DatastoreForm) {
 
             // Invalid json preview
             var path = $filePath.val();
-            var text;
             if (path.endsWith("json")) {
-                text = "Canot Preview JSON files";
-                StatusBox.show(text, $filePath, true);
+                StatusBox.show(ErrorTextTStr.NoPreviewJSON, $filePath, true);
                 return;
             } else if (path.endsWith("xlsx")) {
-                text = "Canot Preview Excel files";
-                StatusBox.show(text, $filePath, true);
+                StatusBox.show(ErrorTextTStr.NoPreviewExcel, $filePath, true);
                 return;
             }
 
@@ -907,7 +904,8 @@ window.DataCart = (function($, DataCart) {
 
             var tableNames = {};
             for (var tbl in gTables) {
-                tableNames[tbl.tableName] = true;
+                var name = xcHelper.getTableName(gTables[tbl].tableName);
+                tableNames[name] = true;
             }
 
             // check table name conflict in gTables
@@ -916,23 +914,22 @@ window.DataCart = (function($, DataCart) {
                 $input = $('#selectedTable-' + cart.dsName + ' .tableNameEdit');
 
                 if (tableName === "") {
-                    errorMsg = 'Please give your new table a name.';
+                    errorMsg = ErrorTextTStr.NoEmpty;
                     nameIsValid = false;
-                    return (false);
+                    return false;
                 }
 
                 if (tableNames.hasOwnProperty(tableName)) {
-                    errorMsg = 'A table with the name "' + tableName +
-                                '" already exists. Please use a unique name.';
+                    errorMsg = ErrorTextTStr.TableConflict;
                     nameIsValid = false;
-                    return (false);
+                    return false;
                 }
             });
 
             if (!nameIsValid) {
                 scrollToTableName($input);
                 StatusBox.show(errorMsg, $input, true, 0, {side: 'left'});
-                return (false);
+                return false;
             }
 
             tableNames = {};
@@ -955,8 +952,7 @@ window.DataCart = (function($, DataCart) {
                                ' .tableNameEdit');
 
                     if (tableNames.hasOwnProperty(tableName)) {
-                        errorMsg = 'A table with the name "' + tableName +
-                                '" already exists. Please use a unique name.';
+                        errorMsg = ErrorTextTStr.TableConflict;
                         nameIsValid = false;
                         return (false);
                     }
@@ -1578,8 +1574,8 @@ window.DataPreview = (function($, DataPreview) {
                 // check for "" should be kept for preview mode
                 // since it does't submit the form
                 {
-                   "$selector": $fileName,
-                    "formMode": true
+                    "$selector": $fileName,
+                    "formMode" : true
                 },
                 {
                     "$selector": $fileName,
@@ -3788,15 +3784,7 @@ window.DS = (function ($, DS) {
             var $grid = DS.getGrid(this.id);
             // check name conflict
             if (newParent.checkNameConflict(this.id, this.name, this.isFolder)) {
-                var msg;
-                if (this.isFolder) {
-                    msg = 'Folder "' + this.name +
-                          '" already exists, cannot move!';
-                } else {
-                    msg = 'Data Set "' + this.name +
-                          '" already exists, cannot move!';
-                }
-                StatusBox.show(msg, $grid);
+                StatusBox.show(ErrorTextTStr.MVFolderConflict, $grid);
                 return false;
             }
 

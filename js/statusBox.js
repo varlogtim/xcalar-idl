@@ -1,7 +1,7 @@
 // StatusBox Modal
 window.StatusBox = (function($, StatusBox){
     var $statusBox = $("#statusBox");
-    var $doc       = $(document);
+    var $doc = $(document);
 
     StatusBox.show = function(text, $target, isFormMode, offset, options) {
         // position error message

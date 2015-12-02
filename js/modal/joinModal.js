@@ -71,8 +71,7 @@ window.JoinModal = (function($, JoinModal) {
             var newTableName = $joinTableName.val().trim();
 
             if (newTableName === "") {
-                var text = "Table name is empty! Please name your new table";
-                StatusBox.show(text, $joinTableName, true);
+                StatusBox.show(ErrorTextTStr.NoEmpty, $joinTableName, true);
                 return;
             }
 
@@ -101,9 +100,7 @@ window.JoinModal = (function($, JoinModal) {
                 }
             })
             .fail(function() {
-                var error = 'The name "' + newTableName + '" is already ' +
-                           ' in use. Please select a unique name.';
-                StatusBox.show(error, $joinTableName, true);
+                StatusBox.show(ErrorTextTStr.TableConflict, $joinTableName, true);
                 modalHelper.enableSubmit();
             });
         });

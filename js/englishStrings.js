@@ -42,12 +42,27 @@ ErrorTextTStr = {
 
     'InvalidField': "Invalid Field.",
 
+    'InvalidFilePath': 'Invalid file path',
+
+    'InvalidFileName': 'Invalid file name, ' +
+                        'please choose a file or folder to import.',
+
     'NoSpecialChar': "Please input a valid name with no special characters.",
 
     'NoEmptyList': 'Please choose an option on the dropdown list.',
 
+    'NoEmptyFn': 'Function field is empty, please input functions.',
+
+    'NameInUse': 'Name is in use, please another name.',
+
     'DSNameConfilct': 'Dataset with the same name already exits. ' +
-                        'Please choose another name.',
+                        'please choose another name.',
+
+    'TableConflict': 'Table with the same name already exists, ' +
+                        'please choose another name.',
+
+    'ScheduleConflict': 'Schedule with the same name already exists, ' +
+                            'please choose another name.',
 
     'InvalidWSInList': 'Invalid worksheet name, please choose a ' +
                         'worksheet in the pop up list.',
@@ -64,6 +79,23 @@ ErrorTextTStr = {
 
     'NoBucketOnStr': 'Column type is string, cannot bucket into range.',
 
+    'ParamInUse': 'Cannot delete, this parameter is in use.',
+
+    'NoPreviewJSON': 'Cannot preivew JSON files.',
+
+    'NoPreviewExcel': 'Cannot preview Excel files.',
+
+    'MVFolderConflict': 'Cannot move, name conflicts with files in target folder',
+
+    'TimeExpire': 'This time already expires, please choose another time.',
+
+    'LongFileName': 'File Name is too long, please use less than 255 chars.',
+
+    'LargeFile': 'File is too large. Please break into smaller files(<10MB).',
+
+    'NoSupportOp': 'This operation is not supported.',
+
+
 }
 
 ErrorTextWReplaceTStr = {
@@ -72,6 +104,20 @@ ErrorTextWReplaceTStr = {
 
     'WKBKConflict': 'Workbook "<name>" already exists, ' +
                     'please choose another name.',
+
+    'ParamConflict': 'Parameter "<name>" already exists, ' +
+                    'please choose another name.',
+
+    'TableConflict': 'Table "<name>" already exists, ' +
+                        'please choose another name.',
+
+    'NoPath': '<path> was not found. Redirected to the root directory.',
+
+    'InvalidOpsType': 'Invalid type for the field,' +
+                      ' wanted: <type1>, but provided: <type2>.',
+
+    'InvalidCol': 'Column "<name> not exists.',
+
 }
 
 TipsTStr = {

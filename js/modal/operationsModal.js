@@ -769,14 +769,12 @@ window.OperationsModal = (function($, OperationsModal) {
     }
 
     function showErrorMessage(inputNum) {
-        var text = 'This operation is not supported';
+        var text = ErrorTextTStr.NoSupportOp;
         var $target = $operationsModal.find('input').eq(inputNum);
-        if ($.trim($target.val()) === "") {
-            text = 'Please fill out this field';
+        if ($target.val().trim() === "") {
+            text = ErrorTextTStr.NoEmpty;
         }
-        var isFormMode = false;
-        var offset = -5;
-        StatusBox.show(text, $target, isFormMode, offset);
+        StatusBox.show(text, $target, false, -5);
     }
 
     function updateFunctionsList() {
@@ -1161,9 +1159,9 @@ window.OperationsModal = (function($, OperationsModal) {
                         if (colTypes[i] != null) {
                             if (types.indexOf(colTypes[i]) < 0) {
                                 isPassing = false;
-                                errorText = "Invalid type for the field," +
-                                            " wanted: " + types.join("/") +
-                                            ", but provided: " + colTypes[i];
+                                errorText = ErrorTextWReplaceTStr.InvalidOpsType
+                                            .replace("<type1>", types.join("/"))
+                                            .replace("<type2>", colTypes[i]);
                                 StatusBox.show(errorText, $input);
                                 return (false);
                             }
@@ -1177,9 +1175,10 @@ window.OperationsModal = (function($, OperationsModal) {
 
                 if (checkRes != null) {
                     isPassing = false;
-                    errorText = "Invalid type for the field," +
-                                " wanted: " + checkRes.validType.join("/") +
-                                ", but provided: " + checkRes.currentType;
+                    errorText = ErrorTextWReplaceTStr.InvalidOpsType
+                                .replace("<type1>", checkRes.validType.join("/"))
+                                .replace("<type2>", checkRes.currentType);
+
                     StatusBox.show(errorText, $input);
                     return (false);
                 }
@@ -1196,7 +1195,7 @@ window.OperationsModal = (function($, OperationsModal) {
 
         // name duplication check
         var $nameInput;
-        switch(operatorName) {
+        switch (operatorName) {
             case ('map'):
                 $nameInput = $argInputs.eq(args.length - 1);
                 isPassing = !ColManager.checkColDup($nameInput, null,
@@ -1229,6 +1228,12 @@ window.OperationsModal = (function($, OperationsModal) {
                 break;
             case ('group by'):
                 isPassing = groupBy(funcCapitalized, args);
+
+                // XXX temporary fix as it has it's own tooltip
+                if (!isPassing) {
+                    modalHelper.enableSubmit();
+                    return;
+                }
                 break;
             case ('map'):
                 isPassing = map(funcLower, args);
@@ -1245,8 +1250,7 @@ window.OperationsModal = (function($, OperationsModal) {
             // XXX if this error message is too general,
             // can show different msg in aggreagte(),
             // filter(), groupBy() and map()
-            errorText = "Invalid input";
-            StatusBox.show(errorText, $argInputs.eq(-1));
+            StatusBox.show(ErrorTextTStr.InvalidField, $argInputs.eq(-1));
             modalHelper.enableSubmit();
         }
     }
@@ -1335,8 +1339,8 @@ window.OperationsModal = (function($, OperationsModal) {
 
     function map(operator, args) {
         var numArgs = args.length;
-        var $nameInput = $operationsModal.find('.argument')
-                                           .eq(numArgs - 1);
+        // var $nameInput = $operationsModal.find('.argument')
+        //                                    .eq(numArgs - 1);
         var newColName = args.splice(numArgs - 1, 1)[0];
         var mapStr = formulateMapString(operator, args);
 
@@ -1424,9 +1428,10 @@ window.OperationsModal = (function($, OperationsModal) {
             if (!validFound) {
                 var text;
                 if (value.length === 2 && value.indexOf('""') === 0) {
-                    text = "Field name is blank.";
+                    text = ErrorTextTStr.NoEmpty;
                 } else {
-                    text = "Column '" + value + "' not found.";
+                    text = ErrorTextWReplaceTStr.InvalidCol
+                            .replace("<name>", value);
                 }
                 
                 StatusBox.show(text, $input);

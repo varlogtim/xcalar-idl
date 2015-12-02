@@ -439,7 +439,8 @@ window.DFGPanel = (function($, DFGPanel) {
             });
 
             if (isNameConflict) {
-                var text = "Parameter " + paramName + " already exists!";
+                var text = ErrorTextWReplaceTStr.ParamConflict
+                            .replace("<name>", paramName);
                 StatusBox.show(text, $input);
                 return;
             }
@@ -461,8 +462,7 @@ window.DFGPanel = (function($, DFGPanel) {
             var dfg = DFG.getGroup(currentDFG);
 
             if (dfg.checkParamInUse(paramName)) {
-                var text = "This parameter is in use!";
-                StatusBox.show(text, $paramName);
+                StatusBox.show(ErrorTextTStr.ParamInUse, $paramName);
                 return;
             }
 

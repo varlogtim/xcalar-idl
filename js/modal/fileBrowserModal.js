@@ -81,9 +81,9 @@ window.FileBrowser = (function($, FileBrowser) {
             Tips.refresh();
 
             if (result.defaultPath) {
-                var msg = result.path + ' was not found. ' +
-                        'Redirected to the root directory.';
                 setTimeout(function() {
+                    var msg = ErrorTextWReplaceTStr.NoPath
+                                .replace("<path>", result.path);
                     StatusBox.show(msg, $pathSection, false, 0,
                                    {side: 'top'});
                 }, 40);
@@ -295,10 +295,10 @@ window.FileBrowser = (function($, FileBrowser) {
 
         xcHelper.dropdownList($formatSection, {
             "onSelect" : formatSectionHandler,
-            "onOpen": function() {
+            "container": "#fileBrowserModal",
+            "onOpen"   : function() {
                 return (formatListScroller.showOrHideScrollers());
-            },
-            "container": "#fileBrowserModal"
+            }
         });
 
         $fileName.keyup(function() {
@@ -472,10 +472,7 @@ window.FileBrowser = (function($, FileBrowser) {
         var fileName = $fileName.val();
 
         if (($ds == null || $ds.length === 0) && fileName !== "") {
-            var text = "Invalid file name!" +
-                        " Please choose a file or folder to import!";
-
-            StatusBox.show(text, $fileName, true);
+            StatusBox.show(ErrorTextTStr.InvalidFileName, $fileName, true);
             xcHelper.enableSubmit($fileBrowser.find('.confirm'));
             return;
         }

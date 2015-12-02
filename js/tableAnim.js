@@ -1264,8 +1264,8 @@ function renameTableHead($div) {
     })
     .fail(function() {
         $div.text(oldTableName);
-        var text = 'The name "' + newName + '" is already ' +
-                    ' in use. Please select a unique name.';
+        var text = ErrorTextWReplaceTStr.TableConflict
+                                        .replace("<name>", newName);
         StatusBox.show(text, $div, false);
     });
 }
@@ -2737,9 +2737,7 @@ function functionBarEnter($colInput) {
 
         if (tableCol.isNewCol && colName === "") {
             // when it's new column and do not give name yet
-            var text = "Column name is not confirmed yet, " +
-                    "please fill in the column name and press enter to confirm";
-            StatusBox.show(text, $colInput);
+            StatusBox.show(ErrorTextTStr.NoEmpty, $colInput);
             return;
         }
 
