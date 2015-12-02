@@ -2090,7 +2090,6 @@ html.microsoft {
             overflow-y: auto;
             background: lighten(@color-background-darkGray, 3%);
             .rounded(3px 3px 0px 0px);
-            box-shadow: inset 0px 1px 1px rgba(0,0,0,0.5);
             margin: 0 auto;
             text-transform: none;
         }
@@ -2109,6 +2108,18 @@ html.microsoft {
                 &.active .label{
                     color: @color-text-blue;
                 }
+            }
+
+            .shadow {
+                width: ~"calc(100% - 22px)";
+                height: ~"calc(100% - 10px)";
+                border-radius: 3px 3px 0px 0px;
+                box-shadow: inset 0px 1px 1px rgba(0,0,0,0.5);
+                border-bottom: 1px solid rgba(0,0,0,0.1);
+                position: absolute;
+                margin-left: 11px;
+                z-index: 1;
+                pointer-events: none;
             }
         }
         

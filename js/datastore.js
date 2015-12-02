@@ -104,11 +104,6 @@ window.DatastoreForm = (function($, DatastoreForm) {
         var $udfCheckbox = $("#udfCheckbox"); // udf checkbox
         resetUdfSection();
 
-        // $("#importDataView").click(function(event){
-        //     event.stopPropagation();
-        //     hideDropdownMenu();
-        // });
-
         // udf checkbox
         $udfCheckbox.click(function() {
             var $checkbox = $(this).find(".checkbox");
@@ -4080,11 +4075,6 @@ window.ExportTarget = (function($, ExportTarget) {
     var $nameInput = $('#targetName');
 
     ExportTarget.setup = function() {
-
-        // $form.click(function(event){
-        //     event.stopPropagation();
-        //     hideDropdownMenu();
-        // });
 
         xcHelper.dropdownList($targetTypeList, {
             "onSelect": function($li) {
