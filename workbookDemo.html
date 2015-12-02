@@ -1,4 +1,4 @@
-<div id="demoContainer" class="mainContainer">
+<div id="demoContainer" class="mainContainer" style="display:block !important";>
   <!-- Top Menu Bar -->
   <div id="menuBar" class="clearfix">
     <div id="workbookBtn" class="btn btnSmall" data-toggle="tooltip" data-placement="right" data-container="body" title="Workbook" data-introstep="1">
@@ -339,7 +339,11 @@
   </div>
   
   <!-- Right Side Bar Section -->
+
+  <!-- End Of Rightsidebar -->
+
   <div id="rightSideBar" class="ui-draggable ui-resizable">
+  <!-- <div id="rightSideBar" class="ui-draggable ui-resizable open" style="z-index:1001;"> -->
     <div class="sideBarTopButtons">
       <div class="btn btnDeselected">
         <span class="icon iconClose"></span>
@@ -348,7 +352,7 @@
         <span class="icon popOut" data-toggle="tooltip" data-placement="top" data-container="body" title="pop out">
         </span>
       </div>
-      <div id="sqlButtonWrap">
+      <div id="sqlButtonWrap" style="display: none;">
         <div class="btn btnDeselected">
           <span class="icon humanSQL" data-toggle="tooltip" data-placement="top" data-container="body" title="toggle machine/human SQL">
           </span>
@@ -360,9 +364,9 @@
       </div>
     </div>
     <!-- Table List Section -->
-    <section id="tableListSection" class="rightBarSection">
+    <section id="tableListSection" class="rightBarSection no-selection">
       <!-- Heading -->
-      <header class="heading ui-draggable-handle">
+      <header class="heading draggable ui-draggable-handle">
         <h2>Tables</h2>
       </header>
       <!-- Main Content -->
@@ -371,6 +375,7 @@
         <section id="tableListSectionTabs">
           <div class="tableListSectionTab active">Active</div>
           <div class="tableListSectionTab">Inactive</div>
+          <div class="tableListSectionTab">Aggregates</div>
           <div class="tableListSectionTab">Orphaned</div>
         </section>
         <!-- Sections -->
@@ -382,12 +387,14 @@
           <!-- inactive list -->
           <div id="archivedTableList" class="tableListSection">
             <div class="buttonWrap">
-              <button id="submitTablesBtn" type="button" class="btn btnLarge btnInactive iconBtn" style="display: inline-block;">
+              <button id="submitTablesBtn" type="button" class="btn btnLarge btnInactive iconBtn">
                 <span class="icon"></span>ADD TO WORKSHEET
               </button>
-              <button id="deleteTablesBtn" type="button" class="btn btnLarge btnInactive iconBtn" style="display: inline-block;">
+              <!-- <button id="deleteTablesBtn" type="button" 
+                      class="btn btnLarge btnInactive iconBtn">
                 <span class="icon"></span>DELETE TABLES
-              </button>
+              </button> --> 
+              <!-- temporarily hidding delete tables btn -->
             </div>
             <div class="secondButtonWrap">
               <div class="btn btnSmall btnDeselected clearAll">
@@ -401,15 +408,40 @@
             </div>
             <ul id="inactiveTablesList"></ul>
           </div>
+          <!-- aggregate table list -->
+          <div id="aggregateTableList" class="tableListSection">
+            <div class="buttonWrap">
+              <!-- XXX temporary disable -->
+             <!--  <button id="submitAggTablesBtn" type="button" class="btn btnLarge btnInactive iconBtn">
+                <span class="icon"></span>ADD TO WORKSHEET
+              </button> -->
+              <!-- <button id="deleteAggTablesBtn" type="button" class="btn btnLarge btnInactive iconBtn">
+                <span class="icon"></span>DELETE TABLES
+              </button> -->
+            </div>
+           <!--  <div class="secondButtonWrap">
+              <div class="btn btnSmall btnDeselected clearAll">
+                <span class="icon" data-toggle="tooltip" data-placement="top" data-container="body" title="" data-original-title="clear all">
+                </span>
+              </div>
+              <div class="btn btnSmall selectAll">
+                <span class="icon" data-toggle="tooltip" data-placement="top" data-container="body" title="" data-original-title="select all">
+                </span>
+              </div>
+            </div> -->
+            <ul id="aggTablesList"></ul>
+          </div>
           <!-- orphaned table list -->
           <div id="orphanedTableList" class="tableListSection">
             <div class="buttonWrap">
               <button id="submitOrphanedTablesBtn" type="button" class="btn btnLarge btnInactive iconBtn">
                 <span class="icon"></span>ADD TO WORKSHEET
               </button>
-              <button id="deleteOrphanedTablesBtn" type="button" class="btn btnLarge btnInactive iconBtn">
+             <!--  <button id="deleteOrphanedTablesBtn" type="button" 
+                      class="btn btnLarge btnInactive iconBtn">
                 <span class="icon"></span>DELETE TABLES
-              </button>
+              </button> -->
+              <!-- temporarily hidding delete tables btn -->
             </div>
             <div class="secondButtonWrap" style="display: block;">
               <div class="btn btnSmall btnDeselected clearAll">
@@ -434,21 +466,21 @@
 
     <!-- SQL Section -->
     <section id="sqlSection" class="rightBarSection">
-      <header class="heading ui-draggable-handle">
+      <header class="heading draggable ui-draggable-handle">
         <h2>SQL</h2>
       </header>
       <div class="rightBarContent">
         <div id="rightBarTextScrollWrap">
-          <div id="rightBarTextArea"></div>
+          <div id="rightBarTextArea"><div class="sqlContentWrap"><div class="title"> &gt;&gt;Add dataset:</div><div class="content">{<span class="operation"><span class="sqlKey">operation</span><span class="sqlColon">:</span><span class="sqlVal">"addDataset"</span></span>, <span class="name"><span class="sqlKey">name</span><span class="sqlColon">:</span><span class="sqlVal">"schedule996"</span></span>, <span class="format"><span class="sqlKey">format</span><span class="sqlColon">:</span><span class="sqlVal">"JSON"</span></span>, <span class="path"><span class="sqlKey">path</span><span class="sqlColon">:</span><span class="sqlVal">"file:///var/tmp/qa/indexJoin/schedule/schedule.json"</span></span>}</div></div><div class="sqlContentWrap"><div class="title"> &gt;&gt;Add dataset:</div><div class="content">{<span class="operation"><span class="sqlKey">operation</span><span class="sqlColon">:</span><span class="sqlVal">"addDataset"</span></span>, <span class="name"><span class="sqlKey">name</span><span class="sqlColon">:</span><span class="sqlVal">"flight3144"</span></span>, <span class="format"><span class="sqlKey">format</span><span class="sqlColon">:</span><span class="sqlVal">"CSV"</span></span>, <span class="path"><span class="sqlKey">path</span><span class="sqlColon">:</span><span class="sqlVal">"file:///netstore/users/jerene/flight/airlines_2007.log"</span></span>}</div></div><div class="sqlContentWrap"><div class="title"> &gt;&gt;Add dataset:</div><div class="content">{<span class="operation"><span class="sqlKey">operation</span><span class="sqlColon">:</span><span class="sqlVal">"addDataset"</span></span>, <span class="name"><span class="sqlKey">name</span><span class="sqlColon">:</span><span class="sqlVal">"airport9040"</span></span>, <span class="format"><span class="sqlKey">format</span><span class="sqlColon">:</span><span class="sqlVal">"CSV"</span></span>, <span class="path"><span class="sqlKey">path</span><span class="sqlColon">:</span><span class="sqlVal">"file:///netstore/users/jerene/flight/airports.csv"</span></span>}</div></div><div class="sqlContentWrap"><div class="title"> &gt;&gt;Add dataset:</div><div class="content">{<span class="operation"><span class="sqlKey">operation</span><span class="sqlColon">:</span><span class="sqlVal">"addDataset"</span></span>, <span class="name"><span class="sqlKey">name</span><span class="sqlColon">:</span><span class="sqlVal">"schedule352"</span></span>, <span class="format"><span class="sqlKey">format</span><span class="sqlColon">:</span><span class="sqlVal">"JSON"</span></span>, <span class="path"><span class="sqlKey">path</span><span class="sqlColon">:</span><span class="sqlVal">"file:///var/tmp/qa/indexJoin/schedule/schedule.json"</span></span>}</div></div><div class="sqlContentWrap"><div class="title"> &gt;&gt;Add dataset:</div><div class="content">{<span class="operation"><span class="sqlKey">operation</span><span class="sqlColon">:</span><span class="sqlVal">"addDataset"</span></span>, <span class="name"><span class="sqlKey">name</span><span class="sqlColon">:</span><span class="sqlVal">"schedule"</span></span>, <span class="format"><span class="sqlKey">format</span><span class="sqlColon">:</span><span class="sqlVal">"JSON"</span></span>, <span class="path"><span class="sqlKey">path</span><span class="sqlColon">:</span><span class="sqlVal">"file:///var/tmp/qa/indexJoin/schedule"</span></span>}</div></div><div class="sqlContentWrap"><div class="title"> &gt;&gt;Add dataset:</div><div class="content">{<span class="operation"><span class="sqlKey">operation</span><span class="sqlColon">:</span><span class="sqlVal">"addDataset"</span></span>, <span class="name"><span class="sqlKey">name</span><span class="sqlColon">:</span><span class="sqlVal">"airport5520"</span></span>, <span class="format"><span class="sqlKey">format</span><span class="sqlColon">:</span><span class="sqlVal">"CSV"</span></span>, <span class="path"><span class="sqlKey">path</span><span class="sqlColon">:</span><span class="sqlVal">"file:///netstore/users/jerene/flight/airports.csv"</span></span>}</div></div><div class="sqlContentWrap"><div class="title"> &gt;&gt;Add dataset:</div><div class="content">{<span class="operation"><span class="sqlKey">operation</span><span class="sqlColon">:</span><span class="sqlVal">"addDataset"</span></span>, <span class="name"><span class="sqlKey">name</span><span class="sqlColon">:</span><span class="sqlVal">"flight4412"</span></span>, <span class="format"><span class="sqlKey">format</span><span class="sqlColon">:</span><span class="sqlVal">"CSV"</span></span>, <span class="path"><span class="sqlKey">path</span><span class="sqlColon">:</span><span class="sqlVal">"file:///netstore/users/jerene/flight/airlines_2007.log"</span></span>}</div></div></div>
           <div id="rightBarMachineTextArea" style="display: none;"></div>
         </div>
       </div>
     </section>
 
     <!-- UDF Section -->
-    <section id="udfSection" class="rightBarSection">
+    <section id="udfSection" class="rightBarSection no-selection">
       <!-- Heading -->
-      <header class="heading ui-draggable-handle">
+      <header class="heading draggable ui-draggable-handle">
         <h2>User Defined Function</h2>
       </header>
       <!-- Content -->
@@ -457,14 +489,14 @@
         <section class="tabSectionContainer">
           <div id="udf-tabs" class="tabSection">
             <!-- option for upload section -->
-            <div class="select-item" data-tab="udf-uploadSection">
+            <div class="radioWrap" data-tab="udf-uploadSection">
               <div class="radio checked">
                 <span class="dot"></span>
               </div>
               <div class="label">Upload your script</div>
             </div>
             <!-- option for code input section -->
-            <div class="select-item" data-tab="udf-fnSection">
+            <div class="radioWrap" data-tab="udf-fnSection">
               <div class="radio">
                 <span class="dot"></span>
               </div>
@@ -509,21 +541,23 @@
             <section class="templateSection">
               <div class="sectionContainer">
                 <!-- template dropdown menu -->
-                <div id="udf-fnList" class="listSection">
+                <div id="udf-fnList" class="dropDownList">
                   <input id="udf-fnTemplate" class="text" placeholder="Choose your template" disabled="">
                   <div class="iconWrapper">
                     <span class="icon"></span>
                   </div>
-                  <ul id="udf-fnMenu" class="list">
-                   <!--  <li>New Operator</li>
-                    <li>New Dataset</li> -->
-                    <li name="blank">Blank Function</li>
-                  </ul>
+                  <div id="udf-fnMenu" class="list">
+                    <ul>
+                      <li name="blank">Blank Function</li><li>default</li><li>ymd</li><li>multiJoinModule</li><li>multiJoinModule</li>
+                    </ul>
+                    <div class="scrollArea top"><div class="arrow"></div></div>
+                    <div class="scrollArea bottom"><div class="arrow"></div></div>
+                  </div>
                 </div>
                 <!-- Download Teamplate -->
                 <div class="downloadSection">
                    <div class="btnSection">
-                    <button id="udf-fnDownload" class="btn btnMid hidden" type="button">
+                    <button id="udf-fnDownload" class="btn btnMid disabled" type="button">
                       <span class="iconWrap"><span class="icon"></span></span>
                       <span class="text">DOWNLOAD</span>
                     </button>
@@ -534,7 +568,7 @@
             <!-- Edit section -->
             <section class="editSection">
               <div class="editArea">
-                <textarea id="udf-codeArea" style="display: none;"></textarea><div class="CodeMirror cm-s-default"><div style="overflow: hidden; position: relative; width: 3px; height: 0px;"><textarea autocorrect="off" autocapitalize="off" spellcheck="false" style="position: absolute; padding: 0px; width: 1000px; height: 1em; outline: none;" tabindex="0"></textarea></div><div class="CodeMirror-vscrollbar" cm-not-content="true"><div style="min-width: 1px;"></div></div><div class="CodeMirror-hscrollbar" cm-not-content="true"><div style="height: 100%; min-height: 1px;"></div></div><div class="CodeMirror-scrollbar-filler" cm-not-content="true"></div><div class="CodeMirror-gutter-filler" cm-not-content="true"></div><div class="CodeMirror-scroll" tabindex="-1"><div class="CodeMirror-sizer" style="margin-left: 0px; min-width: 3px;"><div style="position: relative;"><div class="CodeMirror-lines"><div style="position: relative; outline: none;"><div class="CodeMirror-measure"><span><span>​</span>x</span></div><div class="CodeMirror-measure"><pre><span style="padding-right: 0.1px;"><span cm-text="" style="display: inline-block; width: 1px; margin-right: -1px;">&nbsp;</span></span></pre></div><div style="position: relative; z-index: 1;"></div><div class="CodeMirror-cursors"></div><div class="CodeMirror-code"></div></div></div></div></div><div style="position: absolute; height: 30px; width: 1px;"></div><div class="CodeMirror-gutters"><div class="CodeMirror-gutter CodeMirror-linenumbers" style="width: 1px;"></div></div></div></div>
+                <textarea id="udf-codeArea" style="display: none;"></textarea><div class="CodeMirror cm-s-default"><div style="overflow: hidden; position: relative; width: 3px; height: 0px; top: 0px; left: 0px;"><textarea autocorrect="off" autocapitalize="off" spellcheck="false" style="position: absolute; padding: 0px; width: 1000px; height: 1em; outline: none;" tabindex="0"></textarea></div><div class="CodeMirror-vscrollbar" cm-not-content="true" style="display: block; bottom: 0px;"><div style="min-width: 1px; height: 35px;"></div></div><div class="CodeMirror-hscrollbar" cm-not-content="true" style="display: block; right: 0px; left: 0px;"><div style="height: 100%; min-height: 1px; width: 33px;"></div></div><div class="CodeMirror-scrollbar-filler" cm-not-content="true"></div><div class="CodeMirror-gutter-filler" cm-not-content="true"></div><div class="CodeMirror-scroll" tabindex="-1"><div class="CodeMirror-sizer" style="margin-left: 0px; min-width: 3px; padding-right: 0px; padding-bottom: 0px;"><div style="position: relative;"><div class="CodeMirror-lines"><div style="position: relative; outline: none;"><div class="CodeMirror-measure"></div><div class="CodeMirror-measure"><pre><span style="padding-right: 0.1px;"><span class="cm-comment"># PLEASE TAKE NOTE: </span></span></pre></div><div style="position: relative; z-index: 1;"></div><div class="CodeMirror-cursors"><div class="CodeMirror-cursor" style="left: 0px; top: 0px; height: 0px;">&nbsp;</div></div><div class="CodeMirror-code"></div></div></div></div></div><div style="position: absolute; height: 30px; width: 1px;"></div><div class="CodeMirror-gutters"><div class="CodeMirror-gutter CodeMirror-linenumbers" style="width: 1px;"></div></div></div></div>
               </div>
             </section>
             <!-- Submit Section -->
@@ -544,7 +578,7 @@
                   <span class="label">
                     <label for="udf-fnName">Module Name:</label>
                   </span>
-                  <input id="udf-fnName" type="text" spellcheck="false">
+                  <input id="udf-fnName" type="text" spellcheck="false" placeholder="lowercase only">
                 </div>
                 <div class="btnSection">
                   <button id="udf-fnUpload" class="btn btnMid upload" type="button">
@@ -563,7 +597,7 @@
 
     <!-- CLI Section -->
     <section id="cliSection" class="rightBarSection">
-      <header class="heading ui-draggable-handle">
+      <header class="heading draggable ui-draggable-handle">
         <h2>CLI</h2>
       </header>
       <div class="rightBarContent">
@@ -574,22 +608,39 @@
       </div>
     </section>
 
+    <!-- Scratch Pad Section -->
+   <!--  <section id="scratchPadSection" class="rightBarSection">
+      <header class="heading">
+        <h2>ScratchPad</h2>
+      </header>
+      <div class="rightBarContent">
+        <div class="textBoxContainer">
+          <div spellcheck="false" class="lineArea"></div>
+          <div class="cliArea">
+          </div>
+        </div>
+      </div>
+    </section> -->
+
     <!-- Help Section -->
-    <section id="helpSection" class="rightBarSection">
-      <header class="heading ui-draggable-handle">
+    <section id="helpSection" class="rightBarSection no-selection active lastOpen">
+      <header class="heading draggable ui-draggable-handle">
         <h2>Help</h2>
       </header>
       <div class="rightBarContent">
         <div id="helpSearchArea" class="clearfix">
-          <input type="text" id="helpSearch" placeholder="Type in your question..." data-toggle="tooltip" data-placement="bottom" data-container="body" title="Coming Soon" disabled="">
-          <div id="helpSubmit" class="btnInactive" data-toggle="tooltip" data-placement="bottom" data-container="body" title="Coming Soon">
+          <input id="helpSearch" title="Coming Soon" type="text" placeholder="Type in your question..." data-toggle="tooltip" data-placement="bottom" data-container="body" disabled="">
+          <div id="helpSubmit" title="Coming Soon" class="btnInactive" data-toggle="tooltip" data-placement="bottom" data-container="body">
             <span class="icon iconSearch"></span>Find
           </div>
         </div>
         <div class="border"></div>
-        <div id="helpResults" class="helpBox">
-          <div>
-            <span>There are no help results</span>
+        <div id="helpResults" class="helpBox" style="height:auto;">
+          <div class="clearfix">
+            <video id="xcalarVid" width="100%" style="float:left; pointer-events: none;">
+              <source src="/video/demoVid.mp4" type="video/mp4">
+              Your browser does not support HTML5 video.
+            </video>
           </div>
         </div>
         <div class="helpOnOffWrap">
@@ -600,12 +651,18 @@
             </div>
             <div class="text">In-Page Help</div>
         </div>
-        <div id="helpTopics" class="helpBox">
+        <div id="helpTopics" class="helpBox unavailable">
           <div>
             <ul>
-              <span>Help Topics:</span>
-              <li>
-                <span>This page is under construction.</span>
+              <span>Start a Walkthrough:</span>
+              <li id="workbookWT" class="walkthrough">
+                <span>Workbook Tutorial</span>
+              </li>
+              <li id="datastoreWT1" class="walkthrough">
+                <span>Data Stores Tutorial - Part 1</span>
+              </li>
+              <li id="datastoreWT2" class="walkthrough">
+                <span>Data Stores Tutorial - Part 2</span>
               </li>
             </ul>
           </div>
@@ -617,7 +674,6 @@
     <div id="pulloutTab"></div>
     <div id="sideBarModal"></div>
   <div class="ui-resizable-handle ui-resizable-n" style="z-index: 90; display: block;"></div><div class="ui-resizable-handle ui-resizable-e" style="z-index: 90; display: block;"></div><div class="ui-resizable-handle ui-resizable-s" style="z-index: 90; display: block;"></div><div class="ui-resizable-handle ui-resizable-w" style="z-index: 90; display: block;"></div><div class="ui-resizable-handle ui-resizable-se ui-icon ui-icon-gripsmall-diagonal-se" style="z-index: 90; display: block;"></div></div>
-  <!-- End Of Rightsidebar -->
 
   <!-- Bottom Bar -->
   <div id="bottomArea">

@@ -1106,7 +1106,7 @@ window.Dag = (function($, Dag) {
         var dagHeight = $dagWrap.height();
         var dagAreaHeight = $dagArea.height();
         var dagTop = $dagWrap.position().top;
-        console.log(dagTop, dagAreaHeight);
+       
         if (dagTop - 30 > dagAreaHeight || dagTop + dagHeight < 50) {
             return (false);
         }

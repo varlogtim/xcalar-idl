@@ -1,4 +1,5 @@
 window.Intro = (function($, Intro) {
+    // default options
     var options = {
         overlayOpacity    : 0.5,
         popoverPosition   : 'bottom',
@@ -7,22 +8,32 @@ window.Intro = (function($, Intro) {
         popoverMargin     : 10,
         highlightPadding  : 10,
         popoverText       : [],
-        preventSelection  : true,
-        loop              : false,
+        preventSelection  : true, // prevent highlighted area from being clickable
+        loop              : false, // if true, returns to step 1 after last step
         includeNumbering  : false,
-        closeOnModalClick : false,
+        closeOnModalClick : false, // close modal when background is clicked
         onStart           : "",
         onComplete        : "",
-        onNextStep        : ""
+        onNextStep        : "",
+        actionsRequired   : "",
+        video             : false,
+        videoBreakpoints  : []
     };
+    // var options = {};
     var $currElem;
-    var currentStep = -1;
+    var $popover;
     var validPositions = ['left', 'right', 'top', 'bottom'];
     var arrowHeight = 10;
     var currElemRect;
     var pathTemplate = "M0 0 L20000 0 L20000 20000 L 0 20000 Z ";
     var popoverBorderWidth = 2;
     var resizeTimeout;
+    var steps = {currentStep: -1};
+    var video;
+    var $videoCloseArea;
+    var userActions = {
+        nextStep: nextStep
+    };
 
     /*
     * Set initial options
@@ -40,7 +51,7 @@ window.Intro = (function($, Intro) {
             options.onStart();
         }
         
-        currentStep = -1;
+        steps.currentStep = -1;
         $stepElems = $('[data-introstep]:visible');
         if ($stepElems.length === 0) {
             return ('No steps defined');
@@ -48,6 +59,12 @@ window.Intro = (function($, Intro) {
         orderStepElems();
 
         createOverlay();
+        
+        if (options.video) {
+            setupVideo();
+            setupVideoBreakpoints();
+            options.preventSelection = false;
+        }
         if (options.preventSelection) {
             createElementLayer();
         }
@@ -55,6 +72,9 @@ window.Intro = (function($, Intro) {
         createPopover();
         nextStep();
         $(window).resize(winResize);
+        // temp 
+        $('#xcalarVid').attr('muted', true);
+        
     };
 
     function orderStepElems() {
@@ -110,7 +130,7 @@ window.Intro = (function($, Intro) {
                                 '<div class="innerNumber">1</div>' +
                             '</div>' +
                           '</div>';
-        var $popover = $(popoverHtml);
+        $popover = $(popoverHtml);
         $('body').append($popover);
 
         // fade in popover, currently 400 ms
@@ -126,18 +146,31 @@ window.Intro = (function($, Intro) {
         $popover.find('.back').click(function() {
             nextStep({back: true});
         });
+        $popover.find('.skipBack').click(function() {
+            nextStep({skip: true, back: true});
+        });
+
         $popover.find('.next').click(function() {
             nextStep();
         });
         $popover.find('.skip').click(function() {
             nextStep({skip: true});
         });
-        $popover.find('.skipBack').click(function() {
-            nextStep({skip: true, back: true});
-        });
+        
         $popover.find('.close').click(function() {
             closeIntro();
         });
+
+        if (typeof options.actionsRequired === "object") {
+            $popover.find('.next').addClass('actionRequired');
+            $popover.find('.skip').addClass('actionRequired');
+            if (options.video) {
+                $popover.find('.back').addClass('actionRequired');
+                $popover.find('.skipBack').addClass('actionRequired');
+            }
+            processActions();
+        }
+
         $('body').keydown(keypressAction);
     }
 
@@ -148,29 +181,62 @@ window.Intro = (function($, Intro) {
         if (arg) {
             if (arg.skip) {
                 if (arg.back) {
-                    currentStep = 0;
+                    steps.currentStep = 0;
                 } else {
-                    currentStep = $stepElems.length;
+                    steps.currentStep = $stepElems.length;
                 }
             } else if (arg.back) {
-                currentStep--;
+                steps.currentStep--;
             }
         } else {
-            currentStep++;
+            if (options.video && steps.currentStep !== -1) {
+                if (!video.paused ||
+                    options.videoBreakpoints[steps.currentStep] < video.curentTime ||
+                    video.currentTime === video.duration) {
+                    return;
+                }
+            }
+            steps.currentStep++;
+        }
+        // if currentStep goes past total number of steps
+        if (!(arg && arg.skip) && steps.currentStep >= $stepElems.length) {
+            if (!video) {
+                closeIntro();
+                return;
+            }
+        }
+
+        if (options.video) {
+            $popover.css({'opacity': 0});
+            
+            if (steps.currentStep === 0) {
+                $popover.css({'visibility': 'hidden'});
+            } else {
+                setTimeout(function(){
+                    $popover.css({'visibility': 'hidden'});
+                }, 1000);
+            }
+            
+            removeHighlightBox();
+            video.play();
+            if (steps.currentStep >= $stepElems.length) {
+                return;
+            }
         }
         // prevent currentStep from going out of range
-        currentStep = Math.max(0, currentStep);
-        currentStep = Math.min(currentStep, $stepElems.length - 1);
+        steps.currentStep = Math.max(0, steps.currentStep);
+        steps.currentStep = Math.min(steps.currentStep, $stepElems.length - 1);
 
-        $('#intro-popover').find('.back, .next, .skip, .skipBack')
+        $popover.find('.back, .next, .skip, .skipBack')
                            .removeClass('unavailable');
-        $('#intro-popover').find('.close').removeClass('available');
-        if (currentStep >= $stepElems.length - 1) {
+        $popover.find('.close').removeClass('available');
+        if (steps.currentStep >= $stepElems.length - 1) {
             showPopoverEndState();
         }
-        if (currentStep === 0) {
+        if (steps.currentStep === 0) {
             showPopoverStartState();
         }
+
         highlightNextElement();
     }
 
@@ -178,7 +244,7 @@ window.Intro = (function($, Intro) {
         // clean up previous elements
         $stepElems.removeClass('intro-highlightedElement');
 
-        $currElem = $stepElems.eq(currentStep);
+        $currElem = $stepElems.eq(steps.currentStep);
         if (typeof options.onNextStep === "function") {
             options.onNextStep($currElem);
         }
@@ -187,8 +253,14 @@ window.Intro = (function($, Intro) {
         currElemRect = $currElem[0].getBoundingClientRect();
         
         moveElementLayer();
-        moveHighlightBox();
-        updatePopover(true);
+        if (!options.video) {
+            moveHighlightBox();
+            updatePopover(true);
+        } else {
+            setTimeout(function() {
+                updatePopover(true);
+            }, 400);
+        }
     }
 
     function moveElementLayer() {
@@ -204,19 +276,18 @@ window.Intro = (function($, Intro) {
     }
 
     function updatePopover(initial) {
-        var $popover = $('#intro-popover');
         if (!initial) {
             $popover.css('opacity', 1);
         }
         
         var $popoverNumber = $popover.find('.intro-number');
         $popoverNumber.removeClass('left right');
-        $popoverNumber.find('.innerNumber').text(currentStep + 1);
+        $popoverNumber.find('.innerNumber').text(steps.currentStep + 1);
         var $infoArrow = $popover.find('.intro-arrow');
         $infoArrow.removeClass('top bottom left right');
         $infoArrow.css({'top': 0, 'bottom': 'auto'});
 
-        $popover.find('.text').html(options.popoverText[currentStep]);
+        $popover.find('.text').html(options.popoverText[steps.currentStep]);
         var windowWidth = $(window).width();
         var windowHeight = $(window).height();
         var textHeight = $popover.find('.text').outerHeight();
@@ -343,6 +414,10 @@ window.Intro = (function($, Intro) {
         }
     }
 
+    function removeHighlightBox() {
+        $('#intro-overlay path').attr('d', pathTemplate);
+    }
+
     function winResize() {
         clearTimeout(resizeTimeout);
         resizeTimeout = setTimeout(function() {
@@ -352,28 +427,38 @@ window.Intro = (function($, Intro) {
                 updatePopover();
                 moveHighlightBox();
             }
+            adjustVideoClosePosition();
         }, 40);
     }
 
+    // handles the action required to go to each next step
+    function processActions() {
+        var numActions = options.actionsRequired.length;
+        for (var i = 0; i < numActions; i++) {
+            options.actionsRequired[i](steps, userActions);
+        }
+    }
+
     function showPopoverEndState() {
-        $('#intro-popover').find('.next, .skip').addClass('unavailable');
-        $('#intro-popover').find('.close.right').addClass('available');
+        $popover.find('.next, .skip').addClass('unavailable');
+        $popover.find('.close.right').addClass('available');
     }
 
     function showPopoverStartState() {
-        $('#intro-popover').find('.back, .skipBack').addClass('unavailable');
-        $('#intro-popover').find('.close.left').addClass('available');
+        $popover.find('.back, .skipBack').addClass('unavailable');
+        $popover.find('.close.left').addClass('available');
     }
 
     function closeIntro() {
-        currentStep = 0;
-        $('#intro-overlay path').attr('d', pathTemplate);
+        steps.currentStep = 0;
+        removeHighlightBox();
 
         $('#intro-overlay').css('opacity', 0);
+        $('#intro-videoClose').remove();
         setTimeout(function() {
             $('#intro-overlay').remove();
         }, 300);
-        $('#intro-popover').css('opacity', 0).remove();
+        $popover.css('opacity', 0).remove();
         $('#intro-highlightBox').remove();
         $('#intro-elementLayer').remove();
         $('.intro-highlightedElement').removeClass('intro-highlightedElement');
@@ -386,12 +471,61 @@ window.Intro = (function($, Intro) {
 
     function keypressAction(e) {
         if (e.which === 37 || e.which === 38) { // up / left to go back
+            if (options.video) {
+                return;
+            }
             nextStep({back: true});
         } else if (e.which === 39 || e.which === 40) { // down / right for next
+            if (options.actionsRequired || options.video) {
+                return;
+            }
             nextStep();
         } else if (e.which === 27 || e.which === 13) { // escape / enter to exit
             closeIntro();
         }
     }
+
+    function setupVideo() {
+        var $video = $(options.video);
+        video = $video[0];
+        video.play();
+        var closeHtml = '<div id="intro-videoClose"><span>EXIT</span></div>';
+        $('body').append(closeHtml);
+        $videoCloseArea = $('#intro-videoClose');
+        $videoCloseArea.click(function() {
+            closeIntro();
+        });
+        video.onloadedmetadata = adjustVideoClosePosition;
+        video.onended = function() {
+            $('#intro-videoClose').show();
+        }
+    }
+
+    function setupVideoBreakpoints() {
+        
+        video.addEventListener("timeupdate", function() {
+            if (this.currentTime >= options.videoBreakpoints[steps.currentStep]) {
+                this.pause();
+                moveHighlightBox();
+                // highlightNextElement();
+                $popover.css({'visibility': 'visible', 'opacity': 1});
+            }
+        });
+    }
+
+    function adjustVideoClosePosition() {
+        var $video = $(options.video);
+        var offsetTop = $video.offset().top;
+        var offsetLeft = $video.offset().left;
+        var width = $video.width();
+        var height = $video.height();
+        $videoCloseArea.css({
+            top: offsetTop,
+            left: offsetLeft,
+            width: width,
+            height: height
+        });
+    }
+
     return (Intro);
 }(jQuery, {}));

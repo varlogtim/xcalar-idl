@@ -714,7 +714,50 @@ window.RightSideBar = (function($, RightSideBar) {
         });
 
         $('#workbookWT').click(function() {
-            introHelper('workbookDemo', w1_en);
+            var options = {};
+
+            // XX set options for video
+
+            // var options = {
+            //     video: '#xcalarVid',
+            //     videoBreakpoints: [2, 4, 6, 8, 10, 12, 14, 16, 18],
+            //     actionsRequired: [
+            //         (function (steps, actions) {
+            //             $('[data-introstep]').click(function() {
+            //                 var step = parseInt($(this).data('introstep')) - 1;
+            //                 if (step === steps.currentStep) {
+            //                     actions.nextStep();
+            //                 }
+            //             });
+            //         })
+            //     ],
+            //     preventSelection: false,
+            //     onNextStep: "",
+            //     onComplete: function() {
+            //         //reset options
+            //         $('.intro-emptybox').remove();
+            //         $('#demoScreen').remove();
+            //         $('#container').show();
+            //         Intro.setOptions({
+            //             onComplete: function() {
+            //                 $('.intro-emptybox').remove();
+            //                 $('#demoScreen [data-introstep]').removeClass('hover');
+            //                 $('#demoScreen').remove();
+            //                 $('#container').show();
+            //             },
+            //             preventSelection: true,
+            //             actionsRequired: "",
+            //             video: false,
+            //             videoBreakpoints: [],
+            //             onNextStep: function(el) {
+            //                 $('#demoScreen [data-introstep]').removeClass('hover');
+            //                 el.addClass('hover');
+            //             }
+            //         });
+            //     }
+            // };
+
+            introHelper('workbookDemo', w1_en, options);
         });
 
         $('#datastoreWT1').click(function() {

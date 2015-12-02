@@ -1,4 +1,4 @@
-<div id="demoContainer" class="mainContainer">
+<div id="demoContainer" class="mainContainer" style="display:block !important;">
   <!-- Top Menu Bar -->
   <div id="menuBar" class="clearfix no-selection">
     <div id="workbookBtn" class="btn btnSmall" data-toggle="tooltip" data-placement="right" data-container="body" title="Workbook">
@@ -87,7 +87,7 @@
               <input id="fileName" name="fileName" type="text" placeholder="Enter Dataset Name" autocomplete="on" pattern="^\w+$" spellcheck="false" title="A valid name with no special characters" required="" data-introstep="4">
                <!-- file formt -->
                <div id="fileFormat" data-introstep="5">
-                <div id="fileFormatList" class="listSection">
+                <div id="fileFormatList" class="dropDownList">
                   <input class="text hint" type="text" value="Format" disabled="">
                   <div class="iconWrapper">
                     <span class="icon"></span>
@@ -270,15 +270,15 @@
             </div>
             <!-- Grid Views of ds -->
             <div class="gridViewButtonArea no-selection">
-              <div id="backFolderBtn" class="backBtn disabled" title="See previous folders" data-container="body" data-toggle="tooltip" data-placement="bottom" ondrop="dsDropBack(event)" ondragover="allowDSDrop(event)" ondragenter="dsDragEnter(event)">
+              <div id="backFolderBtn" class="gridViewBtn backBtn disabled" title="See previous folders" data-container="body" data-toggle="tooltip" data-placement="bottom" ondrop="dsDropBack(event)" ondragover="allowDSDrop(event)" ondragenter="dsDragEnter(event)">
                 <div class="icon"></div>
                 <div class="label">..</div>
               </div>
-              <div id="addFolderBtn" class="addBtn" title="Add New Folder" data-container="body" data-toggle="tooltip" data-placement="bottom">
+              <div id="addFolderBtn" class="gridViewBtn addBtn" title="" data-container="body" data-toggle="tooltip" data-placement="bottom" data-original-title="Add New Folder">
                 <div class="icon"></div>
                 <div class="label">NEW</div>
               </div>
-              <div id="deleteFolderBtn" class="deleteBtn disabled" title="" data-container="body" data-toggle="tooltip" data-placement="bottom" data-original-title="Delete folder or dataset">
+              <div id="deleteFolderBtn" class="gridViewBtn deleteBtn disabled" title="Delete folder or dataset" data-container="body" data-toggle="tooltip" data-placement="bottom">
                 <div class="icon"></div>
                 <div class="label">DELETE</div>
               </div>
