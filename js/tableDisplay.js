@@ -174,10 +174,10 @@ function parallelConstruct(tableId, tablesToRemove, afterStartup) {
 
     jQuery.when(deferred1, deferred2)
     .then(function() {
-        var wsIndex = WSManager.getWSFromTable(tableId);
+        var wsId = WSManager.getWSFromTable(tableId);
         var $xcTableWrap = $('#xcTableWrap-' + tableId);
-        $xcTableWrap.addClass("worksheet-" + wsIndex);
-        $("#dagWrap-" + tableId).addClass("worksheet-" + wsIndex);
+        $xcTableWrap.addClass("worksheet-" + wsId);
+        $("#dagWrap-" + tableId).addClass("worksheet-" + wsId);
 
         if (table.resultSetCount !== 0) {
             infScrolling(tableId);

@@ -384,10 +384,10 @@ window.StatusMessage = (function($, StatusMessage) {
 
                 if ($popup.data('tableid')) {
                     var tableId = $popup.data('tableid');
-                    var wsIndex = WSManager.getWSFromTable(tableId);
+                    var wsId = WSManager.getWSFromTable(tableId);
 
                     $('#workspaceTab').click();
-                    $('#worksheetTab-' + wsIndex).click();
+                    $('#worksheetTab-' + wsId).click();
 
                     if ($dagPanel.hasClass('full')) {
                         $('#dagPulloutTab').click();
@@ -459,11 +459,11 @@ window.StatusMessage = (function($, StatusMessage) {
     }
 
     function tableVisibility(tableId) {
-        var wsNum = WSManager.getWSFromTable(tableId);
+        var wsId = WSManager.getWSFromTable(tableId);
         var activeWS = WSManager.getActiveWS();
 
-        if (wsNum !== activeWS) {
-            return (wsNum);
+        if (wsId !== activeWS) {
+            return (wsId);
         }
         var $table = $("#xcTable-" + tableId);
         var rect = $table[0].getBoundingClientRect();

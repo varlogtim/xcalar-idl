@@ -852,10 +852,10 @@ window.RightSideBar = (function($, RightSideBar) {
                     $noSheetTables.removeClass("highlight");
                     $("#rightSideBar.faux").remove();
 
-                    var wsName  = Alert.getOptionVal();
-                    var wsIndex = WSManager.getWSByName(wsName);
+                    var wsName = Alert.getOptionVal();
+                    var wsId = WSManager.getWSIdByName(wsName);
 
-                    if (wsIndex == null) {
+                    if (wsId == null) {
                         Alert.error("Invalid worksheet name",
                                     "please input a valid name!");
                     } else {
@@ -865,7 +865,7 @@ window.RightSideBar = (function($, RightSideBar) {
                             tableIds.push(tableId);
                         });
 
-                        WSManager.addNoSheetTables(tableIds, wsIndex);
+                        WSManager.addNoSheetTables(tableIds, wsId);
 
                         addBulkTable(tableType);
                     }
@@ -981,15 +981,15 @@ window.RightSideBar = (function($, RightSideBar) {
 
             var tableName = table.tableName;
             var tableId   = table.tableId;
-            var wsIndex   = WSManager.getWSFromTable(tableId);
+            var wsId      = WSManager.getWSFromTable(tableId);
             var wsInfo;
 
-            if (wsIndex == null) {
+            if (wsId == null) {
                 wsInfo = '<div class="worksheetInfo inactive">No sheet</div>';
             } else {
                 wsInfo =
-                    '<div class="worksheetInfo worksheet-' + wsIndex + '">' +
-                        WSManager.getWSName(wsIndex) +
+                    '<div class="worksheetInfo worksheet-' + wsId + '">' +
+                        WSManager.getWSName(wsId) +
                     '</div>';
             }
 
@@ -1065,9 +1065,9 @@ window.RightSideBar = (function($, RightSideBar) {
             var addTableBtn;
 
             if (isActive) {
-                var wsIndex = WSManager.getWSFromTable(dstTableId);
+                var wsId = WSManager.getWSFromTable(dstTableId);
 
-                if (wsIndex == null) {
+                if (wsId == null) {
                     // case that worksheet is deleted
                     wsInfo =
                         '<div class="worksheetInfo" data-toggle="tooltip" ' +
@@ -1077,11 +1077,11 @@ window.RightSideBar = (function($, RightSideBar) {
                         '</div>';
                 } else {
                     wsInfo =
-                        '<div class="worksheetInfo worksheet-' + wsIndex +
+                        '<div class="worksheetInfo worksheet-' + wsId +
                         '" data-toggle="tooltip" ' +
                         'data-placement="top" data-container="body" ' +
                         'title="' + dstTable + '">' +
-                            WSManager.getWSName(wsIndex) +
+                            WSManager.getWSName(wsId) +
                         '</div>';
                 }
 
@@ -1221,8 +1221,8 @@ window.RightSideBar = (function($, RightSideBar) {
         // var colName = $listCol.text();
         var colNum = $listCol.index();
         var tableId = $listCol.closest('.tableInfo').data('id');
-        var wsNum = WSManager.getWSFromTable(tableId);
-        $('#worksheetTab-' + wsNum).click();
+        var wsId = WSManager.getWSFromTable(tableId);
+        $('#worksheetTab-' + wsId).click();
         var animation;
         
         if (gMinModeOn) {

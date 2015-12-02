@@ -474,20 +474,15 @@ window.JoinModal = (function($, JoinModal) {
     function joinModalHTMLHelper($modal) {
         var wsTabHtml   = "";
         var tabHtml     = "";
-        var worksheets  = WSManager.getWorksheets();
         var $columnArea = $modal.find(".joinTableArea");
-
+        var wsOrders    = WSManager.getOrders();
         // group table tab by worksheet (only show active table)
-        for (var i = 0, len = worksheets.length; i < len; i++) {
-            if (worksheets[i] == null) {
-                // case that ws is deleted
-                continue;
-            }
-
-            var wsTables = worksheets[i].tables;
+        for (var i = 0, len = wsOrders.length; i < len; i++) {
+            var ws = WSManager.getWSById(wsOrders[i]);
+            var wsTables = ws.tables;
 
             for (var j = 0; j < wsTables.length; j++) {
-                var wsName  = (j === 0) ? worksheets[i].name : "";
+                var wsName  = (j === 0) ? ws.name : "";
                 var tableId = wsTables[j];
                 var table   = gTables[tableId];
 

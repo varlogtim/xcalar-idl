@@ -1014,9 +1014,9 @@ window.xcFunction = (function($, xcFunction) {
                 var newTableId   = newTableInfo.tableId;
 
                 // append new table to the same ws as the old table
-                var wsIndex = WSManager.getWSFromTable(tableId);
+                var wsId = WSManager.getWSFromTable(tableId);
                 // must add to worksheet before async call
-                WSManager.addTable(newTableId, wsIndex);
+                WSManager.addTable(newTableId, wsId);
 
                 var sqlOptions = {
                     "operation"   : SQLOps.CheckIndex,

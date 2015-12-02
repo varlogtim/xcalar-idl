@@ -1,17 +1,21 @@
 window.WSManager = (function($, WSManager) {
-    var worksheets    = []; // {id, date, tables, hiddenTables}
+    var wsLookUp = {}; // {id, date, tables, hiddenTables}
+    var wsOrder = [];
+
     var noSheetTables = [];
-    var aggInfos      = {};
+    var aggInfos = {};
 
-    var wsIndexLookUp = {};  // find wsIndex by table name
-    var wsNameLookUp  = {};  // find wsIndex by wsName
+    var tableIdToWSIdMap = {};  // find wsId by table id
+    var wsNameToIdMap  = {};  // find wsId by wsName
 
-    var activeWorsheet = 0;
+    var activeWorsheet = null;
     // var for naming worksheet automatically
     var defaultName = "Sheet ";
-    var nameSuffix  = 1;
+    var nameSuffix = 1;
 
     var $workSheetTabSection = $("#worksheetTabs");
+
+    var maxWSLen = 260; // 26 letters * 10 nums
 
     // Setup function for WSManager Module
     WSManager.setup = function() {
@@ -19,9 +23,59 @@ window.WSManager = (function($, WSManager) {
         initializeWorksheet();
     };
 
+    // Clear all data in WSManager
+    WSManager.clear = function() {
+        wsLookUp = {};
+        wsOrder = [];
+        noSheetTables = [];
+        tableIdToWSIdMap = {};
+        wsNameToIdMap = {};
+        aggInfos = {};
+        activeWorsheet = null;
+        nameSuffix = 1;
+        initializeWorksheet();
+    };
+
+    // Restore worksheet structure from backend
+    WSManager.restore = function(sheetInfos) {
+        wsOrder = sheetInfos.wsOrder || [];
+        wsLookUp = sheetInfos.wsInfos || {};
+        noSheetTables = sheetInfos.noSheetTables || [];
+        aggInfos = sheetInfos.aggInfos || {};
+
+        var wsId;
+        for (wsId in wsLookUp) {
+            // remove the deleted worksheets
+            var ws = wsLookUp[wsId];
+
+            ws.lockedTables = [];
+            wsNameToIdMap[ws.name] = wsId;
+
+            var tables = ws.tables;
+
+            for (var i = 0; i < tables.length; i++) {
+                tableIdToWSIdMap[tables[i]] = wsId;
+            }
+
+            var hiddenTables = ws.hiddenTables;
+
+            for (var j = 0; j < hiddenTables.length; j++) {
+                tableIdToWSIdMap[hiddenTables[j]] = wsId;
+            }
+        }
+    };
+
     // Get all worksheets
     WSManager.getWorksheets = function() {
-        return (worksheets);
+        return (wsLookUp);
+    };
+
+    WSManager.getWSById = function(wsId) {
+        return (wsLookUp[wsId]);
+    };
+
+    WSManager.getOrders = function() {
+        return (wsOrder);
     };
 
     // Get tables that are not in any worksheets
@@ -29,107 +83,19 @@ window.WSManager = (function($, WSManager) {
         return (noSheetTables);
     };
 
-    // Get all aggreagte information
-    WSManager.getAggInfos = function() {
-        return (aggInfos);
-    };
-
-    WSManager.checkAggInfo = function(tableId, colName, aggOp) {
-        var key = tableId + "#" + colName + "#" + aggOp;
-        return (aggInfos[key]);
-    };
-
-    // add aggregate information
-    WSManager.addAggInfo = function(tableId, colName, aggOp, aggRes) {
-        // use this as key so that if later you want to sort,
-        // write a sort function that split by "#" and
-        // extract tableId/colNam/aggOp to sort by one of them
-        var key = tableId + "#" + colName + "#" + aggOp;
-
-        if (aggInfos.hasOwnProperty(key)) {
-            // XXX now if this agg ops is exist, do not update it,
-            // since update will make the old table info lost
-            console.warn("Aggregate result already exists!");
-        } else {
-            aggInfos[key] = aggRes;
-
-            var dstTableId = xcHelper.getTableId(aggRes.dagName);
-            noSheetTables.push(dstTableId);
-        }
-    };
-
-    // remove one entry of aggregate information
-    WSManager.activeAggInfo = function(key, tableId) {
-        aggInfos[key].isActive = true;
-        gTables[tableId].isAggTable = true;
-    };
-
-    // remove one entry of aggregate information
-    WSManager.removeAggInfo = function(key) {
-        delete aggInfos[key];
+    WSManager.getWSOrder = function(wsId) {
+        return wsOrder.indexOf(wsId);
     };
 
     // Get number of worksheets that is not null
     WSManager.getWSLen = function() {
-        var len = 0;
-
-        for (var i = 0; i < worksheets.length; i++) {
-            // null is the worksheet that is deleted
-            if (worksheets[i] != null) {
-                ++len;
-            }
-        }
-
-        return (len);
-    };
-
-    // Restore worksheet structure from backend
-    WSManager.restoreWS = function(sheetInfos) {
-        noSheetTables = sheetInfos.noSheetTables || [];
-        aggInfos = sheetInfos.aggInfos || {};
-
-        var oldSheets = sheetInfos.wsInfos || [];
-
-        for (var i = 0, j = 0; i < oldSheets.length; i++) {
-            // remove the deleted worksheets
-            var sheet = oldSheets[i];
-            if (sheet != null) {
-                sheet.lockedTables = [];
-                worksheets[j] = sheet;
-                wsNameLookUp[sheet.name] = j;
-                ++j;
-            } else {
-                // XXX Still restore the deleted worksheet as null, otherwise
-                // wsIndex will change on refresh
-                // may have better to do it
-                worksheets[j] = null;
-                ++j;
-            }
-        }
-
-        for (var i = 0; i < worksheets.length; i++) {
-            if (worksheets[i] == null) {
-                continue;
-            }
-
-            var tables = worksheets[i].tables;
-
-            for (var j = 0; j < tables.length; j++) {
-                wsIndexLookUp[tables[j]] = i;
-            }
-
-            var hiddenTables = worksheets[i].hiddenTables;
-
-            for (var j = 0; j < hiddenTables.length; j++) {
-                wsIndexLookUp[hiddenTables[j]] = i;
-            }
-        }
+        return (wsOrder.length);
     };
 
     // For reorder table use
     WSManager.reorderTable = function(tableId, srcIndex, desIndex) {
-        var wsIndex = WSManager.getWSFromTable(tableId);
-        var tables  = worksheets[wsIndex].tables;
+        var wsId   = tableIdToWSIdMap[tableId];
+        var tables = wsLookUp[wsId].tables;
 
         var t = tables[srcIndex];
         tables.splice(srcIndex, 1);
@@ -138,30 +104,30 @@ window.WSManager = (function($, WSManager) {
 
     // For archive table use
     WSManager.archiveTable = function(tableId) {
-        var wsIndex   = WSManager.getWSFromTable(tableId);
-        var worksheet = worksheets[wsIndex];
+        var wsId = tableIdToWSIdMap[tableId];
+        var ws   = wsLookUp[wsId];
 
-        var srcTables = worksheet.tables;
-        var desTables = worksheet.hiddenTables;
+        var srcTables = ws.tables;
+        var desTables = ws.hiddenTables;
 
         toggleTableArchive(tableId, srcTables, desTables);
     };
 
     // For inArchive table use
     WSManager.activeTable = function(tableId) {
-        var wsIndex   = WSManager.getWSFromTable(tableId);
-        var worksheet = worksheets[wsIndex];
+        var wsId = tableIdToWSIdMap[tableId];
+        var ws   = wsLookUp[wsId];
 
-        var srcTables = worksheet.hiddenTables;
-        var desTables = worksheet.tables;
+        var srcTables = ws.hiddenTables;
+        var desTables = ws.tables;
 
         toggleTableArchive(tableId, srcTables, desTables);
     };
 
     // Get a table's position in the worksheet
     WSManager.getTablePosition = function(tableId) {
-        var wsIndex    = wsIndexLookUp[tableId];
-        var tableIndex = worksheets[wsIndex].tables.indexOf(tableId);
+        var wsId  = tableIdToWSIdMap[tableId];
+        var tableIndex = wsLookUp[wsId].tables.indexOf(tableId);
 
         if (tableIndex < 0) {
             console.error("Table is not in active tables array!");
@@ -169,12 +135,12 @@ window.WSManager = (function($, WSManager) {
         }
 
         var position = 0;
-        for (var i = 0; i < wsIndex; i++) {
-            if (worksheets[i] == null) {
-                // this worksheet is deleted
-                continue;
+        for (var i = 0, len = wsOrder.length; i < len; i++) {
+            var curWS = wsOrder[i];
+            if (curWS === wsId) {
+                break;
             } else {
-                position += worksheets[i].tables.length;
+                position += wsLookUp[curWS].tables.length;
             }
         }
 
@@ -185,17 +151,17 @@ window.WSManager = (function($, WSManager) {
 
     // Get worksheet index from table id
     WSManager.getWSFromTable = function(taleId) {
-        return (wsIndexLookUp[taleId]);
+        return (tableIdToWSIdMap[taleId]);
     };
 
-    // Get worksheet index by worksheet name
-    WSManager.getWSByName = function(wsName) {
-        return (wsNameLookUp[wsName]);
+    // Get worksheet id by worksheet name
+    WSManager.getWSIdByName = function(wsName) {
+        return (wsNameToIdMap[wsName]);
     };
 
     // Get worksheet's name from its index
-    WSManager.getWSName = function(wsIndex) {
-        return (worksheets[wsIndex].name);
+    WSManager.getWSName = function(wsId) {
+        return (wsLookUp[wsId].name);
     };
 
     // Get current active worksheet
@@ -203,34 +169,20 @@ window.WSManager = (function($, WSManager) {
         return (activeWorsheet);
     };
 
-    // Clear all data in WSManager
-    WSManager.clear = function() {
-        worksheets = [];
-        noSheetTables = [];
-        wsIndexLookUp = {};
-        wsNameLookUp = {};
-        aggInfos = {};
-
-        activeWorsheet = 0;
-        nameSuffix = 1;
-
-        initializeWorksheet();
-    };
-
     // Add table to worksheet
-    WSManager.addTable = function(tableId, wsIndex) {
+    WSManager.addTable = function(tableId, wsId) {
         // it only add to hiddenTables first, since later we
         // need to call WSManager.replaceTable()
-        if (tableId in wsIndexLookUp) {
-            return (wsIndexLookUp[tableId]);
+        if (tableId in tableIdToWSIdMap) {
+            return (tableIdToWSIdMap[tableId]);
         } else {
-            if (wsIndex == null) {
-                wsIndex = activeWorsheet;
+            if (wsId == null) {
+                wsId = activeWorsheet;
             }
 
-            setWorksheet(wsIndex, {"hiddenTables": tableId});
+            setWorksheet(wsId, {"hiddenTables": tableId});
 
-            return (wsIndex);
+            return (wsId);
         }
     };
 
@@ -240,21 +192,21 @@ window.WSManager = (function($, WSManager) {
 
         // append table to the last of active tables
         if (locationId == null) {
-            ws = worksheets[wsIndexLookUp[tableId]];
+            ws = wsLookUp[tableIdToWSIdMap[tableId]];
             toggleTableArchive(tableId, ws.hiddenTables, ws.tables);
             return;
         }
 
         // replace with locationId and put other tables into hiddenTables
-        var wsIndex = wsIndexLookUp[locationId];
-        var tables  = worksheets[wsIndex].tables;
+        var wsId = tableIdToWSIdMap[locationId];
+        var tables = wsLookUp[wsId].tables;
         var insertIndex = tables.indexOf(locationId);
         var rmTableId;
 
         // XXX remove from original table, may have better way
         WSManager.removeTable(tableId);
         tables.splice(insertIndex, 0, tableId);
-        wsIndexLookUp[tableId] = wsIndex;
+        tableIdToWSIdMap[tableId] = wsId;
 
         if (tablesToRm == null) {
             tablesToRm = [locationId];
@@ -262,69 +214,69 @@ window.WSManager = (function($, WSManager) {
 
         for (var i = 0, len = tablesToRm.length; i < len; i++) {
             rmTableId = tablesToRm[i];
-            ws = worksheets[wsIndexLookUp[rmTableId]];
+            ws = wsLookUp[tableIdToWSIdMap[rmTableId]];
             toggleTableArchive(rmTableId, ws.tables, ws.hiddenTables);
         }
     };
 
     // Move table to another worksheet
-    WSManager.moveTable = function(tableId, newWSIndex) {
-        var oldIndex = WSManager.removeTable(tableId);
-        var wsName   = WSManager.getWSName(newWSIndex);
+    WSManager.moveTable = function(tableId, newWSId) {
+        var oldWSId = WSManager.removeTable(tableId);
+        var wsName  = wsLookUp[newWSId].name;
 
-        setWorksheet(newWSIndex, {"tables": tableId});
+        setWorksheet(newWSId, {"tables": tableId});
 
         var $xcTablewrap = $('#xcTableWrap-' + tableId);
-        $xcTablewrap.removeClass("worksheet-" + oldIndex)
-                    .addClass("worksheet-" + newWSIndex);
+        $xcTablewrap.removeClass("worksheet-" + oldWSId)
+                    .addClass("worksheet-" + newWSId);
         // refresh right side bar
         $("#tableListSections .tableInfo").each(function() {
             var $li = $(this);
             if ($li.data("id") === tableId) {
                 var $workhseetInfo = $li.find(".worksheetInfo");
 
-                $workhseetInfo.removeClass("worksheet-" + oldIndex)
-                                .addClass("worksheet-" + newWSIndex);
+                $workhseetInfo.removeClass("worksheet-" + oldWSId)
+                                .addClass("worksheet-" + newWSId);
                 $workhseetInfo.text(wsName);
             }
         });
 
         // refresh dag
-        $("#dagPanel .dagWrap.worksheet-" + oldIndex).each(function() {
+        $("#dagPanel .dagWrap.worksheet-" + oldWSId).each(function() {
             var $dagWrap = $(this);
 
             if ($dagWrap.data("id") === tableId) {
-                $dagWrap.removeClass("worksheet-" + oldIndex)
-                        .addClass("worksheet-" + newWSIndex);
+                $dagWrap.removeClass("worksheet-" + oldWSId)
+                        .addClass("worksheet-" + newWSId);
             }
         });
 
-        WSManager.focusOnWorksheet(newWSIndex, false, tableId);
+        WSManager.focusOnWorksheet(newWSId, false, tableId);
         SQL.add("Move Table to worksheet", {
             "operation"        : SQLOps.MoveTableToWS,
             "tableName"        : gTables[tableId].tableName,
             "tableId"          : tableId,
-            "oldWorksheetIndex": oldIndex,
-            "oldWorksheetName" : worksheets[oldIndex].name,
-            "newIndex"         : newWSIndex,
+            "oldWorksheetIndex": WSManager.getWSOrder(oldWSId),
+            "oldWorksheetName" : wsLookUp[oldWSId].name,
+            "newIndex"         : WSManager.getWSOrder(newWSId),
             "worksheetName"    : wsName
         });
-
-        commitToStorage();
     };
 
     // Move inactive table to another worksheet
-    WSManager.moveInactiveTable = function(tableId, newWSIndex) {
-        var oldWSIndex = wsIndexLookUp[tableId];
-        wsIndexLookUp[tableId] = newWSIndex;
+    WSManager.moveInactiveTable = function(tableId, newWSId) {
+        var oldWSId = tableIdToWSIdMap[tableId];
+        tableIdToWSIdMap[tableId] = newWSId;
 
-        var tables = worksheets[oldWSIndex].hiddenTables;
+        var oldWS = wsLookUp[oldWSId];
+        var tables = oldWS.hiddenTables;
         var tableIndex = tables.indexOf(tableId);
 
         var wsTable = tables.splice(tableIndex, 1)[0];
-        worksheets[newWSIndex].hiddenTables.push(wsTable);
+        var newWS = wsLookUp[newWSId];
+        newWS.hiddenTables.push(wsTable);
 
-        var wsName = WSManager.getWSName(newWSIndex);
+        var wsName = newWS.name;
 
         // refresh right side bar
         $("#inactiveTablesList .tableInfo").each(function() {
@@ -332,8 +284,8 @@ window.WSManager = (function($, WSManager) {
             if ($li.data("id") === tableId) {
                 var $worksheetInfo = $li.find(".worksheetInfo");
 
-                $worksheetInfo.removeClass("worksheet-" + oldWSIndex)
-                                .addClass("worksheet-" + newWSIndex);
+                $worksheetInfo.removeClass("worksheet-" + oldWSId)
+                                .addClass("worksheet-" + newWSId);
                 $worksheetInfo.text(wsName);
             }
         });
@@ -342,9 +294,9 @@ window.WSManager = (function($, WSManager) {
             "operation"        : SQLOps.MoveInactiveTableToWS,
             "tableName"        : gTables[tableId].tableName,
             "tableId"          : tableId,
-            "oldWorksheetIndex": oldWSIndex,
-            "oldWorksheetName" : worksheets[oldWSIndex].name,
-            "newIndex"         : newWSIndex,
+            "oldWorksheetIndex": WSManager.getWSOrder(oldWSId),
+            "oldWorksheetName" : oldWS.name,
+            "newIndex"         : WSManager.getWSOrder(newWSId),
             "worksheetName"    : wsName
         });
     };
@@ -361,12 +313,8 @@ window.WSManager = (function($, WSManager) {
         noSheetTables.splice(index, 1);
     };
 
-    /**
-     * Copy one table to a worksheet
-     * @param {string} srcTableName The name of source table
-     * @param {string} newTableName The name of new table
-     * @param {number} wsIndex The index of worksheet that new table belongs to
-     */
+    // Copy one table to a worksheet
+
      // XX THIS IS CURRENTLY DISABLED , tablename/tableId needs to be fixed
     // WSManager.copyTable = function(srcTableName, newTableName, wsIndex) {
     //     var tableNum   = gTables.length;
@@ -400,10 +348,10 @@ window.WSManager = (function($, WSManager) {
 
     // Remove table from worksheet
     WSManager.removeTable = function(tableId) {
-        var wsIndex = wsIndexLookUp[tableId];
+        var wsId = tableIdToWSIdMap[tableId];
         var tableIndex;
 
-        if (wsIndex == null) {
+        if (wsId == null) {
             // table that has no worksheet
             tableIndex = noSheetTables.indexOf(tableId);
             if (tableIndex > -1) {
@@ -416,11 +364,12 @@ window.WSManager = (function($, WSManager) {
             return (null);
         }
 
-        var tables = worksheets[wsIndex].tables;
+        var ws = wsLookUp[wsId];
+        var tables = ws.tables;
         tableIndex = tables.indexOf(tableId);
 
         if (tableIndex < 0) {
-            tables = worksheets[wsIndex].hiddenTables;
+            tables = ws.hiddenTables;
             tableIndex = tables.indexOf(tableId);
         }
 
@@ -430,18 +379,18 @@ window.WSManager = (function($, WSManager) {
         }
 
         tables.splice(tableIndex, 1);
-        delete wsIndexLookUp[tableId];
+        delete tableIdToWSIdMap[tableId];
 
-        return (wsIndex);
+        return (wsId);
     };
 
     // Refresh Worksheet space to focus on one worksheet
-    WSManager.focusOnWorksheet = function(wsIndex, notfocusTable, tableId) {
+    WSManager.focusOnWorksheet = function(wsId, notfocusTable, tableId) {
         // update activeWorksheet first
-        if (wsIndex == null) {
-            wsIndex = activeWorsheet;
+        if (wsId == null) {
+            wsId = activeWorsheet;
         }
-        activeWorsheet = wsIndex;
+        activeWorsheet = wsId;
 
         var $tabs   = $workSheetTabSection.find(".worksheetTab");
         var $tables = $("#mainFrame .xcTableWrap");
@@ -449,18 +398,18 @@ window.WSManager = (function($, WSManager) {
 
         // refresh worksheet tab
         xcHelper.removeSelectionRange();
-        $tabs.find(".text").blur();
-        $tabs.addClass("inActive");
-        $("#worksheetTab-" + wsIndex).removeClass("inActive");
+        $tabs.addClass("inActive")
+            .find(".text").blur();
+        $("#worksheetTab-" + wsId).removeClass("inActive");
 
         // refresh mainFrame
         $tables.addClass("inActive");
-        var $curActiveTables = $tables.filter(".worksheet-" + wsIndex);
+        var $curActiveTables = $tables.filter(".worksheet-" + wsId);
         $curActiveTables.removeClass("inActive");
 
         // refresh dag
         $dags.addClass("inActive");
-        $dags.filter(".worksheet-" + wsIndex).removeClass("inActive");
+        $dags.filter(".worksheet-" + wsId).removeClass("inActive");
 
         // position sticky row column on visible tables
         moveFirstColumn();
@@ -550,102 +499,115 @@ window.WSManager = (function($, WSManager) {
         }
     };
 
-
     // Get html list of worksheets
     WSManager.getWSLists = function(isAll) {
         var html = "";
 
-        for (var i = 0; i < worksheets.length; i++) {
-            if (!isAll && (i === activeWorsheet)) {
+        for (var i = 0, len = wsOrder.length; i < len; i++) {
+            var wsId = wsOrder[i];
+            if (!isAll && (wsId === activeWorsheet)) {
                 continue;
             }
 
-            if (worksheets[i] == null) {
-                continue;
-            }
-
-            html += '<li data-worksheet="' + i + '">' +
-                        worksheets[i].name +
+            html += '<li data-ws="' + wsId + '">' +
+                        wsLookUp[wsId].name +
                     '</li>';
         }
 
         return (html);
     };
 
-
     WSManager.lockTable = function(tableId) {
-        var worksheetNum = WSManager.getWSFromTable(tableId);
-        var worksheet = worksheets[worksheetNum];
-        if (worksheet) {
-            if (worksheet.lockedTables.indexOf(tableId) === -1) {
-                worksheet.lockedTables.push(tableId);
+        var wsId = tableIdToWSIdMap[tableId];
+        var ws   = wsLookUp[wsId];
+        if (ws) {
+            if (ws.lockedTables.indexOf(tableId) === -1) {
+                ws.lockedTables.push(tableId);
             }
-            $('#worksheetTab-' + worksheetNum).addClass('locked');
+            $('#worksheetTab-' + wsId).addClass('locked');
         }
     };
 
     WSManager.unlockTable = function(tableId) {
-        var worksheetNum = WSManager.getWSFromTable(tableId);
-        var worksheet = worksheets[worksheetNum];
-        if (worksheet && worksheet.lockedTables.length > 0) {
-            var tableIndex = worksheet.lockedTables.indexOf(tableId);
-            worksheet.lockedTables.splice(tableIndex, 1);
-            if (worksheet.lockedTables.length === 0) {
-                $('#worksheetTab-' + worksheetNum).removeClass('locked');
+        var wsId = tableIdToWSIdMap[tableId];
+        var ws   = wsLookUp[wsId];
+        if (ws && ws.lockedTables.length > 0) {
+            var tableIndex = ws.lockedTables.indexOf(tableId);
+            ws.lockedTables.splice(tableIndex, 1);
+            if (ws.lockedTables.length === 0) {
+                $('#worksheetTab-' + wsId).removeClass('locked');
             }
         }
     };
 
-    WSManager.addNoSheetTables = function(tableIds, wsIndex) {
-        for (var i = 0, len = tableIds.length; i < len; i++) {
-            var tableId = tableIds[i];
+    WSManager.addNoSheetTables = function(tableIds, wsId) {
+        tableIds.forEach(function(tableId) {
             WSManager.rmNoSheetTable(tableId);
-            WSManager.addTable(tableId, wsIndex);
-        }
+            WSManager.addTable(tableId, wsId);
+        });
 
         SQL.add("Add no sheet tables", {
             "operation"    : SQLOps.AddNoSheetTables,
             "tableIds"     : tableIds,
-            "worksheetName": worksheets[wsIndex].name,
-            "wsIndex"      : wsIndex
+            "worksheetName": wsLookUp[wsId].name,
+            "wsIndex"      : WSManager.getWSOrder(wsId)
         });
     };
 
-    // Initialize worksheet, helper function for WSManager.setup()
-    function initializeWorksheet() {
-        var len = worksheets.length;
-        // remove the placeholder in html
-        $workSheetTabSection.empty();
+    // Get all aggreagte information
+    WSManager.getAggInfos = function() {
+        return (aggInfos);
+    };
 
-        if (len === 0) {
-            newWorksheet();
+    WSManager.checkAggInfo = function(tableId, colName, aggOp) {
+        var key = tableId + "#" + colName + "#" + aggOp;
+        return (aggInfos[key]);
+    };
+
+    // add aggregate information
+    WSManager.addAggInfo = function(tableId, colName, aggOp, aggRes) {
+        // use this as key so that if later you want to sort,
+        // write a sort function that split by "#" and
+        // extract tableId/colNam/aggOp to sort by one of them
+        var key = tableId + "#" + colName + "#" + aggOp;
+
+        if (aggInfos.hasOwnProperty(key)) {
+            // XXX now if this agg ops is exist, do not update it,
+            // since update will make the old table info lost
+            console.warn("Aggregate result already exists!");
         } else {
-            var noAnimation = true;
-            for (var i = 0; i < len; i++) {
-                if (worksheets[i] != null) {
-                    makeWorksheet(i, noAnimation);
-                }
-            }
+            aggInfos[key] = aggRes;
+
+            var dstTableId = xcHelper.getTableId(aggRes.dagName);
+            noSheetTables.push(dstTableId);
         }
-        // focus on the first worksheet that is not null
-        for (var i = 0; i < len; i++) {
-            if (worksheets[i] != null) {
-                WSManager.focusOnWorksheet(i);
-                break;
-            }
-        }
-    }
+    };
+
+    // remove one entry of aggregate information
+    WSManager.activeAggInfo = function(key, tableId) {
+        aggInfos[key].isActive = true;
+        gTables[tableId].isAggTable = true;
+    };
+
+    // remove one entry of aggregate information
+    WSManager.removeAggInfo = function(key) {
+        delete aggInfos[key];
+    };
 
     // Add worksheet events, helper function for WSManager.setup()
     function addWSEvents() {
         // click to add new worksheet
         $("#addWorksheet").click(function() {
-            var wsIndex = newWorksheet();
+            if (wsOrder.length >= maxWSLen) {
+                Alert.error("CANNOT CREATE WORKSHEEt",
+                            "There are too many worksheets in the panel");
+                return;
+            }
+            var wsId = newWorksheet();
 
             SQL.add("Create Worksheet", {
-                "operation"     : SQLOps.AddWS,
-                "worksheetName" : worksheets[wsIndex].name,
-                "worksheetIndex": wsIndex
+                "operation"    : SQLOps.AddWS,
+                "worksheetName": WSManager.getWSName(wsId)
             });
         });
 
@@ -677,56 +639,95 @@ window.WSManager = (function($, WSManager) {
             var $tab = $(this);
 
             if ($tab.hasClass("inActive")) {
-                var curWS   = activeWorsheet;
-                var wsIndex = Number($tab.attr("id").split("worksheetTab-")[1]);
+                var curWS = activeWorsheet;
+                var wsId  = $tab.data("ws");
 
-                WSManager.focusOnWorksheet(wsIndex);
+                WSManager.focusOnWorksheet(wsId);
 
                 SQL.add("Switch Worksheet", {
                     "operation"        : SQLOps.SwitchWS,
-                    "oldWorksheetIndex": curWS,
-                    "oldWorksheetName" : worksheets[curWS].name,
-                    "newWorksheetIndex": wsIndex,
-                    "newWorksheetName" : worksheets[wsIndex].name
+                    "oldWorksheetIndex": WSManager.getWSOrder(curWS),
+                    "oldWorksheetName" : WSManager.getWSName(curWS),
+                    "newWorksheetIndex": WSManager.getWSOrder(wsId),
+                    "newWorksheetName" : WSManager.getWSName(wsId)
                 });
             }
         });
         // delete worksheet
         $workSheetTabSection.on("click", ".delete", function (event) {
-            var $tab = $(this).closest(".worksheetTab");
-            var wsIndex = Number($tab.attr("id").split("worksheetTab-")[1]);
+            var wsId = $(this).closest(".worksheetTab").data("ws");
 
             event.stopPropagation();
-            delWSHelper(wsIndex);
+            delWSHelper(wsId);
         });
+    }
+
+    function renderWSId() {
+        var rand1 = Math.floor(Math.random() * 26) + 97; // [97, 123)
+        var rand2 = Math.floor(Math.random() * 10); // [0, 10)
+
+        var id = String.fromCharCode(rand1) + rand2; //[a-z][0-9]
+        var tryCnt = 0;
+
+        while (wsLookUp.hasOwnProperty(id) && tryCnt < maxWSLen) {
+            rand1 = Math.floor(Math.random() * 26) + 97;
+            rand2 = Math.floor(Math.random() * 10);
+            id = String.fromCharCode(rand1) + rand2;
+            tryCnt++;
+        }
+
+        if (tryCnt >= maxWSLen) {
+            // code should never enter here!
+            console.error("Worksheet id overflow!");
+            id += Math.floor(Math.random() * 100); // temp fix when error
+        }
+        return (id);
+    }
+
+    function initializeWorksheet() {
+        // remove the placeholder in html
+        $workSheetTabSection.empty();
+
+        var len = wsOrder.length;
+        if (len === 0) {
+            newWorksheet();
+        } else {
+            for (var i = 0; i < len; i++) {
+                // true meanse no animation
+                makeWorksheet(wsOrder[i], true);
+            }
+        }
+        // focus on the first worksheet
+        activeWorsheet = wsOrder[0];
+        WSManager.focusOnWorksheet(activeWorsheet);
     }
 
     // Create a new worksheet
     function newWorksheet() {
-        var wsIndex = worksheets.length;
-        var name    = defaultName + (nameSuffix++);
-        var date    = xcHelper.getDate();
+        var wsId = renderWSId();
+        var name = defaultName + (nameSuffix++);
+        var date = xcHelper.getDate();
 
-        while (wsNameLookUp[name] != null) {
+        while (wsNameToIdMap[name] != null) {
             name = defaultName + (nameSuffix++);
         }
 
-        setWorksheet(wsIndex, {
+        setWorksheet(wsId, {
             "name"        : name,
             "date"        : date,
             "lockedTables": []
         });
 
-        makeWorksheet(wsIndex);
+        makeWorksheet(wsId);
         // focus on new worksheet
-        WSManager.focusOnWorksheet(wsIndex);
+        WSManager.focusOnWorksheet(wsId);
 
-        return (wsIndex);
+        return (wsId);
     }
 
     // Make a worksheet
-    function makeWorksheet(wsIndex, noAnimation) {
-        var $tab = $(getWSTabHTML(wsIndex));
+    function makeWorksheet(wsId, noAnimation) {
+        var $tab = $(getWSTabHTML(wsId));
 
         if (noAnimation) {
             $tab.appendTo($workSheetTabSection);
@@ -742,57 +743,62 @@ window.WSManager = (function($, WSManager) {
     // Rename a worksheet
     function renameWorksheet($text) {
         var name = $text.text().trim();
-        // name confilct
-        if (wsNameLookUp[name] != null) {
+        // name empty or confilct
+        if (name === "" || wsNameToIdMap.hasOwnProperty(name)) {
             $text.blur();
             return;
         }
 
         var $label = $text.closest(".label");
         var $tab = $text.closest(".worksheetTab");
-        var wsIndex = Number($tab.attr("id").split("worksheetTab-")[1]);
-        var oldName = worksheets[wsIndex].name;
+        var wsId = $tab.data("ws");
+        var ws = wsLookUp[wsId];
+        var oldName = ws.name;
 
-        delete wsNameLookUp[oldName];
-        setWorksheet(wsIndex, {"name": name});
+        delete wsNameToIdMap[oldName];
+        ws.name = name;
+        wsNameToIdMap[name] = wsId;
 
         $text.data("title", name);
         $label.attr("data-original-title", name);
         $text.blur();
         // use worksheet class to find table lists in right side bar
-        $("#tableListSections .worksheetInfo.worksheet-" + wsIndex).text(name);
+        $("#tableListSections .worksheetInfo.worksheet-" + wsId).text(name);
 
         SQL.add("Rename Worksheet", {
             "operation"     : SQLOps.RenameWS,
-            "worksheetIndex": wsIndex,
+            "worksheetIndex": WSManager.getWSOrder(wsId),
             "oldName"       : oldName,
             "newName"       : name
         });
-
-        commitToStorage();
     }
 
     // Remove worksheet
-    function rmWorksheet(wsIndex) {
-        worksheets[wsIndex].tables.forEach(function(tableId) {
-            delete wsIndexLookUp[tableId];
+    function rmWorksheet(wsId) {
+        var ws = wsLookUp[wsId];
+
+        ws.tables.forEach(function(tableId) {
+            delete tableIdToWSIdMap[tableId];
         });
 
-        worksheets[wsIndex].hiddenTables.forEach(function(tableId) {
-            delete wsIndexLookUp[tableId];
+        ws.hiddenTables.forEach(function(tableId) {
+            delete tableIdToWSIdMap[tableId];
         });
 
-        delete wsNameLookUp[worksheets[wsIndex].name];
-        worksheets[wsIndex] = null;
+        delete wsNameToIdMap[ws.name];
+        delete wsLookUp[wsId];
+
+        var index = WSManager.getWSOrder(wsId);
+        wsOrder.splice(index, 1);
 
         if (gMinModeOn) {
-            $("#worksheetTab-" + wsIndex).remove();
+            $("#worksheetTab-" + wsId).remove();
             rmHanlder();
         } else {
-            $("#worksheetTab-" + wsIndex).addClass("transition").animate({
+            $("#worksheetTab-" + wsId).addClass("transition").animate({
                 "width": 0
             }, 180, function() {
-                $("#worksheetTab-" + wsIndex).remove();
+                $("#worksheetTab-" + wsId).remove();
                 rmHanlder();
             });
         }
@@ -800,63 +806,59 @@ window.WSManager = (function($, WSManager) {
         function rmHanlder() {
             commitToStorage();
             // switch to another worksheet
-            if (activeWorsheet === wsIndex) {
-                for (var i = 0, len = worksheets.length; i < len; i++) {
-                    if (worksheets[i] != null) {
-                        WSManager.focusOnWorksheet(i, true);
-                        break;
-                    }
-                }
+            if (activeWorsheet === wsId) {
+                WSManager.focusOnWorksheet(wsOrder[0], true);
             }
         }
     }
 
     // Set worksheet
-    function setWorksheet(wsIndex, options) {
-        if (worksheets[wsIndex] == null) {
-            worksheets[wsIndex] = {
+    function setWorksheet(wsId, options) {
+        if (!wsLookUp.hasOwnProperty(wsId)) {
+            wsLookUp[wsId] = {
+                "id"          : wsId,
                 "tables"      : [],
                 "hiddenTables": []
             };
+            wsOrder.push(wsId);
         }
+
+        var ws = wsLookUp[wsId];
 
         for (var key in options) {
             var val = options[key];
 
             if (key === "tables" || key === "hiddenTables") {
-                if (val in wsIndexLookUp) {
+                if (val in tableIdToWSIdMap) {
                     console.error(val, "already in worksheets!");
                     return;
                 }
 
-                worksheets[wsIndex][key].push(val);
-                wsIndexLookUp[val] = wsIndex;
+                ws[key].push(val);
+                tableIdToWSIdMap[val] = wsId;
             } else {
-                worksheets[wsIndex][key] = val;
+                ws[key] = val;
 
                 if (key === "name") {
-                    wsNameLookUp[val] = wsIndex;
+                    wsNameToIdMap[val] = wsId;
                 }
             }
         }
     }
 
     // Helper function to delete worksheet
-    function delWSHelper(wsIndex) {
-        var title    = "DELETE WORKSHEET";
-        var worsheet = worksheets[wsIndex];
+    function delWSHelper(wsId) {
+        var ws = wsLookUp[wsId];
         var msg;
         var sqlOptions = {
             "operation"     : SQLOps.DelWS,
-            "worksheetIndex": wsIndex,
-            "worksheetName" : worsheet.name
+            "worksheetIndex": WSManager.getWSOrder(wsId),
+            "worksheetName" : ws.name
         };
 
-        if (worsheet.tables.length === 0 &&
-            worsheet.hiddenTables.length === 0)
-        {
+        if (ws.tables.length === 0 && ws.hiddenTables.length === 0) {
             // delete empty worksheet
-            rmWorksheet(wsIndex);
+            rmWorksheet(wsId);
 
             SQL.add("Delete Worksheet", sqlOptions);
             return;
@@ -865,14 +867,14 @@ window.WSManager = (function($, WSManager) {
             msg = "There are active tables in this worksheet. " +
                   "How would you like to handle them?";
             Alert.show({
-                "title"  : title,
+                "title"  : "DELETE WORKSHEET",
                 "msg"    : msg,
                 "buttons": [
                     // {
                     //     "name"     : "Delete Tables",
                     //     "className": "deleteTale",
                     //     "func"     : function() {
-                    //         delTableHelper(wsIndex)
+                    //         delTableHelper(wsId)
                     //         .then(function() {
                     //             sqlOptions.tableAction = "delete";
                     //             SQL.add("Delete Worksheet", sqlOptions);
@@ -884,7 +886,7 @@ window.WSManager = (function($, WSManager) {
                         "name"     : "Archive Tables",
                         "className": "archiveTable",
                         "func"     : function() {
-                            archiveTableHelper(wsIndex);
+                            archiveTableHelper(wsId);
                             sqlOptions.tableAction = "archive";
                             SQL.add("Delete Worksheet", sqlOptions);
                         }
@@ -895,20 +897,20 @@ window.WSManager = (function($, WSManager) {
     }
 
     // Helper function to delete tables in a worksheet
-    function delTableHelper(wsIndex) {
+    function delTableHelper(wsId) {
         var deferred    = jQuery.Deferred();
         var promises    = [];
         var $tableLists = $("#inactiveTablesList");
 
         // click all inactive table in this worksheet
         $tableLists.find(".addTableBtn.selected").click();
-        $tableLists.find(".worksheet-" + wsIndex)
+        $tableLists.find(".worksheet-" + wsId)
                     .closest(".tableInfo")
                     .find(".addTableBtn").click();
 
 
         // for active table, use this to delete
-        var activeTables = worksheets[wsIndex].tables;
+        var activeTables = wsLookUp[wsId].tables;
         for (var i = 0, len = activeTables.length; i < len; i++) {
             var tableId = activeTables[i];
             promises.push(deleteTable.bind(this, tableId, TableType.Active));
@@ -919,7 +921,7 @@ window.WSManager = (function($, WSManager) {
             return (RightSideBar.tableBulkAction("delete", TableType.InActive));
         })
         .then(function() {
-            rmWorksheet(wsIndex);
+            rmWorksheet(wsId);
             deferred.resolve();
         })
         .fail(function(error) {
@@ -931,11 +933,11 @@ window.WSManager = (function($, WSManager) {
     }
 
     // Helper function to archive tables in a worksheet
-    function archiveTableHelper(wsIndex) {
+    function archiveTableHelper(wsId) {
         // archive all active tables (save it in a temp array because
         // archiveTable will change the structure of worksheets[].tables)
         var tableIds = [];
-        var tables   = worksheets[wsIndex].tables;
+        var tables   = wsLookUp[wsId].tables;
 
         for (var i = 0, len = tables.length; i < len; i++) {
             tableIds[i] = tables[i];
@@ -947,12 +949,12 @@ window.WSManager = (function($, WSManager) {
             noSheetTables.push(tableId);
         }
 
-        $("#inactiveTablesList").find(".worksheetInfo.worksheet-" + wsIndex)
+        $("#inactiveTablesList").find(".worksheetInfo.worksheet-" + wsId)
                 .addClass("inactive").text("No Sheet");
 
-        $("#aggTablesList").find(".worksheetInfo.worksheet-" + wsIndex)
-                .removeClass(".worksheet-" + wsIndex).text("No Sheet");
-        rmWorksheet(wsIndex);
+        $("#aggTablesList").find(".worksheetInfo.worksheet-" + wsId)
+                .removeClass("worksheet-" + wsId).text("No Sheet");
+        rmWorksheet(wsId);
     }
 
     function toggleTableArchive(tableId, srcTables, desTables, index) {
@@ -973,11 +975,11 @@ window.WSManager = (function($, WSManager) {
     }
 
     // HTML of worksheet tab, helper function for makeWorksheet()
-    function getWSTabHTML(wsIndex) {
-        var name     = worksheets[wsIndex].name;
-        var id       = "worksheetTab-" + wsIndex;
-        var dagTabId =  (wsIndex === 0) ? "compSwitch" :
-                                          "compSwitch-" + wsIndex;
+    function getWSTabHTML(wsId) {
+        var name = wsLookUp[wsId].name;
+        var id   = "worksheetTab-" + wsId;
+        var dagTabId = (wsOrder[0] === wsId) ? "compSwitch" :
+                                                "compSwitch-" + wsId;
         var tabTooltip =
             'data-original-title="' + name + '"' +
             'data-toggle="tooltip" data-placement="top"' +
@@ -989,7 +991,8 @@ window.WSManager = (function($, WSManager) {
             'data-title="click to view DAG" data-container="body"';
 
         var html =
-            '<section id="' + id + '"class="worksheetTab inActive">' +
+            '<section id="' + id + '"class="worksheetTab inActive" ' +
+                'data-ws="' + wsId + '">' +
                 '<div class="label" ' + tabTooltip + '>' +
                     '<div class="iconWrapper delete">' +
                         '<span class="icon"></span>' +

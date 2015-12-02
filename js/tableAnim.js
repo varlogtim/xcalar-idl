@@ -1007,10 +1007,10 @@ function addTableMenuActions() {
         if (event.which === keyCode.Enter) {
             tableId = $tableMenu.data('tableId');
             var $input  = $(this);
-            var wsName  = jQuery.trim($input.val());
-            var $option =
-                $input.siblings(".list").find("li").filter(function() {
-                    return ($(this).text() === wsName); });
+            var wsName  = $input.val().trim();
+            var $option = $input.siblings(".list").find("li").filter(function() {
+                return ($(this).text() === wsName);
+            });
 
             var isValid = xcHelper.validate([
                 {
@@ -1029,9 +1029,9 @@ function addTableMenuActions() {
                 return false;
             }
 
-            var wsIndex  = $option.data("worksheet");
+            var wsId = $option.data("ws");
 
-            WSManager.moveTable(tableId, wsIndex);
+            WSManager.moveTable(tableId, wsId);
 
             $input.val("");
             $input.blur();
@@ -1076,10 +1076,10 @@ function addTableMenuActions() {
                 return false;
             }
             tableId = $tableMenu.data('tableId');
-            var table   = gTables[tableId];
-            var wsIndex = $option.data("worksheet");
+            var table = gTables[tableId];
+            var wsId = $option.data("ws");
 
-            WSManager.copyTable(table.tableName, newTableName, wsIndex);
+            WSManager.copyTable(table.tableName, newTableName, wsId);
 
             $wsInput.val("");
             $wsInput.blur();

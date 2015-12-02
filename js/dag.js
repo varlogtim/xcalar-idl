@@ -277,7 +277,7 @@ window.DagPanel = (function($, DagPanel) {
             $menu.data('tableId', tableId);
             $menu.data('tableelement', $dagTable);
             var activeFound = false;
-            var tableWSIndex;
+            var tableWSId;
 
             // if active table, hide "addTable" and show "focusTable"
             $('#activeTablesList').find('.tableInfo').each(function() {
@@ -286,8 +286,8 @@ window.DagPanel = (function($, DagPanel) {
                     $menu.find('.addTable').addClass('hidden');
                     $menu.find('.focusTable').removeClass('hidden');
                     activeFound = true;
-                    tableWSIndex = WSManager.getWSFromTable(tableId);
-                    $menu.data('wsindex', tableWSIndex);
+                    tableWSId = WSManager.getWSFromTable(tableId);
+                    $menu.data('ws', tableWSId);
                     return (false);
                 }
             });
@@ -556,8 +556,8 @@ window.DagPanel = (function($, DagPanel) {
                 return;
             }
             var tableId = $menu.data('tableId');
-            var wsIndex = $menu.data('wsindex');
-            $('#worksheetTab-' + wsIndex).click();
+            var wsId    = $menu.data('ws');
+            $('#worksheetTab-' + wsId).click();
             
             if ($dagPanel.hasClass('full')) {
                 $('#dagPulloutTab').click();

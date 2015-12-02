@@ -359,9 +359,10 @@ window.TestSuite = (function($, TestSuite) {
             });
         }
 
-        // Add genRand
+        // Add genRand (map to get uniqueNum)
         function flightTestPart3_2() {
-            var tableId = (WSManager.getWorksheets())[0].tables[0];
+            var wsId = WSManager.getOrders()[0];
+            var tableId = WSManager.getWSById(wsId).tables[0];
             trigOpModal(tableId, "ArrDelay_integer", "map")
             .then(function() {
                 $("#categoryList .dropdown .icon").trigger(fakeEvent.click);
@@ -385,8 +386,8 @@ window.TestSuite = (function($, TestSuite) {
         
         // Filter flight table
         function flightTestPart4() {
-            
-            var tableId = (WSManager.getWorksheets())[0].tables[0];
+            var wsId = WSManager.getOrders()[0];
+            var tableId = WSManager.getWSById(wsId).tables[0];
             trigOpModal(tableId, "ArrDelay_integer", "filter")
             .then(function() {
                 $("#functionList input").val("gt");
@@ -441,7 +442,8 @@ window.TestSuite = (function($, TestSuite) {
         // Map on flight table
         function flightTestPart6() {
             $("#alertActions .confirm").click();
-            var tableId = (WSManager.getWorksheets())[0].tables[0];
+            var wsId = WSManager.getOrders()[0];
+            var tableId = WSManager.getWSById(wsId).tables[0];
 
             trigOpModal(tableId, "Year", "map")
             .then(function() {
@@ -497,7 +499,8 @@ window.TestSuite = (function($, TestSuite) {
 
         // Group by
         function flightTestPart8() {
-            var tableId = (WSManager.getWorksheets())[0].tables[0];
+            var wsId = WSManager.getOrders()[0];
+            var tableId = WSManager.getWSById(wsId).tables[0];
             trigOpModal(tableId, "ArrDelay_integer", "groupby")
             .then(function() {
                 $("#functionList .dropdown .icon").trigger(fakeEvent.click);
@@ -526,7 +529,8 @@ window.TestSuite = (function($, TestSuite) {
 
         // Aggregate
         function flightTestPart9() {
-            var tableId = (WSManager.getWorksheets())[0].tables[0];
+            var wsId = WSManager.getOrders()[0];
+            var tableId = WSManager.getWSById(wsId).tables[0];
 
             trigOpModal(tableId, "ArrDelay_integer", "aggregate")
             .then(function() {
@@ -557,7 +561,8 @@ window.TestSuite = (function($, TestSuite) {
     function newWorksheetTest(deferred, testName, currentTestNumber) {
         // Tests add worksheet and rename new worksheet
         $("#addWorksheet .icon").click();
-        checkExists("#worksheetTab-1")
+        var wsId = WSManager.getOrders()[1];
+        checkExists("#worksheetTab-" + wsId)
         .then(function() {
             $("#tableListBtn").click();
             $(".tableListSectionTab").eq(1).click();
@@ -567,7 +572,7 @@ window.TestSuite = (function($, TestSuite) {
             $("#inactiveTablesList .addTableBtn").eq(1).click();
             $("#submitTablesBtn").click();
             $("#rightSideBar .iconClose").click();
-            $("#worksheetTab-0 .label").click();
+            $("#worksheetTabs .worksheetTab:first-child").click()
             return (checkExists(".xcTableWrap:eq(2) .tableTitle " +
                                 ".dropdownBox .innerBox"));
         })
@@ -579,12 +584,13 @@ window.TestSuite = (function($, TestSuite) {
             $("#tableSubMenu .moveToWorksheet .list li").click();
             $("#tableSubMenu .moveToWorksheet .wsName").trigger(fakeEvent.enter);
 
-            return (checkExists(".xcTableWrap.worksheet-1"));
+            return (checkExists(".xcTableWrap.worksheet-" + wsId));
         })
         .then(function() {
-            $("#worksheetTab-1 .text").text("Multi group by")
+            // rename
+            $("#worksheetTab-" + wsId + " .text").text("Multi group by")
                                         .trigger(fakeEvent.enter);
-            return (checkExists("#worksheetTab-1 .text:contains('Multi ')"));
+            return (checkExists("#worksheetTab-" + wsId + " .text:contains('Multi ')"));
         })
         .then(function() {
             TestSuite.pass(deferred, testName, currentTestNumber);
@@ -592,7 +598,9 @@ window.TestSuite = (function($, TestSuite) {
     }
 
     function multiGroupByTest(deferred, testName, currentTestNumber) {
-        var tableId = (WSManager.getWorksheets())[1].tables[0];
+        var wsId = WSManager.getOrders()[1];
+        var tableId = WSManager.getWSById(wsId).tables[0];
+        // var tableId = (WSManager.getWorksheets())[1].tables[0];
 
         trigOpModal(tableId, "ArrDelay_integer", "groupby")
         .then(function() {
@@ -632,7 +640,8 @@ window.TestSuite = (function($, TestSuite) {
             return (checkExists(".xcTable .flexWrap.flex-mid input[value=" +
                                 "'class_id']:eq(0)"));
         }).then(function() {
-            var tableId = (WSManager.getWorksheets())[1].tables[1];
+            var wsId = WSManager.getOrders()[1];
+            var tableId = WSManager.getWSById(wsId).tables[1];
             return (trigOpModal(tableId, "class_id", "joinList", "join"));
         }).then(function() {
             $("#multiJoinBtn .onBox").click();
@@ -662,7 +671,9 @@ window.TestSuite = (function($, TestSuite) {
 
     function columnRenameTest(deferred, testName, currentTestNumber) {
         $("#mainFrame").scrollLeft("0");
-        var tableId = (WSManager.getWorksheets())[1].tables[0];
+        var wsId = WSManager.getOrders()[1];
+        var tableId = WSManager.getWSById(wsId).tables[0];
+
         var $header = $("#xcTable-" + tableId +
                         " .flexWrap.flex-mid input[value='class_id']");
         $header.parent().parent().find(".flex-right .innerBox").click();
@@ -696,7 +707,8 @@ window.TestSuite = (function($, TestSuite) {
     }
 
     function tableRenameTest(deferred, testName, currentTestNumber) {
-        var tableId = (WSManager.getWorksheets())[1].tables[0];
+        var wsId = WSManager.getOrders()[1];
+        var tableId = WSManager.getWSById(wsId).tables[0];
         $("#xcTableWrap-" + tableId + " .tableName").text("New Table Name")
                                                     .trigger(fakeEvent.enter);
         checkExists(".xcTableWrap .tableName:contains('New')")
@@ -720,7 +732,8 @@ window.TestSuite = (function($, TestSuite) {
     }
 
     function profileTest(deferred, testName, currentTestNumber) {
-        var tableId = (WSManager.getWorksheets())[1].tables[0];
+        var wsId = WSManager.getOrders()[1];
+        var tableId = WSManager.getWSById(wsId).tables[0];
         var $header = $("#xcTable-" + tableId +
                         " .flexWrap.flex-mid input[value='Month_integer']");
         $header.parent().parent().find(".flex-right .innerBox").click();

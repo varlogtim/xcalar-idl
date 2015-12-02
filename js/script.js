@@ -765,11 +765,9 @@ function initializeTable() {
         var worksheets = WSManager.getWorksheets();
         var numWorksheets = worksheets.length;
 
-        for (var i = 0; i < numWorksheets; i++) {
-            if (worksheets[i] == null) {
-                continue;
-            }
-            var wsTables = worksheets[i].tables;
+        for (var wsId in worksheets) {
+            var ws = worksheets[wsId];
+            var wsTables = ws.tables;
             var numWsTables = wsTables.length;
 
             if (!hasTable && numWsTables > 0) {
@@ -807,7 +805,7 @@ function initializeTable() {
             }
 
             // create hidden tables
-            var wsHiddenTables = worksheets[i].hiddenTables;
+            var wsHiddenTables = ws.hiddenTables;
             var numHiddenWsTables = wsHiddenTables.length;
             for (var j = 0; j < numHiddenWsTables; j++) {
                 tableId = wsHiddenTables[j];

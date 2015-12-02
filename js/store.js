@@ -105,6 +105,7 @@ function commitToStorage(atStartUp) {
     storage[KVKeys.TI] = gTables;
     storage[KVKeys.WS] = {
         "wsInfos"      : WSManager.getWorksheets(),
+        "wsOrder"      : WSManager.getOrders(),
         "noSheetTables": WSManager.getNoSheetTables(),
         "aggInfos"     : WSManager.getAggInfos()
     };
@@ -160,7 +161,7 @@ function readFromStorage() {
                 tableIndicesLookup = gInfos[KVKeys.TI];
             }
             if (gInfos[KVKeys.WS]) {
-                WSManager.restoreWS(gInfos[KVKeys.WS]);
+                WSManager.restore(gInfos[KVKeys.WS]);
             }
             if (gInfos[KVKeys.DS]) {
                 gDSObjFolder = gInfos[KVKeys.DS];
