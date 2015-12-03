@@ -262,9 +262,7 @@ function hideWorksheetTable(tableId) {
     $("#xcTableWrap-" + tableId).remove();
     $("#rowScroller-" + tableId).remove();
     $('#dagWrap-' + tableId).remove();
-    if ($('.xcTableWrap.active').length === 0) {
-        RowScroller.empty();
-    }
+
     if (gActiveTableId === tableId) {
         gActiveTableId = null;
     }
@@ -569,7 +567,7 @@ function generateTableShell(columns, tableId) {
         if ($prevTable.length !== 0) {
             $prevTable.after(wrapper);
         } else {
-            console.error('Table not appended to the right spot, big problem!');
+            // console.error('Table not appended to the right spot, big problem!');
             $('#mainFrame').append(wrapper);
         }
         // we exclude any tables pending removal because otherwise we wouldn't

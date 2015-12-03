@@ -702,7 +702,7 @@ window.Dag = (function($, Dag) {
                 if ($prevDag.length !== 0) {
                     $prevDag.after(outerDag);
                 } else {
-                    console.error('dag order is incorrect! This is a bug!');
+                    // console.error('dag order is incorrect! This is a bug!');
                     $('.dagArea').append(outerDag);
                 }
             }

@@ -846,6 +846,23 @@ function initializeTable() {
             setupHiddenTable(tableName);
         }
 
+        // set up tables in hidden worksheets
+
+        var hiddenWorksheets = WSManager.getHiddenWS();
+        var numHiddenWsTables = hiddenWorksheets.length;
+        var ws;
+        var numTables;
+        for (var i = 0; i < numHiddenWsTables; i++) {
+            ws = worksheets[hiddenWorksheets[i]];
+            numTables = ws.tempHiddenTables.length;
+            for (var j = 0; j < numTables; j++) {
+
+                tableName = gTables[ws.tempHiddenTables[j]].tableName;
+                delete tableMap[tableName];
+                ++tableCount;
+            }
+        }
+
         // setup leftover tables
         setupOrphanedList(tableMap);
 

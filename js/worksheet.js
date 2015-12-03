@@ -9,7 +9,7 @@ window.WSManager = (function($, WSManager) {
     var tableIdToWSIdMap = {};  // find wsId by table id
     var wsNameToIdMap  = {};  // find wsId by wsName
 
-    var activeWorsheet = null;
+    var activeWorksheet = null;
     // var for naming worksheet automatically
     var defaultName = "Sheet ";
     var nameSuffix = 1;
@@ -34,7 +34,7 @@ window.WSManager = (function($, WSManager) {
         tableIdToWSIdMap = {};
         wsNameToIdMap = {};
         aggInfos = {};
-        activeWorsheet = null;
+        activeWorksheet = null;
         nameSuffix = 1;
         initializeWorksheet();
         initializeHiddenWorksheets();
@@ -89,9 +89,10 @@ window.WSManager = (function($, WSManager) {
         return (wsOrder);
     };
 
+    // returns an array of worksheet Ids
     WSManager.getHiddenWS = function() {
         return (hiddenWS);
-    }
+    };
 
     // Get tables that are not in any worksheets
     WSManager.getNoSheetTables = function() {
@@ -199,7 +200,7 @@ window.WSManager = (function($, WSManager) {
 
     // Get current active worksheet
     WSManager.getActiveWS = function() {
-        return (activeWorsheet);
+        return (activeWorksheet);
     };
 
     // Add table to worksheet
@@ -210,7 +211,7 @@ window.WSManager = (function($, WSManager) {
             return (tableIdToWSIdMap[tableId]);
         } else {
             if (wsId == null) {
-                wsId = activeWorsheet;
+                wsId = activeWorksheet;
             }
 
             setWorksheet(wsId, {"hiddenTables": tableId});
@@ -363,7 +364,7 @@ window.WSManager = (function($, WSManager) {
     //     var tableCopy  = xcHelper.deepCopy(srcTable);
     //     var newTableId = xcHelper.getTableId(newTableName);
 
-    //     activeWorsheet = wsIndex;
+    //     activeWorksheet = wsIndex;
     //     gTables[newTableId] = tableCopy;
     //     // XXX for sample table, should sync frontName with backName since
     //     // there both src sample and the copied can change to real table using
@@ -379,7 +380,7 @@ window.WSManager = (function($, WSManager) {
     //         // xx focusonworksheet expects tableid
     //     })
     //     .fail(function(error) {
-    //         var newTableId = 
+    //         var newTableId =
     //         delete gTables[newTableId];
     //         Alert.error(error);
     //     });
@@ -427,9 +428,9 @@ window.WSManager = (function($, WSManager) {
     WSManager.focusOnWorksheet = function(wsId, notfocusTable, tableId) {
         // update activeWorksheet first
         if (wsId == null) {
-            wsId = activeWorsheet;
+            wsId = activeWorksheet;
         }
-        activeWorsheet = wsId;
+        activeWorksheet = wsId;
 
         var $tabs   = $workSheetTabSection.find(".worksheetTab");
         var $tables = $("#mainFrame .xcTableWrap");
@@ -472,7 +473,6 @@ window.WSManager = (function($, WSManager) {
         if (notfocusTable || $curActiveTables.length === 0) {
             // no table to focus
             RowScroller.empty();
-
             if ($curActiveTables.length > 0) {
                 $curActiveTables.find('.xcTable').each(function() {
                     matchHeaderSizes($(this));
@@ -544,7 +544,7 @@ window.WSManager = (function($, WSManager) {
 
         for (var i = 0, len = wsOrder.length; i < len; i++) {
             var wsId = wsOrder[i];
-            if (!isAll && (wsId === activeWorsheet)) {
+            if (!isAll && (wsId === activeWorksheet)) {
                 continue;
             }
 
@@ -693,7 +693,7 @@ window.WSManager = (function($, WSManager) {
             var $tab = $(this);
 
             if ($tab.hasClass("inActive")) {
-                var curWS = activeWorsheet;
+                var curWS = activeWorksheet;
                 var wsId  = $tab.data("ws");
 
                 WSManager.focusOnWorksheet(wsId);
@@ -732,6 +732,7 @@ window.WSManager = (function($, WSManager) {
         $workSheetTabSection.sortable({
             "revert": 200,
             "axis"  : "x",
+            "distance": 4,
             "handle": ".draggableArea",
             "start" : function(event, ui) {
                 var $tab = $(ui.item).addClass('dragging');
@@ -744,7 +745,7 @@ window.WSManager = (function($, WSManager) {
                     '.tooltip{display: none !important;}' +
                 '</style>';
 
-            $(document.head).append(cursorStyle);
+                $(document.head).append(cursorStyle);
             },
             "stop": function(event, ui) {
                 var $tab = $(ui.item).removeClass("dragging");
@@ -756,9 +757,6 @@ window.WSManager = (function($, WSManager) {
             }
         });
 
-        // $('#hiddenWorksheetsTab').on('click', '.mainTab', function() {
-        //     $(this).siblings('.list').show();
-        // });
         var $hiddenWorksheetsTab = $('#hiddenWorksheetsTab');
         var wsTabsListScroller = new ListScroller($hiddenWorksheetsTab.find('.list'));
         // dropdown list for udf modules and function names
@@ -767,11 +765,17 @@ window.WSManager = (function($, WSManager) {
                 // var module = $li.text();
                 var wsId = $li.data('ws');
                 if (wsId === "all") {
+                    var wsIds = [];
                     $('#hiddenWorksheetsTab').find('li:not(.unhideAll)')
                                              .each(function() {
                         wsId = $(this).data('ws');
-                        unhideWorksheet(wsId);
+                        wsIds.push(wsId);
                     });
+                    wsIds = wsIds.reverse();
+                    var numWs = wsIds.length;
+                    for (var i = 0; i < numWs; i++) {
+                        unhideWorksheet(wsIds[i]);
+                    }
                 } else {
                     unhideWorksheet(wsId);
                 }
@@ -792,7 +796,6 @@ window.WSManager = (function($, WSManager) {
                 delWSHelper(wsId);
             }
         });
-
     }
 
     function renderWSId() {
@@ -831,8 +834,8 @@ window.WSManager = (function($, WSManager) {
             }
         }
         // focus on the first worksheet
-        activeWorsheet = wsOrder[0];
-        WSManager.focusOnWorksheet(activeWorsheet);
+        activeWorksheet = wsOrder[0];
+        WSManager.focusOnWorksheet(activeWorksheet);
     }
 
     function initializeHiddenWorksheets() {
@@ -844,9 +847,7 @@ window.WSManager = (function($, WSManager) {
             $('#bottomTabArea').removeClass('hasHiddenWS');
         } else {
             var listHtml = "";
-            var name;
             var wsId;
-            var id;
             for (var i = 0; i < len; i++) {
                 wsId = hiddenWS[i];
                 listHtml += getHiddenWSHTML(wsId);
@@ -962,12 +963,12 @@ window.WSManager = (function($, WSManager) {
     function rmHandler(wsId, index) {
         commitToStorage();
         // switch to another worksheet
-        if (activeWorsheet === wsId) {
+        if (activeWorksheet === wsId) {
             if (wsOrder[index - 1]) {
-                WSManager.focusOnWorksheet(wsOrder[index - 1], true);
-             } else {
-                WSManager.focusOnWorksheet(wsOrder[0], true);
-             }
+                WSManager.focusOnWorksheet(wsOrder[index - 1]);
+            } else {
+                WSManager.focusOnWorksheet(wsOrder[0]);
+            }
         }
     }
 
@@ -1264,7 +1265,6 @@ window.WSManager = (function($, WSManager) {
         makeWorksheet(wsId, true);
         WSManager.focusOnWorksheet(wsId);
 
-
         RightSideBar.tableBulkAction("add", TableType.WSHidden, wsId);
 
         // XX code if we're archiving hidden tables
@@ -1284,10 +1284,6 @@ window.WSManager = (function($, WSManager) {
         // if ($inactiveTablesList.find('.selected').length) {
         //     $('#submitTablesBtn').click();
         // }
-    }
-
-    function showTabMenu() {
-
     }
 
     return (WSManager);
