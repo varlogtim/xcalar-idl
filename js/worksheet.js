@@ -258,7 +258,7 @@ window.WSManager = (function($, WSManager) {
             "tableId"          : tableId,
             "oldWorksheetIndex": WSManager.getWSOrder(oldWSId),
             "oldWorksheetName" : wsLookUp[oldWSId].name,
-            "newIndex"         : WSManager.getWSOrder(newWSId),
+            "newWorksheetIndex": WSManager.getWSOrder(newWSId),
             "worksheetName"    : wsName
         });
     };
@@ -296,7 +296,7 @@ window.WSManager = (function($, WSManager) {
             "tableId"          : tableId,
             "oldWorksheetIndex": WSManager.getWSOrder(oldWSId),
             "oldWorksheetName" : oldWS.name,
-            "newIndex"         : WSManager.getWSOrder(newWSId),
+            "newWorksheetIndex": WSManager.getWSOrder(newWSId),
             "worksheetName"    : wsName
         });
     };
@@ -547,10 +547,10 @@ window.WSManager = (function($, WSManager) {
         });
 
         SQL.add("Add no sheet tables", {
-            "operation"    : SQLOps.AddNoSheetTables,
-            "tableIds"     : tableIds,
-            "worksheetName": wsLookUp[wsId].name,
-            "wsIndex"      : WSManager.getWSOrder(wsId)
+            "operation"     : SQLOps.AddNoSheetTables,
+            "tableIds"      : tableIds,
+            "worksheetName" : wsLookUp[wsId].name,
+            "worksheetIndex": WSManager.getWSOrder(wsId)
         });
     };
 

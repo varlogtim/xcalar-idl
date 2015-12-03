@@ -177,6 +177,7 @@ var SQLOps = {
     DelWS: "deleteWorksheet",
     MoveTableToWS: "moveTableToWorkSheet",
     AddNoSheetTables: "addNoSheetTables",
+    MoveInactiveTableToWS: "moveInactiveTableToWorksheet",
     CreateFolder: "createFolder",
     DSRename: "dsRename",
     DSDropIn: "dsDropIn",

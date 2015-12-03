@@ -167,6 +167,8 @@ window.Replay = (function($, Replay) {
                 return replayMoveTableToWS(options);
             case SQLOps.AddNoSheetTables:
                 return replayAddNoSheetTables(options);
+            case SQLOps.MoveInactiveTableToWS:
+                return replayMoveInactiveTableToWS(options);
             case SQLOps.CreateFolder:
                 return replayCreateFolder();
             case SQLOps.DSRename:
@@ -298,8 +300,7 @@ window.Replay = (function($, Replay) {
         argsMap[SQLOps.PullCol] = ["colNum", "tableId",
                                     "nameInfo", "pullColOptions"];
         argsMap[SQLOps.SortTableCols] = ["tableId", "direction"];
-        argsMap[SQLOps.MoveTableToWS] = ["tableId", "newIndex"];
-        argsMap[SQLOps.AddNoSheetTables] = ["tableIds", "wsIndex"];
+
         argsMap[SQLOps.DSRename] = ["dsId", "newName"];
         argsMap[SQLOps.DSToDir] = ["folderId"];
         argsMap[SQLOps.Profile] = ["tableId", "colNum"];
@@ -851,8 +852,9 @@ window.Replay = (function($, Replay) {
     function replayRenameWS(options) {
         var wsIndex = options.worksheetIndex;
         var newName = options.newName;
-        $("#worksheetTab-" + wsIndex + " .text").text(newName)
-                                                .trigger(fakeEvent.enter);
+        var wsId = WSManager.getOrders()[wsIndex];
+        $("#worksheetTab-" + wsId + " .text").text(newName)
+                                            .trigger(fakeEvent.enter);
         return (promiseWrapper(null));
     }
 
@@ -860,8 +862,9 @@ window.Replay = (function($, Replay) {
         // UI simulation
         var deferred = jQuery.Deferred();
         var wsIndex  = options.newWorksheetIndex;
+        var wsId = WSManager.getOrders()[wsIndex];
 
-        $("#worksheetTab-" + wsIndex).click();
+        $("#worksheetTab-" + wsId).click();
 
         delayAction(null, "Wait", 2000)
         .then(deferred.resolve)
@@ -876,6 +879,7 @@ window.Replay = (function($, Replay) {
         var originWSLen = WSManager.getWSLen();
         var wsIndex     = options.worksheetIndex;
         var tableAction = options.tableAction;
+        var wsId        = WSManager.getOrders()[wsIndex];
 
         if (originWSLen === 1) {
             // invalid deletion
@@ -883,7 +887,7 @@ window.Replay = (function($, Replay) {
             deferred.reject("This worksheet should not be deleted!");
         }
 
-        $("#worksheetTab-" + wsIndex + " .delete").click();
+        $("#worksheetTab-" + wsId + " .delete").click();
 
         var callback = function() {
             if ($("#alertModal").is(":visible")) {
@@ -920,14 +924,19 @@ window.Replay = (function($, Replay) {
     }
 
     function replayMoveTableToWS(options) {
-        var args = getArgs(options);
-        WSManager.moveTable.apply(window, args);
+        var tableId = getTableId(options.tableId);
+        var wsIndex = options.newWorksheetIndex;
+        var wsId    = WSManager.getOrders()[wsIndex];
+
+        WSManager.moveTable(tableId, wsId);
         return (promiseWrapper(null));
     }
 
     function replayMoveInactiveTableToWS(options) {
-        var args = getArgs(options);
-        WSManager.moveInactiveTable.apply(window, args);
+        var tableId = getTableId(options.tableId);
+        var wsIndex = options.newWorksheetIndex;
+        var wsId    = WSManager.getOrders()[wsIndex];
+        WSManager.moveInactiveTable(tableId, wsId);
         return (promiseWrapper(null));
     }
 
@@ -937,8 +946,10 @@ window.Replay = (function($, Replay) {
             tableIds[i] = getTableId(tableIds[i]);
         }
 
-        var args = getArgs(options);
-        WSManager.addNoSheetTables.apply(window, args);
+        var wsIndex = options.worksheetIndex;
+        var wsId    = WSManager.getOrders()[wsIndex];
+
+        WSManager.addNoSheetTables(tableIds, wsId);
         return (promiseWrapper(null));
     }
 
