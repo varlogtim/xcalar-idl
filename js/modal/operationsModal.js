@@ -1446,6 +1446,7 @@ window.OperationsModal = (function($, OperationsModal) {
         var argType = "string";
         var tmpArg;
         var isBoolean = false;
+        var isNumber = true;
 
         if (types.indexOf("string") > -1 ||
             types.indexOf("mixed") > -1 ||
@@ -1457,16 +1458,16 @@ window.OperationsModal = (function($, OperationsModal) {
         }
 
         tmpArg = arg.toLowerCase();
+        isNumber = !isNaN(Number(arg));
+
+        // boolean is a subclass of number
         if (tmpArg === "true" || tmpArg === "false" ||
-                tmpArg === "t" || tmpArg === "f" ||
-                tmpArg === "0" || tmpArg === "1")
+            tmpArg === "t" || tmpArg === "f" || isNumber)
         {
             isBoolean = true;
-            argType = "string/boolean";
+            argType = "string/boolean/integer/float";
         }
 
-        /** XXX TODO FIXME: Temporarily commented out because of recent fix
-        in backend to now treat boolean as numbers 
         if (types.indexOf("boolean") > -1) {
             // XXX this part might be buggy
             if (isBoolean) {
@@ -1478,11 +1479,11 @@ window.OperationsModal = (function($, OperationsModal) {
                 };
             }
         }
-        */
+
         // the remaining case is float and integer, both is number
         tmpArg = Number(arg);
 
-        if (isNaN(tmpArg)) {
+        if (!isNumber) {
             return {
                 "validType"  : types,
                 "currentType": argType
@@ -1539,6 +1540,10 @@ window.OperationsModal = (function($, OperationsModal) {
                 // XXX potential bug is that existingTypes
                 // has both string and number
                 shouldBeString = existingTypes.hasOwnProperty("string");
+                if (!shouldBeString) {
+                    // when its number
+                    value = parsedVal;
+                }
             } else if (shouldBeBoolean &&
                         (value === "true" || value === "false")) {
                 shouldBeString = false;
