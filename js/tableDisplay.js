@@ -190,9 +190,17 @@ function parallelConstruct(tableId, tablesToRemove, afterStartup) {
             $('#mainFrame').removeClass('empty');
         }
         if (afterStartup) {
-            RightSideBar.addTables([table], IsActive.Active);
+            var existingTableList = $('#activeTablesList')
+                                    .find('[data-id=' + table.tableId +']');
+            if (existingTableList.length) {
+                existingTableList.closest('.tableInfo').removeClass('hiddenWS')
+                .removeAttr('data-toggle data-container title data-original-title');
+            } else {
+                RightSideBar.addTables([table], IsActive.Active);
+            }
+            
         }
-        if ($('.xcTable').length === 1) {
+        if ($('.xcTable:visible').length === 1) {
             focusTable(tableId);
         }
 
@@ -209,7 +217,7 @@ function parallelConstruct(tableId, tablesToRemove, afterStartup) {
 // Removes a table from the display
 // Shifts all the ids
 // Does not delete the table from backend!
-function archiveTable(tableId, del, delayTableRemoval) {
+function archiveTable(tableId, del, delayTableRemoval, tempHide) {
     if (delayTableRemoval) {
         $("#xcTableWrap-" + tableId).addClass('tableToRemove');
         $("#rowScroller-" + tableId).addClass('rowScrollerToRemove');
@@ -224,7 +232,7 @@ function archiveTable(tableId, del, delayTableRemoval) {
         gTables[tableId].active = false;
         gTables[tableId].timeStamp = xcHelper.getTimeInMS();
         gTables[tableId].active = false;
-        WSManager.archiveTable(tableId);
+        WSManager.archiveTable(tableId, tempHide);
         RightSideBar.moveTable(tableId);
     } else {
         var $li = $("#activeTablesList").find('.tableInfo[data-id="'
@@ -248,6 +256,18 @@ function archiveTable(tableId, del, delayTableRemoval) {
 
     // disallow dragging if only 1 table in worksheet
     checkTableDraggable();
+}
+
+function hideWorksheetTable(tableId) {
+    $("#xcTableWrap-" + tableId).remove();
+    $("#rowScroller-" + tableId).remove();
+    $('#dagWrap-' + tableId).remove();
+    if ($('.xcTableWrap.active').length === 0) {
+        RowScroller.empty();
+    }
+    if (gActiveTableId === tableId) {
+        gActiveTableId = null;
+    }
 }
 
 function deleteOrphaned(tableName) {

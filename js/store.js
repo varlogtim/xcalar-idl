@@ -105,6 +105,7 @@ function commitToStorage(atStartUp) {
     storage[KVKeys.WS] = {
         "wsInfos"      : WSManager.getWorksheets(),
         "wsOrder"      : WSManager.getOrders(),
+        "hiddenWS"     : WSManager.getHiddenWS(),
         "noSheetTables": WSManager.getNoSheetTables(),
         "aggInfos"     : WSManager.getAggInfos()
     };

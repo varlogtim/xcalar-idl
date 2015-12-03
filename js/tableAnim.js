@@ -762,7 +762,7 @@ function createTableHeader(tableId) {
     //     tableName = table.tableName;
     // }
     var tableTitleClass = "";
-    if ($('.xcTable').length === 1) {
+    if ($('.xcTable:visible').length === 1) {
         tableTitleClass = " tblTitleSelected";
     }
 
@@ -2845,12 +2845,19 @@ function dropdownClick($el, options) {
         return;
     }
 
-    var tableId = xcHelper.parseTableId($el.closest(".xcTableWrap"));
+    if (options.type !== "tabMenu") {
+        var tableId = xcHelper.parseTableId($el.closest(".xcTableWrap"));
+    }
+    
     var $menu;
     var $subMenu;
     var $allMenus;
     var menuHeight;
     $('.menu .selected').removeClass('selected');
+
+    if (typeof options.callback === "function") {
+        options.callback();
+    }
 
     if (options.type === "tableDropdown") {
         $menu = $('#tableMenu');
@@ -2953,6 +2960,8 @@ function dropdownClick($el, options) {
             $menu.find(".tdJsonModal").addClass("hidden");
             $menu.find(".tdUnnest").addClass("hidden");
         }
+    } else if (options.type === "tabMenu") {
+        $menu = $('#worksheetTabMenu');
     }
 
     if (options.type !== "tdDropdown") {
@@ -3007,6 +3016,10 @@ function dropdownClick($el, options) {
         left = $el[0].getBoundingClientRect().left + leftMargin;
     }
 
+    if (options.offsetX) {
+        left += options.offsetX;
+    }
+
     $menu.css({"top": top, "left": left}).show();
     $menu.children('ul').scrollTop(0);
 
@@ -3034,7 +3047,7 @@ function dropdownClick($el, options) {
         $menu.css('left', left).addClass('leftColMenu');
     }
     //positioning if td menu is below the screen
-    if (options.type === "tdDropdown") {
+    if (options.type === "tdDropdown" || options.type === "tabMenu") {
         if (top + $menu.height() + 5 > $(window).height()) {
             top -= ($menu.height() + 20);
             $menu.css('top', top);

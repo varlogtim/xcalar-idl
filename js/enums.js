@@ -61,6 +61,7 @@ var TableType = {
     "Active"  : "active",
     "Agg"     : "aggregate",
     "Orphan"  : "orphaned",
+    "WSHidden": "hidden",
     "Unknown" : "unknown source"
 };
 

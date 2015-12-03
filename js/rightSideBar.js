@@ -136,7 +136,7 @@ window.RightSideBar = (function($, RightSideBar) {
         RightSideBar.addTables([table], IsActive.Active);
     };
 
-    RightSideBar.tableBulkAction = function(action, tableType) {
+    RightSideBar.tableBulkAction = function(action, tableType, wsId) {
         var deferred    = jQuery.Deferred();
         var validAction = ["add", "delete"];
 
@@ -144,17 +144,42 @@ window.RightSideBar = (function($, RightSideBar) {
         xcHelper.assert(validAction.indexOf(action) >= 0);
 
         var $tableList;
+        var hiddenWS = false;
 
         if (tableType === TableType.InActive) {
             $tableList = $('#archivedTableList');
+        } else if (tableType === TableType.WSHidden) {
+            $tableList = $('#activeTablesList');
+            hiddenWS = true;
         } else if (tableType === TableType.Orphan) {
             $tableList = $('#orphanedTableList');
         } else if (tableType === TableType.Agg) {
             $tableList = $("#aggregateTableList");
         }
 
-        var $tablesSelected = $tableList.find(".addTableBtn.selected")
+        var $tablesSelected;
+        var tableIds;
+        if (hiddenWS) {
+            $tablesSelected = $();
+            // $tablesSelected = $tableList.find(".worksheet-" + wsId)
+            //                             .closest(".tableInfo");
+            // $tablesSelected.removeClass('hiddenWS');
+            var tableIds = WSManager.getWorksheets()[wsId].tables;
+            // var $activeTablesList = $('#activeTablesList').find('.tableList');
+            // for (var i = 0; i < tableIds.length; i++) {
+            //     var $tableItem  = $activeTablesList
+            //                       .find('[data-id=' + tableIds[i] + ']');
+            //     // $tablesSelected = $tablesSelected.add($tableItem);
+            //     $tableItem.appendTo($activeTablesList);
+            // }
+            $tablesSelected = $tableList.find(".worksheet-" + wsId)
                                         .closest(".tableInfo");
+            // $tablesSelected.removeClass('hiddenWS');
+        } else {
+            $tablesSelected = $tableList.find(".addTableBtn.selected")
+                                        .closest(".tableInfo");
+        }
+        
         var $buttons = $tableList.find('.btnLarge');
         var promises = [];
         var failures = [];
@@ -166,7 +191,14 @@ window.RightSideBar = (function($, RightSideBar) {
                 var innerDeferred = jQuery.Deferred();
 
                 var $li     = $(ele);
-                var tableId = $li.data("id");
+                var tableId;
+                if (hiddenWS) {
+                    tableId = tableIds[index];
+                } else {
+                    tableId = $li.data("id");
+                }
+
+                console.log(tableId)
                 var table   = gTables[tableId];
                 var tableName;
 
@@ -244,7 +276,7 @@ window.RightSideBar = (function($, RightSideBar) {
                                              AfterStartup.After, null));
                         })
                         .then(function() {
-                            doneHandler($li, tableName);
+                            doneHandler($li, tableName, true);
                             innerDeferred.resolve();
                         })
                         .fail(function(error) {
@@ -293,15 +325,17 @@ window.RightSideBar = (function($, RightSideBar) {
 
         return (deferred.promise());
 
-        function doneHandler($li, tableName) {
+        function doneHandler($li, tableName, isHiddenWS) {
             var $timeLine = $li.closest(".timeLine");
 
-            if (gMinModeOn) {
-                handlerCallback();
-            } else {
-                $li.addClass("transition").slideUp(150, function() {
+            if (!isHiddenWS) {
+                if (gMinModeOn) {
                     handlerCallback();
-                });
+                } else {
+                    $li.addClass("transition").slideUp(150, function() {
+                        handlerCallback();
+                    });
+                }
             }
 
             // Should add table id/tableName!
@@ -685,6 +719,9 @@ window.RightSideBar = (function($, RightSideBar) {
         });
 
         $('#activeTablesList').on("click", ".column", function() {
+            if ($(this).closest('.tableInfo').hasClass('hiddenWS')) {
+                return;
+            }
             focusOnTableColumn($(this));
         });
     }
@@ -1045,6 +1082,23 @@ window.RightSideBar = (function($, RightSideBar) {
 
             if ($('#archivedTableList').find('.tableInfo').length !== 0) {
                 $('#archivedTableList .secondButtonWrap').show();
+            }
+
+            // set hiddenWS class to tables belonging to hidden worksheets
+            var hiddenWS = WSManager.getHiddenWS();
+            var numHidden = hiddenWS.length;
+            var wsId;
+            var $activeTablesList = $('#activeTablesList');
+            for (var j = 0; j < numHidden; j++) {
+                wsId = hiddenWS[j];
+                $activeTablesList.find('.worksheet-' + wsId)
+                                 .closest('.tableInfo')
+                                 .addClass('hiddenWS')
+                                 .attr({
+                                    'data-toggle': 'tooltip',
+                                    'data-container': 'body',
+                                    'data-original-title': 'worksheet is hidden'
+                                  });
             }
         }
     }
