@@ -1430,7 +1430,7 @@ function XcalarListFiles(url) {
 function XcalarMakeRetina(retName, tableArray, sqlOptions) {
     if ([null, undefined].indexOf(tHandle) !== -1 ||
         retName === "" || retName == null ||
-        tableArray == null || tableArray.length > 0)
+        tableArray == null || tableArray.length <= 0)
     {
         return (promiseWrapper(null));
     }
