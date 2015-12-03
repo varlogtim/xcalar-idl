@@ -572,7 +572,8 @@ window.TestSuite = (function($, TestSuite) {
             $("#inactiveTablesList .addTableBtn").eq(1).click();
             $("#submitTablesBtn").click();
             $("#rightSideBar .iconClose").click();
-            $("#worksheetTabs .worksheetTab:first-child").click()
+            $("#worksheetTabs .worksheetTab:first-child")
+                                                .trigger(fakeEvent.mousedown);
             return (checkExists(".xcTableWrap:eq(2) .tableTitle " +
                                 ".dropdownBox .innerBox"));
         })
@@ -594,6 +595,10 @@ window.TestSuite = (function($, TestSuite) {
         })
         .then(function() {
             TestSuite.pass(deferred, testName, currentTestNumber);
+        })
+        .fail(function() {
+            TestSuite.fail(deferred, testName, currentTestNumber,
+                           "newWorksheetTest failed");
         });
     }
 
@@ -776,7 +781,8 @@ window.TestSuite = (function($, TestSuite) {
     }
 
     function corrTest(deferred, testName, currentTestNumber) {
-        var tableId = (WSManager.getWorksheets())[1].tables[0];
+        var wsId = WSManager.getOrders()[1];
+        var tableId = WSManager.getWSById(wsId).tables[0];
         $("#xcTheadWrap-" + tableId + " .dropdownBox .innerBox").click();
         $("#tableSubMenu .correlation").trigger(fakeEvent.mouseup);
         checkExists(".aggTableField:contains('-0.4')")
@@ -790,7 +796,8 @@ window.TestSuite = (function($, TestSuite) {
     }
 
     function aggTest(deferred, testName, currentTestNumber) {
-        var tableId = (WSManager.getWorksheets())[1].tables[0];
+        var wsId = WSManager.getOrders()[1];
+        var tableId = WSManager.getWSById(wsId).tables[0];
         $("#xcTheadWrap-" + tableId + " .dropdownBox .innerBox").click();
         $("#tableSubMenu .aggregates").trigger(fakeEvent.mouseup);
         checkExists(".spinny", null, {notExist: true})

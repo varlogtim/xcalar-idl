@@ -1458,7 +1458,8 @@ window.OperationsModal = (function($, OperationsModal) {
 
         tmpArg = arg.toLowerCase();
         if (tmpArg === "true" || tmpArg === "false" ||
-                tmpArg === "t" || tmpArg === "f")
+                tmpArg === "t" || tmpArg === "f" ||
+                tmpArg === "0" || tmpArg === "1")
         {
             isBoolean = true;
             argType = "string/boolean";
