@@ -1464,6 +1464,8 @@ window.OperationsModal = (function($, OperationsModal) {
             argType = "string/boolean";
         }
 
+        /** XXX TODO FIXME: Temporarily commented out because of recent fix
+        in backend to now treat boolean as numbers 
         if (types.indexOf("boolean") > -1) {
             // XXX this part might be buggy
             if (isBoolean) {
@@ -1475,7 +1477,7 @@ window.OperationsModal = (function($, OperationsModal) {
                 };
             }
         }
-
+        */
         // the remaining case is float and integer, both is number
         tmpArg = Number(arg);
 
