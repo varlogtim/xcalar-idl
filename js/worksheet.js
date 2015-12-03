@@ -102,6 +102,19 @@ window.WSManager = (function($, WSManager) {
         tables.splice(desIndex, 0, t);
     };
 
+    // For reorder worksheet
+    WSManager.reorderWS = function(oldIndex, newIndex) {
+        // reorder wsOrder
+        var wsId = wsOrder.splice(oldIndex, 1)[0];
+        wsOrder.splice(newIndex, 0, wsId);
+        SQL.add("Reorder Worksheet", {
+            "operation"        : SQLOps.ReorderWS,
+            "worksheetName"    : wsLookUp[wsId].name,
+            "oldWorksheetIndex": oldIndex,
+            "newWorksheetIndex": newIndex
+        });
+    };
+
     // For archive table use
     WSManager.archiveTable = function(tableId) {
         var wsId = tableIdToWSIdMap[tableId];
@@ -637,7 +650,7 @@ window.WSManager = (function($, WSManager) {
                 }
             },
             "dblclick": function() {
-                $(this).focus();   
+                $(this).focus();
             }
         }, ".worksheetTab .text");
 
@@ -671,21 +684,20 @@ window.WSManager = (function($, WSManager) {
         var initialIndex;
 
         $workSheetTabSection.sortable({
-            revert: 200,
-            axis  : "x",
-            start: function(event, ui) {
-                initialIndex = $(ui.item).index();
+            "revert": 200,
+            "axis"  : "x",
+            "start" : function(event, ui) {
+                var $tab = $(ui.item).addClass("dragging");
+                initialIndex = $tab.index();
             },
-            stop: function(event, ui) {
-                var newIndex = $(ui.item).index();
+            "stop": function(event, ui) {
+                var $tab = $(ui.item).removeClass("dragging");
+                var newIndex = $tab.index();
                 if (initialIndex !== newIndex) {
-                    // reorder wsOrder
-                    var tabId = wsOrder.splice(initialIndex, 1)[0]
-                    wsOrder.splice(newIndex, 0, tabId);
+                    WSManager.reorderWS(initialIndex, newIndex);
                 }
             }
         });
-
     }
 
     function renderWSId() {

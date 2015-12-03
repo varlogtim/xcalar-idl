@@ -215,6 +215,8 @@ window.SQL = (function($, SQL) {
                 // fallthrough
             case (SQLOps.SwitchWS):
                 // fallthrough
+            case (SQLOps.ReorderWS):
+                // fallthrough
             case (SQLOps.DelWS):
                 // fallthrough
             case (SQLOps.MoveTableToWS):

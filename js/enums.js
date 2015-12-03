@@ -174,6 +174,7 @@ var SQLOps = {
     AddWS: "addWorksheet",
     RenameWS: "renameWorksheet",
     SwitchWS: "switchWorksheet",
+    ReorderWS: "reorderWorksheet",
     DelWS: "deleteWorksheet",
     MoveTableToWS: "moveTableToWorkSheet",
     AddNoSheetTables: "addNoSheetTables",

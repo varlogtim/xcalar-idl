@@ -161,6 +161,8 @@ window.Replay = (function($, Replay) {
                 return replayRenameWS(options);
             case SQLOps.SwitchWS:
                 return replaySwitchWS(options);
+            case SQLOps.ReorderWS:
+                return replayReorderWS(options);
             case SQLOps.DelWS:
                 return replayDelWS(options);
             case SQLOps.MoveTableToWS:
@@ -871,6 +873,27 @@ window.Replay = (function($, Replay) {
         .fail(deferred.reject);
 
         return (deferred.promise());
+    }
+
+    function replayReorderWS(options) {
+        var oldWSIndex = options.oldWorksheetIndex;
+        var newWSIndex = options.newWorksheetIndex;
+
+        var $tabs = $("#worksheetTabs .worksheetTab");
+        var $dragTab = $tabs.eq(oldWSIndex);
+        var $targetTab = $tabs.eq(newWSIndex);
+
+        if (newWSIndex > oldWSIndex) {
+            $targetTab.after($dragTab);
+        } else if (newWSIndex < oldWSIndex) {
+            $targetTab.before($dragTab);
+        } else {
+            console.error("Reorder error, same worksheet index!");
+        }
+
+        WSManager.reorderWS(oldWSIndex, newWSIndex);
+
+        return promiseWrapper(null);
     }
 
     function replayDelWS(options) {

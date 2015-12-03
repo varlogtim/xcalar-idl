@@ -1703,6 +1703,13 @@ ul.inputMenu {
             .flex(0 0 auto);
         }
 
+        &.dragging {
+            pointer-events: none;
+            .label {
+                cursor: default;
+            }
+        }
+
         &:only-child {
             .delete {
                 display: none !important;
