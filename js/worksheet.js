@@ -617,7 +617,10 @@ window.WSManager = (function($, WSManager) {
                 var $tab = $text.closest(".worksheetTab");
 
                 $tab.addClass("focus");
+                // $tab.css('pointer-events','none');
+                // $text.css('pointer-events', 'initial');
                 $tab.find(".label").mouseenter();  // close tooltip
+                $workSheetTabSection.sortable( "disable" );
             },
             "blur": function() {
                 var $text = $(this);
@@ -625,17 +628,21 @@ window.WSManager = (function($, WSManager) {
                 $text.text($text.data("title"));
                 $text.scrollLeft(0);
                 $text.closest(".worksheetTab").removeClass("focus");
+                $workSheetTabSection.sortable( "enable" );
             },
             "keypress": function(event) {
                 if (event.which === keyCode.Enter) {
                     event.preventDefault();
                     renameWorksheet($(this));
                 }
+            },
+            "dblclick": function() {
+                $(this).focus();   
             }
         }, ".worksheetTab .text");
 
         // switch worksheet
-        $workSheetTabSection.on("click", ".worksheetTab", function () {
+        $workSheetTabSection.on("mousedown", ".worksheetTab", function () {
             var $tab = $(this);
 
             if ($tab.hasClass("inActive")) {
@@ -660,6 +667,25 @@ window.WSManager = (function($, WSManager) {
             event.stopPropagation();
             delWSHelper(wsId);
         });
+
+        var initialIndex;
+
+        $workSheetTabSection.sortable({
+            revert: 200,
+            axis  : "x",
+            start: function(event, ui) {
+                initialIndex = $(ui.item).index();
+            },
+            stop: function(event, ui) {
+                var newIndex = $(ui.item).index();
+                if (initialIndex !== newIndex) {
+                    // reorder wsOrder
+                    var tabId = wsOrder.splice(initialIndex, 1)[0]
+                    wsOrder.splice(newIndex, 0, tabId);
+                }
+            }
+        });
+
     }
 
     function renderWSId() {

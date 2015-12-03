@@ -1693,7 +1693,7 @@ ul.inputMenu {
 
     .worksheetTab {
         .size(@width: 201px, @height: 35px);
-        .position(relative);
+        .position(relative, @top: ~"0px !important");
         float: left;
         .flex(0 0 201px);
         margin-right: 10px;
@@ -1820,7 +1820,7 @@ ul.inputMenu {
 
         &.inActive {
             .size (@width: 172px, @height: 28px);
-            .position(@top: 6px);
+            .position(@top: ~"6px !important");
             .noSelection;
             .flex(0 1 auto);
 

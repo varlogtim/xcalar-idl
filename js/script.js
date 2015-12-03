@@ -763,9 +763,11 @@ function initializeTable() {
         var tableId;
         var currentTable;
         var worksheets = WSManager.getWorksheets();
-        var numWorksheets = worksheets.length;
+        var wsOrder = WSManager.getOrders();
+        var numWorksheets = wsOrder.length;
 
-        for (var wsId in worksheets) {
+        for (var i = 0; i < numWorksheets; i++) {
+            var wsId = wsOrder[i];
             var ws = worksheets[wsId];
             var wsTables = ws.tables;
             var numWsTables = wsTables.length;
