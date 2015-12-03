@@ -9,10 +9,12 @@ SourceTypeT = {
   'SrcUnknown' : 0,
   'SrcDataset' : 1,
   'SrcTable' : 2,
-  'SrcConstant' : 3
+  'SrcConstant' : 3,
+  'SrcExport' : 4
 };
-SourceTypeTStr = {0 : 'SrcUnknown',
-1 : 'SrcDataset',
-2 : 'SrcTable',
-3 : 'SrcConstant'
+SourceTypeTStr = {0 : 'Unknown',
+1 : 'Dataset',
+2 : 'Table',
+3 : 'Constant',
+4 : 'Export'
 };

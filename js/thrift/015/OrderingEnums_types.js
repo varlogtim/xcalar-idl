@@ -10,7 +10,7 @@ XcalarOrderingT = {
   'XcalarOrderingAscending' : 3,
   'XcalarOrderingDescending' : 5
 };
-XcalarOrderingTStr = {0 : 'XcalarOrderingUnordered',
-3 : 'XcalarOrderingAscending',
-5 : 'XcalarOrderingDescending'
+XcalarOrderingTStr = {0 : 'Unordered',
+3 : 'Ascending',
+5 : 'Descending'
 };

@@ -112,16 +112,12 @@ window.ExportModal = (function($, ExportModal) {
            
             restoreExportPaths(targs);
             modalHelper.setup();
-
-          
-
+            
             if (gMinModeOn) {
                 $exportModal.show();
             } else {
                 $exportModal.fadeIn(400);
             }
-
-            
 
             $selectableThs.addClass('modalHighlighted');
             var allColNames = "";
@@ -393,7 +389,7 @@ window.ExportModal = (function($, ExportModal) {
         var $exportList = $('#exportLists').find('ul');
         var lis = '<li class="hint">Choose a target</li>';
         for (var i = 0; i < numTargets; i++) {
-            lis += "<li>" + targets[i].name + "</li>";
+            lis += "<li>" + targets[i].hdr.name + "</li>";
         }
         $exportList.html(lis);
         var $defaultLi = $exportList.find('li').filter(function() {

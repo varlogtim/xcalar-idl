@@ -4134,7 +4134,7 @@ window.ExportTarget = (function($, ExportTarget) {
             var numTargs = targs.numTargets;
             var types = [];
             for (var i = 0; i < numTargs; i++) {
-                var type = DsTargetTypeTStr[targets[i].type];
+                var type = DsTargetTypeTStr[targets[i].hdr.type];
                 if (type === "file") {
                     type = "Local Filesystem";
                 } else if (type === "odbc") {
@@ -4146,7 +4146,12 @@ window.ExportTarget = (function($, ExportTarget) {
                     typeIndex = types.length - 1;
                     exportTargets.push({name: type, targets: []});
                 }
-                exportTargets[typeIndex].targets.push(targets[i].name);
+                exportTargets[typeIndex].targets.push(targets[i].hdr.name);
+                // Here we can make use of targets[i].specificInput.(odbcInput|
+                // sfInput).(connectionString|url) to display more information
+                // For eg for sfInput, we can now get back the exact location.
+                // We no longer require the users to memorize where default
+                // points to
             }
             restoreGrids();
         })

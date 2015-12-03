@@ -560,8 +560,9 @@ function XcalarDestroyDataset(dsName, sqlOptions) {
     
     
     dsName = parseDS(dsName);
-    var workItem = xcalarDestroyDatasetWorkItem(dsName);
-    var def1 = xcalarDestroyDataset(tHandle, dsName);
+    var workItem = xcalarDeleteDagNodesWorkItem(dsName,
+                                                SourceTypeT.SrcDataset);
+    var def1 = xcalarDeleteDagNodes(tHandle, dsName, SourceTypeT.SrcDataset);
     var def2 = XcalarGetQuery(workItem);
 
     jQuery.when(def1, def2)
@@ -663,8 +664,10 @@ function XcalarDeleteTable(tableName, sqlOptions) {
     if (insertError(arguments.callee, deferred)) {
         return (deferred.promise());
     }
-    var workItem = xcalarDeleteTableWorkItem(tableName);
-    var def1 = xcalarDeleteTable(tHandle, tableName);
+    var workItem = xcalarDeleteDagNodesWorkItem(tableName,
+                                                SourceTypeT.SrcTable);
+    var def1 = xcalarDeleteDagNodes(tHandle, tableName,
+                                    SourceTypeT.SrcTable);
     var def2 = XcalarGetQuery(workItem);
     jQuery.when(def1, def2)
     .then(function(ret1, ret2) {
@@ -1424,7 +1427,7 @@ function XcalarListFiles(url) {
 // and give it all new DagNodeIds. So when you call updateRetina, make sure to
 // pass in the DagNodeIds that are part of this new Retina instead of the
 // original DAG
-function XcalarMakeRetina(retName, tableArray) {
+function XcalarMakeRetina(retName, tableArray, sqlOptions) {
     if ([null, undefined].indexOf(tHandle) !== -1 ||
         retName === "" || retName == null ||
         tableArray == null || tableArray.length > 0)
@@ -1436,14 +1439,19 @@ function XcalarMakeRetina(retName, tableArray) {
     if (insertError(arguments.callee, deferred)) {
         return (deferred.promise());
     }
-    deferred.resolve(StatusT.StatusOk);
-    /**
-    xcalarMakeRetina(tHandle, retName, tableArray)
-    .then(deferred.resolve)
-    .fail(function(error) {
-        deferred.reject(thriftLog("XcalarMakeRetina", error));
+    var workItem = xcalarMakeRetinaWorkItem(retName, tableArray);
+    var def1 = xcalarMakeRetina(tHandle, retName, tableArray);
+    var def2 = XcalarGetQuery(workItem);
+    jQuery.when(def1, def2)
+    .then(function(ret1, ret2) {
+        // SQL.add("Create Retina", sqlOptions, ret2);
+        deferred.resolve(ret1);
+    })
+    .fail(function(error1, erro2) {
+        var thriftError = thriftLog("XcalarMakeRetina", error1, error2);
+        SQL.errorLog("Make Retina", sqlOptions, null, thriftError);
+        deferred.reject(thriftError);
     });
-    */
     return (deferred.promise());
 }
         
@@ -1460,17 +1468,11 @@ function XcalarListRetinas() {
         return (deferred.promise());
     }
 
-    var temp = {};
-    temp.numRetinas = 2;
-    temp.retinaDescs = ["retina1", "retina2"];
-    deferred.resolve(temp);
-    /**
     xcalarListRetinas(tHandle)
     .then(deferred.resolve)
     .fail(function(error) {
         deferred.reject(thriftLog("XcalarListRetinas", error));
     });
-    */
     return (deferred.promise());
 }
 
@@ -1485,20 +1487,11 @@ function XcalarGetRetina(retName) {
         return (deferred.promise());
     }
 
-    var temp = {};
-    temp.retinaDesc = {};
-    temp.retinaDesc.retinaName = retName;
-    temp.retinaDag = {}; // This is the GetDag output.
-                         // Basically what you get when you call XcalarGetDag
-    deferred.resolve(temp);
-    
-    /**
     xcalarGetRetina(retName)
     .then(deferred.resolve)
     .fail(function(error) {
         deferred.reject(thriftLog("XcalarGetRetina", error));
     });
-    */
     return (deferred.promise());
 }
 
@@ -1516,7 +1509,8 @@ function XcalarGetRetina(retName) {
 // replaced with "filter(<opera>(<colName>, <val>))"
 // val = \"hello\"
 // <argument> is used to denote a parameter
-function XcalarUpdateRetina(retName, dagNodeId, paramType, paramValue) {
+function XcalarUpdateRetina(retName, dagNodeId, paramType, paramValue,
+                            sqlOptions) {
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return (promiseWrapper(null));
     }
@@ -1526,15 +1520,21 @@ function XcalarUpdateRetina(retName, dagNodeId, paramType, paramValue) {
         return (deferred.promise());
     }
 
-    deferred.resolve(StatusT.StatusOk);
-    /**
-    xcalarUpdateRetina(tHandle, retName, dagNodeId, funcApiEnum,
-                        parameterizedInput)
-    .then(deferred.resolve)
-    .fail(function(error) {
-        deferred.reject(thriftLog("XcalarUpdateRetina", error));
+    var workItem = xcalarUpdateRetinaWorkItem(retName, dagNodeId, paramType,
+                                              paramValue);
+    var def1 = xcalarUpdateRetina(tHandle, retName, dagNodeId, paramType,
+                                  paramValue);
+    var def2 = xcalarGetQuery(workItem);
+    jQuery.when(def1, def2)
+    .then(function(ret1, ret2) {
+        // SQL.add("Update Retina", sqlOptions, ret2);
+        deferred.resolve(ret1);
+    })
+    .fail(function(error1, error2) {
+        var thriftError = thriftLog("XcalarUpdateRetina", error);
+        SQL.errorLog("Update Retina", sqlOptions, null, thriftError);
+        deferred.reject(thriftLog(thriftError));
     });
-    */
     return (deferred.promise());
 }
 
@@ -1544,7 +1544,7 @@ function XcalarUpdateRetina(retName, dagNodeId, paramType, paramValue) {
 // For example, if my paramValue was "filter(<opera>(<colName>, <val>))"
 // then, params = [{"parameterName":"opera", "parameterValue":"lt"},
 // {"pN":"colName", "pV":"column5"}, {, "pV":"\"hello\""}]
-function XcalarExecuteRetina(retName, params) {
+function XcalarExecuteRetina(retName, params, sqlOptions) {
     if (retName === "" || retName == null ||
         [null, undefined].indexOf(tHandle) !== -1) {
         return (promiseWrapper(null));
@@ -1555,18 +1555,24 @@ function XcalarExecuteRetina(retName, params) {
         return (deferred.promise());
     }
 
-    deferred.resolve(StatusT.StatusOk);
-
-    /**
-    var randomTableName = "table" + Math.floor(Math.random() * 1000000000 + 1);
-
-    xcalarExecuteRetina(tHandle, retName, randomTableName,
-                        retName + ".csv", params)
-    .then(deferred.resolve)
-    .fail(function(error) {
-        deferred.reject(thriftLog("XcalarExecuteRetina", error));
+    var randomTableName = "retinaTable" +
+                          Math.floor(Math.random() * 1000000000 + 1);
+    var fileName = retName + ".csv";
+    var workItem = xcalarExecuteRetinaWorkItem(retName, randomTableName,
+                                               fileName, params);
+    var def1 = xcalarExecuteRetina(tHandle, retName, randomTableName, fileName,
+                                   params);
+    var def2 = xcalarGetQuery(workItem);
+    jQuery.when(def1, def2)
+    .then(function(ret1, ret2) {
+        // SQL.add("Execute Retina", sqlOptions, ret2);
+        deferred.resolve(ret1);
+    })
+    .fail(function(error1, error2) {
+        var thriftError = thriftLog("XcalarExecuteRetina", error1, error2);
+        SQL.errorLog("Execute Retina", sqlOptions, null, thriftError);
+        deferred.reject(thriftError);
     });
-    */
     return (deferred.promise());
 }
 
@@ -1580,31 +1586,15 @@ function XcalarListParametersInRetina(retName) {
         return (deferred.promise());
     }
 
-    var temp = {};
-    temp.numParameters = 3;
-    var temp1 = {};
-    temp1.parameterName = "param1";
-    temp1.parameterValue = "5";
-    var temp2 = {};
-    temp2.parameterName = "param2";
-    temp2.parameterValue = "test2";
-    var temp3 = {};
-    temp3.parameterName = "param3";
-    temp3.parameterValue = "testing3";
-    temp.parameters = [temp1, temp2, temp3];
-    deferred.resolve(temp);
-
-    /**
     xcalarListParametersInRetina(tHandle, retName)
     .then(deferred.resolve)
     .fail(function(error) {
         deferred.reject(thriftLog("XcalarListParametersInRetina", error));
     });
-    */
     return (deferred.promise());
 }
 
-function XcalarDeleteRetina(retName) {
+function XcalarDeleteRetina(retName, sqlOptions) {
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return (promiseWrapper(null));
     }
@@ -1613,33 +1603,45 @@ function XcalarDeleteRetina(retName) {
     if (insertError(arguments.callee, deferred)) {
         return (deferred.promise());
     }
-    deferred.resolve(StatusT.StatusOk);
-    /**
-    xcalarApiDeleteRetina(tHandle, retName)
-    .then(deferred.resolve)
-    .fail(function(error) {
-        deferred.reject(thriftLog("XcalarApiDeleteRetina", error));
-    });*/
-    return (deferred.promise());
-}
-
-function XcalarDeleteSched(schedName) {
-    if ([null, undefined].indexOf(tHandle) !== -1) {
-        return (promiseWrapper(null));
-    }
-
-    var deferred = jQuery.Deferred();
-    if (insertError(arguments.callee, deferred)) {
-        return (deferred.promise());
-    }
-    deferred.resolve(StatusT.StatusOk);
-    /**
-    xcalarDeleteSchedTask(tHandle, schedName)
-    .then(deferred.resolve)
-    .fail(function(error) {
-        deferred.reject(thriftLog("XcalarDeleteSchedule", error));
+    var workItem = xcalarApiDeleteRetinaWorkItem(retName);
+    var def1 = xcalarApiDeleteRetina(retName);
+    var def2 = XcalarGetQuery(workItem);
+    
+    jQuery.when(def1, def2)
+    .then(function(ret1, ret2) {
+        // SQL.add("Delete Retina", sqlOptions, ret2);
+        deferred.resolve(ret1);
+    })
+    .fail(function(error1, error2) {
+        var thriftError = thriftLog("XcalarApiDeleteRetina", error1, error2);
+        SQL.errorLog("Delete Retina", error1, error2);
+        deferred.reject(thriftError);
     });
-    */
+    return (deferred.promise());
+}
+
+function XcalarDeleteSched(schedName, sqlOptions) {
+    if ([null, undefined].indexOf(tHandle) !== -1) {
+        return (promiseWrapper(null));
+    }
+
+    var deferred = jQuery.Deferred();
+    if (insertError(arguments.callee, deferred)) {
+        return (deferred.promise());
+    }
+    var workItem = xcalarDeleteSchedTaskWorkItem(schedName);
+    var def1 = xcalarDeleteSchedTask(tHandle, schedName);
+    var def2 = XcalarGetQuery(workItem);
+    jQuery.when(def1, def2)
+    .then(function(ret1, ret2) {
+        SQL.add("Delete Schedule", sqlOptions, ret2);
+        deferred.resolve(ret1);
+    })
+    .fail(function(error1, error2) {
+        var thriftError = thriftLog("XcalarDeleteSchedule", error1, error2);
+        SQL.errorLog("Delete Schedule", sqlOptions, null, thriftError);
+        deferred.reject(thriftError);
+    });
     return (deferred.promise());
 }
 
@@ -1655,7 +1657,8 @@ function XcalarDeleteSched(schedName) {
 //  2: i64 numParameters
 //  3: list<XcalarApiParameterT> parameters
 // }
-function XcalarCreateSched(schedName, schedInSec, period, recurCount, type, arg)
+function XcalarCreateSched(schedName, schedInSec, period, recurCount, type, arg
+                           , sqlOptions)
 {
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return (promiseWrapper(null));
@@ -1665,16 +1668,21 @@ function XcalarCreateSched(schedName, schedInSec, period, recurCount, type, arg)
     if (insertError(arguments.callee, deferred)) {
         return (deferred.promise());
     }
-    deferred.resolve(StatusT.StatusOk);
-    
-    /**
-    xcalarScheduleTask(tHandle, schedName, schedInSec, period, recurCount, type,
-                       arg)
-    .then(deferred.resolve)
-    .fail(function(error) {
-        deferred.reject(thriftLog("XcalarCreateSchedule", error));
+    var workItem = xcalarScheduleTaskWorkItem(schedName, schedInSec, period,
+                                              recurCount, type, arg);
+    var def1 = xcalarScheduleTask(tHandle, schedName, schedInSec, period,
+                                  recurCount, type, arg);
+    var def2 = xcalarGetQuery(workItem);
+    jQuery.when(ret1, ret2)
+    .then(function(ret1, ret2) {
+        // SQL.add("Create Schedule", sqlOptions, ret2);
+        deferred.resolve(ret1);
+    })
+    .fail(function(error1, error2) {
+        var thriftError = thriftLog("XcalarCreateSchedule", error1, error2);
+        SQL.errorLog("Create Schedule", sqlOptions, null, thriftError);
+        deferred.reject(thriftError);
     });
-    */
     return (deferred.promise());
 }
 
@@ -1689,21 +1697,11 @@ function XcalarListSchedules(namePattern) {
         return (deferred.promise());
     }
 
-    var temp = {};
-    temp.numSchedTask = 2;
-    temp.schedTaskInfo = [];
-    temp.schedTaskInfo.push({"name": "scheduleNameHere",
-                             "lastExecTime": 109049573, // Unix timestamp
-                             "lastExecStatus": StatusT.StatusOk // StatusT stuff
-                             });
-    deferred.resolve(temp)
-    /**
     xcalarListSchedTask(tHandle, namePattern)
     .then(deferred.resolve)
     .fail(function(error) {
         deferred.reject(thriftLog("XcalarCreateSchedule", error));
     });
-    */
     return (deferred.promise());
 }
 
@@ -1798,7 +1796,7 @@ function XcalarKeyDelete(key, scope) {
     return (deferred.promise());
 }
 
-function XcalarKeyReplaceIfEqual(key, scope, oldValue, newValue) {
+function XcalarKeySetIfEqual(scope, persist, keyCompare, oldValue, newValue) {
     if (tHandle == null) {
         return (promiseWrapper(null));
     }
@@ -1807,14 +1805,14 @@ function XcalarKeyReplaceIfEqual(key, scope, oldValue, newValue) {
         return (deferred.promise());
     }
 
-    xcalarKeyReplaceIfEqual(tHandle, scope, oldValue, newValue)
+    xcalarKeySetIfEqual(tHandle, scope, persist, keyCompare, oldValue, newValue)
     .then(deferred.resolve)
     .fail(function(error) {
-        var thriftError = thriftLog("XcalarKeyReplaceIfEqual", error);
+        var thriftError = thriftLog("XcalarKeySetIfEqual", error);
         if (thriftError.status === StatusT.StatusKvEntryNotFound) {
             deferred.resolve();
         } else if (error === StatusT.StatusKvStoreNotFound) {
-            console.warn("Stataus", error, "kvStore, not found");
+            console.warn("Status", error, "kvStore, not found");
             deferred.resolve(null);
         } else {
             deferred.reject(thriftError);
@@ -1822,6 +1820,35 @@ function XcalarKeyReplaceIfEqual(key, scope, oldValue, newValue) {
     });
 
     return (deferred.promise());
+}
+
+function XcalarKeySetBothIfEqual(scope, persist, keyCompare, oldValue, newValue,
+                                 otherKey, otherValue) {
+    if (tHandle == null) {
+        return (promiseWrapper(null));
+    }
+    var deferred = jQuery.Deferred();
+    if (insertError(arguments.callee, deferred)) {
+        return (deferred.promise());
+    }
+
+    xcalarKeySetIfEqual(tHandle, scope, persist, keyCompare, oldValue, newValue,
+                        1, otherKey, otherValue)
+    .then(deferred.resolve)
+    .fail(function(error) {
+        var thriftError = thriftLog("XcalarKeySetBothIfEqual", error);
+        if (thriftError.status === StatusT.StatusKvEntryNotFound) {
+            deferred.resolve();
+        } else if (error === StatusT.StatusKvStoreNotFound) {
+            console.warn("Status", error, "kvStore, not found");
+            deferred.resolve(null);
+        } else {
+            deferred.reject(thriftError);
+        }
+    });
+
+    return (deferred.promise());
+
 }
 
 function XcalarKeyAppend(key, stuffToAppend, persist, scope) {

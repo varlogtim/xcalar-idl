@@ -179,7 +179,7 @@ DsAddTargetSpecificInputT.prototype.write = function(output) {
   return;
 };
 
-DsExportTargetT = function(args) {
+DsExportTargetHdrT = function(args) {
   this.type = null;
   this.name = null;
   if (args) {
@@ -191,8 +191,8 @@ DsExportTargetT = function(args) {
     }
   }
 };
-DsExportTargetT.prototype = {};
-DsExportTargetT.prototype.read = function(input) {
+DsExportTargetHdrT.prototype = {};
+DsExportTargetHdrT.prototype.read = function(input) {
   input.readStructBegin();
   while (true)
   {
@@ -228,8 +228,8 @@ DsExportTargetT.prototype.read = function(input) {
   return;
 };
 
-DsExportTargetT.prototype.write = function(output) {
-  output.writeStructBegin('DsExportTargetT');
+DsExportTargetHdrT.prototype.write = function(output) {
+  output.writeStructBegin('DsExportTargetHdrT');
   if (this.type !== null && this.type !== undefined) {
     output.writeFieldBegin('type', Thrift.Type.I32, 1);
     output.writeI32(this.type);
@@ -238,6 +238,74 @@ DsExportTargetT.prototype.write = function(output) {
   if (this.name !== null && this.name !== undefined) {
     output.writeFieldBegin('name', Thrift.Type.STRING, 2);
     output.writeString(this.name);
+    output.writeFieldEnd();
+  }
+  output.writeFieldStop();
+  output.writeStructEnd();
+  return;
+};
+
+DsExportTargetT = function(args) {
+  this.hdr = null;
+  this.specificInput = null;
+  if (args) {
+    if (args.hdr !== undefined) {
+      this.hdr = args.hdr;
+    }
+    if (args.specificInput !== undefined) {
+      this.specificInput = args.specificInput;
+    }
+  }
+};
+DsExportTargetT.prototype = {};
+DsExportTargetT.prototype.read = function(input) {
+  input.readStructBegin();
+  while (true)
+  {
+    var ret = input.readFieldBegin();
+    var fname = ret.fname;
+    var ftype = ret.ftype;
+    var fid = ret.fid;
+    if (ftype == Thrift.Type.STOP) {
+      break;
+    }
+    switch (fid)
+    {
+      case 1:
+      if (ftype == Thrift.Type.STRUCT) {
+        this.hdr = new DsExportTargetHdrT();
+        this.hdr.read(input);
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 2:
+      if (ftype == Thrift.Type.STRUCT) {
+        this.specificInput = new DsAddTargetSpecificInputT();
+        this.specificInput.read(input);
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      default:
+        input.skip(ftype);
+    }
+    input.readFieldEnd();
+  }
+  input.readStructEnd();
+  return;
+};
+
+DsExportTargetT.prototype.write = function(output) {
+  output.writeStructBegin('DsExportTargetT');
+  if (this.hdr !== null && this.hdr !== undefined) {
+    output.writeFieldBegin('hdr', Thrift.Type.STRUCT, 1);
+    this.hdr.write(output);
+    output.writeFieldEnd();
+  }
+  if (this.specificInput !== null && this.specificInput !== undefined) {
+    output.writeFieldBegin('specificInput', Thrift.Type.STRUCT, 2);
+    this.specificInput.write(output);
     output.writeFieldEnd();
   }
   output.writeFieldStop();
@@ -676,7 +744,7 @@ DsExportMetaT.prototype.read = function(input) {
     {
       case 1:
       if (ftype == Thrift.Type.STRUCT) {
-        this.target = new DsExportTargetT();
+        this.target = new DsExportTargetHdrT();
         this.target.read(input);
       } else {
         input.skip(ftype);

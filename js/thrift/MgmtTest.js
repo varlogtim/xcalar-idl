@@ -26,6 +26,8 @@
     ,   loadOutput
     ,   origDataset
     ,   yelpUserDataset
+    ,   moviesDataset
+    ,   moviesDatasetSet = false
     ,   queryName
     ,   origTable
     ,   origStrTable
@@ -50,7 +52,9 @@
     // For start nodes test
     var startNodesState;
     var system = require('system');
+    var qaTestDir = system.env['QATEST_DIR'];
 
+    console.log("Qa test dir: " + qaTestDir);
     startNodesState = TestCaseEnabled;
 
     system.args.forEach(function(arg, i) {
@@ -203,7 +207,7 @@
         loadArgs.csv.fieldDelim = XcalarApiDefaultFieldDelimT;
         loadArgs.csv.isCRLF = false;
 
-        xcalarLoad(thriftHandle, "file:///var/tmp/yelp/user", "yelp", DfFormatTypeT.DfFormatJson, 0, loadArgs)
+        xcalarLoad(thriftHandle, "file://" + qaTestDir + "/yelp/user", "yelp", DfFormatTypeT.DfFormatJson, 0, loadArgs)
         .done(function(result) {
             printResult(result);
             loadOutput = result;
@@ -223,12 +227,12 @@
         loadArgs.csv.fieldDelim = XcalarApiDefaultFieldDelimT;
         loadArgs.csv.isCRLF = false;
 
-        xcalarLoad(thriftHandle, "file:///var/tmp/yelp/reviews", "review",
+        xcalarLoad(thriftHandle, "file://" + qaTestDir + "/yelp/reviews", "review",
                    DfFormatTypeT.DfFormatJson, 0, loadArgs)
         .done(function(result) {
             var testloadOutput = result;
 
-            xcalarBulkDestroyDataset(thriftHandle, "*")
+            xcalarDeleteDagNodes(thriftHandle, "*", SourceTypeT.SrcDataset)
             .done(function(destroyDatasetsOutput) {
                 printResult(destroyDatasetsOutput);
 
@@ -548,6 +552,279 @@
         })
     }
 
+    function indexAggregateRaceTest(deferred, testName, currentTestNumber) {
+        var pathToFlightDataset = qaTestDir + "/flight/airlines_2007.csv";
+        var pathToAirportDataset = qaTestDir + "/flight/airports.csv";
+        var datasetName = "MgmtTest/indexAggregateRaceTest/flightDataset";
+        var datasetName2 = "MgmtTest/indexAggregateRaceTest/airportDataset";
+        var tmpTableName1 = "MgmtTest/indexAggregateRaceTest/tmpTable1";
+        var tmpTableName2 = "MgmtTest/indexAggregateRaceTest/tmpTable2";
+        var tmpTableName3 = "MgmtTest/indexAggregateRaceTest/tmpTable3";
+        var tmpTableName4 = "MgmtTest/indexAggregateRaceTest/tmpTable4";
+        var startTableName = "MgmtTest/indexAggregateRaceTest/startTable";
+        var dstTableNameTemplate = "MgmtTest/indexAggregateRaceTest/dstTable";
+        var groupByTableNameTemplate = "MgmtTest/indexAggregateRaceTest/groupByTable";
+        var keyName = "Month_integer";
+        var keyName2 = "Month";
+        var keyName3 = "groupBySum";
+
+        var failed = false;
+        var raceFailedReason = "";
+
+        var indexAndAggregateOutput = {};
+        var indexAndAggDone = false;
+
+        var numIndexes = 0;
+        var indexDone = [];
+
+        var aggTableName = { "sum": "MgmtTest/indexAggregateRaceTest/aggTableSum",
+                             "avg": "MgmtTest/indexAggregateRaceTest/aggTableAvg",
+                             "min": "MgmtTest/indexAggregateRaceTest/aggTableMin",
+                             "max": "MgmtTest/indexAggregateRaceTest/aggtableMax",
+                             "count": "MgmtTest/indexAggregateRaceTest/aggTableCount"};
+        var expectedAggOutput = { "sum": 919477.0, "avg": 919477.0 / 138491.0,
+                                  "min": 1, "max": 12, "count": 138491.0 };
+        var aggDone = { "sum": false, "avg": false, "min": false, "max": false,
+                        "count": false };
+        var aggEvalStr = { "sum": "sum(" + keyName + ")",
+                           "avg": "avg(" + keyName + ")",
+                           "min": "min(" + keyName + ")",
+                           "max": "max(" + keyName + ")",
+                           "count": "count(" + keyName + ")" };
+
+        function indexAndAggDoneFn() {
+            var totalCompleted = 0;
+            indexAndAggDone = true;
+
+            function doneVerification() {
+                if (failed) {
+                    fail(deferred, testName, currentTestNumber, raceFailedReason);
+                } else {
+                    pass(deferred, testName, currentTestNumber);
+                }
+            }
+
+            function makeGroupByDoneFn(ii) {
+                var groupByTableName = groupByTableNameTemplate + ii;
+                function groupByDoneFnInt(groupByOutput) {
+                    var aggStr = "sum(" + keyName3 + ")";
+                    xcalarAggregate(thriftHandle, groupByTableName,
+                                    groupByTableName + "-aggr",
+                                    aggStr)
+                    .done(function(aggregateOutput) {
+                        console.log("aggStr: " + aggStr + ", tableName: \"" +
+                                    groupByTableName + "\", output: " + aggregateOutput);
+                        var answer = JSON.parse(aggregateOutput);
+                        if (answer.Value != expectedAggOutput["sum"]) {
+                            failed = true;
+                            raceFailedReason += "Returned answer: " + answer.Value +
+                                                " Expected answer: " + expectedAggOutput["sum"];
+                        }
+                    })
+                    .fail(function(reason) {
+                        failed = true;
+                        raceFailedReason += "Aggregate failed. Server returned: " + StatusTStr[reason];
+                    })
+                    .always(function() {
+                        totalCompleted++;
+                        if (totalCompleted == numIndexes) {
+                            doneVerification();
+                        }
+                    });
+                }
+                return (groupByDoneFnInt);
+            }
+
+            if (failed) {
+                fail(deferred, testName, currentTestNumber, raceFailedReason);
+            } else {
+                // Now we verify that all the months are correct in dstTable
+                for (var ii = 0; ii < numIndexes; ii++) {
+                    var dstTableName = dstTableNameTemplate + ii;
+                    var groupByTableName = groupByTableNameTemplate + ii;
+                    xcalarGroupBy(thriftHandle, dstTableName, groupByTableName,
+                                  "sum(" + keyName + ")", keyName3, false)
+                    .done(makeGroupByDoneFn(ii))
+                    .fail(function(reason) {
+                        failed = true;
+                        raceFailedReason = "Group by failed. Server returned: " + StatusTStr[reason];
+                        totalCompleted++;
+                        if (totalCompleted == numIndexes) {
+                            doneVerification();
+                        }
+                    })
+                }
+            }
+        }
+
+        function aggDoneFn(aggOutput, aggOp) {
+            if (aggOutput !== null) {
+                console.log("Aggregate on \"" + startTableName + "\" done. " + aggEvalStr[aggOp] + " = " + aggOutput);
+                indexAndAggregateOutput["aggOutput" + aggOp] = aggOutput;
+                var answer = JSON.parse(aggOutput).Value;
+                if (answer !== expectedAggOutput[aggOp]) {
+                    failed = true;
+                    raceFailedReason += "Aggregate returned wrong answer (" +
+                                        answer + " instead of " +
+                                        expectedAggOutput[aggOp] + ")";
+                }
+            }
+            aggDone[aggOp] = true;
+            var allAggDone = true;
+            for (var key in aggDone) {
+                if (!aggDone[key]) {
+                    allAggDone = false;
+                    break;
+                }
+            }
+
+            var allIndexDone = true;
+            for (var ii = 0; ii < numIndexes; ii++) {
+                if (!indexDone[ii]) {
+                    allIndexDone = false;
+                }
+            }
+
+            if (allIndexDone && allAggDone && !indexAndAggDone) {
+                indexAndAggDoneFn();
+            }
+        }
+
+        function indexDoneFn(indexOutput, idx) {
+            console.log("Index " + idx + " done");
+            indexAndAggregateOutput["indexOutput" + idx] = indexOutput;
+            indexDone[idx] = true;
+
+            var allIndexDone = true;
+            for (var ii = 0; ii < numIndexes; ii++) {
+                if (!indexDone[ii]) {
+                    allIndexDone = false;
+                }
+            }
+
+            var allAggDone = true;
+            for (var key in aggDone) {
+                if (!aggDone[key]) {
+                    allAggDone = false;
+                    break;
+                }
+            }
+
+            if (allIndexDone && allAggDone && !indexAndAggDone) {
+                indexAndAggDoneFn();
+            }
+        }
+
+        function startRace() {
+            // Now we start the race
+            for (var aggOp in aggDone) {
+                xcalarAggregate(thriftHandle, startTableName, aggTableName[aggOp], aggEvalStr[aggOp])
+                .done((function(key) {
+                    return (function(aggOutput) { aggDoneFn(aggOutput, key); });
+                })(aggOp))
+                .fail((function(key) {
+                    function anonymousFn(reason) {
+                        raceFailedReason += "Failed to aggregate. Server returned: " +
+                                             StatusTStr[reason];
+                        failed = true;
+                        aggDoneFn(null, key);
+                    }
+                    return (anonymousFn);
+                })(aggOp));
+
+                var dstTableName = dstTableNameTemplate + numIndexes;
+
+                xcalarIndexTable(thriftHandle, startTableName, keyName, dstTableName,
+                                 "", XcalarOrderingT.XcalarOrderingUnordered)
+                .done((function(idx) {
+                    return (function(indexOutput) { indexDoneFn(indexOutput, idx); });
+                })(numIndexes))
+                .fail(function(reason) {
+                    raceFailedReason += "Failed to index. Server returned: " + StatusTStr[reason];
+                    failed = true;
+                    indexDoneFn(null);
+                });
+
+                numIndexes++;
+
+            }
+        }
+
+        function joinDoneFn() {
+            xcalarIndexTable(thriftHandle, tmpTableName3, keyName2, tmpTableName4,
+                             "", XcalarOrderingT.XcalarOrderingUnordered)
+            .done(function(indexOutput) {
+                xcalarApiMap(thriftHandle, keyName, "int(" + keyName2 + ")",
+                             tmpTableName3, startTableName)
+                .done(startRace)
+                .fail(function(reason) {
+                    var reason = "Failed to cast. Server returned: " + StatusTStr[reason];
+                    fail(deferred, testName, currentTestNumber, reason);
+                });
+            })
+            .fail(function(reason) {
+                var reason = "Index failed. Server returned: " + StatusTStr[reason];
+                fail(deferred, testName, currentTestNumber, reason);
+            });
+        }
+
+        function loadDoneFn() {
+            xcalarIndexDataset(thriftHandle, datasetName, "Dest", tmpTableName1,
+                               "", XcalarOrderingT.XcalarOrderingUnordered)
+            .done(function(indexOutput) {
+                xcalarIndexDataset(thriftHandle, datasetName2, "iata", tmpTableName2,
+                                   "", XcalarOrderingT.XcalarOrderingUnordered)
+                .done(function(indexOutput) {
+                    // For some reason, the join is required to reproduce the bug
+                    xcalarJoin(thriftHandle, tmpTableName1, tmpTableName2,
+                               tmpTableName3, JoinOperatorT.InnerJoin)
+                    .done(function(result) {
+                        joinDoneFn();
+                    })
+                    .fail(function(reason) {
+                        var reason = "Failed to join. Server returned: " + StatusTStr[reason];
+                        fail(deferred, testName, currentTestNumber, reason);
+                    });
+                })
+                .fail(function(reason) {
+                    var reason = "Failed to index. Server returned: " + StatusTStr[reason];
+                    fail(deferred, testName, currentTestNumber, reason);
+                });
+            })
+            .fail(function(reason) {
+                var reason = "Failed to index. Server returned: " + StatusTStr[reason];
+                fail(deferred, testName, currentTestNumber, reason);
+            });
+        }
+
+        var loadArgs = new XcalarApiDfLoadArgsT();
+        loadArgs.csv = new XcalarApiDfCsvLoadArgsT();
+        loadArgs.csv.recordDelim = XcalarApiDefaultRecordDelimT;
+        loadArgs.csv.fieldDelim = ',';
+        loadArgs.csv.isCRLF = false;
+        loadArgs.csv.hasHeader = true;
+
+        xcalarLoad(thriftHandle, "file://" + pathToFlightDataset, datasetName,
+                   DfFormatTypeT.DfFormatCsv, 0, loadArgs)
+        .done(function(loadOutput) {
+            datasetName = loadOutput.dataset.name;
+            xcalarLoad(thriftHandle, "file://" + pathToAirportDataset, datasetName2,
+                       DfFormatTypeT.DfFormatCsv, 0, loadArgs)
+            .done(function(loadOutput) {
+                datasetName2 = loadOutput.dataset.name;
+                loadDoneFn();
+            })
+            .fail(function(reason) {
+                reason = "Failed to load. Server returned: " + StatusTStr[reason];
+                fail(deferred, testName, currentTestNumber, reason);
+            });
+        })
+        .fail(function(reason) {
+            reason = "Failed to load. Server returned: " + StatusTStr[reason];
+            fail(deferred, testName, currentTestNumber, reason);
+        });
+    }
+
     function testGetStats(deferred, testName, currentTestNumber) {
         xcalarGetStats(thriftHandle, 0)
         .done(function(statOutput) {
@@ -862,7 +1139,7 @@
         var locaQueryName = "aggr query";
 
         console.log("submit query" + query);
-        xcalarQuery(thriftHandle, locaQueryName, query, false, "", false)
+        xcalarQuery(thriftHandle, locaQueryName, query, false, "", true)
         .done(function(queryOutput) {
             printResult(queryOutput);
 
@@ -1011,7 +1288,7 @@
     }
 
     function testDestroyDatasetInUse(deferred, testName, currentTestNumber) {
-        xcalarDestroyDataset(thriftHandle, loadOutput.dataset.name)
+        xcalarDeleteDagNodes(thriftHandle, loadOutput.dataset.name, SourceTypeT.SrcDataset)
         .done(function(status) {
             var reason = "Destroyed dataset in use succeeded when it should have failed"
             fail(deferred, testName, currentTestNumber, reason);
@@ -1027,12 +1304,13 @@
 
     function testAddExportTarget(deferred, testName, currentTestNumber) {
         var target = new DsExportTargetT();
-        var specInput = new DsAddTargetSpecificInputT();
-        target.name = "Mgmtd Export Target";
-        target.type = DsTargetTypeT.DsTargetSFType;
-        specInput.odbcInput = new DsAddTargetODBCInputT();
+        target.hdr = new DsExportTargetHdrT();
+        target.hdr.name = "Mgmtd Export Target";
+        target.hdr.type = DsTargetTypeT.DsTargetSFType;
+        target.specificInput = new DsAddTargetSpecificInputT();
+        target.specificInput.odbcInput = new DsAddTargetODBCInputT();
 
-        xcalarAddExportTarget(thriftHandle, target, specInput)
+        xcalarAddExportTarget(thriftHandle, target)
         .done(function(status) {
             printResult(status);
             pass(deferred, testName, currentTestNumber);
@@ -1056,7 +1334,7 @@
     function testExport(deferred, testName, currentTestNumber) {
         var specInput = new DsInitExportSpecificInputT();
         specInput.sfInput = new DsInitExportSFInputT();
-        specInput.sfInput.fileName = "mgmtdTest" +
+        specInput.sfInput.fileName = "yelp-mgmtdTest" +
                                      Math.floor(Math.random()*10000) + ".csv";
         specInput.sfInput.format = DfFormatTypeT.DfFormatCsv;
         specInput.sfInput.formatArgs = new DsInitExportFormatSpecificArgsT();
@@ -1064,7 +1342,8 @@
         specInput.sfInput.formatArgs.csv.fieldDelim = ",";
         specInput.sfInput.formatArgs.csv.recordDelim = "\n";
 
-        var target = new DsExportTargetT();
+        console.log("\texport file name = " + specInput.sfInput.fileName);
+        var target = new DsExportTargetHdrT();
         target.type = DsTargetTypeT.DsTargetSFType;
         target.name = "Default";
         var numColumns = 2;
@@ -1180,17 +1459,6 @@
         })
     }
 
-    function testAddParameterToRetina(deferred, testName, currentTestNumber) {
-        xcalarAddParameterToRetina(thriftHandle, retinaName, "bar", "baz")
-        .done(function(status) {
-            printResult(status);
-            pass(deferred, testName, currentTestNumber);
-        })
-        .fail(function(reason) {
-            fail(deferred, testName, currentTestNumber, reason);
-        })
-    }
-
     function testListParametersInRetina(deferred, testName, currentTestNumber) {
         xcalarListParametersInRetina(thriftHandle, retinaName)
         .done(function(listParametersInRetinaOutput) {
@@ -1209,6 +1477,16 @@
         .fail(function(reason) {
             fail(deferred, testName, currentTestNumber, reason);
         })
+    }
+
+    function testDeleteRetina(deferred, testName, currentTestNumber) {
+        xcalarApiDeleteRetina(thriftHandle, retinaName)
+        .done(function(status) {
+            pass(deferred, testName, currentTestNumber);
+        })
+        .fail(function(reason) {
+            fail(deferred, testName, currentTestNumber, reason);
+        });
     }
 
     function testListFiles(deferred, testName, currentTestNumber) {
@@ -1305,12 +1583,90 @@
 
     }
 
+    function testApiKeyInvalidScope(deferred, testName, currentTestNumber) {
+        // XXX Remove once XcalarApiKeyScopeUser is implemented.
+        xcalarKeyAddOrReplace(thriftHandle,
+                              XcalarApiKeyScopeT.XcalarApiKeyScopeUser,
+                              "foo", "foobar", false)
+        .done(function(status) {
+            fail(deferred, testName, currentTestNumber,
+                 "Expected failure with scope XcalarApiKeyScopeUser.");
+        })
+        .fail(function(reason) {
+            if (reason != StatusT.StatusUnimpl) {
+                fail(deferred, testName, currentTestNumber, reason);
+            }
+            xcalarKeyAddOrReplace(thriftHandle, 666, "foo", "foobar", false)
+            .done(function(status) {
+                fail(deferred, testName, currentTestNumber,
+                     "Expected failure given invalid scope.");
+            })
+            .fail(function(reason) {
+                if (reason == StatusT.StatusInval) {
+                    pass(deferred, testName, currentTestNumber);
+                } else {
+                    fail(deferred, testName, currentTestNumber, reason);
+                }
+            });
+        });
+    }
+
     function testApiKeyAdd(deferred, testName, currentTestNumber) {
         testApiKeyAddOrReplace(deferred, testName, currentTestNumber, "mykey", "myvalue1");
     }
 
     function testApiKeyReplace(deferred, testName, currentTestNumber) {
         testApiKeyAddOrReplace(deferred, testName, currentTestNumber, "mykey", "myvalue2");
+    }
+
+    function testSchedTask(deferred, testName, currentTestNumber) {
+        var dummyArg = new XcalarApiSchedArgTypeT();
+        dummyArg.executeRetinaInput = new XcalarApiExecuteRetinaInputT();
+
+        dummyArg.executeRetinaInput.retinaName = "dummyRetina";
+        dummyArg.executeRetinaInput.numParameters = 0;
+
+        xcalarScheduleTask(thriftHandle, "sched task", 1000, 0, 0,
+                           SchedTaskTypeT.StQuery, dummyArg)
+        .then(function() {
+            xcalarListSchedTask(thriftHandle, "sched task")
+            .done(function(listSchedTaskOutput) {
+                if (listSchedTaskOutput.numSchedTask != 1) {
+                    var reason = "wrong number of task. got \"" + listSchedTaskOutput.numSchedTask + "\" instead of \"1\"";
+                    fail(deferred, testName, currentTestNumber, reason);
+                } else if (listSchedTaskOutput.schedTaskInfo[0].name != "sched task") {
+                    var reason = "wrong name of task. got \"" + listSchedTaskOutput.schedTaskInfo[0].name + "\" instead of \"sched task\"";
+                    fail(deferred, testName, currentTestNumber, reason);
+                } else if (listSchedTaskOutput.schedTaskInfo[0].numFailure != 0) {
+                    var reason = "wrong numFailure of task. got \"" + listSchedTaskOutput.schedTaskInfo[0].numFailure + "\" instead of \"0\"";
+                    fail(deferred, testName, currentTestNumber, reason);
+                } else if (listSchedTaskOutput.schedTaskInfo[0].scheduleInfo.schedTimeInSecond != 1000) {
+                    var reason = "wrong schedule time of task. got \"" + listSchedTaskOutput.schedTaskInfo[0].scheduleInfo.schedTimeInSecond + "\" instead of \"1000\"";
+                    fail(deferred, testName, currentTestNumber, reason);
+                } else if (listSchedTaskOutput.schedTaskInfo[0].type != SchedTaskTypeT.StQuery) {
+                    var reason = "wrong task type. got \"" + listSchedTaskOutput.schedTaskInfo[0].type + "\" instead of " + SchedTaskTypeT.StQuery;
+                    fail(deferred, testName, currentTestNumber, reason);
+                } else if (listSchedTaskOutput.schedTaskInfo[0].arg.executeRetinaInput.retinaName != dummyArg.executeRetinaInput.retinaName) {
+                    var reason = "wrong retina name got \"" + listSchedTaskOutput.schedTaskInfo[0].arg.executeRetinaInput.retinaName + "\" instead of " + dummyArg.executeRetinaInput.retinaName;
+                    fail(deferred, testName, currentTestNumber, reason);
+                }
+
+                xcalarDeleteSchedTask(thriftHandle, "sched task")
+                .done(function(status) {
+                  printResult(status);
+                  pass(deferred, testName, currentTestNumber);
+                })
+                .fail(function(reason) {
+                    fail(deferred, testName, currentTestNumber, StatusTStr[reason]);
+                });
+           })
+           .fail(function(reason) {
+               fail(deferred, testName, currentTestNumber, StatusTStr[reason]);
+           });
+        }, function(reason) {
+            fail(deferred, testName, currentTestNumber, StatusTStr[reason]);
+        }
+        );
     }
 
     function testApiKeyAppend(deferred, testName, currentTestNumber) {
@@ -1349,25 +1705,25 @@
         });
     }
 
-    function testApiKeyReplaceIfEqual(deferred, testName, currentTestNumber) {
+    function testApiKeySetIfEqual(deferred, testName, currentTestNumber) {
         // Insert original key
         xcalarKeyAddOrReplace(thriftHandle,
                               XcalarApiKeyScopeT.XcalarApiKeyScopeGlobal,
                               "yourkey", "b", false)
         .then(function() {
             // Try replacing with incorrect oldValue
-            xcalarKeyReplaceIfEqual(thriftHandle,
-                                   XcalarApiKeyScopeT.XcalarApiKeyScopeGlobal,
-                                   "yourkey", "wrongvalue", "c")
+            xcalarKeySetIfEqual(thriftHandle,
+                                XcalarApiKeyScopeT.XcalarApiKeyScopeGlobal,
+                                false, "yourkey", "wrongvalue", "x", "x", "x")
             .then(function() {
                 var reason = "Expected failure due to incorrect oldValue."
                 fail(deferred, testName, currentTestNumber, reason);
             })
             .fail(function(reason) {
                 // Try replacing with correct oldValue
-                xcalarKeyReplaceIfEqual(thriftHandle,
+                xcalarKeySetIfEqual(thriftHandle,
                                    XcalarApiKeyScopeT.XcalarApiKeyScopeGlobal,
-                                   "yourkey", "b", "c")
+                                   false, "yourkey", "b", "c", "x", "y")
                 .then(function() {
                     // Lookup. Make sure result is as expected
                     return xcalarKeyLookup(thriftHandle,
@@ -1376,10 +1732,46 @@
                 })
                 .then(function(lookupOutput) {
                     if (lookupOutput.value != "c") {
-                        var reason = "wrong value. got \"" + lookupOutput.value + "\" instead of \"b\"";
-                        fail(deferred, testName, currentTestNumber, reason);
+                        fail(deferred, testName, currentTestNumber,
+                             "Wrong value. Got '" + lookupOutput.value +
+                             "'. Expected 'c'.");
                     } else {
-                        pass(deferred, testName, currentTestNumber);
+                        return xcalarKeyLookup(thriftHandle,
+                                     XcalarApiKeyScopeT.XcalarApiKeyScopeGlobal,
+                                     "x");
+                    }
+                })
+                .then(function(lookupOutput) {
+                    if (lookupOutput.value != "y") {
+                        fail(deferred, testName, currentTestNumber,
+                             "Wrong value. Got '" + lookupOutput.value +
+                             "'. Expected 'y'.");
+                    } else {
+                        xcalarKeySetIfEqual(thriftHandle,
+                                     XcalarApiKeyScopeT.XcalarApiKeyScopeGlobal,
+                                     false, "x", "y", "z")
+                        .then(function() {
+                            xcalarKeyLookup(thriftHandle,
+                                     XcalarApiKeyScopeT.XcalarApiKeyScopeGlobal,
+                                     "x")
+                            .then(function(lookupOutput) {
+                                if (lookupOutput.value != "z") {
+                                    fail(deferred, testName, currentTestNumber,
+                                         "Wrong value. Got '" +
+                                         lookupOutput.value +
+                                         "'. Expected 'z'.");
+                                } else {
+                                    pass(deferred, testName, currentTestNumber);
+                                }
+                            })
+                            .fail(function(reason) {
+                                fail(deferred, testName, currentTestNumber,
+                                     reason);
+                            });
+                        })
+                        .fail(function(reason) {
+                            fail(deferred, testName, currentTestNumber, reason);
+                        });
                     }
                 })
                 .fail(function(reason) {
@@ -1444,13 +1836,13 @@
 
         xcalarApiSessionDelete(thriftHandle, "*")
         .then(function() {
-	        // Start in brand new sesion...
-	        return xcalarApiSessionNew(thriftHandle, session1, false, "");
+            // Start in brand new sesion...
+            return xcalarApiSessionNew(thriftHandle, session1, false, "");
         })
         .then(function() {
             // ... and add a key.
-    	    return xcalarKeyAddOrReplace(thriftHandle,
-                			      XcalarApiKeyScopeT.XcalarApiKeyScopeSession,
+            return xcalarKeyAddOrReplace(thriftHandle,
+                                  XcalarApiKeyScopeT.XcalarApiKeyScopeSession,
                                   keyName, "x", false);
         })
         .then(function() {
@@ -1486,7 +1878,7 @@
             });
         })
         .fail(function(reason) {
-            fail(deferred, testName, currentTestNumber, reason);
+            fail(deferred, testName, currentTestNumber, StatusTStr[reason]);
         });
     }
 
@@ -1582,7 +1974,7 @@
                 }
 
                 if (totalCount === 70817) {
-                    xcalarDeleteTable(thriftHandle, indexOutput.tableName)
+                    xcalarDeleteDagNodes(thriftHandle, indexOutput.tableName, SourceTypeT.SrcTable)
                     .done(deleteTableSuccessFn)
                     .fail(function(status) {
                         var reason = "deleteTable returned status: " + StatusTStr[status];
@@ -1662,7 +2054,7 @@
                 loadArgs.pyLoadArgs.fullyQualifiedFnName = "PyExecOnLoadTest:poorManCsvToJson";
 
                 xcalarLoad(thriftHandle,
-                           "file:///var/tmp/qa/operatorsTest/movies/movies.csv",
+                           "file://" + qaTestDir + "/operatorsTest/movies/movies.csv",
                            "movies",
                            DfFormatTypeT.DfFormatJson,
                            0,
@@ -1670,6 +2062,8 @@
                 .done(function(result) {
                     printResult(result);
                     loadOutput = result;
+                    moviesDataset = loadOutput.dataset.name;
+                    moviesDatasetSet = true;
                     origDataset = loadOutput.dataset.name;
                     pass(deferred, testName, currentTestNumber);
                 })
@@ -1688,13 +2082,13 @@
     }
 
     function testDeleteTable(deferred, testName, currentTestNumber) {
-        xcalarDeleteTable(thriftHandle, "yelp/user-votes.funny-map")
+        xcalarDeleteDagNodes(thriftHandle, "yelp/user-votes.funny-map", SourceTypeT.SrcTable)
         .done(function(status) {
             printResult(status);
             pass(deferred, testName, currentTestNumber);
         })
         .fail(function(reason) {
-            fail(deferred, testName, currentTestNumber, reason);
+            fail(deferred, testName, currentTestNumber, StatusTStr[reason]);
         });
     }
 
@@ -1778,7 +2172,7 @@
 */
     // Witness to bug 103
     function testBulkDeleteTables(deferred, testName, currentTestNumber) {
-        xcalarBulkDeleteNodes(thriftHandle, "*", SourceTypeT.SrcTable)
+        xcalarDeleteDagNodes(thriftHandle, "*", SourceTypeT.SrcTable)
         .done(function(deleteTablesOutput) {
             printResult(deleteTablesOutput);
 
@@ -1795,15 +2189,74 @@
         });
     }
 
-    function testDestroyDataset(deferred, testName, currentTestNumber) {
-        xcalarDestroyDataset(thriftHandle, loadOutput.dataset.name)
-        .done(function(status) {
-            printResult(status);
+    function testBulkDeleteExport(deferred, testName, currentTestNumber) {
+        xcalarDeleteDagNodes(thriftHandle, "*", SourceTypeT.SrcExport)
+        .done(function(deleteDagNodesOutput) {
+            printResult(deleteDagNodesOutput);
+
+            for (var i = 0, delTableStatus = null; i < deleteDagNodesOutput.numTables; i ++) {
+                delTableStatus = deleteDagNodesOutput.statuses[i];
+                console.log("\t" + delTableStatus.table.tableName + ": " +
+                            StatusTStr[delTableStatus.status]);
+            }
+
             pass(deferred, testName, currentTestNumber);
         })
         .fail(function(reason) {
             fail(deferred, testName, currentTestNumber, reason);
         });
+    }
+
+    function testBulkDeleteConstants(deferred, testName, currentTestNumber) {
+        xcalarDeleteDagNodes(thriftHandle, "*", SourceTypeT.SrcConstant)
+        .done(function(deleteDagNodesOutput) {
+            printResult(deleteDagNodesOutput);
+
+            for (var i = 0, delTableStatus = null; i < deleteDagNodesOutput.numTables; i ++) {
+                delTableStatus = deleteDagNodesOutput.statuses[i];
+                console.log("\t" + delTableStatus.table.tableName + ": " +
+                            StatusTStr[delTableStatus.status]);
+            }
+
+            pass(deferred, testName, currentTestNumber);
+        })
+        .fail(function(reason) {
+            fail(deferred, testName, currentTestNumber, reason);
+        });
+    }
+
+    function testBulkDeleteDataset(deferred, testName, currentTestNumber) {
+        xcalarDeleteDagNodes(thriftHandle, "*", SourceTypeT.SrcDataset)
+        .done(function(deleteDagNodesOutput) {
+            printResult(deleteDagNodesOutput);
+
+            for (var i = 0, delTableStatus = null; i < deleteDagNodesOutput.numTables; i ++) {
+                delTableStatus = deleteDagNodesOutput.statuses[i];
+                console.log("\t" + delTableStatus.table.tableName + ": " +
+                            StatusTStr[delTableStatus.status]);
+            }
+
+            pass(deferred, testName, currentTestNumber);
+        })
+        .fail(function(reason) {
+            fail(deferred, testName, currentTestNumber, reason);
+        });
+    }
+
+    function testDestroyDataset(deferred, testName, currentTestNumber) {
+        if (moviesDatasetSet) {
+            xcalarDeleteDagNodes(thriftHandle, moviesDataset, SourceTypeT.SrcDataset)
+            .done(function(status) {
+                printResult(status);
+                pass(deferred, testName, currentTestNumber);
+            })
+            .fail(function(reason) {
+                fail(deferred, testName, currentTestNumber, StatusTStr[reason]);
+            });
+        } else {
+            console.log("Skipping test because this test depends on testPyExecOnLoad\n");
+            skip(deferred, testName, currentTestNumber);
+        }
     }
 
     // Witness to bug 98
@@ -1867,10 +2320,11 @@
     addTestCase(testCases, testStartNodes, "startNodes", defaultTimeout, startNodesState, "");
     addTestCase(testCases, testGetVersion, "getVersion", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testCases, testBulkDestroyDs, "bulk destroy ds", defaultTimeout, TestCaseEnabled, "");
+    addTestCase(testCases, testSchedTask, "test schedtask", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testCases, testLoad, "load", defaultTimeout, TestCaseEnabled, "");
 
     // Xc-1981
-    addTestCase(testCases, testGetDagOnAggr, "get dag on aggregate", defaultTimeout, TestCaseEnabled, "");
+    addTestCase(testCases, testGetDagOnAggr, "get dag on aggregate", defaultTimeout, TestCaseDisabled, "1981");
 
     addTestCase(testCases, testLoadBogus, "bogus load", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testCases, testListDatasets, "list datasets", defaultTimeout, TestCaseEnabled, "");
@@ -1926,20 +2380,22 @@
     addTestCase(testCases, testListExportTargets, "list export targets", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testCases, testExport, "export", defaultTimeout, TestCaseEnabled, "");
 
+    // Together, these set of test cases make up the retina sanity
     addTestCase(testCases, testMakeRetina, "makeRetina", defaultTimeout, TestCaseDisabled, "");
     addTestCase(testCases, testListRetinas, "listRetinas", defaultTimeout, TestCaseDisabled, "");
     addTestCase(testCases, testGetRetina, "getRetina - iter 1 / 2", defaultTimeout, TestCaseDisabled, "");
     addTestCase(testCases, testUpdateRetina, "updateRetina", defaultTimeout, TestCaseDisabled, "");
     addTestCase(testCases, testGetRetina, "getRetina - iter 2 / 2", defaultTimeout, TestCaseDisabled, "");
     addTestCase(testCases, testExecuteRetina, "executeRetina", defaultTimeout, TestCaseDisabled, "");
-    addTestCase(testCases, testAddParameterToRetina, "addParamaterToRetina", defaultTimeout, TestCaseDisabled, "");
     addTestCase(testCases, testListParametersInRetina, "listParametersInRetina", defaultTimeout, TestCaseDisabled, "");
+    addTestCase(testCases, testDeleteRetina, "deleteRetina", defaultTimeout, TestCaseDisabled, "");
 
     addTestCase(testCases, testListFiles, "list files", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testCases, testUploadDownloadPython, "upload and download python", defaultTimeout, TestCaseEnabled, "");
-    // XXX: file referenced by this test is nonexistant
-    addTestCase(testCases, testPyExecOnLoad, "python during load", defaultTimeout, TestCaseDisabled, "");
 
+    // This pair must go together
+    addTestCase(testCases, testPyExecOnLoad, "python during load", defaultTimeout, TestCaseEnabled, "");
+    addTestCase(testCases, testDestroyDataset, "destroy dataset", defaultTimeout, TestCaseEnabled, "");
 
     // Witness to bug 238
     addTestCase(testCases, testApiMapLongEvalString, "Map long eval string", defaultTimeout, TestCaseEnabled, "238");
@@ -1954,11 +2410,14 @@
     addTestCase(testCases, testApiKeyDelete, "key delete", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testCases, testApiKeyBogusLookup, "bogus key lookup", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testCases, testApiKeyAppend, "key append", defaultTimeout, TestCaseEnabled, "");
-    addTestCase(testCases, testApiKeyReplaceIfEqual, "key replace if equal", defaultTimeout, TestCaseEnabled, "");
+    addTestCase(testCases, testApiKeySetIfEqual, "key set if equal", defaultTimeout, TestCaseEnabled, "");
 
     addTestCase(testCases, testTop, "top test", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testCases, testMemory, "memory test", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testCases, testListXdfs, "listXdfs test", defaultTimeout, TestCaseEnabled, "");
+
+    // Witness to bug Xc-2371
+    addTestCase(testCases, indexAggregateRaceTest, "index-aggregate race test", defaultTimeout, TestCaseEnabled, "2371")
 
 
     // Re-enabled with delete DHT added
@@ -1968,14 +2427,21 @@
     addTestCase(testCases, testDeleteTable, "delete table", defaultTimeout, TestCaseDisabled, "");
 
     addTestCase(testCases, testBulkDeleteTables, "bulk delete tables", defaultTimeout, TestCaseEnabled, "103");
-    addTestCase(testCases, testDestroyDataset, "destroy dataset", defaultTimeout, TestCaseEnabled, "");
+    addTestCase(testCases, testBulkDeleteExport, "bulk delete export node ", defaultTimeout, TestCaseEnabled, "");
+    addTestCase(testCases, testBulkDeleteConstants, "bulk delete constant node ", defaultTimeout, TestCaseEnabled, "");
+    addTestCase(testCases, testBulkDeleteDataset, "bulk delete constant node ", defaultTimeout, TestCaseEnabled, "2314");
+    // temporarily disabled due to bug 973
     // temporarily disabled due to bug 973
     addTestCase(testCases, testShutdown, "shutdown", defaultTimeout, TestCaseDisabled, "98");
 
     addTestCase(testCases, testSupportSend, "support send", defaultTimeout, TestCaseDisabled, "");
 
     // XXX Currently, this must be last because it ends in a different session.
-    addTestCase(testCases, testApiKeySessions, "key sessions", defaultTimeout, TestCaseEnabled, "");
+    // XXX delete session was removed from testApiKeySessions and wasn't moved anywhere else. 
+    // Since two new sessions are generated every time this test runs and they are made unique
+    // using the date and time, this means they will accumulate.  Something needs to be done to
+    // delete them. Disable this test until the sessions created are deleted
+    addTestCase(testCases, testApiKeySessions, "key sessions", defaultTimeout, TestCaseDisabled, "");
 
     runTestSuite(testCases);
 }();

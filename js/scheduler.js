@@ -332,11 +332,11 @@ window.Scheduler = (function(Scheduler, $) {
         var recurCount = schedule.recur;
         var parameters = dfg.getAllParameters();
         var type = "StQuery"; // XXX buggy type
-        var arg = {
-            "retinaName"   : dfg.name,
-            "numParameters": parameters.length,
-            "parameters"   : parameters
-        };
+        var arg = new XcalarApiSchedArgTypeT();
+        arg.executeRetinaInput = new XcalarApiExecuteRetinaInputT();
+        arg.executeRetinaInput.retinaName = dfg.name;
+        arg.executeRetinaInput.numParameters = parameters.length;
+        arg.executeRetinaInput.parameters = parameters;
 
         return [backSchedName, schedInSec, period, recurCount, type, arg];
     }
