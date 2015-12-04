@@ -1818,7 +1818,7 @@ html.microsoft {
                         padding: 3px 0;
 
                         .columnTab {
-                            cursor: pointer;
+                            
                             .size(@width: 100%, @height: 25px);
                             .gray-gradient;
                             .position(relative);
@@ -1830,6 +1830,10 @@ html.microsoft {
                             padding: 0 8px;
                             .font(@weight: bold, @size: 13px, @line-height: 25px, @color: @color-text-midGray);
                         }
+                    }
+
+                    th.exportable .columnTab {
+                        cursor: pointer;
                     }
                 }
             }

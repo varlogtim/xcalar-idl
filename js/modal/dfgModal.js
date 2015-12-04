@@ -201,7 +201,7 @@ window.DataFlowModal = (function($, DataFlowModal) {
             $groupLi.addClass('selected');
         });
 
-        $dfTable.on("click", "th", function() {
+        $dfTable.on("click", "th.exportable", function() {
             var $th = $(this);
             var colNum = $th.data("col");
             if ($th.hasClass("colSelected")) {
@@ -213,7 +213,11 @@ window.DataFlowModal = (function($, DataFlowModal) {
         });
 
         $dfgModal.on("click", ".modifyDSButton.selectAll", function() {
-            $dfTable.find("td, th").addClass("colSelected");
+            $dfTable.find('.exportable').each(function() {
+                var $th = $(this);
+                var colNum = $th.data('col');
+                $dfTable.find('.col' + colNum).addClass('colSelected');
+            });
         });
 
         $dfgModal.on("click", ".modifyDSButton.clear", function() {
@@ -403,6 +407,17 @@ window.DataFlowModal = (function($, DataFlowModal) {
             var type    = tableCols[i].type;
             var colNum  = i + 1;
             var thClass = "col" + colNum + " type-" + type;
+            var exportable = true;
+            var validTypes = ["string", "integer", "foat", "boolean"];
+            if (tableCols[i].args &&
+                tableCols[colNum].args[0].indexOf(".") > -1) {
+                exportable = false;
+            } else if (validTypes.indexOf(type) === -1) {
+                exportable = false;
+            }
+            if (exportable) {
+                thClass += " exportable";
+            }
 
             html += '<th class="' + thClass + '" data-col="' + colNum + '">' +
                         '<div class="header">' +
