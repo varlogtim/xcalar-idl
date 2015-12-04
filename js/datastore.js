@@ -4078,6 +4078,10 @@ window.ExportTarget = (function($, ExportTarget) {
             "container": "#exportDataForm"
         });
 
+        $exportView.find('.refresh').click(function() {
+            ExportTarget.restore();
+        });
+
         $gridView.on("click", ".grid-unit", function(event) {
             event.stopPropagation(); // stop event bubbling
             var $grid = $(this);
@@ -4133,6 +4137,7 @@ window.ExportTarget = (function($, ExportTarget) {
             var targets = targs.targets;
             var numTargs = targs.numTargets;
             var types = [];
+            exportTargets = [];
             for (var i = 0; i < numTargs; i++) {
                 var type = DsTargetTypeTStr[targets[i].hdr.type];
                 if (type === "file") {
