@@ -145,7 +145,7 @@ window.Scheduler = (function(Scheduler, $) {
             xcHelper.hideDropdowns($schedulesView);
         });
 
-        $scheduleForm.find("> .heading").on("click", ".iconWrap, .text", function() {
+        $("#scheduleForm-edit").on("click", function() {
             if ($scheduleForm.hasClass("new")) {
                 return;
             }
@@ -159,6 +159,9 @@ window.Scheduler = (function(Scheduler, $) {
         });
 
         $("#scheduleForm-cancel").click(function() {
+            if (!$scheduleForm.hasClass("new")) {
+                $scheduleForm.addClass("inActive");
+            }
             resetScheduleForm();
         });
 
