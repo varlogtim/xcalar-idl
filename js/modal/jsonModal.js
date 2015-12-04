@@ -416,6 +416,7 @@ window.JSONModal = (function($, JSONModal) {
     function searchText() {
         $jsonText.find('.highlightedText').contents().unwrap();
         var text = $searchInput.val().toLowerCase();
+
         if (text === "") {
             $counter.find('.position, .total').html('');
             searchHelper.numMatches = 0;
@@ -532,18 +533,6 @@ window.JSONModal = (function($, JSONModal) {
         }
         jsonData.push(jsonObj);
 
-        if (gMinModeOn || isModalOpen) {
-            fillJsonArea(jsonObj, $jsonTd, isArray);
-            if (!isModalOpen) {
-                $jsonText = $jsonModal.find('.prettyJson:visible');
-                searchHelper.$matches = $jsonText.find('.highlightedText');
-            }
-        } else {
-            fillJsonArea(jsonObj, $jsonTd, isArray);
-            $jsonText = $jsonModal.find('.prettyJson:visible');
-            searchHelper.$matches = $jsonText.find('.highlightedText');
-        }
-
         if (!isModalOpen) {
             var height = Math.min(500, $(window).height());
             $jsonModal.height(height).width(500);
@@ -557,7 +546,18 @@ window.JSONModal = (function($, JSONModal) {
             }
         }
 
-        
+        if (gMinModeOn || isModalOpen) {
+            fillJsonArea(jsonObj, $jsonTd, isArray);
+            if (!isModalOpen) {
+                $jsonText = $jsonModal.find('.prettyJson:visible');
+                searchHelper.$matches = $jsonText.find('.highlightedText');
+            }
+        } else {
+            fillJsonArea(jsonObj, $jsonTd, isArray);
+            $jsonText = $jsonModal.find('.prettyJson:visible');
+            searchHelper.$matches = $jsonText.find('.highlightedText');
+        }
+
         if (isModalOpen) {
             var $checkMarks = $jsonArea.find('.checkMark')
                                       .removeClass('single');
