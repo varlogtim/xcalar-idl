@@ -1219,21 +1219,16 @@ window.OperationsModal = (function($, OperationsModal) {
         var funcLower = func.substring(0, 1).toLowerCase() + func.substring(1);
         var funcCapitalized = func.substr(0, 1).toUpperCase() + func.substr(1);
 
+        // all operation have its own way to show error StatusBox
         switch (operatorName) {
             case ('aggregate'):
-                isPassing = aggregate(funcCapitalized, args);
+                isPassing = aggregate(funcCapitalized, args, $argInputs);
                 break;
             case ('filter'):
                 isPassing = filter(func, args);
                 break;
             case ('group by'):
                 isPassing = groupBy(funcCapitalized, args);
-
-                // XXX temporary fix as it has it's own tooltip
-                if (!isPassing) {
-                    modalHelper.enableSubmit();
-                    return;
-                }
                 break;
             case ('map'):
                 isPassing = map(funcLower, args);
@@ -1247,15 +1242,11 @@ window.OperationsModal = (function($, OperationsModal) {
         if (isPassing) {
             $operationsModal.find('.close').trigger('click', {slow: true});
         } else {
-            // XXX if this error message is too general,
-            // can show different msg in aggreagte(),
-            // filter(), groupBy() and map()
-            StatusBox.show(ErrorTextTStr.InvalidField, $argInputs.eq(-1));
             modalHelper.enableSubmit();
         }
     }
 
-    function aggregate(aggrOp, args) {
+    function aggregate(aggrOp, args, $argInputs) {
         var colIndex = -1;
         var backColName = args[0];
         var columns = gTables[tableId].tableCols;
@@ -1269,6 +1260,7 @@ window.OperationsModal = (function($, OperationsModal) {
         }
 
         if (colIndex === -1) {
+            StatusBox.show(ErrorTextTStr.InvalidColName, $argInputs.eq(0));
             return (false);
         }
 
@@ -1431,7 +1423,7 @@ window.OperationsModal = (function($, OperationsModal) {
                     text = ErrorTextTStr.NoEmpty;
                 } else {
                     text = ErrorTextWReplaceTStr.InvalidCol
-                            .replace("<name>", value);
+                            .replace("<name>", value.replace(/\"/g, ''));
                 }
                 
                 StatusBox.show(text, $input);

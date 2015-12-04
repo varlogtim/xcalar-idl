@@ -75,7 +75,7 @@ ErrorTextTStr = {
 
     'NoGroupSelect': 'No group selected.',
 
-    'InvalidColName': 'Invalid column names.',
+    'InvalidColName': 'Invalid column name.',
 
     'NoBucketOnStr': 'Column type is string, cannot bucket into range.',
 
@@ -116,7 +116,7 @@ ErrorTextWReplaceTStr = {
     'InvalidOpsType': 'Invalid type for the field,' +
                       ' wanted: <type1>, but provided: <type2>.',
 
-    'InvalidCol': 'Column "<name> not exists.',
+    'InvalidCol': 'Column "<name>" not exists.',
 
 }
 

@@ -1833,7 +1833,7 @@ function XcalarKeySetBothIfEqual(scope, persist, keyCompare, oldValue, newValue,
     }
 
     xcalarKeySetIfEqual(tHandle, scope, persist, keyCompare, oldValue, newValue,
-                        1, otherKey, otherValue)
+                        otherKey, otherValue)
     .then(deferred.resolve)
     .fail(function(error) {
         var thriftError = thriftLog("XcalarKeySetBothIfEqual", error);

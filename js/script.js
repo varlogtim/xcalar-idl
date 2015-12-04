@@ -281,8 +281,6 @@ function setupFunctionBar() {
     //     e.preventDefault();
     //     e.stopPropagation();
     // });
-
-
 }
 
 function setupMainPanelsTab() {
