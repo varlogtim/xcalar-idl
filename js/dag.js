@@ -1835,10 +1835,7 @@ window.Dag = (function($, Dag) {
                 break;
             case ('joinInput'):
                 info.text = JoinOperatorTStr[value.joinType];
-                //XX temp fix for strange value.joinType
-                if (info.text === undefined) {
-                    info.text = " Join";
-                }
+
                 var joinType = info.text.slice(0, info.text.indexOf("Join"));
                 info.type = joinType;
                 var joinText = "";

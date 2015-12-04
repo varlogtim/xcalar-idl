@@ -11,10 +11,12 @@ window.SQL = (function($, SQL) {
             return;
         }
 
+        var timestamp = new Date().getTime();
         var sql = {
-            "title"  : title,
-            "options": options,
-            "cli"    : cli
+            "title"    : title,
+            "options"  : options,
+            "cli"      : cli,
+            "timestamp": timestamp
         };
 
         history.push(sql);
@@ -49,7 +51,7 @@ window.SQL = (function($, SQL) {
         history.push(sql);
 
         sqlToCommit += JSON.stringify(sql) + ",";
-    }
+    };
 
     SQL.commit = function() {
         var deferred = jQuery.Deferred();
