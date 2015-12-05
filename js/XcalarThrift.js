@@ -1441,13 +1441,14 @@ function XcalarMakeRetina(retName, tableArray, sqlOptions) {
     }
     var workItem = xcalarMakeRetinaWorkItem(retName, tableArray);
     var def1 = xcalarMakeRetina(tHandle, retName, tableArray);
-    var def2 = XcalarGetQuery(workItem);
+    var def2 = jQuery.Deferred().resolve().promise();
+    // var def2 = XcalarGetQuery(workItem);
     jQuery.when(def1, def2)
     .then(function(ret1, ret2) {
         // SQL.add("Create Retina", sqlOptions, ret2);
         deferred.resolve(ret1);
     })
-    .fail(function(error1, erro2) {
+    .fail(function(error1, error2) {
         var thriftError = thriftLog("XcalarMakeRetina", error1, error2);
         SQL.errorLog("Make Retina", sqlOptions, null, thriftError);
         deferred.reject(thriftError);
@@ -1487,7 +1488,7 @@ function XcalarGetRetina(retName) {
         return (deferred.promise());
     }
 
-    xcalarGetRetina(retName)
+    xcalarGetRetina(tHandle, retName)
     .then(deferred.resolve)
     .fail(function(error) {
         deferred.reject(thriftLog("XcalarGetRetina", error));
@@ -1524,7 +1525,8 @@ function XcalarUpdateRetina(retName, dagNodeId, paramType, paramValue,
                                               paramValue);
     var def1 = xcalarUpdateRetina(tHandle, retName, dagNodeId, paramType,
                                   paramValue);
-    var def2 = xcalarGetQuery(workItem);
+    var def2 = jQuery.Deferred().resolve().promise();
+    // var def2 = xcalarGetQuery(workItem);
     jQuery.when(def1, def2)
     .then(function(ret1, ret2) {
         // SQL.add("Update Retina", sqlOptions, ret2);
@@ -1562,7 +1564,8 @@ function XcalarExecuteRetina(retName, params, sqlOptions) {
                                                fileName, params);
     var def1 = xcalarExecuteRetina(tHandle, retName, randomTableName, fileName,
                                    params);
-    var def2 = xcalarGetQuery(workItem);
+    var def2 = jQuery.Deferred().resolve().promise();
+    // var def2 = xcalarGetQuery(workItem);
     jQuery.when(def1, def2)
     .then(function(ret1, ret2) {
         // SQL.add("Execute Retina", sqlOptions, ret2);
@@ -1605,7 +1608,8 @@ function XcalarDeleteRetina(retName, sqlOptions) {
     }
     var workItem = xcalarApiDeleteRetinaWorkItem(retName);
     var def1 = xcalarApiDeleteRetina(retName);
-    var def2 = XcalarGetQuery(workItem);
+    var def2 = jQuery.Deferred().resolve().promise();
+    // var def2 = XcalarGetQuery(workItem);
     
     jQuery.when(def1, def2)
     .then(function(ret1, ret2) {
@@ -1631,7 +1635,8 @@ function XcalarDeleteSched(schedName, sqlOptions) {
     }
     var workItem = xcalarDeleteSchedTaskWorkItem(schedName);
     var def1 = xcalarDeleteSchedTask(tHandle, schedName);
-    var def2 = XcalarGetQuery(workItem);
+    var def2 = jQuery.Deferred().resolve().promise();
+    // var def2 = XcalarGetQuery(workItem);
     jQuery.when(def1, def2)
     .then(function(ret1, ret2) {
         SQL.add("Delete Schedule", sqlOptions, ret2);
@@ -1672,8 +1677,9 @@ function XcalarCreateSched(schedName, schedInSec, period, recurCount, type, arg
                                               recurCount, type, arg);
     var def1 = xcalarScheduleTask(tHandle, schedName, schedInSec, period,
                                   recurCount, type, arg);
-    var def2 = xcalarGetQuery(workItem);
-    jQuery.when(ret1, ret2)
+    var def2 = jQuery.Deferred().resolve().promise();
+    // var def2 = xcalarGetQuery(workItem);
+    jQuery.when(def1, def2)
     .then(function(ret1, ret2) {
         // SQL.add("Create Schedule", sqlOptions, ret2);
         deferred.resolve(ret1);
@@ -1700,7 +1706,8 @@ function XcalarListSchedules(namePattern) {
     xcalarListSchedTask(tHandle, namePattern)
     .then(deferred.resolve)
     .fail(function(error) {
-        deferred.reject(thriftLog("XcalarCreateSchedule", error));
+        // TODO Handle 286 aka table or dataset not found aka no schedules
+        deferred.reject(thriftLog("XcalarListSchedule", error));
     });
     return (deferred.promise());
 }

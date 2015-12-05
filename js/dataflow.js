@@ -211,11 +211,13 @@ window.DFG = (function($, DFG) {
             var columnNames = dataFlow.columns;
             var numColumns  = columnNames.length;
 
-            tableArray.push({
-                "tableName"  : tableName,
-                "numColumns" : numColumns,
-                "columnNames": columnNames
-            });
+            var retinaDstTable = new XcalarApiRetinaDstT();
+            retinaDstTable.numColumns = numColumns;
+            retinaDstTable.target = new XcalarApiNamedInputT();
+            retinaDstTable.target.isTable = true;
+            retinaDstTable.target.name = tableName;
+            retinaDstTable.columnNames = columnNames;
+            tableArray.push(retinaDstTable);
         });
 
         console.log(retName, tableArray);
