@@ -173,6 +173,7 @@ window.WorkbookModal = (function($, WorkbookModal) {
             if (activeActionNo === 0) {
                 // create new workbook part
                 modalHelper.submit();
+                goWaiting();
 
                 WKBKManager.newWKBK(workbookName)
                 .then(function(id) {
@@ -191,20 +192,18 @@ window.WorkbookModal = (function($, WorkbookModal) {
 
             if (activeActionNo === 1) {
                 // continue workbook part
+                goWaiting();
+
                 WKBKManager.switchWKBK(workbookId);
+
                 return;
             }
 
             if (activeActionNo === 2) {
                 // copy workbook part
                 modalHelper.submit();
-                $workbookModal.addClass('inactive');
-                $('body').append('<div id="workbookModalWaitingIcon" ' +
-                                    'class="waitingIcon"></div>');
-                $('#workbookModalWaitingIcon').css({
-                    left: '50%',
-                    top : '50%'
-                }).fadeIn();
+                goWaiting(true);
+
                 WKBKManager.copyWKBK(workbookId, workbookName)
                 .then(function(id) {
                     WKBKManager.switchWKBK(id);
@@ -558,6 +557,19 @@ window.WorkbookModal = (function($, WorkbookModal) {
         }
         reverseLookup[key] = !reverseLookup[key];
         return (results);
+    }
+
+    function goWaiting(hasIcon) {
+        $workbookModal.addClass('inactive');
+
+        if (hasIcon) {
+            $('body').append('<div id="workbookModalWaitingIcon" ' +
+                            'class="waitingIcon"></div>');
+            $('#workbookModalWaitingIcon').css({
+                left: '50%',
+                top : '50%'
+            }).fadeIn();
+        }
     }
 
     return (WorkbookModal);
@@ -928,7 +940,7 @@ window.WKBKManager = (function($, WKBKManager) {
 
     // XXX this is buggy now because it clear wkbkInfo but the session info is kept!
     WKBKManager.emptyAll = function() {
-        var deferred   = jQuery.Deferred();
+        var deferred = jQuery.Deferred();
 
         WKBKManager.getUsersInfo()
         .then(function(userInfo) {
