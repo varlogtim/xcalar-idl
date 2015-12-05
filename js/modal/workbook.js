@@ -885,13 +885,13 @@ window.WKBKManager = (function($, WKBKManager) {
             return (saveWKBK(wkbkInfo));
         })
         .then(function() {
-            return (KVStore.release());
+            return Support.releaseSession();
         })
         .then(function() {
             return (XcalarSwitchToWorkbook(toWkbkName, fromWkbkName));
         })
         .then(function() {
-            return (KVStore.put(activeWKBKKey, wkbkId, true, gKVScope.WKBK));
+            return XcalarKeyPut(activeWKBKKey, wkbkId, true, gKVScope.WKBK);
         })
         .then(function() {
             location.reload();
@@ -978,7 +978,6 @@ window.WKBKManager = (function($, WKBKManager) {
         // copy all info to new key
         KVStore.getAndParse(oldStorageKey, gKVScope.META)
         .then(function(gInfos) {
-            gInfos[KVKeys.HOLD] = false;
             return KVStore.put(newStorageKey, JSON.stringify(gInfos), true, gKVScope.META);
         })
         .then(function() {

@@ -86,7 +86,6 @@ var KVKeys = {
     "TI"   : "TILookup",
     "WS"   : "worksheets",
     "DS"   : "gDSObj",
-    "HOLD" : "holdStatus",
     "CLI"  : "scratchPad",
     "CART" : "datacarts",
     "STATS": "statsCols",
@@ -114,8 +113,6 @@ function commitToStorage(atStartUp) {
     storage[KVKeys.CLI] = CLIBox.getCli();
 
     storage[KVKeys.CART] = DataCart.getCarts();
-    storage[KVKeys.HOLD] = KVStore.isHold();
-
     storage[KVKeys.STATS] = Profile.getCache();
     // storage[KVKeys.DFG] = DFG.getAllGroups();
     // storage[KVKeys.SHCE] = Scheduler.getAllSchedules();
@@ -154,7 +151,7 @@ function readFromStorage() {
     var gDSObjFolder;
     var tableIndicesLookup;
 
-    KVStore.hold()
+    KVStore.getAndParse(KVStore.gStorageKey, gKVScope.META)
     .then(function(gInfos) {
         if (gInfos) {
             if (gInfos[KVKeys.TI]) {
@@ -187,6 +184,7 @@ function readFromStorage() {
 
             return (SQL.restore());
         } else {
+            console.info("KVStore is empty!");
             emptyAllStorage(true);
             return (promiseWrapper(null));
         }
@@ -280,7 +278,6 @@ function readFromStorage() {
 }
 
 window.KVStore = (function($, KVStore) {
-    var isHold   = false;
     var safeMode = false;
     var safeTimer;
 
@@ -546,93 +543,6 @@ window.KVStore = (function($, KVStore) {
         });
 
         return (deferred.promise());
-    };
-
-    KVStore.hold = function() {
-        var deferred = jQuery.Deferred();
-
-        KVStore.getAndParse(KVStore.gStorageKey, gKVScope.META)
-        .then(function(gInfos) {
-            if (!gInfos) {
-                console.log("KVStore is empty!");
-                isHold = true;
-                deferred.resolve(null);
-            } else {
-                if (gInfos[KVKeys.HOLD] === true &&
-                    sessionStorage.getItem(KVStore.user) !== "hold") {
-                    Alert.show({
-                        "title"  : "Signed on elsewhere!",
-                        "msg"    : "Please close your other session.",
-                        "buttons": [
-                            {
-                                "name"     : "Force Release",
-                                "className": "cancel",
-                                "func"     : function() {
-                                    KVStore.forceRelease();
-                                }
-                            }
-                        ],
-                        "noCancel": true
-                    });
-                    deferred.reject("Already in use!");
-                } else {
-                    if (gInfos[KVKeys.HOLD] === true) {
-                        console.error("KVStore not release last time...");
-                    }
-                    isHold = true;
-                    sessionStorage.setItem(KVStore.user, "hold");
-                    deferred.resolve(gInfos);
-                }
-            }
-        })
-        .fail(deferred.reject);
-
-        return (deferred.promise());
-    };
-
-    KVStore.release = function() {
-        if (!isHold) {
-            return (promiseWrapper(null));
-        }
-        isHold = false;
-
-        return (commitToStorage());
-    };
-
-    // XXX in case you are hold forever
-    KVStore.forceRelease = function() {
-        isHold = false;
-
-        if (safeMode) {
-            return;
-        }
-
-        XcalarKeyLookup(KVStore.gStorageKey, gKVScope.META)
-        .then(function(output) {
-            if (output) {
-                var gInfos = JSON.parse(output.value);
-                gInfos.holdStatus = false;
-                return XcalarKeyPut(KVStore.gStorageKey,
-                                     JSON.stringify(gInfos), true, gKVScope.META);
-            } else {
-                console.error("Output is empty");
-                return (promiseWrapper(null));
-            }
-        })
-        .then(function() {
-            // should keep in sync with commitToStorage
-            return (SQL.commit());
-        })
-        .then(function() {
-            return (XcalarSaveWorkbooks("*"));
-        })
-        .then(function() {
-            location.reload();
-        });
-    };
-
-    KVStore.isHold = function() {
-        return (isHold);
     };
 
     function getWKBKLists() {

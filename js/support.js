@@ -4,18 +4,47 @@ window.Support = (function(Support, $) {
     var commitCheckInterval = 120000; // 2 mins each check
     var commitCheckError = "commit key not match";
 
+    // constant
+    var defaultCommitFlag = "commit-default";
+
     Support.setup = function() {
         var deferred = jQuery.Deferred();
 
-        // set up commit flag
-        commitFlag = "commit" + Math.floor((Math.random() * 10000) + 1);
-        // not persist, only store in memory as a flag,
-        // when the flag matches, current UI can commit
-        XcalarKeyPut(KVStore.commitKey, commitFlag, false, gKVScope.FLAG)
+        sessionHoldCheck()
         .then(deferred.resolve)
         .fail(deferred.reject);
 
         return (deferred.promise());
+    };
+
+    Support.releaseSession = function() {
+        var deferred = jQuery.Deferred();
+
+        commitToStorage()
+        .then(function() {
+            sessionStorage.removeItem(KVStore.user);
+            return XcalarKeyPut(KVStore.commitKey, defaultCommitFlag, false, gKVScope.FLAG);
+        })
+        .then(deferred.resolve)
+        .fail(deferred.reject);
+
+        return (deferred.promise());
+    };
+
+    // in case you are hold forever
+    Support.forceReleaseSession = function() {
+        // XXX this is old code for safeLiveSync
+        // if (!safeMode) {
+        //     return (promiseWrapper(null));
+        // }
+        sessionStorage.removeItem(KVStore.user);
+        XcalarKeyPut(KVStore.commitKey, defaultCommitFlag, false, gKVScope.FLAG)
+        .then(function() {
+            location.reload();
+        })
+        .fail(function(error) {
+            console.error(error);
+        });
     };
 
     Support.commitCheck = function() {
@@ -51,9 +80,10 @@ window.Support = (function(Support, $) {
             })
             .fail(function(error) {
                 console.error(error);
-                clearInterval(commitCheckTimer);
-
-                if (error === commitCheckError) {
+                if (error.status === commitCheckError) {
+                    clearInterval(commitCheckTimer);
+                    // this browser tab does not hold any more
+                    sessionStorage.removeItem(KVStore.user);
                     Alert.show({
                         "title"   : "Please Log out",
                         "msg"     : "You are logged in somewhere else!",
@@ -70,6 +100,64 @@ window.Support = (function(Support, $) {
 
         }, commitCheckInterval);
     };
+
+    function sessionHoldCheck() {
+        var deferred = jQuery.Deferred();
+
+        holdCheckHelper()
+        .then(function() {
+            commitFlag = randCommitFlag();
+            // hold the session
+            return XcalarKeyPut(KVStore.commitKey, commitFlag, false, gKVScope.FLAG);
+        })
+        .then(function() {
+            // mark as hold in browser tab
+            sessionStorage.setItem(KVStore.user, "hold");
+            deferred.resolve();
+        })
+        .fail(deferred.reject);
+
+        return (deferred.promise());
+
+        function holdCheckHelper() {
+            var innerDeferred = jQuery.Deferred();
+
+            XcalarKeyLookup(KVStore.commitKey, gKVScope.FLAG)
+            .then(function(val) {
+                if (val == null || val.value === defaultCommitFlag) {
+                    innerDeferred.resolve();
+                } else if (sessionStorage.getItem(KVStore.user) === "hold") {
+                    // when this browser tab hold the seesion and not release
+                    console.error("Session not release last time...");
+                    innerDeferred.resolve();
+                } else {
+                    // when seesion is hold by others
+                    Alert.show({
+                        "title"  : "Signed on elsewhere!",
+                        "msg"    : "Please close your other session.",
+                        "buttons": [
+                            {
+                                "name"     : "Force Release",
+                                "className": "cancel",
+                                "func"     : function() {
+                                    Support.forceReleaseSession();
+                                }
+                            }
+                        ],
+                        "noCancel": true
+                    });
+                    innerDeferred.reject("Already in use!");
+                }
+            })
+            .fail(innerDeferred.reject);
+
+            return (innerDeferred.promise());
+        }
+    }
+
+    function randCommitFlag() {
+        return "commit" + Math.floor((Math.random() * 10000) + 1);
+    }
 
     return (Support);
 }({}, jQuery));

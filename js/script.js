@@ -35,7 +35,7 @@ var gKVScope = {
     "WKBK": XcalarApiKeyScopeT.XcalarApiKeyScopeGlobal,
     "META": XcalarApiKeyScopeT.XcalarApiKeyScopeGlobal,
     "LOG" : XcalarApiKeyScopeT.XcalarApiKeyScopeGlobal,
-    "FLAG": XcalarApiKeyScopeT.XcalarApiKeyScopeGlobal
+    "FLAG": XcalarApiKeyScopeT.XcalarApiKeyScopeSession
 };
 var gTables = {}; // This is the main global array containing structures
                     // Stores TableMeta structs
@@ -368,7 +368,7 @@ function setupLogout() {
     $("#signout").click(function() {
         freeAllResultSetsSync()
         .then(function() {
-            return (KVStore.release());
+            return (Support.releaseSession());
         })
         .fail(function(error) {
             console.error(error);
@@ -454,7 +454,7 @@ function documentReadyGeneralFunction() {
             return "You are leaving Xcalar";
         } else {
             hasRelease = true;
-            KVStore.release();
+            Support.releaseSession();
             sleep("500ms");
             freeAllResultSets();
             sleep("500ms");
@@ -465,7 +465,7 @@ function documentReadyGeneralFunction() {
         if (!hasRelease) {
             // XXX this may not work
             // no it's fine since backend do not has refCount
-            KVStore.release();
+            Support.releaseSession();
             sleep("500ms");
             freeAllResultSets();
             sleep("500ms");

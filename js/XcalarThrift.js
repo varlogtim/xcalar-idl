@@ -1810,7 +1810,7 @@ function XcalarKeySetIfEqual(scope, persist, keyCompare, oldValue, newValue) {
     .fail(function(error) {
         var thriftError = thriftLog("XcalarKeySetIfEqual", error);
         if (thriftError.status === StatusT.StatusKvEntryNotFound) {
-            deferred.resolve();
+            deferred.resolve(null);
         } else if (error === StatusT.StatusKvStoreNotFound) {
             console.warn("Status", error, "kvStore, not found");
             deferred.resolve(null);
