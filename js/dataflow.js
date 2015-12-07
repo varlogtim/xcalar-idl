@@ -137,8 +137,28 @@ window.DFG = (function($, DFG) {
         return (dfGroups[groupName]);
     };
 
-    DFG.setGroup = function(groupName, group) {
+    DFG.setGroup = function(groupName, group, isNew) {
+        var deferred = jQuery.Deferred();
         dfGroups[groupName] = group;
+
+        createRetina(groupName, isNew)
+        .then(function() {
+            // XXX TODO add sql
+            DFGPanel.updateDFG();
+            commitToStorage();
+            deferred.resolve();
+        })
+        .fail(function(error) {
+            delete dfGroups[groupName];
+            deferred.reject(error);
+        });
+
+        return (deferred.promise());
+    };
+
+
+    DFG.hasGroup = function(groupName){
+        return dfGroups.hasOwnProperty(groupName);
     };
 
     DFG.drawCanvas = function($dagImage, isSchedulerPanel) {
@@ -201,7 +221,7 @@ window.DFG = (function($, DFG) {
         }
     };
 
-    DFG.createRetina = function(retName, isNew) {
+    function createRetina(retName, isNew) {
         var deferred = jQuery.Deferred();
         var dfg = dfGroups[retName];
 
@@ -257,7 +277,7 @@ window.DFG = (function($, DFG) {
 
             return (innerDeferred.promise());
         }
-    };
+    }
 
     return (DFG);
 
@@ -293,19 +313,10 @@ window.DFGPanel = (function($, DFGPanel) {
         setupRetinaTab();
     };
 
-    DFGPanel.updateDFG = function(groupName, isNewGroup) {
-        // XXX TODO: disable the dfg when creating retina
-        DFG.createRetina(groupName, isNewGroup)
-        .then(function() {
-            // XXX TODO:
-            // 1. enable the dfg when retain is created
-            // 2. updateList should use the correct dagNode Id
-            // and append export table (call XcalarGetRetina(retName))
-            updateList();
-        })
-        .fail(function(error) {
-            console.error(error);
-        });
+    DFGPanel.updateDFG = function() {
+        // XXX TODO:  updateList should use the correct dagNode Id
+        // and append export table (call XcalarGetRetina(retName))
+        updateList();
     };
 
     DFGPanel.getCurrentDFG = function() {
@@ -871,7 +882,6 @@ window.AddScheduleModal = (function($, AddScheduleModal) {
         // XXX TODO: add waiting icon if the promise takes too long
         Scheduler.addDFG(selectedSchedule, groupName)
         .then(function() {
-            DFGPanel.listSchedulesInHeader(groupName);
             closeModal();
         })
         .fail(function(error) {

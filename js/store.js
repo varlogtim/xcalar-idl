@@ -115,8 +115,8 @@ function commitToStorage(atStartUp) {
 
     storage[KVKeys.CART] = DataCart.getCarts();
     storage[KVKeys.STATS] = Profile.getCache();
-    // storage[KVKeys.DFG] = DFG.getAllGroups();
-    // storage[KVKeys.SHCE] = Scheduler.getAllSchedules();
+    storage[KVKeys.DFG] = DFG.getAllGroups();
+    storage[KVKeys.SHCE] = Scheduler.getAllSchedules();
 
     if (atStartUp) {
         storage[KVKeys.USER] = UserSettings.getSettings();
@@ -176,12 +176,12 @@ function readFromStorage() {
             if (gInfos[KVKeys.USER]) {
                 UserSettings.restore(gInfos[KVKeys.USER]);
             }
-            // if (gInfos[KVKeys.DFG]) {
-            //     DFG.restore(gInfos[KVKeys.DFG]);
-            // }
-            // if (gInfos[KVKeys.SCHE]) {
-            //     Scheduler.restore[gInfos[KVKeys.SCHE]];
-            // }
+            if (gInfos[KVKeys.DFG]) {
+                DFG.restore(gInfos[KVKeys.DFG]);
+            }
+            if (gInfos[KVKeys.SCHE]) {
+                Scheduler.restore[gInfos[KVKeys.SCHE]];
+            }
 
             return (SQL.restore());
         } else {

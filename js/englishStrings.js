@@ -61,6 +61,9 @@ ErrorTextTStr = {
     'TableConflict': 'Table with the same name already exists, ' +
                         'please choose another name.',
 
+    'DFGConflict': 'Data flow group with the same name already exists, ' +
+                            'please choose another name.',
+
     'ScheduleConflict': 'Schedule with the same name already exists, ' +
                             'please choose another name.',
 

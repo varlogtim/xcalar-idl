@@ -7,6 +7,7 @@ window.DataFlowModal = (function($, DataFlowModal) {
     var $modalMain = $dfgModal.find('.modalMain');
     var $sideListSection = $dfgModal.find('.sideListSection');
     var $previewSection = $dfgModal.find('.previewSection');
+    var $searchInput = $("#dataFlowSearch");
     var $radios = $dfgModal.find('.radio');
     var $newGroupNameInput = $('#newGroupNameInput');
     var $confirmBtn = $("#dataFlowModalConfirm");
@@ -93,7 +94,7 @@ window.DataFlowModal = (function($, DataFlowModal) {
         $newGroupNameInput.focus();
     };
 
-    function saveDataFlow(groupName, columns) {
+    function saveDataFlow(groupName, columns, isNewGroup) {
         var tables = [];
         var operations = [];
         var table;
@@ -156,7 +157,8 @@ window.DataFlowModal = (function($, DataFlowModal) {
             "columns"   : columns,
             "canvasInfo": canvasInfo
         });
-        DFG.setGroup(groupName, group);
+
+        return DFG.setGroup(groupName, group, isNewGroup);
     }
 
     function addModalEvents() {
@@ -223,6 +225,17 @@ window.DataFlowModal = (function($, DataFlowModal) {
         $dfgModal.on("click", ".modifyDSButton.clear", function() {
             $dfTable.find(".colSelected").removeClass("colSelected");
         });
+
+        // event on dfg seach area
+        $searchInput.siblings(".clear").click(function(event) {
+            event.stopPropagation();
+            $searchInput.val("").focus();
+            filterDFG();
+        });
+
+        $searchInput.keyup(function() {
+            filterDFG($searchInput.val());
+        });
     }
 
     function exportStep() {
@@ -249,9 +262,18 @@ window.DataFlowModal = (function($, DataFlowModal) {
         if (!$dfgModal.hasClass("exportMode")) {
 
             if ($radios.eq(0).hasClass('checked')) {
+                // when create new dfg
                 isValid = xcHelper.validate([
                     {
                         "$selector": $newGroupNameInput
+                    },
+                    {
+                        "$selector": $newGroupNameInput,
+                        "text"     : ErrorTextTStr.DFGConflict,
+                        "check"    : function() {
+                            var name = $newGroupNameInput.val().trim();
+                            return DFG.hasGroup(name);
+                        }
                     }
                 ]);
             } else {
@@ -312,16 +334,24 @@ window.DataFlowModal = (function($, DataFlowModal) {
                                         .text();
         }
 
-        saveDataFlow(groupName, columns);
-
         modalHelper.submit();
+
+        // XXX This part is buggy,
+        // thrift call maybe slow, and next time open the modal
+        // the call may still not finish yet!!!
+        saveDataFlow(groupName, columns, isNewGroup)
+        .then(function() {
+            // refresh dataflow lists in modal and scheduler panel
+            setupDFGList();
+        })
+        .fail(function(error) {
+            console.error(error);
+        })
+        .always(function() {
+            modalHelper.enableSubmit();
+        });
+
         closeDFGModal();
-
-        // refresh dataflow lists in modal and scheduler panel
-        setupDFGList();
-
-        DFGPanel.updateDFG(groupName, isNewGroup);
-        modalHelper.enableSubmit();
     }
 
     function setupDFGImage($dagWrap) {
@@ -339,10 +369,33 @@ window.DataFlowModal = (function($, DataFlowModal) {
         DFG.drawCanvas($dagImage);
     }
 
+    function filterDFG(str) {
+        var delay = 50;
+        var $dfgLists = $sideListSection.find(".dataFlowGroup");
+        
+        // show all lists
+        if (!str || str.trim() === "") {
+            $dfgLists.fadeIn(delay);
+            return;
+        }
+
+        var reg = new RegExp("^" + str);
+
+        $dfgLists.each(function() {
+            var $li = $(this);
+            var dfgName = $li.find(".listBox .label").text();
+
+            if (reg.test(dfgName) === true) {
+                $li.fadeIn(delay);
+            } else {
+                $li.fadeOut(delay);
+            }
+        });
+    }
+
     function closeDFGModal() {
         modalHelper.clear();
         $dfgModal.hide();
-        $('#modalBackground').fadeOut(300);
         $modalBackground.fadeOut(300, function() {
             Tips.refresh();
             modalHelper.clear();

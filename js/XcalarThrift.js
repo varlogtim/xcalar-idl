@@ -1607,7 +1607,7 @@ function XcalarDeleteRetina(retName, sqlOptions) {
         return (deferred.promise());
     }
     var workItem = xcalarApiDeleteRetinaWorkItem(retName);
-    var def1 = xcalarApiDeleteRetina(retName);
+    var def1 = xcalarApiDeleteRetina(tHandle, retName);
     var def2 = jQuery.Deferred().resolve().promise();
     // var def2 = XcalarGetQuery(workItem);
     

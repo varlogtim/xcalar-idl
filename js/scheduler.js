@@ -227,6 +227,9 @@ window.Scheduler = (function(Scheduler, $) {
             // add schedule to dfg
             dfg.schedules.push(scheduleName);
 
+            DFGPanel.listSchedulesInHeader(dfgName);
+            // XXX TODO add sql
+            commitToStorage();
             deferred.resolve();
         })
         .fail(deferred.reject);
@@ -557,6 +560,7 @@ window.Scheduler = (function(Scheduler, $) {
             //     .find(".scheduleName").text(schedule.name);
             // update info on this schedule
             listSchedule(scheduleName);
+            commitToStorage();
         })
         .fail(function(error) {
             Alert.error("Update Schedule Fails", error);
