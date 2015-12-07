@@ -190,7 +190,7 @@ window.RightSideBar = (function($, RightSideBar) {
             promises.push((function() {
                 var innerDeferred = jQuery.Deferred();
 
-                var $li     = $(ele);
+                var $li = $(ele);
                 var tableId;
                 if (hiddenWS) {
                     tableId = tableIds[index];
@@ -198,8 +198,7 @@ window.RightSideBar = (function($, RightSideBar) {
                     tableId = $li.data("id");
                 }
 
-                console.log(tableId)
-                var table   = gTables[tableId];
+                var table = gTables[tableId];
                 var tableName;
 
                 if (tableType === TableType.Orphan ||

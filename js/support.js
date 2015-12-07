@@ -61,7 +61,13 @@ window.Support = (function(Support, $) {
                     deferred.resolve();
                 }
             })
-            .fail(deferred.reject);
+            .fail(function(error) {
+                if (error.status === StatusT.StatusSessionNotFound) {
+                    deferred.reject(commitCheckError);
+                } else {
+                    deferred.reject(error);
+                }
+            });
         }
 
         return (deferred.promise());
@@ -80,7 +86,7 @@ window.Support = (function(Support, $) {
             })
             .fail(function(error) {
                 console.error(error);
-                if (error.status === commitCheckError) {
+                if (error === commitCheckError) {
                     clearInterval(commitCheckTimer);
                     // this browser tab does not hold any more
                     sessionStorage.removeItem(KVStore.user);
