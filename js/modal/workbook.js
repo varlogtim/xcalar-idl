@@ -4,12 +4,10 @@ window.WorkbookModal = (function($, WorkbookModal) {
 
     var $optionSection = $workbookModal.find(".optionSection");
     var $workbookInput = $("#workbookInput");
-    var $searchInput   = $("#workbookUserSearch");
-    var $userListBox   = $workbookModal.find(".listBox");
-    var $userLists     = $("#workbookUserLists");
     var $workbookLists = $("#workbookLists");
+
     var minHeight = 400;
-    var minWidth = 750;
+    var minWidth  = 750;
 
     var modalHelper = new xcHelper.Modal($workbookModal, {
         "focusOnOpen": true,
@@ -17,13 +15,18 @@ window.WorkbookModal = (function($, WorkbookModal) {
         "minHeight"  : minHeight
     });
 
-    var reverseLookup = {};
+    // default select all workbooks and sort by name
+    var reverseLookup = {
+        "name"    : false,
+        "created" : false,
+        "modified": false,
+        "srcUser" : false,
+        "curUser" : false
+    };
     var sortkey = "name";
 
     var activeActionNo = 0;
-
-    var allUsers = [];
-    var curUsers = [];
+    var curWKBKInfo = null;
 
     WorkbookModal.setup = function() {
         $workbookModal.draggable({
@@ -45,23 +48,42 @@ window.WorkbookModal = (function($, WorkbookModal) {
         });
 
         addWorkbookEvents();
-        getUserLists();
+        getWorkbookInfo();
     };
 
     WorkbookModal.show = function() {
         $(document).on("keypress", workbookKeyPress);
-        resetWorkbookModal();
         modalHelper.setup();
 
-        if (gMinModeOn) {
-            $modalBackground.fadeIn(300);
-            $workbookModal.show();
-            Tips.refresh();
-        } else {
-            $modalBackground.fadeIn(300, function() {
-                $workbookModal.fadeIn(180);
-                Tips.refresh();
+        // default choose first option (new workbook)
+        $optionSection.find(".radio").eq(0).click();
+
+        if (curWKBKInfo == null) {
+            // when not get workbook info yet
+            getWorkbookInfo()
+            .then(function() {
+                showModalHelper();
+            })
+            .fail(function(error) {
+                console.error("Get Workbook Info error", error);
             });
+        } else {
+            showModalHelper();
+        }
+
+        function showModalHelper() {
+            addWorkbooks();
+
+            if (gMinModeOn) {
+                $modalBackground.fadeIn(300);
+                $workbookModal.show();
+                Tips.refresh();
+            } else {
+                $modalBackground.fadeIn(300, function() {
+                    $workbookModal.fadeIn(180);
+                    Tips.refresh();
+                });
+            }
         }
     };
 
@@ -69,19 +91,21 @@ window.WorkbookModal = (function($, WorkbookModal) {
         addWorkbookEvents();
         $workbookModal.find(".cancel, .close").hide();
 
-        getUserLists(true)
+        getWorkbookInfo(true)
         .then(function() {
-            WorkbookModal.show();
+            WorkbookModal.show(true);
             // deafult value for new workbook
             $workbookInput.val("untitled");
             var input = $workbookInput.get(0);
             input.setSelectionRange(0, input.value.length);
+        })
+        .fail(function(error) {
+            console.error("Get Workbook Info error", error);
         });
     };
 
     function resetWorkbookModal() {
         $workbookModal.find(".active").removeClass("active");
-        filterUser();   // show all user lists
         // default select all workbooks and sort by name
         reverseLookup = {
             "name"    : false,
@@ -91,10 +115,6 @@ window.WorkbookModal = (function($, WorkbookModal) {
             "curUser" : false
         };
         sortkey = "name";
-        toggleWorkbooks();
-        // default choose first option
-        $optionSection.find(".radio").eq(0).click();
-        $searchInput.val("");
         $workbookInput.val("").focus();
     }
 
@@ -107,6 +127,8 @@ window.WorkbookModal = (function($, WorkbookModal) {
         $modalBackground.fadeOut(fadeOutTime, function() {
             Tips.refresh();
         });
+
+        resetWorkbookModal();
     }
 
     function addWorkbookEvents() {
@@ -137,12 +159,10 @@ window.WorkbookModal = (function($, WorkbookModal) {
                         "formMode" : true,
                         "text"     : ErrorTextWReplaceTStr.WKBKConflict.replace("<name>", workbookName),
                         "check"    : function() {
-                            for (var i = 0, len = curUsers.length; i < len; i++) {
-                                var wkbks = curUsers[i].workbooks;
-                                for (var id in wkbks) {
-                                    if (wkbks[id].name === workbookName) {
-                                        return true;
-                                    }
+                            var workbooks = curWKBKInfo.workbooks;
+                            for (var wkbkId in workbooks) {
+                                if (workbooks[wkbkId].name === workbookName) {
+                                    return true;
                                 }
                             }
                             return false;
@@ -243,18 +263,6 @@ window.WorkbookModal = (function($, WorkbookModal) {
             $workbookLists.find(".active").removeClass("active");
         });
 
-        // click to select all user
-        $userListBox.click(function(event) {
-            event.stopPropagation();
-            toggleWorkbooks();
-        });
-
-        // select users
-        $userLists.on("click", "li", function(event) {
-            event.stopPropagation();
-            toggleWorkbooks($(this));
-        });
-
         // choose an option
         $optionSection.on("click", ".radioWrap", function(event){
             var $option = $(this);
@@ -265,18 +273,6 @@ window.WorkbookModal = (function($, WorkbookModal) {
             $option.find(".radio").addClass("checked");
 
             switchAction(no);
-        });
-
-        // clear search input
-        $searchInput.siblings(".clear").click(function(event) {
-            event.stopPropagation();
-            $searchInput.val("").focus();
-            filterUser();
-        });
-
-        // input on search area to filter user
-        $searchInput.keyup(function() {
-            filterUser($searchInput.val());
         });
 
         // scroll the title with when the body is scrolled
@@ -300,68 +296,43 @@ window.WorkbookModal = (function($, WorkbookModal) {
         }
     }
 
-    function getUserLists(isForceMode) {
+    function getWorkbookInfo(isForceMode) {
         var deferred = jQuery.Deferred();
-        allUsers = [];
 
-        WKBKManager.getUsersInfo()
-        .then(function(wkbkInfo, sessionInfo) {
-            wkbkInfo = wkbkInfo || {}; // in case wkbkInfo is null
-            var username = wkbkInfo.username;
-
-            // now wkbk only shows the current user
-            if (username != null) {
-                allUsers.push(wkbkInfo);
-            }
-            // sort by user.username
-
-            // allUsers = sortObj(allUsers, "username");
-
-            //update user num
-            $workbookModal.find(".sideListSection .title .num")
-                          .text(allUsers.length);
-            // update userlist
-            var html = "";
-
-            allUsers.forEach(function(wkbk) {
-                html += "<li>" + wkbk.username + "</li>";
-            });
-            $userLists.html(html);
-
-            // get current workbook info
-            getWorkbookInfo(wkbkInfo, isForceMode);
-        })
-        .then(deferred.resolve)
-        .fail(function(error) {
-            console.error("Get Session Error", error);
-            $datalist.html("");
-            deferred.reject(error);
-        });
-
-        return (deferred.promise());
-    }
-
-    function getWorkbookInfo(wkbkInfo, isForceMode) {
-        var html;
+        var $instr = $workbookModal.find(".modalInstruction .text");
         var user = WKBKManager.getUser();
+        var html;
 
         if (isForceMode) {
+            curWKBKInfo = {}; // forceMode has no any workbook info
             html =
-                'Hello <b>' + user + '</b>, ' +
-                ' you have no workbook yet, you can create new workbook, ' +
-                'continue a workbook or copy a workbook';
-            $workbookModal.find(".modalInstruction .text").html(html);
-            return;
+                    'Hello <b>' + user + '</b>, ' +
+                    ' you have no workbook yet, you can create new workbook, ' +
+                    'continue a workbook or copy a workbook';
+            $instr.html(html);
+
+            deferred.resolve();
+            return (deferred.promise());
         }
-        var activeWKBKId = WKBKManager.getActiveWKBK();
-        var workbook     = wkbkInfo.workbooks[activeWKBKId];
 
+        WKBKManager.getUsersInfo()
+        .then(function(wkbkInfo) {
+            curWKBKInfo = wkbkInfo || {};
 
-        html = 'Hello <b>' + user + '</b>, ' +
-                'current workbook is <b>' + workbook.name + '</b>' +
-                ' created by <b>' + user + '</b>';
-        $workbookModal.find(".modalInstruction .text").html(html);
-        updateWorksheetBar(workbook);
+            var activeWKBKId = WKBKManager.getActiveWKBK();
+            var workbook = wkbkInfo.workbooks[activeWKBKId];
+
+            html = 'Hello <b>' + user + '</b>, ' +
+                    'current workbook is <b>' + workbook.name + '</b>' +
+                    ' created by <b>' + user + '</b>';
+            updateWorksheetBar(workbook);
+
+            $instr.html(html);
+        })
+        .then(deferred.resolve)
+        .fail(deferred.reject);
+
+        return (deferred.promise());
     }
 
     function updateWorksheetBar(workbook) {
@@ -390,7 +361,6 @@ window.WorkbookModal = (function($, WorkbookModal) {
                 $inputSection.removeClass("unavailable");
                 $workbookInput.removeAttr("disabled"); // for tab key switch
                 $mainSection.addClass("unavailable");
-                $searchInput.attr("disabled", "disabled");
                 $workbookModal.find(".modalBottom .confirm").text("CREATE");
                 break;
             // continue workbook
@@ -398,7 +368,6 @@ window.WorkbookModal = (function($, WorkbookModal) {
                 $inputSection.addClass("unavailable");
                 $workbookInput.attr("disabled", "disabled");
                 $mainSection.removeClass("unavailable");
-                $searchInput.removeAttr("disabled");
                 $workbookModal.find(".modalBottom .confirm").text("CONTINUE");
                 break;
             // copy workbook
@@ -406,7 +375,6 @@ window.WorkbookModal = (function($, WorkbookModal) {
                 $inputSection.removeClass("unavailable");
                 $workbookInput.removeAttr("disabled");
                 $mainSection.removeClass("unavailable");
-                $searchInput.removeAttr("disabled");
                 $workbookModal.find(".modalBottom .confirm").text("COPY");
                 break;
             default:
@@ -414,56 +382,14 @@ window.WorkbookModal = (function($, WorkbookModal) {
         }
     }
 
-    // helper function for choose user and add its workbooks
-    function toggleWorkbooks($lis) {
-        var isRemove;
-
-        if ($lis == null) {
-            // select all
-            $lis = $userLists.children();
-            isRemove = $userListBox.hasClass("active");
-        } else {
-            isRemove = $lis.hasClass("active");
-        }
-
-        if (isRemove) {
-            $lis.removeClass("active");
-        } else {
-            $lis.addClass("active");
-        }
-
-        // select all users case
-        if ($userLists.find(":not(.active)").length === 0 && !isRemove) {
-            $userListBox.addClass("active");
-        } else {
-            $userListBox.removeClass("active");
-        }
-
-        // filter out all active users
-        var userNames = {};
-        $userLists.find(".active").each(function() {
-            var $li = $(this);
-            userNames[$li.text()] = true;
-        });
-
-        curUsers = allUsers.filter(function(user) {
-            return (userNames.hasOwnProperty(user.username));
-        });
-
-        addWorkbooks();
-    }
-
     function addWorkbooks() {
-        var html   = "";
+        var html = "";
         var sorted = [];
+        var workbooks = curWKBKInfo.workbooks;
 
-        curUsers.forEach(function(wkbkInfo) {
-            var workbooks = wkbkInfo.workbooks;
-
-            for (var wkbkId in workbooks) {
-                sorted.push(workbooks[wkbkId]);
-            }
-        });
+        for (var id in workbooks) {
+            sorted.push(workbooks[id]);
+        }
 
         var activeWKBKId = WKBKManager.getActiveWKBK();
         // sort by workbook.name
@@ -505,28 +431,7 @@ window.WorkbookModal = (function($, WorkbookModal) {
                 '</div>';
         });
 
-        $workbookLists.empty().append(html);
-    }
-
-    function filterUser(str) {
-        var delay = 50;
-
-        if (!str || str === "") {
-            $userLists.children().fadeIn(delay);
-            return;
-        }
-
-        var reg = new RegExp("^" + str);
-
-        $userLists.children().each(function() {
-            var $li = $(this);
-
-            if (reg.test($li.text()) === true) {
-                $li.fadeIn(delay);
-            } else {
-                $li.fadeOut(delay);
-            }
-        });
+        $workbookLists.html(html);
     }
 
     function sortObj(objs, key, isNum) {
