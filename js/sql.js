@@ -4,6 +4,9 @@ window.SQL = (function($, SQL) {
     var $textarea = $('#rightBarTextArea');
     var $machineTextarea = $('#rightBarMachineTextArea');
 
+    // constant
+    var sqlLocalStoreKey = "xcalar-query";
+
     SQL.add = function(title, options, cli) {
         options = options || {};
         if ($.isEmptyObject(options)) {
@@ -22,6 +25,9 @@ window.SQL = (function($, SQL) {
         history.push(sql);
 
         sqlToCommit += JSON.stringify(sql) + ",";
+
+        // XXX uncomment it if commit on errorLog only has bug
+        // localCommit();
 
         $textarea.append(getCliHTML(title, options));
         $machineTextarea.append(getCliMachine(title, options, cli));
@@ -51,6 +57,7 @@ window.SQL = (function($, SQL) {
         history.push(sql);
 
         sqlToCommit += JSON.stringify(sql) + ",";
+        localCommit();
     };
 
     SQL.commit = function() {
@@ -72,6 +79,10 @@ window.SQL = (function($, SQL) {
 
     SQL.getHistory = function() {
         return (history);
+    };
+
+    SQL.getLocalStorage = function() {
+        return localStorage.getItem(sqlLocalStoreKey);
     };
 
     SQL.restore = function() {
@@ -103,6 +114,8 @@ window.SQL = (function($, SQL) {
                 SQL.scrollToBottom($machineTextarea);
             });
 
+            // XXX change back to localCommit() if it's buggy
+            resetLoclStore();
             deferred.resolve();
         })
         .fail(deferred.reject);
@@ -123,6 +136,14 @@ window.SQL = (function($, SQL) {
             $target.scrollTop(scrollDiff);
         }
     };
+
+    function resetLoclStore() {
+        localStorage.removeItem(sqlLocalStoreKey);
+    }
+
+    function localCommit() {
+        localStorage.setItem(sqlLocalStoreKey, JSON.stringify(history));
+    }
 
     function getCliHTML(title, options) {
         if (!options) {

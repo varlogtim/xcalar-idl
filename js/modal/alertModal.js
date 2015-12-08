@@ -171,22 +171,31 @@ window.Alert = (function($, Alert){
             $('#alertHeader').find('.close').css('pointer-events', 'none');
             $alertModal.addClass('locked');
             var $copySqlBtn = $('<button type="button" ' +
-                             'class="btn btnMid copySql" ' +
-                             'data-toggle="tooltip" ' +
-                             'title="Copy the SQL log onto your clipboard">' +
-                             'Copy log</button>');
+                                'class="btn btnMid copySql" ' +
+                                'data-toggle="tooltip" ' +
+                                'title="Copy the SQL log onto your clipboard">' +
+                                'Copy log</button>');
+
             $btnSection.prepend($copySqlBtn);
             $copySqlBtn.click(function() {
                 var $hiddenInput = $("<input>");
                 $("body").append($hiddenInput);
                 var logText = "";
-                logText += "Error: " + $('#alertHeader').find('.text')
-                                                        .text() + ", ";
-                logText += "Description: " + $('#alertContent').find('.text')
-                                                               .text();
-                var sql = JSON.stringify(SQL.getHistory());
+                // logText += "Error: " + $('#alertHeader').find('.text')
+                //                                         .text() + ", ";
+                // logText += "Description: " + $('#alertContent').find('.text')
+                //                                                .text();
+                var sqlHistory = SQL.getHistory();
+                var sql;
+                if (sqlHistory.length === 0) {
+                    sql = SQL.getLocalStorage();
+                } else {
+                    sql = JSON.stringify(sqlHistory);
+                }
+
                 if (sql !== "[]") {
-                    logText += ", SQL: " + sql;
+                    // logText += ", SQL: " + sql;
+                    logText = sql;
                 }
 
                 $hiddenInput.val(logText).select();
