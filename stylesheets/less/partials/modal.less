@@ -1798,8 +1798,12 @@ html.microsoft {
                         .size(100%, 100%);
                         padding: 3px 0;
 
+                        .columnPadding {
+                            .size(@width: 100%, @height: 1px);
+                            visibility: none;
+                        }
+
                         .columnTab {
-                            
                             .size(@width: 100%, @height: 25px);
                             .gray-gradient;
                             .position(relative);

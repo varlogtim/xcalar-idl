@@ -1524,8 +1524,7 @@ function XcalarGetRetina(retName) {
 // replaced with "filter(<opera>(<colName>, <val>))"
 // val = \"hello\"
 // <argument> is used to denote a parameter
-function XcalarUpdateRetina(retName, dagNodeId, paramType, paramValue,
-                            sqlOptions) {
+function XcalarUpdateRetina(retName, dagNodeId, paramType, paramValue, sqlOptions) {
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return (promiseWrapper(null));
     }
@@ -1547,7 +1546,7 @@ function XcalarUpdateRetina(retName, dagNodeId, paramType, paramValue,
         deferred.resolve(ret1);
     })
     .fail(function(error1, error2) {
-        var thriftError = thriftLog("XcalarUpdateRetina", error);
+        var thriftError = thriftLog("XcalarUpdateRetina", error1, error2);
         SQL.errorLog("Update Retina", sqlOptions, null, thriftError);
         deferred.reject(thriftLog(thriftError));
     });

@@ -203,8 +203,13 @@ window.DataFlowModal = (function($, DataFlowModal) {
             $groupLi.addClass('selected');
         });
 
-        $dfTable.on("click", "th.exportable", function() {
+        $dfTable.on("click", "th", function() {
             var $th = $(this);
+            if (!$th.hasClass("exportable")) {
+                showErrorTooltip($th);
+                return;
+            }
+
             var colNum = $th.data("col");
             if ($th.hasClass("colSelected")) {
                 // deselect column
@@ -474,6 +479,7 @@ window.DataFlowModal = (function($, DataFlowModal) {
 
             html += '<th class="' + thClass + '" data-col="' + colNum + '">' +
                         '<div class="header">' +
+                            '<div class="columnPadding"></div>' +
                             '<div title="' + colName +
                             '" data-toggle="tooltip" data-placement="top" ' +
                             'data-container="body" ' +
@@ -496,6 +502,31 @@ window.DataFlowModal = (function($, DataFlowModal) {
         html += $tbody.html();
 
         $dfTable.html(html);
+    }
+
+    function showErrorTooltip($th) {
+        var $columnPadding = $th.find(".columnPadding");
+
+        $columnPadding.tooltip({
+            "title"    : "Cann't export column of type " + getType($th),
+            "placement": "top",
+            "animation": "true",
+            "container": "#dataFlowModal",
+            "trigger"  : "manual",
+             "template" : TooltipTemplate.Error
+        });
+
+        $columnPadding.tooltip("show");
+        setTimeout(function() {
+            $columnPadding.tooltip("destroy");
+        }, 1000);
+    }
+
+    function getType($th) {
+        // match "abc type-XXX abc" and "abc type-XXX"
+        var match = $th.attr("class").match(/type-(.*)/)[1];
+        // match = "type-XXX" or "type-XXX abc"
+        return (match.split(" ")[0]);
     }
 
     return (DataFlowModal);
