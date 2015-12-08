@@ -101,11 +101,12 @@ ErrorTextTStr = {
 
     'NoSupportOp': 'This operation is not supported.',
 
+    'ContinueVerification': 'Are you sure you want to continue?'
 
 }
 
 ErrorTextWReplaceTStr = {
-    'FolderConflict': 'Foler "<name>" already exists, ' +
+    'FolderConflict': 'Folder "<name>" already exists, ' +
                         'please choose another name.',
 
     'WKBKConflict': 'Workbook "<name>" already exists, ' +
@@ -121,8 +122,7 @@ ErrorTextWReplaceTStr = {
 
     'InvalidOpsType': 'Invalid type for the field,' +
                       ' wanted: <type1>, but provided: <type2>.',
-
-    'InvalidCol': 'Column "<name>" does not exists.',
+    'InvalidCol': 'Column "<name>" does not exist.'
 
 }
 

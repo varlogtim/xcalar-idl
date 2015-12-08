@@ -3557,7 +3557,7 @@ html.microsoft {
     }
     .argumentSection {
         .transition (opacity 0.3s);
-        .size (@min-height: 230px);
+        .size (@min-height: 244px);
     }
 
     .border {
@@ -3676,37 +3676,33 @@ html.microsoft {
     }
     &.numArgs4 {
         .argumentSection {
-            min-height: 270px;
-
-            .descriptionText {
-                // XXX this part is for groupby description
-                // could be improved
-                p {
-                    font-size: 13px;
-                }
-
-                .groubyDescription {
-                    margin-top: 3px;
-                    white-space: nowrap;
-
-                    .aggCols, .groupByCols {
-                        color: @color-text-blue;
-                    }
-                }
-            }
+            min-height: 284px;
+        }
+    }
+    .descriptionText {
+        p {
+            font-size: 13px;
+        }
+    }
+    .funcDescription {
+        white-space: nowrap;
+        .aggCols, .groupByCols, .descArgs {
+            color: @color-text-blue;
         }
     }
 
     .modalMain {
-        padding: 16px 15px 10px 70px;
+        padding: 7px 15px 10px 70px;
         .font (@size: 13px);
         b {
             display: inline-block;
-            margin-bottom: 6px;
+            margin-bottom: 4px;
+            margin-top: 9px;
+            font-size: 13px;
         }
 
         .descriptionText {
-            margin-bottom: 10px;
+            margin-bottom: 2px;
             min-height: 40px;
             line-height: 16px;
         }
@@ -3875,6 +3871,7 @@ html.microsoft {
         &.argumentSection {
             display: block !important;
             height: auto;
+            min-height: 0px;
         }
         &.modalMain {
             display: block !important;

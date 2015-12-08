@@ -6,6 +6,7 @@ window.OperationsModal = (function($, OperationsModal) {
     var $functionsMenu = $('#functionsMenu');
     var $functionsUl = $functionsMenu.find('ul');
     var $menus = $('#categoryMenu, #functionsMenu');
+    var $argInputs;
     var colNum = "";
     var colName = "";
     var operatorName = ""; // group by, map, filter, aggregate, etc..
@@ -15,6 +16,7 @@ window.OperationsModal = (function($, OperationsModal) {
     var $lastInputFocused;
     var categoryListScroller;
     var functionsListScroller;
+    var quotesNeeded = [];
     
     var modalHelper = new xcHelper.Modal($operationsModal, {
         "noResize": true
@@ -192,13 +194,11 @@ window.OperationsModal = (function($, OperationsModal) {
 
                 clearTimeout(argumentTimer);
                 argumentTimer = setTimeout(function() {
-                    // here $(this) != $input
                     argSuggest($input);
+                    checkIfStringReplaceNeeded();
                 }, 300);
 
-                if (operatorName === "group by") {
-                    updateGroupbyDescription();
-                }
+                updateDescription();
             },
             'mousedown': function() {
                 $menus.hide();
@@ -896,6 +896,15 @@ window.OperationsModal = (function($, OperationsModal) {
                                 .end()
                                 .find('.description').text(description);
                 ++numArgs;
+                 despText = '<p>' + despText + '</p>' +
+                            '<b>String Preview</b>' +
+                            '<p class="funcDescription textOverflow">' +
+                                operObj.fnName + '(' +
+                                '<span class="descArgs">' +
+                                    $rows.eq(0).find("input").val() +
+                                '</span>' +
+                                ')' +
+                            '</p>';
             } else if (operatorName === 'group by') {
                 // group by sort col field
                 description = 'Field name to group by';
@@ -943,8 +952,9 @@ window.OperationsModal = (function($, OperationsModal) {
                 ++numArgs;
 
 
-                despText = '<p>' + despText + '</p>' +
-                            '<p class="groubyDescription textOverflow">' +
+                despText =  '<p>' + despText + '</p>' +
+                            '<b>String Preview</b>' +
+                            '<p class="funcDescription textOverflow">' +
                                 operObj.fnName + '(' +
                                 '<span class="aggCols">' +
                                     $rows.eq(0).find("input").val() +
@@ -954,7 +964,17 @@ window.OperationsModal = (function($, OperationsModal) {
                                     sortedCol +
                                 '</span>' +
                             '</p>';
-            }   
+            } else if (operatorName === "filter") {
+                despText =  '<p>' + despText + '</p>' +
+                            '<b>String Preview</b>' +
+                            '<p class="funcDescription textOverflow">' +
+                                operObj.fnName + '(' +
+                                '<span class="descArgs">' +
+                                    $rows.eq(0).find("input").val() +
+                                '</span>' +
+                                ')' +
+                            '</p>';
+            }
 
             $rows.show().filter(":gt(" + (numArgs - 1) + ")").hide();
             $operationsModal.find('.descriptionText').html(despText);
@@ -964,26 +984,100 @@ window.OperationsModal = (function($, OperationsModal) {
                 $operationsModal.find('.tableContainer')
                                 .removeClass('manyArgs');
             }
+            $argInputs = $operationsModal.find('.argumentSection input:visible');
+            checkIfStringReplaceNeeded();
         }
     }
 
-    // specifically used for groupby
-    function updateGroupbyDescription() {
-        var $description = $operationsModal.find(".groubyDescription");
-        var $arguments   = $operationsModal.find('.argumentTable .argument');
+    function updateDescription() {
+        var $description = $operationsModal.find(".funcDescription");
+        var numArgs = $argInputs.length;
+        var val;
+        var $inputs = $argInputs;
+        $description.find(".aggCols, .descArgs").text("");
+        if (operatorName === "map" || operatorName === "filter") {
+            if (operatorName === "map") {
+                numArgs--;
+                $inputs = $argInputs.not(':last');
+            }
+            $inputs.each(function(i) {
+                var val = $(this).val();
+                if (quotesNeeded[i]) {
+                    val = JSON.stringify(val);
+                }
+                $description.find(".descArgs").append(val);
+                if (i < numArgs - 1) {
+                    $description.find(".descArgs").append(", ");
+                }
+            });
+        } else if (operatorName === "group by") {
+            $description.find(".aggCols").text($argInputs.eq(0).val())
+                            .end()
+                            .find(".groupByCols").text($argInputs.eq(1).val());
+        }
+    }
 
-        $description.find(".aggCols").text($arguments.eq(0).val())
-                    .end()
-                    .find(".groupByCols").text($arguments.eq(1).val());
+    function checkIfStringReplaceNeeded() {
+        var existingTypes = {};
+        var colPrefix = '$';
+        var typeIds = [];
+        quotesNeeded = [];
+        $argInputs.each(function() {
+            var $input = $(this);
+            var arg    = $input.val().trim();
+            var type   = null;
+
+            // col name field, do not add quote
+            if ($input.closest(".dropDownList").hasClass("colNameSection")) {
+                arg = arg.replace(/\$/g, '');
+                type = getColumnTypeFromArg(arg);
+            } else if (arg.indexOf(colPrefix) >= 0) {
+                arg = arg.replace(/\$/g, '');
+                if ($("#categoryList input").val().indexOf("user") !== 0) {
+                    type = getColumnTypeFromArg(arg);
+                }
+            }
+
+            if (type != null) {
+                existingTypes[type] = true;
+            }
+            typeIds.push($input.data('typeid'));
+        });
+    
+        $argInputs.each(function(i) {
+            var $input = $(this);
+            var arg = $(this).val().trim();
+            var parsedType = parseType(typeIds[i]);
+            if (!$input.closest(".dropDownList").hasClass("colNameSection")
+                && arg.indexOf(colPrefix) === -1
+                && parsedType.indexOf("string") !== -1) {
+                var checkRes = checkArgTypes(arg, typeIds[i]);
+                
+                if (!$.isEmptyObject(existingTypes)) {
+                    if (existingTypes.hasOwnProperty("string")) {
+                        quotesNeeded.push(true);
+                    } else {
+                        quotesNeeded.push(false);
+                    }
+                } else if (arg !== "") {
+                    var isString = formatArgumentInput(arg, typeIds[i],
+                                                      existingTypes)
+                                                     .isString;
+                    quotesNeeded.push(isString);
+                } else {
+                    quotesNeeded.push(false);
+                }
+            } else {
+                quotesNeeded.push(false);
+            }
+            
+        });
+        updateDescription(quotesNeeded);
     }
 
     function checkArgumentParams(blankOK) {
         var allInputsFilled = true;
         var inputIndex = 2;
-        var $argInputs =
-            $operationsModal.find('.argumentSection input').filter(function() {
-                return ($(this).closest('tr').css('display') !== 'none');
-            });
         $argInputs.each(function(index) {
             var $input = $(this);
 
@@ -1034,9 +1128,10 @@ window.OperationsModal = (function($, OperationsModal) {
             if (val === "") {
                 allInputsFilled = false;
                 if (!blankOK) {
-                    showErrorMessage(inputIndex + index);
+                    // showErrorMessage(inputIndex + index);
                 }
-                return (false);
+                return (true);
+                // return (false);
             }
         });
 
@@ -1046,7 +1141,8 @@ window.OperationsModal = (function($, OperationsModal) {
             return (true);
         } else {
             clearInput(2);
-            return (false);
+            return (true);
+            // return (false);
         }
     }
 
@@ -1068,17 +1164,13 @@ window.OperationsModal = (function($, OperationsModal) {
         }
 
         var args = [];
+        var trimmedArgs = [];
         // var colType;
         var colTypes;
         var typeid;
 
         // constant
         var colPrefix = "$";
-
-        var $argInputs =
-            $operationsModal.find('.argumentTable tbody tr').filter(function() {
-                return ($(this).css('display') !== "none");
-            }).find('.argument');
 
         // get colType first
         var existingTypes = {};
@@ -1106,9 +1198,84 @@ window.OperationsModal = (function($, OperationsModal) {
             if (type != null) {
                 existingTypes[type] = true;
             }
+            trimmedArgs.push(arg);
         });
 
-        var errorText;
+        var argFormatHelper = argumentFormatHelper(existingTypes);
+        isPassing = argFormatHelper.isPassing;
+        args = argFormatHelper.args;
+
+        if (!isPassing) {
+            modalHelper.enableSubmit();
+            return;
+        }
+
+        // name duplication check
+        var $nameInput;
+        switch (operatorName) {
+            case ('map'):
+                $nameInput = $argInputs.eq(args.length - 1);
+                isPassing = !ColManager.checkColDup($nameInput, null,
+                                                tableId, true);
+                break;
+            case ('group by'):
+                // check new col name
+                $nameInput = $argInputs.eq(2);
+                isPassing = !ColManager.checkColDup($nameInput, null, tableId);
+                break;
+            default:
+                break;
+        }
+
+        if (!isPassing) {
+            modalHelper.enableSubmit();
+            return;
+        }
+
+        var hasNoEmptyFields = checkNoEmptyFields(trimmedArgs);
+        if (!hasNoEmptyFields) {
+            console.warn('empty field detected')
+        }
+        submitFinalForm(args);
+    }
+
+    function submitFinalForm(args) {
+        var func = $functionInput.val().trim();
+        var funcLower = func.substring(0, 1).toLowerCase() + func.substring(1);
+        var funcCapitalized = func.substr(0, 1).toUpperCase() + func.substr(1);
+
+        // all operation have its own way to show error StatusBox
+        switch (operatorName) {
+            case ('aggregate'):
+                isPassing = aggregate(funcCapitalized, args);
+                break;
+            case ('filter'):
+                isPassing = filter(func, args);
+                break;
+            case ('group by'):
+                isPassing = groupBy(funcCapitalized, args);
+                break;
+            case ('map'):
+                isPassing = map(funcLower, args);
+                break;
+            default:
+                showErrorMessage(0);
+                isPassing = false;
+                break;
+        }
+
+        if (isPassing) {
+            $operationsModal.find('.close').trigger('click', {slow: true});
+        } else {
+            modalHelper.enableSubmit();
+        }
+    }
+
+    function argumentFormatHelper(existingTypes) {
+        var argumentFormatResults;
+        var args = [];
+        var isPassing = true;
+        var colPrefix = "$";
         // XXX this part may still have potential bugs
         $argInputs.each(function() {
             var $input = $(this);
@@ -1182,83 +1349,45 @@ window.OperationsModal = (function($, OperationsModal) {
                     StatusBox.show(errorText, $input);
                     return (false);
                 }
-                arg = formatArgumentInput(arg, typeid, existingTypes);
+                formatArgumentResults = formatArgumentInput(arg, typeid,
+                                                            existingTypes);
+                // if (!formatArgumentResults.isString && newLength === 0) {
+                //     isPassing = false; 
+                //     var text = ErrorTextTStr.NoEmpty;
+                //     StatusBox.show(text, $input);
+                //     return (false);
+                // }
+                arg = formatArgumentResults.value;
             }
 
             args.push(arg);
         });
-
-        if (!isPassing) {
-            modalHelper.enableSubmit();
-            return;
-        }
-
-        // name duplication check
-        var $nameInput;
-        switch (operatorName) {
-            case ('map'):
-                $nameInput = $argInputs.eq(args.length - 1);
-                isPassing = !ColManager.checkColDup($nameInput, null,
-                                                tableId, true);
-                break;
-            case ('group by'):
-                // check new col name
-                $nameInput = $argInputs.eq(2);
-                isPassing = !ColManager.checkColDup($nameInput, null, tableId);
-                break;
-            default:
-                break;
-        }
-
-        if (!isPassing) {
-            modalHelper.enableSubmit();
-            return;
-        }
-
-        var func = $functionInput.val().trim();
-        var funcLower = func.substring(0, 1).toLowerCase() + func.substring(1);
-        var funcCapitalized = func.substr(0, 1).toUpperCase() + func.substr(1);
-
-        // all operation have its own way to show error StatusBox
-        switch (operatorName) {
-            case ('aggregate'):
-                isPassing = aggregate(funcCapitalized, args, $argInputs);
-                break;
-            case ('filter'):
-                isPassing = filter(func, args);
-                break;
-            case ('group by'):
-                isPassing = groupBy(funcCapitalized, args);
-                break;
-            case ('map'):
-                isPassing = map(funcLower, args);
-                break;
-            default:
-                showErrorMessage(0);
-                isPassing = false;
-                break;
-        }
-
-        if (isPassing) {
-            $operationsModal.find('.close').trigger('click', {slow: true});
-        } else {
-            modalHelper.enableSubmit();
-        }
+        return ({args: args, isPassing: isPassing});
     }
 
-    function aggregate(aggrOp, args, $argInputs) {
-        var colIndex = -1;
-        var backColName = args[0];
-        var columns = gTables[tableId].tableCols;
-        var numCols = columns.length;
-        for (var i = 0; i < numCols; i++) {
-            if (columns[i].func.args &&
-                columns[i].func.args[0] === backColName) {
-                colIndex = i;
-                break;
+    function checkNoEmptyFields(args) {
+        var numArgs = args.length;
+        var emptyFields = [];
+        for (var i = 0; i < numArgs; i++) {
+            if (args[i] === "\"\"" || args[i] === "") {
+                if (!(operatorName === "group by" && i === numArgs - 1)) {
+                    emptyFields.push(i);
+                }
             }
         }
+        if (emptyFields.length) {
+            return (false);
+        } else {
+            return (true);
+        }
+        
+        // if (operatorName === "group by") {
+        //     for (var i = 0; i < )
+        // }
+    }
 
+    function aggregate(aggrOp, args) {
+        var colIndex = getColIndex(args[0]);
         if (colIndex === -1) {
             StatusBox.show(ErrorTextTStr.InvalidColName, $argInputs.eq(0));
             return (false);
@@ -1270,26 +1399,34 @@ window.OperationsModal = (function($, OperationsModal) {
 
     function filter(operator, args) {
         var options = {};
-        var colIndex = colNum;
+        var colIndex = -1;
         if (operator !== 'not') {
-            var backColName = args[0];
-            var columns = gTables[tableId].tableCols;
-            var numCols = columns.length;
-            for (var i = 0; i < numCols; i++) {
-                if (columns[i].func.args &&
-                    columns[i].func.args[0] === backColName) {
-                    colIndex = i;
-                    break;
-                }
+            colIndex = getColIndex(args[0]);
+            if (colIndex === -1) {
+                StatusBox.show(ErrorTextTStr.InvalidColName, $argInputs.eq(0));
+                return (false);
             }
         }
 
         var filterString = formulateFilterString(operator, args);
         options = {"filterString": filterString};
-
         xcFunction.filter(colIndex, tableId, options);
 
         return (true);
+    }
+
+    function getColIndex(backColName) {
+        var colIndex = -1;
+        var columns = gTables[tableId].tableCols;
+        var numCols = columns.length;
+        for (var i = 0; i < numCols; i++) {
+            if (columns[i].func.args &&
+                columns[i].func.args[0] === backColName) {
+                colIndex = i;
+                break;
+            }
+        }
+        return (colIndex);
     }
 
     function groupBy(operator, args) {
@@ -1299,20 +1436,13 @@ window.OperationsModal = (function($, OperationsModal) {
         // 3. is include sample
         // 4. new col name
 
-        // var errorText  = 'Invalid column name';
-        // var isFormMode = false;
-
-        // var columns = gTables[tableId].tableCols;
-        // var numCols = columns.length;
-        // var i;
-
-        var $argInputs = $operationsModal.find('.argument');
         var groupbyColName = args[0];
+        var singleArg = true;
         var indexedColNames = args[1];
-        var singleColName = true;
         var isGroupbyColNameValid = checkValidColNames($argInputs.eq(0),
                                                         groupbyColName,
-                                                        singleColName);
+                                                        singleArg);
+
         if (!isGroupbyColNameValid) {
             return (false);
         } else {
@@ -1337,7 +1467,6 @@ window.OperationsModal = (function($, OperationsModal) {
         //                                    .eq(numArgs - 1);
         var newColName = args.splice(numArgs - 1, 1)[0];
         var mapStr = formulateMapString(operator, args);
-
         xcFunction.map(colNum, tableId, newColName, mapStr);
 
         return (true);
@@ -1400,6 +1529,12 @@ window.OperationsModal = (function($, OperationsModal) {
     // used in groupby to check if inputs have column names that match any
     // that are found in gTables.tableCols
     function checkValidColNames($input, colNames, single) {
+        if (typeof colNames !== "string") {
+            var text = ErrorTextWReplaceTStr.InvalidCol
+                            .replace("<name>", colNames);
+            StatusBox.show(text, $input);
+            return (false);
+        }
         var values = colNames.split(",");
         var numValues = values.length;
         if (single && numValues > 1) {
@@ -1556,7 +1691,7 @@ window.OperationsModal = (function($, OperationsModal) {
             value = JSON.stringify(value);
         }
 
-        return (value);
+        return ({value: value, isString: shouldBeString});
     }
 
     function parseType(typeId) {
