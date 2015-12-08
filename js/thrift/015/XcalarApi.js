@@ -1252,7 +1252,7 @@ function xcalarGetTableRefCount(thriftHandle, tableName) {
         deferred.resolve(getTableRefCountOutput);
     })
     .fail(function(error) {
-        console.log("xcalarGetTableRefCount() caught exception:", error);
+        console.log("xcalarDeleteTable() caught exception:", error);
         deferred.reject(error);
     });
 
@@ -1924,8 +1924,8 @@ function xcalarKeyAppend(thriftHandle, scope, key, suffix) {
 }
 
 function xcalarKeySetIfEqualWorkItem(scope, persist, keyCompare, valueCompare,
-                                     valueReplace, countSecondaryPairs,
-                                     keySecondary, valueSecondary) {
+                                     valueReplace, keySecondary, valueSecondary)
+{
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
     workItem.input.keySetIfEqualInput = new XcalarApiKeySetIfEqualInputT();
@@ -1936,48 +1936,16 @@ function xcalarKeySetIfEqualWorkItem(scope, persist, keyCompare, valueCompare,
     workItem.input.keySetIfEqualInput.valueCompare = valueCompare;
     workItem.input.keySetIfEqualInput.valueReplace = valueReplace;
 
-    if (countSecondaryPairs == 1) {
+    if (keySecondary) {
         workItem.input.keySetIfEqualInput.countSecondaryPairs = 1;
         workItem.input.keySetIfEqualInput.keySecondary = keySecondary;
         workItem.input.keySetIfEqualInput.valueSecondary = valueSecondary;
     } else {
+        // keySecondary is "", undefined, or null.
         workItem.input.keySetIfEqualInput.countSecondaryPairs = 0;
     }
 
     return (workItem);
-}
-
-function xcalarKeySetIfEqual(thriftHandle, scope, persist, keyCompare,
-                             valueCompare, valueReplace) {
-    var deferred = jQuery.Deferred();
-    if (verbose) {
-        console.log("xcalarKeySetIfEqual(scope = " + scope + ", persist = " +
-                    persist + ", keyCompare = " + keyCompare +
-                    ", valueCompare = " + valueCompare + ", valueReplace = " +
-                    valueReplace + ")");
-    }
-
-    var workItem = xcalarKeySetIfEqualWorkItem(scope, persist, keyCompare,
-                                               valueCompare, valueReplace, 0,
-                                               "", "");
-
-    thriftHandle.client.queueWorkAsync(workItem)
-    .then(function(result) {
-        var status = result.output.hdr.status;
-        if (result.jobStatus != StatusT.StatusOk) {
-            status = result.jobStatus;
-        }
-        if (status != StatusT.StatusOk) {
-            deferred.reject(status);
-        }
-        deferred.resolve(status);
-    })
-    .fail(function(error) {
-        console.log("xcalarKeySetIfEqual() caught exception:", error);
-        deferred.reject(error);
-    });
-
-    return (deferred.promise());
 }
 
 function xcalarKeySetIfEqual(thriftHandle, scope, persist, keyCompare,
@@ -1993,7 +1961,7 @@ function xcalarKeySetIfEqual(thriftHandle, scope, persist, keyCompare,
     }
 
     var workItem = xcalarKeySetIfEqualWorkItem(scope, persist, keyCompare,
-                                               valueCompare, valueReplace, 1,
+                                               valueCompare, valueReplace,
                                                keySecondary, valueSecondary);
 
     thriftHandle.client.queueWorkAsync(workItem)
@@ -2677,8 +2645,8 @@ function xcalarApiSupportSend(thriftHandle) {
 }
 
 
-function xcalarSchedTaskCreateWorkItem(taskName, scheduleInSecond, period,
-                                       recurCount, type, arg) {
+function xcalarScheduleTaskWorkItem(taskName, scheduleInSecond, period,
+                                    recurCount, type, arg) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
     workItem.input.schedTaskInput = new XcalarApiSchedTaskInputT();
@@ -2707,8 +2675,8 @@ function xcalarScheduleTask(thriftHandle, taskName, scheduleInSecond, period,
                     period + ", recurCount: " + recurCount + ", type: " + type);
     }
 
-    var workItem = xcalarSchedTaskCreateWorkItem(taskName, scheduleInSecond,
-                                                 period, recurCount, type, arg);
+    var workItem = xcalarScheduleTaskWorkItem(taskName, scheduleInSecond,
+                                              period, recurCount, type, arg);
 
     thriftHandle.client.queueWorkAsync(workItem)
     .then(function(result) {
@@ -2726,7 +2694,7 @@ function xcalarScheduleTask(thriftHandle, taskName, scheduleInSecond, period,
     return (deferred.promise());
 }
 
-function xcalarApiMakeDeleteSchedTaskWorkItem(name) {
+function xcalarDeleteSchedTaskWorkItem(name) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
     workItem.apiVersion = 0;
@@ -2743,7 +2711,7 @@ function xcalarDeleteSchedTask(thriftHandle, name) {
     if (verbose) {
         console.log("xcalarDeleteSchedTask(name = " + name + ")");
     }
-    var workItem = xcalarApiMakeDeleteSchedTaskWorkItem(name);
+    var workItem = xcalarDeleteSchedTaskWorkItem(name);
 
     thriftHandle.client.queueWorkAsync(workItem)
     .then(function(result) {
