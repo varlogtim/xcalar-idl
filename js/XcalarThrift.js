@@ -1548,7 +1548,7 @@ function XcalarUpdateRetina(retName, dagNodeId, paramType, paramValue, sqlOption
     .fail(function(error1, error2) {
         var thriftError = thriftLog("XcalarUpdateRetina", error1, error2);
         SQL.errorLog("Update Retina", sqlOptions, null, thriftError);
-        deferred.reject(thriftLog(thriftError));
+        deferred.reject(thriftError);
     });
     return (deferred.promise());
 }

@@ -36,10 +36,10 @@ DFGConstructor.prototype = {
         var res = [];
         var paramMap = this.paramMap;
         for (var paramName in paramMap) {
-            res.push({
-                "parameterName" : paramName,
-                "parameterValue": paramMap[paramName]
-            });
+            var param = new XcalarApiParameterT();
+            param.parameterName = paramName;
+            param.parameterValue = paramMap[paramName];
+            res.push(param);
         }
 
         return (res);
