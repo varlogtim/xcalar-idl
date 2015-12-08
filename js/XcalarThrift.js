@@ -30,58 +30,72 @@ function THandleDoesntExistError() {
 }
 THandleDoesntExistError.prototype = Error.prototype;
 
-function thriftLog(title, errRes) {
-    var thriftError = {};
-    var status;
-    var error;
-    var type = typeof errRes;
+function thriftLog() {
+    var errorLists = [];
+    var title = arguments[0] || "thrift call";
 
-    if (title == null) {
-        title = "thrift call";
+    // check all errors
+    for (var i = 1, len = arguments.length; i < len; i++) {
+        var errRes = arguments[i];
+        if (errRes == null) {
+            continue;
+        }
+        var type = typeof errRes;
+        var thriftError = {};
+        var error;
+        var status;
+
+        if (type === "number") {
+            status = errRes;
+            error = StatusTStr[status];
+        } else if (type === "object") {
+            status = errRes.status;
+            error = StatusTStr[status];
+        } else {
+            // when error is string
+            error = errRes;
+        }
+
+        // special case when error is Success
+        if (status === StatusT.StatusOk) {
+            error = "Unknown Error";
+        }
+
+        var msg;
+
+        if (status != null) {
+            msg = title + " failed with status " + status + ": " + error;
+            thriftError.status = status;
+        } else {
+            msg = title + " failed: " + error;
+        }
+
+        thriftError.error = "Error: " + error;
+        console.error(msg);
+
+        errorLists.push(thriftError);
+
+        var alertError;
+        if (status === StatusT.StatusConnReset) {
+            // This is bad, connection was lost so UI cannot do anything
+            // LOCK THE SCREEN
+            alertError = {"error": "Connection could not be established."};
+            Alert.error("Connection error", alertError, {"lockScreen": true});
+
+            return thriftError;
+        } else if (status === StatusT.StatusNoMem) {
+            // This is bad, out of memory so UI cannot do anything
+            // LOCK THE SCREEN
+            alertError = {"error": "Out of Memory."};
+            Alert.error("Error", alertError, {"lockScreen": true});
+
+            return thriftError;
+        }
     }
 
-    if (type === "number") {
-        status = errRes;
-        error = StatusTStr[status];
-    } else if (type === "object") {
-        status = errRes.status;
-        error = StatusTStr[status];
-    } else {
-        error = errRes;
-    }
-
-    // special case when error is Success
-    if (status === StatusT.StatusOk) {
-        error = "Unknown Error";
-    }
-
-    var msg = title + " failed with status " + status;
-
-    if (status) {
-        msg += ": " + error;
-        thriftError.status = status;
-    }
-
-    thriftError.error = "Error: " + error;
-    console.error(msg);
-
-    var alertError;
-
-    $('.mainContainer').show();
-
-    if (status === StatusT.StatusConnReset) {
-        // This is bad, connection was lost so UI cannot do anything
-        // LOCK THE SCREEN
-        alertError = {"error": "Connection could not be established."};
-        Alert.error("Connection error", alertError, {"lockScreen": true});
-    } else if (status === StatusT.StatusNoMem) {
-        // This is bad, out of memory so UI cannot do anything
-        // LOCK THE SCREEN
-        alertError = {"error": "Out of Memory."};
-        Alert.error("Error", alertError, {"lockScreen": true});
-    }
-
-    return (thriftError);
+    // case other than connection reset and no mem,
+    // return first error
+    return errorLists[0];
 }
 
 function sleep(val) {
