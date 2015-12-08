@@ -1,63 +1,53 @@
 window.Authentication = (function($, Authentication) {
-    var user;
-    var authKey = "userAuthentication";
+    var authInfo;
+    var authKey;
 
     Authentication.setup = function() {
         var deferred = jQuery.Deferred();
-        var username = sessionStorage.getItem("xcalar-username");
+        authKey = Support.getUser() + "-authentication";
 
         KVStore.getAndParse(authKey, gKVScope.AUTH)
-        .then(function(users) {
-            users = users || {};
+        .then(function(oldAuthInfo) {
+            if (oldAuthInfo == null) {
+                authInfo = { "idCount": 0 };
+                authInfo.hashTag = generateHashTag();
 
-            if (!users[username]) {
-                users[username] = {
-                    "username": username,
-                    "idCount" : 0
-                };
-
-                users[username].hashTag = generateHashTag();
-                KVStore.put(authKey, JSON.stringify(users), true, gKVScope.AUTH);
+                KVStore.put(authKey, JSON.stringify(authInfo), true, gKVScope.AUTH);
+            } else {
+                authInfo = oldAuthInfo;
             }
 
-            user = users[username];
-
-            deferred.resolve(user);
+            deferred.resolve();
         })
         .fail(function(error) {
             console.error("Authentication setup fails", error);
             deferred.reject(error);
         });
 
-        return (deferred.promise());
+        return deferred.promise();
     };
 
-    Authentication.getCurrentUser = function() {
-        return (user);
+    Authentication.getInfo = function() {
+        return authInfo;
     };
 
     Authentication.getHashId = function() {
-        var idCount = user.idCount;
+        var idCount = authInfo.idCount;
 
-        user.idCount += 1;
+        authInfo.idCount += 1;
 
-        KVStore.getAndParse(authKey, gKVScope.AUTH)
-        .then(function(users) {
-            users[user.username] = user;
-
-            return KVStore.put(authKey, JSON.stringify(users), true, gKVScope.AUTH);
-        })
+        KVStore.put(authKey, JSON.stringify(authInfo), true, gKVScope.AUTH)
         .fail(function(error) {
             console.error("Save Authentication fails", error);
         });
 
-        return ("#" + user.hashTag + idCount);
+        return ("#" + authInfo.hashTag + idCount);
     };
 
     Authentication.clear = function() {
         // this clear all users' info
-        user = null;
-        return (KVStore.delete(authKey, gKVScope.AUTH));
+        authInfo = null;
+        return KVStore.delete(authKey, gKVScope.AUTH);
     };
 
     function generateHashTag() {

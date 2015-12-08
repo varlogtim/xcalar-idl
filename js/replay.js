@@ -27,7 +27,7 @@ window.Replay = (function($, Replay) {
         }
 
         if (hashTag == null) {
-            hashTag = Authentication.getCurrentUser().hashTag;
+            hashTag = Authentication.getInfo().hashTag;
         }
 
         // filter out auto-triggered sql

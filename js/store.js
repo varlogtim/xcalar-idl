@@ -282,8 +282,7 @@ window.KVStore = (function($, KVStore) {
     var safeMode = false;
     var safeTimer;
 
-    KVStore.setup = function(usrname, gStorageKey, gLogKey) {
-        KVStore.user = usrname;
+    KVStore.setup = function(gStorageKey, gLogKey) {
         KVStore.gStorageKey = gStorageKey;
         KVStore.gLogKey = gLogKey;
         KVStore.commitKey = gStorageKey + "-" + "commitkey";
@@ -293,8 +292,6 @@ window.KVStore = (function($, KVStore) {
         } else {
             safe = false;
         }
-
-        return (Support.setup());
     };
 
     KVStore.get = function(key, scope) {

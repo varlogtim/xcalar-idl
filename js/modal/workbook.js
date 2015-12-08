@@ -492,20 +492,14 @@ window.WKBKManager = (function($, WKBKManager) {
     WKBKManager.setup = function() {
         var deferred = jQuery.Deferred();
 
-        Authentication.setup()
-        .then(function(user) {
-            username = user.username;
-            wkbkInfoKey = generateKey(username, "workbookInfos");
-            activeWKBKKey = generateKey(username, "activeWorkbook");
+        username = Support.getUser();
 
-             // set up session variables
-            userIdName = username;
+        // key that stores all workbook infos for the user
+        wkbkInfoKey = generateKey(username, "workbookInfos");
+        // key that stores the current active workbook Id
+        activeWKBKKey = generateKey(username, "activeWorkbook");
 
-            var hashTag = user.hashTag;
-            userIdUnique = hashTag.charCodeAt(0) * 10000 + hashTag.charCodeAt(1);
-
-            return (WKBKManager.getUsersInfo());
-        })
+        WKBKManager.getUsersInfo()
         .then(function(wkbkInfo, sessionInfo) {
             // sycn sessionInfo with wkbkInfo
             var innerDeferred = jQuery.Deferred();
@@ -550,6 +544,7 @@ window.WKBKManager = (function($, WKBKManager) {
                 console.warn("Error!", wkbkId, "is missing.");
             }
 
+            // refresh workbook info
             KVStore.put(wkbkInfoKey, JSON.stringify(newWKBKInfo), true, gKVScope.WKBK)
             .then(function() {
                 return (KVStore.get(activeWKBKKey, gKVScope.WKBK));
@@ -578,7 +573,6 @@ window.WKBKManager = (function($, WKBKManager) {
                 }
                 $('#initialLoadScreen').remove();
                 WorkbookModal.forceShow();
-
             } else {
                 var wkbkName = wkbkInfo.workbooks[wkbkId].name;
                 var numSessions = sessionInfo.numSessions;
@@ -601,9 +595,7 @@ window.WKBKManager = (function($, WKBKManager) {
                     .then(function() {
                         innerDeferred.resolve(wkbkId);
                     })
-                    .fail(function(error) {
-                        innerDeferred.reject(error);
-                    });
+                    .fail(innerDeferred.reject);
                 } else {
                     innerDeferred.resolve(wkbkId);
                 }
@@ -614,21 +606,19 @@ window.WKBKManager = (function($, WKBKManager) {
             activeWKBKId = wkbkId;
             console.log("Current Workbook Id is", wkbkId);
             // retive key from username and wkbkId
-            var gStorageKey = generateKey(wkbkId, "gInfo");
-            var gLogKey     = generateKey(wkbkId, "gLog");
+            var gInfoKey = generateKey(wkbkId, "gInfo");
+            var gLogKey  = generateKey(wkbkId, "gLog");
 
             if (sessionStorage.getItem("xcalar.safe") != null) {
                 wkbkId = sessionStorage.getItem("xcalar.safe");
-                gStorageKey = generateKey(wkbkId, "gInfo");
-                gLogKey = generateKey(wkbkId, "gLog");
                 console.warn("Entering in safe mode of", wkbkId);
             }
 
-            return KVStore.setup(username, gStorageKey, gLogKey);
+            KVStore.setup(gInfoKey, gLogKey);
+            deferred.resolve();
         })
-        .then(deferred.resolve)
         .fail(function(error) {
-            console.error("KVStore setup fails", error);
+            console.error("Setup Workbook fails!", error);
             deferred.reject(error);
         });
 
@@ -718,10 +708,10 @@ window.WKBKManager = (function($, WKBKManager) {
             // in case KVStore has some remants about wkbkId, clear it
             var innerDeferred = jQuery.Deferred();
 
-            var gStorageKey = generateKey(workbook.id, "gInfo");
-            var gLogKey     = generateKey(workbook.id, "gLog");
+            var gInfoKey = generateKey(workbook.id, "gInfo");
+            var gLogKey  = generateKey(workbook.id, "gLog");
 
-            var def1 = XcalarKeyDelete(gStorageKey, gKVScope.META);
+            var def1 = XcalarKeyDelete(gInfoKey, gKVScope.META);
             var def2 = XcalarKeyDelete(gLogKey, gKVScope.LOG);
 
             jQuery.when(def1, def2)
@@ -830,7 +820,7 @@ window.WKBKManager = (function($, WKBKManager) {
         WKBKManager.newWKBK(wkbkName, srcWKBKId)
         .then(function(id) {
             newId = id;
-            return (copyHelper(srcWKBKId, newId));
+            return copyHelper(srcWKBKId, newId);
         })
         .then(function() {
             deferred.resolve(newId);
@@ -887,21 +877,21 @@ window.WKBKManager = (function($, WKBKManager) {
     function copyHelper(srcId, newId) {
         var deferred = jQuery.Deferred();
 
-        var oldStorageKey = generateKey(srcId, "gInfo");
-        var oldLogKey     = generateKey(srcId, "gLog");
-        var newStorageKey = generateKey(newId, "gInfo");
-        var newLogKey     = generateKey(newId, "gLog");
+        var oldInfoKey = generateKey(srcId, "gInfo");
+        var oldLogKey  = generateKey(srcId, "gLog");
+        var newInfoKey = generateKey(newId, "gInfo");
+        var newLogKey  = generateKey(newId, "gLog");
 
         // copy all info to new key
-        KVStore.getAndParse(oldStorageKey, gKVScope.META)
-        .then(function(gInfos) {
-            return KVStore.put(newStorageKey, JSON.stringify(gInfos), true, gKVScope.META);
+        KVStore.get(oldInfoKey, gKVScope.META)
+        .then(function(value) {
+            return KVStore.put(newInfoKey, value, true, gKVScope.META);
         })
         .then(function() {
-            return (KVStore.get(oldLogKey, gKVScope.LOG));
+            return KVStore.get(oldLogKey, gKVScope.LOG);
         })
         .then(function(value) {
-            return (KVStore.put(newLogKey, value, true, gKVScope.LOG));
+            return KVStore.put(newLogKey, value, true, gKVScope.LOG);
         })
         .then(deferred.resolve)
         .fail(deferred.reject);

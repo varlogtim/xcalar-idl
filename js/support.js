@@ -1,4 +1,5 @@
 window.Support = (function(Support, $) {
+    var username;
     var commitFlag;
     var commitCheckTimer;
     var commitCheckInterval = 120000; // 2 mins each check
@@ -8,13 +9,20 @@ window.Support = (function(Support, $) {
     var defaultCommitFlag = "commit-default";
 
     Support.setup = function() {
-        var deferred = jQuery.Deferred();
+        username = sessionStorage.getItem("xcalar-username");
 
-        sessionHoldCheck()
-        .then(deferred.resolve)
-        .fail(deferred.reject);
+        // set up session variables
+        userIdName = username;
+        userIdUnique = getUserIdUnique(username);
+        return username;
+    };
 
-        return (deferred.promise());
+    Support.getUser = function() {
+        return username;
+    };
+
+    Support.holdSession = function() {
+        return sessionHoldCheck();
     };
 
     Support.releaseSession = function() {
@@ -163,6 +171,17 @@ window.Support = (function(Support, $) {
 
     function randCommitFlag() {
         return "commit" + Math.floor((Math.random() * 10000) + 1);
+    }
+
+    function getUserIdUnique(name) {
+        var len = Math.min(name.length, 5);
+        var id = 0;
+
+        for (var i = 0; i < len; i++) {
+            id += name.charCodeAt(i);
+        }
+
+        return id;
     }
 
     return (Support);

@@ -712,9 +712,17 @@ function startupFunctions() {
     setupLogout();
     RightSideBar.setup();
     DataStore.setup();
+    Support.setup();
+
     WKBKManager.setup()
     .then(function() {
-        return (readFromStorage());
+        return Authentication.setup();
+    })
+    .then(function() {
+        return Support.holdSession();
+    })
+    .then(function() {
+        return readFromStorage();
     })
     .then(function() {
         documentReadyGeneralFunction();
