@@ -1545,12 +1545,14 @@ window.Dag = (function($, Dag) {
         if (dagOrigin === "") {
             var url = dagInfo.url;
             var id = dagInfo.id;
+            var originalTableName = tableName;
             if (tableName.indexOf('.XcalarDS.') === 0) {
                 tableName = tableName.substr('.XcalarDS.'.length);
             }
             
             dagTable += '<div class="dagTable dataStore" ' +
                         'data-tablename="' + tableName + '" ' +
+                        'data-table="' + originalTableName + '" ' +
                         'data-index="' + index + '" ' +
                         'data-children="' + children + '" ' +
                         'data-type="dataStore" ' +
@@ -1612,7 +1614,7 @@ window.Dag = (function($, Dag) {
             var key = getInputType(XcalarApisTStr[dagNode.api]);
             var operation = key.substring(0, key.length - 5);
             var info = getDagNodeInfo(dagNode, key, parents);
-
+            var resultTableName = getDagName(dagNode);
             if (info.type === "sort") {
                 operation = "sort";
             }
@@ -1623,6 +1625,7 @@ window.Dag = (function($, Dag) {
                         'data-info="' + info.text.replace(/"/g, "'") + '" ' +
                         'data-column="' + info.column.replace(/"/g, "'")
                                         + '" ' +
+                        'data-table="' + resultTableName + '"' +
                         'data-id="' + info.id + '" ' +
                         'data-toggle="tooltip" ' +
                         'data-placement="top" ' +

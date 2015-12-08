@@ -98,29 +98,51 @@ window.DataFlowModal = (function($, DataFlowModal) {
         var tables = [];
         var operations = [];
         var table;
+        var tableName;
         var operation;
         var $dagImage = $dfPreviews.find('.dagImage');
+        var firstDagTable;
+        var nodeIds = {};
 
         // put each blue table icon into an object, recording position and info
         $dagImage.find('.dagTable').each(function() {
             var $dagTable = $(this);
+
             var children = ($dagTable.data('children') + "").split(",");
-            children = children[children.length - 2];
+            children = parseInt(children[children.length - 2]) + 1 + "";
+            if (children === "NaN") {
+                children = 0;
+            }
+            tableName = $dagTable.find('.tableTitle').text();
             table = {
-                "index"   : $dagTable.data('index'),
+                "index"   : $dagTable.data('index') + 1,
                 "children": children,
                 "type"    : $dagTable.data('type') || 'table',
                 "left"    : parseInt($dagTable.css('left')),
                 "top"     : parseInt($dagTable.css('top')),
-                "title"   : $dagTable.find('.tableTitle').text()
+                "title"   : tableName
             };
+            if ($dagTable.data('index') === 0) {
+                firstDagTable = table;
+            }
 
             if ($dagTable.hasClass('dataStore')) {
                 table.url = $dagTable.data('url');
-                table.id = $dagTable.data('id');
+                table.table = $dagTable.data('table');
             }
             tables.push(table);
         });
+
+        // create the export table
+        table = {
+            "index"   : 0,
+            "children": undefined,
+            "type"    : 'table',
+            "left"    : firstDagTable.left + 130,
+            "top"     : firstDagTable.top,
+            "title"   : "export-" + firstDagTable.title + ".csv"
+        };
+        tables.push(table);
 
         // put each gray operation icon into an object,
         // recording position and info
@@ -134,7 +156,7 @@ window.DataFlowModal = (function($, DataFlowModal) {
                 "type"   : $operation.data('type'),
                 "column" : $operation.data('column'),
                 "info"   : $operation.data('info'),
-                "id"     : $operation.data('id'),
+                "table"  : $operation.data('table'),
                 "parents": $operation.find('.parentsTitle').text(),
                 "left"   : parseInt($operation.css('left')),
                 "top"    : parseInt($operation.css('top')),
@@ -148,7 +170,7 @@ window.DataFlowModal = (function($, DataFlowModal) {
             "tables"    : tables,
             "operations": operations,
             "height"    : $dagImage.height(),
-            "width"     : $dagImage.width()
+            "width"     : $dagImage.width() + 150
         };
 
         var group = DFG.getGroup(groupName) || new DFGConstructor(groupName);

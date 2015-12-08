@@ -6,6 +6,7 @@ function DFGConstructor(name, options) {
     this.parameters = options.parameters || [];
     this.paramMap = options.paramMap || {};
     this.retinaNodes = options.retinaNodes || {};
+    this.nodeIds = options.nodeIds || {};
 
     return (this);
 }
@@ -13,7 +14,16 @@ function DFGConstructor(name, options) {
 DFGConstructor.prototype = {
     "addRetinaNode": function(dagNodeId, paramInfo) {
         this.retinaNodes[dagNodeId] = paramInfo;
-        $('#schedulerPanel').find('[data-id=' + dagNodeId + ']')
+        var numNodes = this.nodeIds.length;
+        var tableName;
+        for (var name in this.nodeIds) {
+            if (this.nodeIds[name] === dagNodeId) {
+                tableName = name;
+                break;
+            }
+        }
+        
+        $('#schedulerPanel').find('[data-table="' + tableName + '"]')
                             .addClass('hasParam');
     },
 
@@ -88,7 +98,7 @@ DFGConstructor.prototype = {
 
 window.DFG = (function($, DFG) {
     var dfGroups = {};
-
+    // XX sample group structure, not updated but good to have anyways 
     // var dfGroups = {"group1": {
     //                     "dataFlows": [
     //                         {
@@ -143,6 +153,10 @@ window.DFG = (function($, DFG) {
 
         createRetina(groupName, isNew)
         .then(function() {
+            return(XcalarGetRetina(groupName));
+        })
+        .then(function(retInfo) {
+            updateDFGInfo(retInfo);
             // XXX TODO add sql
             DFGPanel.updateDFG();
             commitToStorage();
@@ -155,7 +169,6 @@ window.DFG = (function($, DFG) {
 
         return (deferred.promise());
     };
-
 
     DFG.hasGroup = function(groupName){
         return dfGroups.hasOwnProperty(groupName);
@@ -196,7 +209,7 @@ window.DFG = (function($, DFG) {
                 
                 ctx.beginPath();
                 ctx.moveTo(left1, top1);
-                
+
                 if (top1 !== top2) {
                     var midLeft = left2 - 120;
                     ctx.lineTo(midLeft, top1);
@@ -240,8 +253,6 @@ window.DFG = (function($, DFG) {
             tableArray.push(retinaDstTable);
         });
 
-        console.log(retName, tableArray);
-
         makeRetinaHelper()
         .then(deferred.resolve)
         .fail(deferred.reject);
@@ -255,7 +266,7 @@ window.DFG = (function($, DFG) {
             } else {
                 XcalarDeleteRetina(retName)
                 .then(function() {
-                    return (XcalarMakeRetina(retName));
+                    return (XcalarMakeRetina(retName, tableArray));
                 })
                 .then(function() {
                     // XXX TODO: handle the buggy dagNodeId (new id is different from old one)
@@ -276,6 +287,23 @@ window.DFG = (function($, DFG) {
             }
 
             return (innerDeferred.promise());
+        }
+    }
+
+    // called after retina is created or updated in order to update
+    // the ids of dag nodes
+    function updateDFGInfo(retInfo) {
+        var retina = retInfo.retina;
+        var retName = retina.retinaDesc.retinaName;
+        var group = dfGroups[retName];
+        var nodes = retina.retinaDag.node
+        var numNodes = retina.retinaDag.numNodes;
+        var nodeIds = group.nodeIds;
+        var tableName;
+        
+        for (var i = 0; i < numNodes; i++) {
+            tableName = nodes[i].name.name;
+            nodeIds[tableName] = nodes[i].dagNodeId;
         }
     }
 
@@ -551,6 +579,7 @@ window.DFGPanel = (function($, DFGPanel) {
 
         var numDataFlows = group.dataFlows.length;
         var retinaNodes = group.retinaNodes;
+        var nodeIds = group.nodeIds;
         for (var i = 0; i < numDataFlows; i++) {
             var dataFlow = group.dataFlows[i];
             html += '<div class="dagWrap clearfix">' +
@@ -569,14 +598,17 @@ window.DFGPanel = (function($, DFGPanel) {
                         '<div class="dagImageWrap">' +
                             '<div class="dagImage" style="width:' +
                             dataFlow.canvasInfo.width + 'px;height:' +
-                            dataFlow.canvasInfo.height + 'px;">';
-
+                            dataFlow.canvasInfo.height + 'px;">';               
             var tables = dataFlow.canvasInfo.tables;
             var hasParam;
+            var tableName;
+            var nodeId;
             for (var j = 0, numTables = tables.length; j < numTables; j++) {
                 hasParam = false;
-                if (tables[j].id !== undefined) {
-                    if (retinaNodes[tables[j].id]) {
+                tableName = tables[j].table;
+                if (tableName !== undefined) {
+                    nodeId = nodeIds[tableName];
+                    if (retinaNodes[nodeId]) {
                         hasParam = true;
                     }
                 }
@@ -586,8 +618,10 @@ window.DFGPanel = (function($, DFGPanel) {
             var operations = dataFlow.canvasInfo.operations;
             for (var j = 0, numOps = operations.length; j < numOps; j++) {
                 hasParam = false;
-                if (operations[j].id !== undefined) {
-                    if (retinaNodes[operations[j].id]) {
+                tableName = operations[j].table;
+                if (tableName !== undefined) {
+                    nodeId = nodeIds[tableName];
+                    if (retinaNodes[nodeId]) {
                         hasParam = true;
                     }
                 }
@@ -642,7 +676,8 @@ window.DFGPanel = (function($, DFGPanel) {
         '" data-children="' + table.children + '" data-type="' +
         table.type + '"';
         if (icon === 'dataStoreIcon') {
-            html += ' data-url="' + table.url + '" data-id="' + table.id + '"';
+            html += ' data-url="' + table.url + '"' +
+                    ' data-table="' + table.table + '"';
         }
         html += ' style="top: ' + table.top + 'px; left: ' + table.left +
         'px; position: absolute;">' +
@@ -668,7 +703,8 @@ window.DFGPanel = (function($, DFGPanel) {
         '" style="top: ' + operation.top + 'px; left: ' +
         operation.left + 'px; position: absolute;" ' +
         'data-type="' + operation.type + '" data-info="' + operation.info +
-        '" data-id="' + operation.id + '" data-column="' + operation.column +
+        '" data-table="' + operation.table + '"' +
+        '" data-column="' + operation.column +
         '" data-toggle="tooltip" ' +
         'data-placement="top" data-container="body" title="' +
         operation.tooltip + '">' +
@@ -1046,8 +1082,10 @@ window.DagParamModal = (function($, DagParamModal){
 
     DagParamModal.show = function($currentIcon) {
         var type = $currentIcon.data('type');
-        var id = $currentIcon.data('id');
+        var tableName = $currentIcon.data('table');
         var dfgName = DFGPanel.getCurrentDFG();
+        var dfg = DFG.getGroup(dfgName);
+        var id = dfg.nodeIds[tableName];
 
         $dagParamModal.data({
             "id" : id,
@@ -1263,12 +1301,8 @@ window.DagParamModal = (function($, DagParamModal){
                     paramType = XcalarApisT.XcalarApiFilter;
 
                     var filterText = $editableDivs.eq(1).text().trim();
-                    var str1 = $editableDivs.eq(0).text()
-                                                  .replace(/\+/g, "")
-                                                  .trim();
-                    var str2 = $editableDivs.eq(2).text()
-                                                  .replace(/\+/g, "")
-                                                  .trim();
+                    var str1 = $editableDivs.eq(0).text().trim();
+                    var str2 = $editableDivs.eq(2).text().trim();
                     var filter;
                     // Only support these filter now
                     switch (filterText) {
@@ -1298,9 +1332,7 @@ window.DagParamModal = (function($, DagParamModal){
                     break;
                 case ("Load"):
                     paramType = XcalarApisT.XcalarApiBulkLoad;
-                    paramValue = $editableDivs.eq(0).text()
-                                            .replace(/\+/g, "")
-                                            .trim();
+                    paramValue = $editableDivs.eq(0).text().trim();
                     // paramInput.paramLoad = new XcalarApiParamLoadT();
                     // paramInput.paramLoad.datasetUrl = str;
                     paramQuery = [paramValue];
@@ -1436,7 +1468,7 @@ window.DagParamModal = (function($, DagParamModal){
                     '<span class="delim"><</span>' +
                     '<span class="value">' + paramName + '</span>' +
                     '<span class="delim">></span>' +
-                    '<div class="close"><span>+</span></div>' +
+                    '<div class="close"></div>' +
                 '</div>';
 
         return (html);
