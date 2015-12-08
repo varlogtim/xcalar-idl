@@ -275,7 +275,7 @@ window.RightSideBar = (function($, RightSideBar) {
                                              AfterStartup.After, null));
                         })
                         .then(function() {
-                            doneHandler($li, tableName, true);
+                            doneHandler($li, tableName, hiddenWS);
                             innerDeferred.resolve();
                         })
                         .fail(function(error) {

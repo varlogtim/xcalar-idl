@@ -709,22 +709,26 @@ window.WSManager = (function($, WSManager) {
         });
         // delete worksheet
         $workSheetTabSection.on("click", ".delete", function (event) {
-            var wsId = $(this).closest(".worksheetTab").data("ws");
-            var numTabs = $workSheetTabSection.find('.worksheetTab').length;
             event.stopPropagation();
+
+            var wsId = $(this).closest(".worksheetTab").data("ws");
+            // var numTabs = $workSheetTabSection.find('.worksheetTab').length;
+            delWSHelper(wsId);
             
-            dropdownClick($(this), {
-                type: "tabMenu",
-                offsetX: -7,
-                callback: function() {
-                    if (numTabs === 1) {
-                        $tabMenu.find('.delete').addClass('unavailable');
-                    } else {
-                        $tabMenu.find('.delete').removeClass('unavailable');
-                    }
-                    $tabMenu.data('ws', wsId);
-                }
-            });
+            // XX code for stashing worksheets is commented out
+            
+            // dropdownClick($(this), {
+            //     type: "tabMenu",
+            //     offsetX: -7,
+            //     callback: function() {
+            //         if (numTabs === 1) {
+            //             $tabMenu.find('.delete').addClass('unavailable');
+            //         } else {
+            //             $tabMenu.find('.delete').removeClass('unavailable');
+            //         }
+            //         $tabMenu.data('ws', wsId);
+            //     }
+            // });
         });
 
         var initialIndex;

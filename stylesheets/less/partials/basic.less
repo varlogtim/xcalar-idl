@@ -1782,6 +1782,19 @@ ul.inputMenu {
             }
         }
 
+        &:only-child {
+            .delete {
+                display: none !important;
+            }
+            .wsIcon {
+                margin-left: 5px !important;
+            }
+            .text {
+                margin-left: 5px !important;
+                width: ~"calc(100% - 35px)" !important;
+            }
+        }
+
         .dagTab {
             .size(@width: 30px, @height: 34px);
             float: left;
