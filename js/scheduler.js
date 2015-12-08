@@ -535,6 +535,7 @@ window.Scheduler = (function(Scheduler, $) {
                 $li.click();
             });
         }
+        commitToStorage();
     }
 
     function updateSchedule(schedule, option) {
