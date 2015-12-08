@@ -219,6 +219,8 @@ window.UDF = (function($, UDF) {
 
         xcHelper.dropdownList($dropDownList, {
             "onSelect": function($li) {
+                $li.parent().find("li").removeClass("selected");
+                $li.addClass("selected");
                 var moduleName = $li.text();
 
                 $template.val(moduleName);
