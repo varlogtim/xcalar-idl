@@ -48,6 +48,8 @@ window.Scheduler = (function(Scheduler, $) {
         });
 
         $("#addSchedule").click(function() {
+            $("#scheduleTable").hide();
+            $("#scheduleInfos").hide();
             $scheduleLists.children(".active").removeClass("active");
             listSchedule();
         });
@@ -212,7 +214,16 @@ window.Scheduler = (function(Scheduler, $) {
 
         var args = getScheduleArgs(schedule, dfg);
         console.log(args);
+        /**
+        console.log(args[5]);
+        XcalarExecuteRetina(args[5].retinaName, args[5].parameters)
+        .then(function(ret) {
+            console.log("done executing retina");
+            console.log(ret);
+        });
 
+        deferred.resolve();
+        */
         XcalarCreateSched.apply(window, args)
         .then(function() {
             // add dfg to schedule
@@ -577,8 +588,12 @@ window.Scheduler = (function(Scheduler, $) {
         if (isNew) {
             // new schedule
             schedule = {};
+            $("#scheduleTable").hide();
+            $("#scheduleInfos").hide();
             $("#deleteSchedule").addClass("btnInactive");
         } else {
+            $("#scheduleTable").show();
+            $("#scheduleInfos").show();
             schedule = scheduleLookUpMap[name];
             // update schedule
             getNextRunTime(schedule);

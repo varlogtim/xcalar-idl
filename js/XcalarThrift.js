@@ -1570,13 +1570,8 @@ function XcalarExecuteRetina(retName, params, sqlOptions) {
         return (deferred.promise());
     }
 
-    var randomTableName = "retinaTable" +
-                          Math.floor(Math.random() * 1000000000 + 1);
-    var fileName = retName + ".csv";
-    var workItem = xcalarExecuteRetinaWorkItem(retName, randomTableName,
-                                               fileName, params);
-    var def1 = xcalarExecuteRetina(tHandle, retName, randomTableName, fileName,
-                                   params);
+    var workItem = xcalarExecuteRetinaWorkItem(retName, params);
+    var def1 = xcalarExecuteRetina(tHandle, retName, params);
     var def2 = jQuery.Deferred().resolve().promise();
     // var def2 = xcalarGetQuery(workItem);
     jQuery.when(def1, def2)
