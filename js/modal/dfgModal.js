@@ -449,6 +449,8 @@ window.DataFlowModal = (function($, DataFlowModal) {
     function setupDFGList() {
         var groups = DFG.getAllGroups();
         var html = "";
+        var groupCnt = 0;
+
         for (var group in groups) {
             var list = groups[group].dataFlows;
             var listLen = list.length;
@@ -468,7 +470,10 @@ window.DataFlowModal = (function($, DataFlowModal) {
             }
                     
             html += '</ul></div>';
+            groupCnt++;
         }
+
+        $sideListSection.find('.title .num').text(groupCnt);
         $sideListSection.find('.listSection').html(html);
     }
 

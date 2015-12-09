@@ -1036,25 +1036,10 @@ window.DagParamModal = (function($, DagParamModal){
         });
 
         $dagParamModal.on('click', '.draggableDiv .close', function() {
-            var value = $(this).siblings('.value').text();
+            var paramVal = $(this).siblings('.value').text();
             $(this).parent().remove();
 
-            var $dups = $editableRow.find('.editableParamDiv .value').filter(function() {
-                return ($(this).text() === value);
-            });
-
-            if ($dups.length > 0) {
-                return;
-            }
-
-            var $tbody = $paramLists.find("tbody");
-            $tbody.find('.paramName').filter(function() {
-                return ($(this).text() === value);
-            }).closest('tr').remove();
-
-            if ($tbody.find("tr").length < paramListTrLen) {
-                $tbody.append(trTemplate);
-            }
+            updateParamList(paramVal);
         });
 
         $dagParamModal.on('focus', '.paramVal', function() {
@@ -1074,11 +1059,7 @@ window.DagParamModal = (function($, DagParamModal){
         });
 
         $dagParamModal.on("click", ".editableTable .defaultParam", function() {
-            var $div = $(this);
-            var target = $div.data("target");
-            var defaultVal = $dagParamModal.find(".templateTable .boxed")
-                                            .eq(target).text();
-            $div.siblings(".editableParamDiv").text(defaultVal);
+            setParamDivToDefault($(this).siblings(".editableParamDiv"));
         });
 
         $dagParamModal.draggable({
@@ -1153,13 +1134,20 @@ window.DagParamModal = (function($, DagParamModal){
         $dagParamModal.find('.template').html(defaultText);
         $editableRow.html(editableText);
 
-        // var $dagWrap = $currentIcon.closest('.dagWrap');
+
         var draggableInputs = "";
         DFG.getGroup(dfgName).parameters.forEach(function(paramName) {
             draggableInputs += generateDraggableParams(paramName);
         });
 
-        $dagParamModal.find('.draggableParams').html(draggableInputs);
+        if (draggableInputs === "") {
+            draggableInputs = "Please create parameters in Data Flow Group Panel first.";
+            $dagParamModal.find('.draggableParams').addClass("hint")
+                        .html(draggableInputs);
+        } else {
+            $dagParamModal.find('.draggableParams').removeClass("hint")
+                            .html(draggableInputs);
+        }
 
         generateParameterDefaultList();
         populateSavedFields(id, dfgName);
@@ -1250,6 +1238,43 @@ window.DagParamModal = (function($, DagParamModal){
             .find(".paramVal").val(paramVal).removeAttr("disabled")
             .end()
             .removeClass("unfilled");
+    }
+
+    function setParamDivToDefault($paramDiv) {
+        var target = $paramDiv.data("target");
+        var paramVals = [];
+        var defaultVal = $dagParamModal.find(".templateTable .boxed")
+                                        .eq(target).text();
+
+        $paramDiv.find(".draggableDiv .value").each(function() {
+            paramVals.push($(this).text());
+        });
+
+        $paramDiv.text(defaultVal);
+        paramVals.forEach(function(val) {
+            updateParamList(val);
+        });
+    }
+
+    function updateParamList(paramVal) {
+        // find if the param has dups
+        var $dups = $editableRow.find(".editableParamDiv .value").filter(function() {
+            return ($(this).text() === paramVal);
+        });
+
+        if ($dups.length > 0) {
+            return;
+        }
+
+        // if no dups, clear the param in param list table
+        var $tbody = $paramLists.find("tbody");
+        $tbody.find('.paramName').filter(function() {
+            return ($(this).text() === paramVal);
+        }).closest('tr').remove();
+
+        if ($tbody.find("tr").length < paramListTrLen) {
+            $tbody.append(trTemplate);
+        }
     }
 
     function storeRetina() {
@@ -1396,7 +1421,6 @@ window.DagParamModal = (function($, DagParamModal){
                         'contenteditable="true" ' +
                         'spellcheck="false"></div>' +
                         '<div title="Default Value" ' +
-                        'data-target="' + inputNum + '" ' +
                         'class="defaultParam iconWrap" data-toggle="tooltip" ' +
                         'data-placement="top" data-container="body">' +
                             '<span class="icon"></span>' +

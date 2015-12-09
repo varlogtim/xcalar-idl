@@ -3022,9 +3022,6 @@ html.microsoft {
     .modalInstruction {
         box-shadow: 0 3px 3px 0px rgba(0,0,0,.2);
         position: relative;
-        .icon {
-            .image("/images/info-icon-large.png");
-        }
     }
 
     .modalTopMain {
@@ -3110,6 +3107,11 @@ html.microsoft {
 
     .draggableParams {
         margin-left: -5px;
+
+        &.hint {
+            margin-left: 0;
+            .font(@weight: 700, @size: 12px, @color: @color-text-lightGray);
+        }
     }
 
     .draggableDiv {
@@ -3171,25 +3173,28 @@ html.microsoft {
             .position(relative);
 
             .iconWrap {
-                .position(absolute, @top: 5px, @right: 3px);
+                .position(absolute, @top: 5px, @right: 7px);
                 .size(20px, 20px);
+                border-left: 1px solid #CCCCCC;
+                padding-left: 1px;
                 cursor: pointer;
-                .gray-gradient;
 
                 &:hover {
-                    .gray-inverse-gradient;
+                    .icon {
+                        .image("/images/dfg-default-active.png", 50%, 50%);
+                    }
                 }
 
                 .icon {
                     .size(20px, 20px);
-                    .image("/images/columnSelect.png", 50%, 50%);
+                    .image("/images/dfg-default.png", 50%, 50%);
                 }
             }
         }
 
         .editableParamDiv {
             margin: 0px 5px;
-            padding: 0px 25px 0px 5px;
+            padding: 0px 32px 0px 5px;
             overflow:hidden;
             white-space: nowrap;
             outline: none; 

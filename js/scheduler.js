@@ -188,6 +188,7 @@ window.Scheduler = (function(Scheduler, $) {
         }
 
         $scheduleLists.html(html);
+        updateScheduleInfo();
     };
 
     Scheduler.refresh = function() {
@@ -529,6 +530,10 @@ window.Scheduler = (function(Scheduler, $) {
         }
     }
 
+    function updateScheduleInfo() {
+        $schedulesView.find(".headingArea .num").text(schedules.length);
+    }
+
     function newSchedule(option) {
         option.DFGs = [];
         option.created = option.modified;
@@ -546,6 +551,8 @@ window.Scheduler = (function(Scheduler, $) {
                 $li.click();
             });
         }
+
+        updateScheduleInfo();
         commitToStorage();
     }
 
