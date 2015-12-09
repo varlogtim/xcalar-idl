@@ -137,10 +137,12 @@ window.DataFlowModal = (function($, DataFlowModal) {
         table = {
             "index"   : 0,
             "children": undefined,
-            "type"    : 'table',
+            "type"    : 'export',
             "left"    : firstDagTable.left + 130,
             "top"     : firstDagTable.top,
-            "title"   : "export-" + firstDagTable.title + ".csv"
+            "title"   : "export-" + firstDagTable.title + ".csv",
+            "table"   : "export-" + firstDagTable.title + ".csv",
+            "url"     : "export-" + firstDagTable.title + ".csv"
         };
         tables.push(table);
 

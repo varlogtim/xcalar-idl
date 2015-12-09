@@ -660,12 +660,7 @@ window.DFGPanel = (function($, DFGPanel) {
     }
 
     function getTableHtml(table, hasParam) {
-        var icon;
-        if (table.type === 'table') {
-            icon = 'dagTableIcon';
-        } else {
-            icon = 'dataStoreIcon';
-        }
+        var icon = "dagTableIcon";
         var paramClass = "";
         if (hasParam) {
             paramClass = " hasParam";
@@ -675,7 +670,11 @@ window.DFGPanel = (function($, DFGPanel) {
         table.index +
         '" data-children="' + table.children + '" data-type="' +
         table.type + '"';
-        if (icon === 'dataStoreIcon') {
+        if (table.type === 'dataStore') {
+            html += ' data-url="' + table.url + '"' +
+                    ' data-table="' + table.table + '"';
+            icon = 'dataStoreIcon';
+        } else if (table.type === "export") {
             html += ' data-url="' + table.url + '"' +
                     ' data-table="' + table.table + '"';
         }
@@ -731,27 +730,23 @@ window.DFGPanel = (function($, DFGPanel) {
 
         $dagArea[0].oncontextmenu = function(e) {
             var $target = $(e.target).closest('.actionType');
-
+            if ($(e.target).closest('.dagTable.dataStore').length) {
+                $target = $(e.target).closest('.dagTable.dataStore')
+            } else if ($(e.target).closest('.dagTable.export').length) {
+                $target = $(e.target).closest('.dagTable.export');
+            }
             if ($target.length) {
                 $target.trigger('click');
                 e.preventDefault();
                 e.stopPropagation();
-            } else {
-                var $secondTarget = $(e.target).closest('.dagTable.dataStore');
-                if ($secondTarget.length) {
-                    $secondTarget.trigger('click');
-                    e.preventDefault();
-                    e.stopPropagation();
-                }
             }
         };
 
-        $dagArea.on('click', '.dagTable.dataStore, .actionType', function() {
+        $dagArea.on('click', '.dagTable.export, .dagTable.dataStore, .actionType', function() {
             $('.menu').hide();
             removeMenuKeyboardNavigation();
             $('.leftColMenu').removeClass('leftColMenu');
             $currentIcon = $(this);
-
 
             if ($currentIcon.hasClass('actionType')) {
                 if (!$currentIcon.find('.dagIcon').hasClass('filter')) {
@@ -1093,14 +1088,22 @@ window.DagParamModal = (function($, DagParamModal){
         });
         var defaultText = ""; // The html corresponding to Current Query:
         var editableText = ""; // The html corresponding to Parameterized Query:
-        if ($currentIcon.hasClass('dataStore')) {
+        if (type === "dataStore") {
             defaultText += '<td>Load</td>';
             defaultText += '<td><div class="boxed large">' +
                             $currentIcon.data('url') +
                             '</div></td>';
 
             editableText += "<td class='static'>Load</td>";
-            editableText += getParameterInputHTML(0, "large load");
+            editableText += getParameterInputHTML(0, "xlarge");
+        } else if (type === "export") {
+            defaultText += '<td>Export to</td>';
+            defaultText += '<td><div class="boxed large">' +
+                            $currentIcon.data('url') +
+                            '</div></td>';
+
+            editableText += "<td class='static'>Export to</td>";
+            editableText += getParameterInputHTML(0, "xlarge");
         } else { // not a datastore but a table
             defaultText += "<td>" + type + "</td>";
             defaultText += "<td><div class='boxed medium'>" +
@@ -1128,7 +1131,7 @@ window.DagParamModal = (function($, DagParamModal){
                             getParameterInputHTML(1, "medium") +
                             getParameterInputHTML(2, "medium allowEmpty");
             
-        } else if ($currentIcon.hasClass('dataStore')) {
+        } else if (type === "dataStore" || type === "export") {
             // do nothing
         } else { // index, sort, map etc to be added in later
             defaultText += "<td>by</td>";
@@ -1337,12 +1340,13 @@ window.DagParamModal = (function($, DagParamModal){
                     // paramInput.paramLoad.datasetUrl = str;
                     paramQuery = [paramValue];
                     break;
-                case ("Export"):
-                    // XX TODO: add export
-                    deferred.reject("TODO: Add export");
+                case ("Export to"):
+                    paramType = XcalarApisT.XcalarApiExport;
+                    paramValue = $editableDivs.eq(0).text().trim();
+                    paramQuery = [paramValue];
                     break;
                 default:
-                    console.warn("currently not supported");
+                    deferred.reject("currently not supported");
                     break;
             }
 

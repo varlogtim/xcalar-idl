@@ -3101,6 +3101,9 @@ html.microsoft {
                 &.large {
                     .size(@min-width: 300px, @max-width: 600px);
                 }
+                &.xlarge {
+                    .size(@min-width: 300px, @max-width: 800px);
+                }
             }
         }  
     }
@@ -3195,10 +3198,6 @@ html.microsoft {
             box-shadow: inset -1px 0px 1px 1px rgba(0,0,0,0.15);
             .transform (translateZ(0));
             cursor: text;
-
-            &.load {
-                .size(@min-width: 300px, @max-width: 800px);
-            }
 
             .draggableDiv {
                 margin: -2px 2px;
