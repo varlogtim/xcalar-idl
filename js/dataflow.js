@@ -14,7 +14,7 @@ function DFGConstructor(name, options) {
 DFGConstructor.prototype = {
     "addRetinaNode": function(dagNodeId, paramInfo) {
         this.retinaNodes[dagNodeId] = paramInfo;
-        var numNodes = this.nodeIds.length;
+        // var numNodes = this.nodeIds.length;
         var tableName;
         for (var name in this.nodeIds) {
             if (this.nodeIds[name] === dagNodeId) {
@@ -98,7 +98,7 @@ DFGConstructor.prototype = {
 
 window.DFG = (function($, DFG) {
     var dfGroups = {};
-    // XX sample group structure, not updated but good to have anyways 
+    // XX sample group structure, not updated but good to have anyways
     // var dfGroups = {"group1": {
     //                     "dataFlows": [
     //                         {
@@ -153,7 +153,7 @@ window.DFG = (function($, DFG) {
 
         createRetina(groupName, isNew)
         .then(function() {
-            return(XcalarGetRetina(groupName));
+            return (XcalarGetRetina(groupName));
         })
         .then(function(retInfo) {
             updateDFGInfo(retInfo);
@@ -296,7 +296,7 @@ window.DFG = (function($, DFG) {
         var retina = retInfo.retina;
         var retName = retina.retinaDesc.retinaName;
         var group = dfGroups[retName];
-        var nodes = retina.retinaDag.node
+        var nodes = retina.retinaDag.node;
         var numNodes = retina.retinaDag.numNodes;
         var nodeIds = group.nodeIds;
         var tableName;
@@ -731,7 +731,7 @@ window.DFGPanel = (function($, DFGPanel) {
         $dagArea[0].oncontextmenu = function(e) {
             var $target = $(e.target).closest('.actionType');
             if ($(e.target).closest('.dagTable.dataStore').length) {
-                $target = $(e.target).closest('.dagTable.dataStore')
+                $target = $(e.target).closest('.dagTable.dataStore');
             } else if ($(e.target).closest('.dagTable.export').length) {
                 $target = $(e.target).closest('.dagTable.export');
             }
@@ -832,11 +832,13 @@ window.DFGPanel = (function($, DFGPanel) {
 }(jQuery, {}));
 
 window.AddScheduleModal = (function($, AddScheduleModal) {
-    var $modal = $('#addScheduleModal');
+    var $modal   = $('#addScheduleModal');
+    var $modalBg = $("#modalBackground");
+
     var modalHelper = new xcHelper.Modal($modal, {"focusOnOpen": true});
     var $list = $modal.find('.scheduleList');
     var $scheduleListInput = $modal.find('.scheduleListInput');
-    var $modalBackground = $("#modalBackground");
+    var $shceduleInfo = $modal.find('.scheInfoSection .text');
     var groupName;
 
     AddScheduleModal.setup = function() {    
@@ -849,13 +851,22 @@ window.AddScheduleModal = (function($, AddScheduleModal) {
         addModalEvents();
     };
 
-    AddScheduleModal.show = function(groupname) {
-        groupName = groupname;
-        xcHelper.removeSelectionRange();
+    AddScheduleModal.show = function(curentGroup) {
+        groupName = curentGroup;
+        modalHelper.setup();
 
-        $modalBackground.fadeIn(300, function() {
+        updateModalList();
+
+        if (gMinModeOn) {
+            $modalBg.show();
+            $modal.show();
             Tips.refresh();
-        });
+        } else {
+            $modalBg.fadeIn(300, function() {
+                $modal.fadeIn(180);
+                Tips.refresh();
+            });
+        }
 
         $(document).on("keypress.addScheduleModal", function(e) {
             if (e.which === keyCode.Enter) {
@@ -864,37 +875,33 @@ window.AddScheduleModal = (function($, AddScheduleModal) {
                 }
             }
         });
-
-        centerPositionElement($modal);
-        updateModalList();
-        $modal.show();
-        modalHelper.setup();
     };
 
     function updateModalList() {
-        var lis;
         var schedules = Scheduler.getAllSchedules();
-        var numSchedules = schedules.length;
-        var scheduleName;
         var hasValidSchedule = false;
 
-        if (numSchedules > 0) {
-            lis = '<li class="hint">Select a schedule</li>';
-            $modal.find('.confirm').removeClass('unavailable');
-            for (var i = 0; i < numSchedules; i++) {
-                scheduleName = schedules[i].name;
+        var attachedSched = null;
+        var lis = '<li class="hint">Select a schedule</li>';
+        for (var i = 0, len = schedules.length; i < len; i++) {
+            var scheduleName = schedules[i].name;
 
-                if (Scheduler.hasDFG(scheduleName, groupName)) {
-                    continue;
+            if (Scheduler.hasDFG(scheduleName, groupName)) {
+                if (attachedSched == null) {
+                    attachedSched = scheduleName;
+                } else {
+                    attachedSched += ", " + scheduleName;
                 }
-                lis += '<li>' + scheduleName + '</li>';
-                if (!hasValidSchedule) {
-                    hasValidSchedule = true;
-                    $scheduleListInput.val(scheduleName)
-                              .attr('value', scheduleName);
-                }
+                continue;
             }
 
+            lis += '<li>' + scheduleName + '</li>';
+
+            if (!hasValidSchedule) {
+                hasValidSchedule = true;
+                $scheduleListInput.val(scheduleName)
+                          .attr('value', scheduleName);
+            }
         }
 
         if (!hasValidSchedule) {
@@ -902,9 +909,16 @@ window.AddScheduleModal = (function($, AddScheduleModal) {
                               .attr('value', 'No available schedules');
             lis = '<li class="hint">No available schedules</li>';
             $modal.find('.confirm').addClass('unavailable');
+        } else {
+            $modal.find('.confirm').removeClass('unavailable');
         }
 
         $list.find('ul').html(lis);
+
+        if (attachedSched == null) {
+            attachedSched = "N/A";
+        }
+        $shceduleInfo.text(attachedSched);
     }
 
     function submitForm() {
@@ -965,17 +979,14 @@ window.AddScheduleModal = (function($, AddScheduleModal) {
         // var hide = true;
         // var animationTime;
 
-        if (gMinModeOn) {
-            $modal.hide();
-            $modalBackground.hide();
-        } else {
-            $modal.fadeOut(300);
-            $modalBackground.fadeOut(300);
-        }
+        var fadeOutTime = gMinModeOn ? 0 : 300;
 
-        setTimeout(function() {
+        $modal.hide();
+        $modalBg.fadeOut(fadeOutTime, function() {
             Tips.refresh();
-        }, 200);
+        });
+
+        $shceduleInfo.text("N/A");
     }
 
     return (AddScheduleModal);

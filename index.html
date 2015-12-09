@@ -2172,30 +2172,41 @@
     <section class="modalInstruction">
       <div class="icon"></div>
       <div class="text">
-          Select a schedule to add to the Data Flow Group.
+          Select a schedule to add to the Data Flow Group. Or you can also create a new shcedule.
       </div>
     </section>
     <!-- AddSchedule Main Section -->
     <section class="modalTopMain">
-      <!-- title section -->
-      <h3>Select a schedule:</h3>
-      <div class="dropDownList scheduleList">
-        <input class="text focusable scheduleListInput" type="text" value="" spellcheck="false" readonly="">
-        <div class="iconWrapper">
-            <span class="icon"></span>
-        </div>
-        <div class="list" style="display: none;">
-          <ul>
-          </ul>
-          <div class="scrollArea top"><div class="arrow"></div></div>
-          <div class="scrollArea bottom"><div class="arrow"></div></div>
-        </div>
-        
+      <!-- schedule info section -->
+      <div class="scheInfoSection">
+        <h3>Attached schedules:</h3>
+        <div class="text">N/A</div>
       </div>
-      <!-- <div class="or">or</div> -->
-      <h3>or create a new schedule:</h3>
-      <div>
-        <button type="button" class="btn btnMid createNewSchedule">create new schedule</button>
+      <!-- select schedule section -->
+      <div class="selectScheSection">
+        <h3>Select a schedule:</h3>
+        <div class="dropDownList scheduleList">
+          <input class="text focusable scheduleListInput" type="text" value="" spellcheck="false" readonly="">
+          <div class="iconWrapper">
+              <span class="icon"></span>
+          </div>
+          <div class="list" style="display: none;">
+            <ul></ul>
+            <div class="scrollArea top">
+              <div class="arrow"></div>
+            </div>
+            <div class="scrollArea bottom">
+              <div class="arrow"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- create new schedule section -->
+      <div class="newScheSection">
+        <h3>Create a new schedule:</h3>
+        <div>
+          <button type="button" class="btn btnMid createNewSchedule">create new schedule</button>
+        </div>
       </div>
     </section>
     <!-- Button Section -->
