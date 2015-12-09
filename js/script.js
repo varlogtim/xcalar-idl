@@ -716,10 +716,10 @@ function startupFunctions() {
 
     WKBKManager.setup()
     .then(function() {
-        return Authentication.setup();
+        return Support.holdSession();
     })
     .then(function() {
-        return Support.holdSession();
+        return Authentication.setup();
     })
     .then(function() {
         return readFromStorage();
