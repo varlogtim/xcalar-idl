@@ -315,7 +315,6 @@ window.DFGPanel = (function($, DFGPanel) {
     var $dfgView = $('#dataflowView');
     var $listSection = $dfgView.find('.listSection');
     var $header = $dfgView.find('.midContentHeader h2');
-    var $addGroupBtn = $dfgView.find('.mainButtonArea').find('.addGroup');
 
     var $retTabSection = $dfgView.find('.retTabSection');
     var retinaTrLen = 7;
@@ -541,12 +540,11 @@ window.DFGPanel = (function($, DFGPanel) {
                 $listSection.find('.list').slideUp(200);
                 $dfg.find('.list').slideDown(200);
             }
-            $addGroupBtn.removeClass('btnInactive');
             
         });
 
-        $addGroupBtn.click(function() {
-            var groupName = $listSection.find('.listBox.selected').text();
+        $listSection.on('click', '.addGroup', function() {
+            var groupName = $(this).siblings('.label').text();
             AddScheduleModal.show(groupName);
         });
     }
@@ -806,6 +804,11 @@ window.DFGPanel = (function($, DFGPanel) {
                           '<span class="icon"></span>' +
                         '</div>' +
                         '<div class="label">' + group + '</div>' +
+                        '<div class="icon addGroup"></div>' +
+                        '<div class="icon deleteGroup" ' +
+                            'title="coming soon" data-toggle="tooltip" ' +
+                            'data-placement="top" data-container="body">' +
+                        '</div>' +
                         // '<div class="checkmark"></div>' +
                       '</div>' +
                       '<ul class="sublist list">';
@@ -824,7 +827,6 @@ window.DFGPanel = (function($, DFGPanel) {
         $dfgView.find('.dagWrap').remove();
         $header.empty();
         $dfgView.find('.midContentHeader .schedulesList').empty();
-        $addGroupBtn.addClass('btnInactive');
     }
 
     return (DFGPanel);
