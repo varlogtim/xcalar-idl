@@ -244,11 +244,7 @@ window.DataFlowModal = (function($, DataFlowModal) {
         });
 
         $dfgModal.on("click", ".modifyDSButton.selectAll", function() {
-            $dfTable.find('.exportable').each(function() {
-                var $th = $(this);
-                var colNum = $th.data('col');
-                $dfTable.find('.col' + colNum).addClass('colSelected');
-            });
+            selectAllCols();
         });
 
         $dfgModal.on("click", ".modifyDSButton.clear", function() {
@@ -264,6 +260,14 @@ window.DataFlowModal = (function($, DataFlowModal) {
 
         $searchInput.keyup(function() {
             filterDFG($searchInput.val());
+        });
+    }
+
+    function selectAllCols() {
+        $dfTable.find('.exportable').each(function() {
+            var $th = $(this);
+            var colNum = $th.data('col');
+            $dfTable.find('.col' + colNum).addClass('colSelected');
         });
     }
 
@@ -531,6 +535,7 @@ window.DataFlowModal = (function($, DataFlowModal) {
         html += $tbody.html();
 
         $dfTable.html(html);
+        selectAllCols();
     }
 
     function showErrorTooltip($th) {
