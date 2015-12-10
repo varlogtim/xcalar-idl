@@ -7,6 +7,7 @@ window.Scheduler = (function(Scheduler, $) {
 
     // constant
     var scheduleFreq = {
+        "minute"     : "minute",
         "hourly"     : "hourly",
         "daily"      : "daily",
         "weekly"     : "weekly",
@@ -183,7 +184,9 @@ window.Scheduler = (function(Scheduler, $) {
             if (schedule != null) {
                 schedules.push(schedule);
                 scheduleLookUpMap[schedule.name] = schedule;
-                html += getScheduelListHTML(schedule.name);
+
+                // lastest schedule should at top
+                html = getScheduelListHTML(schedule.name) + html;
             }
         }
 
@@ -597,15 +600,12 @@ window.Scheduler = (function(Scheduler, $) {
             schedule = {};
             $("#scheduleTable").hide();
             $("#scheduleInfos").hide();
-            $("#deleteSchedule").addClass("btnInactive");
         } else {
             $("#scheduleTable").show();
             $("#scheduleInfos").show();
             schedule = scheduleLookUpMap[name];
             // update schedule
             getNextRunTime(schedule);
-            // XXX keep deleteschedule inactive for now
-            // $("#deleteSchedule").removeClass("btnInactive");
         }
 
         // update schedule info section
@@ -683,9 +683,13 @@ window.Scheduler = (function(Scheduler, $) {
                     '<div class="scheduleName">' +
                       name +
                     '</div>' +
+                    '<div title="coming soon" data-toggle="tooltip" ' +
+                        'data-placement="top" data-container="body" ' +
+                        'class="icon deleteSchedule">' +
+                    '</div>' +
                   '</div>' +
                '</li>';
-        return (html);
+        return html;
     }
 
     function getDFGListHTML(DFGs) {
@@ -814,6 +818,8 @@ window.Scheduler = (function(Scheduler, $) {
         switch (schedule.repeat) {
             case scheduleFreq.dayPerMonth:
                 throw "repeat certain day per moth not support";
+            case scheduleFreq.minute:
+                return 60; // 60s
             case scheduleFreq.hourly:
                 return oneHour;
             case scheduleFreq.daily:
@@ -851,6 +857,9 @@ window.Scheduler = (function(Scheduler, $) {
         } else {
             while (time < d) {
                 switch (repeat) {
+                    case scheduleFreq.minute:
+                        time.setMinutes(time.getMinutes() + 1);
+                        break;
                     case scheduleFreq.hourly:
                         time.setHours(time.getHours() + 1);
                         break;

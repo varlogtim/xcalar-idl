@@ -63,7 +63,6 @@
 
         .mainButtonArea {
             border-bottom: 1px solid rgba(0,0,0,0.25);
-            height: 85px;
 
             .btn {
                 display: block;
@@ -72,10 +71,6 @@
 
                 &#addSchedule .icon {
                     .image("/images/schedule/schedule_calendar.png", 50%, 50%);
-                }
-
-                &#deleteSchedule .icon {
-                    .image("/images/garbage.png", 50%, 50%);
                 }
 
                 &.addGroup {
@@ -106,6 +101,7 @@
             .size(@height: ~"calc(100% - 120px)");
             padding: 9px;
             .position(relative);
+            overflow: hidden;
 
             .scrollbarWrapper {
                 .size(@width: ~"calc(100% + 20px)", @height: 100%);
@@ -131,6 +127,11 @@
 
                     .iconWrap {
                         .action-gradient;
+                    }
+
+                    .deleteSchedule {
+                        opacity: 0.6;
+                        .image("/images/bin-blue.png", 50%, 50%);
                     }
                 }
             }
@@ -161,10 +162,20 @@
                     .size(@width: ~"calc(100% - 55px)");
                     float: left;
                     padding: 0 10px;
+                    margin: 5px 0;
+                    border-right: 1px solid #A2C2D4;
                     white-space: nowrap;
                     text-align: left;
+                    line-height: 15px;
                     .textOverflow;
                     .font(@size: 13px, @color: @color-text-darkGray);
+                }
+
+                .deleteSchedule {
+                    margin-top: 5px;
+                    .size(@width: 26px, @height: 15px);
+                    .image("/images/bin-gray.png", 50%, 50%);
+                    opacity: 0.8;
                 }
             }
         }
@@ -187,19 +198,33 @@
             }
 
             .scheduleInfoSection {
-                margin-top: 1px;
+                margin-top: 5px;
 
                 .scheduleInfo {
-                    .size(@height: 20px);
+                    .size(@width: 250px, @height: 20px);
                     .font(@size: 13px, @weight: bold, @color: #7f7f7f);
+                    float: left;
 
                     .name {
                         display: inline-block;
-                        width: 100px;
                     }
 
                     .text {
                         text-transform: capitalize;
+                    }
+
+                    &:nth-child(odd) {
+                        clear: both;
+
+                        .name {
+                            .size(@width: 80px);
+                        }
+                    }
+
+                    &:nth-child(even) {
+                        .name {
+                            .size(@width: 100px);
+                        }
                     }
                 }
             }
@@ -295,8 +320,7 @@
         }
 
         .midContentForm {
-            .flex(0 0 315px);
-            z-index: 3;
+            .flex(0 0 330px);
             background-color: @color-background-topForm;
 
             &.new {
@@ -565,7 +589,8 @@
     min-width: 1000px;
     .leftContent {
         .mainButtonArea {
-            padding: 7px 0;
+            height: 59px;
+            padding: 5px 0;
             .btn {
                 &:last-child {
                     margin-top: 8px;
@@ -578,7 +603,7 @@
         .flex-flow(column);
 
         .midContentHeader {
-            .flex(0 0 118px);
+            .flex(0 0 93px);
         }
     }
 }
@@ -619,8 +644,8 @@
                 }
             }
             &.selected {
-                 background: #4CA1D0;
-                 background: #C5E1F1;
+                background: #4CA1D0;
+                background: #C5E1F1;
                 .checkmark {
                     .image("/images/checkmark-white.png", 40%, 50%);
                 }
