@@ -95,91 +95,14 @@ window.DataFlowModal = (function($, DataFlowModal) {
     };
 
     function saveDataFlow(groupName, columns, isNewGroup) {
-        var tables = [];
-        var operations = [];
-        var table;
-        var tableName;
-        var operation;
         var $dagImage = $dfPreviews.find('.dagImage');
-        var firstDagTable;
-        // var nodeIds = {};
-
-        // put each blue table icon into an object, recording position and info
-        $dagImage.find('.dagTable').each(function() {
-            var $dagTable = $(this);
-
-            var children = ($dagTable.data('children') + "").split(",");
-            children = parseInt(children[children.length - 2]) + 1 + "";
-            if (children === "NaN") {
-                children = 0;
-            }
-            tableName = $dagTable.find('.tableTitle').text();
-            table = {
-                "index"   : $dagTable.data('index') + 1,
-                "children": children,
-                "type"    : $dagTable.data('type') || 'table',
-                "left"    : parseInt($dagTable.css('left')),
-                "top"     : parseInt($dagTable.css('top')),
-                "title"   : tableName
-            };
-            if ($dagTable.data('index') === 0) {
-                firstDagTable = table;
-            }
-
-            if ($dagTable.hasClass('dataStore')) {
-                table.url = $dagTable.data('url');
-                table.table = $dagTable.data('table');
-            }
-            tables.push(table);
-        });
-
-        // create the export table
-        table = {
-            "index"   : 0,
-            "children": undefined,
-            "type"    : 'export',
-            "left"    : firstDagTable.left + 130,
-            "top"     : firstDagTable.top,
-            "title"   : "export-" + firstDagTable.title + ".csv",
-            "table"   : "export-" + firstDagTable.title + ".csv",
-            "url"     : "export-" + firstDagTable.title + ".csv"
-        };
-        tables.push(table);
-
-        // put each gray operation icon into an object,
-        // recording position and info
-        $dagImage.find('.actionType').each(function() {
-            var $operation = $(this);
-            var tooltip = $operation.attr('data-original-title') ||
-                                     $operation.attr('title');
-            tooltip = tooltip.replace(/"/g, '&quot');                         
-            operation = {
-                "tooltip": tooltip,
-                "type"   : $operation.data('type'),
-                "column" : $operation.data('column'),
-                "info"   : $operation.data('info'),
-                "table"  : $operation.data('table'),
-                "parents": $operation.find('.parentsTitle').text(),
-                "left"   : parseInt($operation.css('left')),
-                "top"    : parseInt($operation.css('top')),
-                "classes": $operation.find('.dagIcon').attr('class')
-            };
-            operations.push(operation);
-        });
-
-        // insert new dfg into the main dfg object
-        var canvasInfo = {
-            "tables"    : tables,
-            "operations": operations,
-            "height"    : $dagImage.height(),
-            "width"     : $dagImage.width() + 150
-        };
-
+        var canvasInfo = DFG.getCanvasInfo($dagImage);
+        
         var group = DFG.getGroup(groupName) || new DFGObj(groupName);
         group.addDataFlow({
-            "name"      : tableName,
+            "name"      : canvasInfo.tableName,
             "columns"   : columns,
-            "canvasInfo": canvasInfo
+            "canvasInfo": canvasInfo.canvasInfo
         });
 
         return DFG.setGroup(groupName, group, isNewGroup);
@@ -409,14 +332,6 @@ window.DataFlowModal = (function($, DataFlowModal) {
     function setupDFGImage($dagWrap) {
         var $dagImage = $dagWrap.find('.dagImage').clone();
         $dagImage.find('canvas').remove();
-        // $dagImage.append('<canvas></canvas>');
-        // var originalCanvas = $dagWrap.find('canvas')[1];
-        // var destinationCanvas = $dagImage.find('canvas')[0];
-        // destinationCanvas.width = originalCanvas.width;
-        // destinationCanvas.height = originalCanvas.height;
-
-        // var destCtx = destinationCanvas.getContext('2d');
-        // destCtx.drawImage(originalCanvas, 0, 0);
         $dfPreviews.html($dagImage);
         DFG.drawCanvas($dagImage);
     }

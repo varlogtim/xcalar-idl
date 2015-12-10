@@ -131,7 +131,6 @@ window.DagPanel = (function($, DagPanel) {
             addMenuKeyboardNavigation($menu);
             $('body').addClass('noSelection');
         });
-
     }
 
     function setupRightClickDropdown() {
@@ -139,9 +138,6 @@ window.DagPanel = (function($, DagPanel) {
         var $menu = $dagPanel.find('.rightClickDropDown');
         addMenuBehaviors($menu);
         addRightClickActions($menu);
-        
-        // var selection = '.dagTable:not(.dataStore) .dagTableIcon,' +
-        //                 '.dagTable:not(.dataStore) .icon';
 
         $dagPanel[0].oncontextmenu = function(e) {
             var $target = $(e.target);
@@ -188,7 +184,7 @@ window.DagPanel = (function($, DagPanel) {
             var dagId = $menu.data('dagid');
             var $dagWrap = $('#' + dagId);
             var tableName = $dagWrap.find('.tableTitleArea .tableName').text();
-            var canvas = $dagWrap.find('canvas')[0];
+            var canvas = $dagWrap.find('canvas').eq(1)[0];
             if ($('html').hasClass('microsoft')) { // for IE
                 var blob = canvas.msToBlob();
                 window.navigator.msSaveBlob(blob, tableName + '.png');
@@ -476,12 +472,8 @@ window.Dag = (function($, Dag) {
         var table = gTables[tableId];
         var tableName = table.tableName;
 
-        drawDag(tableName)
-        .then(function(dagDrawing) {
-            var activeWS = WSManager.getActiveWS();
-            var tableWS = WSManager.getWSFromTable(tableId);
-            // var activeClass = "";
-           
+        XcalarGetDag(tableName)
+        .then(function(dagObj) {
             var outerDag =
                 '<div class="dagWrap clearfix" id="dagWrap-' +
                     tableId + '" data-id="' + tableId + '">' +
@@ -506,10 +498,6 @@ window.Dag = (function($, Dag) {
                     '</div>' +
                 '</div>' +
                 '</div>';
-
-            var innerDag = '<div class="dagImageWrap"><div class="dagImage">' +
-                            dagDrawing + '</div></div>';
-
             var position = WSManager.getTablePosition(tableId);
 
             if (position === 0) {
@@ -520,166 +508,22 @@ window.Dag = (function($, Dag) {
                 if ($prevDag.length !== 0) {
                     $prevDag.after(outerDag);
                 } else {
-                    // console.error('dag order is incorrect! This is a bug!');
                     $('.dagArea').append(outerDag);
                 }
             }
 
-            var $dagWrap = $('#dagWrap-' + tableId);
-            $dagWrap.append(innerDag);
-
+            var $dagWrap = $('#dagWrap-' + tableId);   
+            Dag.createDagImage(dagObj.node, $dagWrap, {savable: true});
+            
             Dag.focusDagForActiveTable(tableId);
-
-            var $dagImage = $dagWrap.find('.dagImage');
-            
-            var fullCanvas = true;
-            var canvas = createCanvas($dagWrap, fullCanvas);
-            var ctx = canvas.getContext('2d');
-            var canvasClone = createCanvas($dagWrap);
-            var ctxClone = canvasClone.getContext('2d');
-            
-            ctx.strokeStyle = '#999999';
-            ctxClone.strokeStyle = '#999999';
-
-            $dagImage.find('.joinWrap').eq(0).find('.dagTableWrap')
-                    .each(function() {
-                        var el = $(this);
-                        drawDagLines(el, ctxClone);
-                    });
-            ctx.save();
-            
-            var img = new Image();
-            img.src = paths.dagBackground;
-            img.onload = function() {
-                var ptrn = ctx.createPattern(img, 'repeat');
-                ctx.fillStyle = ptrn;
-                ctx.fillRect(0, 0, canvas.width, canvas.height);  
-                ctx.drawImage(canvasClone, 0, 50);
-                ctx.save();
-                var tableTitleText = $dagWrap.find('.tableTitleArea')
-                                             .text();
-                ctx.font = '600 15px Open Sans';
-                ctx.fillStyle = '#555555';
-                ctx.fillText(tableTitleText, 30, 22);
-                ctx.restore();
-
-                ctx.beginPath();
-                ctx.moveTo(20, 33);
-                ctx.lineTo(canvas.width - 40, 33);
-                ctx.strokeStyle = '#A5A5A5';
-                ctx.stroke();
-            };
-
-            $dagImage.find('.dagTable').each(function() {
-                var $dagTable = $(this);
-                var top = Math.floor($dagTable.position().top);
-                var left = Math.floor($dagTable.position().left);
-                var $clone = $dagTable.clone();
-                $dagImage.append($clone);
-                $clone.css({top: top, left: left, position: 'absolute'});
-
-                left += 40;
-                top += 50;
-                var iconLeft = left;
-                var iconTop = top + 6;
-                var tableImage = new Image();
-                if ($(this).hasClass('dataStore')) {
-                    tableImage.src = paths.dbDiamond;
-                    iconLeft -= 2;
-                    iconTop -= 4;
-                } else {
-                    tableImage.src = paths.dTable;
-                }
-                
-                tableImage.onload = function() {
-                    ctx.drawImage(tableImage, iconLeft, iconTop);
-
-                    var maxWidth = 130;
-                    var lineHeight = 12;
-                    var x = left - 45;
-                    var y = top + 38;
-                    var text = $dagTable.find('.tableTitle').text();
-            
-                    ctx.save();
-                    ctx.beginPath();
-                    ctx.rect(x, y, 130, 26);
-                    ctx.clip();
-                    ctx.font = 'bold 10px Open Sans';
-                    ctx.fillStyle = '#6e6e6e';
-                    ctx.textAlign = 'center';
-
-                    wrapText(ctx, text, x + 65, y + 10, maxWidth, lineHeight);
-                };
-            });
-
-            $dagImage.find('.actionType').each(function() {
-                var $actionType = $(this);
-                var top = Math.floor($actionType.position().top) + 4;
-                var left = Math.floor($actionType.position().left);
-                var $clone = $actionType.clone();
-                $dagImage.append($clone);
-                $clone.css({top: top, left: left, position: 'absolute'});
-
-                left += 40;
-                top += 50;
-                var $dagIcon = $actionType.find('.dagIcon');
-                var iconSource = $dagIcon.find('.icon').css('background-image');
-                iconSource = iconSource.replace('url(', '').replace(')', '')
-                                       .replace(/"/g, '');
-                var rectImage = new Image();
-                rectImage.src = paths.roundedRect;
-                rectImage.onload = function() {
-                    ctx.drawImage(rectImage, left + 20, top);
-
-                    var dagIcon = new Image();
-                    var iconLeft = left + 23;
-                    var iconTop = top + 7;
-                    dagIcon.src = iconSource;
-
-                    dagIcon.onload = function() {
-                        ctx.drawImage(dagIcon, iconLeft, iconTop);
-                    };
-
-                    // first line text
-                    var maxWidth = 78;
-                    var lineHeight = 10;
-                    var x = left + 43;
-                    var y = top + 9;
-                    var text = $actionType.find('.typeTitle').text();
-                    ctx.save();
-                    ctx.beginPath();
-                    ctx.rect(x - 3, y - 6, 76, 10);
-                    ctx.clip();
-                    ctx.font = 'bold 8px Open Sans';
-                    ctx.fillStyle = '#4D4D4D';
-
-                    wrapText(ctx, text, x, y, maxWidth, lineHeight);
-
-                    // text regarding table origin / parents
-                    y = top + 19;
-                    text = $actionType.find('.parentsTitle').text();
-                    ctx.save();
-                    ctx.beginPath();
-                    ctx.rect(x - 3, y - 6, 76, 20);
-                    ctx.clip();
-                    ctx.font = 'bold 8px Open Sans';
-                    ctx.fillStyle = '#4D4D4D';
-
-                    wrapText(ctx, text, x, y, maxWidth, lineHeight);
-                };
-
-            });
-
-            $dagImage.height($dagImage.height() + 40);
-            $dagImage.width($dagImage.width());
-            $dagWrap.find('.joinWrap').eq(0).remove();
-
             addDagEventListeners($dagWrap);
             if (!dagAdded) {
                 preventUnintendedScrolling();
             }
             
             dagAdded = true;
+            var activeWS = WSManager.getActiveWS();
+            var tableWS = WSManager.getWSFromTable(tableId);
             if (activeWS !== tableWS) {
                 $dagWrap.addClass('inActive');
             }
@@ -692,6 +536,77 @@ window.Dag = (function($, Dag) {
 
         return (deferred.promise());
     };
+
+    Dag.createDagImage = function(nodeArray, $container, options) {
+        options = options || {};
+        var prop = {
+            x          : 0,
+            y          : 0,
+            parentCount: 0
+        };
+        var index = 0;
+        var numNodes = nodeArray.length;
+        var node = nodeArray[index];
+        var children = "";
+        var parentChildMap = getParentChildDagMap(nodeArray, numNodes);
+        var x = "";
+        for (var i = 0; i < nodeArray.length; i++) {
+            x += nodeArray[i].name.name + " " ;
+        }
+       
+        var dagImageHtml = drawDagNode(node, prop, nodeArray, index,
+                                       parentChildMap, children);
+        dagImageHtml = '<div class="dagImageWrap"><div class="dagImage">' +
+                            dagImageHtml + '</div></div>';
+        $container.append(dagImageHtml);
+        
+        var $dagImage = $container.find('.dagImage');  
+        var canvasClone = createCanvas($container);
+        var ctxClone = canvasClone.getContext('2d');
+        ctxClone.strokeStyle = '#999999';
+
+        $dagImage.find('.joinWrap').eq(0).find('.dagTableWrap')
+                .each(function() {
+                    var el = $(this);
+                    drawDagLines(el, ctxClone);
+                });
+        
+        if (options.savable) {
+            var fullCanvas = true;
+            var canvas = createCanvas($container, fullCanvas);
+            var ctx = canvas.getContext('2d');
+            ctx.strokeStyle = '#999999';
+            drawSavableCanvasBackground(canvas, ctx, $container, canvasClone);
+        }
+
+        $dagImage.find('.dagTable').each(function() {
+            var $dagTable = $(this);
+            var top = Math.floor($dagTable.position().top);
+            var left = Math.floor($dagTable.position().left);
+            var $clone = $dagTable.clone();
+            $dagImage.append($clone);
+            $clone.css({top: top, left: left, position: 'absolute'});
+            if (options.savable) {
+                drawDagTableToCanvas($dagTable, ctx, top, left);
+            }
+        });
+        
+        $dagImage.find('.actionType').each(function() {
+            var $actionType = $(this);
+            var top = Math.floor($actionType.position().top) + 4;
+            var left = Math.floor($actionType.position().left);
+            var $clone = $actionType.clone();
+            $dagImage.append($clone);
+            $clone.css({top: top, left: left, position: 'absolute'});
+            if (options.savable) {
+                drawDagActionTypeToCanvas($actionType, ctx, top, left);
+            }
+        });
+
+        $dagImage.height($dagImage.height() + 40);
+        $dagImage.width($dagImage.width());
+        $container.find('.joinWrap').eq(0).remove();
+    }
 
     Dag.renameAllOccurrences = function(oldTableName, newTableName) {
         var $dagPanel = $('#dagPanel');
@@ -778,12 +693,7 @@ window.Dag = (function($, Dag) {
             }
 
             $dag.scrollLeft($dag.width());
-            // var dagPanelHeight;
-            // if ($dagPanel.hasClass('midway')) {
-            //     dagPanelHeight = $('#mainFrame').height() / 2 - 10;
-            // } else if ($dagPanel.hasClass('full')) {
-            //     dagPanelHeight = $("#mainFrame").height() - 152;
-            // }
+
             var scrollTop = $dagPanel.find('.dagArea').scrollTop();
             var dagTop = $dagWrap.position().top;
             
@@ -794,6 +704,120 @@ window.Dag = (function($, Dag) {
             }
         }     
     };
+
+    function drawSavableCanvasBackground(canvas, ctx, $dagWrap, canvasClone) {
+        var img = new Image();
+        img.src = paths.dagBackground;
+        img.onload = function() {
+            var ptrn = ctx.createPattern(img, 'repeat');
+            ctx.fillStyle = ptrn;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);  
+            ctx.drawImage(canvasClone, 0, 50);
+            ctx.save();
+            var tableTitleText = $dagWrap.find('.tableTitleArea')
+                                         .text();
+            ctx.font = '600 15px Open Sans';
+            ctx.fillStyle = '#555555';
+            ctx.fillText(tableTitleText, 30, 22);
+            ctx.restore();
+
+            ctx.beginPath();
+            ctx.moveTo(20, 33);
+            ctx.lineTo(canvas.width - 40, 33);
+            ctx.strokeStyle = '#A5A5A5';
+            ctx.stroke();
+        };
+    }
+
+    function drawDagTableToCanvas($dagTable, ctx, top, left) {
+        left += 40;
+        top += 50;
+        var iconLeft = left;
+        var iconTop = top + 6;
+
+        var tableImage = new Image();
+
+        if ($dagTable.hasClass('dataStore')) {
+            // tableImage = dataStoreImage;
+            tableImage.src = paths.dbDiamond;
+            iconLeft -= 2;
+            iconTop -= 4;
+        } else {
+            // tableImage = tableIconImage;
+            tableImage.src = paths.dTable;
+        }
+        
+        tableImage.onload = function() {
+            ctx.drawImage(tableImage, iconLeft, iconTop);
+
+            var maxWidth = 130;
+            var lineHeight = 12;
+            var x = left - 45;
+            var y = top + 38;
+            var text = $dagTable.find('.tableTitle').text();
+    
+            ctx.save();
+            ctx.beginPath();
+            ctx.rect(x, y, 130, 26);
+            ctx.clip();
+            ctx.font = 'bold 10px Open Sans';
+            ctx.fillStyle = '#6e6e6e';
+            ctx.textAlign = 'center';
+
+            wrapText(ctx, text, x + 65, y + 10, maxWidth, lineHeight);
+        };
+    }
+
+    function drawDagActionTypeToCanvas($actionType, ctx, top, left) {
+        left += 40;
+        top += 50;
+        var $dagIcon = $actionType.find('.dagIcon');
+        var iconSource = $dagIcon.find('.icon').css('background-image');
+        iconSource = iconSource.replace('url(', '').replace(')', '')
+                               .replace(/"/g, '');
+        var rectImage = new Image();
+        rectImage.src = paths.roundedRect;
+        
+        rectImage.onload = function() {
+            ctx.drawImage(rectImage, left + 20, top);
+
+            var dagIcon = new Image();
+            var iconLeft = left + 23;
+            var iconTop = top + 7;
+            dagIcon.src = iconSource;
+
+            dagIcon.onload = function() {
+                ctx.drawImage(dagIcon, iconLeft, iconTop);
+            };
+
+            // first line text
+            var maxWidth = 78;
+            var lineHeight = 10;
+            var x = left + 43;
+            var y = top + 9;
+            var text = $actionType.find('.typeTitle').text();
+            ctx.save();
+            ctx.beginPath();
+            ctx.rect(x - 3, y - 6, 76, 10);
+            ctx.clip();
+            ctx.font = 'bold 8px Open Sans';
+            ctx.fillStyle = '#4D4D4D';
+
+            wrapText(ctx, text, x, y, maxWidth, lineHeight);
+
+            // text regarding table origin / parents
+            y = top + 19;
+            text = $actionType.find('.parentsTitle').text();
+            ctx.save();
+            ctx.beginPath();
+            ctx.rect(x - 3, y - 6, 76, 20);
+            ctx.clip();
+            ctx.font = 'bold 8px Open Sans';
+            ctx.fillStyle = '#4D4D4D';
+
+            wrapText(ctx, text, x, y, maxWidth, lineHeight);
+        };
+    }
 
     function checkIfDagWrapVisible($dagWrap) {
         if (!$dagWrap.is(':visible')) {
@@ -1170,11 +1194,10 @@ window.Dag = (function($, Dag) {
         return (inputVal);
     }
 
-    function drawDagNode(dagNode, prop, dagArray, html, index, parentChildMap,
+    function drawDagNode(dagNode, prop, dagArray, index, parentChildMap,
                          children) {
         var properties = {};
         properties.x = prop.x + 1;
-        properties.width = prop.width;
         var numParents = parentChildMap[index].length;
         var accumulatedDrawings = "";
         children += "," + index;
@@ -1187,12 +1210,11 @@ window.Dag = (function($, Dag) {
             properties.y = i * 2 + 1 - numParents + prop.y;
 
             accumulatedDrawings += drawDagNode(dagArray[parentIndex],
-                                                properties, dagArray, html,
+                                                properties, dagArray,
                                                 parentIndex, parentChildMap,
                                                 children);
             
         }
-
         var oneTable = drawDagTable(dagNode, dagArray, parentChildMap, index,
                                     children);
         var newHtml;
@@ -1334,43 +1356,12 @@ window.Dag = (function($, Dag) {
         return (originHTML);
     }
 
-    function drawDag(tableName) {
-        var deferred = jQuery.Deferred();
-        XcalarGetDag(tableName)
-        .then(function(dagObj) {
-            return (drawDagHelper(dagObj));
-        })
-        .fail(function(error) {
-            console.error("drawDag fail!");
-            deferred.reject(error);
-        });
-        
-        function drawDagHelper(dagObj) {
-            var prop = {
-                x          : 0,
-                y          : 0,
-                parentCount: 0
-            };
-    
-            var index = 0;
-            var dagArray = dagObj.node;
-            var children = "";
-            var parentChildMap = getParentChildDagMap(dagObj);
-            // console.log(dagObj);
-            deferred.resolve(drawDagNode(dagArray[index], prop, dagArray, "",
-                             index, parentChildMap, children));
-        }
-        return (deferred.promise());
-    }
-
-    function getParentChildDagMap(dagObj) {
-        var dagArray = dagObj.node;
-        var numNodes = dagObj.numNodes;
+    function getParentChildDagMap(dagArray, numNodes) {
         var map = {}; // holds a map of nodes & array indices of parents
         var parentIndex = 0;
+        var numParents;
         for (var i = 0; i < numNodes; i++) {
-            var dagNode = dagArray[i];
-            var numParents = getDagnumParents(dagNode);
+            numParents = getDagnumParents(dagArray[i]);
             map[i] = [];
             for (var j = 0; j < numParents; j++) {
                 map[i].push(++parentIndex);
@@ -1541,6 +1532,15 @@ window.Dag = (function($, Dag) {
                 info.column = evalStr.slice(evalStr.indexOf('(') + 1,
                                             evalStr.indexOf(')'));
                 break;
+            case ('exportInput'):
+                info.type = "export";
+                try {
+                    info.url = value.meta.specificInput.sfInput.fileName;
+                } catch (err) {
+                    console.error('Could not find export filename');
+                }
+                
+                break;
             default:
                 console.error('Dag type not recognized');
                 break;
@@ -1552,10 +1552,13 @@ window.Dag = (function($, Dag) {
     function createCanvas($dagWrap, full) {
         var dagWidth = $dagWrap.find('.dagImage > div').width();
         var dagHeight = $dagWrap.find('.dagImage > div').height();
+        var className = "";
         if (full) {
             dagHeight += 50;
+            className = " full";
         }
-        var canvasHTML = $('<canvas class="canvas" width="' + (dagWidth + 80) +
+        var canvasHTML = $('<canvas class="canvas' + className + 
+                            '" width="' + (dagWidth + 80) +
                             '" height="' + (dagHeight + 40) + '"></canvas>');
         $dagWrap.find('.dagImage').append(canvasHTML);
         return (canvasHTML[0]);

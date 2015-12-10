@@ -81,17 +81,22 @@ window.DFG = (function($, DFG) {
                 ctx.moveTo(left1, top1);
 
                 if (top1 !== top2) {
-                    var midLeft = left2 - 120;
+                    var xoffset = 0;
+                    var vertDist = Math.abs(top2 - top1);
+                    if (vertDist < 60) {
+                        var xoffset = 2000 / vertDist;
+                    }
+                    var midLeft = left2 - 190 + xoffset;
                     ctx.lineTo(midLeft, top1);
-                    var endX = left2 - 80;
+                    var endX = left2 - 100;
                     var endY = top2;
                     if (top1 < top2) {
-                        ctx.bezierCurveTo( midLeft + 30, top1,
-                            midLeft + 30, top1 + 30,
+                        ctx.bezierCurveTo(midLeft, top1,
+                            endX, top1,
                             endX, endY);
                     } else {
-                        ctx.bezierCurveTo( midLeft + 30, top1,
-                            midLeft + 30, top1 - 30,
+                         ctx.bezierCurveTo(midLeft, top1,
+                            endX, top1,
                             endX, endY);
                     }
                      
@@ -103,6 +108,114 @@ window.DFG = (function($, DFG) {
             }
         }
     };
+
+    DFG.getCanvasInfo = function($dagImage, withExport) {
+        var tables = [];
+        var operations = [];
+        var table;
+        var tableName;
+        var operation;
+        var firstDagTable;
+        // put each blue table icon into an object, recording position and info
+        $dagImage.find('.dagTable').each(function() {
+            var $dagTable = $(this);
+
+            var children = ($dagTable.data('children') + "").split(",");
+            children = parseInt(children[children.length - 2]) + 1 + "";
+            if (children === "NaN") {
+                children = 0;
+            }
+            tableName = $dagTable.find('.tableTitle').text();
+            table = {
+                "index"   : $dagTable.data('index') + 1,
+                "children": children,
+                "type"    : $dagTable.data('type') || 'table',
+                "left"    : parseInt($dagTable.css('left')),
+                "top"     : parseInt($dagTable.css('top')),
+                "title"   : tableName
+            };
+            if ($dagTable.data('index') === 0) {
+                firstDagTable = table;
+            }
+
+            if ($dagTable.hasClass('dataStore')) {
+                table.url = $dagTable.data('url');
+                table.table = $dagTable.data('table');
+            }
+            tables.push(table);
+        });
+
+        if (!withExport) {
+            // create the export table
+            table = {
+                "index"   : 0,
+                "children": undefined,
+                "type"    : 'export',
+                "left"    : firstDagTable.left + 130,
+                "top"     : firstDagTable.top,
+                "title"   : "export-" + firstDagTable.title + ".csv",
+                "table"   : "export-" + firstDagTable.title + ".csv",
+                "url"     : "export-" + firstDagTable.title + ".csv"
+            };
+            tables.push(table);
+        }
+        // put each gray operation icon into an object,
+        // recording position and info
+        $dagImage.find('.actionType').each(function() {
+            var $operation = $(this);
+            var tooltip = $operation.attr('data-original-title') ||
+                                     $operation.attr('title');
+            tooltip = tooltip.replace(/"/g, '&quot');                         
+            operation = {
+                "tooltip": tooltip,
+                "type"   : $operation.data('type'),
+                "column" : $operation.data('column'),
+                "info"   : $operation.data('info'),
+                "table"  : $operation.data('table'),
+                "parents": $operation.find('.parentsTitle').text(),
+                "left"   : parseInt($operation.css('left')),
+                "top"    : parseInt($operation.css('top')),
+                "classes": $operation.find('.dagIcon').attr('class')
+            };
+            operations.push(operation);
+        });
+
+        // insert new dfg into the main dfg object
+        var canvasInfo = {
+            "tables"    : tables,
+            "operations": operations,
+            "height"    : $dagImage.height(),
+            "width"     : $dagImage.width()
+        };
+        if (!withExport) {
+            canvasInfo.width += 150;
+        }
+        return ({canvasInfo: canvasInfo, tableName: tableName});
+    }
+
+    function drawCurve(ctx, coor) {
+        var x1 = coor.x1;
+        var y1 = coor.y1;
+        var x2 = coor.x2;
+        var y2 = coor.y2;
+        var vertDist = y2 - y1;
+
+        var xoffset = 0;
+        if (vertDist < 60) {
+            xoffset = 1000 / vertDist;
+        }
+       
+        ctx.beginPath();
+        ctx.moveTo(x1 + xoffset, y1);
+        ctx.bezierCurveTo( x2 + 50, y1,
+                            x2 + 50, y1 + (vertDist + 16) * 2,
+                            x1 + xoffset, y1 + (vertDist + 16) * 2 + 1);
+        ctx.moveTo(x1 - 10, y1);
+        ctx.lineTo(x1 + xoffset, y1);
+        ctx.moveTo(x1 - 10, y1 + (vertDist + 17) * 2);
+        ctx.lineTo(x1 + xoffset, y1 + (vertDist + 16) * 2 + 1);
+        ctx.stroke();
+    }
 
     function createRetina(retName, isNew) {
         var deferred = jQuery.Deferred();
@@ -507,21 +620,6 @@ window.DFGPanel = (function($, DFGPanel) {
         $dfgView.find('.dagImage').each(function() {
             DFG.drawCanvas($(this), true);
         });
-
-        // var retinaSign = '<div class="retinaArea" data-tableid="' +
-        //                 // tableId +
-        //                 '">' +
-        //                 '<div data-toggle="tooltip" data-container="body" ' +
-        //                 'data-placement="top" title="Add Data Flow" ' +
-        //                 'class="btn btnSmall addDataFlow">' +
-        //                     '<span class="icon"></span>' +
-        //                 '</div>' +
-        //                 '<div data-toggle="tooltip" data-container="body" ' +
-        //                 'data-placement="top" title="Create New Retina" ' +
-        //                 'class="btn btnSmall addRet btnInactive">' +
-        //                     '<span class="icon"></span>' +
-        //                 '</div>' +
-        //             '</div>' ;
     }
 
     function getDagDropDownHTML() {

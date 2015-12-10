@@ -158,6 +158,7 @@ window.TestSuite = (function($, TestSuite) {
             }
             var alertMsg = "Passes: " + passes + ", Fails: " + fails + ", Time: "
                   + totTime / 1000 + "s." + timeMsg + oldTime;
+            console.log(alertMsg); // if pop ups are disabled
             alert(alertMsg);
             gMinModeOn = minModeCache;
         });
