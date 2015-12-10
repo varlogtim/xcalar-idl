@@ -31,7 +31,7 @@ body {
     .font(@weight: 600, @family: @font-base, @color: @color-text-darkGray);
     font-size: 0; /* Need to use this to get rid of stupid white space */
     overflow-y: hidden;
-    background: #36444d url("/images/bg_page.png") repeat right top;
+    background: @color-limedSpruce url("/images/bg_page.png") repeat right top;
     overflow: hidden !important;
 }
 
@@ -80,7 +80,7 @@ body {
 }
 
 &::-webkit-scrollbar-track {
-    background: linear-gradient(to bottom right, #e9e9e9 , #ffffff); /* Standard syntax */
+    background: linear-gradient(to bottom right, @color-mercury , @color-white); /* Standard syntax */
 }
 
 &::-webkit-scrollbar-corner {
@@ -169,7 +169,7 @@ body {
 
         &:focus {
             background-color: @color-background-input-active;
-            box-shadow: 0px 2px 2px 0 #888888 inset;
+            box-shadow: 0px 2px 2px 0 @color-defaultGray inset;
             outline: none;
             color: @color-text-fnBar-blue;
         }
@@ -350,10 +350,10 @@ input {
     background-color: @color-white;
 
     &:-ms-input-placeholder {
-        color: #B0B0B0;
+        color: @color-lightSilverChalice;
     }
     &::-webkit-input-placeholder {
-        color: #B0B0B0;
+        color: @color-lightSilverChalice;
     }
     &[type=number] {
         -moz-appearance: textfield;
@@ -488,31 +488,31 @@ input {
 
     &:not(.tableLocked) tbody tr:not(.notDragging):hover, tbody tr.dragging {
         td {
-            border-right: 5px solid #E1E1E1; 
+            border-right: 5px solid @color-text-placeholder; 
             &:nth-child(odd) {
-                background-color: #D7D7D7;
+                background-color: @color-join-divider;
             }
             &:nth-child(even) {
-                background-color: #DDDDDD;
+                background-color: @color-alto;
             }
             &.indexedColumn {
-                background-color: #CBD1D6 !important;
+                background-color: @color-iron !important;
             } 
             &.selectedCell, &.colSelected, &.selectedCol {
-                background-color: #BFCCD4 !important;
+                background-color: @color-heather !important;
             }
             &.jsonElement, &.dataCol {
-                background-color: #CCD7CC !important;
+                background-color: @color-tasman !important;
             }
         }
     }
 
     tbody tr.dragging {
         td:first-child:not(.rowBookmarked) .idSpan {
-            background-color: #BDBDBD !important;
+            background-color: @color-silver !important;
         }
         td:first-child .idSpan {
-            border-right-color: #E1E1E1 !important;
+            border-right-color: @color-text-placeholder !important;
         }
     }
     th.unusedCell {
@@ -642,7 +642,7 @@ input {
     // }
 
     span.undefined {
-        color: #c51d23;
+        color: @color-thunderbird;
     }
 
     .rowBookmarked {
@@ -697,10 +697,10 @@ input {
     &:not(.tableLocked) tbody tr:not(.notDragging):hover, tbody tr.dragging {
         td {
             &:first-child {
-                background-color: #BDBDBD;
+                background-color: @color-silver;
                 .idSpan {
-                    background-color: #BDBDBD;
-                    border-right-color: #E1E1E1;
+                    background-color: @color-silver;
+                    border-right-color: @color-text-placeholder;
                 }
             }
         }
@@ -1001,7 +1001,7 @@ input {
                 opacity: 1.0;
             }
             &.selected {
-                background-color: #ECFDFF;
+                background-color: @color-twilightBlue;
                 opacity: 1.0;
             }
         }
@@ -1281,7 +1281,7 @@ ul.inputMenu {
  /* Top Menu Bar  */
 #menuBar {
     .size(@width: 100%, @height: 41px);
-    background: #36444d url("/images/bg_page.png") repeat right top;
+    background: @color-limedSpruce url("/images/bg_page.png") repeat right top;
     position: relative;
     // z-index: 14; // removed because necessary for intro and doesnt seem to be needed
 }
@@ -1315,7 +1315,7 @@ ul.inputMenu {
         .rounded;
         display: inline-block;
         background-color: rgba(0,0,0, .15);
-        background: #36444d url("/images/bg_page_dark.png") repeat right top;
+        background: @color-limedSpruce url("/images/bg_page_dark.png") repeat right top;
         .font(@size: 14px, @family: @font-base, @color: @color-text-tab);
         float: left;
         cursor: default;
@@ -1325,7 +1325,7 @@ ul.inputMenu {
         &:hover, &.hover {
             // hover vs regular color scheme needs to be adjusted
             background-color: rgba(255,255,255,.15);
-            background: #36444d url("/images/bg_page_light.png") repeat right top;
+            background: @color-limedSpruce url("/images/bg_page_light.png") repeat right top;
             color: @color-white;
             border: 1px solid @color-table-borderGray;
 
@@ -1663,7 +1663,7 @@ ul.inputMenu {
 
 #bottomTabArea {
     .size(@height: 39px);
-    background: #36444d url("/images/bg_page.png") repeat right top;
+    background: @color-limedSpruce url("/images/bg_page.png") repeat right top;
     &:hover {
         .inActive .delete {
             .transition(opacity 0.1s);
@@ -1769,7 +1769,7 @@ ul.inputMenu {
                 border: 1px solid transparent;
 
                 &:focus {
-                    border: 1px solid #5FC8FF;
+                    border: 1px solid @color-malibu;
                     box-shadow: inset 0 1px 2px 1px rgba(0, 0, 0, 0.2);
                     text-overflow: clip;
                 }
@@ -1813,7 +1813,7 @@ ul.inputMenu {
             }
 
             &:hover {
-                .linear-gradient(top, #CCCCCC, #777777);
+                .linear-gradient(top, @color-background-topGrayMed, @color-boulder);
             }
 
             &:active {
@@ -1947,7 +1947,7 @@ ul.inputMenu {
         padding: 0px 5px;
     }
     .divider {
-        border-top: 1px solid #dddddd;
+        border-top: 1px solid @color-alto;
     }
 }
 
@@ -2151,15 +2151,15 @@ ul.inputMenu {
 
         &.failed {
             cursor: auto;
-            background-color: #AF2F4D;
+            background-color: @color-nightShadz;
                 &:before {
-                border-right: 6px solid #AF2F4D;
+                border-right: 6px solid @color-nightShadz;
 
             }
 
             &.rightArrow {
                 &:before {
-                    border-left: 6px solid #AF2F4D;
+                    border-left: 6px solid @color-nightShadz;
                 }
             }
         }
@@ -2241,10 +2241,10 @@ input[type=number]::-webkit-outer-spin-button {
 .tooltip-inner {
     max-width: 200px;
     padding: 3px 8px;
-    color: #ffffff;
+    color: @color-white;
     text-align: center;
     text-decoration: none;
-    background-color: #000000;
+    background-color: @color-black;
     border-radius: 4px;
 }
 .tooltip-arrow {
@@ -2259,56 +2259,56 @@ input[type=number]::-webkit-outer-spin-button {
     left: 50%;
     margin-left: -5px;
     border-width: 5px 5px 0;
-    border-top-color: #000000;
+    border-top-color: @color-black;
 }
 .tooltip.top-left .tooltip-arrow {
     bottom: 0;
     right: 5px;
     margin-bottom: -5px;
     border-width: 5px 5px 0;
-    border-top-color: #000000;
+    border-top-color: @color-black;
 }
 .tooltip.top-right .tooltip-arrow {
     bottom: 0;
     left: 5px;
     margin-bottom: -5px;
     border-width: 5px 5px 0;
-    border-top-color: #000000;
+    border-top-color: @color-black;
 }
 .tooltip.right .tooltip-arrow {
     top: 50%;
     left: 0;
     margin-top: -5px;
     border-width: 5px 5px 5px 0;
-    border-right-color: #000000;
+    border-right-color: @color-black;
 }
 .tooltip.left .tooltip-arrow {
     top: 50%;
     right: 0;
     margin-top: -5px;
     border-width: 5px 0 5px 5px;
-    border-left-color: #000000;
+    border-left-color: @color-black;
 }
 .tooltip.bottom .tooltip-arrow {
     top: 0;
     left: 50%;
     margin-left: -5px;
     border-width: 0 5px 5px;
-    border-bottom-color: #000000;
+    border-bottom-color: @color-black;
 }
 .tooltip.bottom-left .tooltip-arrow {
     top: 0;
     right: 5px;
     margin-top: -5px;
     border-width: 0 5px 5px;
-    border-bottom-color: #000000;
+    border-bottom-color: @color-black;
 }
 .tooltip.bottom-right .tooltip-arrow {
     top: 0;
     left: 5px;
     margin-top: -5px;
     border-width: 0 5px 5px;
-    border-bottom-color: #000000;
+    border-bottom-color: @color-black;
 }
 /* END AUTOGEN BOOTSTRAP CODE */
 /* START CUSTOM BOOTSTRAP CODE */
@@ -2319,7 +2319,7 @@ input[type=number]::-webkit-outer-spin-button {
 }
 
 .tooltip-inner {
-    background-color: #36444D;
+    background-color: @color-limedSpruce;
     opacity: 0.95;
 }
 
@@ -2342,7 +2342,7 @@ input[type=number]::-webkit-outer-spin-button {
     display: block !important;
         
     .tooltip-inner, .tooltip-arrow {
-        color: #4d4d4d;
+        color: @color-text-darkGray;
         opacity: 1 !important;
     }
 
@@ -2359,7 +2359,7 @@ input[type=number]::-webkit-outer-spin-button {
 }
 
 .tooltip.tutorial {
-    @deep-yellow: #FFE400;
+    @deep-yellow: @color-turbo;
 
     opacity: 1 !important;
     display: block !important;
@@ -2369,7 +2369,7 @@ input[type=number]::-webkit-outer-spin-button {
     }
 
     .tooltip-inner, .tooltip-arrow {
-        color: #4d4d4d;
+        color: @color-text-darkGray;
         opacity: 1 !important;
     }
 
@@ -2379,7 +2379,7 @@ input[type=number]::-webkit-outer-spin-button {
     }
 
     .tooltip-inner {
-        background-color: #FFFDE4;
+        background-color: @color-chileanHeath;
         border: 1px solid @deep-yellow;
         box-shadow: 0 2px 2px 1px rgba(0, 0, 0, 0.2);
     }
@@ -2498,7 +2498,7 @@ body.tooltipOff {
 /* JQUERY DATEPICKER */
 #ui-datepicker-div.schedulerDatePicker {
     .size(@width: 208px);
-    background-color: #f0f0f0;
+    background-color: @color-background-topForm;
     box-shadow: 0px 1px 1px 2px rgba(0,0,0,.1);
 
     .ui-datepicker-header {
@@ -2525,7 +2525,7 @@ body.tooltipOff {
             // trick to make left arrow
             border-top: 8px solid transparent;
             border-bottom: 8px solid transparent;
-            border-right: 11px solid #3e8fb4;
+            border-right: 11px solid @color-bostonBlue;
             .rounded;
         }
 
@@ -2535,7 +2535,7 @@ body.tooltipOff {
             // trick to make right arrow
             border-top: 8px solid transparent;
             border-bottom: 8px solid transparent;
-            border-left: 11px solid #3e8fb4;
+            border-left: 11px solid @color-bostonBlue;
             .rounded;
         }
 
@@ -2558,7 +2558,7 @@ body.tooltipOff {
 
 
         th {
-            .font(@size: 9px, @color: #cccccc, @line-height: 20px, @weight: bold);
+            .font(@size: 9px, @color: @color-background-topGrayMed, @line-height: 20px, @weight: bold);
 
             span {
                 height: 20px;
@@ -2569,11 +2569,11 @@ body.tooltipOff {
         }
 
         td {
-            border: 1px solid #e6e6e6;
+            border: 1px solid @color-background-darkGray;
 
             span, a {
                 text-decoration: none;
-                .font(@size: 12px, @color: #9f9f9f, @weight: bold);
+                .font(@size: 12px, @color: @color-darkSilverChalice, @weight: bold);
                 text-shadow: 0px 0px rgba(0, 0, 0, 0.2);
             }
 
@@ -2586,7 +2586,7 @@ body.tooltipOff {
             }
 
             &.ui-datepicker-other-month {
-                background-color: #f6f6f6;
+                background-color: @color-wildSand;
             }
 
             &.ui-datepicker-unselectable {

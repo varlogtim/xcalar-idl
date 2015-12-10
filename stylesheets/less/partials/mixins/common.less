@@ -584,7 +584,7 @@
         box-shadow: 0px 0px 0px 2px @color-background-topAction;
         .label {
             font-weight: 700;
-            color: #333333;
+            color: @color-mineShaft;
         }
     }
 }
@@ -704,7 +704,7 @@
 /* ========== End Of Transition ========== */
 
 /* ========== Gradient Color ========== */
-.linear-gradient(@origin: left, @start: #ffffff, @stop: #000000) {
+.linear-gradient(@origin: left, @start: @color-white, @stop: @color-black) {
     background: -webkit-linear-gradient(@origin, @start, @stop);
     background: -moz-linear-gradient(@origin, @start, @stop);
     background: -o-linear-gradient(@origin, @start, @stop);
@@ -733,7 +733,7 @@
     .parser(@origin);
 }
 
-.linear-gradient-center(@origin: left, @start: #fffff, @middle: #999999, @stop: #000000) {
+.linear-gradient-center(@origin: left, @start: @color-white, @middle: @color-background-sidebar, @stop: @color-black) {
     background: -webkit-linear-gradient(@origin, @start, @middle, @stop);
     background: -moz-linear-gradient(@origin, @start, @middle, @stop);
     background: -o-linear-gradient(@origin, @start, @middle, @stop);
@@ -769,11 +769,11 @@
 }
 
 .light-gradient() {
-    .linear-gradient(top, @color-background-darkGray, #C6C6C6);
+    .linear-gradient(top, @color-background-darkGray, @color-background-icon-darkGray);
 }
 
 .red-gradient() {
-    .linear-gradient(top, #F28481, #DC4135);
+    .linear-gradient(top, @color-froly, @color-punch);
 }
 
 .colIcon-gray-gradient() {
@@ -788,11 +788,11 @@
 
 /* Dag */
 .dag-gradient() {
-    .linear-gradient(top, #EAEAEA, @color-background-lightGray);
+    .linear-gradient(top, @color-input-border-lightGray, @color-background-lightGray);
 }
 
 .dagDark-gradient() {
-    .linear-gradient(top, #ABABAB, #737373);
+    .linear-gradient(top, @color-silverChalice, @color-doveGray);
 }
 /* ========== End Of Gradient Color ========== */
 
