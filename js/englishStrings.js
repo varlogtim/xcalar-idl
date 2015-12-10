@@ -53,6 +53,9 @@ ErrorTextTStr = {
 
     'NoEmptyFn': 'Function field is empty, please input functions.',
 
+    'NoEmptyOrCheck': 'Please fill out this field, ' +
+                        'or allow empty by checking checkbox.',
+
     'NameInUse': 'Name is in use, please another name.',
 
     'DSNameConfilct': 'Dataset with the same name already exits. ' +

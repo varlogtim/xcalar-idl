@@ -55,9 +55,15 @@ DFGConstructor.prototype = {
         return (res);
     },
 
-    "updateParameter": function(name, val) {
-        xcHelper.assert(this.paramMap.hasOwnProperty(name), "Invalid name");
-        this.paramMap[name] = val;
+    "updateParameters": function(params) {
+        var paramMap = this.paramMap;
+
+        params.forEach(function(param) {
+            var name = param.name;
+            var val  = param.val;
+            xcHelper.assert(paramMap.hasOwnProperty(name), "Invalid name");
+            paramMap[name] = val;
+        });
     },
 
     "checkParamInUse": function(paramName) {
@@ -1031,11 +1037,18 @@ window.DagParamModal = (function($, DagParamModal){
     var trTemplate = '<tr class="unfilled">' +
                         '<td class="paramName"><div></div></td>' +
                         '<td>' +
-                            '<input class="paramVal" spellcheck="false" disabled/>' +
-                            '<div class="options">' +
-                                '<div class="option paramEdit">' +
-                                    '<span class="icon"></span>' +
+                            '<div class="paramValWrapper">' +
+                                '<input class="paramVal" spellcheck="false" disabled/>' +
+                                '<div class="options">' +
+                                    '<div class="option paramEdit">' +
+                                        '<span class="icon"></span>' +
+                                    '</div>' +
                                 '</div>' +
+                            '</div>' +
+                        '</td>' +
+                        '<td>' +
+                            '<div class="checkboxWrapper">' +
+                                '<span class="checkbox"></span>' +
                             '</div>' +
                         '</td>' +
                     '</tr>';
@@ -1076,6 +1089,10 @@ window.DagParamModal = (function($, DagParamModal){
 
         $dagParamModal.on('click', '.paramEdit', function() {
             $(this).closest('td').find('.paramVal').focus();
+        });
+
+        $dagParamModal.on('click', '.checkbox', function() {
+            $(this).toggleClass("checked");
         });
 
         $dagParamModal.on('keypress', '.editableParamDiv', function(event) {
@@ -1247,7 +1264,7 @@ window.DagParamModal = (function($, DagParamModal){
         event.preventDefault();
     };
 
-    function addParamToLists(paramName, paramVal) {
+    function addParamToLists(paramName, paramVal, isRestore) {
         var $tbody = $paramLists.find("tbody");
         var $row = $tbody.find(".unfilled:first");
 
@@ -1262,6 +1279,11 @@ window.DagParamModal = (function($, DagParamModal){
             .find(".paramVal").val(paramVal).removeAttr("disabled")
             .end()
             .removeClass("unfilled");
+        if (isRestore && paramVal === "") {
+            // When it's from restore and val is empty, it mease
+            // previously this param is saved as "allow empty"
+            $row.find(".checkbox").addClass("checked");
+        }
     }
 
     function setParamDivToDefault($paramDiv) {
@@ -1320,6 +1342,32 @@ window.DagParamModal = (function($, DagParamModal){
             return;
         }
 
+        var params = [];
+        var $invalidTr;
+        $paramLists.find("tr:not(.unfilled)").each(function() {
+            var $tr   = $(this);
+            var name  = $tr.find(".paramName").text();
+            var val   = $tr.find(".paramVal").val().trim();
+            var check = $tr.find(".checkbox").hasClass("checked");
+
+            if (val === "" && !check) {
+                isValid = false;
+                $invalidTr = $tr;
+                return false; // stop iteration
+            }
+
+            params.push({
+                "name": name,
+                "val" : val
+            });
+        });
+
+        if (!isValid) {
+            StatusBox.show(ErrorTextTStr.NoEmptyOrCheck,
+                            $invalidTr.find(".paramVal"));
+            return;
+        }
+
         var retName = $dagParamModal.data("dfg");
         var dfg = DFG.getGroup(retName);
         var dagNodeId = $dagParamModal.data("id");
@@ -1328,15 +1376,7 @@ window.DagParamModal = (function($, DagParamModal){
         .then(function(paramInfo) {
             // store meta
             dfg.addRetinaNode(dagNodeId, paramInfo);
-
-            $dagParamModal.find(".tableWrapper tbody tr")
-            .not(".unfilled").each(function() {
-
-                var name = $(this).find(".paramName").text();
-                var val  = $(this).find(".paramVal").val();
-
-                dfg.updateParameter(name, val);
-            });
+            dfg.updateParameters(params);
 
             DFGPanel.updateRetinaTab(retName);
 
@@ -1506,7 +1546,7 @@ window.DagParamModal = (function($, DagParamModal){
             // keep the order of paramName the in dfg.parameters
             dfg.parameters.forEach(function(paramName) {
                 if (nameMap.hasOwnProperty(paramName)) {
-                    addParamToLists(paramName, paramMap[paramName]);
+                    addParamToLists(paramName, paramMap[paramName], true);
                 }
             });
         }
