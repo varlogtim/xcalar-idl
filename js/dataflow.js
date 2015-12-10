@@ -319,7 +319,7 @@ window.DFGPanel = (function($, DFGPanel) {
     var $retTabSection = $dfgView.find('.retTabSection');
     var retinaTrLen = 7;
     var retinaTr = '<tr class="unfilled">' +
-                        '<td class="paramName"></td>' +
+                        '<td class="paramName"><div></div></td>' +
                         '<td>' +
                             '<div class="paramVal"></div>' +
                             '<div class="delete paramDelete">' +
@@ -400,7 +400,7 @@ window.DFGPanel = (function($, DFGPanel) {
             $tr = $trs.eq(0);
         }
 
-        $tr.find('.paramName').html(name);
+        $tr.find('.paramName div').html(name);
         if (val != null) {
             $tr.find('.paramVal').html(val);
         }
@@ -471,7 +471,7 @@ window.DFGPanel = (function($, DFGPanel) {
             // Check name conflict
             var isNameConflict = false;
             $tbody.find('tr:not(.unfilled)').each(function(index, tr) {
-                var name = $(tr).find('.paramName').html();
+                var name = $(tr).find('.paramName div').html();
                 if (paramName === name) {
                     isNameConflict = true;
                     return false; // exist loop
@@ -1005,7 +1005,7 @@ window.DagParamModal = (function($, DagParamModal){
 
     var paramListTrLen = 6;
     var trTemplate = '<tr class="unfilled">' +
-                        '<td class="paramName"></td>' +
+                        '<td class="paramName"><div></div></td>' +
                         '<td>' +
                             '<input class="paramVal" spellcheck="false" disabled/>' +
                             '<div class="options">' +
@@ -1233,7 +1233,7 @@ window.DagParamModal = (function($, DagParamModal){
             xcHelper.scrollToBottom($paramLists.closest(".tableWrapper"));
         }
 
-        $row.find(".paramName").text(paramName)
+        $row.find(".paramName div").text(paramName)
             .end()
             .find(".paramVal").val(paramVal).removeAttr("disabled")
             .end()

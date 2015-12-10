@@ -3222,17 +3222,55 @@ html.microsoft {
     .defaultListSection {
         padding: 15px 15px 0px 15px;
         .parameterTable();
+
+
+        .tableHeader {
+            .size(@height: 30px);
+            overflow: hidden;
+            border-top-left-radius: 5px;
+            border-top-right-radius: 5px;
+
+            .thWrap {
+                .size(@width: 445px, @height: 30px);
+                color: white;
+                font-weight: bold;
+                line-height: 30px;
+                padding-left: 12px;
+                float: left;
+                background-color: #A8A8A8;
+            }
+            .thWrap:last-child {
+                border-left: 1px solid @color-white;
+            }
+        }
+
         .tableContainer {
-            height: 273px;
+            height: 210px;
+            overflow: hidden;
+            overflow-y: auto;
+
+            .tableWrapper {
+                width: 420px;
+                overflow-y: hidden;
+                height: auto;
+            }
+        }
+
+        .tableContainer {
+            height: 243px;
             display: inline-block;
             overflow: hidden;
+            overflow-y: auto;
             .rounded(5px);
+            border-top-left-radius: 0px;
+            border-top-right-radius: 0px;
             border: 1px solid #a8a8a8;
             float: left;
             z-index: 0;
             padding: 0;
 
             .tableWrapper {
+                width: 890px;
                 .thWrap {
                     width: 444px;
                     padding-left: 17px;
@@ -3277,29 +3315,32 @@ html.microsoft {
                 .unfilled .paramEdit {
                     display: none;
                 }
+                &::-webkit-scrollbar {
+                    display: block;
+                }
             }
         }
 
         table {
             margin: 0;
-            th {
-                height: 30px;
-                &:first-of-type .thWrap{
-                    width: 444px !important;
-                    border-right: 1px solid #CCCCCC;
-                }
-            }
             tbody {
                 tr {
                     td {
-                        .size(@width: 444px, @height: 40px);
+                        .size(@width: ~"442px !important", @height: 40px);
                         padding-left: 15px;
                         &:first-of-type {
-                            width: 444px;
                             border-left: 7px solid @color-join-background;
                         }
                         &:last-of-type {
                             border-right: 8px solid @color-join-background;
+                        }
+                        >div {
+                            .textOverflowOneLine;
+                        }
+                        &.paramName {
+                            >div {
+                                width: 410px;
+                            }
                         }
                     }
                 }

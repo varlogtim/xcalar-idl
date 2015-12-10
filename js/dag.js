@@ -932,7 +932,7 @@ window.Dag = (function($, Dag) {
                                 '<tbody>';
         for (var t = 0; t < 7; t++) {
             html += '<tr class="unfilled">' +
-                        '<td class="paramName"></td>' +
+                        '<td class="paramName"><div></div></td>' +
                         '<td>' +
                             '<div class="paramVal"></div>' +
                             '<div class="delete paramDelete">' +
