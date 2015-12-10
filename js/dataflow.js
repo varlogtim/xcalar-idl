@@ -409,7 +409,7 @@ window.DFGPanel = (function($, DFGPanel) {
     }
 
     function setupRetinaTab() {
-        $dfgView.on("mousedown", function() {
+        $dfgView.on("mousedown", function(event) {
             if ($(event.target).closest('#statusBox').length) {
                 return;
             }
