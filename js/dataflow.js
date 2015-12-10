@@ -853,11 +853,11 @@ window.AddScheduleModal = (function($, AddScheduleModal) {
         addModalEvents();
     };
 
-    AddScheduleModal.show = function(curentGroup) {
+    AddScheduleModal.show = function(curentGroup, schedule) {
         groupName = curentGroup;
         modalHelper.setup();
 
-        updateModalList();
+        updateModalList(schedule);
 
         if (gMinModeOn) {
             $modalBg.show();
@@ -879,13 +879,17 @@ window.AddScheduleModal = (function($, AddScheduleModal) {
         });
     };
 
-    function updateModalList() {
+    function updateModalList(selectedSchedule) {
         var schedules = Scheduler.getAllSchedules();
         var hasValidSchedule = false;
+        var hasSelectedSchedule = false;
 
         var attachedSched = null;
-        var lis = '<li class="hint">Select a schedule</li>';
-        for (var i = 0, len = schedules.length; i < len; i++) {
+        var hintText = "Select a schedule";
+        var lis = '<li class="hint">' + hintText + '</li>';
+
+        // latests schedule is at top
+        for (var i = schedules.length - 1; i >= 0; i--) {
             var scheduleName = schedules[i].name;
 
             if (Scheduler.hasDFG(scheduleName, groupName)) {
@@ -901,17 +905,30 @@ window.AddScheduleModal = (function($, AddScheduleModal) {
 
             if (!hasValidSchedule) {
                 hasValidSchedule = true;
-                $scheduleListInput.val(scheduleName)
-                          .attr('value', scheduleName);
+            }
+
+            // this check avoids malicious trigger of AddScheduleModal.show()
+            if (!hasSelectedSchedule && scheduleName === selectedSchedule) {
+                hasSelectedSchedule = true;
             }
         }
 
         if (!hasValidSchedule) {
-            $scheduleListInput.val('No available schedules')
-                              .attr('value', 'No available schedules');
+            $scheduleListInput.removeClass("hint")
+                                .val('No available schedules')
+                                .attr('value', 'No available schedules');
             lis = '<li class="hint">No available schedules</li>';
             $modal.find('.confirm').addClass('unavailable');
         } else {
+            if (hasSelectedSchedule) {
+                $scheduleListInput.removeClass("hint")
+                                .val(selectedSchedule)
+                                .attr('value', selectedSchedule);
+            } else {
+                $scheduleListInput.addClass("hint")
+                                    .val(hintText)
+                                    .attr('value', hintText);
+            }
             $modal.find('.confirm').removeClass('unavailable');
         }
 
@@ -924,6 +941,13 @@ window.AddScheduleModal = (function($, AddScheduleModal) {
     }
 
     function submitForm() {
+        // validation
+        if ($scheduleListInput.hasClass("hint")) {
+            StatusBox.show(ErrorTextTStr.NoEmptyList, $scheduleListInput,
+                            false, -25, {"side": "right"});
+            return;
+        }
+
         var selectedSchedule = $scheduleListInput.val();
 
         // XXX TODO: add waiting icon if the promise takes too long
@@ -969,7 +993,7 @@ window.AddScheduleModal = (function($, AddScheduleModal) {
         $modal.on("click", ".createNewSchedule", function() {
             closeModal();
             $('#schedulesButton').click();
-            $('#addSchedule').click();
+            Scheduler.refresh(groupName);
         });
 
     }

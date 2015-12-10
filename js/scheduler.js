@@ -49,10 +49,7 @@ window.Scheduler = (function(Scheduler, $) {
         });
 
         $("#addSchedule").click(function() {
-            $("#scheduleTable").hide();
-            $("#scheduleInfos").hide();
-            $scheduleLists.children(".active").removeClass("active");
-            listSchedule();
+            newSchduleForm();
         });
 
         var $timeSection = $scheduleForm.find(".timeSection");
@@ -194,12 +191,20 @@ window.Scheduler = (function(Scheduler, $) {
         updateScheduleInfo();
     };
 
-    Scheduler.refresh = function() {
+    Scheduler.refresh = function(dfgName) {
+        if (dfgName != null) {
+            // trigger from addScheduleModal
+            $scheduleForm.data("dfg", dfgName);
+            newSchduleForm();
+            return;
+        }
+
+        $scheduleForm.removeData("dfg");
         var $lis = $scheduleLists.children();
         if ($lis.length > 0) {
             $lis.eq(0).click();
         } else {
-            $("#addSchedule").click();
+            newSchduleForm();
         }
     };
 
@@ -362,6 +367,13 @@ window.Scheduler = (function(Scheduler, $) {
         return [backSchedName, schedInSec, period, recurCount, type, arg];
     }
 
+    function newSchduleForm() {
+        $("#scheduleTable").hide();
+        $("#scheduleInfos").hide();
+        $scheduleLists.children(".active").removeClass("active");
+        listSchedule();
+    }
+
     function saveScheduleForm() {
         var $scheduleName  = $scheduleForm.find(".nameSection input");
         var $scheduleDate  = $scheduleForm.find(".timeSection .date");
@@ -462,6 +474,12 @@ window.Scheduler = (function(Scheduler, $) {
 
         if (isNewSchedule) {
             newSchedule(option);
+            // jump back to addScheduleModal if it's triggered from that
+            var dfg = $scheduleForm.data("dfg");
+            if (dfg != null) {
+                $scheduleForm.removeData("dfg");
+                triggerAddScheModal(dfg, name);
+            }
         } else {
             updateSchedule(schedule, option);
         }
@@ -531,6 +549,14 @@ window.Scheduler = (function(Scheduler, $) {
         if (isNew) {
             $nameInput.focus();
         }
+    }
+
+    function triggerAddScheModal(dfgName, scheduleName) {
+        $("#dataflowButton").click();
+        $("#dataflowView .listSection .listBox").filter(function() {
+            return $(this).find(".label").text() === dfgName;
+        }).click();
+        AddScheduleModal.show(dfgName, scheduleName);
     }
 
     function updateScheduleInfo() {
