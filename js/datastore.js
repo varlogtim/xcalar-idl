@@ -1125,6 +1125,7 @@ window.DataCart = (function($, DataCart) {
                                 (columnWidth / 2));
 
         if (showToolTip) {
+            $column.parent().find(".header").tooltip("destroy");
             var $header = $column.children(".header");
             $header.tooltip({
                 "title"    : "Focused Column",
@@ -1132,8 +1133,8 @@ window.DataCart = (function($, DataCart) {
                 "trigger"  : "manual",
                 "container": "#exploreView"
             });
-
             $header.tooltip("show");
+
             setTimeout(function() {
                 $header.tooltip("destroy");
             }, 1000);
