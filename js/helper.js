@@ -28,9 +28,13 @@ window.xcHelper = (function($, xcHelper) {
         return (parseInt(substring));
     };
 
-    xcHelper.parseJsonValue = function(value) {
-        if (value == null) {
-            value = '<span class="undefined">' + value + '</span>';
+    xcHelper.parseJsonValue = function(value, knf) {
+        if (knf) {
+            value = '<span class="undefined">KNF</span>';
+         } else if (value === null) {
+            value = '<span class="null">' + value + '</span>';
+        } else if (value == null) {
+            value = '<span class="blank">' + value + '</span>';
         } else {
             switch (value.constructor) {
                 case (Object):

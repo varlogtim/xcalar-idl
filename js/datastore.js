@@ -2885,23 +2885,27 @@ window.DataSampleTable = (function($, DataSampleTable) {
     function getTableRowsHTML(jsonKeys, jsons, columnsType, selectedCols) {
         var tr = "";
         var i  = 0;
+        var knf = false;
 
         jsons.forEach(function(json) {
             tr += '<tr>';
             tr += '<td class="lineMarker"><div class="idSpan">' +
                     (currentRow + i + 1) + '</div></td>';
             // loop through each td, parse object, and add to table cell
-            var numKeys = jsonKeys.length;
-            numKeys = Math.min(1000, numKeys); // limit to 1000 ths
+            var numKeys = Math.min(jsonKeys.length, 1000); // limit to 1000 ths
             for (var j = 0; j < numKeys; j++) {
                 var key = jsonKeys[j];
                 var val = json[key];
+                knf = false;
                 // Check type
                 columnsType[j] = xcHelper.parseColType(val, columnsType[j]);
 
                 var selected  = "";
-                var parsedVal = (val == null) ?
-                                    "" : xcHelper.parseJsonValue(val);
+
+                if (val === undefined) {
+                    knf = true;
+                }
+                var parsedVal = xcHelper.parseJsonValue(val, knf);
 
                 if (selectedCols && selectedCols[j + 1]) {
                     selected = " selectedCol";

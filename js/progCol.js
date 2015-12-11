@@ -1287,6 +1287,7 @@ window.ColManager = (function($, ColManager) {
 
         var $table    = $('#xcTable-' + tableId);
         var tBodyHTML = "";
+        var knf = false;
 
         startIndex = startIndex || 0;
 
@@ -1352,6 +1353,7 @@ window.ColManager = (function($, ColManager) {
                 var tdValue = dataValue;
                 var childOfArray = childArrayVals[col];
                 var parsedVal;
+                knf = false;
 
                 if (col !== dataIndex) {
                     if (nested == null) {
@@ -1362,9 +1364,13 @@ window.ColManager = (function($, ColManager) {
 
                     var nestedLength = nested.length;
                     for (var i = 0; i < nestedLength; i++) {
-                        if (jQuery.isEmptyObject(tdValue) ||
+                        if (tdValue[nested[i]] === null) {
+                            tdValue = tdValue[nested[i]];
+                            break;
+                        } else if (jQuery.isEmptyObject(tdValue) ||
                             tdValue[nested[i]] == null)
                         {
+                            knf = true;
                             tdValue = "";
                             break;
                         }
@@ -1401,7 +1407,7 @@ window.ColManager = (function($, ColManager) {
                         tdClass += " textAlignRight";
                     }
 
-                    parsedVal = xcHelper.parseJsonValue(tdValue);
+                    parsedVal = xcHelper.parseJsonValue(tdValue, knf);
                     tBodyHTML += '<td class="' + tdClass + ' clickable">' +
                                     getTableCellHtml(parsedVal) +
                                 '</td>';
@@ -1552,16 +1558,22 @@ window.ColManager = (function($, ColManager) {
         var nested       = parseColFuncArgs(key);
         var childOfArray = false;
         var columnType;  // track column type, initial is undefined
+        var knf = false;
 
         for (var i = startingIndex; i < endingIndex; i++) {
             var jsonStr = $table.find('.row' + i + ' .col' +
                                      colid + ' .elementText').text();
             var value = parseRowJSON(jsonStr);
+            knf = false;
 
             for (var j = 0; j < nested.length; j++) {
-                if (jQuery.isEmptyObject(value) ||
+                if (value[nested[j]] === null) {
+                    value = value[nested[j]];
+                    break;
+                } else if (jQuery.isEmptyObject(value) ||
                     value[nested[j]] == null)
                 {
+                    knf = true;
                     value = "";
                     break;
                 }
@@ -1576,7 +1588,7 @@ window.ColManager = (function($, ColManager) {
             //define type of the column
             columnType = xcHelper.parseColType(value, columnType);
 
-            value = xcHelper.parseJsonValue(value);
+            value = xcHelper.parseJsonValue(value, knf);
             $table.find('.row' + i + ' .col' + newColid)
                   .html(getTableCellHtml(value))
                   .addClass('clickable');

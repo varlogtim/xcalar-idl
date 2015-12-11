@@ -2923,12 +2923,13 @@ function dropdownClick($el, options) {
                                 columnType !== "integer" &&
                                 columnType !== "boolean"
                             );
+        var notAllowed = $el.find('.undefined, .null, .blank').length;
         var isMultiCell = $("#xcTable-" + tableId).find(".highlightBox").length > 1;
 
         var $tdFilter  = $menu.find(".tdFilter");
         var $tdExclude = $menu.find(".tdExclude");
 
-        if (shouldNotFilter) {
+        if (shouldNotFilter || notAllowed) {
             $tdFilter.addClass("unavailable");
             $tdExclude.addClass("unavailable");
         } else {
@@ -2944,7 +2945,7 @@ function dropdownClick($el, options) {
             $tdExclude.text('Exclude this value');
         }
 
-        if (columnType === "object" || columnType === "array") {
+        if ((columnType === "object" || columnType === "array") && !notAllowed) {
             if ($el.text().trim() === "") {
                 $menu.find(".tdJsonModal").addClass("hidden");
                 $menu.find(".tdUnnest").addClass("hidden");

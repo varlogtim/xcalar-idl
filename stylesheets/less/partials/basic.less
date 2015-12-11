@@ -641,8 +641,9 @@ input {
     //     // overflow-x: auto;
     // }
 
-    span.undefined {
-        color: @color-thunderbird;
+    span.undefined, span.null {
+        font-style: italic;
+        color: @color-defaultGray;
     }
 
     .rowBookmarked {
