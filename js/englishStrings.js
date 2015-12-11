@@ -53,8 +53,8 @@ ErrorTextTStr = {
 
     'NoEmptyFn': 'Function field is empty, please input functions.',
 
-    'NoEmptyOrCheck': 'Please fill out this field, ' +
-                        'or allow empty by checking checkbox.',
+    'NoEmptyOrCheck': 'Please fill out this field ' +
+                        'or keep it empty by checking the checkbox.',
 
     'NameInUse': 'Name is in use, please another name.',
 
