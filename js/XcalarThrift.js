@@ -18,11 +18,10 @@ function setupHostName() {
 // for convenience, add the function list here and make them
 // comment in deafult
 var funcFailPercentage = {
-    // "XcalarGetDatasets": -1,
-    // "XcalarGetTables": -1
+    // "XcalarAggregateHelper": 0.2
 };
-var defaultFuncFailPercentage = 0.5;
-var errorInjection = false;
+var defaultFuncFailPercentage = 0.0;
+var errorInjection = true;
 
 function THandleDoesntExistError() {
     this.name = "THandleDoesntExistError";
@@ -1318,13 +1317,16 @@ function XcalarGroupBy(operator, newColName, oldColName, tableName,
     return (deferred.promise());
 }
 
+// XXX!!!! PSA!!! This place does not check for unsorted table. So the caller
+// must make sure that the first table that is being passed into XcalarQuery
+// is an unsorted table! Otherwise backend may crash
 function XcalarQuery(queryName, queryString) {
     // XXX Now only have a simple output
     /* some test case :
         "load --url file:///var/tmp/gdelt --format csv --name test"
         "filter yelpUsers 'regex(user_id,\"--O\")'"
         
-     */
+    */
     if (tHandle == null) {
         return (promiseWrapper(null));
     }

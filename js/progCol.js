@@ -346,104 +346,6 @@ window.ColManager = (function($, ColManager) {
     };
 
     ColManager.changeType = function(colTypeInfos, tableId) {
-        var deferred = jQuery.Deferred();
-
-        var numColInfos = colTypeInfos.length;
-        var table       = gTables[tableId];
-        var tableName   = table.tableName;
-        var tableCols   = table.tableCols;
-        var currentWS   = WSManager.getActiveWS();
-
-        var tableNamePart = tableName.split("#")[0];
-        var tableNames = [];
-        var fieldNames = [];
-        var mapStrings = [];
-        var query = "";
-        var srctable = tableName;
-
-        for (var i = 0; i < numColInfos; i++) {
-            var colInfo = colTypeInfos[i];
-            var col = tableCols[colInfo.colNum - 1];
-
-            tableNames[i] = tableNamePart + Authentication.getHashId();
-            // here use front col name to generate newColName
-            fieldNames[i] = col.name + "_" + colInfo.type;
-            mapStrings[i] = mapStrHelper(col.func.args[0], colInfo.type);
-
-            query += 'map --eval "' + mapStrings[i] +
-                    '" --srctable "' + srctable +
-                    '" --fieldName "' + fieldNames[i] +
-                    '" --dsttable "' + tableNames[i] + '"';
-
-            if (i !== numColInfos - 1) {
-                query += ';';
-            }
-
-            srctable = tableNames[i];
-        }
-
-        var finalTable   = tableNames[numColInfos - 1];
-        var finalTableId = xcHelper.getTableId(finalTable);
-
-        var msg = StatusMessageTStr.ChangeType;
-        var msgObj = {
-            "msg"      : msg,
-            "operation": SQLOps.ChangeType
-        };
-        var msgId = StatusMessage.addMsg(msgObj);
-        xcHelper.lockTable(tableId);
-        WSManager.addTable(finalTableId);
-
-        var sqlOptions = {
-            "operation"   : SQLOps.ChangeType,
-            "tableName"   : tableName,
-            "tableId"     : tableId,
-            "newTableName": finalTable,
-            "colTypeInfos": colTypeInfos
-        };
-        var queryName = xcHelper.randName("changeType");
-
-        XcalarQueryWithCheck(queryName, query)
-        .then(function() {
-            var mapOptions = { "replaceColumn": true };
-            var curTableCols = tableCols;
-            var promises = [];
-
-            for (var j = 0; j < numColInfos; j++) {
-                var curColNum = colTypeInfos[j].colNum;
-                var curTable  = tableNames[j];
-                var archive   = (j === numColInfos - 1) ? false : true;
-
-                curTableCols = xcHelper.mapColGenerate(curColNum, fieldNames[j],
-                                    mapStrings[j], curTableCols, mapOptions);
-                promises.push(setTableHelper.bind(this, curTable, curTableCols, currentWS, table, archive));
-            }
-
-            return chain(promises);
-        })
-        .then(function() {
-            return (refreshTable(finalTable, tableName));
-        })
-        .then(function() {
-            xcHelper.unlockTable(tableId, true);
-            StatusMessage.success(msgId, false, finalTableId);
-
-            SQL.add("Change Data Type", sqlOptions, query);
-            commitToStorage();
-            deferred.resolve();
-        })
-        .fail(function(error) {
-            xcHelper.unlockTable(tableId);
-            WSManager.removeTable(finalTableId);
-
-            Alert.error("Change Data Type Fails", error);
-            StatusMessage.fail(StatusMessageTStr.SplitColumnFailed, msgId);
-            SQL.errorLog("Change Data Type", sqlOptions, query, error);
-            deferred.reject(error);
-        });
-
-        return (deferred.promise());
-
         function mapStrHelper(colName, colType) {
             var mapStr = "";
             switch (colType) {
@@ -493,6 +395,114 @@ window.ColManager = (function($, ColManager) {
 
             return (innerDeferred.promise());
         }
+
+        var deferred = jQuery.Deferred();
+
+        var numColInfos = colTypeInfos.length;
+        var table       = gTables[tableId];
+        var tableName   = table.tableName;
+        var tableCols   = table.tableCols;
+        var currentWS   = WSManager.getActiveWS();
+
+        var tableNamePart = tableName.split("#")[0];
+        var tableNames = [];
+        var fieldNames = [];
+        var mapStrings = [];
+        var query = "";
+        var finalTable = "";
+        var finalTableId;
+        var msgId;
+        var sqlOptions;
+
+        getUnsortedTableName(tableName)
+        .then(function(unsortedTableName) {
+            var srctable = unsortedTableName;
+
+            for (var i = 0; i < numColInfos; i++) {
+                var colInfo = colTypeInfos[i];
+                var col = tableCols[colInfo.colNum - 1];
+
+                tableNames[i] = tableNamePart + Authentication.getHashId();
+                // here use front col name to generate newColName
+                fieldNames[i] = col.name + "_" + colInfo.type;
+                mapStrings[i] = mapStrHelper(col.func.args[0], colInfo.type);
+
+                query += 'map --eval "' + mapStrings[i] +
+                        '" --srctable "' + srctable +
+                        '" --fieldName "' + fieldNames[i] +
+                        '" --dsttable "' + tableNames[i] + '"';
+
+                if (i !== numColInfos - 1) {
+                    query += ';';
+                }
+
+                srctable = tableNames[i];
+            }
+
+            finalTable   = tableNames[numColInfos - 1];
+            finalTableId = xcHelper.getTableId(finalTable);
+
+            var msg = StatusMessageTStr.ChangeType;
+            var msgObj = {
+                "msg"      : msg,
+                "operation": SQLOps.ChangeType
+            };
+            msgId = StatusMessage.addMsg(msgObj);
+            xcHelper.lockTable(tableId);
+            WSManager.addTable(finalTableId);
+
+            sqlOptions = {
+                "operation"   : SQLOps.ChangeType,
+                "tableName"   : tableName,
+                "tableId"     : tableId,
+                "newTableName": finalTable,
+                "colTypeInfos": colTypeInfos
+            };
+            var queryName = xcHelper.randName("changeType");
+
+            return (XcalarQueryWithCheck(queryName, query));
+        })
+        .then(function() {
+            var mapOptions = { "replaceColumn": true };
+            var curTableCols = tableCols;
+            var promises = [];
+
+            for (var j = 0; j < numColInfos; j++) {
+                var curColNum = colTypeInfos[j].colNum;
+                var curTable  = tableNames[j];
+                var archive   = (j === numColInfos - 1) ? false : true;
+
+                curTableCols = xcHelper.mapColGenerate(curColNum, fieldNames[j],
+                                    mapStrings[j], curTableCols, mapOptions);
+                promises.push(setTableHelper.bind(this, curTable, curTableCols,
+                                                  currentWS, table, archive));
+            }
+
+            return (chain(promises));
+        })
+        .then(function() {
+            return (refreshTable(finalTable, tableName));
+        })
+        .then(function() {
+            xcHelper.unlockTable(tableId, true);
+            StatusMessage.success(msgId, false, finalTableId);
+
+            SQL.add("Change Data Type", sqlOptions, query);
+            commitToStorage();
+            deferred.resolve();
+        })
+        .fail(function(error) {
+            xcHelper.unlockTable(tableId);
+            WSManager.removeTable(finalTableId);
+
+            Alert.error("Change Data Type Fails", error);
+            StatusMessage.fail(StatusMessageTStr.ChangeTypeFailed, msgId);
+            SQL.errorLog("Change Data Type", sqlOptions, query, error);
+            deferred.reject(error);
+        });
+
+        return (deferred.promise());
+
     };
 
     ColManager.splitCol = function(colNum, tableId, delimiter, numColToGet, isAlertOn) {
