@@ -325,11 +325,14 @@ window.DFGPanel = (function($, DFGPanel) {
     var $retTabSection = $dfgView.find('.retTabSection');
     var retinaTrLen = 7;
     var retinaTr = '<tr class="unfilled">' +
-                        '<td class="paramName"><div></div></td>' +
-                        '<td>' +
-                            '<div class="paramVal"></div>' +
-                            '<div class="delete paramDelete">' +
-                                '<span class="icon"></span>' +
+                        '<td class="paramNameWrap">' +
+                            '<div class="paramName textOverflowOneLine"></div>' +
+                        '</td>' +
+                        '<td class="paramValWrap">' +
+                            '<div class="paramVal textOverflowOneLine"></div>' +
+                        '</td>' +
+                        '<td class="paramActionWrap">' +
+                            '<div class="paramDelete">' +
                             '</div>' +
                         '</td>' +
                    '</tr>';
@@ -406,12 +409,31 @@ window.DFGPanel = (function($, DFGPanel) {
             $tr = $trs.eq(0);
         }
 
-        $tr.find('.paramName div').html(name);
+        $tr.find('.paramName').text(name);
         if (val != null) {
-            $tr.find('.paramVal').html(val);
+            $tr.find('.paramVal').text(val);
         }
 
         $tr.removeClass('unfilled');
+    }
+
+    function deleteParamFromRetina($tr) {
+        var $paramName = $tr.find('.paramName');
+        var paramName = $paramName.text();
+        var dfg = DFG.getGroup(currentDFG);
+
+        if (dfg.checkParamInUse(paramName)) {
+            StatusBox.show(ErrorTextTStr.ParamInUse, $paramName);
+            return;
+        }
+
+        var $tbody = $tr.closest("tbody");
+        $tr.remove();
+        if ($tbody.find("tr").length < retinaTrLen) {
+            $tbody.append(retinaTr);
+        }
+
+        dfg.removeParameter(paramName);
     }
 
     function setupRetinaTab() {
@@ -500,24 +522,7 @@ window.DFGPanel = (function($, DFGPanel) {
         // delete retina para
         $retTabSection.on('click', '.paramDelete', function(event) {
             event.stopPropagation();
-            var $delBtn = $(this);
-            var $tr = $delBtn.closest('tr');
-            var $tbody = $tr.closest("tbody");
-            var $paramName = $tr.find('.paramName');
-            var paramName = $tr.find('.paramName').text();
-            var dfg = DFG.getGroup(currentDFG);
-
-            if (dfg.checkParamInUse(paramName)) {
-                StatusBox.show(ErrorTextTStr.ParamInUse, $paramName);
-                return;
-            }
-
-            $tr.remove();
-            if ($tbody.find("tr").length < retinaTrLen) {
-                $tbody.append(retinaTr);
-            }
-
-            dfg.removeParameter(paramName);
+            deleteParamFromRetina($(this).closest('tr'));
         });
     }
 
@@ -1035,9 +1040,11 @@ window.DagParamModal = (function($, DagParamModal){
 
     var paramListTrLen = 6;
     var trTemplate = '<tr class="unfilled">' +
-                        '<td class="paramName"><div></div></td>' +
+                        '<td class="paramNameWrap">' +
+                            '<div class="paramName"></div>' +
+                        '</td>' +
                         '<td>' +
-                            '<div class="paramValWrapper">' +
+                            '<div class="paramValWrap">' +
                                 '<input class="paramVal" spellcheck="false" disabled/>' +
                                 '<div class="options">' +
                                     '<div class="option paramEdit">' +
@@ -1047,7 +1054,7 @@ window.DagParamModal = (function($, DagParamModal){
                             '</div>' +
                         '</td>' +
                         '<td>' +
-                            '<div class="checkboxWrapper">' +
+                            '<div class="checkboxWrap">' +
                                 '<span class="checkbox"></span>' +
                             '</div>' +
                         '</td>' +
@@ -1274,7 +1281,7 @@ window.DagParamModal = (function($, DagParamModal){
             xcHelper.scrollToBottom($paramLists.closest(".tableWrapper"));
         }
 
-        $row.find(".paramName div").text(paramName)
+        $row.find(".paramName").text(paramName)
             .end()
             .find(".paramVal").val(paramVal).removeAttr("disabled")
             .end()
@@ -1288,24 +1295,24 @@ window.DagParamModal = (function($, DagParamModal){
 
     function setParamDivToDefault($paramDiv) {
         var target = $paramDiv.data("target");
-        var paramVals = [];
+        var paramNames = [];
         var defaultVal = $dagParamModal.find(".templateTable .boxed")
                                         .eq(target).text();
 
         $paramDiv.find(".draggableDiv .value").each(function() {
-            paramVals.push($(this).text());
+            paramNames.push($(this).text());
         });
 
         $paramDiv.text(defaultVal);
-        paramVals.forEach(function(val) {
-            updateParamList(val);
+        paramNames.forEach(function(name) {
+            updateParamList(name);
         });
     }
 
-    function updateParamList(paramVal) {
+    function updateParamList(paramName) {
         // find if the param has dups
         var $dups = $editableRow.find(".editableParamDiv .value").filter(function() {
-            return ($(this).text() === paramVal);
+            return ($(this).text() === paramName);
         });
 
         if ($dups.length > 0) {
@@ -1315,7 +1322,7 @@ window.DagParamModal = (function($, DagParamModal){
         // if no dups, clear the param in param list table
         var $tbody = $paramLists.find("tbody");
         $tbody.find('.paramName').filter(function() {
-            return ($(this).text() === paramVal);
+            return ($(this).text() === paramName);
         }).closest('tr').remove();
 
         if ($tbody.find("tr").length < paramListTrLen) {

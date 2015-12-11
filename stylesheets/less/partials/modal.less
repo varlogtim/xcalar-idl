@@ -3218,7 +3218,7 @@ html.microsoft {
 
     .defaultListSection {
         padding: 15px 15px 0px 15px;
-        .parameterTable();
+        .parameterTable;
 
         .tableHeader {
             .size(@height: 30px);
@@ -3255,18 +3255,6 @@ html.microsoft {
         }
 
         .tableContainer {
-            height: 210px;
-            overflow: hidden;
-            overflow-y: auto;
-
-            .tableWrapper {
-                width: 420px;
-                overflow-y: hidden;
-                height: auto;
-            }
-        }
-
-        .tableContainer {
             height: 243px;
             display: inline-block;
             overflow: hidden;
@@ -3275,26 +3263,65 @@ html.microsoft {
             border-top-left-radius: 0px;
             border-top-right-radius: 0px;
             border: 1px solid #a8a8a8;
-            float: left;
             z-index: 0;
             padding: 0;
 
             .tableWrapper {
-                width: 890px;
-                .thWrap {
-                    width: 444px;
-                    padding-left: 17px;
-                }
+                .size(@width: 890px, @height: auto);
+                overflow-y: hidden;
 
-                .paramName {
+                .paramNameWrap {
                     color: @color-text-darkGray;
 
-                    > div {
-                        width: 310px;
+                    .paramName {
+                        width: 318px;
                     }
                 }
 
-                .checkboxWrapper {
+                .paramValWrap {
+                    width: 466px;
+
+                    .paramVal {
+                        width: 435px;
+                        .size(@width: 435px, @height: 30px);
+                        .font(@weight: 700, @size: 13px, @line-height: 30%);
+                        float: left;
+                        background: transparent;
+
+                        &:focus {
+                            box-shadow: inset -1px 0px 1px 1px rgba(0,0,0,0.15);
+                            background-color: white; 
+                        }
+                    }
+
+                    .options {
+                        float: right;
+                        .position(relative, @right: 0);
+                        cursor: pointer;
+
+                        .option {
+                            display: inline-block;
+                            float: left;
+                            width: 25px;
+
+                             &.paramEdit {
+                                .icon {
+                                    .position(relative, @top: 1px);
+                                    .background("/images/ds-editDS.png", 15px, 15px);
+
+                                }
+
+                                &.selected {
+                                    .icon {
+                                        .background("/images/pencil-gray.png", 16px, 15px);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                .checkboxWrap {
                     width: 30px;
                     text-align: center;
 
@@ -3311,45 +3338,8 @@ html.microsoft {
                     }
                 }
 
-                .paramValWrapper {
-                    width: 465px;
-                }
-
-                .paramVal {
-                    width: 435px;
-                    .font(@weight: 700, @size: 13px, @line-height: 100%);
-                    &:focus {
-                        box-shadow: inset -1px 0px 1px 1px rgba(0,0,0,0.15);
-                        background-color: white; 
-                    }
-                }
-                .options {
-                    float: right;
-                    .position(relative, @right: 0);
-                    cursor: pointer;
-
-                    .option {
-                        display: inline-block;
-                        float: left;
-                        width: 25px;
-
-                         &.paramEdit {
-                            .icon {
-                                .position(relative, @top: 1px);
-                                .background("/images/ds-editDS.png", 15px, 15px);
-
-                            }
-
-                            &.selected {
-                                .icon {
-                                    .background("/images/pencil-gray.png", 16px, 15px);
-                                }
-                            }
-                        }
-                    }
-                }
                 .unfilled {
-                    .paramEdit, .checkbox {
+                    .options, .checkbox {
                         display: none;
                     }
                 }
@@ -3364,23 +3354,12 @@ html.microsoft {
             tbody {
                 tr {
                     td {
-                        .size(@width: ~"442px !important", @height: 40px);
+                        .size(@height: 40px);
                         padding-left: 15px;
                         border-right: 1px solid #a8a8a8;
 
-                        &:first-of-type {
-                            border-left: 7px solid @color-join-background;
-                        }
-                        &:last-of-type {
-                            border-right: 8px solid @color-join-background;
-                        }
-                        >div {
+                        > div {
                             .textOverflowOneLine;
-                        }
-                        &.paramName {
-                            >div {
-                                width: 410px;
-                            }
                         }
                     }
                 }

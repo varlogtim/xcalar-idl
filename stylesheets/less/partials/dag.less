@@ -1093,10 +1093,12 @@
         z-index: -1;
         padding: 0 10px;
         .rounded(0 0 3px 3px);
+
         .tableWrapper {
             .size(@height: 100%);
             overflow-y: scroll;
             margin: 0 auto;
+
             .thWrap {
                 .position(absolute, @top: 0);
                 .size(@width: 226px, @height: 30px);
@@ -1106,22 +1108,7 @@
                 color: @color-text-white;
                 .font(@weight: bold, @size: 13px, @line-height: 30px);
             }
-            .paramVal {
-                .size(@width: 80%, @height: 30px);
-                float: left;
-                background: transparent;
-                line-height: 30px;
-            }
-            .paramDelete {
-                .position(relative, @right: 2px);
-                .size(@width: 20px);
-                float: right;
-                cursor: pointer;
-                .icon {
-                    .position(relative, @top: 1px);
-                    .background("/images/ds-close.png", 15px, 15px);
-                }
-            }
+
             &::-webkit-scrollbar {
                 display: none;
             }
@@ -1130,6 +1117,7 @@
             }
         }
     }
+
     table {
         margin: auto;
         table-layout: fixed;

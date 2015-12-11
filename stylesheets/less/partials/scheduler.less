@@ -887,23 +887,30 @@
                             overflow: hidden;
 
                             .thWrap {
-                                .size(@width: 226px, @height: 30px);
-                                color: white;
-                                font-weight: bold;
-                                font-size: 13px;
-                                line-height: 30px;
-                                padding-left: 12px;
+                                .size(@height: 30px);
+                                .font(@weight: bold, @size: 13px, @line-height: 30px, @color: @color-white);
                                 float: left;
                                 background-color: #A8A8A8;
-                            }
+                                text-align: center;
 
-                            .thWrap:first-child {
-                                .size(@width: 194px);
-                            }
-                            .thWrap:last-child {
-                                border-left: 1px solid @color-white;
+                                &.paramName {
+                                    .size(@width: 160px);
+                                }
+
+                                &.paramVal {
+                                    .size(@width: 160px);
+                                }
+
+                                &.paramAction {
+                                    .size(@width: 100px);
+                                }
+
+                                &:not(:first-child) {
+                                    border-left: 1px solid @color-white;
+                                }
                             }
                         }
+
                         .tableContainer {
                             height: 210px;
                             overflow: hidden;
@@ -914,18 +921,38 @@
                                 overflow-y: hidden;
                                 height: auto;
                             }
-                        }
 
-                        .paramName > div {
-                            width: 184px;
-                            padding-right: 4px;
-                            .textOverflowOneLine;
-                        }
+                            table {
+                                td {
+                                    border-right: 1px solid #a8a8a8;
+                                }
 
-                        .paramVal {
-                            width: 194px !important;
-                            padding-right: 4px;
-                            .textOverflowOneLine;
+                                .paramNameWrap {
+                                    .size(@width: 160px);
+                                    padding-right: 10px;
+
+                                    .paramName {
+                                        .size(@width: 140px);
+                                    }
+                                }
+
+                                .paramValWrap {
+                                    .size(@width: 159px);
+                                    padding-right: 10px;
+
+                                    .paramVal {
+                                        .size(@width: 139px);
+                                    }
+                                }
+
+                                .paramDelete {
+                                    .position(absolute, @top: 50%, @left: 50%);
+                                    .size(15px, 15px);
+                                    cursor: pointer;
+                                    transform: translate(-50%, -50%);
+                                    .image("/images/datastore/preview-close.png", 50%, 50%);
+                                }
+                            }
                         }
 
                         ::-webkit-scrollbar-track {
@@ -933,7 +960,7 @@
                         }
                     }
                 }
-        }
+            }
 
             h2 {
                 display: block;
