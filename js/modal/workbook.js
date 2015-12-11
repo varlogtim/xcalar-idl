@@ -51,9 +51,14 @@ window.WorkbookModal = (function($, WorkbookModal) {
         getWorkbookInfo();
     };
 
-    WorkbookModal.show = function() {
+    WorkbookModal.show = function(isForceShow) {
         $(document).on("keypress", workbookKeyPress);
-        modalHelper.setup();
+
+        if (isForceShow) {
+            modalHelper.setup({"noEsc": true});
+        } else {
+            modalHelper.setup();
+        }
 
         // default choose first option (new workbook)
         $optionSection.find(".radio").eq(0).click();

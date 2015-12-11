@@ -776,6 +776,7 @@ window.xcHelper = (function($, xcHelper) {
          * noResize: if set true, will not reszie the modal
          * noCenter: if set true, will not center the modal
          * noTabFocus: if set true, press tab will use browser's default behavior
+         * noEsc: if set true, no event listener on key esc
          */
         this.$modal = $modal;
         this.options = options || {};
@@ -785,9 +786,9 @@ window.xcHelper = (function($, xcHelper) {
     };
 
     xcHelper.Modal.prototype = {
-        setup: function() {
+        setup: function(extraOptions) {
             var $modal  = this.$modal;
-            var options = this.options || {};
+            var options = $.extend(this.options, extraOptions) || {};
 
             $("body").addClass("no-selection");
             xcHelper.removeSelectionRange();
@@ -873,6 +874,9 @@ window.xcHelper = (function($, xcHelper) {
 
                     return false;
                 } else if (event.which === keyCode.Escape) {
+                    if (options.noEsc) {
+                        return true;
+                    }
                     $modal.find(".modalHeader .close").click();
                     return false;
                 }
