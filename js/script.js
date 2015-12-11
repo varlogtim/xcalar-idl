@@ -978,6 +978,22 @@ function documentReadyIndexFunction() {
             if (typeof error === "string"){
                 // when it's a front end error, already has handler
                 console.error("Setup fails", error);
+            } else if (error.status === StatusT.StatusSessionNotFound) {
+                var instr = "If you still see the error after re-login, " +
+                            "please copy your log and restart the server.";
+                Alert.show({
+                    "title"     : "Cannot Retrieve Old Workbook",
+                    "instr"     : instr,
+                    "msg"       : "Please Use new workbook or logout and try again!",
+                    "lockScreen": true,
+                    "logout"    : true,
+                    "buttons"   : [{
+                        "name": "New Workbook",
+                        "func": function() {
+                            WKBKManager.inActiveAllWKBK();
+                        }
+                    }]
+                });
             } else {
                 // when it's an error from backend we cannot handle
                 var title;

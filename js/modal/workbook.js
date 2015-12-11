@@ -206,6 +206,7 @@ window.WorkbookModal = (function($, WorkbookModal) {
                 })
                 .fail(function(error) {
                     StatusBox.show(error.error, $workbookInput);
+                    cancelWaiting();
                 })
                 .always(function() {
                     modalHelper.enableSubmit();
@@ -482,6 +483,11 @@ window.WorkbookModal = (function($, WorkbookModal) {
         }
     }
 
+    function cancelWaiting() {
+        $workbookModal.removeClass('inactive');
+        $("#workbookModalWaitingIcon").remove();
+    }
+
     return (WorkbookModal);
 }(jQuery, {}));
 
@@ -691,7 +697,7 @@ window.WKBKManager = (function($, WKBKManager) {
         })
         .then(function() {
             var copySrcName = isCopy ? copySrc.name : null;
-            return (XcalarNewWorkbook(wkbkName, isCopy, copySrcName));
+            return XcalarNewWorkbook(wkbkName, isCopy, copySrcName);
         })
         .then(function() {
             var time = xcHelper.getTimeInMS();
@@ -836,6 +842,36 @@ window.WKBKManager = (function($, WKBKManager) {
         });
 
         return (deferred.promise());
+    };
+
+    WKBKManager.inActiveAllWKBK = function() {
+        var deferred = jQuery.Deferred();
+        var promises = [];
+
+        XcalarListWorkbooks("*")
+        .then(function(output) {
+            var numSessions = output.numSessions;
+            var sessions = output.sessions;
+            // console.log(sessionInfo);
+            for (var i = 0; i < numSessions; i++) {
+                var session = sessions[i];
+                if (session.state === "Active") {
+                    promises.push(XcalarInActiveWorkbook.bind(this, session.name));
+                }
+            }
+
+            return chain(promises);
+        })
+        .then(function() {
+            return XcalarKeyDelete(activeWKBKKey, gKVScope.WKBK);
+        })
+        .then(function() {
+            location.reload();
+            deferred.resolve();
+        })
+        .fail(deferred.reject);
+
+        return deferred.promise();
     };
 
     // XXX this is buggy now because it clear wkbkInfo but the session info is kept!

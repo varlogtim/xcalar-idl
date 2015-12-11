@@ -2047,7 +2047,7 @@ function XcalarDeleteWorkbook(workbookName) {
     return (deferred.promise());
 }
 
-function XcalarForceRelease(workbookName) {
+function XcalarInActiveWorkbook(workbookName) {
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return (promiseWrapper(null));
     }
@@ -2058,7 +2058,7 @@ function XcalarForceRelease(workbookName) {
         deferred.resolve(output);
     })
     .fail(function(error) {
-        deferred.reject(thriftLog("XcalarForceRelease", error));
+        deferred.reject(thriftLog("XcalarInActiveWorkbook", error));
     });
     return (deferred.promise());
 }

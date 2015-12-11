@@ -53,7 +53,12 @@ window.Alert = (function($, Alert){
         }
 
         configAlertModal(options);
-        modalHelper.setup();
+
+        if (options.lockScreen) {
+            modalHelper.setup({"noEsc": true});
+        } else {
+            modalHelper.setup();
+        }
 
         // Note that alert Modal's center position
         // is different from other modal, need this handle
@@ -167,7 +172,6 @@ window.Alert = (function($, Alert){
 
         // lock screen if necessary
         if (options.lockScreen) {
-            $btnSection.find('.confirm, .cancel').css('visibility', 'hidden');
             $('#alertHeader').find('.close').css('pointer-events', 'none');
             $alertModal.addClass('locked');
             var $copySqlBtn = $('<button type="button" ' +
@@ -176,7 +180,18 @@ window.Alert = (function($, Alert){
                                 'title="Copy the SQL log onto your clipboard">' +
                                 'Copy log</button>');
 
-            $btnSection.prepend($copySqlBtn);
+            var $logoutBtn = $('<button type="button" ' +
+                                'class="btn btnMid logout" ' +
+                                'data-toggle="tooltip" ' +
+                                'title="Log Out">' +
+                                'Log Out</button>');
+
+            if (options.logout) {
+                $btnSection.prepend($logoutBtn, $copySqlBtn);
+            } else {
+                $btnSection.prepend($copySqlBtn, $logoutBtn);
+            }
+
             $copySqlBtn.click(function() {
                 var $hiddenInput = $("<input>");
                 $("body").append($hiddenInput);
@@ -201,6 +216,10 @@ window.Alert = (function($, Alert){
                 $hiddenInput.val(logText).select();
                 document.execCommand("copy");
                 $hiddenInput.remove();
+            });
+
+            $logoutBtn.click(function() {
+                $("#signout").click();
             });
         }
 
@@ -252,7 +271,7 @@ window.Alert = (function($, Alert){
         var $confirmBtn = $btnSection.find(".confirm");
         // var $cancelBtn  = $btnSection.find(".cancel");
         if (!options.isAlert) {
-            if (options.noCancel) {
+            if (options.noCancel || options.lockScreen) {
                 $alertModal.find(".close, .cancel").hide();
             } else {
                 $alertModal.find(".close, .cancel").show();
@@ -261,8 +280,12 @@ window.Alert = (function($, Alert){
             if (options.buttons) {
                 $confirmBtn.hide();
                 options.buttons.forEach(function(btnOption) {
-                    var className = btnOption.className + " funcBtn";
-                    var $btn      = $confirmBtn.clone();
+                    var className = "funcBtn";
+                    if (btnOption.className) {
+                        className += " " + btnOption.className;
+                    }
+
+                    var $btn = $confirmBtn.clone();
 
                     $btnSection.prepend($btn);
                     $btn.show();
@@ -276,17 +299,24 @@ window.Alert = (function($, Alert){
                 });
                 return;
             } else {
-                $confirmBtn.show();
-                $alertModal.on("click.alert", ".confirm", function(event) {
-                    event.stopPropagation();
-                    closeAlertModal();
-                    if (options.confirm) {
-                        options.confirm();
-                    }
-                });
+                if (options.lockScreen) {
+                    $confirmBtn.hide();
+                } else {
+                    $confirmBtn.show();
+                    $alertModal.on("click.alert", ".confirm", function(event) {
+                        event.stopPropagation();
+                        closeAlertModal();
+                        if (options.confirm) {
+                            options.confirm();
+                        }
+                    });
+                }
             }
         } else {
             $confirmBtn.hide();
+            if (options.lockScreen) {
+                $alertModal.find(".close, .cancel").hide();
+            }
         }
     }
 

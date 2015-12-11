@@ -99,15 +99,10 @@ window.Support = (function(Support, $) {
                     // this browser tab does not hold any more
                     sessionStorage.removeItem(KVStore.user);
                     Alert.show({
-                        "title"   : "Please Log out",
-                        "msg"     : "You are logged in somewhere else!",
-                        "noCancel": true,
-                        "buttons" : [{
-                            "name": "Log Out",
-                            "func": function() {
-                                $("#signout").click();
-                            }
-                        }]
+                        "title"     : "Please Log out",
+                        "msg"       : "You are logged in somewhere else!",
+                        "lockScreen": true,
+                        "logout"    : true
                     });
                 }
             });
