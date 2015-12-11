@@ -2205,7 +2205,7 @@ function xcalarApiSessionInact(thriftHandle, name) {
     if (verbose) {
         console.log("xcalarApiSessionInact(name = )", name);
     }
-    var workItem = xcalarApiSessionIactWorkItem(name);
+    var workItem = xcalarApiSessionInactWorkItem(name);
 
     thriftHandle.client.queueWorkAsync(workItem)
     .then(function(result) {
