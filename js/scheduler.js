@@ -166,6 +166,7 @@ window.Scheduler = (function(Scheduler, $) {
         });
 
         Scheduler.restore();
+        $("#schedulesButton").click();
     };
 
     Scheduler.restore = function(oldSchedules) {

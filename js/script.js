@@ -954,9 +954,9 @@ function documentReadyIndexFunction() {
             AggModal.setup();
             OperationsModal.setup();
             WorkbookModal.setup();
-            Scheduler.setup();
             DataFlowModal.setup();
             DFGPanel.setup();
+            Scheduler.setup();
             MultiCastModal.setup();
         })
         .then(function() {
