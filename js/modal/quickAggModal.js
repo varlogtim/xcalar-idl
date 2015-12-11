@@ -509,7 +509,7 @@ window.AggModal = (function($, AggModal) {
                         'title="' + value +
                         '" data-toggle="tooltip" data-placement="top" ' +
                         'data-container="body">' +
-                            value.toFixed(3)+
+                        (jQuery.isNumeric(value) ? value.toFixed(3) : value) +
                         '</span>';
             $("#mainAgg1").find(".aggCol:not(.labels)").eq(col)
                 .find(".aggTableField:not(.colLabel)").eq(row).html(html);
@@ -571,11 +571,12 @@ window.AggModal = (function($, AggModal) {
         function applyCorrResult(value) {
             var isNumeric = jQuery.isNumeric(value);
             var bg;
+
             var html = '<span class="textOverflow tooltipOverflow" ' +
                         'title="' + value +
                         '" data-toggle="tooltip" data-placement="top" ' +
                         'data-container="body">' +
-                            value.toFixed(3) +
+                            (isNumeric ? value.toFixed(3) : value) +
                         '</span>';
             if (isNumeric) {
                 value = parseFloat(value);
