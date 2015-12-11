@@ -35,7 +35,8 @@ var gKVScope = {
     "WKBK": XcalarApiKeyScopeT.XcalarApiKeyScopeGlobal,
     "META": XcalarApiKeyScopeT.XcalarApiKeyScopeGlobal,
     "LOG" : XcalarApiKeyScopeT.XcalarApiKeyScopeGlobal,
-    "FLAG": XcalarApiKeyScopeT.XcalarApiKeyScopeSession
+    "FLAG": XcalarApiKeyScopeT.XcalarApiKeyScopeSession,
+    "VER" : XcalarApiKeyScopeT.XcalarApiKeyScopeGlobal
 };
 var gTables = {}; // This is the main global array containing structures
                     // Stores TableMeta structs
@@ -916,34 +917,13 @@ function setupOrphanedList(tableMap) {
     gOrphanTables = tables;
 }
 
-function checkXcalarVersionMatch() {
-    var deferred = jQuery.Deferred();
-
-    XcalarGetVersion()
-    .then(function(result) {
-        var versionNum = result.output.outputResult.getVersionOutput
-                                                   .apiVersionSignatureShort;
-        if (versionNum !== XcalarApiVersionT.XcalarApiVersionSignature) {
-
-            deferred.reject({error: 'Update required.'});
-        } else {
-            deferred.resolve();
-        }
-    })
-    .fail(function() {
-        deferred.reject({error: 'Connection could not be established.'});
-    });
-
-    return (deferred.promise());
-}
-
 function documentReadyIndexFunction() {
     $(document).ready(function() {
         gMinModeOn = true; // startup use min mode;
         Compatible.check();
         setupThrift();
 
-        checkXcalarVersionMatch()
+        XVM.checkVersionMatch()
         .then(startupFunctions)
         .then(initializeTable)
         .then(function() {
@@ -971,6 +951,7 @@ function documentReadyIndexFunction() {
             'background: linear-gradient(to bottom, #378cb3, #5cb2e8); ' +
             'color: #ffffff; font-size:20px; font-family:Open Sans, Arial;');
 
+            XVM.commitVersionInfo();
             // start heartbeat check
             Support.heartbeatCheck();
         })

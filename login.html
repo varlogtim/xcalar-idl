@@ -81,9 +81,8 @@ $(document).ready(function() {
         // XXX this redirect is only for temporary use
         window.location = "index.html";
     });
-    $("#insightVersion").html("Version SHA: "+
-        XcalarApiVersionTStr[XcalarApiVersionT.XcalarApiVersionSignature].
-        substring(0, 6) + ", Revision "+fullVersion);
+    $("#insightVersion").html("Version SHA: " +
+        XVM.getSHA().substring(0, 6) + ", Revision " + XVM.getVersion());
 });
 </script>
 </body>
