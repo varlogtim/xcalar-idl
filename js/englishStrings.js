@@ -122,7 +122,7 @@ ErrorTextWReplaceTStr = {
     'InvalidOpsType': 'Invalid type for the field,' +
                       ' wanted: <type1>, but provided: <type2>.',
 
-    'InvalidCol': 'Column "<name>" not exists.',
+    'InvalidCol': 'Column "<name>" does not exists.',
 
 }
 

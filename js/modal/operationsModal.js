@@ -1309,8 +1309,10 @@ window.OperationsModal = (function($, OperationsModal) {
         var $argInputs = $operationsModal.find('.argument');
         var groupbyColName = args[0];
         var indexedColNames = args[1];
+        var singleColName = true;
         var isGroupbyColNameValid = checkValidColNames($argInputs.eq(0),
-                                                        groupbyColName);
+                                                        groupbyColName,
+                                                        singleColName);
         if (!isGroupbyColNameValid) {
             return (false);
         } else {
@@ -1397,9 +1399,15 @@ window.OperationsModal = (function($, OperationsModal) {
 
     // used in groupby to check if inputs have column names that match any
     // that are found in gTables.tableCols
-    function checkValidColNames($input, colNames) {
+    function checkValidColNames($input, colNames, single) {
         var values = colNames.split(",");
         var numValues = values.length;
+        if (single && numValues > 1) {
+            var text = ErrorTextWReplaceTStr.InvalidCol
+                            .replace("<name>", colNames);
+            StatusBox.show(text, $input);
+            return (false);
+        }
         var columns = gTables[tableId].tableCols;
         var numCols = columns.length;
         var value;
