@@ -547,32 +547,13 @@ window.KVStore = (function($, KVStore) {
         var deferred = jQuery.Deferred();
         wkbkLists = "";
 
-        WKBKManager.getUsersInfo()
-        .then(function(userInfo) {
-            userInfo = userInfo || {}; // in case userInfo is null
-
-            var users = userInfo.users;
-            for (var user in users) {
-                var workbooks = users[user].workbooks;
-
-                if (workbooks != null && workbooks.length > 0) {
-                    for (var i = 0; i < workbooks.length; i++) {
-                        var wkbk = workbooks[i];
-                        var li = "name:" + wkbk.name + " user:" + user +
-                                    " id:" + wkbk.id;
-                        wkbkLists += "<li>" + li + "</li>";
-                    }
-                }
-            }
-
-            deferred.resolve(wkbkLists);
-
-        })
-        .fail(function(error) {
-            console.error("Get Session Error", error);
-            $datalist.html("");
-            deferred.reject(error);
-        });
+        var workbooks = WKBKManager.getWKBKS();
+        for (var wkbkId in workbooks) {
+            var wkbk = workbooks[wkbkId];
+            var li = "name:" + wkbk.name +
+                    " id:" + wkbk.id;
+            wkbkLists += "<li>" + li + "</li>";
+        }
 
         return (deferred.promise());
     }

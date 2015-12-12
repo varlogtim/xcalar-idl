@@ -26,7 +26,6 @@ window.WorkbookModal = (function($, WorkbookModal) {
     var sortkey = "name";
 
     var activeActionNo = 0;
-    var curWKBKInfo = null;
 
     WorkbookModal.setup = function() {
         $workbookModal.draggable({
@@ -63,32 +62,17 @@ window.WorkbookModal = (function($, WorkbookModal) {
         // default choose first option (new workbook)
         $optionSection.find(".radio").eq(0).click();
 
-        if (curWKBKInfo == null) {
-            // when not get workbook info yet
-            getWorkbookInfo()
-            .then(function() {
-                showModalHelper();
-            })
-            .fail(function(error) {
-                console.error("Get Workbook Info error", error);
-            });
+        addWorkbooks();
+
+        if (gMinModeOn) {
+            $modalBackground.fadeIn(300);
+            $workbookModal.show();
+            Tips.refresh();
         } else {
-            showModalHelper();
-        }
-
-        function showModalHelper() {
-            addWorkbooks();
-
-            if (gMinModeOn) {
-                $modalBackground.fadeIn(300);
-                $workbookModal.show();
+            $modalBackground.fadeIn(300, function() {
+                $workbookModal.fadeIn(180);
                 Tips.refresh();
-            } else {
-                $modalBackground.fadeIn(300, function() {
-                    $workbookModal.fadeIn(180);
-                    Tips.refresh();
-                });
-            }
+            });
         }
     };
 
@@ -96,17 +80,12 @@ window.WorkbookModal = (function($, WorkbookModal) {
         addWorkbookEvents();
         $workbookModal.find(".cancel, .close").hide();
 
-        getWorkbookInfo(true)
-        .then(function() {
-            WorkbookModal.show(true);
-            // deafult value for new workbook
-            $workbookInput.val("untitled");
-            var input = $workbookInput.get(0);
-            input.setSelectionRange(0, input.value.length);
-        })
-        .fail(function(error) {
-            console.error("Get Workbook Info error", error);
-        });
+        getWorkbookInfo(true);
+        WorkbookModal.show(true);
+        // deafult value for new workbook
+        $workbookInput.val("untitled");
+        var input = $workbookInput.get(0);
+        input.setSelectionRange(0, input.value.length);
     };
 
     function resetWorkbookModal() {
@@ -164,7 +143,7 @@ window.WorkbookModal = (function($, WorkbookModal) {
                         "formMode" : true,
                         "text"     : ErrorTextWReplaceTStr.WKBKConflict.replace("<name>", workbookName),
                         "check"    : function() {
-                            var workbooks = curWKBKInfo.workbooks;
+                            var workbooks = WKBKManager.getWKBKS();
                             for (var wkbkId in workbooks) {
                                 if (workbooks[wkbkId].name === workbookName) {
                                     return true;
@@ -303,42 +282,28 @@ window.WorkbookModal = (function($, WorkbookModal) {
     }
 
     function getWorkbookInfo(isForceMode) {
-        var deferred = jQuery.Deferred();
-
         var $instr = $workbookModal.find(".modalInstruction .text");
-        var user = WKBKManager.getUser();
+        var user = Support.getUser();
         var html;
 
         if (isForceMode) {
-            curWKBKInfo = {}; // forceMode has no any workbook info
-            html =
-                    'Hello <b>' + user + '</b>, ' +
+            // forceMode has no any workbook info
+            html = 'Hello <b>' + user + '</b>, ' +
                     ' you have no workbook yet, you can create new workbook, ' +
                     'continue a workbook or copy a workbook';
             $instr.html(html);
-
-            deferred.resolve();
-            return (deferred.promise());
+            return;
         }
 
-        WKBKManager.getUsersInfo()
-        .then(function(wkbkInfo) {
-            curWKBKInfo = wkbkInfo || {};
+        var workbooks = WKBKManager.getWKBKS();
+        var activeWKBKId = WKBKManager.getActiveWKBK();
+        var workbook = workbooks[activeWKBKId];
 
-            var activeWKBKId = WKBKManager.getActiveWKBK();
-            var workbook = wkbkInfo.workbooks[activeWKBKId];
+        html = 'Hello <b>' + user + '</b>, ' +
+                'current workbook is <b>' + workbook.name + '</b>';
+        updateWorksheetBar(workbook);
 
-            html = 'Hello <b>' + user + '</b>, ' +
-                    'current workbook is <b>' + workbook.name + '</b>' +
-                    ' created by <b>' + user + '</b>';
-            updateWorksheetBar(workbook);
-
-            $instr.html(html);
-        })
-        .then(deferred.resolve)
-        .fail(deferred.reject);
-
-        return (deferred.promise());
+        $instr.html(html);
     }
 
     function updateWorksheetBar(workbook) {
@@ -391,7 +356,7 @@ window.WorkbookModal = (function($, WorkbookModal) {
     function addWorkbooks() {
         var html = "";
         var sorted = [];
-        var workbooks = curWKBKInfo.workbooks;
+        var workbooks = WKBKManager.getWKBKS();
 
         for (var id in workbooks) {
             sorted.push(workbooks[id]);
@@ -495,9 +460,11 @@ window.WorkbookModal = (function($, WorkbookModal) {
 window.WKBKManager = (function($, WKBKManager) {
     var username;
 
-    var wkbkInfoKey;
+    var wkbkKey;
     var activeWKBKKey;
     var activeWKBKId;
+
+    var workbooks = {};
 
     // initial setup
     WKBKManager.setup = function() {
@@ -506,73 +473,68 @@ window.WKBKManager = (function($, WKBKManager) {
         username = Support.getUser();
 
         // key that stores all workbook infos for the user
-        wkbkInfoKey = generateKey(username, "workbookInfos");
+        wkbkKey = generateKey(username, "workbookInfos");
         // key that stores the current active workbook Id
         activeWKBKKey = generateKey(username, "activeWorkbook");
 
-        WKBKManager.getUsersInfo()
-        .then(function(wkbkInfo, sessionInfo) {
+        WKBKManager.getWKBKsAsync()
+        .then(function(oldWorkbooks, sessionInfo) {
             // sycn sessionInfo with wkbkInfo
             var innerDeferred = jQuery.Deferred();
 
             var numSessions = sessionInfo.numSessions;
             var sessions    = sessionInfo.sessions;
 
-            if (wkbkInfo == null) {
+            if (oldWorkbooks == null) {
                 for (var i = 0; i < numSessions; i++) {
                     console.warn("Error!", sessions[i].name, "has no meta.");
                 }
 
-                innerDeferred.resolve(null, wkbkInfo, sessionInfo);
+                innerDeferred.resolve(null, sessionInfo);
                 return (innerDeferred.promise());
             }
 
-            var workbooks   = wkbkInfo.workbooks;
-            var newWKBKInfo = {
-                "username" : wkbkInfo.username,
-                "workbooks": {}
-            };
-
-            var wkbkId;
-            var wkbkName;
             for (var i = 0; i < numSessions; i++) {
-                wkbkName = sessions[i].name;
-                wkbkId = generateKey(wkbkInfo.username, "wkbk", wkbkName);
+                var wkbkName = sessions[i].name;
+                var wkbkId = getWKBKId(wkbkName);
+                var wkbk;
 
-                if (workbooks.hasOwnProperty(wkbkId)) {
-                    newWKBKInfo.workbooks[wkbkId] = workbooks[wkbkId];
-                    delete workbooks[wkbkId];
+                if (oldWorkbooks.hasOwnProperty(wkbkId)) {
+                    wkbk = new WKBK(oldWorkbooks[wkbkId]);
+                    delete oldWorkbooks[wkbkId];
                 } else {
                     console.warn("Error!", wkbkName, "has no meta.");
-                    newWKBKInfo.workbooks[wkbkId] = {
+                    wkbk = new WKBK({
                         "name"  : wkbkName,
                         "noMeta": true
-                    };
+                    });
                 }
+
+                workbooks[wkbkId] = wkbk;
             }
 
-            for (wkbkId in workbooks) {
+            for (wkbkId in oldWorkbooks) {
                 console.warn("Error!", wkbkId, "is missing.");
             }
 
             // refresh workbook info
-            KVStore.put(wkbkInfoKey, JSON.stringify(newWKBKInfo), true, gKVScope.WKBK)
+            KVStore.put(wkbkKey, JSON.stringify(workbooks), true, gKVScope.WKBK)
             .then(function() {
-                return (KVStore.get(activeWKBKKey, gKVScope.WKBK));
+                return KVStore.get(activeWKBKKey, gKVScope.WKBK);
             })
             .then(function(activeId) {
-                innerDeferred.resolve(activeId, newWKBKInfo, sessionInfo);
+                innerDeferred.resolve(activeId, sessionInfo);
             })
             .fail(innerDeferred.reject);
 
             return (innerDeferred.promise());
         })
-        .then(function(wkbkId, wkbkInfo, sessionInfo) {
+        .then(function(wkbkId, sessionInfo) {
             var innerDeferred = jQuery.Deferred();
             // if no any workbook, force displaying the workbook modal
             if (wkbkId == null ||
                 sessionInfo.numSessions === 0 ||
-                !wkbkInfo.workbooks.hasOwnProperty(wkbkId))
+                !workbooks.hasOwnProperty(wkbkId))
             {
                 if (wkbkId == null) {
                     innerDeferred.reject("No workbook for the user");
@@ -585,7 +547,7 @@ window.WKBKManager = (function($, WKBKManager) {
                 $('#initialLoadScreen').remove();
                 WorkbookModal.forceShow();
             } else {
-                var wkbkName = wkbkInfo.workbooks[wkbkId].name;
+                var wkbkName = workbooks[wkbkId].name;
                 var numSessions = sessionInfo.numSessions;
                 var sessions = sessionInfo.sessions;
                 var isInactive = false;
@@ -636,9 +598,12 @@ window.WKBKManager = (function($, WKBKManager) {
         return (deferred.promise());
     };
 
-    // get info about all users and their workbooks
-    // Note: this is only for super users
-    WKBKManager.getUsersInfo = function() {
+    WKBKManager.getWKBKS = function() {
+        return workbooks;
+    };
+
+
+    WKBKManager.getWKBKsAsync = function() {
         var deferred = jQuery.Deferred();
         var sessionInfo;
 
@@ -646,10 +611,10 @@ window.WKBKManager = (function($, WKBKManager) {
         .then(function(output) {
             sessionInfo = output;
             // console.log(sessionInfo);
-            return (KVStore.getAndParse(wkbkInfoKey, gKVScope.WKBK));
+            return KVStore.getAndParse(wkbkKey, gKVScope.WKBK);
         })
-        .then(function(wkbkInfo) {
-            deferred.resolve(wkbkInfo, sessionInfo);
+        .then(function(wkbk) {
+            deferred.resolve(wkbk, sessionInfo);
         })
         .fail(deferred.reject);
 
@@ -674,36 +639,26 @@ window.WKBKManager = (function($, WKBKManager) {
             return (deferred.promise());
         }
 
-        var wkbkInfo;
-        var workbook;
+        var wkbk;
         var isCopy = (srcWKBKId != null);
         var copySrc = null;
 
-        WKBKManager.getUsersInfo()
-        .then(function(workbookInfo, sessionInfo) {
-            var innerDeferred = jQuery.Deferred();
-            wkbkInfo = workbookInfo || newUser(username);
-
-            if (isCopy) {
-                copySrc = wkbkInfo.workbooks[srcWKBKId];
-                if (copySrc == null) {
-                    // when the source workbook's meta not exist
-                    innerDeferred.reject("missing workbook meta");
-                }
+        if (isCopy) {
+            copySrc = workbooks[srcWKBKId];
+            if (copySrc == null) {
+                // when the source workbook's meta not exist
+                deferred.reject("missing workbook meta");
+                return (deferred.promise());
             }
+        }
 
-            innerDeferred.resolve();
-            return (innerDeferred.promise());
-        })
-        .then(function() {
-            var copySrcName = isCopy ? copySrc.name : null;
-            return XcalarNewWorkbook(wkbkName, isCopy, copySrcName);
-        })
+        var copySrcName = isCopy ? copySrc.name : null;
+
+        XcalarNewWorkbook(wkbkName, isCopy, copySrcName)
         .then(function() {
             var time = xcHelper.getTimeInMS();
-
-            workbook = {
-                "id"      : generateKey(username, "wkbk", wkbkName),
+            var options = {
+                "id"      : getWKBKId(wkbkName),
                 "name"    : wkbkName,
                 "created" : time,
                 "modified": time,
@@ -711,16 +666,17 @@ window.WKBKManager = (function($, WKBKManager) {
                 "curUser" : username
             };
 
-            wkbkInfo.workbooks[workbook.id] = workbook;
+            wkbk = new WKBK(options);
+            workbooks[wkbk.id] = wkbk;
 
-            return (KVStore.put(wkbkInfoKey, JSON.stringify(wkbkInfo), true, gKVScope.WKBK));
+            return KVStore.put(wkbkKey, JSON.stringify(workbooks), true, gKVScope.WKBK);
         })
         .then(function() {
             // in case KVStore has some remants about wkbkId, clear it
             var innerDeferred = jQuery.Deferred();
 
-            var gInfoKey = generateKey(workbook.id, "gInfo");
-            var gLogKey  = generateKey(workbook.id, "gLog");
+            var gInfoKey = generateKey(wkbk.id, "gInfo");
+            var gLogKey  = generateKey(wkbk.id, "gLog");
 
             var def1 = XcalarKeyDelete(gInfoKey, gKVScope.META);
             var def2 = XcalarKeyDelete(gLogKey, gKVScope.LOG);
@@ -733,8 +689,7 @@ window.WKBKManager = (function($, WKBKManager) {
             return (innerDeferred.promise());
         })
         .then(function() {
-            // console.log("create workbook", workbook);
-            deferred.resolve(workbook.id);
+            deferred.resolve(wkbk.id);
         })
         .fail(function(error) {
             console.error("Create workbook fails!", error);
@@ -761,7 +716,6 @@ window.WKBKManager = (function($, WKBKManager) {
             modalHelper.submit();
         }
 
-        var wkbkInfo;
         var fromWkbkName;
         var toWkbkName;
 
@@ -774,33 +728,26 @@ window.WKBKManager = (function($, WKBKManager) {
             return;
         }
 
-        WKBKManager.getUsersInfo()
-        .then(function(workbookInfo) {
-            var innerDeferred = jQuery.Deferred();
+        // check if the wkbkId is right
+        var toWkbk = workbooks[wkbkId];
+        if (toWkbk != null) {
+            toWkbkName = toWkbk.name;
 
-            wkbkInfo = workbookInfo;
-            // check if the wkbkId is right
-            var toWkbk = wkbkInfo.workbooks[wkbkId];
-            if (toWkbk != null) {
-                toWkbkName = toWkbk.name;
-
-                fromWkbkName = (activeWKBKId == null) ?
-                                        null :
-                                        wkbkInfo.workbooks[activeWKBKId].name;
-
-                innerDeferred.resolve();
-            } else {
-                innerDeferred.reject("No such workbook id!");
+            fromWkbkName = (activeWKBKId == null) ?
+                                    null :
+                                    workbooks[activeWKBKId].name;
+        } else {
+            console.error("No such workbook id!");
+            if (modalHelper) {
+                modalHelper.enableSubmit();
             }
+            return;
+        }
 
-            return (innerDeferred.promise());
-        })
+        // to switch workbook, should release all ref count first
+        freeAllResultSetsSync()
         .then(function() {
-             // to switch workbook, should release all ref count first
-            return (freeAllResultSetsSync());
-        })
-        .then(function() {
-            return (saveWKBK(wkbkInfo));
+            return saveCurrentWKBK();
         })
         .then(function() {
             return Support.releaseSession();
@@ -877,30 +824,19 @@ window.WKBKManager = (function($, WKBKManager) {
     // XXX this is buggy now because it clear wkbkInfo but the session info is kept!
     WKBKManager.emptyAll = function() {
         var deferred = jQuery.Deferred();
+        var promises = [];
 
-        WKBKManager.getUsersInfo()
-        .then(function(userInfo) {
-            if (userInfo == null) {
-                return (promiseWrapper(null));
-            }
+        // delete all workbooks
+        for (wkbkId in workbooks) {
+            promises.push(delWKBKHelper.bind(this, wkbkId));
+        }
 
-            var promises = [];
+        // delete all active workbook key
+        promises.push(KVStore.delete.bind(this, activeWKBKKey, gKVScope.WKBK));
 
-            // delete all workbooks
-            for (wkbkId in userInfo.wkbkLookup) {
-                promises.push(delWKBKHelper.bind(this, wkbkId));
-            }
-
-            // delete all active work book key
-            for (var user in userInfo.users) {
-                var key = generateKey(user, "activeWorkbook");
-                promises.push(KVStore.delete.bind(this, key, gKVScope.WKBK));
-            }
-
-            return (chain(promises));
-        })
+        chain(promises)
         .then(function() {
-            return (KVStore.delete(wkbkInfoKey, gKVScope.WKBK));
+            return KVStore.delete(wkbkKey, gKVScope.WKBK);
         })
         .then(function() {
             console.log("empty all workbook related info");
@@ -963,14 +899,6 @@ window.WKBKManager = (function($, WKBKManager) {
         return (deferred.promise());
     }
 
-    // first time to save this user
-    function newUser(name) {
-        return {
-            "username" : name,
-            "workbooks": {}
-        };
-    }
-
     // generate key for KVStore use
     function generateKey() {
         // currently just cat all arguments as a key
@@ -987,16 +915,40 @@ window.WKBKManager = (function($, WKBKManager) {
         return (key);
     }
 
-    // save current workbook
-    function saveWKBK(wkbkInfo) {
-        // if activeWKBK is null, then it's creating a new WKBK
-        var workbook = wkbkInfo.workbooks[activeWKBKId];
-
-        workbook.modified = xcHelper.getTimeInMS();  // store modified data
-        workbook.curUser = username;  // store current user
-
-        return (KVStore.put(wkbkInfoKey, JSON.stringify(wkbkInfo), true, gKVScope.WKBK));
+    function getWKBKId(wkbkName) {
+        return generateKey(username, "wkbk", wkbkName);
     }
+
+    // save current workbook
+    function saveCurrentWKBK() {
+        // if activeWKBK is null, then it's creating a new WKBK
+        workbooks[activeWKBKId].update();
+        return KVStore.put(wkbkKey, JSON.stringify(workbooks), true, gKVScope.WKBK);
+    }
+
+    function WKBK(options) {
+        options = options || {};
+
+        if (options.name == null || options.id == null) {
+            throw "Invalid workbook info!";
+        }
+
+        this.name = options.name;
+        this.id = options.id;
+        this.noMeta = options.noMeta;
+        this.srcUser = options.srcUser;
+        this.curUser = options.curUser;
+        this.created = options.created;
+        this.modified = options.modified;
+
+        return this;
+    }
+
+    WKBK.prototype = {
+        "update": function() {
+            this.modified = xcHelper.getTimeInMS();  // store modified data
+        }
+    };
 
     return (WKBKManager);
 }(jQuery, {}));
