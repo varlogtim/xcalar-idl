@@ -164,7 +164,7 @@ window.RightSideBar = (function($, RightSideBar) {
             // $tablesSelected = $tableList.find(".worksheet-" + wsId)
             //                             .closest(".tableInfo");
             // $tablesSelected.removeClass('hiddenWS');
-            var tableIds = WSManager.getWorksheets()[wsId].tables;
+            tableIds = WSManager.getWorksheets()[wsId].tables;
             // var $activeTablesList = $('#activeTablesList').find('.tableList');
             // for (var i = 0; i < tableIds.length; i++) {
             //     var $tableItem  = $activeTablesList
@@ -473,7 +473,7 @@ window.RightSideBar = (function($, RightSideBar) {
                 $rightSideBar.addClass("open");
 
                 if ($section.attr("id") === "sqlSection") {
-                    SQL.scrollToBottom($('#rightBarTextArea'));
+                    SQL.scrollToBottom();
                     $("#sqlButtonWrap").show();
                 } else {
                     $("#sqlButtonWrap").hide();
@@ -530,7 +530,7 @@ window.RightSideBar = (function($, RightSideBar) {
         $rightSideBar.on("click", ".copySQL", function() {
             var $hiddenInput = $("<input>");
             $("body").append($hiddenInput);
-            $hiddenInput.val(JSON.stringify(SQL.getHistory())).select();
+            $hiddenInput.val(JSON.stringify(SQL.getLogs())).select();
             document.execCommand("copy");
             $hiddenInput.remove();
         });
@@ -1086,16 +1086,16 @@ window.RightSideBar = (function($, RightSideBar) {
             // set hiddenWS class to tables belonging to hidden worksheets
             var hiddenWS = WSManager.getHiddenWS();
             var numHidden = hiddenWS.length;
-            var wsId;
+            var hiddenWsId;
             var $activeTablesList = $('#activeTablesList');
             for (var j = 0; j < numHidden; j++) {
-                wsId = hiddenWS[j];
-                $activeTablesList.find('.worksheet-' + wsId)
+                hiddenWsId = hiddenWS[j];
+                $activeTablesList.find('.worksheet-' + hiddenWsId)
                                  .closest('.tableInfo')
                                  .addClass('hiddenWS')
                                  .attr({
-                                    'data-toggle': 'tooltip',
-                                    'data-container': 'body',
+                                    'data-toggle'        : 'tooltip',
+                                    'data-container'     : 'body',
                                     'data-original-title': 'worksheet is hidden'
                                   });
             }

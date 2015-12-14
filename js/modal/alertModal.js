@@ -200,12 +200,12 @@ window.Alert = (function($, Alert){
                 //                                         .text() + ", ";
                 // logText += "Description: " + $('#alertContent').find('.text')
                 //                                                .text();
-                var sqlHistory = SQL.getHistory();
+                var sqlLogs = SQL.getLogs();
                 var sql;
-                if (sqlHistory.length === 0) {
+                if (sqlLogs.length === 0) {
                     sql = SQL.getLocalStorage();
                 } else {
-                    sql = JSON.stringify(sqlHistory);
+                    sql = JSON.stringify(sqlLogs);
                 }
 
                 if (sql !== "[]") {

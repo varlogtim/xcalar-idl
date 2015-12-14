@@ -1,5 +1,5 @@
 window.SQL = (function($, SQL) {
-    var history = [];
+    var logs = [];
     var sqlToCommit = "";
     var $textarea = $('#rightBarTextArea');
     var $machineTextarea = $('#rightBarMachineTextArea');
@@ -14,26 +14,20 @@ window.SQL = (function($, SQL) {
             return;
         }
 
-        var timestamp = new Date().getTime();
-        var sql = {
-            "title"    : title,
-            "options"  : options,
-            "cli"      : cli,
-            "timestamp": timestamp
-        };
+        var sql = new SQLConstructor({
+            "title"  : title,
+            "options": options,
+            "cli"    : cli
+        });
 
-        history.push(sql);
+        logs.push(sql);
 
         sqlToCommit += JSON.stringify(sql) + ",";
 
         // XXX uncomment it if commit on errorLog only has bug
         // localCommit();
-
-        $textarea.append(getCliHTML(title, options));
-        $machineTextarea.append(getCliMachine(title, options, cli));
-        // scroll to bottom
-        SQL.scrollToBottom($textarea);
-        SQL.scrollToBottom($machineTextarea);
+        showSQL(sql);
+        SQL.scrollToBottom();
     };
 
     SQL.errorLog = function(title, options, cli, error) {
@@ -43,18 +37,13 @@ window.SQL = (function($, SQL) {
             return;
         }
 
-        var sql = {
+        var sql = new SQLConstructor({
             "title"  : title,
             "options": options,
-            "sqlType": SQLType.Error,
+            "cli"    : cli,
             "error"  : error
-        };
-
-        if (cli != null) {
-            sql.cli = cli;
-        }
-
-        history.push(sql);
+        });
+        logs.push(sql);
 
         sqlToCommit += JSON.stringify(sql) + ",";
         localCommit();
@@ -77,8 +66,8 @@ window.SQL = (function($, SQL) {
         return (deferred.promise());
     };
 
-    SQL.getHistory = function() {
-        return (history);
+    SQL.getLogs = function() {
+        return logs;
     };
 
     SQL.getLocalStorage = function() {
@@ -87,6 +76,7 @@ window.SQL = (function($, SQL) {
 
     SQL.restore = function() {
         var deferred = jQuery.Deferred();
+        var oldLogs = [];
 
         KVStore.get(KVStore.gLogKey, gKVScope.LOG)
         .then(function(value) {
@@ -97,21 +87,17 @@ window.SQL = (function($, SQL) {
                         value = value.substring(0, len - 1);
                     }
                     var sqlStr = "[" + value + "]";
-                    history = JSON.parse(sqlStr);
+                    oldLogs = JSON.parse(sqlStr);
                 } catch(err) {
                     deferred.reject(err);
                 }
             }
         })
         .then(function() {
-            history.forEach(function(record) {
-                record.options = record.options || {};
-                $textarea.append(getCliHTML(record.title, record.options));
-                $machineTextarea.append(getCliMachine(record.title,
-                                                      record.options,
-                                                      record.cli));
-                SQL.scrollToBottom($textarea);
-                SQL.scrollToBottom($machineTextarea);
+            oldLogs.forEach(function(oldSQL) {
+                var sql = new SQLConstructor(oldSQL);
+                logs.push(sql);
+                showSQL(sql);
             });
 
             // XXX change back to localCommit() if it's buggy
@@ -126,26 +112,47 @@ window.SQL = (function($, SQL) {
     SQL.clear = function() {
         $textarea.html("");
         $machineTextarea.html("");
-        history = [];
+        logs = [];
     };
 
-    SQL.scrollToBottom = function($target) {
-        // scroll to bottom
-        var scrollDiff = $target[0].scrollHeight - $target.height();
-        if (scrollDiff > 0) {
-            $target.scrollTop(scrollDiff);
-        }
+    SQL.scrollToBottom = function() {
+        xcHelper.scrollToBottom($textarea);
+        xcHelper.scrollToBottom($machineTextarea);
     };
+
+    function SQLConstructor(args) {
+        this.title = args.title;
+        this.options = args.options || {};
+
+        if (args.cli != null) {
+            this.cli = args.cli;
+        }
+
+        if (args.error != null) {
+            this.sqlType = SQLType.Error;
+            this.error = error;
+        }
+
+        this.timestamp = args.timestamp || new Date().getTime();
+
+        return this;
+    }
 
     function resetLoclStore() {
         localStorage.removeItem(sqlLocalStoreKey);
     }
 
     function localCommit() {
-        localStorage.setItem(sqlLocalStoreKey, JSON.stringify(history));
+        localStorage.setItem(sqlLocalStoreKey, JSON.stringify(logs));
     }
 
-    function getCliHTML(title, options) {
+    function showSQL(sql) {
+        $textarea.append(getCliHTML(sql));
+        $machineTextarea.append(getCliMachine(sql));
+    }
+
+    function getCliHTML(sql) {
+        var options = sql.options;
         if (!options) {
             return ("");
         }
@@ -160,7 +167,7 @@ window.SQL = (function($, SQL) {
         }
 
         var html =  '<div class="sqlContentWrap">' +
-                        '<div class="title"> >>' + title + ':</div>' +
+                        '<div class="title"> >>' + sql.title + ':</div>' +
                         '<div class="content">{';
         var count = 0;
 
@@ -187,7 +194,8 @@ window.SQL = (function($, SQL) {
         return (html);
     }
 
-    function getCliMachine(title, options, cli) {
+    function getCliMachine(sql) {
+        var options = sql.options;
         var string = "";
         // Here's the real code
         if (!options) {
@@ -300,7 +308,7 @@ window.SQL = (function($, SQL) {
             case (SQLOps.QuickAggAction):
             case (SQLOps.SplitColMap):
             case (SQLOps.ChangeType):
-                string += cli;
+                string += sql.cli;
                 break;
             default:
                 console.warn("XXX! Operation unexpected", options.operation);

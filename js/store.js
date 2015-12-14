@@ -94,35 +94,31 @@ var KVKeys = {
     "SCHE" : "schedule"
 };
 
-function commitToStorage(atStartUp) {
-    var deferred = jQuery.Deferred();
-    // var scratchPadText = $("#scratchPadSection textarea").val();
-
+function METAConstructor(atStartUp) {
     // basic thing to store
-    var storage = {};
+    this[KVKeys.TI] = gTables;
+    this[KVKeys.WS] = WSManager.getAllMeta();
 
-    storage[KVKeys.TI] = gTables;
-    storage[KVKeys.WS] = {
-        "wsInfos"      : WSManager.getWorksheets(),
-        "wsOrder"      : WSManager.getOrders(),
-        "hiddenWS"     : WSManager.getHiddenWS(),
-        "noSheetTables": WSManager.getNoSheetTables(),
-        "aggInfos"     : WSManager.getAggInfos()
-    };
+    this[KVKeys.DS] = DS.getHomeDir();
+    this[KVKeys.CLI] = CLIBox.getCli();
 
-    storage[KVKeys.DS] = DS.getHomeDir();
-    storage[KVKeys.CLI] = CLIBox.getCli();
-
-    storage[KVKeys.CART] = DataCart.getCarts();
-    storage[KVKeys.STATS] = Profile.getCache();
-    storage[KVKeys.DFG] = DFG.getAllGroups();
-    storage[KVKeys.SCHE] = Scheduler.getAllSchedules();
+    this[KVKeys.CART] = DataCart.getCarts();
+    this[KVKeys.STATS] = Profile.getCache();
+    this[KVKeys.DFG] = DFG.getAllGroups();
+    this[KVKeys.SCHE] = Scheduler.getAllSchedules();
 
     if (atStartUp) {
-        storage[KVKeys.USER] = UserSettings.getSettings();
+        this[KVKeys.USER] = UserSettings.getSettings();
     } else {
-        storage[KVKeys.USER] = UserSettings.setSettings();
+        this[KVKeys.USER] = UserSettings.setSettings();
     }
+
+    return this;
+}
+
+function commitToStorage(atStartUp) {
+    var deferred = jQuery.Deferred();
+    var storage = new METAConstructor(atStartUp);
 
     KVStore.put(KVStore.gStorageKey, JSON.stringify(storage), true, gKVScope.META)
     .then(function() {
@@ -134,7 +130,7 @@ function commitToStorage(atStartUp) {
         $("#autoSavedInfo").text(t);
 
         // save workbook
-        return (XcalarSaveWorkbooks("*"));
+        return XcalarSaveWorkbooks("*");
     })
     .then(function() {
         deferred.resolve();
