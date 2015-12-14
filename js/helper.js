@@ -1344,6 +1344,7 @@ ListScroller = function($menu, options) {
     options = options || {};
     this.$subMenu = options.$subMenu;
     this.container = options.container;
+    this.bottomPadding = options.bottomPadding || 0;
     this.setup();
     /*
     $menu needs to have the following structure:
@@ -1490,7 +1491,8 @@ ListScroller.prototype.showOrHideScrollers = function() {
         $container = $(window);
     }
 
-    var menuHeight = offsetTop + $container.height() - $list.offset().top;
+    var menuHeight = offsetTop + $container.height() - $list.offset().top -
+                     this.bottomPadding;
     menuHeight = Math.max(menuHeight - 1, 40);
     $list.css('max-height', menuHeight);
     $list.children('ul').css('max-height', menuHeight).scrollTop(0);

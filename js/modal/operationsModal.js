@@ -152,6 +152,7 @@ window.OperationsModal = (function($, OperationsModal) {
                 .closest(".hint").removeClass("openList").hide()
                 .siblings(".argument").val($li.text())
                 .closest(".dropDownList").removeClass("open");
+            checkIfStringReplaceNeeded();
         });
 
         $lastInputFocused = $operationsModal.find('.argument:first');
@@ -270,13 +271,25 @@ window.OperationsModal = (function($, OperationsModal) {
             allowInputChange = true;
         });
 
-        categoryListScroller = new ListScroller($('#categoryMenu'));
-        functionsListScroller = new ListScroller($functionsMenu);
+        categoryListScroller = new ListScroller($('#categoryMenu'),
+                                               {container: '#operationsModal',
+                                                bottomPadding: 5});
+        functionsListScroller = new ListScroller($functionsMenu,
+                                               {container: '#operationsModal',
+                                                bottomPadding: 5});
 
         $operationsModal.draggable({
             handle     : '.operationsModalHeader',
             containment: 'window',
-            cursor     : '-webkit-grabbing'
+            cursor     : '-webkit-grabbing',
+            start      : function() {
+                             $operationsModal.find('.openList')
+                                             .removeClass("openList")
+                                             .hide()
+                                             .closest(".dropDownList")
+                                             .removeClass("open");
+                        }
+
         });
 
         XcalarListXdfs("*", "*")
@@ -546,10 +559,18 @@ window.OperationsModal = (function($, OperationsModal) {
                 .addClass("openList")
                 .show();
             $input.closest('.dropDownList').addClass('open');
+            positionDropdown($ul);
         } else {
             $ul.empty().removeClass("openList").hide()
                 .closest(".dropDownList").removeClass("open");
         }
+    }
+
+    function positionDropdown($ul) {
+        var $input = $ul.siblings('input');
+        var top = $input[0].getBoundingClientRect().bottom;
+        var left = $input[0].getBoundingClientRect().left;
+        $ul.css({top: top, left: left});
     }
 
     function suggest($input) {
