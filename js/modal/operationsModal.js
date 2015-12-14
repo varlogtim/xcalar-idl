@@ -213,6 +213,10 @@ window.OperationsModal = (function($, OperationsModal) {
             }
         }, '.argument');
 
+        $operationsModal.find('.checkbox').on('click', function() {
+            $(this).toggleClass("checked");
+        });
+
         // toggle between mininizeTable and unMinimizeTable
         $operationsModal.on('click', '.argIconWrap', function() {
             var $input = $(this).siblings('input');
@@ -242,6 +246,7 @@ window.OperationsModal = (function($, OperationsModal) {
                 modalHelper.clear();
                 $functionsMenu.data('category', 'null');
                 unminimizeTable();
+                $operationsModal.find('.checkbox').removeClass('checked');
             });
 
             var isHide = true;
@@ -918,7 +923,7 @@ window.OperationsModal = (function($, OperationsModal) {
                                 .find('.description').text(description);
                 ++numArgs;
                  despText = '<p>' + despText + '</p>' +
-                            '<b>String Preview</b>' +
+                            '<b>String Preview:</b>' +
                             '<p class="funcDescription textOverflow">' +
                                 operObj.fnName + '(' +
                                 '<span class="descArgs">' +
@@ -974,7 +979,7 @@ window.OperationsModal = (function($, OperationsModal) {
 
 
                 despText =  '<p>' + despText + '</p>' +
-                            '<b>String Preview</b>' +
+                            '<b>String Preview:</b>' +
                             '<p class="funcDescription textOverflow">' +
                                 operObj.fnName + '(' +
                                 '<span class="aggCols">' +
@@ -987,7 +992,7 @@ window.OperationsModal = (function($, OperationsModal) {
                             '</p>';
             } else if (operatorName === "filter") {
                 despText =  '<p>' + despText + '</p>' +
-                            '<b>String Preview</b>' +
+                            '<b>String Preview:</b>' +
                             '<p class="funcDescription textOverflow">' +
                                 operObj.fnName + '(' +
                                 '<span class="descArgs">' +
@@ -1180,6 +1185,27 @@ window.OperationsModal = (function($, OperationsModal) {
         }
 
         if (!isPassing) {
+            modalHelper.enableSubmit();
+            return;
+        }
+
+        var $invalidInput;
+        var validBlanks = true;
+        $argInputs.each(function() {
+            var $input   = $(this);
+            var val   = $input.val().trim();
+            var check = $input.closest('tr').find('td:last').find('.checkbox')
+                                            .hasClass('checked');
+
+            if (val === "" && !check) {
+                validBlanks = false;
+                $invalidInput = $input;
+                return false; // stop iteration
+            }
+        });
+
+        if (!validBlanks) {
+            StatusBox.show(ErrorTextTStr.NoEmptyOrCheck, $invalidInput);
             modalHelper.enableSubmit();
             return;
         }

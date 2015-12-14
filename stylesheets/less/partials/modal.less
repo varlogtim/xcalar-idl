@@ -3717,7 +3717,7 @@ html.microsoft {
         overflow: hidden;
 
         .thWrap {
-            .size(@width: 60%, @height: 30px);
+            .size(@width: 55%, @height: 30px);
             color: white;
             font-weight: bold;
             font-size: 13px;
@@ -3725,13 +3725,16 @@ html.microsoft {
             padding-left: 12px;
             float: left;
             background-color: #A8A8A8;
+            border-left: 1px solid @color-white;
         }
 
         .thWrap:first-child {
-            .size(@width: 40%);
+            .size(@width: ~"calc(35% + 1px)");
+            border-left: none;
         }
         .thWrap:last-child {
-            border-left: 1px solid @color-white;
+           .size(@width: ~"calc(10% - 1px)");
+           padding-left: 4px;
         }
     }
 
@@ -3754,12 +3757,21 @@ html.microsoft {
                 width: 100%;
 
                 td {
-                    .size(@width: 60%, @height: 40px);
+                    .size(@width: 55%, @height: 40px);
                     .font(@weight: 600);
                     padding: 0px;
+                    border-right: 1px solid #a8a8a8;
 
                     &:first-of-type {
-                        width: 40%;
+                        width: 35%;
+                    }
+                    &:last-of-type {
+                        width: 10%;
+                        border-right: none;
+                        div {
+                            border-right: 8px solid @color-join-background;
+                            height: 100%;
+                        }
                     }
                 }
 
@@ -3790,7 +3802,7 @@ html.microsoft {
                         }
 
                         .list.hint {
-                            width: 230px;
+                            width: 199px;
                             top: 27px;
                             text-align: center;
                             text-transform: none;
@@ -3849,12 +3861,27 @@ html.microsoft {
                 }
 
                 .description {
-                    border-right: 8px solid @color-join-background;
                     height: 40px;
                     padding-left: 10px;
                     padding-top: 5px;
                     .textOverflowOneLine;
                 }
+
+                .checkboxWrap {
+                    text-align: center;
+
+                    .checkbox {
+                        display: inline-block;
+                        .size(@width: 16px, @height: 30px);
+                        .position(relative, @top: 5px);
+                        cursor: pointer;
+                        .image("/images/alertModal/checkbox-unchecked.png", 50%, 50%);
+
+                        &.checked {
+                            .image("/images/alertModal/checkbox-checked.png", 50%, 50%);
+                        }
+                    }
+                } 
             }
         }
     }
