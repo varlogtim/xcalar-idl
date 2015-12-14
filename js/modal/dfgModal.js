@@ -102,7 +102,7 @@ window.DataFlowModal = (function($, DataFlowModal) {
         var operation;
         var $dagImage = $dfPreviews.find('.dagImage');
         var firstDagTable;
-        var nodeIds = {};
+        // var nodeIds = {};
 
         // put each blue table icon into an object, recording position and info
         $dagImage.find('.dagTable').each(function() {
@@ -254,8 +254,14 @@ window.DataFlowModal = (function($, DataFlowModal) {
         // event on dfg seach area
         $searchInput.siblings(".clear").click(function(event) {
             event.stopPropagation();
-            $searchInput.val("").focus();
-            filterDFG();
+            clearSearchInput(true);
+        });
+
+        $searchInput.keydown(function(event) {
+            if (event.which === keyCode.Enter) {
+                // prevent enter to submit form
+                return false;
+            }
         });
 
         $searchInput.keyup(function() {
@@ -269,6 +275,17 @@ window.DataFlowModal = (function($, DataFlowModal) {
             var colNum = $th.data('col');
             $dfTable.find('.col' + colNum).addClass('colSelected');
         });
+    }
+
+    function clearSearchInput(isFocus) {
+        $searchInput.val("");
+        filterDFG();
+
+        if (isFocus) {
+            $searchInput.focus();
+        } else {
+            $searchInput.blur();
+        }
     }
 
     function exportStep() {
@@ -310,6 +327,7 @@ window.DataFlowModal = (function($, DataFlowModal) {
                     }
                 ]);
             } else {
+                clearSearchInput();
                 isValid = xcHelper.validate([
                     {
                         "$selector": $sideListSection.find('.listBox').eq(0),
@@ -499,7 +517,7 @@ window.DataFlowModal = (function($, DataFlowModal) {
             var colNum  = i + 1;
             var thClass = "col" + colNum + " type-" + type;
             var exportable = true;
-            var validTypes = ["string", "integer", "foat", "boolean"];
+            var validTypes = ["string", "integer", "float", "boolean"];
             if (tableCols[i].args &&
                 tableCols[colNum].args[0].indexOf(".") > -1) {
                 exportable = false;

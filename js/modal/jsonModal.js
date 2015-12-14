@@ -15,7 +15,8 @@ window.JSONModal = (function($, JSONModal) {
     var modalHelper = new xcHelper.Modal($jsonModal, {
         "minHeight" : minHeight,
         "minWidth"  : minWidth,
-        "noTabFocus": true
+        "noTabFocus": true,
+        "noEsc"     : true
     });
     var searchHelper;
 
@@ -51,7 +52,7 @@ window.JSONModal = (function($, JSONModal) {
             revert: 300,
             axis  : "x",
             handle: ".jsonDragHandle",
-            start: function(event, ui) {
+            start : function(event, ui) {
                 initialIndex = $(ui.item).index();
             },
             stop: function(event, ui) {
@@ -225,8 +226,7 @@ window.JSONModal = (function($, JSONModal) {
             }
 
             // handle removal of comparisons
-            var isCheckmarkOn = $jsonWrap.find('.checkMark.on')
-                                           .length !== 0;
+            // var isCheckmarkOn = $jsonWrap.find('.checkMark.on').length !== 0;
             var index = $jsonWrap.index();
             $jsonWrap.find('.remove').tooltip('destroy');
             
@@ -912,9 +912,9 @@ window.JSONModal = (function($, JSONModal) {
         var json = jsonData.splice(initialIndex, 1)[0];
         jsonData.splice(newIndex, 0, json);
         
-        var min = Math.min(initialIndex, newIndex);
-        var max = Math.max(initialIndex, newIndex);
-        var keys = Object.keys(comparisonObjs);
+        // var min = Math.min(initialIndex, newIndex);
+        // var max = Math.max(initialIndex, newIndex);
+        // var keys = Object.keys(comparisonObjs);
         if (initialIndex === newIndex) {
             return;
         }
