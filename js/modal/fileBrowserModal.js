@@ -175,7 +175,7 @@ window.FileBrowser = (function($, FileBrowser) {
         $("#fileBrowserRefresh").click(function(event){
             // the first option in pathLists
             var $curPath = $pathLists.find("li").eq(0);
-
+            xcHelper.showRefreshIcon($fileBrowserMain);
             event.stopPropagation();
             goToPath($curPath);
         });

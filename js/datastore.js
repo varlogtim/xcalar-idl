@@ -734,12 +734,14 @@ window.GridView = (function($, GridView) {
     function setupGrids() {
         // refresh dataset
         $("#refreshDS").click(function() {
+            xcHelper.showRefreshIcon($explorePanel.find('.gridViewWrapper'));
+
             XcalarGetDatasets()
             .then(function(datasets) {
                 DS.restore(DS.getHomeDir(), datasets);
             })
             .fail(function(error) {
-                console.error("Refresh DS failes", error);
+                console.error("Refresh DS failed", error);
             });
         });
 
@@ -4137,6 +4139,8 @@ window.ExportTarget = (function($, ExportTarget) {
     };
 
     ExportTarget.restore = function() {
+        xcHelper.showRefreshIcon($exportView.find('.gridViewWrapper'));
+
         XcalarListExportTargets("*", "*")
         .then(function(targs) {
             var targets = targs.targets;

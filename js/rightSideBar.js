@@ -1232,15 +1232,7 @@ window.RightSideBar = (function($, RightSideBar) {
                 generateOrphanList(gOrphanTables);
             }, 400);
             
-            var $waitingIcon = $('<div class="waitingIcon" ' +
-                              'style="top:50%; width:100%; display:block;' +
-                              'background-position-x: 50%"></div>');
-            $('#orphanedTableList').append($waitingIcon);
-            setTimeout(function(){
-                $waitingIcon.fadeOut(100, function() {
-                    $waitingIcon.remove();
-                });
-            }, 1400);
+            xcHelper.showRefreshIcon($('#orphanedTableList'));
         });
     }
 

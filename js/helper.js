@@ -391,6 +391,20 @@ window.xcHelper = (function($, xcHelper) {
         return (res);
     };
 
+    xcHelper.showRefreshIcon = function($location) {
+        var $waitingIcon = $('<div class="waitingIcon" ' +
+                              'style="top:50%; width:100%; display:block;' +
+                              'background-position-x: 50%"></div>');
+        $location.append($waitingIcon);
+        setTimeout(function(){
+            $waitingIcon.fadeOut(100, function() {
+                $waitingIcon.remove();
+            });
+        }, 1400);
+    }
+
+    
+
     // handle dropdown list generally
     xcHelper.dropdownList = function($dropDownList, options) {
         options = options || {};
