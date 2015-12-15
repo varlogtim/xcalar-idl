@@ -1364,13 +1364,19 @@
 
     function testMakeRetina(deferred, testName, currentTestNumber) {
         retinaName = "yelpRetina-1";
-        xcalarMakeRetina(thriftHandle, retinaName,
-                         "yelp/user-votes.funny-gt900-average")
+        var dstTable = new XcalarApiRetinaDstT();
+        dstTable.numColumns = 3;
+        dstTable.columnNames = ["user_id", "name", "votes.funny"];
+        dstTable.target = new XcalarApiNamedInputT();
+        dstTable.target.name = "yelp/user-votes.funny-gt900-average";
+        dstTable.target.isTable = true;
+        xcalarMakeRetina(thriftHandle, retinaName, [dstTable])
         .done(function(status) {
             printResult(status);
             pass(deferred, testName, currentTestNumber);
         })
         .fail(function(reason) {
+            var reason = "makeRetina failed with status: " + StatusTStr[reason];
             fail(deferred, testName, currentTestNumber, reason);
         })
     }
@@ -1378,13 +1384,22 @@
     function testListRetinas(deferred, testName, currentTestNumber) {
         xcalarListRetinas(thriftHandle)
         .done(function(listRetinasOutput) {
+            var foundRetina = false;
             printResult(listRetinasOutput);
             for (var i = 0; i < listRetinasOutput.numRetinas; i ++) {
+                if (listRetinasOutput.retinaDescs[i].retinaName == retinaName) {
+                    foundRetina = true;
+                }
                 console.log("\tretinaDescs[" + i + "].retinaName = " +
                             listRetinasOutput.retinaDescs[i].retinaName);
             }
 
-            pass(deferred, testName, currentTestNumber);
+            if (foundRetina) {
+                pass(deferred, testName, currentTestNumber);
+            } else {
+                var reason = "Could not find retina \"" + retinaName + "\""
+                fail(deferred, testName, currentTestNumber, reason);
+            }
         })
         .fail(function(reason) {
             fail(deferred, testName, currentTestNumber, reason);
@@ -1400,11 +1415,35 @@
             console.log("\tnumNodes: " + getRetinaOutput.retina.retinaDag.numNodes);
 
             for (var ii = 0; ii < getRetinaOutput.retina.retinaDag.numNodes; ii ++) {
-                console.log("\tnode[" + ii + "].api = " +
+                console.log("\tnode[" + ii + "].dagNodeId = " +
                             getRetinaOutput.retina.retinaDag.node[ii].dagNodeId);
                 console.log("\tnode[" + ii + "].api = " +
                             XcalarApisTStr[getRetinaOutput.retina.retinaDag.node[ii].api]);
+                console.log("\tnode[" + ii + "].apiInputSize = " +
+                            getRetinaOutput.retina.retinaDag.node[ii].inputSize);
                 switch (getRetinaOutput.retina.retinaDag.node[ii].api) {
+                case XcalarApisT.XcalarApiExport:
+                    var exportInput = getRetinaOutput.retina.retinaDag.node[ii].input.exportInput;
+                    var exportTargetType = exportInput.meta.target.type;
+                    console.log("\tnode[" + ii + "].meta.exportTarget = " + 
+                                DsTargetTypeTStr[exportTargetType] + " (" + exportTargetType + ")");
+                    console.log("\tnode[" + ii + "].meta.numColumns = " +
+                                exportInput.meta.numColumns);
+                    console.log("\tnode[" + ii + "].meta.columnNames = " +
+                                exportInput.meta.columnNames);
+                    switch (exportTargetType) {
+                    case DsTargetTypeT.DsTargetODBCType:
+                        console.log("\tnode[" + ii + "].meta.specificInput.odbcInput.tableName = " +
+                                    exportInput.meta.specificInput.odbcInput.tableName);
+                        break;
+                    case DsTargetTypeT.DsTargetSFType:
+                        console.log("\tnode[" + ii + "].meta.specificInput.sfInput.fileName = " +
+                                    exportInput.meta.specificInput.sfInput.fileName);
+                        break;
+                    default:
+                    break;
+                    }
+                    break;
                 case XcalarApisT.XcalarApiFilter:
                     console.log("\tnode[" + ii + "].filterStr = " +
                                 getRetinaOutput.retina.retinaDag.node[ii].input.filterInput.filterStr);
@@ -2368,7 +2407,7 @@
     addTestCase(testCases, testQueryState, "Request query state of indexing dataset (int)", defaultTimeout, TestCaseDisabled, "");
     addTestCase(testCases, waitForDag, "waitForDag", defaultTimeout, TestCaseDisabled, "");
     addTestCase(testCases, testDag, "dag", defaultTimeout, TestCaseDisabled, "568");
-    addTestCase(testCases, testGroupBy, "groupBy", defaultTimeout, TestCaseDisabled, "");
+    addTestCase(testCases, testGroupBy, "groupBy", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testCases, testAggregate, "Aggregate", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testCases, testMakeResultSetFromAggregate, "result set of aggregate", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testCases, testResultSetNextAggregate, "result set next of aggregate", defaultTimeout, TestCaseEnabled, "");
@@ -2381,9 +2420,9 @@
     addTestCase(testCases, testExport, "export", defaultTimeout, TestCaseEnabled, "");
 
     // Together, these set of test cases make up the retina sanity
-    addTestCase(testCases, testMakeRetina, "makeRetina", defaultTimeout, TestCaseDisabled, "");
-    addTestCase(testCases, testListRetinas, "listRetinas", defaultTimeout, TestCaseDisabled, "");
-    addTestCase(testCases, testGetRetina, "getRetina - iter 1 / 2", defaultTimeout, TestCaseDisabled, "");
+    addTestCase(testCases, testMakeRetina, "makeRetina", defaultTimeout, TestCaseEnabled, "");
+    addTestCase(testCases, testListRetinas, "listRetinas", defaultTimeout, TestCaseEnabled, "");
+    addTestCase(testCases, testGetRetina, "getRetina - iter 1 / 2", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testCases, testUpdateRetina, "updateRetina", defaultTimeout, TestCaseDisabled, "");
     addTestCase(testCases, testGetRetina, "getRetina - iter 2 / 2", defaultTimeout, TestCaseDisabled, "");
     addTestCase(testCases, testExecuteRetina, "executeRetina", defaultTimeout, TestCaseDisabled, "");

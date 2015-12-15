@@ -8211,6 +8211,7 @@ XcalarApiInputT = function(args) {
   this.deleteSchedTaskInput = null;
   this.schedTaskInput = null;
   this.listSchedTaskInput = null;
+  this.deleteRetinaInput = null;
   if (args) {
     if (args.loadInput !== undefined) {
       this.loadInput = args.loadInput;
@@ -8373,6 +8374,9 @@ XcalarApiInputT = function(args) {
     }
     if (args.listSchedTaskInput !== undefined) {
       this.listSchedTaskInput = args.listSchedTaskInput;
+    }
+    if (args.deleteRetinaInput !== undefined) {
+      this.deleteRetinaInput = args.deleteRetinaInput;
     }
   }
 };
@@ -8815,6 +8819,13 @@ XcalarApiInputT.prototype.read = function(input) {
         input.skip(ftype);
       }
       break;
+      case 55:
+      if (ftype == Thrift.Type.STRING) {
+        this.deleteRetinaInput = input.readString().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
       default:
         input.skip(ftype);
     }
@@ -9094,6 +9105,11 @@ XcalarApiInputT.prototype.write = function(output) {
   if (this.listSchedTaskInput !== null && this.listSchedTaskInput !== undefined) {
     output.writeFieldBegin('listSchedTaskInput', Thrift.Type.STRUCT, 54);
     this.listSchedTaskInput.write(output);
+    output.writeFieldEnd();
+  }
+  if (this.deleteRetinaInput !== null && this.deleteRetinaInput !== undefined) {
+    output.writeFieldBegin('deleteRetinaInput', Thrift.Type.STRING, 55);
+    output.writeString(this.deleteRetinaInput);
     output.writeFieldEnd();
   }
   output.writeFieldStop();

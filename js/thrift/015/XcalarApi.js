@@ -1683,16 +1683,22 @@ function xcalarUpdateRetinaWorkItem(retinaName, dagNodeId, paramType,
     workItem.input.updateRetinaInput.paramInput.paramType = paramType;
     switch (paramType) {
     case XcalarApisT.XcalarApiBulkLoad:
-        workItem.input.updateRetinaInput.paramInput.paramLoad = new XcalarApiParamLoadT();
-        workItem.input.updateRetinaInput.paramInput.paramLoad.datasetUrl = paramValue;
+        workItem.input.updateRetinaInput.paramInput.paramLoad =
+                                         new XcalarApiParamLoadT();
+        workItem.input.updateRetinaInput.paramInput.paramLoad.datasetUrl 
+                                         paramValue;
         break;
     case XcalarApisT.XcalarApiFilter:
-        workItem.input.updateRetinaInput.paramInput.paramFilter = new XcalarApiParamFilterT();
-        workItem.input.updateRetinaInput.paramInput.parmaFilter.filterStr = paramValue;
+        workItem.input.updateRetinaInput.paramInput.paramFilter =
+                                         new XcalarApiParamFilterT();
+        workItem.input.updateRetinaInput.paramInput.paramFilter.filterStr =
+                                         paramValue;
         break;
     case XcalarApisT.XcalarApiExport:
-        workItem.input.updateRetinaInput.paramInput.paramExport = new XcalarApiParamExportT();
-        workItem.input.updateRetinaInput.paramInput.paramExport.fileName = paramValue;
+        workItem.input.updateRetinaInput.paramInput.paramExport =
+                                         new XcalarApiParamExportT();
+        workItem.input.updateRetinaInput.paramInput.paramExport.fileName =
+                                         paramValue;
         break;
     }
     return (workItem);
@@ -2199,7 +2205,7 @@ function xcalarApiSessionInact(thriftHandle, name) {
     if (verbose) {
         console.log("xcalarApiSessionInact(name = )", name);
     }
-    var workItem = xcalarApiSessionIactWorkItem(name);
+    var workItem = xcalarApiSessionInactWorkItem(name);
 
     thriftHandle.client.queueWorkAsync(workItem)
     .then(function(result) {
