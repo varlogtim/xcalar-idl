@@ -1902,6 +1902,10 @@ html.microsoft {
             .size(@width: 90%, @height: 25px);
             margin: 0px auto;
 
+            .label {
+                width: 70px;
+            }
+
             .dropDownList {
                 text-transform: none;
                 width: 60%;
@@ -1921,15 +1925,40 @@ html.microsoft {
                 }
             }
 
+            .checkboxSection {
+                .size(@width: 46px, @height: 30px);
+                .position(relative, @top: -2px);
+                line-height: 30px;
+                float: right;
+                margin: 0 5px;
+
+                .checkbox {
+                    .size(@width: 16px, @height: 30px);
+                    cursor: pointer;
+                    float: left;
+                    margin-right: 5px;
+                    .image("/images/alertModal/checkbox-unchecked.png", 50%, 50%);
+
+                    &.checked {
+                        .image("/images/alertModal/checkbox-checked.png", 50%, 50%);
+                    }
+                }
+
+                .text {
+                    .font(@size: 13px, @weight: bold);
+                }
+            }
+
             .iconSection {
                 float: right;
-                margin-left: 5px;
 
                 .iconWrapper {
                     display: inline-block;
                     .size(25px, 25px);
                     .rounded;
                     .action-gradient;
+                    margin-left: 5px;
+                    float: left;
                     cursor: pointer;
 
                     &:active {

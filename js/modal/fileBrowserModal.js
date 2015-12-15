@@ -19,16 +19,19 @@ window.FileBrowser = (function($, FileBrowser) {
     var $filePath      = $("#filePath");
 
     /* Contants */
-    var defaultPath    = "file:///";
+    var defaultNFSPath  = "nfs:///";
+    var defaultFilePath = "file:///";
     var defaultSortKey = "type"; // default is sort by type;
     var formatMap = {
         "JSON": "JSON",
         "CSV" : "CSV",
         "XLSX": "Excel"
     };
-    var minWidth  = 590;
+    var minWidth  = 690;
     var minHeight = 400;
     /* End Of Contants */
+
+    var defaultPath = defaultFilePath;
     var historyPath;
     var curFiles = [];
     var allFiles = [];
@@ -170,6 +173,21 @@ window.FileBrowser = (function($, FileBrowser) {
         // close file browser
         $fileBrowser.on("click", ".close, .cancel", function() {
             closeAll();
+        });
+
+        $("#fileBrowserNFS").click(function() {
+            var $checkbox = $(this);
+            var useNFS;
+
+            if ($checkbox.hasClass("checked")) {
+                $checkbox.removeClass("checked");
+                useNFS = false;
+            } else {
+                $checkbox.addClass("checked");
+                useNFS = true;
+            }
+
+            toggleNFS(useNFS);
         });
 
         $("#fileBrowserRefresh").click(function(event){
@@ -393,6 +411,21 @@ window.FileBrowser = (function($, FileBrowser) {
         $modalBackground.fadeOut(fadeOutTime, function() {
             Tips.refresh();
         });
+    }
+
+    function toggleNFS(useNFS) {
+        var currentPath = getCurrentPath();
+        var path;
+
+        if (useNFS) {
+            defaultPath = defaultNFSPath;
+            path = currentPath.replace(defaultFilePath, defaultNFSPath);
+        } else {
+            defaultPath = defaultFilePath;
+            path = currentPath.replace(defaultNFSPath, defaultFilePath);
+        }
+        historyPath = null;
+        retrievePaths(path);
     }
 
     function updateFileName($grid) {
