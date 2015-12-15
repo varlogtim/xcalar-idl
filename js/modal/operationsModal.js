@@ -870,6 +870,9 @@ window.OperationsModal = (function($, OperationsModal) {
                 numArgs = 1; // Refer to operObj.numArgs for min number
             }
             var $tbody = $operationsModal.find('.argumentTable tbody');
+            $operationsModal.find('.checkbox').removeClass('checked')
+                                              .parent()
+                                              .removeClass('hidden');
 
             // as rows order may change, update it here
             var $rows = $tbody.find('tr');
@@ -974,7 +977,9 @@ window.OperationsModal = (function($, OperationsModal) {
                                                 .attr("id", "incSample")
                             .after(checkboxText)
                         .end()
-                        .find('.description').text(description);
+                        .find('.description').text(description)
+                        .end()
+                        .find('.checkboxWrap').addClass('hidden');
                 ++numArgs;
 
 
@@ -1194,8 +1199,13 @@ window.OperationsModal = (function($, OperationsModal) {
         $argInputs.each(function() {
             var $input   = $(this);
             var val   = $input.val().trim();
-            var check = $input.closest('tr').find('td:last').find('.checkbox')
-                                            .hasClass('checked');
+            var $checkboxWrap = $input.closest('tr').find('.checkboxWrap');
+            var check = false;
+            if ($checkboxWrap.hasClass('hidden')) {
+                check = true;
+            } else if ($checkboxWrap.find('.checkbox').hasClass('checked')) {
+                check = true;
+            }
 
             if (val === "" && !check) {
                 validBlanks = false;
