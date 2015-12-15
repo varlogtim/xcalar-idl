@@ -1037,6 +1037,7 @@ window.DagParamModal = (function($, DagParamModal){
 
     var $paramLists  = $("#dagModleParamList");
     var $editableRow = $dagParamModal.find('.editableRow');
+    var filterListScroller;
 
     var paramListTrLen = 6;
     var trTemplate = '<tr class="unfilled">' +
@@ -1110,6 +1111,17 @@ window.DagParamModal = (function($, DagParamModal){
             setParamDivToDefault($(this).siblings(".editableParamDiv"));
         });
 
+        $dagParamModal.on("input", ".editableParamDiv", function() {
+            suggest($(this));
+        });
+
+        $dagParamModal.on('click', function(event) {
+            var $target = $(event.target);
+            if ($target.closest('.dropDownList').length === 0) {
+                $dagParamModal.find('.list').hide();
+            }
+        });
+
         $dagParamModal.draggable({
             handle     : '.modalHeader',
             containment: 'window',
@@ -1170,7 +1182,7 @@ window.DagParamModal = (function($, DagParamModal){
 
             editableText += getParameterInputHTML(0, "medium") +
                             '<td class="static">by</td>' +
-                            getParameterInputHTML(1, "medium") +
+                            getParameterInputHTML(1, "medium", {filter: true}) +
                             getParameterInputHTML(2, "medium allowEmpty");
             
         } else if (type === "dataStore" || type === "export") {
@@ -1199,6 +1211,53 @@ window.DagParamModal = (function($, DagParamModal){
 
         generateParameterDefaultList();
         populateSavedFields(id, dfgName);
+
+        if (type === "filter") {
+            var $list = $dagParamModal.find('.tdWrapper.dropDownList');
+            filterListScroller = new ListScroller($list.find('.list'), {
+                                              container: '#dagParameterModal',
+                                              bottomPadding: 5      
+                                            });
+            xcHelper.dropdownList($list, {
+                "onSelect": function($li) {
+                    var func = $li.text();
+                    var $input = $list.find(".editableParamDiv");
+
+                    if (func === $input.text().trim()) {
+                        return;
+                    }
+
+                    $input.html(func);
+                },
+                "onOpen": function() {
+                    var $lis = $list.find('li')
+                                    .sort(sortHTML)
+                                    .show();
+                    $lis.prependTo($list.find('ul'));
+                    $list.find('ul').width($list.width() - 1);
+                    return (filterListScroller.showOrHideScrollers());
+                },
+                "container": "#dagParameterModal"
+            });
+
+            XcalarListXdfs('*', 'Conditional*')
+            .then(function(ret) {
+                var numXdfs = ret.numXdfs;
+                var html = "";
+                var fnNames = [];
+                for (var i = 0; i < numXdfs; i++) {
+                    fnNames.push(ret.fnDescs[i].fnName);
+                }
+                fnNames = fnNames.sort();
+                for (var i = 0; i < numXdfs; i++) {
+                    html += '<li>' + fnNames[i] + '</li>';
+                }
+                $list.find('ul').html(html);
+            })
+            .fail(function(error) {
+                Alert.error("Parameter Modal Failed", error);
+            });
+        }
 
         modalHelper.setup();
         if (gMinModeOn) {
@@ -1270,6 +1329,45 @@ window.DagParamModal = (function($, DagParamModal){
     DagParamModal.allowParamDrop = function(event) {
         event.preventDefault();
     };
+
+    function suggest($input) {
+        var value = $input.text().trim().toLowerCase();
+        var $list = $input.siblings('.list');
+
+        // $operationsModal.find('li.highlighted').removeClass('highlighted');
+
+        $list.show().find('li').hide();
+
+        var $visibleLis = $list.find('li').filter(function() {
+            return (value === "" ||
+                    $(this).text().toLowerCase().indexOf(value) !== -1);
+        }).show();
+
+        $visibleLis.sort(sortHTML).prependTo($list.find('ul'));
+
+        filterListScroller.showOrHideScrollers();
+
+        if (value === "") {
+            return;
+        }
+
+        // put the li that starts with value at first,
+        // in asec order
+
+        for (var i = $visibleLis.length; i >= 0; i--) {
+            var $li = $visibleLis.eq(i);
+            if ($li.text().startsWith(value)) {
+                $list.find('ul').prepend($li);
+            }
+        }
+        if ($list.find('li:visible').length === 0) {
+            $list.hide();
+        }
+    }
+
+    function sortHTML(a, b){
+        return ($(b).text()) < ($(a).text()) ? 1 : -1;    
+    }
 
     function addParamToLists(paramName, paramVal, isRestore) {
         var $tbody = $paramLists.find("tbody");
@@ -1417,26 +1515,17 @@ window.DagParamModal = (function($, DagParamModal){
                     var str2 = $editableDivs.eq(2).text().trim();
                     var filter;
                     // Only support these filter now
-                    switch (filterText) {
-                        case (">"):
-                            filter = "gt";
-                            break;
-                        case ("<"):
-                            filter = "lt";
-                            break;
-                        case (">="):
-                            filter = "ge";
-                            break;
-                        case ("<="):
-                            filter = "le";
-                            break;
-                        case ("="):
-                            filter = "eq";
-                            break;
-                        default:
-                            deferred.reject("currently not supported filter");
-                            return (deferred.promise());
+                    var filterExists = $editableDivs.eq(1).siblings('.list')
+                                                          .find('li')
+                                                          .filter(function() {
+                        return ($(this).text() === filterText);
+                    }).length;
+
+                    if (!filterExists) {
+                        deferred.reject("Filter type not currently supported.");
+                        return (deferred.promise());
                     }
+    
                     paramValue = filter + "(" + str1 + "," + str2 + ")";
                     // paramInput.paramFilter = new XcalarApiParamFilterT();
                     // paramInput.paramFilter.filterStr = str;
@@ -1478,20 +1567,37 @@ window.DagParamModal = (function($, DagParamModal){
         }
     }
 
-    function getParameterInputHTML(inputNum, extraClass) {
+    function getParameterInputHTML(inputNum, extraClass, options) {
         var divClass = "editableParamDiv boxed";
+        options = options || {};
         if (extraClass != null) {
             divClass += " " + extraClass;
         }
-        var td = '<td>' +
-                    '<div class="tdWrapper">' +
-                        '<div class="' + divClass + '" ' +
+        var td = '<td>';
+        if (options.filter) {
+            td += '<div class="tdWrapper dropDownList">';
+        } else {
+            td += '<div class="tdWrapper">';
+        }
+                   
+        td +=      '<div class="' + divClass + '" ' +
                         'ondragover="DagParamModal.allowParamDrop(event)"' +
                         'ondrop="DagParamModal.paramDrop(event)" ' +
                         'data-target="' + inputNum + '" ' +
                         'contenteditable="true" ' +
-                        'spellcheck="false"></div>' +
-                        '<div title="Default Value" ' +
+                        'spellcheck="false"></div>';
+        if (options.filter) {
+            td += '<div class="list">' +
+                    '<ul><li>first item</li></ul>' +
+                    '<div class="scrollArea top">' +
+                        '<div class="arrow"></div>' +
+                    '</div>' +
+                    '<div class="scrollArea bottom">' +
+                        '<div class="arrow"></div>' +
+                    '</div>' +
+                  '</div>';
+        }
+                    td += '<div title="Default Value" ' +
                         'class="defaultParam iconWrap" data-toggle="tooltip" ' +
                         'data-placement="top" data-container="body">' +
                             '<span class="icon"></span>' +

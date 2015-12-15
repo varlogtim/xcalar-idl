@@ -560,12 +560,12 @@ window.DataFlowModal = (function($, DataFlowModal) {
         var $columnPadding = $th.find(".columnPadding");
 
         $columnPadding.tooltip({
-            "title"    : "Cann't export column of type " + getType($th),
+            "title"    : "Cannot export column of type " + getType($th),
             "placement": "top",
             "animation": "true",
             "container": "#dataFlowModal",
             "trigger"  : "manual",
-             "template" : TooltipTemplate.Error
+            "template" : TooltipTemplate.Error
         });
 
         $columnPadding.tooltip("show");

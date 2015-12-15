@@ -584,8 +584,7 @@ window.OperationsModal = (function($, OperationsModal) {
 
         $operationsModal.find('li.highlighted').removeClass('highlighted');
 
-        $list.show()
-             .find('li').hide();
+        $list.show().find('li').hide();
 
         var $visibleLis = $list.find('li').filter(function() {
             return (value === "" ||
