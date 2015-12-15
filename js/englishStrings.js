@@ -122,7 +122,8 @@ ErrorTextWReplaceTStr = {
 
     'InvalidOpsType': 'Invalid type for the field,' +
                       ' wanted: <type1>, but provided: <type2>.',
-    'InvalidCol': 'Column "<name>" does not exist.'
+    'InvalidCol': 'Column "<name>" does not exist.',
+    'InvalidRange': 'Please enter a value between <num1> and <num2>.'
 
 }
 

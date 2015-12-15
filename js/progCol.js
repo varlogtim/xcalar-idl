@@ -91,6 +91,7 @@ window.ColManager = (function($, ColManager) {
         var newProgCol  = options.progCol;
         var noAnimate   = options.noAnimate;
         var isHidden    = options.isHidden || false;
+        var decimals    = options.decimals || -1;
         var columnClass;
         var color;
 
@@ -126,7 +127,8 @@ window.ColManager = (function($, ColManager) {
                 "width"   : width,
                 "userStr" : '"' + name + '" = ',
                 "isNewCol": isNewCol,
-                "isHidden": isHidden
+                "isHidden": isHidden,
+                "decimals": decimals
             });
 
             insertColHelper(newColid - 1, tableId, newProgCol);
@@ -782,6 +784,18 @@ window.ColManager = (function($, ColManager) {
         commitToStorage();
     };
 
+    ColManager.roundToFixed = function(colNum, tableId, val) {
+        var newVal;
+        var $div;
+        $('#xcTableWrap-' + tableId).find('td.col' + colNum)
+                                    .find('.addedBarTextWrap').each(function() {
+            $div = $(this);
+            newVal = roundToFixed($div.text().trim(), val);
+            $div.text(newVal);
+        });
+        gTables[tableId].tableCols[colNum - 1].decimals = val;
+    }
+
     ColManager.reorderCol = function(tableId, oldColNum, newColNum) {
         var oldIndex = oldColNum - 1;
         var newIndex = newColNum - 1;
@@ -1023,6 +1037,7 @@ window.ColManager = (function($, ColManager) {
 
         var width    = tableCols[colNum - 1].width;
         var isNewCol = $table.find('th.col' + colNum).hasClass('unusedCell');
+        var decimals = tableCols[colNum - 1].decimals;
 
         var name;
         if (tableCols[colNum - 1].func.args) {
@@ -1036,7 +1051,8 @@ window.ColManager = (function($, ColManager) {
         ColManager.addCol(colNum, tableId, name, {
             "width"   : width,
             "isNewCol": isNewCol,
-            "isHidden": tableCols[colNum - 1].isHidden
+            "isHidden": tableCols[colNum - 1].isHidden,
+            "decimals": decimals
         });
         // add sql
         SQL.add("Duplicate Column", {
@@ -1418,6 +1434,10 @@ window.ColManager = (function($, ColManager) {
                     }
 
                     parsedVal = xcHelper.parseJsonValue(tdValue, knf);
+                    if (tableCols[col].decimals > -1) {
+                        parsedVal = roundToFixed(parsedVal,
+                                                 tableCols[col].decimals);
+                    }
                     tBodyHTML += '<td class="' + tdClass + ' clickable">' +
                                     getTableCellHtml(parsedVal) +
                                 '</td>';
@@ -1544,7 +1564,7 @@ window.ColManager = (function($, ColManager) {
         var tableCols = gTables[tableId].tableCols;
         var $table    = $("#xcTable-" + tableId);
         var $dataCol  = $table.find("tr:first th").filter(function() {
-            return $(this).find("input").val() === "DATA";
+            return ($(this).find("input").val() === "DATA");
         });
 
         var colid = xcHelper.parseColNum($dataCol);
@@ -1552,7 +1572,8 @@ window.ColManager = (function($, ColManager) {
         var numRow        = -1;
         var startingIndex = -1;
         var endingIndex   = -1;
-
+        var decimals = tableCols[newColid - 1].decimals;
+                
         if (!startIndex) {
             startingIndex = parseInt($table.find("tbody tr:first")
                                            .attr('class').substring(3));
@@ -1599,6 +1620,10 @@ window.ColManager = (function($, ColManager) {
             columnType = xcHelper.parseColType(value, columnType);
 
             value = xcHelper.parseJsonValue(value, knf);
+            if (decimals > -1) {
+                value = roundToFixed(value, decimals);
+            }
+
             $table.find('.row' + i + ' .col' + newColid)
                   .html(getTableCellHtml(value))
                   .addClass('clickable');
@@ -1870,6 +1895,18 @@ window.ColManager = (function($, ColManager) {
         searchBar.matchIndex = 0;
         searchBar.$matches = [];
         searchBar.numMatches = 0;
+    }
+
+    function roundToFixed(val, decimals) {
+        var newVal = parseFloat(val);
+        if (isNaN(newVal)) {
+            return (val);
+        }
+        newVal = Math.round(newVal * Math.pow(10, decimals)) + "";
+        newVal = newVal.slice(0, 0 - decimals) + "." +
+                 newVal.slice(0 - decimals);
+
+        return (newVal);
     }
 
     return (ColManager);

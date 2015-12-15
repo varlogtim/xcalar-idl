@@ -1896,7 +1896,6 @@ function addMenuBehaviors($mainMenu) {
         }
     });
 
-
     $mainMenu.on({
         "mouseenter": function(event) {
             if ($mainMenu.hasClass('disableMouseEnter')) {
@@ -1909,7 +1908,6 @@ function addMenuBehaviors($mainMenu) {
             $li.addClass('selected');
             var hasSubMenu = $li.hasClass('parentMenu');
             
-
             if (!hasSubMenu || $li.hasClass('unavailable')) {
                 if ($subMenu) {
                     if (event.keyTriggered) {
@@ -1948,10 +1946,18 @@ function addMenuBehaviors($mainMenu) {
 
     function showSubMenu($li, subMenuClass) {
         if ($li.hasClass('selected')) {
-            $subMenu.show();
+            $subMenu.show();   
+            var $targetSubMenu = $subMenu.find('.' + subMenuClass);
+            var visible = false;
+            if ($targetSubMenu.is(':visible')) {
+                visible = true;
+            }
             $subMenu.children('ul').hide();
             $subMenu.find('li').removeClass('selected');
-            $subMenu.find('.' + subMenuClass).show();
+            $targetSubMenu.show();
+            if (!visible) {
+                StatusBox.forceHide();
+            }
             var top = $li.offset().top + 30;
             var left = $li.offset().left + 155;
             var shiftedLeft = false;
@@ -2266,6 +2272,28 @@ function addColMenuActions() {
         }
     });
 
+    $subMenu.on('keypress', '.digitsToRound', function(event) {
+        if (event.which !== keyCode.Enter) {
+            return;
+        }
+
+        var val = parseInt($(this).val().trim());
+        if (isNaN(val) || val < 0 || val > 14) {
+            // when this field is empty
+            StatusBox.show(ErrorTextWReplaceTStr.InvalidRange
+                                                .replace("<num1>", 0)
+                                                .replace("<num2>", 14),
+                                                $(this), null, null,
+                                                {side:"left",
+                                                closeable: true});
+            return;
+        }
+        var colNum = $colMenu.data('colNum');
+        tableId = $colMenu.data('tableId');
+        ColManager.roundToFixed(colNum, tableId, val);
+        closeMenu($allMenus);
+    });
+
     $subMenu.on('keypress', '.splitCol input', function(event) {
         if (event.which === keyCode.Enter) {
             var colNum = $colMenu.data("colNum");
@@ -2277,7 +2305,8 @@ function addColMenuActions() {
             if (delim.trim() === "") {
                 if (delim.length === 0) {
                     // when this field is empty
-                    StatusBox.show(ErrorTextTStr.NoEmpty, $delimInput);
+                    StatusBox.show(ErrorTextTStr.NoEmpty, $delimInput, null,
+                                    null, {closeable: true});
                     return;
                 }
                 // cast of space/tab

@@ -1012,6 +1012,10 @@ input {
         display: none;
     }
 
+    .roundToFixed {
+        display: none;
+    }
+
     .unhide {
         display: none;
     }
@@ -1107,13 +1111,21 @@ input {
         }
     }
 
+    &.type-float {
+        .roundToFixed {
+            display: list-item;
+        }
+    }
+
     &.type-emptyTable .map {
         display: none !important;
     }
 
     &.type-object, &.type-newColumn, &.type-undefined, &.type-mixed, 
     &.recordNum, &.childOfArray {
-        .sort, .aggregate, .groupby, .filter, .joinList, .map, .operations, .profile {
+        .sort, .aggregate, .groupby, .filter, .joinList, .map, .operations,
+        .profile, .roundToFixed
+         {
             display: none;
         }
     }
@@ -1146,7 +1158,7 @@ input {
     &.type-data {
         .sort, .aggregate, .groupby, .filter, .joinList, .deleteColumn, 
         .deleteDuplicates, .duplicate, .rename, .map, .operations,
-        .changeDataType, .profile, .divider {
+        .changeDataType, .profile, .divider, .roundToFixed {
             display: none;
         }
     }

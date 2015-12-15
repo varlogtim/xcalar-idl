@@ -2,6 +2,8 @@
 window.StatusBox = (function($, StatusBox){
     var $statusBox = $("#statusBox");
     var $doc = $(document);
+    var $targetInput;
+    var open = false;
 
     StatusBox.show = function(text, $target, isFormMode, offset, options) {
         // position error message
@@ -10,11 +12,13 @@ window.StatusBox = (function($, StatusBox){
         var right = $(window).width() - bound.right - 200;
         var left = bound.left - 200;
         var side;
+        $targetInput = $target;
         if (options && options.side) {
             side = options.side;
         } else {
             side = 'right';
         }
+
 
         if (offset) {
             if (side === 'right') {
@@ -39,6 +43,10 @@ window.StatusBox = (function($, StatusBox){
             $statusBox.css({top: top, right: right, left: 'auto'});
         }
 
+        if (options && options.closeable) {
+            $(window).blur(hideStatusBox);
+        }
+
         if (isFormMode) {
             $doc.mousedown({target: $target}, hideStatusBox);
             $target.keydown({target: $target}, hideStatusBox);
@@ -46,6 +54,17 @@ window.StatusBox = (function($, StatusBox){
         } else {
             $doc.mousedown(hideStatusBox);
             $doc.keydown(hideStatusBox);
+        }
+        open = true;
+    };
+
+    StatusBox.forceHide = function() {
+        if (open) {
+            $doc.off('mousedown', hideStatusBox);
+            $doc.off('keydown', hideStatusBox);
+            $targetInput.off('keydown', hideStatusBox).removeClass('error');
+            clear();
+            open = false;
         }
     };
 
@@ -68,6 +87,7 @@ window.StatusBox = (function($, StatusBox){
             $doc.off('keydown', hideStatusBox);
             clear();
         }
+        open = false;
     }
 
     function clear() {

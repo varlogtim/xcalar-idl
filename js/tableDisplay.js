@@ -732,6 +732,9 @@ function generateColDropDowns() {
             '<li class="changeDataType parentMenu" data-submenu="changeDataType">' +
                 'Change data type' +
             '</li>' +
+            '<li class="roundToFixed parentMenu" data-submenu="roundToFixed">' +
+                'Round' +
+            '</li>' +
             '<div class="divider functionsDivider"></div>' +
             '<li class="sort parentMenu" data-submenu="sort">Sort' +    
             '</li>' +
@@ -775,6 +778,17 @@ function generateColDropDowns() {
                     '<div class="listSection">' +
                         '<input class="colName" type="text"' +
                             ' autocomplete="on" spellcheck="false"/>' +
+                    '</div>' +
+                '</li>' +
+            '</ul>' +
+            '<ul class="roundToFixed">' +
+                '<li style="text-align: center" class="clickable">' +
+                    '<span title="ex. an input of 2 would change 1.2345 ' +
+                    'to 1.23">Num. of decimals to keep</span>' +
+                    '<div class="listSection">' +
+                        '<input class="digitsToRound" type="number"' +
+                            ' max="14" min="0" autocomplete="on" spellcheck="false"' + 
+                            'placeholder="2" />' +
                     '</div>' +
                 '</li>' +
             '</ul>' +
