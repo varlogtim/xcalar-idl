@@ -376,6 +376,7 @@ function setupLogout() {
         })
         .always(function() {
             sessionStorage.setItem("xcalar-username", "");
+            window.onbeforeunload = function() {}; // Do not enable prompt
             window.location = "dologout.html";
         });
     });
@@ -452,13 +453,16 @@ function documentReadyGeneralFunction() {
     window.onbeforeunload = function() {
         if (backspaceIsPressed) {
             backspaceIsPressed = false;
-            return "You are leaving Xcalar";
+            return ("You are leaving Xcalar. "+
+                    "Please logout or you may lose work.");
         } else {
+            return ("Please logout or you may lose unsaved work.");
+            /**
             hasRelease = true;
             Support.releaseSession();
             sleep("500ms");
             freeAllResultSets();
-            sleep("500ms");
+            sleep("500ms"); */
         }
     };
 
