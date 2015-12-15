@@ -80,6 +80,7 @@ window.Replay = (function($, Replay) {
             "prevReplay": prevSql,
             "nextReplay": nextSql
         });
+
         execSql(operation, options)
         .then(function() {
             console.log("Replay", operation, "finished!");
@@ -87,11 +88,36 @@ window.Replay = (function($, Replay) {
         })
         .fail(function(error) {
             console.error("Replay", operation, "fails!", error);
-            deferred.reject(error);
+
+            if (sql.sqlType === SQLType.Error && isValidError(error)) {
+                if ($("#alertModal").is(":visible")) {
+                    var callback = function() {
+                        $("#alertModal .close").click();
+                        deferred.resolve();
+                    };
+
+                    delayAction(callback, "Show alert modal");
+                } else {
+                    console.log("This conitnue to replay after", operation);
+                    deferred.resolve();
+                }
+            } else {
+                deferred.reject(error);
+            }
         });
 
         return (deferred.promise());
     };
+
+    function isValidError(status) {
+        switch (status) {
+            case StatusT.StatusConnReset:
+            case StatusT.StatusNoMem:
+                return false;
+            default:
+                return true;
+        }
+    }
 
     function execSql(operation, options) {
         var deferred = jQuery.Deferred();
@@ -367,7 +393,7 @@ window.Replay = (function($, Replay) {
         var options = sql.options || {};
         var sqlType = options.sqlType;
 
-        if (sqlType === SQLType.Fail || sqlType === SQLType.Error) {
+        if (sqlType === SQLType.Fail) {
             return false;
         }
 
@@ -382,7 +408,6 @@ window.Replay = (function($, Replay) {
             case SQLOps.ProfileAction:
             case SQLOps.QuickAggAction:
             case SQLOps.SplitColMap:
-            case SQLOps.ChangeTypeMap:
                 return false;
             default:
                 return true;
