@@ -913,13 +913,6 @@ window.JoinModal = (function($, JoinModal) {
     }
 
     function getScore(context1, context2, titleDist, type) {
-        // max: 1,
-        // min: 1,
-        // avg: 2
-        // sig2(variance): 5
-        // dist: 7
-        // hash match: 3?
-
         // the two value of max, min, sig2, avg..closer, score is better,
         // also, shorter distance, higher score. So those socres are negative
 
@@ -958,20 +951,48 @@ window.JoinModal = (function($, JoinModal) {
                 // no match
                 return (-Number.MAX_VALUE);
             }
+
+            // for string compare absolute value
+            score += match * 3;
+            score += Math.abs(context1.max - context2.max) * -1;
+            score += Math.abs(context1.min - context2.min) * -1;
+            score += Math.abs(context1.avg - context2.avg) * -2;
+            score += Math.abs(context1.sig2 - context2.sig2) * -5;
+            score += titleDist * -7;
         } else {
             // a base score for number,
             // since limit score to pass is -50
             match = 20;
-        }
 
-        score += match * 3;
-        score += Math.abs(context1.max - context2.max) * -1;
-        score += Math.abs(context1.min - context2.min) * -1;
-        score += Math.abs(context1.avg - context2.avg) * -2;
-        score += Math.abs(context1.sig2 - context2.sig2) * -5;
-        score += titleDist * -7;
-        return (score);
+            // for number compare relative value
+            score += match * 3;
+            score += calcSim(context1.max, context2.max) * -8;
+            score += calcSim(context1.min, context2.min) * -8;
+            score += calcSim(context1.avg, context2.avg) * -16;
+            score += calcSim(context1.sig2, context2.sig2) * -40;
+            score += titleDist * -7;
+        }
+        return score;
     }
+
+    function calcSim(a, b) {
+        var diff = a - b;
+        var sum = a + b;
+
+        if (sum === 0) {
+            if (diff === 0) {
+                // when a === 0 and b === 0
+                return 0;
+            } else {
+                // a = -b, one is positive and one num is negative
+                // no similarity
+                return 1;
+            }
+        }
+        // range is [0, 1), more close to 0, similar
+        return Math.abs(diff / sum);
+    }
+
 
     function contextCheck($table, colNum, type) {
         // only check number and string
@@ -979,8 +1000,8 @@ window.JoinModal = (function($, JoinModal) {
             return {"max": 0, "min": 0, "total": 0, "variance": 0};
         }
 
-        var max   = Number.MIN_VALUE;
-        var min   = Number.MAX_VALUE;
+        var max = Number.MIN_VALUE;
+        var min = Number.MAX_VALUE;
         var total = 0;
         var datas = [];
         var values = [];
@@ -1035,6 +1056,9 @@ window.JoinModal = (function($, JoinModal) {
         if (name1 === name2) {
             // same name
             return 0;
+        } else if (name1.startsWith(name2) || name2.startsWith(name1)) {
+            // which means the name is quite related
+            return 2;
         }
 
         var distArray = levenshteinenator(name1, name2);
