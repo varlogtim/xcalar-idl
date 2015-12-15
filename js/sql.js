@@ -31,12 +31,6 @@ window.SQL = (function($, SQL) {
     };
 
     SQL.errorLog = function(title, options, cli, error) {
-        options = options || {};
-        if ($.isEmptyObject(options)) {
-            console.warn("Options for", title, "is empty!");
-            return;
-        }
-
         var sql = new SQLConstructor({
             "title"  : title,
             "options": options,
@@ -130,7 +124,7 @@ window.SQL = (function($, SQL) {
 
         if (args.error != null) {
             this.sqlType = SQLType.Error;
-            this.error = error;
+            this.error = args.error;
         }
 
         this.timestamp = args.timestamp || new Date().getTime();
@@ -153,7 +147,7 @@ window.SQL = (function($, SQL) {
 
     function getCliHTML(sql) {
         var options = sql.options;
-        if (!options) {
+        if (sql.sqlType === SQLType.Error) {
             return ("");
         }
 
@@ -198,7 +192,7 @@ window.SQL = (function($, SQL) {
         var options = sql.options;
         var string = "";
         // Here's the real code
-        if (!options) {
+        if (sql.sqlType === SQLType.Error) {
             return ("");
         }
         switch (options.operation) {

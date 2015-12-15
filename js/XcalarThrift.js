@@ -415,8 +415,8 @@ function XcalarAddODBCExportTarget(targetName, connStr) {
         deferred.resolve(ret1);
     })
     .fail(function(error) {
-        var thriftError = thriftLog("XcalarAddExportTarget", error);
-        // SQL.errorLog("Add Export Target", sqlOptions, null, thriftError);
+        var thriftError = thriftLog("XcalarAddODBCExportTarget", error);
+        SQL.errorLog("Add ODBC Export Target", null, null, thriftError);
         deferred.reject(thriftError);
     });
 
@@ -451,7 +451,7 @@ function XcalarAddLocalFSExportTarget(targetName, path) {
     })
     .fail(function(error) {
         var thriftError = thriftLog("XcalarAddExportTarget", error);
-        // SQL.errorLog("Add Export Target", sqlOptions, null, thriftError);
+        SQL.errorLog("Add Export Target", null, null, thriftError);
         deferred.reject(thriftError);
     });
 
@@ -480,7 +480,7 @@ function XcalarListExportTargets(typePattern, namePattern) {
     })
     .fail(function(error) {
         var thriftError = thriftLog("XcalarListExportTargets", error);
-        // SQL.errorLog("Add Export Target", sqlOptions, null, thriftError);
+        SQL.errorLog("List Export Targets", null, null, thriftError);
         deferred.reject(thriftError);
     });
 
@@ -746,7 +746,9 @@ function XcalarSample(datasetName, numEntries) {
         deferred.resolve(tableOfEntries, totalEntries);
     })
     .fail(function(error) {
-        deferred.reject(thriftLog("XcalarSample", error));
+        var thriftError = thriftLog("XcalarSample", error);
+        SQL.errorLog("Sample Table", null, null, thriftError);
+        deferred.reject(thriftError);
     });
 
     return (deferred.promise());
@@ -772,7 +774,9 @@ function XcalarGetDatasetCount(dsName) {
             deferred.resolve(totEntries);
         })
         .fail(function(error) {
-            deferred.reject(thriftLog("XcalarGetDatasetCount", error));
+            var thriftError = thriftLog("XcalarGetDatasetCount", error);
+            SQL.errorLog("Get Dataset Count", null, null, thriftError);
+            deferred.reject(thriftError);
         });
     }
 
@@ -799,7 +803,9 @@ function XcalarGetTableCount(tableName) {
             deferred.resolve(totEntries);
         })
         .fail(function(error) {
-            deferred.reject(thriftLog("XcalarGetTableCount", error));
+            var thriftError = thriftLog("XcalarGetTableCount", error);
+            SQL.errorLog("Get Table Count", null, null, thriftError);
+            deferred.reject(thriftError);
         });
     }
 
@@ -828,7 +834,9 @@ function XcalarGetDatasets() {
         deferred.resolve(listDatasetsOutput);
     })
     .fail(function(error) {
-        deferred.reject(thriftLog("XcalarGetDatasets", error));
+        var thriftError = thriftLog("XcalarGetDatasets", error);
+        SQL.errorLog("Get Datasets", null, null, thriftError);
+        deferred.reject(thriftError);
     });
 
     return (deferred.promise());
@@ -853,7 +861,9 @@ function XcalarGetTables(tableName) {
     xcalarListTables(tHandle, patternMatch, SourceTypeT.SrcTable)
     .then(deferred.resolve)
     .fail(function(error) {
-        deferred.reject(thriftLog("XcalarGetTables", error));
+        var thriftError = thriftLog("XcalarGetTables", error);
+        SQL.errorLog("Get Tables", null, null, thriftError);
+        deferred.reject(thriftError);
     });
 
     return (deferred.promise());
@@ -874,7 +884,9 @@ function XcalarShutdown(force) {
     xcalarShutdown(tHandle, force)
     .then(deferred.resolve)
     .fail(function(error) {
-        deferred.reject(thriftLog("XcalarShutdown", error));
+        var thriftError = thriftLog("XcalarShutdown", error);
+        SQL.errorLog("Shutdown Nodes", null, null, thriftError);
+        deferred.reject(thriftError);
     });
 
     return (deferred.promise());
@@ -892,7 +904,9 @@ function XcalarStartNodes(numNodes) {
     xcalarStartNodes(tHandle, numNodes)
     .then(deferred.resolve)
     .fail(function(error) {
-        deferred.reject(thriftLog("XcalarStartNodes", error));
+        var thriftError = thriftLog("XcalarStartNodes", error);
+        SQL.errorLog("Start Nodes", null, null, thriftError);
+        deferred.reject(thriftError);
     });
     return (deferred.promise());
 }
@@ -910,7 +924,9 @@ function XcalarGetStats(nodeId) {
     xcalarGetStats(tHandle, nodeId)
     .then(deferred.resolve)
     .fail(function(error) {
-        deferred.reject(thriftLog("XcalarGetStats", error));
+        var thriftError = thriftLog("XcalarGetStats", error);
+        SQL.errorLog("Get Stats", null, null, thriftError);
+        deferred.reject(thriftError);
     });
 
     return (deferred.promise());
@@ -929,7 +945,9 @@ function XcalarGetTableRefCount(tableName) {
     xcalarGetTableRefCount(tHandle, tableName)
     .then(deferred.resolve)
     .fail(function(error) {
-        deferred.reject(thriftLog("XcalarGetTableRefCount", error));
+        var thriftError = thriftLog("XcalarGetTableRefCount", error);
+        SQL.errorLog("GetTable Ref Count", null, null, thriftError);
+        deferred.reject(thriftError);
     });
 
     return (deferred.promise());
@@ -948,7 +966,9 @@ function XcalarMakeResultSetFromTable(tableName) {
     xcalarMakeResultSetFromTable(tHandle, tableName)
     .then(deferred.resolve)
     .fail(function(error) {
-        deferred.reject(thriftLog("XcalarMakeResultSetFromTable", error));
+        var thriftError = thriftLog("XcalarMakeResultSetFromTable", error);
+        SQL.errorLog("MakeResultSetFromTable", null, null, thriftError);
+        deferred.reject(thriftError);
     });
 
     return (deferred.promise());
@@ -968,7 +988,9 @@ function XcalarMakeResultSetFromDataset(datasetName) {
     xcalarMakeResultSetFromDataset(tHandle, datasetName)
     .then(deferred.resolve)
     .fail(function(error) {
-        deferred.reject(thriftLog("XcalarMakeResultSetFromDataset", error));
+        var thriftError = thriftLog("XcalarMakeResultSetFromDataset", error);
+        SQL.errorLog("MakeResultSetFromDataset", null, null, thriftError);
+        deferred.reject(thriftError);
     });
 
     return (deferred.promise());
@@ -988,7 +1010,9 @@ function XcalarSetAbsolute(resultSetId, position) {
     xcalarResultSetAbsolute(tHandle, resultSetId, position)
     .then(deferred.resolve)
     .fail(function(error) {
-        deferred.reject(thriftLog("XcalarSetAbsolute", error));
+        var thriftError = thriftLog("XcalarSetAbsolute", error);
+        SQL.errorLog("Set Absolute", null, null, thriftError);
+        deferred.reject(thriftError);
     });
 
     return (deferred.promise());
@@ -1007,7 +1031,9 @@ function XcalarGetNextPage(resultSetId, numEntries) {
     xcalarResultSetNext(tHandle, resultSetId, numEntries)
     .then(deferred.resolve)
     .fail(function(error) {
-        deferred.reject(thriftLog("XcalarGetNextPage", error));
+        var thriftError = thriftLog("XcalarGetNextPage", error);
+        SQL.errorLog("Get Next Page", null, null, thriftError);
+        deferred.reject(thriftError);
     });
 
     return (deferred.promise());
@@ -1026,7 +1052,9 @@ function XcalarSetFree(resultSetId) {
     xcalarFreeResultSet(tHandle, resultSetId)
     .then(deferred.resolve)
     .fail(function(error) {
-        deferred.reject(thriftLog("XcalarSetFree", error));
+        var thriftError = thriftLog("XcalarSetFree", error);
+        SQL.errorLog("Set Free", null, null, thriftError);
+        deferred.reject(thriftError);
     });
 
     return (deferred.promise());
@@ -1216,8 +1244,7 @@ function XcalarAggregateHelper(srcTablename, evalStr, sqlOptions) {
     if (evalStr === "") {
         deferred.reject("bug!:" + op);
         return (deferred.promise());
-    } else if (evalStr.length > XcalarApisConstantsT.XcalarApiMaxEvalStirngLen)
-    {
+    } else if (evalStr.length > XcalarApisConstantsT.XcalarApiMaxEvalStirngLen) {
         deferred.reject(thriftLog("XcalarMap", "Eval string too long"));
         return (deferred.promise());
     }
@@ -1291,8 +1318,7 @@ function XcalarGroupBy(operator, newColName, oldColName, tableName,
     if (evalStr === "") {
         deferred.reject("Wrong operator! " + operator);
         return (deferred.promise());
-    } else if (evalStr.length > XcalarApisConstantsT.XcalarApiMaxEvalStringLen)
-    {
+    } else if (evalStr.length > XcalarApisConstantsT.XcalarApiMaxEvalStringLen) {
         deferred.reject(thriftLog("XcalarGroupBy", "Eval string too long"));
         return (deferred.promise());
     }
@@ -1339,7 +1365,9 @@ function XcalarQuery(queryName, queryString) {
     xcalarQuery(tHandle, queryName, queryString, false, "", true)
     .then(deferred.resolve)
     .fail(function(error) {
-        deferred.reject(thriftLog("XcalarQuery", error));
+        var thriftError = thriftLog("XcalarQuery", error);
+        SQL.errorLog("XcalarQuery", null, null, thriftError);
+        deferred.reject(thriftError);
     });
 
     return (deferred.promise());
@@ -1407,7 +1435,9 @@ function XcalarGetDag(tableName) {
     xcalarDag(tHandle, tableName)
     .then(deferred.resolve)
     .fail(function(error) {
-        deferred.reject(thriftLog("XcalarGetDag", error));
+        var thriftError = thriftLog("XcalarGetDag", error);
+        SQL.errorLog("Get Dag", null, null, thriftError);
+        deferred.reject(thriftError);
     });
 
     return (deferred.promise());
@@ -1426,7 +1456,9 @@ function XcalarListFiles(url) {
     xcalarListFiles(tHandle, url)
     .then(deferred.resolve)
     .fail(function(error) {
-        deferred.reject(thriftLog("XcalarListFiles", error));
+        var thriftError = thriftLog("XcalarListFiles", error);
+        SQL.errorLog("List Files", null, null, thriftError);
+        deferred.reject(thriftError);
     });
 
     return (deferred.promise());
@@ -1488,7 +1520,9 @@ function XcalarListRetinas() {
     xcalarListRetinas(tHandle)
     .then(deferred.resolve)
     .fail(function(error) {
-        deferred.reject(thriftLog("XcalarListRetinas", error));
+        var thriftError = thriftLog("XcalarListRetinas", error);
+        SQL.errorLog("List Retinas", null, null, thriftError);
+        deferred.reject(thriftError);
     });
     return (deferred.promise());
 }
@@ -1507,7 +1541,9 @@ function XcalarGetRetina(retName) {
     xcalarGetRetina(tHandle, retName)
     .then(deferred.resolve)
     .fail(function(error) {
-        deferred.reject(thriftLog("XcalarGetRetina", error));
+        var thriftError = thriftLog("XcalarGetRetina", error);
+        SQL.errorLog("Get Retinas", null, null, thriftError);
+        deferred.reject(thriftError);
     });
     return (deferred.promise());
 }
@@ -1602,7 +1638,9 @@ function XcalarListParametersInRetina(retName) {
     xcalarListParametersInRetina(tHandle, retName)
     .then(deferred.resolve)
     .fail(function(error) {
-        deferred.reject(thriftLog("XcalarListParametersInRetina", error));
+        var thriftError = thriftLog("XcalarListParametersInRetina", error);
+        SQL.errorLog("ListParametersInRetina", null, null, thriftError);
+        deferred.reject(thriftError);
     });
     return (deferred.promise());
 }
@@ -1717,7 +1755,9 @@ function XcalarListSchedules(namePattern) {
     .then(deferred.resolve)
     .fail(function(error) {
         // TODO Handle 286 aka table or dataset not found aka no schedules
-        deferred.reject(thriftLog("XcalarListSchedule", error));
+        var thriftError = thriftLog("XcalarListSchedule", error);
+        SQL.errorLog("List Schedule", null, null, thriftError);
+        deferred.reject(thriftError);
     });
     return (deferred.promise());
 }
@@ -1748,6 +1788,7 @@ function XcalarKeyLookup(key, scope) {
             deferred.resolve(null);
         } else {
             var thriftError = thriftLog("XcalarKeyLookup", error);
+            SQL.errorLog("Key Lookup", null, null, thriftError);
             deferred.reject(thriftError);
         }
     });
@@ -1776,7 +1817,9 @@ function XcalarKeyPut(key, value, persist, scope) {
     xcalarKeyAddOrReplace(tHandle, scope, key, value, persist)
     .then(deferred.resolve)
     .fail(function(error) {
-        deferred.reject(thriftLog("XcalarKeyPut", error));
+        var thriftError = thriftLog("XcalarKeyPut", error);
+        SQL.errorLog("Key Put", null, null, thriftError);
+        deferred.reject(thriftError);
     });
 
     return (deferred.promise());
@@ -1806,6 +1849,7 @@ function XcalarKeyDelete(key, scope) {
             console.warn("Stataus", error, "kvStore, not found");
             deferred.resolve(null);
         } else {
+            SQL.errorLog("Key Delete", null, null, thriftError);
             deferred.reject(thriftError);
         }
     });
@@ -1832,6 +1876,7 @@ function XcalarKeySetIfEqual(scope, persist, keyCompare, oldValue, newValue) {
             console.warn("Status", error, "kvStore, not found");
             deferred.resolve(null);
         } else {
+            SQL.errorLog("Key Set If Equal", null, null, thriftError);
             deferred.reject(thriftError);
         }
     });
@@ -1860,6 +1905,7 @@ function XcalarKeySetBothIfEqual(scope, persist, keyCompare, oldValue, newValue,
             console.warn("Status", error, "kvStore, not found");
             deferred.resolve(null);
         } else {
+            SQL.errorLog("Key Set If Both Equal", null, null, thriftError);
             deferred.reject(thriftError);
         }
     });
@@ -1894,6 +1940,7 @@ function XcalarKeyAppend(key, stuffToAppend, persist, scope) {
             .fail(deferred.reject);
         } else {
             var thriftError = thriftLog("XcalarKeyAppend", error);
+            SQL.errorLog("Key Append", null, null, thriftError);
             deferred.reject(thriftError);
         }
     });
@@ -1940,7 +1987,9 @@ function XcalarApiTop(measureIntervalInMs) {
     xcalarApiTop(tHandle, XcalarApisConstantsT.XcalarApiDefaultTopIntervalInMs)
     .then(deferred.resolve)
     .fail(function(error) {
-        deferred.reject(thriftLog("XcalarApiTop", error));
+        var thriftError = thriftLog("XcalarApiTop", error);
+        SQL.errorLog("XcalarApiTop", null, null, thriftError);
+        deferred.reject(thriftError);
     });
     return (deferred.promise());
 }
@@ -1957,7 +2006,9 @@ function XcalarListXdfs(fnNamePattern, categoryPattern) {
     xcalarApiListXdfs(tHandle, fnNamePattern, categoryPattern)
     .then(deferred.resolve)
     .fail(function(error) {
-        deferred.reject(thriftLog("XcalarListXdf", error));
+        var thriftError = thriftLog("XcalarListXdf", error);
+        SQL.errorLog("List Xdf", null, null, thriftError);
+        deferred.reject(thriftError);
     });
     return (deferred.promise());
 }
@@ -1974,7 +2025,9 @@ function XcalarUploadPython(moduleName, pythonStr) {
     xcalarApiUploadPython(tHandle, moduleName, pythonStr)
     .then(deferred.resolve)
     .fail(function(error) {
-        deferred.reject(thriftLog("XcalarUploadPython", error));
+        var thriftError = thriftLog("XcalarUploadPython", error);
+        SQL.errorLog("Upload Python", null, null, thriftError);
+        deferred.reject(thriftError);
     });
     return (deferred.promise());
 }
@@ -1993,7 +2046,9 @@ function XcalarMemory() {
         deferred.resolve(output);
     })
     .fail(function(error) {
-        deferred.reject(thriftLog("XcalarMemory", error));
+        var thriftError = thriftLog("XcalarMemory", error);
+        SQL.errorLog("XcalarMemory", null, null, thriftError);
+        deferred.reject(thriftError);
     });
     return (deferred.promise());
 }
@@ -2028,7 +2083,9 @@ function XcalarNewWorkbook(newWorkbookName, isCopy, copyFromWhichWorkbook) {
         deferred.resolve(output);
     })
     .fail(function(error) {
-        deferred.reject(thriftLog("XcalarNewWorkbook", error));
+        var thriftError = thriftLog("XcalarNewWorkbook", error);
+        SQL.errorLog("New Workbook", null, null, thriftError);
+        deferred.reject(thriftError);
     });
     return (deferred.promise());
 }
@@ -2044,7 +2101,9 @@ function XcalarDeleteWorkbook(workbookName) {
         deferred.resolve(output);
     })
     .fail(function(error) {
-        deferred.reject(thriftLog("XcalarDeleteWorkbook", error));
+        var thriftError = thriftLog("XcalarDeleteWorkbook", error);
+        SQL.errorLog("Delete Workbook", null, null, thriftError);
+        deferred.reject(thriftError);
     });
     return (deferred.promise());
 }
@@ -2060,7 +2119,9 @@ function XcalarInActiveWorkbook(workbookName) {
         deferred.resolve(output);
     })
     .fail(function(error) {
-        deferred.reject(thriftLog("XcalarInActiveWorkbook", error));
+        var thriftError = thriftLog("XcalarInActiveWorkbook", error);
+        SQL.errorLog("InActive Workbook", null, null, thriftError);
+        deferred.reject(thriftError);
     });
     return (deferred.promise());
 }
@@ -2076,7 +2137,9 @@ function XcalarListWorkbooks(pattern) {
         deferred.resolve(output);
     })
     .fail(function(error) {
-        deferred.reject(thriftLog("XcalarListWorkbooks", error));
+        var thriftError = thriftLog("XcalarListWorkbooks", error);
+        SQL.errorLog("List Workbooks", null, null, thriftError);
+        deferred.reject(thriftError);
     });
     return (deferred.promise());
 }
@@ -2092,7 +2155,9 @@ function XcalarSaveWorkbooks(pattern) {
         deferred.resolve(output);
     })
     .fail(function(error) {
-        deferred.reject(thriftLog("XcalarSaveWorkbooks", error));
+        var thriftError = thriftLog("XcalarSaveWorkbooks", error);
+        SQL.errorLog("Save Workbooks", null, null, thriftError);
+        deferred.reject(thriftError);
     });
     return (deferred.promise());
 }
@@ -2108,7 +2173,9 @@ function XcalarSwitchToWorkbook(toWhichWorkbook, fromWhichWorkbook) {
         deferred.resolve(output);
     })
     .fail(function(error) {
-        deferred.reject(thriftLog("XcalarSwitchToWorkbook", error));
+        var thriftError = thriftLog("XcalarSwitchToWorkbook", error);
+        SQL.errorLog("Switch Workbook", null, null, thriftError);
+        deferred.reject(thriftError);
     });
     return (deferred.promise());
 }
@@ -2124,7 +2191,9 @@ function XcalarRenameWorkbook(newName, oldName) {
         deferred.resolve(output);
     })
     .fail(function(error) {
-        deferred.reject(thriftLog("XcalarRenameWorkbook", error));
+        var thriftError = thriftLog("XcalarRenameWorkbook", error);
+        SQL.errorLog("Rename Workbook", null, null, thriftError);
+        deferred.reject(thriftError);
     });
     return (deferred.promise());
 }
@@ -2140,7 +2209,9 @@ function XcalarSupportSend() {
         deferred.resolve();
     })
     .fail(function(error) {
-        deferred.reject(thriftLog("XcalarSupportSend", error));
+        var thriftError = thriftLog("XcalarSupportSend", error);
+        SQL.errorLog("Support Send", null, null, thriftError);
+        deferred.reject(thriftError);
     });
     return (deferred.promise());
 }
@@ -2156,7 +2227,9 @@ function XcalarDownloadPython(moduleName) {
         deferred.resolve(output.pythonSrc);
     })
     .fail(function(error) {
-        deferred.reject(thriftLog("XcalarDownloadPython", error));
+        var thriftError = thriftLog("XcalarDownloadPython", error);
+        SQL.errorLog("Download Python", null, null, thriftError);
+        deferred.reject(thriftError);
     });
     return (deferred.promise());
 }

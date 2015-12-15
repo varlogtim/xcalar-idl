@@ -619,7 +619,7 @@ window.JoinModal = (function($, JoinModal) {
                     toolTipHelper(text);
                 }
             } else {
-                console.error("Error, none of the lable is active!");
+                console.error("Error, none of the label is active!");
             }
 
             function toolTipHelper(title) {
