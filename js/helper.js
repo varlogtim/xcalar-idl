@@ -1363,12 +1363,10 @@ ListScroller = function($menu, options) {
     /*
     $menu needs to have the following structure:
         <div>
-            <ul>
-            </ul>
+            <ul></ul>
             <div class="scrollArea top"></div>
             <div class="scrollArea bottom"></div>
         </div>
-
     where the outer div has the same height as the ul
     */
 
@@ -1390,7 +1388,8 @@ ListScroller.prototype.setup = function() {
         "fadeOut"          : null,
         "setMouseMoveFalse": null,
         "hovering"         : null,
-        "scroll"           : null
+        "scroll"           : null,
+        "mouseScroll"      : null
     };
     
     $menu.mouseleave(function() {
@@ -1441,6 +1440,24 @@ ListScroller.prototype.setup = function() {
         timer.hovering = setTimeout(hovering, 200);
     });
 
+    $ul.scroll(function() {
+        clearTimeout(timer.mouseScroll);
+        timer.mouseScroll = setTimeout(mouseScroll, 300);
+    });
+
+    function mouseScroll() {
+        var scrollTop = $ul.scrollTop();
+        if (scrollTop === 0) {
+            $scrollAreas.eq(0).addClass('stopped');
+            $scrollAreas.eq(1).removeClass('stopped');
+        } else if (outerHeight + scrollTop >= innerHeight) {
+            $scrollAreas.eq(0).removeClass('stopped');
+            $scrollAreas.eq(1).addClass('stopped');
+        } else {
+            $scrollAreas.eq(0).removeClass('stopped');
+            $scrollAreas.eq(1).removeClass('stopped');
+        }
+    }
 
     function scrollMenu(scrollUp) {
         var top;
@@ -1498,15 +1515,17 @@ ListScroller.prototype.showOrHideScrollers = function() {
     var $list = this.$menu;
     var $container;
     var offsetTop = 0;
+    var $win = $(window);
     if (this.container) {
         $container = $(this.container);
         offsetTop = $container.offset().top;
     } else {
-        $container = $(window);
+        $container = $win;
     }
 
     var menuHeight = offsetTop + $container.height() - $list.offset().top -
                      this.bottomPadding;
+    menuHeight = Math.min($win.height() - $list.offset().top, menuHeight);
     menuHeight = Math.max(menuHeight - 1, 40);
     $list.css('max-height', menuHeight);
     $list.children('ul').css('max-height', menuHeight).scrollTop(0);
