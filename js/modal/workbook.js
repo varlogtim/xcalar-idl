@@ -928,57 +928,5 @@ window.WKBKManager = (function($, WKBKManager) {
         return KVStore.put(wkbkKey, wkbkSet.getWithStringify(), true, gKVScope.WKBK);
     }
 
-    function WKBK(options) {
-        options = options || {};
-
-        if (options.name == null || options.id == null) {
-            throw "Invalid workbook info!";
-        }
-
-        this.name = options.name;
-        this.id = options.id;
-        this.noMeta = options.noMeta;
-        this.srcUser = options.srcUser;
-        this.curUser = options.curUser;
-        this.created = options.created;
-        this.modified = options.modified;
-
-        return this;
-    }
-
-    WKBK.prototype = {
-        "update": function() {
-            this.modified = xcHelper.getTimeInMS();  // store modified data
-        }
-    };
-
-    function WKBKSet() {
-        this.set = {};
-
-        return this;
-    }
-
-    WKBKSet.prototype = {
-        "get": function(wkbkId) {
-            return this.set[wkbkId];
-        },
-
-        "getWithStringify": function() {
-            return JSON.stringify(this.set);
-        },
-
-        "getAll": function() {
-            return this.set;
-        },
-
-        "put": function(wkbkId, wkbk) {
-            this.set[wkbkId] = wkbk;
-        },
-
-        "has": function(wkbkId) {
-            return this.set.hasOwnProperty(wkbkId);
-        }
-    };
-
     return (WKBKManager);
 }(jQuery, {}));

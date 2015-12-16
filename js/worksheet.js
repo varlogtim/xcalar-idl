@@ -77,7 +77,13 @@ window.WSManager = (function($, WSManager) {
     };
 
     WSManager.getAllMeta = function() {
-        return new WSMETA();
+        return new WSMETA({
+            "wsInfos"      : wsLookUp,
+            "wsOrder"      : wsOrder,
+            "hiddenWS"     : hiddenWS,
+            "noSheetTables": noSheetTables,
+            "aggInfos"     : aggInfos
+        });
     };
 
     // Get all worksheets
@@ -1292,16 +1298,6 @@ window.WSManager = (function($, WSManager) {
         // if ($inactiveTablesList.find('.selected').length) {
         //     $('#submitTablesBtn').click();
         // }
-    }
-
-    function WSMETA() {
-        this.wsInfos = wsLookUp;
-        this.wsOrder = wsOrder;
-        this.hiddenWS = hiddenWS;
-        this.noSheetTables = noSheetTables;
-        this.aggInfos = aggInfos;
-
-        return this;
     }
 
     return (WSManager);

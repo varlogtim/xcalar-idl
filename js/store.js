@@ -94,28 +94,6 @@ var KVKeys = {
     "SCHE" : "schedule"
 };
 
-function METAConstructor(atStartUp) {
-    // basic thing to store
-    this[KVKeys.TI] = gTables;
-    this[KVKeys.WS] = WSManager.getAllMeta();
-
-    this[KVKeys.DS] = DS.getHomeDir();
-    this[KVKeys.CLI] = CLIBox.getCli();
-
-    this[KVKeys.CART] = DataCart.getCarts();
-    this[KVKeys.STATS] = Profile.getCache();
-    this[KVKeys.DFG] = DFG.getAllGroups();
-    this[KVKeys.SCHE] = Scheduler.getAllSchedules();
-
-    if (atStartUp) {
-        this[KVKeys.USER] = UserSettings.getSettings();
-    } else {
-        this[KVKeys.USER] = UserSettings.setSettings();
-    }
-
-    return this;
-}
-
 function commitToStorage(atStartUp) {
     var deferred = jQuery.Deferred();
     var storage = new METAConstructor(atStartUp);

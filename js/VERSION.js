@@ -45,7 +45,10 @@ window.XVM = (function(XVM) {
         KVStore.get(versionKey, gKVScope.VER)
         .then(function(value) {
             if (value == null) {
-                versionInfo = new VersionInfo();
+                versionInfo = new VersionInfo({
+                    "version": fullVersion,
+                    "SHA"    : XVM.getSHA()
+                });
                 return KVStore.put(versionKey, JSON.stringify(versionInfo),
                                     true, gKVScope.VER);
             } else {
@@ -67,13 +70,6 @@ window.XVM = (function(XVM) {
     XVM.upgrade = function() {
 
     };
-
-    function VersionInfo() {
-        this.version = XVM.getVersion();
-        this.SHA = XVM.getSHA();
-
-        return this;
-    }
 
     return (XVM);
 }({}));

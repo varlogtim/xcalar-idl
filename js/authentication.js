@@ -9,7 +9,10 @@ window.Authentication = (function($, Authentication) {
         KVStore.getAndParse(authKey, gKVScope.AUTH)
         .then(function(oldAuthInfo) {
             if (oldAuthInfo == null) {
-                authInfo = new AuthInfo();
+                authInfo = new AuthInfo({
+                    "idCount": 0,
+                    "hashTag": generateHashTag()
+                });
                 KVStore.put(authKey, JSON.stringify(authInfo), true, gKVScope.AUTH);
             } else {
                 authInfo = new AuthInfo(oldAuthInfo);
@@ -59,12 +62,6 @@ window.Authentication = (function($, Authentication) {
         var index2 = Math.floor(Math.random() * 62);
 
         return (str.charAt(index1) + str.charAt(index2));
-    }
-
-    function AuthInfo(options) {
-        options = options || {};
-        this.idCount = options.idCount || 0;
-        this.hashTag = options.hashTag || generateHashTag();
     }
 
     return (Authentication);
