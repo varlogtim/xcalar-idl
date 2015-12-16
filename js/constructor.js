@@ -23,12 +23,12 @@ function METAConstructor(atStartUp) {
     this[KVKeys.WS] = WSManager.getAllMeta();
 
     this[KVKeys.DS] = DS.getHomeDir();
-    this[KVKeys.CLI] = CLIBox.getCli();
+    this[KVKeys.CLI] = CLIBox.getCli(); // string
 
     this[KVKeys.CART] = DataCart.getCarts();
     this[KVKeys.STATS] = Profile.getCache();
-    this[KVKeys.DFG] = DFG.getAllGroups();
-    this[KVKeys.SCHE] = Scheduler.getAllSchedules();
+    this[KVKeys.DFG] = DFG.getAllGroups(); // a set of DFGObj
+    this[KVKeys.SCHE] = Scheduler.getAllSchedules(); // list of SchedObj
 
     if (atStartUp) {
         this[KVKeys.USER] = UserSettings.getSettings();
@@ -285,6 +285,326 @@ DSObj.prototype = {
                                     .text(parent.totalChildren);
             parent = DS.getDSObj(parent.parentId);
         }
-    },
+    }
 };
 /* End of DSObj */
+
+/* Start of DFGObj */
+/* dataflow.js */
+function DFGObj(name, options) {
+    options = options || {};
+    this.name = name;
+    this.schedules = options.schedules || [];
+    this.parameters = options.parameters || [];
+    this.paramMap = options.paramMap || {}; // a map
+    this.nodeIds = options.nodeIds || {}; // a map
+
+    this.dataFlows = [];
+    this.retinaNodes = {};
+
+    var dataFlows = options.dataFlows || [];
+    for (var i = 0, len = dataFlows.length; i < len; i++) {
+        this.addDataFlow(dataFlows[i]);
+    }
+
+    if (options.retinaNodes != null) {
+        for (var nodeId in options.retinaNodes) {
+            var retinaNode = options.retinaNodes[nodeId];
+            this.retinaNodes[nodeId] = new RetinaNode(retinaNode);
+        }
+    }
+
+    return this;
+}
+
+// a inner part of DFGObj
+function RetinaNode(options) {
+    options = options || {};
+    this.paramType = options.paramType;
+    this.paramValue = options.paramValue;
+    this.paramQuery = options.paramQuery;
+
+    return this;
+}
+
+// a inner part of DFGObj
+function DFGFlow(options) {
+    options = options || {};
+    this.name = options.name;
+    this.columns = options.columns;
+    this.canvasInfo = new CanvasInfo(options.canvasInfo);
+
+    return this;
+}
+
+// a inner part of DFGFlow
+function CanvasInfo(options) {
+    options = options || {};
+    this.height = options.height;
+    this.width = options.width;
+
+    this.tables = [];
+    this.operations = [];
+
+    var tables = options.tables || [];
+    for (var i = 0, len = tables.length; i < len; i++) {
+        var canvasTableInfo = new CanvasTableInfo(tables[i]);
+        this.tables.push(canvasTableInfo);
+    }
+
+    var operations = options.operations || [];
+    for (var i = 0, len = operations.length; i < len; i++) {
+        var canvasOpsInfo = new CanvasOpsInfo(operations[i]);
+        this.operations.push(canvasOpsInfo);
+    }
+
+    return this;
+}
+
+// a inner part of CanvasInfo
+function CanvasTableInfo(options) {
+    options = options || {};
+    this.index = options.index;
+    this.children = options.children;
+    this.type = options.type;
+    this.left = options.left;
+    this.top = options.top;
+    this.title = options.title;
+    this.table = options.table;
+    this.url = options.url;
+
+    return this;
+}
+
+function CanvasOpsInfo(options) {
+    options = options || {};
+
+    this.tooltip = options.tooltip;
+    this.type = options.type;
+    this.column = options.column;
+    this.info = options.info;
+    this.table = options.table;
+    this.parents = options.parents;
+    this.left = options.left;
+    this.top = options.top;
+    this.classes = options.classes;
+
+    return this;
+}
+
+DFGObj.prototype = {
+    "addDataFlow": function(options) {
+        var dfgFlow = new DFGFlow(options);
+        this.dataFlows.push(dfgFlow);
+    },
+
+    "addRetinaNode": function(dagNodeId, paramInfo) {
+        this.retinaNodes[dagNodeId] = new RetinaNode(paramInfo);
+        // var numNodes = this.nodeIds.length;
+        var tableName;
+        for (var name in this.nodeIds) {
+            if (this.nodeIds[name] === dagNodeId) {
+                tableName = name;
+                break;
+            }
+        }
+
+        $('#schedulerPanel').find('[data-table="' + tableName + '"]')
+                            .addClass('hasParam');
+    },
+
+    "getRetinaNode": function(dagNodeId) {
+        return (this.retinaNodes[dagNodeId]);
+    },
+
+    "addParameter": function(name, val) {
+        xcHelper.assert(!this.paramMap.hasOwnProperty(name), "Invalid name");
+
+        this.parameters.push(name);
+        this.paramMap[name] = val;
+    },
+
+    "getParameter": function(paramName) {
+        return (this.paramMap[paramName]);
+    },
+
+    "getAllParameters": function() {
+        var res = [];
+        var paramMap = this.paramMap;
+        for (var paramName in paramMap) {
+            var param = new XcalarApiParameterT();
+            param.parameterName = paramName;
+            param.parameterValue = paramMap[paramName];
+            res.push(param);
+        }
+
+        return (res);
+    },
+
+    "updateParameters": function(params) {
+        var paramMap = this.paramMap;
+
+        params.forEach(function(param) {
+            var name = param.name;
+            var val  = param.val;
+            xcHelper.assert(paramMap.hasOwnProperty(name), "Invalid name");
+            paramMap[name] = val;
+        });
+    },
+
+    "checkParamInUse": function(paramName) {
+        var str = "<" + paramName + ">";
+        var retinsNodes = this.retinaNodes;
+
+        for (var dagNodeId in retinsNodes) {
+            var dagQuery = retinsNodes[dagNodeId].paramQuery;
+            for (var i = 0, len = dagQuery.length; i < len; i++) {
+                if (dagQuery[i].indexOf(str) >= 0) {
+                    return (true);
+                }
+            }
+        }
+
+        return (false);
+    },
+
+    "removeParameter": function(name) {
+        var index = this.parameters.indexOf(name);
+
+        xcHelper.assert((index >= 0), "Invalid name");
+
+        this.parameters.splice(index, 1);
+        delete this.paramMap[name];
+    },
+
+    "addSchedule": function(scheduleName) {
+        this.schedules.push(scheduleName);
+    },
+
+    "hasSchedule": function(scheduleName) {
+        return (this.schedules.indexOf(scheduleName) >= 0);
+    },
+
+    "removeSchedule": function(scheduleName) {
+        var index = this.schedules.indexOf(scheduleName);
+
+        if (index < 0) {
+            console.error("error schedule name", scheduleName);
+        } else {
+            this.schedules.splice(index, 1);
+        }
+    },
+
+    "updateSchedule": function() {
+        var promises = [];
+        var dfgName = this.name;
+        this.schedules.forEach(function(scheduleName) {
+            promises.push(Scheduler.updateDFG.bind(this, scheduleName, dfgName));
+        });
+
+        return (chain(promises));
+    }
+};
+/* End of SchedObj */
+
+/* Start of Schedule */
+/* schedule.js */
+function SchedObj(options) {
+    options = options || {};
+    this.name = options.name;
+    this.startTime = options.startTime;
+    this.dateText = options.dateText;
+    this.timeText = options.timeText;
+    this.repeat = options.repeat;
+    this.freq = options.freq;
+    this.modified = options.modified;
+    this.created = options.modified;
+    this.recur = options.recur;
+    this.DFGs = [];
+
+    var DFGs = options.DFGs || [];
+    for (var i = 0, len = DFGs.length; i < len; i++) {
+        var dfgInfo = new SchedDFGInfo(DFGs[i]);
+        this.DFGs.push(dfgInfo);
+    }
+
+    return this;
+}
+
+// inner meta for SchedObj
+function SchedDFGInfo(options) {
+    options = options || {};
+    this.name = options.name;
+    this.backSchedName = options.backSchedName;
+    this.initialTime = options.initialTime;
+    this.status = this.status || "normal";
+
+    return this;
+}
+
+SchedObj.prototype = {
+    "update": function(options) {
+        options = options || {};
+        this.startTime = options.startTime || this.startTime;
+        this.dateText = options.dateText || this.dateText;
+        this.timeText = options.timeText || this.timeText;
+        this.repeat = options.repeat || this.repeat;
+        this.freq = options.freq || this.freq;
+        this.modified = options.modified || this.modified;
+        this.recur = options.recur || this.recur;
+        // not update name, created and DFGs
+    },
+
+    "getDFG": function(dfgName) {
+        var dfgs = this.DFGs;
+        for (var i = 0, len = dfgs.length; i < len; i++) {
+            if (dfgs[i].name === dfgName) {
+                return dfgs[i];
+            }
+        }
+
+        return null;
+    },
+
+    "addDFG": function(options) {
+        var dfgInfo = new SchedDFGInfo(options);
+        this.DFGs.push(dfgInfo);
+    },
+
+    "updateDFG": function(dfgName, options) {
+        var dfgInfo = this.getDFG(dfgName);
+        options = options || {};
+        dfgInfo.initialTime = options.initialTime || dfgInfo.initialTime;
+        dfgInfo.status = options.status || dfgInfo.status;
+        dfgInfo.backSchedName = options.backSchedName || dfgInfo.backSchedName;
+    },
+
+    "hasDFG": function(dfgName) {
+        var dfgs = this.DFGs;
+        for (var i = 0, len = dfgs.length; i < len; i++) {
+            if (dfgs[i].name === dfgName) {
+                return true;
+            }
+        }
+
+        return false;
+    },
+
+    "removeDFG": function(dfgName) {
+        var index = -1;
+        var dfgs = this.DFGs;
+        for (var i = 0, len = dfgs.length; i < len; i++) {
+            if (dfgs[i].name === dfgName) {
+                index = i;
+                break;
+            }
+        }
+
+        if (index >= 0) {
+            this.DFGs.splice(index, 1);
+        } else {
+            console.error("error dfgName", dfgName);
+        }
+    }
+};
+/* End of SchedObj */

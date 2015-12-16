@@ -169,6 +169,10 @@ window.Scheduler = (function(Scheduler, $) {
         $("#schedulesButton").click();
     };
 
+    Scheduler.getAllSchedules = function() {
+        return schedules;
+    };
+
     Scheduler.restore = function(oldSchedules) {
         if (oldSchedules == null) {
             return;
@@ -177,9 +181,10 @@ window.Scheduler = (function(Scheduler, $) {
         var html = "";
 
         for (var i = 0, len = oldSchedules.length; i < len; i++) {
-            var schedule = oldSchedules[i];
+            var oldSchedule = oldSchedules[i];
 
-            if (schedule != null) {
+            if (oldSchedule != null) {
+                var schedule = new SchedObj(oldSchedule);
                 schedules.push(schedule);
                 scheduleLookUpMap[schedule.name] = schedule;
 
@@ -215,11 +220,9 @@ window.Scheduler = (function(Scheduler, $) {
         var dfg = DFG.getGroup(dfgName);
 
         // validation check
-        for (var i = 0, len = schedule.DFGs.length; i < len; i++) {
-            if (schedule.DFGs[i].name === dfgName) {
-                deferred.reject("Duplicated DFGName");
-                return (deferred.promise());
-            }
+        if (schedule.hasDFG(dfgName)) {
+            deferred.reject("Duplicated DFGName");
+            return (deferred.promise());
         }
 
         var args = getScheduleArgs(schedule, dfg);
@@ -237,16 +240,13 @@ window.Scheduler = (function(Scheduler, $) {
         XcalarCreateSched.apply(window, args)
         .then(function() {
             // add dfg to schedule
-            var DFG = {
+            schedule.addDFG({
                 "name"         : dfgName,
                 "initialTime"  : schedule.startTime,
-                "status"       : "normal",
                 "backSchedName": args[0]
-            };
-
-            schedule.DFGs.push(DFG);
+            });
             // add schedule to dfg
-            dfg.schedules.push(scheduleName);
+            dfg.addSchedule(scheduleName);
 
             DFGPanel.listSchedulesInHeader(dfgName);
             // XXX TODO add sql
@@ -262,19 +262,12 @@ window.Scheduler = (function(Scheduler, $) {
         var deferred = jQuery.Deferred();
         var schedule = scheduleLookUpMap[scheduleName];
         var dfg = DFG.getGroup(dfgName);
-        var index = -1;
+        var dfgInfo = schedule.getDFG(dfgName);
 
-        // validation check
-        for (var i = 0, len = schedule.DFGs.length; i < len; i++) {
-            if (schedule.DFGs[i].name === dfgName) {
-                index = i;
-                break;
-            }
-        }
-        xcHelper.assert((index >= 0), "Invalid dfg in schedule");
+        xcHelper.assert((dfgInfo != null), "Invalid dfg in schedule");
 
         var args;
-        var backSchedName = schedule.DFGs[index].backSchedName;
+        var backSchedName = dfgInfo.backSchedName;
 
         XcalarDeleteSched(backSchedName)
         .then(function() {
@@ -285,14 +278,11 @@ window.Scheduler = (function(Scheduler, $) {
         })
         .then(function() {
             // add dfg to schedule
-            var DFG = {
-                "name"         : dfgName,
+            schedule.updateDFG(dfgName, {
                 "initialTime"  : schedule.startTime,
                 "status"       : "normal",
                 "backSchedName": args[0]
-            };
-
-            schedule.DFGs[index] = DFG;
+            });
             deferred.resolve();
         })
         .fail(deferred.reject);
@@ -304,28 +294,20 @@ window.Scheduler = (function(Scheduler, $) {
         var deferred = jQuery.Deferred();
         var schedule = scheduleLookUpMap[scheduleName];
         var dfg = DFG.getGroup(dfgName);
+        var dfgInfo = schedule.getDFG(dfgName);
 
-        var index = -1;
-         // validation check
-        for (var i = 0, len = schedule.DFGs.length; i < len; i++) {
-            if (schedule.DFGs[i].name === dfgName) {
-                index = i;
-                break;
-            }
-        }
-        xcHelper.assert((index >= 0), "Invalid dfg in schedule");
+        // validation check
+        xcHelper.assert((dfgInfo != null), "Invalid dfg in schedule");
+        xcHelper.assert(dfg.hasSchedule(scheduleName), "Invalid schedule in dfg");
 
-        var index2 = dfg.schedules.indexOf(scheduleName);
-        xcHelper.assert((index2 >= 0), "Invalid schedule in dfg");
-
-        var backSchedName = schedule.DFGs[index].backSchedName;
+        var backSchedName = dfgInfo.backSchedName;
 
         XcalarDeleteSched(backSchedName)
         .then(function() {
             // delete dfg in schedule
-            schedule.DFGs.splice(index, 1);
+            schedule.removeDFG(dfgName);
             // delete schedule in dfg
-            dfg.schedules.splice(index2, 1);
+            dfg.removeSchedule(scheduleName);
             deferred.resolve();
         })
         .fail(deferred.reject);
@@ -333,19 +315,9 @@ window.Scheduler = (function(Scheduler, $) {
         return (deferred.promise());
     };
 
-    Scheduler.hasDFG = function(scheduleName, DFGName) {
-        var DFGs = scheduleLookUpMap[scheduleName].DFGs;
-        for (var i = 0, len = DFGs.length; i < len; i++) {
-            if (DFGs[i].name === DFGName) {
-                return true;
-            }
-        }
-
-        return false;
-    };
-
-    Scheduler.getAllSchedules = function() {
-        return (schedules);
+    Scheduler.hasDFG = function(scheduleName, dfgName) {
+        var schedule = scheduleLookUpMap[scheduleName];
+        return schedule.hasDFG(dfgName);
     };
 
     function getScheduleArgs(schedule, dfg) {
@@ -462,7 +434,7 @@ window.Scheduler = (function(Scheduler, $) {
             };
         }
 
-        var option = {
+        var options = {
             "name"     : name,
             "startTime": startTime,
             "dateText" : date,
@@ -474,7 +446,7 @@ window.Scheduler = (function(Scheduler, $) {
         };
 
         if (isNewSchedule) {
-            newSchedule(option);
+            newSchedule(options);
             // jump back to addScheduleModal if it's triggered from that
             var dfg = $scheduleForm.data("dfg");
             if (dfg != null) {
@@ -482,7 +454,7 @@ window.Scheduler = (function(Scheduler, $) {
                 triggerAddScheModal(dfg, name);
             }
         } else {
-            updateSchedule(schedule, option);
+            updateSchedule(schedule, options);
         }
     }
 
@@ -564,14 +536,12 @@ window.Scheduler = (function(Scheduler, $) {
         $schedulesView.find(".headingArea .num").text(schedules.length);
     }
 
-    function newSchedule(option) {
-        option.DFGs = [];
-        option.created = option.modified;
+    function newSchedule(options) {
+        var schedule = new SchedObj(options);
+        schedules.push(schedule);
+        scheduleLookUpMap[schedule.name] = schedule;
 
-        schedules.push(option);
-        scheduleLookUpMap[option.name] = option;
-
-        var html = getScheduelListHTML(option.name);
+        var html = getScheduelListHTML(schedule.name);
         var $li  = $(html);
 
         if (gMinModeOn) {
@@ -586,12 +556,12 @@ window.Scheduler = (function(Scheduler, $) {
         commitToStorage();
     }
 
-    function updateSchedule(schedule, option) {
+    function updateSchedule(schedule, options) {
         // XXX TODO: remove the code to fetch scheduleName when update
         var scheduleName = schedule.name;
         var oldSchedule = schedule;
 
-        schedule = $.extend(schedule, option);
+        schedule.update(options);
 
         scheduleLookUpMap[scheduleName] = schedule;
 
