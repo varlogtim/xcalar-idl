@@ -2,3 +2,4 @@
 /stylesheets/**/*.css
 /widget/*.css
 *.DS_Store
+/js/constructorVersion.js

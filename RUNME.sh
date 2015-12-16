@@ -15,6 +15,10 @@ sed -i 's@/images/@\.\./\.\./images/@' stylesheets/css/*.css
 sed -i 's@/images/@\.\./\.\./images/@' widget/*.css
 sed -i 's@/images/@images/@' js/paths.js
 
+echo "var gConstructorVersion = " > js/constructorVersion.js
+md5 js/constructor.js | cut -d' ' -f4 >> js/constructorVersion.js
+echo ";" >> js/constructorVersion.js
+
 if [ -e "../xcalar/src/bin/tests/XcalarApiVersionSignature_types.js" ]
 then
     diff -q "../xcalar/src/bin/tests/XcalarApiVersionSignature_types.js" ./js/thrift/XcalarApiVersionSignature_types.js > /dev/null 2>&1
