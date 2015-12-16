@@ -541,6 +541,7 @@ window.JSONModal = (function($, JSONModal) {
                 $('#sideBarModal').show();
                 $modalBackground.show();
                 $jsonModal.show();
+                toggleModal($jsonTd, false, 0);
             } else {
                 toggleModal($jsonTd, false, 200);
             }
@@ -951,6 +952,10 @@ window.JSONModal = (function($, JSONModal) {
             });
             // }, 0);
         }
+        var noTimer = false;
+        if (time === 0) {
+            noTimer = true;
+        }
 
         var $table;
         var $tableWrap;
@@ -980,16 +985,26 @@ window.JSONModal = (function($, JSONModal) {
                 
                 $tableWrap.find('.tableCover').addClass('visible');
                 $jsonModal.addClass('hidden').show();
+                var hiddenClassTimer = 50;
+                if (noTimer) {
+                    hiddenClassTimer = 0;
+                }
                 setTimeout(function() {
                     $jsonModal.removeClass('hidden');
-                }, 50);
+                }, hiddenClassTimer);
             } else {
-                $('#sideBarModal').fadeIn(300);
+                var shortTimer = 200;
+                var longTimer = 300;
+                if (noTimer) {
+                    shortTimer = 0;
+                    longTimer = 0; 
+                }
+                $('#sideBarModal').fadeIn(longTimer);
                 $('#rightSideBar').addClass('modalOpen');
-                $modalBackground.addClass('light').fadeIn(300);
+                $modalBackground.addClass('light').fadeIn(longTimer);
                 setTimeout(function() {
-                    $jsonModal.fadeIn(200);
-                }, 200);
+                    $jsonModal.fadeIn(shortTimer);
+                }, shortTimer);
                 
                 $jsonTd.addClass('modalHighlighted');
                 setTimeout(function() {

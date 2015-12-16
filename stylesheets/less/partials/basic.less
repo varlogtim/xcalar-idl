@@ -2265,6 +2265,50 @@ ul.inputMenu {
     }
 }
 
+.waitingIcon {
+    .position(absolute, @top: 2px, @left: 3px);
+    .size(@width: 35px, @height: 37px);
+    display: none;
+    .image("/images/waiting-1.gif");
+    z-index: 101;
+
+    &.active {
+        display: inline-block;
+    }
+    &.refresh {
+        top:50%;
+        width:100%; 
+        display:block;
+        background-position: center;
+        top: 45%;
+        left: 50%;
+        .transform(translateX(-50%));
+        display: block;
+        background-position: center center;
+        width: 35px;
+        margin: 0px auto;
+        
+        width: 100%;
+    }
+}
+
+.refreshIcon {
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    text-align: center;
+    position: absolute;
+    top: 0;
+    left: 0;
+    img {
+        .center-align();
+        display: block;
+        width: 35px;
+        height: 37px;
+    }
+}
+
+
 input[type=number]::-webkit-inner-spin-button,
 input[type=number]::-webkit-outer-spin-button {
     -webkit-appearance: textfield;

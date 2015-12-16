@@ -7,5 +7,6 @@ var paths = {
     dbDiamond     : '/images/dbDiamond.png',
     dTable        : '/images/dtable.png',
     roundedRect   : '/images/rounded-rect.png',
-    hourglass     : '/images/hourglass-white.png'
+    hourglass     : '/images/hourglass-white.png',
+    waitIcon      : '/images/waiting-1.gif'
 };

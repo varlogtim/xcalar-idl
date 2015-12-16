@@ -859,9 +859,6 @@
             .btn {
                 .size(@max-width: 100%);
                 .position(relative);
-                .flex-display;
-                .justify-content(center);
-                .flex-flow(row wrap-reverse);
                 overflow: hidden;
 
                 &.disabled {
@@ -884,11 +881,12 @@
                 }
 
                 .text {
-                    float: left;
+                    float: right;
                     text-align: center;
                     position: static !important;
-                    margin: 0 19px;
-                    .flex (1 0 80px);
+                    width: ~"calc(100% - 27px)";
+                    padding-right: 2px;
+                    .textOverflowOneLine;
                 }
             }
         }
@@ -973,6 +971,7 @@
                 .size(@width: ~"calc(100% - 30px)");
                 text-align: center;
                 padding-right: 12%;
+                .textOverflowOneLine;
             }
         }
     }

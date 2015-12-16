@@ -392,18 +392,22 @@ window.xcHelper = (function($, xcHelper) {
     };
 
     xcHelper.showRefreshIcon = function($location) {
-        var $waitingIcon = $('<div class="waitingIcon" ' +
-                              'style="top:50%; width:100%; display:block;' +
-                              'background-position-x: 50%"></div>');
+        var $waitingIcon = $('<div class="refreshIcon"><img src="" 
+                            style="display:none;height:0px;width:0px;"></div>');
         $location.append($waitingIcon);
+        $waitingIcon.find('img').show();
+        setTimeout(function() {
+            $waitingIcon.find('img').attr('src', paths.waitIcon)
+                                    .height(37)
+                                    .width(35);
+        }, 0);
+        
         setTimeout(function(){
             $waitingIcon.fadeOut(100, function() {
                 $waitingIcon.remove();
             });
         }, 1400);
     }
-
-    
 
     // handle dropdown list generally
     xcHelper.dropdownList = function($dropDownList, options) {

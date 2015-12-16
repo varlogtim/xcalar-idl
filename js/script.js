@@ -613,6 +613,13 @@ function documentReadyGeneralFunction() {
         removeMenuKeyboardNavigation();
     });
 
+    if (!window.isBrowseChrome) {
+        //  prevent cursor from showing in IE and firefox
+        $(document).on('focus', 'input[readonly]', function(){
+            this.blur();
+        });
+    }
+
     function tableScroll(scrollType, isUp) {
         if (!$("#workspaceTab").hasClass("active") ||
             gActiveTableId == null)
