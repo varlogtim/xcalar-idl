@@ -191,7 +191,7 @@ function parallelConstruct(tableId, tablesToRemove, afterStartup) {
         }
         if (afterStartup) {
             var existingTableList = $('#activeTablesList')
-                                    .find('[data-id=' + table.tableId +']');
+                                    .find('[data-id=' + table.tableId + ']');
             if (existingTableList.length) {
                 existingTableList.closest('.tableInfo').removeClass('hiddenWS')
                 .removeAttr('data-toggle data-container title data-original-title');
@@ -787,7 +787,7 @@ function generateColDropDowns() {
                     'to 1.23">Num. of decimals to keep</span>' +
                     '<div class="listSection">' +
                         '<input class="digitsToRound" type="number"' +
-                            ' max="14" min="0" autocomplete="on" spellcheck="false"' + 
+                            ' max="14" min="0" autocomplete="on" spellcheck="false"' +
                             'placeholder="2" />' +
                     '</div>' +
                 '</li>' +

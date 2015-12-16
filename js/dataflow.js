@@ -1215,9 +1215,9 @@ window.DagParamModal = (function($, DagParamModal){
         if (type === "filter") {
             var $list = $dagParamModal.find('.tdWrapper.dropDownList');
             filterListScroller = new ListScroller($list.find('.list'), {
-                                              container: '#dagParameterModal',
-                                              bottomPadding: 5      
-                                            });
+                container    : '#dagParameterModal',
+                bottomPadding: 5
+            });
             xcHelper.dropdownList($list, {
                 "onSelect": function($li) {
                     var func = $li.text();
@@ -1580,12 +1580,12 @@ window.DagParamModal = (function($, DagParamModal){
             td += '<div class="tdWrapper">';
         }
                    
-        td +=      '<div class="' + divClass + '" ' +
-                        'ondragover="DagParamModal.allowParamDrop(event)"' +
-                        'ondrop="DagParamModal.paramDrop(event)" ' +
-                        'data-target="' + inputNum + '" ' +
-                        'contenteditable="true" ' +
-                        'spellcheck="false"></div>';
+        td += '<div class="' + divClass + '" ' +
+                'ondragover="DagParamModal.allowParamDrop(event)"' +
+                'ondrop="DagParamModal.paramDrop(event)" ' +
+                'data-target="' + inputNum + '" ' +
+                'contenteditable="true" ' +
+                'spellcheck="false"></div>';
         if (options.filter) {
             td += '<div class="list">' +
                     '<ul><li>first item</li></ul>' +
@@ -1597,12 +1597,13 @@ window.DagParamModal = (function($, DagParamModal){
                     '</div>' +
                   '</div>';
         }
-                    td += '<div title="Default Value" ' +
-                        'class="defaultParam iconWrap" data-toggle="tooltip" ' +
-                        'data-placement="top" data-container="body">' +
-                            '<span class="icon"></span>' +
-                        '</div>' +
-                    '</div>' +
+
+        td += '<div title="Default Value" ' +
+                'class="defaultParam iconWrap" data-toggle="tooltip" ' +
+                'data-placement="top" data-container="body">' +
+                    '<span class="icon"></span>' +
+                '</div>' +
+                '</div>' +
                 '</td>';
         return (td);
     }

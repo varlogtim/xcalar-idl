@@ -738,15 +738,15 @@ window.WSManager = (function($, WSManager) {
         var initialIndex;
 
         $workSheetTabSection.sortable({
-            "revert": 200,
-            "axis"  : "x",
+            "revert"  : 200,
+            "axis"    : "x",
             "distance": 4,
-            "handle": ".draggableArea",
-            "start" : function(event, ui) {
+            "handle"  : ".draggableArea",
+            "start"   : function(event, ui) {
                 var $tab = $(ui.item).addClass('dragging');
                 $tab.click();
                 initialIndex = $tab.index();
-                 var cursorStyle =
+                var cursorStyle =
                 '<style id="moveCursor" type="text/css">*' +
                     '{cursor:move !important; cursor: -webkit-grabbing !important;' +
                     'cursor: -moz-grabbing !important;}' +
@@ -984,9 +984,9 @@ window.WSManager = (function($, WSManager) {
     function setWorksheet(wsId, options) {
         if (!wsLookUp.hasOwnProperty(wsId)) {
             wsLookUp[wsId] = {
-                "id"          : wsId,
-                "tables"      : [],
-                "hiddenTables": [],
+                "id"              : wsId,
+                "tables"          : [],
+                "hiddenTables"    : [],
                 "tempHiddenTables": []
             };
             wsOrder.push(wsId);
@@ -1050,8 +1050,8 @@ window.WSManager = (function($, WSManager) {
                               .closest('.tableInfo')
                               .addClass('hiddenWS')
                               .attr({
-                                'data-toggle': 'tooltip',
-                                'data-container': 'body',
+                                'data-toggle'        : 'tooltip',
+                                'data-container'     : 'body',
                                 'data-original-title': 'worksheet is hidden'
                               });
 

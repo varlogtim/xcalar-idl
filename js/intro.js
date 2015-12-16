@@ -72,7 +72,7 @@ window.Intro = (function($, Intro) {
         createPopover();
         nextStep();
         $(window).resize(winResize);
-        // temp 
+        // temp
         $('#xcalarVid').attr('muted', true);
         
     };
@@ -498,7 +498,7 @@ window.Intro = (function($, Intro) {
         video.onloadedmetadata = adjustVideoClosePosition;
         video.onended = function() {
             $('#intro-videoClose').show();
-        }
+        };
     }
 
     function setupVideoBreakpoints() {
@@ -520,9 +520,9 @@ window.Intro = (function($, Intro) {
         var width = $video.width();
         var height = $video.height();
         $videoCloseArea.css({
-            top: offsetTop,
-            left: offsetLeft,
-            width: width,
+            top   : offsetTop,
+            left  : offsetLeft,
+            width : width,
             height: height
         });
     }

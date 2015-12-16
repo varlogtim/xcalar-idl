@@ -997,7 +997,7 @@ window.JSONModal = (function($, JSONModal) {
                 var longTimer = 300;
                 if (noTimer) {
                     shortTimer = 0;
-                    longTimer = 0; 
+                    longTimer = 0;
                 }
                 $('#sideBarModal').fadeIn(longTimer);
                 $('#rightSideBar').addClass('modalOpen');

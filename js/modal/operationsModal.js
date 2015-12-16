@@ -276,19 +276,21 @@ window.OperationsModal = (function($, OperationsModal) {
             allowInputChange = true;
         });
 
-        categoryListScroller = new ListScroller($('#categoryMenu'),
-                                               {container: '#operationsModal',
-                                                bottomPadding: 5});
-        functionsListScroller = new ListScroller($functionsMenu,
-                                               {container: '#operationsModal',
-                                                bottomPadding: 5});
+        categoryListScroller = new ListScroller($('#categoryMenu'), {
+            container    : '#operationsModal',
+            bottomPadding: 5
+        });
+        functionsListScroller = new ListScroller($functionsMenu, {
+            container    : '#operationsModal',
+            bottomPadding: 5
+        });
 
         $operationsModal.draggable({
             handle     : '.operationsModalHeader',
             containment: 'window',
             cursor     : '-webkit-grabbing',
             start      : function() {
-                             $operationsModal.find('.openList')
+                            $operationsModal.find('.openList')
                                              .removeClass("openList")
                                              .hide()
                                              .closest(".dropDownList")
@@ -924,7 +926,7 @@ window.OperationsModal = (function($, OperationsModal) {
                                 .end()
                                 .find('.description').text(description);
                 ++numArgs;
-                 despText = '<p>' + despText + '</p>' +
+                despText = '<p>' + despText + '</p>' +
                             '<b>String Preview:</b>' +
                             '<p class="funcDescription textOverflow">' +
                                 operObj.fnName + '(' +
@@ -982,7 +984,7 @@ window.OperationsModal = (function($, OperationsModal) {
                 ++numArgs;
 
 
-                despText =  '<p>' + despText + '</p>' +
+                despText = '<p>' + despText + '</p>' +
                             '<b>String Preview:</b>' +
                             '<p class="funcDescription textOverflow">' +
                                 operObj.fnName + '(' +
@@ -995,7 +997,7 @@ window.OperationsModal = (function($, OperationsModal) {
                                 '</span>' +
                             '</p>';
             } else if (operatorName === "filter") {
-                despText =  '<p>' + despText + '</p>' +
+                despText = '<p>' + despText + '</p>' +
                             '<b>String Preview:</b>' +
                             '<p class="funcDescription textOverflow">' +
                                 operObj.fnName + '(' +
@@ -1022,7 +1024,7 @@ window.OperationsModal = (function($, OperationsModal) {
     function updateDescription() {
         var $description = $operationsModal.find(".funcDescription");
         var numArgs = $argInputs.length;
-        var val;
+        // var val;
         var $inputs = $argInputs;
         $description.find(".aggCols, .descArgs").text("");
         if (operatorName === "map" || operatorName === "filter") {
@@ -1290,7 +1292,7 @@ window.OperationsModal = (function($, OperationsModal) {
 
         var hasNoEmptyFields = checkNoEmptyFields(trimmedArgs);
         if (!hasNoEmptyFields) {
-            console.warn('empty field detected')
+            console.warn('empty field detected');
         }
         submitFinalForm(args);
     }
@@ -1408,7 +1410,7 @@ window.OperationsModal = (function($, OperationsModal) {
                 formatArgumentResults = formatArgumentInput(arg, typeid,
                                                             existingTypes);
                 // if (!formatArgumentResults.isString && newLength === 0) {
-                //     isPassing = false; 
+                //     isPassing = false;
                 //     var text = ErrorTextTStr.NoEmpty;
                 //     StatusBox.show(text, $input);
                 //     return (false);
@@ -1585,17 +1587,16 @@ window.OperationsModal = (function($, OperationsModal) {
     // used in groupby to check if inputs have column names that match any
     // that are found in gTables.tableCols
     function checkValidColNames($input, colNames, single) {
+        var text;
         if (typeof colNames !== "string") {
-            var text = ErrorTextWReplaceTStr.InvalidCol
-                            .replace("<name>", colNames);
+            text = ErrorTextWReplaceTStr.InvalidCol.replace("<name>", colNames);
             StatusBox.show(text, $input);
             return (false);
         }
         var values = colNames.split(",");
         var numValues = values.length;
         if (single && numValues > 1) {
-            var text = ErrorTextWReplaceTStr.InvalidCol
-                            .replace("<name>", colNames);
+            text = ErrorTextWReplaceTStr.InvalidCol.replace("<name>", colNames);
             StatusBox.show(text, $input);
             return (false);
         }
@@ -1617,14 +1618,13 @@ window.OperationsModal = (function($, OperationsModal) {
                 }
             }
             if (!validFound) {
-                var text;
                 if (value.length === 2 && value.indexOf('""') === 0) {
                     text = ErrorTextTStr.NoEmpty;
                 } else {
                     text = ErrorTextWReplaceTStr.InvalidCol
                             .replace("<name>", value.replace(/\"/g, ''));
                 }
-                
+
                 StatusBox.show(text, $input);
                 return (false);
             }

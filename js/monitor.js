@@ -63,10 +63,10 @@ window.MonitorPanel = (function($, MonitorPanel) {
                 Alert.show({
                     "title": "Support Bundle Generated",
                     "instr": "Please check your backend for a .tar.gz file",
-                    "msg"  : "Support upload bundle successfully generated!"+
+                    "msg"  : "Support upload bundle successfully generated!" +
                              " It is located on your Xcalar Server.",
                     "isAlert": true
-                })
+                });
             })
             .fail(function(sts) {
                 Alert.error("Generation failed", sts);

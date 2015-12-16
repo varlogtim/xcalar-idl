@@ -209,7 +209,6 @@ window.xcFunction = (function($, xcFunction) {
                             "Current table is already sorted on this column" +
                             " in " + textOrder + " order"
                             );
-                    console.log("Already sorted");
                     deferred.reject("Already sorted on current column");
                     return;
                 }

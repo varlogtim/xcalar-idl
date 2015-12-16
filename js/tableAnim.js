@@ -2284,8 +2284,7 @@ function addColMenuActions() {
                                                 .replace("<num1>", 0)
                                                 .replace("<num2>", 14),
                                                 $(this), null, null,
-                                                {side:"left",
-                                                closeable: true});
+                                                {"side": "left", "closeable": true});
             return;
         }
         var colNum = $colMenu.data('colNum');
@@ -2704,8 +2703,8 @@ function unnest($jsonTd, isArray) {
     var tableId  = $jsonTd.closest('table').data('id');
 
     var arrayOfKeys = [];
-    for (var key in jsonString) {
-        arrayOfKeys.push(key);
+    for (var arraykey in jsonString) {
+        arrayOfKeys.push(arraykey);
     }
     var numKeys = arrayOfKeys.length;
     var pullColOptions = {

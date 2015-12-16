@@ -31,7 +31,7 @@ window.xcHelper = (function($, xcHelper) {
     xcHelper.parseJsonValue = function(value, knf) {
         if (knf) {
             value = '<span class="undefined">KNF</span>';
-         } else if (value === null) {
+        } else if (value === null) {
             value = '<span class="null">' + value + '</span>';
         } else if (value == null) {
             value = '<span class="blank">' + value + '</span>';
@@ -407,7 +407,7 @@ window.xcHelper = (function($, xcHelper) {
                 $waitingIcon.remove();
             });
         }, 1400);
-    }
+    };
 
     // handle dropdown list generally
     xcHelper.dropdownList = function($dropDownList, options) {

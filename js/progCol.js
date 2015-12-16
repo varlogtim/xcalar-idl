@@ -441,7 +441,7 @@ window.ColManager = (function($, ColManager) {
                 srctable = tableNames[i];
             }
 
-            finalTable   = tableNames[numColInfos - 1];
+            finalTable = tableNames[numColInfos - 1];
             finalTableId = xcHelper.getTableId(finalTable);
 
             var msg = StatusMessageTStr.ChangeType;
@@ -794,7 +794,7 @@ window.ColManager = (function($, ColManager) {
             $div.text(newVal);
         });
         gTables[tableId].tableCols[colNum - 1].decimals = val;
-    }
+    };
 
     ColManager.reorderCol = function(tableId, oldColNum, newColNum) {
         var oldIndex = oldColNum - 1;
