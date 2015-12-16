@@ -392,8 +392,8 @@ window.xcHelper = (function($, xcHelper) {
     };
 
     xcHelper.showRefreshIcon = function($location) {
-        var $waitingIcon = $('<div class="refreshIcon"><img src="" 
-                            style="display:none;height:0px;width:0px;"></div>');
+        var $waitingIcon = $('<div class="refreshIcon"><img src=""' +
+                            'style="display:none;height:0px;width:0px;"></div>');
         $location.append($waitingIcon);
         $waitingIcon.find('img').show();
         setTimeout(function() {
