@@ -462,7 +462,9 @@ window.OperationsModal = (function($, OperationsModal) {
     function fillInputFromColumn(event) {
         var $input = $lastInputFocused;
         if (!$lastInputFocused.hasClass('argument') ||
-            $lastInputFocused.closest('.colNameSection').length !== 0) {
+            $lastInputFocused.closest('.colNameSection').length !== 0 ||
+            $lastInputFocused.attr("type") === "checkbox")
+        {
             return;
         }
        
