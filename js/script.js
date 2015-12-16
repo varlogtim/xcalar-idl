@@ -367,6 +367,17 @@ function setupLogout() {
     });
 
     $("#signout").click(function() {
+        unloadHandler();
+    });
+}
+
+function unloadHandler(isAsync) {
+    if (isAsync) {
+        Support.releaseSession();
+        sleep("500ms");
+        freeAllResultSets();
+        sleep("500ms");
+    } else {
         freeAllResultSetsSync()
         .then(function() {
             return (Support.releaseSession());
@@ -377,9 +388,10 @@ function setupLogout() {
         .always(function() {
             sessionStorage.setItem("xcalar-username", "");
             window.onbeforeunload = function() {}; // Do not enable prompt
+            window.onunload = function() {}; // do not call unload again
             window.location = "dologout.html";
         });
-    });
+    }
 }
 
 function setupTooltips() {
@@ -453,7 +465,7 @@ function documentReadyGeneralFunction() {
     window.onbeforeunload = function() {
         if (backspaceIsPressed) {
             backspaceIsPressed = false;
-            return ("You are leaving Xcalar. "+
+            return ("You are leaving Xcalar. " +
                     "Please logout or you may lose work.");
         } else {
             return ("Please logout or you may lose unsaved work.");
@@ -469,11 +481,8 @@ function documentReadyGeneralFunction() {
     window.onunload = function() {
         if (!hasRelease) {
             // XXX this may not work
-            // no it's fine since backend do not has refCount
-            Support.releaseSession();
-            sleep("500ms");
-            freeAllResultSets();
-            sleep("500ms");
+            // now it's fine since backend do not has refCount
+            unloadHandler(true);
         }
     };
 
