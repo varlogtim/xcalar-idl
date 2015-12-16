@@ -1907,6 +1907,7 @@ window.OperationsModal = (function($, OperationsModal) {
         }
 
         // var limit = 20; // we won't try more than 20 times
+        name = name.replace(/\s/g, '');
         var newName = name;
         var validNameFound = false;
         // if (newName in takenNames) {
