@@ -983,7 +983,7 @@ window.AddScheduleModal = (function($, AddScheduleModal) {
                     return true; // return true to keep dropdown open
                 }
 
-                $scheduleListInput.val($li.text());
+                $scheduleListInput.val($li.text()).removeClass("hint");
             },
             "onOpen": function() {
                 return (scheduleListScroller.showOrHideScrollers());
