@@ -392,6 +392,7 @@ window.DataFlowModal = (function($, DataFlowModal) {
         // the call may still not finish yet!!!
         saveDataFlow(groupName, columns, isNewGroup)
         .then(function() {
+            xcHelper.showSuccess();
             // refresh dataflow lists in modal and scheduler panel
             setupDFGList();
         })

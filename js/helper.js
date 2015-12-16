@@ -409,6 +409,14 @@ window.xcHelper = (function($, xcHelper) {
         }, 1400);
     };
 
+    xcHelper.showSuccess = function() {
+        $('#successMessage').fadeIn(200, function() {
+            setTimeout(function() {
+                $('#successMessage').fadeOut(200);
+            }, 1000);
+        });
+    }
+
     // handle dropdown list generally
     xcHelper.dropdownList = function($dropDownList, options) {
         options = options || {};

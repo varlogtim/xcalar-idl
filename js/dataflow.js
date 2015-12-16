@@ -815,7 +815,11 @@ window.DFGPanel = (function($, DFGPanel) {
                           '<span class="icon"></span>' +
                         '</div>' +
                         '<div class="label">' + group + '</div>' +
-                        '<div class="icon addGroup"></div>' +
+                        '<div class="icon addGroup" ' +
+                            'title="add a group to schedule" ' +
+                            'data-toggle="tooltip" data-placement="top" ' +
+                            'data-container="body">' +
+                        '</div>' +
                         '<div class="icon deleteGroup" ' +
                             'title="coming soon" data-toggle="tooltip" ' +
                             'data-placement="top" data-container="body">' +
@@ -965,6 +969,7 @@ window.AddScheduleModal = (function($, AddScheduleModal) {
         Scheduler.addDFG(selectedSchedule, groupName)
         .then(function() {
             closeModal();
+            xcHelper.showSuccess();
         })
         .fail(function(error) {
             Alert.error("Add schedule fails", error);
