@@ -942,18 +942,18 @@ window.xcFunction = (function($, xcFunction) {
             tablCols[1].index = 2;
         }
         // Note that if include sample a.b should not be escaped to a\.b
-        if (tablCols[1].name.indexOf('.') > -1) {
-            for (var i = 0; i < tablCols.length - 1; i++) {
-                if (tablCols[i + 1].name.indexOf('.') === -1) {
-                    continue;
-                }
-                var newEscapedName = tablCols[i + 1].name.replace(/\./g,
-                                                                "\\\.");
-                tablCols[i + 1].userStr = tablCols[i + 1].name +
-                                        '" = pull(' + newEscapedName + ')';
-                tablCols[i + 1].func.args = [newEscapedName];
+        // if (tablCols[1].name.indexOf('.') > -1) {
+        for (var i = 1; i < tablCols.length; i++) {
+            if (tablCols[i].name.indexOf('.') === -1) {
+                continue;
             }
+            var newEscapedName = tablCols[i].name.replace(/\./g,
+                                                            "\\\.");
+            tablCols[i].userStr = tablCols[i].name +
+                                    '" = pull(' + newEscapedName + ')';
+            tablCols[i].func.args = [newEscapedName];
         }
+        // }
 
         tablCols[1 + groupByCols.length] =
                              xcHelper.deepCopy(table.tableCols[dataColNum]);
@@ -1118,7 +1118,7 @@ window.xcFunction = (function($, xcFunction) {
                 XcalarIndexFromTable(newTableName, groupByField,
                                      reindexedTableName,
                                      XcalarOrderingT.XcalarOrderingUnordered, {
-                          "operation"   : SQLOps.GroupbyIndex,
+                          "operation"   : SQLOps.GroupByIndex,
                           "tableName"   : newTableName,
                           "key"         : groupByField,
                           "newTableName": reindexedTableName,

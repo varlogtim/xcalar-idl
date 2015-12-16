@@ -876,13 +876,22 @@ window.OperationsModal = (function($, OperationsModal) {
                                               .removeClass('hidden');
 
             // as rows order may change, update it here
+            $tbody.find("tr.rowToListen")
+                .removeClass("rowToListen")
+                .off(".groupbyListener");
             var $rows = $tbody.find('tr');
             $rows.find('.colNameSection').removeClass('colNameSection')
                     .end()
                     .find('input').data('typeid', -1)
                     .end()
                     .find('.checkboxSection').removeClass('checkboxSection')
+                        .removeClass("disabled")
+                        .removeAttr("data-toggle")
+                        .removeAttr("data-placement")
+                        .removeAttr("data-original-title")
+                        .removeAttr("data-container")
                         .find('input').attr('type', 'text')
+                        .prop("checked", false)
                         .removeAttr('id')
                         .end()
                         .find('.checkBoxText').remove();
@@ -936,6 +945,7 @@ window.OperationsModal = (function($, OperationsModal) {
                                 ')' +
                             '</p>';
             } else if (operatorName === 'group by') {
+                var $rowToListen;
                 // group by sort col field
                 description = 'Field name to group by';
 
@@ -946,9 +956,38 @@ window.OperationsModal = (function($, OperationsModal) {
                     sortedCol = colPrefix + sortedCol;
                 }
 
-                $rows.eq(numArgs).find('input').val(sortedCol)
-                                .end()
-                                .find('.description').text(description);
+                $rowToListen = $rows.eq(numArgs).addClass("rowToListen");
+                $rowToListen.find('input').val(sortedCol)
+                            .end()
+                            .find('.description').text(description);
+
+                // this part prevent multi groupby to include sample
+                // because it sample will mess up with indexed cols
+                // XXX just a temporary work around
+                var prevCheck = false;
+                $rowToListen.on("input.groupbyListener", ".argument", function(event) {
+                    var numCols = $(event.target).val().split(",").length;
+                    var $checkboxSection = $tbody.find(".checkboxSection");
+                    var $checkbox = $("#incSample");
+
+                    if (numCols > 1) {
+                        $checkboxSection.addClass("disabled");
+                        // record previous checked info
+                        prevCheck = $checkbox.prop("checked") || false;
+                        $checkbox.prop("checked", false);
+                        $checkboxSection.attr("data-toggle", "tooltip")
+                            .attr("data-placement", "right")
+                            .attr("data-original-title", "Including sample temporarily not supported for multi groupby")
+                            .attr("data-container", "body");
+                    } else {
+                        $checkboxSection.removeClass("disabled");
+                        $checkbox.prop("checked", prevCheck);
+                        $checkboxSection.removeAttr("data-toggle")
+                            .removeAttr("data-placement")
+                            .removeAttr("data-original-title")
+                            .removeAttr("data-container");
+                    }
+                });
                 ++numArgs;
 
                 // new col name field

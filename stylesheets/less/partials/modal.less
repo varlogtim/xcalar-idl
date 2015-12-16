@@ -3889,6 +3889,14 @@ html.microsoft {
                         &.checkboxSection {
                             padding-left: 20%;
 
+                            &.disabled {
+                                opacity: 0.7;
+
+                                input, .checkBoxText {
+                                    pointer-events: none;
+                                }
+                            }
+
                             input {
                                 .size(@width: 15px, @height: 15px);
                                 box-shadow: none;
