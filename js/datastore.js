@@ -2491,7 +2491,7 @@ window.DataSampleTable = (function($, DataSampleTable) {
             var kvPairs    = result.kvPair;
             var numKvPairs = result.numKvPairs;
             // update info here
-            dsObj.attrs.numEntries = totalEntries;
+            dsObj.numEntries = totalEntries;
             updateTableInfo(dsObj);
 
             var value;
@@ -2573,9 +2573,9 @@ window.DataSampleTable = (function($, DataSampleTable) {
 
     function updateTableInfo(dsObj, partial, isLoading) {
         var dsName = dsObj.name;
-        var format = dsObj.attrs.format;
-        var path = dsObj.attrs.path || 'N/A';
-        var numEntries = dsObj.attrs.numEntries || 'N/A';
+        var format = dsObj.format;
+        var path = dsObj.path || 'N/A';
+        var numEntries = dsObj.numEntries || 'N/A';
 
         $("#dsInfo-title").text(dsName);
         // XXX these info should be changed after better backend support
@@ -3000,26 +3000,30 @@ window.DS = (function ($, DS) {
         // validation check
         xcHelper.assert((options.name != null), "Invalid Parameters");
 
-        var id       = options.id || (dsObjId++);
-        var name     = options.name.trim();
-        var parentId = options.parentId || curDirId;
-        var isFolder = options.isFolder ? true : false;
-        var attrs    = options.attrs || {};
+        // pre-process
+        options.id = options.id || (dsObjId++);
+        options.name = options.name.trim();
+        options.parentId = options.parentId || curDirId;
+        options.isFolder = options.isFolder || false;
 
-        var parent  = DS.getDSObj(parentId);
-        var $parent = DS.getGrid(parentId);
+        var parent   = DS.getDSObj(options.parentId);
+        var $parent  = DS.getGrid(options.parentId);
 
         // XXX the way to rename could be imporved
-        var i = 1;
-        var validName = name;
-        // only check folder name as ds name cannot confilct
-        while (isFolder && parent.checkNameConflict(id, validName, isFolder)) {
-            validName = name + ' (' + i + ')';
-            ++i;
+        if (options.isFolder) {
+            var i = 1;
+            var name = options.name;
+            var validName = name;
+            // only check folder name as ds name cannot confilct
+            while (parent.checkNameConflict(options.id, validName, true))
+            {
+                validName = name + ' (' + i + ')';
+                ++i;
+            }
+            options.name = validName;
         }
 
-        var ds = new DSObj(id, validName, parentId, isFolder, attrs);
-
+        var ds = new DSObj(options);
         $parent.append(getDSHTML(ds));
         
         dsLookUpTable[ds.id] = ds;  // cached in lookup table
@@ -3032,10 +3036,8 @@ window.DS = (function ($, DS) {
         DS.create({
             "name"    : name,
             "isFolder": false,
-            "attrs"   : {
-                "format": format,
-                "path"  : path
-            }
+            "format"  : format,
+            "path"    : path
         });
 
         DS.refresh();
@@ -3054,21 +3056,15 @@ window.DS = (function ($, DS) {
                         hasHeader, moduleName, funcName) {
         var deferred = jQuery.Deferred();
 
-        // console.log(dsName, dsFormat, loadURL,
-        //             fieldDelim, lineDelim,
-        //             moduleName, funcName);
-
         // Here null means the attr is a placeholder, will
         // be update when the sample table is loaded
         DS.create({
-            "name"    : dsName,
-            "isFolder": false,
-            "attrs"   : {
-                "format"    : dsFormat,
-                "path"      : loadURL,
-                "fileSize"  : null,
-                "numEntries": null
-            }
+            "name"      : dsName,
+            "isFolder"  : false,
+            "format"    : dsFormat,
+            "path"      : loadURL,
+            "fileSize"  : null,
+            "numEntries": null
         });
 
         var $grid = DS.getGridByName(dsName);
@@ -3221,7 +3217,7 @@ window.DS = (function ($, DS) {
                     ds = searchHash[obj.name];
                     format = DfFormatTypeTStr[ds.formatType].toUpperCase();
 
-                    obj.attrs = $.extend(obj.attrs, {
+                    obj = $.extend(obj, {
                         "format": format,
                         "path"  : ds.url
                     });
@@ -3436,12 +3432,12 @@ window.DS = (function ($, DS) {
     DS.getFileSize = function(ds) {
         var deferred = jQuery.Deferred();
 
-        if (ds.attrs.fileSize != null) {
-            deferred.resolve(ds.attrs.fileSize);
+        if (ds.fileSize != null) {
+            deferred.resolve(ds.fileSize);
             return (deferred.promise());
         }
 
-        var loadURL = ds.attrs.path;
+        var loadURL = ds.path;
 
         var slashIndex = loadURL.lastIndexOf('/');
         var dotIndex   = loadURL.lastIndexOf('.');
@@ -3454,12 +3450,12 @@ window.DS = (function ($, DS) {
 
         XcalarListFiles(loadURL)
         .then(function(files) {
-            ds.attrs.fileSize = getFileSizeHelper(files, fileName);
-            deferred.resolve(ds.attrs.fileSize);
+            ds.fileSize = getFileSizeHelper(files, fileName);
+            deferred.resolve(ds.fileSize);
         })
         .fail(function(error) {
             console.error("List file fails", error);
-            ds.attrs.fileSize = null;
+            ds.fileSize = null;
             deferred.resolve(null);
         });
 
@@ -3498,7 +3494,14 @@ window.DS = (function ($, DS) {
         dsObjId = 0;
         dsLookUpTable = {};
 
-        homeFolder = new DSObj(dsObjId++, ".", -1, true);
+        homeFolder = new DSObj({
+            "id"      : dsObjId,
+            "name"    : ".",
+            "parentId": -1,
+            "isFolder": true
+        });
+
+        dsObjId++;
         dsLookUpTable[homeFolder.id] = homeFolder;
     }
 
@@ -3582,22 +3585,6 @@ window.DS = (function ($, DS) {
         }
     }
 
-    // Helper function to update totalChildren of all ancestors
-    function updateDSCount(dsObj, isMinus) {
-        var parentObj = DS.getDSObj(dsObj.parentId);
-
-        while (parentObj != null) {
-            if (isMinus) {
-                parentObj.totalChildren -= dsObj.totalChildren;
-            } else {
-                parentObj.totalChildren += dsObj.totalChildren;
-            }
-            DS.getGrid(parentObj.id).find("> div.dsCount")
-                                    .text(parentObj.totalChildren);
-            parentObj = DS.getDSObj(parentObj.parentId);
-        }
-    }
-
     // Helper function for DS.create()
     function getDSHTML(dsObj) {
         var id = dsObj.id;
@@ -3672,172 +3659,6 @@ window.DS = (function ($, DS) {
 
         return (html);
     }
-
-    /*** Start of DSObj ***/
-
-    /**
-     * DSObj is a structure for our datasets and folders
-     *
-     * @class: DSObj
-     * @constructor
-     * @property {number} id A unique dsObj id, for reference use
-     * @property {string} name The dataset/folder's name
-     * @property {number} parentId The parent folder's id
-     * @property {boolean} isFolder Whether it's folder or dataset
-     * @property {DSObj[]} [eles], An Array of child DSObjs
-     * @property {number} [totalChildren] The total nummber of child
-     * @property {Object} [attrs] extra attribute to be stored
-     */
-    function DSObj(id, name, parentId, isFolder, attrs) {
-        this.id = id;
-        this.name = name;
-        this.parentId = parentId;
-        this.isFolder = isFolder;
-        this.attrs = attrs || {};
-
-        // initially, dataset count itself as one child,
-        // folder has no child;
-        if (isFolder) {
-            this.eles = [];
-            this.totalChildren = 0;
-        } else {
-            this.totalChildren = 1;
-        }
-
-        if (parentId >= 0) {
-            var parent = DS.getDSObj(parentId);
-            parent.eles.push(this);
-            // update totalChildren of all ancestors
-            updateDSCount(this);
-        }
-
-        return (this);
-    }
-
-    DSObj.prototype = {
-        // rename of dsObj
-        rename: function(newName) {
-            newName = newName.trim();
-
-            if (newName === "") {
-                // not allow empty name
-                return (this);
-            }
-
-            var self   = this;
-            var parent = DS.getDSObj(self.parentId);
-            //check name confliction
-            var isValid = xcHelper.validate([
-                {
-                    "$selector": DS.getGrid(self.id),
-                    "text"     : ErrorTextTStr.NoSpecialChar,
-                    "check"    : function() {
-                        return xcHelper.hasSpecialChar(newName, true);
-                    }
-                },
-                {
-                    "$selector": DS.getGrid(self.id),
-                    "text"     : ErrorTextWReplaceTStr.FolderConflict
-                                    .replace('<name>', newName),
-                    "check": function() {
-                        return (parent.checkNameConflict(self.id, newName,
-                                                         self.isFolder));
-                    }
-                }
-            ]);
-
-            if (isValid) {
-                this.name = newName;
-            }
-
-            return (this);
-        },
-
-        // Remove dsObj from parent
-        removeFromParent: function() {
-            var parent = DS.getDSObj(this.parentId);
-            var index  = parent.eles.indexOf(this);
-
-            parent.eles.splice(index, 1);    // remove from parent
-            // update totalChildren count of all ancestors
-            updateDSCount(this, true);
-            this.parentId = -1;
-
-            return (this);
-        },
-
-        // Move dsObj to new parent (insert or append when index < 0)
-        // return true/false: Whether move succeed
-        moveTo: function(newParent, index) {
-            // not append to itself
-            if (this.id === newParent.id) {
-                return false;
-            }
-
-            // not append to same parent again, but can insert
-            if (index < 0 && this.parentId === newParent.id) {
-                return false;
-            }
-
-            // not append or insert to its own child
-            var ele = newParent;
-            while (ele != null && ele !== this) {
-                ele = DS.getDSObj(ele.parentId);
-            }
-            if (ele === this) {
-                return false;
-            }
-
-            var $grid = DS.getGrid(this.id);
-            // check name conflict
-            if (newParent.checkNameConflict(this.id, this.name, this.isFolder)) {
-                StatusBox.show(ErrorTextTStr.MVFolderConflict, $grid);
-                return false;
-            }
-
-            this.removeFromParent();
-            this.parentId = newParent.id;
-
-            if ((index != null) && (index >= 0)) {
-                newParent.eles.splice(index, 0, this);  // insert to parent
-            } else {
-                newParent.eles.push(this);  // append to parent
-            }
-
-            $grid.attr('data-dsParentId', newParent.id);
-
-            // update totalChildren of all ancestors
-            updateDSCount(this);
-            return true;
-        },
-
-        // Check if a dsObj's name has conflict in current folder
-        checkNameConflict: function(id, name, isFolder) {
-            // now only support check of folder
-
-            // when this is not a folder
-            if (!this.isFolder) {
-                console.error("Error call, only folder can call this function");
-                return false;
-            }
-
-            var eles = this.eles;
-
-            for (var i = 0; i < eles.length; i++) {
-                var dsObj = eles[i];
-
-                if (dsObj.isFolder &&
-                    dsObj.name === name &&
-                    dsObj.id !== id &&
-                    dsObj.isFolder === isFolder) {
-                    return true;
-                }
-            }
-
-            return false;
-        }
-    };
-    /*** End of DSObj ***/
 
     return (DS);
 }(jQuery, {}));
