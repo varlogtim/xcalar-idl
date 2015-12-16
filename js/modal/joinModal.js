@@ -528,7 +528,11 @@ window.JoinModal = (function($, JoinModal) {
                 }
 
                 colHtml += '<th class="' + thClass + '">' +
-                                '<div class="columnTab textOverflow">' +
+                                '<div class="colPadding"></div>' +
+                                '<div title="' + colName + '" ' +
+                                'data-container="body" ' +
+                                'data-toggle="tooltip" data-placement="top" ' +
+                                'class="columnTab textOverflow tooltipOverflow">' +
                                     colName +
                                 '</div>' +
                             '</th>';
@@ -816,9 +820,9 @@ window.JoinModal = (function($, JoinModal) {
         //         $th.removeClass("clicked");
         //     }, 100);
         // }, 2000);
-        var $columnTab = $th.find(".columnTab");
+        var $colPadding = $th.find(".colPadding");
         var id = isLeft ? "#leftJoin" : "#rightJoin";
-        $columnTab.tooltip({
+        $colPadding.tooltip({
             "title"    : "Cann't join " + getType($th),
             "placement": "top",
             "animation": "true",
@@ -827,9 +831,9 @@ window.JoinModal = (function($, JoinModal) {
              "template" : TooltipTemplate.Error
         });
 
-        $columnTab.tooltip("show");
+        $colPadding.tooltip("show");
         setTimeout(function() {
-            $columnTab.tooltip("destroy");
+            $colPadding.tooltip("destroy");
         }, 1000);
     }
 
