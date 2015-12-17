@@ -54,20 +54,19 @@ function getIndex(tName) {
     return (null);
 }
 
-function setgTable(tName, index, dsName, tableProperties) {
+function setgTable(tName, tableCols, dsName, tableProperties) {
     var deferred = jQuery.Deferred();
     var tableId = xcHelper.getTableId(tName);
 
-    gTables[tableId] = new TableMeta();
-    gTables[tableId].tableCols = index;
-    gTables[tableId].timeStamp = xcHelper.getTimeInMS();
+    gTables[tableId] = new TableMeta({
+        "tableName": tName,
+        "tableCols": tableCols
+    });
 
     if (tableProperties) {
         gTables[tableId].bookmarks = tableProperties.bookmarks || [];
         gTables[tableId].rowHeights = tableProperties.rowHeights || {};
     }
-
-    gTables[tableId].tableName = tName;
 
     setTableMeta(tName)
     .then(deferred.resolve)
@@ -182,39 +181,10 @@ function readFromStorage() {
         var failures = [];
         var tableCount = 0;
 
-        for (var id in tableIndicesLookup) {
-            promises.push((function(tableId) {
-                var innerDeferred = jQuery.Deferred();
-                var table = tableIndicesLookup[tableId];
-                var tableName = table.tableName;
-
-                getResultSet(tableName)
-                .then(function(resultSet) {
-                    table.resultSetId = resultSet.resultSetId;
-
-                    table.resultSetCount = resultSet.numEntries;
-                    table.resultSetMax = resultSet.numEntries;
-                    table.numPages = Math.ceil(table.resultSetCount /
-                                                  gNumEntriesPerPage);
-                    table.keyName = resultSet.keyAttrHeader.name;
-
-                    if (table.isLocked) {
-                        table.isLocked = false;
-                        table.active = false;
-                    }
-
-                    gTables[tableId] = table;
-                    innerDeferred.resolve();
-                })
-                .fail(function(thriftError) {
-                    var error = "gTables initialization failed on " +
-                                tableName + "fails: " + thriftError.error;
-                    failures.push(error);
-                    innerDeferred.resolve(error);
-                });
-
-                return (innerDeferred.promise());
-            }).bind(this, id));
+        for (var tableId in tableIndicesLookup) {
+            var oldMeta = tableIndicesLookup[tableId];
+            ++tableCount;
+            promises.push(restoreTableMeta.bind(this, tableId, oldMeta, failures));
         }
 
         chain(promises)
@@ -247,6 +217,39 @@ function readFromStorage() {
     .fail(function(error) {
         console.error("readFromStorage fails!", error);
         deferred.reject(error);
+    });
+
+    return (deferred.promise());
+}
+
+function restoreTableMeta(tableId, oldMeta, failures) {
+    var deferred = jQuery.Deferred();
+    var table = new TableMeta(oldMeta);
+    var tableName = table.tableName;
+
+    getResultSet(tableName)
+    .then(function(resultSet) {
+        table.resultSetId = resultSet.resultSetId;
+
+        table.resultSetCount = resultSet.numEntries;
+        table.resultSetMax = resultSet.numEntries;
+        table.numPages = Math.ceil(table.resultSetCount /
+                                      gNumEntriesPerPage);
+        table.keyName = resultSet.keyAttrHeader.name;
+
+        if (table.isLocked) {
+            table.isLocked = false;
+            table.active = false;
+        }
+
+        gTables[tableId] = table;
+        deferred.resolve();
+    })
+    .fail(function(thriftError) {
+        var error = "gTables initialization failed on " +
+                    tableName + "fails: " + thriftError.error;
+        failures.push(error);
+        deferred.resolve(error);
     });
 
     return (deferred.promise());

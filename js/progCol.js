@@ -2,27 +2,8 @@
 window.ColManager = (function($, ColManager) {
     // new ProgCol obj
     ColManager.newCol = function(options) {
-        var progCol = new ProgCol();
-        for (var key in options) {
-            progCol[key] = options[key];
-        }
-
+        var progCol = new ProgCol(options);
         return (progCol);
-
-        // constructor
-        function ProgCol() {
-            this.index = -1;
-            this.name = "New heading";
-            this.type = "undefined";
-            this.func = {};
-            this.width = 0;
-            this.sizeToHeader = true;
-            this.userStr = "";
-            this.isNewCol = true;
-            this.textAlign = "Center";
-
-            return (this);
-        }
     };
 
     // special case, specifically for DATA col

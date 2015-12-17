@@ -2862,7 +2862,7 @@ function cleanseFunc(funcString, name) {
         }
     }
 
-    return ({func: funcName, args: args});
+    return new ColFunc({"func": funcName, "args": args});
 }
 
 function dropdownClick($el, options) {

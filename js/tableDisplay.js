@@ -408,22 +408,6 @@ function setTableMeta(tableName) {
     return (deferred.promise());
 }
 
- // Constructor for table meata data
-function TableMeta() {
-    this.tableCols = null;
-    this.currentRowNumber = -1;
-    this.resultSetId = -1;
-    this.keyName = "";
-    this.tableName = "";
-    this.tableId = "";
-    this.resultSetCount = -1;
-    this.numPages = -1;
-    this.bookmarks = [];
-    this.rowHeights = {};
-    this.active = true;
-    return (this);
-}
-
 // start the process of building table
 function startBuildTable(tableId, tablesToRemove) {
     var deferred   = jQuery.Deferred();

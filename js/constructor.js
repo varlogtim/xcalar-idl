@@ -26,6 +26,72 @@ function SettingInfo(options) {
     return this;
 }
 
+// gTables
+
+// Constructor for table meata data
+function TableMeta(options) {
+    options = options || {};
+    this.tableName = options.tableName || "";
+    this.tableId = options.tableId || "";
+    this.isLocked = options.isLocked;
+    this.active = options.active || true;
+    this.timeStamp = options.timeStamp || xcHelper.getTimeInMS();
+
+    if (options.tableCols != null) {
+        this.tableCols = [];
+        var oldCols = options.tableCols;
+        for (var i = 0, len = oldCols.length; i < len; i++) {
+            var progCol = new ProgCol(oldCols[i]);
+            this.tableCols[i] = progCol;
+        }
+    } else {
+        this.tableCols = null;
+    }
+
+    this.currentRowNumber = -1;
+    this.resultSetId = -1;
+    this.keyName = "";
+    this.resultSetCount = -1;
+    this.numPages = -1;
+    this.bookmarks = [];
+    this.rowHeights = {}; // a map
+
+    return this;
+}
+
+function ProgCol(options) {
+    options = options || {};
+    if (options.index == null) {
+        this.index = -1;
+    } else {
+        this.index = options.index;
+    }
+
+    if (options.isNewCol == null) {
+        this.isNewCol = true;
+    } else {
+        this.isNewCol = options.isNewCol;
+    }
+
+    this.name = options.name || "";
+    this.type = options.type || "undefined";
+    this.func = new ColFunc(options.func);
+    this.width = options.width || 0;
+    this.sizeToHeader = options.sizeToHeader || true;
+    this.userStr = options.userStr || "";
+    this.textAlign = options.textAlign || "Center";
+
+    return this;
+}
+
+function ColFunc(options) {
+    options = options || {};
+    this.func = options.func;
+    this.args = options.args || [];
+
+    return this;
+}
+
 // store.js
 function METAConstructor(atStartUp) {
     // basic thing to store
