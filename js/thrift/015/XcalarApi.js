@@ -1532,7 +1532,8 @@ function xcalarApiDeleteRetinaWorkItem(retinaName) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
     workItem.api = XcalarApisT.XcalarApiDeleteRetina;
-    workItem.input.getRetinaInput = retinaName;
+    workItem.input.deleteRetinaInput = retinaName;
+    return (workItem);
 }
 
 function xcalarApiDeleteRetina(thriftHandle, retinaName) {

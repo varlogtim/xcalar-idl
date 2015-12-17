@@ -1682,23 +1682,24 @@ function xcalarUpdateRetinaWorkItem(retinaName, dagNodeId, paramType,
 
     workItem.input.updateRetinaInput.paramInput = new XcalarApiParamInputT();
     workItem.input.updateRetinaInput.paramInput.paramType = paramType;
+    workItem.input.updateRetinaInput.paramInput.paramInputArgs = new XcalarApiParamInputArgsT();
     switch (paramType) {
     case XcalarApisT.XcalarApiBulkLoad:
-        workItem.input.updateRetinaInput.paramInput.paramLoad =
+        workItem.input.updateRetinaInput.paramInput.paramInputArgs.paramLoad =
                                          new XcalarApiParamLoadT();
-        workItem.input.updateRetinaInput.paramInput.paramLoad.datasetUrl 
+        workItem.input.updateRetinaInput.paramInput.paramInputArgs.paramLoad.datasetUrl 
                                          paramValue;
         break;
     case XcalarApisT.XcalarApiFilter:
-        workItem.input.updateRetinaInput.paramInput.paramFilter =
+        workItem.input.updateRetinaInput.paramInput.paramInputArgs.paramFilter =
                                          new XcalarApiParamFilterT();
-        workItem.input.updateRetinaInput.paramInput.paramFilter.filterStr =
+        workItem.input.updateRetinaInput.paramInput.paramInputArgs.paramFilter.filterStr =
                                          paramValue;
         break;
     case XcalarApisT.XcalarApiExport:
-        workItem.input.updateRetinaInput.paramInput.paramExport =
+        workItem.input.updateRetinaInput.paramInput.paramInputArgs.paramExport =
                                          new XcalarApiParamExportT();
-        workItem.input.updateRetinaInput.paramInput.paramExport.fileName =
+        workItem.input.updateRetinaInput.paramInput.paramInputArgs.paramExport.fileName =
                                          paramValue;
         break;
     }
@@ -1711,7 +1712,7 @@ function xcalarUpdateRetina(thriftHandle, retinaName, dagNodeId,
     if (verbose) {
         console.log("xcalarUpdateRetina(retinaName = " + retinaName + ", " +
                     "dagNodeId = " + dagNodeId + ", paramType = " + 
-                    XcalarApisT[paramType] + ", paramValue = " + paramValue + ")");
+                    XcalarApisTStr[paramType] + ", paramValue = " + paramValue + ")");
     }
     var workItem = xcalarUpdateRetinaWorkItem(retinaName, dagNodeId, paramType,
                                               paramValue);
@@ -1749,7 +1750,10 @@ function xcalarExecuteRetina(thriftHandle, retinaName, parameters) {
     var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarExecuteRetina(retinaName = " + retinaName + ")");
-        console.log(parameters);
+        for (var ii = 0; ii < parameters.length; ii++) {
+            parameter = parameters[ii];
+            console.log(parameter.parameterName + " = " + parameter.parameterValue);
+        }
     }
     var workItem = xcalarExecuteRetinaWorkItem(retinaName, parameters);
 

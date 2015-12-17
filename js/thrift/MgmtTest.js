@@ -43,8 +43,10 @@
     var retinaName
     ,   retinaFilterDagNodeId
     ,   retinaFilterParamType
-    ,   retinaDstTable
-    ,   retinaExportFile
+    ,   retinaFilterParamStr
+    ,   retinaExportDagNodeId
+    ,   retinaExportParamType
+    ,   retinaExportParamStr
     ,   paramInput;
 
     testCases = new Array();
@@ -1406,7 +1408,7 @@
         })
     }
 
-    function testGetRetina(deferred, testName, currentTestNumber) {
+    function testGetRetina(iter, deferred, testName, currentTestNumber) {
         xcalarGetRetina(thriftHandle, retinaName)
         .done(function(getRetinaOutput) {
             printResult(getRetinaOutput);
@@ -1439,6 +1441,14 @@
                     case DsTargetTypeT.DsTargetSFType:
                         console.log("\tnode[" + ii + "].meta.specificInput.sfInput.fileName = " +
                                     exportInput.meta.specificInput.sfInput.fileName);
+                        if (iter == 2) {
+                            if (exportInput.meta.specificInput.sfInput.fileName != retinaExportParamStr) {
+                                var reason = "exportFileName does not match parameterized string";
+                                fail(deferred, testName, currentTestNumber, reason);
+                                return;
+                            }
+                        }
+                        retinaExportDagNodeId = getRetinaOutput.retina.retinaDag.node[ii].dagNodeId;
                         break;
                     default:
                     break;
@@ -1447,8 +1457,15 @@
                 case XcalarApisT.XcalarApiFilter:
                     console.log("\tnode[" + ii + "].filterStr = " +
                                 getRetinaOutput.retina.retinaDag.node[ii].input.filterInput.filterStr);
+                    if (iter == 2) {
+                        if (getRetinaOutput.retina.retinaDag.node[ii].input.filterInput.filterStr != retinaFilterParamStr) {
+                            var reason = "FilterStr does not match parameterized string";
+                            fail(deferred, testName, currentTestNumber, reason);
+                            return;
+                        }
+                    }
+
                     retinaFilterDagNodeId = getRetinaOutput.retina.retinaDag.node[ii].dagNodeId;
-                    retinaFilterParamType = getRetinaOutput.retina.retinaDag.node[ii].api;
                     break;
                 case XcalarApisT.XcalarApiBulkLoad:
                     console.log("\tnode[" + ii + "].datasetUrl = " +
@@ -1466,16 +1483,27 @@
         })
     }
 
+    function testGetRetina1(deferred, testName, currentTestNumber) {
+        return (testGetRetina(1, deferred, testName, currentTestNumber));
+    }
+
+    function testGetRetina2(deferred, testName, currentTestNumber) {
+        return (testGetRetina(2, deferred, testName, currentTestNumber));
+    }
+
     function testUpdateRetina(deferred, testName, currentTestNumber) {
-        paramInput = new XcalarApiParamInputT();
-        paramInput.paramFilter = new XcalarApiParamFilterT();
-        paramInput.paramFilter.filterStr = "gt(votes.funny, <foo>)";
         xcalarUpdateRetina(thriftHandle, retinaName,
                            retinaFilterDagNodeId,
                            retinaFilterParamType,
-                           paramInput)
-        .done(function(status) {
+                           retinaFilterParamStr)
+        .then(function(status) {
             printResult(status);
+            return (xcalarUpdateRetina(thriftHandle, retinaName,
+                                       retinaExportDagNodeId,
+                                       retinaExportParamType,
+                                       retinaExportParamStr));
+        })
+        .done(function(status) {
             pass(deferred, testName, currentTestNumber);
         })
         .fail(function(reason) {
@@ -1487,15 +1515,41 @@
         var parameters = [];
         parameters.push(new XcalarApiParameterT({ parameterName: "foo", parameterValue: "1000" }));
 
-        xcalarExecuteRetina(thriftHandle, retinaName, retinaDstTable,
-                            retinaExportFile, parameters)
-        .done(function(status) {
-            printResult(status);
-            pass(deferred, testName, currentTestNumber);
+        xcalarListExportTargets(thriftHandle, "*", "Default")
+        .done(function(listExportTargetsOutput) {
+            if (listExportTargetsOutput.numTargets < 1) {
+                var reason = "No export target named Default"
+                fail(deferred, testName, currentTestNumber, reason);
+                return;
+            }
+
+            var exportTarget = listExportTargetsOutput.targets[0];
+            if (exportTarget.hdr.type != DsTargetTypeT.DsTargetSFType) {
+                var reason = "Default export target not filesystem"
+                fail(deferred, testName, currentTestNumber, reason);
+                return;
+            }
+
+            var fullPath = exportTarget.specificInput.sfInput.url.substring("file://".length) + "/" + retinaExportParamStr
+            var fs = require("fs");
+
+            if (fs.exists(fullPath) && fs.isFile(fullPath)) {
+                console.log("Deleting " + fullPath);
+                fs.remove(fullPath);
+            }
+
+            xcalarExecuteRetina(thriftHandle, retinaName, parameters)
+            .done(function(status) {
+                pass(deferred, testName, currentTestNumber);
+            })
+            .fail(function(error) {
+                var reason = "xcalarExecuteRetina failed with reason: " + StatusTStr[error];
+                fail(deferred, testName, currentTestNumber, reason);
+            })
         })
         .fail(function(reason) {
             fail(deferred, testName, currentTestNumber, reason);
-        })
+        });
     }
 
     function testListParametersInRetina(deferred, testName, currentTestNumber) {
@@ -1511,7 +1565,13 @@
                             listParametersInRetinaOutput.parameters[i].parameterValue);
             }
 
-            pass(deferred, testName, currentTestNumber);
+            if (listParametersInRetinaOutput.numParameters == 1 &&
+                listParametersInRetinaOutput.parameters[0].parameterName == "foo") {
+                pass(deferred, testName, currentTestNumber);
+            } else {
+                var reason = "list Parameters seems wrong";
+                fail(deferred, testName, currentTestNumber, reason);
+            }
         })
         .fail(function(reason) {
             fail(deferred, testName, currentTestNumber, reason);
@@ -2032,7 +2092,7 @@
 
         function createDhtSuccessFn(status) {
             xcalarIndexDataset(thriftHandle, yelpUserDataset,
-                               "average_stars", "yelp/user-average_stars", dhtName, XcalarOrderingT.XcalarOrderingUnordered)
+                               "average_stars", "yelp/user-average_stars", dhtName, XcalarOrderingT.XcalarOrderingInvalid)
             .done(indexDatasetSuccessFn)
             .fail(function(status) {
                 var reason = "Index dataset returned status: " + StatusTStr[status]
@@ -2324,7 +2384,7 @@
     fails             = 0;
     skips             = 0;
     returnValue       = 0;
-    defaultTimeout    = 256000;
+    defaultTimeout    = 256000000;
     disableIsPass     = true;
 
     var fs2 = require('fs');
@@ -2351,8 +2411,9 @@
     retinaName            = "";
     retinaFilterDagNodeId = 0;
     retinaFilterParamType = XcalarApisT.XcalarApiFilter;
-    retinaDstTable        = "retinaDstTable";
-    retinaExportFile      = "retinaDstFile.csv";
+    retinaFilterParamStr  = "gt(votes.funny, <foo>)";
+    retinaExportParamType = XcalarApisT.XcalarApiExport;
+    retinaExportParamStr  = "retinaDstFile.csv";
 
     // Format
     // addTestCase(testCases, testFn, testName, timeout, TestCaseEnabled, Witness)
@@ -2422,12 +2483,12 @@
     // Together, these set of test cases make up the retina sanity
     addTestCase(testCases, testMakeRetina, "makeRetina", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testCases, testListRetinas, "listRetinas", defaultTimeout, TestCaseEnabled, "");
-    addTestCase(testCases, testGetRetina, "getRetina - iter 1 / 2", defaultTimeout, TestCaseEnabled, "");
-    addTestCase(testCases, testUpdateRetina, "updateRetina", defaultTimeout, TestCaseDisabled, "");
-    addTestCase(testCases, testGetRetina, "getRetina - iter 2 / 2", defaultTimeout, TestCaseDisabled, "");
-    addTestCase(testCases, testExecuteRetina, "executeRetina", defaultTimeout, TestCaseDisabled, "");
-    addTestCase(testCases, testListParametersInRetina, "listParametersInRetina", defaultTimeout, TestCaseDisabled, "");
-    addTestCase(testCases, testDeleteRetina, "deleteRetina", defaultTimeout, TestCaseDisabled, "");
+    addTestCase(testCases, testGetRetina1, "getRetina - iter 1 / 2", defaultTimeout, TestCaseEnabled, "");
+    addTestCase(testCases, testUpdateRetina, "updateRetina", defaultTimeout, TestCaseEnabled, "");
+    addTestCase(testCases, testGetRetina2, "getRetina - iter 2 / 2", defaultTimeout, TestCaseEnabled, "");
+    addTestCase(testCases, testExecuteRetina, "executeRetina", defaultTimeout, TestCaseEnabled, "");
+    addTestCase(testCases, testListParametersInRetina, "listParametersInRetina", defaultTimeout, TestCaseEnabled, "");
+    addTestCase(testCases, testDeleteRetina, "deleteRetina", defaultTimeout, TestCaseEnabled, "");
 
     addTestCase(testCases, testListFiles, "list files", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testCases, testUploadDownloadPython, "upload and download python", defaultTimeout, TestCaseEnabled, "");
