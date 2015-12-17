@@ -1202,6 +1202,10 @@ window.DagParamModal = (function($, DagParamModal){
     function suggest($input) {
         var value = $input.text().trim().toLowerCase();
         var $list = $input.siblings('.list');
+        if ($list.length === 0) {
+            // when no list to suggest
+            return;
+        }
 
         // $operationsModal.find('li.highlighted').removeClass('highlighted');
 
