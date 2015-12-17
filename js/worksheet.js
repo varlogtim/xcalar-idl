@@ -792,7 +792,7 @@ window.WSManager = (function($, WSManager) {
                 } else {
                     unhideWorksheet(wsId);
                 }
-            }
+            },
             "container": "#bottomTabArea"
         });
 
