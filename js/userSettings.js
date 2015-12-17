@@ -1,12 +1,8 @@
 window.UserSettings = (function($, UserSettings) {
-    var settings = {
-        "dataListView"    : false,
-        "browserListView" : false,
-        "lastRightSideBar": null
-    };
+    var settings;
 
     UserSettings.restore = function(oldSettings) {
-        settings = oldSettings;
+        settings = new SettingInfo(oldSettings);
     };
 
     UserSettings.setSettings = function() {
@@ -21,7 +17,7 @@ window.UserSettings = (function($, UserSettings) {
     };
 
     UserSettings.clear = function() {
-        settings = {};
+        settings = new SettingInfo();
     };
 
     function getDatasetListView() {

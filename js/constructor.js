@@ -16,6 +16,16 @@ function AuthInfo(options) {
     return this;
 }
 
+// userSettings.js
+function SettingInfo(options) {
+    options = options || {};
+    this.datasetListView = options.datasetListView || false;
+    this.browserListView = options.browserListView || false;
+    this.lastRightSideBar = options.lastRightSideBar || null;
+
+    return this;
+}
+
 // store.js
 function METAConstructor(atStartUp) {
     // basic thing to store
@@ -35,6 +45,46 @@ function METAConstructor(atStartUp) {
     } else {
         this[KVKeys.USER] = UserSettings.setSettings();
     }
+
+    return this;
+}
+
+// datastore.js
+function Cart(options) {
+    options = options || {};
+    this.dsName = options.dsName;
+    this.tableName = options.tableName;
+    this.items = [];
+
+    return this;
+}
+
+Cart.prototype = {
+    "updateTableName": function(tableName) {
+        this.tableName = tableName;
+    },
+
+    "addItem": function(options) {
+        var cartItem = new CartItem(options);
+        this.items.push(cartItem);
+    },
+
+    "removeItem": function(colNum) {
+        var items = this.items;
+        for (var i = 0, len = items.length; i < len; i++) {
+            if (items[i].colNum === colNum) {
+                items.splice(i, 1);
+                break;
+            }
+        }
+    }
+};
+
+// inner part of DataCar
+function CartItem(options) {
+    options = options || {};
+    this.colNum = options.colNum;
+    this.value = options.value;
 
     return this;
 }
@@ -103,6 +153,63 @@ WKBKSet.prototype = {
         return this.set.hasOwnProperty(wkbkId);
     }
 };
+
+// profileModal.js
+function ProfileInfo(options) {
+    options = options || {};
+    this.modalId = options.modalId;
+    this.colName = options.colName;
+    this.type = options.type;
+    this.aggInfo = new ProfileAggInfo(options.aggInfo);
+    this.groupByInfo = new ProfileGroupbyInfo(options.groupByInfo);
+
+    return this;
+}
+
+ProfileInfo.prototype = {
+    "addBucket": function(bucketNum, options) {
+        this.groupByInfo.buckets[bucketNum] = new ProfileBucketInfo(options);
+    }
+};
+
+function ProfileAggInfo(options) {
+    options = options || {};
+    this.max = options.max || null;
+    this.min = options.min || null;
+    this.count = options.count || null;
+    this.sum = options.sum || null;
+    this.average = options.average || null;
+
+    return this;
+}
+
+function ProfileGroupbyInfo(options) {
+    options = options || {};
+    this.isComplete = options.isComplete || false;
+    this.nullCount = options.nullCount || 0;
+    this.buckets = {};
+
+    var buckets = options.buckets || {};
+    for (var bucketNum in buckets) {
+        var bucketInfo = new ProfileBucketInfo(buckets[bucketNum]);
+        this.buckets[bucketNum] = bucketInfo;
+    }
+
+    return this;
+}
+
+function ProfileBucketInfo(options) {
+    options = options || {};
+    this.bucketSize = options.bucketSize;
+    this.table = options.table;
+    this.ascTable = options.ascTable || null;
+    this.descTable = options.descTable || null;
+    this.colName = options.colName;
+    this.max = options.max;
+    this.sum = options.sum;
+
+    return this;
+}
 
 /*** Start of DSObj ***/
 /* datastore.js */

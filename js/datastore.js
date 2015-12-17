@@ -1022,7 +1022,7 @@ window.DataCart = (function($, DataCart) {
                 var tableName = $input.val().trim();
                 // update
                 var cart = filterCarts(dsName);
-                cart.tableName = tableName;
+                cart.updateTableName(tableName);
             },
             "focus": function() {
                 $(this).closest(".cartTitleArea").addClass("focus");
@@ -1165,11 +1165,10 @@ window.DataCart = (function($, DataCart) {
 
     function addCart(dsName, tableName, noNameCheck) {
         tableName = tableName || dsName;
-        var cart = {
+        var cart = new Cart({
             "dsName"   : dsName,
-            "tableName": tableName,
-            "items"    : []
-        };
+            "tableName": tableName
+        });
 
         // new cart should be prepended, sync with UI
         innerCarts.unshift(cart);
@@ -1226,7 +1225,7 @@ window.DataCart = (function($, DataCart) {
             $li.hide().slideDown(100);
         }
 
-        cart.items.push({"colNum": colNum, "value": val});
+        cart.addItem({"colNum": colNum, "value": val});
 
         return ($li);
     }
@@ -1306,14 +1305,8 @@ window.DataCart = (function($, DataCart) {
                     $li.remove();
                 });
             }
-
-            var items = filterCarts(dsName).items;
-            for (var i = 0, len = items.length; i < len; i++) {
-                if (items[i].colNum === colNum) {
-                    items.splice(i, 1);
-                    break;
-                }
-            }
+            var cart = filterCarts(dsName);
+            cart.removeItem(colNum);
         }
 
         refreshCart();

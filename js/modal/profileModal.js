@@ -179,7 +179,14 @@ window.Profile = (function($, Profile, d3) {
     };
 
     Profile.restore = function(oldInfos) {
-        statsInfos = oldInfos;
+        statsInfos = {};
+        for (var tableId in oldInfos) {
+            statsInfos[tableId] = {};
+            var colInfos = oldInfos[tableId];
+            for (var colName in colInfos) {
+                statsInfos[tableId][colName] = new ProfileInfo(colInfos[colName]);
+            }
+        }
     };
 
     Profile.copy = function(oldTableId, newTableId) {
@@ -214,17 +221,11 @@ window.Profile = (function($, Profile, d3) {
         statsCol = statsInfos[tableId][colName];
 
         if (statsCol == null) {
-            statsCol = statsInfos[tableId][colName] = {
-                "modalId"    : xcHelper.randName("stats"),
-                "colName"    : colName,
-                "type"       : col.type,
-                "aggInfo"    : {},
-                "groupByInfo": {
-                    "isComplete": false,
-                    "nullCount" : 0,
-                    "buckets"   : {}
-                }
-            };
+            statsCol = statsInfos[tableId][colName] = new ProfileInfo({
+                "modalId": xcHelper.randName("stats"),
+                "colName": colName,
+                "type"   : col.type
+            });
         } else if (statsCol.modalId === $modal.data("id")) {
             // when same modal open twice
             deferred.resolve();
@@ -294,8 +295,6 @@ window.Profile = (function($, Profile, d3) {
         var promise;
 
         // do aggreagte
-        statsCol.aggInfo = statsCol.aggInfo || {};
-
         for (var i = 0, len = aggKeys.length; i < len; i++) {
             var aggkey = aggKeys[i];
             if (statsCol.aggInfo[aggkey] == null) {
@@ -580,12 +579,12 @@ window.Profile = (function($, Profile, d3) {
             return (xcHelper.when(def1, def2));
         })
         .then(function(maxVal, sumVal) {
-            curStatsCol.groupByInfo.buckets[curBucketNum] = {
+            curStatsCol.addBucket(0, {
                 "max"    : maxVal,
                 "sum"    : sumVal,
                 "table"  : groupbyTable,
                 "colName": colName
-            };
+            });
 
             curStatsCol.groupByInfo.isComplete = true;
 
@@ -1450,7 +1449,7 @@ window.Profile = (function($, Profile, d3) {
 
     function runBucketing(newBucketNum, curStatsCol) {
         var deferred = jQuery.Deferred();
-        var buckets   = statsCol.groupByInfo.buckets;
+        var buckets   = curStatsCol.groupByInfo.buckets;
         var curBucket = buckets[newBucketNum];
 
         if (curBucket != null && curBucket.table != null) {
@@ -1540,14 +1539,13 @@ window.Profile = (function($, Profile, d3) {
             return (xcHelper.when(def1, def2));
         })
         .then(function(maxVal, sumVal) {
-            buckets[newBucketNum] = {
+            curStatsCol.addBucket(newBucketNum, {
                 "max"       : maxVal,
                 "sum"       : sumVal,
                 "table"     : finalTable,
                 "colName"   : mapCol,
                 "bucketSize": newBucketNum
-            };
-
+            });
             curStatsCol.groupByInfo.isComplete = true;
 
             // delete intermediate table
