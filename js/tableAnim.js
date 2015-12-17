@@ -1992,8 +1992,10 @@ function addMenuBehaviors($mainMenu) {
     }
 
     if ($mainMenu.find('.scrollArea').length !== 0) {
-        var listScroller = new ListScroller($mainMenu, {$subMenu: $subMenu});
-        listScroller.setup();
+        var listScroller = new xcHelper.dropdownList($mainMenu, {
+            $subMenu: $subMenu,
+            scrollerOnly: true
+        });
     }
 }
 

@@ -772,7 +772,6 @@ window.WSManager = (function($, WSManager) {
         });
 
         var $hiddenWorksheetsTab = $('#hiddenWorksheetsTab');
-        var wsTabsListScroller = new ListScroller($hiddenWorksheetsTab.find('.list'));
         // dropdown list for udf modules and function names
         xcHelper.dropdownList($hiddenWorksheetsTab, {
             "onSelect": function($li) {
@@ -793,10 +792,7 @@ window.WSManager = (function($, WSManager) {
                 } else {
                     unhideWorksheet(wsId);
                 }
-            },
-            "onOpen": function() {
-                return (wsTabsListScroller.showOrHideScrollers());
-            },
+            }
             "container": "#bottomTabArea"
         });
 

@@ -6,7 +6,6 @@ window.UDF = (function($, UDF) {
     var $browserBtn   = $("#udf-fileBrowser");
     var $filePath     = $("#udf-filePath");
     var $listDropdown = $("#udf-fnMenu");
-    // var udfListScroller;
 
     var editor;
     var udfDefault = "# PLEASE TAKE NOTE: \n" +
@@ -212,8 +211,6 @@ window.UDF = (function($, UDF) {
         });
         /* end of upload file section */
 
-        var udfListScroller = new ListScroller($listDropdown);
-
         /* function input section */
         var $dropDownList = $("#udf-fnList");
 
@@ -236,10 +233,9 @@ window.UDF = (function($, UDF) {
                     });
                 }
             },
-            "onOpen": function() {
-                return (udfListScroller.showOrHideScrollers());
-            },
-            "container": "#udfSection"
+            "container": "#udfSection",
+            "bounds": '#udfSection',
+            "bottomPadding": 2
         });
 
         $downloadBtn.click(function() {

@@ -276,12 +276,14 @@ window.OperationsModal = (function($, OperationsModal) {
             allowInputChange = true;
         });
 
-        categoryListScroller = new ListScroller($('#categoryMenu'), {
-            container    : '#operationsModal',
+        categoryListScroller = new xcHelper.dropdownList($('#categoryList'), {
+            scrollerOnly : true,
+            bounds       : '#operationsModal',
             bottomPadding: 5
         });
-        functionsListScroller = new ListScroller($functionsMenu, {
-            container    : '#operationsModal',
+        functionsListScroller = new xcHelper.dropdownList($('#functionList'), {
+            scrollerOnly : true,
+            bounds       : '#operationsModal',
             bottomPadding: 5
         });
 
@@ -1124,7 +1126,6 @@ window.OperationsModal = (function($, OperationsModal) {
             if (!$input.closest(".dropDownList").hasClass("colNameSection")
                 && arg.indexOf(colPrefix) === -1
                 && parsedType.indexOf("string") !== -1) {
-                var checkRes = checkArgTypes(arg, typeIds[i]);
                 
                 if (!$.isEmptyObject(existingTypes)) {
                     if (existingTypes.hasOwnProperty("string")) {
@@ -1148,9 +1149,8 @@ window.OperationsModal = (function($, OperationsModal) {
         updateDescription(quotesNeeded);
     }
 
-    function checkArgumentParams(blankOK) {
+    function checkArgumentParams() {
         var allInputsFilled = true;
-        var inputIndex = 2;
         $argInputs.each(function(index) {
             var $input = $(this);
 
@@ -1200,11 +1200,7 @@ window.OperationsModal = (function($, OperationsModal) {
             }
             if (val === "") {
                 allInputsFilled = false;
-                if (!blankOK) {
-                    // showErrorMessage(inputIndex + index);
-                }
                 return (true);
-                // return (false);
             }
         });
 
@@ -1215,7 +1211,6 @@ window.OperationsModal = (function($, OperationsModal) {
         } else {
             clearInput(2);
             return (true);
-            // return (false);
         }
     }
 
@@ -1264,9 +1259,6 @@ window.OperationsModal = (function($, OperationsModal) {
 
         var args = [];
         var trimmedArgs = [];
-        // var colType;
-        var colTypes;
-        var typeid;
 
         // constant
         var colPrefix = "$";
@@ -1371,10 +1363,11 @@ window.OperationsModal = (function($, OperationsModal) {
     }
 
     function argumentFormatHelper(existingTypes) {
-        var argumentFormatResults;
         var args = [];
         var isPassing = true;
         var colPrefix = "$";
+        var colTypes;
+        var typeid;
         // XXX this part may still have potential bugs
         $argInputs.each(function() {
             var $input = $(this);

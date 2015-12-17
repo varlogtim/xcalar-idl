@@ -939,7 +939,6 @@ window.AddScheduleModal = (function($, AddScheduleModal) {
     }
 
     function addModalEvents() {
-        var scheduleListScroller = new ListScroller($list.find('.list'));
         xcHelper.dropdownList($list, {
             "onSelect": function($li) {
                 if ($li.hasClass("hint")) {
@@ -951,9 +950,6 @@ window.AddScheduleModal = (function($, AddScheduleModal) {
                 }
 
                 $scheduleListInput.val($li.text()).removeClass("hint");
-            },
-            "onOpen": function() {
-                return (scheduleListScroller.showOrHideScrollers());
             }
         });
 
@@ -1004,7 +1000,7 @@ window.DagParamModal = (function($, DagParamModal){
 
     var $paramLists  = $("#dagModleParamList");
     var $editableRow = $dagParamModal.find('.editableRow');
-    var filterListScroller;
+    var dropdownHelper;
 
     var paramListTrLen = 6;
     var trTemplate = '<tr class="unfilled">' +
@@ -1181,11 +1177,8 @@ window.DagParamModal = (function($, DagParamModal){
 
         if (type === "filter") {
             var $list = $dagParamModal.find('.tdWrapper.dropDownList');
-            filterListScroller = new ListScroller($list.find('.list'), {
-                container    : '#dagParameterModal',
-                bottomPadding: 5
-            });
-            xcHelper.dropdownList($list, {
+
+            dropdownHelper = new xcHelper.dropdownList($list, {
                 "onSelect": function($li) {
                     var func = $li.text();
                     var $input = $list.find(".editableParamDiv");
@@ -1202,9 +1195,10 @@ window.DagParamModal = (function($, DagParamModal){
                                     .show();
                     $lis.prependTo($list.find('ul'));
                     $list.find('ul').width($list.width() - 1);
-                    return (filterListScroller.showOrHideScrollers());
                 },
-                "container": "#dagParameterModal"
+                "container": "#dagParameterModal",
+                "bounds": "#dagParameterModal",
+                "bottomPadding": 5
             });
 
             XcalarListXdfs('*', 'Conditional*')
@@ -1316,7 +1310,7 @@ window.DagParamModal = (function($, DagParamModal){
 
         $visibleLis.sort(sortHTML).prependTo($list.find('ul'));
 
-        filterListScroller.showOrHideScrollers();
+        dropdownHelper.showOrHideScrollers();
 
         if (value === "") {
             return;

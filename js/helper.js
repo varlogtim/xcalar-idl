@@ -415,13 +415,13 @@ window.xcHelper = (function($, xcHelper) {
                 $('#successMessage').fadeOut(200);
             }, 1000);
         });
-    }
+    };
 
     // handle dropdown list generally
     xcHelper.dropdownList = function($dropDownList, options) {
         options = options || {};
         /*
-         * options includ:
+         * options include:
             onlyClickIcon: if set true, only toggle dropdown menu when click
                              dropdown icon, otherwise, toggle also on click
                              input section
@@ -430,66 +430,109 @@ window.xcHelper = (function($, xcHelper) {
             onOpen: callback to trigger when list opens/shows
             container: will hide all other list in the container when focus on
                        this one. Default is $dropDownList.parent()
+            $bounds: restrain the dropdown list size to this element
+            bottomPadding: integer for number of pixels of spacing between
+                           bottom of list and $bounds
          *
          * Note that options can be extented if nesessary
          */
         var $container = options.container ? $(options.container) :
                                               $dropDownList.parent();
-        var onOpen = options.onOpen;
-         // toggle list section
-        if (options.onlyClickIcon) {
-            $dropDownList.on("click", ".icon", function(event) {
-                event.stopPropagation();
-                toggleDropdownMenu($(this).closest(".dropDownList"));
-            });
+        var $list;
+        if ($dropDownList.is('.list,.menu')) {
+            $list = $dropDownList;
         } else {
-            $dropDownList.on("click", function(event) {
-                event.stopPropagation();
-                toggleDropdownMenu($(this));
+            $list = $dropDownList.find('.list, .menu');
+        }
+        /*
+        $menu needs to have the following structure:
+            <div class="menu/list">
+                <ul></ul>
+                <div class="scrollArea top"></div>
+                <div class="scrollArea bottom"></div>
+            </div>
+        where the outer div has the same height as the ul
+        */
+        var $ul = $list.children('ul');
+        var $scrollAreas = $list.find('.scrollArea');
+        var numScrollAreas = $scrollAreas.length;
+        var $subList = options.$subList;
+        var $bounds = options.bounds ? $(options.bounds) : $(window);
+        var bottomPadding = options.bottomPadding || 0;
+        var scrollerOnly = options.scrollerOnly;
+        var outerHeight;
+        var innerHeight;
+        var isMouseInScroller = false;
+        var isMouseMoving = false;
+        var timer = {
+            "fadeIn"           : null,
+            "fadeOut"          : null,
+            "setMouseMoveFalse": null,
+            "hovering"         : null,
+            "scroll"           : null,
+            "mouseScroll"      : null
+        };
+        setupListScroller();
+
+        if (!scrollerOnly) {
+            var onOpen = options.onOpen;
+            // toggle list section
+            if (options.onlyClickIcon) {
+                $dropDownList.on("click", ".icon", function(event) {
+                    event.stopPropagation();
+                    toggleDropdownList($(this).closest(".dropDownList"));
+                });
+            } else {
+                $dropDownList.on("click", function(event) {
+                    event.stopPropagation();
+                    toggleDropdownList($(this));
+                });
+            }
+
+            $dropDownList.on("mousedown", function() {
+                if (event.which === 1) {
+                    // stop propagation of left mousedown
+                    // because hide dropdown is triggered by it
+                    // should invalid that when mousedown on dropDownList
+                    event.stopPropagation();
+                    var mousedownTarget;
+                    if ($(this).find('input').length === 1) {
+                        mousedownTarget = $(this).find('input');
+                    } else {
+                        mousedownTarget = $(this);
+                    }
+                    gMouseEvents.setMouseDownTarget(mousedownTarget);
+                }
             });
+
+            // on click a list
+            $dropDownList.on({
+                "click": function(event) {
+                    var keepOpen = false;
+
+                    event.stopPropagation();
+                    if (options.onSelect) {    // trigger callback
+                        // keepOpen be true, false or undefined
+                        keepOpen = options.onSelect($(this));
+                    }
+
+                    if (!keepOpen) {
+                        hideDropdowns();
+                    }
+                },
+                "mouseenter": function() {
+                    $(this).addClass("hover");
+
+                },
+                "mouseleave": function() {
+                    $(this).removeClass("hover");
+                }
+            }, ".list li");
         }
 
-        $dropDownList.on("mousedown", function() {
-            if (event.which === 1) {
-                // stop propagation of left mousedown
-                // because hide dropdown is triggered by it
-                // should invalid that when mousedown on dropDownList
-                event.stopPropagation();
-                var mousedownTarget;
-                if ($(this).find('input').length === 1) {
-                    mousedownTarget = $(this).find('input');
-                } else {
-                    mousedownTarget = $(this);
-                }
-                gMouseEvents.setMouseDownTarget(mousedownTarget);
-            }
-        });
+        
 
-        // on click a list
-        $dropDownList.on({
-            "click": function(event) {
-                var keepOpen = false;
-
-                event.stopPropagation();
-                if (options.onSelect) {    // trigger callback
-                    // keepOpen be true, false or undefined
-                    keepOpen = options.onSelect($(this));
-                }
-
-                if (!keepOpen) {
-                    hideDropdowns();
-                }
-            },
-            "mouseenter": function() {
-                $(this).addClass("hover");
-
-            },
-            "mouseleave": function() {
-                $(this).removeClass("hover");
-            }
-        }, ".list li");
-
-        function toggleDropdownMenu($curlDropDownList) {
+        function toggleDropdownList($curlDropDownList) {
             if ($curlDropDownList.hasClass("open")) {    // close dropdown
                 hideDropdowns();
             } else {                                // open dropdown
@@ -506,6 +549,7 @@ window.xcHelper = (function($, xcHelper) {
                 if (typeof onOpen === "function") {
                     onOpen($curlDropDownList);
                 }
+                showOrHideScrollers();
             }
         }
 
@@ -515,6 +559,164 @@ window.xcHelper = (function($, xcHelper) {
             $sections.removeClass("open");
             $(document).off('click.closeDropDown');
         }
+
+        function setupListScroller() {
+            if (numScrollAreas === 0) {
+                return;
+            }
+            $list.mouseleave(function() {
+                clearTimeout(timer.fadeIn);
+                $scrollAreas.removeClass('active');
+            });
+
+            $list.mouseenter(function() {
+                outerHeight = $list.height();
+                innerHeight = $ul[0].scrollHeight;
+            });
+
+            $list.mousemove(function() {
+                clearTimeout(timer.fadeOut);
+                clearTimeout(timer.setMouseMoveFalse);
+                isMouseMoving = true;
+                
+                timer.fadeIn = setTimeout(fadeIn, 200);
+
+                timer.fadeOut = setTimeout(fadeOut, 600);
+
+                timer.setMouseMoveFalse = setTimeout(setMouseMoveFalse, 50);
+            });
+
+            $scrollAreas.mouseenter(function() {
+                isMouseInScroller = true;
+                $(this).addClass('mouseover');
+
+                if ($subList) {
+                    $subList.hide();
+                }
+                var scrollUp = $(this).hasClass('top');
+                scrollList(scrollUp);
+            });
+
+            $scrollAreas.mouseleave(function() {
+                isMouseInScroller = false;
+                clearTimeout(timer.scroll);
+
+                var scrollUp = $(this).hasClass('top');
+
+                if (scrollUp) {
+                    $scrollAreas.eq(1).removeClass('stopped');
+                } else {
+                    $scrollAreas.eq(0).removeClass('stopped');
+                }
+
+                timer.hovering = setTimeout(hovering, 200);
+            });
+
+            $ul.scroll(function() {
+                clearTimeout(timer.mouseScroll);
+                timer.mouseScroll = setTimeout(mouseScroll, 300);
+            });
+        }
+
+        function mouseScroll() {
+            var scrollTop = $ul.scrollTop();
+            if (scrollTop === 0) {
+                $scrollAreas.eq(0).addClass('stopped');
+                $scrollAreas.eq(1).removeClass('stopped');
+            } else if (outerHeight + scrollTop >= innerHeight) {
+                $scrollAreas.eq(0).removeClass('stopped');
+                $scrollAreas.eq(1).addClass('stopped');
+            } else {
+                $scrollAreas.eq(0).removeClass('stopped');
+                $scrollAreas.eq(1).removeClass('stopped');
+            }
+        }
+
+        function scrollList(scrollUp) {
+            var top;
+            var scrollTop = $ul.scrollTop();
+
+            if (scrollUp) { // scroll upwards
+                if (scrollTop === 0) {
+                    $scrollAreas.eq(0).addClass('stopped');
+                    return;
+                }
+                timer.scroll = setTimeout(function() {
+                    top = scrollTop - 7;
+                    $ul.scrollTop(top);
+                    scrollList(scrollUp);
+                }, 30);
+            } else { // scroll downwards
+                if (outerHeight + scrollTop >= innerHeight) {
+                    $scrollAreas.eq(1).addClass('stopped');
+                    return;
+                }
+
+                timer.scroll = setTimeout(function() {
+                    top = scrollTop + 7;
+                    $ul.scrollTop(top);
+                    scrollList(scrollUp);
+                }, 30);
+            }
+        }
+
+        function fadeIn() {
+            if (isMouseMoving) {
+                $scrollAreas.addClass('active');
+            }
+        }
+
+        function fadeOut() {
+            if (!isMouseMoving) {
+                clearTimeout(timer.fadeIn);
+                $scrollAreas.removeClass('active');
+            }
+        }
+
+        function setMouseMoveFalse() {
+            isMouseMoving = false;
+        }
+
+        function hovering() {
+            if (!isMouseInScroller) {
+                $scrollAreas.removeClass('mouseover');
+            }
+        }
+
+        function showOrHideScrollers() {
+            if (numScrollAreas === 0) {
+                return;
+            }
+            var offset = $bounds.offset();
+            var offsetTop;
+            if (offset) {
+                offsetTop = offset.top;
+            } else {
+                offsetTop = 0;
+            }
+
+            var listHeight = offsetTop + $bounds.height() - $list.offset().top -
+                             bottomPadding;
+            listHeight = Math.min($(window).height() - $list.offset().top,
+                                  listHeight);
+            listHeight = Math.max(listHeight - 1, 40);
+            $list.css('max-height', listHeight);
+            $list.children('ul').css('max-height', listHeight).scrollTop(0);
+
+            var ulHeight = $list.find('ul')[0].scrollHeight;
+
+            if (ulHeight > $list.height()) {
+                $list.children('ul').css('max-height', listHeight);
+                $list.find('.scrollArea').show();
+            } else {
+                $list.children('ul').css('max-height', 'auto');
+                $list.find('.scrollArea').hide();
+            }
+            // set scrollArea states
+            $list.find('.scrollArea.top').addClass('stopped');
+            $list.find('.scrollArea.bottom').removeClass('stopped');
+        }
+        this.showOrHideScrollers = showOrHideScrollers;
     };
 
     xcHelper.hideDropdowns = function($container) {
@@ -1362,196 +1564,3 @@ window.xcHelper = (function($, xcHelper) {
 
     return (xcHelper);
 }(jQuery, {}));
-
-ListScroller = function($menu, options) {
-    this.$menu = $menu;
-    this.$ul = $menu.children('ul');
-    this.$scrollAreas = $menu.find('.scrollArea');
-    options = options || {};
-    this.$subMenu = options.$subMenu;
-    this.container = options.container;
-    this.bottomPadding = options.bottomPadding || 0;
-    this.setup();
-    /*
-    $menu needs to have the following structure:
-        <div>
-            <ul></ul>
-            <div class="scrollArea top"></div>
-            <div class="scrollArea bottom"></div>
-        </div>
-    where the outer div has the same height as the ul
-    */
-
-    return (this);
-};
-
-ListScroller.prototype.setup = function() {
-    var listScroller = this;
-    var $menu = this.$menu;
-    var $subMenu = this.$subMenu;
-    var $ul = this.$ul;
-    var $scrollAreas = this.$scrollAreas;
-    var outerHeight;
-    var innerHeight;
-    var isMouseInScroller = false;
-    var isMouseMoving = false;
-    var timer = {
-        "fadeIn"           : null,
-        "fadeOut"          : null,
-        "setMouseMoveFalse": null,
-        "hovering"         : null,
-        "scroll"           : null,
-        "mouseScroll"      : null
-    };
-    
-    $menu.mouseleave(function() {
-        clearTimeout(timer.fadeIn);
-        $scrollAreas.removeClass('active');
-    });
-
-    $menu.mouseenter(function() {
-        outerHeight = $menu.height();
-        innerHeight = $ul[0].scrollHeight;
-    });
-
-    $menu.mousemove(function() {
-        clearTimeout(timer.fadeOut);
-        clearTimeout(timer.setMouseMoveFalse);
-        isMouseMoving = true;
-        
-        timer.fadeIn = setTimeout(fadeIn, 200);
-
-        timer.fadeOut = setTimeout(fadeOut, 600);
-
-        timer.setMouseMoveFalse = setTimeout(setMouseMoveFalse, 50);
-    });
-
-    $scrollAreas.mouseenter(function() {
-        isMouseInScroller = true;
-        $(this).addClass('mouseover');
-
-        if ($subMenu) {
-            $subMenu.hide();
-        }
-        var scrollUp = $(this).hasClass('top');
-        scrollMenu(scrollUp);
-    });
-
-    $scrollAreas.mouseleave(function() {
-        isMouseInScroller = false;
-        clearTimeout(timer.scroll);
-
-        var scrollUp = $(this).hasClass('top');
-
-        if (scrollUp) {
-            $scrollAreas.eq(1).removeClass('stopped');
-        } else {
-            $scrollAreas.eq(0).removeClass('stopped');
-        }
-
-        timer.hovering = setTimeout(hovering, 200);
-    });
-
-    $ul.scroll(function() {
-        clearTimeout(timer.mouseScroll);
-        timer.mouseScroll = setTimeout(mouseScroll, 300);
-    });
-
-    function mouseScroll() {
-        var scrollTop = $ul.scrollTop();
-        if (scrollTop === 0) {
-            $scrollAreas.eq(0).addClass('stopped');
-            $scrollAreas.eq(1).removeClass('stopped');
-        } else if (outerHeight + scrollTop >= innerHeight) {
-            $scrollAreas.eq(0).removeClass('stopped');
-            $scrollAreas.eq(1).addClass('stopped');
-        } else {
-            $scrollAreas.eq(0).removeClass('stopped');
-            $scrollAreas.eq(1).removeClass('stopped');
-        }
-    }
-
-    function scrollMenu(scrollUp) {
-        var top;
-        var scrollTop = $ul.scrollTop();
-
-        if (scrollUp) { // scroll upwards
-            if (scrollTop === 0) {
-                $scrollAreas.eq(0).addClass('stopped');
-                return;
-            }
-            timer.scroll = setTimeout(function() {
-                top = scrollTop - 7;
-                $ul.scrollTop(top);
-                scrollMenu(scrollUp);
-            }, 30);
-        } else { // scroll downwards
-            if (outerHeight + scrollTop >= innerHeight) {
-                $scrollAreas.eq(1).addClass('stopped');
-                return;
-            }
-
-            timer.scroll = setTimeout(function() {
-                top = scrollTop + 7;
-                $ul.scrollTop(top);
-                scrollMenu(scrollUp);
-            }, 30);
-        }
-    }
-
-    function fadeIn() {
-        if (isMouseMoving) {
-            $scrollAreas.addClass('active');
-        }
-    }
-
-    function fadeOut() {
-        if (!isMouseMoving) {
-            clearTimeout(timer.fadeIn);
-            $scrollAreas.removeClass('active');
-        }
-    }
-
-    function setMouseMoveFalse() {
-        isMouseMoving = false;
-    }
-
-    function hovering() {
-        if (!isMouseInScroller) {
-            $scrollAreas.removeClass('mouseover');
-        }
-    }
-};
-
-ListScroller.prototype.showOrHideScrollers = function() {
-    var $list = this.$menu;
-    var $container;
-    var offsetTop = 0;
-    var $win = $(window);
-    if (this.container) {
-        $container = $(this.container);
-        offsetTop = $container.offset().top;
-    } else {
-        $container = $win;
-    }
-
-    var menuHeight = offsetTop + $container.height() - $list.offset().top -
-                     this.bottomPadding;
-    menuHeight = Math.min($win.height() - $list.offset().top, menuHeight);
-    menuHeight = Math.max(menuHeight - 1, 40);
-    $list.css('max-height', menuHeight);
-    $list.children('ul').css('max-height', menuHeight).scrollTop(0);
-
-    var ulHeight = $list.find('ul')[0].scrollHeight;
-
-    if (ulHeight > $list.height()) {
-        $list.children('ul').css('max-height', menuHeight);
-        $list.find('.scrollArea').show();
-    } else {
-        $list.children('ul').css('max-height', 'auto');
-        $list.find('.scrollArea').hide();
-    }
-    // set scrollArea states
-    $list.find('.scrollArea.top').addClass('stopped');
-    $list.find('.scrollArea.bottom').removeClass('stopped');
-};
