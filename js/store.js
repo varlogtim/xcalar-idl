@@ -38,46 +38,6 @@ function emptyAllStorage(localEmpty) {
     return (deferred.promise());
 }
 
-function getIndex(tName) {
-    var tableIndex = xcHelper.getTableId(tName);
-    if (!gTables) {
-        console.log("Nothing has ever been stored ever!");
-        gTables = {};
-    }
-
-    if (tableIndex in gTables) {
-        return (gTables[tableIndex].tableCols);
-    } else {
-        console.log("No such table has been saved before");
-        return (null);
-    }
-    return (null);
-}
-
-function setgTable(tName, tableCols, dsName, tableProperties) {
-    var deferred = jQuery.Deferred();
-    var tableId = xcHelper.getTableId(tName);
-
-    gTables[tableId] = new TableMeta({
-        "tableName": tName,
-        "tableCols": tableCols
-    });
-
-    if (tableProperties) {
-        gTables[tableId].bookmarks = tableProperties.bookmarks || [];
-        gTables[tableId].rowHeights = tableProperties.rowHeights || {};
-    }
-
-    setTableMeta(tName)
-    .then(deferred.resolve)
-    .fail(function(error) {
-        console.error("setTableMetaFails!", error);
-        deferred.reject(error);
-    });
-
-    return (deferred.promise());
-}
-
 // the key should be as short as possible
 // and when change the store key, change it here, it will
 // apply to all places
@@ -217,39 +177,6 @@ function readFromStorage() {
     .fail(function(error) {
         console.error("readFromStorage fails!", error);
         deferred.reject(error);
-    });
-
-    return (deferred.promise());
-}
-
-function restoreTableMeta(tableId, oldMeta, failures) {
-    var deferred = jQuery.Deferred();
-    var table = new TableMeta(oldMeta);
-    var tableName = table.tableName;
-
-    getResultSet(tableName)
-    .then(function(resultSet) {
-        table.resultSetId = resultSet.resultSetId;
-
-        table.resultSetCount = resultSet.numEntries;
-        table.resultSetMax = resultSet.numEntries;
-        table.numPages = Math.ceil(table.resultSetCount /
-                                      gNumEntriesPerPage);
-        table.keyName = resultSet.keyAttrHeader.name;
-
-        if (table.isLocked) {
-            table.isLocked = false;
-            table.active = false;
-        }
-
-        gTables[tableId] = table;
-        deferred.resolve();
-    })
-    .fail(function(thriftError) {
-        var error = "gTables initialization failed on " +
-                    tableName + "fails: " + thriftError.error;
-        failures.push(error);
-        deferred.resolve(error);
     });
 
     return (deferred.promise());

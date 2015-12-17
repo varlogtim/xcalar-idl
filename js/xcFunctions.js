@@ -1546,8 +1546,8 @@ window.xcFunction = (function($, xcFunction) {
             });
         }
 
-        setupHiddenTable(tableResult.tableName);
         var table = gTables[tableResult.tableId];
+        table.beInActive();
         RightSideBar.addTables([table], IsActive.Inactive);
 
         return ({

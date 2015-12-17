@@ -259,16 +259,14 @@ window.RightSideBar = (function($, RightSideBar) {
                             innerDeferred.resolve(error);
                         });
                     } else {
-                        var lookupTable = gTables[tableId];
-                        lookupTable.active = true;
-                        lookupTable.timeStamp = xcHelper.getTimeInMS();
-
+                        table.beActive();
+                        table.updateTimeStamp();
                         // should release the old resultSetId and than add
 
                         XcalarSetFree(table.resultSetId)
                         .then(function() {
                             table.resultSetId = -1;
-                            return (setTableMeta(tableName));
+                            return setTableMeta(table);
                         })
                         .then(function() {
                             return (addTable(tableName, null,

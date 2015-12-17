@@ -31,10 +31,21 @@ function SettingInfo(options) {
 // Constructor for table meata data
 function TableMeta(options) {
     options = options || {};
-    this.tableName = options.tableName || "";
-    this.tableId = options.tableId || "";
+
+    if (!options.tableName || !options.tableId) {
+        console.error("error table meta!");
+    }
+
+    this.tableName = options.tableName;
+    this.tableId = options.tableId;
     this.isLocked = options.isLocked;
-    this.active = options.active || true;
+
+    if (options.active != null) {
+        this.active = options.active;
+    } else {
+        this.active = true;
+    }
+
     this.timeStamp = options.timeStamp || xcHelper.getTimeInMS();
 
     if (options.tableCols != null) {
@@ -58,6 +69,32 @@ function TableMeta(options) {
 
     return this;
 }
+
+TableMeta.prototype = {
+    updateFromResultset: function(resultSet) {
+        this.resultSetId = resultSet.resultSetId;
+        this.resultSetCount = resultSet.numEntries;
+        this.resultSetMax = resultSet.numEntries;
+        this.numPages = Math.ceil(this.resultSetCount / gNumEntriesPerPage);
+        this.keyName = resultSet.keyAttrHeader.name;
+        return this;
+    },
+
+    beInActive: function() {
+        this.active = false;
+        return this;
+    },
+
+    beActive: function() {
+        this.active = true;
+        return this;
+    },
+
+    updateTimeStamp: function() {
+        this.timeStamp = xcHelper.getTimeInMS();
+        return this;
+    }
+};
 
 function ProgCol(options) {
     options = options || {};

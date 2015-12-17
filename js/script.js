@@ -328,20 +328,6 @@ function setupMainPanelsTab() {
     StatusMessage.updateLocation();
 }
 
-function setupHiddenTable(tableName) {
-    var tableId = xcHelper.getTableId(tableName);
-    var table = gTables[tableId];
-    table.tableName = tableName;
-    table.tableId = tableId;
-    table.active = false;
-    var index = getIndex(gTables[tableId].tableName);
-    if (index && index.length > 0) {
-        table.tableCols = index;
-    } else {
-        console.warn("Not stored", tableName);
-    }
-}
-
 function setupLogout() {
     var $userName = $("#userName");
     var $popOut = $("#userNamePopout");
@@ -814,6 +800,7 @@ function initializeTable() {
                     continue;
                 }
 
+                currentTable.beActive();
                 tableName = currentTable.tableName;
                 delete tableMap[tableName];
                 ++tableCount;
@@ -850,7 +837,7 @@ function initializeTable() {
                 delete tableMap[tableName];
                 ++tableCount;
 
-                setupHiddenTable(tableName);
+                currentTable.beInActive();
             }
         }
 
@@ -872,7 +859,7 @@ function initializeTable() {
             delete tableMap[tableName];
             ++tableCount;
 
-            setupHiddenTable(tableName);
+            currentTable.beInActive();
         }
 
         // set up tables in hidden worksheets

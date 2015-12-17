@@ -96,8 +96,7 @@ function refreshTable(newTableName, oldTableName, options) {
 // Adds a table to the display
 // Shifts all the ids and everything
 function addTable(tableName, oldTableName, afterStartup, tablesToRemove, lockTable) {
-    // var deferred = jQuery.Deferred();
-    var tableId  = xcHelper.getTableId(tableName);
+    var tableId = xcHelper.getTableId(tableName);
     var oldId;
 
     if (oldTableName == null) {
@@ -140,10 +139,7 @@ function addTable(tableName, oldTableName, afterStartup, tablesToRemove, lockTab
                             .removeClass("dagWrapToRemove");
         changeTableId(oldId, tableId);
 
-        var table    = gTables[tableId];
-        var progCols = getIndex(table.tableName);
-
-        table.tableCols = progCols;
+        var table = gTables[tableId];
         RightSideBar.addTables([table], IsActive.Active);
         return (promiseWrapper(null));
     } else {
@@ -229,9 +225,9 @@ function archiveTable(tableId, del, delayTableRemoval, tempHide) {
     }
 
     if (!del) {
-        gTables[tableId].active = false;
-        gTables[tableId].timeStamp = xcHelper.getTimeInMS();
-        gTables[tableId].active = false;
+        var table = gTables[tableId];
+        table.beInActive();
+        table.updateTimeStamp();
         WSManager.archiveTable(tableId, tempHide);
         RightSideBar.moveTable(tableId);
     } else {
@@ -378,27 +374,70 @@ function deleteTable(tableIdOrName, tableType) {
     return (deferred.promise());
 }
 
-// get meta data about table
-function setTableMeta(tableName) {
+function setgTable(tName, tableCols, dsName, tableProperties) {
     var deferred = jQuery.Deferred();
-    var tableId  = xcHelper.getTableId(tableName);
-    var newTable = gTables[tableId];
+    var tableId = xcHelper.getTableId(tName);
 
-    newTable.currentRowNumber = 0;
+    gTables[tableId] = new TableMeta({
+        "tableId"  : tableId,
+        "tableName": tName,
+        "tableCols": tableCols
+    });
+
+    if (tableProperties) {
+        gTables[tableId].bookmarks = tableProperties.bookmarks || [];
+        gTables[tableId].rowHeights = tableProperties.rowHeights || {};
+    }
+
+    setTableMeta(gTables[tableId])
+    .then(deferred.resolve)
+    .fail(deferred.reject);
+
+    return (deferred.promise());
+}
+
+function restoreTableMeta(tableId, oldMeta, failures) {
+    var deferred = jQuery.Deferred();
+    var table = new TableMeta(oldMeta);
+    var tableName = table.tableName;
 
     getResultSet(tableName)
     .then(function(resultSet) {
-        newTable.resultSetId = resultSet.resultSetId;
+        table.updateFromResultset(resultSet);
 
-        newTable.resultSetCount = resultSet.numEntries;
-        newTable.resultSetMax = resultSet.numEntries;
-        newTable.numPages = Math.ceil(newTable.resultSetCount /
-                                      gNumEntriesPerPage);
-        newTable.tableName = tableName;
-        newTable.tableId = tableId;
-        newTable.keyName = resultSet.keyAttrHeader.name;
+        if (table.isLocked) {
+            table.isLocked = false;
+            table.active = false;
+        }
 
-        deferred.resolve(newTable);
+        gTables[tableId] = table;
+        deferred.resolve();
+    })
+    .fail(function(thriftError) {
+        var error = "gTables initialization failed on " +
+                    tableName + "fails: " + thriftError.error;
+        failures.push(error);
+        deferred.resolve(error);
+    });
+
+    return (deferred.promise());
+}
+
+// get meta data about table
+function setTableMeta(table) {
+    var deferred  = jQuery.Deferred();
+    var tableName = table.tableName;
+
+    table.currentRowNumber = 0;
+
+    getResultSet(tableName)
+    .then(function(resultSet) {
+        table.updateFromResultset(resultSet);
+
+        // table.tableName = tableName;
+        // table.tableId = tableId;
+
+        deferred.resolve(table);
     })
     .fail(function(error){
         console.error("setTableMeta Fails!", error);
