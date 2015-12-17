@@ -16,7 +16,7 @@ sed -i 's@/images/@\.\./\.\./images/@' widget/*.css
 sed -i 's@/images/@images/@' js/paths.js
 
 echo -n "var gConstructorVersion = '" > js/constructorVersion.js
-echo -n `md5 js/constructor.js | cut -d' ' -f4` >> js/constructorVersion.js
+echo -n `md5sum js/constructor.js | cut -d' ' -f4` >> js/constructorVersion.js
 echo -n "';" >> js/constructorVersion.js
 
 if [ -e "../xcalar/src/bin/tests/XcalarApiVersionSignature_types.js" ]
