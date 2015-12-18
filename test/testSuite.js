@@ -20,8 +20,12 @@ window.TestSuite = (function($, TestSuite) {
     var curTestName;
     var curDeferred;
 
-    // TestSuite.start = function(deferred, testNameLocal, currentTestNumberLocal, timeout) {
-    // };
+
+    // Globals
+    var dfgName;
+    var schedName;
+    var paramName;
+    var fileName;
 
     TestSuite.printResult = function(result) {
         if (result) {
@@ -49,8 +53,8 @@ window.TestSuite = (function($, TestSuite) {
         if (deferred.state() === "pending") {
             fails++;
             console.warn("Test " + testName + " failed -- " + reason);
-            console.warn("not ok " + currentTestNumber + " - Test \"" + testName +
-                        "\" failed (" + reason + ")");
+            console.warn("not ok " + currentTestNumber + " - Test \"" + testName
+                          + "\" failed (" + reason + ")");
             deferred.reject();
         } else {
             console.error("Invalid state", deferred.state());
@@ -70,7 +74,8 @@ window.TestSuite = (function($, TestSuite) {
         }
     };
 
-    TestSuite.add = function(testCases, testFn, testName, timeout, testCaseEnabled) {
+    TestSuite.add = function(testCases, testFn, testName, timeout,
+                             testCaseEnabled) {
         testCases[testCases.length] = {
             "testFn": testFn,
             "testName": testName,
@@ -101,12 +106,17 @@ window.TestSuite = (function($, TestSuite) {
                     return (function() {
                         var localDeferred = jQuery.Deferred();
                         if (testCase.testCaseEnabled) {
-                            console.log("====================Test ", currentTestNumber, " Begin====================");
+                            console.log("====================Test ",
+                            currentTestNumber, " Begin====================");
                             console.log("Testing: ", testCase.testName, "                     ");
                             setTimeout(function() {
                                 if (localDeferred.state() === "pending") {
-                                    var reason = "Timed out after " + (testCase.timeout / 1000) + " seconds";
-                                    TestSuite.fail(localDeferred, testCase.testName, currentTestNumber, reason);
+                                    var reason = "Timed out after " +
+                                         (testCase.timeout / 1000) + " seconds";
+                                    TestSuite.fail(localDeferred,
+                                                   testCase.testName,
+                                                   currentTestNumber,
+                                                   reason);
                                 }
                             }, testCase.timeout);
 
@@ -115,9 +125,11 @@ window.TestSuite = (function($, TestSuite) {
                             curTestName = testCase.testName;
                             curTestNumber = currentTestNumber;
 
-                            testCase.testFn(localDeferred, testCase.testName, currentTestNumber);
+                            testCase.testFn(localDeferred, testCase.testName,
+                                            currentTestNumber);
                         } else {
-                            TestSuite.skip(localDeferred, testCase.testName, currentTestNumber);
+                            TestSuite.skip(localDeferred, testCase.testName,
+                                           currentTestNumber);
                         }
 
                         return localDeferred.promise();
@@ -156,7 +168,8 @@ window.TestSuite = (function($, TestSuite) {
                     }
                 }
             }
-            var alertMsg = "Passes: " + passes + ", Fails: " + fails + ", Time: "
+            var alertMsg = "Passes: " + passes + ", Fails: " + fails +
+                            ", Time: "
                   + totTime / 1000 + "s." + timeMsg + oldTime;
             console.log(alertMsg); // if pop ups are disabled
             alert(alertMsg);
@@ -230,11 +243,17 @@ window.TestSuite = (function($, TestSuite) {
         return (deferred.promise());
     }
 
+    function randInt(numDigits) {
+        if (numDigits) {
+            return (Math.floor(Math.random() * Math.pow(10, numDigits)));
+        }
+        return (Math.floor(Math.random() * 10000));
+    }
 // ========================= COMMON ACTION TRIGGERS ======================== //
     function trigOpModal(tableId, columnName, funcClassName, whichModal) {
         var $header = $("#xcTbodyWrap-" + tableId)
-                       .find(".flexWrap.flex-mid input[value='" + columnName + "']")
-                       .eq(0);
+                       .find(".flexWrap.flex-mid input[value='" + columnName +
+                       "']").eq(0);
         $header.parent().parent().find(".flex-right .innerBox").click();
 
         var $colMenu = $("#colMenu ." + funcClassName);
@@ -263,8 +282,8 @@ window.TestSuite = (function($, TestSuite) {
         10. Aggregate on groupBy table to count number of unique airlines
         */
 
-        var dsName1 = "flight" + Math.floor(Math.random() * 10000);
-        var dsName2 = "airport" + Math.floor(Math.random() * 10000);
+        var dsName1 = "flight" + randInt();
+        var dsName2 = "airport" + randInt();
 
         flightTestPart1(dsName1, dsName2);
 
@@ -322,7 +341,8 @@ window.TestSuite = (function($, TestSuite) {
                 $("#selectDSCols .icon").click();
                 // click on closeIcon on datacart not work
                 // since it has animation that dealy the display
-                $("#worksheetTable th .header .editableHead").slice(0, 5).click();
+                $("#worksheetTable th .header .editableHead").slice(0, 5)
+                                                             .click();
                 $("#submitDSTablesBtn").click();
 
                 var header = ".xcTable .flexWrap.flex-mid" +
@@ -347,7 +367,8 @@ window.TestSuite = (function($, TestSuite) {
             var $colMenu = $("#colMenu .changeDataType");
             var $colSubMenu = $('#colSubMenu');
             $colMenu.mouseover();
-            $colSubMenu.find(".changeDataType .type-integer").trigger(fakeEvent.mouseup);
+            $colSubMenu.find(".changeDataType .type-integer")
+                       .trigger(fakeEvent.mouseup);
             checkExists(".flexWrap.flex-mid" +
                         " input[value='ArrDelay_integer']:eq(0)")
             .then(function() {
@@ -367,9 +388,11 @@ window.TestSuite = (function($, TestSuite) {
             trigOpModal(tableId, "ArrDelay_integer", "map")
             .then(function() {
                 $("#categoryList .dropdown .icon").trigger(fakeEvent.click);
-                $("#categoryMenu li[data-category='5']").trigger(fakeEvent.mouseup);
+                $("#categoryMenu li[data-category='5']")
+                        .trigger(fakeEvent.mouseup);
                 $("#functionList .dropdown .icon").trigger(fakeEvent.click);
-                $("#functionsMenu li:contains('genUnique')").trigger(fakeEvent.mouseup);
+                $("#functionsMenu li:contains('genUnique')")
+                        .trigger(fakeEvent.mouseup);
                 $($(".argumentTable .argument")[0]).val("$ArrDelay_integer");
                 $($(".argumentTable .argument")[1]).val("uniqueNum");
                 $("#operationsModal .modalBottom .confirm").click();
@@ -422,7 +445,8 @@ window.TestSuite = (function($, TestSuite) {
             $(".submitSection #udf-fnName").val("ymd");
             $("#udf-fnUpload").click();
 
-            checkExists("#alertHeader:visible .text:contains('Duplicate Module')",
+            checkExists("#alertHeader:visible " +
+                        ".text:contains('Duplicate Module')",
                         3000, {optional: true})
             .then(function(found) {
                 if (found) {
@@ -449,9 +473,11 @@ window.TestSuite = (function($, TestSuite) {
             trigOpModal(tableId, "Year", "map")
             .then(function() {
                 $("#categoryList .dropdown .icon").trigger(fakeEvent.click);
-                $("#categoryMenu li[data-category='9']").trigger(fakeEvent.mouseup);
+                $("#categoryMenu li[data-category='9']")
+                    .trigger(fakeEvent.mouseup);
                 $("#functionList .dropdown .icon").trigger(fakeEvent.click);
-                $("#functionsMenu li:contains('ymd:ymd')").trigger(fakeEvent.mouseup);
+                $("#functionsMenu li:contains('ymd:ymd')")
+                    .trigger(fakeEvent.mouseup);
                 $($(".argumentTable .argument")[0]).val("$Year");
                 $($(".argumentTable .argument")[1]).val("$Month");
                 $($(".argumentTable .argument")[2]).val("$DayofMonth");
@@ -478,7 +504,8 @@ window.TestSuite = (function($, TestSuite) {
             var $colMenu = $("#colMenu .joinList");
             $colMenu.trigger(fakeEvent.mouseup);
             setTimeout(function() {
-                $("#rightJoin .tableLabel:contains('airport')").trigger(fakeEvent.click);
+                $("#rightJoin .tableLabel:contains('airport')")
+                    .trigger(fakeEvent.click);
                 var $th = $("#rightJoin .columnTab:contains('iata')");
                 if (!$th.parent().hasClass("colSelected")) {
                     $th.trigger(fakeEvent.click);
@@ -492,7 +519,8 @@ window.TestSuite = (function($, TestSuite) {
                     })
                     .fail(function(error) {
                         console.error(error, "flightTestPart7");
-                        TestSuite.fail(deferred, testName, currentTestNumber, error);
+                        TestSuite.fail(deferred, testName, currentTestNumber,
+                                       error);
                     });
                 }, 500);
             }, 500);
@@ -584,7 +612,8 @@ window.TestSuite = (function($, TestSuite) {
             $("#tableMenu .moveToWorksheet").trigger(fakeEvent.mouseenter);
             $("#tableSubMenu .wsName").click();
             $("#tableSubMenu .moveToWorksheet .list li").click();
-            $("#tableSubMenu .moveToWorksheet .wsName").trigger(fakeEvent.enter);
+            $("#tableSubMenu .moveToWorksheet .wsName")
+                .trigger(fakeEvent.enter);
 
             return (checkExists(".xcTableWrap.worksheet-" + wsId));
         })
@@ -592,7 +621,8 @@ window.TestSuite = (function($, TestSuite) {
             // rename
             $("#worksheetTab-" + wsId + " .text").text("Multi group by")
                                         .trigger(fakeEvent.enter);
-            return (checkExists("#worksheetTab-" + wsId + " .text:contains('Multi ')"));
+            return (checkExists("#worksheetTab-" + wsId +
+                    " .text:contains('Multi ')"));
         })
         .then(function() {
             TestSuite.pass(deferred, testName, currentTestNumber);
@@ -630,7 +660,8 @@ window.TestSuite = (function($, TestSuite) {
         // Import schedule dataset
         $("#dataStoresTab").click();
         $("#importDataButton").click();
-        $("#filePath").val("file:///var/tmp/qa/indexJoin/schedule/schedule.json");
+        $("#filePath")
+                    .val("file:///var/tmp/qa/indexJoin/schedule/schedule.json");
         $("#fileName").val(dsName);
         $("#fileFormat .iconWrapper .icon").click();
         $("#fileFormat li[name='JSON']").click();
@@ -698,7 +729,8 @@ window.TestSuite = (function($, TestSuite) {
             $header.parent().parent().find(".flex-right .innerBox").click();
             $colMenu = $("#colMenu .changeDataType");
             $colMenu.mouseover();
-            $colSubMenu.find(".changeDataType .type-string").trigger(fakeEvent.mouseup);
+            $colSubMenu.find(".changeDataType .type-string")
+                .trigger(fakeEvent.mouseup);
             return (checkExists(".flexWrap.flex-mid" +
                                 " input[value='newclassid_string']:eq(0)"));
 
@@ -725,7 +757,8 @@ window.TestSuite = (function($, TestSuite) {
             var $colMenu = $("#colMenu .changeDataType");
             var $colSubMenu = $('#colSubMenu');
             $colMenu.mouseover();
-            $colSubMenu.find(".changeDataType .type-integer").trigger(fakeEvent.mouseup);
+            $colSubMenu.find(".changeDataType .type-integer")
+                .trigger(fakeEvent.mouseup);
             return (checkExists(".flexWrap.flex-mid" +
                                 " input[value='Month_integer']:eq(0)"));
         })
@@ -813,7 +846,92 @@ window.TestSuite = (function($, TestSuite) {
         .fail(function(error) {
             TestSuite.fail(deferred, testName, currentTestNumber, error);
         });
+    }
 
+    function schedTest(deferred, testName, currentTestNumber) {
+        // Create a schedule
+        $("#schedulerTab").click();
+        schedName = "testSched"+randInt();
+        $("#scheduleForm .name").val(schedName);
+        $(".datePickerPart input").focus().focus().click();
+        $(".timePickerPart input").focus().focus().click();
+        $(".freq1 .radioWrap:eq(0)").click();
+        $(".recurSection input").val(1);
+        $("#scheduleForm-save").click();
+        checkExists(".scheduleName:contains('"+schedName+"')")
+        .then(function() {
+            $("#scheduleForm-edit").click();
+            $(".freq1 .radioWrap:eq(1)").click();
+            $("#scheduleForm-save").click();
+            assert($(".scheduleInfo.frequency .text").text() === "hourly");
+            TestSuite.pass(deferred, testName, currentTestNumber);
+        })
+        .fail(function(error) {
+            TestSuite.fail(deferred, testName, currentTestNumber, error);
+        });
+    }
+
+    function dfgTest(deferred, testName, currentTestNumber) {
+        // Create a dfg
+        $("#workspaceTab").click();
+        $(".worksheetTab:not(.inActive) .dagTab").click();
+        var worksheetId = $(".worksheetTab:not(.inActive)").attr("id")
+                          .substring(13);
+        var tId = WSManager.getAllMeta().wsInfos[worksheetId].tables[0];
+        $("#dagWrap-"+tId+" .addDataFlow").click();
+        dfgName = "testDfg"+randInt();
+        $("#newGroupNameInput").val(dfgName);
+        $("#dataFlowModalConfirm").click();
+        $(".clear.modifyDSButton").click();
+        $("#dataFlowTable .header:contains('newclassid_string')").click(); 
+        $("#dataFlowTable .header:contains('teacher_id')").click();
+        $("#dataFlowModalConfirm").click();
+        $("#schedulerTab").click();
+        $("#dataflowButton").click();
+        checkExists(".dataFlowGroup .listBox .label:contains('"+dfgName+"')")
+        .then(function() {
+            TestSuite.pass(deferred, testName, currentTestNumber);
+        })
+        .fail(function(error) {
+            TestSuite.fail(deferred, testName, currentTestNumber, error);
+        });
+    }
+
+    function retinaTest(deferred, testName, currentTestNumber) {
+        // Create Parameter
+        $(".label:contains('"+dfgName+"')")[1].click();
+        $(".retTab").trigger(fakeEvent.mousedown);
+        paramName = "param"+randInt();
+        $(".retTabSection .inputSection .newParam").val(paramName);
+        $(".addParam").click();
+        $(".retTab").trigger(fakeEvent.mousedown);
+        // Add parameter to export
+        $(".dagTable.export").click();
+        $(".createParamQuery").trigger(fakeEvent.mouseup);
+        $(".editableRow .tdWrapper .defaultParam").click();
+        $(".editableParamDiv").html('export-<div id="draggableParam-'+paramName+
+          '" class="draggableDiv" draggable="true" '+
+          'ondragstart="DagParamModal.paramDragStart(event)" '+
+          'ondragend="DagParamModal.paramDragEnd(event)" ondrop="return false" '
+          +'title="click and hold to drag" contenteditable="false">'+
+          '<div class="icon"></div><span class="delim">&lt;</span>'+
+          '<span class="value">'+paramName+'</span><span class="delim">&gt;'+
+          '</span><div class="close"></div></div>.csv');
+        $row = $("#dagModleParamList").find(".unfilled:first");
+        fileName = "file"+randInt();
+        $row.find(".paramName").text(paramName)
+            .end()
+            .find(".paramVal").val(fileName).removeAttr("disabled")
+            .end()
+            .removeClass("unfilled");
+        $("#dagParameterModal .modalBottom .confirm").click();
+        // Attach schedule to  dfg
+        $(".dataFlowGroup .listBox .label:contains('"+dfgName+"'):eq(1)")
+        .parent().find(".addGroup").click();
+        $(".scheduleList .iconWrapper").click();
+        $(".scheduleList ul li:contains('"+schedName+"')").click();
+        $("#addScheduleModal .modalBottom .confirm").click();
+        TestSuite.pass(deferred, testName, currentTestNumber);
     }
 // ================= ADD TESTS TO ACTIVATE THEM HERE ======================= //
     TestSuite.add(testCases, flightTest, "FlightTest", defaultTimeout,
@@ -833,6 +951,12 @@ window.TestSuite = (function($, TestSuite) {
     TestSuite.add(testCases, corrTest, "CorrelationTest",
                   defaultTimeout, TestCaseEnabled);
     TestSuite.add(testCases, aggTest, "QuickAggregateTest",
+                  defaultTimeout, TestCaseEnabled);
+    TestSuite.add(testCases, schedTest, "ScheduleTest",
+                  defaultTimeout, TestCaseEnabled);
+    TestSuite.add(testCases, dfgTest, "DFGTest",
+                  defaultTimeout, TestCaseEnabled);
+    TestSuite.add(testCases, retinaTest, "RetinaTest",
                   defaultTimeout, TestCaseEnabled);
 // =========== TO RUN, OPEN UP CONSOLE AND TYPE TestSuite.run() ============ //
     return (TestSuite);
