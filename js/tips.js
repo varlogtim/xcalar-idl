@@ -17,6 +17,13 @@ window.Tips = (function($, Tips) {
                 '<div class="tooltip-inner"></div>' +
         '</div>';
 
+    // template that have z-index 0
+    var templateZ0 =
+        '<div class="tooltip tutorial z-0" role="tooltip">' +
+            '<div class="tooltip-arrow"></div>' +
+                '<div class="tooltip-inner"></div>' +
+        '</div>';
+
     var timer;
     var isOn = false;
 
@@ -219,6 +226,7 @@ window.Tips = (function($, Tips) {
         setTooltip($("#dataCartWrap"), {
             "title"    : TipsTStr.Datacart,
             "container": "#exploreView .contentViewRight",
+            "template" : templateZ0,
             "placement": "left"
         });
     }
@@ -267,10 +275,7 @@ window.Tips = (function($, Tips) {
     function setTooltip($target, options) {
         // options reference:
         // http://www.w3schools.com/bootstrap/bootstrap_ref_js_tooltip.asp
-        if (!$target) {
-            console.error("Invalid target!");
-            return;
-        }
+        xcHelper.assert($target != null, "Invalid target!");
 
         options = $.extend({}, defaultOpt, options);
 
