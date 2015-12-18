@@ -1479,11 +1479,25 @@ window.DagParamModal = (function($, DagParamModal){
                     var str1 = $editableDivs.eq(0).text().trim();
                     var str2 = $editableDivs.eq(2).text().trim();
                     var filter;
+                    var numParams = params.length;
+                    var param;
+                    var val;
+                    var filterParamText = filterText;;
+                    var find;
+                    var rgx;
+                    for (var i = 0; i < numParams; i++) {
+                        param = params[i].name;
+                        val = params[i].val;
+                        find = "<" + param + ">";
+                        rgx = new RegExp(find, 'g');
+                        filterParamText = filterParamText.replace(rgx, val);
+                    }
+
                     // Only support these filter now
                     var filterExists = $editableDivs.eq(1).siblings('.list')
                                                           .find('li')
                                                           .filter(function() {
-                        return ($(this).text() === filterText);
+                        return ($(this).text() === filterParamText);
                     }).length;
 
                     if (!filterExists) {
