@@ -1293,9 +1293,13 @@ window.DagParamModal = (function($, DagParamModal){
         var data = $editableRow.data('origin');
         if (data !== 'home') {
             var paramId = event.dataTransfer.getData("text");
-            $editableRow.find('.editableParamDiv').filter(function() {
+            var $param = $editableRow.find('.editableParamDiv')
+                                     .filter(function() {
                 return ($(this).data('target') === data);
-            }).find('#' + paramId + ':first').remove();
+            }).find('#' + paramId + ':first');
+            var paramName = $param.find('.value').text();
+            $param.remove();
+            updateParamList(paramName);
         }
     };
 
