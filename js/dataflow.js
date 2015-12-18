@@ -1441,18 +1441,21 @@ window.DagParamModal = (function($, DagParamModal){
         var retName = $dagParamModal.data("dfg");
         var dfg = DFG.getGroup(retName);
         var dagNodeId = $dagParamModal.data("id");
+        var curParamInfo;
 
         updateRetina()
         .then(function(paramInfo) {
+            curParamInfo = paramInfo;
             // store meta
-            dfg.addRetinaNode(dagNodeId, paramInfo);
             dfg.updateParameters(params);
 
             DFGPanel.updateRetinaTab(retName);
 
-            return (dfg.updateSchedule());
+            return dfg.updateSchedule();
         })
         .then(function() {
+            // this marks that the update retina is done
+            dfg.addRetinaNode(dagNodeId, curParamInfo);
             commitToStorage();
             closeDagParamModal();
             // show success message??

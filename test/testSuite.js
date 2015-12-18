@@ -851,19 +851,31 @@ window.TestSuite = (function($, TestSuite) {
     function schedTest(deferred, testName, currentTestNumber) {
         // Create a schedule
         $("#schedulerTab").click();
-        schedName = "testSched"+randInt();
-        $("#scheduleForm .name").val(schedName);
-        $(".datePickerPart input").focus().focus().click();
-        $(".timePickerPart input").focus().focus().click();
-        $(".freq1 .radioWrap:eq(0)").click();
-        $(".recurSection input").val(1);
+        $("#schedulesButton").click();
+
+        // on schedule form
+        schedName = "testSched" + randInt(); // globals in the module
+
+        $("#addSchedule").click();
+
+        var $form = $("#scheduleForm");
+        $form.find(".name").val(schedName)
+            .end()
+            .find(".datePickerPart input").focus().focus().click()
+            .end()
+            .find(".timePickerPart input").focus().focus().click()
+            .end()
+            .find(".freq1 .radioWrap:eq(0)").click()
+            .end()
+            .find(".recurSection input").val(1);
         $("#scheduleForm-save").click();
-        checkExists(".scheduleName:contains('"+schedName+"')")
+
+        checkExists("#scheduleLists .scheduleName:contains('" + schedName + "')")
         .then(function() {
             $("#scheduleForm-edit").click();
-            $(".freq1 .radioWrap:eq(1)").click();
+            $form.find(".freq1 .radioWrap:eq(1)").click();
             $("#scheduleForm-save").click();
-            assert($(".scheduleInfo.frequency .text").text() === "hourly");
+            assert($("#scheduleInfos .scheduleInfo.frequency .text").text() === "hourly");
             TestSuite.pass(deferred, testName, currentTestNumber);
         })
         .fail(function(error) {
@@ -874,21 +886,29 @@ window.TestSuite = (function($, TestSuite) {
     function dfgTest(deferred, testName, currentTestNumber) {
         // Create a dfg
         $("#workspaceTab").click();
-        $(".worksheetTab:not(.inActive) .dagTab").click();
-        var worksheetId = $(".worksheetTab:not(.inActive)").attr("id")
-                          .substring(13);
+
+        var $worksheetTab = $(".worksheetTab:not(.inActive)");
+        $worksheetTab.find(".dagTab").click();
+        var worksheetId = $worksheetTab.attr("id").substring(13);
         var tId = WSManager.getAllMeta().wsInfos[worksheetId].tables[0];
-        $("#dagWrap-"+tId+" .addDataFlow").click();
-        dfgName = "testDfg"+randInt();
+        $("#dagWrap-" + tId + " .addDataFlow").click();
+
+        // on dfgModal
+        dfgName = "testDfg" + randInt(); // globals in the module
         $("#newGroupNameInput").val(dfgName);
         $("#dataFlowModalConfirm").click();
-        $(".clear.modifyDSButton").click();
-        $("#dataFlowTable .header:contains('newclassid_string')").click(); 
+        $("#dataFlowModal .clear.modifyDSButton").click();
+        $("#dataFlowTable .header:contains('newclassid_string')").click();
         $("#dataFlowTable .header:contains('teacher_id')").click();
         $("#dataFlowModalConfirm").click();
+
+        // got to scheduler panel
         $("#schedulerTab").click();
         $("#dataflowButton").click();
-        checkExists(".dataFlowGroup .listBox .label:contains('"+dfgName+"')")
+
+        var selector = "#dataflowView .dataFlowGroup .listBox " +
+                        ".label:contains('" + dfgName + "')";
+        checkExists(selector)
         .then(function() {
             TestSuite.pass(deferred, testName, currentTestNumber);
         })
@@ -899,40 +919,86 @@ window.TestSuite = (function($, TestSuite) {
 
     function retinaTest(deferred, testName, currentTestNumber) {
         // Create Parameter
-        $(".label:contains('"+dfgName+"')")[1].click();
-        $(".retTab").trigger(fakeEvent.mousedown);
-        paramName = "param"+randInt();
-        $(".retTabSection .inputSection .newParam").val(paramName);
-        $(".addParam").click();
-        $(".retTab").trigger(fakeEvent.mousedown);
+        var $dataflowView = $("#dataflowView");
+
+        // select dfg
+        $dataflowView.find(".listBox .label:contains('" + dfgName + "')").click();
+
+        // add param to retina
+        var $retTab = $dataflowView.find(".retTab");
+        var $retPopup = $dataflowView.find(".retPopUp");
+        paramName = "param" + randInt();  // globals in the module
+
+        $retTab.trigger(fakeEvent.mousedown);
+        $retPopup.find(".newParam").val(paramName);
+        $retPopup.find(".addParam").click();
+        $retTab.trigger(fakeEvent.mousedown);
+
         // Add parameter to export
-        $(".dagTable.export").click();
-        $(".createParamQuery").trigger(fakeEvent.mouseup);
-        $(".editableRow .tdWrapper .defaultParam").click();
-        $(".editableParamDiv").html('export-<div id="draggableParam-'+paramName+
-          '" class="draggableDiv" draggable="true" '+
-          'ondragstart="DagParamModal.paramDragStart(event)" '+
-          'ondragend="DagParamModal.paramDragEnd(event)" ondrop="return false" '
-          +'title="click and hold to drag" contenteditable="false">'+
-          '<div class="icon"></div><span class="delim">&lt;</span>'+
-          '<span class="value">'+paramName+'</span><span class="delim">&gt;'+
-          '</span><div class="close"></div></div>.csv');
-        $row = $("#dagModleParamList").find(".unfilled:first");
-        fileName = "file"+randInt();
+        $dataflowView.find(".dagTable.export").click();
+        $dataflowView.find(".createParamQuery").trigger(fakeEvent.mouseup);
+
+        var $dagParamModal = $("#dagParameterModal");
+        $dagParamModal.find(".editableRow .defaultParam").click();
+        $dagParamModal.find(".editableParamDiv").html(
+            'export-<div id="draggableParam-' + paramName +
+            '" class="draggableDiv" draggable="true" ' +
+            'ondragstart="DagParamModal.paramDragStart(event)" ' +
+            'ondragend="DagParamModal.paramDragEnd(event)" ondrop="return false" ' +
+            'title="click and hold to drag" contenteditable="false">' +
+            '<div class="icon"></div><span class="delim">&lt;</span>' +
+            '<span class="value">' + paramName +
+            '</span><span class="delim">&gt;' +
+            '</span><div class="close"></div></div>.csv'
+        );
+
+        var $row = $("#dagModleParamList").find(".unfilled:first");
+        fileName = "file" + randInt();
+
         $row.find(".paramName").text(paramName)
             .end()
             .find(".paramVal").val(fileName).removeAttr("disabled")
             .end()
             .removeClass("unfilled");
-        $("#dagParameterModal .modalBottom .confirm").click();
-        // Attach schedule to  dfg
-        $(".dataFlowGroup .listBox .label:contains('"+dfgName+"'):eq(1)")
-        .parent().find(".addGroup").click();
-        $(".scheduleList .iconWrapper").click();
-        $(".scheduleList ul li:contains('"+schedName+"')").click();
-        $("#addScheduleModal .modalBottom .confirm").click();
-        TestSuite.pass(deferred, testName, currentTestNumber);
+        $dagParamModal.find(".modalBottom .confirm").click();
+
+        checkExists(".dagTable.export.hasParam")
+        .then(function() {
+            TestSuite.pass(deferred, testName, currentTestNumber);
+        })
+        .fail(function(error) {
+            TestSuite.fail(deferred, testName, currentTestNumber, error);
+        });
     }
+
+    function addDFGToSchedTest(deferred, testName, currentTestNumber) {
+        // Attach schedule to dfg
+        var $listBox = $("#dataflowView .dataFlowGroup .listBox").filter(function() {
+            return $(this).find(".label").text() === dfgName;
+        });
+
+        $listBox.find(".addGroup").click();
+
+        // select schedule
+        var $addSchedModal = $("#addScheduleModal");
+        var $schedList = $addSchedModal.find(".scheduleList");
+        $schedList.find(".iconWrapper").click()
+                .end()
+                .find("ul li:contains('" + schedName + "')").click();
+        $addSchedModal.find(".modalBottom .confirm").click();
+
+        var selector = "#dataflowView .midContentHeader " +
+                    ".schedulesList:contains('schedules: " + schedName + "')";
+        checkExists(selector)
+        .then(function() {
+            TestSuite.pass(deferred, testName, currentTestNumber);
+        })
+        .fail(function(error) {
+            TestSuite.fail(deferred, testName, currentTestNumber, error);
+        });
+    }
+
+    // function addSche
 // ================= ADD TESTS TO ACTIVATE THEM HERE ======================= //
     TestSuite.add(testCases, flightTest, "FlightTest", defaultTimeout,
                   TestCaseEnabled);
@@ -957,6 +1023,8 @@ window.TestSuite = (function($, TestSuite) {
     TestSuite.add(testCases, dfgTest, "DFGTest",
                   defaultTimeout, TestCaseEnabled);
     TestSuite.add(testCases, retinaTest, "RetinaTest",
+                  defaultTimeout, TestCaseEnabled);
+    TestSuite.add(testCases, addDFGToSchedTest, "AddDFGToScheduleTest",
                   defaultTimeout, TestCaseEnabled);
 // =========== TO RUN, OPEN UP CONSOLE AND TYPE TestSuite.run() ============ //
     return (TestSuite);
