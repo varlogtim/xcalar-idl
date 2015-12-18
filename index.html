@@ -1931,7 +1931,9 @@
         </table>
       </div>
       <div class="border"></div>
-      <div class="currentParameterList retinaModalSection">
+      <div class="currentParameterList retinaModalSection"
+        ondragover="DagParamModal.allowParamDrop(event)"
+        ondrop="DagParamModal.paramDropRemove(event)">
         <span class="heading">Current Parameter List:</span>
         <div class="draggableParams"></div>
       </div>

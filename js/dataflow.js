@@ -1198,7 +1198,8 @@ window.DagParamModal = (function($, DagParamModal){
                 },
                 "container": "#dagParameterModal",
                 "bounds": "#dagParameterModal",
-                "bottomPadding": 5
+                "bottomPadding": 5,
+                "exclude": '.draggableDiv, .defaultParam'
             });
 
             XcalarListXdfs('*', 'Conditional*')
@@ -1272,7 +1273,7 @@ window.DagParamModal = (function($, DagParamModal){
             }).find('#' + paramId + ':first').remove();
             // we remove the dragging div from its source
         }
-
+        
         $dropTarget.append($draggableParam);
 
         var paramName = $draggableParam.find('.value').text();
@@ -1284,6 +1285,17 @@ window.DagParamModal = (function($, DagParamModal){
             var dfg = DFG.getGroup($dagParamModal.data("dfg"));
             var paramVal = dfg.getParameter(paramName) || "";
             addParamToLists(paramName, paramVal);
+        }
+    };
+
+    DagParamModal.paramDropRemove = function(event) {
+        // remove the paramDiv if dropped in .currentParameterList
+        var data = $editableRow.data('origin');
+        if (data !== 'home') {
+            var paramId = event.dataTransfer.getData("text");
+            $editableRow.find('.editableParamDiv').filter(function() {
+                return ($(this).data('target') === data);
+            }).find('#' + paramId + ':first').remove();
         }
     };
 

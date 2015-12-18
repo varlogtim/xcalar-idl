@@ -430,9 +430,11 @@ window.xcHelper = (function($, xcHelper) {
             onOpen: callback to trigger when list opens/shows
             container: will hide all other list in the container when focus on
                        this one. Default is $dropDownList.parent()
-            $bounds: restrain the dropdown list size to this element
+            bounds: restrain the dropdown list size to this element
             bottomPadding: integer for number of pixels of spacing between
-                           bottom of list and $bounds
+                           bottom of list and $bounds,
+            exclude: selector for an element to exclude from default click
+                     behavior
          *
          * Note that options can be extented if nesessary
          */
@@ -460,6 +462,7 @@ window.xcHelper = (function($, xcHelper) {
         var $bounds = options.bounds ? $(options.bounds) : $(window);
         var bottomPadding = options.bottomPadding || 0;
         var scrollerOnly = options.scrollerOnly;
+        var exclude = options.exclude ? options.exclude : false;
         var outerHeight;
         var innerHeight;
         var isMouseInScroller = false;
@@ -483,7 +486,10 @@ window.xcHelper = (function($, xcHelper) {
                     toggleDropdownList($(this).closest(".dropDownList"));
                 });
             } else {
-                $dropDownList.on("click", function(event) {
+                $dropDownList.on("click", function(event) { 
+                    if (exclude && $(event.target).closest(exclude).length) {
+                        return;
+                    }
                     event.stopPropagation();
                     toggleDropdownList($(this));
                 });
