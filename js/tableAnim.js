@@ -1801,6 +1801,7 @@ function addMenuBehaviors($mainMenu) {
     var $allMenus = $mainMenu;
     var subMenuId = $mainMenu.data('submenu');
     var hideTimeout;
+    var showTimeout;
 
     if (subMenuId) {
         $subMenu = $('#' + subMenuId);
@@ -1849,6 +1850,7 @@ function addMenuBehaviors($mainMenu) {
                 $li.closest('.clickable').length === 0) {
                 // hide li if doesnt have an input field
                 closeMenu($allMenus);
+                clearTimeout(showTimeout);
             }
         });
 
@@ -1890,6 +1892,7 @@ function addMenuBehaviors($mainMenu) {
         if (!$li.hasClass('unavailable')) {
             // hide li if doesnt have a submenu or an input field
             closeMenu($allMenus);
+            clearTimeout(showTimeout);
             if (!$li.hasClass('functions')) {
                 $('.selectedCell').removeClass('selectedCell');
             }
@@ -1926,7 +1929,7 @@ function addMenuBehaviors($mainMenu) {
             if (event.keyTriggered) { // mouseenter triggered by keypress
                 showSubMenu($li, subMenuClass);
             } else {
-                setTimeout(function() {
+                showTimeout = setTimeout(function() {
                     showSubMenu($li, subMenuClass);
                 }, 150);
             }

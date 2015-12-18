@@ -1707,6 +1707,9 @@ window.ColManager = (function($, ColManager) {
     // Help Functon for pullAllCols and pullCOlHelper
     // parse tableCol.func.args
     function parseColFuncArgs(key) {
+        if (key == null) {
+            return ("");
+        }
         var nested = key.replace(/\]/g, "")
                         .replace(/\[/g, ".")
                         .match(/([^\\.]|\\.)+/g);
