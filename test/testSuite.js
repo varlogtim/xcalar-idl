@@ -10,10 +10,10 @@ window.TestSuite = (function($, TestSuite) {
     var passes = 0;
     var fails = 0;
     var skips = 0;
-    var testCases = [];
     var disableIsPass = true;
     var startTime = 0;
     var totTime = 0;
+    var testCases = [];
 
     // For assert to use
     var curTestNumber;
@@ -74,14 +74,13 @@ window.TestSuite = (function($, TestSuite) {
         }
     };
 
-    TestSuite.add = function(testCases, testFn, testName, timeout,
-                             testCaseEnabled) {
-        testCases[testCases.length] = {
-            "testFn": testFn,
-            "testName": testName,
-            "timeout": timeout,
+    TestSuite.add = function(testFn, testName, timeout, testCaseEnabled) {
+        testCases.push({
+            "testFn"         : testFn,
+            "testName"       : testName,
+            "timeout"        : timeout,
             "testCaseEnabled": testCaseEnabled
-        };
+        });
     };
 
     TestSuite.run = function(hasAnimation) {
@@ -191,13 +190,14 @@ window.TestSuite = (function($, TestSuite) {
     // example: ".xcTable" or ["#xcTable-ex1", "#xcTable-ex2"]
     function checkExists(elemSelectors, timeLimit, options) {
         var deferred = jQuery.Deferred();
-        var intervalTime = 200;
-        var timeLimit = timeLimit || 10000;
-        var timeElapsed = 0;
+        timeLimit = timeLimit || 10000;
         options = options || {};
-        var notExists = options.notExists // if true, we're actualy doing a
+
+        var intervalTime = 200;
+        var timeElapsed = 0;
+        var notExists = options.notExists; // if true, we're actualy doing a
         // check to make sure the element DOESN"T exist
-        var optional = options.optional // if true, existence of element is
+        var optional = options.optional; // if true, existence of element is
         // optional and we return deferred.resolve regardless
 
         if (typeof elemSelectors === "string") {
@@ -330,7 +330,7 @@ window.TestSuite = (function($, TestSuite) {
         // Select columns in dataset and send to worksheet
         function flightTestPart2(dsName1, dsName2) {
             $("#dataset-" + dsName2 + " .gridIcon").click();
-            checkExists("#worksheetTable[data-dsname=" + dsName2 +"]")
+            checkExists("#worksheetTable[data-dsname=" + dsName2 + "]")
             .then(function() {
                 $("#selectDSCols .icon").click();
                 $("#dataset-" + dsName1 + " .gridIcon").click();
@@ -397,7 +397,7 @@ window.TestSuite = (function($, TestSuite) {
                 $($(".argumentTable .argument")[1]).val("uniqueNum");
                 $("#operationsModal .modalBottom .confirm").click();
                 return (checkExists(".flexWrap.flex-mid" +
-                        " input[value='uniqueNum']:eq(0)"))
+                        " input[value='uniqueNum']:eq(0)"));
             })
             .then(function() {
                 flightTestPart4();
@@ -432,7 +432,7 @@ window.TestSuite = (function($, TestSuite) {
         }
 
         // Upload python script
-       function flightTestPart5() {
+        function flightTestPart5() {
             $("#udfBtn").click();
             $("#udf-tabs div[data-tab='udf-fnSection'] .label").click();
             var editor = UDF.getEditor();
@@ -457,9 +457,8 @@ window.TestSuite = (function($, TestSuite) {
                     flightTestPart6();
                 })
                 .fail(function(error) {
-                     console.error(error, "flightTestPart5");
-                     TestSuite.fail(deferred, testName, currentTestNumber,
-                                    error);
+                    console.error(error, "flightTestPart5");
+                    TestSuite.fail(deferred, testName, currentTestNumber, error);
                 });
             });
         }
@@ -570,15 +569,15 @@ window.TestSuite = (function($, TestSuite) {
                 return checkExists("#alertHeader:visible .text:contains(Agg)");
             })
             .then(function() {
-                 if ($("#alertContent .text").html().split(": ")[1]
-                     .indexOf("31.229") > -1) {
-                     $("#alertActions .cancel").click();
-                     TestSuite.pass(deferred, testName, currentTestNumber);
-                 } else {
-                     console.log(error, "Average value wrong");
-                     TestSuite.fail(deferred, testName, currentTestNumber,
+                if ($("#alertContent .text").html().split(": ")[1]
+                    .indexOf("31.229") > -1) {
+                    $("#alertActions .cancel").click();
+                    TestSuite.pass(deferred, testName, currentTestNumber);
+                } else {
+                    console.log(error, "Average value wrong");
+                    TestSuite.fail(deferred, testName, currentTestNumber,
                                     "Average value wrong");
-                 }
+                }
             })
             .fail(function(error) {
                 console.error(error, "flightTestPart9");
@@ -1000,31 +999,30 @@ window.TestSuite = (function($, TestSuite) {
 
     // function addSche
 // ================= ADD TESTS TO ACTIVATE THEM HERE ======================= //
-    TestSuite.add(testCases, flightTest, "FlightTest", defaultTimeout,
-                  TestCaseEnabled);
-    TestSuite.add(testCases, newWorksheetTest, "NewWorksheetTest",
+    TestSuite.add(flightTest, "FlightTest", defaultTimeout, TestCaseEnabled);
+    TestSuite.add(newWorksheetTest, "NewWorksheetTest",
                   defaultTimeout, TestCaseEnabled);
-    TestSuite.add(testCases, multiGroupByTest, "MultiGroupByTest",
+    TestSuite.add(multiGroupByTest, "MultiGroupByTest",
                   defaultTimeout, TestCaseDisabled);
-    TestSuite.add(testCases, multiJoinTest, "MultiJoinTest",
+    TestSuite.add(multiJoinTest, "MultiJoinTest",
                   defaultTimeout, TestCaseEnabled);
-    TestSuite.add(testCases, columnRenameTest, "ColumnRenameTest",
+    TestSuite.add(columnRenameTest, "ColumnRenameTest",
                   defaultTimeout, TestCaseEnabled);
-    TestSuite.add(testCases, tableRenameTest, "TableRenameTest",
+    TestSuite.add(tableRenameTest, "TableRenameTest",
                   defaultTimeout, TestCaseEnabled);
-    TestSuite.add(testCases, profileTest, "ProfileTest",
+    TestSuite.add(profileTest, "ProfileTest",
                   defaultTimeout, TestCaseEnabled);
-    TestSuite.add(testCases, corrTest, "CorrelationTest",
+    TestSuite.add(corrTest, "CorrelationTest",
                   defaultTimeout, TestCaseEnabled);
-    TestSuite.add(testCases, aggTest, "QuickAggregateTest",
+    TestSuite.add(aggTest, "QuickAggregateTest",
                   defaultTimeout, TestCaseEnabled);
-    TestSuite.add(testCases, schedTest, "ScheduleTest",
+    TestSuite.add(schedTest, "ScheduleTest",
                   defaultTimeout, TestCaseEnabled);
-    TestSuite.add(testCases, dfgTest, "DFGTest",
+    TestSuite.add(dfgTest, "DFGTest",
                   defaultTimeout, TestCaseEnabled);
-    TestSuite.add(testCases, retinaTest, "RetinaTest",
+    TestSuite.add(retinaTest, "RetinaTest",
                   defaultTimeout, TestCaseEnabled);
-    TestSuite.add(testCases, addDFGToSchedTest, "AddDFGToScheduleTest",
+    TestSuite.add(addDFGToSchedTest, "AddDFGToScheduleTest",
                   defaultTimeout, TestCaseEnabled);
 // =========== TO RUN, OPEN UP CONSOLE AND TYPE TestSuite.run() ============ //
     return (TestSuite);
