@@ -373,11 +373,15 @@ function unloadHandler(isAsync) {
         })
         .always(function() {
             sessionStorage.setItem("xcalar-username", "");
-            window.onbeforeunload = function() {}; // Do not enable prompt
-            window.onunload = function() {}; // do not call unload again
+            removeUnloadPrompt();
             window.location = "dologout.html";
         });
     }
+}
+
+function removeUnloadPrompt() {
+    window.onbeforeunload = function() {}; // Do not enable prompt
+    window.onunload = function() {}; // do not call unload again
 }
 
 function setupTooltips() {

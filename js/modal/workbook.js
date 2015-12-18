@@ -760,6 +760,7 @@ window.WKBKManager = (function($, WKBKManager) {
             return XcalarKeyPut(activeWKBKKey, wkbkId, true, gKVScope.WKBK);
         })
         .then(function() {
+            removeUnloadPrompt();
             location.reload();
         })
         .fail(function(error) {
@@ -814,6 +815,7 @@ window.WKBKManager = (function($, WKBKManager) {
             return XcalarKeyDelete(activeWKBKKey, gKVScope.WKBK);
         })
         .then(function() {
+            removeUnloadPrompt();
             location.reload();
             deferred.resolve();
         })
