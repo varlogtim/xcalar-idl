@@ -456,6 +456,7 @@ window.Scheduler = (function(Scheduler, $) {
         } else {
             updateSchedule(schedule, options);
         }
+        xcHelper.showSuccess();
     }
 
     function resetScheduleForm() {

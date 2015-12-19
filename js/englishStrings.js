@@ -93,7 +93,7 @@ ErrorTextTStr = {
 
     'MVFolderConflict': 'Cannot move, name conflicts with files in target folder',
 
-    'TimeExpire': 'This time already expires, please choose another time.',
+    'TimeExpire': 'Please choose a time that is in the future.',
 
     'LongFileName': 'File Name is too long, please use less than 255 chars.',
 
