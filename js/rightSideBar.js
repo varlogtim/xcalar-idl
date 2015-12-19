@@ -373,7 +373,7 @@ window.RightSideBar = (function($, RightSideBar) {
 
     function renameOrphanIfNeeded(tableName) {
         var deferred = jQuery.Deferred();
-        tableId = xcHelper.getTableId(tableName);
+        var tableId = xcHelper.getTableId(tableName);
         var newTableName;
         if (!tableId) {
             newTableName = tableName + Authentication.getHashId();
@@ -1265,7 +1265,7 @@ window.RightSideBar = (function($, RightSideBar) {
         var colNum = $listCol.index();
         var tableId = $listCol.closest('.tableInfo').data('id');
         var wsId = WSManager.getWSFromTable(tableId);
-        $('#worksheetTab-' + wsId).click();
+        $('#worksheetTab-' + wsId).trigger(fakeEvent.mousedown);
         var animation;
         
         if (gMinModeOn) {

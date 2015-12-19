@@ -183,7 +183,7 @@ function gResrowMouseUp() {
     $('#row-resizeCursor').remove();
     reenableTextSelection();
     $('body').removeClass('hideScroll');
-    $table = $('#xcTable-' + gResrow.tableId);
+    var $table = $('#xcTable-' + gResrow.tableId);
     $table.find('tr').removeClass('notDragging dragging');
     if (gTables[gActiveTableId].resultSetCount !== 0) {
         generateFirstVisibleRowNum();
@@ -384,13 +384,13 @@ function createTransparentDragDropCol(pageX) {
                         '</table>' +
                     '</div>');
     dragObj.fauxCol = $('#fauxCol');
-    $fauxTable = $('#fauxTable');
+    var $fauxTable = $('#fauxTable');
     
     var rowHeight = 30;
     // turn this into binary search later
     var topPx = $table.find('.header').offset().top - rowHeight;
     var topRowIndex = -1;
-
+    var topRowEl;
     $table.find('tbody tr').each(function() {
         if ($(this).offset().top > topPx) {
             topRowIndex = $(this).index();
@@ -1157,6 +1157,7 @@ function sortAllTableColumns(tableId, direction) {
     var table = gTables[tableId];
     var tableCols = table.tableCols;
     var order;
+    var newIndex;
     if (direction === "reverse") {
         order = 1;
     } else {
@@ -2060,10 +2061,11 @@ function addMenuKeyboardNavigation($menu, $subMenu) {
         });
 
         var $highlightedSubLi = "";
-
+        var $subLis;
+        var numSubLis;
         if ($subMenu) {
-            var $subLis = $subMenu.find('li:visible');
-            var numSubLis = $subLis.length;
+            $subLis = $subMenu.find('li:visible');
+            numSubLis = $subLis.length;
             $highlightedSubLi = $subLis.filter('.selected');
         }
 
@@ -2872,6 +2874,7 @@ function cleanseFunc(funcString, name) {
 
 function dropdownClick($el, options) {
     options = options || {};
+    var tableId;
 
     if (!options.type) {
         console.error("Wrong dropdownClick call");
@@ -2879,7 +2882,7 @@ function dropdownClick($el, options) {
     }
 
     if (options.type !== "tabMenu") {
-        var tableId = xcHelper.parseTableId($el.closest(".xcTableWrap"));
+        tableId = xcHelper.parseTableId($el.closest(".xcTableWrap"));
     }
     
     var $menu;
@@ -2921,8 +2924,8 @@ function dropdownClick($el, options) {
         $subMenu = $('#colSubMenu');
         $allMenus = $menu.add($subMenu);
         // case that should close column menu
-        if ($menu.is(":visible") && $menu.data("colNum") === options.colNum
-            && $menu.data('tableId') === tableId && !$menu.hasClass('tdMenu')) {
+        if ($menu.is(":visible") && $menu.data("colNum") === options.colNum &&
+            $menu.data('tableId') === tableId && !$menu.hasClass('tdMenu')) {
             closeMenu($allMenus);
             return;
         }
@@ -3152,6 +3155,7 @@ function adjustRowHeights(newCells, rowIndex, tableId) {
     var lastPageNum = pageNum + Math.ceil(numRows / gNumEntriesPerPage);
     var padding = 4;
     var $row;
+    var $firstTd;
 
     for (var i = pageNum; i < lastPageNum; i++) {
         if (rowObj[i]) {
@@ -3669,12 +3673,13 @@ function removeWaitCursor() {
 function centerPositionElement($target, options) {
     // to position elements in the center of the window i.e. for modals
     var $window = $(window);
+    var top;
     options = options || {};
 
     if (!options.horizontalOnly) {
         var winHeight   = $window.height();
         var modalHeight = $target.height();
-        var top  = ((winHeight - modalHeight) / 2);
+        top  = ((winHeight - modalHeight) / 2);
         if (options.limitTop) {
             top = Math.max(top, 0);
         }
