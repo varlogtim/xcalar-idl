@@ -84,7 +84,7 @@ window.DFG = (function($, DFG) {
                     var xoffset = 0;
                     var vertDist = Math.abs(top2 - top1);
                     if (vertDist < 60) {
-                        var xoffset = 2000 / vertDist;
+                        xoffset = 2000 / vertDist;
                     }
                     var midLeft = left2 - 190 + xoffset;
                     ctx.lineTo(midLeft, top1);
@@ -191,31 +191,7 @@ window.DFG = (function($, DFG) {
             canvasInfo.width += 150;
         }
         return ({canvasInfo: canvasInfo, tableName: tableName});
-    }
-
-    function drawCurve(ctx, coor) {
-        var x1 = coor.x1;
-        var y1 = coor.y1;
-        var x2 = coor.x2;
-        var y2 = coor.y2;
-        var vertDist = y2 - y1;
-
-        var xoffset = 0;
-        if (vertDist < 60) {
-            xoffset = 1000 / vertDist;
-        }
-       
-        ctx.beginPath();
-        ctx.moveTo(x1 + xoffset, y1);
-        ctx.bezierCurveTo( x2 + 50, y1,
-                            x2 + 50, y1 + (vertDist + 16) * 2,
-                            x1 + xoffset, y1 + (vertDist + 16) * 2 + 1);
-        ctx.moveTo(x1 - 10, y1);
-        ctx.lineTo(x1 + xoffset, y1);
-        ctx.moveTo(x1 - 10, y1 + (vertDist + 17) * 2);
-        ctx.lineTo(x1 + xoffset, y1 + (vertDist + 16) * 2 + 1);
-        ctx.stroke();
-    }
+    };
 
     function createRetina(retName, isNew) {
         var deferred = jQuery.Deferred();
@@ -504,7 +480,8 @@ window.DFGPanel = (function($, DFGPanel) {
     }
 
     function addListeners() {
-        $listSection.on('click', '.dataFlowGroup', function() {
+        $listSection.on('click', '.dataFlowGroup', function(event, options) {
+            options = options || {};
             var $dfg = $(this);
             var $groupLi = $dfg.find('.listBox');
             if ($groupLi.hasClass('selected')) {
@@ -521,7 +498,7 @@ window.DFGPanel = (function($, DFGPanel) {
             $listSection.find('.listBox').removeClass('selected');
             $groupLi.addClass('selected');
 
-            if (gMinModeOn) {
+            if (gMinModeOn || options.show) {
                 $listSection.find('.list').hide();
                 $dfg.find('.list').show();
             } else {
@@ -553,6 +530,10 @@ window.DFGPanel = (function($, DFGPanel) {
             } else {
                 $dfgView.show();
                 $schedulesView.hide();
+                if ($dfgView.find('.listBox.selected').length === 0) {
+                    $dfgView.find('.listBox').eq(0).trigger('click',
+                                                            {show: true});
+                }
             }
             $button.siblings().removeClass('active');
             $button.addClass('active');
@@ -762,9 +743,13 @@ window.DFGPanel = (function($, DFGPanel) {
     }
 
     function updateList() {
-        resetDFGView();
-
+        // resetDFGView();
         var groups = DFG.getAllGroups();
+        var $activeGroup = $dfgView.find('.listBox.selected');
+        var activeGroupName;
+        if ($activeGroup.length) {
+            activeGroupName = $activeGroup.find('.label').text();
+        }
         var html = "";
         var numGroups = 0;
         for (var group in groups) {
@@ -789,7 +774,6 @@ window.DFGPanel = (function($, DFGPanel) {
                         // '<div class="checkmark"></div>' +
                       '</div>' +
                       '<ul class="sublist list">';
-
             for (var i = 0; i < listLen; i++) {
                 html += '<li>' + list[i].name + '</li>';
             }
@@ -798,12 +782,11 @@ window.DFGPanel = (function($, DFGPanel) {
         }
         $dfgView.find('.listSection').html(html);
         $dfgView.find('.numGroups').text(numGroups);
-    }
-
-    function resetDFGView() {
-        $dfgView.find('.dagWrap').remove();
-        $header.empty();
-        $dfgView.find('.midContentHeader .schedulesList').empty();
+        if (activeGroupName) {
+            $dfgView.find('.listBox').filter(function() {
+                return ($(this).find('.label').text() === activeGroupName);
+            }).closest('.listBox').trigger('click', {show: true});
+        }
     }
 
     return (DFGPanel);
@@ -1211,7 +1194,7 @@ window.DagParamModal = (function($, DagParamModal){
                     fnNames.push(ret.fnDescs[i].fnName);
                 }
                 fnNames = fnNames.sort();
-                for (var i = 0; i < numXdfs; i++) {
+                for (i = 0; i < numXdfs; i++) {
                     html += '<li>' + fnNames[i] + '</li>';
                 }
                 $list.find('ul').html(html);
@@ -1501,7 +1484,7 @@ window.DagParamModal = (function($, DagParamModal){
                     var numParams = params.length;
                     var param;
                     var val;
-                    var filterParamText = filterText;;
+                    var filterParamText = filterText;
                     var find;
                     var rgx;
                     for (var i = 0; i < numParams; i++) {
