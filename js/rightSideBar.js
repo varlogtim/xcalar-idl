@@ -528,7 +528,19 @@ window.RightSideBar = (function($, RightSideBar) {
         $rightSideBar.on("click", ".copySQL", function() {
             var $hiddenInput = $("<input>");
             $("body").append($hiddenInput);
-            $hiddenInput.val(JSON.stringify(SQL.getLogs())).select();
+            var value;
+            if ($("#rightBarMachineTextArea").is(":visible")) {
+                xcHelper.assert((!$("#rightBarTextArea").is(":visible")),
+                                "human and android cannot coexist!");
+                value = $("#rightBarMachineTextArea").text();
+            } else {
+                xcHelper.assert((!$("#rightBarMachineTextArea").is(":visible")),
+                                "human and android cannot coexist!");
+                xcHelper.assert(($("#rightBarTextArea").is(":visible")),
+                                "At least one bar should be showing");
+                value = JSON.stringify(SQL.getLogs());
+            }
+            $hiddenInput.val(value).select();
             document.execCommand("copy");
             $hiddenInput.remove();
         });
