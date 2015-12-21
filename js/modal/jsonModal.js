@@ -75,11 +75,7 @@ window.JSONModal = (function($, JSONModal) {
 
         if (!isModalOpen) {
             $(".tooltip").hide();
-            var tableTitle = $jsonTd.closest(".xcTableWrap")
-                                .find(".xcTheadWrap .tableTitle .text")
-                                .data("title");
             $(".xcTable").find(".highlightBox").remove();
-            $jsonModal.find(".jsonDragArea").text(tableTitle);
             $searchInput.val("");
             modalHelper.setup();
             jsonModalDocumentEvent();
