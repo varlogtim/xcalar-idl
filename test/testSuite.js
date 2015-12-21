@@ -53,8 +53,8 @@ window.TestSuite = (function($, TestSuite) {
         if (deferred.state() === "pending") {
             fails++;
             console.warn("Test " + testName + " failed -- " + reason);
-            console.warn("not ok " + currentTestNumber + " - Test \"" + testName
-                          + "\" failed (" + reason + ")");
+            console.warn("not ok " + currentTestNumber + " - Test \"" +
+                         testName + "\" failed (" + reason + ")");
             deferred.reject();
         } else {
             console.error("Invalid state", deferred.state());
@@ -168,8 +168,8 @@ window.TestSuite = (function($, TestSuite) {
                 }
             }
             var alertMsg = "Passes: " + passes + ", Fails: " + fails +
-                            ", Time: "
-                  + totTime / 1000 + "s." + timeMsg + oldTime;
+                            ", Time: " +
+                            totTime / 1000 + "s." + timeMsg + oldTime;
             console.log(alertMsg); // if pop ups are disabled
             alert(alertMsg);
             gMinModeOn = minModeCache;
@@ -997,6 +997,46 @@ window.TestSuite = (function($, TestSuite) {
         });
     }
 
+    function jsonModalTest(deferred, testName, currentTestNumber) {
+        var $jsonModal = $('#jsonModal');
+        $('#workspaceTab').click();
+        $('.worksheetTab').eq(1).trigger(fakeEvent.mousedown);
+        $activeTable = $('.xcTable:visible').eq(0);
+        $activeTable.find('.jsonElement').eq(0).trigger("dblclick");
+        $activeTable.find('.jsonElement').eq(1).trigger("dblclick");
+        checkExists(['#jsonModal .jsonWrap:eq(0)',
+                    '#jsonModal .jsonWrap:eq(1)'])
+        .then(function() {
+            // compare matches on 2 data browser columns
+            $jsonModal.find('.checkMark').eq(0).trigger(fakeEvent.click);
+            $jsonModal.find('.checkMark').eq(1).trigger(fakeEvent.click);
+            assert($jsonModal.find('.matched').eq(0).text() ===
+                   $jsonModal.find('.matched').eq(1).text());
+
+            // click on a 3rd column and compare matches
+            $activeTable.find('.jsonElement').eq(2).trigger("dblclick");
+            $('#jsonModal .checkMark').eq(2).trigger(fakeEvent.click);
+            assert($jsonModal.find('.matched').eq(0).text() ===
+                   $jsonModal.find('.matched').eq(2).text() && 
+                   $jsonModal.find('.matched').eq(1).text() ===
+                   $jsonModal.find('.matched').eq(2).text());
+            assert($jsonModal.find('.partial:eq(0)').text() !=
+                    $jsonModal.find('.partial:eq(1)').text());
+            assert($jsonModal.find('.partial:eq(0) > div').length ===
+                    $jsonModal.find('.partial:eq(1) > div').length);
+
+            // generate new column in table
+            $jsonModal.find(".matched:eq(2) > div .jKey")
+                      .trigger(fakeEvent.click);
+            var $newTh = $('.xcTable:visible').eq(0).find('.th.selectedCell');
+            assert($newTh.find('.editableHead').val() === "class_id");
+            TestSuite.pass(deferred, testName, currentTestNumber);
+        })
+        .fail(function(error) {
+            TestSuite.fail(deferred, testName, currentTestNumber, error);
+        });
+    }
+
     // function addSche
 // ================= ADD TESTS TO ACTIVATE THEM HERE ======================= //
     TestSuite.add(flightTest, "FlightTest", defaultTimeout, TestCaseEnabled);
@@ -1023,6 +1063,8 @@ window.TestSuite = (function($, TestSuite) {
     TestSuite.add(retinaTest, "RetinaTest",
                   defaultTimeout, TestCaseEnabled);
     TestSuite.add(addDFGToSchedTest, "AddDFGToScheduleTest",
+                  defaultTimeout, TestCaseEnabled);
+    TestSuite.add(jsonModalTest, "JsonModalTest",
                   defaultTimeout, TestCaseEnabled);
 // =========== TO RUN, OPEN UP CONSOLE AND TYPE TestSuite.run() ============ //
     return (TestSuite);

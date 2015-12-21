@@ -737,7 +737,7 @@ window.Scheduler = (function(Scheduler, $) {
         $scheduleForm.find(".timeSection .time").val(timeStamp)
                      .data("date", date);
         showTimeHelper(date);
-        $(document).on("mousedown.timePicker", function() {
+        $(document).on("mousedown.timePicker", function(event) {
             var $el = $(event.target);
 
             if ($el.hasClass("timePickerBox") ||

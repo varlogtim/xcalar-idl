@@ -419,7 +419,7 @@ window.JSONModal = (function($, JSONModal) {
             $searchInput.css("padding-right", 25);
             return;
         }
-        $targets = $jsonText.find('.text').filter(function() {
+        var $targets = $jsonText.find('.text').filter(function() {
             return ($(this).text().toLowerCase().indexOf(text) !== -1);
         });
         
@@ -596,10 +596,11 @@ window.JSONModal = (function($, JSONModal) {
         jsonObjs = xcHelper.deepCopy(jsonObjs);
         var numExistingComparisons = Object.keys(comparisonObjs).length;
         var numObjs = jsonObjs.length + numExistingComparisons;
-        
+        var numKeys;
+        var keys;
         if (!multiple) {
-            var keys = Object.keys(jsonObjs[0]);
-            var numKeys = keys.length;
+            keys = Object.keys(jsonObjs[0]);
+            numKeys = keys.length;
             var matchedJsons = []; // when both objs have same key and values
             var unmatchedJsons = [];
             var partialMatchedJsons = []; // when both objs have the same key but different values
@@ -768,8 +769,8 @@ window.JSONModal = (function($, JSONModal) {
 
         function compare2Objects(x, y) {
             // check if both are NaN
-            if (isNaN(x) && isNaN(y) && typeof x === 'number'
-                && typeof y === 'number') {
+            if (isNaN(x) && isNaN(y) && typeof x === 'number' &&
+                typeof y === 'number') {
                 return (true);
             }
 

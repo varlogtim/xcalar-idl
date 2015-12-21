@@ -16,17 +16,17 @@ var KeepOriginalTables = {
 var IsActive = {
     Active: true,
     Inactive: false
-}
+};
 
 var AfterStartup = {
     After: true,
     Before: false
-}
+};
 
 var SelectUnit = {
     All: true,
     Single: false
-}
+};
 
 var SPMode = {
     Normal: 1,
@@ -49,12 +49,12 @@ var AffectedEntryAction = {
 var SyncOrAsync = {
     Sync: true,
     Async: false
-}
+};
 
 var ArchiveTable = {
     Delete: true,
     Keep: false
-}
+};
 
 var TableType = {
     "InActive": "inactive",
@@ -67,6 +67,7 @@ var TableType = {
 
 var fakeEvent = {
     "click"     : {"type": "click", "which": 1},
+    "dblclick"  : {"type": "click", "which": 1},
     "mouseup"   : {"type": "mouseup", "which": 1},
     "mousedown" : {"type": "mousedown", "which": 1},
     "mouseenter": {"type": "mouseenter", "which": 1},
