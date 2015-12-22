@@ -1,4 +1,4 @@
-// VERSION.js
+// version.js
 function VersionInfo(options) {
     options = options || {};
     this.version = options.version;

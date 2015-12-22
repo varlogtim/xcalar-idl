@@ -741,7 +741,6 @@ function startupFunctions() {
         JSONModal.setup();
         setupTooltips();
         setupMenuBar();
-        scratchpadStartup();
         StatusMessage.setup();
         WSManager.setup();
         loadMonitorPanel();
