@@ -544,16 +544,12 @@ window.DFGParamModal = (function($, DFGParamModal){
         });
 
         if ($paramLists.find("tr").length < paramListTrLen) {
-<<<<<<< HEAD
             var trsNeeded = paramListTrLen - $paramLists.find("tr").length;
             var html = "";
             for (var i = 0; i < trsNeeded; i++) {
                 html += trTemplate;
             }
             $tbody.append(html);
-=======
-            $paramLists.find('tbody').append(trTemplate);
->>>>>>> 9f86051... dag param modal in progress
         }
     }
 
