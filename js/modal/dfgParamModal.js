@@ -274,21 +274,26 @@ window.DFGParamModal = (function($, DFGParamModal){
 
         $dfgParamModal.find('input.editableParamDiv').each(function() {
             var width = $(this).width();
-            $(this).siblings('.dummyWrap').show().width(width + 1);
+            $(this).siblings('.dummyWrap').show().width(width);
             $(this).hide();
         });
 
         var val;
         var valLen;
         var html = "";
+        var chr;
         $dfgParamModal.find('input.editableParamDiv').each(function() {
             val = $(this).val();
             valLen = val.length;
             html = "";
             for (var i = 0; i < valLen; i++) {
-              html += '<span class="line" ' +
+                chr = val[i];
+                if (chr === " ") {
+                    chr = "&nbsp;";
+                }
+                html += '<span class="line" ' +
                       'ondragover="DFGParamModal.allowParamDrop(event)" ' +
-                      'ondrop="DFGParamModal.paramDropLine(event)">' + val[i] +
+                      'ondrop="DFGParamModal.paramDropLine(event)">' + chr +
                       '</span>';
             }
             html += '<span class="space" ' +
@@ -347,8 +352,7 @@ window.DFGParamModal = (function($, DFGParamModal){
         var secondPart = currentText.substr(index - currentText.length);
         var newVal = firstPart + $draggableParam.text() + secondPart;
         $dropTargParent.text(newVal);
-
-        $dropTargParent.parent().siblings('input').val($dropTargParent.text());
+        $dropTargParent.parent().siblings('input').val(newVal);
 
         checkInputForParam($dropTargParent.parent().siblings('input'));
     };
@@ -365,7 +369,7 @@ window.DFGParamModal = (function($, DFGParamModal){
         var newVal = currentText + $draggableParam.text();
         $dropTargParent.text(newVal);
 
-        $dropTargParent.parent().siblings('input').val($dropTargParent.text());
+        $dropTargParent.parent().siblings('input').val(newVal);
         checkInputForParam($dropTargParent.parent().siblings('input'));
     };
 
@@ -540,12 +544,16 @@ window.DFGParamModal = (function($, DFGParamModal){
         });
 
         if ($paramLists.find("tr").length < paramListTrLen) {
+<<<<<<< HEAD
             var trsNeeded = paramListTrLen - $paramLists.find("tr").length;
             var html = "";
             for (var i = 0; i < trsNeeded; i++) {
                 html += trTemplate;
             }
             $tbody.append(html);
+=======
+            $paramLists.find('tbody').append(trTemplate);
+>>>>>>> 9f86051... dag param modal in progress
         }
     }
 
