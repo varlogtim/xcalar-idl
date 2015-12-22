@@ -163,6 +163,7 @@ window.AddScheduleModal = (function($, AddScheduleModal) {
         $(document).off(".addScheduleModal");
         modalHelper.clear();
 
+
         var fadeOutTime = gMinModeOn ? 0 : 300;
 
         $modal.hide();

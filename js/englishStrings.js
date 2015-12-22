@@ -31,11 +31,11 @@ StatusMessageTStr = {
 'FilterFailed' : 'Filter failed',
 'Statistics' : 'Generating statistical analysis',
 'StatisticsFailed' : 'Statistical analysis failed'
-}
+};
 
 TooltipTStr = {
 'ComingSoon': 'Coming Soon'
-}
+};
 
 ErrorTextTStr = {
     'NoEmpty': 'Please fill out this field.',
@@ -48,6 +48,14 @@ ErrorTextTStr = {
                         'please choose a file or folder to import.',
 
     'NoSpecialChar': "Please input a valid name with no special characters.",
+
+    'NoSpecialCharOrSpace': "Please input a valid name with no special" +
+                            " characters or spaces.",
+                            
+    'NoSpecialCharInParam': "No special characters or spaces allowed within" +
+                            " parameter braces.",
+
+    'UnclosedParamBracket': "Unclosed parameter bracket detected.",
 
     'NoEmptyList': 'Please choose an option on the dropdown list.',
 
@@ -103,7 +111,7 @@ ErrorTextTStr = {
 
     'ContinueVerification': 'Are you sure you want to continue?'
 
-}
+};
 
 ErrorTextWReplaceTStr = {
     'FolderConflict': 'Folder "<name>" already exists, ' +
@@ -125,7 +133,7 @@ ErrorTextWReplaceTStr = {
     'InvalidCol': 'Column "<name>" does not exist.',
     'InvalidRange': 'Please enter a value between <num1> and <num2>.'
 
-}
+};
 
 TipsTStr = {
     "Scrollbar": "Scroll Table Here",
@@ -135,13 +143,13 @@ TipsTStr = {
     "JSONEle": "Double-click to view, then click on key names to pull columns",
     "ToggleGridView": "Toggle between grid view and list view",
     "DragGrid": "You can drag datasets or folders around to reorder",
-    "DataSampleTable": "Click table header to add/remove columns to/from "
-        + "data cart. Click on column headings to further modify the column.",
+    "DataSampleTable": "Click table header to add/remove columns to/from " +
+        "data cart. Click on column headings to further modify the column.",
     "Datacart": "Datacart area, you can add columns from datasets into your "+
-                "cart. These columns will be used to create the table in your"+
-                "active worksheet. You can add columns in the worksheet screen "
-                + "too.",
+                "cart. These columns will be used to create the table in your "+
+                "active worksheet. You can add columns in the worksheet " +
+                "screen too.",
     "PullRightsidebar": "Click to open and close side bar",
     "TablList": "Click to see details",
     "PullColumn": "Click key to add the column to your table"
-}
+};

@@ -5,9 +5,10 @@ window.DFGParamModal = (function($, DFGParamModal){
 
     var $paramLists  = $("#dagModleParamList");
     var $editableRow = $dfgParamModal.find('.editableRow');
+    var validParams = [];
     var dropdownHelper;
 
-    var paramListTrLen = 6;
+    var paramListTrLen = 5;
     var trTemplate = '<tr class="unfilled">' +
                         '<td class="paramNameWrap">' +
                             '<div class="paramName"></div>' +
@@ -41,18 +42,11 @@ window.DFGParamModal = (function($, DFGParamModal){
 
     DFGParamModal.setup = function() {
         $dfgParamModal.find('.cancel, .close').click(function() {
-            closeDfgParamModal();
+            closeDFGParamModal();
         });
 
         $dfgParamModal.find('.confirm').click(function() {
             storeRetina();
-        });
-
-        $dfgParamModal.on('click', '.draggableDiv .close', function() {
-            var paramVal = $(this).siblings('.value').text();
-            $(this).parent().remove();
-
-            updateParamList(paramVal);
         });
 
         $dfgParamModal.on('focus', '.paramVal', function() {
@@ -76,11 +70,17 @@ window.DFGParamModal = (function($, DFGParamModal){
         });
 
         $dfgParamModal.on("click", ".editableTable .defaultParam", function() {
-            setParamDivToDefault($(this).siblings(".editableParamDiv"));
+            setParamDivToDefault($(this).siblings("input"));
         });
 
+        var checkInputTimeout;
         $dfgParamModal.on("input", ".editableParamDiv", function() {
-            suggest($(this));
+            var $input = $(this);
+            suggest($input);
+            clearTimeout(checkInputTimeout);
+            checkInputTimeout = setTimeout(function() {
+                checkInputForParam($input);
+            }, 200);
         });
 
         $dfgParamModal.on('click', function(event) {
@@ -144,13 +144,13 @@ window.DFGParamModal = (function($, DFGParamModal){
 
             defaultText += "<td class='static'>by</td>";
             defaultText += "<td><div class='boxed small'>" +
-                            filterTypeMap[abbrFilterType] + "</div></td>";
+                            abbrFilterType + "</div></td>";
             defaultText += "<td><div class='boxed medium'>" +
                             filterValue + "</div></td>";
 
             editableText += getParameterInputHTML(0, "medium") +
                             '<td class="static">by</td>' +
-                            getParameterInputHTML(1, "medium", {filter: true}) +
+                            getParameterInputHTML(1, "sm-med", {filter: true}) +
                             getParameterInputHTML(2, "medium allowEmpty");
             
         } else if (type === "dataStore" || type === "export") {
@@ -164,12 +164,15 @@ window.DFGParamModal = (function($, DFGParamModal){
 
 
         var draggableInputs = "";
+        validParams = [];
         DFG.getGroup(dfgName).parameters.forEach(function(paramName) {
             draggableInputs += generateDraggableParams(paramName);
+            validParams.push(paramName);
         });
 
         if (draggableInputs === "") {
-            draggableInputs = "Please create parameters in Data Flow Group Panel first.";
+            draggableInputs = "Please create parameters in Data Flow Group " +
+                              "Panel first.";
             $dfgParamModal.find('.draggableParams').addClass("hint")
                         .html(draggableInputs);
         } else {
@@ -186,13 +189,13 @@ window.DFGParamModal = (function($, DFGParamModal){
             dropdownHelper = new xcHelper.dropdownList($list, {
                 "onSelect": function($li) {
                     var func = $li.text();
-                    var $input = $list.find(".editableParamDiv");
+                    var $input = $list.find("input.editableParamDiv");
 
-                    if (func === $input.text().trim()) {
+                    if (func === $input.val().trim()) {
                         return;
                     }
 
-                    $input.html(func);
+                    $input.val(func);
                 },
                 "onOpen": function() {
                     var $lis = $list.find('li')
@@ -237,6 +240,24 @@ window.DFGParamModal = (function($, DFGParamModal){
                 Tips.refresh();
             });
         }
+
+        var $dummyInputs = $dfgParamModal.find('.dummy');
+
+        $dummyInputs.on('dragenter', '.line', function() {
+            $dummyInputs.find('.line, .space').removeClass('hover');
+            $(this).addClass('hover');
+        });
+        $dummyInputs.on('dragenter', '.space', function() {
+            $dummyInputs.find('.line, .space').removeClass('hover');
+            $(this).addClass('hover');
+        });
+        $dummyInputs.on('dragleave', '.line', function() {
+            $(this).removeClass('hover');
+        });
+        $dummyInputs.on('dragleave', '.space', function() {
+            $(this).removeClass('hover');
+        });
+        
     };
 
     DFGParamModal.paramDragStart = function(event) {
@@ -251,12 +272,39 @@ window.DFGParamModal = (function($, DFGParamModal){
             origin = $(event.target).parent().data('target');
         }
 
+        $dfgParamModal.find('input.editableParamDiv').each(function() {
+            var width = $(this).width();
+            $(this).siblings('.dummyWrap').show().width(width + 1);
+            $(this).hide();
+        });
+
+        var val;
+        var valLen;
+        var html = "";
+        $dfgParamModal.find('input.editableParamDiv').each(function() {
+            val = $(this).val();
+            valLen = val.length;
+            html = "";
+            for (var i = 0; i < valLen; i++) {
+              html += '<span class="line" ' +
+                      'ondragover="DFGParamModal.allowParamDrop(event)" ' +
+                      'ondrop="DFGParamModal.paramDropLine(event)">' + val[i] +
+                      '</span>';
+            }
+            html += '<span class="space" ' +
+                    'ondragover="DFGParamModal.allowParamDrop(event)" ' +
+                    'ondrop="DFGParamModal.paramDropSpace(event)"></span>';
+            $(this).siblings('.dummyWrap').find('.dummy').html(html);
+        });
+
         $editableRow.data('origin', origin);
     };
 
     DFGParamModal.paramDragEnd = function (event) {
         event.stopPropagation();
         $editableRow.data('copying', false);
+        $dfgParamModal.find('.dummyWrap').hide();
+        $dfgParamModal.find('input.editableParamDiv').show();
     };
 
     DFGParamModal.paramDrop = function(event) {
@@ -278,34 +326,47 @@ window.DFGParamModal = (function($, DFGParamModal){
             }).find('#' + paramId + ':first').remove();
             // we remove the dragging div from its source
         }
-        
-        $dropTarget.append($draggableParam);
 
-        var paramName = $draggableParam.find('.value').text();
-        var $paramRow = $paramLists.find('.paramName').filter(function() {
-            return ($(this).text() === paramName);
-        });
+        $dropTarget.text($dropTarget.text() + $draggableParam.text());
+        $dropTarget.parent().siblings('input').val($dropTarget.text());
 
-        if ($paramRow.length === 0) {
-            var dfg = DFG.getGroup($dfgParamModal.data("dfg"));
-            var paramVal = dfg.getParameter(paramName) || "";
-            addParamToLists(paramName, paramVal);
-        }
+        checkInputForParam($dropTarget.parent().siblings('input'));
     };
 
-    DFGParamModal.paramDropRemove = function(event) {
-        // remove the paramDiv if dropped in .currentParameterList
-        var data = $editableRow.data('origin');
-        if (data !== 'home') {
-            var paramId = event.dataTransfer.getData("text");
-            var $param = $editableRow.find('.editableParamDiv')
-                                     .filter(function() {
-                return ($(this).data('target') === data);
-            }).find('#' + paramId + ':first');
-            var paramName = $param.find('.value').text();
-            $param.remove();
-            updateParamList(paramName);
-        }
+    DFGParamModal.paramDropLine = function(event) {
+        event.stopPropagation();
+        var $dropTarget = $(event.target);
+        var $dropTargParent = $dropTarget.parent();
+        var paramId = event.dataTransfer.getData("text");
+
+        var $draggableParam = $('#' + paramId);
+
+        var index = $dropTarget.index();
+        var currentText = $dropTargParent.text();
+        var firstPart = currentText.substr(0, index);
+        var secondPart = currentText.substr(index - currentText.length);
+        var newVal = firstPart + $draggableParam.text() + secondPart;
+        $dropTargParent.text(newVal);
+
+        $dropTargParent.parent().siblings('input').val($dropTargParent.text());
+
+        checkInputForParam($dropTargParent.parent().siblings('input'));
+    };
+
+    DFGParamModal.paramDropSpace = function(event) {
+        event.stopPropagation();
+        var $dropTarget = $(event.target);
+        var $dropTargParent = $dropTarget.parent();
+        var paramId = event.dataTransfer.getData("text");
+
+        var $draggableParam = $('#' + paramId);
+
+        var currentText = $dropTargParent.text();
+        var newVal = currentText + $draggableParam.text();
+        $dropTargParent.text(newVal);
+
+        $dropTargParent.parent().siblings('input').val($dropTargParent.text());
+        checkInputForParam($dropTargParent.parent().siblings('input'));
     };
 
     DFGParamModal.allowParamDrop = function(event) {
@@ -313,14 +374,12 @@ window.DFGParamModal = (function($, DFGParamModal){
     };
 
     function suggest($input) {
-        var value = $input.text().trim().toLowerCase();
+        var value = $input.val().trim().toLowerCase();
         var $list = $input.siblings('.list');
         if ($list.length === 0) {
             // when no list to suggest
             return;
         }
-
-        // $operationsModal.find('li.highlighted').removeClass('highlighted');
 
         $list.show().find('li').hide();
 
@@ -383,23 +442,52 @@ window.DFGParamModal = (function($, DFGParamModal){
         var defaultVal = $dfgParamModal.find(".templateTable .boxed")
                                         .eq(target).text();
 
-        $paramDiv.find(".draggableDiv .value").each(function() {
-            paramNames.push($(this).text());
-        });
+        paramNames = getParamsInInput($paramDiv);
 
-        $paramDiv.text(defaultVal);
+        $paramDiv.val(defaultVal);
         paramNames.forEach(function(name) {
             updateParamList(name);
         });
     }
 
-    function updateParamList(paramName) {
-        // find if the param has dups
-        var $dups = $editableRow.find(".editableParamDiv .value").filter(function() {
-            return ($(this).text() === paramName);
-        });
+    function getParamsInInput($input) {
+        var val = $input.val();
+        var len = val.length;
+        var param = "";
+        var params = [];
+        var braceOpen = false;
+        for (var i = 0; i < len; i++) {
+            if (braceOpen) {
+                if (val[i] === ">") {
+                    params.push(param);
+                    param = "";
+                    braceOpen = false;
+                } else {
+                    param += val[i];
+                }
+            }
+            if (val[i] === "<") {
+                braceOpen = true;
+            }
+        }
+        return (params);
+    }
 
-        if ($dups.length > 0) {
+    function updateParamList(paramName) {
+        var params = [];
+        var tempParams;
+        var numDups = 0;
+        $editableRow.find('input').each(function() {
+            tempParams = getParamsInInput($(this));
+            params = params.concat(tempParams);
+        });
+        for (var i = 0; i < params.length; i++) {
+            if (params[i] === paramName) {
+                numDups++;
+            }
+        }
+
+        if (numDups > 0) {
             return;
         }
 
@@ -410,19 +498,109 @@ window.DFGParamModal = (function($, DFGParamModal){
         }).closest('tr').remove();
 
         if ($tbody.find("tr").length < paramListTrLen) {
-            $tbody.append(trTemplate);
+            var trsNeeded = paramListTrLen - $paramLists.find("tr").length;
+            var html = "";
+            for (var i = 0; i < trsNeeded; i++) {
+                html += trTemplate;
+            }
+            $tbody.append(html);
         }
+    }
+
+    function checkInputForParam($input) {
+        var params = getParamsInInput($input);
+        var param;
+        var $tbody = $paramLists.find("tbody");
+        var $paramNames = $tbody.find('.paramName');
+        var $paramFound;
+
+        for (var i = 0; i < params.length; i++) {
+            param = params[i];
+            $paramFound = $paramNames.filter(function() {
+                return ($(this).text() === param);
+            });
+            if (!$paramFound.length && validParams.indexOf(param) !== -1) {
+                var dfg = DFG.getGroup($dfgParamModal.data("dfg"));
+                var paramVal = dfg.getParameter(param) || "";
+                addParamToLists(param, paramVal);
+            }
+        }
+
+        params = [];
+        var tempParams;
+        $editableRow.find('input').each(function() {
+            tempParams = getParamsInInput($(this));
+            params = params.concat(tempParams);
+        });
+        $paramLists.find('tr:not(.unfilled)').find('.paramName')
+                                            .each(function() {
+            if (params.indexOf($(this).text()) === -1) {
+                $(this).closest('tr').remove();
+            }
+        });
+
+        if ($paramLists.find("tr").length < paramListTrLen) {
+            var trsNeeded = paramListTrLen - $paramLists.find("tr").length;
+            var html = "";
+            for (var i = 0; i < trsNeeded; i++) {
+                html += trTemplate;
+            }
+            $tbody.append(html);
+        }
+    }
+
+    function checkValidBrackets($input) {
+        var val = $input.val();
+        var len = val.length;
+        var braceOpen = false;
+        for (var i = 0; i < len; i++) {
+            if (braceOpen) {
+                if (val[i] === ">") {
+                    braceOpen = false; 
+                }
+            } else if (val[i] === "<") {
+                braceOpen = true;
+            }
+        }
+        return (!braceOpen);
     }
 
     function storeRetina() {
         //XX need to check if all default inputs are filled
         var $paramPart = $dfgParamModal.find(".editableTable");
-        var $editableDivs = $paramPart.find('.editableParamDiv');
+        var $editableDivs = $paramPart.find('input.editableParamDiv');
+        var $paramInputs = $dfgParamModal.find('input.editableParamDiv');
         var isValid = true;
+        var regex = /^[a-zA-Z0-9_]*$/; // allow alphanumeric and underscores
+        var params;
+        // check for valid brackets or invalid characters
+        $paramInputs.each(function() {
+            isValid = checkValidBrackets($(this));
+            if (!isValid) {
+                StatusBox.show(ErrorTextTStr.UnclosedParamBracket, $(this));
+                return false;
+            }
+            params = getParamsInInput($(this));
+            for (var i = 0; i < params.length; i++) {
+                isValid = regex.test(params[i]);
+                if (!isValid) {
+                    StatusBox.show(ErrorTextTStr.NoSpecialCharInParam, $(this));
+                    var paramIndex = $(this).val().indexOf(params[i]);
+                    this.setSelectionRange(paramIndex,
+                                           paramIndex + params[i].length);
+                    return false;
+                }
+            }
+        });
 
+        if (!isValid) {
+            return;
+        }
+
+        // check for empty param values
         $editableDivs.each(function() {
             var $div = $(this);
-            if (!$div.hasClass("allowEmpty") && $div.text().trim() === "") {
+            if (!$div.hasClass("allowEmpty") && $div.val().trim() === "") {
                 isValid = false;
                 StatusBox.show(ErrorTextTStr.NoEmpty, $div);
                 return false;
@@ -433,7 +611,7 @@ window.DFGParamModal = (function($, DFGParamModal){
             return;
         }
 
-        var params = [];
+        params = [];
         var $invalidTr;
         $paramLists.find("tr:not(.unfilled)").each(function() {
             var $tr   = $(this);
@@ -478,7 +656,7 @@ window.DFGParamModal = (function($, DFGParamModal){
             // this marks that the update retina is done
             dfg.addRetinaNode(dagNodeId, curParamInfo);
             commitToStorage();
-            closeDfgParamModal();
+            closeDFGParamModal();
             // show success message??
         })
         .fail(function(error) {
@@ -499,9 +677,9 @@ window.DFGParamModal = (function($, DFGParamModal){
                 case ("filter"):
                     paramType = XcalarApisT.XcalarApiFilter;
 
-                    var filterText = $editableDivs.eq(1).text().trim();
-                    var str1 = $editableDivs.eq(0).text().trim();
-                    var str2 = $editableDivs.eq(2).text().trim();
+                    var filterText = $editableDivs.eq(1).val().trim();
+                    var str1 = $editableDivs.eq(0).val().trim();
+                    var str2 = $editableDivs.eq(2).val().trim();
                     var filter;
                     var numParams = params.length;
                     var param;
@@ -536,14 +714,14 @@ window.DFGParamModal = (function($, DFGParamModal){
                     break;
                 case ("Load"):
                     paramType = XcalarApisT.XcalarApiBulkLoad;
-                    paramValue = $editableDivs.eq(0).text().trim();
+                    paramValue = $editableDivs.eq(0).val().trim();
                     // paramInput.paramLoad = new XcalarApiParamLoadT();
                     // paramInput.paramLoad.datasetUrl = str;
                     paramQuery = [paramValue];
                     break;
                 case ("Export to"):
                     paramType = XcalarApisT.XcalarApiExport;
-                    paramValue = $editableDivs.eq(0).text().trim();
+                    paramValue = $editableDivs.eq(0).val().trim();
                     paramQuery = [paramValue];
                     break;
                 default:
@@ -582,13 +760,16 @@ window.DFGParamModal = (function($, DFGParamModal){
         } else {
             td += '<div class="tdWrapper">';
         }
-                   
-        td += '<div class="' + divClass + '" ' +
+
+        td += '<input class="' + divClass + '" ' +
+                'data-target="' + inputNum + '" ' +
+                'spellcheck="false" type="text">' +
+                '<div class="dummyWrap ' + divClass + '">' +
+                '<div class="dummy ' + divClass + '" ' +
                 'ondragover="DFGParamModal.allowParamDrop(event)"' +
                 'ondrop="DFGParamModal.paramDrop(event)" ' +
-                'data-target="' + inputNum + '" ' +
-                'contenteditable="true" ' +
-                'spellcheck="false"></div>';
+                'data-target="' + inputNum + '"></div></div>';
+
         if (options.filter) {
             td += '<div class="list">' +
                     '<ul><li>first item</li></ul>' +
@@ -618,10 +799,10 @@ window.DFGParamModal = (function($, DFGParamModal){
         var nameMap = {};
 
         if (retinaNode != null && retinaNode.paramQuery != null) {
-            var $editableDivs = $editableRow.find(".editableParamDiv");
+            var $editableDivs = $editableRow.find("input.editableParamDiv");
 
             retinaNode.paramQuery.forEach(function(query, index) {
-                var html = "";
+                var html = query;
                 var len = query.length;
                 var p = 0;
                 var startIndex;
@@ -632,32 +813,25 @@ window.DFGParamModal = (function($, DFGParamModal){
                     startIndex = query.indexOf("<", p);
                     if (startIndex < 0) {
                         // do not find <,
-                        html += query.substring(p);
                         break;
                     }
 
-                    html += query.substring(p, startIndex);
                     endIndex = query.indexOf(">", startIndex);
                     if (endIndex < 0) {
                         // do not find >,
-                        html += "&lt;" + query.substring(startIndex + 1);
                         break;
                     }
 
                     // when find a "<>"
                     paramName = query.substring(startIndex + 1, endIndex);
-                    if (!paramMap.hasOwnProperty(paramName)) {
-                        // string btw "<>" is not a param name
-                        html += "&lt;" + paramName + "&gt;";
-                    } else {
+                    if (paramMap.hasOwnProperty(paramName)) {
                         nameMap[paramName] = true;
-                        html += generateDraggableParams(paramName);
                     }
 
                     p = endIndex + 1;
                 }
 
-                $editableDivs.eq(index).html(html);
+                $editableDivs.eq(index).val(html);
             });
 
             // keep the order of paramName the in dfg.parameters
@@ -696,7 +870,7 @@ window.DFGParamModal = (function($, DFGParamModal){
         return (html);
     }
 
-    function closeDfgParamModal() {
+    function closeDFGParamModal() {
         modalHelper.clear();
         var fadeOutTime = gMinModeOn ? 0 : 300;
 

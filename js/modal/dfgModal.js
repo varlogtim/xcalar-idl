@@ -105,7 +105,7 @@ window.DataFlowModal = (function($, DataFlowModal) {
             "canvasInfo": canvasInfo.canvasInfo
         });
 
-        return DFG.setGroup(groupName, group, isNewGroup);
+        return (DFG.setGroup(groupName, group, isNewGroup));
     }
 
     function addModalEvents() {

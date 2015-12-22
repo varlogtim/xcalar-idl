@@ -3047,7 +3047,7 @@ html.microsoft {
 /* End Of Multi-cast Modal */
 
 #dfgParameterModal {
-    .size(@width: 920px, @height: 670px, @max-height: none);
+    .size(@width: 920px, @height: auto, @max-height: none);
     bottom: auto;
     right: auto;
     .transition(height 0.5s);
@@ -3102,7 +3102,7 @@ html.microsoft {
         }
 
         .boxed {
-            text-overflow: ellipsis;
+            .textOverflowOneLine;
         }
     }
 
@@ -3125,14 +3125,18 @@ html.microsoft {
                     text-align: center;
                     padding-left: 6px;
                 }
+                &.sm-med {
+                    .size(@min-width: 80px, @max-width: 140px);
+                }
                 &.medium {
                     .size(@min-width: 120px, @max-width: 350px);
+                    .size(@width: 275px);
                 }
                 &.large {
-                    .size(@min-width: 300px, @max-width: 600px);
+                    .size(@min-width: 400px, @max-width: 600px);
                 }
                 &.xlarge {
-                    .size(@min-width: 300px, @max-width: 800px);
+                    .size(@min-width: 500px, @max-width: 800px);
                 }
             }
         }  
@@ -3207,7 +3211,7 @@ html.microsoft {
             box-shadow: none;
 
             .iconWrap {
-                .position(absolute, @top: 5px, @right: 7px);
+                .position(absolute, @top: 5px, @right: 12px);
                 .size(20px, 20px);
                 border-left: 1px solid #CCCCCC;
                 padding-left: 1px;
@@ -3228,7 +3232,7 @@ html.microsoft {
 
         .editableParamDiv {
             margin: 0px 5px;
-            padding: 0px 42px 0px 5px;
+            padding: 0px 36px 0px 5px;
             overflow:hidden;
             white-space: nowrap;
             outline: none;
@@ -3250,6 +3254,42 @@ html.microsoft {
                     opacity: 1;
                 }
             }
+            &.dummyWrap {
+                display: none;
+                padding-top: 4px;
+                padding-bottom: 4px;
+                padding-left: 4px;
+            }
+            &.dummy {
+                width: ~"calc(100% + 1px)";
+                padding: 0px;
+                font-weight: 600;
+                font-size: 14px;
+                box-shadow: none;
+                display: block;
+                margin: 0px;
+                padding-left: 1px;
+                background-color: transparent;
+                line-height: 22px;
+                height: 22px;
+                .line {
+                    line-height: 22px;
+                    height: 22px;
+                    display: inline-block;
+                }
+                .space {
+                    height: 22px;
+                    width: 100%;
+                    display: inline-block;
+                    // background-color: pink;
+                    position: absolute;
+                }
+                .line, .space {
+                    &.hover {
+                        box-shadow: -1px 0px #4CB1C7;
+                    }
+                }
+            }
         }
 
         ul {
@@ -3259,6 +3299,18 @@ html.microsoft {
         li {
             height: 26px;
             line-height: 26px;
+        }
+
+        .dropDownList {
+            background-color: transparent;
+            margin: 0 5px;
+            .editableParamDiv {
+                margin-left: 0px;
+                margin-right: 0px;
+            }
+            .defaultParam {
+                right: 7px;
+            }
         }
     }
 
@@ -3301,7 +3353,7 @@ html.microsoft {
         }
 
         .tableContainer {
-            height: 243px;
+            height: 202px;
             display: inline-block;
             overflow: hidden;
             overflow-y: auto;

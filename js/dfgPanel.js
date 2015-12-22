@@ -163,7 +163,7 @@ window.DFGPanel = (function($, DFGPanel) {
                 },
                 {
                     "$selector": $input,
-                    "text"     : ErrorTextTStr.NoSpecialChar,
+                    "text"     : ErrorTextTStr.NoSpecialCharOrSpace,
                     "check"    : function() {
                         return xcHelper.hasSpecialChar(paramName);
                     }
@@ -468,6 +468,7 @@ window.DFGPanel = (function($, DFGPanel) {
     }
 
     function updateList() {
+        // resetDFGView();
         var groups = DFG.getAllGroups();
         var $activeGroup = $dfgView.find('.listBox.selected');
         var activeGroupName;
@@ -495,6 +496,7 @@ window.DFGPanel = (function($, DFGPanel) {
                             'title="coming soon" data-toggle="tooltip" ' +
                             'data-placement="top" data-container="body">' +
                         '</div>' +
+                        // '<div class="checkmark"></div>' +
                       '</div>' +
                       '<ul class="sublist list">';
             for (var i = 0; i < listLen; i++) {
@@ -509,6 +511,8 @@ window.DFGPanel = (function($, DFGPanel) {
             $dfgView.find('.listBox').filter(function() {
                 return ($(this).find('.label').text() === activeGroupName);
             }).closest('.listBox').trigger('click', {show: true});
+        } else {
+            $dfgView.find('.listBox').eq(0).trigger('click', {show: true});
         }
     }
 
