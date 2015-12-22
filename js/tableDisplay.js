@@ -898,7 +898,7 @@ function generateTableDropDown() {
             '<li class="exportTable">Export Table</li>' +
             /**
             '<li class="visualize">' +
-            '    <a href="tableau.html" target="_blank" '+
+            '    <a href="'+paths.tableau+'" target="_blank" '+
             'style="text-decoration:none;color:#838383">'+
             'Visualize in Tableau</a>' +
             '</li>' +

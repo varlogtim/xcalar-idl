@@ -374,7 +374,7 @@ function unloadHandler(isAsync) {
         .always(function() {
             sessionStorage.setItem("xcalar-username", "");
             removeUnloadPrompt();
-            window.location = "dologout.html";
+            window.location = paths.dologout;
         });
     }
 }
