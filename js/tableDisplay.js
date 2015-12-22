@@ -231,8 +231,8 @@ function archiveTable(tableId, del, delayTableRemoval, tempHide) {
         WSManager.archiveTable(tableId, tempHide);
         RightSideBar.moveTable(tableId);
     } else {
-        var $li = $("#activeTablesList").find('.tableInfo[data-id="'
-                                                + tableId + '"]');
+        var $li = $("#activeTablesList").find('.tableInfo[data-id="' +
+                                                tableId + '"]');
         var $timeLine = $li.closest(".timeLine");
 
         $li.remove();
@@ -678,8 +678,16 @@ function generateColumnHeadHTML(columnClass, color, newColid, option) {
         width = 15;
         columnClass += " userHidden";
     }
+    var readOnly = (columnName === "");
+    var readOnlyProp;
+    var readOnlyClass = "";
+    if (readOnly) {
+        readOnlyProp = "";
+        readOnlyClass = " editable";
+    } else {
+        readOnlyProp = 'readonly tabindex="-1"';
+    }
 
-    var readOnlyProp = (columnName === "") ? "" : 'readonly tabindex="-1"';
     var tooltip = columnClass.indexOf("indexedColumn") < 0 ? "" :
                      ' title="Indexed Column" data-toggle="tooltip" ' +
                      'data-placement="top" data-container="body"';
@@ -706,7 +714,8 @@ function generateColumnHeadHTML(columnClass, color, newColid, option) {
                         '<div class="iconHidden"></div> ' +
                         '<span class="type icon"></span>' +
                     '</div>' +
-                    '<div class="flexWrap flex-mid"' + tooltip + '>' +
+                    '<div class="flexWrap flex-mid' + readOnlyClass +
+                        '"' + tooltip + '>' +
                         '<input class="editableHead col' + newColid + '"' +
                             ' type="text"  value="' + columnName + '"' +
                             ' size="15" ' + readOnlyProp + '/>' +

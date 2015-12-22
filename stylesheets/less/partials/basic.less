@@ -549,6 +549,13 @@ input {
             content: "";
             opacity: 0;
         }
+        .flex-mid {
+            position: relative;
+            z-index: 2;
+            .editableHead {
+                pointer-events: initial;
+            }
+        }
     }
 
     input {
@@ -582,6 +589,7 @@ input {
         .font(@weight: 600, @size: 13px, @family: @font-base);
         z-index: 2;
         margin-left: -2px;
+        pointer-events: none;
     }
 
     .addedBarTextTd {

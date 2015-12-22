@@ -1340,12 +1340,19 @@ function addColListeners($table, tableId) {
     // listeners on thead
     var $fnBar = $('#fnBar');
     $thead.on({
-        "focus": function() {
+        "blur": function() {
+            $fnBar.removeClass('active');
+        }
+    }, ".editableHead");
+
+    $thead.on({
+        "mousedown": function() {
             if ($("#mainFrame").hasClass("modalOpen")) {
                 // not focus when in modal
                 return;
             }
-            var $colInput = $(this);
+            var $colInput = $(this).find('input');
+            $colInput.focus();
 
             $fnBar.addClass('active');
             focusTable(tableId);
@@ -1364,11 +1371,8 @@ function addColListeners($table, tableId) {
                 // and do not rehighlight or update any text
                 return;
             }
-        },
-        "blur": function() {
-            $fnBar.removeClass('active');
         }
-    }, ".editableHead");
+    }, ".flex-mid");
     
     $thead.on("mousedown", ".flexContainer, .iconHelper", function(event) {
         if ($("#mainFrame").hasClass("modalOpen")) {
