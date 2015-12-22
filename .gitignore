@@ -2,5 +2,5 @@
 /stylesheets/**/*.css
 /widget/*.css
 *.DS_Store
-/js/constructorVersion.js
+/js/setup/constructorVersion.js
 /js/.jshintrc
