@@ -1341,7 +1341,7 @@ function addColListeners($table, tableId) {
     var $fnBar = $('#fnBar');
     $thead.on({
         "blur": function() {
-            $fnBar.removeClass('active');
+            // $fnBar.removeClass('active');
         }
     }, ".editableHead");
 

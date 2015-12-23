@@ -203,8 +203,8 @@ var gMouseEvents = new MouseEvents();
 
 function getUrlVars() {
     var vars = [], hash;
-    var hashes = window.location.href.slice(window.location.href.indexOf('?')
-                 + 1).split('&');
+    var hashes = window.location.href.slice(window.location.href.indexOf('?') +
+                 1).split('&');
     if (window.location.href.indexOf("?") < 0) {
         return [];
     }
@@ -542,7 +542,7 @@ function documentReadyGeneralFunction() {
             }
             $('.selectedCell').removeClass('selectedCell');
             gFnBarOrigin = undefined;
-            $('#fnBar').val("");
+            $('#fnBar').val("").removeClass('active');
         }
     });
     $(document).mousemove(function(event) {
@@ -816,7 +816,7 @@ function initializeTable() {
                     .fail(function(thriftError) {
                         failures.push("Add table " + tName +
                                      "fails: " + thriftError.error);
-                        innerDeferred.resolve(error);
+                        innerDeferred.resolve(thriftError);
                     });
 
                     return (innerDeferred.promise());

@@ -48,6 +48,7 @@ window.Alert = (function($, Alert){
             // this handle the case that some modal failure handler
             // may close the modal and it will hide modalBackground
             $modalBackground.show();
+            $modalBackground.addClass('locked');
             // alert modal is already opened and locked due to connection error
             return;
         }
@@ -56,6 +57,7 @@ window.Alert = (function($, Alert){
 
         if (options.lockScreen) {
             modalHelper.setup({"noEsc": true});
+            $modalBackground.addClass('locked');
         } else {
             modalHelper.setup();
         }

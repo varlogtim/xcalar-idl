@@ -552,8 +552,10 @@ input {
         .flex-mid {
             position: relative;
             z-index: 2;
-            .editableHead {
-                pointer-events: initial;
+            &.editable {
+                .editableHead {
+                    pointer-events: initial;
+                }
             }
         }
     }

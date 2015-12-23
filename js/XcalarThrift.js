@@ -75,7 +75,8 @@ function thriftLog() {
         errorLists.push(thriftError);
 
         var alertError;
-        if (status === StatusT.StatusConnReset) {
+        if (status === StatusT.StatusConnReset ||
+            status === StatusT.StatusConnRefused) {
             // This is bad, connection was lost so UI cannot do anything
             // LOCK THE SCREEN
             alertError = {"error": "Connection could not be established."};
@@ -1710,8 +1711,8 @@ function XcalarDeleteSched(schedName, sqlOptions) {
 //  2: i64 numParameters
 //  3: list<XcalarApiParameterT> parameters
 // }
-function XcalarCreateSched(schedName, schedInSec, period, recurCount, type, arg
-                           , sqlOptions)
+function XcalarCreateSched(schedName, schedInSec, period, recurCount, type, arg,
+                           sqlOptions)
 {
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return (promiseWrapper(null));
