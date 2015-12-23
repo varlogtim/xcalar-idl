@@ -788,7 +788,6 @@ window.JSONModal = (function($, JSONModal) {
             }
 
             // Quick checking of one object being a subset of another.
-            // todo: cache the structure of arguments[0] for performance
             for (var p in y) {
                 if (y.hasOwnProperty(p) !== x.hasOwnProperty(p)) {
                     return (false);
@@ -835,7 +834,7 @@ window.JSONModal = (function($, JSONModal) {
         var len = arguments.length;
         for (var i = 1; i < len; i++) {
 
-            leftChain = []; //Todo: this can be cached
+            leftChain = [];
             rightChain = [];
 
             if (!compare2Objects(arguments[0], arguments[i])) {
