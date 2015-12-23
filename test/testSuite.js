@@ -818,7 +818,7 @@ window.TestSuite = (function($, TestSuite) {
         var tableId = WSManager.getWSById(wsId).tables[0];
         $("#xcTheadWrap-" + tableId + " .dropdownBox .innerBox").click();
         $("#tableSubMenu .correlation").trigger(fakeEvent.mouseup);
-        checkExists(".aggTableField:contains('-0.4')")
+        checkExists(".aggTableField:contains('-0.4')", 20000)
         .then(function() {
             $("#quickAggHeader #closeAgg .icon").click();
             TestSuite.pass(deferred, testName, currentTestNumber);
@@ -937,13 +937,13 @@ window.TestSuite = (function($, TestSuite) {
         $dataflowView.find(".dagTable.export").click();
         $dataflowView.find(".createParamQuery").trigger(fakeEvent.mouseup);
 
-        var $dagParamModal = $("#dagParameterModal");
-        $dagParamModal.find(".editableRow .defaultParam").click();
-        $dagParamModal.find(".editableParamDiv").html(
+        var $dfgParamModal = $("#dfgParameterModal");
+        $dfgParamModal.find(".editableRow .defaultParam").click();
+        $dfgParamModal.find(".editableParamDiv").html(
             'export-<div id="draggableParam-' + paramName +
             '" class="draggableDiv" draggable="true" ' +
-            'ondragstart="DagParamModal.paramDragStart(event)" ' +
-            'ondragend="DagParamModal.paramDragEnd(event)" ondrop="return false" ' +
+            'ondragstart="DFGParamModal.paramDragStart(event)" ' +
+            'ondragend="DFGParamModal.paramDragEnd(event)" ondrop="return false" ' +
             'title="click and hold to drag" contenteditable="false">' +
             '<div class="icon"></div><span class="delim">&lt;</span>' +
             '<span class="value">' + paramName +
@@ -959,7 +959,7 @@ window.TestSuite = (function($, TestSuite) {
             .find(".paramVal").val(fileName).removeAttr("disabled")
             .end()
             .removeClass("unfilled");
-        $dagParamModal.find(".modalBottom .confirm").click();
+        $dfgParamModal.find(".modalBottom .confirm").click();
 
         checkExists(".dagTable.export.hasParam")
         .then(function() {
