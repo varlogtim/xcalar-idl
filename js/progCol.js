@@ -927,7 +927,8 @@ window.ColManager = (function($, ColManager) {
         return (deferred.promise());
     };
 
-    ColManager.checkColDup = function ($input, $inputs, tableId, parseCol, colNum) {
+    ColManager.checkColDup = function ($input, $inputs, tableId, parseCol,
+                                       colNum) {
         // $inputs checks the names of $inputs, tableId is used to check
         // back column names. You do not need both
         var name        = $input.val().trim();
@@ -940,8 +941,9 @@ window.ColManager = (function($, ColManager) {
 
         $(".tooltip").hide();
         // temporarily use, will be removed when backend allow name with space
-        if (/ +/.test(name) === true) {
-            title = "Invalid name, cannot contain spaces between characters.";
+        if (/^ | $|[,\(\)'"]/.test(name) === true) {
+            title = "Invalid name, cannot contain '\"() or starting or ending "+
+                    "spaces";
             isDuplicate = true;
         } else if (name === 'DATA') {
             title = "The name \'DATA\' is reserved.";
