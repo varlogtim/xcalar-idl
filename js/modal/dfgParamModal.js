@@ -201,8 +201,8 @@ window.DFGParamModal = (function($, DFGParamModal){
                     $lis.prependTo($list.find('ul'));
                     $list.find('ul').width($list.width() - 1);
                 },
-                "container": "#dagParameterModal",
-                "bounds": "#dagParameterModal",
+                "container": "#dfgParameterModal",
+                "bounds": "#dfgParameterModal",
                 "bottomPadding": 5,
                 "exclude": '.draggableDiv, .defaultParam'
             });
