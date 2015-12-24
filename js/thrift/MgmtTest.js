@@ -1934,50 +1934,50 @@
         var keyName = "sessionKey";
 
         xcalarApiSessionDelete(thriftHandle, "*")
-        .then(function() {
+        .always(function() {
             // Start in brand new sesion...
-            return xcalarApiSessionNew(thriftHandle, session1, false, "");
-        })
-        .then(function() {
-            // ... and add a key.
-            return xcalarKeyAddOrReplace(thriftHandle,
-                                  XcalarApiKeyScopeT.XcalarApiKeyScopeSession,
-                                  keyName, "x", false);
-        })
-        .then(function() {
-            // Make sure it exists in this session.
-            return xcalarKeyLookup(thriftHandle,
-                                  XcalarApiKeyScopeT.XcalarApiKeyScopeSession,
-                                  keyName);
-        })
-        .then(function(lookupOutput) {
-            if (lookupOutput.value === "x") {
-                // Create a new session and switch to it.
-                return xcalarApiSessionNew(thriftHandle, session2, false, "");
-            } else {
-                fail(deferred, testName, currentTestNumber,
-                     "Failed lookup. Expected x got " + lookupOutput.value);
-            }
-        })
-        .then(function() {
-            return xcalarApiSessionSwitch(thriftHandle, session2, session1);
-        })
-        .then (function() {
-            // Make sure the key we created in the other session doesn't turn up
-            // in this one.
-            xcalarKeyLookup(thriftHandle,
-                            XcalarApiKeyScopeT.XcalarApiKeyScopeSession,
-                            keyName)
+            xcalarApiSessionNew(thriftHandle, session1, false, "")
             .then(function() {
-                fail(deferred, testName, currentTestNumber,
-                     "Lookup in session2 should have failed.");
+                // ... and add a key.
+                return xcalarKeyAddOrReplace(thriftHandle,
+                                             XcalarApiKeyScopeT.XcalarApiKeyScopeSession,
+                                             keyName, "x", false);
+            })
+            .then(function() {
+                // Make sure it exists in this session.
+                return xcalarKeyLookup(thriftHandle,
+                                       XcalarApiKeyScopeT.XcalarApiKeyScopeSession,
+                                       keyName);
+            })
+            .then(function(lookupOutput) {
+                if (lookupOutput.value === "x") {
+                    // Create a new session and switch to it.
+                    return xcalarApiSessionNew(thriftHandle, session2, false, "");
+                } else {
+                    fail(deferred, testName, currentTestNumber,
+                         "Failed lookup. Expected x got " + lookupOutput.value);
+                }
+            })
+            .then(function() {
+                return xcalarApiSessionSwitch(thriftHandle, session2, session1);
+            })
+            .then (function() {
+                // Make sure the key we created in the other session doesn't turn up
+                // in this one.
+                xcalarKeyLookup(thriftHandle,
+                                XcalarApiKeyScopeT.XcalarApiKeyScopeSession,
+                                keyName)
+                .then(function() {
+                    fail(deferred, testName, currentTestNumber,
+                         "Lookup in session2 should have failed.");
+                })
+                .fail(function(reason) {
+                    pass(deferred, testName, currentTestNumber);
+                });
             })
             .fail(function(reason) {
-                pass(deferred, testName, currentTestNumber);
+                fail(deferred, testName, currentTestNumber, StatusTStr[reason]);
             });
-        })
-        .fail(function(reason) {
-            fail(deferred, testName, currentTestNumber, StatusTStr[reason]);
         });
     }
 
@@ -2419,6 +2419,11 @@
     // addTestCase(testCases, testFn, testName, timeout, TestCaseEnabled, Witness)
     addTestCase(testCases, testStartNodes, "startNodes", defaultTimeout, startNodesState, "");
     addTestCase(testCases, testGetVersion, "getVersion", defaultTimeout, TestCaseEnabled, "");
+
+    // This actually starts our sessions, so run this before any test
+    // that requires sessions
+    addTestCase(testCases, testApiKeySessions, "key sessions", defaultTimeout, TestCaseEnabled, "");
+
     addTestCase(testCases, testBulkDestroyDs, "bulk destroy ds", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testCases, testSchedTask, "test schedtask", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testCases, testLoad, "load", defaultTimeout, TestCaseEnabled, "");
@@ -2535,13 +2540,6 @@
     addTestCase(testCases, testShutdown, "shutdown", defaultTimeout, TestCaseDisabled, "98");
 
     addTestCase(testCases, testSupportSend, "support send", defaultTimeout, TestCaseDisabled, "");
-
-    // XXX Currently, this must be last because it ends in a different session.
-    // XXX delete session was removed from testApiKeySessions and wasn't moved anywhere else. 
-    // Since two new sessions are generated every time this test runs and they are made unique
-    // using the date and time, this means they will accumulate.  Something needs to be done to
-    // delete them. Disable this test until the sessions created are deleted
-    addTestCase(testCases, testApiKeySessions, "key sessions", defaultTimeout, TestCaseDisabled, "");
 
     runTestSuite(testCases);
 }();

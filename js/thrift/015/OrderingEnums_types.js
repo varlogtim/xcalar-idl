@@ -8,9 +8,11 @@
 XcalarOrderingT = {
   'XcalarOrderingUnordered' : 0,
   'XcalarOrderingAscending' : 3,
-  'XcalarOrderingDescending' : 5
+  'XcalarOrderingDescending' : 5,
+  'XcalarOrderingInvalid' : 65534
 };
 XcalarOrderingTStr = {0 : 'Unordered',
 3 : 'Ascending',
-5 : 'Descending'
+5 : 'Descending',
+65534 : 'Invalid'
 };

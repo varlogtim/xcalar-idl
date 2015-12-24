@@ -471,7 +471,7 @@ window.AggModal = (function($, AggModal) {
 
         var sqlOptions = {
             "operation": SQLOps.QuickAggAction,
-            "type"     : "aggreagte",
+            "type"     : "aggregate",
             "fieldName": fieldName,
             "aggrOp"   : opString
         };

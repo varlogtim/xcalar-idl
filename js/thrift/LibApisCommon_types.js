@@ -6171,12 +6171,15 @@ XcalarApiSchedArgTypeT.prototype.write = function(output) {
 
 XcalarApiListSchedTaskInfoT = function(args) {
   this.name = null;
-  this.lastExecTime = null;
+  this.lastExecEndTime = null;
   this.lastExecStatus = null;
   this.lastExecElapsedTimeInSecs = null;
   this.numFailure = null;
   this.numRestarted = null;
   this.createdTime = null;
+  this.numSuccess = null;
+  this.numRunning = null;
+  this.numLastInterrupted = null;
   this.userIdName = null;
   this.type = null;
   this.arg = null;
@@ -6185,8 +6188,8 @@ XcalarApiListSchedTaskInfoT = function(args) {
     if (args.name !== undefined) {
       this.name = args.name;
     }
-    if (args.lastExecTime !== undefined) {
-      this.lastExecTime = args.lastExecTime;
+    if (args.lastExecEndTime !== undefined) {
+      this.lastExecEndTime = args.lastExecEndTime;
     }
     if (args.lastExecStatus !== undefined) {
       this.lastExecStatus = args.lastExecStatus;
@@ -6202,6 +6205,15 @@ XcalarApiListSchedTaskInfoT = function(args) {
     }
     if (args.createdTime !== undefined) {
       this.createdTime = args.createdTime;
+    }
+    if (args.numSuccess !== undefined) {
+      this.numSuccess = args.numSuccess;
+    }
+    if (args.numRunning !== undefined) {
+      this.numRunning = args.numRunning;
+    }
+    if (args.numLastInterrupted !== undefined) {
+      this.numLastInterrupted = args.numLastInterrupted;
     }
     if (args.userIdName !== undefined) {
       this.userIdName = args.userIdName;
@@ -6240,7 +6252,7 @@ XcalarApiListSchedTaskInfoT.prototype.read = function(input) {
       break;
       case 2:
       if (ftype == Thrift.Type.I64) {
-        this.lastExecTime = input.readI64().value;
+        this.lastExecEndTime = input.readI64().value;
       } else {
         input.skip(ftype);
       }
@@ -6281,20 +6293,41 @@ XcalarApiListSchedTaskInfoT.prototype.read = function(input) {
       }
       break;
       case 8:
+      if (ftype == Thrift.Type.I64) {
+        this.numSuccess = input.readI64().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 9:
+      if (ftype == Thrift.Type.I64) {
+        this.numRunning = input.readI64().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 10:
+      if (ftype == Thrift.Type.I64) {
+        this.numLastInterrupted = input.readI64().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 11:
       if (ftype == Thrift.Type.STRING) {
         this.userIdName = input.readString().value;
       } else {
         input.skip(ftype);
       }
       break;
-      case 9:
+      case 12:
       if (ftype == Thrift.Type.I32) {
         this.type = input.readI32().value;
       } else {
         input.skip(ftype);
       }
       break;
-      case 10:
+      case 13:
       if (ftype == Thrift.Type.STRUCT) {
         this.arg = new XcalarApiSchedArgTypeT();
         this.arg.read(input);
@@ -6302,7 +6335,7 @@ XcalarApiListSchedTaskInfoT.prototype.read = function(input) {
         input.skip(ftype);
       }
       break;
-      case 11:
+      case 14:
       if (ftype == Thrift.Type.STRUCT) {
         this.scheduleInfo = new XcalarApiSchedTaskTimeT();
         this.scheduleInfo.read(input);
@@ -6326,9 +6359,9 @@ XcalarApiListSchedTaskInfoT.prototype.write = function(output) {
     output.writeString(this.name);
     output.writeFieldEnd();
   }
-  if (this.lastExecTime !== null && this.lastExecTime !== undefined) {
-    output.writeFieldBegin('lastExecTime', Thrift.Type.I64, 2);
-    output.writeI64(this.lastExecTime);
+  if (this.lastExecEndTime !== null && this.lastExecEndTime !== undefined) {
+    output.writeFieldBegin('lastExecEndTime', Thrift.Type.I64, 2);
+    output.writeI64(this.lastExecEndTime);
     output.writeFieldEnd();
   }
   if (this.lastExecStatus !== null && this.lastExecStatus !== undefined) {
@@ -6356,23 +6389,38 @@ XcalarApiListSchedTaskInfoT.prototype.write = function(output) {
     output.writeI64(this.createdTime);
     output.writeFieldEnd();
   }
+  if (this.numSuccess !== null && this.numSuccess !== undefined) {
+    output.writeFieldBegin('numSuccess', Thrift.Type.I64, 8);
+    output.writeI64(this.numSuccess);
+    output.writeFieldEnd();
+  }
+  if (this.numRunning !== null && this.numRunning !== undefined) {
+    output.writeFieldBegin('numRunning', Thrift.Type.I64, 9);
+    output.writeI64(this.numRunning);
+    output.writeFieldEnd();
+  }
+  if (this.numLastInterrupted !== null && this.numLastInterrupted !== undefined) {
+    output.writeFieldBegin('numLastInterrupted', Thrift.Type.I64, 10);
+    output.writeI64(this.numLastInterrupted);
+    output.writeFieldEnd();
+  }
   if (this.userIdName !== null && this.userIdName !== undefined) {
-    output.writeFieldBegin('userIdName', Thrift.Type.STRING, 8);
+    output.writeFieldBegin('userIdName', Thrift.Type.STRING, 11);
     output.writeString(this.userIdName);
     output.writeFieldEnd();
   }
   if (this.type !== null && this.type !== undefined) {
-    output.writeFieldBegin('type', Thrift.Type.I32, 9);
+    output.writeFieldBegin('type', Thrift.Type.I32, 12);
     output.writeI32(this.type);
     output.writeFieldEnd();
   }
   if (this.arg !== null && this.arg !== undefined) {
-    output.writeFieldBegin('arg', Thrift.Type.STRUCT, 10);
+    output.writeFieldBegin('arg', Thrift.Type.STRUCT, 13);
     this.arg.write(output);
     output.writeFieldEnd();
   }
   if (this.scheduleInfo !== null && this.scheduleInfo !== undefined) {
-    output.writeFieldBegin('scheduleInfo', Thrift.Type.STRUCT, 11);
+    output.writeFieldBegin('scheduleInfo', Thrift.Type.STRUCT, 14);
     this.scheduleInfo.write(output);
     output.writeFieldEnd();
   }

@@ -378,7 +378,8 @@ StatusT = {
   'StatusExceedMaxScheduleTime' : 369,
   'StatusExceedMaxSchedulePeriod' : 370,
   'StatusXcalarApiNotParameterizable' : 371,
-  'StatusQrNotFound' : 372
+  'StatusQrNotFound' : 372,
+  'StatusJoinOrderingMismatch' : 373
 };
 StatusTStr = {0 : 'Success',
 1 : 'Operation not permitted',
@@ -752,5 +753,6 @@ StatusTStr = {0 : 'Success',
 369 : 'Scheduled time may not exceed one year',
 370 : 'Scheduled period may not exceed one year',
 371 : 'The selected API is not parameterizable',
-372 : 'Could not find query record associated with the query id'
+372 : 'Could not find query record associated with the query id',
+373 : 'Joins may only be performed on tables with the same ordering'
 };

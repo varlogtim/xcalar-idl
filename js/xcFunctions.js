@@ -1172,7 +1172,6 @@ window.xcFunction = (function($, xcFunction) {
             var deferredArray = []; // Array for deferred
             var argArray = [];
             // XXX Okay this is really dumb, but we have to keep mapping
-            // XXX TODO FIXME When Mike fixes cut, this should use cut
             var mapStrStarter = "cut(" + indexedColName + ", ";
             var currExec = 0;
             var origTableId = xcHelper.getTableId(origTableName);

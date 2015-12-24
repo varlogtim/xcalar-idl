@@ -2,8 +2,8 @@
 window.XVM = (function(XVM) {
     var majorVersion = "0";
     var minorVersion = "9";
-    var revisionVersion = "7";
-    var thriftInterfaceVersion = "5";
+    var revisionVersion = "8";
+    var thriftInterfaceVersion = "6";
     var kvVersion = "0";
     var fullVersion = majorVersion + "." + minorVersion + "." +
                         revisionVersion + "." +
