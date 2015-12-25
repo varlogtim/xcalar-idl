@@ -1472,12 +1472,26 @@ window.Dag = (function($, Dag) {
                 }
                 break;
             case ('groupByInput'):
+                parentTableId = xcHelper.getTableId(value.srcTable.tableName);
+                var groupedOn;
+                var sampleStr = "";
+                if (parentTableId in gTables) {
+                    groupedOn = gTables[parentTableId].keyName;
+                } else {
+                    // Created with backend. Tskie
+                    groupedOn = "(See previous table index)";
+                }
+                if (value.includeSrcTableSample) {
+                    sampleStr = " (Sample included)";
+                } else {
+                    sampleStr = " (Sample not included)";
+                }
                 evalStr = value.evalStr;
                 parenIndex = evalStr.indexOf("(");
                 var type = evalStr.substr(0, parenIndex);
                 info.type = "groupBy" + type;
                 info.text = evalStr;
-                info.tooltip = "Grouped by " + evalStr;
+                info.tooltip = evalStr + " Grouped by " + groupedOn + sampleStr;
                 info.column = evalStr.slice(evalStr.indexOf('(') + 1,
                                             evalStr.indexOf(')'));
                 break;
