@@ -315,13 +315,36 @@ window.WSManager = (function($, WSManager) {
 
     // Move inactive table to another worksheet
     WSManager.moveInactiveTable = function(tableId, newWSId) {
+        function addFromOrphanList() {
+            // This happens when an orphaned table has been added to the
+            // worksheet and we try to pull its ancestor which doesn't exist in
+            // the meta either
+            // It's really a pull not a move
+            // 1) Refresh Orphan List
+            // 2) Trigger Add from Orphan list
+            RightSideBar.refreshOrphanList();
+            setTimeout(function() {
+                $("#orphanedTablesList span:contains("+
+                  tableId+")").parent().find('.addTableBtn').click();
+                $("#submitOrphanedTablesBtn").click();
+            }, 600); // XXX FIXME This is terrible! T__T Why does
+                     // RefreshOrphanList have setTimeOut inside T_____T
+        }
+
         var oldWSId = tableIdToWSIdMap[tableId];
         tableIdToWSIdMap[tableId] = newWSId;
 
         var oldWS = wsLookUp[oldWSId];
+        if (!oldWS) {
+            addFromOrphanList();
+            return;
+        }
         var tables = oldWS.hiddenTables;
         var tableIndex = tables.indexOf(tableId);
-
+        if (tableIndex == -1) {
+            addFromOrphanList();
+            return;
+        }
         var wsTable = tables.splice(tableIndex, 1)[0];
         var newWS = wsLookUp[newWSId];
         newWS.hiddenTables.push(wsTable);

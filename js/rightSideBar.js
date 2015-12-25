@@ -665,7 +665,7 @@ window.RightSideBar = (function($, RightSideBar) {
         });
 
         $selectBtns.find('.refresh').click(function() {
-            refreshOrphanList();
+            RightSideBar.refreshOrphanList();
         });
 
         $("#inactiveTablesList, #orphanedTablesList, #aggregateTableList")
@@ -1222,7 +1222,7 @@ window.RightSideBar = (function($, RightSideBar) {
         $orphanedTableList.find('.secondButtonWrap').show();
     }
 
-    function refreshOrphanList() {
+    RightSideBar.refreshOrphanList = function() {
         XcalarGetTables()
         .then(function(backEndTables) {
             var backTables = backEndTables.nodeInfo;
