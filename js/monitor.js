@@ -13,7 +13,7 @@ window.MonitorPanel = (function($, MonitorPanel) {
             }
 
             if ($btn.attr("id") === "setupButton") {
-                // XXX just a temporary use
+                // XXX TODO: enable it when this feature complete
                 return;
             }
 

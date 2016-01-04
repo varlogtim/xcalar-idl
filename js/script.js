@@ -20,7 +20,7 @@ var gRescol = {
 };
 var gResrow = {};
 var gMinTableWidth = 30;
-// XXX this part should change to right scope after backend fix
+// XXX TODOS(bug 2319): this part should change to right scope after backend fix
 /*
   "AUTH": Authentication info (should be XcalarApiKeyScopeSession)
   "PREF": user preference info (XXX this should be XcalarApiKeyScopeUser, no support yet!)
@@ -490,12 +490,12 @@ function documentReadyGeneralFunction() {
         moveTableTitles();
     });
 
-    //XXX using this to keep window from scrolling on dragdrop
+    // using this to keep window from scrolling on dragdrop
     $(window).scroll(function() {
         $(this).scrollLeft(0);
     });
 
-    //XXX using this to keep window from scrolling up and down;
+    // using this to keep window from scrolling up and down;
     $('#container').scroll(function() {
         $(this).scrollTop(0);
     });
@@ -951,7 +951,7 @@ function documentReadyIndexFunction() {
         })
         .then(function() {
             // this should come in last!
-            KVStore.safeSetup();
+            // KVStore.safeSetup();
 
             if (!isBrowseFireFox) {
                 gMinModeOn = false; // turn off min mode

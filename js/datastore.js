@@ -14,19 +14,13 @@ window.DataStore = (function($, DataStore) {
     };
 
     DataStore.updateInfo = function(numDatasets) {
+        var $numDataStores = $(".numDataStores");
+
         if (numDatasets != null) {
-            $(".numDataStores").text(numDatasets);
+            $numDataStores.text(numDatasets);
         } else {
-            // XXX Cheng: Here sync with backend beause other user
-            // can also add/rm dataset, but now we have no way to
-            // show others' ds except refreshing the browser
-            XcalarGetDatasets()
-            .then(function(datasets) {
-                $(".numDataStores").text(datasets.numDatasets);
-            })
-            .fail(function(error) {
-                console.error("Fail to update ds nums", error);
-            });
+            var numDS = $("#exploreView .gridItems .ds").length;
+            $numDataStores.text(numDS);
         }
     };
 
@@ -2499,7 +2493,7 @@ window.DataSampleTable = (function($, DataSampleTable) {
                 for (var i = 0; i < numKvPairs; i++) {
                     value = kvPairs[i].value;
                     json = $.parseJSON(value);
-                    // XXX Cheng this is based on the assumption no other
+                    // HACK: this is based on the assumption no other
                     // fields called recordNum, if more than one recordNum in
                     // json, only one recordNum will be in the parsed obj,
                     // which is incorrect behavior
@@ -2520,7 +2514,7 @@ window.DataSampleTable = (function($, DataSampleTable) {
                 deferred.resolve();
             } catch(err) {
                 console.error(err, value);
-                // XXX still show the table?
+
                 getSampleTable(datasetName);
                 $dsColsBtn.show();
                 deferred.reject({"error": "Cannot parse the dataset."});
@@ -2573,7 +2567,7 @@ window.DataSampleTable = (function($, DataSampleTable) {
         var numEntries = dsObj.numEntries || 'N/A';
 
         $("#dsInfo-title").text(dsName);
-        // XXX these info should be changed after better backend support
+        // XXX TODO(bug 2742): these info should be changed after better backend support
         $("#dsInfo-author").text(WKBKManager.getUser());
         $("#dsInfo-createDate").text(xcHelper.getDate());
         $("#dsInfo-updateDate").text(xcHelper.getDate());
@@ -3004,7 +2998,6 @@ window.DS = (function ($, DS) {
         var parent   = DS.getDSObj(options.parentId);
         var $parent  = DS.getGrid(options.parentId);
 
-        // XXX the way to rename could be imporved
         if (options.isFolder) {
             var i = 1;
             var name = options.name;
@@ -3047,7 +3040,7 @@ window.DS = (function ($, DS) {
 
     // Load dataset
     // promise returns $grid element
-    DS.load = function (dsName, dsFormat, loadURL, fieldDelim, lineDelim,
+    DS.load = function(dsName, dsFormat, loadURL, fieldDelim, lineDelim,
                         hasHeader, moduleName, funcName) {
         var deferred = jQuery.Deferred();
 
@@ -3068,7 +3061,8 @@ window.DS = (function ($, DS) {
         $grid.find('.waitingIcon').fadeIn(200);
         $grid.click();
         $('#datasetWrap').addClass("inactive");
-        
+        DataStore.updateInfo();
+
         var sqlOptions = {
             "operation" : SQLOps.DSLoad,
             "loadURL"   : loadURL,
@@ -3120,6 +3114,7 @@ window.DS = (function ($, DS) {
         })
         .fail(function(error) {
             rmDSHelper($grid);
+            DataStore.updateInfo();
             $('#datasetWrap').removeClass('inactive');
             if ($('#dsInfo-title').text() === dsName) {
                 // if loading page is showing, remove and go to import form
@@ -3146,9 +3141,6 @@ window.DS = (function ($, DS) {
             }
             
             deferred.reject(error);
-        })
-        .always(function() {
-            DataStore.updateInfo();
         });
 
         return (deferred.promise());
@@ -3525,8 +3517,8 @@ window.DS = (function ($, DS) {
             $("#dataSetTableWrap").empty();
             // remove ds obj
             rmDSHelper($grid);
-
             DataStore.updateInfo();
+
             focusOnFirstDS();
             commitToStorage();
         })

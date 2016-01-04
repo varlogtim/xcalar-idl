@@ -1058,7 +1058,7 @@ window.xcHelper = (function($, xcHelper) {
                 centerPositionElement($modal, {limitTop: true});
             }
 
-            // XXX to find the visiable btn, must show the modal first
+            // Note: to find the visiable btn, must show the modal first
             if (!options.noTabFocus) {
                 var eleLists = [
                     $modal.find(".btn"),                // buttons

@@ -508,7 +508,7 @@ window.ColManager = (function($, ColManager) {
             "msg"      : msg,
             "operation": SQLOps.SplitCol
         };
-        var msgId = StatusMessage.addMsg(msgObj);
+        var msgId;
         var tableNamePart = tableName.split("#")[0];
         var newTableNames = [];
         var newFieldNames = [];
@@ -517,6 +517,9 @@ window.ColManager = (function($, ColManager) {
 
         getSplitNumHelper()
         .then(function(colToSplit) {
+            // Note: add msg here because user may cancel it
+            // and that case should not show success message
+            msgId = StatusMessage.addMsg(msgObj);
             numColToGet = colToSplit;
 
             var i;
@@ -594,12 +597,13 @@ window.ColManager = (function($, ColManager) {
             xcHelper.unlockTable(tableId);
 
             if (error === cancelError) {
-                // XXX this part's status message may need refine
-                StatusMessage.success(msgId);
                 deferred.resolve();
             } else {
                 Alert.error("Split Column fails", error);
-                StatusMessage.fail(StatusMessageTStr.SplitColumnFailed, msgId);
+                if (msgId != null) {
+                    StatusMessage.fail(StatusMessageTStr.SplitColumnFailed, msgId);   
+                }
+
                 deferred.reject(error);
             }
 
@@ -703,11 +707,6 @@ window.ColManager = (function($, ColManager) {
                 } catch (error) {
                     innerDeferred.reject(error);
                 }
-
-                // XXX should delete this intermediate table after
-                // delete table's bug is resolved
-                //  XcalarDeleteTable(newTableName, sqlOptions)
-
             })
             .fail(function(error) {
                 innerDeferred.reject(error);
@@ -1402,8 +1401,6 @@ window.ColManager = (function($, ColManager) {
                         tdValue = dataValue[key];
                     }
 
-                    // XXX giving classes to table cells may
-                    // actually be done later
                     var tdClass = "col" + (col + 1);
                     // class for indexed col
                     if (indexedColNums.indexOf(col) > -1) {
@@ -1440,23 +1437,7 @@ window.ColManager = (function($, ColManager) {
                 }
 
                 //define type of the column
-                columnTypes[col] = xcHelper.parseColType(tdValue,
-                                                         columnTypes[col]);
-                // XXX This part try to detect edge case of float, doese not
-                // need it right now
-                // if (columnTypes[col] === "integer" || 
-                //     columnTypes[col] === "float") 
-                // {
-                //     var str = '"' + tableCols[col].name + '":' + tdValue;
-                //     var index = jsonData[row].indexOf(str) + str.length;
-                //     var next = jsonData[row].charAt(index);
-                //     // if it's like 123.000, find it and output the right format
-                //     if (next === ".") {
-                //         var end = jsonData[row].indexOf(",", index);
-                //         tdValue += jsonData[row].substring(index, end);
-                //         columnTypes[col] = "float";
-                //     }
-                // }
+                columnTypes[col] = xcHelper.parseColType(tdValue, columnTypes[col]);
             }
             // end of loop through table tr's tds
             tBodyHTML += '</tr>';
@@ -1493,7 +1474,7 @@ window.ColManager = (function($, ColManager) {
             var $header    = $currentTh.find('> .header');
             var columnType = columnTypes[i] || "undefined";
 
-            // XXX Fix me if DATA column should not be type object
+            // DATA column is type-object
             if (tableCols[i].name === "DATA") {
                 columnType = "object";
             }

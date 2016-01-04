@@ -24,7 +24,7 @@ window.SQL = (function($, SQL) {
 
         sqlToCommit += JSON.stringify(sql) + ",";
 
-        // XXX uncomment it if commit on errorLog only has bug
+        // XXX FIXME: uncomment it if commit on errorLog only has bug
         // localCommit();
         showSQL(sql);
         SQL.scrollToBottom();
@@ -94,7 +94,7 @@ window.SQL = (function($, SQL) {
                 showSQL(sql);
             });
 
-            // XXX change back to localCommit() if it's buggy
+            // XXX FIXME change back to localCommit() if it's buggy
             resetLoclStore();
             deferred.resolve();
         })

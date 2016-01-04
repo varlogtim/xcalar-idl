@@ -521,8 +521,8 @@ window.Replay = (function($, Replay) {
         // change tableId
         options.lTableId = getTableId(options.lTableId);
         options.rTableId = getTableId(options.rTableId);
-        // XXX this is tricky that if we do not call Authentication.getHashId(),
-        // the id cursor cannt sync will original one.
+        // HACK: this is tricky that if we do not call Authentication.getHashId(),
+        // the id cursor cannot sync with the original one.
         // Better way is to append hashId to newTableName in xcFunction.join()
         options.newTableName = xcHelper.getTableName(options.newTableName) +
                                 Authentication.getHashId();
@@ -543,6 +543,7 @@ window.Replay = (function($, Replay) {
     }
 
     function replayDeleteTable(options) {
+        // XXX TODO: test it when delete table is enabled
         var tableType = options.tableType;
 
         // XXX lack of delete some intermediate table (in stats modal)
@@ -736,7 +737,7 @@ window.Replay = (function($, Replay) {
             });
         }
 
-        // XXX weird hack hide show or else .header won't reposition itself
+        // HACK: weird hack, otherwise .header won't reposition itself
         $table.find('.header').css('height', '39px');
         setTimeout(function() {
             $table.find('.header').css('height', '40px');
@@ -1216,7 +1217,7 @@ window.Replay = (function($, Replay) {
             $("#alertHeader .close").click();
         };
 
-        // XXX a potential here is that if exportName exists in
+        // XXX a potential issue here is that if exportName exists in
         // backend, it fails to export because of name confilict
         xcFunction.exportTable.apply(window, args)
         .then(function() {
@@ -1234,7 +1235,6 @@ window.Replay = (function($, Replay) {
     }
 
     function replayChangeType(options) {
-        // XXX not test yet!
         var args = getArgs(options);
         return (ColManager.changeType.apply(window, args));
     }

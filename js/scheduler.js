@@ -558,7 +558,6 @@ window.Scheduler = (function(Scheduler, $) {
     }
 
     function updateSchedule(schedule, options) {
-        // XXX TODO: remove the code to fetch scheduleName when update
         var scheduleName = schedule.name;
         var oldSchedule = schedule;
 
@@ -574,10 +573,6 @@ window.Scheduler = (function(Scheduler, $) {
 
         chain(promises)
         .then(function() {
-            // var $li = $scheduleLists.find('.scheduleList[data-name="' + srcName + '"]');
-            // $li.attr("data-name", schedule.name)
-            //     .data("name", schedule.name)
-            //     .find(".scheduleName").text(schedule.name);
             // update info on this schedule
             listSchedule(scheduleName);
             commitToStorage();

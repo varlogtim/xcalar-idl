@@ -197,7 +197,6 @@ window.UDF = (function($, UDF) {
                 var reader = new FileReader();
                 reader.onload = function(event) {
                     xcHelper.disableSubmit($submitBtn);
-                    // XXX: Change cursor, handle failure
                     var entireString = event.target.result;
 
                     uploadUDF(moduleName, entireString)
@@ -298,7 +297,7 @@ window.UDF = (function($, UDF) {
     function downLoadUDF(moduleName) {
         getEntireUDF(moduleName)
         .then(function(entireString) {
-            // XXX fix it if you can find a way to download it as .py file
+            // XXX FIXME fix it if you can find a way to download it as .py file
             var element = document.createElement('a');
             element.setAttribute('href', 'data:text/plain;charset=utf-8,' +
                                     encodeURIComponent(entireString));
@@ -334,7 +333,6 @@ window.UDF = (function($, UDF) {
         }
 
         function uploadHelper() {
-            // XXX: Change cursor, handle failure
             XcalarUploadPython(moduleName, entireString)
             .then(function() {
                 storePython(moduleName, entireString);
@@ -357,7 +355,7 @@ window.UDF = (function($, UDF) {
             .fail(function(error) {
                 var title = "Upload Error";
                 if (error.status === StatusT.StatusPyExecFailedToCompile) {
-                    // XX might not actually be a syntax error
+                    // XXX might not actually be a syntax error
                     title = "Syntax Error";
                 }
 

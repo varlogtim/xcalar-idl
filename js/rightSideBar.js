@@ -739,7 +739,6 @@ window.RightSideBar = (function($, RightSideBar) {
         $("#rightBarMachineTextArea").hide();
     }
 
-    // XXX Current it works as a reset button
     function setupHelpSection() {
         // Toggleing helper tooltips
         $('#helpOnOff').click(function() {

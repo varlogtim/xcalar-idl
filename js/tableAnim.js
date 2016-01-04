@@ -400,7 +400,7 @@ function createTransparentDragDropCol(pageX) {
     });
      
     var cloneHTML = "";
-    //XXX check to see if topRowEl was found;
+    // check to see if topRowEl was found;
     if (topRowIndex === -1) {
         console.error("BUG! Cannot find first visible row??");
         // Clone entire shit and be.then.
@@ -540,7 +540,7 @@ function dragdropSwapColumns(el) {
         movedCol = prevCol;
     }
 
-    // XXX weird hack hide show or else .header won't reposition itself
+    // HACK: weird hack hide show or else .header won't reposition itself
     dragObj.$table.find('.header').css('height', '39px');
     setTimeout(function() {
         dragObj.$table.find('.header').css('height', '40px');
@@ -2320,7 +2320,7 @@ function addColMenuActions() {
                     return;
                 }
                 // cast of space/tab
-                // XXX this part maybe buggy
+                // XXX FIXME: this part maybe buggy
                 delim = delim.charAt(0);
             }
 
@@ -2943,7 +2943,7 @@ function dropdownClick($el, options) {
         $menu.children('ul').css('max-height', menuHeight);
         // $menu.children('ul').css('max-height', $(window).height() - 152);
 
-        // XXX Use CSS to show the options
+        // Use CSS to show the options
     } else if (options.type === "tdDropdown") {
         $menu = $('#cellMenu');
         // case that should close column menu

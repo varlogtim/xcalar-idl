@@ -1,6 +1,6 @@
 function freeAllResultSets() {
     // var promises = [];
-    // XXX use promise is not reliable to send all reqeust to backend
+    // Note from Cheng: use promise is not reliable to send all reqeust to backend
     var table;
     for (table in gTables) {
         XcalarSetFree(gTables[table].resultSetId);
