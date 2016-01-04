@@ -114,11 +114,10 @@ window.AddScheduleModal = (function($, AddScheduleModal) {
         }
 
         var selectedSchedule = $scheduleListInput.val();
+        closeModal();
 
-        // XXX TODO: add waiting icon if the promise takes too long
         Scheduler.addDFG(selectedSchedule, groupName)
         .then(function() {
-            closeModal();
             xcHelper.showSuccess();
         })
         .fail(function(error) {

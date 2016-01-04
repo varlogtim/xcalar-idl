@@ -83,13 +83,6 @@ function thriftLog() {
             Alert.error("Connection error", alertError, {"lockScreen": true});
 
             return thriftError;
-        } else if (status === StatusT.StatusNoMem) {
-            // This is bad, out of memory so UI cannot do anything
-            // LOCK THE SCREEN
-            alertError = {"error": "Out of Memory."};
-            Alert.error("Error", alertError, {"lockScreen": true});
-
-            return thriftError;
         }
     }
 
