@@ -353,9 +353,14 @@
         .dropdownBox {
             display: none;
         }
-
         td {
             pointer-events: none;
+        }
+        td:first-child {
+            pointer-events: initial;
+            .rowGrab {
+                pointer-events: none;
+            }
         }
     }
 

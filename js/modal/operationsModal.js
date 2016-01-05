@@ -203,7 +203,7 @@ window.OperationsModal = (function($, OperationsModal) {
             },
             'mousedown': function() {
                 $menus.hide();
-                $activeInput = $(this);
+                var $activeInput = $(this);
                 // close other input's open lists when active input is clicked
                 $('.openList').each(function() {
                     if (!$(this).siblings('.argument').is($activeInput)) {
@@ -330,8 +330,6 @@ window.OperationsModal = (function($, OperationsModal) {
         var currentCol = tableCols[newColNum - 1];
         colNum = newColNum;
         colName = currentCol.name;
-        $('#xcTable-' + newTableId).find('.col' + colNum)
-                                   .addClass('modalHighlighted');
 
         XcalarListXdfs("*", "User*")
         .done(function(listXdfsObj) {
@@ -349,6 +347,9 @@ window.OperationsModal = (function($, OperationsModal) {
                     colNames.push('$' + col.name);
                 }
             });
+
+            $('#xcTable-' + newTableId).find('.col' + colNum)
+                                   .addClass('modalHighlighted');
             
             // groupby and aggregates stick to num 6,
             // filter and map use 0-5;
@@ -1123,9 +1124,9 @@ window.OperationsModal = (function($, OperationsModal) {
             var $input = $(this);
             var arg = $(this).val().trim();
             var parsedType = parseType(typeIds[i]);
-            if (!$input.closest(".dropDownList").hasClass("colNameSection")
-                && arg.indexOf(colPrefix) === -1
-                && parsedType.indexOf("string") !== -1) {
+            if (!$input.closest(".dropDownList").hasClass("colNameSection") &&
+                arg.indexOf(colPrefix) === -1 &&
+                parsedType.indexOf("string") !== -1) {
                 
                 if (!$.isEmptyObject(existingTypes)) {
                     if (existingTypes.hasOwnProperty("string")) {
@@ -1334,7 +1335,7 @@ window.OperationsModal = (function($, OperationsModal) {
         var func = $functionInput.val().trim();
         var funcLower = func.substring(0, 1).toLowerCase() + func.substring(1);
         var funcCapitalized = func.substr(0, 1).toUpperCase() + func.substr(1);
-
+        var isPassing;
         // all operation have its own way to show error StatusBox
         switch (operatorName) {
             case ('aggregate'):
@@ -1418,7 +1419,8 @@ window.OperationsModal = (function($, OperationsModal) {
                         if (colTypes[i] != null) {
                             if (types.indexOf(colTypes[i]) < 0) {
                                 isPassing = false;
-                                errorText = ErrorTextWReplaceTStr.InvalidOpsType
+                                var errorText = ErrorTextWReplaceTStr
+                                                .InvalidOpsType
                                             .replace("<type1>", types.join("/"))
                                             .replace("<type2>", colTypes[i]);
                                 StatusBox.show(errorText, $input);
@@ -1434,14 +1436,14 @@ window.OperationsModal = (function($, OperationsModal) {
 
                 if (checkRes != null) {
                     isPassing = false;
-                    errorText = ErrorTextWReplaceTStr.InvalidOpsType
+                    var errorText = ErrorTextWReplaceTStr.InvalidOpsType
                                 .replace("<type1>", checkRes.validType.join("/"))
                                 .replace("<type2>", checkRes.currentType);
 
                     StatusBox.show(errorText, $input);
                     return (false);
                 }
-                formatArgumentResults = formatArgumentInput(arg, typeid,
+                var formatArgumentResults = formatArgumentInput(arg, typeid,
                                                             existingTypes);
                 // if (!formatArgumentResults.isString && newLength === 0) {
                 //     isPassing = false;
@@ -1592,6 +1594,7 @@ window.OperationsModal = (function($, OperationsModal) {
         var types = [];
         var value;
         var trimmedVal;
+        var colArg;
         for (var i = 0; i < numValues; i++) {
             value = values[i];
             trimmedVal = value.trim();

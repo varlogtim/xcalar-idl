@@ -1508,7 +1508,8 @@ window.ColManager = (function($, ColManager) {
             if (childArrayVals[i]) {
                 $header.addClass('childOfArray');
             }
-            if ($currentTh.hasClass('selectedCell')) {
+            if ($currentTh.hasClass('selectedCell') ||
+                $currentTh.hasClass('modalHighlighted')) {
                 highlightColumn($currentTh);
             }
         }
