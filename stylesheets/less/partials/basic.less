@@ -1043,11 +1043,11 @@ input {
         display: none;
     }
 
-    .roundToFixed {
+    .unhide {
         display: none;
     }
 
-    .unhide {
+    .roundToFixed {
         display: none;
     }
 
@@ -1139,6 +1139,10 @@ input {
         .type-string {
             display: none;
         }
+
+        .format {
+            display: none;
+        }
     }
 
     &.type-float {
@@ -1154,8 +1158,8 @@ input {
     &.type-object, &.type-newColumn, &.type-undefined, &.type-mixed, 
     &.recordNum, &.childOfArray {
         .sort, .aggregate, .groupby, .filter, .joinList, .map, .operations,
-        .profile, .roundToFixed
-         {
+        .profile, .format, .roundToFixed
+        {
             display: none;
         }
     }
@@ -1188,7 +1192,7 @@ input {
     &.type-data {
         .sort, .aggregate, .groupby, .filter, .joinList, .deleteColumn, 
         .deleteDuplicates, .duplicate, .rename, .map, .operations,
-        .changeDataType, .profile, .divider, .roundToFixed {
+        .changeDataType, .profile, .divider, .format, .roundToFixed {
             display: none;
         }
     }
@@ -1207,6 +1211,8 @@ input {
     }
 
     &.tdMenu {
+        width: 185px;
+
         .thDropdown {
             display: none !important;
         }

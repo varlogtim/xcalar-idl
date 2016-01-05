@@ -118,6 +118,7 @@ function ProgCol(options) {
     this.userStr = options.userStr || "";
     this.textAlign = options.textAlign || "Center";
     this.decimals = options.decimals || -1;
+    this.format = options.format || null;
 
     return this;
 }

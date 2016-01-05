@@ -764,6 +764,9 @@ function generateColDropDowns() {
             '<li class="changeDataType parentMenu" data-submenu="changeDataType">' +
                 'Change data type' +
             '</li>' +
+            '<li class="format parentMenu" data-submenu="format">' +
+                'Format' +
+            '</li>' +
             '<li class="roundToFixed parentMenu" data-submenu="roundToFixed">' +
                 'Round' +
             '</li>' +
@@ -812,6 +815,10 @@ function generateColDropDowns() {
                             ' autocomplete="on" spellcheck="false"/>' +
                     '</div>' +
                 '</li>' +
+            '</ul>' +
+            '<ul class="format">' +
+                '<li class="changeFormat" data-format="default">Default</li>' +
+                '<li class="changeFormat" data-format="percent">Percent</li>' +
             '</ul>' +
             '<ul class="roundToFixed">' +
                 '<li style="text-align: center" class="clickable">' +

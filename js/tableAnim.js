@@ -2283,6 +2283,17 @@ function addColMenuActions() {
         }
     });
 
+    $subMenu.on('mouseup', '.changeFormat', function(event) {
+        if (event.which !== 1) {
+            return;
+        }
+
+        var format = $(this).data("format");
+        var colNum = $colMenu.data('colNum');
+        tableId = $colMenu.data('tableId');
+        ColManager.format(colNum, tableId, format);
+    });
+
     $subMenu.on('keypress', '.digitsToRound', function(event) {
         if (event.which !== keyCode.Enter) {
             return;
@@ -2511,7 +2522,7 @@ function addColMenuActions() {
         var colVal;
 
         $highlightBoxs.each(function() {
-            colVal = $(this).siblings(".addedBarTextWrap").text();
+            colVal = $(this).closest("td").data("val");
 
             if ($header.hasClass("type-integer")) {
                 if (colVal === "") {
@@ -2978,11 +2989,11 @@ function dropdownClick($el, options) {
         }
 
         if (isMultiCell) {
-            $tdFilter.text('Filter these values');
-            $tdExclude.text('Exclude these values');
+            $tdFilter.text('Filter pre-formatted values');
+            $tdExclude.text('Exclude pre-formatted values');
         } else {
-            $tdFilter.text('Filter this value');
-            $tdExclude.text('Exclude this value');
+            $tdFilter.text('Filter pre-formatted value');
+            $tdExclude.text('Exclude pre-formatted value');
         }
 
         if ((columnType === "object" || columnType === "array") && !notAllowed) {

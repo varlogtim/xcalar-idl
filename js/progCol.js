@@ -73,6 +73,7 @@ window.ColManager = (function($, ColManager) {
         var noAnimate   = options.noAnimate;
         var isHidden    = options.isHidden || false;
         var decimals    = options.decimals || -1;
+        var format      = options.format || null;
         var columnClass;
         var color;
 
@@ -109,7 +110,8 @@ window.ColManager = (function($, ColManager) {
                 "userStr" : '"' + name + '" = ',
                 "isNewCol": isNewCol,
                 "isHidden": isHidden,
-                "decimals": decimals
+                "decimals": decimals,
+                "format"  : format
             });
 
             insertColHelper(newColid - 1, tableId, newProgCol);
@@ -764,16 +766,43 @@ window.ColManager = (function($, ColManager) {
         commitToStorage();
     };
 
-    ColManager.roundToFixed = function(colNum, tableId, val) {
-        var newVal;
-        var $div;
-        $('#xcTableWrap-' + tableId).find('td.col' + colNum)
-                                    .find('.addedBarTextWrap').each(function() {
-            $div = $(this);
-            newVal = roundToFixed($div.text().trim(), val);
-            $div.text(newVal);
+    ColManager.format = function(colNum, tableId, format) {
+        var tableCol = gTables[tableId].tableCols[colNum - 1];
+        var oldFormat = tableCol.format;
+        var decimals = tableCol.decimals;
+
+        if (format === "default") {
+            format = null;
+        }
+
+        if (oldFormat === format) {
+            return;
+        }
+
+        $('#xcTableWrap-' + tableId).find('td.col' + colNum).each(function() {
+            var $td = $(this);
+            var oldVal = $td.data("val");
+            var newVal = formatColumnCell(oldVal, format, decimals);
+            $td.children(".addedBarTextWrap").text(newVal);
         });
-        gTables[tableId].tableCols[colNum - 1].decimals = val;
+
+        tableCol.format = format;
+        // XXX TODO: add sql
+    };
+
+    ColManager.roundToFixed = function(colNum, tableId, decimals) {
+        var tableCol = gTables[tableId].tableCols[colNum - 1];
+        var format = tableCol.format;
+
+        $('#xcTableWrap-' + tableId).find('td.col' + colNum).each(function() {
+            var $td = $(this);
+            var oldVal = $td.data("val");
+            var newVal = formatColumnCell(oldVal, format, decimals);
+            $td.children(".addedBarTextWrap").text(newVal);
+        });
+        tableCol.decimals = decimals;
+        
+        // XXX TODO: add sql
     };
 
     ColManager.reorderCol = function(tableId, oldColNum, newColNum) {
@@ -941,7 +970,7 @@ window.ColManager = (function($, ColManager) {
         $(".tooltip").hide();
         // temporarily use, will be removed when backend allow name with space
         if (/^ | $|[,\(\)'"]/.test(name) === true) {
-            title = "Invalid name, cannot contain '\"() or starting or ending "+
+            title = "Invalid name, cannot contain '\"() or starting or ending " +
                     "spaces";
             isDuplicate = true;
         } else if (name === 'DATA') {
@@ -1020,6 +1049,7 @@ window.ColManager = (function($, ColManager) {
         var width    = tableCols[colNum - 1].width;
         var isNewCol = $table.find('th.col' + colNum).hasClass('unusedCell');
         var decimals = tableCols[colNum - 1].decimals;
+        var format   = tableCols[colNum - 1].format;
 
         var name;
         if (tableCols[colNum - 1].func.args) {
@@ -1034,7 +1064,8 @@ window.ColManager = (function($, ColManager) {
             "width"   : width,
             "isNewCol": isNewCol,
             "isHidden": tableCols[colNum - 1].isHidden,
-            "decimals": decimals
+            "decimals": decimals,
+            "format"  : format
         });
         // add sql
         SQL.add("Duplicate Column", {
@@ -1414,12 +1445,18 @@ window.ColManager = (function($, ColManager) {
                     }
 
                     parsedVal = xcHelper.parseJsonValue(tdValue, knf);
-                    if (tableCols[col].decimals > -1) {
-                        parsedVal = roundToFixed(parsedVal,
-                                                 tableCols[col].decimals);
+
+                    var originalVal = knf ? null : parsedVal;
+                    var formatVal = parsedVal;
+                    var decimals = tableCols[col].decimals;
+                    var format = tableCols[col].format;
+                    if (decimals > -1 || format != null) {
+                        formatVal = formatColumnCell(parsedVal, format, decimals);
                     }
-                    tBodyHTML += '<td class="' + tdClass + ' clickable">' +
-                                    getTableCellHtml(parsedVal) +
+
+                    tBodyHTML += '<td class="' + tdClass + ' clickable" ' +
+                                    'data-val="' + originalVal + '">' +
+                                    getTableCellHtml(formatVal) +
                                 '</td>';
                 } else {
                     // make data td;
@@ -1538,6 +1575,7 @@ window.ColManager = (function($, ColManager) {
         var startingIndex = -1;
         var endingIndex   = -1;
         var decimals = tableCols[newColid - 1].decimals;
+        var format   = tableCols[newColid - 1].format;
                 
         if (!startIndex) {
             startingIndex = parseInt($table.find("tbody tr:first")
@@ -1585,13 +1623,17 @@ window.ColManager = (function($, ColManager) {
             columnType = xcHelper.parseColType(value, columnType);
 
             value = xcHelper.parseJsonValue(value, knf);
-            if (decimals > -1) {
-                value = roundToFixed(value, decimals);
+
+            var originalVal = knf ? null : value;
+            var formatVal = value;
+            if (decimals > -1 || format != null) {
+                formatVal = formatColumnCell(value, format, decimals);
             }
 
             $table.find('.row' + i + ' .col' + newColid)
-                  .html(getTableCellHtml(value))
-                  .addClass('clickable');
+                .attr("data-val", originalVal)
+                .html(getTableCellHtml(formatVal))
+                .addClass('clickable');
         }
 
         if (columnType == null) {
@@ -1865,18 +1907,35 @@ window.ColManager = (function($, ColManager) {
         searchBar.numMatches = 0;
     }
 
-    function roundToFixed(val, decimals) {
-        var newVal = parseFloat(val);
-        if (isNaN(newVal)) {
-            return (val);
+    function formatColumnCell(val, format, decimals) {
+        val = parseFloat(val);
+
+        if (isNaN(val)) {
+            return val;
         }
-        newVal = Math.round(newVal * Math.pow(10, decimals)) + "";
-        if (decimals > 0) {
-            newVal = newVal.slice(0, 0 - decimals) + "." +
-                     newVal.slice(0 - decimals);
+
+        // round it first
+        var pow;
+        if (decimals > -1) {
+            pow = Math.pow(10, decimals);
+            val = Math.round(val * pow) / pow;
         }
-        
-        return (newVal);
+
+        switch (format) {
+            case "percent":
+                // there is a case that 2009.877 * 100 =  200987.69999999998
+                // so must round it
+                val = val * 100;
+                if (decimals >= 2) {
+                    pow = Math.pow(10, decimals - 2);
+                } else {
+                    pow = 1;
+                }
+                val = Math.round(val * pow) / pow;
+                return val + "%";
+            default:
+                return val + ""; // change type to string
+        }
     }
 
     return (ColManager);
