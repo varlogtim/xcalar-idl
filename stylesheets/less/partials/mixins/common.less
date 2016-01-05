@@ -74,8 +74,8 @@
     cursor: -moz-grabbing !important;
 }
 
-.image(@url, @pX:0, @pY:0, @repeat:no-repeat) {
-    background: url(@url) @repeat @pX @pY;
+.image(@url, @pX:0, @pY:0, @repeat:no-repeat, @background-color: transparent) {
+    background: @background-color url(@url) @repeat @pX @pY;
 }
 
 .background(@url, @w, @h, @repeat: no-repeat, @pX: 0, @pY: 0) {

@@ -410,11 +410,29 @@ window.xcHelper = (function($, xcHelper) {
     };
 
     xcHelper.showSuccess = function() {
-        $('#successMessage').fadeIn(200, function() {
-            setTimeout(function() {
-                $('#successMessage').fadeOut(200);
-            }, 1000);
+        var $successMessage = $('#successMessageWrap');
+        $successMessage.show();
+        $successMessage.find('.checkMark').hide().addClass('hidden');
+        setTimeout(function() {
+            $successMessage.find('.successMessage')
+                           .removeClass('hidden');
         });
+        
+        setTimeout(function() {
+            $successMessage.find('.checkMark').show().removeClass('hidden');
+            $successMessage.find('.checkMark')
+                           .addClass('bounceInDown animated');
+
+        }, 300);
+
+        setTimeout(function() {
+                $successMessage.find('.successMessage, .checkMark')
+                               .addClass('hidden');
+        }, 1600);
+        
+        setTimeout(function() {
+                $successMessage.hide();
+        }, 2100);
     };
 
     xcHelper.toggleBtnInProgress = function($btn) {
@@ -437,7 +455,7 @@ window.xcHelper = (function($, xcHelper) {
                         '</div>';
             $btn.html(html).addClass("btnInProgress");
         }
-    }
+    };
 
     // handle dropdown list generally
     xcHelper.dropdownList = function($dropDownList, options) {
@@ -517,7 +535,7 @@ window.xcHelper = (function($, xcHelper) {
                 });
             }
 
-            $dropDownList.on("mousedown", function() {
+            $dropDownList.on("mousedown", function(event) {
                 if (event.which === 1) {
                     // stop propagation of left mousedown
                     // because hide dropdown is triggered by it
