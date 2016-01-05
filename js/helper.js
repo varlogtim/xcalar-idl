@@ -417,6 +417,28 @@ window.xcHelper = (function($, xcHelper) {
         });
     };
 
+    xcHelper.toggleBtnInProgress = function($btn) {
+        var text;
+
+        if ($btn.hasClass("btnInProgress")) {
+            text = $btn.find(".text").text();
+            $btn.text(text).removeClass("btnInProgress");
+        } else {
+            text = $btn.text();
+            var html = '<div class="wrapper">' +
+                            '<div class="text">' +
+                                text +
+                            '</div>' +
+                            '<div class="animatedEllipsis">' +
+                              '<div>.</div>' +
+                              '<div>.</div>' +
+                              '<div>.</div>' +
+                            '</div>' +
+                        '</div>';
+            $btn.html(html).addClass("btnInProgress");
+        }
+    }
+
     // handle dropdown list generally
     xcHelper.dropdownList = function($dropDownList, options) {
         options = options || {};

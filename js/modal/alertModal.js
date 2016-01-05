@@ -188,10 +188,16 @@ window.Alert = (function($, Alert){
                                 'title="Log Out">' +
                                 'Log Out</button>');
 
+            var $supportBtn = $('<button type="button" ' +
+                                'class="btn btnMid logout" ' +
+                                'data-toggle="tooltip" ' +
+                                'title="Generate Support Bundle">' +
+                                'Generate Bundle</button>');
+
             if (options.logout) {
-                $btnSection.prepend($logoutBtn, $copySqlBtn);
+                $btnSection.prepend($logoutBtn, $copySqlBtn, $supportBtn);
             } else {
-                $btnSection.prepend($copySqlBtn, $logoutBtn);
+                $btnSection.prepend($copySqlBtn, $logoutBtn, $supportBtn);
             }
 
             $copySqlBtn.click(function() {
@@ -218,10 +224,32 @@ window.Alert = (function($, Alert){
                 $hiddenInput.val(logText).select();
                 document.execCommand("copy");
                 $hiddenInput.remove();
+                xcHelper.showSuccess();
             });
 
             $logoutBtn.click(function() {
                 $("#signout").click();
+            });
+
+            $supportBtn.click(function() {
+                var $btn = $(this);
+                xcHelper.toggleBtnInProgress($btn);
+
+                XcalarSupportSend()
+                .then(function(ret) {
+                    xcHelper.showSuccess();
+                    $btn.text("Bundle Generated").addClass("btnInactive");
+                })
+                .fail(function(error) {
+                    // XXX TODOs: use xcHelper.showFail() instead
+                    // (function not implement yet!)
+                    xcHelper.toggleBtnInProgress($btn);
+                    var text = $btn.text();
+                    $btn.text("Failed!");
+                    setTimeout(function() {
+                        $btn.text(text);
+                    }, 1000);
+                });
             });
         }
 

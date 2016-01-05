@@ -58,6 +58,9 @@ window.MonitorPanel = (function($, MonitorPanel) {
         });
 
         $("#subBtn").click(function() {
+            var $btn = $(this);
+            xcHelper.toggleBtnInProgress($btn);
+
             XcalarSupportSend()
             .then(function(ret) {
                 Alert.show({
@@ -68,8 +71,11 @@ window.MonitorPanel = (function($, MonitorPanel) {
                     "isAlert": true
                 });
             })
-            .fail(function(sts) {
-                Alert.error("Generation failed", sts);
+            .fail(function(error) {
+                Alert.error("Generation failed", error);
+            })
+            .always(function() {
+                xcHelper.toggleBtnInProgress($btn);
             });
         });
 
