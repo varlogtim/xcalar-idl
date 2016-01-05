@@ -412,27 +412,39 @@ window.xcHelper = (function($, xcHelper) {
     xcHelper.showSuccess = function() {
         var $successMessage = $('#successMessageWrap');
         $successMessage.show();
-        $successMessage.find('.checkMark').hide().addClass('hidden');
-        setTimeout(function() {
-            $successMessage.find('.successMessage')
-                           .removeClass('hidden');
-        });
-        
-        setTimeout(function() {
-            $successMessage.find('.checkMark').show().removeClass('hidden');
-            $successMessage.find('.checkMark')
-                           .addClass('bounceInDown animated');
+        if (!gMinModeOn) {
+            var $checkMark = $successMessage.find('.checkMark');
+            var $text = $successMessage.find('.successMessage');
+            var $textAndCheckMark = $checkMark.add($text);
+            $textAndCheckMark.addClass('hidden');
+            $checkMark.hide();
 
-        }, 300);
+            setTimeout(function() {
+                $text.removeClass('hidden');
+            }, 200);
+            
+            setTimeout(function() {
+                $checkMark.show().removeClass('hidden')
+                                 .addClass('bounceInDown animated');
 
-        setTimeout(function() {
-                $successMessage.find('.successMessage, .checkMark')
-                               .addClass('hidden');
-        }, 1600);
-        
-        setTimeout(function() {
+            }, 400);
+
+            setTimeout(function() {
+                $textAndCheckMark.addClass('hidden');
+            }, 1800);
+            
+            setTimeout(function() {
                 $successMessage.hide();
-        }, 2100);
+            }, 2400);
+        } else {
+            setTimeout(function() {
+                $successMessage.hide();
+            }, 1600);
+        }
+    };
+
+    xcHelper.showFail = function() {
+
     };
 
     xcHelper.toggleBtnInProgress = function($btn) {
@@ -826,7 +838,7 @@ window.xcHelper = (function($, xcHelper) {
                     StatusBox.show(error, $e, ele.formMode);
                     ele.callback();
                 } else if (ele.isAlert) {
-                    Alert.error(ErrorTextTStr.InvalidField, text);
+                    Alert.error(ErrorTextTStr.InvalidField, ele.text);
                 } else {
                     StatusBox.show(error, $e, ele.formMode);
                 }

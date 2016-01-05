@@ -320,7 +320,7 @@ window.DataFlowModal = (function($, DataFlowModal) {
             setupDFGList();
         })
         .fail(function(error) {
-            console.error(error);
+            Alert.error("Data Flow Creation Failed", error);
         })
         .always(function() {
             modalHelper.enableSubmit();
