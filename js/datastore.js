@@ -13,7 +13,7 @@ window.DataStore = (function($, DataStore) {
         ExportTarget.restore();
     };
 
-    DataStore.updateInfo = function(numDatasets) {
+    DataStore.update = function(numDatasets) {
         var $numDataStores = $(".numDataStores");
 
         if (numDatasets != null) {
@@ -31,7 +31,7 @@ window.DataStore = (function($, DataStore) {
         DataSampleTable.clear();
         DataCart.clear();
         DatastoreForm.clear();
-        DataStore.updateInfo(0);
+        DataStore.update(0);
 
         DataPreview.clear()
         .then(function() {
@@ -44,10 +44,10 @@ window.DataStore = (function($, DataStore) {
     };
 
     function setupViews() {
-        $exploreView = $('#exploreView');
-        $exportView = $('#exportView');
-        $contentHeaderRight = $('#contentHeaderRight');
-        $contentHeaderMidText = $('#contentHeaderMid').find('.text');
+        var $exploreView = $('#exploreView');
+        var $exportView = $('#exportView');
+        var $contentHeaderRight = $('#contentHeaderRight');
+        var $contentHeaderMidText = $('#contentHeaderMid').find('.text');
         $('#contentHeaderLeft').find('.buttonArea').click(function() {
             var $button = $(this);
             if ($button.hasClass('active')) {
@@ -133,7 +133,7 @@ window.DatastoreForm = (function($, DatastoreForm) {
                     }).removeClass("hidden");
             },
             "container": "#importDataView",
-            "bounds": "#importDataView"
+            "bounds"   : "#importDataView"
         });
 
         xcHelper.dropdownList($udfFuncList, {
@@ -148,7 +148,7 @@ window.DatastoreForm = (function($, DatastoreForm) {
                 $input.val(func);
             },
             "container": "#importDataView",
-            "bounds": "#importDataView"
+            "bounds"   : "#importDataView"
         });
 
         // csv promote checkbox
@@ -202,7 +202,7 @@ window.DatastoreForm = (function($, DatastoreForm) {
                 }
             },
             "container": "#importDataView",
-            "bounds": "#importDataView"
+            "bounds"   : "#importDataView"
         });
 
         // set up dropdown list for csv args
@@ -232,7 +232,7 @@ window.DatastoreForm = (function($, DatastoreForm) {
                 }
             },
             "container": "#importDataView",
-            "bounds": "#importDataView"
+            "bounds"   : "#importDataView"
         });
 
         xcHelper.dropdownList($('#lineDelim').find(".dropDownList"), {
@@ -261,7 +261,7 @@ window.DatastoreForm = (function($, DatastoreForm) {
                 }
             },
             "container": "#importDataView",
-            "bounds": "#importDataView"
+            "bounds"   : "#importDataView"
         });
 
         // Input event on csv args input box
@@ -2480,7 +2480,7 @@ window.DataSampleTable = (function($, DataSampleTable) {
             var kvPairs    = result.kvPair;
             var numKvPairs = result.numKvPairs;
             // update info here
-            dsObj.numEntries = totalEntries;
+            dsObj.setNumEntries(totalEntries);
             updateTableInfo(dsObj);
 
             var value;
@@ -2532,6 +2532,19 @@ window.DataSampleTable = (function($, DataSampleTable) {
         $tableWrap.html("");
     };
 
+    DataSampleTable.sizeTableWrapper = function() {
+        var $worksheetTable = $('#worksheetTable');
+
+        // size tableWrapper so borders fit table size
+        var tableHeight = $worksheetTable.height();
+        var scrollBarPadding = 0;
+        $tableWrap.width($worksheetTable.width());
+        if ($worksheetTable.width() > $('#datasetWrap').width()) {
+            scrollBarPadding = 10;
+        }
+        $('#datasetWrap').height(tableHeight + scrollBarPadding);
+    };
+
     function getSampleTable(dsName, jsonKeys, jsons) {
         var html = getSampleTableHTML(dsName, jsonKeys, jsons);
         $tableWrap.parent().removeClass('loading');
@@ -2547,24 +2560,11 @@ window.DataSampleTable = (function($, DataSampleTable) {
         });
     }
 
-    DataSampleTable.sizeTableWrapper = function() {
-        var $worksheetTable = $('#worksheetTable');
-
-        // size tableWrapper so borders fit table size
-        var tableHeight = $worksheetTable.height();
-        var scrollBarPadding = 0;
-        $tableWrap.width($worksheetTable.width());
-        if ($worksheetTable.width() > $('#datasetWrap').width()) {
-            scrollBarPadding = 10;
-        }
-        $('#datasetWrap').height(tableHeight + scrollBarPadding);
-    };
-
     function updateTableInfo(dsObj, partial, isLoading) {
-        var dsName = dsObj.name;
-        var format = dsObj.format;
-        var path = dsObj.path || 'N/A';
-        var numEntries = dsObj.numEntries || 'N/A';
+        var dsName = dsObj.getName();
+        var format = dsObj.getFormat();
+        var path = dsObj.getPath() || 'N/A';
+        var numEntries = dsObj.getNumEntries() || 'N/A';
 
         $("#dsInfo-title").text(dsName);
         // XXX TODO(bug 2742): these info should be changed after better backend support
@@ -2573,7 +2573,7 @@ window.DataSampleTable = (function($, DataSampleTable) {
         $("#dsInfo-updateDate").text(xcHelper.getDate());
 
         // file size is special size it needs to be calculated
-        DS.getFileSize(dsObj)
+        dsObj.getFileSize()
         .then(function(fileSize) {
             $("#dsInfo-size").text(fileSize);
         });
@@ -2598,7 +2598,7 @@ window.DataSampleTable = (function($, DataSampleTable) {
         if (format) {
             $("#schema-format").text(format);
         }
-        totalRows = parseInt($('#dsInfo-records').text().replace(/\,/g, ""));
+        totalRows = parseInt(numEntries.replace(/\,/g, ""));
     }
 
     function dataStoreTableScroll($tableWrapper) {
@@ -2995,8 +2995,8 @@ window.DS = (function ($, DS) {
         options.parentId = options.parentId || curDirId;
         options.isFolder = options.isFolder || false;
 
-        var parent   = DS.getDSObj(options.parentId);
-        var $parent  = DS.getGrid(options.parentId);
+        var parent = DS.getDSObj(options.parentId);
+        var $parent = DS.getGrid(options.parentId);
 
         if (options.isFolder) {
             var i = 1;
@@ -3011,12 +3011,12 @@ window.DS = (function ($, DS) {
             options.name = validName;
         }
 
-        var ds = new DSObj(options);
-        $parent.append(getDSHTML(ds));
-        
-        dsLookUpTable[ds.id] = ds;  // cached in lookup table
+        var dsObj = new DSObj(options);
+        $parent.append(getDSHTML(dsObj));
+        // cached in lookup table
+        dsLookUpTable[dsObj.getId()] = dsObj;
 
-        return (ds);
+        return dsObj;
     };
 
     // refresh a new dataset and add it to grid view
@@ -3061,7 +3061,7 @@ window.DS = (function ($, DS) {
         $grid.find('.waitingIcon').fadeIn(200);
         $grid.click();
         $('#datasetWrap').addClass("inactive");
-        DataStore.updateInfo();
+        DataStore.update();
 
         var sqlOptions = {
             "operation" : SQLOps.DSLoad,
@@ -3114,7 +3114,7 @@ window.DS = (function ($, DS) {
         })
         .fail(function(error) {
             rmDSHelper($grid);
-            DataStore.updateInfo();
+            DataStore.update();
             $('#datasetWrap').removeClass('inactive');
             if ($('#dsInfo-title').text() === dsName) {
                 // if loading page is showing, remove and go to import form
@@ -3248,7 +3248,7 @@ window.DS = (function ($, DS) {
 
         // UI update
         DS.refresh();
-        DataStore.updateInfo(totolDS);
+        DataStore.update(totolDS);
 
         if (atStartUp) {
             // restore list view if saved
@@ -3263,25 +3263,23 @@ window.DS = (function ($, DS) {
     // Rename dsObj
     DS.rename = function(dsId, newName) {
         // now only for folders (later also rename datasets?)
-        var ds      = DS.getDSObj(dsId);
+        var dsObj   = DS.getDSObj(dsId);
         var $label  = DS.getGrid(dsId).find("> .label");
-        var oldName = ds.name;
+        var oldName = dsObj.getName();
 
         if (newName === oldName) {
             return;
         } else {
-            ds = ds.rename(newName);
-
-            if (ds.name === newName) {
+            if (dsObj.rename(newName)) {
                 // valid rename
                 SQL.add("Rename Folder", {
                     "operation": SQLOps.DSRename,
                     "dsId"     : dsId,
                     "oldName"  : oldName,
-                    "newName"  : ds.name
+                    "newName"  : newName
                 });
 
-                $label.text(ds.name);
+                $label.text(newName);
                 commitToStorage();
             } else {
                 $label.text(oldName);
@@ -3301,48 +3299,48 @@ window.DS = (function ($, DS) {
 
     // Remove dataset/folder
     DS.remove = function($grid, isOrphaned) {
-        if ($grid == null || $grid.length === 0) {
-            return;
-        }
+        xcHelper.assert(($grid != null && $grid.length !== 0),
+                        "Invalid remove of ds");
 
-        var ds = DS.getDSObj($grid.data("dsid"));
+        var dsId   = $grid.data("dsid");
+        var dsObj  = DS.getDSObj(dsId);
+        var dsName = dsObj.getName();
 
         if ($grid.hasClass("ds")) {
+            // when remove ds
             if (isOrphaned) {
                 rmDSHelper($grid);
 
                 SQL.add("Delete Dataset", {
                     "operation" : SQLOps.DestroyDS,
-                    "dsName"    : ds.name,
+                    "dsName"    : dsName,
                     "isOrphaned": true
                 });
                 return;
             }
             // delete a ds
-            var dsName = $grid.attr("id").split("dataset-")[1];
-            var msg    = "Are you sure you want to delete dataset " +
-                          dsName + "?";
+            var msg = "Are you sure you want to delete dataset " + dsName + "?";
             // add alert
             Alert.show({
-                "title"     : "DELETE DATASET",
-                "msg"       : msg,
-                "isCheckBox": true,
-                "confirm"   : function () {
+                "title"  : "DELETE DATASET",
+                "msg"    : msg,
+                "confirm": function () {
                     delDSHelper($grid, dsName);
                 }
             });
         } else if (rmDSHelper($grid) === true) {
+            // when remove folder
             SQL.add("Delete Folder", {
                 "operation": SQLOps.DelFolder,
-                "dsName"   : ds.name,
-                "dsId"     : ds.id
+                "dsName"   : dsName,
+                "dsId"     : dsId
             });
         }
     };
 
     // Change dir to parent folder
     DS.upDir = function() {
-        var parentId = DS.getDSObj(curDirId).parentId;
+        var parentId = DS.getDSObj(curDirId).getParentId();
         DS.goToDir(parentId);
     };
 
@@ -3361,7 +3359,7 @@ window.DS = (function ($, DS) {
         SQL.add("Go to folder", {
             "operation" : SQLOps.DSToDir,
             "folderId"  : folderId,
-            "folderName": DS.getDSObj(folderId).name
+            "folderName": DS.getDSObj(folderId).getName()
         });
     };
 
@@ -3415,66 +3413,6 @@ window.DS = (function ($, DS) {
 
     /* End of Drag and Drop API */
 
-    // Get file size, if not exist, fetch from backend and update it
-    DS.getFileSize = function(ds) {
-        var deferred = jQuery.Deferred();
-
-        if (ds.fileSize != null) {
-            deferred.resolve(ds.fileSize);
-            return (deferred.promise());
-        }
-
-        var loadURL = ds.path;
-
-        var slashIndex = loadURL.lastIndexOf('/');
-        var dotIndex   = loadURL.lastIndexOf('.');
-        var fileName   = null;
-
-        if (dotIndex > slashIndex) {
-            fileName = loadURL.substr(slashIndex + 1);
-            loadURL = loadURL.substr(0, slashIndex + 1);
-        }
-
-        XcalarListFiles(loadURL)
-        .then(function(files) {
-            ds.fileSize = getFileSizeHelper(files, fileName);
-            deferred.resolve(ds.fileSize);
-        })
-        .fail(function(error) {
-            console.error("List file fails", error);
-            ds.fileSize = null;
-            deferred.resolve(null);
-        });
-
-        return (deferred.promise());
-    };
-
-    function getFileSizeHelper(files, fileName) {
-        var size = 'N/A';
-        var numFiles = 0;
-        var isSingleFile = (fileName != null);
-        var fileLists = files.files;
-
-        for (var i = 0, len = files.numFiles; i < len; i++) {
-            var file = fileLists[i];
-            if (!file.attr.isDirectory) {
-                numFiles++;
-                if (numFiles > 1 && !isSingleFile) {
-                    size = 'N/A';
-                    break;
-                } else {
-                    size = xcHelper.sizeTranslater(file.attr.size);
-                    if (isSingleFile && fileName === file.name) {
-                        break;
-                    }
-                }
-            }
-        }
-
-        return (size);
-    }
-
-
     // Helper function for setup
     function dsSetupHelper() {
         curDirId = homeDirId;
@@ -3489,7 +3427,7 @@ window.DS = (function ($, DS) {
         });
 
         dsObjId++;
-        dsLookUpTable[homeFolder.id] = homeFolder;
+        dsLookUpTable[homeFolder.getId()] = homeFolder;
     }
 
     // Helper function for DS.remove()
@@ -3517,7 +3455,7 @@ window.DS = (function ($, DS) {
             $("#dataSetTableWrap").empty();
             // remove ds obj
             rmDSHelper($grid);
-            DataStore.updateInfo();
+            DataStore.update();
 
             focusOnFirstDS();
             commitToStorage();
@@ -3531,29 +3469,27 @@ window.DS = (function ($, DS) {
 
     // Helper function to remove ds
     function rmDSHelper($grid) {
-        var dsId = $grid.data("dsid");
-        var ds   = DS.getDSObj(dsId);
+        var dsId  = $grid.data("dsid");
+        var dsObj = DS.getDSObj(dsId);
 
-        if (ds.isFolder && ds.eles.length > 0) {
+        if (dsObj.beFolderWithDS()) {
             var instr = "Please remove all the datasets in the folder first.";
-            var msg  =
-                "Unable to delete non-empty folders. Please ensure\r\n" +
-                " that all datasets have been removed from folders prior" +
-                " to deletion.";
+            var msg = "Unable to delete non-empty folders. Please ensure\r\n" +
+                    " that all datasets have been removed from folders prior" +
+                    " to deletion.";
             // add alert
             Alert.show({
-                "title"     : "DELETE FOLDER",
-                "instr"     : instr,
-                "msg"       : msg,
-                "isCheckBox": true,
-                "isAlert"   : true
+                "title"  : "DELETE FOLDER",
+                "instr"  : instr,
+                "msg"    : msg,
+                "isAlert": true
             });
 
             return false;
         } else {
-            ds.removeFromParent();
+            dsObj.removeFromParent();
             // delete ds
-            delete dsLookUpTable[ds.id];
+            delete dsLookUpTable[dsId];
             $grid.remove();
 
             return true;
@@ -3574,13 +3510,13 @@ window.DS = (function ($, DS) {
 
     // Helper function for DS.create()
     function getDSHTML(dsObj) {
-        var id = dsObj.id;
-        var parentId = dsObj.parentId;
-        var name = dsObj.name;
-        var isFolder = dsObj.isFolder;
+        var id = dsObj.getId();
+        var parentId = dsObj.getParentId();
+        var name = dsObj.getName();
         var html;
 
-        if (isFolder) {
+        if (dsObj.beFolder()) {
+            // when it's a folder
             html =
             '<div class="folder display collapse grid-unit" draggable="true"' +
                 ' ondragstart="dsDragStart(event)"' +
@@ -3616,6 +3552,7 @@ window.DS = (function ($, DS) {
                 '</div>' +
             '</div>';
         } else {
+            // when it's a dataset
             html =
             '<div id="dataset-' + name + '" class="ds grid-unit" draggable="true"' +
                 ' ondragstart="dsDragStart(event)"' +
@@ -3778,9 +3715,9 @@ function dsDropIn($grid, $target) {
         SQL.add("Drop dataset/folder", {
             "operation"   : SQLOps.DSDropIn,
             "dsId"        : dragDsId,
-            "dsName"      : ds.name,
+            "dsName"      : ds.getName(),
             "targetDSId"  : targetId,
-            "targetDSName": targetDS.name
+            "targetDSName": targetDS.getName()
         });
     }
 }
@@ -3821,9 +3758,9 @@ function dsInsert($grid, $sibling, isBefore) {
         SQL.add("Insert dataset/folder", {
             "operation"    : SQLOps.DSInsert,
             "dsId"         : dragDsId,
-            "dsName"       : ds.name,
+            "dsName"       : ds.getName(),
             "siblingDSId"  : siblingId,
-            "siblingDSName": siblingDs.name,
+            "siblingDSName": siblingDs.getName(),
             "isBefore"     : isBefore
         });
     }
@@ -3831,7 +3768,8 @@ function dsInsert($grid, $sibling, isBefore) {
 
 // Helper function to move ds back to its parent
 function dsBack($grid) {
-    var ds = DS.getDSObj($grid.data("dsid"));
+    var dsId = $grid.data("dsid");
+    var ds = DS.getDSObj(dsId);
     // target
     var grandPaId = DS.getDSObj(ds.parentId).parentId;
     var grandPaDs = DS.getDSObj(grandPaId);
@@ -3844,10 +3782,10 @@ function dsBack($grid) {
 
         SQL.add("Drop dataset/folder back", {
             "operation"    : SQLOps.DSDropBack,
-            "dsId"         : ds.id,
-            "dsName"       : ds.name,
+            "dsId"         : dsId,
+            "dsName"       : ds.getName(),
             "newFolderId"  : grandPaId,
-            "newFolderName": grandPaDs.name
+            "newFolderName": grandPaDs.getName()
         });
     }
 }

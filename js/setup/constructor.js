@@ -359,6 +359,99 @@ function DSObj(options) {
 }
 
 DSObj.prototype = {
+    getId: function() {
+        return this.id;
+    },
+
+    getParentId: function() {
+        return this.parentId;
+    },
+
+    getName: function() {
+        return this.name;
+    },
+
+    getFormat: function() {
+        return this.format;
+    },
+
+    getPath: function() {
+        return this.path;
+    },
+
+    getNumEntries: function() {
+        return this.numEntries;
+    },
+
+    getFileSize: function() {
+        // Get file size, if not exist, fetch from backend and update it
+        var deferred = jQuery.Deferred();
+
+        if (this.fileSize != null) {
+            deferred.resolve(this.fileSize);
+            return (deferred.promise());
+        }
+
+        var loadURL = this.path;
+        var slashIndex = loadURL.lastIndexOf('/');
+        var dotIndex = loadURL.lastIndexOf('.');
+        var curFileName = null;
+
+        if (dotIndex > slashIndex) {
+            curFileName = loadURL.substr(slashIndex + 1);
+            loadURL = loadURL.substr(0, slashIndex + 1);
+        }
+
+        XcalarListFiles(loadURL)
+        .then(function(files) {
+            this.fileSize = getFileSizeHelper(files, curFileName);
+            deferred.resolve(this.fileSize);
+        })
+        .fail(function(error) {
+            console.error("List file fails", error);
+            this.fileSize = null;
+            deferred.resolve(null);
+        });
+
+        return (deferred.promise());
+
+        function getFileSizeHelper(files, fileName) {
+            var size = 'N/A';
+            var numFiles = 0;
+            var isSingleFile = (fileName != null);
+            var fileLists = files.files;
+
+            for (var i = 0, len = files.numFiles; i < len; i++) {
+                var file = fileLists[i];
+                if (!file.attr.isDirectory) {
+                    numFiles++;
+                    if (numFiles > 1 && !isSingleFile) {
+                        size = 'N/A';
+                        break;
+                    } else {
+                        size = xcHelper.sizeTranslater(file.attr.size);
+                        if (isSingleFile && fileName === file.name) {
+                            break;
+                        }
+                    }
+                }
+            }
+
+            return size;
+        }
+    },
+
+    beFolder: function() {
+        return this.isFolder;
+    },
+
+    beFolderWithDS: function() {
+        return this.isFolder && this.eles.length > 0;
+    },
+
+    setNumEntries: function(num) {
+        this.numEntries = num;
+    },
     // rename of dsObj
     rename: function(newName) {
         newName = newName.trim();
@@ -392,9 +485,10 @@ DSObj.prototype = {
 
         if (isValid) {
             this.name = newName;
+            return true;
+        } else {
+            return false;
         }
-
-        return (this);
     },
 
     // Remove dsObj from parent
