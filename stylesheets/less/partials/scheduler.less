@@ -984,6 +984,23 @@
         .midContentMain {
             overflow: auto;
             height: ~"calc(100% - 35px)";
+
+            .runNowBtn {
+                .size(@width: 95px, @height: 25px);
+                float: right;
+                .font(@size: 12px, @weight: bold, @line-height: 25px);
+                padding: 0 10px;
+
+                .icon {
+                    width: 16px;
+                    .image("/images/schedule/run.png", 0, 50%);
+                }
+
+                .text {
+                    width: 60px;
+                }
+            }
+
             .dagImage {
                 margin-bottom: 4px; // otherwise theres weird vertical scrolling
             }

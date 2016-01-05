@@ -238,6 +238,10 @@ window.DFGPanel = (function($, DFGPanel) {
             var groupName = $(this).siblings('.label').text();
             AddScheduleModal.show(groupName);
         });
+
+        $dfgView.find('.midContent').on("click", ".runNowBtn", function() {
+            runDFG();
+        });
     }
 
     function setupViewToggling() {
@@ -275,6 +279,15 @@ window.DFGPanel = (function($, DFGPanel) {
         var nodeIds = group.nodeIds;
         for (var i = 0; i < numDataFlows; i++) {
             var dataFlow = group.dataFlows[i];
+            var runNowBtn = "";
+
+            if (i === 0) {
+                runNowBtn = '<button class="runNowBtn btn iconBtn">' +
+                                '<span class="icon"></span>' +
+                                '<span class="text">Run Now</span>' +
+                            '</button>';
+            }
+
             html += '<div class="dagWrap clearfix">' +
                         '<div class="header clearfix">' +
                             '<div class="btn btnSmall infoIcon">' +
@@ -287,6 +300,7 @@ window.DFGPanel = (function($, DFGPanel) {
                                     dataFlow.name +
                                 '</span>' +
                             '</div>' +
+                            runNowBtn +
                         '</div>' +
                         '<div class="dagImageWrap">' +
                             '<div class="dagImage" style="width:' +
@@ -514,6 +528,11 @@ window.DFGPanel = (function($, DFGPanel) {
         } else {
             $dfgView.find('.listBox').eq(0).trigger('click', {show: true});
         }
+    }
+
+    function runDFG() {
+        // XXX TODOs: impelment it!
+        console.log("run now");
     }
 
     return (DFGPanel);
