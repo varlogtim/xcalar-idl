@@ -124,9 +124,20 @@ window.JSONModal = (function($, JSONModal) {
                 var $el = $(this);
                 var $jsonWrap = $el.closest('.jsonWrap');
                 var tableId   = $jsonWrap.data('tableid');
+                var cols      = gTables[tableId].tableCols;
                 var colNum    = $jsonWrap.data('colnum');
                 var isArray   = $jsonWrap.data('isarray');
                 var nameInfo  = createJsonSelectionExpression($el);
+                var numCols   = cols.length;
+
+                for (var i = 0; i < numCols; i++) {
+                    if (cols[i].func.args[0] === nameInfo.name) {
+                        var animation = gMinModeOn ? false : true;
+                        closeJSONModal();
+                        xcHelper.centerFocusedColumn(tableId, i, animation);
+                        return;
+                    }
+                }
 
                 var pullColOptions = {
                     "isDataTd" : isDataCol,
