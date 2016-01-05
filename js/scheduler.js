@@ -639,15 +639,11 @@ window.Scheduler = (function(Scheduler, $) {
         if (isNew) {
             $scheduleForm.addClass("new")
                         .removeClass("inActive")
-                        .data("schedule", null)
-                        .find(".heading .text").text("NEW SCHEDULE");
-            $("#scheduleForm-edit").removeClass("btn");
+                        .data("schedule", null);
         } else {
             $scheduleForm.removeClass("new")
                         .addClass("inActive")
-                        .data("schedule", schedule.name)
-                        .find(".heading .text").text("MODIFY SCHEDULE");
-            $("#scheduleForm-edit").addClass("btn");
+                        .data("schedule", schedule.name);
         }
 
         resetScheduleForm();

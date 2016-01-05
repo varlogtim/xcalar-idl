@@ -306,29 +306,29 @@
 
                 > div {
                     float: left;
-                    .size(@width: 18%, @min-width: 250px);
-
-                    &:first-child {
-                        margin-right: ~"calc(15% + 5px)";
-                    }
+                    .size(@width: 19%, @min-width: 230px);
                 }
 
                 .text {
                     color: @color-text-blue;
                 }
+
+                .btn {
+                    .size(@width: 160px);
+                    padding: 0 5px;
+                    .icon {
+                        .image("/images/schedule/edit_schedule.png", 50%, 50%);
+                    }
+                }
+
             }
         }
 
         .midContentForm {
-            .flex(0 0 330px);
+            .flex(0 0 295px);
             background-color: @color-background-topForm;
 
             &.new {
-                .heading {
-                    pointer-events: none;
-                    cursor: pointer;
-                }
-
                 .content .nameSection {
                     pointer-events: auto !important;
                     opacity: 1.0 !important;
@@ -339,36 +339,6 @@
                 .content, .buttonArea .btn {
                     pointer-events: none;
                     opacity: 0.3;
-                }
-            }
-
-            .heading {
-                .size(@height: 35px);
-                padding-left: 25px;
-                padding-top: 1px;
-                background-color: @color-background-topGrayMed;
-                .font(@line-height: 30px, @size: 13px, @weight: bold, @color: @color-white);
-                .btnMid {
-                    margin-top: 1px;
-                    width: 160px;
-                }
-                .iconWrap {
-                    float: left;
-                    .size(24px, 23px);
-                    margin-left: 5px;
-                    cursor: pointer;
-                    .vertical-align;
-
-                    .icon {
-                        .size(100%, 100%);
-                        .image("/images/schedule/edit_schedule.png", 50%, 50%);
-                    }
-                }
-
-                .text {
-                    text-align: center;
-                    width: 130px;
-                    cursor: pointer;
                 }
             }
 
