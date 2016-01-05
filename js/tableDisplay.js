@@ -819,8 +819,8 @@ function generateColDropDowns() {
                     'to 1.23">Num. of decimals to keep</span>' +
                     '<div class="listSection">' +
                         '<input class="digitsToRound" type="number"' +
-                            ' max="14" min="0" autocomplete="on" spellcheck="false"' +
-                            'placeholder="2" />' +
+                            ' max="14" min="0" autocomplete="on" ' +
+                            'spellcheck="false" />' +
                     '</div>' +
                 '</li>' +
             '</ul>' +

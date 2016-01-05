@@ -888,8 +888,8 @@ window.ColManager = (function($, ColManager) {
                 break;
             case ("filter"):
                 userStr = progCol.userStr;
-                regex = new RegExp(' *" *(.*) *" *= *filter *[(] *(.*) *[)]'
-                                       , "g");
+                regex = new RegExp(' *" *(.*) *" *= *filter *[(] *(.*) *[)]',
+                                   "g");
                 matches = regex.exec(userStr);
                 var fltString = matches[2];
                 fieldName = matches[1];
@@ -1870,9 +1870,11 @@ window.ColManager = (function($, ColManager) {
             return (val);
         }
         newVal = Math.round(newVal * Math.pow(10, decimals)) + "";
-        newVal = newVal.slice(0, 0 - decimals) + "." +
-                 newVal.slice(0 - decimals);
-
+        if (decimals > 0) {
+            newVal = newVal.slice(0, 0 - decimals) + "." +
+                     newVal.slice(0 - decimals);
+        }
+        
         return (newVal);
     }
 
