@@ -665,7 +665,7 @@ window.RightSideBar = (function($, RightSideBar) {
         });
 
         $selectBtns.find('.refresh').click(function() {
-            RightSideBar.refreshOrphanList();
+            RightSideBar.refreshOrphanList(true);
         });
 
         $("#inactiveTablesList, #orphanedTablesList, #aggregateTableList")
@@ -1221,7 +1221,9 @@ window.RightSideBar = (function($, RightSideBar) {
         $orphanedTableList.find('.secondButtonWrap').show();
     }
 
-    RightSideBar.refreshOrphanList = function() {
+    RightSideBar.refreshOrphanList = function(prettyPrint) {
+        var deferred = jQuery.Deferred();
+
         XcalarGetTables()
         .then(function(backEndTables) {
             var backTables = backEndTables.nodeInfo;
@@ -1237,12 +1239,21 @@ window.RightSideBar = (function($, RightSideBar) {
                 }
             }
             setupOrphanedList(tableMap);
-            setTimeout(function() {
-                generateOrphanList(gOrphanTables);
-            }, 400);
-            
             xcHelper.showRefreshIcon($('#orphanedTableList'));
-        });
+
+            if (prettyPrint) {
+                setTimeout(function() {
+                    generateOrphanList(gOrphanTables);
+                    deferred.resolve();
+                }, 400);
+            } else {
+                generateOrphanList(gOrphanTables);
+                deferred.resolve();
+            }
+        })
+        .fail(deferred.reject);
+
+        return (deferred.promise());
     }
 
     function sortTableByTime(tables) {

@@ -322,13 +322,15 @@ window.WSManager = (function($, WSManager) {
             // It's really a pull not a move
             // 1) Refresh Orphan List
             // 2) Trigger Add from Orphan list
-            RightSideBar.refreshOrphanList();
-            setTimeout(function() {
-                $("#orphanedTablesList span:contains("+
-                  tableId+")").parent().find('.addTableBtn').click();
+            RightSideBar.refreshOrphanList()
+            .then(function() {
+                $("#orphanedTablesList span:contains(" + tableId + ")")
+                .parent().find('.addTableBtn').click();
                 $("#submitOrphanedTablesBtn").click();
-            }, 600); // XXX FIXME This is terrible! T__T Why does
-                     // RefreshOrphanList have setTimeOut inside T_____T
+            })
+            .fail(function(error) {
+                Alert.error("Add Orphaned Table Failed", error);
+            });
         }
 
         var oldWSId = tableIdToWSIdMap[tableId];
