@@ -332,19 +332,18 @@ window.WSManager = (function($, WSManager) {
         }
 
         var oldWSId = tableIdToWSIdMap[tableId];
+        if (oldWSId == null) {
+            // when it's from Orphan table
+            addFromOrphanList();
+            return;
+        }
+
+        // move inactive table to another worksheet
         tableIdToWSIdMap[tableId] = newWSId;
 
         var oldWS = wsLookUp[oldWSId];
-        if (!oldWS) {
-            addFromOrphanList();
-            return;
-        }
         var tables = oldWS.hiddenTables;
         var tableIndex = tables.indexOf(tableId);
-        if (tableIndex == -1) {
-            addFromOrphanList();
-            return;
-        }
         var wsTable = tables.splice(tableIndex, 1)[0];
         var newWS = wsLookUp[newWSId];
         newWS.hiddenTables.push(wsTable);
