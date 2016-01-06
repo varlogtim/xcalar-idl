@@ -767,7 +767,8 @@ window.ColManager = (function($, ColManager) {
     };
 
     ColManager.format = function(colNum, tableId, format) {
-        var tableCol = gTables[tableId].tableCols[colNum - 1];
+        var table = gTables[tableId];
+        var tableCol = table.tableCols[colNum - 1];
         var oldFormat = tableCol.format;
         var decimals = tableCol.decimals;
 
@@ -790,11 +791,20 @@ window.ColManager = (function($, ColManager) {
         });
 
         tableCol.format = format;
-        // XXX TODO: add sql
+
+        SQL.add("Change Format", {
+            "operation": SQLOps.ChangeFormat,
+            "tableName": table.tableName,
+            "tableId"  : tableId,
+            "colName"  : tableCol.name,
+            "colNum"   : colNum,
+            "format"   : format
+        });
     };
 
     ColManager.roundToFixed = function(colNum, tableId, decimals) {
-        var tableCol = gTables[tableId].tableCols[colNum - 1];
+        var table = gTables[tableId];
+        var tableCol = table.tableCols[colNum - 1];
         var format = tableCol.format;
 
         $('#xcTableWrap-' + tableId).find('td.col' + colNum).each(function() {
@@ -807,8 +817,15 @@ window.ColManager = (function($, ColManager) {
             }
         });
         tableCol.decimals = decimals;
-        
-        // XXX TODO: add sql
+
+        SQL.add("Round To Fixed", {
+            "operation": SQLOps.RoundToFixed,
+            "tableName": table.tableName,
+            "tableId"  : tableId,
+            "colName"  : tableCol.name,
+            "colNum"   : colNum,
+            "decimals" : decimals
+        });
     };
 
     ColManager.reorderCol = function(tableId, oldColNum, newColNum) {

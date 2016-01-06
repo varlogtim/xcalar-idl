@@ -276,6 +276,10 @@ window.SQL = (function($, SQL) {
                 // fallthrough
             case (SQLOps.SplitCol):
                 // fallthrough
+            case (SQLOps.ChangeFormat):
+                // fallthrough
+            case (SQLOps.RoundToFixed):
+                // fallthrough
                 // XXX should export tables have an effect?
                 break;
 

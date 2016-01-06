@@ -225,6 +225,10 @@ window.Replay = (function($, Replay) {
                 return replaySplitCol(options);
             case SQLOps.ChangeType:
                 return replayChangeType(options);
+            case SQLOps.ChangeFormat:
+                return replayChangeFormat(options);
+            case SQLOps.RoundToFixed:
+                return replayRoundToFixed(options);
             default:
                 console.error("Unknown operation", operation);
                 deferred.reject("Unknown operation");
@@ -338,6 +342,8 @@ window.Replay = (function($, Replay) {
         argsMap[SQLOps.SplitCol] = ["colNum", "tableId",
                                     "delimiter", "numColToGet"];
         argsMap[SQLOps.ChangeType] = ["colTypeInfos", "tableId"];
+        argsMap[SQLOps.ChangeFormat] = ["colNum", "tableId", "format"];
+        argsMap[SQLOps.RoundToFixed] = ["colNum", "tableId", "decimals"];
     }
 
     function createTabMap() {
@@ -1237,6 +1243,18 @@ window.Replay = (function($, Replay) {
     function replayChangeType(options) {
         var args = getArgs(options);
         return (ColManager.changeType.apply(window, args));
+    }
+
+    function replayChangeFormat(options) {
+        var args = getArgs(options);
+        ColManager.format.apply(window, args);
+        return promiseWrapper(null);
+    }
+
+    function replayRoundToFixed(options) {
+        var args = getArgs(options);
+        ColManager.roundToFixed.apply(window, args);
+        return promiseWrapper(null);
     }
 
     function checkHelper(checkFunc, msg) {

@@ -196,7 +196,9 @@ var SQLOps = {
     QuickAgg: "quickAgg",
     SplitCol: "splitCol",
     SplitColMap: "spltColMap",
-    ChangeType: "changeType"
+    ChangeType: "changeType",
+    ChangeFormat: "ChangeFormat",
+    RoundToFixed: "roundToFixed"
 };
 
 var TooltipTemplate = {
