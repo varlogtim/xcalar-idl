@@ -939,31 +939,28 @@ window.TestSuite = (function($, TestSuite) {
 
         var $dfgParamModal = $("#dfgParameterModal");
         $dfgParamModal.find(".editableRow .defaultParam").click();
-        $dfgParamModal.find(".editableParamDiv").html(
-            'export-<div id="draggableParam-' + paramName +
-            '" class="draggableDiv" draggable="true" ' +
-            'ondragstart="DFGParamModal.paramDragStart(event)" ' +
-            'ondragend="DFGParamModal.paramDragEnd(event)" ondrop="return false" ' +
-            'title="click and hold to drag" contenteditable="false">' +
-            '<div class="icon"></div><span class="delim">&lt;</span>' +
-            '<span class="value">' + paramName +
-            '</span><span class="delim">&gt;' +
-            '</span><div class="close"></div></div>.csv'
+        var $draggablePill = $dfgParamModal.find('.draggableDiv').eq(0);
+        $dfgParamModal.find("input.editableParamDiv").val('export-' +
+            $draggablePill.text() +'.csv'
         );
+        $dfgParamModal.find("input.editableParamDiv").trigger('input');
 
         var $row = $("#dagModleParamList").find(".unfilled:first");
         fileName = "file" + randInt();
 
-        $row.find(".paramName").text(paramName)
-            .end()
-            .find(".paramVal").val(fileName).removeAttr("disabled")
-            .end()
-            .removeClass("unfilled");
-        $dfgParamModal.find(".modalBottom .confirm").click();
-
-        checkExists(".dagTable.export.hasParam")
+        checkExists("#dagModleParamList tr:first .paramName:contains('" +
+                    paramName + "')")
         .then(function() {
-            TestSuite.pass(deferred, testName, currentTestNumber);
+            $('#dagModleParamList').find('tr:first .paramVal').val(fileName);
+            $dfgParamModal.find(".modalBottom .confirm").click();
+
+            checkExists(".dagTable.export.hasParam")
+            .then(function() {
+                TestSuite.pass(deferred, testName, currentTestNumber);
+            })
+            .fail(function(error) {
+                TestSuite.fail(deferred, testName, currentTestNumber, error);
+            });
         })
         .fail(function(error) {
             TestSuite.fail(deferred, testName, currentTestNumber, error);
