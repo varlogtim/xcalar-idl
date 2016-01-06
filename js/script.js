@@ -719,6 +719,7 @@ function startupFunctions() {
 
     // Shut up the console logs
     verbose = false;
+    superVerbose = false;
 
     setupLogout();
     RightSideBar.setup();

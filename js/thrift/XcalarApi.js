@@ -2,6 +2,7 @@ var userIdUnique = 1;
 var userIdName = "test";
 
 var verbose = true;
+var superVerbose = true;
 
 ThriftHandle = function(args) {
     this.transport = null;
@@ -1869,9 +1870,15 @@ function xcalarKeyAddOrReplaceWorkItem(scope, persist, key, value) {
 function xcalarKeyAddOrReplace(thriftHandle, scope, key, value, persist) {
     var deferred = jQuery.Deferred();
     if (verbose) {
-        console.log("xcalarKeyAddOrReplace(source = " + scope + ", key = " +
-                    key + ", value = " + value + ", persist = " +
-                    persist.toString() + ")");
+        if (superVerbose) {
+            console.log("xcalarKeyAddOrReplace(source = " + scope + ", key = " +
+                        key + ", value = " + value + ", persist = " +
+                        persist.toString() + ")");
+        } else {
+            console.log("xcalarKeyAddOrReplace(source = " + scope + ", key = " +
+                        key + ", value = <superVerbose mode only>, persist = " +
+                        persist.toString() + ")");
+        }
     }
 
     var workItem = xcalarKeyAddOrReplaceWorkItem(scope, persist, key, value);
@@ -1909,8 +1916,13 @@ function xcalarKeyAppendWorkItem(scope, key, suffix) {
 function xcalarKeyAppend(thriftHandle, scope, key, suffix) {
     var deferred = jQuery.Deferred();
     if (verbose) {
-        console.log("xcalarKeyAppend(scope = " + scope + ", key = " + key +
-                    ", suffix = " + suffix + ")");
+        if (superVerbose) {
+            console.log("xcalarKeyAppend(scope = " + scope + ", key = " + key +
+                        ", suffix = " + suffix + ")");
+        } else {
+            console.log("xcalarKeyAppend(scope = " + scope + ", key = " + key +
+                        ", suffix = <superVerbose mode only>)");
+        } 
     }
 
     var workItem = xcalarKeyAppendWorkItem(scope, key, suffix);
@@ -1964,11 +1976,21 @@ function xcalarKeySetIfEqual(thriftHandle, scope, persist, keyCompare,
                              valueSecondary) {
     var deferred = jQuery.Deferred();
     if (verbose) {
-        console.log("xcalarKeySetIfEqual(scope = " + scope + ", persist = " +
-                    persist + ", keyCompare = " + keyCompare +
-                    ", valueCompare = " + valueCompare + ", valueReplace = " +
-                    valueReplace + ", keySecondary = " + keySecondary +
-                    ", valueSecondary = " + valueSecondary + ")");
+        if (superVerbose) {
+            console.log("xcalarKeySetIfEqual(scope = " + scope + ", persist = "
+                        + persist + ", keyCompare = " + keyCompare +
+                        ", valueCompare = " + valueCompare + ", valueReplace = "
+                        + valueReplace + ", keySecondary = " + keySecondary +
+                        ", valueSecondary = " + valueSecondary + ")");
+        } else {
+            console.log("xcalarKeySetIfEqual(scope = " + scope + ", persist = "
+                        + persist + ", keyCompare = " + keyCompare +
+                        ", valueCompare = <superVerbose mode only>" +
+                        ", valueReplace = <superVerbose mode only>" +
+                        ", keySecondary = " + keySecondary +
+                        ", valueSecondary = <superVerbose mode only>" + ")");
+
+        }
     }
 
     var workItem = xcalarKeySetIfEqualWorkItem(scope, persist, keyCompare,

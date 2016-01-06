@@ -381,7 +381,8 @@ StatusT = {
   'StatusQrNotFound' : 372,
   'StatusJoinOrderingMismatch' : 373,
   'StatusInvalidUserCookie' : 374,
-  'StatusStTooManySchedTask' : 375
+  'StatusStTooManySchedTask' : 375,
+  'StatusConfigInvalid' : 376
 };
 StatusTStr = {0 : 'Success',
 1 : 'Operation not permitted',
@@ -758,5 +759,6 @@ StatusTStr = {0 : 'Success',
 372 : 'Could not find query record associated with the query id',
 373 : 'Joins may only be performed on tables with the same ordering',
 374 : 'Invalid user cookie provided',
-375 : 'Too many scheduled tasks'
+375 : 'Too many scheduled tasks',
+376 : 'Failed to parse Xcalar configuration file'
 };
