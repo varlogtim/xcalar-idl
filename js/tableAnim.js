@@ -2550,6 +2550,7 @@ function addColMenuActions() {
                 }
                 colVal = parseFloat(colVal);
             } else if ($header.hasClass("type-string")) {
+                colVal = colVal + ""; // if it's number, change to string
                 colVal = JSON.stringify(colVal);
             } else if ($header.hasClass("type-boolean")) {
                 if (colVal === "true") {
