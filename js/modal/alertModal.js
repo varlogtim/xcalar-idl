@@ -228,7 +228,7 @@ window.Alert = (function($, Alert){
             });
 
             $logoutBtn.click(function() {
-                $("#signout").click();
+                unloadHandler();
             });
 
             $supportBtn.click(function() {
