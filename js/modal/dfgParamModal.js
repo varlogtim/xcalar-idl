@@ -560,7 +560,7 @@ window.DFGParamModal = (function($, DFGParamModal){
         for (var i = 0; i < len; i++) {
             if (braceOpen) {
                 if (val[i] === ">") {
-                    braceOpen = false; 
+                    braceOpen = false;
                 }
             } else if (val[i] === "<") {
                 braceOpen = true;
@@ -684,34 +684,16 @@ window.DFGParamModal = (function($, DFGParamModal){
                     var filterText = $editableDivs.eq(1).val().trim();
                     var str1 = $editableDivs.eq(0).val().trim();
                     var str2 = $editableDivs.eq(2).val().trim();
-                    var filter;
-                    var numParams = params.length;
-                    var param;
-                    var val;
-                    var filterParamText = filterText;
-                    var find;
-                    var rgx;
-                    for (var i = 0; i < numParams; i++) {
-                        param = params[i].name;
-                        val = params[i].val;
-                        find = "<" + param + ">";
-                        rgx = new RegExp(find, 'g');
-                        filterParamText = filterParamText.replace(rgx, val);
-                    }
-
-                    // Only support these filter now
-                    var filterExists = $editableDivs.eq(1).siblings('.list')
-                                                          .find('li')
-                                                          .filter(function() {
-                        return ($(this).text() === filterParamText);
-                    }).length;
+                    var filterExists = checkIfValidFilter(filterText,
+                                                          $editableDivs.eq(1),
+                                                          params);
 
                     if (!filterExists) {
                         deferred.reject("Filter type not currently supported.");
                         return (deferred.promise());
                     }
     
-                    paramValue = filter + "(" + str1 + "," + str2 + ")";
+                    paramValue = filterText + "(" + str1 + "," + str2 + ")";
                     // paramInput.paramFilter = new XcalarApiParamFilterT();
                     // paramInput.paramFilter.filterStr = str;
                     paramQuery = [str1, filterText, str2];
@@ -750,6 +732,31 @@ window.DFGParamModal = (function($, DFGParamModal){
 
             return (deferred.promise());
         }
+    }
+
+    function checkIfValidFilter(filterText, $input, params) {
+        var numParams = params.length;
+        var find;
+        var rgx;
+        var param;
+        var val;
+        var filterParamText = filterText;
+        for (var i = 0; i < numParams; i++) {
+            param = params[i].name;
+            val = params[i].val;
+            find = "<" + param + ">";
+            rgx = new RegExp(find, 'g');
+            filterParamText = filterParamText.replace(rgx, val);
+        }
+
+        // Check if filterParamText matches a filter type from dropdown list
+        var filterExists = $input.siblings('.list')
+                                  .find('li')
+                                  .filter(function() {
+            return ($(this).text() === filterParamText);
+        }).length;
+
+        return (filterExists);
     }
 
     function getParameterInputHTML(inputNum, extraClass, options) {
