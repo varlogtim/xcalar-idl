@@ -782,8 +782,11 @@ window.ColManager = (function($, ColManager) {
         $('#xcTableWrap-' + tableId).find('td.col' + colNum).each(function() {
             var $td = $(this);
             var oldVal = $td.data("val");
-            var newVal = formatColumnCell(oldVal, format, decimals);
-            $td.children(".addedBarTextWrap").text(newVal);
+            if (oldVal != null) {
+                // not knf
+                var newVal = formatColumnCell(oldVal, format, decimals);
+                $td.children(".addedBarTextWrap").text(newVal);
+            }
         });
 
         tableCol.format = format;
@@ -797,8 +800,11 @@ window.ColManager = (function($, ColManager) {
         $('#xcTableWrap-' + tableId).find('td.col' + colNum).each(function() {
             var $td = $(this);
             var oldVal = $td.data("val");
-            var newVal = formatColumnCell(oldVal, format, decimals);
-            $td.children(".addedBarTextWrap").text(newVal);
+            if (oldVal != null) {
+                // not knf
+                var newVal = formatColumnCell(oldVal, format, decimals);
+                $td.children(".addedBarTextWrap").text(newVal);
+            }
         });
         tableCol.decimals = decimals;
         
@@ -1415,7 +1421,7 @@ window.ColManager = (function($, ColManager) {
                             tdValue[nested[i]] == null)
                         {
                             knf = true;
-                            tdValue = "";
+                            tdValue = null;
                             break;
                         }
 
@@ -1461,12 +1467,13 @@ window.ColManager = (function($, ColManager) {
                     var formatVal = parsedVal;
                     var decimals = tableCols[col].decimals;
                     var format = tableCols[col].format;
-                    if (decimals > -1 || format != null) {
+                    if (!knf && (decimals > -1 || format != null)) {
                         formatVal = formatColumnCell(parsedVal, format, decimals);
                     }
 
+                    var dataVal = knf ? '' : 'data-val="' + originalVal + '"';
                     tBodyHTML += '<td class="' + tdClass + ' clickable" ' +
-                                    'data-val="' + originalVal + '">' +
+                                    dataVal + '>' +
                                     getTableCellHtml(formatVal) +
                                 '</td>';
                 } else {
@@ -1619,7 +1626,7 @@ window.ColManager = (function($, ColManager) {
                     value[nested[j]] == null)
                 {
                     knf = true;
-                    value = "";
+                    value = null;
                     break;
                 }
                 value = value[nested[j]];
@@ -1636,14 +1643,16 @@ window.ColManager = (function($, ColManager) {
 
             var originalVal = knf ? null : value;
             var formatVal = value;
-            if (decimals > -1 || format != null) {
+            if (!knf && (decimals > -1 || format != null)) {
                 formatVal = formatColumnCell(value, format, decimals);
             }
 
-            $table.find('.row' + i + ' .col' + newColid)
-                .attr("data-val", originalVal)
-                .html(getTableCellHtml(formatVal))
+            var $td = $table.find('.row' + i + ' .col' + newColid);
+            $td.html(getTableCellHtml(formatVal))
                 .addClass('clickable');
+            if (!knf) {
+                $td.attr("data-val", originalVal)
+            }
         }
 
         if (columnType == null) {

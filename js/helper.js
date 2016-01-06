@@ -63,7 +63,8 @@ window.xcHelper = (function($, xcHelper) {
     xcHelper.parseColType = function(val, oldType) {
         var type = oldType;
 
-        if (val != null && val !== "" && oldType !== "mixed") {
+        if (val != null && oldType !== "mixed") {
+            // note: "" is empty string
             var valType = typeof val;
             type = valType;
             // get specific type
