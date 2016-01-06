@@ -1358,7 +1358,12 @@ window.ColManager = (function($, ColManager) {
                 nestedVals.push([""]);
             }
 
-            columnTypes.push(tableCols[i].type); // initial type
+            // initial type
+            if (secondPull && tableCols[i].isSortedArray) {
+                columnTypes.push(null);
+            } else {
+                columnTypes.push(tableCols[i].type);
+            }
         }
         // loop through table tr and start building html
         for (var row = 0, numRows = jsonData.length; row < numRows; row++) {
@@ -1425,11 +1430,17 @@ window.ColManager = (function($, ColManager) {
                     
                     // if it's the index array field, pull indexed one instead
                     if (secondPull && tableCols[col].isSortedArray) {
-                        var $input  = $table.find('th.col' + (col + 1) +
+                        var $input = $table.find('th.col' + (col + 1) +
                                           '> .header input');
                         var key = table.keyName + "_indexed";
                         $input.val(key);
                         tdValue = dataValue[key];
+
+                        // this is a indexed column, should change the ProCol
+                        // XXX this part might buggy
+                        tableCols[col].name = key;
+                        tableCols[col].userStr = '"' + key + '" = pull(' + key + ')';
+                        tableCols[col].func.args[0] = key;
                     }
 
                     var tdClass = "col" + (col + 1);
@@ -1621,7 +1632,6 @@ window.ColManager = (function($, ColManager) {
 
             //define type of the column
             columnType = xcHelper.parseColType(value, columnType);
-
             value = xcHelper.parseJsonValue(value, knf);
 
             var originalVal = knf ? null : value;

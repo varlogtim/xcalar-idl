@@ -293,8 +293,8 @@ function generateDataColumnJson(table, direction, notIndexed, numRowsToFetch) {
             jsonNormal.push(value);
             // remove the last char, which should be "}"
             newValue = value.substring(0, value.length - 1);
-            newValue += ',"' + keyName + '_indexed":"' + key + '"}';
 
+            newValue += ',"' + keyName + '_indexed":' + key + '}';
             jsonWithKey.push(newValue);
         }
 

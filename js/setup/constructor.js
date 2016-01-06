@@ -39,6 +39,7 @@ function TableMeta(options) {
     this.tableName = options.tableName;
     this.tableId = options.tableId;
     this.isLocked = options.isLocked;
+    this.isSortedArray = options.isSortedArray || false;
 
     if (options.active != null) {
         this.active = options.active;
@@ -119,6 +120,7 @@ function ProgCol(options) {
     this.textAlign = options.textAlign || "Center";
     this.decimals = options.decimals || -1;
     this.format = options.format || null;
+    this.isSortedArray = options.isSortedArray || false;
 
     return this;
 }
