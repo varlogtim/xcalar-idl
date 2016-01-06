@@ -491,7 +491,7 @@ function XcalarExport(tableName, exportName, targetName, numColumns, columns, sq
         return (deferred.promise());
     }
 
-    var target = new DsExportTargetT();
+    var target = new DsExportTargetHdrT();
     target.type = DsTargetTypeT.DsTargetUnknownType;
     target.name = targetName;
     var specInput = new DsInitExportSpecificInputT();
@@ -504,8 +504,8 @@ function XcalarExport(tableName, exportName, targetName, numColumns, columns, sq
             return;
         }
         for (var i = 0; i < out.targets.length; i++) {
-            if (out.targets[i].name === targetName) {
-                target.type = out.targets[i].type;
+            if (out.targets[i].hdr.name === targetName) {
+                target.type = out.targets[i].hdr.type;
                 break;
             }
         }
