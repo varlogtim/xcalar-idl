@@ -199,7 +199,7 @@ window.DagPanel = (function($, DagPanel) {
             }
             var dagId = $menu.data('dagid');
             var $dagWrap = $('#' + dagId);
-            var canvas = $dagWrap.find('canvas')[0];
+            var canvas = $dagWrap.find('canvas').eq(1)[0];
 
             window.open(canvas.toDataURL("image/png"));
         });
