@@ -29,7 +29,7 @@ function freeAllResultSetsSync() {
             tableNames[tables[i].name] = true;
         }
 
-        for (table in gTables) {
+        for (var table in gTables) {
             if (!tableNames.hasOwnProperty(gTables.tableName)) {
                 continue;
             }

@@ -1229,9 +1229,22 @@ function sortAllTableColumns(tableId, direction) {
         oldColIndex = tableCols[i].index;
         newIndex = i + 1;
         $ths.eq(newIndex).removeClass('col' + oldColIndex)
-                                   .addClass('col' + newIndex);
+                         .addClass('col' + newIndex);
         tableCols[i].index = newIndex;
     }
+
+    var match;
+    $table.find('th').each(function(i) {
+        match = $(this).attr('class').match(/col/g);
+        if (match && match.length > 1) {
+            console.error('incorrect class after columns sort', $(this));
+            return false;
+        } else if (!$(this).hasClass('col' + i)) {
+            console.error('incorrect column class order after columns sort',
+                $(this));
+            return false;
+        }
+    });
 
     RightSideBar.updateTableInfo(tableId);
 
@@ -2414,7 +2427,7 @@ function addColMenuActions() {
         }
         var $li = $(this);
         var colNum;
-        if ($li.closest('.multiColumn').length !== 0) {
+        if ($li.closest('.multiTextAlign').length !== 0) {
             colNum = $colMenu.data('columns');
         } else {
             colNum = $colMenu.data('colNum');
