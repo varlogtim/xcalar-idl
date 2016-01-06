@@ -286,7 +286,7 @@ window.StatusMessage = (function($, StatusMessage) {
                 $('<div class="tableDonePopup' + status + '"' +
                     'id="tableDonePopup' + msgId + '" >' +
                             operation + status +
-                    '</div>');
+                    '<div class="close">+</div></div>');
 
         if (operation === 'data set load') {
             // only display notification if not on data store tab
@@ -346,8 +346,8 @@ window.StatusMessage = (function($, StatusMessage) {
                             popupWrapExists = true;
                         } else {
                             pos.left = 6;
-                            pos.top = Math.max(200, ($(window).height() / 2)
-                                                     - 150);
+                            pos.top = Math.max(200, ($(window).height() / 2) -
+                                                     150);
                         }
                         classes += ' leftSide';
                     } else if (visibility === 'right') {
@@ -358,8 +358,8 @@ window.StatusMessage = (function($, StatusMessage) {
                             popupWrapExists = true;
                         } else {
                             pos.right = 15;
-                            pos.top = Math.max(200, ($(window).height() / 2)
-                                                      - 150);
+                            pos.top = Math.max(200, ($(window).height() / 2) -
+                                                      150);
                             arrow = 'rightArrow';
                         }
                         classes += ' rightSide';
@@ -392,7 +392,7 @@ window.StatusMessage = (function($, StatusMessage) {
                     if ($dagPanel.hasClass('full')) {
                         $('#dagPulloutTab').click();
                     }
-                    $tableWrap = $('#xcTableWrap-' + tableId);
+                    var $tableWrap = $('#xcTableWrap-' + tableId);
                     var animate = true;
                     xcHelper.centerFocusedTable($tableWrap, animate);
                     $tableWrap.mousedown();
@@ -402,6 +402,24 @@ window.StatusMessage = (function($, StatusMessage) {
                     $('#' + options.dataSetId).click();
                 }
 
+                if ($popup.siblings().length === 0) {
+                    $popup.parent().remove();
+                } else {
+                    $popup.remove();
+                }
+                $(document).mouseup(removeSelectionRange);
+            });
+
+            $tableDonePopup.find('.close').mousedown(function(event) {
+                xcHelper.removeSelectionRange();
+                if (event.which !== 1) {
+                    return;
+                }
+                var $popup = $(this);
+                if ($popup.hasClass('failed')) {
+                    return;
+                }
+                event.stopPropagation();
                 if ($popup.siblings().length === 0) {
                     $popup.parent().remove();
                 } else {
@@ -438,9 +456,9 @@ window.StatusMessage = (function($, StatusMessage) {
 
             setTimeout(function() {
                 $tableDonePopup.fadeIn(200, function() {
-                    var displayTime = 2500;
+                    var displayTime = 4000;
                     if (failed) {
-                        displayTime = 5000;
+                        displayTime = 6000;
                     }
                     setTimeout(function() {
                         $tableDonePopup.fadeOut(200, function(){

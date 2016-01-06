@@ -2382,12 +2382,24 @@ ul.inputMenu {
         opacity: 0.9;
         display: none;
         padding: 8px;
+        padding: 10px 8px 6px;
         margin: 2px 0px;
         text-align: center;
         max-width: 200px;
         text-transform: capitalize;
-        cursor: pointer;
         .no-selection;
+        cursor: pointer;
+
+        .close {
+            .transform(rotate(45deg));
+            color: white;
+            position: absolute;
+            top: -2px;
+            right: -2px;
+            line-height:18px;
+            .size(18px, 18px);
+            font-size: 18px;
+        }
 
         &:before {
             .position(absolute, @top: 10px, @left: -6px);
@@ -2418,6 +2430,9 @@ ul.inputMenu {
                 &:before {
                     border-left: 6px solid @color-nightShadz;
                 }
+            }
+            .close {
+                display: none;
             }
         }
 
