@@ -2986,7 +2986,8 @@ function dropdownClick($el, options) {
 
         // If the tdDropdown is on a non-filterable value, we need to make the
         // filter options unavailable
-        var columnType = gTables[tableId].tableCols[options.colNum - 1].type;
+        var tableCol = gTables[tableId].tableCols[options.colNum - 1];
+        var columnType = tableCol.type;
         var shouldNotFilter = options.isMutiCol ||
                             (
                                 columnType !== "string" &&
@@ -3008,12 +3009,26 @@ function dropdownClick($el, options) {
             $tdExclude.removeClass("unavailable");
         }
 
-        if (isMultiCell) {
-            $tdFilter.text('Filter pre-formatted values');
-            $tdExclude.text('Exclude pre-formatted values');
+        if (!options.isMutiCol &&
+            (tableCol.format != null || tableCol.decimals > -1))
+        {
+            // when it's only on one column and column is formatted
+            if (isMultiCell) {
+                $tdFilter.text('Filter pre-formatted values');
+                $tdExclude.text('Exclude pre-formatted values');
+            } else {
+                $tdFilter.text('Filter pre-formatted value');
+                $tdExclude.text('Exclude pre-formatted value');
+            }
+            options.classes += " long";
         } else {
-            $tdFilter.text('Filter pre-formatted value');
-            $tdExclude.text('Exclude pre-formatted value');
+           if (isMultiCell) {
+                $tdFilter.text('Filter these values');
+                $tdExclude.text('Exclude these values');
+            } else {
+                $tdFilter.text('Filter this value');
+                $tdExclude.text('Exclude this value');
+            }
         }
 
         if ((columnType === "object" || columnType === "array") && !notAllowed) {

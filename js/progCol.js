@@ -1984,14 +1984,26 @@ window.ColManager = (function($, ColManager) {
             case "percent":
                 // there is a case that 2009.877 * 100 =  200987.69999999998
                 // so must round it
-                val = val * 100;
-                if (decimals >= 2) {
+                var newVal = val * 100;
+
+                if (decimals === -1) {
+                    // when no roundToFixed
+                    var decimalPart = (val + "").split(".")[1];
+                    if (decimalPart != null) {
+                        var decimalPartLen = decimalPart.length;
+                        decimalPartLen = Math.max(0, decimalPartLen - 2);
+                        pow = Math.pow(10, decimalPartLen);
+                    } else {
+                        pow = 1;
+                    }
+                } else if (decimals >= 2) {
                     pow = Math.pow(10, decimals - 2);
                 } else {
                     pow = 1;
                 }
-                val = Math.round(val * pow) / pow;
-                return val + "%";
+
+                newVal = Math.round(newVal * pow) / pow;
+                return newVal + "%";
             default:
                 return val + ""; // change type to string
         }
