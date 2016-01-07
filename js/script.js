@@ -726,6 +726,17 @@ function startupFunctions() {
     DataStore.setup();
     Support.setup();
 
+    var isWaiting = false;
+    var timer = setTimeout(function() {
+        // add waiting icon since restore wkbk may take long time
+        isWaiting = true;
+        $('body').append('<div id="bodyWaitingIcon" class="waitingIcon"></div>');
+        $('#bodyWaitingIcon').css({
+            left: '50%',
+            top : '50%'
+        }).fadeIn();
+    }, 3000);
+
     WKBKManager.setup()
     .then(function() {
         return Support.holdSession();
@@ -754,6 +765,12 @@ function startupFunctions() {
     .fail(function(error) {
         console.error("startupFunctions fails!", error);
         deferred.reject(error);
+    })
+    .always(function() {
+        clearTimeout(timer);
+        if (isWaiting) {
+            $("#bodyWaitingIcon").remove();
+        }
     });
 
     return (deferred.promise());
