@@ -1478,6 +1478,8 @@ window.ColManager = (function($, ColManager) {
                         tdClass += " textAlignRight";
                     }
 
+                    //define type of the column
+                    columnTypes[col] = xcHelper.parseColType(tdValue, columnTypes[col]);
                     var originalVal = tdValue;
                     parsedVal = xcHelper.parseJsonValue(tdValue, knf);
                     if (!knf && originalVal != null) {
@@ -1494,7 +1496,11 @@ window.ColManager = (function($, ColManager) {
                     }
 
                     var dataVal = "";
-                    if (originalVal != null) {
+                    // XXX now only allow number in case weird string mess up html
+                    if (originalVal != null &&
+                        (columnTypes[col] === "integer" ||
+                        columnTypes[col] === "float"))
+                    {
                         dataVal = 'data-val="' + originalVal + '"';
                     }
                     tBodyHTML += '<td class="' + tdClass + ' clickable" ' +
@@ -1504,6 +1510,8 @@ window.ColManager = (function($, ColManager) {
                 } else {
                     // make data td;
                     tdValue = jsonData[row];
+                    //define type of the column
+                    columnTypes[col] = xcHelper.parseColType(tdValue, columnTypes[col]);
                     parsedVal = xcHelper.parseJsonValue(tdValue);
                     tBodyHTML +=
                         '<td class="col' + (col + 1) + ' jsonElement">' +
@@ -1515,9 +1523,6 @@ window.ColManager = (function($, ColManager) {
                             '</div>' +
                         '</td>';
                 }
-
-                //define type of the column
-                columnTypes[col] = xcHelper.parseColType(tdValue, columnTypes[col]);
             }
             // end of loop through table tr's tds
             tBodyHTML += '</tr>';
@@ -1682,7 +1687,10 @@ window.ColManager = (function($, ColManager) {
             var $td = $table.find('.row' + i + ' .col' + newColid);
             $td.html(getTableCellHtml(formatVal))
                 .addClass('clickable');
-            if (originalVal != null) {
+            // XXX now only allow number in case weird string mess up html
+            if (originalVal != null &&
+                (columnType === "integer" || columnType === "float"))
+            {
                 $td.attr("data-val", originalVal)
             }
         }

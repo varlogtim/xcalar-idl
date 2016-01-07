@@ -2535,24 +2535,30 @@ function addColMenuActions() {
         var colVal;
 
         $highlightBoxs.each(function() {
-            colVal = $(this).closest("td").data("val");
+            var $td = $(this).closest("td");
 
             if ($header.hasClass("type-integer")) {
+                colVal = $td.data("val");
                 if (colVal === "") {
                     hasCheckExist = true;
                     return true; // continue to next iteration
                 }
                 colVal = parseInt(colVal);
             } else if ($header.hasClass("type-float")) {
+                colVal = $td.data("val");
                 if (colVal === "") {
                     hasCheckExist = true;
                     return true; // continue to next iteration
                 }
                 colVal = parseFloat(colVal);
             } else if ($header.hasClass("type-string")) {
-                colVal = colVal + ""; // if it's number, change to string
+                // colVal = colVal + ""; // if it's number, change to string
+                // XXX for string, text is more reliable
+                // since data-val might be messed up
+                colVal = $td.children(".addedBarTextWrap").text();
                 colVal = JSON.stringify(colVal);
             } else if ($header.hasClass("type-boolean")) {
+                colVal = $td.children(".addedBarTextWrap").text();
                 if (colVal === "true") {
                     colVal = true;
                 } else {
