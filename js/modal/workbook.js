@@ -272,7 +272,7 @@ window.WorkbookModal = (function($, WorkbookModal) {
     function workbookKeyPress(event) {
         switch (event.which) {
             case keyCode.Enter:
-                // XXX when focus on a button, no trigger
+                // when focus on a button, no trigger
                 if (modalHelper.checkBtnFocus()) {
                     break;
                 }

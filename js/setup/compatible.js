@@ -1,6 +1,4 @@
 window.Compatible = (function($, Compatible) {
-    // XXX check if those functions are already
-    // support by all browsers frequently
     window.isBrowserMicrosoft = false;
     window.isBrowseChrome = false;
     window.isBrowseFireFox = false;
@@ -13,6 +11,9 @@ window.Compatible = (function($, Compatible) {
     };
 
     function stringCheck() {
+        // XXX(Always Open) check if those functions are already
+        // support by all browsers frequently
+
         // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/startsWith
         if (!String.prototype.startsWith) {
             String.prototype.startsWith = function(searchString, position) {
@@ -76,8 +77,6 @@ window.Compatible = (function($, Compatible) {
             window.isSystemMac = true;
         }
     }
-
-    // XXX add other check here is necessary
 
     return (Compatible);
 }(jQuery, {}));

@@ -79,7 +79,7 @@ window.Profile = (function($, Profile, d3) {
         $modal.on("mouseover", ".barArea", function(event) {
             event.stopPropagation();
             resetTooltip();
-            // XXX g tag can not use addClass, fix it if it's not true
+            // XXX FIXME g tag can not use addClass, fix it if it's not true
             $(this).attr("class", $(this).attr("class") + " hover")
                     .tooltip("show");
         });
@@ -198,8 +198,7 @@ window.Profile = (function($, Profile, d3) {
             return;
         }
 
-        // XXX it reference to the same statsInfo obj, fix me if
-        // the shallow copy is wrong and should do a deep copy
+        // XXX FIXME if the shallow copy is wrong and should do a deep copy
         // (in that case modal id should change!)
         statsInfos[newTableId] = statsInfos[oldTableId];
     };
@@ -315,7 +314,7 @@ window.Profile = (function($, Profile, d3) {
         // do group by
         if (statsCol.groupByInfo.isComplete === true) {
             // check if the groupbyTable is not deleted
-            // XXX use XcalarGetTables because XcalarSetAbsolute cannot
+            // use XcalarGetTables because XcalarSetAbsolute cannot
             // return fail if resultSetId is not free
             var innerDeferred = jQuery.Deferred();
             var groupbyTable = statsCol.groupByInfo.buckets[bucketNum].table;
@@ -510,8 +509,6 @@ window.Profile = (function($, Profile, d3) {
             deferred.resolve();
         })
         .fail(function(error) {
-            // XXX aggreate and fail the profile
-            // if this behavior is incorrect, change it
             res = "--";
             console.error(error);
             deferred.resolve();

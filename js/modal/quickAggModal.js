@@ -164,18 +164,6 @@ window.AggModal = (function($, AggModal) {
         }
     };
 
-    // XXX just for debug use, should delete it later!
-    // Not safe as it's an obj, value could change.
-    AggModal.getAggCache = function() {
-        return (aggCache);
-    };
-
-    // XXX just for debug use, should delete it later!
-    // Not safe as it's an obj, value could change.
-    AggModal.getCorrCache = function() {
-        return (corrCache);
-    };
-
     function aggColsInitialize(table) {
         aggCols = [];
 

@@ -93,7 +93,7 @@ window.FileBrowser = (function($, FileBrowser) {
             }
 
             // press enter to import a dataset
-            // XXX use time out beacuse if you press browser button to open the
+            // Note: use time out beacuse if you press browser button to open the
             // modal, it will trigger keyup event, so delay the event here
             // may have bettter way to solve it..
             setTimeout(function() {
@@ -284,7 +284,7 @@ window.FileBrowser = (function($, FileBrowser) {
                 }
             },
             "keyup": function(event) {
-                // XXX assume what inputed should be a path
+                // assume what inputed should be a path
                 var $input = $(this);
                 var path = $input.text();
                 event.preventDefault();
@@ -621,7 +621,7 @@ window.FileBrowser = (function($, FileBrowser) {
         for (var i = 0; i < len; i++) {
             var fileObj = files[i];
             var name    = fileObj.name;
-            // XXX not filter folder
+            // not filter folder
             if (fileObj.attr.isDirectory || regEx.test(name) === true) {
                 result.push(fileObj);
             }

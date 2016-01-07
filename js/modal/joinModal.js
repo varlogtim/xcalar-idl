@@ -846,7 +846,7 @@ window.JoinModal = (function($, JoinModal) {
         var $thToClick;
         var tableIdToClick;
 
-        // XXX the limit score valid as suggest key, can be modified
+        // only score that more than -50 will be suggested, can be modified
         var maxScore = -50;
         var $suggTables = $suggSection.find("table");
 
@@ -926,7 +926,7 @@ window.JoinModal = (function($, JoinModal) {
         var match   = 0;
 
         if (type === "string") {
-            // XXX current way is hash each char and count frequency
+            // Note: current way is hash each char and count frequency
             // change it if you have better way!
             context1.vals.forEach(function(value) {
                 for (var i = 0; i < value.length; i++) {
