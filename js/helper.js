@@ -171,9 +171,11 @@ window.xcHelper = (function($, xcHelper) {
 
             if (options.replaceColumn) {
                 copiedCols.splice(colNum - 1, 1, newProgCol);
-            } else if (options.isOnRight) {
-                copiedCols.splice(colNum, 0, newProgCol);
             } else {
+                var numCopiedCols = copiedCols.length;
+                for (var i = colNum - 1; i < numCopiedCols; i++) {
+                    copiedCols[i].index++;
+                }
                 copiedCols.splice(colNum - 1, 0, newProgCol);
             }
         }

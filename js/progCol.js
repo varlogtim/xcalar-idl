@@ -504,6 +504,7 @@ window.ColManager = (function($, ColManager) {
         var numCols     = tableCols.length;
         var colName     = tableCols[colNum - 1].name;
         var backColName = tableCols[colNum - 1].func.args[0];
+        var colNumTracker = colNum;
 
         var msg = StatusMessageTStr.SplitColumn;
         var msgObj = {
@@ -571,11 +572,11 @@ window.ColManager = (function($, ColManager) {
             }
 
             var promises = [];
-            for (i = numColToGet; i >= 1; i--) {
-                promises.push(splitColHelper.bind(this, i, newTableNames[i + 1],
-                                                    newTableNames[i]));
+            for (i = 1; i <= numColToGet; i++) {
+                promises.push(splitColHelper.bind(this, i, newTableNames[(numColToGet + 2) - i],
+                                                    newTableNames[(numColToGet+ 1) - i]));
             }
-
+            
             return (chain(promises));
         })
         .then(function(newTableId) {
@@ -636,8 +637,9 @@ window.ColManager = (function($, ColManager) {
                 var mapOptions   = { "isOnRight": true };
                 var curTableId   = xcHelper.getTableId(curTableName);
                 var curTableCols = gTables[curTableId].tableCols;
-                var newTablCols  = xcHelper.mapColGenerate(colNum, fieldName,
-                                        mapString, curTableCols, mapOptions);
+                var newTablCols  = xcHelper.mapColGenerate(++colNum,
+                                        fieldName, mapString, curTableCols,
+                                        mapOptions);
                 var tableProperties = {
                     "bookmarks" : xcHelper.deepCopy(table.bookmarks),
                     "rowHeights": xcHelper.deepCopy(table.rowHeights)
@@ -650,7 +652,7 @@ window.ColManager = (function($, ColManager) {
             })
             .then(function() {
                 var refreshOptions = {};
-                if (index > 1) {
+                if (index < numColToGet) {
                     refreshOptions = { "lockTable": true };
                 }
                 return (refreshTable(newTableName, curTableName, refreshOptions));
@@ -1691,7 +1693,7 @@ window.ColManager = (function($, ColManager) {
             if (originalVal != null &&
                 (columnType === "integer" || columnType === "float"))
             {
-                $td.attr("data-val", originalVal)
+                $td.attr("data-val", originalVal);
             }
         }
 
