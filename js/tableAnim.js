@@ -768,7 +768,7 @@ function createTableHeader(tableId) {
 
     var html = '<div class="tableTitle ' + tableTitleClass + '">' +
                     '<div class="tableGrab"></div>' +
-                    '<div class="text" spellcheck="false" contenteditable></div>' +
+                    '<label class="text" ></label>' +
                     '<div class="dropdownBox">' +
                         '<span class="innerBox"></span>' +
                     '</div>' +
@@ -789,42 +789,33 @@ function createTableHeader(tableId) {
                 renameTableHead($(this));
             }        
         },
-        "keydown": function(evnet) {
-            event.stopPropagation();
-
+        "keydown": function(event) {
             if (event.which === keyCode.Space) {
                 // XXX temporary do not allow space
                 event.preventDefault();
-            }
-        },
-        "input": function() {
-            moveTableTitles();
-        },
-        "focus": function() {
-            updateTableHeader(null, $(this), true);
-            moveTableTitles();
-        },
-        "blur": function() {
-            updateTableHeader(null, $(this));
-            moveTableTitles();
-        },
-        "click": function() {
-            // when cursor is at hashName part. move to tableName part
-            if (window.getSelection) {
-                var sel = window.getSelection();
-                if (sel.rangeCount) {
-                    var range = sel.getRangeAt(0);
-                    var $parent = $(range.commonAncestorContainer.parentNode);
-                    if ($parent.hasClass("hashName") ||
-                        $parent.hasClass("tableTitle"))
-                    {
-                        xcHelper.createSelection($(this).find(".tableName")[0],
-                                                 true);
-                    }
-                }
+                event.stopPropagation();
             }
         }
     }, ".tableTitle .text");
+
+    $xcTheadWrap.on({
+        "focus": function() {
+            var val = $(this).val();
+            var width = getTextWidth($(this), val);
+            $(this).width(width + 1); 
+            $(this)[0].setSelectionRange(val.length, val.length);
+            moveTableTitles();
+        },
+        "blur": function() {
+            updateTableHeader(null, $(this).parent());
+            moveTableTitles();
+        },
+        "input": function() {
+            var width = getTextWidth($(this), $(this).val());
+            $(this).width(width + 1);
+            moveTableTitles($(this).closest('.xcTableWrap'));
+        }
+    }, ".tableTitle .tableName");
 
     $xcTheadWrap[0].oncontextmenu = function(e) {
         var $target = $(e.target).closest('.dropdownBox');
@@ -1265,7 +1256,7 @@ function sortAllTableColumns(tableId, direction) {
 }
 
 function renameTableHead($div) {
-    var newName = $div.find(".tableName").text().trim();
+    var newName = $div.find(".tableName").val().trim();
     var $th = $div.closest('.xcTheadWrap');
     var tableId = xcHelper.parseTableId($th);
     var newTableName = newName + "#" + tableId;
@@ -1273,6 +1264,27 @@ function renameTableHead($div) {
 
     if (newTableName === oldTableName) {
         $div.blur();
+        return;
+    }
+
+     var isValid = xcHelper.validate([
+        {
+            "$selector": $div.find(".tableName"),
+            "text"     : ErrorTextTStr.NoSpecialChar,
+            "check"    : function() {
+                return xcHelper.hasSpecialChar(newName);
+            }
+        },
+        {
+            "$selector": $div.find(".tableName"),
+            "text"     : ErrorTextTStr.InvalidColName,
+            "check"    : function() {
+                return (newName.length === 0);
+            }
+        }
+    ]);
+
+    if (!isValid) {
         return;
     }
 
@@ -1285,14 +1297,13 @@ function renameTableHead($div) {
         $div.blur();
     })
     .fail(function() {
-        $div.text(oldTableName);
         var text = ErrorTextWReplaceTStr.TableConflict
                                         .replace("<name>", newName);
         StatusBox.show(text, $div, false);
     });
 }
 
-function updateTableHeader(tableId, $tHead, isFocus) {
+function updateTableHeader(tableId, $tHead) {
     var fullTableName = "";
     var cols = 0;
 
@@ -1320,24 +1331,22 @@ function updateTableHeader(tableId, $tHead, isFocus) {
 
     if (fullTableName.length === 2) {
         tableName =
-            '<span class="tableName">' + tableName + '</span>' +
-            '<span class="hashName" contenteditable="false">#' +
+            '<input type="text" class="tableName" value="' + tableName + '">' +
+            '<span class="hashName">#' +
                 fullTableName[1] +
             '</span>';
     }
 
-    if (isFocus) {
-        $tHead.html(tableName);
-        xcHelper.createSelection($tHead.find(".tableName")[0]);
-    } else {
-        var colsHTML = '<span class="colNumBracket" ' +
-                        'data-toggle="tooltip" ' +
-                        'data-placement="top" ' +
-                        'data-container="body" ' +
-                        'title="number of columns">' +
-                        ' [' + cols + ']</span>';
-        $tHead.html(tableName + colsHTML);
-    }
+    var colsHTML = '<span class="colNumBracket" ' +
+                    'data-toggle="tooltip" ' +
+                    'data-placement="top" ' +
+                    'data-container="body" ' +
+                    'title="number of columns">' +
+                    ' [' + cols + ']</span>';
+    $tHead.html(tableName + colsHTML);
+    var $tableName = $tHead.find('.tableName');
+    var width = getTextWidth($tableName, $tableName.val());
+    $tableName.width(width + 1);
 }
 
 function matchHeaderSizes($table) {
@@ -3293,13 +3302,14 @@ function moveTableDropdownBoxes() {
     }
 }
 
-function moveTableTitles() {
+function moveTableTitles($tableWraps) {
     if (isBrowserMicrosoft) {
         return;
     }
-
+    $tableWraps = $tableWraps ||
+                  $('.xcTableWrap:not(.inActive):not(.tableHidden)');
     var viewWidth = $('#mainFrame').width();
-    $('.xcTableWrap:not(.inActive):not(.tableHidden)').each(function() {
+    $tableWraps.each(function() {
         var $table = $(this);
         var $thead = $table.find('.xcTheadWrap');
         if ($thead.length === 0) {

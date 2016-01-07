@@ -713,6 +713,9 @@
 
             .text {
                 color: @color-white;
+                .tableName {
+                    color: @color-white;
+                }
             }
 
             .dropdownBox {
@@ -767,17 +770,24 @@
                 .noSelection;
                 font-weight: 200;
             }
+        }
 
-            &:focus {
-                background-color: @color-white;
-                color: @color-text-darkGray;
-                padding: 0 10px;
-                outline: none;
+        .tableName {
+            .font(@weight: 600, @size: 15px, @line-height: 22px, @family: @font-base);
+            .rounded;
+            height: 24px;
+            padding: 1px 0px;
+            margin: 1px 0px;
+            min-width: 15px !important;
+        }
 
-                .hashName {
-                    color: @color-text-darkGray;
-                }
-            }
+        .tableName:focus {
+            background-color: @color-white;
+            color: @color-text-darkGray !important;
+            padding: 1px 4px;
+            margin: 1px 0px;
+            outline: none;
+            .rounded;
         }
     }
 }
