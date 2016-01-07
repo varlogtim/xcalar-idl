@@ -1478,17 +1478,25 @@ window.ColManager = (function($, ColManager) {
                         tdClass += " textAlignRight";
                     }
 
+                    var originalVal = tdValue;
                     parsedVal = xcHelper.parseJsonValue(tdValue, knf);
-
-                    var originalVal = knf ? null : parsedVal;
+                    if (!knf && originalVal != null) {
+                        originalVal = parsedVal;
+                    } else {
+                        // case that should not append data-val
+                        originalVal = null;
+                    }
                     var formatVal = parsedVal;
                     var decimals = tableCols[col].decimals;
                     var format = tableCols[col].format;
-                    if (!knf && (decimals > -1 || format != null)) {
+                    if (originalVal != null && (decimals > -1 || format != null)) {
                         formatVal = formatColumnCell(parsedVal, format, decimals);
                     }
 
-                    var dataVal = knf ? '' : 'data-val="' + originalVal + '"';
+                    var dataVal = "";
+                    if (originalVal != null) {
+                        dataVal = 'data-val="' + originalVal + '"';
+                    }
                     tBodyHTML += '<td class="' + tdClass + ' clickable" ' +
                                     dataVal + '>' +
                                     getTableCellHtml(formatVal) +
@@ -1656,18 +1664,25 @@ window.ColManager = (function($, ColManager) {
 
             //define type of the column
             columnType = xcHelper.parseColType(value, columnType);
+
+            var originalVal = value;
             value = xcHelper.parseJsonValue(value, knf);
 
-            var originalVal = knf ? null : value;
+            if (!knf && originalVal != null) {
+                originalVal = value;
+            } else {
+                // case that should not append data-val
+                originalVal = null;
+            }
             var formatVal = value;
-            if (!knf && (decimals > -1 || format != null)) {
+            if (originalVal != null && (decimals > -1 || format != null)) {
                 formatVal = formatColumnCell(value, format, decimals);
             }
 
             var $td = $table.find('.row' + i + ' .col' + newColid);
             $td.html(getTableCellHtml(formatVal))
                 .addClass('clickable');
-            if (!knf) {
+            if (originalVal != null) {
                 $td.attr("data-val", originalVal)
             }
         }

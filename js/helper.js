@@ -34,6 +34,7 @@ window.xcHelper = (function($, xcHelper) {
         } else if (value === null) {
             value = '<span class="null">' + value + '</span>';
         } else if (value == null) {
+            // XXX TODOs Any use case for it?
             value = '<span class="blank">' + value + '</span>';
         } else {
             switch (value.constructor) {
