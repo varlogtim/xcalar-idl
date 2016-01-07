@@ -229,6 +229,8 @@ window.ColManager = (function($, ColManager) {
                 
             matchHeaderSizes($table);
             xcHelper.removeSelectionRange();
+            gFnBarOrigin = undefined;
+            $('#fnBar').val("").removeClass('active');
 
              // add SQL
             SQL.add("Delete Column", {
