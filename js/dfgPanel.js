@@ -240,8 +240,18 @@ window.DFGPanel = (function($, DFGPanel) {
         });
 
         $dfgView.find('.midContent').on("click", ".runNowBtn", function() {
-            runDFG($("#dataflowView .listSection").find(".selected .label")
-                    .text());
+            var $btn = $(this);
+            var retName = $("#dataflowView .listSection").find(".selected .label")
+                                                    .text();
+
+            $btn.addClass("inActive")
+                .find(".text").text("Running...");
+
+            runDFG(retName)
+            .always(function() {
+                $btn.removeClass("inActive")
+                    .find(".text").text("Run Now");
+            });
         });
     }
 
@@ -532,6 +542,8 @@ window.DFGPanel = (function($, DFGPanel) {
     }
 
     function runDFG(retName) {
+        var deferred = jQuery.Deferred();
+
         var paramsArray = [];
         var parameters = DFG.getGroup(retName).paramMap;
         for (param in parameters) {
@@ -540,14 +552,24 @@ window.DFGPanel = (function($, DFGPanel) {
             p.parameterValue = parameters[param];
             paramsArray.push(p);
         }
+
         XcalarExecuteRetina(retName, paramsArray)
         .then(function() {
-            console.log("done!");
+            /// XXX TODO: add sql
+            Alert.show({
+                "title"  : "Run Complete",
+                "msg"    : "Successfully ran DFG!",
+                "isAlert": true
+            });
+            deferred.resolve();
         })
-        .fail(function() {
+        .fail(function(error) {
             // XXX TODO Handle me!
-            console.log("failed!");
+            Alert.error("Run DFG Failed!", error);
+            deferred.reject(error);
         });
+
+        return (deferred.promise());
     }
 
     return (DFGPanel);

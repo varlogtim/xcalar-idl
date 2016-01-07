@@ -961,6 +961,16 @@
                 .font(@size: 12px, @weight: bold, @line-height: 25px);
                 padding: 0 10px;
 
+                &.inActive {
+                    opacity: 0.7;
+                    pointer-events: none;
+                    cursor: default;
+
+                    .icon {
+                        display: none;
+                    }
+                }
+
                 .icon {
                     width: 16px;
                     .image("/images/schedule/run.png", 0, 50%);
