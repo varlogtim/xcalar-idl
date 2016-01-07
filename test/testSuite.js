@@ -294,7 +294,7 @@ window.TestSuite = (function($, TestSuite) {
             // Import flight dataset
             $("#importDataButton").click();
             $("#filePath").val("file://"+testDataLoc+"flight" +
-                               "/airlines_2007.log");
+                               "/airlines_2007.csv");
             $("#fileName").val(dsName1);
             $("#fileFormat .iconWrapper .icon").click();
             $("#fileFormat li[name='CSV']").click();
