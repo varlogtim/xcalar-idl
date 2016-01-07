@@ -1928,9 +1928,6 @@ function addMenuBehaviors($mainMenu) {
             // hide li if doesnt have a submenu or an input field
             closeMenu($allMenus);
             clearTimeout(showTimeout);
-            if (!$li.hasClass('functions')) {
-                $('.selectedCell').removeClass('selectedCell');
-            }
         }
     });
 
