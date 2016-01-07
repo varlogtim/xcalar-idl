@@ -13,6 +13,12 @@ window.Replay = (function($, Replay) {
 
     Replay.run = function(sqls) {
         var deferred = jQuery.Deferred();
+        if (!(sqls instanceof Array)) {
+            alert("Wrong Type of args");
+            deferred.reject("Wrong Type of args");
+            return (deferred.promise());
+        }
+
         var mindModeCache = gMinModeOn;
 
         gMinModeOn = true;

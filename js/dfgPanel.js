@@ -564,8 +564,7 @@ window.DFGPanel = (function($, DFGPanel) {
             deferred.resolve();
         })
         .fail(function(error) {
-            // XXX TODO Handle me!
-            Alert.error("Run DFG Failed!", error);
+            Alert.error("Run DFG Failed", error);
             deferred.reject(error);
         });
 
