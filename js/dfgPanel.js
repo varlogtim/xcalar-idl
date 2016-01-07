@@ -240,7 +240,8 @@ window.DFGPanel = (function($, DFGPanel) {
         });
 
         $dfgView.find('.midContent').on("click", ".runNowBtn", function() {
-            runDFG();
+            runDFG($("#dataflowView .listSection").find(".selected .label")
+                    .text());
         });
     }
 
@@ -530,9 +531,23 @@ window.DFGPanel = (function($, DFGPanel) {
         }
     }
 
-    function runDFG() {
-        // XXX TODOs: impelment it!
-        console.log("run now");
+    function runDFG(retName) {
+        var paramsArray = [];
+        var parameters = DFG.getGroup(retName).paramMap;
+        for (param in parameters) {
+            var p = new XcalarApiParameterT();
+            p.parameterName = param;
+            p.parameterValue = parameters[param];
+            paramsArray.push(p);
+        }
+        XcalarExecuteRetina(retName, paramsArray)
+        .then(function() {
+            console.log("done!");
+        })
+        .fail(function() {
+            // XXX TODO Handle me!
+            console.log("failed!");
+        });
     }
 
     return (DFGPanel);
