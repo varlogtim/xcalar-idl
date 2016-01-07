@@ -789,6 +789,14 @@ function createTableHeader(tableId) {
                 renameTableHead($(this));
             }        
         },
+        "keydown": function(evnet) {
+            event.stopPropagation();
+
+            if (event.which === keyCode.Space) {
+                // XXX temporary do not allow space
+                event.preventDefault();
+            }
+        },
         "input": function() {
             moveTableTitles();
         },
