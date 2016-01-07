@@ -130,6 +130,7 @@ window.JSONModal = (function($, JSONModal) {
                 var nameInfo  = createJsonSelectionExpression($el);
                 var numCols   = cols.length;
 
+                // check if the column already exists
                 for (var i = 0; i < numCols; i++) {
                     if (cols[i].func.args[0] === nameInfo.name) {
                         var animation = gMinModeOn ? false : true;
@@ -146,6 +147,7 @@ window.JSONModal = (function($, JSONModal) {
                 };
                 ColManager.pullCol(colNum, tableId, nameInfo, pullColOptions)
                 .always(function() {
+                    moveFirstColumn();
                     closeJSONModal();
                 });
             }

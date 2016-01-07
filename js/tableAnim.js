@@ -1320,7 +1320,6 @@ function updateTableHeader(tableId, $tHead) {
             fullTableName = table.tableName;
             cols = table.tableCols.length;
         }
-        isFocus = false;
         $tHead.data("cols", cols);
         $tHead.data("title", fullTableName);
     }
