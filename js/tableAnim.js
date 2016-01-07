@@ -1331,7 +1331,8 @@ function updateTableHeader(tableId, $tHead) {
 
     if (fullTableName.length === 2) {
         tableName =
-            '<input type="text" class="tableName" value="' + tableName + '">' +
+            '<input type="text" class="tableName" value="' + tableName + '" ' +
+            ' autocorrect="off">' +
             '<span class="hashName">#' +
                 fullTableName[1] +
             '</span>';

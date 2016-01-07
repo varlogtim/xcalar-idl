@@ -512,7 +512,7 @@ window.TestSuite = (function($, TestSuite) {
 
                 setTimeout(function() {
                     $("#joinTables").click();
-                    checkExists(".xcTableWrap .tableTitle:contains(join)")
+                    checkExists(".xcTableWrap .tableName[value*=join]")
                     .then(function() {
                         flightTestPart8();
                     })
@@ -539,7 +539,7 @@ window.TestSuite = (function($, TestSuite) {
                 $("#operationsModal .modalBottom .confirm").click();
 
                 return (checkExists(".xcTableWrap " +
-                                    ".tableTitle:contains(GroupBy)"));
+                                    ".tableName[value*=GroupBy]"));
             })
             .then(function() {
                 if ($("#numPages").text().indexOf("70,242") > -1) {
@@ -643,7 +643,7 @@ window.TestSuite = (function($, TestSuite) {
             $(".argumentTable .argument").eq(1).val("$Dest, $AirTime");
             $("#operationsModal .modalBottom .confirm").click();
             return (checkExists(".xcTableWrap " +
-                                ".tableTitle:contains(GroupBy)"));
+                                ".tableName[value*=GroupBy]"));
         })
         .then(function() {
             TestSuite.pass(deferred, testName, currentTestNumber);
@@ -691,7 +691,7 @@ window.TestSuite = (function($, TestSuite) {
             $(".rightClause").eq(0).val("DayofMonth");
             $(".rightClause").eq(1).val("DayOfWeek");
             $("#joinTables").click();
-            return (checkExists(".xcTableWrap .tableTitle:contains(multiJoin)",
+            return (checkExists(".xcTableWrap .tableName[value*=multiJoin]",
                     30000));
         }).then(function() {
             if ($("#numPages").text().indexOf("1,953") > -1) {
@@ -746,9 +746,9 @@ window.TestSuite = (function($, TestSuite) {
     function tableRenameTest(deferred, testName, currentTestNumber) {
         var wsId = WSManager.getOrders()[1];
         var tableId = WSManager.getWSById(wsId).tables[0];
-        $("#xcTableWrap-" + tableId + " .tableName").text("New Table Name")
+        $("#xcTableWrap-" + tableId + " .tableName").val("NewTableName")
                                                     .trigger(fakeEvent.enter);
-        checkExists(".xcTableWrap .tableName:contains('New')")
+        checkExists(".xcTableWrap .tableName[value*=New]")
         .then(function() {
             var $header = $("#xcTable-" + tableId +
                             " .flexWrap.flex-mid input[value='Month']");
