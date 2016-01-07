@@ -82,6 +82,10 @@ window.Support = (function(Support, $) {
     };
 
     Support.heartbeatCheck = function() {
+        if (commitCheckTimer != null) {
+            clearInterval(commitCheckTimer);
+        }
+
         commitCheckTimer = setInterval(function() {
             if (KVStore.commitKey == null) {
                 // when workbook is not set up yet or no workbook yet
@@ -108,6 +112,10 @@ window.Support = (function(Support, $) {
             });
 
         }, commitCheckInterval);
+    };
+
+    Support.stopHeartbeatCheck = function() {
+        clearInterval(commitCheckTimer);
     };
 
     function sessionHoldCheck() {

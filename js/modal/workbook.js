@@ -174,6 +174,8 @@ window.WorkbookModal = (function($, WorkbookModal) {
                 }
             }
 
+            $workbookInput.blur();
+
             if (activeActionNo === 0) {
                 // create new workbook part
                 modalHelper.submit();
@@ -745,6 +747,9 @@ window.WKBKManager = (function($, WKBKManager) {
             return;
         }
 
+        // should stop check since seesion is released
+        Support.stopHeartbeatCheck();
+
         // to switch workbook, should release all ref count first
         freeAllResultSetsSync()
         .then(function() {
@@ -765,6 +770,8 @@ window.WKBKManager = (function($, WKBKManager) {
         })
         .fail(function(error) {
             console.error("Switch Workbook Fails", error);
+            // restart if fails
+            Support.heartbeatCheck();
         })
         .always(function() {
             if (modalHelper) {
