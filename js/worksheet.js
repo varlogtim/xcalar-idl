@@ -1087,8 +1087,8 @@ window.WSManager = (function($, WSManager) {
     }
 
     function getHiddenWSHTML(wsId) {
-        name = wsLookUp[wsId].name;
-        id = "worksheetTab-" + wsId;
+        var name = wsLookUp[wsId].name;
+        var id = "worksheetTab-" + wsId;
         return ('<li id="' + id + '" data-ws="' + wsId + '">' + name + '</li>');
     }
 
@@ -1102,8 +1102,8 @@ window.WSManager = (function($, WSManager) {
             "worksheetName" : ws.name
         };
 
-        if (ws.tables.length === 0 && ws.hiddenTables.length === 0
-            && ws.tempHiddenTables.length === 0) {
+        if (ws.tables.length === 0 && ws.hiddenTables.length === 0 &&
+            ws.tempHiddenTables.length === 0) {
             // delete empty worksheet
             rmWorksheet(wsId);
 
@@ -1257,7 +1257,7 @@ window.WSManager = (function($, WSManager) {
         var dagTooltip =
             'data-toggle="tooltip" ' +
             'data-placement="top" ' +
-            'data-title="click to view DAG" data-container="body"';
+            'data-title="click to view query graph" data-container="body"';
 
         var html =
             '<section id="' + id + '"class="worksheetTab inActive" ' +
