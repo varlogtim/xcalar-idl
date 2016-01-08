@@ -46,8 +46,6 @@ window.xcHelper = (function($, xcHelper) {
                     }
                     break;
                 case (Array):
-                    // value = value.join(', ');
-                    // value = JSON.stringify(value).replace(/,/g, ", ").slice(1, -1);
                     value = JSON.stringify(value).replace(/,/g, ", ");
                     break;
                 default: // leave value as is;

@@ -549,7 +549,7 @@ window.JSONModal = (function($, JSONModal) {
             closeJSONModal();
             return;
         }
-        // console.log(jsonObj)
+
         jsonData.push(jsonObj);
 
         if (!isModalOpen) {
