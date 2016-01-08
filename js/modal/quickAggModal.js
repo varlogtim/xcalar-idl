@@ -209,7 +209,11 @@ window.AggModal = (function($, AggModal) {
             wholeTable += '<div class="aggCol">' +
                             '<div class="divider"></div>' +
                             '<div class="aggTableField colLabel">' +
-                                '<span class="textOverflow">' +
+                                '<span title="' + cols.name + '" ' +
+                                    'data-toggle="tooltip" ' +
+                                    'data-placement="top" ' +
+                                    'data-container="body" ' +
+                                    'class="textOverflow tooltipOverflow">' +
                                     cols.name +
                                 '</span>' +
                             '</div>';
@@ -255,7 +259,11 @@ window.AggModal = (function($, AggModal) {
             wholeTable += '<div class="aggCol">' +
                             '<div class="divider"></div>' +
                             '<div class="aggTableField colLabel">' +
-                                '<span class="textOverflow">' +
+                                '<span title="' + cols.name + '" '  +
+                                    'data-toggle="tooltip" ' +
+                                    'data-placement="top" ' +
+                                    'data-container="body" ' +
+                                    'class="textOverflow tooltipOverflow">' +
                                     cols.name +
                                 '</span>' +
                             '</div>';
@@ -316,7 +324,12 @@ window.AggModal = (function($, AggModal) {
 
         for (var i = 0, len = operations.length; i < len; i++) {
             html += '<div class="aggTableField rowLabel">' +
-                        operations[i] +
+                        '<span title="' + operations[i] + '" ' +
+                            'data-toggle="tooltip" data-placement="top" ' +
+                            'data-container="body" ' +
+                            'class="textOverflow tooltipOverflow">' +
+                            operations[i] +
+                        '</span>' +
                     '</div>';
         }
 
