@@ -157,6 +157,7 @@ window.SQL = (function($, SQL) {
             case SQLOps.SplitColMap:
             case SQLOps.JoinMap:
             case SQLOps.GroupbyMap:
+            case SQLOps.ChangeTypeMap:
                 return ("");
         }
 
@@ -281,6 +282,8 @@ window.SQL = (function($, SQL) {
             case (SQLOps.RoundToFixed):
                 // fallthrough
                 // XXX should export tables have an effect?
+            // XXX since temporarily not use XcalarQuery
+            case (SQLOps.ChangeType):
                 break;
 
             // Use reverse parser
@@ -305,7 +308,9 @@ window.SQL = (function($, SQL) {
             case (SQLOps.ProfileAction):
             case (SQLOps.QuickAggAction):
             case (SQLOps.SplitColMap):
-            case (SQLOps.ChangeType):
+            // XXX since temporarily not use XcalarQuery
+            // case (SQLOps.ChangeType):
+            case (SQLOps.ChangeTypeMap):
                 string += sql.cli;
                 break;
             default:

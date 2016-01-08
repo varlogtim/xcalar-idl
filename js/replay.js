@@ -420,6 +420,7 @@ window.Replay = (function($, Replay) {
             case SQLOps.ProfileAction:
             case SQLOps.QuickAggAction:
             case SQLOps.SplitColMap:
+            case SQLOps.ChangeTypeMap:
                 return false;
             default:
                 return true;

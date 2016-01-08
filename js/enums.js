@@ -197,6 +197,7 @@ var SQLOps = {
     SplitCol: "splitCol",
     SplitColMap: "spltColMap",
     ChangeType: "changeType",
+    ChangeTypeMap: "ChangeTypeMap",
     ChangeFormat: "ChangeFormat",
     RoundToFixed: "roundToFixed"
 };

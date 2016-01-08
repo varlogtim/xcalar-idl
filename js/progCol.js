@@ -333,6 +333,131 @@ window.ColManager = (function($, ColManager) {
     };
 
     ColManager.changeType = function(colTypeInfos, tableId) {
+        var deferred = jQuery.Deferred();
+
+        var numColInfos = colTypeInfos.length;
+        var currentWS   = WSManager.getActiveWS();
+        var table       = gTables[tableId];
+        var tableName   = table.tableName;
+        var tableCols   = table.tableCols;
+
+        var msg = StatusMessageTStr.ChangeType;
+        var msgObj = {
+            "msg"      : msg,
+            "operation": SQLOps.ChangeType
+        };
+        var msgId = StatusMessage.addMsg(msgObj);
+        var tableNamePart = tableName.split("#")[0];
+        var newTableNames = [];
+        var newFieldNames = [];
+        var mapStrings = [];
+
+        xcHelper.lockTable(tableId);
+
+        var i;
+        var colInfo;
+        var col;
+        for (i = numColInfos - 1; i >= 0; i--) {
+            newTableNames[i] = tableNamePart + Authentication.getHashId();
+            colInfo = colTypeInfos[i];
+            col = tableCols[colInfo.colNum - 1];
+            // here use front col name to generate newColName
+            newFieldNames[i] = col.name + "_" + colInfo.type;
+            mapStrings[i] = mapStrHelper(col.func.args[0], colInfo.type);
+        }
+
+        // this makes it easy to get previous table name
+        // when index === numColInfos
+        newTableNames[numColInfos] = tableName;
+
+        var promises = [];
+        for (i = numColInfos - 1; i >= 0; i--) {
+            promises.push(chagneTypeHelper.bind(this, i));
+        }
+
+        chain(promises)
+        .then(function(newTableId) {
+            xcHelper.unlockTable(tableId, true);
+            StatusMessage.success(msgId, false, newTableId);
+
+            SQL.add("Change Data Type", {
+                "operation"   : SQLOps.ChangeType,
+                "tableName"   : tableName,
+                "tableId"     : tableId,
+                "newTableName": newTableNames[0],
+                "colTypeInfos": colTypeInfos
+            });
+
+            commitToStorage();
+            deferred.resolve();
+        })
+        .fail(function(error) {
+            xcHelper.unlockTable(tableId);
+
+            Alert.error("Change Data Type Fails", error);
+            StatusMessage.fail(StatusMessageTStr.SplitColumnFailed, msgId);
+            deferred.reject(error);
+        });
+
+        return (deferred.promise());
+
+        function chagneTypeHelper(index) {
+            var innerDeferred = jQuery.Deferred();
+
+            var curTableName = newTableNames[index + 1];
+            var newTableName = newTableNames[index];
+            var fieldName    = newFieldNames[index];
+            var mapString    = mapStrings[index];
+            var newTableId   = xcHelper.getTableId(newTableName);
+            var curColNum    = colTypeInfos[index].colNum;
+
+            var sqlOptions = {
+                "operation"   : SQLOps.ChangeTypeMap,
+                "action"      : "map",
+                "tableName"   : curTableName,
+                "newTableName": newTableName,
+                "fieldName"   : fieldName,
+                "mapString"   : mapString
+            };
+
+            WSManager.addTable(newTableId, currentWS);
+
+            XcalarMap(fieldName, mapString, curTableName, newTableName, sqlOptions)
+            .then(function() {
+                var mapOptions   = {"replaceColumn": true};
+                var curTableId   = xcHelper.getTableId(curTableName);
+                var curTableCols = gTables[curTableId].tableCols;
+
+                var newTablCols = xcHelper.mapColGenerate(curColNum, fieldName,
+                                        mapString, curTableCols, mapOptions);
+                var tableProperties = {
+                    "bookmarks" : xcHelper.deepCopy(table.bookmarks),
+                    "rowHeights": xcHelper.deepCopy(table.rowHeights)
+                };
+
+                // map do not change stats of the table
+                Profile.copy(curTableId, newTableId);
+
+                return setgTable(newTableName, newTablCols, null, tableProperties);
+            })
+            .then(function() {
+                var refreshOptions = {};
+                if (index > 0) {
+                    refreshOptions = {"lockTable": true};
+                }
+                return refreshTable(newTableName, curTableName, refreshOptions);
+            })
+            .then(function() {
+                innerDeferred.resolve(newTableId);
+            })
+            .fail(function(error) {
+                WSManager.removeTable(newTableId);
+                innerDeferred.reject(error);
+            });
+
+            return (innerDeferred.promise());
+        }
+
         function mapStrHelper(colName, colType) {
             var mapStr = "";
             switch (colType) {
@@ -358,139 +483,168 @@ window.ColManager = (function($, ColManager) {
 
             return (mapStr);
         }
-
-        function setTableHelper(curTableName, curTableCols, curWS, srcTable, archive) {
-            var innerDeferred = jQuery.Deferred();
-            var curTableId = xcHelper.getTableId(curTableName);
-            var srcTableId = srcTable.tableId;
-            var tableProperties = {
-                "bookmarks" : xcHelper.deepCopy(srcTable.bookmarks),
-                "rowHeights": xcHelper.deepCopy(srcTable.rowHeights)
-            };
-
-            setgTable(curTableName, curTableCols, null, tableProperties)
-            .then(function() {
-                // map do not change groupby stats of the table
-                Profile.copy(srcTableId, curTableId);
-                WSManager.addTable(curTableId, curWS);
-                if (archive) {
-                    archiveTable(curTableId, ArchiveTable.Keep);
-                }
-            })
-            .then(innerDeferred.resolve)
-            .fail(innerDeferred.reject);
-
-            return (innerDeferred.promise());
-        }
-
-        var deferred = jQuery.Deferred();
-
-        var numColInfos = colTypeInfos.length;
-        var table       = gTables[tableId];
-        var tableName   = table.tableName;
-        var tableCols   = table.tableCols;
-        var currentWS   = WSManager.getActiveWS();
-
-        var tableNamePart = tableName.split("#")[0];
-        var tableNames = [];
-        var fieldNames = [];
-        var mapStrings = [];
-        var query = "";
-        var finalTable = "";
-        var finalTableId;
-        var msgId;
-        var sqlOptions;
-
-        getUnsortedTableName(tableName)
-        .then(function(unsortedTableName) {
-            var srctable = unsortedTableName;
-
-            for (var i = 0; i < numColInfos; i++) {
-                var colInfo = colTypeInfos[i];
-                var col = tableCols[colInfo.colNum - 1];
-
-                tableNames[i] = tableNamePart + Authentication.getHashId();
-                // here use front col name to generate newColName
-                fieldNames[i] = col.name + "_" + colInfo.type;
-                mapStrings[i] = mapStrHelper(col.func.args[0], colInfo.type);
-
-                query += 'map --eval "' + mapStrings[i] +
-                        '" --srctable "' + srctable +
-                        '" --fieldName "' + fieldNames[i] +
-                        '" --dsttable "' + tableNames[i] + '"';
-
-                if (i !== numColInfos - 1) {
-                    query += ';';
-                }
-
-                srctable = tableNames[i];
-            }
-
-            finalTable = tableNames[numColInfos - 1];
-            finalTableId = xcHelper.getTableId(finalTable);
-
-            var msg = StatusMessageTStr.ChangeType;
-            var msgObj = {
-                "msg"      : msg,
-                "operation": SQLOps.ChangeType
-            };
-            msgId = StatusMessage.addMsg(msgObj);
-            xcHelper.lockTable(tableId);
-            WSManager.addTable(finalTableId);
-
-            sqlOptions = {
-                "operation"   : SQLOps.ChangeType,
-                "tableName"   : tableName,
-                "tableId"     : tableId,
-                "newTableName": finalTable,
-                "colTypeInfos": colTypeInfos
-            };
-            var queryName = xcHelper.randName("changeType");
-
-            return (XcalarQueryWithCheck(queryName, query));
-        })
-        .then(function() {
-            var mapOptions = { "replaceColumn": true };
-            var curTableCols = tableCols;
-            var promises = [];
-
-            for (var j = 0; j < numColInfos; j++) {
-                var curColNum = colTypeInfos[j].colNum;
-                var curTable  = tableNames[j];
-                var archive   = (j === numColInfos - 1) ? false : true;
-
-                curTableCols = xcHelper.mapColGenerate(curColNum, fieldNames[j],
-                                    mapStrings[j], curTableCols, mapOptions);
-                promises.push(setTableHelper.bind(this, curTable, curTableCols,
-                                                  currentWS, table, archive));
-            }
-
-            return (chain(promises));
-        })
-        .then(function() {
-            return (refreshTable(finalTable, tableName));
-        })
-        .then(function() {
-            xcHelper.unlockTable(tableId, true);
-            StatusMessage.success(msgId, false, finalTableId);
-
-            SQL.add("Change Data Type", sqlOptions, query);
-            commitToStorage();
-            deferred.resolve();
-        })
-        .fail(function(error) {
-            xcHelper.unlockTable(tableId);
-            WSManager.removeTable(finalTableId);
-
-            Alert.error("Change Data Type Fails", error);
-            StatusMessage.fail(StatusMessageTStr.ChangeTypeFailed, msgId);
-            SQL.errorLog("Change Data Type", sqlOptions, query, error);
-            deferred.reject(error);
-        });
-
-        return (deferred.promise());
-
     };
+
+    // XXX temporarily invalid it because xcalarQuery may crash
+    // instead of return error status
+    // ColManager.changeType = function(colTypeInfos, tableId) {
+    //     function mapStrHelper(colName, colType) {
+    //         var mapStr = "";
+    //         switch (colType) {
+    //             case ("boolean"):
+    //                 mapStr += "bool(";
+    //                 break;
+    //             case ("float"):
+    //                 mapStr += "float(";
+    //                 break;
+    //             case ("integer"):
+    //                 mapStr += "int(";
+    //                 break;
+    //             case ("string"):
+    //                 mapStr += "string(";
+    //                 break;
+    //             default:
+    //                 console.warn("XXX no such operator! Will guess");
+    //                 mapStr += colType + "(";
+    //                 break;
+    //         }
+
+    //         mapStr += colName + ")";
+
+    //         return (mapStr);
+    //     }
+
+    //     function setTableHelper(curTableName, curTableCols, curWS, srcTable, archive) {
+    //         var innerDeferred = jQuery.Deferred();
+    //         var curTableId = xcHelper.getTableId(curTableName);
+    //         var srcTableId = srcTable.tableId;
+    //         var tableProperties = {
+    //             "bookmarks" : xcHelper.deepCopy(srcTable.bookmarks),
+    //             "rowHeights": xcHelper.deepCopy(srcTable.rowHeights)
+    //         };
+
+    //         setgTable(curTableName, curTableCols, null, tableProperties)
+    //         .then(function() {
+    //             // map do not change stats of the table
+    //             Profile.copy(srcTableId, curTableId);
+    //             WSManager.addTable(curTableId, curWS);
+    //             if (archive) {
+    //                 archiveTable(curTableId, ArchiveTable.Keep);
+    //             }
+    //         })
+    //         .then(innerDeferred.resolve)
+    //         .fail(innerDeferred.reject);
+
+    //         return (innerDeferred.promise());
+    //     }
+
+    //     var deferred = jQuery.Deferred();
+
+    //     var numColInfos = colTypeInfos.length;
+    //     var table       = gTables[tableId];
+    //     var tableName   = table.tableName;
+    //     var tableCols   = table.tableCols;
+    //     var currentWS   = WSManager.getActiveWS();
+
+    //     var tableNamePart = tableName.split("#")[0];
+    //     var tableNames = [];
+    //     var fieldNames = [];
+    //     var mapStrings = [];
+    //     var query = "";
+    //     var finalTable = "";
+    //     var finalTableId;
+    //     var msgId;
+    //     var sqlOptions;
+
+    //     getUnsortedTableName(tableName)
+    //     .then(function(unsortedTableName) {
+    //         var srctable = unsortedTableName;
+
+    //         for (var i = 0; i < numColInfos; i++) {
+    //             var colInfo = colTypeInfos[i];
+    //             var col = tableCols[colInfo.colNum - 1];
+
+    //             tableNames[i] = tableNamePart + Authentication.getHashId();
+    //             // here use front col name to generate newColName
+    //             fieldNames[i] = col.name + "_" + colInfo.type;
+    //             mapStrings[i] = mapStrHelper(col.func.args[0], colInfo.type);
+
+    //             query += 'map --eval "' + mapStrings[i] +
+    //                     '" --srctable "' + srctable +
+    //                     '" --fieldName "' + fieldNames[i] +
+    //                     '" --dsttable "' + tableNames[i] + '"';
+
+    //             if (i !== numColInfos - 1) {
+    //                 query += ';';
+    //             }
+
+    //             srctable = tableNames[i];
+    //         }
+
+    //         finalTable = tableNames[numColInfos - 1];
+    //         finalTableId = xcHelper.getTableId(finalTable);
+
+    //         var msg = StatusMessageTStr.ChangeType;
+    //         var msgObj = {
+    //             "msg"      : msg,
+    //             "operation": SQLOps.ChangeType
+    //         };
+    //         msgId = StatusMessage.addMsg(msgObj);
+    //         xcHelper.lockTable(tableId);
+    //         WSManager.addTable(finalTableId);
+
+    //         sqlOptions = {
+    //             "operation"   : SQLOps.ChangeType,
+    //             "tableName"   : tableName,
+    //             "tableId"     : tableId,
+    //             "newTableName": finalTable,
+    //             "colTypeInfos": colTypeInfos
+    //         };
+    //         var queryName = xcHelper.randName("changeType");
+
+    //         return (XcalarQueryWithCheck(queryName, query));
+    //     })
+    //     .then(function() {
+    //         var mapOptions = { "replaceColumn": true };
+    //         var curTableCols = tableCols;
+    //         var promises = [];
+
+    //         for (var j = 0; j < numColInfos; j++) {
+    //             var curColNum = colTypeInfos[j].colNum;
+    //             var curTable  = tableNames[j];
+    //             var archive   = (j === numColInfos - 1) ? false : true;
+
+    //             curTableCols = xcHelper.mapColGenerate(curColNum, fieldNames[j],
+    //                                 mapStrings[j], curTableCols, mapOptions);
+    //             promises.push(setTableHelper.bind(this, curTable, curTableCols,
+    //                                               currentWS, table, archive));
+    //         }
+
+    //         return (chain(promises));
+    //     })
+    //     .then(function() {
+    //         return (refreshTable(finalTable, tableName));
+    //     })
+    //     .then(function() {
+    //         xcHelper.unlockTable(tableId, true);
+    //         StatusMessage.success(msgId, false, finalTableId);
+
+    //         SQL.add("Change Data Type", sqlOptions, query);
+    //         commitToStorage();
+    //         deferred.resolve();
+    //     })
+    //     .fail(function(error) {
+    //         xcHelper.unlockTable(tableId);
+    //         WSManager.removeTable(finalTableId);
+
+    //         Alert.error("Change Data Type Fails", error);
+    //         StatusMessage.fail(StatusMessageTStr.ChangeTypeFailed, msgId);
+    //         SQL.errorLog("Change Data Type", sqlOptions, query, error);
+    //         deferred.reject(error);
+    //     });
+
+    //     return (deferred.promise());
+    // };
 
     ColManager.splitCol = function(colNum, tableId, delimiter, numColToGet, isAlertOn) {
         // isAlertOn is a flag to alert too many column will generate
@@ -647,7 +801,7 @@ window.ColManager = (function($, ColManager) {
                     "rowHeights": xcHelper.deepCopy(table.rowHeights)
                 };
 
-                // map do not change groupby stats of the table
+                // map do not change stats of the table
                 Profile.copy(curTableId, newTableId);
 
                 return (setgTable(newTableName, newTablCols, null, tableProperties));
