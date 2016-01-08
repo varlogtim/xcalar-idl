@@ -311,10 +311,15 @@
             display: inline-block;
             float: left;
             .font(@line-height: 12px, @size: 10px);
+            overflow: hidden;
 
             .timeStamp {
                 .size(@width: ~"calc(100% - 7px)", @height: 12px);
                 text-align: right;
+            }
+
+            .time {
+                white-space: nowrap;
             }
 
             .worksheetInfo {
