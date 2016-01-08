@@ -540,20 +540,16 @@ window.JSONModal = (function($, JSONModal) {
 
     function refreshJsonModal($jsonTd, isArray, isModalOpen) {
         var text = $jsonTd.find("div").eq(0).text();
-        if (isArray) {
-            text = text.split(', ');
-            text = JSON.stringify(text);
-        }
-
         var jsonObj;
 
         try {
-            jsonObj = jQuery.parseJSON(text);
+            jsonObj = JSON.parse(text);
         } catch (error) {
             console.error(error, text);
             closeJSONModal();
             return;
         }
+        // console.log(jsonObj)
         jsonData.push(jsonObj);
 
         if (!isModalOpen) {
