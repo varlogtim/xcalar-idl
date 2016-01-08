@@ -6,6 +6,8 @@ window.WSManager = (function($, WSManager) {
     var noSheetTables = [];
     var aggInfos = {};
 
+    var wsScollBarPosMap = {}; // only a front cache of scroll bar position
+
     var tableIdToWSIdMap = {};  // find wsId by table id
     var wsNameToIdMap  = {};  // find wsId by wsName
 
@@ -727,18 +729,8 @@ window.WSManager = (function($, WSManager) {
             var $tab = $(this);
 
             if ($tab.hasClass("inActive")) {
-                var curWS = activeWorksheet;
-                var wsId  = $tab.data("ws");
-
-                WSManager.focusOnWorksheet(wsId);
-
-                SQL.add("Switch Worksheet", {
-                    "operation"        : SQLOps.SwitchWS,
-                    "oldWorksheetIndex": WSManager.getWSOrder(curWS),
-                    "oldWorksheetName" : WSManager.getWSName(curWS),
-                    "newWorksheetIndex": WSManager.getWSOrder(wsId),
-                    "newWorksheetName" : WSManager.getWSName(wsId)
-                });
+                var wsId = $tab.data("ws");
+                switchWSHelper(wsId);
             }
         });
         // delete worksheet
@@ -1227,6 +1219,28 @@ window.WSManager = (function($, WSManager) {
         // move from scrTables to desTables
         srcTables.splice(tableIndex, 1);
         desTables.splice(index, 0, tableId);
+    }
+
+    function switchWSHelper(wsId) {
+        var curWS = activeWorksheet;
+        var $mainFrame = $("#mainFrame");
+        // cache current scroll bar position
+        wsScollBarPosMap[curWS] = $mainFrame.scrollLeft();
+        WSManager.focusOnWorksheet(wsId);
+
+        // change to origin position
+        var leftPos = wsScollBarPosMap[wsId];
+        if (leftPos != null) {
+            $mainFrame.scrollLeft(leftPos);
+        }
+
+        SQL.add("Switch Worksheet", {
+            "operation"        : SQLOps.SwitchWS,
+            "oldWorksheetIndex": WSManager.getWSOrder(curWS),
+            "oldWorksheetName" : WSManager.getWSName(curWS),
+            "newWorksheetIndex": WSManager.getWSOrder(wsId),
+            "newWorksheetName" : WSManager.getWSName(wsId)
+        });
     }
 
     // HTML of worksheet tab, helper function for makeWorksheet()
