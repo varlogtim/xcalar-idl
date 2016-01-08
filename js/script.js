@@ -815,7 +815,7 @@ function initializeTable() {
         var currentTable;
         var worksheets = WSManager.getWorksheets();
         var wsOrder = WSManager.getOrders();
-        var numWorksheets = wsOrder.length;
+        var numWorksheets = wsOrder.length; // counts only active worksheets
 
         for (var i = 0; i < numWorksheets; i++) {
             var wsId = wsOrder[i];
@@ -906,12 +906,18 @@ function initializeTable() {
         var numHiddenWsTables = hiddenWorksheets.length;
         var ws;
         var numTables;
+        var numArchivedTables;
         for (var i = 0; i < numHiddenWsTables; i++) {
             ws = worksheets[hiddenWorksheets[i]];
             numTables = ws.tempHiddenTables.length;
             for (var j = 0; j < numTables; j++) {
-
                 tableName = gTables[ws.tempHiddenTables[j]].tableName;
+                delete tableMap[tableName];
+                ++tableCount;
+            }
+            numArchivedTables = ws.hiddenTables.length;
+            for (var j = 0; j < numArchivedTables; j++) {
+                tableName = gTables[ws.hiddenTables[j]].tableName;
                 delete tableMap[tableName];
                 ++tableCount;
             }

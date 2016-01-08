@@ -2995,6 +2995,7 @@ function dropdownClick($el, options) {
     var $allMenus;
     var menuHeight;
     $('.menu .selected').removeClass('selected');
+    $('.tooltip').hide();
 
     if (typeof options.callback === "function") {
         options.callback();

@@ -722,8 +722,8 @@ window.WSManager = (function($, WSManager) {
             if (e.which !== 1) {
                 return;
             }
-            if ($(e.target).hasClass('delete') ||
-                $(e.target).parent('.delete').length) {
+            if ($(e.target).hasClass('wsIconWrap') ||
+                $(e.target).parent('.wsIconWrap').length) {
                 return;
             }
             var $tab = $(this);
@@ -733,28 +733,25 @@ window.WSManager = (function($, WSManager) {
                 switchWSHelper(wsId);
             }
         });
-        // delete worksheet
-        $workSheetTabSection.on("click", ".delete", function (event) {
-            event.stopPropagation();
 
+        $workSheetTabSection.on("click", ".wsIconWrap", function (event) {
             var wsId = $(this).closest(".worksheetTab").data("ws");
-            // var numTabs = $workSheetTabSection.find('.worksheetTab').length;
-            delWSHelper(wsId);
-            
-            // XX code for stashing worksheets is commented out
-            
-            // dropdownClick($(this), {
-            //     type: "tabMenu",
-            //     offsetX: -7,
-            //     callback: function() {
-            //         if (numTabs === 1) {
-            //             $tabMenu.find('.delete').addClass('unavailable');
-            //         } else {
-            //             $tabMenu.find('.delete').removeClass('unavailable');
-            //         }
-            //         $tabMenu.data('ws', wsId);
-            //     }
-            // });
+            var numTabs = $workSheetTabSection.find('.worksheetTab').length;
+            if ($tabMenu.is(':visible') && $tabMenu.data('ws') === wsId) {
+                $tabMenu.hide();
+            }
+            dropdownClick($(this), {
+                type: "tabMenu",
+                offsetX: -7,
+                callback: function() {
+                    if (numTabs === 1) {
+                        $tabMenu.find('.delete').addClass('unavailable');
+                    } else {
+                        $tabMenu.find('.delete').removeClass('unavailable');
+                    }
+                    $tabMenu.data('ws', wsId);
+                }
+            });
         });
 
         var initialIndex;
@@ -816,9 +813,12 @@ window.WSManager = (function($, WSManager) {
         $tabMenu.find('li').click(function() {
             var $li = $(this);
             var wsId = $tabMenu.data('ws');
+            if ($li.hasClass('unavailable')) {
+                return;
+            }
             if ($li.hasClass('hide')) {
                 hideWorksheet(wsId);
-            } else {
+            } else { // delete
                 delWSHelper(wsId);
             }
         });
@@ -1051,6 +1051,7 @@ window.WSManager = (function($, WSManager) {
         var tableIds = [];
         var tables   = wsLookUp[wsId].tables;
         var hiddenTables = wsLookUp[wsId].tempHiddenTables;
+        var archivedTables = wsLookUp[wsId].hiddenTables;
 
         for (var i = 0, len = tables.length; i < len; i++) {
             tableIds[i] = tables[i];
@@ -1064,14 +1065,7 @@ window.WSManager = (function($, WSManager) {
             hideWorksheetTable(tableId);
         }
 
-        $('#activeTablesList').find('.worksheet-' + wsId)
-                              .closest('.tableInfo')
-                              .addClass('hiddenWS')
-                              .attr({
-                                'data-toggle'        : 'tooltip',
-                                'data-container'     : 'body',
-                                'data-original-title': 'worksheet is hidden'
-                              });
+        RightSideBar.tablesToHiddenWS(wsId);
 
         if (gMinModeOn) {
             $("#worksheetTab-" + wsId).remove();
@@ -1089,7 +1083,10 @@ window.WSManager = (function($, WSManager) {
     function getHiddenWSHTML(wsId) {
         var name = wsLookUp[wsId].name;
         var id = "worksheetTab-" + wsId;
-        return ('<li id="' + id + '" data-ws="' + wsId + '">' + name + '</li>');
+        var li = '<li id="' + id + '" data-ws="' + wsId + '">' +
+                 '<span class="icon"></span>' +
+                 name + '</li>';
+        return (li);
     }
 
     // Helper function to delete worksheet
@@ -1263,11 +1260,13 @@ window.WSManager = (function($, WSManager) {
             '<section id="' + id + '"class="worksheetTab inActive" ' +
                 'data-ws="' + wsId + '">' +
                 '<div class="label" ' + tabTooltip + '>' +
-                    '<div class="iconWrapper delete">' +
-                        '<span class="icon"></span>' +
+                    '<div class="iconWrapper wsIconWrap" ' +
+                    'data-title="worksheet options" data-toggle="tooltip" ' +
+                    'data-container="body">' +
+                        '<span class="wsIcon"></span>' +
                     '</div>' +
                     '<div class="draggableArea">' +
-                        '<span class="wsIcon"></span>' +
+                        // '<span class="wsIcon"></span>' +
                         '<div class="text textOverflow" ' +
                             'data-title="' + name + '" contenteditable>' +
                             name +

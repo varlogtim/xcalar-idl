@@ -1780,11 +1780,10 @@
         <!-- Placeholder, Keep it so user don't see difference when loading -->
         <section class="worksheetTab active">
           <div class="label">
-            <div class="iconWrapper delete">
-                <span class="icon"></span>
+            <div class="iconWrapper wsIconWrap">
+              <span class="wsIcon"></span>
             </div>
             <div class="draggableArea">
-              <span class="wsIcon"></span>
               <div class="text">Sheet 1</div>
             </div>
           </div>
@@ -1795,11 +1794,12 @@
         </section>
       </div>
       <div id="hiddenWorksheetsTab" class="dropDownList">
-        <div class="mainTab">...</div>
+        <div class="mainTab"  title="hidden worksheets" 
+            data-toggle="tooltip" data-placement="top" data-container="body">...(0)</div>
         <div class="list">
           <ul>
             <div class="divider"></div>
-            <li class="unhideAll" data-ws="all">Unhide all worksheets</li>
+            <li class="unhideAll" data-ws="all"><span class="icon"></span><span class="icon"></span>Unhide all worksheets</li>
           </ul>
         <!--   <div class="scrollArea top"><div class="arrow"></div></div>
           <div class="scrollArea bottom"><div class="arrow"></div></div> -->
@@ -1810,8 +1810,7 @@
           <li class="delete">Delete Sheet</li>
           <li class="hide">Hide Sheet</li>
         </ul>
-  <!--       <div class="scrollArea top"><div class="arrow"></div></div>
-        <div class="scrollArea bottom"><div class="arrow"></div></div> -->
+        <div class="arrow"></div>
       </div>
     </div>
   </div>
