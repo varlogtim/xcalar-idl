@@ -500,15 +500,25 @@ function documentReadyGeneralFunction() {
         $(this).scrollTop(0);
     });
 
+    var mainFrameScrolling = false;
     $('#mainFrame').scroll(function() {
+        if (!mainFrameScrolling) {
+            mainFrameScrolling = true; 
+            // apply the following actions only once per scroll session
+            $('.menu').hide();
+            removeMenuKeyboardNavigation();
+            $(".highlightBox").remove();
+            $('.xcTableWrap').find('.dropdownBox').hide();
+            $('.tooltip').hide();
+        }
         $(this).scrollTop(0);
-        $('.menu').hide();
-        removeMenuKeyboardNavigation();
-        $(".highlightBox").remove();
+         mainFrameScrolling = true;
 
         clearTimeout(timer);
-        timer = setTimeout(function() {
+        timer = setTimeout(function() { 
+            $('.xcTableWrap').find('.dropdownBox').show();
             moveTableDropdownBoxes();
+            mainFrameScrolling = false;
         }, 300);
 
         moveFirstColumn();
