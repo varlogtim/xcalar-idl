@@ -129,10 +129,20 @@ window.JSONModal = (function($, JSONModal) {
                 var isArray   = $jsonWrap.data('isarray');
                 var nameInfo  = createJsonSelectionExpression($el);
                 var numCols   = cols.length;
-
+                var colName;
+                if (isDataCol) {
+                    colName = nameInfo.escapedName;
+                } else {
+                    var symbol = "";
+                    if (!isArray) {
+                        symbol = ".";
+                    }
+                    colName = cols[colNum - 1].func.args[0] +
+                                           symbol + nameInfo.escapedName;
+                }
                 // check if the column already exists
                 for (var i = 0; i < numCols; i++) {
-                    if (cols[i].func.args[0] === nameInfo.name) {
+                    if (cols[i].func.args[0] === colName) {
                         var animation = gMinModeOn ? false : true;
                         closeJSONModal();
                         xcHelper.centerFocusedColumn(tableId, i, animation);
@@ -147,8 +157,12 @@ window.JSONModal = (function($, JSONModal) {
                 };
                 ColManager.pullCol(colNum, tableId, nameInfo, pullColOptions)
                 .always(function() {
-                    moveFirstColumn();
+                    var animation = gMinModeOn ? false : true;
                     closeJSONModal();
+                    if (isDataCol) {
+                        colNum--; // column appended to left, so colNum - 1
+                    }
+                    xcHelper.centerFocusedColumn(tableId, colNum, animation);
                 });
             }
         }, ".jKey, .jArray>.jString, .jArray>.jNum");
