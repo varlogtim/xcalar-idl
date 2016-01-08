@@ -162,7 +162,7 @@
 }
 
 @media screen and (max-width: 1300px) {
-    .tableListSection:not(#aggregateTableList) {
+    #rightSideBar:not(.poppedOut) .tableListSection:not(#aggregateTableList) {
         ol {
             width: ~"calc(86% - 26px)" !important;
         }
@@ -316,6 +316,7 @@
             .timeStamp {
                 .size(@width: ~"calc(100% - 7px)", @height: 12px);
                 text-align: right;
+                overflow: hidden;
             }
 
             .time {
