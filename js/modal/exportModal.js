@@ -177,10 +177,13 @@ window.ExportModal = (function($, ExportModal) {
                 "$selector": $exportColumns,
                 "text"     : ErrorTextTStr.InvalidColName,
                 "check"    : function() {
-
-                    return (columnsVal.length === 0 ||
+                    if (gExportNoCheck) {
+                        return (columnsVal.length === 0);
+                    } else {
+                        return (columnsVal.length === 0 ||
                             columnsVal.indexOf('.') !== -1 ||
                             columnsVal.indexOf('[') !== -1);
+                    }
                 }
             }
         ]);
@@ -414,7 +417,7 @@ window.ExportModal = (function($, ExportModal) {
                 }
                 return true;
             }
-            
+
             var isObj;
             if (tableCols[colNum].args &&
                 tableCols[colNum].args[0].indexOf(".") > -1) {
