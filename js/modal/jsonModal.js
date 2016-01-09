@@ -155,6 +155,7 @@ window.JSONModal = (function($, JSONModal) {
                     "isArray"  : isArray,
                     "noAnimate": true
                 };
+                
                 ColManager.pullCol(colNum, tableId, nameInfo, pullColOptions)
                 .always(function() {
                     var animation = gMinModeOn ? false : true;
@@ -232,6 +233,22 @@ window.JSONModal = (function($, JSONModal) {
         $jsonArea.on("click", ".split", function() {
             var $jsonWrap = $(this).closest('.jsonWrap');
             duplicateView($jsonWrap);
+        });
+
+        $jsonArea.on("click", ".pullAll", function() {
+            var $jsonWrap = $(this).closest('.jsonWrap');
+            var jsonIndex = $jsonWrap.index();
+            var rowNum = $jsonWrap.data('rownum');
+            var colNum = $jsonWrap.data('colnum');
+            var tableId =  $jsonWrap.data('tableid');
+            var $table = $("#xcTable-" + tableId);
+            var $td = $table.find(".row" + rowNum + " .col" + colNum);
+
+            closeJSONModal();
+            //set timeout to allow modal to close before unnesting many cols
+            setTimeout(function() {
+                unnest($td, false, {isDataTd: true});
+            }, 0);
         });
 
         $jsonArea.on("click", ".remove", function() {
@@ -536,6 +553,7 @@ window.JSONModal = (function($, JSONModal) {
         $('#sideBarModal').hide();
         $('#rightSideBar').removeClass('modalOpen');
         $("body").removeClass("hideScroll");
+        $('.tooltip').hide();
     }
 
     function refreshJsonModal($jsonTd, isArray, isModalOpen) {
@@ -911,6 +929,11 @@ window.JSONModal = (function($, JSONModal) {
                 'data-toggle="tooltip"' +
                     'data-container="body" ' +
                     'title="' + TooltipTStr.ComingSoon + '">' +
+                    '<div class="icon"></div>' +
+                '</div>' +
+                '<div class="btn btnDeselected pullAll" data-toggle="tooltip"' +
+                    'data-container="body" ' +
+                    'title="Pull all fields">' +
                     '<div class="icon"></div>' +
                 '</div>' +
             '</div>' +

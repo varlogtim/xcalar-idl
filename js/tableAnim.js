@@ -2740,16 +2740,13 @@ function addColMenuActions() {
     });
 }
 
-function unnest($jsonTd, isArray) {
+function unnest($jsonTd, isArray, options) {
     var text = $jsonTd.find("div").eq(0).text();
-    if (isArray) {
-        text = text.split(', ');
-        text = JSON.stringify(text);
-    }
-    var jsonString;
+    var jsonObj;
+    options = options || {};
 
     try {
-        jsonString = jQuery.parseJSON(text);
+        jsonObj = jQuery.parseJSON(text);
     } catch (error) {
         console.error(error, text);
         return;
@@ -2757,14 +2754,43 @@ function unnest($jsonTd, isArray) {
 
     var colNum = xcHelper.parseColNum($jsonTd);
     var tableId  = $jsonTd.closest('table').data('id');
-
+    var cols = gTables[tableId].tableCols;
+    var numCols = cols.length;
     var arrayOfKeys = [];
-    for (var arraykey in jsonString) {
-        arrayOfKeys.push(arraykey);
+    var duplicateFound = false;
+    var colName;
+    var openSymbol;
+    var closingSymbol;
+    for (var arrayKey in jsonObj) {
+        if (options.isDataTd) {
+            colName = arrayKey;
+        } else {
+            openSymbol = "";
+            closingSymbol = "";
+            if (!isArray) {
+                openSymbol = ".";
+            } else {
+                openSymbol = "[";
+                closingSymbol = "]";
+            }
+            colName = cols[colNum - 1].func.args[0] + openSymbol +
+                      arrayKey.replace(/\./g, "\\\.") + closingSymbol;
+        }
+        for (var i = 0; i < numCols; i++) {
+            if (cols[i].func.args[0] === colName) {
+                duplicateFound = true;
+                break;
+            }
+        }
+        if (duplicateFound) {
+            duplicateFound = false;
+        } else {
+            arrayOfKeys.push(arrayKey);
+        }    
     }
     var numKeys = arrayOfKeys.length;
     var pullColOptions = {
-        "isDataTd" : false,
+        "isDataTd" : options.isDataTd,
         "isArray"  : isArray,
         "noAnimate": true
     };
