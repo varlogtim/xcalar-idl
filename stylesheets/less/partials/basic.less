@@ -1555,10 +1555,17 @@ ul.inputMenu {
     float: right;
     margin: 10px 25px 0 0;
     display: inline-block;
+    max-width: ~"calc(100% - 715px)";
+    overflow: hidden;
+    white-space: nowrap;
 
     .text {
         color: @color-text-brightBlue;
         cursor: pointer;
+        .textOverflowOneLine;
+        display: inline-block;
+        vertical-align: bottom;
+        max-width: ~"calc(100% - 65px)";
     }
 }
 
@@ -1578,6 +1585,15 @@ ul.inputMenu {
         padding: 5px 0 0 10px;
         color: @color-text-signout-darkGray;
         float: left;
+        .text {
+            max-width: 100px;
+            .textOverflowOneLine;
+            display: inline-block;
+            float: left;
+            margin-top: -3px;
+            line-height: 10px;
+        }
+        
     }
     #signout {
         padding: 5px 0 0 5px;

@@ -397,6 +397,7 @@
             .tableTitle > .text {
                 width: 30px !important;
                 .textOverflow;
+                visibility: hidden;
             }
         }
 
@@ -753,7 +754,7 @@
 
         .text {
             .position(absolute, @top: 0);
-            .size(@width: auto, @height: 25px);
+            .size(@width: auto, @max-width: ~"calc(100% - 10px)", @height: 25px);
             .font(@weight: 600, @size: 15px, @line-height: 22px, @family: @font-base);
             .rounded;
             text-align: center;
@@ -762,7 +763,7 @@
             z-index: 2;
             white-space: nowrap;
             margin-top: 5px;
-            overflow: hidden;
+            // overflow: hidden;
             display: inline-block;
 
             .hashName {
@@ -779,6 +780,7 @@
             padding: 1px 0px;
             margin: 1px 0px;
             min-width: 15px !important;
+            max-width: ~"calc(100% - 58px)";
         }
 
         .tableName:focus {

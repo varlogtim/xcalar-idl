@@ -3362,9 +3362,27 @@ function moveTableTitlesAnimated(tableId, oldWidth, widthChange, speed) {
     var rect = $thead[0].getBoundingClientRect();
     var right = rect.right - widthChange;
 
+
     if (right > 0 && rect.left < viewWidth) {
         var $tableTitle = $table.find('.tableTitle .text');
+        var $input = $tableTitle.find('input');
+        var inputTextWidth = getTextWidth($input, $input.val()) + 1;
         var titleWidth = $tableTitle.outerWidth();
+        var inputWidth = $input.width();
+        var inputWidthChange = inputTextWidth - inputWidth;
+        var expectedTitleWidth; 
+        // because the final input width is variable we need to figure out 
+        // how much it's going to change and what the expected title width is
+        if (widthChange > 0) {
+            var extraSpace = $thead.width() - titleWidth - 2;
+            expectedTitleWidth = titleWidth -
+                                 Math.max(0,(widthChange - extraSpace));
+        } else {
+            expectedTitleWidth = titleWidth + 
+                                 Math.min(inputWidthChange, -widthChange);
+        }
+        
+        titleWidth = expectedTitleWidth;
         var tableWidth = oldWidth - widthChange - 5;
         var center;
         if (rect.left < 0) {
