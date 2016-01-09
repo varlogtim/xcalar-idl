@@ -49,6 +49,7 @@ var gLastClickTarget = $(window); // track which element was last clicked
 var gDatasetBrowserResultSetId = 0; // resultSetId for currently viewed
 var gIsTableScrolling = false;
 var gMinModeOn = false;
+var gExportNoCheck = false;
 var KB = 1024;
 var MB = 1024 * KB;
 var GB = 1024 * MB;

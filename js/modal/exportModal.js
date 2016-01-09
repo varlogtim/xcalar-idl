@@ -406,6 +406,15 @@ window.ExportModal = (function($, ExportModal) {
             if (colNum === -1) {
                 return false;
             }
+            
+            if (gUnfilterExport) {
+                if (tableCols[colNum].isNewCol ||
+                    tableCols[colNum].name === "DATA") {
+                    return false;
+                }
+                return true;
+            }
+            
             var isObj;
             if (tableCols[colNum].args &&
                 tableCols[colNum].args[0].indexOf(".") > -1) {
