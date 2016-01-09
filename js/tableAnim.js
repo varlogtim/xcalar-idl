@@ -950,6 +950,31 @@ function addTableMenuActions() {
         ExportModal.show(tableId);
     });
 
+    $tableMenu.on('mouseup', '.copyColNames', function(event) {
+        function getAllColNames(tableId) {
+            var colNames = [];
+            $.each(gTables[tableId].tableCols, function() {
+                    if (this.name !== "DATA") {
+                        colNames.push(this.name)
+                    }
+            });
+            return colNames;
+        }
+
+        wsId = WSManager.getActiveWS()
+        var allColNames = [];
+        $.each(WSManager.getWorksheets()[wsId].tables, function() {
+            var tableColNames = getAllColNames(this);
+            for (var i = 0; i < tableColNames.length; i++) {
+                var value = tableColNames[i];
+                if (allColNames.indexOf(value) == -1) {
+                    allColNames.push(value);
+                }
+            }
+        });
+        copyToClipboard(allColNames, true);
+    });
+
     $tableMenu.on('mouseup', '.delAllDuplicateCols', function(event) {
         if (event.which !== 1) {
             return;
@@ -2811,9 +2836,14 @@ function unnest($jsonTd, isArray, options) {
     }
 }
 
-function copyToClipboard(valArray) {
+function copyToClipboard(valArray, stringify) {
     var $hiddenInput = $("<input>");
-    var str = valArray.join(", ");
+    var str = "";
+    if (stringify) {
+        str = JSON.stringify(valArray);
+    } else {
+        str = valArray.join(", ");
+    }
 
     $("body").append($hiddenInput);
     $hiddenInput.val(str).select();

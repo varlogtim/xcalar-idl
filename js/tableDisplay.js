@@ -919,6 +919,7 @@ function generateTableDropDown() {
             'Visualize in Tableau</a>' +
             '</li>' +
             */
+            '<li class="copyColNames">Copy Column Names</li>'+
             '<li class="delAllDuplicateCols">Delete All Duplicates</li>' +
             '<li class="quickAgg parentMenu" data-submenu="quickAgg">' +
                 'Quick Aggregates' +
