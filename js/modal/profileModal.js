@@ -97,6 +97,10 @@ window.Profile = (function($, Profile, d3) {
             highlightBar();
         });
 
+        $modal.on("mouseenter", ".tooltipOverflow", function(){
+            xcHelper.autoTooltip(this);
+        });
+
         // event on sort section
         var $sortSection = $modal.find(".sortSection");
 
@@ -399,11 +403,14 @@ window.Profile = (function($, Profile, d3) {
             if (aggVal == null) {
                 // when aggregate is still running
                 $aggInfoSection.find("." + aggkey).html("...")
+                                    .attr("title", "...")
                                     .addClass("animatedEllipsis");
             } else {
+                var text = aggVal.toLocaleString();
                 $aggInfoSection.find("." + aggkey)
                             .removeClass("animatedEllipsis")
-                            .text(aggVal.toLocaleString());
+                            .attr("title", text)
+                            .text(text);
             }
         });
 
@@ -514,9 +521,11 @@ window.Profile = (function($, Profile, d3) {
 
             // modal is open and is for that column
             if (isModalVisible(curStatsCol)) {
+                var text = res.toLocaleString();
                 $modal.find(".aggInfoSection ." + aggkey)
                         .removeClass("animatedEllipsis")
-                        .text(res.toLocaleString());
+                        .attr("title", text)
+                        .text(text);
             }
         });
 

@@ -2548,10 +2548,16 @@ html.microsoft {
             .aggInfo {
                 .flex(1 1 auto);
                 .font(@size: 13px, @line-height: 20px);
+                padding: 0 2px;
+                white-space: nowrap;
 
                 .text {
                     margin-left: 2px;
                     .font(@weight: 900, @color: #489ac3);
+                    display: inline-block;
+                    width: ~"calc(100% - 50px)";
+                    .textOverflow;
+                    vertical-align: bottom;
 
                     &.animatedEllipsis {
                         float: none;
