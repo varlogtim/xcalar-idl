@@ -410,7 +410,7 @@ window.ExportModal = (function($, ExportModal) {
                 return false;
             }
             
-            if (gUnfilterExport) {
+            if (gExportNoCheck) {
                 if (tableCols[colNum].isNewCol ||
                     tableCols[colNum].name === "DATA") {
                     return false;
