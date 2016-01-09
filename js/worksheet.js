@@ -711,7 +711,7 @@ window.WSManager = (function($, WSManager) {
                     renameWorksheet($(this));
                 }
             },
-            "dblclick": function() {
+            "click": function() {
                 $(this).focus();
             }
         }, ".worksheetTab .text");
