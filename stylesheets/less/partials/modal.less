@@ -1156,17 +1156,25 @@ html.microsoft {
         text-transform: uppercase;
     }
 
+    &.withOptions {
+        overflow: visible;
+
+        #alertContent {
+            overflow-y: visible;
+        }
+    }
+
     #alertContent {
         .size(@width: 500px, @height: 75px);
         padding: 5px 20px;
         overflow-y: scroll;
-        display: table-cell;
         vertical-align: middle;
 
         .text {
             .size(@max-height: 65px);
             text-align: center;
             white-space: pre-line;
+            .vertical-align;
         }
 
         &.leftAlign {
@@ -1182,6 +1190,7 @@ html.microsoft {
         .options {
             .size(@width: 325px, @height: 30px);
             .font(@line-height: 30px);
+            .vertical-align;
             margin: 0 auto;
 
             .label {

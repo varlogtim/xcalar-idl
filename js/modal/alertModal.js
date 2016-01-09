@@ -274,8 +274,10 @@ window.Alert = (function($, Alert){
             $("#alertlist").empty().append(options.optList.list);
             $("#alertOptionLabel").text(options.optList.label);
             $optionSection.show();
+            $alertModal.addClass("withOptions");
         } else {
             $optionSection.hide();
+            $alertModal.removeClass("withOptions");
         }
 
         // close alert modal
