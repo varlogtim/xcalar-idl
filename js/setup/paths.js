@@ -1,6 +1,7 @@
 var paths = {
     dologout      : '/htmlFiles/dologout.html',
     tableau       : '/htmlFiles/tableau.html',
+    index         : '/index.html',
     workbookDemo  : '/htmlFiles/walk/workbookDemo.html',
     datastoreDemo1: '/htmlFiles/walk/datastoreDemo1.html',
     datastoreDemo2: '/htmlFiles/walk/datastoreDemo2.html',

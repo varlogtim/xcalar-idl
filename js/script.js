@@ -358,7 +358,7 @@ function setupLogout() {
     });
 }
 
-function unloadHandler(isAsync) {
+function unloadHandler(isAsync, doNotLogout) {
     if (isAsync) {
         Support.releaseSession();
         sleep("500ms");
@@ -373,9 +373,13 @@ function unloadHandler(isAsync) {
             console.error(error);
         })
         .always(function() {
-            sessionStorage.setItem("xcalar-username", "");
             removeUnloadPrompt();
-            window.location = paths.dologout;
+            if (doNotLogout) {
+                window.location = paths.index;
+            } else {
+                sessionStorage.setItem("xcalar-username", "");
+                window.location = paths.dologout;
+            }
         });
     }
 }

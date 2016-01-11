@@ -374,6 +374,11 @@ function XcalarLoad(url, format, datasetName, fieldDelim, recordDelim,
         deferred.resolve(ret1);
     })
     .fail(function(error1, error2) {
+        if (error1 && error1.status == 502) {
+            // Thrift time out
+            // XXX HACK we are going to quietly reload the page
+            unloadHandler(false, true);
+        }    
         var thriftError = thriftLog("XcalarLoad", error1, error2);
         SQL.errorLog("Load Dataset", sqlOptions, null, thriftError);
         deferred.reject(thriftError);
