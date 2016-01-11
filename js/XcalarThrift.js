@@ -378,10 +378,11 @@ function XcalarLoad(url, format, datasetName, fieldDelim, recordDelim,
             // Thrift time out
             // XXX HACK we are going to quietly reload the page
             unloadHandler(false, true);
-        }    
-        var thriftError = thriftLog("XcalarLoad", error1, error2);
-        SQL.errorLog("Load Dataset", sqlOptions, null, thriftError);
-        deferred.reject(thriftError);
+        } else {  
+            var thriftError = thriftLog("XcalarLoad", error1, error2);
+            SQL.errorLog("Load Dataset", sqlOptions, null, thriftError);
+            deferred.reject(thriftError);
+        }
     });
 
     return (deferred.promise());
