@@ -1204,7 +1204,7 @@ window.Replay = (function($, Replay) {
         AggModal.show.apply(window, args)
         .then(function() {
             var callback = function() {
-                $("#closeAgg").click();
+                $("#quickAggModal .close").click();
             };
             return delayAction(callback, "Show Quick Agg");
         })

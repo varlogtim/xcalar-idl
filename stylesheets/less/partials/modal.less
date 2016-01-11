@@ -499,11 +499,11 @@
 /* End Of Pretty Json Modal */
 
 /* Quick Aggregate Modal */
-#quickAggDialog {
+#quickAggModal {
     .size(@width: 920px, @height: 650px, @min-height: ~"600px !important");
     resize: horizontal;
 
-    #aggInputSection {
+    .inputSection {
         .size(@height: 57px);
         .font(@weight: bold, @size: 14px, @line-height: 57px);
         padding-left: 17px;
@@ -513,7 +513,7 @@
             margin-right: 10px;
         }
 
-        #aggRoundedInput {
+        input {
             float: left;
             margin: 16px 15px 0 0;
             .size(@width: 198px, @height: 25px);
@@ -527,7 +527,7 @@
             }
         }
 
-        #aggOp {
+        .dropDownList {
             .styleDropDownList(201px, 25px);
             margin-top: 16px;
 
@@ -653,7 +653,7 @@
         }
     }
 
-    #mainAgg2 {
+    #quickAgg-mainAgg2 {
         display: none;
     }
 

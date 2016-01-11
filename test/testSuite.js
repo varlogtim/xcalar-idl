@@ -820,7 +820,7 @@ window.TestSuite = (function($, TestSuite) {
         $("#tableSubMenu .correlation").trigger(fakeEvent.mouseup);
         checkExists(".aggTableField:contains('-0.4')", 20000)
         .then(function() {
-            $("#quickAggHeader #closeAgg .icon").click();
+            $("#quickAggModal .close").click();
             TestSuite.pass(deferred, testName, currentTestNumber);
         })
         .fail(function(error) {
@@ -839,7 +839,7 @@ window.TestSuite = (function($, TestSuite) {
                     length === 145);
             assert($(".aggTableField:contains('4574')"));
             assert($(".aggTableField:contains('334')"));
-            $("#quickAggHeader #closeAgg .icon").click();
+            $("#quickAggModal .close").click();
             TestSuite.pass(deferred, testName, currentTestNumber);
         })
         .fail(function(error) {

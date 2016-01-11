@@ -1841,16 +1841,16 @@
   </div>
 
   <!-- Quick Aggregates Modal -->
-  <div id="quickAggDialog" class="modalContainer">
+  <div id="quickAggModal" class="modalContainer">
     <!-- Header -->
-    <header id="quickAggHeader" class="modalHeader">
+    <header class="modalHeader">
       <span class="text">Quick Aggregates</span>
-      <div id="closeAgg" class="close">
+      <div class="close">
         <span class="icon"></span>
       </div>
     </header>
     <!-- Quick Aggregates Instruction Section -->
-    <section id="quickAggInstructions" class="modalInstruction">
+    <section class="modalInstruction">
       <div class="icon"></div>
       <div class="text">
         Viewing common aggregate functions on all of the columns in the active
@@ -1858,22 +1858,22 @@
       </div>
     </section>
     <!-- Quick Aggregates Input Section -->
-    <section id="aggInputSection" class="modalTopMain">
+    <section class="modalTopMain inputSection">
       <div class="text">Table Name:</div>
-      <input id="aggRoundedInput" type="textbox" disabled>
-      <div id="aggOp" class="dropDownList">
+      <input id="quickAgg-tableName" type="text" disabled>
+      <div id="quickAgg-dropdown" class="dropDownList">
         <div class="text">Aggregate Functions</div>
         <div class="iconWrapper">
             <div class="icon"></div>
         </div>
-        <ul id="aggOpSelect" class="list">
+        <ul class="list">
           <li>Aggregate Functions</li>
           <li>Correlation Coefficient</li>
         </ul>
       </div>
     </section>
     <!-- Quick Aggregates Main Section -->
-    <section id="mainAgg1" class="mainAgg clearfix modalMain">
+    <section id="quickAgg-mainAgg1" class="mainAgg clearfix modalMain">
       <div class="tableText">Quick aggregates for each individual column</div>
       <div class="aggTable">
         <div class="labelContainer"></div>
@@ -1887,7 +1887,7 @@
         </div>
       </div>
     </section>
-    <section id="mainAgg2" class="mainAgg clearfix modalMain">
+    <section id="quickAgg-mainAgg2" class="mainAgg clearfix modalMain">
       <div class="tableText">Correlation coefficients for every pair of columns
       </div>
       <div class="aggTable">

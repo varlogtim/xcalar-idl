@@ -1,10 +1,13 @@
 window.AggModal = (function($, AggModal) {
     var $modalBackground = $("#modalBackground");
-    var $aggModal = $("#quickAggDialog");
+    var $aggModal = $("#quickAggModal");
 
-    var $aggSelect    = $("#aggOp");
-    var $aggDropdown  = $("#aggOpSelect");
-    var $aggTableName = $("#aggRoundedInput");
+    var $aggSelect    = $("#quickAgg-dropdown");
+    var $aggDropdown  = $aggSelect.find(".list");
+    var $aggTableName = $("#quickAgg-tableName");
+
+    var $mainAgg1 = $("#quickAgg-mainAgg1");
+    var $mainAgg2 = $("#quickAgg-mainAgg2");
 
     var aggrFunctions = [AggrOp.Sum, AggrOp.Avg, AggrOp.Min,
                         AggrOp.Max, AggrOp.Count];
@@ -29,8 +32,25 @@ window.AggModal = (function($, AggModal) {
         aggOpMap[AggrOp.Max] = 3;
         aggOpMap[AggrOp.Count] = 4;
 
-        $("#closeAgg").click(function() {
-            resetAggTables();
+        $aggModal.draggable({
+            handle     : '.modalHeader',
+            cursor     : '-webkit-grabbing',
+            containment: 'window'
+        });
+
+        $aggModal.resizable({
+            handles    : "e, w",
+            minHeight  : minHeight,
+            minWidth   : minWidth,
+            containment: "document"
+        });
+
+        $aggModal.on("click", ".close", function() {
+            closeQuickAgg();
+        });
+
+        $aggModal.on("mouseenter", ".tooltipOverflow", function() {
+            xcHelper.autoTooltip(this);
         });
 
         $aggSelect.click(function(event) {
@@ -54,46 +74,26 @@ window.AggModal = (function($, AggModal) {
             $aggSelect.find(".text").text(aggOp);
 
             if (aggOp === "Aggregate Functions") {
-                $("#mainAgg1").show();
-                $("#mainAgg2").hide();
+                $mainAgg1.show();
+                $mainAgg2.hide();
             } else if (aggOp === "Correlation Coefficient") {
-                $("#mainAgg1").hide();
-                $("#mainAgg2").show();
+                $mainAgg1.hide();
+                $mainAgg2.show();
             }
 
             hideAggOpSelect();
         });
 
         $aggModal.click(hideAggOpSelect);
-        $aggTableName.val("tempTableName");
-        
-        $aggModal.draggable({
-            handle     : '.modalHeader',
-            cursor     : '-webkit-grabbing',
-            containment: 'window'
-        });
 
-        $aggModal.resizable({
-            handles    : "e, w",
-            minHeight  : minHeight,
-            minWidth   : minWidth,
-            containment: "document"
-        });
-
-        var $mainAgg1 = $("#mainAgg2");
         $mainAgg1.find(".aggContainer").scroll(function() {
             var scrollTop = $(this).scrollTop();
             $mainAgg1.find(".labelContainer").scrollTop(scrollTop);
         });
 
-        var $mainAgg2 = $("#mainAgg2");
         $mainAgg2.find(".aggContainer").scroll(function() {
             var scrollTop = $(this).scrollTop();
             $mainAgg2.find(".labelContainer").scrollTop(scrollTop);
-        });
-
-        $aggModal.on("mouseenter", ".tooltipOverflow", function() {
-            xcHelper.autoTooltip(this);
         });
     };
 
@@ -168,7 +168,6 @@ window.AggModal = (function($, AggModal) {
         aggCols = [];
 
         var tableCols = table.tableCols;
-
         for (var i = 0, colLen = tableCols.length; i < colLen; i++) {
             // Skip DATA!
             if (tableCols[i].name === "DATA") {
@@ -183,28 +182,15 @@ window.AggModal = (function($, AggModal) {
     }
 
     function aggTableInitialize($table) {
-        var $mainAgg1 = $("#mainAgg1");
-
         var colLen = aggCols.length;
         var funLen = aggrFunctions.length;
-
         var wholeTable = '';
 
         for (var j = 0; j < colLen; j++) {
             var cols   = aggCols[j].col;
             var colNum = aggCols[j].colNum;
 
-            wholeTable += '<div class="aggCol">' +
-                            '<div class="divider"></div>' +
-                            '<div class="aggTableField colLabel">' +
-                                '<span title="' + cols.name + '" ' +
-                                    'data-toggle="tooltip" ' +
-                                    'data-placement="top" ' +
-                                    'data-container="body" ' +
-                                    'class="textOverflow tooltipOverflow">' +
-                                    cols.name +
-                                '</span>' +
-                            '</div>';
+            wholeTable += getAggColHTML(cols.name);
 
             var isChildOfArray = $table.find(".th.col" + colNum + " .header")
                                         .hasClass("childOfArray");
@@ -225,7 +211,7 @@ window.AggModal = (function($, AggModal) {
 
                 wholeTable += "</div>";
             }
-
+            // closing div from getAggColHTML();
             wholeTable += "</div>";
         }
 
@@ -234,27 +220,14 @@ window.AggModal = (function($, AggModal) {
     }
 
     function corrTableInitialize($table) {
-        var $mainAgg2 = $("#mainAgg2");
-
         var colLen = aggCols.length;
-
         var wholeTable = '';
 
         for (var j = 0; j < colLen; j++) {
             var cols   = aggCols[j].col;
             var colNum = aggCols[j].colNum;
 
-            wholeTable += '<div class="aggCol">' +
-                            '<div class="divider"></div>' +
-                            '<div class="aggTableField colLabel">' +
-                                '<span title="' + cols.name + '" '  +
-                                    'data-toggle="tooltip" ' +
-                                    'data-placement="top" ' +
-                                    'data-container="body" ' +
-                                    'class="textOverflow tooltipOverflow">' +
-                                    cols.name +
-                                '</span>' +
-                            '</div>';
+            wholeTable += getAggColHTML(cols.name);
             var isChildOfArray = $table.find(".th.col" + colNum + " .header")
                                         .hasClass("childOfArray");
 
@@ -293,6 +266,7 @@ window.AggModal = (function($, AggModal) {
                 }
                 wholeTable += "</div>";
             }
+            // closing div from getAggColHTML();
             wholeTable += "</div>";
         }
 
@@ -303,6 +277,23 @@ window.AggModal = (function($, AggModal) {
 
         $mainAgg2.find(".labelContainer").html(getRowLabelHTML(vertLabels));
         $mainAgg2.find(".aggContainer").html(wholeTable);
+    }
+
+    function getAggColHTML(colName) {
+        // Note: the clos </div> should be added manually outside this function
+        var html =
+            '<div class="aggCol">' +
+                '<div class="divider"></div>' +
+                '<div class="aggTableField colLabel">' +
+                    '<span title="' + colName + '" ' +
+                        'data-toggle="tooltip" ' +
+                        'data-placement="top" ' +
+                        'data-container="body" ' +
+                        'class="textOverflow tooltipOverflow">' +
+                        colName +
+                    '</span>' +
+                '</div>';
+        return html;
     }
 
     function getRowLabelHTML(operations) {
@@ -360,7 +351,7 @@ window.AggModal = (function($, AggModal) {
                     var dupColNum = dups[t];
                     dupCols[dupColNum] = true;
                     if (dupColNum > j) {
-                        $("#mainAgg2").find(".aggCol:not(.labels)").eq(dupColNum)
+                        $mainAgg2.find(".aggCol:not(.labels)").eq(dupColNum)
                             .find(".aggTableField:not(.colLabel)").eq(j)
                                 .html("1").css("background-color", "");
                     }
@@ -512,11 +503,11 @@ window.AggModal = (function($, AggModal) {
                         'data-container="body">' +
                         (jQuery.isNumeric(value) ? value.toFixed(3) : value) +
                         '</span>';
-            $("#mainAgg1").find(".aggCol:not(.labels)").eq(col)
+            $mainAgg1.find(".aggCol:not(.labels)").eq(col)
                 .find(".aggTableField:not(.colLabel)").eq(row).html(html);
 
             dups.forEach(function(colNum) {
-                $("#mainAgg1").find(".aggCol:not(.labels)").eq(colNum)
+                $mainAgg1.find(".aggCol:not(.labels)").eq(colNum)
                     .find(".aggTableField:not(.colLabel)").eq(row).html(html);
             });
         }
@@ -584,18 +575,18 @@ window.AggModal = (function($, AggModal) {
                 if (value > 0) {
                     bg = "rgba(66, 158, 212," + value + ")";
 
-                    $("#mainAgg2").find(".aggCol:not(.labels)").eq(col)
+                    $mainAgg2.find(".aggCol:not(.labels)").eq(col)
                     .find(".aggTableField:not(.colLabel)").eq(row).html(html)
                     .css("background-color", bg);
                 } else {
                     bg = "rgba(200, 200, 200," + (-1 * value) + ")";
 
-                    $("#mainAgg2").find(".aggCol:not(.labels)").eq(col)
+                    $mainAgg2.find(".aggCol:not(.labels)").eq(col)
                     .find(".aggTableField:not(.colLabel)").eq(row).html(html)
                     .css("background-color", bg);
                 }
             } else {
-                $("#mainAgg2").find(".aggCol:not(.labels)").eq(col)
+                $mainAgg2.find(".aggCol:not(.labels)").eq(col)
                 .find(".aggTableField:not(.colLabel)").eq(row).html(html);
             }
 
@@ -604,11 +595,10 @@ window.AggModal = (function($, AggModal) {
                 // beacause of checkDupcols(), colNum > col
                 // and since col > row
                 // so colNum > row
-                $container = $("#mainAgg2").find(".aggCol:not(.labels)")
+                $container = $mainAgg2.find(".aggCol:not(.labels)")
                                 .eq(colNum)
                                 .find(".aggTableField:not(.colLabel)")
                                 .eq(row).html(html);
-
                 if (isNumeric) {
                     $container.css("background-color", bg);
                 }
@@ -622,7 +612,7 @@ window.AggModal = (function($, AggModal) {
                 newCol = rowNum;
 
                 if (newCol > newRow) {
-                    $container = $("#mainAgg2").find(".aggCol:not(.labels)")
+                    $container = $mainAgg2.find(".aggCol:not(.labels)")
                                 .eq(newCol)
                                 .find(".aggTableField:not(.colLabel)")
                                 .eq(newRow).html(html);
@@ -637,8 +627,7 @@ window.AggModal = (function($, AggModal) {
         return (deferred.promise());
     }
 
-    function resetAggTables() {
-        $('#mainTable').off();
+    function closeQuickAgg() {
         $modalBackground.off("click", hideAggOpSelect);
 
         var fadeOutTime = gMinModeOn ? 0 : 300;
