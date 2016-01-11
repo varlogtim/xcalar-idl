@@ -532,8 +532,8 @@ function XcalarExport(tableName, exportName, targetName, numColumns, columns, sq
                 specInput.sfInput.formatArgs = new
                                             DsInitExportFormatSpecificArgsT();
                 specInput.sfInput.formatArgs.csv = new DsInitExportCSVArgsT();
-                specInput.sfInput.formatArgs.csv.fieldDelim = ",";
-                specInput.sfInput.formatArgs.csv.recordDelim = "\n";
+                specInput.sfInput.formatArgs.csv.fieldDelim = gExportFDelim;
+                specInput.sfInput.formatArgs.csv.recordDelim = gExportRDelim;
                 break;
             default:
                 deferred.reject(thriftLog("XcalarExport"));
