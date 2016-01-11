@@ -156,7 +156,7 @@ window.SQL = (function($, SQL) {
             case SQLOps.QuickAggAction:
             case SQLOps.SplitColMap:
             case SQLOps.JoinMap:
-            case SQLOps.GroupbyMap:
+            case SQLOps.GroupByAction:
             case SQLOps.ChangeTypeMap:
                 return ("");
         }
@@ -275,6 +275,8 @@ window.SQL = (function($, SQL) {
                 // fallthrough
             case (SQLOps.AddDS):
                 // fallthrough
+            case (SQLOps.GroupBy):
+                // fallthrough (we have groupbyAction for machine cli)
             case (SQLOps.SplitCol):
                 // fallthrough
             case (SQLOps.ChangeFormat):
@@ -298,11 +300,9 @@ window.SQL = (function($, SQL) {
             case (SQLOps.Join):
             case (SQLOps.Aggr):
             case (SQLOps.CheckIndex):
-            case (SQLOps.GroupBy):
-            case (SQLOps.GroupByIndex):
             case (SQLOps.Map):
             case (SQLOps.JoinMap):
-            case (SQLOps.GroupbyMap):
+            case (SQLOps.GroupByAction):
             case (SQLOps.RenameTable):
             case (SQLOps.RenameOrphanTable):
             case (SQLOps.ProfileAction):

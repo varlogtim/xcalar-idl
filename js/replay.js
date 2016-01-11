@@ -321,7 +321,7 @@ window.Replay = (function($, Replay) {
                                 "mapString", "mapOptions"];
         argsMap[SQLOps.Join] = ["lColNums", "lTableId", "rColNums", "rTableId",
                                 "joinStr", "newTableName"];
-        argsMap[SQLOps.GroupBy] = ["operator", "tableId", "indexedColName",
+        argsMap[SQLOps.GroupBy] = ["operator", "tableId", "indexedCols",
                                     "aggColName", "isIncSample", "newColName"];
         argsMap[SQLOps.RenameTable] = ["tableId", "newTableName"];
         argsMap[SQLOps.DeleteTable] = ["tableId", "tableType"];
@@ -411,9 +411,8 @@ window.Replay = (function($, Replay) {
 
         switch (options.operation) {
             case SQLOps.JoinMap:
-            case SQLOps.GroupbyMap:
+            case SQLOps.GroupByAction:
             case SQLOps.CheckIndex:
-            case SQLOps.GroupByIndex:
             case SQLOps.RenameOrphanTable:
             case SQLOps.PreviewDS:
             case SQLOps.DestroyPreviewDS:
