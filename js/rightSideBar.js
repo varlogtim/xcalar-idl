@@ -391,7 +391,9 @@ window.RightSideBar = (function($, RightSideBar) {
                                     'data-toggle'        : 'tooltip',
                                     'data-container'     : 'body',
                                     'data-original-title': 'worksheet is hidden'
-                                });
+                                })
+                                .find('.addTableBtn')
+                                .removeClass('selected');
         if ($('#archivedTableList').find('.tableInfo:not(.hiddenWS)')
                                        .length === 0) {
             $('#archivedTableList .secondButtonWrap').hide();

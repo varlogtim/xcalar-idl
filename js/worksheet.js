@@ -810,18 +810,24 @@ window.WSManager = (function($, WSManager) {
         });
 
         addMenuBehaviors($tabMenu);
+
         $tabMenu.find('li').click(function() {
             var $li = $(this);
             var wsId = $tabMenu.data('ws');
             if ($li.hasClass('unavailable')) {
                 return;
-            }
-            if ($li.hasClass('hide')) {
+            } else if ($li.hasClass('rename')) {
+                focusOnTabRename(wsId);
+            } else if ($li.hasClass('hide')) {
                 hideWorksheet(wsId);
-            } else { // delete
+            } else if ($li.hasClass('delete')) {
                 delWSHelper(wsId);
             }
         });
+    }
+
+    function focusOnTabRename(wsId) {
+        $("#worksheetTab-" + wsId).find('.text').focus();
     }
 
     function renderWSId() {

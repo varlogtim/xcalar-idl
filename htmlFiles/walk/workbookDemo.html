@@ -735,7 +735,10 @@
       <div id="worksheetTabs">
         <section id="worksheetTab-0" class="worksheetTab inActive">
           <div class="label" data-introstep="6" data-original-title="Sheet 1" data-toggle="tooltip" data-placement="top" data-container="#worksheetTab-0:not(.focus) .label">
-            <div class="iconWrapper delete"><span class="icon"></span></div><span class="wsIcon"></span><div class="text" data-title="Sheet 1" contenteditable="">Sheet 1</div>
+            <div class="iconWrapper wsIconWrap"><span class="wsIcon"></span></div>
+            <div class="draggableArea">
+              <div class="text textOverflow" data-title="Sheet 1" contenteditable="">Sheet 1</div>
+            </div>
           </div>
           <div id="compSwitch" class="dagTab" data-toggle="tooltip" data-placement="top" data-title="click to view DAG" data-container="body">
             <span class="icon"></span>
@@ -743,11 +746,10 @@
         </section>
         <section id="worksheetTab-1" class="worksheetTab">
           <div class="label" data-introstep="5" data-original-title="Sheet 2" data-toggle="tooltip" data-placement="top" data-container="#worksheetTab-1:not(.focus) .label">
-            <div class="iconWrapper delete">
-              <span class="icon"></span>
+            <div class="iconWrapper wsIconWrap"><span class="wsIcon"></span></div>
+            <div class="draggableArea">
+              <div class="text textoverflow" data-title="Sheet 2" contenteditable="">Sheet 2</div>
             </div>
-            <span class="wsIcon"></span>
-            <div class="text" data-title="Sheet 2" contenteditable="">Sheet 2</div>
           </div>
           <div id="compSwitch-1" class="dagTab" data-toggle="tooltip" data-placement="top" data-title="click to view DAG" data-container="body">
             <span class="icon"></span>
