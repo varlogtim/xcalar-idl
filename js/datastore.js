@@ -1433,7 +1433,6 @@ window.DataCart = (function($, DataCart) {
                     }
 
                     var progCol = ColManager.newCol({
-                        "index"   : ++startIndex,
                         "name"    : colname,
                         "width"   : gNewCellWidth,
                         "isNewCol": false,
@@ -1444,6 +1443,7 @@ window.DataCart = (function($, DataCart) {
                             "args": [escapedName]
                         }
                     });
+                    startIndex++;
 
                     var currentIndex = startIndex - 1;
 
@@ -1451,7 +1451,7 @@ window.DataCart = (function($, DataCart) {
                     sqlOptions.columns.push(colname);
                 }
                 // new "DATA" column
-                newTableCols[startIndex] = ColManager.newDATACol(startIndex + 1);
+                newTableCols[startIndex] = ColManager.newDATACol();
 
                 sqlOptions.columns.push("DATA");
 

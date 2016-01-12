@@ -955,13 +955,13 @@ function addTableMenuActions() {
             var colNames = [];
             $.each(gTables[tableId].tableCols, function() {
                     if (this.name !== "DATA") {
-                        colNames.push(this.name)
+                        colNames.push(this.name);
                     }
             });
             return colNames;
         }
 
-        wsId = WSManager.getActiveWS()
+        var wsId = WSManager.getActiveWS();
         var allColNames = [];
         $.each(WSManager.getWorksheets()[wsId].tables, function() {
             var tableColNames = getAllColNames(this);
@@ -1192,6 +1192,12 @@ function sortAllTableColumns(tableId, direction) {
     var dataCol;
     if (tableCols[numCols - 1].name === 'DATA') {
         dataCol = tableCols.splice(numCols - 1, 1)[0];
+        numCols--;
+    }
+
+    // record original position of each column
+    for (var i = 1; i <= numCols; i++) {
+        tableCols[i - 1].index = i;
     }
 
     tableCols.sort(function(a, b) {
@@ -1219,10 +1225,6 @@ function sortAllTableColumns(tableId, direction) {
         }
     });
 
-    if (dataCol) {
-        tableCols.push(dataCol);
-        numCols--;
-    }
     var $table = $('#xcTable-' + tableId);
     var $rows = $table.find('tbody tr');
     var numRows = $rows.length;
@@ -1254,7 +1256,7 @@ function sortAllTableColumns(tableId, direction) {
         newIndex = i + 1;
         $ths.eq(newIndex).removeClass('col' + oldColIndex)
                          .addClass('col' + newIndex);
-        tableCols[i].index = newIndex;
+        delete tableCols[i].index;
     }
 
     var match;
@@ -2904,10 +2906,10 @@ function functionBarEnter($colInput) {
             "operation": "pullCol",
             "tableName": table.tableName,
             "colName"  : progCol.name,
-            "colIndex" : progCol.index
+            "colIndex" : colNum
         });
 
-        ColManager.execCol(progCol, tableId)
+        ColManager.execCol(progCol, tableId, colNum)
         .then(function() {
             updateTableHeader(tableId);
             RightSideBar.updateTableInfo(tableId);

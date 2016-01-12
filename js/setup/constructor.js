@@ -99,11 +99,6 @@ TableMeta.prototype = {
 
 function ProgCol(options) {
     options = options || {};
-    if (options.index == null) {
-        this.index = -1;
-    } else {
-        this.index = options.index;
-    }
 
     if (options.isNewCol == null) {
         this.isNewCol = true;

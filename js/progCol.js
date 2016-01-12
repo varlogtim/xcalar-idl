@@ -7,7 +7,7 @@ window.ColManager = (function($, ColManager) {
     };
 
     // special case, specifically for DATA col
-    ColManager.newDATACol = function(index) {
+    ColManager.newDATACol = function() {
         var width;
         var winWidth = $(window).width();
         if (winWidth > 1400) {
@@ -18,7 +18,6 @@ window.ColManager = (function($, ColManager) {
             width = 500;
         }
         var progCol = ColManager.newCol({
-            "index"  : index,
             "name"   : "DATA",
             "type"   : "object",
             "width"  : width,    // copy from CSS
@@ -39,7 +38,6 @@ window.ColManager = (function($, ColManager) {
         // add col relies on gTableCol entry to determine whether or not to add
         // the menus specific to the main key
         var newProgCol = ColManager.newCol({
-            "index"  : 1,
             "name"   : keyName,
             "width"  : gNewCellWidth,
             "userStr": '"' + keyName + '" = pull(' + keyName + ')',
@@ -104,7 +102,6 @@ window.ColManager = (function($, ColManager) {
             name = name || "";
 
             newProgCol = ColManager.newCol({
-                "index"   : newColid,
                 "name"    : name,
                 "width"   : width,
                 "userStr" : '"' + name + '" = ',
@@ -307,7 +304,7 @@ window.ColManager = (function($, ColManager) {
             "pullColOptions": pullColOptions
         };
 
-        ColManager.execCol(newCol, tableId)
+        ColManager.execCol(newCol, tableId, colNum - 1)
         .then(function() {
             updateTableHeader(tableId);
             RightSideBar.updateTableInfo(tableId);
@@ -996,7 +993,6 @@ window.ColManager = (function($, ColManager) {
         var progCol = removeColHelper(oldIndex, tableId);
 
         insertColHelper(newIndex, tableId, progCol);
-        progCol.index = newIndex + 1;
 
         $table.find('.col' + oldColNum)
                  .removeClass('col' + oldColNum)
@@ -1031,7 +1027,7 @@ window.ColManager = (function($, ColManager) {
         });
     };
 
-    ColManager.execCol = function(progCol, tableId, args) {
+    ColManager.execCol = function(progCol, tableId, colNum, args) {
         var deferred = jQuery.Deferred();
         var userStr;
         var regex;
@@ -1046,26 +1042,11 @@ window.ColManager = (function($, ColManager) {
                     break;
                 }
 
-                var startIndex;
-                var numberOfRows;
-
-                if (args) {
-                    if (args.index) {
-                        progCol.index = args.index;
-                    }
-                    if (args.startIndex) {
-                        startIndex = args.startIndex;
-                    }
-                    if (args.numberOfRows) {
-                        numberOfRows = args.numberOfRows;
-                    }
-                }
                 if (progCol.isNewCol) {
                     progCol.isNewCol = false;
                 }
 
-                pullColHelper(progCol.func.args[0], progCol.index,
-                              tableId, startIndex, numberOfRows);
+                pullColHelper(progCol.func.args[0], colNum, tableId);
 
                 deferred.resolve();
                 break;
@@ -1088,7 +1069,7 @@ window.ColManager = (function($, ColManager) {
                 // progCol.userStr = '"' + progCol.name + '"' + " = pull(" +
                 //                   fieldName + ")";
                 var options = {replaceColumn: true};
-                xcFunction.map(progCol.index, tableId, fieldName,
+                xcFunction.map(colNum, tableId, fieldName,
                                 mapString, options)
                 .then(deferred.resolve)
                 .fail(function(error) {
@@ -1110,7 +1091,7 @@ window.ColManager = (function($, ColManager) {
                 progCol.isNewCol = false;
                 // progCol.userStr = '"' + progCol.name + '"' + " = pull(" +
                 //                   fieldName + ")";
-                xcFunction.filter(progCol.index, tableId, {
+                xcFunction.filter(colNum, tableId, {
                     "filterString": fltString
                 })
                 .then(deferred.resolve)
@@ -1261,8 +1242,7 @@ window.ColManager = (function($, ColManager) {
         tableCols[colNum].func.func = tableCols[colNum - 1].func.func;
         tableCols[colNum].func.args = tableCols[colNum - 1].func.args;
         tableCols[colNum].userStr = tableCols[colNum - 1].userStr;
-
-        ColManager.execCol(tableCols[colNum], tableId)
+        ColManager.execCol(tableCols[colNum], tableId, colNum)
         .then(function() {
             updateTableHeader(tableId);
             RightSideBar.updateTableInfo(tableId);
@@ -1991,7 +1971,6 @@ window.ColManager = (function($, ColManager) {
         var tableCols = gTables[tableId].tableCols;
 
         for (var i = tableCols.length - 1; i >= index; i--) {
-            tableCols[i].index += 1;
             tableCols[i + 1] = tableCols[i];
         }
 
@@ -2001,11 +1980,6 @@ window.ColManager = (function($, ColManager) {
     function removeColHelper(index, tableId) {
         var tableCols = gTables[tableId].tableCols;
         var removed   = tableCols[index];
-
-        for (var i = index + 1; i < tableCols.length; i++) {
-            tableCols[i].index -= 1;
-        }
-
         tableCols.splice(index, 1);
 
         return (removed);

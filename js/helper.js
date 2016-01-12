@@ -158,7 +158,6 @@ window.xcHelper = (function($, xcHelper) {
                                 copiedCols[colNum - 1].width :
                                 gNewCellWidth;
             var newProgCol = ColManager.newCol({
-                "index"   : colNum,
                 "name"    : colName,
                 "width"   : cellWidth,
                 "userStr" : '"' + colName + '" =map(' + mapStr + ')',
@@ -172,10 +171,6 @@ window.xcHelper = (function($, xcHelper) {
             if (options.replaceColumn) {
                 copiedCols.splice(colNum - 1, 1, newProgCol);
             } else {
-                var numCopiedCols = copiedCols.length;
-                for (var i = colNum - 1; i < numCopiedCols; i++) {
-                    copiedCols[i].index++;
-                }
                 copiedCols.splice(colNum - 1, 0, newProgCol);
             }
         }

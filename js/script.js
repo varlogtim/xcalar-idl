@@ -259,7 +259,7 @@ function setupFunctionBar() {
             if (trimmedVal.indexOf('=') !== 0) {
                 $functionArea.addClass('searching');
                 var args = {value: trimmedVal, searchBar: searchHelper};
-                ColManager.execCol({func: {func: 'search'}}, null, args);
+                ColManager.execCol({func: {func: 'search'}}, null, null, args);
             } else {
                 $functionArea.removeClass('searching');
             }
@@ -484,8 +484,12 @@ function documentReadyGeneralFunction() {
     };
 
     var timer;
+    var resizing = false;
     $(window).resize(function() {
-        $('#mainFrame').find('.colGrab').height(30);
+        if (!resizing) {
+            $('.menu').hide();
+            resizing = true;
+        }
         clearTimeout(timer);
         timer = setTimeout(function() {
             var table = gTables[gActiveTableId];
@@ -493,6 +497,7 @@ function documentReadyGeneralFunction() {
                 generateFirstVisibleRowNum();
             }
             moveTableDropdownBoxes();
+            resizing = false;
         }, 100);
         moveTableTitles();
     });

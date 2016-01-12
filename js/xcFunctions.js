@@ -906,7 +906,6 @@ window.xcFunction = (function($, xcFunction) {
         }
 
         var newProgCol = ColManager.newCol({
-            "index"   : newColIndex,
             "name"    : newColName,
             "width"   : gNewCellWidth,
             "isNewCol": false,
@@ -924,10 +923,6 @@ window.xcFunction = (function($, xcFunction) {
             finalCols = xcHelper.deepCopy(tableCols);
             finalCols.splice(newColIndex - 1, 0, newProgCol);
 
-            // XXX A temporary fix of tableCol index incorrect issue
-            for (var t = 0, len = finalCols.length; t < len; t++) {
-                finalCols[t].index = t + 1;
-            }
         } else {
             finalCols = [newProgCol];
             // Pull out each individual groupByCols
@@ -941,7 +936,6 @@ window.xcFunction = (function($, xcFunction) {
                 }
 
                 finalCols[1 + i] = ColManager.newCol({
-                    "index"   : 2 + i,
                     "name"    : col.name || colName,
                     "type"    : col.type || null,
                     "width"   : gNewCellWidth,
@@ -958,7 +952,6 @@ window.xcFunction = (function($, xcFunction) {
             var dataColNum = xcHelper.parseColNum($dataCol) - 1;
 
             finalCols[1 + numGroupByCols] = xcHelper.deepCopy(tableCols[dataColNum]);
-            finalCols[finalCols.length - 1].index = finalCols.length;
         }
 
         return finalCols;
@@ -1224,10 +1217,6 @@ window.xcFunction = (function($, xcFunction) {
 
         newCols.splice(index + 1, newCols.length - index - 2);
         // Note that after splice, newCols.length changes
-        for (var i = 0, len = newCols.length; i < len; i++) {
-            // redo the index of col
-            newCols[i].index = i + 1;
-        }
 
         return newCols;
     }
@@ -1487,7 +1476,6 @@ window.xcFunction = (function($, xcFunction) {
                 dataCol = lCols[i];
             } else if (!(colName in lRemoved)) {
                 newTableCols[index] = lCols[i];
-                newTableCols[index].index = index + 1;
                 ++index;
             }
         }
@@ -1497,13 +1485,11 @@ window.xcFunction = (function($, xcFunction) {
 
             if (colName !== "DATA" && !(colName in rRemoved)) {
                 newTableCols[index] = rCols[i];
-                newTableCols[index].index = index + 1;
                 ++index;
             }
         }
 
         // now newTablCols.length is differenet from len
-        dataCol.index = newTableCols.length + 1;
         newTableCols.push(dataCol);
 
         return (newTableCols);

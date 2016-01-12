@@ -432,10 +432,8 @@ window.RightSideBar = (function($, RightSideBar) {
         .then(function(result) {
             var newTableCols = [];
             var colName = result.keyAttrHeader.name;
-            var index = 1;
             if (colName !== 'recordNum') {
                 var progCol = ColManager.newCol({
-                            "index"   : 1,
                             "name"    : colName,
                             "width"   : gNewCellWidth,
                             "isNewCol": false,
@@ -448,10 +446,9 @@ window.RightSideBar = (function($, RightSideBar) {
                         });
 
                 newTableCols.push(progCol);
-                index++;
             }
             // new "DATA" column
-            newTableCols.push(ColManager.newDATACol(index));
+            newTableCols.push(ColManager.newDATACol());
             return (setgTable(tableName, newTableCols));
         })
         .then(function() {
