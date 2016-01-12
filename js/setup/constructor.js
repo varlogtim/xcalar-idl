@@ -390,13 +390,15 @@ DSObj.prototype = {
     getFileSize: function() {
         // Get file size, if not exist, fetch from backend and update it
         var deferred = jQuery.Deferred();
+        var self = this;
 
-        if (this.fileSize != null) {
-            deferred.resolve(this.fileSize);
+        if (self.fileSize != null) {
+            deferred.resolve(self.fileSize);
             return (deferred.promise());
         }
 
-        var loadURL = this.path;
+
+        var loadURL = self.path;
         var slashIndex = loadURL.lastIndexOf('/');
         var dotIndex = loadURL.lastIndexOf('.');
         var curFileName = null;
@@ -408,12 +410,24 @@ DSObj.prototype = {
 
         XcalarListFiles(loadURL)
         .then(function(files) {
-            this.fileSize = getFileSizeHelper(files, curFileName);
-            deferred.resolve(this.fileSize);
+            if (files.numFiles === 1 && files.files[0].name === "") {
+                // this is a special case that loadURL=file:///a/b
+                // and b is a file, not a folder
+                slashIndex = loadURL.lastIndexOf('/');
+                curFileName = loadURL.substr(slashIndex + 1);
+                loadURL = loadURL.substr(0, slashIndex + 1);
+                return XcalarListFiles(loadURL);
+            } else {
+                return promiseWrapper(files);
+            }
+        })
+        .then(function(files) {
+            self.fileSize = getFileSizeHelper(files, curFileName);
+            deferred.resolve(self.fileSize);
         })
         .fail(function(error) {
             console.error("List file fails", error);
-            this.fileSize = null;
+            self.fileSize = null;
             deferred.resolve(null);
         });
 
