@@ -2,6 +2,9 @@ window.Profile = (function($, Profile, d3) {
     var $modal   = $("#profileModal");
     var $modalBg = $("#modalBackground");
 
+    var $rangeSection = $modal.find(".rangeSection");
+    var $rangeInput = $("#stats-step");
+
     // constants
     var aggKeys = ["min", "average", "max", "count", "sum"];
     var aggMap = {
@@ -117,32 +120,18 @@ window.Profile = (function($, Profile, d3) {
         });
 
         // event on range section
-        var $rangeSection = $modal.find(".rangeSection");
-        var $rangeInput = $("#stats-step");
         $rangeSection.on("click", ".rangeBtn", function() {
-            $rangeSection.toggleClass("range");
-            if ($rangeSection.hasClass("range")) {
-                bucketData($rangeInput.val(), statsCol);
-            } else {
-                bucketData(0, statsCol);
-            }
+            toggleRange();
         });
 
         $rangeSection.on("click", ".buttonSection .text", function() {
-            if ($(this).hasClass("range")) {
-                // go to rangle
-                if ($rangeSection.hasClass("range")) {
-                    return;
-                }
-                $rangeSection.addClass("range");
-                bucketData($rangeInput.val(), statsCol);
+            var $span = $(this);
+            if ($span.hasClass("range")) {
+                // go to range
+                toggleRange(true);
             } else {
                 // go to single
-                if (!$rangeSection.hasClass("range")) {
-                    return;
-                }
-                $rangeSection.removeClass("range");
-                bucketData(0, statsCol);
+                toggleRange(false);
             }
         });
 
@@ -366,6 +355,17 @@ window.Profile = (function($, Profile, d3) {
     function showProfile() {
         modalHelper.setup();
         setupScrollBar();
+
+        // setup rangInput
+        if (statsCol.type === "integer" || statsCol.type === "number") {
+            $rangeInput.removeClass("disabled")
+                        .prop("disabled", false)
+                        .removeAttr("placeholder");
+        } else {
+            $rangeInput.addClass("disabled")
+                        .prop("disabled", true)
+                        .attr("placeholder", "Integer/Float Only");
+        }
 
         if (gMinModeOn) {
             $modalBg.show();
@@ -1408,11 +1408,50 @@ window.Profile = (function($, Profile, d3) {
         return (deferred.promise());
     }
 
+    function toggleRange(isToRange) {
+        var isRangeNow = $rangeSection.hasClass("range");
+        var isSingleNow = !isRangeNow;
+
+        if (isToRange == null) {
+            // when has no args, and current status is single
+            // we go to range
+            isToRange = isSingleNow;
+        }
+
+        if (isToRange && isRangeNow || !isToRange && isSingleNow) {
+            // when go to range but already in range
+            // or go to single but already in single
+            return;
+        }
+
+        if (isToRange) {
+            // go to range
+            $rangeSection.addClass("range");
+            if (statsCol.type !== "integer" && statsCol.type !== "float") {
+                // when switch to range but type is not number, switch back
+                setTimeout(function() {
+                    $rangeSection.removeClass("range");
+                }, 200);
+            } else {
+                bucketData($rangeInput.val(), statsCol);
+            }
+        } else {
+            // go to single
+            var curBucketNum = Number($rangeInput.val());
+            if (isNaN(curBucketNum) || curBucketNum <= 0) {
+                // for invalid case or original case(bucketNum = 0)
+                // clear input
+                $rangeInput.val("");
+            }
+            $rangeSection.removeClass("range");
+            bucketData(0, statsCol);
+        }
+    }
+
     function bucketData(newBucketNum, curStatsCol) {
         newBucketNum = Number(newBucketNum);
 
-        if (curStatsCol.type === "string" ||
-            isNaN(newBucketNum) ||
+        if (isNaN(newBucketNum) ||
             newBucketNum < 0 ||
             newBucketNum === bucketNum)
         {
