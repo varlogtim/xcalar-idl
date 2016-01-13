@@ -357,7 +357,7 @@ window.Profile = (function($, Profile, d3) {
         setupScrollBar();
 
         // setup rangInput
-        if (statsCol.type === "integer" || statsCol.type === "number") {
+        if (isValidTypeForRange(statsCol.type)) {
             $rangeInput.removeClass("disabled")
                         .prop("disabled", false)
                         .removeAttr("placeholder");
@@ -1427,7 +1427,7 @@ window.Profile = (function($, Profile, d3) {
         if (isToRange) {
             // go to range
             $rangeSection.addClass("range");
-            if (statsCol.type !== "integer" && statsCol.type !== "float") {
+            if (!isValidTypeForRange(statsCol.type)) {
                 // when switch to range but type is not number, switch back
                 setTimeout(function() {
                     $rangeSection.removeClass("range");
@@ -1646,6 +1646,15 @@ window.Profile = (function($, Profile, d3) {
         name += Authentication.getHashId();
 
         return (name);
+    }
+
+    function isValidTypeForRange(type) {
+        // only integer and float can do range
+        if (type === "integer" || type === "float") {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     function isModalVisible(curStatsCol) {
