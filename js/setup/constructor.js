@@ -60,13 +60,14 @@ function TableMeta(options) {
         this.tableCols = null;
     }
 
+    this.bookmarks = options.bookmarks || [];
+    this.rowHeights = options.rowHeights || {}; // a map
+
     this.currentRowNumber = -1;
     this.resultSetId = -1;
     this.keyName = "";
     this.resultSetCount = -1;
     this.numPages = -1;
-    this.bookmarks = [];
-    this.rowHeights = {}; // a map
 
     return this;
 }
@@ -131,7 +132,7 @@ function ColFunc(options) {
 // store.js
 function METAConstructor(atStartUp) {
     // basic thing to store
-    this[KVKeys.TI] = gTables;
+    this[KVKeys.TI] = savegTables();
     this[KVKeys.WS] = WSManager.getAllMeta();
 
     this[KVKeys.DS] = DS.getHomeDir();
@@ -149,6 +150,21 @@ function METAConstructor(atStartUp) {
     }
 
     return this;
+
+    function savegTables() {
+        var persistTables = xcHelper.deepCopy(gTables);
+
+        for (var tableId in persistTables) {
+            var table = persistTables[tableId];
+            delete table.currentRowNumber;
+            delete table.resultSetId;
+            delete table.keyName;
+            delete table.resultSetCount;
+            delete table.numPages;
+        }
+
+        return persistTables;
+    }
 }
 
 // datastore.js
