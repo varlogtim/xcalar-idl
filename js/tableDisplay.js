@@ -833,6 +833,7 @@ function generateColDropDowns() {
                             'spellcheck="false" />' +
                     '</div>' +
                 '</li>' +
+                '<li class="changeRound default">Default</li>' +
             '</ul>' +
             '<ul class="splitCol">' +
                 '<li style="text-align: center" class="clickable">' +

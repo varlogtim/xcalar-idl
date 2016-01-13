@@ -108,15 +108,6 @@ window.FileBrowser = (function($, FileBrowser) {
     };
 
     FileBrowser.setup = function() {
-        // setup heading of filebrowser
-        var heading;
-        if (window.hostname != null && window.hostname !== "") {
-            heading = "Browse " + hostname;
-        } else {
-            heading = "Browse Dataset";
-        }
-        $fileBrowser.find(".modalHeader .text").text(heading);
-
         $fileBrowser.draggable({
             "handle"     : ".modalHeader",
             "cursor"     : "-webkit-grabbing",

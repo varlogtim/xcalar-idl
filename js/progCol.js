@@ -2115,6 +2115,7 @@ window.ColManager = (function($, ColManager) {
         // round it first
         var pow;
         if (decimals > -1) {
+            // when no roundToFixed, only percent
             pow = Math.pow(10, decimals);
             val = Math.round(val * pow) / pow;
         }
@@ -2124,27 +2125,38 @@ window.ColManager = (function($, ColManager) {
                 // there is a case that 2009.877 * 100 =  200987.69999999998
                 // so must round it
                 var newVal = val * 100;
+                var decimalPartLen;
 
                 if (decimals === -1) {
                     // when no roundToFixed
                     var decimalPart = (val + "").split(".")[1];
                     if (decimalPart != null) {
-                        var decimalPartLen = decimalPart.length;
+                        decimalPartLen = decimalPart.length;
                         decimalPartLen = Math.max(0, decimalPartLen - 2);
                         pow = Math.pow(10, decimalPartLen);
                     } else {
                         pow = 1;
                     }
-                } else if (decimals >= 2) {
-                    pow = Math.pow(10, decimals - 2);
                 } else {
-                    pow = 1;
+                    // when has roundToFixed
+                    decimalPartLen = Math.max(0, decimals - 2);
+                    pow = Math.pow(10, decimalPartLen);
                 }
 
                 newVal = Math.round(newVal * pow) / pow;
+
+                if (decimals > -1) {
+                    // when has roundToFixed, need to fix the decimal digits
+                    newVal = newVal.toFixed(decimalPartLen);
+                }
                 return newVal + "%";
             default:
-                return val + ""; // change type to string
+                if (decimals > -1) {
+                    val = val.toFixed(decimals);
+                } else {
+                    val = val + ""; // change to type string
+                }
+                return val;
         }
     }
 

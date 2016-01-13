@@ -2370,6 +2370,16 @@ function addColMenuActions() {
         closeMenu($allMenus);
     });
 
+    $subMenu.on('mouseup', '.changeRound.default', function() {
+        if (event.which !== 1) {
+            return;
+        }
+        // chagne round to default value
+        var colNum = $colMenu.data('colNum');
+        tableId = $colMenu.data('tableId');
+        ColManager.roundToFixed(colNum, tableId, -1);
+    });
+
     $subMenu.on('keypress', '.splitCol input', function(event) {
         if (event.which === keyCode.Enter) {
             var colNum = $colMenu.data("colNum");
