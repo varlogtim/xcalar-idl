@@ -312,6 +312,47 @@ function XcalarGetVersion() {
 
 function XcalarLoad(url, format, datasetName, fieldDelim, recordDelim,
                     hasHeader, moduleName, funcName, sqlOptions) {
+    function checkForDatasetLoad(def, sqlString, dsName, sqlOptions) {
+        // Using setInterval will have issues because of the deferred
+        // GetDatasets call inside here. Do not use it.
+        function checkIter(def1, sqlString1, dsName1, sqlOptions1) {
+            XcalarGetDatasets(dsName1)
+            .then(function(ret) {
+                var loadDone = false;
+                var nameNodeFound = false;
+                ret = ret.datasets;
+                for (var i = 0; i<ret.length; i++) {
+                    if (ret[i].name == dsName1) {
+                        nameNodeFound = true;
+                        if (ret[i].loadIsComplete) {
+                            loadDone = true;
+                        } else {
+                            break;
+                        }
+                    }
+                }
+                if (!nameNodeFound) {
+                    // The load FAILED because the dag node is gone
+                    var thriftError = thriftLog("XcalarLoad failed!");
+                    SQL.errorLog("Load Dataset", sqlOptions1, null,
+                                 thriftError);
+                    def1.reject(thriftError);
+                } else {
+                    if (loadDone) {
+                        SQL.add("Load Dataset", sqlOptions1, sqlString1);
+                        def1.resolve();
+                    } else {
+                        setTimeout(checkIter.bind(null, def1, sqlString1,
+                                                  dsName1, sqlOptions1), 1000);
+                    }
+                }
+            });
+        }
+
+        setTimeout(checkIter.bind(null, def, sqlString, dsName, sqlOptions),
+                   1000);
+    }
+    
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return (promiseWrapper(null));
     }
@@ -368,7 +409,9 @@ function XcalarLoad(url, format, datasetName, fieldDelim, recordDelim,
 
     var def1 = xcalarLoad(tHandle, url, datasetName, formatType, 0, loadArgs);
     var def2 = XcalarGetQuery(workItem);
-    jQuery.when(def1, def2)
+    // We are using our .when instead of jQuery's because if load times out,
+    // we still want to use the return for def2. 
+    xcHelper.when(def1, def2)
     .then(function(ret1, ret2) {
         SQL.add("Load Dataset", sqlOptions, ret2);
         deferred.resolve(ret1);
@@ -376,8 +419,17 @@ function XcalarLoad(url, format, datasetName, fieldDelim, recordDelim,
     .fail(function(error1, error2) {
         if (error1 && error1.status == 502) {
             // Thrift time out
-            // XXX HACK we are going to quietly reload the page
-            unloadHandler(false, true);
+            // Just pretend like nothing happened and quietly listDatasets 
+            // in intervals until the load is complete. Then do the ack/fail
+            if (error2 == undefined) {
+                // getQuery hasn't returned
+                XcalarGetQuery(workItem)
+                .then(function(ret) {
+                    checkForDatasetLoad(deferred, ret, datasetName, sqlOptions);
+                });
+            } else if (typeof(error2) === "string") {
+                checkForDatasetLoad(deferred, error2, datasetName, sqlOptions);
+            }
         } else {  
             var thriftError = thriftLog("XcalarLoad", error1, error2);
             SQL.errorLog("Load Dataset", sqlOptions, null, thriftError);
