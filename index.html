@@ -2364,7 +2364,7 @@
   <!-- File Browser Modal -->
   <div id="fileBrowserModal" class="modalContainer">
     <!-- File Browser Header -->
-    <header id="fileBrowserHeader" class="modalHeader">
+    <header class="modalHeader">
       <span class="text">Browse Data Set</span>
       <div class="close">
           <span class="icon"></span>
@@ -2439,9 +2439,9 @@
           </div>
         </section>
         <!-- checkbox for nsf -->
-        <section class="checkboxSection">
-          <span id="fileBrowserNFS" class="checkbox icon"></span>
-          <span class="text">NFS</span>
+        <section id="fileBrowserNFS" class="checkboxSection">
+          <span class="checkbox icon"></span>
+          <span title="Network File Sharing" data-toggle="tooltip" data-container="body" data-placement="top" class="text">NFS</span>
         </section>
       </div>
     </section>
@@ -2492,9 +2492,10 @@
           </div>
           <div class="list">
             <ul>
-              <li class="select">all</li>
-              <li>json</li>
-              <li>csv</li>
+              <li class="select" name="all">all</li>
+              <li name="json">json</li>
+              <li name="csv">csv</li>
+              <li name="xlsx">excel</li>
             </ul>
             <div class="scrollArea top"><div class="arrow"></div></div>
             <div class="scrollArea bottom"><div class="arrow"></div></div>

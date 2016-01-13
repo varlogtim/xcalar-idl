@@ -1952,10 +1952,10 @@ html.microsoft {
                 line-height: 30px;
                 float: right;
                 margin: 0 5px;
+                cursor: pointer;
 
                 .checkbox {
                     .size(@width: 16px, @height: 30px);
-                    cursor: pointer;
                     float: left;
                     margin-right: 5px;
                     .image("/images/alertModal/checkbox-unchecked.png", 50%, 50%);
@@ -2257,6 +2257,10 @@ html.microsoft {
                 .list {
                     .size(@height: 75px);
                     overflow-y: auto;
+
+                    ul {
+                        .size(@height: 75px);
+                    }
                 }
             }
         }
