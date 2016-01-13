@@ -378,7 +378,8 @@ window.FileBrowser = (function($, FileBrowser) {
         if (index >= 0) {
             name = name.substring(0, index);
         }
-        name = name.replace(/[^a-zA-Z0-9]/g, "");
+        
+        var name = name.replace(/[^a-zA-Z0-9]/g, "");
         var originalName = name;
 
         var limit = 20; // we won't try more than 20 times

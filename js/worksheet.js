@@ -737,18 +737,31 @@ window.WSManager = (function($, WSManager) {
         $workSheetTabSection.on("click", ".wsIconWrap", function (event) {
             var wsId = $(this).closest(".worksheetTab").data("ws");
             var numTabs = $workSheetTabSection.find('.worksheetTab').length;
+            var $wsIconWrap = $(this);
             if ($tabMenu.is(':visible') && $tabMenu.data('ws') === wsId) {
                 $tabMenu.hide();
             }
-            dropdownClick($(this), {
+            dropdownClick($wsIconWrap, {
                 type: "tabMenu",
                 offsetX: -7,
+                ignoreSideBar: true,
                 callback: function() {
                     if (numTabs === 1) {
                         $tabMenu.find('.delete').addClass('unavailable');
+                        $tabMenu.find('.hide').addClass('unavailable');
                     } else {
                         $tabMenu.find('.delete').removeClass('unavailable');
+                        $tabMenu.find('.hide').removeClass('unavailable');
                     }
+                    // Note: if we don't want to show rename option on inactive
+                    // worksheet tabs
+                    
+                    // if ($wsIconWrap.closest('.worksheetTab')
+                    //                .hasClass('inActive')) {
+                    //     $tabMenu.find('.rename').addClass('unavailable');
+                    // } else {
+                    //     $tabMenu.find('.rename').removeClass('unavailable');
+                    // }
                     $tabMenu.data('ws', wsId);
                 }
             });
@@ -817,6 +830,9 @@ window.WSManager = (function($, WSManager) {
             if ($li.hasClass('unavailable')) {
                 return;
             } else if ($li.hasClass('rename')) {
+                if ($('#worksheetTab-' + wsId).hasClass("inActive")) {
+                    switchWSHelper(wsId);
+                }
                 focusOnTabRename(wsId);
             } else if ($li.hasClass('hide')) {
                 hideWorksheet(wsId);

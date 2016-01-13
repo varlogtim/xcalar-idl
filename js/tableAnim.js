@@ -3201,11 +3201,14 @@ function dropdownClick($el, options) {
     
 
     //positioning if dropdown menu is on the right side of screen
-    var leftBoundary = $('#rightSideBar')[0].getBoundingClientRect().left;
-    if ($menu[0].getBoundingClientRect().right > leftBoundary) {
-        left = $el[0].getBoundingClientRect().right - $menu.width();
-        $menu.css('left', left).addClass('leftColMenu');
+    if (!options.ignoreSideBar) {
+        var leftBoundary = $('#rightSideBar')[0].getBoundingClientRect().left;
+        if ($menu[0].getBoundingClientRect().right > leftBoundary) {
+            left = $el[0].getBoundingClientRect().right - $menu.width();
+            $menu.css('left', left).addClass('leftColMenu');
+        }
     }
+    
     //positioning if td menu is below the screen
     if (options.type === "tdDropdown" || options.type === "tabMenu") {
         if (top + $menu.height() + 5 > $(window).height()) {
