@@ -1370,6 +1370,7 @@ function updateTableHeader(tableId, $tHead) {
                     'data-container="body" ' +
                     'title="number of columns">' +
                     ' [' + cols + ']</span>';
+                    
     $tHead.html(tableName + colsHTML);
     var $tableName = $tHead.find('.tableName');
     var width = getTextWidth($tableName, $tableName.val());

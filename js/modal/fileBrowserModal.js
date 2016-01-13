@@ -364,7 +364,29 @@ window.FileBrowser = (function($, FileBrowser) {
         if (index >= 0) {
             name = name.substring(0, index);
         }
-        return (name.replace(/[^a-zA-Z0-9]/g, ""));
+        var name = name.replace(/[^a-zA-Z0-9]/g, "");
+        var originalName = name;
+
+        var limit = 20; // we won't try more than 20 times
+        if (DS.has(name)) {
+            var validNameFound = false;
+            for (var i = 1; i <= limit; i++) {
+                name = originalName + i;
+                if (!DS.has(name)) {
+                    validNameFound = true;
+                    break;
+                }
+            }
+            if (!validNameFound) {
+                var tries = 0;
+                while (DS.has(name) && tries < 100) {
+                    name = xcHelper.randName(name, 4);
+                    tries++;
+                }
+            }
+        }
+
+        return (name);
     }
 
     function appendPath(path) {
