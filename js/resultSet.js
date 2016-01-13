@@ -58,7 +58,7 @@ function getResultSet(tableName) {
 }
 
 function goToPage(rowNumber, numRowsToAdd, direction, loop, info,
-                  rowToPrependTo) {
+                  rowToPrependTo, retry) {
     // rowNumber is checked for validity before calling goToPage()
     var deferred = jQuery.Deferred();
     info = info || {};
@@ -81,10 +81,12 @@ function goToPage(rowNumber, numRowsToAdd, direction, loop, info,
     var prepullTableHeight;
     // var numRowsBefore;
     var resultSetId = table.resultSetId;
+    var funcStep = 0;
     gIsTableScrolling = true;
 
     XcalarSetAbsolute(resultSetId, rowPosition)
     .then(function(){
+        funcStep++;
         return (generateDataColumnJson(table, null, false, numRowsToAdd));
     })
     .then(function(jsonObj, keyName) {
@@ -193,8 +195,30 @@ function goToPage(rowNumber, numRowsToAdd, direction, loop, info,
         deferred.resolve();
     })
     .fail(function(error) {
-        console.error("goToPage fails!", error);
-        deferred.reject(error);
+        if (!retry && funcStep === 0 &&
+            error.status === StatusT.StatusInvalidResultSetId) {
+
+            XcalarMakeResultSetFromTable(table.tableName)
+            .then(function(result) {
+                table.resultSetId = result.resultSetId;
+                goToPage(rowNumber, numRowsToAdd, direction, loop, info,
+                  rowToPrependTo, true)
+                .then(function(data1, data2) {
+                    deferred.resolve();
+                })
+                .fail(function(error) {
+                    console.error("2nd attempt of goToPage fails!", error);
+                    deferred.reject(error);
+                });
+            })
+            .fail(function(error) {
+                console.error("generateDataColumnJson fails!", error);
+                deferred.reject(error);
+            });
+        } else {
+            console.error("goToPage fails!", error);
+            deferred.reject(error);
+        }
     })
     .always(function() {
         gIsTableScrolling = false;
@@ -248,7 +272,8 @@ function getFirstPage(table, notIndexed) {
 }
 
  // produces an array of all the td values that will go into the DATA column
-function generateDataColumnJson(table, direction, notIndexed, numRowsToFetch) {
+function generateDataColumnJson(table, direction, notIndexed, numRowsToFetch,
+                                retry) {
     var deferred = jQuery.Deferred();
     var jsonObj = {
         "normal" : [],
@@ -306,8 +331,30 @@ function generateDataColumnJson(table, direction, notIndexed, numRowsToFetch) {
         deferred.resolve(jsonObj, keyName);
     })
     .fail(function(error) {
-        console.error("generateDataColumnJson fails!", error);
-        deferred.reject(error);
+        if (!retry && error.status === StatusT.StatusInvalidResultSetId) {
+            XcalarMakeResultSetFromTable(table.tableName)
+            .then(function(result) {
+                table.resultSetId = result.resultSetId;
+                generateDataColumnJson(table, direction, notIndexed,
+                                       numRowsToFetch, true)
+                .then(function(data1, data2) {
+                    deferred.resolve(data1, data2);
+                })
+                .fail(function(error) {
+                    console.error("2nd attempt of generateDataColumnJson " +
+                                  "fails!", error);
+                    deferred.reject(error);
+                });
+            })
+            .fail(function(error) {
+                console.error("generateDataColumnJson fails!", error);
+                deferred.reject(error);
+            });
+        } else {
+            console.error("generateDataColumnJson fails!", error);
+            deferred.reject(error);
+        }
+        
     });
 
     return (deferred.promise());

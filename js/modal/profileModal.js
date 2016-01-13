@@ -532,7 +532,7 @@ window.Profile = (function($, Profile, d3) {
     function runGroupby(table, curStatsCol, curBucketNum) {
         var deferred  = jQuery.Deferred();
         if (curBucketNum !== 0) {
-            consoel.error("Invalid bucket num");
+            console.error("Invalid bucket num");
             deferred.reject("Invalid bucket num");
             return (deferred.promise());
         }
@@ -827,11 +827,11 @@ window.Profile = (function($, Profile, d3) {
         // x range and y range
         var maxHeight = Math.max(tableInfo.max, nullCount);
         var x = d3.scale.ordinal()
-                        .rangeRoundBands([0, width], .1, 0)
+                        .rangeRoundBands([0, width], 0.1, 0)
                         .domain(data.map(function(d) { return d[xName]; }));
         var y = d3.scale.linear()
                         .range([height, 0])
-                        .domain([-(maxHeight * .02), maxHeight]);
+                        .domain([-(maxHeight * 0.02), maxHeight]);
         var xWidth = x.rangeBand();
         // 5.1 is the width of a char in .xlabel
         var charLenToFit = Math.max(1, Math.floor(xWidth / 5.1) - 1);
@@ -1158,7 +1158,7 @@ window.Profile = (function($, Profile, d3) {
         });
 
         $(document).on({
-            "mouseup.profileModal": function() {
+            "mouseup.profileModal": function(event) {
                 if (isDragging === true) {
                     $scroller.removeClass("scrolling");
                     var mouseX = event.pageX - $scrollerBar.offset().left;
