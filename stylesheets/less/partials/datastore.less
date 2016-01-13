@@ -84,7 +84,7 @@ input {
     overflow: hidden;
 
     .contentViewMidWrap {
-        .size(@height: 100%, @width: 85%, @min-width: 470px, @max-width: 900px);
+        .size(@height: 100%, @width: 90%, @min-width: 470px, @max-width: 960px);
         margin: 0 auto;
         padding: 0 0px;
     }
@@ -146,16 +146,6 @@ input {
 
 // Data Form Section
 .dataStoreForm {
-    #previewBtn {
-        display: none;
-    }
-
-    &.browseMode {
-        #previewBtn {
-            display: block;
-        }
-    }
-
     &.previewMode {
         height: 151px !important;
 
@@ -197,23 +187,18 @@ input {
             float: left;
         }
         input {
-            .size(@width: ~"calc(100% - 260px)",
-                        @min-width: ~"calc(100% - 260px)");
+            .size(@width: ~"calc(100% - 340px)",
+                 @min-width: ~"calc(100% - 340px)");
             box-shadow: inset 0 1px 2px rgba(0,0,0,0.3);
             float: left;
         }
         .input-placeholder(@color-text-instructions);
 
         &#fileNameSelector {
-            input {
-                min-width: ~"calc(100% - 390px)";
-                width: ~"calc(100% - 260px)";
-            }
-
             &.optionsOpen {
                 input {
-                     .size(@width: ~"calc(100% - 390px)",
-                        @min-width: ~"calc(100% - 390px)", @max-width: 490px);
+                    .size(@width: ~"calc(100% - 470px)",
+                        @min-width: ~"calc(100% - 470px)", @max-width: 410px);
                 }
             }
             #fileFormat {

@@ -554,7 +554,6 @@ window.FileBrowser = (function($, FileBrowser) {
         var path = curDir + fileName;
         $filePath.val(path);
         $("#fileName").val(getShortName(fileName));
-        $("#importDataForm").addClass("browseMode");
         closeAll();
     }
 

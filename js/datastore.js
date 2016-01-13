@@ -300,9 +300,12 @@ window.DatastoreForm = (function($, DatastoreForm) {
         $("#previewBtn").click(function() {
             $(this).blur();
 
-            // Invalid json preview
             var path = $filePath.val();
-            if (path.endsWith("json")) {
+            if (path.trim() === "") {
+                StatusBox.show(ErrorTextTStr.NoEmpty, $filePath, true);
+                return;
+            } else if (path.endsWith("json")) {
+                // Invalid json preview
                 StatusBox.show(ErrorTextTStr.NoPreviewJSON, $filePath, true);
                 return;
             } else if (path.endsWith("xlsx")) {
@@ -319,7 +322,7 @@ window.DatastoreForm = (function($, DatastoreForm) {
             $(this).blur();
 
             $formatText.val("Format").addClass("hint");
-            $form.removeClass("browseMode").removeClass("previewMode")
+            $form.removeClass("previewMode")
                 .find(".default-hidden").addClass("hidden");
             $("#fileNameSelector").removeClass("optionsOpen");
 
