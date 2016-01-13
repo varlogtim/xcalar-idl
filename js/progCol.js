@@ -304,7 +304,7 @@ window.ColManager = (function($, ColManager) {
             "pullColOptions": pullColOptions
         };
 
-        ColManager.execCol(newCol, tableId, colNum - 1)
+        ColManager.execCol(newCol, tableId, colNum)
         .then(function() {
             updateTableHeader(tableId);
             RightSideBar.updateTableInfo(tableId);
@@ -1242,7 +1242,7 @@ window.ColManager = (function($, ColManager) {
         tableCols[colNum].func.func = tableCols[colNum - 1].func.func;
         tableCols[colNum].func.args = tableCols[colNum - 1].func.args;
         tableCols[colNum].userStr = tableCols[colNum - 1].userStr;
-        ColManager.execCol(tableCols[colNum], tableId, colNum)
+        ColManager.execCol(tableCols[colNum], tableId, colNum + 1)
         .then(function() {
             updateTableHeader(tableId);
             RightSideBar.updateTableInfo(tableId);

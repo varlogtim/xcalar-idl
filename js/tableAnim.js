@@ -2955,7 +2955,6 @@ function parseFunc(funcString, colNum, table, modifyCol) {
 
     progCol.name = name;
     progCol.func = cleanseFunc(funcSt, name);
-    progCol.index = colNum;
     progCol.userStr = '"' + progCol.func.args[0] + '" =' + funcSt;
 
     return (progCol);
