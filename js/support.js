@@ -30,7 +30,7 @@ window.Support = (function(Support, $) {
 
         commitToStorage()
         .then(function() {
-            sessionStorage.removeItem(KVStore.user);
+            sessionStorage.removeItem(username);
             return XcalarKeyPut(KVStore.commitKey, defaultCommitFlag, false, gKVScope.FLAG);
         })
         .then(deferred.resolve)
@@ -45,7 +45,7 @@ window.Support = (function(Support, $) {
         // if (!safeMode) {
         //     return (promiseWrapper(null));
         // }
-        sessionStorage.removeItem(KVStore.user);
+        sessionStorage.removeItem(username);
         XcalarKeyPut(KVStore.commitKey, defaultCommitFlag, false, gKVScope.FLAG)
         .then(function() {
             location.reload();
@@ -101,7 +101,7 @@ window.Support = (function(Support, $) {
                 if (error === commitCheckError) {
                     clearInterval(commitCheckTimer);
                     // this browser tab does not hold any more
-                    sessionStorage.removeItem(KVStore.user);
+                    sessionStorage.removeItem(username);
                     Alert.show({
                         "title"     : "Please Log out",
                         "msg"       : "You are logged in somewhere else!",
@@ -129,7 +129,7 @@ window.Support = (function(Support, $) {
         })
         .then(function() {
             // mark as hold in browser tab
-            sessionStorage.setItem(KVStore.user, "hold");
+            sessionStorage.setItem(username, "hold");
             deferred.resolve();
         })
         .fail(deferred.reject);
@@ -143,7 +143,7 @@ window.Support = (function(Support, $) {
             .then(function(val) {
                 if (val == null || val.value === defaultCommitFlag) {
                     innerDeferred.resolve();
-                } else if (sessionStorage.getItem(KVStore.user) === "hold") {
+                } else if (sessionStorage.getItem(username) === "hold") {
                     // when this browser tab hold the seesion and not release
                     console.error("Session not release last time...");
                     innerDeferred.resolve();
