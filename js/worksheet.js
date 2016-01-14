@@ -240,6 +240,9 @@ window.WSManager = (function($, WSManager) {
         if (locationId == null) {
             ws = wsLookUp[tableIdToWSIdMap[tableId]];
             var srcTables;
+            if (!ws || !ws.tempHiddenTables) {
+                return;
+            }
             if (ws.tempHiddenTables.indexOf(tableId) !== -1) {
                 srcTables = ws.tempHiddenTables;
             } else {

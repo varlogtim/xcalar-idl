@@ -677,7 +677,8 @@ function XcalarIndexFromDataset(datasetName, key, tablename, sqlOptions) {
     return (deferred.promise());
 }
 
-function XcalarIndexFromTable(srcTablename, key, tablename, ordering, sqlOptions) {
+function XcalarIndexFromTable(srcTablename, key, tablename, ordering,
+                              sqlOptions) {
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return (promiseWrapper(null));
     }
@@ -1203,7 +1204,8 @@ function XcalarFilter(evalStr, srcTablename, dstTablename, sqlOptions) {
     return (deferred.promise());
 }
 
-function XcalarMap(newFieldName, evalStr, srcTablename, dstTablename, sqlOptions) {
+function XcalarMap(newFieldName, evalStr, srcTablename, dstTablename,
+                   sqlOptions, doNotUnsort) {
     if (tHandle == null) {
         return (promiseWrapper(null));
     }
@@ -1218,7 +1220,14 @@ function XcalarMap(newFieldName, evalStr, srcTablename, dstTablename, sqlOptions
         return (deferred.promise());
     }
 
-    getUnsortedTableName(srcTablename)
+    var d;
+    if (!doNotUnsort) {
+        d = getUnsortedTableName(srcTablename);
+    } else {
+        d = jQuery.Deferred().resolve(srcTablename).promise();
+        console.log("Using SORTED table for windowing!");
+    }
+    d
     .then(function(unsortedSrcTablename) {
         var workItem = xcalarApiMapWorkItem(evalStr, unsortedSrcTablename,
                                             dstTablename, newFieldName);

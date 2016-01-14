@@ -645,9 +645,206 @@ window.ColManager = (function($, ColManager) {
 
     // Not call it ColManager.window because window is a keyWord
     ColManager.windowCalc = function(colNum, tableId, lag, lead) {
-        // XXX fill the code here
-        console.log("colNum", colNum, "tableId", tableId,
-                    "lag", lag, "lead", lead);
+        // XXX: Fill in all the SQL stuff
+        xcHelper.lockTable(tableId);
+        var colName = gTables[tableId].tableCols[colNum-1].name;
+        var randNumber = Math.floor(Math.random()*100);
+        var genUniqueMapString = "genUnique(1)";
+        var tableName = gTables[tableId].tableName;
+        
+        var tableNameRoot = tableName.split("#")[0];
+        var tableWithUniqueOrig = tableNameRoot + Authentication.getHashId();
+        var uniqueColName = "orig_order_"+randNumber;
+        var tableWithUnique = tableNameRoot + Authentication.getHashId();
+        var tableNames = {};
+        tableNames["lag"] = [];
+        tableNames["lead"] = [];
+        tableNames["cur"] = "";
+        tableNames["finalTableName"] = "";
+        // Step 1 Get Unique Column, on SORTED table. This goes against our
+        // axiom, but is the only way to do it for now T____T
+        XcalarMap(uniqueColName, genUniqueMapString,
+                  tableName, tableWithUniqueOrig, {}, true)
+        .then(function() {
+        // Step 2 Index by any column unsorted, if not our checks will prevent
+        // us from sorting some columns later
+            return (XcalarIndexFromTable(tableWithUniqueOrig, uniqueColName,
+                                        tableWithUnique,
+                                        XcalarOrderingT.XcalarOrderingUnordered,
+                                        {}))
+        })
+        .then(function() {
+        // Step 3 Generate the columns for lag and lead. We need to duplicate
+        // current table to have a unique column name if not later we will
+        // suffer when we self join
+            var defArray = [];
+            for (var i = 0; i<lag; i++) {
+                var lagMapString = "add("+uniqueColName+", "+(i+1)+")";
+                var newTableName = tableNameRoot+"_"+randNumber+"_lag_"+(i+1)+
+                                   Authentication.getHashId();
+                tableNames["lag"][i] = newTableName;
+                defArray.push(XcalarMap("lag_"+(i+1)+"_"+randNumber,
+                                        lagMapString, tableWithUnique,
+                                        newTableName));
+            }
+            for (var i = 0; i<lead; i++) {
+                var leadMapString = "sub("+uniqueColName+", "+(i+1)+")";
+                var newTableName = tableNameRoot+"_"+randNumber+"_lead_"+(i+1)+
+                                   Authentication.getHashId();
+                tableNames["lead"][i] = newTableName;
+                defArray.push(XcalarMap("lead_"+(i+1)+"_"+randNumber,
+                                        leadMapString, tableWithUnique,
+                                        newTableName));
+            }
+            var curMapString = "float("+uniqueColName+")";
+            var newTableName = tableNameRoot+"_"+randNumber+"_cur"+
+                               Authentication.getHashId();
+            tableNames["cur"] = newTableName;
+            defArray.push(XcalarMap("cur_"+randNumber, curMapString,
+                                    tableWithUnique, newTableName));
+            return (xcHelper.when.apply(window, defArray));
+        })
+        .then(function() {
+        // Step 4 Create unique col names for each of the tables
+        // This is so that we don't suffer when we self join
+            var defArray = [];
+            var mapString = "float("+colName+")";
+            for (var i = 0; i<lag; i++) {
+                var oldTableName = tableNames["lag"][i];
+                var newTableName = oldTableName.split("#")[0]+
+                                   Authentication.getHashId();
+                tableNames["lag"][i] = newTableName;
+                defArray.push(XcalarMap("lag_"+(i+1)+"_"+colName,
+                                        mapString, oldTableName, newTableName));
+            }
+            for (var i = 0; i<lead; i++) {
+                var oldTableName = tableNames["lead"][i];
+                var newTableName = oldTableName.split("#")[0]+
+                                   Authentication.getHashId();
+                tableNames["lead"][i] = newTableName;
+                defArray.push(XcalarMap("lead_"+(i+1)+"_"+colName,
+                                        mapString, oldTableName, newTableName));
+            }
+            var oldTableName = tableNames["cur"];
+            var newTableName = oldTableName.split("#")[0] +
+                               Authentication.getHashId();
+            tableNames["cur"] = newTableName;
+            defArray.push(XcalarMap("cur_"+colName, mapString, oldTableName,
+                                    newTableName));
+            return (xcHelper.when.apply(window, defArray));
+        })
+        .then(function() {
+            // Step 5 Reindex!
+            var defArray = [];
+            for (var i = 0; i<lag; i++) {
+                var oldTableName = tableNames["lag"][i];
+                var newTableName = oldTableName.split("#")[0]+
+                                   Authentication.getHashId();
+                tableNames["lag"][i] = newTableName;
+                defArray.push(XcalarIndexFromTable(oldTableName,
+                              "lag_"+(i+1)+"_"+randNumber, newTableName,
+                              XcalarOrderingT.XcalarOrderingUnordered, {}));
+            }
+            for (var i = 0; i<lead; i++) {
+                var oldTableName = tableNames["lead"][i];
+                var newTableName = oldTableName.split("#")[0]+
+                                   Authentication.getHashId();
+                tableNames["lead"][i] = newTableName;
+                defArray.push(XcalarIndexFromTable(oldTableName,
+                              "lead_"+(i+1)+"_"+randNumber, newTableName,
+                              XcalarOrderingT.XcalarOrderingUnordered, {}));
+            }
+            var oldTableName = tableNames["cur"];
+            var newTableName = oldTableName.split("#")[0] +
+                               Authentication.getHashId();
+            tableNames["cur"] = newTableName;
+            defArray.push(XcalarIndexFromTable(oldTableName,
+                          "cur_"+randNumber, newTableName,
+                          XcalarOrderingT.XcalarOrderingUnordered, {}));
+
+            return (xcHelper.when.apply(window, defArray));
+        })
+        .then(function() { 
+            // Step 6 inner join funnesss!
+            // Order: Take cur, join lags then join leads
+            var defChain = [];
+            var leftTable = tableNames["cur"];
+            for (var i = 0; i<lag+lead; i++) {
+                var newTableName = tableNameRoot+"_chain_"+
+                                   Authentication.getHashId();
+                
+                var rightTable = i<lag ?
+                               tableNames["lag"][i]:tableNames["lead"][i-lag];
+                tableNames["finalTableName"] = newTableName;
+                defChain.push(XcalarJoin.bind(this, leftTable, rightTable,
+                                              newTableName,
+                                              JoinOperatorT.InnerJoin, {}));
+                leftTable = newTableName;
+            }
+
+            return (chain(defChain));
+        })
+        .then(function() {
+            // Step 7 Sort ascending by the cur order number
+            var oldTableName = tableNames["finalTableName"];
+            var newTableName = oldTableName.split("#")[0] +
+                               Authentication.getHashId();
+            tableNames["finalTableName"] = newTableName;
+            return (XcalarIndexFromTable(oldTableName, "cur_"+randNumber,
+                                         newTableName,
+                                 XcalarOrderingT.XcalarOrderingAscending, {}));
+        })
+        .then(function() {
+            // Step 8 YAY WE ARE FINALLY DONE! Just start picking out all
+            // the columns now and do the sort and celebrate
+            var colNames = [];
+            var finalCols = [];
+            colNames.push("cur_"+randNumber);
+            for (var i = lag; i>0; i--) {
+                colNames.push("lag_"+i+"_"+colName);
+            }
+            colNames.push("cur_"+colName);
+            for (var i = 0; i<lead; i++) {
+                colNames.push("lead_"+(i+1)+"_"+colName);
+            }
+            for (var i = 0; i<colNames.length; i++) {
+                finalCols[i] = ColManager.newCol({
+                    "name"    : colNames[i],
+                    "type"    : "float",
+                    "width"   : gNewCellWidth,
+                    "isNewCol": false,
+                    "userStr" : '"' + colNames[i] + '" = pull('+colNames[i]+')',
+                    "func"    : {
+                        "func": "pull",
+                        "args": [colNames[i]]
+                    }
+                });
+            }
+            finalCols[colNames.length] = ColManager.newDATACol(); 
+            WSManager.addTable(xcHelper.getTableId(tableNames["finalTableName"])
+                               , WSManager.getActiveWS());
+            return setgTable(tableNames["finalTableName"], finalCols);
+        })
+        .then(function() {
+            return refreshTable(tableNames["finalTableName"], null,
+                                {"keepOriginal": true})
+        })
+        .then(function() {
+            xcHelper.unlockTable(tableId, false);    
+        })
+        .fail(function(error) {
+            // XXX Write a better error handling function
+            xcHelper.unlockTable(tableId, false);
+            Alert.error("Windowing failed", error);
+            SQL.errorLog("Windowing failed", error);
+        });
+
+        function windowSelfJoinHelper(joinTableName, leftTableName,
+                                      rightTableName) {
+            var deferred = jQuery.Deferred();
+            XcalarJoin(leftTableName, rightTableName, joinTableName,
+                       JoinOperatorT.InnerJoin, {}); 
+        }
     };
 
     ColManager.splitCol = function(colNum, tableId, delimiter, numColToGet, isAlertOn) {
