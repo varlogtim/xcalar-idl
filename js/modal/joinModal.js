@@ -130,6 +130,19 @@ window.JoinModal = (function($, JoinModal) {
                 $mainJoin.find(".columnTab").prop("draggable", false);
                 $mainJoin.find(".smartSuggest").removeClass("inActive");
             }
+
+            // XXX Hack From Cheng: I know it's a bad workaround,
+            // the reason is because we use css with 0.5s delay to do animation,
+            // so this is the way I could think
+            // to move ws tab with table tab in sync
+            // change it if you have better idea!
+            var $wsLabels = $joinModal.find(".worksheetLabel");
+            $wsLabels.hide();
+            setTimeout(function() {
+                updateWSTabSize($leftJoinTable);
+                updateWSTabSize($rightJoinTable);
+                $wsLabels.show();
+            }, 600);
         });
 
         // add multi clause
@@ -228,7 +241,11 @@ window.JoinModal = (function($, JoinModal) {
             handles    : "n, e, s, w, se",
             minHeight  : minHeight,
             minWidth   : minWidth,
-            containment: "document"
+            containment: "document",
+            resize     : function() {
+                updateWSTabSize($leftJoinTable);
+                updateWSTabSize($rightJoinTable);
+            }
         });
 
         addModalTabListeners($leftJoinTable, true);
@@ -260,6 +277,8 @@ window.JoinModal = (function($, JoinModal) {
         isOpenTime = false;
 
         function showHandler() {
+            updateWSTabSize($leftJoinTable);
+            updateWSTabSize($rightJoinTable);
             scrollToColumn($leftJoinTable.find("th.colSelected"));
             // this is the case when right table has suggested col
             scrollToColumn($rightJoinTable.find("th.colSelected"));
@@ -422,6 +441,28 @@ window.JoinModal = (function($, JoinModal) {
         $joinTableName.val(joinTableName);
     }
 
+    function updateWSTabSize($section) {
+        // Caculate each table tab's width in the worksheet
+        // and make the ws tab to be that size
+        var $tabs = $section.find(".tableLabel");
+        var includeMargin = true;
+
+        $section.find(".worksheetLabel").each(function() {
+            var $wsLabel = $(this);
+            var ws = $wsLabel.data("ws");
+            var width = 0;
+
+            $tabs.each(function() {
+                var $tab = $(this);
+                if ($tab.data("ws") === ws) {
+                    width += $tab.outerWidth(includeMargin);
+                }
+            });
+
+            $wsLabel.css("flex", "0 1 " + width + "px");
+        });
+    }
+
     function joinTableKeyPress(event) {
         switch (event.which) {
             case keyCode.Enter:
@@ -478,24 +519,32 @@ window.JoinModal = (function($, JoinModal) {
         var wsOrders    = WSManager.getOrders();
         // group table tab by worksheet (only show active table)
         for (var i = 0, len = wsOrders.length; i < len; i++) {
-            var ws = WSManager.getWSById(wsOrders[i]);
+            var wsId = wsOrders[i];
+            var ws = WSManager.getWSById(wsId);
             var wsTables = ws.tables;
 
             for (var j = 0; j < wsTables.length; j++) {
-                var wsName  = (j === 0) ? ws.name : "";
                 var tableId = wsTables[j];
                 var table   = gTables[tableId];
 
-                wsTabHtml +=
-                    '<div class="worksheetLabel textOverflow" ' +
-                    'data-id="' + tableId + '">' +
-                        wsName +
-                    '</div>';
+                if (j === 0) {
+                    wsTabHtml +=
+                        '<div title="' + ws.name + '" ' +
+                        '"data-toggle="tooltip" data-placement="top" ' +
+                        'data-container="body" ' +
+                        'class="worksheetLabel textOverflow tooltipOverflow" ' +
+                        'data-ws="' + wsId + '" ' +
+                        'data-id="' + tableId + '">' +
+                            ws.name +
+                        '</div>';
+                }
+
                 tabHtml +=
                     '<div class="tableLabel textOverflow tooltipOverflow" ' +
                     'title="' + table.tableName +
                     '" data-toggle="tooltip" data-placement="top" ' +
                     'data-container="body" ' +
+                    'data-ws="' + wsId + '" ' +
                     'data-id="' + tableId + '">' +
                         table.tableName +
                     '</div>';
@@ -566,9 +615,6 @@ window.JoinModal = (function($, JoinModal) {
             $modal.find(".tableLabel.active").removeClass("active");
             $tableLabel.addClass("active");
 
-            $modal.find(".worksheetLabel.active").removeClass("active");
-            $modal.find(".worksheetLabel[data-id=" + tableId + "]")
-                    .addClass("active");
 
             $modal.find(".colSelected").removeClass("colSelected");
             $modal.find(".joinTable").hide();
@@ -585,6 +631,8 @@ window.JoinModal = (function($, JoinModal) {
                     $joinModal.find('.leftClause').val("");
                 }
             }
+
+            updateWSTabSize($modal);
         });
 
         $modal.on("click", ".smartSuggest", function() {
