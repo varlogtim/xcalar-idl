@@ -168,6 +168,7 @@ window.DatastoreForm = (function($, DatastoreForm) {
                 $('#fileNameSelector').addClass("optionsOpen");
 
                 var $fieldDelim = $("#fieldDelim");
+                var $udfHint = $("#udfArgs .hintSection");
                 switch (text.toLowerCase()) {
                     case "csv":
                         $csvCheckBox.removeClass("hidden");
@@ -176,6 +177,7 @@ window.DatastoreForm = (function($, DatastoreForm) {
                         $csvDelim.removeClass("hidden");
                         $udfCheckbox.removeClass("hidden");
                         $('#fileNameSelector').addClass("optionsOpen");
+                        $udfHint.show();
                         break;
                     case "raw":
                         $csvCheckBox.removeClass("hidden");
@@ -184,6 +186,7 @@ window.DatastoreForm = (function($, DatastoreForm) {
                         $csvDelim.removeClass("hidden");
                         $udfCheckbox.removeClass("hidden");
                         $('#fileNameSelector').addClass("optionsOpen");
+                        $udfHint.show();
                         break;
                     case "excel":
                         $csvCheckBox.removeClass("hidden");
@@ -193,11 +196,14 @@ window.DatastoreForm = (function($, DatastoreForm) {
                                     .find(".checkbox").removeClass("checked");
                         $udfArgs.addClass("hidden");
                         $('#fileNameSelector').addClass("optionsOpen");
+                        // excel not show the whole udf section
                         break;
                     default:
+                        // json and random
                         $csvCheckBox.addClass("hidden");
                         $csvDelim.addClass("hidden");
                         $udfCheckbox.removeClass("hidden");
+                        $udfHint.hide();
                         break;
                 }
             },
