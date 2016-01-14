@@ -198,7 +198,8 @@ var SQLOps = {
     ChangeType: "changeType",
     ChangeTypeMap: "ChangeTypeMap",
     ChangeFormat: "ChangeFormat",
-    RoundToFixed: "roundToFixed"
+    RoundToFixed: "roundToFixed",
+    Window: "Window"
 };
 
 var TooltipTemplate = {

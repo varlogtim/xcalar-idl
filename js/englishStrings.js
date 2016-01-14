@@ -30,7 +30,8 @@ StatusMessageTStr = {
 'Filter' : 'Filtering column',
 'FilterFailed' : 'Filter failed',
 'Statistics' : 'Generating statistical analysis',
-'StatisticsFailed' : 'Statistical analysis failed'
+'StatisticsFailed' : 'Statistical analysis failed',
+"Window": "Performing Window"
 };
 
 TooltipTStr = {

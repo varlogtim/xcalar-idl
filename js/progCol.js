@@ -646,6 +646,10 @@ window.ColManager = (function($, ColManager) {
     // Not call it ColManager.window because window is a keyWord
     ColManager.windowCalc = function(colNum, tableId, lag, lead) {
         // XXX: Fill in all the SQL stuff
+        var msgId = StatusMessage.addMsg({
+            "msg"      : StatusMessageTStr.Window,
+            "operation": SQLOps.Window
+        });
         xcHelper.lockTable(tableId);
         var colName = gTables[tableId].tableCols[colNum-1].name;
         var randNumber = Math.floor(Math.random()*100);
@@ -830,7 +834,9 @@ window.ColManager = (function($, ColManager) {
                                 {"keepOriginal": true})
         })
         .then(function() {
-            xcHelper.unlockTable(tableId, false);    
+            var finalTableId = xcHelper.getTableId(tableNames["finalTableName"]);
+            xcHelper.unlockTable(tableId, false);
+            StatusMessage.success(msgId, false, finalTableId);
         })
         .fail(function(error) {
             // XXX Write a better error handling function
