@@ -107,14 +107,8 @@ window.DagPanel = (function($, DagPanel) {
             if (activeFound) {
                 $menu.find('.addTable').addClass('hidden');
             } else {
-                $('#inactiveTablesList').find('.tableInfo').each(function() {
-                    var $li = $(this);
-                    if ($li.data('id') === tableId) {
-                        $menu.find('.addTable').removeClass('hidden');
-                        $menu.find('.focusTable').addClass('hidden');
-                        return (false);
-                    }
-                });
+                $menu.find('.addTable').removeClass('hidden');
+                $menu.find('.focusTable').addClass('hidden');
             }
 
             if ($dagTable.hasClass('locked')) {
@@ -376,7 +370,7 @@ window.DagPanel = (function($, DagPanel) {
             if ($dagPanel.hasClass('full')) {
                 $('#dagPulloutTab').click();
             }
-            $tableWrap = $('#xcTableWrap-' + tableId);
+            var $tableWrap = $('#xcTableWrap-' + tableId);
             xcHelper.centerFocusedTable($tableWrap);
            
             $tableWrap.mousedown();
@@ -606,7 +600,7 @@ window.Dag = (function($, Dag) {
         $dagImage.height($dagImage.height() + 40);
         $dagImage.width($dagImage.width());
         $container.find('.joinWrap').eq(0).remove();
-    }
+    };
 
     Dag.renameAllOccurrences = function(oldTableName, newTableName) {
         var $dagPanel = $('#dagPanel');
