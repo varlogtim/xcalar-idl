@@ -2435,6 +2435,68 @@ function addColMenuActions() {
         }
     });
 
+    $subMenu.on('keypress', '.window input', function(event) {
+        if (event.which === keyCode.Enter) {
+            var colNum = $colMenu.data("colNum");
+            tableId = $colMenu.data('tableId');
+            var $li = $(this).closest("li");
+            var $lagInput = $li.find(".lag");
+            var $leadInput = $li.find(".lead");
+
+            var lag = Number($lagInput.val());
+            var lead = Number($leadInput.val());
+            // validation check
+            var isValid = xcHelper.validate([
+                {
+                    "$selector": $lagInput
+                },
+                {
+                    "$selector": $leadInput
+                },
+                {
+                    "$selector": $lagInput,
+                    "text"     : ErrorTextTStr.OnlyNumber,
+                    "check"    : function() {
+                        return (isNaN(lag) || !Number.isInteger(lag));
+                    }
+                },
+                {
+                    "$selector": $lagInput,
+                    "text"     : ErrorTextTStr.NoNegativeNumber,
+                    "check"    : function() { return (lag < 0); }
+                },
+                {
+                    "$selector": $leadInput,
+                    "text"     : ErrorTextTStr.OnlyNumber,
+                    "check"    : function() {
+                        return (isNaN(lead) || !Number.isInteger(lead));
+                    }
+                },
+                {
+                    "$selector": $leadInput,
+                    "text"     : ErrorTextTStr.NoNegativeNumber,
+                    "check"    : function() { return (lead < 0); }
+                },
+                {
+                    "$selector": $leadInput,
+                    "text"     : ErrorTextTStr.NoAllZeros,
+                    "check"    : function() {
+                        return (lag === 0 && lead === 0);
+                    }
+                }
+            ]);
+
+            if (!isValid) {
+                return;
+            }
+
+            ColManager.windowCalc(colNum, tableId, lag, lead);
+            $lagInput.val("").blur();
+            $leadInput.val("").blur();
+            closeMenu($allMenus);
+        }
+    });
+
     $colMenu.on('mouseup', '.duplicate', function(event) {
         if (event.which !== 1) {
             return;

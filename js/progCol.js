@@ -643,6 +643,13 @@ window.ColManager = (function($, ColManager) {
     //     return (deferred.promise());
     // };
 
+    // Not call it ColManager.window because window is a keyWord
+    ColManager.windowCalc = function(colNum, tableId, lag, lead) {
+        // XXX fill the code here
+        console.log("colNum", colNum, "tableId", tableId,
+                    "lag", lag, "lead", lead);
+    };
+
     ColManager.splitCol = function(colNum, tableId, delimiter, numColToGet, isAlertOn) {
         // isAlertOn is a flag to alert too many column will generate
         // when do replay, this flag is null, so no alert

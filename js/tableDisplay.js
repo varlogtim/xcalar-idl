@@ -764,6 +764,9 @@ function generateColDropDowns() {
             '<li class="changeDataType parentMenu" data-submenu="changeDataType">' +
                 'Change data type' +
             '</li>' +
+            '<li class="window parentMenu" data-submenu="window">' +
+                'Window' +
+            '</li>' +
             '<li class="format parentMenu" data-submenu="format">' +
                 'Format' +
             '</li>' +
@@ -856,6 +859,14 @@ function generateColDropDowns() {
             '</li>';
     });
     subMenuHTML +=
+            '</ul>' +
+            '<ul class="window">' +
+                '<li style="text-align: center" class="clickable">' +
+                    '<div>Lag</div>' +
+                    '<input class="lag" type="number"/>' +
+                    '<div>Lead</div>' +
+                    '<input class="lead" type="number"/>' +
+                '</li>' +
             '</ul>' +
             '<ul class="sort">' +
                 '<li class="sort">' +

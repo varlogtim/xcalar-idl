@@ -85,6 +85,10 @@ ErrorTextTStr = {
 
     'OnlyPositiveNumber': 'Please input a number bigger than 0.',
 
+    'NoNegativeNumber': 'Please input a number bigger than or equal to 0',
+
+    'NoAllZeros': "Values cannot all be zeros",
+
     'NoWKBKSelect': "No Workbook selected.",
 
     'NoGroupSelect': 'No group selected.',

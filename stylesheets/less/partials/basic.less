@@ -849,14 +849,9 @@ input {
                 top: 10px;
             }
         }
-
-        &.splitCol {
-            // only display for type-string
-            display: none;
-        }
     }
 
-    .splitCol li {
+    .splitCol li, .window li {
         .size(@height: 105px);
 
         div, input {
@@ -1051,6 +1046,14 @@ input {
         display: none;
     }
 
+    .splitCol {
+        display: none;
+    }
+
+    .window {
+        display: none;
+    }
+
     .unavailable {
         // pointer-events: none;
         cursor: default !important;
@@ -1070,6 +1073,12 @@ input {
     .moveToWorksheet {
         &+ .tooltip {
             display: none !important;
+        }
+    }
+
+    &.type-integer, &.type-float, &.type-boolean {
+        .window {
+            display: block;
         }
     }
 
