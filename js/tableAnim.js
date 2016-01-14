@@ -34,12 +34,14 @@ function disableTextSelection() {
             'div[contenteditable]{pointer-events:none;}' +
         '</style>';
     $(document.head).append(style);
-    $('input').prop('disabled', true);
+
+    $('input:enabled').prop('disabled', true).addClass('tempDisabledInput');
 }
 
 function reenableTextSelection() {
     $('#disableSelection').remove();
-    $('input').prop('disabled', false);
+    $('.tempDisabledInput').removeClass('tempDisabledInput')
+                           .prop('disabled', false);
 }
 
 function gRescolMouseDown(el, event, options) {
@@ -2605,6 +2607,7 @@ function addColMenuActions() {
         var colNum  = $colMenu.data('colNum');
         tableId = $colMenu.data('tableId');
         JoinModal.show(tableId, colNum);
+        unhighlightColumn($('#xcTable-' + tableId).find('th.col' + colNum));
     });
 
     $colMenu.on('mouseup', '.functions', function(event) {
@@ -2624,6 +2627,7 @@ function addColMenuActions() {
         var colNum = $colMenu.data('colNum');
         tableId = $colMenu.data('tableId');
         Profile.show(tableId, colNum);
+        unhighlightColumn($('#xcTable-' + tableId).find('th.col' + colNum));
     });
 
     $cellMenu.on('mouseup', '.tdFilter, .tdExclude', function(event) {
