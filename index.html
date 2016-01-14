@@ -599,7 +599,7 @@
                 <div class="checkbox iconWrapper">
                   <span class="icon"></span>
                 </div>
-                <div class="text">Header</div>
+                <div title="Promote First Row As Header" data-toggle="tooltip" data-placement="right" data-container="body" class="text">Header</div>
               </div>
             </div>
           </div>
@@ -607,6 +607,48 @@
         <!-- Bottom Form -->
         <div id="importDataBottomForm"  class="dataStoreFormBottom no-selection">
           <div class="contentViewMidWrap">
+            <!-- UDF Args -->
+            <div id="udfArgs" class="hidden clearfix default-hidden">
+              <div class="optionSection">
+                <section class="wrapper">
+                  <span class="label">Module Name:</span>
+                  <div id="udfArgs-moduleList" class="dropDownList">
+                    <input class="text" type="text" spellcheck="false" disabled>
+                    <div class="iconWrapper">
+                      <span class="icon"></span>
+                    </div>
+                    <div class="list">
+                      <ul></ul>
+                      <div class="scrollArea top">
+                        <div class="arrow"></div>
+                      </div>
+                      <div class="scrollArea bottom">
+                        <div class="arrow"></div>
+                      </div>
+                    </div>
+                  </div>
+                </section>
+                <section class="wrapper">
+                  <span class="label">Function Name:</span>
+                  <div id="udfArgs-funcList" class="dropDownList">
+                    <input class="text" type="text" spellcheck="false" disabled>
+                    <div class="iconWrapper">
+                      <span class="icon"></span>
+                    </div>
+                    <div class="list">
+                      <ul></ul>
+                      <div class="scrollArea top"><div class="arrow"></div></div>
+                      <div class="scrollArea bottom"><div class="arrow"></div></div>
+                    </div>
+                  </div>
+                </section>
+              </div>
+              <div class="hintSection">
+                <span class="text">Please select the field and line delimiters that are used in the output of the UDF</span>
+              </div>
+            </div>
+            <!-- End of Udf Args -->
+            <!-- Delimiters -->
             <div id="csvDelim" class="hidden clearfix default-hidden">
               <!-- Field Delimiter -->
               <section id="fieldDelim" class="wrapper">
@@ -650,47 +692,19 @@
                         <input class="delimVal" type="text" spellcheck="false">
                       </li>
                     </ul>
-                    <div class="scrollArea top"><div class="arrow"></div></div>
-                    <div class="scrollArea bottom"><div class="arrow"></div></div>
+                    <div class="scrollArea top">
+                      <div class="arrow"></div>
+                    </div>
+                    <div class="scrollArea bottom">
+                      <div class="arrow"></div>
+                    </div>
                   </div>
                 </div>
               </section>
             </div>
-
-            <div id="udfArgs" class="hidden clearfix default-hidden">
-              <section class="wrapper">
-                <span class="label">Module Name:</span>
-                <div id="udfArgs-moduleList" class="dropDownList">
-                  <input class="text" type="text" spellcheck="false" disabled>
-                  <div class="iconWrapper">
-                    <span class="icon"></span>
-                  </div>
-                  <div class="list">
-                    <ul></ul>
-                    <div class="scrollArea top"><div class="arrow"></div></div>
-                    <div class="scrollArea bottom"><div class="arrow"></div></div>
-                  </div>
-                </div>
-              </section>
-              <section class="wrapper">
-                <span class="label">Function Name:</span>
-                <div id="udfArgs-funcList" class="dropDownList">
-                  <input class="text" type="text" spellcheck="false" disabled>
-                  <div class="iconWrapper">
-                    <span class="icon"></span>
-                  </div>
-                  <div class="list">
-                    <ul></ul>
-                    <div class="scrollArea top"><div class="arrow"></div></div>
-                    <div class="scrollArea bottom"><div class="arrow"></div></div>
-                  </div>
-                </div>
-              </section>
-            </div>
-            <button id="importDataSubmit" class="btn btnMid" 
-                    type="submit">IMPORT DATA</button>
-            <button id="importDataReset" class="btn btnMid btn-cancel" 
-                    type="reset">CANCEL</button>
+            <!-- End Of Delimiters -->
+            <button id="importDataSubmit" class="btn btnMid" type="submit">IMPORT DATA</button>
+            <button id="importDataReset" class="btn btnMid btn-cancel" type="reset">CANCEL</button>
           </div>
         </div>
       </form> 

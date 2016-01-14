@@ -252,10 +252,17 @@ input {
     padding: 30px 20px 1px 20px;
 }
 
+#udfArgs {
+    .hintSection {
+        clear: both;
+        .font(@size: 13px, @color: @color-text-lightGray);
+    }
+}
+
 #csvDelim, #udfArgs {
     visibility: visible;
     opacity: 1;
-     .transition(opacity 0.3s);
+    .transition(opacity 0.3s);
 
     &.hidden {
         visibility: hidden;
@@ -263,7 +270,7 @@ input {
         display: none;
     }
 
-    .size(@min-height: 50px; @max-height: 95px);
+    // .size(@min-height: 50px; @max-height: 95px);
     margin-bottom: 15px;
     .font(@weight: 700, @size: 12px);
 
