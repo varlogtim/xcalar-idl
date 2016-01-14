@@ -592,10 +592,14 @@ window.xcHelper = (function($, xcHelper) {
                 hideDropdowns('a', $curlDropDownList);
             } else { 
                 // hide all other dropdowns that are open on the page
-               
-                // $('.list, .menu').not($list).hide().removeClass('openList')
-                //                                    .parent('.dropDownList')
-                //                                    .removeClass('open');
+
+                if (!$list.parents('.list, .menu').length) {
+                   $('.list, .menu').not($list)
+                                    .hide()
+                                    .removeClass('openList')
+                                    .parent('.dropDownList')
+                                    .removeClass('open');
+                }
 
                 // open dropdown
                 var $lists = $curlDropDownList.find(".list");
