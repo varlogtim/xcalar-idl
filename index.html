@@ -1419,41 +1419,37 @@
         <section id="tableListSections">
           <!-- active list -->
           <div id="tableList" class="tableListSection">
-            <ul id="activeTablesList"></ul>
+            <ul id="activeTablesList" class="tableLists"></ul>
           </div>
           <!-- inactive list -->
           <div id="archivedTableList" class="tableListSection">
             <div class="buttonWrap">
-              <button id="submitTablesBtn" type="button" 
-                      class="btn btnLarge btnInactive iconBtn">
+              <button id="submitTablesBtn" type="button" class="btn btnLarge btnInactive iconBtn submitBtn">
                 <span class="icon"></span>ADD TO WORKSHEET
               </button>
-              <!-- <button id="deleteTablesBtn" type="button" 
-                      class="btn btnLarge btnInactive iconBtn">
+              <!-- <button id="deleteTablesBtn" type="button" class="btn btnLarge btnInactive iconBtn deleteBtn">
                 <span class="icon"></span>DELETE TABLES
               </button> --> 
               <!-- temporarily hidding delete tables btn -->
             </div>
             <div class="secondButtonWrap">
               <div class="btn btnSmall btnDeselected clearAll">
-                <span class="icon" data-toggle="tooltip" data-placement="top" data-container="body" title="" data-original-title="clear all">
-                </span>
+                <span class="icon" data-toggle="tooltip" data-placement="top" data-container="body" title="" data-original-title="clear all"></span>
               </div>
               <div class="btn btnSmall selectAll">
-                <span class="icon" data-toggle="tooltip" data-placement="top" data-container="body" title="" data-original-title="select all">
-                </span>
+                <span class="icon" data-toggle="tooltip" data-placement="top" data-container="body" title="" data-original-title="select all"></span>
               </div>
             </div>
-            <ul id="inactiveTablesList"></ul>
+            <ul id="inactiveTablesList" class="tableLists"></ul>
           </div>
           <!-- aggregate table list -->
           <div id="aggregateTableList" class="tableListSection">
             <div class="buttonWrap">
               <!-- XXX temporary disable -->
-             <!--  <button id="submitAggTablesBtn" type="button" class="btn btnLarge btnInactive iconBtn">
+             <!--  <button id="submitAggTablesBtn" type="button" class="btn btnLarge btnInactive iconBtn submitBtn">
                 <span class="icon"></span>ADD TO WORKSHEET
               </button> -->
-              <!-- <button id="deleteAggTablesBtn" type="button" class="btn btnLarge btnInactive iconBtn">
+              <!-- <button id="deleteAggTablesBtn" type="button" class="btn btnLarge btnInactive iconBtn deleteBtn">
                 <span class="icon"></span>DELETE TABLES
               </button> -->
             </div>
@@ -1467,16 +1463,15 @@
                 </span>
               </div>
             </div> -->
-            <ul id="aggTablesList"></ul>
+            <ul id="aggTablesList" class="tableLists"></ul>
           </div>
           <!-- orphaned table list -->
           <div id="orphanedTableList" class="tableListSection">
             <div class="buttonWrap">
-              <button id="submitOrphanedTablesBtn" type="button" class="btn btnLarge btnInactive iconBtn">
+              <button id="submitOrphanedTablesBtn" type="button" class="btn btnLarge btnInactive iconBtn submitBtn">
                 <span class="icon"></span>ADD TO WORKSHEET
               </button>
-             <!--  <button id="deleteOrphanedTablesBtn" type="button" 
-                      class="btn btnLarge btnInactive iconBtn">
+             <!--  <button id="deleteOrphanedTablesBtn" type="button" class="btn btnLarge btnInactive iconBtn deleteBtn">
                 <span class="icon"></span>DELETE TABLES
               </button> -->
               <!-- temporarily hidding delete tables btn -->
@@ -1499,7 +1494,7 @@
                   <span class="icon"></span>
                 </div>
             </div>
-            <ul id="orphanedTablesList"></ul>
+            <ul id="orphanedTablesList" class="tableLists"></ul>
           </div>
         </section>
         <!-- End Of Sections -->

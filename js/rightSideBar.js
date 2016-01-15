@@ -1080,6 +1080,8 @@ window.RightSideBar = (function($, RightSideBar) {
                     '</div>';
             }
 
+            var addTableBtn = (active === true) ? "" :
+                    '<span class="addTableBtn" title="select table"></span>';
             var html =
                 '<li class="clearfix tableInfo" ' +
                     'data-id="' + tableId + '">' +
@@ -1093,26 +1095,22 @@ window.RightSideBar = (function($, RightSideBar) {
                         '<div class="iconWrap">' +
                             '<span class="icon"></span>' +
                         '</div>' +
-                        '<span class="tableName textOverflow" draggable="true"' +
-                            ' ondragstart="xcDrag(event)" title="' +
-                            tableName + '">' + tableName +
+                        '<span class="tableName textOverflowOneLine" title="' +
+                            tableName + '">' +
+                            tableName +
                         '</span>' +
                         '<span class="numCols" data-toggle="tooltip" ' +
                             'data-container="body" title="number of columns">' +
-                             numCols + '</span>' +
-                        '<span class="addTableBtn" title="select table">' +
+                             numCols +
                         '</span>' +
+                        addTableBtn +
                     '</div>' +
-                    '<ol>';
+                    '<ol class="columnList">';
 
             for (var j = 0; j < numCols; j++) {
-                // if (table.tableCols[j].name != 'DATA') {
-                html +=
-                    '<li class="column" draggable="true" ' +
-                    'ondragstart="xcDrag(event)">' +
-                        table.tableCols[j].name +
-                    '</li>';
-                // }
+                html += '<li class="column textOverflowOneLine">' +
+                            table.tableCols[j].name +
+                        '</li>';
             }
 
             html += '</ol></li>';
