@@ -1043,7 +1043,8 @@ window.ColManager = (function($, ColManager) {
                                 delimiter + '")';
             var fieldName    = xcHelper.randName("mappedCol");
             var curTableName = tableName;
-            var newTableName = xcHelper.randName(".tempMap") + "." + curTableName;
+            var newTableName = ".tempMap." + tableNamePart +
+                                Authentication.getHashId();
             var sqlOptions   =  {
                 "operation"   : SQLOps.SplitColMap,
                 "action"      : "map",
@@ -1074,6 +1075,8 @@ window.ColManager = (function($, ColManager) {
                 } catch (error) {
                     innerDeferred.reject(error);
                 }
+
+                // XXXX Should delete the newTableName when delete is enabled
             })
             .fail(function(error) {
                 innerDeferred.reject(error);
