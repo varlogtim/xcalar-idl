@@ -213,20 +213,28 @@ input {
         }
     }
 
-    .checkbox {
+    .checkboxSection {
         .size(@width: auto, @height: 30px);
         .font(@weight: 700, @size: 13px);
         margin-left: 10px;
-        cursor: pointer;
         .noSelection;
+
+        &#udfCheckbox {
+            margin-left: 20px;
+            margin-right: 5px;
+        }
 
         &.hidden {
             display: none;
         }
 
-        .iconWrapper {
+        > div {
             float: left;
-            .size(@width: 16px);
+        }
+
+        .checkbox {
+            .size(@width: 16px, @height: 100%);
+            cursor: pointer;
 
             .icon {
                 .size(@width: 100%, @height: 100%);
@@ -240,8 +248,15 @@ input {
 
         .text {
             color: @color-text-lightGray;
-            float: left;
-            margin-left: 10px;
+            margin-left: 5px;
+            cursor: pointer;
+        }
+
+        .hint {
+            .size(@width: 14px, @height: 14px);
+            .vertical-align;
+            .image("/images/datastore/qMark.png", 50%, 50%);
+            margin-left: 3px;
         }
     }
 }

@@ -99,8 +99,8 @@ window.DatastoreForm = (function($, DatastoreForm) {
         resetUdfSection();
 
         // udf checkbox
-        $udfCheckbox.click(function() {
-            var $checkbox = $(this).find(".checkbox");
+        $udfCheckbox.on("click", ".checkbox, .text", function() {
+            var $checkbox = $udfCheckbox.find(".checkbox");
 
             if ($udfArgs.hasClass("hidden")) {
                 $checkbox.addClass("checked");
@@ -152,8 +152,8 @@ window.DatastoreForm = (function($, DatastoreForm) {
         });
 
         // csv promote checkbox
-        $csvCheckBox.click(function() {
-            $(this).find(".checkbox").toggleClass("checked");
+        $csvCheckBox.on("click", ".checkbox, .text", function() {
+            $csvCheckBox.find(".checkbox").toggleClass("checked");
         });
 
         // set up dropdown list for formats
