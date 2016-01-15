@@ -1472,8 +1472,7 @@
           <!-- orphaned table list -->
           <div id="orphanedTableList" class="tableListSection">
             <div class="buttonWrap">
-              <button id="submitOrphanedTablesBtn" type="button" 
-                        class="btn btnLarge btnInactive iconBtn">
+              <button id="submitOrphanedTablesBtn" type="button" class="btn btnLarge btnInactive iconBtn">
                 <span class="icon"></span>ADD TO WORKSHEET
               </button>
              <!--  <button id="deleteOrphanedTablesBtn" type="button" 
@@ -1482,19 +1481,23 @@
               </button> -->
               <!-- temporarily hidding delete tables btn -->
             </div>
+            <div class="divider"></div>
             <div class="secondButtonWrap">
               <div class="btn btnSmall btnDeselected clearAll">
-                <span class="icon" data-toggle="tooltip" data-placement="top" data-container="body" title="" data-original-title="clear all">
-                </span>
+                <span class="icon" data-toggle="tooltip" data-placement="top" data-container="body" title="" data-original-title="clear all"></span>
               </div>
               <div class="btn btnSmall selectAll">
-                <span class="icon" data-toggle="tooltip" data-placement="top" data-container="body" title="" data-original-title="select all">
-                </span>
+                <span class="icon" data-toggle="tooltip" data-placement="top" data-container="body" title="" data-original-title="select all"></span>
               </div>
               <div class="btn btnSmall refresh">
-                <span class="icon" data-toggle="tooltip" data-placement="top" data-container="body" title="" data-original-title="refresh tables">
-                </span>
+                <span class="icon" data-toggle="tooltip" data-placement="top" data-container="body" title="" data-original-title="refresh tables"></span>
               </div>
+            </div>
+            <div id="orphanedTableList-search" class="searchArea">
+                <input type="text" placeholder="Filter Orphaned Table"/>
+                <div class="clear iconWrap">
+                  <span class="icon"></span>
+                </div>
             </div>
             <ul id="orphanedTablesList"></ul>
           </div>

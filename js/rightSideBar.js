@@ -350,7 +350,8 @@ window.RightSideBar = (function($, RightSideBar) {
                     $timeLine.remove();
                     if ($tableList.find('.tableInfo:not(.hiddenWS)').length === 0 ) {
                         if ($tableList.closest('#orphanedTableList').length !== 0) {
-                            $tableList.find('.selectAll, .clearAll').hide();
+                                $tableList.find('.selectAll, .clearAll').hide();
+                                $("#orphanedTableList-search").hide();
                         } else {
                             $tableList.find('.secondButtonWrap').hide();
                         }
@@ -692,6 +693,7 @@ window.RightSideBar = (function($, RightSideBar) {
         });
 
         $selectBtns.find('.refresh').click(function() {
+            clearTableListFilter($("#orphanedTableList"), null);
             RightSideBar.refreshOrphanList(true);
         });
 
@@ -763,6 +765,15 @@ window.RightSideBar = (function($, RightSideBar) {
                 return;
             }
             focusOnTableColumn($(this));
+        });
+
+        $("#orphanedTableList-search").on("input", "input", function() {
+            var keyWord = $(this).val();
+            filterTableList($("#orphanedTableList"), keyWord);
+        });
+
+        $("#orphanedTableList-search").on("click", ".clear", function() {
+            clearTableListFilter($("#orphanedTableList"), null);
         });
     }
 
@@ -1240,8 +1251,53 @@ window.RightSideBar = (function($, RightSideBar) {
         if (numTables > 0) {
             $orphanedTableList.find('.btnLarge').show();
             $orphanedTableList.find('.selectAll, .clearAll').show();
+            $("#orphanedTableList-search").show();
+        } else {
+            $orphanedTableList.find('.selectAll, .clearAll').hide();
+            $("#orphanedTableList-search").hide();
         }
         $orphanedTableList.find('.secondButtonWrap').show();
+    }
+
+    function filterTableList($section, keyWord) {
+        var $lis = $section.find(".tableInfo");
+        // $lis.find('.highlightedText').contents().unwrap();
+        $lis.each(function() {
+            var $li = $(this);
+            if ($li.hasClass("highlighted")) {
+                var $span = $li.find(".tableName");
+                // Not use $lis.find('.highlightedText').contents().unwrap()
+                // because it change <span>"a"</span>"b" to "ab" instead of "ab"
+                $span.html($span.text());
+                $li.removeClass("highlighted");
+            }
+        });
+
+        if (keyWord == null || keyWord === "") {
+            return;
+        } else {
+            var regex = new RegExp(keyWord, "gi");
+            $lis.each(function() {
+                var $li = $(this);
+                var tableName = $li.data("tablename");
+                if (regex.test(tableName)) {
+                    $li.addClass("highlighted");
+                    var $span = $li.find(".tableName");
+                    var text = $span.text();
+                    text = text.replace(regex, function (match) {
+                        return ('<span class="highlightedText">' + match +
+                                '</span>');
+                    });
+
+                    $span.html(text)
+                }
+            });
+        }
+    }
+
+    function clearTableListFilter($section) {
+        $section.find(".searchArea input").val("");
+        filterTableList($section, null);
     }
 
     RightSideBar.refreshOrphanList = function(prettyPrint) {
