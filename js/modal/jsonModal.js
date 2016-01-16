@@ -155,7 +155,7 @@ window.JSONModal = (function($, JSONModal) {
                     "isArray"  : isArray,
                     "noAnimate": true
                 };
-                
+
                 ColManager.pullCol(colNum, tableId, nameInfo, pullColOptions)
                 .always(function() {
                     var animation = gMinModeOn ? false : true;

@@ -308,12 +308,6 @@ window.ColManager = (function($, ColManager) {
         .then(function() {
             updateTableHeader(tableId);
             RightSideBar.updateTableInfo(tableId);
-
-            autosizeCol($table.find("th.col" + colNum), {
-                "includeHeader" : true,
-                "resizeFirstRow": true
-            });
-
             $table.find("tr:first th.col" + (colNum + 1) +
                         " .editableHead").focus();
 
@@ -1913,6 +1907,8 @@ window.ColManager = (function($, ColManager) {
             // DATA column is type-object
             if (tableCols[i].name === "DATA") {
                 columnType = "object";
+            } else if (tableCols[i].isNewCol) {
+                columnType = "newColumn";
             }
             tableCols[i].type = columnType;
 
@@ -2182,12 +2178,7 @@ window.ColManager = (function($, ColManager) {
     function insertColHelper(index, tableId, progCol) {
          // tableCols is an array of ProgCol obj
         var tableCols = gTables[tableId].tableCols;
-
-        for (var i = tableCols.length - 1; i >= index; i--) {
-            tableCols[i + 1] = tableCols[i];
-        }
-
-        tableCols[index] = progCol;
+        tableCols.splice(index, 0, progCol);
     }
 
     function removeColHelper(index, tableId) {

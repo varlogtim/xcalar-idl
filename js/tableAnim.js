@@ -736,7 +736,6 @@ function dblClickResize($el, options) {
         }
        
         autosizeCol($th, {
-            "resizeFirstRow": resize,
             "dbClick"       : true,
             "minWidth"      : minWidth,
             "unlimitedWidth": true,
@@ -2372,7 +2371,7 @@ function addColMenuActions() {
         closeMenu($allMenus);
     });
 
-    $subMenu.on('mouseup', '.changeRound.default', function() {
+    $subMenu.on('mouseup', '.changeRound.default', function(event) {
         if (event.which !== 1) {
             return;
         }
@@ -2846,26 +2845,28 @@ function addColMenuActions() {
 
 function unnest($jsonTd, isArray, options) {
     var text = $jsonTd.find("div").eq(0).text();
-    var jsonObj;
+    var jsonTdObj;
     options = options || {};
 
     try {
-        jsonObj = jQuery.parseJSON(text);
+        jsonTdObj = jQuery.parseJSON(text);
     } catch (error) {
         console.error(error, text);
         return;
     }
 
     var colNum = xcHelper.parseColNum($jsonTd);
-    var tableId  = $jsonTd.closest('table').data('id');
-    var cols = gTables[tableId].tableCols;
+    var $table = $jsonTd.closest('table');
+    var tableId  = $table.data('id');
+    var table = gTables[tableId];
+    var cols = table.tableCols;
     var numCols = cols.length;
-    var arrayOfKeys = [];
+    var arrayOfColNames = [];
     var duplicateFound = false;
     var colName;
     var openSymbol;
     var closingSymbol;
-    for (var arrayKey in jsonObj) {
+    for (var arrayKey in jsonTdObj) {
         if (options.isDataTd) {
             colName = arrayKey;
         } else {
@@ -2889,30 +2890,95 @@ function unnest($jsonTd, isArray, options) {
         if (duplicateFound) {
             duplicateFound = false;
         } else {
-            arrayOfKeys.push(arrayKey);
+            arrayOfColNames.push(colName);
         }    
     }
-    var numKeys = arrayOfKeys.length;
+    if (arrayOfColNames.length === 0) {
+        return;
+    }
+    var numKeys = arrayOfColNames.length;
     var pullColOptions = {
         "isDataTd" : options.isDataTd,
         "isArray"  : isArray,
         "noAnimate": true
     };
+    var newColNum = colNum - 1;
+    var columnClass = "";
+    var color = "";
+    var ths = "";
 
-    // loop backwards because of how new columns are appended
-    for (var i = numKeys - 1; i >= 0; i--) {
-        var key = arrayOfKeys[i];
-        var esc = key.replace(/\./g, "\\\.");
+    for (var i = 0; i < numKeys; i++) {
+        var key = arrayOfColNames[i];
         var nameInfo;
+        var symbol = "";
 
-        if (isArray) {
-            nameInfo = {name: "[" + key + "]", escapedName: "[" + esc + "]"};
+        if (!isArray) {
+            symbol = ".";
+        }
+        var usrStr = '"' + key + '" = pull(' + key + ')';
+
+        var newCol = ColManager.newCol({
+            "name"   : key,
+            "width"  : gNewCellWidth,
+            "userStr": usrStr,
+            "func"   : {
+                "func": "pull",
+                "args": [key]
+            },
+            "isNewCol": false
+        });
+        if (options.isDataTd) {
+            cols.splice(newColNum, 0, newCol);
         } else {
-            nameInfo = {name: key, escapedName: esc};
+            cols.splice(newColNum + 1, 0, newCol);
+        }
+      
+        if (key === table.key) {
+            columnClass += " indexedColumn"; 
+        }
+        newColNum++;
+        var colHeadNum = newColNum;
+        if (!options.isDataTd) {
+            colHeadNum++;
         }
 
-        ColManager.pullCol(colNum, tableId, nameInfo, pullColOptions);
+        ths += generateColumnHeadHTML(columnClass, color, colHeadNum,
+                                      {name: key, width: gNewCellWidth});
     }
+    var rowNum = xcHelper.parseRowNum($table.find('tbody').find('tr:eq(0)'));
+    var origDataIndex = xcHelper.parseColNum($table.find('th.dataCol'));
+    var jsonObj = {normal: []};
+    $table.find('tbody').find('.col' + origDataIndex).each(function() {
+        jsonObj.normal.push($(this).text());
+    });
+    $table.find('tbody').empty(); // remove tbody contents for pullrowsbulk
+    var endIndex;
+    if (options.isDataTd) {
+        endIndex = colNum;
+    } else {
+        endIndex = colNum + 1;
+    }
+
+    for (var i = numCols; i >= endIndex; i--) {
+        $table.find('.col' + i )
+              .removeClass('col' + i)
+              .addClass('col' + (numKeys + i));
+    }
+
+    if (options.isDataTd) {
+        $table.find('.th.col' + (newColNum + 1)).before(ths);
+    } else {
+        $table.find('.th.col' + colNum).after(ths);
+    }
+
+    var dataIndex = xcHelper.parseColNum($table.find('th.dataCol')) - 1;
+
+    pullRowsBulk(tableId, jsonObj, rowNum, dataIndex, RowDirection.Bottom);
+    updateTableHeader(tableId);
+    RightSideBar.updateTableInfo(tableId);
+    moveTableDropdownBoxes();
+    moveFirstColumn();
+    moveTableTitles();
 }
 
 function copyToClipboard(valArray, stringify) {
