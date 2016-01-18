@@ -234,7 +234,7 @@ window.Alert = (function($, Alert){
             $supportBtn.click(function() {
                 var $btn = $(this);
                 xcHelper.toggleBtnInProgress($btn);
-
+                // Tis flow is a little from xcHelper.genSub
                 XcalarSupportSend()
                 .then(function(ret) {
                     xcHelper.showSuccess();

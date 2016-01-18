@@ -1118,6 +1118,31 @@
     }
 }
 
+.henpGenSubPart {
+    .size(@width: 295px, @height: 30px);
+    .position(absolute, @bottom: 0, @left: 50%);
+    transform: translateX(-50%);
+    margin-bottom: 10px;
+
+    > div, > button {
+        float: left;
+    }
+
+    .icon {
+        .size(@width: 20px, @height: 100%);
+        .image("/images/monitor/sub.png", 50%, 50%);
+        margin-right: 10px;
+    }
+
+    > .text {
+        .font(@line-height: 30px, @size: 14px, @weight: bold, @color: @color-boulder);
+    }
+
+    .btn {
+        margin-left: 10px;
+    }
+}
+
 #pulloutTab {
     .position(absolute, @bottom: 0, @left: -9px);
     .size(@width: 18px, @height: 60px);

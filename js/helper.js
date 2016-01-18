@@ -537,7 +537,7 @@ window.xcHelper = (function($, xcHelper) {
                     toggleDropdownList($(this).closest(".dropDownList"));
                 });
             } else {
-                $dropDownList.on("click", function(event) { 
+                $dropDownList.on("click", function(event) {
                     if (exclude && $(event.target).closest(exclude).length) {
                         return;
                     }
@@ -590,11 +590,11 @@ window.xcHelper = (function($, xcHelper) {
         function toggleDropdownList($curlDropDownList) {
             if ($curlDropDownList.hasClass("open")) {    // close dropdown
                 hideDropdowns('a', $curlDropDownList);
-            } else { 
+            } else {
                 // hide all other dropdowns that are open on the page
 
                 if (!$list.parents('.list, .menu').length) {
-                   $('.list, .menu').not($list)
+                    $('.list, .menu').not($list)
                                     .hide()
                                     .removeClass('openList')
                                     .parent('.dropDownList')
@@ -1626,6 +1626,28 @@ window.xcHelper = (function($, xcHelper) {
         if (scrollDiff > 0) {
             $target.scrollTop(scrollDiff);
         }
+    };
+
+    xcHelper.genSub = function() {
+        var deferred = jQuery.Deferred();
+
+        XcalarSupportSend()
+        .then(function() {
+            Alert.show({
+                "title": "Support Bundle Generated",
+                "instr": "Please check your backend for a .tar.gz file",
+                "msg"  : "Support upload bundle successfully generated!" +
+                         " It is located on your Xcalar Server.",
+                "isAlert": true
+            });
+            deferred.resolve();
+        })
+        .fail(function(error) {
+            Alert.error("Generation failed", error);
+            deferred.reject(error);
+        });
+
+        return (deferred.promise());
     };
 
     return (xcHelper);

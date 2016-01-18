@@ -61,19 +61,7 @@ window.MonitorPanel = (function($, MonitorPanel) {
             var $btn = $(this);
             xcHelper.toggleBtnInProgress($btn);
 
-            XcalarSupportSend()
-            .then(function(ret) {
-                Alert.show({
-                    "title": "Support Bundle Generated",
-                    "instr": "Please check your backend for a .tar.gz file",
-                    "msg"  : "Support upload bundle successfully generated!" +
-                             " It is located on your Xcalar Server.",
-                    "isAlert": true
-                });
-            })
-            .fail(function(error) {
-                Alert.error("Generation failed", error);
-            })
+            xcHelper.genSub()
             .always(function() {
                 xcHelper.toggleBtnInProgress($btn);
             });
