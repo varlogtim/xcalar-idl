@@ -232,8 +232,8 @@ window.UDF = (function($, UDF) {
                     });
                 }
             },
-            "container": "#udfSection",
-            "bounds": '#udfSection',
+            "container"    : "#udfSection",
+            "bounds"       : '#udfSection',
             "bottomPadding": 2
         });
 
@@ -455,7 +455,7 @@ window.UDF = (function($, UDF) {
         'def convertToUnixTS(colName, inputFormat):\n' +
             '\treturn str(time.mktime(datetime.datetime.strptime(colName, inputFormat).timetuple()))\n' +
         '\n' +
-        'def openExcel(stream):\n' +
+        'def openExcel(stream, fullPath):\n' +
             '\tfileString = ""\n' +
             '\txl_workbook = xlrd.open_workbook(file_contents=stream)\n' +
             '\txl_sheet = xl_workbook.sheet_by_index(0)\n' +
