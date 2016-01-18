@@ -237,7 +237,6 @@ window.JSONModal = (function($, JSONModal) {
 
         $jsonArea.on("click", ".pullAll", function() {
             var $jsonWrap = $(this).closest('.jsonWrap');
-            var jsonIndex = $jsonWrap.index();
             var rowNum = $jsonWrap.data('rownum');
             var colNum = $jsonWrap.data('colnum');
             var tableId =  $jsonWrap.data('tableid');
@@ -639,19 +638,6 @@ window.JSONModal = (function($, JSONModal) {
         var numObjs = jsonObjs.length + numExistingComparisons;
         var numKeys;
         var keys;
-        if (!multiple) {
-            keys = Object.keys(jsonObjs[0]);
-            numKeys = keys.length;
-            var matchedJsons = []; // when both objs have same key and values
-            var unmatchedJsons = [];
-            var partialMatchedJsons = []; // when both objs have the same key but different values
-        
-            for (var i = 0; i < numObjs; i++) {
-                matchedJsons.push([]);
-                unmatchedJsons.push([]);
-                partialMatchedJsons.push([]);
-            }
-        }
 
         if (multiple) {
             var obj = Object.keys(comparisonObjs);
@@ -687,8 +673,6 @@ window.JSONModal = (function($, JSONModal) {
                         tempObj = comparisonObjs[k].matches.splice(i, 1)[0];
                         comparisonObjs[k].unmatched.push(tempObj);
                     }
-                    tempActiveObj[key] = jsonObjs[key];
-                    activeObj.unmatched.push(tempActiveObj);
                     numMatches--;
                     i--;
                 }
@@ -707,7 +691,6 @@ window.JSONModal = (function($, JSONModal) {
                         comparisonObjs[k].unmatched.push(tempObj);
                     }
                     tempActiveObj[key] = jsonObjs[key];
-                    activeObj.unmatched.push(tempActiveObj);
                     numPartials--;
                     i--;
                 }
@@ -716,14 +699,27 @@ window.JSONModal = (function($, JSONModal) {
             for (var i = 0; i < nonMatches.length; i++) {
                 var key = Object.keys(nonMatches[i])[0];
                 var tempActiveObj = {};
-                tempActiveObj[key] = jsonObjs[key];
-                activeObj.unmatched.push(tempActiveObj);
-                delete jsonObjs[key];
+                if (jsonObjs.hasOwnProperty(key)) {
+                    tempActiveObj[key] = jsonObjs[key];
+                    activeObj.unmatched.push(tempActiveObj);
+                    delete jsonObjs[key];
+                }
             }
             activeObj.partial = activeObj.partial.concat(tempPartials);
             activeObj.unmatched = activeObj.unmatched.concat(jsonObjs);
             comparisonObjs[indices] = activeObj;
         } else {
+            keys = Object.keys(jsonObjs[0]);
+            numKeys = keys.length;
+            var matchedJsons = []; // when both objs have same key and values
+            var unmatchedJsons = [];
+            var partialMatchedJsons = []; // when both objs have the same key but different values
+        
+            for (var i = 0; i < numObjs; i++) {
+                matchedJsons.push([]);
+                unmatchedJsons.push([]);
+                partialMatchedJsons.push([]);
+            }
             for (var i = 0; i < numKeys; i++) {
                 for (var j = 1; j < 2; j++) {
                     var key = keys[i];
