@@ -2446,6 +2446,48 @@ function addColMenuActions() {
         }
     });
 
+    $subMenu.on('keypress', '.explodeNums', function(event) {
+        if (event.which === keyCode.Enter) {
+            var colNum = $colMenu.data("colNum");
+            tableId = $colMenu.data('tableId');
+
+            var $input = $(this);
+            var explodeNums = $input.val().trim();
+
+            if (explodeNums === "") {
+                explodeNums = 10; // the largest number we allow
+            } else {
+                explodeNums = Number(explodeNums);
+                var isValid = xcHelper.validate([
+                    {
+                        "$selector": $input,
+                        "text"     : ErrorTextTStr.OnlyNumber,
+                        "check"    : function() {
+                            return (isNaN(explodeNums) ||
+                                    !Number.isInteger(explodeNums));
+                        }
+                    },
+                    {
+                        "$selector": $input,
+                        "text"     : ErrorTextWReplaceTStr.InvalidRange
+                                    .replace("<num1>", 1).replace("<num2>", 10),
+                        "check" : function() {
+                            return explodeNums < 1 || explodeNums > 10;
+                        }
+                    }
+                ]);
+
+                if (!isValid) {
+                    return;
+                }
+            }
+
+            ColManager.explodeCol(colNum, tableId, explodeNums);
+            $input.val("").blur();
+            closeMenu($allMenus);
+        }
+    });
+
     $subMenu.on('keypress', '.window input', function(event) {
         if (event.which === keyCode.Enter) {
             var colNum = $colMenu.data("colNum");

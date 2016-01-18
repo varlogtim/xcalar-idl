@@ -837,6 +837,7 @@ window.ColManager = (function($, ColManager) {
             xcHelper.unlockTable(tableId, false);
             Alert.error("Windowing failed", error);
             SQL.errorLog("Windowing failed", error);
+            StatusMessage.fail(StatusMessageTStr.WindowFailed, msgId);
         });
 
         function windowSelfJoinHelper(joinTableName, leftTableName,
@@ -844,6 +845,242 @@ window.ColManager = (function($, ColManager) {
             var deferred = jQuery.Deferred();
             XcalarJoin(leftTableName, rightTableName, joinTableName,
                        JoinOperatorT.InnerJoin, {}); 
+        }
+    };
+
+    ColManager.explodeCol = function(colNum, tableId, explodeNums) {
+        var isValidParam = (colNum != null && tableId != null &&
+                            explodeNums != null);
+        xcHelper.assert(isValidParam, "Invalid Parameters");
+
+        var deferred    = jQuery.Deferred();
+        var currentWS   = WSManager.getWSFromTable(tableId);
+        var table       = gTables[tableId];
+        var tableName   = table.tableName;
+        var tableCols   = table.tableCols;
+        var colName     = tableCols[colNum - 1].name;
+        var backColName = tableCols[colNum - 1].func.args[0];
+
+        var tableNamePart = tableName.split("#")[0];
+        var msgId = StatusMessage.addMsg({
+            "msg"      : StatusMessageTStr.Explode,
+            "operation": SQLOps.Explode
+        });
+
+        xcHelper.lockTable(tableId);
+
+        getUniqueValues(explodeNums)
+        .then(function(uniqueVals) {
+            var len = uniqueVals.length;
+            var promises = [];
+
+            for (var i = 0; i < len; i++) {
+                promises.push(explodeHelper.bind(this, uniqueVals[i], i));
+            }
+
+            return chain(promises);
+        })
+        .then(function(finalTableId) {
+            xcHelper.unlockTable(tableId);
+            StatusMessage.success(msgId, false, finalTableId);
+
+            SQL.add("Horizontal Partitioning", {
+                "operation"  : SQLOps.Explode,
+                "tableName"  : tableName,
+                "tableId"    : tableId,
+                "colNum"     : colNum,
+                "colName"    : colName,
+                "explodeNums": explodeNums
+            });
+
+            commitToStorage();
+            deferred.resolve();
+        })
+        .fail(function() {
+            deferred.reject();
+        });
+
+        return (deferred.promise());
+
+        function explodeHelper(fltVal, index) {
+            var innerDeferred = jQuery.Deferred();
+
+            var srcTable = tableName;
+            var fltStr = "eq(" + backColName + ", " + fltVal + ")";
+            var filterTable = tableNamePart + "-explode" + index +
+                                Authentication.getHashId();
+            var filterTableId = xcHelper.getTableId(filterTable);
+
+            var filterSql = {
+                "operation"   : SQLOps.ExplodeAction,
+                "action"      : "filter",
+                "filterString": fltStr,
+                "newTableName": filterTable
+            };
+
+            XcalarFilter(fltStr, srcTable, filterTable, filterSql)
+            .then(function() {
+                WSManager.addTable(filterTableId, currentWS);
+
+                var filterCols = xcHelper.deepCopy(tableCols);
+
+                return setgTable(filterTable, filterCols);
+            })
+            .then(function() {
+                var refreshOptions = {"keepOriginal": true};
+                return refreshTable(filterTable, null, refreshOptions);
+            })
+            .then(function() {
+                innerDeferred.resolve(filterTableId);
+            })
+            .fail(innerDeferred.reject);
+
+            return innerDeferred.promise();
+        }
+
+        function getUniqueValues(rowsToFetch) {
+            var innerDeferred = jQuery.Deferred();
+            var keyCol = backColName;
+            var srcTable = tableName;
+            var data = [];
+
+            var indexTable = xcHelper.randName(".tempIndex." + tableNamePart) +
+                             Authentication.getHashId();
+            var groupbyTable;
+            var groupByCol;
+            var sortTable;
+
+            var actionSql = {
+                "operation"   : SQLOps.ExplodeAction,
+                "action"      : "index",
+                "colName"     : keyCol,
+                "newTableName": indexTable
+            };
+
+            // Step 1. Do groupby count($keyCol), GROUP BY ($keyCol)
+            // aka, index on keyCol and then groupby count
+            // this way we get the unique value of src table
+            XcalarIndexFromTable(srcTable, keyCol, indexTable,
+                XcalarOrderingT.XcalarOrderingUnordered, actionSql)
+            .then(function() {
+                groupbyTable = xcHelper.randName(".tempGroupby." + tableNamePart)
+                                + Authentication.getHashId();
+                groupByCol = xcHelper.randName("randCol");
+
+                var groupByOp = "Count";
+                var incSample = false;
+
+
+                actionSql = {
+                    "operation"   : SQLOps.ExplodeAction,
+                    "action"      : "groupBy",
+                    "operator"    : groupByOp,
+                    "groupByCol"  : groupByCol,
+                    "indexCol"    : keyCol,
+                    "isIncSample" : incSample,
+                    "newTableName": groupbyTable
+                };
+                return XcalarGroupBy(groupByOp, groupByCol, keyCol, indexTable,
+                                    groupbyTable, incSample, actionSql);
+            })
+            .then(function() {
+                // Step 2. Sort on desc on groupby table by groupByCol
+                // this way, the keyCol that has most count comes first
+                sortTable = xcHelper.randName(".tempGroupby-Sort." + tableNamePart)
+                            + Authentication.getHashId();
+
+                actionSql = {
+                    "operation"   : SQLOps.ExplodeAction,
+                    "action"      : "sort",
+                    "key"         : groupByCol,
+                    "direction"   : "desc",
+                    "newTableName": sortTable
+                };
+                return XcalarIndexFromTable(groupbyTable, groupByCol, sortTable,
+                            XcalarOrderingT.XcalarOrderingDescending, actionSql);
+            })
+            .then(function() {
+                // Step 3, fetch data
+                return getResultSet(sortTable);
+            })
+            .then(function(resultSet) {
+                var resultSetId = resultSet.resultSetId;
+                var totalRows = resultSet.numEntries;
+
+                if (totalRows == null || totalRows === 0) {
+                    return jQuery.Deferred.reject("No Data!").promise();
+                } else {
+                    rowsToFetch = Math.min(rowsToFetch, totalRows);
+                    return fetchDataHelper(resultSetId, 0, rowsToFetch, data);
+                }
+            })
+            .then(function() {
+                var result = [];
+                for (var i = 0, len = data.length; i < len; i++) {
+                    result.push(data[i][keyCol]);
+                }
+
+                innerDeferred.resolve(result);
+                // XXXX Should delete the interim tabke when delete is enabled
+                // XXXX should free sortTable
+            })
+            .fail(innerDeferred.reject);
+
+            return innerDeferred.promise();
+        }
+
+        function fetchDataHelper(resultSetId, rowPosition, rowsToFetch, data) {
+            var innerDeferred = jQuery.Deferred();
+
+            XcalarSetAbsolute(resultSetId, 0)
+            .then(function() {
+                return XcalarGetNextPage(resultSetId, rowsToFetch);
+            })
+            .then(function(tableOfEntries) {
+                var kvPairs = tableOfEntries.kvPair;
+                var numKvPairs = tableOfEntries.numKvPairs;
+                var numStillNeeds = 0;
+
+                if (numKvPairs < rowsToFetch) {
+                    if (rowPosition + numKvPairs >= totalRows) {
+                        numStillNeeds = 0;
+                    } else {
+                        numStillNeeds = rowsToFetch - numKvPairs;
+                    }
+                }
+
+                var numRows = Math.min(rowsToFetch, numKvPairs);
+                var value;
+
+                for (var i = 0; i < numRows; i++) {
+                    try {
+                        value = $.parseJSON(kvPairs[i].value);
+                        data.push(value);
+                    } catch (error) {
+                        console.error(error, kvPairs[i].value);
+                        innerDeferred.reject(error);
+                        return (null);
+                    }
+                }
+
+                if (numStillNeeds > 0) {
+                    var newPosition;
+                    if (numStillNeeds === rowsToFetch) {
+                        // fetch 0 this time
+                        newPosition = rowPosition + 1;
+                        console.warn("cannot fetch position", rowPosition);
+                    } else {
+                        newPosition = rowPosition + numRows;
+                    }
+
+                    return fetchDataHelper(resultSetId, newPosition,
+                                            numStillNeeds, data);
+                }
+            })
+            .then(innerDeferred.resolve)
+            .fail(innerDeferred.reject);
+
+            return innerDeferred.promise();
         }
     };
 
@@ -861,7 +1098,6 @@ window.ColManager = (function($, ColManager) {
         var numCols     = tableCols.length;
         var colName     = tableCols[colNum - 1].name;
         var backColName = tableCols[colNum - 1].func.args[0];
-        var colNumTracker = colNum;
 
         var msg = StatusMessageTStr.SplitColumn;
         var msgObj = {
@@ -930,8 +1166,9 @@ window.ColManager = (function($, ColManager) {
 
             var promises = [];
             for (i = 1; i <= numColToGet; i++) {
-                promises.push(splitColHelper.bind(this, i, newTableNames[(numColToGet + 2) - i],
-                                                    newTableNames[(numColToGet+ 1) - i]));
+                promises.push(splitColHelper.bind(this, i,
+                                newTableNames[(numColToGet + 2) - i],
+                                newTableNames[(numColToGet + 1) - i]));
             }
             
             return (chain(promises));

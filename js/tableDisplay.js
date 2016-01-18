@@ -784,6 +784,9 @@ function generateColDropDowns() {
             '<li class="splitCol parentMenu" data-submenu="splitCol">' +
                 'Split column' +
             '</li>' +
+            '<li class="explodeCol parentMenu" data-submenu="explodeCol">' +
+                'Explode Column' +
+            '</li>' +
             '<li class="changeDataType parentMenu" data-submenu="changeDataType">' +
                 'Change data type' +
             '</li>' +
@@ -866,6 +869,13 @@ function generateColDropDowns() {
                     '<div>Number of Split Columns</div>' +
                     '<input class="num" type="number" min="1" step="1"' +
                         ' placeholder="Unlimited if left blank"/>' +
+                '</li>' +
+            '</ul>' +
+            '<ul class="explodeCol">' +
+                '<li style="text-align: center" class="clickable">' +
+                    '<div>Num of Tables to explode</div>' +
+                    '<input class="explodeNums" type="number"' +
+                        ' placeholder="Default is 10 if left blank"/>' +
                 '</li>' +
             '</ul>' +
             '<ul class="changeDataType">';

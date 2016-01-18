@@ -242,8 +242,6 @@ window.xcFunction = (function($, xcFunction) {
                 "sorted"      : true
             };
 
-            
-                 
             XcalarIndexFromTable(tableName, backFieldName, newTableName,
                                  xcOrder, sqlOptions)
             .then(function() {

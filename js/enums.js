@@ -196,10 +196,12 @@ var SQLOps = {
     SplitCol: "splitCol",
     SplitColMap: "spltColMap",
     ChangeType: "changeType",
-    ChangeTypeMap: "ChangeTypeMap",
-    ChangeFormat: "ChangeFormat",
+    ChangeTypeMap: "changeTypeMap",
+    ChangeFormat: "changeFormat",
     RoundToFixed: "roundToFixed",
-    Window: "Window"
+    Window: "window",
+    Explode: "explode",
+    ExplodeAction: "explodeAction"
 };
 
 var TooltipTemplate = {

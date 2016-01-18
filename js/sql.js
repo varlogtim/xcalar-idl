@@ -286,6 +286,9 @@ window.SQL = (function($, SQL) {
                 // XXX should export tables have an effect?
             // XXX since temporarily not use XcalarQuery
             case (SQLOps.ChangeType):
+                // fallthrough
+            case (SQLOps.Explode):
+                // fallthrough
                 break;
 
             // Use reverse parser
@@ -311,6 +314,7 @@ window.SQL = (function($, SQL) {
             // XXX since temporarily not use XcalarQuery
             // case (SQLOps.ChangeType):
             case (SQLOps.ChangeTypeMap):
+            case (SQLOps.ExplodeAction):
                 string += sql.cli;
                 break;
             default:

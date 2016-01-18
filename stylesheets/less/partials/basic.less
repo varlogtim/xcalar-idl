@@ -1168,7 +1168,7 @@ input {
     &.type-object, &.type-newColumn, &.type-undefined, &.type-mixed, 
     &.recordNum, &.childOfArray {
         .sort, .aggregate, .groupby, .filter, .joinList, .map, .operations,
-        .profile, .format, .roundToFixed
+        .profile
         {
             display: none;
         }
@@ -1182,7 +1182,7 @@ input {
 
     &.type-object, &.type-array, &.type-newColumn, &.type-undefined,
     &.recordNum {
-        .changeDataType, .profile {
+        .changeDataType, .explodeCol, .format, .roundToFixed {
             display: none;
         }
     }

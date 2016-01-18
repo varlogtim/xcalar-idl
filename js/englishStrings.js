@@ -31,7 +31,10 @@ StatusMessageTStr = {
 'FilterFailed' : 'Filter failed',
 'Statistics' : 'Generating statistical analysis',
 'StatisticsFailed' : 'Statistical analysis failed',
-"Window": "Performing Window"
+"Window": "Performing Window",
+"WindowFailed": "Window Failed",
+"Explode": "Horizontal Partitioning",
+"ExplodeFailed": "Horizontal Partitioning Failed"
 };
 
 TooltipTStr = {
