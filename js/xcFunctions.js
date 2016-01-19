@@ -103,8 +103,7 @@ window.xcFunction = (function($, xcFunction) {
                     "title"  : "Aggregate: " + aggrOp,
                     "instr"  : instr,
                     "msg"    : '{"Value":' + aggInfo.value + "}",
-                    "isAlert": true,
-                    "noAnimate": true
+                    "isAlert": true
                 });
                 StatusMessage.success(msgId, false, tableId);
                 
@@ -129,11 +128,10 @@ window.xcFunction = (function($, xcFunction) {
             // show result in alert modal
             setTimeout(function() {
                 Alert.show({
-                    "title"    : "Aggregate: " + aggrOp,
-                    "instr"    : instr,
-                    "msg"      : value,
-                    "isAlert"  : true,
-                    'noAnimate': true
+                    "title"  : "Aggregate: " + aggrOp,
+                    "instr"  : instr,
+                    "msg"    : value,
+                    "isAlert": true
                 });
             }, 500);
             
