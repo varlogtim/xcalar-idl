@@ -1,3 +1,18 @@
+/** function refreshTable(newTables[], oldTables[], options) {
+
+}*/
+
+/**
+    This function takes in a list of tableNames that will be modified
+    due to a function and a list of new tablenames that will be added
+    Inside oldTables, if there is an anchor table, we move it to the start
+    of the array. If there is a need for more than 1 piece of information,
+    then oldTables need to be an array of structs
+    Possible Options
+        focusWorkspace: boolean to determine whether we should focus back on
+                        workspace
+
+*/
 function refreshTable(newTableName, oldTableName, options) {
     var deferred = jQuery.Deferred();
     options = options || {};
@@ -95,6 +110,13 @@ function refreshTable(newTableName, oldTableName, options) {
 
 // Adds a table to the display
 // Shifts all the ids and everything
+/**
+function addTable(newTableNames[], oldTableNames[], options)
+
+Possible Options:
+afterStartup: Is this the first time this is run?
+lockTable: blah
+*/
 function addTable(tableName, oldTableName, afterStartup, tablesToRemove, lockTable) {
     var tableId = xcHelper.getTableId(tableName);
     var oldId;
@@ -213,6 +235,7 @@ function parallelConstruct(tableId, tablesToRemove, afterStartup) {
 // Removes a table from the display
 // Shifts all the ids
 // Does not delete the table from backend!
+
 function archiveTable(tableId, del, delayTableRemoval, tempHide) {
     if (delayTableRemoval) {
         $("#xcTableWrap-" + tableId).addClass('tableToRemove');
