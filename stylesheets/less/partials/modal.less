@@ -458,8 +458,8 @@
         white-space: nowrap;
     }
 
-    .matched, .partial, .unmatched {
-        >.jsonBlock > span {
+     .matched, .partial, .unmatched {
+        >.jsonBlock > .jKey {
             box-shadow: none;
             border-radius: 1px;
             line-height: 17px;
@@ -467,18 +467,22 @@
         }
     }
 
-    .partial > .jsonBlock > :not(.jKey) {
+    .matched > .jsonBlock > .jKey {
+        background-color: #D4F0E7;
+        box-shadow: 0px 0px 0px 1px #49C28A;
+    }
+
+    .partial > .jsonBlock > .jKey {
+        // background-color: #FFEAD0;
+        // border: 1px solid #F1B84A;
+
         background-color: #F3DBDC;
         box-shadow: 0px 0px 0px 1px #E56158;
     }
 
-    .unmatched > .jsonBlock > span {
+    .unmatched > .jsonBlock > .jKey {
         background-color: #F3DBDC;
-        box-shadow: 0px 0px 0px 1px #E56158 !important;
-    }
-
-    .hideScroll {
-        overflow: hidden !important;
+        box-shadow: 0px 0px 0px 1px #E56158;
     }
 
     .highlightedText {
