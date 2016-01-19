@@ -76,7 +76,75 @@ window.FileBrowser = (function($, FileBrowser) {
                 $("#fileBrowserUp").click();
                 return false;
             }
+            if (event.which === keyCode.Left ||
+                event.which === keyCode.Right ||
+                event.which === keyCode.Up ||
+                event.which === keyCode.Down) {
+                var $target = $(event.target);
+                if (!$target.is("input")) {
+                    keyBoardNavigate(event.which);
+                }
+            }
         });
+
+        function keyBoardNavigate(code) {
+            var $nextIcon;
+            var $curIcon = $container.find('.grid-unit.active');
+            if (!$curIcon.length) {
+                return;
+            }
+            if ($fileBrowserMain.hasClass("gridView")) {
+                if (code === keyCode.Left) {
+                    $nextIcon = $curIcon.prev();
+                } else if (code === keyCode.Right) {
+                    $nextIcon = $curIcon.next();
+                } else if (code === keyCode.Up || code === keyCode.Down) {
+                    $nextIcon = findVerticalIcon($curIcon, code);
+                }
+            } else {
+                if (code === keyCode.Down) {
+                    $nextIcon = $curIcon.next();
+                } else if (code === keyCode.Up) {
+                    $nextIcon = $curIcon.prev();
+                }
+            }
+            if ($nextIcon && $nextIcon.length) {
+                $nextIcon.click();
+            }
+        }
+
+        function findVerticalIcon($curIcon, code) {
+            var iconHeight = 79;
+            var curIconTop = $curIcon.position().top;
+            var curIconLeft = $curIcon.position().left;
+            var targetTop;
+            var $targetIcon;
+            if (code === keyCode.Up) {
+                targetTop = curIconTop - iconHeight;
+                $curIcon.prevAll().each(function() {
+                    if ($(this).position().left === curIconLeft &&
+                        $(this).position().top === targetTop) {
+                        $targetIcon = $(this);
+                        return false;
+                    } else if ($(this).position().top < targetTop) {
+                        return false;
+                    }
+                });
+            } else if (code === keyCode.Down) {
+                targetTop = curIconTop + iconHeight;
+                $curIcon.nextAll().each(function() {
+                    if ($(this).position().left === curIconLeft &&
+                        $(this).position().top === targetTop) {
+                        $targetIcon = $(this);
+                        return false;
+                    } else if ($(this).position().top > targetTop) {
+                        return false;
+                    }
+                });
+            }
+
+            return ($targetIcon);
+        }
 
         function showHandler(result) {
             Tips.refresh();
