@@ -995,9 +995,8 @@ window.ColManager = (function($, ColManager) {
                                 + Authentication.getHashId();
                 groupByCol = xcHelper.randName("randCol");
 
-                var groupByOp = "Count";
+                var groupByOp = AggrOp.Count;
                 var incSample = false;
-
 
                 actionSql = {
                     "operation"   : SQLOps.hPartitionAction,

@@ -563,7 +563,7 @@ window.Profile = (function($, Profile, d3) {
         .then(function(indexedTableName, nullCount) {
             curStatsCol.groupByInfo.nullCount = nullCount;
 
-            var operator    = "Count";
+            var operator    = AggrOp.Count;
             var newColName  = statsColName;
             var isIncSample = false;
 
@@ -1546,7 +1546,7 @@ window.Profile = (function($, Profile, d3) {
                                         sqlOptions);
         })
         .then(function() {
-            var operator    = "Sum";
+            var operator    = AggrOp.Sum;
             var newColName  = bucketColName;
             var isIncSample = false;
 
