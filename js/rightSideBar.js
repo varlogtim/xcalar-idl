@@ -218,8 +218,11 @@ window.RightSideBar = (function($, RightSideBar) {
                             return (prepareOrphanForActive(tableName));
                         })
                         .then(function() {
-                            return (addTable(tableName, null,
-                                    AfterStartup.After, null));
+                            var options = {
+                                afterStartup: AfterStartup.After
+                            };
+                            return (TblManager.addTable([tableName], [], [],
+                                                        options));
                         })
                         .then(function(){
                             doneHandler($li, tableName);
@@ -238,8 +241,11 @@ window.RightSideBar = (function($, RightSideBar) {
 
                         prepareOrphanForActive(tableName)
                         .then(function() {
-                            return (addTable(tableName, null,
-                                            AfterStartup.After, null));
+                              var options = {
+                                afterStartup: AfterStartup.After
+                            };
+                            return (TblManager.addTable([tableName], [], [],
+                                                        options));
                         })
                         .then(function(){
                             WSManager.activeAggInfo(key, tableId);
@@ -260,11 +266,14 @@ window.RightSideBar = (function($, RightSideBar) {
                         XcalarSetFree(table.resultSetId)
                         .then(function() {
                             table.resultSetId = -1;
-                            return setTableMeta(table);
+                            return TblManager.setTableMeta(table);
                         })
                         .then(function() {
-                            return (addTable(tableName, null,
-                                             AfterStartup.After, null));
+                            var options = {
+                                afterStartup: AfterStartup.After
+                            };
+                            return (TblManager.addTable([tableName], [], [],
+                                                        options));
                         })
                         .then(function() {
                             doneHandler($li, tableName, hiddenWS);
@@ -284,7 +293,7 @@ window.RightSideBar = (function($, RightSideBar) {
                         tableIdOrName = tableId;
                     }
 
-                    deleteTable(tableIdOrName, tableType)
+                    TblManager.deleteTable(tableIdOrName, tableType)
                     .then(function() {
                         doneHandler($li, tableName);
                         innerDeferred.resolve();
@@ -450,7 +459,7 @@ window.RightSideBar = (function($, RightSideBar) {
             }
             // new "DATA" column
             newTableCols.push(ColManager.newDATACol());
-            return (setgTable(tableName, newTableCols));
+            return (TblManager.setgTable(tableName, newTableCols));
         })
         .then(function() {
             deferred.resolve();
@@ -1297,7 +1306,7 @@ window.RightSideBar = (function($, RightSideBar) {
                                 '</span>');
                     });
 
-                    $span.html(text)
+                    $span.html(text);
                 }
             });
         }

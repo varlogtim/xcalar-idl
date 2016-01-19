@@ -851,7 +851,7 @@ function initializeTable() {
                 promises.push((function(tName, tId) {
                     var innerDeferred = jQuery.Deferred();
 
-                    parallelConstruct(tId)
+                    TblManager.parallelConstruct(tId)
                     .then(innerDeferred.resolve)
                     .fail(function(thriftError) {
                         failures.push("Add table " + tName +

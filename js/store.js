@@ -144,7 +144,8 @@ function readFromStorage() {
         for (var tableId in tableIndicesLookup) {
             var oldMeta = tableIndicesLookup[tableId];
             ++tableCount;
-            promises.push(restoreTableMeta.bind(this, tableId, oldMeta, failures));
+            promises.push(TblManager.restoreTableMeta.bind(this, tableId,
+                                                           oldMeta, failures));
         }
 
         chain(promises)

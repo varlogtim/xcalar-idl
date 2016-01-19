@@ -46,10 +46,10 @@ window.xcFunction = (function($, xcFunction) {
 
         XcalarFilter(fltStr, tableName, newTableName, sqlOptions)
         .then(function() {
-            return (setgTable(newTableName, tablCols));
+            return (TblManager.setgTable(newTableName, tablCols));
         })
         .then(function() {
-            return (refreshTable(newTableName, tableName));
+            return (TblManager.refreshTable([newTableName], [tableName]));
         })
         .then(function() {
             xcHelper.unlockTable(tableId, true);
@@ -248,10 +248,10 @@ window.xcFunction = (function($, xcFunction) {
                 // sort do not change groupby stats of the table
                 Profile.copy(tableId, newTableId);
 
-                return (setgTable(newTableName, tablCols, null, null));
+                return (TblManager.setgTable(newTableName, tablCols));
             })
             .then(function() {
-                return (refreshTable(newTableName, tableName));
+                return (TblManager.refreshTable([newTableName], [tableName]));
             })
             .then(function() {
                 StatusMessage.success(msgId, false, newTableId);
@@ -351,14 +351,14 @@ window.xcFunction = (function($, xcFunction) {
                 var rRemoved = joinOptions.rRemoved;
                 var newTableCols = createJoinedColumns(lTable, rTable,
                                                        lRemoved, rRemoved);
-                return (setgTable(newTableName, newTableCols));
+                return (TblManager.setgTable(newTableName, newTableCols));
             })
             .then(function() {
                 var refreshOptions = {
-                    "keepOriginal"       : false,
-                    "additionalTableName": rTableName
+                    "keepOriginal": false
                 };
-                return (refreshTable(newTableName, lTableName, refreshOptions));
+                return (TblManager.refreshTable([newTableName],
+                                    [lTableName, rTableName], refreshOptions));
             })
             .then(function() {
                 xcHelper.unlockTable(lTableId, true);
@@ -496,11 +496,11 @@ window.xcFunction = (function($, xcFunction) {
 
             WSManager.addTable(finalTableId, curWS);
 
-            return setgTable(finalTableName, finalTableCols);
+            return TblManager.setgTable(finalTableName, finalTableCols);
         })
         .then(function() {
             var refreshOptions = {"keepOriginal": true};
-            return refreshTable(finalTableName, null, refreshOptions);
+            return TblManager.refreshTable([finalTableName], [], refreshOptions);
         })
         .then(function() {
             SQL.add("Group By", {
@@ -589,10 +589,11 @@ window.xcFunction = (function($, xcFunction) {
             newTableId = xcHelper.getTableId(newTableName);
             Profile.copy(oldTableId, newTableId);
 
-            return (setgTable(newTableName, tablCols, null, tableProperties));
+            return (TblManager.setgTable(newTableName, tablCols,
+                                         {tableProperties: tableProperties}));
         })
         .then(function() {
-            return (refreshTable(newTableName, tableName));
+            return (TblManager.refreshTable([newTableName], [tableName]));
         })
         .then(function() {
             xcHelper.unlockTable(tableId, true);
@@ -698,7 +699,8 @@ window.xcFunction = (function($, xcFunction) {
                 "rowHeights": xcHelper.deepCopy(lTable.rowHeights)
             };
 
-            return (setgTable(lNewName, lTableCols, null, lTableProperties));
+            return (TblManager.setgTable(lNewName, lTableCols,
+                                        {tableProperties: lTableProperties}));
             // XXX should change to xcHelper.when after fix async bug in refresh
            
         })
@@ -706,7 +708,8 @@ window.xcFunction = (function($, xcFunction) {
             var refreshOptions = {
                 "lockTable": true
             };
-            return (refreshTable(lNewName, lTableName, refreshOptions));
+            return (TblManager.refreshTable([lNewName], [lTableName],
+                                            refreshOptions));
         })
         .then(function() {
             var rTableCols = xcHelper.mapColGenerate(rColNum, rFieldName,
@@ -716,13 +719,15 @@ window.xcFunction = (function($, xcFunction) {
                 "rowHeights": xcHelper.deepCopy(rTable.rowHeights)
             };
 
-            return (setgTable(rNewName, rTableCols, null, rTableProperties));
+            return (TblManager.setgTable(rNewName, rTableCols,
+                                        {tableProperties: rTableProperties}));
         })
         .then(function() {
             var refreshOptions = {
                 "lockTable": true
             };
-            return (refreshTable(rNewName, rTableName, refreshOptions));
+            return (TblManager.refreshTable([rNewName], [rTableName],
+                                            refreshOptions));
         })
         .then(function() {
 
@@ -1024,7 +1029,7 @@ window.xcFunction = (function($, xcFunction) {
                 .then(function() {
                     var tablCols = xcHelper.deepCopy(table.tableCols);
 
-                    setgTable(newTableName, tablCols);
+                    TblManager.setgTable(newTableName, tablCols);
                     gTables[newTableId].active = false;
 
                     var tableResult = {
@@ -1086,7 +1091,7 @@ window.xcFunction = (function($, xcFunction) {
             // add mapped table meta
             WSManager.addTable(mapTableId, curWS);
             var tableCols = xcHelper.deepCopy(srcTableCols);
-            return setgTable(mapTableName, tableCols);
+            return TblManager.setgTable(mapTableName, tableCols);
         })
         .then(function() {
             // inactive the mapped table and add info in right side bar
@@ -1120,7 +1125,7 @@ window.xcFunction = (function($, xcFunction) {
             // add indexed table meta
             WSManager.addTable(indexedTableId, curWS);
             var tableCols = xcHelper.deepCopy(srcTableCols);
-            return setgTable(indexedTableName, tableCols);
+            return TblManager.setgTable(indexedTableName, tableCols);
         })
         .then(function() {
             // inactive the reIndexed table and add info in right side bar
@@ -1152,7 +1157,7 @@ window.xcFunction = (function($, xcFunction) {
         var tableCols = extractColGetColHelper(finalTableCols, 0, isIncSample);
         var lastTableName;
 
-        setgTable(groupbyTableName, tableCols)
+        TblManager.setgTable(groupbyTableName, tableCols)
         .then(function() {
             var groubyTableId = xcHelper.getTableId(groupbyTableName);
 
@@ -1245,7 +1250,7 @@ window.xcFunction = (function($, xcFunction) {
                 return promiseWrapper(null);
             } else {
                 WSManager.addTable(newTableId, curWS);
-                return setgTable(newTableName, tableCols);
+                return TblManager.setgTable(newTableName, tableCols);
             }
         })
         .then(function() {

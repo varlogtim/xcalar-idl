@@ -1087,7 +1087,7 @@ window.WSManager = (function($, WSManager) {
             // archiveTable(tableId, ArchiveTable.Keep, null, true);
 
             toggleTableArchive(tableId, tables, hiddenTables);
-            hideWorksheetTable(tableId);
+            TblManager.hideWorksheetTable(tableId);
         }
 
         RightSideBar.tablesToHiddenWS(wsId);
@@ -1214,7 +1214,7 @@ window.WSManager = (function($, WSManager) {
 
         for (var i = 0, len = tableIds.length; i < len; i++) {
             var tableId = tableIds[i];
-            archiveTable(tableId, ArchiveTable.Keep);
+            TblManager.archiveTable(tableId, {del: ArchiveTable.Keep});
             noSheetTables.push(tableId);
         }
 

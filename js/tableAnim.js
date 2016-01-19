@@ -870,7 +870,7 @@ function addTableMenuActions() {
         }
         tableId = $tableMenu.data('tableId');
         var tableName = gTables[tableId].tableName;
-        archiveTable(tableId, ArchiveTable.Keep);
+        TblManager.archiveTable(tableId, {del: ArchiveTable.Keep});
         // add sql
         SQL.add('Archive Table', {
             "operation": SQLOps.ArchiveTable,
@@ -932,7 +932,7 @@ function addTableMenuActions() {
             "msg"       : msg,
             "isCheckBox": true,
             "confirm"   : function() {
-                deleteTable(tableId, TableType.Active)
+                tblManager.deleteTable(tableId, TableType.Active)
                 .then(function() {
                     commitToStorage();
                 })
@@ -1850,11 +1850,11 @@ function unHighlightCell($td) {
 }
 
 function setupTableColumnsMenu() {
-    generateTableDropDown();
+    TblManager.generateTableDropDown();
     addMenuBehaviors($('#tableMenu'));
     addTableMenuActions();
 
-    generateColDropDowns();
+    TblManager.generateColDropDowns();
     addMenuBehaviors($('#colMenu'));
     addMenuBehaviors($('#cellMenu'));
     addColMenuActions();
@@ -2984,7 +2984,7 @@ function unnest($jsonTd, isArray, options) {
             colHeadNum++;
         }
 
-        ths += generateColumnHeadHTML(columnClass, color, colHeadNum,
+        ths += TblManager.generateColumnHeadHTML(columnClass, color, colHeadNum,
                                       {name: key, width: gNewCellWidth});
     }
     var rowNum = xcHelper.parseRowNum($table.find('tbody').find('tr:eq(0)'));
@@ -3015,7 +3015,8 @@ function unnest($jsonTd, isArray, options) {
 
     var dataIndex = xcHelper.parseColNum($table.find('th.dataCol')) - 1;
 
-    pullRowsBulk(tableId, jsonObj, rowNum, dataIndex, RowDirection.Bottom);
+    TblManager.pullRowsBulk(tableId, jsonObj, rowNum, dataIndex,
+                            RowDirection.Bottom);
     updateTableHeader(tableId);
     RightSideBar.updateTableInfo(tableId);
     moveTableDropdownBoxes();

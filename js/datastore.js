@@ -1475,14 +1475,15 @@ window.DataCart = (function($, DataCart) {
                 XcalarIndexFromDataset(datasetName, "recordNum", tableName,
                                        sqlOptions)
                 .then(function() {
-                    return (setgTable(tableName, newTableCols, datasetName, tableProperties));
+                    return (TblManager.setgTable(tableName, newTableCols,
+                                       {tableProperties: tableProperties}));
                 })
                 .then(function() {
                     var options = {
                         "keepOriginal"  : true,
                         "focusWorkspace": true
                     };
-                    return (refreshTable(tableName, null, options));
+                    return (TblManager.refreshTable([tableName], [], options));
                 })
                 .then(function() {
                     StatusMessage.success(msgId, false,

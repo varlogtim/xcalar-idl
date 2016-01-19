@@ -126,7 +126,8 @@ window.ColManager = (function($, ColManager) {
             "isHidden": isHidden
         };
 
-        var $th = $(generateColumnHeadHTML(columnClass, color, newColid, options));
+        var $th = $(TblManager.generateColumnHeadHTML(columnClass, color,
+                                                      newColid, options));
         $tableWrap.find('.th.col' + (newColid - 1)).after($th);
 
         if (isNewCol) {
@@ -429,14 +430,16 @@ window.ColManager = (function($, ColManager) {
                 // map do not change stats of the table
                 Profile.copy(curTableId, newTableId);
 
-                return setgTable(newTableName, newTablCols, null, tableProperties);
+                return (TblManager.setgTable(newTableName, newTablCols,
+                                 {tableProperties: tableProperties}));
             })
             .then(function() {
                 var refreshOptions = {};
                 if (index > 0) {
                     refreshOptions = {"lockTable": true};
                 }
-                return refreshTable(newTableName, curTableName, refreshOptions);
+                return TblManager.refreshTable([newTableName], [curTableName],
+                                               refreshOptions);
             })
             .then(function() {
                 innerDeferred.resolve(newTableId);
@@ -821,10 +824,11 @@ window.ColManager = (function($, ColManager) {
             finalCols[colNames.length] = ColManager.newDATACol(); 
             WSManager.addTable(xcHelper.getTableId(tableNames["finalTableName"])
                                , WSManager.getActiveWS());
-            return setgTable(tableNames["finalTableName"], finalCols);
+            return (TblManager.setgTable(tableNames["finalTableName"],
+                                         finalCols));
         })
         .then(function() {
-            return refreshTable(tableNames["finalTableName"], null,
+            return TblManager.refreshTable([tableNames["finalTableName"]], [],
                                 {"keepOriginal": true})
         })
         .then(function() {
@@ -1242,14 +1246,16 @@ window.ColManager = (function($, ColManager) {
                 // map do not change stats of the table
                 Profile.copy(curTableId, newTableId);
 
-                return (setgTable(newTableName, newTablCols, null, tableProperties));
+                return (TblManager.setgTable(newTableName, newTablCols,
+                                           {tableProperties: tableProperties}));
             })
             .then(function() {
                 var refreshOptions = {};
                 if (index < numColToGet) {
                     refreshOptions = { "lockTable": true };
                 }
-                return (refreshTable(newTableName, curTableName, refreshOptions));
+                return (TblManager.refreshTable([newTableName], [curTableName],
+                        refreshOptions));
             })
             .then(function() {
                 innerDeferred.resolve(newTableId);

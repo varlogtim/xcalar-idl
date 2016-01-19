@@ -109,7 +109,7 @@ function goToPage(rowNumber, numRowsToAdd, direction, loop, info,
         info.numRowsAdded += jsonLen;
         // numRowsBefore = $table.find('tbody tr').length;
 
-        pullRowsBulk(tableId, jsonObj, rowPosition, null,
+        TblManager.pullRowsBulk(tableId, jsonObj, rowPosition, null,
                      direction, rowToPrependTo);
 
         var numRowsStillNeeded = info.numRowsToAdd - info.numRowsAdded;
