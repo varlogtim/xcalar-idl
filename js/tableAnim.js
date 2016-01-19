@@ -2446,43 +2446,41 @@ function addColMenuActions() {
         }
     });
 
-    $subMenu.on('keypress', '.explodeNums', function(event) {
+    $subMenu.on('keypress', '.partitionNums', function(event) {
         if (event.which === keyCode.Enter) {
             var colNum = $colMenu.data("colNum");
             tableId = $colMenu.data('tableId');
 
             var $input = $(this);
-            var explodeNums = $input.val().trim();
-
-            if (explodeNums === "") {
-                explodeNums = 10; // the largest number we allow
-            } else {
-                explodeNums = Number(explodeNums);
-                var isValid = xcHelper.validate([
-                    {
-                        "$selector": $input,
-                        "text"     : ErrorTextTStr.OnlyNumber,
-                        "check"    : function() {
-                            return (isNaN(explodeNums) ||
-                                    !Number.isInteger(explodeNums));
-                        }
-                    },
-                    {
-                        "$selector": $input,
-                        "text"     : ErrorTextWReplaceTStr.InvalidRange
-                                    .replace("<num1>", 1).replace("<num2>", 10),
-                        "check" : function() {
-                            return explodeNums < 1 || explodeNums > 10;
-                        }
+            var partitionNums = Number($input.val().trim());
+            var isValid = xcHelper.validate([
+                {
+                    "$selector": $input,
+                    "text"     : ErrorTextTStr.OnlyNumber
+                },
+                {
+                    "$selector": $input,
+                    "text"     : ErrorTextTStr.OnlyNumber,
+                    "check"    : function() {
+                        return (isNaN(partitionNums) ||
+                                !Number.isInteger(partitionNums));
                     }
-                ]);
-
-                if (!isValid) {
-                    return;
+                },
+                {
+                    "$selector": $input,
+                    "text"     : ErrorTextWReplaceTStr.InvalidRange
+                                .replace("<num1>", 1).replace("<num2>", 10),
+                    "check" : function() {
+                        return partitionNums < 1 || partitionNums > 10;
+                    }
                 }
+            ]);
+
+            if (!isValid) {
+                return;
             }
 
-            ColManager.explodeCol(colNum, tableId, explodeNums);
+            ColManager.hPartition(colNum, tableId, partitionNums);
             $input.val("").blur();
             closeMenu($allMenus);
         }

@@ -33,8 +33,8 @@ StatusMessageTStr = {
 'StatisticsFailed' : 'Statistical analysis failed',
 "Window": "Performing Window",
 "WindowFailed": "Window Failed",
-"Explode": "Horizontal Partitioning",
-"ExplodeFailed": "Horizontal Partitioning Failed"
+"HorizontalPartition": "Performing Horizontal Partition",
+"HPartitionFailed": "Horizontal Partition Failed"
 };
 
 TooltipTStr = {

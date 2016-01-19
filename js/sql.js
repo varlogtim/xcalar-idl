@@ -287,7 +287,7 @@ window.SQL = (function($, SQL) {
             // XXX since temporarily not use XcalarQuery
             case (SQLOps.ChangeType):
                 // fallthrough
-            case (SQLOps.Explode):
+            case (SQLOps.hPartition):
                 // fallthrough
                 break;
 
@@ -314,7 +314,7 @@ window.SQL = (function($, SQL) {
             // XXX since temporarily not use XcalarQuery
             // case (SQLOps.ChangeType):
             case (SQLOps.ChangeTypeMap):
-            case (SQLOps.ExplodeAction):
+            case (SQLOps.hPartitionAction):
                 string += sql.cli;
                 break;
             default:

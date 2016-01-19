@@ -200,8 +200,8 @@ var SQLOps = {
     ChangeFormat: "changeFormat",
     RoundToFixed: "roundToFixed",
     Window: "window",
-    Explode: "explode",
-    ExplodeAction: "explodeAction"
+    hPartition: "horizontalPartition",
+    hPartitionAction: "horizontalPartitionAction"
 };
 
 var TooltipTemplate = {

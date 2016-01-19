@@ -682,6 +682,9 @@ window.TblManager = (function($, TblManager) {
                 '<li class="splitCol parentMenu" data-submenu="splitCol">' +
                     'Split column' +
                 '</li>' +
+                '<li class="hPartition parentMenu" data-submenu="hPartition">' +
+                    'Horizontal Partition' +
+                '</li>' +
                 '<li class="changeDataType parentMenu" data-submenu="changeDataType">' +
                     'Change data type' +
                 '</li>' +
@@ -764,6 +767,13 @@ window.TblManager = (function($, TblManager) {
                         '<div>Number of Split Columns</div>' +
                         '<input class="num" type="number" min="1" step="1"' +
                             ' placeholder="Unlimited if left blank"/>' +
+                    '</li>' +
+                '</ul>' +
+                '<ul class="hPartition">' +
+                    '<li style="text-align: center" class="clickable">' +
+                        '<div>Number of partitions</div>' +
+                        '<input class="partitionNums" type="number"' +
+                        ' placeholder="Max value of 10"/>' +
                     '</li>' +
                 '</ul>' +
                 '<ul class="changeDataType">';

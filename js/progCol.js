@@ -852,9 +852,10 @@ window.ColManager = (function($, ColManager) {
         }
     };
 
-    ColManager.explodeCol = function(colNum, tableId, explodeNums) {
+    // Horizontal Partition
+    ColManager.hPartition = function(colNum, tableId, partitionNums) {
         var isValidParam = (colNum != null && tableId != null &&
-                            explodeNums != null);
+                            partitionNums != null);
         xcHelper.assert(isValidParam, "Invalid Parameters");
 
         var deferred    = jQuery.Deferred();
@@ -862,24 +863,33 @@ window.ColManager = (function($, ColManager) {
         var table       = gTables[tableId];
         var tableName   = table.tableName;
         var tableCols   = table.tableCols;
+        var colType     = tableCols[colNum - 1].type;
         var colName     = tableCols[colNum - 1].name;
         var backColName = tableCols[colNum - 1].func.args[0];
 
+        if (colType !== "integer" && colType !== "float" &&
+            colType !== "string" && colType !== "boolean") {
+            console.error("Invalid col type!");
+            deferred.reject("Invalid col type!");
+            return (deferred.promise());
+        }
+
         var tableNamePart = tableName.split("#")[0];
         var msgId = StatusMessage.addMsg({
-            "msg"      : StatusMessageTStr.Explode,
-            "operation": SQLOps.Explode
+            "msg"      : StatusMessageTStr.HorizontalPartition,
+            "operation": SQLOps.hPartition
         });
 
         xcHelper.lockTable(tableId);
 
-        getUniqueValues(explodeNums)
+        getUniqueValues(partitionNums)
         .then(function(uniqueVals) {
             var len = uniqueVals.length;
             var promises = [];
 
             for (var i = 0; i < len; i++) {
-                promises.push(explodeHelper.bind(this, uniqueVals[i], i));
+                promises.push(hPartitionHelper.bind(this, uniqueVals[i],
+                                                    i, colType));
             }
 
             return chain(promises);
@@ -889,34 +899,48 @@ window.ColManager = (function($, ColManager) {
             StatusMessage.success(msgId, false, finalTableId);
 
             SQL.add("Horizontal Partitioning", {
-                "operation"  : SQLOps.Explode,
-                "tableName"  : tableName,
-                "tableId"    : tableId,
-                "colNum"     : colNum,
-                "colName"    : colName,
-                "explodeNums": explodeNums
+                "operation"    : SQLOps.hPartition,
+                "tableName"    : tableName,
+                "tableId"      : tableId,
+                "colNum"       : colNum,
+                "colName"      : colName,
+                "partitionNums": partitionNums
             });
 
             commitToStorage();
             deferred.resolve();
         })
-        .fail(function() {
-            deferred.reject();
+        .fail(function(error) {
+            xcHelper.unlockTable(tableId);
+            Alert.error("Horizontal Partition failed", error);
+            SQL.errorLog("Horizontal Partition failed", error);
+            StatusMessage.fail(StatusMessageTStr.HPartitionFailed, msgId);
+            deferred.reject(error);
         });
 
         return (deferred.promise());
 
-        function explodeHelper(fltVal, index) {
+        function hPartitionHelper(fltVal, index, type) {
             var innerDeferred = jQuery.Deferred();
 
             var srcTable = tableName;
-            var fltStr = "eq(" + backColName + ", " + fltVal + ")";
-            var filterTable = tableNamePart + "-explode" + index +
+            var filterTable = tableNamePart + "-Partition" + (index + 1) +
                                 Authentication.getHashId();
             var filterTableId = xcHelper.getTableId(filterTable);
+            var fltStr;
+
+            switch (type) {
+                case "string":
+                    fltStr = "eq(" + backColName + ", \"" + fltVal + "\")";
+                    break;
+                default:
+                    // integer, float and boolean
+                    fltStr = "eq(" + backColName + ", " + fltVal + ")";
+                    break;
+            }
 
             var filterSql = {
-                "operation"   : SQLOps.ExplodeAction,
+                "operation"   : SQLOps.hPartitionAction,
                 "action"      : "filter",
                 "filterString": fltStr,
                 "newTableName": filterTable
@@ -928,11 +952,11 @@ window.ColManager = (function($, ColManager) {
 
                 var filterCols = xcHelper.deepCopy(tableCols);
 
-                return setgTable(filterTable, filterCols);
+                return TblManager.setgTable(filterTable, filterCols);
             })
             .then(function() {
                 var refreshOptions = {"keepOriginal": true};
-                return refreshTable(filterTable, null, refreshOptions);
+                return TblManager.refreshTable([filterTable], null, refreshOptions);
             })
             .then(function() {
                 innerDeferred.resolve(filterTableId);
@@ -955,7 +979,7 @@ window.ColManager = (function($, ColManager) {
             var sortTable;
 
             var actionSql = {
-                "operation"   : SQLOps.ExplodeAction,
+                "operation"   : SQLOps.hPartitionAction,
                 "action"      : "index",
                 "colName"     : keyCol,
                 "newTableName": indexTable
@@ -976,7 +1000,7 @@ window.ColManager = (function($, ColManager) {
 
 
                 actionSql = {
-                    "operation"   : SQLOps.ExplodeAction,
+                    "operation"   : SQLOps.hPartitionAction,
                     "action"      : "groupBy",
                     "operator"    : groupByOp,
                     "groupByCol"  : groupByCol,
@@ -994,7 +1018,7 @@ window.ColManager = (function($, ColManager) {
                             + Authentication.getHashId();
 
                 actionSql = {
-                    "operation"   : SQLOps.ExplodeAction,
+                    "operation"   : SQLOps.hPartitionAction,
                     "action"      : "sort",
                     "key"         : groupByCol,
                     "direction"   : "desc",
@@ -1036,7 +1060,7 @@ window.ColManager = (function($, ColManager) {
         function fetchDataHelper(resultSetId, rowPosition, rowsToFetch, data) {
             var innerDeferred = jQuery.Deferred();
 
-            XcalarSetAbsolute(resultSetId, 0)
+            XcalarSetAbsolute(resultSetId, rowPosition)
             .then(function() {
                 return XcalarGetNextPage(resultSetId, rowsToFetch);
             })
