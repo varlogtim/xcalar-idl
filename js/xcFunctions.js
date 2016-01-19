@@ -97,19 +97,21 @@ window.xcFunction = (function($, xcFunction) {
 
         var aggInfo = WSManager.checkAggInfo(tableId, backColName, aggrOp);
         if (aggInfo != null) {
+            xcHelper.unlockTable(tableId);
             setTimeout(function() {
                 Alert.show({
                     "title"  : "Aggregate: " + aggrOp,
                     "instr"  : instr,
                     "msg"    : '{"Value":' + aggInfo.value + "}",
-                    "isAlert": true
+                    "isAlert": true,
+                    "noAnimate": true
                 });
                 StatusMessage.success(msgId, false, tableId);
-                xcHelper.unlockTable(tableId);
+                
 
                 deferred.resolve();
             }, 500);
-
+            
             return (deferred.promise());
         }
 
@@ -125,13 +127,16 @@ window.xcFunction = (function($, xcFunction) {
         XcalarAggregate(backColName, tableName, aggrOp, sqlOptions)
         .then(function(value, dstDagName) {
             // show result in alert modal
-            Alert.show({
-                "title"  : "Aggregate: " + aggrOp,
-                "instr"  : instr,
-                "msg"    : value,
-                "isAlert": true
-            });
-
+            setTimeout(function() {
+                Alert.show({
+                    "title"    : "Aggregate: " + aggrOp,
+                    "instr"    : instr,
+                    "msg"      : value,
+                    "isAlert"  : true,
+                    'noAnimate': true
+                });
+            }, 500);
+            
             try {
                 var val = JSON.parse(value);
                 // dagName is the result table name for aggreagate
@@ -301,8 +306,8 @@ window.xcFunction = (function($, xcFunction) {
             lTableId = res.lTableId;
             rTableId = res.rTableId;
 
-            lColNum = res.lColNum;
-            rColNum = res.rColNum;
+            var lColNum = res.lColNum;
+            var rColNum = res.rColNum;
 
             var joinOptions = res.joinOptions || {};
 

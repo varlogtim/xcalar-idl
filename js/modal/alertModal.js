@@ -43,6 +43,7 @@ window.Alert = (function($, Alert){
             confirm: callback to trigger when click confirm button
             cancel:  callback to trigger when click cancel button
             lockScreen: if screen should be frozen
+            noAnimate: boolean, if true then remove fade in animation
         */
         if ($alertModal.hasClass('locked')) {
             // this handle the case that some modal failure handler
@@ -78,7 +79,7 @@ window.Alert = (function($, Alert){
             "top" : top
         });
 
-        if (gMinModeOn) {
+        if (gMinModeOn || options.noAnimate) {
             $modalBackground.show();
             $alertModal.show();
             Tips.refresh();
