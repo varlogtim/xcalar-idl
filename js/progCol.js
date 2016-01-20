@@ -1035,7 +1035,7 @@ window.ColManager = (function($, ColManager) {
                 var totalRows = resultSet.numEntries;
 
                 if (totalRows == null || totalRows === 0) {
-                    return jQuery.Deferred.reject("No Data!").promise();
+                    return jQuery.Deferred().reject("No Data!").promise();
                 } else {
                     rowsToFetch = Math.min(rowsToFetch, totalRows);
                     return fetchDataHelper(resultSetId, 0, rowsToFetch, data);
