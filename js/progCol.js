@@ -422,24 +422,23 @@ window.ColManager = (function($, ColManager) {
 
                 var newTablCols = xcHelper.mapColGenerate(curColNum, fieldName,
                                         mapString, curTableCols, mapOptions);
-                var tableProperties = {
-                    "bookmarks" : xcHelper.deepCopy(table.bookmarks),
-                    "rowHeights": xcHelper.deepCopy(table.rowHeights)
-                };
+                
 
                 // map do not change stats of the table
                 Profile.copy(curTableId, newTableId);
 
-                return (TblManager.setgTable(newTableName, newTablCols,
-                                 {tableProperties: tableProperties}));
-            })
-            .then(function() {
-                var refreshOptions = {};
+                var tableProperties = {
+                    "bookmarks" : xcHelper.deepCopy(table.bookmarks),
+                    "rowHeights": xcHelper.deepCopy(table.rowHeights)
+                };
+                var refreshOptions = {
+                    tableProperties: tableProperties
+                };
                 if (index > 0) {
-                    refreshOptions = {"lockTable": true};
+                    refreshOptions.lockTable = true;
                 }
-                return TblManager.refreshTable([newTableName], [curTableName],
-                                               refreshOptions);
+                return TblManager.refreshTable([newTableName], newTablCols, 
+                                               [curTableName], refreshOptions);
             })
             .then(function() {
                 innerDeferred.resolve(newTableId);
@@ -824,11 +823,8 @@ window.ColManager = (function($, ColManager) {
             finalCols[colNames.length] = ColManager.newDATACol(); 
             WSManager.addTable(xcHelper.getTableId(tableNames["finalTableName"])
                                , WSManager.getActiveWS());
-            return (TblManager.setgTable(tableNames["finalTableName"],
-                                         finalCols));
-        })
-        .then(function() {
-            return TblManager.refreshTable([tableNames["finalTableName"]], []);
+            return TblManager.refreshTable([tableNames["finalTableName"]],
+                                            finalCols, []);
         })
         .then(function() {
             var finalTableId = xcHelper.getTableId(tableNames["finalTableName"]);
@@ -948,14 +944,9 @@ window.ColManager = (function($, ColManager) {
             XcalarFilter(fltStr, srcTable, filterTable, filterSql)
             .then(function() {
                 WSManager.addTable(filterTableId, currentWS);
-
                 var filterCols = xcHelper.deepCopy(tableCols);
 
-                return TblManager.setgTable(filterTable, filterCols);
-            })
-            .then(function() {
-      
-                return TblManager.refreshTable([filterTable], null);
+                return TblManager.refreshTable([filterTable], filterCols);
             })
             .then(function() {
                 innerDeferred.resolve(filterTableId);
@@ -1260,24 +1251,24 @@ window.ColManager = (function($, ColManager) {
                 var newTablCols  = xcHelper.mapColGenerate(++colNum,
                                         fieldName, mapString, curTableCols,
                                         mapOptions);
-                var tableProperties = {
-                    "bookmarks" : xcHelper.deepCopy(table.bookmarks),
-                    "rowHeights": xcHelper.deepCopy(table.rowHeights)
-                };
+               
 
                 // map do not change stats of the table
                 Profile.copy(curTableId, newTableId);
 
-                return (TblManager.setgTable(newTableName, newTablCols,
-                                           {tableProperties: tableProperties}));
-            })
-            .then(function() {
-                var refreshOptions = {};
+                var tableProperties = {
+                    "bookmarks" : xcHelper.deepCopy(table.bookmarks),
+                    "rowHeights": xcHelper.deepCopy(table.rowHeights)
+                };
+                var refreshOptions = {
+                    tableProperties: tableProperties
+                };
                 if (index < numColToGet) {
-                    refreshOptions = { "lockTable": true };
+                    refreshOptions.lockTable = true;
                 }
-                return (TblManager.refreshTable([newTableName], [curTableName],
-                        refreshOptions));
+                return (TblManager.refreshTable([newTableName], newTableCols,
+                                                [curTableName],
+                                                refreshOptions));
             })
             .then(function() {
                 innerDeferred.resolve(newTableId);

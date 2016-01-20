@@ -1,7 +1,8 @@
 window.TblManager = (function($, TblManager) {
 
     /**
-        This function takes in an array of newTable names to be added, and an array
+        This function takes in an array of newTable names to be added,
+        an array of tableCols, and an array
         of oldTable names that will be modified due to a function.
         Inside oldTables, if there is an anchor table, we move it to the start
         of the array. If there is a need for more than 1 piece of information,
@@ -16,13 +17,15 @@ window.TblManager = (function($, TblManager) {
                       being added during page load
 
     */
-    TblManager.refreshTable = function(newTableNames, oldTableNames, options) {
+    TblManager.refreshTable = function(newTableNames, tableCols, oldTableNames,
+                                       options) {
         var deferred = jQuery.Deferred();
         options = options || {};
         oldTableNames = oldTableNames || [];
 
         var focusWorkspace = options.focusWorkspace;
         var lockTable = options.lockTable;
+        var tableProperties = options.tableProperties;
         var afterStartup;
         if (options.afterStartup === undefined) {
             afterStartup = true;
@@ -35,79 +38,89 @@ window.TblManager = (function($, TblManager) {
 
         // XX temp;
         var newTableName = newTableNames[0];
-
-        if (focusWorkspace) {
-            focusOnWorkspace();
-        }
-
-        if (numOldTables) {
-            // there are old tables we will replace
-            var targetTable = oldTableNames[0];
-            var targetTableId = xcHelper.getTableId(oldTableNames[0]);
-            var tablesToRemove = [];
-            var tableToRemove;
-
-            if (numOldTables < 2) {
-                tablesToRemove.push(targetTableId);
-            } else {
-                // XX Can't assume just 2 tables exist in oldtablenames
-                var addTableId = xcHelper.getTableId(oldTableNames[1]);
-                var firstTablePos  = WSManager.getTablePosition(targetTableId);
-                var secondTablePos = WSManager.getTablePosition(addTableId);
-
-                if (firstTablePos > secondTablePos) {
-                    targetTable = oldTableNames[1];
-                    tableToRemove = targetTableId;
-                } else {
-                    targetTable = oldTableNames[0];
-                    tableToRemove = addTableId;
-                }
-
-                tablesToRemove.push(tableToRemove);
-
-                if (firstTablePos !== secondTablePos) {
-                    // if targetTableId == tableToRemove, it's self, join
-                    // no need to push the secondTableToRemove
-                    var secondTableId = xcHelper.getTableId(targetTable);
-                    tablesToRemove.push(secondTableId);
-                }
+        TblManager.setgTable(newTableName, tableCols,
+                            {tableProperties: tableProperties})
+        .then(function() {
+            if (focusWorkspace) {
+                focusOnWorkspace();
             }
+            var addTableOptions;
 
-            var options = {
-                afterStartup: afterStartup,
-                lockTable: lockTable
-            };
-            addTable([newTableName], [targetTable], tablesToRemove,
-                                options)
-            .then(function() {
-                // highlight the table if no other tables in WS are selected
-                var wsNum = WSManager.getActiveWS();
-                if ($('.xcTableWrap.worksheet-' + wsNum).find('.tblTitleSelected')
-                                                        .length === 0) {
-                    var tableId = xcHelper.getTableId(newTableName);
-                    focusTable(tableId);
-                }
-                deferred.resolve();
-            })
-            .fail(function(error) {
-                console.error("refreshTable fails!");
-                deferred.reject(error);
-            });
-        } else {
-            // append newly created table to the back, do not remove any tables
-            addTable([newTableName], oldTableNames, [], afterStartup)
-            .then(function() {
-                if (focusWorkspace) {
-                    scrollAndFocusTable(newTableName);
-                }
-                deferred.resolve();
-            })
-            .fail(function(error) {
-                console.error("refreshTable fails!");
-                deferred.reject(error);
-            });
-        }
+            if (numOldTables) {
+                // there are old tables we will replace
+                var targetTable = oldTableNames[0];
+                var targetTableId = xcHelper.getTableId(oldTableNames[0]);
+                var tablesToRemove = [];
+                var tableToRemove;
 
+                if (numOldTables < 2) {
+                    tablesToRemove.push(targetTableId);
+                } else {
+                    // XX Can't assume just 2 tables exist in oldtablenames
+                    var addTableId = xcHelper.getTableId(oldTableNames[1]);
+                    var firstTablePos  = WSManager.getTablePosition(targetTableId);
+                    var secondTablePos = WSManager.getTablePosition(addTableId);
+
+                    if (firstTablePos > secondTablePos) {
+                        targetTable = oldTableNames[1];
+                        tableToRemove = targetTableId;
+                    } else {
+                        targetTable = oldTableNames[0];
+                        tableToRemove = addTableId;
+                    }
+
+                    tablesToRemove.push(tableToRemove);
+
+                    if (firstTablePos !== secondTablePos) {
+                        // if targetTableId == tableToRemove, it's self, join
+                        // no need to push the secondTableToRemove
+                        var secondTableId = xcHelper.getTableId(targetTable);
+                        tablesToRemove.push(secondTableId);
+                    }
+                }
+
+                addTableOptions = {
+                    afterStartup: afterStartup,
+                    lockTable: lockTable
+                };
+                addTable([newTableName], [targetTable], tablesToRemove,
+                                    addTableOptions)
+                .then(function() {
+                    // highlight the table if no other tables in WS are selected
+                    var wsNum = WSManager.getActiveWS();
+                    if ($('.xcTableWrap.worksheet-' + wsNum).find('.tblTitleSelected')
+                                                            .length === 0) {
+                        var tableId = xcHelper.getTableId(newTableName);
+                        focusTable(tableId);
+                    }
+                    deferred.resolve();
+                })
+                .fail(function(error) {
+                    console.error("refreshTable fails!");
+                    deferred.reject(error);
+                });
+            } else {
+                // append newly created table to the back, do not remove any tables
+                addTableOptions = {
+                    afterStartup: afterStartup
+                };
+                addTable([newTableName], oldTableNames, [], addTableOptions)
+                .then(function() {
+                    if (focusWorkspace) {
+                        scrollAndFocusTable(newTableName);
+                    }
+                    deferred.resolve();
+                })
+                .fail(function(error) {
+                    console.error("refreshTable fails!");
+                    deferred.reject(error);
+                });
+            }
+        })
+        .fail(function(error) {
+            deferred.reject(error);
+        });
+        
         return (deferred.promise());
     };
 
@@ -118,7 +131,6 @@ window.TblManager = (function($, TblManager) {
         Possible Options:
         afterStartup: boolean to indicate if the table is added after page load
     */
-
     TblManager.parallelConstruct = function (tableId, tablesToRemove, options) {
         options = options || {};
         var deferred  = jQuery.Deferred();
@@ -166,6 +178,36 @@ window.TblManager = (function($, TblManager) {
 
             deferred.resolve();
         })
+        .fail(deferred.reject);
+
+        return (deferred.promise());
+    };
+
+    /*
+        Sets gTable meta data
+        Possible Options:
+        tableProperties: an object containing bookmarks and rowheights;
+
+    */
+    TblManager.setgTable = function(tName, tableCols, options) {
+        var deferred = jQuery.Deferred();
+        var tableId = xcHelper.getTableId(tName);
+        options = options || {};
+        var tableProperties = options.tableProperties;
+
+        gTables[tableId] = new TableMeta({
+            "tableId"  : tableId,
+            "tableName": tName,
+            "tableCols": tableCols
+        });
+
+        if (tableProperties) {
+            gTables[tableId].bookmarks = tableProperties.bookmarks || [];
+            gTables[tableId].rowHeights = tableProperties.rowHeights || {};
+        }
+
+        TblManager.setTableMeta(gTables[tableId])
+        .then(deferred.resolve)
         .fail(deferred.reject);
 
         return (deferred.promise());
@@ -414,37 +456,6 @@ window.TblManager = (function($, TblManager) {
         var $workspacePanel = $('#workspacePanel');
         $workspacePanel.append(tableMenuHTML);
         $workspacePanel.append(subMenuHTML);
-    };
-
-
-    /*
-        Sets gTable meta data
-        Possible Options:
-        tableProperties: an object containing bookmarks and rowheights;
-
-    */
-    TblManager.setgTable = function(tName, tableCols, options) {
-        var deferred = jQuery.Deferred();
-        var tableId = xcHelper.getTableId(tName);
-        options = options || {};
-        var tableProperties = options.tableProperties;
-
-        gTables[tableId] = new TableMeta({
-            "tableId"  : tableId,
-            "tableName": tName,
-            "tableCols": tableCols
-        });
-
-        if (tableProperties) {
-            gTables[tableId].bookmarks = tableProperties.bookmarks || [];
-            gTables[tableId].rowHeights = tableProperties.rowHeights || {};
-        }
-
-        TblManager.setTableMeta(gTables[tableId])
-        .then(deferred.resolve)
-        .fail(deferred.reject);
-
-        return (deferred.promise());
     };
 
     // get meta data about table

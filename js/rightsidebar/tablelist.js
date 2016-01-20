@@ -344,8 +344,9 @@ window.TableList = (function($, TableList) {
                             WSManager.addTable(tableId);
                             return (prepareOrphanForActive(tableName));
                         })
-                        .then(function() {
-                            return (TblManager.refreshTable([tableName]));
+                        .then(function(newTableCols) {
+                            return (TblManager.refreshTable([tableName],
+                                                            newTableCols));
                         })
                         .then(function(){
                             doneHandler($li, tableName);
@@ -363,9 +364,9 @@ window.TableList = (function($, TableList) {
                         WSManager.addTable(tableId);
 
                         prepareOrphanForActive(tableName)
-                        .then(function() {
- 
-                            return (TblManager.refreshTable([tableName]));
+                        .then(function(newTableCols) {
+                            return (TblManager.refreshTable([tableName],
+                                                            newTableCols));
                         })
                         .then(function(){
                             WSManager.activeAggInfo(key, tableId);
@@ -381,15 +382,20 @@ window.TableList = (function($, TableList) {
                     } else {
                         table.beActive();
                         table.updateTimeStamp();
-                        // should release the old resultSetId and than add
+                        // should release the old resultSetId and then add
 
                         XcalarSetFree(table.resultSetId)
                         .then(function() {
                             table.resultSetId = -1;
-                            return TblManager.setTableMeta(table);
-                        })
-                        .then(function() {
-                            return (TblManager.refreshTable([tableName]));
+                            var tblCols = table.tableCols;
+                            var tableProperties = {
+                                bookmarks: table.bookmarks,
+                                rowHeights: table.rowHeights
+                            };
+                            return (TblManager.refreshTable([tableName],
+                                                            tblCols,
+                                                            [],
+                                           {tableProperties: tableProperties}));
                         })
                         .then(function() {
                             doneHandler($li, tableName, hiddenWS);
@@ -610,10 +616,7 @@ window.TableList = (function($, TableList) {
             }
             // new "DATA" column
             newTableCols.push(ColManager.newDATACol());
-            return (TblManager.setgTable(tableName, newTableCols));
-        })
-        .then(function() {
-            deferred.resolve();
+            deferred.resolve(newTableCols);
         })
         .fail(function(error) {
             console.error(error);

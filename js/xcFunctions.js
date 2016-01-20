@@ -46,10 +46,8 @@ window.xcFunction = (function($, xcFunction) {
 
         XcalarFilter(fltStr, tableName, newTableName, sqlOptions)
         .then(function() {
-            return (TblManager.setgTable(newTableName, tablCols));
-        })
-        .then(function() {
-            return (TblManager.refreshTable([newTableName], [tableName]));
+            return (TblManager.refreshTable([newTableName], tablCols,
+                                            [tableName]));
         })
         .then(function() {
             xcHelper.unlockTable(tableId, true);
@@ -250,11 +248,8 @@ window.xcFunction = (function($, xcFunction) {
             .then(function() {
                 // sort do not change groupby stats of the table
                 Profile.copy(tableId, newTableId);
-
-                return (TblManager.setgTable(newTableName, tablCols));
-            })
-            .then(function() {
-                return (TblManager.refreshTable([newTableName], [tableName]));
+                return (TblManager.refreshTable([newTableName], tablCols,
+                                                [tableName]));
             })
             .then(function() {
                 StatusMessage.success(msgId, false, newTableId);
@@ -354,10 +349,7 @@ window.xcFunction = (function($, xcFunction) {
                 var rRemoved = joinOptions.rRemoved;
                 var newTableCols = createJoinedColumns(lTable, rTable,
                                                        lRemoved, rRemoved);
-                return (TblManager.setgTable(newTableName, newTableCols));
-            })
-            .then(function() {
-                return (TblManager.refreshTable([newTableName],
+                return (TblManager.refreshTable([newTableName], newTableCols,
                                     [lTableName, rTableName]));
             })
             .then(function() {
@@ -495,11 +487,7 @@ window.xcFunction = (function($, xcFunction) {
             finalTableId = xcHelper.getTableId(finalTableName);
 
             WSManager.addTable(finalTableId, curWS);
-
-            return TblManager.setgTable(finalTableName, finalTableCols);
-        })
-        .then(function() {
-            return TblManager.refreshTable([finalTableName], []);
+            return (TblManager.refreshTable([finalTableName], finalTableCols));
         })
         .then(function() {
             SQL.add("Group By", {
@@ -588,11 +576,9 @@ window.xcFunction = (function($, xcFunction) {
             newTableId = xcHelper.getTableId(newTableName);
             Profile.copy(oldTableId, newTableId);
 
-            return (TblManager.setgTable(newTableName, tablCols,
-                                         {tableProperties: tableProperties}));
-        })
-        .then(function() {
-            return (TblManager.refreshTable([newTableName], [tableName]));
+            return (TblManager.refreshTable([newTableName], tablCols,
+                                            [tableName],
+                                           {tableProperties: tableProperties}));
         })
         .then(function() {
             xcHelper.unlockTable(tableId, true);
@@ -698,16 +684,11 @@ window.xcFunction = (function($, xcFunction) {
                 "rowHeights": xcHelper.deepCopy(lTable.rowHeights)
             };
 
-            return (TblManager.setgTable(lNewName, lTableCols,
-                                        {tableProperties: lTableProperties}));
-            // XXX should change to xcHelper.when after fix async bug in refresh
-           
-        })
-        .then(function() {
             var refreshOptions = {
-                "lockTable": true
+                "lockTable": true,
+                "tableProperties": lTableProperties
             };
-            return (TblManager.refreshTable([lNewName], [lTableName],
+            return (TblManager.refreshTable([lNewName], lTableCols, [lTableName],
                                             refreshOptions));
         })
         .then(function() {
@@ -717,15 +698,11 @@ window.xcFunction = (function($, xcFunction) {
                 "bookmarks" : xcHelper.deepCopy(rTable.bookmarks),
                 "rowHeights": xcHelper.deepCopy(rTable.rowHeights)
             };
-
-            return (TblManager.setgTable(rNewName, rTableCols,
-                                        {tableProperties: rTableProperties}));
-        })
-        .then(function() {
             var refreshOptions = {
-                "lockTable": true
+                "lockTable": true,
+                "tableProperties": rTableProperties
             };
-            return (TblManager.refreshTable([rNewName], [rTableName],
+            return (TblManager.refreshTable([rNewName], rTableCols, [rTableName],
                                             refreshOptions));
         })
         .then(function() {
