@@ -1,13 +1,11 @@
 window.AggModal = (function($, AggModal) {
-    var $modalBackground = $("#modalBackground");
-    var $aggModal = $("#quickAggModal");
+    var $modalBg = $("#modalBackground");
+    var $aggModal = $("#aggModal");
 
-    var $aggSelect    = $("#quickAgg-dropdown");
-    var $aggDropdown  = $aggSelect.find(".list");
-    var $aggTableName = $("#quickAgg-tableName");
+    var $aggTableName = $("#aggModal-tableName");
 
-    var $mainAgg1 = $("#quickAgg-mainAgg1");
-    var $mainAgg2 = $("#quickAgg-mainAgg2");
+    var $quickAgg = $("#aggModal-quickAgg");
+    var $corr = $("#aggModal-corr");
 
     var aggrFunctions = [AggrOp.Sum, AggrOp.Avg, AggrOp.Min,
                         AggrOp.Max, AggrOp.Count];
@@ -33,117 +31,56 @@ window.AggModal = (function($, AggModal) {
         aggOpMap[AggrOp.Count] = 4;
 
         $aggModal.draggable({
-            handle     : '.modalHeader',
-            cursor     : '-webkit-grabbing',
-            containment: 'window'
+            "handle"     : ".modalHeader",
+            "cursor"     : "-webkit-grabbing",
+            "containment": "window"
         });
 
         $aggModal.resizable({
-            handles    : "e, w",
-            minHeight  : minHeight,
-            minWidth   : minWidth,
-            containment: "document"
+            "handles"    : "e, w",
+            "minHeight"  : minHeight,
+            "minWidth"   : minWidth,
+            "containment": "document"
         });
 
         $aggModal.on("click", ".close", function() {
-            closeQuickAgg();
+            closeAggModel();
         });
 
         $aggModal.on("mouseenter", ".tooltipOverflow", function() {
             xcHelper.autoTooltip(this);
         });
 
-        $aggSelect.click(function(event) {
-            event.stopPropagation();
 
-            $aggSelect.toggleClass("open");
-            $aggDropdown.toggle();
-        });
-
-        $aggDropdown.on("click", "li", function(event) {
-            var $li  = $(this);
-
-            event.stopPropagation();
-
-            if ($li.hasClass("inactive")) {
-                return;
-            }
-
-            var aggOp = $li.text();
-
-            $aggSelect.find(".text").text(aggOp);
-
-            if (aggOp === "Aggregate Functions") {
-                $mainAgg1.show();
-                $mainAgg2.hide();
-            } else if (aggOp === "Correlation Coefficient") {
-                $mainAgg1.hide();
-                $mainAgg2.show();
-            }
-
-            hideAggOpSelect();
-        });
-
-        $aggModal.click(hideAggOpSelect);
-
-        $mainAgg1.find(".aggContainer").scroll(function() {
+        $quickAgg.find(".aggContainer").scroll(function() {
             var scrollTop = $(this).scrollTop();
-            $mainAgg1.find(".labelContainer").scrollTop(scrollTop);
+            $quickAgg.find(".labelContainer").scrollTop(scrollTop);
         });
 
-        $mainAgg2.find(".aggContainer").scroll(function() {
+        $corr.find(".aggContainer").scroll(function() {
             var scrollTop = $(this).scrollTop();
-            $mainAgg2.find(".labelContainer").scrollTop(scrollTop);
+            $corr.find(".labelContainer").scrollTop(scrollTop);
         });
     };
 
-    AggModal.show = function(tableId, type) {
+    AggModal.quickAgg = function(tableId) {
         var deferred = jQuery.Deferred();
-
-        $modalBackground.on("click", hideAggOpSelect);
 
         var table     = gTables[tableId];
         var tableName = table.tableName;
         var $table    = $("xcTable-" + tableId);
 
-        $aggTableName.val(tableName);
-        modalHelper.setup();
-
-        if (gMinModeOn) {
-            $modalBackground.show();
-            $aggModal.show();
-            showHandler();
-        } else {
-            $modalBackground.fadeIn(300, function() {
-                $aggModal.fadeIn(180);
-                showHandler();
-            });
-        }
+        showAggModal(table.tableName, "quickAgg");
 
         aggColsInitialize(table);
         aggTableInitialize($table);
-        corrTableInitialize($table);
 
-        if (type === 'aggregates') {
-            $aggDropdown.find('li').filter(function() {
-                return ($(this).text() === "Aggregate Functions");
-            }).click();
-        } else if (type === 'correlation') {
-            $aggDropdown.find('li').filter(function() {
-                return ($(this).text() === "Correlation Coefficient");
-            }).click();
-        }
-
-        var def1 = calcAgg($table, tableName, tableId);
-        var def2 = calcCorr($table, tableName, tableId);
-
-        xcHelper.when(def1, def2)
+        calcAgg($table, tableName, tableId)
         .then(function() {
             SQL.add("Quick Aggregate", {
                 "operation": SQLOps.QuickAgg,
                 "tableId"  : tableId,
-                "tableName": tableName,
-                "type"     : type
+                "tableName": tableName
             });
 
             commitToStorage();
@@ -155,6 +92,70 @@ window.AggModal = (function($, AggModal) {
         });
 
         return (deferred.promise());
+    };
+
+    AggModal.corr = function(tableId) {
+        var deferred = jQuery.Deferred();
+
+        var table     = gTables[tableId];
+        var tableName = table.tableName;
+        var $table    = $("xcTable-" + tableId);
+
+        showAggModal(table.tableName, "corr");
+
+        aggColsInitialize(table);
+        corrTableInitialize($table);
+
+        calcCorr($table, tableName, tableId)
+        .then(function() {
+            SQL.add("Correlation", {
+                "operation": SQLOps.Corr,
+                "tableId"  : tableId,
+                "tableName": tableName
+            });
+
+            commitToStorage();
+            deferred.resolve();
+        })
+        .fail(function(error) {
+            Alert.error("Quick Aggregate Fails", error);
+            deferred.reject(error);
+        });
+
+        return (deferred.promise());
+    };
+
+    function showAggModal(tableName, mode) {
+        var $header = $aggModal.find(".modalHeader .text");
+
+        if (mode === "quickAgg") {
+            // when it's quick aggregation
+            $quickAgg.show();
+            $corr.hide();
+            $header.text("Quick Aggregates");
+        } else if (mode === "corr") {
+            // when it's correlation
+            $quickAgg.hide();
+            $corr.show();
+            $header.text("Quick Correlation");
+        } else {
+            // error case
+            throw "Invalid mode in quick agg!";
+        }
+
+        $aggTableName.find(".text").text(tableName);
+        modalHelper.setup();
+
+        if (gMinModeOn) {
+            $modalBg.show();
+            $aggModal.show();
+            showHandler();
+        } else {
+            $modalBg.fadeIn(300, function() {
+                $aggModal.fadeIn(180);
+                showHandler();
+            });
+        }
 
         function showHandler() {
             Tips.refresh();
@@ -162,7 +163,7 @@ window.AggModal = (function($, AggModal) {
                     .scrollTop(0)
                     .scrollLeft(0);
         }
-    };
+    }
 
     function aggColsInitialize(table) {
         aggCols = [];
@@ -215,8 +216,8 @@ window.AggModal = (function($, AggModal) {
             wholeTable += "</div>";
         }
 
-        $mainAgg1.find(".labelContainer").html(getRowLabelHTML(aggrFunctions));
-        $mainAgg1.find(".aggContainer").html(wholeTable);
+        $quickAgg.find(".labelContainer").html(getRowLabelHTML(aggrFunctions));
+        $quickAgg.find(".aggContainer").html(wholeTable);
     }
 
     function corrTableInitialize($table) {
@@ -275,8 +276,8 @@ window.AggModal = (function($, AggModal) {
             vertLabels.push(colInfo.col.name);
         });
 
-        $mainAgg2.find(".labelContainer").html(getRowLabelHTML(vertLabels));
-        $mainAgg2.find(".aggContainer").html(wholeTable);
+        $corr.find(".labelContainer").html(getRowLabelHTML(vertLabels));
+        $corr.find(".aggContainer").html(wholeTable);
     }
 
     function getAggColHTML(colName) {
@@ -316,12 +317,6 @@ window.AggModal = (function($, AggModal) {
         return (html);
     }
 
-    function hideAggOpSelect() {
-        $aggDropdown.hide();
-        $aggSelect.removeClass('open');
-    }
-
-
     function calcCorr($table, tableName, tableId) {
         var promises = [];
 
@@ -351,7 +346,7 @@ window.AggModal = (function($, AggModal) {
                     var dupColNum = dups[t];
                     dupCols[dupColNum] = true;
                     if (dupColNum > j) {
-                        $mainAgg2.find(".aggCol:not(.labels)").eq(dupColNum)
+                        $corr.find(".aggCol:not(.labels)").eq(dupColNum)
                             .find(".aggTableField:not(.colLabel)").eq(j)
                                 .html("1").css("background-color", "");
                     }
@@ -503,11 +498,11 @@ window.AggModal = (function($, AggModal) {
                         'data-container="body">' +
                         (jQuery.isNumeric(value) ? value.toFixed(3) : value) +
                         '</span>';
-            $mainAgg1.find(".aggCol:not(.labels)").eq(col)
+            $quickAgg.find(".aggCol:not(.labels)").eq(col)
                 .find(".aggTableField:not(.colLabel)").eq(row).html(html);
 
             dups.forEach(function(colNum) {
-                $mainAgg1.find(".aggCol:not(.labels)").eq(colNum)
+                $quickAgg.find(".aggCol:not(.labels)").eq(colNum)
                     .find(".aggTableField:not(.colLabel)").eq(row).html(html);
             });
         }
@@ -575,19 +570,19 @@ window.AggModal = (function($, AggModal) {
                 if (value > 0) {
                     bg = "rgba(66, 158, 212," + value + ")";
 
-                    $mainAgg2.find(".aggCol:not(.labels)").eq(col)
+                    $corr.find(".aggCol:not(.labels)").eq(col)
                     .find(".aggTableField:not(.colLabel)").eq(row).html(html)
                     .css("background-color", bg);
                 } else {
                     bg = "rgba(200, 200, 200," + (-1 * value) + ")";
 
-                    $mainAgg2.find(".aggCol:not(.labels)").eq(col)
+                    $corr.find(".aggCol:not(.labels)").eq(col)
                     .find(".aggTableField:not(.colLabel)").eq(row).html(html)
                     .css("background-color", bg);
                 }
             } else {
-                $mainAgg2.find(".aggCol:not(.labels)").eq(col)
-                .find(".aggTableField:not(.colLabel)").eq(row).html(html);
+                $corr.find(".aggCol:not(.labels)").eq(col)
+                    .find(".aggTableField:not(.colLabel)").eq(row).html(html);
             }
 
             var $container;
@@ -595,7 +590,7 @@ window.AggModal = (function($, AggModal) {
                 // beacause of checkDupcols(), colNum > col
                 // and since col > row
                 // so colNum > row
-                $container = $mainAgg2.find(".aggCol:not(.labels)")
+                $container = $corr.find(".aggCol:not(.labels)")
                                 .eq(colNum)
                                 .find(".aggTableField:not(.colLabel)")
                                 .eq(row).html(html);
@@ -612,10 +607,10 @@ window.AggModal = (function($, AggModal) {
                 newCol = rowNum;
 
                 if (newCol > newRow) {
-                    $container = $mainAgg2.find(".aggCol:not(.labels)")
-                                .eq(newCol)
-                                .find(".aggTableField:not(.colLabel)")
-                                .eq(newRow).html(html);
+                    $container = $corr.find(".aggCol:not(.labels)")
+                                    .eq(newCol)
+                                    .find(".aggTableField:not(.colLabel)")
+                                    .eq(newRow).html(html);
 
                     if (isNumeric) {
                         $container.css("background-color", bg);
@@ -627,13 +622,11 @@ window.AggModal = (function($, AggModal) {
         return (deferred.promise());
     }
 
-    function closeQuickAgg() {
-        $modalBackground.off("click", hideAggOpSelect);
-
+    function closeAggModel() {
         var fadeOutTime = gMinModeOn ? 0 : 300;
 
         $aggModal.hide();
-        $modalBackground.fadeOut(fadeOutTime, function() {
+        $modalBg.fadeOut(fadeOutTime, function() {
             Tips.refresh();
         });
         $aggModal.width(920).height(670);

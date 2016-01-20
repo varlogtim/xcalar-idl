@@ -193,6 +193,8 @@ var SQLOps = {
     ProfileBucketing: "profileBucketing",
     QuickAggAction: "quickAggAction",
     QuickAgg: "quickAgg",
+    Corr: "correlation",
+    CorrAction: "correlationAction",
     SplitCol: "splitCol",
     SplitColMap: "spltColMap",
     ChangeType: "changeType",

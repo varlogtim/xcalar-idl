@@ -154,6 +154,7 @@ window.SQL = (function($, SQL) {
         switch (options.operation) {
             case SQLOps.ProfileAction:
             case SQLOps.QuickAggAction:
+            case SQLOps.CorrAction:
             case SQLOps.SplitColMap:
             case SQLOps.JoinMap:
             case SQLOps.GroupByAction:
@@ -272,6 +273,8 @@ window.SQL = (function($, SQL) {
             case (SQLOps.ProfileBucketing):
                 // fallthrough
             case (SQLOps.QuickAgg):
+                // fallthrough
+            case (SQLOps.Corr):
                 // fallthrough
             case (SQLOps.AddDS):
                 // fallthrough

@@ -1862,7 +1862,7 @@
   </div>
 
   <!-- Quick Aggregates Modal -->
-  <div id="quickAggModal" class="modalContainer">
+  <div id="aggModal" class="modalContainer">
     <!-- Header -->
     <header class="modalHeader">
       <span class="text">Quick Aggregates</span>
@@ -1874,27 +1874,18 @@
     <section class="modalInstruction">
       <div class="icon"></div>
       <div class="text">
-        Viewing common aggregate functions on all of the columns in the active
-        table.
+        Viewing common aggregate functions on all of the columns in the active table.
       </div>
     </section>
     <!-- Quick Aggregates Input Section -->
-    <section class="modalTopMain inputSection">
-      <div class="text">Table Name:</div>
-      <input id="quickAgg-tableName" type="text" disabled>
-      <div id="quickAgg-dropdown" class="dropDownList">
-        <div class="text">Aggregate Functions</div>
-        <div class="iconWrapper">
-            <div class="icon"></div>
-        </div>
-        <ul class="list">
-          <li>Aggregate Functions</li>
-          <li>Correlation Coefficient</li>
-        </ul>
+    <section class="modalTopMain">
+      <div id="aggModal-tableName" class="tableName textOverflowOneLine">
+        <span>Table Name:</span>
+        <span class="text"></span>
       </div>
     </section>
     <!-- Quick Aggregates Main Section -->
-    <section id="quickAgg-mainAgg1" class="mainAgg clearfix modalMain">
+    <section id="aggModal-quickAgg" class="mainAgg clearfix modalMain">
       <div class="tableText">Quick aggregates for each individual column</div>
       <div class="aggTable">
         <div class="labelContainer"></div>
@@ -1908,7 +1899,7 @@
         </div>
       </div>
     </section>
-    <section id="quickAgg-mainAgg2" class="mainAgg clearfix modalMain">
+    <section id="aggModal-corr" class="mainAgg clearfix modalMain">
       <div class="tableText">Correlation coefficients for every pair of columns
       </div>
       <div class="aggTable">
@@ -2846,7 +2837,7 @@
 <script src="/js/modal/alertModal.js" type="text/javascript"></script>
 <script src="/js/modal/workbook.js" type="text/javascript"></script>
 <script src="/js/modal/fileBrowserModal.js" type="text/javascript"></script>
-<script src="/js/modal/quickAggModal.js" type="text/javascript"></script>
+<script src="/js/modal/aggModal.js" type="text/javascript"></script>
 <script src="/js/modal/profileModal.js" type="text/javascript"></script>
 <script src="/js/modal/operationsModal.js" type="text/javascript"></script>
 <script src="/js/modal/exportModal.js" type="text/javascript"></script>

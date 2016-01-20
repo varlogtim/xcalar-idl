@@ -997,7 +997,7 @@ function addTableMenuActions() {
             return;
         }
         tableId = $tableMenu.data('tableId');
-        AggModal.show(tableId, 'aggregates');
+        AggModal.quickAgg(tableId);
     });
 
     $subMenu.on('mouseup', '.correlation', function(event) {
@@ -1005,7 +1005,7 @@ function addTableMenuActions() {
             return;
         }
         tableId = $tableMenu.data('tableId');
-        AggModal.show(tableId, 'correlation');
+        AggModal.corr(tableId);
     });
 
 

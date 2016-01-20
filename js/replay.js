@@ -225,6 +225,8 @@ window.Replay = (function($, Replay) {
                 return replayProfileBucketing(options);
             case SQLOps.QuickAgg:
                 return replayQuickAgg(options);
+            case SQLOps.Corr:
+                return replayCorr(options);
             case SQLOps.AddDS:
                 return replayAddDS(options);
             case SQLOps.SplitCol:
@@ -342,7 +344,8 @@ window.Replay = (function($, Replay) {
         argsMap[SQLOps.DSRename] = ["dsId", "newName"];
         argsMap[SQLOps.DSToDir] = ["folderId"];
         argsMap[SQLOps.Profile] = ["tableId", "colNum"];
-        argsMap[SQLOps.QuickAgg] = ["tableId", "type"];
+        argsMap[SQLOps.QuickAgg] = ["tableId"];
+        argsMap[SQLOps.Corr] = ["tableId"];
         argsMap[SQLOps.AddDS] = ["name", "format", "path"];
         argsMap[SQLOps.ExportTable] = ["tableName", "exportName", "targetName", "numCols", "columns"];
         argsMap[SQLOps.SplitCol] = ["colNum", "tableId",
@@ -396,6 +399,7 @@ window.Replay = (function($, Replay) {
         tabMap[SQLOps.DelFolder] = Tab.DS;
         tabMap[SQLOps.Profile] = Tab.WS;
         tabMap[SQLOps.QuickAgg] = Tab.WS;
+        tabMap[SQLOps.Corr] = Tab.WS;
         tabMap[SQLOps.AddDS] = Tab.DS;
         tabMap[SQLOps.SplitCol] = Tab.WS;
         tabMap[SQLOps.ChangeType] = Tab.WS;
@@ -418,6 +422,7 @@ window.Replay = (function($, Replay) {
             case SQLOps.DestroyPreviewDS:
             case SQLOps.ProfileAction:
             case SQLOps.QuickAggAction:
+            case SQLOps.CorrAction:
             case SQLOps.SplitColMap:
             case SQLOps.ChangeTypeMap:
                 return false;
@@ -1200,12 +1205,29 @@ window.Replay = (function($, Replay) {
         var deferred = jQuery.Deferred();
         var args = getArgs(options);
 
-        AggModal.show.apply(window, args)
+        AggModal.quickAgg.apply(window, args)
         .then(function() {
             var callback = function() {
-                $("#quickAggModal .close").click();
+                $("#aggModal .close").click();
             };
             return delayAction(callback, "Show Quick Agg");
+        })
+        .then(deferred.resolve)
+        .fail(deferred.reject);
+
+        return (deferred.promise());
+    }
+
+    function replayCorr(options) {
+        var deferred = jQuery.Deferred();
+        var args = getArgs(options);
+
+        AggModal.corr.apply(window, args)
+        .then(function() {
+            var callback = function() {
+                $("#aggModal .close").click();
+            };
+            return delayAction(callback, "Show Correlation");
         })
         .then(deferred.resolve)
         .fail(deferred.reject);
