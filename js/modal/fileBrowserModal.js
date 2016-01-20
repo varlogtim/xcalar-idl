@@ -82,18 +82,19 @@ window.FileBrowser = (function($, FileBrowser) {
                 event.which === keyCode.Down) {
                 var $target = $(event.target);
                 if (!$target.is("input")) {
-                    keyBoardNavigate(event.which);
+                    keyBoardNavigate(event.which, event);
                 }
             }
         });
 
-        function keyBoardNavigate(code) {
+        function keyBoardNavigate(code, event) {
             var $nextIcon;
             var $curIcon = $container.find('.grid-unit.active');
             if (!$curIcon.length) {
                 return;
             }
-            if ($fileBrowserMain.hasClass("gridView")) {
+            var isGridView = $fileBrowserMain.hasClass("gridView");
+            if (isGridView) {
                 if (code === keyCode.Left) {
                     $nextIcon = $curIcon.prev();
                 } else if (code === keyCode.Right) {
@@ -110,6 +111,8 @@ window.FileBrowser = (function($, FileBrowser) {
             }
             if ($nextIcon && $nextIcon.length) {
                 $nextIcon.click();
+                scrollIconIntoView($nextIcon, isGridView);
+                event.preventDefault();
             }
         }
 
@@ -132,18 +135,47 @@ window.FileBrowser = (function($, FileBrowser) {
                 });
             } else if (code === keyCode.Down) {
                 targetTop = curIconTop + iconHeight;
+                var moreRowsExist = false;
                 $curIcon.nextAll().each(function() {
-                    if ($(this).position().left === curIconLeft &&
-                        $(this).position().top === targetTop) {
-                        $targetIcon = $(this);
-                        return false;
+                    if ($(this).position().top === targetTop) {
+                        moreRowsExist = true;
+                        if ($(this).position().left === curIconLeft) {
+                            $targetIcon = $(this);
+                            return false;
+                        }
                     } else if ($(this).position().top > targetTop) {
                         return false;
                     }
                 });
+                if (!$targetIcon && moreRowsExist &&
+                    !$curIcon.is(':last-child')) {
+                    $targetIcon = $curIcon.siblings(':last');
+                }
             }
 
             return ($targetIcon);
+        }
+
+        function scrollIconIntoView($icon, isGridView) {
+            var iconHeight = isGridView ? 79 : 30;
+            var containerHeight = $container.height();
+            var scrollTop = $container.scrollTop();
+            var iconOffsetTop = $icon.position().top;
+            var iconBottom = iconOffsetTop + iconHeight;
+            // var containerBottom = scrollTop + containerHeight;
+            // if (iconBottom > containerBottom) {
+            if (iconBottom > containerHeight) {
+                // $container.scrollTop(iconOffsetTop +  - (containerHeight / 2));
+                // $container.scrollTop(scrollTop + (iconBottom - containerBottom));
+                $container.scrollTop(scrollTop + (iconBottom - containerHeight));
+                // $container.scrollTop(iconBottom);
+            } else if (iconOffsetTop < 0) {
+                $container.scrollTop(scrollTop + iconOffsetTop);
+            }
+
+            // else if (iconBottom < scrollTop) {
+            //     $container.scrollTop(iconOffsetTop + iconHeight - (containerHeight / 2));
+            // }
         }
 
         function showHandler(result) {
@@ -398,11 +430,29 @@ window.FileBrowser = (function($, FileBrowser) {
                 .attr("data-original-title", "Switch to List View");
         }
 
+        centerUnitIfHighlighted(toListView);
+
         if (refreshTooltip) {
             // refresh tooltip
             $btn.mouseenter();
             $btn.mouseover();
         }
+    }
+
+    // centers a grid-unit if it is highlighted
+    function centerUnitIfHighlighted(isListView) {
+        var unitHeight = isListView ? 30 : 79;
+        var $unit = $container.find('.grid-unit.active');
+        if ($unit.length) {
+            var unitOffSetTop = $unit.position().top;
+            var containerHeight = $container.height();
+            var scrollTop = $container.scrollTop();
+            // var scrollTop = $container.scrollTop();
+            // $container.scrollTop((containerHeight / 2) + unitOffSetTop);
+            $container.scrollTop(scrollTop + unitOffSetTop -
+                                 ((containerHeight - unitHeight) / 2));
+        }
+
     }
 
     function getCurrentPath() {
@@ -688,6 +738,7 @@ window.FileBrowser = (function($, FileBrowser) {
         }
         // focus on select grid
         focusOn(grid);
+        centerUnitIfHighlighted($fileBrowserMain.hasClass('listView'));
     }
 
     function sortFilesBy(key, regEx) {
@@ -801,6 +852,7 @@ window.FileBrowser = (function($, FileBrowser) {
         curFiles.reverse();
         getHTMLFromFiles(curFiles);
         focusOn(grid);
+        centerUnitIfHighlighted($fileBrowserMain.hasClass('listView'));
     }
 
     function focusOn(grid, isAll) {
