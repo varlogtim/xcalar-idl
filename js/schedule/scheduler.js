@@ -146,6 +146,7 @@ window.Scheduler = (function(Scheduler, $) {
         });
 
         $("#scheduleForm-edit").on("click", function() {
+            $(this).blur();
             if ($scheduleForm.hasClass("new")) {
                 return;
             }
@@ -155,10 +156,12 @@ window.Scheduler = (function(Scheduler, $) {
         });
 
         $("#scheduleForm-save").click(function() {
+            $(this).blur();
             saveScheduleForm();
         });
 
         $("#scheduleForm-cancel").click(function() {
+            $(this).blur();
             if (!$scheduleForm.hasClass("new")) {
                 $scheduleForm.addClass("inActive");
             }
