@@ -298,7 +298,7 @@ window.TestSuite = (function($, TestSuite) {
             $("#fileName").val(dsName1);
             $("#fileFormat .iconWrapper .icon").click();
             $("#fileFormat li[name='CSV']").click();
-            $("#csvPromoteCheckbox .icon").click();
+            $("#promoteHeaderCheckbox .icon").click();
             $("#fieldDelim .icon").click();
             $("#fieldDelim .list li[name='comma']").click();
             $("#importDataSubmit").click();

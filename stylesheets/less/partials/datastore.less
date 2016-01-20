@@ -150,7 +150,7 @@ input {
         height: 151px !important;
 
         #importDataBottomForm, #fileBrowserBtn, #fileFormat,
-        #udfCheckbox, #csvPromoteCheckbox, #previewBtn {
+        #udfCheckbox, #promoteHeaderCheckbox, #previewBtn {
             display: none;
         }
 
@@ -202,12 +202,12 @@ input {
                 }
             }
             #fileFormat {
-                margin-left: 20px;
-                .size(@width:110px, @height: 30px, @min-width: 110px);
+                .styleDropDownList(110px, 30px, true);
                 outline: none;
+                margin-left: 20px;
 
-                .dropDownList {
-                    .styleDropDownList(110px, 30px, true);
+                input {
+                    .input-placeholder(@color-text-lightGray);
                 }
             }
         }

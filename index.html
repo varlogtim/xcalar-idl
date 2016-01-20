@@ -567,13 +567,12 @@
                pattern="^\w+$"  spellcheck="false"
                title="A valid name with no special characters" required>
                <!-- file formt -->
-               <div id="fileFormat">
-                <div id="fileFormatList" class=" dropDownList">
-                  <input class="text hint" type="text" value="Format"
-                        disabled>
+               <div id="fileFormat" class="dropDownList">
+                  <input class="text" type="text" placeholder="Format" disabled>
                   <div class="iconWrapper">
                     <span class="icon"></span>
                   </div>
+                  <!-- Format Menu -->
                   <div id="fileFormatMenu" class="list">
                     <ul>
                       <li class="hint">Format</li>
@@ -583,9 +582,12 @@
                       <li name="RAW">Raw</li>
                       <li name="RANDOM">Random</li>
                     </ul>
-                    <div class="scrollArea top"><div class="arrow"></div></div>
-                    <div class="scrollArea bottom"><div class="arrow"></div></div>
-                  </div>
+                    <div class="scrollArea top">
+                      <div class="arrow"></div>
+                    </div>
+                    <div class="scrollArea bottom">
+                      <div class="arrow"></div>
+                    </div>
                 </div>
               </div>
               <!-- udf checkbox -->
@@ -595,7 +597,7 @@
                 </div>
                 <div class="text">UDF</div>
               </div>
-              <div id="csvPromoteCheckbox" class="checkboxSection hidden default-hidden">
+              <div id="promoteHeaderCheckbox" class="checkboxSection hidden default-hidden">
                 <div class="checkbox iconWrapper">
                   <span class="icon"></span>
                 </div>
