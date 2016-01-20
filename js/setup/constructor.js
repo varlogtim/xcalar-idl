@@ -26,6 +26,23 @@ function SettingInfo(options) {
     return this;
 }
 
+function SQLConstructor(args) {
+    this.title = args.title;
+    this.options = args.options || {};
+
+    if (args.cli != null) {
+        this.cli = args.cli;
+    }
+
+    if (args.error != null) {
+        this.sqlType = SQLType.Error;
+        this.error = args.error;
+    }
+
+    this.timestamp = args.timestamp || new Date().getTime();
+
+    return this;
+}
 // gTables
 
 // Constructor for table meata data
