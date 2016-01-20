@@ -345,11 +345,7 @@ window.TableList = (function($, TableList) {
                             return (prepareOrphanForActive(tableName));
                         })
                         .then(function() {
-                            var options = {
-                                afterStartup: AfterStartup.After
-                            };
-                            return (TblManager.addTable([tableName], [], [],
-                                                        options));
+                            return (TblManager.refreshTable([tableName]));
                         })
                         .then(function(){
                             doneHandler($li, tableName);
@@ -368,11 +364,8 @@ window.TableList = (function($, TableList) {
 
                         prepareOrphanForActive(tableName)
                         .then(function() {
-                              var options = {
-                                afterStartup: AfterStartup.After
-                            };
-                            return (TblManager.addTable([tableName], [], [],
-                                                        options));
+ 
+                            return (TblManager.refreshTable([tableName]));
                         })
                         .then(function(){
                             WSManager.activeAggInfo(key, tableId);
@@ -396,11 +389,7 @@ window.TableList = (function($, TableList) {
                             return TblManager.setTableMeta(table);
                         })
                         .then(function() {
-                            var options = {
-                                afterStartup: AfterStartup.After
-                            };
-                            return (TblManager.addTable([tableName], [], [],
-                                                        options));
+                            return (TblManager.refreshTable([tableName]));
                         })
                         .then(function() {
                             doneHandler($li, tableName, hiddenWS);

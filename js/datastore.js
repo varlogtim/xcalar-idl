@@ -1514,7 +1514,6 @@ window.DataCart = (function($, DataCart) {
                 })
                 .then(function() {
                     var options = {
-                        "keepOriginal"  : true,
                         "focusWorkspace": true
                     };
                     return (TblManager.refreshTable([tableName], [], options));

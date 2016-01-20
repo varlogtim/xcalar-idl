@@ -357,11 +357,8 @@ window.xcFunction = (function($, xcFunction) {
                 return (TblManager.setgTable(newTableName, newTableCols));
             })
             .then(function() {
-                var refreshOptions = {
-                    "keepOriginal": false
-                };
                 return (TblManager.refreshTable([newTableName],
-                                    [lTableName, rTableName], refreshOptions));
+                                    [lTableName, rTableName]));
             })
             .then(function() {
                 xcHelper.unlockTable(lTableId, true);
@@ -502,8 +499,7 @@ window.xcFunction = (function($, xcFunction) {
             return TblManager.setgTable(finalTableName, finalTableCols);
         })
         .then(function() {
-            var refreshOptions = {"keepOriginal": true};
-            return TblManager.refreshTable([finalTableName], [], refreshOptions);
+            return TblManager.refreshTable([finalTableName], []);
         })
         .then(function() {
             SQL.add("Group By", {

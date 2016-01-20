@@ -828,8 +828,7 @@ window.ColManager = (function($, ColManager) {
                                          finalCols));
         })
         .then(function() {
-            return TblManager.refreshTable([tableNames["finalTableName"]], [],
-                                {"keepOriginal": true});
+            return TblManager.refreshTable([tableNames["finalTableName"]], []);
         })
         .then(function() {
             var finalTableId = xcHelper.getTableId(tableNames["finalTableName"]);
@@ -955,8 +954,8 @@ window.ColManager = (function($, ColManager) {
                 return TblManager.setgTable(filterTable, filterCols);
             })
             .then(function() {
-                var refreshOptions = {"keepOriginal": true};
-                return TblManager.refreshTable([filterTable], null, refreshOptions);
+      
+                return TblManager.refreshTable([filterTable], null);
             })
             .then(function() {
                 innerDeferred.resolve(filterTableId);

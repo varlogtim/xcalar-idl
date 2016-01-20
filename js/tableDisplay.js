@@ -10,10 +10,10 @@ window.TblManager = (function($, TblManager) {
             focusWorkspace: boolean to determine whether we should focus back on
                             workspace, we focus on workspace when adding a table
                             from the datastores panel
-            keepOriginal: if set to KeepOriginalTables.Keep, no tables will be 
-                          removed,
             lockTable: boolean, if true then this is an intermediate table that
                       will be locked throughout it's active life
+            afterStartup: boolean, default is true. Set to false if tables are
+                      being added during page load
 
     */
     TblManager.refreshTable = function(newTableNames, oldTableNames, options) {
@@ -22,9 +22,16 @@ window.TblManager = (function($, TblManager) {
         oldTableNames = oldTableNames || [];
 
         var focusWorkspace = options.focusWorkspace;
-        var keepOriginal = options.keepOriginal;
         var lockTable = options.lockTable;
+        var afterStartup;
+        if (options.afterStartup === undefined) {
+            afterStartup = true;
+        } else {
+            afterStartup = options.afterStartup;
+        }
+
         var numOldTables = oldTableNames.length;
+      
 
         // XX temp;
         var newTableName = newTableNames[0];
@@ -33,28 +40,16 @@ window.TblManager = (function($, TblManager) {
             focusOnWorkspace();
         }
 
-        if (keepOriginal === KeepOriginalTables.Keep) {
-            // append newly created table to the back
-            TblManager.addTable([newTableName], oldTableNames, [],
-                                {afterStartUp: AfterStartup.After})
-            .then(function() {
-                if (focusWorkspace) {
-                    scrollAndFocusTable(newTableName);
-                }
-                deferred.resolve();
-            })
-            .fail(function(error) {
-                console.error("refreshTable fails!");
-                deferred.reject(error);
-            });
-        } else {
-            // default
+        if (numOldTables) {
+            // there are old tables we will replace
             var targetTable = oldTableNames[0];
             var targetTableId = xcHelper.getTableId(oldTableNames[0]);
             var tablesToRemove = [];
             var tableToRemove;
 
-            if (numOldTables > 1) {
+            if (numOldTables < 2) {
+                tablesToRemove.push(targetTableId);
+            } else {
                 // XX Can't assume just 2 tables exist in oldtablenames
                 var addTableId = xcHelper.getTableId(oldTableNames[1]);
                 var firstTablePos  = WSManager.getTablePosition(targetTableId);
@@ -76,14 +71,13 @@ window.TblManager = (function($, TblManager) {
                     var secondTableId = xcHelper.getTableId(targetTable);
                     tablesToRemove.push(secondTableId);
                 }
-            } else {
-                tablesToRemove.push(targetTableId);
             }
+
             var options = {
-                afterStartup: AfterStartup.After,
+                afterStartup: afterStartup,
                 lockTable: lockTable
             };
-            TblManager.addTable([newTableName], [targetTable], tablesToRemove,
+            addTable([newTableName], [targetTable], tablesToRemove,
                                 options)
             .then(function() {
                 // highlight the table if no other tables in WS are selected
@@ -99,83 +93,22 @@ window.TblManager = (function($, TblManager) {
                 console.error("refreshTable fails!");
                 deferred.reject(error);
             });
-        }
-        return (deferred.promise());
-    };
-
-    /**
-        This function sets up new tables to be added to the display and
-        removes old tables.
-
-        newTableNames is an array of tablenames to be added
-        oldTableNames is an array of old tablenames to be replaced
-        tablesToRemove is an array of tableNames to be removed later
-        
-        Possible Options:
-        afterStartup: boolean to indicate if these tables are added after
-                      page load
-        lockTable: boolean, if true then this is an intermediate table that will 
-                   be locked throughout it's active life
-
-    */
-    
-    TblManager.addTable = function(newTableNames, oldTableNames, tablesToRemove,
-                                   options) {
-        //XX don't just get first array value
-        var tableId = xcHelper.getTableId(newTableNames[0]); 
-        var oldId;
-        options = options || {};
-        var afterStartup = options.afterStartup || false;
-        var lockTable = options.lockTable || false;
-
-        if (oldTableNames[0] == null) {
-            WSManager.replaceTable(tableId);
         } else {
-            oldId = xcHelper.getTableId(oldTableNames[0]);
-            var tablePosition = WSManager.getTablePosition(oldId);
-
-            if (tablePosition > -1) {
-                WSManager.replaceTable(tableId, oldId, tablesToRemove);
-            } else {
-                WSManager.replaceTable(tableId);
-            }
-        }
-
-        // WSManager.replaceTable need to know oldTable's location
-        // so remove table after that
-        if (tablesToRemove) {
-            for (var i = 0; i < tablesToRemove.length; i++) {
-                if (gTables[tablesToRemove[i]].active) {
-                    TblManager.archiveTable(tablesToRemove[i], 
-                                            {del: ArchiveTable.Keep,
-                                            delayTableRemoval: true});
+            // append newly created table to the back, do not remove any tables
+            addTable([newTableName], oldTableNames, [], afterStartup)
+            .then(function() {
+                if (focusWorkspace) {
+                    scrollAndFocusTable(newTableName);
                 }
-            }
+                deferred.resolve();
+            })
+            .fail(function(error) {
+                console.error("refreshTable fails!");
+                deferred.reject(error);
+            });
         }
 
-        if (lockTable) {
-            // replace just the ids instead of the entire table so we won't
-            // see the flicker of intermediate tables
-
-            if (oldId == null) {
-                oldId = xcHelper.getTableId(oldTableNames[0]);
-            }
-
-            $("#xcTableWrap-" + oldId).removeClass("tableToRemove")
-                                .find(".tableTitle .hashName").text(tableId);
-            $("#rowScroller-" + oldId).attr('id', 'rowScroller-' + tableId)
-                                    .removeClass("rowScrollerToRemove");
-            $('#dagWrap-' + oldId).attr('id', 'dagWrap-' + tableId)
-                                .removeClass("dagWrapToRemove");
-            changeTableId(oldId, tableId);
-
-            var table = gTables[tableId];
-            TableList.addTables([table], IsActive.Active);
-            return (promiseWrapper(null));
-        } else {
-            return (TblManager.parallelConstruct(tableId, tablesToRemove,
-                                                 {afterStartup: afterStartup}));
-        }
+        return (deferred.promise());
     };
 
     /*
@@ -192,7 +125,7 @@ window.TblManager = (function($, TblManager) {
         var deferred1 = startBuildTable(tableId, tablesToRemove);
         var deferred2 = Dag.construct(tableId);
         var table = gTables[tableId];
-        var afterStartup = options.afterStartup || false;
+        var addToTableList = options.afterStartup || false;
 
         jQuery.when(deferred1, deferred2)
         .then(function() {
@@ -211,7 +144,7 @@ window.TblManager = (function($, TblManager) {
                 // first time to create table
                 $('#mainFrame').removeClass('empty');
             }
-            if (afterStartup) {
+            if (addToTableList) {
                 var $existingTableList = $('#activeTablesList')
                                         .find('[data-id=' + table.tableId + ']');
                 if ($existingTableList.length) {
@@ -854,6 +787,79 @@ window.TblManager = (function($, TblManager) {
             gActiveTableId = null;
         }
     };
+        /**
+        This function sets up new tables to be added to the display and
+        removes old tables.
+
+        newTableNames is an array of tablenames to be added
+        oldTableNames is an array of old tablenames to be replaced
+        tablesToRemove is an array of tableNames to be removed later
+        
+        Possible Options:
+        afterStartup: boolean to indicate if these tables are added after
+                      page load
+        lockTable: boolean, if true then this is an intermediate table that will 
+                   be locked throughout it's active life
+
+    */
+    
+    function addTable(newTableNames, oldTableNames, tablesToRemove, options) {
+        //XX don't just get first array value
+        var tableId = xcHelper.getTableId(newTableNames[0]); 
+        var oldId;
+        options = options || {};
+        var afterStartup = options.afterStartup || false;
+        var lockTable = options.lockTable || false;
+
+        if (oldTableNames[0] == null) {
+            WSManager.replaceTable(tableId);
+        } else {
+            oldId = xcHelper.getTableId(oldTableNames[0]);
+            var tablePosition = WSManager.getTablePosition(oldId);
+
+            if (tablePosition > -1) {
+                WSManager.replaceTable(tableId, oldId, tablesToRemove);
+            } else {
+                WSManager.replaceTable(tableId);
+            }
+        }
+
+        // WSManager.replaceTable need to know oldTable's location
+        // so remove table after that
+        if (tablesToRemove) {
+            for (var i = 0; i < tablesToRemove.length; i++) {
+                if (gTables[tablesToRemove[i]].active) {
+                    TblManager.archiveTable(tablesToRemove[i], 
+                                            {del: ArchiveTable.Keep,
+                                            delayTableRemoval: true});
+                }
+            }
+        }
+
+        if (lockTable) {
+            // replace just the ids instead of the entire table so we won't
+            // see the flicker of intermediate tables
+
+            if (oldId == null) {
+                oldId = xcHelper.getTableId(oldTableNames[0]);
+            }
+
+            $("#xcTableWrap-" + oldId).removeClass("tableToRemove")
+                                .find(".tableTitle .hashName").text(tableId);
+            $("#rowScroller-" + oldId).attr('id', 'rowScroller-' + tableId)
+                                    .removeClass("rowScrollerToRemove");
+            $('#dagWrap-' + oldId).attr('id', 'dagWrap-' + tableId)
+                                .removeClass("dagWrapToRemove");
+            changeTableId(oldId, tableId);
+
+            var table = gTables[tableId];
+            TableList.addTables([table], IsActive.Active);
+            return (promiseWrapper(null));
+        } else {
+            return (TblManager.parallelConstruct(tableId, tablesToRemove,
+                                                 {afterStartup: afterStartup}));
+        }
+    }
 
     function focusOnWorkspace() {
         if (!$('#workspaceTab').hasClass('active')) {
