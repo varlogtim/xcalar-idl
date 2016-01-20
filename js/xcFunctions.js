@@ -144,7 +144,7 @@ window.xcFunction = (function($, xcFunction) {
                 };
 
                 WSManager.addAggInfo(tableId, backColName, aggrOp, aggRes);
-                RightSideBar.refreshAggTables();
+                TableList.refreshAggTables();
                 commitToStorage();
             } catch (error) {
                 console.error(error);
@@ -863,7 +863,7 @@ window.xcFunction = (function($, xcFunction) {
             // does renames for gTables, rightsidebar, dag
             table.tableName = newTableName;
 
-            RightSideBar.renameTable(tableId, newTableName);
+            TableList.renameTable(tableId, newTableName);
             Dag.renameAllOccurrences(oldTableName, newTableName);
 
             updateTableHeader(tableId);
@@ -1450,7 +1450,7 @@ window.xcFunction = (function($, xcFunction) {
 
         var table = gTables[tableResult.tableId];
         table.beInActive();
-        RightSideBar.addTables([table], IsActive.Inactive);
+        TableList.addTables([table], IsActive.Inactive);
 
         return ({
             "newTableCreated": true,
@@ -1520,7 +1520,7 @@ window.xcFunction = (function($, xcFunction) {
                                     .find('.addTableBtn')
                                     .click();
 
-            RightSideBar.tableBulkAction("delete", TableType.InActive)
+            TableList.tableBulkAction("delete", TableType.InActive)
             .then(deferred.resolve)
             .fail(deferred.reject);
         } else {

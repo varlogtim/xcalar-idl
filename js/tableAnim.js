@@ -1273,7 +1273,7 @@ function sortAllTableColumns(tableId, direction) {
         }
     });
 
-    RightSideBar.updateTableInfo(tableId);
+    TableList.updateTableInfo(tableId);
 
     SQL.add("Sort Table Columns", {
         "operation": SQLOps.SortTableCols,
@@ -3016,7 +3016,7 @@ function unnest($jsonTd, isArray, options) {
     TblManager.pullRowsBulk(tableId, jsonObj, rowNum, dataIndex,
                             RowDirection.Bottom);
     updateTableHeader(tableId);
-    RightSideBar.updateTableInfo(tableId);
+    TableList.updateTableInfo(tableId);
     moveTableDropdownBoxes();
     moveFirstColumn();
     moveTableTitles();
@@ -3096,7 +3096,7 @@ function functionBarEnter($colInput) {
         ColManager.execCol(progCol, tableId, colNum)
         .then(function() {
             updateTableHeader(tableId);
-            RightSideBar.updateTableInfo(tableId);
+            TableList.updateTableInfo(tableId);
             commitToStorage();
         });
     }

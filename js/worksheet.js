@@ -327,7 +327,7 @@ window.WSManager = (function($, WSManager) {
             // It's really a pull not a move
             // 1) Refresh Orphan List
             // 2) Trigger Add from Orphan list
-            RightSideBar.refreshOrphanList()
+            TableList.refreshOrphanList()
             .then(function() {
                 $("#orphanedTablesList span:contains(" + tableId + ")")
                 .parent().find('.addTableBtn').click();
@@ -1090,7 +1090,7 @@ window.WSManager = (function($, WSManager) {
             TblManager.hideWorksheetTable(tableId);
         }
 
-        RightSideBar.tablesToHiddenWS(wsId);
+        TableList.tablesToHiddenWS(wsId);
 
         if (gMinModeOn) {
             $("#worksheetTab-" + wsId).remove();
@@ -1187,7 +1187,7 @@ window.WSManager = (function($, WSManager) {
 
         chain(promises)
         .then(function() {
-            return (RightSideBar.tableBulkAction("delete", TableType.InActive));
+            return (TableList.tableBulkAction("delete", TableType.InActive));
         })
         .then(function() {
             rmWorksheet(wsId);
@@ -1337,7 +1337,7 @@ window.WSManager = (function($, WSManager) {
         makeWorksheet(wsId, true);
         WSManager.focusOnWorksheet(wsId);
 
-        RightSideBar.tableBulkAction("add", TableType.WSHidden, wsId);
+        TableList.tableBulkAction("add", TableType.WSHidden, wsId);
 
         // XX code if we're archiving hidden tables
 

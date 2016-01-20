@@ -137,7 +137,7 @@ window.ColManager = (function($, ColManager) {
 
         if (gMinModeOn || noAnimate) {
             updateTableHeader(tableId);
-            RightSideBar.updateTableInfo(tableId);
+            TableList.updateTableInfo(tableId);
             $table.find('.rowGrab').width($table.width());
         } else {
             // var $th = $tableWrap.find('.th.col' + newColid);
@@ -145,14 +145,14 @@ window.ColManager = (function($, ColManager) {
             if (!isHidden) {
                 $th.animate({width: width}, 300, function() {
                         updateTableHeader(tableId);
-                        RightSideBar.updateTableInfo(tableId);
+                        TableList.updateTableInfo(tableId);
                         matchHeaderSizes($table);
                     });
                 moveTableTitlesAnimated(tableId, $tableWrap.width(),
                                     10 - width, 300);
             } else {
                 updateTableHeader(tableId);
-                RightSideBar.updateTableInfo(tableId);
+                TableList.updateTableInfo(tableId);
                 matchHeaderSizes($table);
             }
         }
@@ -217,7 +217,7 @@ window.ColManager = (function($, ColManager) {
         jQuery.when.apply($, promises).done(function() {
             var numAllCols = table.tableCols.length;
             updateTableHeader(tableId);
-            RightSideBar.updateTableInfo(tableId);
+            TableList.updateTableInfo(tableId);
             for (var j = colNums[0]; j <= numAllCols; j++) {
                 var oldColNum = xcHelper.parseColNum($table.find('th').eq(j));
                 $table.find(".col" + oldColNum)
@@ -308,7 +308,7 @@ window.ColManager = (function($, ColManager) {
         ColManager.execCol(newCol, tableId, colNum)
         .then(function() {
             updateTableHeader(tableId);
-            RightSideBar.updateTableInfo(tableId);
+            TableList.updateTableInfo(tableId);
             $table.find("tr:first th.col" + (colNum + 1) +
                         " .editableHead").focus();
 
@@ -672,7 +672,7 @@ window.ColManager = (function($, ColManager) {
             return (XcalarIndexFromTable(tableWithUniqueOrig, uniqueColName,
                                         tableWithUnique,
                                         XcalarOrderingT.XcalarOrderingUnordered,
-                                        {}))
+                                        {}));
         })
         .then(function() {
         // Step 3 Generate the columns for lag and lead. We need to duplicate
@@ -829,7 +829,7 @@ window.ColManager = (function($, ColManager) {
         })
         .then(function() {
             return TblManager.refreshTable([tableNames["finalTableName"]], [],
-                                {"keepOriginal": true})
+                                {"keepOriginal": true});
         })
         .then(function() {
             var finalTableId = xcHelper.getTableId(tableNames["finalTableName"]);
@@ -1718,7 +1718,7 @@ window.ColManager = (function($, ColManager) {
         ColManager.execCol(tableCols[colNum], tableId, colNum + 1)
         .then(function() {
             updateTableHeader(tableId);
-            RightSideBar.updateTableInfo(tableId);
+            TableList.updateTableInfo(tableId);
             deferred.resolve();
         })
         .fail(deferred.reject);
@@ -1744,7 +1744,7 @@ window.ColManager = (function($, ColManager) {
         }
 
         updateTableHeader(tableId);
-        RightSideBar.updateTableInfo(tableId);
+        TableList.updateTableInfo(tableId);
 
         SQL.add("Delete Duplicate Columns", {
             "operation": SQLOps.DelDupCol,
@@ -1770,7 +1770,7 @@ window.ColManager = (function($, ColManager) {
 
         matchHeaderSizes($table);
         updateTableHeader(tableId);
-        RightSideBar.updateTableInfo(tableId);
+        TableList.updateTableInfo(tableId);
 
         SQL.add("Delete All Duplicate Columns", {
             "operation": SQLOps.DelAllDupCols,

@@ -170,7 +170,7 @@ window.TblManager = (function($, TblManager) {
             changeTableId(oldId, tableId);
 
             var table = gTables[tableId];
-            RightSideBar.addTables([table], IsActive.Active);
+            TableList.addTables([table], IsActive.Active);
             return (promiseWrapper(null));
         } else {
             return (TblManager.parallelConstruct(tableId, tablesToRemove,
@@ -220,7 +220,7 @@ window.TblManager = (function($, TblManager) {
                                       .removeAttr('data-toggle data-container' +
                                                   'title data-original-title');
                 } else {
-                    RightSideBar.addTables([table], IsActive.Active);
+                    TableList.addTables([table], IsActive.Active);
                 }
                 
             }
@@ -270,7 +270,7 @@ window.TblManager = (function($, TblManager) {
             table.beInActive();
             table.updateTimeStamp();
             WSManager.archiveTable(tableId, tempHide);
-            RightSideBar.moveTable(tableId);
+            TableList.moveTable(tableId);
         } else {
             var $li = $("#activeTablesList").find('.tableInfo[data-id="' +
                                                     tableId + '"]');
@@ -372,7 +372,7 @@ window.TblManager = (function($, TblManager) {
             } else if (tableType === TableType.Agg) {
                 // XXX as delete table is temporarily disabled
                 // this case is not tested yet!
-                RightSideBar.removeAggTable(tableId);
+                TableList.removeAggTable(tableId);
             }
 
             deferred.resolve();

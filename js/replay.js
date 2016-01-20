@@ -810,7 +810,7 @@ window.Replay = (function($, Replay) {
             return (promiseWrapper(null));
         }
 
-        return (RightSideBar.tableBulkAction(action, tableType));
+        return (TableList.tableBulkAction(action, tableType));
     }
 
     function replaySortTableCols(options) {
