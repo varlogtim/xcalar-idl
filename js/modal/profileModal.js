@@ -1020,9 +1020,9 @@ window.Profile = (function($, Profile, d3) {
         barAreas.exit().remove();
 
         function getXAxis(d) {
-            var name = d[xName].toLocaleString();
+            var name = formatNumber(d[xName]);
             if (!noBucket && !noSort) {
-                var num2 = (d[xName] + tableInfo.bucketSize).toLocaleString();
+                var num2 = formatNumber(d[xName] + tableInfo.bucketSize);
                 name = name + "-" + num2;
             }
 
@@ -1053,7 +1053,7 @@ window.Profile = (function($, Profile, d3) {
                 fixLen = Math.min(fixLen, 3);
                 return (num.toFixed(fixLen) + "%");
             } else {
-                num = d[yName].toLocaleString();
+                num = formatNumber(d[yName]);
                 if (num.length > charLenToFit) {
                     return (num.substring(0, charLenToFit) + "..");
                 } else {
@@ -1068,11 +1068,11 @@ window.Profile = (function($, Profile, d3) {
             var title;
 
             if (noBucket) {
-                title = xName + ": " + d[xName].toLocaleString() + "<br>";
+                title = xName + ": " + formatNumber(d[xName]) + "<br>";
             } else {
-                title = statsCol.colName + ": [" + d[xName].toLocaleString() +
-                        ", " + (d[xName] + tableInfo.bucketSize).toLocaleString()
-                        + ")<br>";
+                title = statsCol.colName + ": [" + formatNumber(d[xName]) +
+                        ", " + formatNumber(d[xName] + tableInfo.bucketSize) +
+                        ")<br>";
             }
 
             if (percentageLabel && tableInfo.sum !== 0) {
@@ -1087,7 +1087,7 @@ window.Profile = (function($, Profile, d3) {
                 }
                 title += "Percentage: " + per;
             } else {
-                title += "Frequency: " + d[yName].toLocaleString();
+                title += "Frequency: " + formatNumber(d[yName]);
             }
 
             var options = $.extend({}, tooltipOptions, {
@@ -1098,6 +1098,11 @@ window.Profile = (function($, Profile, d3) {
 
             return "barArea";
         }
+    }
+
+    function formatNumber(num) {
+        // if not speify maximumFractionDigits, 168711.0001 will be 168,711
+        return num.toLocaleString("en", {"maximumFractionDigits": "5"});
     }
 
     function resetScrollBar() {
