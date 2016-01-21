@@ -189,6 +189,7 @@ function Cart(options) {
     options = options || {};
     this.dsName = options.dsName;
     this.tableName = options.tableName;
+    // items will be restored in DataCart.restore
     this.items = [];
 
     return this;
@@ -212,6 +213,10 @@ Cart.prototype = {
                 break;
             }
         }
+    },
+
+    "emptyItem": function() {
+        this.items = [];
     }
 };
 

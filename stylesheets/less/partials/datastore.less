@@ -253,9 +253,7 @@ input {
         }
 
         .hint {
-            .size(@width: 14px, @height: 14px);
             .vertical-align;
-            .image("/images/datastore/qMark.png", 50%, 50%);
             margin-left: 3px;
         }
     }
@@ -1102,31 +1100,13 @@ input {
 
     /* Content Mid */
     .contentViewMid {
-        width: ~"calc(100% - 510px)";
+        .size(@width: ~"calc(100% - 510px)", @height: 100%);
         .flex-display;
         .flex-flow(column);
-        height: 100%;
         float: left;
 
         &.hidden {
             visibility: hidden;
-        }
-
-        .modifyDSButton {
-            padding-bottom: 3px;
-            margin-bottom: 2px;
-            cursor: pointer;
-            text-align: right;
-            height: 23px;
-
-            span {
-                float: right;
-            }
-            .icon {
-                display: inline-block;
-                margin-left: 8px;
-                .size(@width: 16px, @height: 17px);
-            }
         }
 
         .contentViewHeader {
@@ -1167,55 +1147,92 @@ input {
             background-position: center;
             position: relative;
 
+            /* dataset title wrap */
             .datasetTitleWrap {
-                height: 60px;
-                margin-left: 0px;
-            }
-
-            .dsInfo {
-                float: left;
-                .size(@width: ~"calc(100% - 120px)", @height: 60px);
+                .size(@height: 60px);
+                margin-top: 15px;
                 padding-left: 25px;
 
-                h2 {
-                    display: block;
-                    margin: 15px 0px 8px;
-                    font-size: 14px;
+
+                .titleInfo {
+                    .size(@height: 60px);
+                    float: left;
+
+                    .heading {
+                        .size(@height: 20px);
+                        margin-bottom: 10px;
+                        .font(@size: 14px);
+                    }
+
+                    .dsInfo {
+                        .size(@height: 20px);
+                        .font(@size: 13px);
+                    }
                 }
 
-                p {
-                    font-size: 13px;
-                }
-            }
+                .buttonGroup {
+                    .size(@height: 60px);
+                    overflow: hidden;
+                    float: right;
+                    .font(@weight: 600, @color: @color-text-blue);
+                    padding-right: 17px;
 
-            .buttonGroup {
-                display: inline-block;
-                float: right;
-                width: 120px;
-                margin-top: 5px;
-                .font(@weight: 600, @color: @color-text-blue);
-                text-align: right;
-                padding-right: 17px;
-            }
+                    .buttonWrap {
+                        .size(@height: 20px);
 
-            .modifyDSButton {
-                &.selectAll {
-                    padding-top: 5px;
-                    height: 28px;
-                }
-                &.selectAll .icon {
-                    margin-top: 2px;
-                    width: 19px;
-                    .image("/images/select-all.png", 50%, 50%);
-                }
-                &.clear .icon {
-                    margin-top: 1px;
-                    width: 19px;
-                    .image("/images/select-none.png", 50%, 50%);
+                        > div {
+                            float: left;
+                        }
+
+                        &:first-child {
+                            margin-bottom: 10px;
+                        }
+                    }
+
+                    .qMark {
+                        .vertical-align;
+                        margin-left: 5px;
+                    }
+
+                    .modifyDSButton {
+                        .size(@height: 20px);
+                        cursor: pointer;
+
+                        span {
+                           float: left;
+                           line-height: 20px;
+                        }
+
+                        .icon {
+                            margin-right: 8px;
+                            .size(@width: 20px, @height: 20px);
+                        }
+
+                         &.noCols .icon {
+                            .image("/images/datastore/dsNoCol.png", 50%, 50%);
+                        }
+
+                        &.selectAll .icon {
+                            .image("/images/select-all.png", 50%, 50%);
+                        }
+
+                        &.clear .icon {
+                            .image("/images/select-none.png", 50%, 50%);
+                        }
+                    }
+
+                    .divider {
+                        .size(@width: 1px, @height: 20px);
+                        margin: 0 10px;
+                        background-color: @color-background-topGrayMed;
+                    }
                 }
             }
+            /* End of dataset title wrap */
         }
+        /* END OF DATASET TABLE */
     }
+    /* End of Content Mid */
 
     /* Content Right */
     .contentViewRight {
@@ -1682,6 +1699,12 @@ table.datasetTable {
                     display: none;
                 }
             }
+        }
+
+        .cartEmptyHint {
+            margin-top: 10px;
+            text-align: center;
+            .font(@weight: bold, @color: @color-text-midGray);
         }
 
         li {

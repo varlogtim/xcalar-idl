@@ -169,3 +169,12 @@ AggModalStr = {
     "CorrTitle": "Correlation Coefficients",
     "CorrInstr": "Viewing correlation coefficient for every pair of numerical columns"
 };
+
+DataCartStr = {
+    'NoCartTitle': 'No Tables Selected',
+    'HaveCartTitle': 'Selected Tables',
+    'NoColumns': 'No Columns Selected',
+    'HelpText': 'To add a column to the data cart, select a data set on the left' +
+                ' and click on the column names that you are interested' +
+                ' in inside the center panel.'
+}

@@ -721,6 +721,7 @@ window.GridView = (function($, GridView) {
     function setupGridViewButton() {
         // click to go to form section
         $("#importDataButton").click(function() {
+            $(this).blur();
             var $importForm = $("#importDataView");
 
             if (!$importForm.is(":visible")) {
@@ -1094,18 +1095,27 @@ window.DataCart = (function($, DataCart) {
             cart = addCart(dsName);
         }
 
-        var $colInput;
-        var colNum;
-        var val;
+        var itemLen = colInputs.length;
+        if (itemLen === 0) {
+            emptyCart(cart);
+        } else {
+            // when it's not picking without any column
+            $("#selectedTable-" + cart.dsName).find(".cartEmptyHint").hide();
+            var $colInput;
+            var colNum;
+            var val;
+            var items = [];
 
-        for (var i = 0, len = colInputs.length; i < len; i++) {
-            $colInput = colInputs[i];
-            colNum = xcHelper.parseColNum($colInput);
-            val = $colInput.val();
-            appendCartItem(cart, colNum, val);
+            for (var i = 0, len = itemLen; i < len; i++) {
+                $colInput = colInputs[i];
+                colNum = xcHelper.parseColNum($colInput);
+                val = $colInput.val();
+                appendCartItem(cart, colNum, val);
+            }
+
+            var delay = true;
+            refreshCart(delay);
         }
-        var delay = true;
-        refreshCart(delay);
     };
 
     // remove one column from cart
@@ -1222,6 +1232,9 @@ window.DataCart = (function($, DataCart) {
                         '<span class="icon"></span>' +
                     '</div>' +
                 '</div>' +
+                '<div class="cartEmptyHint">' +
+                    DataCartStr.NoColumns +
+                '</div>' +
                 '<ul></ul>' +
             '</div>';
 
@@ -1265,8 +1278,6 @@ window.DataCart = (function($, DataCart) {
         }
 
         cart.addItem({"colNum": colNum, "value": val});
-
-        return ($li);
     }
 
     function getUnusedTableName(datasetName) {
@@ -1311,6 +1322,14 @@ window.DataCart = (function($, DataCart) {
         });
 
         return (deferred.promise());
+    }
+
+    function emptyCart(cart) {
+        var $cart = $("#selectedTable-" + cart.dsName);
+        $cart.find("ul").empty();
+        $cart.find(".cartEmptyHint").show();
+        cart.emptyItem();
+        refreshCart();
     }
 
     function removeCart(dsName) {
@@ -1377,22 +1396,19 @@ window.DataCart = (function($, DataCart) {
         var $cartTitle = $("#dataCartTitle");
         var $dataCart  = $('#dataCart');
 
-        if ($cartArea.children('.selectedTable').length === 0) {
+        if (innerCarts.length === 0) {
             $submitBtn.addClass("btnInactive");
             $clearBtn.addClass("btnInactive");
-            $cartTitle.html("<b>No Columns Selected</b>");
-            var helpText = '<span class="helpText">To add a column to the' +
-                                ' data cart, select a data set on the left' +
-                                ' and click' +
-                                ' on the column names that you are interested' +
-                                ' in inside the center panel.</span>';
-            $dataCart.html(helpText);
+            $cartTitle.html("<b>" + DataCartStr.NoCartTitle + "</b>");
+            $dataCart.html('<span class="helpText">' +
+                            DataCartStr.HelpText + '</span>');
         } else {
             $submitBtn.removeClass("btnInactive");
             $clearBtn.removeClass("btnInactive");
-            $cartTitle.html("<b>Selected Columns</b>");
+            $cartTitle.html("<b>" + DataCartStr.HaveCartTitle + "</b>");
             $dataCart.find('.helpText').remove();
         }
+
         if (delay) {
             setTimeout(DataCart.overflowShadow, 10);
         } else {
@@ -2693,6 +2709,16 @@ window.DataSampleTable = (function($, DataSampleTable) {
 
     // event set up for the module
     function setupSampleTable() {
+        // select table witout picking columns
+        $("#noDScols").click(function() {
+            var $table = $("#worksheetTable");
+            var dsName = $table.data("dsname");
+            $table.find(".colAdded").removeClass("colAdded");
+            $table.find(".selectedCol").removeClass("selectedCol");
+
+            DataCart.addItem(dsName, []);
+        });
+
         // select all columns
         $("#selectDSCols").click(function() {
             var inputs = [];

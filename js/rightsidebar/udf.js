@@ -246,6 +246,7 @@ window.UDF = (function($, UDF) {
         });
 
         $downloadBtn.click(function() {
+            $(this).blur();
             var moduleName = $template.val();
 
             if (moduleName === "") {
@@ -264,6 +265,7 @@ window.UDF = (function($, UDF) {
         });
 
         $("#udf-fnUpload").click(function() {
+            $(this).blur();
             var fileName = $fnName.val();
 
             if (fileName === "") {
