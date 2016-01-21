@@ -22,6 +22,8 @@ echo -n "';" >> js/setup/constructorVersion.js
 echo -n "var gGitVersion = '" >> js/setup/constructorVersion.js
 echo -n `git log --pretty=oneline --abbrev-commit -1 | cut -d' ' -f1` >> js/setup/constructorVersion.js
 echo "';" >> js/setup/constructorVersion.js
+echo "Minifying javascript"
+./MINIFY.sh
 
 if [ -e "../xcalar/src/bin/tests/XcalarApiVersionSignature_types.js" ]
 then
