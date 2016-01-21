@@ -58,7 +58,7 @@ window.MonitorPanel = (function($, MonitorPanel) {
         });
 
         $("#subBtn").click(function() {
-            var $btn = $(this);
+            var $btn = $(this).blur();
             xcHelper.toggleBtnInProgress($btn);
 
             xcHelper.genSub()

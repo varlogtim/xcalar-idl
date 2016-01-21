@@ -166,6 +166,7 @@ window.UDF = (function($, UDF) {
         /* upload file section */
         // browser file
         $("#udf-browseBtn").click(function() {
+            $(this).blur();
             $browserBtn.click();
             return false;
         });
@@ -181,6 +182,7 @@ window.UDF = (function($, UDF) {
         });
         // upload file
         $("#udf-fileUpload").click(function() {
+            $(this).blur();
             var val  = $filePath.val().trim();
             var file = $browserBtn[0].files[0];
             var path;

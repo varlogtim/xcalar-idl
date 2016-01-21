@@ -390,7 +390,7 @@ window.TableList = (function($, TableList) {
                             table.resultSetId = -1;
                             var tblCols = table.tableCols;
                             var tableProperties = {
-                                bookmarks: table.bookmarks,
+                                bookmarks : table.bookmarks,
                                 rowHeights: table.rowHeights
                             };
                             return TblManager.refreshTable([tableName],
@@ -456,7 +456,7 @@ window.TableList = (function($, TableList) {
                 if ($archivedList.find('.tableInfo:not(.hiddenWS)').length === 0) {
                     $archivedList.find('.secondButtonWrap').hide();
                 } else {
-                   $archivedList.find('.secondButtonWrap').show();
+                    $archivedList.find('.secondButtonWrap').show();
                 }
             } else {
                 if (gMinModeOn) {
@@ -482,13 +482,13 @@ window.TableList = (function($, TableList) {
                     $timeLine.remove();
                     if ($tableList.find('.tableInfo:not(.hiddenWS)').length === 0 ) {
                         if ($tableList.closest('#orphanedTableList').length !== 0) {
-                                $tableList.find('.selectAll, .clearAll').hide();
-                                $("#orphanedTableList-search").hide();
+                            $tableList.find('.selectAll, .clearAll').hide();
+                            $("#orphanedTableList-search").hide();
                         } else {
                             $tableList.find('.secondButtonWrap').hide();
                         }
                     } else {
-                       $tableList.siblings('.secondButtonWrap').show();
+                        $tableList.siblings('.secondButtonWrap').show();
                     }
                 }
             }

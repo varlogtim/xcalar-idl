@@ -7,7 +7,7 @@ window.Help = (function($, Help) {
         });
 
         $("#helpGenSub").click(function() {
-            var $btn = $(this);
+            var $btn = $(this).blur();
             xcHelper.toggleBtnInProgress($btn);
 
             xcHelper.genSub()
