@@ -66,8 +66,8 @@ window.FileBrowser = (function($, FileBrowser) {
 
         $(document).on("keydown.fileBrowser", function(event) {
             // up to parent folder
+            var $target = $(event.target);
             if (event.which === keyCode.Backspace) {
-                var $target = $(event.target);
                 if ($target.is("input") ||
                     ($target.is("div") && $target.prop("contenteditable")))
                 {
@@ -76,11 +76,11 @@ window.FileBrowser = (function($, FileBrowser) {
                 $("#fileBrowserUp").click();
                 return false;
             }
+
             if (event.which === keyCode.Left ||
                 event.which === keyCode.Right ||
                 event.which === keyCode.Up ||
                 event.which === keyCode.Down) {
-                var $target = $(event.target);
                 if (!$target.is("input")) {
                     keyBoardNavigate(event.which, event);
                 }
@@ -374,9 +374,24 @@ window.FileBrowser = (function($, FileBrowser) {
                 event.preventDefault();
 
                 clearTimeout(timer);
+
+                var key = event.which;
+                if (key === keyCode.Up || key === keyCode.Down ||
+                    key === keyCode.Left || key === keyCode.Right)
+                {
+                    return true;
+                }
+
                 timer = setTimeout(function() {
                     if (path.charAt(path.length - 1) !== "/") {
                         path += "/";
+                    }
+
+                    if (key === keyCode.Backspace && path === getCurrentPath()) {
+                        // when it's backsapce and
+                        // the input path is still equal to current path
+                        // do not retrievePath
+                        return;
                     }
 
                     retrievePaths(path)
@@ -387,9 +402,6 @@ window.FileBrowser = (function($, FileBrowser) {
                 }, 400);
 
                 return false;
-            },
-            "focus": function() {
-                $(this).text($(this).text());
             }
         }, ".text");
 
@@ -398,9 +410,17 @@ window.FileBrowser = (function($, FileBrowser) {
             "container": "#fileBrowserModal"
         });
 
-        $fileName.keyup(function() {
+        $fileName.keyup(function(event) {
+            var key = event.which;
+            if (key === keyCode.Up || key === keyCode.Down ||
+                key === keyCode.Left || key === keyCode.Right)
+            {
+                return;
+            }
             var text = $(this).val();
-            focusOn(text, true);
+            // when type on the input, pass int noEdit == true
+            // otherwise, updaetFileName() will change the cursor position
+            focusOn(text, true, true);
         });
 
         $fileName.click(function() {
@@ -487,8 +507,8 @@ window.FileBrowser = (function($, FileBrowser) {
         if (index >= 0) {
             name = name.substring(0, index);
         }
-        
-        var name = name.replace(/[^a-zA-Z0-9]/g, "");
+
+        name = name.replace(/[^a-zA-Z0-9]/g, "");
         var originalName = name;
 
         var limit = 20; // we won't try more than 20 times
@@ -855,7 +875,7 @@ window.FileBrowser = (function($, FileBrowser) {
         centerUnitIfHighlighted($fileBrowserMain.hasClass('listView'));
     }
 
-    function focusOn(grid, isAll) {
+    function focusOn(grid, isAll, noEdit) {
         if (grid == null) {
             $fileName.val("");
             return;
@@ -870,7 +890,9 @@ window.FileBrowser = (function($, FileBrowser) {
                 str = '.grid-unit.folder .label[data-name="' + grid + '"]';
             }
 
-            $fileName.val(grid);
+            if (!noEdit) {
+                $fileName.val(grid);
+            }
         } else {
             var name = grid.name;
             var type = grid.type;
@@ -881,14 +903,18 @@ window.FileBrowser = (function($, FileBrowser) {
                 str = '.grid-unit.' + type + ' .label[data-name="' + name + '"]';
             }
 
-            $fileName.val(name);
+            if (!noEdit) {
+                $fileName.val(name);
+            }
         }
 
         $container.find(".grid-unit").removeClass("active");
         var $grid = $container.find(str).eq(0).closest('.grid-unit');
         if ($grid.length > 0) {
             $grid.addClass('active');
-            updateFileName($grid);
+            if (!noEdit) {
+                updateFileName($grid);
+            }
         }
     }
 

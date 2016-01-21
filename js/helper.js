@@ -33,8 +33,7 @@ window.xcHelper = (function($, xcHelper) {
             value = '<span class="undefined">KNF</span>';
         } else if (value === null) {
             value = '<span class="null">' + value + '</span>';
-        } else if (value == null) {
-            // XXX TODOs Any use case for it?
+        } else if (value === undefined) {
             value = '<span class="blank">' + value + '</span>';
         } else {
             switch (value.constructor) {
