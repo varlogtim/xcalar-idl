@@ -5,6 +5,7 @@ StatusMessageTStr = {
 'Error' : 'Error encountered',
 'Loading' : 'Loading',
 'LoadingDataset' : 'Loading Dataset',
+'LoadingTables': 'Loading Tables',
 'LoadFailed' : 'Load failed',
 'CreatingTable' : 'Creating table',
 'TableCreationFailed' : 'Table creation failed',

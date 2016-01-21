@@ -326,9 +326,6 @@ function setupMainPanelsTab() {
         }
         StatusMessage.updateLocation();
     });
-
-    // $("#workspaceTab").click();
-    StatusMessage.updateLocation();
 }
 
 function setupLogout() {
@@ -801,7 +798,7 @@ function startupFunctions() {
 function initializeTable() {
     var deferred   = jQuery.Deferred();
     var tableCount = 0;
-
+    StatusMessage.updateLocation(true, StatusMessageTStr.LoadingTables);
     XcalarGetTables()
     .then(function(backEndTables) {
         var backTables = backEndTables.nodeInfo;
@@ -938,6 +935,7 @@ function initializeTable() {
             } else {
                 $('#mainFrame').addClass('empty');
             }
+            StatusMessage.updateLocation();
 
             if (failures.length > 0) {
                 for (var c = 0; c < failures.length; c++) {
@@ -1043,6 +1041,7 @@ function documentReadyIndexFunction() {
                     title = "Setup fails";
                 }
                 Alert.error(title, error, options);
+                StatusMessage.updateLocation(true, StatusMessageTStr.Error);
             }
         })
         .always(function() {

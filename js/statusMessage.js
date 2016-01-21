@@ -138,12 +138,13 @@ window.StatusMessage = (function($, StatusMessage) {
         return isFailed;
     };
 
-    StatusMessage.updateLocation = function(force) {
+    StatusMessage.updateLocation = function(force, text) {
         if (!isLoading || force) {
             var currentPanel = $('.mainMenuTab.active').text().trim();
+            text = text || StatusMessageTStr.Viewing + " " + currentPanel;
             var locationHTML =
                 '<span id="viewLocation">' +
-                    StatusMessageTStr.Viewing + " " + currentPanel +
+                    text +
                 '</span>';
             $statusText.html(locationHTML);
         }
