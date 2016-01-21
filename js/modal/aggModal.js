@@ -38,7 +38,7 @@ window.AggModal = (function($, AggModal) {
         });
 
         $aggModal.resizable({
-            "handles"    : "e, w",
+            "handles"    : "n, e, s, w, se",
             "minHeight"  : minHeight,
             "minWidth"   : minWidth,
             "containment": "document"

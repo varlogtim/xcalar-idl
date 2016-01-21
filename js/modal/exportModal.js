@@ -25,9 +25,7 @@ window.ExportModal = (function($, ExportModal) {
         });
 
         $exportModal.resizable({
-            handles    : "n, e, s, w, se",
-            minHeight  : minHeight,
-            maxHeight  : minWidth,
+            handles    : "e, w",
             minWidth   : 400,
             containment: "document"
         });
