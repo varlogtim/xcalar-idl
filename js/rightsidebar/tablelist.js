@@ -336,17 +336,19 @@ window.TableList = (function($, TableList) {
                 }
 
                 if (action === "add") {
+                    var worksheetToAdd;
                     if (tableType === TableType.Orphan) {
+                        // get workshett before async call
+                        worksheetToAdd = WSManager.getActiveWS();
+
                         renameOrphanIfNeeded(tableName)
                         .then(function(newTableName) {
                             tableName = newTableName;
-                            tableId = xcHelper.getTableId(tableName);
-                            WSManager.addTable(tableId);
-                            return (prepareOrphanForActive(tableName));
+                            return prepareOrphanForActive(tableName);
                         })
                         .then(function(newTableCols) {
-                            return (TblManager.refreshTable([tableName],
-                                                            newTableCols));
+                            return TblManager.refreshTable([tableName],
+                                            newTableCols, [], worksheetToAdd);
                         })
                         .then(function(){
                             doneHandler($li, tableName);
@@ -355,18 +357,18 @@ window.TableList = (function($, TableList) {
                             innerDeferred.resolve();
                         })
                         .fail(function(error) {
-                            WSManager.removeTable(tableId);
                             failHandler($li, tableName, error);
                             innerDeferred.resolve(error);
                         });
                     } else if (tableType === TableType.Agg) {
                         var key = $li.data("key");
-                        WSManager.addTable(tableId);
+                        // get workshett before async call
+                        worksheetToAdd = WSManager.getActiveWS();
 
                         prepareOrphanForActive(tableName)
                         .then(function(newTableCols) {
-                            return (TblManager.refreshTable([tableName],
-                                                            newTableCols));
+                            return TblManager.refreshTable([tableName],
+                                            newTableCols, [], worksheetToAdd);
                         })
                         .then(function(){
                             WSManager.activeAggInfo(key, tableId);
@@ -375,7 +377,6 @@ window.TableList = (function($, TableList) {
                             innerDeferred.resolve();
                         })
                         .fail(function(error) {
-                            WSManager.removeTable(tableId);
                             failHandler($li, tableName, error);
                             innerDeferred.resolve(error);
                         });
@@ -392,10 +393,10 @@ window.TableList = (function($, TableList) {
                                 bookmarks: table.bookmarks,
                                 rowHeights: table.rowHeights
                             };
-                            return (TblManager.refreshTable([tableName],
+                            return TblManager.refreshTable([tableName],
                                                             tblCols,
-                                                            [],
-                                           {tableProperties: tableProperties}));
+                                                            [], null,
+                                        {"tableProperties": tableProperties});
                         })
                         .then(function() {
                             doneHandler($li, tableName, hiddenWS);

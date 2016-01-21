@@ -2,7 +2,7 @@ window.TblManager = (function($, TblManager) {
 
     /**
         This function takes in an array of newTable names to be added,
-        an array of tableCols, and an array
+        an array of tableCols, worksheet that newTables will add to and an array
         of oldTable names that will be modified due to a function.
         Inside oldTables, if there is an anchor table, we move it to the start
         of the array. If there is a need for more than 1 piece of information,
@@ -18,8 +18,10 @@ window.TblManager = (function($, TblManager) {
 
     */
     TblManager.refreshTable = function(newTableNames, tableCols, oldTableNames,
-                                       options) {
+                                       worksheet, options)
+    {
         var deferred = jQuery.Deferred();
+
         options = options || {};
         oldTableNames = oldTableNames || [];
 
@@ -27,7 +29,8 @@ window.TblManager = (function($, TblManager) {
         var lockTable = options.lockTable;
         var tableProperties = options.tableProperties;
         var afterStartup;
-        if (options.afterStartup === undefined) {
+
+        if (options.afterStartup == null) {
             afterStartup = true;
         } else {
             afterStartup = options.afterStartup;
@@ -38,6 +41,15 @@ window.TblManager = (function($, TblManager) {
 
         // XX temp;
         var newTableName = newTableNames[0];
+        var newTableId = xcHelper.getTableId(newTableName);
+
+        // must get worksheet to add before async call,
+        // otherwise newTable may add to wrong worksheet
+        if (worksheet != null) {
+            WSManager.addTable(newTableId, worksheet);
+        }
+        // the only case that worksheet is null is add from inActive list
+
         TblManager.setgTable(newTableName, tableCols,
                             {tableProperties: tableProperties})
         .then(function() {
@@ -48,40 +60,52 @@ window.TblManager = (function($, TblManager) {
 
             if (numOldTables) {
                 // there are old tables we will replace
-                var targetTable = oldTableNames[0];
-                var targetTableId = xcHelper.getTableId(oldTableNames[0]);
+                var targetTable;
                 var tablesToRemove = [];
-                var tableToRemove;
+                var oldTableIds = [];
+
+                for (var i = 0, len = oldTableNames.length; i < len; i++) {
+                    oldTableIds[i] = xcHelper.getTableId(oldTableNames[i]);
+                }
 
                 if (numOldTables < 2) {
-                    tablesToRemove.push(targetTableId);
+                    // only have one table to remove
+                    targetTable = oldTableNames[0];
                 } else {
-                    // XX Can't assume just 2 tables exist in oldtablenames
-                    var addTableId = xcHelper.getTableId(oldTableNames[1]);
-                    var firstTablePos  = WSManager.getTablePosition(targetTableId);
-                    var secondTablePos = WSManager.getTablePosition(addTableId);
+                    // find the first table in the worksheet,
+                    // that is the target worksheet
+                    var wsTables = WSManager.getWSById(worksheet).tables;
+                    for (var i = 0, len = wsTables.length; i < len; i++) {
+                        var index = oldTableIds.indexOf(wsTables[i]);
+                        if (index >= 0) {
+                            targetTable = oldTableNames[index];
+                        }
 
-                    if (firstTablePos > secondTablePos) {
-                        targetTable = oldTableNames[1];
-                        tableToRemove = targetTableId;
-                    } else {
-                        targetTable = oldTableNames[0];
-                        tableToRemove = addTableId;
+                        break;
                     }
 
-                    tablesToRemove.push(tableToRemove);
+                    if (targetTable == null) {
+                        // Actually we should not go to this part
+                        // since we always get worksheet from one of old tables
+                        // if it's really goes here, then replace with first one
+                        console.error("Not Find Target Table!");
+                        targetTable = oldTableNames[0];
+                    }
+                }
 
-                    if (firstTablePos !== secondTablePos) {
-                        // if targetTableId == tableToRemove, it's self, join
-                        // no need to push the secondTableToRemove
-                        var secondTableId = xcHelper.getTableId(targetTable);
-                        tablesToRemove.push(secondTableId);
+        
+                for (var i = 0, len = oldTableIds.length; i < len; i++) {
+                    var oldTableId = oldTableIds[i];
+                    if (tablesToRemove.indexOf(oldTableId) < 0) {
+                        // if oldTableId alredy exists (like self join)
+                        // not add again
+                        tablesToRemove.push(oldTableId);
                     }
                 }
 
                 addTableOptions = {
-                    afterStartup: afterStartup,
-                    lockTable: lockTable
+                    "afterStartup": afterStartup,
+                    "lockTable"   : lockTable
                 };
                 addTable([newTableName], [targetTable], tablesToRemove,
                                     addTableOptions)
@@ -97,12 +121,15 @@ window.TblManager = (function($, TblManager) {
                 })
                 .fail(function(error) {
                     console.error("refreshTable fails!");
+                    if (worksheet != null) {
+                        WSManager.removeTable(newTableId);
+                    }
                     deferred.reject(error);
                 });
             } else {
                 // append newly created table to the back, do not remove any tables
                 addTableOptions = {
-                    afterStartup: afterStartup
+                    "afterStartup": afterStartup
                 };
                 addTable([newTableName], oldTableNames, [], addTableOptions)
                 .then(function() {
@@ -113,11 +140,18 @@ window.TblManager = (function($, TblManager) {
                 })
                 .fail(function(error) {
                     console.error("refreshTable fails!");
+                    if (worksheet != null) {
+                        WSManager.removeTable(newTableId);
+                    }
                     deferred.reject(error);
                 });
             }
         })
         .fail(function(error) {
+            console.log("set gTables fails!");
+            if (worksheet != null) {
+                WSManager.removeTable(newTableId);
+            }
             deferred.reject(error);
         });
         
@@ -220,7 +254,7 @@ window.TblManager = (function($, TblManager) {
         Possible Options:
         del: boolean. If true, will delete the table (currently disabled),
             otherwise it will send table to inactive list
-        delayTableRemoval: boolean. If true, special class will be added to 
+        delayTableRemoval: boolean. If true, special class will be added to
             table until it is removed later
         tempHide: boolean. If true, table is part of a hidden worksheet
     */
@@ -809,14 +843,14 @@ window.TblManager = (function($, TblManager) {
         Possible Options:
         afterStartup: boolean to indicate if these tables are added after
                       page load
-        lockTable: boolean, if true then this is an intermediate table that will 
+        lockTable: boolean, if true then this is an intermediate table that will
                    be locked throughout it's active life
 
     */
     
     function addTable(newTableNames, oldTableNames, tablesToRemove, options) {
         //XX don't just get first array value
-        var tableId = xcHelper.getTableId(newTableNames[0]); 
+        var tableId = xcHelper.getTableId(newTableNames[0]);
         var oldId;
         options = options || {};
         var afterStartup = options.afterStartup || false;
@@ -840,7 +874,7 @@ window.TblManager = (function($, TblManager) {
         if (tablesToRemove) {
             for (var i = 0; i < tablesToRemove.length; i++) {
                 if (gTables[tablesToRemove[i]].active) {
-                    TblManager.archiveTable(tablesToRemove[i], 
+                    TblManager.archiveTable(tablesToRemove[i],
                                             {del: ArchiveTable.Keep,
                                             delayTableRemoval: true});
                 }

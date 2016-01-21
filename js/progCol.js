@@ -328,7 +328,7 @@ window.ColManager = (function($, ColManager) {
         var deferred = jQuery.Deferred();
 
         var numColInfos = colTypeInfos.length;
-        var currentWS   = WSManager.getActiveWS();
+        var worksheet   = WSManager.getWSFromTable(tableId);
         var table       = gTables[tableId];
         var tableName   = table.tableName;
         var tableCols   = table.tableCols;
@@ -412,8 +412,6 @@ window.ColManager = (function($, ColManager) {
                 "mapString"   : mapString
             };
 
-            WSManager.addTable(newTableId, currentWS);
-
             XcalarMap(fieldName, mapString, curTableName, newTableName, sqlOptions)
             .then(function() {
                 var mapOptions   = {"replaceColumn": true};
@@ -422,29 +420,21 @@ window.ColManager = (function($, ColManager) {
 
                 var newTablCols = xcHelper.mapColGenerate(curColNum, fieldName,
                                         mapString, curTableCols, mapOptions);
-                
 
                 // map do not change stats of the table
                 Profile.copy(curTableId, newTableId);
-
-                var tableProperties = {
-                    "bookmarks" : xcHelper.deepCopy(table.bookmarks),
-                    "rowHeights": xcHelper.deepCopy(table.rowHeights)
-                };
-                var refreshOptions = {
-                    tableProperties: tableProperties
-                };
+                var refreshOptions = {};
                 if (index > 0) {
                     refreshOptions.lockTable = true;
                 }
-                return TblManager.refreshTable([newTableName], newTablCols, 
-                                               [curTableName], refreshOptions);
+                return TblManager.refreshTable([newTableName], newTablCols,
+                                               [curTableName], worksheet,
+                                               refreshOptions);
             })
             .then(function() {
                 innerDeferred.resolve(newTableId);
             })
             .fail(function(error) {
-                WSManager.removeTable(newTableId);
                 innerDeferred.reject(error);
             });
 
@@ -647,6 +637,8 @@ window.ColManager = (function($, ColManager) {
             "operation": SQLOps.Window
         });
         xcHelper.lockTable(tableId);
+
+        var worksheet = WSManager.getWSFromTable(tableId);
         var colName = gTables[tableId].tableCols[colNum-1].name;
         var randNumber = Math.floor(Math.random()*100);
         var genUniqueMapString = "genUnique(1)";
@@ -821,10 +813,9 @@ window.ColManager = (function($, ColManager) {
                 });
             }
             finalCols[colNames.length] = ColManager.newDATACol(); 
-            WSManager.addTable(xcHelper.getTableId(tableNames["finalTableName"])
-                               , WSManager.getActiveWS());
+
             return TblManager.refreshTable([tableNames["finalTableName"]],
-                                            finalCols, []);
+                                            finalCols, [], worksheet);
         })
         .then(function() {
             var finalTableId = xcHelper.getTableId(tableNames["finalTableName"]);
@@ -854,7 +845,7 @@ window.ColManager = (function($, ColManager) {
         xcHelper.assert(isValidParam, "Invalid Parameters");
 
         var deferred    = jQuery.Deferred();
-        var currentWS   = WSManager.getWSFromTable(tableId);
+        var worksheet   = WSManager.getWSFromTable(tableId);
         var table       = gTables[tableId];
         var tableName   = table.tableName;
         var tableCols   = table.tableCols;
@@ -943,10 +934,9 @@ window.ColManager = (function($, ColManager) {
 
             XcalarFilter(fltStr, srcTable, filterTable, filterSql)
             .then(function() {
-                WSManager.addTable(filterTableId, currentWS);
                 var filterCols = xcHelper.deepCopy(tableCols);
-
-                return TblManager.refreshTable([filterTable], filterCols);
+                return TblManager.refreshTable([filterTable], filterCols,
+                                                [], worksheet);
             })
             .then(function() {
                 innerDeferred.resolve(filterTableId);
@@ -1108,7 +1098,7 @@ window.ColManager = (function($, ColManager) {
         var deferred = jQuery.Deferred();
         var cancelError = "cancel splitCol";
 
-        var currentWS   = WSManager.getActiveWS();
+        var worksheet   = WSManager.getActiveWS();
         var table       = gTables[tableId];
         var tableName   = table.tableName;
         var tableCols   = table.tableCols;
@@ -1241,34 +1231,25 @@ window.ColManager = (function($, ColManager) {
                 "mapString"   : mapString
             };
 
-            WSManager.addTable(newTableId, currentWS);
-
             XcalarMap(fieldName, mapString, curTableName, newTableName, sqlOptions)
             .then(function() {
                 var mapOptions   = { "isOnRight": true };
                 var curTableId   = xcHelper.getTableId(curTableName);
                 var curTableCols = gTables[curTableId].tableCols;
-                var newTablCols  = xcHelper.mapColGenerate(++colNum,
+                var newTableCols = xcHelper.mapColGenerate(++colNum,
                                         fieldName, mapString, curTableCols,
                                         mapOptions);
-               
 
                 // map do not change stats of the table
                 Profile.copy(curTableId, newTableId);
 
-                var tableProperties = {
-                    "bookmarks" : xcHelper.deepCopy(table.bookmarks),
-                    "rowHeights": xcHelper.deepCopy(table.rowHeights)
-                };
-                var refreshOptions = {
-                    tableProperties: tableProperties
-                };
+                var refreshOptions = {};
                 if (index < numColToGet) {
                     refreshOptions.lockTable = true;
                 }
-                return (TblManager.refreshTable([newTableName], newTableCols,
-                                                [curTableName],
-                                                refreshOptions));
+                return TblManager.refreshTable([newTableName], newTableCols,
+                                                [curTableName], worksheet,
+                                                refreshOptions);
             })
             .then(function() {
                 innerDeferred.resolve(newTableId);

@@ -220,7 +220,7 @@ window.WSManager = (function($, WSManager) {
         // it only add to hiddenTables first, since later we
         // need to call WSManager.replaceTable()
         if (tableId in tableIdToWSIdMap) {
-            return (tableIdToWSIdMap[tableId]);
+            return tableIdToWSIdMap[tableId];
         } else {
             if (wsId == null) {
                 wsId = activeWorksheet;
@@ -228,7 +228,7 @@ window.WSManager = (function($, WSManager) {
 
             setWorksheet(wsId, {"hiddenTables": tableId});
 
-            return (wsId);
+            return wsId;
         }
     };
 

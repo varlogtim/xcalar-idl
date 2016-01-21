@@ -597,7 +597,7 @@ window.TestSuite = (function($, TestSuite) {
             return (checkExists("#inactiveTablesList"));
         })
         .then(function() {
-            $("#inactiveTablesList .addTableBtn").eq(1).click();
+            $("#inactiveTablesList .addTableBtn").eq(2).click();
             $("#submitTablesBtn").click();
             $("#rightSideBar .iconClose").click();
             $("#worksheetTabs .worksheetTab:first-child")

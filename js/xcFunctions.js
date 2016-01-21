@@ -28,11 +28,7 @@ window.xcFunction = (function($, xcFunction) {
         var newTableName = newTableInfo.tableName;
         var newTableId   = newTableInfo.tableId;
 
-        // must add to worksheet before async call or will end up adding to th
-        // wrong worksheet
-        WSManager.addTable(newTableId);
-        xcHelper.lockTable(tableId);
-
+        var worksheet = WSManager.getWSFromTable(tableId);
         var sqlOptions = {
             "operation"   : SQLOps.Filter,
             "tableName"   : tableName,
@@ -44,10 +40,12 @@ window.xcFunction = (function($, xcFunction) {
             "fltOptions"  : fltOptions
         };
 
+        xcHelper.lockTable(tableId);
+
         XcalarFilter(fltStr, tableName, newTableName, sqlOptions)
         .then(function() {
-            return (TblManager.refreshTable([newTableName], tablCols,
-                                            [tableName]));
+            return TblManager.refreshTable([newTableName], tablCols,
+                                            [tableName], worksheet);
         })
         .then(function() {
             xcHelper.unlockTable(tableId, true);
@@ -56,7 +54,6 @@ window.xcFunction = (function($, xcFunction) {
             deferred.resolve();
         })
         .fail(function(error) {
-            WSManager.removeTable(newTableId);
             xcHelper.unlockTable(tableId);
             Alert.error("Filter Columns Fails", error);
             StatusMessage.fail(StatusMessageTStr.FilterFailed, msgId);
@@ -226,11 +223,7 @@ window.xcFunction = (function($, xcFunction) {
             var newTableName = newTableInfo.tableName;
             var newTableId   = newTableInfo.tableId;
 
-            // must add to worksheet before async call or will end up adding to th
-            // wrong worksheet
-            WSManager.addTable(newTableId);
-            xcHelper.lockTable(tableId);
-
+            var worksheet = WSManager.getWSFromTable(tableId);
             var sqlOptions = {
                 "operation"   : SQLOps.Sort,
                 "tableName"   : tableName,
@@ -243,13 +236,15 @@ window.xcFunction = (function($, xcFunction) {
                 "sorted"      : true
             };
 
+            xcHelper.lockTable(tableId);
+
             XcalarIndexFromTable(tableName, backFieldName, newTableName,
                                  xcOrder, sqlOptions)
             .then(function() {
                 // sort do not change groupby stats of the table
                 Profile.copy(tableId, newTableId);
-                return (TblManager.refreshTable([newTableName], tablCols,
-                                                [tableName]));
+                return TblManager.refreshTable([newTableName], tablCols,
+                                                [tableName], worksheet);
             })
             .then(function() {
                 StatusMessage.success(msgId, false, newTableId);
@@ -258,7 +253,6 @@ window.xcFunction = (function($, xcFunction) {
                 deferred.resolve();
             })
             .fail(function(error) {
-                WSManager.removeTable(newTableId);
                 xcHelper.unlockTable(tableId);
                 Alert.error("Sort Rows Fails", error);
                 StatusMessage.fail(StatusMessageTStr.SortFailed, msgId);
@@ -282,6 +276,8 @@ window.xcFunction = (function($, xcFunction) {
             return (deferred.promise());
         }
 
+        // joined table will in the current active worksheet.
+        var worksheet = WSManager.getActiveWS();
         var sqlOptions = {
             "operation"   : SQLOps.Join,
             "lTableName"  : gTables[lTableId].name,
@@ -330,7 +326,6 @@ window.xcFunction = (function($, xcFunction) {
             var msgId = StatusMessage.addMsg(msgObj);
 
             var newTableId = xcHelper.getTableId(newTableName);
-            WSManager.addTable(newTableId);
 
             // check table index
             parallelIndex(lColName, lTableId, rColName, rTableId)
@@ -349,8 +344,9 @@ window.xcFunction = (function($, xcFunction) {
                 var rRemoved = joinOptions.rRemoved;
                 var newTableCols = createJoinedColumns(lTable, rTable,
                                                        lRemoved, rRemoved);
-                return (TblManager.refreshTable([newTableName], newTableCols,
-                                    [lTableName, rTableName]));
+
+                return TblManager.refreshTable([newTableName], newTableCols,
+                                    [lTableName, rTableName], worksheet);
             })
             .then(function() {
                 xcHelper.unlockTable(lTableId, true);
@@ -361,7 +357,6 @@ window.xcFunction = (function($, xcFunction) {
                 deferred.resolve();
             })
             .fail(function(error) {
-                WSManager.removeTable(newTableId);
                 xcHelper.unlockTable(lTableId);
                 xcHelper.unlockTable(rTableId);
                 Alert.error("Join Table Fails", error);
@@ -486,8 +481,8 @@ window.xcFunction = (function($, xcFunction) {
             finalTableName = nTableName;
             finalTableId = xcHelper.getTableId(finalTableName);
 
-            WSManager.addTable(finalTableId, curWS);
-            return (TblManager.refreshTable([finalTableName], finalTableCols));
+            return TblManager.refreshTable([finalTableName], finalTableCols,
+                                            null, curWS);
         })
         .then(function() {
             SQL.add("Group By", {
@@ -546,11 +541,7 @@ window.xcFunction = (function($, xcFunction) {
         var newTableName = newTableInfo.tableName;
         var newTableId   = newTableInfo.tableId;
 
-        // must add to worksheet before async call or will end up adding to th
-        // wrong worksheet
-        WSManager.addTable(newTableId);
-        xcHelper.lockTable(tableId);
-        
+        var worksheet = WSManager.getWSFromTable(tableId);
         var sqlOptions = {
             "operation"   : SQLOps.Map,
             "tableName"   : tableName,
@@ -562,23 +553,18 @@ window.xcFunction = (function($, xcFunction) {
             "mapOptions"  : mapOptions
         };
 
+        xcHelper.lockTable(tableId);
+
         XcalarMap(fieldName, mapString, tableName, newTableName, sqlOptions)
         .then(function() {
             var tablCols = xcHelper.mapColGenerate(colNum, fieldName, mapString,
                                                     table.tableCols, mapOptions);
-            var tableProperties = {
-                "bookmarks" : xcHelper.deepCopy(table.bookmarks),
-                "rowHeights": xcHelper.deepCopy(table.rowHeights)
-            };
 
             // map do not change groupby stats of the table
-            var oldTableId = xcHelper.getTableId(tableName);
-            newTableId = xcHelper.getTableId(newTableName);
-            Profile.copy(oldTableId, newTableId);
+            Profile.copy(tableId, newTableId);
 
-            return (TblManager.refreshTable([newTableName], tablCols,
-                                            [tableName],
-                                           {tableProperties: tableProperties}));
+            return TblManager.refreshTable([newTableName], tablCols,
+                                            [tableName], worksheet);
         })
         .then(function() {
             xcHelper.unlockTable(tableId, true);
@@ -589,9 +575,8 @@ window.xcFunction = (function($, xcFunction) {
         })
         .fail(function(error) {
             xcHelper.unlockTable(tableId);
-            WSManager.removeTable(newTableId);
 
-            Alert.error("Map fails", error);
+            Alert.error("Map Failed", error);
             StatusMessage.fail(StatusMessageTStr.MapFailed, msgId);
 
             deferred.reject(error);
@@ -631,21 +616,16 @@ window.xcFunction = (function($, xcFunction) {
         };
         var msgId = StatusMessage.addMsg(msgObj);
 
+        var lWorksheet = WSManager.getWSFromTable(lTableId);
+        var rWorksheet = WSManager.getWSFromTable(rTableId);
+
         var lNewInfo = getNewTableInfo(lTableName);
         var lNewName = lNewInfo.tableName;
         var lNewId   = lNewInfo.tableId;
 
         var rNewInfo = getNewTableInfo(rTableName);
         var rNewName = rNewInfo.tableName;
-        var rNewId   = rNewInfo.tableId;
-
-        // must add to worksheet before async call or will end up adding to th
-        // wrong worksheet
-        WSManager.addTable(lNewId);
-        xcHelper.lockTable(lTableId);
-
-        WSManager.addTable(rNewId);
-        xcHelper.lockTable(rTableId);
+        // var rNewId   = rNewInfo.tableId;
 
         var sqlOptions1 = {
             "operation"   : SQLOps.JoinMap,
@@ -663,6 +643,9 @@ window.xcFunction = (function($, xcFunction) {
             "mapString"   : rMapString
         };
 
+        xcHelper.lockTable(lTableId);
+        xcHelper.lockTable(rTableId);
+
         var deferred1 = XcalarMap(lFieldName, lMapString,
                                     lTableName, lNewName, sqlOptions1);
         var deferred2 = XcalarMap(rFieldName, rMapString,
@@ -679,34 +662,19 @@ window.xcFunction = (function($, xcFunction) {
 
             var lTableCols = xcHelper.mapColGenerate(lColNum, lFieldName,
                                         lMapString, lTable.tableCols, lOptions);
-            var lTableProperties = {
-                "bookmarks" : xcHelper.deepCopy(lTable.bookmarks),
-                "rowHeights": xcHelper.deepCopy(lTable.rowHeights)
-            };
 
-            var refreshOptions = {
-                "lockTable": true,
-                "tableProperties": lTableProperties
-            };
-            return (TblManager.refreshTable([lNewName], lTableCols, [lTableName],
-                                            refreshOptions));
+            var refreshOptions = {"lockTable": true};
+            return TblManager.refreshTable([lNewName], lTableCols, [lTableName],
+                                            lWorksheet, refreshOptions);
         })
         .then(function() {
             var rTableCols = xcHelper.mapColGenerate(rColNum, rFieldName,
                                         rMapString, rTable.tableCols, rOptions);
-            var rTableProperties = {
-                "bookmarks" : xcHelper.deepCopy(rTable.bookmarks),
-                "rowHeights": xcHelper.deepCopy(rTable.rowHeights)
-            };
-            var refreshOptions = {
-                "lockTable": true,
-                "tableProperties": rTableProperties
-            };
-            return (TblManager.refreshTable([rNewName], rTableCols, [rTableName],
-                                            refreshOptions));
+            var refreshOptions = {"lockTable": true};
+            return TblManager.refreshTable([rNewName], rTableCols, [rTableName],
+                                            rWorksheet, refreshOptions);
         })
         .then(function() {
-
             xcHelper.unlockTable(lTableId, true);
             xcHelper.unlockTable(rTableId, true);
 
@@ -716,9 +684,6 @@ window.xcFunction = (function($, xcFunction) {
         .fail(function(err1, err2) {
             xcHelper.unlockTable(lTableId);
             xcHelper.unlockTable(rTableId);
-
-            WSManager.removeTable(lNewId);
-            WSManager.removeTable(rNewId);
 
             StatusMessage.fail(StatusMessageTStr.MapFailed, msgId);
             var ret1 = thriftLog("DualMap", err1);

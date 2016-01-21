@@ -1437,7 +1437,7 @@ window.DataCart = (function($, DataCart) {
     function createWorksheet() {
         var deferred = jQuery.Deferred();
         var promises = [];
-
+        var worksheet = WSManager.getActiveWS();
         // reference innerCarts here since innerCarts needs
         // to be clear at end
         var carts = innerCarts;
@@ -1495,26 +1495,14 @@ window.DataCart = (function($, DataCart) {
                 }
                 // new "DATA" column
                 newTableCols[startIndex] = ColManager.newDATACol();
-
                 sqlOptions.columns.push("DATA");
-
-                var tableProperties = {
-                    "bookmarks" : [],
-                    "rowHeights": {}
-                };
-
-                var tableId = xcHelper.getTableId(tableName);
-                WSManager.addTable(tableId);
 
                 XcalarIndexFromDataset(datasetName, "recordNum", tableName,
                                        sqlOptions)
                 .then(function() {
-                    var options = {
-                        focusWorkspace: true,
-                        tableProperties: tableProperties
-                    };
-                    return (TblManager.refreshTable([tableName], newTableCols,
-                                                    [], options));
+                    var options = {"focusWorkspace": true};
+                    return TblManager.refreshTable([tableName], newTableCols,
+                                                    [], worksheet, options);
                 })
                 .then(function() {
                     StatusMessage.success(msgId, false,
@@ -1522,7 +1510,6 @@ window.DataCart = (function($, DataCart) {
                     innerDeferred.resolve();
                 })
                 .fail(function(error) {
-                    WSManager.removeTable(tableId);
                     StatusMessage.fail(StatusMessageTStr.TableCreationFailed,
                                        msgId);
                     innerDeferred.reject(error);
