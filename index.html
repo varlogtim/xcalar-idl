@@ -1527,56 +1527,27 @@
         <!-- Section to switch between upload and input section -->
         <section class="tabSectionContainer">
           <div id="udf-tabs" class="tabSection">
-            <!-- option for upload section -->
-            <div class="radioWrap" data-tab="udf-uploadSection">
+            <!-- option for code input section -->
+            <div class="radioWrap" data-tab="udf-fnSection">
               <div class="radio checked">
                 <span class="dot"></span>
               </div>
-              <div class="label">Upload your script</div>
+              <div class="label">Write your function</div>
             </div>
-            <!-- option for code input section -->
-            <div class="radioWrap" data-tab="udf-fnSection">
+            <!-- option for upload section -->
+            <div class="radioWrap" data-tab="udf-uploadSection">
               <div class="radio">
                 <span class="dot"></span>
               </div>
-              <div class="label">Write your function</div>
+              <div class="label">Upload your script</div>
             </div>
           </div>
         </section>
 
         <!-- Main Content -->
         <section class="mainSectionContainer">
-          <!-- Section to upload file -->
-          <section id="udf-uploadSection" class="mainSection">
-            <!-- head part -->
-            <div>
-              <h3 class="label">
-                <label for="udf-filePath">File Path:</label>
-              </h3>
-            </div>
-            <!-- file path part -->
-            <div class="pathSection">
-              <input id="udf-filePath" type="text" spellcheck="false">
-              <div id="udf-clearPath" class="iconWrap">
-                <span class="icon"></span>
-              </div>
-            </div>
-            <!-- button part -->
-            <div class="btnSection">
-              <button id="udf-browseBtn" class="btn btnMid" type="button">
-                BROWSE
-              </button>
-              <input id="udf-fileBrowser"  type="file" style="display: none;">
-              <button id="udf-fileUpload" 
-                      class="btn btnMid upload" type="button">
-                <span class="icon"></span>
-                <span class="text">UPLOAD</span>
-              </button>
-            </div>
-          </section>
-
           <!-- Section to write function -->
-          <section id="udf-fnSection" class="mainSection hidden">
+          <section id="udf-fnSection" class="mainSection">
             <!-- Choose File Teamplate -->
             <section class="templateSection">
               <div class="sectionContainer">
@@ -1630,6 +1601,34 @@
                 </div>
               </div>
             </section>
+          </section>
+          <!-- Section to upload file -->
+          <section id="udf-uploadSection" class="mainSection hidden">
+            <!-- head part -->
+            <div>
+              <h3 class="label">
+                <label for="udf-filePath">File Path:</label>
+              </h3>
+            </div>
+            <!-- file path part -->
+            <div class="pathSection">
+              <input id="udf-filePath" type="text" spellcheck="false">
+              <div id="udf-clearPath" class="iconWrap">
+                <span class="icon"></span>
+              </div>
+            </div>
+            <!-- button part -->
+            <div class="btnSection">
+              <button id="udf-browseBtn" class="btn btnMid" type="button">
+                BROWSE
+              </button>
+              <input id="udf-fileBrowser"  type="file" style="display: none;">
+              <button id="udf-fileUpload" 
+                      class="btn btnMid upload" type="button">
+                <span class="icon"></span>
+                <span class="text">UPLOAD</span>
+              </button>
+            </div>
           </section>
           <!-- End of Write Function Section -->
         </section>

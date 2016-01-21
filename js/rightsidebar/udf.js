@@ -134,6 +134,14 @@ window.UDF = (function($, UDF) {
         });
 
         editor.setValue(udfDefault);
+        var wasActive = $('#udfSection').hasClass('active');
+        // panel needs to be active to set editor value to udf default
+        $('#udfSection').addClass('active');
+        editor.refresh();
+        
+        if (!wasActive) { // only remove active class if it didnt start active
+            $('#udfSection').removeClass('active');
+        }
 
         /* switch between UDF sections */
         var $sections = $("#udfSection .mainSection");

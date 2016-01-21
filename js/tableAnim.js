@@ -4186,6 +4186,8 @@ window.RowScroller = (function($, RowScroller) {
 
         if ($(".xcTable").length > 1) {
             $(".rowScroller").last().hide();
+        } else if ($("#xcTableWrap-" + tableId).hasClass('inActive')) {
+            $('#rowScroller-' + tableId).hide();
         }
     };
 

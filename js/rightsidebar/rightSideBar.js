@@ -224,7 +224,8 @@ window.RightSideBar = (function($, RightSideBar) {
 
     function setLastRightSidePanel() {
         var settings = UserSettings.getSettings();
-        if (settings.lastRightSideBar) {
+        if (settings.lastRightSideBar &&
+            !$('.rightBarSection').hasClass('lastOpen')) {
             $('#' + settings.lastRightSideBar).addClass('lastOpen');
         }
     }
