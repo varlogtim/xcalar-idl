@@ -2,6 +2,7 @@ window.AggModal = (function($, AggModal) {
     var $modalBg = $("#modalBackground");
     var $aggModal = $("#aggModal");
 
+    var $aggInstr = $("#aggModal-instr");
     var $aggTableName = $("#aggModal-tableName");
 
     var $quickAgg = $("#aggModal-quickAgg");
@@ -132,12 +133,14 @@ window.AggModal = (function($, AggModal) {
             // when it's quick aggregation
             $quickAgg.show();
             $corr.hide();
-            $header.text("Quick Aggregates");
+            $header.text(AggModalStr.QuickAggTitle);
+            $aggInstr.text(AggModalStr.QuickAggInstr);
         } else if (mode === "corr") {
             // when it's correlation
             $quickAgg.hide();
             $corr.show();
-            $header.text("Quick Correlation");
+            $header.text(AggModalStr.CorrTitle);
+            $aggInstr.text(AggModalStr.CorrInstr);
         } else {
             // error case
             throw "Invalid mode in quick agg!";

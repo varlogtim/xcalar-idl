@@ -162,3 +162,10 @@ TipsTStr = {
     "TablList": "Click to see details",
     "PullColumn": "Click key to add the column to your table"
 };
+
+AggModalStr = {
+    "QuickAggTitle": "Quick Aggregates",
+    "QuickAggInstr": "Viewing common aggregate functions on all of the columns in the active table.",
+    "CorrTitle": "Correlation Coefficients",
+    "CorrInstr": "Viewing correlation coefficient for every pair of numerical columns"
+};
