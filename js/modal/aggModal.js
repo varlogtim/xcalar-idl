@@ -555,7 +555,18 @@ window.AggModal = (function($, AggModal) {
         })
         .fail(function(error) {
             applyCorrResult("--");
-            deferred.reject(error);
+
+            if (error.status === StatusT.StatusXdfDivByZero) {
+                // Note: Here if we have multiple fail cells
+                // Alert.error will be triggered several times
+                // Altought UI still looks good
+                // can also consider put the fail info in the cell
+                error.error += "(Only one distinct value)";
+                Alert.error("Correlation Failed", error);
+                deferred.resolve();
+            } else {
+                deferred.reject(error);
+            }
         });
 
         function applyCorrResult(value) {
