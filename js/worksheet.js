@@ -915,6 +915,8 @@ window.WSManager = (function($, WSManager) {
         var name = defaultName + (nameSuffix++);
         var date = xcHelper.getDate();
 
+        wsScollBarPosMap[activeWorksheet] = $('#mainFrame').scrollLeft();
+
         while (wsNameToIdMap[name] != null) {
             name = defaultName + (nameSuffix++);
         }
@@ -928,7 +930,6 @@ window.WSManager = (function($, WSManager) {
         makeWorksheet(wsId);
         // focus on new worksheet
         WSManager.focusOnWorksheet(wsId);
-
         return (wsId);
     }
 
