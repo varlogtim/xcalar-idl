@@ -2940,9 +2940,7 @@ function unnest($jsonTd, isArray, options) {
                 openSymbol = "[";
                 closingSymbol = "]";
             }
-            // colName = cols[colNum - 1].func.args[0] + openSymbol +
-            //           arrayKey.replace(/\./g, "\\\.") + closingSymbol;
-            // tempName = cols[colNum - 1].userStr.
+
             colName = cols[colNum - 1].func.args[0].replace(/\\./g, ".") +
                       openSymbol + arrayKey + closingSymbol;
             escapedColName = cols[colNum - 1].func.args[0] + openSymbol +

@@ -141,9 +141,7 @@ window.JSONModal = (function($, JSONModal) {
                               nameInfo.escapedName;
                 }
                 // check if the column already exists
-                console.log(nameInfo, colName);
                 for (var i = 0; i < numCols; i++) {
-                    console.log(colName, cols[i].func.args[0]);
                     if (cols[i].func.args[0] === colName) {
                         var animation = gMinModeOn ? false : true;
                         closeJSONModal();
