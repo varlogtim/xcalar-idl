@@ -596,6 +596,7 @@ window.JoinModal = (function($, JoinModal) {
             $tbody.find('.jsonElement').remove();
             $tbody.find('.indexedColumn').removeClass('indexedColumn');
             $tbody.find(".addedBarTextWrap.clickable").removeClass("clickable");
+            $tbody.find(".selectedCell").removeClass("selectedCell");
 
             colHtml += $tbody.html();
             colHtml += '</table>';
