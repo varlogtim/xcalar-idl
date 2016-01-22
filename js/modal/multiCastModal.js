@@ -70,6 +70,21 @@ window.MultiCastModal = (function($, MultiCastModal) {
             smartSuggest();
         });
 
+        $table.on("click", ".columnTab", function(event) {
+            var $th = $(this).closest("th");
+            if ($th.hasClass("colSelected")) {
+                deSelectCols($th);
+            } else {
+                // open dropdown list
+                var $dropdown = $th.find(".dropDownList");
+                if (!$dropdown.hasClass("open")) {
+                    $dropdown.find(".iconWrapper").click();
+                    // prevent global listener to close the dropdown
+                    event.stopPropagation();
+                }
+            }
+        });
+
         $modal.on("click", ".row", function() {
             var colNum = $(this).data("col");
             if (colNum != null) {
