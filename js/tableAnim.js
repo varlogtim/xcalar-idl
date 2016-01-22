@@ -76,6 +76,9 @@ function gRescolMouseDown(el, event, options) {
     $(document.head).append('<style id="col-resizeCursor" type="text/css">*' +
                             '{cursor: col-resize !important;}' +
                             '.tooltip{display: none !important;}</style>');
+    if (!rescol.grabbedCell.hasClass('selectedCell')) {
+        $('.selectedCell').removeClass('selectedCell');
+    }
 }
 
 function gRescolMouseMove(event) {
@@ -1430,10 +1433,16 @@ function addColListeners($table, tableId) {
                 // and do not rehighlight or update any text
                 return;
             }
+            if ($(this).closest('.dataCol').length) {
+                $('.selectedCell').removeClass('selectedCell');
+                gFnBarOrigin = undefined;
+                $('#fnBar').val("").removeClass('active');
+            }
         }
     }, ".flex-mid");
     
-    $thead.on("mousedown", ".flexContainer, .iconHelper", function(event) {
+    $thead.on("mousedown", ".flexContainer, .dragArea", function(event) {
+
         if ($("#mainFrame").hasClass("modalOpen")) {
             // not focus when in modal
             return;
@@ -1441,7 +1450,8 @@ function addColListeners($table, tableId) {
             return;
         }
 
-        if ($(this).is('.iconHelper')) {
+        if ($(this).is('.dragArea')) {
+            console.log('ya');
             gFnBarOrigin = $(this).closest('.header').find('.editableHead');
         } else {
             gFnBarOrigin = $(this).find('.editableHead');
@@ -1463,6 +1473,9 @@ function addColListeners($table, tableId) {
             if ($(this).closest('.selectedCell').length > 0) {
                 if (notDropDown) {
                     unhighlightColumn(gFnBarOrigin);
+                    gFnBarOrigin = undefined;
+                    $('#fnBar').val("").removeClass('active');
+                    return;
                 }   
             } else {
                 highlightColumn(gFnBarOrigin, true);
@@ -1515,7 +1528,7 @@ function addColListeners($table, tableId) {
         }
     };
 
-    $thead.on("click", ".header .flex-right > .dropdownBox", function() {
+    $thead.on("click", ".dropdownBox", function() {
         var options = {"type": "thDropdown"};
 
         var $el = $(this);
@@ -1531,6 +1544,12 @@ function addColListeners($table, tableId) {
 
         if ($th.hasClass('indexedColumn')) {
             options.classes += " type-indexed";
+        }
+
+        if ($th.hasClass('dataCol')) {
+            $('.selectedCell').removeClass('selectedCell');
+            gFnBarOrigin = undefined;
+            $('#fnBar').val("").removeClass('active');
         }
 
         if ($th.hasClass('newColumn') ||

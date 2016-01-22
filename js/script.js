@@ -546,17 +546,13 @@ function documentReadyGeneralFunction() {
             $('.highlightBox').remove();
             $('body').removeClass('noSelection');
         }
-
-        if (!$target.is('.editableHead') && !$target.is('#fnBar')) {
+        if (!$target.is('#fnBar') && !$target.closest('.header').length) {
             if ($target.closest('.selectedCell').length !== 0) {
                 return;
             } else if ($target.attr('id') === 'mainFrame') {
                 return;
             } else if ($target.closest('.menu').length !== 0 &&
                         $target.closest('#workspacePanel').length !== 0) {
-                return;
-            } else if ($target.is('.iconHelper') &&
-                       $target.closest('.header').length !== 0) {
                 return;
             }
             $('.selectedCell').removeClass('selectedCell');

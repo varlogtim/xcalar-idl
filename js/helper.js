@@ -588,7 +588,7 @@ window.xcHelper = (function($, xcHelper) {
 
         function toggleDropdownList($curlDropDownList) {
             if ($curlDropDownList.hasClass("open")) {    // close dropdown
-                hideDropdowns('a', $curlDropDownList);
+                hideDropdowns($curlDropDownList);
             } else {
                 // hide all other dropdowns that are open on the page
 
@@ -608,17 +608,20 @@ window.xcHelper = (function($, xcHelper) {
                 $curlDropDownList.addClass("open");
                 $lists.show().addClass("openList");
                 $(document).on('click.closeDropDown', function() {
-                    hideDropdowns('c', $curlDropDownList);
+                    hideDropdowns($curlDropDownList);
                 });
                 if (typeof onOpen === "function") {
                     onOpen($curlDropDownList);
                 }
                 showOrHideScrollers();
+                $('.selectedCell').removeClass('selectedCell');
+                gFnBarOrigin = undefined;
+                $('#fnBar').val("").removeClass('active');
             }
             $('.tooltip').hide();
         }
 
-        function hideDropdowns(a, $curlDropDownList) {
+        function hideDropdowns($curlDropDownList) {
             var $sections = $container.find(".dropDownList");
             $sections.find(".list").hide().removeClass("openList");
             $sections.removeClass("open");
