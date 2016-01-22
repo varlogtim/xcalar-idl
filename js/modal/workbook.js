@@ -549,6 +549,8 @@ window.WKBKManager = (function($, WKBKManager) {
                 }
                 $('#initialLoadScreen').remove();
                 WorkbookModal.forceShow();
+                var text = StatusMessageTStr.Viewing + " " + "Workbook Browser";
+                StatusMessage.updateLocation(true, text);
             } else {
                 var wkbkName = wkbkSet.get(wkbkId).name;
                 var numSessions = sessionInfo.numSessions;
