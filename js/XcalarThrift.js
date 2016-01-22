@@ -2265,9 +2265,9 @@ function XcalarSupportSend() {
         return (promiseWrapper(null));
     }
     var deferred = jQuery.Deferred();
-    xcalarApiSupportSend(tHandle)
-    .then(function() {
-        deferred.resolve();
+    xcalarApiSupportGenerate(tHandle)
+    .then(function(filePath) {
+        deferred.resolve(filePath);
     })
     .fail(function(error) {
         var thriftError = thriftLog("XcalarSupportSend", error);

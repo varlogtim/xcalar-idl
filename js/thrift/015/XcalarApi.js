@@ -161,7 +161,7 @@ function xcalarLoad(thriftHandle, url, name, format, maxSampleSize, loadArgs) {
         console.log("xcalarLoad() caught exception:", error);
         deferred.reject(error);
     });
-
+    
     return (deferred.promise());
 
 }

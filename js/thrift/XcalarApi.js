@@ -161,7 +161,7 @@ function xcalarLoad(thriftHandle, url, name, format, maxSampleSize, loadArgs) {
         console.log("xcalarLoad() caught exception:", error);
         deferred.reject(error);
     });
-    
+
     return (deferred.promise());
 
 }
@@ -2640,20 +2640,19 @@ function xcalarApiDeleteDht(thriftHandle, dhtName) {
     return (deferred.promise());
 }
 
-function xcalarApiSupportSendWorkItem() {
+function xcalarApiSupportGenerateWorkItem() {
     var workItem = new WorkItem();
-    workItem.api = XcalarApisT.XcalarApiSupportSend;
-
+    workItem.api = XcalarApisT.XcalarApiSupportGenerate;
     return (workItem);
 }
 
-function xcalarApiSupportSend(thriftHandle) {
+function xcalarApiSupportGenerate(thriftHandle) {
     var deferred = jQuery.Deferred();
     if (verbose) {
-        console.log("xcalarApiSupportSend()");
+        console.log("xcalarApiSupportGenerate()");
     }
 
-    var workItem = xcalarApiSupportSendWorkItem();
+    var workItem = xcalarApiSupportGenerateWorkItem();
 
     thriftHandle.client.queueWorkAsync(workItem)
     .then(function(result) {
@@ -2667,10 +2666,10 @@ function xcalarApiSupportSend(thriftHandle) {
             deferred.reject(status);
         }
 
-        deferred.resolve(status);
+        deferred.resolve(result.output.outputResult.supportGenerateOutput);
     })
     .fail(function(error) {
-        console.log("xcalarApiSupportSend() caught exception: ", error);
+        console.log("xcalarApiSupportGenerate() caught exception: ", error);
         deferred.reject(error);
     });
 

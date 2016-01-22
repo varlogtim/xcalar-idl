@@ -242,7 +242,8 @@ window.Alert = (function($, Alert){
                 XcalarSupportSend()
                 .then(function(ret) {
                     xcHelper.showSuccess();
-                    $btn.text("Bundle Generated").addClass("btnInactive");
+                    $btn.text("Bundle Generated at"+ret)
+                        .addClass("btnInactive");
                 })
                 .fail(function(error) {
                     // XXX TODOs: use xcHelper.showFail() instead

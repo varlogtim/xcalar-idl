@@ -1427,7 +1427,7 @@
                 case XcalarApisT.XcalarApiExport:
                     var exportInput = getRetinaOutput.retina.retinaDag.node[ii].input.exportInput;
                     var exportTargetType = exportInput.meta.target.type;
-                    console.log("\tnode[" + ii + "].meta.exportTarget = " + 
+                    console.log("\tnode[" + ii + "].meta.exportTarget = " +
                                 DsTargetTypeTStr[exportTargetType] + " (" + exportTargetType + ")");
                     console.log("\tnode[" + ii + "].meta.numColumns = " +
                                 exportInput.meta.numColumns);
@@ -2370,10 +2370,19 @@
         });
     }
 
-    function testSupportSend(deferred, testName, currentTestNumber) {
-        xcalarApiSupportSend(thriftHandle)
-        .done(function(status) {
-            pass(deferred, testName, currentTestNumber);
+    function testSupportGenerate(deferred, testName, currentTestNumber) {
+        var fs = require('fs');
+
+        xcalarApiSupportGenerate(thriftHandle)
+        .done(function(output) {
+            if (fs.exists(output.bundlePath)) {
+                fs.removeTree(output.bundlePath);
+                pass(deferred, testName, currentTestNumber);
+            } else {
+                printResult(output);
+                fail(deferred, testName, currentTestNumber,
+                     "Failed to locate bundle path from output.");
+            }
         })
         .fail(function(reason){
             fail(deferred, testName, currentTestNumber, reason);
@@ -2524,6 +2533,7 @@
     // Witness to bug Xc-2371
     addTestCase(testCases, indexAggregateRaceTest, "index-aggregate race test", defaultTimeout, TestCaseEnabled, "2371")
 
+    addTestCase(testCases, testSupportGenerate, "support generate", defaultTimeout, TestCaseEnabled, "");
 
     // Re-enabled with delete DHT added
     addTestCase(testCases, testCreateDht, "create DHT test", defaultTimeout, TestCaseEnabled, "");
@@ -2539,7 +2549,6 @@
     // temporarily disabled due to bug 973
     addTestCase(testCases, testShutdown, "shutdown", defaultTimeout, TestCaseDisabled, "98");
 
-    addTestCase(testCases, testSupportSend, "support send", defaultTimeout, TestCaseDisabled, "");
 
     runTestSuite(testCases);
 }();

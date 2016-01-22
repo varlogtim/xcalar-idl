@@ -1635,12 +1635,13 @@ window.xcHelper = (function($, xcHelper) {
         var deferred = jQuery.Deferred();
 
         XcalarSupportSend()
-        .then(function() {
+        .then(function(filePath) {
             Alert.show({
                 "title": "Support Bundle Generated",
                 "instr": "Please check your backend for a .tar.gz file",
                 "msg"  : "Support upload bundle successfully generated!" +
-                         " It is located on your Xcalar Server.",
+                         " It is located on your Xcalar Server at "+
+                         filePath +".",
                 "isAlert": true
             });
             deferred.resolve();
