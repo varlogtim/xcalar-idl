@@ -178,7 +178,7 @@ window.DFGPanel = (function($, DFGPanel) {
             // Check name conflict
             var isNameConflict = false;
             $tbody.find('tr:not(.unfilled)').each(function(index, tr) {
-                var name = $(tr).find('.paramName div').html();
+                var name = $(tr).find('.paramName').html();
                 if (paramName === name) {
                     isNameConflict = true;
                     return false; // exist loop

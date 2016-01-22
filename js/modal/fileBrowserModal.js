@@ -372,6 +372,7 @@ window.FileBrowser = (function($, FileBrowser) {
                 var $input = $(this);
                 var path = $input.text();
                 event.preventDefault();
+                if (event.which === keyCode.Left) return;
 
                 clearTimeout(timer);
 
@@ -594,6 +595,7 @@ window.FileBrowser = (function($, FileBrowser) {
     }
 
     function listFiles(path, openingBrowser) {
+        console.log('list files');
         var deferred = jQuery.Deferred();
         var $loadSection = $fileBrowserMain.find(".loadingSection");
 
