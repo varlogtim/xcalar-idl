@@ -269,7 +269,8 @@ window.ColManager = (function($, ColManager) {
                 symbol = ".";
             }
             escapedName = col.func.args[0] + symbol + escapedName;
-            fullName = col.func.args[0] + symbol + fullName;
+            fullName = col.func.args[0].replace(/\\./g, ".") + symbol +
+                       fullName;
         }
         var usrStr = '"' + fullName + '" = pull(' + escapedName + ')';
         

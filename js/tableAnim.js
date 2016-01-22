@@ -1451,7 +1451,6 @@ function addColListeners($table, tableId) {
         }
 
         if ($(this).is('.dragArea')) {
-            console.log('ya');
             gFnBarOrigin = $(this).closest('.header').find('.editableHead');
         } else {
             gFnBarOrigin = $(this).find('.editableHead');
@@ -2920,14 +2919,18 @@ function unnest($jsonTd, isArray, options) {
     var table = gTables[tableId];
     var cols = table.tableCols;
     var numCols = cols.length;
-    var arrayOfColNames = [];
+    var colNames = [];
+    var escapedColNames = [];
     var duplicateFound = false;
     var colName;
+    var escapedColName;
     var openSymbol;
     var closingSymbol;
+    var tempName;
     for (var arrayKey in jsonTdObj) {
         if (options.isDataTd) {
             colName = arrayKey;
+            escapedColName = arrayKey.replace(/\./g, "\\\.");
         } else {
             openSymbol = "";
             closingSymbol = "";
@@ -2937,11 +2940,16 @@ function unnest($jsonTd, isArray, options) {
                 openSymbol = "[";
                 closingSymbol = "]";
             }
-            colName = cols[colNum - 1].func.args[0] + openSymbol +
-                      arrayKey.replace(/\./g, "\\\.") + closingSymbol;
+            // colName = cols[colNum - 1].func.args[0] + openSymbol +
+            //           arrayKey.replace(/\./g, "\\\.") + closingSymbol;
+            // tempName = cols[colNum - 1].userStr.
+            colName = cols[colNum - 1].func.args[0].replace(/\\./g, ".") +
+                      openSymbol + arrayKey + closingSymbol;
+            escapedColName = cols[colNum - 1].func.args[0] + openSymbol +
+                            arrayKey.replace(/\./g, "\\\.") + closingSymbol;
         }
         for (var i = 0; i < numCols; i++) {
-            if (cols[i].func.args[0] === colName) {
+            if (cols[i].func.args[0] === escapedColName) {
                 duplicateFound = true;
                 break;
             }
@@ -2949,13 +2957,14 @@ function unnest($jsonTd, isArray, options) {
         if (duplicateFound) {
             duplicateFound = false;
         } else {
-            arrayOfColNames.push(colName);
+            colNames.push(colName);
+            escapedColNames.push(escapedColName);
         }    
     }
-    if (arrayOfColNames.length === 0) {
+    if (colNames.length === 0) {
         return;
     }
-    var numKeys = arrayOfColNames.length;
+    var numKeys = colNames.length;
     var pullColOptions = {
         "isDataTd" : options.isDataTd,
         "isArray"  : isArray,
@@ -2967,14 +2976,15 @@ function unnest($jsonTd, isArray, options) {
     var ths = "";
 
     for (var i = 0; i < numKeys; i++) {
-        var key = arrayOfColNames[i];
+        var key = colNames[i];
+        var escapedKey = escapedColNames[i];
         var nameInfo;
         var symbol = "";
 
         if (!isArray) {
             symbol = ".";
         }
-        var usrStr = '"' + key + '" = pull(' + key + ')';
+        var usrStr = '"' + key + '" = pull(' + escapedKey + ')';
 
         var newCol = ColManager.newCol({
             "name"   : key,
@@ -2982,7 +2992,7 @@ function unnest($jsonTd, isArray, options) {
             "userStr": usrStr,
             "func"   : {
                 "func": "pull",
-                "args": [key]
+                "args": [escapedKey]
             },
             "isNewCol": false
         });
