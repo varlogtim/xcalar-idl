@@ -182,7 +182,12 @@ window.ColManager = (function($, ColManager) {
         }
 
         if (inFocus) {
-            $table.find('tr:first .editableHead.col' + newColid).focus();
+            var $input = $table.find('tr:first .editableHead.col' + newColid);
+            // Without doing this, the lastTarget will still be a div
+            // even we focus on the input, so press space will make table scroll
+            gMouseEvents.setMouseDownTarget($input);
+            gMouseEvents.setClickTarget($input);
+            $input.focus();
         }
     };
 
