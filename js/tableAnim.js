@@ -2700,8 +2700,7 @@ function addColMenuActions() {
         var $table  = $("#xcTable-" + tableId);
         var $header = $table.find("th.col" + colNum + " .header");
 
-        var colName = gTables[tableId].tableCols[colNum - 1]
-                                                        .func.args[0];
+        var colName = gTables[tableId].tableCols[colNum - 1].getBackColName();
         var $highlightBoxs = $table.find(".highlightBox");
 
         var notValid = false;
@@ -2921,12 +2920,12 @@ function unnest($jsonTd, isArray, options) {
     var numCols = cols.length;
     var colNames = [];
     var escapedColNames = [];
-    var duplicateFound = false;
     var colName;
     var escapedColName;
     var openSymbol;
     var closingSymbol;
     var tempName;
+
     for (var arrayKey in jsonTdObj) {
         if (options.isDataTd) {
             colName = arrayKey;
@@ -2941,24 +2940,18 @@ function unnest($jsonTd, isArray, options) {
                 closingSymbol = "]";
             }
 
-            colName = cols[colNum - 1].func.args[0].replace(/\\./g, ".") +
+            colName = cols[colNum - 1].getBackColName().replace(/\\./g, ".") +
                       openSymbol + arrayKey + closingSymbol;
-            escapedColName = cols[colNum - 1].func.args[0] + openSymbol +
+            escapedColName = cols[colNum - 1].getBackColName() + openSymbol +
                             arrayKey.replace(/\./g, "\\\.") + closingSymbol;
         }
-        for (var i = 0; i < numCols; i++) {
-            if (cols[i].func.args[0] === escapedColName) {
-                duplicateFound = true;
-                break;
-            }
-        }
-        if (duplicateFound) {
-            duplicateFound = false;
-        } else {
+
+        if (!table.hasBackCol(escapedColName)) {
             colNames.push(colName);
             escapedColNames.push(escapedColName);
         }    
     }
+
     if (colNames.length === 0) {
         return;
     }

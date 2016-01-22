@@ -296,7 +296,7 @@ window.DataFlowModal = (function($, DataFlowModal) {
         var tableCols = gTables[tableId].tableCols;
         $ths.each(function() {
             var colNum = Number($(this).data("col"));
-            var colName = tableCols[colNum - 1].func.args[0];
+            var colName = tableCols[colNum - 1].getBackColName();
             columns.push(colName);
         });
 

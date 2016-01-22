@@ -12,17 +12,15 @@ window.xcFunction = (function($, xcFunction) {
 
         var table        = gTables[tableId];
         var tableName    = table.tableName;
-        var frontColName = table.tableCols[colNum].name;
-        var backColName  = table.tableCols[colNum].func.args[0];
+        var frontColName = table.tableCols[colNum].getFronColName();
         var tablCols     = xcHelper.deepCopy(table.tableCols);
         var fltStr       = fltOptions.filterString;
 
         var msg = StatusMessageTStr.Filter + ': ' + frontColName;
-        var msgObj = {
+        var msgId = StatusMessage.addMsg({
             "msg"      : msg,
             "operation": SQLOps.Filter
-        };
-        var msgId = StatusMessage.addMsg(msgObj);
+        });
         
         var newTableInfo = getNewTableInfo(tableName);
         var newTableName = newTableInfo.tableName;
@@ -34,7 +32,6 @@ window.xcFunction = (function($, xcFunction) {
             "tableName"   : tableName,
             "tableId"     : tableId,
             "colName"     : frontColName,
-            "backColName" : backColName,
             "colNum"      : colNum,
             "newTableName": newTableName,
             "fltOptions"  : fltOptions
@@ -70,20 +67,17 @@ window.xcFunction = (function($, xcFunction) {
 
         var table        = gTables[tableId];
         var tableName    = table.tableName;
-        var frontColName = table.tableCols[colNum].name;
-        var backColName  = table.tableCols[colNum].func.args[0];
-
-        if (colNum === -1) {
-            colNum = undefined;
-        }
+        var tableCol     = table.tableCols[colNum];
+        var frontColName = tableCol.getFronColName();
+        var backColName  = tableCol.getBackColName();
 
         var msg = StatusMessageTStr.Aggregate + " " + aggrOp + " " +
                     StatusMessageTStr.OnColumn + ": " + frontColName;
-        var msgObj = {
+        var msgId = StatusMessage.addMsg({
             "msg"      : msg,
             "operation": SQLOps.Aggr
-        };
-        var msgId = StatusMessage.addMsg(msgObj);
+        });
+
         xcHelper.lockTable(tableId);
 
         var instr = 'This is the aggregate result for column "' +
@@ -166,27 +160,18 @@ window.xcFunction = (function($, xcFunction) {
 
         var table     = gTables[tableId];
         var tableName = table.tableName;
+        var pCol      = table.tableCols[colNum - 1];
+        var backFieldName = pCol.getBackColName();
+        var frontFieldName = pCol.getFronColName();
+
         var tablCols  = xcHelper.deepCopy(table.tableCols);
-        var pCol      = tablCols[colNum - 1];
         var direction = (order === SortDirection.Forward) ? "ASC" : "DESC";
-        var backFieldName;
-        var frontFieldName;
         var xcOrder;
+
         if (order === SortDirection.Backward) {
             xcOrder = XcalarOrderingT.XcalarOrderingDescending;
         } else {
             xcOrder = XcalarOrderingT.XcalarOrderingAscending;
-        }
-
-        switch (pCol.func.func) {
-            case ("pull"):
-                // Pulled directly, so just sort by this
-                frontFieldName = pCol.name;
-                backFieldName = pCol.func.args[0];
-                break;
-            default:
-                deferred.reject("unsupported func");
-                return (deferred.promise());
         }
 
         // Check for case where table is already sorted
@@ -302,11 +287,11 @@ window.xcFunction = (function($, xcFunction) {
 
             var lTable     = gTables[lTableId];
             var lTableName = lTable.tableName;
-            var lColName   = lTable.tableCols[lColNum].func.args[0];
+            var lColName   = lTable.tableCols[lColNum].getBackColName();
 
             var rTable     = gTables[rTableId];
             var rTableName = rTable.tableName;
-            var rColName   = rTable.tableCols[rColNum].func.args[0];
+            var rColName   = rTable.tableCols[rColNum].getBackColName();
 
             var lSrcName;
             var rSrcName;
@@ -314,16 +299,13 @@ window.xcFunction = (function($, xcFunction) {
             var lTableResult;
             var rTableResult;
 
-
             xcHelper.lockTable(lTableId);
             xcHelper.lockTable(rTableId);
 
-            var msg = StatusMessageTStr.Join;
-            var msgObj = {
-                "msg"      : msg,
+            var msgId = StatusMessage.addMsg({
+                "msg"      : StatusMessageTStr.Join,
                 "operation": SQLOps.Join
-            };
-            var msgId = StatusMessage.addMsg(msgObj);
+            });
 
             var newTableId = xcHelper.getTableId(newTableName);
 
@@ -391,8 +373,6 @@ window.xcFunction = (function($, xcFunction) {
 
         var table     = gTables[tableId];
         var tableName = table.tableName;
-        var columns   = table.tableCols;
-        var columnLen = columns.length;
 
         // current workshhet index
         var curWS = WSManager.getWSFromTable(tableId);
@@ -412,13 +392,11 @@ window.xcFunction = (function($, xcFunction) {
 
         for (var i = 0; i < groupByColsLen; i++) {
             groupByCols[i] = groupByCols[i].trim();
-
-            for (var j = 0; j < columnLen; j++) {
-                var progCol = columns[j];
-                if (progCol.func.args[0] === groupByCols[i]) {
-                    groupByColTypes[i] = progCol.type;
-                    break;
-                }
+            var progCol = table.getProgCol(groupByCols[i]);
+            if (progCol != null) {
+                groupByColTypes[i] = progCol.type;
+            } else {
+                console.error("Error Case!");
             }
         }
 
@@ -832,9 +810,14 @@ window.xcFunction = (function($, xcFunction) {
         if (isIncSample) {
             // getIndexOfFirstGroupByCol
             for (var i = 0; i < numTableCols; i++) {
+                // Skip DATA and new column
+                if (tableCols[i].isDATACol() || tableCols[i].isNewCol) {
+                    continue;
+                }
+
+                var backCol = tableCols[i].getBackColName();
                 for (var j = 0; j < numGroupByCols; j++) {
-                    if (tableCols[i].func.args &&
-                        tableCols[i].func.args[0] === groupByCols[j])
+                    if (backCol === groupByCols[j])
                     {
                         newColIndex = i + 1;
                         break;
@@ -872,7 +855,7 @@ window.xcFunction = (function($, xcFunction) {
             // Pull out each individual groupByCols
             for (var i = 0; i < numGroupByCols; i++) {
                 var colName = groupByCols[i];
-                var col = getCol(colName) || {};
+                var progCol = table.getProgCol(colName) || {};
 
                 if (colName.indexOf('.') > -1) {
                     // when the groupby col name has dot, it should be escsped
@@ -880,8 +863,8 @@ window.xcFunction = (function($, xcFunction) {
                 }
 
                 finalCols[1 + i] = ColManager.newCol({
-                    "name"    : col.name || colName,
-                    "type"    : col.type || null,
+                    "name"    : progCol.name || colName,
+                    "type"    : progCol.type || null,
                     "width"   : gNewCellWidth,
                     "isNewCol": false,
                     "userStr" : '"' + colName + '" = pull(' + colName + ')',
@@ -899,16 +882,6 @@ window.xcFunction = (function($, xcFunction) {
         }
 
         return finalCols;
-
-        function getCol(backColName) {
-            for (var c = 0; c < numTableCols; c++) {
-                if (tableCols[c].func.args &&
-                    tableCols[c].func.args[0] === backColName) {
-                    return tableCols[c];
-                }
-            }
-            return null;
-        }
     }
 
     function getNewTableInfo(tableName) {
@@ -1241,9 +1214,9 @@ window.xcFunction = (function($, xcFunction) {
             var lColNum  = lCols.length;
 
             for (var i = 0; i <= len - 2; i++) {
-                lString += lCols[lColNums[i]].func.args[0] + ", ";
+                lString += lCols[lColNums[i]].getBackColName() + ", ";
             }
-            lString += lCols[lColNums[len - 1]].func.args[0] + ")";
+            lString += lCols[lColNums[len - 1]].getBackColName() + ")";
 
             // right cols
             var rString  = 'multiJoinModule:multiJoin(';
@@ -1252,10 +1225,10 @@ window.xcFunction = (function($, xcFunction) {
             var rColNum  = rCols.length;
 
             for (var i = 0; i <= len - 2; i++) {
-                rString += rCols[rColNums[i]].func.args[0] + ", ";
+                rString += rCols[rColNums[i]].getBackColName() + ", ";
             }
 
-            rString += rCols[rColNums[len - 1]].func.args[0] + ")";
+            rString += rCols[rColNums[len - 1]].getBackColName() + ")";
 
             var lMapOptions = {
                 "colNum"   : lColNum,

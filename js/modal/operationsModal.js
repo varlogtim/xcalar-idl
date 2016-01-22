@@ -1395,7 +1395,7 @@ window.OperationsModal = (function($, OperationsModal) {
 
                 arg = arg.replace(/\$/g, '');
                 var frontColName = arg;
-                var tempColNames = getBackColName(arg.split(","));
+                var tempColNames = arg.split(",");
                 var backColNames = "";
                 for (var i = 0; i < tempColNames.length; i++) {
                     if (i > 0) {
@@ -1514,8 +1514,7 @@ window.OperationsModal = (function($, OperationsModal) {
         var columns = gTables[tableId].tableCols;
         var numCols = columns.length;
         for (var i = 0; i < numCols; i++) {
-            if (columns[i].func.args &&
-                columns[i].func.args[0] === backColName) {
+            if (columns[i].getBackColName() === backColName) {
                 colIndex = i;
                 break;
             }
@@ -1604,9 +1603,9 @@ window.OperationsModal = (function($, OperationsModal) {
             for (var j = 0; j < numCols; j++) {
                 if (columns[j].name === value) {
                     var colType = columns[j].type;
-                    
-                    if (columns[i].func.args) {
-                        colArg = columns[j].func.args[0];
+                    colArg = columns[j].getBackColName();
+
+                    if (colArg != null) {
                         var bracketIndex = colArg.indexOf("[");
                         if (bracketIndex > -1 &&
                             colArg[bracketIndex - 1] !== "\\") {
@@ -1625,6 +1624,7 @@ window.OperationsModal = (function($, OperationsModal) {
     // that are found in gTables.tableCols
     function checkValidColNames($input, colNames, single) {
         var text;
+
         if (typeof colNames !== "string") {
             text = ErrorTextWReplaceTStr.InvalidCol.replace("<name>", colNames);
             StatusBox.show(text, $input);
@@ -1637,8 +1637,8 @@ window.OperationsModal = (function($, OperationsModal) {
             StatusBox.show(text, $input);
             return (false);
         }
-        var columns = gTables[tableId].tableCols;
-        var numCols = columns.length;
+
+        var table = gTables[tableId];
         var value;
         var trimmedVal;
         for (var i = 0; i < numValues; i++) {
@@ -1647,14 +1647,8 @@ window.OperationsModal = (function($, OperationsModal) {
             if (trimmedVal.length > 0) {
                 value = trimmedVal;
             }
-            var validFound = false;
-            for (var j = 0; j < numCols; j++) {
-                if (columns[j].func.args && columns[j].func.args[0] === value) {
-                    validFound = true;
-                    break;
-                }
-            }
-            if (!validFound) {
+
+            if (!table.hasBackCol(value)) {
                 if (value.length === 2 && value.indexOf('""') === 0) {
                     text = ErrorTextTStr.NoEmpty;
                 } else {
@@ -1882,12 +1876,16 @@ window.OperationsModal = (function($, OperationsModal) {
         var numCols = columns.length;
         var backColName = frontColName;
         for (var i = 0; i < numCols; i++) {
-            if (columns[i].name === frontColName && columns[i].func.args) {
-                backColName = columns[i].func.args[0];
+            if (columns[i].getFronColName() === frontColName) {
+                var colName = columns[i].getBackColName();
+                if (colName != null) {
+                    backColName = colName;
+                }
                 break;
             }
         }
-        return (backColName);
+
+        return backColName;
     }
             
     function getAutoGenColName(name) {
@@ -1896,10 +1894,13 @@ window.OperationsModal = (function($, OperationsModal) {
         var numCols = tableCols.length;
         for (var i = 0; i < numCols; i++) {
             takenNames[tableCols[i].name] = 1;
-            if (tableCols[i].func.args) {
-                var backName = tableCols[i].func.args[0];
-                takenNames[backName] = 1;
-            }  
+
+            if (!tableCols[i].isDATACol()) {
+                var backName = tableCols[i].getBackColName();
+                if (backName != null) {
+                    takenNames[backName] = 1;
+                }
+            }
         }
 
         // var limit = 20; // we won't try more than 20 times

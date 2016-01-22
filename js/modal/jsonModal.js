@@ -124,12 +124,14 @@ window.JSONModal = (function($, JSONModal) {
                 var $el = $(this);
                 var $jsonWrap = $el.closest('.jsonWrap');
                 var tableId   = $jsonWrap.data('tableid');
-                var cols      = gTables[tableId].tableCols;
+                var table     = gTables[tableId];
+                var cols      = table.tableCols;
                 var colNum    = $jsonWrap.data('colnum');
                 var isArray   = $jsonWrap.data('isarray');
                 var nameInfo  = createJsonSelectionExpression($el);
                 var numCols   = cols.length;
                 var colName;
+
                 if (isDataCol) {
                     colName = nameInfo.escapedName;
                 } else {
@@ -137,18 +139,25 @@ window.JSONModal = (function($, JSONModal) {
                     if (!isArray) {
                         symbol = ".";
                     }
-                    colName = cols[colNum - 1].func.args[0] + symbol +
+
+                    colName = cols[colNum - 1].getBackColName() + symbol +
                               nameInfo.escapedName;
                 }
                 // check if the column already exists
                 for (var i = 0; i < numCols; i++) {
-                    if (cols[i].func.args[0] === colName) {
+                    // skip DATA col and new col
+                    if (cols[i].isDATACol() || cols[i].isNewCol) {
+                        continue;
+                    }
+
+                    if (cols[i].getBackColName() === colName) {
                         var animation = gMinModeOn ? false : true;
                         closeJSONModal();
                         xcHelper.centerFocusedColumn(tableId, i, animation);
                         return;
                     }
                 }
+
 
                 var pullColOptions = {
                     "isDataTd" : isDataCol,

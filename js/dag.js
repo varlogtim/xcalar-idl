@@ -979,12 +979,12 @@ window.Dag = (function($, Dag) {
             var colNum = $(this).index();
             var numCols = $('#dagSchema').find('.numCols').text().substr(1);
             numCols = parseInt(numCols);
+
             for (var i = colNum; i <= numCols; i++) {
                 if (cols[i].name === name) {
                     userStr = cols[i].userStr;
-                    if (cols[i].func.args) {
-                        backName = cols[i].func.args[0];
-                    } else {
+                    backName = cols[i].getBackColName();
+                    if (backName == null) {
                         backName = name;
                     }
                     break;
@@ -1085,11 +1085,18 @@ window.Dag = (function($, Dag) {
                     if (argsFound === numArgs) {
                         break;
                     }
+
+                    // skip DATA COL
+                    if (cols[j].isDATACol()) {
+                        continue;
+                    }
+
                     for (var k = 0; k < numArgs; k++) {
                         var arg = args[k].trim();
+                        var backColName = cols[j].getBackColName();
 
-                        if (cols[j].func.args) {
-                            if (arg === cols[j].func.args[0] ||
+                        if (backColName != null) {
+                            if (arg === backColName ||
                                 userStr === cols[j].userStr)
                             {
                                 highlightColumnHelper(tableId, $dagWrap,
@@ -1134,7 +1141,7 @@ window.Dag = (function($, Dag) {
         var parents = $dagTable.data('parents').split(',');
 
         highlightColumnSource(tableId, $dagWrap, currentName);
-        var previousName = col.func.args[0];
+        var previousName = col.getBackColName();
         addRenameColumnInfo(currentName, previousName, $dagTable, $dagWrap);
 
         findColumnSource(name, userStr, tableId, parents, $dagWrap,

@@ -370,8 +370,8 @@ window.AggModal = (function($, AggModal) {
                             continue;
                         }
                         var sub = corrString.replace(/[$]arg1/g,
-                                                     cols.func.args[0]);
-                        sub = sub.replace(/[$]arg2/g, vertCols.func.args[0]);
+                                                     cols.getBackColName());
+                        sub = sub.replace(/[$]arg2/g, vertCols.getBackColName());
                         // Run correlation function
                         var promise = runCorr(tableId, tableName,
                                                 sub, i, j, dups);
@@ -414,7 +414,7 @@ window.AggModal = (function($, AggModal) {
                 if (!$colHeader.hasClass("childOfArray")) {
                     for (var i = 0; i < funLen; i++) {
                         var promise = runAgg(tableId, tableName,
-                                                cols.func.args[0],
+                                                cols.getBackColName(),
                                                 aggrFunctions[i], i, j, dups);
                         promises.push(promise);
                     }
@@ -426,15 +426,12 @@ window.AggModal = (function($, AggModal) {
     }
 
     function checkDupCols(colNo) {
-        var args = aggCols[colNo].col.func.args[0];
+        var args = aggCols[colNo].col.getBackColName();
         var dups = [];
 
         for (var i = colNo + 1, len = aggCols.length; i < len; i++) {
             var cols = aggCols[i].col;
-            if (cols.func.args &&
-                (cols.func.args[0] === args) &&
-                (cols.func.func !== "raw"))
-            {
+            if (cols.func.func !== "raw" && cols.getBackColName() === args) {
                 dups.push(i);
             }
         }

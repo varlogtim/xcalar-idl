@@ -1089,12 +1089,17 @@ window.TblManager = (function($, TblManager) {
         for (var i = 0; i < numCols; i++) {
             var color = "";
             var columnClass = "";
-            var backName = "";
+            var backName;
 
-            if (columns[i].func.args && columns[i].func.args[0]) {
-                backName = columns[i].func.args[0];
-            } else {
+            if (columns[i].isDATACol() || columns[i].isNewCol) {
                 backName = columns[i].name;
+            } else {
+                backName = columns[i].getBackColName();
+
+                if (backName == null) {
+                    // this is a handling of error case
+                    backName = columns[i].name;
+                }
             }
 
             if (backName === table.keyName) {

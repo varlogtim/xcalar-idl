@@ -195,11 +195,11 @@ window.Profile = (function($, Profile, d3) {
     Profile.show = function(tableId, colNum) {
         var deferred = jQuery.Deferred();
 
-        var table = gTables[tableId];
-        var col   = table.tableCols[colNum - 1];
+        var table   = gTables[tableId];
+        var progCol = table.tableCols[colNum - 1];
+        var colName = progCol.getBackColName();
 
-        if (!col.func.args) {
-            console.error("No backend col name!");
+        if (colName == null) {
             deferred.reject("No backend col name!");
             return (deferred.promise());
         }
@@ -207,16 +207,14 @@ window.Profile = (function($, Profile, d3) {
         curTableId = tableId;
         curColNum = colNum;
 
-        var colName = col.func.args[0];
         statsInfos[tableId] = statsInfos[tableId] || {};
-
         statsCol = statsInfos[tableId][colName];
 
         if (statsCol == null) {
             statsCol = statsInfos[tableId][colName] = new ProfileInfo({
                 "modalId": xcHelper.randName("stats"),
                 "colName": colName,
-                "type"   : col.type
+                "type"   : progCol.type
             });
         } else if (statsCol.modalId === $modal.data("id")) {
             // when same modal open twice

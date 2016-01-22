@@ -256,11 +256,11 @@ window.ColManager = (function($, ColManager) {
         var isArray  = pullColOptions.isArray || false;
         var noAnimate = pullColOptions.noAnimate || false;
 
-        var $table   = $("#xcTable-" + tableId);
-        var table    = gTables[tableId];
+        var $table    = $("#xcTable-" + tableId);
+        var table     = gTables[tableId];
         var tableCols = table.tableCols;
-        var col      = tableCols[colNum - 1];
-        var fullName = nameInfo.name;
+        var col       = tableCols[colNum - 1];
+        var fullName  = nameInfo.name;
         var escapedName = nameInfo.escapedName;
 
         if (!isDataTd) {
@@ -268,12 +268,13 @@ window.ColManager = (function($, ColManager) {
             if (!isArray) {
                 symbol = ".";
             }
-            escapedName = col.func.args[0] + symbol + escapedName;
-            fullName = col.func.args[0].replace(/\\./g, ".") + symbol +
+
+            escapedName = col.getBackColName() + symbol + escapedName;
+            fullName = col.getBackColName().replace(/\\./g, ".") + symbol +
                        fullName;
         }
         var usrStr = '"' + fullName + '" = pull(' + escapedName + ')';
-        
+
         var tableName   = table.tableName;
         var siblColName = table.tableCols[colNum - 1].name;
         var newColName  = xcHelper.getUniqColName(fullName, tableCols);   
@@ -361,7 +362,7 @@ window.ColManager = (function($, ColManager) {
             col = tableCols[colInfo.colNum - 1];
             // here use front col name to generate newColName
             newFieldNames[i] = col.name + "_" + colInfo.type;
-            mapStrings[i] = mapStrHelper(col.func.args[0], colInfo.type);
+            mapStrings[i] = mapStrHelper(col.getBackColName(), colInfo.type);
         }
 
         // this makes it easy to get previous table name
@@ -556,7 +557,7 @@ window.ColManager = (function($, ColManager) {
     //             tableNames[i] = tableNamePart + Authentication.getHashId();
     //             // here use front col name to generate newColName
     //             fieldNames[i] = col.name + "_" + colInfo.type;
-    //             mapStrings[i] = mapStrHelper(col.func.args[0], colInfo.type);
+    //             mapStrings[i] = mapStrHelper(col.getBackColName(), colInfo.type);
 
     //             query += 'map --eval "' + mapStrings[i] +
     //                     '" --srctable "' + srctable +
@@ -840,7 +841,7 @@ window.ColManager = (function($, ColManager) {
                                       rightTableName) {
             var deferred = jQuery.Deferred();
             XcalarJoin(leftTableName, rightTableName, joinTableName,
-                       JoinOperatorT.InnerJoin, {}); 
+                       JoinOperatorT.InnerJoin, {});
         }
     };
 
@@ -857,7 +858,7 @@ window.ColManager = (function($, ColManager) {
         var tableCols   = table.tableCols;
         var colType     = tableCols[colNum - 1].type;
         var colName     = tableCols[colNum - 1].name;
-        var backColName = tableCols[colNum - 1].func.args[0];
+        var backColName = tableCols[colNum - 1].getBackColName();
 
         if (colType !== "integer" && colType !== "float" &&
             colType !== "string" && colType !== "boolean") {
@@ -1108,9 +1109,8 @@ window.ColManager = (function($, ColManager) {
         var table       = gTables[tableId];
         var tableName   = table.tableName;
         var tableCols   = table.tableCols;
-        var numCols     = tableCols.length;
         var colName     = tableCols[colNum - 1].name;
-        var backColName = tableCols[colNum - 1].func.args[0];
+        var backColName = tableCols[colNum - 1].getBackColName();
 
         var msg = StatusMessageTStr.SplitColumn;
         var msgObj = {
@@ -1143,26 +1143,15 @@ window.ColManager = (function($, ColManager) {
             // Check duplication
             var tryCount  = 0;
             var colPrefix = colName + "-split";
-            var isDup;
 
             i = numColToGet;
             while (i > 0 && tryCount <= 50) {
-                isDup = false;
                 ++tryCount;
 
                 for (i = numColToGet; i >= 1; i--) {
                     newFieldNames[i] = colPrefix + "-" + i;
 
-                    for (var j = 0; j < numCols; j++) {
-                        if (tableCols[j].func.args) {
-                            if (newFieldNames[i] === tableCols[j].func.args[0]) {
-                                isDup = true;
-                                break;
-                            }
-                        }
-                    }
-
-                    if (isDup) {
+                    if (table.hasCol(newFieldNames[i])) {
                         newFieldNames = [];
                         colPrefix = colName + "-split-" + tryCount;
                         break;
@@ -1496,7 +1485,7 @@ window.ColManager = (function($, ColManager) {
                     progCol.isNewCol = false;
                 }
 
-                pullColHelper(progCol.func.args[0], colNum, tableId);
+                pullColHelper(progCol.getBackColName(), colNum, tableId);
 
                 deferred.resolve();
                 break;
@@ -1612,10 +1601,11 @@ window.ColManager = (function($, ColManager) {
 
                 // check both backend name and front name
                 if (tableCols[i].name === name ||
-                    (tableCols[i].func.args && tableCols[i].func.args[0] === name))
+                    (!tableCols[i].isDATACol() &&
+                     tableCols[i].getBackColName() === name))
                 {
                     title = "A column is already using this name, " +
-                                "please use another name.";
+                            "please use another name.";
                     isDuplicate = true;
                     break;
                 }
@@ -1623,7 +1613,7 @@ window.ColManager = (function($, ColManager) {
         }
         
         if (isDuplicate) {
-            var container      = $input.closest('.mainPanel').attr('id');
+            var container = $input.closest('.mainPanel').attr('id');
             var $toolTipTarget = $input.parent();
 
             $toolTipTarget.tooltip({
@@ -1658,16 +1648,15 @@ window.ColManager = (function($, ColManager) {
         var table  = gTables[tableId];
         var tableCols = table.tableCols;
 
-        var width    = tableCols[colNum - 1].width;
+        var progCol  = tableCols[colNum - 1];
+        var width    = progCol.width;
         var isNewCol = $table.find('th.col' + colNum).hasClass('unusedCell');
-        var decimals = tableCols[colNum - 1].decimals;
-        var format   = tableCols[colNum - 1].format;
+        var decimals = progCol.decimals;
+        var format   = progCol.format;
 
-        var name;
-        if (tableCols[colNum - 1].func.args) {
-            name = tableCols[colNum - 1].func.args[0];
-        } else {
-            name = tableCols[colNum - 1].name;
+        var name = progCol.getBackColName();
+        if (name == null) {
+            name = progCol.getFronColName();
         }
 
         name = xcHelper.getUniqColName(name, tableCols);
@@ -1675,7 +1664,7 @@ window.ColManager = (function($, ColManager) {
         ColManager.addCol(colNum, tableId, name, {
             "width"   : width,
             "isNewCol": isNewCol,
-            "isHidden": tableCols[colNum - 1].isHidden,
+            "isHidden": progCol.isHidden,
             "decimals": decimals,
             "format"  : format
         });
@@ -1684,14 +1673,15 @@ window.ColManager = (function($, ColManager) {
             "operation" : SQLOps.DupCol,
             "tableName" : table.tableName,
             "tableId"   : tableId,
-            "colName"   : tableCols[colNum - 1].name,
+            "colName"   : progCol.getFronColName(),
             "newColName": name,
             "colNum"    : colNum
         });
 
-        tableCols[colNum].func.func = tableCols[colNum - 1].func.func;
-        tableCols[colNum].func.args = tableCols[colNum - 1].func.args;
-        tableCols[colNum].userStr = tableCols[colNum - 1].userStr;
+        tableCols[colNum].func.func = progCol.func.func;
+        tableCols[colNum].func.args = progCol.func.args;
+        tableCols[colNum].userStr = progCol.userStr;
+
         ColManager.execCol(tableCols[colNum], tableId, colNum + 1)
         .then(function() {
             updateTableHeader(tableId);
@@ -1942,18 +1932,21 @@ window.ColManager = (function($, ColManager) {
         startIndex = startIndex || 0;
 
         for (var i = 0; i < numCols; i++) {
-            if ((i !== dataIndex) &&
-                tableCols[i].func.args &&
-                tableCols[i].func.args !== "")
-            {
-                var nested = parseColFuncArgs(tableCols[i].func.args[0]);
-                if (tableCols[i].func.args[0] !== "" &&
-                    tableCols[i].func.args[0] != null)
+            if (i === dataIndex) {
+                // this is the data Column
+                nestedVals.push([""]);
+            } else if (tableCols[i].isNewCol) {
+                // new col
+                nestedVals.push("");
+            } else {
+                var backColName = tableCols[i].getBackColName();
+                var nested = parseColFuncArgs(backColName);
+                if (backColName !== "" && backColName != null)
                 {
-                    if (/\\.([0-9])/.test(tableCols[i].func.args[0])) {
+                    if (/\\.([0-9])/.test(backColName)) {
                         // slash followed by dot followed by number is ok
                         // fall through
-                    } else if (/\.([0-9])/.test(tableCols[i].func.args[0])) {
+                    } else if (/\.([0-9])/.test(backColName)) {
                         // dot followed by number is invalid
                         nested = [""];
                     }
@@ -1961,12 +1954,9 @@ window.ColManager = (function($, ColManager) {
 
                 nestedVals.push(nested);
                 // get the column number of the column the table was indexed on
-                if (tableCols[i].func.args &&
-                    (tableCols[i].func.args[0] === table.keyName)) {
+                if (backColName === table.keyName) {
                     indexedColNums.push(i);
                 }
-            } else { // this is the data Column
-                nestedVals.push([""]);
             }
 
             // initial type
@@ -2320,9 +2310,9 @@ window.ColManager = (function($, ColManager) {
             $header.addClass('childOfArray');
         }
 
-
-        if (table.isSortedArray && tableCol.func.args &&
-            tableCol.func.args[0] === table.keyName + "_indexed") {
+        if (table.isSortedArray &&
+            tableCol.getBackColName() === table.keyName + "_indexed")
+        {
             // XXX this method to detect it's sortedArray is not reliable
             tableCol.isSortedArray = true;
             $header.addClass('sortedArray');

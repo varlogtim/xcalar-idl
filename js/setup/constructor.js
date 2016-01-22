@@ -112,6 +112,67 @@ TableMeta.prototype = {
     updateTimeStamp: function() {
         this.timeStamp = xcHelper.getTimeInMS();
         return this;
+    },
+
+    hasBackCol: function(backColName) {
+        // this check if table has the backCol,
+        // it does not check frontCol
+        var tableCols = this.tableCols;
+        for (var i = 0, len = tableCols.length; i < len; i++) {
+            var progCol = tableCols[i];
+
+            if (progCol.isNewCol || progCol.isDATACol()) {
+                // skip new column and DATA column
+                continue;
+            } else if (progCol.getBackColName() === backColName) {
+                return true;
+            }
+        }
+
+        return false;
+    },
+
+    hasCol: function(colName) {
+        // check both fronName and backName
+        var tableCols = this.tableCols;
+        for (var i = 0, len = tableCols.length; i < len; i++) {
+            var progCol = tableCols[i];
+            var name;
+
+            if (progCol.isDATACol()) {
+                // skip DATA column
+                continue;
+            }
+
+            if (!progCol.isNewCol && progCol.getBackColName() === colName) {
+                // check backColName
+                return true;
+            }
+
+            if (progCol.name === colName) {
+                // check fronColName
+                return true;
+            }
+        }
+
+        return false;
+    },
+
+    getProgCol: function(backColName) {
+        // get progCol from backColName
+        var tableCols = this.tableCols;
+        for (var i = 0, len = tableCols.length; i < len; i++) {
+            var progCol = tableCols[i];
+
+            if (progCol.isNewCol || progCol.isDATACol()) {
+                // skip new column and DATA column
+                continue;
+            } else if (progCol.getBackColName() === backColName) {
+                return progCol;
+            }
+        }
+
+        return null;
     }
 };
 
@@ -145,6 +206,32 @@ function ColFunc(options) {
 
     return this;
 }
+
+ProgCol.prototype = {
+    "isDATACol": function() {
+        if (this.name === "DATA" && this.func.func === "raw") {
+            return true;
+        } else {
+            return false;
+        }
+    },
+
+    "getFronColName": function() {
+        return this.name;
+    },
+
+    "getBackColName": function() {
+        if (this.func.args && this.func.args.length > 0) {
+            return this.func.args[0];
+        } else {
+            if (!this.isNewCol) {
+                // If code goes here, it's an error case!!
+                console.error("No Back Col!");
+            }
+            return null;
+        }
+    }
+};
 
 // store.js
 function METAConstructor(atStartUp) {
