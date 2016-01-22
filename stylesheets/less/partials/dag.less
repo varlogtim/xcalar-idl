@@ -1,11 +1,17 @@
 /* ========== Dag ========== */
-#dagPanel {
+#dagPanelContainer {
     .position(absolute, @top: 78px);
     .size(@width: 100%, @height: ~"calc(100% - 152px)");
+    pointer-events: none;
+}
+#dagPanel {
+    .position(absolute, @top: 0px);
+    .size(@width: 100%, @height: 100%);
     z-index: 15;
     background-color: rgb(140, 173, 181);
     .image("/images/dag-background.png", right, top, repeat);
-    .transition (~"transform 0.4s linear");
+    .transition (~"transform 0.3s ease-in");
+    pointer-events: initial;
 
     .topBorder {
         .position(relative);
@@ -23,7 +29,7 @@
             border: 1px solid @color-bar-border;
             border-top: none;
             .rounded(0 0 3px 3px);
-            z-index: 15;                                               
+            z-index: 100;                                               
         }
 
         .tabShadow {
@@ -39,39 +45,51 @@
             cursor: pointer;
             .image("/images/dagIcons/dagTabArrow.png", 50%, 70%);
             background-color: @color-background-sidebar;
+
+            &.up {
+                .transform (rotate(180deg));
+                top: -9px;
+            }
         }
     }
 
-    &.midway {
-        z-index: 15;
-        .transform(translate3d(0, 50%, 0));
-
-        #dagPulloutTab {
-            .transform (rotate(180deg));
-            top: -9px;
-        }
-
-        .dagArea {
-            height: ~"calc(50% - 10px)";
-            .transition (~"height 0s ease-in 0.3s");
-        }
-        .transition (~"transform 0.3s ease-in");
-    }
-
-    &.full {
-        z-index: 15;
+    .ui-resizable-n {
+        top: 0px;
     }
 
     &.hidden {
-        .transform(translate3d(0, 100%, 0));
+        .transform(translate3d(0, 100%, 0)) !important;
         .transition (~"transform 0.4s ease-in");
     }
 
+    &.noTransform {
+        -webkit-transition: none !important;
+        -moz-transition: none !important;
+        -o-transition: none !important;
+        -ms-transition: none !important;
+        transition: none !important;
+        .transform(translate3d(0, 0, 0)) !important;
+        .dagArea {
+            height: ~"calc(100% - 10px)";
+        }
+    }
+
     #closeDag {
-        .position(absolute, @top: 16px, @right: 18px);
+        .position(absolute, @top: 16px, @right: 24px);
         z-index: 20;
         .iconClose {
             background-image: url(/images/close-icon.png);
+        }
+    }
+
+    #maximizeDag {
+        .position(absolute, @top: 16px, @right: 54px);
+        z-index: 20;
+        .iconMaximize {
+            background-image: url(/images/expand.png);
+        }
+        &.unavailable {
+            pointer-events: none;
         }
     }
 }
@@ -79,8 +97,6 @@
 .dagArea {
     .size(~"calc(100% - 10px)", ~"calc(100% - 10px)");
     overflow: auto;
-    padding-bottom: 20px;
-    .transition (~"height 0s ease-in 0s");
 
     .legendArea {
         display: inline-block;
@@ -193,7 +209,7 @@
     }
 
     .header {
-        margin: 15px 45px 0px 15px;
+        margin: 15px 65px 0px 15px;
         border-bottom: 1px solid #A5A5A6;
         margin-bottom: 10px;
         padding-bottom: 4px;

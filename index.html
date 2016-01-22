@@ -100,33 +100,42 @@
     <div id="mainFrame"></div>
 
     <!-- Dag Panel -->
-    <div id="dagPanel" class="hidden midway no-selection">
-      <div class="topBorder">
-        <div class="pulloutTabWrap">
-          <div id="dagPulloutTab"></div>
+    <div id="dagPanelContainer">
+      <div id="dagPanel" class="hidden midway no-selection">
+        <div class="topBorder">
+          <div class="pulloutTabWrap">
+            <div id="dagPulloutTab" class="down"></div>
+          </div>
+          <div class="tabShadow"></div>
         </div>
-        <div class="tabShadow"></div>
-      </div>
-      <div id="closeDag" class="btn btnSmall btnDeselected">
-          <span class="icon iconClose"></span>
-      </div>
-      <div class="dagArea">
-        <div class="legendArea">
-          <div class="datasetArea descriptionArea">
-            <div class="dataStoreIcon legendIcon"></div>
-            <div class="icon"></div>
-            <span class="text">Data set</span>
-          </div>
-          <div class="tableArea descriptionArea">
-            <div class="dagTableIcon legendIcon"></div>
-            <div class="icon"></div>
-            <span class="text">Table</span>
-          </div>
-          <div class="operationArea descriptionArea">
-            <div class="actionTypeWrap legendIcon">
-              <div class="dagIcon"></div>
+        <div id="maximizeDag" class="btn btnSmall btnDeselected" 
+        data-container="body" data-toggle="tooltip" 
+        title="maximize">
+            <span class="icon iconMaximize"></span>
+        </div>
+        <div id="closeDag" class="btn btnSmall btnDeselected"
+        data-container="body" data-toggle="tooltip" 
+        title="close">
+            <span class="icon iconClose"></span>
+        </div>
+        <div class="dagArea">
+          <div class="legendArea">
+            <div class="datasetArea descriptionArea">
+              <div class="dataStoreIcon legendIcon"></div>
+              <div class="icon"></div>
+              <span class="text">Data set</span>
             </div>
-            <span class="text">Operation</span>
+            <div class="tableArea descriptionArea">
+              <div class="dagTableIcon legendIcon"></div>
+              <div class="icon"></div>
+              <span class="text">Table</span>
+            </div>
+            <div class="operationArea descriptionArea">
+              <div class="actionTypeWrap legendIcon">
+                <div class="dagIcon"></div>
+              </div>
+              <span class="text">Operation</span>
+            </div>
           </div>
         </div>
       </div>

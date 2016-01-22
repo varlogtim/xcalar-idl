@@ -1,5 +1,6 @@
 window.DagPanel = (function($, DagPanel) {
     var $dagPanel = $('#dagPanel');
+    var $dagArea = $dagPanel.find('.dagArea');
 
     DagPanel.setup = function() {
         setupDagPanelSliding();
@@ -13,8 +14,15 @@ window.DagPanel = (function($, DagPanel) {
         $(".dagWrap").remove();
     };
 
+    var dagTopPct = 50; // open up dag to 50% by default;
+    var clickDisabled = false;
+    // opening and closing of dag is temporarily disabled during animation
+
     function setupDagPanelSliding() {
         $("#worksheetTabs").on("click", ".dagTab", function(event) {
+            if (clickDisabled) {
+                return;
+            }
             var $compSwitch = $("#worksheetTabs .dagTab");
             var $workspacePanel = $('#workspacePanel');
             event.stopPropagation();
@@ -27,41 +35,141 @@ window.DagPanel = (function($, DagPanel) {
             if ($dagPanel.hasClass('hidden')) {
                 // open dag panel
                 $dagPanel.removeClass('hidden');
+                setDagTranslate(dagTopPct);
+                $dagArea.css('height', (100 - dagTopPct) + '%');
                 $compSwitch.addClass('active');
-                if ($dagPanel.hasClass('midway')) {
-                    $('#mainFrame').addClass('midway');
-                }
+
                 Dag.focusDagForActiveTable();
+                clickDisabled = true;
+                setTimeout(function() {
+                    var px = 38 * (dagTopPct / 100);
+                    $('#mainFrame').height('calc(' + dagTopPct + '% - ' +
+                                           px + 'px)');
+                    $dagPanel.addClass('noTransform');
+                    $dagPanel.css('top', dagTopPct + '%');
+                    clickDisabled = false;
+                }, 350);
             } else if (wasOnWorksheetPanel) {
                 // hide dag panel
-                $dagPanel.addClass('hidden');
-                $compSwitch.removeClass('active');
-                $('#mainFrame').removeClass('midway');
+                closePanel($compSwitch); 
             }
 
             if (!wasOnWorksheetPanel) {
                 $('#workspaceTab').trigger('click');
             }
 
-            $('.xcTheadWrap').css('z-index', 9);
             $('.columnOriginInfo').remove();
             Tips.refresh();
         });
 
+
         $('#dagPulloutTab').click(function() {
-            if ($dagPanel.hasClass('midway')) {
-                // make dag panel full screen
-                $dagPanel.removeClass('midway').addClass('full');
-            } else {
-                // make dag panel midway
-                $dagPanel.removeClass('full').addClass('midway');
-                $('#mainFrame').addClass('midway');
-            }
+            $('.dagTab').eq(0).trigger('click');
         });
 
         $('#closeDag').click(function() {
             // only triiger the first dagTab is enough
             $('.dagTab').eq(0).trigger('click');
+        });
+
+        $('#maximizeDag').click(function() {
+            if ($(this).hasClass('unavailable')) {
+                return;
+            }
+            $dagPanel.removeClass('noTransform');
+            $('#mainFrame').height('calc(100% - 38px)');
+            $dagArea.css('height', '100%');
+            if (dagTopPct === undefined) {
+                setDagTranslate(0);
+            } else {
+                setDagTranslate(-dagTopPct);
+            }
+            $(this).addClass('unavailable');
+            clickDisabled = true;
+            setTimeout(function() {
+                $dagPanel.addClass('noTransform');
+                $dagPanel.css('top', 0);
+                dagTopPct = 0;
+                clickDisabled = false;
+            }, 400);
+        });
+
+        var dagPanelTop = 0;
+        $dagPanel.on('mousedown', '.ui-resizable-n', function() {
+            dagPanelTop = $dagPanel.position().top;
+        });
+
+        $dagPanel.resizable({
+            handles    : "n",
+            containment: 'parent',
+            start: function(event, ui) {
+                $dagPanel.addClass('noTransform');
+                $dagPanel.css('top', dagPanelTop);
+                ui.originalPosition.top = dagPanelTop;
+                ui.position.top = dagPanelTop;
+                $('#mainFrame').height('calc(100% - 38px)');
+                $dagArea.css('height', '100%');
+            },
+            stop: function() {
+                var containerHeight = $('#dagPanelContainer').height();
+                dagPanelTop = $dagPanel.position().top;
+                $dagPanel.attr('style', function(i, style) {
+                    if (!style) {
+                        return;
+                    }
+                    return (style.replace(/height[^;]+;?/g, ''));
+                });
+
+                if (dagPanelTop < 30) {
+                    dagPanelTop = 0;
+                    $('#maximizeDag').addClass('unavailable');
+                } else {
+                     $('#maximizeDag').removeClass('unavailable');
+                }
+                if (dagPanelTop + 30 > containerHeight) {
+                    // close the dag panel
+                    closePanel($('#worksheetTabs').find('.dagTab.active'));
+                    return;
+                }
+                dagTopPct = 100 * (dagPanelTop / containerHeight);
+
+                var px = 38 * (dagTopPct / 100);
+                $dagPanel.css('top', dagTopPct + '%');
+                $('#mainFrame').height('calc(' + dagTopPct + '% - ' + px + 'px)');
+                $dagArea.css('height', (100 - dagTopPct) + '%');
+            }
+        });
+    }
+
+    function closePanel($compSwitch) {
+        $compSwitch.removeClass('active');
+        $dagPanel.removeClass('noTransform');
+        $('#mainFrame').height('calc(100% - 38px)');
+        $dagArea.css('height', (100 - dagTopPct) + '%');
+        $dagPanel.addClass('hidden');
+        clickDisabled = true;
+
+        setTimeout(function() {
+            setDagTranslate(100);
+
+            $dagPanel.attr('style', function(i, style) {
+                if (!style) {
+                    return;
+                }
+                return (style.replace(/top[^;]+;?/g, ''));
+            });
+            
+            clickDisabled = false;
+        }, 400);    
+    }
+
+    function setDagTranslate(pct) {
+        $dagPanel.css({
+            '-webkit-transform': 'translate3d(0, ' + pct + '%, 0)',
+            '-moz-transform': 'translate3d(0, ' + pct + '%, 0)',
+            '-ms-transform': 'translate3d(0, ' + pct + '%, 0)',
+            '-o-transform': 'translate3d(0, ' + pct + '%, 0)',
+            'transform': 'translate3d(0, ' + pct + '%, 0)'
         });
     }
 
@@ -852,8 +960,6 @@ window.Dag = (function($, Dag) {
     }
 
     function addDagEventListeners($dagWrap) {
-        var $currentIcon;
-        var $menu = $dagWrap.find('.dagDropDown');
       
         $dagWrap.on('mouseenter', '.dagTable.Ready', function() {
             var $dagTable = $(this);
@@ -1060,12 +1166,13 @@ window.Dag = (function($, Dag) {
 
     function findColumnSource(name, userStr, child, tables, $dagWrap,
                               prevName) {
+        var tableId;
         for (var i = 0; i < tables.length; i++) {
             var table;
             if (tables[i].indexOf('.XcalarDS.') === 0) {
                 table = false;
             } else {
-                var tableId = xcHelper.getTableId(tables[i]);
+                tableId = xcHelper.getTableId(tables[i]);
                 table = gTables[tableId];
             }
             
@@ -1321,8 +1428,8 @@ window.Dag = (function($, Dag) {
                         '" style="top:' + 0 + 'px; right:' + 0 + 'px;" ' +
                         'data-type="' + operation + '" ' +
                         'data-info="' + info.text.replace(/"/g, "'") + '" ' +
-                        'data-column="' + info.column.replace(/"/g, "'")
-                                        + '" ' +
+                        'data-column="' + info.column.replace(/"/g, "'") +
+                                        '" ' +
                         'data-table="' + resultTableName + '"' +
                         'data-id="' + info.id + '" ' +
                         'data-toggle="tooltip" ' +
@@ -1473,7 +1580,7 @@ window.Dag = (function($, Dag) {
                 }
                 break;
             case ('groupByInput'):
-                parentTableId = xcHelper.getTableId(value.srcTable.tableName);
+                var parentTableId = xcHelper.getTableId(value.srcTable.tableName);
                 var groupedOn;
                 var sampleStr = "";
                 if (parentTableId in gTables) {
