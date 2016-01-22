@@ -1166,7 +1166,7 @@ input {
     }
 
     &.type-object, &.type-newColumn, &.type-undefined, &.type-mixed, 
-    &.recordNum, &.childOfArray {
+    &.recordNum, &.childOfArray, &.sortedArray {
         .sort, .aggregate, .groupby, .filter, .joinList, .map, .operations,
         .profile
         {
@@ -1187,13 +1187,13 @@ input {
         }
     }
 
-    &.childOfArray {
+    &.childOfArray, &.sortedArray {
         .changeDataType, .hPartition, .window, .splitCol {
             display: none;
         }
     }
 
-    &.type-object, &.childOfArray {
+    &.type-object, &.childOfArray, &.sortedArray {
         .functionsDivider {
             display: none;
         }

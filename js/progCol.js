@@ -2177,6 +2177,9 @@ window.ColManager = (function($, ColManager) {
             if (childArrayVals[i]) {
                 $header.addClass('childOfArray');
             }
+            if (tableCols[i].isSortedArray) {
+                $header.addClass('sortedArray');
+            }
             if ($currentTh.hasClass('selectedCell') ||
                 $currentTh.hasClass('modalHighlighted')) {
                 highlightColumn($currentTh);
@@ -2195,9 +2198,11 @@ window.ColManager = (function($, ColManager) {
                 return;
             }
         }
-        var tableCols = gTables[tableId].tableCols;
-        var $table    = $("#xcTable-" + tableId);
-        var $dataCol  = $table.find("tr:first th").filter(function() {
+
+        var table    = gTables[tableId];
+        var tableCol = table.tableCols[newColid - 1];
+        var $table   = $("#xcTable-" + tableId);
+        var $dataCol = $table.find("tr:first th").filter(function() {
             return ($(this).find("input").val() === "DATA");
         });
 
@@ -2206,8 +2211,8 @@ window.ColManager = (function($, ColManager) {
         var numRow        = -1;
         var startingIndex = -1;
         var endingIndex   = -1;
-        var decimals = tableCols[newColid - 1].decimals;
-        var format   = tableCols[newColid - 1].format;
+        var decimals = tableCol.decimals;
+        var format   = tableCol.format;
                 
         if (!startIndex) {
             startingIndex = parseInt($table.find("tbody tr:first")
@@ -2221,7 +2226,7 @@ window.ColManager = (function($, ColManager) {
             endingIndex = startIndex + numRow;
         }
 
-        var nested       = parseColFuncArgs(key);
+        var nested = parseColFuncArgs(key);
         var childOfArray = false;
         var columnType;  // track column type, initial is undefined
         var knf = false;
@@ -2283,8 +2288,7 @@ window.ColManager = (function($, ColManager) {
             columnType = "undefined";
         }
 
-        var table = gTables[tableId];
-        table.tableCols[newColid - 1].type = columnType;
+        tableCol.type = columnType;
 
         // add class to th
         var $header = $table.find('th.col' + newColid + ' div.header');
@@ -2310,8 +2314,16 @@ window.ColManager = (function($, ColManager) {
             $header.addClass('childOfArray');
         }
 
+
+        if (table.isSortedArray && tableCol.func.args &&
+            tableCol.func.args[0] === table.keyName + "_indexed") {
+            // XXX this method to detect it's sortedArray is not reliable
+            tableCol.isSortedArray = true;
+            $header.addClass('sortedArray');
+        }
+
         $table.find('th.col' + newColid).removeClass('newColumn');
-        if (tableCols[newColid - 1].isHidden) {
+        if (tableCol.isHidden) {
             $table.find('td.col' + newColid).addClass('userHidden');
         }
     }
