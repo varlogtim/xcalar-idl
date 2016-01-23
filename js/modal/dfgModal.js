@@ -346,6 +346,7 @@ window.DataFlowModal = (function($, DataFlowModal) {
             return;
         }
 
+        str = xcHelper.escapeRegExp(str);
         var reg = new RegExp("^" + str);
 
         $dfgLists.each(function() {
