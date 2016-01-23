@@ -1,11 +1,54 @@
 window.SQL = (function($, SQL) {
+    var $sqlButtons = $("#sqlButtonWrap");
+    var $textarea = $("#sql-TextArea");
+    var $machineTextarea = $("#sql-MachineTextArea");
+
     var logs = [];
     var sqlToCommit = "";
-    var $textarea = $('#rightBarTextArea');
-    var $machineTextarea = $('#rightBarMachineTextArea');
 
     // constant
     var sqlLocalStoreKey = "xcalar-query";
+
+    SQL.setup = function() {
+        // show human readabl SQL as default
+        $machineTextarea.hide();
+
+        // set up the sql section
+        $sqlButtons.on("click", ".machineSQL", function() {
+            $(this).removeClass("machineSQL")
+                    .addClass("humanSQL");
+            $machineTextarea.hide();
+            $textarea.show();
+        });
+
+        $sqlButtons.on("click", ".humanSQL", function() {
+            $(this).removeClass("humanSQL")
+                    .addClass("machineSQL");
+            $machineTextarea.show();
+            $textarea.hide();
+        });
+
+        $sqlButtons.on("click", ".copySQL", function() {
+            var $hiddenInput = $("<input>");
+            $("body").append($hiddenInput);
+            var value;
+            if ($machineTextarea.is(":visible")) {
+                xcHelper.assert(!$textarea.is(":visible"),
+                                "human and android cannot coexist!");
+                value = $machineTextarea.text();
+            } else {
+                xcHelper.assert(!$machineTextarea.is(":visible"),
+                                "human and android cannot coexist!");
+                xcHelper.assert($textarea.is(":visible"),
+                                "At least one bar should be showing");
+                value = JSON.stringify(SQL.getLogs());
+            }
+
+            $hiddenInput.val(value).select();
+            document.execCommand("copy");
+            $hiddenInput.remove();
+        });
+    };
 
     SQL.add = function(title, options, cli) {
         options = options || {};

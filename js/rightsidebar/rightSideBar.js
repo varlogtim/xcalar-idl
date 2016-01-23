@@ -1,7 +1,7 @@
 window.RightSideBar = (function($, RightSideBar) {
     RightSideBar.setup = function() {
         setupButtons();
-        setupSQL();
+        SQL.setup();
         TableList.setup();
         UDF.setup();
         CLIBox.setup();
@@ -11,6 +11,8 @@ window.RightSideBar = (function($, RightSideBar) {
     RightSideBar.clear = function() {
         TableList.clear();
         UDF.clear();
+        SQL.clear();
+        CLIBox.clear();
     };
 
     RightSideBar.initialize = function() {
@@ -21,8 +23,9 @@ window.RightSideBar = (function($, RightSideBar) {
 
     // setup buttons to open right side bar
     function setupButtons() {
-        var delay             = 300;
-        var clickable         = true;
+        var delay     = 300;
+        var clickable = true;
+
         var $btnArea          = $("#rightSideBarBtns");
         var $sliderBtns       = $btnArea.find(".sliderBtn");
         var $rightSideBar     = $("#rightSideBar");
@@ -94,40 +97,6 @@ window.RightSideBar = (function($, RightSideBar) {
             
         });
 
-        $rightSideBar.on("click", ".machineSQL", function() {
-            $(this).removeClass("machineSQL");
-            $(this).addClass("humanSQL");
-            $("#rightBarMachineTextArea").hide();
-            $("#rightBarTextArea").show();
-        });
-
-        $rightSideBar.on("click", ".humanSQL", function() {
-            $(this).removeClass("humanSQL");
-            $(this).addClass("machineSQL");
-            $("#rightBarMachineTextArea").show();
-            $("#rightBarTextArea").hide();
-        });
-
-        $rightSideBar.on("click", ".copySQL", function() {
-            var $hiddenInput = $("<input>");
-            $("body").append($hiddenInput);
-            var value;
-            if ($("#rightBarMachineTextArea").is(":visible")) {
-                xcHelper.assert((!$("#rightBarTextArea").is(":visible")),
-                                "human and android cannot coexist!");
-                value = $("#rightBarMachineTextArea").text();
-            } else {
-                xcHelper.assert((!$("#rightBarMachineTextArea").is(":visible")),
-                                "human and android cannot coexist!");
-                xcHelper.assert(($("#rightBarTextArea").is(":visible")),
-                                "At least one bar should be showing");
-                value = JSON.stringify(SQL.getLogs());
-            }
-            $hiddenInput.val(value).select();
-            document.execCommand("copy");
-            $hiddenInput.remove();
-        });
-
         $rightSideBar.draggable({
             handle     : '.heading.draggable',
             containment: 'window',
@@ -193,10 +162,6 @@ window.RightSideBar = (function($, RightSideBar) {
                 $rightBarSections.removeClass("active");
             }, delay);
         }
-    }
-
-    function setupSQL() {
-        $("#rightBarMachineTextArea").hide();
     }
 
     function popOutModal($rightSideBar) {

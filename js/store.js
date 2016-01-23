@@ -10,8 +10,6 @@ function emptyAllStorage(localEmpty) {
 
     gTables = {};
     WSManager.clear();
-    SQL.clear();
-    CLIBox.clear();
     DataStore.clear();
     UserSettings.clear();
     RightSideBar.clear();
