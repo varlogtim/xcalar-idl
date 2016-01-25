@@ -832,7 +832,130 @@ window.TblManager = (function($, TblManager) {
             gActiveTableId = null;
         }
     };
-        /**
+
+    function infScrolling(tableId) {
+        var $rowScroller = $('#rowScrollerArea');
+        var scrollCount = 0;
+        var $xcTbodyWrap = $('#xcTbodyWrap-' + tableId);
+
+        $xcTbodyWrap.scroll(function() {
+            if (gMouseStatus === "movingTable") {
+                return;
+            }
+            if ($rowScroller.hasClass('autoScroll')) {
+                $rowScroller.removeClass('autoScroll');
+                return;
+            }
+
+            $(".menu:visible").hide();
+            removeMenuKeyboardNavigation();
+            $('.highlightBox').remove();
+
+            var table = gTables[tableId];
+            focusTable(tableId);
+            var $table = $('#xcTable-' + tableId);
+
+            if ($table.height() < $('#mainFrame').height()) {
+                // prevent scrolling on a short table
+                $(this).scrollTop(0);
+            }
+
+            var innerDeferred = jQuery.Deferred();
+            var firstRow = $table.find('tbody tr:first');
+            var topRowNum = xcHelper.parseRowNum(firstRow);
+            var info;
+            var numRowsToAdd;
+
+            if (firstRow.length === 0) {
+                innerDeferred.resolve();
+            } else if ($(this).scrollTop() === 0 &&
+                !firstRow.hasClass('row0'))
+            {
+                scrollCount++;
+                
+                if (scrollCount < 2) {
+                    // var initialTop = firstRow.offset().top;
+                    numRowsToAdd = Math.min(gNumEntriesPerPage, topRowNum,
+                                            table.resultSetMax);
+
+                    var rowNumber = topRowNum - numRowsToAdd;
+                    var lastRowToDisplay = $table.find('tbody tr:lt(30)');
+
+                    info = {
+                        "numRowsToAdd"    : numRowsToAdd,
+                        "numRowsAdded"    : 0,
+                        "targetRow"       : rowNumber,
+                        "lastRowToDisplay": lastRowToDisplay,
+                        "bulk"            : false,
+                        "tableName"       : table.tableName,
+                        "tableId"         : tableId
+                    };
+
+                    goToPage(rowNumber, numRowsToAdd, RowDirection.Top, false, info)
+                    .then(function() {
+
+                        scrollCount--;
+                        innerDeferred.resolve();
+                    })
+                    .fail(function(error) {
+                        scrollCount--;
+                        innerDeferred.reject(error);
+                    });
+                } else {
+                    scrollCount--;
+                    innerDeferred.resolve();
+                }
+            } else if ($(this)[0].scrollHeight - $(this).scrollTop() -
+                       // $(this).outerHeight() <= 1) {
+                       $(this).outerHeight() <= 1) {
+                scrollCount++;
+
+                if (scrollCount < 2) {
+                    numRowsToAdd = Math.min(gNumEntriesPerPage,
+                                    table.resultSetMax -
+                                    table.currentRowNumber);
+                    info = {
+                        "numRowsToAdd": numRowsToAdd,
+                        "numRowsAdded": 0,
+                        "targetRow"   : table.currentRowNumber +
+                                        numRowsToAdd,
+                        "lastRowToDisplay": table.currentRowNumber +
+                                            numRowsToAdd,
+                        "bulk"     : false,
+                        "tableName": table.tableName,
+                        "tableId"  : tableId
+                    };
+                    
+                    goToPage(table.currentRowNumber, numRowsToAdd,
+                             RowDirection.Bottom, false, info)
+                    .then(function() {
+                        scrollCount--;
+                        innerDeferred.resolve();
+                    })
+                    .fail(function(error) {
+                        scrollCount--;
+                        innerDeferred.reject(error);
+                    });
+                } else {
+                    scrollCount--;
+                    innerDeferred.resolve();
+                }
+            } else {
+                innerDeferred.resolve();
+            }
+
+            innerDeferred
+            .then(function() {
+                var rowScrollerMove = true;
+                generateFirstVisibleRowNum(rowScrollerMove);
+            })
+            .fail(function(error) {
+                console.error("Scroll Fails!", error);
+            });
+        });
+    }
+
+    /**
         This function sets up new tables to be added to the display and
         removes old tables.
 

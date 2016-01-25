@@ -21,13 +21,12 @@ window.DFGPanel = (function($, DFGPanel) {
     var currentDFG = null;
 
     DFGPanel.setup = function() {
-        DFGParamModal.setup();
-        AddScheduleModal.setup();
         addListeners();
         setupViewToggling();
         updateList();
         setupDagDropdown();
         setupRetinaTab();
+        Scheduler.setup();
     };
 
     DFGPanel.updateDFG = function() {

@@ -4053,6 +4053,12 @@ window.RowScroller = (function($, RowScroller) {
     var $rowScrollerArea = $("#rowScrollerArea");
 
     RowScroller.setup = function() {
+        $rowInput.val("").data("");
+        $rowInput.blur(function() {
+            var val = $(this).data('val');
+            $(this).val(val);
+        });
+
         $rowScrollerArea.mousedown(function(event) {
             if (event.which !== 1 || $(".rowScroller").length === 0) {
                 return;

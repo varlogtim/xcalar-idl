@@ -582,7 +582,7 @@ window.WKBKManager = (function($, WKBKManager) {
         })
         .then(function(wkbkId) {
             activeWKBKId = wkbkId;
-            console.log("Current Workbook Id is", wkbkId);
+            // console.log("Current Workbook Id is", wkbkId);
             // retive key from username and wkbkId
             var gInfoKey = generateKey(wkbkId, "gInfo");
             var gLogKey  = generateKey(wkbkId, "gLog");

@@ -1,7 +1,9 @@
 window.TableList = (function($, TableList) {
 
-    // setup table list section listeners
     TableList.setup = function() {
+        initializeTableList();
+
+        // setup table list section listeners
         var $tabsSection       = $("#tableListSectionTabs");
         var $tableListSections = $("#tableListSections .tableListSection");
         var $selectBtns        = $('#archivedTableList .secondButtonWrap,' +
@@ -64,7 +66,7 @@ window.TableList = (function($, TableList) {
             var $btn = $(this);
 
             if ($btn.closest('.tableInfo').hasClass('hiddenWS')) {
-                return;
+                return true;
             }
 
             $btn.toggleClass("selected");
@@ -149,26 +151,6 @@ window.TableList = (function($, TableList) {
         $("#aggregateTableList").find('.clearAll, .selectAll').hide();
         $("#orphanedTablesList").empty();
         $("#orphanedTableList").find('.clearAll, .selectAll').hide();
-    };
-
-    TableList.initialize = function() {
-        var activeTables = [];
-        var hiddenTables = [];
-
-        for (var tableId in gTables) {
-            var table = gTables[tableId];
-            if (table.active) {
-                activeTables.push(table);
-            } else {
-                hiddenTables.push(table);
-            }
-        }
-
-        TableList.addTables(activeTables, IsActive.Active);
-        TableList.addTables(hiddenTables, IsActive.Inactive);
-
-        generateOrphanList(gOrphanTables);
-        TableList.refreshAggTables();
     };
 
     TableList.addTables = function(tables, active) {
@@ -1063,6 +1045,26 @@ window.TableList = (function($, TableList) {
             animation = true;
         }
         xcHelper.centerFocusedColumn(tableId, colNum, animation);
+    }
+
+    function initializeTableList() {
+        var activeTables = [];
+        var hiddenTables = [];
+
+        for (var tableId in gTables) {
+            var table = gTables[tableId];
+            if (table.active) {
+                activeTables.push(table);
+            } else {
+                hiddenTables.push(table);
+            }
+        }
+
+        TableList.addTables(activeTables, IsActive.Active);
+        TableList.addTables(hiddenTables, IsActive.Inactive);
+
+        generateOrphanList(gOrphanTables);
+        TableList.refreshAggTables();
     }
 
     return (TableList);

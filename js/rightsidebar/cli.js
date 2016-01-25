@@ -9,17 +9,18 @@ window.CLIBox = (function($, CLIBox) {
     var lineUnit = "<div class='lineUnit'>" + nl + "</div>";
 
     CLIBox.setup = function() {
-        // initialize lineBox and cliBox
-        $lineBox.append(lineUnit);
-        $cliBox.append(cliUnit);
         addNl();
         focusOnClick(); // focus the editable area when you click area below it
     };
 
     CLIBox.restore = function(oldCLI) {
-        $cliBox.html(oldCLI);
+        if (oldCLI == null || oldCLI === "") {
+            CLIBox.clear();
+        } else {
+            $cliBox.html(oldCLI);
+        }
     };
-    
+
     CLIBox.clear = function() {
         $lineBox.html(lineUnit);
         $cliBox.html(cliUnit);
@@ -90,11 +91,11 @@ window.CLIBox = (function($, CLIBox) {
                     commitToStorage()
                     .then(function() {
                         console.info("Shut Down Successfully!");
-                        return (XcalarStartNodes(2));
+                        return XcalarStartNodes(2);
                     }, function(error) {
                         console.error("Failed to write! Commencing shutdown",
                                        error);
-                        return (XcalarStartNodes(2));
+                        return XcalarStartNodes(2);
                     })
                     .then(function() {
                         console.info("Restart Successfully!");

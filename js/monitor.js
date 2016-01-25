@@ -1,5 +1,5 @@
 window.MonitorPanel = (function($, MonitorPanel) {
-    MonitorPanel.setup = function () {
+    MonitorPanel.setup = function() {
         var $monitorPanel = $("#monitorPanel");
 
         initializeDonuts();

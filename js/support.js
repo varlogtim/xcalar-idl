@@ -14,7 +14,6 @@ window.Support = (function(Support, $) {
         // set up session variables
         userIdName = username;
         userIdUnique = getUserIdUnique(username);
-        return username;
     };
 
     Support.getUser = function() {

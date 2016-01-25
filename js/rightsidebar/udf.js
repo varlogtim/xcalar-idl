@@ -15,17 +15,20 @@ window.UDF = (function($, UDF) {
 
     UDF.setup = function() {
         setupUDF();
-    };
-
-    UDF.initialize = function() {
         initializeUDFList();
+        // Note that uploadDefaultUDF() will append the default UDF
+        // to udf list, so it should come after initializeUDFList();
         uploadDefaultUDF();
     };
 
     UDF.clear = function() {
         // clear CodeMirror
-        editor.setValue(udfDefault);
-        editor.clearHistory();
+        if (editor != null) {
+            // Wrap in if because readFromStorage may call UDF.clear()
+            // and at that time editor has not setup yet.
+            editor.setValue(udfDefault);
+            editor.clearHistory();
+        }
         storedUDF = {};
         $listDropdown.find('ul').empty()
                                 .append('<li name="blank">Blank Function</li>');

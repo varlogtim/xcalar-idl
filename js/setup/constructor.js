@@ -26,6 +26,28 @@ function SettingInfo(options) {
     return this;
 }
 
+// global MouseEvents
+function MouseEvents() {
+    var lastMouseDownTarget = $(document);
+    var lastClickTarget = lastMouseDownTarget;
+
+    this.setMouseDownTarget = function($element) {
+        lastMouseDownTarget = $element;
+    };
+
+    this.setClickTarget = function($element) {
+        lastClickTarget = $element;
+    };
+
+    this.getLastMouseDownTarget = function() {
+        return lastMouseDownTarget;
+    };
+
+    this.getLastClickTarget = function() {
+        return lastClickTarget;
+    };
+};
+
 function SQLConstructor(args) {
     this.title = args.title;
     this.options = args.options || {};

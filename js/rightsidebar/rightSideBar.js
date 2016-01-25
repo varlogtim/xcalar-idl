@@ -6,6 +6,8 @@ window.RightSideBar = (function($, RightSideBar) {
         UDF.setup();
         CLIBox.setup();
         Help.setup();
+
+        setLastRightSidePanel();
     };
 
     RightSideBar.clear = function() {
@@ -13,12 +15,6 @@ window.RightSideBar = (function($, RightSideBar) {
         UDF.clear();
         SQL.clear();
         CLIBox.clear();
-    };
-
-    RightSideBar.initialize = function() {
-        TableList.initialize();
-        setLastRightSidePanel();
-        UDF.initialize();
     };
 
     // setup buttons to open right side bar
