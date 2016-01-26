@@ -655,6 +655,9 @@ input {
 
         .header {
             z-index: 10;
+            // Chrome on retina has bug not showing the div
+            // this CSS fix it altought I do not know whyT__T
+            -webkit-transform:translateZ(0);
         }
     }
 
