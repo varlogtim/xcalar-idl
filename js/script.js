@@ -154,7 +154,7 @@ window.StartManager = (function(StartManager, $) {
             StatusMessage.setup();
             RightSideBar.setup();
             DataStore.setup();
-            setupTableColumnsMenu();
+            TblMenu.setup();
             WSManager.setup();
             loadMonitorPanel();
             DagPanel.setup();

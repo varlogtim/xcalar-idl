@@ -393,105 +393,6 @@ window.TblManager = (function($, TblManager) {
         return (deferred.promise());
     };
 
-    TblManager.generateTableDropDown = function() {
-
-        var tableMenuHTML =
-            '<div id="tableMenu" class="menu tableMenu" data-submenu="tableSubMenu">' +
-            '<ul>' +
-                '<li class="archiveTable">Archive Table</li>' +
-                '<li class="hideTable">Hide Table</li>' +
-                '<li class="unhideTable">Unhide Table</li>' +
-                // '<li class="deleteTable">Delete Table</li>' + XXX temporary
-                '<li class="exportTable">Export Table</li>' +
-                /**
-                '<li class="visualize">' +
-                '    <a href="'+paths.tableau+'" target="_blank" '+
-                'style="text-decoration:none;color:#838383">'+
-                'Visualize in Tableau</a>' +
-                '</li>' +
-                '<li class="copyColNames">Copy Column Names</li>'+*/
-                '<li class="delAllDuplicateCols">Delete All Duplicates</li>' +
-                '<li class="quickAgg parentMenu" data-submenu="quickAgg">' +
-                    'Quick Aggregates' +
-                '</li>' +
-                '<li class="multiCast">Smart Type Casting...</li>' +
-                '<li class="moveToWorksheet parentMenu" ' +
-                    'data-submenu="moveToWorksheet" data-toggle="tooltip" ' +
-                    'data-placement="top" title="no worksheet to move to">' +
-                    'Move to worksheet' +
-                '</li>' +
-                '<li class="sort parentMenu" data-submenu="sort">Sort Columns' +
-                '</li>' +
-                '<li class="resizeCols parentMenu" data-submenu="resizeCols">' +
-                    'Resize All Columns' +
-                '</li>' +
-                // XX copy to worksheet is temporarily disabled until we can do
-                // an actual copy of a table
-                
-                // '<li class="dupToWorksheet">' +
-                //     '<span class="label">Copy to worksheet</span>' +
-                //     '<ul class="subMenu">' +
-                //         '<li style="text-align: center" class="clickable">' +
-                //             '<span>Worksheet Name</span>' +
-                //             '<div class="dropDownList">' +
-                //                 '<input class="wsName" type="text" width="100px" ' +
-                //                     'placeholder="click to see options"/>' +
-                //                 '<ul class="list wsList"></ul>' +
-                //             '</div>' +
-                //         '</li>' +
-                //         '<li style="text-align: center" class="clickable">' +
-                //             '<span>New Table Name</span>' +
-                //             '<input class="tableName" type="text" width="100px" ' +
-                //                     'placeholder="Enter a new table name" ' +
-                //                     'value="' + newTableName + '"/>' +
-                //         '</li>' +
-                //         '<div class="subMenuArea"></div>' +
-                //     '</ul>' +
-                //     '<div class="dropdownBox"></div>' +
-                // '</li>' +
-            '</ul>' +
-            '<div class="scrollArea top"><div class="arrow"></div></div>' +
-            '<div class="scrollArea bottom"><div class="arrow"></div></div>' +
-            '</div>';
-
-        var subMenuHTML =
-            '<div id="tableSubMenu" class="menu subMenu">' +
-                '<ul class="quickAgg">' +
-                    '<li class="aggregates">Aggregate Functions</li>' +
-                    '<li class="correlation">Correlation Coefficient</li>' +
-                '</ul>' +
-                '<ul class="moveToWorksheet">' +
-                    '<li style="text-align: center" class="clickable">' +
-                        '<span>Worksheet Name</span>' +
-                        '<div class="dropDownList">' +
-                            '<input class="wsName" type="text" width="100px" ' +
-                                'placeholder="click to see options"/>' +
-                            '<ul class="list wsList"></ul>' +
-                        '</div>' +
-                    '</li>' +
-                    '<div class="subMenuArea"></div>' +
-                '</ul>' +
-                '<ul class="sort">' +
-                    '<li class="sortForward">' +
-                        '<span class="sortUp"></span>A-Z</li>' +
-                    '<li class="sortReverse">' +
-                        '<span class="sortDown"></span>Z-A</li>' +
-                    '<div class="subMenuArea"></div>' +
-                '</ul>' +
-                '<ul class="resizeCols">' +
-                    '<li class="sizeToHeader">Size To Headers</li>' +
-                    '<li class="sizeToContents">Size To Contents</li>' +
-                    '<li class="sizeToFitAll">Size To Fit All</li>' +
-                    '<div class="subMenuArea"></div>' +
-                '</ul>' +
-                '<div class="subMenuArea"></div>' +
-            '</div>';
-
-        var $workspacePanel = $('#workspacePanel');
-        $workspacePanel.append(tableMenuHTML);
-        $workspacePanel.append(subMenuHTML);
-    };
-
     // get meta data about table
     TblManager.setTableMeta = function(table) {
         var deferred  = jQuery.Deferred();
@@ -633,194 +534,6 @@ window.TblManager = (function($, TblManager) {
             '</th>';
 
         return (columnHeadTd);
-    };
-
-    TblManager.generateColDropDowns = function() {
-        var types = ['Boolean', 'Integer', 'Float', 'String'];
-
-        var mainMenuHTML =
-            '<div id="colMenu" class="menu mainMenu" data-submenu="colSubMenu">' +
-            '<ul>' +
-                '<li class="addColumn parentMenu" data-submenu="addColumn">' +
-                    'Add a column' +
-                '</li>' +
-                '<li class="deleteColumn">Delete column</li>' +
-                '<li class="duplicate">Duplicate column</li>' +
-                '<li class="deleteDuplicates">' +
-                    'Delete other duplicates' +
-                '</li>' +
-                '<li class="hide">Hide column</li>' +
-                '<li class="unhide">Unhide column</li>' +
-                '<li class="textAlign parentMenu" data-submenu="textAlign">Text align' +
-                '</li>' +
-                '<div class="divider identityDivider thDropdown"></div>' +
-                '<li class="rename parentMenu" data-submenu="rename">' +
-                    'Rename column' +
-                '</li>' +
-                '<li class="splitCol parentMenu" data-submenu="splitCol">' +
-                    'Split column' +
-                '</li>' +
-                '<li class="hPartition parentMenu" data-submenu="hPartition">' +
-                    'Horizontal Partition' +
-                '</li>' +
-                '<li class="changeDataType parentMenu" data-submenu="changeDataType">' +
-                    'Change data type' +
-                '</li>' +
-                '<li class="window parentMenu" data-submenu="window">' +
-                    'Window' +
-                '</li>' +
-                '<li class="format parentMenu" data-submenu="format">' +
-                    'Format' +
-                '</li>' +
-                '<li class="roundToFixed parentMenu" data-submenu="roundToFixed">' +
-                    'Round' +
-                '</li>' +
-                '<div class="divider functionsDivider"></div>' +
-                '<li class="sort parentMenu" data-submenu="sort">Sort' +    
-                '</li>' +
-                '<li class="functions aggregate">Aggregate...</li>' +
-                '<li class="functions filter">Filter...</li>' +
-                '<li class="functions groupby">Group By...</li>' +
-                '<li class="functions map">Map...</li>' +
-                '<li class="joinList">Join...</li>' +
-                '<li class="profile">Profile...</li>' +
-                '<li class="multiColumn hideColumns">Hide Columns</li>' +
-                '<li class="multiColumn unhideColumns">Unhide Columns</li>' +
-                '<li class="multiColumn deleteColumns">Delete Columns</li>' +
-                '<li class="multiColumn textAlignColumns parentMenu" data-submenu="multiTextAlign">Text align' +
-                '</li>' +
-                '<li class="multiColumn multiChangeDataType parentMenu" data-submenu="multiChangeDataType">Change data type' +
-                '<li class="tdFilter tdDropdown">Filter this value</li>' +
-                '<li class="tdExclude tdDropdown">Exclude this value</li>' +
-                '<li class="tdJsonModal tdDropdown">Examine</li>' +
-                '<li class="tdUnnest tdDropdown">Pull all</li>' +
-                '<li class="tdCopy tdDropdown">Copy to clipboard</li>' +
-            '</ul>' +
-            '<div class="scrollArea top"><div class="arrow"></div></div>' +
-            '<div class="scrollArea bottom"><div class="arrow"></div></div>' +
-            '</div>';
-
-        var subMenuHTML =
-            '<div id="colSubMenu" class="menu subMenu">' +
-                '<ul class="addColumn">' +
-                    '<li class="addColumn addColLeft">' +
-                    'On the left</li>' +
-                    '<li class="addColumn addColRight">On the right</li>' +
-                '</ul>' +
-                '<ul class="textAlign">' +
-                    '<li class="textAlign leftAlign">Left Align</li>' +
-                    '<li class="textAlign centerAlign">Center Align</li>' +
-                    '<li class="textAlign rightAlign">Right Align</li>' +
-                '</ul>' +
-                '<ul class="rename">' +
-                    '<li style="text-align: center" class="rename clickable">' +
-                        '<span>New Column Name</span>' +
-                        '<div class="listSection">' +
-                            '<input class="colName" type="text"' +
-                                ' autocomplete="on" spellcheck="false"/>' +
-                        '</div>' +
-                    '</li>' +
-                '</ul>' +
-                '<ul class="format">' +
-                    '<li class="changeFormat" data-format="default">Default</li>' +
-                    '<li class="changeFormat" data-format="percent">Percent</li>' +
-                '</ul>' +
-                '<ul class="roundToFixed">' +
-                    '<li style="text-align: center" class="clickable">' +
-                        '<span title="ex. an input of 2 would change 1.2345 ' +
-                        'to 1.23">Num. of decimals to keep</span>' +
-                        '<div class="listSection">' +
-                            '<input class="digitsToRound" type="number"' +
-                                ' max="14" min="0" autocomplete="on" ' +
-                                'spellcheck="false" />' +
-                        '</div>' +
-                    '</li>' +
-                    '<li class="changeRound default">Default</li>' +
-                '</ul>' +
-                '<ul class="splitCol">' +
-                    '<li style="text-align: center" class="clickable">' +
-                        '<div>Split Column By</div>' +
-                        '<input class="delimiter" type="text"' +
-                            ' spellcheck="false"/>' +
-                        '<div>Number of Split Columns</div>' +
-                        '<input class="num" type="number" min="1" step="1"' +
-                            ' placeholder="Unlimited if left blank"/>' +
-                    '</li>' +
-                '</ul>' +
-                '<ul class="hPartition">' +
-                    '<li style="text-align: center" class="clickable">' +
-                        '<div>Number of partitions</div>' +
-                        '<input class="partitionNums" type="number"' +
-                        ' placeholder="Max value of 10"/>' +
-                    '</li>' +
-                '</ul>' +
-                '<ul class="changeDataType">';
-
-        types.forEach(function(type) {
-            subMenuHTML +=
-                '<li class="flexContainer flexRow typeList type-' +
-                    type.toLowerCase() + '">' +
-                    '<div class="flexWrap flex-left">' +
-                        '<span class="type icon"></span>' +
-                    '</div>' +
-                    '<div class="flexWrap flex-right">' +
-                        '<span class="label">' + type + '</span>' +
-                    '</div>' +
-                '</li>';
-        });
-        subMenuHTML +=
-                '</ul>' +
-                '<ul class="window">' +
-                    '<li style="text-align: center" class="clickable">' +
-                        '<div>Lag</div>' +
-                        '<input class="lag" type="number"/>' +
-                        '<div>Lead</div>' +
-                        '<input class="lead" type="number"/>' +
-                    '</li>' +
-                '</ul>' +
-                '<ul class="sort">' +
-                    '<li class="sort">' +
-                    '<span class="sortUp"></span>A-Z</li>' +
-                    '<li class="revSort">' +
-                    '<span class="sortDown"></span>Z-A</li>' +
-                '</ul>' +
-                '<ul class="multiTextAlign">' +
-                    '<li class="textAlign leftAlign">Left Align</li>' +
-                    '<li class="textAlign centerAlign">Center Align</li>' +
-                    '<li class="textAlign rightAlign">Right Align</li>' +
-                '</ul>' +
-                '<ul class="multiChangeDataType">';
-
-        types.forEach(function(type) {
-            subMenuHTML +=
-                '<li class="flexContainer flexRow typeList type-' +
-                    type.toLowerCase() + '">' +
-                    '<div class="flexWrap flex-left">' +
-                        '<span class="type icon"></span>' +
-                    '</div>' +
-                    '<div class="flexWrap flex-right">' +
-                        '<span class="label">' + type + '</span>' +
-                    '</div>' +
-                '</li>';
-        });
-        subMenuHTML +=
-                '</ul>' +
-                '<div class="subMenuArea"></div>' +
-            '</div>';
-
-        var cellMenuHTML =
-            '<ul id="cellMenu" class="menu">' +
-                '<li class="tdFilter">Filter this value</li>' +
-                '<li class="tdExclude">Exclude this value</li>' +
-                '<li class="tdJsonModal">Examine</li>' +
-                '<li class="tdUnnest">Pull all</li>' +
-                '<li class="tdCopy">Copy to clipboard</li>' +
-            '</ul>';
-
-        var $workspacePanel = $('#workspacePanel');
-        $workspacePanel.append(mainMenuHTML);
-        $workspacePanel.append(subMenuHTML);
-        $workspacePanel.append(cellMenuHTML);
     };
 
     TblManager.hideWorksheetTable = function(tableId) {
@@ -997,9 +710,10 @@ window.TblManager = (function($, TblManager) {
         if (tablesToRemove) {
             for (var i = 0; i < tablesToRemove.length; i++) {
                 if (gTables[tablesToRemove[i]].active) {
-                    TblManager.archiveTable(tablesToRemove[i],
-                                            {del: ArchiveTable.Keep,
-                                            delayTableRemoval: true});
+                    TblManager.archiveTable(tablesToRemove[i], {
+                        "del"              : ArchiveTable.Keep,
+                        "delayTableRemoval": true
+                    });
                 }
             }
         }
@@ -1161,6 +875,419 @@ window.TblManager = (function($, TblManager) {
         if (numRows === 0) {
             $table.find('.idSpan').text("");
         }
+    }
+
+    function addTableListeners(tableId) {
+        var $xcTableWrap = $('#xcTableWrap-' + tableId);
+        var oldId = gActiveTableId;
+        $xcTableWrap.mousedown(function() {
+            if (gActiveTableId === tableId) {
+                return;
+            } else {
+                gActiveTableId = tableId;
+                var focusDag;
+                if (oldId !== gActiveTableId) {
+                    focusDag = true;
+                }
+                focusTable(tableId, focusDag);
+            }
+        }).scroll(function() {
+            $(this).scrollLeft(0); // prevent scrolling when colmenu is open
+            $(this).scrollTop(0); // prevent scrolling when colmenu is open
+        });
+    }
+
+    function addRowListeners(newCells) {
+        newCells.find('.jsonElement').dblclick(function() {
+                JSONModal.show($(this));
+            }
+        );
+
+        newCells.find('.rowGrab').mousedown(function(event) {
+            if (event.which === 1) {
+                gResrowMouseDown($(this), event);
+            }
+        });
+
+        newCells.find('.idSpan').click(function() {
+            var tableId = xcHelper.parseTableId($(this).closest('table'));
+            var rowNum = parseInt($(this).closest('tr').attr('class').substring(3));
+            if (gTables[tableId].bookmarks.indexOf(rowNum) < 0) {
+                bookmarkRow(rowNum, tableId);
+            } else {
+                unbookmarkRow(rowNum, tableId);
+            }
+        });
+    }
+
+    function adjustRowHeights(newCells, rowIndex, tableId) {
+        var rowObj = gTables[tableId].rowHeights;
+        var numRows = newCells.length;
+        var pageNum = Math.floor(rowIndex / gNumEntriesPerPage);
+        var lastPageNum = pageNum + Math.ceil(numRows / gNumEntriesPerPage);
+        var padding = 4;
+        var $row;
+        var $firstTd;
+
+        for (var i = pageNum; i < lastPageNum; i++) {
+            if (rowObj[i]) {
+                for (var row in rowObj[i]) {
+                    $row = newCells.filter(function() {
+                        return ($(this).hasClass('row' + (row - 1)));
+                    });
+                    $firstTd = $row.find('td.col0');
+                    $firstTd.outerHeight(rowObj[i][row]);
+                    $row.find('td > div')
+                        .css('max-height', rowObj[i][row] - padding);
+                    $firstTd.children('div').css('max-height', rowObj[i][row]);
+                    $row.addClass('changedHeight');
+                }
+            }
+        }
+    }
+
+    function addColListeners($table, tableId) {
+        var $thead = $table.find('thead tr');
+        var $tbody = $table.find("tbody");
+        var lastSelectedCell;
+
+        // listeners on thead
+        $thead.on("mousedown", ".flexContainer, .dragArea", function(event) {
+            var $el = $(this);
+
+            if ($("#mainFrame").hasClass("modalOpen")) {
+                // not focus when in modal
+                return;
+            } else if ($el.closest('.dataCol').length !== 0) {
+                return;
+            }
+
+            var $editableHead;
+            if ($el.is('.dragArea')) {
+                $editableHead = $el.closest('.header').find('.editableHead');
+            } else {
+                $editableHead = $el.find('.editableHead');
+            }
+
+            var colNum = xcHelper.parseColNum($editableHead);
+            FnBar.focusOnCol($editableHead, tableId, colNum);
+
+            var notDropDown = $(event.target).closest('.dropdownBox')
+                                                .length === 0;
+            if ($table.find('.selectedCell').length === 0) {
+                $('.selectedCell').removeClass('selectedCell');
+                lastSelectedCell = $editableHead;
+            }
+
+            if (event.ctrlKey || event.metaKey) {
+                if ($el.closest('.selectedCell').length > 0) {
+                    if (notDropDown) {
+                        unhighlightColumn($editableHead);
+                        FnBar.clear();
+                        return;
+                    }
+                } else {
+                    highlightColumn($editableHead, true);
+                }
+            } else if (event.shiftKey) {
+                if (lastSelectedCell && lastSelectedCell.length > 0) {
+                    var preColNum = xcHelper.parseColNum(lastSelectedCell);
+                    var lowNum = Math.min(preColNum, colNum);
+                    var highNum = Math.max(preColNum, colNum);
+                    var $th;
+                    var $col;
+                    var select = !$el.closest('th').hasClass('selectedCell');
+
+                    for (var i = lowNum; i <= highNum; i++) {
+                        $th = $table.find('th.col' + i);
+                        $col = $th.find('.editableHead');
+                        if ($col.length === 0) {
+                            continue;
+                        }
+
+                        if (select) {
+                            highlightColumn($col, true);
+                        } else if (notDropDown) {
+                            unhighlightColumn($col);
+                        }
+                    }
+                }
+            } else {
+                if ($el.closest('.selectedCell').length > 0) {
+                    if (notDropDown) {
+                        highlightColumn($editableHead, false);
+                        lastSelectedCell = null;
+                    } else {
+                        highlightColumn($editableHead, true);
+                    }
+                } else {
+                    highlightColumn($editableHead, false);
+                    lastSelectedCell = null;
+                }
+            }
+
+            xcHelper.removeSelectionRange();
+            lastSelectedCell = $editableHead;
+        });
+
+        $thead[0].oncontextmenu = function(e) {
+            var $target = $(e.target).closest('.dropdownBox');
+            if ($target.length) {
+                $target.trigger('click');
+                e.preventDefault();
+            }
+        };
+
+        $thead.on("click", ".dropdownBox", function() {
+            var options = {"type": "thDropdown"};
+
+            var $el = $(this);
+            var $th = $el.closest("th");
+
+            var colNum = xcHelper.parseColNum($th);
+
+            $(".tooltip").hide();
+            resetColMenuInputs($el);
+
+            options.colNum = colNum;
+            options.classes = $el.closest('.header').attr('class');
+
+            if ($th.hasClass('indexedColumn')) {
+                options.classes += " type-indexed";
+            }
+
+            if ($th.hasClass('dataCol')) {
+                $('.selectedCell').removeClass('selectedCell');
+                FnBar.clear();
+            }
+
+            if ($th.hasClass('newColumn') ||
+                options.classes.indexOf('type') === -1) {
+                options.classes += " type-newColumn";
+            }
+            if ($th.hasClass("userHidden")) {
+                // column is hidden
+                options.classes += " type-hidden";
+            }
+
+            if ($el.closest('.xcTable').hasClass('emptyTable')) {
+                options.classes += " type-emptyTable";
+            }
+
+            if ($('th.selectedCell').length > 1) {
+                options.classes += " type-multiColumn";
+                options.multipleColNums = [];
+                var tableCols = gTables[tableId].tableCols;
+                var types = {};
+                var tempType = "type-" + tableCols[colNum - 1].type;
+                types[tempType] = true;
+
+                var tempColNum;
+                var hiddenDetected = false;
+                $('th.selectedCell').each(function() {
+                    tempColNum = xcHelper.parseColNum($(this));
+                    options.multipleColNums.push(tempColNum);
+                    if (!hiddenDetected && $(this).hasClass("userHidden")) {
+                        hiddenDetected = true;
+                        options.classes += " type-hidden";
+                    }
+
+                    tempType = "type-" + tableCols[tempColNum - 1].type;
+                    if (!types.hasOwnProperty(tempType)) {
+                        types[tempType] = true;
+                        options.classes += " " + tempType;
+                    }
+                });
+            }
+
+            dropdownClick($el, options);
+        });
+
+        $thead.on('mousedown', '.colGrab', function(event) {
+            if (event.which !== 1) {
+                return;
+            }
+            gRescolMouseDown($(this), event);
+            dblClickResize($(this));
+        });
+
+        $thead.on('mousedown', '.dragArea', function(event) {
+            if (event.which !== 1) {
+                return;
+            }
+            if (event.ctrlKey || event.shiftKey || event.metaKey) {
+                if ($(event.target).is('.iconHelper')) {
+                    return;
+                }
+            }
+            var headCol = $(this).parent().parent();
+
+            dragdropMouseDown(headCol, event);
+        });
+
+        $thead.on("keydown", ".editableHead", function(event) {
+            var $input = $(event.target);
+            if (event.which === keyCode.Enter && !$input.prop("readonly")) {
+                var colName = $input.val().trim();
+                var colNum = xcHelper.parseColNum($input);
+
+                if (colName === "" ||
+                    ColManager.checkColDup($input, null, tableId, false, colNum))
+                {
+                    return false;
+                }
+
+                ColManager.renameCol(colNum, tableId, colName);
+            }
+        });
+
+        // listeners on tbody
+        $tbody.on("mousedown", "td", function(event) {
+            var $td = $(this);
+            var $el = $td.children('.clickable');
+
+            if (event.which !== 1 || $el.length === 0) {
+                return;
+            }
+
+            var yCoor = Math.max(event.pageY, $el.offset().top + $el.height() - 10);
+            var colNum = xcHelper.parseColNum($td);
+            var rowNum = xcHelper.parseRowNum($td.closest("tr"));
+            var isUnSelect = false;
+
+            $(".tooltip").hide();
+            resetColMenuInputs($el);
+
+            var $highlightBoxs = $(".highlightBox");
+
+            // remove highlights of other tables
+            $highlightBoxs.filter(function() {
+                return (!$(this).hasClass(tableId));
+            }).remove();
+
+            if (isSystemMac && event.metaKey ||
+                !isSystemMac && event.ctrlKey)
+            {
+                // ctrl key: multi selection
+                multiSelection();
+            } else if (event.shiftKey) {
+                // shift key: multi selection from minIndex to maxIndex
+                var $lastNoShiftCell = $highlightBoxs.filter(function() {
+                    return $(this).hasClass("noShiftKey");
+                });
+
+                if ($lastNoShiftCell.length === 0) {
+                    singleSelection();
+                } else {
+                    var lastColNum = $lastNoShiftCell.data("colNum");
+
+                    if (lastColNum !== colNum) {
+                        // when colNum changes
+                        multiSelection();
+                    } else {
+                        // re-hightlight shift key cell
+                        $highlightBoxs.filter(function() {
+                            return $(this).hasClass("shiftKey");
+                        }).remove();
+
+                        var $curTable  = $td.closest(".xcTable");
+                        var baseRowNum = $lastNoShiftCell.data("rowNum");
+
+                        var minIndex = Math.min(baseRowNum, rowNum);
+                        var maxIndex = Math.max(baseRowNum, rowNum);
+                        var isShift = true;
+
+                        for (var r = minIndex; r <= maxIndex; r++) {
+                            var $cell = $curTable.find(".row" + r + " .col" + colNum);
+                            // in case double added hightlight to same cell
+                            $cell.find(".highlightBox").remove();
+
+                            if (r === baseRowNum) {
+                                highlightCell($cell, tableId, r, colNum);
+                            } else {
+                                highlightCell($cell, tableId, r, colNum, isShift);
+                            }
+                        }
+                    }
+                }
+            } else {
+                // select single cell
+                singleSelection();
+            }
+
+            dropdownClick($el, {
+                "type"      : "tdDropdown",
+                "colNum"    : colNum,
+                "rowNum"    : rowNum,
+                "classes"   : "tdMenu", // specify classes to update colmenu's class attr
+                "mouseCoors": {"x": event.pageX, "y": yCoor},
+                "shiftKey"  : event.shiftKey,
+                "isMutiCol" : isMultiColum(),
+                "isUnSelect": isUnSelect
+            });
+
+            function singleSelection() {
+                if ($highlightBoxs.length === 1 &&
+                    $td.find('.highlightBox').length > 0)
+                {
+                    // deselect
+                    unHighlightCell($td);
+                    isUnSelect = true;
+                } else {
+                    $highlightBoxs.remove();
+                    highlightCell($td, tableId, rowNum, colNum);
+                }
+            }
+
+            function multiSelection() {
+                // remove old shiftKey and noShiftKey class
+                $highlightBoxs.removeClass("shiftKey")
+                            .removeClass("noShiftKey");
+
+                if ($td.find('.highlightBox').length > 0) {
+                    // deselect
+                    unHighlightCell($td);
+                    isUnSelect = true;
+                } else {
+                    highlightCell($td, tableId, rowNum, colNum);
+                }
+            }
+        });
+
+        // right click the open colMenu
+        $tbody[0].oncontextmenu = function(event) {
+            var $el = $(event.target);
+            var $td = $el.closest("td");
+            var $div = $td.children('.clickable');
+            if ($div.length === 0) {
+                // when click sth like row marker cell, rowGrab
+                return false;
+            }
+
+            var yCoor = Math.max(event.pageY, $el.offset().top + $el.height() - 10);
+            var colNum = xcHelper.parseColNum($td);
+            var rowNum = xcHelper.parseRowNum($td.closest("tr"));
+
+            $(".tooltip").hide();
+            resetColMenuInputs($el);
+
+            if ($td.find(".highlightBox").length === 0) {
+                // same as singleSelection()
+                $(".highlightBox").remove();
+                highlightCell($td, tableId, rowNum, colNum);
+            }
+
+            dropdownClick($div, {
+                "type"      : "tdDropdown",
+                "colNum"    : colNum,
+                "rowNum"    : rowNum,
+                "classes"   : "tdMenu", // specify classes to update colmenu's class attr
+                "mouseCoors": {"x": event.pageX, "y": yCoor},
+                "isMutiCol" : isMultiColum()
+            });
+
+            return false;
+        };
     }
 
     // creates thead and cells but not the body of the table
