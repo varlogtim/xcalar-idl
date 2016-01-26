@@ -71,6 +71,7 @@ function gRescolMouseDown(el, event, options) {
     
     rescol.tempCellMinWidth = rescol.cellMinWidth;
     rescol.leftDragMax = rescol.tempCellMinWidth - rescol.startWidth;
+    $table.addClass('resizingCol');
 
     disableTextSelection();
     $(document.head).append('<style id="col-resizeCursor" type="text/css">*' +
@@ -93,7 +94,7 @@ function gRescolMouseMove(event) {
     rescol.grabbedCell.outerWidth(newWidth);
     rescol.newWidth = newWidth;
     moveTableTitles();
-    if (gRescol.isDatastore) {
+    if (rescol.isDatastore) {
         rescol.$tableWrap.width(rescol.$worksheetTable.width());
            // size line divider to fit table
         var tableWidth = rescol.$previewTable.width();
@@ -106,10 +107,11 @@ function gRescolMouseUp() {
     var rescol = gRescol;
     $('#col-resizeCursor').remove();
     reenableTextSelection();
-    gRescol.table.find('.rowGrab').width(gRescol.table.width());
-    if (!gRescol.isDatastore) {
-        var table = gTables[gRescol.tableId];
-        var progCol = table.tableCols[gRescol.index - 1];
+    rescol.table.find('.rowGrab').width(rescol.table.width());
+    rescol.table.removeClass('resizingCol');
+    if (!rescol.isDatastore) {
+        var table = gTables[rescol.tableId];
+        var progCol = table.tableCols[rescol.index - 1];
         
         if (rescol.newWidth === 15) {
             rescol.table
@@ -117,7 +119,7 @@ function gRescolMouseUp() {
                   .addClass("userHidden");
             progCol.isHidden = true;
         } else {
-            progCol.width = gRescol.grabbedCell.outerWidth();
+            progCol.width = rescol.grabbedCell.outerWidth();
         }
         if (rescol.newWidth - 1 > rescol.startWidth ||
             rescol.newWidth + 1 < rescol.startWidth) {
@@ -772,7 +774,9 @@ function createTableHeader(tableId) {
 
     var html = '<div class="tableTitle ' + tableTitleClass + '">' +
                     '<div class="tableGrab"></div>' +
-                    '<label class="text" ></label>' +
+                    '<div class="labelWrap">' +
+                        '<label class="text" ></label>' +
+                    '</div>' +
                     '<div class="dropdownBox">' +
                         '<span class="innerBox"></span>' +
                     '</div>' +

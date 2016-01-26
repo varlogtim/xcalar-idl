@@ -394,7 +394,7 @@
         .xcTheadWrap {
             width: 30px !important;
 
-            .tableTitle > .text {
+            .tableTitle > .labelWrap {
                 width: 30px !important;
                 .textOverflow;
                 visibility: hidden;
@@ -684,7 +684,6 @@
     .position(relative, @left: 0%);
     top: 0px !important;
     width: ~"calc(100% - 5px)" !important;
-    pointer-events: none;
     z-index: 9;
     display: inline-block;
 
@@ -752,6 +751,14 @@
             }
         }
 
+        .labelWrap {
+            .textOverflowOneLine;
+            position: absolute;
+            width: ~"calc(100% - 10px)";
+            height: 100%;
+            left: 0px;
+        }
+
         .text {
             .position(absolute, @top: 0);
             .size(@width: auto, @max-width: ~"calc(100% - 10px)", @height: 25px);
@@ -780,7 +787,6 @@
             padding: 1px 0px;
             margin: 1px 0px;
             min-width: 15px !important;
-            max-width: ~"calc(100% - 58px)";
         }
 
         .tableName:focus {
@@ -869,8 +875,8 @@ html.microsoft {
             opacity: 0.6;
         }
 
-        .colGrab:hover ~ .dropdownBox {
-            opacity: 0;
+        .colGrab:hover ~ .flexContainer .dropdownBox {
+            opacity: 0 !important;
         }
 
         th {
@@ -882,8 +888,8 @@ html.microsoft {
             }
 
             &:last-child .colGrab {
-                .position(@right: -10px);
-                .size(@width: 12px);
+                .position(@right: -10px, @top: -40px);
+                .size(@width: 12px, @height: 82px) !important;
             }
 
             &.selectedCell {
@@ -1047,6 +1053,12 @@ html.microsoft {
 
         &.changedHeight {
             white-space: normal;
+        }
+    }
+
+    &.resizingCol {
+        .dropdownBox {
+            opacity: 0 !important;
         }
     }
 }
