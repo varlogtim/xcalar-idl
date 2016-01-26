@@ -615,8 +615,7 @@ window.xcHelper = (function($, xcHelper) {
                 }
                 showOrHideScrollers();
                 $('.selectedCell').removeClass('selectedCell');
-                gFnBarOrigin = undefined;
-                $('#fnBar').val("").removeClass('active');
+                FnBar.clear();
             }
             $('.tooltip').hide();
         }

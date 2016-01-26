@@ -42,7 +42,6 @@ var gKVScope = {
 var gTables = {}; // This is the main global array containing structures
                     // Stores TableMeta structs
 var gOrphanTables = [];
-var gFnBarOrigin;
 var gActiveTableId = "";
 var gDSObj = {};    //obj for DS folder structure
 var gRetinaObj = {}; //obj for retina modal
@@ -303,68 +302,7 @@ window.StartManager = (function(StartManager, $) {
     function setupMenuBar() {
         RowScroller.setup();
         setupMainPanelsTab();
-        setupFunctionBar();
-    }
-
-    function setupFunctionBar() {
-        var $functionArea = $('#functionArea');
-        var searchHelper = new xcHelper.SearchBar($functionArea, {
-            "removeSelected": function() {
-                $('.xcTable:visible').find('.selectedCell')
-                                     .removeClass('selectedCell');
-            },
-            "highlightSelected": function($match) {
-                highlightColumn($match);
-            },
-            "scrollMatchIntoView": function($match) {
-                var $mainFrame = $('#mainFrame');
-                var mainFrameWidth = $mainFrame.width();
-                var matchOffsetLeft = $match.offset().left;
-                var scrollLeft = $mainFrame.scrollLeft();
-                var matchWidth = $match.width();
-                if (matchOffsetLeft > mainFrameWidth - matchWidth) {
-                    $mainFrame.scrollLeft(matchOffsetLeft + scrollLeft - ((mainFrameWidth - matchWidth) / 2));
-                } else if (matchOffsetLeft < 25) {
-                    $mainFrame.scrollLeft(matchOffsetLeft + scrollLeft - ((mainFrameWidth - matchWidth) / 2));
-                }
-            },
-            "ignore": "="
-        });
-        searchHelper.setup();
-
-        $("#fnBar").on({
-            "input": function() {
-                var val = $(this).val();
-                var trimmedVal = val.trim();
-                if (trimmedVal.indexOf('=') !== 0) {
-                    $functionArea.addClass('searching');
-                    var args = {value: trimmedVal, searchBar: searchHelper};
-                    ColManager.execCol({func: {func: 'search'}}, null, null, args);
-                } else {
-                    $functionArea.removeClass('searching');
-                }
-            },
-            "keyup": function(event) {
-                if (event.which === keyCode.Enter) {
-                    functionBarEnter(gFnBarOrigin);
-                }
-            },
-            "mousedown": function() {
-                $(this).addClass("inFocus");
-            },
-            "blur": function() {
-                $(this).removeClass("inFocus");
-               
-                searchHelper.clearSearch(function() {
-                    $functionArea.removeClass('searching');
-                });
-            }
-        });
-
-        // $('#functionArea').on('mousedown', '.arrows', function(e) {
-        //     e.preventDefault();
-        //     e.stopPropagation();
-        // });
+        FnBar.setup();
     }
 
     function setupMainPanelsTab() {
@@ -738,6 +676,7 @@ window.StartManager = (function(StartManager, $) {
                 $('.highlightBox').remove();
                 $('body').removeClass('noSelection');
             }
+
             if (!$target.is('#fnBar') && !$target.closest('.header').length) {
                 if ($target.closest('.selectedCell').length !== 0) {
                     return;
@@ -748,8 +687,7 @@ window.StartManager = (function(StartManager, $) {
                     return;
                 }
                 $('.selectedCell').removeClass('selectedCell');
-                gFnBarOrigin = undefined;
-                $('#fnBar').val("").removeClass('active');
+                FnBar.clear();
             }
         });
         $(document).mousemove(function(event) {

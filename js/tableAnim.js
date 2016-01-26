@@ -1401,83 +1401,42 @@ function addColListeners($table, tableId) {
 
     // listeners on thead
     var $fnBar = $('#fnBar');
-    $thead.on({
-        "blur": function() {
-            // $fnBar.removeClass('active');
-        }
-    }, ".editableHead");
-
-    $thead.on({
-        "mousedown": function() {
-            if ($("#mainFrame").hasClass("modalOpen")) {
-                // not focus when in modal
-                return;
-            }
-            var $colInput = $(this).find('input');
-            $colInput.focus();
-
-            $fnBar.addClass('active');
-            focusTable(tableId);
-
-            var oldFnBarOrigin;
-            if (gFnBarOrigin) {
-                // gFnBarOrigin could be null
-                oldFnBarOrigin = gFnBarOrigin.get(0);
-            }
-            gFnBarOrigin = $colInput;
-
-            if ($fnBar.hasClass('entered')) {
-                $fnBar.removeClass('entered');
-            } else if (oldFnBarOrigin === gFnBarOrigin.get(0)) {
-                // the function bar origin hasn't changed so just return
-                // and do not rehighlight or update any text
-                return;
-            }
-            if ($(this).closest('.dataCol').length) {
-                $('.selectedCell').removeClass('selectedCell');
-                gFnBarOrigin = undefined;
-                $('#fnBar').val("").removeClass('active');
-            }
-        }
-    }, ".flex-mid");
-    
     $thead.on("mousedown", ".flexContainer, .dragArea", function(event) {
+        var $el = $(this);
 
         if ($("#mainFrame").hasClass("modalOpen")) {
             // not focus when in modal
             return;
-        } else if ($(this).closest('.dataCol').length !== 0) {
+        } else if ($el.closest('.dataCol').length !== 0) {
             return;
         }
 
-        if ($(this).is('.dragArea')) {
-            gFnBarOrigin = $(this).closest('.header').find('.editableHead');
+        var $editableHead;
+        if ($el.is('.dragArea')) {
+            $editableHead = $el.closest('.header').find('.editableHead');
         } else {
-            gFnBarOrigin = $(this).find('.editableHead');
+            $editableHead = $el.find('.editableHead');
         }
 
-        var colNum = xcHelper.parseColNum(gFnBarOrigin);
-        var table = gTables[tableId];
-        var userStr = table.tableCols[colNum - 1].userStr;
-        userStr = userStr.substring(userStr.indexOf('='));
-        $fnBar.val(userStr);
+        var colNum = xcHelper.parseColNum($editableHead);
+        FnBar.focusOnCol($editableHead, tableId, colNum);
+
         var notDropDown = $(event.target).closest('.dropdownBox')
                                             .length === 0;
         if ($table.find('.selectedCell').length === 0) {
             $('.selectedCell').removeClass('selectedCell');
-            lastSelectedCell = gFnBarOrigin;
+            lastSelectedCell = $editableHead;
         }
 
         if (event.ctrlKey || event.metaKey) {
-            if ($(this).closest('.selectedCell').length > 0) {
+            if ($el.closest('.selectedCell').length > 0) {
                 if (notDropDown) {
-                    unhighlightColumn(gFnBarOrigin);
-                    gFnBarOrigin = undefined;
-                    $('#fnBar').val("").removeClass('active');
+                    unhighlightColumn($editableHead);
+                    FnBar.clear();
                     return;
                 }   
             } else {
-                highlightColumn(gFnBarOrigin, true);
+                highlightColumn($editableHead, true);
             }
         } else if (event.shiftKey) {
             if (lastSelectedCell && lastSelectedCell.length > 0) {
@@ -1486,7 +1445,7 @@ function addColListeners($table, tableId) {
                 var highNum = Math.max(preColNum, colNum);
                 var $th;
                 var $col;
-                var select = !$(this).closest('th').hasClass('selectedCell');
+                var select = !$el.closest('th').hasClass('selectedCell');
 
                 for (var i = lowNum; i <= highNum; i++) {
                     $th = $table.find('th.col' + i);
@@ -1503,20 +1462,21 @@ function addColListeners($table, tableId) {
                 }
             }
         } else {
-            if ($(this).closest('.selectedCell').length > 0) {
+            if ($el.closest('.selectedCell').length > 0) {
                 if (notDropDown) {
-                    highlightColumn(gFnBarOrigin, false);
+                    highlightColumn($editableHead, false);
                     lastSelectedCell = null;
                 } else {
-                    highlightColumn(gFnBarOrigin, true);
+                    highlightColumn($editableHead, true);
                 }
             } else {
-                highlightColumn(gFnBarOrigin, false);
+                highlightColumn($editableHead, false);
                 lastSelectedCell = null;
             }
         }
+
         xcHelper.removeSelectionRange();
-        lastSelectedCell = gFnBarOrigin;
+        lastSelectedCell = $editableHead;
     });
     
     $thead[0].oncontextmenu = function(e) {
@@ -1547,8 +1507,7 @@ function addColListeners($table, tableId) {
 
         if ($th.hasClass('dataCol')) {
             $('.selectedCell').removeClass('selectedCell');
-            gFnBarOrigin = undefined;
-            $('#fnBar').val("").removeClass('active');
+            FnBar.clear();
         }
 
         if ($th.hasClass('newColumn') ||
@@ -3061,125 +3020,6 @@ function closeMenu($menu) {
     $menu.hide();
     $('body').removeClass('noSelection');
     removeMenuKeyboardNavigation();
-}
-
-function functionBarEnter($colInput) {
-    var $fnBar = $("#fnBar");
-    var fnBarVal = $fnBar.val();
-    var fnBarValTrim = fnBarVal.trim();
-    
-    if (!$colInput) {
-        return;
-    }
-    gFnBarOrigin = $colInput;
-    if (fnBarValTrim.indexOf('=') === 0) {
-        var $table   = $colInput.closest('.dataTable');
-        var tableId  = xcHelper.parseTableId($table);
-        var colNum   = xcHelper.parseColNum($colInput);
-        var table    = gTables[tableId];
-        var tableCol = table.tableCols[colNum - 1];
-        var colName  = tableCol.name;
-        $fnBar.blur().addClass("entered");
-
-        if (tableCol.isNewCol && colName === "") {
-            // when it's new column and do not give name yet
-            StatusBox.show(ErrorTextTStr.NoEmpty, $colInput);
-            return;
-        }
-
-        $fnBar.removeClass("inFocus");
-        
-        var newFuncStr = '"' + colName + '" ' + fnBarValTrim;
-        var oldUsrStr  = tableCol.userStr;
-
-        $colInput.blur();
-        // when usrStr not change
-        if (newFuncStr === oldUsrStr) {
-            return;
-        }
-
-        $colInput.closest('th').removeClass('unusedCell');
-        $table.find('td:nth-child(' + colNum + ')').removeClass('unusedCell');
-        var isValid = checkFuncSyntaxValidity(fnBarValTrim);
-        if (!isValid) {
-            return;
-        }
-        var progCol = parseFunc(newFuncStr, colNum, table, true);
-        // add sql
-        SQL.add("Pull Column", {
-            "operation": "pullCol",
-            "tableName": table.tableName,
-            "colName"  : progCol.name,
-            "colIndex" : colNum
-        });
-
-        ColManager.execCol(progCol, tableId, colNum)
-        .then(function() {
-            updateTableHeader(tableId);
-            TableList.updateTableInfo(tableId);
-            commitToStorage();
-        });
-    }
-}
-
-function checkFuncSyntaxValidity(funcStr) {
-    if (funcStr.indexOf("(") === -1 || funcStr.indexOf(")") === -1) {
-        return (false);
-    }
-
-    var count = 0;
-    var strLen = funcStr.length;
-    for (var i = 0; i < strLen; i++) {
-        if (funcStr[i] === "(") {
-            count++;
-        } else if (funcStr[i] === ")") {
-            count--;
-        }
-        if (count < 0) {
-            return (false);
-        }
-    }
-
-    return (count === 0);
-}
-
-function parseFunc(funcString, colNum, table, modifyCol) {
-    // Everything must be in a "name" = function(args) format
-    var open   = funcString.indexOf("\"");
-    var close  = (funcString.substring(open + 1)).indexOf("\"") + open + 1;
-    var name   = funcString.substring(open + 1, close);
-    var funcSt = funcString.substring(funcString.indexOf("=") + 1);
-    var progCol;
-
-    if (modifyCol) {
-        progCol = table.tableCols[colNum - 1];
-    } else {
-        progCol = ColManager.newCol();
-    }
-
-    progCol.name = name;
-    progCol.func = cleanseFunc(funcSt, name);
-    progCol.userStr = '"' + progCol.func.args[0] + '" =' + funcSt;
-
-    return (progCol);
-}
-
-function cleanseFunc(funcString, name) {
-    // funcString should be: function(args)
-    var open     = funcString.indexOf("(");
-    var close    = funcString.lastIndexOf(")");
-    var funcName = jQuery.trim(funcString.substring(0, open));
-    var args     = (funcString.substring(open + 1, close)).split(",");
-
-    if (funcName === "map") {
-        args = [name];
-    } else {
-        for (var i = 0; i < args.length; i++) {
-            args[i] = jQuery.trim(args[i]);
-        }
-    }
-
-    return new ColFunc({"func": funcName, "args": args});
 }
 
 function dropdownClick($el, options) {
