@@ -458,31 +458,47 @@
         white-space: nowrap;
     }
 
-     .matched, .partial, .unmatched {
-        >.jsonBlock > .jKey {
-            box-shadow: none;
-            border-radius: 1px;
-            line-height: 17px;
-            // margin: 1px -1px 0px;
+    .emptyObj, .emptyArray {
+        font-size: 4px;
+        line-height: 4px;
+    }
+
+    .partial > .jsonBlock > .jKey + span {
+        box-shadow: none;
+        border-radius: 1px;
+        line-height: 17px;
+    }
+    .unmatched > .jsonBlock > span {
+        box-shadow: none;
+        border-radius: 1px;
+        line-height: 17px;
+    }
+
+    .partial .jArray  {
+        > .jString, > .jNum, > .jBool, > .jNull , > .jUndf {
+            cursor: pointer;
+            &:hover {
+                background-color: transparent;
+                box-shadow: none;
+            }
         }
     }
-
-    .matched > .jsonBlock > .jKey {
-        background-color: #D4F0E7;
-        box-shadow: 0px 0px 0px 1px #49C28A;
-    }
-
-    .partial > .jsonBlock > .jKey {
-        // background-color: #FFEAD0;
-        // border: 1px solid #F1B84A;
-
-        background-color: #F3DBDC;
-        box-shadow: 0px 0px 0px 1px #E56158;
+    .partial > .jsonBlock {
+        > .jKey + span, > .jKey ~ div > span {
+            border-radius: 1px;
+            background-color: #F3DBDC;
+            box-shadow: 0px 0px 0px 1px #E56158;
+        }
+        > .emptyObj, .emptyArray {
+            font-size: 12px;
+            letter-spacing: -1px;
+        }
     }
 
     .unmatched > .jsonBlock > .jKey {
         background-color: #F3DBDC;
         box-shadow: 0px 0px 0px 1px #E56158;
+        border-radius: 1px;
     }
 
     .highlightedText {

@@ -1120,16 +1120,24 @@ window.JSONModal = (function($, JSONModal) {
                         }
                     } else if (value.constructor === Array) {
                         ++options.inarray;
+                        var emptyArray = "";
+                        if (value.length === 0) {
+                            emptyArray = " emptyArray";
+                        } 
                         value =
-                            '[<span class="jArray jInfo" ' +
-                                'data-key="' + key + '">' +
-                                prettifyJson(value, indent, options) +
-                            '</span>],';
+                        '[<span class="jArray jInfo ' + emptyArray + '" ' +
+                            'data-key="' + key + '">' +
+                            prettifyJson(value, indent, options) +
+                        '</span>],';
                     } else {
                         var object = prettifyJson(value,
                                         indent + '&nbsp;&nbsp;&nbsp;&nbsp;');
-
-                        value = '{\n' + object + indent + '}';
+                        if (object === "") {
+                            value = '{<span class="emptyObj">\n' +
+                                    object + indent + '</span>}';
+                        } else {
+                            value = '{\n' + object + indent + '}';
+                        }
 
                         if (options.inarray) {
                             value =
