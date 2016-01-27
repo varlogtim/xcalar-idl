@@ -1569,6 +1569,7 @@ window.DataPreview = (function($, DataPreview) {
     var delimiter   = "";
     var highlighter = "";
     var dsFormat    = "CSV";
+    var rowsToFetch = 40; // constant
 
     var promoteHeader =
             '<div class="header"' +
@@ -1589,6 +1590,7 @@ window.DataPreview = (function($, DataPreview) {
                 '</div>' +
             '</td>';
 
+    var $previeWrap = $("#dsPreviewWrap");
 
     DataPreview.setup = function() {
         // promot header
@@ -1612,52 +1614,10 @@ window.DataPreview = (function($, DataPreview) {
             highlightDelimiter(selection.toString());
         });
 
-        $("#preview-apply").click(function() {
-            var $fileName = $("#fileName");
-            var isValid = xcHelper.validate([
-                // check for "" should be kept for preview mode
-                // since it does't submit the form
-                {
-                    "$selector": $fileName,
-                    "formMode" : true
-                },
-                {
-                    "$selector": $fileName,
-                    "check"    : DS.has,
-                    "formMode" : true,
-                    "text"     : ErrorTextTStr.DSNameConfilct
-                }
-            ]);
+        $("#preview-apply").click(applyPreviewChange);
 
-            if (!isValid) {
-                return;
-            }
-
-            // add alert
-            if (dsFormat === "CSV" &&
-                (delimiter === "" || !hasHeader))
-            {
-                var msg;
-                if (delimiter === "" && !hasHeader) {
-                    msg = "You have not chosen a delimiter and " +
-                            "header row.\n";
-                } else if (delimiter === ""){
-                    msg = "You have not chosen a delimiter.\n";
-                } else if (!hasHeader) {
-                    msg = "You have not chosen a header row.\n";
-                }
-                msg += ErrorTextTStr.ContinueVerification;
-
-                Alert.show({
-                    "title"  : "LOAD DATASET CONFIRMATION",
-                    "msg"    : msg,
-                    "confirm": function () {
-                        DataPreview.load();
-                    }
-                });
-            } else {
-                DataPreview.load();
-            }
+        $("#preview-minimize").click(function() {
+            toggleMinimize();
         });
 
         // close preview
@@ -1705,15 +1665,6 @@ window.DataPreview = (function($, DataPreview) {
         });
 
         var $suggSection = $("#previewSugg");
-
-        $("#previewSuggBtn").click(function() {
-            if ($suggSection.hasClass("hidden")) {
-                toggleSuggest(true);
-            } else {
-                toggleSuggest(false);
-            }
-        });
-
         $suggSection.on("click", ".apply-highlight", function() {
             $highLightBtn.click();
         });
@@ -1773,17 +1724,19 @@ window.DataPreview = (function($, DataPreview) {
             }
         });
 
-        var $applyBtnSection = $("#preview-apply").parent().hide();
+        var $loadHiddenSection = $previeWrap.find(".loadHidden")
+                                            .addClass("invisible");
+        $("#preview-url").text(loadURL);
+
         XcalarListFiles(loadURL)
         .then(function() {
             $("#importDataForm").addClass("previewMode");
 
-            var $previeWrap   = $("#dsPreviewWrap").removeClass("hidden");
-            var $waitSection  = $previeWrap.find(".waitSection")
+            $previeWrap.removeClass("hidden");
+            var $waitSection = $previeWrap.find(".waitSection")
                                                     .removeClass("hidden");
             var $errorSection = $previeWrap.find(".errorSection")
-                                                    .addClass("hidden");
-            var $suggBtn = $("#previewSuggBtn").hide();
+                                            .addClass("hidden");
             
             tableName = $("#fileName").val().trim();
             tableName = xcHelper.randName(tableName) ||   // when table name is empty
@@ -1814,7 +1767,7 @@ window.DataPreview = (function($, DataPreview) {
             })
             .then(function() {
                 gDatasetBrowserResultSetId = 0;
-                return (XcalarSample(tableName, 20));
+                return XcalarSample(tableName, rowsToFetch);
             })
             .then(function(result) {
                 if (!result) {
@@ -1862,8 +1815,7 @@ window.DataPreview = (function($, DataPreview) {
                     deferred.reject({"error": "Cannot parse the dataset."});
                 }
 
-                $suggBtn.show();
-                $applyBtnSection.show();
+                $loadHiddenSection.removeClass("invisible");
 
                 $(window).on("resize", resizePreivewTable);
             })
@@ -1926,10 +1878,9 @@ window.DataPreview = (function($, DataPreview) {
         var deferred = jQuery.Deferred();
 
         if (!previewMode) {
-            $("#dsPreviewWrap").addClass("hidden");
+            $("#dsPreviewWrap").addClass("hidden").addClass("fullSize");
             $("#importDataForm").removeClass("previewMode");
             $previewTable.removeClass("has-delimiter").empty();
-            toggleSuggest(false, true);
         }
 
         $(window).off("resize", resizePreivewTable);
@@ -1959,6 +1910,67 @@ window.DataPreview = (function($, DataPreview) {
         }
 
         return (deferred.promise());
+    }
+
+    function toggleMinimize(toMinize) {
+        if (toMinize == null) {
+            toMinize = $previeWrap.hasClass("fullSize");
+        }
+
+        if (toMinize) {
+            $previeWrap.removeClass("fullSize");
+        } else {
+            $previeWrap.addClass("fullSize");
+        }
+    }
+
+    function applyPreviewChange() {
+        var $fileName = $("#fileName");
+        var isValid = xcHelper.validate([
+            // check for "" should be kept for preview mode
+            // since it does't submit the form
+            {
+                "$selector": $fileName,
+                "formMode" : true
+            },
+            {
+                "$selector": $fileName,
+                "check"    : DS.has,
+                "formMode" : true,
+                "text"     : ErrorTextTStr.DSNameConfilct
+            }
+        ]);
+
+        if (!isValid) {
+            toggleMinimize(true);
+            return;
+        }
+
+        // add alert
+        if (dsFormat === "CSV" &&
+            (delimiter === "" || !hasHeader))
+        {
+            var msg;
+            if (delimiter === "" && !hasHeader) {
+                msg = "You have not chosen a delimiter and " +
+                        "header row.\n";
+            } else if (delimiter === ""){
+                msg = "You have not chosen a delimiter.\n";
+            } else if (!hasHeader) {
+                msg = "You have not chosen a header row.\n";
+            }
+            msg += ErrorTextTStr.ContinueVerification;
+
+            Alert.show({
+                "title"  : "LOAD DATASET CONFIRMATION",
+                "msg"    : msg,
+                "confirm": function () {
+                    DataPreview.load();
+                }
+            });
+        } else {
+            DataPreview.load();
+        }
     }
 
     function getPreviewTable() {
@@ -2266,29 +2278,6 @@ window.DataPreview = (function($, DataPreview) {
         return (html);
     }
 
-    function toggleSuggest(showSuggest, clear) {
-        var $suggSection = $("#previewSugg");
-        var $btn = $("#previewSuggBtn");
-        var $previewWrap = $("#dsPreviewWrap");
-
-        if (clear) {
-            $suggSection.addClass("hidden");
-            $btn.text("Show Suggestion");
-            $previewWrap.removeClass("has-suggest");
-            return;
-        }
-
-        if (showSuggest) {
-            $suggSection.removeClass("hidden");
-            $btn.text("Hide Suggestions");
-            $previewWrap.addClass("has-suggest");
-        } else {
-            $suggSection.addClass("hidden");
-            $btn.text("Show Suggestions");
-            $previewWrap.removeClass("has-suggest");
-        }
-    }
-
     function suggestHelper() {
         var $suggSection = $("#previewSugg");
         var $content = $suggSection.find(".content");
@@ -2330,7 +2319,7 @@ window.DataPreview = (function($, DataPreview) {
                         html = tabHtml;
                     } else {
                         // both comma and tab are zero
-                        if ($previewTable.find(".has-pipe").length >= 20) {
+                        if ($previewTable.find(".has-pipe").length >= rowsToFetch) {
                             // at least each row has pipe
                             html =
                                 '<span class="action active pipeDelim">' +
@@ -2343,14 +2332,14 @@ window.DataPreview = (function($, DataPreview) {
                 if (html === "") {
                     // select char
                     html =
-                        '<span class="action">' +
+                        '<span class="action hint">' +
                             'Highlight a character as delimiter' +
                         '</span>';
                 } else {
                     // select another char
                     html +=
-                        '<span class="action">' +
-                            'Highlight another character as delimiter' +
+                        '<span class="action hint">' +
+                            'or Highlight another character as delimiter' +
                         '</span>';
                 }
             } else {
@@ -2384,7 +2373,7 @@ window.DataPreview = (function($, DataPreview) {
 
             html +=
                 '<span class="action active apply-all">' +
-                    'Apply changes & Exit preview' +
+                    'Apply changes' +
                 '</span>';
 
             html +=

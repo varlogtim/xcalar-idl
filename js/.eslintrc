@@ -2,6 +2,7 @@
     // rules mode: 0 = turn off, 1 = warning, 2 = error
     "rules": {
         "strict": 0, // not using stric mode
+        "no-underscore-dangle": 0,
         "indent": [
             2,
             4

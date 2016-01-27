@@ -721,67 +721,53 @@
         </div>
       </form> 
       <!-- Preview Section -->
-      <section id="dsPreviewWrap" class="hidden">
+      <section id="dsPreviewWrap" class="hidden fullSize">
         <div class="container">
-          <div class="infoSection">
-            <section class="titleSection">
-              <div class="title">
-                <h2>Data Preview</h2>
-                <button id="previewSuggBtn" class="btn btnMid">Show Suggestions</button>
-              </div>
+          <!-- Info Section 1 -->
+          <div class="infoSection info1">
+            <!-- apply change button -->
+            <section class="btnSection loadHidden">
+               <button id="preview-apply" class="btn btnMid" type="button">APPLY CHANGES</button>
             </section>
-            <section class="btnSection">
-              <div class="buttonWrap">
-                  <button id="preview-apply" class="btn btnMid" type="button">
-                    APPLY CHANGES & EXIT PREVIEW
-                  </button>
-              </div>
-            </section>
+            <!-- close and minimize icon -->
             <section class="iconSection">
-              <div id="preview-close" class="close iconWrapper"
-                title="Close preview window without saving"
-                data-toggle="tooltip" data-placement="top"
-                data-container="body">
-                <span class="icon"></span>
-              </div>
-
-              <div class="group">
-                <div id="preview-rmHightlight"
-                  class="rmHightLight iconWrapper" title="Remove highlights"
-                  data-toggle="tooltip" data-placement="top"
-                  data-container="body">
-                  <span class="icon"></span>
-                </div>
-
-                <div id="preview-highlight" class="highlight iconWrapper"
-                title="Highlight any character and click on this button to use it as a delimiter"
-                data-toggle="tooltip" data-placement="top" data-container="body">
-                  <span class="icon"></span>
-                </div>
-              </div>
+              <div id="preview-close" class="close icon" title="Close preview window without saving" data-toggle="tooltip" data-placement="top" data-container="body"></div>
+              <div id="preview-minimize" class="minimize icon"></div>
             </section>
           </div>
+          <!-- Info Section 2 -->
+          <div class="infoSection info2">
+            <section class="titleSection textOverflowOneLine">
+              <span class="title">Previewing:</span>
+              <span id="preview-url" class="text"></span>
+            </section>
+            <!-- highlight icon -->
+            <section class="iconSection loadHidden">
+              <div id="preview-rmHightlight" class="rmHightLight icon" title="Remove highlights" data-toggle="tooltip" data-placement="top" data-container="body"></div>
 
-          <div id="previewSugg" class="suggestSection hidden">
+              <div id="preview-highlight" class="highlight icon" title="Highlight any character and click on this button to use it as a delimiter" data-toggle="tooltip" data-placement="top" data-container="body"></div>
+            </section>
+          </div>
+          <!-- Suggestion Section -->
+          <div id="previewSugg" class="suggestSection loadHidden">
             <div class="title">Suggestion:</div>
             <div class="content"></div>
           </div>
-
+          <!-- Preview -->
           <div class="previewSection">
             <div id="dsPreviewTableWrap" class="datasetTableWrap">
+              <!-- Waiting Part -->
               <div class="waitSection hidden">
-                <div class="loadingMsg">
-                  Data set is loading
-                </div>
+                <div class="loadingMsg">Data set is loading</div>
                 <div class="animatedEllipsis">
                   <div>.</div>
                   <div>.</div>
                   <div>.</div>
                 </div>
               </div>
-
+              <!-- Error Message Part -->
               <div class="errorSection loadError hidden"></div>
-
+              <!-- Preview Part -->
               <div class="datasetTbodyWrap">
                 <table id="previewTable" class="datasetTable dataTable"></table>
               </div>
@@ -789,6 +775,7 @@
           </div>
         </div>
       </section>
+      <!-- End Of Preview Section -->
     </div>
     <!-- Main Content -->
     <div id="mainContent">

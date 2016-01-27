@@ -365,114 +365,127 @@ input {
 #dsPreviewWrap {
     padding: 10px 10px 0 10px;
     background-color: @color-background-topForm;
-    height: ~"calc(100% - 244px)";
+    .size(@width: 100%, @height:  ~"calc(100% - 244px)");
+    .position(absolute, @top: 244px);
+    .transition(~"top 0.5s, height 0.5s");
+
+    &.fullSize {
+        .size(@height: ~"calc(100% - 7px)");
+        .position(absolute, @top: 7px);
+        padding: 0px 10px 0 10px;
+
+        #preview-minimize {
+            .image("/images/datastore/minus.png", 50%, 50%);
+        }
+
+        .infoSection .btnSection {
+            .position(@top: -4px);
+        }
+    }
 
     &.hidden {
         display: none;
+    }
+
+    .hidden {
+        display: none;
+    }
+
+    .invisible {
+        visibility: hidden;
+        opacity: 0;
     }
 
     .container {
         .size(@height: 100%);
         white-space: nowrap;
         background-color: @color-white;
-        padding: 10px;
+        padding: 0 10px 10px 10px;
         box-shadow: 0px 2px 1px 2px rgba(0, 0, 0, 0.2);
     }
 
     .infoSection {
-        .size(@height: 50px);
-
-        section > div {
-            height: 25px;
-            line-height: 25px;
+        &.info1 {
+            .size(@height: 40px);
         }
 
-        .titleSection {
-            .size(@width: 33%);
-            float: left;
-
-            h2 {
-                float: left;
-            }
-
-            .btn {
-                .size(@width: 120px, @height: 25px);
-                line-height: 25px;
-                float: left;
-            }
+        &.info2 {
+            .size(@height: 25px);
         }
 
         .btnSection {
-            .size(@width: 33%);
+            .size(@width: 156px, @height: 35px);
+            .horizontal-align;
+            .position(@top: 0px);
             float: left;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            background-color: @color-background-darkGray;
+            z-index: 20;
 
-            .buttonWrap {
-                .size(@width: 226px, @height: 35px);
-                .position(relative, @top: -10px, @left: 25%);
-                border: 1px solid rgba(0, 0, 0, 0.1);
-                background-color: @color-background-topForm;
+            .btn {
+                .size(@width: 150px);
+                margin-left: 2px;
+                float: none;
+            }
+        }
 
-                .btn {
-                    .size(@width: 220px);
-                    .position(relative, @left: -2px);
-                    margin-left: 0;
-                }
+        .titleSection {
+            .size(@max-width: ~"calc(100% - 100px)", @height: 25px);
+            float: left;
+            line-height: 25px;
+            cursor: default;
+
+            .title {
+                .font(@size: 14px, @weight: bold);
+                margin-right: 5px;
+            }
+
+            .text {
+                .font(@color: @color-text-midGray);
             }
         }
 
         .iconSection {
-            .size(@width: 33%);
+            .size(@width: 100px, @height: 100%);
             float: right;
 
-            > div {
-                clear: both;
-                float: right;
-            }
-
-            .iconWrapper {
-                .size(@width: 20px);
-                .position(relative);
+            .icon {
+                .size(@width: 20px, @height: 25px);
+                .vertical-align;
                 cursor: pointer;
                 float: right;
 
-                .icon {
-                    .size(@width: 100%, @height: 25px);
+                &.close {
+                    .image("/images/datastore/preview-close.png", 50%, 50%);
                 }
-            }
 
-            .close .icon {
-                .image("/images/datastore/preview-close.png", 50%, 50%);
-            }
+                &.minimize {
+                    margin-right: 15px;
+                    .image("/images/datastore/plus.png", 50%, 50%);
+                }
 
-            .group {
-                .iconWrapper {
 
-                    &.highlight {
-                        margin-right: 15px;
-
-                        .icon {
-                            .image("/images/datastore/preview-highlight-gray.png", 50%, 50%);
-                        }
-
-                        &.active .icon {
-                            .image("/images/datastore/preview-highlight.png", 50%, 50%);
-                        }
-                    }
-
-                    &.rmHightLight {
-                        pointer-events: none;
-                        .icon {
-                            .image("/images/datastore/preview-rmHeightLight-gray.png", 50%, 50%);
-                        }
-
-                        &.active .icon {
-                            .image("/images/datastore/preview-rmHeightLight.png", 50%, 50%);
-                        }
-                    }
+                &.highlight {
+                    margin-right: 15px;
+                    pointer-events: none;
+                    .image("/images/datastore/preview-highlight-gray.png", 50%, 50%);
 
                     &.active {
-                        pointer-events: all;
+                        .image("/images/datastore/preview-highlight.png", 50%, 50%);
                     }
+                }
+
+                &.rmHightLight {
+                    pointer-events: none;
+                    .image("/images/datastore/preview-rmHeightLight-gray.png", 50%, 50%);
+
+                    &.active {
+                        .image("/images/datastore/preview-rmHeightLight.png", 50%, 50%);
+                    }
+                }
+
+                &.active {
+                    pointer-events: all;
                 }
             }
         }
@@ -487,12 +500,6 @@ input {
         overflow: hidden;
         clear: both;
 
-        .transition(height 0.2s linear);
-
-        &.hidden {
-            height: 0;
-        }
-
         .title {
             float: left;
             margin-right: 5px;
@@ -506,9 +513,12 @@ input {
             margin-right: 5px;
             padding: 0 5px;
             display: inline-block;
-            background: #b6b6b6;
             max-width: 55%;
             .textOverflowOneLine;
+
+            &.hint {
+                color: @color-text-midGray;
+            }
 
             &.active {
                 .action-gradient;
@@ -522,10 +532,9 @@ input {
     }
 
     .previewSection {
-        .size(@width: 100%, @height: ~"calc(100% - 50px)");
+        .size(@width: 100%, @height: ~"calc(100% - 80px)");
         overflow-y: hidden;
         overflow-x: auto;
-        .transition(height 0.2s linear);
 
         .waitSection {
             height: 25px;
@@ -545,23 +554,12 @@ input {
                     margin-left: 0;
                 }
             }
-
-            &.hidden {
-                display: none;
-            }
         }
 
         .errorSection {
             // color please check .loadError
             margin-left: 0;
-            &.hidden {
-                display: none;
-            }
         }
-    }
-
-    &.has-suggest .previewSection {
-        .size( @height: ~"calc(100% - 80px)");
     }
 }
 
@@ -596,6 +594,10 @@ input {
 
             .title {
                 float: none;
+            }
+
+            .hint {
+                display: none;
             }
         }
 
