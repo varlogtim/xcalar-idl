@@ -197,7 +197,8 @@ window.StartManager = (function(StartManager, $) {
                         "func": function() {
                             WKBKManager.inActiveAllWKBK();
                         }
-                    }]
+                    }],
+                    "hideButtons": ['copySql']
                 });
             } else {
                 // when it's an error from backend we cannot handle

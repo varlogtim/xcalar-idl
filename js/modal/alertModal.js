@@ -14,7 +14,8 @@ window.Alert = (function($, Alert){
     Alert.setup = function() {
         $alertModal.draggable({
             "handle": ".modalHeader",
-            "cursor": "-webkit-grabbing"
+            "cursor": "-webkit-grabbing",
+            "containment": "window"
         });
 
         xcHelper.dropdownList($alertModal.find(".dropDownList"), {
@@ -40,6 +41,8 @@ window.Alert = (function($, Alert){
                 name: name of the button
                 className: class of the button
                 func: callback to trigger when click
+            hideButtons: array of button class names to hide,
+                        values can be: logout, copySql, or cancel
             confirm: callback to trigger when click confirm button
             cancel:  callback to trigger when click cancel button
             lockScreen: if screen should be frozen
@@ -266,6 +269,13 @@ window.Alert = (function($, Alert){
             $checkbox.show();
         } else {
             $checkbox.hide();
+        }
+
+        $('.logout, .cancel, .copySql').show();
+        if (options.hideButtons) {
+            for (var i = 0; i < options.hideButtons.length; i++) {
+                $alertModal.find('.' + options.hideButtons[i]).hide();
+            }
         }
 
         // set option list
