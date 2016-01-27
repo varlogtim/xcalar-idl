@@ -1545,6 +1545,14 @@ window.DataCart = (function($, DataCart) {
         return (deferred.promise());
     }
 
+    /* Unit Test Only */
+    if (window.unitTestMode) {
+        DataCart.__testOnly__ = {};
+        DataCart.__testOnly__.filterCarts = filterCarts;
+    }
+
+    /* End Of Unit Test Only */
+
     return (DataCart);
 }(jQuery, {}));
 

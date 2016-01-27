@@ -83,6 +83,20 @@ window.TestSuite = (function($, TestSuite) {
         });
     };
 
+    // this is for unit test
+    TestSuite.unitTest = function() {
+        // free this session and then run unit test
+        freeAllResultSetsSync()
+        .then(Support.releaseSession)
+        .then(function() {
+            removeUnloadPrompt();
+            window.location.href = "unitTest.html";
+        })
+        .fail(function(error) {
+            console.error(error);
+        })
+    };
+
     TestSuite.run = function(hasAnimation) {
         var initialDeferred = jQuery.Deferred();
         var deferred = initialDeferred;

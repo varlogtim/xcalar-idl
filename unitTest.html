@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en-US">
+    <head>
+        <meta charset="UTF-8">
+        <title>Xcalar UnitTest</title>
+        <link rel="stylesheet" href="/3rd/mocha.css" />
+
+        <style type="text/css">
+            body {
+                background: transparent !important;
+                color: black !important;
+                overflow: auto !important;
+            }
+
+            #xc {
+                /*display: none;*/
+                overflow: hidden;
+                background: #36444d url("/images/bg_page.png") repeat right top;
+                color: #4d4d4d;
+            }
+
+            #container {
+                height: 300px !important;
+            }
+
+            #mocha .test a.replay {
+                right: -25px;
+            }
+
+            #blanket-main {
+                height: 500px;
+                overflow: scroll;
+            }
+
+            #toggleXC {
+                position: relative;
+                top: 5px;
+                left: 100px;
+            }
+
+            #toggleXC button {
+                margin-right: 10px;
+                background-color: beige;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="toggleXC">
+            <button id="hideXC">Hide XC</button>
+            <button id="showXC">Show XC</button>
+        </div>
+        <div id="mocha"></div>
+        <div id="messages"></div>
+        <div id="fixtures"></div>
+        <div id="xc" width="100%" height="300"></div>
+        <div id="script"></div>
+        <script src="bower_components/jquery/dist/jquery.min.js"></script>
+        <script src="/3rd/mocha.js"></script>
+        <script src="/3rd/chai.js"></script>
+        <script src="/test/unitTest/setup.js"></script>
+        <script src="/test/unitTest/setupSpec.js"></script>
+        <script src="/test/unitTest/datastore/datastoreSpec.js"></script>  
+        <script type="text/javascript">setup();</script>
+        <script src="/3rd/blanket.min.js" data-cover-adapter="/3rd/mocha-blanket.js"></script>
+    </body>
+
+<!-- XXX This is really stupid, after $.load in setup(), all js file we want to test is in the DOM. However, blanket js doesn't detect the aync load, so I have to mannuly specify the file I want to cover here -->
+ <script src="/js/datastore.js" type="text/javascript" data-cover></script>
+</html>
