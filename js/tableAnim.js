@@ -749,7 +749,7 @@ function dblClickResize($el, options) {
         $('#col-resizeCursor').remove();
         clearTimeout(gRescol.timer);    //prevent single-click action
         gRescol.clicks = 0;      //after action performed, reset counter
-        
+        $table.removeClass('resizingCol');
     }
 }
 

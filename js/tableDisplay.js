@@ -1107,6 +1107,7 @@ window.TblManager = (function($, TblManager) {
             if (event.which !== 1) {
                 return;
             }
+
             gRescolMouseDown($(this), event);
             dblClickResize($(this));
         });

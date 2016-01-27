@@ -118,7 +118,9 @@ ErrorTextTStr = {
 
     'NoSupportOp': 'This operation is not supported.',
 
-    'ContinueVerification': 'Are you sure you want to continue?'
+    'ContinueVerification': 'Are you sure you want to continue?',
+
+    'InvalidColumn' : 'Invalid column name: <name>'
 
 };
 
@@ -177,4 +179,4 @@ DataCartStr = {
     'HelpText': 'To add a column to the data cart, select a data set on the left' +
                 ' and click on the column names that you are interested' +
                 ' in inside the center panel.'
-}
+};

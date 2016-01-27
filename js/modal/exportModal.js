@@ -16,6 +16,7 @@ window.ExportModal = (function($, ExportModal) {
         "minHeight": minHeight,
         "minWidth" : minWidth
     });
+    var columnsToExport = [];
 
     ExportModal.setup = function() {
         $exportModal.draggable({
@@ -60,9 +61,16 @@ window.ExportModal = (function($, ExportModal) {
             }
         });
 
+        var keyupTimeout;
+
         $exportColumns.keyup(function(event) {
+            clearTimeout(keyupTimeout);
             if (event.which === keyCode.Comma) {
                 selectColumnsOnKeyPress();
+            } else {
+                keyupTimeout = setTimeout(function() {
+                                    selectColumnsOnKeyPress();
+                                }, 400);
             }
         });
         $exportColumns.on('change', function() {
@@ -159,7 +167,7 @@ window.ExportModal = (function($, ExportModal) {
 
         var isValid = xcHelper.validate([
             {
-                "$selector": $exportName
+                "$selector": $exportName // checks if it's empty
             },
             {
                 "$selector": $exportName,
@@ -170,6 +178,19 @@ window.ExportModal = (function($, ExportModal) {
             },
             {
                 "$selector": $exportColumns
+            },
+            {
+                "$selector": $exportColumns,
+                "text"     : ErrorTextTStr.InvalidColName,
+                "check"    : function() {
+                    if (gExportNoCheck) {
+                        return (columnsVal.length === 0);
+                    } else {
+                        return (columnsVal.length === 0 ||
+                            columnsVal.indexOf('.') !== -1 ||
+                            columnsVal.indexOf('[') !== -1);
+                    }
+                }
             },
             {
                 "$selector": $exportColumns,
@@ -194,8 +215,27 @@ window.ExportModal = (function($, ExportModal) {
         var columnNames = columnsVal.split(",");
         columnNames = convertFrontColNamesToBack(columnNames);
 
-        var closeModal = true;
+        isValid = xcHelper.validate([{
+                "$selector": $exportColumns,
+                "text"     : ErrorTextTStr.InvalidColumn
+                                          .replace('<name>', columnNames),
+                "check"    : function() {
+                    if (gExportNoCheck) {
+                        return (false);
+                    } else {
+                        return (typeof columnNames === "string");
+                    }
+                }
+            }
+        ]);
 
+        if (!isValid) {
+            deferred.reject({error: 'invalid input'});
+            return (deferred.promise());
+        }
+
+        var closeModal = true;
+   
         xcFunction.exportTable(exportTableName, exportName, $exportPath.val(),
                                 columnNames.length, columnNames)
         .then(function() {
@@ -217,6 +257,7 @@ window.ExportModal = (function($, ExportModal) {
         return (deferred.promise());
     }
 
+    // returns array if all columns valid or returns a string of an invalid col
     function convertFrontColNamesToBack(frontColNames) {
         var backCols = [];
         var tableCols = gTables[tableId].tableCols;
@@ -226,13 +267,32 @@ window.ExportModal = (function($, ExportModal) {
         var numColsFound = 0;
         var numFrontColNames = frontColNames.length;
         var i;
+        var numFoundCols;
+        var isObj;
 
+        // push only valid columns aka, no arrays, data, newcols, objs etc
         for (i = 0; i < numTableCols; i++) {
-            if (tableCols[i].name !== "DATA") {
-                colsArray.push(tableCols[i]);
+            if (tableCols[i].name !== "DATA" && 
+                !tableCols[i].isNewCol) {
+
+                if (gExportNoCheck) {
+                    colsArray.push(tableCols[i]);
+                } else {
+                    if (tableCols[i].args &&
+                        tableCols[i].args[0].indexOf(".") > -1) {
+                        isObj = true;
+                    } else {
+                        isObj = false;
+                    }
+                    if (!isObj && (tableCols[i].type === "string" ||
+                    tableCols[i].type === "integer" ||
+                    tableCols[i].type === "float")) {
+                        colsArray.push(tableCols[i]);
+                    }
+                }
             }
         }
-        numTableCols--; // DATA col was removed
+        numTableCols = colsArray.length;
 
         for (i = 0; i < numFrontColNames; i++) {
             var colFound = false;
@@ -256,13 +316,20 @@ window.ExportModal = (function($, ExportModal) {
             }
 
             if (!colFound) {
-                for (j = 0; j < numTableCols; j++) {
-                    tableCol = colsArray[j];
+                // column could be a duplicate so check against the columns we 
+                // already found and removed
+                for (j = 0; j < numFoundCols; j++) {
+                    tableCol = foundColsArray[j];
                     if (frontColNames[i] === tableCol.name) {
                         backCols.push(tableCol.func.args[0]);
+                        colFound = true;
                         break;
                     }
                 }
+            }
+
+            if (!colFound) {
+                return (frontColNames[i]);
             }
         }
         return (backCols);
@@ -434,17 +501,26 @@ window.ExportModal = (function($, ExportModal) {
         $ths.addClass('exportable');
 
         $ths.on('mousedown.addColToExport', function(event) {
-            event.preventDefault();
-            event.stopPropagation();
-        });
-
-        $ths.on('click.addColToExport', function(event) {
             if ($(event.target).hasClass('colGrab')) {
                 return;
             }
+            event.preventDefault();
+            event.stopPropagation();
+            gMouseEvents.setMouseDownTarget($(event.target));
+        });
+
+        $table.on('click.addColToExport', '.exportable', function(event) {
+            // event.target is not reliable here for some reason so that is
+            // why we're using last mousedown target
+            var $mousedownTarg = gMouseEvents.getLastMouseDownTarget();
+            if ($mousedownTarg.hasClass('colGrab')) {
+                return;
+            }
+
             var $th = $(this);
+            var focusedThColNum;
             if (focusedHeader) {
-                var focusedThColNum = xcHelper.parseColNum(focusedHeader);
+                focusedThColNum = xcHelper.parseColNum(focusedHeader);
             }
 
             var colNum = xcHelper.parseColNum($th);
@@ -554,7 +630,7 @@ window.ExportModal = (function($, ExportModal) {
         // removes listeners and classes
         var $table = $('#xcTable-' + tableId);
         var $ths = $table.find('th:not(.dataCol):not(:first-child)');
-        $ths.off('click.addColToExport');
+        $table.off('click.addColToExport');
         $ths.off('mousedown.addColToExport');
         $ths.removeClass('modalHighlighted');
         $table.find('td:not(.jsonElement):not(:first-child)')
