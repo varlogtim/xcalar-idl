@@ -302,8 +302,11 @@ window.OperationsModal = (function($, OperationsModal) {
         });
 
         XcalarListXdfs("*", "*")
-        .done(function(listXdfsObj) {
+        .then(function(listXdfsObj) {
             setupOperatorsMap(listXdfsObj.fnDescs);
+        })
+        .fail(function(error) {
+            Alert.error("List XDFs failed", error.error);
         });
 
         function listMouseup(event, $li) {
@@ -332,7 +335,7 @@ window.OperationsModal = (function($, OperationsModal) {
         colName = currentCol.name;
 
         XcalarListXdfs("*", "User*")
-        .done(function(listXdfsObj) {
+        .then(function(listXdfsObj) {
             udfUpdateOperatorsMap(listXdfsObj.fnDescs);
 
             operatorName = operator.toLowerCase().trim();
@@ -389,6 +392,9 @@ window.OperationsModal = (function($, OperationsModal) {
                 $functionInput.focus();
             }
             $operationsModal.find('.list').removeClass('hovering');
+        })
+        .fail(function(error) {
+            Alert.error("Listing of UDFs failed", error.error);
         });
     };
 
