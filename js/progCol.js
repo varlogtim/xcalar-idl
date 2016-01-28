@@ -218,7 +218,8 @@ window.ColManager = (function($, ColManager) {
         }
 
         moveTableTitlesAnimated(tableId, tableWidth, colWidths, 200);
-
+        FnBar.clear();
+        
         jQuery.when.apply($, promises).done(function() {
             var numAllCols = table.tableCols.length;
             updateTableHeader(tableId);
@@ -232,7 +233,6 @@ window.ColManager = (function($, ColManager) {
                 
             matchHeaderSizes($table);
             xcHelper.removeSelectionRange();
-            FnBar.clear();
 
              // add SQL
             SQL.add("Delete Column", {
