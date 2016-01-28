@@ -31,7 +31,7 @@ function setup() {
         })
         .fail(function(error) {
             console.error(error);
-        })
+        });
     });
 
     $('#toggleXCSize').click(function() {

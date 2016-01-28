@@ -94,7 +94,7 @@ window.TestSuite = (function($, TestSuite) {
         })
         .fail(function(error) {
             console.error(error);
-        })
+        });
     };
 
     TestSuite.run = function(hasAnimation) {
@@ -1078,5 +1078,13 @@ window.TestSuite = (function($, TestSuite) {
     TestSuite.add(jsonModalTest, "JsonModalTest",
                   defaultTimeout, TestCaseEnabled);
 // =========== TO RUN, OPEN UP CONSOLE AND TYPE TestSuite.run() ============ //
+    
+    /* Unit Test Only */
+    if (window.unitTestMode) {
+        TestSuite.__testOnly__ = {};
+        TestSuite.__testOnly__.checkExists = checkExists;
+    }
+    /* End Of Unit Test Only */
+
     return (TestSuite);
 }(jQuery, {}));

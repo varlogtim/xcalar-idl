@@ -281,9 +281,12 @@ window.WSManager = (function($, WSManager) {
 
         setWorksheet(newWSId, {"tables": tableId});
 
-        var $xcTablewrap = $('#xcTableWrap-' + tableId);
-        $xcTablewrap.removeClass("worksheet-" + oldWSId)
+        var $xcTableWrap = $('#xcTableWrap-' + tableId);
+
+        $xcTableWrap.removeClass("worksheet-" + oldWSId)
                     .addClass("worksheet-" + newWSId);
+        $('#mainFrame').append($xcTableWrap);
+
         // refresh right side bar
         $("#tableListSections .tableInfo").each(function() {
             var $li = $(this);
@@ -303,10 +306,12 @@ window.WSManager = (function($, WSManager) {
             if ($dagWrap.data("id") === tableId) {
                 $dagWrap.removeClass("worksheet-" + oldWSId)
                         .addClass("worksheet-" + newWSId);
+                $('#dagPanel').find('.dagArea').append($dagWrap);
             }
         });
 
         WSManager.focusOnWorksheet(newWSId, false, tableId);
+        xcHelper.centerFocusedTable($xcTableWrap, false);
         SQL.add("Move Table to worksheet", {
             "operation"        : SQLOps.MoveTableToWS,
             "tableName"        : gTables[tableId].tableName,
@@ -1027,10 +1032,17 @@ window.WSManager = (function($, WSManager) {
         commitToStorage();
         // switch to another worksheet
         if (activeWorksheet === wsId) {
+            var wsToFocus;
             if (wsOrder[index - 1]) {
-                WSManager.focusOnWorksheet(wsOrder[index - 1]);
+                wsToFocus = wsOrder[index - 1];
             } else {
-                WSManager.focusOnWorksheet(wsOrder[0]);
+                wsToFocus = wsOrder[0];
+            }
+            WSManager.focusOnWorksheet(wsToFocus);
+            // change to origin position
+            var leftPos = wsScollBarPosMap[wsToFocus];
+            if (leftPos != null) {
+                $('#mainFrame').scrollLeft(leftPos);
             }
         }
     }
@@ -1369,6 +1381,13 @@ window.WSManager = (function($, WSManager) {
         //     $('#submitTablesBtn').click();
         // }
     }
+
+    /* Unit Test Only */
+    if (window.unitTestMode) {
+        WSManager.__testOnly__ = {};
+        WSManager.__testOnly__.delWSHelper = delWSHelper;
+    }
+    /* End Of Unit Test Only */
 
     return (WSManager);
 }(jQuery, {}));

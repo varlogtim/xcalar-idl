@@ -19,7 +19,7 @@
             }
 
             #container {
-                height: 300px !important;
+                height: 400px !important;
             }
 
             #xc.large #container {
@@ -64,12 +64,16 @@
         <script src="/test/unitTest/setup.js"></script>
         <script src="/test/unitTest/setupSpec.js"></script>
         <script src="/test/unitTest/datastore/datacartSpec.js"></script>
-        <script src="/test/unitTest/datastore/datastoreSpec.js"></script>
+        <script src="/test/unitTest/worksheet/worksheetSpec.js"></script>
         <script type="text/javascript">setup();</script>
         <script src="/3rd/blanket.min.js" data-cover-adapter="/3rd/mocha-blanket.js"></script>
     </body>
 
 <!-- XXX This is really stupid, after $.load in setup(), all js file we want to test is in the DOM. However, blanket js doesn't detect the aync load, so I have to mannuly specify the file I want to cover here -->
+
  <script src="/js/datastore/datastore.js" type="text/javascript" data-cover></script>
-  <script src="/js/datastore/datacart.js" type="text/javascript" data-cover></script>
+<script src="/js/datastore/datacart.js" type="text/javascript" data-cover></script>
+ <script src="/js/worksheet.js" type="text/javascript" data-cover></script>
+
+
 </html>
