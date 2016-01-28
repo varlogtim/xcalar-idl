@@ -1084,7 +1084,7 @@ window.DataCart = (function($, DataCart) {
     };
 
     // add column to cart
-    DataCart.addItem = function(dsName, colInputs) {
+    DataCart.addItem = function(dsName, colInputs, isNoItem) {
         if (!(colInputs instanceof Array)) {
             colInputs = [colInputs];
         }
@@ -1095,8 +1095,7 @@ window.DataCart = (function($, DataCart) {
             cart = addCart(dsName);
         }
 
-        var itemLen = colInputs.length;
-        if (itemLen === 0) {
+        if (isNoItem) {
             emptyCart(cart);
         } else {
             // when it's not picking without any column
@@ -1106,7 +1105,7 @@ window.DataCart = (function($, DataCart) {
             var val;
             var items = [];
 
-            for (var i = 0, len = itemLen; i < len; i++) {
+            for (var i = 0, len = colInputs.length; i < len; i++) {
                 $colInput = colInputs[i];
                 colNum = xcHelper.parseColNum($colInput);
                 val = $colInput.val();
@@ -2713,7 +2712,7 @@ window.DataSampleTable = (function($, DataSampleTable) {
             $table.find(".colAdded").removeClass("colAdded");
             $table.find(".selectedCol").removeClass("selectedCol");
 
-            DataCart.addItem(dsName, []);
+            DataCart.addItem(dsName, null, true);
         });
 
         // select all columns
