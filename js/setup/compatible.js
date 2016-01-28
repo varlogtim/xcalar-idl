@@ -69,6 +69,7 @@ window.Compatible = (function($, Compatible) {
 
         if (/firefox/i.test(userAgent)) {
             window.isBrowseFireFox = true;
+            $('html').addClass('firefox');
         }
     }
 
