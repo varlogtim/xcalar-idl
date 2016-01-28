@@ -20,4 +20,16 @@ function setup() {
     $("#showXC").click(function() {
         $("#xc").show();
     });
+
+    $('#backXC').click(function() {
+        freeAllResultSetsSync()
+        .then(Support.releaseSession)
+        .then(function() {
+            removeUnloadPrompt();
+            window.location.href = "index.html";
+        })
+        .fail(function(error) {
+            console.error(error);
+        })
+    });
 }

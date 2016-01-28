@@ -7,11 +7,10 @@ describe('Unit test can run', function() {
 
    // Note that this test helps to wait for 1s so that 
    // UI has enough time to load
-   it('Should pass simple promise test', function(done) {
+   it('Should pass simple promise test', function() {
         simplePromiseTest()
         .then(function(res) {
             expect(res).to.equal('pass');
-            done();
         });
    });
 
