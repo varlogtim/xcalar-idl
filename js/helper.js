@@ -1089,6 +1089,8 @@ window.xcHelper = (function($, xcHelper) {
             xcHelper.removeSelectionRange();
             // hide tooltip when open the modal
             $(".tooltip").hide();
+            $(".selectedCell").removeClass("selectedCell");
+            FnBar.clear();
 
             if (!options.noResize) {
                 // resize modal

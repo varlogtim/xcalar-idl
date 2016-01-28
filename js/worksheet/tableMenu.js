@@ -714,7 +714,6 @@ window.TblMenu = (function(TblMenu, $) {
             var colNum  = $colMenu.data('colNum');
             var tableId = $colMenu.data('tableId');
             JoinModal.show(tableId, colNum);
-            unhighlightColumn($('#xcTable-' + tableId).find('th.col' + colNum));
         });
 
         $colMenu.on('mouseup', '.functions', function(event) {
@@ -734,7 +733,6 @@ window.TblMenu = (function(TblMenu, $) {
             var colNum = $colMenu.data('colNum');
             var tableId = $colMenu.data('tableId');
             Profile.show(tableId, colNum);
-            unhighlightColumn($('#xcTable-' + tableId).find('th.col' + colNum));
         });
 
         $cellMenu.on('mouseup', '.tdFilter, .tdExclude', function(event) {
