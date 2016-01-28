@@ -2597,7 +2597,6 @@ html.microsoft {
                 }
 
                 .inputSection {
-                    pointer-events: all;
                     opacity: 1;
                 }
             }
@@ -2645,7 +2644,6 @@ html.microsoft {
 
             .inputSection {
                 .size(@width: 75%, @height: 100%);
-                pointer-events: none;
                 opacity: 0.5;
 
                 .input-box(@w: 150px, @h: 25px);
@@ -2653,6 +2651,11 @@ html.microsoft {
                 input {
                     margin-left: 10px;
                     background-color: #fcfcfc;
+
+                    &.disabled {
+                        pointer-events: none;
+                        cursor: default;
+                    }
                 }
             }
         }

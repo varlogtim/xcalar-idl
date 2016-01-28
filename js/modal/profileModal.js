@@ -135,6 +135,14 @@ window.Profile = (function($, Profile, d3) {
             }
         });
 
+        $rangeSection.on("click", ".inputSection .text, .inputSection input", function() {
+            if ($rangeInput.hasClass("disabled")) {
+                return;
+            }
+
+            toggleRange(true);
+        });
+
         $rangeInput.keypress(function(event) {
             if (event.which === keyCode.Enter) {
                 var val = $rangeInput.val();
