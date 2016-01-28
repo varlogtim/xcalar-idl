@@ -1457,7 +1457,7 @@ ul.inputMenu {
         cursor: default;
         white-space: nowrap;
         .noSelection;
-        .transition(~"background-color 0.15s, color 0.15s, border-color 0.15s");
+        .transition(~"background-color 0.1s, color 0.1s, border-color 0.1s");
 
         &:hover, &.hover {
             background-color: rgba(255,255,255,.15);
@@ -1490,7 +1490,7 @@ ul.inputMenu {
             .size(24px, 24px);
             margin: 1px 0 0 -27px;
             display: inline-block;
-            .transition(opacity 0.15s);
+            .transition(opacity 0.1s);
             opacity: 0.4;
         }
 
@@ -1943,9 +1943,11 @@ ul.inputMenu {
                 .size(@width: ~"calc(100% - 2px)");
                 .rounded;
                 cursor: pointer;
+                .transition(~"background 0.15s, color 0.15s, border 0.15s");
 
                 .wsIconWrap {
                     opacity: 0;
+                    .transition(opacity 0.15s);
                 }
 
                 .text {
@@ -1967,7 +1969,6 @@ ul.inputMenu {
                     color: @color-white;
                     border: 1px solid @color-table-borderGray;
                     .wsIconWrap {
-                        .transition(opacity 0s);
                         opacity: 1 !important;
                     }
                 }

@@ -477,6 +477,17 @@ window.WSManager = (function($, WSManager) {
 
         // refresh worksheet tab
         xcHelper.removeSelectionRange();
+        var $prevActiveTab = $tabs.find('.label:not(.inActive)');
+        $prevActiveTab.addClass('noTransition')
+                      .find('.wsIconWrap')
+                      .addClass('noTransition');
+        // we dont want transition when active tab goes to inactive
+        setTimeout(function() {
+            $tabs.find('.label')
+                 .removeClass('noTransition')
+                 .find('.wsIconWrap')
+                 .removeClass('noTransition');
+        }, 150);
         $tabs.addClass("inActive")
             .find(".text").blur();
         $("#worksheetTab-" + wsId).removeClass("inActive");

@@ -315,7 +315,18 @@ window.StartManager = (function(StartManager, $) {
             if ($curTab.hasClass("active")) {
                 return;
             }
-            var lastTabId = $tabs.filter(".active").attr("id");
+            var $lastActiveTab = $tabs.filter(".active");
+            var lastTabId = $lastActiveTab.attr("id");
+            $lastActiveTab.addClass('noTransition')
+                          .find('.icon')
+                          .addClass('noTransition');
+            // we dont want transition when active tab goes to inactive
+            setTimeout(function() {
+                $tabs.removeClass('noTransition')
+                     .find('.icon')
+                     .removeClass('noTransition');
+            }, 100);
+
             $tabs.removeClass("active");
             $('.mainPanel').removeClass('active');
             $curTab.addClass("active");
