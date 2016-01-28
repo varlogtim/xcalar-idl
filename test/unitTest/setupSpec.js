@@ -1,16 +1,16 @@
 // A basic test
-describe('Unit test can run', function() {
- 
+describe('Unit test can run', function(done) {
     it('Should pass Hello World Test', function() {
         expect('hello world').to.equal('hello world');
     });
 
    // Note that this test helps to wait for 1s so that 
    // UI has enough time to load
-   it('Should pass simple promise test', function() {
+   it('Should pass simple promise test', function(done) {
         simplePromiseTest()
         .then(function(res) {
             expect(res).to.equal('pass');
+            done();
         });
    });
 

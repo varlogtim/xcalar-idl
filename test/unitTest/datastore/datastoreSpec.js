@@ -5,8 +5,6 @@ describe('Datastore Test', function() {
 
 // test Datastore Module
 function datasetModuleTest() {
-    var originNum = $("#exploreView .gridItems .ds").length;
-
     it('Can update num of datasets', function() {
         expect('hello world').to.equal('hello world');
 
@@ -15,6 +13,7 @@ function datasetModuleTest() {
     });
 
     it('Can update num of datasets to right num', function() {
+        var originNum = $("#exploreView .gridItems .ds").length;
         DataStore.update();
         verifyCurrentNum(originNum);
     });
