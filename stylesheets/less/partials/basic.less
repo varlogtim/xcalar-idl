@@ -1452,38 +1452,19 @@ ul.inputMenu {
         .rounded;
         display: inline-block;
         background-color: rgba(0,0,0, .15);
-        background: @color-limedSpruce url("/images/bg_page_dark.png") repeat right top;
         .font(@size: 14px, @family: @font-base, @color: @color-text-tab);
         float: left;
         cursor: default;
         white-space: nowrap;
         .noSelection;
+        .transition(~"background-color 0.15s, color 0.15s, border-color 0.15s");
 
         &:hover, &.hover {
-            // hover vs regular color scheme needs to be adjusted
             background-color: rgba(255,255,255,.15);
-            background: @color-limedSpruce url("/images/bg_page_light.png") repeat right top;
             color: @color-white;
             border: 1px solid @color-table-borderGray;
-
-            .mountain-icon {
-                .image("/images/mountain-active.png");
-            }
-
-            .db-icon {
-                .image("/images/db-icon-active.png");
-            }
-
-            .user-icon {
-                .image("/images/user-active.png");
-            }
-
-            .monitor-icon {
-                .image("/images/monitor-active.png");
-            }
-
-            .scheduler-icon {
-                .image("/images/scheduler-icon-active.png");
+            .icon {
+                opacity: 1;
             }
         }
 
@@ -1498,28 +1479,9 @@ ul.inputMenu {
             border-bottom-left-radius: 0px;
             border-bottom-right-radius: 0px;
             z-index: 14;
-
-            .mountain-icon {
-                .image("/images/mountain-active.png");
-            }
-
-            .page-icon {
-                .image("/images/page-active.png");
-            }
-
-            .db-icon {
-                .image("/images/db-icon-active.png");
-            }
-
-            .user-icon {
-                .image("/images/user-active.png");
-            }
-
-            .monitor-icon {
-                .image("/images/monitor-active.png");
-            }
-            .scheduler-icon {
-                .image("/images/scheduler-icon-active.png");
+            .transition(all 0s);
+            .icon {
+                opacity: 1;
             }
         }
 
@@ -1528,6 +1490,8 @@ ul.inputMenu {
             .size(24px, 24px);
             margin: 1px 0 0 -27px;
             display: inline-block;
+            .transition(opacity 0.15s);
+            opacity: 0.4;
         }
 
         .mountain-icon {
@@ -1541,10 +1505,6 @@ ul.inputMenu {
 
         .db-icon {
             .image("/images/db-icon.png");
-        }
-
-        .user-icon {
-            .image("/images/user-icon.png");
         }
 
         .monitor-icon {

@@ -595,7 +595,6 @@ window.FileBrowser = (function($, FileBrowser) {
     }
 
     function listFiles(path, openingBrowser) {
-        console.log('list files');
         var deferred = jQuery.Deferred();
         var $loadSection = $fileBrowserMain.find(".loadingSection");
 
