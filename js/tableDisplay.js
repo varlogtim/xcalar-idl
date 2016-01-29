@@ -658,18 +658,9 @@ window.TblManager = (function($, TblManager) {
             delete tableCols[i].index;
         }
 
-        var match;
-        $table.find('th').each(function(index) {
-            match = $(this).attr('class').match(/col/g);
-            if (match && match.length > 1) {
-                console.error('incorrect class after columns sort', $(this));
-                return false;
-            } else if (!$(this).hasClass('col' + index)) {
-                console.error('incorrect column class order after columns sort',
-                    $(this));
-                return false;
-            }
-        });
+        if (dataCol) { // if data col was removed from sort, put it back
+            tableCols.push(dataCol);
+        }
 
         TableList.updateTableInfo(tableId);
 
