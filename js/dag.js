@@ -62,11 +62,6 @@ window.DagPanel = (function($, DagPanel) {
             Tips.refresh();
         });
 
-
-        $('#dagPulloutTab').click(function() {
-            $('.dagTab').eq(0).trigger('click');
-        });
-
         $('#closeDag').click(function() {
             // only triiger the first dagTab is enough
             $('.dagTab').eq(0).trigger('click');

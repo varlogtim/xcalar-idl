@@ -28,8 +28,7 @@
             background-color: @color-background-sidebar;
             border: 1px solid @color-bar-border;
             border-top: none;
-            .rounded(0 0 3px 3px);
-            z-index: 100;                                               
+            .rounded(0 0 3px 3px);                                              
         }
 
         .tabShadow {
@@ -42,19 +41,22 @@
         #dagPulloutTab {
             .position(absolute, @top: -8px);
             .size(@width: 100%, @height: 15px);
-            cursor: pointer;
-            .image("/images/dagIcons/dagTabArrow.png", 50%, 70%);
+            .image("/images/pullTab.png", 50%, 50%);
             background-color: @color-background-sidebar;
-
-            &.up {
-                .transform (rotate(180deg));
-                top: -9px;
-            }
         }
     }
 
     .ui-resizable-n {
         top: 0px;
+        left: 0px;
+        &:after {
+            content: " ";
+            width: 52px;
+            height: 9px;
+            top: 10px;
+            .horizontal-align();
+            position: absolute;
+        }
     }
 
     &.hidden {
