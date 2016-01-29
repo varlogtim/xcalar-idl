@@ -38,8 +38,8 @@ window.FnBar = (function(FnBar, $) {
         });
     };
 
-    FnBar.focusOnCol = function($colInput, tableId, colNum) {
-        if ($lastColInput != null &&
+    FnBar.focusOnCol = function($colInput, tableId, colNum, forceFocus) {
+        if (!forceFocus && $lastColInput != null &&
             $colInput.get(0) === $lastColInput.get(0))
         {
             // the function bar origin hasn't changed so just return
@@ -49,9 +49,18 @@ window.FnBar = (function(FnBar, $) {
 
         $lastColInput = $colInput;
 
-        var userStr = gTables[tableId].tableCols[colNum - 1].userStr;
-        userStr = userStr.substring(userStr.indexOf('='));
-        $fnBar.val(userStr).addClass('active');
+        var progCol = gTables[tableId].tableCols[colNum - 1];
+        if ($colInput.parent().hasClass("editable")) {
+            if (!progCol.isNewCol) {
+                throw "Error Case, only new column can be editable";
+            }
+            $fnBar.val("Please specify column's name first")
+                    .addClass("disabled");
+        } else {
+            var userStr = progCol.userStr;
+            userStr = userStr.substring(userStr.indexOf('='));
+            $fnBar.val(userStr).addClass('active').removeClass('disabled');
+        }
     };
 
     FnBar.clear = function() {
