@@ -67,7 +67,7 @@ XcalarApisT = {
   'XcalarApiKeySetIfEqual' : 58,
   'XcalarApiDeleteDht' : 59,
   'XcalarApiDownloadPython' : 60,
-  'XcalarApiSupportGenerate' : 61,
+  'XcalarApiSupportSend' : 61,
   'XcalarApiSchedTaskCreate' : 62,
   'XcalarApiSchedTaskList' : 63,
   'XcalarApiDeleteSchedTask' : 64
@@ -133,7 +133,7 @@ XcalarApisTStr = {0 : 'XcalarApiUnknown',
 58 : 'XcalarApiKeySetIfEqual',
 59 : 'XcalarApiDeleteDht',
 60 : 'XcalarApiDownloadPython',
-61 : 'XcalarApiSupportGenerate',
+61 : 'XcalarApiSupportSend',
 62 : 'XcalarApiSchedTaskCreate',
 63 : 'XcalarApiSchedTaskList',
 64 : 'XcalarApiDeleteSchedTask'

@@ -15,7 +15,8 @@ XcalarApisConstantsT = {
   'XcalarApiMaxPyModuleSrcLen' : 10485760,
   'XcalarApiMaxTableNameLen' : 255,
   'XcalarApiMagic' : 37359285,
-  'XcalarApiRetinaMaxNumTables' : 128
+  'XcalarApiRetinaMaxNumTables' : 128,
+  'XcalarApiUuidStrLen' : 36
 };
 XcalarApisConstantsTStr = {1024 : 'XcalarApiMaxEvalStringLen',
 20 : 'XcalarApiMaxNumParameters',
@@ -26,5 +27,6 @@ XcalarApisConstantsTStr = {1024 : 'XcalarApiMaxEvalStringLen',
 10485760 : 'XcalarApiMaxPyModuleSrcLen',
 255 : 'XcalarApiMaxTableNameLen',
 37359285 : 'XcalarApiMagic',
-128 : 'XcalarApiRetinaMaxNumTables'
+128 : 'XcalarApiRetinaMaxNumTables',
+36 : 'XcalarApiUuidStrLen'
 };

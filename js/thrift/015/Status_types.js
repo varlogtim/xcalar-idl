@@ -382,7 +382,8 @@ StatusT = {
   'StatusJoinOrderingMismatch' : 373,
   'StatusInvalidUserCookie' : 374,
   'StatusStTooManySchedTask' : 375,
-  'StatusConfigInvalid' : 376
+  'StatusConfigInvalid' : 376,
+  'StatusInvalNodeId' : 377
 };
 StatusTStr = {0 : 'Success',
 1 : 'Operation not permitted',
@@ -760,5 +761,6 @@ StatusTStr = {0 : 'Success',
 373 : 'Joins may only be performed on tables with the same ordering',
 374 : 'Invalid user cookie provided',
 375 : 'Too many scheduled tasks',
-376 : 'Failed to parse Xcalar configuration file'
+376 : 'Failed to parse Xcalar configuration file',
+377 : 'The ID of this node is invalid'
 };

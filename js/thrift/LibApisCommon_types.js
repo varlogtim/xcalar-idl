@@ -8204,72 +8204,6 @@ XcalarApiSchedTaskInputT.prototype.write = function(output) {
   return;
 };
 
-XcalarApiSupportGenerateOutputT = function(args) {
-  this.supportId = null;
-  this.bundlePath = null;
-  if (args) {
-    if (args.supportId !== undefined) {
-      this.supportId = args.supportId;
-    }
-    if (args.bundlePath !== undefined) {
-      this.bundlePath = args.bundlePath;
-    }
-  }
-};
-XcalarApiSupportGenerateOutputT.prototype = {};
-XcalarApiSupportGenerateOutputT.prototype.read = function(input) {
-  input.readStructBegin();
-  while (true)
-  {
-    var ret = input.readFieldBegin();
-    var fname = ret.fname;
-    var ftype = ret.ftype;
-    var fid = ret.fid;
-    if (ftype == Thrift.Type.STOP) {
-      break;
-    }
-    switch (fid)
-    {
-      case 1:
-      if (ftype == Thrift.Type.STRING) {
-        this.supportId = input.readString().value;
-      } else {
-        input.skip(ftype);
-      }
-      break;
-      case 2:
-      if (ftype == Thrift.Type.STRING) {
-        this.bundlePath = input.readString().value;
-      } else {
-        input.skip(ftype);
-      }
-      break;
-      default:
-        input.skip(ftype);
-    }
-    input.readFieldEnd();
-  }
-  input.readStructEnd();
-  return;
-};
-
-XcalarApiSupportGenerateOutputT.prototype.write = function(output) {
-  output.writeStructBegin('XcalarApiSupportGenerateOutputT');
-  if (this.supportId !== null && this.supportId !== undefined) {
-    output.writeFieldBegin('supportId', Thrift.Type.STRING, 1);
-    output.writeString(this.supportId);
-    output.writeFieldEnd();
-  }
-  if (this.bundlePath !== null && this.bundlePath !== undefined) {
-    output.writeFieldBegin('bundlePath', Thrift.Type.STRING, 2);
-    output.writeString(this.bundlePath);
-    output.writeFieldEnd();
-  }
-  output.writeFieldStop();
-  output.writeStructEnd();
-  return;
-};
-
 XcalarApiInputT = function(args) {
   this.loadInput = null;
   this.indexInput = null;
@@ -9907,7 +9841,6 @@ XcalarApiOutputResultT = function(args) {
   this.uploadPythonOutput = null;
   this.downloadPythonOutput = null;
   this.listSchedTaskOutput = null;
-  this.supportGenerateOutput = null;
   if (args) {
     if (args.getVersionOutput !== undefined) {
       this.getVersionOutput = args.getVersionOutput;
@@ -10013,9 +9946,6 @@ XcalarApiOutputResultT = function(args) {
     }
     if (args.listSchedTaskOutput !== undefined) {
       this.listSchedTaskOutput = args.listSchedTaskOutput;
-    }
-    if (args.supportGenerateOutput !== undefined) {
-      this.supportGenerateOutput = args.supportGenerateOutput;
     }
   }
 };
@@ -10312,14 +10242,6 @@ XcalarApiOutputResultT.prototype.read = function(input) {
         input.skip(ftype);
       }
       break;
-      case 36:
-      if (ftype == Thrift.Type.STRUCT) {
-        this.supportGenerateOutput = new XcalarApiSupportGenerateOutputT();
-        this.supportGenerateOutput.read(input);
-      } else {
-        input.skip(ftype);
-      }
-      break;
       default:
         input.skip(ftype);
     }
@@ -10504,11 +10426,6 @@ XcalarApiOutputResultT.prototype.write = function(output) {
   if (this.listSchedTaskOutput !== null && this.listSchedTaskOutput !== undefined) {
     output.writeFieldBegin('listSchedTaskOutput', Thrift.Type.STRUCT, 35);
     this.listSchedTaskOutput.write(output);
-    output.writeFieldEnd();
-  }
-  if (this.supportGenerateOutput !== null && this.supportGenerateOutput !== undefined) {
-    output.writeFieldBegin('supportGenerateOutput', Thrift.Type.STRUCT, 36);
-    this.supportGenerateOutput.write(output);
     output.writeFieldEnd();
   }
   output.writeFieldStop();
