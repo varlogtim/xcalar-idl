@@ -257,6 +257,8 @@ window.SQL = (function($, SQL) {
                 // fallthrough
             case (SQLOps.SortTableCols):
                 // fallthrough
+            case (SQLOps.ResizeTableCols):
+                // fallthrough
             case (SQLOps.HideTable):
                 // fallthrough
             case (SQLOps.UnhideTable):

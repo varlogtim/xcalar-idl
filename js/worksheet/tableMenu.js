@@ -37,17 +37,7 @@ window.TblMenu = (function(TblMenu, $) {
             }
 
             var tableId = $tableMenu.data('tableId');
-            var $xcTableWrap = $('#xcTableWrap-' + tableId);
-            $xcTableWrap.addClass('tableHidden');
-            moveTableDropdownBoxes();
-            moveFirstColumn();
-            moveTableTitles();
-
-            SQL.add("Hide Table", {
-                "operation": SQLOps.HideTable,
-                "tableName": gTables[tableId].tableName,
-                "tableId"  : tableId
-            });
+            TblManager.hideTable(tableId);
         });
 
         $tableMenu.on('mouseup', '.unhideTable', function(event) {
@@ -55,20 +45,7 @@ window.TblMenu = (function(TblMenu, $) {
                 return;
             }
             var tableId = $tableMenu.data('tableId');
-            var $xcTableWrap = $('#xcTableWrap-' + tableId);
-            $xcTableWrap.removeClass('tableHidden');
-            WSManager.focusOnWorksheet(WSManager.getActiveWS(), false, tableId);
-            moveTableDropdownBoxes();
-            moveFirstColumn();
-            moveTableTitles();
-            var $table = $('#xcTable-' + tableId);
-            $table.find('.rowGrab').width($table.width());
-
-            SQL.add("UnHide Table", {
-                "operation": SQLOps.UnhideTable,
-                "tableName": gTables[tableId].tableName,
-                "tableId"  : tableId
-            });
+            TblManager.unHideTable(tableId);
         });
 
         $tableMenu.on('mouseup', '.deleteTable', function(event) {
@@ -280,7 +257,7 @@ window.TblMenu = (function(TblMenu, $) {
             var tableId = $tableMenu.data('tableId');
             // could be long process so we allow the menu to close first
             setTimeout(function() {
-                sortAllTableColumns(tableId, "forward");
+                TblManager.sortColumns(tableId, "forward");
             }, 0);
         });
 
@@ -291,7 +268,7 @@ window.TblMenu = (function(TblMenu, $) {
             var tableId = $tableMenu.data('tableId');
             // could be long process so we allow the menu to close first
             setTimeout(function() {
-                sortAllTableColumns(tableId, "reverse");
+                TblManager.sortColumns(tableId, "reverse");
             }, 0);
         });
 
@@ -299,37 +276,22 @@ window.TblMenu = (function(TblMenu, $) {
             if (event.which !== 1) {
                 return;
             }
-            var sizeToHeader = $(this).hasClass('sizeToHeader');
-            var fitAll = $(this).hasClass('sizeToFitAll');
-            if (fitAll) {
-                sizeToHeader = true;
-            }
+
+            var $li = $(this);
             var tableId = $tableMenu.data('tableId');
+            var resizeTo;
+
+            if ($li.hasClass('sizeToHeader')) {
+                resizeTo = 'sizeToHeader';
+            } else if ($li.hasClass('sizeToFitAll')) {
+                resizeTo = 'sizeToFitAll';
+            } else {
+                resizeTo = 'sizeToContents';
+            }
+
             // could be long process so we allow the menu to close first
             setTimeout(function() {
-                var columns = gTables[tableId].tableCols;
-                var numCols = columns.length;
-                var $th;
-                var $table = $('#xcTable-' + tableId);
-
-                for (var i = 0; i < numCols; i++) {
-                    $th = $table.find('th.col' + (i + 1));
-                    columns[i].sizeToHeader = !sizeToHeader;
-                    columns[i].isHidden = false;
-
-                    autosizeCol($th, {
-                        "dbClick"       : true,
-                        "minWidth"      : 17,
-                        "unlimitedWidth": false,
-                        "includeHeader" : sizeToHeader,
-                        "fitAll"        : fitAll,
-                        "multipleCols"  : true
-                    });
-                }
-
-                $table.find('.userHidden').removeClass('userHidden');
-
-                matchHeaderSizes($table);
+                TblManager.resizeColumns(tableId, resizeTo);
             }, 0);
         });
     }

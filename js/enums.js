@@ -170,6 +170,7 @@ var SQLOps = {
     ArchiveTable: "archiveTable",
     TableBulkActions: "tableBulkActions",
     SortTableCols: "sortTableCols",
+    ResizeTableCols: "resizeTableCols",
     HideTable: "hideTable",
     UnhideTable: "unhideTable",
     AddWS: "addWorksheet",

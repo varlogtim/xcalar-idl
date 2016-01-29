@@ -74,7 +74,7 @@ window.Replay = (function($, Replay) {
         }
 
         var operation = options.operation;
-        var tab  = tabMap[operation];
+        var tab  = tabMap[operation] || Tab.WS; // default is in worksheet
 
         console.log("replay:", sql);
 
@@ -183,6 +183,8 @@ window.Replay = (function($, Replay) {
                 return replayTableBulkAction(options);
             case SQLOps.SortTableCols:
                 return replaySortTableCols(options);
+            case SQLOps.ResizeTableCols:
+                return replayResizeTableCols(options);
             case SQLOps.HideTable:
                 return replayHideTable(options);
             case SQLOps.UnhideTable:
@@ -326,6 +328,8 @@ window.Replay = (function($, Replay) {
         argsMap[SQLOps.GroupBy] = ["operator", "tableId", "indexedCols",
                                     "aggColName", "isIncSample", "newColName"];
         argsMap[SQLOps.RenameTable] = ["tableId", "newTableName"];
+        argsMap[SQLOps.HideTable] = ["tableId"];
+        argsMap[SQLOps.UnhideTable] = ["tableId"];
         argsMap[SQLOps.DeleteTable] = ["tableId", "tableType"];
         argsMap[SQLOps.DeleteCol] = ["colNums", "tableId"];
         argsMap[SQLOps.HideCols] = ["colNums", "tableId"];
@@ -340,6 +344,7 @@ window.Replay = (function($, Replay) {
         argsMap[SQLOps.PullCol] = ["colNum", "tableId",
                                     "nameInfo", "pullColOptions"];
         argsMap[SQLOps.SortTableCols] = ["tableId", "direction"];
+        argsMap[SQLOps.ResizeTableCols] = ["tableId", "resizeTo"];
 
         argsMap[SQLOps.DSRename] = ["dsId", "newName"];
         argsMap[SQLOps.DSToDir] = ["folderId"];
@@ -360,36 +365,6 @@ window.Replay = (function($, Replay) {
 
         tabMap[SQLOps.DSLoad] = Tab.DS;
         tabMap[SQLOps.IndexDS] = Tab.DS;
-        tabMap[SQLOps.Sort] = Tab.WS;
-        tabMap[SQLOps.Filter] = Tab.WS;
-        tabMap[SQLOps.Aggr] = Tab.WS;
-        tabMap[SQLOps.Map] = Tab.WS;
-        tabMap[SQLOps.Join] = Tab.WS;
-        tabMap[SQLOps.GroupBy] = Tab.WS;
-        tabMap[SQLOps.RenameTable] = Tab.WS;
-        tabMap[SQLOps.DeleteTable] = Tab.WS;
-        tabMap[SQLOps.DestroyDS] = Tab.DS;
-        tabMap[SQLOps.AddNewCol] = Tab.WS;
-        tabMap[SQLOps.DeleteCol] = Tab.WS;
-        tabMap[SQLOps.HideCols] = Tab.WS;
-        tabMap[SQLOps.UnHideCols] = Tab.WS;
-        tabMap[SQLOps.TextAlign] = Tab.WS;
-        tabMap[SQLOps.DupCol] = Tab.WS;
-        tabMap[SQLOps.DelDupCol] = Tab.WS;
-        tabMap[SQLOps.DelAllDupCols] = Tab.WS;
-        tabMap[SQLOps.ReorderTable] = Tab.WS;
-        tabMap[SQLOps.ReorderCol] = Tab.WS;
-        tabMap[SQLOps.RenameCol] = Tab.WS;
-        tabMap[SQLOps.PullCol] = Tab.WS;
-        tabMap[SQLOps.ArchiveTable] = Tab.WS;
-        tabMap[SQLOps.ExportTable] = Tab.WS;
-        tabMap[SQLOps.TableBulkActions] = Tab.WS;
-        tabMap[SQLOps.SortTableCols] = Tab.WS;
-        tabMap[SQLOps.HideTable] = Tab.WS;
-        tabMap[SQLOps.UnhideTable] = Tab.WS;
-        tabMap[SQLOps.AddWS] = Tab.WS;
-        tabMap[SQLOps.MoveTableToWS] = Tab.WS;
-        tabMap[SQLOps.AddNoSheetTables] = Tab.WS;
         tabMap[SQLOps.CreateFolder] = Tab.DS;
         tabMap[SQLOps.DSRename] = Tab.DS;
         tabMap[SQLOps.DSDropIn] = Tab.DS;
@@ -397,12 +372,7 @@ window.Replay = (function($, Replay) {
         tabMap[SQLOps.DSToDir] = Tab.DS;
         tabMap[SQLOps.DSDropBack] = Tab.DS;
         tabMap[SQLOps.DelFolder] = Tab.DS;
-        tabMap[SQLOps.Profile] = Tab.WS;
-        tabMap[SQLOps.QuickAgg] = Tab.WS;
-        tabMap[SQLOps.Corr] = Tab.WS;
         tabMap[SQLOps.AddDS] = Tab.DS;
-        tabMap[SQLOps.SplitCol] = Tab.WS;
-        tabMap[SQLOps.ChangeType] = Tab.WS;
     }
 
     function sqlFilter(sql) {
@@ -820,50 +790,27 @@ window.Replay = (function($, Replay) {
 
     function replaySortTableCols(options) {
         var args = getArgs(options);
-        sortAllTableColumns.apply(window, args);
+        TblManager.sortColumns.apply(window, args);
         return (promiseWrapper(null));
     }
 
+    function replayResizeTableCols(options) {
+        var args = getArgs(options);
+        TblManager.resizeColumns.apply(window, args);
+
+        return promiseWrapper(null);
+    }
+
     function replayHideTable(options) {
-        // UI simulation
-        var deferred = jQuery.Deferred();
-        var tableId = getTableId(options.tableId);
-        var $li = $("#tableMenu .hideTable");
-
-        $("#xcTheadWrap-" + tableId + " .dropdownBox").click();
-
-        $li.mouseenter();
-
-        var callback = function() {
-            $li.mouseleave();
-            $li.trigger(fakeEvent.mouseup);
-        };
-        delayAction(callback, "Show Table Menu", 2000)
-        .then(deferred.resolve)
-        .fail(deferred.reject);
-
-        return (deferred.promise());
+        var args = getArgs(options);
+        TblManager.hideTable.apply(window, args);
+        return promiseWrapper(null);
     }
 
     function replayUnhideTable(options) {
-        // UI simulation
-        var deferred = jQuery.Deferred();
-        var tableId = getTableId(options.tableId);
-        var $li = $("#tableMenu .unhideTable");
-
-        $("#xcTheadWrap-" + tableId + " .dropdownBox").click();
-
-        $li.mouseenter();
-
-        var callback = function() {
-            $li.mouseleave();
-            $li.trigger(fakeEvent.mouseup);
-        };
-        delayAction(callback, "Show Table Menu", 2000)
-        .then(deferred.resolve)
-        .fail(deferred.reject);
-
-        return (deferred.promise());
+        var args = getArgs(options);
+        TblManager.unHideTable.apply(window, args);
+        return promiseWrapper(null);
     }
 
     function replayAddWS() {

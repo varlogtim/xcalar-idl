@@ -22,6 +22,12 @@ window.xcHelper = (function($, xcHelper) {
     xcHelper.parseColNum = function($el) {
         var keyword    = "col";
         var classNames = $el.attr("class");
+        if (classNames == null) {
+            // this is in case we meet some error and cannot goon run the code!
+            console.error("Error Case!");
+            return null;
+        }
+
         var index      = classNames.indexOf(keyword);
         var substring  = classNames.substring(index + keyword.length);
 

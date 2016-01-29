@@ -546,6 +546,193 @@ window.TblManager = (function($, TblManager) {
         }
     };
 
+    TblManager.hideTable = function(tableId) {
+        $('#xcTableWrap-' + tableId).addClass('tableHidden');
+        moveTableDropdownBoxes();
+        moveFirstColumn();
+        moveTableTitles();
+
+        SQL.add("Hide Table", {
+            "operation": SQLOps.HideTable,
+            "tableName": gTables[tableId].tableName,
+            "tableId"  : tableId
+        });
+    };
+
+    TblManager.unHideTable = function(tableId) {
+        $('#xcTableWrap-' + tableId).removeClass('tableHidden');
+        WSManager.focusOnWorksheet(WSManager.getActiveWS(), false, tableId);
+        moveTableDropdownBoxes();
+        moveFirstColumn();
+        moveTableTitles();
+
+        var $table = $('#xcTable-' + tableId);
+        $table.find('.rowGrab').width($table.width());
+
+        SQL.add("UnHide Table", {
+            "operation": SQLOps.UnhideTable,
+            "tableName": gTables[tableId].tableName,
+            "tableId"  : tableId
+        });
+    };
+
+    TblManager.sortColumns = function(tableId, direction) {
+        var table = gTables[tableId];
+        var tableCols = table.tableCols;
+        var order;
+        var newIndex;
+        if (direction === "reverse") {
+            order = 1;
+        } else {
+            order = -1;
+        }
+
+        var numCols = tableCols.length;
+        var dataCol;
+        if (tableCols[numCols - 1].name === 'DATA') {
+            dataCol = tableCols.splice(numCols - 1, 1)[0];
+            numCols--;
+        }
+
+        // record original position of each column
+        for (var i = 1; i <= numCols; i++) {
+            tableCols[i - 1].index = i;
+        }
+
+        tableCols.sort(function(a, b) {
+            a = a.name.toLowerCase();
+            b = b.name.toLowerCase();
+
+            // if a = "as1df12", return ["as1df12", "as1df", "12"]
+            // if a = "adfads", return null
+            var matchA = a.match(/(^.*?)([0-9]+$)/);
+            var matchB = b.match(/(^.*?)([0-9]+$)/);
+
+            if (matchA != null && matchB != null && matchA[1] === matchB[1]) {
+                // if the rest part that remove suffix number is same,
+                // compare the suffix number
+                a = parseInt(matchA[2]);
+                b = parseInt(matchB[2]);
+            }
+
+            if (a < b) {
+                return (order);
+            } else if (a > b) {
+                return (-order);
+            } else {
+                return (0);
+            }
+        });
+
+        var $table = $('#xcTable-' + tableId);
+        var $rows = $table.find('tbody tr');
+        var numRows = $rows.length;
+        var oldColIndex;
+        var newColIndex;
+        // loop through each column
+        for (var i = 0; i < numCols; i++) {
+            oldColIndex = tableCols[i].index;
+            newColIndex = i + 1;
+            var $thToMove = $table.find('th.col' + oldColIndex);
+            $thToMove.find('.col' + oldColIndex).removeClass('col' + oldColIndex)
+                                                .addClass('col' + newColIndex);
+            var oldPos = $thToMove.index();
+            $table.find('th').eq(i).after($thToMove);
+            // loop through each row and order each td
+            for (var j = 0; j < numRows; j++) {
+                var $row = $rows.eq(j);
+                var $tdToMove = $row.find('td').eq(oldPos);
+                $tdToMove.removeClass('col' + oldColIndex)
+                         .addClass('col' + newColIndex);
+                $row.find('td').eq(i).after($tdToMove);
+            }
+        }
+
+        // correct gTable tableCols index and th col class number
+        var $ths = $table.find('th');
+        for (var i = 0; i < numCols; i++) {
+            oldColIndex = tableCols[i].index;
+            newIndex = i + 1;
+            $ths.eq(newIndex).removeClass('col' + oldColIndex)
+                             .addClass('col' + newIndex);
+            delete tableCols[i].index;
+        }
+
+        var match;
+        $table.find('th').each(function(index) {
+            match = $(this).attr('class').match(/col/g);
+            if (match && match.length > 1) {
+                console.error('incorrect class after columns sort', $(this));
+                return false;
+            } else if (!$(this).hasClass('col' + index)) {
+                console.error('incorrect column class order after columns sort',
+                    $(this));
+                return false;
+            }
+        });
+
+        TableList.updateTableInfo(tableId);
+
+        SQL.add("Sort Table Columns", {
+            "operation": SQLOps.SortTableCols,
+            "tableName": table.tableName,
+            "tableId"  : tableId,
+            "direction": direction
+        });
+    };
+
+    TblManager.resizeColumns = function(tableId, resizeTo) {
+        var sizeToHeader;
+        var fitAll;
+
+        switch (resizeTo) {
+            case 'sizeToHeader':
+                sizeToHeader = true;
+                fitAll = false;
+                break;
+            case 'sizeToFitAll':
+                sizeToHeader = true;
+                fitAll = true;
+                break;
+            case 'sizeToContents':
+                sizeToHeader = false;
+                fitAll = false;
+                break;
+            default:
+                throw "Error Case!";
+        }
+
+        var table   = gTables[tableId];
+        var columns = table.tableCols;
+        var $th;
+        var $table = $('#xcTable-' + tableId);
+
+        for (var i = 0, numCols = columns.length; i < numCols; i++) {
+            $th = $table.find('th.col' + (i + 1));
+            columns[i].sizeToHeader = !sizeToHeader;
+            columns[i].isHidden = false;
+
+            autosizeCol($th, {
+                "dbClick"       : true,
+                "minWidth"      : 17,
+                "unlimitedWidth": false,
+                "includeHeader" : sizeToHeader,
+                "fitAll"        : fitAll,
+                "multipleCols"  : true
+            });
+        }
+
+        $table.find('.userHidden').removeClass('userHidden');
+        matchHeaderSizes($table);
+
+        SQL.add("Resize Columns", {
+            "operation": SQLOps.ResizeTableCols,
+            "tableName": table.tableName,
+            "tableId"  : tableId,
+            "resizeTo" : resizeTo
+        });
+    };
+
     function infScrolling(tableId) {
         var $rowScroller = $('#rowScrollerArea');
         var scrollCount = 0;
