@@ -477,6 +477,18 @@ window.DatastoreForm = (function($, DatastoreForm) {
     }
 
     function resetUdfSection() {
+        // restet the udf lists, otherwise the if clause in
+        // selectUDFModule() and selectUDFFunc() will
+        // stop the reset from triggering
+        $udfModuleList.find("input").val("");
+        $udfFuncList.addClass("disabled")
+                    .find("input").val("");
+        $udfFuncList.parent().tooltip({
+            "title"    : "Please choose a module first",
+            "placement": "top",
+            "container": "#importDataView"
+        });
+
         // only when cached moduleName and funcName is not null
         // we restore it
         if (lastUDFModule != null && lastUDFFunc != null) {
@@ -489,26 +501,42 @@ window.DatastoreForm = (function($, DatastoreForm) {
             // verify that the func in the module is still there
             // (might be deleted)
             if ($li.length > 0) {
-                $udfModuleList.find("input").val(lastUDFModule);
-                $udfFuncList.removeClass("disabled")
-                        .find("input").val(lastUDFFunc);
-                $udfFuncList.parent().tooltip("destroy");
+                selectUDFModule(lastUDFModule);
+                selectUDFFunc(lastUDFFunc);
                 return;
             }
         }
 
-        // For all other case, restet the udf lists
+        // when cannot restore it
         lastUDFModule = null;
         lastUDFFunc = null;
-        $udfModuleList.find("input").val("");
+    }
 
-        $udfFuncList.addClass("disabled")
-                    .find("input").val("");
-        $udfFuncList.parent().tooltip({
-            "title"    : "Please choose a module first",
-            "placement": "top",
-            "container": "#importDataView"
-        });
+    function selectUDFModule(module) {
+        var $input = $udfModuleList.find("input");
+        if (module === $input.val()) {
+            return;
+        }
+
+        $input.val(module);
+
+        $udfFuncList.parent().tooltip("destroy");
+        $udfFuncList.removeClass("disabled")
+            .find("input").val("")
+            .end()
+            .find(".list li").addClass("hidden")
+            .filter(function() {
+                return $(this).data("module") === module;
+            }).removeClass("hidden");
+    }
+
+    function selectUDFFunc(func) {
+        var $input = $udfFuncList.find("input");
+
+        if (func === $input.val()) {
+            return;
+        }
+        $input.val(func);
     }
 
     function setupFormUDF() {
@@ -530,22 +558,7 @@ window.DatastoreForm = (function($, DatastoreForm) {
         xcHelper.dropdownList($udfModuleList, {
             "onSelect": function($li) {
                 var module = $li.text();
-                var $input = $udfModuleList.find("input");
-
-                if (module === $input.val()) {
-                    return;
-                }
-
-                $input.val(module);
-
-                $udfFuncList.parent().tooltip("destroy");
-                $udfFuncList.removeClass("disabled")
-                    .find("input").val("")
-                    .end()
-                    .find(".list li").addClass("hidden")
-                    .filter(function() {
-                        return $(this).data("module") === module;
-                    }).removeClass("hidden");
+                selectUDFModule(module);
             },
             "container": "#importDataView",
             "bounds"   : "#importDataView"
@@ -554,13 +567,7 @@ window.DatastoreForm = (function($, DatastoreForm) {
         xcHelper.dropdownList($udfFuncList, {
             "onSelect": function($li) {
                 var func = $li.text();
-                var $input = $udfFuncList.find("input");
-
-                if (func === $input.val()) {
-                    return;
-                }
-
-                $input.val(func);
+                selectUDFFunc(func);
             },
             "container": "#importDataView",
             "bounds"   : "#importDataView"
