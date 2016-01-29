@@ -6,14 +6,13 @@
         <link rel="stylesheet" href="/3rd/mocha.css" />
 
         <style type="text/css">
-            body {
+            #unitTestBody {
                 background: transparent !important;
                 color: black !important;
                 overflow: auto !important;
             }
 
             #xc {
-                /*display: none;*/
                 overflow: hidden;
                 background: #36444d url("/images/bg_page.png") repeat right top;
                 color: #4d4d4d;
@@ -21,6 +20,10 @@
 
             #container {
                 height: 300px !important;
+            }
+
+            #xc.large #container {
+                height: 1000px !important;
             }
 
             #mocha .test a.replay {
@@ -44,10 +47,11 @@
             }
         </style>
     </head>
-    <body>
+    <body id="unitTestBody">
         <div id="toggleXC">
             <button id="hideXC">Hide XC</button>
             <button id="showXC">Show XC</button>
+            <button id="toggleXCSize">Toggle XC Size</button>
             <button id="backXC">Back To Xcalar Insight</button>
         </div>
         <div id="mocha"></div>
@@ -59,11 +63,13 @@
         <script src="/3rd/chai.js"></script>
         <script src="/test/unitTest/setup.js"></script>
         <script src="/test/unitTest/setupSpec.js"></script>
-        <script src="/test/unitTest/datastore/datastoreSpec.js"></script>  
+        <script src="/test/unitTest/datastore/datacartSpec.js"></script>
+        <script src="/test/unitTest/datastore/datastoreSpec.js"></script>
         <script type="text/javascript">setup();</script>
         <script src="/3rd/blanket.min.js" data-cover-adapter="/3rd/mocha-blanket.js"></script>
     </body>
 
 <!-- XXX This is really stupid, after $.load in setup(), all js file we want to test is in the DOM. However, blanket js doesn't detect the aync load, so I have to mannuly specify the file I want to cover here -->
  <script src="/js/datastore/datastore.js" type="text/javascript" data-cover></script>
+  <script src="/js/datastore/datacart.js" type="text/javascript" data-cover></script>
 </html>

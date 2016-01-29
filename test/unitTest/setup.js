@@ -3,6 +3,7 @@ mocha.setup("bdd");
 
 // global
 expect = chai.expect;
+assert = chai.assert
 window.unitTestMode = true;
 
 function setup() {    
@@ -31,5 +32,9 @@ function setup() {
         .fail(function(error) {
             console.error(error);
         })
+    });
+
+    $('#toggleXCSize').click(function() {
+        $('#xc').toggleClass('large');
     });
 }

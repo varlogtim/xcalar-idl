@@ -1,6 +1,7 @@
 // A basic test
 describe('Datastore Test', function() {
     describe('Datastore Module Test', datasetModuleTest);
+    describe('Data Cart Module Test', dataCartModuleTest);
 });
 
 // test Datastore Module

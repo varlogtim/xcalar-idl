@@ -1,4 +1,5 @@
 // A basic test
+mocha.timeout(5000);
 describe('Unit test can run', function(done) {
     it('Should pass Hello World Test', function() {
         expect('hello world').to.equal('hello world');
@@ -15,11 +16,11 @@ describe('Unit test can run', function(done) {
    });
 
     it('Should be able to test DataCart module', function() {
-        expect(DataCart.getCarts().length >= 0);
+        expect(DataCart.getCarts()).to.exist;
     });
 
     it('Should see private function in module', function() {
-        expect(DataCart.__testOnly__.filterCarts instanceof Function);
+        expect(DataCart.__testOnly__.filterCarts).to.be.a('function');
     });
 });
 
@@ -29,7 +30,7 @@ function simplePromiseTest() {
 
     setTimeout(function() {
         deferred.resolve('pass');
-    }, 1000);
+    }, 3000);
 
     return deferred.promise();
 }
