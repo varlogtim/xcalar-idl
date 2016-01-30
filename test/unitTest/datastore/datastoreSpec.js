@@ -1,5 +1,5 @@
 // A basic test
-describe.skip('Datastore Test', function() {
+describe('Datastore Test', function() {
     describe('Datastore Module Test', datasetModuleTest);
     describe('Data Cart Module Test', dataCartModuleTest);
 });
