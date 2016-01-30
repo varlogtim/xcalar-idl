@@ -1097,8 +1097,7 @@ window.DataPreview = (function($, DataPreview) {
             }
         });
 
-        var $loadHiddenSection = $previeWrap.find(".loadHidden")
-                                            .addClass("invisible");
+        var $loadHiddenSection = $previeWrap.find(".loadHidden").hide();
         $("#preview-url").text(loadURL);
 
         XcalarListFiles(loadURL)
@@ -1107,10 +1106,10 @@ window.DataPreview = (function($, DataPreview) {
 
             $previeWrap.removeClass("hidden");
             var $waitSection = $previeWrap.find(".waitSection")
-                                                    .removeClass("hidden");
+                                            .removeClass("hidden");
             var $errorSection = $previeWrap.find(".errorSection")
                                             .addClass("hidden");
-            
+
             tableName = $("#fileName").val().trim();
             tableName = xcHelper.randName(tableName) ||   // when table name is empty
                         xcHelper.randName("previewTable");
@@ -1143,6 +1142,8 @@ window.DataPreview = (function($, DataPreview) {
                 return XcalarSample(tableName, rowsToFetch);
             })
             .then(function(result) {
+                $waitSection.addClass("hidden");
+
                 if (!result) {
                     $errorSection.html("Cannot parse the dataset.")
                                 .removeClass("hidden");
@@ -1178,6 +1179,12 @@ window.DataPreview = (function($, DataPreview) {
                         }
                     }
 
+                    if (gMinModeOn) {
+                        $loadHiddenSection.show();
+                    } else {
+                        $loadHiddenSection.fadeIn(200);
+                    }
+
                     getPreviewTable();
                     deferred.resolve();
                 } catch(err) {
@@ -1188,19 +1195,16 @@ window.DataPreview = (function($, DataPreview) {
                     deferred.reject({"error": "Cannot parse the dataset."});
                 }
 
-                $loadHiddenSection.removeClass("invisible");
-
                 $(window).on("resize", resizePreivewTable);
             })
             .then(function() {
-                return (XcalarSetFree(refId));
+                return XcalarSetFree(refId);
             })
             .fail(function(error) {
-                clearAll();
-                deferred.reject(error);
-            })
-            .always(function() {
                 $waitSection.addClass("hidden");
+                clearAll();
+                StatusBox.show(error.error, $("#filePath"), true);
+                deferred.reject(error);
             });
         })
         .fail(function(error) {
