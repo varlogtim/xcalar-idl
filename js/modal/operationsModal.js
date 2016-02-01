@@ -891,7 +891,11 @@ window.OperationsModal = (function($, OperationsModal) {
                 .removeClass("rowToListen")
                 .off(".groupbyListener");
             var $rows = $tbody.find('tr');
-            $rows.find('.colNameSection').removeClass('colNameSection')
+            var $colNameRow = $rows.filter(function() {
+                return ($(this).hasClass('colNameRow'));
+            });
+            $colNameRow.removeClass('colNameRow')
+                    .find('.colNameSection').removeClass('colNameSection')
                     .end()
                     .find('input').data('typeid', -1)
                     .end()
@@ -978,8 +982,8 @@ window.OperationsModal = (function($, OperationsModal) {
                 description = 'New Column Name for the groupBy' +
                                 ' resultant column';
                 autoGenColName = getAutoGenColName(colName + "_" + func);
-
-                $rows.eq(numArgs).find('.dropDownList')
+                $rows.eq(numArgs).addClass('colNameRow')
+                                 .find('.dropDownList')
                                     .addClass('colNameSection')
                                 .end()
                                 .find('input').val(autoGenColName)
@@ -993,7 +997,7 @@ window.OperationsModal = (function($, OperationsModal) {
                     '<label class="checkBoxText" for="incSample">' +
                     'Include Sample</span>';
 
-                $rows.eq(numArgs)
+                $rows.eq(numArgs).addClass('colNameRow')
                         .find('.dropDownList').addClass('checkboxSection')
                         .end()
                         .find('input').val("").attr("type", "checkbox")
@@ -1265,7 +1269,15 @@ window.OperationsModal = (function($, OperationsModal) {
         });
 
         if (!validBlanks) {
-            StatusBox.show(ErrorTextTStr.NoEmptyOrCheck, $invalidInput);
+            var hasEmptyOption = $invalidInput.closest('.colNameSection')
+                                              .length === 0;
+            var errorMsg;
+            if (hasEmptyOption) {
+                errorMsg = ErrorTextTStr.NoEmptyOrCheck;
+            } else {
+                errorMsg = ErrorTextTStr.NoEmpty;
+            }
+            StatusBox.show(errorMsg, $invalidInput);
             modalHelper.enableSubmit();
             return;
         }
