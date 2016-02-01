@@ -972,33 +972,6 @@ window.OperationsModal = (function($, OperationsModal) {
                             .end()
                             .find('.description').text(description);
 
-                // this part prevent multi groupby to include sample
-                // because it sample will mess up with indexed cols
-                // XXX just a temporary work around
-                var prevCheck = false;
-                $rowToListen.on("input.groupbyListener", ".argument", function(event) {
-                    var numCols = $(event.target).val().split(",").length;
-                    var $checkboxSection = $tbody.find(".checkboxSection");
-                    var $checkbox = $("#incSample");
-
-                    if (numCols > 1) {
-                        $checkboxSection.addClass("disabled");
-                        // record previous checked info
-                        prevCheck = $checkbox.prop("checked") || false;
-                        $checkbox.prop("checked", false);
-                        $checkboxSection.attr("data-toggle", "tooltip")
-                            .attr("data-placement", "right")
-                            .attr("data-original-title", "Including sample temporarily not supported for multi groupby")
-                            .attr("data-container", "body");
-                    } else {
-                        $checkboxSection.removeClass("disabled");
-                        $checkbox.prop("checked", prevCheck);
-                        $checkboxSection.removeAttr("data-toggle")
-                            .removeAttr("data-placement")
-                            .removeAttr("data-original-title")
-                            .removeAttr("data-container");
-                    }
-                });
                 ++numArgs;
 
                 // new col name field
@@ -1046,6 +1019,39 @@ window.OperationsModal = (function($, OperationsModal) {
                                     sortedCol +
                                 '</span>' +
                             '</p>';
+
+                // this part prevent multi groupby to include sample
+                // because it sample will mess up with indexed cols
+                // XXX just a temporary work around
+                var prevCheck = false;
+                $rowToListen.on("input.groupbyListener", ".argument", function(event) {
+                    var numCols = $(event.target).val().split(",").length;
+                    var $checkbox = $("#incSample");
+                    var $checkboxSection = $checkbox.closest(".checkboxSection");
+
+                    if (numCols > 1) {
+                        // when try to do multi groupby
+                        var title = "Including sample temporarily not supported for multi groupby";
+                        $checkboxSection.addClass("disabled")
+                                        .attr("data-toggle", "tooltip")
+                                        .attr("data-placement", "right")
+                                        .attr("data-original-title", title)
+                                        .attr("data-container", "body");
+                        $checkbox.prop("checked", false);
+                    } else {
+                        $checkboxSection.removeClass("disabled")
+                                        .removeAttr("data-toggle")
+                                        .removeAttr("data-placement")
+                                        .removeAttr("data-original-title")
+                                        .removeAttr("data-container");
+                        $checkbox.prop("checked", prevCheck);
+                    }
+                });
+
+                $("#incSample").click(function() {
+                    // cache previous checked state
+                    prevCheck = $(this).prop("checked") || false;
+                });
             } else if (operatorName === "filter") {
                 despText = '<p>' + despText + '</p>' +
                             '<b>String Preview:</b>' +
