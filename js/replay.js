@@ -980,7 +980,7 @@ window.Replay = (function($, Replay) {
     function replayDSDropIn(options) {
         var $grid   = DS.getGrid(options.dsId);
         var $target = DS.getGrid(options.targetDSId);
-        dsDropIn($grid, $target);
+        DS.dropToFolder($grid, $target);
         return (promiseWrapper(null));
     }
 
@@ -988,7 +988,7 @@ window.Replay = (function($, Replay) {
         var $grid    = DS.getGrid(options.dsId);
         var $sibling = DS.getGrid(options.siblingDSId);
         var isBefore = options.isBefore;
-        dsInsert($grid, $sibling, isBefore);
+        DS.insert($grid, $sibling, isBefore);
         return (promiseWrapper(null));
     }
 
@@ -1000,7 +1000,7 @@ window.Replay = (function($, Replay) {
 
     function replayDSDropBack(options) {
         var $grid = DS.getGrid(options.dsId);
-        dsBack($grid);
+        DS.dropToParent($grid);
         return (promiseWrapper(null));
     }
 
