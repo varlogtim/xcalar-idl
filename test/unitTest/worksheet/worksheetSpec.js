@@ -72,11 +72,13 @@ describe('Worksheet Interactivity', function() {
                                       .to.have.length.of(1);
             expect($tableWrap).to.have.length.of(1);
             expect($tableWrap.find('.tblTitleSelected')).to.have.length.of(1);
-            var windowCenter = $(window).width() / 2;
+            
             var winTop = $(window).scrollTop();
             var mainFrameTop = $('#mainFrame').offset().top;
             $(window).scrollTop(mainFrameTop);
-            var yCoor = 168; 
+
+            var windowCenter = $(window).width() / 2;
+            var yCoor = mainFrameTop - $(window).scrollTop() + 15; 
             var el = document.elementFromPoint(windowCenter, yCoor);
             $(window).scrollTop(winTop);
             var correctTable = $(el).closest('#xcTableWrap-' + tableId).length >
