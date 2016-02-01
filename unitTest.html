@@ -26,6 +26,11 @@
                 height: 1000px !important;
             }
 
+            #mocha.small {
+                height: 500px;
+                overflow: auto;
+            }
+
             #mocha .test a.replay {
                 right: -25px;
             }
@@ -51,6 +56,7 @@
         <div id="toggleXC">
             <button id="hideXC">Hide XC</button>
             <button id="showXC">Show XC</button>
+            <button id="toggleTestSize">Toggle Test Size</button>
             <button id="toggleXCSize">Toggle XC Size</button>
             <button id="backXC">Back To Xcalar Insight</button>
         </div>
@@ -63,6 +69,7 @@
         <script src="/3rd/chai.js"></script>
         <script src="/test/unitTest/setup.js"></script>
         <script src="/test/unitTest/setupSpec.js"></script>
+        <script src="/test/unitTest/datastore/dataFormSpec.js"></script>
         <script src="/test/unitTest/datastore/datacartSpec.js"></script>
         <script src="/test/unitTest/datastore/datastoreSpec.js"></script>
         <script src="/test/unitTest/worksheet/worksheetSpec.js"></script>
@@ -72,9 +79,9 @@
 
 <!-- XXX This is really stupid, after $.load in setup(), all js file we want to test is in the DOM. However, blanket js doesn't detect the aync load, so I have to mannuly specify the file I want to cover here -->
 
- <script src="/js/datastore/datastore.js" type="text/javascript" data-cover></script>
+<script src="/js/datastore/dataForm.js" type="text/javascript" data-cover></script>
 <script src="/js/datastore/datacart.js" type="text/javascript" data-cover></script>
+ <script src="/js/datastore/datastore.js" type="text/javascript" data-cover></script>
  <script src="/js/worksheet.js" type="text/javascript" data-cover></script>
-
 
 </html>

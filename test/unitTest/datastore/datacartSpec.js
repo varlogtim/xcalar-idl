@@ -19,11 +19,11 @@ function dataCartModuleTest() {
         $('#dataStoresTab').click();
     });
 
-    it('Can get cart', function() {
+    it('Should get cart', function() {
         expect(DataCart.getCarts()).to.equal(previousCart);
     });
 
-    it('Can empty all cart', function() {
+    it('Should empty all cart', function() {
         DataCart.clear();
 
         var carts = DataCart.getCarts();
@@ -33,7 +33,7 @@ function dataCartModuleTest() {
         assert.equal($("#dataCart .selectedTable").length, 0, 'have no carts');
     });
 
-    it('can add new cart', function() {
+    it('Should add new cart', function() {
         testCartName = "testCart" + Math.floor(Math.random() * 1000 + 1);
         DataCart.addItem(testCartName);
 
@@ -48,10 +48,10 @@ function dataCartModuleTest() {
         // UI check
         var $cart = $("#selectedTable-" + testCartName);
         assert.equal($cart.length, 1, 'have only 1 cart');
-        assert.ok($cart.find(".cartEmptyHint").is(":visible"), 'Should see hint');
+        assert.isTrue($cart.find(".cartEmptyHint").is(":visible"), 'Should see hint');
     });
 
-    it('can add item', function() {
+    it('Should add item', function() {
         var items = [{"colNum": 1, "value": "testItem"}];
         DataCart.addItem(testCartName, items);
 
@@ -69,11 +69,11 @@ function dataCartModuleTest() {
         var $cart = $("#selectedTable-" + testCartName);
         assert.equal($cart.length, 1, 'still have only 1 cart');
         assert.equal($cart.find("li").length, 1, 'should have only 1 item');
-        assert.notOk($cart.find(".cartEmptyHint").is(":visible"),
+        assert.isFalse($cart.find(".cartEmptyHint").is(":visible"),
                     'Should not see hint');
     });
 
-    it('can remove item', function() {
+    it('Should remove item', function() {
         DataCart.addItem(testCartName, {"colNum": 2, "value": "testItem2"});
 
         var carts = DataCart.getCarts();
@@ -94,7 +94,7 @@ function dataCartModuleTest() {
         assert.equal($li.text(), 'testItem2', 'have the right item');
     });
 
-    it('can remove cart', function() {
+    it('Should remove cart', function() {
         DataCart.removeCart(testCartName);
 
         var carts = DataCart.getCarts();

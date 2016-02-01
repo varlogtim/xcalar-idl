@@ -489,6 +489,8 @@ window.DS = (function ($, DS) {
 
     // Helper function for DS.remove()
     function delDSHelper($grid, dsName) {
+        var deferred = jQuery.Deferred();
+
         $grid.removeClass("active");
         $grid.addClass("inactive");
         $grid.append('<div class="waitingIcon"></div>');
@@ -516,12 +518,16 @@ window.DS = (function ($, DS) {
 
             focusOnFirstDS();
             commitToStorage();
+            deferred.resolve();
         })
         .fail(function(error) {
             $grid.find('.waitingIcon').remove();
             $grid.removeClass("inactive");
             Alert.error("Delete Dataset Fails", error);
+            deferred.reject();
         });
+
+        return deferred.promise();
     }
 
     // Helper function to remove ds
@@ -1094,6 +1100,13 @@ window.DS = (function ($, DS) {
     }
 
     /* End of Drag and Drop API */
+
+    /* Unit Test Only */
+    if (window.unitTestMode) {
+        DS.__testOnly__ = {};
+        DS.__testOnly__.delDSHelper = delDSHelper;
+    }
+    /* End Of Unit Test Only */
 
     return (DS);
 }(jQuery, {}));

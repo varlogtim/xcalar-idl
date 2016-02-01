@@ -1,5 +1,9 @@
 // setup should happen before load test files
-mocha.setup("bdd");
+// --badil: will stop when first test fails
+mocha.setup({
+    "ui": "bdd",
+    "bail": true
+});
 
 // global
 expect = chai.expect;
@@ -32,6 +36,10 @@ function setup() {
         .fail(function(error) {
             console.error(error);
         });
+    });
+
+    $('#toggleTestSize').click(function() {
+        $('#mocha').toggleClass('small');
     });
 
     $('#toggleXCSize').click(function() {

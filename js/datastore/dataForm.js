@@ -45,21 +45,7 @@ window.DatastoreForm = (function($, DatastoreForm) {
         // click to go to form section
         $("#importDataButton").click(function() {
             $(this).blur();
-            var $importDataView = $("#importDataView");
-            var $explorePanel = $('#exploreView');
-
-            if (!$importDataView.is(":visible")) {
-                $("#importDataReset").click();
-                $importDataView.show();
-                $("#dataSetTableWrap").empty();
-                $explorePanel.find(".contentViewMid").addClass("hidden");
-                $("#filePath").focus();
-                $explorePanel.find(".gridItems .grid-unit.active")
-                            .removeClass("active");
-                // when switch from data sample table to data form
-                // preview table may still open, so close it
-                $("#preview-close").click();
-            }
+            showForm();
         });
 
         // csv promote checkbox
@@ -91,27 +77,18 @@ window.DatastoreForm = (function($, DatastoreForm) {
         $("#previewBtn").click(function() {
             $(this).blur();
 
-            var path = $filePath.val();
-            if (path.trim() === "") {
-                StatusBox.show(ErrorTextTStr.NoEmpty, $filePath, true);
-                return;
-            } else if (path.endsWith("json")) {
-                // Invalid json preview
-                StatusBox.show(ErrorTextTStr.NoPreviewJSON, $filePath, true);
-                return;
-            } else if (path.endsWith("xlsx")) {
-                StatusBox.show(ErrorTextTStr.NoPreviewExcel, $filePath, true);
-                return;
+            if (isValidToPreview()) {
+                DataPreview.show();
             }
-
-            DataPreview.show();
         });
 
         // reset form
         $("#importDataReset").click(function(event) {
             $(this).blur();
-            // Not using form's default reset
+            // Prevent form's default reset
             event.preventDefault();
+            // Note that some other functions also use resetForm() to do reset
+            // instead of call $("#impoartDataRest").click();
             resetForm();
         });
 
@@ -123,7 +100,12 @@ window.DatastoreForm = (function($, DatastoreForm) {
             }
 
             var $submitBtn = $(this).blur();
-            submitForm($submitBtn);
+            xcHelper.disableSubmit($submitBtn);
+
+            submitForm()
+            .always(function() {
+                xcHelper.enableSubmit($submitBtn);
+            });
         });
 
         // XXX This should be removed in production
@@ -209,41 +191,10 @@ window.DatastoreForm = (function($, DatastoreForm) {
     DatastoreForm.update = function() {
         // reset udf first as list xdf may slow
         resetUdfSection();
+
         // update python module list
         XcalarListXdfs("*", "User*")
-        .then(function(listXdfsObj) {
-            var i;
-            var len = listXdfsObj.numXdfs;
-            var udfs = listXdfsObj.fnDescs;
-            var moduleMap = {};
-            var modules = [];
-
-            for (i = 0; i < len; i++) {
-                modules.push(udfs[i].fnName);
-            }
-
-            modules.sort();
-
-            var moduleLi = "";
-            var fnLi = "";
-            for (i = 0; i < len; i++) {
-                var udf = modules[i].split(":");
-                var moduleName = udf[0];
-                var fnName = udf[1];
-
-                if (!moduleMap.hasOwnProperty(moduleName)) {
-                    moduleMap[moduleName] = true;
-                    moduleLi += "<li>" + moduleName + "</li>";
-                }
-
-                fnLi += '<li data-module="' + moduleName + '">' +
-                            fnName +
-                        '</li>';
-            }
-
-            $udfModuleList.find("ul").html(moduleLi);
-            $udfFuncList.find("ul").html(fnLi);
-        })
+        .then(updateUDFList)
         .fail(function(error) {
             console.error("List UDF Fails!", error);
         })
@@ -253,24 +204,118 @@ window.DatastoreForm = (function($, DatastoreForm) {
     };
 
     DatastoreForm.clear = function() {
-        $("#importDataButton").click();
-        $("#importDataReset").click();
+        showForm();
+        resetForm();
     };
 
-    function delimiterTranslate($input) {
-        if ($input.hasClass("nullVal")) {
-            return "";
+    function showForm() {
+        var $importDataView = $("#importDataView");
+        var $explorePanel = $('#exploreView');
+
+        if (!$importDataView.is(":visible")) {
+            resetForm();
+            $importDataView.show();
+            $("#dataSetTableWrap").empty();
+            $explorePanel.find(".contentViewMid").addClass("hidden");
+            $("#filePath").focus();
+            $explorePanel.find(".gridItems .grid-unit.active")
+                        .removeClass("active");
+            // when switch from data sample table to data form
+            // preview table may still open, so close it
+            $("#preview-close").click();
+        }
+    }
+
+    function submitForm() {
+        var deferred = jQuery.Deferred();
+        var dsName   = $fileName.val().trim();
+        var dsFormat = formatMap[$formatText.val()];
+        var loadURL  = $filePath.val().trim();
+
+        var moduleName = "";
+        var funcName   = "";
+
+        var isValid = xcHelper.validate([
+            {
+                "$selector": $formatText,
+                "check"    : function() {
+                    return (dsFormat == null);
+                },
+                "text": ErrorTextTStr.NoEmptyList
+            },
+            {
+                "$selector": $fileName,
+                "check"    : DS.has,
+                "formMode" : true,
+                "text"     : ErrorTextTStr.DSNameConfilct
+            }
+        ]);
+
+        if (!isValid) {
+            deferred.reject("Checking Invalid");
+            return deferred.promise();
         }
 
-        var delimiter = $input.val();
-        switch (delimiter) {
-            case "\\t":
-                return "\t";
-            case "\\n":
-                return "\n";
-            default:
-                return (delimiter);
+        var hasUDF = $udfCheckbox.find(".checkbox").hasClass("checked");
+        if (hasUDF) {
+            var $moduleInput = $udfModuleList.find("input");
+            var $funcInput = $udfFuncList.find("input");
+
+            moduleName = $moduleInput.val();
+            funcName = $funcInput.val();
+
+            isValid = xcHelper.validate([
+                {
+                    "$selector": $moduleInput,
+                    "text"     : ErrorTextTStr.NoEmptyList
+                },
+                {
+                    "$selector": $funcInput,
+                    "text"     : ErrorTextTStr.NoEmptyList
+                }
+            ]);
+
+            if (!isValid) {
+                deferred.reject("Checking Invalid");
+                return deferred.promise();
+            }
         }
+
+        var fieldDelim = delimiterTranslate($fieldText);
+        var lineDelim  = delimiterTranslate($lineText);
+        var header = $headerCheckBox.find(".checkbox").hasClass("checked");
+
+        DatastoreForm.load(dsName, dsFormat, loadURL,
+                            fieldDelim, lineDelim, header,
+                            moduleName, funcName)
+        .then(deferred.resolve)
+        .fail(deferred.reject);
+
+        // cache udf module and func name
+        if (hasUDF) {
+            lastUDFModule = moduleName;
+            lastUDFFunc = funcName;
+        }
+
+        // cache delimiter
+        if (dsFormat === "CSV") {
+            lastFieldDelim = $fieldText.val();
+            lastLineDelim = $lineText.val();
+        } else if (dsFormat === "raw") {
+            lastLineDelim = $lineText.val();
+        }
+
+        return deferred.promise();
+    }
+
+    function resetForm() {
+        $form.find("input").val("");
+        $form.removeClass("previewMode")
+             .find(".default-hidden").addClass("hidden");
+        $fileNameSelector.removeClass("optionsOpen");
+
+        // keep header to be checked
+        $udfCheckbox.find(".checkbox").removeClass("checked");
     }
 
     function toggleFormat(format) {
@@ -306,14 +351,36 @@ window.DatastoreForm = (function($, DatastoreForm) {
                 $udfArgs.addClass("hidden");
                 // excel not show the whole udf section
                 break;
-            default:
+
+            // json and random
+            case "json":
+            case "random":
                 // json and random
                 $headerCheckBox.addClass("hidden");
                 $csvDelim.addClass("hidden");
                 $udfCheckbox.removeClass("hidden");
                 $udfHint.hide();
                 break;
+            default:
+                throw new ReferenceError("Format Not Support");
         }
+    }
+
+    function isValidToPreview() {
+        var path = $filePath.val();
+        if (path.trim() === "") {
+            StatusBox.show(ErrorTextTStr.NoEmpty, $filePath, true);
+            return false;
+        } else if (path.endsWith("json")) {
+            // Invalid json preview
+            StatusBox.show(ErrorTextTStr.NoPreviewJSON, $filePath, true);
+            return false;
+        } else if (path.endsWith("xlsx")) {
+            StatusBox.show(ErrorTextTStr.NoPreviewExcel, $filePath, true);
+            return false;
+        }
+
+        return true;
     }
 
     function hideDropdownMenu() {
@@ -322,96 +389,20 @@ window.DatastoreForm = (function($, DatastoreForm) {
         $csvDelim.find(".delimVal").val("");
     }
 
-    function submitForm($submitBtn) {
-        xcHelper.disableSubmit($submitBtn);
-
-        var dsName   = $fileName.val().trim();
-        var dsFormat = formatMap[$formatText.val()];
-        var loadURL  = $filePath.val().trim();
-
-        var moduleName = "";
-        var funcName   = "";
-
-        var isValid = xcHelper.validate([
-            {
-                "$selector": $formatText,
-                "check"    : function() {
-                    return (dsFormat == null);
-                },
-                "text": ErrorTextTStr.NoEmptyList
-            },
-            {
-                "$selector": $fileName,
-                "check"    : DS.has,
-                "formMode" : true,
-                "text"     : ErrorTextTStr.DSNameConfilct
-            }
-        ]);
-
-        if (!isValid) {
-            xcHelper.enableSubmit($submitBtn);
-            return;
+    function delimiterTranslate($input) {
+        if ($input.hasClass("nullVal")) {
+            return "";
         }
 
-        var hasUDF = $udfCheckbox.find(".checkbox").hasClass("checked");
-        if (hasUDF) {
-            var $moduleInput = $udfModuleList.find("input");
-            var $funcInput = $udfFuncList.find("input");
-
-            moduleName = $moduleInput.val();
-            funcName = $funcInput.val();
-
-            isValid = xcHelper.validate([
-                {
-                    "$selector": $moduleInput,
-                    "text"     : ErrorTextTStr.NoEmptyList
-                },
-                {
-                    "$selector": $funcInput,
-                    "text"     : ErrorTextTStr.NoEmptyList
-                }
-            ]);
-
-            if (!isValid) {
-                xcHelper.enableSubmit($submitBtn);
-                return;
-            }
+        var delimiter = $input.val();
+        switch (delimiter) {
+            case "\\t":
+                return "\t";
+            case "\\n":
+                return "\n";
+            default:
+                return (delimiter);
         }
-
-        var fieldDelim = delimiterTranslate($fieldText);
-        var lineDelim  = delimiterTranslate($lineText);
-        var header = $headerCheckBox.find(".checkbox").hasClass("checked");
-
-        DatastoreForm.load(dsName, dsFormat, loadURL,
-                            fieldDelim, lineDelim, header,
-                            moduleName, funcName)
-        .always(function() {
-            xcHelper.enableSubmit($submitBtn);
-        });
-
-        // cache udf module and func name
-        if (hasUDF) {
-            lastUDFModule = moduleName;
-            lastUDFFunc = funcName;
-        }
-
-        // cache delimiter
-        if (dsFormat === "CSV") {
-            lastFieldDelim = $fieldText.val();
-            lastLineDelim = $lineText.val();
-        } else if (dsFormat === "raw") {
-            lastLineDelim = $lineText.val();
-        }
-    }
-
-    function resetForm() {
-        $form.find("input").val("");
-        $form.removeClass("previewMode")
-             .find(".default-hidden").addClass("hidden");
-        $fileNameSelector.removeClass("optionsOpen");
-
-        // keep header to be checked
-        $udfCheckbox.find(".checkbox").removeClass("checked");
     }
 
     function resetDelimiter() {
@@ -481,6 +472,40 @@ window.DatastoreForm = (function($, DatastoreForm) {
             return;
         }
         $input.val(func);
+    }
+
+    function updateUDFList(listXdfsObj) {
+        var i;
+        var len = listXdfsObj.numXdfs;
+        var udfs = listXdfsObj.fnDescs;
+        var moduleMap = {};
+        var modules = [];
+
+        for (i = 0; i < len; i++) {
+            modules.push(udfs[i].fnName);
+        }
+
+        modules.sort();
+
+        var moduleLi = "";
+        var fnLi = "";
+        for (i = 0; i < len; i++) {
+            var udf = modules[i].split(":");
+            var moduleName = udf[0];
+            var fnName = udf[1];
+
+            if (!moduleMap.hasOwnProperty(moduleName)) {
+                moduleMap[moduleName] = true;
+                moduleLi += "<li>" + moduleName + "</li>";
+            }
+
+            fnLi += '<li data-module="' + moduleName + '">' +
+                        fnName +
+                    '</li>';
+        }
+
+        $udfModuleList.find("ul").html(moduleLi);
+        $udfFuncList.find("ul").html(fnLi);
     }
 
     function setupFormUDF() {
@@ -625,6 +650,22 @@ window.DatastoreForm = (function($, DatastoreForm) {
 
         $fileName.focus();
     }
+
+    /* Unit Test Only */
+    if (window.unitTestMode) {
+        DatastoreForm.__testOnly__ = {};
+        DatastoreForm.__testOnly__.showForm = showForm;
+        DatastoreForm.__testOnly__.resetForm = resetForm;
+        DatastoreForm.__testOnly__.submitForm = submitForm;
+        DatastoreForm.__testOnly__.toggleFormat = toggleFormat;
+        DatastoreForm.__testOnly__.isValidToPreview = isValidToPreview;
+        DatastoreForm.__testOnly__.delimiterTranslate = delimiterTranslate;
+        DatastoreForm.__testOnly__.resetDelimiter = resetDelimiter;
+        DatastoreForm.__testOnly__.resetUdfSection = resetUdfSection;
+        DatastoreForm.__testOnly__.selectUDFModule = selectUDFModule;
+        DatastoreForm.__testOnly__.selectUDFFunc = selectUDFFunc;
+    }
+    /* End Of Unit Test Only */
 
     return (DatastoreForm);
 }(jQuery, {}));
