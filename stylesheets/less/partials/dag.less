@@ -28,7 +28,8 @@
             background-color: @color-background-sidebar;
             border: 1px solid @color-bar-border;
             border-top: none;
-            .rounded(0 0 3px 3px);                                              
+            .rounded(0 0 3px 3px);
+            z-index: 10;                                         
         }
 
         .tabShadow {
@@ -39,9 +40,9 @@
         }
 
         #dagPulloutTab {
-            .position(absolute, @top: -8px);
+            .position(absolute, @top: -9px);
             .size(@width: 100%, @height: 15px);
-            .image("/images/pullTab.png", 50%, 50%);
+            .image("/images/pullTab.png", 50%, 100%);
             background-color: @color-background-sidebar;
         }
     }
@@ -595,7 +596,6 @@
 
         .tableTitle {
             .position(absolute, @top: 38px);
-            z-index: 5;
             color: @color-text-midGray;
             .font(@weight: 700, @size: 10px, @line-height: 12px);
             white-space: nowrap;
