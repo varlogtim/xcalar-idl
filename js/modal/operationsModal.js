@@ -895,21 +895,23 @@ window.OperationsModal = (function($, OperationsModal) {
                 return ($(this).hasClass('colNameRow'));
             });
             $colNameRow.removeClass('colNameRow')
-                    .find('.colNameSection').removeClass('colNameSection')
-                    .end()
-                    .find('input').data('typeid', -1)
-                    .end()
-                    .find('.checkboxSection').removeClass('checkboxSection')
-                        .removeClass("disabled")
-                        .removeAttr("data-toggle")
-                        .removeAttr("data-placement")
-                        .removeAttr("data-original-title")
-                        .removeAttr("data-container")
-                        .find('input').attr('type', 'text')
-                        .prop("checked", false)
-                        .removeAttr('id')
-                        .end()
-                        .find('.checkBoxText').remove();
+                       .find('.colNameSection')
+                       .removeClass('colNameSection');
+                       
+            $rows.find('input').data('typeid', -1)
+                 .end()
+                 .find('.checkboxSection')
+                 .removeClass('checkboxSection')
+                 .removeClass("disabled")
+                 .removeAttr("data-toggle")
+                 .removeAttr("data-placement")
+                 .removeAttr("data-original-title")
+                 .removeAttr("data-container")
+                 .find('input').attr('type', 'text')
+                 .prop("checked", false)
+                 .removeAttr('id')
+                 .end()
+                 .find('.checkBoxText').remove();
 
             var description;
             var autoGenColName;
