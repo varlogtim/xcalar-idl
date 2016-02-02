@@ -109,6 +109,7 @@ function gRescolMouseUp() {
     reenableTextSelection();
     rescol.table.find('.rowGrab').width(rescol.table.width());
     rescol.table.removeClass('resizingCol');
+    $('.tooltip').hide();
     if (!rescol.isDatastore) {
         var table = gTables[rescol.tableId];
         var progCol = table.tableCols[rescol.index - 1];
