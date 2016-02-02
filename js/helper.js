@@ -597,9 +597,17 @@ window.xcHelper = (function($, xcHelper) {
                 hideDropdowns($curlDropDownList);
             } else {
                 // hide all other dropdowns that are open on the page
+                var $currentList;
+                if ($list.length === 1) {
+                    $currentList = $list;
+                } else {
+                    // this is triggered when $list contains more that one .list
+                    // such as the xcHelper.dropdownlist in mulitiCastModal.js
+                    $currentList = $curlDropDownList.find(".list");
+                }
 
                 if (!$list.parents('.list, .menu').length) {
-                    $('.list, .menu').not($list)
+                    $('.list, .menu').not($currentList)
                                     .hide()
                                     .removeClass('openList')
                                     .parent('.dropDownList')
