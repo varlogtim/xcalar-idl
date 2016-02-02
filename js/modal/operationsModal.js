@@ -197,7 +197,7 @@ window.OperationsModal = (function($, OperationsModal) {
                 argumentTimer = setTimeout(function() {
                     argSuggest($input);
                     checkIfStringReplaceNeeded();
-                }, 300);
+                }, 200);
 
                 updateDescription();
             },
@@ -215,6 +215,7 @@ window.OperationsModal = (function($, OperationsModal) {
 
         $operationsModal.find('.checkbox').on('click', function() {
             $(this).toggleClass("checked");
+            checkIfStringReplaceNeeded();
         });
 
         // toggle between mininizeTable and unMinimizeTable
@@ -897,7 +898,7 @@ window.OperationsModal = (function($, OperationsModal) {
             $colNameRow.removeClass('colNameRow')
                        .find('.colNameSection')
                        .removeClass('colNameSection');
-                       
+
             $rows.find('input').data('typeid', -1)
                  .end()
                  .find('.checkboxSection')
@@ -946,7 +947,9 @@ window.OperationsModal = (function($, OperationsModal) {
                     autoGenColName = getAutoGenColName(colName + "_" + func);
                 }
 
-                $rows.eq(numArgs).find('.dropDownList').addClass('colNameSection')
+                $rows.eq(numArgs).addClass('colNameRow')
+                                .find('.dropDownList')
+                                .addClass('colNameSection')
                                 .end()
                                 .find('input').val(autoGenColName)
                                 .end()
@@ -1121,15 +1124,24 @@ window.OperationsModal = (function($, OperationsModal) {
             var arg    = $input.val().trim();
             var type   = null;
 
-            // col name field, do not add quote
+            // ignore new colname input
             if ($input.closest(".dropDownList").hasClass("colNameSection")) {
-                arg = arg.replace(/\$/g, '');
-                type = getColumnTypeFromArg(arg);
+                return;
             } else if (arg.indexOf(colPrefix) >= 0) {
                 arg = arg.replace(/\$/g, '');
                 if ($("#categoryList input").val().indexOf("user") !== 0) {
                     type = getColumnTypeFromArg(arg);
                 }
+            } else {
+                var isString = formatArgumentInput(arg, $input.data('typeid'),
+                                                   existingTypes).isString;
+                if (isString) {
+                    type = "string";
+                }
+            }
+            // UDFS only accepts strings for now
+            if ($("#categoryList input").val().indexOf("user") === 0) {
+                type = "string";
             }
 
             if (type != null) {
@@ -1145,27 +1157,21 @@ window.OperationsModal = (function($, OperationsModal) {
             if (!$input.closest(".dropDownList").hasClass("colNameSection") &&
                 arg.indexOf(colPrefix) === -1 &&
                 parsedType.indexOf("string") !== -1) {
-                
-                if (!$.isEmptyObject(existingTypes)) {
-                    if (existingTypes.hasOwnProperty("string")) {
-                        quotesNeeded.push(true);
-                    } else {
-                        quotesNeeded.push(false);
-                    }
-                } else if (arg !== "") {
-                    var isString = formatArgumentInput(arg, typeIds[i],
-                                                      existingTypes)
-                                                     .isString;
-                    quotesNeeded.push(isString);
+
+                if (parsedType.length === 1) {
+                    // if input only accepts strings
+                    quotesNeeded.push(true);
+                } else if (!$.isEmptyObject(existingTypes) &&
+                        existingTypes.hasOwnProperty("string")) {
+                    quotesNeeded.push(true);
                 } else {
                     quotesNeeded.push(false);
                 }
             } else {
                 quotesNeeded.push(false);
             }
-            
         });
-        updateDescription(quotesNeeded);
+        updateDescription();
     }
 
     function checkArgumentParams() {
