@@ -1129,8 +1129,8 @@ window.TblMenu = (function(TblMenu, $) {
                     '</li>' +
                 '</ul>' +
                 '<ul class="format">' +
-                    '<li class="changeFormat" data-format="default">Default</li>' +
                     '<li class="changeFormat" data-format="percent">Percent</li>' +
+                    '<li class="changeFormat" data-format="default">Back to original</li>' +
                 '</ul>' +
                 '<ul class="roundToFixed">' +
                     '<li style="text-align: center" class="clickable">' +
@@ -1142,7 +1142,8 @@ window.TblMenu = (function(TblMenu, $) {
                                 'spellcheck="false" />' +
                         '</div>' +
                     '</li>' +
-                    '<li class="changeRound default">Default</li>' +
+                    '<div class="divider"></div>' +
+                    '<li class="changeRound default">Back to original</li>' +
                 '</ul>' +
                 '<ul class="splitCol">' +
                     '<li style="text-align: center" class="clickable">' +
