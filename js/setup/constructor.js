@@ -22,6 +22,7 @@ function SettingInfo(options) {
     this.datasetListView = options.datasetListView || false;
     this.browserListView = options.browserListView || false;
     this.lastRightSideBar = options.lastRightSideBar || null;
+    this.activeWorksheet = options.activeWorksheet || null;
 
     return this;
 }

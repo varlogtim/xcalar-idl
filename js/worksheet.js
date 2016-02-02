@@ -900,8 +900,14 @@ window.WSManager = (function($, WSManager) {
                 makeWorksheet(wsOrder[i], true);
             }
         }
-        // focus on the first worksheet
-        activeWorksheet = wsOrder[0];
+        // focus on the saved or first worksheet
+        var settings = UserSettings.getSettings();
+        if (wsOrder.indexOf(settings.activeWorksheet) > -1) {
+            activeWorksheet = settings.activeWorksheet;
+        } else {
+            activeWorksheet = wsOrder[0];
+        }
+        
         WSManager.focusOnWorksheet(activeWorksheet);
     }
 

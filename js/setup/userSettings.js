@@ -9,6 +9,7 @@ window.UserSettings = (function($, UserSettings) {
         getDatasetListView();
         getBrowserListView();
         getRightSideBarLastOpened();
+        getActiveWorksheet();
         return (settings);
     };
 
@@ -31,6 +32,10 @@ window.UserSettings = (function($, UserSettings) {
 
     function getRightSideBarLastOpened() {
         settings.lastRightSideBar = $('.rightBarSection.lastOpen').attr('id');
+    }
+
+    function getActiveWorksheet() {
+        settings.activeWorksheet = WSManager.getActiveWS();
     }
 
     return (UserSettings);
