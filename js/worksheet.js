@@ -38,7 +38,7 @@ window.WSManager = (function($, WSManager) {
         aggInfos = {};
         activeWorksheet = null;
         nameSuffix = 1;
-        initializeWorksheet();
+        initializeWorksheet(true);
         initializeHiddenWorksheets();
     };
 
@@ -887,7 +887,7 @@ window.WSManager = (function($, WSManager) {
         return (id);
     }
 
-    function initializeWorksheet() {
+    function initializeWorksheet(clearing) {
         // remove the placeholder in html
         $workSheetTabSection.empty();
 
@@ -902,7 +902,7 @@ window.WSManager = (function($, WSManager) {
         }
         // focus on the saved or first worksheet
         var settings = UserSettings.getSettings();
-        if (wsOrder.indexOf(settings.activeWorksheet) > -1) {
+        if (!clearing && wsOrder.indexOf(settings.activeWorksheet) > -1) {
             activeWorksheet = settings.activeWorksheet;
         } else {
             activeWorksheet = wsOrder[0];

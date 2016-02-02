@@ -1,5 +1,5 @@
 window.UserSettings = (function($, UserSettings) {
-    var settings;
+    var settings = {};
 
     UserSettings.restore = function(oldSettings) {
         settings = new SettingInfo(oldSettings);
