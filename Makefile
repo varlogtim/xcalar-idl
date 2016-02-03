@@ -7,4 +7,4 @@ style:
 
 .PHONY: runme
 runme:
-	./RUNME.sh
+	./assets/bin/RUNME.sh

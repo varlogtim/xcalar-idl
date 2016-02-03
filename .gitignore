@@ -1,6 +1,8 @@
 /js/config.js
 /stylesheets/**/*.css
 /widget/*.css
+*.css
 *.DS_Store
 /js/setup/constructorVersion.js
 /js/.jshintrc
+/prod/*

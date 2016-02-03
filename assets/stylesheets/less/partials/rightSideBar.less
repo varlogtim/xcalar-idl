@@ -1,0 +1,1159 @@
+// ========== Right Side Bar ==========
+#rightSideBar {
+    .position(absolute, @right: -25%, @bottom: 74px);
+    .size(@width: ~"calc(25% + 10px)",  @height: ~"calc(100% - 152px)");
+    border-left: 1px solid @color-bar-border;
+    background-color: @color-background-sidebar;
+    z-index: 20;
+    box-shadow: -2px 0px 2px 3px rgba(0,0,0,0.1), inset 0px 3px 3px rgba(0,0,0,0.4);
+    .transition (right 0.3s);
+
+    &.open {
+        right: 0px;
+    }
+
+    &.poppedOut {
+        .size (@height: ~"calc(100% - 119px)");
+        .position(@right: 5px, @bottom: 46px);
+        z-index: 30;
+        border: 1px solid @color-bar-border;
+        box-shadow: 0px 0px 3px 4px rgba(0,0,0,0.2);
+        .transition (right 0s);
+
+        .popOut {
+            .transform (rotate(180deg));
+        }
+
+        #rightSideBarBtns {
+            .position(absolute, @right: 12px, @bottom: -3px);
+            padding: 0;
+            white-space: nowrap;
+        }
+
+        .heading {
+            pointer-events: auto;
+            .cursor-move;
+        }
+
+        .rightBarContent {
+            margin-right: 10px; 
+        }
+
+        .rightBarSection {
+            .size(@height: ~"calc(100% - 33px)");
+        }
+
+        #tableListSection {
+
+            .rightBarContent {
+                .size(@height: ~"calc(100% - 35px)");
+            }
+        }
+        
+        #pulloutTab, .topBorder {
+            display: none;
+        }
+
+        .ui-resizable-handle {
+            display: block !important;
+        }
+        
+    }
+
+    &.modalOpen {
+        z-index: 40;
+        .ui-resizable-handle {
+            display: none !important;
+        }
+        
+        &.poppedOut {
+            #sideBarModal:after {
+                display: none;
+            }
+        }
+    }
+
+    .ui-resizable-handle {
+        display: none !important;
+    }
+    .sideBarTopButtons {
+        position: relative;
+        z-index: 1;
+        .noSelection;
+
+        .btn {
+            .size(@width: 19px, @height: 19px);
+            float: right;
+            margin-right: 6px;
+            margin-top: 7px;
+
+            &:first-of-type {
+                right: 0px;
+            }
+        }
+        .popOut {
+            background-image: url(../../images/arrow-diag.png);
+        }
+        .iconClose {
+            background-image: url(../../images/close-icon.png);
+        }
+        .machineSQL {
+            background-image: url(../../images/machine.png);
+        }
+        .copySQL {
+            background-image: url(../../images/copy.png);
+        }
+        .humanSQL {
+            background-image: url(../../images/human.png);
+        }
+        .selectSQL {
+            background-image: url(../../images/arrow-diag.png);
+        }
+
+        #sqlButtonWrap {
+            display: none;
+        }
+    }
+
+    .heading {
+        .size(@width: 100%, @height: 35px);
+        text-align: center;
+        padding-top: 2px;
+        overflow: hidden;
+        pointer-events: none;
+        cursor: default;
+        .noSelection;
+
+        h2 {
+            .size (@width: ~"calc(100% - 118px)");
+            .font(@line-height: 35px, @color: @color-text-darkGray);
+            margin-left: 10px;
+            display: inline-block;
+            white-space: nowrap;
+            .textOverflow;
+        }
+    }
+
+    .rightBarContent {
+        .position(relative);
+        .size(@width: auto, @height: ~"calc(100% - 35px)");
+        margin-left: 10px;
+        background-color: @color-table-darkGray;
+    }
+
+    .topBorder {
+        .position(absolute, @bottom: 60px, @left: -7px);
+        .size(@width: 7px, @height: 1px);
+        background-color: @color-bar-border;
+        z-index: 20;
+        box-shadow: -1px -2px 5px rgba(0,0,0,.3);
+    }
+
+    .rightBarSection {
+        .position(absolute, @top: 0, @left: 0);
+        .size(@width: 100%, @height: 100%);
+        display: none;
+        overflow: hidden;
+
+        &.active {
+            display: block;
+        }
+    }
+}
+
+@media screen and (max-width: 1300px) {
+    #rightSideBar:not(.poppedOut) .tableListSection:not(#aggregateTableList) {
+        .columnList {
+            width: ~"calc(86% - 26px)" !important;
+        }
+
+        .timeStampWrap {
+            width: 14% !important;
+            text-align: center;
+            span:first-child {
+                display: none !important;
+            }
+        }
+
+        .worksheetInfo {
+            display: none !important;
+        }
+
+        .tableListBox {
+            width: 86% !important;
+        }
+
+        &#orphanedTableList {
+            .searchArea {
+                width: 85% !important;
+            }
+        }
+    }
+}
+
+
+/* ========== Table List Section in Right Side Bar ========== */
+#tableListSection {
+    .rightBarContent {
+        .size(@width: ~"calc(100% - 20px)", @height: ~"calc(100% - 45px)");
+    }
+
+    #tableListSectionTabs {
+        .size(@width: ~"calc(100% + 2px)", @height: 35px);
+        border-top: 1px solid @color-table-borderGray;
+        border-left: 1px solid @color-table-borderGray;
+        margin-left: -1px;
+
+        .tableListSectionTab {
+            .size(@width: 25%, @height: 100%);
+            float: left;
+            display: inline-block;
+            .font(@weight: 700, @line-height: 35px, @size: 13px, @color: @color-text-darkGray);
+            text-align: center;
+            border-right: 1px solid @color-table-borderGray;
+            border-bottom: 1px solid @color-table-borderGray;
+            padding: 0 5px;
+            .gray-gradient;
+            .noSelection;
+            .textOverflow;
+            cursor: pointer;
+
+            &:hover {
+                .gray-inverse-gradient;
+            }
+
+            &.active {
+                .font(@size: 14px, @color: @color-white);
+                border-bottom: 1px solid @color-tab-borderBlue;
+                .action-gradient;
+                text-shadow: 2px 2px rgba(0,0,0,.3);
+            }
+        }
+    }
+
+    #tableListSections {
+        overflow-x: hidden;
+        overflow-y: auto;
+        height: ~"calc(100% - 35px)";
+        margin: 0 auto;
+
+        .tableListSection {
+            display: none;
+            width: 100%;
+            margin: 0 auto;
+
+            &:first-child {
+                display: block;
+            }
+        }
+
+        ul {
+            list-style: none;
+            margin: 0 10px;
+        }
+
+        .buttonWrap {
+            .flex-display;
+            .flex-wrap(wrap);
+            .justify-content(space-between);
+            margin: 10px 5px 0px;
+
+            .btnLarge {
+                margin: 0px 5px 9px;
+                .flex(1 0 170px);
+                white-space: nowrap;
+                text-indent: 2px;
+
+                .icon {
+                    .size(@width: 25px, @height: 100%);
+                }
+
+                .submitBtn {
+                    .icon {
+                        .image("../../images/send-single.png", 50%, 50%);
+                    }
+                }
+
+                .deleteBtn {
+                    .icon {
+                        .image("../../images/garbageThick.png", 50%, 50%);
+                    }
+                }
+            }
+        }
+
+        .secondButtonWrap {
+            margin-right: 21px;
+            margin-top: 4px;
+            height: 24px;
+            float: right;
+            position: relative;
+            z-index: 2;
+            display: none;
+
+            .btn {
+                .size (23px, 23px);
+                float: right;
+                margin: 0 4px;
+                box-shadow: -1px 1px 1px 0px rgba(0, 0, 0, 0.3);
+                border-bottom: 1px solid rgba(0,0,0,0.3);
+                border-left: 1px solid rgba(0,0,0,0.3);
+
+                &:active {
+                    box-shadow: inset 0px 1px 1px 0px rgba(0, 0, 0, 0.5), 
+                                0px 1px 1px 0 rgba(255, 255, 255, 0.3);
+                }
+            }
+            .selectAll .icon {
+                margin-left: 1px;
+                width: 20px;
+                .image("../../images/select-all-white.png", 50%, 50%);
+            }
+            .clearAll .icon {
+                margin-left: 1px;
+                width: 20px;
+                .image("../../images/select-none-white.png", 50%, 50%);
+            }
+            .refresh .icon {
+                margin-left: 1px;
+                width: 20px;
+                .image("../../images/fileBrowserModal/refresh.png", 50%, 50%);
+                background-size: 90%;
+            }
+        }
+
+        .tableLists {
+            .timeLine {
+                .size(@width: 100%);
+                margin-top: -1px;
+                .font(@line-height: 25px, @size: 13px, @color: @color-text-darkGray);
+                padding-top: 4px;
+            }
+
+            .tableInfo {
+                .size(@width: 100%, @min-height: 38px);
+                padding: 5px 5px 0 0;
+                .font(@line-height: 25px, @size: 13px, @color: @color-text-darkGray);
+
+                &.hiddenWS {
+                    opacity: 0.6;
+                }
+
+                &.transition {
+                    min-height: 0;
+                    height: 38px;
+                }
+
+                &:hover .iconWrap {
+                    .action-gradient;
+                }
+
+                .active {
+                    .iconWrap {
+                       .lightGray-gradient;
+                    }
+
+                    &:hover .iconWrap {
+                        .action-gradient;
+                    }
+                }
+
+                &.highlight {
+                    background: @color-white;
+                    z-index: 100 !important;
+
+                }
+            }
+
+            .timeStampWrap {
+                .position(relative, @top: 1px, @left: -1%);
+                .size(@width: 24%, @height: 25px);
+                display: inline-block;
+                float: left;
+                .font(@line-height: 12px, @size: 10px);
+                overflow: hidden;
+
+                .timeStamp {
+                    .size(@width: ~"calc(100% - 7px)", @height: 12px);
+                    text-align: right;
+                    overflow: hidden;
+                }
+
+                .time {
+                    white-space: nowrap;
+                }
+
+                .worksheetInfo {
+                    .size(@width: ~"calc(100% - 7px)", @height: 12px);
+                    text-align: right;
+                    .textOverflow;
+
+                    &.inactive {
+                        opacity: 0.5;
+                    }
+                }
+            }
+
+            .tableListBox {
+                .size(@width: 76%, @height: 25px);
+                .rounded;
+                background-color: @color-white;
+                .flex-display;
+                box-shadow: 1px 2px 1px rgba(0,0,0,.2);
+                cursor: pointer;
+                white-space: nowrap;
+                overflow: hidden;
+
+                .iconWrap {
+                    display: inline-block;
+                    .size(@height: 100%);
+                    .gray-gradient;
+                    float: left;
+                    margin-right: 10px;
+                    .rounded(3px 0 0 3px);
+
+                    .icon {
+                        .size(25px, 25px);
+                        .image("../../images/table-icon.png", 50%, 50%);
+                    }
+                }
+
+                .tableName {
+                    display: inline-block;
+                    white-space: nowrap;
+                    .flex(1 0 0px);
+                }
+
+                .numCols {
+                    float: right;
+                    color: @color-text-brightBlue;
+                    margin-right: 10px;
+                }
+
+                .addTableBtn {
+                    .size(@width: 24px, @height: 100%);
+                    display: inline-block;
+                    float: right;
+                    border-left: 1px solid @color-background-bottomGrayMed;
+                    background: url(../../images/checkmark-inactive.png) 50% 50% no-repeat, 
+                                linear-gradient(@color-background-topGrayMed, @color-background-bottomGrayMed);
+
+                    &:hover {
+                        background: url(../../images/checkmark-inactive.png) 50% 50% no-repeat,
+                                    linear-gradient(@color-background-topGrayMed, @color-background-midGrayMed);
+                    }
+
+                    &.selected {
+                        background: url(../../images/checkmark-inactive.png) 50% 50% no-repeat, 
+                                    linear-gradient(@color-background-topAction, @color-background-bottomAction);
+                    }
+                }
+            }
+
+            .columnList {
+                display: none;
+                .position(relative);
+                .size(@width: ~"calc(76% - 26px)");
+                margin: 0px 0 10px 22px;
+                padding: 2px 0 0 0;
+                float: right;
+
+                li {
+                    .size(@height: 20px);
+                    list-style-position: inside;
+                    margin-top: 5px;
+                    padding-left: 10px;
+                    border-radius: 3px;
+                    .font(@size: 11px, @line-height: 20px, @color: @color-text-columnList);
+                    background-color: @color-background-columnList;
+
+                    &:hover {
+                        background-color: #B5B5B5;
+                    }
+                }
+            }
+        }
+
+        #activeTablesList {
+            margin-top: 10px;
+        }
+
+        #tableList, #archivedTableList, #orphanedTableList {
+            max-width: 490px;
+        }
+
+        #aggregateTableList {
+            .tableNameWrap {
+                .size(@width: 25%, @height: 25px);
+                float: left;
+                font-size: 12px;
+                padding-left: 10px;
+                white-space: nowrap;
+                text-align: right;
+                padding-right: 10px;
+            }
+
+            .aggStrWrap {
+                .size(@width: 34%, @height: 25px);
+                float: left;
+                .rounded(3px 0 0 3px);
+                .gray-gradient;
+                padding: 0 10px;
+                box-shadow: 0px 2px 1px rgba(0,0,0,.2);
+                text-align: center;
+            }
+
+            .tableListBox {
+                .size(@width: 39%, @height: 25px);
+                .rounded(0 3px 3px 0);
+                cursor: default;
+                padding-left: 10px;
+
+                .aggVal {
+                    .size(@width: ~"calc(100% - 24px)");
+                    .textOverflowOneLine;
+                }
+
+                .addTableBtn {
+                    cursor: pointer;
+                    // XXX temporary disable it
+                    display: none;
+                }
+
+                .worksheetInfo {
+                    .size(@width: 100px);
+                    text-align: right;
+                    float: right;
+                    padding-right: 10px;
+                    .font(@size: 11px, @color: #4d4d4d);
+                    .textOverflow;
+
+                    &.inactive {
+                        display: none;
+                    }
+                }
+            }
+
+            .tableInfo:first-child {
+                padding-top: 34px;
+                margin-top: -1px;
+                min-height: 67px;
+            }
+        }
+
+        #orphanedTableList {
+            .divider {
+                height: 1px;
+                background-color: @color-background-sidebar;
+                margin: 0 10px;
+            }
+
+            .secondButtonWrap {
+                margin-right: 6px;
+                height: 30px;
+            }
+
+            .searchArea {
+                margin-left: 12%;
+                clear: both;
+                .size(@width: 75%, @height: 25px);
+                .position(relative);
+
+                .input-box(@w: 100%, @h: 25px);
+                .input-placeholder(@color-text-midGray);
+                .closeIcon(@topOff: 3px, @rightOff: 4px);
+
+                input {
+                    .font(@weight: bold, @color: @color-text-midGray);
+                    padding-right: 30px;
+                }
+            }
+
+            .tableLists {
+                margin: 5px 0 0 0;
+
+                .tableListBox {
+                    margin-left: 12%;
+                }
+
+                .highlightedText {
+                    background-color: yellow;
+                }
+            }
+        }
+    }
+}
+/* ========== End Of Table List Section in Right Side Bar ========== */
+
+/* ========== SQL Section in Right Side Bar ========== */
+#sqlSection {
+    .size(@height: ~"calc(100% - 10px)");
+
+    #sql-TextScrollWrap {
+        .size(@height: 100%);
+        .position(relative);
+        background-color: @color-background-white;
+        overflow: hidden;
+
+        .sqlTextArea {
+            .position(absolute, @top: 0);
+            .size(@width: 100%, @height: 100%);
+            overflow-y: scroll;
+            background-color: transparent;
+
+            .sqlContentWrap {
+                padding: 2px;
+                .size(@width: 100%);
+                .font(@size: 13px, @color: @color-sql-black);
+            }
+        }
+    }
+}
+
+#sql-MachineTextArea {
+    padding: 10px;
+    word-wrap: break-word;
+}
+
+#sql-TextArea {
+    .sqlContentWrap {
+        .sqlKey {
+            color: @color-sql-lightGray;
+        }
+
+        .sqlColon {
+            margin: 0 2px;
+        }
+
+        .title {
+            color: @color-sql-blue;
+        }
+
+        .content {
+            .operation {
+                .sqlKey {
+                    color: @color-sql-brown;
+                }
+                .sqlVal {
+                    color: @color-sql-darkGreen;
+                }
+            }
+
+            .tableName, .leftTable, .rightTable, .dsName {
+                .sqlKey {
+                    color: @color-sql-darkGray;
+                }
+                .sqlVal {
+                    color: @color-sql-orange;
+                }
+            }
+
+            .key {
+                .sqlKey {
+                    color: @color-sql-lightGreen;
+                }
+            }
+        }
+
+        &:hover {
+            background-color: @color-sql-hover;
+        }
+    }
+}
+/* ========== End Of SQL Section in Right Side Bar ========== */
+
+/* ========== CLI Section in Right Side Bar ========== */
+#cliSection {
+    .textBoxContainer {
+        .size(@width: 100%, @height: 100%);
+        overflow-y: scroll !important;
+        overflow-x: hidden !important;
+        .position(relative);
+
+        .lineArea {
+            .size(@width: 20px, @height: 100%);
+            padding-left: 10px;
+            padding-bottom: 10px;
+            background: transparent;
+            outline: none;
+            float: left;
+            .noSelection;
+            .lineUnit {
+                .size(@width: 100%, @height: auto);
+                padding: 0px;
+                background: transparent;
+                outline: none;
+            }
+        }
+       
+        .cliArea {
+            .size(@width: ~"calc(100% - 20px)", @height: 100%);
+            background: @color-sql-hover;
+            outline: none;
+            float: left;
+            .cliDisabled {
+                background: @color-sql-hover !important;
+                color: black !important;
+            }
+            .cliUnit {
+                .size(@width: 100%, @height: auto, @min-height: 20px);
+                .font(@size: 13px, @color: @color-white);
+                padding: 0 0 0 2px;
+                background: @color-sql-blue;
+                outline: none;
+                .wordwrap;
+            }
+        }
+    }
+
+}
+/* ========== End Of CLI in Right Side Bar ========== */
+
+/* ========== Scratch Pad Section in Right Side Bar ========== */
+#scratchPadSection {
+    .textBoxContainer {
+        .size(@width: 100%, @height: 100%);
+        overflow: scroll !important;
+        .position(relative);
+
+        .lineArea {
+            .size(@width: 20px, @height: 100%);
+            padding-left: 10px;
+            padding-bottom: 10px;
+            background: transparent;
+            outline: none;
+            float: left;
+            .lineUnit {
+                .size(@width: 100%, @height: auto);
+                padding: 0px;
+                background: transparent;
+                outline: none;
+            }
+        }
+       
+        .cliArea {
+            .size(@width: ~"calc(100% - 20px)", @height: 100%);
+            background: @color-sql-hover;
+            outline: none;
+            float: left;
+            .cliDisabled {
+                background: @color-sql-hover !important;
+                color: black !important;
+            }
+            .cliUnit {
+                .size(@width: 100%, @height: auto, @min-height: 20px);
+                padding: 0px;
+                background: @color-sql-blue;
+                outline: none;
+                color: white;
+                .wordwrap;
+            }
+        }
+    }
+}
+/* ========== End Of Scratch Pad Section in Right Side Bar ========== */
+
+/* ========== UDF Section in Right Side Bar ========== */
+#udfSection {
+    overflow: visible !important;
+    .tabSectionContainer {
+        .size(@width: 100%, @height: 50px);
+        box-shadow: 0px 2px 2px 2px rgba(153,153,153,.7);
+        
+        .tabSection {
+            .size(@height: 100%, @width: 350px, @max-width: 92%);
+            margin: 0 auto;
+            .align-content(center);
+            .flex-display;
+            .align-items(center);
+            .flex-flow(row wrap);
+        }
+
+        .radioWrap {
+            &:first-child {
+                margin-right: 15px;
+            }
+        }
+    }
+
+    .mainSectionContainer {
+        .position(relative);
+        .size(@width: 100%, @height: ~"calc(100% - 50px)");
+        padding-bottom: 5px;
+
+        .mainSection {
+            &.hidden {
+                display: none;
+            }
+        }
+    }
+
+    .upload {
+        .position(relative);
+        .icon {
+            .position(absolute, @left: 4px);
+            .size(@width: 25px, @height: 30px);
+            .image("../../images/upload.png", 50%, 50%);
+        }
+    }
+}
+
+#udf-uploadSection {
+    margin: 0 auto;
+    padding-top: 15px;
+    .size(@width: 350px, @max-width: 92%, @height: 100%);
+    overflow: hidden;
+
+    .label {
+        .font(@size: 13px);
+        .noSelection;
+    }
+
+    .pathSection {
+        padding-top: 10px;
+        .position(relative);
+
+        input {
+            .rounded;
+            .size(@width: 100%, @height: 30px);
+            .font(@line-height: 30px);
+            box-shadow: inset -1px 1px 2px rgba(0, 0, 0, 0.5);
+            padding: 0 40px 0 5px;
+
+            &:focus {
+                outline: none;
+            }
+        }
+
+        .closeIcon(@topOff: 15px, @rightOff: 7px);
+    }
+
+    .btnSection {
+        padding-top: 25px;
+        margin: 0 -15px;
+        .flex-display;
+        .flex-flow (row wrap);
+        .justify-content (center);
+
+        .btn {
+            .size(@width: 160px);
+            margin: 8px 15px;
+        }
+    }
+}
+
+#udf-fnSection {
+    .position(relative);
+    .size(100%, 100%);
+
+    .templateSection {
+        .size(@width: 100%, @height: 60px);
+        padding: 15px 0;
+        .position(relative);
+
+        .sectionContainer {
+           .size(@width: 420px, @height: 100%, @max-width: 92%);
+            margin: 0 auto;
+        }
+
+        .dropDownList {
+            float: left;
+            .styleDropDownList(60%, 30px);
+            .list {
+                background-color: #F8F8F8;
+                text-transform: lowercase;
+            }
+            .selected {
+                background-color: @color-selectedCell-green;
+            }
+        }
+
+        .downloadSection {
+            .size(@width: 35%);
+            float: right;
+
+            .btn {
+                .size(@max-width: 100%);
+                .position(relative);
+                overflow: hidden;
+
+                &.disabled {
+                    opacity: 0.5;
+                    pointer-events: none;
+                }
+
+                .iconWrap {
+                    position: static !important;
+                    float: left;
+                    margin-left: 5px;
+                    width: 1px !important;
+
+                    .icon {
+                        .size(@width: 25px, @height: 30px);
+                        .image("../../images/download.png", 50%, 35%);
+                        display: block;
+                        margin-left: -3px;
+                    }
+                }
+
+                .text {
+                    float: right;
+                    text-align: center;
+                    position: static !important;
+                    width: ~"calc(100% - 27px)";
+                    padding-right: 2px;
+                    .textOverflowOneLine;
+                }
+            }
+        }
+    }
+
+
+    .editSection {
+        .size(@width: 100%, @height: ~"calc(100% - 120px)");
+        .position(relative);
+        background-color: @color-white;
+        padding-right: 10px;
+        margin-bottom: 5px;
+
+        .editArea {
+            .size(100%, 100%);
+            .position(relative);
+            .CodeMirror {
+                .size(@height: 100%);
+            }
+        }
+    }
+
+    .submitSection {
+        .size(@width: 100%, @height: 60px);
+        .position(relative);
+        box-shadow: 0px -3px 3px 0px rgba(153,153,153,.7);
+        padding: 15px 0;
+
+        .sectionContainer {
+            .size(@width: 420px, @height: 100%, @max-width: 92%);
+            margin: 0 auto;
+        }
+
+        .inputSection {
+            .size(@width: 60%, @height: 15px);
+            .position(relative);
+            .flex-display;
+            .align-content(center);
+            .justify-content(center);
+            .flex-flow(row wrap);
+            float: left;
+
+            .label {
+                .size(@width: 100px, @height: 25px);
+                .font(@weight: 900, @size: 13px, @line-height: 30px);
+                .noSelection;
+                cursor: default;
+                float: left;
+            }
+
+            input {
+                .size(@width: 90px, @height: 30px);
+                .rounded;
+                .font(@line-height: 30px);
+                box-shadow: inset -1px 1px 2px rgba(0, 0, 0, 0.5);
+                .flex(1 0 90px);
+                text-transform: lowercase;
+
+                &:focus {
+                    outline: none;
+                }
+            }
+        }
+
+        .btnSection {
+            float: right;
+            .size(@width: 35%);
+            .position(relative);
+            .btn {
+                .size(@max-width: 100%);
+                float: right;
+            }
+
+            .icon {
+                position: static !important;
+                float: left;
+                margin-left: 3px;
+            }
+
+            .text {
+                float: left;
+                .size(@width: ~"calc(100% - 30px)");
+                text-align: center;
+                padding-right: 12%;
+                .textOverflowOneLine;
+            }
+        }
+    }
+}
+
+/* ========== End Of UDF Section in Right Side Bar ========== */
+
+/* ========== Help Section in Right Side Bar ========== */
+#helpSection {
+    .border {
+        .size(@width: 100%, @height: 1px);
+        border-bottom: 1px solid @color-background-midGrayMed;
+    }
+}
+
+#helpSearchArea {
+    padding: 6px 3% 5px 3%;
+    max-width: 500px;
+    margin: 0 auto;
+
+    input {
+        width: 70%;
+        padding: 2px 2px 2px 4px;
+        .font(@weight: bold, @size: 12px, @color: @color-text-darkGray);
+        background-color: @color-background-sidebar;
+        float: left;
+
+        &:focus {
+            background-color: @color-white;
+            outline: none;
+            .input-placeholder(@color-text-lightGray);
+        }
+        .input-placeholder(@color-text-darkGray);
+    }
+}
+
+
+#helpSubmit {
+    .size(@width: 25%, @height: 30px);
+    .action-gradient;
+    .font(@size: 12px, @line-height: 30px, @color: @color-text-white);
+    .rounded;
+    float: right;
+    margin-left: 5px;
+    text-align: center;
+    padding-right: 10px;
+    .gray-gradient; // disabled
+    pointer-events: auto;
+    cursor: pointer;
+
+    .iconSearch {
+        .background("../../images/search-icon.png", 18px, 18px);
+        margin: 5px;
+        display: inline-block;
+        float: left;
+    }
+}
+
+.helpBox {
+    .size(@width: auto, @height: 148px);
+    max-width: 500px;
+    margin: 0 auto;
+    padding: 0 3%;
+    
+    &> div {
+        .size (100%, 100%);
+        background-color: @color-white;
+        padding: 5px;
+    }
+}
+
+#helpResults {
+    &> div {
+        text-align: center;
+        span {
+            .vertical-align;
+            top: 40%;
+            color: @color-text-lightGray;
+        }
+    }
+}
+
+#helpTopics {
+    margin-top: 20px;
+
+    span {
+        font-weight: 700;
+    }
+
+    ul {
+        > span {
+            font-size: 14px;
+        }
+        li {
+            .font(@weight: 400, @size: 12px);
+            margin: 6px 0px 0px 4px;
+            list-style-type: disc;
+            margin-left: 20px;
+            cursor: pointer;
+            span {
+                color: @color-text-brightBlue;
+            }
+            &:hover span {
+                text-decoration: underline;
+            }
+        
+        }
+    }
+}
+
+.helpOnOffWrap {
+    .size(@width: 182px, @height: 65px);
+    margin: 0 auto;
+    padding-top: 25px;
+    white-space: nowrap;
+
+    .onOffBtn {
+        display: block;
+        margin: 0;
+        margin-right: 10px;
+        float: left;
+    }
+    > .text {
+        display: inline-block;
+        .font(@weight: 700);
+        line-height: 32px;
+    }
+}
+
+.henpGenSubPart {
+    .size(@width: 100%, @height: 60px);
+    .position(absolute, @bottom: 0);
+    padding: 15px 0;
+    background-color: @color-background-sidebar;
+
+    .wrap {
+        .size(@width: 310px, @height: 30px);
+        .horizontal-align;
+
+        > div, > button {
+            float: left;
+        }
+
+        .icon {
+            .size(@width: 20px, @height: 100%);
+            .image("../../images/monitor/sub-white.png", 50%, 50%);
+            margin-right: 15px;
+        }
+
+        > .text {
+            .font(@line-height: 30px, @size: 14px, @weight: bold, @color: @color-white);
+        }
+
+        .btn {
+            margin-left: 20px;
+        }
+    }
+}
+
+#pulloutTab {
+    .position(absolute, @bottom: 0, @left: -9px);
+    .size(@width: 18px, @height: 60px);
+    border-left: 1px solid @color-bar-border;
+    border-top-left-radius: 3px;
+    box-shadow: -1px 0px 0px rgba(0,0,0,0.3);
+    .image("../../images/pullout.png", 4px, 11px);
+    background-color: inherit;
+}
+// ========== End Of Help Section in Right Side Bar ==========

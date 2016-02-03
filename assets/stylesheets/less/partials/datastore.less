@@ -1,0 +1,1760 @@
+ // DataStore CSS
+#datastorePanel {
+    .position(relative, @top: 0);
+    white-space: nowrap;
+    overflow-x: auto;
+    overflow-y: hidden;
+}
+
+input {
+    &.error {
+        background-color: #FFEEEE !important;
+        &:focus {
+            outline: 1px solid #FFD6D6 !important;
+        }
+    }
+}
+
+/* Content Header */
+ #contentHeader {
+    .flex-display;
+    .flex-flow(row);
+    .position(absolute, @top: -1px);
+    z-index: 6;
+    box-shadow: 0px 2px 11px 0px rgba(0,0,0, .5);
+}
+
+#contentHeaderLeft {
+    .flex(0 0 255px);
+    .flex-order(1);
+    background-color: @color-white;
+
+    .flex-display;
+    .flex-flow(row);
+
+    .buttonArea {
+        .flex(1 1 127px);
+    }
+}
+
+// two icons in #contentHeaderLeft
+#inButton .icon {
+    margin: 0px 5px 0 8px;
+    .image("../../images/import-single.png", 50%, 50%);
+    .size(30px, 36px);
+
+}
+
+#outButton .icon {
+    margin: 0px 5px 0 8px;
+    .image("../../images/export-single.png", 50%, 50%);
+    .size(30px, 36px);
+}
+
+#contentHeaderMid {
+    .flex(1 1 auto);
+    .flex-order(2);
+    background-repeat: no-repeat;
+    background-position: 19px 12px;
+}
+
+#contentHeaderRight {
+    .flex(0 0 255px);
+    .flex-order(3);
+    background: linear-gradient(@color-bar-darkGray-top, @color-bar-darkGray-bot);
+    border-left: 1px solid black;
+
+    .icon {
+        margin: 9px 0 0 8px;
+        .background("../../images/db-icon-white.png", 19px, 19px);
+        float: left;
+    }
+
+    color: @color-white;
+}
+/* End Of Content Header */
+
+/* Form Data View Section */
+.dataStoreFormView {
+    display: block;
+    .position(absolute, @top: 37px, @left: 255px);
+    .size(@width: ~"calc(100% - 510px)", @height: ~"calc(100% - 37px)", @min-width: 514px);
+    background-color: @color-background-white;
+    font-size: 13px;
+    overflow: hidden;
+
+    .contentViewMidWrap {
+        .size(@height: 100%, @width: 90%, @min-width: 470px, @max-width: 960px);
+        margin: 0 auto;
+        padding: 0 0px;
+    }
+
+    .label {
+        display: inline-block;
+        float: left;
+        .size(@width: 100px, @height: 30px);
+        .font(@weight: 700, @line-height: 30px);
+        cursor: default;
+    }
+
+    .btn {
+        margin-left: 20px;
+        padding: 0;
+        float: right;
+        text-shadow: 1px 1px rgba(0,0,0,.2);
+        // .flex(1 5 120px);
+        // max-width: 150px;
+    }
+}
+
+.formHelp {
+    .position(relative);
+    .size(@height: 93px);
+    padding: 15px 10px 5px 10px;
+    font-weight: 700;
+    box-shadow: 0px 3px 2px rgba(0,0,0,0.2);
+    text-align: left;
+   .textOverflow;
+
+    .contentViewMidWrap {
+        .size (@width: 90%, @max-width: 960px);
+    }
+
+    h2 {
+        .font(@size: 18px, @color: @color-text-blue);
+        display: block;
+        margin-bottom: 10px;
+        .textOverflow;
+    }
+
+    p {
+        .size(@width: ~"calc(100% - 50px)", @height: 30px);
+        .font(@weight: 700, @size: 12px, @color: @color-text-lightGray);
+        overflow: hidden;
+        display: inline-block;
+        white-space: normal;
+        float: left;
+    }
+
+    .icon {
+        .background("../../images/info-icon-large.png", 28px, 28px);
+        display: inline-block;
+        float: left;
+        margin-right: 10px;
+    }
+}
+
+// Data Form Section
+.dataStoreForm {
+    &.previewMode {
+        height: 151px !important;
+
+        #importDataBottomForm, #fileBrowserBtn, #fileFormat,
+        #udfCheckbox, #promoteHeaderCheckbox, #previewBtn {
+            display: none;
+        }
+
+        #previewBtn {
+            min-width: 220px;
+        }
+
+        #filePath {
+            pointer-events: none;
+            opacity: 0.7;
+            color: @color-text-lightGray;
+        }
+
+        #fileName, #filePath {
+            min-width: ~"calc(100% - 300px)" !important;
+        }
+    }
+}
+// Top Form Section
+.dataStoreFormTop {
+    background-color: @color-background-topForm;
+    padding: 30px 20px 1px 20px;
+
+    .importFormRow {
+        height: 30px;
+        line-height: 30px;
+        margin-bottom: 30px;
+        .flex-display;
+
+        label {
+            display: inline-block;
+            .size(@max-width: 100px, @min-width: 80px);
+            font-weight: 700;
+            float: left;
+        }
+        input {
+            .size(@width: ~"calc(100% - 340px)",
+                 @min-width: ~"calc(100% - 340px)");
+            box-shadow: inset 0 1px 2px rgba(0,0,0,0.3);
+            float: left;
+        }
+        .input-placeholder(@color-text-instructions);
+
+        &#fileNameSelector {
+            &.optionsOpen {
+                input {
+                    .size(@width: ~"calc(100% - 470px)",
+                        @min-width: ~"calc(100% - 470px)", @max-width: 410px);
+                }
+            }
+            #fileFormat {
+                .styleDropDownList(110px, 30px, true);
+                outline: none;
+                margin-left: 20px;
+
+                input {
+                    .input-placeholder(@color-text-lightGray);
+                }
+            }
+        }
+    }
+
+    .checkboxSection {
+        .size(@width: auto, @height: 30px);
+        .font(@weight: 700, @size: 13px);
+        margin-left: 10px;
+        .noSelection;
+
+        &#udfCheckbox {
+            margin-left: 20px;
+            margin-right: 5px;
+        }
+
+        &.hidden {
+            display: none;
+        }
+
+        > div {
+            float: left;
+        }
+
+        .checkbox {
+            .size(@width: 16px, @height: 100%);
+            cursor: pointer;
+
+            .icon {
+                .size(@width: 100%, @height: 100%);
+                .image("../../images/alertModal/checkbox-unchecked.png", 50%, 50%);
+            }
+
+            &.checked .icon {
+                .image("../../images/alertModal/checkbox-checked.png", 50%, 50%);
+            }
+        }
+
+        .text {
+            color: @color-text-lightGray;
+            margin-left: 5px;
+            cursor: pointer;
+        }
+
+        .hint {
+            .vertical-align;
+            margin-left: 3px;
+        }
+    }
+}
+// End of Top Form Section
+
+// Bottom Form Section
+.dataStoreFormBottom {
+    padding: 30px 20px 1px 20px;
+}
+
+#udfArgs {
+    .hintSection {
+        clear: both;
+        .font(@size: 13px, @color: @color-text-lightGray);
+    }
+}
+
+#csvDelim, #udfArgs {
+    visibility: visible;
+    opacity: 1;
+    .transition(opacity 0.3s);
+
+    &.hidden {
+        visibility: hidden;
+        opacity: 0;
+        display: none;
+    }
+
+    // .size(@min-height: 50px; @max-height: 95px);
+    margin-bottom: 15px;
+    .font(@weight: 700, @size: 12px);
+
+    .wrapper {
+        .size(@width: 50%, @height: 50px);
+        float: left;
+
+        &:first-child {
+            margin-right: 30px;
+            .size(@width: ~"calc(50% - 30px)");
+        }
+    }
+
+    .label {
+        .size(@width: 110px, @height: 30px);
+        .font(@size: 13px);
+    }
+
+    .nullVal {
+        font-style: italic;
+    }
+
+    .dropDownList {
+        .styleDropDownList(~"calc(100% - 110px)", 30px);
+
+        &.disabled {
+            opacity: 0.7;
+            pointer-events: none;
+        }
+
+        .text {
+            box-shadow: inset 0 1px 2px rgba(0,0,0,0.3);
+        }
+
+        .list {
+            .font(@weight: 600);
+
+            li {
+                padding: 0 7px;
+
+                &.hidden {
+                    display: none;
+                }
+
+                &:hover {
+                    background-color: @color-white;
+                }
+
+                // this use js to make hover status's color
+                &.hover {
+                    background-color: @color-selectedCell-light;
+                }
+            }
+
+            .other {
+                .size(@height: 60px);
+                .position(relative);
+
+                span {
+                    display: block;
+                }
+
+                input {
+                    display: block;
+                    .size(@width: 100%, @height: 20px);
+                    .font(@line-height: 20px);
+                    box-shadow: 0px 0px 0px 1px #d1dee6;
+                    .rounded;
+                    outline: none;
+                }
+            }
+        }
+    }
+}
+// End of Bottom Form Section
+// End of Data Form Section
+
+// Preview Table Section
+#dsPreviewWrap {
+    padding: 10px 10px 0 10px;
+    background-color: @color-background-topForm;
+    .size(@width: 100%, @height:  ~"calc(100% - 244px)");
+    .position(absolute, @top: 244px);
+    .transition(~"top 0.5s, height 0.5s");
+
+    &.fullSize {
+        .size(@height: ~"calc(100% - 7px)");
+        .position(absolute, @top: 7px);
+        padding: 0px 10px 0 10px;
+
+        #preview-minimize {
+            .image("../../images/datastore/minus.png", 50%, 50%);
+        }
+
+        .infoSection .btnSection {
+            .position(@top: -4px);
+        }
+    }
+
+    &.hidden {
+        display: none;
+    }
+
+    .hidden {
+        display: none;
+    }
+
+    .container {
+        .size(@height: 100%);
+        white-space: nowrap;
+        background-color: @color-white;
+        padding: 0 10px 10px 10px;
+        box-shadow: 0px 2px 1px 2px rgba(0, 0, 0, 0.2);
+    }
+
+    .infoSection {
+        &.info1 {
+            .size(@height: 40px);
+        }
+
+        &.info2 {
+            .size(@height: 25px);
+        }
+
+        .btnSection {
+            .size(@width: 156px, @height: 35px);
+            .horizontal-align;
+            .position(@top: 0px);
+            float: left;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            background-color: @color-background-darkGray;
+            z-index: 20;
+
+            .btn {
+                .size(@width: 150px);
+                margin-left: 2px;
+                float: none;
+            }
+        }
+
+        .titleSection {
+            .size(@max-width: ~"calc(100% - 100px)", @height: 25px);
+            float: left;
+            line-height: 25px;
+            cursor: default;
+
+            .title {
+                .font(@size: 14px, @weight: bold);
+                margin-right: 5px;
+            }
+
+            .text {
+                .font(@color: @color-text-midGray);
+            }
+        }
+
+        .iconSection {
+            .size(@width: 100px, @height: 100%);
+            float: right;
+
+            .icon {
+                .size(@width: 20px, @height: 25px);
+                .vertical-align;
+                cursor: pointer;
+                float: right;
+
+                &.close {
+                    .image("../../images/datastore/preview-close.png", 50%, 50%);
+                }
+
+                &.minimize {
+                    margin-right: 15px;
+                    .image("../../images/datastore/plus.png", 50%, 50%);
+                }
+
+
+                &.highlight {
+                    margin-right: 15px;
+                    pointer-events: none;
+                    .image("../../images/datastore/preview-highlight-gray.png", 50%, 50%);
+
+                    &.active {
+                        .image("../../images/datastore/preview-highlight.png", 50%, 50%);
+                    }
+                }
+
+                &.rmHightLight {
+                    pointer-events: none;
+                    .image("../../images/datastore/preview-rmHeightLight-gray.png", 50%, 50%);
+
+                    &.active {
+                        .image("../../images/datastore/preview-rmHeightLight.png", 50%, 50%);
+                    }
+                }
+
+                &.active {
+                    pointer-events: all;
+                }
+            }
+        }
+    }
+
+    .suggestSection {
+        .size(@height: 25px);
+        .font(@size: 12px, @line-height: 25px);
+        margin-top: 5px;
+        cursor: default;
+        .noSelection;
+        overflow: hidden;
+        clear: both;
+
+        .title {
+            float: left;
+            margin-right: 5px;
+            font-weight: 700;
+        }
+
+        .action {
+            .size(@height: 25px);
+            .font(@line-height: 25px, @color: @color-white);
+            .rounded;
+            margin-right: 5px;
+            padding: 0 5px;
+            display: inline-block;
+            max-width: 55%;
+            .textOverflowOneLine;
+
+            &.hint {
+                color: @color-text-midGray;
+            }
+
+            &.active {
+                .action-gradient;
+                cursor: pointer;
+
+                &:hover {
+                    .action-inverse-gradient;
+                }
+            }
+        }
+    }
+
+    .previewSection {
+        .size(@width: 100%, @height: ~"calc(100% - 90px)");
+        overflow-y: hidden;
+        overflow-x: auto;
+
+        .waitSection {
+            height: 25px;
+            line-height: 25px;
+
+            .loadingMsg {
+                margin-left: 0;
+                float: left;
+            }
+
+            .animatedEllipsis {
+                float: left;
+
+                > div {
+                    display: inline-block;
+                    width: 2px;
+                    margin-left: 0;
+                }
+            }
+        }
+
+        .errorSection {
+            // color please check .loadError
+            margin-left: 0;
+        }
+    }
+}
+
+#dsPreviewTableWrap {
+    margin-top: 10px;
+    height: ~"calc(100% - 10px)";
+    z-index: 0; // child element with z-index 10 causing problems
+    .datasetTbodyWrap {
+        width: ~"calc(100% + 17px)";
+        overflow-x: hidden;
+    }
+    .datasetTbodyWrap:not(*:root) { // selecting Chrome browsers
+        width: ~"calc(100% + 5px)";
+    }
+}
+
+@media screen and (max-width: 1300px) {
+    #dsPreviewWrap {
+        .infoSection {
+            .titleSection .btn {
+                clear: both;
+                margin-left: 0;
+            }
+
+            .btnSection .buttonWrap {
+                left: 0;
+            }
+        }
+
+        .suggestSection {
+            height: 50px;
+
+            .title {
+                float: none;
+            }
+
+            .hint {
+                display: none;
+            }
+        }
+
+        &.has-suggest .previewSection {
+            .size( @height: ~"calc(100% - 100px)");
+        }
+    }
+}
+
+ 
+#previewTable {
+    width: 100%;
+    white-space: pre-wrap;
+
+    // for both th and td
+    .td {
+        display: inline-block;
+        
+        &.has-tab {
+            width: 26px;
+            tab-size: 4;
+            -moz-tab-size: 4;
+        }
+
+        &.has-margin {
+            margin-right: 1px;
+        }
+
+        &.highlight {
+            background: rgba(91, 178, 233, 0.5);
+        }
+
+        &::selection, &::-moz-selection {
+            color: rgba(91, 178, 233, 0.5);
+        }
+    }
+
+    th {
+        cursor: default;
+        &:not(:first-child) {
+            width: auto;
+
+            .header {
+                width: ~"calc(100% - 40px)";
+                cursor: text;
+
+                .text {
+                    .size(@height: 100%);
+                    .gray-gradient;
+                    .rounded;
+                    line-height: 30px;
+                    padding: 0 3px;
+                    .textOverflow;
+                }
+            }
+        }
+
+        .header {
+            z-index: 10;
+            // Chrome on retina has bug not showing the div
+            // this CSS fix it altought I do not know whyT__T
+            -webkit-transform:translateZ(0);
+        }
+    }
+
+    td {
+        text-align: left;
+
+        &.lineMarker {
+            text-align: center;
+        }
+    }
+
+    &.has-delimiter {
+        .size(@width: 0);
+        white-space: nowrap;
+
+        th:not(:first-child) {
+            .size(@width: 130px);
+            .header {
+                width: inherit;
+            }
+        }
+
+        td {
+            text-align: center;
+        }
+    }
+
+    .undo-promote {
+        pointer-events: all;
+
+        .header {
+            background: #5bb2e9;
+            cursor: pointer;
+
+            .icon {
+                .size(@width: 100%, @height: 100%);
+                .image("../../images/datastore/undo-promote.png", 50%, 50%);
+            }
+        }
+    }
+
+    .promote {
+        background: #5bb2e9;
+        cursor: pointer;
+
+        .promoteWrap {
+            .size(@height: 100%);
+            .position(relative);
+        }
+
+        .divider {
+            .size(@width: 9999px, @height: 2px);
+            background-color: #5bb2e9;
+        }
+
+        .iconWrapper {
+            .size(@height: ~"calc(100% - 2px)");
+            .icon {
+                .size(@width: 100%, @height: 100%);
+                .image("../../images/datastore/promote.png", 50%, 50%);
+            }
+        }
+    }
+}
+
+.firefox #previewTable:not(.has-delimiter) .divider {
+    display: none;
+}
+// End Of Preview Table Section
+
+/* End Of Import Data View Section */
+
+/* Main Content */
+#mainContent {
+    height: 100%;
+    padding-top: 37px;
+
+    #exploreView {
+        height: 100%;
+    }
+
+    #exportView {
+        display: none;
+        height: 100%;
+    }
+
+    .contentView {
+        height: 100%;
+        background-color: @color-background-white;
+        overflow: hidden;
+    }
+}
+
+/* Content Left */
+#datastorePanel {
+    .contentViewLeft {
+        width: 255px;
+        height: 100%;
+        .flex-display;
+        float: left;
+        .flex-flow(column);
+        box-shadow: inset -2px 2px 6px 0 rgba(0,0,0,.3);
+        background-color: @color-background-darkGray;
+
+        .headingArea {
+            height: 35px;
+            .flex-order(0);
+            .gray-gradient;
+            text-align: center;
+            padding-top: 6px;
+            position: relative;
+            .font(@weight: 700, @size: 15px, @color: @color-background-darkdarkGray);
+            box-shadow: inset -10px 0px 10px -10px rgba(0, 0, 0, 0.3);
+
+            span {
+                line-height: 22px;
+            }
+
+            .buttonGroup {
+                .position(absolute, @right: 7px);
+                display: inline-block;
+                .noSelection;
+                cursor: default;
+
+                .btn {
+                    .size(23px, 23px);
+                    margin-left: 2px;
+                }
+            }
+        }
+
+        .toggleListGrid {
+            &.gridView .icon {
+                .image("../../images/ds-listView.png", 50%, 50%);
+            }
+
+            &.listView .icon {
+                .image("../../images/ds-iconView.png", 50%, 50%);
+            }
+        }
+
+        .refresh {
+            .icon {
+                .image("../../images/fileBrowserModal/refresh.png", 50%, 50%);
+                background-size: 18px 18px;
+            }
+        }
+
+        .mainButtonArea {
+            .flex-order(1);
+            border-bottom: 1px solid rgba(0,0,0,0.25);
+            height: 59px;
+
+            .btn {
+                .vertical-align;
+                display: block;
+                margin: 0 auto;
+
+                .icon {
+                    .image("../../images/db-icon-white.png", 50%, 50%);
+                }
+            }
+        }
+
+        .gridViewButtonArea {
+            .flex(0 0 31px);
+            .flex-order(2);
+            .flex-display;
+            position: relative;
+            background-color: @color-background-bottomGrayMed;
+            cursor: default;
+
+            .gridViewBtn {
+                .flex(1 1 auto);
+                height: 100%;
+                cursor: pointer;
+                .gray-gradient;
+                &:hover {
+                    .gray-inverse-gradient;
+                }
+
+                &.disabled {
+                    opacity: 0.3;
+                    background: @color-background-darkGray;
+                    cursor: default;
+                    pointer-events: none;
+                }
+                .icon {
+                    .size(25px, 25px);
+                    margin: 3px 5px 3px 8px;
+                    float: left;
+                }
+
+                .label {
+                    display: inline-block;
+                    .transition (opacity 0.6s);
+                    .font(@size: 11px, @line-height: 32px, @color: @color-text-black);
+                    text-align: center;
+                    float: left;
+                }
+            }
+
+            .backBtn {
+                .label {
+                    font-size: 12px;
+                }
+                &.active {
+                    .gray-inverse-gradient;
+                    opacity: 1.0;
+                }
+
+                .icon {
+                    .image("../../images/datastore/btn-upper-folder.png");
+                }
+            }
+            .addBtn {
+                border-left: 1px solid rgba(118, 118, 118, 0.5);
+                border-right: 1px solid rgba(118, 118, 118, 0.5);
+                .icon {
+                    .image("../../images/datastore/btn-add-folder.png");
+                }
+            }
+
+            .deleteBtn {
+                box-shadow: inset -11px 0px 8px -10px rgba(0, 0, 0, 0.3);
+                border-right: none;
+                .icon {
+                    .image("../../images/datastore/btn-delete-folder.png");
+                }
+
+                &.disabled {
+                    box-shadow: inset -11px 0px 8px -10px rgba(0, 0, 0, 0.8);
+                }
+            }
+        }
+    }
+    .gridViewWrapper {
+        .flex(1 1 auto);
+        .flex-order(3);
+        padding: 9px;
+        position: relative;
+        overflow: hidden;
+        border-top: 1px solid rgba(154,154,154,1);
+
+        .gridViewScrollbarWrapper {
+            position: absolute;
+            overflow-x: hidden;
+            overflow-y: scroll;
+            .size(@width: ~"calc(100% + 20px)", @height: 100%);
+
+            &::-webkit-scrollbar {
+                display: none;
+            }
+        }
+
+        .gridItems {
+            &.gridView {
+                overflow: auto;
+                .grid-unit.hidden {
+                    > .gridIcon, > .listIcon, > .label, > .dsCount, 
+                    > .dragWrap {
+                        display: none !important;
+                    }
+                }
+
+                .grid-unit:first-of-type {
+                    clear: left;
+                }
+
+                .grid-unit.display {
+                    .gridViewForGrid;
+                }
+
+                .grid-unit.ds.display > .dragWrap {
+                    .size(@width: ~"calc(50% + 7px)", @height: 100%);
+                    position: absolute;
+                    background: transparent;
+
+                    &.leftTopDragWrap {
+                        // background-color: blue;
+                        left: -7px;
+                        &.active {
+                            box-shadow: inset 2px 0px 0px @color-background-topAction;
+                        }
+                    }
+
+                    &.rightBottomDragWrap {
+                        // background-color: green;
+                        left: 50%;
+                        &.active {
+                            box-shadow: 2px 0px 0px @color-background-topAction;
+                        }
+                    }
+                }
+
+                .grid-unit.folder.display {
+                    .label {
+                        cursor: text;
+
+                        &:focus {
+                            .position(absolute, @left: -10px);
+                            box-shadow: inset 0px 0px 3px black;
+                            background: @color-background-white;
+                            outline: none;
+                            white-space: nowrap;
+                            overflow-y: hidden;
+                            width: 150%;
+                            text-overflow: clip;
+                        }
+                    }
+
+                    .dsCount {
+                        .position(absolute, 11px, 0, 0, -3px);
+                        .size(@width: 50px, @height: 20px);
+                        .font(@weight: 700, @color: @color-text-blue);
+                    }
+
+                    > .dragWrap {
+                        height: 100%;
+                        position: absolute;
+                        background: transparent;
+
+                        &.leftTopDragWrap {
+                            left: -7px;
+                            width: ~"calc(16.5% + 7px)";
+
+                            &.active {
+                                box-shadow: inset 2px 0px 0px @color-background-topAction;
+                            }
+                        }
+
+                        &.rightBottomDragWrap {
+                            left: 82.5%;
+                            width: ~"calc(16.5% + 7px)";
+
+                            &.active {
+                                box-shadow: 2px 0px 0px @color-background-topAction;
+                            }
+                        }
+
+                        &.midDragWrap {
+                            width: 66%;
+                            left: 16.5%;
+                        }
+                    }
+                }
+            }
+
+            &.listView {
+                padding: 4px 0;
+                overflow-y: scroll;
+
+                .grid-unit {
+                    .listViewForGrid;
+                }
+
+                .grid-unit.ds > .dragWrap {
+                    .position(absolute);
+                    .size(@width: 100%, @height: 17.5px);
+                    background: transparent;
+
+                    &.leftTopDragWrap {
+                        top: -5px;
+
+                        &.active {
+                            box-shadow: inset 0px 2px 0px @color-background-topAction;
+                        }
+                    }
+
+                    &.rightBottomDragWrap {
+                        top: 12.5px;
+
+                        &.active {
+                            box-shadow: 0px 2px 0px @color-background-topAction;
+                        }
+                    }
+                }
+
+                .grid-unit.folder {
+                    .grid-unit {
+                        .size(@width: 95%, @max-width: 230px);
+                        margin-left: 5%;
+                        display: block;
+                    }
+
+                    .label:focus {
+                        outline: none;
+                    }
+
+                    .dsCount {
+                        .position(absolute, @top: 3px, @right: 8px, @bottom: 0);
+                        .size(@width: 45px, @height: 25px);
+                        .font(@weight: 900, @color: @color-text-blue);
+                        text-align: right;
+                    }
+
+                    > .dragWrap {
+                        width: 100%;
+                        position: absolute;
+                        background: transparent;
+
+                        &.leftTopDragWrap {
+                            top: -5px;
+                            height: 9.17px;
+
+                            &.active {
+                                box-shadow: inset 0px 2px 0px @color-background-topAction;
+                            }
+                        }
+
+                        &.rightBottomDragWrap {
+                            top: 20.84px;
+                            height: 9.16px;
+
+                            &.active {
+                                box-shadow: 0px 2px 0px @color-background-topAction;
+                            }
+                        }
+
+                        &.midDragWrap {
+                            height: 16.67px;
+                            top: 4.17px;
+                        }
+                    }
+                }
+
+                .grid-unit.collapse {
+                    .grid-unit {
+                        display: none !important;
+                    }
+                    &.folder > .listIcon .icon {
+                        .image("../../images/datastore/folder-sm.png", 50%, 50%)
+                    }
+                }
+            }
+
+            & .dragWrap {
+                z-index: -1;
+            }
+
+            &.drag .dragWrap {
+                z-index: 99;
+            }
+        }
+    }
+    /* End Of Content Left */
+
+    /* Content Mid */
+    .contentViewMid {
+        .size(@width: ~"calc(100% - 510px)", @height: 100%);
+        .flex-display;
+        .flex-flow(column);
+        float: left;
+
+        &.hidden {
+            visibility: hidden;
+        }
+
+        .contentViewHeader {
+            height: 93px;
+            .flex-order(1);
+            box-shadow: 0 3px 2px rgba(0,0,0,.2);
+            padding: 10px 25px 0px;
+
+            .dbText {
+                display: inline-block;
+                float: left;
+                width: 100%;
+                overflow: hidden;
+
+                h2, p {
+                    .textOverflow;
+                }
+            }
+
+            h2 {
+                display: block;
+                height: 26px;
+                .font(@size: 19px, @line-height: 25px, @color: @color-text-blue);
+            }
+
+            p {
+                display: block;
+                font-size: 13px;
+                margin: 2px 0 5px 0;
+            }
+        }
+        
+        /* START DATASET TABLE */
+        .contentViewTable {
+            height: ~"calc(100% - 93px)";
+            .flex-order(2);
+            background-repeat: no-repeat;
+            background-position: center;
+            position: relative;
+
+            /* dataset title wrap */
+            .datasetTitleWrap {
+                .size(@height: 60px);
+                margin-top: 15px;
+                padding-left: 25px;
+
+
+                .titleInfo {
+                    .size(@height: 60px);
+                    float: left;
+
+                    .heading {
+                        .size(@height: 20px);
+                        margin-bottom: 10px;
+                        .font(@size: 14px);
+                    }
+
+                    .dsInfo {
+                        .size(@height: 20px);
+                        .font(@size: 13px);
+                    }
+                }
+
+                .buttonGroup {
+                    .size(@height: 60px);
+                    overflow: hidden;
+                    float: right;
+                    .font(@weight: 600, @color: @color-text-blue);
+                    padding-right: 17px;
+
+                    .buttonWrap {
+                        .size(@height: 20px);
+
+                        > div {
+                            float: left;
+                        }
+
+                        &:first-child {
+                            margin-bottom: 10px;
+                        }
+                    }
+
+                    .qMark {
+                        .vertical-align;
+                        margin-left: 5px;
+                    }
+
+                    .modifyDSButton {
+                        .size(@height: 20px);
+                        cursor: pointer;
+
+                        span {
+                           float: left;
+                           line-height: 20px;
+                        }
+
+                        .icon {
+                            margin-right: 8px;
+                            .size(@width: 20px, @height: 20px);
+                        }
+
+                         &.noCols .icon {
+                            .image("../../images/datastore/dsNoCol.png", 50%, 50%);
+                        }
+
+                        &.selectAll .icon {
+                            .image("../../images/select-all.png", 50%, 50%);
+                        }
+
+                        &.clear .icon {
+                            .image("../../images/select-none.png", 50%, 50%);
+                        }
+                    }
+
+                    .divider {
+                        .size(@width: 1px, @height: 20px);
+                        margin: 0 10px;
+                        background-color: @color-background-topGrayMed;
+                    }
+                }
+            }
+            /* End of dataset title wrap */
+        }
+        /* END OF DATASET TABLE */
+    }
+    /* End of Content Mid */
+
+    /* Content Right */
+    .contentViewRight {
+        .size(@width: 255px, @height: 100%);
+        background-color: @color-background-darkGray;
+        box-shadow: inset 2px 2px 6px 0 rgba(0,0,0,.3);
+        border-left: 1px solid rgba(0, 0, 0, 0.25);
+        float: right;
+
+        .buttonArea {
+            margin-top: 4px;
+            padding-bottom: 0px;
+            padding-left: 12px;
+            position: relative;
+            cursor: default;
+
+            &.cartOverflow {
+                box-shadow: 2px 2px 5px rgba(0,0,0,0.4);
+                .border {
+                    display: none;
+                }
+            }
+            .title {
+                font-size: 16px;
+                padding-left: 5px;
+                padding-top: 15px;
+                .size(@width:225px, @height: 45px);
+                text-align: center;
+            }
+            .border {
+                border-top: 1px solid @color-join-border;
+                border-bottom: 1px solid white;
+                width: 225px;
+            }
+        }
+
+        .btnLarge {
+            margin-top: 10px;
+            width: 225px;
+            font-size: 11px;
+            display: block;
+            text-align: left !important;
+            text-indent: 4px;
+
+            .icon {
+                left: -2px !important;
+            }
+
+            &#submitDSTablesBtn .icon {
+                .image("../../images/send-single.png", 0, 50%);
+            }
+            &#submitMultipleDBTablesBtn .icon {
+                .image("../../images/send-multiple.png", 0, 50%);
+            }
+            &#clearDataCart .icon {
+                .image("../../images/garbage.png", 0, 50%);
+            }
+        }
+    }
+}
+
+#exportView {
+    .gridViewWrapper {
+        border-top: none;
+    }
+    
+    .gridItems {
+        overflow: visible !important;
+        .divider {
+            border-top: 1px solid #ADADAD;
+            border-bottom: 1px solid #FFFFFF;
+            margin: -5px 35px 7px 4px;
+            height: 0px;
+        }
+        .title {
+            margin-left: 9px;
+            height: 15px;
+            color: #585858;
+            font-weight: bold;
+        }
+        &.gridView {
+            .grid-unit {
+                height: 62px !important;
+                margin-bottom: 10px !important;
+            }
+        }
+        &.listView {
+            padding: 0px 0px 4px !important;
+            .divider {
+                margin: 10px 45px 7px 0px;
+            }
+        }
+    }
+
+    .contentViewMid {
+        visibility: visible;
+        width: ~"calc(100% - 255px)";
+        min-width: 640px;
+        height: ~"calc(100% - 37px)";
+    }
+
+    .formHelp {
+        .contentViewMidWrap {
+
+            margin-left: 4%;
+        }
+    }
+    .dataStoreForm {
+        height: ~"calc(100% - 93px)";
+        overflow: auto;
+        .contentViewMidWrap {
+            margin-left: 5%;
+            max-width: 750px;
+        }
+    }
+    .importFormRow {
+        .flex-display();
+        height: 25px;
+        line-height: 25px;
+        margin-bottom: 25px;
+
+        label {
+            width: 100px;
+            font-weight: bold;
+        }
+        input {
+            width: ~"calc(100% - 100px)";
+            min-width: ~"calc(100% - 100px)";
+            box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.3);
+            float: left;
+            height: 25px;
+            line-height: 25px;
+
+        }
+        .dropDownList {
+            .styleDropDownList(320px, 25px, true);
+            .list li {
+                font-size: 14px;
+                &.unavailable {
+                    opacity: 0.5;
+                    // pointer-events: none;
+                }
+            }
+            .text {
+                font-size: 14px;
+            }
+        }
+        
+    }
+    .dataStoreFormBottom {
+        // padding-left: 10px;
+        padding-top: 20px;
+        h2 {
+            display: block;
+            margin-left: ~"calc(4% - 7px)";
+            margin-bottom: 20px;
+            width: 90%;
+        }
+        input {
+            background-color: #F0F0F0;
+        }
+        .inputSet {
+            label {
+                float: left;
+            }
+            &:first-child {
+                width: 68%;
+            }
+
+            &:last-child {
+                width: 32%;
+                margin-left: 10%;
+                label {
+                    width: 50px;
+                } 
+                input {
+                    width: ~"calc(100% - 50px)";
+                }
+            }
+        }
+        .radioSection {
+            .justify-content(space-between);
+            margin-top: 45px;
+        }
+
+        .radioWrap {
+            height: 25px;
+            line-height: 25px;
+            .flex(1 1 auto);
+            .radio {
+                margin-top: 8px;
+            }
+            &:first-child {
+                .flex(2 1 auto);
+            }
+        }
+        button {
+            margin-bottom: 40px;
+        }
+    }
+}
+
+
+#datasetWrap {
+    .size(@max-width: ~"calc(100% - 20px)", @max-height: ~"calc(100% - 88px)");
+    white-space: nowrap;
+    overflow: hidden;
+    float: left;
+    position: absolute;
+    margin-left: 10px;
+    overflow-x: auto;
+    border: 1px solid #DDDDDD;
+    margin-top: 10px;
+
+    &.loading {
+        border: none;
+        height: 40px !important;
+        .datasetTableWrap {
+            width: 200px !important;
+        }
+    }
+
+    &.error {
+        border: none;
+        height: 40px !important;
+        .datasetTableWrap {
+            width: 100% !important;
+        }
+    }
+}
+
+.datasetTbodyWrap {
+    .size( @max-height: 100%);
+    overflow-x: visible;
+    overflow-y: scroll;
+    display: inline-block;
+    outline: 1px solid #FFFFFF; // ie bug if we dont use this outline
+    outline-offset: -1px;
+    margin-top: -1px;
+
+    &::-webkit-scrollbar {
+        display: none;
+    }
+}
+
+table.datasetTable {
+    margin: 0;
+}
+
+.datasetTableWrap {
+    height: 100%;
+    margin: 0;
+    position: relative;
+    display: inline-block;
+    overflow: hidden;
+
+    .loadError {
+        color: @color-table-red;
+        margin-left: 15px;
+    }
+
+    .loadingMsg {
+        margin-left: 15px;
+        .animatedEllipsis {
+            vertical-align: bottom;
+            float: none;
+        }
+    }
+
+    .header {
+        .position(absolute, @top: 0);
+        .size(@width: inherit, @height: 40px);
+        cursor: pointer;
+       .dataTableHeader;
+
+       .editableHead {
+            .noSelection;
+            cursor: pointer;
+            margin-left: 0px;
+       }
+
+       .colGrab:hover + div {
+            .dropdownBox {
+                display: none;
+            }
+       }
+
+       .flexContainer {
+            overflow: hidden;
+            .gray-gradient;
+            .rounded;
+       }
+
+        .flexWrap.flex-left {
+            .flex(0 0 24px);
+            margin: 0;
+            overflow: hidden;
+            .size(@height: 30px);
+            .colIcon-gray-gradient();
+            position: relative;
+
+            .iconHidden {
+                .size(@width: 1px, @height: 30px);
+                display: inline-block;
+            }
+            .icon {
+                margin-left: 3px;
+            }
+        }
+
+        .flexWrap.flex-mid {
+            .flex(1 1 auto);
+        }
+
+        .flexWrap.flex-right {
+            .flex(0 0 24px);
+            position: relative;
+
+            .tick.icon {
+                .size(@width: 15px, @height: 27px);
+                .image("../../images/datastore/tick.png", 50%, 50%);
+                opacity: 0.5;
+            }
+        }
+
+        &:hover {
+            .flexWrap.flex-right {
+                > .tick.icon {
+                    opacity: 1.0;
+                }
+            }
+        }
+
+        &::before {
+            display: none;
+        }
+    }
+    .idSpan {
+        position: relative;
+        .size(@width: ~"calc(100% + 10px)", @height: 100%);
+        background-color: gray;
+        border-right: 5px solid #f5f5f5;
+        border-left: 5px solid #ffffff;
+        margin-left: -5px;
+        line-height: 30px;
+    }
+    th {
+        width: 130px;
+
+        &:first-child {
+            width: 40px;
+            cursor: default;
+            pointer-events: none;
+
+            .header {
+                border-left: 5px solid @color-background-tableBorders;
+                width: 40px;
+                cursor: default;
+                .gray-gradient;
+            }
+        }
+    }
+    .selectedCell {
+        .editableHead {
+            background: none !important;
+            background-color: @color-background-white !important;
+            color: @color-text-darkGray !important;
+        }
+    }
+    .selectedCol {
+        .header {
+            .editableHead {
+                color: @color-background-white;
+            }
+            .tick.icon {
+                opacity: 1.0;
+            }
+            .flexContainer {
+                .action-gradient;
+            }
+        }
+        .flexWrap.flex-left {
+            .colIcon-active-gradient();
+        }
+        .type-boolean .flexWrap.flex-left {
+            &:after {
+                border-top: 30px solid @color-triangle-colIcon-blue;
+            }
+        }
+    }
+    tr:nth-child(odd) .idSpan {
+        background-color: #cfcfcf;
+    }
+     tr:nth-child(even) .idSpan {
+        background-color: #dbdbdb;
+    }
+
+}
+/* End Of Content Mid */
+
+
+
+// Data Cart Section
+#dataCartWrap {
+    .size(@width: 100%, @height: ~"calc(100% - 125px)");
+    overflow: auto;
+    float: left;
+}
+
+#dataCart {
+    margin-left: 12px;
+    background-color: @color-background-darkGray;
+    backface-visibility: hidden;
+
+    .helpText {
+        white-space: normal;
+        display: block;
+        margin-top: 10px;
+        margin-right: 15px;
+        color: @color-background-darkdarkGray;
+    }
+
+    .selectedTable {
+        margin: 10px 0 20px 0;
+        width: 225px;
+
+        .cartTitleArea {
+            .position(relative);
+            .size(@width: 100%, @height: 30px);
+
+             .tableNameEdit {
+                .size(100%, 100%);
+                .font(@size: 16px, @weight: bold, @line-height: 30px);
+                padding-right: 30px;
+                padding-left: 5px;
+                display: inline-block;
+                text-align: center;
+                box-shadow: inset 0px 1px 1px rgba(0, 0, 0, 0.5);
+                background-color: #CCCCCC;
+            }
+
+            .iconWrapper {
+                .position(absolute, @top: 5px, @right: 5px);
+                .size(20px, 20px);
+                background-color: #B7B7B7;
+                box-shadow: -1px 1px 0px 1px rgba(0, 0, 0, 0.2);
+                .rounded;
+                cursor: pointer;
+
+                &:hover {
+                    .action-gradient;
+                }
+
+                .icon {
+                    .size(100%, 100%);
+                    .image("../../images/datastore/tableEdit.png", 50%, 50%);
+                }
+            }
+
+            &.focus {
+                .tableNameEdit {
+                    padding-right: 5px;
+                }
+
+                .iconWrapper {
+                    display: none;
+                }
+            }
+        }
+
+        .cartEmptyHint {
+            margin-top: 10px;
+            text-align: center;
+            .font(@weight: bold, @color: @color-text-midGray);
+        }
+
+        li {
+            height: 28px;
+            .font(@weight: 700, @size: 13px, @line-height: 28px);
+            background-color: @color-background-white;
+            .rounded;
+            box-shadow: -1px 1px 1px rgba(0,0,0,.2);
+            overflow: hidden;
+            margin-top: 8px;
+
+            &.colSelected {
+                background-color: @color-selectedCell-light;
+            }
+
+            &.keySelected {
+                box-shadow: 0px 0px 0px 2px @color-background-bottomAction;
+            }
+
+            .colName {
+                .size(@width: 200px, @height: 100%);
+                padding-left: 12px;
+                float: left;
+                display: inline-block;
+                cursor: default;
+            }
+
+            .removeCol {
+                .size(@width: 25px, @height: 100%);
+                float: left;
+                display: inline-block;
+                .gray-gradient;
+                cursor: pointer;
+                &:hover {
+                    .red-gradient;
+                }
+                .closeIcon {
+                    display: inline-block;
+                    .size(100%, 100%);
+                    .image("../../images/ds-close.png", 50%, 50%);
+                }
+            }
+        }
+    }
+}
+// End of Data Cart Section
+

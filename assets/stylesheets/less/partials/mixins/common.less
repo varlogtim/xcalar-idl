@@ -1,0 +1,856 @@
+@import "partials/mixins/constants.less";
+@import "partials/mixins/flex.less";
+
+.box-sizing (@type: border-box) {
+    -webkit-box-sizing: @type;
+    -moz-box-sizing:    @type;
+    box-sizing:         @type;
+}
+
+.nomargin-padding() {
+    margin: 0;
+    padding: 0;
+}
+
+.vertical-align() {
+    .position(relative, @top: 50%);
+    .transform (translateY(-50%));
+}
+
+.horizontal-align() {
+    .position(relative, @left: 50%);
+    .transform (translateX(-50%));
+}
+
+.center-align() {
+    .position(relative, @top: 50%, @left: 50%);
+    .transform (translate(-50%, -50%));
+}
+
+
+.noSelection {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -moz-user-select: none; 
+    -ms-user-select: none; 
+    user-select: none;
+}
+
+
+.no-selection {
+    .noSelection;
+    // no selection area should not have text curosr
+    cursor: default;
+}
+
+.auto-selection {
+    -webkit-touch-callout: default;
+    -webkit-user-select: all;
+    -moz-user-select: all;
+    -ms-user-select: all;
+    user-select: all;
+    cursor: auto;
+}
+
+.textOverflow {
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.textOverflowOneLine {
+    .textOverflow;
+    white-space: nowrap;
+}
+
+.noTransition {
+    .transition(0s) !important;
+}
+
+.cursor-move() {
+    cursor: move;
+    cursor: -webkit-grab;
+    cursor: -moz-grab;
+}
+
+.cursor-grabbing() {
+    cursor: move !important;
+    cursor: -webkit-grabbing !important;
+    cursor: -moz-grabbing !important;
+}
+
+.image(@url, @pX:0, @pY:0, @repeat:no-repeat, @background-color: transparent) {
+    background: @background-color url(@url) @repeat @pX @pY;
+}
+
+.background(@url, @w, @h, @repeat: no-repeat, @pX: 0, @pY: 0) {
+    width: @w;
+    height: @h;
+    background-image: url(@url);
+    background-repeat: @repeat;
+    background-position: @pX @pY;
+    background-size: @w @h;
+}
+
+.rounded(@radius: 3px) {
+  -webkit-border-radius: @radius;
+  -moz-border-radius: @radius;
+  border-radius: @radius;
+}
+
+.tab-size(@size: 8) {
+    tab-size: @size;
+    -moz-tab-size: @size; /* Code for Firefox */
+    -o-tab-size: @size; /* Code for Opera 10.6-12.1 */
+}
+
+.position(@position: null, @top: null, @right: null, 
+          @bottom: null, @left: null) {
+  .property(position, @position);
+  .property(top, @top);
+  .property(right, @right);
+  .property(bottom, @bottom);
+  .property(left, @left);
+
+  .property(@property, @value) {
+    ._getProp(position) when not (@position = null) {
+      position: @value;
+    }
+
+    ._getProp(top) when not (@top = null) {
+      top: @value;
+    }
+
+    ._getProp(right) when not (@right = null) {
+      right: @value;
+    }
+
+    ._getProp(bottom) when not (@bottom = null) {
+      bottom: @value;
+    }
+
+    ._getProp(left) when not (@left = null) {
+      left: @value;
+    }
+
+    ._getProp(@property);
+  };
+}
+
+.size(@width: null, @height: null,
+      @min-width: null, @min-height: null,
+      @max-width: null, @max-height: null) {
+    .property(width, @width);
+    .property(height, @height);
+    .property(min-width, @min-width);
+    .property(min-height, @min-height);
+    .property(max-width, @max-width);
+    .property(max-height, @max-height);
+
+    .property(@property, @value) {
+        ._getProp(width) when not (@width = null) {
+          width: @value;
+        }
+
+        ._getProp(height) when not (@height = null) {
+          height: @value;
+        }
+
+        ._getProp(min-width) when not (@min-width = null) {
+          min-width: @value;
+        }
+
+        ._getProp(min-height) when not (@min-height = null) {
+          min-height: @value;
+        }
+
+        ._getProp(max-width) when not (@max-width = null) {
+          max-width: @value;
+        }
+
+        ._getProp(max-height) when not (@max-height = null) {
+          max-height: @value;
+        }
+
+        ._getProp(@property);
+    }
+}
+
+.font(@style: null, @variant: null, @weight: null, @size: null,
+      @line-height: null, @family: null, @color: null) {
+    .property(font-style, @style);
+    .property(font-variant, @variant);
+    .property(font-weight, @weight);
+    .property(font-size, @size);
+    .property(line-height, @line-height);
+    .property(font-family, @family);
+    .property(color, @color);
+
+    .property(@property, @value) {
+        ._getProp(font-style) when not (@style = null) {
+          font-style: @value;
+        }
+
+        ._getProp(font-variant) when not (@variant = null) {
+          font-variant: @value;
+        }
+
+        ._getProp(font-weight) when not (@weight = null) {
+          font-weight: @value;
+        }
+
+        ._getProp(font-size) when not (@size = null) {
+          font-size: @value;
+        }
+
+        ._getProp(line-height) when not (@line-height = null) {
+          line-height: @value;
+        }
+
+        ._getProp(font-family) when not (@family = null) {
+          font-family: @value;
+        }
+
+        ._getProp(color) when not (@color = null) {
+            color: @value;
+        }
+
+        ._getProp(@property);
+    }
+}
+
+.wordwrap {
+    white-space: pre-wrap;
+    white-space: -moz-pre-wrap;
+    white-space: -pre-wrap;
+    white-space: -o-pre-wrap;
+    word-wrap: break-word;
+}
+
+/* DROP DOWN COLUMN STYLING */
+.dropDown() {
+    .dropdownBox {
+        width: 16px;
+        height: 12px;
+        position: absolute;
+        vertical-align: middle;
+        right: 3px;
+        bottom: 3px;
+        cursor: pointer;
+        z-index: 6;
+        opacity: 0;
+        .transition (opacity 0.02s linear);
+        .transition-delay (0.08s);
+        border-top: 11px solid transparent;
+        border-right: 11px solid @color-dropBox;
+        &:hover {
+            opacity: 1 !important;
+        }
+        &.hidden {
+            opacity: 0 !important;
+        }
+    }
+
+    & .flex-right > .dropdownBox {
+        right: -3px;
+        bottom: -4px;
+        height: 24px;
+        width: 22px;
+        border: none;
+
+        .innerBox {
+            position: absolute;
+            width: 16px;
+            height: 12px;
+            right: 6px;
+            bottom: 7px;
+            border-top: 11px solid transparent;
+            border-right: 11px solid @color-dropBox;
+        }
+    }
+}
+
+.styleDropDownList(@w, @h, @atTop: false) {
+    .size(@width: @w, @height: @h);
+
+    .text {
+        .size(@width: ~"calc(100% - @{h})", @height: @h);
+        line-height: @h;
+    }
+
+    .iconWrapper {
+        .size(@h, @h);
+
+        .icon {
+            .size(@h, @h);
+        }
+    }
+
+    .list {
+        .size(@width: ~"calc(100% - @{h})");
+    }
+
+    li {
+        .size(@height: @h);
+        .font(@line-height: @h, @size: 13px);
+    }
+
+    ._positionList();
+
+    ._positionList() when not(@atTop = false) {
+        .list {
+            .position(@top: 0);
+        }
+
+        &.open {
+            box-shadow: none;
+        }
+    }
+
+    ._positionList() when (@atTop = false) {
+        .list {
+            .position(@top: @h + 1);
+            .rounded(0 0 3px 3px);
+        }
+
+        &.open {
+            .rounded(3px 3px 0 0);
+            .text {
+                .rounded(3px 0 0 0);
+            }
+        }
+    }
+}
+
+.dropDownList {
+    .position(relative);
+    .rounded;
+    float: left;
+    box-shadow: 0px 1px 1px 1px rgba(0,0,0,.2);
+    background-color: @color-white;
+    .no-selection;
+
+    .text {
+        color: @color-text-darkGray;
+        .font(@size: 13px);
+        .rounded(3px 0 0 3px);
+        padding-left: 10px;
+        float: left;
+        .no-selection;
+    }
+
+    .iconWrapper {
+        .action-gradient;
+        float: right;
+        .rounded(0px 3px 3px 0px);
+        cursor: pointer;
+
+        .icon {
+            .position(absolute);
+            .image("../../images/dropDown.png", 50%, 50%);
+            opacity: 0.7;
+        }
+    }
+
+    .list {
+        .position(absolute, @left: 0);
+        background-color: @color-white;
+        cursor: default;
+        .rounded(3px 0 0 3px);
+        box-shadow: 0px 1px 1px 1px rgba(0,0,0,0.2);
+        z-index: 10;
+        display: none;
+
+        li {
+            padding-left: 10px;
+            z-index: 10;
+            .textOverflowOneLine;
+
+            &:hover {
+                background-color: @color-selectedCell-light;
+            }
+            &.inactive {
+                opacity: 0.3;
+            }
+        }
+        .scrollArea {
+            z-index: 11;
+        }
+    }
+
+    .hint {
+        color: @color-text-lightGray;
+    }
+}
+
+// style for radio check
+.radioWrap {
+    display: inline-block;
+    .size(@height: 20px);
+    .position(relative);
+    .font(@size: 13px, @line-height: 20px);
+    .noSelection;
+    cursor: pointer;
+
+    .radio {
+        float: left;
+        display: inline-block;
+        margin: 4px 5px 0 0px;
+        .background("../../images/radioEmpty.png", 14px, 15px);
+
+        .dot {
+            .size(@width: 14px, @height: 15px);
+            .image("../../images/radioDot.png", 50%, 50%);
+            display: none;
+        }
+
+        &.checked {
+            .image("../../images/radioChecked.png");
+            .dot {
+                display: inline-block;
+            }
+        }
+    }
+
+    .label {
+        float: left;
+        padding-left: 5px;
+        .font(@weight: 900);
+        .size(@width:~"calc(100% - 19px)");
+        text-align: left;
+    }
+}
+
+//style for input box
+.input-box(@w, @h: 25px, @focus: false) {
+    input {
+        .size(@width: @w, @height: @h);
+        .rounded;
+        .font(@size:12px, @line-height: @h);
+        box-shadow: inset -1px 1px 2px rgba(0, 0, 0, 0.5);
+        padding: 0 10px;
+
+        &:focus {
+            ._focus;
+        }
+    }
+
+    ._focus() when (@focus = false) {
+        outline: none;
+    }
+}
+
+// style for close icon
+.closeIcon(@topOff: 0px, @rightOff: 0px) {
+   .iconWrap {
+        .position(absolute, @top: @topOff, @right: @rightOff);
+        .size(20px, 20px);
+        .rounded;
+        .gray-gradient;
+        cursor: pointer;
+
+        &:hover {
+            .gray-inverse-gradient;
+        }
+
+        .icon {
+            .size(20px, 20px);
+            .image("../../images/close-icon.png", 50%, 50%);
+        }
+    }
+}
+
+// used for datasetTableWrap in datastore.less
+.typeIcon() {
+    .typeIconCSS(@type: "Unknown", @width: 10px, @height: 14px, @x: 0, @y: 0) {
+        @url: "../../images/columnIcons/type-@{type}.png";
+        .type.icon {
+            .background(@url, @width, @height, @pX: @x, @pY: @y);
+            .position(relative);
+            .size(19px, 22px);
+        }
+    }
+
+    .typeIconCSS(); // default value is Unknown
+
+    &.type-array {
+        .typeIconCSS("Array", 12px, 14px, 1px, 0);
+    }
+    &.type-boolean {
+        .typeIconCSS("Boolean", 20px, 18px);
+        .icon {
+            left: -3px;
+            top: -3px;
+            z-index: 1;
+            
+        }
+
+        .flex-left {
+            &:after {
+                content: "";
+                display: block;
+                position: absolute;
+                width: 0;
+                height: 0;
+                border-top: 30px solid @color-background-lightGray;
+                border-right: 24px solid transparent;
+                top: 0;
+                left: 0;
+            }
+        }
+    }
+    &.type-mixed {
+        .typeIconCSS("Mixed", 15px, 15px);
+    }
+    &.type-integer {
+        .typeIconCSS("Number", 10px, 12px, 2px, 1px);
+    }
+    &.type-float {
+        .typeIconCSS("Number", 10px, 12px, 2px, 1px);
+    }
+    &.type-object {
+        .typeIconCSS("Object", 14px, 14px);
+    }
+    &.type-string {
+        .typeIconCSS("String", 16px, 10px, 0, 2px);
+        .icon {
+            margin-left: -2px;
+            width: 21px !important;
+        }
+    }
+    &.type-unknown, &.type-undefined {
+        .typeIconCSS("Unknown", 10px, 14px, 2px, 0px);
+    }
+}
+
+.dataTableHeader() {
+    border: 5px solid @color-background-tableBorders;
+    background-color: @color-background-darkGray;
+    border-left: none;
+    // z-index: 9;
+    border-radius: 0px;
+    // box-shadow: 0px 1px  1px @color-shadow-black;
+    .typeIcon;
+    .dropDown;
+    .editableHead {
+        width: 100%;
+        outline: none;
+        text-overflow: ellipsis;
+    }
+}
+
+// grid-unit
+.gridViewForGrid() {
+    height: 65px;
+    width: 45px;
+    margin: 7px;
+    text-align: center;
+    cursor: pointer;
+    position: relative;
+    float: left;
+    display: inline-block;
+
+    > .gridIcon {
+        display: inline-block;
+        width: 50px;
+        height: 40px;
+    }
+
+    &.ds > .gridIcon {
+        .image("../../images/datastore/db-large.png", 4.5px, 3px);
+    }
+    &.folder > .gridIcon {
+        .image("../../images/datastore/folder-lg.png", 3px, 3px);
+        background-size: 39px 33px;
+    }
+
+    > .listIcon {
+        display: none;
+    }
+
+    > .label {
+        .flex(1 1 25px);
+        .flex-order(2);
+        .transition (opacity 0.6s);
+        font-size: 9px;
+        font-weight: 600;
+        .textOverflow;
+    }
+
+    &.inactive {
+        .icon, .label {
+            opacity: 0.5;
+            .transition (opacity 0.6s);
+        }
+    }
+
+    &.active {
+        background: @color-background-lightLightGray;
+        box-shadow: 0px 0px 0px 2px @color-background-topAction;
+        .label {
+            font-weight: 700;
+            color: @color-mineShaft;
+        }
+    }
+}
+
+.listViewForGrid() {
+    .position(relative);
+    display: block;
+    clear: both;
+    float: none;
+    width: 230px;
+    text-align: left;
+    margin: 10px 0px 0px 0px;
+    background-color: transparent;
+
+     > .label {
+        .size(@height: 25px);
+        .font(@size: 11px, @line-height: 24px);
+        .rounded(0 3px 3px 0);
+        padding: 0 10px;
+        background-color: @color-background-white;
+        box-shadow: 1px 1px 1px 1px rgba(0,0,0,.2);
+        .textOverflow;
+    }
+
+    > .gridIcon {
+        display: none;
+    }
+
+    > .listIcon {
+        .size(@width: 25px, @height: 25px);
+        display: inline-block;
+        .gray-gradient;
+        float: left;
+        .rounded(3px 0 0 3px);
+        box-shadow: -1px 1px 1px 1px rgba(0,0,0,.2);
+
+        .icon {
+            .size(25px, 25px);
+            display: inline-block;
+        }
+    }
+
+    &.ds > .listIcon .icon {
+        .image("../../images/db-icon-white.png", 50%, 50%);
+    }
+    &.folder > .listIcon .icon {
+        .image("../../images/datastore/folder-sm-open.png", 50%, 50%);
+    }
+
+    &.active {
+        > .label {
+            box-shadow: 1px 0px 1px 1px @color-background-topAction;
+        }
+        > .listIcon {
+            .action-gradient !important;
+            box-shadow: 0px 0px 0px 1px @color-background-topAction;
+        }
+    }
+
+    > .waitingIcon {
+        left: 98px;
+        top: -1px;
+        background-size: 24px 25px;
+    }
+}
+
+.input-placeholder(@color) {
+    &::-webkit-input-placeholder {
+       color: @color;
+    }
+
+    &:-moz-placeholder { /* Firefox 18- */
+       color: @color;  
+    }
+
+    &::-moz-placeholder {  /* Firefox 19+ */
+       color: @color;  
+    }
+
+    &:-ms-input-placeholder {  
+       color: @color;  
+    }
+}
+
+/* ========== Transition ========== */
+.transition (@argument) {
+    -webkit-transition: @argument;
+    -moz-transition: @argument;
+    -ms-transition: @argument;
+    -o-transition: @argument;
+    transition: @argument;
+}
+
+.transition-duration (@argument) {
+    -webkit-transition-duration: @argument;
+    -moz-transition-duration: @argument;
+    -ms-transition-duration: @argument;
+    -o-transition-duration: @argument;
+    transition-duration: @argument;
+}
+
+.transition-delay (@argument) {
+    -webkit-transition-delay: @argument;
+    -moz-transition-delay: @argument;
+    -ms-transition-delay: @argument;
+    -o-transition-delay: @argument;
+    transition-delay: @argument;
+}
+
+.transform (@argument) {
+    -webkit-transform: @argument;
+    -moz-transform: @argument;
+    -ms-transform: @argument;
+    -o-transform: @argument;
+    transform: @argument;
+}
+/* ========== End Of Transition ========== */
+
+/* ========== Gradient Color ========== */
+.linear-gradient(@origin: left, @start: @color-white, @stop: @color-black) {
+    background: -webkit-linear-gradient(@origin, @start, @stop);
+    background: -moz-linear-gradient(@origin, @start, @stop);
+    background: -o-linear-gradient(@origin, @start, @stop);
+    background: -ms-linear-gradient(@origin, @start, @stop);
+  
+    .parser(top) {
+        background: linear-gradient(to bottom, @start, @stop);
+    }
+
+    .parser(left) {
+        background: linear-gradient(to right, @start, @stop);
+    }
+
+    .parser(bottom) {
+        background: linear-gradient(to top, @start, @stop);
+    }
+
+    .parser(right) {
+        background: linear-gradient(to left, @start, @stop);
+    }
+
+    .parser(~"top left") {
+        background: linear-gradient(to bottom left, @start, @stop);
+    }
+
+    .parser(@origin);
+}
+
+.linear-gradient-center(@origin: left, @start: @color-white, @middle: @color-background-sidebar, @stop: @color-black) {
+    background: -webkit-linear-gradient(@origin, @start, @middle, @stop);
+    background: -moz-linear-gradient(@origin, @start, @middle, @stop);
+    background: -o-linear-gradient(@origin, @start, @middle, @stop);
+    background: -ms-linear-gradient(@origin, @start, @middle, @stop);
+}
+
+.action-gradient() {
+    .linear-gradient(top, @color-background-topAction, @color-background-bottomAction);
+}
+
+.action-inverse-gradient() {
+    .linear-gradient(top, @color-background-bottomAction, @color-background-topAction);
+}
+
+.gray-gradient() {
+    .linear-gradient(top, @color-background-topGrayMed, @color-background-bottomGrayMed);
+}
+
+.gray-inverse-gradient() {
+    .linear-gradient(top, @color-background-bottomGrayMed, @color-background-topGrayMed);
+}
+
+.lightGray-gradient() {
+    .linear-gradient(top, @color-background-topGrayMed, @color-background-midGrayMed);
+}
+
+.darkGray-gradient() {
+    .linear-gradient(top, @color-background-midGrayMed, @color-background-bottomGrayMed);
+}
+
+.darkDarkGray-gradient() {
+    .linear-gradient(top, @color-bar-darkGray-top, @color-bar-darkGray-bot);
+}
+
+.light-gradient() {
+    .linear-gradient(top, @color-background-darkGray, @color-background-icon-darkGray);
+}
+
+.red-gradient() {
+    .linear-gradient(top, @color-froly, @color-punch);
+}
+
+.colIcon-gray-gradient() {
+    .linear-gradient(top, @color-background-colIcon-lightGray, @color-background-colIcon-gray);
+}
+
+.colIcon-active-gradient() {
+    .linear-gradient(top, @color-background-colIcon-lightBlue, @color-background-colIcon-blue);
+}
+
+
+
+/* Dag */
+.dag-gradient() {
+    .linear-gradient(top, @color-input-border-lightGray, @color-background-lightGray);
+}
+
+.dagDark-gradient() {
+    .linear-gradient(top, @color-silverChalice, @color-doveGray);
+}
+/* ========== End Of Gradient Color ========== */
+
+/* ========== New Table Color Theme ========== */
+// gradient color theme for furture th use
+.columnColorTheme-gradient(@startColor, @endColor, @alpha) {
+    .linear-gradient(top, fade(@startColor, @alpha),
+                          fade(@endColor, @alpha))  !important;
+}
+.normal-column-gradient(@alpha: 100%) {
+    .columnColorTheme-gradient(@color-table-normal-lightGray,
+                      @color-table-normal-darkGray, @alpha);
+}
+.inactive-column-gradient(@alpha: 100%) {
+    .columnColorTheme-gradient(@color-table-inactive-lightGray,
+                      @color-table-inactive-darkGray, @alpha);
+}
+.selected-column-gradient(@alpha: 100%) {
+    .columnColorTheme-gradient(@color-table-selected-lightBlue,
+                      @color-table-selected-darkBlue, @alpha);
+}
+.error-column-gradient(@alpha: 100%) {
+    .columnColorTheme-gradient(@color-table-error-lightRed,
+                      @color-table-error-darkRed, @alpha);
+}
+.go-column-gradient(@alpha: 100%) {
+    .columnColorTheme-gradient(@color-table-go-lightGreen,
+                      @color-table-go-darkGreen, @alpha);
+}
+.option-column-gradient(@alpha: 100%) {
+    .columnColorTheme-gradient(@color-table-option-lightBrown,
+                      @color-table-option-darkBrown, @alpha);
+}
+
+// solid color theme for td
+.columnColorTheme-solid(@color, @alpha) {
+    background: fade(@color, @alpha),!important;
+}
+.normal-column-solid(@alpha: 100%) {
+    .columnColorTheme-solid(@color-table-gunormal-lightGray, @alpha);
+}
+.inactive-column-solid(@alpha: 100%) {
+    .columnColorTheme-solid(@color-table-inactive-lightGray, @alpha);
+}
+.selected-column-solid(@alpha: 100%) {
+    .columnColorTheme-solid(@color-table-selected-lightBlue, @alpha);
+}
+.error-column-solid(@alpha: 100%) {
+    .columnColorTheme-solid(@color-table-error-lightRed, @alpha);
+}
+.go-column-solid(@alpha: 100%) {
+    .columnColorTheme-solid(@color-table-go-lightGreen, @alpha);
+}
+.option-column-solid(@alpha: 100%) {
+    .columnColorTheme-solid(@color-table-option-lightBrown, @alpha);
+}
+/* ========== End Of Table Color Theme ========== */

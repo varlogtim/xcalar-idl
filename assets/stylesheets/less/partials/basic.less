@@ -1,0 +1,3051 @@
+/* ========== Elements ========== */
+div, ul, li, span, section, header {
+    .box-sizing;
+    .nomargin-padding;
+}
+
+ul > li {
+    list-style-type: none;
+}
+
+table, tr, td, th, input, textarea, section, p {
+    .nomargin-padding;
+    .box-sizing;
+    border: none;
+    .font(@weight: 600, @size: 14px, @family: @font-base, @color: @color-text-darkGray);
+}
+
+h1, h2, h3, h4, h5, h6{
+    .nomargin-padding;
+    display: inline;
+}
+
+h2 {
+    font-size: 16px;
+}
+
+/* ========== Main ========== */
+body {
+    -webkit-font-smoothing: antialiased;
+    .nomargin-padding;
+    .font(@weight: 600, @family: @font-base, @color: @color-text-darkGray);
+    font-size: 0; /* Need to use this to get rid of stupid white space */
+    overflow-y: hidden;
+    background: @color-limedSpruce url("../../images/bg_page.png") repeat right top;
+    overflow: hidden !important;
+}
+
+.mainContainer {
+    .position(relative);
+    .size(@height: 100vh, @min-height: 260px, @min-width: 824px);
+    font-size: 14px;
+    overflow: hidden;
+    display: none;
+}
+
+[xc-safeMode="true"] {
+    pointer-events: none !important;
+}
+
+.clearfix:after { 
+   content: ".";
+   visibility: hidden;
+   display: block;
+   height: 0;
+   clear: both;
+}
+.clearfix() {
+    &:after {
+        content: ".";
+        visibility: hidden;
+        display: block;
+        height: 0;
+        clear: both;
+    }
+}
+
+&::-webkit-scrollbar {
+    .size(11px, 11px);
+    background: transparent;
+}
+
+&::-webkit-scrollbar-thumb {
+    border-width: 1px 0px 1px 0px;
+    border-color: transparent;
+    border-style: solid;
+    .rounded(10px);
+    background-color: rgba(175,175,175,1) !important;
+    background-clip: content-box;
+    -webkit-box-shadow: inset 0 -1px 2px rgba(205,205,205,0.75);
+}
+
+&::-webkit-scrollbar-track {
+    background: linear-gradient(to bottom right, @color-mercury , @color-white); /* Standard syntax */
+}
+
+&::-webkit-scrollbar-corner {
+    background: transparent;
+}
+
+.avoidClicks {
+    pointer-events: none;
+}
+
+.persist {
+    display: block !important;
+    visibility: visible !important;
+    pointer-events: all;
+}
+
+#initialLoadScreen {
+    width: 100%;
+    height: ~"calc(100% - 113px)";
+    z-index: 9999;
+    position: fixed;
+    top: 41px;
+    cursor: wait;
+    cursor: progress;
+    .waitingIcon {
+    //     display: block;
+    //     .center-align();
+    //     background-image: '../../images/spin2.gif';
+    }
+}
+
+/* For Both worksheet menu bar and bottom area bar */
+.workspaceBar, .topBar {
+    .position(relative);
+    .size(@width: 100%, @height: 38px);
+    color: @color-text-darkGray;
+    border-top: 1px solid @color-bar-border;
+    border-bottom: 1px solid @color-bar-border;
+    .darkGray-gradient;
+    box-shadow: 0px 3px 3px 0px rgba(0,0,0, .4);
+    display: block;
+}
+
+.topBar {
+    top: -1px;
+    .buttonArea {
+        .size(@width: 127px, @height: 100%);
+        .darkDarkGray-gradient;
+        border-right: 1px solid @color-bar-border;
+        float: left;
+        cursor: pointer;
+
+        &.active {
+            .action-gradient;
+        }
+
+        .icon {
+            margin: 6px 4px 0 10px;
+            float: left;
+        }
+    }
+
+    .text {
+        .font(@size: 14px, @color: @color-white);
+        float: left;
+        margin: 8px 0 0 3px;
+        text-shadow: 1px 1px @color-text-drop-shadow;
+    }
+}
+
+/* For Both worksheet menu bar and bottom area bar */
+.workspaceArea {
+    .size(@height: 25px);
+    display: inline-block;
+    padding: 0px 14px;
+    margin-top: 5px;
+    border-right: 1px solid @color-tab-divider;
+    float: left;
+    line-height: 25px;
+    
+    input {
+        .size(@height: 25px);
+        padding: 0 4px;
+        background-color: @color-background-input;
+        .font(@weight: bold, @line-height: 25px);
+
+        &:focus {
+            background-color: @color-background-input-active;
+            box-shadow: 0px 2px 2px 0 @color-defaultGray inset;
+            outline: none;
+            color: @color-text-fnBar-blue;
+        }
+    }
+
+    &:last-child {
+        border-right: none;
+    }
+}
+
+.mainPanel {
+    display: none;
+    .size(@width: 100%, @height: ~"calc(100% - 115px)");
+
+    &.active {
+        display: block;
+    }
+}
+
+.btn {
+    .noSelection;
+    cursor: pointer;
+    display: inline-block;
+    border: 0;
+    outline: 0;
+    .rounded(2px);
+    .action-gradient;
+    box-shadow: 0px 1px 1px 0 rgba(0, 0, 0, 0.7);
+    .font(@family: @font-base, @color: @color-text-transparentWhite);
+    .textOverflowOneLine;
+
+    &:hover, &:focus {
+       .action-inverse-gradient;
+    }
+
+    &:active {
+        box-shadow: inset 0px 1px 1px 0px rgba(0, 0, 0, 0.5), 
+                    0px 1px 1px 0 rgba(255, 255, 255, 0.3);
+    }
+
+    span {
+        .size(100%, 100%);
+        display: inline-block;
+        background-repeat: no-repeat;
+        background-position: 50% 50%;
+    }
+}
+
+.btnSmall {
+    .size(22px, 22px);
+    .rounded(2px);
+}
+
+.btnMid {
+    .size(@width: 150px, @height: 30px);
+    .rounded;
+    .font(@weight: bold, @size: 12px, @line-height: 30px);
+    text-align: center;
+    padding: 0;
+    text-shadow: 1px 1px rgba(0, 0, 0, 0.2);
+}
+
+.btnLarge {
+    .size(@width: 230px, @height: 30px);
+    .rounded;
+    text-shadow: 1px 1px rgba(0,0,0,.3);
+    .font(@size: 12px, @line-height: 30px, @color: @color-text-transparentWhite);
+}
+
+.iconBtn {
+    .position(relative);
+    // padding-right = padding-left + icon width
+    padding: 0 30px 0 5px;
+    text-align: center;
+
+    .icon {
+        display: inline-block;
+        .size(@width: 25px, @height: 100%);
+        .position(relative, @top: 0, @left: 0);
+        float: left;
+    }
+}
+
+.btn-cancel {
+    color: @color-text-white;
+    .gray-gradient;
+
+    &:hover, &:focus {
+        .gray-inverse-gradient;
+    }
+}
+
+.btnInProgress {
+    opacity: 0.7;
+    pointer-events: none;
+    cursor: wait;
+
+    .wrapper {
+        .size(100%, 100%);
+    }
+
+    .text {
+        display: inline-block;
+        .position(relative, @top: -11px);
+    }
+
+    .animatedEllipsis {
+        float: none;
+        margin-left: 2px;
+        .position(relative, @top: -3px);
+    }
+}
+
+.btnInactive {
+    .gray-gradient;
+    pointer-events: none;
+
+    &:hover, &:focus {
+        .gray-gradient;
+    }
+}
+
+.btnDeselected {
+    .gray-gradient;
+
+    &:hover, &:active {
+        .gray-gradient;
+    }
+}
+
+.onOffBtn {
+    .size(@width:86px, @height:27px);
+    .position(relative);
+    .rounded;
+    display: inline-block;
+    z-index: 0;
+    cursor: pointer;
+    .noSelection;
+
+    .slider {
+        .size(@width:45px, @height:27px);
+        .position(absolute, @top: 0, @left: 0);
+        .rounded;
+        .linear-gradient(top, @color-table-lightGray, @color-table-darkGray);
+        box-shadow: 0px 1px 0px 1px rgba(0,0,0, 0.15);
+        border-left: 1px solid rgba(0,0,0,0.05);
+        z-index: 5;
+        .transition(all 0.2s);
+
+        &.off {
+            left: 45px;
+        }
+    }
+
+    .text {
+        .position(absolute, @top: 0, @left: 0);
+        .size(@width: 50px, @height: 100%);
+        .font(@size: 14px, @weight: bold, @line-height: 27px);
+        .rounded;
+        text-align: center;
+        display: inline-block;
+        box-shadow: inset -1px 1px 1px 0px rgba(0, 0, 0, 0.2);
+        z-index: -3;
+        .transition-delay(0.1s);
+
+        &.onText {
+            .font(@color: @color-text-transparentWhite);
+            .action-gradient;
+            left: 35px;
+            z-index: -2;
+            padding-left: 10px;
+
+        }
+        &.offText {
+            .font(@color: @color-text-dropMenu);
+            background-color: @color-sql-hover;
+            box-shadow: inset 1px 1px 1px 0px rgba(0, 0, 0, 0.2);
+            padding-right: 5px;
+        }
+    }
+
+    &.off {
+        .slider {
+            left: 45px;
+            border-left: none;
+            border-right: 1px solid rgba(0,0,0,0.05);
+        }
+        .offText {
+            z-index: -1;
+        }
+    }
+}
+
+input {
+    .size(@height: 30px);
+    .rounded;
+    line-height: 30px;
+    padding: 0 4px;
+    background-color: @color-white;
+
+    &:-ms-input-placeholder {
+        color: @color-lightSilverChalice;
+    }
+    &::-webkit-input-placeholder {
+        color: @color-lightSilverChalice;
+    }
+    &[type=number] {
+        -moz-appearance: textfield;
+    }
+}
+
+.icon {
+    display: inline-block;
+    .noSelection;
+}
+
+.roundedIcon {
+    .size(19px, 19px);
+    float: right;
+    margin: 7px 6px 0 0 ;
+    background-color: @color-background-bottomGrayMed;
+    .rounded(1px);
+    box-shadow: 1px 1px 1px 1px rgba(0,0,0,.1);
+    cursor: pointer;
+}
+
+.underConstruction {
+    .size(@height: ~"calc(100% - 114px)");
+    background: @color-background-darkGray;
+    text-align: center;
+
+    .alert {
+        .size(28px, 28px);
+        margin: 50px auto 0 auto;
+        .image("../../images/info-icon-large.png");
+    }
+}
+
+/* For Scoll bar in worksheet and datastore */
+#mainFrame, .datasetTableWrap {
+    &::-webkit-scrollbar:vertical {
+        .size(@width: 0, @height: 11px);
+        background: transparent;
+    }
+}
+
+/* Currently used for worksheet table, dataset preview, join modal, smartcast */
+.dataTable {
+    .size(@width: 0px);
+    border-collapse: separate;
+    border-spacing: 0px;
+    margin-right: 5px;
+    table-layout: fixed;
+
+    th {
+        .size(@height: 40px);
+        background-color: @color-background-tableBorders;
+        border: 5px solid @color-background-tableBorders;
+        border-left: none;
+        padding: 0px;
+        .font(@weight: normal, @size: 13px);
+    }
+
+    td {
+        .size(@height: 30px);
+        .font(@size: 11px, @line-height: 15px, @family: @font-code);
+        overflow: hidden;
+        padding: 2px;
+        vertical-align: middle;
+        text-align: center;
+
+        &:last-child {
+            border-right: 5px solid @color-white !important;
+        }
+    }
+
+    thead {
+        background-color: @color-white;
+    }
+
+    tbody tr {
+        &:nth-child(odd) {
+            background-color: @color-table-lightGray;
+            td {
+                border-right: 5px solid @color-table-lightGray;
+                &:nth-child(odd) {
+                    background-color: @color-table-darkGray;
+                }
+                &:nth-child(even) {
+                    background-color: @color-table-midGray;
+                }
+                &.indexedColumn {
+                    background-color: @color-table-indexed-blue !important;
+                }
+                &.selectedCell {
+                    background-color: @color-selectedCell-dark;
+                }
+                &.selectedCol {
+                    background-color: @color-selectedCell-dark;
+                }
+                &.colSelected {
+                    background-color: @color-selectedCell-dark !important;
+                }
+                &.jsonElement, &.dataCol {
+                    background-color: @color-table-col-green !important;
+                }
+            }
+        }
+        &:nth-child(even) {
+            background-color: @color-white;
+            td {
+                border-right: 5px solid @color-white; 
+                &:nth-child(odd) {
+                    background-color: @color-table-lightGray;
+                }
+                &:nth-child(even) {
+                    background-color: @color-table-col-lightGray;
+                }
+                &.indexedColumn {
+                    background-color: @color-table-indexed-lightBlue !important;
+                } 
+                &.selectedCell {
+                    background-color: @color-selectedCell-light;
+                }
+                &.selectedCol {
+                    background-color: @color-selectedCell-light;
+                }
+                &.colSelected {
+                    background-color: @color-selectedCell-light !important;
+                }
+                &.jsonElement, &.dataCol {
+                    background-color: @color-table-col-lightGreen !important;
+                }
+            }
+        }
+    }
+
+    &:not(.tableLocked) tbody tr:not(.notDragging):hover, tbody tr.dragging {
+        td {
+            border-right: 5px solid @color-text-placeholder; 
+            &:nth-child(odd) {
+                background-color: @color-join-divider;
+            }
+            &:nth-child(even) {
+                background-color: @color-alto;
+            }
+            &.indexedColumn {
+                background-color: @color-iron !important;
+            } 
+            &.selectedCell, &.colSelected, &.selectedCol {
+                background-color: @color-heather !important;
+            }
+            &.jsonElement, &.dataCol {
+                background-color: @color-tasman !important;
+            }
+        }
+    }
+
+    tbody tr.dragging {
+        td:first-child:not(.rowBookmarked) .idSpan {
+            background-color: @color-silver !important;
+        }
+        td:first-child .idSpan {
+            border-right-color: @color-text-placeholder !important;
+        }
+    }
+    th.unusedCell {
+        background-color: @colorOpaque-blankGrayDark;
+        .editableHead {
+            color: @color-text-black;
+        }
+    }
+
+    tbody .unusedCell {
+        &:nth-child(odd) {
+            background-color: @colorOpaque-blankGrayDark;
+        }
+        &:nth-child(even) {
+            background-color: @colorOpaque-blankGrayDark;
+        }
+    }
+
+    .header {
+        .position(relative);
+        .rounded;
+        .noSelection;
+
+        &::after {
+            .position(absolute, @top: 34px, @left: 0);
+            .size(@width: ~"calc(100% + 5px)", @height: 1px);
+            content: "";
+            display: block;
+            border-bottom: 1px solid rgba(0,0,0,0.15);
+            box-shadow: 0px 1px 0px 0px rgba(0, 0, 0, 0.08);
+        }
+        &::before {
+            .transition(opacity 0.3s);
+            content: "";
+            opacity: 0;
+        }
+        .flex-mid {
+            position: relative;
+            z-index: 2;
+            &.editable {
+                .editableHead {
+                    pointer-events: initial;
+                }
+            }
+        }
+    }
+
+    input {
+        font: 13px @font-base;
+        background-color: transparent;
+
+        &:disabled {
+            color: @color-text-darkGray;
+        }
+        &[readonly] {
+            .size(@width: 100%);
+            text-align: center;
+            outline: none;
+            cursor: default;
+            font-weight: 600;
+        }
+        &:focus {
+            outline-offset: -1px;
+        }
+    }
+
+    .editableHead {
+        .position(relative);
+        .size(@width: ~"calc(100% + 2px)");
+        padding: 0px 4px;
+        background-color: transparent; 
+        border: none;
+        display: block;
+        text-align: center;
+        overflow: hidden;
+        .font(@weight: 600, @size: 13px, @family: @font-base);
+        z-index: 2;
+        margin-left: -2px;
+        pointer-events: none;
+    }
+
+    .addedBarTextTd {
+       overflow: hidden !important;
+    }
+
+    .addedBarTextTd:hover {
+        overflow-y: auto !important;
+    }
+
+    .addedBarText {
+        cursor: default;
+    }
+
+    .textAlignLeft {
+        text-align: left !important;
+        .elementText {
+            text-align: left;
+        }
+        .flexContainer {
+            .justify-content(flex-start);
+        }
+
+    }
+
+    .textAlignRight {
+        text-align: right !important;
+        .elementText {
+            text-align: right;
+        }
+        .flexContainer {
+            .justify-content(flex-end);
+        }
+    }
+
+    .textAlignCenter {
+        text-align: center !important;
+        .elementText {
+            text-align: center;
+        }
+        .flexContainer {
+            .justify-content(center);
+        }
+    }
+
+    .elementText{ 
+        cursor: pointer;
+        text-align: left;
+        white-space: pre;
+    }
+
+    .indexedColumn {
+       background-color: @colorOpaque-blue !important;
+    }
+    // XXX if we have scrollbars on individual tds
+    // .elementTextWrap:hover, .addedBarTextWrap:hover {
+    //     overflow-y: auto;
+    //     // overflow-x: auto;
+    // }
+
+    span.undefined, span.null {
+        font-style: italic;
+        color: @color-defaultGray;
+    }
+
+    .rowBookmarked {
+        background-color:@color-background-topAction !important;
+        .idSpan {
+            background-color:@color-background-topAction !important;
+        }
+    }
+}
+
+.xcTable, .datasetTable {
+    thead {
+        th:first-child {
+            background-color: @color-background-darkGray;
+            .header {
+                z-index: 3;
+                &::after {
+                    width: ~"calc(100% + 10px)";
+                    left: -5px;
+                }
+            }
+            &.rowNumHead {
+                .header::after {
+                    z-index: 3;
+                }
+            }
+        }
+    }
+    tbody {
+        td:first-child {
+            padding: 0;
+            .noSelection;
+            overflow: visible;
+            border-left: 5px solid @color-white;
+        }
+
+        tr {
+            &:nth-child(odd) {
+                td:first-child {
+                    background-color: @color-table-col-darkestGray;
+                }
+            }
+            &:nth-child(even) {
+                td:first-child {
+                    background-color: @color-table-col-darkGray;
+                }
+            }
+           
+        }              
+    }
+
+    &:not(.tableLocked) tbody tr:not(.notDragging):hover, tbody tr.dragging {
+        td {
+            &:first-child {
+                background-color: @color-silver;
+                .idSpan {
+                    background-color: @color-silver;
+                    border-right-color: @color-text-placeholder;
+                }
+            }
+        }
+    }
+}
+
+.multiCastTable, .joinTable {
+    td:first-child {
+        border-left: 5px solid white;
+    }
+}
+
+
+.unavailable {
+    // For features that haven't been implemented yet
+    opacity: 0.4;
+}
+
+/* Flex Styling */
+.flexContainer {
+    .flex-display;
+
+    &.flexRow {
+        .flex-flow(row);
+    }
+
+    .flexWrap {
+        &.flex-left {
+            .flex-order(1);
+        }
+        &.flex-mid {
+            .flex-order(2);
+        }
+        &.flex-right {
+            .flex-order(3);
+        }
+    }
+}
+
+.fullOpacity {
+    opacity: 1.0 !important;
+}
+
+.visible {
+    visibility: visible;
+}
+
+.menu {
+    .position(fixed);
+    .size(@width: 170px);
+    list-style: none;
+    padding: 0px;
+    box-shadow: 0px 0px 1px 3px rgba(0,0,0,.05);
+    display:none;
+    background-color: @color-white;
+    z-index: 22; // higher than bottom area's z-index of 21
+    cursor: pointer;
+    .dropDown;
+
+    > ul {
+        overflow: auto;
+    }
+
+    // XXX temporary fix
+    &.subMenu.tableMenu {
+        overflow: visible !important;
+
+        ul.moveToWorksheet, .dupToWorksheet {
+            overflow: visible !important;
+
+            .wsList {
+                overflow: visible !important;
+            }
+        }
+    }
+
+    li {
+        .position(relative);
+        .size(@height: 30px);
+        padding: 6px 6px 6px 8px;
+        background-color: @color-white;
+        .font(@weight: 700, @size: 12px, @color: @color-text-dropMenu);
+        .noSelection;
+        text-align: left;
+
+        &.selected {
+            cursor: pointer;
+            background-color: @color-selectedCell-dark;
+            > .dropdownBox {
+                opacity: 1;
+                border-right-color: @color-dropBox-secondary;
+            }
+        }
+
+        .dropdownBox {
+            opacity: 0.3;
+            z-index: 0;
+            border-right-color: @color-background-lightGray;
+            .transition-delay (.0s);
+            pointer-events: none;
+        }
+
+        &.subSelected {
+            background-color: @color-monitor-lightGreen !important;
+        }
+
+        &.clickable {
+            .size(@height: 60px);
+            span {
+                display: block;
+                float: none;
+            }
+            input {
+                top: 10px;
+            }
+        }
+    }
+
+    .splitCol li, .window li {
+        .size(@height: 105px);
+
+        div, input {
+            height: 20px;
+            line-height: 20px;
+            margin-top: 2px;
+        }
+
+        div {
+            text-align: center;
+        }
+
+        input {
+            position: static;
+
+            &[type='number'] {
+                &::-webkit-outer-spin-button, &::-webkit-inner-spin-button {
+                    -webkit-appearance: none;
+                }
+            }
+        }
+    }
+
+    .divider {
+        border-top: 1px solid @color-background-lightLightGray;
+    }
+
+    input {
+        .position(relative, @top: -1px, @right: 0);
+        .size(@width: 160px, @height: 20px);
+        .font(@size: 12px, @line-height: 20px);
+        margin-left: -3px;
+        padding: 0 2px;
+        text-align: center;
+        box-shadow: 0px 0px 0px 1px @color-selectedCell-dark;
+        background-color: @color-white;
+
+        &:focus {
+            outline: none;
+        }
+    }
+
+    .visible {
+        visibility: visible !important;
+    }
+
+    .hidden {
+        display: none !important;
+    }
+
+    > .inputSelected {
+        background-color: @color-selectedCell-dark !important;
+    }
+
+    .inputSelected {
+        visibility: visible !important;
+        background-color: @color-selectedCell-green;  
+    }
+
+    .filter ul {
+        .size(@width: 170px);
+        cursor: text;
+    }
+
+    .subMenu li.selected {
+        background-color: @color-selectedCell-green;
+    }
+
+    .changeDataType, .multiChangeDataType {
+        li.flexContainer {
+            height: 30px;
+            padding: 0;
+            // see common.less
+            .typeIcon;
+
+            .flexWrap.flex-left {
+                .flex(0 0 24px);
+                padding: 6px 5px;
+                position: relative;
+                height: 30px;
+                .gray-gradient;
+                overflow: hidden;
+                
+            }
+            .flexWrap.flex-right {
+                .flex(1 1 auto);
+                padding: 6px 8px;
+            }
+        }
+    }
+
+    .sort, .aggregate, .groupBy, .filter {
+        span {
+            .size(@width: 24px, @height: 16px);
+            float: left;
+            display: inline-block;
+        }
+    }
+
+    .sort {
+        // indexed column cannot sort
+        .indexedColumn & {
+            display: none;
+        }
+        .sortUp {
+            .image("../../images/arrowUp.png", 0, 50%);
+        }
+        .sortDown {
+            .image("../../images/arrowDown.png", 0, 50%);
+        }
+        .tooltip {
+            display: none !important;
+        }
+    }
+
+    .aggregate, .groupBy {
+        .maxIcon {
+            .image("../../images/max.png", 0, 50%);
+        }
+        .minIcon {
+            .image("../../images/min.png", 0, 50%);
+        }
+        .avgIcon {
+            .image("../../images/average.png", 0, 50%);
+        }
+        .countIcon {
+            .image("../../images/count.png", 0, 50%);
+        }
+        .sumIcon {
+            .image("../../images/sum.png", 0, 50%);
+        }
+    }
+
+    .filter {
+        .greaterThan {
+            .image("../../images/greaterThan.png", 0, 50%);
+        }
+        .greaterEqual {
+            .image("../../images/greaterEqual.png", 0, 50%);
+        }
+        .equal {
+            .image("../../images/equal.png", 0, 50%);
+        }
+        .lessEqual {
+            .image("../../images/lessEqual.png", 0, 50%);
+        }
+        .lessThan {
+            .image("../../images/lessThan.png", 0, 50%);
+        }
+        .exclude {
+            .image("../../images/notEqual.png", 0, 50%);
+            margin-left: -2px;
+            width: 26px;
+        }
+        .regex {
+            .image("../../images/regex.png", 0, 50%);
+        }
+        .like {
+            .image("../../images/like.png", 0, 50%);
+        }
+    }
+
+    .map {
+        span {
+            float: left;
+        }
+        .switch {
+            float: left;
+            .size(@width: 16px, @height: 16px);
+            .image("../../images/switch.png", 0, 50%);
+            opacity: 0.5;
+
+            &:hover {
+                opacity: 1.0;
+            }
+            &.selected {
+                background-color: @color-twilightBlue;
+                opacity: 1.0;
+            }
+        }
+    }
+
+    .multiColumn {
+        display: none;
+    }
+
+    .unhide {
+        display: none;
+    }
+
+    .roundToFixed {
+        display: none;
+    }
+
+    .splitCol {
+        display: none;
+    }
+
+    .window {
+        display: none;
+    }
+
+    .unavailable {
+        // pointer-events: none;
+        cursor: default !important;
+        .dropdownBox {
+            opacity: 0 !important;
+        }
+        ul {
+            display: none !important;
+        }
+        &.moveToWorksheet {
+            &+ .tooltip {
+                display: block !important;
+            }
+        }
+    }
+
+    .moveToWorksheet {
+        &+ .tooltip {
+            display: none !important;
+        }
+    }
+
+    &.type-integer, &.type-float, &.type-boolean {
+        .window {
+            display: block;
+        }
+    }
+
+    &.type-string {
+        .splitCol {
+            display: block;
+        }
+    }
+
+    &.type-multiColumn:not(.subMenu) {
+        li {
+            display: none !important;
+        }
+    }
+
+    &.type-multiColumn {
+        .multiColumn {
+            &.deleteColumns, &.hideColumns, &.textAlignColumns, &.multiChangeDataType {
+                display: list-item !important;
+                li {
+                    display: list-item !important; 
+                }
+            }
+        } 
+
+        .multiTextAlign {
+            li {
+                display: list-item !important;
+                &.flexContainer {
+                    .flex-display !important;
+                }
+            }
+        }
+
+
+        &.type-hidden {
+            .unhideColumns {
+                display: list-item !important;
+            }
+            .hideColumns {
+                display: none !important;
+            }
+        }
+
+        &.type-object, &.type-array, &.type-undefined {
+            .multiColumn {
+                &.multiChangeDataType {
+                    display: none !important;
+                }
+            }
+        }
+
+        &.type-string.type-integer.type-float.type-boolean {
+            // case that no type to change
+            .multiColumn {
+                &.multiChangeDataType {
+                    display: none !important;
+                }
+            }
+        }
+    }
+
+    &.type-string, &.type-array {
+        .aggregate {
+            display: none;
+        }
+        .type-string {
+            display: none;
+        }
+
+        .format {
+            display: none;
+        }
+    }
+
+    &.type-float {
+        .roundToFixed {
+            display: list-item;
+        }
+    }
+
+    &.type-emptyTable .map {
+        display: none !important;
+    }
+
+    &.type-object, &.type-newColumn, &.type-undefined, &.type-mixed, 
+    &.recordNum, &.childOfArray, &.sortedArray {
+        .sort, .aggregate, .groupby, .filter, .joinList, .map, .operations,
+        .profile
+        {
+            display: none;
+        }
+    }
+
+    &.type-newColumn, &.type-undefined {
+        .operations, .map {
+            display: list-item;
+        }
+    }
+
+    &.type-object, &.type-array, &.type-newColumn, &.type-undefined,
+    &.recordNum {
+        .changeDataType, .hPartition, .format, .roundToFixed {
+            display: none;
+        }
+    }
+
+    &.childOfArray, &.sortedArray {
+        .changeDataType, .hPartition, .window, .splitCol {
+            display: none;
+        }
+    }
+
+    &.type-object, &.childOfArray, &.sortedArray {
+        .functionsDivider {
+            display: none;
+        }
+    }
+
+    &.type-boolean {
+        .type-boolean {
+            display: none;
+        }
+    }
+
+    &.type-data {
+        .sort, .aggregate, .groupby, .filter, .joinList, .deleteColumn, 
+        .deleteDuplicates, .duplicate, .rename, .map, .operations,
+        .changeDataType, .profile, .divider, .format, .roundToFixed {
+            display: none;
+        }
+    }
+
+    &.type-hidden {
+        .hide {
+            display: none;
+        }
+        .unhide {
+            display: list-item;
+        }
+    }
+
+    .tdDropdown {
+        display: none;
+    }
+
+    &.tdMenu {
+        &.long {
+            width: 195px;
+        }
+
+        .thDropdown {
+            display: none !important;
+        }
+
+        .tdDropdown {
+            display: list-item;
+        }
+    }
+}
+
+//scrollable list styling
+.menu, .list {
+    overflow: hidden;
+    ul {
+       overflow: auto;
+       &::-webkit-scrollbar {
+            display: none;
+       }
+    }
+    .scrollArea {
+        position: absolute;
+        width: 100%;
+        height: 14px;
+        background-color: rgba(100,100,100,0.1);
+        opacity: 0;
+        z-index: 1;
+        left: 0;
+        .transition(opacity 0.4s ease-in-out 0s);
+
+        &.active {
+            opacity: 1;
+            .transition(opacity 0.4s ease-in-out 0s);
+        }
+
+        &.mouseover {
+            opacity: 1;
+            .arrow {
+                opacity: 1;
+            }
+        }
+
+        &.stopped {
+            display: none !important;
+        }
+
+        .arrow {
+            width: 20px;
+            margin: 0 auto;
+            height: 14px;
+            pointer-events: initial;
+            opacity: 0.4;
+        }
+
+        &.top {
+            top: 0;
+            .arrow {
+                .image("../../images/arrow-up-gray-flat.png", 50%, 40%);
+            }
+            
+        }
+        &.bottom {
+            bottom: 0;
+            .arrow {
+                .image("../../images/arrow-down-gray-flat.png", 50%, 60%);
+            }
+        }   
+    }
+}
+
+.subMenu {
+    &.left {
+        margin-left: -325px;
+
+        .subMenuArea {
+            right: 0;
+            left: auto;
+        }
+    }
+}
+
+.moveToWorksheet, .dupToWorksheet {
+    .dropDownList {
+        .size(@width: 100%, @height: 30px);
+        .position(relative);
+        box-shadow: none;
+        background-color: transparent;
+
+        .list {
+            .size(@width: 160px, @height: 20px);
+            .position(absolute, @top: 31px, @left: -3px);
+            margin: 0;
+            visibility: visible !important;
+            display: none;
+        }
+    }
+}
+
+ul.menu.leftColMenu::before {
+    border-color: @color-selectedCell-dark @color-selectedCell-dark;
+}
+
+.subMenu li {
+    &.subColUnselected {
+        background-color: @color-white;
+    }
+    &.subColSelected {
+        background-color: @color-selectedCell-dark;
+    }
+}
+
+.subMenuArea {
+    .position(absolute, @top: -30px, @left: 14px);
+    .size(@width: ~"calc(100% + 30px)", @height: ~"calc(100% + 60px)");
+    z-index: -1;
+    cursor: default;
+}
+
+.leftColMenu .subMenuArea {
+    .position(@right: 0, @left: auto);
+}
+
+ul.leftColMenu {
+    .position(@right: 0);
+    box-shadow: -1px 1px rgba(0,0,0,0.1);
+
+    .dropdownBox {
+        display: none !important;
+    }
+}
+
+ul.subMenu.leftColMenu {
+    .position(@left: -170px);
+    margin-top: 0px;
+    box-shadow: -1px 1px rgba(0,0,0,0.1);
+}
+
+
+ul.inputMenu {
+    > li {
+        .size(@height: auto, @min-height: 30px);
+        overflow: hidden;
+        padding: 0px;
+        margin: 0px;
+
+        span {
+            .position(relative);
+            .size(@height: 30px);
+            .box-sizing;
+            display: block;
+            padding: 8px 6px 6px 6px;
+            background-color: @color-white;
+            z-index: 1;
+            .transition (margin-bottom .3s);
+
+            &.openMenuInput {
+                margin-bottom: 30px;
+            }
+        }
+
+        .dropdownBox {
+            .position(@top: 15px);
+            z-index: 1;
+        }
+    }
+
+    &:hover ul {
+        visibility: visible;
+    }
+
+    input[type=text] {
+        .position(absolute, @top: 31px, @left: 0);
+        .size(@width: 160px, @height: 24px);
+        margin: 0px 5px;
+        z-index: 0;
+
+        &:focus {
+            outline: none;
+        }
+    }
+}
+/* END DROPDOWN STYLING */
+
+ /* ========== Menu Related CSS ========== */
+
+ /* Top Menu Bar  */
+#menuBar {
+    .size(@width: 100%, @height: 41px);
+    background: @color-limedSpruce url("../../images/bg_page.png") repeat right top;
+    position: relative;
+    // z-index: 14; // removed because necessary for intro and doesnt seem to be needed
+}
+
+#workbookBtn {
+    .position(relative, @top: 30%);
+    float: left;
+    margin-left: 10px;
+    box-shadow: -2px 2px 0px 0px rgba(0, 0, 0, 0.4);
+    .rounded;
+
+    .icon {
+        .size(100%, 100%);
+        .image("../../images/workbookBtn.png", 50%, 50%);
+        background-size: 18px 17px;
+    }
+}
+
+#mainMenu {
+    .size(@height: 41px);
+    float: left;
+    margin-left: 10px;
+    display: inline-block;
+
+    .mainMenuTab {
+        .position(relative);
+        .size(@height: 32px);
+        margin: 4px 10px 0px 0px;
+        padding: 5px 25px 0px 34px;
+        border: 1px solid @color-tab-border;
+        .rounded;
+        display: inline-block;
+        background-color: rgba(0,0,0, .15);
+        .font(@size: 14px, @family: @font-base, @color: @color-text-tab);
+        float: left;
+        cursor: default;
+        white-space: nowrap;
+        .noSelection;
+        .transition(~"background-color 0.1s, color 0.1s, border-color 0.1s");
+
+        &:hover, &.hover {
+            background-color: rgba(255,255,255,.15);
+            color: @color-white;
+            border: 1px solid @color-table-borderGray;
+            .icon {
+                opacity: 1;
+            }
+        }
+
+        &.active {
+            .position(relative);
+            .size(@height: 35px);
+            margin-top: 6px;
+            color: @color-text-darkGray;
+            .lightGray-gradient;
+            border: 1px solid @color-bar-border;
+            border-bottom: none;
+            border-bottom-left-radius: 0px;
+            border-bottom-right-radius: 0px;
+            z-index: 14;
+            .transition(all 0s);
+            .icon {
+                opacity: 1;
+            }
+        }
+
+        .icon {
+            .position(absolute);
+            .size(24px, 24px);
+            margin: 1px 0 0 -27px;
+            display: inline-block;
+            .transition(opacity 0.1s);
+            opacity: 0.4;
+        }
+
+        .mountain-icon {
+            .image("../../images/mountain.png");
+        }
+
+        .page-icon {
+            .image("../../images/page.png");
+            margin-top: 0px;
+        }
+
+        .db-icon {
+            .image("../../images/db-icon.png");
+        }
+
+        .monitor-icon {
+            .image("../../images/monitor.png");
+        }
+
+        .scheduler-icon {
+            .image("../../images/scheduler-icon.png");
+            margin-top: 0px;
+        }
+    }
+}
+
+#logo {
+    .size(@width: 74px, @height: 34px);
+    margin: 5px 10px 0 0;
+    .image("../../images/xcalar-logo-white.png");
+    float: right;
+    display: inline-block;
+}
+
+#userNameArea {
+    .font(@weight: 400, @color: @color-text-white);
+    float: right;
+    margin: 10px 25px 0 0;
+    display: inline-block;
+    max-width: ~"calc(100% - 715px)";
+    overflow: hidden;
+    white-space: nowrap;
+
+    .text {
+        color: @color-text-brightBlue;
+        cursor: pointer;
+        .textOverflowOneLine;
+        display: inline-block;
+        vertical-align: bottom;
+        max-width: ~"calc(100% - 65px)";
+    }
+}
+
+#userNamePopout {
+    .position(absolute);
+    .size(@width: 168px, @height: 46px);
+    .image("../../images/signout.png");
+    .font(@size: 10px, @line-height: 5px);
+    display: none;
+    z-index: 42;
+
+    #peri {
+        padding: 13px 0 0 10px;
+        color: @color-text-signout-lightGray;
+    }
+    #name {
+        padding: 5px 0 0 10px;
+        color: @color-text-signout-darkGray;
+        float: left;
+        .text {
+            max-width: 100px;
+            .textOverflowOneLine;
+            display: inline-block;
+            float: left;
+            margin-top: -3px;
+            line-height: 10px;
+        }
+        
+    }
+    #signout {
+        padding: 5px 0 0 5px;
+        color: @color-text-signout-blue;
+        float: left;
+        cursor: pointer;
+    }
+}
+ /* End Of Top Menu Bar  */
+
+/* Bottom Section */
+#bottomArea {
+    .position(absolute, @bottom: 0);
+    .size(@width: 100%);
+    z-index: 21; // in front of right side bar
+    .noSelection;
+}
+
+#worksheetBar {
+    .size(@height: 35px);
+    border-top: 2px solid @color-bar-border;
+    box-shadow: 0px 1px 1px 0px rgba(0,0,0, .5);
+    overflow: hidden;
+    .lightGray-gradient;
+
+    .workspaceArea {
+        .size(@height: 15px);
+        .font(@size: 13px, @line-height: 13px);
+        margin-top: 8px;
+        overflow: hidden;
+        cursor: default;
+        .flex(0 0 auto);
+
+        &:last-child {
+            .flex-display;
+            .flex(1 2 0px);
+            padding-right: 2px;
+        }
+    }
+
+    #pageStatusText {
+        float: left;
+        overflow: hidden;
+        display: inline-block;
+        .size(@height: 20px);
+        .font(@line-height: 20px);
+        margin-top: -4px;
+        white-space: nowrap;
+
+        span {
+            display: block;
+            .size(@height: 20px);
+            position: relative;
+            .textOverflow;
+        }
+
+        .text {
+            float: left;
+        }
+
+        .fail {
+            font-weight: bold;
+        }
+
+        .icon {
+            float: left;
+            .size(@width: 20px);
+            .image("../../images/close-icon.png", 50%, 50%);
+            cursor: pointer;
+            margin-left: 4px;
+        }
+    }
+
+    #loadingIconWrap {
+        position: relative;
+        display: inline-block;
+        .size(@width: 30px, @height: 100%);
+        margin-left: 12px;
+        float: left;
+        display: none;
+
+        .spinner {
+            width: 30px;
+            
+        }  
+    }
+}
+
+.spinner {
+    width: 70px;
+    text-align: center;
+    display: block;
+}
+
+.spinner > div {
+    .size(@width: 7px, @height: 7px);
+    background-color: @color-text-blue;
+
+    border-radius: 100%;
+    display: inline-block;
+    -webkit-animation: bouncedelay 1.4s infinite ease-in-out;
+    animation: bouncedelay 1.4s infinite ease-in-out;
+    /* Prevent first frame from flickering when animation starts */
+    -webkit-animation-fill-mode: both;
+    animation-fill-mode: both;
+}
+
+.spinner .bounce1 {
+    -webkit-animation-delay: -0.32s;
+    animation-delay: -0.32s;
+}
+
+.spinner .bounce2 {
+    -webkit-animation-delay: -0.16s;
+    animation-delay: -0.16s;
+}
+
+@-webkit-keyframes bouncedelay {
+    0%, 80%, 100% { -webkit-transform: scale(0.0) }
+    40% { -webkit-transform: scale(1.0) }
+}
+
+@keyframes bouncedelay {
+    0%, 80%, 100% { 
+    transform: scale(0.0);
+    -webkit-transform: scale(0.0);
+    } 40% { 
+    transform: scale(1.0);
+    -webkit-transform: scale(1.0);
+    }
+}
+
+.animatedEllipsis {
+    animation: ellipsis 2s steps(4, end) infinite;
+    -webkit-animation: ellipsis 2s steps(4, end) infinite;
+    text-align: left;
+    overflow: hidden;
+    width: 0px;
+    display: inline-block;
+    float: right;
+    > div {
+        display: inline;
+        margin-left: 1px;
+    }
+}
+
+@-webkit-keyframes ellipsis {
+    to {
+        width: 20px;
+    }
+}
+
+@keyframes ellipsis {
+    to {
+        width: 20px;
+    }
+}
+
+#worksheetInfo {
+    .size(@width: ~"calc(100% - 180px)", @height: 100%);
+    float: left;
+    display: inline-block;
+    white-space: nowrap;
+    overflow: hidden;
+    .flex-display;
+}
+
+.bottomButtonsArea {
+    float: right;
+    cursor: default;
+
+    .sliderBtn {
+        margin: 5px;
+
+        &.active {
+            .action-inverse-gradient;
+        }
+    }
+}
+
+#tableListBtn {
+    background-image: url(../../images/list-icon.png);
+}
+
+#sqlBtn {
+    background-image: url(../../images/sql.png);
+}
+
+#udfBtn {
+    background-image: url(../../images/udf.png);
+}
+
+#cliBtn {
+    background-image: url(../../images/cli-icon.png); 
+}
+
+#scratchpadBtn {
+    background-image: url(../../images/pencil.png); 
+}
+
+#infoBtn {
+    background-image: url(../../images/questionMark.png); 
+}
+
+#bottomTabArea {
+    .size(@height: 39px);
+    background: @color-limedSpruce url("../../images/bg_page.png") repeat right top;
+    // &:hover {
+    //     .inActive .wsIconWrap {
+    //         .transition(opacity 0.15s);
+    //         opacity: 0.1 !important;
+    //     }
+    // }
+}
+
+#addWorksheet {
+    display: inline-block;
+    margin: 8px 8px 0px 9px;
+    cursor: pointer;
+    float: left;
+
+    span {
+        .size(100%, 100%);
+        .image("../../images/plus-sign.png", 55%, 45%);
+        display: block;
+    }
+}
+
+#worksheetTabs {
+    .position(relative, @top: -1px);
+    .size(@width: ~"calc(100% - 40px)", @height: 36px);
+    .flex-display;
+    float: left;
+
+    .worksheetTab {
+        .size(@width: 201px, @height: 35px);
+        .position(relative, @top: ~"0px !important");
+        float: left;
+        .flex(0 0 201px);
+        margin-right: 10px;
+
+        &.transition {
+            display: block;
+            .flex(0 0 auto);
+        }
+
+        &.dragging {
+            pointer-events: none;
+            .label {
+                cursor: default;
+            }
+        }
+        .draggableArea {
+            float: left;
+            height: 100%;
+            width: ~"calc(100% - 28px)";
+        }
+
+        .label {
+            .size(@width: ~"calc(100% - 30px)", @height: 100%);
+            .position(relative);
+            .darkGray-gradient;
+            display: inline-block;
+            float: left;
+            text-align: left;
+            border: 1px solid @color-bar-border;
+            border-top: none;
+            .rounded(0 0 0 3px);
+            overflow: hidden;
+            .cursor-move;
+
+            .wsIconWrap {
+                .position(relative);
+                .size(@width: 25px, @height: 18px);
+                margin-left: 2px;
+                padding-right: 2px;
+                border-right: 1px solid @color-tab-divider;
+                display: inline-block;
+                float: left;
+                cursor: pointer;
+                .vertical-align;
+            }
+
+            .wsIcon {
+                .size(@width: 18px, @height: 23px);
+                margin-left: 2px;
+                margin-top: -3px;
+                .image("../../images/worksheet-dots.png", 50%, 50%);
+                float: left;
+            }
+
+            .text {
+                .size(@height: 21px);
+                .font(@weight: 700, @size: 14px, @line-height: 20px);
+                float: left;
+                outline: none;
+                margin: 0 2px;
+                padding: 0 3px;
+                white-space: nowrap;
+                .vertical-align;
+                border: 1px solid transparent;
+                cursor: text;
+
+                &:focus {
+                    border: 1px solid @color-malibu;
+                    box-shadow: inset 0 1px 2px 1px rgba(0, 0, 0, 0.2);
+                    text-overflow: clip;
+                    width: ~"calc(100% - 6px)";
+                }
+            }
+        }
+
+        &.focus {
+            .label {
+                cursor: initial;
+            }
+        }
+
+        .dagTab {
+            .size(@width: 30px, @height: 34px);
+            float: left;
+            display: inline-block;
+            margin-top: 1px;
+            cursor: pointer;
+            .noSelection;
+            border-bottom: 1px solid @color-bar-border;
+            border-right: 1px solid @color-bar-border;
+            .rounded(0 0 3px 0);
+            .linear-gradient(top, @color-background-sidebar, @color-background-darkdarkGray);
+
+            .icon {
+                .size(100%, 100%);
+                .image("../../images/comp-icon.png", 50%, 50%);
+            }
+
+            &:hover {
+                .linear-gradient(top, @color-background-topGrayMed, @color-boulder);
+            }
+
+            &:active {
+                 box-shadow: inset 0px 1px 1px 0px rgba(0, 0, 0, 0.5);
+            }
+
+            &.active {
+                .action-gradient;
+                &:hover {
+                    .action-inverse-gradient;
+                }
+            }
+
+            & + .tooltip {
+                white-space: nowrap;
+            }
+
+            &.active + .tooltip {
+                display: none !important;
+            }
+
+        }
+
+        &.inActive {
+            .size (@width: 172px, @height: 28px);
+            .position(@top: ~"6px !important");
+            .noSelection;
+            .flex(0 1 auto);
+
+            .label {
+                background: rgba(0,0,0, .15);
+                border: 1px solid @color-tab-border;
+                color: @color-text-tab;
+                .size(@width: ~"calc(100% - 2px)");
+                .rounded;
+                cursor: pointer;
+                .transition(~"background 0.15s, color 0.15s, border 0.15s");
+
+                .wsIconWrap {
+                    opacity: 0;
+                    .transition(opacity 0.15s);
+                }
+
+                .text {
+                    .size(@width: ~"calc(100% - 27px)");
+                    text-align: center;
+                    pointer-events: none;
+                    margin: 0;
+                }
+            }
+
+            .dagTab {
+                display: none;
+            }
+
+            &:hover {
+                .label {
+                    // hover vs regular color scheme needs to be adjusted
+                    background-color: rgba(255,255,255,.15);
+                    color: @color-white;
+                    border: 1px solid @color-table-borderGray;
+                    .wsIconWrap {
+                        opacity: 1 !important;
+                    }
+                }
+            }
+            .label.hover {
+                background-color: rgba(255,255,255,.15);
+                color: @color-white;
+                border: 1px solid @color-table-borderGray;
+                .wsIconWrap {
+                    visibility: visible;
+                }
+            }
+        }
+
+        &.locked {
+            .wsIconWrap {
+                pointer-events: none !important;
+                cursor: auto !important;
+                opacity: 0.5;
+            }
+        }
+    }
+}
+
+#hiddenWorksheetsTab {
+    display: none;
+    .size(@width: 60px, @height: 28px);
+    .position(absolute, @bottom: 6px, @right: 4px);
+    box-shadow: none;
+    background-color: transparent;
+
+    &:hover {
+        .mainTab {
+            // hover vs regular color scheme needs to be adjusted
+            background-color: rgba(255,255,255,.15);
+            color: @color-white;
+            border: 1px solid @color-table-borderGray;
+        }
+    }
+
+    .mainTab {
+        .size(@width: 60px, @height: 28px);
+        background: rgba(0,0,0, .15);
+        border: 1px solid @color-tab-border;
+        color: @color-text-tab;
+        .rounded;
+        text-align: center;
+        .textOverflowOneLine;
+    }
+
+    .list {
+        bottom: 28px;
+        right: 0px;
+        width: 180px;
+        left: auto;
+        display: block;
+        font-size: 13px;
+        border-radius: 3px 3px 0 3px;
+        display: none;
+    }
+    li {
+        height: 25px;
+        line-height: 25px;
+        padding: 0px 5px;
+    }
+    .divider {
+        border-top: 1px solid @color-alto;
+    }
+    .icon {
+        .image("../../images/hidden-ws.png", 2px, 6px);
+        .size(@width:20px, @height:100%);
+        float: left;
+    }
+    .unhideAll {
+        position: relative;
+        .icon:last-child {
+            position: absolute;
+            left: 7px;
+            top: 2px;
+        }
+    }
+}
+
+#bottomTabArea.hasHiddenWS {
+    #worksheetTabs {
+        width: ~"calc(100% - 110px)";
+    }
+    #hiddenWorksheetsTab {
+        display: inline-block;
+    }
+}
+
+#worksheetTabMenu {
+    width: 130px;
+    border-radius: 3px;
+    overflow: visible;
+    ul {
+        overflow: hidden;
+        .rounded;
+    }
+    li {
+        height: 25px;
+        line-height: 25px;
+        padding: 0 6px;
+    }
+    &:after {
+        top: 100%;
+        left: 8px;
+        border: solid transparent;
+        content: " ";
+        height: 0;
+        width: 0;
+        position: absolute;
+        border-top-color: @color-white;
+        border-width: 5px;
+    }
+}
+/* End Of Bottom Section */
+
+/* Status Box */
+#statusBox {
+    .position(fixed);
+    padding: 5px;
+    display: none;
+    z-index: 100;
+
+    .boxInnerWrap {
+        .position(relative);
+        .size(@width: 185px, @min-height: 100px, @max-height: 300px);
+        padding: 7px;
+        .rounded;
+        box-shadow: 0 0 5px 1px rgba(0,0,0,.2);
+        background-color: @color-background-white;
+        z-index: 3;
+    }
+    .close {
+        .position(absolute, @top: 7px, @right: 7px);
+        .size(14px, 14px);
+        .image("../../images/close-gray.png", 50%, 50%);
+        display: inline-block;
+        cursor: pointer;
+    }
+    .title {
+        .size(@height: 24px);
+        font-weight: bold;
+        .icon {
+            .size(20px, 20px);
+            margin-right: 6px;
+            float: left;
+        }
+        .titleText {
+            margin-top: 3px;
+            float: left;
+            .font(@size: 14px, @line-height: 16px);
+        }
+    } 
+    
+    .message {
+        color: @color-text-darkGray;
+        .font(@size: 12px, @line-height: 18px);
+        white-space: normal;
+    }
+
+    &.error {
+        display: inline-block;
+        .title {
+            .icon {
+                .image("../../images/error-icon.png", 50%, 50%);
+            }
+            .titleText {
+                color: @color-text-error;
+            }
+        } 
+        .arrow {
+            .size(10px, 10px);
+            display: inline-block;
+            background-color: transparent;
+            .transform(rotate(45deg));
+            border: none;
+            z-index: 1;
+            box-shadow: 0 0 5px 2px rgba(0,0,0,.2);
+        }
+        .boxInnerWrap {
+            border: 1px solid @color-error-border;
+            &:before, &:after {
+                content: "";
+                border-top: 7px solid transparent;
+                border-bottom: 7px solid transparent;
+                margin-left: -9px;
+            }
+            &:before {
+                border-top: 8px solid transparent;
+                border-bottom: 8px solid transparent;
+                margin-left: -11px;
+                margin-top: -1px;
+            }
+            &:after {
+                z-index: 1;
+            }
+        }
+        &.right {
+            .arrow {
+                .position(absolute, @top: 38px, @left: 0);
+            }
+            .boxInnerWrap {
+                &:before, &:after {
+                    .position(absolute, @top: 30px, @left: 0);
+                }
+                &:before {
+                    border-right: 10px solid @color-error-border;
+                }
+                &:after {
+                    border-right: 9px solid @color-background-white;
+                    margin-right: -2px;
+                }
+            }
+        }
+        &.left {
+            .arrow {
+                .position(absolute, @top: 38px, @right: 0);
+            }
+            .boxInnerWrap {
+                &:before, &:after {
+                    .position(absolute, @top: 30px, @right: -10px);
+                }
+                &:before {
+                    border-left: 10px solid @color-error-border;
+                }
+                &:after {
+                    border-left: 9px solid @color-background-white;
+                    margin-right: 2px;
+                }
+            }
+        }
+        &.top {
+            .arrow {
+                .position(absolute, @left: 96px, @bottom: 0);
+            }
+            .boxInnerWrap {
+                &:before, &:after {
+                    .position(absolute, @left: 99px, @bottom: -18px);
+                    border-left: 7px solid transparent;
+                    border-right: 7px solid transparent;
+                }
+                &:before {
+                    border-top: 10px solid @color-error-border;
+                }
+                &:after {
+                    border-top: 9px solid @color-background-white;
+                    margin-right: 2px;
+                    bottom: -15px;
+                    left: 97px;
+                }
+            }
+        }
+    }
+}
+/* End Of Status Box */
+
+#successMessageWrap {
+    left: 50%;
+    top: 0px;
+    .transform(translateX(-50%));
+    position: absolute;
+    z-index:1000;
+    font-weight: bold;
+    height: ~"calc(50% + 50px)";
+    text-align: center;
+    width: 330px;
+    overflow: hidden;
+    display: none;
+    pointer-events: none;
+
+    .checkMark {
+        .size(60px, 60px);
+        border-radius: 100%;
+        .image("../../images/tick-xlarge.png", 50%, 50%, no-repeat, #3B8DB2);
+        display: inline-block;
+        left: 135px;
+        position: absolute;
+        bottom: 98px;
+        z-index: 1;
+        
+        &.hidden {
+            bottom: 120%;
+            .transition(bottom 0.4s ease-out);
+        }
+    }
+
+    .successMessage {
+        height: 180px;
+        width: 330px;
+        padding: 5px;
+        position: absolute;
+        bottom: 0px;
+        .transition(bottom 0.3s);
+        &.hidden {
+            bottom: -200px;
+        }
+    }
+    .textBox {
+        box-shadow: 0px 1px 5px 0px rgba(0,0,0,0.4);
+        height: 100%;
+        width: 100%;
+        color: #6D6D6D;
+        background-color: rgba(255,255,255,0.85);
+        .rounded(5px);
+        padding-top: 74px;
+    }
+    .largeText {
+        font-size: 30px;
+        color: #3B8DB2;
+        display: block;
+        margin-bottom: 7px;
+    }
+
+    .animated {
+        webkit-animation-duration: 0.7s;
+        animation-duration: 0.7s;
+        -webkit-animation-fill-mode: both;
+        animation-fill-mode: both;
+    }
+
+    @-webkit-keyframes bounceInDown {
+      from, 60%, 75%, 90%, to {
+        -webkit-animation-timing-function: cubic-bezier(0.215, 0.610, 0.355, 1.000);
+        animation-timing-function: cubic-bezier(0.215, 0.610, 0.355, 1.000);
+      }
+
+      0% {
+        opacity: 0;
+        -webkit-transform: translate3d(0, -3000px, 0);
+        transform: translate3d(0, -3000px, 0);
+      }
+
+      60% {
+        opacity: 1;
+        -webkit-transform: translate3d(0, 25px, 0);
+        transform: translate3d(0, 25px, 0);
+      }
+
+      75% {
+        -webkit-transform: translate3d(0, -10px, 0);
+        transform: translate3d(0, -10px, 0);
+      }
+
+      90% {
+        -webkit-transform: translate3d(0, 5px, 0);
+        transform: translate3d(0, 5px, 0);
+      }
+
+      to {
+        -webkit-transform: none;
+        transform: none;
+      }
+    }
+
+    @keyframes bounceInDown {
+      from, 60%, 75%, 90%, to {
+        -webkit-animation-timing-function: cubic-bezier(0.215, 0.610, 0.355, 1.000);
+        animation-timing-function: cubic-bezier(0.215, 0.610, 0.355, 1.000);
+      }
+
+      0% {
+        opacity: 0;
+        -webkit-transform: translate3d(0, -3000px, 0);
+        transform: translate3d(0, -3000px, 0);
+      }
+
+      60% {
+        opacity: 1;
+        -webkit-transform: translate3d(0, 25px, 0);
+        transform: translate3d(0, 25px, 0);
+      }
+
+      75% {
+        -webkit-transform: translate3d(0, -10px, 0);
+        transform: translate3d(0, -10px, 0);
+      }
+
+      90% {
+        -webkit-transform: translate3d(0, 5px, 0);
+        transform: translate3d(0, 5px, 0);
+      }
+
+      to {
+        -webkit-transform: none;
+        transform: none;
+      }
+    }
+
+    .bounceInDown {
+      -webkit-animation-name: bounceInDown;
+      animation-name: bounceInDown;
+    }
+}
+
+/* Finished Table Notification */
+.tableDonePopupWrap {
+    position: fixed;
+    z-index: 30;
+    display: inline-block;
+
+    .tableDonePopup {
+        .font(@size: 12px, @color: @color-white);
+        .rounded(5px);
+        position: relative;
+        background-color: @color-background-bottomAction;
+        opacity: 0.9;
+        display: none;
+        padding: 8px;
+        padding: 10px 8px 6px;
+        margin: 2px 0px;
+        text-align: center;
+        max-width: 200px;
+        text-transform: capitalize;
+        .no-selection;
+        cursor: pointer;
+
+        .close {
+            .transform(rotate(45deg));
+            color: white;
+            position: absolute;
+            top: -2px;
+            right: -2px;
+            line-height:18px;
+            .size(18px, 18px);
+            font-size: 18px;
+        }
+
+        &:before {
+            .position(absolute, @top: 10px, @left: -6px);
+            content: "";
+            border-right: 6px solid @color-background-bottomAction;
+            border-top: 6px solid transparent;
+            border-bottom: 6px solid transparent;
+            box-sizing: border-box;
+        }
+
+        &.rightArrow {
+            &:before {
+                .position(@left: auto, @right: -6px);
+                border-right: none;
+                border-left: 6px solid @color-background-bottomAction;
+            }
+        }
+
+        &.failed {
+            cursor: auto;
+            background-color: @color-nightShadz;
+                &:before {
+                border-right: 6px solid @color-nightShadz;
+
+            }
+
+            &.rightArrow {
+                &:before {
+                    border-left: 6px solid @color-nightShadz;
+                }
+            }
+            .close {
+                display: none;
+            }
+        }
+
+        &+ div {
+            &:before {
+                display: none;
+                content: none;
+            }
+        }
+        &.worksheetNotify {
+            &:first-child:before {
+                display: none;
+                content: none;
+            }
+            &:last-child:before {
+                display: block;
+                content: "";
+            }
+        }
+    }
+}
+
+.waitingIcon {
+    .position(absolute, @top: 2px, @left: 3px);
+    .size(@width: 35px, @height: 37px);
+    display: none;
+    .image("../../images/waiting-1.gif");
+    z-index: 101;
+
+    &.active {
+        display: inline-block;
+    }
+    &.refresh {
+        top:50%;
+        width:100%; 
+        display:block;
+        background-position: center;
+        top: 45%;
+        left: 50%;
+        .transform(translateX(-50%));
+        display: block;
+        background-position: center center;
+        width: 35px;
+        margin: 0px auto;
+        
+        width: 100%;
+    }
+}
+
+.refreshIcon {
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    text-align: center;
+    position: absolute;
+    top: 0;
+    left: 0;
+    img {
+        .center-align();
+        display: block;
+        width: 35px;
+        height: 37px;
+    }
+}
+
+.qMark {
+    .size(14px, 14px);
+    .image("../../images/datastore/qMark.png", 50%, 50%);
+}
+
+
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button {
+    -webkit-appearance: textfield;
+
+}
+
+
+/* Tool Tips */
+/*!
+ * Bootstrap v3.3.2 (http://getbootstrap.com)
+ * Copyright 2011-2015 Twitter, Inc.
+ * Licensed under MIT
+ * (https://github.com/twbs/bootstrap/blob/master/LICENSE)
+ */
+
+/*!
+ * Generated using the Bootstrap Customizer
+ * (http://getbootstrap.com/customize/?id=719e42616a8ac56d2c95)
+ * Config saved to config.json and
+ * https://gist.github.com/719e42616a8ac56d2c95
+ */
+
+.tooltip {
+    position: absolute;
+    z-index: 1070;
+    display: block;
+    visibility: visible;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 12px;
+    font-weight: normal;
+    line-height: 1.4;
+    opacity: 0;
+    filter: alpha(opacity=0);
+    white-space: normal;
+}
+.tooltip.in {
+    opacity: 0.9;
+    filter: alpha(opacity=90);
+}
+.tooltip.top {
+    margin-top: -3px;
+    padding: 5px 0;
+}
+.tooltip.right {
+    margin-left: 3px;
+    padding: 0 5px;
+}
+.tooltip.bottom {
+    margin-top: 3px;
+    padding: 5px 0;
+}
+.tooltip.left {
+    margin-left: -3px;
+    padding: 0 5px;
+}
+.tooltip-inner {
+    max-width: 200px;
+    padding: 3px 8px;
+    color: @color-white;
+    text-align: center;
+    text-decoration: none;
+    background-color: @color-black;
+    border-radius: 4px;
+}
+.tooltip-arrow {
+    position: absolute;
+    width: 0;
+    height: 0;
+    border-color: transparent;
+    border-style: solid;
+}
+.tooltip.top .tooltip-arrow {
+    bottom: 0;
+    left: 50%;
+    margin-left: -5px;
+    border-width: 5px 5px 0;
+    border-top-color: @color-black;
+}
+.tooltip.top-left .tooltip-arrow {
+    bottom: 0;
+    right: 5px;
+    margin-bottom: -5px;
+    border-width: 5px 5px 0;
+    border-top-color: @color-black;
+}
+.tooltip.top-right .tooltip-arrow {
+    bottom: 0;
+    left: 5px;
+    margin-bottom: -5px;
+    border-width: 5px 5px 0;
+    border-top-color: @color-black;
+}
+.tooltip.right .tooltip-arrow {
+    top: 50%;
+    left: 0;
+    margin-top: -5px;
+    border-width: 5px 5px 5px 0;
+    border-right-color: @color-black;
+}
+.tooltip.left .tooltip-arrow {
+    top: 50%;
+    right: 0;
+    margin-top: -5px;
+    border-width: 5px 0 5px 5px;
+    border-left-color: @color-black;
+}
+.tooltip.bottom .tooltip-arrow {
+    top: 0;
+    left: 50%;
+    margin-left: -5px;
+    border-width: 0 5px 5px;
+    border-bottom-color: @color-black;
+}
+.tooltip.bottom-left .tooltip-arrow {
+    top: 0;
+    right: 5px;
+    margin-top: -5px;
+    border-width: 0 5px 5px;
+    border-bottom-color: @color-black;
+}
+.tooltip.bottom-right .tooltip-arrow {
+    top: 0;
+    left: 5px;
+    margin-top: -5px;
+    border-width: 0 5px 5px;
+    border-bottom-color: @color-black;
+}
+/* END AUTOGEN BOOTSTRAP CODE */
+/* START CUSTOM BOOTSTRAP CODE */
+.tooltip {
+    z-index: 100;
+    font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    word-wrap: break-word;
+}
+
+.tooltip-inner {
+    background-color: @color-limedSpruce;
+    opacity: 0.95;
+}
+
+.tooltip.bottom .tooltip-arrow {
+    border-bottom-color: rgba(54, 68, 77, 0.95);
+}
+.tooltip.top .tooltip-arrow {
+    border-top-color: rgba(54, 68, 77, 0.95);
+}
+
+.tooltip.left .tooltip-arrow {
+    border-left-color: rgba(54, 68, 77, 0.95);
+}
+.tooltip.right .tooltip-arrow {
+    border-right-color: rgba(54, 68, 77, 0.95);
+}
+
+.tooltip.error {
+    opacity: 1 !important;
+    display: block !important;
+        
+    .tooltip-inner, .tooltip-arrow {
+        color: @color-text-darkGray;
+        opacity: 1 !important;
+    }
+
+    .tooltip-arrow {
+        background-color: transparent !important;
+        border-top-color: @color-error-border;
+    }
+
+    .tooltip-inner {
+        background-color: white;
+        border: 1px solid @color-error-border;
+        box-shadow: 0 0 5px 1px rgba(0, 0, 0, 0.2);
+    }
+}
+
+.tooltip.tutorial {
+    @deep-yellow: @color-turbo;
+
+    opacity: 1 !important;
+    display: block !important;
+
+    &.z-10 {
+        z-index: 10 !important;
+    }
+
+    &.z-0 {
+        z-index: 0;
+    }
+
+    .tooltip-inner, .tooltip-arrow {
+        color: @color-text-darkGray;
+        opacity: 1 !important;
+    }
+
+    .tooltip-arrow {
+        background-color: transparent !important;
+        border-top-color: @deep-yellow;
+    }
+
+    .tooltip-inner {
+        background-color: @color-chileanHeath;
+        border: 1px solid @deep-yellow;
+        box-shadow: 0 2px 2px 1px rgba(0, 0, 0, 0.2);
+    }
+
+    &.right {
+        .tooltip-arrow {
+            border-color: transparent;
+            border-right-color: @deep-yellow;
+        }
+    }
+
+    &.left {
+        .tooltip-arrow {
+            border-color: transparent;
+            border-left-color: @deep-yellow;
+        }
+    }
+
+    &.bottom {
+        .tooltip-arrow {
+            border-color: transparent;
+            border-bottom-color: @deep-yellow;
+        }
+    }
+}
+
+.tooltip.bartip {
+    .tooltip-inner {
+        white-space: nowrap;
+        max-width: 300px;
+    }
+}
+
+// for tooltip fade in animation
+.fade {
+    opacity:0;
+    -webkit-transition: opacity .1s linear;
+    -o-transition: opacity .1s linear;
+    transition: opacity .1s linear;
+}
+
+body.tooltipOff {
+    .tooltip {
+        display: none !important;
+        &.error {
+            display: block !important;
+        }
+    }
+}
+
+/* JQUERY RESIZABLE */
+.ui-resizable-handle {
+    position: absolute;
+}  
+
+.ui-resizable-n, .ui-resizable-s {
+    .size (100%, 15px);
+    cursor: n-resize;
+}
+
+.ui-resizable-e, .ui-resizable-w {
+    .size (15px, 100%);
+    cursor: e-resize;
+}
+
+.ui-resizable-n {
+    top: -10px;
+    left: -10px;
+}
+
+.ui-resizable-s {
+    bottom: -10px;
+    left: -10px;
+}
+.ui-resizable-w {
+    top: -10px;
+    left: -10px;
+}
+.ui-resizable-e {
+    top: -10px;
+    right: -10px;
+}
+
+.ui-resizable-se {
+    bottom: -10px;
+    right: -10px;
+    height: 25px;
+    width: 25px;
+    cursor: se-resize;
+
+    &::before {
+        content: "";
+        display: block;
+        position: absolute;
+        top: 8px;
+        left: 4px;
+        width: 10px;
+        height: 1px;
+        background-color: @color-background-darkdarkGray;
+        .transform(rotate(-45deg));
+    }
+
+    &::after {
+        content: "";
+        display: block;
+        position: absolute;
+        top: 11px;
+        left: 9px;
+        width: 5px;
+        height: 1px;
+        background-color: @color-background-darkdarkGray;
+        .transform(rotate(-45deg));
+    }
+}
+
+/* JQUERY DATEPICKER */
+#ui-datepicker-div.schedulerDatePicker {
+    .size(@width: 208px);
+    background-color: @color-background-topForm;
+    box-shadow: 0px 1px 1px 2px rgba(0,0,0,.1);
+
+    .ui-datepicker-header {
+        .size(@height: 30px);
+        .font(@line-height: 30px);
+
+        .ui-datepicker-prev, .ui-datepicker-next {
+            .position(absolute, @top: 7px);
+            cursor: pointer;
+
+            span {
+                display: none;
+            }
+
+            &.ui-state-disabled {
+                pointer-events: none;
+                opacity: 0.5;
+            }
+        }
+
+        .ui-datepicker-prev {
+            .position(@left: 20px);
+            .size(0, 0);
+            // trick to make left arrow
+            border-top: 8px solid transparent;
+            border-bottom: 8px solid transparent;
+            border-right: 11px solid @color-bostonBlue;
+            .rounded;
+        }
+
+        .ui-datepicker-next {
+            .position(@right: 20px);
+            .size(0, 0);
+            // trick to make right arrow
+            border-top: 8px solid transparent;
+            border-bottom: 8px solid transparent;
+            border-left: 11px solid @color-bostonBlue;
+            .rounded;
+        }
+
+        .ui-datepicker-title {
+            // .size(@width: 70%);
+            text-align: center;
+            .font(@size: 13px, @weight: bold, @color: @color-text-blue);
+            text-transform: uppercase;
+        }
+    }
+
+    .ui-datepicker-calendar {
+        border-collapse: collapse;
+
+        th, td {
+            width: 30px;
+            text-align: center;
+            background-color: @color-white;
+        }
+
+
+        th {
+            .font(@size: 9px, @color: @color-background-topGrayMed, @line-height: 20px, @weight: bold);
+
+            span {
+                height: 20px;
+                display: inline-block;
+                vertical-align: bottom;
+                line-height: 25px;
+            }
+        }
+
+        td {
+            border: 1px solid @color-background-darkGray;
+
+            span, a {
+                text-decoration: none;
+                .font(@size: 12px, @color: @color-darkSilverChalice, @weight: bold);
+                text-shadow: 0px 0px rgba(0, 0, 0, 0.2);
+            }
+
+            &.ui-datepicker-current-day  {
+                .action-gradient;
+
+                span, a {
+                    color: @color-white;
+                }
+            }
+
+            &.ui-datepicker-other-month {
+                background-color: @color-wildSand;
+            }
+
+            &.ui-datepicker-unselectable {
+                span {
+                    opacity: 0.4;
+                }
+            }
+        }
+    }
+}
+
+// styling for small screen sizes below 1024px
+
+@media screen and (max-width: 1024px) {
+    #worksheetBar .workspaceArea:first-child {
+        display: none;
+    }
+    #datastorePanel {
+        #contentHeaderLeft {
+            .flex(0 0 200px);
+            .buttonArea {
+                .flex(1 1 100px);
+                width: 100%;
+            }
+        }
+        #contentHeaderRight {
+            .flex(0 0 25%);
+        }
+        .contentViewLeft {
+            width: 200px !important;
+            .mainButtonArea .btn {
+                width: 180px;
+                padding-right: 4px;
+                .textOverflowOneLine;
+            }
+            .headingArea {
+                text-align: center !important;
+                padding-right: 50px;
+            }
+            .listView .grid-unit {
+                width: 180px !important;
+            }
+        }
+        .contentViewRight {
+            width: 25% !important;
+            .btnLarge {
+                width: 92% !important;
+            }
+            .title {
+                width: 92% !important;
+            }
+            .selectedTable {
+                width: 92% !important;
+            }
+            .colName {
+                width: ~"calc(100% - 25px)" !important;
+            }
+        }
+        .dataStoreFormView, .contentViewMid {
+            width: ~"calc(75% - 200px)" !important;
+            min-width: 0px;
+            left: 200px;
+        }
+        .dataStoreFormView {
+            .contentViewMidWrap {
+                width: 100%;
+                min-width: 0px;
+            }
+            .btnMid {
+                width: 100px;
+            }
+            #fileNameSelector.optionsOpen input {
+                min-width: ~"calc(100% - 340px)" !important;
+            }
+            #csvDelim {
+                .dropDownList {
+                    width: ~"calc(100% - 120px)" !important;
+                }
+                .wrapper {
+                    width: 50% !important;
+                    margin-right: 0 !important;
+                }
+                .list {
+                    width: 100% !important;
+                }
+            }
+
+            #fileFormat {
+                width: 100px !important;
+                margin-right: 10px;
+            }
+
+            #udfCheckbox, #promoteHeaderCheckbox {
+                margin-left: 0 !important;
+                margin-right: 3px;
+
+                .checkbox {
+                    margin-right: 2px;
+                }
+
+                .hint {
+                    display: none;
+                }
+            }
+
+            .previewMode {
+                #filePath {
+                    width: 100% !important;
+                }
+                #fileName {
+                    width: 100% !important;
+                }
+            }
+        }
+        .formHelp {
+            h2 {
+                margin-bottom: 4px;
+            }
+            p {
+                height: 42px;
+                line-height: 14px;
+            }
+            .contentViewMidWrap {
+                min-width: 0px;
+                width: 100%;
+            }
+        }
+
+        #exportView  {
+            .contentViewMid {
+                width: ~"calc(100% - 200px)" !important;
+                min-width: 0px;
+            }
+            .contentViewMidWrap {
+                width: 85% !important;
+            }
+        }
+    }
+}
