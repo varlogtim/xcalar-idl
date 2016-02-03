@@ -113,22 +113,12 @@ window.JoinModal = (function($, JoinModal) {
                 // case to open multi clause
                 $activeBox.removeClass("active")
                             .siblings(".onBox").addClass("active");
-                $mainJoin.addClass("multiClause");
-                multiClauseOpener();
-
-                $mainJoin.find(".colSelected").removeClass("colSelected");
-                $mainJoin.find("th:not(.unselectable) .columnTab")
-                        .prop("draggable", true);
-                $mainJoin.find(".smartSuggest").addClass("inActive");
+                toggleMultiClause(true);
             } else {
                 // case to close multi clause
                 $activeBox.removeClass("active")
                             .siblings(".offBox").addClass("active");
-                $mainJoin.removeClass("multiClause");
-
-                $multiJoin.find(".joinClause.placeholder").siblings().remove();
-                $mainJoin.find(".columnTab").prop("draggable", false);
-                $mainJoin.find(".smartSuggest").removeClass("inActive");
+                toggleMultiClause(false);
             }
 
             // XXX Hack From Cheng: I know it's a bad workaround,
@@ -292,6 +282,24 @@ window.JoinModal = (function($, JoinModal) {
         }
     };
 
+    function toggleMultiClause(toMultiClause) {
+        if (toMultiClause) {
+            $mainJoin.addClass("multiClause");
+            multiClauseOpener();
+
+            $mainJoin.find(".colSelected").removeClass("colSelected");
+            $mainJoin.find("th:not(.unselectable) .columnTab")
+                    .prop("draggable", true);
+        } else {
+            $mainJoin.removeClass("multiClause");
+            // the function will trigger click event on th, which is only
+            // valid after remove .multiCluase
+            multiClauseCloser();
+            $multiJoin.find(".joinClause.placeholder").siblings().remove();
+            $mainJoin.find(".columnTab").prop("draggable", false);
+        }
+    }
+
     function multiClauseOpener() {
         var leftClause  = "";
         var rightClause = "";
@@ -313,6 +321,58 @@ window.JoinModal = (function($, JoinModal) {
         $multiClause.find(".rightClause").val(rightClause);
 
         $multiJoin.find(".joinClause.placeholder").before($multiClause);
+    }
+
+    function multiClauseCloser() {
+        var lCols = [];
+        var rCols = [];
+
+        $multiJoin.find(".joinClause:not(.placeholder)").each(function() {
+            var $joinClause = $(this);
+            var lClause = $joinClause.find(".leftClause").val().trim();
+            var rClause = $joinClause.find(".rightClause").val().trim();
+
+            if (lClause !== "") {
+                lCols.push(lClause);
+            }
+
+            if (rClause !== "") {
+                rCols.push(rClause);
+            }
+        });
+
+        if (lCols.length <= 1 && rCols.length <= 1) {
+            // only when left Clause and rightClause has less that 1 column,
+            // then do the rehighlight
+            if (lCols.length === 1) {
+                var lTableId = $leftJoinTable.find(".tableLabel.active").data("id");
+                highlightColumn(lTableId, lCols[0], true);
+            }
+
+            if (rCols.length === 1) {
+                var rTableId = $rightJoinTable.find(".tableLabel.active").data("id");
+                highlightColumn(rTableId, rCols[0], false);
+            }
+
+            return;
+        }
+
+        function highlightColumn(tableId, colName, isLeft) {
+            var $container = isLeft ? $leftJoinTable : $rightJoinTable;
+            var $table = $container.find(".joinTable").filter(function() {
+                return $(this).data("id") === tableId;
+            });
+
+            var $th = $table.find("th").filter(function() {
+                return $(this).find(".columnTab").text() === colName;
+            });
+
+            if ($th.length > 0) {
+                $th.click();
+                // XXX Not sure we should scroll or not
+                // scrollToColumn($th);
+            }
+        }
     }
 
     function singleJoinHelper(joinType, newTableName) {
