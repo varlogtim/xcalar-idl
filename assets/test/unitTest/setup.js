@@ -31,7 +31,7 @@ function setup() {
         .then(Support.releaseSession)
         .then(function() {
             removeUnloadPrompt();
-            window.location.href = "index.html";
+            window.location.href = "../../../index.html";
         })
         .fail(function(error) {
             console.error(error);
