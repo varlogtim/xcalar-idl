@@ -753,6 +753,14 @@ window.WSManager = (function($, WSManager) {
             }
         });
 
+        $workSheetTabSection[0].oncontextmenu = function(e) {
+            var $target = $(e.target).closest('.wsIconWrap');
+            if ($target.length) {
+                $target.trigger('click');
+                e.preventDefault();
+            }
+        };
+
         $workSheetTabSection.on("click", ".wsIconWrap", function (event) {
             var wsId = $(this).closest(".worksheetTab").data("ws");
             var numTabs = $workSheetTabSection.find('.worksheetTab').length;
@@ -840,6 +848,14 @@ window.WSManager = (function($, WSManager) {
             },
             "container": "#bottomTabArea"
         });
+
+        $hiddenWorksheetsTab[0].oncontextmenu = function(e) {
+            var $target = $(e.target).closest('.mainTab');
+            if ($target.length) {
+                $target.trigger('click');
+                e.preventDefault();
+            }
+        };
 
         addMenuBehaviors($tabMenu);
 

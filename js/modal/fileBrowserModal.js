@@ -340,6 +340,10 @@ window.FileBrowser = (function($, FileBrowser) {
             }
         }, ".icon, .dropdownBox");
 
+        $sortSection[0].oncontextmenu = function(e) {
+            e.preventDefault();
+        };
+
         // click sort option to sort
         $sortSection.on("click", "li", function(event) {
             var $li = $(this);

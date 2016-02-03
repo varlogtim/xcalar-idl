@@ -140,6 +140,10 @@ window.DFGPanel = (function($, DFGPanel) {
             }
         });
 
+        $retTabSection[0].oncontextmenu = function(e) {
+            e.preventDefault();
+        };
+
         $retTabSection.on('keyup', '.newParam', function(event){
             event.preventDefault();
             if (event.which !== keyCode.Enter) {
@@ -545,7 +549,7 @@ window.DFGPanel = (function($, DFGPanel) {
 
         var paramsArray = [];
         var parameters = DFG.getGroup(retName).paramMap;
-        for (param in parameters) {
+        for (var param in parameters) {
             var p = new XcalarApiParameterT();
             p.parameterName = param;
             p.parameterValue = parameters[param];

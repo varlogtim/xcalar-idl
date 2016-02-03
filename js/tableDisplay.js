@@ -1209,8 +1209,9 @@ window.TblManager = (function($, TblManager) {
         });
 
         $thead[0].oncontextmenu = function(e) {
-            var $target = $(e.target).closest('.dropdownBox');
+            var $target = $(e.target).closest('.header');
             if ($target.length) {
+                $target = $target.find('.dropdownBox');
                 $target.trigger('click');
                 e.preventDefault();
             }
