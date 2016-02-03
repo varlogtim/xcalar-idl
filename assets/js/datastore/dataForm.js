@@ -190,10 +190,10 @@ window.DatastoreForm = (function($, DatastoreForm) {
 
             DS.load(dsName, dsFormat, loadURL, fieldDelim, lineDelim,
                     header, moduleName, funcName)
-            .then(function($grid) {
+            .then(function(dsObj) {
                 StatusMessage.success(msgId, false, null, {
                     "newDataSet": true,
-                    "dataSetId" : $grid.attr("id")
+                    "dataSetId" : dsObj.getId()
                 });
                 deferred.resolve();
             })

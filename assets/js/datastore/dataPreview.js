@@ -198,16 +198,8 @@ window.DataPreview = (function($, DataPreview) {
 
             XcalarLoad(loadURL, "raw", tableName, "", "\n", hasHeader, "", "",
                        sqlOptions)
+            .then(DS.release)
             .then(function() {
-                // clear ref count for datasets
-                if (gDatasetBrowserResultSetId === 0) {
-                    return (promiseWrapper(null));
-                } else {
-                    return (XcalarSetFree(gDatasetBrowserResultSetId));
-                }
-            })
-            .then(function() {
-                gDatasetBrowserResultSetId = 0;
                 return XcalarSample(tableName, rowsToFetch);
             })
             .then(function(result) {

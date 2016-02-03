@@ -1,4 +1,6 @@
 /js/config.js
+/assets/js/config.js
+/assets/stylesheets/**/*.css
 /stylesheets/**/*.css
 /widget/*.css
 *.css

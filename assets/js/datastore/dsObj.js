@@ -23,6 +23,11 @@ window.DS = (function ($, DS) {
         setupGrids();
     };
 
+    // Get home folder
+    DS.getHomeDir = function () {
+        return (homeFolder);
+    };
+
     // Get dsObj by dsId
     DS.getDSObj = function(dsId) {
         return dsLookUpTable[dsId];
@@ -53,7 +58,7 @@ window.DS = (function ($, DS) {
 
     // create a new folder
     DS.newFolder = function() {
-        var ds = DS.create({
+        var ds = createDS({
             "name"    : "New Folder",
             "isFolder": true
         });
@@ -71,52 +76,16 @@ window.DS = (function ($, DS) {
         return ds;
     };
 
-    // Create dsObj for new dataset/folder
-    DS.create = function(options) {
-        options = options || {};
-        // validation check
-        xcHelper.assert((options.name != null), "Invalid Parameters");
-
-        // pre-process
-        options.id = options.id || (dsObjId++);
-        options.name = options.name.trim();
-        options.parentId = options.parentId || curDirId;
-        options.isFolder = options.isFolder || false;
-
-        var parent = DS.getDSObj(options.parentId);
-        var $parent = DS.getGrid(options.parentId);
-
-        if (options.isFolder) {
-            var i = 1;
-            var name = options.name;
-            var validName = name;
-            // only check folder name as ds name cannot confilct
-            while (parent.checkNameConflict(options.id, validName, true))
-            {
-                validName = name + ' (' + i + ')';
-                ++i;
-            }
-            options.name = validName;
-        }
-
-        var dsObj = new DSObj(options);
-        $parent.append(getDSHTML(dsObj));
-        // cached in lookup table
-        dsLookUpTable[dsObj.getId()] = dsObj;
-
-        return dsObj;
-    };
-
     // refresh a new dataset and add it to grid view
     DS.addDS = function(name, format, path) {
-        DS.create({
+        createDS({
             "name"    : name,
             "isFolder": false,
             "format"  : format,
             "path"    : path
         });
 
-        DS.refresh();
+        refreshDS();
 
         SQL.add("Add dataset", {
             "operation": SQLOps.AddDS,
@@ -150,9 +119,7 @@ window.DS = (function ($, DS) {
 
         // when switch to a ds, should clear others' ref count first!!
         DataPreview.clear()
-        .then(function() {
-            return DS.release();
-        })
+        .then(DS.release)
         .then(function() {
             return DataSampleTable.show($grid.data("dsid"), isLoading);
         })
@@ -160,7 +127,6 @@ window.DS = (function ($, DS) {
             if (!isLoading) {
                 Tips.refresh();
             }
-
             deferred.resolve(isLoading);
         })
         .fail(function(error) {
@@ -168,7 +134,7 @@ window.DS = (function ($, DS) {
             deferred.reject(error);
         });
 
-        return deferred.resolve();
+        return deferred.promise();
     };
 
     // Load dataset
@@ -179,7 +145,7 @@ window.DS = (function ($, DS) {
 
         // Here null means the attr is a placeholder, will
         // be update when the sample table is loaded
-        DS.create({
+        var dsObj = createDS({
             "name"      : dsName,
             "isFolder"  : false,
             "format"    : dsFormat,
@@ -229,7 +195,7 @@ window.DS = (function ($, DS) {
             }
 
             // display new dataset
-            DS.refresh();
+            refreshDS();
             if ($grid.hasClass('active')) {
                 // re-focus to trigger DataSampleTable.show()
                 if (gMinModeOn) {
@@ -243,10 +209,10 @@ window.DS = (function ($, DS) {
             }
 
             commitToStorage();
-            deferred.resolve($grid);
+            deferred.resolve(dsObj);
         })
         .fail(function(error) {
-            rmDSHelper($grid);
+            removeDS($grid);
             DataStore.update();
 
             if ($('#dsInfo-title').text() === dsName) {
@@ -259,14 +225,15 @@ window.DS = (function ($, DS) {
             }
             if (error.dsCreated) {
                 // if a data set was loaded but cannot be parsed, destroy it
-                XcalarSetFree(gDatasetBrowserResultSetId)
+                DS.release()
                 .then(function() {
-                    gDatasetBrowserResultSetId = 0;
-                    return (XcalarDestroyDataset(dsName, {
+                    sqlOptions = {
                         "operation": "destroyDataSet",
                         "dsName"   : dsName,
                         "sqlType"  : SQLType.Fail
-                    }));
+                    }
+
+                    return XcalarDestroyDataset(dsName, sqlOptions);
                 })
                 .fail(function(deferredError) {
                     Alert.error("Delete Dataset Fails", deferredError);
@@ -277,11 +244,6 @@ window.DS = (function ($, DS) {
         });
 
         return (deferred.promise());
-    };
-
-    // Get home folder
-    DS.getHomeDir = function () {
-        return (homeFolder);
     };
 
     // Restore dsObj
@@ -330,7 +292,7 @@ window.DS = (function ($, DS) {
             var obj = cache.shift();
             if (obj.isFolder) {
                 // restore a folder
-                DS.create(obj);
+                createDS(obj);
             } else {
                 if (searchHash.hasOwnProperty(obj.name)) {
                     // restore a ds
@@ -342,13 +304,13 @@ window.DS = (function ($, DS) {
                         "path"  : ds.url
                     });
 
-                    DS.create(obj);
+                    createDS(obj);
                     // mark the ds to be used
                     delete searchHash[obj.name];
                 } else {
                     // some ds is deleted by other users
                     // restore it first and then delete(for Replay, need the sql)
-                    ds = DS.create(obj);
+                    ds = createDS(obj);
                     orphanedDS.push(ds);
                     delete searchHash[obj.name];
                 }
@@ -380,7 +342,7 @@ window.DS = (function ($, DS) {
         }
 
         // UI update
-        DS.refresh();
+        refreshDS();
         DataStore.update(totolDS);
 
         if (atStartUp) {
@@ -401,7 +363,7 @@ window.DS = (function ($, DS) {
         var oldName = dsObj.getName();
 
         if (newName === oldName) {
-            return;
+            return false;
         } else {
             if (dsObj.rename(newName)) {
                 // valid rename
@@ -414,8 +376,10 @@ window.DS = (function ($, DS) {
 
                 $label.text(newName);
                 commitToStorage();
+                return true;
             } else {
                 $label.text(oldName);
+                return false;
             }
         }
     };
@@ -442,7 +406,7 @@ window.DS = (function ($, DS) {
         if ($grid.hasClass("ds")) {
             // when remove ds
             if (isOrphaned) {
-                rmDSHelper($grid);
+                removeDS($grid);
 
                 SQL.add("Delete Dataset", {
                     "operation" : SQLOps.DestroyDS,
@@ -461,7 +425,7 @@ window.DS = (function ($, DS) {
                     delDSHelper($grid, dsName);
                 }
             });
-        } else if (rmDSHelper($grid) === true) {
+        } else if (removeDS($grid) === true) {
             // when remove folder
             SQL.add("Delete Folder", {
                 "operation": SQLOps.DelFolder,
@@ -487,7 +451,7 @@ window.DS = (function ($, DS) {
             $('#backFolderBtn').removeClass('disabled');
         }
 
-        DS.refresh();
+        refreshDS();
 
         SQL.add("Go to folder", {
             "operation" : SQLOps.DSToDir,
@@ -495,16 +459,6 @@ window.DS = (function ($, DS) {
             "folderName": DS.getDSObj(folderId).getName()
         });
     };
-
-    // Refresh dataset/folder display in gridView area
-    DS.refresh = function() {
-        $explorePanel.find(".gridItems .grid-unit").removeClass("display")
-                                                  .addClass("hidden");
-        $explorePanel.find('.gridItems .grid-unit[data-dsParentId="' +
-                            curDirId + '"]')
-            .removeClass("hidden").addClass("display");
-    };
-
 
     DS.release = function() {
         var deferred = jQuery.Deferred();
@@ -526,12 +480,8 @@ window.DS = (function ($, DS) {
     // Clear dataset/folder in gridView area
     DS.clear = function() {
         $explorePanel.find(".gridItems .grid-unit").remove();
-        dsSetupHelper();
-    };
 
-
-    // Helper function for setup
-    function dsSetupHelper() {
+        // reset home folder
         curDirId = homeDirId;
         dsObjId = 0;
         dsLookUpTable = {};
@@ -545,15 +495,51 @@ window.DS = (function ($, DS) {
 
         dsObjId++;
         dsLookUpTable[homeFolder.getId()] = homeFolder;
+    };
+
+    // Create dsObj for new dataset/folder
+    function createDS(options) {
+        options = options || {};
+        // validation check
+        xcHelper.assert((options.name != null), "Invalid Parameters");
+
+        // pre-process
+        options.id = options.id || (dsObjId++);
+        options.name = options.name.trim();
+        options.parentId = options.parentId || curDirId;
+        options.isFolder = options.isFolder || false;
+
+        var parent = DS.getDSObj(options.parentId);
+        var $parent = DS.getGrid(options.parentId);
+
+        if (options.isFolder) {
+            var i = 1;
+            var name = options.name;
+            var validName = name;
+            // only check folder name as ds name cannot confilct
+            while (parent.checkNameConflict(options.id, validName, true))
+            {
+                validName = name + ' (' + i + ')';
+                ++i;
+            }
+            options.name = validName;
+        }
+
+        var dsObj = new DSObj(options);
+        $parent.append(getDSHTML(dsObj));
+        // cached in lookup table
+        dsLookUpTable[dsObj.getId()] = dsObj;
+
+        return dsObj;
     }
 
     // Helper function for DS.remove()
     function delDSHelper($grid, dsName) {
         var deferred = jQuery.Deferred();
 
-        $grid.removeClass("active");
-        $grid.addClass("inactive");
-        $grid.append('<div class="waitingIcon"></div>');
+        $grid.removeClass("active")
+             .addClass("inactive deleting")
+             .append('<div class="waitingIcon"></div>');
 
         $grid.find(".waitingIcon").fadeIn(200);
 
@@ -562,10 +548,9 @@ window.DS = (function ($, DS) {
             "dsName"   : dsName
         };
 
-        XcalarSetFree(gDatasetBrowserResultSetId)
+        DS.release()
         .then(function() {
-            gDatasetBrowserResultSetId = 0;
-            return (XcalarDestroyDataset(dsName, sqlOptions));
+            return XcalarDestroyDataset(dsName, sqlOptions);
         })
         .then(function() {
             //clear data cart
@@ -573,7 +558,7 @@ window.DS = (function ($, DS) {
             // clear data table
             $("#dataSetTableWrap").empty();
             // remove ds obj
-            rmDSHelper($grid);
+            removeDS($grid);
             DataStore.update();
 
             focusOnFirstDS();
@@ -582,16 +567,17 @@ window.DS = (function ($, DS) {
         })
         .fail(function(error) {
             $grid.find('.waitingIcon').remove();
-            $grid.removeClass("inactive");
+            $grid.removeClass("inactive")
+                 .removeClass("deleting");
             Alert.error("Delete Dataset Fails", error);
-            deferred.reject();
+            deferred.reject(error);
         });
 
         return deferred.promise();
     }
 
     // Helper function to remove ds
-    function rmDSHelper($grid) {
+    function removeDS($grid) {
         var dsId  = $grid.data("dsid");
         var dsObj = DS.getDSObj(dsId);
 
@@ -617,6 +603,15 @@ window.DS = (function ($, DS) {
 
             return true;
         }
+    }
+
+    // Refresh dataset/folder display in gridView area
+    function refreshDS() {
+        $explorePanel.find(".gridItems .grid-unit").removeClass("display")
+                                                  .addClass("hidden");
+        $explorePanel.find('.gridItems .grid-unit[data-dsParentId="' +
+                            curDirId + '"]')
+            .removeClass("hidden").addClass("display");
     }
 
     // Focus on the first dataset in the folder
@@ -693,6 +688,10 @@ window.DS = (function ($, DS) {
         $gridView.on("click", ".grid-unit", function(event) {
             event.stopPropagation(); // stop event bubbling
             var $grid = $(this);
+            // when is deleting the ds
+            if ($grid.hasClass("deleting")) {
+                return;
+            }
             DS.focusOn($grid);
         });
 
@@ -770,7 +769,7 @@ window.DS = (function ($, DS) {
         $btn.mouseover();
     }
 
-    // Helper function for DS.create()
+    // Helper function for createDS()
     function getDSHTML(dsObj) {
         var id = dsObj.getId();
         var parentId = dsObj.getParentId();
@@ -981,7 +980,7 @@ window.DS = (function ($, DS) {
         if (ds.moveTo(targetDS, -1)) {
             $grid.attr("data-dsParentId", targetId);
             $target.append($grid);
-            DS.refresh();
+            refreshDS();
 
             SQL.add("Drop dataset/folder", {
                 "operation"   : SQLOps.DSDropIn,
@@ -1024,7 +1023,7 @@ window.DS = (function ($, DS) {
             } else {
                 $sibling.after($grid);
             }
-            DS.refresh();
+            refreshDS();
 
             SQL.add("Insert dataset/folder", {
                 "operation"    : SQLOps.DSInsert,
@@ -1048,7 +1047,7 @@ window.DS = (function ($, DS) {
         if (ds.moveTo(grandPaDs, -1)) {
             $grid.attr("data-dsParentId", grandPaId);
             $grandPa.append($grid);
-            DS.refresh();
+            refreshDS();
 
             SQL.add("Drop dataset/folder back", {
                 "operation"    : SQLOps.DSDropBack,
@@ -1096,6 +1095,14 @@ window.DS = (function ($, DS) {
     if (window.unitTestMode) {
         DS.__testOnly__ = {};
         DS.__testOnly__.delDSHelper = delDSHelper;
+        DS.__testOnly__.toggleDSView = toggleDSView;
+
+        DS.__testOnly__.getDragDS = getDragDS;
+        DS.__testOnly__.setDragDS = setDragDS;
+        DS.__testOnly__.resetDragDS = resetDragDS;
+        DS.__testOnly__.getDropTarget = getDropTarget;
+        DS.__testOnly__.setDropTraget = setDropTraget;
+        DS.__testOnly__.resetDropTarget = resetDropTarget;
     }
     /* End Of Unit Test Only */
 

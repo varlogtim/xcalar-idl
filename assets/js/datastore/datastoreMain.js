@@ -34,9 +34,7 @@ window.DataStore = (function($, DataStore) {
         DataStore.update(0);
 
         DataPreview.clear()
-        .then(function() {
-            return DS.release();
-        })
+        .then(DS.release)
         .then(deferred.resolve)
         .then(deferred.reject);
 

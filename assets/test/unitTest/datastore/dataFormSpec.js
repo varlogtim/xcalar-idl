@@ -270,19 +270,8 @@ function dataFormModuleTest() {
         var testDS;
 
         before(function() {
-            testDS = xcHelper.randName("testSuites-dsForm-sp500");
-            var tryCnt = 0;
-            while (DS.has(testDS) && tryCnt < 10) {
-                // should be low chance that still has name conflict
-                testDS = xcHelper.randName("testSuites-dsForm");
-                tryCnt++;
-            }
-
-            if (tryCnt === 10) {
-                console.error("Name Conflict!");
-            }
-
-            $filePath.val("file:///netstore/datasets/sp500.csv");
+            testDS = xcHelper.uniqueRandName("testSuites-dsForm-sp500", DS.has, 10);
+            $filePath.val(testDatasets.sp500.url);
             $fileName.val(testDS);
         });
 

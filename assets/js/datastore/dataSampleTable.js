@@ -15,6 +15,7 @@ window.DataSampleTable = (function($, DataSampleTable) {
     DataSampleTable.show = function(dsId, isLoading) {
         var deferred = jQuery.Deferred();
         var dsObj = DS.getDSObj(dsId);
+
         if (dsObj == null) {
             deferred.reject("No DS");
             return (deferred.promise());
@@ -42,8 +43,8 @@ window.DataSampleTable = (function($, DataSampleTable) {
                 '<div class="loadingMsg">' +
                         'Data set is loading' + animatedDots +
                 '</div>';
-            $tableWrap.html(loadingMsg);
             $datasetWrap.addClass("loading");
+            $tableWrap.html(loadingMsg);
             $dsColsBtn.hide();
             deferred.resolve();
 

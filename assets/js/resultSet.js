@@ -7,10 +7,7 @@ function freeAllResultSets() {
     }
 
     // Free datasetBrowser resultSetId
-    if (gDatasetBrowserResultSetId !== 0) {
-        XcalarSetFree(gDatasetBrowserResultSetId);
-    }
-
+    DS.release();
     // return (chain(promises));
 }
 
@@ -37,9 +34,7 @@ function freeAllResultSetsSync() {
         }
 
         // Free datasetBrowser resultSetId
-        if (gDatasetBrowserResultSetId !== 0) {
-            promises.push(XcalarSetFree.bind(this, gDatasetBrowserResultSetId));
-        }
+        promises.push(DS.release.bind(this));
 
         return (chain(promises));
 

@@ -69,6 +69,7 @@
         <script src="../../../3rd/chai.js"></script>
         <script src="setup.js"></script>
         <script src="setupSpec.js"></script>
+        <script src="datastore/dsObjSpec.js"></script>
         <script src="datastore/dataFormSpec.js"></script>
         <script src="datastore/datacartSpec.js"></script>
         <script src="datastore/datastoreMainSpec.js"></script>
@@ -79,6 +80,7 @@
 
 <!-- XXX This is really stupid, after $.load in setup(), all js file we want to test is in the DOM. However, blanket js doesn't detect the aync load, so I have to mannuly specify the file I want to cover here -->
 
+<script src="../../js/datastore/dsObj.js" type="text/javascript" data-cover></script>
 <script src="../../js/datastore/dataForm.js" type="text/javascript" data-cover></script>
 <script src="../../js/datastore/datacart.js" type="text/javascript" data-cover></script>
  <script src="../../js/datastore/datastoreMain.js" type="text/javascript" data-cover></script>

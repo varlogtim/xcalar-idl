@@ -288,6 +288,32 @@ window.xcHelper = (function($, xcHelper) {
         return (name + rand);
     };
 
+    xcHelper.uniqueRandName = function(name, checkFunc, checkCnt) {
+        var resName = xcHelper.randName(name);
+        if (!(checkFunc instanceof Function)) {
+            return resName;
+        }
+
+        if (checkCnt == null) {
+            checkCnt = 10; // default value
+        }
+
+        var tryCnt = 0;
+
+        while (checkFunc(resName) && tryCnt < checkCnt) {
+            // should be low chance that still has name conflict
+            resName = xcHelper.randName(name);
+            tryCnt++;
+        }
+
+        if (tryCnt === checkCnt) {
+            console.error("Name Conflict!");
+            return xcHelper.randName(name); // a hack result
+        } else {
+            return resName;
+        }
+    };
+
     xcHelper.createSelection = function(element, atEnd) {
         if (element == null) {
             return;

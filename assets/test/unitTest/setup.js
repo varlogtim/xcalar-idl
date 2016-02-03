@@ -46,3 +46,15 @@ function setup() {
         $('#xc').toggleClass('large');
     });
 }
+
+var testDatasets = {
+    sp500: {
+        url: "file:///netstore/datasets/sp500.csv",
+        format: "CSV",
+        fieldDelim: "\t",
+        lineDelim: "\n",
+        hasHeader: false,
+        moduleName: "",
+        funcName: ""
+    }
+};
