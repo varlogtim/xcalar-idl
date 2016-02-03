@@ -42,8 +42,13 @@ function dataFormModuleTest() {
     });
 
     describe("Show Form Test", function() {
-        it("Should see form when call showForm()", function() {
-            DatastoreForm.__testOnly__.showForm();
+        it("Should not see form", function() {
+            DatastoreForm.hide();
+            assert.isFalse($("#importDataView").is(":visible"), "Should see form");
+        });
+
+        it("Should see form", function() {
+            DatastoreForm.show();
             assert.isTrue($("#importDataView").is(":visible"), "Should see form");
         });
     });
@@ -321,7 +326,15 @@ function dataFormModuleTest() {
                 expect(DS.has(testDS)).to.be.true;
                 $grid = DS.getGridByName(testDS);
                 expect($grid).not.to.be.null;
-                return DS.__testOnly__.delDSHelper($grid, testDS);
+
+                var innerDeferred = jQuery.Deferred();
+                // dealy delete ds since show the sample table needs time
+                setTimeout(function() {
+                    DS.__testOnly__.delDSHelper($grid, testDS)
+                    .then(innerDeferred.resolve)
+                    .fail(innerDeferred.reject);
+                }, 300);
+                return innerDeferred.promise();
             })
             .then(function() {
                 // make sure ds is deleted

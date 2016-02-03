@@ -2,6 +2,9 @@
  * Module for the datastore form part
  */
 window.DatastoreForm = (function($, DatastoreForm) {
+    var $importDataView = $("#importDataView");
+    var $explorePanel = $("#exploreView");
+
     var $filePath = $("#filePath");
     var $fileName = $("#fileName");
 
@@ -45,7 +48,7 @@ window.DatastoreForm = (function($, DatastoreForm) {
         // click to go to form section
         $("#importDataButton").click(function() {
             $(this).blur();
-            showForm();
+            DatastoreForm.show();
         });
 
         // csv promote checkbox
@@ -151,6 +154,26 @@ window.DatastoreForm = (function($, DatastoreForm) {
         });
     };
 
+    DatastoreForm.show = function() {
+        if (!$importDataView.is(":visible")) {
+            resetForm();
+            $importDataView.show();
+            $("#dataSetTableWrap").empty();
+            $explorePanel.find(".contentViewMid").addClass("hidden");
+            $("#filePath").focus();
+            $explorePanel.find(".gridItems .grid-unit.active")
+                        .removeClass("active");
+            // when switch from data sample table to data form
+            // preview table may still open, so close it
+            $("#preview-close").click();
+        }
+    };
+
+    DatastoreForm.hide = function() {
+        $importDataView.hide();
+        $explorePanel.find(".contentViewMid").removeClass('hidden');
+    };
+
     DatastoreForm.load = function(dsName, dsFormat, loadURL,
                                     fieldDelim, lineDelim, header,
                                     moduleName, funcName)
@@ -204,27 +227,9 @@ window.DatastoreForm = (function($, DatastoreForm) {
     };
 
     DatastoreForm.clear = function() {
-        showForm();
+        DatastoreForm.show();
         resetForm();
     };
-
-    function showForm() {
-        var $importDataView = $("#importDataView");
-        var $explorePanel = $('#exploreView');
-
-        if (!$importDataView.is(":visible")) {
-            resetForm();
-            $importDataView.show();
-            $("#dataSetTableWrap").empty();
-            $explorePanel.find(".contentViewMid").addClass("hidden");
-            $("#filePath").focus();
-            $explorePanel.find(".gridItems .grid-unit.active")
-                        .removeClass("active");
-            // when switch from data sample table to data form
-            // preview table may still open, so close it
-            $("#preview-close").click();
-        }
-    }
 
     function submitForm() {
         var deferred = jQuery.Deferred();
@@ -654,7 +659,6 @@ window.DatastoreForm = (function($, DatastoreForm) {
     /* Unit Test Only */
     if (window.unitTestMode) {
         DatastoreForm.__testOnly__ = {};
-        DatastoreForm.__testOnly__.showForm = showForm;
         DatastoreForm.__testOnly__.resetForm = resetForm;
         DatastoreForm.__testOnly__.submitForm = submitForm;
         DatastoreForm.__testOnly__.toggleFormat = toggleFormat;

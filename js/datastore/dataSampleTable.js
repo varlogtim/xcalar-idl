@@ -2,6 +2,7 @@
  * Module for data sample table
  */
 window.DataSampleTable = (function($, DataSampleTable) {
+    var $datasetWrap = $("#datasetWrap");
     var $tableWrap = $("#dataSetTableWrap");
     var currentRow = 0;
     var totalRows = 0;
@@ -13,14 +14,20 @@ window.DataSampleTable = (function($, DataSampleTable) {
 
     DataSampleTable.show = function(dsId, isLoading) {
         var deferred = jQuery.Deferred();
-
         var dsObj = DS.getDSObj(dsId);
+        if (dsObj == null) {
+            deferred.reject("No DS");
+            return (deferred.promise());
+        }
+
         var datasetName = dsObj.name;
 
-        // only show select all and clear all option when table can be disablyed
+        // only show buttons(select all, clear all, etc) when table can be disablyed
         var $dsColsBtn = $("#dsColsBtn");
 
-        // // update date part of the table info first to make UI smooth
+        DatastoreForm.hide();
+
+        // update date part of the table info first to make UI smooth
         var partialUpdate = true;
         updateTableInfo(dsObj, partialUpdate, isLoading);
 
@@ -36,7 +43,7 @@ window.DataSampleTable = (function($, DataSampleTable) {
                         'Data set is loading' + animatedDots +
                 '</div>';
             $tableWrap.html(loadingMsg);
-            $tableWrap.parent().addClass('loading');
+            $datasetWrap.addClass("loading");
             $dsColsBtn.hide();
             deferred.resolve();
 
@@ -46,11 +53,13 @@ window.DataSampleTable = (function($, DataSampleTable) {
         // XcalarSample sets gDatasetBrowserResultSetId
         XcalarSample(datasetName, 40)
         .then(function(result, totalEntries) {
+            var innerDeferred = jQuery.Deferred();
+
             if (!result) {
-                $dsColsBtn.hide();
-                deferred.reject({"error": "Cannot parse the dataset."});
-                return (deferred.promise());
+                innerDeferred.reject({"error": "Cannot parse the dataset."});
+                return innerDeferred.promise();
             }
+
             var kvPairs    = result.kvPair;
             var numKvPairs = result.numKvPairs;
             // update info here
@@ -83,23 +92,33 @@ window.DataSampleTable = (function($, DataSampleTable) {
                     jsonKeys.push(uniquekey);
                 }
 
+                $datasetWrap.removeClass("loading");
                 getSampleTable(datasetName, jsonKeys, jsons);
-                $dsColsBtn.show();
-                deferred.resolve();
+                innerDeferred.resolve();
             } catch(err) {
                 console.error(err, value);
-
-                getSampleTable(datasetName);
-                $dsColsBtn.show();
-                deferred.reject({"error": "Cannot parse the dataset."});
+                innerDeferred.reject({"error": "Cannot parse the dataset."});
             }
+
+            return innerDeferred.promise();
+        })
+        .then(function() {
+            $dsColsBtn.show();
+            $datasetWrap.removeClass("error");
+            deferred.resolve();
         })
         .fail(function(error) {
             $dsColsBtn.hide();
+            $datasetWrap.addClass("error");
+            var errorHTML = "<div class='loadError'>" +
+                                "Loading dataset failed. " + error.error +
+                            "</div>";
+
+            $tableWrap.html(errorHTML);
             deferred.reject(error);
         });
 
-        return (deferred.promise());
+        return deferred.promise();
     };
 
     DataSampleTable.clear = function() {
@@ -113,15 +132,14 @@ window.DataSampleTable = (function($, DataSampleTable) {
         var tableHeight = $worksheetTable.height();
         var scrollBarPadding = 0;
         $tableWrap.width($worksheetTable.width());
-        if ($worksheetTable.width() > $('#datasetWrap').width()) {
+        if ($worksheetTable.width() > $datasetWrap.width()) {
             scrollBarPadding = 10;
         }
-        $('#datasetWrap').height(tableHeight + scrollBarPadding);
+        $datasetWrap.height(tableHeight + scrollBarPadding);
     };
 
     function getSampleTable(dsName, jsonKeys, jsons) {
         var html = getSampleTableHTML(dsName, jsonKeys, jsons);
-        $tableWrap.parent().removeClass('loading');
         $tableWrap.html(html);
         restoreSelectedColumns();
         DataSampleTable.sizeTableWrapper();
@@ -323,7 +341,8 @@ window.DataSampleTable = (function($, DataSampleTable) {
             gRescolMouseDown($(this), event, {target: "datastore"});
             dblClickResize($(this), {minWidth: 25, target: "datastore"});
         });
-        $('#datasetWrap').scroll(function(){
+
+        $datasetWrap.scroll(function(){
             var $worksheetTable = $('#worksheetTable');
             $(this).scrollTop(0);
             moveFirstColumn($worksheetTable);

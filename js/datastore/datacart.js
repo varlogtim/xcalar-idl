@@ -486,15 +486,15 @@ window.DataCart = (function($, DataCart) {
 
     function triggerScrollToDatasetColumn($li) {
         var tableName = $li.closest('.selectedTable').attr('id').split("-")[1];
-        var $datasetIcon = $('#dataset-' + tableName);
+        var $ds = $('#dataset-' + tableName);
 
-        if ($datasetIcon.hasClass('active')) {
+        if ($ds.hasClass("active")) {
             DataCart.scrollToDatasetColumn(true);
         } else {
-            var clickEvent = $.Event('click');
-            clickEvent.scrollToColumn = true;
-            clickEvent.showToolTip = true;
-            $datasetIcon.trigger(clickEvent);
+            DS.focusOn($ds)
+            .then(function() {
+                DataCart.scrollToDatasetColumn(true);
+            });
         }
     }
 

@@ -313,10 +313,10 @@ window.DataPreview = (function($, DataPreview) {
     DataPreview.clear = function() {
         if ($("#dsPreviewWrap").hasClass("hidden")) {
             // when preview table not shows up
-            return (promiseWrapper(null));
+            return promiseWrapper(null);
         } else {
             var previewMode = true;
-            return (clearAll(previewMode));
+            return clearAll(previewMode);
         }
     };
 

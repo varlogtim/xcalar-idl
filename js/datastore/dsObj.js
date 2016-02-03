@@ -25,7 +25,7 @@ window.DS = (function ($, DS) {
 
     // Get dsObj by dsId
     DS.getDSObj = function(dsId) {
-        return (dsLookUpTable[dsId]);
+        return dsLookUpTable[dsId];
     };
 
     // Get grid element(folder/datasets) by dsId
@@ -67,6 +67,8 @@ window.DS = (function ($, DS) {
         // forcus on folder's label for renaming
         DS.getGrid(ds.id).click()
                     .find('.label').focus();
+
+        return ds;
     };
 
     // Create dsObj for new dataset/folder
@@ -124,6 +126,51 @@ window.DS = (function ($, DS) {
         });
     };
 
+    DS.focusOn = function($grid) {
+        xcHelper.assert($grid != null && $grid.length !== 0, "error case");
+
+        var deferred = jQuery.Deferred();
+
+        $gridView.find(".active").removeClass("active");
+        $grid.addClass("active");
+        $deleteFolderBtn.removeClass("disabled");
+
+        // folder do not show anything
+        if ($grid.hasClass("folder")) {
+            deferred.resolve();
+            return deferred.promise();
+        }
+
+        var isLoading;
+        if ($grid.find('.waitingIcon').length !== 0) {
+            isLoading = true;
+        } else {
+            isLoading = false;
+        }
+
+        // when switch to a ds, should clear others' ref count first!!
+        DataPreview.clear()
+        .then(function() {
+            return DS.release();
+        })
+        .then(function() {
+            return DataSampleTable.show($grid.data("dsid"), isLoading);
+        })
+        .then(function() {
+            if (!isLoading) {
+                Tips.refresh();
+            }
+
+            deferred.resolve(isLoading);
+        })
+        .fail(function(error) {
+            console.error("Focus on ds fails!", error);
+            deferred.reject(error);
+        });
+
+        return deferred.resolve();
+    };
+
     // Load dataset
     // promise returns $grid element
     DS.load = function(dsName, dsFormat, loadURL, fieldDelim, lineDelim,
@@ -145,10 +192,10 @@ window.DS = (function ($, DS) {
         $grid.addClass('display inactive');
         $grid.append('<div class="waitingIcon"></div>');
         $grid.find('.waitingIcon').fadeIn(200);
-        $grid.click();
-        $('#datasetWrap').addClass("inactive");
+        DS.focusOn($grid); // focus on grid before load
         DataStore.update();
-
+        // the class will be removed in DataSampleTable.show()
+        $("#datasetWrap").addClass("loading");
         var sqlOptions = {
             "operation" : SQLOps.DSLoad,
             "loadURL"   : loadURL,
@@ -166,7 +213,7 @@ window.DS = (function ($, DS) {
                    moduleName, funcName, sqlOptions)
         .then(function() {
             // sample the dataset to see if it can be parsed
-            return (XcalarSample(dsName, 1));
+            return XcalarSample(dsName, 1);
         })
         .then(function(result) {
             if (!result) {
@@ -175,21 +222,21 @@ window.DS = (function ($, DS) {
                     "error"    : 'Cannot parse data set "' + dsName + '".',
                     "dsCreated": true
                 };
-                return (jQuery.Deferred().reject(msg));
+                return jQuery.Deferred().reject(msg);
             } else {
-                $grid.removeClass('inactive')
-                     .find('.waitingIcon').remove();
+                $grid.removeClass("inactive")
+                    .find('.waitingIcon').remove();
             }
 
             // display new dataset
-            $('#datasetWrap').removeClass('inactive');
             DS.refresh();
             if ($grid.hasClass('active')) {
+                // re-focus to trigger DataSampleTable.show()
                 if (gMinModeOn) {
-                    $grid.click();
+                    DS.focusOn($grid);
                 } else {
                     $('#dataSetTableWrap').fadeOut(200, function() {
-                        $grid.click();
+                        DS.focusOn($grid);
                         $(this).fadeIn();
                     });
                 }
@@ -201,7 +248,7 @@ window.DS = (function ($, DS) {
         .fail(function(error) {
             rmDSHelper($grid);
             DataStore.update();
-            $('#datasetWrap').removeClass('inactive');
+
             if ($('#dsInfo-title').text() === dsName) {
                 // if loading page is showing, remove and go to import form
                 $("#importDataView").show();
@@ -460,7 +507,20 @@ window.DS = (function ($, DS) {
 
 
     DS.release = function() {
-        return releaseDatasetPointer();
+        var deferred = jQuery.Deferred();
+
+        if (gDatasetBrowserResultSetId === 0) {
+            deferred.resolve();
+        } else {
+            XcalarSetFree(gDatasetBrowserResultSetId)
+            .then(function() {
+                gDatasetBrowserResultSetId = 0;
+                deferred.resolve();
+            })
+            .fail(deferred.reject);
+        }
+
+        return (deferred.promise());
     };
 
     // Clear dataset/folder in gridView area
@@ -565,9 +625,9 @@ window.DS = (function ($, DS) {
         var $datasets = $curFolder.find("> .grid-unit.ds");
 
         if ($datasets.length > 0) {
-            $datasets.eq(0).click();
+            DS.focusOn($datasets.eq(0));
         } else {
-            $("#importDataButton").click();
+            DatastoreForm.show();
         }
     }
 
@@ -633,59 +693,7 @@ window.DS = (function ($, DS) {
         $gridView.on("click", ".grid-unit", function(event) {
             event.stopPropagation(); // stop event bubbling
             var $grid = $(this);
-
-            $gridView.find(".active").removeClass("active");
-            $grid.addClass("active");
-            $deleteFolderBtn.removeClass("disabled");
-
-            // folder do not show anything
-            if ($grid.hasClass("folder")) {
-                return;
-            }
-
-            // when switch to a ds, should clear others' ref count first!!
-            if ($grid.find('.waitingIcon').length !== 0) {
-                var loading = true;
-
-                DataPreview.clear()
-                .then(function() {
-                    return (releaseDatasetPointer());
-                })
-                .then(function() {
-                    $("#importDataView").hide();
-                    $('#datasetWrap').removeClass("inactive");
-                    $explorePanel.find(".contentViewMid").removeClass('hidden');
-                    return ( DataSampleTable.show($grid.data("dsid"), loading));
-                });
-
-                return;
-            }
-
-            DataPreview.clear()
-            .then(function() {
-                return (releaseDatasetPointer());
-            })
-            .then(function() {
-                $("#importDataView").hide();
-                $('#datasetWrap').removeClass("inactive");
-                $explorePanel.find(".contentViewMid").removeClass('hidden');
-                return (DataSampleTable.show($grid.data("dsid")));
-            })
-            .then(function() {
-                if (event.scrollToColumn) {
-                    DataCart.scrollToDatasetColumn(event.showToolTip);
-                }
-                $('#datasetWrap').removeClass('error');
-                Tips.refresh();
-            })
-            .fail(function(error) {
-                var errorHTML = "<div class='loadError'>" +
-                                    "Loading dataset failed. " + error.error +
-                                "</div>";
-                console.error(error.error);
-                $('#dataSetTableWrap').html(errorHTML);
-                $('#datasetWrap').addClass('error');
-            });
+            DS.focusOn($grid);
         });
 
         // Input event on folder
@@ -760,23 +768,6 @@ window.DS = (function ($, DS) {
         // refresh tooltip
         $btn.mouseenter();
         $btn.mouseover();
-    }
-
-    function releaseDatasetPointer() {
-        var deferred = jQuery.Deferred();
-
-        if (gDatasetBrowserResultSetId === 0) {
-            deferred.resolve();
-        } else {
-            XcalarSetFree(gDatasetBrowserResultSetId)
-            .then(function() {
-                gDatasetBrowserResultSetId = 0;
-                deferred.resolve();
-            })
-            .fail(deferred.reject);
-        }
-
-        return (deferred.promise());
     }
 
     // Helper function for DS.create()
