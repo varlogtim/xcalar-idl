@@ -127,6 +127,7 @@ function documentReadyIndexFunction() {
 }
 
 window.StartManager = (function(StartManager, $) {
+
     StartManager.setup = function() {
         gMinModeOn = true; // startup use min mode;
 
@@ -622,24 +623,26 @@ window.StartManager = (function(StartManager, $) {
             }
         };
 
-        var timer;
+        var winResizeTimer;
         var resizing = false;
         $(window).resize(function() {
             if (!resizing) {
                 $('.menu').hide();
                 resizing = true;
             }
-            clearTimeout(timer);
-            timer = setTimeout(function() {
-                var table = gTables[gActiveTableId];
-                if (table && table.resultSetCount !== 0) {
-                    generateFirstVisibleRowNum();
-                }
-                moveTableDropdownBoxes();
-                resizing = false;
-            }, 100);
+            clearTimeout(winResizeTimer);
+            winResizeTimer = setTimeout(winResizeStop, 100);
             moveTableTitles();
         });
+
+        function winResizeStop() {
+            var table = gTables[gActiveTableId];
+            if (table && table.resultSetCount !== 0) {
+                generateFirstVisibleRowNum();
+            }
+            moveTableDropdownBoxes();
+            resizing = false;
+        }
 
         // using this to keep window from scrolling on dragdrop
         $(window).scroll(function() {
@@ -652,6 +655,7 @@ window.StartManager = (function(StartManager, $) {
         });
 
         var mainFrameScrolling = false;
+        var mainFrameScrollTimer;
         $('#mainFrame').scroll(function() {
             if (!mainFrameScrolling) {
                 mainFrameScrolling = true;
@@ -663,18 +667,18 @@ window.StartManager = (function(StartManager, $) {
                 $('.tooltip').hide();
             }
             $(this).scrollTop(0);
-            mainFrameScrolling = true;
 
-            clearTimeout(timer);
-            timer = setTimeout(function() {
-                $('.xcTableWrap').find('.dropdownBox').show();
-                moveTableDropdownBoxes();
-                mainFrameScrolling = false;
-            }, 300);
-
+            clearTimeout(mainFrameScrollTimer);
+            mainFrameScrollTimer = setTimeout(mainFrameScrollingStop, 300);
             moveFirstColumn();
             moveTableTitles();
         });
+
+        function mainFrameScrollingStop() {
+            $('.xcTableWrap').find('.dropdownBox').show();
+            moveTableDropdownBoxes();
+            mainFrameScrolling = false;
+        }
 
         $(document).mousedown(function(event) {
             var $target = $(event.target);
