@@ -27,10 +27,11 @@ window.FnBar = (function(FnBar, $) {
             },
             "mousedown": function() {
                 $(this).addClass("inFocus");
+                $fnBar.attr('placeholder', WorksheetStr.SearchColumn);
             },
             "blur": function() {
                 $(this).removeClass("inFocus");
-
+                $fnBar.attr('placeholder', "");
                 searchHelper.clearSearch(function() {
                     $functionArea.removeClass('searching');
                 });

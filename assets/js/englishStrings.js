@@ -183,3 +183,7 @@ DataCartStr = {
                 ' and click on the column names that you are interested' +
                 ' in inside the center panel.'
 };
+
+WorksheetStr = {
+    'SearchColumn': 'search for a column'
+};
