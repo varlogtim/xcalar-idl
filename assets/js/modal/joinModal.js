@@ -252,6 +252,7 @@ window.JoinModal = (function($, JoinModal) {
 
         joinModalTabs($rightJoinTable, null, -1);
         joinModalTabs($leftJoinTable, tableId, colNum, $rightJoinTable);
+        toggleMultiClauseToolTip(false);
 
         if (gMinModeOn) {
             $modalBackground.show();
@@ -298,6 +299,7 @@ window.JoinModal = (function($, JoinModal) {
             $multiJoin.find(".joinClause.placeholder").siblings().remove();
             $mainJoin.find(".columnTab").prop("draggable", false);
         }
+        toggleMultiClauseToolTip(toMultiClause);
     }
 
     function multiClauseOpener() {
@@ -684,8 +686,8 @@ window.JoinModal = (function($, JoinModal) {
             if ($mainJoin.hasClass("multiClause")) {
                 // when multijoin, empty left or right inputs if new table
                 // selected
-                if ($tableLabel.closest('.joinContainer').attr('id')
-                    === 'rightJoin')
+                if ($tableLabel.closest('.joinContainer').attr('id') ===
+                    'rightJoin')
                 {
                     $joinModal.find('.rightClause').val("");
                 } else {
@@ -1230,6 +1232,16 @@ window.JoinModal = (function($, JoinModal) {
             }
             return z;
         }
+    }
+
+    function toggleMultiClauseToolTip(multi) {
+        if (multi) {
+            $multiJoinBtn.attr('data-original-title', 'switch to single join');
+        } else {
+            $multiJoinBtn.attr('data-original-title', 'switch to multi ' +
+                               'clause join');
+        }
+        $('.tooltip').hide();
     }
 
     return (JoinModal);
