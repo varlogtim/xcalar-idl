@@ -1212,16 +1212,19 @@ window.TblManager = (function($, TblManager) {
             var $target = $(e.target).closest('.header');
             if ($target.length) {
                 $target = $target.find('.dropdownBox');
-                $target.trigger('click');
+                var click = $.Event("click");
+                click.rightClick = true;
+                click.pageX = e.pageX;
+                $target.trigger(click);
                 e.preventDefault();
             }
         };
 
-        $thead.on("click", ".dropdownBox", function() {
+        $thead.on("click", ".dropdownBox", function(event) {
             var options = {"type": "thDropdown"};
-
             var $el = $(this);
             var $th = $el.closest("th");
+            var isRightClick = event.rightClick;
 
             var colNum = xcHelper.parseColNum($th);
 
@@ -1277,6 +1280,10 @@ window.TblManager = (function($, TblManager) {
                         options.classes += " " + tempType;
                     }
                 });
+            }
+
+            if (isRightClick) {
+                options.mouseCoors = {"x": event.pageX, "y": $el.offset().top + 25};
             }
 
             dropdownClick($el, options);
