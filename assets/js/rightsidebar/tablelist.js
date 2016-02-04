@@ -365,21 +365,15 @@ window.TableList = (function($, TableList) {
                     } else {
                         table.beActive();
                         table.updateTimeStamp();
-                        // should release the old resultSetId and then add
 
-                        XcalarSetFree(table.resultSetId)
-                        .then(function() {
-                            table.resultSetId = -1;
-                            var tblCols = table.tableCols;
-                            var tableProperties = {
-                                bookmarks : table.bookmarks,
-                                rowHeights: table.rowHeights
-                            };
-                            return TblManager.refreshTable([tableName],
-                                                            tblCols,
-                                                            [], null,
-                                        {"tableProperties": tableProperties});
-                        })
+                        var tblCols = table.tableCols;
+                        var tableProperties = {
+                            "bookmarks" : table.bookmarks,
+                            "rowHeights": table.rowHeights
+                        };
+
+                        TblManager.refreshTable([tableName], tblCols, [], null,
+                                        {"tableProperties": tableProperties})
                         .then(function() {
                             doneHandler($li, tableName, hiddenWS);
                             innerDeferred.resolve();

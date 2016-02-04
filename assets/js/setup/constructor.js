@@ -122,6 +122,23 @@ TableMeta.prototype = {
         return this;
     },
 
+    freeResultset: function() {
+        var deferred = jQuery.Deferred()
+        var self = this;
+
+        XcalarSetFree(self.resultSetId)
+        .then(function() {
+            self.resultSetId = -1;
+            deferred.resolve();
+        })
+        .fail(function(error) {
+            console.error("Free Result Fails!", error);
+            deferred.reject(error);
+        });
+
+        return deferred.promise();
+    },
+
     beInActive: function() {
         this.active = false;
         return this;

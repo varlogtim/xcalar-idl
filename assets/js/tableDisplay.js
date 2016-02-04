@@ -27,7 +27,6 @@ window.TblManager = (function($, TblManager) {
 
         var focusWorkspace = options.focusWorkspace;
         var lockTable = options.lockTable;
-        var tableProperties = options.tableProperties;
         var afterStartup;
 
         if (options.afterStartup == null) {
@@ -50,8 +49,11 @@ window.TblManager = (function($, TblManager) {
         }
         // the only case that worksheet is null is add from inActive list
 
-        TblManager.setgTable(newTableName, tableCols,
-                            {tableProperties: tableProperties})
+        var setOptions = {
+            "isActive"       : true,
+            "tableProperties": options.tableProperties
+        }
+        TblManager.setgTable(newTableName, tableCols, setOptions)
         .then(function() {
             if (focusWorkspace) {
                 focusOnWorkspace();
@@ -223,26 +225,43 @@ window.TblManager = (function($, TblManager) {
         tableProperties: an object containing bookmarks and rowheights;
 
     */
-    TblManager.setgTable = function(tName, tableCols, options) {
+    TblManager.setgTable = function(tableName, tableCols, options) {
         var deferred = jQuery.Deferred();
-        var tableId = xcHelper.getTableId(tName);
+        var tableId = xcHelper.getTableId(tableName);
         options = options || {};
         var tableProperties = options.tableProperties;
+        var isActive = options.isActive || false;
 
-        gTables[tableId] = new TableMeta({
+        var table = new TableMeta({
             "tableId"  : tableId,
-            "tableName": tName,
+            "tableName": tableName,
             "tableCols": tableCols
         });
 
         if (tableProperties) {
-            gTables[tableId].bookmarks = tableProperties.bookmarks || [];
-            gTables[tableId].rowHeights = tableProperties.rowHeights || {};
+            table.bookmarks = tableProperties.bookmarks || [];
+            table.rowHeights = tableProperties.rowHeights || {};
         }
 
-        TblManager.setTableMeta(gTables[tableId])
-        .then(deferred.resolve)
-        .fail(deferred.reject);
+        if (isActive) {
+            // the table is in active worksheet, should have meta from backend
+            table.currentRowNumber = 0;
+
+            getResultSet(tableName)
+            .then(function(resultSet) {
+                table.updateFromResultset(resultSet);
+                gTables[tableId] = table;
+                deferred.resolve();
+            })
+            .fail(function(error) {
+                console.error("setTableMeta Fails!", error);
+                deferred.reject(error);
+            });
+        } else {
+            // table is in inactive list or orphaned list, no backend meta
+            gTables[tableId] = table;
+            deferred.resolve();
+        }
 
         return (deferred.promise());
     };
@@ -258,7 +277,6 @@ window.TblManager = (function($, TblManager) {
             table until it is removed later
         tempHide: boolean. If true, table is part of a hidden worksheet
     */
-
     TblManager.archiveTable = function(tableId, options) {
         options = options || {};
         var del = options.del || false;
@@ -276,6 +294,8 @@ window.TblManager = (function($, TblManager) {
 
         if (!del) {
             var table = gTables[tableId];
+            // free result set when archieve
+            table.freeResultset();
             table.beInActive();
             table.updateTimeStamp();
             WSManager.archiveTable(tableId, tempHide);
@@ -370,7 +390,7 @@ window.TblManager = (function($, TblManager) {
 
             if (tableType === TableType.Active) {
                 // when delete active table
-                archiveTable(tableId, {del: ArchiveTable.Delete});
+                TblManager.archiveTable(tableId, {del: ArchiveTable.Delete});
 
                 setTimeout(function() {
                     var activeTable = gTables[gActiveTableId];
@@ -393,53 +413,35 @@ window.TblManager = (function($, TblManager) {
         return (deferred.promise());
     };
 
-    // get meta data about table
-    TblManager.setTableMeta = function(table) {
-        var deferred  = jQuery.Deferred();
-        var tableName = table.tableName;
-
-        table.currentRowNumber = 0;
-
-        getResultSet(tableName)
-        .then(function(resultSet) {
-            table.updateFromResultset(resultSet);
-
-            // table.tableName = tableName;
-            // table.tableId = tableId;
-
-            deferred.resolve(table);
-        })
-        .fail(function(error){
-            console.error("setTableMeta Fails!", error);
-            deferred.reject(error);
-        });
-
-        return (deferred.promise());
-    };
-
     TblManager.restoreTableMeta = function(tableId, oldMeta, failures) {
         var deferred = jQuery.Deferred();
         var table = new TableMeta(oldMeta);
         var tableName = table.tableName;
 
-        getResultSet(tableName)
-        .then(function(resultSet) {
-            table.updateFromResultset(resultSet);
+        if (table.isLocked) {
+            table.isLocked = false;
+            table.active = false;
+        }
 
-            if (table.isLocked) {
-                table.isLocked = false;
-                table.active = false;
-            }
+        if (table.active) {
+            getResultSet(tableName)
+            .then(function(resultSet) {
+                table.updateFromResultset(resultSet);
 
+                gTables[tableId] = table;
+                deferred.resolve();
+            })
+            .fail(function(thriftError) {
+                var error = "gTables initialization failed on " +
+                            tableName + "fails: " + thriftError.error;
+                failures.push(error);
+                deferred.resolve(error);
+            });
+        } else {
+            // when it's orphaned table or inactive table
             gTables[tableId] = table;
             deferred.resolve();
-        })
-        .fail(function(thriftError) {
-            var error = "gTables initialization failed on " +
-                        tableName + "fails: " + thriftError.error;
-            failures.push(error);
-            deferred.resolve(error);
-        });
+        }
 
         return (deferred.promise());
     };
