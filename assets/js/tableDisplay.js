@@ -310,9 +310,9 @@ window.TblManager = (function($, TblManager) {
                 $timeLine.remove();
             }
         }
-        // $('#rowInput').val("").data('val',"");
+
         gActiveTableId = null;
-        if ($('.xcTableWrap.active').length === 0) {
+        if ($('.xcTableWrap:not(.inActive').length === 0) {
             RowScroller.empty();
         }
 
@@ -1053,6 +1053,16 @@ window.TblManager = (function($, TblManager) {
         createTableHeader(tableId);
         addColListeners($table, tableId);
 
+        var activeWS = WSManager.getActiveWS();
+        var tableWS = WSManager.getWSFromTable(tableId);
+        if ((activeWS === tableWS) &&
+            $('.xcTableWrap.worksheet-' + activeWS).length &&
+            $('.xcTableWrap.worksheet-' + activeWS).find('.tblTitleSelected')
+                                                   .length === 0) {
+            // if active worksheet and no other table is selected; 
+            focusTable(tableId, true);
+        }
+
         if (numRows === 0) {
             $table.find('.idSpan').text("");
         }
@@ -1489,13 +1499,13 @@ window.TblManager = (function($, TblManager) {
         var table = gTables[tableId];
         var activeWS = WSManager.getActiveWS();
         var tableWS = WSManager.getWSFromTable(tableId);
-        var activeClass = "";
+        var tableClasses = "";
         if (activeWS !== tableWS) {
-            activeClass = 'inActive';
+            tableClasses = 'inActive';
         }
         var wrapper =
             '<div id="xcTableWrap-' + tableId + '"' +
-                ' class="xcTableWrap tableWrap ' + activeClass + '" ' +
+                ' class="xcTableWrap tableWrap ' + tableClasses + '" ' +
                 'data-id="' + tableId + '">' +
                 '<div id="xcTbodyWrap-' + tableId + '" class="xcTbodyWrap" ' +
                 'data-id="' + tableId + '"></div>' +
@@ -1591,6 +1601,7 @@ window.TblManager = (function($, TblManager) {
 
         newTable += '</tr></thead><tbody></tbody></table>';
         $('#xcTbodyWrap-' + tableId).append(newTable);
+
         return (dataIndex);
     }
 

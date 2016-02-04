@@ -1636,7 +1636,7 @@ function dropdownClick($el, options) {
         $allMenus = $menu.add($subMenu);
     
         // case that should close table menu
-        if ($menu.is(":visible")) {
+        if ($menu.is(":visible") && $menu.data('tableId') === tableId) {
             closeMenu($allMenus);
             return;
         }
