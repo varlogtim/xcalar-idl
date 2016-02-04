@@ -1,7 +1,10 @@
 var paths = {
     dologout      : 'assets/htmlFiles/dologout.html',
+    login         : 'assets/htmlFiles/login.html',
     tableau       : 'assets/htmlFiles/tableau.html',
+    indexAbsolute : "/index.html",
     index         : 'index.html',
+    testAbsolute  : '/unitTest.html',
     workbookDemo  : 'assets/htmlFiles/walk/workbookDemo.html',
     datastoreDemo1: 'assets/htmlFiles/walk/datastoreDemo1.html',
     datastoreDemo2: 'assets/htmlFiles/walk/datastoreDemo2.html',

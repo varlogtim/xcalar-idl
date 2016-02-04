@@ -12,7 +12,7 @@ window.unitTestMode = true;
 
 function setup() {    
     $(document).ready(function() {
-        $("#xc").load("../../../index.html", function() {
+        $("#xc").load(paths.indexAbsolute, function() {
             // after load the index.html, run mocha
             mocha.run();
         });
@@ -31,7 +31,7 @@ function setup() {
         .then(Support.releaseSession)
         .then(function() {
             removeUnloadPrompt();
-            window.location.href = "../../../index.html";
+            window.location = paths.indexAbsolute;
         })
         .fail(function(error) {
             console.error(error);

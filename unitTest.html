@@ -3,7 +3,7 @@
     <head>
         <meta charset="UTF-8">
         <title>Xcalar UnitTest</title>
-        <link rel="stylesheet" href="../../../3rd/mocha.css" />
+        <link rel="stylesheet" href="3rd/mocha.css" />
 
         <style type="text/css">
             #unitTestBody {
@@ -14,7 +14,7 @@
 
             #xc {
                 overflow: hidden;
-                background: #36444d url("../../images/bg_page.png") repeat right top;
+                background: #36444d url("assets/images/bg_page.png") repeat right top;
                 color: #4d4d4d;
             }
 
@@ -64,26 +64,27 @@
         <div id="messages"></div>
         <div id="fixtures"></div>
         <div id="xc" width="100%" height="300"></div>
-        <script src="../../../3rd/bower_components/jquery/dist/jquery.min.js"></script>
-        <script src="../../../3rd/mocha.js"></script>
-        <script src="../../../3rd/chai.js"></script>
-        <script src="setup.js"></script>
-        <script src="setupSpec.js"></script>
-        <script src="datastore/dsObjSpec.js"></script>
-        <script src="datastore/dataFormSpec.js"></script>
-        <script src="datastore/datacartSpec.js"></script>
-        <script src="datastore/datastoreMainSpec.js"></script>
-        <script src="worksheet/wsManagerSpec.js"></script>
+        <script src="3rd/bower_components/jquery/dist/jquery.min.js"></script>
+        <script src="3rd/mocha.js"></script>
+        <script src="3rd/chai.js"></script>
+        <script src="assets/js/setup/paths.js"></script>
+        <script src="assets/test/unitTest/setup.js"></script>
+        <script src="assets/test/unitTest/setupSpec.js"></script>
+        <script src="assets/test/unitTest/datastore/dsObjSpec.js"></script>
+        <script src="assets/test/unitTest/datastore/dataFormSpec.js"></script>
+        <script src="assets/test/unitTest/datastore/datacartSpec.js"></script>
+        <script src="assets/test/unitTest/datastore/datastoreMainSpec.js"></script>
+        <script src="assets/test/unitTest/worksheet/wsManagerSpec.js"></script>
         <script type="text/javascript">setup();</script>
-        <script src="../../../3rd/blanket.min.js" data-cover-adapter="../../../3rd/mocha-blanket.js"></script>
+        <script src="3rd/blanket.min.js" data-cover-adapter="3rd/mocha-blanket.js"></script>
     </body>
 
 <!-- XXX This is really stupid, after $.load in setup(), all js file we want to test is in the DOM. However, blanket js doesn't detect the aync load, so I have to mannuly specify the file I want to cover here -->
 
-<script src="../../js/datastore/dsObj.js" type="text/javascript" data-cover></script>
-<script src="../../js/datastore/dataForm.js" type="text/javascript" data-cover></script>
-<script src="../../js/datastore/datacart.js" type="text/javascript" data-cover></script>
- <script src="../../js/datastore/datastoreMain.js" type="text/javascript" data-cover></script>
- <script src="../../js/worksheet/wsManager.js" type="text/javascript" data-cover></script>
+<script src="assets/js/datastore/dsObj.js" type="text/javascript" data-cover></script>
+<script src="assets/js/datastore/dataForm.js" type="text/javascript" data-cover></script>
+<script src="assets/js/datastore/datacart.js" type="text/javascript" data-cover></script>
+ <script src="assets/js/datastore/datastoreMain.js" type="text/javascript" data-cover></script>
+ <script src="assets/js/worksheet/wsManager.js" type="text/javascript" data-cover></script>
 
 </html>

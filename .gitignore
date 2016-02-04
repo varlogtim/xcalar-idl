@@ -1,10 +1,7 @@
-/js/config.js
 /assets/js/config.js
 /assets/stylesheets/**/*.css
-/stylesheets/**/*.css
-/widget/*.css
+/assets/widget/*.css
+/assets/js/setup/constructorVersion.js
 *.css
 *.DS_Store
-/js/setup/constructorVersion.js
-/js/.jshintrc
 /prod/*

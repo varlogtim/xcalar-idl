@@ -3,14 +3,15 @@
 <meta charset="UTF-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <title>Xcalar Insight</title>
-<link href='3rd/fonts/raleway/raleway.css' rel='stylesheet' type='text/css'>
-<link href='3rd/fonts/opensans/opensans.css' rel='stylesheet' type='text/css'>
-<link rel="stylesheet" href="bower_components/fontawesome/css/font-awesome.min.css">
-<script src="bower_components/jquery/dist/jquery.min.js"></script>
-<script src="3rd/runtime.js"></script>
-<link href="stylesheets/css/login.css" rel="stylesheet" type="text/css">
-<script src="js/thrift/XcalarApiVersionSignature_types.js"></script>
-<script src="js/setup/version.js"></script>
+<link href='../../3rd/fonts/raleway/raleway.css' rel='stylesheet' type='text/css'>
+<link href='../../3rd/fonts/opensans/opensans.css' rel='stylesheet' type='text/css'>
+<link rel="stylesheet" href="../../3rd/bower_components/fontawesome/css/font-awesome.min.css">
+<script src="../../3rd/bower_components/jquery/dist/jquery.min.js"></script>
+<script src="../../3rd/runtime.js"></script>
+<link href="../stylesheets/css/login.css" rel="stylesheet" type="text/css">
+<script src="../js/thrift/XcalarApiVersionSignature_types.js"></script>
+<script src="../js/setup/version.js"></script>
+<script src="../js/setup/paths.js"></script>
 </head>
 <body>
     <script>
@@ -79,7 +80,7 @@ $(document).ready(function() {
         console.log("password: "+$("#loginPasswordBox").val());
         sessionStorage.setItem("xcalar-username", username);
         // XXX this redirect is only for temporary use
-        window.location = "index.html";
+        window.location = paths.indexAbsolute;
     });
     $("#insightVersion").html("Version SHA: " +
         XVM.getSHA().substring(0, 6) + ", Revision " + XVM.getVersion());

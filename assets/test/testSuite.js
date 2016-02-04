@@ -90,7 +90,7 @@ window.TestSuite = (function($, TestSuite) {
         .then(Support.releaseSession)
         .then(function() {
             removeUnloadPrompt();
-            window.location.href = "assets/test/unitTest/unitTest.html";
+            window.location.href = paths.testAbsolute;
         })
         .fail(function(error) {
             console.error(error);
