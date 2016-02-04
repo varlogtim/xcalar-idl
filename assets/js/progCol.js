@@ -339,18 +339,16 @@ window.ColManager = (function($, ColManager) {
         var tableName   = table.tableName;
         var tableCols   = table.tableCols;
 
-        var msg = StatusMessageTStr.ChangeType;
-        var msgObj = {
-            "msg"      : msg,
+        var msgId = StatusMessage.addMsg({
+            "msg"      : StatusMessageTStr.ChangeType,
             "operation": SQLOps.ChangeType
-        };
-        var msgId = StatusMessage.addMsg(msgObj);
+        });
+        xcHelper.lockTable(tableId);
+
         var tableNamePart = tableName.split("#")[0];
         var newTableNames = [];
         var newFieldNames = [];
         var mapStrings = [];
-
-        xcHelper.lockTable(tableId);
 
         var i;
         var colInfo;
@@ -375,6 +373,8 @@ window.ColManager = (function($, ColManager) {
 
         chain(promises)
         .then(function(newTableId) {
+            // map do not change stats of the table
+            Profile.copy(tableId, newTableId);
             xcHelper.unlockTable(tableId, true);
             StatusMessage.success(msgId, false, newTableId);
 
@@ -406,7 +406,6 @@ window.ColManager = (function($, ColManager) {
             var newTableName = newTableNames[index];
             var fieldName    = newFieldNames[index];
             var mapString    = mapStrings[index];
-            var newTableId   = xcHelper.getTableId(newTableName);
             var curColNum    = colTypeInfos[index].colNum;
 
             var sqlOptions = {
@@ -427,17 +426,16 @@ window.ColManager = (function($, ColManager) {
                 var newTablCols = xcHelper.mapColGenerate(curColNum, fieldName,
                                         mapString, curTableCols, mapOptions);
 
-                // map do not change stats of the table
-                Profile.copy(curTableId, newTableId);
-                var refreshOptions = {};
                 if (index > 0) {
-                    refreshOptions.lockTable = true;
+                    TblManager.setOrphanTableMeta(newTableName, newTablCols);
+                    return promiseWrapper(null);
+                } else {
+                    return TblManager.refreshTable([newTableName], newTablCols,
+                                               [tableName], worksheet);
                 }
-                return TblManager.refreshTable([newTableName], newTablCols,
-                                               [curTableName], worksheet,
-                                               refreshOptions);
             })
             .then(function() {
+                var newTableId = xcHelper.getTableId(newTableName);
                 innerDeferred.resolve(newTableId);
             })
             .fail(function(error) {
@@ -1111,11 +1109,7 @@ window.ColManager = (function($, ColManager) {
         var colName     = tableCols[colNum - 1].name;
         var backColName = tableCols[colNum - 1].getBackColName();
 
-        var msg = StatusMessageTStr.SplitColumn;
-        var msgObj = {
-            "msg"      : msg,
-            "operation": SQLOps.SplitCol
-        };
+
         var msgId;
         var tableNamePart = tableName.split("#")[0];
         var newTableNames = [];
@@ -1127,7 +1121,10 @@ window.ColManager = (function($, ColManager) {
         .then(function(colToSplit) {
             // Note: add msg here because user may cancel it
             // and that case should not show success message
-            msgId = StatusMessage.addMsg(msgObj);
+            msgId = StatusMessage.addMsg({
+                "msg"      : StatusMessageTStr.SplitColumn,
+                "operation": SQLOps.SplitCol
+            });
             numColToGet = colToSplit;
 
             var i;
@@ -1175,6 +1172,8 @@ window.ColManager = (function($, ColManager) {
             return (chain(promises));
         })
         .then(function(newTableId) {
+            // map do not change stats of the table
+            Profile.copy(tableId, newTableId);
             xcHelper.unlockTable(tableId, true);
             StatusMessage.success(msgId, false, newTableId);
 
@@ -1234,24 +1233,18 @@ window.ColManager = (function($, ColManager) {
                                         fieldName, mapString, curTableCols,
                                         mapOptions);
 
-                // map do not change stats of the table
-                Profile.copy(curTableId, newTableId);
-
-                var refreshOptions = {};
                 if (index < numColToGet) {
-                    refreshOptions.lockTable = true;
+                    TblManager.setOrphanTableMeta(newTableName, newTableCols);
+                    return promiseWrapper(null);
+                } else {
+                    return TblManager.refreshTable([newTableName], newTableCols,
+                                                [tableName], worksheet);
                 }
-                return TblManager.refreshTable([newTableName], newTableCols,
-                                                [curTableName], worksheet,
-                                                refreshOptions);
             })
             .then(function() {
                 innerDeferred.resolve(newTableId);
             })
-            .fail(function(error) {
-                WSManager.removeTable(newTableId);
-                innerDeferred.reject(error);
-            });
+            .fail(innerDeferred.reject);
 
             return (innerDeferred.promise());
         }

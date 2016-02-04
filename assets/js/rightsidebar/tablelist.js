@@ -318,20 +318,8 @@ window.TableList = (function($, TableList) {
                 }
 
                 if (action === "add") {
-                    var worksheetToAdd;
                     if (tableType === TableType.Orphan) {
-                        // get workshett before async call
-                        worksheetToAdd = WSManager.getActiveWS();
-
-                        renameOrphanIfNeeded(tableName)
-                        .then(function(newTableName) {
-                            tableName = newTableName;
-                            return prepareOrphanForActive(tableName);
-                        })
-                        .then(function(newTableCols) {
-                            return TblManager.refreshTable([tableName],
-                                            newTableCols, [], worksheetToAdd);
-                        })
+                        addOrphanedTable(tableName)
                         .then(function(){
                             doneHandler($li, tableName);
                             var tableIndex = gOrphanTables.indexOf(tableName);
@@ -344,15 +332,10 @@ window.TableList = (function($, TableList) {
                         });
                     } else if (tableType === TableType.Agg) {
                         var key = $li.data("key");
-                        // get workshett before async call
-                        worksheetToAdd = WSManager.getActiveWS();
 
-                        prepareOrphanForActive(tableName)
-                        .then(function(newTableCols) {
-                            return TblManager.refreshTable([tableName],
-                                            newTableCols, [], worksheetToAdd);
-                        })
-                        .then(function(){
+                        addOrphanedTable(tableName)
+                        .then(function(finalTableName){
+                            var tableId = xcHelper.getTableId(finalTableName);
                             WSManager.activeAggInfo(key, tableId);
                             // TableList.refreshAggTables() is called after
                             // all promises done
@@ -515,15 +498,17 @@ window.TableList = (function($, TableList) {
         XcalarGetTables()
         .then(function(backEndTables) {
             var backTables = backEndTables.nodeInfo;
-            var numBackTables = backEndTables.numNodes;
             var tableMap = {};
-            for (var i = 0; i < numBackTables; i++) {
-                tableMap[backTables[i].name] = backTables[i].name;
+            for (var i = 0, len = backEndTables.numNodes; i < len; i++) {
+                tableMap[backTables[i].name] = true;
             }
-            for (var tId in gTables) {
-                var tableName = gTables[tId].tableName;
-                if (tableMap[tableName]) {
-                    delete tableMap[tableName];
+
+            for (var tableId in gTables) {
+                var table = gTables[tableId];
+                if (!table.isOrphaned &&
+                    tableMap.hasOwnProperty(table.tableName))
+                {
+                    delete tableMap[table.tableName];
                 }
             }
             setupOrphanedList(tableMap);
@@ -544,62 +529,71 @@ window.TableList = (function($, TableList) {
         return (deferred.promise());
     };
 
-    function renameOrphanIfNeeded(tableName) {
+    function addOrphanedTable(tableName) {
         var deferred = jQuery.Deferred();
+
         var tableId = xcHelper.getTableId(tableName);
-        var newTableName;
-        if (!tableId) {
-            newTableName = tableName + Authentication.getHashId();
-            var sqlOptions = {
-                "operation": SQLOps.RenameOrphanTable,
-                "oldName"  : tableName,
-                "newName"  : newTableName
+        var newTableCols = [];
+        // get workshett before async call
+        var worksheet = WSManager.getActiveWS();
+
+        if (tableId != null && gTables[tableId] != null) {
+            // when meta is in gTables
+            var table = gTables[tableId];
+            if (!table.isOrphaned) {
+                throw "Error, table is not orphaned!";
+            }
+            newTableCols = table.tableCols;
+            var tableProperties = {
+                "bookmarks" : table.bookmarks,
+                "rowHeights": table.rowHeights
             };
-            XcalarRenameTable(tableName, newTableName, sqlOptions)
+            TblManager.refreshTable([tableName], newTableCols, [], worksheet,
+                                    {"tableProperties": tableProperties})
             .then(function() {
-                deferred.resolve(newTableName);
+                deferred.resolve(tableName);
             })
-            .fail(function(error) {
-                deferred.reject(error);
-            });
-        } else {
-            deferred.resolve(tableName);
+            .fail(deferred.reject);
+
+            return deferred.promise();
         }
 
-        return (deferred.promise());
-    }
-    
-    function prepareOrphanForActive(tableName) {
-        var deferred = jQuery.Deferred();
-
-        XcalarMakeResultSetFromTable(tableName)
-        .then(function(result) {
-            var newTableCols = [];
-            var colName = result.keyAttrHeader.name;
-            if (colName !== 'recordNum') {
-                var progCol = ColManager.newCol({
-                            "name"    : colName,
-                            "width"   : gNewCellWidth,
-                            "isNewCol": false,
-                            "userStr" : '"' + colName + '" = pull(' +
-                                        colName + ')',
-                            "func": {
-                                "func": "pull",
-                                "args": [colName]
-                            }
-                        });
-
-                newTableCols.push(progCol);
-            }
-            // new "DATA" column
+        renameOrphanIfNeeded()
+        .then(function(newTableName) {
+            tableName = newTableName;
             newTableCols.push(ColManager.newDATACol());
-            deferred.resolve(newTableCols);
+
+            return TblManager.refreshTable([tableName], newTableCols,
+                                            [], worksheet);
         })
-        .fail(function(error) {
-            console.error(error);
-            deferred.reject(error);
-        });
-        return (deferred.promise());
+        .then(function() {
+            deferred.resolve(tableName);
+        })
+        .fail(deferred.reject);
+
+        return deferred.promise();
+
+        function renameOrphanIfNeeded() {
+            var innerDeferred = jQuery.Deferred();
+            var newTableName;
+            if (tableId == null) {
+                newTableName = tableName + Authentication.getHashId();
+                var sqlOptions = {
+                    "operation": SQLOps.RenameOrphanTable,
+                    "oldName"  : tableName,
+                    "newName"  : newTableName
+                };
+                XcalarRenameTable(tableName, newTableName, sqlOptions)
+                .then(function() {
+                    innerDeferred.resolve(newTableName);
+                })
+                .fail(innerDeferred.reject);
+            } else {
+                innerDeferred.resolve(tableName);
+            }
+
+            return innerDeferred.promise();
+        }
     }
 
     function addBulkTableHelper(tableType) {
@@ -1047,6 +1041,10 @@ window.TableList = (function($, TableList) {
 
         for (var tableId in gTables) {
             var table = gTables[tableId];
+            if (table.isOrphaned) {
+                continue;
+            }
+
             if (table.active) {
                 activeTables.push(table);
             } else {

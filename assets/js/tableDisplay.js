@@ -267,6 +267,33 @@ window.TblManager = (function($, TblManager) {
     };
 
     /*
+        Sets gTable meta data, specially for orphan table
+        Possible Options:
+        tableProperties: an object containing bookmarks and rowheights;
+    */
+    TblManager.setOrphanTableMeta = function(tableName, tableCols, options) {
+        options = options || {};
+
+        var tableId = xcHelper.getTableId(tableName);
+        var table = new TableMeta({
+            "tableId"   : tableId,
+            "tableName" : tableName,
+            "tableCols" : tableCols,
+            "isOrphaned": true
+        });
+
+        var tableProperties = options.tableProperties;
+        if (tableProperties) {
+            table.bookmarks = tableProperties.bookmarks || [];
+            table.rowHeights = tableProperties.rowHeights || {};
+        }
+
+        gTables[tableId] = table;
+
+        return table;
+    };
+
+    /*
         Removes a table from the display and puts it in the rightside bar inactive
         list. Shifts all the ids. Does not delete the table from backend!
         
@@ -1063,7 +1090,7 @@ window.TblManager = (function($, TblManager) {
             $('.xcTableWrap.worksheet-' + activeWS).length &&
             $('.xcTableWrap.worksheet-' + activeWS).find('.tblTitleSelected')
                                                    .length === 0) {
-            // if active worksheet and no other table is selected; 
+            // if active worksheet and no other table is selected;
             focusTable(tableId, true);
         }
 

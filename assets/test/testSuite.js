@@ -611,7 +611,15 @@ window.TestSuite = (function($, TestSuite) {
             return (checkExists("#inactiveTablesList"));
         })
         .then(function() {
-            $("#inactiveTablesList .addTableBtn").eq(2).click();
+            // move the flight table (the one that has id #XX5)
+            var $li = $("#inactiveTablesList .tableInfo").filter(function () {
+                return $(this).data("id").endsWith("5");
+            });
+            if (!$li.find(".tableName").text().startsWith("flight")) {
+                throw "Wrong table";
+            }
+            $li.find(".addTableBtn").click();
+
             $("#submitTablesBtn").click();
             $("#rightSideBar .iconClose").click();
             $("#worksheetTabs .worksheetTab:first-child")

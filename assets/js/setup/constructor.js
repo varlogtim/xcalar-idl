@@ -79,9 +79,13 @@ function TableMeta(options) {
     this.tableName = options.tableName;
     this.tableId = options.tableId;
     this.isLocked = options.isLocked;
+    this.isOrphaned = options.isOrphaned || false;
     this.isSortedArray = options.isSortedArray || false;
 
-    if (options.active != null) {
+    if(this.isOrphaned) {
+        // orphaned table is always inactive!
+        this.active = false;
+    } else if (options.active != null) {
         this.active = options.active;
     } else {
         this.active = true;

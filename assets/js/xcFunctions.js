@@ -261,99 +261,70 @@ window.xcFunction = (function($, xcFunction) {
             return (deferred.promise());
         }
 
+        var lTable     = gTables[lTableId];
+        var lTableName = lTable.tableName;
+        var rTable     = gTables[rTableId];
+        var rTableName = rTable.tableName;
+        var newTableId = xcHelper.getTableId(newTableName);
+
         // joined table will in the current active worksheet.
         var worksheet = WSManager.getActiveWS();
-        var sqlOptions = {
-            "operation"   : SQLOps.Join,
-            "lTableName"  : gTables[lTableId].name,
-            "lTableId"    : lTableId,
-            "lColNums"    : lColNums,
-            "rTableName"  : gTables[rTableId].name,
-            "rTableId"    : rTableId,
-            "rColNums"    : rColNums,
-            "newTableName": newTableName,
-            "joinStr"     : joinStr
-        };
 
-        joinCheck(lColNums, lTableId, rColNums, rTableId)
+        var msgId = StatusMessage.addMsg({
+            "msg"      : StatusMessageTStr.Join,
+            "operation": SQLOps.Join
+        });
+
+        xcHelper.lockTable(lTableId);
+        xcHelper.lockTable(rTableId);
+
+        // Step 1: check if it's a multi Join.
+        // If yes, should do a map to concat all columns
+        multiJoinCheck(lColNums, lTableId, rColNums, rTableId)
         .then(function(res) {
-            lTableId = res.lTableId;
-            rTableId = res.rTableId;
+            var deferred1 = checkTableIndex(res.lColName, res.lTableId);
+            var deferred2 = checkTableIndex(res.rColName, res.rTableId);
 
-            var lColNum = res.lColNum;
-            var rColNum = res.rColNum;
-
-            var joinOptions = res.joinOptions || {};
-
-            var lTable     = gTables[lTableId];
-            var lTableName = lTable.tableName;
-            var lColName   = lTable.tableCols[lColNum].getBackColName();
-
-            var rTable     = gTables[rTableId];
-            var rTableName = rTable.tableName;
-            var rColName   = rTable.tableCols[rColNum].getBackColName();
-
-            var lSrcName;
-            var rSrcName;
-
-            var lTableResult;
-            var rTableResult;
-
-            xcHelper.lockTable(lTableId);
-            xcHelper.lockTable(rTableId);
-
-            var msgId = StatusMessage.addMsg({
-                "msg"      : StatusMessageTStr.Join,
-                "operation": SQLOps.Join
-            });
-
-            var newTableId = xcHelper.getTableId(newTableName);
-
-            // check table index
-            parallelIndex(lColName, lTableId, rColName, rTableId)
-            .then(function(lResult, rResult) {
-                lTableResult = lResult;
-                lSrcName = lResult.tableName;
-
-                rTableResult = rResult;
-                rSrcName = rResult.tableName;
-
-                return (XcalarJoin(lSrcName, rSrcName, newTableName,
-                                    joinType, sqlOptions));
-            })
-            .then(function() {
-                var lRemoved = joinOptions.lRemoved;
-                var rRemoved = joinOptions.rRemoved;
-                var newTableCols = createJoinedColumns(lTable, rTable,
-                                                       lRemoved, rRemoved);
-
-                return TblManager.refreshTable([newTableName], newTableCols,
-                                    [lTableName, rTableName], worksheet);
-            })
-            .then(function() {
-                xcHelper.unlockTable(lTableId, true);
-                xcHelper.unlockTable(rTableId, true);
-
-                StatusMessage.success(msgId, false, newTableId);
-                commitToStorage();
-                deferred.resolve();
-            })
-            .fail(function(error) {
-                xcHelper.unlockTable(lTableId);
-                xcHelper.unlockTable(rTableId);
-                Alert.error("Join Table Fails", error);
-                StatusMessage.fail(StatusMessageTStr.JoinFailed, msgId);
-
-                joinFailHandler(lTableResult)
-                .then(function() {
-                    joinFailHandler(rTableResult);
-                })
-                .always(function() {
-                    deferred.reject(error);
-                });
-            });
+            // Step 2: index the left table and right table
+            return xcHelper.when(deferred1, deferred2);
         })
-        .fail(deferred.reject);
+        .then(function(lInexedTable, rIndexedTable) {
+            var sqlOptions = {
+                "operation"   : SQLOps.Join,
+                "lTableName"  : lTableName,
+                "lTableId"    : lTableId,
+                "lColNums"    : lColNums,
+                "rTableName"  : rTableName,
+                "rTableId"    : rTableId,
+                "rColNums"    : rColNums,
+                "newTableName": newTableName,
+                "joinStr"     : joinStr
+            };
+            // Step 3: join left table and right table
+            return XcalarJoin(lInexedTable, rIndexedTable, newTableName,
+                                joinType, sqlOptions);
+        })
+        .then(function() {
+            var newTableCols = createJoinedColumns(lTable, rTable);
+            return TblManager.refreshTable([newTableName], newTableCols,
+                                        [lTableName, rTableName], worksheet);
+        })
+        .then(function() {
+            xcHelper.lockTable(lTableId, true);
+            xcHelper.lockTable(rTableId, true);
+
+            StatusMessage.success(msgId, false, newTableId);
+            commitToStorage();
+            deferred.resolve();
+        })
+        .fail(function(error) {
+            xcHelper.unlockTable(lTableId);
+            xcHelper.unlockTable(rTableId);
+
+            Alert.error("Join Table Fails", error);
+            StatusMessage.fail(StatusMessageTStr.JoinFailed, msgId);
+            deferred.reject(error);
+        });
 
         return (deferred.promise());
     };
@@ -411,19 +382,10 @@ window.xcFunction = (function($, xcFunction) {
         xcHelper.lockTable(tableId);
 
         getGroupbyIndexedTable()
-        .then(function(result) {
+        .then(function(resTable, resCol) {
             // table name may have changed after sort!
-            indexedTable = result.tableName;
-
-            if (isMultiGroupby) {
-                if (result.indexCol != null) {
-                    indexedColName = result.indexCol;
-                } else {
-                    throw "No index col";
-                }
-            } else {
-                indexedColName = groupByCols[0];
-            }
+            indexedTable = resTable;
+            indexedColName = resCol;
 
             // get name from src table
             groupbyTable = xcHelper.getTableName(tableName) + "-GroupBy";
@@ -450,7 +412,7 @@ window.xcFunction = (function($, xcFunction) {
                 // multi group by should extract column from groupby table
                 return extractColFromMap(groupbyTable, groupByCols,
                                         groupByColTypes, indexedColName,
-                                        finalTableCols, isIncSample, curWS);
+                                        finalTableCols, isIncSample);
             } else {
                 return promiseWrapper(groupbyTable);
             }
@@ -481,6 +443,7 @@ window.xcFunction = (function($, xcFunction) {
             deferred.resolve();
         })
         .fail(function(error) {
+            xcHelper.unlockTable(tableId);
             Alert.error("GroupBy Failed", error);
             StatusMessage.fail(StatusMessageTStr.GroupByFailed, msgId);
             deferred.reject(error);
@@ -491,7 +454,7 @@ window.xcFunction = (function($, xcFunction) {
         function getGroupbyIndexedTable() {
             if (isMultiGroupby) {
                 // multiGroupBy should first do a map and then index
-                return checkMultiGroupByIndex(groupByCols, tableId, curWS);
+                return checkMultiGroupByIndex(groupByCols, tableId);
             } else {
                 // single groupBy, check index
                 return checkTableIndex(groupByCols[0], tableId);
@@ -558,115 +521,6 @@ window.xcFunction = (function($, xcFunction) {
             StatusMessage.fail(StatusMessageTStr.MapFailed, msgId);
 
             deferred.reject(error);
-        });
-
-        return (deferred.promise());
-    };
-
-    // map two tables at the same time, now specifically for multi clause join
-    xcFunction.twoMap = function(lOptions, rOptions, lockNewTable, msg) {
-        var deferred = jQuery.Deferred();
-
-        if (lOptions == null || rOptions == null) {
-            deferred.reject("Invalid map parameters");
-            return (deferred.promise());
-        }
-
-        var lColNum    = lOptions.colNum;
-        var lTableId   = lOptions.tableId;
-        var lTable     = gTables[lTableId];
-        var lTableName = lTable.tableName;
-        var lFieldName = lOptions.fieldName;
-        var lMapString = lOptions.mapString;
-
-        var rColNum    = rOptions.colNum;
-        var rTableId   = rOptions.tableId;
-        var rTable     = gTables[rTableId];
-        var rTableName = rTable.tableName;
-        var rFieldName = rOptions.fieldName;
-        var rMapString = rOptions.mapString;
-
-        msg = msg || StatusMessageTStr.Map + " " + lTableName +
-                        " and " + rTableName;
-        var msgObj = {
-            "msg"      : msg,
-            "operation": "map"
-        };
-        var msgId = StatusMessage.addMsg(msgObj);
-
-        var lWorksheet = WSManager.getWSFromTable(lTableId);
-        var rWorksheet = WSManager.getWSFromTable(rTableId);
-
-        var lNewInfo = getNewTableInfo(lTableName);
-        var lNewName = lNewInfo.tableName;
-        var lNewId   = lNewInfo.tableId;
-
-        var rNewInfo = getNewTableInfo(rTableName);
-        var rNewName = rNewInfo.tableName;
-        // var rNewId   = rNewInfo.tableId;
-
-        var sqlOptions1 = {
-            "operation"   : SQLOps.JoinMap,
-            "srcTableName": lTableName,
-            "newTableName": lNewName,
-            "colName"     : lFieldName,
-            "mapString"   : lMapString
-        };
-
-        var sqlOptions2 = {
-            "operation"   : SQLOps.JoinMap,
-            "srcTableName": rTableName,
-            "newTableName": rNewName,
-            "colName"     : rFieldName,
-            "mapString"   : rMapString
-        };
-
-        xcHelper.lockTable(lTableId);
-        xcHelper.lockTable(rTableId);
-
-        var deferred1 = XcalarMap(lFieldName, lMapString,
-                                    lTableName, lNewName, sqlOptions1);
-        var deferred2 = XcalarMap(rFieldName, rMapString,
-                                    rTableName, rNewName, sqlOptions2);
-
-        xcHelper.when(deferred1, deferred2)
-        .then(function(ret1, ret2) {
-            // XXX: You can check whether deferred1 or deferred2 has an error
-            // by using if (ret1 && ret1.error != undefined) // deferred1 failed
-            if (lockNewTable) {
-                xcHelper.lockTable(lTableId);
-                xcHelper.lockTable(rTableId);
-            }
-
-            var lTableCols = xcHelper.mapColGenerate(lColNum, lFieldName,
-                                        lMapString, lTable.tableCols, lOptions);
-
-            var refreshOptions = {"lockTable": true};
-            return TblManager.refreshTable([lNewName], lTableCols, [lTableName],
-                                            lWorksheet, refreshOptions);
-        })
-        .then(function() {
-            var rTableCols = xcHelper.mapColGenerate(rColNum, rFieldName,
-                                        rMapString, rTable.tableCols, rOptions);
-            var refreshOptions = {"lockTable": true};
-            return TblManager.refreshTable([rNewName], rTableCols, [rTableName],
-                                            rWorksheet, refreshOptions);
-        })
-        .then(function() {
-            xcHelper.unlockTable(lTableId, true);
-            xcHelper.unlockTable(rTableId, true);
-
-            StatusMessage.success(msgId, false, lNewId);
-            deferred.resolve(lNewName, rNewName);
-        })
-        .fail(function(err1, err2) {
-            xcHelper.unlockTable(lTableId);
-            xcHelper.unlockTable(rTableId);
-
-            StatusMessage.fail(StatusMessageTStr.MapFailed, msgId);
-            var ret1 = thriftLog("DualMap", err1);
-            var ret2 = thriftLog("DualMap", err2);
-            deferred.reject(ret1 + ", " + ret2);
         });
 
         return (deferred.promise());
@@ -903,11 +757,11 @@ window.xcFunction = (function($, xcFunction) {
         .then(function(unsorted) {
             if (unsorted !== tableName) {
                 unsortedTableName = unsorted;
-                return (XcalarMakeResultSetFromTable(unsorted));
+
+                // XXX this will add result count!!!
+                return XcalarMakeResultSetFromTable(unsorted);
             } else {
-                var tmp = jQuery.Deferred();
-                tmp.resolve();
-                return (tmp.promise());
+                return jQuery.Deferred().resolve().promise();
             }
         })
         .then(function(resultSet) {
@@ -920,14 +774,7 @@ window.xcFunction = (function($, xcFunction) {
                 console.log(tableName, "not indexed correctly!");
                 // XXX In the future,we can check if there are other tables that
                 // are indexed on this key. But for now, we reindex a new table
-                var newTableInfo = getNewTableInfo(tableName);
-                var newTableName = newTableInfo.tableName;
-                var newTableId   = newTableInfo.tableId;
-
-                // append new table to the same ws as the old table
-                var wsId = WSManager.getWSFromTable(tableId);
-                // must add to worksheet before async call
-                WSManager.addTable(newTableId, wsId);
+                var newTableName = getNewTableInfo(tableName).tableName;
 
                 var sqlOptions = {
                     "operation"   : SQLOps.CheckIndex,
@@ -942,36 +789,22 @@ window.xcFunction = (function($, xcFunction) {
                                      sqlOptions)
                 .then(function() {
                     var tablCols = xcHelper.deepCopy(table.tableCols);
+                    TblManager.setOrphanTableMeta(newTableName, tablCols);
 
-                    TblManager.setgTable(newTableName, tablCols);
-                    gTables[newTableId].active = false;
-
-                    var tableResult = {
-                        "newTableCreated": true,
-                        "setMeta"        : false,
-                        "tableName"      : newTableName,
-                        "tableId"        : newTableId
-                    };
-                    deferred.resolve(setIndexedTableMeta(tableResult));
+                    deferred.resolve(newTableName, colName);
                 })
-                .fail(function(error) {
-                    WSManager.removeTable(newTableId);
-                    deferred.reject(error);
-                });
+                .fail(deferred.reject);
             } else {
                 console.log(tableName, "indexed correctly!");
-
-                deferred.resolve({
-                    "newTableCreated": false,
-                    "tableName"      : tableName,
-                    "tableId"        : tableId
-                });
+                deferred.resolve(tableName, colName);
             }
-        });
+        })
+        .fail(deferred.reject);
+
         return (deferred.promise());
     }
 
-    function checkMultiGroupByIndex(groupByCols, tableId, curWS) {
+    function checkMultiGroupByIndex(groupByCols, tableId) {
         var deferred = jQuery.Deferred();
 
         // From Jerene:
@@ -981,12 +814,9 @@ window.xcFunction = (function($, xcFunction) {
         var srcTableName = srcTable.tableName;
         var srcTableCols = srcTable.tableCols;
 
-        var mapTableInfo = getNewTableInfo(srcTableName);
-        var mapTableName = mapTableInfo.tableName;
-        var mapTableId   = mapTableInfo.tableId;
+        var mapTableName = getNewTableInfo(srcTableName).tableName;
 
         var indexedTableName;
-        var indexedTableId;
 
         var mapStr = "multiJoinModule:multiJoin(" + groupByCols.join(", ") + ")";
         var groupByField = xcHelper.randName("multiGroupBy", 5);
@@ -1003,23 +833,11 @@ window.xcFunction = (function($, xcFunction) {
         XcalarMap(groupByField, mapStr, srcTableName, mapTableName, sqlOptions)
         .then(function() {
             // add mapped table meta
-            WSManager.addTable(mapTableId, curWS);
             var tableCols = xcHelper.deepCopy(srcTableCols);
-            return TblManager.setgTable(mapTableName, tableCols);
-        })
-        .then(function() {
-            // inactive the mapped table and add info in right side bar
-            setIndexedTableMeta({
-                "newTableCreated": true,
-                "setMeta"        : false,
-                "tableName"      : mapTableName,
-                "tableId"        : mapTableId
-            });
+            TblManager.setOrphanTableMeta(mapTableName, tableCols);
 
             // index the mapped table
-            var indexedTableInfo = getNewTableInfo(mapTableName);
-            indexedTableName = indexedTableInfo.tableName;
-            indexedTableId = indexedTableInfo.tableId;
+            indexedTableName = getNewTableInfo(mapTableName).tableName;
 
             sqlOptions = {
               "operation"   : SQLOps.GroupByAction,
@@ -1037,23 +855,10 @@ window.xcFunction = (function($, xcFunction) {
         })
         .then(function() {
             // add indexed table meta
-            WSManager.addTable(indexedTableId, curWS);
             var tableCols = xcHelper.deepCopy(srcTableCols);
-            return TblManager.setgTable(indexedTableName, tableCols);
-        })
-        .then(function() {
-            // inactive the reIndexed table and add info in right side bar
-            setIndexedTableMeta({
-                "newTableCreated": true,
-                "setMeta"        : false,
-                "tableName"      : indexedTableName,
-                "tableId"        : indexedTableId
-            });
+            TblManager.setOrphanTableMeta(indexedTableName, tableCols);
 
-            deferred.resolve({
-                "tableName": indexedTableName,
-                "indexCol" : groupByField
-            });
+            deferred.resolve(indexedTableName, groupByField);
         })
         .fail(deferred.reject);
 
@@ -1061,63 +866,50 @@ window.xcFunction = (function($, xcFunction) {
     }
 
     function extractColFromMap(groupbyTableName, colArray, colTypes,
-                                indexedColName, finalTableCols,
-                                isIncSample, curWS)
+                                indexedColName, finalTableCols, isIncSample)
     {
         var deferred = jQuery.Deferred();
 
         // XXX Jerene: Okay this is really dumb, but we have to keep mapping
         var mapStrStarter = "cut(" + indexedColName + ", ";
         var tableCols = extractColGetColHelper(finalTableCols, 0, isIncSample);
-        var lastTableName;
 
-        TblManager.setgTable(groupbyTableName, tableCols)
-        .then(function() {
-            var groubyTableId = xcHelper.getTableId(groupbyTableName);
+        TblManager.setOrphanTableMeta(groupbyTableName, tableCols);
 
-            WSManager.addTable(groubyTableId, curWS);
-            setIndexedTableMeta({
-                "newTableCreated": true,
-                "setMeta"        : false,
-                "tableName"      : groupbyTableName,
-                "tableId"        : groubyTableId
-            });
+        var promises = [];
+        var currTableName = groupbyTableName;
 
-            var promises = [];
-            var currTableName = groupbyTableName;
-
-            for (var i = 0; i < colArray.length; i++) {
-                var mapStr = mapStrStarter + (i + 1) + ", " + '".Xc."' + ")";
-                // convert type
-                // XXX FIXME if need more other types
-                if (colTypes[i] === "integer") {
-                    mapStr = "int(" + mapStr + ")";
-                } else if (colTypes[i] === "float") {
-                    mapStr = "float(" + mapStr + ")";
-                } else if (colTypes[i] === "boolean") {
-                    mapStr = "bool(" + mapStr + ")";
-                }
-
-                var newTableName = getNewTableInfo(currTableName).tableName;
-                var isLastTable = (i === colArray.length - 1);
-                tableCols = extractColGetColHelper(finalTableCols, i + 1,
-                                                    isIncSample);
-                var args = {
-                    "colName"     : colArray[i],
-                    "mapString"   : mapStr,
-                    "srcTableName": currTableName,
-                    "newTableName": newTableName
-                };
-
-                promises.push(extracColMapHelper.bind(this, args, curWS,
-                                                    tableCols, isLastTable));
-                currTableName = newTableName;
+        for (var i = 0; i < colArray.length; i++) {
+            var mapStr = mapStrStarter + (i + 1) + ", " + '".Xc."' + ")";
+            // convert type
+            // XXX FIXME if need more other types
+            if (colTypes[i] === "integer") {
+                mapStr = "int(" + mapStr + ")";
+            } else if (colTypes[i] === "float") {
+                mapStr = "float(" + mapStr + ")";
+            } else if (colTypes[i] === "boolean") {
+                mapStr = "bool(" + mapStr + ")";
             }
 
-            lastTableName = currTableName;
+            var newTableName = getNewTableInfo(currTableName).tableName;
+            var isLastTable = (i === colArray.length - 1);
+            tableCols = extractColGetColHelper(finalTableCols, i + 1,
+                                                isIncSample);
+            var args = {
+                "colName"     : colArray[i],
+                "mapString"   : mapStr,
+                "srcTableName": currTableName,
+                "newTableName": newTableName
+            };
 
-            return chain(promises);
-        })
+            promises.push(extracColMapHelper.bind(this, args,
+                                                tableCols, isLastTable));
+            currTableName = newTableName;
+        }
+
+        var lastTableName = currTableName;
+
+        chain(promises)
         .then(function() {
             deferred.resolve(lastTableName);
         })
@@ -1138,14 +930,13 @@ window.xcFunction = (function($, xcFunction) {
         return newCols;
     }
 
-    function extracColMapHelper(mapArgs, curWS, tableCols, isLastTable) {
+    function extracColMapHelper(mapArgs, tableCols, isLastTable) {
         var deferred = jQuery.Deferred();
 
         var colName = mapArgs.colName;
         var mapStr = mapArgs.mapString;
         var srcTableName = mapArgs.srcTableName;
         var newTableName = mapArgs.newTableName;
-        var newTableId = xcHelper.getTableId(newTableName);
 
         var sqlOptions = {
             "operation"   : SQLOps.GroupByAction,
@@ -1158,37 +949,19 @@ window.xcFunction = (function($, xcFunction) {
 
         XcalarMap(colName, mapStr, srcTableName, newTableName, sqlOptions)
         .then(function() {
-            if (isLastTable) {
-                // this is the last table, we will
-                // set the meta data in xcFunctions.groupBy
-                return promiseWrapper(null);
-            } else {
-                WSManager.addTable(newTableId, curWS);
-                return TblManager.setgTable(newTableName, tableCols);
+            if (!isLastTable) {
+                // the last table will set meta data in xcFunctions.groupBy
+                TblManager.setOrphanTableMeta(newTableName, tableCols);
             }
-        })
-        .then(function() {
-            if (isLastTable) {
-                // this is the last table, we will
-                // set the meta data in xcFunctions.groupBy
-                deferred.resolve();
-            } else {
-                // inactive the table
-                setIndexedTableMeta({
-                    "newTableCreated": true,
-                    "setMeta"        : false,
-                    "tableName"      : newTableName,
-                    "tableId"        : newTableId
-                });
-                deferred.resolve();
-            }
+
+            deferred.resolve();
         })
         .fail(deferred.reject);
 
         return (deferred.promise());
     }
 
-    function joinCheck(lColNums, lTableId, rColNums, rTableId) {
+    function multiJoinCheck(lColNums, lTableId, rColNums, rTableId) {
         var deferred = jQuery.Deferred();
         var len = lColNums.length;
 
@@ -1196,22 +969,34 @@ window.xcFunction = (function($, xcFunction) {
         xcHelper.assert((len === rColNums.length && len >= 1),
                         "Invalid parameters in join");
 
+        var lTable = gTables[lTableId];
+        var lCols  = lTable.tableCols;
+        var lTableName = lTable.tableName;
+
+        var rTable = gTables[rTableId];
+        var rCols  = rTable.tableCols;
+        var rTableName = rTable.tableName;
+
         if (len === 1) {
             // single join
             deferred.resolve({
-                "lColNum" : lColNums[0],
-                "lTableId": lTableId,
-                "rColNum" : rColNums[0],
-                "rTableId": rTableId
+                "lTableId"  : lTableId,
+                "lTableName": lTableName,
+                "lColName"  : lCols[lColNums[0]].getBackColName(),
+                "rTableId"  : rTableId,
+                "rTableName": rTableName,
+                "rColName"  : rCols[rColNums[0]].getBackColName()
             });
         } else {
             // multi join
 
             // left cols
+            var lNewInfo = getNewTableInfo(lTableName);
+            var lNewName = lNewInfo.tableName;
+            var lNewId   = lNewInfo.tableId;
+
             var lString  = 'multiJoinModule:multiJoin(';
             var lColName = xcHelper.randName("leftJoinCol");
-            var lCols    = gTables[lTableId].tableCols;
-            var lColNum  = lCols.length;
 
             for (var i = 0; i <= len - 2; i++) {
                 lString += lCols[lColNums[i]].getBackColName() + ", ";
@@ -1219,10 +1004,12 @@ window.xcFunction = (function($, xcFunction) {
             lString += lCols[lColNums[len - 1]].getBackColName() + ")";
 
             // right cols
+            var rNewInfo = getNewTableInfo(rTableName);
+            var rNewName = rNewInfo.tableName;
+            var rNewId   = rNewInfo.tableId;
+
             var rString  = 'multiJoinModule:multiJoin(';
             var rColName = xcHelper.randName("rightJoinCol");
-            var rCols    = gTables[rTableId].tableCols;
-            var rColNum  = rCols.length;
 
             for (var i = 0; i <= len - 2; i++) {
                 rString += rCols[rColNums[i]].getBackColName() + ", ";
@@ -1230,47 +1017,42 @@ window.xcFunction = (function($, xcFunction) {
 
             rString += rCols[rColNums[len - 1]].getBackColName() + ")";
 
-            var lMapOptions = {
-                "colNum"   : lColNum,
-                "tableId"  : lTableId,
-                "fieldName": lColName,
-                "mapString": lString
+            var lSqlOption = {
+                "operation"   : SQLOps.JoinMap,
+                "srcTableName": lTableName,
+                "newTableName": lNewName,
+                "colName"     : lColName,
+                "mapString"   : lString
             };
 
-            var rMapOptions = {
-                "colNum"   : rColNum,
-                "tableId"  : rTableId,
-                "fieldName": rColName,
-                "mapString": rString
+            var rSqlOptions = {
+                "operation"   : SQLOps.JoinMap,
+                "srcTableName": rTableName,
+                "newTableName": rNewName,
+                "colName"     : rColName,
+                "mapString"   : rString
             };
 
-            var mapMsg = StatusMessageTStr.Map + " for multiClause Join";
+            var deferred1 = XcalarMap(lColName, lString,
+                                    lTableName, lNewName, lSqlOption);
+            var deferred2 = XcalarMap(rColName, rString,
+                                    rTableName, rNewName, rSqlOptions);
 
-            xcFunction.twoMap(lMapOptions, rMapOptions, true, mapMsg)
-            .then(function(lNewName, rNewName) {
-                var lRemoved = {};
-                var rRemoved = {};
+            xcHelper.when(deferred1, deferred2)
+            .then(function() {
+                var lTableCols = xcHelper.deepCopy(lCols);
+                var rTableCols = xcHelper.deepCopy(rCols);
+                TblManager.setOrphanTableMeta(lNewName, lTableCols);
+                TblManager.setOrphanTableMeta(rNewName, rTableCols);
 
-                lRemoved[lColName] = true;
-                rRemoved[rColName] = true;
-
-                var lNewId = xcHelper.getTableId(lNewName);
-                var rNewId = xcHelper.getTableId(rNewName);
-
-                var joinOptions = {
-                    "lRemoved": lRemoved,
-                    "rRemoved": rRemoved
-                };
-
-                var res = {
-                    "lColNum"    : lColNum - 1,
-                    "lTableId"   : lNewId,
-                    "rColNum"    : rColNum - 1,
-                    "rTableId"   : rNewId,
-                    "joinOptions": joinOptions
-                };
-
-                deferred.resolve(res);
+                deferred.resolve({
+                    "lTableId"  : lNewId,
+                    "lTableName": lNewName,
+                    "lColName"  : lColName,
+                    "rTableId"  : rNewId,
+                    "rTableName": rNewName,
+                    "rColName"  : rColName
+                });
             })
             .fail(deferred.reject);
         }
@@ -1278,102 +1060,8 @@ window.xcFunction = (function($, xcFunction) {
         return (deferred.promise());
     }
 
-    function parallelIndex(lColName, lTableId, rColName, rTableId) {
-        var deferred = jQuery.Deferred();
-
-        var deferred1 = checkTableIndex(lColName, lTableId);
-        var deferred2 = checkTableIndex(rColName, rTableId);
-
-        xcHelper.when(deferred1, deferred2)
-        .then(function(ret1, ret2) {
-            deferred.resolve(ret1, ret2);
-        })
-        .fail(function(ret1, ret2) {
-            // If one fails, we abort entire transaction. This means that we
-            // delete even the operation that has completed and rewind to prev
-            // good state
-            var del1 = false;
-            var del2 = false;
-            if (ret1 && ret1.error != null &&
-                !(ret2 && (ret2.error != null))) {
-                // Left table has an error, should del right table
-                del2 = true;
-            }
-            if (ret2 && ret2.error != null &&
-                !(ret1 && (ret1.error != null))) {
-                // Right table has an error, should del left table
-                del1 = true;
-            }
-
-            var res;
-            var failed;
-            var sqlOptions;
-
-            if (del1) {
-                // delete left table (rigt table error)
-                res = ret1;
-                failed = ret2;
-                sqlOptions = {
-                    "operation": "deleteTable",
-                    "tableName": res.tableName
-                };
-
-                XcalarDeleteTable(res.tableName, sqlOptions)
-                .always(function() {
-                    console.error("Parallel index fails in rightTable", failed);
-                    deferred.reject(failed);
-                });
-            }
-
-            if (del2) {
-                // delete right table (left table error)
-                res = ret2;
-                failed = ret1;
-                sqlOptions = {
-                    "operation": "deleteTable",
-                    "tableName": res.tableName
-                };
-
-                XcalarDeleteTable(res.tableName, sqlOptions)
-                .always(function() {
-                    console.error("Parallel index fails in leftTable", failed);
-                    deferred.reject(failed);
-                });
-            }
-
-            if (!del1 && !del2) {
-                // when both fails, nothing need to delete
-                deferred.reject(ret1, ret2);
-            }
-        });
-        return (deferred.promise());
-    }
-
-    function setIndexedTableMeta(tableResult) {
-        if (tableResult.newTableCreated === false) {
-            return ({
-                "newTableCreated": false,
-                "setMeta"        : true,
-                "tableName"      : tableResult.tableName,
-                "tableId"        : tableResult.tableId
-            });
-        }
-
-        var table = gTables[tableResult.tableId];
-        table.beInActive();
-        TableList.addTables([table], IsActive.Inactive);
-
-        return ({
-            "newTableCreated": true,
-            "setMeta"        : true,
-            "tableName"      : tableResult.tableName,
-            "tableId"        : tableResult.tableId
-        });
-
-    }
-
     // For xcFuncion.join, deepy copy of right table and left table columns
-    function createJoinedColumns(lTable, rTable, lRemoved, rRemoved) {
+    function createJoinedColumns(lTable, rTable) {
         // Combine the columns from the 2 current tables
         // Note that we have to create deep copies!!
         var newTableCols = [];
@@ -1383,15 +1071,12 @@ window.xcFunction = (function($, xcFunction) {
         var dataCol;
         var colName;
 
-        lRemoved = lRemoved || {};
-        rRemoved = rRemoved || {};
-
         for (var i = 0; i < lCols.length; i++) {
             colName = lCols[i].name;
 
             if (colName === "DATA") {
                 dataCol = lCols[i];
-            } else if (!(colName in lRemoved)) {
+            } else {
                 newTableCols[index] = lCols[i];
                 ++index;
             }
@@ -1400,7 +1085,7 @@ window.xcFunction = (function($, xcFunction) {
         for (var i = 0; i < rCols.length; i++) {
             colName = rCols[i].name;
 
-            if (colName !== "DATA" && !(colName in rRemoved)) {
+            if (colName !== "DATA") {
                 newTableCols[index] = rCols[i];
                 ++index;
             }
@@ -1410,37 +1095,6 @@ window.xcFunction = (function($, xcFunction) {
         newTableCols.push(dataCol);
 
         return (newTableCols);
-    }
-
-    // this function is called when a new table is created during a join because
-    // the previous table wasn't correctly index, but the join failed so we have
-    // to delete the new table
-    function joinFailHandler(result) {
-        var deferred = jQuery.Deferred();
-
-        result = result || {};
-
-        var tableName = result.tableName;
-        // when no new table created
-        if (!result.newTableCreated) {
-            deferred.resolve();
-        } else if (result.setMeta) {
-            var tableId = xcHelper.getTableId(tableName);
-            $('#inactiveTablesList').find('.tableInfo[data-id="' +
-                                        tableId + '"]')
-                                    .find('.addTableBtn')
-                                    .click();
-
-            TableList.tableBulkAction("delete", TableType.InActive)
-            .then(deferred.resolve)
-            .fail(deferred.reject);
-        } else {
-            XcalarDeleteTable(tableName)
-            .then(deferred.resolve)
-            .fail(deferred.reject);
-        }
-
-        return (deferred.promise());
     }
 
     return (xcFunction);
