@@ -52,7 +52,7 @@ window.TblManager = (function($, TblManager) {
         var setOptions = {
             "isActive"       : true,
             "tableProperties": options.tableProperties
-        }
+        };
         TblManager.setgTable(newTableName, tableCols, setOptions)
         .then(function() {
             if (focusWorkspace) {
@@ -907,7 +907,8 @@ window.TblManager = (function($, TblManager) {
             }
 
             $("#xcTableWrap-" + oldId).removeClass("tableToRemove")
-                                .find(".tableTitle .hashName").text(tableId);
+                                .find(".tableTitle .hashName")
+                                .text('#' + tableId);
             $("#rowScroller-" + oldId).attr('id', 'rowScroller-' + tableId)
                                     .removeClass("rowScrollerToRemove");
             $('#dagWrap-' + oldId).attr('id', 'dagWrap-' + tableId)
