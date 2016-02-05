@@ -446,37 +446,18 @@ window.TblManager = (function($, TblManager) {
         return (deferred.promise());
     };
 
-    TblManager.restoreTableMeta = function(tableId, oldMeta, failures) {
-        var deferred = jQuery.Deferred();
-        var table = new TableMeta(oldMeta);
-        var tableName = table.tableName;
+    TblManager.restoreTableMeta = function(oldgTables) {
+        for (var tableId in oldgTables) {
+            var oldMeta = oldgTables[tableId];
+            var table = new TableMeta(oldMeta);
 
-        if (table.isLocked) {
-            table.isLocked = false;
-            table.active = false;
-        }
+            if (table.isLocked) {
+                table.isLocked = false;
+                table.active = false;
+            }
 
-        if (table.active) {
-            getResultSet(tableName)
-            .then(function(resultSet) {
-                table.updateFromResultset(resultSet);
-
-                gTables[tableId] = table;
-                deferred.resolve();
-            })
-            .fail(function(thriftError) {
-                var error = "gTables initialization failed on " +
-                            tableName + "fails: " + thriftError.error;
-                failures.push(error);
-                deferred.resolve(error);
-            });
-        } else {
-            // when it's orphaned table or inactive table
             gTables[tableId] = table;
-            deferred.resolve();
         }
-
-        return (deferred.promise());
     };
 
     TblManager.pullRowsBulk = function(tableId, jsonObj, startIndex, dataIndex,
@@ -1653,6 +1634,12 @@ window.TblManager = (function($, TblManager) {
             var tableIndex = gOrphanTables.indexOf(tableName);
             gOrphanTables.splice(tableIndex, 1);
             Dag.makeInactive(tableName, true);
+
+            var tableId = xcHelper.getTableId(tableName);
+            if (tableId != null && gTables[tableId] != null) {
+                delete gTables[tableId];
+            }
+
             deferred.resolve();
         })
         .fail(deferred.reject);

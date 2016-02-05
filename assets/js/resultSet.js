@@ -1,42 +1,42 @@
 function freeAllResultSets() {
     // var promises = [];
     // Note from Cheng: use promise is not reliable to send all reqeust to backend
-    var table;
-    for (table in gTables) {
-        XcalarSetFree(gTables[table].resultSetId);
+    for (var tableId in gTables) {
+        var table = gTables[tableId];
+        if (table.resultSetId !== -1) {
+            XcalarSetFree(table.resultSetId);
+        }
     }
 
     // Free datasetBrowser resultSetId
     DS.release();
-    // return (chain(promises));
 }
 
 function freeAllResultSetsSync() {
     var deferred = jQuery.Deferred();
     var promises = [];
-    var tableNames = {};
 
     // if table does not exist and free the resultSetId, it crash the backend
 
     // check backend table name to see if it exists
-    XcalarGetTables()
-    .then(function(results) {
-        var tables = results.nodeInfo;
-        for (var i = 0, len = results.numNodes; i < len; i++) {
-            tableNames[tables[i].name] = true;
-        }
-
-        for (var table in gTables) {
-            if (!tableNames.hasOwnProperty(gTables.tableName)) {
-                continue;
+    xcHelper.getBackTableSet()
+    .then(function(backTableSet) {
+        for (var tableId in gTables) {
+            var table = gTables[tableId];
+            if (table.resultSetId !== -1) {
+                if (!backTableSet.hasOwnProperty(table.tableName)) {
+                    console.error("Table not in backend!");
+                    continue;
+                } else {
+                    promises.push(XcalarSetFree.bind(this, table.resultSetId));
+                }
             }
-            promises.push(XcalarSetFree.bind(this, gTables[i].resultSetId));
         }
 
         // Free datasetBrowser resultSetId
         promises.push(DS.release.bind(this));
 
-        return (chain(promises));
+        return chain(promises);
 
     })
     .then(deferred.resolve)

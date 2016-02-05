@@ -359,28 +359,52 @@ window.StartManager = (function(StartManager, $) {
         });
     }
 
+    function restoreActiveTable(tableName, tableId, failures) {
+        var deferred = jQuery.Deferred();
+        var table = gTables[tableId];
+
+        table.beActive();
+
+        getResultSet(tableName)
+        .then(function(resultSet) {
+            gTables[tableId].updateFromResultset(resultSet);
+            return TblManager.parallelConstruct(tableId);
+        })
+        .then(deferred.resolve)
+        .fail(function(error) {
+            failures.push("Add table " + tableName +
+                        "fails: " + error.error);
+            // still resolve but push error failures
+            deferred.resolve();
+        });
+
+        return deferred.promise();
+    }
+
     function initializeTable() {
         var deferred = jQuery.Deferred();
-        var tableCount = 0;
 
         StatusMessage.updateLocation(true, StatusMessageTStr.LoadingTables);
-        XcalarGetTables()
-        .then(function(backEndTables) {
-            var backTables = backEndTables.nodeInfo;
-            var numBackTables = backEndTables.numNodes;
-            var tableMap = {};
 
-            for (var i = 0; i < numBackTables; i++) {
-                // record the table
-                tableMap[backTables[i].name] = 1;
+        xcHelper.getBackTableSet()
+        .then(function(backTableSet) {
+            var tableId;
+            var tableName;
+
+            // check if some table has front meta but not backend info
+            // if yes, delete front meta
+            for (tableId in gTables) {
+                tableName = gTables[tableId].tableName;
+                if (!backTableSet.hasOwnProperty(tableName)) {
+                    console.warn(tableName, "is not in backend");
+                    delete gTables[tableId];
+                }
             }
 
             var hasTable = false;
             var promises = [];
             var failures = [];
-            var tableName;
-            var tableId;
-            var currentTable;
+
             var ws;
             var wsId;
             var worksheets = WSManager.getWorksheets();
@@ -398,35 +422,16 @@ window.StartManager = (function(StartManager, $) {
                     hasTable = true;
                 }
 
-                // create active tables
+                // create active table
                 for (var j = 0; j < numWsTables; j++) {
                     tableId = wsTables[j];
-                    currentTable = gTables[tableId];
 
-                    if (!currentTable) {
-                        WSManager.removeTable(tableId);
-                        console.error("not find table", tableId);
+                    if (!checkIfTableHasMeta(tableId, backTableSet)) {
                         continue;
                     }
 
-                    currentTable.beActive();
-                    tableName = currentTable.tableName;
-                    delete tableMap[tableName];
-                    ++tableCount;
-
-                    promises.push((function(tName, tId) {
-                        var innerDeferred = jQuery.Deferred();
-
-                        TblManager.parallelConstruct(tId)
-                        .then(innerDeferred.resolve)
-                        .fail(function(thriftError) {
-                            failures.push("Add table " + tName +
-                                         "fails: " + thriftError.error);
-                            innerDeferred.resolve(thriftError);
-                        });
-
-                        return (innerDeferred.promise());
-                    }).bind(this, tableName, tableId));
+                    promises.push(restoreActiveTable.bind(this, tableName,
+                                    tableId, failures));
                 }
 
                 // create hidden tables
@@ -434,19 +439,12 @@ window.StartManager = (function(StartManager, $) {
                 var numHiddenWsTables = wsHiddenTables.length;
                 for (var j = 0; j < numHiddenWsTables; j++) {
                     tableId = wsHiddenTables[j];
-                    currentTable = gTables[tableId];
 
-                    if (!currentTable) {
-                        WSManager.removeTable(tableId);
-                        console.error("not find table", tableId);
+                    if (!checkIfTableHasMeta(tableId, backTableSet)) {
                         continue;
                     }
 
-                    tableName = currentTable.tableName;
-                    delete tableMap[tableName];
-                    ++tableCount;
-
-                    currentTable.beInActive();
+                    gTables[tableId].beInActive();
                 }
             }
 
@@ -456,19 +454,12 @@ window.StartManager = (function(StartManager, $) {
 
             for (var i = 0; i < numNoSheetTables; i++) {
                 tableId = noSheetTables[i];
-                currentTable = gTables[tableId];
 
-                if (!currentTable) {
-                    // this case is fine since some are in agg table list
-                    console.info("not find table", tableId);
+                if (!checkIfTableHasMeta(tableId, backTableSet, true)) {
                     continue;
                 }
 
-                tableName = currentTable.tableName;
-                delete tableMap[tableName];
-                ++tableCount;
-
-                currentTable.beInActive();
+                gTables[tableId].beInActive();
             }
 
             // set up tables in hidden worksheets
@@ -484,39 +475,19 @@ window.StartManager = (function(StartManager, $) {
 
                 for (var j = 0; j < numTables; j++) {
                     tableId = ws.tempHiddenTables[j];
-                    currentTable = gTables[tableId];
-
-                    if (!currentTable) {
-                        // this case is fine since some are in agg table list
-                        console.info("not find table", tableId);
-                        continue;
-                    }
-
-                    tableName = currentTable.tableName;
-                    delete tableMap[tableName];
-                    ++tableCount;
+                    checkIfTableHasMeta(tableId, backTableSet);
                 }
 
                 numArchivedTables = ws.hiddenTables.length;
 
                 for (var j = 0; j < numArchivedTables; j++) {
                     tableId = ws.hiddenTables[j];
-                    currentTable = gTables[tableId];
-
-                    if (!currentTable) {
-                        // this case is fine since some are in agg table list
-                        console.info("not find table", tableId);
-                        continue;
-                    }
-
-                    tableName = gTables[tableId].tableName;
-                    delete tableMap[tableName];
-                    ++tableCount;
+                    checkIfTableHasMeta(tableId, backTableSet);
                 }
             }
 
             // setup leftover tables
-            setupOrphanedList(tableMap);
+            setupOrphanedList(backTableSet);
 
             chain(promises)
             .then(function() {
@@ -531,24 +502,35 @@ window.StartManager = (function(StartManager, $) {
                     for (var c = 0; c < failures.length; c++) {
                         console.error(failures[c]);
                     }
-
-                    if (failures.length === tableCount) {
-                        deferred.reject("InitializeTable fails!");
-                    } else {
-                        deferred.resolve();
-                    }
-                } else {
-                    deferred.resolve();
                 }
+
+                deferred.resolve();
             })
-            .fail(function(error) {
-                deferred.reject(error);
-            });
+            .fail(deferred.reject);
         })
         .fail(function(error) {
             console.error("InitializeTable fails!", error);
             deferred.reject(error);
         });
+
+        function checkIfTableHasMeta(tableId, backTableSet, isNoSheetTable) {
+            var curTable = gTables[tableId];
+
+            if (curTable == null) {
+                if (isNoSheetTable) {
+                    // this case is fine since some are in agg table list
+                    console.info("not find table", tableId);
+                } else {
+                    WSManager.removeTable(tableId);
+                    console.error("not find table", tableId);
+                }
+
+                return false;
+            } else {
+                delete backTableSet[curTable.tableName];
+                return true;
+            }
+        }
 
         return (deferred.promise());
     }

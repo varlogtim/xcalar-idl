@@ -81,13 +81,12 @@ function commitToStorage(atStartUp) {
 function readFromStorage() {
     var deferred = jQuery.Deferred();
     var gDSObjFolder;
-    var tableIndicesLookup;
 
     KVStore.getAndParse(KVStore.gStorageKey, gKVScope.META)
     .then(function(gInfos) {
         if (gInfos) {
             if (gInfos[KVKeys.TI]) {
-                tableIndicesLookup = gInfos[KVKeys.TI];
+                TblManager.restoreTableMeta(gInfos[KVKeys.TI]);
             }
             if (gInfos[KVKeys.WS]) {
                 WSManager.restore(gInfos[KVKeys.WS]);
@@ -134,43 +133,7 @@ function readFromStorage() {
         DS.restore(gDSObjFolder, datasets, atStartUp);
     })
     .then(function() {
-        var deferred2 = jQuery.Deferred();
-        var promises = [];
-        var failures = [];
-        var tableCount = 0;
-
-        for (var tableId in tableIndicesLookup) {
-            var oldMeta = tableIndicesLookup[tableId];
-            ++tableCount;
-            promises.push(TblManager.restoreTableMeta.bind(this, tableId,
-                                                           oldMeta, failures));
-        }
-
-        chain(promises)
-        .then(function() {
-            if (failures.length > 0) {
-                for (var j = 0; j < failures.length; j++) {
-                    console.error(failures[j]);
-                }
-
-                if (failures.length === tableCount) {
-                    deferred2.reject("gTables setup fails!");
-                } else {
-                    deferred2.resolve();
-                }
-            } else {
-                return deferred2.resolve();
-            }
-        })
-        .fail(function(error) {
-            deferred2.reject(error);
-        });
-
-        return (deferred2.promise());
-    })
-    .then(function() {
-        var atStartUp = true;
-        commitToStorage(atStartUp);
+        commitToStorage(true);
         deferred.resolve();
     })
     .fail(function(error) {

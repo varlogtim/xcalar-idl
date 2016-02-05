@@ -924,6 +924,27 @@ window.xcHelper = (function($, xcHelper) {
         return (hashId);
     };
 
+    xcHelper.getBackTableSet = function() {
+        var deferred = jQuery.Deferred();
+
+        XcalarGetTables()
+        .then(function(backEndTables) {
+            var backTables = backEndTables.nodeInfo;
+            var numBackTables = backEndTables.numNodes;
+            var backTableSet = {};
+
+            for (var i = 0; i < numBackTables; i++) {
+                // record the table
+                backTableSet[backTables[i].name] = true;
+            }
+
+            deferred.resolve(backTableSet, numBackTables);
+        })
+        .fail(deferred.reject);
+
+        return deferred.promise();
+    };
+
     xcHelper.checkDuplicateTableName = function(tableName) {
         var deferred = jQuery.Deferred();
 
