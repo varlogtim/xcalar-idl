@@ -640,12 +640,11 @@ window.TestSuite = (function($, TestSuite) {
         })
         .then(function() {
             // rename
-            $("#worksheetTab-" + wsId + " .text").text("Multi group by")
+            $("#worksheetTab-" + wsId + " .text").val("Multi group by")
                                         .trigger(fakeEvent.enter);
-            return (checkExists("#worksheetTab-" + wsId +
-                    " .text:contains('Multi ')"));
-        })
-        .then(function() {
+            assert($("#worksheetTab-" + wsId + " .text").val() ===
+                        "Multi group by");
+
             TestSuite.pass(deferred, testName, currentTestNumber);
         })
         .fail(function() {

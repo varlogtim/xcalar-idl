@@ -493,9 +493,13 @@ window.WSManager = (function($, WSManager) {
                  .find('.wsIconWrap')
                  .removeClass('noTransition');
         }, 150);
+
         $tabs.addClass("inActive")
-            .find(".text").blur();
-        $("#worksheetTab-" + wsId).removeClass("inActive");
+             .find('.text').blur();
+        
+        var $activeTab = $("#worksheetTab-" + wsId);
+        $activeTab.removeClass("inActive");
+        sizeTabInput($activeTab.find('input'));
 
         // refresh mainFrame
         $tables.addClass("inActive");
@@ -711,18 +715,16 @@ window.WSManager = (function($, WSManager) {
                 var $tab = $text.closest(".worksheetTab");
 
                 $tab.addClass("focus");
-                // $tab.css('pointer-events','none');
-                // $text.css('pointer-events', 'initial');
-                $tab.find(".label").mouseenter();  // close tooltip
                 $workSheetTabSection.sortable( "disable" );
             },
             "blur": function() {
                 var $text = $(this);
 
-                $text.text($text.data("title"));
+                $text.val($text.data("title"));
                 $text.scrollLeft(0);
                 $text.closest(".worksheetTab").removeClass("focus");
                 $workSheetTabSection.sortable( "enable" );
+                sizeTabInput($text);
             },
             "keypress": function(event) {
                 if (event.which === keyCode.Enter) {
@@ -983,11 +985,22 @@ window.WSManager = (function($, WSManager) {
                 $tab.hide().appendTo($workSheetTabSection).slideDown(180);
             }
         }
+        sizeTabInput($tab.find('input'));
+    }
+
+    // size the input in the worksheet tab to fit the input's text
+    function sizeTabInput($input) {
+        var maxSize = $input.closest('.draggableArea').width() - 6;
+        var minSize = 30;
+        var textWidth = getTextWidth($input, $input.val()) + 12;
+        var newWidth = Math.min(maxSize, textWidth);
+        newWidth = Math.max(newWidth, minSize);
+        $input.outerWidth(newWidth); // .width() assigns incorrect value
     }
 
     // Rename a worksheet
     function renameWorksheet($text) {
-        var name = $text.text().trim();
+        var name = $text.val().trim();
         // name empty or confilct
         if (name === "" || wsNameToIdMap.hasOwnProperty(name)) {
             $text.blur();
@@ -1331,17 +1344,16 @@ window.WSManager = (function($, WSManager) {
         var html =
             '<section id="' + id + '"class="worksheetTab inActive" ' +
                 'data-ws="' + wsId + '">' +
-                '<div class="label" ' + tabTooltip + '>' +
+                '<div class="label">' +
                     '<div class="iconWrapper wsIconWrap" ' +
                     'data-title="worksheet options" data-toggle="tooltip" ' +
                     'data-container="body">' +
                         '<span class="wsIcon"></span>' +
                     '</div>' +
-                    '<div class="draggableArea">' +
-                        // '<span class="wsIcon"></span>' +
-                        '<div class="text textOverflow" ' +
-                            'data-title="' + name + '" contenteditable>' +
-                            name +
+                    '<div class="draggableArea" ' + tabTooltip + '>' +
+                        '<input type="text" class="text textOverflow" ' +
+                        'spellcheck="false" value="' + name + '" ' +
+                        'data-title="' + name + '">' +
                         '</div>' +
                     '</div>' +
                 '</div>' +
