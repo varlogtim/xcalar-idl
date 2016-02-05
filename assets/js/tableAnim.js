@@ -2476,6 +2476,9 @@ window.RowScroller = (function($, RowScroller) {
             if (!table) {
                 return;
             }
+            if (table.isLocked) {
+                return;
+            }
 
             // note that resultSetCount is the total num of rows
             // resultSetMax is the max row that can fetch

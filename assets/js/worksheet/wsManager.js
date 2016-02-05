@@ -585,7 +585,7 @@ window.WSManager = (function($, WSManager) {
         if ($lastTable.length > 0) {
             var leftPos = $lastTable.position().left + $mainFrame.scrollLeft();
             var tableId = xcHelper.parseTableId($lastTable);
-            $mainFrame.animate({scrollLeft: leftPos})
+            $mainFrame.animate({scrollLeft: leftPos}, 500)
                         .promise()
                         .then(function(){
                             focusTable(tableId);
@@ -1060,6 +1060,7 @@ window.WSManager = (function($, WSManager) {
             } else {
                 wsToFocus = wsOrder[0];
             }
+
             WSManager.focusOnWorksheet(wsToFocus);
             // change to origin position
             var leftPos = wsScollBarPosMap[wsToFocus];

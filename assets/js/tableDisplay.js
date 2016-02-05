@@ -290,6 +290,10 @@ window.TblManager = (function($, TblManager) {
             $("#xcTableWrap-" + tableId).remove();
             $("#rowScroller-" + tableId).remove();
             $('#dagWrap-' + tableId).remove();
+            if (gActiveTableId === tableId) {
+                $('#rowInput').val("").data("val", "");
+                $('#numPages').empty();
+            }
         }
 
         if (!del) {
@@ -311,7 +315,9 @@ window.TblManager = (function($, TblManager) {
             }
         }
 
-        gActiveTableId = null;
+        if (gActiveTableId === tableId) {
+            gActiveTableId = null;
+        }
         if ($('.xcTableWrap:not(.inActive').length === 0) {
             RowScroller.empty();
         }
@@ -943,9 +949,7 @@ window.TblManager = (function($, TblManager) {
         focusTable(tableId);
         var leftPos = $('#xcTableWrap-' + tableId).position().left +
                         $('#mainFrame').scrollLeft();
-        $('#mainFrame').animate({scrollLeft: leftPos}, function() {
-                            focusTable(tableId);
-                        });
+        $('#mainFrame').animate({scrollLeft: leftPos}, 600);
     }
 
     function changeTableId(oldId, newId) {

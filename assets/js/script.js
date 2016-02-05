@@ -290,7 +290,7 @@ window.StartManager = (function(StartManager, $) {
         $("body").tooltip({
             selector: '[data-toggle="tooltip"]',
             delay   : {
-                "show": 100,
+                "show": 150,
                 "hide": 100
             },
             html: true
