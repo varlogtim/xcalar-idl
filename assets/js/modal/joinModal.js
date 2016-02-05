@@ -16,13 +16,15 @@ window.JoinModal = (function($, JoinModal) {
     var $multiJoin    = $("#multiJoin");
     var multiClauseTemplate =
         '<div class="joinClause">' +
-            '<input class="clause leftClause" type="text" readonly/>' +
+            '<input class="clause leftClause" type="text" spellcheck="false" ' +
+                'readonly/>' +
               '<div class="middleIcon">' +
                 '<div class="iconWrapper">' +
                   '<span class="icon"></span>' +
                 '</div>' +
               '</div>' +
-              '<input  class="clause rightClause" type="text" readonly/>' +
+              '<input  class="clause rightClause" type="text" ' +
+                'spellcheck="false" readonly/>' +
         '</div>';
 
     var dragSide  = null;

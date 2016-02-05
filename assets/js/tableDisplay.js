@@ -553,7 +553,8 @@ window.TblManager = (function($, TblManager) {
                             '"' + tooltip + '>' +
                             '<input class="editableHead col' + newColid + '"' +
                                 ' type="text"  value="' + columnName + '"' +
-                                ' size="15" ' + readOnlyProp + '/>' +
+                                ' size="15" spellcheck="false" ' +
+                                readOnlyProp + '/>' +
                         '</div>' +
                         '<div class="flexWrap flex-right">' +
                             '<div class="dropdownBox" ' +
@@ -1565,7 +1566,8 @@ window.TblManager = (function($, TblManager) {
               '<tr>' +
                 '<th style="width: 50px;" class="col0 th rowNumHead">' +
                   '<div class="header">' +
-                    '<input value="" readonly="" tabindex="-1">' +
+                    '<input value="" readonly="" tabindex="-1" ' +
+                        'spellcheck="false" >' +
                   '</div>' +
                 '</th>';
         var numCols = columns.length;
@@ -1613,6 +1615,7 @@ window.TblManager = (function($, TblManager) {
                             '<div class="flexWrap flex-left"></div>' +
                             '<div class="flexWrap flex-mid">' +
                                 '<input value="DATA" readonly="" tabindex="-1"' +
+                                    ' spellcheck="false" ' +
                                     ' class="dataCol col' + newColid + '"' +
                                     ' data-toggle="tooltip" data-placement="bottom" ' +
                                     '" title="raw data">' +

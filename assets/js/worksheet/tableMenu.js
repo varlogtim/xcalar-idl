@@ -964,7 +964,8 @@ window.TblMenu = (function(TblMenu, $) {
                 //             '<span>Worksheet Name</span>' +
                 //             '<div class="dropDownList">' +
                 //                 '<input class="wsName" type="text" width="100px" ' +
-                //                     'placeholder="click to see options"/>' +
+                //                     'placeholder="click to see options" ' +
+                //                     'spellcheck="false"/>' +
                 //                 '<ul class="list wsList"></ul>' +
                 //             '</div>' +
                 //         '</li>' +
@@ -972,6 +973,7 @@ window.TblMenu = (function(TblMenu, $) {
                 //             '<span>New Table Name</span>' +
                 //             '<input class="tableName" type="text" width="100px" ' +
                 //                     'placeholder="Enter a new table name" ' +
+                //                     'spellcheck="false" ' +
                 //                     'value="' + newTableName + '"/>' +
                 //         '</li>' +
                 //         '<div class="subMenuArea"></div>' +
@@ -994,7 +996,8 @@ window.TblMenu = (function(TblMenu, $) {
                         '<span>Worksheet Name</span>' +
                         '<div class="dropDownList">' +
                             '<input class="wsName" type="text" width="100px" ' +
-                                'placeholder="click to see options"/>' +
+                                'placeholder="click to see options" ' +
+                                'spellcheck="false" />' +
                             '<ul class="list wsList"></ul>' +
                         '</div>' +
                     '</li>' +
@@ -1152,23 +1155,26 @@ window.TblMenu = (function(TblMenu, $) {
                             ' spellcheck="false"/>' +
                         '<div>Number of Split Columns</div>' +
                         '<input class="num" type="number" min="1" step="1"' +
-                            ' placeholder="Unlimited if left blank"/>' +
+                            ' placeholder="Unlimited if left blank"' +
+                            ' spellcheck="false"/>' +
                     '</li>' +
                 '</ul>' +
                 '<ul class="hPartition">' +
                     '<li style="text-align: center" class="clickable">' +
                         '<div>Number of partitions</div>' +
                         '<input class="partitionNums" type="number"' +
-                        ' placeholder="Max value of 10"/>' +
+                        ' placeholder="Max value of 10" spellcheck="false"/>' +
                     '</li>' +
                 '</ul>' +
                 '<ul class="changeDataType">' + typeMenu + '</ul>' +
                 '<ul class="window">' +
                     '<li style="text-align: center" class="clickable">' +
                         '<div>Lag</div>' +
-                        '<input class="lag" type="number"/>' +
+                        '<input class="lag" type="number"' +
+                        ' spellcheck="false"/>' +
                         '<div>Lead</div>' +
-                        '<input class="lead" type="number"/>' +
+                        '<input class="lead" type="number"' +
+                        ' spellcheck="false"/>' +
                     '</li>' +
                 '</ul>' +
                 '<ul class="sort">' +

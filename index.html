@@ -97,7 +97,7 @@
       <div id="rowInputArea" class="workspaceArea">
           <label for="rowInput">Skip to row:</label>
           <!-- only allow integer -->
-          <input id="rowInput" type="number" min="0" step="1">
+          <input id="rowInput" type="number" min="0" step="1" spellcheck="false">
           <label id="numPages" for="rowInput"></label>
       </div>
       <div id="rowScrollerArea" class="workspaceArea">
@@ -331,7 +331,7 @@
         <section class="step inactive">
           <b>Function: </b>
           <div id="functionList" class="dropDownList">
-              <input class="text autocomplete" disabled required tabindex="10">
+              <input class="text autocomplete" disabled required tabindex="10"  spellcheck="false">
               <div class="iconWrapper dropdown">
                 <span class="icon"></span>
               </div>
@@ -585,7 +585,8 @@
                title="A valid name with no special characters" required>
                <!-- file formt -->
                <div id="fileFormat" class="dropDownList">
-                  <input class="text" type="text" placeholder="Format" disabled>
+                  <input class="text" type="text" spellcheck="false" 
+                  placeholder="Format" disabled>
                   <div class="iconWrapper">
                     <span class="icon"></span>
                   </div>
@@ -674,7 +675,8 @@
               <section id="fieldDelim" class="wrapper">
                 <span class="label">Field Delimiter:</span>
                 <div class="dropDownList">
-                  <input id="fieldText" class="text" type="text" disabled>
+                  <input id="fieldText" class="text" type="text" disabled 
+                    spellcheck="false" >
                   <div class="iconWrapper">
                       <span class="icon"></span>
                   </div>
@@ -698,7 +700,8 @@
               <section id="lineDelim" class="wrapper">
                 <span class="label">Line Delimiter:</span>
                 <div class="dropDownList">
-                  <input id="lineText" class="text" type="text" disabled>
+                  <input id="lineText" class="text" type="text" disabled 
+                    spellcheck="false" >
                   <div class="iconWrapper">
                       <span class="icon"></span>
                   </div>
@@ -996,7 +999,8 @@
                   <div id="targetTypeSelector" class="importFormRow">
                     <label for="targetTypeList">Target Type:</label>
                     <div id="targetTypeList" class="dropDownList">
-                      <input class="text hint" type="text" value="" disabled>
+                      <input class="text hint" type="text" value="" disabled 
+                        spellcheck="false" >
                       <div class="iconWrapper">
                         <span class="icon"></span>
                       </div>
@@ -1226,17 +1230,17 @@
             <section class="content">
               <div class="nameSection">
                 <div class="text">Schedule Name:</div>
-                <input class="name textOverflow" type="text" placeholder="please input schedule name">
+                <input class="name textOverflow" type="text" placeholder="please input schedule name" spellcheck="false" >
               </div>
               <div class="divider"></div>
               <!-- time section -->
               <div class="timeSection" id="startTimeSection">
                 <div class="text">Start Time:</div>
                 <div class="datePickerPart">
-                  <input class="date" type="text">
+                  <input class="date" type="text" spellcheck="false">
                 </div>
                 <div class="timePickerPart">
-                  <input class="time timePickerBox" type="text">
+                  <input class="time timePickerBox" type="text" spellcheck="false">
                   <!-- Timepicker -->
                   <div id="scheduler-timePicker"class="timePicker">
                     <div class="textSection">
@@ -1258,8 +1262,10 @@
                       </button>
                     </div>
                     <div class="inputSection">
-                      <input class="hour" type="text" disabled>
-                      <input class="minute" type="text" disabled>
+                      <input class="hour" type="text" disabled 
+                        spellcheck="false">
+                      <input class="minute" type="text" disabled 
+                        spellcheck="false">
                       <span class="ampm">PM</span>
                     </div>
                     <div class="buttonSection">
@@ -1368,7 +1374,8 @@
               <div class="divider"></div>
               <div class="recurSection">
                 <div class="text">Number of Runs:</div>
-                <input type="number" placeholder="how many times to run this">
+                <input type="number" spellcheck="false" 
+                  placeholder="how many times to run this">
               </div>
             </section>
             <section class="buttonArea">
@@ -1505,7 +1512,8 @@
               </div>
             </div>
             <div id="orphanedTableList-search" class="searchArea">
-                <input type="text" placeholder="Filter Orphaned Table"/>
+                <input type="text" placeholder="Filter Orphaned Table" 
+                  spellcheck="false" />
                 <div class="clear iconWrap">
                   <span class="icon"></span>
                 </div>
@@ -1567,7 +1575,7 @@
               <div class="sectionContainer">
                 <!-- template dropdown menu -->
                 <div id="udf-fnList" class="dropDownList">
-                  <input id="udf-fnTemplate" class="text" 
+                  <input id="udf-fnTemplate" class="text" spellcheck="false" 
                          placeholder="Choose your template" disabled>
                   <div class="iconWrapper">
                     <span class="icon"></span>
@@ -1634,7 +1642,8 @@
             <!-- button part -->
             <div class="btnSection">
               <button id="udf-browseBtn" class="btn btnMid" type="button">BROWSE</button>
-              <input id="udf-fileBrowser" type="file" style="display: none;">
+              <input id="udf-fileBrowser"  spellcheck="false" type="file" 
+                style="display: none;">
               <button id="udf-fileUpload" class="btn btnMid upload" type="button">
                 <span class="icon"></span>
                 <span class="text">UPLOAD</span>
@@ -1683,7 +1692,9 @@
         <!-- Help Search -->
         <div id="helpSearchArea" class="clearfix">
           <input id="helpSearch" title="Coming Soon" type="text" 
-          placeholder="Type in your question..." data-toggle="tooltip" data-placement="bottom" data-container="body" disabled>
+            spellcheck="false" placeholder="Type in your question..." 
+            data-toggle="tooltip" data-placement="bottom" 
+            data-container="body" disabled>
           <div id="helpSubmit" title="Coming Soon" class="btnInactive" data-toggle="tooltip" data-placement="bottom" data-container="body">
             <span class="icon iconSearch"></span>Find
           </div>
@@ -2216,7 +2227,8 @@
       <div class="selectScheSection">
         <h3>Select a schedule:</h3>
         <div class="dropDownList scheduleList">
-          <input class="text focusable scheduleListInput" type="text" value="" spellcheck="false" readonly="">
+          <input class="text focusable scheduleListInput" type="text" value=""
+            spellcheck="false" readonly="">
           <div class="iconWrapper">
               <span class="icon"></span>
           </div>
@@ -2583,7 +2595,7 @@
       <!-- scroller section -->
       <div class="scrollSection loadHidden">
         <div class="rowInput">
-           <input id="stats-rowInput" class="min-range" val="1">
+           <input id="stats-rowInput" class="min-range" val="1" spellcheck="false">
            <label>of </label>
            <label for="stats-rowInput" class="max-range"></label>
         </div>
@@ -2637,7 +2649,7 @@
         </div>
         <div class="inputSection">
           <span class="text">Input range size (e.g. 0.5, 10):</span>
-          <input id="stats-step" type="number" step="1" min="1">
+          <input id="stats-step" type="number" step="1" min="1" spellcheck="false">
         </div>
       </div>
     </section>
