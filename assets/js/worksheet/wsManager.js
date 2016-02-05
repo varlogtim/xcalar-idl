@@ -736,13 +736,12 @@ window.WSManager = (function($, WSManager) {
         }, ".worksheetTab .text");
 
         // switch worksheet
-        // $workSheetTabSection.on("click", ".worksheetTab", function () {
-        $workSheetTabSection.on("mousedown", ".worksheetTab", function (e) {
-            if (e.which !== 1) {
+        $workSheetTabSection.on("mousedown", ".worksheetTab", function(event) {
+            if (event.which !== 1) {
                 return;
             }
-            if ($(e.target).hasClass('wsIconWrap') ||
-                $(e.target).parent('.wsIconWrap').length) {
+            if ($(event.target).hasClass('wsIconWrap') ||
+                $(event.target).parent('.wsIconWrap').length) {
                 return;
             }
             var $tab = $(this);
@@ -753,15 +752,15 @@ window.WSManager = (function($, WSManager) {
             }
         });
 
-        $workSheetTabSection[0].oncontextmenu = function(e) {
-            var $target = $(e.target).closest('.wsIconWrap');
+        $workSheetTabSection[0].oncontextmenu = function(event) {
+            var $target = $(event.target).closest('.wsIconWrap');
             if ($target.length) {
                 $target.trigger('click');
-                e.preventDefault();
+                event.preventDefault();
             }
         };
 
-        $workSheetTabSection.on("click", ".wsIconWrap", function (event) {
+        $workSheetTabSection.on("click", ".wsIconWrap", function() {
             var wsId = $(this).closest(".worksheetTab").data("ws");
             var numTabs = $workSheetTabSection.find('.worksheetTab').length;
             var $wsIconWrap = $(this);
@@ -769,10 +768,10 @@ window.WSManager = (function($, WSManager) {
                 $tabMenu.hide();
             }
             dropdownClick($wsIconWrap, {
-                type: "tabMenu",
-                offsetX: -7,
-                ignoreSideBar: true,
-                callback: function() {
+                "type"         : "tabMenu",
+                "offsetX"      : -7,
+                "ignoreSideBar": true,
+                "callback"     : function() {
                     if (numTabs === 1) {
                         $tabMenu.find('.delete').addClass('unavailable');
                         $tabMenu.find('.hide').addClass('unavailable');
@@ -1135,6 +1134,7 @@ window.WSManager = (function($, WSManager) {
 
             toggleTableArchive(tableId, tables, hiddenTables);
             TblManager.hideWorksheetTable(tableId);
+            gTables[tableId].freeResultset();
         }
 
         TableList.tablesToHiddenWS(wsId);

@@ -47,7 +47,7 @@ function MouseEvents() {
     this.getLastClickTarget = function() {
         return lastClickTarget;
     };
-};
+}
 
 function SQLConstructor(args) {
     this.title = args.title;
@@ -82,7 +82,7 @@ function TableMeta(options) {
     this.isOrphaned = options.isOrphaned || false;
     this.isSortedArray = options.isSortedArray || false;
 
-    if(this.isOrphaned) {
+    if (this.isOrphaned) {
         // orphaned table is always inactive!
         this.active = false;
     } else if (options.active != null) {
@@ -127,18 +127,22 @@ TableMeta.prototype = {
     },
 
     freeResultset: function() {
-        var deferred = jQuery.Deferred()
+        var deferred = jQuery.Deferred();
         var self = this;
 
-        XcalarSetFree(self.resultSetId)
-        .then(function() {
-            self.resultSetId = -1;
+        if (self.resultSetId === -1) {
             deferred.resolve();
-        })
-        .fail(function(error) {
-            console.error("Free Result Fails!", error);
-            deferred.reject(error);
-        });
+        } else {
+            XcalarSetFree(self.resultSetId)
+            .then(function() {
+                self.resultSetId = -1;
+                deferred.resolve();
+            })
+            .fail(function(error) {
+                console.error("Free Result Fails!", error);
+                deferred.reject(error);
+            });
+        }
 
         return deferred.promise();
     },
@@ -181,7 +185,6 @@ TableMeta.prototype = {
         var tableCols = this.tableCols;
         for (var i = 0, len = tableCols.length; i < len; i++) {
             var progCol = tableCols[i];
-            var name;
 
             if (progCol.isDATACol()) {
                 // skip DATA column

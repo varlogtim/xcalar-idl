@@ -2,10 +2,7 @@ function freeAllResultSets() {
     // var promises = [];
     // Note from Cheng: use promise is not reliable to send all reqeust to backend
     for (var tableId in gTables) {
-        var table = gTables[tableId];
-        if (table.resultSetId !== -1) {
-            XcalarSetFree(table.resultSetId);
-        }
+        gTables[tableId].freeResultset();
     }
 
     // Free datasetBrowser resultSetId
@@ -23,14 +20,13 @@ function freeAllResultSetsSync() {
     .then(function(backTableSet) {
         for (var tableId in gTables) {
             var table = gTables[tableId];
-            if (table.resultSetId !== -1) {
-                if (!backTableSet.hasOwnProperty(table.tableName)) {
-                    console.error("Table not in backend!");
-                    continue;
-                } else {
-                    promises.push(XcalarSetFree.bind(this, table.resultSetId));
-                }
+
+            if (!backTableSet.hasOwnProperty(table.tableName)) {
+                console.error("Table not in backend!");
+                continue;
             }
+
+            promises.push(table.freeResultset.bind(this));
         }
 
         // Free datasetBrowser resultSetId
