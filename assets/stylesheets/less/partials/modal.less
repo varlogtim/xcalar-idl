@@ -2306,6 +2306,23 @@ html.microsoft {
                 fill: @color-background-topForm;
             }
 
+            .arrow {
+                .size(@width: 8px, @height: 13px);
+                .position(absolute, @top: 50%);
+                .transform(translateY(-50%));
+                cursor: pointer;
+
+                &.left-arrow {
+                    left: 9px;
+                    .image("../../images/arrow-left.png");
+                }
+
+                &.right-arrow {
+                    right: 9px;
+                    .image("../../images/arrow-right.png");
+                }
+            }
+
             .barArea {
                 &.highlight {
                     .bar-extra {

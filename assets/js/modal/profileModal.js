@@ -173,6 +173,11 @@ window.Profile = (function($, Profile, d3) {
                 bucketData(val, statsCol);
             }
         });
+
+        $modal.on("click", ".arrow", function() {
+            var isLeft = $(this).hasClass("left-arrow");
+            clickArrowEvent(isLeft);
+        });
     };
 
     Profile.getCache = function() {
@@ -419,6 +424,15 @@ window.Profile = (function($, Profile, d3) {
             }
         });
 
+        if (resetRefresh) {
+            $loadHiddens.addClass("disabled");
+        } else {
+            $loadHiddens.addClass("hidden");
+        }
+
+        $loadDisables.addClass("disabled");
+        $loadingSection.removeClass("hidden");
+
         // update groupby info
         if (statsCol.groupByInfo.isComplete === true) {
             // data is ready
@@ -436,13 +450,13 @@ window.Profile = (function($, Profile, d3) {
                 } else {
                     table = tableInfo.table;
                 }
-                return (getResultSet(table));
+                return getResultSet(table);
             })
             .then(function(resultSet) {
                 resultSetId = resultSet.resultSetId;
                 totalRows = resultSet.numEntries;
 
-                return (fetchGroupbyData(0, numRowsToFetch));
+                return fetchGroupbyData(0, numRowsToFetch);
             })
             .then(function() {
                 $loadingSection.addClass("hidden");
@@ -455,6 +469,7 @@ window.Profile = (function($, Profile, d3) {
                 groupByData = addNullValue(groupByData);
                 buildGroupGraphs(true);
                 highlightBar(1);
+                setArrows(1);
                 deferred.resolve();
             })
             .fail(function(error) {
@@ -465,15 +480,6 @@ window.Profile = (function($, Profile, d3) {
             instruction += "Hover on the bar to see details. " +
                 "Use scroll bar and input box to view more data.";
         } else {
-            if (resetRefresh) {
-                $loadHiddens.addClass("disabled");
-            } else {
-                $loadHiddens.addClass("hidden");
-            }
-
-            $loadDisables.addClass("disabled");
-            $loadingSection.removeClass("hidden");
-
             // the data is loading, show loadingSection and hide groupby section
             instruction += "Please wait for the data preparation, " +
                             "you can close the modal and view it later.";
@@ -611,7 +617,7 @@ window.Profile = (function($, Profile, d3) {
 
             // modal is open and is for that column
             if (isModalVisible(curStatsCol)) {
-                return (refreshStats());
+                return refreshStats();
             }
 
         })
@@ -1213,99 +1219,139 @@ window.Profile = (function($, Profile, d3) {
                 $input.blur();
             }
         });
+    }
 
-        function positionScrollBar(rowPercent, rowNum) {
-            var translate;
-            var isFromInput = false;
+    function getTranslate(percent) {
+        return (Math.min(99.9, Math.max(0, percent * 100)));
+    }
 
-            if (rowNum != null) {
-                isFromInput = true;
-                rowPercent = (totalRows === 1) ?
-                                            0 : (rowNum - 1) / (totalRows - 1);
-            } else {
-                rowNum = Math.ceil(rowPercent * (totalRows - 1)) + 1;
-            }
+    function positionScrollBar(rowPercent, rowNum) {
+        var translate;
+        var isFromInput = false;
 
-            var tempRowNum = rowNum;
+        var $section = $modal.find(".scrollSection");
+        var $scroller = $section.find(".rowScrollArea .scroller");
+        var $rowInput = $("#stats-rowInput");
 
-            if ($rowInput.data("rowNum") === rowNum) {
-                // case of going to same row
-                // put the row scoller in right place
-                translate = getTranslate(rowPercent);
-                $scroller.css("transform", "translate(" + translate + "%, 0)");
-                return;
-            }
+        if (rowNum != null) {
+            isFromInput = true;
+            rowPercent = (totalRows === 1) ?
+                                        0 : (rowNum - 1) / (totalRows - 1);
+        } else {
+            rowNum = Math.ceil(rowPercent * (totalRows - 1)) + 1;
+        }
 
-            var rowsToFetch = totalRows - rowNum + 1;
+        var tempRowNum = rowNum;
 
-            if (rowsToFetch < numRowsToFetch) {
-                if (numRowsToFetch < totalRows) {
-                    // when can fetch numRowsToFetch
-                    rowNum = totalRows - numRowsToFetch + 1;
-                    rowsToFetch = numRowsToFetch;
-                } else {
-                    // when can only fetch totalRows
-                    rowNum = 1;
-                    rowsToFetch = totalRows;
-                }
+        if ($rowInput.data("rowNum") === rowNum) {
+            // case of going to same row
+            // put the row scoller in right place
+            translate = getTranslate(rowPercent);
+            $scroller.css("transform", "translate(" + translate + "%, 0)");
+            return;
+        }
 
-                var oldTranslate = getTranslate(rowPercent);
-                if (isFromInput) {
-                    rowPercent = (totalRows === 1) ?
-                                            0 : (rowNum - 1) / (totalRows - 1);
+        var rowsToFetch = totalRows - rowNum + 1;
 
-                    translate = getTranslate(rowPercent);
-                    $scroller.addClass("scrolling")
-                        .css("transform", "translate(" + oldTranslate + "%, 0)");
-
-                    // use setTimout to have the animation
-                    setTimeout(function() {
-                        $scroller.removeClass("scrolling")
-                            .css("transform", "translate(" + translate + "%, 0)");
-                    }, 1);
-                } else {
-                    $scroller.css("transform", "translate(" + oldTranslate + "%, 0)");
-                }
-            } else {
-                translate = getTranslate(rowPercent);
-                $scroller.css("transform", "translate(" + translate + "%, 0)");
-
+        if (rowsToFetch < numRowsToFetch) {
+            if (numRowsToFetch < totalRows) {
+                // when can fetch numRowsToFetch
+                rowNum = totalRows - numRowsToFetch + 1;
                 rowsToFetch = numRowsToFetch;
+            } else {
+                // when can only fetch totalRows
+                rowNum = 1;
+                rowsToFetch = totalRows;
             }
 
-            $rowInput.val(tempRowNum).data("rowNum", tempRowNum);
+            var oldTranslate = getTranslate(rowPercent);
+            if (isFromInput) {
+                rowPercent = (totalRows === 1) ?
+                                        0 : (rowNum - 1) / (totalRows - 1);
 
-            // disable another fetching data event till this one done
-            $section.addClass("disabled");
+                translate = getTranslate(rowPercent);
+                $scroller.addClass("scrolling")
+                    .css("transform", "translate(" + oldTranslate + "%, 0)");
 
-            var $loadingSection = $modal.find(".loadingSection");
-            var loadTimer = setTimeout(function() {
-                // if the loading time is long, show the waiting icon
-                $loadingSection.removeClass("hidden");
-            }, 500);
+                // use setTimout to have the animation
+                setTimeout(function() {
+                    $scroller.removeClass("scrolling")
+                        .css("transform", "translate(" + translate + "%, 0)");
+                }, 1);
+            } else {
+                $scroller.css("transform", "translate(" + oldTranslate + "%, 0)");
+            }
+        } else {
+            translate = getTranslate(rowPercent);
+            $scroller.css("transform", "translate(" + translate + "%, 0)");
 
-            var rowPosition = rowNum - 1;
-            groupByData = [];
-
-            fetchGroupbyData(rowPosition, rowsToFetch)
-            .then(function() {
-                groupByData = addNullValue(groupByData);
-                buildGroupGraphs();
-                $loadingSection.addClass("hidden");
-                clearTimeout(loadTimer);
-                highlightBar(tempRowNum);
-            })
-            .fail(function(error) {
-                failureHandler(statsCol, error);
-            })
-            .always(function() {
-                $section.removeClass("disabled");
-            });
+            rowsToFetch = numRowsToFetch;
         }
 
-        function getTranslate(percent) {
-            return (Math.min(99.9, Math.max(0, percent * 100)));
+        $rowInput.val(tempRowNum).data("rowNum", tempRowNum);
+
+        // disable another fetching data event till this one done
+        $section.addClass("disabled");
+
+        var $loadingSection = $modal.find(".loadingSection");
+        var loadTimer = setTimeout(function() {
+            // if the loading time is long, show the waiting icon
+            $loadingSection.removeClass("hidden");
+        }, 500);
+
+        var rowPosition = rowNum - 1;
+        groupByData = [];
+
+        fetchGroupbyData(rowPosition, rowsToFetch)
+        .then(function() {
+            groupByData = addNullValue(groupByData);
+            buildGroupGraphs();
+            $loadingSection.addClass("hidden");
+            clearTimeout(loadTimer);
+            highlightBar(tempRowNum);
+            setArrows(tempRowNum);
+        })
+        .fail(function(error) {
+            failureHandler(statsCol, error);
+        })
+        .always(function() {
+            $section.removeClass("disabled");
+        });
+    }
+
+    function setArrows(rowNum) {
+        var $groupbySection = $modal.find(".groubyInfoSection");
+        var $leftArrow = $groupbySection.find(".left-arrow");
+        var $rightArrow = $groupbySection.find(".right-arrow");
+
+        if (totalRows <= numRowsToFetch) {
+            $leftArrow.hide();
+            $rightArrow.hide();
+        } else if (rowNum <= 1) {
+            $leftArrow.hide();
+            $rightArrow.show();
+        } else if (rowNum > totalRows - numRowsToFetch) {
+            $leftArrow.show();
+            $rightArrow.hide();
+        } else {
+            $leftArrow.show();
+            $rightArrow.show();
         }
+    }
+
+    function clickArrowEvent(isLeft) {
+        var curRowNum = Number($("#stats-rowInput").val());
+
+        if (isLeft) {
+            curRowNum -= numRowsToFetch;
+        } else {
+            curRowNum += numRowsToFetch;
+        }
+
+        curRowNum = Math.max(1, curRowNum);
+        curRowNum = Math.min(curRowNum, totalRows);
+
+        positionScrollBar(null, curRowNum);
     }
 
     function resetSortSection() {
