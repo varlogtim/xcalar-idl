@@ -6,6 +6,7 @@ window.JoinModal = (function($, JoinModal) {
 
     var $joinSelect   = $("#joinType");
     var $joinDropdown = $("#joinTypeSelect");
+    var $joinPreview = $('#joinPreview');
     var $mainJoin     = $("#mainJoin");
 
     var $joinTableName  = $("#joinRoundedInput");
@@ -60,6 +61,7 @@ window.JoinModal = (function($, JoinModal) {
             var joinType = $li.text();
 
             $joinSelect.find(".text").text(joinType);
+            updatePreviewText();
             hideJoinTypeSelect();
         });
 
@@ -68,14 +70,6 @@ window.JoinModal = (function($, JoinModal) {
         // This submits the joined tables
         $("#joinTables").click(function() {
             $(this).blur();
-            
-            // check validation
-            var newTableName = $joinTableName.val().trim();
-
-            if (newTableName === "") {
-                StatusBox.show(ErrorTextTStr.NoEmpty, $joinTableName, true);
-                return;
-            }
 
             var isMultiJoin = $mainJoin.hasClass("multiClause");
 
@@ -90,9 +84,11 @@ window.JoinModal = (function($, JoinModal) {
             }
             
             modalHelper.submit();
+            var lTableName = $leftJoinTable.find(".tableLabel.active").text();
+            var rTableName = $rightJoinTable.find(".tableLabel.active").text();
 
-            xcHelper.checkDuplicateTableName(newTableName)
-            .then(function() {
+            getNewTableName(lTableName, rTableName)
+            .then(function(newTableName) {
                 var joinType = $joinSelect.find(".text").text();
                 var tabeName = newTableName + Authentication.getHashId();
                 if (isMultiJoin) {
@@ -101,9 +97,8 @@ window.JoinModal = (function($, JoinModal) {
                     singleJoinHelper(joinType, tabeName);
                 }
             })
-            .fail(function() {
-                StatusBox.show(ErrorTextTStr.TableConflict, $joinTableName, true);
-                modalHelper.enableSubmit();
+            .fail(function(error) {
+                Alert.error("Error Naming New Table", error);
             });
         });
 
@@ -151,6 +146,7 @@ window.JoinModal = (function($, JoinModal) {
             } else {
                 $joinClause.slideUp(100, function() {
                     $joinClause.remove();
+                    updatePreviewText();
                 });
             }
         });
@@ -213,6 +209,7 @@ window.JoinModal = (function($, JoinModal) {
                         $input.val(text);
                     }
                     $parent.removeClass('hovering');
+                    updatePreviewText();
                 }
             }
 
@@ -249,12 +246,12 @@ window.JoinModal = (function($, JoinModal) {
         $("body").on("keypress", joinTableKeyPress);
         $("body").on("mouseup", removeCursors);
         $modalBackground.on("click", hideJoinTypeSelect);
-        updateJoinTableName();
         modalHelper.setup();
 
         joinModalTabs($rightJoinTable, null, -1);
         joinModalTabs($leftJoinTable, tableId, colNum, $rightJoinTable);
         toggleMultiClauseToolTip(false);
+        updatePreviewText();
 
         if (gMinModeOn) {
             $modalBackground.show();
@@ -357,9 +354,10 @@ window.JoinModal = (function($, JoinModal) {
                 var rTableId = $rightJoinTable.find(".tableLabel.active").data("id");
                 highlightColumn(rTableId, rCols[0], false);
             }
-
             return;
         }
+
+        updatePreviewText();
 
         function highlightColumn(tableId, colName, isLeft) {
             var $container = isLeft ? $leftJoinTable : $rightJoinTable;
@@ -498,11 +496,6 @@ window.JoinModal = (function($, JoinModal) {
     function hideJoinTypeSelect() {
         $joinSelect.removeClass("open");
         $joinDropdown.hide();
-    }
-
-    function updateJoinTableName() {
-        var joinTableName = xcHelper.randName("joinTable-");
-        $joinTableName.val(joinTableName);
     }
 
     function updateWSTabSize($section) {
@@ -698,6 +691,7 @@ window.JoinModal = (function($, JoinModal) {
             }
 
             updateWSTabSize($modal);
+            updatePreviewText();
         });
 
         $modal.on("click", ".smartSuggest", function() {
@@ -787,6 +781,7 @@ window.JoinModal = (function($, JoinModal) {
                     suggestJoinKey(tableId, $th, $rightJoinTable);
                 }
             }
+            updatePreviewText();
         });
 
         var dragImage;
@@ -1244,6 +1239,108 @@ window.JoinModal = (function($, JoinModal) {
                                'clause join');
         }
         $('.tooltip').hide();
+    }
+
+    function updatePreviewText() {
+        var joinType = $joinSelect.find(".text").text();
+        var lTableName = $leftJoinTable.find(".tableLabel.active").text();
+        var rTableName = $rightJoinTable.find(".tableLabel.active").text();
+        var isMultiJoin = $mainJoin.hasClass("multiClause");
+        var previewText = '<span class="joinType">' + joinType +
+                          '</span> <span class="highlighted">' + lTableName +
+                          '</span>, <span class="highlighted">' + rTableName +
+                          '</span><br/>ON ';
+        var columnPairs = [];
+        var pair;
+        var lClause;
+        var rClause;
+        if (isMultiJoin) {
+            $multiJoin.find(".joinClause:not(.placeholder)").each(function() {
+
+                var $joinClause = $(this);
+                lClause = $joinClause.find(".leftClause").val().trim();
+                rClause = $joinClause.find(".rightClause").val().trim();
+                pair = [lClause, rClause];
+                columnPairs.push(pair);
+            });
+            
+        } else {
+            lClause = $leftJoinTable.find("th.colSelected").text();
+            rClause = $rightJoinTable.find('th.colSelected').text();
+            pair = [lClause, rClause];
+            columnPairs.push(pair);
+        }
+
+        var numPairs = columnPairs.length;
+        var leftColText;
+        var rightColText;
+        var blank = true;
+        for (var i = 0; i < numPairs; i++) {
+            if (columnPairs[i][0]) {
+                leftColText = '<span class="highlighted">' + columnPairs[i][0] +
+                              '</span>';
+            } else {
+                leftColText =  "\"\"";
+            }
+            if (columnPairs[i][1]) {
+                rightColText = '<span class="highlighted">' + columnPairs[i][1] +
+                              '</span>';
+            } else {
+                rightColText =  "\"\"";
+            }
+            if (columnPairs[i][0] || columnPairs[i][1]) {
+                previewText += leftColText + ' = ' + rightColText + " AND ";
+                blank = false;
+            }
+        }
+        var textLen = previewText.length;
+        if (!blank) {
+            previewText = previewText.slice(0, textLen - 5);
+        }
+        previewText += ";";
+        $joinPreview.html(previewText);
+    }
+
+    function getNewTableName(lTableName, rTableName) {
+        var deferred = jQuery.Deferred();
+        var tempName = xcHelper.getTableName(lTableName) + '-' +
+                       xcHelper.getTableName(rTableName);
+        var destName;
+        var tableNames = {};
+        XcalarGetTables()
+        .then(function(result) {
+            var tables = result.nodeInfo;
+            for (var i = 0; i < result.numNodes; i++) {
+                var name = xcHelper.getTableName(tables[i].name);
+                tableNames[name] = 1;
+            }
+
+            var validNameFound = false;
+            var limit = 20; // we won't try more than 20 times
+            destName = tempName;
+            if (tableNames.hasOwnProperty(destName)) {
+                for (var i = 1; i <= limit; i++) {
+                    destName = tempName + i;
+                    if (!tableNames.hasOwnProperty(destName)) {
+                        validNameFound = true;
+                        break;
+                    }
+                }
+                if (!validNameFound) {
+                    var tries = 0;
+                    while (tableNames.hasOwnProperty(destName) && tries < 100) {
+                        destName = xcHelper.randName(tempName, 4);
+                        tries++;
+                    }
+                }
+            }
+            deferred.resolve(destName);
+        })
+        .fail(function(error) {
+            deferred.reject(error);
+        });
+
+        return (deferred.promise());
     }
 
     return (JoinModal);

@@ -525,8 +525,16 @@ window.TestSuite = (function($, TestSuite) {
                 }
 
                 setTimeout(function() {
+                    
+                    var lTableName = $("#leftJoin").find(".tableLabel.active")
+                                                   .text();
+                    var rTableName = $("#reftJoin").find(".tableLabel.active")
+                                                   .text();
+                    var newName = xcHelper.getTableName(lTableName) + '-' +
+                          xcHelper.getTableName(rTableName);
                     $("#joinTables").click();
-                    checkExists(".xcTableWrap .tableName[value*=join]")
+                    checkExists(".xcTableWrap .tableName[value*=" + newName +
+                                "]")
                     .then(function() {
                         flightTestPart8();
                     })
@@ -704,15 +712,20 @@ window.TestSuite = (function($, TestSuite) {
             $("#multiJoinBtn .onBox").click();
             return (checkExists("#multiJoin .title"));
         }).then(function() {
-            $("#joinRoundedInput").val("multiJoin");
             $(".joinClause").eq(1).click();
             $(".tableLabel").eq(6).click();
             $(".leftClause").eq(0).val("class_id");
             $(".leftClause").eq(1).val("teacher_id");
             $(".rightClause").eq(0).val("DayofMonth");
             $(".rightClause").eq(1).val("DayOfWeek");
+            
+            var lTableName = $("#leftJoin").find(".tableLabel.active").text();
+            var rTableName = $("#reftJoin").find(".tableLabel.active").text();
+            var newName = xcHelper.getTableName(lTableName) + '-' +
+                          xcHelper.getTableName(rTableName);
             $("#joinTables").click();
-            return (checkExists(".xcTableWrap .tableName[value*=multiJoin]",
+            return (checkExists(".xcTableWrap .tableName[value*=" +
+                                newName + "]",
                     30000));
         }).then(function() {
             if ($("#numPages").text().indexOf("1,953") > -1) {

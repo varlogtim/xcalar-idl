@@ -691,6 +691,24 @@
             }
         }
 
+        #joinPreview {
+            margin-left: 16px;
+            margin-top: 6px;
+            float: left;
+            width: ~"calc(100% - 300px)";
+            font-weight: 600;
+            font-size: 13px;
+            .textOverflowOneLine;
+            line-height: 20px;
+
+            .highlighted {
+                color: @color-text-blue;
+            }
+            .joinType {
+                text-transform: uppercase;
+            }
+        }
+
         #multiJoinBtn {
             .position(relative, @right: 25px);
             .size(@width: 50px, @height: 25px);
