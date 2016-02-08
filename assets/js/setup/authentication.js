@@ -1,4 +1,4 @@
-window.Authentication = (function($, Authentication) {
+window.Authentication = (function(jQuery, Authentication) {
     var authInfo;
     var authKey;
 
