@@ -103,12 +103,12 @@
 
     .legendArea {
         display: inline-block;
-        .size(auto, 50px);
-        box-shadow: 0px 1px 2px 2px rgba(0,0,0,0.2);
-        margin-top: 15px;
-        margin-left: 16px;
-        padding: 10px;
-        font-size: 10px;     
+        .size(100%, 65px);
+        background-color: rgba(255,255,255, 0.6);
+        padding: 15px 0px 0px 24px;
+        font-size: 10px;
+        color: @color-text-midGray; 
+        font-weight: 700; 
     }
 
     .descriptionArea {
@@ -130,6 +130,7 @@
         }
         .legendIcon {
             float: left;
+            box-shadow: 0px 0px 3px rgba(0,0,0,0.3);
         }
 
         .text {
@@ -181,7 +182,7 @@
     display: inline-block;
     .size(28px, 28px);
     .transform (rotate(-45deg));
-    .rounded;
+    .rounded(4px);
     .action-gradient;
 }
 
