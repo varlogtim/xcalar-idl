@@ -310,8 +310,8 @@ window.xcFunction = (function($, xcFunction) {
                                         [lTableName, rTableName], worksheet);
         })
         .then(function() {
-            xcHelper.lockTable(lTableId, true);
-            xcHelper.lockTable(rTableId, true);
+            xcHelper.unlockTable(lTableId, true);
+            xcHelper.unlockTable(rTableId, true);
 
             StatusMessage.success(msgId, false, newTableId);
             commitToStorage();
