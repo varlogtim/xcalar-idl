@@ -525,7 +525,8 @@
         }
 
         .text {
-            .font(@weight: bold, @size: 12px, @line-height: 25px);
+            margin-left: 10px;
+            .font(@weight: bold, @size: 12px, @line-height: 25px, @color: @color-text-blue);
         }
     }
 
@@ -601,10 +602,11 @@
                     white-space: nowrap;
 
                     &.aggTableFlex {
-                        background-color: @color-background-colIcon-lightBlue;
+                        background-color: @color-join-background;
                     }
 
-                     &.blankSpace {
+
+                    &.blankSpace {
                         background: @color-join-background !important;
                         box-shadow: none !important;
                     }

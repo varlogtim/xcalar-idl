@@ -227,46 +227,44 @@ window.AggModal = (function($, AggModal) {
         var colLen = aggCols.length;
         var wholeTable = '';
 
-        for (var j = 0; j < colLen; j++) {
-            var cols   = aggCols[j].col;
-            var colNum = aggCols[j].colNum;
+        var blankCell = '<div class="aggTableField aggTableFlex blankSpace">';
+        var whiteCell = '<div class="aggTableField aggTableFlex" ' +
+                        'style="background-color:rgb(255,255,255)">';
+
+
+        // column's order is column0, column1...columnX
+        // row's order is columnX, column(X-1).....column1
+        for (var col = 0; col < colLen; col++) {
+            var cols   = aggCols[col].col;
+            var colNum = aggCols[col].colNum;
 
             wholeTable += getAggColHTML(cols.name);
             var isChildOfArray = $table.find(".th.col" + colNum + " .header")
                                         .hasClass("childOfArray");
 
-            for (var i = 0; i < colLen; i++) {
-                var vertCols = aggCols[i].col;
-                var whiteBackground =
-                            "style='background-color:rgb(255,255,255)'";
-                var backgroundOpacity =
-                                    "style='background-color:rgba(66,158,212,";
-                wholeTable += '<div class="aggTableField aggTableFlex" ';
+            for (var row = 0; row < colLen; row++) {
+                var vertCol = aggCols[colLen - row - 1].col;
 
-                if (i === j) {
-                    wholeTable += ">1";
-                } else if (i > j) {
-                    wholeTable += whiteBackground;
-                    wholeTable += ">See other";
+                if (row + col + 1 >= colLen) {
+                    // blank case
+                    wholeTable += blankCell;
                 } else if ((cols.type === "integer" || cols.type === "float")
-                           && (vertCols.type === "integer" ||
-                               vertCols.type === "float"))
+                           && (vertCol.type === "integer" ||
+                               vertCol.type === "float"))
                 {
                     // XXX now agg on child of array is not supported
                     if (isChildOfArray) {
-                        wholeTable += whiteBackground;
-                        wholeTable += ">Not Supported";
+                        wholeTable += whiteCell + 'Not Supported';
                     } else {
-                        wholeTable += backgroundOpacity + "0)'";
-                        wholeTable += '><div class="spinner">' +
-                                        '<div class="bounce1"></div>' +
-                                        '<div class="bounce2"></div>' +
-                                        '<div class="bounce3"></div>' +
+                        wholeTable += whiteCell +
+                                        '<div class="spinner">' +
+                                            '<div class="bounce1"></div>' +
+                                            '<div class="bounce2"></div>' +
+                                            '<div class="bounce3"></div>' +
                                         '</div>';
                     }
                 } else {
-                    wholeTable += whiteBackground;
-                    wholeTable += ">N/A";
+                    wholeTable += whiteCell + 'N/A';
                 }
                 wholeTable += "</div>";
             }
@@ -275,9 +273,9 @@ window.AggModal = (function($, AggModal) {
         }
 
         var vertLabels = [];
-        aggCols.forEach(function(colInfo) {
-            vertLabels.push(colInfo.col.name);
-        });
+        for (var i = colLen - 1; i >= 0; i--) {
+            vertLabels.push(aggCols[i].col.name);
+        }
 
         $corr.find(".labelContainer").html(getRowLabelHTML(vertLabels));
         $corr.find(".aggContainer").html(wholeTable);
@@ -321,6 +319,7 @@ window.AggModal = (function($, AggModal) {
     }
 
     function calcCorr($table, tableName, tableId) {
+        var deferred = jQuery.Deferred();
         var promises = [];
 
         var colLen  = aggCols.length;
@@ -333,55 +332,70 @@ window.AggModal = (function($, AggModal) {
                          "avg($arg1)), 2)), sum(pow(sub($arg2, avg($arg2)), " +
                          "2)))))";
 
-        for (var j = 0; j < colLen; j++) {
-            var cols   = aggCols[j].col;
-            var colNum = aggCols[j].colNum;
+        // the display order is column's order is column0, column1...columnX
+        // row's order is columnX, column(X-1).....column1
+        // but for simplity to handle duplicate col case,
+        // we assume row's order is still column0, column1...columnX, then do
+        // the corr, and when display, use getCorrCell() to get the correct cell
+        for (var col = 0; col < colLen; col++) {
+            var progCol = aggCols[col].col;
+            var colNum = aggCols[col].colNum;
+            var progColType = progCol.getType();
 
-            if (cols.type === "integer" || cols.type === "float") {
-                // for duplicated columns, no need to trigger thrift call
-                if (dupCols[j]) {
-                    // console.log("Duplicated column", j);
+            if (progColType === "integer" || progColType === "float") {
+                if (dupCols[col]) {
+                    // for duplicated columns, no need to trigger thrift call
                     continue;
                 }
 
-                var dups = checkDupCols(j);
+                var dups = checkDupCols(col);
                 for (var t = 0; t < dups.length; t++) {
                     var dupColNum = dups[t];
                     dupCols[dupColNum] = true;
-                    if (dupColNum > j) {
-                        $corr.find(".aggCol:not(.labels)").eq(dupColNum)
-                            .find(".aggTableField:not(.colLabel)").eq(j)
-                                .html("1").css("background-color", "");
+
+                    if (dupColNum > col) {
+                        applyCorrResult(col, dupColNum, 1, []);
                     }
                 }
 
                 var $colHeader = $table.find(".th.col" + colNum + " .header");
                 // XXX now agg on child of array is not supported
                 if (!$colHeader.hasClass("childOfArray")) {
-                    for (var i = 0; i < j; i++) {
-                        if (i === j) {
-                            // Must be 1 so skip
-                            continue;
-                        }
-                        var vertCols = aggCols[i].col;
-                        if (vertCols.type !== "integer" &&
-                            vertCols.type !== "float")
+                    for (var row = 0; row < col; row++) {
+                        var vertCol = aggCols[row].col;
+                        var vertColType = vertCol.getType();
+                        if (vertColType !== "integer" &&
+                            vertColType !== "float")
                         {
                             continue;
                         }
                         var sub = corrString.replace(/[$]arg1/g,
-                                                     cols.getBackColName());
-                        sub = sub.replace(/[$]arg2/g, vertCols.getBackColName());
+                                                     progCol.getBackColName());
+                        sub = sub.replace(/[$]arg2/g,
+                                            vertCol.getBackColName());
                         // Run correlation function
                         var promise = runCorr(tableId, tableName,
-                                                sub, i, j, dups);
+                                                sub, row, col, dups);
                         promises.push(promise);
                     }
                 }
             }
         }
 
-        return (xcHelper.when.apply(window, promises));
+        xcHelper.when.apply(window, promises)
+        .then(deferred.resolve)
+        .fail(function() {
+            for (var i = 0, len = arguments.length; i < len; i++) {
+                if (arguments[i] != null && arguments[i].error != null) {
+                    deferred.reject(arguments[i]);
+                    return;
+                }
+            }
+
+            deferred.reject("Unknow Correlation Error");
+        });
+
+        return deferred.promise();
     }
 
     function calcAgg($table, tableName, tableId) {
@@ -517,7 +531,7 @@ window.AggModal = (function($, AggModal) {
             var corrRes = corrCache[tableId][evalStr];
 
             if (corrRes != null) {
-                applyCorrResult(corrRes);
+                applyCorrResult(row, col, corrRes, colDups);
                 deferred.resolve();
                 return (deferred.promise());
             }
@@ -547,11 +561,11 @@ window.AggModal = (function($, AggModal) {
             corrCache[tableId][evalStr] = val;
             // end of cache value
 
-            applyCorrResult(val);
+            applyCorrResult(row, col, val, colDups);
             deferred.resolve();
         })
         .fail(function(error) {
-            applyCorrResult("--");
+            applyCorrResult(row, col, "--", colDups);
 
             if (error.status === StatusT.StatusXdfDivByZero) {
                 // Note: Here if we have multiple fail cells
@@ -566,71 +580,83 @@ window.AggModal = (function($, AggModal) {
             }
         });
 
-        function applyCorrResult(value) {
-            var isNumeric = jQuery.isNumeric(value);
-            var bg;
+        return (deferred.promise());
+    }
 
-            var html = '<span class="textOverflow tooltipOverflow" ' +
-                        'title="' + value +
-                        '" data-toggle="tooltip" data-placement="top" ' +
-                        'data-container="body">' +
-                            (isNumeric ? value.toFixed(3) : value) +
-                        '</span>';
-            if (isNumeric) {
-                value = parseFloat(value);
-                if (value > 0) {
-                    bg = "rgba(66, 158, 212," + value + ")";
+    function applyCorrResult(row, col, value, colDups) {
+        var isNumeric = jQuery.isNumeric(value);
+        var bg;
+        var $cell;
 
-                    $corr.find(".aggCol:not(.labels)").eq(col)
-                    .find(".aggTableField:not(.colLabel)").eq(row).html(html)
-                    .css("background-color", bg);
-                } else {
-                    bg = "rgba(200, 200, 200," + (-1 * value) + ")";
+        var html = '<span class="textOverflow tooltipOverflow" ' +
+                    'title="' + value +
+                    '" data-toggle="tooltip" data-placement="top" ' +
+                    'data-container="body">' +
+                        (isNumeric ? value.toFixed(3) : value) +
+                    '</span>';
 
-                    $corr.find(".aggCol:not(.labels)").eq(col)
-                    .find(".aggTableField:not(.colLabel)").eq(row).html(html)
-                    .css("background-color", bg);
-                }
+        $cell = getCorrCell(row, col);
+        $cell.html(html);
+
+        if (isNumeric) {
+            value = parseFloat(value);
+            var l;
+
+            if (value > 0) {
+                // when value is 1, color is rgb(105, 183, 233),
+                // which is hsl(203, 75%, 66%)
+                l = 100 - Math.round(34 * value, 2);
+                bg = "hsl(203, 75%, " + l + "%)";
+            } else if (value === 0) {
+                bg = "rgb(255,255,255)";
             } else {
-                $corr.find(".aggCol:not(.labels)").eq(col)
-                    .find(".aggTableField:not(.colLabel)").eq(row).html(html);
+                // when value is -1, color is rgb(200, 200, 200),
+                // which is hsl(0, 0%, 78%)
+                l = 100 - Math.round(-22 * value, 2);
+                bg = "hsl(0, 0%, " + l + "%)";
             }
 
-            var $container;
-            colDups.forEach(function(colNum) {
-                // beacause of checkDupcols(), colNum > col
-                // and since col > row
-                // so colNum > row
-                $container = $corr.find(".aggCol:not(.labels)")
-                                .eq(colNum)
-                                .find(".aggTableField:not(.colLabel)")
-                                .eq(row).html(html);
-                if (isNumeric) {
-                    $container.css("background-color", bg);
-                }
-            });
-
-            var rowDups = checkDupCols(row);
-            var newCol;
-            var newRow;
-            rowDups.forEach(function(rowNum) {
-                newRow = col;
-                newCol = rowNum;
-
-                if (newCol > newRow) {
-                    $container = $corr.find(".aggCol:not(.labels)")
-                                    .eq(newCol)
-                                    .find(".aggTableField:not(.colLabel)")
-                                    .eq(newRow).html(html);
-
-                    if (isNumeric) {
-                        $container.css("background-color", bg);
-                    }
-                }
-            });
+            $cell.css("background-color", bg);
         }
 
-        return (deferred.promise());
+        colDups.forEach(function(colNum) {
+            // beacause of checkDupcols(), colNum > col
+            // and since col > row
+            // so colNum > row
+            $cell = getCorrCell(row, colNum);
+            $cell.html(html);
+
+            if (isNumeric) {
+                $cell.css("background-color", bg);
+            }
+        });
+
+        var rowDups = checkDupCols(row);
+        var newCol;
+        var newRow;
+        rowDups.forEach(function(rowNum) {
+            newRow = col;
+            newCol = rowNum;
+
+            if (newCol > newRow) {
+                $cell = getCorrCell(newRow, newCol);
+                $cell.html(html);
+
+                if (isNumeric) {
+                    $cell.css("background-color", bg);
+                }
+            }
+        });
+    }
+
+    function getCorrCell(row, col) {
+        var colNum = row;
+        var rowNum = aggCols.length - 1 - col;
+
+        return $corr.find(".aggCol:not(.labels)")
+                    .eq(colNum)
+                    .find(".aggTableField:not(.colLabel)")
+                    .eq(rowNum);
     }
 
     function closeAggModel() {
