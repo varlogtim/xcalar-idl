@@ -359,9 +359,10 @@ window.StartManager = (function(StartManager, $) {
         });
     }
 
-    function restoreActiveTable(tableName, tableId, failures) {
+    function restoreActiveTable(tableId, failures) {
         var deferred = jQuery.Deferred();
         var table = gTables[tableId];
+        var tableName = table.tableName;
 
         table.beActive();
 
@@ -430,8 +431,7 @@ window.StartManager = (function(StartManager, $) {
                         continue;
                     }
 
-                    promises.push(restoreActiveTable.bind(this, tableName,
-                                    tableId, failures));
+                    promises.push(restoreActiveTable.bind(this, tableId, failures));
                 }
 
                 // create hidden tables
