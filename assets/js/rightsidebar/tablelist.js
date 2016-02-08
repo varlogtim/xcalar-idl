@@ -235,6 +235,13 @@ window.TableList = (function($, TableList) {
         TableList.refreshAggTables();
     };
 
+    TableList.updateColName = function(tableId, colNum, newColName) {
+        $('#activeTablesList').find(".tableInfo[data-id=" + tableId + "]")
+                              .find(".column").eq(colNum - 1)
+                              .find(".text")
+                              .text(colNum + ". " + newColName);
+    };
+
     TableList.updateTableInfo = function(tableId) {
         var $tableList = $('#activeTablesList .tableInfo[data-id="' +
                             tableId + '"]');
@@ -335,8 +342,8 @@ window.TableList = (function($, TableList) {
 
                         addOrphanedTable(tableName)
                         .then(function(finalTableName){
-                            var tableId = xcHelper.getTableId(finalTableName);
-                            WSManager.activeAggInfo(key, tableId);
+                            var finalTableId = xcHelper.getTableId(finalTableName);
+                            WSManager.activeAggInfo(key, finalTableId);
                             // TableList.refreshAggTables() is called after
                             // all promises done
                             innerDeferred.resolve();
@@ -466,29 +473,37 @@ window.TableList = (function($, TableList) {
         }
     };
 
-    TableList.tablesToHiddenWS = function(wsId) {
+    TableList.tablesToHiddenWS = function(wsIds) {
+        var $activeList = $('#activeTablesList');
+        var $inactiveList = $('#inactiveTablesList');
 
-        $('#activeTablesList').find('.worksheet-' + wsId)
-                              .closest('.tableInfo')
-                              .addClass('hiddenWS')
-                              .attr({
-                                'data-toggle'        : 'tooltip',
-                                'data-container'     : 'body',
-                                'data-original-title': 'worksheet is hidden'
-                              });
-        $('#inactiveTablesList').find('.worksheet-' + wsId)
-                                .closest('.tableInfo')
-                                .addClass('hiddenWS')
-                                .attr({
-                                    'data-toggle'        : 'tooltip',
-                                    'data-container'     : 'body',
-                                    'data-original-title': 'worksheet is hidden'
-                                })
-                                .find('.addTableBtn')
-                                .removeClass('selected');
-        if ($('#archivedTableList').find('.tableInfo:not(.hiddenWS)')
-                                       .length === 0) {
-            $('#archivedTableList .secondButtonWrap').hide();
+        for (var i = 0, len = wsIds.length; i < len; i++) {
+            var wsId = wsIds[i];
+
+            $activeList.find('.worksheet-' + wsId)
+                      .closest('.tableInfo')
+                      .addClass('hiddenWS')
+                      .attr({
+                        'data-toggle'        : 'tooltip',
+                        'data-container'     : 'body',
+                        'data-original-title': 'worksheet is hidden'
+                      });
+            $inactiveList.find('.worksheet-' + wsId)
+                        .closest('.tableInfo')
+                        .addClass('hiddenWS')
+                        .attr({
+                            'data-toggle'        : 'tooltip',
+                            'data-container'     : 'body',
+                            'data-original-title': 'worksheet is hidden'
+                        })
+                        .find('.addTableBtn')
+                        .removeClass('selected');
+        }
+
+        if ($activeList.find('.tableInfo:not(.hiddenWS)').length === 0) {
+            $activeList.find('.secondButtonWrap').hide();
+        } else {
+            $activeList.find('.secondButtonWrap').show();
         }
     };
 
@@ -802,15 +817,8 @@ window.TableList = (function($, TableList) {
                         '</span>' +
                         addTableBtn +
                     '</div>' +
-                    '<ol class="columnList">';
-
-            for (var j = 0; j < numCols; j++) {
-                html += '<li class="column textOverflowOneLine">' +
-                            table.tableCols[j].name +
-                        '</li>';
-            }
-
-            html += '</ol></li>';
+                    generateColumnList(table.tableCols, numCols) +
+                '</li>';
 
 
             if (gMinModeOn) {
@@ -818,24 +826,36 @@ window.TableList = (function($, TableList) {
             } else {
                 var $li = $(html).hide();
                 $li.addClass("transition").prependTo($dateDivider)
-                    .slideDown(150, function() {
-                        $li.removeClass("transition");
-                    });
-            }
-
-            // set hiddenWS class to tables belonging to hidden worksheets
-            var hiddenWS = WSManager.getHiddenWS();
-            var numHidden = hiddenWS.length;
-
-            for (var j = 0; j < numHidden; j++) {
-                TableList.tablesToHiddenWS(hiddenWS[j]);
-            }
-
-            if ($('#archivedTableList').find('.tableInfo:not(.hiddenWS)')
-                                       .length !== 0) {
-                $('#archivedTableList .secondButtonWrap').show();
+                .slideDown(150, function() {
+                    $li.removeClass("transition");
+                });
             }
         }
+
+        // set hiddenWS class to tables belonging to hidden worksheets
+        var hiddenWS = WSManager.getHiddenWS();
+        TableList.tablesToHiddenWS(hiddenWS);
+    }
+
+    function generateColumnList(tableCols, numCols) {
+        var html = '<ul class="columnList">';
+        for (var i = 0, no = 1; i < numCols; i++, no++) {
+            var progCol = tableCols[i];
+            var typeClass = "typeList type-" + progCol.getType();
+
+            html += '<li class="column ' + typeClass + '">' +
+                        '<div class="iconWrap">' +
+                            '<span class="type icon"></span>' +
+                        '</div>' +
+                        '<span class="text">' +
+                            no + ". " + progCol.getFronColName() +
+                        '</span>' +
+                    '</li>';
+        }
+
+        html += '</ul>';
+
+        return html;
     }
 
     function generateAggTableList(tables) {

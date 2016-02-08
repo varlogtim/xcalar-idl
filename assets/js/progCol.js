@@ -1336,9 +1336,7 @@ window.ColManager = (function($, ColManager) {
                                                 .prop("readonly", true);
 
         // adjust rightsidebar column name
-        $('#activeTablesList').find('.tableInfo[data-id=' + tableId + ']')
-                              .find('.column').eq(colNum - 1)
-                              .text(newName);
+        TableList.updateColName(tableId, colNum, newName);
 
         SQL.add("Rename Column", {
             "operation": SQLOps.RenameCol,

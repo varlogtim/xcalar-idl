@@ -459,6 +459,49 @@
     }
 }
 
+.typeList(@w, @h) {
+    .typeIconCSS(@type: "Unknown", @width: @w, @height: @h) {
+        @url: "../../images/columnIcons/type-@{type}.png";
+        .icon {
+            .image(@url, 50%, 50%);
+        }
+    }
+
+    .icon {
+        .size(@w, @h);
+    }
+
+    .typeIconCSS(); // default value is Unknown
+
+    &.type-array {
+        .typeIconCSS("Array");
+    }
+    &.type-boolean {
+        .typeIconCSS("Boolean");
+        .icon {
+            background-size: 16px;
+        }
+    }
+    &.type-mixed {
+        .typeIconCSS("Mixed");
+    }
+    &.type-integer {
+        .typeIconCSS("Number");
+    }
+    &.type-float {
+        .typeIconCSS("Number");
+    }
+    &.type-object {
+        .typeIconCSS("Object");
+    }
+    &.type-string {
+        .typeIconCSS("String");
+    }
+    &.type-unknown, &.type-undefined {
+        .typeIconCSS("Unknown");
+    }
+}
+
 // used for datasetTableWrap in datastore.less
 .typeIcon() {
     .typeIconCSS(@type: "Unknown", @width: 10px, @height: 14px, @x: 0, @y: 0) {

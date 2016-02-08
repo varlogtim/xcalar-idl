@@ -277,6 +277,10 @@ ProgCol.prototype = {
             }
             return null;
         }
+    },
+
+    "getType": function() {
+        return this.type;
     }
 };
 

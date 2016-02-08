@@ -1150,7 +1150,7 @@ window.WSManager = (function($, WSManager) {
             gTables[tableId].freeResultset();
         }
 
-        TableList.tablesToHiddenWS(wsId);
+        TableList.tablesToHiddenWS([wsId]);
 
         if (gMinModeOn) {
             $("#worksheetTab-" + wsId).remove();
