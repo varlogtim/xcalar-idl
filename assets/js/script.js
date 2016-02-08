@@ -218,6 +218,7 @@ window.StartManager = (function(StartManager, $) {
         .always(function() {
             clearTimeout(timer);
             $("#initialLoadScreen").remove();
+            generateFirstVisibleRowNum();
         });
     };
 

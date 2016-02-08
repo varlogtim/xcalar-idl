@@ -958,7 +958,9 @@ window.TblManager = (function($, TblManager) {
         focusTable(tableId);
         var leftPos = $('#xcTableWrap-' + tableId).position().left +
                         $('#mainFrame').scrollLeft();
-        $('#mainFrame').animate({scrollLeft: leftPos}, 600);
+        $('#mainFrame').animate({scrollLeft: leftPos}, 600, function() {
+            generateFirstVisibleRowNum();
+        });
     }
 
     function changeTableId(oldId, newId) {
