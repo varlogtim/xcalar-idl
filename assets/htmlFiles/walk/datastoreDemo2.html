@@ -110,17 +110,18 @@
                 </div>
               </div>
               <!-- udf checkbox -->
-              <div id="udfCheckbox" class="checkbox default-hidden">
+              <div id="udfCheckbox" class="checkboxSection hidden default-hidden">
                 <div class="checkbox iconWrapper">
                   <span class="icon"></span>
                 </div>
                 <div class="text">UDF</div>
               </div>
-              <div id="csvPromoteCheckbox" class="checkbox hidden default-hidden">
+              <div id="promoteHeaderCheckbox" class="checkboxSection hidden default-hidden">
                 <div class="checkbox iconWrapper">
                   <span class="icon"></span>
                 </div>
                 <div class="text">Header</div>
+                <div title="Check to Promote First Row As Header" data-toggle="tooltip" data-placement="top" data-container="body" class="hint qMark"></div>
               </div>
             </div>
           </div>
@@ -334,18 +335,33 @@
             <!-- Datastore Table -->
             <div class="contentViewTable">
               <div class="datasetTitleWrap">
-                <div class="dsInfo">
-                  <h2>Dataset Preview</h2>
-                  <p>Format: <span id="schema-format">JSON</span></p>
+                <div class="titleInfo">
+                  <div class="heading">
+                     <h2>Dataset Preview</h2>
+                  </div>
+                  <div class="dsInfo">
+                    <span>Format:</span>
+                    <span id="schema-format">JSON</span>
+                  </div>
                 </div>
                 <div id="dsColsBtn" class="buttonGroup" style="display: block;" data-introstep="5">
-                  <div id="selectDSCols" class="selectAll modifyDSButton">
-                    <span class="icon"></span>
-                    <span>Select All</span>
+                  <div class="buttonWrap">
+                    <div id="noDScols" class="noCols modifyDSButton">
+                      <span class="icon"></span>
+                      <span class="text">Select Columns Later</span>
+                    </div>
+                    <div title="Create A Table Without Picking Any Column" data-toggle="tooltip" data-container="body" class="qMark"></div>
                   </div>
-                  <div id="clearDsCols" class="clear modifyDSButton">
-                    <span class="icon"></span>
-                    <span>Clear All</span>
+                  <div class="buttonWrap">
+                    <div id="selectDSCols" class="selectAll modifyDSButton">
+                      <span class="icon"></span>
+                      <span class="text">Select All</span>
+                    </div>
+                    <div class="divider"></div>
+                    <div id="clearDsCols" class="clear modifyDSButton">
+                      <span class="icon"></span>
+                      <span class="text">Clear All</span>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -379,9 +395,21 @@
               <div class="border"></div>
             </div>
             <div id="dataCartWrap">
-              <div id="dataCart"><div id="selectedTable-yelpUsers" class="selectedTable"><div class="cartTitleArea" data-introstep="7">
-              <input class="tableNameEdit" type="text" spellcheck="false" value="yelpUsers"><div class="iconWrapper"><span class="icon"></span></div></div><ul data-introstep="6">
-              <li style="font-size:13px;" class="colWrap" data-colnum="2"><span class="colName">yelping_since</span><div class="removeCol"><span class="closeIcon"></span></div></li><li style="font-size:13px;" class="colWrap" data-colnum="3"><span class="colName">compliments</span><div class="removeCol"><span class="closeIcon"></span></div></li></ul></div></div>
+              <div id="dataCart">
+                <div id="selectedTable-yelpUsers" class="selectedTable">
+                  <div class="cartTitleArea" data-introstep="7">
+                    <input class="tableNameEdit" type="text" spellcheck="false" value="yelpUsers">
+                    <div class="iconWrapper">
+                      <span class="icon"></span>
+                    </div>
+                  </div>
+                  <ul data-introstep="6">
+                    <li style="font-size:13px;" class="colWrap" data-colnum="2"><span class="colName">yelping_since</span><div class="removeCol"><span class="closeIcon"></span></div>
+                    </li>
+                    <li style="font-size:13px;" class="colWrap" data-colnum="3"><span class="colName">compliments</span><div class="removeCol"><span class="closeIcon"></span></div></li>
+                  </ul>
+                </div>
+              </div>
             </div>
           </div>
           <!-- End of Datastore Cart -->
@@ -728,7 +756,7 @@
         <span class="icon"></span>
       </div>
       <!-- Worksheet Tabs -->
-      <div id="worksheetTabs"><section id="worksheetTab-0" class="worksheetTab"><div class="label" data-introstep="6" data-original-title="Sheet 1" data-toggle="tooltip" data-placement="top" data-container="#worksheetTab-0:not(.focus) .label">
+      <div id="worksheetTabs"><section id="worksheetTab-0" class="worksheetTab"><div class="label" data-original-title="Sheet 1" data-toggle="tooltip" data-placement="top" data-container="#worksheetTab-0:not(.focus) .label">
           <div class="iconWrapper wsIconWrap"><span class="wsIcon"></span></div>
             <div class="draggableArea">
               <div class="text textOverflow" data-title="Sheet 1" contenteditable="">Sheet 1</div>
