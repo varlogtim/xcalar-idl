@@ -444,6 +444,7 @@ window.OperationsModal = (function($, OperationsModal) {
         $input.focus();
         $('body').on('keydown', opModalKeyListener);
         centerPositionElement($operationsModal);
+        $('#statusBox').trigger('mousedown');
     }
 
     function unminimizeTable() {
@@ -456,8 +457,10 @@ window.OperationsModal = (function($, OperationsModal) {
         if (event.which === keyCode.Enter ||
             event.which === keyCode.Escape)
         {
-            // event.preventDefault();
+            event.preventDefault();
             event.stopPropagation();
+            // prevent event in order to keep form from submitting or exiting
+            // because there's a keypress listener trying to close the modal
             unminimizeTable();
         }
     }
