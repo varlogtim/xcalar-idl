@@ -550,7 +550,6 @@ window.Profile = (function($, Profile, d3) {
         }
 
         var tableName = table.tableName;
-        var keyName   = table.keyName;
         var tableId   = table.tableId;
 
         var groupbyTable;
@@ -571,7 +570,7 @@ window.Profile = (function($, Profile, d3) {
         };
 
         curStatsCol.groupByInfo.isComplete = "running";
-        checkTableIndex(tableId, tableName, colName, keyName)
+        checkTableIndex(tableId, tableName, colName)
         .then(function(indexedTableName, nullCount) {
             curStatsCol.groupByInfo.nullCount = nullCount;
 
@@ -634,8 +633,10 @@ window.Profile = (function($, Profile, d3) {
         return (deferred.promise());
     }
 
-    function checkTableIndex(tableId, tableName, colName, keyName) {
+    function checkTableIndex(tableId, tableName, colName) {
         var deferred = jQuery.Deferred();
+        var table = gTables[tableId];
+        var tableKey = table.keyName;
 
         getUnsortedTableName(tableName)
         .then(function(unsorted) {
@@ -646,27 +647,65 @@ window.Profile = (function($, Profile, d3) {
                 // this is sorted table, should index a unsorted one
                 XcalarMakeResultSetFromTable(unsorted)
                 .then(function(resultSet) {
-                    if (resultSet && resultSet.keyAttrHeader.name !== colName) {
-                        parentIndexedWrongly = true;
-                    }
+                    resultSet = resultSet || {};
+                    var parentKey = resultSet.keyAttrHeader.name;
 
-                    innerDeferred.resolve(parentIndexedWrongly);
+                    if (parentKey !== colName) {
+                        if (parentKey !== tableKey) {
+                            // if current is sorted, the parent should also
+                            // index on the column to remove "KNF", first
+                            var indexTable = getNewName(tableName,
+                                                    ".stats.indexParent", true);
+                            var sqlOptions = {
+                                "operation"   : SQLOps.ProfileAction,
+                                "action"      : "index",
+                                "tableName"   : unsorted,
+                                "colName"     : tableKey,
+                                "newTableName": indexTable,
+                                "sorted"      : false
+                            };
+
+                            XcalarIndexFromTable(unsorted, tableKey, indexTable,
+                                         XcalarOrderingT.XcalarOrderingUnordered,
+                                         sqlOptions)
+                            .then(function() {
+                                if (tableKey === colName) {
+                                    // when the parent has right index
+                                    parentIndexedWrongly = false;
+                                } else {
+                                    // when parent need another index on colName
+                                    parentIndexedWrongly = true;
+                                }
+
+                                innerDeferred.resolve(parentIndexedWrongly,
+                                                        indexTable);
+                            })
+                            .fail(innerDeferred.reject);
+                        } else {
+                            // when parent is indexed on tableKey,
+                            // still but need another index on colName
+                            parentIndexedWrongly = true;
+                            innerDeferred.resolve(parentIndexedWrongly, unsorted);
+                        }
+                    } else {
+                        innerDeferred.resolve(parentIndexedWrongly, unsorted);
+                    }
                 })
                 .fail(innerDeferred.reject);
             } else {
                 // this is the unsorted table
-                if (colName !== keyName) {
+                if (colName !== tableKey) {
                     parentIndexedWrongly = true;
                 }
 
-                innerDeferred.resolve(parentIndexedWrongly);
+                innerDeferred.resolve(parentIndexedWrongly, tableName);
             }
 
             return (innerDeferred.promise());
         })
-        .then(function(parentIndexedWrongly) {
+        .then(function(parentIndexedWrongly, unsortedTable) {
             if (!parentIndexedWrongly) {
-                deferred.resolve(tableName, 0);
+                deferred.resolve(unsortedTable, 0);
             } else {
                 var newTableName = getNewName(tableName, ".stats.index", true);
                 // lock the table when do index
@@ -682,14 +721,17 @@ window.Profile = (function($, Profile, d3) {
                     "sorted"      : false
                 };
 
-                XcalarIndexFromTable(tableName, colName, newTableName,
+                XcalarIndexFromTable(unsortedTable, colName, newTableName,
                                      XcalarOrderingT.XcalarOrderingUnordered,
                                      sqlOptions)
                 .then(function() {
                     // Aggregate count on origingal already remove the null value!
-                    return (getAggResult(colName, tableName, aggMap.count));
+                    return getAggResult(colName, unsortedTable, aggMap.count);
                 })
                 .then(function(val) {
+                    // the gTables[tableId].resultSetCount should eqaul to the
+                    // totalCount after right index, if not, a way to resolve
+                    // is to get resulSetCount from the right src table
                     var nullCount = gTables[tableId].resultSetCount - val;
                     deferred.resolve(newTableName, nullCount);
                 })

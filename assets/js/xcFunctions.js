@@ -226,8 +226,7 @@ window.xcFunction = (function($, xcFunction) {
             XcalarIndexFromTable(tableName, backFieldName, newTableName,
                                  xcOrder, sqlOptions)
             .then(function() {
-                // sort do not change groupby stats of the table
-                Profile.copy(tableId, newTableId);
+                // sort will filter out KNF, so it change the profile
                 return TblManager.refreshTable([newTableName], tablCols,
                                                 [tableName], worksheet);
             })
@@ -748,29 +747,13 @@ window.xcFunction = (function($, xcFunction) {
     // check if table has correct index
     function checkTableIndex(colName, tableId) {
         var deferred = jQuery.Deferred();
-        var table     = gTables[tableId];
+        var table = gTables[tableId];
         var tableName = table.tableName;
-        var parentIndexedWrongly = false;
-        var unsortedTableName = tableName;
+        var tableKey = table.keyName;
 
-        getUnsortedTableName(tableName)
-        .then(function(unsorted) {
-            if (unsorted !== tableName) {
-                unsortedTableName = unsorted;
-
-                // XXX this will add result count!!!
-                return XcalarMakeResultSetFromTable(unsorted);
-            } else {
-                return jQuery.Deferred().resolve().promise();
-            }
-        })
-        .then(function(resultSet) {
-            if (resultSet && resultSet.keyAttrHeader.name !== colName) {
-                parentIndexedWrongly = true;
-            }
-
-            if ((unsortedTableName === tableName && colName !== table.keyName) ||
-                (unsortedTableName !== tableName && parentIndexedWrongly)) {
+        checkIfNeedIndex(tableName)
+        .then(function(shouldIndex, unsortedTable) {
+            if (shouldIndex) {
                 console.log(tableName, "not indexed correctly!");
                 // XXX In the future,we can check if there are other tables that
                 // are indexed on this key. But for now, we reindex a new table
@@ -779,12 +762,12 @@ window.xcFunction = (function($, xcFunction) {
                 var sqlOptions = {
                     "operation"   : SQLOps.CheckIndex,
                     "key"         : colName,
-                    "tableName"   : tableName,
+                    "tableName"   : unsortedTable,
                     "newTableName": newTableName,
                     "sorted"      : false
                 };
 
-                XcalarIndexFromTable(tableName, colName, newTableName,
+                XcalarIndexFromTable(unsortedTable, colName, newTableName,
                                      XcalarOrderingT.XcalarOrderingUnordered,
                                      sqlOptions)
                 .then(function() {
@@ -796,12 +779,85 @@ window.xcFunction = (function($, xcFunction) {
                 .fail(deferred.reject);
             } else {
                 console.log(tableName, "indexed correctly!");
-                deferred.resolve(tableName, colName);
+                deferred.resolve(unsortedTable, colName);
             }
         })
         .fail(deferred.reject);
 
         return (deferred.promise());
+
+        function checkIfNeedIndex() {
+            var innerDeferred = jQuery.Deferred();
+            var shouldIndex = false;
+
+            getUnsortedTableName(tableName)
+            .then(function(unsorted) {
+                if (unsorted !== tableName) {
+                    // this is sorted table, should index a unsorted one
+
+                    // XXX this will add result count!!!
+                    XcalarMakeResultSetFromTable(unsorted)
+                    .then(function(resultSet) {
+                        resultSet = resultSet || {};
+                        var parentKey = resultSet.keyAttrHeader.name;
+
+                        if (parentKey !== colName) {
+                            if (parentKey !== tableKey) {
+                                // if current is sorted, the parent should also
+                                // index on the tableKey to remove "KNF"
+                                var indexTable = getNewTableInfo(tableName).tableName;
+                                var sqlOptions = {
+                                    "operation"   : SQLOps.ProfileAction,
+                                    "action"      : "index",
+                                    "tableName"   : unsorted,
+                                    "colName"     : tableKey,
+                                    "newTableName": indexTable,
+                                    "sorted"      : false
+                                };
+
+                                XcalarIndexFromTable(unsorted, tableKey, indexTable,
+                                             XcalarOrderingT.XcalarOrderingUnordered,
+                                             sqlOptions)
+                                .then(function() {
+                                    if (tableKey === colName) {
+                                        // when the parent has right index
+                                        shouldIndex = false;
+                                    } else {
+                                        // when parent need another index on colName
+                                        shouldIndex = true;
+                                    }
+
+                                    innerDeferred.resolve(shouldIndex,
+                                                            indexTable);
+                                })
+                                .fail(innerDeferred.reject);
+                            } else {
+                                // when parent is indexed on tableKey,
+                                // still but need another index on colName
+                                shouldIndex = true;
+                                innerDeferred.resolve(shouldIndex, unsorted);
+                            }
+                        } else {
+                            // because FAJS will automatically find parent table
+                            // so if parent table is already index on colName
+                            // no need to do another index
+                            shouldIndex = false;
+                            innerDeferred.resolve(shouldIndex, unsorted);
+                        }
+                    })
+                    .fail(innerDeferred.reject);
+                } else {
+                    // this is the unsorted table
+                    if (colName !== tableKey) {
+                        shouldIndex = true;
+                    }
+
+                    innerDeferred.resolve(shouldIndex, tableName);
+                }
+            });
+
+            return innerDeferred.promise();
+        }
     }
 
     function checkMultiGroupByIndex(groupByCols, tableId) {
