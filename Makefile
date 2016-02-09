@@ -15,6 +15,7 @@ build:
 	@echo "=== Minifying ==="
 	./prod/assets/bin/MINIFY.sh
 	@echo "=== Autogenerating Files ==="
+	touch prod/assets/js/config.js
 	rm prod/assets/js/config.js
 	touch prod/assets/js/config.js
 	echo "var portNumber = 9090;" > prod/assets/js/config.js
