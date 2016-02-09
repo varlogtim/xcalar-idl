@@ -15,6 +15,7 @@ build:
 	@echo "=== Minifying ==="
 	./prod/assets/bin/MINIFY.sh
 	@echo "=== Autogenerating Files ==="
+	touch prod/assets/js/config.js
 	./prod/assets/bin/autoGenFiles.sh
 	@echo "=== Running python build.py ==="
 	@python assets/python/build.py
