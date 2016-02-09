@@ -3,4 +3,4 @@
 ./sample-config.js
 ./enums.js
 ./englishStrings.js
-./test.js
+./unused/*

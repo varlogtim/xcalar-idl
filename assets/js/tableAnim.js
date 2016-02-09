@@ -811,7 +811,7 @@ function createTableHeader(tableId) {
         "focus": function() {
             var val = $(this).val();
             var width = getTextWidth($(this), val);
-            $(this).width(width + 1); 
+            $(this).width(width + 1);
             $(this)[0].setSelectionRange(val.length, val.length);
             moveTableTitles();
         },
@@ -879,7 +879,7 @@ function renameTableHead($div) {
         return;
     }
 
-     var isValid = xcHelper.validate([
+    var isValid = xcHelper.validate([
         {
             "$selector": $div.find(".tableName"),
             "text"     : ErrorTextTStr.NoSpecialChar,
@@ -1258,7 +1258,7 @@ function addMenuBehaviors($mainMenu) {
 
     if ($mainMenu.find('.scrollArea').length !== 0) {
         var listScroller = new xcHelper.dropdownList($mainMenu, {
-            $subMenu: $subMenu,
+            $subMenu    : $subMenu,
             scrollerOnly: true
         });
     }
@@ -1482,7 +1482,7 @@ function unnest($jsonTd, isArray, options) {
     var escapedColName;
     var openSymbol;
     var closingSymbol;
-    var tempName;
+    // var tempName;
 
     for (var arrayKey in jsonTdObj) {
         if (options.isDataTd) {
@@ -1527,7 +1527,7 @@ function unnest($jsonTd, isArray, options) {
     for (var i = 0; i < numKeys; i++) {
         var key = colNames[i];
         var escapedKey = escapedColNames[i];
-        var nameInfo;
+        // var nameInfo;
         var symbol = "";
 
         if (!isArray) {
@@ -1552,7 +1552,7 @@ function unnest($jsonTd, isArray, options) {
         }
       
         if (key === table.key) {
-            columnClass += " indexedColumn"; 
+            columnClass += " indexedColumn";
         }
         newColNum++;
         var colHeadNum = newColNum;
@@ -1722,7 +1722,7 @@ function dropdownClick($el, options) {
             }
             options.classes += " long";
         } else {
-           if (isMultiCell) {
+            if (isMultiCell) {
                 $tdFilter.text('Filter these values');
                 $tdExclude.text('Exclude these values');
             } else {
@@ -1990,15 +1990,15 @@ function moveTableTitlesAnimated(tableId, oldWidth, widthChange, speed) {
         var titleWidth = $tableTitle.outerWidth();
         var inputWidth = $input.width();
         var inputWidthChange = inputTextWidth - inputWidth;
-        var expectedTitleWidth; 
-        // because the final input width is variable we need to figure out 
+        var expectedTitleWidth;
+        // because the final input width is variable we need to figure out
         // how much it's going to change and what the expected title width is
         if (widthChange > 0) {
             var extraSpace = $thead.width() - titleWidth - 2;
             expectedTitleWidth = titleWidth -
-                                 Math.max(0,(widthChange - extraSpace));
+                                 Math.max(0, (widthChange - extraSpace));
         } else {
-            expectedTitleWidth = titleWidth + 
+            expectedTitleWidth = titleWidth +
                                  Math.min(inputWidthChange, -widthChange);
         }
         
@@ -2382,7 +2382,7 @@ function centerPositionElement($target, options) {
     if (!options.horizontalOnly) {
         var winHeight   = $window.height();
         var modalHeight = $target.height();
-        top  = ((winHeight - modalHeight) / 2);
+        top = ((winHeight - modalHeight) / 2);
         if (options.limitTop) {
             top = Math.max(top, 0);
         }

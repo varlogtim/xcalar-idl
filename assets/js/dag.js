@@ -51,7 +51,7 @@ window.DagPanel = (function($, DagPanel) {
                 }, 350);
             } else if (wasOnWorksheetPanel) {
                 // hide dag panel
-                closePanel($compSwitch); 
+                closePanel($compSwitch);
             }
 
             if (!wasOnWorksheetPanel) {
@@ -97,7 +97,7 @@ window.DagPanel = (function($, DagPanel) {
         $dagPanel.resizable({
             handles    : "n",
             containment: 'parent',
-            start: function(event, ui) {
+            start      : function(event, ui) {
                 $dagPanel.addClass('noTransform');
                 $dagPanel.css('top', dagPanelTop);
                 ui.originalPosition.top = dagPanelTop;
@@ -119,7 +119,7 @@ window.DagPanel = (function($, DagPanel) {
                     dagPanelTop = 0;
                     $('#maximizeDag').addClass('unavailable');
                 } else {
-                     $('#maximizeDag').removeClass('unavailable');
+                    $('#maximizeDag').removeClass('unavailable');
                 }
                 if (dagPanelTop + 30 > containerHeight) {
                     // close the dag panel
@@ -161,10 +161,10 @@ window.DagPanel = (function($, DagPanel) {
     function setDagTranslate(pct) {
         $dagPanel.css({
             '-webkit-transform': 'translate3d(0, ' + pct + '%, 0)',
-            '-moz-transform': 'translate3d(0, ' + pct + '%, 0)',
-            '-ms-transform': 'translate3d(0, ' + pct + '%, 0)',
-            '-o-transform': 'translate3d(0, ' + pct + '%, 0)',
-            'transform': 'translate3d(0, ' + pct + '%, 0)'
+            '-moz-transform'   : 'translate3d(0, ' + pct + '%, 0)',
+            '-ms-transform'    : 'translate3d(0, ' + pct + '%, 0)',
+            '-o-transform'     : 'translate3d(0, ' + pct + '%, 0)',
+            'transform'        : 'translate3d(0, ' + pct + '%, 0)'
         });
     }
 
@@ -648,7 +648,7 @@ window.Dag = (function($, Dag) {
         var parentChildMap = getParentChildDagMap(nodeArray, numNodes);
         var x = "";
         for (var i = 0; i < nodeArray.length; i++) {
-            x += nodeArray[i].name.name + " " ;
+            x += nodeArray[i].name.name + " ";
         }
        
         var dagImageHtml = drawDagNode(node, prop, nodeArray, index,
@@ -1674,7 +1674,7 @@ window.Dag = (function($, Dag) {
             dagHeight += 50;
             className = " full";
         }
-        var canvasHTML = $('<canvas class="canvas' + className + 
+        var canvasHTML = $('<canvas class="canvas' + className +
                             '" width="' + (dagWidth + 80) +
                             '" height="' + (dagHeight + 40) + '"></canvas>');
         $dagWrap.find('.dagImage').append(canvasHTML);

@@ -376,7 +376,9 @@ window.FileBrowser = (function($, FileBrowser) {
                 var $input = $(this);
                 var path = $input.text();
                 event.preventDefault();
-                if (event.which === keyCode.Left) return;
+                if (event.which === keyCode.Left) {
+                    return true;
+                }
 
                 clearTimeout(timer);
 

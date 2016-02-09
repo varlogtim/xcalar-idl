@@ -29,16 +29,16 @@ window.DFGParamModal = (function($, DFGParamModal){
                             '</div>' +
                         '</td>' +
                     '</tr>';
-    var filterTypeMap = {
-        "gt"   : ">",
-        "ge"   : "&ge;",
-        "eq"   : "=",
-        "lt"   : "<",
-        "le"   : "&le;",
-        "regex": "regex",
-        "like" : "like",
-        "not"  : "not"
-    };
+    // var filterTypeMap = {
+    //     "gt"   : ">",
+    //     "ge"   : "&ge;",
+    //     "eq"   : "=",
+    //     "lt"   : "<",
+    //     "le"   : "&le;",
+    //     "regex": "regex",
+    //     "like" : "like",
+    //     "not"  : "not"
+    // };
 
     DFGParamModal.setup = function() {
         $dfgParamModal.find('.cancel, .close').click(function() {
@@ -204,10 +204,10 @@ window.DFGParamModal = (function($, DFGParamModal){
                     $lis.prependTo($list.find('ul'));
                     $list.find('ul').width($list.width() - 1);
                 },
-                "container": "#dfgParameterModal",
-                "bounds": "#dfgParameterModal",
+                "container"    : "#dfgParameterModal",
+                "bounds"       : "#dfgParameterModal",
                 "bottomPadding": 5,
-                "exclude": '.draggableDiv, .defaultParam'
+                "exclude"      : '.draggableDiv, .defaultParam'
             });
 
             XcalarListXdfs('*', 'Conditional*')

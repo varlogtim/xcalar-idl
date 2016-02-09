@@ -321,8 +321,8 @@ function XcalarLoad(url, format, datasetName, fieldDelim, recordDelim,
                 var loadDone = false;
                 var nameNodeFound = false;
                 ret = ret.datasets;
-                for (var i = 0; i<ret.length; i++) {
-                    if (ret[i].name == dsName1) {
+                for (var i = 0; i < ret.length; i++) {
+                    if (ret[i].name === dsName1) {
                         nameNodeFound = true;
                         if (ret[i].loadIsComplete) {
                             loadDone = true;
@@ -410,24 +410,24 @@ function XcalarLoad(url, format, datasetName, fieldDelim, recordDelim,
     var def1 = xcalarLoad(tHandle, url, datasetName, formatType, 0, loadArgs);
     var def2 = XcalarGetQuery(workItem);
     // We are using our .when instead of jQuery's because if load times out,
-    // we still want to use the return for def2. 
+    // we still want to use the return for def2.
     xcHelper.when(def1, def2)
     .then(function(ret1, ret2) {
         SQL.add("Load Dataset", sqlOptions, ret2);
         deferred.resolve(ret1);
     })
     .fail(function(error1, error2) {
-        if (error1 && error1.status == 502) {
+        if (error1 && error1.status === 502) {
             // Thrift time out
-            // Just pretend like nothing happened and quietly listDatasets 
+            // Just pretend like nothing happened and quietly listDatasets
             // in intervals until the load is complete. Then do the ack/fail
-            if (error2 == undefined) {
+            if (error2 == null) {
                 // getQuery hasn't returned
                 XcalarGetQuery(workItem)
                 .then(function(ret) {
                     checkForDatasetLoad(deferred, ret, datasetName, sqlOptions);
                 });
-            } else if (typeof(error2) === "string") {
+            } else if (typeof (error2) === "string") {
                 checkForDatasetLoad(deferred, error2, datasetName, sqlOptions);
             }
         } else {  

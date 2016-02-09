@@ -95,7 +95,7 @@ window.DFG = (function($, DFG) {
                             endX, top1,
                             endX, endY);
                     } else {
-                         ctx.bezierCurveTo(midLeft, top1,
+                        ctx.bezierCurveTo(midLeft, top1,
                             endX, top1,
                             endX, endY);
                     }

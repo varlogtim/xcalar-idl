@@ -9,7 +9,7 @@ window.JoinModal = (function($, JoinModal) {
     var $joinPreview = $('#joinPreview');
     var $mainJoin     = $("#mainJoin");
 
-    var $joinTableName  = $("#joinRoundedInput");
+    // var $joinTableName  = $("#joinRoundedInput");
     var $leftJoinTable  = $("#leftJoin");
     var $rightJoinTable = $("#rightJoin");
 
@@ -1280,13 +1280,13 @@ window.JoinModal = (function($, JoinModal) {
                 leftColText = '<span class="highlighted">' + columnPairs[i][0] +
                               '</span>';
             } else {
-                leftColText =  "\"\"";
+                leftColText = "\"\"";
             }
             if (columnPairs[i][1]) {
                 rightColText = '<span class="highlighted">' + columnPairs[i][1] +
                               '</span>';
             } else {
-                rightColText =  "\"\"";
+                rightColText = "\"\"";
             }
             if (columnPairs[i][0] || columnPairs[i][1]) {
                 previewText += leftColText + ' = ' + rightColText + " AND ";

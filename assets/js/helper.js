@@ -1701,8 +1701,8 @@ window.xcHelper = (function($, xcHelper) {
                 "title": "Support Bundle Generated",
                 "instr": "Please check your backend for a .tar.gz file",
                 "msg"  : "Support upload bundle successfully generated!" +
-                         " It is located on your Xcalar Server at "+
-                         filePath +".",
+                         " It is located on your Xcalar Server at " +
+                         filePath + ".",
                 "isAlert": true
             });
             deferred.resolve();

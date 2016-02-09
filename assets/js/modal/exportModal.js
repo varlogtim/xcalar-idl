@@ -214,11 +214,12 @@ window.ExportModal = (function($, ExportModal) {
         
         var columnNames = columnsVal.split(",");
         columnNames = convertFrontColNamesToBack(columnNames);
+        var errorText = ErrorTextTStr.InvalidColumn
+                        .replace('<name>', columnNames);
 
         isValid = xcHelper.validate([{
                 "$selector": $exportColumns,
-                "text"     : ErrorTextTStr.InvalidColumn
-                                          .replace('<name>', columnNames),
+                "text"     : errorText,
                 "check"    : function() {
                     if (gExportNoCheck) {
                         return (false);
@@ -272,14 +273,16 @@ window.ExportModal = (function($, ExportModal) {
 
         // push only valid columns aka, no arrays, data, newcols, objs etc
         for (i = 0; i < numTableCols; i++) {
-            if (tableCols[i].name !== "DATA" && 
-                !tableCols[i].isNewCol) {
+            if (tableCols[i].name !== "DATA" &&
+                !tableCols[i].isNewCol)
+            {
 
                 if (gExportNoCheck) {
                     colsArray.push(tableCols[i]);
                 } else {
                     if (tableCols[i].args &&
-                        tableCols[i].args[0].indexOf(".") > -1) {
+                        tableCols[i].args[0].indexOf(".") > -1)
+                    {
                         isObj = true;
                     } else {
                         isObj = false;
@@ -316,7 +319,7 @@ window.ExportModal = (function($, ExportModal) {
             }
 
             if (!colFound) {
-                // column could be a duplicate so check against the columns we 
+                // column could be a duplicate so check against the columns we
                 // already found and removed
                 for (j = 0; j < numFoundCols; j++) {
                     tableCol = foundColsArray[j];

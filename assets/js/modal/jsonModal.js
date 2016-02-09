@@ -1123,7 +1123,7 @@ window.JSONModal = (function($, JSONModal) {
                         var emptyArray = "";
                         if (value.length === 0) {
                             emptyArray = " emptyArray";
-                        } 
+                        }
                         value =
                         '[<span class="jArray jInfo ' + emptyArray + '" ' +
                             'data-key="' + key + '">' +
