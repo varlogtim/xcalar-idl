@@ -15,7 +15,9 @@ build:
 	@echo "=== Minifying ==="
 	./prod/assets/bin/MINIFY.sh
 	@echo "=== Autogenerating Files ==="
+	rm prod/assets/js/config.js
 	touch prod/assets/js/config.js
+	echo "var portNumber = 9090;" > prod/assets/js/config.js
 	./prod/assets/bin/autoGenFiles.sh
 	@echo "=== Running python build.py ==="
 	@python assets/python/build.py
