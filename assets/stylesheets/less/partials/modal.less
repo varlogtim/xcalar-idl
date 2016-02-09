@@ -2428,64 +2428,77 @@ html.microsoft {
                 .flex(1 1 auto);
                 .flex-display;
 
-                .iconWrapper {
-                    .flex(0 0 20px);
-                    height: 20px;
-                    cursor: pointer;
-                    opacity: 0.7;
-
-                    .icon {
-                        .size(100%, 100%);
+                &.active {
+                    .clickable {
+                        opacity: 1;
                     }
+
+                    .text {
+                        color: @color-text-blue;
+                    }
+                }
+
+                .clickable {
+                    opacity: 0.7;
+                    cursor: pointer;
 
                     &:hover {
                         opacity: 1;
                     }
+                }
 
-                    &.active {
-                        opacity: 1;
-                    }
+                .icon {
+                    .size(20px, 20px);
+                }
+
+                .text {
+                    .size(@width: 40px, @height: 20px);
+                    .font(@line-height: 20px, @size: 13px, @weight: bold, @color: @color-text-lightGray);
                 }
 
                 &.asc {
                     .justify-content(flex-start);
 
-                    .iconWrapper {
-                        .icon {
-                            .image("../../images/profileModal/ascG.png", 50%, 50%);
-                        }
+                    &.active .icon {
+                        .image("../../images/profileModal/ascC.png", 50%, 50%);
+                    }
 
-                        &.active .icon {
-                            .image("../../images/profileModal/ascC.png", 50%, 50%);
-                        }
+                    .icon {
+                        float: left;
+                        .image("../../images/profileModal/ascG.png", 50%, 50%);
+                    }
+
+                    .text {
+                        margin-left: 10px;
                     }
                 }
 
                 &.origin {
                     .justify-content(center);
 
-                    .iconWrapper {
-                        .icon {
-                            .image("../../images/profileModal/origG.png", 50%, 50%);
-                        }
+                    &.active .icon {
+                        .image("../../images/profileModal/origC.png", 50%, 50%);
+                    }
 
-                        &.active .icon {
-                            .image("../../images/profileModal/origC.png", 50%, 50%);
-                        }
+                    .icon {
+                        .image("../../images/profileModal/origG.png", 50%, 50%);
                     }
                 }
 
                 &.desc {
                     .justify-content(flex-end);
 
-                    .iconWrapper {
-                        .icon {
-                            .image("../../images/profileModal/descG.png", 50%, 50%);
-                        }
+                    &.active .icon {
+                        .image("../../images/profileModal/descC.png", 50%, 50%);
+                     }
 
-                        &.active .icon {
-                            .image("../../images/profileModal/descC.png", 50%, 50%);
-                        }
+                    .icon {
+                        float: right;
+                        .image("../../images/profileModal/descG.png", 50%, 50%);
+                    }
+
+                    .text {
+                        margin-right: 10px;
                     }
                 }
             }

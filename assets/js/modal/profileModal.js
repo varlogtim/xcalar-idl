@@ -107,15 +107,15 @@ window.Profile = (function($, Profile, d3) {
         // event on sort section
         var $sortSection = $modal.find(".sortSection");
 
-        $sortSection.on("click", ".asc .iconWrapper", function() {
+        $sortSection.on("click", ".asc .clickable", function() {
             sortData(sortMap.asc, statsCol);
         });
 
-        $sortSection.on("click", ".origin .iconWrapper", function() {
+        $sortSection.on("click", ".origin .clickable", function() {
             sortData(sortMap.origin, statsCol);
         });
 
-        $sortSection.on("click", ".desc .iconWrapper", function() {
+        $sortSection.on("click", ".desc .clickable", function() {
             sortData(sortMap.desc, statsCol);
         });
 
@@ -1356,8 +1356,8 @@ window.Profile = (function($, Profile, d3) {
 
     function resetSortSection() {
         $modal.find(".sortSection").find(".active").removeClass("active")
-                .end()
-                .find("." + order + " .iconWrapper").addClass("active");
+            .end()
+            .find("." + order).addClass("active");
     }
 
     function sortData(newOrder, curStatsCol) {
