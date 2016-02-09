@@ -21,4 +21,5 @@ build:
 	./prod/assets/bin/autoGenFiles.sh
 	@echo "=== Running python build.py ==="
 	@python assets/python/build.py
+	chmod 777 prod/*
 	@echo "=== Done building ==="
