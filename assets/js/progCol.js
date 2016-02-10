@@ -1918,10 +1918,31 @@ window.ColManager = (function($, ColManager) {
         var $table    = $('#xcTable-' + tableId);
         var tBodyHTML = "";
         var knf = false;
+        var dataValue;
+        var rowNum;
+        var dataVal;
+        var childOfArray;
+        var col;
+        var nested;
+        var tdValue;
+        var parsedVal;
+        var i;
+        var row;
+        var numRows;
+        var backColName;
+        var nested;
+        var nestedLength;
+        var $input;
+        var key;
+        var tdClass;
+        var originalVal;
+        var formatVal;
+        var decimals;
+        var format;
 
         startIndex = startIndex || 0;
 
-        for (var i = 0; i < numCols; i++) {
+        for (i = 0; i < numCols; i++) {
             if (i === dataIndex) {
                 // this is the data Column
                 nestedVals.push([""]);
@@ -1929,8 +1950,8 @@ window.ColManager = (function($, ColManager) {
                 // new col
                 nestedVals.push("");
             } else {
-                var backColName = tableCols[i].getBackColName();
-                var nested = parseColFuncArgs(backColName);
+                backColName = tableCols[i].getBackColName();
+                nested = parseColFuncArgs(backColName);
                 if (backColName !== "" && backColName != null)
                 {
                     if (/\\.([0-9])/.test(backColName)) {
@@ -1957,9 +1978,9 @@ window.ColManager = (function($, ColManager) {
             }
         }
         // loop through table tr and start building html
-        for (var row = 0, numRows = jsonData.length; row < numRows; row++) {
-            var dataValue = parseRowJSON(jsonData[row]);
-            var rowNum    = row + startIndex;
+        for (row = 0, numRows = jsonData.length; row < numRows; row++) {
+            dataValue = parseRowJSON(jsonData[row]);
+            rowNum    = row + startIndex;
 
             tBodyHTML += '<tr class="row' + rowNum + '">';
 
@@ -1983,11 +2004,10 @@ window.ColManager = (function($, ColManager) {
                           '</div></td>';
 
             // loop through table tr's tds
-            for (var col = 0; col < numCols; col++) {
-                var nested = nestedVals[col];
-                var tdValue = dataValue;
-                var childOfArray = childArrayVals[col];
-                var parsedVal;
+            for (col = 0; col < numCols; col++) {
+                nested = nestedVals[col];
+                tdValue = dataValue;
+                childOfArray = childArrayVals[col];
                 knf = false;
 
                 if (col !== dataIndex) {
@@ -1997,8 +2017,8 @@ window.ColManager = (function($, ColManager) {
                         tdValue = "";
                     }
 
-                    var nestedLength = nested.length;
-                    for (var i = 0; i < nestedLength; i++) {
+                    nestedLength = nested.length;
+                    for (i = 0; i < nestedLength; i++) {
                         if (tdValue[nested[i]] === null) {
                             tdValue = tdValue[nested[i]];
                             break;
@@ -2021,9 +2041,9 @@ window.ColManager = (function($, ColManager) {
                     
                     // if it's the index array field, pull indexed one instead
                     if (secondPull && tableCols[col].isSortedArray) {
-                        var $input = $table.find('th.col' + (col + 1) +
+                        $input = $table.find('th.col' + (col + 1) +
                                           '> .header input');
-                        var key = table.keyName + "_indexed";
+                        key = table.keyName + "_indexed";
                         $input.val(key);
                         tdValue = dataValue[key];
 
@@ -2034,7 +2054,7 @@ window.ColManager = (function($, ColManager) {
                         tableCols[col].func.args[0] = key;
                     }
 
-                    var tdClass = "col" + (col + 1);
+                    tdClass = "col" + (col + 1);
                     // class for indexed col
                     if (indexedColNums.indexOf(col) > -1) {
                         tdClass += " indexedColumn";
@@ -2048,22 +2068,23 @@ window.ColManager = (function($, ColManager) {
 
                     //define type of the column
                     columnTypes[col] = xcHelper.parseColType(tdValue, columnTypes[col]);
-                    var originalVal = tdValue;
+                    originalVal = tdValue;
                     parsedVal = xcHelper.parseJsonValue(tdValue, knf);
+
                     if (!knf && originalVal != null) {
                         originalVal = parsedVal;
                     } else {
                         // case that should not append data-val
                         originalVal = null;
                     }
-                    var formatVal = parsedVal;
-                    var decimals = tableCols[col].decimals;
-                    var format = tableCols[col].format;
+                    formatVal = parsedVal;
+                    decimals = tableCols[col].decimals;
+                    format = tableCols[col].format;
                     if (originalVal != null && (decimals > -1 || format != null)) {
                         formatVal = formatColumnCell(parsedVal, format, decimals);
                     }
 
-                    var dataVal = "";
+                    dataVal = "";
                     // XXX now only allow number in case weird string mess up html
                     if (originalVal != null &&
                         (columnTypes[col] === "integer" ||
@@ -2078,9 +2099,9 @@ window.ColManager = (function($, ColManager) {
                 } else {
                     // make data td;
                     tdValue = jsonData[row];
-                    //define type of the column
-                    columnTypes[col] = xcHelper.parseColType(tdValue, columnTypes[col]);
+                    columnTypes[col] = "mixed";
                     parsedVal = xcHelper.parseJsonValue(tdValue);
+   
                     tBodyHTML +=
                         '<td class="col' + (col + 1) + ' jsonElement">' +
                             '<div class="elementText" data-toggle="tooltip" ' +
@@ -2122,10 +2143,15 @@ window.ColManager = (function($, ColManager) {
             $table.find('tbody').append($tBody);
         }
 
-        for (var i = 0; i < numCols; i++) {
-            var $currentTh = $table.find('th.col' + (i + 1));
-            var $header    = $currentTh.find('> .header');
-            var columnType = columnTypes[i] || "undefined";
+        var $currentTh;
+        var $header;
+        var columnType;
+        var adjustedColType;
+
+        for (i = 0; i < numCols; i++) {
+            $currentTh = $table.find('th.col' + (i + 1));
+            $header    = $currentTh.find('> .header');
+            columnType = columnTypes[i] || "undefined";
 
             // DATA column is type-object
             if (tableCols[i].name === "DATA") {
@@ -2147,7 +2173,7 @@ window.ColManager = (function($, ColManager) {
                     .removeClass("childOfArray");
 
             $header.addClass('type-' + columnType);
-            var adjustedColType = columnType;
+            adjustedColType = columnType;
             if (columnType === "integer" || columnType === "float") {
                 adjustedColType = "number";
             }
