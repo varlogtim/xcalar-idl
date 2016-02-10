@@ -591,17 +591,23 @@ window.Profile = (function($, Profile, d3) {
         })
         .then(function() {
             finalTable = getNewName(tableName, ".profile.final", true);
+            var sortCol = colName;
+
+            // escaping colName like votes.funny
+            if (colName.indexOf('.') > -1) {
+                sortCol = colName.replace(/\./g, "\\\.");
+            }
 
             sqlOptions = {
                 "operation"   : SQLOps.ProfileAction,
                 "action"      : "sort",
                 "tableName"   : groupbyTable,
-                "colName"     : colName,
+                "colName"     : sortCol,
                 "newTableName": finalTable,
                 "sorted"      : true
             };
 
-            return XcalarIndexFromTable(groupbyTable, colName, finalTable,
+            return XcalarIndexFromTable(groupbyTable, sortCol, finalTable,
                                         XcalarOrderingT.XcalarOrderingAscending,
                                         sqlOptions);
         })
@@ -1264,9 +1270,11 @@ window.Profile = (function($, Profile, d3) {
                 var $input = $(this);
                 var num = Number($input.val());
 
-                if (!isNaN(num) && num >= 1 && num <= totalRows) {
+                if (!isNaN(num)) {
                     clearTimeout(timer);
                     timer = setTimeout(function() {
+                        num = Math.min(num, totalRows);
+                        num = Math.max(num, 1);
                         positionScrollBar(null, num);
                     }, 100);
                 } else {
@@ -1297,12 +1305,12 @@ window.Profile = (function($, Profile, d3) {
         } else {
             rowNum = Math.ceil(rowPercent * (totalRows - 1)) + 1;
         }
-
         var tempRowNum = rowNum;
 
         if ($rowInput.data("rowNum") === rowNum) {
             // case of going to same row
             // put the row scoller in right place
+            $rowInput.val(rowNum);
             translate = getTranslate(rowPercent);
             $scroller.css("transform", "translate(" + translate + "%, 0)");
             return;

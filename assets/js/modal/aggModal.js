@@ -69,14 +69,13 @@ window.AggModal = (function($, AggModal) {
 
         var table     = gTables[tableId];
         var tableName = table.tableName;
-        var $table    = $("xcTable-" + tableId);
 
-        showAggModal(table.tableName, "quickAgg");
+        showAggModal(tableName, "quickAgg");
 
-        aggColsInitialize(table);
-        aggTableInitialize($table);
+        aggColsInitialize(tableId);
+        aggTableInitialize();
 
-        calcAgg($table, tableName, tableId)
+        calcAgg(tableName, tableId)
         .then(function() {
             SQL.add("Quick Aggregate", {
                 "operation": SQLOps.QuickAgg,
@@ -100,14 +99,12 @@ window.AggModal = (function($, AggModal) {
 
         var table     = gTables[tableId];
         var tableName = table.tableName;
-        var $table    = $("xcTable-" + tableId);
+        showAggModal(tableName, "corr");
 
-        showAggModal(table.tableName, "corr");
+        aggColsInitialize(tableId);
+        corrTableInitialize();
 
-        aggColsInitialize(table);
-        corrTableInitialize($table);
-
-        calcCorr($table, tableName, tableId)
+        calcCorr(tableName, tableId)
         .then(function() {
             SQL.add("Correlation", {
                 "operation": SQLOps.Corr,
@@ -168,38 +165,41 @@ window.AggModal = (function($, AggModal) {
         }
     }
 
-    function aggColsInitialize(table) {
+    function aggColsInitialize(tableId) {
         aggCols = [];
 
-        var tableCols = table.tableCols;
+        var $table = $("#xcTable-" + tableId);
+        var tableCols = gTables[tableId].tableCols;
         for (var i = 0, colLen = tableCols.length; i < colLen; i++) {
+            var progCol = tableCols[i];
             // Skip DATA!
-            if (tableCols[i].name === "DATA") {
+            if (progCol.isDATACol()) {
                 continue;
             } else {
+                var colNum = i + 1;
+                var isChildOfArray = $table.find(".th.col" + colNum + " .header")
+                                        .hasClass("childOfArray");
                 aggCols.push({
-                    "colNum": i + 1,
-                    "col"   : tableCols[i]
+                    "col"           : progCol,
+                    "isChildOfArray": isChildOfArray
                 });
             }
         }
     }
 
-    function aggTableInitialize($table) {
+    function aggTableInitialize() {
         var colLen = aggCols.length;
         var funLen = aggrFunctions.length;
-        var wholeTable = '';
+        var wholeTable = "";
 
-        for (var j = 0; j < colLen; j++) {
-            var cols   = aggCols[j].col;
-            var colNum = aggCols[j].colNum;
+        for (var col = 0; col < colLen; col++) {
+            var aggCol = aggCols[col];
+            var cols   = aggCol.col;
+            var isChildOfArray = aggCol.isChildOfArray;
 
             wholeTable += getAggColHTML(cols.name);
 
-            var isChildOfArray = $table.find(".th.col" + colNum + " .header")
-                                        .hasClass("childOfArray");
-
-            for (var i = 0; i < funLen; i++) {
+            for (var row = 0; row < funLen; row++) {
                 wholeTable += '<div class="aggTableField">';
 
                 if (cols.type === "integer" || cols.type === "float") {
@@ -223,40 +223,41 @@ window.AggModal = (function($, AggModal) {
         $quickAgg.find(".aggContainer").html(wholeTable);
     }
 
-    function corrTableInitialize($table) {
+    function corrTableInitialize() {
         var colLen = aggCols.length;
         var wholeTable = '';
-
         var blankCell = '<div class="aggTableField aggTableFlex blankSpace">';
-        var whiteCell = '<div class="aggTableField aggTableFlex" ' +
-                        'style="background-color:rgb(255,255,255)">';
+        var normalCell = '<div class="aggTableField aggTableFlex">';
 
 
         // column's order is column0, column1...columnX
         // row's order is columnX, column(X-1).....column1
         for (var col = 0; col < colLen; col++) {
-            var cols   = aggCols[col].col;
-            var colNum = aggCols[col].colNum;
+            var aggCol = aggCols[col];
+            var progCol = aggCol.col;
+            var isChildOfArray = aggCol.isChildOfArray;
+            var progColType = progCol.getType();
 
-            wholeTable += getAggColHTML(cols.name);
-            var isChildOfArray = $table.find(".th.col" + colNum + " .header")
-                                        .hasClass("childOfArray");
+            wholeTable += getAggColHTML(progCol.getFronColName());
 
             for (var row = 0; row < colLen; row++) {
-                var vertCol = aggCols[colLen - row - 1].col;
+                var aggRow  = aggCols[colLen - row - 1];
+                var vertCol = aggRow.col;
+                var vertColType = vertCol.getType();
 
                 if (row + col + 1 >= colLen) {
                     // blank case
                     wholeTable += blankCell;
-                } else if ((cols.type === "integer" || cols.type === "float")
-                           && (vertCol.type === "integer" ||
-                               vertCol.type === "float"))
+                } else if ((progColType === "integer" ||
+                            progColType === "float") &&
+                            (vertColType === "integer" ||
+                            vertColType === "float"))
                 {
                     // XXX now agg on child of array is not supported
-                    if (isChildOfArray) {
-                        wholeTable += whiteCell + 'Not Supported';
+                    if (isChildOfArray || aggRow.isChildOfArray) {
+                        wholeTable += normalCell + 'Not Supported';
                     } else {
-                        wholeTable += whiteCell +
+                        wholeTable += normalCell +
                                         '<div class="spinner">' +
                                             '<div class="bounce1"></div>' +
                                             '<div class="bounce2"></div>' +
@@ -264,7 +265,7 @@ window.AggModal = (function($, AggModal) {
                                         '</div>';
                     }
                 } else {
-                    wholeTable += whiteCell + 'N/A';
+                    wholeTable += normalCell + 'N/A';
                 }
                 wholeTable += "</div>";
             }
@@ -318,7 +319,7 @@ window.AggModal = (function($, AggModal) {
         return (html);
     }
 
-    function calcCorr($table, tableName, tableId) {
+    function calcCorr(tableName, tableId) {
         var deferred = jQuery.Deferred();
         var promises = [];
 
@@ -338,11 +339,10 @@ window.AggModal = (function($, AggModal) {
         // we assume row's order is still column0, column1...columnX, then do
         // the corr, and when display, use getCorrCell() to get the correct cell
         for (var col = 0; col < colLen; col++) {
-            var progCol = aggCols[col].col;
-            var colNum = aggCols[col].colNum;
-            var progColType = progCol.getType();
+            var aggCol = aggCols[col];
+            var progCol = aggCol.col;
 
-            if (progColType === "integer" || progColType === "float") {
+            if (progCol.isNumberCol()) {
                 if (dupCols[col]) {
                     // for duplicated columns, no need to trigger thrift call
                     continue;
@@ -358,15 +358,12 @@ window.AggModal = (function($, AggModal) {
                     }
                 }
 
-                var $colHeader = $table.find(".th.col" + colNum + " .header");
                 // XXX now agg on child of array is not supported
-                if (!$colHeader.hasClass("childOfArray")) {
+                if (!aggCol.isChildOfArray) {
                     for (var row = 0; row < col; row++) {
-                        var vertCol = aggCols[row].col;
-                        var vertColType = vertCol.getType();
-                        if (vertColType !== "integer" &&
-                            vertColType !== "float")
-                        {
+                        var aggRow = aggCols[row];
+                        var vertCol = aggRow.col;
+                        if (!vertCol.isNumberCol() || aggRow.isChildOfArray) {
                             continue;
                         }
                         var sub = corrString.replace(/[$]arg1/g,
@@ -398,7 +395,7 @@ window.AggModal = (function($, AggModal) {
         return deferred.promise();
     }
 
-    function calcAgg($table, tableName, tableId) {
+    function calcAgg(tableName, tableId) {
         var promises = [];
 
         var colLen = aggCols.length;
@@ -406,37 +403,35 @@ window.AggModal = (function($, AggModal) {
         // First we need to determine if this is a dataset-table
         // or just a regular table
         var dupCols = [];
-        for (var j = 0; j < colLen; j++) {
-            var cols   = aggCols[j].col;
-            var colNum = aggCols[j].colNum;
-            // Skip DATA!
-            if (cols.type === "integer" || cols.type === "float") {
+        for (var col = 0; col < colLen; col++) {
+            var aggCol = aggCols[col];
+            var progCol = aggCol.col;
+
+            if (progCol.isNumberCol()) {
                 // for duplicated columns, no need to trigger thrift call
-                if (dupCols[j]) {
-                    // console.log("Duplicated column", j);
+                if (dupCols[col]) {
                     continue;
                 }
 
-                var dups = checkDupCols(j);
+                var dups = checkDupCols(col);
                 for (var t = 0; t < dups.length; t++) {
                     var dupColNum = dups[t];
                     dupCols[dupColNum] = true;
                 }
 
-                var $colHeader = $table.find(".th.col" + colNum + " .header");
                 // XXX now agg on child of array is not supported
-                if (!$colHeader.hasClass("childOfArray")) {
-                    for (var i = 0; i < funLen; i++) {
+                if (!aggCol.isChildOfArray) {
+                    for (var row = 0; row < funLen; row++) {
                         var promise = runAgg(tableId, tableName,
-                                                cols.getBackColName(),
-                                                aggrFunctions[i], i, j, dups);
+                                            progCol.getBackColName(),
+                                            aggrFunctions[row], row, col, dups);
                         promises.push(promise);
                     }
                 }
             }
         }
 
-        return (xcHelper.when.apply(window, promises));
+        return xcHelper.when.apply(window, promises);
     }
 
     function checkDupCols(colNo) {

@@ -281,6 +281,10 @@ ProgCol.prototype = {
 
     "getType": function() {
         return this.type;
+    },
+
+    "isNumberCol": function() {
+        return (this.type === "integer" || this.type === "float");
     }
 };
 

@@ -530,6 +530,20 @@
         }
     }
 
+    #aggModal-quickAgg {
+        .aggTableField {
+            margin-top: 5px;
+            background-color: @color-selectedCell-light;
+        }
+    }
+
+    #aggModal-corr {
+        .aggTableField {
+            margin-top: 2px;
+            background-color: @color-white;
+        }
+    }
+
     .mainAgg {
         padding-top: 16px;
         .size(@height: ~"calc(100% - 155px)");
@@ -587,12 +601,9 @@
                 }
 
                 .aggTableField {
-                    .flex(1 0 50px);    // row has flex height with 50px
-                    .rounded;
-                    background-color: @color-selectedCell-light;
-                    margin-top: 10px;
+                    .flex(1 0 30px);    // row has flex height with 50px
                     padding: 0 5px;
-                    box-shadow: 1px 1px 1px 1px rgba(0, 0, 0, .1);
+                    border: 1px solid @color-background-lightLightGray;
                     // for text vertical align
                     .flex-display;
                     .justify-content(center);
@@ -605,10 +616,9 @@
                         background-color: @color-join-background;
                     }
 
-
                     &.blankSpace {
                         background: @color-join-background !important;
-                        box-shadow: none !important;
+                        border: none;
                     }
                 }
             }
@@ -630,6 +640,7 @@
 
             .rowLabel, .colLabel {
                 .gray-gradient;
+                .rounded;
             }
         }
 
