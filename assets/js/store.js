@@ -145,19 +145,10 @@ function readFromStorage() {
 }
 
 window.KVStore = (function($, KVStore) {
-    var safeMode = false;
-    var safeTimer;
-
     KVStore.setup = function(gStorageKey, gLogKey) {
         KVStore.gStorageKey = gStorageKey;
         KVStore.gLogKey = gLogKey;
         KVStore.commitKey = gStorageKey + "-" + "commitkey";
-
-        if (sessionStorage.getItem("xcalar.safe") != null) {
-            safeMode = true;
-        } else {
-            safe = false;
-        }
     };
 
     KVStore.get = function(key, scope) {
@@ -178,156 +169,6 @@ window.KVStore = (function($, KVStore) {
 
         return (deferred.promise());
     };
-
-    // KVStore.turnSaveMode = function(isTurnOn) {
-    //     if (!isTurnOn) {
-    //         sessionStorage.removeItem("xcalar.safe");
-    //         return;
-    //     }
-
-    //     getWKBKLists()
-    //     .then(function(wkbkLists) {
-    //         Alert.show({
-    //             "title"  : "Choose a Workbook",
-    //             "optList": {
-    //                 "label": "Workbook:",
-    //                 "list" : wkbkLists
-    //             },
-    //             "confirm": function() {
-    //                 var option = Alert.getOptionVal();
-    //                 var wkbkId = option.split("id:")[1];
-
-    //                 if (wkbkId != null) {
-    //                     sessionStorage.setItem("xcalar.safe", wkbkId);
-    //                     location.reload();
-    //                 }
-    //             }
-    //         });
-    //     });
-    // };
-
-    // KVStore.safeSetup = function() {
-    //     if (!safeMode) {
-    //         return;
-    //     }
-    //     // Not use addClass beacuse some code may clear it
-
-    //     // invalid colMenu and tableMenu;
-    //     $(".menu").attr("xc-safeMode", true);
-    //     // invalid rename table
-    //     $(".tableTitle .text").attr("xc-safeMode", true);
-    //     // invalid drag and drop table
-    //     $(".tableTitle .tableGrab").attr("xc-safeMode", true);
-
-    //     // invalid functionBar
-    //     $("#functionArea").attr("xc-safeMode", true);
-
-    //     // invalid add worksheet
-    //     $("#addWorksheet").attr("xc-safeMode", true);
-    //     $(".worksheetTab .text").attr("xc-safeMode", true);
-
-    //     // invalid workbook
-    //     $("#workbookModal .confirm").attr("xc-safeMode", true);
-
-    //     // invalid logout
-    //     $("#userNameArea").attr("xc-safeMode", true);
-
-    //     // invalid add to worksheet and delete table
-    //     $("#archivedTableList .btn").attr("xc-safeMode", true);
-    //     $("#orphanedTableList .btn").attr("xc-safeMode", true);
-
-    //     // invalid upload UDF
-    //     $("#udf-fnUpload").attr("xc-safeMode", true);
-    //     $("#udf-fileUpload").attr("xc-safeMode", true);
-
-    //     // invalid clean up
-    //     $("#helpSubmit").attr("xc-safeMode", true);
-
-    //     // invalid submit datastore form
-    //     $("#importDataSubmit").attr("xc-safeMode", true);
-    //     // invalid add folder
-    //     $("#addFolderBtn").attr("xc-safeMode", true);
-    //     // invalid delete folder and ds
-    //     $("#deleteFolderBtn").attr("xc-safeMode", true);
-
-    //     // XXX not sure if preview should be invalid
-    //     $("#previewBtn").attr("xc-safeMode", true);
-
-    //     $(".jsonWrap").attr("xc-safeMode", true);
-    // };
-
-    // KVStore.safeLiveSync = function(time) {
-    //     if (!safeMode) {
-    //         return;
-    //     }
-
-    //     // default is 30s
-    //     time = time || 30000;
-
-    //     clearInterval(safeTimer);
-
-    //     safeTimer = setInterval(function() {
-    //         KVStore.safeSync();
-    //     }, time);
-    // };
-
-    // KVStore.stopSync = function() {
-    //     if (!safeMode) {
-    //         return;
-    //     }
-
-    //     clearInterval(safeTimer);
-    //     console.log("Stop sync");
-    // };
-
-    // KVStore.safeSync = function() {
-    //     if (!safeMode) {
-    //         return;
-    //     }
-
-    //     console.log("Sync...");
-
-    //     freeAllResultSetsSync()
-    //     .then(function() {
-    //         return (emptyAllStorage(true));
-    //     })
-    //     .then(function() {
-    //         gActiveTableId = "";
-    //         gLastClickTarget = $(window);
-    //         // clear all tables
-    //         $("#mainFrame").empty();
-    //         // clear scrollers
-    //         $(".rowScroller").remove();
-
-    //         // clear rightSideBar
-    //         $("#activeTablesList").empty();
-    //         $("#inactiveTablesList").empty();
-    //         $("#orphanedTablesList").empty();
-
-    //         // clear dag
-    //         $(".dagWrap").remove();
-
-    //         // clear data store
-    //         $(".gridItems").empty();
-
-    //         // XXX this should be changed after the gTable structure change
-    //         gTables = {};
-
-    //         return (readFromStorage());
-    //     })
-    //     .then(function() {
-    //         return (initializeTable());
-    //     })
-    //     .then(function() {
-    //         return (RightSideBar.initialize());
-    //     })
-    //     .then(function() {
-    //         KVStore.safeSetup();
-    //     })
-    //     .fail(function(error) {
-    //         console.error(error);
-    //     });
-    // };
 
     KVStore.getAndParse = function(key, scope) {
         var deferred = jQuery.Deferred();
@@ -358,14 +199,9 @@ window.KVStore = (function($, KVStore) {
     KVStore.put = function(key, value, persist, scope) {
         var deferred = jQuery.Deferred();
 
-        if (safeMode) {
-            deferred.resolve();
-            return (deferred.promise());
-        }
-
         Support.commitCheck()
         .then(function() {
-            return (XcalarKeyPut(key, value, persist, scope));
+            return XcalarKeyPut(key, value, persist, scope);
         })
         .then(deferred.resolve)
         .fail(function(error) {
@@ -379,14 +215,9 @@ window.KVStore = (function($, KVStore) {
     KVStore.append = function(key, value, persist, scope) {
         var deferred = jQuery.Deferred();
 
-        if (safeMode) {
-            deferred.resolve();
-            return (deferred.promise());
-        }
-
         Support.commitCheck()
         .then(function() {
-            return (XcalarKeyAppend(key, value, persist, scope));
+            return XcalarKeyAppend(key, value, persist, scope);
         })
         .then(deferred.resolve)
         .fail(deferred.reject);
@@ -408,21 +239,6 @@ window.KVStore = (function($, KVStore) {
 
         return (deferred.promise());
     };
-
-    function getWKBKLists() {
-        var deferred = jQuery.Deferred();
-        wkbkLists = "";
-
-        var workbooks = WKBKManager.getWKBKS();
-        for (var wkbkId in workbooks) {
-            var wkbk = workbooks[wkbkId];
-            var li = "name:" + wkbk.name +
-                    " id:" + wkbk.id;
-            wkbkLists += "<li>" + li + "</li>";
-        }
-
-        return (deferred.promise());
-    }
 
     return (KVStore);
 }(jQuery, {}));
