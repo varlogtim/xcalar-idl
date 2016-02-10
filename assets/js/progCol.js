@@ -283,10 +283,17 @@ window.ColManager = (function($, ColManager) {
         } else {
             direction = "R";
         }
+        var widthOptions = {
+            "fontFamily": "'Open Sans', 'Trebuchet MS', Arial, sans-serif",
+            "fontSize": "13px",
+            "fontWeight": "600"
+        };
+        var width = getTextWidth($(), newColName, widthOptions) + 58;
         ColManager.addCol(colNum, tableId, newColName, {
             "direction": direction,
             "select"   : true,
-            "noAnimate": noAnimate
+            "noAnimate": noAnimate,
+            "width": width
         });
 
         if (direction === "R") {

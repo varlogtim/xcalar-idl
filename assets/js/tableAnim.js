@@ -568,9 +568,10 @@ function dragdropSwapColumns(el) {
     createDropTargets(dropTargetId, movedCol);
 }
 
-function getTextWidth(el, val) {
+function getTextWidth(el, val, options) {
     var width;
     var text;
+    options = options || {};
     if (val === undefined) {
         if (el.is('input')) {
             text = $.trim(el.val() + " ");
@@ -584,9 +585,9 @@ function getTextWidth(el, val) {
     
     tempDiv = $('<div>' + text + '</div>');
     tempDiv.css({
-        'font-family': el.css('font-family'),
-        'font-size'  : el.css('font-size'),
-        'font-weight': el.css('font-weight'),
+        'font-family': options.fontFamily || el.css('font-family'),
+        'font-size'  : options.fontSize || el.css('font-size'),
+        'font-weight': options.fontWeight || el.css('font-weight'),
         'position'   : 'absolute',
         'display'    : 'inline-block',
         'white-space': 'pre'
@@ -608,10 +609,12 @@ function autosizeCol(el, options) {
     var includeHeader = options.includeHeader || false;
     var fitAll = options.fitAll || false;
     var minWidth = options.minWidth || (gRescol.cellMinWidth - 5);
+    var datastore = options.datastore || false;
     
     var widestTdWidth = getWidestTdWidth(el, {
         "includeHeader": includeHeader,
-        "fitAll"       : fitAll
+        "fitAll"       : fitAll,
+        "datastore"    : datastore
     });
     var newWidth = Math.max(widestTdWidth, minWidth);
     // dbClick is autoSized to a fixed width
@@ -658,6 +661,9 @@ function getWidestTdWidth(el, options) {
             $th = $table.find('.col' + id + ' .editableHead');
         }
         var extraPadding = 58;
+        if (options.datastore) {
+            extraPadding += 4;
+        }
         headerWidth = getTextWidth($th) + extraPadding;
        
         if (!fitAll) {
@@ -753,7 +759,8 @@ function dblClickResize($el, options) {
             "dbClick"       : true,
             "minWidth"      : minWidth,
             "unlimitedWidth": true,
-            "includeHeader" : includeHeader
+            "includeHeader" : includeHeader,
+            "datastore"     : target === "datastore"
         });
         $('#col-resizeCursor').remove();
         clearTimeout(gRescol.timer);    //prevent single-click action
@@ -1531,6 +1538,12 @@ function unnest($jsonTd, isArray, options) {
     var columnClass = "";
     var color = "";
     var ths = "";
+    var widthOptions = {
+        "fontFamily": "'Open Sans', 'Trebuchet MS', Arial, sans-serif",
+        "fontSize": "13px",
+        "fontWeight": "600"
+    };
+    var width;
 
     for (var i = 0; i < numKeys; i++) {
         var key = colNames[i];
@@ -1543,9 +1556,11 @@ function unnest($jsonTd, isArray, options) {
         }
         var usrStr = '"' + key + '" = pull(' + escapedKey + ')';
 
+        width = getTextWidth($(), key, widthOptions) + 58;
+
         var newCol = ColManager.newCol({
             "name"   : key,
-            "width"  : gNewCellWidth,
+            "width"  : width,
             "userStr": usrStr,
             "func"   : {
                 "func": "pull",
@@ -1569,7 +1584,7 @@ function unnest($jsonTd, isArray, options) {
         }
 
         ths += TblManager.generateColumnHeadHTML(columnClass, color, colHeadNum,
-                                      {name: key, width: gNewCellWidth});
+                                      {name: key, width: width});
     }
     var rowNum = xcHelper.parseRowNum($table.find('tbody').find('tr:eq(0)'));
     var origDataIndex = xcHelper.parseColNum($table.find('th.dataCol'));

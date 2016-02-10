@@ -236,7 +236,7 @@ function ProgCol(options) {
     this.type = options.type || "undefined";
     this.func = new ColFunc(options.func);
     this.width = options.width || 0;
-    this.sizeToHeader = options.sizeToHeader || true;
+    this.sizeToHeader = options.sizeToHeader || false;
     this.userStr = options.userStr || "";
     this.textAlign = options.textAlign || "Center";
     this.decimals = options.decimals || -1;

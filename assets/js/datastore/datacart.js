@@ -563,6 +563,13 @@ window.DataCart = (function($, DataCart) {
 
         var items = cart.items;
         var itemLen = items.length;
+        var width;
+        var widthOptions = {
+            "fontFamily": "'Open Sans', 'Trebuchet MS', Arial, sans-serif",
+            "fontSize": "13px",
+            "fontWeight": "600"
+        };
+
         for (var i = 0; i < itemLen; i++) {
             var colname = items[i].value;
             var escapedName = colname;
@@ -571,9 +578,11 @@ window.DataCart = (function($, DataCart) {
                 escapedName = colname.replace(/\./g, "\\\.");
             }
 
+            width = getTextWidth($(), colname, widthOptions) + 58;
+
             var progCol = ColManager.newCol({
                 "name"    : colname,
-                "width"   : gNewCellWidth,
+                "width"   : width,
                 "isNewCol": false,
                 "userStr" : '"' + colname + '" = pull(' + escapedName + ')',
                 "func"    : {
