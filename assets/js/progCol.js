@@ -288,7 +288,7 @@ window.ColManager = (function($, ColManager) {
             "fontSize": "13px",
             "fontWeight": "600"
         };
-        var width = getTextWidth($(), newColName, widthOptions) + 58;
+        var width = getTextWidth($(), newColName, widthOptions);
         ColManager.addCol(colNum, tableId, newColName, {
             "direction": direction,
             "select"   : true,

@@ -572,6 +572,17 @@ function getTextWidth(el, val, options) {
     var width;
     var text;
     options = options || {};
+    var defaultStyle;
+    if (options.defaultHeaderStyle) {
+        defaultStyle = { // styling we use for column header
+            "fontFamily": "'Open Sans', 'Trebuchet MS', Arial, sans-serif",
+            "fontSize": "13px",
+            "fontWeight": "600",
+            "padding": 58
+        }; 
+    } else {
+        defaultStyle = {padding: 0};
+    }
     if (val === undefined) {
         if (el.is('input')) {
             text = $.trim(el.val() + " ");
@@ -585,15 +596,15 @@ function getTextWidth(el, val, options) {
     
     tempDiv = $('<div>' + text + '</div>');
     tempDiv.css({
-        'font-family': options.fontFamily || el.css('font-family'),
-        'font-size'  : options.fontSize || el.css('font-size'),
-        'font-weight': options.fontWeight || el.css('font-weight'),
+        'font-family': defaultStyle.fontFamily || el.css('font-family'),
+        'font-size'  : defaultStyle.fontSize || el.css('font-size'),
+        'font-weight': defaultStyle.fontWeight || el.css('font-weight'),
         'position'   : 'absolute',
         'display'    : 'inline-block',
         'white-space': 'pre'
     }).appendTo($('body'));
 
-    width = tempDiv.width();
+    width = tempDiv.width() + defaultStyle.padding;
     tempDiv.remove();
     return (width);
 }
@@ -1539,9 +1550,7 @@ function unnest($jsonTd, isArray, options) {
     var color = "";
     var ths = "";
     var widthOptions = {
-        "fontFamily": "'Open Sans', 'Trebuchet MS', Arial, sans-serif",
-        "fontSize": "13px",
-        "fontWeight": "600"
+        defaultHeaderStyle: true
     };
     var width;
 
@@ -1556,7 +1565,7 @@ function unnest($jsonTd, isArray, options) {
         }
         var usrStr = '"' + key + '" = pull(' + escapedKey + ')';
 
-        width = getTextWidth($(), key, widthOptions) + 58;
+        width = getTextWidth($(), key, widthOptions);
 
         var newCol = ColManager.newCol({
             "name"   : key,

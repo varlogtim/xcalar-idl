@@ -565,9 +565,7 @@ window.DataCart = (function($, DataCart) {
         var itemLen = items.length;
         var width;
         var widthOptions = {
-            "fontFamily": "'Open Sans', 'Trebuchet MS', Arial, sans-serif",
-            "fontSize": "13px",
-            "fontWeight": "600"
+            defaultHeaderStyle: true
         };
 
         for (var i = 0; i < itemLen; i++) {
@@ -578,7 +576,7 @@ window.DataCart = (function($, DataCart) {
                 escapedName = colname.replace(/\./g, "\\\.");
             }
 
-            width = getTextWidth($(), colname, widthOptions) + 58;
+            width = getTextWidth($(), colname, widthOptions);
 
             var progCol = ColManager.newCol({
                 "name"    : colname,

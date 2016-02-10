@@ -694,9 +694,14 @@ window.xcFunction = (function($, xcFunction) {
             escapedName = newColName.replace(/\./g, "\\\.");
         }
 
+        var widthOptions = {
+            defaultHeaderStyle: true
+        };
+        var width = getTextWidth($(), newColName, widthOptions);
+
         var newProgCol = ColManager.newCol({
             "name"    : newColName,
-            "width"   : gNewCellWidth,
+            "width"   : width,
             "isNewCol": false,
             "userStr" : '"' + newColName + '" = pull(' + escapedName + ')',
             "func"    : {
@@ -723,11 +728,11 @@ window.xcFunction = (function($, xcFunction) {
                     // when the groupby col name has dot, it should be escsped
                     colName = colName.replace(/\./g, "\\\.");
                 }
-
+                console.log(progCol.name || colName, progCol);
                 finalCols[1 + i] = ColManager.newCol({
                     "name"    : progCol.name || colName,
                     "type"    : progCol.type || null,
-                    "width"   : gNewCellWidth,
+                    "width"   : progCol.width || gNewCellWidth,
                     "isNewCol": false,
                     "userStr" : '"' + colName + '" = pull(' + colName + ')',
                     "func"    : {

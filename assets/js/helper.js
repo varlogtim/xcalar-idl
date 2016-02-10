@@ -154,14 +154,22 @@ window.xcHelper = (function($, xcHelper) {
         return (res);
     };
 
-    xcHelper.mapColGenerate = function(colNum, colName, mapStr, tableCols, options) {
+    xcHelper.mapColGenerate = function(colNum, colName, mapStr, tableCols,
+                                       options) {
         options = options || {};
         var copiedCols = xcHelper.deepCopy(tableCols);
-
+       
         if (colNum > -1) {
-            var cellWidth = options.replaceColumn ?
-                                copiedCols[colNum - 1].width :
-                                gNewCellWidth;
+            var cellWidth;
+            if (options.replaceColumn) {
+                cellWidth = copiedCols[colNum - 1].width;
+            } else {
+                var widthOptions = {
+                    defaultHeaderStyle: true
+                };
+                cellWidth = getTextWidth($(), colName, widthOptions);
+            }
+
             var newProgCol = ColManager.newCol({
                 "name"    : colName,
                 "width"   : cellWidth,
