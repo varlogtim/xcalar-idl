@@ -45,6 +45,10 @@ window.xcFunction = (function($, xcFunction) {
                                             [tableName], worksheet);
         })
         .then(function() {
+            if ($('.xcTable th.selectedCell').length === 0) {
+                $('#xcTable-' + newTableId).find('th.col' + (colNum + 1) +
+                                           ' .flexContainer').mousedown();
+            }
             xcHelper.unlockTable(tableId, true);
             StatusMessage.success(msgId, false, newTableId);
             commitToStorage();
@@ -507,6 +511,11 @@ window.xcFunction = (function($, xcFunction) {
                                             [tableName], worksheet);
         })
         .then(function() {
+            // highlights new cell if no other cell is selected
+            if ($('.xcTable th.selectedCell').length === 0) {
+                $('#xcTable-' + newTableId).find('th.col' + colNum +
+                                           ' .flexContainer').mousedown();
+            }
             xcHelper.unlockTable(tableId, true);
             StatusMessage.success(msgId, false, newTableId);
             commitToStorage();
