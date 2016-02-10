@@ -647,7 +647,13 @@ window.TblMenu = (function(TblMenu, $) {
                 });
             }
             var tableId = $colMenu.data('tableId');
-            ColManager.changeType(colTypeInfos, tableId);
+            ColManager.changeType(colTypeInfos, tableId)
+            .then(function(newTableId) {
+                if ($('.xcTable th.selectedCell').length === 0) {
+                    $('#xcTable-' + newTableId).find('th.col' + (colNum) +
+                                               ' .flexContainer').mousedown();
+                }
+            });
         });
 
         $subMenu.on('mouseup', 'li.sort', function(event) {

@@ -7,8 +7,10 @@ window.OperationsModal = (function($, OperationsModal) {
     var $functionsUl = $functionsMenu.find('ul');
     var $menus = $('#categoryMenu, #functionsMenu');
     var $argInputs;
+    var currentCol;
     var colNum = "";
     var colName = "";
+    var isNewCol;
     var operatorName = ""; // group by, map, filter, aggregate, etc..
     var operatorsMap = {};
     var categoryNames = [];
@@ -331,9 +333,10 @@ window.OperationsModal = (function($, OperationsModal) {
     OperationsModal.show = function(newTableId, newColNum, operator) {
         tableId = newTableId;
         var tableCols = gTables[tableId].tableCols;
-        var currentCol = tableCols[newColNum - 1];
+        currentCol = tableCols[newColNum - 1];
         colNum = newColNum;
         colName = currentCol.name;
+        isNewCol = currentCol.isNewCol;
 
         XcalarListXdfs("*", "User*")
         .then(function(listXdfsObj) {
@@ -661,7 +664,8 @@ window.OperationsModal = (function($, OperationsModal) {
 
         if (!noFocus) {
             var inputNumToFocus = inputNum + 1;
-            if (inputNum === 1 && operatorName !== "aggregate") {
+            if (inputNum === 1 && operatorName !== "aggregate" &&
+                !isNewCol) {
                 inputNumToFocus++;
             }
             
@@ -879,6 +883,8 @@ window.OperationsModal = (function($, OperationsModal) {
                 firstArgExceptions[category].indexOf(func) !== -1)
             {
                 defaultValue = "";
+            } else if (isNewCol) {
+                defaultValue = "";
             }
 
             var numArgs = operObj.numArgs;
@@ -944,11 +950,21 @@ window.OperationsModal = (function($, OperationsModal) {
 
             if (operatorName === 'map') {
                 description = 'New Resultant Column Name';
-                if (categoryNum === FunctionCategoryT.FunctionCategoryUdf) {
-                    autoGenColName = getAutoGenColName(colName + "_udf");
-                } else {
-                    autoGenColName = getAutoGenColName(colName + "_" + func);
+                var tempName = colName;
+                if (colName === "") {
+                    tempName = "mapped";
                 }
+                if (isNewCol && colName !== "") {
+                    autoGenColName = currentCol.name;
+                } else {
+                    if (categoryNum === FunctionCategoryT.FunctionCategoryUdf) {
+                        autoGenColName = getAutoGenColName(tempName + "_udf");
+                    } else {
+                        autoGenColName = getAutoGenColName(tempName + "_" +
+                                                           func);
+                    }
+                }
+                
 
                 $rows.eq(numArgs).addClass('colNameRow')
                                 .find('.dropDownList')
@@ -1342,8 +1358,15 @@ window.OperationsModal = (function($, OperationsModal) {
         switch (operatorName) {
             case ('map'):
                 $nameInput = $argInputs.eq(args.length - 1);
-                isPassing = !ColManager.checkColDup($nameInput, null,
+                if (isNewCol && colName !== "" &&
+                    ($nameInput.val().trim() === colName)) {
+                    isPassing = true; // input name matches new column name 
+                    // which is ok
+                } else {
+                    isPassing = !ColManager.checkColDup($nameInput, null,
                                                 tableId, true);
+                }
+                
                 break;
             case ('group by'):
                 // check new col name
@@ -1371,7 +1394,7 @@ window.OperationsModal = (function($, OperationsModal) {
         var funcLower = func.substring(0, 1).toLowerCase() + func.substring(1);
         var funcCapitalized = func.substr(0, 1).toUpperCase() + func.substr(1);
         var isPassing;
-        // all operation have its own way to show error StatusBox
+        // all operation have their own way to show error StatusBox
         switch (operatorName) {
             case ('aggregate'):
                 isPassing = aggregate(funcCapitalized, args);
@@ -1595,7 +1618,16 @@ window.OperationsModal = (function($, OperationsModal) {
         //                                    .eq(numArgs - 1);
         var newColName = args.splice(numArgs - 1, 1)[0];
         var mapStr = formulateMapString(operator, args);
-        xcFunction.map(colNum, tableId, newColName, mapStr);
+        var mapOptions = {};
+        if (isNewCol) {
+            mapOptions.replaceColumn = true;
+            if (colName === "") {
+                var widthOptions = {defaultHeaderStyle: true};
+                var width = getTextWidth($(), newColName, widthOptions);
+                mapOptions.width = width;
+            }
+        }
+        xcFunction.map(colNum, tableId, newColName, mapStr, mapOptions);
 
         return (true);
     }

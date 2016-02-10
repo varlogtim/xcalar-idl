@@ -394,7 +394,7 @@ window.ColManager = (function($, ColManager) {
             });
 
             commitToStorage();
-            deferred.resolve();
+            deferred.resolve(newTableId);
         })
         .fail(function(error) {
             xcHelper.unlockTable(tableId);

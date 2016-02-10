@@ -56,7 +56,7 @@ window.FnBar = (function(FnBar, $) {
                 throw "Error Case, only new column can be editable";
             }
             $fnBar.val("Please specify column's name first")
-                    .addClass("disabled");
+                  .addClass("disabled");
         } else {
             var userStr = progCol.userStr;
             userStr = userStr.substring(userStr.indexOf('='));

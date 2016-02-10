@@ -162,7 +162,11 @@ window.xcHelper = (function($, xcHelper) {
         if (colNum > -1) {
             var cellWidth;
             if (options.replaceColumn) {
-                cellWidth = copiedCols[colNum - 1].width;
+                if (options.width) {
+                    cellWidth = options.width;
+                } else {
+                    cellWidth = copiedCols[colNum - 1].width;
+                }
             } else {
                 var widthOptions = {
                     defaultHeaderStyle: true

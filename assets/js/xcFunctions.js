@@ -99,7 +99,6 @@ window.xcFunction = (function($, xcFunction) {
                     "isAlert": true
                 });
                 StatusMessage.success(msgId, false, tableId);
-                
 
                 deferred.resolve();
             }, 500);
