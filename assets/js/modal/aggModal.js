@@ -619,18 +619,6 @@ window.AggModal = (function($, AggModal) {
             $cell.css("background-color", bg);
         }
 
-        colDups.forEach(function(colNum) {
-            // beacause of checkDupcols(), colNum > col
-            // and since col > row
-            // so colNum > row
-            $cell = getCorrCell(row, colNum);
-            $cell.html(html);
-
-            if (isNumeric) {
-                $cell.css("background-color", bg);
-            }
-        });
-
         var rowDups = checkDupCols(row);
         var newCol;
         var newRow;
@@ -640,6 +628,20 @@ window.AggModal = (function($, AggModal) {
 
             if (newCol > newRow) {
                 $cell = getCorrCell(newRow, newCol);
+                $cell.html(html);
+
+                if (isNumeric) {
+                    $cell.css("background-color", bg);
+                }
+            }
+        });
+
+        var allRows = [row].concat(rowDups);
+        colDups.forEach(function(colNum) {
+            newCol = colNum;
+            for (var i = 0, len = allRows.length; i < len; i++) {
+                newRow = allRows[i];
+                $cell = getCorrCell(newRow, colNum);
                 $cell.html(html);
 
                 if (isNumeric) {
