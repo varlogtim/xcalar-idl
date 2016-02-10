@@ -813,7 +813,7 @@ window.TableList = (function($, TableList) {
                         '</span>' +
                         '<span class="numCols" data-toggle="tooltip" ' +
                             'data-container="body" title="number of columns">' +
-                             numCols +
+                             (numCols - 1) + // skip DATA col
                         '</span>' +
                         addTableBtn +
                     '</div>' +
@@ -841,6 +841,9 @@ window.TableList = (function($, TableList) {
         var html = '<ul class="columnList">';
         for (var i = 0, no = 1; i < numCols; i++, no++) {
             var progCol = tableCols[i];
+            if (progCol.isDATACol()) {
+                continue; // skip DATA col
+            }
             var typeClass = "typeList type-" + progCol.getType();
 
             html += '<li class="column ' + typeClass + '">' +

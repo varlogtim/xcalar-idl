@@ -930,7 +930,7 @@ function updateTableHeader(tableId, $tHead) {
 
         if (table != null) {
             fullTableName = table.tableName;
-            cols = table.tableCols.length;
+            cols = table.tableCols.length - 1; // skip DATA col
         }
         $tHead.data("cols", cols);
         $tHead.data("title", fullTableName);
