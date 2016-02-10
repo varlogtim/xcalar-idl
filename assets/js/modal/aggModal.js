@@ -54,14 +54,19 @@ window.AggModal = (function($, AggModal) {
 
 
         $quickAgg.find(".aggContainer").scroll(function() {
-            var scrollTop = $(this).scrollTop();
-            $quickAgg.find(".labelContainer").scrollTop(scrollTop);
+            scrollHelper($(this), $quickAgg);
         });
 
         $corr.find(".aggContainer").scroll(function() {
-            var scrollTop = $(this).scrollTop();
-            $corr.find(".labelContainer").scrollTop(scrollTop);
+            scrollHelper($(this), $corr);
         });
+
+        function scrollHelper($container, $mainAgg) {
+            var scrollTop = $container.scrollTop();
+            var scrollLeft = $container.scrollLeft();
+            $mainAgg.find(".labelContainer").scrollTop(scrollTop);
+            $mainAgg.find(".headerContainer").scrollLeft(scrollLeft);
+        }
     };
 
     AggModal.quickAgg = function(tableId) {
@@ -191,18 +196,20 @@ window.AggModal = (function($, AggModal) {
         var colLen = aggCols.length;
         var funLen = aggrFunctions.length;
         var wholeTable = "";
+        var colLabels = [];
 
         for (var col = 0; col < colLen; col++) {
             var aggCol = aggCols[col];
-            var cols   = aggCol.col;
+            var progCol = aggCol.col;
             var isChildOfArray = aggCol.isChildOfArray;
 
-            wholeTable += getAggColHTML(cols.name);
+            colLabels.push(progCol.getFronColName());
+            wholeTable += '<div class="aggCol">';
 
             for (var row = 0; row < funLen; row++) {
                 wholeTable += '<div class="aggTableField">';
 
-                if (cols.type === "integer" || cols.type === "float") {
+                if (progCol.isNumberCol()) {
                     // XXX now agg on child of array is not supported
                     if (isChildOfArray) {
                         wholeTable += "Not Supported";
@@ -215,10 +222,11 @@ window.AggModal = (function($, AggModal) {
 
                 wholeTable += "</div>";
             }
-            // closing div from getAggColHTML();
+
             wholeTable += "</div>";
         }
 
+        $quickAgg.find(".headerContainer").html(getColLabelHTML(colLabels));
         $quickAgg.find(".labelContainer").html(getRowLabelHTML(aggrFunctions));
         $quickAgg.find(".aggContainer").html(wholeTable);
     }
@@ -232,27 +240,25 @@ window.AggModal = (function($, AggModal) {
 
         // column's order is column0, column1...columnX
         // row's order is columnX, column(X-1).....column1
+        var colLabels = [];
+
         for (var col = 0; col < colLen; col++) {
             var aggCol = aggCols[col];
             var progCol = aggCol.col;
             var isChildOfArray = aggCol.isChildOfArray;
-            var progColType = progCol.getType();
 
-            wholeTable += getAggColHTML(progCol.getFronColName());
+            colLabels.push(progCol.getFronColName());
+
+            wholeTable += '<div class="aggCol">';
 
             for (var row = 0; row < colLen; row++) {
                 var aggRow  = aggCols[colLen - row - 1];
                 var vertCol = aggRow.col;
-                var vertColType = vertCol.getType();
 
                 if (row + col + 1 >= colLen) {
                     // blank case
                     wholeTable += blankCell;
-                } else if ((progColType === "integer" ||
-                            progColType === "float") &&
-                            (vertColType === "integer" ||
-                            vertColType === "float"))
-                {
+                } else if (progCol.isNumberCol() && vertCol.isNumberCol()) {
                     // XXX now agg on child of array is not supported
                     if (isChildOfArray || aggRow.isChildOfArray) {
                         wholeTable += normalCell + 'Not Supported';
@@ -269,40 +275,22 @@ window.AggModal = (function($, AggModal) {
                 }
                 wholeTable += "</div>";
             }
-            // closing div from getAggColHTML();
+
             wholeTable += "</div>";
         }
 
         var vertLabels = [];
         for (var i = colLen - 1; i >= 0; i--) {
-            vertLabels.push(aggCols[i].col.name);
+            vertLabels.push(aggCols[i].col.getFronColName());
         }
 
+        $corr.find(".headerContainer").html(getColLabelHTML(colLabels));
         $corr.find(".labelContainer").html(getRowLabelHTML(vertLabels));
         $corr.find(".aggContainer").html(wholeTable);
     }
 
-    function getAggColHTML(colName) {
-        // Note: the clos </div> should be added manually outside this function
-        var html =
-            '<div class="aggCol">' +
-                '<div class="divider"></div>' +
-                '<div class="aggTableField colLabel">' +
-                    '<span title="' + colName + '" ' +
-                        'data-toggle="tooltip" ' +
-                        'data-placement="top" ' +
-                        'data-container="body" ' +
-                        'class="textOverflow tooltipOverflow">' +
-                        colName +
-                    '</span>' +
-                '</div>';
-        return html;
-    }
-
     function getRowLabelHTML(operations) {
-        var html =
-            '<div class="aggCol labels">' +
-                '<div class="aggTableField colLabel blankSpace"></div>';
+        var html = '<div class="aggCol labels">';
 
         for (var i = 0, len = operations.length; i < len; i++) {
             html += '<div class="aggTableField rowLabel">' +
@@ -311,6 +299,25 @@ window.AggModal = (function($, AggModal) {
                             'data-container="body" ' +
                             'class="textOverflow tooltipOverflow">' +
                             operations[i] +
+                        '</span>' +
+                    '</div>';
+        }
+
+        html += '</div>';
+        return (html);
+    }
+
+    function getColLabelHTML(labels) {
+        var html = '<div class="padding"></div>' +
+                    '<div class="aggTableField colLabel blankSpace"></div>';
+    
+        for (var i = 0, len = labels.length; i < len; i++) {
+            html += '<div class="aggTableField colLabel">' +
+                        '<span title="' + labels[i] + '" ' +
+                            'data-toggle="tooltip" data-placement="top" ' +
+                            'data-container="body" ' +
+                            'class="textOverflow tooltipOverflow">' +
+                            labels[i] +
                         '</span>' +
                     '</div>';
         }

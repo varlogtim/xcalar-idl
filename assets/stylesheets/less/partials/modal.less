@@ -526,7 +526,7 @@
 
         .text {
             margin-left: 10px;
-            .font(@weight: bold, @size: 12px, @line-height: 25px, @color: @color-text-blue);
+            .font(@weight: bold, @size: 13px, @line-height: 25px, @color: @color-text-blue);
         }
     }
 
@@ -538,6 +538,8 @@
     }
 
     #aggModal-corr {
+        display: none;
+
         .aggTableField {
             margin-top: 2px;
             background-color: @color-white;
@@ -555,6 +557,7 @@
         }
 
         .aggTable {
+            .position(relative); // for the .padding
             .size(@width: ~"calc(100% - 25px)", @height: ~"calc(100% - 55px)");
             margin: 0 auto;
             padding: 10px;
@@ -562,80 +565,92 @@
             background: @color-join-background;
             box-shadow: 0px 2px 2px 0 @color-join-drop-shadow inset;
             border: 1px solid @color-join-border;
-            .flex-display;
 
-            .aggContainer, .labelContainer {
-                .position(relative);
-                .size(@height: 100%);
+            .headerContainer {
+                .size(@width: 100%, @height: 27px);
                 .flex-display;
-                .flex-flow(row);
-                overflow-x: scroll;
+                overflow: hidden;
+                border-bottom: 1px solid #a8a8a8;
 
-                &::-webkit-scrollbar-track {
-                    background: transparent;
+                .padding {
+                    .position(absolute, @top: 10px, @left: 10px);
+                    .size(@width: 120px, @height: 22px);
+                    background: @color-join-background;
+                    z-index: 10;
+                }
+
+                .colLabel {
+                    .flex(0 0 120px);
+                    .size(@width: 120px, @height: 22px);
+                    line-height: 22px;
+                    margin-top: 0 !important;
+
+                    &.blankSpace {
+                        margin-right: 2px;
+                    }
                 }
             }
 
-            .aggContainer {
-                .flex(1 1 auto); // has flex width
-            }
+            .tableContainer {
+                .size(@width: 100%, @height: ~"calc(100% - 27px)");
+                .flex-display;
 
-            .labelContainer {
-                .flex(0 0 120px); // has width 120px
-                .size(@width: 120px);
-                overflow-y: hidden;
+                .aggContainer, .labelContainer {
+                    .size(@height: 100%);
+                    .flex-display;
+                    .flex-flow(row);
+                    overflow-x: scroll;
+
+                    &::-webkit-scrollbar-track {
+                        background: transparent;
+                    }
+                }
+
+                .aggContainer {
+                    .flex(1 1 auto); // has flex width
+                }
+
+                .labelContainer {
+                    .flex(0 0 120px); // has width 120px
+                    .size(@width: 120px);
+                    margin-right: 2px;
+                    overflow-y: hidden;
+                }
             }
 
             .aggCol {
                 .position(relative);
                 .flex(0 0 120px); // has width 120px
                 .size(@width: 120px);
-                padding-right: 5px;
-                padding-bottom: 5px;
 
                 .flex-display;
                 .flex-flow(column);
 
-                &:last-child {
-                    padding-right: 3px;
-                }
-
                 .aggTableField {
-                    .flex(1 0 30px);    // row has flex height with 50px
-                    padding: 0 5px;
-                    border: 1px solid @color-background-lightLightGray;
-                    // for text vertical align
-                    .flex-display;
-                    .justify-content(center);
-                    .align-items(center);
-                    .font(@weight: bold, @size: 14px, @color: @color-text-midGray);
-                    .textOverflow;
-                    white-space: nowrap;
-
-                    &.aggTableFlex {
-                        background-color: @color-join-background;
-                    }
-
-                    &.blankSpace {
-                        background: @color-join-background !important;
-                        border: none;
-                    }
+                    .size(@width: 120px);
+                    .flex(1 0 30px);    // row has flex height with 30px
                 }
             }
 
-            .divider {
-                .size(@width: 100%, @height: 1px);
-                border-top: 1px solid #a8a8a8;
-                .position(absolute, @top: 28px, @left: 0);
-                z-index: 2;
-            }
+            .aggTableField {
+                padding: 0 5px;
+                border: 1px solid @color-background-lightLightGray;
+                // for text vertical align
+                .flex-display;
+                .justify-content(center);
+                .align-items(center);
+                .font(@weight: bold, @size: 14px, @color: @color-text-midGray);
+                .textOverflow;
+                white-space: nowrap;
 
-            // column label
-            .colLabel {
-                .flex(0 0 22px) !important;
-                margin-top: 0px !important;
-                margin-bottom: 5px !important;
-                line-height: 22px !important;
+                &.aggTableFlex {
+                    background-color: @color-join-background;
+                }
+
+                &.blankSpace {
+                    background: @color-join-background !important;
+                    border: none;
+                }
             }
 
             .rowLabel, .colLabel {
@@ -654,10 +669,6 @@
             .position(relative, @top: -2px);
             margin: 0px 3px;
         }
-    }
-
-    #aggModal-corr {
-        display: none;
     }
 }
 
