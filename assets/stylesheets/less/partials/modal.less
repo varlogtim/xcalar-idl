@@ -3077,12 +3077,6 @@ html.microsoft {
                         padding-right: 8px;
                         .font(@weight: bold, @size: 13px, @line-height: 25px, @color: @color-text-midGray);
 
-                        .icon {
-                            .size(@width: 15px, @height: 25px);
-                            .position(absolute, @top: 0, @right: 2px);
-                            .image("../../images/datastore/tick.png", 50%, 50%);
-                        }
-
                         &::after {
                             box-shadow: 1px 1px 1px 1px rgba(0,0,0,.1);
                         }
@@ -3092,12 +3086,9 @@ html.microsoft {
                 .unselectable .header {
                     .columnTab {
                         cursor: default;
-                        .icon {
-                            display: none;
-                        }
                     }
 
-                    .listSection {
+                    .dropDownList {
                         pointer-events: none;
                         .iconWrapper {
                             background: #c5c5c5;

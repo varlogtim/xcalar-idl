@@ -67,11 +67,16 @@ window.MultiCastModal = (function($, MultiCastModal) {
         });
 
         $castBtn.click(function() {
+            $(this).blur();
             smartSuggest();
         });
 
         $table.on("click", ".columnTab", function(event) {
             var $th = $(this).closest("th");
+            if ($th.hasClass("unselectable")) {
+                return;
+            }
+
             if ($th.hasClass("colSelected")) {
                 deSelectCols($th);
             } else {
@@ -113,7 +118,7 @@ window.MultiCastModal = (function($, MultiCastModal) {
         buildTable(tableId);
         smartSuggest();
 
-        var $lists = $table.find(".header:not(.unselectable) .dropDownList");
+        var $lists = $table.find("th:not(.unselectable) .dropDownList");
 
         xcHelper.dropdownList($lists, {
             "onSelect": function($li) {
