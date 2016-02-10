@@ -553,53 +553,68 @@ window.Profile = (function($, Profile, d3) {
         var tableId   = table.tableId;
 
         var groupbyTable;
+        var finalTable;
         var colName = curStatsCol.colName;
         var tableToDelete;
         var msg = StatusMessageTStr.Statistics + ' for ' + colName;
-        var msgObj = {
+        var msgId = StatusMessage.addMsg({
             "msg"      : msg,
-            "operation": "Statistical analysis"
-        };
-        var msgId = StatusMessage.addMsg(msgObj);
-
-        var sqlOptions = {
-            "operation": SQLOps.ProfileAction,
-            "action"   : "groupby",
-            "tableName": tableName,
-            "colName"  : colName
-        };
+            "operation": "Profile"
+        });
 
         curStatsCol.groupByInfo.isComplete = "running";
         checkTableIndex(tableId, tableName, colName)
         .then(function(indexedTableName, nullCount) {
             curStatsCol.groupByInfo.nullCount = nullCount;
 
-            var operator    = AggrOp.Count;
-            var newColName  = statsColName;
-            var isIncSample = false;
-
             if (indexedTableName !== tableName) {
                 tableToDelete = indexedTableName;
             }
 
             // here user old table name to generate table name
-            groupbyTable = getNewName(tableName, ".stats.groupby", true);
+            groupbyTable = getNewName(tableName, ".profile.groupby", true);
 
+            var operator    = AggrOp.Count;
+            var newColName  = statsColName;
+            var isIncSample = false;
+            var sqlOptions  = {
+                "operation"   : SQLOps.ProfileAction,
+                "action"      : "groupby",
+                "tableName"   : tableName,
+                "colName"     : colName,
+                "newTableName": groupbyTable
+            };
 
-            return (XcalarGroupBy(operator, newColName, colName,
-                                    indexedTableName, groupbyTable,
-                                    isIncSample, sqlOptions));
+            return XcalarGroupBy(operator, newColName, colName,
+                                indexedTableName, groupbyTable,
+                                isIncSample, sqlOptions);
         })
         .then(function() {
-            var def1 = getAggResult(statsColName, groupbyTable, aggMap.max);
-            var def2 = getAggResult(statsColName, groupbyTable, aggMap.sum);
-            return (xcHelper.when(def1, def2));
+            finalTable = getNewName(tableName, ".profile.final", true);
+
+            sqlOptions = {
+                "operation"   : SQLOps.ProfileAction,
+                "action"      : "sort",
+                "tableName"   : groupbyTable,
+                "colName"     : colName,
+                "newTableName": finalTable,
+                "sorted"      : true
+            };
+
+            return XcalarIndexFromTable(groupbyTable, colName, finalTable,
+                                        XcalarOrderingT.XcalarOrderingAscending,
+                                        sqlOptions);
+        })
+        .then(function() {
+            var def1 = getAggResult(statsColName, finalTable, aggMap.max);
+            var def2 = getAggResult(statsColName, finalTable, aggMap.sum);
+            return xcHelper.when(def1, def2);
         })
         .then(function(maxVal, sumVal) {
             curStatsCol.addBucket(0, {
                 "max"    : maxVal,
                 "sum"    : sumVal,
-                "table"  : groupbyTable,
+                "table"  : finalTable,
                 "colName": colName
             });
 
@@ -1670,7 +1685,7 @@ window.Profile = (function($, Profile, d3) {
                 "tableName"   : groupbyTable,
                 "colName"     : mapCol,
                 "newTableName": finalTable,
-                "sorted"      : false
+                "sorted"      : true
             };
 
             return XcalarIndexFromTable(groupbyTable, mapCol, finalTable,
