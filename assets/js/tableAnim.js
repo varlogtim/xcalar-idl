@@ -142,10 +142,18 @@ function gRescolMouseUp() {
 function gResrowMouseDown(el, event) {
     gMouseStatus = "resizingRow";
     var resrow = gResrow;
-    var $table = el.closest('table');
+    var $table = el.closest('.xcTbodyWrap');
 
     resrow.mouseStart = event.pageY;
-    resrow.targetTd = el.closest('td');
+    // we actually target the td above the one we're grabbing.
+    resrow.actualTd = el.closest('td');
+    if (el.hasClass('last')) {
+        resrow.targetTd = $table.find('tr:last').find('td').eq(0);
+        resrow.actualTd = resrow.targetTd;
+    } else {
+        resrow.targetTd = el.closest('tr').prev().find('td').eq(0);
+    }
+    
     resrow.tableId = xcHelper.parseTableId($table);
     resrow.startHeight = resrow.targetTd.outerHeight();
     resrow.rowIndex = resrow.targetTd.closest('tr').index();
@@ -157,7 +165,7 @@ function gResrowMouseDown(el, event) {
                 '</style>';
     $(document.head).append(style);
     $('body').addClass('hideScroll');
-    resrow.targetTd.closest('tr').addClass('dragging changedHeight');
+    resrow.actualTd.closest('tr').addClass('dragging changedHeight');
     resrow.$divs.css('max-height', resrow.startHeight - 4);
     resrow.$divs.eq(0).css('max-height', resrow.startHeight);
     resrow.targetTd.outerHeight(resrow.startHeight);

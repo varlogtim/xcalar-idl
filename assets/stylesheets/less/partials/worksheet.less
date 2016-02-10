@@ -1037,7 +1037,7 @@ html.microsoft {
                 // white-space: pre;
 
                 &.clickable {
-                    cursor: pointer;
+                    // cursor: pointer;
                 }
             }
         }
@@ -1190,10 +1190,26 @@ html.microsoft {
 }
 
 .rowGrab {
-    .position(absolute, @bottom: -3px, @left: -2px);
+    .position(absolute, @top: -3px, @left: -2px);
     .size(@width: 1000px, @height: 7px);
-    z-index: 1;
+    z-index: 3;
     cursor: row-resize;
+    visibility: hidden;
+    .transition(0s visibility 0.25s);
+    &.last {
+        top: auto;
+        visibility: visible;
+    }
+}
+
+tr:hover .rowGrab, tr:hover + tr .rowGrab {
+    visibility: visible;
+}
+
+td.col0:hover {
+    .rowGrab {
+        .transition(0s visibility 0.25s);
+    }
 }
 
 .highlightBox, .jsonModalHighlightBox {

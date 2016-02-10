@@ -1617,8 +1617,13 @@ window.TblManager = (function($, TblManager) {
         }
 
         newTable += '</tr></thead><tbody></tbody></table>';
+        newTable += '<div class="rowGrab last"></div>';
         $('#xcTbodyWrap-' + tableId).append(newTable);
-
+        $('#xcTbodyWrap-' + tableId).find('.rowGrab.last').mousedown(function(event) {
+            if (event.which === 1) {
+                gResrowMouseDown($(this), event);
+            }
+        });
         return (dataIndex);
     }
 
