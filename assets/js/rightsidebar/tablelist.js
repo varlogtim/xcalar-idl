@@ -293,6 +293,7 @@ window.TableList = (function($, TableList) {
         var $buttons = $tableList.find('.btnLarge');
         var promises = [];
         var failures = [];
+        var tableNames = [];
 
         $buttons.addClass('btnInactive');
 
@@ -323,6 +324,8 @@ window.TableList = (function($, TableList) {
 
                     tableName = table.tableName;
                 }
+
+                tableNames.push(tableName);
 
                 if (action === "add") {
                     if (tableType === TableType.Orphan) {
@@ -404,7 +407,7 @@ window.TableList = (function($, TableList) {
             if (failures.length > 0) {
                 deferred.reject(failures.join("\n"));
             } else {
-                deferred.resolve();
+                deferred.resolve(tableNames);
             }
         })
         .always(function() {
@@ -682,11 +685,18 @@ window.TableList = (function($, TableList) {
 
     function addBulkTable(tableType) {
         TableList.tableBulkAction("add", tableType)
-        .then(function() {
+        .then(function(tableNames) {
             if (!$("#workspaceTab").hasClass("active")) {
                 $("#workspaceTab").click();
             }
-            WSManager.focusOnLastTable();
+            tableIsInActiveWS = true;
+            if (tableNames) {
+                tableIsInActiveWS = checkIfTablesInActiveWS(tableNames);
+            }
+            if (tableIsInActiveWS) {
+                WSManager.focusOnLastTable();
+            }
+            
             commitToStorage();
         })
         .fail(function(error) {
@@ -1080,6 +1090,24 @@ window.TableList = (function($, TableList) {
 
         generateOrphanList(gOrphanTables);
         TableList.refreshAggTables();
+    }
+
+    function checkIfTablesInActiveWS(tableNames) {
+        var tableIsInActiveWS = false;
+        var numTables = tableNames.length;
+        var tableId;
+        var tablesWs;
+        var activeWS = WSManager.getActiveWS();
+
+        for (var i = 0; i < numTables; i++) {
+            tableId = xcHelper.getTableId(tableNames[i]);
+            tablesWs = WSManager.getWSFromTable(tableId);
+            if (tablesWs === activeWS) {
+                tableIsInActiveWS = true;
+                break;
+            }
+        }
+        return (tableIsInActiveWS);
     }
 
     return (TableList);
