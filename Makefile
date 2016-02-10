@@ -4,6 +4,7 @@ all: build
 .PHONY: build
 build:
 	@echo "=== Removing old prod folder if any ===" 
+	@rm -rf xcalar-gui
 	@rm -rf prod
 	@echo "=== Creating new prod folder ==="
 	@mkdir prod
@@ -22,5 +23,5 @@ build:
 	./prod/assets/bin/autoGenFiles.sh
 	@echo "=== Running python build.py ==="
 	@python assets/python/build.py
-	chmod 777 prod/*
+	chmod -R 777 prod/*
 	@echo "=== Done building ==="
