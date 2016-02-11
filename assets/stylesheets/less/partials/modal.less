@@ -23,9 +23,9 @@
         .text {
             .font(@weight: bold, @size: 18px, @color: @color-text-white);
         }
-        .close {
+        .headerBtn, .close {
             cursor: pointer;
-            .position(absolute, @top: 7px, @right: 7px);
+            
             .size(@width: 22px, @height: 22px);
             .rounded(2px);
             box-shadow: 0px 1px 1px rgba(0,0,0,0.5);
@@ -35,7 +35,6 @@
                 display: inline-block;
                 .position(absolute, @top: 0, @right: 0);
                 .size(@width: 22px, @height: 22px);
-                .image("../../images/ds-close.png", 50%, 50%);
             }
 
             &:hover {
@@ -45,6 +44,12 @@
             &:active {
                 box-shadow: inset 0px 1px 1px 0px rgba(0, 0, 0, 0.5), 
                             0px 1px 1px 0 rgba(255, 255, 255, 0.3);
+            }
+        }
+        .close {
+            .position(absolute, @top: 7px, @right: 7px);
+            .icon {
+                .image("../../images/ds-close.png", 50%, 50%);
             }
         }
     }
@@ -3610,6 +3615,19 @@ html.microsoft {
     .size(@width: 720px, @height: auto);
     overflow: visible;
     bottom: auto;
+
+    .minimize, .maximize {
+        .position(absolute, @top: 7px, @right: 40px);
+        display: none;
+    }
+    .minimize .icon {
+        .image("../../images/dash.png", 50%, 50%);
+    }
+    .maximize {
+        .icon {
+            .image("../../images/expand.png", 50%, 50%);
+        }
+    }
 
     .modalInstruction {
         .icon {

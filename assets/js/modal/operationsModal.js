@@ -233,6 +233,13 @@ window.OperationsModal = (function($, OperationsModal) {
             $lastInputFocused = $input;
         });
 
+        $operationsModal.on('click', '.minimize', function() {
+            minimizeTableAndFocusInput($lastInputFocused);
+        });
+        $operationsModal.on('click', '.maximize', function() {
+            unminimizeTable();
+        });
+
         $operationsModal.on('mousedown', '.argIconWrap', function(event) {
             event.preventDefault(); // prevents input from blurring
             event.stopPropagation();
@@ -250,6 +257,7 @@ window.OperationsModal = (function($, OperationsModal) {
                 $functionsMenu.data('category', 'null');
                 unminimizeTable();
                 $operationsModal.find('.checkbox').removeClass('checked');
+                $operationsModal.find('.minimize').hide();
             });
 
             var isHide = true;
@@ -294,6 +302,7 @@ window.OperationsModal = (function($, OperationsModal) {
             handle     : '.operationsModalHeader',
             containment: 'window',
             cursor     : '-webkit-grabbing',
+            cancel     : '.headerBtn',
             start      : function() {
                             $operationsModal.find('.openList')
                                              .removeClass("openList")
@@ -440,10 +449,12 @@ window.OperationsModal = (function($, OperationsModal) {
     function minimizeTableAndFocusInput($input) {
         // is there a better way????
         $operationsModal.find('div, p, b, thead').addClass('minimized');
-        $operationsModal.find('.modalHeader, .close, .tableContainer,' +
+        $operationsModal.find('.modalHeader, .maximize, .close, .tableContainer,' +
                               '.tableWrapper')
                         .removeClass('minimized');
-        $input.closest('tbody').find('div').removeClass('minimized');
+        $operationsModal.find('.maximize').show();
+        $operationsModal.find('.argumentSection tbody div').removeClass('minimized');
+        // $input.closest('tbody').find('div').removeClass('minimized');
         $input.focus();
         $('body').on('keydown', opModalKeyListener);
         centerPositionElement($operationsModal);
@@ -452,6 +463,8 @@ window.OperationsModal = (function($, OperationsModal) {
 
     function unminimizeTable() {
         $operationsModal.find('.minimized').removeClass('minimized');
+        $operationsModal.find('.minimize').show();
+        $operationsModal.find('.maximize').hide();
         $('body').off('keydown', opModalKeyListener);
         centerPositionElement($operationsModal);
     }
@@ -658,6 +671,10 @@ window.OperationsModal = (function($, OperationsModal) {
                         .find('.autocomplete')
                         .attr('disabled', false);
 
+        if (!$operationsModal.find('.modalMain').hasClass('inactive')) {
+            $operationsModal.find('.minimize').show();
+        }
+
         if (inputNum === 1) {
             produceArgumentTable();
         }
@@ -705,6 +722,10 @@ window.OperationsModal = (function($, OperationsModal) {
                         .find('.autocomplete')
                         .attr('disabled', true)
                         .val("");
+
+        if ($operationsModal.find('.modalMain').hasClass('inactive')) {
+            $operationsModal.find('.minimize').hide();
+        }
 
         $operationsModal.find('.innerLink:eq(' + (inputNum) + ')')
                         .removeClass('filled');
