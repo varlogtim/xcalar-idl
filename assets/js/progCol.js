@@ -1463,6 +1463,8 @@ window.ColManager = (function($, ColManager) {
             }
         }
 
+        TableList.updateTableInfo(tableId);
+
         $table.find('.colNumToChange')
             .addClass('col' + newColNum)
             .removeClass('colNumToChange');

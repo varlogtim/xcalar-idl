@@ -727,7 +727,7 @@ window.xcFunction = (function($, xcFunction) {
                     // when the groupby col name has dot, it should be escsped
                     colName = colName.replace(/\./g, "\\\.");
                 }
-                console.log(progCol.name || colName, progCol);
+                
                 finalCols[1 + i] = ColManager.newCol({
                     "name"    : progCol.name || colName,
                     "type"    : progCol.type || null,

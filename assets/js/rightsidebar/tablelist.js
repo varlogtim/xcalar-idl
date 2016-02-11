@@ -153,9 +153,9 @@ window.TableList = (function($, TableList) {
         $("#orphanedTableList").find('.clearAll, .selectAll').hide();
     };
 
-    TableList.addTables = function(tables, active) {
+    TableList.addTables = function(tables, active, options) {
         // tables is an array of metaTables;
-        generateTableLists(tables, active);
+        generateTableLists(tables, active, options);
 
         if (!active) {
             $('#archivedTableList').find('.btnLarge').show();
@@ -245,11 +245,31 @@ window.TableList = (function($, TableList) {
     TableList.updateTableInfo = function(tableId) {
         var $tableList = $('#activeTablesList .tableInfo[data-id="' +
                             tableId + '"]');
+        var $box = $tableList.find('.tableListBox');
+        var $ol  = $box.next();
+        var wasOpen = false;
+
+        if ($ol.hasClass('open')) {
+            wasOpen = true;
+        }
+        var position = $tableList.index();
 
         $tableList.remove();
 
         var table = gTables[tableId];
-        TableList.addTables([table], IsActive.Active);
+        TableList.addTables([table], IsActive.Active, {noAnimate: true,
+                                                       position: position});
+        
+        if (wasOpen) {
+            $tableList = $('#activeTablesList .tableInfo[data-id="' +
+                            tableId + '"]');
+            $box = $tableList.find('.tableListBox');
+            $ol  = $box.next();
+            if ($ol.children().length) {
+                $box.addClass("active");
+                $ol.addClass("open").show();
+            }
+        }
     };
 
     TableList.tableBulkAction = function(action, tableType, wsId) {
@@ -711,7 +731,8 @@ window.TableList = (function($, TableList) {
         });
     }
 
-    function generateTableLists(tables, active) {
+    function generateTableLists(tables, active, options) {
+        var options = options || {};
         var sortedTables = sortTableByTime(tables); // from oldest to newest
         var dates = xcHelper.getTwoWeeksDate();
         var p     = dates.length - 1;    // the length should be 8
@@ -832,12 +853,29 @@ window.TableList = (function($, TableList) {
                 '</li>';
 
 
-            if (gMinModeOn) {
-                $dateDivider.prepend(html);
+            if (gMinModeOn || options.noAnimate) {
+                if (options.hasOwnProperty('position') &&
+                    options.position > 0) {
+                    $dateDivider.children().eq(options.position - 1)
+                                           .after(html);
+                } else {
+                    $dateDivider.prepend(html);
+                }
+                
             } else {
                 var $li = $(html).hide();
-                $li.addClass("transition").prependTo($dateDivider)
-                .slideDown(150, function() {
+
+                $li.addClass("transition");
+
+                if (options.hasOwnProperty('position') &&
+                    options.position > 0) {
+                     $dateDivider.children().eq(options.position - 1)
+                                           .after($li);
+                } else {
+                    $li.prependTo($dateDivider);
+                }
+
+                $li.slideDown(150, function() {
                     $li.removeClass("transition");
                 });
             }
@@ -1057,6 +1095,16 @@ window.TableList = (function($, TableList) {
         // var colName = $listCol.text();
         var colNum = $listCol.index();
         var tableId = $listCol.closest('.tableInfo').data('id');
+        var tableCols = gTables[tableId].tableCols;
+        // var numTableCols = tableCols.length;
+        for (var i = 0; i <= colNum; i++) {
+            if (tableCols[i].name === "DATA") {
+                colNum++;
+                break;
+            }
+        }
+
+
         var wsId = WSManager.getWSFromTable(tableId);
         $('#worksheetTab-' + wsId).trigger(fakeEvent.mousedown);
         var animation;
