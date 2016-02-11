@@ -165,11 +165,36 @@ window.OperationsModal = (function($, OperationsModal) {
         var argumentTimer;
         var $argSection = $operationsModal.find('.argumentSection');
         $operationsModal.on({
+            'keydown': function(event) {
+                var $input = $(this);
+                var $list = $input.siblings('.openList');
+                if (event.which === keyCode.Down && $list.length) {
+
+                    
+                    $operationsModal.find('li.highlighted')
+                                    .removeClass('highlighted');
+                    $list.addClass('hovering').find('li')
+                                              .addClass('highlighted');
+                } else if (event.which === keyCode.Up && $list.length) {
+                    $list.removeClass('hovering').find('li')
+                                                 .removeClass('highlighted');
+                    $list.removeClass("openList").hide()
+                         .find('li').removeClass('openLi')
+                         .closest('.dropDownList').removeClass("open");
+                    event.preventDefault();
+                }
+            },
             'keypress': function(event) {
                 if (event.which === keyCode.Enter &&
                     !modalHelper.checkBtnFocus())
                 {
                     if ($argSection.hasClass('minimized')) {
+                        return;
+                    }
+                    var $input = $(this);
+                    var $hintli = $input.siblings('.hint').find('li');
+                    if ($hintli.hasClass('highlighted')) {
+                        $hintli.click();
                         return;
                     }
                     $(this).blur();
@@ -203,7 +228,7 @@ window.OperationsModal = (function($, OperationsModal) {
 
                 updateDescription();
             },
-            'mousedown': function() {
+            'mousedown': function(event) {
                 $menus.hide();
                 var $activeInput = $(this);
                 // close other input's open lists when active input is clicked
@@ -786,11 +811,9 @@ window.OperationsModal = (function($, OperationsModal) {
             $highlightedLi = $lis.eq(index);
         }
 
-
         var val = $highlightedLi.text();
         $highlightedLi.addClass('highlighted');
         $input.val(val);
-
 
         var menuHeight = $menu.height();
         var liTop = $highlightedLi.position().top;
