@@ -1206,6 +1206,10 @@ tr:hover .rowGrab, tr:hover + tr .rowGrab {
     visibility: visible;
 }
 
+tbody tr:first-child .rowGrab {
+    display: none;
+}
+
 td.col0:hover {
     .rowGrab {
         .transition(0s visibility 0.25s);

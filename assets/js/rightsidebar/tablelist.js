@@ -479,6 +479,7 @@ window.TableList = (function($, TableList) {
     TableList.tablesToHiddenWS = function(wsIds) {
         var $activeList = $('#activeTablesList');
         var $inactiveList = $('#inactiveTablesList');
+        var $archivedTableList = $('#archivedTableList');
 
         for (var i = 0, len = wsIds.length; i < len; i++) {
             var wsId = wsIds[i];
@@ -503,10 +504,10 @@ window.TableList = (function($, TableList) {
                         .removeClass('selected');
         }
 
-        if ($activeList.find('.tableInfo:not(.hiddenWS)').length === 0) {
-            $activeList.find('.secondButtonWrap').hide();
+        if ($archivedTableList.find('.tableInfo:not(.hiddenWS)').length === 0) {
+            $archivedTableList.find('.secondButtonWrap').hide();
         } else {
-            $activeList.find('.secondButtonWrap').show();
+            $archivedTableList.find('.secondButtonWrap').show();
         }
     };
 
