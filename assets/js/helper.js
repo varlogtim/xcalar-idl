@@ -660,7 +660,7 @@ window.xcHelper = (function($, xcHelper) {
                 $curlDropDownList.addClass("open");
                 $lists.show().addClass("openList");
                 $(document).on('click.closeDropDown', function() {
-                    hideDropdowns($curlDropDownList);
+                    hideDropdowns();
                 });
                 if (typeof onOpen === "function") {
                     onOpen($curlDropDownList);
@@ -672,7 +672,7 @@ window.xcHelper = (function($, xcHelper) {
             $('.tooltip').hide();
         }
 
-        function hideDropdowns($curlDropDownList) {
+        function hideDropdowns() {
             var $sections = $container.find(".dropDownList");
             $sections.find(".list").hide().removeClass("openList");
             $sections.removeClass("open");
@@ -1197,8 +1197,8 @@ window.xcHelper = (function($, xcHelper) {
             // Note: to find the visiable btn, must show the modal first
             if (!options.noTabFocus) {
                 var eleLists = [
-                    $modal.find(".btn"),                // buttons
-                    $modal.find("input")                // input
+                    $modal.find(".btn"),     // buttons
+                    $modal.find("input")     // input
                 ];
 
                 var focusIndex  = 0;
@@ -1214,18 +1214,6 @@ window.xcHelper = (function($, xcHelper) {
                 for (var i = 0, len = $focusables.length; i < len; i++) {
                     addFocusEvent($focusables[i], i);
                 }
-
-                // for when mouse move on other buttons
-                var $btns = eleLists[0];
-                $btns.on("mouseenter.xcModal", function() {
-                    var $btn = $(this);
-                    $btns.blur();
-                    $btn.focus();
-                });
-
-                $btns.on("mouseleave.xcModal", function() {
-                    $(this).blur();
-                });
 
                 // focus on the right most button
                 if (this.options.focusOnOpen) {
