@@ -124,6 +124,10 @@ window.StatusMessage = (function($, StatusMessage) {
         }, 30000);
     };
 
+    StatusMessage.cancel = function(msgId) {
+        removeFailedMsg($('#stsMsg-' + msgId));
+    };
+
     StatusMessage.reset = function() {
         msgIdCount = 0;
         stopRotation();
@@ -167,7 +171,8 @@ window.StatusMessage = (function($, StatusMessage) {
 
     function checkForMessageRemoval() {
         var currIndex;
-
+        // because multiple messages scroll through a carousel, we must
+        // wait for the right time to remove the message
         for (var i = 0; i < messagesToBeRemoved.length; i++) {
             var msg = messagesToBeRemoved[i];
             var msgIndex = messages.indexOf(msg.msgId);

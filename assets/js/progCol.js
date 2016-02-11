@@ -1125,17 +1125,15 @@ window.ColManager = (function($, ColManager) {
 
         xcHelper.lockTable(tableId);
 
+        msgId = StatusMessage.addMsg({
+            "msg"      : StatusMessageTStr.SplitColumn,
+            "operation": SQLOps.SplitCol
+        });
+
         getSplitNumHelper()
         .then(function(colToSplit, delimIndex) {
             numColToGet = colToSplit;
             splitWithDelimIndex = delimIndex;
-
-            // Note: add msg here because user may cancel it
-            // and that case should not show success message
-            msgId = StatusMessage.addMsg({
-                "msg"      : StatusMessageTStr.SplitColumn,
-                "operation": SQLOps.SplitCol
-            });
 
             // index starts with 1 to make the code easier,
             // since the xdf cut(col, index, delim)'s index also stars with 1
@@ -1207,13 +1205,11 @@ window.ColManager = (function($, ColManager) {
             xcHelper.unlockTable(tableId);
 
             if (error === cancelError) {
+                StatusMessage.cancel(msgId); 
                 deferred.resolve();
             } else {
                 Alert.error("Split Column fails", error);
-                if (msgId != null) {
-                    StatusMessage.fail(StatusMessageTStr.SplitColumnFailed, msgId);   
-                }
-
+                StatusMessage.fail(StatusMessageTStr.SplitColumnFailed, msgId);   
                 deferred.reject(error);
             }
 

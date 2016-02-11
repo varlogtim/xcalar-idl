@@ -1159,7 +1159,7 @@ window.TblMenu = (function(TblMenu, $) {
                         '<div>Split Column By</div>' +
                         '<input class="delimiter" type="text"' +
                             ' spellcheck="false"/>' +
-                        '<div>Number of Split Columns</div>' +
+                        '<div>Number of Splits</div>' +
                         '<input class="num" type="number" min="1" step="1"' +
                             ' placeholder="Unlimited if left blank"' +
                             ' spellcheck="false"/>' +
