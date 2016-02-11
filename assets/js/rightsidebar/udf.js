@@ -483,7 +483,13 @@ window.UDF = (function($, UDF) {
                     '\t\t\tcurRow.append(val)\n' +
                 '\t\tfileString += "\\t".join(curRow)\n' +
                 '\t\tfileString += "\\n"\n' +
-            '\treturn str(fileString.encode("ascii", "ignore"))\n';
+            '\treturn str(fileString.encode("ascii", "ignore"))\n' +
+        '\n' +
+        '# get the substring of txt after the (index)th delimiter\n' +
+        '# for example, splitWithDelim("a-b-c", "-", 1) gives "b-c"\n' +
+        '# and splitWithDelim("a-b-c", "-", 3) gives ""\n' +
+        'def splitWithDelim(txt, index, delim):\n' +
+        '\treturn delim.join(txt.split(delim)[index:])\n';
 
         XcalarUploadPython(moduleName, entireString)
         .then(function() {

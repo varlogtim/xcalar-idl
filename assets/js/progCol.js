@@ -285,7 +285,7 @@ window.ColManager = (function($, ColManager) {
         }
         var widthOptions = {
             "fontFamily": "'Open Sans', 'Trebuchet MS', Arial, sans-serif",
-            "fontSize": "13px",
+            "fontSize"  : "13px",
             "fontWeight": "600"
         };
         var width = getTextWidth($(), newColName, widthOptions);
@@ -293,7 +293,7 @@ window.ColManager = (function($, ColManager) {
             "direction": direction,
             "select"   : true,
             "noAnimate": noAnimate,
-            "width": width
+            "width"    : width
         });
 
         if (direction === "R") {
@@ -1108,6 +1108,7 @@ window.ColManager = (function($, ColManager) {
         // since we assume user want to replay it.
         var deferred = jQuery.Deferred();
         var cancelError = "cancel splitCol";
+        var splitWithDelimIndex = null;
 
         var worksheet   = WSManager.getActiveWS();
         var table       = gTables[tableId];
@@ -1125,34 +1126,38 @@ window.ColManager = (function($, ColManager) {
         xcHelper.lockTable(tableId);
 
         getSplitNumHelper()
-        .then(function(colToSplit) {
+        .then(function(colToSplit, delimIndex) {
+            numColToGet = colToSplit;
+            splitWithDelimIndex = delimIndex;
+
             // Note: add msg here because user may cancel it
             // and that case should not show success message
             msgId = StatusMessage.addMsg({
                 "msg"      : StatusMessageTStr.SplitColumn,
                 "operation": SQLOps.SplitCol
             });
-            numColToGet = colToSplit;
 
+            // index starts with 1 to make the code easier,
+            // since the xdf cut(col, index, delim)'s index also stars with 1
             var i;
-            for (i = numColToGet; i >= 1; i--) {
+            for (i = 1; i <= numColToGet; i++) {
                 newTableNames[i] = tableNamePart + Authentication.getHashId();
             }
-
-            // this makes it easy to get previous table name
-            // when index === numColToGet
-            newTableNames[numColToGet + 1] = tableName;
 
             // Check duplication
             var tryCount  = 0;
             var colPrefix = colName + "-split";
 
-            i = numColToGet;
-            while (i > 0 && tryCount <= 50) {
+            i = 1;
+            while (i <= numColToGet && tryCount <= 50) {
                 ++tryCount;
 
-                for (i = numColToGet; i >= 1; i--) {
-                    newFieldNames[i] = colPrefix + "-" + i;
+                for (i = 1; i <= numColToGet; i++) {
+                    if (i === numColToGet && splitWithDelimIndex != null) {
+                        newFieldNames[i] = colPrefix + "-rest";
+                    } else {
+                        newFieldNames[i] = colPrefix + "-" + i;
+                    }
 
                     if (table.hasCol(newFieldNames[i])) {
                         newFieldNames = [];
@@ -1164,19 +1169,20 @@ window.ColManager = (function($, ColManager) {
 
             if (tryCount > 50) {
                 console.warn("Too much try, overwrite origin col name!");
-                for (i = numColToGet; i >= 1; i--) {
+                for (i = 1; i <= numColToGet; i++) {
                     newFieldNames[i] = colName + "-split" + i;
                 }
             }
 
+            // do this so that it's easy to get parent table in splitColHelper()
+            newTableNames[0] = tableName;
+
             var promises = [];
             for (i = 1; i <= numColToGet; i++) {
-                promises.push(splitColHelper.bind(this, i,
-                                newTableNames[(numColToGet + 2) - i],
-                                newTableNames[(numColToGet + 1) - i]));
+                promises.push(splitColHelper.bind(this, i));
             }
             
-            return (chain(promises));
+            return chain(promises);
         })
         .then(function(newTableId) {
             // map do not change stats of the table
@@ -1215,12 +1221,21 @@ window.ColManager = (function($, ColManager) {
 
         return (deferred.promise());
 
-        function splitColHelper(index, curTableName, newTableName) {
+        function splitColHelper(index) {
             var innerDeferred = jQuery.Deferred();
 
-            var mapString  = 'cut(' + backColName + ', ' + index + ', "' +
+            var mapString;
+            if (index === numColToGet && splitWithDelimIndex != null) {
+                mapString = 'default:splitWithDelim(' + backColName + ', ' +
+                            splitWithDelimIndex + ', "' + delimiter + '")';
+            } else {
+                mapString = 'cut(' + backColName + ', ' + index + ', "' +
                             delimiter + '")';
-            var fieldName  = newFieldNames[index];
+            }
+
+            var curTableName = newTableNames[index - 1];
+            var newTableName = newTableNames[index];
+            var fieldName = newFieldNames[index];
             var newTableId = xcHelper.getTableId(newTableName);
             var sqlOptions =  {
                 "operation"   : SQLOps.SplitColMap,
@@ -1233,13 +1248,10 @@ window.ColManager = (function($, ColManager) {
 
             XcalarMap(fieldName, mapString, curTableName, newTableName, sqlOptions)
             .then(function() {
-                var mapOptions   = { "isOnRight": true };
                 var curTableId   = xcHelper.getTableId(curTableName);
                 var curTableCols = gTables[curTableId].tableCols;
                 var newTableCols = xcHelper.mapColGenerate(++colNum,
-                                        fieldName, mapString, curTableCols,
-                                        mapOptions);
-
+                                        fieldName, mapString, curTableCols);
                 if (index < numColToGet) {
                     TblManager.setOrphanTableMeta(newTableName, newTableCols);
                     return promiseWrapper(null);
@@ -1260,7 +1272,9 @@ window.ColManager = (function($, ColManager) {
             var innerDeferred = jQuery.Deferred();
 
             if (numColToGet != null) {
-                alertHelper(numColToGet, innerDeferred);
+                // have an extra column for the rest of string
+                // and the delim index should be numColToGet
+                alertHelper(numColToGet + 1, numColToGet, innerDeferred);
                 return (innerDeferred.promise());
             }
 
@@ -1296,7 +1310,7 @@ window.ColManager = (function($, ColManager) {
                 try {
                     var val = JSON.parse(value);
                     // Note that the splitColNum should be charCountNum + 1
-                    alertHelper(val.Value + 1, innerDeferred);
+                    alertHelper(val.Value + 1, null, innerDeferred);
                 } catch (error) {
                     innerDeferred.reject(error);
                 }
@@ -1310,23 +1324,24 @@ window.ColManager = (function($, ColManager) {
             return (innerDeferred.promise());
         }
 
-        function alertHelper(res, curDeferred) {
-            if (isAlertOn && res > 15) {
-                var text = "About " + res + " columns will be generated, " +
+        function alertHelper(numToSplit, numDelim, curDeferred) {
+            if (isAlertOn && numToSplit > 15) {
+                var text = "About " + numToSplit +
+                            " columns will be generated, " +
                             "do you still want to continue the operation?";
                 Alert.show({
                     "title"     : "Many Columns will generate",
                     "msg"       : text,
                     "isCheckBox": false,
                     "confirm"   : function () {
-                        curDeferred.resolve(res);
+                        curDeferred.resolve(numToSplit, numDelim);
                     },
                     "cancel": function() {
                         curDeferred.reject(cancelError);
                     }
                 });
             } else {
-                curDeferred.resolve(res);
+                curDeferred.resolve(numToSplit, numDelim);
             }
         }
     };
@@ -1987,7 +2002,7 @@ window.ColManager = (function($, ColManager) {
         // loop through table tr and start building html
         for (row = 0, numRows = jsonData.length; row < numRows; row++) {
             dataValue = parseRowJSON(jsonData[row]);
-            rowNum    = row + startIndex;
+            rowNum = row + startIndex;
 
             tBodyHTML += '<tr class="row' + rowNum + '">';
 
@@ -2157,7 +2172,7 @@ window.ColManager = (function($, ColManager) {
 
         for (i = 0; i < numCols; i++) {
             $currentTh = $table.find('th.col' + (i + 1));
-            $header    = $currentTh.find('> .header');
+            $header = $currentTh.find('> .header');
             columnType = columnTypes[i] || "undefined";
 
             // DATA column is type-object
