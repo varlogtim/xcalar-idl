@@ -15,10 +15,10 @@ window.UDF = (function($, UDF) {
 
     UDF.setup = function() {
         setupUDF();
-        initializeUDFList();
-        // Note that uploadDefaultUDF() will append the default UDF
+        initializeUDFList()
+        .then(defaultUDFUpload);
+        // Note that defaultUDFUpload() will append the default UDF
         // to udf list, so it should come after initializeUDFList();
-        uploadDefaultUDF();
     };
 
     UDF.clear = function() {
@@ -43,6 +43,7 @@ window.UDF = (function($, UDF) {
     };
 
     function initializeUDFList() {
+        var deferred = jQuery.Deferred();
         var $blankFunc = $listDropdown.find('li[name=blank]');
         var li;
 
@@ -52,7 +53,11 @@ window.UDF = (function($, UDF) {
                 li = '<li>' + udf + '</li>';
                 $blankFunc.after(li);
             }
+
+            deferred.resolve();
         });
+
+        return deferred.promise();
     }
 
     function updateUDF() {
@@ -114,11 +119,6 @@ window.UDF = (function($, UDF) {
         var li = '<li>' + moduleName + '</li>';
         $blankFunc.after(li);
         storedUDF[moduleName] = entireString;
-    }
-
-    function uploadDefaultUDF() {
-        multiJoinUDFUpload();
-        defaultUDFUpload();
     }
 
     // setup UDF section
@@ -393,24 +393,6 @@ window.UDF = (function($, UDF) {
         return (deferred.promise());
     }
 
-    function multiJoinUDFUpload() {
-        var moduleName = "multiJoinModule";
-        var entireString =
-            udfDefault +
-            'def multiJoin(*arg):\n' +
-                '\tstri = ""\n' +
-                '\tfor a in arg:\n' +
-                    '\t\tstri = stri + str(a) + ".Xc."\n' +
-                '\treturn stri\n';
-        XcalarUploadPython(moduleName, entireString)
-        .then(function() {
-            storePython(moduleName, entireString);
-        })
-        .fail(function(error) {
-            console.error(error);
-        });
-    }
-
     function defaultUDFUpload() {
         var moduleName = "default";
         var entireString =
@@ -489,7 +471,14 @@ window.UDF = (function($, UDF) {
         '# for example, splitWithDelim("a-b-c", "-", 1) gives "b-c"\n' +
         '# and splitWithDelim("a-b-c", "-", 3) gives ""\n' +
         'def splitWithDelim(txt, index, delim):\n' +
-        '\treturn delim.join(txt.split(delim)[index:])\n';
+            '\treturn delim.join(txt.split(delim)[index:])\n' +
+        '\n' +
+        '# used for multijoin and multiGroupby\n' +
+        'def multiJoin(*arg):\n' +
+            '\tstri = ""\n' +
+            '\tfor a in arg:\n' +
+                '\t\tstri = stri + str(a) + ".Xc."\n' +
+            '\treturn stri\n';
 
         XcalarUploadPython(moduleName, entireString)
         .then(function() {

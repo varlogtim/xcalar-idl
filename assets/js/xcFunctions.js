@@ -887,7 +887,7 @@ window.xcFunction = (function($, xcFunction) {
 
         var indexedTableName;
 
-        var mapStr = "multiJoinModule:multiJoin(" + groupByCols.join(", ") + ")";
+        var mapStr = "default:multiJoin(" + groupByCols.join(", ") + ")";
         var groupByField = xcHelper.randName("multiGroupBy", 5);
 
         var sqlOptions = {
@@ -1064,7 +1064,7 @@ window.xcFunction = (function($, xcFunction) {
             var lNewName = lNewInfo.tableName;
             var lNewId   = lNewInfo.tableId;
 
-            var lString  = 'multiJoinModule:multiJoin(';
+            var lString  = 'default:multiJoin(';
             var lColName = xcHelper.randName("leftJoinCol");
 
             for (var i = 0; i <= len - 2; i++) {
@@ -1077,7 +1077,7 @@ window.xcFunction = (function($, xcFunction) {
             var rNewName = rNewInfo.tableName;
             var rNewId   = rNewInfo.tableId;
 
-            var rString  = 'multiJoinModule:multiJoin(';
+            var rString  = 'default:multiJoin(';
             var rColName = xcHelper.randName("rightJoinCol");
 
             for (var i = 0; i <= len - 2; i++) {
