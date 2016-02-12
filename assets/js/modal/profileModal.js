@@ -908,8 +908,8 @@ window.Profile = (function($, Profile, d3) {
                         .range([height, 0])
                         .domain([-(maxHeight * 0.02), maxHeight]);
         var xWidth = x.rangeBand();
-        // 5.1 is the width of a char in .xlabel
-        var charLenToFit = Math.max(1, Math.floor(xWidth / 5.1) - 1);
+        // 6.2 is the width of a char in .xlabel
+        var charLenToFit = Math.max(1, Math.floor(xWidth / 6.2) - 1);
         var left = (sectionWidth - chartWidth) / 2;
         var chart;
         var barAreas;
