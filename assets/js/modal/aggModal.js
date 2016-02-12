@@ -92,7 +92,7 @@ window.AggModal = (function($, AggModal) {
             deferred.resolve();
         })
         .fail(function(error) {
-            Alert.error("Quick Aggregate Fails", error);
+            console.error("Quick Aggregate Fails", error);
             deferred.reject(error);
         });
 
@@ -121,7 +121,7 @@ window.AggModal = (function($, AggModal) {
             deferred.resolve();
         })
         .fail(function(error) {
-            Alert.error("Quick Aggregate Fails", error);
+            console.error("Quick Aggregate Fails", error);
             deferred.reject(error);
         });
 
@@ -503,13 +503,18 @@ window.AggModal = (function($, AggModal) {
             deferred.resolve();
         })
         .fail(function(error) {
-            applyAggResult("--");
-            deferred.reject(error);
+            console.error("quick agg error", error);
+            applyAggResult("--", error.error);
+            // still resolve
+            deferred.resolve();
         });
 
-        function applyAggResult(value) {
-            var html = '<span class="textOverflow tooltipOverflow" ' +
-                        'title="' + value +
+        function applyAggResult(value, error) {
+            var title = (error == null) ? value : error;
+            // error case force to have tooltip
+            var spanClass = (error == null) ? "textOverflow tooltipOverflow" :
+                                            "textOverflow";
+            var html = '<span class="' + spanClass + '" ' + 'title="' + title +
                         '" data-toggle="tooltip" data-placement="top" ' +
                         'data-container="body">' +
                         (jQuery.isNumeric(value) ? value.toFixed(3) : value) +
@@ -567,31 +572,30 @@ window.AggModal = (function($, AggModal) {
             deferred.resolve();
         })
         .fail(function(error) {
-            applyCorrResult(row, col, "--", colDups);
+            console.error("Correlation Error", error);
 
             if (error.status === StatusT.StatusXdfDivByZero) {
-                // Note: Here if we have multiple fail cells
-                // Alert.error will be triggered several times
-                // Altought UI still looks good
-                // can also consider put the fail info in the cell
                 error.error += "(Only one distinct value)";
-                Alert.error("Correlation Failed", error);
-                deferred.resolve();
-            } else {
-                deferred.reject(error);
             }
+
+            applyCorrResult(row, col, "--", colDups, error.error);
+            // still resolve
+            deferred.resolve();
         });
 
         return (deferred.promise());
     }
 
-    function applyCorrResult(row, col, value, colDups) {
+    function applyCorrResult(row, col, value, colDups, error) {
         var isNumeric = jQuery.isNumeric(value);
         var bg;
         var $cell;
 
-        var html = '<span class="textOverflow tooltipOverflow" ' +
-                    'title="' + value +
+        var title = (error == null) ? value : error;
+        // error case force to have tooltip
+        var spanClass = (error == null) ? "textOverflow tooltipOverflow" :
+                                            "textOverflow";
+        var html = '<span class="' + spanClass + '" ' + 'title="' + title +
                     '" data-toggle="tooltip" data-placement="top" ' +
                     'data-container="body">' +
                         (isNumeric ? value.toFixed(3) : value) +
