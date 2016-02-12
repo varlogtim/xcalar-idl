@@ -270,7 +270,6 @@ window.OperationsModal = (function($, OperationsModal) {
             event.stopPropagation();
         });
 
-
         $operationsModal.find('.confirm').on('click', submitForm);
 
         $operationsModal.find('.cancel, .close').on('click', function(e, data) {
@@ -1195,6 +1194,9 @@ window.OperationsModal = (function($, OperationsModal) {
                 if ($("#categoryList input").val().indexOf("user") !== 0) {
                     type = getColumnTypeFromArg(arg);
                 }
+            } else if (hasFuncFormat(arg)) {
+
+                // skip
             } else {
                 var isString = formatArgumentInput(arg, $input.data('typeid'),
                                                    existingTypes).isString;
@@ -1219,7 +1221,8 @@ window.OperationsModal = (function($, OperationsModal) {
             var parsedType = parseType(typeIds[i]);
             if (!$input.closest(".dropDownList").hasClass("colNameSection") &&
                 arg.indexOf(colPrefix) === -1 &&
-                parsedType.indexOf("string") !== -1) {
+                parsedType.indexOf("string") !== -1 &&
+                !hasFuncFormat(arg)) {
 
                 if (parsedType.length === 1) {
                     // if input only accepts strings
@@ -1533,6 +1536,8 @@ window.OperationsModal = (function($, OperationsModal) {
                         }
                     }
                 }
+            } else if (hasFuncFormat(arg)) {
+                // leave arg the way it is
             } else {
                 var checkRes = checkArgTypes(arg, typeid);
 
@@ -2066,6 +2071,57 @@ window.OperationsModal = (function($, OperationsModal) {
             }
         }
     }
+
+    function hasFuncFormat(val) {
+        val = val.trim();
+        val = val.replace(/"([^"]+)"/g, ''); // remove quotes and text between quotes
+        var valLen = val.length;
+        var isValidFunc = false;
+
+        if (valLen < 4) { // must be at least this long: a(b)
+            return false;
+        }
+
+        //check if has opening and closing parens
+        if (val.indexOf("(") > -1 && val.indexOf(")") > -1) {
+            // check that val doesnt start with parens and that it does end
+            // with parens
+            if (val.indexOf("(") !== 0 &&
+                val.lastIndexOf(")") === (valLen - 1)) {
+                return checkHasBalancedParams(val);
+            } else {
+                return false;
+            }
+        } else {
+           return false;
+        }
+        return false;
+    }
+
+    function checkHasBalancedParams(val) {
+        var valLen = val.length;
+        var parenCount = 0;
+        var valid = true;
+        for (var i = 0; i < valLen; i++) {
+            if (val[i] === "(") {
+                parenCount++;
+            } else if (val[i] === ")") {
+                parenCount--;
+            }
+            if (parenCount < 0) {
+                return false;
+            }
+        }
+        return (parenCount === 0);
+    }
+
+
+    /* Unit Test Only */
+    if (window.unitTestMode) {
+        OperationsModal.__testOnly__ = {};
+        OperationsModal.__testOnly__.hasFuncFormat = hasFuncFormat;
+    }
+    /* End Of Unit Test Only */
 
     return (OperationsModal);
 }(jQuery, {}));
