@@ -580,8 +580,7 @@ window.Dag = (function($, Dag) {
                     '</div>' +
                     '<div class="tableTitleArea">' +
                         '<span>Table: </span>' +
-                        '<span class="tableName" draggable="true"' +
-                        ' ondragstart="xcDrag(event)">' +
+                        '<span class="tableName">' +
                             tableName +
                         '</span>' +
                     '</div>' +

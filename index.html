@@ -39,8 +39,8 @@
   <!-- Top Menu Bar -->
   <div id="menuBar" class="clearfix no-selection">
     <div id="workbookBtn" class="btn btnSmall" data-toggle="tooltip" 
-         data-placement="right" data-container="body" title="Workbook">
-    <span class="icon"></span>
+    data-placement="right" data-container="body" title="Workbook">
+      <span class="icon"></span>
     </div>
     <div id="mainMenu" class="clearfix">
       <div id="workspaceTab" class="mainMenuTab active">
@@ -54,15 +54,12 @@
       </div>
       <div id="schedulerTab" class="mainMenuTab">
         <span class="icon scheduler-icon"></span>Scheduler
-      </div> 
-   </div>
+      </div>
+    </div>
     <div id="logo"></div>
     <div id="userNameArea" style="display:none;">
-        <span>Welcome: </span>
-        <span id="userName" class="text" draggable="true"
-              ondragstart="xcDrag(event)">
-          User
-        </span>
+      <span>Welcome: </span>
+      <span id="userName" class="text">User</span>
     </div>
     <div id="userNamePopout">
       <div id="peri">Signed in as:</div>
@@ -75,7 +72,9 @@
 
   <!-- WORK SPACE PANEL -->
   <div id="workspacePanel" class="mainPanel no-selection active">
+    <!-- Work Space Bar -->
     <div id="workspaceBar" class="workspaceBar topBar">
+      <!-- FnBar -->
       <div id="functionArea" class="workspaceArea">
         <label for="fnBar">f(x)</label>
         <input id="fnBar" value="" spellcheck="false">
@@ -95,15 +94,16 @@
           </div>
         </div>
       </div>
+      <!-- Row Input -->
       <div id="rowInputArea" class="workspaceArea">
-          <label for="rowInput">Skip to row:</label>
-          <!-- only allow integer -->
-          <input id="rowInput" type="number" min="0" step="1" spellcheck="false">
-          <label id="numPages" for="rowInput"></label>
+        <label for="rowInput">Skip to row:</label>
+        <!-- only allow integer -->
+        <input id="rowInput" type="number" min="0" step="1" spellcheck="false">
+        <label id="numPages" for="rowInput"></label>
       </div>
-      <div id="rowScrollerArea" class="workspaceArea">
-      </div>
+      <div id="rowScrollerArea" class="workspaceArea"></div>
     </div>
+    <!-- End Of Work Space Bar -->
     <div id="watermark"></div>
     <div id="insight"></div>
     <div id="mainFrame"></div>
@@ -118,14 +118,12 @@
           <div class="tabShadow"></div>
         </div>
         <div id="maximizeDag" class="btn btnSmall btnDeselected" 
-        data-container="body" data-toggle="tooltip" 
-        title="maximize">
-            <span class="icon iconMaximize"></span>
+        data-container="body" data-toggle="tooltip" title="maximize">
+          <span class="icon iconMaximize"></span>
         </div>
-        <div id="closeDag" class="btn btnSmall btnDeselected"
-        data-container="body" data-toggle="tooltip" 
-        title="close">
-            <span class="icon iconClose"></span>
+        <div id="closeDag" class="btn btnSmall btnDeselected" 
+        data-container="body" data-toggle="tooltip" title="close">
+          <span class="icon iconClose"></span>
         </div>
         <div class="dagArea">
           <div class="legendArea">
@@ -151,119 +149,118 @@
     </div>
     <!-- End Of Dag Panel -->
     <!-- DATAFLOW MODAL -->
-  <div id="dataFlowModal" class="modalContainer">
-    <!-- DATAFLOW Header -->
-    <header class="modalHeader">
-      <span class="text">Add To Data Flow Group</span>
-      <div class="close">
-        <span class="icon"></span>
-      </div>
-    </header>
-    <!-- Data Flow Modal Instruction -->
-    <section class="modalInstruction">
-      <div class="icon"></div>
-      <div class="text">Add a data flow to a data flow group. Select the data flow group that you would like to add the current data flow to and click on the save button.</div>
-    </section>
-    <!-- Data Flow Modal Top Section-->
-    <section class="modalTopMain">
-      <!-- option section -->
-      <div class="optionSection">
-          <!-- option: new data flow group -->
-          <div class="radioWrap" data-no="0">
-            <div class="radio checked">
-              <span class="dot"></span>
-            </div>
-            <div class="label">New Data Flow Group</div>
-          </div>
-          <!-- option: add to existing data flow -->
-          <div class="radioWrap" data-no="1">
-            <div class="radio">
-              <span class="dot"></span>
-            </div>
-            <div class="label">Append to Existing Data Flow</div>
-          </div>
-      </div>
-      <!-- input section for new group name -->
-      <div class="inputSection">
-        <span class="label">New Group Name:</span>
-        <input id="newGroupNameInput" type="text" spellcheck="false">
-      </div>
-    </section>
-    <!-- Data Flow Modal Main Section -->
-    <section class="modalMain unavailable">
-      <!-- Data Flow Lists Section -->
-      <section class="sideListSection">
-        <!-- header -->
-        <header class="title">
-          <h2>Data Flow Groups (<span class="num">0</span>)</h2>
-        </header>
-        <!-- data flow lists -->
-        <div class="sideLists">
-          <!-- search area -->
-          <div class="searchArea">
-            <input id="dataFlowSearch" type="text" spellcheck="false"
-                  placeholder="Search keyword...">
-            <div class="iconWrap clear">
-              <span class="icon"></span>
-            </div>
-          </div>
-          <!-- list section -->
-          <div class="listSection">
-            <div class="dataFlowGroup">
-              <div class="listBox">
-                <div class="iconWrap">
-                  <span class="icon"></span>
-                </div>
-                <div class="label">DFG 1</div>
+    <div id="dataFlowModal" class="modalContainer">
+      <!-- DATAFLOW Header -->
+      <header class="modalHeader">
+        <span class="text">Add To Data Flow Group</span>
+        <div class="close">
+          <span class="icon"></span>
+        </div>
+      </header>
+      <!-- Data Flow Modal Instruction -->
+      <section class="modalInstruction">
+        <div class="icon"></div>
+        <div class="text">Add a data flow to a data flow group. Select the data flow group that you would like to add the current data flow to and click on the save button.</div>
+      </section>
+      <!-- Data Flow Modal Top Section-->
+      <section class="modalTopMain">
+        <!-- option section -->
+        <div class="optionSection">
+            <!-- option: new data flow group -->
+            <div class="radioWrap" data-no="0">
+              <div class="radio checked">
+                <span class="dot"></span>
               </div>
-              <ul class="sublist list">
-                <li>something</li>
-              </ul>
+              <div class="label">New Data Flow Group</div>
             </div>
-            
-          </div>
+            <!-- option: add to existing data flow -->
+            <div class="radioWrap" data-no="1">
+              <div class="radio">
+                <span class="dot"></span>
+              </div>
+              <div class="label">Append to Existing Data Flow</div>
+            </div>
+        </div>
+        <!-- input section for new group name -->
+        <div class="inputSection">
+          <span class="label">New Group Name:</span>
+          <input id="newGroupNameInput" type="text" spellcheck="false">
         </div>
       </section>
-      <!-- Preview Section -->
-      <section class="previewSection">
-        <!-- title section -->
-        <section class="titleSection">
-          <div class="titleWrap textOverflow">
-            <span class="text">Preview</span>
-          </div>
-          <div class="buttonGroup">
-            <!-- select all btn -->
-            <div class="selectAll modifyDSButton">
-              <span class="icon"></span>
-              <span class="text">Select All</span>
+      <!-- Data Flow Modal Main Section -->
+      <section class="modalMain unavailable">
+        <!-- Data Flow Lists Section -->
+        <section class="sideListSection">
+          <!-- header -->
+          <header class="title">
+            <h2>Data Flow Groups (<span class="num">0</span>)</h2>
+          </header>
+          <!-- data flow lists -->
+          <div class="sideLists">
+            <!-- search area -->
+            <div class="searchArea">
+              <input id="dataFlowSearch" type="text" spellcheck="false" placeholder="Search keyword...">
+              <div class="iconWrap clear">
+                <span class="icon"></span>
+              </div>
             </div>
-            <!-- clear all btn -->
-            <div class="clear modifyDSButton">
-              <span class="icon"></span>
-              <span class="text">Clear All</span>
+            <!-- list section -->
+            <div class="listSection">
+              <div class="dataFlowGroup">
+                <div class="listBox">
+                  <div class="iconWrap">
+                    <span class="icon"></span>
+                  </div>
+                  <div class="label">DFG 1</div>
+                </div>
+                <ul class="sublist list">
+                  <li>something</li>
+                </ul>
+              </div>
             </div>
           </div>
         </section>
-        <!-- Data Flow list section -->
-        <section id="dataFlowPreviews" class="listSection"></section>
-        <section id="dataFlowExport" class="tableSection" style="display:none;">
-          <div class="tablePadding"></div>
-          <div class="headerBackground"></div>
-          <div class="headerShadow"></div>
-          <table id="dataFlowTable" class="dataFlowTable dataTable"></table>
+        <!-- Preview Section -->
+        <section class="previewSection">
+          <!-- title section -->
+          <section class="titleSection">
+            <div class="titleWrap textOverflow">
+              <span class="text">Preview</span>
+            </div>
+            <div class="buttonGroup">
+              <!-- select all btn -->
+              <div class="selectAll modifyDSButton">
+                <span class="icon"></span>
+                <span class="text">Select All</span>
+              </div>
+              <!-- clear all btn -->
+              <div class="clear modifyDSButton">
+                <span class="icon"></span>
+                <span class="text">Clear All</span>
+              </div>
+            </div>
+          </section>
+          <!-- Data Flow list section -->
+          <section id="dataFlowPreviews" class="listSection"></section>
+          <section id="dataFlowExport" class="tableSection" style="display:none;">
+            <div class="tablePadding"></div>
+            <div class="headerBackground"></div>
+            <div class="headerShadow"></div>
+            <table id="dataFlowTable" class="dataFlowTable dataTable"></table>
+          </section>
         </section>
       </section>
-    </section>
-    <!-- Button Section -->
-    <section class="modalBottom">
-      <button id="dataFlowModalConfirm" type="button" class="btn btnMid confirm next">Next</button>
-      <button type="button" class="btn btnMid back">Back</button>
-      <button type="button" class="btn btnMid cancel">CANCEL</button>
-    </section>
-  </div>
-  <!-- End of DATAFLOW MODAL -->
+      <!-- Button Section -->
+      <section class="modalBottom">
+        <button id="dataFlowModalConfirm" type="button" class="btn btnMid confirm next">Next</button>
+        <button type="button" class="btn btnMid back">Back</button>
+        <button type="button" class="btn btnMid cancel">CANCEL</button>
+      </section>
+    </div>
+    <!-- End of DATAFLOW MODAL -->
     <!-- Start OPERATIONS MODAL -->
     <div id="operationsModal" class="modalContainer">
+      <!-- Header -->
       <div class="modalHeader operationsModalHeader ">
         <span class="text">Select Your Operation</span>
         <div class="minimize headerBtn">
@@ -276,7 +273,7 @@
           <span class="icon"></span>
         </div>
       </div> 
-
+      <!-- Instruction -->
       <div class="modalInstruction">
         <div class="icon"></div>
         <div class="text"> Select a category (e.g Arithmetic Functions).
@@ -284,7 +281,8 @@
         Finally, enter in any arguments if applicable. Column names should be 
         preceded by a $ sign, e.g. $column1.
         </div>
-      </div> 
+      </div>
+      <!-- StepChain -->
       <div class="stepChain">
         <div class="stepChainImg"></div>
         <div class="outerCircle circle0 filled">
@@ -315,54 +313,60 @@
           </div>
         </div>
       </div>
+      <!-- Modal Top Main -->
       <div class="modalTopMain clearfix">
+        <!-- Category Section -->
         <section class="step">
           <b>Category: </b>
           <div id="categoryList" class="dropDownList">
-              <input class="text autocomplete" placeholder="aggregate"
-                spellcheck="false" required tabindex="10">
-              <div class="iconWrapper dropdown">
-                <span class="icon"></span>
-              </div>
-              <div id="categoryMenu" class="list">
-                <ul>
-                  <li class="all">all</li>
-                </ul>
-                <div class="scrollArea top"><div class="arrow"></div></div>
-                <div class="scrollArea bottom"><div class="arrow"></div></div>
-              </div>
-              
+            <input class="text autocomplete" placeholder="aggregate" 
+            spellcheck="false" tabindex="10" required>
+            <div class="iconWrapper dropdown">
+              <span class="icon"></span>
+            </div>
+            <div id="categoryMenu" class="list">
+              <ul>
+                <li class="all">all</li>
+              </ul>
+              <div class="scrollArea top"><div class="arrow"></div></div>
+              <div class="scrollArea bottom"><div class="arrow"></div></div>
+            </div>
           </div>
         </section>
         <div class="border"></div>
+        <!-- Function Section -->
         <section class="step inactive">
           <b>Function: </b>
           <div id="functionList" class="dropDownList">
-              <input class="text autocomplete" disabled required tabindex="10"  spellcheck="false">
-              <div class="iconWrapper dropdown">
-                <span class="icon"></span>
+            <input class="text autocomplete" 
+            tabindex="10" spellcheck="false" disabled required>
+            <div class="iconWrapper dropdown">
+              <span class="icon"></span>
+            </div>
+            <div id="functionsMenu" class="list">
+              <ul></ul>
+              <div class="scrollArea top">
+                <div class="arrow"></div>
               </div>
-              <div id="functionsMenu" class="list">
-                <ul>
-                </ul>
-                <div class="scrollArea top"><div class="arrow"></div></div>
-                <div class="scrollArea bottom"><div class="arrow"></div></div>
+              <div class="scrollArea bottom">
+                <div class="arrow"></div>
               </div>
-              
+            </div>
           </div>
         </section>
         <div class="border"></div>
       </div>
+      <!-- Modal Main -->
       <div class="modalMain step inactive">
         <b>Description of Function:</b>
         <div class="argumentSection">
           <p class="descriptionText">N/A</p>
           <b class="argumentListTitle">Argument List:</b>
           <div class="tableHeader">
-              <div class="thWrap">Argument</div>
-              <div class="thWrap">Description</div>
-              <div class="thWrap">Empty</div>
-            </div>
+            <div class="thWrap">Argument</div>
+            <div class="thWrap">Description</div>
+            <div class="thWrap">Empty</div>
+          </div>
           <div class="tableContainer">
             <div class="tableWrapper">
               <table class="argumentTable">
@@ -372,8 +376,7 @@
                     <td>
                       <div class="inputWrap">
                         <div class="dropDownList">
-                          <input class="argument" type="text" tabindex="10"
-                                spellcheck="false">
+                          <input class="argument" type="text" tabindex="10" spellcheck="false">
                           <div class="argIconWrap">
                             <span class="icon"></span>
                           </div>
@@ -386,7 +389,8 @@
                     </td>
                     <td>
                       <div class="checkboxWrap">
-                        <span class="checkbox" data-container="body" data-toggle="tooltip" title="select to allow empty field"></span>
+                        <span class="checkbox" data-container="body" 
+                        data-toggle="tooltip" title="select to allow empty field"></span>
                       </div>
                     </td> 
                   </tr>
@@ -409,7 +413,8 @@
                     </td>
                     <td>
                       <div class="checkboxWrap">
-                        <span class="checkbox" data-container="body" data-toggle="tooltip" title="select to allow empty field"></span>
+                        <span class="checkbox" data-container="body" 
+                        data-toggle="tooltip" title="select to allow empty field"></span>
                       </div>
                     </td> 
                   </tr>
@@ -432,7 +437,8 @@
                     </td>
                     <td>
                       <div class="checkboxWrap">
-                        <span class="checkbox" data-container="body" data-toggle="tooltip" title="select to allow empty field"></span>
+                        <span class="checkbox" data-container="body" 
+                        data-toggle="tooltip" title="select to allow empty field"></span>
                       </div>
                     </td> 
                   </tr>
@@ -459,7 +465,8 @@
                     </td>
                     <td>
                       <div class="checkboxWrap">
-                        <span class="checkbox" data-container="body" data-toggle="tooltip" title="select to allow empty field"></span>
+                        <span class="checkbox" data-container="body" 
+                        data-toggle="tooltip" title="select to allow empty field"></span>
                       </div>
                     </td> 
                   </tr>
@@ -486,7 +493,8 @@
                     </td>
                     <td>
                       <div class="checkboxWrap">
-                        <span class="checkbox" data-container="body" data-toggle="tooltip" title="select to allow empty field"></span>
+                        <span class="checkbox" data-container="body" 
+                        data-toggle="tooltip" title="select to allow empty field"></span>
                       </div>
                     </td> 
                   </tr>
@@ -513,7 +521,8 @@
                     </td>
                     <td>
                       <div class="checkboxWrap">
-                        <span class="checkbox" data-container="body" data-toggle="tooltip" title="select to allow empty field"></span>
+                        <span class="checkbox" data-container="body" 
+                        data-toggle="tooltip" title="select to allow empty field"></span>
                       </div>
                     </td> 
                   </tr>
@@ -523,6 +532,7 @@
           </div>
         </div>
       </div>
+      <!-- Modal Bottom -->
       <div class="modalBottom clearfix">
         <button class="btn btnMid confirm" tabindex="11">APPLY</button>
         <button class="btn btnMid cancel" tabindex="10">CANCEL</button>
@@ -627,7 +637,8 @@
                   <span class="icon"></span>
                 </div>
                 <div class="text">Header</div>
-                <div title="Check to Promote First Row As Header" data-toggle="tooltip" data-placement="top" data-container="body" class="hint qMark"></div>
+                <div title="Check to Promote First Row As Header" data-toggle="tooltip" 
+                data-placement="top" data-container="body" class="hint qMark"></div>
               </div>
             </div>
           </div>
@@ -682,16 +693,16 @@
               <section id="fieldDelim" class="wrapper">
                 <span class="label">Field Delimiter:</span>
                 <div class="dropDownList">
-                  <input id="fieldText" class="text" type="text" disabled 
-                    spellcheck="false" >
+                  <input id="fieldText" class="text" type="text" 
+                  spellcheck="false" disabled>
                   <div class="iconWrapper">
-                      <span class="icon"></span>
+                    <span class="icon"></span>
                   </div>
                   <!-- dropdown menu -->
                   <div class="list">
                     <ul>
                       <li name="default">Default (\t)</li>
-                       <li name="comma">Comma (,)</li>
+                      <li name="comma">Comma (,)</li>
                       <li name="null" class="nullVal">Null</li>
                       <li name="other" class="other">
                         <span>Other</span>
@@ -707,10 +718,10 @@
               <section id="lineDelim" class="wrapper">
                 <span class="label">Line Delimiter:</span>
                 <div class="dropDownList">
-                  <input id="lineText" class="text" type="text" disabled 
-                    spellcheck="false" >
+                  <input id="lineText" class="text" type="text" 
+                  spellcheck="false" disabled>
                   <div class="iconWrapper">
-                      <span class="icon"></span>
+                    <span class="icon"></span>
                   </div>
                   <!-- dropdown menu -->
                   <div class="list">
@@ -737,7 +748,7 @@
             <button id="importDataReset" class="btn btnMid btn-cancel" type="reset">CANCEL</button>
           </div>
         </div>
-      </form> 
+      </form>
       <!-- Preview Section -->
       <section id="dsPreviewWrap" class="hidden fullSize">
         <div class="container">
@@ -745,11 +756,13 @@
           <div class="infoSection info1">
             <!-- apply change button -->
             <section class="btnSection loadHidden">
-               <button id="preview-apply" class="btn btnMid" type="button">APPLY CHANGES</button>
+              <button id="preview-apply" class="btn btnMid" type="button">APPLY CHANGES</button>
             </section>
             <!-- close and minimize icon -->
             <section class="iconSection">
-              <div id="preview-close" class="close icon" title="Close preview window without saving" data-toggle="tooltip" data-placement="top" data-container="body"></div>
+              <div id="preview-close" class="close icon" 
+              title="Close preview window without saving" data-toggle="tooltip" 
+              data-placement="top" data-container="body"></div>
               <div id="preview-minimize" class="minimize icon"></div>
             </section>
           </div>
@@ -761,9 +774,13 @@
             </section>
             <!-- highlight icon -->
             <section class="iconSection">
-              <div id="preview-rmHightlight" class="rmHightLight icon" title="Remove highlights" data-toggle="tooltip" data-placement="top" data-container="body"></div>
+              <div id="preview-rmHightlight" class="rmHightLight icon" 
+              title="Remove highlights" data-toggle="tooltip" 
+              data-placement="top" data-container="body"></div>
 
-              <div id="preview-highlight" class="highlight icon" title="Highlight any character and click on this button to use it as a delimiter" data-toggle="tooltip" data-placement="top" data-container="body"></div>
+              <div id="preview-highlight" class="highlight icon" 
+              title="Highlight any character and click on this button to use it as a delimiter" 
+              data-toggle="tooltip" data-placement="top" data-container="body"></div>
             </section>
           </div>
           <!-- Suggestion Section -->
@@ -805,10 +822,12 @@
               <span>Data Sets (<span class="numDataStores">0</span>)</span>
               <div class="buttonGroup">
                 <div id="refreshDS" class="refresh btn dataViewBtn">
-                  <span class="icon" data-toggle="tooltip" data-placement="top" data-container="body" title="" data-original-title="Refresh Datasets"></span>
+                  <span class="icon" data-toggle="tooltip" data-placement="top" 
+                  data-container="body" title="" data-original-title="Refresh Datasets"></span>
                 </div>
 
-                <div id="dataViewBtn" class="btn dataViewBtn selected gridView toggleListGrid" data-toggle="tooltip" data-placement="top"
+                <div id="dataViewBtn" class="btn dataViewBtn selected gridView toggleListGrid" 
+                data-toggle="tooltip" data-placement="top" 
                 data-original-title="Switch to List view" data-container="body">
                   <span class="icon"></span>
                 </div>
@@ -830,9 +849,8 @@
                 <div class="icon"></div>
                 <div class="label">..</div>
               </div>
-              <div id="addFolderBtn" class="gridViewBtn addBtn" title="Add New Folder"
-                  data-container="body"
-                  data-toggle="tooltip" data-placement="bottom">
+              <div id="addFolderBtn" class="gridViewBtn addBtn" title="Add New Folder" 
+              data-container="body" data-toggle="tooltip" data-placement="bottom">
                 <div class="icon"></div>
                 <div class="label">NEW</div>
               </div>
@@ -887,7 +905,8 @@
                       <span class="icon"></span>
                       <span class="text">Select Columns Later</span>
                     </div>
-                    <div title="Create A Table Without Picking Any Column" data-toggle="tooltip" data-container="body" class="qMark"></div>
+                    <div title="Create A Table Without Picking Any Column" 
+                    data-toggle="tooltip" data-container="body" class="qMark"></div>
                   </div>
                   <div class="buttonWrap">
                     <div id="selectDSCols" class="selectAll modifyDSButton">
@@ -906,7 +925,6 @@
               <div id="datasetWrap">
                 <div id="dataSetTableWrap" class="datasetTableWrap"></div>
               </div>
-              <!-- <ul id="datasetTableMenu" class="colMenu"></ul> -->
             </div>
           </div>
           <!-- End Datastore Table -->
@@ -942,10 +960,12 @@
               <span>Targets (<span class="numExportTargets">0</span>)</span>
               <div class="buttonGroup">
                 <div class="btn dataViewBtn refresh">
-                  <span class="icon" data-toggle="tooltip" data-placement="top" data-container="body" title="" data-original-title="Refresh Targets"></span>
+                  <span class="icon" title="Refresh Targets" data-toggle="tooltip" 
+                  data-placement="top" data-container="body"></span>
                 </div>
 
-                <div id="exportViewBtn" class="btn dataViewBtn selected gridView toggleListGrid" data-toggle="tooltip" data-placement="top"
+                <div id="exportViewBtn" class="btn dataViewBtn selected gridView toggleListGrid" 
+                data-toggle="tooltip" data-placement="top"
                 data-original-title="Switch to List view" data-container="body">
                   <span class="icon"></span>
                 </div>
@@ -956,30 +976,6 @@
                 <span class="icon"></span>CREATE NEW EXPORT TARGET
               </button>
             </div>
-            <!-- Grid Views of ds -->
-          <!--   <div class="gridViewButtonArea no-selection" style="display:none;">
-              <div id="backExportFolderBtn"  class="backBtn disabled"
-                  title="See previous folders" data-container="body"
-                  data-toggle="tooltip" data-placement="bottom"
-                  ondrop="DS.onDropBack(event)"
-                  ondragover="DS.allowDrop(event)"
-                  ondragenter="DS.onDragEnter(event)">
-                <div class="icon"></div>
-                <div class="label">..</div>
-              </div>
-              <div id="addExportFolderBtn" class="addBtn" title="Add New Folder"
-                  data-container="body"
-                  data-toggle="tooltip" data-placement="bottom">
-                <div class="icon"></div>
-                <div class="label">NEW</div>
-              </div>
-              <div id="deleteExportFolderBtn" class="deleteBtn disabled" 
-                  title="Delete folder or dataset" data-container="body"
-                  data-toggle="tooltip" data-placement="bottom">
-                <div class="icon"></div>
-                <div class="label">DELETE</div>
-              </div>
-            </div> -->
             <!-- Grid View -->
             <div class="gridViewWrapper">
               <div class="gridViewScrollbarWrapper">
@@ -1006,8 +1002,8 @@
                   <div id="targetTypeSelector" class="importFormRow">
                     <label for="targetTypeList">Target Type:</label>
                     <div id="targetTypeList" class="dropDownList">
-                      <input class="text hint" type="text" value="" disabled 
-                        spellcheck="false" >
+                      <input class="text hint" type="text" value="" 
+                      spellcheck="false" disabled>
                       <div class="iconWrapper">
                         <span class="icon"></span>
                       </div>
@@ -1029,7 +1025,7 @@
                 </div>
               </div>
               <!-- Bottom Form -->
-              <div id="exportDataBottomForm"  class="dataStoreFormBottom no-selection">
+              <div id="exportDataBottomForm" class="dataStoreFormBottom no-selection">
                 <h2>Add New Connector</h2>
                 <div class="contentViewMidWrap">
                   <div class="importFormRow">
@@ -1068,8 +1064,6 @@
                     <label for="passwordExport">Password:</label>
                     <input type="password" id="passwordExport" spellcheck="false">
                   </div>
-
-
                   <button id="exportFormSubmit" class="btn btnMid" 
                           type="submit">ADD</button>
                   <button id="exportFormReset" class="btn btnMid btn-cancel" 
@@ -1084,17 +1078,17 @@
     </div>
   </div>
   <!-- END DATASTORE PANEL -->
-  
+
   <!-- SCHEDULER PANEL -->
   <div id="schedulerPanel" class="mainPanel">
     <div id="schedulerTopBar" class="topBar">
         <div id="dataflowButton" class="buttonArea active">
-            <div class="icon"></div>
-            <div class="text">DATA FLOW GRP</div>
+          <div class="icon"></div>
+          <div class="text">DATA FLOW GRP</div>
         </div>
         <div id="schedulesButton" class="buttonArea">
-            <div class="icon"></div>
-            <div class="text">SCHEDULES</div>
+          <div class="icon"></div>
+          <div class="text">SCHEDULES</div>
         </div>
         <div class="rightHeaderArea">
           <div class="text">DETAIL</div>
@@ -1106,9 +1100,7 @@
           <div class="headingArea">
             Data Flow Groups (<span class="numGroups">0</span>)
           </div>
-          <div class="listSection">
-            
-          </div>
+          <div class="listSection"></div>
         </div>
         <div class="midContent">
           <!-- midContentHeader -->
@@ -1702,7 +1694,8 @@
             spellcheck="false" placeholder="Type in your question..." 
             data-toggle="tooltip" data-placement="bottom" 
             data-container="body" disabled>
-          <div id="helpSubmit" title="Coming Soon" class="btnInactive" data-toggle="tooltip" data-placement="bottom" data-container="body">
+          <div id="helpSubmit" title="Coming Soon" class="btnInactive" 
+          data-toggle="tooltip" data-placement="bottom" data-container="body">
             <span class="icon iconSearch"></span>Find
           </div>
         </div>
@@ -1851,8 +1844,6 @@
             <div class="divider"></div>
             <li class="unhideAll" data-ws="all"><span class="icon"></span><span class="icon"></span>Unhide all worksheets</li>
           </ul>
-        <!--   <div class="scrollArea top"><div class="arrow"></div></div>
-          <div class="scrollArea bottom"><div class="arrow"></div></div> -->
         </div>
       </div>
       <div id="worksheetTabMenu" class="menu">
@@ -2010,38 +2001,10 @@
         on. <br>
         Next, select the table followed by the column from the right that you 
         would like to join on.
-        <!-- <div class="leftTable tableInfo">
-          <div class="tableName">
-            Left table: <span class="text"></span>
-          </div>
-          <div class="joinKey">
-            Join Key: <span class="text"></span>
-          </div>
-        </div>
-
-        <div class="rightTable tableInfo">
-          <div class="tableName">
-            Right Table: <span class="text"></span>
-          </div>
-          <div class="joinKey">
-              Join Key: <span class="text"></span>
-          </div>
-        </div>
-
-        <div class="suggTable tableInfo">
-          <div class="tableName">
-            Suggest Right Table: <span class="text"></span>
-          </div>
-          <div class="joinKey">
-            Suggest Key: <span class="text"></span>
-          </div>
-        </div> -->
       </div>
     </section>
     <!-- Join Modal Input Section -->
     <section class="modalTopMain">
-     <!--  <div class="text">New Table Name:</div>
-      <input id="joinRoundedInput" type="textbox" required spellcheck="false"> -->
       <div id="joinType" class="dropDownList">
         <div class="text">Inner Join</div>
         <div class="iconWrapper">

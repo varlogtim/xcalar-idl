@@ -309,8 +309,7 @@ window.DFGPanel = (function($, DFGPanel) {
                             '</div>' +
                             '<div class="tableTitleArea">' +
                                 '<span>Table: </span>' +
-                                '<span class="tableName" draggable="true" ' +
-                                'ondragstart="xcDrag(event)">' +
+                                '<span class="tableName">' +
                                     dataFlow.name +
                                 '</span>' +
                             '</div>' +
