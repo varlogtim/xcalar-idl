@@ -202,7 +202,8 @@ window.DataSampleTable = (function($, DataSampleTable) {
             $worksheetTable.find("th.th").each(function(index) {
                 var $th = $(this);
                 if ($th.hasClass("selectedCol")) {
-                    selectedCol[index] = true;
+                    // the first column is column 1
+                    selectedCols[index + 1] = true;
                 }
 
                 var header = $th.find(".editableHead").val();
