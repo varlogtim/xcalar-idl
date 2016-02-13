@@ -54,56 +54,16 @@ window.DataSampleTable = (function($, DataSampleTable) {
         // XcalarSample sets gDatasetBrowserResultSetId
         XcalarSample(datasetName, 40)
         .then(function(result, totalEntries) {
-            var innerDeferred = jQuery.Deferred();
-
-            if (!result) {
-                innerDeferred.reject({"error": "Cannot parse the dataset."});
-                return innerDeferred.promise();
-            }
-
-            var kvPairs    = result.kvPair;
-            var numKvPairs = result.numKvPairs;
             // update info here
             dsObj.setNumEntries(totalEntries);
             updateTableInfo(dsObj);
 
-            var value;
-            var json;
-            var uniqueJsonKey = {}; // store unique Json key
-            var jsonKeys = [];
-            var jsons = [];  // store all jsons
-
-            try {
-                for (var i = 0; i < numKvPairs; i++) {
-                    value = kvPairs[i].value;
-                    json = $.parseJSON(value);
-                    // HACK: this is based on the assumption no other
-                    // fields called recordNum, if more than one recordNum in
-                    // json, only one recordNum will be in the parsed obj,
-                    // which is incorrect behavior
-                    delete json.recordNum;
-                    jsons.push(json);
-                    // get unique keys
-                    for (var key in json) {
-                        uniqueJsonKey[key] = "";
-                    }
-                }
-
-                for (var uniquekey in uniqueJsonKey) {
-                    jsonKeys.push(uniquekey);
-                }
-
-                $datasetWrap.removeClass("loading");
-                getSampleTable(datasetName, jsonKeys, jsons);
-                innerDeferred.resolve();
-            } catch(err) {
-                console.error(err, value);
-                innerDeferred.reject({"error": "Cannot parse the dataset."});
-            }
-
-            return innerDeferred.promise();
+            return parseSampleData(result);
         })
-        .then(function() {
+        .then(function(jsonKeys, jsons) {
+            $datasetWrap.removeClass("loading");
+            getSampleTable(datasetName, jsonKeys, jsons);
+
             $dsColsBtn.show();
             $datasetWrap.removeClass("error");
             deferred.resolve();
@@ -206,54 +166,106 @@ window.DataSampleTable = (function($, DataSampleTable) {
             } else {
                 currentRow += numRowsToFetch;
             }
-            XcalarSetAbsolute(gDatasetBrowserResultSetId, currentRow)
-            .then(function() {
-                return (XcalarGetNextPage(gDatasetBrowserResultSetId,
-                        numRowsToFetch));
-            })
-            .then(function(result) {
-                var kvPairs    = result.kvPair;
-                var numKvPairs = result.numKvPairs;
 
-                var value;
-                var json;
-                var uniqueJsonKey = {}; // store unique Json key
-                var jsonKeys = [];
-                var jsons = [];  // store all jsons
-
-                try {
-                    for (var i = 0; i < numKvPairs; i++) {
-                        value = kvPairs[i].value;
-                        json = jQuery.parseJSON(value);
-                        jsons.push(json);
-                        // get unique keys
-                        for (var key in json) {
-                            uniqueJsonKey[key] = true;
-                        }
-                    }
-
-                    for (var uniquekey in uniqueJsonKey) {
-                        jsonKeys.push(uniquekey);
-                    }
-
-                    var selectedCols = {};
-
-                    $('#worksheetTable').find('th.selectedCol').each(
-                        function() {
-                            selectedCols[$(this).index()] = true;
-                        }
-                    );
-
-                    var tr = getTableRowsHTML(jsonKeys, jsons, false,
-                                              selectedCols);
-                    $('#worksheetTable').append(tr);
-                    moveFirstColumn($('#worksheetTable'));
-
-                } catch(err) {
-                    console.error(err, value);
+            scrollSampleAndParse(currentRow, numRowsToFetch)
+            .fail(function(error) {
+                if (error.status === StatusT.StatusInvalidResultSetId) {
+                    var datasetName = $("#worksheetTable").data("dsname");
+                    XcalarMakeResultSetFromDataset(datasetName)
+                    .then(function(result) {
+                        gDatasetBrowserResultSetId = result.resultSetId;
+                        return scrollSampleAndParse(currentRow, numRowsToFetch);
+                    })
+                    .fail(function(innerError) {
+                        console.error("Scroll data sample table fails", innerError);
+                    });
+                } else {
+                    console.error("Scroll data sample table fails", error);
                 }
             });
         }
+    }
+
+    function scrollSampleAndParse(rowToGo, rowsToFetch) {
+        var deferred = jQuery.Deferred();
+
+        XcalarSetAbsolute(gDatasetBrowserResultSetId, rowToGo)
+        .then(function() {
+            return XcalarGetNextPage(gDatasetBrowserResultSetId, rowsToFetch);
+        })
+        .then(parseSampleData)
+        .then(function(jsonKeys, jsons) {
+            var selectedCols = {};
+            var $worksheetTable = $("#worksheetTable");
+            var realJsonKeys = [];
+
+            $worksheetTable.find("th.th").each(function(index) {
+                var $th = $(this);
+                if ($th.hasClass("selectedCol")) {
+                    selectedCol[index] = true;
+                }
+
+                var header = $th.find(".editableHead").val();
+                // when scroll, it should follow the order of current header
+                realJsonKeys[index] = header;
+            });
+
+            var tr = getTableRowsHTML(realJsonKeys, jsons, false, selectedCols);
+            $worksheetTable.append(tr);
+            moveFirstColumn($('#worksheetTable'));
+
+            deferred.resolve();
+        })
+        .fail(deferred.reject);
+
+        return deferred.promise();
+    }
+
+    function parseSampleData(result) {
+        var deferred = jQuery.Deferred();
+
+        if (!result) {
+            deferred.reject({"error": "Cannot parse the dataset."});
+            return deferred.promise();
+        }
+
+        var kvPairs    = result.kvPair;
+        var numKvPairs = result.numKvPairs;
+
+        var value;
+        var json;
+        var uniqueJsonKey = {}; // store unique Json key
+        var jsonKeys = [];
+        var jsons = [];  // store all jsons
+
+        try {
+            for (var i = 0; i < numKvPairs; i++) {
+                value = kvPairs[i].value;
+                json = jQuery.parseJSON(value);
+                // HACK: this is based on the assumption no other
+                // fields called recordNum, if more than one recordNum in
+                // json, only one recordNum will be in the parsed obj,
+                // which is incorrect behavior
+                delete json.recordNum;
+                jsons.push(json);
+                // get unique keys
+                for (var key in json) {
+                    uniqueJsonKey[key] = true;
+                }
+            }
+
+            for (var uniquekey in uniqueJsonKey) {
+                jsonKeys.push(uniquekey);
+            }
+
+            deferred.resolve(jsonKeys, jsons);
+
+        } catch(error) {
+            console.error(error, value);
+            deferred.reject(error);
+        }
+
+        return deferred.promise();
     }
 
     // event set up for the module
@@ -504,13 +516,12 @@ window.DataSampleTable = (function($, DataSampleTable) {
                 // Check type
                 columnsType[j] = xcHelper.parseColType(val, columnsType[j]);
 
-                var selected  = "";
-
                 if (val === undefined) {
                     knf = true;
                 }
                 var parsedVal = xcHelper.parseJsonValue(val, knf);
 
+                var selected  = "";
                 if (selectedCols && selectedCols[j + 1]) {
                     selected = " selectedCol";
                 }

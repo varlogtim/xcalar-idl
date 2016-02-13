@@ -782,8 +782,7 @@ function XcalarSample(datasetName, numEntries) {
         return (deferred.promise());
     }
     var totalEntries = 0;
-    datasetName = parseDS(datasetName);
-    xcalarMakeResultSetFromDataset(tHandle, datasetName)
+    XcalarMakeResultSetFromDataset(datasetName)
     .then(function(result) {
         // console.log(result);
         var resultSetId = result.resultSetId;
