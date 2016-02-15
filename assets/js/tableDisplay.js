@@ -1157,6 +1157,12 @@ window.TblManager = (function($, TblManager) {
         var $tbody = $table.find("tbody");
         var lastSelectedCell;
 
+        $thead.find('.rowNumHead').mousedown(function() {
+            $thead.find('.editableHead').each(function() {
+                highlightColumn($(this), true);
+            });
+        });
+
         // listeners on thead
         $thead.on("mousedown", ".flexContainer, .dragArea", function(event) {
             var $el = $(this);

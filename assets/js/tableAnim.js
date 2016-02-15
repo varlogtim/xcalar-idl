@@ -2070,6 +2070,9 @@ function focusTable(tableId, focusDag) {
                                         .removeClass('tblTitleSelected');
     var $xcTheadWrap = $('#xcTheadWrap-' + tableId);
     $xcTheadWrap.find('.tableTitle').addClass('tblTitleSelected');
+    // unhighlight any selected columns from all other tables
+    $('.xcTable:not(#xcTable-' + tableId + ')').find('.selectedCell')
+                                               .removeClass('selectedCell');
     gActiveTableId = tableId;
     RowScroller.update(tableId);
 
