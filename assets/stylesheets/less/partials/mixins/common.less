@@ -583,19 +583,17 @@
 
 // grid-unit
 .gridViewForGrid() {
-    height: 65px;
-    width: 45px;
+    .size(@width: 45px, @height: 65px);
+    .position(relative);
     margin: 7px;
     text-align: center;
     cursor: pointer;
-    position: relative;
     float: left;
     display: inline-block;
 
     > .gridIcon {
         display: inline-block;
-        width: 50px;
-        height: 40px;
+        .size(@width: 50px, @height: 40px);
     }
 
     &.ds > .gridIcon {
@@ -611,12 +609,13 @@
     }
 
     > .label {
-        .flex(1 1 25px);
-        .flex-order(2);
+        .size(@height: 20px);
+        .font(@size: 9px, @weight: 600, @line-height: 10px);
         .transition (opacity 0.6s);
-        font-size: 9px;
-        font-weight: 600;
-        .textOverflow;
+        white-space: normal;
+        word-break: break-all;
+        overflow: hidden;
+        // .textOverflow;
     }
 
     &.inactive {

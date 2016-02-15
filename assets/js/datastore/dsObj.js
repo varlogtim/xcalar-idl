@@ -756,13 +756,15 @@ window.DS = (function ($, DS) {
             $btn.removeClass("gridView").addClass("listView");
             $allGrids.removeClass("gridView").addClass("listView");
             $btn.attr('data-original-title', 'Switch to Grid view');
-            $allGrids.find('.label').removeAttr('data-toggle');
+            // $allGrids.find('.label').removeAttr('data-toggle');
         } else {
             $btn.removeClass("listView").addClass("gridView");
             $allGrids.removeClass("listView").addClass("gridView");
             $btn.attr('data-original-title', 'Switch to List view');
-            $allGrids.find('.label').attr('data-toggle', 'tooltip');
+            // $allGrids.find('.label').attr('data-toggle', 'tooltip');
         }
+
+        refreshDSName(isListView);
 
         // refresh tooltip
         $btn.mouseenter();
@@ -836,13 +838,37 @@ window.DS = (function ($, DS) {
                 '<div class="listIcon">' +
                     '<span class="icon"></span>' +
                 '</div>' +
-                '<div class="label" data-dsname=' + name + '>' +
-                    name +
+                '<div class="label" data-dsname=' + name + ' title="' + name + '">' +
+                    truncateDSName(name, true) +
                 '</div>' +
             '</div>';
         }
 
         return (html);
+    }
+
+    function refreshDSName(isListView) {
+        var $allGrids = $gridView.add($('#exportView').find('.gridItems'));
+        $allGrids.find(".label").each(function() {
+            var $label = $(this);
+            var name = $label.data("dsname");
+            $label.text(truncateDSName(name, isListView));
+        });
+    }
+
+    function truncateDSName(str, isListView) {
+        var len = str.length;
+        var maxLen = isListView ? 32 : 16;
+        var ellipsisStr;
+
+        if (len > maxLen) {
+            ellipsisStr = str.substring(0, maxLen - 4) + '...' +
+                            str.substring(len - 3, len);
+        } else {
+            ellipsisStr = str;
+        }
+
+        return ellipsisStr;
     }
 
     /*** Drag and Drop API ***/
