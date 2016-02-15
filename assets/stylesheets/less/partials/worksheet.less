@@ -354,21 +354,6 @@
     margin-bottom: 0px;
     overflow: hidden;
 
-    &.modalOpen {
-        .dropdownBox {
-            display: none !important;
-        }
-        td {
-            pointer-events: none;
-        }
-        td:first-child {
-            pointer-events: initial;
-            .rowGrab {
-                pointer-events: none;
-            }
-        }
-    }
-
     &:only-child, &.noDrag {
         .tableGrab {
             display: none;
@@ -473,6 +458,21 @@
     }
 
     &.modalOpen {
+
+        .dropdownBox {
+            display: none !important;
+        }
+
+        th:first-child {
+            pointer-events: none;
+        }
+
+        td:first-child {
+            .rowGrab {
+                pointer-events: none;
+            }
+        }
+
         .dragArea {
             display: none;
         }
@@ -869,7 +869,6 @@
     td.modalHighlighted {
         position: relative;
         z-index:36;
-        pointer-events: none;
         .transition(border-color 0.3s);
         &.jsonModalOpen {
             border-color: #9E9E9E !important;

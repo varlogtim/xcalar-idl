@@ -1177,12 +1177,6 @@ window.TblManager = (function($, TblManager) {
         var $tbody = $table.find("tbody");
         var lastSelectedCell;
 
-        $thead.find('.rowNumHead').mousedown(function() {
-            $thead.find('.editableHead').each(function() {
-                highlightColumn($(this), true);
-            });
-        });
-
         // listeners on thead
         $thead.on("mousedown", ".flexContainer, .dragArea", function(event) {
             var $el = $(this);
@@ -1274,7 +1268,17 @@ window.TblManager = (function($, TblManager) {
             }
         };
 
+        $thead.find('.rowNumHead').mousedown(function() {
+            $thead.find('.editableHead').each(function() {
+                highlightColumn($(this), true);
+            });
+        });
+
         $thead.on("click", ".dropdownBox", function(event) {
+            if ($("#mainFrame").hasClass("modalOpen")) {
+                // not focus when in modal
+                return;
+            }
             var options = {"type": "thDropdown"};
             var $el = $(this);
             var $th = $el.closest("th");
@@ -1401,6 +1405,11 @@ window.TblManager = (function($, TblManager) {
             var $td = $(this);
             var $el = $td.children('.clickable');
 
+            if ($("#mainFrame").hasClass("modalOpen")) {
+                // not focus when in modal
+                return;
+            }
+
             if (event.which !== 1 || $el.length === 0) {
                 return;
             }
@@ -1518,7 +1527,11 @@ window.TblManager = (function($, TblManager) {
                 // when click sth like row marker cell, rowGrab
                 return false;
             }
-
+            if ($("#mainFrame").hasClass("modalOpen")) {
+                $el.trigger('click');
+                // not focus when in modal
+                return false;
+            }
             var yCoor = Math.max(event.pageY, $el.offset().top + $el.height() - 10);
             var colNum = xcHelper.parseColNum($td);
             var rowNum = xcHelper.parseRowNum($td.closest("tr"));

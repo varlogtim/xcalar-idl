@@ -475,10 +475,9 @@ window.OperationsModal = (function($, OperationsModal) {
 
         if (isHide) {
             $functionInput.attr('placeholder', "");
-            $table.find('.header').off('mousedown', keepInputFocused);
-            $table.find('.header').off('click', fillInputFromColumn)
-                    .end()
-                    .find('.modalHighlighted').removeClass('modalHighlighted');
+            $table.off('mousedown', '.header, td.clickable', keepInputFocused);
+            $table.off('click', '.header, td.clickable', fillInputFromCell);
+            $table.find('.modalHighlighted').removeClass('modalHighlighted');
 
             $('body').off('keydown', listHighlightListener);
         } else {
@@ -488,9 +487,8 @@ window.OperationsModal = (function($, OperationsModal) {
                 $operationsModal.fadeIn(400);
             }
 
-            $table.find('.header').click(fillInputFromColumn);
-            $table.find('.header').mousedown(keepInputFocused);
-
+            $table.on('click', '.header, td.clickable', fillInputFromCell);
+            $table.on('mousedown', '.header, td.clickable', keepInputFocused);
             $('body').on('keydown', listHighlightListener);
             fillInputPlaceholder(0);
         }
@@ -509,7 +507,7 @@ window.OperationsModal = (function($, OperationsModal) {
                         .removeClass('minimized');
         $operationsModal.find('.maximize').show();
         $operationsModal.find('.argumentSection tbody div').removeClass('minimized');
-        // $input.closest('tbody').find('div').removeClass('minimized');
+
         $input.focus();
         $('body').on('keydown', opModalKeyListener);
         centerPositionElement($operationsModal);
@@ -543,7 +541,7 @@ window.OperationsModal = (function($, OperationsModal) {
         'conditional functions': ['not']
     };
 
-    function fillInputFromColumn(event) {
+    function fillInputFromCell(event) {
         var $input = $lastInputFocused;
         if (!$lastInputFocused.hasClass('argument') ||
             $lastInputFocused.closest('.colNameSection').length !== 0 ||
@@ -551,11 +549,17 @@ window.OperationsModal = (function($, OperationsModal) {
         {
             return;
         }
-       
-        var $target = $(event.target).closest('.header');
-        $target = $target.find('.editableHead');
-        var newColName = $target.val();
-        xcHelper.insertText($input, newColName, "$");
+        var $target;
+        var $eventTarg = $(event.target);
+        if ($eventTarg.closest('.header').length) {
+            $target = $eventTarg.closest('.header').find('.editableHead');
+        } else {
+            var colNum = xcHelper.parseColNum($eventTarg.closest('td'));
+            $target = $eventTarg.closest('table')
+                                .find('.editableHead.col' + colNum);
+        }
+        var value = $target.val();
+        xcHelper.insertText($input, value, "$");
         gMouseEvents.setMouseDownTarget($input);
     }
 
