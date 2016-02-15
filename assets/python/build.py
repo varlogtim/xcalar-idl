@@ -64,6 +64,7 @@ def replacePathsInHtml():
         os.close(fh)
         original.close()
         os.remove(f)
+        newFile.close()
         shutil.move(abs_path, f)
 
 if __name__ == "__main__":

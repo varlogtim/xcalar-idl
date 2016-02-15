@@ -23,7 +23,7 @@ echo "ServerName localhost" | sudo tee /etc/apache2/conf-available/fqdn.conf && 
 sudo service apache2 reload
 
 sudo cp /etc/apache2/sites-available/000-default.conf  XI.conf
-sed 's,/var/www/html,/var/www/xcalar-gui,' XI.conf
+sed -i 's,/var/www/html,/var/www/xcalar-gui/prod,' XI.conf
 sudo mv XI.conf /etc/apache2/sites-available/
 sudo ln -s $XLRGUIDIR /var/www/xcalar-gui
 sudo a2dissite 000-default && sudo a2ensite XI
