@@ -2383,7 +2383,8 @@
         <!-- Location -->
         <div class="label">location:</div>
         <div id="fileBrowserPath" class="dropDownList">
-          <div class="text" contenteditable></div>
+          <div class="defaultPath">file:///</div>
+          <input class="text" spellcheck="false">
           <div class="iconWrapper"
               title="Click to see history" data-toggle="tooltip"
               data-placement="top" data-container="body">
@@ -2393,15 +2394,15 @@
         </div>
         <!-- Icon Options -->
         <section class="iconSection">
-          <!-- refresh -->
-          <div id="fileBrowserRefresh" class="iconWrapper icon-refresh"
-              title="Refresh" data-toggle="tooltip"
-              data-placement="top" data-container="body">
-            <span class="icon"></span>
-          </div>
           <!-- up -->
           <div id="fileBrowserUp" class="iconWrapper icon-up"
               title="Go back" data-toggle="tooltip"
+              data-placement="top" data-container="body">
+            <span class="icon"></span>
+          </div>
+          <!-- refresh -->
+          <div id="fileBrowserRefresh" class="iconWrapper icon-refresh"
+              title="Refresh" data-toggle="tooltip"
               data-placement="top" data-container="body">
             <span class="icon"></span>
           </div>

@@ -9,7 +9,7 @@ window.FileBrowser = (function($, FileBrowser) {
 
     var $pathSection = $("#fileBrowserPath");
     var $pathLists   = $("#fileBrowserPathMenu");
-    var $pathLabel   = $pathSection.find(".text");
+    var $pathText    = $pathSection.find(".text");
 
     var $sortSection = $("#fileBrowserSort");
     var $sortMenu    = $("#fileBrowserSortMenu");
@@ -67,25 +67,46 @@ window.FileBrowser = (function($, FileBrowser) {
         $(document).on("keydown.fileBrowser", function(event) {
             // up to parent folder
             var $target = $(event.target);
-            if (event.which === keyCode.Backspace) {
-                if ($target.is("input") ||
-                    ($target.is("div") && $target.prop("contenteditable")))
-                {
-                    return true;
-                }
-                $("#fileBrowserUp").click();
+            var code = event.which;
+
+            if ($target.is("input")) {
+                // input doese trigger keyboard event
+                return true;
+            }
+
+            if (code === keyCode.Backspace) {
+                goUpPath();
                 return false;
             }
 
-            if (event.which === keyCode.Left ||
-                event.which === keyCode.Right ||
-                event.which === keyCode.Up ||
-                event.which === keyCode.Down) {
-                if (!$target.is("input")) {
-                    keyBoardNavigate(event.which, event);
+            if (code === keyCode.Enter && !modalHelper.checkBtnFocus()) {
+                var $grid = $container.find(".grid-unit.active");
+                $grid.trigger("dblclick");
+                return false;
+            }
+
+            if (isSystemMac && event.metaKey ||
+                !isSystemMac && event.altKey)
+            {
+                if (code === keyCode.Up ||
+                    code === keyCode.Down) {
+                    keyBoardInBackFolder(code);
                 }
+            } else if (code === keyCode.Left ||
+                code === keyCode.Right ||
+                code === keyCode.Up ||
+                code === keyCode.Down) {
+                keyBoardNavigate(code, event);
             }
         });
+
+        function keyBoardInBackFolder(code) {
+            if (code === keyCode.Up) {
+                goUpPath();
+            } else if (code === keyCode.Down) {
+                goIntoFolder();
+            }
+        }
 
         function keyBoardNavigate(code, event) {
             var $nextIcon;
@@ -189,21 +210,6 @@ window.FileBrowser = (function($, FileBrowser) {
                                    {side: 'top'});
                 }, 40);
             }
-
-            // press enter to import a dataset
-            // Note: use time out beacuse if you press browser button to open the
-            // modal, it will trigger keyup event, so delay the event here
-            // may have bettter way to solve it..
-            setTimeout(function() {
-                $(document).on("keyup.fileBrowser", function(event) {
-                    if (event.which === keyCode.Enter && !modalHelper.checkBtnFocus()) {
-                        var $grid = $container.find(".grid-unit.active");
-                        importDataset($grid);
-                    }
-
-                    return false;
-                });
-            }, 300);
         }
     };
 
@@ -251,6 +257,7 @@ window.FileBrowser = (function($, FileBrowser) {
                     listFiles(path)
                     .then(function() {
                         appendPath(path);
+                        checkIfCanGoUP();
                     })
                     .fail(function(error) {
                         Alert.error("List File Failed", error);
@@ -296,11 +303,8 @@ window.FileBrowser = (function($, FileBrowser) {
 
         // Up to parent folder
         $("#fileBrowserUp").click(function(event){
-            // the second option in pathLists
-            var $newPath = $pathLists.find("li").eq(1);
-
             event.stopPropagation();
-            goToPath($newPath);
+            goUpPath();
         });
 
         // toggle between listview and gridview
@@ -364,22 +368,8 @@ window.FileBrowser = (function($, FileBrowser) {
 
         var timer;
         $pathSection.on({
-            // contentediable must prevent press enter to add a new line
-            "keypress": function(event) {
-                if (event.which === keyCode.Enter) {
-                    event.preventDefault();
-                    return false;
-                }
-            },
             "keyup": function(event) {
                 // assume what inputed should be a path
-                var $input = $(this);
-                var path = $input.text();
-                event.preventDefault();
-                if (event.which === keyCode.Left) {
-                    return true;
-                }
-
                 clearTimeout(timer);
 
                 var key = event.which;
@@ -389,23 +379,24 @@ window.FileBrowser = (function($, FileBrowser) {
                     return true;
                 }
 
+                var $input = $(this);
+                var path = $input.val();
+                // event.preventDefault();
+
                 timer = setTimeout(function() {
+                    path = defaultPath + path;
+
                     if (path.charAt(path.length - 1) !== "/") {
                         path += "/";
                     }
 
-                    if (key === keyCode.Backspace && path === getCurrentPath()) {
-                        // when it's backsapce and
-                        // the input path is still equal to current path
+                    if (path === getCurrentPath()) {
+                        // when the input path is still equal to current path
                         // do not retrievePath
                         return;
                     }
 
-                    retrievePaths(path)
-                    .then(function() {
-                        $input.focus();
-                        xcHelper.createSelection($input[0], true);
-                    });
+                    retrievePaths(path, null, true);
                 }, 400);
 
                 return false;
@@ -486,6 +477,11 @@ window.FileBrowser = (function($, FileBrowser) {
         return ($pathLists.find("li:first-of-type").text());
     }
 
+    function getShortPath(path) {
+        // for example: file:///var/ will return var/
+        return path.split(defaultPath)[1];
+    }
+
     function getGridUnitName($grid) {
         return ($grid.find('.label').text());
     }
@@ -540,9 +536,13 @@ window.FileBrowser = (function($, FileBrowser) {
         return (name);
     }
 
-    function appendPath(path) {
-        $pathLabel.text(path);
-        $pathLists.prepend("<li>" + path + "</li>");
+    function appendPath(path, noPathUpdate) {
+        var shortPath = getShortPath(path);
+        if (!noPathUpdate) {
+            $pathText.val(shortPath);
+        }
+
+        $pathLists.prepend('<li>' + path + '</li>');
     }
 
     function clear(isALL) {
@@ -591,6 +591,7 @@ window.FileBrowser = (function($, FileBrowser) {
             defaultPath = defaultFilePath;
             path = currentPath.replace(defaultNFSPath, defaultFilePath);
         }
+        $pathSection.find(".defaultPath").text(defaultPath);
         historyPath = null;
         retrievePaths(path);
     }
@@ -638,12 +639,25 @@ window.FileBrowser = (function($, FileBrowser) {
         return (deferred.promise());
     }
 
+    function goIntoFolder() {
+        var $grid = $container.find(".grid-unit.active");
+        if ($grid.hasClass("folder")) {
+            $grid.trigger("dblclick");
+        }
+    }
+
+    function goUpPath() {
+        // the second option in pathLists
+        var $newPath = $pathLists.find("li").eq(1);
+        goToPath($newPath);
+    }
+
     function goToPath($newPath) {
         if ($newPath == null || $newPath.length === 0) {
             return;
         }
         var oldPath = getCurrentPath();
-        var path    = $newPath.text();
+        var path = $newPath.text();
 
         // if (oldPath === path) {
         //     return;
@@ -651,21 +665,29 @@ window.FileBrowser = (function($, FileBrowser) {
 
         listFiles(path)
         .then(function() {
-            $pathLabel.text(path);
+            $pathText.val(getShortPath(path));
             $pathLists.find("li").removeClass("select");
             $newPath.addClass("select");
-            var $preLists = $newPath.prevAll();
+            // remove all previous siblings
+            $newPath.prevAll().remove();
 
             // find the parent folder and focus on it
             var folder = oldPath.substring(path.length, oldPath.length);
             folder = folder.substring(0, folder.indexOf('/'));
             focusOn(folder);
-            // remove all previous siblings
-            $preLists.remove();
+            checkIfCanGoUP();
         })
         .fail(function(error) {
             Alert.error("List file fails", error);
         });
+    }
+
+    function checkIfCanGoUP() {
+        if (getCurrentPath() === defaultPath) {
+            $("#fileBrowserUp").addClass("disabled");
+        } else {
+            $("#fileBrowserUp").removeClass("disabled");
+        }
     }
 
     function importDataset($ds) {
@@ -939,7 +961,7 @@ window.FileBrowser = (function($, FileBrowser) {
         return (grid);
     }
 
-    function retrievePaths(path, openingBrowser) {
+    function retrievePaths(path, openingBrowser, noPathUpdate) {
         var deferred = jQuery.Deferred();
         var paths = [];
         var status = {};
@@ -977,7 +999,7 @@ window.FileBrowser = (function($, FileBrowser) {
             $pathLists.empty();
 
             for (var j = paths.length - 1; j >= 0; j--) {
-                appendPath(paths[j]);
+                appendPath(paths[j], noPathUpdate);
             }
             // focus on the grid specified by path
             if (path) {
@@ -985,7 +1007,7 @@ window.FileBrowser = (function($, FileBrowser) {
                                             path.length);
                 focusOn({"name": name});
             }
-
+            checkIfCanGoUP();
             deferred.resolve(status);
         })
         .fail(deferred.reject);

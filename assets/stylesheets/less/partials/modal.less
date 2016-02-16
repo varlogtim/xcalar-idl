@@ -1958,13 +1958,23 @@ html.microsoft {
             .dropDownList {
                 text-transform: none;
                 width: 60%;
+
+                .defaultPath {
+                    .size(@width: 46px, @height: 25px);
+                    .font(@size: 12px, @line-height: 25px);
+                    padding-left: 10px;
+                    float: left;
+                }
+
                 .text {
-                    .size(@width: ~"calc(100% - 25px)");
+                    .size(@width: ~"calc(100% - 71px)");
+                    padding-left: 0;
                     cursor: text;
                     outline: none;
                     white-space: nowrap;
                     .textOverflow;
                 }
+
                 .list {
                     top: 26px;
                     .rounded(0px 0px 3px 3px);
@@ -2014,16 +2024,26 @@ html.microsoft {
                         .action-inverse-gradient;
                     }
 
+                    &.disabled {
+                        .gray-gradient;
+                        opacity: 0.7;
+                        pointer-events: none;
+                    }
+
                     .icon {
                         .size(25px, 25px);
                     }
 
-                    &.icon-refresh .icon {
-                        .image("../../images/fileBrowserModal/refresh.png", 50%, 50%);
+                    &.icon-up {
+                        margin-right: 20px;
+
+                        .icon {
+                            .image("../../images/fileBrowserModal/up.png", 50%, 50%);
+                        }
                     }
 
-                    &.icon-up .icon {
-                        .image("../../images/fileBrowserModal/up.png", 50%, 50%);
+                    &.icon-refresh .icon {
+                        .image("../../images/fileBrowserModal/refresh.png", 50%, 50%);
                     }
 
                     &.icon-sort {
@@ -2040,6 +2060,7 @@ html.microsoft {
                         &:hover .dropdownBox{
                             opacity: 1.0 !important;
                         }
+
                         .menu {
                             .size(@width: 120px);
                             .position(absolute, @top: 25px, @right: 0);
@@ -2168,7 +2189,7 @@ html.microsoft {
 
                 .label {
                     .size(@height: auto);
-                    .textOverflow;
+                    .textOverflowOneLine;
                     color: #666666;
                 }
             }
