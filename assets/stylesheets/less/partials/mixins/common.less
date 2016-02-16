@@ -609,13 +609,8 @@
     }
 
     > .label {
-        .size(@height: 20px);
-        .font(@size: 9px, @weight: 600, @line-height: 10px);
+        .font(@size: 9px, @weight: 600);
         .transition (opacity 0.6s);
-        white-space: normal;
-        word-break: break-all;
-        overflow: hidden;
-        // .textOverflow;
     }
 
     &.inactive {
@@ -652,7 +647,6 @@
         padding: 0 10px;
         background-color: @color-background-white;
         box-shadow: 1px 1px 1px 1px rgba(0,0,0,.2);
-        .textOverflow;
     }
 
     > .gridIcon {

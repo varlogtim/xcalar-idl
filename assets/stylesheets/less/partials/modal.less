@@ -2166,8 +2166,10 @@ html.microsoft {
             .grid-unit {
                 .gridViewForGrid;
                 cursor: default;
+
                 .label {
-                    white-space: nowrap;
+                    .size(@height: auto);
+                    .textOverflow;
                     color: #666666;
                 }
                 &.active .label{

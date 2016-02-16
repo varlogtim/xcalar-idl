@@ -344,6 +344,10 @@ window.StartManager = (function(StartManager, $) {
                 case ("dataStoresTab"):
                     $("#datastorePanel").addClass("active");
                     DataSampleTable.sizeTableWrapper();
+                    if ($curTab.hasClass("firsTouch")) {
+                        $curTab.removeClass("firsTouch");
+                        DS.initialize();
+                    }
                     break;
                 case ("monitorTab"):
                     $('#monitorPanel').addClass("active");

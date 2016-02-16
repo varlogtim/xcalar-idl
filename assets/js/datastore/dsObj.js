@@ -23,6 +23,12 @@ window.DS = (function ($, DS) {
         setupGrids();
     };
 
+    DS.initialize = function() {
+        // restore list view if saved and ellipsis the icon
+        var settings = UserSettings.getSettings();
+        toggleDSView(settings.datasetListView);
+    };
+
     // Get home folder
     DS.getHomeDir = function () {
         return (homeFolder);
@@ -155,7 +161,7 @@ window.DS = (function ($, DS) {
         });
 
         var $grid = DS.getGridByName(dsName);
-        $grid.addClass('display inactive');
+        $grid.addClass('inactive');
         $grid.append('<div class="waitingIcon"></div>');
         $grid.find('.waitingIcon').fadeIn(200);
         DS.focusOn($grid); // focus on grid before load
@@ -231,7 +237,7 @@ window.DS = (function ($, DS) {
                         "operation": "destroyDataSet",
                         "dsName"   : dsName,
                         "sqlType"  : SQLType.Fail
-                    }
+                    };
 
                     return XcalarDestroyDataset(dsName, sqlOptions);
                 })
@@ -345,11 +351,7 @@ window.DS = (function ($, DS) {
         refreshDS();
         DataStore.update(totolDS);
 
-        if (atStartUp) {
-            // restore list view if saved
-            var settings = UserSettings.getSettings();
-            toggleDSView(settings.datasetListView);
-        } else {
+        if (!atStartUp) {
             // if user trigger the restore, save!
             commitToStorage();
         }
@@ -374,7 +376,8 @@ window.DS = (function ($, DS) {
                     "newName"  : newName
                 });
 
-                $label.text(newName);
+                $label.text(newName)
+                        .data("dsname", newName);
                 commitToStorage();
                 return true;
             } else {
@@ -526,7 +529,10 @@ window.DS = (function ($, DS) {
         }
 
         var dsObj = new DSObj(options);
-        $parent.append(getDSHTML(dsObj));
+        var $ds = $(getDSHTML(dsObj));
+        $parent.append($ds);
+        truncateDSName($ds.find(".label"));
+
         // cached in lookup table
         dsLookUpTable[dsObj.getId()] = dsObj;
 
@@ -706,7 +712,10 @@ window.DS = (function ($, DS) {
             },
             // select all on focus
             "focus": function() {
-                var div = $(this).get(0);
+                var $label = $(this);
+                $label.text($label.data("dsname"));
+                $label.prev(".dsCount").hide();
+                var div = $label.get(0);
                 // without setTimeout cannot select all for some unknow reasons
                 setTimeout(function() {
                     xcHelper.createSelection(div);
@@ -717,8 +726,11 @@ window.DS = (function ($, DS) {
                 var dsId    = $label.closest(".grid-unit").data("dsid");
                 var newName = $label.text().trim();
                 DS.rename(dsId, newName);
+                truncateDSName($label);
+
                 this.scrollLeft = 0;    //scroll to the start of text;
                 xcHelper.removeSelectionRange();
+                $label.prev(".dsCount").show();
             }
         }, ".folder .label");
 
@@ -764,7 +776,8 @@ window.DS = (function ($, DS) {
             // $allGrids.find('.label').attr('data-toggle', 'tooltip');
         }
 
-        refreshDSName(isListView);
+        var $labels = $allGrids.find(".label");
+        truncateDSName($labels, isListView);
 
         // refresh tooltip
         $btn.mouseenter();
@@ -809,15 +822,18 @@ window.DS = (function ($, DS) {
                     '<span class="icon"></span>' +
                 '</div>' +
                 '<div class="dsCount">0</div>' +
-                '<div title="Click to rename"' +
-                    ' class="label" contentEditable="true">' +
+                '<div title="' + name + '"' +
+                    ' spellcheck="false"' +
+                    ' class="label" contentEditable="true"' +
+                    ' data-dsname=' + name + '>' +
                     name +
                 '</div>' +
             '</div>';
         } else {
             // when it's a dataset
             html =
-            '<div id="dataset-' + name + '" class="ds grid-unit" draggable="true"' +
+            '<div id="dataset-' + name + '" class="ds grid-unit display" ' +
+                'draggable="true"' +
                 ' ondragstart="DS.onDragStart(event)"' +
                 ' ondragend="DS.onDragEnd(event)"' +
                 ' data-dsId=' + id +
@@ -838,8 +854,9 @@ window.DS = (function ($, DS) {
                 '<div class="listIcon">' +
                     '<span class="icon"></span>' +
                 '</div>' +
-                '<div class="label" data-dsname=' + name + ' title="' + name + '">' +
-                    truncateDSName(name, true) +
+                '<div class="label" data-dsname=' + name + ' title="' +
+                name + '">' +
+                    name +
                 '</div>' +
             '</div>';
         }
@@ -847,21 +864,47 @@ window.DS = (function ($, DS) {
         return (html);
     }
 
-    function refreshDSName(isListView) {
-        var $allGrids = $gridView.add($('#exportView').find('.gridItems'));
-        $allGrids.find(".label").each(function() {
-            var $label = $(this);
+    function truncateDSName($labels, isListView) {
+        if (isListView == null) {
+            isListView = $gridView.hasClass("listView");
+        }
+
+        $labels.each(function() {
+            var ele = this;
+            var $label = $(ele);
             var name = $label.data("dsname");
-            $label.text(truncateDSName(name, isListView));
+            var maxLen = isListView ? 32 : 16;
+
+            $label.text(truncateHelper(name, maxLen));
+
+            if (isListView) {
+                var scrollWidth = ele.scrollWidth;
+                var widthNotOverflow = ele.offsetWidth + 1;
+
+                while (scrollWidth > widthNotOverflow && maxLen > 5) {
+                    maxLen--;
+                    $label.text(truncateHelper(name, maxLen));
+                    scrollWidth = ele.scrollWidth;
+                }
+            } else {
+                var scrollHeight = ele.scrollHeight;
+                var heightNotOverFlow = ele.offsetHeight + 1;
+
+                while (scrollHeight > heightNotOverFlow && maxLen > 5) {
+                    maxLen--;
+                    $label.text(truncateHelper(name, maxLen));
+                    scrollHeight = ele.scrollHeight;
+                }
+            }
         });
     }
 
-    function truncateDSName(str, isListView) {
+    function truncateHelper(str, maxLen) {
         var len = str.length;
-        var maxLen = isListView ? 32 : 16;
         var ellipsisStr;
 
         if (len > maxLen) {
+            // always show the last three characters
             ellipsisStr = str.substring(0, maxLen - 4) + '...' +
                             str.substring(len - 3, len);
         } else {

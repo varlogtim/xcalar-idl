@@ -926,6 +926,14 @@ input {
 
                 .grid-unit.display {
                     .gridViewForGrid;
+
+                    .label {
+                        .size(@height: 20px);
+                        line-height: 10px;
+                        white-space: normal;
+                        word-break: break-all;
+                        overflow: hidden;
+                    }
                 }
 
                 .grid-unit.ds.display > .dragWrap {
@@ -955,13 +963,13 @@ input {
                         cursor: text;
 
                         &:focus {
+                            .size(@width: 150%, @height: auto, @max-height: 20px);
                             .position(absolute, @left: -10px);
                             box-shadow: inset 0px 0px 3px black;
                             background: @color-background-white;
                             outline: none;
-                            white-space: nowrap;
+                            // white-space: nowrap;
                             overflow-y: hidden;
-                            width: 150%;
                             text-overflow: clip;
                         }
                     }
@@ -1009,6 +1017,16 @@ input {
 
                 .grid-unit {
                     .listViewForGrid;
+
+                    > .label {
+                        padding-right: 30px;
+                        white-space: nowrap;
+                        overflow: hidden;
+
+                        &:focus {
+                            cursor: text;
+                        }
+                    }
                 }
 
                 .grid-unit.ds > .dragWrap {
