@@ -70,8 +70,14 @@ $(document).ready(function() {
     $('#loginButton').click(function(event) {
 
         var username = $("#loginNameBox").val();
+        var fullUsername = username;
         if (username === "") {
             return;
+        }
+
+        var index = username.indexOf("/");
+        if (index > 0) {
+            username = username.substring(0, index);
         }
 
         // XXX prevent form to submit, temporary use
@@ -79,6 +85,7 @@ $(document).ready(function() {
         console.log("username:", username);
         console.log("password: "+$("#loginPasswordBox").val());
         sessionStorage.setItem("xcalar-username", username);
+        sessionStorage.setItem("xcalar-fullUsername", fullUsername);
         // XXX this redirect is only for temporary use
         window.location = paths.indexAbsolute;
     });

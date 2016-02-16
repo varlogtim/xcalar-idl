@@ -261,7 +261,11 @@ window.StartManager = (function(StartManager, $) {
     function setupLogout() {
         var $userName = $("#userName");
         var $popOut = $("#userNamePopout");
-        var username = Support.getUser();
+        // var username = Support.getUser();
+        var username = sessionStorage.getItem("xcalar-fullUsername");
+        if (username == null) {
+            username = Support.getUser();
+        }
 
         $userName.text(username);
         $('#userNameArea').show();
