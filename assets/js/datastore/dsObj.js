@@ -761,6 +761,8 @@ window.DS = (function ($, DS) {
                 var $grid = $(this).closest(".folder");
                 if ($gridView.hasClass("listView")) {
                     $grid.toggleClass("collapse");
+                    var $labels = $gridView.find(".label:visible");
+                    truncateDSName($labels, true);
                 }
             }
         );
@@ -784,7 +786,7 @@ window.DS = (function ($, DS) {
             // $allGrids.find('.label').attr('data-toggle', 'tooltip');
         }
 
-        var $labels = $allGrids.find(".label");
+        var $labels = $allGrids.find(".label:visible");
         truncateDSName($labels, isListView);
 
         // refresh tooltip
@@ -1021,6 +1023,8 @@ window.DS = (function ($, DS) {
             } else {
                 DS.insert($grid, $target, false);
             }
+            var $labels = $gridView.find(".label:visible");
+            truncateDSName($labels);
         }
     };
 
