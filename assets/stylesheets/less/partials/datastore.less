@@ -927,7 +927,7 @@ input {
                 .grid-unit.display {
                     .gridViewForGrid;
 
-                    .label {
+                    > .label {
                         .size(@height: 20px);
                         line-height: 10px;
                         white-space: normal;
@@ -959,18 +959,19 @@ input {
                 }
 
                 .grid-unit.folder.display {
-                    .label {
+                    > .label {
                         cursor: text;
 
                         &:focus {
-                            .size(@width: 150%, @height: auto, @max-height: 20px);
-                            .position(absolute, @left: -10px);
+                            .size(@width: 130%, @height: auto, @max-height: 20px);
+                            .position(absolute, @left: -7px);
                             box-shadow: inset 0px 0px 3px black;
                             background: @color-background-white;
                             outline: none;
                             // white-space: nowrap;
                             overflow-y: hidden;
                             text-overflow: clip;
+                            padding: 1px 1px;
                         }
                     }
 

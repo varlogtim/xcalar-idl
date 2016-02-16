@@ -235,6 +235,9 @@ window.Profile = (function($, Profile, d3) {
             return (deferred.promise());
         }
 
+        // update front col name
+        statsCol.frontColName = progCol.getFronColName();
+
         var curStatsCol = statsCol;
 
         generateStats(table)
@@ -405,7 +408,7 @@ window.Profile = (function($, Profile, d3) {
         var $loadHiddens    = $modal.find(".loadHidden");
         var $loadDisables   = $modal.find(".loadDisable");
 
-        var instruction = "Profile of <b>" + statsCol.colName + ".</b><br>";
+        var instruction = "Profile of <b>" + statsCol.frontColName + ".</b><br>";
 
         // update agg info
         aggKeys.forEach(function(aggkey) {
@@ -1143,9 +1146,11 @@ window.Profile = (function($, Profile, d3) {
             var title;
 
             if (noBucket) {
-                title = xName + ": " + formatNumber(d[xName]) + "<br>";
+                // xName is the backColName, may differenet with frontColName
+                title = statsCol.frontColName + ": " +
+                        formatNumber(d[xName]) + "<br>";
             } else {
-                title = statsCol.colName + ": [" + formatNumber(d[xName]) +
+                title = statsCol.frontColName + ": [" + formatNumber(d[xName]) +
                         ", " + formatNumber(d[xName] + tableInfo.bucketSize) +
                         ")<br>";
             }

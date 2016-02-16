@@ -377,7 +377,9 @@ window.DS = (function ($, DS) {
                 });
 
                 $label.text(newName)
-                        .data("dsname", newName);
+                        .data("dsname", newName)
+                        .attr("data-dsname", newName)
+                        .attr("title", newName);
                 commitToStorage();
                 return true;
             } else {
@@ -714,7 +716,11 @@ window.DS = (function ($, DS) {
             "focus": function() {
                 var $label = $(this);
                 $label.text($label.data("dsname"));
-                $label.prev(".dsCount").hide();
+
+                if ($gridView.hasClass("listView")) {
+                    $label.prev(".dsCount").hide();
+                }
+
                 var div = $label.get(0);
                 // without setTimeout cannot select all for some unknow reasons
                 setTimeout(function() {
@@ -730,7 +736,10 @@ window.DS = (function ($, DS) {
 
                 this.scrollLeft = 0;    //scroll to the start of text;
                 xcHelper.removeSelectionRange();
-                $label.prev(".dsCount").show();
+
+                if ($gridView.hasClass("listView")) {
+                    $label.prev(".dsCount").show();
+                }
             }
         }, ".folder .label");
 

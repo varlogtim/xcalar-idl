@@ -2465,15 +2465,12 @@ html.microsoft {
                 &.active {
                     .clickable {
                         opacity: 1;
-                    }
-
-                    .text {
-                        color: @color-text-blue;
+                        cursor: default;
                     }
                 }
 
                 .clickable {
-                    opacity: 0.7;
+                    opacity: 0.5;
                     cursor: pointer;
 
                     &:hover {
@@ -2487,19 +2484,15 @@ html.microsoft {
 
                 .text {
                     .size(@width: 40px, @height: 20px);
-                    .font(@line-height: 20px, @size: 13px, @weight: bold, @color: @color-text-lightGray);
+                    .font(@line-height: 20px, @size: 13px, @weight: bold, @color: @color-text-blue);
                 }
 
                 &.asc {
                     .justify-content(flex-start);
 
-                    &.active .icon {
-                        .image("../../images/profileModal/ascC.png", 50%, 50%);
-                    }
-
                     .icon {
                         float: left;
-                        .image("../../images/profileModal/ascG.png", 50%, 50%);
+                        .image("../../images/profileModal/ascC.png", 50%, 50%);
                     }
 
                     .text {
@@ -2510,25 +2503,17 @@ html.microsoft {
                 &.origin {
                     .justify-content(center);
 
-                    &.active .icon {
-                        .image("../../images/profileModal/origC.png", 50%, 50%);
-                    }
-
                     .icon {
-                        .image("../../images/profileModal/origG.png", 50%, 50%);
+                        .image("../../images/profileModal/origC.png", 50%, 50%);
                     }
                 }
 
                 &.desc {
                     .justify-content(flex-end);
 
-                    &.active .icon {
-                        .image("../../images/profileModal/descC.png", 50%, 50%);
-                     }
-
                     .icon {
                         float: right;
-                        .image("../../images/profileModal/descG.png", 50%, 50%);
+                        .image("../../images/profileModal/descC.png", 50%, 50%);
                     }
 
                     .text {
