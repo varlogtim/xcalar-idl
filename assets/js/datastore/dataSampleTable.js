@@ -475,7 +475,7 @@ window.DataSampleTable = (function($, DataSampleTable) {
                                 '<input spellcheck="false"' +
                                     'class="editableHead shoppingCartCol ' +
                                     thClass + '" value=\'' + key + '\' ' +
-                                    'readonly="true">' +
+                                    'disabled>' +
                             '</div>' +
                             '<div class="flexWrap flex-right">' +
                                 '<span class="tick icon"></span>' +

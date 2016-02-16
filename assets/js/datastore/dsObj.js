@@ -376,14 +376,14 @@ window.DS = (function ($, DS) {
                     "newName"  : newName
                 });
 
-                $label.text(newName)
+                $label.val(newName)
                         .data("dsname", newName)
                         .attr("data-dsname", newName)
                         .attr("title", newName);
                 commitToStorage();
                 return true;
             } else {
-                $label.text(oldName);
+                $label.val(oldName);
                 return false;
             }
         }
@@ -715,11 +715,7 @@ window.DS = (function ($, DS) {
             // select all on focus
             "focus": function() {
                 var $label = $(this);
-                $label.text($label.data("dsname"));
-
-                if ($gridView.hasClass("listView")) {
-                    $label.prev(".dsCount").hide();
-                }
+                $label.val($label.data("dsname"));
 
                 var div = $label.get(0);
                 // without setTimeout cannot select all for some unknow reasons
@@ -730,16 +726,19 @@ window.DS = (function ($, DS) {
             "blur": function() {
                 var $label  = $(this);
                 var dsId    = $label.closest(".grid-unit").data("dsid");
-                var newName = $label.text().trim();
+                var newName = $label.val().trim();
                 DS.rename(dsId, newName);
                 truncateDSName($label);
 
                 this.scrollLeft = 0;    //scroll to the start of text;
                 xcHelper.removeSelectionRange();
-
-                if ($gridView.hasClass("listView")) {
-                    $label.prev(".dsCount").show();
-                }
+            },
+            // prevent drag to trigger when focus on label
+            "mousedown": function() {
+                $(this).closest(".grid-unit").attr("draggable", false);
+            },
+            "mouseup": function() {
+                $(this).closest(".grid-unit").attr("draggable", true);
             }
         }, ".folder .label");
 
@@ -831,12 +830,9 @@ window.DS = (function ($, DS) {
                     '<span class="icon"></span>' +
                 '</div>' +
                 '<div class="dsCount">0</div>' +
-                '<div title="' + name + '"' +
-                    ' spellcheck="false"' +
-                    ' class="label" contentEditable="true"' +
-                    ' data-dsname=' + name + '>' +
-                    name +
-                '</div>' +
+                '<input title="' + name + '" class="label"' +
+                    ' value="' + name + '" data-dsname="' + name + '"' +
+                    ' spellcheck="false">' +
             '</div>';
         } else {
             // when it's a dataset
@@ -863,10 +859,9 @@ window.DS = (function ($, DS) {
                 '<div class="listIcon">' +
                     '<span class="icon"></span>' +
                 '</div>' +
-                '<div class="label" data-dsname=' + name + ' title="' +
-                name + '">' +
-                    name +
-                '</div>' +
+                '<input title="' + name + '" class="label"' +
+                    ' value="' + name + '" data-dsname="' + name + '"' +
+                    ' spellcheck="false" disabled>' +
             '</div>';
         }
 
@@ -884,7 +879,7 @@ window.DS = (function ($, DS) {
             var name = $label.data("dsname");
             var maxLen = isListView ? 32 : 16;
 
-            $label.text(truncateHelper(name, maxLen));
+            $label.val(truncateHelper(name, maxLen));
 
             if (isListView) {
                 var scrollWidth = ele.scrollWidth;
@@ -892,7 +887,7 @@ window.DS = (function ($, DS) {
 
                 while (scrollWidth > widthNotOverflow && maxLen > 5) {
                     maxLen--;
-                    $label.text(truncateHelper(name, maxLen));
+                    $label.val(truncateHelper(name, maxLen));
                     scrollWidth = ele.scrollWidth;
                 }
             } else {
@@ -901,7 +896,7 @@ window.DS = (function ($, DS) {
 
                 while (scrollHeight > heightNotOverFlow && maxLen > 5) {
                     maxLen--;
-                    $label.text(truncateHelper(name, maxLen));
+                    $label.val(truncateHelper(name, maxLen));
                     scrollHeight = ele.scrollHeight;
                 }
             }

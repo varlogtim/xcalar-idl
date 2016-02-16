@@ -928,10 +928,15 @@ input {
                     .gridViewForGrid;
 
                     > .label {
-                        .size(@height: 20px);
+                        display: block;
+                        .size(@width: 45px, @height: 20px);
+                        margin-top: -2px;
+                        padding: 0;
+                        background-color: transparent;
+                        text-align: center;
                         line-height: 10px;
                         white-space: normal;
-                        word-break: break-all;
+                        word-break: break-word;
                         overflow: hidden;
                     }
                 }
@@ -963,7 +968,7 @@ input {
                         cursor: text;
 
                         &:focus {
-                            .size(@width: 130%, @height: auto, @max-height: 20px);
+                            .size(@width: 130%);
                             .position(absolute, @left: -7px);
                             box-shadow: inset 0px 0px 3px black;
                             background: @color-background-white;
@@ -1020,6 +1025,7 @@ input {
                     .listViewForGrid;
 
                     > .label {
+                        width: 205px;
                         padding-right: 30px;
                         white-space: nowrap;
                         overflow: hidden;
