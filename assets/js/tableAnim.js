@@ -2456,12 +2456,17 @@ window.RowScroller = (function($, RowScroller) {
             if (!gActiveTableId) {
                 return;
             }
+
+            var tableId = gActiveTableId;
+            var $tableWrap = $('#xcTableWrap-' + tableId);
+            xcHelper.centerFocusedTable($tableWrap, false,
+                                                {onlyIfOffScreen: true});
+
             if ($(event.target).hasClass("subRowMarker")) {
                 rowScrollerStartDrag(event, $(event.target).parent());
                 return;
             }
             
-            var tableId = gActiveTableId;
             var $rowScroller = $('#rowScroller-' + tableId);
             if ($rowScroller.hasClass('locked')) {
                 return;
@@ -2578,6 +2583,16 @@ window.RowScroller = (function($, RowScroller) {
                     $rowScrollerArea.addClass("autoScroll");
                 }
             });
+        });
+
+        $('#rowInputArea').mousedown(function() {
+            if ($(".rowScroller").length === 0 || !gActiveTableId) {
+                return;
+            }
+            var tableId = gActiveTableId;
+            var $tableWrap = $('#xcTableWrap-' + tableId);
+            xcHelper.centerFocusedTable($tableWrap, false,
+                                                {onlyIfOffScreen: true});
         });
     };
 

@@ -1613,13 +1613,44 @@ window.xcHelper = (function($, xcHelper) {
         }
     };
 
-    xcHelper.centerFocusedTable = function($tableWrap, animate) {
+    xcHelper.centerFocusedTable = function($tableWrap, animate, options) {
+        options = options || {};
         var windowWidth = $(window).width();
         var tableWidth = $tableWrap.width();
-        var currentScrollPosition = $('#mainFrame').scrollLeft();
         var tableOffset = $tableWrap.offset().left;
+        var tableRight = tableOffset + tableWidth;
+        var animateRight = false;
+
+         // only centers the table if table is visible
+        if (options.onlyIfOffScreen) {
+            // if table is slightly visible we will apply animation
+            // otherwise we go with whatever was passed in
+            if (tableRight < 150 && tableRight > 0) {
+                // table is slightly visible on the left
+                animate = true;
+            } else if (windowWidth - tableOffset < 150 &&
+                       windowWidth - tableOffset > 0) {
+                // table is slightly visible on the right
+                animateRight = true;
+                animate = true;
+            } else if (tableRight < 0 ||
+                (windowWidth - tableOffset) < 0) {
+                // table is offscreen, proceed to center the table
+            } else {
+                // table is in view
+                return;
+            }
+        }
+
+        var currentScrollPosition = $('#mainFrame').scrollLeft();
         var leftPosition = currentScrollPosition + tableOffset;
-        var scrollPosition = leftPosition - ((windowWidth - tableWidth) / 2);
+
+        if (animateRight) {
+            scrollPosition = leftPosition;
+        } else {
+            scrollPosition = leftPosition - ((windowWidth - tableWidth) / 2);
+        }
+        
         if (animate && !gMinModeOn) {
             $('#mainFrame').animate({scrollLeft: scrollPosition}, 500,
                                 function() {
