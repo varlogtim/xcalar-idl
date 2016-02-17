@@ -784,7 +784,7 @@ window.DataPreview = (function($, DataPreview) {
                 // case to remove or apply highlighter
                 html =
                     '<span class="action active apply-highlight">' +
-                        'Apply hightlighted character as delimiter' +
+                        'Apply hightlighted characters as delimiter' +
                     '</span>' +
                     '<span class="action active rm-highlight">' +
                         'Remove Highlights' +

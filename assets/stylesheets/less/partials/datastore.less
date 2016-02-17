@@ -377,10 +377,6 @@ input {
         #preview-minimize {
             .image("../../images/datastore/minus.png", 50%, 50%);
         }
-
-        .infoSection .btnSection {
-            .position(@top: -4px);
-        }
     }
 
     &.hidden {
@@ -637,7 +633,9 @@ input {
 
             .header {
                 width: ~"calc(100% - 40px)";
-                cursor: text;
+                cursor: default;
+                // uncomment this if you want hedear to be selectable
+                // .auto-selection
 
                 .text {
                     .size(@height: 100%);
@@ -660,6 +658,10 @@ input {
 
     td {
         text-align: left;
+
+        &.cell {
+            cursor: text;
+        }
 
         &.lineMarker {
             text-align: center;
