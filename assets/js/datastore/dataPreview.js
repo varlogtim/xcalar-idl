@@ -850,6 +850,10 @@ window.DataPreview = (function($, DataPreview) {
                     '<span class="action active excelLoad">' +
                         'Load as EXCEL dataset' +
                     '</span>';
+        } else if (loadURL.endsWith("json")) {
+            html += '<span class="action active jsonLoad">' +
+                        'Load as JSON dataset' +
+                    '</span>';
         } else {
             html += '<span class="action hint">' +
                         'Use UDF to parse the dataset' +
