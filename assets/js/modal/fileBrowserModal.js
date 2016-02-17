@@ -503,6 +503,7 @@ window.FileBrowser = (function($, FileBrowser) {
     }
 
     function getShortName(name) {
+        var deferred = jQuery.Deferred();
         var index = name.lastIndexOf(".");
         // Also, we need to strip special characters. For now,
         // we only keeo a-zA-Z0-9. They can always add it back if they want
@@ -514,26 +515,43 @@ window.FileBrowser = (function($, FileBrowser) {
         name = name.replace(/[^a-zA-Z0-9]/g, "");
         var originalName = name;
 
-        var limit = 20; // we won't try more than 20 times
-        if (DS.has(name)) {
+        XcalarGetDatasets()
+        .then(function(result) {
+            var numDatasets = result.numDatasets;
+            var datasets = result.datasets;
             var validNameFound = false;
-            for (var i = 1; i <= limit; i++) {
-                name = originalName + i;
-                if (!DS.has(name)) {
+            var dsName;
+            var tries = 1;
+            var takenNamesMap = {};
+            for (var i = 0; i < numDatasets; i++) {
+                dsName = datasets[i].name;
+                takenNamesMap[dsName] = true;
+            }
+            while (!validNameFound && tries < 20) {
+                if (takenNamesMap[name]) {
+                    validNameFound = false;
+                } else {
                     validNameFound = true;
-                    break;
+                }
+                
+                if (!validNameFound) {
+                    tries++;
+                    name = originalName + tries;
                 }
             }
             if (!validNameFound) {
-                var tries = 0;
-                while (DS.has(name) && tries < 100) {
+                while (takenNamesMap[name] && tries < 100) {
                     name = xcHelper.randName(name, 4);
                     tries++;
                 }
             }
-        }
+            deferred.resolve(name);
+        })
+        .fail(function(error) {
+            deferred.reject(error);
+        });
 
-        return (name);
+        return (deferred.promise());
     }
 
     function appendPath(path, noPathUpdate) {
@@ -727,10 +745,16 @@ window.FileBrowser = (function($, FileBrowser) {
 
         var path = curDir + fileName;
         $filePath.val(path);
-        $("#fileName").val(getShortName(fileName));
-
-        xcHelper.enableSubmit($confirmBtn);
-        closeAll();
+        var shortName;
+        getShortName(fileName)
+        .then(function(shortName) {
+            $("#fileName").val(shortName);
+            xcHelper.enableSubmit($confirmBtn);
+            closeAll();
+        })
+        .fail(function(error) {
+            Alert.error("Load Dataset Failed", error.error);
+        });
     }
 
     function formatSectionHandler($li) {
