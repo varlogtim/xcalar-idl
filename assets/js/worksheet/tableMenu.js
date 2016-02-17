@@ -1161,7 +1161,7 @@ window.TblMenu = (function(TblMenu, $) {
                             ' spellcheck="false"/>' +
                         '<div>Number of Splits</div>' +
                         '<input class="num" type="number" min="1" step="1"' +
-                            ' placeholder="Unlimited if left blank"' +
+                            ' placeholder="Optional"' +
                             ' spellcheck="false"/>' +
                     '</li>' +
                 '</ul>' +

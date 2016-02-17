@@ -64,140 +64,7 @@ window.FileBrowser = (function($, FileBrowser) {
             StatusBox.show(result.error, $filePath, true);
         });
 
-        $(document).on("keydown.fileBrowser", function(event) {
-            // up to parent folder
-            var $target = $(event.target);
-            var code = event.which;
-
-            if ($target.is("input")) {
-                // input doese trigger keyboard event
-                return true;
-            }
-
-            if (code === keyCode.Backspace) {
-                goUpPath();
-                return false;
-            }
-
-            if (code === keyCode.Enter && !modalHelper.checkBtnFocus()) {
-                var $grid = $container.find(".grid-unit.active");
-                $grid.trigger("dblclick");
-                return false;
-            }
-
-            if (isSystemMac && event.metaKey ||
-                !isSystemMac && event.altKey)
-            {
-                if (code === keyCode.Up ||
-                    code === keyCode.Down) {
-                    keyBoardInBackFolder(code);
-                }
-            } else if (code === keyCode.Left ||
-                code === keyCode.Right ||
-                code === keyCode.Up ||
-                code === keyCode.Down) {
-                keyBoardNavigate(code, event);
-            }
-        });
-
-        function keyBoardInBackFolder(code) {
-            if (code === keyCode.Up) {
-                goUpPath();
-            } else if (code === keyCode.Down) {
-                goIntoFolder();
-            }
-        }
-
-        function keyBoardNavigate(code, event) {
-            var $nextIcon;
-            var $curIcon = $container.find('.grid-unit.active');
-            if (!$curIcon.length) {
-                return;
-            }
-            var isGridView = $fileBrowserMain.hasClass("gridView");
-            if (isGridView) {
-                if (code === keyCode.Left) {
-                    $nextIcon = $curIcon.prev();
-                } else if (code === keyCode.Right) {
-                    $nextIcon = $curIcon.next();
-                } else if (code === keyCode.Up || code === keyCode.Down) {
-                    $nextIcon = findVerticalIcon($curIcon, code);
-                }
-            } else {
-                if (code === keyCode.Down) {
-                    $nextIcon = $curIcon.next();
-                } else if (code === keyCode.Up) {
-                    $nextIcon = $curIcon.prev();
-                }
-            }
-            if ($nextIcon && $nextIcon.length) {
-                $nextIcon.click();
-                scrollIconIntoView($nextIcon, isGridView);
-                event.preventDefault();
-            }
-        }
-
-        function findVerticalIcon($curIcon, code) {
-            var iconHeight = 79;
-            var curIconTop = $curIcon.position().top;
-            var curIconLeft = $curIcon.position().left;
-            var targetTop;
-            var $targetIcon;
-            if (code === keyCode.Up) {
-                targetTop = curIconTop - iconHeight;
-                $curIcon.prevAll().each(function() {
-                    if ($(this).position().left === curIconLeft &&
-                        $(this).position().top === targetTop) {
-                        $targetIcon = $(this);
-                        return false;
-                    } else if ($(this).position().top < targetTop) {
-                        return false;
-                    }
-                });
-            } else if (code === keyCode.Down) {
-                targetTop = curIconTop + iconHeight;
-                var moreRowsExist = false;
-                $curIcon.nextAll().each(function() {
-                    if ($(this).position().top === targetTop) {
-                        moreRowsExist = true;
-                        if ($(this).position().left === curIconLeft) {
-                            $targetIcon = $(this);
-                            return false;
-                        }
-                    } else if ($(this).position().top > targetTop) {
-                        return false;
-                    }
-                });
-                if (!$targetIcon && moreRowsExist &&
-                    !$curIcon.is(':last-child')) {
-                    $targetIcon = $curIcon.siblings(':last');
-                }
-            }
-
-            return ($targetIcon);
-        }
-
-        function scrollIconIntoView($icon, isGridView) {
-            var iconHeight = isGridView ? 79 : 30;
-            var containerHeight = $container.height();
-            var scrollTop = $container.scrollTop();
-            var iconOffsetTop = $icon.position().top;
-            var iconBottom = iconOffsetTop + iconHeight;
-            // var containerBottom = scrollTop + containerHeight;
-            // if (iconBottom > containerBottom) {
-            if (iconBottom > containerHeight) {
-                // $container.scrollTop(iconOffsetTop +  - (containerHeight / 2));
-                // $container.scrollTop(scrollTop + (iconBottom - containerBottom));
-                $container.scrollTop(scrollTop + (iconBottom - containerHeight));
-                // $container.scrollTop(iconBottom);
-            } else if (iconOffsetTop < 0) {
-                $container.scrollTop(scrollTop + iconOffsetTop);
-            }
-
-            // else if (iconBottom < scrollTop) {
-            //     $container.scrollTop(iconOffsetTop + iconHeight - (containerHeight / 2));
-            // }
-        }
+        addKeyBoardEvent();
 
         function showHandler(result) {
             Tips.refresh();
@@ -745,7 +612,7 @@ window.FileBrowser = (function($, FileBrowser) {
 
         var path = curDir + fileName;
         $filePath.val(path);
-        var shortName;
+
         getShortName(fileName)
         .then(function(shortName) {
             $("#fileName").val(shortName);
@@ -1071,6 +938,198 @@ window.FileBrowser = (function($, FileBrowser) {
         });
 
         $container.empty().append(html);
+    }
+
+    function addKeyBoardEvent() {
+        var fileNavigator = createFileNavigator();
+
+        $(document).on("keydown.fileBrowser", function(event) {
+            // up to parent folder
+            var $target = $(event.target);
+            var code = event.which;
+
+            if ($target.is("input")) {
+                // input doese trigger keyboard event
+                return true;
+            }
+
+            if (code === keyCode.Backspace) {
+                goUpPath();
+                return false;
+            }
+
+            if (code === keyCode.Enter && !modalHelper.checkBtnFocus()) {
+                var $grid = $container.find(".grid-unit.active");
+                $grid.trigger("dblclick");
+                return false;
+            }
+
+            if (isSystemMac && event.metaKey ||
+                !isSystemMac && event.altKey)
+            {
+                if (code === keyCode.Up ||
+                    code === keyCode.Down) {
+                    keyBoardInBackFolder(code);
+                }
+            } else if (code === keyCode.Left ||
+                code === keyCode.Right ||
+                code === keyCode.Up ||
+                code === keyCode.Down) {
+                keyBoardNavigate(code, event);
+            } else {
+                var file = fileNavigator.navigate(code, curFiles);
+                if (file != null) {
+                    focusOn(file, true);
+                }
+            }
+        });
+    }
+
+    // A singleton to do file search
+    function createFileNavigator() {
+        return new FileNavigator();
+
+        function FileNavigator() {
+            var self = this;
+            self.timer = null;
+            self.searchString = "";
+            self.navigate = function(code, files) {
+                var c = String.fromCharCode(code).toLowerCase();
+                var fileName = null;
+
+                if (c >= 'a' && c <= 'z' ||
+                    c >= '0' && c <= '9') {
+                    self.searchString += c;
+
+                    // use .some so that when it's true, can stop loop
+                    files.some(function(file) {
+                        var name = file.name;
+                        if (name.toLowerCase().startsWith(self.searchString)) {
+                            // filename donot use lowercase, otherwise
+                            // search may fail in focusOn();
+                            fileName = name;
+                            return true;
+                        }
+
+                        return false;
+                    });
+
+                    if (fileName == null) {
+                        self.searchString = "";
+                    }
+                } else {
+                    // invalid char, empty the navi str
+                    self.searchString = "";
+                }
+
+                clearTimeout(self.timer);
+                self.timer = setTimeout(function() {
+                    // when timeOut, reset the search string
+                    self.searchString = "";
+                }, 1000);
+
+                return fileName;
+            };
+        }
+    }
+
+    function keyBoardInBackFolder(code) {
+        if (code === keyCode.Up) {
+            goUpPath();
+        } else if (code === keyCode.Down) {
+            goIntoFolder();
+        }
+    }
+
+    function keyBoardNavigate(code, event) {
+        var $nextIcon;
+        var $curIcon = $container.find('.grid-unit.active');
+        if (!$curIcon.length) {
+            return;
+        }
+        var isGridView = $fileBrowserMain.hasClass("gridView");
+        if (isGridView) {
+            if (code === keyCode.Left) {
+                $nextIcon = $curIcon.prev();
+            } else if (code === keyCode.Right) {
+                $nextIcon = $curIcon.next();
+            } else if (code === keyCode.Up || code === keyCode.Down) {
+                $nextIcon = findVerticalIcon($curIcon, code);
+            }
+        } else {
+            if (code === keyCode.Down) {
+                $nextIcon = $curIcon.next();
+            } else if (code === keyCode.Up) {
+                $nextIcon = $curIcon.prev();
+            }
+        }
+        if ($nextIcon && $nextIcon.length) {
+            $nextIcon.click();
+            scrollIconIntoView($nextIcon, isGridView);
+            event.preventDefault();
+        }
+    }
+
+    function findVerticalIcon($curIcon, code) {
+        var iconHeight = 79;
+        var curIconTop = $curIcon.position().top;
+        var curIconLeft = $curIcon.position().left;
+        var targetTop;
+        var $targetIcon;
+        if (code === keyCode.Up) {
+            targetTop = curIconTop - iconHeight;
+            $curIcon.prevAll().each(function() {
+                if ($(this).position().left === curIconLeft &&
+                    $(this).position().top === targetTop) {
+                    $targetIcon = $(this);
+                    return false;
+                } else if ($(this).position().top < targetTop) {
+                    return false;
+                }
+            });
+        } else if (code === keyCode.Down) {
+            targetTop = curIconTop + iconHeight;
+            var moreRowsExist = false;
+            $curIcon.nextAll().each(function() {
+                if ($(this).position().top === targetTop) {
+                    moreRowsExist = true;
+                    if ($(this).position().left === curIconLeft) {
+                        $targetIcon = $(this);
+                        return false;
+                    }
+                } else if ($(this).position().top > targetTop) {
+                    return false;
+                }
+            });
+            if (!$targetIcon && moreRowsExist &&
+                !$curIcon.is(':last-child')) {
+                $targetIcon = $curIcon.siblings(':last');
+            }
+        }
+
+        return ($targetIcon);
+    }
+
+    function scrollIconIntoView($icon, isGridView) {
+        var iconHeight = isGridView ? 79 : 30;
+        var containerHeight = $container.height();
+        var scrollTop = $container.scrollTop();
+        var iconOffsetTop = $icon.position().top;
+        var iconBottom = iconOffsetTop + iconHeight;
+        // var containerBottom = scrollTop + containerHeight;
+        // if (iconBottom > containerBottom) {
+        if (iconBottom > containerHeight) {
+            // $container.scrollTop(iconOffsetTop +  - (containerHeight / 2));
+            // $container.scrollTop(scrollTop + (iconBottom - containerBottom));
+            $container.scrollTop(scrollTop + (iconBottom - containerHeight));
+            // $container.scrollTop(iconBottom);
+        } else if (iconOffsetTop < 0) {
+            $container.scrollTop(scrollTop + iconOffsetTop);
+        }
+
+        // else if (iconBottom < scrollTop) {
+        //     $container.scrollTop(iconOffsetTop + iconHeight - (containerHeight / 2));
+        // }
     }
 
     return (FileBrowser);

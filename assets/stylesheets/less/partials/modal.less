@@ -1955,9 +1955,35 @@ html.microsoft {
                 width: 70px;
             }
 
+             #fileBrowserUp {
+                .size(@width: 25px, @height: 26px);
+                .action-gradient;
+                float: left;
+                cursor: pointer;
+                .rounded(3px 0 0 3px);
+
+                &:active {
+                    .action-inverse-gradient;
+                }
+
+                &.disabled {
+                    .gray-gradient;
+                    opacity: 0.7;
+                    pointer-events: none;
+                }
+
+                .icon {
+                    .size(100%, 100%);
+                    .image("../../images/fileBrowserModal/up.png", 50%, 50%);
+                }
+            }
+
             .dropDownList {
+                .size(@width: 60%, @height: 26px);
+                .rounded(0 3px 3px 0);
                 text-transform: none;
-                width: 60%;
+                border-bottom: 1px solid rgba(0, 0, 0, 0.2);
+                box-shadow: none;
 
                 .defaultPath {
                     .size(@width: 46px, @height: 25px);
@@ -2024,22 +2050,8 @@ html.microsoft {
                         .action-inverse-gradient;
                     }
 
-                    &.disabled {
-                        .gray-gradient;
-                        opacity: 0.7;
-                        pointer-events: none;
-                    }
-
                     .icon {
                         .size(25px, 25px);
-                    }
-
-                    &.icon-up {
-                        margin-right: 20px;
-
-                        .icon {
-                            .image("../../images/fileBrowserModal/up.png", 50%, 50%);
-                        }
                     }
 
                     &.icon-refresh .icon {
@@ -2097,7 +2109,6 @@ html.microsoft {
                         .image("../../images/fileBrowserModal/gridView.png", 4px, 3px);
                     }
                 }
-
             }
         }
     }

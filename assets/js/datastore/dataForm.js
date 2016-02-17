@@ -49,6 +49,7 @@ window.DatastoreForm = (function($, DatastoreForm) {
         $("#importDataButton").click(function() {
             $(this).blur();
             DatastoreForm.show();
+            FileBrowser.show();
         });
 
         // csv promote checkbox
