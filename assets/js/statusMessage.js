@@ -16,6 +16,8 @@ window.StatusMessage = (function($, StatusMessage) {
     var messagesToBeRemoved = [];
     var msgIdCount = 0;
     var inRotation = false;
+    var notificationTime = 6000;
+    var failNotificationTime = 8000;
 
     StatusMessage.setup = function() {
         $statusText.on('click', '.close', function() {
@@ -413,6 +415,7 @@ window.StatusMessage = (function($, StatusMessage) {
                 } else {
                     $popup.remove();
                 }
+                $('#mainFrame').off('scroll.' + msgId);
                 $(document).mouseup(removeSelectionRange);
             });
 
@@ -431,8 +434,22 @@ window.StatusMessage = (function($, StatusMessage) {
                 } else {
                     $popup.remove();
                 }
+                $('#mainFrame').off('scroll.' + msgId);
                 $(document).mouseup(removeSelectionRange);
             });
+
+            
+            if (status.indexOf('failed') === -1 && 
+                (classes.indexOf('right') > -1 || classes.indexOf('left'))) {
+                // detects if user scrolls to table. If so, remove mainFrame
+                // scroll Listener
+                var scrollTimer;
+                $('#mainFrame').on('scroll.' + msgId, function() {
+                    console.log(msgId);
+                    clearTimeout(scrollTimer);
+                    scrollTimer = setTimeout(removePopUpIfScrolledToTable, 100);
+                });
+            }
 
             if (!popupWrapExists) {
                 // we need to create a new container div for the popup
@@ -462,9 +479,9 @@ window.StatusMessage = (function($, StatusMessage) {
 
             setTimeout(function() {
                 $tableDonePopup.fadeIn(200, function() {
-                    var displayTime = 4000;
+                    var displayTime = notificationTime;
                     if (failed) {
-                        displayTime = 6000;
+                        displayTime = failNotificationTime;
                     }
                     setTimeout(function() {
                         $tableDonePopup.fadeOut(200, function(){
@@ -472,11 +489,20 @@ window.StatusMessage = (function($, StatusMessage) {
                                 $tableDonePopup.parent().remove();
                             } else {
                                 $tableDonePopup.remove();
-                            }                           
+                            }
+                            $('#mainFrame').off('scroll.' + msgId);
                         });
                     }, displayTime);
                 });
             }, 400);
+        }
+
+        function removePopUpIfScrolledToTable() {
+            var isInScreen = xcHelper.isTableInScreen(newTableId);
+            if (isInScreen) {
+                $tableDonePopup.remove();
+                $('#mainFrame').off('scroll.' + msgId);
+            }
         }
 
         delete msgObjs[msgId];
