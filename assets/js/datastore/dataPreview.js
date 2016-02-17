@@ -449,6 +449,7 @@ window.DataPreview = (function($, DataPreview) {
         });
 
         $previewTable.empty().append($tHead, $tbody);
+        $previewTable.closest(".datasetTbodyWrap").scrollTop(0);
 
         if (delimiter !== "") {
             $previewTable.addClass("has-delimiter");
