@@ -377,14 +377,18 @@ window.DatastoreForm = (function($, DatastoreForm) {
         if (path.trim() === "") {
             StatusBox.show(ErrorTextTStr.NoEmpty, $filePath, true);
             return false;
-        } else if (path.endsWith("json")) {
-            // Invalid json preview
-            StatusBox.show(ErrorTextTStr.NoPreviewJSON, $filePath, true);
-            return false;
-        } else if (path.endsWith("xlsx")) {
-            StatusBox.show(ErrorTextTStr.NoPreviewExcel, $filePath, true);
-            return false;
         }
+
+        // We allow json and excel to preview in 2/17/2016
+        // if still allows when you see the comment, remove the comment code
+        // else if (path.endsWith("json")) {
+        //     // Invalid json preview
+        //     StatusBox.show(ErrorTextTStr.NoPreviewJSON, $filePath, true);
+        //     return false;
+        // } else if (path.endsWith("xlsx")) {
+        //     StatusBox.show(ErrorTextTStr.NoPreviewExcel, $filePath, true);
+        //     return false;
+        // }
 
         return true;
     }

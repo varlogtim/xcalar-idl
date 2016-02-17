@@ -482,6 +482,36 @@ input {
         }
     }
 
+    .waitSection {
+        margin-top: 10px;
+        height: 25px;
+        line-height: 25px;
+
+        .loadingMsg {
+            margin-left: 0;
+            float: left;
+            vertical-align: bottom;
+        }
+
+        .animatedEllipsis {
+            float: left;
+
+            > div {
+                display: inline-block;
+                width: 2px;
+                margin-left: 0;
+            }
+        }
+    }
+
+    .errorSection {
+        // color please check .loadError
+        height: 25px;
+        // margin-left: 0;
+        margin-top: 10px;
+        color: @color-table-red;
+    }
+
     .suggestSection {
         .size(@height: 25px);
         .font(@size: 12px, @line-height: 25px);
@@ -526,31 +556,6 @@ input {
         .size(@width: 100%, @height: ~"calc(100% - 90px)");
         overflow-y: hidden;
         overflow-x: auto;
-
-        .waitSection {
-            height: 25px;
-            line-height: 25px;
-
-            .loadingMsg {
-                margin-left: 0;
-                float: left;
-            }
-
-            .animatedEllipsis {
-                float: left;
-
-                > div {
-                    display: inline-block;
-                    width: 2px;
-                    margin-left: 0;
-                }
-            }
-        }
-
-        .errorSection {
-            // color please check .loadError
-            margin-left: 0;
-        }
     }
 }
 

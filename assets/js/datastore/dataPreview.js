@@ -139,11 +139,20 @@ window.DataPreview = (function($, DataPreview) {
 
         $suggSection.on("click", ".jsonLoad", function() {
             dsFormat = "JSON";
-            $("#preview-apply").click();
+            applyPreviewChange();
+        });
+
+        $suggSection.on("click", ".excelLoad", function() {
+            dsFormat = "Excel";
+            if ($(this).hasClass("hasHeader")) {
+                hasHeader = true;
+            }
+
+            applyPreviewChange();
         });
 
         $suggSection.on("click", ".apply-all", function() {
-            $("#preview-apply").click();
+            applyPreviewChange();
         });
 
         function applyDelim() {
@@ -158,10 +167,12 @@ window.DataPreview = (function($, DataPreview) {
         var deferred = jQuery.Deferred();
         var loadURL  = $("#filePath").val().trim();
         var refId;
+        var $waitSection;
+        var $errorSection;
 
         $("#importDataForm").on("keypress.preview", function(event) {
             if (event.which === keyCode.Enter) {
-                $("#preview-apply").click();
+                applyPreviewChange();
                 return false;
             }
         });
@@ -174,10 +185,10 @@ window.DataPreview = (function($, DataPreview) {
             $("#importDataForm").addClass("previewMode");
 
             $previeWrap.removeClass("hidden");
-            var $waitSection = $previeWrap.find(".waitSection")
-                                            .removeClass("hidden");
-            var $errorSection = $previeWrap.find(".errorSection")
-                                            .addClass("hidden");
+            $waitSection = $previeWrap.find(".waitSection")
+                                        .removeClass("hidden");
+            $errorSection = $previeWrap.find(".errorSection")
+                                        .addClass("hidden");
 
             tableName = $("#fileName").val().trim();
             tableName = xcHelper.randName(tableName) ||   // when table name is empty
@@ -204,21 +215,21 @@ window.DataPreview = (function($, DataPreview) {
             })
             .then(function(result) {
                 $waitSection.addClass("hidden");
-
-                if (!result) {
-                    $errorSection.html("Cannot parse the dataset.")
-                                .removeClass("hidden");
-                    deferred.reject({"error": "Cannot parse the dataset."});
-                    return (promiseWrapper(null));
-                }
-
                 refId = gDatasetBrowserResultSetId;
                 // set it to 0 because releaseDatasetPointer() use it to check
                 // if ds's ref count is cleard
                 // preiview table should use it's own clear method
                 gDatasetBrowserResultSetId = 0;
+                // no need for refId as we only need 40 samples
+                XcalarSetFree(refId);
 
-                var kvPairs    = result.kvPair;
+                if (!result) {
+                    cannotParseHandler();
+                    deferred.reject({"error": "Cannot parse the dataset."});
+                    return (promiseWrapper(null));
+                }
+
+                var kvPairs = result.kvPair;
                 var numKvPairs = result.numKvPairs;
 
                 rawData = [];
@@ -250,16 +261,11 @@ window.DataPreview = (function($, DataPreview) {
                     deferred.resolve();
                 } catch(err) {
                     console.error(err, value);
-                    $errorSection.html("Cannot parse the dataset.")
-                                .removeClass("hidden");
-                    // getPreviewTable();
+                    cannotParseHandler();
                     deferred.reject({"error": "Cannot parse the dataset."});
                 }
 
                 $(window).on("resize", resizePreivewTable);
-            })
-            .then(function() {
-                return XcalarSetFree(refId);
             })
             .fail(function(error) {
                 $waitSection.addClass("hidden");
@@ -274,6 +280,12 @@ window.DataPreview = (function($, DataPreview) {
         });
 
         return (deferred.promise());
+
+        function cannotParseHandler() {
+            $errorSection.html("Cannot parse the dataset.")
+                                .removeClass("hidden");
+            errorSuggestHelper(loadURL);
+        }
     };
 
     // load a dataset
@@ -295,6 +307,9 @@ window.DataPreview = (function($, DataPreview) {
             if (dsFormat === "JSON") {
                 return DatastoreForm.load(dsName, "JSON", loadURL,
                                             "", "", false, "", "");
+            } else if (dsFormat === "Excel") {
+                return DatastoreForm.load(dsName, "Excel", loadURL,
+                                            "\t", "\n", hasHeader, "", "");
             } else {
                 return DatastoreForm.load(dsName, "CSV", loadURL,
                                             delimiter, "\n", hasHeader, "", "");
@@ -727,7 +742,7 @@ window.DataPreview = (function($, DataPreview) {
                 var $cells = $previewTable.find("tbody tr:first-child .td");
                 if ($cells.length === 1 && $cells.text() === "[") {
                     html = '<span class="action active jsonLoad">' +
-                                'Load as json dataset' +
+                                'Load as JSON dataset' +
                             '</span>';
                     $content.html(html);
                     return;
@@ -822,6 +837,27 @@ window.DataPreview = (function($, DataPreview) {
         }
 
         $content.html(html);
+    }
+
+    function errorSuggestHelper(loadURL) {
+        var $suggSection = $("#previewSugg");
+        var html = "";
+
+        if (loadURL.endsWith("xlsx")) {
+            html += '<span class="action active excelLoad hasHeader">' +
+                        'Load as EXCEL dataset and promote header' +
+                    '</span>' +
+                    '<span class="action active excelLoad">' +
+                        'Load as EXCEL dataset' +
+                    '</span>';
+        } else {
+            html += '<span class="action hint">' +
+                        'Use UDF to parse the dataset' +
+                    '</span>';
+        }
+
+        $suggSection.show()
+                    .find(".content").html(html);
     }
 
     function headerPromoteDetect() {

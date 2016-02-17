@@ -783,25 +783,25 @@
               data-toggle="tooltip" data-placement="top" data-container="body"></div>
             </section>
           </div>
+          <!-- Waiting Part -->
+          <div class="waitSection hidden">
+            <div class="loadingMsg">Data set is loading</div>
+            <div class="animatedEllipsis">
+              <div>.</div>
+              <div>.</div>
+              <div>.</div>
+            </div>
+          </div>
+          <!-- Error Message Part -->
+          <div class="errorSection loadError hidden"></div>
           <!-- Suggestion Section -->
-          <div id="previewSugg" class="suggestSection">
+          <div id="previewSugg" class="suggestSection loadHidden">
             <div class="title">Suggestion:</div>
-            <div class="content loadHidden"></div>
+            <div class="content"></div>
           </div>
           <!-- Preview -->
           <div class="previewSection">
             <div id="dsPreviewTableWrap" class="datasetTableWrap">
-              <!-- Waiting Part -->
-              <div class="waitSection hidden">
-                <div class="loadingMsg">Data set is loading</div>
-                <div class="animatedEllipsis">
-                  <div>.</div>
-                  <div>.</div>
-                  <div>.</div>
-                </div>
-              </div>
-              <!-- Error Message Part -->
-              <div class="errorSection loadError hidden"></div>
               <!-- Preview Part -->
               <div class="datasetTbodyWrap loadHidden">
                 <table id="previewTable" class="datasetTable dataTable"></table>

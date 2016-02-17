@@ -163,25 +163,26 @@ function dataFormModuleTest() {
             assert.equal($statusBox.find(".message").text(), ErrorTextTStr.NoEmpty);
         });
 
-        it("Should not allow preivew json", function() {
-            $filePath.val("test.json");
-            var isValid = DatastoreForm.__testOnly__.isValidToPreview();
-            expect(isValid).to.be.false;
+        // We allow preview of json and excel now
+        // it("Should not allow preivew json", function() {
+        //     $filePath.val("test.json");
+        //     var isValid = DatastoreForm.__testOnly__.isValidToPreview();
+        //     expect(isValid).to.be.false;
 
-            // check status box
-            assert.isTrue($statusBox.is(":visible"), "see statux box");
-            assert.equal($statusBox.find(".message").text(), ErrorTextTStr.NoPreviewJSON);
-        });
+        //     // check status box
+        //     assert.isTrue($statusBox.is(":visible"), "see statux box");
+        //     assert.equal($statusBox.find(".message").text(), ErrorTextTStr.NoPreviewJSON);
+        // });
 
-        it("Should not allow preivew excel", function() {
-            $filePath.val("test.xlsx");
-            var isValid = DatastoreForm.__testOnly__.isValidToPreview();
-            expect(isValid).to.be.false;
+        // it("Should not allow preivew excel", function() {
+        //     $filePath.val("test.xlsx");
+        //     var isValid = DatastoreForm.__testOnly__.isValidToPreview();
+        //     expect(isValid).to.be.false;
 
-            // check status box
-            assert.isTrue($statusBox.is(":visible"), "see statux box");
-            assert.equal($statusBox.find(".message").text(), ErrorTextTStr.NoPreviewExcel);
-        });
+        //     // check status box
+        //     assert.isTrue($statusBox.is(":visible"), "see statux box");
+        //     assert.equal($statusBox.find(".message").text(), ErrorTextTStr.NoPreviewExcel);
+        // });
 
         it("Should allow other case", function() {
             $filePath.val("test");
