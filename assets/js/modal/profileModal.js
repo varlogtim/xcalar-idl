@@ -1128,7 +1128,9 @@ window.Profile = (function($, Profile, d3) {
                 var intLenth = String(Math.floor(num)).length;
                 // charFit - integer part - dot - % - 1charPadding
                 var fixLen = Math.max(1, charLenToFit - intLenth - 3);
-                fixLen = Math.min(fixLen, 3);
+                // XXX that's for Citi's request to have maxium 2 digits
+                // in decimal, used to be 3, can change back
+                fixLen = Math.min(fixLen, 2);
                 return (num.toFixed(fixLen) + "%");
             } else {
                 num = formatNumber(d[yName]);

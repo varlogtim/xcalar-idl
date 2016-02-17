@@ -647,6 +647,9 @@ window.DS = (function ($, DS) {
             }
 
             toggleDSView(isListView);
+            // refresh tooltip
+            $btn.mouseenter();
+            $btn.mouseover();
         });
 
          // click "Add New Folder" button to add new folder
@@ -788,10 +791,6 @@ window.DS = (function ($, DS) {
 
         var $labels = $allGrids.find(".label:visible");
         truncateDSName($labels, isListView);
-
-        // refresh tooltip
-        $btn.mouseenter();
-        $btn.mouseover();
     }
 
     // Helper function for createDS()
