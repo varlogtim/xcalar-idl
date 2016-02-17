@@ -228,7 +228,7 @@ window.OperationsModal = (function($, OperationsModal) {
 
                 updateDescription();
             },
-            'mousedown': function(event) {
+            'mousedown': function() {
                 $menus.hide();
                 var $activeInput = $(this);
                 // close other input's open lists when active input is clicked
@@ -1407,7 +1407,7 @@ window.OperationsModal = (function($, OperationsModal) {
                 $nameInput = $argInputs.eq(args.length - 1);
                 if (isNewCol && colName !== "" &&
                     ($nameInput.val().trim() === colName)) {
-                    isPassing = true; // input name matches new column name 
+                    isPassing = true; // input name matches new column name
                     // which is ok
                 } else {
                     isPassing = !ColManager.checkColDup($nameInput, null,
@@ -1780,7 +1780,7 @@ window.OperationsModal = (function($, OperationsModal) {
     }
 
     function checkArgTypes(arg, typeid) {
-        var types   = parseType(typeid);
+        var types = parseType(typeid);
         var argType = "string";
         var tmpArg;
         var isBoolean = false;
@@ -1900,6 +1900,7 @@ window.OperationsModal = (function($, OperationsModal) {
     function parseType(typeId) {
         var types = [];
         var typeShift;
+        var supportInteger = false;
 
         // string
         typeShift = 1 << DfFieldTypeT.DfString;
@@ -1914,6 +1915,7 @@ window.OperationsModal = (function($, OperationsModal) {
                     (1 << DfFieldTypeT.DfUInt64);
         if ((typeId & typeShift) > 0) {
             types.push("integer");
+            supportInteger = true;
         }
 
         // float
@@ -1922,6 +1924,13 @@ window.OperationsModal = (function($, OperationsModal) {
                     (1 << DfFieldTypeT.DfFloat64);
         if ((typeId & typeShift) > 0) {
             types.push("float");
+
+            // XXX we can not differenate float and integer,
+            // so now just let type support to include integer
+            // if it does't.
+            if (!supportInteger) {
+                types.push("integer");
+            }
         }
 
         // boolean
@@ -2076,7 +2085,7 @@ window.OperationsModal = (function($, OperationsModal) {
         val = val.trim();
         val = val.replace(/"([^"]+)"/g, ''); // remove quotes and text between quotes
         var valLen = val.length;
-        var isValidFunc = false;
+        // var isValidFunc = false;
 
         if (valLen < 4) { // must be at least this long: a(b)
             return false;
@@ -2093,7 +2102,7 @@ window.OperationsModal = (function($, OperationsModal) {
                 return false;
             }
         } else {
-           return false;
+            return false;
         }
         return false;
     }
@@ -2101,7 +2110,7 @@ window.OperationsModal = (function($, OperationsModal) {
     function checkHasBalancedParams(val) {
         var valLen = val.length;
         var parenCount = 0;
-        var valid = true;
+        // var valid = true;
         for (var i = 0; i < valLen; i++) {
             if (val[i] === "(") {
                 parenCount++;
