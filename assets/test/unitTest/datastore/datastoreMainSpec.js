@@ -3,6 +3,7 @@ describe('Datastore Test', function() {
     describe('Datastore Module Test', datasetModuleTest);
     describe('Dsobj Test', dsObjTest);
     describe('Data Form Module Test', dataFormModuleTest);
+    describe('Data Preview Module Test', dataPreviewModuleTest);
     describe('Data Cart Module Test', dataCartModuleTest);
 });
 

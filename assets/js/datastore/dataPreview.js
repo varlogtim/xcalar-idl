@@ -2,7 +2,10 @@
  * Module for preview table
  */
 window.DataPreview = (function($, DataPreview) {
+    var $previeWrap = $("#dsPreviewWrap");
     var $previewTable = $("#previewTable");
+    var $highLightBtn = $("#preview-highlight");
+    var $rmHightLightBtn = $("#preview-rmHightlight");
 
     var tableName = null;
     var rawData   = null;
@@ -14,7 +17,7 @@ window.DataPreview = (function($, DataPreview) {
     var rowsToFetch = 40; // constant
 
     var promoteHeader =
-            '<div class="header"' +
+            '<div class="header" ' +
                 'title="Undo Promote Header" ' +
                 'data-toggle="tooltip" ' +
                 'data-placement="top" data-container="body">' +
@@ -31,8 +34,6 @@ window.DataPreview = (function($, DataPreview) {
                     '<div class="divider"></div>' +
                 '</div>' +
             '</td>';
-
-    var $previeWrap = $("#dsPreviewWrap");
 
     DataPreview.setup = function() {
         // promot header
@@ -53,7 +54,7 @@ window.DataPreview = (function($, DataPreview) {
                 selection = document.selection.createRange();
             }
 
-            highlightDelimiter(selection.toString());
+            applyHighlight(selection.toString());
         });
 
         $("#preview-apply").click(applyPreviewChange);
@@ -68,32 +69,20 @@ window.DataPreview = (function($, DataPreview) {
         });
 
         // hightlight and remove highlight button
-        var $highLightBtn    = $("#preview-highlight");
-        var $rmHightLightBtn = $("#preview-rmHightlight");
-
         $highLightBtn.click(function() {
             if (!$highLightBtn.hasClass("active") || highlighter === "") {
                 return;
             }
-            delimiter = highlighter;
-            highlighter = "";
-
-            applyDelim();
+            applyDelim(highlighter);
         });
 
         $rmHightLightBtn.click(function() {
             if (!$rmHightLightBtn.hasClass("active") || delimiter !== "") {
                 // case of remove delimiter
-                delimiter = "";
-
-                $highLightBtn.removeClass("active");
-                $rmHightLightBtn.removeClass("active")
-                        .attr("data-original-title", "Remove highlights");
-                getPreviewTable();
+                applyDelim("");
             } else {
                 // case of remove highlighter
-                highlighter = "";
-                toggleHighLight();
+                applyHighlight("");
             }
         });
 
@@ -120,21 +109,15 @@ window.DataPreview = (function($, DataPreview) {
         });
 
         $suggSection.on("click", ".commaDelim", function() {
-            delimiter = ",";
-            highlighter = "";
-            applyDelim();
+            applyDelim(",");
         });
 
         $suggSection.on("click", ".tabDelim", function() {
-            delimiter = "\t";
-            highlighter = "";
-            applyDelim();
+            applyDelim("\t");
         });
 
         $suggSection.on("click", ".pipeDelim", function() {
-            delimiter = "|";
-            highlighter = "";
-            applyDelim();
+            applyDelim("|");
         });
 
         $suggSection.on("click", ".jsonLoad", function() {
@@ -154,13 +137,6 @@ window.DataPreview = (function($, DataPreview) {
         $suggSection.on("click", ".apply-all", function() {
             applyPreviewChange();
         });
-
-        function applyDelim() {
-            $highLightBtn.removeClass("active");
-            $rmHightLightBtn.addClass("active")
-                            .attr("data-original-title", "Remove Delimiter");
-            getPreviewTable();
-        }
     };
 
     DataPreview.show = function() {
@@ -343,8 +319,7 @@ window.DataPreview = (function($, DataPreview) {
         hasHeader = false;
         delimiter = "";
         dsFormat = "CSV";
-        highlighter = "";
-        toggleHighLight();
+        applyHighlight(""); // remove highlighter
 
         if (tableName != null) {
             var sqlOptions = {
@@ -427,7 +402,7 @@ window.DataPreview = (function($, DataPreview) {
     }
 
     function getPreviewTable() {
-        var $tbody = $(getTbodyHTML());
+        var $tbody = $(getTbodyHTML(rawData));
         var $trs = $tbody.find("tr");
         var maxTdLen = 0;
         // find the length of td and fill up empty space
@@ -447,7 +422,7 @@ window.DataPreview = (function($, DataPreview) {
             $tr.append(trs);
         });
 
-        var $tHead = $(getTheadHTML(maxTdLen));
+        var $tHead = $(getTheadHTML(rawData, maxTdLen));
         var $tHrow = $tHead.find("tr");
         var thLen  = $tHead.find("th").length;
         var ths = "";
@@ -536,68 +511,87 @@ window.DataPreview = (function($, DataPreview) {
         resizePreivewTable();
     }
 
-    function highlightDelimiter(str) {
-        highlighter = str;
-        xcHelper.removeSelectionRange();
-        toggleHighLight();
+    function applyDelim(strToDelimit) {
+        delimiter = strToDelimit;
+        highlighter = "";
+
+        $highLightBtn.removeClass("active");
+
+        if (delimiter === "") {
+            // this is the case trigger from remove delimiter
+            $rmHightLightBtn.removeClass("active")
+                            .attr("title", "Remove highlights")
+                            .attr("data-original-title", "Remove highlights");
+        } else {
+            $rmHightLightBtn.addClass("active")
+                            .attr("title", "Remove Delimiter")
+                            .attr("data-original-title", "Remove Delimiter");
+        }
+        getPreviewTable();
     }
 
-    function toggleHighLight() {
+    function applyHighlight(str) {
         $previewTable.find(".highlight").removeClass("highlight");
 
-        var $highLightBtn    = $("#preview-highlight");
-        var $rmHightLightBtn = $("#preview-rmHightlight");
+        highlighter = str;
 
         if (highlighter === "") {
-            // when remove highlight
+            // when no delimiter to highlight
             $highLightBtn.removeClass("active");
             $rmHightLightBtn.removeClass("active");
         } else {
-            // valid highLighted char
+            xcHelper.removeSelectionRange();
+
+            // when has valid delimiter to highlight
             $highLightBtn.addClass("active");
             $rmHightLightBtn.addClass("active");
 
-            var dels   = highlighter.split("");
-            var delLen = dels.length;
-
             var $cells = $previewTable.find("thead .text, tbody .cell");
-            $cells.each(function() {
-                var $tds = $(this).find(".td");
-                var len = $tds.length;
-
-                for (var i = 0; i < len; i++) {
-                    var j = 0;
-                    while (j < delLen && i + j < len) {
-                        if ($tds.eq(i + j).text() === dels[j]) {
-                            ++j;
-                        } else {
-                            break;
-                        }
-                    }
-
-                    if (j === delLen && i + j <= len) {
-                        for (j = 0; j < delLen; j++) {
-                            $tds.eq(i + j).addClass("highlight");
-                        }
-                    }
-                }
-            });
+            highlightHelper($cells, highlighter);
         }
 
         suggestHelper();
     }
 
-    function getTheadHTML(tdLen) {
+    function highlightHelper($cells, strToHighlight) {
+        var dels = strToHighlight.split("");
+        var delLen = dels.length;
+
+        $cells.each(function() {
+            var $tds = $(this).find(".td");
+            var len = $tds.length;
+
+            for (var i = 0; i < len; i++) {
+                var j = 0;
+                while (j < delLen && i + j < len) {
+                    if ($tds.eq(i + j).text() === dels[j]) {
+                        ++j;
+                    } else {
+                        break;
+                    }
+                }
+
+                if (j === delLen && i + j <= len) {
+                    for (j = 0; j < delLen; j++) {
+                        $tds.eq(i + j).addClass("highlight");
+                    }
+                }
+            }
+        });
+    }
+
+    function getTheadHTML(datas, tdLen) {
         var thead = "<thead><tr>";
         var colGrab = (delimiter === "") ? "" : '<div class="colGrab" ' +
                                             'data-sizetoheader="true"></div>';
 
+        // when has header
         if (hasHeader) {
             thead +=
                 '<th class="undo-promote">' +
                     promoteHeader +
                 '</th>' +
-                tdHelper(rawData[0], true);
+                parseTdHelper(datas[0], delimiter, true);
         } else {
             thead +=
                '<th>' +
@@ -615,16 +609,16 @@ window.DataPreview = (function($, DataPreview) {
             }
         }
 
-        thead += "</thead></tr>";
+        thead += "</tr></thead>";
 
         return (thead);
     }
 
-    function getTbodyHTML() {
+    function getTbodyHTML(datas) {
         var tbody = "<tbody>";
-        var i  = hasHeader ? 1 : 0;
+        var i = hasHeader ? 1 : 0;
 
-        for (j = 0, len = rawData.length; i < len; i++, j++) {
+        for (j = 0, len = datas.length; i < len; i++, j++) {
             tbody += '<tr>';
 
             if (i === 0) {
@@ -637,7 +631,7 @@ window.DataPreview = (function($, DataPreview) {
                     '</td>';
             }
 
-            tbody += tdHelper(rawData[i]) + '</tr>';
+            tbody += parseTdHelper(datas[i], delimiter) + '</tr>';
         }
 
         tbody += "</tbody>";
@@ -645,10 +639,10 @@ window.DataPreview = (function($, DataPreview) {
         return (tbody);
     }
 
-    function tdHelper(data, isTh) {
+    function parseTdHelper(data, strToDelimit, isTh) {
         var hasQuote = false;
         var hasBackSlash = false;
-        var dels = delimiter.split("");
+        var dels = strToDelimit.split("");
         var delLen = dels.length;
 
         var hasDelimiter = (delLen !== 0);
@@ -685,9 +679,9 @@ window.DataPreview = (function($, DataPreview) {
                                 '<th>' +
                                     '<div class="header">' +
                                         colGrab +
-                                        '<div class="text">';
+                                        '<div class="text cell">';
                     } else {
-                        html += '</td><td>';
+                        html += '</td><td class="cell">';
                     }
 
                     i = i + delLen;
@@ -940,6 +934,40 @@ window.DataPreview = (function($, DataPreview) {
             return true;
         }
     }
+
+    /* Unit Test Only */
+    if (window.unitTestMode) {
+        DataPreview.__testOnly__ = {};
+        DataPreview.__testOnly__.getPreviewTable = getPreviewTable;
+        DataPreview.__testOnly__.parseTdHelper = parseTdHelper;
+        DataPreview.__testOnly__.getTbodyHTML = getTbodyHTML;
+        DataPreview.__testOnly__.getTheadHTML = getTheadHTML;
+        DataPreview.__testOnly__.highlightHelper = highlightHelper;
+        DataPreview.__testOnly__.suggestHelper = suggestHelper;
+        DataPreview.__testOnly__.errorSuggestHelper = errorSuggestHelper;
+        DataPreview.__testOnly__.headerPromoteDetect = headerPromoteDetect;
+        DataPreview.__testOnly__.applyHighlight = applyHighlight;
+        DataPreview.__testOnly__.applyDelim = applyDelim;
+        DataPreview.__testOnly__.togglePromote = togglePromote;
+        DataPreview.__testOnly__.toggleMinimize = toggleMinimize;
+        DataPreview.__testOnly__.clearAll = clearAll;
+
+        DataPreview.__testOnly__.get = function() {
+            return {
+                "delimiter"  : delimiter,
+                "hasHeader"  : hasHeader,
+                "highlighter": highlighter
+            };
+        };
+
+        DataPreview.__testOnly__.set = function(newDelim, newHeader, newHighlight, newData) {
+            delimiter = newDelim || "";
+            hasHeader = newHeader || false;
+            highlighter = newHighlight || "";
+            rawData = newData || null;
+        };
+    }
+    /* End Of Unit Test Only */
 
     return (DataPreview);
 }(jQuery, {}));
