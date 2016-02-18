@@ -422,7 +422,7 @@ input {
     cursor: default;
 
     th {
-        .size(@height: 40px);
+        .size(@height: @height-colHeaderOuter);
         background-color: @color-background-tableBorders;
         border: 5px solid @color-background-tableBorders;
         border-left: none;
@@ -431,7 +431,7 @@ input {
     }
 
     td {
-        .size(@height: 30px);
+        .size(@height: @height-tableCell);
         .font(@size: 11px, @line-height: 15px, @family: @font-code);
         overflow: hidden;
         padding: 2px;
@@ -555,7 +555,7 @@ input {
         .noSelection;
 
         &::after {
-            .position(absolute, @top: 34px, @left: 0);
+            .position(absolute, @top: @height-colHeader + 4px, @left: 0);
             .size(@width: ~"calc(100% + 5px)", @height: 1px);
             content: "";
             display: block;
@@ -600,7 +600,7 @@ input {
     .editableHead {
         .position(relative);
         .size(@width: ~"calc(100% + 2px)");
-        padding: 0px 4px;
+        padding: 0px 0px 0px 3px;
         background-color: transparent; 
         border: none;
         display: block;

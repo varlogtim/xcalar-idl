@@ -11,11 +11,11 @@ window.ColManager = (function($, ColManager) {
         var width;
         var winWidth = $(window).width();
         if (winWidth > 1400) {
-            width = 700;
-        } else if (winWidth > 1100) {
             width = 600;
-        } else {
+        } else if (winWidth > 1100) {
             width = 500;
+        } else {
+            width = 400;
         }
         var progCol = ColManager.newCol({
             "name"   : "DATA",

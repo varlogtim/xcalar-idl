@@ -254,7 +254,7 @@
         right: -3px;
         bottom: -4px;
         height: 34px;
-        width: 28px;
+        width: 26px;
         border: none;
 
         .innerBox {
@@ -504,27 +504,28 @@
 
 // used for datasetTableWrap in datastore.less
 .typeIcon() {
-    .typeIconCSS(@type: "Unknown", @width: 10px, @height: 14px, @x: 0, @y: 0) {
+    .typeIconCSS(@type: "Unknown", @width: 9px, @height: 13px, @x: 2px, @y: 0) {
         @url: "../../images/columnIcons/type-@{type}.png";
         .type.icon {
             .background(@url, @width, @height, @pX: @x, @pY: @y);
-            .position(relative);
-            .size(19px, 22px);
+            .position(relative, @left: -2px, @top: 2px);
+            .size(15px, 22px);
         }
     }
 
     .typeIconCSS(); // default value is Unknown
 
     &.type-array {
-        .typeIconCSS("Array", 12px, 14px, 1px, 0);
+        .typeIconCSS("Array", 11px, 13px, 1px, 0);
     }
     &.type-boolean {
-        .typeIconCSS("Boolean", 20px, 18px);
+        .typeIconCSS("Boolean", 16px, 17px, 0px);
         .icon {
-            left: -3px;
-            top: -3px;
+            left: -1px !important;
+            top: 0px !important;
             z-index: 1;
-            
+            width: 16px !important;
+            margin-left: -3px;
         }
 
         .flex-left {
@@ -534,34 +535,34 @@
                 position: absolute;
                 width: 0;
                 height: 0;
-                border-top: 30px solid @color-background-lightGray;
-                border-right: 24px solid transparent;
+                border-top: @height-colHeader solid @color-background-lightGray;
+                border-right: 20px solid transparent;
                 top: 0;
                 left: 0;
             }
         }
     }
     &.type-mixed {
-        .typeIconCSS("Mixed", 15px, 15px);
+        .typeIconCSS("Mixed", 14px, 14px, 0px);
     }
     &.type-integer {
-        .typeIconCSS("Number", 10px, 12px, 2px, 1px);
+        .typeIconCSS("Number", 9px, 11px, 3px, 1px);
     }
     &.type-float {
-        .typeIconCSS("Number", 10px, 12px, 2px, 1px);
+        .typeIconCSS("Number", 9px, 11px, 3px, 1px);
     }
     &.type-object {
-        .typeIconCSS("Object", 14px, 14px);
+        .typeIconCSS("Object", 13px, 13px, 0px);
     }
     &.type-string {
-        .typeIconCSS("String", 16px, 10px, 0, 2px);
+        .typeIconCSS("String", 15px, 9px, 1px, 2px);
         .icon {
             margin-left: -2px;
-            width: 21px !important;
+            width: 17px !important;
         }
     }
-    &.type-unknown, &.type-undefined {
-        .typeIconCSS("Unknown", 10px, 14px, 2px, 0px);
+    &.type-unknown, &.type-undefined, &.newColumn {
+        .typeIconCSS("Unknown", 9px, 13px, 2px, 0px);
     }
 }
 
@@ -578,6 +579,10 @@
         width: 100%;
         outline: none;
         text-overflow: ellipsis;
+        padding-bottom: 2px;
+    }
+    input {
+        height: @height-colHeader;
     }
 }
 

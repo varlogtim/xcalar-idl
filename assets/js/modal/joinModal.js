@@ -931,7 +931,7 @@ window.JoinModal = (function($, JoinModal) {
         var $colPadding = $th.find(".colPadding");
         var id = isLeft ? "#leftJoin" : "#rightJoin";
         $colPadding.tooltip({
-            "title"    : "Cann't join " + getType($th),
+            "title"    : "Cannot join " + getType($th),
             "placement": "top",
             "animation": "true",
             "container": id,

@@ -9,7 +9,7 @@ function generateFirstVisibleRowNum(rowScrollerMove) {
     }
     var tableLeft = $table.offset().left;
     var tdXCoor = Math.max(0, tableLeft);
-    var tdYCoor = 168; //top rows's distance from top of window
+    var tdYCoor = 164; //top rows's distance from top of window
     var firstEl = document.elementFromPoint(tdXCoor, tdYCoor);
     var firstId = $(firstEl).closest('tr').attr('class');
 
@@ -165,7 +165,8 @@ function gResrowMouseDown(el, event) {
                 '</style>';
     $(document.head).append(style);
     $('body').addClass('hideScroll');
-    resrow.actualTd.closest('tr').addClass('dragging changedHeight');
+    resrow.targetTd.closest('tr').addClass('changedHeight');
+    resrow.actualTd.closest('tr').addClass('dragging');
     resrow.$divs.css('max-height', resrow.startHeight - 4);
     resrow.$divs.eq(0).css('max-height', resrow.startHeight);
     resrow.targetTd.outerHeight(resrow.startHeight);
@@ -402,7 +403,7 @@ function createTransparentDragDropCol(pageX) {
     dragObj.fauxCol = $('#fauxCol');
     var $fauxTable = $('#fauxTable');
     
-    var rowHeight = 30;
+    var rowHeight = 25;
     // turn this into binary search later
     var topPx = $table.find('.header').offset().top - rowHeight;
     var topRowIndex = -1;
@@ -462,7 +463,7 @@ function createTransparentDragDropCol(pageX) {
     var firstRowOffset = $(topRowEl).offset().top - topPx - rowHeight;
     $fauxTable.css('margin-top', firstRowOffset);
     $fauxTable.find('tr:first-child').css({'margin-top':
-            -($fauxTable.find('tr:first').outerHeight() + firstRowOffset - 5)});
+            -($fauxTable.find('tr:first').outerHeight() + firstRowOffset - 1)});
 }
 
 function createDropTargets(dropTargetIndex, swappedColIndex) {
@@ -557,9 +558,9 @@ function dragdropSwapColumns(el) {
     }
 
     // HACK: weird hack hide show or else .header won't reposition itself
-    dragObj.$table.find('.header').css('height', '39px');
+    dragObj.$table.find('.header').css('height', '35px');
     setTimeout(function() {
-        dragObj.$table.find('.header').css('height', '40px');
+        dragObj.$table.find('.header').css('height', '36px');
     }, 0);
     
     var left = dragObj.element.position().left;
@@ -578,7 +579,7 @@ function getTextWidth(el, val, options) {
             "fontFamily": "'Open Sans', 'Trebuchet MS', Arial, sans-serif",
             "fontSize": "13px",
             "fontWeight": "600",
-            "padding": 58
+            "padding": 48
         }; 
     } else {
         defaultStyle = {padding: 0};
@@ -671,7 +672,7 @@ function getWidestTdWidth(el, options) {
         } else {
             $th = $table.find('.col' + id + ' .editableHead');
         }
-        var extraPadding = 58;
+        var extraPadding = 48;
         if (options.datastore) {
             extraPadding += 4;
         }
@@ -1701,10 +1702,9 @@ function dropdownClick($el, options) {
         } else {
             $menu.data('columns', []);
         }
-        menuHeight = $(window).height() - 152;
+        menuHeight = $(window).height() - 150;
         $menu.css('max-height', menuHeight);
         $menu.children('ul').css('max-height', menuHeight);
-        // $menu.children('ul').css('max-height', $(window).height() - 152);
 
         // Use CSS to show the options
     } else if (options.type === "tdDropdown") {

@@ -7,13 +7,13 @@
 
 // =================================== Globals =================================
 var gNumEntriesPerPage = 20;
-var gMaxEntriesPerPage = 50;
+var gMaxEntriesPerPage = 60;
 var gNewCellWidth = 125;
 var gMouseStatus = null;
 var gMouseEvents = new MouseEvents();
 var gDragObj = {};
 var gRescol = {
-    "minCellHeight": 30,
+    "minCellHeight": 25,
     "cellMinWidth" : 15,
     "clicks"       : 0,
     "delay"        : 500,

@@ -1317,7 +1317,7 @@ window.TblManager = (function($, TblManager) {
             }
 
             if (isRightClick) {
-                options.mouseCoors = {"x": event.pageX, "y": $el.offset().top + 25};
+                options.mouseCoors = {"x": event.pageX, "y": $el.offset().top + 34};
             }
 
             dropdownClick($el, options);
