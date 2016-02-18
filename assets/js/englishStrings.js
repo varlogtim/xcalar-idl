@@ -107,9 +107,11 @@ ErrorTextTStr = {
 
     'ParamInUse': 'Cannot delete, this parameter is in use.',
 
-    'NoPreviewJSON': 'Cannot preivew JSON files.',
+    'NoPreviewJSON': 'Cannot preivew JSON files, ' +
+                     'please import directly without previewing.',
 
-    'NoPreviewExcel': 'Cannot preview Excel files.',
+    'NoPreviewExcel': 'Cannot preview Excel files, ' +
+                      'please import directly without previewing.',
 
     'MVFolderConflict': 'Cannot move, name conflicts with files in target folder',
 
