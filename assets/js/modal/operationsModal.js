@@ -36,9 +36,32 @@ window.OperationsModal = (function($, OperationsModal) {
 
         var $autocompleteInputs = $operationsModal.find('.autocomplete');
         $autocompleteInputs.on({
+            'mousedown': function(event) {
+                gMouseEvents.setMouseDownTarget($(this));
+                event.stopPropagation();
+                var $list = $(this).siblings('.list');
+                if (!$list.is(':visible')) {
+                    hideDropdowns();
+                }
+            },
             'click': function() {
-                hideDropdowns();
-                suggest($(this));
+                var $list = $(this).siblings('.list');
+
+                if (!$list.is(':visible')) {
+                    hideDropdowns();
+                    $operationsModal.find('li.highlighted')
+                                    .removeClass('highlighted');
+                    // show all list options when use icon to trigger
+                    $list.show().find('li').sort(sortHTML)
+                                           .prependTo($list.children('ul'))
+                                           .show();
+
+                    if ($list.attr('id') === "categoryMenu") {
+                        categoryListScroller.showOrHideScrollers();
+                    } else {
+                        functionsListScroller.showOrHideScrollers();
+                    }
+                } 
             },
             'input': function() {
                 suggest($(this));
@@ -47,7 +70,6 @@ window.OperationsModal = (function($, OperationsModal) {
                 if (!allowInputChange) {
                     return;
                 }
-
                 var $input = $(this);
                 var inputNum = $autocompleteInputs.index($input);
 
@@ -102,12 +124,22 @@ window.OperationsModal = (function($, OperationsModal) {
                 $list.show().find('li').sort(sortHTML)
                                        .prependTo($list.children('ul'))
                                        .show();
-
+                $list.siblings('input').focus();
                 if ($list.attr('id') === "categoryMenu") {
                     categoryListScroller.showOrHideScrollers();
                 } else {
                     functionsListScroller.showOrHideScrollers();
                 }
+            }
+        });
+
+        $operationsModal.find('.modalTopMain .dropdown').on('mousedown',
+            function() {
+            var $list = $(this).siblings('.list');
+            if ($list.is(':visible')) {
+                allowInputChange = false;
+            } else {
+                allowInputChange = true;
             }
         });
 
@@ -169,7 +201,6 @@ window.OperationsModal = (function($, OperationsModal) {
                 var $input = $(this);
                 var $list = $input.siblings('.openList');
                 if (event.which === keyCode.Down && $list.length) {
-
                     
                     $operationsModal.find('li.highlighted')
                                     .removeClass('highlighted');
