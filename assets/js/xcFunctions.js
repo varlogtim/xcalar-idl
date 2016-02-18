@@ -382,6 +382,9 @@ window.xcFunction = (function($, xcFunction) {
         });
 
         xcHelper.lockTable(tableId);
+        var startTime = (new Date()).getTime();
+        var focusOnTable = false;
+        var startScrollPosition = $('#mainFrame').scrollLeft();
 
         getGroupbyIndexedTable()
         .then(function(resTable, resCol) {
@@ -422,9 +425,22 @@ window.xcFunction = (function($, xcFunction) {
         .then(function(nTableName) {
             finalTableName = nTableName;
             finalTableId = xcHelper.getTableId(finalTableName);
+            var timeAllowed = 1000; // 
+            var endTime = (new Date()).getTime();
+            var elapsedTime = endTime - startTime;
+            var timeSinceLastClick = endTime -
+                                     gMouseEvents.getLastMouseDownTime();
+            // we'll focus on table if its been less than timeAllowed OR
+            // if the user hasn't clicked or scrolled
+            if (elapsedTime < timeAllowed ||
+                (timeSinceLastClick >= elapsedTime &&
+                    ($('#mainFrame').scrollLeft() === startScrollPosition))) {
+                focusOnTable = true;
+            }
+            var options = {"focusWorkspace": focusOnTable};
 
             return TblManager.refreshTable([finalTableName], finalTableCols,
-                                            null, curWS);
+                                            null, curWS, options);
         })
         .then(function() {
             SQL.add("Group By", {
@@ -441,7 +457,7 @@ window.xcFunction = (function($, xcFunction) {
 
             xcHelper.unlockTable(tableId);
             commitToStorage();
-            StatusMessage.success(msgId, false, finalTableId);
+            StatusMessage.success(msgId, focusOnTable, finalTableId);
             deferred.resolve();
         })
         .fail(function(error) {

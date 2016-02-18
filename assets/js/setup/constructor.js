@@ -31,9 +31,11 @@ function SettingInfo(options) {
 function MouseEvents() {
     var lastMouseDownTarget = $(document);
     var lastClickTarget = lastMouseDownTarget;
+    var lastTime = (new Date()).getTime();
 
     this.setMouseDownTarget = function($element) {
         lastMouseDownTarget = $element;
+        lastTime = (new Date()).getTime();
     };
 
     this.setClickTarget = function($element) {
@@ -46,6 +48,10 @@ function MouseEvents() {
 
     this.getLastClickTarget = function() {
         return lastClickTarget;
+    };
+
+    this.getLastMouseDownTime = function() {
+        return lastTime;
     };
 }
 

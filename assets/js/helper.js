@@ -1738,7 +1738,7 @@ window.xcHelper = (function($, xcHelper) {
         } else {
             $('#mainFrame').scrollLeft(scrollPosition);
             moveFirstColumn();
-        }  
+        }
     };
 
     xcHelper.isTableInScreen = function(tableId) {

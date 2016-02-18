@@ -317,8 +317,8 @@ window.OperationsModal = (function($, OperationsModal) {
 
             var isHide = true;
             toggleModalDisplay(isHide, time);
-            
-            $(document).mousedown(); // hides any error boxes;
+            StatusBox.forceHide();// hides any error boxes;
+            $('.tooltip').hide();
         });
 
         $operationsModal.on('click', function() {

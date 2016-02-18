@@ -445,7 +445,6 @@ window.StatusMessage = (function($, StatusMessage) {
                 // scroll Listener
                 var scrollTimer;
                 $('#mainFrame').on('scroll.' + msgId, function() {
-                    console.log(msgId);
                     clearTimeout(scrollTimer);
                     scrollTimer = setTimeout(removePopUpIfScrolledToTable, 100);
                 });
