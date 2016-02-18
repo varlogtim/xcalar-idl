@@ -366,7 +366,7 @@ window.JoinModal = (function($, JoinModal) {
             });
 
             var $th = $table.find("th").filter(function() {
-                return $(this).find(".columnTab").text() === colName;
+                return $(this).find(".columnTab .text").text() === colName;
             });
 
             if ($th.length > 0) {
@@ -455,7 +455,7 @@ window.JoinModal = (function($, JoinModal) {
 
     function getColNum($table, colName) {
         var $colTab = $table.find(".columnTab").filter(function() {
-            return ($(this).text() === colName);
+            return ($(this).find(".text").text() === colName);
         });
 
         var colNum = xcHelper.parseColNum($colTab.closest("th")) - 1;
@@ -626,7 +626,7 @@ window.JoinModal = (function($, JoinModal) {
                     continue;
                 }
 
-                var type    = tableCols[t].type;
+                var type = tableCols[t].type;
                 var thClass = "col" + (t + 1) + " type-" + type;
 
                 if (type === "object" || type === "undefined") {
@@ -635,11 +635,18 @@ window.JoinModal = (function($, JoinModal) {
 
                 colHtml += '<th class="' + thClass + '">' +
                                 '<div class="colPadding"></div>' +
-                                '<div title="' + colName + '" ' +
-                                'data-container="body" ' +
-                                'data-toggle="tooltip" data-placement="top" ' +
-                                'class="columnTab textOverflow tooltipOverflow">' +
-                                    colName +
+                                '<div class="columnTab">' +
+                                    '<div class="iconWrap">' +
+                                        '<span class="icon"></span>' +
+                                    '</div>' +
+                                    '<div title="' + colName + '"' +
+                                    ' data-container="body"' +
+                                    ' data-toggle="tooltip"' +
+                                    ' data-placement="top"' +
+                                    ' class="text textOverflowOneLine' +
+                                    ' tooltipOverflow">' +
+                                        colName +
+                                    '</div>' +
                                 '</div>' +
                             '</th>';
             }
@@ -865,7 +872,7 @@ window.JoinModal = (function($, JoinModal) {
         ctx.fillRect(0, 0, w, h);
 
         ctx.fillStyle = "#6e6e6e";
-        var text = $tab.text();
+        var text = $tab.find(".text").text();
 
         var textW = ctx.measureText(text).width;
         var charLen = text.length;
@@ -906,28 +913,7 @@ window.JoinModal = (function($, JoinModal) {
     }
 
     function showErroTooltip($th, isLeft) {
-        // if ($th.hasClass('clicked')) {
-        //     return;
-        // }
-        // $th.addClass("clicked");
-        // var $div = $th.find("div");
-        // $div.attr("data-toggle", "tooltip")
-        //     .attr("data-placement", "top")
-        //     .attr("data-original-title", "can't join this type")
-        //     .attr("data-container", "body");
-        // $div.mouseover();
-        // setTimeout(function(){
-        //     $div.mouseout();
-        //     $div.removeAttr("data-toggle")
-        //         .removeAttr("data-placement")
-        //         .removeAttr("data-original-title")
-        //         .removeAttr("data-container");
-        //     // the reason for this time out is it will created more
-        //     // than one tooltip if you click on th too quick
-        //     setTimeout(function() {
-        //         $th.removeClass("clicked");
-        //     }, 100);
-        // }, 2000);
+        $(".tooltip").hide();
         var $colPadding = $th.find(".colPadding");
         var id = isLeft ? "#leftJoin" : "#rightJoin";
         $colPadding.tooltip({
@@ -948,7 +934,7 @@ window.JoinModal = (function($, JoinModal) {
     function suggestJoinKey(tableId, $th, $suggSection, suggTableId) {
         var type     = getType($th);
         var colNum   = xcHelper.parseColNum($th);
-        var colName  = $th.find(".columnTab").text();
+        var colName  = $th.find(".columnTab .text").text();
         var context1 = contextCheck($th.closest('table'), colNum, type);
 
         var $thToClick;
@@ -978,7 +964,7 @@ window.JoinModal = (function($, JoinModal) {
                 if (getType($curTh) === type) {
                     var context2 = contextCheck($suggTable, index + 1, type);
 
-                    var curColName = $curTh.find(".columnTab").text();
+                    var curColName = $curTh.find(".columnTab .text").text();
                     var dist = getTitleDistance(colName, curColName);
                     var score = getScore(context1, context2, dist, type);
 

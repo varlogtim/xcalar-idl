@@ -159,6 +159,13 @@ window.xcHelper = (function($, xcHelper) {
         var strLen = str.length;
         maxLen = Math.min(maxLen, strLen);
 
+        // back to initial value first
+        if ($ele.is("input")) {
+            $ele.val(str);
+        } else {
+            $ele.text(str);
+        }
+
         if (isMultiLine) {
             var scrollWidth = ele.scrollWidth;
             var widthNotOverflow = ele.offsetWidth + 1;
