@@ -154,6 +154,50 @@ window.xcHelper = (function($, xcHelper) {
         return (res);
     };
 
+    xcHelper.middleEllipsis = function(str, $ele, maxLen, isMultiLine) {
+        var ele = $ele.get(0);
+        var strLen = str.length;
+        maxLen = Math.min(maxLen, strLen);
+
+        if (isMultiLine) {
+            var scrollWidth = ele.scrollWidth;
+            var widthNotOverflow = ele.offsetWidth + 1;
+
+            while (scrollWidth > widthNotOverflow && maxLen > 5) {
+                ellipsisHelper();
+                scrollWidth = ele.scrollWidth;
+                maxLen--;
+            }
+        } else {
+            var scrollHeight = ele.scrollHeight;
+            var heightNotOverFlow = ele.offsetHeight + 1;
+
+            while (scrollHeight > heightNotOverFlow && maxLen > 5) {
+                ellipsisHelper();
+                scrollHeight = ele.scrollHeight;
+                maxLen--;
+            }
+        }
+
+        function ellipsisHelper() {
+            var ellipsisStr;
+
+            if (strLen <= maxLen) {
+                ellipsisStr = str;
+            } else {
+                // always show the last three characters
+                ellipsisStr = str.substring(0, maxLen - 4) + '...' +
+                                str.substring(strLen - 3);
+            }
+
+            if ($ele.is("input")) {
+                $ele.val(ellipsisStr);
+            } else {
+                $ele.text(ellipsisStr);
+            }
+        }
+    };
+
     xcHelper.mapColGenerate = function(colNum, colName, mapStr, tableCols,
                                        options) {
         options = options || {};

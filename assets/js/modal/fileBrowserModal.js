@@ -316,6 +316,7 @@ window.FileBrowser = (function($, FileBrowser) {
         }
 
         centerUnitIfHighlighted(toListView);
+        refreshEllipsis();
 
         if (refreshTooltip) {
             // refresh tooltip
@@ -350,7 +351,7 @@ window.FileBrowser = (function($, FileBrowser) {
     }
 
     function getGridUnitName($grid) {
-        return ($grid.find('.label').text());
+        return ($grid.find('.label').data("name"));
     }
 
     function getFormat(name) {
@@ -835,6 +836,12 @@ window.FileBrowser = (function($, FileBrowser) {
             if (!noEdit) {
                 updateFileName($grid);
             }
+
+            if ($fileBrowserMain.hasClass("listView")) {
+                scrollIconIntoView($grid);
+            } else {
+                scrollIconIntoView($grid, true);
+            }
         }
     }
 
@@ -938,6 +945,18 @@ window.FileBrowser = (function($, FileBrowser) {
         });
 
         $container.empty().append(html);
+        refreshEllipsis();
+    }
+
+    function refreshEllipsis() {
+        var isListView = $fileBrowserMain.hasClass("listView");
+        var maxChar = isListView ? 50 : 16;
+
+        $container.find(".label").each(function() {
+            var $label = $(this);
+            var name = $label.data("name");
+            xcHelper.middleEllipsis(name, $label, maxChar, isListView);
+        });
     }
 
     function addKeyBoardEvent() {

@@ -2198,9 +2198,7 @@ html.microsoft {
             .grid-unit {
                 .gridViewForGrid;
 
-                .label {
-                    .size(@height: auto);
-                    .textOverflowOneLine;
+                > .label {
                     color: #666666;
                 }
             }
@@ -2241,10 +2239,11 @@ html.microsoft {
                     overflow: hidden;
                 }
 
-                .label {
+                > .label {
                     .size(@width: ~"calc(50% - 30px)");
                     padding-left: 5px;
                 }
+
                 .fileSize, .fileDate {
                     margin-left: 10px;
                     padding-left: 15px;

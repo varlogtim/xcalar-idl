@@ -874,49 +874,13 @@ window.DS = (function ($, DS) {
             isListView = $gridView.hasClass("listView");
         }
 
+        var maxChar = isListView ? 32 : 16;
+
         $labels.each(function() {
-            var ele = this;
-            var $label = $(ele);
+            var $label = $(this);
             var name = $label.data("dsname");
-            var maxLen = isListView ? 32 : 16;
-
-            $label.val(truncateHelper(name, maxLen));
-
-            if (isListView) {
-                var scrollWidth = ele.scrollWidth;
-                var widthNotOverflow = ele.offsetWidth + 1;
-
-                while (scrollWidth > widthNotOverflow && maxLen > 5) {
-                    maxLen--;
-                    $label.val(truncateHelper(name, maxLen));
-                    scrollWidth = ele.scrollWidth;
-                }
-            } else {
-                var scrollHeight = ele.scrollHeight;
-                var heightNotOverFlow = ele.offsetHeight + 1;
-
-                while (scrollHeight > heightNotOverFlow && maxLen > 5) {
-                    maxLen--;
-                    $label.val(truncateHelper(name, maxLen));
-                    scrollHeight = ele.scrollHeight;
-                }
-            }
+            xcHelper.middleEllipsis(name, $label, maxChar, isListView);
         });
-    }
-
-    function truncateHelper(str, maxLen) {
-        var len = str.length;
-        var ellipsisStr;
-
-        if (len > maxLen) {
-            // always show the last three characters
-            ellipsisStr = str.substring(0, maxLen - 4) + '...' +
-                            str.substring(len - 3, len);
-        } else {
-            ellipsisStr = str;
-        }
-
-        return ellipsisStr;
     }
 
     /*** Drag and Drop API ***/
