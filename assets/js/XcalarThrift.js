@@ -2264,7 +2264,7 @@ function XcalarSupportSend() {
         return (promiseWrapper(null));
     }
     var deferred = jQuery.Deferred();
-    xcalarApiSupportGenerate(tHandle)
+    xcalarApiSupportSend(tHandle)
     .then(function(filePath) {
         deferred.resolve(filePath);
     })
