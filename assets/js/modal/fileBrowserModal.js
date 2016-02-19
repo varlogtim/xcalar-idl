@@ -25,7 +25,8 @@ window.FileBrowser = (function($, FileBrowser) {
         "CSV" : "CSV",
         "XLSX": "Excel"
     };
-    var minWidth  = 690;
+    var dsIconHeight = 72;
+    var minWidth  = 480;
     var minHeight = 400;
     /* End Of Contants */
 
@@ -50,7 +51,10 @@ window.FileBrowser = (function($, FileBrowser) {
             $fileBrowser.show().focus();
         } else {
             $modalBg.fadeIn(300, function() {
-                $fileBrowser.fadeIn(180).focus();
+                $fileBrowser.fadeIn(180, function() {
+                    $(this).focus();
+                    measureDSIconHeight();
+                });
             });
         }
 
@@ -58,6 +62,7 @@ window.FileBrowser = (function($, FileBrowser) {
         retrievePaths($filePath.val(), openingBrowser)
         .then(function(result) {
             showHandler(result);
+            measureDSIconHeight();
         })
         .fail(function(result) {
             closeAll();
@@ -313,6 +318,7 @@ window.FileBrowser = (function($, FileBrowser) {
             $btn.removeClass("listView")
                 .addClass("gridView")
                 .attr("data-original-title", "Switch to List View");
+            measureDSIconHeight();
         }
 
         centerUnitIfHighlighted(toListView);
@@ -1090,33 +1096,36 @@ window.FileBrowser = (function($, FileBrowser) {
     }
 
     function findVerticalIcon($curIcon, code) {
-        var iconHeight = 79;
+        
         var curIconTop = $curIcon.position().top;
         var curIconLeft = $curIcon.position().left;
         var targetTop;
         var $targetIcon;
+        // Measure top + or - 2 due to browser zoom
         if (code === keyCode.Up) {
-            targetTop = curIconTop - iconHeight;
+            targetTop = curIconTop - dsIconHeight;
             $curIcon.prevAll().each(function() {
                 if ($(this).position().left === curIconLeft &&
-                    $(this).position().top === targetTop) {
+                    ($(this).position().top > targetTop - 2 &&
+                     $(this).position().top < targetTop + 2)) {
                     $targetIcon = $(this);
                     return false;
-                } else if ($(this).position().top < targetTop) {
+                } else if ($(this).position().top < targetTop - 2) {
                     return false;
                 }
             });
         } else if (code === keyCode.Down) {
-            targetTop = curIconTop + iconHeight;
+            targetTop = curIconTop + dsIconHeight;
             var moreRowsExist = false;
             $curIcon.nextAll().each(function() {
-                if ($(this).position().top === targetTop) {
+                if ($(this).position().top > targetTop - 2 &&
+                    $(this).position().top < targetTop + 2) {
                     moreRowsExist = true;
                     if ($(this).position().left === curIconLeft) {
                         $targetIcon = $(this);
                         return false;
                     }
-                } else if ($(this).position().top > targetTop) {
+                } else if ($(this).position().top > targetTop + 2) {
                     return false;
                 }
             });
@@ -1130,25 +1139,28 @@ window.FileBrowser = (function($, FileBrowser) {
     }
 
     function scrollIconIntoView($icon, isGridView) {
-        var iconHeight = isGridView ? 79 : 30;
+        var iconHeight = isGridView ? dsIconHeight : 30;
         var containerHeight = $container.height();
         var scrollTop = $container.scrollTop();
         var iconOffsetTop = $icon.position().top;
         var iconBottom = iconOffsetTop + iconHeight;
-        // var containerBottom = scrollTop + containerHeight;
-        // if (iconBottom > containerBottom) {
+
         if (iconBottom > containerHeight) {
-            // $container.scrollTop(iconOffsetTop +  - (containerHeight / 2));
-            // $container.scrollTop(scrollTop + (iconBottom - containerBottom));
             $container.scrollTop(scrollTop + (iconBottom - containerHeight));
-            // $container.scrollTop(iconBottom);
         } else if (iconOffsetTop < 0) {
             $container.scrollTop(scrollTop + iconOffsetTop);
         }
+    }
 
-        // else if (iconBottom < scrollTop) {
-        //     $container.scrollTop(iconOffsetTop + iconHeight - (containerHeight / 2));
-        // }
+    function measureDSIconHeight() {
+        var iconHeight = $fileBrowser.find('.grid-unit').height();
+        if (iconHeight) {
+            dsIconHeight = iconHeight +
+                           parseInt($fileBrowser.find('.grid-unit')
+                                       .css('margin-top')) +
+                           parseInt($fileBrowser.find('.grid-unit')
+                                       .css('margin-bottom'));
+        }
     }
 
     return (FileBrowser);

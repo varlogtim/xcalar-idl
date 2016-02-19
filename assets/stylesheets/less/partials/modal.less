@@ -2002,7 +2002,7 @@ html.microsoft {
             }
 
             .dropDownList {
-                .size(@width: 60%, @height: 26px);
+                .size(@width: ~"calc(90% - 200px)", @height: 26px);
                 .rounded(0 3px 3px 0);
                 text-transform: none;
                 border-bottom: 1px solid rgba(0, 0, 0, 0.2);
@@ -2171,6 +2171,8 @@ html.microsoft {
                 .rounded;
                 color: #5e5e5e;
                 cursor: default;
+               
+
                 &.fileName {
                     .size(@width: ~"calc(50% - 10px)");
                 }
@@ -2186,6 +2188,14 @@ html.microsoft {
                     }
                     &:hover {
                         .gray-inverse-gradient;
+                    }
+                }
+                &:not(.clickable) {
+                    > span {
+                        .textOverflowOneLine;
+                        display: inline-block;
+                        width: 100%;
+                        padding-right: 5px;
                     }
                 }
                 &.select {
@@ -4134,6 +4144,7 @@ html.microsoft {
 
     .modalBottom {
         padding: 4px 15px 10px 0px;
+        background-color: white;
 
         .btn {
              margin-left: 20px;
