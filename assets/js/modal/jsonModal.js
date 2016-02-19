@@ -1027,7 +1027,7 @@ window.JSONModal = (function($, JSONModal) {
                 $tableWrap.find('.xcTbodyWrap').append($tableCover);
                 $tableWrap.each(function () {
                     var tableHeight = $(this).find('.xcTable').height();
-                    $(this).find('.tableCover').height(tableHeight - 40);
+                    $(this).find('.tableCover').height(tableHeight - 36);
                 });
                 
                 $tableWrap.find('.tableCover').addClass('visible');

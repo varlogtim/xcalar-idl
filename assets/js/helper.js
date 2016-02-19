@@ -34,9 +34,12 @@ window.xcHelper = (function($, xcHelper) {
         return (parseInt(substring));
     };
 
-    xcHelper.parseJsonValue = function(value, knf) {
-        if (knf) {
-            value = '<span class="undefined">KNF</span>';
+    xcHelper.parseJsonValue = function(value, fnf) {
+        if (fnf) {
+            value = '<span class="undefined" data-toggle="tooltip" ' +
+                                'data-placement="bottom" ' +
+                                'data-container="body" ' +
+                                'title="Field Not Found">FNF</span>';
         } else if (value === null) {
             value = '<span class="null">' + value + '</span>';
         } else if (value === undefined) {
