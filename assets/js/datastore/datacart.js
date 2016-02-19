@@ -380,6 +380,7 @@ window.DataCart = (function($, DataCart) {
         refreshCart();
     }
 
+
     function removeCart(dsName) {
         for (var i = 0, len = innerCarts.length; i < len; i++) {
             if (innerCarts[i].dsName === dsName) {
@@ -443,8 +444,9 @@ window.DataCart = (function($, DataCart) {
         var $clearBtn  = $("#clearDataCart");
         var $cartTitle = $("#dataCartTitle");
         var $dataCart  = $('#dataCart');
+        var cartNum = innerCarts.length;
 
-        if (innerCarts.length === 0) {
+        if (cartNum === 0) {
             $submitBtn.addClass("btnInactive");
             $clearBtn.addClass("btnInactive");
             $cartTitle.html("<b>" + DataCartStr.NoCartTitle + "</b>");
@@ -453,7 +455,8 @@ window.DataCart = (function($, DataCart) {
         } else {
             $submitBtn.removeClass("btnInactive");
             $clearBtn.removeClass("btnInactive");
-            $cartTitle.html("<b>" + DataCartStr.HaveCartTitle + "</b>");
+            $cartTitle.html("<b>" +DataCartStr.HaveCartTitle + " (" +
+                            cartNum + ")</b>");
             $dataCart.find('.helpText').remove();
         }
 
