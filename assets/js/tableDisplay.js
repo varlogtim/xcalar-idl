@@ -690,21 +690,19 @@ window.TblManager = (function($, TblManager) {
     };
 
     TblManager.resizeColumns = function(tableId, resizeTo) {
-        var sizeToHeader;
-        var fitAll;
+        var sizeToHeader = false;
+        var fitAll = false;
 
         switch (resizeTo) {
             case 'sizeToHeader':
                 sizeToHeader = true;
-                fitAll = false;
                 break;
             case 'sizeToFitAll':
                 sizeToHeader = true;
                 fitAll = true;
                 break;
             case 'sizeToContents':
-                sizeToHeader = false;
-                fitAll = false;
+                // leave false
                 break;
             default:
                 throw "Error Case!";
@@ -721,7 +719,7 @@ window.TblManager = (function($, TblManager) {
             columns[i].isHidden = false;
 
             autosizeCol($th, {
-                "dbClick"       : true,
+                "dblClick"       : true,
                 "minWidth"      : 17,
                 "unlimitedWidth": false,
                 "includeHeader" : sizeToHeader,
@@ -1032,6 +1030,7 @@ window.TblManager = (function($, TblManager) {
             }
         })
         .then(function() {
+            autoSizeDataCol(tableId, progCols);
             // position sticky row column on visible tables
             moveFirstColumn();
             deferred.resolve();
@@ -1602,6 +1601,9 @@ window.TblManager = (function($, TblManager) {
                 } else {
                     width = columns[i].width;
                 }
+                if (width === 'auto') {
+                    width = 400;
+                }
                 newTable +=
                     '<th class="col' + newColid + ' th dataCol' + thClass + '" ' +
                         'style="width:' + width + 'px;">' +
@@ -1666,6 +1668,34 @@ window.TblManager = (function($, TblManager) {
         .fail(deferred.reject);
         
         return (deferred.promise());
+    }
+
+    function autoSizeDataCol(tableId, progCols) {
+        var numCols = progCols.length;
+        var dataCol;
+        var dataColIndex;
+        for (var i = 0; i < numCols; i++) {
+            if (progCols[i].name === "DATA") {
+                dataCol = progCols[i];
+                dataColIndex = i + 1;
+                break;
+            }
+        }
+        if (dataCol.width === "auto") {
+            var winWidth = $(window).width();
+            var maxWidth = 400;
+            if (winWidth > 1400) {
+                maxWidth = 600;
+            } else if (winWidth > 1100) {
+                maxWidth = 500;
+            }
+            var $th = $('#xcTable-' + tableId).find('th.col' + dataColIndex);
+            autosizeCol($th, {
+                fitAll: true,
+                minWidth: 200,
+                maxWidth: maxWidth
+            });
+        }
     }
 
     return (TblManager);

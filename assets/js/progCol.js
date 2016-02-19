@@ -8,19 +8,10 @@ window.ColManager = (function($, ColManager) {
 
     // special case, specifically for DATA col
     ColManager.newDATACol = function() {
-        var width;
-        var winWidth = $(window).width();
-        if (winWidth > 1400) {
-            width = 600;
-        } else if (winWidth > 1100) {
-            width = 500;
-        } else {
-            width = 400;
-        }
         var progCol = ColManager.newCol({
             "name"   : "DATA",
             "type"   : "object",
-            "width"  : width,    // copy from CSS
+            "width"  : "auto",// to be determined when building table
             "userStr": "DATA = raw()",
             "func"   : {
                 "func": "raw",
@@ -284,9 +275,7 @@ window.ColManager = (function($, ColManager) {
             direction = "R";
         }
         var widthOptions = {
-            "fontFamily": "'Open Sans', 'Trebuchet MS', Arial, sans-serif",
-            "fontSize"  : "13px",
-            "fontWeight": "600"
+            defaultHeaderStyle: true
         };
         var width = getTextWidth($(), newColName, widthOptions);
         ColManager.addCol(colNum, tableId, newColName, {

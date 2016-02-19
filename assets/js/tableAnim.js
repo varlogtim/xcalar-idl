@@ -610,37 +610,54 @@ function getTextWidth(el, val, options) {
     return (width);
 }
 
-function autosizeCol(el, options) {
+/* Possible Options: 
+    includeHeader: boolean, default is false. If set, column head will be
+                    included when determining column width
+    fitAll: boolean, default is false. If set, both column head and cell widths
+            will be included in determining column width
+    minWidth: integer, default is 10. Minimum width a column can be.
+    maxWidth: integer, default is 2000. Maximum width a column can be.
+    unlimitedWidth: boolean, default is false. Set to true if you don't want to
+                    limit the width of a column
+    dataStore: boolean, default is false. Set to true if measuring columns
+                located in the datastore panel
+    dblClick: boolean, default is false. Set to true when resizing using a 
+                double click
+*/
+function autosizeCol($th, options) {
     options = options || {};
 
-    var index = xcHelper.parseColNum(el);
-    var $table = el.closest('.dataTable');
+    var index = xcHelper.parseColNum($th);
+    var $table = $th.closest('.dataTable');
     var tableId = xcHelper.parseTableId($table);
     var table = gTables[tableId];
 
     var includeHeader = options.includeHeader || false;
     var fitAll = options.fitAll || false;
     var minWidth = options.minWidth || (gRescol.cellMinWidth - 5);
+    var maxWidth = options.maxWidth || 700;
     var datastore = options.datastore || false;
     
-    var widestTdWidth = getWidestTdWidth(el, {
+    var widestTdWidth = getWidestTdWidth($th, {
         "includeHeader": includeHeader,
         "fitAll"       : fitAll,
         "datastore"    : datastore
     });
     var newWidth = Math.max(widestTdWidth, minWidth);
-    // dbClick is autoSized to a fixed width
-    if (!options.dbClick) {
+    // dblClick is autoSized to a fixed width
+    if (!options.dblClick) {
         var originalWidth = table.tableCols[index - 1].width;
+        if (originalWidth === "auto") {
+            originalWidth = 0;
+        }
         newWidth = Math.max(newWidth, originalWidth);
     }
 
     if (!options.unlimitedWidth) {
-        var maxWidth = 700;
         newWidth = Math.min(newWidth, maxWidth);
     }
     
-    el.outerWidth(newWidth);
+    $th.outerWidth(newWidth);
     if ($table.attr('id').indexOf('xc') > -1) {
         table.tableCols[index - 1].width = newWidth;
     } else if ($table.attr('id') === 'worksheetTable') {
@@ -665,7 +682,7 @@ function getWidestTdWidth(el, options) {
     var largestTd = $table.find('tbody tr:first td:eq(' + id + ')');
     var headerWidth = 0;
 
-    if (includeHeader) {
+    if (fitAll || includeHeader) {
         var $th;
         if ($table.find('.col' + id + ' .dataCol').length === 1) {
             $th = $table.find('.col' + id + ' .dataCol');
@@ -696,7 +713,7 @@ function getWidestTdWidth(el, options) {
 
     largestWidth = getTextWidth(largestTd) + padding;
 
-    if (includeHeader && fitAll) {
+    if (fitAll) {
         largestWidth = Math.max(headerWidth, largestWidth);
     }
 
@@ -768,7 +785,7 @@ function dblClickResize($el, options) {
         }
        
         autosizeCol($th, {
-            "dbClick"       : true,
+            "dblClick"      : true,
             "minWidth"      : minWidth,
             "unlimitedWidth": true,
             "includeHeader" : includeHeader,
