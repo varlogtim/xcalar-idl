@@ -566,11 +566,11 @@ window.TestSuite = (function($, TestSuite) {
                                     ".tableName[value*=GroupBy]"));
             })
             .then(function() {
-                if ($("#numPages").text().indexOf("70,242") > -1) {
+                if ($("#numPages").text().indexOf("17") > -1) {
                     flightTestPart9();
                 } else {
                     TestSuite.fail(deferred, testName, currentTestNumber,
-                                    "num pages not 70,242");
+                                    "num pages not 17");
                 }
             })
             .fail(function(error) {
