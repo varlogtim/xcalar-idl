@@ -1849,6 +1849,7 @@ function dropdownClick($el, options) {
         if (ulHeight > $menu.height()) {
             $menu.children('ul').css('max-height', menuHeight);
             $menu.find('.scrollArea').show();
+            $menu.find('.scrollArea.bottom').addClass('active');
         } else {
             $menu.children('ul').css('max-height', 'auto');
             $menu.find('.scrollArea').hide();

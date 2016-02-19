@@ -742,6 +742,8 @@ window.xcHelper = (function($, xcHelper) {
             $list.mouseenter(function() {
                 outerHeight = $list.height();
                 innerHeight = $ul[0].scrollHeight;
+                isMouseMoving = true;
+                fadeIn();
             });
 
             $list.mousemove(function() {
@@ -751,9 +753,9 @@ window.xcHelper = (function($, xcHelper) {
                 
                 timer.fadeIn = setTimeout(fadeIn, 200);
 
-                timer.fadeOut = setTimeout(fadeOut, 600);
+                timer.fadeOut = setTimeout(fadeOut, 800);
 
-                timer.setMouseMoveFalse = setTimeout(setMouseMoveFalse, 50);
+                timer.setMouseMoveFalse = setTimeout(setMouseMoveFalse, 100);
             });
 
             $scrollAreas.mouseenter(function() {
@@ -878,6 +880,7 @@ window.xcHelper = (function($, xcHelper) {
             if (ulHeight > $list.height()) {
                 $list.children('ul').css('max-height', listHeight);
                 $list.find('.scrollArea').show();
+                $list.find('.scrollArea.bottom').addClass('active');
             } else {
                 $list.children('ul').css('max-height', 'auto');
                 $list.find('.scrollArea').hide();
