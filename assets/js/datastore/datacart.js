@@ -455,8 +455,12 @@ window.DataCart = (function($, DataCart) {
         } else {
             $submitBtn.removeClass("btnInactive");
             $clearBtn.removeClass("btnInactive");
-            $cartTitle.html("<b>" +DataCartStr.HaveCartTitle + " (" +
-                            cartNum + ")</b>");
+            $cartTitle.html('<b>' + DataCartStr.HaveCartTitle +
+                            ' <span title="Number of tables to create" ' +
+                            'data-toggle="tooltip" data-container="body" ' +
+                            'data-placement="top">' +
+                            '(' + cartNum + ')' +
+                            '</span></b>');
             $dataCart.find('.helpText').remove();
         }
 
