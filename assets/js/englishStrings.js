@@ -127,9 +127,9 @@ ErrorTextTStr = {
 
     'InvalidColumn' : 'Invalid column name: <name>',
 
-    'InvalidURLToBrowse': 'Invalid URL to browse, ' +
-                          'please provide a url that starts with file:/// or nfs:///'
-
+    'InvalidURLToBrowse': 'Please add protocol to file path. ' +
+                          'For example: nfs:/// or hdfs:/// or ' +
+                          'file:/// (for local filesystem)'
 };
 
 ErrorTextWReplaceTStr = {

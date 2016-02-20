@@ -382,7 +382,10 @@ window.DatastoreForm = (function($, DatastoreForm) {
         path = path.trim();
         if (path === "") {
             return true;
-        } else if (path.startsWith("file:///") || path.startsWith("nfs:///")) {
+        } else if (path.startsWith("file:///") ||
+                    path.startsWith("nfs:///") ||
+                    path.startsWith("hdfs:///"))
+        {
             return true;
         } else {
             return false;

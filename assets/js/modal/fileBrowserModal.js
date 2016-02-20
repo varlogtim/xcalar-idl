@@ -19,6 +19,7 @@ window.FileBrowser = (function($, FileBrowser) {
     /* Contants */
     var defaultNFSPath  = "nfs:///";
     var defaultFilePath = "file:///";
+    var defaultHDFSPath = "hdfs:///";
     var defaultSortKey  = "type"; // default is sort by type;
     var formatMap = {
         "JSON": "JSON",
@@ -46,6 +47,7 @@ window.FileBrowser = (function($, FileBrowser) {
     FileBrowser.show = function(path) {
         path = path || "";
         modalHelper.setup();
+        addKeyBoardEvent();
 
         if (gMinModeOn) {
             $modalBg.show();
@@ -59,26 +61,31 @@ window.FileBrowser = (function($, FileBrowser) {
             });
         }
 
-        if (path !== "") {
-            // toggle nfs if we detect it
-            if (path.startsWith(defaultNFSPath)) {
-                toggleNFS(true, true);
-            } else {
-                toggleNFS(false, true);
-            }
-        }
 
         retrievePaths(path, true)
         .then(function(result) {
-            showHandler(result);
+            setTimeout(function() {
+                // do this because fadeIn has 300 dealy,
+                // if statusBox show before the fadeIn finish, it will fail
+                showHandler(result);
+            }, 300);
             measureDSIconHeight();
+
+            if (!result.defaultPath && path !== "") {
+                // toggle nfs if we detect it
+                if (path.startsWith(defaultNFSPath)) {
+                    changeFileSource(defaultNFSPath, true);
+                } else if (path.startsWith(defaultHDFSPath)) {
+                    changeFileSource(defaultHDFSPath, true);
+                } else {
+                    changeFileSource(defaultFilePath, true);
+                }
+            }
         })
         .fail(function(result) {
             closeAll();
             StatusBox.show(result.error, $filePath, true);
         });
-
-        addKeyBoardEvent();
 
         function showHandler(result) {
             Tips.refresh();
@@ -160,15 +167,11 @@ window.FileBrowser = (function($, FileBrowser) {
         });
 
         $("#fileBrowserNFS").click(function() {
-            var useNFS;
-
             if ($(this).find(".checkbox").hasClass("checked")) {
-                useNFS = false;
+                changeFileSource(defaultFilePath);
             } else {
-                useNFS = true;
+                changeFileSource(defaultNFSPath);
             }
-
-            toggleNFS(useNFS);
         });
 
         $("#fileBrowserRefresh").click(function(event){
@@ -484,24 +487,23 @@ window.FileBrowser = (function($, FileBrowser) {
         });
     }
 
-    function toggleNFS(useNFS, noRetrieve) {
-        var currentPath = getCurrentPath();
-        var path;
+    function changeFileSource(pathPrefix, noRetrieve) {
         var $checkbox = $("#fileBrowserNFS .checkbox");
+        var defaultPathCache = defaultPath;
 
-        if (useNFS) {
+        defaultPath = pathPrefix;
+        $pathSection.find(".defaultPath").text(pathPrefix);
+
+        if (pathPrefix === defaultNFSPath || pathPrefix === defaultHDFSPath) {
             $checkbox.addClass("checked");
-            defaultPath = defaultNFSPath;
-            path = currentPath.replace(defaultFilePath, defaultNFSPath);
         } else {
             $checkbox.removeClass("checked");
-            defaultPath = defaultFilePath;
-            path = currentPath.replace(defaultNFSPath, defaultFilePath);
         }
-        $pathSection.find(".defaultPath").text(defaultPath);
 
         if (!noRetrieve) {
             historyPath = null;
+            var currentPath = getCurrentPath();
+            var path = currentPath.replace(defaultPathCache, pathPrefix);
             retrievePaths(path);
         }
     }

@@ -2007,16 +2007,19 @@ html.microsoft {
                 text-transform: none;
                 border-bottom: 1px solid rgba(0, 0, 0, 0.2);
                 box-shadow: none;
+                .flex-display;
 
                 .defaultPath {
-                    .size(@width: 46px, @height: 25px);
+                    .size(@height: 25px);
+                    .flex(1 1 46px);
                     .font(@size: 12px, @line-height: 25px);
                     padding-left: 10px;
+                    text-align: right;
                     float: left;
                 }
 
                 .text {
-                    .size(@width: ~"calc(100% - 71px)");
+                    .flex(1 1 ~"calc(100% - 71px)");
                     padding-left: 0;
                     cursor: text;
                     outline: none;
