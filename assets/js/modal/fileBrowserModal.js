@@ -43,7 +43,8 @@ window.FileBrowser = (function($, FileBrowser) {
         "minWidth" : minWidth
     });
 
-    FileBrowser.show = function() {
+    FileBrowser.show = function(path) {
+        path = path || "";
         modalHelper.setup();
 
         if (gMinModeOn) {
@@ -58,8 +59,16 @@ window.FileBrowser = (function($, FileBrowser) {
             });
         }
 
-        var openingBrowser = true;
-        retrievePaths($filePath.val(), openingBrowser)
+        if (path !== "") {
+            // toggle nfs if we detect it
+            if (path.startsWith(defaultNFSPath)) {
+                toggleNFS(true, true);
+            } else {
+                toggleNFS(false, true);
+            }
+        }
+
+        retrievePaths(path, true)
         .then(function(result) {
             showHandler(result);
             measureDSIconHeight();
@@ -151,14 +160,11 @@ window.FileBrowser = (function($, FileBrowser) {
         });
 
         $("#fileBrowserNFS").click(function() {
-            var $checkbox = $(this).find(".checkbox");
             var useNFS;
 
-            if ($checkbox.hasClass("checked")) {
-                $checkbox.removeClass("checked");
+            if ($(this).find(".checkbox").hasClass("checked")) {
                 useNFS = false;
             } else {
-                $checkbox.addClass("checked");
                 useNFS = true;
             }
 
@@ -251,16 +257,22 @@ window.FileBrowser = (function($, FileBrowser) {
                     return true;
                 }
 
-                var $input = $(this);
-                var path = $input.val();
-                // event.preventDefault();
+                var path = defaultPath + $(this).val();
+
+                if (key === keyCode.Enter) {
+                    var $grid = $container.find('.grid-unit.active');
+                    if ($grid.length > 0) {
+                        // this is the case that user input file:///var/tmp,
+                        // it focus on tmp and then press enter
+                        $grid.trigger("dblclick");
+                    }
+                    return false;
+                }
 
                 timer = setTimeout(function() {
-                    path = defaultPath + path;
-
-                    if (path.charAt(path.length - 1) !== "/") {
-                        path += "/";
-                    }
+                    // if (path.charAt(path.length - 1) !== "/") {
+                    //     path += "/";
+                    // }
 
                     if (path === getCurrentPath()) {
                         // when the input path is still equal to current path
@@ -472,20 +484,26 @@ window.FileBrowser = (function($, FileBrowser) {
         });
     }
 
-    function toggleNFS(useNFS) {
+    function toggleNFS(useNFS, noRetrieve) {
         var currentPath = getCurrentPath();
         var path;
+        var $checkbox = $("#fileBrowserNFS .checkbox");
 
         if (useNFS) {
+            $checkbox.addClass("checked");
             defaultPath = defaultNFSPath;
             path = currentPath.replace(defaultFilePath, defaultNFSPath);
         } else {
+            $checkbox.removeClass("checked");
             defaultPath = defaultFilePath;
             path = currentPath.replace(defaultNFSPath, defaultFilePath);
         }
         $pathSection.find(".defaultPath").text(defaultPath);
-        historyPath = null;
-        retrievePaths(path);
+
+        if (!noRetrieve) {
+            historyPath = null;
+            retrievePaths(path);
+        }
     }
 
     function updateFileName($grid) {

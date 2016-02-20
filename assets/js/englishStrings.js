@@ -125,7 +125,10 @@ ErrorTextTStr = {
 
     'ContinueVerification': 'Are you sure you want to continue?',
 
-    'InvalidColumn' : 'Invalid column name: <name>'
+    'InvalidColumn' : 'Invalid column name: <name>',
+
+    'InvalidURLToBrowse': 'Invalid URL to browse, ' +
+                          'please provide a url that starts with file:/// or nfs:///'
 
 };
 

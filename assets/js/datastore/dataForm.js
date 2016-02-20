@@ -74,7 +74,13 @@ window.DatastoreForm = (function($, DatastoreForm) {
         // open file browser
         $("#fileBrowserBtn").click(function() {
             $(this).blur();
-            FileBrowser.show();
+
+            var path = $filePath.val();
+            if (isValidPathToBrowse(path)) {
+                FileBrowser.show(path);
+            } else {
+                StatusBox.show(ErrorTextTStr.InvalidURLToBrowse, $filePath, true);
+            }
         });
 
         // preview dataset
@@ -369,6 +375,17 @@ window.DatastoreForm = (function($, DatastoreForm) {
                 break;
             default:
                 throw new ReferenceError("Format Not Support");
+        }
+    }
+
+    function isValidPathToBrowse(path) {
+        path = path.trim();
+        if (path === "") {
+            return true;
+        } else if (path.startsWith("file:///") || path.startsWith("nfs:///")) {
+            return true;
+        } else {
+            return false;
         }
     }
 
