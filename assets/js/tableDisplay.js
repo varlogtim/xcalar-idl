@@ -689,7 +689,7 @@ window.TblManager = (function($, TblManager) {
         });
     };
 
-    TblManager.resizeColumns = function(tableId, resizeTo) {
+    TblManager.resizeColumns = function(tableId, resizeTo, columnNums) {
         var sizeToHeader = false;
         var fitAll = false;
 
@@ -709,12 +709,33 @@ window.TblManager = (function($, TblManager) {
         }
 
         var table   = gTables[tableId];
-        var columns = table.tableCols;
+        var columns = [];
+        var colNums = [];
+        var numCols;
+        if (columnNums !== undefined) {
+            
+            if (typeof columnNums !== "object") {
+                colNums.push(columnNums);
+            } else {
+                colNums = columnNums;
+            }
+            numCols = colNums.length;
+            for (var i = 0; i < numCols; i++) {
+                columns.push(table.tableCols[colNums[i] - 1]);
+            }
+        } else {
+            columns = table.tableCols;
+            numCols = columns.length;
+            for (var i = 0; i < columns.length; i++) {
+                colNums.push(i + 1);
+            }
+        }
+
         var $th;
         var $table = $('#xcTable-' + tableId);
 
         for (var i = 0, numCols = columns.length; i < numCols; i++) {
-            $th = $table.find('th.col' + (i + 1));
+            $th = $table.find('th.col' + (colNums[i]));
             columns[i].sizeToHeader = !sizeToHeader;
             columns[i].isHidden = false;
 
@@ -1560,7 +1581,9 @@ window.TblManager = (function($, TblManager) {
             'style="width:0px;" data-id="' + tableId + '">' +
               '<thead>' +
               '<tr>' +
-                '<th style="width: 50px;" class="col0 th rowNumHead">' +
+                '<th style="width: 50px;" class="col0 th rowNumHead"' + 
+                    ' title="select all columns" data-toggle="tooltip"' +
+                    ' data-placement="top" data-container="body">' +
                   '<div class="header">' +
                     '<input value="" readonly="" tabindex="-1" ' +
                         'spellcheck="false" >' +

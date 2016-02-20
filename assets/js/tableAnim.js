@@ -741,56 +741,76 @@ function dblClickResize($el, options) {
         gMouseStatus = null;
         reenableTextSelection();
         options = options || {};
+        var target = options.target;
 
         var $th = $el.parent().parent();
-        var colNum = xcHelper.parseColNum($th);
         var $table = $th.closest('.dataTable');
         $table.find('.colGrab')
               .removeAttr('data-toggle data-original-title title');
 
-        var includeHeader;
-        var target = options.target;
+        var $selectedCols;
         if (target === "datastore") {
-            if ($el.data('sizetoheader')) {
-                includeHeader = true;
-                $el.data('sizetoheader', false);
-            } else {
-                includeHeader = false;
-                $el.data('sizetoheader', true);
-            }
+            $selectedCols = $table.find('th.selectedCol');
+        } else {
+            $selectedCols = $table.find('th.selectedCell');
+        }
+        var numSelectedCols = $selectedCols.length;
+        if (numSelectedCols === 0) {
+            $selectedCols = $th;
+            numSelectedCols = 1;
+        }
+        var indices = [];
+        $selectedCols.each(function() {
+            indices.push($(this).index() - 1);
+        });
+
+        var includeHeader = false;
+        
+        if (target === "datastore") {
+
+            $selectedCols.find('.colGrab').each(function() {
+                if ($(this).data('sizetoheader')) {
+                    includeHeader = true;
+                    return false;
+                }
+            });
+
+            $selectedCols.find('.colGrab').each(function() {
+                $(this).data('sizetoheader', !includeHeader);
+            });
+
         } else {
             var tableId = $table.data('id');
-            var column =  gTables[tableId].tableCols[colNum - 1];
+            var columns = gTables[tableId].tableCols;
 
-            includeHeader = column.sizeToHeader;
-            if (includeHeader) {
-                column.sizeToHeader = false;
-            } else {
-                column.sizeToHeader = true;
+            for (var i = 0; i < numSelectedCols; i++) {
+                if (columns[indices[i]].sizeToHeader) {
+                    includeHeader = true;
+                    break;
+                }
+            }
+            for (var i = 0; i < numSelectedCols; i++) {
+                columns[indices[i]].sizeToHeader = !includeHeader;
             }
         }
         
-        var resize;
-        if ($el.closest('tHead').index() === 0) {
-            resize = true;
-        } else {
-            resize = false;
-        }
-
         var minWidth;
         if (options.minWidth) {
             minWidth = options.minWidth;
         } else {
             minWidth = 17;
         }
-       
-        autosizeCol($th, {
-            "dblClick"      : true,
-            "minWidth"      : minWidth,
-            "unlimitedWidth": true,
-            "includeHeader" : includeHeader,
-            "datastore"     : target === "datastore"
+        
+        $selectedCols.each(function() {
+            autosizeCol($(this), {
+                "dblClick"      : true,
+                "minWidth"      : minWidth,
+                "unlimitedWidth": true,
+                "includeHeader" : includeHeader,
+                "datastore"     : target === "datastore"
+            });
         });
+       
         $('#col-resizeCursor').remove();
         clearTimeout(gRescol.timer);    //prevent single-click action
         gRescol.clicks = 0;      //after action performed, reset counter

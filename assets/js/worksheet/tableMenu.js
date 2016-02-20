@@ -621,6 +621,34 @@ window.TblMenu = (function(TblMenu, $) {
             ColManager.textAlign(colNum, tableId, $(this).attr("class"));
         });
 
+        $subMenu.on('mouseup', '.resize', function(event) {
+            if (event.which !== 1) {
+                return;
+            }
+            var $li = $(this);
+            var colNum;
+            if ($li.closest('.multiResize').length !== 0) {
+                colNum = $colMenu.data('columns');
+            } else {
+                colNum = $colMenu.data('colNum');
+            }
+            var tableId = $colMenu.data('tableId');
+            var resizeTo;
+
+            if ($li.hasClass('sizeToHeader')) {
+                resizeTo = 'sizeToHeader';
+            } else if ($li.hasClass('sizeToFitAll')) {
+                resizeTo = 'sizeToFitAll';
+            } else {
+                resizeTo = 'sizeToContents';
+            }
+
+            // could be long process so we allow the menu to close first
+            setTimeout(function() {
+                TblManager.resizeColumns(tableId, resizeTo, colNum);
+            }, 0);
+        });
+
         $subMenu.on('mouseup', '.typeList', function(event) {
             if (event.which !== 1) {
                 return;
@@ -1061,6 +1089,9 @@ window.TblMenu = (function(TblMenu, $) {
                     '<li class="textAlign parentMenu" data-submenu="textAlign">' +
                         'Text align' +
                     '</li>' +
+                    '<li class="resize parentMenu" data-submenu="resize">' +
+                        'Resize' +
+                    '</li>' +
                     '<div class="divider identityDivider thDropdown"></div>' +
                     '<li class="rename parentMenu" data-submenu="rename">' +
                         'Rename column' +
@@ -1099,6 +1130,9 @@ window.TblMenu = (function(TblMenu, $) {
                     '<li class="multiColumn textAlignColumns parentMenu" data-submenu="multiTextAlign">' +
                         'Text align' +
                     '</li>' +
+                    '<li class="multiColumn resizeColumns parentMenu" data-submenu="multiResize">' +
+                        'Resize' +
+                    '</li>' +
                     '<li class="multiColumn multiChangeDataType parentMenu" data-submenu="multiChangeDataType">' +
                         'Change data type' +
                     '</li>' +
@@ -1127,6 +1161,11 @@ window.TblMenu = (function(TblMenu, $) {
                     '<li class="textAlign leftAlign">Left Align</li>' +
                     '<li class="textAlign centerAlign">Center Align</li>' +
                     '<li class="textAlign rightAlign">Right Align</li>' +
+                '</ul>' +
+                '<ul class="resize">' +
+                    '<li class="resize sizeToHeader">Size To Header</li>' +
+                    '<li class="resize sizeToContents">Size To Contents</li>' +
+                    '<li class="resize sizeToFitAll">Size To Fit All</li>' +
                 '</ul>' +
                 '<ul class="rename">' +
                     '<li style="text-align: center" class="rename clickable">' +
@@ -1193,6 +1232,11 @@ window.TblMenu = (function(TblMenu, $) {
                     '<li class="textAlign leftAlign">Left Align</li>' +
                     '<li class="textAlign centerAlign">Center Align</li>' +
                     '<li class="textAlign rightAlign">Right Align</li>' +
+                '</ul>' +
+                '<ul class="multiResize">' +
+                    '<li class="resize sizeToHeader">Size To Header</li>' +
+                    '<li class="resize sizeToContents">Size To Contents</li>' +
+                    '<li class="resize sizeToFitAll">Size To Fit All</li>' +
                 '</ul>' +
                 '<ul class="multiChangeDataType">' + typeMenu + '</ul>' +
                 '<div class="subMenuArea"></div>' +

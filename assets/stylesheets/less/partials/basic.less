@@ -1096,7 +1096,8 @@ input {
 
     &.type-multiColumn {
         .multiColumn {
-            &.deleteColumns, &.hideColumns, &.textAlignColumns, &.multiChangeDataType {
+            &.deleteColumns, &.hideColumns, &.textAlignColumns, &.multiChangeDataType,
+            &.resizeColumns {
                 display: list-item !important;
                 li {
                     display: list-item !important; 
@@ -1112,7 +1113,6 @@ input {
                 }
             }
         }
-
 
         &.type-hidden {
             .unhideColumns {
