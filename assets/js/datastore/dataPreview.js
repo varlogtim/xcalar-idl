@@ -764,15 +764,20 @@ window.DataPreview = (function($, DataPreview) {
                         html = commaHtml;
                     } else if (tabLen > 0) {
                         html = tabHtml;
-                    } else {
-                        // both comma and tab are zero
-                        if ($previewTable.find(".has-pipe").length >= rowsToFetch) {
-                            // at least each row has pipe
-                            html =
-                                '<span class="action active pipeDelim">' +
+                    }
+                }
+
+                // when has pip
+                var pipLen = $previewTable.find(".has-pipe").length;
+                if (pipLen >= rowsToFetch) {
+                    var pipHtml = '<span class="action active pipeDelim">' +
                                     'Apply pipe as delimiter' +
-                                '</span>';
-                        }
+                                  '</span>';
+
+                    if (pipLen > commaLen && pipLen > tabLen) {
+                        html = pipHtml + html;
+                    } else {
+                        html = html + pipHtml;
                     }
                 }
 

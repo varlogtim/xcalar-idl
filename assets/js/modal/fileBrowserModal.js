@@ -837,9 +837,9 @@ window.FileBrowser = (function($, FileBrowser) {
                 str = '.grid-unit.folder .label[data-name="' + grid + '"]';
             }
 
-            if (!noEdit) {
-                $fileName.val(grid);
-            }
+            // if (!noEdit) {
+            //     $fileName.val(grid);
+            // }
         } else {
             var name = grid.name;
             var type = grid.type;
@@ -850,9 +850,9 @@ window.FileBrowser = (function($, FileBrowser) {
                 str = '.grid-unit.' + type + ' .label[data-name="' + name + '"]';
             }
 
-            if (!noEdit) {
-                $fileName.val(name);
-            }
+            // if (!noEdit) {
+            //     $fileName.val(name);
+            // }
         }
 
         $container.find(".grid-unit").removeClass("active");

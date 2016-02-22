@@ -273,6 +273,8 @@ function dataFormModuleTest() {
             testDS = xcHelper.uniqueRandName("testSuites-dsForm-sp500", DS.has, 10);
             $filePath.val(testDatasets.sp500.url);
             $fileName.val(testDS);
+            // test the case when have header(otherwise it will have header prmopt)
+            $("#promoteHeaderCheckbox .checkbox").addClass("checked");
         });
 
         it("Should not allow empty format", function(done) {
@@ -340,6 +342,7 @@ function dataFormModuleTest() {
     });
 
     after(function() {
+        $("#promoteHeaderCheckbox .checkbox").removeClass("checked");
         $mainTabCache.click(); // go back to previous tab
     });
 }
