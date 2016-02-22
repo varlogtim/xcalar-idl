@@ -7,6 +7,8 @@ window.FnBar = (function(FnBar, $) {
 
     FnBar.setup = function() {
         setupSearchHelper();
+        var initialTableId; //used to track table that was initially active
+        // when user started searching
 
         $fnBar.on({
             "input": function() {
@@ -14,7 +16,8 @@ window.FnBar = (function(FnBar, $) {
                 var trimmedVal = val.trim();
                 if (trimmedVal.indexOf('=') !== 0) {
                     $functionArea.addClass('searching');
-                    var args = {value: trimmedVal, searchBar: searchHelper};
+                    var args = {value: trimmedVal, searchBar: searchHelper,
+                                initialTableId: initialTableId};
                     ColManager.execCol({func: {func: 'search'}}, null, null, args);
                 } else {
                     $functionArea.removeClass('searching');
@@ -27,7 +30,10 @@ window.FnBar = (function(FnBar, $) {
             },
             "mousedown": function() {
                 $(this).addClass("inFocus");
-                $fnBar.attr('placeholder', WorksheetStr.SearchColumn);
+                $fnBar.attr('placeholder', WorksheetStr.SearchTableAndColumn);
+            },
+            "focus": function() {
+                initialTableId = gActiveTableId;
             },
             "blur": function() {
                 $(this).removeClass("inFocus");
@@ -75,9 +81,16 @@ window.FnBar = (function(FnBar, $) {
                 $('.xcTable:visible').find('.selectedCell')
                                      .removeClass('selectedCell');
             },
-
             "highlightSelected": function($match) {
-                highlightColumn($match);
+                if ($match.is('th')) {
+                    highlightColumn($match);
+                    $('#mainFrame').find('.tblTitleSelected')
+                                   .removeClass('tblTitleSelected');
+                    RowScroller.empty();
+                } else if ($match.is('.tableTitle')) {
+                    var tableId = $match.closest('.xcTableWrap').data('id');
+                    focusTable(tableId, true);
+                }
             },
             "scrollMatchIntoView": function($match) {
                 var $mainFrame = $('#mainFrame');

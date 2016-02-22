@@ -971,8 +971,9 @@ window.ColManager = (function($, ColManager) {
             XcalarIndexFromTable(srcTable, keyCol, indexTable,
                 XcalarOrderingT.XcalarOrderingUnordered, actionSql)
             .then(function() {
-                groupbyTable = xcHelper.randName(".tempGroupby." + tableNamePart)
-                                + Authentication.getHashId();
+                groupbyTable = xcHelper.randName(".tempGroupby." +
+                                                  tableNamePart) +
+                                Authentication.getHashId();
                 groupByCol = xcHelper.randName("randCol");
 
                 var groupByOp = AggrOp.Count;
@@ -993,8 +994,9 @@ window.ColManager = (function($, ColManager) {
             .then(function() {
                 // Step 2. Sort on desc on groupby table by groupByCol
                 // this way, the keyCol that has most count comes first
-                sortTable = xcHelper.randName(".tempGroupby-Sort." + tableNamePart)
-                            + Authentication.getHashId();
+                sortTable = xcHelper.randName(".tempGroupby-Sort." +
+                                              tableNamePart) +
+                            Authentication.getHashId();
 
                 actionSql = {
                     "operation"   : SQLOps.hPartitionAction,
@@ -1539,7 +1541,7 @@ window.ColManager = (function($, ColManager) {
                 });
                 break;
             case ("search"):
-                searchColNames(args.value, args.searchBar);
+                searchColNames(args.value, args.searchBar, args.initialTableId);
                 deferred.resolve();
                 break;
             case (undefined):
@@ -2539,43 +2541,62 @@ window.ColManager = (function($, ColManager) {
         return (html);
     }
 
-    function searchColNames(val, searchBar) {
+    function searchColNames(val, searchBar, initialTableId) {
         val = val.toLowerCase();
         var $functionArea = $('#functionArea');
         var $headerInputs = $('.xcTable:visible').find('.editableHead');
+        var $searchableFields = $headerInputs.add($('.tableTitle:visible')
+                                             .find('.text'));
         if (val === "") {
             searchBar.clearSearch(function() {
                 $('.xcTable:visible').find('.selectedCell')
-                                     .removeClass('selectedCell');
+                                     .removeClass('selectedCell')
+                                     .end()
+                                     .closest('.xcTableWrap')
+                                     .find('.tblTitleSelected')
+                                     .removeClass('tblTitleSelected');
+
+                if (initialTableId && initialTableId === gActiveTableId) {
+                    focusTable(initialTableId, true);
+                } else {
+                    RowScroller.empty();
+                }
                 $functionArea.removeClass('searching');
             });
             return;
         }
        
-        var $matchedInputs = $headerInputs.filter(function() {
-            return ($(this).val().toLowerCase().indexOf(val) !== -1);
+        var $matchedInputs = $searchableFields.filter(function() {
+            if ($(this).is('.editableHead')) {
+                return ($(this).val().toLowerCase().indexOf(val) !== -1);
+            } else if ($(this).is('.text')) {
+                return ($(this).data('title').toLowerCase().indexOf(val) !== -1);
+            }
+            
         });
         var numMatches = $matchedInputs.length;
         var position = Math.min(1, numMatches);
-        searchBar.$matches = $matchedInputs.closest('th');
+        var $matches = $matchedInputs.closest('th')
+                                     .add($matchedInputs
+                                     .closest('.tableTitle'));
+        searchBar.$matches = $matches;
         searchBar.numMatches = numMatches;
         $functionArea.find('.position').html(position);
         $functionArea.find('.total').html('of ' + numMatches);
-        $('.xcTable:visible').find('.selectedCell').removeClass('selectedCell');
-
+        $('.xcTable:visible').find('.selectedCell')
+                             .removeClass('selectedCell')
+                             .end()
+                             .closest('.xcTableWrap')
+                             .find('.tblTitleSelected')
+                             .removeClass('tblTitleSelected');
+        RowScroller.empty();
         if (numMatches !== 0) {
-            searchBar.scrollMatchIntoView(searchBar.$matches.eq(0));
-            searchBar.highlightSelected(searchBar.$matches.eq(0));
+            searchBar.scrollMatchIntoView($matches.eq(0));
+            searchBar.highlightSelected($matches.eq(0));
         }
     }
 
-    function clearColSearch($headerInputs, searchBar) {
-        $headerInputs.closest('th').removeClass('selectedCell');
-        $('#functionArea').find('.position, .total').html("");
-        searchBar.matchIndex = 0;
-        searchBar.$matches = [];
-        searchBar.numMatches = 0;
-    }
+
 
     function formatColumnCell(val, format, decimals) {
         val = parseFloat(val);

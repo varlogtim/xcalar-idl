@@ -190,7 +190,7 @@ DataCartStr = {
 };
 
 WorksheetStr = {
-    'SearchColumn': 'search for a column'
+    'SearchTableAndColumn': 'search for a table or column'
 };
 
 PreviewStr = {
