@@ -1161,6 +1161,7 @@ window.TblMenu = (function(TblMenu, $) {
                     '<li class="textAlign leftAlign">Left Align</li>' +
                     '<li class="textAlign centerAlign">Center Align</li>' +
                     '<li class="textAlign rightAlign">Right Align</li>' +
+                    '<li class="textAlign wrapAlign">Wrap Text</li>' +
                 '</ul>' +
                 '<ul class="resize">' +
                     '<li class="resize sizeToHeader">Size To Header</li>' +
@@ -1232,6 +1233,7 @@ window.TblMenu = (function(TblMenu, $) {
                     '<li class="textAlign leftAlign">Left Align</li>' +
                     '<li class="textAlign centerAlign">Center Align</li>' +
                     '<li class="textAlign rightAlign">Right Align</li>' +
+                    '<li class="textAlign wrapAlign">Wrap Text</li>' + 
                 '</ul>' +
                 '<ul class="multiResize">' +
                     '<li class="resize sizeToHeader">Size To Header</li>' +

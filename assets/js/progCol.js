@@ -1864,8 +1864,10 @@ window.ColManager = (function($, ColManager) {
             alignment = "Left";
         } else if (alignment.indexOf("rightAlign") > -1) {
             alignment = "Right";
-        } else {
+        } else if (alignment.indexOf("centerAlign") > -1) {
             alignment = "Center";
+        } else {
+            alignment = "Wrap";
         }
         var table  = gTables[tableId];
         var $table = $('#xcTable-' + tableId);
@@ -1884,6 +1886,7 @@ window.ColManager = (function($, ColManager) {
                 .removeClass('textAlignLeft')
                 .removeClass('textAlignRight')
                 .removeClass('textAlignCenter')
+                .removeClass('textAlignWrap')
                 .addClass('textAlign' + alignment);
             curCol.textAlign = alignment;
             colNames.push(curCol.name);
@@ -2073,6 +2076,8 @@ window.ColManager = (function($, ColManager) {
                         tdClass += " textAlignLeft";
                     } else if (tableCols[col].textAlign === "Right") {
                         tdClass += " textAlignRight";
+                    } else if (tableCols[col].textAlign === "Wrap") {
+                        tdClass += " textAlignWrap";
                     }
 
                     //define type of the column
