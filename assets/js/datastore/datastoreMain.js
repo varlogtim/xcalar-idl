@@ -61,7 +61,7 @@ window.DataStore = (function($, DataStore) {
                 $exploreView.show();
                 $contentHeaderRight.show();
                 $exportView.hide();
-                $contentHeaderMidText.text('DATA SET');
+                $contentHeaderMidText.text('DATASET');
                 DataSampleTable.sizeTableWrapper();
             }
             $button.siblings().removeClass('active');

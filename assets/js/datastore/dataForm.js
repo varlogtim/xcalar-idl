@@ -191,7 +191,7 @@ window.DatastoreForm = (function($, DatastoreForm) {
         .then(function() {
             var msgId = StatusMessage.addMsg({
                 "msg"      : StatusMessageTStr.LoadingDataset + ": " + dsName,
-                "operation": "data set load"
+                "operation": SQLOps.DSLoad
             });
 
             DS.load(dsName, dsFormat, loadURL, fieldDelim, lineDelim,

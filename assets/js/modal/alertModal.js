@@ -26,6 +26,7 @@ window.Alert = (function($, Alert){
     };
 
     Alert.show = function(options) {
+        options = options || {};
        /* options includes:
             title: titile of the alert
             instr: instruction information

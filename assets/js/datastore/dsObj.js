@@ -191,7 +191,7 @@ window.DS = (function ($, DS) {
             if (!result) {
                 // if dataset cannot be parsed produce a load fail
                 var msg = {
-                    "error"    : 'Cannot parse data set "' + dsName + '".',
+                    "error"    : 'Cannot parse dataset "' + dsName + '".',
                     "dsCreated": true
                 };
                 return jQuery.Deferred().reject(msg);
@@ -230,7 +230,7 @@ window.DS = (function ($, DS) {
                 $("#dataSetTableWrap").empty();
             }
             if (error.dsCreated) {
-                // if a data set was loaded but cannot be parsed, destroy it
+                // if a dataset was loaded but cannot be parsed, destroy it
                 DS.release()
                 .then(function() {
                     sqlOptions = {

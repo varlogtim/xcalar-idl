@@ -184,7 +184,7 @@ DataCartStr = {
     'NoCartTitle': 'No Tables Selected',
     'HaveCartTitle': 'Selected Tables',
     'NoColumns': 'No Columns Selected',
-    'HelpText': 'To add a column to the data cart, select a data set on the left' +
+    'HelpText': 'To add a column to the data cart, select a dataset on the left' +
                 ' and click on the column names that you are interested' +
                 ' in inside the center panel.'
 };

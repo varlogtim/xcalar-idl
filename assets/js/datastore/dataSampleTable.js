@@ -41,7 +41,7 @@ window.DataSampleTable = (function($, DataSampleTable) {
                 '</div>';
             var loadingMsg =
                 '<div class="loadingMsg">' +
-                        'Data set is loading' + animatedDots +
+                        'Dataset is loading' + animatedDots +
                 '</div>';
             $datasetWrap.addClass("loading");
             $tableWrap.html(loadingMsg);

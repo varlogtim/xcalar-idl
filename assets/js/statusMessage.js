@@ -296,7 +296,7 @@ window.StatusMessage = (function($, StatusMessage) {
                             operation + status +
                     '<div class="close">+</div></div>');
 
-        if (operation === 'data set load') {
+        if (operation === SQLOps.DSLoad) {
             // only display notification if not on data store tab
             if (!$('#dataStoresTab').hasClass('active')) {
                 $popups = $('.tableDonePopup.datastoreNotify');
@@ -439,7 +439,7 @@ window.StatusMessage = (function($, StatusMessage) {
             });
 
             
-            if (status.indexOf('failed') === -1 && 
+            if (status.indexOf('failed') === -1 &&
                 (classes.indexOf('right') > -1 || classes.indexOf('left'))) {
                 // detects if user scrolls to table. If so, remove mainFrame
                 // scroll Listener
