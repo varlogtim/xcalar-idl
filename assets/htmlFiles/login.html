@@ -82,7 +82,6 @@ $(document).ready(function() {
         // XXX prevent form to submit, temporary use
         event.preventDefault();
         console.log("username:", username);
-        console.log("password: "+$("#loginPasswordBox").val());
         sessionStorage.setItem("xcalar-username", username);
         sessionStorage.setItem("xcalar-fullUsername", fullUsername);
         // XXX this redirect is only for temporary use
