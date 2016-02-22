@@ -192,3 +192,13 @@ DataCartStr = {
 WorksheetStr = {
     'SearchColumn': 'search for a column'
 };
+
+PreviewStr = {
+    'NoDelim': 'You have not chosen a delimiter.',
+    'NoHeader': 'You have not chosen a header row.',
+    'NoDelimAndHeader': 'You have not chosen a delimiter and header row.'
+};
+
+DataFormStr = {
+ 'NoHeader': 'You have not checked header option to promote first row as header.'
+};

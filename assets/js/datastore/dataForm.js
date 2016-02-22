@@ -37,7 +37,6 @@ window.DatastoreForm = (function($, DatastoreForm) {
         "CSV"   : "CSV",
         "Random": "rand",
         "Raw"   : "raw",
-        "UDF"   : "UDF",
         "Excel" : "Excel"
     };
 
@@ -297,9 +296,12 @@ window.DatastoreForm = (function($, DatastoreForm) {
         var lineDelim  = delimiterTranslate($lineText);
         var header = $headerCheckBox.find(".checkbox").hasClass("checked");
 
-        DatastoreForm.load(dsName, dsFormat, loadURL,
+        promoptHeaderAlert(dsFormat, header)
+        .then(function() {
+            return DatastoreForm.load(dsName, dsFormat, loadURL,
                             fieldDelim, lineDelim, header,
-                            moduleName, funcName)
+                            moduleName, funcName);
+        })
         .then(deferred.resolve)
         .fail(deferred.reject);
 
@@ -407,6 +409,29 @@ window.DatastoreForm = (function($, DatastoreForm) {
         }
 
         return true;
+    }
+
+    function promoptHeaderAlert(dsFormat, hasHeader) {
+        var deferred = jQuery.Deferred();
+        if (!hasHeader &&
+            (dsFormat === formatMap.CSV ||
+            dsFormat === formatMap.Raw ||
+            dsFormat === formatMap.Excel)) {
+
+            var msg = DataFormStr.NoHeader + " " +
+                        ErrorTextTStr.ContinueVerification;
+
+            Alert.show({
+                "title"  : "LOAD DATASET CONFIRMATION",
+                "msg"    : msg,
+                "confirm": function() { deferred.resolve(); },
+                "cancel" : function() { deferred.reject("canceled"); }
+            });
+        } else {
+            deferred.resolve();
+        }
+
+        return deferred.promise();
     }
 
     function hideDropdownMenu() {

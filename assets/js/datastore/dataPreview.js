@@ -380,14 +380,13 @@ window.DataPreview = (function($, DataPreview) {
         {
             var msg;
             if (delimiter === "" && !hasHeader) {
-                msg = "You have not chosen a delimiter and " +
-                        "header row.\n";
+                msg = PreviewStr.NoDelimAndHeader;
             } else if (delimiter === ""){
-                msg = "You have not chosen a delimiter.\n";
+                msg = PreviewStr.NoDelim;
             } else if (!hasHeader) {
-                msg = "You have not chosen a header row.\n";
+                msg = PreviewStr.NoHeader;
             }
-            msg += ErrorTextTStr.ContinueVerification;
+            msg += '\n' + ErrorTextTStr.ContinueVerification;
 
             Alert.show({
                 "title"  : "LOAD DATASET CONFIRMATION",
