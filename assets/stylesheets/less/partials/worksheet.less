@@ -404,6 +404,9 @@
                 .textOverflow;
                 visibility: hidden;
             }
+            .dropdownBox {
+                width: 24px;
+            }
         }
 
         .xcTbodyWrap {
@@ -708,7 +711,7 @@
 
         .tableGrab {
             .position(absolute, @top: 0);
-            .size(@width: ~"calc(100% - 15px)", @height: 35px);
+            .size(@width: 100%, @height: 35px);
             z-index: 2;
             .cursor-move;
         }
@@ -734,7 +737,7 @@
 
         .dropdownBox {
             .position(absolute, @right: -3px, @bottom: -4px);
-            .size(32px, 38px);
+            .size(32px, 30px);
             z-index: 6;
             opacity: 0;
             border: none;

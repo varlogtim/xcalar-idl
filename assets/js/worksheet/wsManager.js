@@ -800,7 +800,7 @@ window.WSManager = (function($, WSManager) {
         $workSheetTabSection.sortable({
             "revert"  : 200,
             "axis"    : "x",
-            "distance": 4,
+            "distance": 2,
             "handle"  : ".draggableArea",
             "start"   : function(event, ui) {
                 var $tab = $(ui.item).addClass('dragging');

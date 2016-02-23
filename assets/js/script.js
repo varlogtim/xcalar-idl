@@ -709,6 +709,9 @@ window.StartManager = (function(StartManager, $) {
                 case ("resizingRow"):
                     gResrowMouseMove(event);
                     break;
+                case ("checkingMovingTable"):
+                    checkDragTableMouseMove(event);
+                    break;
                 case ("movingTable"):
                     dragTableMouseMove(event);
                     break;
@@ -734,6 +737,9 @@ window.StartManager = (function(StartManager, $) {
                     gResrowMouseUp();
                     break;
                 case ("movingTable"):
+                    dragTableMouseUp();
+                    break;
+                case ("checkingMovingTable"):
                     dragTableMouseUp();
                     break;
                 case ("movingCol"):
