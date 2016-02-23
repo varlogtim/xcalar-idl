@@ -975,7 +975,9 @@ input {
 
                 .grid-unit.folder.display {
                     > .label {
-                        cursor: text;
+                        &input {
+                           cursor: text; 
+                        }
 
                         &:focus {
                             .size(@width: 130%);

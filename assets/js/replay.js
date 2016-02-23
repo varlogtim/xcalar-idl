@@ -229,8 +229,8 @@ window.Replay = (function($, Replay) {
                 return replayQuickAgg(options);
             case SQLOps.Corr:
                 return replayCorr(options);
-            case SQLOps.AddDS:
-                return replayAddDS(options);
+            case SQLOps.AddOhterUserDS:
+                return replayAddOtherUserDS(options);
             case SQLOps.SplitCol:
                 return replaySplitCol(options);
             case SQLOps.ChangeType:
@@ -351,7 +351,7 @@ window.Replay = (function($, Replay) {
         argsMap[SQLOps.Profile] = ["tableId", "colNum"];
         argsMap[SQLOps.QuickAgg] = ["tableId"];
         argsMap[SQLOps.Corr] = ["tableId"];
-        argsMap[SQLOps.AddDS] = ["name", "format", "path"];
+        argsMap[SQLOps.AddOhterUserDS] = ["name", "format", "path"];
         argsMap[SQLOps.ExportTable] = ["tableName", "exportName", "targetName", "numCols", "columns"];
         argsMap[SQLOps.SplitCol] = ["colNum", "tableId",
                                     "delimiter", "numColToGet"];
@@ -372,7 +372,7 @@ window.Replay = (function($, Replay) {
         tabMap[SQLOps.DSToDir] = Tab.DS;
         tabMap[SQLOps.DSDropBack] = Tab.DS;
         tabMap[SQLOps.DelFolder] = Tab.DS;
-        tabMap[SQLOps.AddDS] = Tab.DS;
+        tabMap[SQLOps.AddOhterUserDS] = Tab.DS;
     }
 
     function sqlFilter(sql) {
@@ -410,10 +410,12 @@ window.Replay = (function($, Replay) {
         var deferred = jQuery.Deferred();
         // this is a UI simulation replay
         var dsName     = options.dsName;
+        var dsId       = options.dsId;
         var columns    = options.columns;
         var tableName  = options.tableName;
         var $mainFrame = $("#mainFrame");
-        var $grid      = DS.getGridByName(dsName);
+
+        var $grid = DS.getGrid(dsId);
         var originTableLen;
 
         $grid.click();
@@ -560,14 +562,7 @@ window.Replay = (function($, Replay) {
         // UI simulation replay
         var deferred = jQuery.Deferred();
         var $gridView = $("#exploreView").find(".gridItems");
-        var $ds = DS.getGridByName(options.dsName);
-
-        if (options.isOrphaned === true) {
-            // delete orphenaed ds
-            DS.remove($ds, true);
-            deferred.resolve();
-            return (deferred.promise());
-        }
+        var $ds = DS.getGrid(options.dsId);
 
         var dSLen = $gridView.find(".ds").length;
 
@@ -1182,9 +1177,9 @@ window.Replay = (function($, Replay) {
         return (deferred.promise());
     }
 
-    function replayAddDS(options) {
+    function replayAddOtherUserDS(options) {
         var args = getArgs(options);
-        DS.addDS.apply(window, args);
+        DS.addOtherUserDS.apply(window, args);
         return (promiseWrapper(null));
     }
 

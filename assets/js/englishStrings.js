@@ -131,7 +131,9 @@ ErrorTextTStr = {
 
     'InvalidURLToBrowse': 'Please add protocol to file path. ' +
                           'For example: nfs:/// or hdfs:/// or ' +
-                          'file:/// (for local filesystem)'
+                          'file:/// (for local filesystem)',
+
+    'PreservedName': 'This name is preserved, please use another name.'
 };
 
 ErrorTextWReplaceTStr = {

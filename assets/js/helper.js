@@ -125,6 +125,31 @@ window.xcHelper = (function($, xcHelper) {
         return null;
     };
 
+    xcHelper.wrapDSName = function(dsName) {
+        dsName = dsName || "";
+        var fulldsName = Support.getUser() + "." + dsName;
+        return fulldsName;
+    };
+
+    xcHelper.parseDSName = function(fulldsName) {
+        var nameSplits = fulldsName.split(".");
+        var user;
+        var dsName;
+
+        if (nameSplits.length === 1) {
+            user = "Unknow User";
+            dsName = nameSplits[0];
+        } else {
+            user = nameSplits.splice(0, 1)[0];
+            dsName = nameSplits.join(".");
+        }
+
+        return {
+            "user"  : user,
+            "dsName": dsName
+        };
+    };
+
     // get unique column name
     xcHelper.getUniqColName = function(name, tableCols) {
         var colNames = {};

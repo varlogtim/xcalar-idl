@@ -335,7 +335,7 @@ function METAConstructor(atStartUp) {
 // datastore.js
 function Cart(options) {
     options = options || {};
-    this.dsName = options.dsName;
+    this.dsId = options.dsId;
     this.tableName = options.tableName;
     // items will be restored in DataCart.restore
     this.items = [];
@@ -344,6 +344,19 @@ function Cart(options) {
 }
 
 Cart.prototype = {
+    "getId": function() {
+        return this.dsId;
+    },
+
+    "getDSName": function() {
+        var ds = DS.getDSObj(this.dsId);
+        return ds.getFullName();
+    },
+
+    "getTableName": function() {
+        return this.tableName;
+    },
+
     "updateTableName": function(tableName) {
         this.tableName = tableName;
     },
@@ -517,8 +530,11 @@ function DSObj(options) {
     options = options || {};
     this.id = options.id;
     this.name = options.name;
+    this.user = options.user;
+    this.fullName = options.fullName;
     this.parentId = options.parentId;
     this.isFolder = options.isFolder;
+    this.uneditable = options.uneditable;
 
     // initially, dataset count itself as one child,
     // folder has no child;
@@ -533,7 +549,7 @@ function DSObj(options) {
         this.numEntries = options.numEntries;
     }
 
-    if (this.parentId >= 0) {
+    if (this.parentId !== DSObjTerm.homeParentId) {
         var parent = DS.getDSObj(this.parentId);
         parent.eles.push(this);
         // update totalChildren of all ancestors
@@ -554,6 +570,14 @@ DSObj.prototype = {
 
     getName: function() {
         return this.name;
+    },
+
+    getUser: function() {
+        return this.user;
+    },
+
+    getFullName: function() {
+        return this.fullName;
     },
 
     getFormat: function() {
@@ -648,6 +672,10 @@ DSObj.prototype = {
         return this.isFolder && this.eles.length > 0;
     },
 
+    isEditable: function() {
+        return !this.uneditable;
+    },
+
     setNumEntries: function(num) {
         this.numEntries = num;
     },
@@ -678,6 +706,13 @@ DSObj.prototype = {
                 "check": function() {
                     return (parent.checkNameConflict(self.id, newName,
                                                      self.isFolder));
+                }
+            },
+            {
+                "$selector": DS.getGrid(self.id),
+                "text"     : ErrorTextTStr.PreservedName,
+                "check"    : function() {
+                    return newName === DSObjTerm.OhterUserFolder;
                 }
             }
         ]);

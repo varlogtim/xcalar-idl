@@ -94,10 +94,8 @@ window.DataCart = (function($, DataCart) {
         // remove selected key
         $cartArea.on("click", ".removeCol", function() {
             var $li = $(this).closest(".colWrap");
-            var dsname = $li.closest(".selectedTable").attr("id")
-                            .split("selectedTable-")[1];
-
-            removeCartItem(dsname, $li);
+            var dsId = $li.closest(".selectedTable").data("dsid");
+            removeCartItem(dsId, $li);
         });
 
         // edit table name event
@@ -109,11 +107,10 @@ window.DataCart = (function($, DataCart) {
             },
             "change": function() {
                 var $input = $(this);
-                var dsName = $input.closest(".selectedTable").attr("id")
-                                .split("selectedTable-")[1];
+                var dsId = $input.closest(".selectedTable").data("dsid");
                 var tableName = $input.val().trim();
                 // update
-                var cart = filterCarts(dsName);
+                var cart = filterCarts(dsId);
                 cart.updateTableName(tableName);
             },
             "focus": function() {
@@ -135,12 +132,16 @@ window.DataCart = (function($, DataCart) {
         return (innerCarts);
     };
 
+    DataCart.getCartById = function(dsId) {
+        return $cartArea.find('.selectedTable[data-dsid="' + dsId + '"]');
+    };
+
     // add column to cart
-    DataCart.addItem = function(dsName, items) {
-        var cart = filterCarts(dsName);
+    DataCart.addItem = function(dsId, items) {
+        var cart = filterCarts(dsId);
 
         if (cart == null) {
-            cart = addCart(dsName);
+            cart = addCart(dsId);
         }
 
         if (items == null) {
@@ -157,15 +158,15 @@ window.DataCart = (function($, DataCart) {
     };
 
     // remove one column from cart
-    DataCart.removeItem = function(dsName, colNum) {
-        var $li = $("#selectedTable-" + dsName)
-                    .find("li[data-colnum=" + colNum + "]");
-        removeCartItem(dsName, $li);
+    DataCart.removeItem = function(dsId, colNum) {
+        var $cart = DataCart.getCartById(dsId);
+        var $li = $cart.find("li[data-colnum=" + colNum + "]");
+        removeCartItem(dsId, $li);
     };
 
     // remove one cart
-    DataCart.removeCart = function(dsName) {
-        var $cart = $("#selectedTable-" + dsName);
+    DataCart.removeCart = function(dsId) {
+        var $cart = DataCart.getCartById(dsId);
 
         if (gMinModeOn) {
             $cart.remove();
@@ -177,7 +178,7 @@ window.DataCart = (function($, DataCart) {
             });
         }
 
-        removeCart(dsName);    // remove the cart
+        removeCart(dsId);    // remove the cart
     };
 
     // restore the cart
@@ -186,7 +187,7 @@ window.DataCart = (function($, DataCart) {
         for (var i = carts.length - 1; i >= 0; i--) {
             // add cart use Array.unshift, so here should restore from end to 0
             var cart = carts[i];
-            var resotredCart = addCart(cart.dsName, cart.tableName, noNameCheck);
+            var resotredCart = addCart(cart.dsId, cart.tableName, noNameCheck);
             appendCartItem(resotredCart, cart.items);
         }
 
@@ -236,9 +237,9 @@ window.DataCart = (function($, DataCart) {
         }
     };
 
-    function filterCarts(dsName) {
+    function filterCarts(dsId) {
         for (var i = 0, len = innerCarts.length; i < len; i++) {
-            if (innerCarts[i].dsName === dsName) {
+            if (innerCarts[i].dsId === dsId) {
                 return (innerCarts[i]);
             }
         }
@@ -246,10 +247,10 @@ window.DataCart = (function($, DataCart) {
         return (null);
     }
 
-    function addCart(dsName, tableName, noNameCheck) {
-        tableName = tableName || dsName;
+    function addCart(dsId, tableName, noNameCheck) {
+        tableName = tableName || DS.getDSObj(dsId).getName();
         var cart = new Cart({
-            "dsName"   : dsName,
+            "dsId"     : dsId,
             "tableName": tableName
         });
 
@@ -257,8 +258,7 @@ window.DataCart = (function($, DataCart) {
         innerCarts.unshift(cart);
 
         var cartHtml =
-            '<div id="selectedTable-' + dsName + '"' +
-                'class="selectedTable">' +
+            '<div class="selectedTable" data-dsid="' + dsId + '">' +
                 '<div class="cartTitleArea">' +
                     '<input class="tableNameEdit textOverflow" type="text" ' +
                         'spellcheck="false" value="' + tableName + '">' +
@@ -293,7 +293,7 @@ window.DataCart = (function($, DataCart) {
     }
 
     function appendCartItem(cart, items) {
-        var $cart = $("#selectedTable-" + cart.dsName);
+        var $cart = DataCart.getCartById(cart.dsId);
         var li = "";
 
         for (var i = 0, len = items.length; i < len; i++) {
@@ -373,28 +373,27 @@ window.DataCart = (function($, DataCart) {
     }
 
     function emptyCart(cart) {
-        var $cart = $("#selectedTable-" + cart.dsName);
+        var $cart = DataCart.getCartById(cart.dsId);
         $cart.find("ul").empty();
         $cart.find(".cartEmptyHint").show();
         cart.emptyItem();
         refreshCart();
     }
 
-
-    function removeCart(dsName) {
+    function removeCart(dsId) {
         for (var i = 0, len = innerCarts.length; i < len; i++) {
-            if (innerCarts[i].dsName === dsName) {
+            if (innerCarts[i].dsId === dsId) {
                 innerCarts.splice(i, 1);
                 break;
             }
         }
     }
 
-    function removeCartItem(dsName, $li) {
+    function removeCartItem(dsId, $li) {
         var colNum = $li.data("colnum");
         var $table = $("#worksheetTable");
         // if the table is displayed
-        if ($table.data("dsname") === dsName) {
+        if ($table.data("dsid") === dsId) {
             $table.find("th.col" + colNum + " .header")
                         .removeClass('colAdded');
             $table.find(".col" + colNum).removeClass('selectedCol');
@@ -403,7 +402,7 @@ window.DataCart = (function($, DataCart) {
         if ($li.siblings().length === 0) {
             // empty this cart
             $li.closest(".selectedTable").remove();
-            removeCart(dsName);
+            removeCart(dsId);
         } else {
             if (gMinModeOn) {
                 $li.remove();
@@ -412,7 +411,7 @@ window.DataCart = (function($, DataCart) {
                     $li.remove();
                 });
             }
-            var cart = filterCarts(dsName);
+            var cart = filterCarts(dsId);
             cart.removeItem(colNum);
         }
 
@@ -492,8 +491,8 @@ window.DataCart = (function($, DataCart) {
     }
 
     function triggerScrollToDatasetColumn($li) {
-        var tableName = $li.closest('.selectedTable').attr('id').split("-")[1];
-        var $ds = $('#dataset-' + tableName);
+        var dsId = $li.closest('.selectedTable').data('dsid');
+        var $ds = DS.getGrid(dsId);
 
         if ($ds.hasClass("active")) {
             DataCart.scrollToDatasetColumn(true);
@@ -517,7 +516,8 @@ window.DataCart = (function($, DataCart) {
             return true;
         }
 
-        var $input = $('#selectedTable-' + cart.dsName + ' .tableNameEdit');
+        var $cart = DataCart.getCartById(dsId);
+        var $input = $cart.find(' .tableNameEdit');
         scrollToTableName($input);
         StatusBox.show(error, $input, true, 0, {'side': 'left'});
 
@@ -550,13 +550,14 @@ window.DataCart = (function($, DataCart) {
         var deferred = jQuery.Deferred();
         // store columns in localstorage using setgTable()
         var newTableCols = [];
-        var dsName = cart.dsName;
-        var tableName = cart.tableName + Authentication.getHashId();
+        var dsName = cart.getDSName();
+        var tableName = cart.getTableName() + Authentication.getHashId();
 
         // add sql
         var sqlOptions = {
             "operation": SQLOps.IndexDS,
             "dsName"   : dsName,
+            "dsId"     : cart.getId(),
             "tableName": tableName,
             "columns"  : []
         };

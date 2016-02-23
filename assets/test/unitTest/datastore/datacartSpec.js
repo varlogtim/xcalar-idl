@@ -5,7 +5,8 @@ function dataCartModuleTest() {
     var previousCart;
     var $mainTabCache;
     var minModeCache;
-    var testCartName;
+    var testCartId;
+    var fakeDSObj;
 
     before(function(){
         previousCart = DataCart.getCarts();
@@ -17,6 +18,12 @@ function dataCartModuleTest() {
         // go to the data store tab, or some UI effect like :visible cannot test
         $mainTabCache = $(".mainMenuTab.active");
         $('#dataStoresTab').click();
+
+        fakeDSObj = DS.__testOnly__.createDS({
+            "id"      : "testDS" + Math.floor(Math.random() * 1000 + 1),
+            "name"    : "testDS",
+            "isFolder": false
+        });
     });
 
     it('Should get cart', function() {
@@ -34,26 +41,27 @@ function dataCartModuleTest() {
     });
 
     it('Should add new cart', function() {
-        testCartName = "testCart" + Math.floor(Math.random() * 1000 + 1);
-        DataCart.addItem(testCartName);
+        testCartId = fakeDSObj.getId();
+        DataCart.addItem(testCartId);
 
         var carts = DataCart.getCarts();
         expect(carts).to.be.a('array').with.length(1);
 
         var cart = carts[0];
-        expect(cart).to.have.property('dsName').to.equal(testCartName);
+        expect(cart).to.have.property('dsId').to.equal(testCartId);
         expect(cart).to.have.property('items').with.length(0);
         expect(cart).to.have.property('tableName');
+    });
 
-        // UI check
-        var $cart = $("#selectedTable-" + testCartName);
+    it("Should get cart", function() {
+        var $cart = DataCart.getCartById(testCartId);
         assert.equal($cart.length, 1, 'have only 1 cart');
         assert.isTrue($cart.find(".cartEmptyHint").is(":visible"), 'Should see hint');
     });
 
     it('Should add item', function() {
         var items = [{"colNum": 1, "value": "testItem"}];
-        DataCart.addItem(testCartName, items);
+        DataCart.addItem(testCartId, items);
 
         var carts = DataCart.getCarts();
         expect(carts).to.be.a('array').with.length(1);
@@ -66,7 +74,7 @@ function dataCartModuleTest() {
         expect(item).to.have.property('value').to.equal("testItem");
 
         // UI check
-        var $cart = $("#selectedTable-" + testCartName);
+        var $cart = DataCart.getCartById(testCartId);
         assert.equal($cart.length, 1, 'still have only 1 cart');
         assert.equal($cart.find("li").length, 1, 'should have only 1 item');
         assert.isFalse($cart.find(".cartEmptyHint").is(":visible"),
@@ -74,7 +82,7 @@ function dataCartModuleTest() {
     });
 
     it('Should remove item', function() {
-        DataCart.addItem(testCartName, {"colNum": 2, "value": "testItem2"});
+        DataCart.addItem(testCartId, {"colNum": 2, "value": "testItem2"});
 
         var carts = DataCart.getCarts();
         expect(carts).to.be.a('array').with.length(1);
@@ -84,28 +92,32 @@ function dataCartModuleTest() {
         expect(cart).to.have.property('items').with.length(2);
 
         // should have 1 item after remove
-        DataCart.removeItem(testCartName, 1);
+        DataCart.removeItem(testCartId, 1);
         expect(cart).to.have.property('items').with.length(1);
 
 
         // UI check
-        var $li = $("#selectedTable-" + testCartName + " li");
+        var $cart = DataCart.getCartById(testCartId);
+        var $li = $cart.find("li");
         assert.equal($li.length, 1, 'have only 1 item');
         assert.equal($li.text(), 'testItem2', 'have the right item');
     });
 
     it('Should remove cart', function() {
-        DataCart.removeCart(testCartName);
+        DataCart.removeCart(testCartId);
 
         var carts = DataCart.getCarts();
         expect(carts).to.be.a('array').with.length(0);
 
         // UI check
-        var $cart = $("#selectedTable-" + testCartName);
+        var $cart = DataCart.getCartById(testCartId);
         assert.equal($cart.length, 0, 'should have no carts');
     });
 
     after(function() {
+        var $ds = DS.getGrid(fakeDSObj.getId());
+        DS.__testOnly__.removeDS($ds);
+
         $mainTabCache.click(); // go back to previous tab
         gMinModeOn = minModeCache;
     });

@@ -167,6 +167,7 @@ window.DataPreview = (function($, DataPreview) {
                                         .addClass("hidden");
 
             tableName = $("#fileName").val().trim();
+            tableName = xcHelper.wrapDSName(tableName);
             tableName = xcHelper.randName(tableName) ||   // when table name is empty
                         xcHelper.randName("previewTable");
             tableName += ".preview"; // specific format for preview table

@@ -303,7 +303,7 @@ window.SQL = (function($, SQL) {
                 // fallthrough
             case (SQLOps.Corr):
                 // fallthrough
-            case (SQLOps.AddDS):
+            case (SQLOps.AddOhterUserDS):
                 // fallthrough
             case (SQLOps.GroupBy):
                 // fallthrough (we have groupbyAction for machine cli)

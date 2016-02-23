@@ -1,5 +1,11 @@
 describe('Worksheet Interactivity', function() {
     var $tabs;
+    var minModeCache;
+
+    before(function() {
+        minModeCache = gMinModeOn;
+        gMinModeOn = true;
+    });
 
     describe('Worksheet existence', function() {
        
@@ -90,6 +96,10 @@ describe('Worksheet Interactivity', function() {
             expect(scrolledToEnd || correctTable).to.equal(true);
         });
     });
+
+    after(function() {
+        gMinModeOn = minModeCache;
+    });
 });
 
 function ensureTableExists(minNumTables) {
@@ -136,24 +146,28 @@ function autoAddTable() {
         dsName = "testsuiteschedule" + Math.floor(Math.random() * 10000);
         var $formatDropdown = $("#fileFormatMenu");
         $("#importDataButton").click();
+        $("#fileBrowserModal .close").click();
         $("#filePath").val('file:///var/tmp/qa/indexJoin/schedule');
         $formatDropdown.find('li[name="JSON"]').click();
         $('#fileName').val(dsName);
         $("#importDataSubmit").click();
-        dsIcon = "#dataset-" + dsName + ":not(.inactive)";
+        dsIcon = '#exploreView .grid-unit[data-dsname="' +
+                  dsName + '"]:not(.inactive)';
     }
     
     
     TestSuite.__testOnly__.checkExists(dsIcon)
     .then(function() {
-        $("#dataset-" + dsName + " .gridIcon").click();
-        TestSuite.__testOnly__.checkExists("#worksheetTable[data-dsname=" +
-                                            dsName +"]")
+        var $grid = $(dsIcon).click();
+        var dsId = $grid.data("dsid");
+        TestSuite.__testOnly__.checkExists('#worksheetTable[data-dsid="' +
+                                            dsId + '"]')
         .then(function() {
             $("#selectDSCols .icon").click();
             // wait for datacart name to change
             setTimeout(function() {
-                dsName = $('#selectedTable-' + dsName).find('input').val();
+                
+                dsName = DataCart.getCartById(dsId).find('input').val();
                 $("#submitDSTablesBtn").click();
                 TestSuite.__testOnly__.checkExists('.xcTableWrap' +
                                                    ' .tableName[value=' +

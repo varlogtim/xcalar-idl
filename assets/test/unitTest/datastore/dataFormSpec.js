@@ -321,7 +321,8 @@ function dataFormModuleTest() {
                 var innerDeferred = jQuery.Deferred();
                 // dealy delete ds since show the sample table needs time
                 setTimeout(function() {
-                    DS.__testOnly__.delDSHelper($grid, testDS)
+                    var dsObj = DS.getDSObj($grid.data("dsid"));
+                    DS.__testOnly__.delDSHelper($grid, dsObj)
                     .then(innerDeferred.resolve)
                     .fail(innerDeferred.reject);
                 }, 300);

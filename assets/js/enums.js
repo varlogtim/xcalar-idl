@@ -65,6 +65,14 @@ var TableType = {
     "Unknown" : "unknown source"
 };
 
+var DSObjTerm = {
+    "homeDir": ".",
+    "homeDirId": ".",
+    "homeParentId": ".parent",
+    "OhterUserFolder": "Other Users",
+    "OtherUserFolderId": ".other"
+};
+
 var fakeEvent = {
     "click"     : {"type": "click", "which": 1},
     "dblclick"  : {"type": "click", "which": 1},

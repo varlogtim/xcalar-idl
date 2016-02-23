@@ -21,8 +21,6 @@ window.DataSampleTable = (function($, DataSampleTable) {
             return (deferred.promise());
         }
 
-        var datasetName = dsObj.name;
-
         // only show buttons(select all, clear all, etc) when table can be disablyed
         var $dsColsBtn = $("#dsColsBtn");
 
@@ -52,6 +50,7 @@ window.DataSampleTable = (function($, DataSampleTable) {
         }
 
         // XcalarSample sets gDatasetBrowserResultSetId
+        var datasetName = dsObj.getFullName();
         XcalarSample(datasetName, 40)
         .then(function(result, totalEntries) {
             // update info here
@@ -62,7 +61,7 @@ window.DataSampleTable = (function($, DataSampleTable) {
         })
         .then(function(jsonKeys, jsons) {
             $datasetWrap.removeClass("loading");
-            getSampleTable(datasetName, jsonKeys, jsons);
+            getSampleTable(dsObj, jsonKeys, jsons);
 
             $dsColsBtn.show();
             $datasetWrap.removeClass("error");
@@ -99,8 +98,8 @@ window.DataSampleTable = (function($, DataSampleTable) {
         $datasetWrap.height(tableHeight + scrollBarPadding);
     };
 
-    function getSampleTable(dsName, jsonKeys, jsons) {
-        var html = getSampleTableHTML(dsName, jsonKeys, jsons);
+    function getSampleTable(dsObj, jsonKeys, jsons) {
+        var html = getSampleTableHTML(dsObj, jsonKeys, jsons);
         $tableWrap.html(html);
         restoreSelectedColumns();
         DataSampleTable.sizeTableWrapper();
@@ -121,7 +120,7 @@ window.DataSampleTable = (function($, DataSampleTable) {
 
         $("#dsInfo-title").text(dsName);
         // XXX TODO(bug 2742): these info should be changed after better backend support
-        $("#dsInfo-author").text(WKBKManager.getUser());
+        $("#dsInfo-author").text(dsObj.getUser());
         $("#dsInfo-createDate").text(xcHelper.getDate());
         $("#dsInfo-updateDate").text(xcHelper.getDate());
 
@@ -170,7 +169,8 @@ window.DataSampleTable = (function($, DataSampleTable) {
             scrollSampleAndParse(currentRow, numRowsToFetch)
             .fail(function(error) {
                 if (error.status === StatusT.StatusInvalidResultSetId) {
-                    var datasetName = $("#worksheetTable").data("dsname");
+                    var dsId = $("#worksheetTable").data("dsid");
+                    var datasetName = DS.getDSObj(dsId).getFullName();
                     XcalarMakeResultSetFromDataset(datasetName)
                     .then(function(result) {
                         gDatasetBrowserResultSetId = result.resultSetId;
@@ -274,11 +274,11 @@ window.DataSampleTable = (function($, DataSampleTable) {
         // select table witout picking columns
         $("#noDScols").click(function() {
             var $table = $("#worksheetTable");
-            var dsName = $table.data("dsname");
+            var dsId = $table.data("dsid");
             $table.find(".colAdded").removeClass("colAdded");
             $table.find(".selectedCol").removeClass("selectedCol");
 
-            DataCart.addItem(dsName, null);
+            DataCart.addItem(dsId, null);
         });
 
         // select all columns
@@ -289,10 +289,10 @@ window.DataSampleTable = (function($, DataSampleTable) {
         // clear all columns
         $("#clearDsCols").click(function() {
             var $table = $("#worksheetTable");
-            var dsName = $table.data("dsname");
+            var dsId = $table.data("dsid");
             $table.find(".colAdded").removeClass("colAdded");
             $table.find(".selectedCol").removeClass("selectedCol");
-            DataCart.removeCart(dsName);
+            DataCart.removeCart(dsId);
         });
 
         // click to select a column
@@ -368,7 +368,7 @@ window.DataSampleTable = (function($, DataSampleTable) {
     // select all columns
     function selectAllDSCols() {
         var items = [];
-        var dsName = $("#worksheetTable").data("dsname");
+        var dsId = $("#worksheetTable").data("dsid");
 
         $("#worksheetTable .editableHead").each(function() {
             var $input = $(this);
@@ -382,21 +382,21 @@ window.DataSampleTable = (function($, DataSampleTable) {
                 highlightColumn($input);
             }
         });
-        DataCart.addItem(dsName, items);
+        DataCart.addItem(dsId, items);
     }
 
     // select a column
     function selectColumn($input, selectAll) {
-        var dsName  = $("#worksheetTable").data("dsname");
+        var dsId = $("#worksheetTable").data("dsid");
         var $header = $input.closest(".header");
-        var colNum  = xcHelper.parseColNum($input);
+        var colNum = xcHelper.parseColNum($input);
         // unselect the column
         if ($header.hasClass("colAdded") && !selectAll) {
             highlightColumn($input, IsActive.Active);
-            DataCart.removeItem(dsName, colNum);
+            DataCart.removeItem(dsId, colNum);
         } else {
             highlightColumn($input);
-            DataCart.addItem(dsName, {
+            DataCart.addItem(dsId, {
                 "colNum": colNum,
                 "value" : $input.val()
             });
@@ -406,9 +406,10 @@ window.DataSampleTable = (function($, DataSampleTable) {
     // re-selecte columns that are in data carts
     function restoreSelectedColumns() {
         var $table = $("#worksheetTable");
-        var dsName = $table.data("dsname");
+        var dsId = $table.data("dsid");
+        var $cart = DataCart.getCartById(dsId);
 
-        $("#selectedTable-" + dsName).find("li").each(function() {
+        $cart.find("li").each(function() {
             var colNum = $(this).data("colnum");
             var $input = $table.find(".editableHead.col" + colNum);
             highlightColumn($input);
@@ -431,9 +432,9 @@ window.DataSampleTable = (function($, DataSampleTable) {
     }
 
     // sample table html
-    function getSampleTableHTML(dsName, jsonKeys, jsons) {
+    function getSampleTableHTML(dsObj, jsonKeys, jsons) {
         // validation check
-        if (!dsName || !jsonKeys || !jsons) {
+        if (!dsObj || !jsonKeys || !jsons) {
             return "";
         }
 
@@ -500,7 +501,7 @@ window.DataSampleTable = (function($, DataSampleTable) {
         var html =
             '<div class="datasetTbodyWrap">' +
                 '<table id="worksheetTable" class="datasetTable dataTable" ' +
-                        'data-dsname="' + dsName + '">' +
+                        'data-dsid="' + dsObj.getId() + '">' +
                     '<thead>' +
                         '<tr>' + th + '</tr>' +
                     '</thead>' +

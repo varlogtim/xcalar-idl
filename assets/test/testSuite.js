@@ -280,6 +280,11 @@ window.TestSuite = (function($, TestSuite) {
         }
     }
 // ======================== TEST DEFINITIONS GO HERE ======================= //
+    function getDSIcon(dsName) {
+        return '#exploreView .grid-unit[data-dsname="' +
+                            dsName + '"]:not(.inactive)';
+    }
+
     function flightTest(deferred, testName, currentTestNumber) {
         /** This test replicates a simple version of Cheng's flight demo
         This tests all major functionality
@@ -330,8 +335,8 @@ window.TestSuite = (function($, TestSuite) {
             $("#fieldDelim .list li[name='comma']").click();
             $("#importDataSubmit").click();
 
-            var ds1Icon = "#dataset-" + dsName1 + ":not(.inactive)";
-            var ds2Icon = "#dataset-" + dsName2 + ":not(.inactive)";
+            var ds1Icon = getDSIcon(dsName1);
+            var ds2Icon = getDSIcon(dsName2);
 
             checkExists([ds1Icon, ds2Icon])
             .then(function() {
@@ -345,13 +350,18 @@ window.TestSuite = (function($, TestSuite) {
 
         // Select columns in dataset and send to worksheet
         function flightTestPart2(dsName1, dsName2) {
-            $("#dataset-" + dsName2 + " .gridIcon").click();
-            checkExists("#worksheetTable[data-dsname=" + dsName2 + "]")
+            var $grid1 = $(getDSIcon(dsName1));
+            var dsId1  = $grid1.data("dsid");
+            var $grid2 = $(getDSIcon(dsName2));
+            var dsId2  = $grid2.data("dsid");
+
+            $grid2.find(".gridIcon").click();
+            checkExists('#worksheetTable[data-dsid="' + dsId2 + '"]')
             .then(function() {
                 $("#selectDSCols .icon").click();
-                $("#dataset-" + dsName1 + " .gridIcon").click();
-                return (checkExists("#worksheetTable[data-dsname=" + dsName1 +
-                        "]"));
+                $grid1.find(".gridIcon").click();
+                return (checkExists('#worksheetTable[data-dsid="' +
+                                    dsId1 + '"]'));
             })
             .then(function() {
                 $("#selectDSCols .icon").click();
@@ -699,9 +709,12 @@ window.TestSuite = (function($, TestSuite) {
         $("#fileFormat li[name='JSON']").click();
         $("#importDataSubmit").click();
 
-        checkExists("#dataset-" + dsName + ":not(.inactive)")
+        var dsIcon = getDSIcon(dsName);
+        checkExists(dsIcon)
         .then(function() {
-            return (checkExists("#worksheetTable[data-dsname=" + dsName + "]"));
+            var $grid = $(dsIcon);
+            var dsId = $grid.data("dsid");
+            return (checkExists('#worksheetTable[data-dsid="' + dsId + '"]'));
         }).then(function(){
             $(".contentViewTable .flexContainer").eq(0).click();
             $(".contentViewTable .flexContainer").eq(5).click();

@@ -6,6 +6,7 @@ function dsObjTest() {
 
     var testFolder;
     var testDS;
+    var user;
 
     before(function(){
         // go to the data store tab, or some UI effect like :visible cannot test
@@ -14,6 +15,7 @@ function dsObjTest() {
 
         $gridView = $("#exploreView").find(".gridItems");
         $statusBox = $("#statusBox");
+        user = Support.getUser();
     });
 
     describe("Grid View Test", function() {
@@ -32,10 +34,12 @@ function dsObjTest() {
         it("Should get home folder", function() {
             var homeFolder = DS.getHomeDir();
             expect(homeFolder).to.be.an("object");
-            expect(homeFolder).to.have.property("id").to.equal(0);
+            expect(homeFolder).to.have.property("id").to.equal(".");
             expect(homeFolder).to.have.property("name").to.equal(".");
-            expect(homeFolder).to.have.property("parentId").to.equal(-1);
-            expect(homeFolder).to.have.property("isFolder").to.true;
+            expect(homeFolder).to.have.property("user").to.equal(user);
+            expect(homeFolder).to.have.property("parentId").to.equal(".parent");
+            expect(homeFolder).to.have.property("isFolder").to.be.true;
+            expect(homeFolder).to.have.property("uneditable").to.be.false;
             expect(homeFolder).to.have.property("eles")
                                 .to.be.instanceof(Array)
                                 .to.have.length.of.at.least(0);
@@ -44,28 +48,30 @@ function dsObjTest() {
         });
 
         it("Should get dsObj", function() {
-            expect(DS.getDSObj(0)).to.equal(DS.getHomeDir());
-            expect(DS.getGrid(0)).not.to.be.empty;
+            expect(DS.getDSObj(".")).to.equal(DS.getHomeDir());
+            expect(DS.getGrid(".")).not.to.be.empty;
         });
 
         it("DS.has should work", function() {
             var testName = xcHelper.uniqueRandName("testSuites-dsObj", DS.has, 10);
             expect(DS.has(testName)).to.be.false;
+            expect(DS.has(null)).to.be.false;
         });
     });
 
     describe("New Folder Test", function() {
         it("Should create new folder", function() {
-            expect(DS.has(testFolder)).to.be.false;
             testFolder = DS.newFolder();
 
             expect(testFolder).to.be.instanceof(DSObj);
             expect(testFolder).to.have.property("id");
             expect(testFolder).to.have.property("name");
+            expect(testFolder).to.have.property("user").to.equal(user);
             expect(testFolder).to.have.property("parentId");
             expect(testFolder).to.have.property("eles");
             expect(testFolder).to.have.property("totalChildren");
-            expect(testFolder).to.have.property("isFolder").to.true;
+            expect(testFolder).to.have.property("isFolder").to.be.true;
+            expect(testFolder).to.have.property("uneditable").to.be.false;
         });
 
         it("Should get testFolder from id", function() {
@@ -144,10 +150,10 @@ function dsObjTest() {
             var dsId = testDS.getId();
             var dsName = testDS.getName();
 
+            expect(DS.getGridByName(dsName)).not.to.be.empty;
             expect(DS.getDSObj(dsId)).to.equal(testDS);
             var $grid = DS.getGrid(dsId);
             expect($grid).not.to.be.empty;
-            expect(DS.getGridByName(dsName)).not.to.be.empty;
             expect(DS.has(dsName)).to.be.true;
         });
 
@@ -284,7 +290,7 @@ function dsObjTest() {
 
         it("Should delete ds", function(done) {
             var dsId = testDS.getId();
-            DS.__testOnly__.delDSHelper($ds, testDS.getName())
+            DS.__testOnly__.delDSHelper($ds, testDS)
             .then(function() {
                 // ds is deleted
                 expect(DS.getGrid(dsId)).have.length(0);

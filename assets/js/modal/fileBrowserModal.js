@@ -403,42 +403,68 @@ window.FileBrowser = (function($, FileBrowser) {
 
         name = name.replace(/[^a-zA-Z0-9]/g, "");
         var originalName = name;
+        var tries = 1;
+        var validNameFound = false;
+        while (!validNameFound && tries < 20) {
+            if (DS.has(name)) {
+                validNameFound = false;
+            } else {
+                validNameFound = true;
+            }
 
-        XcalarGetDatasets()
-        .then(function(result) {
-            var numDatasets = result.numDatasets;
-            var datasets = result.datasets;
-            var validNameFound = false;
-            var dsName;
-            var tries = 1;
-            var takenNamesMap = {};
-            for (var i = 0; i < numDatasets; i++) {
-                dsName = datasets[i].name;
-                takenNamesMap[dsName] = true;
-            }
-            while (!validNameFound && tries < 20) {
-                if (takenNamesMap[name]) {
-                    validNameFound = false;
-                } else {
-                    validNameFound = true;
-                }
-                
-                if (!validNameFound) {
-                    tries++;
-                    name = originalName + tries;
-                }
-            }
             if (!validNameFound) {
-                while (takenNamesMap[name] && tries < 100) {
-                    name = xcHelper.randName(name, 4);
-                    tries++;
-                }
+                name = originalName + tries;
+                tries++;
             }
-            deferred.resolve(name);
-        })
-        .fail(function(error) {
-            deferred.reject(error);
-        });
+        }
+
+        if (!validNameFound) {
+            while (DS.has(name) && tries < 100) {
+                name = xcHelper.randName(name, 4);
+                tries++;
+            }
+        }
+
+        deferred.resolve(name);
+
+        // Cheng: now the real ds name has a name space as prefix,
+        // so datasets among different users will never have conflict
+        // so it's fine to use font check only
+        // XcalarGetDatasets()
+        // .then(function(result) {
+        //     var numDatasets = result.numDatasets;
+        //     var datasets = result.datasets;
+        //     var validNameFound = false;
+        //     var dsName;
+        //     var tries = 1;
+        //     var takenNamesMap = {};
+        //     for (var i = 0; i < numDatasets; i++) {
+        //         dsName = datasets[i].name;
+        //         takenNamesMap[dsName] = true;
+        //     }
+        //     while (!validNameFound && tries < 20) {
+        //         if (takenNamesMap[name]) {
+        //             validNameFound = false;
+        //         } else {
+        //             validNameFound = true;
+        //         }
+                
+        //         if (!validNameFound) {
+        //             tries++;
+        //             name = originalName + tries;
+        //         }
+        //     }
+        //     if (!validNameFound) {
+        //         while (takenNamesMap[name] && tries < 100) {
+        //             name = xcHelper.randName(name, 4);
+        //             tries++;
+        //         }
+        //     }
+        //     deferred.resolve(name);
+        // })
+        // .fail(function(error) {
+        //     deferred.reject(error);
+        // });
 
         return (deferred.promise());
     }

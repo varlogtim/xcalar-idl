@@ -2,10 +2,10 @@
  * Module for mamgement of dsObj
  */
 window.DS = (function ($, DS) {
-    var homeDirId = 0;  // home folder id, constant
+    var homeDirId = DSObjTerm.homeDirId;
 
     var curDirId;       // current folder id
-    var dsObjId;        // counter
+    var folderIdCount;  // counter
     var dsLookUpTable;  // find DSObj by dsId
     var homeFolder;
 
@@ -48,20 +48,6 @@ window.DS = (function ($, DS) {
         }
     };
 
-    // Get datasets element by dsName
-    DS.getGridByName = function(dsName) {
-        if (!dsName) {
-            return (null);
-        }
-
-        var $ds = $("#dataset-" + dsName);
-        if ($ds.length > 0) {
-            return ($("#dataset-" + dsName));
-        } else {
-            return (null);
-        }
-    };
-
     // create a new folder
     DS.newFolder = function() {
         var ds = createDS({
@@ -83,19 +69,47 @@ window.DS = (function ($, DS) {
     };
 
     // refresh a new dataset and add it to grid view
-    DS.addDS = function(name, format, path) {
-        createDS({
-            "name"    : name,
-            "isFolder": false,
-            "format"  : format,
-            "path"    : path
+    DS.addOtherUserDS = function(fullDSName, format, path) {
+        var parsedRes = xcHelper.parseDSName(fullDSName);
+        var user = parsedRes.user;
+        var dsName = parsedRes.dsName;
+        var mainFolderObj = DS.getDSObj(DSObjTerm.OtherUserFolderId);
+        var userFolderObj = null;
+
+        mainFolderObj.eles.some(function(dsObj) {
+            if (dsObj.getName() === user) {
+                userFolderObj = dsObj;
+                return true;
+            }
+            return false;
         });
 
-        refreshDS();
+        if (userFolderObj === null) {
+            userFolderObj = createDS({
+                "id"        : user,
+                "name"      : user,
+                "user"      : user,
+                "uneditable": true,
+                "isFolder"  : true,
+                "parentId"  : DSObjTerm.OtherUserFolderId
+            });
+        }
 
-        SQL.add("Add dataset", {
-            "operation": SQLOps.AddDS,
-            "name"     : name,
+        createDS({
+            "id"        : fullDSName, // user the fulldsname as a unique id
+            "name"      : dsName,
+            "user"      : user,
+            "fullName"  : fullDSName,
+            "uneditable": true,
+            "isFolder"  : false,
+            "format"    : format,
+            "path"      : path,
+            "parentId"  : userFolderObj.getId()
+        });
+
+        SQL.add("Add Other User's Dataset", {
+            "operation": SQLOps.AddOhterUserDS,
+            "name"     : fullDSName,
             "format"   : format,
             "path"     : path
         });
@@ -151,6 +165,12 @@ window.DS = (function ($, DS) {
 
         // Here null means the attr is a placeholder, will
         // be update when the sample table is loaded
+        var curFolder = DS.getDSObj(curDirId);
+        if (!curFolder.isEditable()) {
+            // if in the uneditable folder, go to the home folder first
+            DS.goToDir(homeDirId);
+        }
+
         var dsObj = createDS({
             "name"      : dsName,
             "isFolder"  : false,
@@ -160,7 +180,7 @@ window.DS = (function ($, DS) {
             "numEntries": null
         });
 
-        var $grid = DS.getGridByName(dsName);
+        var $grid = DS.getGrid(dsObj.getId());
         $grid.addClass('inactive');
         $grid.append('<div class="waitingIcon"></div>');
         $grid.find('.waitingIcon').fadeIn(200);
@@ -180,12 +200,13 @@ window.DS = (function ($, DS) {
             "funcName"  : funcName
         };
 
-        XcalarLoad(loadURL, dsFormat, dsName,
+        var fullDSName = dsObj.getFullName();
+        XcalarLoad(loadURL, dsFormat, fullDSName,
                    fieldDelim, lineDelim, hasHeader,
                    moduleName, funcName, sqlOptions)
         .then(function() {
             // sample the dataset to see if it can be parsed
-            return XcalarSample(dsName, 1);
+            return XcalarSample(fullDSName, 1);
         })
         .then(function(result) {
             if (!result) {
@@ -235,11 +256,11 @@ window.DS = (function ($, DS) {
                 .then(function() {
                     sqlOptions = {
                         "operation": "destroyDataSet",
-                        "dsName"   : dsName,
+                        "dsName"   : fullDSName,
                         "sqlType"  : SQLType.Fail
                     };
 
-                    return XcalarDestroyDataset(dsName, sqlOptions);
+                    return XcalarDestroyDataset(fullDSName, sqlOptions);
                 })
                 .fail(function(deferredError) {
                     Alert.error("Delete Dataset Fails", deferredError);
@@ -255,8 +276,8 @@ window.DS = (function ($, DS) {
     // Restore dsObj
     DS.restore = function(oldHomeFolder, datasets, atStartUp) {
         var numDatasets = datasets.numDatasets;
-        var totolDS = 0;
         var searchHash = {};
+        var userPrefix = xcHelper.wrapDSName("");
 
         DS.clear();
 
@@ -264,20 +285,20 @@ window.DS = (function ($, DS) {
         for (var i = 0; i < numDatasets; i++) {
             var dsName = datasets.datasets[i].name;
 
-            if (dsName.endsWith(".preview")) {
-                // deal with preview datasets
-                if (atStartUp) {
-                    // preview ds is deleted on start up time!!
-                    var sqlOptions = {
-                        "operation": SQLOps.DestroyPreviewDS,
-                        "dsName"   : dsName
-                    };
-                    XcalarDestroyDataset(dsName, sqlOptions);
-                }
+            if (atStartUp && dsName.endsWith(".preview") &&
+                dsName.startsWith(userPrefix))
+            {
+                // deal with preview datasets,
+                // if it's the current user's preview ds,
+                // then we delete it on start up time
+                var sqlOptions = {
+                    "operation": SQLOps.DestroyPreviewDS,
+                    "dsName"   : dsName
+                };
+                XcalarDestroyDataset(dsName, sqlOptions);
                 continue;
             }
 
-            ++totolDS;
             searchHash[dsName] = datasets.datasets[i];
         }
 
@@ -289,20 +310,41 @@ window.DS = (function ($, DS) {
             cache = oldHomeFolder.eles;
         }
 
+        // always create the other user's folder first
+        var ohterUserFolder = createDS({
+            "id"        : DSObjTerm.OtherUserFolderId,
+            "name"      : DSObjTerm.OhterUserFolder,
+            "parentId"  : homeDirId,
+            "isFolder"  : true,
+            "uneditable": true
+        });
+
         // restore the ds and folder
         var ds;
         var format;
-        var orphanedDS = [];
 
         while (cache.length > 0) {
             var obj = cache.shift();
+            if (obj.uneditable) {
+                // skip the restore of uneditable ds,
+                // it will be handled by DS.addOtherUserDS()
+                continue;
+            }
+
             if (obj.isFolder) {
                 // restore a folder
                 createDS(obj);
+
+                // update id count
+                updateFolderIdCount(obj.id);
+
+                if (obj.eles != null) {
+                    $.merge(cache, obj.eles);
+                }
             } else {
-                if (searchHash.hasOwnProperty(obj.name)) {
+                if (searchHash.hasOwnProperty(obj.fullName)) {
                     // restore a ds
-                    ds = searchHash[obj.name];
+                    ds = searchHash[obj.fullName];
                     format = DfFormatTypeTStr[ds.formatType].toUpperCase();
 
                     obj = $.extend(obj, {
@@ -312,21 +354,14 @@ window.DS = (function ($, DS) {
 
                     createDS(obj);
                     // mark the ds to be used
-                    delete searchHash[obj.name];
+                    delete searchHash[obj.fullName];
                 } else {
-                    // some ds is deleted by other users
-                    // restore it first and then delete(for Replay, need the sql)
-                    ds = createDS(obj);
-                    orphanedDS.push(ds);
-                    delete searchHash[obj.name];
+                    // when ds has front meta but no backend meta
+                    // this is an error case since only this user can delete
+                    // his own datasets
+                    console.error(obj, "has meta but no backend info!");
                 }
             }
-
-            if (obj.eles != null) {
-                $.merge(cache, obj.eles);
-            }
-            // update id count
-            dsObjId = Math.max(dsObjId, obj.id + 1);
         }
 
         // add ds that is not in oldHomeFolder
@@ -334,22 +369,20 @@ window.DS = (function ($, DS) {
             ds = searchHash[dsName];
             if (ds != null) {
                 format = DfFormatTypeTStr[ds.formatType].toUpperCase();
-                DS.addDS(ds.name, format, ds.url);
+                DS.addOtherUserDS(ds.name, format, ds.url);
             }
         }
 
-        // delete ds that is orphaned
-        var isOrphaned = true;
-        var $grid;
-        for (var i = 0, len = orphanedDS.length; i < len; i++) {
-            dsName = orphanedDS[i].name;
-            $grid = DS.getGridByName(dsName);
-            DS.remove($grid, isOrphaned);
+        if (!ohterUserFolder.beFolderWithDS()) {
+            // when the other user folder has no children
+            // remove this folder
+            var otherUserFolderId = ohterUserFolder.getId();
+            removeDS(DS.getGrid(otherUserFolderId));
         }
 
         // UI update
         refreshDS();
-        DataStore.update(totolDS);
+        DataStore.update();
 
         if (!atStartUp) {
             // if user trigger the restore, save!
@@ -389,52 +422,65 @@ window.DS = (function ($, DS) {
         }
     };
 
-    // Check if the ds's name already exists
-    DS.has = function(dsName) {
+    // helper function to find grid, mainly used in unit test
+    DS.getGridByName = function(dsName) {
+        if (dsName == null) {
+            return null;
+        }
         // now only check dataset name conflict
-        if (DS.getGridByName(dsName) != null) {
-            return true;
+        var user = Support.getUser();
+        var $ds = $explorePanel.find('.grid-unit[data-dsname="' +
+                    dsName + '"]').filter(function() {
+            // only check the dataset in user's namespace
+            return $(this).data("user") === user;
+        });
+
+        if ($ds.length > 0) {
+            return $ds;
         } else {
-            return false;
+            return null;
         }
     };
 
+    // Check if the ds's name already exists
+    DS.has = function(dsName) {
+        return (DS.getGridByName(dsName) != null);
+    };
+
     // Remove dataset/folder
-    DS.remove = function($grid, isOrphaned) {
+    DS.remove = function($grid) {
         xcHelper.assert(($grid != null && $grid.length !== 0),
                         "Invalid remove of ds");
 
-        var dsId   = $grid.data("dsid");
-        var dsObj  = DS.getDSObj(dsId);
-        var dsName = dsObj.getName();
+        var dsId  = $grid.data("dsid");
+        var dsObj = DS.getDSObj(dsId);
+        var msg;
 
-        if ($grid.hasClass("ds")) {
+        if (!dsObj.isEditable()) {
+            msg = dsObj.beFolder() ? "This Folder " : "This dataset";
+            msg += " is uneditable, cannot delete";
+            // add alert
+            Alert.show({
+                "title"  : "CANNOTE DELETE",
+                "msg"    : msg,
+                "isAlert": true
+            });
+
+            return;
+        } else if ($grid.hasClass("ds")) {
             // when remove ds
-            if (isOrphaned) {
-                removeDS($grid);
-
-                SQL.add("Delete Dataset", {
-                    "operation" : SQLOps.DestroyDS,
-                    "dsName"    : dsName,
-                    "isOrphaned": true
-                });
-                return;
-            }
-            // delete a ds
-            var msg = "Are you sure you want to delete dataset " + dsName + "?";
+            msg = "Are you sure you want to delete dataset " + dsName + "?";
             // add alert
             Alert.show({
                 "title"  : "DELETE DATASET",
                 "msg"    : msg,
-                "confirm": function () {
-                    delDSHelper($grid, dsName);
-                }
+                "confirm": function() { delDSHelper($grid, dsObj); }
             });
         } else if (removeDS($grid) === true) {
             // when remove folder
             SQL.add("Delete Folder", {
                 "operation": SQLOps.DelFolder,
-                "dsName"   : dsName,
+                "dsName"   : dsObj.getName(),
                 "dsId"     : dsId
             });
         }
@@ -488,17 +534,19 @@ window.DS = (function ($, DS) {
 
         // reset home folder
         curDirId = homeDirId;
-        dsObjId = 0;
+        folderIdCount = 0;
         dsLookUpTable = {};
 
         homeFolder = new DSObj({
-            "id"      : dsObjId,
-            "name"    : ".",
-            "parentId": -1,
-            "isFolder": true
+            "id"        : homeDirId,
+            "name"      : DSObjTerm.homeDir,
+            "fullName"  : DSObjTerm.homeDir,
+            "user"      : Support.getUser(),
+            "parentId"  : DSObjTerm.homeParentId,
+            "uneditable": false,
+            "isFolder"  : true
         });
 
-        dsObjId++;
         dsLookUpTable[homeFolder.getId()] = homeFolder;
     };
 
@@ -509,10 +557,11 @@ window.DS = (function ($, DS) {
         xcHelper.assert((options.name != null), "Invalid Parameters");
 
         // pre-process
-        options.id = options.id || (dsObjId++);
         options.name = options.name.trim();
+        options.user = options.user || Support.getUser();
         options.parentId = options.parentId || curDirId;
         options.isFolder = options.isFolder || false;
+        options.uneditable = options.uneditable || false;
 
         var parent = DS.getDSObj(options.parentId);
         var $parent = DS.getGrid(options.parentId);
@@ -528,10 +577,18 @@ window.DS = (function ($, DS) {
                 ++i;
             }
             options.name = validName;
+            options.fullName = options.fullName || options.name;
+            options.id = options.id || getNewFolderId();
+        } else {
+            options.fullName = options.fullName ||
+                                xcHelper.wrapDSName(options.name);
+            // for dataset, use it's full name as id
+            options.id = options.id || options.fullName;
         }
 
         var dsObj = new DSObj(options);
-        var $ds = $(getDSHTML(dsObj));
+        var $ds = options.uneditable ? $(getUneditableDSHTML(dsObj)) :
+                                       $(getDSHTML(dsObj));
         $parent.append($ds);
         truncateDSName($ds.find(".label"));
 
@@ -542,7 +599,7 @@ window.DS = (function ($, DS) {
     }
 
     // Helper function for DS.remove()
-    function delDSHelper($grid, dsName) {
+    function delDSHelper($grid, dsObj) {
         var deferred = jQuery.Deferred();
 
         $grid.removeClass("active")
@@ -551,9 +608,12 @@ window.DS = (function ($, DS) {
 
         $grid.find(".waitingIcon").fadeIn(200);
 
+        var dsName = dsObj.getFullName();
+        var dsId = dsObj.getId();
         var sqlOptions = {
             "operation": SQLOps.DestroyDS,
-            "dsName"   : dsName
+            "dsName"   : dsName,
+            "dsId"     : dsId
         };
 
         DS.release()
@@ -562,7 +622,7 @@ window.DS = (function ($, DS) {
         })
         .then(function() {
             //clear data cart
-            $("#selectedTable-" + dsName).remove();
+            DataCart.removeCart(dsId);
             // clear data table
             $("#dataSetTableWrap").empty();
             // remove ds obj
@@ -634,6 +694,22 @@ window.DS = (function ($, DS) {
         }
     }
 
+    function canCreateFolder(dirId) {
+        var dsObj = DS.getDSObj(dirId);
+
+        if (dsObj.isEditable()) {
+            return true;
+        } else {
+            var msg = "This folder is uneditable, cannot create new folder here";
+            Alert.show({
+                "title"  : "CANNOT CREATE FOLDER",
+                "msg"    : msg,
+                "isAlert": true
+            });
+            return false;
+        }
+    }
+
     function setupGridViewButtons() {
         // click to toggle list view and grid view
         $("#dataViewBtn, #exportViewBtn").click(function() {
@@ -654,7 +730,9 @@ window.DS = (function ($, DS) {
 
          // click "Add New Folder" button to add new folder
         $("#addFolderBtn").click(function() {
-            DS.newFolder();
+            if (canCreateFolder(curDirId)) {
+                DS.newFolder();
+            }
         });
 
         // click "Back Up" button to go back to parent folder
@@ -793,6 +871,17 @@ window.DS = (function ($, DS) {
         truncateDSName($labels, isListView);
     }
 
+    function updateFolderIdCount(folderId) {
+        var currentIdPointer = folderId.split("folder-")[1];
+        folderIdCount = Math.max(folderIdCount, Number(currentIdPointer) + 1);
+    }
+
+    function getNewFolderId() {
+        var newId = "folder-" + folderIdCount;
+        folderIdCount++;
+        return newId;
+    }
+
     // Helper function for createDS()
     function getDSHTML(dsObj) {
         var id = dsObj.getId();
@@ -838,12 +927,14 @@ window.DS = (function ($, DS) {
         } else {
             // when it's a dataset
             html =
-            '<div id="dataset-' + name + '" class="ds grid-unit display" ' +
+            '<div class="ds grid-unit display" ' +
                 'draggable="true"' +
                 ' ondragstart="DS.onDragStart(event)"' +
                 ' ondragend="DS.onDragEnd(event)"' +
-                ' data-dsId=' + id +
-                ' data-dsParentId=' + parentId + '>' +
+                ' data-user="' + dsObj.getUser() + '"' +
+                ' data-dsname="' + name + '"' +
+                ' data-dsId="' + id + '"' +
+                ' data-dsParentId="' + parentId + '"">' +
                 '<div  id=' + (id + "leftWarp") +
                     ' class="dragWrap leftTopDragWrap"' +
                     ' ondragenter="DS.onDragEnter(event)"' +
@@ -860,9 +951,55 @@ window.DS = (function ($, DS) {
                 '<div class="listIcon">' +
                     '<span class="icon"></span>' +
                 '</div>' +
-                '<input title="' + name + '" class="label"' +
-                    ' value="' + name + '" data-dsname="' + name + '"' +
-                    ' spellcheck="false" disabled>' +
+                '<div title="' + name + '" class="label"' +
+                    ' data-dsname="' + name + '">' +
+                    name +
+                '</div>' +
+            '</div>';
+        }
+
+        return (html);
+    }
+
+    // Helper function for createDS()
+    function getUneditableDSHTML(dsObj) {
+        var id = dsObj.getId();
+        var parentId = dsObj.getParentId();
+        var name = dsObj.getName();
+        var html;
+
+        if (dsObj.beFolder()) {
+            // when it's a folder
+            html =
+            '<div class="folder display collapse grid-unit"' +
+                ' data-dsId=' + id +
+                ' data-dsParentId=' + parentId + '>' +
+                '<div class="gridIcon"></div>' +
+                '<div class="listIcon">' +
+                    '<span class="icon"></span>' +
+                '</div>' +
+                '<div class="dsCount">0</div>' +
+                '<div title="' + name + '" class="label"' +
+                    ' data-dsname="' + name + '">' +
+                    name +
+                '</div>' +
+            '</div>';
+        } else {
+            // when it's a dataset
+            html =
+            '<div class="ds grid-unit display" ' +
+                ' data-user="' + dsObj.getUser() + '"' +
+                ' data-dsname="' + name + '"' +
+                ' data-dsId="' + id + '"' +
+                ' data-dsParentId="' + parentId + '"">' +
+                '<div class="gridIcon"></div>' +
+                '<div class="listIcon">' +
+                    '<span class="icon"></span>' +
+                '</div>' +
+                '<div title="' + name + '" class="label"' +
+                    ' data-dsname="' + name + '">' +
+                    name +
+                '</div>' +
             '</div>';
         }
 
@@ -1136,6 +1273,8 @@ window.DS = (function ($, DS) {
         DS.__testOnly__ = {};
         DS.__testOnly__.delDSHelper = delDSHelper;
         DS.__testOnly__.toggleDSView = toggleDSView;
+        DS.__testOnly__.createDS = createDS;
+        DS.__testOnly__.removeDS = removeDS;
 
         DS.__testOnly__.getDragDS = getDragDS;
         DS.__testOnly__.setDragDS = setDragDS;
