@@ -571,6 +571,12 @@ window.Dag = (function($, Dag) {
 
         XcalarGetDag(tableName)
         .then(function(dagObj) {
+            var isWorkspacePanelVisible = $('#workspacePanel')
+                                            .hasClass('active');
+            if (!isWorkspacePanelVisible) {
+                $('#workspacePanel').addClass('active');
+            }
+            
             var outerDag =
                 '<div class="dagWrap clearfix" id="dagWrap-' +
                     tableId + '" data-id="' + tableId + '">' +
@@ -622,6 +628,9 @@ window.Dag = (function($, Dag) {
             var tableWS = WSManager.getWSFromTable(tableId);
             if (activeWS !== tableWS) {
                 $dagWrap.addClass('inActive');
+            }
+            if (!isWorkspacePanelVisible) {
+                $('#workspacePanel').removeClass('active');
             }
             deferred.resolve();
         })
