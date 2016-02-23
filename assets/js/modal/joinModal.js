@@ -9,7 +9,7 @@ window.JoinModal = (function($, JoinModal) {
     var $joinPreview = $('#joinPreview');
     var $mainJoin     = $("#mainJoin");
 
-    // var $joinTableName  = $("#joinRoundedInput");
+    var $joinTableName  = $("#joinRoundedInput");
     var $leftJoinTable  = $("#leftJoin");
     var $rightJoinTable = $("#rightJoin");
 
@@ -71,6 +71,18 @@ window.JoinModal = (function($, JoinModal) {
         $("#joinTables").click(function() {
             $(this).blur();
 
+            // check validation
+            var newTableName = $joinTableName.val().trim();
+
+            if (newTableName === "") {
+                StatusBox.show(ErrorTextTStr.NoEmpty, $joinTableName, true);
+                return;
+            }
+            if (newTableName.indexOf("#") > -1) {
+                StatusBox.show(ErrorTextTStr.NoHashTag, $joinTableName, true);
+                return;
+            }
+
             var isMultiJoin = $mainJoin.hasClass("multiClause");
 
             if (!isMultiJoin && $mainJoin.find("th.colSelected").length !== 2) {
@@ -84,11 +96,9 @@ window.JoinModal = (function($, JoinModal) {
             }
             
             modalHelper.submit();
-            var lTableName = $leftJoinTable.find(".tableLabel.active").text();
-            var rTableName = $rightJoinTable.find(".tableLabel.active").text();
 
-            getNewTableName(lTableName, rTableName)
-            .then(function(newTableName) {
+            xcHelper.checkDuplicateTableName(newTableName)
+            .then(function() {
                 var joinType = $joinSelect.find(".text").text();
                 var tabeName = newTableName + Authentication.getHashId();
                 if (isMultiJoin) {
@@ -98,7 +108,9 @@ window.JoinModal = (function($, JoinModal) {
                 }
             })
             .fail(function(error) {
-                Alert.error("Error Naming New Table", error);
+                StatusBox.show(ErrorTextTStr.TableConflict, $joinTableName, true);
+                modalHelper.enableSubmit();
+                // Alert.error("Error Naming New Table", error);
             });
         });
 
@@ -246,6 +258,7 @@ window.JoinModal = (function($, JoinModal) {
         $("body").on("keypress", joinTableKeyPress);
         $("body").on("mouseup", removeCursors);
         $modalBackground.on("click", hideJoinTypeSelect);
+        updateJoinTableName();
         modalHelper.setup();
 
         joinModalTabs($rightJoinTable, null, -1);
@@ -279,6 +292,7 @@ window.JoinModal = (function($, JoinModal) {
             $("#mainJoin .joinTableArea").scroll(function(){
                 $(this).scrollTop(0);
             });
+            $joinTableName.focus();
         }
     };
 
@@ -496,6 +510,11 @@ window.JoinModal = (function($, JoinModal) {
     function hideJoinTypeSelect() {
         $joinSelect.removeClass("open");
         $joinDropdown.hide();
+    }
+
+    function updateJoinTableName() {
+        var joinTableName = "";
+        $joinTableName.val(joinTableName);
     }
 
     function updateWSTabSize($section) {

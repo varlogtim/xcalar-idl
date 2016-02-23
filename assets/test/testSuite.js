@@ -207,7 +207,7 @@ window.TestSuite = (function($, TestSuite) {
         timeLimit = timeLimit || 10000;
         options = options || {};
 
-        var intervalTime = 200;
+        var intervalTime = 100;
         var timeElapsed = 0;
         var notExists = options.notExists; // if true, we're actualy doing a
         // check to make sure the element DOESN"T exist
@@ -530,10 +530,11 @@ window.TestSuite = (function($, TestSuite) {
                     
                     var lTableName = $("#leftJoin").find(".tableLabel.active")
                                                    .text();
-                    var rTableName = $("#reftJoin").find(".tableLabel.active")
+                    var rTableName = $("#rightJoin").find(".tableLabel.active")
                                                    .text();
                     var newName = xcHelper.getTableName(lTableName) + '-' +
                           xcHelper.getTableName(rTableName);
+                    $('#joinRoundedInput').val(newName);
                     $("#joinTables").click();
                     checkExists(".xcTableWrap .tableName[value*=" + newName +
                                 "]")
@@ -563,7 +564,7 @@ window.TestSuite = (function($, TestSuite) {
                 $("#operationsModal .modalBottom .confirm").click();
 
                 return (checkExists(".xcTableWrap " +
-                                    ".tableName[value*=GroupBy]"));
+                                    ".tableName[value*=GB]"));
             })
             .then(function() {
                 if ($("#numPages").text().indexOf("17") > -1) {
@@ -674,7 +675,7 @@ window.TestSuite = (function($, TestSuite) {
             $(".argumentTable .argument").eq(1).val("$Dest, $AirTime");
             $("#operationsModal .modalBottom .confirm").click();
             return (checkExists(".xcTableWrap " +
-                                ".tableName[value*=GroupBy]"));
+                                ".tableName[value*=GB]"));
         })
         .then(function() {
             TestSuite.pass(deferred, testName, currentTestNumber);
@@ -723,9 +724,10 @@ window.TestSuite = (function($, TestSuite) {
             $(".rightClause").eq(1).val("DayOfWeek");
             
             var lTableName = $("#leftJoin").find(".tableLabel.active").text();
-            var rTableName = $("#reftJoin").find(".tableLabel.active").text();
+            var rTableName = $("#rightJoin").find(".tableLabel.active").text();
             var newName = xcHelper.getTableName(lTableName) + '-' +
                           xcHelper.getTableName(rTableName);
+            $('#joinRoundedInput').val(newName);
             $("#joinTables").click();
             return (checkExists(".xcTableWrap .tableName[value*=" +
                                 newName + "]",

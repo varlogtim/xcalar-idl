@@ -575,7 +575,7 @@ window.Profile = (function($, Profile, d3) {
             }
 
             // here user old table name to generate table name
-            groupbyTable = getNewName(tableName, ".profile.groupby", true);
+            groupbyTable = getNewName(tableName, ".profile.GB", true);
 
             var operator    = AggrOp.Count;
             var newColName  = statsColName;

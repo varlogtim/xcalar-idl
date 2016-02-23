@@ -679,7 +679,7 @@
 
 /* Join Modal */
 #joinModal {
-    .size(@width: 920px, @height: 670px);
+    .size(@width: 920px, @height: 630px);
 
     .modalTopMain {
         .size(@height: 57px);
@@ -688,13 +688,14 @@
 
         > .text {
             float: left;
+            margin-left: 8px;
             margin-right: 10px;
         }
 
         #joinRoundedInput {
             float: left;
             margin: 16px 15px 0 0;
-            .size(@width: 198px, @height: 25px);
+            .size(@width: 240px, @height: 25px);
             .font(@weight: bold, @size: 12px, @line-height: 25px);
             &:focus {
                 background-color: white;
@@ -717,24 +718,6 @@
             }
             &.open {
                 .rounded(3px 3px 3px 0);
-            }
-        }
-
-        #joinPreview {
-            margin-left: 16px;
-            margin-top: 6px;
-            float: left;
-            width: ~"calc(100% - 300px)";
-            font-weight: 600;
-            font-size: 13px;
-            .textOverflowOneLine;
-            line-height: 20px;
-
-            .highlighted {
-                color: @color-text-blue;
-            }
-            .joinType {
-                text-transform: uppercase;
             }
         }
 
@@ -793,14 +776,33 @@
         }
     }
 
+    #joinPreview {
+        margin-left: 25px;
+        margin-top: 12px;
+        // float: left;
+        width: ~"calc(100% - 100px)";
+        height: 40px;
+        font-weight: 600;
+        font-size: 13px;
+        .textOverflowOneLine;
+        line-height: 20px;
+
+        .highlighted {
+            color: @color-text-blue;
+        }
+        .joinType {
+            text-transform: uppercase;
+        }
+    }
+
     #joinCanvas {
         display: none;
         position: absolute;
     }
 
     #mainJoin {
-        .size(@width: 100%, @height: ~"calc(100% - 195px)");
-        padding-top: 16px;
+        .size(@width: 100%, @height: ~"calc(100% - 247px)");
+        padding-top: 12px;
         margin: 0 auto;
 
         .flex-display;

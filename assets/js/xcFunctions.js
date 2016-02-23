@@ -393,9 +393,8 @@ window.xcFunction = (function($, xcFunction) {
             indexedColName = resCol;
 
             // get name from src table
-            groupbyTable = xcHelper.getTableName(tableName) + "-GroupBy";
-            groupbyTable = xcHelper.randName(groupbyTable) +
-                            Authentication.getHashId();
+            groupbyTable = xcHelper.getTableName(tableName) + "-GB" +
+                           Authentication.getHashId();
 
             var groupBySqlOptions = {
                 "operation"   : SQLOps.GroupByAction,

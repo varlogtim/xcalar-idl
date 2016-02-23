@@ -910,7 +910,7 @@ window.ColManager = (function($, ColManager) {
             var innerDeferred = jQuery.Deferred();
 
             var srcTable = tableName;
-            var filterTable = tableNamePart + "-Partition" + (index + 1) +
+            var filterTable = tableNamePart + "-HP" + (index + 1) +
                                 Authentication.getHashId();
             var filterTableId = xcHelper.getTableId(filterTable);
             var fltStr;
@@ -952,7 +952,7 @@ window.ColManager = (function($, ColManager) {
             var srcTable = tableName;
             var data = [];
 
-            var indexTable = xcHelper.randName(".tempIndex." + tableNamePart) +
+            var indexTable = ".tempIndex." + tableNamePart +
                              Authentication.getHashId();
             var groupbyTable;
             var groupByCol;
@@ -971,11 +971,10 @@ window.ColManager = (function($, ColManager) {
             XcalarIndexFromTable(srcTable, keyCol, indexTable,
                 XcalarOrderingT.XcalarOrderingUnordered, actionSql)
             .then(function() {
-                groupbyTable = xcHelper.randName(".tempGroupby." +
-                                                  tableNamePart) +
+                groupbyTable = ".tempGB." + tableNamePart +
                                 Authentication.getHashId();
                 groupByCol = xcHelper.randName("randCol");
-
+                console.log(groupByCol);
                 var groupByOp = AggrOp.Count;
                 var incSample = false;
 
@@ -994,8 +993,7 @@ window.ColManager = (function($, ColManager) {
             .then(function() {
                 // Step 2. Sort on desc on groupby table by groupByCol
                 // this way, the keyCol that has most count comes first
-                sortTable = xcHelper.randName(".tempGroupby-Sort." +
-                                              tableNamePart) +
+                sortTable = ".tempGB-Sort." + tableNamePart +
                             Authentication.getHashId();
 
                 actionSql = {

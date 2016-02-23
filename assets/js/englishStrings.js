@@ -51,6 +51,8 @@ ErrorTextTStr = {
 
     'InvalidFileName': 'Invalid file name, ' +
                         'please choose a file or folder to import.',
+                        
+    'NoHashTag': "Please input a valid name with no # symbols.",
 
     'NoSpecialChar': "Please input a valid name with no special characters.",
 
