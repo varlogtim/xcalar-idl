@@ -1236,7 +1236,7 @@ window.TblMenu = (function(TblMenu, $) {
                     '<li class="textAlign wrapAlign">Wrap Text</li>' + 
                 '</ul>' +
                 '<ul class="multiResize">' +
-                    '<li class="resize sizeToHeader">Size To Header</li>' +
+                    '<li class="resize sizeToHeader">Size To Headers</li>' +
                     '<li class="resize sizeToContents">Size To Contents</li>' +
                     '<li class="resize sizeToFitAll">Size To Fit All</li>' +
                 '</ul>' +

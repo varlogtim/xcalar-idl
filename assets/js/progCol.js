@@ -974,7 +974,7 @@ window.ColManager = (function($, ColManager) {
                 groupbyTable = ".tempGB." + tableNamePart +
                                 Authentication.getHashId();
                 groupByCol = xcHelper.randName("randCol");
-                console.log(groupByCol);
+                
                 var groupByOp = AggrOp.Count;
                 var incSample = false;
 

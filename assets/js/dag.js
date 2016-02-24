@@ -175,7 +175,8 @@ window.DagPanel = (function($, DagPanel) {
         dagTableDropDownActions($menu);
         
         var selection = '.dagTable:not(.dataStore) .dagTableIcon,' +
-                        '.dagTable:not(.dataStore) .icon';
+                        '.dagTable:not(.dataStore) .icon,' +
+                        '.dagTable:not(.dataStore) .tableTitle';
         $dagPanel.on('click', selection, function() {
             $('.menu').hide().removeClass('leftColMenu');
             removeMenuKeyboardNavigation();
@@ -224,7 +225,7 @@ window.DagPanel = (function($, DagPanel) {
                 $menu.find('.deleteTable').show();
             }
 
-            positionAndShowDagTableDropdown($dagTable, $menu);
+            positionAndShowDagTableDropdown($dagTable, $menu, $(event.target));
             addMenuKeyboardNavigation($menu);
             $('body').addClass('noSelection');
         });
@@ -242,11 +243,16 @@ window.DagPanel = (function($, DagPanel) {
 
             $target = $(e.target).closest('.dagTable:not(.dataStore) .dagTableIcon');
             var $secondTarget = $(e.target).closest('.dagTable:not(.dataStore) .icon');
+            var $thirdTarget = $(e.target).closest('.dagTable:not(.dataStore)' +
+                                                    ' .tableTitle');
             if ($target.length) {
                 $target.trigger('click');
                 return false;
             } else if ($secondTarget.length) {
                 $secondTarget.trigger('click');
+                return false;
+            } else if ($thirdTarget.length) {
+                $thirdTarget.trigger('click');
                 return false;
             } else if ($dagWrap.length !== 0) {
                 $('.menu').hide().removeClass('leftColMenu');
@@ -370,11 +376,14 @@ window.DagPanel = (function($, DagPanel) {
         }
     }
 
-    function positionAndShowDagTableDropdown($dagTable, $menu) {
+    function positionAndShowDagTableDropdown($dagTable, $menu, $target) {
         var topMargin = -3;
         var leftMargin = 0;
         var top = $dagTable[0].getBoundingClientRect().bottom + topMargin;
         var left = $dagTable[0].getBoundingClientRect().left + leftMargin;
+        if ($target.is('.tableTitle')) {
+            top = $target[0].getBoundingClientRect().bottom + topMargin;
+        }
 
         // if dagpanel is open halfway we have to change the top position
         // of colmenu
@@ -401,6 +410,7 @@ window.DagPanel = (function($, DagPanel) {
         if (menuBottom > dagPanelBottom) {
             $menu.css('top', '-=' + ($menu.height() + 35));
         }
+        $('.tooltip').hide();
     }
 
     function getDagTableDropDownHTML() {
@@ -1342,7 +1352,8 @@ window.Dag = (function($, Dag) {
     }
 
     function drawDagTable(dagNode, dagArray, parentChildMap, index, children) {
-        var dagOrigin = drawDagOrigin(dagNode, dagArray, parentChildMap, index);
+        var dagOrigin = drawDagOperation(dagNode, dagArray, parentChildMap,
+                                         index);
         var dagTable = '<div class="dagTableWrap clearfix">' +
                         dagOrigin;
         var key = getInputType(XcalarApisTStr[dagNode.api]);
@@ -1408,7 +1419,7 @@ window.Dag = (function($, Dag) {
         return (dagTable);
     }
 
-    function drawDagOrigin(dagNode, dagArray, parentChildMap, index) {
+    function drawDagOperation(dagNode, dagArray, parentChildMap, index) {
         var originHTML = "";
         var numParents = getDagnumParents(dagNode);
 
@@ -1425,6 +1436,8 @@ window.Dag = (function($, Dag) {
             var resultTableName = getDagName(dagNode);
             if (info.type === "sort") {
                 operation = "sort";
+            } else if (info.type === "createTable") {
+                operation = "Create Table";
             }
 
             originHTML += '<div class="actionType dropdownBox ' + operation +
@@ -1608,6 +1621,7 @@ window.Dag = (function($, Dag) {
                 break;
             case ('indexInput'):
                 info.type = "sort";
+                info.column = value.keyName;
                 if (value.ordering !== XcalarOrderingT.XcalarOrderingUnordered) {
                     if (value.source.isTable) {
                         info.tooltip = "Sorted by " + value.keyName;
@@ -1616,16 +1630,19 @@ window.Dag = (function($, Dag) {
                     }
                     info.text = "sorted on " + value.keyName;
                 } else {
-                    info.type = "index";
+                    
                     if (value.source.isTable) {
                         info.tooltip = "Indexed by " + value.keyName;
+                        info.type = "index";
                     } else {
-                        info.tooltip = "Indexed on " + value.keyName;
+                        info.tooltip = "Created Table";
+                        info.type = "createTable";
+                        info.column = "";
                     }
                     info.text = "indexed on " + value.keyName;
                 }
 
-                info.column = value.keyName;
+               
                 break;
             case ('joinInput'):
                 info.text = JoinOperatorTStr[value.joinType];
