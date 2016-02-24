@@ -647,6 +647,7 @@ window.StartManager = (function(StartManager, $) {
 
         var mainFrameScrolling = false;
         var mainFrameScrollTimer;
+        var scrollPrevented = false;
         $('#mainFrame').scroll(function() {
             if (!mainFrameScrolling) {
                 mainFrameScrolling = true;
@@ -656,19 +657,25 @@ window.StartManager = (function(StartManager, $) {
                 $(".highlightBox").remove();
                 $('.xcTableWrap').find('.dropdownBox').hide();
                 $('.tooltip').hide();
+                if ($(this).hasClass('scrollLocked')) {
+                    scrollPrevented = true;
+                }
             }
             $(this).scrollTop(0);
 
             clearTimeout(mainFrameScrollTimer);
             mainFrameScrollTimer = setTimeout(mainFrameScrollingStop, 300);
-            moveFirstColumn();
-            moveTableTitles();
+            if (!scrollPrevented) {
+                moveFirstColumn();
+                moveTableTitles();
+            } 
         });
 
         function mainFrameScrollingStop() {
             $('.xcTableWrap').find('.dropdownBox').show();
             moveTableDropdownBoxes();
             mainFrameScrolling = false;
+            scrollPrevented = false;
         }
 
         $(document).mousedown(function(event) {

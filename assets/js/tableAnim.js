@@ -32,9 +32,10 @@ function disableTextSelection() {
             '-khtml-user-select:none;' +
             '-webkit-user-select:none;user-select:none;}' +
             'div[contenteditable]{pointer-events:none;}' +
+            '.tooltip{display:none !important;}' +
         '</style>';
     $(document.head).append(style);
-
+    $('.tooltip').remove();
     $('input:enabled').prop('disabled', true).addClass('tempDisabledInput');
 }
 
@@ -63,8 +64,11 @@ function gRescolMouseDown(el, event, options) {
     event.preventDefault();
     rescol.mouseStart = event.pageX;
     rescol.grabbedCell = el.parent().parent();  // the th
-    rescol.index = colNum;
     rescol.startWidth = rescol.grabbedCell.outerWidth();
+
+    hideOffScreenTables({marginRight: rescol.startWidth});
+
+    rescol.index = colNum;
     rescol.newWidth = rescol.startWidth;
     rescol.table = $table;
     rescol.tableHead = el.closest('.xcTableWrap').find('.xcTheadWrap');
@@ -80,6 +84,7 @@ function gRescolMouseDown(el, event, options) {
     if (!rescol.grabbedCell.hasClass('selectedCell')) {
         $('.selectedCell').removeClass('selectedCell');
     }
+    
 }
 
 function gRescolMouseMove(event) {
@@ -106,10 +111,9 @@ function gRescolMouseUp() {
     gMouseStatus = null;
     var rescol = gRescol;
     $('#col-resizeCursor').remove();
-    reenableTextSelection();
     rescol.table.find('.rowGrab').width(rescol.table.width());
     rescol.table.removeClass('resizingCol');
-    $('.tooltip').hide();
+    $('.tooltip').remove();
     if (!rescol.isDatastore) {
         var table = gTables[rescol.tableId];
         var progCol = table.tableCols[rescol.index - 1];
@@ -136,6 +140,11 @@ function gRescolMouseUp() {
             rescol.grabbedCell.find('.colGrab').data('sizetoheader', true);
         }
     }
+    // tooltip will show if we don't delay the reenabling of text selection
+    setTimeout(function() {
+        reenableTextSelection();
+    },500);
+    unhideOffScreenTables();
     moveTableDropdownBoxes();
 }
 
@@ -143,7 +152,7 @@ function gResrowMouseDown(el, event) {
     gMouseStatus = "resizingRow";
     var resrow = gResrow;
     var $table = el.closest('.xcTbodyWrap');
-
+    hideOffScreenTables();
     resrow.mouseStart = event.pageY;
     // we actually target the td above the one we're grabbing.
     resrow.actualTd = el.closest('td');
@@ -173,7 +182,6 @@ function gResrowMouseDown(el, event) {
 
     $table.find('tr:not(.dragging)').addClass('notDragging');
     lockScrolling($('#mainFrame'), 'horizontal');
-    hideNonVisibleTables();
 }
 
 function gResrowMouseMove(event) {
@@ -203,7 +211,6 @@ function gResrowMouseUp() {
     reenableTextSelection();
     $('body').removeClass('hideScroll');
     unlockScrolling($('#mainFrame'), 'horizontal');
-    unhideNonVisibleTables();
     var $table = $('#xcTable-' + gResrow.tableId);
     $table.find('tr').removeClass('notDragging dragging');
     if (gTables[gActiveTableId].resultSetCount !== 0) {
@@ -228,6 +235,7 @@ function gResrowMouseUp() {
         gResrow.targetTd.parent().find('.jsonElement >  div')
                                  .css('max-height', 16);
     }
+    unhideOffScreenTables();
 }
 
 function dragdropMouseDown(el, event) {
@@ -271,11 +279,53 @@ function dragdropMouseDown(el, event) {
     dragObj.isHidden = el.hasClass('userHidden');
     dragObj.colWidth = el.width();
     dragObj.windowWidth = $(window).width();
+
+    var timer;
+    if (gTables[dragObj.tableId].tableCols.length > 50) {
+        timer = 100;
+    } else {
+        timer = 40;
+    }
+    dragdropMoveMainFrame(dragObj, timer);
+
+    // the following code deals with hiding non visible tables and locking the
+    // scrolling when we reach the left or right side of the table
     
+    var $mainFrame = $('#mainFrame');
+    var mfWidth = $mainFrame.width();
+    
+    var mfScrollLeft = $mainFrame.scrollLeft();
+    var tableLeft = dragObj.$table.offset().left;
+    $mainFrame.addClass('scrollLocked');
+
+    var leftLimit = mfScrollLeft + tableLeft;
+    leftLimit = Math.min(leftLimit, mfScrollLeft);
+    var rightLimit = mfScrollLeft + tableLeft + $tableWrap.width() - mfWidth +
+                     dragObj.grabOffset;
+    rightLimit = Math.max(rightLimit, mfScrollLeft);
+
+    var hideOptions = {
+        marginLeft: mfScrollLeft - leftLimit,
+        marginRight: rightLimit - mfScrollLeft
+    };
+    hideOffScreenTables(hideOptions);
+
+    var scrollLeft;
+    $mainFrame.on('scroll.draglocked', function() {
+        scrollLeft = $mainFrame.scrollLeft();
+        if (scrollLeft <= leftLimit) {
+            $mainFrame.scrollLeft(leftLimit);
+        } else if (scrollLeft >= rightLimit) {
+            $mainFrame.scrollLeft(rightLimit);
+        }
+
+        moveTableTitles();
+        moveFirstColumn();
+    });
 
     // create a fake transparent column by cloning
+
     createTransparentDragDropCol(pageX);
-    
     $tbodyWrap.addClass('hideScroll');
 
     // create a replica shadow with same column width, height,
@@ -287,14 +337,6 @@ function dragdropMouseDown(el, event) {
                     (dragObj.element.position().left) +
                     'px;top:' + shadowTop + 'px;"></div>');
     createDropTargets();
-
-    var timer;
-    if (gTables[dragObj.tableId].tableCols.length > 50) {
-        timer = 100;
-    } else {
-        timer = 40;
-    }
-    dragdropMoveMainFrame(dragObj, timer);
 }
 
 function dragdropMouseMove(event) {
@@ -309,7 +351,8 @@ function dragdropMouseUp() {
     var dragObj = gDragObj;
     var $tableWrap = dragObj.$table;
     var $th = dragObj.element;
-
+    $('#mainFrame').off('scroll.draglocked');
+    $('#mainFrame').removeClass('scrollLocked');
     if (gMinModeOn) {
         $('#shadowDiv, #fauxCol').remove();
     } else {
@@ -320,12 +363,17 @@ function dragdropMouseUp() {
         var currentLeft = parseInt(dragObj.fauxCol.css('left'));
         var slideDistance = Math.max(2, Math.abs(slideLeft - currentLeft));
         var slideDuration = Math.log(slideDistance * 4) * 90 - 200;
-        dragObj.fauxCol.animate({left: slideLeft}, slideDuration, "linear",
-            function() {
-                $('#shadowDiv, #fauxCol').remove();
-                $tableWrap.removeClass('undraggable');
-            }
-        );
+
+        // unhiding non visible tables is slow and interrupts column sliding
+        // animation so we delay the animation with the timout
+        setTimeout(function() {
+            dragObj.fauxCol.animate({left: slideLeft}, slideDuration, "linear",
+                function() {
+                    $('#shadowDiv, #fauxCol').remove();
+                    $tableWrap.removeClass('undraggable');
+                }
+            );
+        }, 0);
     }
     
     $('#dropTargets, #moveCursor').remove();
@@ -347,6 +395,7 @@ function dragdropMouseUp() {
 
         Tips.refresh();
     }
+    unhideOffScreenTables();
 }
 
 function dragdropMoveMainFrame(dragObj, timer) {
@@ -356,13 +405,16 @@ function dragdropMoveMainFrame(dragObj, timer) {
     var left;
 
     if (gMouseStatus === 'movingCol' || gMouseStatus === 'movingTable') {
-        if (dragObj.pageX > dragObj.windowWidth - 20) {
+        if (dragObj.pageX > dragObj.windowWidth - 30) { // scroll right
             left = $mainFrame.scrollLeft() + 40;
             $mainFrame.scrollLeft(left);
-        } else if (dragObj.pageX < 20) {
+        } else if (dragObj.pageX < 30) { // scroll left;
+             
             left = $mainFrame.scrollLeft() - 40;
             $mainFrame.scrollLeft(left);
+
         }
+            
         setTimeout(function() {
             dragdropMoveMainFrame(dragObj, timer);
         }, timer);
@@ -2012,9 +2064,7 @@ function moveTableTitles($tableWraps) {
     if (isBrowserMicrosoft) {
         return;
     }
-    if ($('#mainFrame').hasClass('hScrollLocked')) {
-        return;
-    }
+
     $tableWraps = $tableWraps ||
                   $('.xcTableWrap:not(.inActive):not(.tableHidden)');
     var viewWidth = $('#mainFrame').width();
@@ -2429,9 +2479,7 @@ function moveFirstColumn($targetTable) {
     if (isBrowserMicrosoft) {
         return;
     }
-    if ($('#mainFrame').hasClass('hScrollLocked')) {
-        return;
-    }
+
     if (!$targetTable) {
         datasetPreview = false;
         $('.xcTableWrap:not(".inActive")').each(function() {
@@ -2526,7 +2574,7 @@ function centerPositionElement($target, options) {
 function lockScrolling($target, direction) {
     if (direction === "horizontal") {
         var scrollLeft = $target.scrollLeft();
-        $target.addClass('hScrollLocked');
+        $target.addClass('scrollLocked');
         $target.on('scroll.locked', function() {
             $target.scrollLeft(scrollLeft);
         });
@@ -2536,25 +2584,28 @@ function lockScrolling($target, direction) {
 function unlockScrolling($target, direction) {
     $target.off('scroll.locked');
     if (direction === "horizontal") {
-        $target.removeClass('hScrollLocked');
+        $target.removeClass('scrollLocked');
     }
 }
 
 // set display none on tables that are not currently in the viewport but are
 // active. Tables will maintain their widths;
-function hideNonVisibleTables() {
+function hideOffScreenTables(options) {
+    options = options || {};
+    var leftLimit = -options.marginLeft || 0;
+    var marginRight = options.marginRight || 0;
     var $tableWraps = $('.xcTableWrap:not(.inActive)');
-    var viewWidth = $('#mainFrame').width();
+    var viewWidth = $('#mainFrame').width() + marginRight;
     
     $tableWraps.each(function() {
         var $table = $(this);
         var $thead = $table.find('.xcTheadWrap');
-        if ($thead.length === 0) {
+        if (!$thead.length) {
             return null;
         }
 
         var rect = $thead[0].getBoundingClientRect();
-        if (rect.right > 0) {
+        if (rect.right > leftLimit) {
             if (rect.left < viewWidth) {
                 $table.addClass('inViewPort');
             } else {
@@ -2569,7 +2620,7 @@ function hideNonVisibleTables() {
     });
 }
 
-function unhideNonVisibleTables() {
+function unhideOffScreenTables() {
     var $tableWraps = $('.xcTableWrap:not(.inActive)');
     $tableWraps.width('auto');
     $tableWraps.removeClass('inViewPort hollowed');
