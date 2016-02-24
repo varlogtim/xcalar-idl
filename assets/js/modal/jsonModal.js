@@ -1013,24 +1013,25 @@ window.JSONModal = (function($, JSONModal) {
             $table.find('.modalHighlighted')
                   .removeClass('modalHighlighted jsonModalOpen');
             $('.modalOpen').removeClass('modalOpen');
-            $('.tableCover').remove();
+            $('.tableCover.jsonCover').remove();
         } else {
             if (isDataCol) {
-                $table = $('.xcTable:visible').addClass('jsonModalOpen');
-                $tableWrap = $('.xcTableWrap:visible')
+                $tableWrap = $('.xcTableWrap:visible:not(.tableLocked)')
                                   .addClass('jsonModalOpen');
+                $table = $tableWrap.find('.xcTable').addClass('jsonModalOpen');
 
                 $table.find('.jsonElement').addClass('modalHighlighted');
-                var $tableCover = $('<div class="tableCover" ' +
+                var $tableCover = $('<div class="tableCover jsonCover" ' +
                                     'style="opacity:0;"></div>');
 
                 $tableWrap.find('.xcTbodyWrap').append($tableCover);
                 $tableWrap.each(function () {
                     var tableHeight = $(this).find('.xcTable').height();
-                    $(this).find('.tableCover').height(tableHeight - 36);
+                    $(this).find('.tableCover.jsonCover')
+                           .height(tableHeight - 36);
                 });
                 
-                $tableWrap.find('.tableCover').addClass('visible');
+                $tableWrap.find('.tableCover.jsonCover').addClass('visible');
                 $jsonModal.addClass('hidden').show();
                 var hiddenClassTimer = 50;
                 if (noTimer) {

@@ -66,7 +66,10 @@ function gRescolMouseDown(el, event, options) {
     rescol.grabbedCell = el.parent().parent();  // the th
     rescol.startWidth = rescol.grabbedCell.outerWidth();
 
-    hideOffScreenTables({marginRight: rescol.startWidth});
+    hideOffScreenTables({
+        marginLeft: rescol.startWidth,
+        marginRight: rescol.startWidth
+    });
 
     rescol.index = colNum;
     rescol.newWidth = rescol.startWidth;
