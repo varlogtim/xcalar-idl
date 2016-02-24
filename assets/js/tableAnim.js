@@ -172,6 +172,8 @@ function gResrowMouseDown(el, event) {
     resrow.targetTd.outerHeight(resrow.startHeight);
 
     $table.find('tr:not(.dragging)').addClass('notDragging');
+    lockScrolling($('#mainFrame'), 'horizontal');
+    hideNonVisibleTables();
 }
 
 function gResrowMouseMove(event) {
@@ -200,6 +202,8 @@ function gResrowMouseUp() {
     $('#row-resizeCursor').remove();
     reenableTextSelection();
     $('body').removeClass('hideScroll');
+    unlockScrolling($('#mainFrame'), 'horizontal');
+    unhideNonVisibleTables();
     var $table = $('#xcTable-' + gResrow.tableId);
     $table.find('tr').removeClass('notDragging dragging');
     if (gTables[gActiveTableId].resultSetCount !== 0) {
@@ -2008,6 +2012,9 @@ function moveTableTitles($tableWraps) {
     if (isBrowserMicrosoft) {
         return;
     }
+    if ($('#mainFrame').hasClass('hScrollLocked')) {
+        return;
+    }
     $tableWraps = $tableWraps ||
                   $('.xcTableWrap:not(.inActive):not(.tableHidden)');
     var viewWidth = $('#mainFrame').width();
@@ -2422,7 +2429,9 @@ function moveFirstColumn($targetTable) {
     if (isBrowserMicrosoft) {
         return;
     }
-
+    if ($('#mainFrame').hasClass('hScrollLocked')) {
+        return;
+    }
     if (!$targetTable) {
         datasetPreview = false;
         $('.xcTableWrap:not(".inActive")').each(function() {
@@ -2473,7 +2482,6 @@ function moveFirstColumn($targetTable) {
     }
 }
 
-
 function showWaitCursor() {
     var waitCursor = '<style id="waitCursor" type="text/css">' +
                         '*{cursor: progress !important;}' +
@@ -2513,6 +2521,58 @@ function centerPositionElement($target, options) {
             "top" : top
         });
     }
+}
+
+function lockScrolling($target, direction) {
+    if (direction === "horizontal") {
+        var scrollLeft = $target.scrollLeft();
+        $target.addClass('hScrollLocked');
+        $target.on('scroll.locked', function() {
+            $target.scrollLeft(scrollLeft);
+        });
+    }
+}
+
+function unlockScrolling($target, direction) {
+    $target.off('scroll.locked');
+    if (direction === "horizontal") {
+        $target.removeClass('hScrollLocked');
+    }
+}
+
+// set display none on tables that are not currently in the viewport but are
+// active. Tables will maintain their widths;
+function hideNonVisibleTables() {
+    var $tableWraps = $('.xcTableWrap:not(.inActive)');
+    var viewWidth = $('#mainFrame').width();
+    
+    $tableWraps.each(function() {
+        var $table = $(this);
+        var $thead = $table.find('.xcTheadWrap');
+        if ($thead.length === 0) {
+            return null;
+        }
+
+        var rect = $thead[0].getBoundingClientRect();
+        if (rect.right > 0) {
+            if (rect.left < viewWidth) {
+                $table.addClass('inViewPort');
+            } else {
+                return false;
+            }
+        }
+    });
+
+    $tableWraps.not('.inViewPort').each(function() {
+        var $table = $(this);
+        $table.width($table.width()).addClass('hollowed');
+    });
+}
+
+function unhideNonVisibleTables() {
+    var $tableWraps = $('.xcTableWrap:not(.inActive)');
+    $tableWraps.width('auto');
+    $tableWraps.removeClass('inViewPort hollowed');
 }
 
 window.RowScroller = (function($, RowScroller) {
