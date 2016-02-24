@@ -109,10 +109,10 @@ ErrorTextTStr = {
 
     'ParamInUse': 'Cannot delete, this parameter is in use.',
 
-    'NoPreviewJSON': 'Cannot preivew JSON files, ' +
+    'NoPreviewJSON': 'JSON files are not previewable, ' +
                      'please import directly without previewing.',
 
-    'NoPreviewExcel': 'Cannot preview Excel files, ' +
+    'NoPreviewExcel': 'Excel files are not previewable, ' +
                       'please import directly without previewing.',
 
     'MVFolderConflict': 'Cannot move, name conflicts with files in target folder',
@@ -175,6 +175,11 @@ TipsTStr = {
     "PullRightsidebar": "Click to open and close side bar",
     "TablList": "Click to see details",
     "PullColumn": "Click key to add the column to your table"
+};
+
+ThriftTStr = {
+    "CCNBE": "Connection could not be established.",
+    "Update": "Update required."
 };
 
 AggModalStr = {

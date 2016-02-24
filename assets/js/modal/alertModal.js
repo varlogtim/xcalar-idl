@@ -206,6 +206,7 @@ window.Alert = (function($, Alert){
             }
 
             $copySqlBtn.click(function() {
+                $(this).blur();
                 var $hiddenInput = $("<input>");
                 $("body").append($hiddenInput);
                 var logText = "";
@@ -233,17 +234,21 @@ window.Alert = (function($, Alert){
             });
 
             $logoutBtn.click(function() {
+                $(this).blur();
                 unloadHandler();
             });
 
             $supportBtn.click(function() {
-                var $btn = $(this);
+                var $btn = $(this).blur();
                 xcHelper.toggleBtnInProgress($btn);
                 // Tis flow is a little from xcHelper.genSub
                 XcalarSupportSend()
                 .then(function(ret) {
+                    var text = ThriftTStr.CCNBE + "\n" +
+                                "Bundle Generated at " + ret;
+                    $("#alertContent .text").text(text);
                     xcHelper.showSuccess();
-                    $btn.text("Bundle Generated at" + ret)
+                    $btn.text("Bundle Generated")
                         .addClass("btnInactive");
                 })
                 .fail(function(error) {
@@ -251,11 +256,9 @@ window.Alert = (function($, Alert){
                     // XXX TODOs: use xcHelper.showFail() instead
                     // (function not implement yet!)
                     xcHelper.toggleBtnInProgress($btn);
-                    var text = $btn.text();
-                    $btn.text("Failed!");
-                    setTimeout(function() {
-                        $btn.text(text);
-                    }, 1000);
+                    var text = ThriftTStr.CCNBE + "\n" +
+                                "Bundle Generated Failed!";
+                    $("#alertContent .text").text(text);
                 });
             });
         }

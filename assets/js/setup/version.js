@@ -27,13 +27,13 @@ window.XVM = (function(XVM) {
                                                        .apiVersionSignatureShort;
             if (versionNum !== XcalarApiVersionT.XcalarApiVersionSignature) {
 
-                deferred.reject({error: 'Update required.'});
+                deferred.reject({error: ThriftTStr.Update});
             } else {
                 deferred.resolve();
             }
         })
         .fail(function() {
-            deferred.reject({error: 'Connection could not be established.'});
+            deferred.reject({error: ThriftTStr.CCNBE});
         });
 
         return (deferred.promise());

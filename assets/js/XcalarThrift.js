@@ -79,7 +79,7 @@ function thriftLog() {
             status === StatusT.StatusConnRefused) {
             // This is bad, connection was lost so UI cannot do anything
             // LOCK THE SCREEN
-            alertError = {"error": "Connection could not be established."};
+            alertError = {"error": ThriftTStr.CCNBE};
             Alert.error("Connection error", alertError, {"lockScreen": true});
 
             return thriftError;
