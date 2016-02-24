@@ -211,6 +211,7 @@ var SQLOps = {
     ChangeFormat: "changeFormat",
     RoundToFixed: "roundToFixed",
     Window: "window",
+    WindoAction: "windowAction",
     hPartition: "horizontalPartition",
     hPartitionAction: "horizontalPartitionAction"
 };

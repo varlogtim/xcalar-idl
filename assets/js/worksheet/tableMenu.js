@@ -570,8 +570,8 @@ window.TblMenu = (function(TblMenu, $) {
                 if (!isValid) {
                     return;
                 }
-                
-                ColManager.windowCalc(colNum, tableId, lag, lead);
+
+                ColManager.windowChain(colNum, tableId, lag, lead);
                 $lagInput.val("").blur();
                 $leadInput.val("").blur();
                 closeMenu($allMenus);

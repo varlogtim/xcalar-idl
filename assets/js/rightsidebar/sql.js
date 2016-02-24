@@ -319,6 +319,8 @@ window.SQL = (function($, SQL) {
                 // fallthrough
             case (SQLOps.hPartition):
                 // fallthrough
+            case (SQLOps.Window):
+                // fallthrough
                 break;
 
             // Use reverse parser
@@ -345,6 +347,7 @@ window.SQL = (function($, SQL) {
             // case (SQLOps.ChangeType):
             case (SQLOps.ChangeTypeMap):
             case (SQLOps.hPartitionAction):
+            case (SQLOps.WindowAction):
                 string += sql.cli;
                 break;
             default:
