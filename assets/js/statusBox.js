@@ -5,30 +5,32 @@ window.StatusBox = (function($, StatusBox){
     var $targetInput;
     var open = false;
 
-    StatusBox.show = function(text, $target, isFormMode, offset, options) {
-        // position error message
+    StatusBox.show = function(text, $target, isFormMode, options) {
+        options =  options || {};
+        // position the message
+        var msgType = options.type || "error";
         var bound = $target[0].getBoundingClientRect();
         var top   = bound.top - 30;
         var right = $(window).width() - bound.right - 200;
         var left = bound.left - 200;
         var side;
         $targetInput = $target;
-        if (options && options.side) {
+
+        if (options.side) {
             side = options.side;
         } else {
             side = 'right';
         }
 
-
-        if (offset) {
+        if (options.offset) {
             if (side === 'right') {
-                right += offset;
+                right += options.offset;
             } else {
-                left += offset;
+                left += options.offset;
             }
         }
 
-        $statusBox.addClass('error ' + side);
+        $statusBox.addClass(msgType + " active " + side);
         $statusBox.find('.titleText').text('Error');
         $statusBox.find('.message').text(text);
 
@@ -43,14 +45,14 @@ window.StatusBox = (function($, StatusBox){
             $statusBox.css({top: top, right: right, left: 'auto'});
         }
 
-        if (options && options.closeable) {
+        if (options.closeable) {
             $(window).blur(hideStatusBox);
         }
 
         if (isFormMode) {
             $doc.mousedown({target: $target}, hideStatusBox);
             $target.keydown({target: $target}, hideStatusBox);
-            $target.focus().addClass('error');
+            $target.focus().addClass(msgType);
         } else {
             $doc.mousedown(hideStatusBox);
             $doc.keydown(hideStatusBox);
@@ -78,7 +80,7 @@ window.StatusBox = (function($, StatusBox){
             {
                 $doc.off('mousedown', hideStatusBox);
                 event.data.target.off('keydown', hideStatusBox)
-                                 .removeClass('error');
+                                 .removeClass('active');
                 clear();
             }
 

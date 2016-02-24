@@ -94,8 +94,7 @@ window.FileBrowser = (function($, FileBrowser) {
                 setTimeout(function() {
                     var msg = ErrorTextWReplaceTStr.NoPath
                                 .replace("<path>", result.path);
-                    StatusBox.show(msg, $pathSection, false, 0,
-                                   {side: 'top'});
+                    StatusBox.show(msg, $pathSection, false, {side: 'top'});
                 }, 40);
             }
         }

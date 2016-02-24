@@ -894,7 +894,7 @@ window.OperationsModal = (function($, OperationsModal) {
         if ($target.val().trim() === "") {
             text = ErrorTextTStr.NoEmpty;
         }
-        StatusBox.show(text, $target, false, -5);
+        StatusBox.show(text, $target, false, {"offset": -5});
     }
 
     function updateFunctionsList() {

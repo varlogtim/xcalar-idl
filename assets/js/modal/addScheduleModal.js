@@ -108,8 +108,12 @@ window.AddScheduleModal = (function($, AddScheduleModal) {
     function submitForm() {
         // validation
         if ($scheduleListInput.hasClass("hint")) {
+            var options = {
+                "offset": -25,
+                "side"  : "right"
+            };
             StatusBox.show(ErrorTextTStr.NoEmptyList, $scheduleListInput,
-                            false, -25, {"side": "right"});
+                            false, options);
             return;
         }
 

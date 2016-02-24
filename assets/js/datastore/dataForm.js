@@ -396,15 +396,16 @@ window.DatastoreForm = (function($, DatastoreForm) {
 
     function isValidToPreview() {
         var path = $filePath.val();
+        var options = {"type": "info"};
         if (path.trim() === "") {
-            StatusBox.show(ErrorTextTStr.NoEmpty, $filePath, true);
+            StatusBox.show(ErrorTextTStr.NoEmpty, $filePath, false, options);
             return false;
         } else if (path.endsWith("json")) {
             // Invalid json preview
-            StatusBox.show(ErrorTextTStr.NoPreviewJSON, $filePath, true);
+            StatusBox.show(ErrorTextTStr.NoPreviewJSON, $filePath, false, options);
             return false;
         } else if (path.endsWith("xlsx")) {
-            StatusBox.show(ErrorTextTStr.NoPreviewExcel, $filePath, true);
+            StatusBox.show(ErrorTextTStr.NoPreviewExcel, $filePath, false, options);
             return false;
         }
 

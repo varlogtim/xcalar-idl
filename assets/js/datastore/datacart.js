@@ -519,7 +519,7 @@ window.DataCart = (function($, DataCart) {
         var $cart = DataCart.getCartById(dsId);
         var $input = $cart.find(' .tableNameEdit');
         scrollToTableName($input);
-        StatusBox.show(error, $input, true, 0, {'side': 'left'});
+        StatusBox.show(error, $input, true, {'side': 'left'});
 
         return false;
     }

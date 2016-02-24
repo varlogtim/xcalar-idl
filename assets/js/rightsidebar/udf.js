@@ -198,14 +198,15 @@ window.UDF = (function($, UDF) {
 
             var moduleName = path.substring(0, path.indexOf("."));
             var $submitBtn = $(this);
+            var options = {"offset": 190};
 
             if (val === "") {
-                StatusBox.show(ErrorTextTStr.NoEmpty, $filePath, true, 190);
+                StatusBox.show(ErrorTextTStr.NoEmpty, $filePath, true, options);
             } else if (path === "") {
-                StatusBox.show(ErrorTextTStr.InvalidFilePath, $filePath, true, 190);
+                StatusBox.show(ErrorTextTStr.InvalidFilePath, $filePath, true, options);
             } else if (moduleName.length >
                        XcalarApisConstantsT.XcalarApiMaxPyModuleNameLen) {
-                StatusBox.show(ErrorTextTStr.LongFileName, $filePath, true, 190);
+                StatusBox.show(ErrorTextTStr.LongFileName, $filePath, true, options);
             } else {
                 var reader = new FileReader();
                 reader.onload = function(event) {
@@ -272,28 +273,31 @@ window.UDF = (function($, UDF) {
         $("#udf-fnUpload").click(function() {
             $(this).blur();
             var fileName = $fnName.val();
-
+            var options = {"offset": 50};
             if (fileName === "") {
-                StatusBox.show(ErrorTextTStr.NoEmpty, $fnName, true, 50);
+                StatusBox.show(ErrorTextTStr.NoEmpty, $fnName, true, options);
                 return;
             } else if (fileName.length >
                 XcalarApisConstantsT.XcalarApiMaxPyModuleNameLen) {
-                StatusBox.show(ErrorTextTStr.LongFileName, $fnName, true, 50);
+                StatusBox.show(ErrorTextTStr.LongFileName, $fnName, true, options);
                 return;
             }
             // Get code written and call thrift call to upload
             var entireString = editor.getValue();
-
+            options = {
+                "offset": 30,
+                "side"  : "left"
+            };
             if (entireString.trim() === "" ||
                 entireString.trim() === udfDefault.trim())
             {
                 StatusBox.show(ErrorTextTStr.NoEmptyFn, $('.CodeMirror'), false,
-                                30, { "side": "left" });
+                                options);
                 return;
             } else if (entireString.trim().length >
                        XcalarApisConstantsT.XcalarApiMaxPyModuleSrcLen) {
                 StatusBox.show(ErrorTextTStr.LargeFile, $(".CodeMirror"), false,
-                                30, { "side": "left" });
+                                options);
                 return;
             }
 

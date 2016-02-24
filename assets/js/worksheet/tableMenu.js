@@ -398,7 +398,7 @@ window.TblMenu = (function(TblMenu, $) {
                 StatusBox.show(ErrorTextWReplaceTStr.InvalidRange
                                                     .replace("<num1>", 0)
                                                     .replace("<num2>", 14),
-                                                    $(this), null, null,
+                                                    $(this), null,
                                                     {"side": "left", "closeable": true});
                 return;
             }
@@ -430,7 +430,7 @@ window.TblMenu = (function(TblMenu, $) {
                     if (delim.length === 0) {
                         // when this field is empty
                         StatusBox.show(ErrorTextTStr.NoEmpty, $delimInput, null,
-                                        null, {closeable: true});
+                                        {"closeable": true});
                         return;
                     }
                     // cast of space/tab
