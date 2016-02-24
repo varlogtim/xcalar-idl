@@ -653,10 +653,44 @@ window.ColManager = (function($, ColManager) {
         tableNames["lead"] = [];
         tableNames["cur"] = "";
         tableNames["finalTableName"] = "";
-        // Step 1 Get Unique Column, on SORTED table. This goes against our
-        // axiom, but is the only way to do it for now T____T
-        XcalarMap(uniqueColName, genUniqueMapString,
-                  tableName, tableWithUniqueOrig, {}, true)
+
+        var type = "string"; // default
+        var origSortedOnCol = "";
+        // Step 0. Figure out column type info from orig table. We need it in
+        // step 5.5.
+        XcalarMakeResultSetFromTable(tableName)
+        .then(function(ret) {
+            type = DfFieldTypeTStr[ret.keyAttrHeader.type];
+            switch (type) {
+            case ("DfString"):
+                type = "string";
+                break;
+            case ("DfInt32"):
+            case ("DfInt64"):
+            case ("DfUInt32"):
+            case ("DfUInt64"):
+                type = "int";
+                break;
+            case ("DfFloat32"):
+            case ("DfFloat64"):
+                type = "float";
+                break;
+            case ("DfBoolean"):
+                type = "bool";
+                break;
+            default:
+                type = "string";
+                break;
+            }
+            origSortedOnCol = ret.keyAttrHeader.name;
+            return (XcalarSetFree(ret.resultSetId));
+        })
+        .then(function() {
+            // Step 1 Get Unique Column, on SORTED table. This goes against our
+            // axiom, but is the only way to do it for now T____T
+            return (XcalarMap(uniqueColName, genUniqueMapString,
+                              tableName, tableWithUniqueOrig, {}, true));
+        })
         .then(function() {
         // Step 2 Index by any column unsorted, if not our checks will prevent
         // us from sorting some columns later
@@ -756,6 +790,17 @@ window.ColManager = (function($, ColManager) {
 
             return (xcHelper.when.apply(window, defArray));
         })
+        .then(function() {
+            // Step 5.5 Need to recast the original sorted by column in cur
+            // table to avoid name collisions
+            var oldTableName = tableNames["cur"];
+            var newTableName = oldTableName.split("#")[0] +
+                               Authentication.getHashId();
+            tableNames["cur"] = newTableName;
+            return (XcalarMap("orig_"+origSortedOnCol+"_"+randNumber,
+                              type+"("+origSortedOnCol+")",
+                              oldTableName, newTableName));
+        })
         .then(function() { 
             // Step 6 inner join funnesss!
             // Order: Take cur, join lags then join leads
@@ -782,7 +827,8 @@ window.ColManager = (function($, ColManager) {
             var newTableName = oldTableName.split("#")[0] +
                                Authentication.getHashId();
             tableNames["finalTableName"] = newTableName;
-            return (XcalarIndexFromTable(oldTableName, "cur_"+randNumber,
+            return (XcalarIndexFromTable(oldTableName,
+                                         "orig_"+origSortedOnCol+"_"+randNumber,
                                          newTableName,
                                  XcalarOrderingT.XcalarOrderingAscending, {}));
         })
@@ -791,7 +837,9 @@ window.ColManager = (function($, ColManager) {
             // the columns now and do the sort and celebrate
             var colNames = [];
             var finalCols = [];
-            colNames.push("cur_"+randNumber);
+            // Don't pull cur. Instead pull the original sorted col which cur
+            // was generated on.
+            colNames.push("orig_"+origSortedOnCol+"_"+randNumber);
             for (var i = lag; i>0; i--) {
                 colNames.push("lag_"+i+"_"+colName);
             }
@@ -811,6 +859,21 @@ window.ColManager = (function($, ColManager) {
                         "args": [colNames[i]]
                     }
                 });
+
+                if (colNames[i] !== "orig_"+origSortedOnCol+"_"+randNumber) {
+                    finalCols[i].type = "float";
+                } else {
+                    switch (type) {
+                    case ("int"):
+                        finalCols[i].type = "integer";
+                        break;
+                    case ("bool"):
+                        finalCols[i].type = "boolean";
+                        break;
+                    default:
+                        finalCols[i].type = type;
+                    }
+                }
             }
             finalCols[colNames.length] = ColManager.newDATACol(); 
 
