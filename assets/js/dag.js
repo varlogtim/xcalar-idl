@@ -1625,12 +1625,22 @@ window.Dag = (function($, Dag) {
                 info.type = "sort";
                 info.column = value.keyName;
                 if (value.ordering !== XcalarOrderingT.XcalarOrderingUnordered) {
-                    if (value.source.isTable) {
-                        info.tooltip = "Sorted by " + value.keyName;
-                    } else {
-                        info.tooltip = "Sorted on " + value.keyName;
+                    var order = ""
+                    if (value.ordering ===
+                        XcalarOrderingT.XcalarOrderingAscending) {
+                        order = "(ascending) ";
+                    } else if (value.ordering ===
+                               XcalarOrderingT.XcalarOrderingDescending) {
+                        order = "(descending) ";
                     }
-                    info.text = "sorted on " + value.keyName;
+                    if (value.source.isTable) {
+                        info.tooltip = "Sorted " + order + "by " +
+                                       value.keyName;
+                    } else {
+                        info.tooltip = "Sorted " + order + "on " +
+                                       value.keyName;
+                    }
+                    info.text = "sorted " + order + "on " + value.keyName;
                 } else {
                     
                     if (value.source.isTable) {

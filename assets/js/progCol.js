@@ -674,12 +674,37 @@ window.ColManager = (function($, ColManager) {
         var type = "string"; // default
         var origSortedOnCol = "";
         var newOrigSortedOnCol;
+        var direction = XcalarOrderingT.XcalarOrderingAscending; // default
 
         var msgId = StatusMessage.addMsg({
             "msg"      : StatusMessageTStr.Window,
             "operation": SQLOps.Window
         });
         xcHelper.lockTable(tableId);
+
+        // Step -1. Figure out how the column is sorted before window, because
+        // we have to resort by this ordering once the window is done
+        var sortedStr = $("#dagWrap-"+tableId).find(".actionType:last")
+                         .attr("data-info");
+        if (sortedStr.indexOf("sort") === -1) {
+            // This is not a sorted table! I can just check that this table is
+            // sorted because of the way that the UI always uses the unsorted
+            // table. But backend should technically return us some information
+            // XXX: Potential trap with tables created in the backend and then
+            // inducted into the front end
+            xcHelper.unlockTable(tableId, false);
+            Alert.error("Windowing failed", error);
+            SQL.errorLog("Windowing failed", error);
+            StatusMessage.fail(StatusMessageTStr.WindowFailed, msgId);
+            return;
+        } else {
+            if (sortedStr.indexOf("desc") !== -1) {
+                // Descending sort
+                direction = XcalarOrderingT.XcalarOrderingDescending;
+            } else {
+                direction = XcalarOrderingT.XcalarOrderingAscending;
+            }
+        }
 
         // Step 0. Figure out column type info from orig table. We need it in
         // step 5.5.
@@ -808,12 +833,11 @@ window.ColManager = (function($, ColManager) {
             return chain(defChain);
         })
         .then(function() {
-            // Step 7 Sort ascending by the cur order number
+            // Step 7 Sort ascending or descending by the cur order number
             var oldTableName = finalTableName;
             var newTableName = oldTableName.split("#")[0] +
                                Authentication.getHashId();
             var indexCol = newOrigSortedOnCol;
-            var order = XcalarOrderingT.XcalarOrderingAscending;
             var actionSql = {
                 "operation"   : SQLOps.WindowAction,
                 "action"      : "index",
@@ -825,7 +849,7 @@ window.ColManager = (function($, ColManager) {
 
             finalTableName = newTableName;
             return XcalarIndexFromTable(oldTableName, indexCol,
-                                        newTableName, order, actionSql);
+                                        newTableName, direction, actionSql);
         })
         .then(function() {
             // Step 8 YAY WE ARE FINALLY DONE! Just start picking out all
@@ -870,7 +894,8 @@ window.ColManager = (function($, ColManager) {
                     "type"    : colType,
                     "width"   : gNewCellWidth,
                     "isNewCol": false,
-                    "userStr" : '"' + colNames[i] + '" = pull(' + colNames[i] + ')',
+                    "userStr" : '"' + colNames[i] + '" = pull(' + colNames[i] +
+                                ')',
                     "func"    : {
                         "func": "pull",
                         "args": [colNames[i]]
