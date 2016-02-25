@@ -1377,18 +1377,20 @@ window.TblManager = (function($, TblManager) {
                 {
                     return false;
                 }
-
+                $('.tooltip').remove();
                 ColManager.renameCol(colNum, tableId, colName);
 
                 $input.parent().removeClass("editable");
                 // this will make the fnBar from not editable to editable
+                $('#fnBar').val("= ");
                 FnBar.focusOnCol($input, tableId, colNum, true);
             }
         });
 
         $thead.on("blur", ".editableHead", function(event) {
             var $input = $(event.target);
-            if (!$input.prop("readonly") && $input.closest('.selectedCell').length === 0) {
+            if (!$input.prop("readonly") &&
+                $input.closest('.selectedCell').length === 0) {
                 $input.val("");
                 $('#fnBar').removeClass("disabled");
             }

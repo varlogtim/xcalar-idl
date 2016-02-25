@@ -1361,6 +1361,7 @@ window.Dag = (function($, Dag) {
         var dagInfo = getDagNodeInfo(dagNode, key, parents);
         var state = dagInfo.state;
         var tableName = getDagName(dagNode);
+        // data set
         if (dagOrigin === "") {
             var url = dagInfo.url;
             var id = dagInfo.id;
@@ -1388,6 +1389,7 @@ window.Dag = (function($, Dag) {
                                 tableName +
                             '</span>';
         } else {
+            // table
             var tableId = xcHelper.getTableId(tableName);
             dagTable += '<div class="dagTable ' + state + '" ' +
                             'data-tablename="' + tableName + '" ' +
