@@ -60,6 +60,7 @@ window.DataPreview = (function($, DataPreview) {
         $("#preview-apply").click(applyPreviewChange);
 
         $("#preview-minimize").click(function() {
+            $(".tooltip").hide();
             toggleMinimize();
         });
 
@@ -160,7 +161,6 @@ window.DataPreview = (function($, DataPreview) {
         .then(function() {
             $("#importDataForm").addClass("previewMode");
 
-            $previeWrap.removeClass("hidden");
             $waitSection = $previeWrap.find(".waitSection")
                                         .removeClass("hidden");
             $errorSection = $previeWrap.find(".errorSection")
@@ -172,26 +172,29 @@ window.DataPreview = (function($, DataPreview) {
                         xcHelper.randName("previewTable");
             tableName += ".preview"; // specific format for preview table
 
-            var sqlOptions = {
-                "operation" : SQLOps.PreviewDS,
-                "dsPath"    : loadURL,
-                "dsName"    : tableName,
-                "dsFormat"  : "raw",
-                "hasHeader" : hasHeader,
-                "fieldDelim": "Null",
-                "lineDelim" : "\n",
-                "moduleName": "Null",
-                "funcName"  : "Null"
-            };
-
-            XcalarLoad(loadURL, "raw", tableName, "", "\n", hasHeader, "", "",
-                       sqlOptions)
+            showPreviewPanel()
+            .then(function() {
+                var sqlOptions = {
+                    "operation" : SQLOps.PreviewDS,
+                    "dsPath"    : loadURL,
+                    "dsName"    : tableName,
+                    "dsFormat"  : "raw",
+                    "hasHeader" : hasHeader,
+                    "fieldDelim": "Null",
+                    "lineDelim" : "\n",
+                    "moduleName": "Null",
+                    "funcName"  : "Null"
+                };
+                return XcalarLoad(loadURL, "raw", tableName, "", "\n",
+                                    hasHeader, "", "", sqlOptions);
+            })
             .then(DS.release)
             .then(function() {
                 return XcalarSample(tableName, rowsToFetch);
             })
             .then(function(result) {
                 $waitSection.addClass("hidden");
+
                 refId = gDatasetBrowserResultSetId;
                 // set it to 0 because releaseDatasetPointer() use it to check
                 // if ds's ref count is cleard
@@ -230,8 +233,11 @@ window.DataPreview = (function($, DataPreview) {
 
                     if (gMinModeOn) {
                         $loadHiddenSection.show();
+                        $previeWrap.addClass("fullSize");
                     } else {
-                        $loadHiddenSection.fadeIn(200);
+                        $loadHiddenSection.fadeIn(500, function() {
+                            $previeWrap.addClass("fullSize");
+                        });
                     }
 
                     getPreviewTable();
@@ -262,6 +268,7 @@ window.DataPreview = (function($, DataPreview) {
             $errorSection.html("Cannot parse the dataset.")
                                 .removeClass("hidden");
             errorSuggestHelper(loadURL);
+            $("#preview-close").show();
         }
     };
 
@@ -295,7 +302,7 @@ window.DataPreview = (function($, DataPreview) {
     };
 
     DataPreview.clear = function() {
-        if ($("#dsPreviewWrap").hasClass("hidden")) {
+        if ($previeWrap.hasClass("hidden")) {
             // when preview table not shows up
             return promiseWrapper(null);
         } else {
@@ -308,7 +315,7 @@ window.DataPreview = (function($, DataPreview) {
         var deferred = jQuery.Deferred();
 
         if (!previewMode) {
-            $("#dsPreviewWrap").addClass("hidden").addClass("fullSize");
+            $previeWrap.addClass("hidden").removeClass("fullSize");
             $("#importDataForm").removeClass("previewMode");
             $previewTable.removeClass("has-delimiter").empty();
         }
@@ -339,6 +346,31 @@ window.DataPreview = (function($, DataPreview) {
         }
 
         return (deferred.promise());
+    }
+
+    function showPreviewPanel() {
+        var deferred = jQuery.Deferred();
+        // move the panel to bottom before display
+        $previeWrap.addClass("smallSize");
+        $previeWrap.removeClass("hidden");
+        if (gMinModeOn) {
+            $previeWrap.removeClass("smallSize");
+            deferred.resovle();
+        } else {
+            setTimeout(function() {
+                // without this setTimeout, previewWrap with go from top: 100%
+                // to top: 244px without animation
+                $previeWrap.removeClass("smallSize");
+
+                setTimeout(function() {
+                    // this setTimout it for the anmtion time btw
+                    // top: 100% to top: 244%
+                    deferred.resolve();
+                }, 700);
+            }, 100);
+        }
+
+        return deferred.promise();
     }
 
     function toggleMinimize(toMinize) {
