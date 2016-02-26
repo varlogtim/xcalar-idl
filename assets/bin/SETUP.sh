@@ -19,7 +19,14 @@ fi
 
 # set up apache
 echo "Set up apache..."
-echo "ServerName localhost" | sudo tee /etc/apache2/conf-available/fqdn.conf && sudo a2enconf fqdn
+FILE=/etc/apache2/conf-available/fqdn.conf
+if grep -sq "ServerName localhost" "$FILE"
+then
+    echo "fqdn.conf file already set up"
+else
+    echo "creating fqdn for apache2"
+    echo "ServerName localhost" | sudo tee /etc/apache2/conf-available/fqdn.conf && sudo a2enconf fqdn
+fi
 sudo service apache2 reload
 
 sudo cp /etc/apache2/sites-available/000-default.conf  XI.conf
