@@ -768,16 +768,22 @@ window.TblMenu = (function(TblMenu, $) {
             $highlightBoxs.each(function() {
                 var $td = $(this).closest("td");
 
+                if ($td.find(".undefined").length > 0) {
+                    // FNF case
+                    hasCheckExist = true;
+                    return true; // continue to next iteration
+                }
+
                 if ($header.hasClass("type-integer")) {
                     colVal = $td.data("val");
-                    if (colVal === "") {
+                    if (colVal == null || colVal === "") {
                         hasCheckExist = true;
                         return true; // continue to next iteration
                     }
                     colVal = parseInt(colVal);
                 } else if ($header.hasClass("type-float")) {
                     colVal = $td.data("val");
-                    if (colVal === "") {
+                    if (colVal == null || colVal === "") {
                         hasCheckExist = true;
                         return true; // continue to next iteration
                     }

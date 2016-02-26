@@ -1171,9 +1171,17 @@ input {
         display: none !important;
     }
 
-    &.type-object, &.type-newColumn, &.type-undefined, &.type-mixed, 
+    &.type-object, &.type-newColumn, &.type-mixed, 
     &.recordNum, &.childOfArray, &.sortedArray {
         .sort, .aggregate, .groupby, .filter, .joinList, .map, .operations,
+        .profile
+        {
+            display: none;
+        }
+    }
+
+    &.type-undefined {
+        .sort, .aggregate, .groupby, .joinList, .operations,
         .profile
         {
             display: none;

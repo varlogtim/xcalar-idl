@@ -1839,7 +1839,7 @@ function dropdownClick($el, options) {
                                 columnType !== "integer" &&
                                 columnType !== "boolean"
                             );
-        var notAllowed = $el.find('.undefined, .null, .blank').length;
+        var notAllowed = $el.find('.null, .blank').length;
         var isMultiCell = $("#xcTable-" + tableId).find(".highlightBox").length > 1;
 
         var $tdFilter  = $menu.find(".tdFilter");
