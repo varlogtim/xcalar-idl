@@ -1,6 +1,6 @@
 // A basic test
 mocha.timeout(5000);
-describe('Unit test can run', function(done) {
+describe('Mocha Setup Test', function() {
     this.timeout(5000);
     it('Should pass Hello World Test', function() {
         expect('hello world').to.equal('hello world');
@@ -23,15 +23,17 @@ describe('Unit test can run', function(done) {
     it('Should see private function in module', function() {
         expect(DataCart.__testOnly__.filterCarts).to.be.a('function');
     });
+
+    function simplePromiseTest() {
+        var deferred = jQuery.Deferred();
+
+        setTimeout(function() {
+            deferred.resolve('pass');
+        }, 3000);
+
+        return deferred.promise();
+    }
 });
 
 
-function simplePromiseTest() {
-    var deferred = jQuery.Deferred();
 
-    setTimeout(function() {
-        deferred.resolve('pass');
-    }, 3000);
-
-    return deferred.promise();
-}

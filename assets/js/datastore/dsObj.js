@@ -1273,6 +1273,7 @@ window.DS = (function ($, DS) {
         DS.__testOnly__ = {};
         DS.__testOnly__.delDSHelper = delDSHelper;
         DS.__testOnly__.toggleDSView = toggleDSView;
+        DS.__testOnly__.canCreateFolder = canCreateFolder;
         DS.__testOnly__.createDS = createDS;
         DS.__testOnly__.removeDS = removeDS;
 

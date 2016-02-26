@@ -1,5 +1,5 @@
 function dsObjTest() {
-    var $mainTabCache;
+    var minModeCache;
 
     var $gridView;
     var $statusBox;
@@ -9,13 +9,12 @@ function dsObjTest() {
     var user;
 
     before(function(){
-        // go to the data store tab, or some UI effect like :visible cannot test
-        $mainTabCache = $(".mainMenuTab.active");
-        $('#dataStoresTab').click();
-
         $gridView = $("#exploreView").find(".gridItems");
         $statusBox = $("#statusBox");
         user = Support.getUser();
+
+        minModeCache = gMinModeOn;
+        gMinModeOn = true;
     });
 
     describe("Grid View Test", function() {
@@ -110,6 +109,20 @@ function dsObjTest() {
 
             DS.upDir();
             assert.isFalse($grid.hasClass("hidden"), "see folder");
+        });
+
+        it("canCreateFolder() should work for this folder", function() {
+            var dsId = testFolder.getId();
+            // manually make it uneditable
+            testFolder.uneditable = true;
+            expect(DS.__testOnly__.canCreateFolder(dsId)).to.be.false;
+            assert.isTrue($("#alertModal").is(":visible"), "see alert");
+            $("#alertModal .close").click();
+            assert.isFalse($("#alertModal").is(":visible"), "close alert");
+
+            // make it editable
+            testFolder.uneditable = false;
+            expect(DS.__testOnly__.canCreateFolder(dsId)).to.be.true;
         });
     });
 
@@ -249,15 +262,11 @@ function dsObjTest() {
         var $ds;
         var $folder;
         var $alertModal;
-        var minModeCache;
 
         before(function() {
             $ds = DS.getGrid(testDS.getId());
             $folder = DS.getGrid(testFolder.getId());
             $alertModal = $("#alertModal");
-
-            minModeCache = gMinModeOn;
-            gMinModeOn = true;
         });
 
         it("Should not delete folder with ds", function() {
@@ -301,15 +310,11 @@ function dsObjTest() {
                 throw "Fail Case!";
             });
         });
-
-        after(function() {
-            gMinModeOn = minModeCache;
-        });
     });
 
 
     after(function() {
         $(".tooltip").hide(); // toggle list view test may have tooltip
-        $mainTabCache.click(); // go back to previous tab
+        gMinModeOn = minModeCache;
     });
 }

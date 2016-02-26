@@ -1,6 +1,4 @@
 function dataFormModuleTest() {
-    var $mainTabCache;
-
     var $filePath;
     var $fileName;
     var $formatText;
@@ -19,10 +17,6 @@ function dataFormModuleTest() {
     var $statusBox;
 
     before(function(){
-        // go to the data store tab, or some UI effect like :visible cannot test
-        $mainTabCache = $(".mainMenuTab.active");
-        $('#dataStoresTab').click();
-
         $filePath = $("#filePath");
         $fileName = $("#fileName");
         $formatText  = $("#fileFormat .text");
@@ -147,6 +141,28 @@ function dataFormModuleTest() {
         });
     });
 
+    describe("Allow Browse Test", function() {
+        var isValidPathToBrowse;
+
+        before(function() {
+            isValidPathToBrowse = DatastoreForm.__testOnly__.isValidPathToBrowse;
+        });
+
+        it("Should allow browse invalid path", function() {
+            var paths = ["", "file:///", "nfs:///", "hdfs:///"];
+            paths.forEach(function(path) {
+                expect(isValidPathToBrowse(path)).to.be.true;
+            });
+        });
+
+        it("Should not allow browse of invalid path", function() {
+            var paths = ["abc", "files:///", "test:///", "file://"];
+            paths.forEach(function(path) {
+                expect(isValidPathToBrowse(path)).to.be.false;
+            });
+        });
+    });
+
     describe("Allow Preview Test", function() {
         beforeEach(function() {
             $("#statusBoxClose").mousedown();
@@ -195,6 +211,88 @@ function dataFormModuleTest() {
         after(function() {
             DatastoreForm.__testOnly__.resetForm();
         });
+    });
+
+    describe("promoptHeaderAlert Test", function() {
+        var minModeCache;
+        var promoptHeaderAlert;
+        var $alertModal;
+
+        before(function() {
+            minModeCache = gMinModeOn;
+            gMinModeOn = true;
+            $alertModal = $("#alertModal");
+            promoptHeaderAlert = DatastoreForm.__testOnly__.promoptHeaderAlert;
+        });
+
+        it("Should alert when CSV with no header", function(done) {
+            promoptHeaderAlert("CSV", false)
+            .always(function() {
+                assert.isFalse($alertModal.is(":visible"), "close alert");
+                done();
+            });
+
+            assert.isTrue($alertModal.is(":visible"), "see alert");
+            $alertModal.find(".close").click();
+        });
+
+        it("Should not alert when CSV with header", function(done) {
+            promoptHeaderAlert("CSV", true)
+            .always(function() {
+                assert.isFalse($alertModal.is(":visible"), "close alert");
+                done();
+            });
+        });
+
+        it("Should alert when Raw with no header", function(done) {
+            promoptHeaderAlert("raw", false)
+            .always(function() {
+                assert.isFalse($alertModal.is(":visible"), "close alert");
+                done();
+            });
+
+            assert.isTrue($alertModal.is(":visible"), "see alert");
+            $alertModal.find(".close").click();
+        });
+
+        it("Should not alert when Raw with header", function(done) {
+            promoptHeaderAlert("raw", true)
+            .always(function() {
+                assert.isFalse($alertModal.is(":visible"), "close alert");
+                done();
+            });
+        });
+
+        it("Should alert when Excel with no header", function(done) {
+            promoptHeaderAlert("Excel", false)
+            .always(function() {
+                assert.isFalse($alertModal.is(":visible"), "close alert");
+                done();
+            });
+
+            assert.isTrue($alertModal.is(":visible"), "see alert");
+            $alertModal.find(".close").click();
+        });
+
+        it("Should not alert when Excel with header", function(done) {
+            promoptHeaderAlert("Excel", true)
+            .always(function() {
+                assert.isFalse($alertModal.is(":visible"), "close alert");
+                done();
+            });
+        });
+
+        it("Should not alert when format is JSON", function(done) {
+            promoptHeaderAlert("JSON", true)
+            .always(function() {
+                assert.isFalse($alertModal.is(":visible"), "close alert");
+                done();
+            });
+        });
+
+        after(function() {
+            gMinModeOn = minModeCache;
+        })
     });
 
     describe("Delimiter Func Test", function() {
@@ -344,6 +442,5 @@ function dataFormModuleTest() {
 
     after(function() {
         $("#promoteHeaderCheckbox .checkbox").removeClass("checked");
-        $mainTabCache.click(); // go back to previous tab
     });
 }

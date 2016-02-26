@@ -355,7 +355,7 @@ window.DataPreview = (function($, DataPreview) {
         $previeWrap.removeClass("hidden");
         if (gMinModeOn) {
             $previeWrap.removeClass("smallSize");
-            deferred.resovle();
+            deferred.resolve();
         } else {
             setTimeout(function() {
                 // without this setTimeout, previewWrap with go from top: 100%

@@ -139,7 +139,6 @@ window.DataCart = (function($, DataCart) {
     // add column to cart
     DataCart.addItem = function(dsId, items) {
         var cart = filterCarts(dsId);
-
         if (cart == null) {
             cart = addCart(dsId);
         }
@@ -333,7 +332,6 @@ window.DataCart = (function($, DataCart) {
         // called dataset1 if it doesnt already exist or dataset2 etc...
         var deferred = jQuery.Deferred();
         var tableNames = {};
-
         // datasets has it's unique format, no need to check
         XcalarGetTables()
         .then(function(result) {
@@ -516,7 +514,7 @@ window.DataCart = (function($, DataCart) {
             return true;
         }
 
-        var $cart = DataCart.getCartById(dsId);
+        var $cart = DataCart.getCartById(cart.getId());
         var $input = $cart.find(' .tableNameEdit');
         scrollToTableName($input);
         StatusBox.show(error, $input, true, {'side': 'left'});
@@ -626,6 +624,8 @@ window.DataCart = (function($, DataCart) {
     if (window.unitTestMode) {
         DataCart.__testOnly__ = {};
         DataCart.__testOnly__.filterCarts = filterCarts;
+        DataCart.__testOnly__.getUnusedTableName = getUnusedTableName;
+        DataCart.__testOnly__.isCartNameValid = isCartNameValid;
     }
     /* End Of Unit Test Only */
 

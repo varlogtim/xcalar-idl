@@ -2,7 +2,6 @@ function dataPreviewModuleTest() {
     // Note that this function is called in very early time
     // so do not initialize any resuable varible here
     // instead, initialize in the it() function
-    var $mainTabCache;
     var minModeCache;
 
     var $previewTable;
@@ -17,10 +16,6 @@ function dataPreviewModuleTest() {
         // turn off min mode, as it affectes DOM test
         minModeCache = gMinModeOn;
         gMinModeOn = true;
-
-        // go to the data store tab, or some UI effect like :visible cannot test
-        $mainTabCache = $(".mainMenuTab.active");
-        $('#dataStoresTab').click();
     });
 
     describe("Basic Function Test", function() {
@@ -433,14 +428,14 @@ function dataPreviewModuleTest() {
         it("Should toggle minimize", function() {
             var $previeWrap = $("#dsPreviewWrap");
 
-            // default is fullSize
-            expect($previeWrap.hasClass("fullSize")).to.be.true;
+            // default is middleSize
+            expect($previeWrap.hasClass("fullSize")).to.be.false;
 
             // can toggle
             DataPreview.__testOnly__.toggleMinimize();
-            expect($previeWrap.hasClass("fullSize")).to.be.false;
-            DataPreview.__testOnly__.toggleMinimize();
             expect($previeWrap.hasClass("fullSize")).to.be.true;
+            DataPreview.__testOnly__.toggleMinimize();
+            expect($previeWrap.hasClass("fullSize")).to.be.false;
         });
 
         it("Should clear preview table", function() {
@@ -500,7 +495,6 @@ function dataPreviewModuleTest() {
     });
 
     after(function() {
-        $mainTabCache.click(); // go back to previous tab
         gMinModeOn = minModeCache;
     });
 }

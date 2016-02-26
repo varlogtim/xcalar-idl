@@ -3,7 +3,6 @@ function dataCartModuleTest() {
     // so do not initialize any resuable varible here
     // instead, initialize in the it() function
     var previousCart;
-    var $mainTabCache;
     var minModeCache;
     var testCartId;
     var fakeDSObj;
@@ -14,10 +13,6 @@ function dataCartModuleTest() {
         // turn off min mode, as it affectes DOM test
         minModeCache = gMinModeOn;
         gMinModeOn = true;
-
-        // go to the data store tab, or some UI effect like :visible cannot test
-        $mainTabCache = $(".mainMenuTab.active");
-        $('#dataStoresTab').click();
 
         fakeDSObj = DS.__testOnly__.createDS({
             "id"      : "testDS" + Math.floor(Math.random() * 1000 + 1),
@@ -40,6 +35,19 @@ function dataCartModuleTest() {
         assert.equal($("#dataCart .selectedTable").length, 0, 'have no carts');
     });
 
+    it("Should getUnusedTableName() works", function(done) {
+        var dsName = xcHelper.randName("testName");
+        DataCart.__testOnly__.getUnusedTableName(dsName)
+        .then(function(realName) {
+            expect(realName).to.equal(dsName);
+            done();
+        })
+        .fail(function() {
+            throw "Fail case!";
+        });
+
+    });
+
     it('Should add new cart', function() {
         testCartId = fakeDSObj.getId();
         DataCart.addItem(testCartId);
@@ -57,6 +65,28 @@ function dataCartModuleTest() {
         var $cart = DataCart.getCartById(testCartId);
         assert.equal($cart.length, 1, 'have only 1 cart');
         assert.isTrue($cart.find(".cartEmptyHint").is(":visible"), 'Should see hint');
+    });
+
+    it("Should check if name is valid", function() {
+        var cart = DataCart.getCarts()[0];
+        var res = DataCart.__testOnly__.isCartNameValid(cart, {}, false);
+        expect(res).to.be.true;
+
+        res = DataCart.__testOnly__.isCartNameValid(cart, {"testDS": 1}, false);
+        expect(res).to.be.false;
+        assert.isTrue($("#statusBox").is(":visible"), "see error");
+        $("#statusBoxClose").mousedown();
+        assert.isFalse($("#statusBox").is(":visible"), "close error");
+
+        // manually change name
+        cart.tableName = "";
+        res = DataCart.__testOnly__.isCartNameValid(cart, null, true);
+        expect(res).to.be.false;
+        assert.isTrue($("#statusBox").is(":visible"), "see error");
+        $("#statusBoxClose").mousedown();
+        assert.isFalse($("#statusBox").is(":visible"), "close error");
+
+        cart.tableName = "testDS";
     });
 
     it('Should add item', function() {
@@ -118,7 +148,6 @@ function dataCartModuleTest() {
         var $ds = DS.getGrid(fakeDSObj.getId());
         DS.__testOnly__.removeDS($ds);
 
-        $mainTabCache.click(); // go back to previous tab
         gMinModeOn = minModeCache;
     });
 }
