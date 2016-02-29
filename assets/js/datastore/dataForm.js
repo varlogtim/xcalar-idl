@@ -161,7 +161,7 @@ window.DatastoreForm = (function($, DatastoreForm) {
     };
 
     DatastoreForm.show = function() {
-        if (!$importDataView.is(":visible")) {
+        if (!$importDataView.is(":visible") || $form.hasClass("previewMode")) {
             resetForm();
             $importDataView.show();
             $("#dataSetTableWrap").empty();
