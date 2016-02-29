@@ -50,8 +50,8 @@ window.StatusBox = (function($, StatusBox){
         }
 
         if (isFormMode) {
-            $doc.mousedown({target: $target}, hideStatusBox);
-            $target.keydown({target: $target}, hideStatusBox);
+            $doc.mousedown({"target": $target, "type": msgType}, hideStatusBox);
+            $target.keydown({"target": $target, "type": msgType}, hideStatusBox);
             $target.focus().addClass(msgType);
         } else {
             $doc.mousedown(hideStatusBox);
@@ -80,7 +80,7 @@ window.StatusBox = (function($, StatusBox){
             {
                 $doc.off('mousedown', hideStatusBox);
                 event.data.target.off('keydown', hideStatusBox)
-                                 .removeClass('active');
+                                 .removeClass(event.data.type);
                 clear();
             }
 
