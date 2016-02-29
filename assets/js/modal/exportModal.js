@@ -156,8 +156,13 @@ window.ExportModal = (function($, ExportModal) {
         var deferred = jQuery.Deferred();
 
         var exportName = $exportName.val().trim();
-        var columnsVal = $exportColumns.val().replace(/\s/g, "");
-         //remove commas at either ends
+        var columnsVal = $exportColumns.val().split(",");
+        jQuery.each(columnsVal, function(i, val) {
+            columnsVal[i] = jQuery.trim(val);
+        });
+        columnsVal = columnsVal.join(",");
+        
+        //remove commas at either ends
         if (columnsVal.indexOf(",") === 0) {
             columnsVal = columnsVal.substring(1, columnsVal.length);
         }
@@ -339,7 +344,11 @@ window.ExportModal = (function($, ExportModal) {
     }
 
     function selectColumnsOnKeyPress() {
-        var colNames = $exportColumns.val().replace(/\s/g, "").split(",");
+        var colNames = $exportColumns.val().split(",")
+        jQuery.each(colNames, function(i, val) {
+            colNames[i] = jQuery.trim(val);
+        });
+
         var numColNames = colNames.length;
         var $table = $("#xcTable-" + tableId);
 
@@ -417,8 +426,11 @@ window.ExportModal = (function($, ExportModal) {
         }
 
         var substring = value.substring(selectStart, selectEnd);
-        var colNames = substring.replace(/\s/g, "").split(",");
+        var colNames = substring.split(",");
 
+        jQuery.each(colNames, function(i, val) {
+            colNames[i] = jQuery.trim(val);
+        });
         for (var i = 0; i < colNames.length; i++) {
             var $colInput = $selectableThs.find('.editableHead')
                                           .filter(function() {
