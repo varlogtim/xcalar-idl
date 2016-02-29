@@ -209,7 +209,8 @@ window.ColManager = (function($, ColManager) {
         }
 
         moveTableTitlesAnimated(tableId, tableWidth, colWidths, 200);
-        FnBar.clear();
+        var noSave = true;
+        FnBar.clear(noSave);
         
         jQuery.when.apply($, promises).done(function() {
             var numAllCols = table.tableCols.length;
@@ -2054,7 +2055,7 @@ window.ColManager = (function($, ColManager) {
 
         var progCol  = tableCols[colNum - 1];
         var width    = progCol.width;
-        var isNewCol = $table.find('th.col' + colNum).hasClass('unusedCell');
+        var isNewCol = $table.find('th.col' + colNum).hasClass('newColumn');
         var decimals = progCol.decimals;
         var format   = progCol.format;
 

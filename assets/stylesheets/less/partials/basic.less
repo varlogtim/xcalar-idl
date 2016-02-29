@@ -1180,6 +1180,12 @@ input {
         }
     }
 
+    &.type-untitled { // when column head is editable for rename
+        .duplicate {
+            display: none;
+        }
+    }
+
     &.type-undefined {
         .sort, .aggregate, .groupby, .joinList, .operations,
         .profile

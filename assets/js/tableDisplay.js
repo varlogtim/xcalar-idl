@@ -1304,6 +1304,9 @@ window.TblManager = (function($, TblManager) {
             if ($th.hasClass('newColumn') ||
                 options.classes.indexOf('type') === -1) {
                 options.classes += " type-newColumn";
+                if ($el.closest('.flexWrap').siblings('.editable').length) {
+                    options.classes += " type-untitled";
+                }
             }
             if ($th.hasClass("userHidden")) {
                 // column is hidden

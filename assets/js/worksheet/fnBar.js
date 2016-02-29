@@ -70,10 +70,39 @@ window.FnBar = (function(FnBar, $) {
         }
     };
 
-    FnBar.clear = function() {
+    FnBar.clear = function(noSave) {
+        var val = $fnBar.val();
+        var trimmedVal = val.trim();
+        if (!noSave) {
+            saveInput();
+        } else {
+            $fnBar.removeClass('disabled');
+        }
         $lastColInput = null;
         $fnBar.val("").removeClass("active");
     };
+
+    function saveInput() {
+        if (!$lastColInput || !$lastColInput.length) {
+            return;
+        }
+        var fnBarVal = $fnBar.val().trim();
+        if (fnBarVal.indexOf("=") === 0) {
+            fnBarVal = fnBarVal.substring(1);
+        } else {
+            return;
+        }
+        fnBarVal = fnBarVal.trim();
+        var $colInput = $lastColInput;
+        var $table   = $colInput.closest('.dataTable');
+        var tableId  = xcHelper.parseTableId($table);
+        var colNum   = xcHelper.parseColNum($colInput);
+        var table    = gTables[tableId];
+        var tableCol = table.tableCols[colNum - 1];
+        
+        tableCol.userStr = "\"" + tableCol.func.args[0] + "\"" + " = " +
+                            fnBarVal;
+    }
 
     function setupSearchHelper() {
         searchHelper = new xcHelper.SearchBar($functionArea, {
@@ -117,6 +146,10 @@ window.FnBar = (function(FnBar, $) {
         var fnBarValTrim = fnBarVal.trim();
         var $colInput = $lastColInput;
 
+        if (!$colInput || !$colInput.length) {
+            return;
+        }
+
         if (fnBarValTrim.indexOf('=') === 0) {
             var $table   = $colInput.closest('.dataTable');
             var tableId  = xcHelper.parseTableId($table);
@@ -144,7 +177,8 @@ window.FnBar = (function(FnBar, $) {
             }
 
             $colInput.closest('th').removeClass('unusedCell');
-            $table.find('td:nth-child(' + colNum + ')').removeClass('unusedCell');
+            $table.find('td:nth-child(' + colNum + ')')
+                  .removeClass('unusedCell');
             var isValid = checkFuncSyntaxValidity(fnBarValTrim);
             if (!isValid) {
                 return;
