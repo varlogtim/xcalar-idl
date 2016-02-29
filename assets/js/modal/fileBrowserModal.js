@@ -987,7 +987,7 @@ window.FileBrowser = (function($, FileBrowser) {
                     '<div class="listIcon">' +
                         '<span class="icon"></span>' +
                     '</div>' +
-                    '<div class="label" data-name=' + name + '>' +
+                    '<div class="label" data-name="' + name + '">' +
                         name +
                     '</div>' +
                     '<div class="fileDate">' + date + '</div>' +
