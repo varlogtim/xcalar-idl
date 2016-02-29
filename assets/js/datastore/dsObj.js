@@ -452,8 +452,9 @@ window.DS = (function ($, DS) {
         xcHelper.assert(($grid != null && $grid.length !== 0),
                         "Invalid remove of ds");
 
-        var dsId  = $grid.data("dsid");
+        var dsId = $grid.data("dsid");
         var dsObj = DS.getDSObj(dsId);
+        var dsName = dsObj.getName();
         var msg;
 
         if (!dsObj.isEditable()) {
@@ -480,7 +481,7 @@ window.DS = (function ($, DS) {
             // when remove folder
             SQL.add("Delete Folder", {
                 "operation": SQLOps.DelFolder,
-                "dsName"   : dsObj.getName(),
+                "dsName"   : dsName,
                 "dsId"     : dsId
             });
         }
