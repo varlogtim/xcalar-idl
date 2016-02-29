@@ -49,7 +49,7 @@
     .leftContent {
         width: 314px;
         height: 100%;
-        border-right: 1px solid #999999;
+        border-right: 1px solid @color-border-sidebar;
         background-color: @color-background-darkGray;
         float: left;
 
@@ -58,7 +58,7 @@
             .gray-gradient;
             text-align: center;
             padding-top: 6px;
-            .font(@weight: 700, @size: 15px, @color: @color-background-darkdarkGray);
+            .font(@weight: 700, @size: 15px, @color: @color-text-darkdarkGray);
         }
 
         .mainButtonArea {
@@ -202,7 +202,7 @@
 
                 .scheduleInfo {
                     .size(@width: 250px, @height: 20px);
-                    .font(@size: 13px, @weight: bold, @color: #7f7f7f);
+                    .font(@size: 13px, @weight: bold, @color: @color-text-signout-lightGray);
                     float: left;
 
                     .name {
@@ -348,7 +348,7 @@
 
                 .divider {
                     .size(@width: 100%, @height: 2px);
-                    background-color: @color-retina-border;
+                    background-color: @color-modal-dividerGray;
                     border-bottom: 1px solid @color-white;
                 }
 
@@ -422,15 +422,15 @@
                         }
 
                         .textSection {
-                            .font(@size: 10px, @color: #cccccc);
+                            .font(@size: 10px, @color: @color-text-topGrayMed);
                         }
 
                         .inputSection {
-                            .font(@size: 12px, @color: #9f9f9f, @weight: bold);
+                            .font(@size: 12px, @color: @color-darkSilverChalice, @weight: bold);
                             text-shadow: 0px 0px rgba(0, 0, 0, 0.2);
 
                             input {
-                                background-color: #f0f0f0;
+                                background-color: @color-background-topForm;
                                 padding-top: 2px;
                             }
                         }
@@ -665,7 +665,7 @@
                 padding-right: 2px;
                 .textOverflowOneLine;
                 margin: 5px 0px;
-                border-right: 1px solid #EEEEEE;
+                border-right: 1px solid @color-border-inputMidGray;
                 .font(@line-height: 15px, @size: 13px, @color: @color-text-darkGray);
             }
 
@@ -788,11 +788,11 @@
 
                     &.active {
                         .tabWrap {
-                            background: #c3c3c3;
+                            background: @color-table-inactive-darkGray;
                             .rounded(3px 3px 0 0);
                             border-bottom: none;
                             .retTitle {
-                                color: #4d4d4d;
+                                color: @color-text-darkGray;
                             }
                             .caret .icon {
                                 background-image: url(../../images/retina/retDownActive.png);
@@ -818,7 +818,7 @@
                         }
                         .inputSection {
                             .size(@width: 100%, @height: 45px);
-                            background: #eaeaea;
+                            background: @color-dag-TopGray;
                             box-shadow: 0px 3px 3px 0 rgba(0, 0, 0, 0.4);
                             padding: 7px 10px;
 
@@ -829,7 +829,7 @@
                                 padding-left: 9px;
                                 box-shadow: inset -2px 0px 2px 0 rgba(0, 0, 0, 0.3);
                                 .font(@weight: bold, @size: 13px, @color: @color-text-darkGray);
-                                .input-placeholder(#cccccc);
+                                .input-placeholder(@color-text-topGrayMed);
                             }
                             .addParam {
                                 .size(@width: 214px, @height: 30px);
@@ -861,7 +861,7 @@
                                 .size(@height: 30px);
                                 .font(@weight: bold, @size: 13px, @line-height: 30px, @color: @color-white);
                                 float: left;
-                                background-color: #A8A8A8;
+                                background-color: @color-background-joinGray;
                                 text-align: center;
 
                                 &.paramName {
@@ -895,7 +895,7 @@
 
                             table {
                                 td {
-                                    border-right: 1px solid #a8a8a8;
+                                    border-right: 1px solid @color-border-joinGray;
                                     width: 70px;
                                 }
 

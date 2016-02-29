@@ -82,7 +82,7 @@
     .modalTopMain {
         .size(@width: 100%);
         border-top: 3px solid rgba(1, 1, 1, 0.18);
-        background: @color-join-background;
+        background: @color-modal-whiteGray;
         color: @color-text-darkGray;
         .no-selection;
     }
@@ -94,7 +94,7 @@
 
     .modalSubMain {
         .size(@width: 100%);
-        background: @color-join-background;
+        background: @color-modal-whiteGray;
         color: @color-text-darkGray;
         .no-selection;
     }
@@ -121,7 +121,7 @@
 #modalBackground {
     .position(fixed, @top: 0, @left: 0);
     .size(100%, 100%);
-    background-color: #000000;
+    background-color: @color-black;
     opacity: 0.6;
     display: none;
     z-index: 35;
@@ -163,7 +163,7 @@
         .size(@width: 254px, @height: 30px);
         .position(relative, @left: 3px);
         float: left;
-        background-color: @color-background-topForm;
+        background-color: @color-modal-whiteGray;
         white-space: nowrap;
         box-shadow: 0px 1px 2px 1px rgba(0,0,0,0.3);
         .transition(transform 0.3s);
@@ -270,7 +270,7 @@
         // top: 0px !important;
         
         &:not(:last-child) {
-            border-right: 1px solid #CCCCCC;
+            border-right: 1px solid @color-border-topGrayMed;
         }
 
         &:last-child {
@@ -289,7 +289,7 @@
 
         &.ui-sortable-helper {
             height: ~"calc(100% - 30px)" !important;
-            box-shadow: -1px 0px 0px #CCCCCC;
+            box-shadow: -1px 0px 0px @color-shadow-topGrayMed;
             // height: 100px !important;
             .prettyJson {
                 height: ~"calc(100% - 19px)";
@@ -338,7 +338,7 @@
         }
 
         .vertLine {
-            border-left: 1px solid #AEAEAE;
+            border-left: 1px solid @color-border-bottomGrayMed;
             height: 16px;
             margin-top: 6px;
         }
@@ -392,7 +392,7 @@
         padding: 10px 0px 10px 10px;
         overflow-y: auto;
         overflow-x: hidden;
-        background-color: white;
+        background-color: @color-background-white;
 
         &.singleView {
             height: 100%;
@@ -431,8 +431,8 @@
 
     .jKey  {
         &:hover {
-            background-color: #EEEEEE;
-            box-shadow: 0px 0px 1px #266481;
+            background-color: @color-modal-innerCircleGray;
+            box-shadow: 0px 0px 1px @color-table-borderBlue;
         }
     }
 
@@ -440,8 +440,8 @@
         > .jString, > .jNum, > .jBool, > .jNull , > .jUndf {
             cursor: pointer;
             &:hover {
-                background-color: #EEEEEE;
-                box-shadow: 0px 0px 1px #266481;
+                background-color: @color-modal-innerCircleGray;
+                box-shadow: 0px 0px 1px @color-table-borderBlue;
             }
         }
     }
@@ -567,20 +567,20 @@
             margin: 0 auto;
             padding: 10px;
             .rounded;
-            background: @color-join-background;
+            background: @color-modal-whiteGray;
             box-shadow: 0px 2px 2px 0 @color-join-drop-shadow inset;
-            border: 1px solid @color-join-border;
+            border: 1px solid @color-border-joinGray;
 
             .headerContainer {
                 .size(@width: 100%, @height: 27px);
                 .flex-display;
                 overflow: hidden;
-                border-bottom: 1px solid #a8a8a8;
+                border-bottom: 1px solid @color-border-joinGray;
 
                 .padding {
                     .position(absolute, @top: 10px, @left: 10px);
                     .size(@width: 120px, @height: 22px);
-                    background: @color-join-background;
+                    background: @color-modal-whiteGray;
                     z-index: 10;
                 }
 
@@ -649,11 +649,11 @@
                 white-space: nowrap;
 
                 &.aggTableFlex {
-                    background-color: @color-join-background;
+                    background-color: @color-modal-whiteGray;
                 }
 
                 &.blankSpace {
-                    background: @color-join-background !important;
+                    background: @color-modal-whiteGray !important;
                     border: none;
                 }
             }
@@ -698,10 +698,10 @@
             .size(@width: 240px, @height: 25px);
             .font(@weight: bold, @size: 12px, @line-height: 25px);
             &:focus {
-                background-color: white;
-                box-shadow: 0px 2px 2px 0 #888888 inset;
+                background-color: @color-background-white;
+                box-shadow: 0px 2px 2px 0 @color-defaultGray inset;
                 outline: none;
-                color: @color-text-brightBlue;
+                color: @color-text-topAction;
             }
         }
 
@@ -733,7 +733,7 @@
                 .size(25px, 25px);
                 float: left;
                 cursor: pointer;
-                .linear-gradient(top, #ffffff, #e2e2e2);
+                .linear-gradient(top, @color-white, #e2e2e2);
 
                 .icon {
                     .size(100%, 100%);
@@ -848,7 +848,7 @@
                 .position(relative);
                 width: 100%;
                 margin: 0 auto;
-                box-shadow: inset -1px 1px 2px 0 #b4b4b4;
+                box-shadow: inset -1px 1px 2px 0 @color-join-drop-shadow;
 
                 .title {
                     visibility: hidden;
@@ -988,7 +988,7 @@
         .tabArea {
             .position(relative);
             .size(@height: 100%);
-            border: 1px solid @color-join-border;
+            border: 1px solid @color-border-joinGray;
             overflow: hidden;
         }
 
@@ -1036,9 +1036,9 @@
                     color: @color-text-blue;
                     padding-top: 2px;
                     margin-top: 7px;
-                    border-right: 1px solid @color-join-border;
-                    border-left: 1px solid @color-join-border;
-                    border-top: 1px solid @color-join-border;
+                    border-right: 1px solid @color-border-joinGray;
+                    border-left: 1px solid @color-border-joinGray;
+                    border-top: 1px solid @color-border-joinGray;
                     box-shadow: none;
                 }
             }
@@ -1047,7 +1047,7 @@
         .joinTableArea {
             .size(@width: 100%, @height: ~"calc(100% - 53px)");
             background: @color-white;
-            border-top: 1px solid @color-join-border;
+            border-top: 1px solid @color-border-joinGray;
             box-shadow: 1px 1px 1px 1px rgba(0,0,0,.1);
             overflow: auto;
             overflow-y: hidden;
@@ -1065,7 +1065,7 @@
             .position(absolute);
             .size(@width: inherit, @height: 36px);
             left: 0;
-            border: 1px solid @color-join-border;
+            border: 1px solid @color-border-joinGray;
             border-top: 0;
             z-index: 5;
             pointer-events: none;
@@ -1079,8 +1079,8 @@
             z-index: 2;
             
             th {
-                background-color: #ddeaf2;
-                border-color: #ddeaf2;
+                background-color: @color-selectedCell-light;
+                border-color: @color-selectedCell-light;
                 .size(@width: 120px, @height: 36px);
                 &:first-child {
                     width: 125px !important;
@@ -1166,7 +1166,7 @@
             .size(@width: ~"calc(100% - 25px)", @height: ~"calc(100% - 55px)");
             margin-left: 15px;
             .rounded;
-            background: @color-join-background;
+            background: @color-modal-whiteGray;
             box-shadow: 0px 2px 2px 0 @color-join-drop-shadow inset;
         }
     }
@@ -1495,7 +1495,7 @@ html.microsoft {
                     }
 
                     &.active > div {
-                        border: 1px solid @color-background-topAction;
+                        border: 1px solid @color-border-topAction;
                         background: @colorOpaque-blue;
                         color: @color-text-blue;
                     }
@@ -1625,7 +1625,7 @@ html.microsoft {
                     .position(relative);
                     .size(@width: 100%, @height: 35px);
                     padding-bottom: 9px;
-                    border-bottom: 1px solid @color-retina-border;
+                    border-bottom: 1px solid @color-modal-dividerGray;
 
                     .input-box(@w: 100%, @h: 25px);
 
@@ -1802,7 +1802,7 @@ html.microsoft {
                 .headerBackground {
                     .size(@width: 100%, @height: 38px);
                     .position(absolute, @left: 0);
-                    background-color: @color-background-tableBorders;
+                    background-color: @color-background-darkGray;
                     z-index: 1;
                 }
 
@@ -1916,7 +1916,7 @@ html.microsoft {
     }
 
     #dataFlowPreviews {
-        background-color: #F6F6F6;
+        background-color: @color-wildSand;
     }
 
     .dagImage {
@@ -2237,7 +2237,7 @@ html.microsoft {
                 .gridViewForGrid;
 
                 > .label {
-                    color: #666666;
+                    color: @color-text-darkdarkGray;
                 }
             }
 
@@ -2313,7 +2313,7 @@ html.microsoft {
                 }
                 &.active {
                     > div {
-                        border: 1px solid @color-background-topAction;
+                        border: 1px solid @color-border-topAction;
                         background: @colorOpaque-blue;
                         color: @color-text-blue;
                     }
@@ -2401,7 +2401,7 @@ html.microsoft {
         .size(@height: ~"calc(100% - 309px)", @min-height: 105px);
         .position(relative);
         padding: 5px 0;
-        background-color: @color-background-topForm;
+        background-color: @color-modal-whiteGray;
 
         .loadingSection {
             .size(@width: 100%, @height: 100%);
@@ -2417,7 +2417,7 @@ html.microsoft {
             padding: 0 0 2px 0;
 
             .cover {
-                fill: @color-background-topForm;
+                fill: @color-modal-whiteGray;
             }
 
             .arrow {
@@ -2460,7 +2460,7 @@ html.microsoft {
 
                 &.hover {
                     .bar-extra {
-                        fill: #000000;
+                        fill: @color-black;
                         opacity: 0.15;
                     }
 
@@ -2483,7 +2483,7 @@ html.microsoft {
             }
 
             .bar-extra {
-                fill: #dbdbdb;
+                fill: @color-table-col-darkGray;
             }
 
             .bar-border {
@@ -2616,7 +2616,7 @@ html.microsoft {
 
                 .min-range {
                     .size(@width: 35px);
-                    background: @color-background-input;
+                    background: @color-input-background;
                     outline: none;
                     padding: 0 4px;
                     margin-right: 5px;
@@ -2624,7 +2624,7 @@ html.microsoft {
 
                     &:focus {
                         background-color: @color-white;
-                        box-shadow: 0px 2px 2px 0 #888888 inset;
+                        box-shadow: 0px 2px 2px 0 @color-defaultGray inset;
                         color: @color-bar-border;
                     }
                 }
@@ -2705,8 +2705,8 @@ html.microsoft {
         .rangeSection {
             .size(@width: 100%, @height: 50px);
             padding: 0 20px;
-            border-top: 1px solid #cccccc;
-            border-bottom: 1px solid #cccccc;
+            border-top: 1px solid @color-border-topGrayMed;
+            border-bottom: 1px solid @color-border-topGrayMed;
             line-height: 48px;
 
             > div {
@@ -2944,8 +2944,8 @@ html.microsoft {
             .header {
                 .size(@height: 43px);
                 margin-bottom: 1px;
-                background: #e6e6e6;
-                border: 1px solid #bdbdbd;
+                background: @color-background-darkGray;
+                border: 1px solid @color-silver;
                 .rounded(3px 3px 0 0);
                 box-shadow: 0px 2px 1px rgba(0, 0, 0, 0.2);
 
@@ -2963,7 +2963,7 @@ html.microsoft {
             .content {
                 .size(@height: ~"calc(100% - 89px)");
                 overflow-y: scroll;
-                border: 1px solid #e9e9e9;
+                border: 1px solid @color-mercury;
                 border-top: none;
 
                 .instruction {
@@ -2975,16 +2975,16 @@ html.microsoft {
 
                 .row {
                     &:nth-child(odd) {
-                        background: #fbfbfb;
+                        background: @color-table-col-lightGray;
                     }
 
                     &:nth-child(even) {
-                        background: #f0f0f0;
+                        background: @color-modal-whiteGray;
                     }
 
 
                     &:last-child > div {
-                        border-bottom: 1px solid #bdbdbd;
+                        border-bottom: 1px solid @color-silver;
                     }
 
                     .newType {
@@ -3005,7 +3005,7 @@ html.microsoft {
                     float: left;
                     white-space: nowrap;
                     padding: 0 10px;
-                    border-right: 1px solid #bdbdbd;
+                    border-right: 1px solid @color-silver;
                     .size(@width: 95px);
                     .textOverflow;
 
@@ -3051,14 +3051,14 @@ html.microsoft {
                 overflow-y: hidden;
                 .position(relative);
                 .rounded(3px 3px 0 0);
-                border: 1px solid #e9e9e9;
+                border: 1px solid @color-mercury;
             }
 
             .background {
                 .position(absolute);
                 .size(@width: 100%, @height: 74px);
                 left: 0;
-                background: #e6e6e6;
+                background: @color-background-darkGray;
                 border-bottom: 1px solid rgba(0, 0, 0, 0.15);
                 box-shadow: 0px 1px 1px 0px rgba(0, 0, 0, 0.2);;
             }
@@ -3198,7 +3198,7 @@ html.microsoft {
 
     .border {
         width: 100%;
-        border-top: 1px solid @color-retina-border;
+        border-top: 1px solid @color-modal-dividerGray;
         border-bottom: 1px solid @color-white;
 
         &:last-child {
@@ -3347,7 +3347,7 @@ html.microsoft {
             .iconWrap {
                 .position(absolute, @top: 5px, @right: 12px);
                 .size(20px, 20px);
-                border-left: 1px solid #CCCCCC;
+                border-left: 1px solid @color-border-topGrayMed;
                 padding-left: 1px;
                 cursor: pointer;
 
@@ -3460,12 +3460,12 @@ html.microsoft {
 
             .thWrap {
                 .size(@height: 30px);
-                color: white;
+                color: @color-white;
                 font-weight: bold;
                 line-height: 30px;
                 padding-left: 12px;
                 float: left;
-                background-color: #A8A8A8;
+                background-color: @color-background-joinGray;
                 text-align: center;
 
                 &.paramName {
@@ -3494,7 +3494,7 @@ html.microsoft {
             .rounded(5px);
             border-top-left-radius: 0px;
             border-top-right-radius: 0px;
-            border: 1px solid #a8a8a8;
+            border: 1px solid @color-border-joinGray;
             z-index: 0;
             padding: 0;
 
@@ -3588,7 +3588,7 @@ html.microsoft {
                     td {
                         .size(@height: 40px);
                         padding-left: 15px;
-                        border-right: 1px solid #a8a8a8;
+                        border-right: 1px solid @color-border-joinGray;
 
                         > div {
                             .textOverflowOneLine;
@@ -3761,9 +3761,9 @@ html.microsoft {
     input {
         .size (@height: 25px);
         line-height: 22px;
-        border-bottom: 2px solid @color-input-border-lightGray;
-        border-top: 1px solid @color-input-border-midGray;
-        border-right: 1px solid @color-background-lightLightGray;
+        border-bottom: 2px solid @color-border-dagTopGray;
+        border-top: 1px solid @color-border-inputMidGray;
+        border-right: 1px solid @color-border-lightLightGray;
         box-shadow: 1px 0px 0px rgba(0, 0, 0, 0.1);
     }
 
@@ -3806,7 +3806,7 @@ html.microsoft {
 
     .border {
         .size(@width: 100%);
-        border-top: 1px solid @color-retina-border;
+        border-top: 1px solid @color-modal-dividerGray;
         border-bottom: 1px solid @color-white;
     }
 
@@ -3840,11 +3840,11 @@ html.microsoft {
 
             &.filled {
                 .innerCircle {
-                    background-color: @color-innerCircle-background;
+                    background-color: @color-modal-innerCircleBlue;
                 }
                 .circleContent {
                     .text {
-                        .font (@color: @color-innerCircle-text);
+                        .font (@color: @color-modal-innerCircleGray);
                     }
                 }
             }
@@ -3858,7 +3858,7 @@ html.microsoft {
                     display: inline-block;
                     .size (100%, 100%);
                     text-align: center;
-                    .font (@color: @color-background-lightLightGray);
+                    .font (@color: @color-text-lightLightGray);
                 }
 
                 .tick {
@@ -3890,7 +3890,7 @@ html.microsoft {
             z-index: 1;
 
             .innerLink {
-                background-color: @color-innerCircle-background;
+                background-color: @color-modal-innerCircleBlue;
                 .position(absolute, @top: -2px, @left: 2px);
                 .size (2px, 0px);
                 .transition (height 0s);
@@ -3968,13 +3968,13 @@ html.microsoft {
 
         .thWrap {
             .size(@width: 55%, @height: 30px);
-            color: white;
+            color: @color-white;
             font-weight: bold;
             font-size: 13px;
             line-height: 30px;
             padding-left: 12px;
             float: left;
-            background-color: #A8A8A8;
+            background-color: @color-background-joinGray;
             border-left: 1px solid @color-white;
         }
 
@@ -4010,7 +4010,7 @@ html.microsoft {
                     .size(@width: 55%, @height: 40px);
                     .font(@weight: 600);
                     padding: 0px;
-                    border-right: 1px solid #a8a8a8;
+                    border-right: 1px solid @color-border-joinGray;
 
                     &:first-of-type {
                         width: 35%;
@@ -4019,7 +4019,7 @@ html.microsoft {
                         width: 10%;
                         border-right: none;
                         div {
-                            border-right: 8px solid @color-join-background;
+                            border-right: 8px solid @color-modal-whiteGray;
                             height: 100%;
                         }
                     }
@@ -4029,7 +4029,7 @@ html.microsoft {
                     .size(@width: 100%, @height: 40px);
                     padding: 7px 8px 4px 8px;
                     float: left;
-                    border-left: 8px solid @color-join-background;
+                    border-left: 8px solid @color-modal-whiteGray;
 
                     input {
                         width: 100%;

@@ -827,7 +827,7 @@
             font-weight: bold;
             margin-top: -1px;
             height: 20px;
-            border-bottom: 1px solid #CCCCCC;
+            border-bottom: 1px solid @color-border-topGrayMed;
             &> div {
                 display: inline-block;
                 float: left;
@@ -840,7 +840,7 @@
 
                 &:first-child {
                     text-indent: 21px;
-                    color: #4499C5;
+                    color: @color-dag-textBlue;
                 }
 
                 &:nth-child(2) {
@@ -886,7 +886,7 @@
                     background-color: rgba(99, 178, 225, 0.15);
                 }
                 &.selected {
-                    outline: 1px solid #CCCCCC;
+                    outline: 1px solid @color-border-topGrayMed;
                     background-color: rgba(99, 178, 225, 0.25);
                 }
 
@@ -905,7 +905,7 @@
                     padding-right: 10px;
 
                     &:first-child {
-                        color: #4499C5;
+                        color: @color-dag-textBlue;
                         margin-left: 2px;
                         width: 75px;
                         max-width: 75px;
@@ -1002,7 +1002,7 @@
             .thWrap {
                 .position(absolute, @top: 0);
                 .size(@width: 226px, @height: 30px);
-                background: #a8a8a8;
+                background: @color-background-joinGray;
                 z-index: 40;
                 padding-left: 10px;
                 color: @color-text-white;
@@ -1027,7 +1027,7 @@
             height: 30px;
             &:first-of-type .thWrap{
                 width: 194px !important;
-                border-right: 1px solid #ffffff;
+                border-right: 1px solid @color-white;
             }
         }
         tbody {
@@ -1039,7 +1039,7 @@
                     .font(@weight: bold, @size: 13px, @line-height: 30px);
                     &:first-of-type {
                         .size(@width: 194px);
-                        border-right: 1px solid #a8a8a8;
+                        border-right: 1px solid @color-border-joinGray;
                     }
                 }
                 &:nth-child(odd) {

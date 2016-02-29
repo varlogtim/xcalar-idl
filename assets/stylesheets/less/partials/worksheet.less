@@ -74,7 +74,7 @@
     }
     tr:first-child {
         position: absolute;
-        background-color: white !important;
+        background-color: @color-background-white !important;
     }
     .header {
         border-left: none !important;
@@ -96,7 +96,7 @@
 
         .type-boolean .flexWrap.flex-left {
             &:after {
-                border-top: @height-colHeader solid @color-triangle-colIcon-blue;
+                border-top: @height-colHeader solid @color-border-colIconBlue;
             }
         }
     }
@@ -244,8 +244,8 @@
         .size(@width: ~"calc(100% - 28px)");
         margin-left: 4px;
         &.active {
-            background-color: @color-background-input-active;
-            box-shadow: 0px 2px 2px 0 #888888 inset;
+            background-color: @color-background-darkGray;
+            box-shadow: 0px 2px 2px 0 @color-defaultGray inset;
         }
 
         &.disabled {
@@ -417,7 +417,7 @@
                         }
 
                         input {
-                            background: @color-table-darkGray !important;
+                            background: @color-input-active !important;
                             left: 0px !important;
                         }
                     }
@@ -499,7 +499,7 @@
                 }
             }
             .type-boolean .flex-left::after {
-                border-top: @height-colHeader solid #3578a1;
+                border-top: @height-colHeader solid @color-border-colIconBlue;
             }
         }
 
@@ -518,7 +518,7 @@
             }
             &:hover {
                 td.modalHighlighted {
-                    background-color: #BFCCD4 !important;
+                    background-color: @color-heather !important;
                 }
             }
         }
@@ -591,7 +591,7 @@
         }
         &.tableHidden {
             th:first-child input {
-                background: #A0A0A0 !important;
+                background: @color-background-colIcon-gray !important;
             }
         }
     }
@@ -907,7 +907,7 @@ html.microsoft {
             &:first-child {
                 border-left: none;
                 .header {
-                    border-left: 5px solid #e6e6e6;
+                    border-left: 5px solid @color-border-darkGray;
                 }
             }
 
@@ -931,7 +931,7 @@ html.microsoft {
 
                 .type-boolean .flexWrap.flex-left {
                     &::after {
-                        border-top: @height-colHeader solid @color-triangle-colIcon-blue;
+                        border-top: @height-colHeader solid @color-border-colIconBlue;
                     }
                 }
             }
@@ -940,8 +940,8 @@ html.microsoft {
                 input {
                     .position(absolute, @left: 0);
                     .size(@width: ~"calc(100% + 10px)", @height: @height-colHeaderOuter);
-                    background: linear-gradient(to bottom, #cccccc, #aeaeae);
-                    border: @width-tableCellPadding solid #E6E6E6;
+                    .gray-gradient;
+                    border: @width-tableCellPadding solid @color-border-darkGray;
                     margin-left: -5px;
                     margin-top: -5px;
                     z-index: 3;
@@ -1107,15 +1107,15 @@ html.microsoft {
             cursor: pointer;
             opacity: 0;
             border-top: 11px solid transparent;
-            border-right: 11px solid #216E93;
+            border-right: 11px solid @color-dropBox;
             opacity: 0.3;
-            border-right-color: #9c9c9c;
+            border-right-color: @color-border-lightGray;
             pointer-events: none;
         }
         &.selected {
             &::after {
                 opacity: 1;
-                border-right-color: #A1B8C7;
+                border-right-color: @color-dropBox-secondary;
             }  
         }
     }
@@ -1138,7 +1138,7 @@ html.microsoft {
     }
 
     li.selected {
-        background-color: #D3E2E4;
+        background-color: @color-selectedCell-green;
     }
 }
 
@@ -1169,7 +1169,7 @@ html.microsoft {
     }
 
     li.selected {
-        background-color: #D3E2E4;
+        background-color: @color-selectedCell-green;
     }
 }
 
@@ -1233,7 +1233,7 @@ td.col0:hover {
     position: absolute;
     z-index: 0;
     .rounded(2px);
-    box-shadow: inset 0px 0px 0px 2px @color-background-topAction;
+    box-shadow: inset 0px 0px 0px 2px @color-shadow-topAction;
 }
 
 .jsonModalHighlightBox {

@@ -535,7 +535,7 @@
                 position: absolute;
                 width: 0;
                 height: 0;
-                border-top: @height-colHeader solid @color-background-lightGray;
+                border-top: @height-colHeader solid @color-border-lightGray;
                 border-right: 20px solid transparent;
                 top: 0;
                 left: 0;
@@ -567,7 +567,7 @@
 }
 
 .dataTableHeader() {
-    border: 5px solid @color-background-tableBorders;
+    border: 5px solid @color-border-darkGray;
     background-color: @color-background-darkGray;
     border-left: none;
     // z-index: 9;
@@ -632,7 +632,7 @@
 
     &.active {
         background: @color-background-lightLightGray;
-        box-shadow: 0px 0px 0px 2px @color-background-topAction;
+        box-shadow: 0px 0px 0px 2px @color-shadow-topAction;
         .label {
             color: @color-mineShaft;
         }
@@ -685,11 +685,11 @@
 
     &.active {
         > .label {
-            box-shadow: 1px 0px 1px 1px @color-background-topAction;
+            box-shadow: 1px 0px 1px 1px @color-shadow-topAction;
         }
         > .listIcon {
             .action-gradient !important;
-            box-shadow: 0px 0px 0px 1px @color-background-topAction;
+            box-shadow: 0px 0px 0px 1px @color-shadow-topAction;
         }
     }
 
@@ -817,10 +817,6 @@
     .linear-gradient(top, @color-bar-darkGray-top, @color-bar-darkGray-bot);
 }
 
-.light-gradient() {
-    .linear-gradient(top, @color-background-darkGray, @color-background-icon-darkGray);
-}
-
 .red-gradient() {
     .linear-gradient(top, @color-froly, @color-punch);
 }
@@ -837,7 +833,7 @@
 
 /* Dag */
 .dag-gradient() {
-    .linear-gradient(top, @color-input-border-lightGray, @color-background-lightGray);
+    .linear-gradient(top, @color-dag-TopGray, @color-dag-bottomGray);
 }
 
 .dagDark-gradient() {

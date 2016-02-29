@@ -49,7 +49,7 @@
         .asupSubSection {
             .size(@width: 100%, @height: 50px);
             background-color: @color-background-darkGray;
-            border-bottom: 1px solid @color-retina-border;
+            border-bottom: 1px solid @color-modal-dividerGray;
 
             .asupSection, .subSection {
                 .size(@width: auto, @height: 50px);
@@ -64,7 +64,7 @@
             }
 
             .title {
-                .font(@size: 14px, @weight: 700, @color: #777777);
+                .font(@size: 14px, @weight: 700, @color: @color-boulder);
             }
 
             .asupSection {
@@ -83,7 +83,7 @@
             }
 
             .subSection {
-                border-left: 1px solid @color-retina-border;
+                border-left: 1px solid @color-modal-dividerGray;
 
                 .icon {
                     .size(@width: 40px, @height: 100%);
@@ -113,7 +113,7 @@
                     display: block;
                     .size (@width: 65px, @height: 75px);
                     text-align: center;
-                    .linear-gradient(top, #CDCDCD, #ACACAC);
+                    .linear-gradient(top, @color-background-columnList, #ACACAC);
                     border-right: 1px solid @color-table-borderGray;
                     border-bottom: 1px solid @color-table-borderGray;
                     cursor: pointer;
@@ -122,7 +122,7 @@
                     &.active {
                         .action-gradient;
                         .text {
-                            .font(@color: white);
+                            .font(@color: @color-white);
                             text-shadow: 1px 1px #555555;
                         } 
                     }
@@ -288,9 +288,9 @@
                 }
 
                 .axis {
-                    stroke: black;
+                    stroke: @color-black;
                     &.x {
-                        stroke: #27717C;
+                        stroke: @color-tab-borderBlue;
                     }
 
                     &.y {
@@ -412,9 +412,9 @@
                 position: relative;
 
                 &:nth-child(even) {
-                    background-color: #fafafa;
+                    background-color: @color-monitor-whiteGray;
                     .statsSection {
-                        background-color: #fafafa;
+                        background-color: @color-monitor-whiteGray;
                     }
                 }
 
@@ -461,7 +461,7 @@
                         hr {
                             width: 73px;
                             border: none;
-                            border-top: 1px solid @color-background-bottomGrayMed;
+                            border-top: 1px solid @color-border-bottomGrayMed;
                             display: block;
                             .nomargin-padding;
                             margin: 0 auto;
@@ -480,7 +480,7 @@
                         }
 
                         .totalSize {
-                            .font(@size: 18px, @weight: bold, @color: @color-background-bottomGrayMed);
+                            .font(@size: 18px, @weight: bold, @color: @color-text-bottomGrayMed);
                             margin-right: 8px;
 
                             sup {
@@ -792,7 +792,7 @@
 
                     .divider {
                         .flex(0 0 2px);
-                        background-color: @color-retina-border;
+                        background-color: @color-modal-dividerGray;
                         border-right: 1px solid @color-white;
                         margin-right: 4px;
                     }
@@ -867,7 +867,7 @@
 
             .divider {
                 .flex(0 0 2px);
-                background-color: @color-retina-border;
+                background-color: @color-modal-dividerGray;
                 border-bottom: 1px solid @color-white;
             }
 

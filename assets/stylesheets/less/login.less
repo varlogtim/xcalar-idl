@@ -19,7 +19,7 @@ body {
     font-weight: 600;
     font-size: 0; /* Need to use this to get rid of stupid white space */
     overflow-y: hidden;
-    background: #36444d url("../../images/bg_page.png") repeat right top;
+    background: @color-limedSpruce url("../../images/bg_page.png") repeat right top;
     overflow: hidden !important;
 }
 
@@ -123,15 +123,15 @@ body {
         height: 28px;
         padding: 0px 4px;
         border-radius: 3px;
-        background-color: #909090;
+        background-color: @color-input-background;
         font-weight: bold;
         font-size: 12px;
         box-shadow: 1px 1px 1px 1px rgba(0,0,0,.1);
         &:focus {
-            background-color: white;
-            box-shadow: 0px 2px 2px 0 #888888 inset;
+            background-color: @color-background-white;
+            box-shadow: 0px 2px 2px 0 @color-defaultGray inset;
             outline: none;
-            color: #000000;
+            color: @color-black;
             font-size: 12px;
         }
     }
