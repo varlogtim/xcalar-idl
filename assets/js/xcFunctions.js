@@ -195,6 +195,7 @@ window.xcFunction = (function($, xcFunction) {
                             "Current table is already sorted on this column" +
                             " in " + textOrder + " order"
                             );
+                    
                     deferred.reject("Already sorted on current column");
                     return;
                 }
@@ -235,6 +236,10 @@ window.xcFunction = (function($, xcFunction) {
             })
             .then(function() {
                 StatusMessage.success(msgId, false, newTableId);
+                if ($('.xcTable th.selectedCell').length === 0) {
+                    $('#xcTable-' + newTableId).find('th.col' + colNum +
+                                               ' .flexContainer').mousedown();
+                }
                 xcHelper.unlockTable(tableId, true);
                 commitToStorage();
                 deferred.resolve();
