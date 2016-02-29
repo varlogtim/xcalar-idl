@@ -53,7 +53,7 @@ window.FnBar = (function(FnBar, $) {
             // and do not rehighlight or update any text
             return;
         }
-        saveInput();
+
         $lastColInput = $colInput;
 
         var progCol = gTables[tableId].tableCols[colNum - 1];
@@ -71,35 +71,9 @@ window.FnBar = (function(FnBar, $) {
     };
 
     FnBar.clear = function() {
-        var val = $fnBar.val();
-        var trimmedVal = val.trim();
-        saveInput();
         $lastColInput = null;
         $fnBar.val("").removeClass("active");
     };
-
-    function saveInput() {
-        if (!$lastColInput ||!$lastColInput.length) {
-            return;
-        }
-        var fnBarVal = $fnBar.val().trim();
-        if (fnBarVal.indexOf("=") === 0) {
-            fnBarVal = fnBarVal.substring(1);
-        } else {
-            return;
-        }
-        fnBarVal = fnBarVal.trim();
-        var $colInput = $lastColInput;
-        var $table   = $colInput.closest('.dataTable');
-        var tableId  = xcHelper.parseTableId($table);
-        var colNum   = xcHelper.parseColNum($colInput);
-        var table    = gTables[tableId];
-        var tableCol = table.tableCols[colNum - 1];
-        tableCol.userStr = "\"" + tableCol.func.args[0] + "\"" + " = " +
-                            fnBarVal;
-    }
-
-    FnBar.saveInput = saveInput;
 
     function setupSearchHelper() {
         searchHelper = new xcHelper.SearchBar($functionArea, {
@@ -173,7 +147,6 @@ window.FnBar = (function(FnBar, $) {
             $table.find('td:nth-child(' + colNum + ')').removeClass('unusedCell');
             var isValid = checkFuncSyntaxValidity(fnBarValTrim);
             if (!isValid) {
-                saveInput();
                 return;
             }
             var progCol = parseFunc(newFuncStr, colNum, table, true);

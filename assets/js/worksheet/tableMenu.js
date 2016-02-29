@@ -369,22 +369,9 @@ window.TblMenu = (function(TblMenu, $) {
                 {
                     return false;
                 }
-                var $editableHead = $('#xcTable-' + tableId)
-                                    .find('.editableHead.col' + colNum);
-                var hasEditableInput = !$editableHead.prop('readonly');
 
                 ColManager.renameCol(colNum, tableId, colName);
-
-
-                $editableHead.parent().removeClass("editable");
                 $input.val("").blur();
-                
-                if (hasEditableInput) {
-                    // this will make the fnBar from not editable to editable
-                     $('#fnBar').val("= ");
-                    FnBar.focusOnCol($editableHead, tableId, colNum, true);
-                }
-               
                 closeMenu($allMenus);
             }
         });

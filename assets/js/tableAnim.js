@@ -613,11 +613,10 @@ function dragdropSwapColumns(el) {
     }
 
     // HACK: weird hack hide show or else .header won't reposition itself
-    // Feb 24, 2016 hack seems to no longer be needed
-    // dragObj.$table.find('.header').css('height', '35px');
-    // setTimeout(function() {
-    //     dragObj.$table.find('.header').css('height', '36px');
-    // }, 0);
+    dragObj.$table.find('.header').css('height', '35px');
+    setTimeout(function() {
+        dragObj.$table.find('.header').css('height', '36px');
+    }, 0);
     
     var left = dragObj.element.position().left;
     $('#shadowDiv').css('left', left);
