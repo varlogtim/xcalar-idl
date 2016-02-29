@@ -796,13 +796,11 @@ window.DS = (function ($, DS) {
             // select all on focus
             "focus": function() {
                 var $label = $(this);
-                $label.val($label.data("dsname"));
+                var name = $label.data("dsname");
+                $label.val(name);
 
-                var div = $label.get(0);
-                // without setTimeout cannot select all for some unknow reasons
-                setTimeout(function() {
-                    xcHelper.createSelection(div);
-                }, 1);
+                var input = $label.get(0);
+                input.setSelectionRange(0, name.length);
             },
             "blur": function() {
                 var $label  = $(this);
