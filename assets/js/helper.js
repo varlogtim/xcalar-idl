@@ -237,7 +237,7 @@ window.xcHelper = (function($, xcHelper) {
                                        options) {
         options = options || {};
         var copiedCols = xcHelper.deepCopy(tableCols);
-       
+
         if (colNum > -1) {
             var cellWidth;
             if (options.replaceColumn) {

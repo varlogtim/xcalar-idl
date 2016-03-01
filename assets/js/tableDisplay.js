@@ -490,6 +490,7 @@ window.TblManager = (function($, TblManager) {
 
         var columnName = option.name || "";
         var width      = option.width || 0;
+
         if (option.isHidden) {
             width = 15;
             columnClass += " userHidden";

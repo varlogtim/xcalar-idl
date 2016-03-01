@@ -248,6 +248,7 @@ function ProgCol(options) {
     this.decimals = options.decimals || -1;
     this.format = options.format || null;
     this.isSortedArray = options.isSortedArray || false;
+    this.isHidden = options.isHidden || false;
 
     return this;
 }
