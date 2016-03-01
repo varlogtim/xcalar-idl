@@ -401,17 +401,21 @@ input {
     }
 
     .infoSection {
-        .size(@height: 70px);
+        .size(@height: 50px);
         padding-bottom: 10px;
         background-color: @color-background-topForm;
         box-shadow: 0px 3px 0px 0px rgba(0, 0, 0, 0.3);
 
-        .infoPart {
-            .size(@height: 30px);
+        .infoPart1 {
+            .size(@height: 15px);
+        }
+
+        .infoPart2 {
+            .size(@height: 25px);
         }
 
         .minimize {
-            .size(@width: 75px, @height: 15px);
+            .size(@width: 75px, @height: 10px);
             .horizontal-align;
             top: 5px;
             cursor: pointer;
@@ -419,15 +423,15 @@ input {
             > div {
                 .size(@width: 100%, @height: 2px);
                 border-top: 1px solid @color-text-signout-darkGray;
-                margin-top: 3px;
+                margin-top: 2px;
                 background-color: @color-white;
             }
         }
 
         .titleSection {
-            .size(@max-width: ~"calc(100% - 180px)", @height: 30px);
+            .size(@max-width: ~"calc(100% - 180px)", @height: 25px);
             float: left;
-            line-height: 30px;
+            line-height: 25px;
 
             .title {
                 .font(@size: 14px, @weight: bold);
@@ -444,6 +448,8 @@ input {
             float: right;
 
             .btn {
+                .size(@height: 25px);
+                line-height: 25px;
                 float: right;
                 margin-left: 0;
             }
@@ -571,7 +577,7 @@ input {
     }
 
     .previewSection {
-        .size(@width: 100%, @height: ~"calc(100% - 100px)");
+        .size(@width: 100%, @height: ~"calc(100% - 80px)");
         overflow-y: hidden;
         overflow-x: auto;
     }

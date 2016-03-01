@@ -858,7 +858,7 @@ window.DataPreview = (function($, DataPreview) {
 
             html +=
                 '<span class="action active apply-all">' +
-                    'Apply changes' +
+                    'Save & Exit' +
                 '</span>';
 
             html +=
