@@ -357,6 +357,10 @@ window.TblMenu = (function(TblMenu, $) {
             ColManager.delDupCols(colNum, tableId);
         });
 
+        $subMenu.on('click', '.inputAction', function() {
+            $(this).siblings('input').trigger(fakeEvent.enter);
+        });
+
         $subMenu.on('keypress', '.rename input', function(event) {
             if (event.which === keyCode.Enter) {
                 var $input  = $(this);
@@ -364,8 +368,12 @@ window.TblMenu = (function(TblMenu, $) {
                 var colName = $input.val().trim();
                 var colNum  = $colMenu.data('colNum');
 
-                if (colName === "" ||
-                    ColManager.checkColDup($input, null, tableId, false, colNum))
+                if (colName === "") {
+                    StatusBox.show(ErrorTextTStr.NoEmpty, $input, null);
+                    return false;
+                }
+
+                if (ColManager.checkColDup($input, null, tableId, false, colNum))
                 {
                     return false;
                 }
@@ -1176,10 +1184,13 @@ window.TblMenu = (function(TblMenu, $) {
                 '</ul>' +
                 '<ul class="rename">' +
                     '<li style="text-align: center" class="rename clickable">' +
-                        '<span>New Column Name</span>' +
-                        '<div class="listSection">' +
+                        '<div>New Column Name</div>' +
+                        '<div class="inputWrap">' +
                             '<input class="colName" type="text"' +
                                 ' autocomplete="on" spellcheck="false"/>' +
+                            '<div class="iconWrapper inputAction">' +
+                                '<span class="icon"></span>' +
+                            '</div>' +
                         '</div>' +
                     '</li>' +
                 '</ul>' +
@@ -1189,12 +1200,15 @@ window.TblMenu = (function(TblMenu, $) {
                 '</ul>' +
                 '<ul class="roundToFixed">' +
                     '<li style="text-align: center" class="clickable">' +
-                        '<span title="ex. an input of 2 would change 1.2345 ' +
-                        'to 1.23">Num. of decimals to keep</span>' +
-                        '<div class="listSection">' +
-                            '<input class="digitsToRound" type="number"' +
-                                ' max="14" min="0" autocomplete="on" ' +
+                        '<div title="ex. an input of 2 would change 1.2345 ' +
+                        'to 1.23">Num. of decimals to keep</div>' +
+                        '<div class="inputWrap">' +
+                            '<input class="digitsToRound" type="number" ' +
+                                'max="14" min="0" autocomplete="on" ' +
                                 'spellcheck="false" />' +
+                                '<div class="iconWrapper inputAction">' +
+                                '<span class="icon"></span>' +
+                            '</div>' +
                         '</div>' +
                     '</li>' +
                     '<div class="divider"></div>' +
@@ -1203,8 +1217,13 @@ window.TblMenu = (function(TblMenu, $) {
                 '<ul class="splitCol">' +
                     '<li style="text-align: center" class="clickable">' +
                         '<div>Split Column By</div>' +
-                        '<input class="delimiter" type="text"' +
+                        '<div class="inputWrap">' +
+                            '<input class="delimiter" type="text"' +
                             ' spellcheck="false"/>' +
+                            '<div class="iconWrapper inputAction">' +
+                                '<span class="icon"></span>' +
+                            '</div>' +
+                        '</div>' +
                         '<div>Number of Splits</div>' +
                         '<input class="num" type="number" min="1" step="1"' +
                             ' placeholder="Optional"' +
@@ -1214,19 +1233,34 @@ window.TblMenu = (function(TblMenu, $) {
                 '<ul class="hPartition">' +
                     '<li style="text-align: center" class="clickable">' +
                         '<div>Number of partitions</div>' +
-                        '<input class="partitionNums" type="number"' +
-                        ' placeholder="Max value of 10" spellcheck="false"/>' +
+                        '<div class="inputWrap">' +
+                            '<input class="partitionNums" type="number"' +
+                            ' placeholder="Max value of 10" spellcheck="false"/>' +
+                            '<div class="iconWrapper inputAction">' +
+                                '<span class="icon"></span>' +
+                            '</div>' +
+                        '</div>' +
                     '</li>' +
                 '</ul>' +
                 '<ul class="changeDataType">' + typeMenu + '</ul>' +
                 '<ul class="window">' +
                     '<li style="text-align: center" class="clickable">' +
                         '<div>Lag</div>' +
-                        '<input class="lag" type="number"' +
-                        ' spellcheck="false"/>' +
+                        '<div class="inputWrap">' +
+                            '<input class="lag" type="number"' +
+                            ' spellcheck="false"/>' +
+                            '<div class="iconWrapper inputAction">' +
+                                '<span class="icon"></span>' +
+                            '</div>' +
+                        '</div>' +
                         '<div>Lead</div>' +
-                        '<input class="lead" type="number"' +
-                        ' spellcheck="false"/>' +
+                        '<div class="inputWrap">' +
+                            '<input class="lead" type="number"' +
+                            ' spellcheck="false"/>' +
+                            '<div class="iconWrapper inputAction">' +
+                                '<span class="icon"></span>' +
+                            '</div>' +
+                        '</div>' +
                     '</li>' +
                 '</ul>' +
                 '<ul class="sort">' +
@@ -1239,7 +1273,7 @@ window.TblMenu = (function(TblMenu, $) {
                     '<li class="textAlign leftAlign">Left Align</li>' +
                     '<li class="textAlign centerAlign">Center Align</li>' +
                     '<li class="textAlign rightAlign">Right Align</li>' +
-                    '<li class="textAlign wrapAlign">Wrap Text</li>' + 
+                    '<li class="textAlign wrapAlign">Wrap Text</li>' +
                 '</ul>' +
                 '<ul class="multiResize">' +
                     '<li class="resize sizeToHeader">Size To Headers</li>' +

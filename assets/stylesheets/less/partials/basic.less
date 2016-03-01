@@ -852,42 +852,61 @@ input {
                 display: block;
                 float: none;
             }
-            input {
-                top: 10px;
+
+            > div {
+                height: 20px;
+                line-height: 20px;
+                margin-top: 2px;
+                text-align: center;
+            }
+
+            > input {
+                margin-top: 2px;
             }
         }
-    }
 
-    .splitCol li, .window li {
-        .size(@height: 105px);
-
-        div, input {
-            height: 20px;
-            line-height: 20px;
-            margin-top: 2px;
+        input[type='number'] {
+            &::-webkit-outer-spin-button, &::-webkit-inner-spin-button {
+                 -webkit-appearance: none;
+            }
         }
 
-        div {
-            text-align: center;
-        }
+        .inputWrap {
+            .position(relative);
 
-        input {
-            position: static;
+            input {
+                padding: 0 22px;
 
-            &[type='number'] {
-                &::-webkit-outer-spin-button, &::-webkit-inner-spin-button {
-                    -webkit-appearance: none;
+                // &:focus {
+                //     & ~ .iconWrapper {
+                //         visibility: visible;
+                //         opacity: 1;
+                //     }
+                // }
+            }
+
+            .iconWrapper {
+                .size(@width: 18px, @height: 18px);
+                .position(absolute, @top: 1px, @right: 0);
+                .gray-gradient;
+                .rounded;
+                // visibility: hidden;
+                // opacity: 0;
+                // .transition(~"visibility 0s, opacity 0.5s");
+
+                &:hover {
+                    .gray-inverse-gradient;
+                }
+
+                .icon {
+                    .size(100%, 100%);
+                    .image("../../images/checkmark.png", 50%, 50%);
                 }
             }
         }
     }
 
-    .divider {
-        border-top: 1px solid @color-border-lightLightGray;
-    }
-
     input {
-        .position(relative, @top: -1px, @right: 0);
         .size(@width: 160px, @height: 20px);
         .font(@size: 12px, @line-height: 20px);
         margin-left: -3px;
@@ -899,6 +918,14 @@ input {
         &:focus {
             outline: none;
         }
+    }
+
+    .splitCol li, .window li {
+        .size(@height: 105px);
+    }
+
+    .divider {
+        border-top: 1px solid @color-border-lightLightGray;
     }
 
     .visible {
