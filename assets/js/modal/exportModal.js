@@ -17,6 +17,7 @@ window.ExportModal = (function($, ExportModal) {
         "minWidth" : minWidth
     });
     var columnsToExport = [];
+    var exportTargInfo;
 
     ExportModal.setup = function() {
         $exportModal.draggable({
@@ -110,7 +111,7 @@ window.ExportModal = (function($, ExportModal) {
 
         XcalarListExportTargets("*", "*")
         .then(function(targs) {
-           
+            exportTargInfo = targs;
             restoreExportPaths(targs);
             modalHelper.setup();
             
@@ -239,27 +240,81 @@ window.ExportModal = (function($, ExportModal) {
             deferred.reject({error: 'invalid input'});
             return (deferred.promise());
         }
+        
+        checkDuplicateExportName(exportName + ".csv") // XX csv is temporary
+        .then(function(hasDuplicate) {
+            if (hasDuplicate) {
+                xcHelper.validate([{
+                        "$selector": $exportName,
+                        "text"     : ErrorTextTStr.ExportConflict,
+                        "check"    : function() {
+                            return true;
+                        }
+                    }
+                ]);
+            } else {
+                var closeModal = true;
 
-        var closeModal = true;
-   
-        xcFunction.exportTable(exportTableName, exportName, $exportPath.val(),
-                                columnNames.length, columnNames)
-        .then(function() {
-            closeModal = false;
-            closeExportModal();
-            deferred.resolve();
+                xcFunction.exportTable(exportTableName, exportName,
+                                        $exportPath.val(), columnNames.length,
+                                        columnNames)
+                .then(function() {
+                    closeModal = false;
+                    closeExportModal();
+                    deferred.resolve();
+                })
+                .fail(function(error) {
+                    closeModal = false;
+                    deferred.reject(error);
+                });
+
+                setTimeout(function() {
+                    if (closeModal) {
+                        closeExportModal();
+                    }
+                }, 200);
+            }
         })
         .fail(function(error) {
-            closeModal = false;
-            deferred.reject(error);
+            // don't need to do anything yet
         });
 
-        setTimeout(function() {
-            if (closeModal) {
-                closeExportModal();
-            }
-        }, 200);
+        return (deferred.promise());
+    }
 
+    // if duplicate is found, returns true
+    function checkDuplicateExportName(name) {
+        var deferred = jQuery.Deferred();
+        var targName = $exportPath.val();
+        var numTargs = exportTargInfo.numTargets;
+        var filePath = "";
+        for (var i = 0; i < numTargs; i++) {
+            if (exportTargInfo.targets[i].hdr.name === targName) {
+                filePath = exportTargInfo.targets[i].specificInput.sfInput.url;
+                break;
+            }
+        }
+        if (filePath === "") {
+            deferred.resolve(false);
+        } else {
+            XcalarListFiles(filePath)
+            .then(function(result) {
+                var dupFound = false;
+                for (var i = 0; i < result.numFiles; i++) {
+                    if (result.files[i].name === name) {
+                        deferred.resolve(true);
+                        return;
+                    }
+                }
+   
+                deferred.resolve(false);
+            })
+            .fail(function(error) {
+                console.log(error);
+                deferred.resolve(false);
+            });
+        }
+           
         return (deferred.promise());
     }
 
@@ -344,7 +399,7 @@ window.ExportModal = (function($, ExportModal) {
     }
 
     function selectColumnsOnKeyPress() {
-        var colNames = $exportColumns.val().split(",")
+        var colNames = $exportColumns.val().split(",");
         jQuery.each(colNames, function(i, val) {
             colNames[i] = jQuery.trim(val);
         });
@@ -690,6 +745,7 @@ window.ExportModal = (function($, ExportModal) {
 
     function closeExportModal() {
         exportTableName = null;
+        exportTargInfo = null;
         $exportPath.val("Local Filesystem");
         $exportColumns.val("");
         $('.exportable').removeClass('exportable');
