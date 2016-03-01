@@ -2154,7 +2154,24 @@ ul.inputMenu {
         box-shadow: 0 0 5px 1px rgba(0,0,0,.2);
         background-color: @color-background-white;
         z-index: 3;
+
+        &:before, &:after {
+            content: "";
+            border-top: 7px solid transparent;
+            border-bottom: 7px solid transparent;
+            margin-left: -9px;
+        }
+        &:before {
+            border-top: 8px solid transparent;
+            border-bottom: 8px solid transparent;
+            margin-left: -11px;
+            margin-top: -1px;
+        }
+        &:after {
+            z-index: 1;
+        }
     }
+
     .close {
         .position(absolute, @top: 7px, @right: 7px);
         .size(14px, 14px);
@@ -2188,6 +2205,10 @@ ul.inputMenu {
     }
 
     &.info {
+        .boxInnerWrap {
+            border: 1px solid @color-border-topAction;
+        }
+
         .title {
             .icon {
                 .image("../../images/blue-error-icon.png", 50%, 50%);
@@ -2199,6 +2220,10 @@ ul.inputMenu {
     }
 
     &.error {
+        .boxInnerWrap {
+            border: 1px solid @color-error-border;
+        }
+
         .title {
             .icon {
                 .image("../../images/error-icon.png", 50%, 50%);
@@ -2218,24 +2243,7 @@ ul.inputMenu {
         z-index: 1;
         box-shadow: 0 0 5px 2px rgba(0,0,0,.2);
     }
-    .boxInnerWrap {
-        border: 1px solid @color-error-border;
-        &:before, &:after {
-            content: "";
-            border-top: 7px solid transparent;
-            border-bottom: 7px solid transparent;
-            margin-left: -9px;
-        }
-        &:before {
-            border-top: 8px solid transparent;
-            border-bottom: 8px solid transparent;
-            margin-left: -11px;
-            margin-top: -1px;
-        }
-        &:after {
-            z-index: 1;
-        }
-    }
+
     &.right {
         .arrow {
             .position(absolute, @top: 38px, @left: 0);

@@ -54,7 +54,7 @@
         </div>
       </div>
       <div id="contentHeaderMid" class="no-selection">
-        <div class="text" style="margin-left:20px">DATA SET</div> 
+        <div class="text" style="margin-left:20px">DATASET</div>
       </div>
       <div id="contentHeaderRight" class="no-selection">
         <div class="icon"></div>
@@ -65,11 +65,11 @@
     <div id="importDataView" class="dataStoreFormView no-selection" style="display: none;">
       <div id="importHelp" class="formHelp no-selection">
         <div class="contentViewMidWrap">
-          <h2>Import New Data Set</h2>
+          <h2>Point To New Dataset</h2>
           <span class="icon"></span>
           <p>
-             INPUT FILE PATH AND FILE NAME TO IMPORT DATA SET.
-             THEN SELECT FILE FORMAT. IMPORTED DATA WILL BE LISTED ON THE LEFT.
+            INPUT FILE PATH AND FILE NAME TO POINT TO DATASET.
+            THEN SELECT FILE FORMAT. POINTED DATA WILL BE LISTED ON THE LEFT.
           </p>
         </div>
       </div>
@@ -202,52 +202,59 @@
       <section id="dsPreviewWrap" class="hidden">
         <div class="container">
           <div class="infoSection">
-            <section class="titleSection">
-              <div class="title">
-                <h2>Data Preview</h2>
-                <button id="previewSuggBtn" class="btn btnMid">Show Suggestions</button>
+            <!-- Info Section 1 -->
+            <div class="infoPart1">
+              <!-- minimize -->
+              <div id="preview-minimize" class="minimize" title="Toggle minimize" data-toggle="tooltip" data-placement="top" data-container="body">
+                <div class="divider"></div>
+                <div class="divider"></div>
+                <div class="divider"></div>
               </div>
+            </div>
+            <!-- Info Section 2 -->
+            <div class="infoPart2">
+              <section class="titleSection textOverflowOneLine">
+                <span class="title">Previewing:</span>
+                <span id="preview-url" class="text"></span>
+              </section>
+              <section class="btnSection">
+                <button id="preview-close" class="btn btnMid btn-cancel close loadHidden" type="button">EXIT</button>
+                <button id="preview-apply" class="btn btnMid save loadHidden" type="button">SAVE & EXIT</button>
+              </section>
+            </div>
+          </div>
+          <!-- Waiting Part -->
+          <div class="waitSection hidden">
+            <div class="icon"></div>
+            <div class="text">DATASET IS LOADING...</div>
+          </div>
+          <!-- Error Message Part -->
+          <div class="errorSection loadError hidden"></div>
+          <!-- Suggestion Section -->
+          <div class="suggestSection loadHidden no-selection">
+            <section id="previewSugg" class="suggestPart">
+              <div class="title">Suggestion:</div>
+              <div class="content"></div>
             </section>
-
-            <section class="iconSection">
-              <div id="preview-close" class="close iconWrapper" title="Close preview window without saving" data-toggle="tooltip" data-placement="top" data-container="body">
-                <span class="icon"></span>
-              </div>
-
-              <div class="group">
+            <!-- highlight icon -->
+              <section class="iconPart">
+                <!-- remove highlight icon -->
                 <div id="preview-rmHightlight" class="rmHightLight iconWrapper" title="Remove highlights" data-toggle="tooltip" data-placement="top" data-container="body">
                   <span class="icon"></span>
                 </div>
-
-                <div id="preview-highlight" class="highlight iconWrapper" title="Apply highlighted text as delimiter" data-toggle="tooltip" data-placement="top" data-container="body">
+                <!-- apply highlight icon -->
+                <div id="preview-highlight" class="highlight iconWrapper" title="Apply highlighted characters as delimiter" data-toggle="tooltip" data-placement="top" data-container="body">
                   <span class="icon"></span>
                 </div>
-              </div>
-            </section>
+              </section>
           </div>
-
-          <div id="previewSugg" class="suggestSection hidden">
-            <div class="title">Suggestion:</div>
-            <div class="content"></div>
-          </div>
-
+          <!-- Preview -->
           <div class="previewSection">
             <div id="dsPreviewTableWrap" class="datasetTableWrap">
-              <div class="waitSection hidden">
-                <div class="loadingMsg">
-                  Data set is loading
-                </div>
-                <div class="animatedEllipsis">
-                  <div>.</div>
-                  <div>.</div>
-                  <div>.</div>
-                </div>
-              </div>
-
-              <div class="errorSection loadError hidden"></div>
-
-              <div class="datasetTbodyWrap">
+              <!-- Preview Part -->
+              <div class="datasetTbodyWrap loadHidden">
                 <table id="previewTable" class="datasetTable dataTable"></table>
+                <div class="previewBottom">End of Preview</div>
               </div>
             </div>
           </div>
@@ -276,7 +283,7 @@
         <div class="contentView">
           <div class="contentViewLeft no-selection">
             <div id="datasetExplore" class="headingArea">
-              <span>Data Sets (<span class="numDataStores">1</span>)</span>
+              <span>Datasets (<span class="numDataStores">1</span>)</span>
               <div class="buttonGroup">
                 <div id="refreshDS" class="refresh btn dataViewBtn">
                   <span class="icon" data-toggle="tooltip" data-placement="top" data-container="body" title="" data-original-title="Refresh Datasets"></span>
@@ -289,7 +296,7 @@
             </div>
             <div id="importDataArea" class="mainButtonArea no-selection">
               <button id="importDataButton" class="btn btnLarge iconBtn">
-                <span class="icon"></span>IMPORT NEW DATA SET
+                <span class="icon"></span>POINT TO NEW DATASET
               </button>
             </div>
             <!-- Grid Views of ds -->

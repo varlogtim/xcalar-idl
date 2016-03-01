@@ -50,7 +50,7 @@ ErrorTextTStr = {
     'InvalidFilePath': 'Invalid file path',
 
     'InvalidFileName': 'Invalid file name, ' +
-                        'please choose a file or folder to import.',
+                       'cannot find the file in current directory.',
                         
     'NoHashTag': "Please input a valid name with no # symbols.",
 
@@ -112,10 +112,10 @@ ErrorTextTStr = {
     'ParamInUse': 'Cannot delete, this parameter is in use.',
 
     'NoPreviewJSON': 'JSON files are not previewable, ' +
-                     'please import directly without previewing.',
+                     'please point to data directly without previewing.',
 
     'NoPreviewExcel': 'Excel files are not previewable, ' +
-                      'please import directly without previewing.',
+                      'please point to data directly without previewing.',
 
     'MVFolderConflict': 'Cannot move, name conflicts with files in target folder',
 

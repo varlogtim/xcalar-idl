@@ -14,6 +14,15 @@ window.StatusBox = (function($, StatusBox){
         var right = $(window).width() - bound.right - 200;
         var left = bound.left - 200;
         var side;
+        var title;
+
+        // add more title if msgType is extended
+        if (msgType === "info") {
+            title = "Information";
+        } else {
+            title = "Error";
+        }
+
         $targetInput = $target;
 
         if (options.side) {
@@ -31,7 +40,7 @@ window.StatusBox = (function($, StatusBox){
         }
 
         $statusBox.addClass(msgType + " active " + side);
-        $statusBox.find('.titleText').text('Error');
+        $statusBox.find('.titleText').text(title);
         $statusBox.find('.message').text(text);
 
         if (side === 'left') {
