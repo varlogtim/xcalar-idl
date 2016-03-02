@@ -14,7 +14,7 @@ window.DagPanel = (function($, DagPanel) {
         $(".dagWrap").remove();
     };
 
-    var dagTopPct = 50; // open up dag to 50% by default;
+    var dagTopPct = 0; // open up dag to 100% by default;
     var clickDisabled = false;
     // opening and closing of dag is temporarily disabled during animation
 
@@ -34,21 +34,29 @@ window.DagPanel = (function($, DagPanel) {
             
             if ($dagPanel.hasClass('hidden')) {
                 // open dag panel
-                $dagPanel.removeClass('hidden');
-                setDagTranslate(dagTopPct);
-                $dagArea.css('height', (100 - dagTopPct) + '%');
-                $compSwitch.addClass('active');
+                $dagPanel.removeClass('invisible');
 
-                Dag.focusDagForActiveTable();
-                clickDisabled = true;
+                // without set timeout, animation would not work because 
+                // we're setting dagpanel from display none to display block
                 setTimeout(function() {
-                    var px = 38 * (dagTopPct / 100);
-                    $('#mainFrame').height('calc(' + dagTopPct + '% - ' +
-                                           px + 'px)');
-                    $dagPanel.addClass('noTransform');
-                    $dagPanel.css('top', dagTopPct + '%');
-                    clickDisabled = false;
-                }, 350);
+                    $dagPanel.removeClass('hidden');
+                    setDagTranslate(dagTopPct);
+                    $dagArea.css('height', (100 - dagTopPct) + '%');
+                    $compSwitch.addClass('active');
+
+
+                    Dag.focusDagForActiveTable();
+                    clickDisabled = true;
+                    setTimeout(function() {
+                        var px = 38 * (dagTopPct / 100);
+                        $('#mainFrame').height('calc(' + dagTopPct + '% - ' +
+                                               px + 'px)');
+                        $dagPanel.addClass('noTransform');
+                        $dagPanel.css('top', dagTopPct + '%');
+                        clickDisabled = false;
+                    }, 350);
+                }, 0);
+                
             } else if (wasOnWorksheetPanel) {
                 // hide dag panel
                 closePanel($compSwitch);
@@ -155,6 +163,7 @@ window.DagPanel = (function($, DagPanel) {
             });
             
             clickDisabled = false;
+            $dagPanel.addClass('invisible');
         }, 400);    
     }
 
@@ -583,8 +592,12 @@ window.Dag = (function($, Dag) {
         .then(function(dagObj) {
             var isWorkspacePanelVisible = $('#workspacePanel')
                                             .hasClass('active');
+            var isDagPanelVisible = !$('#dagPanel').hasClass('invisible');
             if (!isWorkspacePanelVisible) {
                 $('#workspacePanel').addClass('active');
+            }
+            if (!isDagPanelVisible) {
+                $('#dagPanel').removeClass('invisible');
             }
             
             var outerDag =
@@ -641,6 +654,9 @@ window.Dag = (function($, Dag) {
             }
             if (!isWorkspacePanelVisible) {
                 $('#workspacePanel').removeClass('active');
+            }
+            if (!isDagPanelVisible) {
+                $('#dagPanel').addClass('invisible');
             }
             deferred.resolve();
         })
@@ -1623,7 +1639,7 @@ window.Dag = (function($, Dag) {
                 info.type = "sort";
                 info.column = value.keyName;
                 if (value.ordering !== XcalarOrderingT.XcalarOrderingUnordered) {
-                    var order = ""
+                    var order = "";
                     if (value.ordering ===
                         XcalarOrderingT.XcalarOrderingAscending) {
                         order = "(ascending) ";
