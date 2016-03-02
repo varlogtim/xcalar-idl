@@ -146,8 +146,7 @@ window.JoinModal = (function($, JoinModal) {
 
         // add multi clause
         $multiJoin.on("click", ".placeholder", function() {
-            $(multiClauseTemplate).insertBefore($(this))
-                                .hide().slideDown(100);
+            addClause($(this));
         });
 
         // delete multi clause
@@ -198,28 +197,34 @@ window.JoinModal = (function($, JoinModal) {
             var $input = $(this);
             var originEvent = event.originalEvent;
 
+            $multiJoin.find(".clause.inActive").removeClass("inActive");
+
             if ($input.hasClass("clause")) {
                 var clause = dragSide;
-                var text   = originEvent.dataTransfer.getData("text");
+                var text = originEvent.dataTransfer.getData("text");
 
                 if (clause === "left" && $input.hasClass("leftClause") ||
                     clause === "right" && $input.hasClass("rightClause"))
                 {
                     var $parent = $input.parent();
                     if ($parent.hasClass('placeholder')) {
-                        $parent.click();
+                        addClause($parent, true);
+
                         if ($input.hasClass("leftClause")) {
-                            $joinModal.find(".joinClause.placeholder").prev()
-                                                        .find(".leftClause")
-                                                        .val(text);
+                            $joinModal.find(".joinClause.placeholder")
+                                        .prev()
+                                        .find(".leftClause")
+                                        .val(text);
                         } else {
-                            $joinModal.find(".joinClause.placeholder").prev()
-                                                        .find(".rightClause")
-                                                        .val(text);
+                            $joinModal.find(".joinClause.placeholder")
+                                        .prev()
+                                        .find(".rightClause")
+                                        .val(text);
                         }
                     } else {
                         $input.val(text);
                     }
+
                     $parent.removeClass('hovering');
                     updatePreviewText();
                 }
@@ -465,6 +470,13 @@ window.JoinModal = (function($, JoinModal) {
         resetJoinTables();
         xcFunction.join(lColNums, lTableId, rColNums, rTableId,
                         joinType, newTableName);
+    }
+
+    function addClause($placeholder, noAnimation) {
+        var $div = $(multiClauseTemplate).insertBefore($placeholder);
+        if (!noAnimation) {
+            $div.hide().slideDown(100);
+        }
     }
 
     function getColNum($table, colName) {
@@ -859,7 +871,6 @@ window.JoinModal = (function($, JoinModal) {
         });
 
         $modal.on("dragend", ".columnTab", function() {
-            $multiJoin.find(".clause.inActive").removeClass("inActive");
             $('#moveCursor').remove();
         });
     }
