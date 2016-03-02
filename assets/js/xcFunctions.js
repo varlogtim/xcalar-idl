@@ -462,7 +462,7 @@ window.xcFunction = (function($, xcFunction) {
             xcHelper.unlockTable(tableId);
             commitToStorage();
             StatusMessage.success(msgId, focusOnTable, finalTableId);
-            deferred.resolve();
+            deferred.resolve(finalTableName);
         })
         .fail(function(error) {
             xcHelper.unlockTable(tableId);

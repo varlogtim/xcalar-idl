@@ -1229,13 +1229,13 @@ input {
 
     &.type-object, &.type-array, &.type-newColumn, &.type-undefined,
     &.recordNum {
-        .changeDataType, .hPartition, .format, .roundToFixed {
+        .changeDataType, .hPartition, .format, .roundToFixed, .extensions {
             display: none;
         }
     }
 
     &.childOfArray, &.sortedArray {
-        .changeDataType, .hPartition, .window, .splitCol {
+        .changeDataType, .hPartition, .window, .splitCol , .extensions {
             display: none;
         }
     }
@@ -1255,7 +1255,8 @@ input {
     &.type-data {
         .sort, .aggregate, .groupby, .filter, .joinList, .deleteColumn, 
         .deleteDuplicates, .duplicate, .rename, .map, .operations,
-        .changeDataType, .profile, .divider, .format, .roundToFixed {
+        .changeDataType, .profile, .divider, .format, .roundToFixed ,
+        .extensions {
             display: none;
         }
     }

@@ -657,6 +657,23 @@ window.TblMenu = (function(TblMenu, $) {
             }, 0);
         });
 
+        $subMenu.on('mouseup', '.extensions', function(event) {
+            if (event.which !== 1) {
+                return;
+            }
+            var $li = $(this);
+            var colNum = $colMenu.data('colNum');
+            var tableId = $colMenu.data('tableId');
+            var classNames = $(this)[0].className.split(/\s+/);
+            for (var i = 0; i<classNames.length; i++) {
+                if (classNames[i].indexOf("efunc-") > -1) {
+                    ColManager.extension(colNum, tableId, classNames[i]);
+                    break;
+                }
+            }
+
+        });
+
         $subMenu.on('mouseup', '.typeList', function(event) {
             if (event.which !== 1) {
                 return;
@@ -1138,6 +1155,8 @@ window.TblMenu = (function(TblMenu, $) {
                     '<li class="functions map">Map...</li>' +
                     '<li class="joinList">Join...</li>' +
                     '<li class="profile">Profile...</li>' +
+                    '<div class="divider functionsDivider"></div>' +
+                    '<li class="extensions parentMenu" data-submenu="extensions">Extensions</li>'+
                     '<li class="multiColumn hideColumns">Hide Columns</li>' +
                     '<li class="multiColumn unhideColumns">Unhide Columns</li>' +
                     '<li class="multiColumn deleteColumns">Delete Columns</li>' +
@@ -1181,6 +1200,12 @@ window.TblMenu = (function(TblMenu, $) {
                     '<li class="resize sizeToHeader">Size To Header</li>' +
                     '<li class="resize sizeToContents">Size To Contents</li>' +
                     '<li class="resize sizeToFitAll">Size To Fit All</li>' +
+                '</ul>' +
+                '<ul class="extensions">' +
+                    '<li class="extensions efunc-lastTouch">Last Touch</li>' +
+                    '<li class="extensions efunc-genFinalPT">Final PT</li>' +
+                    '<li class="extensions efunc-genLineItemPT">Line Item PT</li>' +
+                    '<li class="extensions efunc-genNoOfDays">No Of Days Since</li>' +
                 '</ul>' +
                 '<ul class="rename">' +
                     '<li style="text-align: center" class="rename clickable">' +
