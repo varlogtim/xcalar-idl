@@ -1065,7 +1065,7 @@ window.WSManager = (function($, WSManager) {
     }
 
     function rmHandler(wsId, index) {
-        commitToStorage();
+        KVStore.commit();
         // switch to another worksheet
         if (activeWorksheet === wsId) {
             var wsToFocus;

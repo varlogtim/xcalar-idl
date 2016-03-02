@@ -243,9 +243,8 @@ function dsObjTest() {
             var curHomeFolder = DS.getHomeDir();
             expect(curHomeFolder.totalChildren).to.equal(0);
 
-            XcalarGetDatasets()
-            .then(function(datasets) {
-                DS.restore(oldHomeFolder, datasets, false);
+            DS.restore(oldHomeFolder, false)
+            .then(function() {
                 curHomeFolder = DS.getHomeDir();
                 // at least has the test folder and test ds
                 expect(curHomeFolder.totalChildren).to.be.at.least(1);

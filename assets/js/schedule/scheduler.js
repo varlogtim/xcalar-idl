@@ -253,7 +253,7 @@ window.Scheduler = (function(Scheduler, $) {
 
             DFGPanel.listSchedulesInHeader(dfgName);
             // XXX TODO add sql
-            commitToStorage();
+            KVStore.commit();
             deferred.resolve();
         })
         .fail(deferred.reject);
@@ -557,7 +557,7 @@ window.Scheduler = (function(Scheduler, $) {
         }
 
         updateScheduleInfo();
-        commitToStorage();
+        KVStore.commit();
     }
 
     function updateSchedule(schedule, options) {
@@ -578,7 +578,7 @@ window.Scheduler = (function(Scheduler, $) {
         .then(function() {
             // update info on this schedule
             listSchedule(scheduleName);
-            commitToStorage();
+            KVStore.commit();
         })
         .fail(function(error) {
             Alert.error("Update Schedule Fails", error);

@@ -196,7 +196,7 @@ window.FnBar = (function(FnBar, $) {
             .then(function() {
                 updateTableHeader(tableId);
                 TableList.updateTableInfo(tableId);
-                commitToStorage();
+                KVStore.commit();
             });
         }
     }

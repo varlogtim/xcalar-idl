@@ -51,7 +51,7 @@ window.xcFunction = (function($, xcFunction) {
             }
             xcHelper.unlockTable(tableId, true);
             StatusMessage.success(msgId, false, newTableId);
-            commitToStorage();
+            KVStore.commit();
             deferred.resolve();
         })
         .fail(function(error) {
@@ -137,7 +137,7 @@ window.xcFunction = (function($, xcFunction) {
 
                 WSManager.addAggInfo(tableId, backColName, aggrOp, aggRes);
                 TableList.refreshAggTables();
-                commitToStorage();
+                KVStore.commit();
             } catch (error) {
                 console.error(error);
             }
@@ -241,7 +241,7 @@ window.xcFunction = (function($, xcFunction) {
                                                ' .flexContainer').mousedown();
                 }
                 xcHelper.unlockTable(tableId, true);
-                commitToStorage();
+                KVStore.commit();
                 deferred.resolve();
             })
             .fail(function(error) {
@@ -321,7 +321,7 @@ window.xcFunction = (function($, xcFunction) {
             xcHelper.unlockTable(rTableId, true);
 
             StatusMessage.success(msgId, false, newTableId);
-            commitToStorage();
+            KVStore.commit();
             deferred.resolve();
         })
         .fail(function(error) {
@@ -460,7 +460,7 @@ window.xcFunction = (function($, xcFunction) {
             });
 
             xcHelper.unlockTable(tableId);
-            commitToStorage();
+            KVStore.commit();
             StatusMessage.success(msgId, focusOnTable, finalTableId);
             deferred.resolve(finalTableName);
         })
@@ -537,7 +537,7 @@ window.xcFunction = (function($, xcFunction) {
             }
             xcHelper.unlockTable(tableId, true);
             StatusMessage.success(msgId, false, newTableId);
-            commitToStorage();
+            KVStore.commit();
 
             deferred.resolve();
         })
@@ -606,7 +606,7 @@ window.xcFunction = (function($, xcFunction) {
             });
             $('#alertContent').addClass('leftAlign');
             StatusMessage.success(msgId, false, xcHelper.getTableId(tableName));
-            commitToStorage();
+            KVStore.commit();
             deferred.resolve();
         })
         .fail(function(error) {
@@ -665,7 +665,7 @@ window.xcFunction = (function($, xcFunction) {
 
             updateTableHeader(tableId);
 
-            commitToStorage();
+            KVStore.commit();
             deferred.resolve(newTableName);
         })
         .fail(function(error) {

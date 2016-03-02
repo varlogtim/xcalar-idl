@@ -228,7 +228,7 @@ window.StartManager = (function(StartManager, $) {
         WKBKManager.setup()
         .then(Support.holdSession)
         .then(Authentication.setup)
-        .then(readFromStorage)
+        .then(KVStore.restore)
         .then(initializeTable)
         .then(deferred.resolve)
         .fail(deferred.reject);

@@ -24,7 +24,7 @@ window.UDF = (function($, UDF) {
     UDF.clear = function() {
         // clear CodeMirror
         if (editor != null) {
-            // Wrap in if because readFromStorage may call UDF.clear()
+            // Wrap in if because KVStore.restore may call UDF.clear()
             // and at that time editor has not setup yet.
             editor.setValue(udfDefault);
             editor.clearHistory();
@@ -355,7 +355,7 @@ window.UDF = (function($, UDF) {
             XcalarUploadPython(moduleName, entireString)
             .then(function() {
                 storePython(moduleName, entireString);
-                commitToStorage();
+                KVStore.commit();
                 uploadSuccess();
 
                 // clearance

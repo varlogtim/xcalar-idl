@@ -67,7 +67,7 @@ window.DataCart = (function($, DataCart) {
                 }
             })
             .then(function() {
-                commitToStorage();
+                KVStore.commit();
             })
             .fail(function(error) {
                 Alert.error("Create Worksheet Failed", error);

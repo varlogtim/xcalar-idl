@@ -88,7 +88,7 @@ window.AggModal = (function($, AggModal) {
                 "tableName": tableName
             });
 
-            commitToStorage();
+            KVStore.commit();
             deferred.resolve();
         })
         .fail(function(error) {
@@ -117,7 +117,7 @@ window.AggModal = (function($, AggModal) {
                 "tableName": tableName
             });
 
-            commitToStorage();
+            KVStore.commit();
             deferred.resolve();
         })
         .fail(function(error) {

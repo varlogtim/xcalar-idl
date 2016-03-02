@@ -27,6 +27,24 @@ function SettingInfo(options) {
     return this;
 }
 
+// store.js
+function KVKeysInfo() {
+    // the key should be as short as possible
+    // and when change the store key, change it here, it will
+    // apply to all places
+    return {
+        "TI"   : "TILookup",
+        "WS"   : "worksheets",
+        "DS"   : "gDSObj",
+        "CLI"  : "scratchPad",
+        "CART" : "datacarts",
+        "STATS": "statsCols",
+        "USER" : "userSettings",
+        "DFG"  : "DFG",
+        "SCHE" : "schedule"
+    };
+}
+
 // global MouseEvents
 function MouseEvents() {
     var lastMouseDownTarget = $(document);
@@ -296,7 +314,8 @@ ProgCol.prototype = {
 };
 
 // store.js
-function METAConstructor(atStartUp) {
+function METAConstructor(KVKeys, atStartUp) {
+    KVKeys = KVKeys || {};
     // basic thing to store
     this[KVKeys.TI] = savegTables();
     this[KVKeys.WS] = WSManager.getAllMeta();

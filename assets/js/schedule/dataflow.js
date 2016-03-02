@@ -29,7 +29,7 @@ window.DFG = (function($, DFG) {
             updateDFGInfo(retInfo);
             // XXX TODO add sql
             DFGPanel.updateDFG();
-            commitToStorage();
+            KVStore.commit();
             deferred.resolve();
         })
         .fail(function(error) {

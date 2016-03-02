@@ -47,7 +47,7 @@ window.ExportTarget = (function($, ExportTarget) {
 
             ExportTarget.submitForm(targetType, name)
             .then(function() {
-                commitToStorage();
+                KVStore.commit();
             })
             .fail(function(error) {
                 console.error(error);

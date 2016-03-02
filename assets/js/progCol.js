@@ -397,7 +397,7 @@ window.ColManager = (function($, ColManager) {
                 "colTypeInfos": colTypeInfos
             });
 
-            commitToStorage();
+            KVStore.commit();
             deferred.resolve(newTableId);
         })
         .fail(function(error) {
@@ -628,7 +628,7 @@ window.ColManager = (function($, ColManager) {
     //         StatusMessage.success(msgId, false, finalTableId);
 
     //         SQL.add("Change Data Type", sqlOptions, query);
-    //         commitToStorage();
+    //         KVStore.commit();
     //         deferred.resolve();
     //     })
     //     .fail(function(error) {
@@ -937,7 +937,7 @@ window.ColManager = (function($, ColManager) {
                 "lag"      : lag,
                 "lead"     : lead
             });
-            commitToStorage();
+            KVStore.commit();
         })
         .fail(function(error) {
             // XXX Write a better error handling function
@@ -1313,7 +1313,7 @@ window.ColManager = (function($, ColManager) {
                 "partitionNums": partitionNums
             });
 
-            commitToStorage();
+            KVStore.commit();
             deferred.resolve();
         })
         .fail(function(error) {
@@ -1607,7 +1607,7 @@ window.ColManager = (function($, ColManager) {
                 "numColToGet" : numColToGet
             });
 
-            commitToStorage();
+            KVStore.commit();
             deferred.resolve();
         })
         .fail(function(error) {
@@ -1979,7 +1979,7 @@ window.ColManager = (function($, ColManager) {
             "newName"  : newName
         });
 
-        commitToStorage();
+        KVStore.commit();
     };
 
     ColManager.format = function(colNum, tableId, format) {

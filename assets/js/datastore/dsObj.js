@@ -235,7 +235,7 @@ window.DS = (function ($, DS) {
                 }
             }
 
-            commitToStorage();
+            KVStore.commit();
             deferred.resolve(dsObj);
         })
         .fail(function(error) {
@@ -274,120 +274,28 @@ window.DS = (function ($, DS) {
     };
 
     // Restore dsObj
-    DS.restore = function(oldHomeFolder, datasets, atStartUp) {
-        var numDatasets = datasets.numDatasets;
-        var searchHash = {};
-        var userPrefix = xcHelper.wrapDSName("");
+    DS.restore = function(oldHomeFolder, atStartUp) {
+        var deferred = jQuery.Deferred();
 
         DS.clear();
 
-        // put all datasets' name into searchHash for lookup
-        for (var i = 0; i < numDatasets; i++) {
-            var dsName = datasets.datasets[i].name;
+        XcalarGetDatasets()
+        .then(function(datasets) {
+            restoreHelper(oldHomeFolder, datasets, atStartUp);
 
-            if (atStartUp && dsName.endsWith(".preview") &&
-                dsName.startsWith(userPrefix))
-            {
-                // deal with preview datasets,
-                // if it's the current user's preview ds,
-                // then we delete it on start up time
-                var sqlOptions = {
-                    "operation": SQLOps.DestroyPreviewDS,
-                    "dsName"   : dsName
-                };
-                XcalarDestroyDataset(dsName, sqlOptions);
-                continue;
+            if (!atStartUp) {
+                // if user trigger the restore, save!
+                KVStore.commit();
             }
 
-            searchHash[dsName] = datasets.datasets[i];
-        }
-
-        var cache;
-
-        if ($.isEmptyObject(oldHomeFolder)) {
-            cache = [];
-        } else {
-            cache = oldHomeFolder.eles;
-        }
-
-        // always create the other user's folder first
-        var ohterUserFolder = createDS({
-            "id"        : DSObjTerm.OtherUserFolderId,
-            "name"      : DSObjTerm.OhterUserFolder,
-            "parentId"  : homeDirId,
-            "isFolder"  : true,
-            "uneditable": true
+            deferred.resolve();
+        })
+        .fail(function(error) {
+            console.error("Restore DS fails!", error);
+            deferred.reject(error);
         });
 
-        // restore the ds and folder
-        var ds;
-        var format;
-
-        while (cache.length > 0) {
-            var obj = cache.shift();
-            if (obj.uneditable) {
-                // skip the restore of uneditable ds,
-                // it will be handled by DS.addOtherUserDS()
-                continue;
-            }
-
-            if (obj.isFolder) {
-                // restore a folder
-                createDS(obj);
-
-                // update id count
-                updateFolderIdCount(obj.id);
-
-                if (obj.eles != null) {
-                    $.merge(cache, obj.eles);
-                }
-            } else {
-                if (searchHash.hasOwnProperty(obj.fullName)) {
-                    // restore a ds
-                    ds = searchHash[obj.fullName];
-                    format = DfFormatTypeTStr[ds.formatType].toUpperCase();
-
-                    obj = $.extend(obj, {
-                        "format": format,
-                        "path"  : ds.url
-                    });
-
-                    createDS(obj);
-                    // mark the ds to be used
-                    delete searchHash[obj.fullName];
-                } else {
-                    // when ds has front meta but no backend meta
-                    // this is an error case since only this user can delete
-                    // his own datasets
-                    console.error(obj, "has meta but no backend info!");
-                }
-            }
-        }
-
-        // add ds that is not in oldHomeFolder
-        for (dsName in searchHash) {
-            ds = searchHash[dsName];
-            if (ds != null) {
-                format = DfFormatTypeTStr[ds.formatType].toUpperCase();
-                DS.addOtherUserDS(ds.name, format, ds.url);
-            }
-        }
-
-        if (!ohterUserFolder.beFolderWithDS()) {
-            // when the other user folder has no children
-            // remove this folder
-            var otherUserFolderId = ohterUserFolder.getId();
-            removeDS(DS.getGrid(otherUserFolderId));
-        }
-
-        // UI update
-        refreshDS();
-        DataStore.update();
-
-        if (!atStartUp) {
-            // if user trigger the restore, save!
-            commitToStorage();
-        }
+        return deferred.promise();
     };
 
     // Rename dsObj
@@ -413,7 +321,7 @@ window.DS = (function ($, DS) {
                         .data("dsname", newName)
                         .attr("data-dsname", newName)
                         .attr("title", newName);
-                commitToStorage();
+                KVStore.commit();
                 return true;
             } else {
                 $label.val(oldName);
@@ -631,7 +539,7 @@ window.DS = (function ($, DS) {
             DataStore.update();
 
             focusOnFirstDS();
-            commitToStorage();
+            KVStore.commit();
             deferred.resolve();
         })
         .fail(function(error) {
@@ -711,6 +619,114 @@ window.DS = (function ($, DS) {
         }
     }
 
+    function restoreHelper(oldHomeFolder, datasets, atStartUp) {
+        var numDatasets = datasets.numDatasets;
+        var searchHash = {};
+        var userPrefix = xcHelper.wrapDSName("");
+
+        for (var i = 0; i < numDatasets; i++) {
+            var dsName = datasets.datasets[i].name;
+
+            if (atStartUp && dsName.endsWith(".preview") &&
+                dsName.startsWith(userPrefix))
+            {
+                // deal with preview datasets,
+                // if it's the current user's preview ds,
+                // then we delete it on start up time
+                var sqlOptions = {
+                    "operation": SQLOps.DestroyPreviewDS,
+                    "dsName"   : dsName
+                };
+                XcalarDestroyDataset(dsName, sqlOptions);
+                continue;
+            }
+
+            searchHash[dsName] = datasets.datasets[i];
+        }
+
+        var cache;
+
+        if ($.isEmptyObject(oldHomeFolder)) {
+            cache = [];
+        } else {
+            cache = oldHomeFolder.eles;
+        }
+
+        // always create the other user's folder first
+        var ohterUserFolder = createDS({
+            "id"        : DSObjTerm.OtherUserFolderId,
+            "name"      : DSObjTerm.OhterUserFolder,
+            "parentId"  : homeDirId,
+            "isFolder"  : true,
+            "uneditable": true
+        });
+
+        // restore the ds and folder
+        var ds;
+        var format;
+
+        while (cache.length > 0) {
+            var obj = cache.shift();
+            if (obj.uneditable) {
+                // skip the restore of uneditable ds,
+                // it will be handled by DS.addOtherUserDS()
+                continue;
+            }
+
+            if (obj.isFolder) {
+                // restore a folder
+                createDS(obj);
+
+                // update id count
+                updateFolderIdCount(obj.id);
+
+                if (obj.eles != null) {
+                    $.merge(cache, obj.eles);
+                }
+            } else {
+                if (searchHash.hasOwnProperty(obj.fullName)) {
+                    // restore a ds
+                    ds = searchHash[obj.fullName];
+                    format = DfFormatTypeTStr[ds.formatType].toUpperCase();
+
+                    obj = $.extend(obj, {
+                        "format": format,
+                        "path"  : ds.url
+                    });
+
+                    createDS(obj);
+                    // mark the ds to be used
+                    delete searchHash[obj.fullName];
+                } else {
+                    // when ds has front meta but no backend meta
+                    // this is an error case since only this user can delete
+                    // his own datasets
+                    console.error(obj, "has meta but no backend info!");
+                }
+            }
+        }
+
+        // add ds that is not in oldHomeFolder
+        for (dsName in searchHash) {
+            ds = searchHash[dsName];
+            if (ds != null) {
+                format = DfFormatTypeTStr[ds.formatType].toUpperCase();
+                DS.addOtherUserDS(ds.name, format, ds.url);
+            }
+        }
+
+        if (!ohterUserFolder.beFolderWithDS()) {
+            // when the other user folder has no children
+            // remove this folder
+            var otherUserFolderId = ohterUserFolder.getId();
+            removeDS(DS.getGrid(otherUserFolderId));
+        }
+
+        // UI update
+        refreshDS();
+        DataStore.update();
+    }
+
     function setupGridViewButtons() {
         // click to toggle list view and grid view
         $("#dataViewBtn, #exportViewBtn").click(function() {
@@ -757,14 +773,7 @@ window.DS = (function ($, DS) {
         // refresh dataset
         $("#refreshDS").click(function() {
             xcHelper.showRefreshIcon($explorePanel.find('.gridViewWrapper'));
-
-            XcalarGetDatasets()
-            .then(function(datasets) {
-                DS.restore(DS.getHomeDir(), datasets);
-            })
-            .fail(function(error) {
-                console.error("Refresh DS failed", error);
-            });
+            DS.restore(DS.getHomeDir());
         });
 
         // click empty area on gridView

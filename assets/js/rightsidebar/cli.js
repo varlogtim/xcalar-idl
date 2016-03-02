@@ -83,12 +83,12 @@ window.CLIBox = (function($, CLIBox) {
                 // Run the command
                 var randId = Math.floor(Math.random() * 100000);
                 XcalarQuery("XIQuery" + randId, queryStr);
-                commitToStorage();
+                KVStore.commit();
 
                 // restart if user enters "restart"
                 if (queryStr === "restart") {
                     console.log('Reset Fired');
-                    commitToStorage()
+                    KVStore.commit()
                     .then(function() {
                         console.info("Shut Down Successfully!");
                         return XcalarStartNodes(2);

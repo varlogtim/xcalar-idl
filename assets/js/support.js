@@ -27,7 +27,7 @@ window.Support = (function(Support, $) {
     Support.releaseSession = function() {
         var deferred = jQuery.Deferred();
 
-        commitToStorage()
+        KVStore.commit()
         .then(function() {
             sessionStorage.removeItem(username);
             return XcalarKeyPut(KVStore.commitKey, defaultCommitFlag, false, gKVScope.FLAG);
@@ -93,7 +93,7 @@ window.Support = (function(Support, $) {
 
             Support.commitCheck()
             .then(function() {
-                // commitToStorage();
+                // KVStore.commit();
             })
             .fail(function(error) {
                 console.error(error);

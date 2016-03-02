@@ -659,7 +659,7 @@ window.DFGParamModal = (function($, DFGParamModal){
         .then(function() {
             // this marks that the update retina is done
             dfg.addRetinaNode(dagNodeId, curParamInfo);
-            commitToStorage();
+            KVStore.commit();
             closeDFGParamModal();
             // show success message??
         })

@@ -63,7 +63,7 @@ window.TblMenu = (function(TblMenu, $) {
                 "confirm"   : function() {
                     TblManager.deleteTable(tableId, TableType.Active)
                     .then(function() {
-                        commitToStorage();
+                        KVStore.commit();
                     })
                     .fail(function(error) {
                         Alert.error("Delete Table Fails", error);

@@ -115,7 +115,7 @@ window.TableList = (function($, TableList) {
                 "confirm"   : function() {
                     TableList.tableBulkAction("delete", tableType)
                     .then(function() {
-                        commitToStorage();
+                        KVStore.commit();
                     })
                     .fail(function(error) {
                         Alert.error("Delete Table Fails", error);
@@ -718,7 +718,7 @@ window.TableList = (function($, TableList) {
                 WSManager.focusOnLastTable();
             }
             
-            commitToStorage();
+            KVStore.commit();
         })
         .fail(function(error) {
             var type;

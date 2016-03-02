@@ -251,7 +251,7 @@ window.Profile = (function($, Profile, d3) {
                 "modalId"  : statsCol.modalId
             });
 
-            commitToStorage();
+            KVStore.commit();
             deferred.resolve();
         })
         .fail(function(error) {
@@ -1461,7 +1461,7 @@ window.Profile = (function($, Profile, d3) {
                 "bucketSize": bucketNum,
                 "modalId"   : statsCol.modalId
             });
-            commitToStorage();
+            KVStore.commit();
         })
         .fail(function(error) {
             clearTimeout(refreshTimer);
@@ -1612,7 +1612,7 @@ window.Profile = (function($, Profile, d3) {
                 "colNum"    : curColNum,
                 "modalId"   : statsCol.modalId
             });
-            commitToStorage();
+            KVStore.commit();
         })
         .fail(function(error) {
             clearTimeout(refreshTimer);
