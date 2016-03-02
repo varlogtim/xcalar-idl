@@ -1398,7 +1398,8 @@ window.TblManager = (function($, TblManager) {
 
         $thead.on("blur", ".editableHead", function(event) {
             var $input = $(event.target);
-            if (!$input.prop("readonly") && $input.closest('.selectedCell').length === 0) {
+            if (!$input.prop("readonly") &&
+                $input.closest('.selectedCell').length === 0) {
                 $input.val("");
                 $('#fnBar').removeClass("disabled");
             }

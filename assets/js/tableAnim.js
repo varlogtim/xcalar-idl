@@ -2323,6 +2323,9 @@ function parseBookmarkNum(el) {
 }
 
 function dragTableMouseDown($el, e) {
+    if ($el.closest('.noDrag').length || $('.xcTable').length === 1) {
+        return;
+    }
     var dragObj = gDragObj;
     gMouseStatus = "checkingMovingTable";
     dragObj.mouseX = e.pageX;
@@ -2387,11 +2390,12 @@ function dragTableMouseMove(e) {
 function dragTableMouseUp() {
     var dragObj = gDragObj;
     $(document).off('mouseup.dragtablemouseup');
+    
     if (gMouseStatus === "checkingMovingTable") {
         gMouseStatus = null;
         $(document).off('mousemove.checkDragTableMove');
-        dragObj.$el.find('.tableGrab').removeClass('noDropdown');
         $('#moveCursor').remove();
+        dragObj.$el.find('.tableGrab').removeClass('noDropdown');
         return;
     }
     $(document).off('mousemove.dragtablemousemove');

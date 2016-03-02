@@ -700,7 +700,9 @@ window.StartManager = (function(StartManager, $) {
                             $target.closest('#workspacePanel').length !== 0) {
                     return;
                 }
+                $('#fnBar').removeClass('disabled');
                 $('.selectedCell').removeClass('selectedCell');
+
                 FnBar.clear();
             }
         });
