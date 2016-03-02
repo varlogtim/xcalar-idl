@@ -63,8 +63,7 @@ window.ExportTarget = (function($, ExportTarget) {
         });
 
         // xxx TEMPORARILY DISABLE THE ENTIRE FORM
-        $form.find('input, button').prop('readonly', true)
-                                   .attr('disabled', true)
+        $form.find('input, button').prop('disabled', true)
                                    .css({'cursor': 'not-allowed'});
         $form.find('button').css('pointer-events', 'none')
                             .addClass('btn-cancel');

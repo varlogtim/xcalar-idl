@@ -496,14 +496,15 @@ window.TblManager = (function($, TblManager) {
             width = 15;
             columnClass += " userHidden";
         }
-        var readOnly = (columnName === "");
-        var readOnlyProp;
-        var readOnlyClass = "";
-        if (readOnly) {
-            readOnlyProp = "";
-            readOnlyClass = " editable";
+
+        var disabledProp;
+        var disabledClass;
+        if (columnName === "") {
+            disabledProp = "";
+            disabledClass = " editable";
         } else {
-            readOnlyProp = 'readonly tabindex="-1"';
+            disabledProp = "disabled";
+            disabledClass = "";
         }
 
         var tooltip = columnClass.indexOf("indexedColumn") < 0 ? "" :
@@ -532,12 +533,12 @@ window.TblManager = (function($, TblManager) {
                             '<div class="iconHidden"></div> ' +
                             '<span class="type icon"></span>' +
                         '</div>' +
-                        '<div class="flexWrap flex-mid' + readOnlyClass +
+                        '<div class="flexWrap flex-mid' + disabledClass +
                             '"' + tooltip + '>' +
                             '<input class="editableHead col' + newColid + '"' +
                                 ' type="text"  value="' + columnName + '"' +
                                 ' size="15" spellcheck="false" ' +
-                                readOnlyProp + '/>' +
+                                disabledProp + '/>' +
                         '</div>' +
                         '<div class="flexWrap flex-right">' +
                             '<div class="dropdownBox" ' +
@@ -743,7 +744,7 @@ window.TblManager = (function($, TblManager) {
             columns[i].isHidden = false;
 
             autosizeCol($th, {
-                "dblClick"       : true,
+                "dblClick"      : true,
                 "minWidth"      : 17,
                 "unlimitedWidth": false,
                 "includeHeader" : sizeToHeader,
@@ -1378,7 +1379,7 @@ window.TblManager = (function($, TblManager) {
 
         $thead.on("keydown", ".editableHead", function(event) {
             var $input = $(event.target);
-            if (event.which === keyCode.Enter && !$input.prop("readonly")) {
+            if (event.which === keyCode.Enter && !$input.prop("disabled")) {
                 var colName = $input.val().trim();
                 var colNum = xcHelper.parseColNum($input);
 
@@ -1398,8 +1399,10 @@ window.TblManager = (function($, TblManager) {
 
         $thead.on("blur", ".editableHead", function(event) {
             var $input = $(event.target);
-            if (!$input.prop("readonly") &&
-                $input.closest('.selectedCell').length === 0) {
+
+            if (!$input.prop("disabled") &&
+                $input.closest('.selectedCell').length === 0)
+            {
                 $input.val("");
                 $('#fnBar').removeClass("disabled");
             }
@@ -1601,12 +1604,11 @@ window.TblManager = (function($, TblManager) {
             'style="width:0px;" data-id="' + tableId + '">' +
               '<thead>' +
               '<tr>' +
-                '<th style="width: 50px;" class="col0 th rowNumHead"' + 
+                '<th style="width: 50px;" class="col0 th rowNumHead"' +
                     ' title="select all columns" data-toggle="tooltip"' +
                     ' data-placement="top" data-container="body">' +
                   '<div class="header">' +
-                    '<input value="" readonly="" tabindex="-1" ' +
-                        'spellcheck="false" >' +
+                    '<input value="" spellcheck="false" disabled>' +
                   '</div>' +
                 '</th>';
         var numCols = columns.length;
@@ -1656,11 +1658,10 @@ window.TblManager = (function($, TblManager) {
                             '<div class="flexContainer flexRow">' +
                             '<div class="flexWrap flex-left"></div>' +
                             '<div class="flexWrap flex-mid">' +
-                                '<input value="DATA" readonly="" tabindex="-1"' +
-                                    ' spellcheck="false" ' +
+                                '<input value="DATA" spellcheck="false" ' +
                                     ' class="dataCol col' + newColid + '"' +
                                     ' data-toggle="tooltip" data-placement="bottom" ' +
-                                    '" title="raw data">' +
+                                    '" title="raw data" disabled>' +
                             '</div>' +
                             '<div class="flexWrap flex-right">' +
                                 '<div class="dropdownBox">' +
@@ -1734,9 +1735,9 @@ window.TblManager = (function($, TblManager) {
             }
             var $th = $('#xcTable-' + tableId).find('th.col' + dataColIndex);
             autosizeCol($th, {
-                fitAll: true,
-                minWidth: 200,
-                maxWidth: maxWidth
+                "fitAll"  : true,
+                "minWidth": 200,
+                "maxWidth": maxWidth
             });
         }
     }

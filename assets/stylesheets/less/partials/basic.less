@@ -583,16 +583,15 @@ input {
         font: 13px @font-base;
         background-color: transparent;
 
-        &:disabled {
-            color: @color-text-darkGray;
-        }
-        &[readonly] {
+        &[disabled] {
             .size(@width: 100%);
             text-align: center;
             outline: none;
             cursor: default;
             font-weight: 600;
+            .font(@weight: 600, @color-text-darkGray);
         }
+
         &:focus {
             outline-offset: -1px;
         }

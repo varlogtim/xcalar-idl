@@ -17,15 +17,15 @@ window.JoinModal = (function($, JoinModal) {
     var $multiJoin    = $("#multiJoin");
     var multiClauseTemplate =
         '<div class="joinClause">' +
-            '<input class="clause leftClause" type="text" spellcheck="false" ' +
-                'readonly/>' +
+            '<input class="clause leftClause no-selection" type="text" ' +
+            'spellcheck="false" disabled/>' +
               '<div class="middleIcon">' +
                 '<div class="iconWrapper">' +
                   '<span class="icon"></span>' +
                 '</div>' +
               '</div>' +
-              '<input  class="clause rightClause" type="text" ' +
-                'spellcheck="false" readonly/>' +
+              '<input  class="clause rightClause no-selection" type="text" ' +
+                'spellcheck="false" disabled/>' +
         '</div>';
 
     var dragSide  = null;
@@ -107,7 +107,7 @@ window.JoinModal = (function($, JoinModal) {
                     singleJoinHelper(joinType, tabeName);
                 }
             })
-            .fail(function(error) {
+            .fail(function() {
                 StatusBox.show(ErrorTextTStr.TableConflict, $joinTableName, true);
                 modalHelper.enableSubmit();
                 // Alert.error("Error Naming New Table", error);
@@ -1306,47 +1306,47 @@ window.JoinModal = (function($, JoinModal) {
         $joinPreview.html(previewText);
     }
 
-    function getNewTableName(lTableName, rTableName) {
-        var deferred = jQuery.Deferred();
-        var tempName = xcHelper.getTableName(lTableName) + '-' +
-                       xcHelper.getTableName(rTableName);
-        var destName;
-        var tableNames = {};
-        XcalarGetTables()
-        .then(function(result) {
-            var tables = result.nodeInfo;
-            for (var i = 0; i < result.numNodes; i++) {
-                var name = xcHelper.getTableName(tables[i].name);
-                tableNames[name] = 1;
-            }
+    // function getNewTableName(lTableName, rTableName) {
+    //     var deferred = jQuery.Deferred();
+    //     var tempName = xcHelper.getTableName(lTableName) + '-' +
+    //                    xcHelper.getTableName(rTableName);
+    //     var destName;
+    //     var tableNames = {};
+    //     XcalarGetTables()
+    //     .then(function(result) {
+    //         var tables = result.nodeInfo;
+    //         for (var i = 0; i < result.numNodes; i++) {
+    //             var name = xcHelper.getTableName(tables[i].name);
+    //             tableNames[name] = 1;
+    //         }
 
-            var validNameFound = false;
-            var limit = 20; // we won't try more than 20 times
-            destName = tempName;
-            if (tableNames.hasOwnProperty(destName)) {
-                for (var i = 1; i <= limit; i++) {
-                    destName = tempName + i;
-                    if (!tableNames.hasOwnProperty(destName)) {
-                        validNameFound = true;
-                        break;
-                    }
-                }
-                if (!validNameFound) {
-                    var tries = 0;
-                    while (tableNames.hasOwnProperty(destName) && tries < 100) {
-                        destName = xcHelper.randName(tempName, 4);
-                        tries++;
-                    }
-                }
-            }
-            deferred.resolve(destName);
-        })
-        .fail(function(error) {
-            deferred.reject(error);
-        });
+    //         var validNameFound = false;
+    //         var limit = 20; // we won't try more than 20 times
+    //         destName = tempName;
+    //         if (tableNames.hasOwnProperty(destName)) {
+    //             for (var i = 1; i <= limit; i++) {
+    //                 destName = tempName + i;
+    //                 if (!tableNames.hasOwnProperty(destName)) {
+    //                     validNameFound = true;
+    //                     break;
+    //                 }
+    //             }
+    //             if (!validNameFound) {
+    //                 var tries = 0;
+    //                 while (tableNames.hasOwnProperty(destName) && tries < 100) {
+    //                     destName = xcHelper.randName(tempName, 4);
+    //                     tries++;
+    //                 }
+    //             }
+    //         }
+    //         deferred.resolve(destName);
+    //     })
+    //     .fail(function(error) {
+    //         deferred.reject(error);
+    //     });
 
-        return (deferred.promise());
-    }
+    //     return (deferred.promise());
+    // }
 
     return (JoinModal);
 }(jQuery, {}));

@@ -12,7 +12,7 @@ window.ColManager = (function($, ColManager) {
             "type"    : type,
             "width"   : gNewCellWidth,
             "isNewCol": false,
-            "userStr" : '"'+colName+'" = pull('+colName+')',
+            "userStr" : '"' + colName + '" = pull(' + colName + ')',
             "func"    : {
                 "func": "pull",
                 "args": [colName]
@@ -699,7 +699,7 @@ window.ColManager = (function($, ColManager) {
 
         // Step -1. Figure out how the column is sorted before window, because
         // we have to resort by this ordering once the window is done
-        var sortedStr = $("#dagWrap-"+tableId).find(".actionType:last")
+        var sortedStr = $("#dagWrap-" + tableId).find(".actionType:last")
                          .attr("data-info");
         if (sortedStr.indexOf("sort") === -1) {
             // This is not a sorted table! I can just check that this table is
@@ -909,8 +909,7 @@ window.ColManager = (function($, ColManager) {
                     "type"    : colType,
                     "width"   : gNewCellWidth,
                     "isNewCol": false,
-                    "userStr" : '"' + colNames[i] + '" = pull(' + colNames[i] +
-                                ')',
+                    "userStr" : '"' + colNames[i] + '" = pull(' + colNames[i] + ')',
                     "func"    : {
                         "func": "pull",
                         "args": [colNames[i]]
@@ -1965,7 +1964,7 @@ window.ColManager = (function($, ColManager) {
         curCol.name = newName;
         $table.find('.editableHead.col' + colNum).val(newName)
                                                 .attr("value", newName)
-                                                .prop("readonly", true);
+                                                .prop("disabled", true);
 
         // adjust rightsidebar column name
         TableList.updateColName(tableId, colNum, newName);
