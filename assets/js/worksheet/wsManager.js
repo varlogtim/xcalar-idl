@@ -544,11 +544,13 @@ window.WSManager = (function($, WSManager) {
                 isFocus = true;
                 focusTable(tableId);
             }
-
+            var $table;
+            var $tableWrap;
             $curActiveTables.find('.xcTable').each(function() {
-                var $table = $(this);
+                $table = $(this);
+                $tableWrap = $table.closest('.xcTableWrap');
                 matchHeaderSizes($table);
-                $table.find('.rowGrab').width($table.width());
+                $tableWrap.find('.rowGrab').width($table.width());
             });
 
             // if (!isFocus &&

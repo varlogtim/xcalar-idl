@@ -465,6 +465,7 @@ window.TblManager = (function($, TblManager) {
         // this function does some preparation for ColManager.pullAllCols()
         startIndex = startIndex || 0;
         var $table = $('#xcTable-' + tableId);
+        var $tableWrap = $table.closest('.xcTableWrap');
         // get the column number of the datacolumn
         if (dataIndex == null) {
             dataIndex = xcHelper.parseColNum($table.find('tr:first .dataCol')) -
@@ -481,7 +482,7 @@ window.TblManager = (function($, TblManager) {
         var padding = 12;
         $table.find('th:first-child').width(newWidth + padding);
         matchHeaderSizes($table);
-        $table.find('.rowGrab').width($table.width());
+        $tableWrap.find('.rowGrab').width($table.width());
     };
 
     TblManager.generateColumnHeadHTML = function(columnClass, color, newColid,
@@ -578,14 +579,15 @@ window.TblManager = (function($, TblManager) {
     };
 
     TblManager.unHideTable = function(tableId) {
-        $('#xcTableWrap-' + tableId).removeClass('tableHidden');
+        var $tableWrap = $('#xcTableWrap-' + tableId);
+        $tableWrap.removeClass('tableHidden');
         WSManager.focusOnWorksheet(WSManager.getActiveWS(), false, tableId);
         moveTableDropdownBoxes();
         moveFirstColumn();
         moveTableTitles();
 
         var $table = $('#xcTable-' + tableId);
-        $table.find('.rowGrab').width($table.width());
+        $tableWrap.find('.rowGrab').width($table.width());
 
         SQL.add("UnHide Table", {
             "operation": SQLOps.UnhideTable,

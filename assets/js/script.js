@@ -704,60 +704,6 @@ window.StartManager = (function(StartManager, $) {
                 FnBar.clear();
             }
         });
-        $(document).mousemove(function(event) {
-            if (gMouseStatus == null) {
-                return;
-            }
-
-            switch (gMouseStatus) {
-                case ("resizingCol"):
-                    gRescolMouseMove(event);
-                    break;
-                case ("resizingRow"):
-                    gResrowMouseMove(event);
-                    break;
-                case ("checkingMovingTable"):
-                    checkDragTableMouseMove(event);
-                    break;
-                case ("movingTable"):
-                    dragTableMouseMove(event);
-                    break;
-                case ("movingCol"):
-                    dragdropMouseMove(event);
-                    break;
-                case ("rowScroller"):
-                    RowScroller.mouseMove(event);
-                    break;
-                default:  // do nothing
-            }
-        });
-
-        $(document).mouseup(function() {
-            if (gMouseStatus == null) {
-                return;
-            }
-            switch (gMouseStatus) {
-                case ("resizingCol"):
-                    gRescolMouseUp();
-                    break;
-                case ("resizingRow"):
-                    gResrowMouseUp();
-                    break;
-                case ("movingTable"):
-                    dragTableMouseUp();
-                    break;
-                case ("checkingMovingTable"):
-                    dragTableMouseUp();
-                    break;
-                case ("movingCol"):
-                    dragdropMouseUp();
-                    break;
-                case ("rowScroller"):
-                    RowScroller.mouseUp();
-                    break;
-                default: // do nothing
-            }
-        });
 
         $(document).click(function(event) {
             gLastClickTarget = $(event.target);

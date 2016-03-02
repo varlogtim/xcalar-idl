@@ -32,7 +32,6 @@ function disableTextSelection() {
             '-khtml-user-select:none;' +
             '-webkit-user-select:none;user-select:none;}' +
             'div[contenteditable]{pointer-events:none;}' +
-            '.tooltip{display:none !important;}' +
         '</style>';
     $(document.head).append(style);
     $('.tooltip').remove();
@@ -60,7 +59,6 @@ function gRescolMouseDown(el, event, options) {
         // return;
         ColManager.unhideCols([colNum], rescol.tableId, {"autoResize": false});
     }
-    gMouseStatus = "resizingCol";
     event.preventDefault();
     rescol.mouseStart = event.pageX;
     rescol.grabbedCell = el.parent().parent();  // the th
@@ -87,7 +85,9 @@ function gRescolMouseDown(el, event, options) {
     if (!rescol.grabbedCell.hasClass('selectedCell')) {
         $('.selectedCell').removeClass('selectedCell');
     }
-    
+
+    $(document).on('mousemove.rescolMouseMove', gRescolMouseMove);
+    $(document).on('mouseup.rescolMouseUp', gRescolMouseUp);
 }
 
 function gRescolMouseMove(event) {
@@ -111,10 +111,12 @@ function gRescolMouseMove(event) {
 }
 
 function gRescolMouseUp() {
-    gMouseStatus = null;
+    $(document).off('mousemove.rescolMouseMove');
+    $(document).off('mouseup.rescolMouseUp');
     var rescol = gRescol;
     $('#col-resizeCursor').remove();
-    rescol.table.find('.rowGrab').width(rescol.table.width());
+    rescol.table.closest('.xcTableWrap').find('.rowGrab')
+                                        .width(rescol.table.width());
     rescol.table.removeClass('resizingCol');
     $('.tooltip').remove();
     if (!rescol.isDatastore) {
@@ -147,44 +149,70 @@ function gRescolMouseUp() {
     setTimeout(function() {
         reenableTextSelection();
     },500);
-    unhideOffScreenTables();
+
+    // set timeout because unhiding is slow
+    setTimeout(function() {
+        unhideOffScreenTables();
+    }, 0);
+    
     moveTableDropdownBoxes();
 }
 
 function gResrowMouseDown(el, event) {
-    gMouseStatus = "resizingRow";
     var resrow = gResrow;
-    var $table = el.closest('.xcTbodyWrap');
-    hideOffScreenTables();
     resrow.mouseStart = event.pageY;
-    // we actually target the td above the one we're grabbing.
+    gMouseStatus = "checkingRowMove";
+    resrow.$el = el;
+    var $table = el.closest('.xcTbodyWrap');
+    resrow.$table = $table;
     resrow.actualTd = el.closest('td');
+    // we actually target the td above the one we're grabbing.
     if (el.hasClass('last')) {
         resrow.targetTd = $table.find('tr:last').find('td').eq(0);
         resrow.actualTd = resrow.targetTd;
     } else {
         resrow.targetTd = el.closest('tr').prev().find('td').eq(0);
     }
-    
-    resrow.tableId = xcHelper.parseTableId($table);
-    resrow.startHeight = resrow.targetTd.outerHeight();
-    resrow.rowIndex = resrow.targetTd.closest('tr').index();
-    resrow.$divs = $table.find('tbody tr:eq(' + resrow.rowIndex + ') td > div');
-    disableTextSelection();
-    var style = '<style id="row-resizeCursor" type="text/css">*' +
-                    '{cursor: row-resize !important;}' +
-                    '.tooltip{display: none !important;}' +
-                '</style>';
-    $(document.head).append(style);
-    $('body').addClass('hideScroll');
-    resrow.targetTd.closest('tr').addClass('changedHeight');
-    resrow.actualTd.closest('tr').addClass('dragging');
-    resrow.$divs.css('max-height', resrow.startHeight - 4);
-    resrow.$divs.eq(0).css('max-height', resrow.startHeight);
-    resrow.targetTd.outerHeight(resrow.startHeight);
 
-    $table.find('tr:not(.dragging)').addClass('notDragging');
-    lockScrolling($('#mainFrame'), 'horizontal');
+    resrow.startHeight = resrow.targetTd.outerHeight();
+    
+    $(document).on('mousemove.checkRowMouseMove', gCheckRowMouseMove);
+    $(document).on('mouseup.resRowMouseUp', gResrowMouseUp);
+}
+
+function gCheckRowMouseMove(event) {
+    var resrow = gResrow;
+    var mouseDistance = event.pageY - resrow.mouseStart;
+    if (mouseDistance + resrow.startHeight > gRescol.minCellHeight) {
+        $(document).off('mousemove.checkRowMouseMove');
+        $(document).on('mousemove.resRowMouseMove', gResrowMouseMove);
+        gMouseStatus = "rowMove";
+
+        hideOffScreenTables();
+        var el = resrow.$el;
+        var $table = resrow.$table;
+        
+        resrow.tableId = xcHelper.parseTableId($table);
+        
+        resrow.rowIndex = resrow.targetTd.closest('tr').index();
+        resrow.$divs = $table.find('tbody tr:eq(' + resrow.rowIndex +
+                                    ') td > div');
+        disableTextSelection();
+        var style = '<style id="row-resizeCursor" type="text/css">*' +
+                        '{cursor: row-resize !important;}' +
+                        '.tooltip{display: none !important;}' +
+                    '</style>';
+        $(document.head).append(style);
+        $('body').addClass('hideScroll');
+        resrow.targetTd.closest('tr').addClass('changedHeight');
+        resrow.actualTd.closest('tr').addClass('dragging');
+        resrow.$divs.css('max-height', resrow.startHeight - 4);
+        resrow.$divs.eq(0).css('max-height', resrow.startHeight);
+        resrow.targetTd.outerHeight(resrow.startHeight);
+
+        $table.find('tr:not(.dragging)').addClass('notDragging');
+        lockScrolling($('#mainFrame'), 'horizontal');
+    }
 }
 
 function gResrowMouseMove(event) {
@@ -204,12 +232,21 @@ function gResrowMouseMove(event) {
 }
 
 function gResrowMouseUp() {
+    $(document).off('mouseup.resRowMouseUp');
+    if (gMouseStatus === "checkingRowMove") {
+        $(document).off('mousemove.checkRowMouseMove');
+        gMouseStatus = null;
+        return;
+    }
+
+    $(document).off('mousemove.resRowMouseMove');
+    gMouseStatus = null;
+
     var newRowHeight = gResrow.targetTd.outerHeight();
     var rowNum = xcHelper.parseRowNum(gResrow.targetTd.parent()) + 1;
     var rowObj = gTables[gResrow.tableId].rowHeights;
     // structure of rowObj is rowObj {pageNumber:{rowNumber: height}}
     var pageNum = Math.floor((rowNum - 1) / gNumEntriesPerPage);
-    gMouseStatus = null;
     $('#row-resizeCursor').remove();
     reenableTextSelection();
     $('body').removeClass('hideScroll');
@@ -238,16 +275,24 @@ function gResrowMouseUp() {
         gResrow.targetTd.parent().find('.jsonElement >  div')
                                  .css('max-height', 16);
     }
-    unhideOffScreenTables();
+
+    // settimeout because unhiding is slow
+    setTimeout(function() {
+        unhideOffScreenTables();
+    }, 0);
 }
 
-function dragdropMouseDown(el, event) {
-    var $tableWrap = el.closest('.xcTableWrap');
+function dragdropMouseDown($el, event) {
+    var $tableWrap = $el.closest('.xcTableWrap');
     if ($tableWrap.hasClass('undraggable')) {
         return;
     }
-    gMouseStatus = "movingCol";
     var dragObj = gDragObj;
+    gMouseStatus = "checkingMovingCol";
+    dragObj.mouseX = event.pageX;
+    dragObj.$el = $el;
+    dragObj.$tableWrap = $tableWrap;
+
     var cursorStyle =
         '<style id="moveCursor" type="text/css">*' +
             '{cursor:move !important; cursor: -webkit-grabbing !important;' +
@@ -257,89 +302,103 @@ function dragdropMouseDown(el, event) {
     $(document.head).append(cursorStyle);
     $('.highlightBox').remove();
 
-    var pageX = event.pageX;
-    dragObj.colNum = xcHelper.parseColNum(el);
-    
-    var $table = el.closest('.xcTable');
-    var $tbodyWrap = $table.parent();
-    var $editableHead = el.find('.editableHead');
-    dragObj.$table = $tableWrap;
-    dragObj.tableId = xcHelper.parseTableId($table);
-    dragObj.element = el;
-    dragObj.colIndex = parseInt(el.index());
-    dragObj.offsetTop = el.offset().top;
-    dragObj.grabOffset = pageX - el.offset().left;
-    // dragObj.grabOffset = distance from the left side of dragged column
-    // to the point that was grabbed
+    $(document).on('mousemove.checkDragColMove', checkDragColMouseMove);
+    $(document).on('mouseup.dragColmouseup', dragdropMouseUp);   
+}
 
-    dragObj.docHeight = $(document).height();
-    dragObj.val = $editableHead.val();
-    var shadowDivHeight = $tbodyWrap.height();
-    var shadowTop = $tableWrap.find('.header').position().top - 5;
+function checkDragColMouseMove(event) {
+    var dragObj = gDragObj;
+    dragObj.pageX = event.pageX;
+    if (Math.abs(dragObj.mouseX - dragObj.pageX) > 0) {
+        $(document).off('mousemove.checkDragColMove', checkDragColMouseMove);
+        $(document).on('mousemove.dragColmousemove', dragdropMouseMove);
+        gMouseStatus = "dragging";
+        var el = dragObj.$el;
+        var pageX = event.pageX;
+        dragObj.colNum = xcHelper.parseColNum(el);
+        var $tableWrap = dragObj.$tableWrap;
+        
+        var $table = el.closest('.xcTable');
+        var $tbodyWrap = $table.parent();
+        var $editableHead = el.find('.editableHead');
+        dragObj.$table = $tableWrap;
+        dragObj.tableId = xcHelper.parseTableId($table);
+        dragObj.element = el;
+        dragObj.colIndex = parseInt(el.index());
+        dragObj.offsetTop = el.offset().top;
+        dragObj.grabOffset = pageX - el.offset().left;
+        // dragObj.grabOffset = distance from the left side of dragged column
+        // to the point that was grabbed
 
-    dragObj.inFocus = $editableHead.is(':focus');
-    dragObj.selected = el.hasClass('selectedCell');
-    dragObj.isHidden = el.hasClass('userHidden');
-    dragObj.colWidth = el.width();
-    dragObj.windowWidth = $(window).width();
+        dragObj.docHeight = $(document).height();
+        dragObj.val = $editableHead.val();
+        var shadowDivHeight = $tbodyWrap.height();
+        var shadowTop = $tableWrap.find('.header').position().top - 5;
 
-    var timer;
-    if (gTables[dragObj.tableId].tableCols.length > 50) {
-        timer = 100;
-    } else {
-        timer = 40;
-    }
-    dragdropMoveMainFrame(dragObj, timer);
+        dragObj.inFocus = $editableHead.is(':focus');
+        dragObj.selected = el.hasClass('selectedCell');
+        dragObj.isHidden = el.hasClass('userHidden');
+        dragObj.colWidth = el.width();
+        dragObj.windowWidth = $(window).width();
 
-    // the following code deals with hiding non visible tables and locking the
-    // scrolling when we reach the left or right side of the table
-    
-    var $mainFrame = $('#mainFrame');
-    var mfWidth = $mainFrame.width();
-    
-    var mfScrollLeft = $mainFrame.scrollLeft();
-    var tableLeft = dragObj.$table.offset().left;
-    $mainFrame.addClass('scrollLocked');
-
-    var leftLimit = mfScrollLeft + tableLeft;
-    leftLimit = Math.min(leftLimit, mfScrollLeft);
-    var rightLimit = mfScrollLeft + tableLeft + $tableWrap.width() - mfWidth +
-                     dragObj.grabOffset;
-    rightLimit = Math.max(rightLimit, mfScrollLeft);
-
-    var hideOptions = {
-        marginLeft: mfScrollLeft - leftLimit,
-        marginRight: rightLimit - mfScrollLeft
-    };
-    hideOffScreenTables(hideOptions);
-
-    var scrollLeft;
-    $mainFrame.on('scroll.draglocked', function() {
-        scrollLeft = $mainFrame.scrollLeft();
-        if (scrollLeft <= leftLimit) {
-            $mainFrame.scrollLeft(leftLimit);
-        } else if (scrollLeft >= rightLimit) {
-            $mainFrame.scrollLeft(rightLimit);
+        var timer;
+        if (gTables[dragObj.tableId].tableCols.length > 50) {
+            timer = 100;
+        } else {
+            timer = 40;
         }
+        dragdropMoveMainFrame(dragObj, timer);
 
-        moveTableTitles();
-        moveFirstColumn();
-    });
+        // the following code deals with hiding non visible tables and locking the
+        // scrolling when we reach the left or right side of the table
+        
+        var $mainFrame = $('#mainFrame');
+        var mfWidth = $mainFrame.width();
+        
+        var mfScrollLeft = $mainFrame.scrollLeft();
+        var tableLeft = dragObj.$table.offset().left;
+        $mainFrame.addClass('scrollLocked');
 
-    // create a fake transparent column by cloning
+        var leftLimit = mfScrollLeft + tableLeft;
+        leftLimit = Math.min(leftLimit, mfScrollLeft);
+        var rightLimit = mfScrollLeft + tableLeft + $tableWrap.width() - mfWidth +
+                         dragObj.grabOffset;
+        rightLimit = Math.max(rightLimit, mfScrollLeft);
 
-    createTransparentDragDropCol(pageX);
-    $tbodyWrap.addClass('hideScroll');
+        var hideOptions = {
+            marginLeft: mfScrollLeft - leftLimit,
+            marginRight: rightLimit - mfScrollLeft
+        };
+        hideOffScreenTables(hideOptions);
 
-    // create a replica shadow with same column width, height,
-    // and starting position
-    disableTextSelection();
-    $tableWrap.append('<div id="shadowDiv" style="width:' +
-                    dragObj.colWidth +
-                    'px;height:' + (shadowDivHeight) + 'px;left:' +
-                    (dragObj.element.position().left) +
-                    'px;top:' + shadowTop + 'px;"></div>');
-    createDropTargets();
+        var scrollLeft;
+        $mainFrame.on('scroll.draglocked', function() {
+            scrollLeft = $mainFrame.scrollLeft();
+            if (scrollLeft <= leftLimit) {
+                $mainFrame.scrollLeft(leftLimit);
+            } else if (scrollLeft >= rightLimit) {
+                $mainFrame.scrollLeft(rightLimit);
+            }
+
+            moveTableTitles();
+            moveFirstColumn();
+        });
+
+        // create a fake transparent column by cloning
+
+        createTransparentDragDropCol(pageX);
+        $tbodyWrap.addClass('hideScroll');
+
+        // create a replica shadow with same column width, height,
+        // and starting position
+        disableTextSelection();
+        $tableWrap.append('<div id="shadowDiv" style="width:' +
+                        dragObj.colWidth +
+                        'px;height:' + (shadowDivHeight) + 'px;left:' +
+                        (dragObj.element.position().left) +
+                        'px;top:' + shadowTop + 'px;"></div>');
+        createDropTargets();
+    }
 }
 
 function dragdropMouseMove(event) {
@@ -350,6 +409,16 @@ function dragdropMouseMove(event) {
 }
 
 function dragdropMouseUp() {
+    var dragObj = gDragObj;
+    $(document).off('mouseup.dragColmouseup');
+    if (gMouseStatus === "checkingMovingCol") {
+        gMouseStatus = null;
+        $(document).off('mousemove.checkDragColMove');
+        $('#moveCursor').remove();
+        return;
+    }
+    $(document).off('mousemove.dragColmousemove');
+
     gMouseStatus = null;
     var dragObj = gDragObj;
     var $tableWrap = dragObj.$table;
@@ -407,7 +476,7 @@ function dragdropMoveMainFrame(dragObj, timer) {
     var $mainFrame = $('#mainFrame');
     var left;
 
-    if (gMouseStatus === 'movingCol' || gMouseStatus === 'movingTable') {
+    if (gMouseStatus === 'dragging') {
         if (dragObj.pageX > dragObj.windowWidth - 30) { // scroll right
             left = $mainFrame.scrollLeft() + 40;
             $mainFrame.scrollLeft(left);
@@ -711,7 +780,7 @@ function autosizeCol($th, options) {
     if (!options.unlimitedWidth) {
         newWidth = Math.min(newWidth, maxWidth);
     }
-    
+
     $th.outerWidth(newWidth);
     if ($table.attr('id').indexOf('xc') > -1) {
         table.tableCols[index - 1].width = newWidth;
@@ -794,6 +863,8 @@ function dblClickResize($el, options) {
         $('#col-resizeCursor').remove();
         $el.tooltip('destroy');
         gMouseStatus = null;
+        $(document).off('mousemove.rescolMouseMove');
+        $(document).off('mouseup.rescolMouseUp');
         reenableTextSelection();
         options = options || {};
         var target = options.target;
@@ -974,7 +1045,7 @@ function createTableHeader(tableId) {
 
         if (event.rightClick) {
             options.mouseCoors = {"x": event.pageX,
-                                  "y": $dropdown.offset().top + 36};
+                                  "y": $dropdown.offset().top + 30};
         }
 
         dropdownClick($dropdown, options);
@@ -2265,13 +2336,18 @@ function dragTableMouseDown($el, e) {
         '</style>';
 
     $(document.head).append(cursorStyle);
+    $(document).on('mousemove.checkDragTableMove', checkDragTableMouseMove);
+    $(document).on('mouseup.dragtablemouseup', dragTableMouseUp);
 }
 
 function checkDragTableMouseMove(e) {
     var dragObj = gDragObj;
     dragObj.pageX = e.pageX;
     if (Math.abs(dragObj.mouseX - dragObj.pageX) > 0) {
-        gMouseStatus = "movingTable";
+        $(document).off('mousemove.checkDragTableMove');
+        $(document).on('mousemove.dragtablemousemove', dragTableMouseMove);
+       
+        gMouseStatus = "dragging";
         dragObj.$el.find('.tableGrab').addClass('noDropdown');
         dragObj.$table = dragObj.$el.closest('.xcTableWrap');
         dragObj.halfWidth = dragObj.$table.outerWidth() * 0.5;
@@ -2310,13 +2386,16 @@ function dragTableMouseMove(e) {
 
 function dragTableMouseUp() {
     var dragObj = gDragObj;
+    $(document).off('mouseup.dragtablemouseup');
     if (gMouseStatus === "checkingMovingTable") {
         gMouseStatus = null;
+        $(document).off('mousemove.checkDragTableMove');
         dragObj.$el.find('.tableGrab').removeClass('noDropdown');
         $('#moveCursor').remove();
         return;
     }
-
+    $(document).off('mousemove.dragtablemousemove');
+    
     gMouseStatus = null;
     dragObj.$table.removeClass('tableDragging').css({
         'left'  : '0px',
@@ -2629,356 +2708,3 @@ function unhideOffScreenTables() {
     $tableWraps.removeClass('inViewPort hollowed');
 }
 
-window.RowScroller = (function($, RowScroller) {
-    var $rowInput = $("#rowInput");
-    var $rowScrollerArea = $("#rowScrollerArea");
-
-    RowScroller.setup = function() {
-        $rowInput.val("").data("");
-        $rowInput.blur(function() {
-            var val = $(this).data('val');
-            $(this).val(val);
-        });
-
-        $rowScrollerArea.mousedown(function(event) {
-            if (event.which !== 1 || $(".rowScroller").length === 0) {
-                return;
-            }
-            if (!gActiveTableId) {
-                return;
-            }
-
-            var tableId = gActiveTableId;
-            var $tableWrap = $('#xcTableWrap-' + tableId);
-            xcHelper.centerFocusedTable($tableWrap, false,
-                                                {onlyIfOffScreen: true});
-
-            if ($(event.target).hasClass("subRowMarker")) {
-                rowScrollerStartDrag(event, $(event.target).parent());
-                return;
-            }
-            
-            var $rowScroller = $('#rowScroller-' + tableId);
-            if ($rowScroller.hasClass('locked')) {
-                return;
-            }
-            var table = gTables[tableId];
-            var mouseX = event.pageX - $rowScroller.offset().left;
-            var rowPercent = mouseX / $(this).width();
-
-            var translate = Math.min(99.9, Math.max(0, rowPercent * 100));
-            var $rowMarker = $('#rowMarker-' + tableId);
-            $rowMarker.css("transform",
-                                "translate3d(" + translate + "%, 0px, 0px)");
-            var rowNum = Math.ceil(rowPercent * table.resultSetCount);
-            if ($rowScroller.find(".bookmark").length > 0) {
-                // check 8 pixels around for bookmark?
-                var yCoor = $rowScroller.offset().top + $rowScroller.height() - 5;
-                for (var x = (event.pageX - 4); x < (event.pageX + 4); x++) {
-                    var element = $(document.elementFromPoint(x, yCoor));
-                    if (element.hasClass("bookmark")) {
-                        rowNum = parseBookmarkNum(element);
-                        break;
-                    }
-                }
-            }
-
-            if (!isTableScrollable(tableId)) {
-                return;
-            }
-
-            var e = $.Event("keypress");
-            e.which = keyCode.Enter;
-            e.rowScrollerMousedown = true;
-
-            setTimeout( function() {
-                $rowInput.val(rowNum).trigger(e);
-            }, 145);
-        });
-
-        $rowInput.keypress(function(event) {
-            if (event.which !== keyCode.Enter) {
-                return;
-            }
-
-            var tableId = gActiveTableId;
-            var table = gTables[tableId];
-
-            if (!table) {
-                return;
-            }
-            if (table.isLocked) {
-                return;
-            }
-
-            // note that resultSetCount is the total num of rows
-            // resultSetMax is the max row that can fetch
-            var maxRow   = table.resultSetMax;
-            var maxCount = table.resultSetCount;
-
-            if (!isTableScrollable(tableId)) {
-                if (maxRow === 0) {
-                    // when table has no rows
-                    $rowInput.val(0).data("val", 0);
-                } else {
-                    $rowInput.data("val", 1).val(1);
-                    RowScroller.move(1, maxCount);
-                }
-
-                return;
-            }
-
-            var curRow    = $rowInput.data("val");
-            var targetRow = Number($rowInput.val());
-            var backRow   = targetRow;
-
-            if (isNaN(targetRow) || targetRow % 1 !== 0) {
-                $rowInput.val(curRow);
-                return;
-            }
-
-            var rowOnScreen = xcHelper.getLastVisibleRowNum(tableId) -
-                                curRow + 1;
-            // divide evenly on both top and bottom buffer
-            var rowToBuffer = Math.floor((gMaxEntriesPerPage - rowOnScreen) / 2);
-
-            targetRow = Math.max(1, targetRow);
-            targetRow = Math.min(targetRow, maxCount);
-
-            $rowInput.data("val", targetRow).val(targetRow);
-
-            backRow = Math.min(maxRow - gMaxEntriesPerPage,
-                                targetRow - rowToBuffer);
-            backRow = Math.max(backRow, 0);
-
-            var tableName = table.tableName;
-            var numRowsToAdd = Math.min(gMaxEntriesPerPage, maxRow);
-            var info = {
-                "numRowsToAdd"    : numRowsToAdd,
-                "numRowsAdded"    : 0,
-                "lastRowToDisplay": backRow + numRowsToAdd,
-                "targetRow"       : targetRow,
-                "bulk"            : true,
-                "tableName"       : tableName,
-                "tableId"         : tableId
-            };
-
-            goToPage(backRow, numRowsToAdd, RowDirection.Bottom, false, info)
-            .then(function() {
-                var rowToScrollTo = Math.min(targetRow, maxRow);
-                positionScrollbar(rowToScrollTo, tableId);
-                generateFirstVisibleRowNum();
-                if (!event.rowScrollerMousedown) {
-                    RowScroller.move($rowInput.val(), maxCount);
-                } else {
-                    $rowScrollerArea.addClass("autoScroll");
-                }
-            });
-        });
-
-        $('#rowInputArea').mousedown(function() {
-            if ($(".rowScroller").length === 0 || !gActiveTableId) {
-                return;
-            }
-            var tableId = gActiveTableId;
-            var $tableWrap = $('#xcTableWrap-' + tableId);
-            xcHelper.centerFocusedTable($tableWrap, false,
-                                                {onlyIfOffScreen: true});
-        });
-    };
-
-    RowScroller.add = function(tableId) {
-        var rowScrollerHTML =
-            '<div id="rowScroller-' + tableId +
-            '" class="rowScroller" data-id="' + tableId + '" ' +
-            'data-toggle="tooltip" ' +
-                'data-container="body" ' +
-                'data-placement="bottom" title="scroll to a row">' +
-                '<div id="rowMarker-' + tableId + '" class="rowMarker" ' +
-                'data-id="' + tableId + '">' +
-                    '<div class="subRowMarker top"></div>' +
-                    '<div class="subRowMarker middle"></div>' +
-                    '<div class="subRowMarker bottom"></div>' +
-                '</div>' +
-            '</div>';
-
-        $rowScrollerArea.append(rowScrollerHTML);
-
-        var rows = gTables[tableId].bookmarks;
-        for (var i = 0, numRows = rows.length; i < numRows; i++) {
-            RowScroller.addBookMark(rows[i], tableId);
-        }
-
-        if ($(".xcTable").length > 1) {
-            $(".rowScroller").last().hide();
-        } else if ($("#xcTableWrap-" + tableId).hasClass('inActive')) {
-            $('#rowScroller-' + tableId).hide();
-        }
-    };
-
-    RowScroller.move = function (rowNum, resultSetCount) {
-        var pct = 100 * ((rowNum - 1) / (resultSetCount - 1));
-        var $rowMarker = $('#rowMarker-' + gActiveTableId);
-        $rowMarker.css("transform", "translate3d(" + pct + "%, 0px, 0px)");
-    };
-
-    RowScroller.update = function(tableId) {
-        var $numPages = $("#numPages");
-        var table = gTables[gActiveTableId];
-        showRowScroller(tableId);
-        var inputWidth = 50;
-        if (!gActiveTableId || $.isEmptyObject(table)) {
-            $numPages.text("");
-        } else {
-            var rowCount = table.resultSetCount;
-            var num = Number(rowCount).toLocaleString("en");
-            $numPages.text("of " + num);
-            var numDigits = ("" + rowCount).length;
-            inputWidth = Math.max(inputWidth, 10 + (numDigits * 8));
-        }
-        $rowInput.width(inputWidth);
-    };
-
-    RowScroller.empty = function() {
-        $rowInput.val("").data("val", "");
-        gActiveTableId = null;
-        RowScroller.update();
-    };
-
-    // for book mark tick
-    RowScroller.addBookMark = function(rowNum, tableId) {
-        var table = gTables[tableId];
-        var leftPos = 100 * (rowNum / table.resultSetCount);
-        var bookmark =
-            '<div class="bookmark bkmkRow' + rowNum + '"' +
-                ' style="left:' + leftPos + '%;" data-toggle="tooltip" ' +
-                ' data-placement="bottom" data-container="body" title="row ' +
-                (rowNum + 1) + '">' +
-            '</div>';
-        var $rowScroller = $('#rowScroller-' + tableId);
-        $rowScroller.append(bookmark);
-    };
-
-    RowScroller.removeBookMark = function(rowNum, tableId) {
-        var $rowScroller = $('#rowScroller-' + tableId);
-        $rowScroller.find('.bkmkRow' + rowNum).remove();
-    };
-
-    RowScroller.resize = function() {
-        // resize the lenght of #rowInput
-        if (!gActiveTableId) {
-            return;
-        }
-        var table = gTables[gActiveTableId];
-        var resultSetCount   = table.resultSetCount;
-        var resultTextLength = ("" + resultSetCount).length;
-
-        if (resultTextLength > $rowInput.attr('size')) {
-            $rowInput.attr({
-                'maxLength': resultTextLength,
-                'size'     : resultTextLength
-            });
-        }
-    };
-
-    // mouse event for row scroller
-    RowScroller.mouseMove = function(event) {
-        var mouseX = event.pageX;
-        var translate;
-
-        if (mouseX - gResrow.totalOffset < gResrow.boundary.lower) {
-            translate = 0;
-        } else if (mouseX - gResrow.totalOffset > gResrow.boundary.upper ) {
-            translate = 100;
-        } else {
-            translate = 100 * (mouseX - gResrow.scrollAreaOffset -
-                        gResrow.totalOffset) / (gResrow.rowScrollerWidth - 1);
-        }
-
-        gResrow.el.css('transform', 'translate3d(' + translate + '%, 0px, 0px)');
-    };
-
-    RowScroller.mouseUp = function() {
-        gMouseStatus = null;
-        gResrow.el.removeClass('scrolling');
-        $('#moveCursor').remove();
-        reenableTextSelection();
-        var e = $.Event("mousedown");
-        e.which = 1;
-        e.pageX = (gResrow.el.offset().left - parseInt(gResrow.el.css('left')) + 0.5);
-        if (e.pageX + 3 >= gResrow.rowScrollerWidth + gResrow.scrollAreaOffset) {
-            e.pageX += 3;
-        } else if (e.pageX - 2 <= gResrow.scrollAreaOffset) {
-            e.pageX -= 2;
-        }
-        $rowScrollerArea.trigger(e);
-    };
-
-    function showRowScroller(tableId) {
-        $(".rowScroller").hide();
-        if (tableId != null) {
-            var $rowScroller = $('#rowScroller-' + tableId);
-            $rowScroller.show();
-        }
-    }
-
-    function positionScrollbar(row, tableId) {
-        var canScroll = true;
-        var $table = $('#xcTable-' + tableId);
-        var theadHeight = $table.find('thead').height();
-
-        function positionScrollToRow() {
-            if (!$table.find('.row' + (row - 1))[0]) {
-                return;
-            }
-            var $tableWrap = $('#xcTableWrap-' + tableId);
-            var $tbodyWrap = $('#xcTbodyWrap-' + tableId);
-
-            var tdTop = $table.find('.row' + (row - 1))[0].offsetTop;
-            var scrollPos = Math.max((tdTop - theadHeight), 1);
-            if (canScroll && scrollPos >
-                ($table.height() - $tableWrap.height()))
-            {
-                canScroll = false;
-            }
-            $rowScrollerArea.addClass('autoScroll');
-            $tbodyWrap.scrollTop(scrollPos);
-        }
-
-        positionScrollToRow();
-        if (!canScroll) {
-            // this means we can't scroll to page without moving scrollbar all the
-            // way to the bottom, which triggers another getpage and thus we must
-            // try to position the scrollbar to the proper row again
-            setTimeout(positionScrollToRow, 1);
-        }
-    }
-
-    function rowScrollerStartDrag(event, el) {
-        gMouseStatus = "rowScroller";
-        el.addClass('scrolling');
-        gResrow.el = el;
-        gResrow.mouseStart = event.pageX;
-        gResrow.scrollAreaOffset = el.parent().offset().left;
-        gResrow.rowScrollerWidth = el.parent().width();
-        var mouseOffset = gResrow.mouseStart - el.offset().left;
-        var cssLeft = parseInt(el.css('left'));
-        gResrow.totalOffset = mouseOffset + cssLeft;
-        gResrow.boundary = {
-            "lower": gResrow.scrollAreaOffset,
-            "upper": gResrow.scrollAreaOffset + gResrow.rowScrollerWidth
-        };
-
-        var cursorStyle =
-            '<style id="moveCursor" type="text/css">*' +
-                '{cursor:pointer !important}' +
-                '.tooltip{display: none !important;}' +
-            '</style>';
-
-        $(document.head).append(cursorStyle);
-        disableTextSelection();
-    }
-
-
-    return (RowScroller);
-}(jQuery, {}));

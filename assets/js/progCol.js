@@ -129,7 +129,7 @@ window.ColManager = (function($, ColManager) {
         if (gMinModeOn || noAnimate) {
             updateTableHeader(tableId);
             TableList.updateTableInfo(tableId);
-            $table.find('.rowGrab').width($table.width());
+            $tableWrap.find('.rowGrab').width($table.width());
         } else {
             // var $th = $tableWrap.find('.th.col' + newColid);
             $th.width(10);
