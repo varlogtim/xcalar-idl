@@ -29,7 +29,7 @@
             .size(@width: 22px, @height: 22px);
             .rounded(2px);
             box-shadow: 0px 1px 1px rgba(0,0,0,0.5);
-            .linear-gradient(top, #ACD7F1, #9FCADF);
+            .linear-gradient(top, @color-modal-close-light, @color-modal-close-dark);
 
             .icon {
                 display: inline-block;
@@ -38,7 +38,7 @@
             }
 
             &:hover {
-                .linear-gradient(top, #9FCADF, #ACD7F1);
+                .linear-gradient(top, @color-modal-close-dark, @color-modal-close-light);
             }
 
             &:active {
@@ -260,7 +260,7 @@
     }
 
     .jsonWrap {
-        .font(@size: 15px, @family: @font-code, @color: #FFA633);
+        .font(@size: 15px, @family: @font-code, @color: @color-json-default);
         .flex(1 1 0px);
         min-width: 160px !important;
         resize: none;
@@ -297,7 +297,7 @@
         }
         &.active {
             .optionsBar {
-                background-color: #C5E1F1;
+                background-color: @color-json-active-bar;
             }
             .checkMark {
                 .image("../../images/checkmark-white.png", 50%, 50%);
@@ -316,7 +316,7 @@
 
     .optionsBar {
         height: 29px;
-        background-color: #DEDEDE;
+        background-color: @color-json-options-bar;
         .noSelection;
 
         > div {
@@ -353,7 +353,7 @@
                 .size(100%, 100%);
             }
             &.btnDeselected {
-                background: #BCBCBC;
+                background: @color-json-button;
             }
 
             &.remove .icon {
@@ -421,7 +421,7 @@
     }
 
     .jKey {
-        color: #002D41;
+        color: @color-json-key;
         padding: 0px 1px;
         margin: 0px -1px;
         display: inline-block;
@@ -447,19 +447,19 @@
     }
 
     .jString {
-        color: #2B594F;
+        color: @color-json-string;
         white-space: pre-wrap;
     }
 
     .jNum, .jBool, .jNull , .jUndf {
-        color: #E74A5F;
+        color: @color-json-num;
     }
     .jNull, .jUndf {
         font-style: italic;
     }
 
     .jArray > .jString {
-        color: #9B8920;
+        color: @color-json-array;
         white-space: nowrap;
     }
 
@@ -491,8 +491,8 @@
     .partial > .jsonBlock {
         > .jKey + span, > .jKey ~ div > span {
             border-radius: 1px;
-            background-color: #F3DBDC;
-            box-shadow: 0px 0px 0px 1px #E56158;
+            background-color: @color-json-partial;
+            box-shadow: 0px 0px 0px 1px @color-json-partial-shadow;
         }
         > .emptyObj, .emptyArray {
             font-size: 12px;
@@ -501,8 +501,8 @@
     }
 
     .unmatched > .jsonBlock > .jKey {
-        background-color: #F3DBDC;
-        box-shadow: 0px 0px 0px 1px #E56158;
+        background-color: @color-json-partial;
+        box-shadow: 0px 0px 0px 1px @color-json-partial-shadow;
         border-radius: 1px;
     }
 
@@ -728,12 +728,12 @@
             float: right;
 
             .offOnBox {
-                border: 1px solid #a4a4a4;
+                border: 1px solid @color-join-onoff-border;
                 .position(relative);
                 .size(25px, 25px);
                 float: left;
                 cursor: pointer;
-                .linear-gradient(top, @color-white, #e2e2e2);
+                .linear-gradient(top, @color-white, @color-join-onoff-gradient);
 
                 .icon {
                     .size(100%, 100%);
@@ -919,7 +919,7 @@
 
                         &.placeholder {
                             .size(@height: 29px);
-                            border: 1px dashed #a4a4a4;
+                            border: 1px dashed @color-join-placeholder-border;
                             cursor: pointer;
                             opacity: 0.5;
 
@@ -1382,11 +1382,11 @@ html.microsoft {
             .grid-unit {
                 > div {
                     border: 1px solid transparent !important;
-                    color: #8b8b8b !important;
+                    color: @color-workbook-grid-default !important;
                 }
 
                 &:nth-child(even) > div {
-                    background-color: #f4f4f4 !important;
+                    background-color: @color-workbook-grid-even !important;
                 }
 
                 &:nth-child(odd) > div {
@@ -1419,7 +1419,7 @@ html.microsoft {
                 .flex-order(1);
                 height: 42px;
                 background: @color-background-darkGray;
-                border: 1px solid #B2B2B2;
+                border: 1px solid @color-workbook-title-border;
                 border-left-color: transparent;
                 overflow: hidden;
 
@@ -1430,7 +1430,7 @@ html.microsoft {
                 .title {
                     .gray-gradient;
                     .rounded;
-                    color: #5e5e5e;
+                    color: @color-workbook-title-font;
                     display: inline-block;
                     width: ~"calc(20% - 5px)";
                     float: left;
@@ -1466,7 +1466,7 @@ html.microsoft {
             .listSection {
                 .flex-order(1);
                 .rounded(0 0 3px 0);
-                background: #fdfdfd;
+                background: @color-workbook-listSection;
                 overflow: auto;
                 box-shadow: inset 0px 0px 1px rgba(0, 0, 0, 0.5);
                 height: ~"calc(100% - 42px)";
@@ -1475,7 +1475,7 @@ html.microsoft {
                     white-space: nowrap;
                     padding: 0 11px;
                     > div {
-                        color: #808080;
+                        color: @color-workbook-list-grid;
                         padding-right: 5px;
                         border: 1px solid transparent;
                         .font(@line-height: 28px);
@@ -1487,7 +1487,7 @@ html.microsoft {
                     }
 
                     &:nth-child(even) > div {
-                        background-color: #f4f4f4;
+                        background-color: @color-workbook-grid-even;
                     }
                     
                     &:nth-child(odd) > div {
@@ -1605,7 +1605,7 @@ html.microsoft {
                 .rounded(3px 0 0 0);
                 text-align: center;
                 cursor: default;
-                border-right: 1px solid #b2b2b2;
+                border-right: 1px solid @color-modal-title-border;
 
                 h2 {
                     .font(@size: 14px, @line-height: 42px, @color: @color-text-columnList);
@@ -1671,19 +1671,17 @@ html.microsoft {
                         .flex-flow(row);
 
                         &:hover {
-                            background: #C5E1F1;
-                            background: #E2EEF6;
+                            background: @color-dataflow-list-hover;
                         }
                         &.selected {
-                            background: #4CA1D0;
-                            background: #C5E1F1;
+                            background: @color-dataflow-list-selected;
 
                             .checkmark {
                                 .image("../../images/checkmark-white.png", 40%, 50%);
                             }
 
                             .iconWrap {
-                                .linear-gradient(top, #60B3E6, #3C8DB2);
+                                .linear-gradient(top, @color-dataflow-icon-top, @color-dataflow-icon-bottom);
                             }
                         }
 
@@ -1735,7 +1733,7 @@ html.microsoft {
                             cursor: default;
 
                             &.active {
-                                background: #4CA1D0;
+                                background: @color-dataflow-list-active;
                                 color: @color-white;
                             }
                         }
@@ -1903,7 +1901,7 @@ html.microsoft {
             .previewSection {
                 pointer-events: auto;
                 .titleSection {
-                    border-left-color: #B2B2B2 !important;
+                    border-left-color: @color-modal-title-border !important;
                 }
             }
         }
@@ -2162,7 +2160,7 @@ html.microsoft {
             margin: 0 auto;
             background: @color-background-darkGray;
             .rounded(3px 3px 0px 0px);
-            border: 1px solid #b2b2b2;
+            border: 1px solid @color-modal-title-border;
             box-shadow: 0px 1px 1px rgba(0,0,0,0.3);
 
             .title {
@@ -2174,7 +2172,7 @@ html.microsoft {
                 padding-left: 15px;
                 .gray-gradient;
                 .rounded;
-                color: #5e5e5e;
+                color: @color-filebrowser-title;
                 cursor: default;
                
 
@@ -2256,7 +2254,7 @@ html.microsoft {
         
         &.listView {
             .mainSection {
-                background: #f9f9f9;
+                background: @color-filebrowser-mainSection;
                 .rounded(0);
                 .size(@height: ~"calc(100% - 40px)");
                 box-shadow: inset 0px 0px 1px rgba(0, 0, 0, 0.5);
@@ -2272,7 +2270,7 @@ html.microsoft {
                 > div {
                     float: left;
                     .size(@height: 30px);
-                    .font(@weight: bold, @size: 12px, @line-height: 30px, @color: #8b8b8b);
+                    .font(@weight: bold, @size: 12px, @line-height: 30px, @color: @color-workbook-grid-default);
                     border: 1px solid transparent;
                     overflow: hidden;
                 }
@@ -2305,7 +2303,7 @@ html.microsoft {
                     }
                 }
                 &:nth-child(even) > div {
-                    background-color: #f4f4f4;
+                    background-color: @color-workbook-grid-even;
                 }
 
                 &:nth-child(odd) > div {
@@ -2440,20 +2438,20 @@ html.microsoft {
             .barArea {
                 &.highlight {
                     .bar-extra {
-                        fill: #f1f1f1;
+                        fill: @color-profile-bar-extra-highlight;
                     }
 
                     .bar {
-                        fill: #b7e2f3;
+                        fill: @color-profile-bar-highlight;
                     }
 
                     .bar-border {
-                        stroke: #25b0de;
+                        stroke: @color-profile-bar-border-highlight;
                         stroke-width: 2;
                     }
 
                     .tick:not(.last) {
-                        fill: #32b4df;
+                        fill: @color-profile-tick-highlight;
                         font-weight: bold;
                     }
                 }
@@ -2465,20 +2463,20 @@ html.microsoft {
                     }
 
                     .bar {
-                        fill: #3a9ac2;
+                        fill: @color-profile-bar-hover;
 
                         &.bar-nullVal {
-                            fill: #CA443B;
+                            fill: @color-profile-bar-null-hover;
                         }
                     }
                 }
             }
 
             .bar {
-                fill: #44b5e4;
+                fill: @color-profile-bar;
 
                 &.bar-nullVal {
-                    fill: #e04c42;
+                    fill: @color-profile-bar-null;
                 }
             }
 
@@ -2639,7 +2637,7 @@ html.microsoft {
                     .size(@width: 100%, @height: 11px);
                     .vertical-align;
                     background-color: @color-bar-border;
-                    box-shadow: inset 0px 1px #1A1C1D, 0px 1px #d5d5d5;
+                    box-shadow: inset 0px 1px @color-profile-scroller-in-shadow, 0px 1px @color-profile-scroller-out-shadow;
                 }
 
                 .scroller {
@@ -2687,7 +2685,7 @@ html.microsoft {
 
                 .text {
                     margin-left: 2px;
-                    .font(@weight: 900, @color: #489ac3);
+                    .font(@weight: 900, @color: @color-profile-agg-text);
                     display: inline-block;
                     width: ~"calc(100% - 50px)";
                     .textOverflow;
@@ -2771,7 +2769,7 @@ html.microsoft {
                         .position(relative, @left: 0);
                         .size(@width: 30px, @height: 100%);
                         .rounded(20px);
-                        background: #f9f9f9;
+                        background: @color-profile-range-slider;
                         .transition(all 0.2s);
                     }
 
@@ -2786,7 +2784,7 @@ html.microsoft {
 
                 input {
                     margin-left: 10px;
-                    background-color: #fcfcfc;
+                    background-color: @color-profile-input-background;
 
                     &.disabled {
                         pointer-events: none;
@@ -3164,7 +3162,7 @@ html.microsoft {
                     .dropDownList {
                         pointer-events: none;
                         .iconWrapper {
-                            background: #c5c5c5;
+                            background: @color-multicast-icon;
                         }
                     }
                 }
@@ -3420,7 +3418,7 @@ html.microsoft {
                 .line, .space {
                     vertical-align: top;
                     &.hover {
-                        box-shadow: -1px 0px #4CB1C7;
+                        box-shadow: -1px 0px @color-dfg-paramLine;
                     }
                 }
             }

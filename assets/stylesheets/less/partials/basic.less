@@ -116,7 +116,7 @@ body {
     border-top: 1px solid @color-bar-border;
     border-bottom: 1px solid @color-bar-border;
     .darkGray-gradient;
-    box-shadow: 0px 3px 3px 0px rgba(0,0,0, .4);
+    box-shadow: 0px 3px 3px 0px @color-bar-shadow;
     display: block;
 }
 
@@ -1401,7 +1401,7 @@ ul.menu.leftColMenu::before {
 
 ul.leftColMenu {
     .position(@right: 0);
-    box-shadow: -1px 1px rgba(0,0,0,0.1);
+    box-shadow: -1px 1px @color-menu-shadow;
 
     .dropdownBox {
         display: none !important;
@@ -1411,7 +1411,7 @@ ul.leftColMenu {
 ul.subMenu.leftColMenu {
     .position(@left: -170px);
     margin-top: 0px;
-    box-shadow: -1px 1px rgba(0,0,0,0.1);
+    box-shadow: -1px 1px @color-menu-shadow;
 }
 
 
@@ -1474,7 +1474,7 @@ ul.inputMenu {
     .position(relative, @top: 30%);
     float: left;
     margin-left: 10px;
-    box-shadow: -2px 2px 0px 0px rgba(0, 0, 0, 0.4);
+    box-shadow: -2px 2px 0px 0px @color-shadow-strong;
     .rounded;
 
     .icon {
@@ -1498,7 +1498,7 @@ ul.inputMenu {
         border: 1px solid @color-tab-border;
         .rounded;
         display: inline-block;
-        background-color: rgba(0,0,0, .15);
+        background-color: @color-tab-shadow;
         .font(@size: 14px, @family: @font-base, @color: @color-text-tab);
         float: left;
         cursor: default;
@@ -1507,7 +1507,7 @@ ul.inputMenu {
         .transition(~"background-color 0.1s, color 0.1s, border-color 0.1s");
 
         &:hover, &.hover {
-            background-color: rgba(255,255,255,.15);
+            background-color: @color-tab-hover;
             color: @color-white;
             border: 1px solid @color-table-borderGray;
             .icon {
@@ -1638,7 +1638,7 @@ ul.inputMenu {
 #worksheetBar {
     .size(@height: 35px);
     border-top: 2px solid @color-bar-border;
-    box-shadow: 0px 1px 1px 0px rgba(0,0,0, .5);
+    box-shadow: 0px 1px 1px 0px @color-bar-shadowDark;
     overflow: hidden;
     .lightGray-gradient;
 
@@ -1931,7 +1931,7 @@ ul.inputMenu {
 
                 &:focus {
                     border: 1px solid @color-malibu;
-                    box-shadow: inset 0 1px 2px 1px rgba(0, 0, 0, 0.2);
+                    box-shadow: inset 0 1px 2px 1px @color-shadow-medium;
                     text-overflow: clip;
                     width: ~"calc(100% - 6px)" !important;
                 }
@@ -1966,7 +1966,7 @@ ul.inputMenu {
             }
 
             &:active {
-                 box-shadow: inset 0px 1px 1px 0px rgba(0, 0, 0, 0.5);
+                 box-shadow: inset 0px 1px 1px 0px @color-shadow-stronger;
             }
 
             &.active {
@@ -2361,7 +2361,7 @@ ul.inputMenu {
     .checkMark {
         .size(60px, 60px);
         border-radius: 100%;
-        .image("../../images/tick-xlarge.png", 50%, 50%, no-repeat, #3B8DB2);
+        .image("../../images/tick-xlarge.png", 50%, 50%, no-repeat, @color-successMsg-Blue);
         display: inline-block;
         left: 135px;
         position: absolute;
@@ -2386,17 +2386,17 @@ ul.inputMenu {
         }
     }
     .textBox {
-        box-shadow: 0px 1px 5px 0px rgba(0,0,0,0.4);
+        box-shadow: 0px 1px 5px 0px @color-textBox-shadow;
         height: 100%;
         width: 100%;
-        color: #6D6D6D;
-        background-color: rgba(255,255,255,0.85);
+        color: @color-successMsg-Gray;
+        background-color: @color-textBox-whitish;
         .rounded(5px);
         padding-top: 74px;
     }
     .largeText {
         font-size: 30px;
-        color: #3B8DB2;
+        color: @color-successMsg-Blue;
         display: block;
         margin-bottom: 7px;
     }
@@ -2758,17 +2758,17 @@ input[type=number]::-webkit-outer-spin-button {
 }
 
 .tooltip.bottom .tooltip-arrow {
-    border-bottom-color: rgba(54, 68, 77, 0.95);
+    border-bottom-color: @color-tooltip-border;
 }
 .tooltip.top .tooltip-arrow {
-    border-top-color: rgba(54, 68, 77, 0.95);
+    border-top-color: @color-tooltip-border;
 }
 
 .tooltip.left .tooltip-arrow {
-    border-left-color: rgba(54, 68, 77, 0.95);
+    border-left-color: @color-tooltip-border;
 }
 .tooltip.right .tooltip-arrow {
-    border-right-color: rgba(54, 68, 77, 0.95);
+    border-right-color: @color-tooltip-border;
 }
 
 .tooltip.error {

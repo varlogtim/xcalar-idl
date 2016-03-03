@@ -8,9 +8,9 @@
 
 input {
     &.error {
-        background-color: #FFEEEE !important;
+        background-color: @color-input-error !important;
         &:focus {
-            outline: 1px solid #FFD6D6 !important;
+            outline: 1px solid @color-input-error-border !important;
         }
     }
 }
@@ -648,11 +648,11 @@ input {
         }
 
         &.highlight {
-            background: rgba(91, 178, 233, 0.5);
+            background: @color-table-preview-highlight;
         }
 
         &::selection, &::-moz-selection {
-            color: rgba(91, 178, 233, 0.5);
+            color: @color-table-preview-highlight;
         }
     }
 
@@ -719,7 +719,7 @@ input {
         pointer-events: all;
 
         .header {
-            background: #5bb2e9;
+            background: @color-table-promote;
             cursor: pointer;
 
             .icon {
@@ -730,7 +730,7 @@ input {
     }
 
     .promote {
-        background: #5bb2e9;
+        background: @color-table-promote;
         cursor: pointer;
 
         .promoteWrap {
@@ -740,7 +740,7 @@ input {
 
         .divider {
             .size(@width: 9999px, @height: 2px);
-            background-color: #5bb2e9;
+            background-color: @color-table-promote;
         }
 
         .iconWrapper {
@@ -1365,7 +1365,7 @@ input {
     .gridItems {
         overflow: visible !important;
         .divider {
-            border-top: 1px solid #ADADAD;
+            border-top: 1px solid @color-export-divider;
             border-bottom: 1px solid @color-white;
             margin: -5px 35px 7px 4px;
             height: 0px;
@@ -1373,7 +1373,7 @@ input {
         .title {
             margin-left: 9px;
             height: 15px;
-            color: #585858;
+            color: @color-export-title;
             font-weight: bold;
         }
         &.gridView {
@@ -1739,7 +1739,7 @@ table.datasetTable {
             .iconWrapper {
                 .position(absolute, @top: 5px, @right: 5px);
                 .size(20px, 20px);
-                background-color: #B7B7B7;
+                background-color: @color-icon-gray-flat;
                 box-shadow: -1px 1px 0px 1px rgba(0, 0, 0, 0.2);
                 .rounded;
                 cursor: pointer;
