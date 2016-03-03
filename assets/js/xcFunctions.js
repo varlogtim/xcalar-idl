@@ -235,12 +235,13 @@ window.xcFunction = (function($, xcFunction) {
                                                 [tableName], worksheet);
             })
             .then(function() {
+                xcHelper.unlockTable(tableId, true);
                 StatusMessage.success(msgId, false, newTableId);
                 if ($('.xcTable th.selectedCell').length === 0) {
                     $('#xcTable-' + newTableId).find('th.col' + colNum +
                                                ' .flexContainer').mousedown();
                 }
-                xcHelper.unlockTable(tableId, true);
+                
                 KVStore.commit();
                 deferred.resolve();
             })

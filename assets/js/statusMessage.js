@@ -393,17 +393,24 @@ window.StatusMessage = (function($, StatusMessage) {
                 if ($popup.data('tableid')) {
                     var tableId = $popup.data('tableid');
                     var wsId = WSManager.getWSFromTable(tableId);
+                    var $tableWrap = $('#xcTableWrap-' + tableId);
 
                     $('#workspaceTab').click();
-                    $('#worksheetTab-' + wsId).click();
 
                     if ($dagPanel.hasClass('full')) {
                         $('#dagPulloutTab').click();
                     }
-                    var $tableWrap = $('#xcTableWrap-' + tableId);
-                    var animate = true;
-                    xcHelper.centerFocusedTable($tableWrap, animate);
-                    $tableWrap.mousedown();
+
+                    if (wsId) {
+                        $('#worksheetTab-' + wsId).click();
+                    }
+                    
+                    if ($tableWrap.length) {
+                        var animate = true;
+                        xcHelper.centerFocusedTable($tableWrap, animate);
+                        $tableWrap.mousedown();
+                    }
+                    
                 } else if (options.newDataSet) {
                     $('#dataStoresTab').click();
                     $('#inButton').click();
@@ -477,6 +484,15 @@ window.StatusMessage = (function($, StatusMessage) {
             }
 
             setTimeout(function() {
+                if (!$('#xcTableWrap-' + newTableId).length) {
+                    if ($tableDonePopup.siblings().length === 0) {
+                        $tableDonePopup.parent().remove();
+                    } else {
+                        $tableDonePopup.remove();
+                    }
+                    return;
+                }
+                
                 $tableDonePopup.fadeIn(200, function() {
                     var displayTime = notificationTime;
                     if (failed) {
