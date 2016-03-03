@@ -1796,12 +1796,14 @@ window.ColManager = (function($, ColManager) {
                       {}, false)
             .then(function() {
                 var newCols = xcHelper.deepCopy(gTables[tableId].tableCols);
-                newCols.unshift(ColManager.newPullCol("Date_UTS"));
+                var idx = getColNum("Date", tableId);
+                newCols.splice(idx+1, 0, ColManager.newPullCol("Date_UTS"));
 
                 return (TblManager.refreshTable([newTableName], newCols,
                                                 [srcTable], worksheet));
             })
             .then(function() {
+                xcHelper.unlockTable(tableId);
                 srcTable = newTableName;
                 newTableName = tableNameRoot + Authentication.getHashId();
                 newColName = "Date_UTS_integer";
@@ -1812,7 +1814,9 @@ window.ColManager = (function($, ColManager) {
             .then(function() {
                 tableId = xcHelper.getTableId(srcTable);
                 var newCols = xcHelper.deepCopy(gTables[tableId].tableCols);
-                newCols.unshift(ColManager.newPullCol("Date_UTS_integer"));
+                var idx = getColNum("Date_UTS", tableId);
+                newCols.splice(idx+1, 0,
+                               ColManager.newPullCol("Date_UTS_integer"));
 
                 return (TblManager.refreshTable([newTableName], newCols,
                                                 [srcTable], worksheet));
@@ -1835,8 +1839,10 @@ window.ColManager = (function($, ColManager) {
                             tableId = xcHelper.getTableId(srcTable);
                             var newCols = xcHelper.deepCopy(gTables[tableId].
                                                             tableCols);
-                            newCols.unshift(ColManager.newPullCol("Final Touch")
-                                           );
+                            var idx = getColNum("Max_Date", tableId);
+                            newCols.splice(idx+1, 0, 
+                                          (ColManager.newPullCol("Final Touch",
+                                                                 "string")));
                             return (TblManager.refreshTable([newTableName],
                                                             newCols,
                                                             [srcTable],
@@ -1855,7 +1861,9 @@ window.ColManager = (function($, ColManager) {
             XcalarMap("Final PT", mapStr, tableName, newTableName, {}, false)
             .then(function() {
                 var newCols = xcHelper.deepCopy(gTables[tableId].tableCols);
-                newCols.unshift(ColManager.newPullCol("Final PT", "string"));
+                var idx = getColNum("Line Item Product Type", tableId);
+                newCols.splice(idx+1, 0,
+                               ColManager.newPullCol("Final PT", "string"));
                 xcHelper.unlockTable(tableId); 
                 return (TblManager.refreshTable([newTableName], newCols,
                                                 [tableName], worksheet));
@@ -1880,12 +1888,16 @@ window.ColManager = (function($, ColManager) {
                       {}, false)
             .then(function() {
                 var newCols = xcHelper.deepCopy(gTables[tableId].tableCols);
-                newCols.unshift(ColManager.newPullCol("Forecasted_float",
-                                                      "float"));
+                var idx = getColNum("Forecasted Detail Actual Dollar Amount",
+                                    tableId);
+                newCols.splice(idx+1, 0,
+                               ColManager.newPullCol("Forecasted_float",
+                                                     "float"));
                 return (TblManager.refreshTable([newTableName], newCols,
                                                 [tableName], worksheet));
             })
             .then(function() {
+                xcHelper.unlockTable(tableId);
                 tableId = xcHelper.getTableId(newTableName);
                 tableName = newTableName;
                 newTableName = tableNameRoot + Authentication.getHashId();
@@ -1945,13 +1957,80 @@ window.ColManager = (function($, ColManager) {
         }
 
         function genNoOfDays(colName, tableName) {
-           // Step 1: Create column Modified No Blank
-           // Step 2: Create column Last_Modified_Latest by doing ifelse on
-           // Final Date and ModifiedNoBlank 
-           // Step 3: Create No Days since col 
-           // Step 4: Change col to float
-           // Step 5: Map <= 60 
-           
+            // Step 1: Create column Modified No Blank
+            // Step 2: Create column Last_Modified_Latest by doing ifelse on
+            // Final Date and ModifiedNoBlank 
+            // Step 3: Create No Days since col 
+            // Step 4: Change col to float
+            // Step 5: Map <= 60 
+            var tableId = xcHelper.getTableId(tableName);
+            var table = gTables[tableId];
+            var newTableName = tableNameRoot + Authentication.getHashId();
+            var mapStr = "intel:ifElse(Last Modified, Created Date)";
+            var worksheet = WSManager.getWSFromTable(tableId);
+            xcHelper.lockTable(tableId);
+            XcalarMap("Last Modified_NoBlank", mapStr, tableName, newTableName,
+                      {}, false)
+            .then(function() {
+                var newCols = xcHelper.deepCopy(gTables[tableId].tableCols);
+                newCols.unshift(ColManager.newPullCol("Last Modified_NoBlank",
+                                                      "string"));
+                return (TblManager.refreshTable([newTableName], newCols,
+                                                [tableName], worksheet));
+            })
+            .then(function() {
+                xcHelper.unlockTable(tableId);
+                tableId = xcHelper.getTableId(newTableName);
+                tableName = newTableName;
+                newTableName = tableNameRoot + Authentication.getHashId();
+                mapStr = "intel:convertDateValueToUTS(Last Modified_NoBlank)";
+                return (XcalarMap("LastModified_UTS", mapStr, tableName,
+                                  newTableName, {}, false));
+            })
+            .then(function() {
+                var newCols = xcHelper.deepCopy(gTables[tableId].tableCols);
+                newCols.unshift(ColManager.newPullCol("LastModified_UTS",
+                                                      "string"));
+                return (TblManager.refreshTable([newTableName], newCols,
+                                                [tableName], worksheet));
+            })
+            .then(function() {
+                tableId = xcHelper.getTableId(newTableName);
+                tableName = newTableName;
+                newTableName = tableNameRoot + Authentication.getHashId();
+                mapStr = "default:convertFromUnixTS(LastModified_UTS,"+
+                                                    "\"%m/%d/%Y %H:%S\")";
+                return (XcalarMap("LastModified_readable", mapStr, tableName,
+                                  newTableName, {}, false));
+            })
+            .then(function() {
+                var newCols = xcHelper.deepCopy(gTables[tableId].tableCols);
+                newCols.unshift(ColManager.newPullCol("LastModified_readable",
+                                                      "string"));
+                return (TblManager.refreshTable([newTableName], newCols,
+                                               [tableName], worksheet));
+            })
+            .then(function() {
+                tableId = xcHelper.getTableId(newTableName);
+                tableName = newTableName;
+                newTableName = tableNameRoot + Authentication.getHashId();
+                mapStr = "intel:ifElse(Final Touch, LastModified_readable)";
+                return (XcalarMap("Last_Modified_Latest", mapStr, tableName,
+                                  newTableName, {}, false));
+            })
+            .then(function() {
+                var newCols = xcHelper.deepCopy(gTables[tableId].tableCols);
+                newCols.unshift(ColManager.newPullCol("Last_Modified_Latest",
+                                                      "string"));
+                return (TblManager.refreshTable([newTableName], newCols,
+                                                [tableName], worksheet));
+            })
+            .then(function() {
+                tableId = xcHelper.getTableId(newTableName);
+                ColManager.delCol([2, 3, 4], tableId);
+                $("#xcTable-"+tableId).find("th.col1 .flexContainer")
+                                      .mousedown() ;
+            });
         }
     };
 
