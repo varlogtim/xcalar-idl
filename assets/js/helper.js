@@ -1569,6 +1569,7 @@ window.xcHelper = (function($, xcHelper) {
     };
 
     // inserts text into an input field and adds commas
+    // detects where the current cursor is and if some text is already selected
     xcHelper.insertText = function($input, textToInsert, prefix) {
         var value  = $input.val();
         var valLen = value.length;
@@ -1695,6 +1696,7 @@ window.xcHelper = (function($, xcHelper) {
         }
     };
 
+    // animate: boolean indicating whether to animate the scrolling
     xcHelper.centerFocusedTable = function($tableWrap, animate, options) {
         options = options || {};
         var windowWidth = $(window).width();
@@ -1745,6 +1747,7 @@ window.xcHelper = (function($, xcHelper) {
         }
     };
 
+    // animate: boolean indicating whether to animate the scrolling
     xcHelper.centerFocusedColumn = function(tableId, colNum, animate) {
         var $tableWrap = $('#xcTableWrap-' + tableId);
         var windowWidth = $(window).width();

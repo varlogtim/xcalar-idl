@@ -15,6 +15,7 @@ window.TblManager = (function($, TblManager) {
                       will be locked throughout it's active life
             afterStartup: boolean, default is true. Set to false if tables are
                       being added during page load
+            selectCol: number. column to be highlighted when table is ready
 
     */
     TblManager.refreshTable = function(newTableNames, tableCols, oldTableNames,
@@ -28,6 +29,7 @@ window.TblManager = (function($, TblManager) {
         var focusWorkspace = options.focusWorkspace;
         var lockTable = options.lockTable;
         var afterStartup;
+        var selectCol = options.selectCol;
 
         if (options.afterStartup == null) {
             afterStartup = true;
@@ -107,7 +109,8 @@ window.TblManager = (function($, TblManager) {
 
                 addTableOptions = {
                     "afterStartup": afterStartup,
-                    "lockTable"   : lockTable
+                    "lockTable"   : lockTable,
+                    "selectCol"   : selectCol
                 };
                 addTable([newTableName], [targetTable], tablesToRemove,
                                     addTableOptions)
@@ -166,11 +169,12 @@ window.TblManager = (function($, TblManager) {
         
         Possible Options:
         afterStartup: boolean to indicate if the table is added after page load
+        selectCol: number. column to be highlighted when table is ready
     */
     TblManager.parallelConstruct = function (tableId, tablesToRemove, options) {
         options = options || {};
         var deferred  = jQuery.Deferred();
-        var deferred1 = startBuildTable(tableId, tablesToRemove);
+        var deferred1 = startBuildTable(tableId, tablesToRemove, options);
         var deferred2 = Dag.construct(tableId);
         var table = gTables[tableId];
         var addToTableList = options.afterStartup || false;
@@ -203,7 +207,6 @@ window.TblManager = (function($, TblManager) {
                 } else {
                     TableList.addTables([table], IsActive.Active);
                 }
-                
             }
             if ($('.xcTable:visible').length === 1) {
                 focusTable(tableId);
@@ -899,6 +902,7 @@ window.TblManager = (function($, TblManager) {
                       page load
         lockTable: boolean, if true then this is an intermediate table that will
                    be locked throughout it's active life
+        selectCol: number, column to be selected once new table is ready
 
     */
     
@@ -909,6 +913,7 @@ window.TblManager = (function($, TblManager) {
         options = options || {};
         var afterStartup = options.afterStartup || false;
         var lockTable = options.lockTable || false;
+        var selectCol = options.selectCol;
 
         if (oldTableNames[0] == null) {
             WSManager.replaceTable(tableId);
@@ -957,8 +962,12 @@ window.TblManager = (function($, TblManager) {
             TableList.addTables([table], IsActive.Active);
             return (promiseWrapper(null));
         } else {
+            var parallelOptions = {
+                afterStartup: afterStartup,
+                selectCol: selectCol
+            };
             return (TblManager.parallelConstruct(tableId, tablesToRemove,
-                                                 {afterStartup: afterStartup}));
+                                                 parallelOptions));
         }
     }
 
@@ -1001,8 +1010,12 @@ window.TblManager = (function($, TblManager) {
                                 .attr("data-id", newId);
     }
 
-    // start the process of building table
-    function startBuildTable(tableId, tablesToRemove) {
+    /*  
+        Start the process of building table
+        Possible Options:
+        selectCol: number. column to be highlighted when table is ready
+    */
+    function startBuildTable(tableId, tablesToRemove, options) {
         var deferred   = jQuery.Deferred();
         var table      = gTables[tableId];
         var tableName  = table.tableName;
@@ -1024,7 +1037,7 @@ window.TblManager = (function($, TblManager) {
                 }
             }
             table.currentRowNumber = jsonObj.normal.length;
-            buildInitialTable(progCols, tableId, jsonObj, keyName);
+            buildInitialTable(progCols, tableId, jsonObj, keyName, options);
 
             var $table = $('#xcTable-' + tableId);
             var requiredNumRows    = Math.min(gMaxEntriesPerPage,
@@ -1051,6 +1064,12 @@ window.TblManager = (function($, TblManager) {
                             var lastRowNum = parseInt(lastRow.attr('class')
                                                              .substr(3));
                             table.currentRowNumber = lastRowNum + 1;
+                            if (options.selectCol != null &&
+                                $('.xcTable th.selectedCell').length === 0) {
+                                    $table.find('th.col' + options.selectCol +
+                                                ' .flexContainer')
+                                          .mousedown();
+                            }
                         });
             }
         })
@@ -1068,7 +1087,11 @@ window.TblManager = (function($, TblManager) {
         return (deferred.promise());
     }
 
-    function buildInitialTable(progCols, tableId, jsonObj, keyName) {
+    /*
+        Possible Options:
+        selectCol: number. column to be highlighted when table is ready
+    */
+    function buildInitialTable(progCols, tableId, jsonObj, keyName, options) {
         var table = gTables[tableId];
         table.tableCols = progCols;
         table.keyName = keyName;
@@ -1102,6 +1125,14 @@ window.TblManager = (function($, TblManager) {
             focusTable(tableId, true);
         }
 
+        // highlights new cell if no other cell is selected
+        if (options.selectCol != null) {
+            if ($('.xcTable th.selectedCell').length === 0) {
+                $table.find('th.col' + (options.selectCol + 1) +
+                            ' .flexContainer').mousedown();
+            }
+        }
+        
         if (numRows === 0) {
             $table.find('.idSpan').text("");
         }
@@ -1567,7 +1598,7 @@ window.TblManager = (function($, TblManager) {
     }
 
     // creates thead and cells but not the body of the table
-    function generateTableShell(columns, tableId) {
+    function generateTableShell(columns, tableId, options) {
         var table = gTables[tableId];
         var activeWS = WSManager.getActiveWS();
         var tableWS = WSManager.getWSFromTable(tableId);

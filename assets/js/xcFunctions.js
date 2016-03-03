@@ -41,14 +41,13 @@ window.xcFunction = (function($, xcFunction) {
 
         XcalarFilter(fltStr, tableName, newTableName, sqlOptions)
         .then(function() {
+            var options = {
+                selectCol: colNum
+            };
             return TblManager.refreshTable([newTableName], tablCols,
-                                            [tableName], worksheet);
+                                            [tableName], worksheet, options);
         })
         .then(function() {
-            if ($('.xcTable th.selectedCell').length === 0) {
-                $('#xcTable-' + newTableId).find('th.col' + (colNum + 1) +
-                                           ' .flexContainer').mousedown();
-            }
             xcHelper.unlockTable(tableId, true);
             StatusMessage.success(msgId, false, newTableId);
             KVStore.commit();
@@ -230,17 +229,17 @@ window.xcFunction = (function($, xcFunction) {
             XcalarIndexFromTable(tableName, backFieldName, newTableName,
                                  xcOrder, sqlOptions)
             .then(function() {
+                var options = {
+                    selectCol: colNum - 1
+                };
                 // sort will filter out KNF, so it change the profile
                 return TblManager.refreshTable([newTableName], tablCols,
-                                                [tableName], worksheet);
+                                                [tableName], worksheet, 
+                                                options);
             })
             .then(function() {
                 xcHelper.unlockTable(tableId, true);
                 StatusMessage.success(msgId, false, newTableId);
-                if ($('.xcTable th.selectedCell').length === 0) {
-                    $('#xcTable-' + newTableId).find('th.col' + colNum +
-                                               ' .flexContainer').mousedown();
-                }
                 
                 KVStore.commit();
                 deferred.resolve();
@@ -526,16 +525,13 @@ window.xcFunction = (function($, xcFunction) {
 
             // map do not change groupby stats of the table
             Profile.copy(tableId, newTableId);
-
+            var options = {
+                selectCol: colNum - 1
+            };
             return TblManager.refreshTable([newTableName], tablCols,
-                                            [tableName], worksheet);
+                                            [tableName], worksheet, options);
         })
         .then(function() {
-            // highlights new cell if no other cell is selected
-            if ($('.xcTable th.selectedCell').length === 0) {
-                $('#xcTable-' + newTableId).find('th.col' + colNum +
-                                           ' .flexContainer').mousedown();
-            }
             xcHelper.unlockTable(tableId, true);
             StatusMessage.success(msgId, false, newTableId);
             KVStore.commit();
