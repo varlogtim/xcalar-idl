@@ -79,11 +79,10 @@ window.DataFlowModal = (function($, DataFlowModal) {
         } else {
             $radios.eq(1).parent().removeClass('unavailable');
         }
-        var existsText = "data flow already exists";
-        
+
         $existingFlow.closest('.dataFlowGroup').addClass('unavailable')
                                                .attr('data-original-title',
-                                                     existsText);
+                                                     DFGTStr.DFExists);
         $modalMain.find('.dataFlowGroup:not(.unavailable)')
                   .removeAttr('title data-original-title');
 
@@ -276,7 +275,7 @@ window.DataFlowModal = (function($, DataFlowModal) {
         if ($ths.length === 0) {
             var $tablePadding = $dfExport.find(".tablePadding");
             $tablePadding.tooltip({
-                "title"    : "Please Selected Columns you want to export",
+                "title"    : TooltipTStr.ChooeseColToExport,
                 "placement": "top",
                 "animation": "true",
                 "container": "#dataFlowModal",
@@ -394,7 +393,7 @@ window.DataFlowModal = (function($, DataFlowModal) {
             var list = groups[group].dataFlows;
             var listLen = list.length;
             html += '<div class="dataFlowGroup" data-toggle="tooltip" ' +
-                     'data-container="body" title="data flow already exists">' +
+                     'data-container="body" title="' + DFGTStr.DFExists + '">' +
                       '<div class="listBox">' +
                         '<div class="iconWrap">' +
                           '<span class="icon"></span>' +

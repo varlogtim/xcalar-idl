@@ -1036,10 +1036,15 @@ window.Dag = (function($, Dag) {
         }
       
         var html = '<div id="dagSchema">' +
-                   '<div class="title"><span class="tableName">' + tableName +
-                   '</span><span class="numCols" title="number of columns">[' +
-                   (numCols - 1) + ']</span></div>' +
-                   '<span class="background"></span>' +
+                    '<div class="title">' +
+                        '<span class="tableName">' +
+                            tableName +
+                        '</span>' +
+                        '<span class="numCols" title="' + CommonTxtTstr.NumCol + '">' +
+                            '[' + (numCols - 1) + ']' +
+                        '</span>' +
+                    '</div>' +
+                    '<span class="background"></span>' +
                     '<div class="heading">' +
                         '<div class="type">type</div>' +
                         '<div class="field">field</div>' +

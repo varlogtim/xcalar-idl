@@ -276,7 +276,7 @@ function dataPreviewModuleTest() {
             expect($actions.eq(0).hasClass("apply-highlight")).to.be.true;
             expect($actions.eq(0).text()).equal('Apply hightlighted characters as delimiter');
             expect($actions.eq(1).hasClass("rm-highlight")).to.be.true;
-            expect($actions.eq(1).text()).equal('Remove Highlights');
+            expect($actions.eq(1).text()).equal('Remove highlights');
         });
 
         it("Should suggest in error url", function() {

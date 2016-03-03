@@ -290,9 +290,7 @@ window.WorkbookModal = (function($, WorkbookModal) {
 
         if (isForceMode) {
             // forceMode has no any workbook info
-            html = 'Hello <b>' + user + '</b>, ' +
-                    ' you have no workbook yet, you can create new workbook, ' +
-                    'continue a workbook or copy a workbook';
+            html = xcHelper.replaceMsg(WKBKTStr.NewWKBKInstr, {"user": user});
             $instr.html(html);
             return;
         }
@@ -301,10 +299,12 @@ window.WorkbookModal = (function($, WorkbookModal) {
         var activeWKBKId = WKBKManager.getActiveWKBK();
         var workbook = workbooks[activeWKBKId];
 
-        html = 'Hello <b>' + user + '</b>, ' +
-                'current workbook is <b>' + workbook.name + '</b>';
-        updateWorksheetBar(workbook);
+        html = xcHelper.replaceMsg(WKBKTStr.CurWKBKInstr, {
+            "user"    : user,
+            "workbook": workbook.name
+        });
 
+        updateWorksheetBar(workbook);
         $instr.html(html);
     }
 
@@ -334,21 +334,24 @@ window.WorkbookModal = (function($, WorkbookModal) {
                 $inputSection.removeClass("unavailable");
                 $workbookInput.removeAttr("disabled"); // for tab key switch
                 $mainSection.addClass("unavailable");
-                $workbookModal.find(".modalBottom .confirm").text("CREATE");
+                $workbookModal.find(".modalBottom .confirm")
+                            .text(CommonTxtTstr.Create.toUpperCase());
                 break;
             // continue workbook
             case 1:
                 $inputSection.addClass("unavailable");
                 $workbookInput.attr("disabled", "disabled");
                 $mainSection.removeClass("unavailable");
-                $workbookModal.find(".modalBottom .confirm").text("CONTINUE");
+                $workbookModal.find(".modalBottom .confirm")
+                            .text(CommonTxtTstr.Continue.toUpperCase());
                 break;
             // copy workbook
             case 2:
                 $inputSection.removeClass("unavailable");
                 $workbookInput.removeAttr("disabled");
                 $mainSection.removeClass("unavailable");
-                $workbookModal.find(".modalBottom .confirm").text("COPY");
+                $workbookModal.find(".modalBottom .confirm")
+                            .text(CommonTxtTstr.Copy.toUpperCase());
                 break;
             default:
                 break;
@@ -549,7 +552,7 @@ window.WKBKManager = (function($, WKBKManager) {
                 }
                 $('#initialLoadScreen').remove();
                 WorkbookModal.forceShow();
-                var text = StatusMessageTStr.Viewing + " " + "Workbook Browser";
+                var text = StatusMessageTStr.Viewing + " " + WKBKTStr.Location;
                 StatusMessage.updateLocation(true, text);
             } else {
                 var wkbkName = wkbkSet.get(wkbkId).name;

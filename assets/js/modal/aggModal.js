@@ -135,14 +135,14 @@ window.AggModal = (function($, AggModal) {
             // when it's quick aggregation
             $quickAgg.show();
             $corr.hide();
-            $header.text(AggModalStr.QuickAggTitle);
-            $aggInstr.text(AggModalStr.QuickAggInstr);
+            $header.text(AggModalTStr.QuickAggTitle);
+            $aggInstr.text(AggModalTStr.QuickAggInstr);
         } else if (mode === "corr") {
             // when it's correlation
             $quickAgg.hide();
             $corr.show();
-            $header.text(AggModalStr.CorrTitle);
-            $aggInstr.text(AggModalStr.CorrInstr);
+            $header.text(AggModalTStr.CorrTitle);
+            $aggInstr.text(AggModalTStr.CorrInstr);
         } else {
             // error case
             throw "Invalid mode in quick agg!";
@@ -212,7 +212,7 @@ window.AggModal = (function($, AggModal) {
                 if (progCol.isNumberCol()) {
                     // XXX now agg on child of array is not supported
                     if (isChildOfArray) {
-                        wholeTable += "Not Supported";
+                        wholeTable += AggModalTStr.NoSupport;
                     } else {
                         wholeTable += '<div class="spinny"></div>';
                     }
@@ -261,7 +261,7 @@ window.AggModal = (function($, AggModal) {
                 } else if (progCol.isNumberCol() && vertCol.isNumberCol()) {
                     // XXX now agg on child of array is not supported
                     if (isChildOfArray || aggRow.isChildOfArray) {
-                        wholeTable += normalCell + 'Not Supported';
+                        wholeTable += normalCell + AggModalTStr.NoSupport;
                     } else {
                         wholeTable += normalCell +
                                         '<div class="spinner">' +
@@ -575,7 +575,7 @@ window.AggModal = (function($, AggModal) {
             console.error("Correlation Error", error);
 
             if (error.status === StatusT.StatusXdfDivByZero) {
-                error.error += "(Only one distinct value)";
+                error.error += "(" + AggModalTStr.DivByZeroExplain + ")";
             }
 
             applyCorrResult(row, col, "--", colDups, error.error);

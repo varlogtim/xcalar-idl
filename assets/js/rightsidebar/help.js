@@ -136,7 +136,7 @@ window.Help = (function($, Help) {
                     $('#container:not(.demoContainer)').hide();
                     Intro.start();
                 } else {
-                    Alert.error("Error", "Walkthrough Unavailable");
+                    Alert.error(AlertTStr.Error, SideBarTStr.WalkThroughUA);
                 }
             }
         );

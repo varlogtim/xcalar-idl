@@ -56,12 +56,12 @@ window.DataStore = (function($, DataStore) {
                 $exploreView.hide();
                 $contentHeaderRight.hide();
                 $exportView.show();
-                $contentHeaderMidText.text('EXPORT FORM');
+                $contentHeaderMidText.text(DSTStr.Export);
             } else {
                 $exploreView.show();
                 $contentHeaderRight.show();
                 $exportView.hide();
-                $contentHeaderMidText.text('DATASET');
+                $contentHeaderMidText.text(DSTStr.DS);
                 DataSampleTable.sizeTableWrapper();
             }
             $button.siblings().removeClass('active');

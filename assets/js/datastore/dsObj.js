@@ -51,7 +51,7 @@ window.DS = (function ($, DS) {
     // create a new folder
     DS.newFolder = function() {
         var ds = createDS({
-            "name"    : "New Folder",
+            "name"    : DSTStr.NewFolder,
             "isFolder": true
         });
 
@@ -228,14 +228,12 @@ window.DS = (function ($, DS) {
         .then(function(result) {
             if (!result) {
                 // if dataset cannot be parsed produce a load fail
-                var msg = {
-                    "error"    : 'Cannot parse dataset "' + dsName + '".',
-                    "dsCreated": true
-                };
-                return jQuery.Deferred().reject(msg);
+                return jQuery.Deferred().reject({
+                    "dsCreated": true,
+                    "error"    : DSTStr.NoParse
+                });
             } else {
-                $grid.removeClass("inactive")
-                    .find('.waitingIcon').remove();
+                $grid.removeClass("inactive").find('.waitingIcon').remove();
             }
 
             // display new dataset
@@ -261,12 +259,9 @@ window.DS = (function ($, DS) {
 
             if ($('#dsInfo-title').text() === dsName) {
                 // if loading page is showing, remove and go to import form
-                $("#importDataView").show();
-                $explorePanel.find(".contentViewMid").addClass('hidden');
-                $explorePanel.find(".gridItems").find(".active")
-                                               .removeClass("active");
-                $("#dataSetTableWrap").empty();
+                DatastoreForm.show({"noReset": true});
             }
+
             if (error.dsCreated) {
                 // if a dataset was loaded but cannot be parsed, destroy it
                 DS.release()
@@ -280,7 +275,7 @@ window.DS = (function ($, DS) {
                     return XcalarDestroyDataset(fullDSName, sqlOptions);
                 })
                 .fail(function(deferredError) {
-                    Alert.error("Delete Dataset Fails", deferredError);
+                    console.error("delete dataset failed", deferredError);
                 });
             }
 
@@ -327,6 +322,11 @@ window.DS = (function ($, DS) {
         } else {
             if (dsObj.rename(newName)) {
                 // valid rename
+                $label.val(newName)
+                    .data("dsname", newName)
+                    .attr("data-dsname", newName)
+                    .attr("title", newName);
+
                 SQL.add("Rename Folder", {
                     "operation": SQLOps.DSRename,
                     "dsId"     : dsId,
@@ -334,10 +334,6 @@ window.DS = (function ($, DS) {
                     "newName"  : newName
                 });
 
-                $label.val(newName)
-                        .data("dsname", newName)
-                        .attr("data-dsname", newName)
-                        .attr("title", newName);
                 KVStore.commit();
                 return true;
             } else {
@@ -374,8 +370,7 @@ window.DS = (function ($, DS) {
 
     // Remove dataset/folder
     DS.remove = function($grid) {
-        xcHelper.assert(($grid != null && $grid.length !== 0),
-                        "Invalid remove of ds");
+        xcHelper.assert(($grid != null && $grid.length !== 0), "Invalid remove of ds");
 
         var dsId = $grid.data("dsid");
         var dsObj = DS.getDSObj(dsId);
@@ -383,11 +378,12 @@ window.DS = (function ($, DS) {
         var msg;
 
         if (!dsObj.isEditable()) {
-            msg = dsObj.beFolder() ? "This Folder " : "This dataset";
-            msg += " is uneditable, cannot delete";
+            msg = xcHelper.replaceMsg(DSTStr.DelUneditable, {
+                "ds": (dsObj.beFolder() ? "folder" : "dataset")
+            });
             // add alert
             Alert.show({
-                "title"  : "CANNOTE DELETE",
+                "title"  : AlertTStr.NoDel,
                 "msg"    : msg,
                 "isAlert": true
             });
@@ -395,10 +391,10 @@ window.DS = (function ($, DS) {
             return;
         } else if ($grid.hasClass("ds")) {
             // when remove ds
-            msg = "Are you sure you want to delete dataset " + dsName + "?";
+            msg = xcHelper.replaceMsg(DSTStr.DelDSConfirm, {"ds": dsName});
             // add alert
             Alert.show({
-                "title"  : "DELETE DATASET",
+                "title"  : DSTStr.DelDS,
                 "msg"    : msg,
                 "confirm": function() { delDSHelper($grid, dsObj); }
             });
@@ -576,15 +572,11 @@ window.DS = (function ($, DS) {
         var dsObj = DS.getDSObj(dsId);
 
         if (dsObj.beFolderWithDS()) {
-            var instr = "Please remove all the datasets in the folder first.";
-            var msg = "Unable to delete non-empty folders. Please ensure\r\n" +
-                    " that all datasets have been removed from folders prior" +
-                    " to deletion.";
             // add alert
             Alert.show({
-                "title"  : "DELETE FOLDER",
-                "instr"  : instr,
-                "msg"    : msg,
+                "title"  : DSTStr.DelFolder,
+                "instr"  : DSTStr.DelFolderInstr,
+                "msg"    : DSTStr.DelFolderMsg,
                 "isAlert": true
             });
 
@@ -626,10 +618,9 @@ window.DS = (function ($, DS) {
         if (dsObj.isEditable()) {
             return true;
         } else {
-            var msg = "This folder is uneditable, cannot create new folder here";
             Alert.show({
-                "title"  : "CANNOT CREATE FOLDER",
-                "msg"    : msg,
+                "title"  : DSTStr.NoNewFolder,
+                "msg"    : DSTStr.NoNewFolderMsg,
                 "isAlert": true
             });
             return false;
@@ -892,13 +883,11 @@ window.DS = (function ($, DS) {
             // show list view
             $btn.removeClass("gridView").addClass("listView");
             $allGrids.removeClass("gridView").addClass("listView");
-            $btn.attr('data-original-title', 'Switch to Grid view');
-            // $allGrids.find('.label').removeAttr('data-toggle');
+            $btn.attr('data-original-title', DSTStr.ToGridView);
         } else {
             $btn.removeClass("listView").addClass("gridView");
             $allGrids.removeClass("listView").addClass("gridView");
-            $btn.attr('data-original-title', 'Switch to List view');
-            // $allGrids.find('.label').attr('data-toggle', 'tooltip');
+            $btn.attr('data-original-title', DSTStr.ToListView);
         }
 
         var $labels = $allGrids.find(".label:visible");

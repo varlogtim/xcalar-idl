@@ -205,7 +205,7 @@ window.DataPreview = (function($, DataPreview) {
 
                 if (!result) {
                     cannotParseHandler();
-                    deferred.reject({"error": "Cannot parse the dataset."});
+                    deferred.reject({"error": DSTStr.NoParse});
                     return (promiseWrapper(null));
                 }
 
@@ -245,7 +245,7 @@ window.DataPreview = (function($, DataPreview) {
                 } catch(err) {
                     console.error(err, value);
                     cannotParseHandler();
-                    deferred.reject({"error": "Cannot parse the dataset."});
+                    deferred.reject({"error": DSTStr.NoParse});
                 }
 
                 $(window).on("resize", resizePreivewTable);
@@ -265,8 +265,7 @@ window.DataPreview = (function($, DataPreview) {
         return (deferred.promise());
 
         function cannotParseHandler() {
-            $errorSection.html("Cannot parse the dataset.")
-                                .removeClass("hidden");
+            $errorSection.html(DSTStr.NoParse).removeClass("hidden");
             errorSuggestHelper(loadURL);
             $("#preview-close").show();
         }
@@ -413,16 +412,16 @@ window.DataPreview = (function($, DataPreview) {
         {
             var msg;
             if (delimiter === "" && !hasHeader) {
-                msg = PreviewStr.NoDelimAndHeader;
+                msg = DSPreviewTStr.NoDelimAndHeader;
             } else if (delimiter === ""){
-                msg = PreviewStr.NoDelim;
+                msg = DSPreviewTStr.NoDelim;
             } else if (!hasHeader) {
-                msg = PreviewStr.NoHeader;
+                msg = DSPreviewTStr.NoHeader;
             }
-            msg += '\n' + ErrorTextTStr.ContinueVerification;
+            msg += '\n' + AlertTStr.ContinueConfirm;
 
             Alert.show({
-                "title"  : "LOAD DATASET CONFIRMATION",
+                "title"  : DSFormTStr.LoadConfirm,
                 "msg"    : msg,
                 "confirm": function () {
                     DataPreview.load();
@@ -552,12 +551,12 @@ window.DataPreview = (function($, DataPreview) {
         if (delimiter === "") {
             // this is the case trigger from remove delimiter
             $rmHightLightBtn.removeClass("active")
-                            .attr("title", "Remove highlights")
-                            .attr("data-original-title", "Remove highlights");
+                        .attr("title", DSPreviewTStr.RMHighlights)
+                        .attr("data-original-title", DSPreviewTStr.RMHighlights);
         } else {
             $rmHightLightBtn.addClass("active")
-                            .attr("title", "Remove Delimiter")
-                            .attr("data-original-title", "Remove Delimiter");
+                        .attr("title", DSPreviewTStr.RMDelim)
+                        .attr("data-original-title", DSPreviewTStr.RMDelim);
         }
         getPreviewTable();
     }
@@ -768,7 +767,7 @@ window.DataPreview = (function($, DataPreview) {
                 var $cells = $previewTable.find("tbody tr:first-child .td");
                 if ($cells.length === 1 && $cells.text() === "[") {
                     html = '<span class="action active jsonLoad">' +
-                                'Load as JSON dataset' +
+                                DSPreviewTStr.LoadJSON +
                             '</span>';
                     $content.html(html);
                     return;
@@ -778,11 +777,11 @@ window.DataPreview = (function($, DataPreview) {
                 var tabLen   = $previewTable.find(".has-tab").length;
                 var commaHtml =
                     '<span class="action active commaDelim">' +
-                        'Apply comma as delimiter' +
+                        DSPreviewTStr.CommaAsDelim +
                     '</span>';
                 var tabHtml =
                     '<span class="action active tabDelim">' +
-                        'Apply tab as delimiter' +
+                        DSPreviewTStr.TabAsDelim +
                     '</span>';
 
                 if (commaLen > 0 && tabLen > 0) {
@@ -804,7 +803,7 @@ window.DataPreview = (function($, DataPreview) {
                 var pipLen = $previewTable.find(".has-pipe").length;
                 if (pipLen >= rowsToFetch) {
                     var pipHtml = '<span class="action active pipeDelim">' +
-                                    'Apply pipe as delimiter' +
+                                    DSPreviewTStr.PipeAsDelim +
                                   '</span>';
 
                     if (pipLen > commaLen && pipLen > tabLen) {
@@ -818,23 +817,24 @@ window.DataPreview = (function($, DataPreview) {
                     // select char
                     html =
                         '<span class="action hint">' +
-                            'Highlight a character as delimiter' +
+                            DSPreviewTStr.HighlightDelimHint +
                         '</span>';
                 } else {
                     // select another char
                     html +=
                         '<span class="action hint">' +
-                            'or Highlight another character as delimiter' +
+                            DSPreviewTStr.Or + " " +
+                            DSPreviewTStr.HighlightAnyDelimHint +
                         '</span>';
                 }
             } else {
                 // case to remove or apply highlighter
                 html =
                     '<span class="action active apply-highlight">' +
-                        'Apply hightlighted characters as delimiter' +
+                        DSPreviewTStr.ApplyHighlights +
                     '</span>' +
                     '<span class="action active rm-highlight">' +
-                        'Remove Highlights' +
+                        DSPreviewTStr.RMHighlights +
                     '</span>';
             }
         } else {
@@ -844,26 +844,26 @@ window.DataPreview = (function($, DataPreview) {
                 if (!shouldPromote) {
                     html +=
                         '<span class="action active promote">' +
-                            'Undo promote header' +
+                            DSPreviewTStr.UnPromote +
                         '</span>';
                 }
             } else {
                 if (shouldPromote) {
                     html +=
                         '<span class="action active promote">' +
-                            'Promote first row as header' +
+                            DSPreviewTStr.Promote +
                         '</span>';
                 }
             }
 
             html +=
                 '<span class="action active apply-all">' +
-                    'Save & Exit' +
+                    DSPreviewTStr.Save +
                 '</span>';
 
             html +=
                 '<span class="action active rm-highlight">' +
-                    'Remove Delimiter' +
+                    DSPreviewTStr.RMDelim +
                 '</span>';
         }
 
@@ -876,18 +876,18 @@ window.DataPreview = (function($, DataPreview) {
 
         if (loadURL.endsWith("xlsx")) {
             html += '<span class="action active excelLoad hasHeader">' +
-                        'Load as EXCEL dataset and promote header' +
+                        DSPreviewTStr.LoadExcelWithHeader +
                     '</span>' +
                     '<span class="action active excelLoad">' +
-                        'Load as EXCEL dataset' +
+                        DSPreviewTStr.LoadExcel +
                     '</span>';
         } else if (loadURL.endsWith("json")) {
             html += '<span class="action active jsonLoad">' +
-                        'Load as JSON dataset' +
+                        DSPreviewTStr.LoadJSON +
                     '</span>';
         } else {
             html += '<span class="action hint">' +
-                        'Use UDF to parse the dataset' +
+                        DSPreviewTStr.LoadUDF +
                     '</span>';
         }
 

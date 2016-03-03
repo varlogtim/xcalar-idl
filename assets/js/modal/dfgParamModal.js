@@ -171,8 +171,7 @@ window.DFGParamModal = (function($, DFGParamModal){
         });
 
         if (draggableInputs === "") {
-            draggableInputs = "Please create parameters in Data Flow Group " +
-                              "Panel first.";
+            draggableInputs = DFGTStr.AddParamHint;
             $dfgParamModal.find('.draggableParams').addClass("hint")
                         .html(draggableInputs);
         } else {
@@ -793,7 +792,7 @@ window.DFGParamModal = (function($, DFGParamModal){
                   '</div>';
         }
 
-        td += '<div title="Default Value" ' +
+        td += '<div title="' + CommonTxtTstr.DefaultVal + '" ' +
                 'class="defaultParam iconWrap" data-toggle="tooltip" ' +
                 'data-placement="top" data-container="body">' +
                     '<span class="icon"></span>' +
@@ -869,7 +868,7 @@ window.DFGParamModal = (function($, DFGParamModal){
                 'ondragstart="DFGParamModal.paramDragStart(event)" ' +
                 'ondragend="DFGParamModal.paramDragEnd(event)" ' +
                 'ondrop="return false" ' +
-                'title="click and hold to drag" ' +
+                'title="' + CommonTxtTstr.HoldToDrag + '" ' +
                 'contenteditable="false">' +
                     '<div class="icon"></div>' +
                     '<span class="delim"><</span>' +

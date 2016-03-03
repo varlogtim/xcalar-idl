@@ -87,8 +87,8 @@ window.JoinModal = (function($, JoinModal) {
 
             if (!isMultiJoin && $mainJoin.find("th.colSelected").length !== 2) {
                 Alert.show({
-                    "title"  : "Cannot Join",
-                    "msg"    : "Select 2 columns to join by",
+                    "title"  : JoinModalTStr.NoJoin,
+                    "msg"    : JoinModalTStr.NoJoinMsg,
                     "modal"  : $joinModal,
                     "isAlert": true
                 });
@@ -758,13 +758,13 @@ window.JoinModal = (function($, JoinModal) {
                                                 $suggSection, suggTableId);
 
                     if (!isFind) {
-                        text = "Sorry, cannot find a good key to match the ";
-                        text += isLeft ? "right table" : "left table";
+                        text = isLeft ? JoinModalTStr.NoMatchRight :
+                                        JoinModalTStr.NoMatchLeft;
                         toolTipHelper(text);
                     }
                 } else {
-                    text = isLeft ? "Right" : "Left";
-                    text += " table has no selected key";
+                    text = isLeft ? JoinModalTStr.NoKeyRight :
+                                    JoinModalTStr.NoKeyLeft;
                     toolTipHelper(text);
                 }
             } else {
@@ -946,8 +946,12 @@ window.JoinModal = (function($, JoinModal) {
         $(".tooltip").hide();
         var $colPadding = $th.find(".colPadding");
         var id = isLeft ? "#leftJoin" : "#rightJoin";
+        var title = xcHelper.replaceMsg(TooltipTStr.NoJoin, {
+            "type": getType($th)
+        });
+
         $colPadding.tooltip({
-            "title"    : "Cannot join " + getType($th),
+            "title"    : title,
             "placement": "top",
             "animation": "true",
             "container": id,
@@ -1021,7 +1025,7 @@ window.JoinModal = (function($, JoinModal) {
 
             if (!isOpenTime) {
                 $thToClick.tooltip({
-                    "title"    : "Suggested Key",
+                    "title"    : TooltipTStr.SuggKey,
                     "placement": "top",
                     "animation": "true",
                     "container": "#" + $suggSection.attr("id"),
@@ -1249,10 +1253,9 @@ window.JoinModal = (function($, JoinModal) {
 
     function toggleMultiClauseToolTip(multi) {
         if (multi) {
-            $multiJoinBtn.attr('data-original-title', 'switch to single join');
+            $multiJoinBtn.attr('data-original-title', JoinModalTStr.ToSingleJoin);
         } else {
-            $multiJoinBtn.attr('data-original-title', 'switch to multi ' +
-                               'clause join');
+            $multiJoinBtn.attr('data-original-title', JoinModalTStr.ToMultiJoin);
         }
         $('.tooltip').hide();
     }

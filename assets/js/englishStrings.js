@@ -6,7 +6,7 @@ StatusMessageTStr = {
 'Loading' : 'Loading',
 'LoadingDataset' : 'Loading Dataset',
 'LoadingTables': 'Loading Tables',
-'LoadFailed' : 'Load failed',
+'LoadFailed' : 'Load dataset failed',
 'CreatingTable' : 'Creating table',
 'TableCreationFailed' : 'Table creation failed',
 'Join' : 'Joining tables',
@@ -39,7 +39,22 @@ StatusMessageTStr = {
 };
 
 TooltipTStr = {
-'ComingSoon': 'Coming Soon'
+    'ComingSoon': 'Coming Soon',
+    'FocusColumn': 'Focused Column',
+    'ChooseUdfModule': 'Please choose a module first',
+    'ChooeseColToExport': 'Please Selected Columns you want to export',
+    'NoJoin': 'Cannot join <type>',
+    'SuggKey': 'Suggested Key'
+};
+
+CommonTxtTstr = {
+    'Create': 'Create',
+    'Continue': 'Continue',
+    'Copy': 'Copy',
+    'DefaultVal': 'Default Value',
+    'HoldToDrag': 'click and hold to drag',
+    'IntFloatOnly': 'Integer/Float Only',
+    'NumCol': 'number of column'
 };
 
 ErrorTextTStr = {
@@ -127,8 +142,6 @@ ErrorTextTStr = {
 
     'NoSupportOp': 'This operation is not supported.',
 
-    'ContinueVerification': 'Are you sure you want to continue?',
-
     'InvalidColumn' : 'Invalid column name: <name>',
 
     'InvalidURLToBrowse': 'Please add protocol to file path. ' +
@@ -180,15 +193,92 @@ TipsTStr = {
 };
 
 ThriftTStr = {
-    "CCNBE": "Connection could not be established.",
-    "Update": "Update required."
+    'CCNBE': 'Connection could not be established.',
+    'Update': 'Update required.'
 };
 
-AggModalStr = {
-    "QuickAggTitle": "Quick Aggregates",
-    "QuickAggInstr": "Viewing common aggregate functions on all of the columns in the active table.",
-    "CorrTitle": "Correlation Coefficients",
-    "CorrInstr": "Viewing correlation coefficient for every pair of numerical columns"
+AlertTStr = {
+    'Error': 'Error',
+    'NoDel': 'Cannot Delete',
+    'ContinueConfirm': 'Are you sure you want to continue?'
+};
+
+AggModalTStr = {
+    'QuickAggTitle': 'Quick Aggregates',
+    'QuickAggInstr': 'Viewing common aggregate functions on all of the columns in the active table.',
+    'CorrTitle': 'Correlation Coefficients',
+    'CorrInstr': 'Viewing correlation coefficient for every pair of numerical columns',
+    'NoSupport': 'Not Supported',
+    'DivByZeroExplain': 'Only one distinct value'
+};
+
+JoinModalTStr = {
+    'NoJoin': 'Cannot Join',
+    'NoJoinMsg': 'Select 2 columns to join by',
+    'NoKeyLeft': 'Left table has no selected key',
+    'NoKeyRight': 'Right table has no selected key',
+    'NoMatchLeft': 'Sorry, cannot find a good key to match the left table',
+    'NoMatchRight': 'Sorry, cannot find a good key to match the right table',
+    'ToSingleJoin': 'switch to single join',
+    'ToMultiJoin': 'switch to multi clause join'
+};
+
+MultiCastTStr = {
+    'NoRec': 'No smart cast recommendation',
+    'SelectCol': 'please select columns you want to cast.'
+};
+
+ProfileTStr = {
+    'ProfileOf': 'Profile of',
+    'Instr': 'Hover on the bar to see details. Use scroll bar and input box to view more data.',
+    'LoadInstr': 'Please wait for the data preparation, you can close the modal and view it later.',
+    'ProfileFail': 'Profile Failed'
+};
+
+WKBKTStr = {
+    'Location': 'Workbook Browser',
+    'NewWKBKInstr': 'Hello <b><user></b>, ' +
+                    ' you have no workbook yet, you can create new workbook, ' +
+                    'continue a workbook or copy a workbook',
+    'CurWKBKInstr': 'Hello <b><user></b>, ' +
+                    'current workbook is <b><workbook></b>'
+};
+
+SchedTStr = {
+    'SelectSched': 'Select a schedule',
+    'NoScheds': 'No available schedules',
+    'AddSchedFail': 'Add schedule failed'
+};
+
+DFGTStr = {
+    'DFExists': 'data flow already exists',
+    'AddParamHint': 'Please create parameters in Data Flow Group Panel first.'
+};
+
+DSTStr = {
+    'DS': 'DATASET',
+    'Export': 'EXPORT FORM',
+    'LoadingDS': 'Dataset is loading',
+    'DelDS': 'Delete Dataset',
+    'NewFolder': 'New Folder',
+    'NoNewFolder': 'Cannot Create Folder',
+    'NoNewFolderMsg': 'This folder is uneditable, cannot create new folder here',
+    'DelFolder': 'Delete Folder',
+    'DelFolderInstr': 'Please remove all the datasets in the folder first.',
+    'DelFolderMsg': 'Unable to delete non-empty folders. Please ensure\r\n' +
+                    ' that all datasets have been removed from folders prior' +
+                    ' to deletion.',
+    'NoParse': 'Cannot parse the dataset.',
+    // with replace
+    'DelDSConfirm': 'Are you sure you want to delete dataset <ds> ?',
+    'DelUneditable': 'This <ds> is uneditable, cannot delete',
+    'ToGridView': 'Switch to Grid View',
+    'ToListView': 'Switch to List View'
+};
+
+DSFormTStr = {
+    'LoadConfirm': 'Load Dataset Confirmation',
+    'NoHeader': 'You have not checked header option to promote first row as header.'
 };
 
 DataCartStr = {
@@ -200,16 +290,74 @@ DataCartStr = {
                 ' in inside the center panel.'
 };
 
-WorksheetStr = {
-    'SearchTableAndColumn': 'search for a table or column'
-};
-
-PreviewStr = {
+DSPreviewTStr = {
+    'Save': 'Save & Exit',
+    'Promote': 'Promote first row as header',
+    'UnPromote': 'Undo promote header',
+    'ApplyHighlights': 'Apply hightlighted characters as delimiter',
+    'RMHighlights': 'Remove highlights',
+    'CommaAsDelim': 'Apply comma as delimiter',
+    'TabAsDelim': 'Apply tab as delimiter',
+    'PipeAsDelim': 'Apply pipe as delimiter',
+    'RMDelim': 'Remove delimiter',
+    'HighlightDelimHint': 'Highlight a character as delimiter',
+    'Or': 'or',
+    'HighlightAnyDelimHint': 'Highlight another character as delimiter',
+    'LoadJSON': 'Load as JSON dataset',
+    'LoadExcel': 'Load as EXCEL dataset',
+    'LoadExcelWithHeader': 'Load as EXCEL dataset and promote header',
+    'LoadUDF': 'Use UDF to parse the dataset',
     'NoDelim': 'You have not chosen a delimiter.',
     'NoHeader': 'You have not chosen a header row.',
     'NoDelimAndHeader': 'You have not chosen a delimiter and header row.'
 };
 
-DataFormStr = {
- 'NoHeader': 'You have not checked header option to promote first row as header.'
+DSExportTStr = {
+    'ExportFail': 'Failed to add export target',
+    'InvalidType': 'Invalid Target Type',
+    'InvalidTypeMsg': 'Please select a valid target type'
+};
+
+WSTStr = {
+    'SearchTableAndColumn': 'search for a table or column',
+    'WSHidden': 'worksheet is hidden',
+    'InvalidWSName': 'Invalid worksheet name',
+    'InvalidWSNameErr': 'please input a valid name!'
+};
+
+SideBarTStr = {
+    'SendToWS': 'Send To Worksheet',
+    'WSTOSend': 'Worksheet to send',
+    'NoSheet': 'No sheet',
+    'NoSheetTableInstr': 'You have tables that are not in any worksheet, ' +
+                         'please choose a worksheet for these tables!',
+    'PopBack': 'pop back in',
+    'PopOut': 'pop out',
+    'WalkThroughUA': 'Walkthrough Unavailable',
+    'DelTables': 'Delete <table> Tables',
+    'DelTablesMsg': 'Are you sure you want to delete the selected tables?',
+    'DelTablesFail': 'Delete Tables Failed',
+    'SelectTable': 'select table',
+    'DupUDF': 'Duplicate Module',
+    'DupUDFMsg': 'Python module <module> already exists ' +
+                 '(module name is case insensitive), ' +
+                 'do you want to replace it with this module?',
+    'UpoladUDF': 'Upload Success',
+    'UploadUDFMsg': 'Your python script has been successfully uploaded!',
+    'UploadError': 'Upload Error',
+    'SyntaxError': 'Syntax Erro'
+};
+
+DaysTStr = {
+    'Sunday': 'Sunday',
+    'Monday': 'Monday',
+    'Tuesday': 'Tuesday',
+    'Wednesday': 'Wednesday',
+    'Thursday': 'Thursday',
+    'Friday': 'Friday',
+    'Saturday': 'Saturday',
+    'Today': 'Today',
+    'Yesterday': 'Yesterday',
+    'LastWeek': 'Last week',
+    'Older': 'Older'
 };

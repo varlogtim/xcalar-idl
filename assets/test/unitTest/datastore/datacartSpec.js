@@ -69,10 +69,10 @@ function dataCartModuleTest() {
 
     it("Should check if name is valid", function() {
         var cart = DataCart.getCarts()[0];
-        var res = DataCart.__testOnly__.isCartNameValid(cart, {}, false);
+        var res = DataCart.__testOnly__.isCartNameValid(cart, {});
         expect(res).to.be.true;
 
-        res = DataCart.__testOnly__.isCartNameValid(cart, {"testDS": 1}, false);
+        res = DataCart.__testOnly__.isCartNameValid(cart, {"testDS": 1});
         expect(res).to.be.false;
         assert.isTrue($("#statusBox").is(":visible"), "see error");
         $("#statusBoxClose").mousedown();
@@ -80,7 +80,7 @@ function dataCartModuleTest() {
 
         // manually change name
         cart.tableName = "";
-        res = DataCart.__testOnly__.isCartNameValid(cart, null, true);
+        res = DataCart.__testOnly__.isCartNameValid(cart, null);
         expect(res).to.be.false;
         assert.isTrue($("#statusBox").is(":visible"), "see error");
         $("#statusBoxClose").mousedown();

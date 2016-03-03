@@ -1173,7 +1173,7 @@ function updateTableHeader(tableId, $tHead) {
                     'data-toggle="tooltip" ' +
                     'data-placement="top" ' +
                     'data-container="body" ' +
-                    'title="number of columns">' +
+                    'title="' + CommonTxtTstr.NumCol + '">' +
                     ' [' + cols + ']</span>';
                     
     $tHead.html(tableName + colsHTML);

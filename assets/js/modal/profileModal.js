@@ -378,7 +378,7 @@ window.Profile = (function($, Profile, d3) {
         } else {
             $rangeInput.addClass("disabled")
                         .prop("disabled", true)
-                        .attr("placeholder", "Integer/Float Only");
+                        .attr("placeholder", CommonTxtTstr.IntFloatOnly);
         }
 
         if (gMinModeOn) {
@@ -408,7 +408,8 @@ window.Profile = (function($, Profile, d3) {
         var $loadHiddens    = $modal.find(".loadHidden");
         var $loadDisables   = $modal.find(".loadDisable");
 
-        var instruction = "Profile of <b>" + statsCol.frontColName + ".</b><br>";
+        var instruction = ProfileTStr.ProfileOf +
+                          " <b>" + statsCol.frontColName + ".</b><br>";
 
         // update agg info
         aggKeys.forEach(function(aggkey) {
@@ -480,12 +481,10 @@ window.Profile = (function($, Profile, d3) {
                 deferred.reject(error);
             });
 
-            instruction += "Hover on the bar to see details. " +
-                "Use scroll bar and input box to view more data.";
+            instruction += ProfileTStr.Instr;
         } else {
             // the data is loading, show loadingSection and hide groupby section
-            instruction += "Please wait for the data preparation, " +
-                            "you can close the modal and view it later.";
+            instruction += ProfileTStr.LoadInstr;
             deferred.resolve();
         }
 
@@ -1799,7 +1798,7 @@ window.Profile = (function($, Profile, d3) {
             gMinModeOn = true;
             closeProfileModal();
             gMinModeOn = false;
-            Alert.error("Profile Fails", error);
+            Alert.error(ProfileTStr.ProfileFail, error);
         }
     }
 

@@ -278,11 +278,10 @@ window.MultiCastModal = (function($, MultiCastModal) {
         if (count === 0) {
             html += '<div class="instruction">';
             if (isFromSmartSugg) {
-                html += 'No smart cast recommendation,<br>';
+                html += MultiCastTStr.NoRec + ',<br>';
             }
 
-            html += 'please select columns you want to cast.' +
-                    '</div>';
+            html += MultiCastTStr.SelectCol + '</div>';
         }
 
         var $label = $modal.find(".resultContainer .title .label");
@@ -376,7 +375,7 @@ window.MultiCastModal = (function($, MultiCastModal) {
         // use .colPading because .columnTab already have tooltip
         var $colPadding = $th.find(".colPadding");
         $colPadding.tooltip({
-            "title"    : "Focused Column",
+            "title"    : TooltipTStr.FocusColumn,
             "placement": "top",
             "animation": "true",
             "container": "#multiCastModal",

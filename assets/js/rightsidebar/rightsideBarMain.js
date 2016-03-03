@@ -22,9 +22,9 @@ window.RightSideBar = (function($, RightSideBar) {
         var delay     = 300;
         var clickable = true;
 
-        var $btnArea          = $("#rightSideBarBtns");
-        var $sliderBtns       = $btnArea.find(".sliderBtn");
-        var $rightSideBar     = $("#rightSideBar");
+        var $btnArea = $("#rightSideBarBtns");
+        var $sliderBtns = $btnArea.find(".sliderBtn");
+        var $rightSideBar = $("#rightSideBar");
         var $rightBarSections = $rightSideBar.find(".rightBarSection");
 
         $btnArea.on("click", ".sliderBtn", function() {
@@ -164,7 +164,7 @@ window.RightSideBar = (function($, RightSideBar) {
         $rightSideBar.addClass('poppedOut');
         $('#rightSideBarBtns').appendTo($rightSideBar);
         $rightSideBar.find('.popOut')
-                     .attr('data-original-title', 'pop back in');
+                     .attr('data-original-title', SideBarTStr.PopBack);
         $('.tooltip').hide();
         var offset = $('#rightSideBar').offset();
         $('#rightSideBar').css({
@@ -178,7 +178,7 @@ window.RightSideBar = (function($, RightSideBar) {
         $('#rightSideBarBtns').appendTo('#worksheetBar');
         $rightSideBar.attr('style', "");
         $rightSideBar.find('.popOut')
-                     .attr('data-original-title', 'pop out');
+                     .attr('data-original-title', SideBarTStr.PopOut);
         $('.tooltip').hide();
         CLIBox.realignNl();
     }

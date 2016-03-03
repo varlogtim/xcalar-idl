@@ -50,7 +50,7 @@ window.AddScheduleModal = (function($, AddScheduleModal) {
         var hasSelectedSchedule = false;
 
         var attachedSched = null;
-        var hintText = "Select a schedule";
+        var hintText = SchedTStr.SelectSched;
         var lis = '<li class="hint">' + hintText + '</li>';
 
         // latests schedule is at top
@@ -80,9 +80,9 @@ window.AddScheduleModal = (function($, AddScheduleModal) {
 
         if (!hasValidSchedule) {
             $scheduleListInput.removeClass("hint")
-                                .val('No available schedules')
-                                .attr('value', 'No available schedules');
-            lis = '<li class="hint">No available schedules</li>';
+                                .val(SchedTStr.NoScheds)
+                                .attr('value', SchedTStr.NoScheds);
+            lis = '<li class="hint">' + SchedTStr.NoScheds + '</li>';
             $modal.find('.confirm').addClass('unavailable');
         } else {
             if (hasSelectedSchedule) {
@@ -125,7 +125,7 @@ window.AddScheduleModal = (function($, AddScheduleModal) {
             xcHelper.showSuccess();
         })
         .fail(function(error) {
-            Alert.error("Add schedule fails", error);
+            Alert.error(SchedTStr.AddSchedFail, error);
         });
     }
 

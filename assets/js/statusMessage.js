@@ -269,7 +269,7 @@ window.StatusMessage = (function($, StatusMessage) {
 
     function showDoneNotification(msgId, failed, newTableId, options) {
         var operation = msgObjs[msgId].operation;
-        if (operation === 'table creation') {
+        if (operation === SQLOps.IndexDS) {
             return; // no notification when table made directly from datastore
         }
         var popupNeeded     = false;

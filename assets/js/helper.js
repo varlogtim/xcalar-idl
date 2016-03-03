@@ -568,6 +568,25 @@ window.xcHelper = (function($, xcHelper) {
 
     };
 
+    xcHelper.replaceMsg = function(txt, replaces) {
+        // replaces is an object, its keys are the mark strings to replace
+        // each key's value is the string to replace with
+
+        replaces = replaces || {};
+
+        for (var key in replaces) {
+            var str = replaces[key];
+            if (str == null) {
+                continue;
+            }
+
+            mark = "<" + key + ">";
+            txt = txt.replace(mark, str);
+        }
+
+        return txt;
+    };
+
     xcHelper.toggleBtnInProgress = function($btn) {
         var text;
 

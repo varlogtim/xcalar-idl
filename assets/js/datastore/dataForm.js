@@ -160,9 +160,15 @@ window.DatastoreForm = (function($, DatastoreForm) {
         });
     };
 
-    DatastoreForm.show = function() {
-        if (!$importDataView.is(":visible") || $form.hasClass("previewMode")) {
-            resetForm();
+    DatastoreForm.show = function(options) {
+        options = options || {};
+
+        if (!$importDataView.is(":visible") || $form.hasClass("previewMode"))
+        {
+            if (!options.noReset) {
+                resetForm();
+            }
+
             $importDataView.show();
             $("#dataSetTableWrap").empty();
             $explorePanel.find(".contentViewMid").addClass("hidden");
@@ -204,7 +210,7 @@ window.DatastoreForm = (function($, DatastoreForm) {
                 deferred.resolve();
             })
             .fail(function(error) {
-                Alert.error("Load Dataset Failed", error.error);
+                Alert.error(StatusMessageTStr.LoadFailed, error.error);
                 StatusMessage.fail(StatusMessageTStr.LoadFailed, msgId);
                 deferred.reject(error);
             });
@@ -419,11 +425,10 @@ window.DatastoreForm = (function($, DatastoreForm) {
             dsFormat === formatMap.Raw ||
             dsFormat === formatMap.Excel)) {
 
-            var msg = DataFormStr.NoHeader + " " +
-                        ErrorTextTStr.ContinueVerification;
+            var msg = DSFormTStr.NoHeader + " " + AlertTStr.ContinueConfirm;
 
             Alert.show({
-                "title"  : "LOAD DATASET CONFIRMATION",
+                "title"  : DSFormTStr.LoadConfirm,
                 "msg"    : msg,
                 "confirm": function() { deferred.resolve(); },
                 "cancel" : function() { deferred.reject("canceled"); }
@@ -471,7 +476,7 @@ window.DatastoreForm = (function($, DatastoreForm) {
         $udfFuncList.addClass("disabled")
                     .find("input").val("");
         $udfFuncList.parent().tooltip({
-            "title"    : "Please choose a module first",
+            "title"    : TooltipTStr.ChooseUdfModule,
             "placement": "top",
             "container": "#importDataView"
         });

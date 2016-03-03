@@ -30,7 +30,7 @@ window.FnBar = (function(FnBar, $) {
             },
             "mousedown": function() {
                 $(this).addClass("inFocus");
-                $fnBar.attr('placeholder', WorksheetStr.SearchTableAndColumn);
+                $fnBar.attr('placeholder', WSTStr.SearchTableAndColumn);
             },
             "focus": function() {
                 initialTableId = gActiveTableId;

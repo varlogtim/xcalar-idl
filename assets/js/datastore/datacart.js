@@ -9,68 +9,18 @@ window.DataCart = (function($, DataCart) {
     DataCart.setup = function() {
         // send to worksheet button
         $("#submitDSTablesBtn").click(function() {
-            var $submitBtn = $(this);
-            $submitBtn.blur();
+            var $submitBtn = $(this).blur();
 
             if ($cartArea.find(".selectedTable").length === 0) {
                 return false;
             }
 
-            var nameIsValid = true;
-
-            var tableNames = {};
-            for (var tbl in gTables) {
-                var name = xcHelper.getTableName(gTables[tbl].tableName);
-                tableNames[name] = true;
-            }
-
-            // check table name conflict in gTables
-            innerCarts.forEach(function(cart) {
-                nameIsValid = isCartNameValid(cart, tableNames, true);
-
-                if (!nameIsValid) {
-                    // stop the loop
-                    return false;
-                }
-            });
-
-            if (!nameIsValid) {
-                return false;
-            }
-
-            tableNames = {};
             xcHelper.disableSubmit($submitBtn);
 
             // check backend table name to see if has conflict
-            XcalarGetTables()
-            .then(function(results) {
-                // var tables = results.tables;
-                var tables = results.nodeInfo;
-                for (var i = 0, len = results.numNodes; i < len; i++) {
-                    var name = xcHelper.getTableName(tables[i].name);
-                    tableNames[name] = true;
-                }
-
-                innerCarts.forEach(function(cart) {
-                    nameIsValid = isCartNameValid(cart, tableNames);
-
-                    if (!nameIsValid) {
-                        // stop the loop
-                        return false;
-                    }
-                });
-
-                if (nameIsValid) {
-                    return createWorksheet();
-                } else {
-                    return promiseWrapper(null);
-                }
-            })
+            checkCartNames()
             .then(function() {
-                KVStore.commit();
-            })
-            .fail(function(error) {
-                Alert.error("Create Worksheet Failed", error);
+                return createWorksheet();
             })
             .always(function() {
                 xcHelper.enableSubmit($submitBtn);
@@ -213,7 +163,7 @@ window.DataCart = (function($, DataCart) {
             $column.parent().find(".header").tooltip("destroy");
             var $header = $column.children(".header");
             $header.tooltip({
-                "title"    : "Focused Column",
+                "title"    : TooltipTStr.FocusColumn,
                 "placement": "top",
                 "trigger"  : "manual",
                 "container": "#exploreView"
@@ -502,11 +452,60 @@ window.DataCart = (function($, DataCart) {
         }
     }
 
-    function isCartNameValid(cart, nameMap, checkEmpty) {
+    function checkCartNames() {
+        var deferred = jQuery.Deferred();
+        var tableNames = {};
+        var nameIsValid;
+        var cart;
+
+        // check backend table name to see if has conflict
+        xcHelper.getBackTableSet()
+        .then(function(backTableSet) {
+            for (var tableName in backTableSet) {
+                var name = xcHelper.getTableName(tableName);
+                tableNames[name] = true;
+            }
+
+            for (var i = 0, len = innerCarts.length; i < len; i++) {
+                cart = innerCarts[i];
+                nameIsValid = isCartNameValid(cart, tableNames);
+                if (!nameIsValid) {
+                    deferred.reject();
+                    return;
+                }
+            }
+
+            deferred.resolve();
+        })
+        .fail(function(error) {
+            console.error("Get Backend table failed!", error);
+            // when get backend table fail, we try our best,
+            // aka, we use front meta for checking
+            for (var tableId in gTables) {
+                var name = xcHelper.getTableName(gTables[tableId].tableName);
+                tableNames[name] = true;
+            }
+
+            for (var i = 0, len = innerCarts.length; i < len; i++) {
+                cart = innerCarts[i];
+                nameIsValid = isCartNameValid(cart, tableNames);
+                if (!nameIsValid) {
+                    deferred.reject();
+                    return;
+                }
+            }
+
+            deferred.resolve();
+        });
+
+        return deferred.promise();
+    }
+
+    function isCartNameValid(cart, nameMap) {
         var tableName = cart.tableName;
         var error = null;
 
-        if (checkEmpty && tableName === "") {
+        if (tableName === "") {
             error = ErrorTextTStr.NoEmpty;
         } else if (nameMap.hasOwnProperty(tableName)) {
             error = ErrorTextTStr.TableConflict;
@@ -537,8 +536,14 @@ window.DataCart = (function($, DataCart) {
         emptyAllCarts();
 
         chain(promises)
-        .then(deferred.resolve)
-        .fail(deferred.reject)
+        .then(function() {
+            KVStore.commit();
+            deferred.resolve();
+        })
+        .fail(function(error) {
+            Alert.error(StatusMessageTStr.TableCreationFailed, error);
+            deferred.reject(error);
+        })
         .always(removeWaitCursor);
 
         return (deferred.promise());
@@ -564,7 +569,7 @@ window.DataCart = (function($, DataCart) {
         var msg = StatusMessageTStr.CreatingTable + ': ' + tableName;
         var msgId = StatusMessage.addMsg({
             "msg"      : msg,
-            "operation": 'table creation'
+            "operation": SQLOps.IndexDS
         });
 
         var items = cart.items;

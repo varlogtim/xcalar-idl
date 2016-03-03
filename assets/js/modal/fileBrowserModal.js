@@ -324,14 +324,14 @@ window.FileBrowser = (function($, FileBrowser) {
                             .addClass("listView");
             $btn.removeClass("gridView")
                 .addClass("listView")
-                .attr("data-original-title", "Switch to Grid View");
+                .attr("data-original-title", DSTStr.ToGridView);
         } else {
             // change to grid view
             $fileBrowserMain.removeClass("listView")
                             .addClass("gridView");
             $btn.removeClass("listView")
                 .addClass("gridView")
-                .attr("data-original-title", "Switch to List View");
+                .attr("data-original-title", DSTStr.ToListView);
             measureDSIconHeight();
         }
 

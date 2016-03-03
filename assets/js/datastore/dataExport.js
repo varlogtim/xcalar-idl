@@ -143,12 +143,12 @@ window.ExportTarget = (function($, ExportTarget) {
                 deferred.resolve();
             })
             .fail(function(err) {
-                Alert.error("Failed to add export target", err.error);
+                Alert.error(DSExportTStr.ExportFail, err.error);
                 deferred.reject(err);
             });
         } else {
-            var error = {error: 'Please select a valid target type'};
-            Alert.error("Invalid Target Type", error.error);
+            var error = {error: DSExportTStr.InvalidTypeMsg};
+            Alert.error(DSExportTStr.InvalidType, error.error);
             deferred.reject(error);
         }
 

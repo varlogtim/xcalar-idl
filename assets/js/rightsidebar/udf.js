@@ -337,11 +337,12 @@ window.UDF = (function($, UDF) {
         var deferred = jQuery.Deferred();
         moduleName = moduleName.toLowerCase();
         if (storedUDF.hasOwnProperty(moduleName)) {
-            var msg = "Python module " + moduleName + " already exists " +
-                        "(module name is case insensitive)," +
-                        " do you want to replace it with this module?";
+            var msg = xcHelper.replaceMsg(SideBarTStr.DupUDFMsg, {
+                "module": moduleName
+            });
+
             Alert.show({
-                    "title"     : "Duplicate Module",
+                    "title"     : SideBarTStr.DupUDF,
                     "msg"       : msg,
                     "isCheckBox": false,
                     "confirm"   : function() { uploadHelper(); },
@@ -372,10 +373,10 @@ window.UDF = (function($, UDF) {
                 deferred.resolve();
             })
             .fail(function(error) {
-                var title = "Upload Error";
+                var title = SideBarTStr.UploadError;
                 if (error.status === StatusT.StatusPyExecFailedToCompile) {
                     // XXX might not actually be a syntax error
-                    title = "Syntax Error";
+                    title = SideBarTStr.SyntaxError;
                 }
 
                 Alert.error(title, error);
@@ -385,8 +386,8 @@ window.UDF = (function($, UDF) {
 
         function uploadSuccess() {
             Alert.show({
-                "title"     : "UPLOAD SUCCESS",
-                "msg"       : "Your python script has been successfully uploaded!",
+                "title"     : SideBarTStr.UpoladUDF,
+                "msg"       : SideBarTStr.UploadUDFMsg,
                 "isCheckBox": false,
                 "confirm"   : function() {
                     $("#udfBtn").parent().click();

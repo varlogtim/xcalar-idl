@@ -31,16 +31,14 @@ window.DataSampleTable = (function($, DataSampleTable) {
         updateTableInfo(dsObj, partialUpdate, isLoading);
 
         if (isLoading) {
-            var animatedDots =
-                '<div class="animatedEllipsis">' +
-                  '<div>.</div>' +
-                  '<div>.</div>' +
-                  '<div>.</div>' +
-                '</div>';
-            var loadingMsg =
-                '<div class="loadingMsg">' +
-                        'Dataset is loading' + animatedDots +
-                '</div>';
+            var animatedDots = '<div class="animatedEllipsis">' +
+                                  '<div>.</div>' +
+                                  '<div>.</div>' +
+                                  '<div>.</div>' +
+                                '</div>';
+            var loadingMsg = '<div class="loadingMsg">' +
+                                DSTStr.LoadingDS + animatedDots +
+                            '</div>';
             $datasetWrap.addClass("loading");
             $tableWrap.html(loadingMsg);
             $dsColsBtn.hide();
@@ -71,7 +69,8 @@ window.DataSampleTable = (function($, DataSampleTable) {
             $dsColsBtn.hide();
             $datasetWrap.addClass("error");
             var errorHTML = "<div class='loadError'>" +
-                                "Loading dataset failed. " + error.error +
+                                StatusMessageTStr.LoadFailed + ". " +
+                                error.error +
                             "</div>";
 
             $tableWrap.html(errorHTML);
@@ -226,7 +225,7 @@ window.DataSampleTable = (function($, DataSampleTable) {
         var deferred = jQuery.Deferred();
 
         if (!result) {
-            deferred.reject({"error": "Cannot parse the dataset."});
+            deferred.reject({"error": DSTStr.NoParse});
             return deferred.promise();
         }
 

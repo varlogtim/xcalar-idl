@@ -107,10 +107,13 @@ window.TableList = (function($, TableList) {
             } else {
                 tableType = TableType.Orphan;
             }
+
+            var title = xcHelper.replaceMsg(SideBarTStr.DelTables, {
+                "table": tableType
+            });
             Alert.show({
-                "title": "DELETE " + tableType + " TABLES",
-                "msg"  : "Are you sure you want to delete the " +
-                         "selected tables?",
+                "title": title,
+                "msg"  : SideBarTStr.DelTablesMsg,
                 "isCheckBox": true,
                 "confirm"   : function() {
                     TableList.tableBulkAction("delete", tableType)
@@ -118,7 +121,7 @@ window.TableList = (function($, TableList) {
                         KVStore.commit();
                     })
                     .fail(function(error) {
-                        Alert.error("Delete Table Fails", error);
+                        Alert.error(SideBarTStr.DelTablesFail, error);
                     });
                 }
             });
@@ -510,7 +513,7 @@ window.TableList = (function($, TableList) {
                       .attr({
                         'data-toggle'        : 'tooltip',
                         'data-container'     : 'body',
-                        'data-original-title': 'worksheet is hidden'
+                        'data-original-title': WSTStr.WSHidden
                       });
             $inactiveList.find('.worksheet-' + wsId)
                         .closest('.tableInfo')
@@ -518,7 +521,7 @@ window.TableList = (function($, TableList) {
                         .attr({
                             'data-toggle'        : 'tooltip',
                             'data-container'     : 'body',
-                            'data-original-title': 'worksheet is hidden'
+                            'data-original-title': WSTStr.WSHidden
                         })
                         .find('.addTableBtn')
                         .removeClass('selected');
@@ -652,9 +655,6 @@ window.TableList = (function($, TableList) {
         });
 
         if ($noSheetTables.length > 0) {
-            var instr = "You have tables that are not in any worksheet," +
-                        " please choose a worksheet for these tables!";
-
             $noSheetTables.addClass("highlight");
             // must get highlight class  from source
             var $clone = $("#rightSideBar").clone();
@@ -665,10 +665,10 @@ window.TableList = (function($, TableList) {
             $clone.css({"z-index": "initial"});
 
             Alert.show({
-                "title"  : "SEND TO WORKSHEET",
-                "instr"  : instr,
+                "title"  : SideBarTStr.SendToWS,
+                "instr"  : SideBarTStr.NoSheetTableInstr,
                 "optList": {
-                    "label": "Worksheet to send:",
+                    "label": SideBarTStr.WSTOSend + ":",
                     "list" : WSManager.getWSLists(true)
                 },
                 "confirm": function() {
@@ -679,8 +679,7 @@ window.TableList = (function($, TableList) {
                     var wsId = WSManager.getWSIdByName(wsName);
 
                     if (wsId == null) {
-                        Alert.error("Invalid worksheet name",
-                                    "please input a valid name!");
+                        Alert.error(WSTStr.InvalidWSName, WSTStr.InvalidWSNameErr);
                     } else {
                         var tableIds = [];
                         $noSheetTables.each(function() {
@@ -736,8 +735,9 @@ window.TableList = (function($, TableList) {
         var sortedTables = sortTableByTime(tables); // from oldest to newest
         var dates = xcHelper.getTwoWeeksDate();
         var p     = dates.length - 1;    // the length should be 8
-        var days  = ["Sunday", "Monday", "Tuesday", "Wednesday",
-                     "Thursday", "Friday", "Saturday"];
+        var days  = [DaysTStr.Sunday, DaysTStr.Monday, DaysTStr.Tuesday,
+                    DaysTStr.Wednesday, DaysTStr.Thursday, DaysTStr.Friday,
+                    DaysTStr.Saturday];
 
         var $tableList = (active === true) ? $("#activeTablesList") :
                                              $("#inactiveTablesList");
@@ -761,11 +761,11 @@ window.TableList = (function($, TableList) {
                 switch (dateIndex) {
                     case 0:
                         d = dates[dateIndex];
-                        date = "Today " + xcHelper.getDate("/", d);
+                        date = DaysTStr.Today + " " + xcHelper.getDate("/", d);
                         break;
                     case 1:
                         d = dates[dateIndex];
-                        date = "Yesterday " + xcHelper.getDate("/", d);
+                        date = DaysTStr.Yesterday + " " + xcHelper.getDate("/", d);
                         break;
                     // Other days in the week
                     case 2:
@@ -778,10 +778,10 @@ window.TableList = (function($, TableList) {
                                xcHelper.getDate("/", d);
                         break;
                     case 7:
-                        date = "Last week";
+                        date = DaysTStr.LastWeek;
                         break;
                     case 8:
-                        date = "Older";
+                        date = DaysTStr.Older;
                         break;
                     default:
                         break;
@@ -816,16 +816,17 @@ window.TableList = (function($, TableList) {
             var wsInfo;
 
             if (wsId == null) {
-                wsInfo = '<div class="worksheetInfo inactive">No sheet</div>';
+                wsInfo = '<div class="worksheetInfo inactive">' +
+                            SideBarTStr.NoSheet +
+                         '</div>';
             } else {
-                wsInfo =
-                    '<div class="worksheetInfo worksheet-' + wsId + '">' +
-                        WSManager.getWSName(wsId) +
-                    '</div>';
+                wsInfo = '<div class="worksheetInfo worksheet-' + wsId + '">' +
+                            WSManager.getWSName(wsId) +
+                        '</div>';
             }
 
             var addTableBtn = (active === true) ? "" :
-                    '<span class="addTableBtn" title="select table"></span>';
+                '<span class="addTableBtn" title="' + SideBarTStr.SelectTable + '"></span>';
             var html =
                 '<li class="clearfix tableInfo" ' +
                     'data-id="' + tableId + '">' +
@@ -844,7 +845,7 @@ window.TableList = (function($, TableList) {
                             tableName +
                         '</span>' +
                         '<span class="numCols" data-toggle="tooltip" ' +
-                            'data-container="body" title="number of columns">' +
+                        'data-container="body" title="' + CommonTxtTstr.NumCol + '">' +
                              (numCols - 1) + // skip DATA col
                         '</span>' +
                         addTableBtn +
