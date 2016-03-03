@@ -68,6 +68,23 @@ window.DS = (function ($, DS) {
         return ds;
     };
 
+    DS.addCurrentUserDS = function(fullDSName, format, path) {
+        var parsedRes = xcHelper.parseDSName(fullDSName);
+        var user = parsedRes.user;
+        var dsName = parsedRes.dsName;
+
+        createDS({
+            "id"        : fullDSName, // user the fulldsname as a unique id
+            "name"      : dsName,
+            "user"      : user,
+            "fullName"  : fullDSName,
+            "uneditable": false,
+            "isFolder"  : false,
+            "format"    : format,
+            "path"      : path
+        });
+    };
+
     // refresh a new dataset and add it to grid view
     DS.addOtherUserDS = function(fullDSName, format, path) {
         var parsedRes = xcHelper.parseDSName(fullDSName);
@@ -709,9 +726,18 @@ window.DS = (function ($, DS) {
         // add ds that is not in oldHomeFolder
         for (dsName in searchHash) {
             ds = searchHash[dsName];
+
             if (ds != null) {
                 format = DfFormatTypeTStr[ds.formatType].toUpperCase();
-                DS.addOtherUserDS(ds.name, format, ds.url);
+
+                if (dsName.startsWith(userPrefix)) {
+                    // XXX this case appears when same use switch workbook
+                    // and lose the folder meta
+                    // should change when we support user scope session
+                    DS.addCurrentUserDS(ds.name, format, ds.url);
+                } else {
+                    DS.addOtherUserDS(ds.name, format, ds.url);
+                }
             }
         }
 
