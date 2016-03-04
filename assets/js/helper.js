@@ -1841,7 +1841,7 @@ window.xcHelper = (function($, xcHelper) {
     xcHelper.genSub = function() {
         var deferred = jQuery.Deferred();
 
-        XcalarSupportSend()
+        XcalarSupportGenerate() 
         .then(function(filePath, bid) {
             Alert.show({
                 "title": "Support Bundle Generated",

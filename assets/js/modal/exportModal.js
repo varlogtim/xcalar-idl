@@ -221,18 +221,15 @@ window.ExportModal = (function($, ExportModal) {
                             .replace('<type>', backColumnNames.type);
             }
 
-            isValid = xcHelper.validate([{
+            xcHelper.validate([{
                     "$selector": $exportColumns,
                     "text"     : errorText,
                     "check"    : function() {
-                        if (gExportNoCheck) {
-                            return (false);
-                        } else {
-                            return (true);
-                        }
+                        return (true);
                     }
                 }
             ]);
+            isValid = false;
         }
         
 

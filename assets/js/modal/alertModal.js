@@ -242,7 +242,7 @@ window.Alert = (function($, Alert){
                 var $btn = $(this).blur();
                 xcHelper.toggleBtnInProgress($btn);
                 // Tis flow is a little from xcHelper.genSub
-                XcalarSupportSend()
+                XcalarSupportGenerate()
                 .then(function(path, bid) {
                     var text = ThriftTStr.CCNBE + "\n" +
                                 "Bundle Id " + bid + " Generated at " + path;

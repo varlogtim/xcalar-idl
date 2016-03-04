@@ -577,7 +577,8 @@ window.xcFunction = (function($, xcFunction) {
             "exportName": exportName,
             "targetName": targetName,
             "numCols"   : numCols,
-            "columns"   : frontColumns
+            "frontColumns": frontColumns,
+            "backColumns": backColumns
         };
 
         XcalarExport(tableName, exportName, targetName, numCols, backColumns,
