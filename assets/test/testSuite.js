@@ -478,7 +478,7 @@ window.TestSuite = (function($, TestSuite) {
                 if (found) {
                     $("#alertActions .confirm").click();
                 }
-                checkExists("#alertHeader:visible .text:contains('SUCCESS')")
+                checkExists("#alertHeader:visible .text:contains('Success')")
                 .then(function() {
                     flightTestPart6();
                 })
