@@ -2027,7 +2027,36 @@ window.ColManager = (function($, ColManager) {
             })
             .then(function() {
                 tableId = xcHelper.getTableId(newTableName);
-                ColManager.delCol([2, 3, 4], tableId);
+                tableName = newTableName;
+                newTableName = tableNameRoot + Authentication.getHashId();
+                mapStr = "intel:noOfDays(Last_Modified_Latest)";
+                return (XcalarMap("DaysSince",
+                                  mapStr, tableName, newTableName, {}, false));
+            })
+            .then(function() {
+                var newCols = xcHelper.deepCopy(gTables[tableId].tableCols);
+                newCols.unshift(ColManager.newPullCol("DaysSince", "string"));
+                return (TblManager.refreshTable([newTableName], newCols,
+                                                [tableName], worksheet));
+            })
+            .then(function() {
+                tableId = xcHelper.getTableId(newTableName);
+                tableName = newTableName;
+                newTableName = tableNameRoot + Authentication.getHashId();
+                mapStr = "float(DaysSince)";
+                return (XcalarMap("No of Days since last modified", mapStr,
+                                  tableName, newTableName, {}, false));
+            })
+            .then(function() {
+                var newCols = xcHelper.deepCopy(gTables[tableId].tableCols);
+                newCols.unshift(ColManager.newPullCol(
+                "No of Days since last modified", "float"));
+                return (TblManager.refreshTable([newTableName], newCols,
+                                                [tableName], worksheet));
+            })
+            .then(function() {
+                tableId = xcHelper.getTableId(newTableName);
+                ColManager.delCol([2, 3, 4, 5, 6], tableId);
                 $("#xcTable-"+tableId).find("th.col1 .flexContainer")
                                       .mousedown() ;
             });
