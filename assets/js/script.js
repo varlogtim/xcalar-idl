@@ -114,7 +114,7 @@ window.StartManager = (function(StartManager, $) {
                 gMinModeOn = false; // turn off min mode
             }
 
-            console.log('%c Have fun with Xcalar Insight! ',
+            console.log('%c ' + CommonTxtTstr.XcWelcome + ' ',
             'background: linear-gradient(to bottom, #378cb3, #5cb2e8); ' +
             'color: #ffffff; font-size:20px; font-family:Open Sans, Arial;');
 
@@ -127,16 +127,14 @@ window.StartManager = (function(StartManager, $) {
                 // when it's a front end error, already has handler
                 console.error("Setup fails", error);
             } else if (error.status === StatusT.StatusSessionNotFound) {
-                var instr = "If you still see the error after re-login, " +
-                            "please copy your log and restart the server.";
                 Alert.show({
-                    "title"     : "Cannot Retrieve Old Workbook",
-                    "instr"     : instr,
-                    "msg"       : "Please Use new workbook or logout and try again!",
+                    "title"     : WKBKTStr.NoOldWKBK,
+                    "instr"     : WKBKTStr.NoOldWKBKInstr,
+                    "msg"       : WKBKTStr.NoOldWKBKMsg,
                     "lockScreen": true,
                     "logout"    : true,
                     "buttons"   : [{
-                        "name": "New Workbook",
+                        "name": WKBKTStr.NewWKBK,
                         "func": function() {
                             WKBKManager.inActiveAllWKBK();
                         }
@@ -147,11 +145,11 @@ window.StartManager = (function(StartManager, $) {
                 // when it's an error from backend we cannot handle
                 var title;
                 if (error.error.indexOf('Update required') !== -1) {
-                    title = "Xcalar Version Mismatch";
+                    title = ThriftTStr.UpdateErr;
                 } else if (error.error.indexOf('Connection') !== -1) {
-                    title = "Connection Error";
+                    title = ThriftTStr.CCNBEErr;
                 } else {
-                    title = "Setup Fails";
+                    title = ThriftTStr.SetupErr;
                 }
                 Alert.error(title, error, {"lockScreen": true});
                 StatusMessage.updateLocation(true, StatusMessageTStr.Error);
@@ -535,10 +533,9 @@ window.StartManager = (function(StartManager, $) {
         window.onbeforeunload = function() {
             if (backspaceIsPressed) {
                 backspaceIsPressed = false;
-                return ("You are leaving Xcalar. " +
-                        "Please logout or you may lose work.");
+                return CommonTxtTstr.LogoutWarn;
             } else {
-                return ("Please logout or you may lose unsaved work.");
+                return CommonTxtTstr.LogoutWarn;
                 /**
                 hasRelease = true;
                 Support.releaseSession();

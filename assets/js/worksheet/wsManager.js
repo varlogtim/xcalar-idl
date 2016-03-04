@@ -339,7 +339,7 @@ window.WSManager = (function($, WSManager) {
                 $("#submitOrphanedTablesBtn").click();
             })
             .fail(function(error) {
-                Alert.error("Add Orphaned Table Failed", error);
+                Alert.error(WSTStr.AddOrphanFail, error);
             });
         }
 
@@ -699,8 +699,7 @@ window.WSManager = (function($, WSManager) {
         // click to add new worksheet
         $("#addWorksheet").click(function() {
             if (wsOrder.length >= maxWSLen) {
-                Alert.error("CANNOT CREATE WORKSHEEt",
-                            "There are too many worksheets in the panel");
+                Alert.error(WSTStr.AddWSFail, WSTStr.AddWSFailMsg);
                 return;
             }
             var wsId = newWorksheet();
@@ -1195,14 +1194,12 @@ window.WSManager = (function($, WSManager) {
             return;
         } else {
             // delete worksheet with tables
-            msg = "There are active tables in this worksheet. " +
-                  "How would you like to handle them?";
             Alert.show({
-                "title"  : "DELETE WORKSHEET",
-                "msg"    : msg,
+                "title"  : WSTStr.DelWS,
+                "msg"    : WSTStr.DelWSMsg,
                 "buttons": [
                     // {
-                    //     "name"     : "Delete Tables",
+                    //     "name"     : TblTStr.Del,
                     //     "className": "deleteTale",
                     //     "func"     : function() {
                     //         delTableHelper(wsId)
@@ -1214,7 +1211,7 @@ window.WSManager = (function($, WSManager) {
                     // },
                     // XXX temporarily hiding ability to delete tables
                     {
-                        "name"     : "Archive Tables",
+                        "name"     : TblTStr.Archive,
                         "className": "archiveTable",
                         "func"     : function() {
                             archiveTableHelper(wsId);

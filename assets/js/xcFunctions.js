@@ -55,7 +55,7 @@ window.xcFunction = (function($, xcFunction) {
         })
         .fail(function(error) {
             xcHelper.unlockTable(tableId);
-            Alert.error("Filter Columns Fails", error);
+            Alert.error(StatusMessageTStr.FilterFailed, error);
             StatusMessage.fail(StatusMessageTStr.FilterFailed, msgId);
 
             deferred.reject(error);
@@ -83,18 +83,23 @@ window.xcFunction = (function($, xcFunction) {
 
         xcHelper.lockTable(tableId);
 
-        var instr = 'This is the aggregate result for column "' +
-                    frontColName + '". \r\n The aggregate operation is "' +
-                    aggrOp + '".';
+        var title = xcHelper.replaceMsg(AggTStr.AggTitle, {"op": aggrOp});
+        var instr = xcHelper.replaceMsg(AggTStr.AggInstr, {
+            "col": frontColName,
+            "op" : aggrOp
+        });
 
         var aggInfo = WSManager.checkAggInfo(tableId, backColName, aggrOp);
         if (aggInfo != null) {
             xcHelper.unlockTable(tableId);
             setTimeout(function() {
+                var msg = xcHelper.replaceMsg(AggTStr.AggMsg, {
+                    "val": aggInfo.value
+                });
                 Alert.show({
-                    "title"  : "Aggregate: " + aggrOp,
+                    "title"  : title,
                     "instr"  : instr,
-                    "msg"    : '{"Value":' + aggInfo.value + "}",
+                    "msg"    : msg,
                     "isAlert": true
                 });
                 StatusMessage.success(msgId, false, tableId);
@@ -119,7 +124,7 @@ window.xcFunction = (function($, xcFunction) {
             // show result in alert modal
             setTimeout(function() {
                 Alert.show({
-                    "title"  : "Aggregate: " + aggrOp,
+                    "title"  : title,
                     "instr"  : instr,
                     "msg"    : value,
                     "isAlert": true
@@ -145,7 +150,7 @@ window.xcFunction = (function($, xcFunction) {
             deferred.resolve();
         })
         .fail(function(error) {
-            Alert.error("Aggregate fails", error);
+            Alert.error(StatusMessageTStr.AggregateFailed, error);
             StatusMessage.fail(StatusMessageTStr.AggregateFailed, msgId);
             deferred.reject(error);
         })
@@ -190,11 +195,11 @@ window.xcFunction = (function($, xcFunction) {
                     } else {
                         textOrder = "descending";
                     }
-                    Alert.error("Table already sorted",
-                            "Current table is already sorted on this column" +
-                            " in " + textOrder + " order"
-                            );
-                    
+
+                    var mgs = xcHelper.replaceMsg(IndexTStr.SortedErr, {
+                        "order": textOrder
+                    });
+                    Alert.error(IndexTStr.Sorted, mgs);
                     deferred.reject("Already sorted on current column");
                     return;
                 }
@@ -246,7 +251,7 @@ window.xcFunction = (function($, xcFunction) {
             })
             .fail(function(error) {
                 xcHelper.unlockTable(tableId);
-                Alert.error("Sort Rows Fails", error);
+                Alert.error(StatusMessageTStr.SortFailed, error);
                 StatusMessage.fail(StatusMessageTStr.SortFailed, msgId);
                 deferred.reject(error);
             });
@@ -328,7 +333,7 @@ window.xcFunction = (function($, xcFunction) {
             xcHelper.unlockTable(lTableId);
             xcHelper.unlockTable(rTableId);
 
-            Alert.error("Join Table Fails", error);
+            Alert.error(StatusMessageTStr.JoinFailed, error);
             StatusMessage.fail(StatusMessageTStr.JoinFailed, msgId);
             deferred.reject(error);
         });
@@ -466,7 +471,7 @@ window.xcFunction = (function($, xcFunction) {
         })
         .fail(function(error) {
             xcHelper.unlockTable(tableId);
-            Alert.error("GroupBy Failed", error);
+            Alert.error(StatusMessageTStr.GroupByFailed, error);
             StatusMessage.fail(StatusMessageTStr.GroupByFailed, msgId);
             deferred.reject(error);
         });
@@ -541,7 +546,7 @@ window.xcFunction = (function($, xcFunction) {
         .fail(function(error) {
             xcHelper.unlockTable(tableId);
 
-            Alert.error("Map Failed", error);
+            Alert.error(StatusMessageTStr.MapFailed, error);
             StatusMessage.fail(StatusMessageTStr.MapFailed, msgId);
 
             deferred.reject(error);
@@ -566,7 +571,7 @@ window.xcFunction = (function($, xcFunction) {
         var msg = StatusMessageTStr.ExportTable + ": " + tableName;
         var msgObj = {
             "msg"      : msg,
-            "operation": "export"
+            "operation": SQLOps.ExportTable
         };
         var msgId = StatusMessage.addMsg(msgObj);
         // var location = hostname + ":/var/tmp/xcalar/" + exportName;
@@ -584,25 +589,25 @@ window.xcFunction = (function($, xcFunction) {
         XcalarExport(tableName, exportName, targetName, numCols, backColumns,
                      frontColumns, sqlOptions)
         .then(function() {
-            // add alert
-            // var ins = "Widget location: " +
-            //             "http://schrodinger/dogfood/widget/main.html?" +
-            //             "rid=" + retName;
-            var ins = "Table \"" + tableName + "\" was succesfully exported " +
-                      "to " + targetName + " under the name: " + exportName +
-                      ".csv";
-            var alertMsg = "File Name: " + exportName + ".csv\n" +
-                            "File Location: " + targetName;
+            var instr = xcHelper.replaceMsg(ExportTStr.SuccessInstr, {
+                "table"   : tableName,
+                "location": targetName,
+                "file"    : exportName
+            });
+            var msg = xcHelper.replaceMsg(ExportTStr.SuccessMsg, {
+                "file"    : exportName,
+                "location": targetName
+            });
 
             Alert.show({
-                "title"     : "Successful Export",
-                "msg"       : alertMsg,
-                "instr"     : ins,
+                "title"     : ExportTStr.Success,
+                "msg"       : msg,
+                "instr"     : instr,
                 "isAlert"   : true,
                 "isCheckBox": true,
                 "onClose"   : function() {
-                                $('#alertContent').removeClass('leftalign');
-                            }
+                    $('#alertContent').removeClass('leftalign');
+                }
             });
             $('#alertContent').addClass('leftAlign');
             StatusMessage.success(msgId, false, xcHelper.getTableId(tableName));
@@ -615,9 +620,9 @@ window.xcFunction = (function($, xcFunction) {
             if (error && (error.status === StatusT.StatusDsODBCTableExists ||
                 error.status === StatusT.StatusExist) &&
                 $('#exportName:visible').length !== 0) {
-                StatusBox.show(ErrorTextTStr.NameInUse, $('#exportName'), true);
+                StatusBox.show(ErrTStr.NameInUse, $('#exportName'), true);
             } else {
-                Alert.error("Export Table Failed", error);
+                Alert.error(StatusMessageTStr.ExportFailed, error);
             }
             
             StatusMessage.fail(StatusMessageTStr.ExportFailed, msgId);

@@ -107,7 +107,7 @@ window.ExportTarget = (function($, ExportTarget) {
             restoreGrids();
         })
         .fail(function(error) {
-            Alert.error("Export Target Restoration Failed", error.error);
+            Alert.error(DSExportTStr.RestoreFail, error.error);
         });
     };
 
@@ -116,14 +116,14 @@ window.ExportTarget = (function($, ExportTarget) {
         var isValid  = xcHelper.validate([
             {
                 "$selector": $targetTypeInput,
-                "text"     : ErrorTextTStr.NoEmptyList,
+                "text"     : ErrTStr.NoEmptyList,
                 "check"    : function() {
                     return (targetType === "");
                 }
             },
             {
                 "$selector": $nameInput,
-                "text"     : ErrorTextTStr.NoEmpty,
+                "text"     : ErrTStr.NoEmpty,
                 "check"    : function() {
                     return (name === "");
                 }

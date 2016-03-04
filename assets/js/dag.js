@@ -567,7 +567,7 @@ window.DagPanel = (function($, DagPanel) {
                     Dag.makeInactive(tableName, true);
                 })
                 .fail(function(error) {
-                    Alert.error("Table Deletion Failed", error);
+                    Alert.error(StatusMessageTStr.DeleteTableFailed, error);
                 });
             }
         });

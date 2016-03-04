@@ -61,8 +61,7 @@ window.FnBar = (function(FnBar, $) {
             if (!progCol.isNewCol) {
                 throw "Error Case, only new column can be editable";
             }
-            $fnBar.val("Please specify column's name first")
-                  .addClass("disabled");
+            $fnBar.val(FnBarTStr.NewCol).addClass("disabled");
         } else {
             var userStr = progCol.userStr;
             userStr = userStr.substring(userStr.indexOf('='));
@@ -161,7 +160,7 @@ window.FnBar = (function(FnBar, $) {
 
             if (tableCol.isNewCol && colName === "") {
                 // when it's new column and do not give name yet
-                StatusBox.show(ErrorTextTStr.NoEmpty, $colInput);
+                StatusBox.show(ErrTStr.NoEmpty, $colInput);
                 return;
             }
 

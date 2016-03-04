@@ -400,14 +400,14 @@ function renameTableHead($div) {
     var isValid = xcHelper.validate([
         {
             "$selector": $div.find(".tableName"),
-            "text"     : ErrorTextTStr.NoSpecialChar,
+            "text"     : ErrTStr.NoSpecialChar,
             "check"    : function() {
                 return xcHelper.hasSpecialChar(newName);
             }
         },
         {
             "$selector": $div.find(".tableName"),
-            "text"     : ErrorTextTStr.InvalidColName,
+            "text"     : ErrTStr.InvalidColName,
             "check"    : function() {
                 return (newName.length === 0);
             }
@@ -427,8 +427,9 @@ function renameTableHead($div) {
         $div.blur();
     })
     .fail(function() {
-        var text = ErrorTextWReplaceTStr.TableConflict
-                                        .replace("<name>", newName);
+        var text = xcHelper.replaceMsg(ErrWRepTStr.TableConflict, {
+            "name": newName
+        });
         StatusBox.show(text, $div, false);
     });
 }

@@ -10,8 +10,9 @@ StatusMessageTStr = {
 'CreatingTable' : 'Creating table',
 'TableCreationFailed' : 'Table creation failed',
 'Join' : 'Joining tables',
-'JoinFailed' : 'Join failed',
+'JoinFailed' : 'Join table failed',
 'DeleteTable' : 'Deleting table',
+'DeleteTableFailed': 'Delete table failed',
 'CouldNotDelete' : 'could not be deleted',
 'ExportTable' : 'Exporting table',
 'ExportFailed' : 'Export failed',
@@ -23,13 +24,13 @@ StatusMessageTStr = {
 "ChangeTypeFailed": 'Change data type failed',
 'OnColumn' : 'on column',
 'Sort' : 'Sorting column',
-'SortFailed' : 'Sort failed',
+'SortFailed' : 'Sort column failed',
 'Map' : 'Mapping column',
-'MapFailed' : 'Mapping failed',
+'MapFailed' : 'Map failed',
 'GroupBy' : 'Performing Group By',
 'GroupByFailed' : 'Group By failed',
 'Filter' : 'Filtering column',
-'FilterFailed' : 'Filter failed',
+'FilterFailed' : 'Filter column failed',
 'Statistics' : 'Generating statistical analysis',
 'StatisticsFailed' : 'Statistical analysis failed',
 "Window": "Performing Window",
@@ -44,20 +45,33 @@ TooltipTStr = {
     'ChooseUdfModule': 'Please choose a module first',
     'ChooeseColToExport': 'Please Selected Columns you want to export',
     'NoJoin': 'Cannot join <type>',
-    'SuggKey': 'Suggested Key'
+    'SuggKey': 'Suggested Key',
+    'NoWSToMV': 'no worksheet to move to',
+    'NoExport': 'Cannot export column of type <type>'
 };
 
 CommonTxtTstr = {
+    'XcWelcome': 'Have fun with Xcalar Insight!',
     'Create': 'Create',
     'Continue': 'Continue',
     'Copy': 'Copy',
     'DefaultVal': 'Default Value',
     'HoldToDrag': 'click and hold to drag',
     'IntFloatOnly': 'Integer/Float Only',
-    'NumCol': 'number of column'
+    'NumCol': 'number of column',
+    'Exit': 'Exit',
+    'ClickToOpts': 'click to see options',
+    'BackToOrig': 'Back to original',
+    'Optional': 'Optional',
+    'LogoutWarn': 'Please logout or you may lose unsaved work.',
+    'SupportBundle': 'Support Bundle Generated',
+    'SupportBundleInstr': 'Please check your backend for a .tar.gz file',
+    'SupportBundleMsg': 'Support upload bundle id <id> successfully generated! ' +
+                        'It is located on your Xcalar Server at <path>',
+    'SuppoortBundleFail': 'Generation failed'
 };
 
-ErrorTextTStr = {
+ErrTStr = {
     'NoEmpty': 'Please fill out this field.',
 
     'InvalidField': "Invalid Field.",
@@ -148,10 +162,13 @@ ErrorTextTStr = {
                           'For example: nfs:/// or hdfs:/// or ' +
                           'file:/// (for local filesystem)',
 
-    'PreservedName': 'This name is preserved, please use another name.'
+    'PreservedName': 'This name is preserved, please use another name.',
+
+    // with replacement
+    'InvalidRange': 'Please enter a value between <num1> and <num2>.'
 };
 
-ErrorTextWReplaceTStr = {
+ErrWRepTStr = {
     'FolderConflict': 'Folder "<name>" already exists, ' +
                         'please choose another name.',
 
@@ -169,9 +186,10 @@ ErrorTextWReplaceTStr = {
     'InvalidOpsType': 'Invalid type for the field,' +
                       ' wanted: <type1>, but provided: <type2>.',
     'InvalidCol': 'Column "<name>" does not exist.',
-    'InvalidRange': 'Please enter a value between <num1> and <num2>.',
-    'InvalidColType': 'Column "<name>" has an invalid type: <type>'
 
+    'InvalidRange': 'Please enter a value between <num1> and <num2>.',
+
+    'InvalidColType': 'Column "<name>" has an invalid type: <type>'
 };
 
 TipsTStr = {
@@ -194,8 +212,12 @@ TipsTStr = {
 };
 
 ThriftTStr = {
+    'CCNBEErr': 'Connection error',
     'CCNBE': 'Connection could not be established.',
-    'Update': 'Update required.'
+    'UpdateErr': 'Xcalar Version Mismatch',
+    'Update': 'Update required.',
+    'SetupErr': 'Setup Failed',
+    'ListFileErr': 'List File Failed'
 };
 
 AlertTStr = {
@@ -204,16 +226,34 @@ AlertTStr = {
     'ContinueConfirm': 'Are you sure you want to continue?'
 };
 
-AggModalTStr = {
+FnBarTStr = {
+    'NewCol': 'Please specify column name of the new column first'
+};
+
+ScrollTStr = {
+    'Title': 'scroll to a row',
+    'BookMark': 'row <row>'
+};
+
+AggTStr = {
     'QuickAggTitle': 'Quick Aggregates',
     'QuickAggInstr': 'Viewing common aggregate functions on all of the columns in the active table.',
     'CorrTitle': 'Correlation Coefficients',
     'CorrInstr': 'Viewing correlation coefficient for every pair of numerical columns',
     'NoSupport': 'Not Supported',
-    'DivByZeroExplain': 'Only one distinct value'
+    'DivByZeroExplain': 'Only one distinct value',
+    'AggTitle': 'Aggregate: <op>',
+    'AggInstr': 'This is the aggregate result for column "<col>". ' +
+                '\r\n The aggregate operation is "<op>".',
+    'AggMsg': '{"Value":<val>}'
 };
 
-JoinModalTStr = {
+IndexTStr = {
+    'Sorted': 'Table already sorted',
+    'SortedErr': 'Current table is already sorted on this column in <order> order'
+};
+
+JoinTStr = {
     'NoJoin': 'Cannot Join',
     'NoJoinMsg': 'Select 2 columns to join by',
     'NoKeyLeft': 'Left table has no selected key',
@@ -222,6 +262,13 @@ JoinModalTStr = {
     'NoMatchRight': 'Sorry, cannot find a good key to match the right table',
     'ToSingleJoin': 'switch to single join',
     'ToMultiJoin': 'switch to multi clause join'
+};
+
+ExportTStr = {
+    'Success': 'Export Success',
+    'SuccessMsg': 'File Name: <file>.csv\n File Location: <location>',
+    'SuccessInstr': 'Table \"<table>\" was succesfully exported to <location> ' +
+                    'under the name: <file>.csv'
 };
 
 MultiCastTStr = {
@@ -238,11 +285,21 @@ ProfileTStr = {
 
 WKBKTStr = {
     'Location': 'Workbook Browser',
+    'NewWKBK': 'New Workbook',
     'NewWKBKInstr': 'Hello <b><user></b>, ' +
                     ' you have no workbook yet, you can create new workbook, ' +
                     'continue a workbook or copy a workbook',
     'CurWKBKInstr': 'Hello <b><user></b>, ' +
-                    'current workbook is <b><workbook></b>'
+                    'current workbook is <b><workbook></b>',
+    'NoOldWKBK': 'Cannot Retrieve Old Workbook',
+    'NoOldWKBKInstr': 'If you still see the error after re-login, ' +
+                      'please copy your log and restart the server.',
+    'NoOldWKBKMsg': 'Please Use new workbook or logout and try again!',
+    'Expire': 'Please Log out',
+    'ExpireMsg': 'You are logged in somewhere else!',
+    'Hold': 'Signed on elsewhere',
+    'HoldMsg': 'Please close your other session.',
+    'Release': 'Force Release'
 };
 
 SchedTStr = {
@@ -253,7 +310,10 @@ SchedTStr = {
 
 DFGTStr = {
     'DFExists': 'data flow already exists',
-    'AddParamHint': 'Please create parameters in Data Flow Group Panel first.'
+    'AddParamHint': 'Please create parameters in Data Flow Group Panel first.',
+    'DFCreateFail': 'Data Flow Creation Failed',
+    'ParamModalFail': 'Parameter Modal Failed',
+    'UpdateParamFail': 'Update Params Failed'
 };
 
 DSTStr = {
@@ -261,6 +321,7 @@ DSTStr = {
     'Export': 'EXPORT FORM',
     'LoadingDS': 'Dataset is loading',
     'DelDS': 'Delete Dataset',
+    'DelDSFail': 'Delete Dataset Failed',
     'NewFolder': 'New Folder',
     'NoNewFolder': 'Cannot Create Folder',
     'NoNewFolderMsg': 'This folder is uneditable, cannot create new folder here',
@@ -316,14 +377,107 @@ DSPreviewTStr = {
 DSExportTStr = {
     'ExportFail': 'Failed to add export target',
     'InvalidType': 'Invalid Target Type',
-    'InvalidTypeMsg': 'Please select a valid target type'
+    'InvalidTypeMsg': 'Please select a valid target type',
+    'RestoreFail': 'Export Target Restoration Failed'
 };
 
 WSTStr = {
     'SearchTableAndColumn': 'search for a table or column',
+    'WSName': 'Worksheet Name',
     'WSHidden': 'worksheet is hidden',
     'InvalidWSName': 'Invalid worksheet name',
-    'InvalidWSNameErr': 'please input a valid name!'
+    'InvalidWSNameErr': 'please input a valid name!',
+    'AddOrphanFail': 'Add Orphaned Table Failed',
+    'AddWSFail': 'Cannot Create Worksheet',
+    'AddWSFailMsg': 'There are too many worksheets in the panel',
+    'DelWS': 'Delete Worksheet',
+    'DelWSMsg': 'There are active tables in this worksheet. ' +
+                'How would you like to handle them?',
+
+};
+
+TblTStr = {
+    'Del': 'Delete Tables',
+    'DelMsg': 'Are you sure you want to delete table <table>?',
+    'DelFail': 'Delete Tables Failed',
+    'Archive': 'Archive Tables'
+};
+
+ColTStr = {
+    'SplitColWarn': 'Many Columns will generate',
+    'SplitColWarnMsg': 'About <num> columns will be generated, ' +
+                       'do you still want to continue the operation?',
+    'RenamSpecialChar': 'Invalid name, cannot contain \'()\" or ' +
+                        'starting or ending spaces'
+};
+
+MenuTStr = {
+   'Archive': 'Archive Table',
+   'HideTbl': 'Hide Table',
+   'UnHideTbl': 'Unhide Table',
+   'DelTbl': 'Delete Table',
+   'ExportTbl': 'Export Table',
+   'Visual': 'Visualize in Tableau',
+   'CPColNames': 'Copy Column Names',
+   'DelAllDups': 'Delete All Duplicates',
+   'QuickAgg': 'Quick Aggregates',
+   'QuckAggaggFunc': 'Aggregate Functions',
+   'QuickAggcorrFunc': 'Correlation Coefficient',
+   'SmartCast': 'Smart Type Casting',
+   'MVWS': 'Move to worksheet',
+   'SortCols': 'Sort Columns',
+   'SortAsc': 'A-Z',
+   'SortDesc': 'Z-A',
+   'Resize': 'Resize',
+   'ResizeAllCols': 'Resize All Columns',
+   'ResizeHeader': 'Size To Headers',
+   'ResizeToContents': 'Size To Contents',
+   'ResizeToAll': 'Size To Fit All',
+   'AddCol': 'Add a column',
+   'AddColLeft': 'On the left',
+   'AddColRight': 'On the right',
+   'DelCol': 'Delete column',
+   'DelColPlura': 'Delete Columns',
+   'DupCol': 'Duplicate column',
+   'DelOtherDups': 'Delete other duplicates',
+   'HideCol': 'Hide column',
+   'HideColPlura': 'Hide Columns',
+   'UnHideCol': 'Unhide column',
+   'UnHideColPlura': 'Unhide Columns',
+   'TxtAlign': 'Text align',
+   'TxtAlignLeft': 'Left Align',
+   'TxtAlignCenter': 'Center Align',
+   'TxtAlignRight': 'Right Align',
+   'TxtAlignWrap': 'Wrap Text',
+   'RenameCol': 'Rename column',
+   'RenameColTitle': 'New Column Name',
+   'SplitCol': 'Split column',
+   'SplitColDelim': 'Split Column By',
+   'SplitColNum': 'Number of Splits',
+   'HP': 'Horizontal Partition',
+   'HPNum': 'Number of partitions',
+   'HPPlaceholder': 'Max value of 10',
+   'ChangeType': 'Change data type',
+   'Win': 'Window',
+   'WinLag': 'Lag',
+   'WinLead': 'Lead',
+   'Format': 'Format',
+   'Percent': 'Percent',
+   'Round': 'Round',
+   'RoundTitle': 'Num. of decimals to keep',
+   'Sort': 'Sort',
+   'Agg': 'Aggregate',
+   'Flt': 'Filter',
+   'FltCell': 'Filter this value',
+   'ExclCell': 'Exclude this value',
+   'GB': 'Group By',
+   'Map': 'Map',
+   'Join': 'Join',
+   'Profile': 'Profile',
+   'Exts': 'Extensions',
+   'ExamCell': 'Examine',
+   'PullAllCell': 'Pull all',
+   'CPCell': 'Copy to clipboard'
 };
 
 SideBarTStr = {
@@ -335,9 +489,7 @@ SideBarTStr = {
     'PopBack': 'pop back in',
     'PopOut': 'pop out',
     'WalkThroughUA': 'Walkthrough Unavailable',
-    'DelTables': 'Delete <table> Tables',
     'DelTablesMsg': 'Are you sure you want to delete the selected tables?',
-    'DelTablesFail': 'Delete Tables Failed',
     'SelectTable': 'select table',
     'DupUDF': 'Duplicate Module',
     'DupUDFMsg': 'Python module <module> already exists ' +

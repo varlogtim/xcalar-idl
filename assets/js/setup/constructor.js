@@ -537,11 +537,15 @@ function ProfileBucketInfo(options) {
 /**
  * @property {number} id A unique dsObj id, for reference use
  * @property {string} name The dataset/folder's name
+ * @property {string} user The user that creates it
+ * @property {string} fullName for ds, user.name, for folder, equal to name
  * @property {number} parentId The parent folder's id
  * @property {boolean} isFolder Whether it's folder or dataset
+ * @property {boolean} uneditable Whether it's uneditable or not
  * @property {DSObj[]} [eles], An Array of child DSObjs
  * @property {number} totalChildren The total nummber of child
  * @property {string} format foramt of ds, ie. CSV, JSON, etc..
+ * @property {string} mDate modify date
  * @property {string} path ds url
  * @property {string} fileSize size of ds
  * @property {number} numEntries number of ds records
@@ -754,29 +758,31 @@ DSObj.prototype = {
             return (this);
         }
 
-        var self   = this;
+        var self = this;
         var parent = DS.getDSObj(self.parentId);
+        var error = xcHelper.replaceMsg(ErrWRepTStr.FolderConflict, {
+            "name": newName
+        });
         //check name confliction
         var isValid = xcHelper.validate([
             {
                 "$selector": DS.getGrid(self.id),
-                "text"     : ErrorTextTStr.NoSpecialChar,
+                "text"     : ErrTStr.NoSpecialChar,
                 "check"    : function() {
                     return xcHelper.hasSpecialChar(newName, true);
                 }
             },
             {
                 "$selector": DS.getGrid(self.id),
-                "text"     : ErrorTextWReplaceTStr.FolderConflict
-                                .replace('<name>', newName),
-                "check": function() {
+                "text"     : error,
+                "check"    : function() {
                     return (parent.checkNameConflict(self.id, newName,
                                                      self.isFolder));
                 }
             },
             {
                 "$selector": DS.getGrid(self.id),
-                "text"     : ErrorTextTStr.PreservedName,
+                "text"     : ErrTStr.PreservedName,
                 "check"    : function() {
                     return newName === DSObjTerm.OhterUserFolder;
                 }
@@ -785,6 +791,7 @@ DSObj.prototype = {
 
         if (isValid) {
             this.name = newName;
+            this.fullName = newName;
             return true;
         } else {
             return false;
@@ -829,7 +836,7 @@ DSObj.prototype = {
         var $grid = DS.getGrid(this.id);
         // check name conflict
         if (newParent.checkNameConflict(this.id, this.name, this.isFolder)) {
-            StatusBox.show(ErrorTextTStr.MVFolderConflict, $grid);
+            StatusBox.show(ErrTStr.MVFolderConflict, $grid);
             return false;
         }
 

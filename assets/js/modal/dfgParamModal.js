@@ -224,7 +224,7 @@ window.DFGParamModal = (function($, DFGParamModal){
                 $list.find('ul').html(html);
             })
             .fail(function(error) {
-                Alert.error("Parameter Modal Failed", error);
+                Alert.error(DFGTStr.ParamModalFail, error);
             });
         }
 
@@ -580,14 +580,14 @@ window.DFGParamModal = (function($, DFGParamModal){
         $paramInputs.each(function() {
             isValid = checkValidBrackets($(this));
             if (!isValid) {
-                StatusBox.show(ErrorTextTStr.UnclosedParamBracket, $(this));
+                StatusBox.show(ErrTStr.UnclosedParamBracket, $(this));
                 return false;
             }
             params = getParamsInInput($(this));
             for (var i = 0; i < params.length; i++) {
                 isValid = regex.test(params[i]);
                 if (!isValid) {
-                    StatusBox.show(ErrorTextTStr.NoSpecialCharInParam, $(this));
+                    StatusBox.show(ErrTStr.NoSpecialCharInParam, $(this));
                     var paramIndex = $(this).val().indexOf(params[i]);
                     this.setSelectionRange(paramIndex,
                                            paramIndex + params[i].length);
@@ -605,7 +605,7 @@ window.DFGParamModal = (function($, DFGParamModal){
             var $div = $(this);
             if (!$div.hasClass("allowEmpty") && $div.val().trim() === "") {
                 isValid = false;
-                StatusBox.show(ErrorTextTStr.NoEmpty, $div);
+                StatusBox.show(ErrTStr.NoEmpty, $div);
                 return false;
             }
         });
@@ -635,8 +635,7 @@ window.DFGParamModal = (function($, DFGParamModal){
         });
 
         if (!isValid) {
-            StatusBox.show(ErrorTextTStr.NoEmptyOrCheck,
-                            $invalidTr.find(".paramVal"));
+            StatusBox.show(ErrTStr.NoEmptyOrCheck, $invalidTr.find(".paramVal"));
             return;
         }
 
@@ -663,7 +662,7 @@ window.DFGParamModal = (function($, DFGParamModal){
             // show success message??
         })
         .fail(function(error) {
-            Alert.error("Update Params fails", error);
+            Alert.error(DFGTStr.UpdateParamFail, error);
         });
 
         return;

@@ -201,12 +201,12 @@ window.UDF = (function($, UDF) {
             var options = {"offset": 190};
 
             if (val === "") {
-                StatusBox.show(ErrorTextTStr.NoEmpty, $filePath, true, options);
+                StatusBox.show(ErrTStr.NoEmpty, $filePath, true, options);
             } else if (path === "") {
-                StatusBox.show(ErrorTextTStr.InvalidFilePath, $filePath, true, options);
+                StatusBox.show(ErrTStr.InvalidFilePath, $filePath, true, options);
             } else if (moduleName.length >
                        XcalarApisConstantsT.XcalarApiMaxPyModuleNameLen) {
-                StatusBox.show(ErrorTextTStr.LongFileName, $filePath, true, options);
+                StatusBox.show(ErrTStr.LongFileName, $filePath, true, options);
             } else {
                 var reader = new FileReader();
                 reader.onload = function(event) {
@@ -275,11 +275,11 @@ window.UDF = (function($, UDF) {
             var fileName = $fnName.val();
             var options = {"offset": 50};
             if (fileName === "") {
-                StatusBox.show(ErrorTextTStr.NoEmpty, $fnName, true, options);
+                StatusBox.show(ErrTStr.NoEmpty, $fnName, true, options);
                 return;
             } else if (fileName.length >
                 XcalarApisConstantsT.XcalarApiMaxPyModuleNameLen) {
-                StatusBox.show(ErrorTextTStr.LongFileName, $fnName, true, options);
+                StatusBox.show(ErrTStr.LongFileName, $fnName, true, options);
                 return;
             }
             // Get code written and call thrift call to upload
@@ -291,12 +291,12 @@ window.UDF = (function($, UDF) {
             if (entireString.trim() === "" ||
                 entireString.trim() === udfDefault.trim())
             {
-                StatusBox.show(ErrorTextTStr.NoEmptyFn, $('.CodeMirror'), false,
+                StatusBox.show(ErrTStr.NoEmptyFn, $('.CodeMirror'), false,
                                 options);
                 return;
             } else if (entireString.trim().length >
                        XcalarApisConstantsT.XcalarApiMaxPyModuleSrcLen) {
-                StatusBox.show(ErrorTextTStr.LargeFile, $(".CodeMirror"), false,
+                StatusBox.show(ErrTStr.LargeFile, $(".CodeMirror"), false,
                                 options);
                 return;
             }

@@ -996,10 +996,10 @@ window.xcHelper = (function($, xcHelper) {
 
             if (ele.check != null) {
                 notValid = ele.check(val);
-                error = ele.text || ErrorTextTStr.InvalidField;
+                error = ele.text || ErrTStr.InvalidField;
             } else {
                 notValid = (jQuery.trim(val) === "");
-                error = ele.text || ErrorTextTStr.NoEmpty;
+                error = ele.text || ErrTStr.NoEmpty;
             }
 
             if (notValid) {
@@ -1011,7 +1011,7 @@ window.xcHelper = (function($, xcHelper) {
                     StatusBox.show(error, $e, ele.formMode);
                     ele.callback();
                 } else if (ele.isAlert) {
-                    Alert.error(ErrorTextTStr.InvalidField, ele.text);
+                    Alert.error(ErrTStr.InvalidField, ele.text);
                 } else {
                     StatusBox.show(error, $e, ele.formMode);
                 }
@@ -1843,19 +1843,20 @@ window.xcHelper = (function($, xcHelper) {
 
         XcalarSupportGenerate() 
         .then(function(filePath, bid) {
+            var msg = xcHelper.replaceMsg(CommonTxtTstr.SupportBundleMsg, {
+                "id"  : bid,
+                "path": filePath
+            });
             Alert.show({
-                "title": "Support Bundle Generated",
-                "instr": "Please check your backend for a .tar.gz file",
-                "msg"  : "Support upload bundle id " + bid +
-                         " successfully generated!" +
-                         " It is located on your Xcalar Server at " +
-                         filePath + ".",
+                "title"  : CommonTxtTstr.SupportBundle,
+                "instr"  : CommonTxtTstr.SupportBundleInstr,
+                "msg"    : msg,
                 "isAlert": true
             });
             deferred.resolve();
         })
         .fail(function(error) {
-            Alert.error("Generation failed", error);
+            Alert.error(CommonTxtTstr.SuppoortBundleFail, error);
             deferred.reject(error);
         });
 

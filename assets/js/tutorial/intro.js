@@ -489,7 +489,11 @@ window.Intro = (function($, Intro) {
         var $video = $(options.video);
         video = $video[0];
         video.play();
-        var closeHtml = '<div id="intro-videoClose"><span>EXIT</span></div>';
+        var closeHtml = '<div id="intro-videoClose">' +
+                            '<span>' +
+                                CommonTxtTstr.Exit.toUpperCase() +
+                            '</span>' +
+                        '</div>';
         $('body').append(closeHtml);
         $videoCloseArea = $('#intro-videoClose');
         $videoCloseArea.click(function() {

@@ -78,7 +78,7 @@ window.DatastoreForm = (function($, DatastoreForm) {
             if (isValidPathToBrowse(path)) {
                 FileBrowser.show(path);
             } else {
-                StatusBox.show(ErrorTextTStr.InvalidURLToBrowse, $filePath, true);
+                StatusBox.show(ErrTStr.InvalidURLToBrowse, $filePath, true);
             }
         });
 
@@ -255,16 +255,16 @@ window.DatastoreForm = (function($, DatastoreForm) {
         var isValid = xcHelper.validate([
             {
                 "$selector": $formatText,
+                "text"     : ErrTStr.NoEmptyList,
                 "check"    : function() {
                     return (dsFormat == null);
-                },
-                "text": ErrorTextTStr.NoEmptyList
+                }
             },
             {
                 "$selector": $fileName,
                 "check"    : DS.has,
                 "formMode" : true,
-                "text"     : ErrorTextTStr.DSNameConfilct
+                "text"     : ErrTStr.DSNameConfilct
             }
         ]);
 
@@ -284,11 +284,11 @@ window.DatastoreForm = (function($, DatastoreForm) {
             isValid = xcHelper.validate([
                 {
                     "$selector": $moduleInput,
-                    "text"     : ErrorTextTStr.NoEmptyList
+                    "text"     : ErrTStr.NoEmptyList
                 },
                 {
                     "$selector": $funcInput,
-                    "text"     : ErrorTextTStr.NoEmptyList
+                    "text"     : ErrTStr.NoEmptyList
                 }
             ]);
 
@@ -404,14 +404,14 @@ window.DatastoreForm = (function($, DatastoreForm) {
         var path = $filePath.val();
         var options = {"type": "info"};
         if (path.trim() === "") {
-            StatusBox.show(ErrorTextTStr.NoEmpty, $filePath, false, options);
+            StatusBox.show(ErrTStr.NoEmpty, $filePath, false, options);
             return false;
         } else if (path.endsWith("json")) {
             // Invalid json preview
-            StatusBox.show(ErrorTextTStr.NoPreviewJSON, $filePath, false, options);
+            StatusBox.show(ErrTStr.NoPreviewJSON, $filePath, false, options);
             return false;
         } else if (path.endsWith("xlsx")) {
-            StatusBox.show(ErrorTextTStr.NoPreviewExcel, $filePath, false, options);
+            StatusBox.show(ErrTStr.NoPreviewExcel, $filePath, false, options);
             return false;
         }
 

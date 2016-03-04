@@ -149,7 +149,7 @@ window.Profile = (function($, Profile, d3) {
                 var isValid = xcHelper.validate([
                     {
                         "$selector": $rangeInput,
-                        "text"     : ErrorTextTStr.NoBucketOnStr,
+                        "text"     : ErrTStr.NoBucketOnStr,
                         "check"    : function() {
                             return (statsCol.type === "string");
                         }
@@ -159,7 +159,7 @@ window.Profile = (function($, Profile, d3) {
                     },
                     {
                         "$selector": $rangeInput,
-                        "text"     : ErrorTextTStr.OnlyPositiveNumber,
+                        "text"     : ErrTStr.OnlyPositiveNumber,
                         "check"    : function() {
                             return (Number(val) <= 0);
                         }

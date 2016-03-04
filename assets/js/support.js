@@ -102,8 +102,8 @@ window.Support = (function(Support, $) {
                     // this browser tab does not hold any more
                     sessionStorage.removeItem(username);
                     Alert.show({
-                        "title"     : "Please Log out",
-                        "msg"       : "You are logged in somewhere else!",
+                        "title"     : WKBKTStr.Expire,
+                        "msg"       : WKBKTStr.ExpireMsg,
                         "lockScreen": true,
                         "logout"    : true
                     });
@@ -149,11 +149,11 @@ window.Support = (function(Support, $) {
                 } else {
                     // when seesion is hold by others
                     Alert.show({
-                        "title"  : "Signed on elsewhere!",
-                        "msg"    : "Please close your other session.",
+                        "title"  : WKBKTStr.Hold,
+                        "msg"    : WKBKTStr.HoldMsg,
                         "buttons": [
                             {
-                                "name"     : "Force Release",
+                                "name"     : WKBKTStr.Release,
                                 "className": "cancel",
                                 "func"     : function() {
                                     Support.forceReleaseSession();

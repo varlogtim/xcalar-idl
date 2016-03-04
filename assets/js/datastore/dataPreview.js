@@ -397,7 +397,7 @@ window.DataPreview = (function($, DataPreview) {
                 "$selector": $fileName,
                 "check"    : DS.has,
                 "formMode" : true,
-                "text"     : ErrorTextTStr.DSNameConfilct
+                "text"     : ErrTStr.DSNameConfilct
             }
         ]);
 

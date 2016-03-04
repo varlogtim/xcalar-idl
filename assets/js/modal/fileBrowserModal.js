@@ -92,9 +92,10 @@ window.FileBrowser = (function($, FileBrowser) {
 
             if (result.defaultPath) {
                 setTimeout(function() {
-                    var msg = ErrorTextWReplaceTStr.NoPath
-                                .replace("<path>", result.path);
-                    StatusBox.show(msg, $pathSection, false, {side: 'top'});
+                    var error = xcHelper.replaceMsg(ErrWRepTStr.NoPath, {
+                        "path": result.path
+                    });
+                    StatusBox.show(error, $pathSection, false, {side: 'top'});
                 }, 40);
             }
         }
@@ -147,7 +148,7 @@ window.FileBrowser = (function($, FileBrowser) {
                         checkIfCanGoUP();
                     })
                     .fail(function(error) {
-                        Alert.error("List File Failed", error);
+                        Alert.error(ThriftTStr.ListFileErr, error);
                     });
                 }
             }
@@ -615,7 +616,7 @@ window.FileBrowser = (function($, FileBrowser) {
             checkIfCanGoUP();
         })
         .fail(function(error) {
-            Alert.error("List file fails", error);
+            Alert.error(ThriftTStr.ListFileErr, error);
         });
     }
 
@@ -631,7 +632,7 @@ window.FileBrowser = (function($, FileBrowser) {
         var fileName = $fileName.val();
 
         if (($ds == null || $ds.length === 0) && fileName !== "") {
-            StatusBox.show(ErrorTextTStr.InvalidFileName, $fileName, true);
+            StatusBox.show(ErrTStr.InvalidFileName, $fileName, true);
             return;
         }
 
@@ -672,7 +673,7 @@ window.FileBrowser = (function($, FileBrowser) {
             closeAll();
         })
         .fail(function(error) {
-            Alert.error("Load Dataset Failed", error.error);
+            Alert.error(StatusMessageTStr.LoadFailed, error.error);
         });
     }
 

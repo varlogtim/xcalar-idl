@@ -362,7 +362,7 @@ window.Scheduler = (function(Scheduler, $) {
             },
             {
                 "$selector": $scheduleDate,
-                "text"     : ErrorTextTStr.NoEmpty,
+                "text"     : ErrTStr.NoEmpty,
                 "check"    : function() {
                     var $div = $scheduleDate.closest(".datePickerPart");
                     if ($div.hasClass("inActive")) {
@@ -393,7 +393,7 @@ window.Scheduler = (function(Scheduler, $) {
         if (isNewSchedule && scheduleLookUpMap[name] != null ||
             name !== srcScheduleName && scheduleLookUpMap[name] != null)
         {
-            StatusBox.show(ErrorTextTStr.ScheduleConflict, $scheduleName);
+            StatusBox.show(ErrTStr.ScheduleConflict, $scheduleName);
             return;
         }
 
@@ -414,7 +414,7 @@ window.Scheduler = (function(Scheduler, $) {
         var currentTime = new Date().getTime();
 
         if (!isDayPerMonth && startTime < currentTime) {
-            StatusBox.show(ErrorTextTStr.TimeExpire, $scheduleTime);
+            StatusBox.show(ErrTStr.TimeExpire, $scheduleTime);
             return;
         }
 

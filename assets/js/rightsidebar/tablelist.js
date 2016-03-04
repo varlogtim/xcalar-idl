@@ -108,11 +108,8 @@ window.TableList = (function($, TableList) {
                 tableType = TableType.Orphan;
             }
 
-            var title = xcHelper.replaceMsg(SideBarTStr.DelTables, {
-                "table": tableType
-            });
             Alert.show({
-                "title": title,
+                "title": TblTStr.Del,
                 "msg"  : SideBarTStr.DelTablesMsg,
                 "isCheckBox": true,
                 "confirm"   : function() {
@@ -121,7 +118,7 @@ window.TableList = (function($, TableList) {
                         KVStore.commit();
                     })
                     .fail(function(error) {
-                        Alert.error(SideBarTStr.DelTablesFail, error);
+                        Alert.error(TblTStr.DelFail, error);
                     });
                 }
             });

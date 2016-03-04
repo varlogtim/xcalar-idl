@@ -133,6 +133,9 @@ window.WorkbookModal = (function($, WorkbookModal) {
             // new workbook and copy workbook must have new workbook name
             // and should not have duplicate name
             if (activeActionNo !== 1) {
+                var err1 = xcHelper.replaceMsg(ErrWRepTStr.WKBKConflict, {
+                    "name": workbookName
+                });
                 isValid = xcHelper.validate([
                     {
                         "$selector": $workbookInput,
@@ -141,7 +144,7 @@ window.WorkbookModal = (function($, WorkbookModal) {
                     {
                         "$selector": $workbookInput,
                         "formMode" : true,
-                        "text"     : ErrorTextWReplaceTStr.WKBKConflict.replace("<name>", workbookName),
+                        "text"     : err1,
                         "check"    : function() {
                             var workbooks = WKBKManager.getWKBKS();
                             for (var wkbkId in workbooks) {
@@ -163,7 +166,7 @@ window.WorkbookModal = (function($, WorkbookModal) {
             if (activeActionNo !== 0) {
                 isValid = xcHelper.validate({
                     "$selector": $btn,
-                    "text"     : ErrorTextTStr.NoWKBKSelect,
+                    "text"     : ErrTStr.NoWKBKSelect,
                     "check"    : function() {
                         return ($workbookLists.find(".active").length === 0);
                     }

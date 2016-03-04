@@ -159,11 +159,11 @@ window.RowScroller = (function($, RowScroller) {
 
     RowScroller.add = function(tableId) {
         var rowScrollerHTML =
-            '<div id="rowScroller-' + tableId +
-            '" class="rowScroller" data-id="' + tableId + '" ' +
+            '<div id="rowScroller-' + tableId + '" ' +
+            'class="rowScroller" data-id="' + tableId + '" ' +
             'data-toggle="tooltip" ' +
-                'data-container="body" ' +
-                'data-placement="bottom" title="scroll to a row">' +
+            'data-container="body" ' +
+            'data-placement="bottom" title="' + ScrollTStr.Title + '">' +
                 '<div id="rowMarker-' + tableId + '" class="rowMarker" ' +
                 'data-id="' + tableId + '">' +
                     '<div class="subRowMarker top"></div>' +
@@ -213,12 +213,13 @@ window.RowScroller = (function($, RowScroller) {
     RowScroller.addBookMark = function(rowNum, tableId) {
         var table = gTables[tableId];
         var leftPos = 100 * (rowNum / table.resultSetCount);
-        var bookmark =
-            '<div class="bookmark bkmkRow' + rowNum + '"' +
-                ' style="left:' + leftPos + '%;" data-toggle="tooltip" ' +
-                ' data-placement="bottom" data-container="body" title="row ' +
-                (rowNum + 1) + '">' +
-            '</div>';
+        var title = xcHelper.replaceMsg(ScrollTStr.BookMark, {
+            "row": (rowNum + 1)
+        });
+        var bookmark = '<div class="bookmark bkmkRow' + rowNum + '" ' +
+                       'style="left:' + leftPos + '%;" data-toggle="tooltip" ' +
+                       ' data-placement="bottom" ' +
+                       'data-container="body" title="' + title + '"></div>';
         var $rowScroller = $('#rowScroller-' + tableId);
         $rowScroller.append(bookmark);
     };
@@ -385,7 +386,6 @@ window.RowScroller = (function($, RowScroller) {
         $(document).on('mousemove.rowScrollerDrag', rowScrollerMouseMove);
         $(document).on('mouseup.rowScrollerMouseUp', rowScrollerMouseUp);
     }
-
 
     return (RowScroller);
 }(jQuery, {}));

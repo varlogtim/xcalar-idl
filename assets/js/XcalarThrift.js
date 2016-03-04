@@ -83,7 +83,7 @@ function thriftLog() {
             // This is bad, connection was lost so UI cannot do anything
             // LOCK THE SCREEN
             alertError = {"error": ThriftTStr.CCNBE};
-            Alert.error("Connection error", alertError, {"lockScreen": true});
+            Alert.error(ThriftTStr.CCNBEErr, alertError, {"lockScreen": true});
 
             return thriftError;
         }

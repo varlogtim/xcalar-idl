@@ -75,11 +75,11 @@ window.JoinModal = (function($, JoinModal) {
             var newTableName = $joinTableName.val().trim();
 
             if (newTableName === "") {
-                StatusBox.show(ErrorTextTStr.NoEmpty, $joinTableName, true);
+                StatusBox.show(ErrTStr.NoEmpty, $joinTableName, true);
                 return;
             }
             if (newTableName.indexOf("#") > -1) {
-                StatusBox.show(ErrorTextTStr.NoHashTag, $joinTableName, true);
+                StatusBox.show(ErrTStr.NoHashTag, $joinTableName, true);
                 return;
             }
 
@@ -87,8 +87,8 @@ window.JoinModal = (function($, JoinModal) {
 
             if (!isMultiJoin && $mainJoin.find("th.colSelected").length !== 2) {
                 Alert.show({
-                    "title"  : JoinModalTStr.NoJoin,
-                    "msg"    : JoinModalTStr.NoJoinMsg,
+                    "title"  : JoinTStr.NoJoin,
+                    "msg"    : JoinTStr.NoJoinMsg,
                     "modal"  : $joinModal,
                     "isAlert": true
                 });
@@ -108,7 +108,7 @@ window.JoinModal = (function($, JoinModal) {
                 }
             })
             .fail(function() {
-                StatusBox.show(ErrorTextTStr.TableConflict, $joinTableName, true);
+                StatusBox.show(ErrTStr.TableConflict, $joinTableName, true);
                 modalHelper.enableSubmit();
                 // Alert.error("Error Naming New Table", error);
             });
@@ -758,13 +758,13 @@ window.JoinModal = (function($, JoinModal) {
                                                 $suggSection, suggTableId);
 
                     if (!isFind) {
-                        text = isLeft ? JoinModalTStr.NoMatchRight :
-                                        JoinModalTStr.NoMatchLeft;
+                        text = isLeft ? JoinTStr.NoMatchRight :
+                                        JoinTStr.NoMatchLeft;
                         toolTipHelper(text);
                     }
                 } else {
-                    text = isLeft ? JoinModalTStr.NoKeyRight :
-                                    JoinModalTStr.NoKeyLeft;
+                    text = isLeft ? JoinTStr.NoKeyRight :
+                                    JoinTStr.NoKeyLeft;
                     toolTipHelper(text);
                 }
             } else {
@@ -1253,9 +1253,9 @@ window.JoinModal = (function($, JoinModal) {
 
     function toggleMultiClauseToolTip(multi) {
         if (multi) {
-            $multiJoinBtn.attr('data-original-title', JoinModalTStr.ToSingleJoin);
+            $multiJoinBtn.attr('data-original-title', JoinTStr.ToSingleJoin);
         } else {
-            $multiJoinBtn.attr('data-original-title', JoinModalTStr.ToMultiJoin);
+            $multiJoinBtn.attr('data-original-title', JoinTStr.ToMultiJoin);
         }
         $('.tooltip').hide();
     }

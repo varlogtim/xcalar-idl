@@ -177,7 +177,7 @@ window.ExportModal = (function($, ExportModal) {
             },
             {
                 "$selector": $exportName,
-                "text"     : ErrorTextTStr.NoSpecialChar,
+                "text"     : ErrTStr.NoSpecialChar,
                 "check"    : function() {
                     return xcHelper.hasSpecialChar(exportName);
                 }
@@ -187,7 +187,7 @@ window.ExportModal = (function($, ExportModal) {
             },
             {
                 "$selector": $exportColumns,
-                "text"     : ErrorTextTStr.InvalidColName,
+                "text"     : ErrTStr.InvalidColName,
                 "check"    : function() {
                     if (gExportNoCheck) {
                         return (columnsVal.length === 0);
@@ -213,12 +213,14 @@ window.ExportModal = (function($, ExportModal) {
         if (backColumnNames.invalid) {
             var errorText;
             if (backColumnNames.reason === 'notFound') {
-                errorText = ErrorTextWReplaceTStr.InvalidCol
-                        .replace('<name>', backColumnNames.name);
+                errorText = xcHelper.replaceMsg(ErrWRepTStr.InvalidCol, {
+                    "name": backColumnNames.name
+                });
             } else if (backColumnNames.reason === 'type') {
-                errorText = ErrorTextWReplaceTStr.InvalidColType
-                            .replace('<name>', backColumnNames.name)
-                            .replace('<type>', backColumnNames.type);
+                errorText = xcHelper.replaceMsg(ErrWRepTStr.InvalidColType, {
+                    "name": backColumnNames.name,
+                    "type": backColumnNames.type
+                });
             }
 
             xcHelper.validate([{
@@ -243,7 +245,7 @@ window.ExportModal = (function($, ExportModal) {
             if (hasDuplicate) {
                 xcHelper.validate([{
                         "$selector": $exportName,
-                        "text"     : ErrorTextTStr.ExportConflict,
+                        "text"     : ErrTStr.ExportConflict,
                         "check"    : function() {
                             return true;
                         }

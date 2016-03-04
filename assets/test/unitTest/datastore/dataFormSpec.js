@@ -176,7 +176,7 @@ function dataFormModuleTest() {
 
             // check status box
             assert.isTrue($statusBox.is(":visible"), "see statux box");
-            assert.equal($statusBox.find(".message").text(), ErrorTextTStr.NoEmpty);
+            assert.equal($statusBox.find(".message").text(), ErrTStr.NoEmpty);
         });
 
         it("Should not allow preivew json", function() {
@@ -186,7 +186,7 @@ function dataFormModuleTest() {
 
             // check status box
             assert.isTrue($statusBox.is(":visible"), "see statux box");
-            assert.equal($statusBox.find(".message").text(), ErrorTextTStr.NoPreviewJSON);
+            assert.equal($statusBox.find(".message").text(), ErrTStr.NoPreviewJSON);
         });
 
         it("Should not allow preivew excel", function() {
@@ -196,7 +196,7 @@ function dataFormModuleTest() {
 
             // check status box
             assert.isTrue($statusBox.is(":visible"), "see statux box");
-            assert.equal($statusBox.find(".message").text(), ErrorTextTStr.NoPreviewExcel);
+            assert.equal($statusBox.find(".message").text(), ErrTStr.NoPreviewExcel);
         });
 
         it("Should allow other case", function() {

@@ -506,9 +506,9 @@ window.DataCart = (function($, DataCart) {
         var error = null;
 
         if (tableName === "") {
-            error = ErrorTextTStr.NoEmpty;
+            error = ErrTStr.NoEmpty;
         } else if (nameMap.hasOwnProperty(tableName)) {
-            error = ErrorTextTStr.TableConflict;
+            error = ErrTStr.TableConflict;
         } else {
             return true;
         }

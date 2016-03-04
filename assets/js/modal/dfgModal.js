@@ -241,7 +241,7 @@ window.DataFlowModal = (function($, DataFlowModal) {
                     },
                     {
                         "$selector": $newGroupNameInput,
-                        "text"     : ErrorTextTStr.DFGConflict,
+                        "text"     : ErrTStr.DFGConflict,
                         "check"    : function() {
                             var name = $newGroupNameInput.val().trim();
                             return DFG.hasGroup(name);
@@ -253,7 +253,7 @@ window.DataFlowModal = (function($, DataFlowModal) {
                 isValid = xcHelper.validate([
                     {
                         "$selector": $sideListSection.find('.listBox').eq(0),
-                        "text"     : ErrorTextTStr.NoGroupSelect,
+                        "text"     : ErrTStr.NoGroupSelect,
                         "check"    : function() {
                             return ($modalMain.find('.listBox.selected')
                                               .length === 0);
@@ -322,7 +322,7 @@ window.DataFlowModal = (function($, DataFlowModal) {
             setupDFGList();
         })
         .fail(function(error) {
-            Alert.error("Data Flow Creation Failed", error);
+            Alert.error(DFGTStr.DFCreateFail, error);
         })
         .always(function() {
             modalHelper.enableSubmit();
@@ -427,13 +427,12 @@ window.DataFlowModal = (function($, DataFlowModal) {
         for (var i = 0, len = tableCols.length; i < len; i++) {
             var colName = tableCols[i].name;
 
-
             if (colName === "DATA") {
                 continue;
             }
 
-            var type    = tableCols[i].type;
-            var colNum  = i + 1;
+            var type = tableCols[i].type;
+            var colNum = i + 1;
             var thClass = "col" + colNum + " type-" + type;
             var exportable = true;
             var validTypes = ["string", "integer", "float", "boolean"];
@@ -477,9 +476,11 @@ window.DataFlowModal = (function($, DataFlowModal) {
 
     function showErrorTooltip($th) {
         var $columnPadding = $th.find(".columnPadding");
-
+        var title = xcHelper.replaceMsg(TooltipTStr.NoExport, {
+            "type": getType($th)
+        });
         $columnPadding.tooltip({
-            "title"    : "Cannot export column of type " + getType($th),
+            "title"    : title,
             "placement": "top",
             "animation": "true",
             "container": "#dataFlowModal",

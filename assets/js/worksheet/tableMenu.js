@@ -55,18 +55,17 @@ window.TblMenu = (function(TblMenu, $) {
             var tableId = $tableMenu.data('tableId');
             var tableName = gTables[tableId].tableName;
 
-            var msg = "Are you sure you want to delete table " + tableName + "?";
+            var msg = xcHelper.replaceMsg(TblTStr.DelMsg, {"table": tableName});
             Alert.show({
-                "title"     : "DELETE TABLE",
-                "msg"       : msg,
-                "isCheckBox": true,
-                "confirm"   : function() {
+                "title"  : TblTStr.Del,
+                "msg"    : msg,
+                "confirm": function() {
                     TblManager.deleteTable(tableId, TableType.Active)
                     .then(function() {
                         KVStore.commit();
                     })
                     .fail(function(error) {
-                        Alert.error("Delete Table Fails", error);
+                        Alert.error(StatusMessageTStr.DeleteTableFailed, error);
                     });
                 }
             });
@@ -176,7 +175,7 @@ window.TblMenu = (function(TblMenu, $) {
                     },
                     {
                         "$selector": $input,
-                        "text"     : ErrorTextTStr.InvalidWSInList,
+                        "text"     : ErrTStr.InvalidWSInList,
                         "check"    : function () {
                             return ($option.length === 0);
                         }
@@ -225,7 +224,7 @@ window.TblMenu = (function(TblMenu, $) {
         //         // XXX also need to check table name conflict
         //         isValid = xcHelper.validate({
         //             "$selector": $wsInput,
-        //             "text"     : ErrorTextTStr.InvalidWSInList,
+        //             "text"     : ErrTStr.InvalidWSInList,
         //             "check"    : function() {
         //                 return ($option.length === 0);
         //             }
@@ -369,7 +368,7 @@ window.TblMenu = (function(TblMenu, $) {
                 var colNum  = $colMenu.data('colNum');
 
                 if (colName === "") {
-                    StatusBox.show(ErrorTextTStr.NoEmpty, $input, null);
+                    StatusBox.show(ErrTStr.NoEmpty, $input, null);
                     return false;
                 }
 
@@ -403,11 +402,14 @@ window.TblMenu = (function(TblMenu, $) {
             var val = parseInt($(this).val().trim());
             if (isNaN(val) || val < 0 || val > 14) {
                 // when this field is empty
-                StatusBox.show(ErrorTextWReplaceTStr.InvalidRange
-                                                    .replace("<num1>", 0)
-                                                    .replace("<num2>", 14),
-                                                    $(this), null,
-                                                    {"side": "left", "closeable": true});
+                var error = xcHelper.replaceMsg(ErrWRepTStr.InvalidRange, {
+                    "num1": 0,
+                    "num2": 14
+                });
+                StatusBox.show(error, $(this), null, {
+                    "side"     : "left",
+                    "closeable": true
+                });
                 return;
             }
             var colNum = $colMenu.data('colNum');
@@ -437,7 +439,7 @@ window.TblMenu = (function(TblMenu, $) {
                 if (delim.trim() === "") {
                     if (delim.length === 0) {
                         // when this field is empty
-                        StatusBox.show(ErrorTextTStr.NoEmpty, $delimInput, null,
+                        StatusBox.show(ErrTStr.NoEmpty, $delimInput, null,
                                         {"closeable": true});
                         return;
                     }
@@ -457,7 +459,7 @@ window.TblMenu = (function(TblMenu, $) {
                     var isValid = xcHelper.validate([
                         {
                             "$selector": $numInput,
-                            "text"     : ErrorTextTStr.OnlyNumber,
+                            "text"     : ErrTStr.OnlyNumber,
                             "check"    : function() {
                                 return (isNaN(numColToGet) ||
                                         !Number.isInteger(numColToGet));
@@ -465,7 +467,7 @@ window.TblMenu = (function(TblMenu, $) {
                         },
                         {
                             "$selector": $numInput,
-                            "text"     : ErrorTextTStr.OnlyPositiveNumber,
+                            "text"     : ErrTStr.OnlyPositiveNumber,
                             "check"    : function() {
                                 return (numColToGet < 1);
                             }
@@ -491,14 +493,19 @@ window.TblMenu = (function(TblMenu, $) {
 
                 var $input = $(this);
                 var partitionNums = Number($input.val().trim());
+                var rangeErr = xcHelper.replaceMsg(ErrWRepTStr.InvalidRange, {
+                    "num1": 1,
+                    "num2": 10
+                });
+
                 var isValid = xcHelper.validate([
                     {
                         "$selector": $input,
-                        "text"     : ErrorTextTStr.OnlyNumber
+                        "text"     : ErrTStr.OnlyNumber
                     },
                     {
                         "$selector": $input,
-                        "text"     : ErrorTextTStr.OnlyNumber,
+                        "text"     : ErrTStr.OnlyNumber,
                         "check"    : function() {
                             return (isNaN(partitionNums) ||
                                     !Number.isInteger(partitionNums));
@@ -506,9 +513,8 @@ window.TblMenu = (function(TblMenu, $) {
                     },
                     {
                         "$selector": $input,
-                        "text"     : ErrorTextWReplaceTStr.InvalidRange
-                                    .replace("<num1>", 1).replace("<num2>", 10),
-                        "check": function() {
+                        "text"     : rangeErr,
+                        "check"    : function() {
                             return partitionNums < 1 || partitionNums > 10;
                         }
                     }
@@ -544,31 +550,31 @@ window.TblMenu = (function(TblMenu, $) {
                     },
                     {
                         "$selector": $lagInput,
-                        "text"     : ErrorTextTStr.OnlyNumber,
+                        "text"     : ErrTStr.OnlyNumber,
                         "check"    : function() {
                             return (isNaN(lag) || !Number.isInteger(lag));
                         }
                     },
                     {
                         "$selector": $lagInput,
-                        "text"     : ErrorTextTStr.NoNegativeNumber,
+                        "text"     : ErrTStr.NoNegativeNumber,
                         "check"    : function() { return (lag < 0); }
                     },
                     {
                         "$selector": $leadInput,
-                        "text"     : ErrorTextTStr.OnlyNumber,
+                        "text"     : ErrTStr.OnlyNumber,
                         "check"    : function() {
                             return (isNaN(lead) || !Number.isInteger(lead));
                         }
                     },
                     {
                         "$selector": $leadInput,
-                        "text"     : ErrorTextTStr.NoNegativeNumber,
+                        "text"     : ErrTStr.NoNegativeNumber,
                         "check"    : function() { return (lead < 0); }
                     },
                     {
                         "$selector": $leadInput,
-                        "text"     : ErrorTextTStr.NoAllZeros,
+                        "text"     : ErrTStr.NoAllZeros,
                         "check"    : function() {
                             return (lag === 0 && lead === 0);
                         }
@@ -1011,79 +1017,67 @@ window.TblMenu = (function(TblMenu, $) {
 
     function generateTableMenu() {
         var tableMenuHTML =
-            '<div id="tableMenu" class="menu tableMenu" data-submenu="tableSubMenu">' +
+        '<div id="tableMenu" class="menu tableMenu" data-submenu="tableSubMenu">' +
             '<ul>' +
-                '<li class="archiveTable">Archive Table</li>' +
-                '<li class="hideTable">Hide Table</li>' +
-                '<li class="unhideTable">Unhide Table</li>' +
-                // '<li class="deleteTable">Delete Table</li>' + XXX temporary
-                '<li class="exportTable">Export Table</li>' +
+                '<li class="archiveTable">' + MenuTStr.Archive + '</li>' +
+                '<li class="hideTable">' + MenuTStr.HideTbl + '</li>' +
+                '<li class="unhideTable">' + MenuTStr.UnHideTbl + '</li>' +
+                // '<li class="deleteTable">' + MenuTStr.DelTbl + '</li>' + XXX temporary
+                '<li class="exportTable">' + MenuTStr.ExportTbl + '</li>' +
                 /**
                 '<li class="visualize">' +
                 '    <a href="'+paths.tableau+'" target="_blank" '+
                 'style="text-decoration:none;color:#838383">'+
-                'Visualize in Tableau</a>' +
+                MenuTStr.Visual + '</a>' +
                 '</li>' +
-                '<li class="copyColNames">Copy Column Names</li>'+*/
-                '<li class="delAllDuplicateCols">Delete All Duplicates</li>' +
+                '<li class="copyColNames">' + MenuTStr.CPColNames + '</li>'+*/
+                '<li class="delAllDuplicateCols">' +
+                    MenuTStr.DelAllDups +
+                '</li>' +
                 '<li class="quickAgg parentMenu" data-submenu="quickAgg">' +
-                    'Quick Aggregates' +
+                    MenuTStr.QuickAgg +
                 '</li>' +
-                '<li class="multiCast">Smart Type Casting...</li>' +
+                '<li class="multiCast">' +
+                    MenuTStr.SmartCast + "..." +
+                '</li>' +
                 '<li class="moveToWorksheet parentMenu" ' +
                     'data-submenu="moveToWorksheet" data-toggle="tooltip" ' +
-                    'data-placement="top" title="no worksheet to move to">' +
-                    'Move to worksheet' +
+                    'data-placement="top" ' +
+                    'title="' + TooltipTStr.NoWSToMV + '">' +
+                    MenuTStr.MVWS +
                 '</li>' +
-                '<li class="sort parentMenu" data-submenu="sort">Sort Columns' +
+                '<li class="sort parentMenu" data-submenu="sort">' +
+                    MenuTStr.SortCols +
                 '</li>' +
                 '<li class="resizeCols parentMenu" data-submenu="resizeCols">' +
-                    'Resize All Columns' +
+                    MenuTStr.ResizeAllCols +
                 '</li>' +
-                // XX copy to worksheet is temporarily disabled until we can do
-                // an actual copy of a table
-
-                // '<li class="dupToWorksheet">' +
-                //     '<span class="label">Copy to worksheet</span>' +
-                //     '<ul class="subMenu">' +
-                //         '<li style="text-align: center" class="clickable">' +
-                //             '<span>Worksheet Name</span>' +
-                //             '<div class="dropDownList">' +
-                //                 '<input class="wsName" type="text" width="100px" ' +
-                //                     'placeholder="click to see options" ' +
-                //                     'spellcheck="false"/>' +
-                //                 '<ul class="list wsList"></ul>' +
-                //             '</div>' +
-                //         '</li>' +
-                //         '<li style="text-align: center" class="clickable">' +
-                //             '<span>New Table Name</span>' +
-                //             '<input class="tableName" type="text" width="100px" ' +
-                //                     'placeholder="Enter a new table name" ' +
-                //                     'spellcheck="false" ' +
-                //                     'value="' + newTableName + '"/>' +
-                //         '</li>' +
-                //         '<div class="subMenuArea"></div>' +
-                //     '</ul>' +
-                //     '<div class="dropdownBox"></div>' +
-                // '</li>' +
             '</ul>' +
-            '<div class="scrollArea top"><div class="arrow"></div></div>' +
-            '<div class="scrollArea bottom"><div class="arrow"></div></div>' +
-            '</div>';
+            '<div class="scrollArea top">' +
+                '<div class="arrow"></div>' +
+            '</div>' +
+            '<div class="scrollArea bottom">' +
+                '<div class="arrow"></div>' +
+            '</div>' +
+        '</div>';
 
         var subMenuHTML =
             '<div id="tableSubMenu" class="menu subMenu">' +
                 '<ul class="quickAgg">' +
-                    '<li class="aggregates">Aggregate Functions</li>' +
-                    '<li class="correlation">Correlation Coefficient</li>' +
+                    '<li class="aggregates">' +
+                        MenuTStr.QuckAggaggFunc +
+                    '</li>' +
+                    '<li class="correlation">' +
+                        MenuTStr.QuickAggcorrFunc +
+                    '</li>' +
                 '</ul>' +
                 '<ul class="moveToWorksheet">' +
                     '<li style="text-align: center" class="clickable">' +
-                        '<span>Worksheet Name</span>' +
+                        '<span>' + WSTStr.WSName + '</span>' +
                         '<div class="dropDownList">' +
                             '<input class="wsName" type="text" width="100px" ' +
-                                'placeholder="click to see options" ' +
-                                'spellcheck="false" />' +
+                            'placeholder="' + CommonTxtTstr.ClickToOpts + '" ' +
+                            'spellcheck="false" />' +
                             '<ul class="list wsList"></ul>' +
                         '</div>' +
                     '</li>' +
@@ -1091,15 +1085,23 @@ window.TblMenu = (function(TblMenu, $) {
                 '</ul>' +
                 '<ul class="sort">' +
                     '<li class="sortForward">' +
-                        '<span class="sortUp"></span>A-Z</li>' +
+                        '<span class="sortUp"></span>' + MenuTStr.SortAsc +
+                    '</li>' +
                     '<li class="sortReverse">' +
-                        '<span class="sortDown"></span>Z-A</li>' +
+                        '<span class="sortDown"></span>' + MenuTStr.SortDesc +
+                    '</li>' +
                     '<div class="subMenuArea"></div>' +
                 '</ul>' +
                 '<ul class="resizeCols">' +
-                    '<li class="sizeToHeader">Size To Headers</li>' +
-                    '<li class="sizeToContents">Size To Contents</li>' +
-                    '<li class="sizeToFitAll">Size To Fit All</li>' +
+                    '<li class="sizeToHeader">' +
+                        MenuTStr.ResizeHeader +
+                    '</li>' +
+                    '<li class="sizeToContents">' +
+                        MenuTStr.ResizeToContents +
+                    '</li>' +
+                    '<li class="sizeToFitAll">' +
+                        MenuTStr.ResizeToAll +
+                    '</li>' +
                     '<div class="subMenuArea"></div>' +
                 '</ul>' +
                 '<div class="subMenuArea"></div>' +
@@ -1129,72 +1131,87 @@ window.TblMenu = (function(TblMenu, $) {
             '<div id="colMenu" class="menu mainMenu" data-submenu="colSubMenu">' +
                 '<ul>' +
                     '<li class="addColumn parentMenu" data-submenu="addColumn">' +
-                        'Add a column' +
+                        MenuTStr.AddCol +
                     '</li>' +
-                    '<li class="deleteColumn">Delete column</li>' +
-                    '<li class="duplicate">Duplicate column</li>' +
+                    '<li class="deleteColumn">' + MenuTStr.DelCol + '</li>' +
+                    '<li class="duplicate">' + MenuTStr.DupCol + '</li>' +
                     '<li class="deleteDuplicates">' +
-                        'Delete other duplicates' +
+                        MenuTStr.DelOtherDups +
                     '</li>' +
-                    '<li class="hide">Hide column</li>' +
-                    '<li class="unhide">Unhide column</li>' +
+                    '<li class="hide">' + MenuTStr.HideCol + '</li>' +
+                    '<li class="unhide">' + MenuTStr.UnHideCol + '</li>' +
                     '<li class="textAlign parentMenu" data-submenu="textAlign">' +
-                        'Text align' +
+                        MenuTStr.TxtAlign +
                     '</li>' +
                     '<li class="resize parentMenu" data-submenu="resize">' +
-                        'Resize' +
+                        MenuTStr.Resize +
                     '</li>' +
                     '<div class="divider identityDivider thDropdown"></div>' +
                     '<li class="rename parentMenu" data-submenu="rename">' +
-                        'Rename column' +
+                        MenuTStr.RenameCol +
                     '</li>' +
                     '<li class="splitCol parentMenu" data-submenu="splitCol">' +
-                        'Split column' +
+                        MenuTStr.SplitCol +
                     '</li>' +
                     '<li class="hPartition parentMenu" data-submenu="hPartition">' +
-                        'Horizontal Partition' +
+                        MenuTStr.HP +
                     '</li>' +
                     '<li class="changeDataType parentMenu" data-submenu="changeDataType">' +
-                        'Change data type' +
+                        MenuTStr.ChangeType +
                     '</li>' +
                     '<li class="window parentMenu" data-submenu="window">' +
-                        'Window' +
+                        MenuTStr.Win +
                     '</li>' +
                     '<li class="format parentMenu" data-submenu="format">' +
-                        'Format' +
+                        MenuTStr.Format +
                     '</li>' +
                     '<li class="roundToFixed parentMenu" data-submenu="roundToFixed">' +
-                        'Round' +
+                        MenuTStr.Round +
                     '</li>' +
                     '<div class="divider functionsDivider"></div>' +
                     '<li class="sort parentMenu" data-submenu="sort">' +
-                        'Sort' +
+                        MenuTStr.Sort +
                     '</li>' +
-                    '<li class="functions aggregate">Aggregate...</li>' +
-                    '<li class="functions filter">Filter...</li>' +
-                    '<li class="functions groupby">Group By...</li>' +
-                    '<li class="functions map">Map...</li>' +
-                    '<li class="joinList">Join...</li>' +
-                    '<li class="profile">Profile...</li>' +
+                    '<li class="functions aggregate">' +
+                        MenuTStr.Agg + "..." +
+                    '</li>' +
+                    '<li class="functions filter">' +
+                        MenuTStr.Flt + "..." +
+                    '</li>' +
+                    '<li class="functions groupby">' +
+                        MenuTStr.GB + "..." +
+                    '</li>' +
+                    '<li class="functions map">' +
+                        MenuTStr.Map + '...' +
+                    '</li>' +
+                    '<li class="joinList">' +
+                        MenuTStr.Join + '...' +
+                    '</li>' +
+                    '<li class="profile">' +
+                        MenuTStr.Profile + '...' +
+                    '</li>' +
                     '<div class="divider functionsDivider"></div>' +
-                    '<li class="extensions parentMenu" data-submenu="extensions">Extensions</li>'+
-                    '<li class="multiColumn hideColumns">Hide Columns</li>' +
-                    '<li class="multiColumn unhideColumns">Unhide Columns</li>' +
-                    '<li class="multiColumn deleteColumns">Delete Columns</li>' +
+                    '<li class="extensions parentMenu" data-submenu="extensions">' +
+                        MenuTStr.Exts +
+                    '</li>'+
+                    '<li class="multiColumn hideColumns">' +
+                        MenuTStr.HideColPlura +
+                    '</li>' +
+                    '<li class="multiColumn unhideColumns">' +
+                        MenuTStr.UnHideColPlura +
+                    '</li>' +
+                    '<li class="multiColumn deleteColumns">' +
+                        MenuTStr.DelColPlura +
+                    '</li>' +
                     '<li class="multiColumn textAlignColumns parentMenu" data-submenu="multiTextAlign">' +
-                        'Text align' +
+                        MenuTStr.TxtAlign +
                     '</li>' +
                     '<li class="multiColumn resizeColumns parentMenu" data-submenu="multiResize">' +
-                        'Resize' +
+                        MenuTStr.Resize +
                     '</li>' +
                     '<li class="multiColumn multiChangeDataType parentMenu" data-submenu="multiChangeDataType">' +
-                        'Change data type' +
+                        MenuTStr.ChangeType +
                     '</li>' +
-                    '<li class="tdFilter tdDropdown">Filter this value</li>' +
-                    '<li class="tdExclude tdDropdown">Exclude this value</li>' +
-                    '<li class="tdJsonModal tdDropdown">Examine</li>' +
-                    '<li class="tdUnnest tdDropdown">Pull all</li>' +
-                    '<li class="tdCopy tdDropdown">Copy to clipboard</li>' +
                 '</ul>' +
                 '<div class="scrollArea top">' +
                     '<div class="arrow"></div>' +
@@ -1208,20 +1225,40 @@ window.TblMenu = (function(TblMenu, $) {
             '<div id="colSubMenu" class="menu subMenu">' +
                 '<ul class="addColumn">' +
                     '<li class="addColumn addColLeft">' +
-                    'On the left</li>' +
-                    '<li class="addColumn addColRight">On the right</li>' +
+                        MenuTStr.AddColLeft +
+                    '</li>' +
+                    '<li class="addColumn addColRight">' +
+                        MenuTStr.AddColRight +
+                    '</li>' +
                 '</ul>' +
                 '<ul class="textAlign">' +
-                    '<li class="textAlign leftAlign">Left Align</li>' +
-                    '<li class="textAlign centerAlign">Center Align</li>' +
-                    '<li class="textAlign rightAlign">Right Align</li>' +
-                    '<li class="textAlign wrapAlign">Wrap Text</li>' +
+                    '<li class="textAlign leftAlign">' +
+                        MenuTStr.TxtAlignLeft +
+                    '</li>' +
+                    '<li class="textAlign centerAlign">' +
+                        MenuTStr.TxtAlignCenter +
+                    '</li>' +
+                    '<li class="textAlign rightAlign">' +
+                        MenuTStr.TxtAlignRight +
+                    '</li>' +
+                    '<li class="textAlign wrapAlign">' +
+                        MenuTStr.TxtAlignWrap +
+                    '</li>' +
                 '</ul>' +
                 '<ul class="resize">' +
-                    '<li class="resize sizeToHeader">Size To Header</li>' +
-                    '<li class="resize sizeToContents">Size To Contents</li>' +
-                    '<li class="resize sizeToFitAll">Size To Fit All</li>' +
+                    '<li class="resize sizeToHeader">' +
+                        MenuTStr.ResizeHeader +
+                    '</li>' +
+                    '<li class="resize sizeToContents">' +
+                        MenuTStr.ResizeToContents +
+                    '</li>' +
+                    '<li class="resize sizeToFitAll">' +
+                        MenuTStr.ResizeToAll +
+                    '</li>' +
                 '</ul>' +
+                // XXX Note that this part didn't change to use MenTStr
+                // because it should actaully moved to a seperate file
+                // of extension
                 '<ul class="extensions">' +
                     '<li class="extensions efunc-lastTouch">Last Touch</li>' +
                     '<li class="extensions efunc-genFinalPT">Final PT</li>' +
@@ -1230,7 +1267,9 @@ window.TblMenu = (function(TblMenu, $) {
                 '</ul>' +
                 '<ul class="rename">' +
                     '<li style="text-align: center" class="rename clickable">' +
-                        '<div>New Column Name</div>' +
+                        '<div>' +
+                            MenuTStr.RenameColTitle +
+                        '</div>' +
                         '<div class="inputWrap">' +
                             '<input class="colName" type="text"' +
                                 ' autocomplete="on" spellcheck="false"/>' +
@@ -1241,13 +1280,19 @@ window.TblMenu = (function(TblMenu, $) {
                     '</li>' +
                 '</ul>' +
                 '<ul class="format">' +
-                    '<li class="changeFormat" data-format="percent">Percent</li>' +
-                    '<li class="changeFormat" data-format="default">Back to original</li>' +
+                    '<li class="changeFormat" data-format="percent">' +
+                        MenuTStr.Percent +
+                    '</li>' +
+                    '<li class="changeFormat" data-format="default">' +
+                        CommonTxtTstr.BackToOrig +
+                    '</li>' +
                 '</ul>' +
                 '<ul class="roundToFixed">' +
                     '<li style="text-align: center" class="clickable">' +
                         '<div title="ex. an input of 2 would change 1.2345 ' +
-                        'to 1.23">Num. of decimals to keep</div>' +
+                        'to 1.23">' +
+                            MenuTStr.RoundTitle +
+                        '</div>' +
                         '<div class="inputWrap">' +
                             '<input class="digitsToRound" type="number" ' +
                                 'max="14" min="0" autocomplete="on" ' +
@@ -1258,11 +1303,15 @@ window.TblMenu = (function(TblMenu, $) {
                         '</div>' +
                     '</li>' +
                     '<div class="divider"></div>' +
-                    '<li class="changeRound default">Back to original</li>' +
+                    '<li class="changeRound default">' +
+                        CommonTxtTstr.BackToOrig +
+                    '</li>' +
                 '</ul>' +
                 '<ul class="splitCol">' +
                     '<li style="text-align: center" class="clickable">' +
-                        '<div>Split Column By</div>' +
+                        '<div>' +
+                            MenuTStr.SplitColDelim +
+                        '</div>' +
                         '<div class="inputWrap">' +
                             '<input class="delimiter" type="text"' +
                             ' spellcheck="false"/>' +
@@ -1270,18 +1319,23 @@ window.TblMenu = (function(TblMenu, $) {
                                 '<span class="icon"></span>' +
                             '</div>' +
                         '</div>' +
-                        '<div>Number of Splits</div>' +
-                        '<input class="num" type="number" min="1" step="1"' +
-                            ' placeholder="Optional"' +
+                        '<div>' +
+                            MenuTStr.SplitColNum +
+                        '</div>' +
+                        '<input class="num" type="number"' +
+                            ' placeholder="' + CommonTxtTstr.Optional + '"' +
                             ' spellcheck="false"/>' +
                     '</li>' +
                 '</ul>' +
                 '<ul class="hPartition">' +
                     '<li style="text-align: center" class="clickable">' +
-                        '<div>Number of partitions</div>' +
+                        '<div>' +
+                            MenuTStr.HPNum +
+                        '</div>' +
                         '<div class="inputWrap">' +
-                            '<input class="partitionNums" type="number"' +
-                            ' placeholder="Max value of 10" spellcheck="false"/>' +
+                            '<input class="partitionNums" type="number" ' +
+                            'placeholder="' + MenuTStr.HPPlaceholder + '" ' +
+                            'spellcheck="false"/>' +
                             '<div class="iconWrapper inputAction">' +
                                 '<span class="icon"></span>' +
                             '</div>' +
@@ -1291,7 +1345,9 @@ window.TblMenu = (function(TblMenu, $) {
                 '<ul class="changeDataType">' + typeMenu + '</ul>' +
                 '<ul class="window">' +
                     '<li style="text-align: center" class="clickable">' +
-                        '<div>Lag</div>' +
+                        '<div>' +
+                           MenuTStr.WinLag +
+                        '</div>' +
                         '<div class="inputWrap">' +
                             '<input class="lag" type="number"' +
                             ' spellcheck="false"/>' +
@@ -1299,7 +1355,9 @@ window.TblMenu = (function(TblMenu, $) {
                                 '<span class="icon"></span>' +
                             '</div>' +
                         '</div>' +
-                        '<div>Lead</div>' +
+                        '<div>' +
+                            MenuTStr.WinLead +
+                        '</div>' +
                         '<div class="inputWrap">' +
                             '<input class="lead" type="number"' +
                             ' spellcheck="false"/>' +
@@ -1311,20 +1369,36 @@ window.TblMenu = (function(TblMenu, $) {
                 '</ul>' +
                 '<ul class="sort">' +
                     '<li class="sort">' +
-                    '<span class="sortUp"></span>A-Z</li>' +
+                        '<span class="sortUp"></span>' + MenuTStr.SortAsc +
+                    '</li>' +
                     '<li class="revSort">' +
-                    '<span class="sortDown"></span>Z-A</li>' +
+                        '<span class="sortDown"></span>' + MenuTStr.SortDesc +
+                    '</li>' +
                 '</ul>' +
                 '<ul class="multiTextAlign">' +
-                    '<li class="textAlign leftAlign">Left Align</li>' +
-                    '<li class="textAlign centerAlign">Center Align</li>' +
-                    '<li class="textAlign rightAlign">Right Align</li>' +
-                    '<li class="textAlign wrapAlign">Wrap Text</li>' +
+                    '<li class="textAlign leftAlign">' +
+                        MenuTStr.TxtAlignLeft +
+                    '</li>' +
+                    '<li class="textAlign centerAlign">' +
+                        MenuTStr.TxtAlignCenter +
+                    '</li>' +
+                    '<li class="textAlign rightAlign">' +
+                        MenuTStr.TxtAlignRight +
+                    '</li>' +
+                    '<li class="textAlign wrapAlign">' +
+                        MenuTStr.TxtAlignWrap +
+                    '</li>' +
                 '</ul>' +
                 '<ul class="multiResize">' +
-                    '<li class="resize sizeToHeader">Size To Headers</li>' +
-                    '<li class="resize sizeToContents">Size To Contents</li>' +
-                    '<li class="resize sizeToFitAll">Size To Fit All</li>' +
+                    '<li class="resize sizeToHeader">' +
+                        MenuTStr.ResizeHeader +
+                    '</li>' +
+                    '<li class="resize sizeToContents">' +
+                        MenuTStr.ResizeToContents +
+                    '</li>' +
+                    '<li class="resize sizeToFitAll">' +
+                        MenuTStr.ResizeToAll +
+                    '</li>' +
                 '</ul>' +
                 '<ul class="multiChangeDataType">' + typeMenu + '</ul>' +
                 '<div class="subMenuArea"></div>' +
@@ -1332,11 +1406,21 @@ window.TblMenu = (function(TblMenu, $) {
 
         var cellMenuHTML =
             '<ul id="cellMenu" class="menu">' +
-                '<li class="tdFilter">Filter this value</li>' +
-                '<li class="tdExclude">Exclude this value</li>' +
-                '<li class="tdJsonModal">Examine</li>' +
-                '<li class="tdUnnest">Pull all</li>' +
-                '<li class="tdCopy">Copy to clipboard</li>' +
+                '<li class="tdFilter">' +
+                    MenuTStr.FltCell +
+                '</li>' +
+                '<li class="tdExclude">' +
+                    MenuTStr.ExclCell +
+                '</li>' +
+                '<li class="tdJsonModal">' +
+                    MenuTStr.ExamCell +
+                '</li>' +
+                '<li class="tdUnnest">' +
+                    MenuTStr.PullAllCell +
+                '</li>' +
+                '<li class="tdCopy">' +
+                    MenuTStr.CPCell +
+                '</li>' +
             '</ul>';
 
         $workspacePanel.append(mainMenuHTML, subMenuHTML, cellMenuHTML);

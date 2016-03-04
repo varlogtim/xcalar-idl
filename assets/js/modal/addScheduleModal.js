@@ -112,8 +112,7 @@ window.AddScheduleModal = (function($, AddScheduleModal) {
                 "offset": -25,
                 "side"  : "right"
             };
-            StatusBox.show(ErrorTextTStr.NoEmptyList, $scheduleListInput,
-                            false, options);
+            StatusBox.show(ErrTStr.NoEmptyList, $scheduleListInput, false, options);
             return;
         }
 

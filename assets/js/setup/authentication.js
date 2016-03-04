@@ -53,9 +53,7 @@ window.Authentication = (function(jQuery, Authentication) {
 
     function generateHashTag() {
         // 3844 = 52 * 62, possibility
-        var str = "0123456789" +
-                    "abcedfghijklmnopqrstuvwxyz" +
-                    "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        var str = "0123456789abcedfghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
         // index1 should not include number
         // (if hashId="12", bind to data-id, it may return number 12)
         var index1 = Math.floor(Math.random() * 52) + 10;

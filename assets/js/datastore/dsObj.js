@@ -559,7 +559,7 @@ window.DS = (function ($, DS) {
             $grid.find('.waitingIcon').remove();
             $grid.removeClass("inactive")
                  .removeClass("deleting");
-            Alert.error("Delete Dataset Fails", error);
+            Alert.error(DSTStr.DelDSFail, error);
             deferred.reject(error);
         });
 

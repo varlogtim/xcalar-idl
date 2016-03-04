@@ -101,7 +101,7 @@ window.DFGPanel = (function($, DFGPanel) {
         var dfg = DFG.getGroup(currentDFG);
 
         if (dfg.checkParamInUse(paramName)) {
-            StatusBox.show(ErrorTextTStr.ParamInUse, $paramName);
+            StatusBox.show(ErrTStr.ParamInUse, $paramName);
             return;
         }
 
@@ -166,7 +166,7 @@ window.DFGPanel = (function($, DFGPanel) {
                 },
                 {
                     "$selector": $input,
-                    "text"     : ErrorTextTStr.NoSpecialCharOrSpace,
+                    "text"     : ErrTStr.NoSpecialCharOrSpace,
                     "check"    : function() {
                         return xcHelper.hasSpecialChar(paramName);
                     }
@@ -189,8 +189,9 @@ window.DFGPanel = (function($, DFGPanel) {
             });
 
             if (isNameConflict) {
-                var text = ErrorTextWReplaceTStr.ParamConflict
-                            .replace("<name>", paramName);
+                var text = xcHelper.replaceMsg(ErrWRepTStr.ParamConflict, {
+                    "name": paramName
+                });
                 StatusBox.show(text, $input);
                 return;
             }

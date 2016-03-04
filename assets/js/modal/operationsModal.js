@@ -903,10 +903,10 @@ window.OperationsModal = (function($, OperationsModal) {
     }
 
     function showErrorMessage(inputNum) {
-        var text = ErrorTextTStr.NoSupportOp;
+        var text = ErrTStr.NoSupportOp;
         var $target = $operationsModal.find('input').eq(inputNum);
         if ($target.val().trim() === "") {
-            text = ErrorTextTStr.NoEmpty;
+            text = ErrTStr.NoEmpty;
         }
         StatusBox.show(text, $target, false, {"offset": -5});
     }
@@ -1392,9 +1392,9 @@ window.OperationsModal = (function($, OperationsModal) {
                                               .length === 0;
             var errorMsg;
             if (hasEmptyOption) {
-                errorMsg = ErrorTextTStr.NoEmptyOrCheck;
+                errorMsg = ErrTStr.NoEmptyOrCheck;
             } else {
-                errorMsg = ErrorTextTStr.NoEmpty;
+                errorMsg = ErrTStr.NoEmpty;
             }
             StatusBox.show(errorMsg, $invalidInput);
             modalHelper.enableSubmit();
@@ -1569,10 +1569,10 @@ window.OperationsModal = (function($, OperationsModal) {
                         if (colTypes[i] != null) {
                             if (types.indexOf(colTypes[i]) < 0) {
                                 isPassing = false;
-                                var errorText = ErrorTextWReplaceTStr
-                                                .InvalidOpsType
-                                            .replace("<type1>", types.join("/"))
-                                            .replace("<type2>", colTypes[i]);
+                                var errorText = xcHelper.replaceMsg(ErrWRepTStr.InvalidOpsType, {
+                                    "type1": types.join("/"),
+                                    "type2": colTypes[i]
+                                });
                                 StatusBox.show(errorText, $input);
                                 return (false);
                             }
@@ -1588,9 +1588,10 @@ window.OperationsModal = (function($, OperationsModal) {
 
                 if (checkRes != null) {
                     isPassing = false;
-                    var errorText = ErrorTextWReplaceTStr.InvalidOpsType
-                                .replace("<type1>", checkRes.validType.join("/"))
-                                .replace("<type2>", checkRes.currentType);
+                    var errorText = xcHelper.replaceMsg(ErrWRepTStr.InvalidOpsType, {
+                        "type1": checkRes.validType.join("/"),
+                        "type2": checkRes.currentType
+                    });
 
                     StatusBox.show(errorText, $input);
                     return (false);
@@ -1599,7 +1600,7 @@ window.OperationsModal = (function($, OperationsModal) {
                                                             existingTypes);
                 // if (!formatArgumentResults.isString && newLength === 0) {
                 //     isPassing = false;
-                //     var text = ErrorTextTStr.NoEmpty;
+                //     var text = ErrTStr.NoEmpty;
                 //     StatusBox.show(text, $input);
                 //     return (false);
                 // }
@@ -1635,7 +1636,7 @@ window.OperationsModal = (function($, OperationsModal) {
     function aggregate(aggrOp, args) {
         var colIndex = getColIndex(args[0]);
         if (colIndex === -1) {
-            StatusBox.show(ErrorTextTStr.InvalidColName, $argInputs.eq(0));
+            StatusBox.show(ErrTStr.InvalidColName, $argInputs.eq(0));
             return (false);
         }
 
@@ -1649,7 +1650,7 @@ window.OperationsModal = (function($, OperationsModal) {
         if (operator !== 'not') {
             colIndex = getColIndex(args[0]);
             if (colIndex === -1) {
-                StatusBox.show(ErrorTextTStr.InvalidColName, $argInputs.eq(0));
+                StatusBox.show(ErrTStr.InvalidColName, $argInputs.eq(0));
                 return (false);
             }
         } else {
@@ -1789,14 +1790,18 @@ window.OperationsModal = (function($, OperationsModal) {
         var text;
 
         if (typeof colNames !== "string") {
-            text = ErrorTextWReplaceTStr.InvalidCol.replace("<name>", colNames);
+            text = xcHelper.replaceMsg(ErrWRepTStr.InvalidCol, {
+                "name": colNames
+            });
             StatusBox.show(text, $input);
             return (false);
         }
         var values = colNames.split(",");
         var numValues = values.length;
         if (single && numValues > 1) {
-            text = ErrorTextWReplaceTStr.InvalidCol.replace("<name>", colNames);
+            text = xcHelper.replaceMsg(ErrWRepTStr.InvalidCol, {
+                "name": colNames
+            });
             StatusBox.show(text, $input);
             return (false);
         }
@@ -1813,10 +1818,11 @@ window.OperationsModal = (function($, OperationsModal) {
 
             if (!table.hasBackCol(value)) {
                 if (value.length === 2 && value.indexOf('""') === 0) {
-                    text = ErrorTextTStr.NoEmpty;
+                    text = ErrTStr.NoEmpty;
                 } else {
-                    text = ErrorTextWReplaceTStr.InvalidCol
-                            .replace("<name>", value.replace(/\"/g, ''));
+                    text = xcHelper.replaceMsg(ErrWRepTStr.InvalidCol, {
+                        "name": value.replace(/\"/g, '')
+                    });
                 }
 
                 StatusBox.show(text, $input);

@@ -403,8 +403,8 @@ window.ColManager = (function($, ColManager) {
         .fail(function(error) {
             xcHelper.unlockTable(tableId);
 
-            Alert.error("Change Data Type Fails", error);
-            StatusMessage.fail(StatusMessageTStr.SplitColumnFailed, msgId);
+            Alert.error(StatusMessageTStr.ChangeTypeFailed, error);
+            StatusMessage.fail(StatusMessageTStr.ChangeTypeFailed, msgId);
             deferred.reject(error);
         });
 
@@ -635,7 +635,7 @@ window.ColManager = (function($, ColManager) {
     //         xcHelper.unlockTable(tableId);
     //         WSManager.removeTable(finalTableId);
 
-    //         Alert.error("Change Data Type Fails", error);
+    //         Alert.error(StatusMessageTStr.ChangeTypeFailed, error);
     //         StatusMessage.fail(StatusMessageTStr.ChangeTypeFailed, msgId);
     //         SQL.errorLog("Change Data Type", sqlOptions, query, error);
     //         deferred.reject(error);
@@ -708,7 +708,7 @@ window.ColManager = (function($, ColManager) {
             // XXX: Potential trap with tables created in the backend and then
             // inducted into the front end
             xcHelper.unlockTable(tableId, false);
-            Alert.error("Windowing failed", error);
+            Alert.error(StatusMessageTStr.WindowFailed, error);
             SQL.errorLog("Windowing failed", error);
             StatusMessage.fail(StatusMessageTStr.WindowFailed, msgId);
             return;
@@ -941,7 +941,7 @@ window.ColManager = (function($, ColManager) {
         .fail(function(error) {
             // XXX Write a better error handling function
             xcHelper.unlockTable(tableId, false);
-            Alert.error("Windowing failed", error);
+            Alert.error(StatusMessageTStr.WindowFailed, error);
             SQL.errorLog("Windowing failed", error);
             StatusMessage.fail(StatusMessageTStr.WindowFailed, msgId);
         });
@@ -1317,7 +1317,7 @@ window.ColManager = (function($, ColManager) {
         })
         .fail(function(error) {
             xcHelper.unlockTable(tableId);
-            Alert.error("Horizontal Partition failed", error);
+            Alert.error(StatusMessageTStr.HPartitionFailed, error);
             SQL.errorLog("Horizontal Partition failed", error);
             StatusMessage.fail(StatusMessageTStr.HPartitionFailed, msgId);
             deferred.reject(error);
@@ -1616,7 +1616,7 @@ window.ColManager = (function($, ColManager) {
                 StatusMessage.cancel(msgId);
                 deferred.resolve();
             } else {
-                Alert.error("Split Column fails", error);
+                Alert.error(StatusMessageTStr.SplitColumnFailed, error);
                 StatusMessage.fail(StatusMessageTStr.SplitColumnFailed, msgId);   
                 deferred.reject(error);
             }
@@ -1730,12 +1730,13 @@ window.ColManager = (function($, ColManager) {
 
         function alertHelper(numToSplit, numDelim, curDeferred) {
             if (isAlertOn && numToSplit > 15) {
-                var text = "About " + numToSplit +
-                            " columns will be generated, " +
-                            "do you still want to continue the operation?";
+                var msg = xcHelper.replaceMsg(ColTStr.SplitColWarnMsg, {
+                    "num": numToSplit
+                });
+
                 Alert.show({
-                    "title"     : "Many Columns will generate",
-                    "msg"       : text,
+                    "title"     : ColTStr.SplitColWarn,
+                    "msg"       : msg,
                     "isCheckBox": false,
                     "confirm"   : function () {
                         curDeferred.resolve(numToSplit, numDelim);
@@ -2291,9 +2292,9 @@ window.ColManager = (function($, ColManager) {
                                        colNum) {
         // $inputs checks the names of $inputs, tableId is used to check
         // back column names. You do not need both
-        var name        = $input.val().trim();
+        var name = $input.val().trim();
         var isDuplicate = false;
-        var title       = "Name already exists, please use another name.";
+        var title = ErrTStr.ColumnConfilct;
         
         if (parseCol) {
             name = name.replace(/^\$/, '');
@@ -2302,11 +2303,10 @@ window.ColManager = (function($, ColManager) {
         $(".tooltip").hide();
         // temporarily use, will be removed when backend allow name with space
         if (/^ | $|[,\(\)'"]/.test(name) === true) {
-            title = "Invalid name, cannot contain '\"() or starting or ending " +
-                    "spaces";
+            title = ColTStr.RenamSpecialChar;
             isDuplicate = true;
         } else if (name === 'DATA') {
-            title = "The name \'DATA\' is reserved.";
+            title = ErrTStr.PreservedName;
             isDuplicate = true;
         }
 
@@ -2335,14 +2335,13 @@ window.ColManager = (function($, ColManager) {
                     (!tableCols[i].isDATACol() &&
                      tableCols[i].getBackColName() === name))
                 {
-                    title = "A column is already using this name, " +
-                            "please use another name.";
+                    title = ErrTStr.ColumnConfilct;
                     isDuplicate = true;
                     break;
                 }
             }
         }
-        
+
         if (isDuplicate) {
             var container = $input.closest('.mainPanel').attr('id');
             var $toolTipTarget = $input.parent();
@@ -3401,10 +3400,9 @@ window.ColManager = (function($, ColManager) {
     }
 
     function getTableCellHtml(value) {
-        var html =
-            '<div class="addedBarTextWrap clickable">' +
-                value +   
-            '</div>';
+        var html = '<div class="addedBarTextWrap clickable">' +
+                        value +
+                   '</div>';
         return (html);
     }
 
