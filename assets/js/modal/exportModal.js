@@ -18,6 +18,7 @@ window.ExportModal = (function($, ExportModal) {
     });
     var columnsToExport = [];
     var exportTargInfo;
+    var validTypes = ['string', 'integer', 'float', 'boolean'];
 
     ExportModal.setup = function() {
         $exportModal.draggable({
@@ -43,7 +44,6 @@ window.ExportModal = (function($, ExportModal) {
             
             submitForm()
             .fail(function(error) {
-                console.error(error);
                 // being handled in xcfunction.export
             });
         });
@@ -109,6 +109,22 @@ window.ExportModal = (function($, ExportModal) {
             Tips.refresh();
         }, 300);
 
+        var tableName = gTables[tableId].tableName;
+        exportTableName = tableName;
+        $exportName.val(tableName.split('#')[0].replace(/[\W_]+/g, "")).focus();
+        $exportName[0].select();
+
+        addColumnSelectListeners();
+
+        $(document).on("mousedown.exportModal", function() {
+            xcHelper.hideDropdowns($exportModal);
+        });
+        $(document).on("keypress.exportModal", function(e) {
+            if (e.which === keyCode.Enter) {
+                $exportModal.find(".confirm").trigger("click");
+            }
+        });
+
         XcalarListExportTargets("*", "*")
         .then(function(targs) {
             exportTargInfo = targs;
@@ -133,22 +149,6 @@ window.ExportModal = (function($, ExportModal) {
         })
         .fail(function(error) {
             console.error(error);
-        });
-
-        var tableName = gTables[tableId].tableName;
-        exportTableName = tableName;
-        $exportName.val(tableName.split('#')[0].replace(/[\W_]+/g, "")).focus();
-        $exportName[0].select();
-
-        addColumnSelectListeners();
-
-        $(document).on("mousedown.exportModal", function() {
-            xcHelper.hideDropdowns($exportModal);
-        });
-        $(document).on("keypress.exportModal", function(e) {
-            if (e.which === keyCode.Enter) {
-                $exportModal.find(".confirm").trigger("click");
-            }
         });
         
     };
@@ -197,19 +197,6 @@ window.ExportModal = (function($, ExportModal) {
                             columnsVal.indexOf('[') !== -1);
                     }
                 }
-            },
-            {
-                "$selector": $exportColumns,
-                "text"     : ErrorTextTStr.InvalidColName,
-                "check"    : function() {
-                    if (gExportNoCheck) {
-                        return (columnsVal.length === 0);
-                    } else {
-                        return (columnsVal.length === 0 ||
-                            columnsVal.indexOf('.') !== -1 ||
-                            columnsVal.indexOf('[') !== -1);
-                    }
-                }
             }
         ]);
 
@@ -220,21 +207,34 @@ window.ExportModal = (function($, ExportModal) {
         
         var frontColumnNames = columnsVal.split(",");
         var backColumnNames = convertFrontColNamesToBack(frontColumnNames);
-        var errorText = ErrorTextTStr.InvalidColumn
-                        .replace('<name>', frontColumnNames);
+        // convertFrontColnamesToBack will return an array of column names if 
+        // successful, or will return an error object with the first invalid column name
 
-        isValid = xcHelper.validate([{
-                "$selector": $exportColumns,
-                "text"     : errorText,
-                "check"    : function() {
-                    if (gExportNoCheck) {
-                        return (false);
-                    } else {
-                        return (typeof frontColumnNames === "string");
+        if (backColumnNames.invalid) {
+            var errorText;
+            if (backColumnNames.reason === 'notFound') {
+                errorText = ErrorTextWReplaceTStr.InvalidCol
+                        .replace('<name>', backColumnNames.name);
+            } else if (backColumnNames.reason === 'type') {
+                errorText = ErrorTextWReplaceTStr.InvalidColType
+                            .replace('<name>', backColumnNames.name)
+                            .replace('<type>', backColumnNames.type);
+            }
+
+            isValid = xcHelper.validate([{
+                    "$selector": $exportColumns,
+                    "text"     : errorText,
+                    "check"    : function() {
+                        if (gExportNoCheck) {
+                            return (false);
+                        } else {
+                            return (true);
+                        }
                     }
                 }
-            }
-        ]);
+            ]);
+        }
+        
 
         if (!isValid) {
             deferred.reject({error: 'invalid input'});
@@ -319,53 +319,41 @@ window.ExportModal = (function($, ExportModal) {
         return (deferred.promise());
     }
 
-    // returns array if all columns valid or returns a string of an invalid col
+    // returns array if all columns valid or returns an error object with 
+    // first invalid column name and reason why it's invalid
     function convertFrontColNamesToBack(frontColNames) {
         var backCols = [];
         var tableCols = gTables[tableId].tableCols;
-        var numTableCols = tableCols.length;
-        var colsArray = [];
         var foundColsArray = [];
         var numColsFound = 0;
         var numFrontColNames = frontColNames.length;
         var i;
         var numFoundCols;
         var isObj;
+        var frontColName;
 
-        // push only valid columns aka, no arrays, data, newcols, objs etc
-        for (i = 0; i < numTableCols; i++) {
-            if (tableCols[i].name !== "DATA" &&
-                !tableCols[i].isNewCol)
-            {
+        // take all of gTables columns and filter out arrays, data, newcols, objs etc
+        // put these columns into colsArray
+        var splitCols = splitIntoValidAndInvalidProgCols(tableCols);
+        var colsArray =  splitCols.validProgCols;
+        var invalidProgCols = splitCols.invalidProgCols;
+        var numTableCols = colsArray.length;
 
-                if (gExportNoCheck) {
-                    colsArray.push(tableCols[i]);
-                } else {
-                    if (tableCols[i].args &&
-                        tableCols[i].args[0].indexOf(".") > -1)
-                    {
-                        isObj = true;
-                    } else {
-                        isObj = false;
-                    }
-                    if (!isObj && (tableCols[i].type === "string" ||
-                    tableCols[i].type === "integer" ||
-                    tableCols[i].type === "float")) {
-                        colsArray.push(tableCols[i]);
-                    }
-                }
-            }
-        }
-        numTableCols = colsArray.length;
-
+        // after we've set up colsArray, we check the user's columns against it
         for (i = 0; i < numFrontColNames; i++) {
             var colFound = false;
             var tableCol;
             var j;
+            frontColName = frontColNames[i];
 
             for (j = 0; j < numTableCols; j++) {
                 tableCol = colsArray[j];
-                if (frontColNames[i] === tableCol.name) {
+                // if we find a match, we push the backcolumn name into backCols
+                // and remove the column from colsArray and put it into 
+                // foundColsArray. If we later have a duplicate backcolumn name
+                // it will no longer be in colsArray and we will search for it
+                // in foundColsArray
+                if (frontColName === tableCol.name) {
                     if (tableCol.func.args) {
                         backCols.push(tableCol.func.args[0]);
                     }
@@ -379,24 +367,87 @@ window.ExportModal = (function($, ExportModal) {
                 }
             }
 
+            // If column was not found,
+            // column could be a duplicate so check against the columns we
+            // already found and had removed
             if (!colFound) {
-                // column could be a duplicate so check against the columns we
-                // already found and removed
-                for (j = 0; j < numFoundCols; j++) {
+                
+                for (j = 0; j < numColsFound; j++) {
                     tableCol = foundColsArray[j];
-                    if (frontColNames[i] === tableCol.name) {
+                    if (frontColName === tableCol.name) {
                         backCols.push(tableCol.func.args[0]);
                         colFound = true;
                         break;
                     }
                 }
-            }
+                // column name is not a duplicate and is not found in the 
+                // valid column array so we check if it's in one of the invalid
+                // progCols
 
+                if (!colFound) {
+                    var numInvalidCols = invalidProgCols.length;
+                    for (j = 0; j < numInvalidCols; j++) {
+                        tableCol = invalidProgCols[j];
+                        if (frontColName === tableCol.name) {
+                            return {
+                                invalid: true,
+                                reason: 'type',
+                                type: tableCol.type,
+                                name: frontColName
+                            };
+                        }
+                    }
+                }
+            }
+            // if column name was not found in any of the progcols, then 
+            // it doesn't exist
             if (!colFound) {
-                return (frontColNames[i]);
+                return {
+                    invalid: true,
+                    reason: 'notFound',
+                    name: frontColName
+                };
             }
         }
         return (backCols);
+    }
+
+    // take all of gTables columns and filter out arrays, data, newcols, objs etc
+    // put these columns into one Array and the invalid columns in another array
+    function splitIntoValidAndInvalidProgCols(tableCols) {
+        var numTableCols = tableCols.length;
+        var colsArray = [];
+        var invalidProgCols = [];
+         for (var i = 0; i < numTableCols; i++) {
+            if (tableCols[i].name !== "DATA" &&
+                !tableCols[i].isNewCol)
+            {
+                if (gExportNoCheck) {
+                    colsArray.push(tableCols[i]);
+                } else {
+                    if (tableCols[i].args &&
+                        tableCols[i].args[0].indexOf(".") > -1)
+                    {
+                        isObj = true;
+                    } else {
+                        isObj = false;
+                    }
+                    if (!isObj &&
+                        validTypes.indexOf(tableCols[i].type) !== -1) {
+                        colsArray.push(tableCols[i]);
+                    } else {
+                        invalidProgCols.push(tableCols[i]);
+                    }
+                }
+            } else {
+                invalidProgCols.push(tableCols[i]);
+            }
+        }
+
+        return {
+            validProgCols: colsArray,
+            invalidProgCols: invalidProgCols
+        };
     }
 
     function selectColumnsOnKeyPress() {
@@ -562,7 +613,8 @@ window.ExportModal = (function($, ExportModal) {
             return (!isObj &&
                     ($header.hasClass('type-string') ||
                     $header.hasClass('type-integer') ||
-                    $header.hasClass('type-float')));
+                    $header.hasClass('type-float') ||
+                    $header.hasClass('type-boolean')));
 
         }).parent();
 
@@ -638,7 +690,6 @@ window.ExportModal = (function($, ExportModal) {
 
     function selectColumn($cells, colNum) {
         var colType = gTables[tableId].tableCols[colNum - 1].type;
-        var validTypes = ['string', 'integer', 'float'];
         if (validTypes.indexOf(colType) === -1) {
             return;
         }

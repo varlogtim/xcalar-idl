@@ -551,6 +551,7 @@ window.xcFunction = (function($, xcFunction) {
     };
 
     // export table
+    // backColumns and frontColumns are arrays of column names
     xcFunction.exportTable = function(tableName, exportName, targetName,
                                       numCols, backColumns, frontColumns) {
         var deferred = jQuery.Deferred();
@@ -576,11 +577,11 @@ window.xcFunction = (function($, xcFunction) {
             "exportName": exportName,
             "targetName": targetName,
             "numCols"   : numCols,
-            "columns"   : columns
+            "columns"   : frontColumns
         };
 
         XcalarExport(tableName, exportName, targetName, numCols, backColumns,
-                     fronColumns, sqlOptions)
+                     frontColumns, sqlOptions)
         .then(function() {
             // add alert
             // var ins = "Widget location: " +
