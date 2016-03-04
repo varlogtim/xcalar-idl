@@ -274,6 +274,17 @@ window.xcHelper = (function($, xcHelper) {
         return (copiedCols);
     };
 
+    xcHelper.timeStampTranslater = function(unixTime) {
+        if (unixTime == null) {
+            return null;
+        }
+
+        var timeStamp = unixTime * 1000;
+        time = xcHelper.getTime(null, timeStamp) + " " +
+               xcHelper.getDate("-", null, timeStamp);
+        return time;
+    };
+
     xcHelper.sizeTranslater = function(size, unitSeparated) {
         var unit  = ["B", "KB", "MB", "GB", "TB", "PB"];
         var start = 0;
@@ -1835,7 +1846,7 @@ window.xcHelper = (function($, xcHelper) {
             Alert.show({
                 "title": "Support Bundle Generated",
                 "instr": "Please check your backend for a .tar.gz file",
-                "msg"  : "Support upload bundle id "+ bid +
+                "msg"  : "Support upload bundle id " + bid +
                          " successfully generated!" +
                          " It is located on your Xcalar Server at " +
                          filePath + ".",

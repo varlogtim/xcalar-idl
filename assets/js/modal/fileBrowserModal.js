@@ -971,6 +971,7 @@ window.FileBrowser = (function($, FileBrowser) {
             // fileObj: {name, attr{isDirectory, size}}
             var isDirectory = fileObj.attr.isDirectory;
             var name = fileObj.name;
+            var mtime = fileObj.attr.mtime; // in untix time
 
             if (isDirectory && (name === '.' || name === '..')) {
                 return;
@@ -979,7 +980,7 @@ window.FileBrowser = (function($, FileBrowser) {
             var size = isDirectory ? "" :
                         xcHelper.sizeTranslater(fileObj.attr.size);
             var gridClass = isDirectory ? "folder" : "ds";
-            var date = "00:00:00 01-01-2015";
+            var date = xcHelper.timeStampTranslater(mtime) || "";
 
             html +=
                 '<div title="' + name + '" class="' + gridClass + ' grid-unit">' +

@@ -118,15 +118,17 @@ window.DataSampleTable = (function($, DataSampleTable) {
         var numEntries = dsObj.getNumEntries() || 'N/A';
 
         $("#dsInfo-title").text(dsName);
-        // XXX TODO(bug 2742): these info should be changed after better backend support
         $("#dsInfo-author").text(dsObj.getUser());
-        $("#dsInfo-createDate").text(xcHelper.getDate());
-        $("#dsInfo-updateDate").text(xcHelper.getDate());
 
         // file size is special size it needs to be calculated
         dsObj.getFileSize()
         .then(function(fileSize) {
             $("#dsInfo-size").text(fileSize);
+        });
+
+        dsObj.getModifyDate()
+        .then(function(mDate) {
+            $("#dsInfo-modifyDate").text(mDate);
         });
 
         if (typeof numEntries === "number") {

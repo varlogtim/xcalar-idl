@@ -555,6 +555,7 @@ function DSObj(options) {
     this.parentId = options.parentId;
     this.isFolder = options.isFolder;
     this.uneditable = options.uneditable;
+    this.mDate = options.mDate;
 
     // initially, dataset count itself as one child,
     // folder has no child;
@@ -610,6 +611,51 @@ DSObj.prototype = {
 
     getNumEntries: function() {
         return this.numEntries;
+    },
+
+    getModifyDate: function() {
+        // Get modify date, if not exist, fetch from backend and update it
+        var deferred = jQuery.Deferred();
+        var self = this;
+
+        if (self.mDate != null) {
+            deferred.resolve(self.mDate);
+            return (deferred.promise());
+        }
+
+        var loadURL = self.path;
+        var slashIndex = loadURL.lastIndexOf('/');
+        var curFileName = null;
+
+        curFileName = loadURL.substr(slashIndex + 1);
+        loadURL = loadURL.substr(0, slashIndex + 1);
+
+        XcalarListFiles(loadURL)
+        .then(function(res) {
+            var numFiles = res.numFiles;
+            var files = res.files;
+            for (var i = 0; i < numFiles; i++) {
+                var file = files[i];
+                if (file.name === curFileName) {
+                    self.mDate = xcHelper.timeStampTranslater(file.attr.mtime);
+                    if (self.mDate == null) {
+                        self.mDate = "N/A";
+                    }
+
+                    deferred.resolve(self.mDate);
+                    return;
+                }
+            }
+
+            console.error("Cannot find the file!");
+            deferred.resolve("N/A");
+        })
+        .fail(function(error) {
+            console.error("List file fails", error);
+            deferred.resolve("N/A");
+        });
+
+        return (deferred.promise());
     },
 
     getFileSize: function() {
