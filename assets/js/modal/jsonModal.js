@@ -255,7 +255,7 @@ window.JSONModal = (function($, JSONModal) {
             closeJSONModal();
             //set timeout to allow modal to close before unnesting many cols
             setTimeout(function() {
-                unnest($td, false, {isDataTd: true});
+                ColManager.unnest($td, false, {isDataTd: true});
             }, 0);
         });
 

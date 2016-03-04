@@ -918,7 +918,7 @@ window.TblMenu = (function(TblMenu, $) {
                                 .hasClass('type-array');
             $(".xcTable").find(".highlightBox").remove();
             setTimeout(function() {
-               unnest($td, isArray);
+               ColManager.unnest($td, isArray);
            }, 0);
         });
 
@@ -986,6 +986,27 @@ window.TblMenu = (function(TblMenu, $) {
         $hiddenInput.val(str).select();
         document.execCommand("copy");
         $hiddenInput.remove();
+    }
+
+    function sortHightlightCells($highlightBoxes) {
+        var cells = [];
+
+        $highlightBoxes.each(function() {
+            cells.push($(this));
+        });
+
+        cells.sort(function($a, $b) {
+            // first sort by colNum, then sort by rowNum if in same col
+            var res = $a.data("colNum") - $b.data("colNum");
+
+            if (res === 0) {
+                res = $a.data("rowNum") - $b.data("rowNum");
+            }
+
+            return (res);
+        });
+
+        return (cells);
     }
 
     function generateTableMenu() {

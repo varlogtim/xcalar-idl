@@ -92,7 +92,7 @@ window.DataPreview = (function($, DataPreview) {
             if (event.which !== 1) {
                 return;
             }
-            gRescolMouseDown($(this), event, {target: "datastore"});
+            TblAnim.startColResize($(this), event, {target: "datastore"});
             dblClickResize($(this), {minWidth: 25, target: "datastore"});
         });
 

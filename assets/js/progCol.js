@@ -2839,6 +2839,143 @@ window.ColManager = (function($, ColManager) {
         return ($tBody);
     };
 
+    ColManager.unnest = function($jsonTd, isArray, options) {
+        var text = $jsonTd.find("div").eq(0).text();
+        var jsonTdObj;
+        options = options || {};
+
+        try {
+            jsonTdObj = jQuery.parseJSON(text);
+        } catch (error) {
+            console.error(error, text);
+            return;
+        }
+
+        var colNum = xcHelper.parseColNum($jsonTd);
+        var $table = $jsonTd.closest('table');
+        var tableId  = $table.data('id');
+        var table = gTables[tableId];
+        var cols = table.tableCols;
+        var numCols = cols.length;
+        var colNames = [];
+        var escapedColNames = [];
+        var colName;
+        var escapedColName;
+        var openSymbol;
+        var closingSymbol;
+        // var tempName;
+
+        for (var arrayKey in jsonTdObj) {
+            if (options.isDataTd) {
+                colName = arrayKey;
+                escapedColName = arrayKey.replace(/\./g, "\\\.");
+            } else {
+                openSymbol = "";
+                closingSymbol = "";
+                if (!isArray) {
+                    openSymbol = ".";
+                } else {
+                    openSymbol = "[";
+                    closingSymbol = "]";
+                }
+
+                colName = cols[colNum - 1].getBackColName().replace(/\\./g, ".") +
+                          openSymbol + arrayKey + closingSymbol;
+                escapedColName = cols[colNum - 1].getBackColName() + openSymbol +
+                                arrayKey.replace(/\./g, "\\\.") + closingSymbol;
+            }
+
+            if (!table.hasBackCol(escapedColName)) {
+                colNames.push(colName);
+                escapedColNames.push(escapedColName);
+            }    
+        }
+
+        if (colNames.length === 0) {
+            return;
+        }
+        var numKeys = colNames.length;
+        var newColNum = colNum - 1;
+        var columnClass = "";
+        var color = "";
+        var ths = "";
+        var widthOptions = {
+            defaultHeaderStyle: true
+        };
+        var width;
+
+        for (var i = 0; i < numKeys; i++) {
+            var key = colNames[i];
+            var escapedKey = escapedColNames[i];
+            var usrStr = '"' + key + '" = pull(' + escapedKey + ')';
+
+            width = getTextWidth($(), key, widthOptions);
+
+            var newCol = ColManager.newCol({
+                "name"   : key,
+                "width"  : width,
+                "userStr": usrStr,
+                "func"   : {
+                    "func": "pull",
+                    "args": [escapedKey]
+                },
+                "isNewCol": false
+            });
+            if (options.isDataTd) {
+                cols.splice(newColNum, 0, newCol);
+            } else {
+                cols.splice(newColNum + 1, 0, newCol);
+            }
+          
+            if (key === table.key) {
+                columnClass += " indexedColumn";
+            }
+            newColNum++;
+            var colHeadNum = newColNum;
+            if (!options.isDataTd) {
+                colHeadNum++;
+            }
+
+            ths += TblManager.generateColumnHeadHTML(columnClass, color, colHeadNum,
+                                          {name: key, width: width});
+        }
+        var rowNum = xcHelper.parseRowNum($table.find('tbody').find('tr:eq(0)'));
+        var origDataIndex = xcHelper.parseColNum($table.find('th.dataCol'));
+        var jsonObj = {normal: []};
+        $table.find('tbody').find('.col' + origDataIndex).each(function() {
+            jsonObj.normal.push($(this).text());
+        });
+        $table.find('tbody').empty(); // remove tbody contents for pullrowsbulk
+        var endIndex;
+        if (options.isDataTd) {
+            endIndex = colNum;
+        } else {
+            endIndex = colNum + 1;
+        }
+
+        for (var i = numCols; i >= endIndex; i--) {
+            $table.find('.col' + i )
+                  .removeClass('col' + i)
+                  .addClass('col' + (numKeys + i));
+        }
+
+        if (options.isDataTd) {
+            $table.find('.th.col' + (newColNum + 1)).before(ths);
+        } else {
+            $table.find('.th.col' + colNum).after(ths);
+        }
+
+        var dataIndex = xcHelper.parseColNum($table.find('th.dataCol')) - 1;
+
+        TblManager.pullRowsBulk(tableId, jsonObj, rowNum, dataIndex,
+                                RowDirection.Bottom);
+        updateTableHeader(tableId);
+        TableList.updateTableInfo(tableId);
+        moveTableDropdownBoxes();
+        moveFirstColumn();
+        moveTableTitles();
+    }
+
     function pullColHelper(key, newColid, tableId, startIndex, numberOfRows) {
         if (key !== "" & key != null) {
             if (/\\.([0-9])/.test(key)) {

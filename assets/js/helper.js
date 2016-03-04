@@ -1850,5 +1850,26 @@ window.xcHelper = (function($, xcHelper) {
         return (deferred.promise());
     };
 
+    // globally prevents all text from being selected and disables all inputs
+    xcHelper.disableTextSelection = function() {
+        xcHelper.removeSelectionRange();
+        var style =
+            '<style id="disableSelection" type="text/css">*' +
+                '{ -ms-user-select:none;-moz-user-select:-moz-none;' +
+                '-khtml-user-select:none;' +
+                '-webkit-user-select:none;user-select:none;}' +
+                'div[contenteditable]{pointer-events:none;}' +
+            '</style>';
+        $(document.head).append(style);
+        $('.tooltip').remove();
+        $('input:enabled').prop('disabled', true).addClass('tempDisabledInput');
+    };
+
+    xcHelper.reenableTextSelection = function() {
+        $('#disableSelection').remove();
+        $('.tempDisabledInput').removeClass('tempDisabledInput')
+                               .prop('disabled', false);
+    };
+
     return (xcHelper);
 }(jQuery, {}));

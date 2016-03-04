@@ -1,6 +1,7 @@
 window.RowScroller = (function($, RowScroller) {
     var $rowInput = $("#rowInput");
     var $rowScrollerArea = $("#rowScrollerArea");
+    var rowInfo = {};
 
     RowScroller.setup = function() {
         $rowInput.val("").data("");
@@ -91,7 +92,7 @@ window.RowScroller = (function($, RowScroller) {
                     $rowInput.val(0).data("val", 0);
                 } else {
                     $rowInput.data("val", 1).val(1);
-                    RowScroller.move(1, maxCount);
+                    rowScrollerMove(1, maxCount);
                 }
 
                 return;
@@ -136,9 +137,9 @@ window.RowScroller = (function($, RowScroller) {
             .then(function() {
                 var rowToScrollTo = Math.min(targetRow, maxRow);
                 positionScrollbar(rowToScrollTo, tableId);
-                generateFirstVisibleRowNum();
+                RowScroller.genFirstVisibleRowNum();
                 if (!event.rowScrollerMousedown) {
-                    RowScroller.move($rowInput.val(), maxCount);
+                    rowScrollerMove($rowInput.val(), maxCount);
                 } else {
                     $rowScrollerArea.addClass("autoScroll");
                 }
@@ -183,12 +184,6 @@ window.RowScroller = (function($, RowScroller) {
         } else if ($("#xcTableWrap-" + tableId).hasClass('inActive')) {
             $('#rowScroller-' + tableId).hide();
         }
-    };
-
-    RowScroller.move = function (rowNum, resultSetCount) {
-        var pct = 100 * ((rowNum - 1) / (resultSetCount - 1));
-        var $rowMarker = $('#rowMarker-' + gActiveTableId);
-        $rowMarker.css("transform", "translate3d(" + pct + "%, 0px, 0px)");
     };
 
     RowScroller.update = function(tableId) {
@@ -250,40 +245,73 @@ window.RowScroller = (function($, RowScroller) {
         }
     };
 
+    RowScroller.genFirstVisibleRowNum = function() {
+        if (!document.elementFromPoint) {
+            return;
+        }
+        var activeTableId = gActiveTableId;
+        var $table = $('#xcTable-' + activeTableId);
+        if ($table.length === 0) {
+            return;
+        }
+        var tableLeft = $table.offset().left;
+        var tdXCoor = Math.max(0, tableLeft);
+        var tdYCoor = 164; //top rows's distance from top of window
+        var firstEl = document.elementFromPoint(tdXCoor, tdYCoor);
+        var firstId = $(firstEl).closest('tr').attr('class');
+
+        if (firstId && firstId.length > 0) {
+            var firstRowNum = parseInt(firstId.substring(3)) + 1;
+            if (!isNaN(firstRowNum)) {
+                $('#rowInput').val(firstRowNum).data('val', firstRowNum);
+                if (isTableScrollable(activeTableId)) {
+                    rowScrollerMove(firstRowNum,
+                                     gTables[activeTableId].resultSetCount);
+                }
+            }
+        }
+    };
+
+    function rowScrollerMove(rowNum, resultSetCount) {
+        var pct = 100 * ((rowNum - 1) / (resultSetCount - 1));
+        var $rowMarker = $('#rowMarker-' + gActiveTableId);
+        $rowMarker.css("transform", "translate3d(" + pct + "%, 0px, 0px)");
+    }
+
     // mouse event for row scroller
-    RowScroller.mouseMove = function(event) {
+    function rowScrollerMouseMove(event) {
         var mouseX = event.pageX;
         var translate;
 
-        if (mouseX - gResrow.totalOffset < gResrow.boundary.lower) {
+        if (mouseX - rowInfo.totalOffset < rowInfo.boundary.lower) {
             translate = 0;
-        } else if (mouseX - gResrow.totalOffset > gResrow.boundary.upper ) {
+        } else if (mouseX - rowInfo.totalOffset > rowInfo.boundary.upper ) {
             translate = 100;
         } else {
-            translate = 100 * (mouseX - gResrow.scrollAreaOffset -
-                        gResrow.totalOffset) / (gResrow.rowScrollerWidth - 1);
+            translate = 100 * (mouseX - rowInfo.scrollAreaOffset -
+                        rowInfo.totalOffset) / (rowInfo.rowScrollerWidth - 1);
         }
 
-        gResrow.el.css('transform', 'translate3d(' + translate + '%, 0px, 0px)');
-    };
+        rowInfo.el.css('transform', 'translate3d(' + translate + '%, 0px, 0px)');
+    }
 
-    RowScroller.mouseUp = function() {
+    function rowScrollerMouseUp() {
         gMouseStatus = null;
         $(document).off('mousemove.rowScrollerDrag');
         $(document).off('mouseup.rowScrollerMouseUp');
-        gResrow.el.removeClass('scrolling');
+        rowInfo.el.removeClass('scrolling');
         $('#moveCursor').remove();
-        reenableTextSelection();
+        xcHelper.reenableTextSelection();
         var e = $.Event("mousedown");
         e.which = 1;
-        e.pageX = (gResrow.el.offset().left - parseInt(gResrow.el.css('left')) + 0.5);
-        if (e.pageX + 3 >= gResrow.rowScrollerWidth + gResrow.scrollAreaOffset) {
+        e.pageX = (rowInfo.el.offset().left - parseInt(rowInfo.el.css('left')) + 0.5);
+        if (e.pageX + 3 >= rowInfo.rowScrollerWidth + rowInfo.scrollAreaOffset) {
             e.pageX += 3;
-        } else if (e.pageX - 2 <= gResrow.scrollAreaOffset) {
+        } else if (e.pageX - 2 <= rowInfo.scrollAreaOffset) {
             e.pageX -= 2;
         }
         $rowScrollerArea.trigger(e);
-    };
+    }
 
     function showRowScroller(tableId) {
         $(".rowScroller").hide();
@@ -291,6 +319,12 @@ window.RowScroller = (function($, RowScroller) {
             var $rowScroller = $('#rowScroller-' + tableId);
             $rowScroller.show();
         }
+    }
+
+    function parseBookmarkNum(el) {
+        var classNames = el.attr('class');
+        var index = classNames.indexOf('bkmkRow') + 'bkmkRow'.length;
+        return parseInt(classNames.substring(index)) + 1;
     }
 
     function positionScrollbar(row, tableId) {
@@ -328,16 +362,16 @@ window.RowScroller = (function($, RowScroller) {
     function rowScrollerStartDrag(event, el) {
         gMouseStatus = "rowScroller";
         el.addClass('scrolling');
-        gResrow.el = el;
-        gResrow.mouseStart = event.pageX;
-        gResrow.scrollAreaOffset = el.parent().offset().left;
-        gResrow.rowScrollerWidth = el.parent().width();
-        var mouseOffset = gResrow.mouseStart - el.offset().left;
+        rowInfo.el = el;
+        rowInfo.mouseStart = event.pageX;
+        rowInfo.scrollAreaOffset = el.parent().offset().left;
+        rowInfo.rowScrollerWidth = el.parent().width();
+        var mouseOffset = rowInfo.mouseStart - el.offset().left;
         var cssLeft = parseInt(el.css('left'));
-        gResrow.totalOffset = mouseOffset + cssLeft;
-        gResrow.boundary = {
-            "lower": gResrow.scrollAreaOffset,
-            "upper": gResrow.scrollAreaOffset + gResrow.rowScrollerWidth
+        rowInfo.totalOffset = mouseOffset + cssLeft;
+        rowInfo.boundary = {
+            "lower": rowInfo.scrollAreaOffset,
+            "upper": rowInfo.scrollAreaOffset + rowInfo.rowScrollerWidth
         };
 
         var cursorStyle =
@@ -347,9 +381,9 @@ window.RowScroller = (function($, RowScroller) {
             '</style>';
 
         $(document.head).append(cursorStyle);
-        disableTextSelection();
-        $(document).on('mousemove.rowScrollerDrag', RowScroller.mouseMove);
-        $(document).on('mouseup.rowScrollerMouseUp', RowScroller.mouseUp);
+        xcHelper.disableTextSelection();
+        $(document).on('mousemove.rowScrollerDrag', rowScrollerMouseMove);
+        $(document).on('mouseup.rowScrollerMouseUp', rowScrollerMouseUp);
     }
 
 
