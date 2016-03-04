@@ -485,15 +485,101 @@ DsInitExportJSONArgsT.prototype.write = function(output) {
   return;
 };
 
+DsInitExportSQLArgsT = function(args) {
+  this.tableName = null;
+  this.dropTable = null;
+  this.createTable = null;
+  if (args) {
+    if (args.tableName !== undefined) {
+      this.tableName = args.tableName;
+    }
+    if (args.dropTable !== undefined) {
+      this.dropTable = args.dropTable;
+    }
+    if (args.createTable !== undefined) {
+      this.createTable = args.createTable;
+    }
+  }
+};
+DsInitExportSQLArgsT.prototype = {};
+DsInitExportSQLArgsT.prototype.read = function(input) {
+  input.readStructBegin();
+  while (true)
+  {
+    var ret = input.readFieldBegin();
+    var fname = ret.fname;
+    var ftype = ret.ftype;
+    var fid = ret.fid;
+    if (ftype == Thrift.Type.STOP) {
+      break;
+    }
+    switch (fid)
+    {
+      case 1:
+      if (ftype == Thrift.Type.STRING) {
+        this.tableName = input.readString().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 2:
+      if (ftype == Thrift.Type.BOOL) {
+        this.dropTable = input.readBool().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 3:
+      if (ftype == Thrift.Type.BOOL) {
+        this.createTable = input.readBool().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      default:
+        input.skip(ftype);
+    }
+    input.readFieldEnd();
+  }
+  input.readStructEnd();
+  return;
+};
+
+DsInitExportSQLArgsT.prototype.write = function(output) {
+  output.writeStructBegin('DsInitExportSQLArgsT');
+  if (this.tableName !== null && this.tableName !== undefined) {
+    output.writeFieldBegin('tableName', Thrift.Type.STRING, 1);
+    output.writeString(this.tableName);
+    output.writeFieldEnd();
+  }
+  if (this.dropTable !== null && this.dropTable !== undefined) {
+    output.writeFieldBegin('dropTable', Thrift.Type.BOOL, 2);
+    output.writeBool(this.dropTable);
+    output.writeFieldEnd();
+  }
+  if (this.createTable !== null && this.createTable !== undefined) {
+    output.writeFieldBegin('createTable', Thrift.Type.BOOL, 3);
+    output.writeBool(this.createTable);
+    output.writeFieldEnd();
+  }
+  output.writeFieldStop();
+  output.writeStructEnd();
+  return;
+};
+
 DsInitExportFormatSpecificArgsT = function(args) {
   this.csv = null;
   this.json = null;
+  this.sql = null;
   if (args) {
     if (args.csv !== undefined) {
       this.csv = args.csv;
     }
     if (args.json !== undefined) {
       this.json = args.json;
+    }
+    if (args.sql !== undefined) {
+      this.sql = args.sql;
     }
   }
 };
@@ -527,6 +613,14 @@ DsInitExportFormatSpecificArgsT.prototype.read = function(input) {
         input.skip(ftype);
       }
       break;
+      case 3:
+      if (ftype == Thrift.Type.STRUCT) {
+        this.sql = new DsInitExportSQLArgsT();
+        this.sql.read(input);
+      } else {
+        input.skip(ftype);
+      }
+      break;
       default:
         input.skip(ftype);
     }
@@ -546,6 +640,11 @@ DsInitExportFormatSpecificArgsT.prototype.write = function(output) {
   if (this.json !== null && this.json !== undefined) {
     output.writeFieldBegin('json', Thrift.Type.STRUCT, 2);
     this.json.write(output);
+    output.writeFieldEnd();
+  }
+  if (this.sql !== null && this.sql !== undefined) {
+    output.writeFieldBegin('sql', Thrift.Type.STRUCT, 3);
+    this.sql.write(output);
     output.writeFieldEnd();
   }
   output.writeFieldStop();
@@ -704,12 +803,78 @@ DsInitExportSpecificInputT.prototype.write = function(output) {
   return;
 };
 
+DsColumnNameT = function(args) {
+  this.name = null;
+  this.headerAlias = null;
+  if (args) {
+    if (args.name !== undefined) {
+      this.name = args.name;
+    }
+    if (args.headerAlias !== undefined) {
+      this.headerAlias = args.headerAlias;
+    }
+  }
+};
+DsColumnNameT.prototype = {};
+DsColumnNameT.prototype.read = function(input) {
+  input.readStructBegin();
+  while (true)
+  {
+    var ret = input.readFieldBegin();
+    var fname = ret.fname;
+    var ftype = ret.ftype;
+    var fid = ret.fid;
+    if (ftype == Thrift.Type.STOP) {
+      break;
+    }
+    switch (fid)
+    {
+      case 1:
+      if (ftype == Thrift.Type.STRING) {
+        this.name = input.readString().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 2:
+      if (ftype == Thrift.Type.STRING) {
+        this.headerAlias = input.readString().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      default:
+        input.skip(ftype);
+    }
+    input.readFieldEnd();
+  }
+  input.readStructEnd();
+  return;
+};
+
+DsColumnNameT.prototype.write = function(output) {
+  output.writeStructBegin('DsColumnNameT');
+  if (this.name !== null && this.name !== undefined) {
+    output.writeFieldBegin('name', Thrift.Type.STRING, 1);
+    output.writeString(this.name);
+    output.writeFieldEnd();
+  }
+  if (this.headerAlias !== null && this.headerAlias !== undefined) {
+    output.writeFieldBegin('headerAlias', Thrift.Type.STRING, 2);
+    output.writeString(this.headerAlias);
+    output.writeFieldEnd();
+  }
+  output.writeFieldStop();
+  output.writeStructEnd();
+  return;
+};
+
 DsExportMetaT = function(args) {
   this.target = null;
   this.specificInput = null;
   this.createRule = null;
   this.numColumns = null;
-  this.columnNames = null;
+  this.columns = null;
   if (args) {
     if (args.target !== undefined) {
       this.target = args.target;
@@ -723,8 +888,8 @@ DsExportMetaT = function(args) {
     if (args.numColumns !== undefined) {
       this.numColumns = args.numColumns;
     }
-    if (args.columnNames !== undefined) {
-      this.columnNames = args.columnNames;
+    if (args.columns !== undefined) {
+      this.columns = args.columns;
     }
   }
 };
@@ -776,7 +941,7 @@ DsExportMetaT.prototype.read = function(input) {
       if (ftype == Thrift.Type.LIST) {
         var _size0 = 0;
         var _rtmp34;
-        this.columnNames = [];
+        this.columns = [];
         var _etype3 = 0;
         _rtmp34 = input.readListBegin();
         _etype3 = _rtmp34.etype;
@@ -784,8 +949,9 @@ DsExportMetaT.prototype.read = function(input) {
         for (var _i5 = 0; _i5 < _size0; ++_i5)
         {
           var elem6 = null;
-          elem6 = input.readString().value;
-          this.columnNames.push(elem6);
+          elem6 = new DsColumnNameT();
+          elem6.read(input);
+          this.columns.push(elem6);
         }
         input.readListEnd();
       } else {
@@ -823,15 +989,15 @@ DsExportMetaT.prototype.write = function(output) {
     output.writeI64(this.numColumns);
     output.writeFieldEnd();
   }
-  if (this.columnNames !== null && this.columnNames !== undefined) {
-    output.writeFieldBegin('columnNames', Thrift.Type.LIST, 5);
-    output.writeListBegin(Thrift.Type.STRING, this.columnNames.length);
-    for (var iter7 in this.columnNames)
+  if (this.columns !== null && this.columns !== undefined) {
+    output.writeFieldBegin('columns', Thrift.Type.LIST, 5);
+    output.writeListBegin(Thrift.Type.STRUCT, this.columns.length);
+    for (var iter7 in this.columns)
     {
-      if (this.columnNames.hasOwnProperty(iter7))
+      if (this.columns.hasOwnProperty(iter7))
       {
-        iter7 = this.columnNames[iter7];
-        output.writeString(iter7);
+        iter7 = this.columns[iter7];
+        iter7.write(output);
       }
     }
     output.writeListEnd();

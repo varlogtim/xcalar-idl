@@ -243,9 +243,9 @@ window.Alert = (function($, Alert){
                 xcHelper.toggleBtnInProgress($btn);
                 // Tis flow is a little from xcHelper.genSub
                 XcalarSupportSend()
-                .then(function(ret) {
+                .then(function(path, bid) {
                     var text = ThriftTStr.CCNBE + "\n" +
-                                "Bundle Generated at " + ret;
+                                "Bundle Id " + bid + " Generated at " + path;
                     $("#alertContent .text").text(text);
                     xcHelper.showSuccess();
                     $btn.text("Bundle Generated")

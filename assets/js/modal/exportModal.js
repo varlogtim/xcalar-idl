@@ -218,10 +218,10 @@ window.ExportModal = (function($, ExportModal) {
             return (deferred.promise());
         }
         
-        var columnNames = columnsVal.split(",");
-        columnNames = convertFrontColNamesToBack(columnNames);
+        var frontColumnNames = columnsVal.split(",");
+        var backColumnNames = convertFrontColNamesToBack(frontColumnNames);
         var errorText = ErrorTextTStr.InvalidColumn
-                        .replace('<name>', columnNames);
+                        .replace('<name>', frontColumnNames);
 
         isValid = xcHelper.validate([{
                 "$selector": $exportColumns,
@@ -230,7 +230,7 @@ window.ExportModal = (function($, ExportModal) {
                     if (gExportNoCheck) {
                         return (false);
                     } else {
-                        return (typeof columnNames === "string");
+                        return (typeof frontColumnNames === "string");
                     }
                 }
             }
@@ -256,8 +256,9 @@ window.ExportModal = (function($, ExportModal) {
                 var closeModal = true;
 
                 xcFunction.exportTable(exportTableName, exportName,
-                                        $exportPath.val(), columnNames.length,
-                                        columnNames)
+                                       $exportPath.val(),
+                                       frontColumnNames.length,
+                                       backColumnNames, frontColumnNames)
                 .then(function() {
                     closeModal = false;
                     closeExportModal();

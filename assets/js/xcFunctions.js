@@ -552,7 +552,7 @@ window.xcFunction = (function($, xcFunction) {
 
     // export table
     xcFunction.exportTable = function(tableName, exportName, targetName,
-                                        numCols, columns) {
+                                      numCols, backColumns, frontColumns) {
         var deferred = jQuery.Deferred();
         var retName  = $(".retTitle:disabled").val();
 
@@ -579,7 +579,8 @@ window.xcFunction = (function($, xcFunction) {
             "columns"   : columns
         };
 
-        XcalarExport(tableName, exportName, targetName, numCols, columns, sqlOptions)
+        XcalarExport(tableName, exportName, targetName, numCols, backColumns,
+                     fronColumns, sqlOptions)
         .then(function() {
             // add alert
             // var ins = "Widget location: " +

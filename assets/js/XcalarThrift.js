@@ -2,6 +2,9 @@ var tHandle;
 
 function setupThrift() {
     setupHostName();
+    if (!portNumber) {
+        portNumber = 80;
+    }
     tHandle = xcalarConnectThrift(hostname, portNumber.toString());
 }
 
@@ -539,7 +542,8 @@ function XcalarListExportTargets(typePattern, namePattern) {
     return (deferred.promise());
 }
 
-function XcalarExport(tableName, exportName, targetName, numColumns, columns, sqlOptions) {
+function XcalarExport(tableName, exportName, targetName, numColumns,
+                      backColName, frontColName, sqlOptions) {
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return (promiseWrapper(null));
     }
@@ -591,6 +595,14 @@ function XcalarExport(tableName, exportName, targetName, numColumns, columns, sq
                 deferred.reject(thriftLog("XcalarExport"));
                 break;
         }
+        var columns = [];
+        for (var i = 0; i<backColName.length; i++) {
+            var colNameObj = new DsColumnNameT();
+            colNameObj.name = backColName[i];
+            colNameObj.headerAlias = frontColName[i];
+            columns.push(colNameObj);
+        }
+
         var workItem = xcalarExportWorkItem(tableName, target, specInput,
                                   DsExportCreateRuleT.DsExportCreateOnly,
                                             columns.length, columns);
@@ -1383,7 +1395,7 @@ function XcalarGroupBy(operator, newColName, oldColName, tableName,
         return (deferred.promise());
     }
     getUnsortedTableName(tableName)
-        .then(function(unsortedTableName) {
+    .then(function(unsortedTableName) {
         var workItem = xcalarGroupByWorkItem(unsortedTableName, newTableName,
                                              evalStr, newColName, incSample);
         var def1 = xcalarGroupBy(tHandle, unsortedTableName, newTableName,
@@ -1403,7 +1415,35 @@ function XcalarGroupBy(operator, newColName, oldColName, tableName,
     return (deferred.promise());
 }
 
-// XXX!!!! PSA!!! This place does not check for unsorted table. So the caller
+function XcalarProject(columns, tableName, dstTableName, sqlOptions) {
+    var deferred = jQuery.Deferred();
+    if (insertError(arguments.callee, deferred)) {
+        return (deferred.promise());
+    }
+
+    getUnsortedTableName(tableName)
+    .then(function(unsortedTableName) {
+        var workItem = xcalarProjectWorkItem(columns.length, columns,
+                                             unsortedTableName, dstTableName);
+        var def1 = xcalarProject(tHandle, columns.length, columns,
+                                 unsortedTableName, dstTableName);
+        var def2 = XcalarGetQuery(workItem); // XXX May not work? Have't tested
+        jQuery.when(def1, def2)
+        .then(function(ret1, ret2) {
+            SQL.add("Project", sqlOptions, ret2);
+            deferred.resolve(ret1);
+        })
+        .fail(function(error1, error2) {
+            var thriftError = thriftLog("XcalarProject", error1, error2);
+            SQL.errorLog("Project", sqlOptions, null, thriftError);
+            deferred.reject(thriftError);
+        });
+    });
+                                 
+    return (deferred.promise());
+}
+
+// PSA!!! This place does not check for unsorted table. So the caller
 // must make sure that the first table that is being passed into XcalarQuery
 // is an unsorted table! Otherwise backend may crash
 function XcalarQuery(queryName, queryString) {
@@ -2259,18 +2299,18 @@ function XcalarRenameWorkbook(newName, oldName) {
 }
 
 // XXX Currently this function does nothing. Ask Ken for more details
-function XcalarSupportSend() {
+function XcalarSupportGenerate() {
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return (promiseWrapper(null));
     }
     var deferred = jQuery.Deferred();
-    xcalarApiSupportSend(tHandle)
-    .then(function(filePath) {
-        deferred.resolve(filePath);
+    xcalarApiSupportGenerate(tHandle)
+    .then(function(ret) {
+        deferred.resolve(ret.bundlePath, ret.supportId);
     })
     .fail(function(error) {
-        var thriftError = thriftLog("XcalarSupportSend", error);
-        SQL.errorLog("Support Send", null, null, thriftError);
+        var thriftError = thriftLog("XcalarSupportGenerate", error);
+        SQL.errorLog("Support Generate", null, null, thriftError);
         deferred.reject(thriftError);
     });
     return (deferred.promise());
