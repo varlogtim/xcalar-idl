@@ -242,6 +242,7 @@ window.OperationsModal = (function($, OperationsModal) {
                         return;
                     }
                 }, 0);
+                restoreInputSize($(this));
             },
             'input': function() {
                 // Suggest column name
@@ -258,6 +259,9 @@ window.OperationsModal = (function($, OperationsModal) {
                 }, 200);
 
                 updateDescription();
+                if ($input.siblings('.argIconWrap').length) {
+                    checkInputSize($input);
+                }
             },
             'mousedown': function() {
                 $menus.hide();
@@ -268,6 +272,7 @@ window.OperationsModal = (function($, OperationsModal) {
                         $(this).hide();
                     }
                 });
+                checkInputSize($activeInput);
             }
         }, '.argument');
 
@@ -357,7 +362,7 @@ window.OperationsModal = (function($, OperationsModal) {
             handle     : '.operationsModalHeader',
             containment: 'window',
             cursor     : '-webkit-grabbing',
-            cancel     : '.headerBtn',
+            cancel     : '.headerBtn, input',
             start      : function() {
                             $operationsModal.find('.openList')
                                              .removeClass("openList")
@@ -512,6 +517,7 @@ window.OperationsModal = (function($, OperationsModal) {
         $('body').on('keydown', opModalKeyListener);
         centerPositionElement($operationsModal);
         $('#statusBox').trigger('mousedown');
+        checkInputSize($input);
     }
 
     function unminimizeTable() {
@@ -2157,6 +2163,24 @@ window.OperationsModal = (function($, OperationsModal) {
             }
         }
         return (parenCount === 0);
+    }
+
+    function checkInputSize($input) {
+        var currentWidth = $input.outerWidth();
+        // var textWidth 
+        // var textWidth = getTextWidth($input) + 20;
+        var textWidth = $input[0].scrollWidth;
+        var newWidth;
+        if (currentWidth < textWidth) {
+            newWidth = textWidth + 80;
+            newWidth = Math.min(newWidth, 550);
+            $input.parent().width(newWidth)
+                           .addClass('modifiedWidth');
+        }
+    }
+
+    function restoreInputSize($input) {
+        $input.parent().width('100%').removeClass('modifiedWidth');
     }
 
 
