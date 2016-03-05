@@ -382,8 +382,15 @@ StatusT = {
   'StatusJoinOrderingMismatch' : 373,
   'StatusInvalidUserCookie' : 374,
   'StatusStTooManySchedTask' : 375,
-  'StatusConfigInvalid' : 376,
-  'StatusInvalNodeId' : 377
+  'StatusRowUnfinished' : 376,
+  'StatusInputTooLarge' : 377,
+  'StatusConfigInvalid' : 378,
+  'StatusInvalNodeId' : 379,
+  'StatusDsFallocateNotSupported' : 380,
+  'StatusExportTargetNotSupported' : 381,
+  'StatusExportNoColumns' : 382,
+  'StatusExportEmptyResultSet' : 383,
+  'StatusExportUnresolvedSchema' : 384
 };
 StatusTStr = {0 : 'Success',
 1 : 'Operation not permitted',
@@ -761,6 +768,13 @@ StatusTStr = {0 : 'Success',
 373 : 'Joins may only be performed on tables with the same ordering',
 374 : 'Invalid user cookie provided',
 375 : 'Too many scheduled tasks',
-376 : 'Failed to parse Xcalar configuration file',
-377 : 'The ID of this node is invalid'
+376 : 'Row has not been completely demystified',
+377 : 'Input is too large',
+378 : 'Failed to parse Xcalar configuration file',
+379 : 'The node ID is invalid',
+380 : 'Data source type does not support fallocate',
+381 : 'Export target is not supported',
+382 : 'No columns specified for export',
+383 : 'Empty result set cannot be exported',
+384 : 'Export requires a known schema'
 };

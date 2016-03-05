@@ -1632,7 +1632,7 @@ function xcalarMakeRetina(thriftHandle, retinaName, tableArray) {
     var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarMakeRetina(retinaName = " + retinaName +
-                    ", tableArray = " + tableArray.toString() + ")");
+                    ", tableArray = " + JSON.stringify(tableArray) + ")");
     }
     var workItem = xcalarMakeRetinaWorkItem(retinaName, tableArray);
 

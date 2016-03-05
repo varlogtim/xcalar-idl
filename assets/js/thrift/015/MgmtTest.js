@@ -1095,6 +1095,18 @@
         })
     }
 
+    function testProject(deferred, testName, currentTestNumber) {
+        xcalarProject(thriftHandle, 2, ["votes.funny", "user_id"],
+                      origTable, "yelp/user-votes.funny-projected")
+        .done(function(projectOutput) {
+            printResult(projectOutput);
+            pass(deferred, testName, currentTestNumber);
+        })
+        .fail(function(reason) {
+            fail(deferred, testName, currentTestNumber, reason);
+        })
+    }
+
     function testJoin(deferred, testName, currentTestNumber) {
         xcalarJoin(thriftHandle, "yelp/user-votes.funny-gt900",
                    "yelp/user-votes.funny-gt900",
@@ -1318,7 +1330,7 @@
             pass(deferred, testName, currentTestNumber);
         })
         .fail(function(reason) {
-            fail(deferred, testName, currentTestNumber, "fail reason" + reason);
+            fail(deferred, testName, currentTestNumber, StatusTStr[reason]);
         })
     }
 
@@ -1333,7 +1345,7 @@
         })
     }
 
-    function testExport(deferred, testName, currentTestNumber) {
+    function testExportCSV(deferred, testName, currentTestNumber) {
         var specInput = new DsInitExportSpecificInputT();
         specInput.sfInput = new DsInitExportSFInputT();
         specInput.sfInput.fileName = "yelp-mgmtdTest" +
@@ -1349,7 +1361,14 @@
         target.type = DsTargetTypeT.DsTargetSFType;
         target.name = "Default";
         var numColumns = 2;
-        var columns = ["user_id", "name"];
+        var columnNames = ["user_id", "name"];
+        var headerColumns = ["id_of_user", "user name"];
+        var columns = columnNames.map(function (e, i) {
+            var col = new DsColumnNameT();
+            col.name = columnNames[i];
+            col.headerAlias = headerColumns[i];
+            return col;
+        });
 
         xcalarExport(thriftHandle, "yelp/user-votes.funny-gt900",
                      target, specInput,
@@ -1360,7 +1379,46 @@
             pass(deferred, testName, currentTestNumber);
         })
         .fail(function(reason) {
-            fail(deferred, testName, currentTestNumber, reason);
+            fail(deferred, testName, currentTestNumber, StatusTStr[reason]);
+        })
+    }
+
+    function testExportSQL(deferred, testName, currentTestNumber) {
+        var specInput = new DsInitExportSpecificInputT();
+        specInput.sfInput = new DsInitExportSFInputT();
+        specInput.sfInput.fileName = "yelp-mgmtdTest" +
+                                     Math.floor(Math.random()*10000) + ".sql";
+        specInput.sfInput.format = DfFormatTypeT.DfFormatSql;
+        specInput.sfInput.formatArgs = new DsInitExportFormatSpecificArgsT();
+        specInput.sfInput.formatArgs.sql = new DsInitExportSQLArgsT();
+        specInput.sfInput.formatArgs.sql.tableName = "exportSqlTableName"
+        specInput.sfInput.formatArgs.sql.dropTable = true;
+        specInput.sfInput.formatArgs.sql.createTable = true;
+
+        console.log("\texport file name = " + specInput.sfInput.fileName);
+        var target = new DsExportTargetHdrT();
+        target.type = DsTargetTypeT.DsTargetSFType;
+        target.name = "Default";
+        var numColumns = 2;
+        var columnNames = ["user_id", "name"];
+        var headerColumns = ["id_of_user", "user name"];
+        var columns = columnNames.map(function (e, i) {
+            var col = new DsColumnNameT();
+            col.name = columnNames[i];
+            col.headerAlias = headerColumns[i];
+            return col;
+        });
+
+        xcalarExport(thriftHandle, "yelp/user-votes.funny-gt900",
+                     target, specInput,
+                     DsExportCreateRuleT.DsExportCreateOnly,
+                     numColumns, columns)
+        .done(function(status) {
+            printResult(status);
+            pass(deferred, testName, currentTestNumber);
+        })
+        .fail(function(reason) {
+            fail(deferred, testName, currentTestNumber, StatusTStr[reason]);
         })
     }
 
@@ -1427,7 +1485,7 @@
                 case XcalarApisT.XcalarApiExport:
                     var exportInput = getRetinaOutput.retina.retinaDag.node[ii].input.exportInput;
                     var exportTargetType = exportInput.meta.target.type;
-                    console.log("\tnode[" + ii + "].meta.exportTarget = " + 
+                    console.log("\tnode[" + ii + "].meta.exportTarget = " +
                                 DsTargetTypeTStr[exportTargetType] + " (" + exportTargetType + ")");
                     console.log("\tnode[" + ii + "].meta.numColumns = " +
                                 exportInput.meta.numColumns);
@@ -1933,51 +1991,56 @@
 
         var keyName = "sessionKey";
 
-        xcalarApiSessionDelete(thriftHandle, "*")
-        .always(function() {
-            // Start in brand new sesion...
-            xcalarApiSessionNew(thriftHandle, session1, false, "")
-            .then(function() {
-                // ... and add a key.
-                return xcalarKeyAddOrReplace(thriftHandle,
-                                             XcalarApiKeyScopeT.XcalarApiKeyScopeSession,
-                                             keyName, "x", false);
-            })
-            .then(function() {
-                // Make sure it exists in this session.
-                return xcalarKeyLookup(thriftHandle,
-                                       XcalarApiKeyScopeT.XcalarApiKeyScopeSession,
-                                       keyName);
-            })
-            .then(function(lookupOutput) {
-                if (lookupOutput.value === "x") {
-                    // Create a new session and switch to it.
-                    return xcalarApiSessionNew(thriftHandle, session2, false, "");
-                } else {
-                    fail(deferred, testName, currentTestNumber,
-                         "Failed lookup. Expected x got " + lookupOutput.value);
-                }
-            })
-            .then(function() {
-                return xcalarApiSessionSwitch(thriftHandle, session2, session1);
-            })
-            .then (function() {
-                // Make sure the key we created in the other session doesn't turn up
-                // in this one.
-                xcalarKeyLookup(thriftHandle,
-                                XcalarApiKeyScopeT.XcalarApiKeyScopeSession,
-                                keyName)
+        xcalarApiSessionList(thriftHandle, "*")
+        .then(function(ret) {
+            return xcalarApiSessionDelete(thriftHandle, "*")
+            .always(function() {
+                // Start in brand new sesion...
+                xcalarApiSessionNew(thriftHandle, session1, false, "")
                 .then(function() {
-                    fail(deferred, testName, currentTestNumber,
-                         "Lookup in session2 should have failed.");
+                    // ... and add a key.
+                    return xcalarKeyAddOrReplace(thriftHandle,
+                                                 XcalarApiKeyScopeT.XcalarApiKeyScopeSession,
+                                                 keyName, "x", false);
+                })
+                .then(function() {
+                    // Make sure it exists in this session.
+                    return xcalarKeyLookup(thriftHandle,
+                                           XcalarApiKeyScopeT.XcalarApiKeyScopeSession,
+                                           keyName);
+                })
+                .then(function(lookupOutput) {
+                    if (lookupOutput.value === "x") {
+                        // Create a new session and switch to it.
+                        return xcalarApiSessionNew(thriftHandle, session2, false, "");
+                    } else {
+                        fail(deferred, testName, currentTestNumber,
+                             "Failed lookup. Expected x got " + lookupOutput.value);
+                    }
+                })
+                .then(function() {
+                    return xcalarApiSessionSwitch(thriftHandle, session2, session1);
+                })
+                .then (function() {
+                    // Make sure the key we created in the other session doesn't turn up
+                    // in this one.
+                    xcalarKeyLookup(thriftHandle,
+                                    XcalarApiKeyScopeT.XcalarApiKeyScopeSession,
+                                    keyName)
+                    .then(function() {
+                        fail(deferred, testName, currentTestNumber,
+                             "Lookup in session2 should have failed.");
+                    })
+                    .fail(function(reason) {
+                        pass(deferred, testName, currentTestNumber);
+                    });
                 })
                 .fail(function(reason) {
-                    pass(deferred, testName, currentTestNumber);
+                    fail(deferred, testName, currentTestNumber, StatusTStr[reason]);
                 });
-            })
-            .fail(function(reason) {
-                fail(deferred, testName, currentTestNumber, StatusTStr[reason]);
             });
+        }, function(reason) {
+            fail(deferred, testName, currentTestNumber, StatusTStr[reason]);
         });
     }
 
@@ -2370,13 +2433,22 @@
         });
     }
 
-    function testSupportSend(deferred, testName, currentTestNumber) {
-        xcalarApiSupportSend(thriftHandle)
-        .done(function(status) {
-            pass(deferred, testName, currentTestNumber);
+    function testSupportGenerate(deferred, testName, currentTestNumber) {
+        var fs = require('fs');
+
+        xcalarApiSupportGenerate(thriftHandle)
+        .done(function(output) {
+            if (fs.exists(output.bundlePath)) {
+                fs.removeTree(output.bundlePath);
+                pass(deferred, testName, currentTestNumber);
+            } else {
+                printResult(output);
+                fail(deferred, testName, currentTestNumber,
+                     "Failed to locate bundle path from output.");
+            }
         })
         .fail(function(reason){
-            fail(deferred, testName, currentTestNumber, reason);
+            fail(deferred, testName, currentTestNumber, StatusTStr[reason]);
         });
     }
 
@@ -2465,6 +2537,7 @@
     addTestCase(testCases, testFreeResultSetDataset, "free result set (dataset)", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testCases, testFreeResultSetTable, "free result set (table)", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testCases, testFilter, "filter", defaultTimeout, TestCaseEnabled, "");
+    addTestCase(testCases, testProject, "project", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testCases, testJoin, "join", defaultTimeout, TestCaseEnabled, "");
 
     // XXX Re-enable when either the query-DAG bug is fixed or the test is changed to create a session and
@@ -2483,7 +2556,8 @@
     addTestCase(testCases, testDestroyDatasetInUse, "destroy dataset in use", defaultTimeout, TestCaseDisabled, "");
     addTestCase(testCases, testAddExportTarget, "add export target", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testCases, testListExportTargets, "list export targets", defaultTimeout, TestCaseEnabled, "");
-    addTestCase(testCases, testExport, "export", defaultTimeout, TestCaseEnabled, "");
+    addTestCase(testCases, testExportCSV, "export csv", defaultTimeout, TestCaseEnabled, "");
+    addTestCase(testCases, testExportSQL, "export sql", defaultTimeout, TestCaseEnabled, "");
 
     // Together, these set of test cases make up the retina sanity
     addTestCase(testCases, testMakeRetina, "makeRetina", defaultTimeout, TestCaseEnabled, "");
@@ -2524,6 +2598,7 @@
     // Witness to bug Xc-2371
     addTestCase(testCases, indexAggregateRaceTest, "index-aggregate race test", defaultTimeout, TestCaseEnabled, "2371")
 
+    addTestCase(testCases, testSupportGenerate, "support generate", defaultTimeout, TestCaseEnabled, "");
 
     // Re-enabled with delete DHT added
     addTestCase(testCases, testCreateDht, "create DHT test", defaultTimeout, TestCaseEnabled, "");
@@ -2539,7 +2614,6 @@
     // temporarily disabled due to bug 973
     addTestCase(testCases, testShutdown, "shutdown", defaultTimeout, TestCaseDisabled, "98");
 
-    addTestCase(testCases, testSupportSend, "support send", defaultTimeout, TestCaseDisabled, "");
 
     runTestSuite(testCases);
 }();

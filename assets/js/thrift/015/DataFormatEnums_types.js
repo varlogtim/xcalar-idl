@@ -28,7 +28,8 @@ DfFormatTypeT = {
   'DfFormatJson' : 1,
   'DfFormatRandom' : 2,
   'DfFormatCsv' : 3,
-  'DfFormatMysql' : 4
+  'DfFormatSql' : 4,
+  'DfFormatMysql' : 5
 };
 DfFieldTypeTStr = {0 : 'DfUnknown',
 1 : 'DfString',
@@ -51,5 +52,6 @@ DfFormatTypeTStr = {0 : 'unknown',
 1 : 'json',
 2 : 'random',
 3 : 'csv',
-4 : 'mysql'
+4 : 'sql',
+5 : 'mysql'
 };

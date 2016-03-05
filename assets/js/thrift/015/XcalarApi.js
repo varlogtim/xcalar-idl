@@ -136,8 +136,8 @@ function xcalarLoad(thriftHandle, url, name, format, maxSampleSize, loadArgs) {
                     maxSampleSize.toString() + ")");
         if (format === DfFormatTypeT.DfFormatCsv) {
             console.log("loadArgs.csv.recordDelim = " + loadArgs.csv.recordDelim + ", " +
-                        "loadArgs.csv.fieldDelim = " + loadArgs.csv.fieldDelim + ", " + 
-                        "loadArgs.csv.isCRLF = " + loadArgs.csv.isCRLF + ", " + 
+                        "loadArgs.csv.fieldDelim = " + loadArgs.csv.fieldDelim + ", " +
+                        "loadArgs.csv.isCRLF = " + loadArgs.csv.isCRLF + ", " +
                         "loadArgs.csv.hasHeader = " + loadArgs.csv.hasHeader)
         }
     }
@@ -1003,6 +1003,60 @@ function xcalarJoin(thriftHandle, leftTableName, rightTableName, joinTableName,
     return (deferred.promise());
 }
 
+function xcalarProjectWorkItem(numColumns, columns,
+                               srcTableName, dstTableName) {
+    var workItem = new WorkItem();
+    workItem.input = new XcalarApiInputT();
+    workItem.input.projectInput = new XcalarApiProjectInputT();
+    workItem.input.projectInput.srcTable = new XcalarApiTableT();
+    workItem.input.projectInput.dstTable = new XcalarApiTableT();
+
+    workItem.api = XcalarApisT.XcalarApiProject;
+    workItem.input.projectInput.srcTable.tableName = srcTableName;
+    workItem.input.projectInput.srcTable.tableId = XcalarApiTableIdInvalidT;
+    workItem.input.projectInput.dstTable.tableName = dstTableName;
+    workItem.input.projectInput.dstTable.tableId = XcalarApiTableIdInvalidT;
+    workItem.input.projectInput.numColumns = numColumns;
+    workItem.input.projectInput.columnNames = columns;
+    return (workItem);
+}
+
+function xcalarProject(thriftHandle, numColumns, columns,
+                       srcTableName, dstTableName) {
+    var deferred = jQuery.Deferred();
+    if (verbose) {
+        console.log("xcalarProject(srcTableName = " + srcTableName +
+                    ", dstTableName = " + dstTableName +
+                    ", numColumns = " + numColumns +
+                    ", columns = [" + columns + "]" +
+                    ")");
+    }
+
+    var workItem = xcalarProjectWorkItem(numColumns, columns,
+                                         srcTableName, dstTableName);
+
+    var projectOutput;
+    thriftHandle.client.queueWorkAsync(workItem)
+    .then(function(result) {
+        projectOutput = result.output.outputResult.projectOutput;
+        var status = result.output.hdr.status;
+
+        if (result.jobStatus != StatusT.StatusOk) {
+            status = result.jobStatus;
+        }
+        if (status != StatusT.StatusOk) {
+            deferred.reject(status);
+        }
+        deferred.resolve(projectOutput);
+    })
+    .fail(function(error) {
+        console.log("xcalarProject() caught exception: " + error);
+        deferred.reject(error);
+    });
+
+    return (deferred.promise());
+}
+
 function xcalarFilterWorkItem(srcTableName, dstTableName, filterStr) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
@@ -1449,7 +1503,7 @@ function xcalarExportWorkItem(tableName, target, specInput, createRule,
     workItem.input.exportInput.meta.target = target;
     workItem.input.exportInput.meta.specificInput = specInput;
     workItem.input.exportInput.meta.numColumns = numColumns;
-    workItem.input.exportInput.meta.columnNames = columns;
+    workItem.input.exportInput.meta.columns = columns;
     workItem.input.exportInput.meta.createRule = createRule;
     return (workItem);
 }
@@ -1463,7 +1517,7 @@ function xcalarExport(thriftHandle, tableName, target, specInput, createRule,
                     ", target.name = " + target.name +
                     ", createRule = " + createRule +
                     ", numColumns = " + numColumns +
-                    ", columns = [" + columns + "]" +
+                    ", columns = " + JSON.stringify(columns) +
                     ")");
     }
 
@@ -1688,7 +1742,7 @@ function xcalarUpdateRetinaWorkItem(retinaName, dagNodeId, paramType,
     case XcalarApisT.XcalarApiBulkLoad:
         workItem.input.updateRetinaInput.paramInput.paramInputArgs.paramLoad =
                                          new XcalarApiParamLoadT();
-        workItem.input.updateRetinaInput.paramInput.paramInputArgs.paramLoad.datasetUrl 
+        workItem.input.updateRetinaInput.paramInput.paramInputArgs.paramLoad.datasetUrl
                                          paramValue;
         break;
     case XcalarApisT.XcalarApiFilter:
@@ -1712,7 +1766,7 @@ function xcalarUpdateRetina(thriftHandle, retinaName, dagNodeId,
     var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarUpdateRetina(retinaName = " + retinaName + ", " +
-                    "dagNodeId = " + dagNodeId + ", paramType = " + 
+                    "dagNodeId = " + dagNodeId + ", paramType = " +
                     XcalarApisTStr[paramType] + ", paramValue = " + paramValue + ")");
     }
     var workItem = xcalarUpdateRetinaWorkItem(retinaName, dagNodeId, paramType,
@@ -1922,7 +1976,7 @@ function xcalarKeyAppend(thriftHandle, scope, key, suffix) {
         } else {
             console.log("xcalarKeyAppend(scope = " + scope + ", key = " + key +
                         ", suffix = <superVerbose mode only>)");
-        } 
+        }
     }
 
     var workItem = xcalarKeyAppendWorkItem(scope, key, suffix);
@@ -2640,20 +2694,19 @@ function xcalarApiDeleteDht(thriftHandle, dhtName) {
     return (deferred.promise());
 }
 
-function xcalarApiSupportSendWorkItem() {
+function xcalarApiSupportGenerateWorkItem() {
     var workItem = new WorkItem();
-    workItem.api = XcalarApisT.XcalarApiSupportSend;
-
+    workItem.api = XcalarApisT.XcalarApiSupportGenerate;
     return (workItem);
 }
 
-function xcalarApiSupportSend(thriftHandle) {
+function xcalarApiSupportGenerate(thriftHandle) {
     var deferred = jQuery.Deferred();
     if (verbose) {
-        console.log("xcalarApiSupportSend()");
+        console.log("xcalarApiSupportGenerate()");
     }
 
-    var workItem = xcalarApiSupportSendWorkItem();
+    var workItem = xcalarApiSupportGenerateWorkItem();
 
     thriftHandle.client.queueWorkAsync(workItem)
     .then(function(result) {
@@ -2667,10 +2720,10 @@ function xcalarApiSupportSend(thriftHandle) {
             deferred.reject(status);
         }
 
-        deferred.resolve(status);
+        deferred.resolve(result.output.outputResult.supportGenerateOutput);
     })
     .fail(function(error) {
-        console.log("xcalarApiSupportSend() caught exception: ", error);
+        console.log("xcalarApiSupportGenerate() caught exception: ", error);
         deferred.reject(error);
     });
 
