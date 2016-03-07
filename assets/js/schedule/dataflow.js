@@ -200,21 +200,17 @@ window.DFG = (function($, DFG) {
         var tableArray = [];
         dfg.dataFlows.forEach(function(dataFlow) {
             var tableName = dataFlow.name;
-            // var columns = dataFlow.columns;
-
-            // XXX We need front col names and back col names
-            // so for now we are just going to reuse both as the same
             var columns = [];
-            dataFlow.columns.forEach(function(colName) {
-                var col = new DsColumnNameT();
-                col.name = colName; // Back col name
-                col.headerAlias = colName; // Front col name
-                columns.push(col);
-            })
 
-            var numColumns = columns.length;
+            dataFlow.columns.forEach(function(colInfo) {
+                var col = new DsColumnNameT();
+                col.name = colInfo.backCol; // Back col name
+                col.headerAlias = colInfo.frontCol; // Front col name
+                columns.push(col);
+            });
+
             var retinaDstTable = new XcalarApiRetinaDstT();
-            retinaDstTable.numColumns = numColumns;
+            retinaDstTable.numColumns = columns.length;
             retinaDstTable.target = new XcalarApiNamedInputT();
             retinaDstTable.target.isTable = true;
             retinaDstTable.target.name = tableName;

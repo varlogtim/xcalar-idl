@@ -96,7 +96,7 @@ window.DataFlowModal = (function($, DataFlowModal) {
     function saveDataFlow(groupName, columns, isNewGroup) {
         var $dagImage = $dfPreviews.find('.dagImage');
         var canvasInfo = DFG.getCanvasInfo($dagImage);
-        
+
         var group = DFG.getGroup(groupName) || new DFGObj(groupName);
         group.addDataFlow({
             "name"      : canvasInfo.tableName,
@@ -295,8 +295,11 @@ window.DataFlowModal = (function($, DataFlowModal) {
         var tableCols = gTables[tableId].tableCols;
         $ths.each(function() {
             var colNum = Number($(this).data("col"));
-            var colName = tableCols[colNum - 1].getBackColName();
-            columns.push(colName);
+            var progCol = tableCols[colNum - 1];
+            columns.push({
+                "frontCol": progCol.getFronColName(),
+                "backCol" :  progCol.getBackColName()
+            });
         });
 
         var isNewGroup = true;
