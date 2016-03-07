@@ -42,9 +42,10 @@ window.TblAnim = (function($, TblAnim) {
         $table.addClass('resizingCol');
 
         xcHelper.disableTextSelection();
-        $(document.head).append('<style id="col-resizeCursor" type="text/css">*' +
-                                '{cursor: col-resize !important;}' +
-                                '.tooltip{display: none !important;}</style>');
+
+        var cursorStyle = '<div id="resizeCursor"></div>';
+        $('body').addClass('tooltipOff').append(cursorStyle);
+
         if (!rescol.grabbedCell.hasClass('selectedCell')) {
             $('.selectedCell').removeClass('selectedCell');
         }
@@ -77,7 +78,8 @@ window.TblAnim = (function($, TblAnim) {
         $(document).off('mousemove.onColResize');
         $(document).off('mouseup.endColResize');
         var rescol = gRescol;
-        $('#col-resizeCursor').remove();
+        $('#resizeCursor').remove();
+        $('body').removeClass('tooltipOff');
         rescol.table.closest('.xcTableWrap').find('.rowGrab')
                                             .width(rescol.table.width());
         rescol.table.removeClass('resizingCol');
@@ -163,12 +165,9 @@ window.TblAnim = (function($, TblAnim) {
             rowInfo.$divs = $table.find('tbody tr:eq(' + rowInfo.rowIndex +
                                         ') td > div');
             xcHelper.disableTextSelection();
-            var style = '<style id="row-resizeCursor" type="text/css">*' +
-                            '{cursor: row-resize !important;}' +
-                            '.tooltip{display: none !important;}' +
-                        '</style>';
-            $(document.head).append(style);
-            $('body').addClass('hideScroll');
+   
+            $('body').addClass('hideScroll tooltipOff')
+                     .append('<div id="rowResizeCursor"></div>');
             rowInfo.targetTd.closest('tr').addClass('changedHeight');
             rowInfo.actualTd.closest('tr').addClass('dragging');
             rowInfo.$divs.css('max-height', rowInfo.startHeight - 4);
@@ -211,9 +210,9 @@ window.TblAnim = (function($, TblAnim) {
         var rowObj = gTables[rowInfo.tableId].rowHeights;
         // structure of rowObj is rowObj {pageNumber:{rowNumber: height}}
         var pageNum = Math.floor((rowNum - 1) / gNumEntriesPerPage);
-        $('#row-resizeCursor').remove();
         xcHelper.reenableTextSelection();
-        $('body').removeClass('hideScroll');
+        $('body').removeClass('hideScroll tooltipOff');
+        $('#rowResizeCursor').remove();
         unlockScrolling($('#mainFrame'), 'horizontal');
         var $table = $('#xcTable-' + rowInfo.tableId);
         $table.find('tr').removeClass('notDragging dragging');
@@ -261,13 +260,9 @@ window.TblAnim = (function($, TblAnim) {
         dragInfo.$el = $el;
         dragInfo.$tableWrap = $tableWrap;
 
-        var cursorStyle =
-            '<style id="moveCursor" type="text/css">*' +
-                '{cursor:move !important; cursor: -webkit-grabbing !important;' +
-                'cursor: -moz-grabbing !important;}' +
-                '.tooltip{display: none !important;}' +
-            '</style>';
-        $(document.head).append(cursorStyle);
+        var cursorStyle = '<div id="moveCursor"></div>';
+        $('body').addClass('tooltipOff').append(cursorStyle);
+
         $('.highlightBox').remove();
 
         $(document).on('mousemove.checkColDrag', checkColDrag);
@@ -377,10 +372,14 @@ window.TblAnim = (function($, TblAnim) {
 
     function endColDrag() {
         $(document).off('mouseup.endColDrag');
+        $('#moveCursor').remove();
+        $('body').removeClass('tooltipOff');
         if (gMouseStatus === "checkingMovingCol") {
+            // endColDrag is called on mouseup but if there was no mouse movement
+            // then just clean up and exit
             gMouseStatus = null;
             $(document).off('mousemove.checkColDrag');
-            $('#moveCursor').remove();
+            
             return;
         }
         $(document).off('mousemove.onColDrag');
@@ -413,7 +412,7 @@ window.TblAnim = (function($, TblAnim) {
             }, 0);
         }
         
-        $('#dropTargets, #moveCursor').remove();
+        $('#dropTargets').remove();
         $('#mainFrame').off('scroll', mainFrameScrollDropTargets)
                        .scrollTop(0);
         xcHelper.reenableTextSelection();
@@ -643,14 +642,8 @@ window.TblAnim = (function($, TblAnim) {
         dragInfo.mouseX = e.pageX;
         dragInfo.$el = $el;
 
-        var cursorStyle =
-            '<style id="moveCursor" type="text/css">*' +
-                '{cursor:move !important; cursor: -webkit-grabbing !important;' +
-                'cursor: -moz-grabbing !important;}' +
-                '.tooltip{display: none !important;}' +
-            '</style>';
-
-        $(document.head).append(cursorStyle);
+         var cursorStyle = '<div id="moveCursor"></div>';
+        $('body').addClass('tooltipOff').append(cursorStyle);
         $(document).on('mousemove.checkTableDrag', checkTableDrag);
         $(document).on('mouseup.endTableDrag', endTableDrag);
     };
@@ -699,11 +692,12 @@ window.TblAnim = (function($, TblAnim) {
 
     function endTableDrag() {
         $(document).off('mouseup.endTableDrag');
-        
+        $('#moveCursor').remove();
+        $('body').removeClass('tooltipOff');
+
         if (gMouseStatus === "checkingMovingTable") {
             gMouseStatus = null;
             $(document).off('mousemove.checkTableDrag');
-            $('#moveCursor').remove();
             dragInfo.$el.find('.tableGrab').removeClass('noDropdown');
             return;
         }
@@ -714,7 +708,7 @@ window.TblAnim = (function($, TblAnim) {
             'left'  : '0px',
             'height': '100%'
         });
-        $('#shadowTable, #moveCursor, #dropTargets').remove();
+        $('#shadowTable, #dropTargets').remove();
         $('#mainFrame').off('scroll', mainFrameScrollTableTargets);
         dragInfo.$table.scrollTop(dragInfo.tableScrollTop);
         gActiveTableId = dragInfo.tableId;

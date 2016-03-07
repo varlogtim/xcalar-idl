@@ -157,18 +157,42 @@
     }
 }
 
+#moveCursor { // element that takes up the entire screen and applies a cursor
+    .position(absolute, @top: 0, @left: 0);
+    z-index: 22;
+    .cursor-grabbing();
+    width: 100%;
+    height: 100%;
+}
+
 #dropTargets {
     .position(absolute, @top: 0, @left: 0);
+    .cursor-grabbing();
 }
 
 .dropTarget {
     .position(absolute, @top: 0);
-    z-index: 22;
+    z-index: 23;
     background-color: rgba(0,0,50,0.2); // only used in testing
     font-size: 50px;
     opacity: 0;
 }
 /* END DRAG AND DROP STYLING */
+
+/* RESIZE CURSOR */
+#resizeCursor, #rowResizeCursor {
+    .position(absolute, @top: 0, @left: 0);
+    z-index: 22;
+    width: 100%;
+    height: 100%;
+}
+#resizeCursor {
+    .cursor-resize();
+}
+#rowResizeCursor {
+    .cursor-rowResize();
+}
+/* END RESIZE CURSOR */
 
 /* ========== Work Sheet Bar ========== */
 #workspaceBar {

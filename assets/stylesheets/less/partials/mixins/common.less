@@ -78,6 +78,13 @@
     cursor: -moz-grabbing !important;
 }
 
+.cursor-resize() {
+    cursor: col-resize !important;
+}
+.cursor-rowResize() {
+    cursor: row-resize !important;
+}
+
 .image(@url, @pX:0, @pY:0, @repeat:no-repeat, @background-color: transparent) {
     background: @background-color url(@url) @repeat @pX @pY;
 }
