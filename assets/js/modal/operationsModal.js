@@ -276,6 +276,10 @@ window.OperationsModal = (function($, OperationsModal) {
             }
         }, '.argument');
 
+        $operationsModal.find('.argument').parent().each(function(i) {
+            $(this).css('z-index', 10 - i);
+        });
+
         $operationsModal.find('.checkbox').on('click', function() {
             $(this).toggleClass("checked");
             checkIfStringReplaceNeeded();
