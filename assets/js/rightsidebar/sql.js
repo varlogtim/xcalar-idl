@@ -186,6 +186,8 @@ window.SQL = (function($, SQL) {
             case SQLOps.ChangeTypeMap:
                 return ("");
         }
+        var opsToExclude = options.htmlExclude || []; // array of keys to
+        // exclude from HTML
 
         var html =  '<div class="sqlContentWrap">' +
                         '<div class="title"> >>' + sql.title + ':</div>' +
@@ -195,6 +197,9 @@ window.SQL = (function($, SQL) {
         for (var key in options) {
             // not show up null value
             if (options[key] == null) {
+                continue;
+            }
+            if (opsToExclude.indexOf(key) !== -1 || key === "htmlExclude") {
                 continue;
             }
             if (count > 0) {

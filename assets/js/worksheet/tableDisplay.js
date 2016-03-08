@@ -605,6 +605,7 @@ window.TblManager = (function($, TblManager) {
         var tableCols = table.tableCols;
         var order;
         var newIndex;
+        var oldOrder = []; // to save the old column order
         if (direction === "reverse") {
             order = 1;
         } else {
@@ -680,10 +681,12 @@ window.TblManager = (function($, TblManager) {
             $ths.eq(newIndex).removeClass('col' + oldColIndex)
                              .addClass('col' + newIndex);
             delete tableCols[i].index;
+            oldOrder.push(oldColIndex - 1);
         }
 
         if (dataCol) { // if data col was removed from sort, put it back
             tableCols.push(dataCol);
+            oldOrder.push(numCols);
         }
 
         TableList.updateTableInfo(tableId);
@@ -692,7 +695,9 @@ window.TblManager = (function($, TblManager) {
             "operation": SQLOps.SortTableCols,
             "tableName": table.tableName,
             "tableId"  : tableId,
-            "direction": direction
+            "direction": direction,
+            "originalOrder": oldOrder,
+            "htmlExclude": ['originalOrder']
         });
     };
 
