@@ -75,10 +75,11 @@ window.SQL = (function($, SQL) {
 
     SQL.errorLog = function(title, options, cli, error) {
         var sql = new SQLConstructor({
-            "title"  : title,
-            "options": options,
-            "cli"    : cli,
-            "error"  : error
+            "title"     : title,
+            "options"   : options,
+            "cli"       : cli,
+            "error"     : error,
+            "revertable": false
         });
         logs.push(sql);
 
@@ -176,16 +177,6 @@ window.SQL = (function($, SQL) {
             return ("");
         }
 
-        switch (options.operation) {
-            case SQLOps.ProfileAction:
-            case SQLOps.QuickAggAction:
-            case SQLOps.CorrAction:
-            case SQLOps.SplitColMap:
-            case SQLOps.JoinMap:
-            case SQLOps.GroupByAction:
-            case SQLOps.ChangeTypeMap:
-                return ("");
-        }
         var opsToExclude = options.htmlExclude || []; // array of keys to
         // exclude from HTML
 
@@ -256,10 +247,6 @@ window.SQL = (function($, SQL) {
                 // fallthrough
             case (SQLOps.UnHideCols):
                 // fallthrough
-            case (SQLOps.PreviewDS):
-                // fallthrough
-            case (SQLOps.DestroyPreviewDS):
-                // fallthrough
             case (SQLOps.SortTableCols):
                 // fallthrough
             case (SQLOps.ResizeTableCols):
@@ -298,38 +285,19 @@ window.SQL = (function($, SQL) {
                 // fallthrough
             case (SQLOps.DelFolder):
                 // fallthrough
-            case (SQLOps.Profile):
-                // fallthrough
-            case (SQLOps.ProfileSort):
-                // fallthrough
-            case (SQLOps.ProfileBucketing):
-                // fallthrough
-            case (SQLOps.QuickAgg):
-                // fallthrough
-            case (SQLOps.Corr):
-                // fallthrough
             case (SQLOps.AddOhterUserDS):
-                // fallthrough
-            case (SQLOps.GroupBy):
-                // fallthrough (we have groupbyAction for machine cli)
-            case (SQLOps.SplitCol):
                 // fallthrough
             case (SQLOps.ChangeFormat):
                 // fallthrough
             case (SQLOps.RoundToFixed):
                 // fallthrough
                 // XXX should export tables have an effect?
-            // XXX since temporarily not use XcalarQuery
-            case (SQLOps.ChangeType):
-                // fallthrough
-            case (SQLOps.hPartition):
-                // fallthrough
-            case (SQLOps.Window):
-                // fallthrough
                 break;
 
             // Use reverse parser
             case (SQLOps.DestroyDS):
+            case (SQLOps.PreviewDS):
+            case (SQLOps.DestroyPreviewDS):
             case (SQLOps.DeleteTable):
             // XXX hang on as export table's api will change
             case (SQLOps.ExportTable):
@@ -339,28 +307,23 @@ window.SQL = (function($, SQL) {
             case (SQLOps.IndexDS):
             case (SQLOps.Join):
             case (SQLOps.Aggr):
-            case (SQLOps.CheckIndex):
             case (SQLOps.Map):
-            case (SQLOps.JoinMap):
-            case (SQLOps.GroupByAction):
+            case (SQLOps.GroupBy):
             case (SQLOps.RenameTable):
             case (SQLOps.RenameOrphanTable):
-            case (SQLOps.ProfileAction):
-            case (SQLOps.QuickAggAction):
-            case (SQLOps.SplitColMap):
-            // XXX since temporarily not use XcalarQuery
-            // case (SQLOps.ChangeType):
-            case (SQLOps.ChangeTypeMap):
-            case (SQLOps.hPartitionAction):
-            case (SQLOps.WindowAction):
+            case (SQLOps.QuickAgg):
+            case (SQLOps.Corr):
+            case (SQLOps.SplitCol):
+            case (SQLOps.ChangeType):
+            case (SQLOps.hPartition):
+            case (SQLOps.Window):
+            case (SQLOps.Profile):
+            case (SQLOps.ProfileSort):
+            case (SQLOps.ProfileBucketing):
                 string += sql.cli;
                 break;
             default:
                 console.warn("XXX! Operation unexpected", options.operation);
-        }
-
-        if (string.length > 0) {
-            string += ";";
         }
 
         return (string);

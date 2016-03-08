@@ -350,12 +350,6 @@ window.ColManager = (function($, ColManager) {
         var tableName   = table.tableName;
         var tableCols   = table.tableCols;
 
-        var msgId = StatusMessage.addMsg({
-            "msg"      : StatusMessageTStr.ChangeType,
-            "operation": SQLOps.ChangeType
-        });
-        xcHelper.lockTable(tableId);
-
         var tableNamePart = tableName.split("#")[0];
         var newTableNames = [];
         var newFieldNames = [];
@@ -377,6 +371,21 @@ window.ColManager = (function($, ColManager) {
         // when index === numColInfos
         newTableNames[numColInfos] = tableName;
 
+        xcHelper.lockTable(tableId);
+
+        var sql = {
+            "operation"   : SQLOps.ChangeType,
+            "tableName"   : tableName,
+            "tableId"     : tableId,
+            "newTableName": newTableNames[0],
+            "colTypeInfos": colTypeInfos
+        };
+        var txId = Transaction.start({
+            "msg"      : StatusMessageTStr.ChangeType,
+            "operation": SQLOps.ChangeType,
+            "sql"      : sql
+        });
+
         var promises = [];
         for (i = numColInfos - 1; i >= 0; i--) {
             promises.push(chagneTypeHelper.bind(this, i));
@@ -387,24 +396,17 @@ window.ColManager = (function($, ColManager) {
             // map do not change stats of the table
             Profile.copy(tableId, newTableId);
             xcHelper.unlockTable(tableId, true);
-            StatusMessage.success(msgId, false, newTableId);
 
-            SQL.add("Change Data Type", {
-                "operation"   : SQLOps.ChangeType,
-                "tableName"   : tableName,
-                "tableId"     : tableId,
-                "newTableName": newTableNames[0],
-                "colTypeInfos": colTypeInfos
-            });
-
-            KVStore.commit();
+            Transaction.done(txId, {"msgTable": newTableId});
             deferred.resolve(newTableId);
         })
         .fail(function(error) {
             xcHelper.unlockTable(tableId);
 
-            Alert.error(StatusMessageTStr.ChangeTypeFailed, error);
-            StatusMessage.fail(StatusMessageTStr.ChangeTypeFailed, msgId);
+            Transaction.fail(txId, {
+                "failMsg": StatusMessageTStr.ChangeTypeFailed,
+                "error"  : error
+            });
             deferred.reject(error);
         });
 
@@ -419,19 +421,10 @@ window.ColManager = (function($, ColManager) {
             var mapString    = mapStrings[index];
             var curColNum    = colTypeInfos[index].colNum;
 
-            var sqlOptions = {
-                "operation"   : SQLOps.ChangeTypeMap,
-                "action"      : "map",
-                "tableName"   : curTableName,
-                "newTableName": newTableName,
-                "fieldName"   : fieldName,
-                "mapString"   : mapString
-            };
-
-            XcalarMap(fieldName, mapString, curTableName, newTableName, sqlOptions)
+            XcalarMap(fieldName, mapString, curTableName, newTableName, txId)
             .then(function() {
-                var mapOptions   = {"replaceColumn": true};
-                var curTableId   = xcHelper.getTableId(curTableName);
+                var mapOptions = {"replaceColumn": true};
+                var curTableId = xcHelper.getTableId(curTableName);
                 var curTableCols = gTables[curTableId].tableCols;
 
                 var newTablCols = xcHelper.mapColGenerate(curColNum, fieldName,
@@ -646,6 +639,7 @@ window.ColManager = (function($, ColManager) {
 
     // Not call it ColManager.window because window is a keyWord
     ColManager.windowChain = function(colNum, tableId, lag, lead) {
+        var deferred = jQuery.Deferred();
         // XXX: Fill in all the SQL stuff
         var worksheet = WSManager.getWSFromTable(tableId);
 
@@ -691,12 +685,6 @@ window.ColManager = (function($, ColManager) {
         var newOrigSortedOnCol;
         var direction = XcalarOrderingT.XcalarOrderingAscending; // default
 
-        var msgId = StatusMessage.addMsg({
-            "msg"      : StatusMessageTStr.Window,
-            "operation": SQLOps.Window
-        });
-        xcHelper.lockTable(tableId);
-
         // Step -1. Figure out how the column is sorted before window, because
         // we have to resort by this ordering once the window is done
         var sortedStr = $("#dagWrap-" + tableId).find(".actionType:last")
@@ -707,11 +695,9 @@ window.ColManager = (function($, ColManager) {
             // table. But backend should technically return us some information
             // XXX: Potential trap with tables created in the backend and then
             // inducted into the front end
-            xcHelper.unlockTable(tableId, false);
-            Alert.error(StatusMessageTStr.WindowFailed, error);
-            SQL.errorLog("Windowing failed", error);
-            StatusMessage.fail(StatusMessageTStr.WindowFailed, msgId);
-            return;
+            Alert.error(StatusMessageTStr.WindowFailed, ErrTStr.InvalidWin);
+            deferred.reject(ErrTStr.InvalidWin);
+            return deferred.promise();
         } else {
             if (sortedStr.indexOf("desc") !== -1) {
                 // Descending sort
@@ -720,6 +706,12 @@ window.ColManager = (function($, ColManager) {
                 direction = XcalarOrderingT.XcalarOrderingAscending;
             }
         }
+
+        xcHelper.lockTable(tableId);
+        var txId = Transaction.start({
+            "msg"      : StatusMessageTStr.Window,
+            "operation": SQLOps.Window
+        });
 
         // Step 0. Figure out column type info from orig table. We need it in
         // step 5.5.
@@ -853,18 +845,9 @@ window.ColManager = (function($, ColManager) {
             var newTableName = oldTableName.split("#")[0] +
                                Authentication.getHashId();
             var indexCol = newOrigSortedOnCol;
-            var actionSql = {
-                "operation"   : SQLOps.WindowAction,
-                "action"      : "index",
-                "sort"        : true,
-                "indexCol"    : indexCol,
-                "tableName"   : oldTableName,
-                "newTableName": newTableName
-            };
-
             finalTableName = newTableName;
             return XcalarIndexFromTable(oldTableName, indexCol,
-                                        newTableName, direction, actionSql);
+                                        newTableName, direction, txId);
         })
         .then(function() {
             // Step 8 YAY WE ARE FINALLY DONE! Just start picking out all
@@ -923,28 +906,50 @@ window.ColManager = (function($, ColManager) {
                                             [], worksheet);
         })
         .then(function() {
-            var finalTableId = xcHelper.getTableId(finalTableName);
             xcHelper.unlockTable(tableId, false);
-            StatusMessage.success(msgId, false, finalTableId);
 
-            SQL.add("Window", {
-                "operation": SQLOps.Window,
-                "tableName": tableName,
-                "tableId"  : tableId,
-                "colNum"   : colNum,
-                "colName"  : colName,
-                "lag"      : lag,
-                "lead"     : lead
+            var sql = {
+                "operation"   : SQLOps.Window,
+                "tableName"   : tableName,
+                "tableId"     : tableId,
+                "colNum"      : colNum,
+                "colName"     : colName,
+                "lag"         : lag,
+                "lead"        : lead,
+                "newTableName": finalTableName
+            };
+
+            Transaction.done(txId, {
+                "msgTable": xcHelper.getTableId(finalTableName),
+                "sql"     : sql
             });
-            KVStore.commit();
+
+            deferred.resolve();
         })
         .fail(function(error) {
-            // XXX Write a better error handling function
             xcHelper.unlockTable(tableId, false);
-            Alert.error(StatusMessageTStr.WindowFailed, error);
-            SQL.errorLog("Windowing failed", error);
-            StatusMessage.fail(StatusMessageTStr.WindowFailed, msgId);
+
+            var sql = {
+                "operation"   : SQLOps.Window,
+                "tableName"   : tableName,
+                "tableId"     : tableId,
+                "colNum"      : colNum,
+                "colName"     : colName,
+                "lag"         : lag,
+                "lead"        : lead,
+                "newTableName": finalTableName
+            };
+
+            Transaction.fail(txId, {
+                "failMsg": StatusMessageTStr.WindowFailed,
+                "error"  : error,
+                "sql"    : sql
+            });
+
+            deferred.reject(error);
         });
+
+        return deferred.promise();
 
         function genUniqMap(srcTable) {
             var innerDeferred = jQuery.Deferred();
@@ -953,18 +958,9 @@ window.ColManager = (function($, ColManager) {
             var mapStr = "genUnique()";
             var newColName = "orig_order_" + randNumber;
 
-            var innerSql = {
-                "operation"   : SQLOps.WindowAction,
-                "action"      : "map",
-                "newColName"  : newColName,
-                "mapString"   : mapStr,
-                "tableName"   : srcTable,
-                "newTableName": newTableName
-            };
-
             var doNotUnsort = true;
             XcalarMap(newColName, mapStr, srcTable, newTableName,
-                      innerSql, doNotUnsort)
+                      txId, doNotUnsort)
             .then(function() {
                 TblManager.setOrphanTableMeta(newTableName, tableCols);
                 innerDeferred.resolve(newTableName, newColName);
@@ -979,17 +975,9 @@ window.ColManager = (function($, ColManager) {
 
             var newTableName = tableNameRoot + Authentication.getHashId();
             var order = XcalarOrderingT.XcalarOrderingUnordered;
-            var innerSql = {
-                "operation"   : SQLOps.WindowAction,
-                "action"      : "index",
-                "sorted"      : false,
-                "indexCol"    : indexCol,
-                "tableName"   : srcTable,
-                "newTableName": newTableName
-            };
 
             XcalarIndexFromTable(srcTable, indexCol, newTableName,
-                                 order, innerSql)
+                                 order, txId)
             .then(function() {
                 TblManager.setOrphanTableMeta(newTableName, tableCols);
                 innerDeferred.resolve(newTableName, indexCol);
@@ -1038,16 +1026,7 @@ window.ColManager = (function($, ColManager) {
                 genUniqColNames[state][index] = newColName;
             }
 
-            var innerSql = {
-                "operation"   : SQLOps.WindowAction,
-                "action"      : "map",
-                "newColName"  : newColName,
-                "mapString"   : mapStr,
-                "tableName"   : srcTable,
-                "newTableName": newTableName
-            };
-
-            XcalarMap(newColName, mapStr, srcTable, newTableName, innerSql)
+            XcalarMap(newColName, mapStr, srcTable, newTableName, txId)
             .then(function() {
                 TblManager.setOrphanTableMeta(newTableName, tableCols);
                 innerDeferred.resolve();
@@ -1092,16 +1071,7 @@ window.ColManager = (function($, ColManager) {
                 winColNames[state][index] = newColName;
             }
 
-            var innerSql = {
-                "operation"   : SQLOps.WindowAction,
-                "action"      : "map",
-                "newColName"  : newColName,
-                "mapString"   : mapStr,
-                "tableName"   : srcTable,
-                "newTableName": newTableName
-            };
-
-            XcalarMap(newColName, mapStr, srcTable, newTableName, innerSql)
+            XcalarMap(newColName, mapStr, srcTable, newTableName, txId)
             .then(function() {
                 var newCols = [];
                 newCols[0] = ColManager.newCol({
@@ -1151,17 +1121,9 @@ window.ColManager = (function($, ColManager) {
             }
 
             var order = XcalarOrderingT.XcalarOrderingUnordered;
-            var innerSql = {
-                "operation"   : SQLOps.WindowAction,
-                "action"      : "index",
-                "indexCol"    : indexCol,
-                "sorted"      : false,
-                "tableName"   : srcTable,
-                "newTableName": newTableName
-            };
 
             XcalarIndexFromTable(srcTable, indexCol, newTableName,
-                                 order, innerSql)
+                                 order, txId)
             .then(function() {
                 var srcTableId = xcHelper.getTableId(srcTable);
                 var srcTableCols = gTables[srcTableId].tableCols;
@@ -1180,16 +1142,7 @@ window.ColManager = (function($, ColManager) {
                                Authentication.getHashId();
             tableNames.cur = newTableName;
 
-            var innerSql = {
-                "operation"   : SQLOps.WindowAction,
-                "action"      : "map",
-                "newColName"  : newMapCol,
-                "mapString"   : mapStr,
-                "tableName"   : srcTable,
-                "newTableName": newTableName
-            };
-
-            XcalarMap(newMapCol, mapStr, srcTable, newTableName, innerSql)
+            XcalarMap(newMapCol, mapStr, srcTable, newTableName, txId)
             .then(function() {
                 var srcTableId = xcHelper.getTableId(srcTable);
                 var srcTableCols = gTables[srcTableId].tableCols;
@@ -1204,16 +1157,8 @@ window.ColManager = (function($, ColManager) {
         function winJoin(lTable, rTable, newTableName, index, state) {
             var innerDeferred = jQuery.Deferred();
             var joinType = JoinOperatorT.InnerJoin;
-            var innerSql = {
-                "operation"   : SQLOps.WindowAction,
-                "action"      : "join",
-                "joinType"    : joinType,
-                "leftTable"   : lTable,
-                "rightTable"  : rTable,
-                "newTableName": newTableName
-            };
 
-            XcalarJoin(lTable, rTable, newTableName, joinType, innerSql)
+            XcalarJoin(lTable, rTable, newTableName, joinType, txId)
             .then(function() {
                 var lTableId = xcHelper.getTableId(lTable);
                 var newCols = xcHelper.deepCopy(gTables[lTableId].tableCols);
@@ -1271,6 +1216,7 @@ window.ColManager = (function($, ColManager) {
         var colType     = tableCols[colNum - 1].type;
         var colName     = tableCols[colNum - 1].name;
         var backColName = tableCols[colNum - 1].getBackColName();
+        var newTables = [];
 
         if (colType !== "integer" && colType !== "float" &&
             colType !== "string" && colType !== "boolean") {
@@ -1280,12 +1226,13 @@ window.ColManager = (function($, ColManager) {
         }
 
         var tableNamePart = tableName.split("#")[0];
-        var msgId = StatusMessage.addMsg({
+
+        xcHelper.lockTable(tableId);
+
+        var txId = Transaction.start({
             "msg"      : StatusMessageTStr.HorizontalPartition,
             "operation": SQLOps.hPartition
         });
-
-        xcHelper.lockTable(tableId);
 
         getUniqueValues(partitionNums)
         .then(function(uniqueVals) {
@@ -1301,25 +1248,41 @@ window.ColManager = (function($, ColManager) {
         })
         .then(function(finalTableId) {
             xcHelper.unlockTable(tableId);
-            StatusMessage.success(msgId, false, finalTableId);
 
-            SQL.add("Horizontal Partitioning", {
+            var sql = {
                 "operation"    : SQLOps.hPartition,
                 "tableName"    : tableName,
                 "tableId"      : tableId,
                 "colNum"       : colNum,
                 "colName"      : colName,
-                "partitionNums": partitionNums
-            });
+                "partitionNums": partitionNums,
+                "newTableNames": newTables
+            };
 
-            KVStore.commit();
+            Transaction.done(txId, {
+                "msgTable": finalTableId,
+                "sql"     : sql
+            });
             deferred.resolve();
         })
         .fail(function(error) {
             xcHelper.unlockTable(tableId);
-            Alert.error(StatusMessageTStr.HPartitionFailed, error);
-            SQL.errorLog("Horizontal Partition failed", error);
-            StatusMessage.fail(StatusMessageTStr.HPartitionFailed, msgId);
+
+            var sql = {
+                "operation"    : SQLOps.hPartition,
+                "tableName"    : tableName,
+                "tableId"      : tableId,
+                "colNum"       : colNum,
+                "colName"      : colName,
+                "partitionNums": partitionNums,
+                "newTableNames": newTables
+            };
+
+            Transaction.fail(txId, {
+                "failMsg": StatusMessageTStr.HPartitionFailed,
+                "error"  : error,
+                "sql"    : sql
+            });
             deferred.reject(error);
         });
 
@@ -1334,6 +1297,8 @@ window.ColManager = (function($, ColManager) {
             var filterTableId = xcHelper.getTableId(filterTable);
             var fltStr;
 
+            newTables[index] = filterTable;
+
             switch (type) {
                 case "string":
                     fltStr = "eq(" + backColName + ", \"" + fltVal + "\")";
@@ -1344,14 +1309,7 @@ window.ColManager = (function($, ColManager) {
                     break;
             }
 
-            var filterSql = {
-                "operation"   : SQLOps.hPartitionAction,
-                "action"      : "filter",
-                "filterString": fltStr,
-                "newTableName": filterTable
-            };
-
-            XcalarFilter(fltStr, srcTable, filterTable, filterSql)
+            XcalarFilter(fltStr, srcTable, filterTable, txId)
             .then(function() {
                 var filterCols = xcHelper.deepCopy(tableCols);
                 return TblManager.refreshTable([filterTable], filterCols,
@@ -1377,18 +1335,11 @@ window.ColManager = (function($, ColManager) {
             var groupByCol;
             var sortTable;
 
-            var actionSql = {
-                "operation"   : SQLOps.hPartitionAction,
-                "action"      : "index",
-                "colName"     : keyCol,
-                "newTableName": indexTable
-            };
-
             // Step 1. Do groupby count($keyCol), GROUP BY ($keyCol)
             // aka, index on keyCol and then groupby count
             // this way we get the unique value of src table
             XcalarIndexFromTable(srcTable, keyCol, indexTable,
-                XcalarOrderingT.XcalarOrderingUnordered, actionSql)
+                XcalarOrderingT.XcalarOrderingUnordered, txId)
             .then(function() {
                 groupbyTable = ".tempGB." + tableNamePart +
                                 Authentication.getHashId();
@@ -1397,17 +1348,8 @@ window.ColManager = (function($, ColManager) {
                 var groupByOp = AggrOp.Count;
                 var incSample = false;
 
-                actionSql = {
-                    "operation"   : SQLOps.hPartitionAction,
-                    "action"      : "groupBy",
-                    "operator"    : groupByOp,
-                    "groupByCol"  : groupByCol,
-                    "indexCol"    : keyCol,
-                    "isIncSample" : incSample,
-                    "newTableName": groupbyTable
-                };
                 return XcalarGroupBy(groupByOp, groupByCol, keyCol, indexTable,
-                                    groupbyTable, incSample, actionSql);
+                                    groupbyTable, incSample, txId);
             })
             .then(function() {
                 // Step 2. Sort on desc on groupby table by groupByCol
@@ -1415,15 +1357,8 @@ window.ColManager = (function($, ColManager) {
                 sortTable = ".tempGB-Sort." + tableNamePart +
                             Authentication.getHashId();
 
-                actionSql = {
-                    "operation"   : SQLOps.hPartitionAction,
-                    "action"      : "sort",
-                    "key"         : groupByCol,
-                    "direction"   : "desc",
-                    "newTableName": sortTable
-                };
                 return XcalarIndexFromTable(groupbyTable, groupByCol, sortTable,
-                            XcalarOrderingT.XcalarOrderingDescending, actionSql);
+                            XcalarOrderingT.XcalarOrderingDescending, txId);
             })
             .then(function() {
                 // Step 3, fetch data
@@ -1525,15 +1460,13 @@ window.ColManager = (function($, ColManager) {
         var colName     = tableCols[colNum - 1].name;
         var backColName = tableCols[colNum - 1].getBackColName();
 
-
-        var msgId;
         var tableNamePart = tableName.split("#")[0];
         var newTableNames = [];
         var newFieldNames = [];
 
         xcHelper.lockTable(tableId);
 
-        msgId = StatusMessage.addMsg({
+        var txId = Transaction.start({
             "msg"      : StatusMessageTStr.SplitColumn,
             "operation": SQLOps.SplitCol
         });
@@ -1594,9 +1527,8 @@ window.ColManager = (function($, ColManager) {
             // map do not change stats of the table
             Profile.copy(tableId, newTableId);
             xcHelper.unlockTable(tableId, true);
-            StatusMessage.success(msgId, false, newTableId);
 
-            SQL.add("Split Column", {
+            var sql = {
                 "operation"   : SQLOps.SplitCol,
                 "tableName"   : tableName,
                 "tableId"     : tableId,
@@ -1604,20 +1536,36 @@ window.ColManager = (function($, ColManager) {
                 "colNum"      : colNum,
                 "delimiter"   : delimiter,
                 "numColToGet" : numColToGet
-            });
+            };
 
-            KVStore.commit();
+            Transaction.done(txId, {
+                "msgTable": newTableId,
+                "sql"     : sql
+            });
             deferred.resolve();
         })
         .fail(function(error) {
             xcHelper.unlockTable(tableId);
 
+            var sql = {
+                "operation"   : SQLOps.SplitCol,
+                "tableName"   : tableName,
+                "tableId"     : tableId,
+                "newTableName": newTableNames[1],
+                "colNum"      : colNum,
+                "delimiter"   : delimiter,
+                "numColToGet" : numColToGet
+            };
+
             if (error === cancelError) {
-                StatusMessage.cancel(msgId);
+                Transaction.cancel(txId, {"sql": sql});
                 deferred.resolve();
             } else {
-                Alert.error(StatusMessageTStr.SplitColumnFailed, error);
-                StatusMessage.fail(StatusMessageTStr.SplitColumnFailed, msgId);   
+                Transaction.fail(txId, {
+                    "failMsg": StatusMessageTStr.SplitColumnFailed,
+                    "error"  : error,
+                    "sql"    : sql
+                });
                 deferred.reject(error);
             }
 
@@ -1641,16 +1589,8 @@ window.ColManager = (function($, ColManager) {
             var newTableName = newTableNames[index];
             var fieldName = newFieldNames[index];
             var newTableId = xcHelper.getTableId(newTableName);
-            var sqlOptions =  {
-                "operation"   : SQLOps.SplitColMap,
-                "action"      : "map",
-                "tableName"   : curTableName,
-                "newTableName": newTableName,
-                "fieldName"   : fieldName,
-                "mapString"   : mapString
-            };
 
-            XcalarMap(fieldName, mapString, curTableName, newTableName, sqlOptions)
+            XcalarMap(fieldName, mapString, curTableName, newTableName, txId)
             .then(function() {
                 var curTableId   = xcHelper.getTableId(curTableName);
                 var curTableCols = gTables[curTableId].tableCols;
@@ -1688,27 +1628,11 @@ window.ColManager = (function($, ColManager) {
             var curTableName = tableName;
             var newTableName = ".tempMap." + tableNamePart +
                                 Authentication.getHashId();
-            var sqlOptions   =  {
-                "operation"   : SQLOps.SplitColMap,
-                "action"      : "map",
-                "tableName"   : curTableName,
-                "newTableName": newTableName,
-                "fieldName"   : fieldName,
-                "mapString"   : mapString
-            };
 
-            XcalarMap(fieldName, mapString, curTableName, newTableName, sqlOptions)
+            XcalarMap(fieldName, mapString, curTableName, newTableName, txId)
             .then(function() {
                 var op = AggrOp.MaxInteger;
-                sqlOptions = {
-                    "operation": SQLOps.SplitColMap,
-                    "action"   : "aggregate",
-                    "tableName": newTableName,
-                    "colName"  : fieldName,
-                    "aggrOp"   : op
-                };
-
-                return XcalarAggregate(fieldName, newTableName, op, sqlOptions);
+                return XcalarAggregate(fieldName, newTableName, op, txId);
             })
             .then(function(value) {
                 try {
@@ -1794,7 +1718,7 @@ window.ColManager = (function($, ColManager) {
             var worksheet = WSManager.getWSFromTable(tableId);
             xcHelper.lockTable(tableId);
             XcalarMap(newColName, mapStr, srcTable, newTableName,
-                      {}, false)
+                      null, false)
             .then(function() {
                 var newCols = xcHelper.deepCopy(gTables[tableId].tableCols);
                 var idx = getColNum("Date", tableId);
@@ -1810,7 +1734,7 @@ window.ColManager = (function($, ColManager) {
                 newColName = "Date_UTS_integer";
                 mapStr = "int(Date_UTS)";
                 return (XcalarMap(newColName, mapStr, srcTable, newTableName,
-                                  {}, false))
+                                  null, false))
             })
             .then(function() {
                 tableId = xcHelper.getTableId(srcTable);
@@ -1835,7 +1759,7 @@ window.ColManager = (function($, ColManager) {
                 newColName = "Final Touch";
                 mapStr = "default:convertFromUnixTS(Max_Date, \"%m/%d/%Y\")";
                 return (XcalarMap(newColName, mapStr, srcTable, newTableName,
-                                  {}, false)
+                                  null, false)
                         .then(function() {
                             tableId = xcHelper.getTableId(srcTable);
                             var newCols = xcHelper.deepCopy(gTables[tableId].
@@ -1859,7 +1783,7 @@ window.ColManager = (function($, ColManager) {
             var mapStr = "intel:genFinalPT(Product Type, Line Item Product Type)";
             var worksheet = WSManager.getWSFromTable(tableId);
             xcHelper.lockTable(tableId);
-            XcalarMap("Final PT", mapStr, tableName, newTableName, {}, false)
+            XcalarMap("Final PT", mapStr, tableName, newTableName, null, false)
             .then(function() {
                 var newCols = xcHelper.deepCopy(gTables[tableId].tableCols);
                 var idx = getColNum("Line Item Product Type", tableId);
@@ -1886,7 +1810,7 @@ window.ColManager = (function($, ColManager) {
             var tableNameStore = [];
             xcHelper.lockTable(tableId);
             XcalarMap("Forecasted_float", mapStr, tableName, newTableName,
-                      {}, false)
+                      null, false)
             .then(function() {
                 var newCols = xcHelper.deepCopy(gTables[tableId].tableCols);
                 var idx = getColNum("Forecasted Detail Actual Dollar Amount",
@@ -1971,7 +1895,7 @@ window.ColManager = (function($, ColManager) {
             var worksheet = WSManager.getWSFromTable(tableId);
             xcHelper.lockTable(tableId);
             XcalarMap("Last Modified_NoBlank", mapStr, tableName, newTableName,
-                      {}, false)
+                      null, false)
             .then(function() {
                 var newCols = xcHelper.deepCopy(gTables[tableId].tableCols);
                 newCols.unshift(ColManager.newPullCol("Last Modified_NoBlank",
@@ -1986,7 +1910,7 @@ window.ColManager = (function($, ColManager) {
                 newTableName = tableNameRoot + Authentication.getHashId();
                 mapStr = "intel:convertDateValueToUTS(Last Modified_NoBlank)";
                 return (XcalarMap("LastModified_UTS", mapStr, tableName,
-                                  newTableName, {}, false));
+                                  newTableName, null, false));
             })
             .then(function() {
                 var newCols = xcHelper.deepCopy(gTables[tableId].tableCols);
@@ -2002,7 +1926,7 @@ window.ColManager = (function($, ColManager) {
                 mapStr = "default:convertFromUnixTS(LastModified_UTS,"+
                                                     "\"%m/%d/%Y %H:%S\")";
                 return (XcalarMap("LastModified_readable", mapStr, tableName,
-                                  newTableName, {}, false));
+                                  newTableName, null, false));
             })
             .then(function() {
                 var newCols = xcHelper.deepCopy(gTables[tableId].tableCols);
@@ -2017,7 +1941,7 @@ window.ColManager = (function($, ColManager) {
                 newTableName = tableNameRoot + Authentication.getHashId();
                 mapStr = "intel:ifElse(Final Touch, LastModified_readable)";
                 return (XcalarMap("Last_Modified_Latest", mapStr, tableName,
-                                  newTableName, {}, false));
+                                  newTableName, null, false));
             })
             .then(function() {
                 var newCols = xcHelper.deepCopy(gTables[tableId].tableCols);
@@ -2032,7 +1956,7 @@ window.ColManager = (function($, ColManager) {
                 newTableName = tableNameRoot + Authentication.getHashId();
                 mapStr = "intel:noOfDays(Last_Modified_Latest)";
                 return (XcalarMap("DaysSince",
-                                  mapStr, tableName, newTableName, {}, false));
+                                  mapStr, tableName, newTableName, null, false));
             })
             .then(function() {
                 var newCols = xcHelper.deepCopy(gTables[tableId].tableCols);
@@ -2046,7 +1970,7 @@ window.ColManager = (function($, ColManager) {
                 newTableName = tableNameRoot + Authentication.getHashId();
                 mapStr = "float(DaysSince)";
                 return (XcalarMap("No of Days since last modified", mapStr,
-                                  tableName, newTableName, {}, false));
+                                  tableName, newTableName, null, false));
             })
             .then(function() {
                 var newCols = xcHelper.deepCopy(gTables[tableId].tableCols);

@@ -31,8 +31,8 @@ StatusMessageTStr = {
 'GroupByFailed' : 'Group By failed',
 'Filter' : 'Filtering column',
 'FilterFailed' : 'Filter column failed',
-'Statistics' : 'Generating statistical analysis',
-'StatisticsFailed' : 'Statistical analysis failed',
+'Profile' : 'Profile of',
+'ProfileFailed' : 'Profile failed',
 "Window": "Performing Window",
 "WindowFailed": "Window Failed",
 "HorizontalPartition": "Performing Horizontal Partition",
@@ -68,7 +68,8 @@ CommonTxtTstr = {
     'SupportBundleInstr': 'Please check your backend for a .tar.gz file',
     'SupportBundleMsg': 'Support upload bundle id <id> successfully generated! ' +
                         'It is located on your Xcalar Server at <path>',
-    'SuppoortBundleFail': 'Generation failed'
+    'SuppoortBundleFail': 'Generation failed',
+    'OpFail': 'Opeartion Failed'
 };
 
 ErrTStr = {
@@ -164,8 +165,7 @@ ErrTStr = {
 
     'PreservedName': 'This name is preserved, please use another name.',
 
-    // with replacement
-    'InvalidRange': 'Please enter a value between <num1> and <num2>.'
+    'InvalidWin': 'Cannot window a unsorted table'
 };
 
 ErrWRepTStr = {
@@ -279,8 +279,7 @@ MultiCastTStr = {
 ProfileTStr = {
     'ProfileOf': 'Profile of',
     'Instr': 'Hover on the bar to see details. Use scroll bar and input box to view more data.',
-    'LoadInstr': 'Please wait for the data preparation, you can close the modal and view it later.',
-    'ProfileFail': 'Profile Failed'
+    'LoadInstr': 'Please wait for the data preparation, you can close the modal and view it later.'
 };
 
 WKBKTStr = {
@@ -397,6 +396,7 @@ WSTStr = {
 };
 
 TblTStr = {
+    'Create': 'Create Table',
     'Del': 'Delete Tables',
     'DelMsg': 'Are you sure you want to delete table <table>?',
     'DelFail': 'Delete Tables Failed',

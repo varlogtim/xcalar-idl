@@ -314,11 +314,11 @@ function XcalarGetVersion() {
 }
 
 function XcalarLoad(url, format, datasetName, fieldDelim, recordDelim,
-                    hasHeader, moduleName, funcName, sqlOptions) {
-    function checkForDatasetLoad(def, sqlString, dsName, sqlOptions) {
+                    hasHeader, moduleName, funcName, txId) {
+    function checkForDatasetLoad(def, sqlString, dsName, txId) {
         // Using setInterval will have issues because of the deferred
         // GetDatasets call inside here. Do not use it.
-        function checkIter(def1, sqlString1, dsName1, sqlOptions1) {
+        function checkIter(def1, sqlString1, dsName1, txId1) {
             XcalarGetDatasets(dsName1)
             .then(function(ret) {
                 var loadDone = false;
@@ -337,22 +337,20 @@ function XcalarLoad(url, format, datasetName, fieldDelim, recordDelim,
                 if (!nameNodeFound) {
                     // The load FAILED because the dag node is gone
                     var thriftError = thriftLog("XcalarLoad failed!");
-                    SQL.errorLog("Load Dataset", sqlOptions1, null,
-                                 thriftError);
                     def1.reject(thriftError);
                 } else {
                     if (loadDone) {
-                        SQL.add("Load Dataset", sqlOptions1, sqlString1);
+                        Transaction.log(txId1, sqlString1);
                         def1.resolve();
                     } else {
                         setTimeout(checkIter.bind(null, def1, sqlString1,
-                                                  dsName1, sqlOptions1), 1000);
+                                                  dsName1, txId1), 1000);
                     }
                 }
             });
         }
 
-        setTimeout(checkIter.bind(null, def, sqlString, dsName, sqlOptions),
+        setTimeout(checkIter.bind(null, def, sqlString, dsName, txId),
                    1000);
     }
     
@@ -416,7 +414,7 @@ function XcalarLoad(url, format, datasetName, fieldDelim, recordDelim,
     // we still want to use the return for def2.
     xcHelper.when(def1, def2)
     .then(function(ret1, ret2) {
-        SQL.add("Load Dataset", sqlOptions, ret2);
+        Transaction.log(txId, ret2);
         deferred.resolve(ret1);
     })
     .fail(function(error1, error2) {
@@ -428,14 +426,13 @@ function XcalarLoad(url, format, datasetName, fieldDelim, recordDelim,
                 // getQuery hasn't returned
                 XcalarGetQuery(workItem)
                 .then(function(ret) {
-                    checkForDatasetLoad(deferred, ret, datasetName, sqlOptions);
+                    checkForDatasetLoad(deferred, ret, datasetName, txId);
                 });
             } else if (typeof (error2) === "string") {
-                checkForDatasetLoad(deferred, error2, datasetName, sqlOptions);
+                checkForDatasetLoad(deferred, error2, datasetName, txId);
             }
         } else {  
             var thriftError = thriftLog("XcalarLoad", error1, error2);
-            SQL.errorLog("Load Dataset", sqlOptions, null, thriftError);
             deferred.reject(thriftError);
         }
     });
@@ -443,7 +440,7 @@ function XcalarLoad(url, format, datasetName, fieldDelim, recordDelim,
     return (deferred.promise());
 }
 
-function XcalarAddODBCExportTarget(targetName, connStr) {
+function XcalarAddODBCExportTarget(targetName, connStr, txId) {
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return (promiseWrapper(null));
     }
@@ -466,19 +463,18 @@ function XcalarAddODBCExportTarget(targetName, connStr) {
     jQuery.when(def1, def2)
     .then(function(ret1, ret2) {
         // XXX Add sql for this thing
-        // SQL.add("Add Export Target", sqlOptions, ret2);
+        // Transaction.log(txId, ret2);
         deferred.resolve(ret1);
     })
     .fail(function(error) {
         var thriftError = thriftLog("XcalarAddODBCExportTarget", error);
-        SQL.errorLog("Add ODBC Export Target", null, null, thriftError);
         deferred.reject(thriftError);
     });
 
     return (deferred.promise());
 }
 
-function XcalarAddLocalFSExportTarget(targetName, path) {
+function XcalarAddLocalFSExportTarget(targetName, path, txId) {
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return (promiseWrapper(null));
     }
@@ -501,12 +497,11 @@ function XcalarAddLocalFSExportTarget(targetName, path) {
     jQuery.when(def1, def2)
     .then(function(ret1, ret2) {
         // XXX Add sql for this thing
-        // SQL.add("Add Export Target", sqlOptions, ret2);
+        // Transaction.log(txId, ret2);
         deferred.resolve(ret1);
     })
     .fail(function(error) {
         var thriftError = thriftLog("XcalarAddExportTarget", error);
-        SQL.errorLog("Add Export Target", null, null, thriftError);
         deferred.reject(thriftError);
     });
 
@@ -529,13 +524,10 @@ function XcalarListExportTargets(typePattern, namePattern) {
     var def2 = jQuery.Deferred().resolve().promise();
     jQuery.when(def1, def2)
     .then(function(ret1, ret2) {
-        // XXX Add sql for this thing
-        // SQL.add("List Export Targets", sqlOptions, ret2);
         deferred.resolve(ret1);
     })
     .fail(function(error) {
         var thriftError = thriftLog("XcalarListExportTargets", error);
-        SQL.errorLog("List Export Targets", null, null, thriftError);
         deferred.reject(thriftError);
     });
 
@@ -543,7 +535,7 @@ function XcalarListExportTargets(typePattern, namePattern) {
 }
 
 function XcalarExport(tableName, exportName, targetName, numColumns,
-                      backColName, frontColName, sqlOptions) {
+                      backColName, frontColName, txId) {
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return (promiseWrapper(null));
     }
@@ -613,19 +605,18 @@ function XcalarExport(tableName, exportName, targetName, numColumns,
         // var def2 = jQuery.Deferred().resolve().promise();
         jQuery.when(def1, def2)
         .then(function(ret1, ret2) {
-            SQL.add("Export Table", sqlOptions, ret2);
+            Transaction.log(txId, ret2);
             deferred.resolve(ret1);
         })
         .fail(function(error) {
             var thriftError = thriftLog("XcalarExport", error);
-            SQL.errorLog("Add Export Target", sqlOptions, null, thriftError);
             deferred.reject(thriftError);
         });
     });
     return (deferred.promise());
 }
 
-function XcalarDestroyDataset(dsName, sqlOptions) {
+function XcalarDestroyDataset(dsName, txId) {
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return (promiseWrapper(null));
     }
@@ -644,19 +635,18 @@ function XcalarDestroyDataset(dsName, sqlOptions) {
 
     jQuery.when(def1, def2)
     .then(function(ret1, ret2) {
-        SQL.add("Destroy Dataset", sqlOptions, ret2);
+        Transaction.log(txId, ret2);
         deferred.resolve(ret1);
     })
     .fail(function(error1, error2) {
         var thriftError = thriftLog("XcalarDestroyDataset", error1, error2);
-        SQL.errorLog("Destroy Dataset", sqlOptions, null, thriftError);
         deferred.reject(thriftError);
     });
 
     return (deferred.promise());
 }
 
-function XcalarIndexFromDataset(datasetName, key, tablename, sqlOptions) {
+function XcalarIndexFromDataset(datasetName, key, tablename, txId) {
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return (promiseWrapper(null));
     }
@@ -677,12 +667,11 @@ function XcalarIndexFromDataset(datasetName, key, tablename, sqlOptions) {
     var def2 = XcalarGetQuery(workItem);
     jQuery.when(def1, def2)
     .then(function(ret1, ret2) {
-        SQL.add("Index Dataset", sqlOptions, ret2);
+        Transaction.log(txId, ret2);
         deferred.resolve(ret1);
     })
     .fail(function(error1, error2) {
         var thriftError = thriftLog("XcalarIndexFromDataset", error1, error2);
-        SQL.errorLog("Index Dataset", sqlOptions, null, thriftError);
         deferred.reject(thriftError);
     });
 
@@ -690,7 +679,7 @@ function XcalarIndexFromDataset(datasetName, key, tablename, sqlOptions) {
 }
 
 function XcalarIndexFromTable(srcTablename, key, tablename, ordering,
-                              sqlOptions) {
+                              txId) {
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return (promiseWrapper(null));
     }
@@ -711,28 +700,18 @@ function XcalarIndexFromTable(srcTablename, key, tablename, ordering,
 
         jQuery.when(def1, def2)
         .then(function(ret1, ret2) {
-            if (ordering !== XcalarOrderingT.XcalarOrderingUnordered) {
-                // XXX TODO: Add sort asc or desc
-                SQL.add("Sort Table", sqlOptions, ret2);
-            } else {
-                SQL.add("Index Table", sqlOptions, ret2);
-            }
+            Transaction.log(txId, ret2);
             deferred.resolve(ret1);
         })
         .fail(function(error1, error2) {
             var thriftError = thriftLog("XcalarIndexFromTable", error1, error2);
-            if (ordering !== XcalarOrderingT.XcalarOrderingUnordered) {
-                SQL.errorLog("Sort Table", sqlOptions, null, thriftError);
-            } else {
-                SQL.errorLog("Index Table", sqlOptions, null, thriftError);
-            }
             deferred.reject(thriftError);
         });
     });
     return (deferred.promise());
 }
 
-function XcalarDeleteTable(tableName, sqlOptions) {
+function XcalarDeleteTable(tableName, txId) {
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return (promiseWrapper(null));
     }
@@ -749,19 +728,18 @@ function XcalarDeleteTable(tableName, sqlOptions) {
     var def2 = XcalarGetQuery(workItem);
     jQuery.when(def1, def2)
     .then(function(ret1, ret2) {
-        SQL.add("Delete Table", sqlOptions, ret2);
+        Transaction.log(txId, ret2);
         deferred.resolve(ret1);
     })
     .fail(function(error1, error2) {
         var thriftError = thriftLog("XcalarDeleteTable", error1, error2);
-        SQL.errorLog("Delete Table", sqlOptions, null, thriftError);
         deferred.reject(thriftError);
     });
 
     return (deferred.promise()); */
 }
 
-function XcalarRenameTable(oldTableName, newTableName, sqlOptions) {
+function XcalarRenameTable(oldTableName, newTableName, txId) {
     if (tHandle == null || oldTableName == null || oldTableName === "" ||
         newTableName == null || newTableName === "") {
         return (promiseWrapper(null));
@@ -776,12 +754,11 @@ function XcalarRenameTable(oldTableName, newTableName, sqlOptions) {
     var def2 = XcalarGetQuery(workItem);
     jQuery.when(def1, def2)
     .then(function(ret1, ret2) {
-        SQL.add("Rename Table", sqlOptions, ret2);
+        Transaction.log(txId, ret2);
         deferred.resolve(ret1);
     })
     .fail(function(error1, error2) {
         var thriftError = thriftLog("XcalarRenameTable", error1, error2);
-        SQL.errorLog("Rename Table", sqlOptions, null, thriftError);
         deferred.reject(thriftError);
     });
 
@@ -1173,7 +1150,7 @@ function generateFilterString(operator, value1, value2, value3) {
     return (filterStr);
 }
 
-function XcalarFilter(evalStr, srcTablename, dstTablename, sqlOptions) {
+function XcalarFilter(evalStr, srcTablename, dstTablename, txId) {
     if (tHandle == null) {
         return (promiseWrapper(null));
     }
@@ -1202,12 +1179,11 @@ function XcalarFilter(evalStr, srcTablename, dstTablename, sqlOptions) {
         var def2 = XcalarGetQuery(workItem);
         jQuery.when(def1, def2)
         .then(function(ret1, ret2) {
-            SQL.add("Filter", sqlOptions, ret2);
+            Transaction.log(txId, ret2);
             deferred.resolve(ret1);
         })
         .fail(function(error1, error2) {
             var thriftError = thriftLog("XcalarFilter", error1, error2);
-            SQL.errorLog("Filter", sqlOptions, null, thriftError);
             deferred.reject(thriftError);
         });
     });
@@ -1216,7 +1192,7 @@ function XcalarFilter(evalStr, srcTablename, dstTablename, sqlOptions) {
 }
 
 function XcalarMap(newFieldName, evalStr, srcTablename, dstTablename,
-                   sqlOptions, doNotUnsort) {
+                   txId, doNotUnsort) {
     if (tHandle == null) {
         return (promiseWrapper(null));
     }
@@ -1248,12 +1224,11 @@ function XcalarMap(newFieldName, evalStr, srcTablename, dstTablename,
         var def2 = XcalarGetQuery(workItem);
         jQuery.when(def1, def2)
         .then(function(ret1, ret2) {
-            SQL.add("Map", sqlOptions, ret2);
+            Transaction.log(txId, ret2);
             deferred.resolve(ret1);
         })
         .fail(function(error1, error2) {
             var thriftError = thriftLog("XcalarMap", error1, error2);
-            SQL.errorLog("Map", sqlOptions, null, thriftError);
             deferred.reject(thriftError);
         });
     });
@@ -1298,12 +1273,12 @@ function generateAggregateString(fieldName, op) {
     return (evalStr);
 }
 
-function XcalarAggregate(fieldName, srcTablename, op, sqlOptions) {
+function XcalarAggregate(fieldName, srcTablename, op, txId) {
     var evalStr = generateAggregateString(fieldName, op);
-    return (XcalarAggregateHelper(srcTablename, evalStr, sqlOptions));
+    return (XcalarAggregateHelper(srcTablename, evalStr, txId));
 }
 
-function XcalarAggregateHelper(srcTablename, evalStr, sqlOptions) {
+function XcalarAggregateHelper(srcTablename, evalStr, txId) {
     if (tHandle == null) {
         return (promiseWrapper(null));
     }
@@ -1334,12 +1309,11 @@ function XcalarAggregateHelper(srcTablename, evalStr, sqlOptions) {
         var def2 = XcalarGetQuery(workItem);
         jQuery.when(def1, def2)
         .then(function(ret1, ret2) {
-            SQL.add("Aggregate", sqlOptions, ret2);
+            Transaction.log(txId, ret2);
             deferred.resolve(ret1, dstDagName);
         })
         .fail(function(error1, error2) {
             var thriftError = thriftLog("XcalarAggregate", error1, error2);
-            SQL.errorLog("Aggregate", sqlOptions, null, thriftError);
             deferred.reject(thriftError);
         });
     });
@@ -1347,7 +1321,7 @@ function XcalarAggregateHelper(srcTablename, evalStr, sqlOptions) {
     return (deferred.promise());
 }
 
-function XcalarJoin(left, right, dst, joinType, sqlOptions) {
+function XcalarJoin(left, right, dst, joinType, txId) {
     if (tHandle == null) {
         return (promiseWrapper(null));
     }
@@ -1366,12 +1340,11 @@ function XcalarJoin(left, right, dst, joinType, sqlOptions) {
         var def2 = XcalarGetQuery(workItem);
         jQuery.when(def1, def2)
         .then(function(ret1, ret2) {
-            SQL.add("Join", sqlOptions, ret2);
+            Transaction.log(txId, ret2);
             deferred.resolve(ret1);
         })
         .fail(function(error1, error2) {
             var thriftError = thriftLog("XcalarJoin", error1, error2);
-            SQL.errorLog("Join", sqlOptions, null, thriftError);
             deferred.reject(thriftError);
         });
     });
@@ -1380,7 +1353,7 @@ function XcalarJoin(left, right, dst, joinType, sqlOptions) {
 }
 
 function XcalarGroupBy(operator, newColName, oldColName, tableName,
-                       newTableName, incSample, sqlOptions) {
+                       newTableName, incSample, txId) {
     var deferred = jQuery.Deferred();
     if (insertError(arguments.callee, deferred)) {
         return (deferred.promise());
@@ -1403,19 +1376,18 @@ function XcalarGroupBy(operator, newColName, oldColName, tableName,
         var def2 = XcalarGetQuery(workItem);
         jQuery.when(def1, def2)
         .then(function(ret1, ret2) {
-            SQL.add("Group By", sqlOptions, ret2);
+            Transaction.log(txId, ret2);
             deferred.resolve(ret1);
         })
         .fail(function(error1, error2) {
             var thriftError = thriftLog("XcalarGroupBy", error1, error2);
-            SQL.errorLog("Group By", sqlOptions, null, thriftError);
             deferred.reject(thriftError);
         });
     });
     return (deferred.promise());
 }
 
-function XcalarProject(columns, tableName, dstTableName, sqlOptions) {
+function XcalarProject(columns, tableName, dstTableName, txId) {
     var deferred = jQuery.Deferred();
     if (insertError(arguments.callee, deferred)) {
         return (deferred.promise());
@@ -1430,12 +1402,11 @@ function XcalarProject(columns, tableName, dstTableName, sqlOptions) {
         var def2 = XcalarGetQuery(workItem); // XXX May not work? Have't tested
         jQuery.when(def1, def2)
         .then(function(ret1, ret2) {
-            SQL.add("Project", sqlOptions, ret2);
+            Transaction.log(txId, ret2);
             deferred.resolve(ret1);
         })
         .fail(function(error1, error2) {
             var thriftError = thriftLog("XcalarProject", error1, error2);
-            SQL.errorLog("Project", sqlOptions, null, thriftError);
             deferred.reject(thriftError);
         });
     });
@@ -1575,7 +1546,7 @@ function XcalarListFiles(url) {
 // and give it all new DagNodeIds. So when you call updateRetina, make sure to
 // pass in the DagNodeIds that are part of this new Retina instead of the
 // original DAG
-function XcalarMakeRetina(retName, tableArray, sqlOptions) {
+function XcalarMakeRetina(retName, tableArray, txId) {
     if ([null, undefined].indexOf(tHandle) !== -1 ||
         retName === "" || retName == null ||
         tableArray == null || tableArray.length <= 0)
@@ -1593,12 +1564,11 @@ function XcalarMakeRetina(retName, tableArray, sqlOptions) {
     // var def2 = XcalarGetQuery(workItem);
     jQuery.when(def1, def2)
     .then(function(ret1, ret2) {
-        // SQL.add("Create Retina", sqlOptions, ret2);
+        // Transaction.log(txId, ret2);
         deferred.resolve(ret1);
     })
     .fail(function(error1, error2) {
         var thriftError = thriftLog("XcalarMakeRetina", error1, error2);
-        SQL.errorLog("Make Retina", sqlOptions, null, thriftError);
         deferred.reject(thriftError);
     });
     return (deferred.promise());
@@ -1662,7 +1632,7 @@ function XcalarGetRetina(retName) {
 // replaced with "filter(<opera>(<colName>, <val>))"
 // val = \"hello\"
 // <argument> is used to denote a parameter
-function XcalarUpdateRetina(retName, dagNodeId, paramType, paramValue, sqlOptions) {
+function XcalarUpdateRetina(retName, dagNodeId, paramType, paramValue, txId) {
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return (promiseWrapper(null));
     }
@@ -1680,12 +1650,11 @@ function XcalarUpdateRetina(retName, dagNodeId, paramType, paramValue, sqlOption
     // var def2 = xcalarGetQuery(workItem);
     jQuery.when(def1, def2)
     .then(function(ret1, ret2) {
-        // SQL.add("Update Retina", sqlOptions, ret2);
+        Transaction.log(txId, ret2);
         deferred.resolve(ret1);
     })
     .fail(function(error1, error2) {
         var thriftError = thriftLog("XcalarUpdateRetina", error1, error2);
-        SQL.errorLog("Update Retina", sqlOptions, null, thriftError);
         deferred.reject(thriftError);
     });
     return (deferred.promise());
@@ -1697,7 +1666,7 @@ function XcalarUpdateRetina(retName, dagNodeId, paramType, paramValue, sqlOption
 // For example, if my paramValue was "filter(<opera>(<colName>, <val>))"
 // then, params = [{"parameterName":"opera", "parameterValue":"lt"},
 // {"pN":"colName", "pV":"column5"}, {, "pV":"\"hello\""}]
-function XcalarExecuteRetina(retName, params, sqlOptions) {
+function XcalarExecuteRetina(retName, params, txId) {
     if (retName === "" || retName == null ||
         [null, undefined].indexOf(tHandle) !== -1) {
         return (promiseWrapper(null));
@@ -1714,12 +1683,11 @@ function XcalarExecuteRetina(retName, params, sqlOptions) {
     // var def2 = xcalarGetQuery(workItem);
     jQuery.when(def1, def2)
     .then(function(ret1, ret2) {
-        // SQL.add("Execute Retina", sqlOptions, ret2);
+        // Transaction.log(txId, ret2);
         deferred.resolve(ret1);
     })
     .fail(function(error1, error2) {
         var thriftError = thriftLog("XcalarExecuteRetina", error1, error2);
-        SQL.errorLog("Execute Retina", sqlOptions, null, thriftError);
         deferred.reject(thriftError);
     });
     return (deferred.promise());
@@ -1745,7 +1713,7 @@ function XcalarListParametersInRetina(retName) {
     return (deferred.promise());
 }
 
-function XcalarDeleteRetina(retName, sqlOptions) {
+function XcalarDeleteRetina(retName, txId) {
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return (promiseWrapper(null));
     }
@@ -1761,18 +1729,17 @@ function XcalarDeleteRetina(retName, sqlOptions) {
     
     jQuery.when(def1, def2)
     .then(function(ret1, ret2) {
-        // SQL.add("Delete Retina", sqlOptions, ret2);
+        Transaction.log(txId, ret2);
         deferred.resolve(ret1);
     })
     .fail(function(error1, error2) {
         var thriftError = thriftLog("XcalarApiDeleteRetina", error1, error2);
-        SQL.errorLog("Delete Retina", error1, error2);
         deferred.reject(thriftError);
     });
     return (deferred.promise());
 }
 
-function XcalarDeleteSched(schedName, sqlOptions) {
+function XcalarDeleteSched(schedName, txId) {
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return (promiseWrapper(null));
     }
@@ -1787,12 +1754,11 @@ function XcalarDeleteSched(schedName, sqlOptions) {
     // var def2 = XcalarGetQuery(workItem);
     jQuery.when(def1, def2)
     .then(function(ret1, ret2) {
-        SQL.add("Delete Schedule", sqlOptions, ret2);
+        // Transaction.log(txId, ret2);
         deferred.resolve(ret1);
     })
     .fail(function(error1, error2) {
         var thriftError = thriftLog("XcalarDeleteSchedule", error1, error2);
-        SQL.errorLog("Delete Schedule", sqlOptions, null, thriftError);
         deferred.reject(thriftError);
     });
     return (deferred.promise());
@@ -1811,7 +1777,7 @@ function XcalarDeleteSched(schedName, sqlOptions) {
 //  3: list<XcalarApiParameterT> parameters
 // }
 function XcalarCreateSched(schedName, schedInSec, period, recurCount, type, arg,
-                           sqlOptions)
+                           txId)
 {
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return (promiseWrapper(null));
@@ -1829,12 +1795,11 @@ function XcalarCreateSched(schedName, schedInSec, period, recurCount, type, arg,
     // var def2 = xcalarGetQuery(workItem);
     jQuery.when(def1, def2)
     .then(function(ret1, ret2) {
-        // SQL.add("Create Schedule", sqlOptions, ret2);
+        Transaction.log(txId, ret2);
         deferred.resolve(ret1);
     })
     .fail(function(error1, error2) {
         var thriftError = thriftLog("XcalarCreateSchedule", error1, error2);
-        SQL.errorLog("Create Schedule", sqlOptions, null, thriftError);
         deferred.reject(thriftError);
     });
     return (deferred.promise());

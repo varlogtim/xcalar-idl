@@ -557,20 +557,14 @@ window.DataCart = (function($, DataCart) {
         var tableName = cart.getTableName() + Authentication.getHashId();
 
         // add sql
-        var sqlOptions = {
-            "operation": SQLOps.IndexDS,
-            "dsName"   : dsName,
-            "dsId"     : cart.getId(),
-            "tableName": tableName,
-            "columns"  : []
+        var sql = {
+            "operation" : SQLOps.IndexDS,
+            "dsName"    : dsName,
+            "dsId"      : cart.getId(),
+            "tableName" : tableName,
+            "columns"   : [],
+            "revertable": false
         };
-
-        // add status message
-        var msg = StatusMessageTStr.CreatingTable + ': ' + tableName;
-        var msgId = StatusMessage.addMsg({
-            "msg"      : msg,
-            "operation": SQLOps.IndexDS
-        });
 
         var items = cart.items;
         var itemLen = items.length;
@@ -601,25 +595,41 @@ window.DataCart = (function($, DataCart) {
             });
 
             newTableCols[i] = progCol;
-            sqlOptions.columns.push(colname);
+            sql.columns.push(colname);
         }
 
         // new "DATA" column
         newTableCols[itemLen] = ColManager.newDATACol();
-        sqlOptions.columns.push("DATA");
+        sql.columns.push("DATA");
 
-        XcalarIndexFromDataset(dsName, "recordNum", tableName, sqlOptions)
+
+        var txId = Transaction.start({
+            "msg"      : StatusMessageTStr.CreatingTable + ': ' + tableName,
+            "operation": SQLOps.IndexDS,
+            "sql"      : sql
+        });
+
+        XcalarIndexFromDataset(dsName, "recordNum", tableName, txId)
         .then(function() {
             var options = {"focusWorkspace": true};
             return TblManager.refreshTable([tableName], newTableCols,
                                             [], worksheet, options);
         })
         .then(function() {
-            StatusMessage.success(msgId, false, xcHelper.getTableId(tableName));
+            Transaction.done(txId, {
+                "msgTable": xcHelper.getTableId(tableName),
+                "title"   : TblTStr.Create,
+                "noCommit": true
+            });
             deferred.resolve();
         })
         .fail(function(error) {
-            StatusMessage.fail(StatusMessageTStr.TableCreationFailed, msgId);
+            Transaction.fail(txId, {
+                "failMsg": StatusMessageTStr.TableCreationFailed,
+                "error"  : error,
+                "noAlert": true,
+                "title"  : TblTStr.Create
+            });
             deferred.reject(error);
         });
         return (deferred.promise());

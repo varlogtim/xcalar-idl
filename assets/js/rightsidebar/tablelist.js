@@ -617,12 +617,9 @@ window.TableList = (function($, TableList) {
             var newTableName;
             if (tableId == null) {
                 newTableName = tableName + Authentication.getHashId();
-                var sqlOptions = {
-                    "operation": SQLOps.RenameOrphanTable,
-                    "oldName"  : tableName,
-                    "newName"  : newTableName
-                };
-                XcalarRenameTable(tableName, newTableName, sqlOptions)
+
+                // Buggy transaction!!!
+                XcalarRenameTable(tableName, newTableName, null)
                 .then(function() {
                     innerDeferred.resolve(newTableName);
                 })

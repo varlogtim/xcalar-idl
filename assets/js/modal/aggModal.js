@@ -80,19 +80,28 @@ window.AggModal = (function($, AggModal) {
         aggColsInitialize(tableId);
         aggTableInitialize();
 
-        calcAgg(tableName, tableId)
-        .then(function() {
-            SQL.add("Quick Aggregate", {
-                "operation": SQLOps.QuickAgg,
-                "tableId"  : tableId,
-                "tableName": tableName
-            });
+        var sql = {
+            "operation" : SQLOps.QuickAgg,
+            "tableId"   : tableId,
+            "tableName" : tableName,
+            "revertable": false
+        };
+        var txId = Transaction.start({
+            "operation": SQLOps.QuickAgg,
+            "sql"      : sql
+        });
 
-            KVStore.commit();
+        calcAgg(tableName, tableId, txId)
+        .then(function() {
+            Transaction.done(txId);
             deferred.resolve();
         })
         .fail(function(error) {
             console.error("Quick Aggregate Fails", error);
+            Transaction.fail(txId, {
+                "noAlert": true,
+                "error"  : error
+            });
             deferred.reject(error);
         });
 
@@ -109,19 +118,28 @@ window.AggModal = (function($, AggModal) {
         aggColsInitialize(tableId);
         corrTableInitialize();
 
-        calcCorr(tableName, tableId)
-        .then(function() {
-            SQL.add("Correlation", {
-                "operation": SQLOps.Corr,
-                "tableId"  : tableId,
-                "tableName": tableName
-            });
+        var sql = {
+            "operation" : SQLOps.Corr,
+            "tableId"   : tableId,
+            "tableName" : tableName,
+            "revertable": false
+        };
+        var txId = Transaction.start({
+            "operation": SQLOps.Corr,
+            "sql"      : sql
+        });
 
-            KVStore.commit();
+        calcCorr(tableName, tableId, txId)
+        .then(function() {
+            Transaction.done(txId);
             deferred.resolve();
         })
         .fail(function(error) {
             console.error("Quick Aggregate Fails", error);
+            Transaction.fail(txId, {
+                "noAlert": true,
+                "error"  : error
+            });
             deferred.reject(error);
         });
 
@@ -326,7 +344,7 @@ window.AggModal = (function($, AggModal) {
         return (html);
     }
 
-    function calcCorr(tableName, tableId) {
+    function calcCorr(tableName, tableId, txId) {
         var deferred = jQuery.Deferred();
         var promises = [];
 
@@ -379,7 +397,7 @@ window.AggModal = (function($, AggModal) {
                                             vertCol.getBackColName());
                         // Run correlation function
                         var promise = runCorr(tableId, tableName,
-                                                sub, row, col, dups);
+                                              sub, row, col, dups, txId);
                         promises.push(promise);
                     }
                 }
@@ -402,7 +420,7 @@ window.AggModal = (function($, AggModal) {
         return deferred.promise();
     }
 
-    function calcAgg(tableName, tableId) {
+    function calcAgg(tableName, tableId, txId) {
         var promises = [];
 
         var colLen = aggCols.length;
@@ -431,7 +449,8 @@ window.AggModal = (function($, AggModal) {
                     for (var row = 0; row < funLen; row++) {
                         var promise = runAgg(tableId, tableName,
                                             progCol.getBackColName(),
-                                            aggrFunctions[row], row, col, dups);
+                                            aggrFunctions[row], row, col,
+                                            dups, txId);
                         promises.push(promise);
                     }
                 }
@@ -454,7 +473,7 @@ window.AggModal = (function($, AggModal) {
         return (dups);
     }
 
-    function runAgg(tableId, tableName, fieldName, opString, row, col, dups) {
+    function runAgg(tableId, tableName, fieldName, opString, row, col, dups, txId) {
         var deferred = jQuery.Deferred();
         var tableAgg;
         var colAgg;
@@ -472,14 +491,7 @@ window.AggModal = (function($, AggModal) {
             }
         }
 
-        var sqlOptions = {
-            "operation": SQLOps.QuickAggAction,
-            "type"     : "aggregate",
-            "fieldName": fieldName,
-            "aggrOp"   : opString
-        };
-
-        XcalarAggregate(fieldName, tableName, opString, sqlOptions)
+        XcalarAggregate(fieldName, tableName, opString, txId)
         .then(function(value) {
             var val;
 
@@ -531,7 +543,7 @@ window.AggModal = (function($, AggModal) {
         return (deferred.promise());
     }
 
-    function runCorr(tableId, tableName, evalStr, row, col, colDups) {
+    function runCorr(tableId, tableName, evalStr, row, col, colDups, txId) {
         var deferred = jQuery.Deferred();
 
         if (corrCache.hasOwnProperty(tableId)) {
@@ -544,14 +556,7 @@ window.AggModal = (function($, AggModal) {
             }
         }
 
-
-        var sqlOptions = {
-            "operation": SQLOps.QuickAggAction,
-            "type"     : "correlation",
-            "evalStr"  : evalStr
-        };
-
-        XcalarAggregateHelper(tableName, evalStr, sqlOptions)
+        XcalarAggregateHelper(tableName, evalStr, txId)
         .then(function(value) {
             var val;
 

@@ -379,12 +379,17 @@ window.TblManager = (function($, TblManager) {
         var tableName   = table.tableName;
         var resultSetId = table.resultSetId;
 
-        var sqlOptions = {
-            "operation": SQLOps.DeleteTable,
-            "tableId"  : tableId,
-            "tableName": tableName,
-            "tableType": tableType
+        var sql = {
+            "operation" : SQLOps.DeleteTable,
+            "tableId"   : tableId,
+            "tableName" : tableName,
+            "tableType" : tableType,
+            "revertable": false
         };
+        var txId = Transaction.start({
+            "operation": SQLOps.DeleteTable,
+            "sql"      : sql
+        });
         
         // Free the result set pointer that is still pointing to it
         XcalarSetFree(resultSetId)
@@ -415,7 +420,7 @@ window.TblManager = (function($, TblManager) {
                 }
             }
             */
-            return (XcalarDeleteTable(tableName, sqlOptions));
+            return XcalarDeleteTable(tableName, txId);
         })
         .then(function() {
             // XXX if we'd like to hide the cannot delete bug,
@@ -440,9 +445,14 @@ window.TblManager = (function($, TblManager) {
                 TableList.removeAggTable(tableId);
             }
 
+            Transaction.done(txId, {"noCommit": true});
             deferred.resolve();
         })
         .fail(function(error){
+            Transaction.fail(txId, {
+                "error"  : error,
+                "noAlert": true
+            });
             deferred.reject(error);
         });
 
@@ -692,12 +702,12 @@ window.TblManager = (function($, TblManager) {
         TableList.updateTableInfo(tableId);
 
         SQL.add("Sort Table Columns", {
-            "operation": SQLOps.SortTableCols,
-            "tableName": table.tableName,
-            "tableId"  : tableId,
-            "direction": direction,
+            "operation"    : SQLOps.SortTableCols,
+            "tableName"    : table.tableName,
+            "tableId"      : tableId,
+            "direction"    : direction,
             "originalOrder": oldOrder,
-            "htmlExclude": ['originalOrder']
+            "htmlExclude"  : ['originalOrder']
         });
     };
 
@@ -969,7 +979,7 @@ window.TblManager = (function($, TblManager) {
         } else {
             var parallelOptions = {
                 afterStartup: afterStartup,
-                selectCol: selectCol
+                selectCol   : selectCol
             };
             return (TblManager.parallelConstruct(tableId, tablesToRemove,
                                                  parallelOptions));
@@ -1070,10 +1080,10 @@ window.TblManager = (function($, TblManager) {
                                                              .substr(3));
                             table.currentRowNumber = lastRowNum + 1;
                             if (options.selectCol != null &&
-                                $('.xcTable th.selectedCell').length === 0) {
-                                    $table.find('th.col' + options.selectCol +
-                                                ' .flexContainer')
-                                          .mousedown();
+                                $('.xcTable th.selectedCell').length === 0)
+                            {
+                                $table.find('th.col' + options.selectCol +
+                                            ' .flexContainer').mousedown();
                             }
                         });
             }
@@ -1726,13 +1736,18 @@ window.TblManager = (function($, TblManager) {
     function deleteOrphaned(tableName) {
         var deferred = jQuery.Deferred();
 
-        var sqlOptions = {
-            "operation": "deleteTable",
-            "tableName": tableName,
-            "tableType": TableType.Orphan
+        var sql = {
+            "operation" : SQLOps.DeleteTable,
+            "tableName" : tableName,
+            "tableType" : TableType.Orphan,
+            "revertable": false
         };
+        var txId = Transaction.start({
+            "operation": SQLOps.DeleteTable,
+            "sql"      : sql
+        });
 
-        XcalarDeleteTable(tableName, sqlOptions)
+        XcalarDeleteTable(tableName, txId)
         .then(function() {
             var tableIndex = gOrphanTables.indexOf(tableName);
             gOrphanTables.splice(tableIndex, 1);
@@ -1743,9 +1758,16 @@ window.TblManager = (function($, TblManager) {
                 delete gTables[tableId];
             }
 
+            Transaction.done(txId, {"noCommit": true});
             deferred.resolve();
         })
-        .fail(deferred.reject);
+        .fail(function(error) {
+            Transaction.fail(txId, {
+                "error"  : error,
+                "noAlert": true
+            });
+            deferred.reject(error);
+        });
         
         return (deferred.promise());
     }

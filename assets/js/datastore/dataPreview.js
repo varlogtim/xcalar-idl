@@ -172,21 +172,27 @@ window.DataPreview = (function($, DataPreview) {
                         xcHelper.randName("previewTable");
             tableName += ".preview"; // specific format for preview table
 
+            var sql = {
+                "operation" : SQLOps.PreviewDS,
+                "dsPath"    : loadURL,
+                "dsName"    : tableName,
+                "dsFormat"  : "raw",
+                "hasHeader" : hasHeader,
+                "fieldDelim": "Null",
+                "lineDelim" : "\n",
+                "moduleName": "Null",
+                "funcName"  : "Null",
+                "revertable": false
+            };
+            var txId = Transaction.start({
+                "operation": SQLOps.PreviewDS,
+                "sql"      : sql
+            });
+
             showPreviewPanel()
             .then(function() {
-                var sqlOptions = {
-                    "operation" : SQLOps.PreviewDS,
-                    "dsPath"    : loadURL,
-                    "dsName"    : tableName,
-                    "dsFormat"  : "raw",
-                    "hasHeader" : hasHeader,
-                    "fieldDelim": "Null",
-                    "lineDelim" : "\n",
-                    "moduleName": "Null",
-                    "funcName"  : "Null"
-                };
                 return XcalarLoad(loadURL, "raw", tableName, "", "\n",
-                                    hasHeader, "", "", sqlOptions);
+                                    hasHeader, "", "", txId);
             })
             .then(DS.release)
             .then(function() {
@@ -249,11 +255,18 @@ window.DataPreview = (function($, DataPreview) {
                 }
 
                 $(window).on("resize", resizePreivewTable);
+
+                Transaction.done(txId, {"noCommit": true});
             })
             .fail(function(error) {
                 $waitSection.addClass("hidden");
                 clearAll();
                 StatusBox.show(error.error, $("#filePath"), true);
+
+                Transaction.fail(txId, {
+                    "error"  : error,
+                    "noAlert": true
+                });
                 deferred.reject(error);
             });
         })
@@ -329,17 +342,29 @@ window.DataPreview = (function($, DataPreview) {
         applyHighlight(""); // remove highlighter
 
         if (tableName != null) {
-            var sqlOptions = {
-                "operation": SQLOps.DestroyPreviewDS,
-                "dsName"   : tableName
+            var sql = {
+                "operation" : SQLOps.DestroyPreviewDS,
+                "dsName"    : tableName,
+                "revertable": false
             };
+            var txId = Transaction.start({
+                "operation": SQLOps.DestroyPreviewDS,
+                "sql"      : sql
+            });
 
-            XcalarDestroyDataset(tableName, sqlOptions)
+            XcalarDestroyDataset(tableName, txId)
             .then(function() {
                 tableName = null;
+                Transaction.done(txId, {"noCommit": true});
                 deferred.resolve();
             })
-            .fail(deferred.reject);
+            .fail(function(error) {
+                Transaction.fail(txId, {
+                    "error"  : error,
+                    "noAlert": true
+                });
+                deferred.reject(error);
+            });
         } else {
             deferred.resolve();
         }

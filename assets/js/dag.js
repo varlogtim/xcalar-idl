@@ -36,7 +36,7 @@ window.DagPanel = (function($, DagPanel) {
                 // open dag panel
                 $dagPanel.removeClass('invisible');
 
-                // without set timeout, animation would not work because 
+                // without set timeout, animation would not work because
                 // we're setting dagpanel from display none to display block
                 setTimeout(function() {
                     $dagPanel.removeClass('hidden');
@@ -557,17 +557,27 @@ window.DagPanel = (function($, DagPanel) {
                 // this is the case when user pull out a backend table A, then
                 // delete another table in the dag node of A but that table is
                 // not in orphaned list
-                var sqlOptions = {
-                    "operation": "deleteTable",
-                    "tableName": tableName,
-                    "tableType": TableType.Unknown
+                var sql = {
+                    "operation" : SQLOps.DeleteTable,
+                    "tableName" : tableName,
+                    "tableType" : TableType.Unknown,
+                    "revertable": false
                 };
-                XcalarDeleteTable(tableName, sqlOptions)
+                var txId = Transaction.start({
+                    "operation": SQLOps.DeleteTable,
+                    "sql"      : sql
+                });
+
+                XcalarDeleteTable(tableName, txId)
                 .then(function() {
                     Dag.makeInactive(tableName, true);
+                    Transaction.done(txId, {"noCommit": true});
                 })
                 .fail(function(error) {
-                    Alert.error(StatusMessageTStr.DeleteTableFailed, error);
+                    Transaction.fail(txId, {
+                        "failMsg": StatusMessageTStr.DeleteTableFailed,
+                        "error"  : error
+                    });
                 });
             }
         });

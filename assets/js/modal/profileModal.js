@@ -240,22 +240,30 @@ window.Profile = (function($, Profile, d3) {
 
         var curStatsCol = statsCol;
 
-        generateStats(table)
-        .then(function() {
-            SQL.add("Profile", {
-                "operation": SQLOps.Profile,
-                "tableName": table.tableName,
-                "tableId"  : tableId,
-                "colNum"   : colNum,
-                "colName"  : colName,
-                "modalId"  : statsCol.modalId
-            });
+        var sql = {
+            "operation" : SQLOps.Profile,
+            "tableName" : table.tableName,
+            "tableId"   : tableId,
+            "colNum"    : colNum,
+            "colName"   : colName,
+            "modalId"   : statsCol.modalId,
+            "revertable": false
+        };
+        var txId = Transaction.start({
+            "msg"      : StatusMessageTStr.Profile + " " + colName,
+            "operation": SQLOps.Profile,
+            "sql"      : sql
+        });
 
-            KVStore.commit();
+        generateStats(table, txId)
+        .then(function() {
+            Transaction.done(txId, {
+                "noNotification": true
+            });
             deferred.resolve();
         })
         .fail(function(error) {
-            failureHandler(curStatsCol, error);
+            failureHandler(curStatsCol, error, txId);
             deferred.reject(error);
         });
 
@@ -293,7 +301,7 @@ window.Profile = (function($, Profile, d3) {
                     .find("input").val("");
     }
 
-    function generateStats(table) {
+    function generateStats(table, txId) {
         var deferred  = jQuery.Deferred();
         var type      = statsCol.type;
         var tableName = table.tableName;
@@ -306,7 +314,7 @@ window.Profile = (function($, Profile, d3) {
             if (statsCol.aggInfo[aggkey] == null) {
                 // should do aggreagte
                 if (type === "integer" || type === "float") {
-                    promise = runAgg(tableName, aggkey, statsCol);
+                    promise = runAgg(tableName, aggkey, statsCol, txId);
                     promises.push(promise);
                 } else {
                     statsCol.aggInfo[aggkey] = "N/A";
@@ -329,7 +337,7 @@ window.Profile = (function($, Profile, d3) {
                     statsCol.groupByInfo.isComplete = false;
                     statsCol.groupByInfo.buckets[bucketNum] = {};
 
-                    runGroupby(table, statsCol, bucketNum)
+                    runGroupby(table, statsCol, bucketNum, txId)
                     .then(innerDeferred.resolve)
                     .fail(innerDeferred.reject);
                 } else {
@@ -345,7 +353,7 @@ window.Profile = (function($, Profile, d3) {
 
             promises.push(innerDeferred.promise());
         } else if (statsCol.groupByInfo.isComplete !== "running") {
-            promise = runGroupby(table, statsCol, bucketNum);
+            promise = runGroupby(table, statsCol, bucketNum, txId);
             promises.push(promise);
             showProfile();
         } else {
@@ -510,14 +518,14 @@ window.Profile = (function($, Profile, d3) {
         return (deferred.promise());
     }
 
-    function runAgg(tableName, aggkey, curStatsCol) {
+    function runAgg(tableName, aggkey, curStatsCol, txId) {
         // pass in statsCol beacuse close modal may clear the global statsCol
         var deferred  = jQuery.Deferred();
         var fieldName = curStatsCol.colName;
         var aggrOp    = aggMap[aggkey];
         var res;
 
-        getAggResult(fieldName, tableName, aggrOp)
+        getAggResult(fieldName, tableName, aggrOp, txId)
         .then(function(val) {
             res = val;
             deferred.resolve();
@@ -543,7 +551,7 @@ window.Profile = (function($, Profile, d3) {
         return (deferred.promise());
     }
 
-    function runGroupby(table, curStatsCol, curBucketNum) {
+    function runGroupby(table, curStatsCol, curBucketNum, txId) {
         var deferred  = jQuery.Deferred();
         if (curBucketNum !== 0) {
             console.error("Invalid bucket num");
@@ -558,14 +566,9 @@ window.Profile = (function($, Profile, d3) {
         var finalTable;
         var colName = curStatsCol.colName;
         var tableToDelete;
-        var msg = StatusMessageTStr.Statistics + ' for ' + colName;
-        var msgId = StatusMessage.addMsg({
-            "msg"      : msg,
-            "operation": "Profile"
-        });
 
         curStatsCol.groupByInfo.isComplete = "running";
-        checkTableIndex(tableId, tableName, colName)
+        checkTableIndex(tableId, tableName, colName, txId)
         .then(function(indexedTableName, nullCount) {
             curStatsCol.groupByInfo.nullCount = nullCount;
 
@@ -579,17 +582,10 @@ window.Profile = (function($, Profile, d3) {
             var operator    = AggrOp.Count;
             var newColName  = statsColName;
             var isIncSample = false;
-            var sqlOptions  = {
-                "operation"   : SQLOps.ProfileAction,
-                "action"      : "groupby",
-                "tableName"   : tableName,
-                "colName"     : colName,
-                "newTableName": groupbyTable
-            };
 
             return XcalarGroupBy(operator, newColName, colName,
                                 indexedTableName, groupbyTable,
-                                isIncSample, sqlOptions);
+                                isIncSample, txId);
         })
         .then(function() {
             finalTable = getNewName(tableName, ".profile.final", true);
@@ -600,22 +596,13 @@ window.Profile = (function($, Profile, d3) {
                 sortCol = colName.replace(/\./g, "\\\.");
             }
 
-            sqlOptions = {
-                "operation"   : SQLOps.ProfileAction,
-                "action"      : "sort",
-                "tableName"   : groupbyTable,
-                "colName"     : sortCol,
-                "newTableName": finalTable,
-                "sorted"      : true
-            };
-
             return XcalarIndexFromTable(groupbyTable, sortCol, finalTable,
                                         XcalarOrderingT.XcalarOrderingAscending,
-                                        sqlOptions);
+                                        txId);
         })
         .then(function() {
-            var def1 = getAggResult(statsColName, finalTable, aggMap.max);
-            var def2 = getAggResult(statsColName, finalTable, aggMap.sum);
+            var def1 = getAggResult(statsColName, finalTable, aggMap.max, txId);
+            var def2 = getAggResult(statsColName, finalTable, aggMap.sum, txId);
             return xcHelper.when(def1, def2);
         })
         .then(function(maxVal, sumVal) {
@@ -629,34 +616,27 @@ window.Profile = (function($, Profile, d3) {
             curStatsCol.groupByInfo.isComplete = true;
 
             if (tableToDelete != null) {
+                var innerDeferred = jQuery.Deferred();
                 // delete the indexed table if exist
-                XcalarDeleteTable(tableToDelete, {
-                    "operation": SQLOps.ProfileAction,
-                    "action"   : "delete",
-                    "tableName": tableToDelete
-                });
-            }
+                XcalarDeleteTable(tableToDelete, txId)
+                .always(innerDeferred.resolve);
 
-            // modal is open and is for that column
+                return innerDeferred.promise();
+            }
+        })
+        .then(function() {
+             // modal is open and is for that column
             if (isModalVisible(curStatsCol)) {
                 return refreshStats();
             }
-
         })
-        .then(function() {
-            var noNotification = true;
-            StatusMessage.success(msgId, noNotification);
-            deferred.resolve();
-        })
-        .fail(function(error) {
-            StatusMessage.fail(StatusMessageTStr.StatisticsFailed, msgId);
-            deferred.reject(error);
-        });
+        .then(deferred.resolve)
+        .fail(deferred.reject);
 
         return (deferred.promise());
     }
 
-    function checkTableIndex(tableId, tableName, colName) {
+    function checkTableIndex(tableId, tableName, colName, txId) {
         var deferred = jQuery.Deferred();
         var table = gTables[tableId];
         var tableKey = table.keyName;
@@ -679,18 +659,10 @@ window.Profile = (function($, Profile, d3) {
                             // index on the column to remove "KNF", first
                             var indexTable = getNewName(tableName,
                                                     ".stats.indexParent", true);
-                            var sqlOptions = {
-                                "operation"   : SQLOps.ProfileAction,
-                                "action"      : "index",
-                                "tableName"   : unsorted,
-                                "colName"     : tableKey,
-                                "newTableName": indexTable,
-                                "sorted"      : false
-                            };
 
                             XcalarIndexFromTable(unsorted, tableKey, indexTable,
                                          XcalarOrderingT.XcalarOrderingUnordered,
-                                         sqlOptions)
+                                         txId)
                             .then(function() {
                                 if (tableKey === colName) {
                                     // when the parent has right index
@@ -734,22 +706,13 @@ window.Profile = (function($, Profile, d3) {
                 // lock the table when do index
                 xcHelper.lockTable(tableId);
 
-                var sqlOptions = {
-                    "operation"   : SQLOps.ProfileAction,
-                    "action"      : "index",
-                    "tableName"   : tableName,
-                    "tableId"     : tableId,
-                    "colName"     : colName,
-                    "newTableName": newTableName,
-                    "sorted"      : false
-                };
-
                 XcalarIndexFromTable(unsortedTable, colName, newTableName,
                                      XcalarOrderingT.XcalarOrderingUnordered,
-                                     sqlOptions)
+                                     txId)
                 .then(function() {
                     // Aggregate count on origingal already remove the null value!
-                    return getAggResult(colName, unsortedTable, aggMap.count);
+                    return getAggResult(colName, unsortedTable,
+                                        aggMap.count, txId);
                 })
                 .then(function(val) {
                     // the gTables[tableId].resultSetCount should eqaul to the
@@ -769,17 +732,10 @@ window.Profile = (function($, Profile, d3) {
         return (deferred.promise());
     }
 
-    function getAggResult(colName, tableName, aggrOp) {
-        var deferred   = jQuery.Deferred();
-        var sqlOptions = {
-            "operation": SQLOps.ProfileAction,
-            "action"   : "aggregate",
-            "tableName": tableName,
-            "colName"  : colName,
-            "aggrOp"   : aggrOp
-        };
+    function getAggResult(colName, tableName, aggrOp, txId) {
+        var deferred = jQuery.Deferred();
 
-        XcalarAggregate(colName, tableName, aggrOp, sqlOptions)
+        XcalarAggregate(colName, tableName, aggrOp, txId)
         .then(function(value) {
             var val;
             try {
@@ -1445,31 +1401,38 @@ window.Profile = (function($, Profile, d3) {
             }
         }, 500);
 
-        runSort(newOrder, curStatsCol)
+        var sql = {
+            "operation" : SQLOps.ProfileSort,
+            "order"     : newOrder,
+            "tableId"   : curTableId,
+            "colNum"    : curColNum,
+            "bucketSize": bucketNum,
+            "modalId"   : statsCol.modalId,
+            "revertable": false
+        };
+        var txId = Transaction.start({
+            "operation": SQLOps.ProfileSort,
+            "sql"      : sql
+        });
+
+        runSort(newOrder, curStatsCol, txId)
         .then(function() {
             // remove timer as first thing
             clearTimeout(refreshTimer);
             order = newOrder;
             curStatsCol.groupByInfo.isComplete = true;
             refreshStats(true);
-            SQL.add("Profile Sort", {
-                "operation" : SQLOps.ProfileSort,
-                "order"     : newOrder,
-                "tableId"   : curTableId,
-                "colNum"    : curColNum,
-                "bucketSize": bucketNum,
-                "modalId"   : statsCol.modalId
-            });
-            KVStore.commit();
+
+            Transaction.done(txId);
         })
         .fail(function(error) {
             clearTimeout(refreshTimer);
             curStatsCol.groupByInfo.isComplete = true;
-            failureHandler(curStatsCol, error);
+            failureHandler(curStatsCol, error, txId);
         });
     }
 
-    function runSort(newOrder, curStatsCol) {
+    function runSort(newOrder, curStatsCol, txId) {
         var deferred  = jQuery.Deferred();
         var tableInfo = curStatsCol.groupByInfo.buckets[bucketNum];
 
@@ -1507,16 +1470,6 @@ window.Profile = (function($, Profile, d3) {
             var newTableName = getNewName(tableName, "." + sortOrder);
             var colName = (bucketNum === 0) ? statsColName : bucketColName;
 
-            var sqlOptions = {
-                "operation"   : SQLOps.ProfileAction,
-                "action"      : "sort",
-                "tableName"   : tableName,
-                "colName"     : colName,
-                "newTableName": newTableName,
-                "sorted"      : true,
-                "order"       : sortOrder
-            };
-
             var xcOrder;
             if (sortOrder === sortMap.desc) {
                 xcOrder = XcalarOrderingT.XcalarOrderingDescending;
@@ -1524,7 +1477,7 @@ window.Profile = (function($, Profile, d3) {
                 xcOrder = XcalarOrderingT.XcalarOrderingAscending;
             }
 
-            XcalarIndexFromTable(tableName, colName, newTableName, xcOrder, sqlOptions)
+            XcalarIndexFromTable(tableName, colName, newTableName, xcOrder, txId)
             .then(function() {
                 innerDeferred.resolve(newTableName);
             })
@@ -1595,7 +1548,20 @@ window.Profile = (function($, Profile, d3) {
             }
         }, 500);
 
-        runBucketing(newBucketNum, curStatsCol)
+        var sql = {
+            "operation" : SQLOps.ProfileBucketing,
+            "bucketSize": newBucketNum,
+            "tableId"   : curTableId,
+            "colNum"    : curColNum,
+            "modalId"   : statsCol.modalId,
+            "revertable": false
+        };
+        var txId = Transaction.start({
+            "operation": SQLOps.ProfileBucketing,
+            "sql"      : sql
+        });
+
+        runBucketing(newBucketNum, curStatsCol, txId)
         .then(function() {
             // remove timer as first thing
             clearTimeout(refreshTimer);
@@ -1604,23 +1570,16 @@ window.Profile = (function($, Profile, d3) {
             curStatsCol.groupByInfo.isComplete = true;
 
             refreshStats(true);
-            SQL.add("Profile Bucketing", {
-                "operation" : SQLOps.ProfileBucketing,
-                "bucketSize": newBucketNum,
-                "tableId"   : curTableId,
-                "colNum"    : curColNum,
-                "modalId"   : statsCol.modalId
-            });
-            KVStore.commit();
+            Transaction.done(txId);
         })
         .fail(function(error) {
             clearTimeout(refreshTimer);
             curStatsCol.groupByInfo.isComplete = true;
-            failureHandler(curStatsCol, error);
+            failureHandler(curStatsCol, error, txId);
         });
     }
 
-    function runBucketing(newBucketNum, curStatsCol) {
+    function runBucketing(newBucketNum, curStatsCol, txId) {
         var deferred = jQuery.Deferred();
         var buckets   = curStatsCol.groupByInfo.buckets;
         var curBucket = buckets[newBucketNum];
@@ -1648,30 +1607,12 @@ window.Profile = (function($, Profile, d3) {
         var mapString = "mult(floor(div(" + colName + ", " + newBucketNum +
                         ")), " + newBucketNum + ")";
 
-        var sqlOptions = {
-            "operation"   : SQLOps.ProfileAction,
-            "action"      : "map",
-            "tableName"   : tableName,
-            "newTableName": mapTable,
-            "fieldName"   : mapCol,
-            "mapString"   : mapString
-        };
-
-        XcalarMap(mapCol, mapString, tableName, mapTable, sqlOptions)
+        XcalarMap(mapCol, mapString, tableName, mapTable, txId)
         .then(function() {
             indexTable = getNewName(mapTable, ".index", true);
-            sqlOptions = {
-                "operation"   : SQLOps.ProfileAction,
-                "action"      : "index",
-                "tableName"   : mapTable,
-                "colName"     : mapCol,
-                "newTableName": indexTable,
-                "sorted"      : false
-            };
-
             return XcalarIndexFromTable(mapTable, mapCol, indexTable,
                                         XcalarOrderingT.XcalarOrderingUnordered,
-                                        sqlOptions);
+                                        txId);
         })
         .then(function() {
             var operator    = AggrOp.Sum;
@@ -1679,37 +1620,21 @@ window.Profile = (function($, Profile, d3) {
             var isIncSample = false;
 
             groupbyTable = getNewName(mapTable, ".groupby", true);
-            sqlOptions = {
-                "operation": SQLOps.ProfileAction,
-                "action"   : "groupby",
-                "tableName": groupbyTable,
-                "colName"  : newColName
-            };
 
-            return (XcalarGroupBy(operator, newColName, statsColName,
+            return XcalarGroupBy(operator, newColName, statsColName,
                                     indexTable, groupbyTable,
-                                    isIncSample, sqlOptions));
+                                    isIncSample, txId);
         })
         .then(function() {
             finalTable = getNewName(mapTable, ".final", true);
-
-            sqlOptions = {
-                "operation"   : SQLOps.ProfileAction,
-                "action"      : "sort",
-                "tableName"   : groupbyTable,
-                "colName"     : mapCol,
-                "newTableName": finalTable,
-                "sorted"      : true
-            };
-
             return XcalarIndexFromTable(groupbyTable, mapCol, finalTable,
                                         XcalarOrderingT.XcalarOrderingAscending,
-                                        sqlOptions);
+                                        txId);
         })
         .then(function() {
             var def1 = getAggResult(bucketColName, finalTable, aggMap.max);
             var def2 = getAggResult(bucketColName, finalTable, aggMap.sum);
-            return (xcHelper.when(def1, def2));
+            return xcHelper.when(def1, def2);
         })
         .then(function(maxVal, sumVal) {
             curStatsCol.addBucket(newBucketNum, {
@@ -1722,21 +1647,16 @@ window.Profile = (function($, Profile, d3) {
             curStatsCol.groupByInfo.isComplete = true;
 
             // delete intermediate table
-            XcalarDeleteTable(mapTable, {
-                "operation": SQLOps.ProfileAction,
-                "action"   : "delete",
-                "tableName": mapTable
-            });
-
-            XcalarDeleteTable(indexTable, {
-                "operation": SQLOps.ProfileAction,
-                "action"   : "delete",
-                "tableName": indexTable
-            });
+            var def1 = XcalarDeleteTable(mapTable, txId);
+            var def2 = XcalarDeleteTable(indexTable, txId);
 
             // Note that grouby table can not delete because when sort bucket table
             // it looks for the unsorted table, which is this one
-            deferred.resolve();
+
+            xcHelper.when(def1, def2)
+            .always(function() {
+                deferred.resolve();
+            });
         })
         .fail(deferred.reject);
 
@@ -1790,7 +1710,7 @@ window.Profile = (function($, Profile, d3) {
                 $modal.data("id") === curStatsCol.modalId);
     }
 
-    function failureHandler(curStatsCol, error) {
+    function failureHandler(curStatsCol, error, txId) {
         console.error("Profile Fails", error);
         if (isModalVisible(curStatsCol)) {
             // turn gMinModeOn so that hide modalBg in clostStats()
@@ -1798,7 +1718,9 @@ window.Profile = (function($, Profile, d3) {
             gMinModeOn = true;
             closeProfileModal();
             gMinModeOn = false;
-            Alert.error(ProfileTStr.ProfileFail, error);
+            Transaction.fail(txId, {
+                "failMsg": StatusMessageTStr.ProfileFailed
+            });
         }
     }
 

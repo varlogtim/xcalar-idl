@@ -205,7 +205,10 @@ window.DS = (function ($, DS) {
         DataStore.update();
         // the class will be removed in DataSampleTable.show()
         $("#datasetWrap").addClass("loading");
-        var sqlOptions = {
+
+        var fullDSName = dsObj.getFullName();
+
+        var sql = {
             "operation" : SQLOps.DSLoad,
             "loadURL"   : loadURL,
             "dsName"    : dsName,
@@ -214,13 +217,17 @@ window.DS = (function ($, DS) {
             "fieldDelim": fieldDelim,
             "lineDelim" : lineDelim,
             "moduleName": moduleName,
-            "funcName"  : funcName
+            "funcName"  : funcName,
+            "revertable": false
         };
+        var txId = Transaction.start({
+            "operation": SQLOps.DSLoad,
+            "sql"      : sql
+        });
 
-        var fullDSName = dsObj.getFullName();
         XcalarLoad(loadURL, dsFormat, fullDSName,
                    fieldDelim, lineDelim, hasHeader,
-                   moduleName, funcName, sqlOptions)
+                   moduleName, funcName, txId)
         .then(function() {
             // sample the dataset to see if it can be parsed
             return XcalarSample(fullDSName, 1);
@@ -250,7 +257,7 @@ window.DS = (function ($, DS) {
                 }
             }
 
-            KVStore.commit();
+            Transaction.done(txId);
             deferred.resolve(dsObj);
         })
         .fail(function(error) {
@@ -266,16 +273,21 @@ window.DS = (function ($, DS) {
                 // if a dataset was loaded but cannot be parsed, destroy it
                 DS.release()
                 .then(function() {
-                    sqlOptions = {
-                        "operation": "destroyDataSet",
-                        "dsName"   : fullDSName,
-                        "sqlType"  : SQLType.Fail
-                    };
-
-                    return XcalarDestroyDataset(fullDSName, sqlOptions);
+                    return XcalarDestroyDataset(fullDSName, txId);
                 })
                 .fail(function(deferredError) {
                     console.error("delete dataset failed", deferredError);
+                })
+                .always(function() {
+                    Transaction.fail(txId, {
+                        "error"  : error,
+                        "noAlert": true
+                    });
+                });
+            } else {
+                Transaction.fail(txId, {
+                    "error"  : error,
+                    "noAlert": true
                 });
             }
 
@@ -532,15 +544,21 @@ window.DS = (function ($, DS) {
 
         var dsName = dsObj.getFullName();
         var dsId = dsObj.getId();
-        var sqlOptions = {
-            "operation": SQLOps.DestroyDS,
-            "dsName"   : dsName,
-            "dsId"     : dsId
+
+        var sql = {
+            "operation" : SQLOps.DestroyDS,
+            "dsName"    : dsName,
+            "dsId"      : dsId,
+            "revertable": false
         };
+        var txId = Transaction.start({
+            "operation": SQLOps.DestroyDS,
+            "sql"      : sql
+        });
 
         DS.release()
         .then(function() {
-            return XcalarDestroyDataset(dsName, sqlOptions);
+            return XcalarDestroyDataset(dsName, txId);
         })
         .then(function() {
             //clear data cart
@@ -552,14 +570,19 @@ window.DS = (function ($, DS) {
             DataStore.update();
 
             focusOnFirstDS();
-            KVStore.commit();
+
+            Transaction.done(txId);
             deferred.resolve();
         })
         .fail(function(error) {
             $grid.find('.waitingIcon').remove();
             $grid.removeClass("inactive")
                  .removeClass("deleting");
-            Alert.error(DSTStr.DelDSFail, error);
+
+            Transaction.fail(txId, {
+                "failMsg": DSTStr.DelDSFail,
+                "error"  : error
+            });
             deferred.reject(error);
         });
 
@@ -641,11 +664,27 @@ window.DS = (function ($, DS) {
                 // deal with preview datasets,
                 // if it's the current user's preview ds,
                 // then we delete it on start up time
-                var sqlOptions = {
-                    "operation": SQLOps.DestroyPreviewDS,
-                    "dsName"   : dsName
+                var sql = {
+                    "operation" : SQLOps.DestroyPreviewDS,
+                    "dsName"    : dsName,
+                    "revertable": false
                 };
-                XcalarDestroyDataset(dsName, sqlOptions);
+                var txId = Transaction.start({
+                    "operation": SQLOps.DestroyPreviewDS,
+                    "sql"      : sql
+                });
+
+                XcalarDestroyDataset(dsName, txId)
+                .then(function() {
+                    Transaction.done(txId, {"noCommit": true});
+                })
+                .fail(function(error) {
+                    Transaction.fail(txId, {
+                        "error"  : error,
+                        "noAlert": true
+                    });
+                });
+
                 continue;
             }
 

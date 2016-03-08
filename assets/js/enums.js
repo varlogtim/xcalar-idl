@@ -149,11 +149,8 @@ var SQLOps = {
     Filter: "filter",
     Aggr: "aggregate",
     Map: "map",
-    JoinMap: "multiJoinMap",
-    CheckIndex: "checkIndex",
     Join: "join",
     GroupBy: "groupBy",
-    GroupByAction: "groupByAction",
     RenameTable: "renameTable",
     RenameOrphanTable: "renameOrphanTable",
     DeleteTable: "deleteTable",
@@ -196,24 +193,17 @@ var SQLOps = {
     DSToDir: "goToDir",
     DSDropBack: "dsBack",
     DelFolder: "deleteFolder",
-    ProfileAction: "profileAction",
     Profile: "profile",
     ProfileSort: "profileSort",
     ProfileBucketing: "profileBucketing",
-    QuickAggAction: "quickAggAction",
     QuickAgg: "quickAgg",
     Corr: "correlation",
-    CorrAction: "correlationAction",
     SplitCol: "splitCol",
-    SplitColMap: "spltColMap",
     ChangeType: "changeType",
-    ChangeTypeMap: "changeTypeMap",
     ChangeFormat: "changeFormat",
     RoundToFixed: "roundToFixed",
     Window: "window",
-    WindoAction: "windowAction",
-    hPartition: "horizontalPartition",
-    hPartitionAction: "horizontalPartitionAction"
+    hPartition: "horizontalPartition"
 };
 
 var TooltipTemplate = {

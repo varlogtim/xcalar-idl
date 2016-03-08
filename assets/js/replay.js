@@ -268,23 +268,6 @@ window.Replay = (function($, Replay) {
         if (sqlType === SQLType.Fail) {
             return false;
         }
-
-        switch (options.operation) {
-            case SQLOps.JoinMap:
-            case SQLOps.GroupByAction:
-            case SQLOps.CheckIndex:
-            case SQLOps.RenameOrphanTable:
-            case SQLOps.PreviewDS:
-            case SQLOps.DestroyPreviewDS:
-            case SQLOps.ProfileAction:
-            case SQLOps.QuickAggAction:
-            case SQLOps.CorrAction:
-            case SQLOps.SplitColMap:
-            case SQLOps.ChangeTypeMap:
-                return false;
-            default:
-                return true;
-        }
     }
 
     /* REPLAYFUNCS HOLDS ALL THE REPLAY FUNCTIONS */
