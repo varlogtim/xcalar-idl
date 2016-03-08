@@ -348,7 +348,7 @@ window.TblManager = (function($, TblManager) {
         if (gActiveTableId === tableId) {
             gActiveTableId = null;
         }
-        if ($('.xcTableWrap:not(.inActive').length === 0) {
+        if ($('.xcTableWrap:not(.inActive)').length === 0) {
             RowScroller.empty();
         }
 
