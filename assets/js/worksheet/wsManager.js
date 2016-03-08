@@ -170,7 +170,14 @@ window.WSManager = (function($, WSManager) {
         toggleTableArchive(tableId, srcTables, desTables);
     };
 
-    // Get a table's position in the worksheet
+    WSManager.getTableRelativePosition = function(tableId) {
+        var wsId  = tableIdToWSIdMap[tableId];
+        var tableIndex = wsLookUp[wsId].tables.indexOf(tableId);
+        return tableIndex;
+    };
+
+    // Get a table's position relative to all tables in every worksheet
+    //ex. {ws1:[tableA, tableB], ws2:[tableC]} tableC's position is 2
     WSManager.getTablePosition = function(tableId) {
         var wsId  = tableIdToWSIdMap[tableId];
         var tableIndex = wsLookUp[wsId].tables.indexOf(tableId);
@@ -233,9 +240,10 @@ window.WSManager = (function($, WSManager) {
     };
 
     // replace a table and put tablesToRm to arcived list
-    WSManager.replaceTable = function(tableId, locationId, tablesToRm) {
+    // options:
+    // position: position to insert table
+    WSManager.replaceTable = function(tableId, locationId, tablesToRm, options) {
         var ws;
-
         // append table to the last of active tables
         if (locationId == null) {
             ws = wsLookUp[tableIdToWSIdMap[tableId]];
@@ -243,12 +251,20 @@ window.WSManager = (function($, WSManager) {
             if (!ws || !ws.tempHiddenTables) {
                 return;
             }
+
+
             if (ws.tempHiddenTables.indexOf(tableId) !== -1) {
                 srcTables = ws.tempHiddenTables;
             } else {
                 srcTables = ws.hiddenTables;
             }
-            toggleTableArchive(tableId, srcTables, ws.tables);
+            if (options && options.position != null) {
+                toggleTableArchive(tableId, srcTables, ws.tables,
+                                    options.position);
+            } else {
+                toggleTableArchive(tableId, srcTables, ws.tables);
+            }
+
             return;
         }
 
@@ -496,7 +512,7 @@ window.WSManager = (function($, WSManager) {
 
         $tabs.addClass("inActive")
              .find('.text').blur();
-        
+
         var $activeTab = $("#worksheetTab-" + wsId);
         $activeTab.removeClass("inActive");
         sizeTabInput($activeTab.find('input'));
@@ -777,7 +793,7 @@ window.WSManager = (function($, WSManager) {
                     }
                     // Note: if we don't want to show rename option on inactive
                     // worksheet tabs
-                    
+
                     // if ($wsIconWrap.closest('.worksheetTab')
                     //                .hasClass('inActive')) {
                     //     $tabMenu.find('.rename').addClass('unavailable');
@@ -918,7 +934,7 @@ window.WSManager = (function($, WSManager) {
         } else {
             activeWorksheet = wsOrder[0];
         }
-        
+
         WSManager.focusOnWorksheet(activeWorksheet);
     }
 
@@ -1307,13 +1323,15 @@ window.WSManager = (function($, WSManager) {
             $mainFrame.scrollLeft(leftPos);
         }
 
-        SQL.add("Switch Worksheet", {
-            "operation"        : SQLOps.SwitchWS,
-            "oldWorksheetIndex": WSManager.getWSOrder(curWS),
-            "oldWorksheetName" : WSManager.getWSName(curWS),
-            "newWorksheetIndex": WSManager.getWSOrder(wsId),
-            "newWorksheetName" : WSManager.getWSName(wsId)
-        });
+        // XX temporarily commented out to clear sql log of clutter
+
+        // SQL.add("Switch Worksheet", {
+        //     "operation"        : SQLOps.SwitchWS,
+        //     "oldWorksheetIndex": WSManager.getWSOrder(curWS),
+        //     "oldWorksheetName" : WSManager.getWSName(curWS),
+        //     "newWorksheetIndex": WSManager.getWSOrder(wsId),
+        //     "newWorksheetName" : WSManager.getWSName(wsId)
+        // });
     }
 
     // HTML of worksheet tab, helper function for makeWorksheet()

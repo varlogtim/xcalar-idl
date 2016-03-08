@@ -176,6 +176,7 @@ var SQLOps = {
     ActiveTables: 'activeTables',
     SortTableCols: "sortTableCols",
     ResizeTableCols: "resizeTableCols",
+    DragResizeTableCol: "dragResizeTableCol",
     HideTable: "hideTable",
     UnhideTable: "unhideTable",
     AddWS: "addWorksheet",

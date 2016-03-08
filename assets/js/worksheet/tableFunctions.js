@@ -157,6 +157,7 @@ function dblClickResize($el, options) {
             gRescol.clicks = 0; //after action performed, reset counter
         }, gRescol.delay);
     } else {
+        // XX part of this can be moved to TblManager.resizeColumns
         $('#resizeCursor').remove();
         $('body').removeClass('tooltipOff');
         $el.tooltip('destroy');
@@ -166,9 +167,11 @@ function dblClickResize($el, options) {
         xcHelper.reenableTextSelection();
         options = options || {};
         var target = options.target;
+        var tableId;
 
         var $th = $el.parent().parent();
         var $table = $th.closest('.dataTable');
+        var oldColumnWidths = [];
         $table.find('.colGrab')
               .removeAttr('data-toggle data-original-title title');
 
@@ -184,8 +187,10 @@ function dblClickResize($el, options) {
             numSelectedCols = 1;
         }
         var indices = [];
+        var colNums = [];
         $selectedCols.each(function() {
             indices.push($(this).index() - 1);
+            colNums.push($(this).index());
         });
 
         var includeHeader = false;
@@ -204,7 +209,7 @@ function dblClickResize($el, options) {
             });
 
         } else {
-            var tableId = $table.data('id');
+            tableId = $table.data('id');
             var columns = gTables[tableId].tableCols;
             var i;
             for (i = 0; i < numSelectedCols; i++) {
@@ -215,6 +220,7 @@ function dblClickResize($el, options) {
             }
             for (i = 0; i < numSelectedCols; i++) {
                 columns[indices[i]].sizeToHeader = !includeHeader;
+                oldColumnWidths.push(columns[indices[i]].width);
             }
         }
         
@@ -239,6 +245,26 @@ function dblClickResize($el, options) {
         clearTimeout(gRescol.timer);    //prevent single-click action
         gRescol.clicks = 0;      //after action performed, reset counter
         $table.removeClass('resizingCol');
+
+        if (target !== "datastore") {
+            var table = gTables[tableId];
+            var resizeTo;
+            if (includeHeader) {
+                resizeTo = "sizeToHeader";
+            } else {
+                resizeTo = "sizeToContents";
+            }
+
+            SQL.add("Resize Columns", {
+                "operation": SQLOps.ResizeTableCols,
+                "tableName": table.tableName,
+                "tableId"  : tableId,
+                "resizeTo" : resizeTo,
+                "columnNums": colNums,
+                "oldColumnWidths": oldColumnWidths,
+                "htmlExclude": ["columnNums", "oldColumnWidths"]
+            });
+        }
     }
 }
 

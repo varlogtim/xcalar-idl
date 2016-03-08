@@ -184,6 +184,7 @@ window.SQL = (function($, SQL) {
                 // the operation cannot undo
                 break;
             }
+
             promises.push(undoLog.bind(this, sql, c));
             c--;
         }
@@ -448,33 +449,19 @@ window.SQL = (function($, SQL) {
         xcHelper.assert((sql != null), "invalid sql");
 
         var deferred = jQuery.Deferred();
-        // action here
-        // XXX test
-        var options = sql.getOptions();
-        var operation = sql.getOperation();
 
-        if (operation === SQLOps.UnHideCols) {
-            ColManager.hideCols(options.colNums, options.tableId);
-            return jQuery.Deferred().resolve(cursor).promise();
-        } else if (operation === SQLOps.HideCols) {
-            ColManager.unhideCols(options.colNums, options.tableId, {
-                "autoResize": true
-            });
-            return jQuery.Deferred().resolve(cursor).promise();
-        }
-
-        // var logLen = logs.length;
-        // Undo.run(sql)
-        // .then(function() {
-        //     if (logs.length !== logLen) {
-        //         // XXX debug use
-        //         console.error("log lenght should not change during undo!");
-        //     }
-        //     // update cursor, so intermediate undo fail doest have side effect
-        //     logCursor = cursor - 1; // update cursor
-        //     deferred.resolve(cursor);
-        // })
-        // .fail(deferred.reject);
+        var logLen = logs.length;
+        Undo.run(sql)
+        .then(function() {
+            if (logs.length !== logLen) {
+                // XXX debug use
+                console.error("log lenght should not change during undo!");
+            }
+            // update cursor, so intermediate undo fail doest have side effect
+            logCursor = cursor - 1; // update cursor
+            deferred.resolve(cursor);
+        })
+        .fail(deferred.reject);
 
         return deferred.promise();
     }
@@ -484,31 +471,19 @@ window.SQL = (function($, SQL) {
         xcHelper.assert((sql != null), "invalid sql");
 
         var deferred = jQuery.Deferred();
-        // action here
 
-        // XXX test
-        var options = sql.getOptions();
-        var operation = sql.getOperation();
-        if (operation === SQLOps.UnHideCols) {
-            ColManager.unhideCols(options.colNums, options.tableId, options.hideOptions);
-            return jQuery.Deferred().resolve(cursor).promise();
-        } else if (operation === SQLOps.HideCols) {
-            ColManager.hideCols(options.colNums, options.tableId);
-            return jQuery.Deferred().resolve(cursor).promise();
-        }
-
-        // var logLen = logs.length;
-        // Redo.run(sql)
-        // .then(function() {
-        //     if (logs.length !== logLen) {
-        //         // XXX debug use
-        //         console.error("log lenght should not change during undo!");
-        //     }
-        //     // update cursor, so intermediate redo fail doest have side effect
-        //     logCursor = cursor;
-        //     deferred.resolve(cursor);
-        // })
-        // .fail(deferred.reject);
+        var logLen = logs.length;
+        Redo.run(sql)
+        .then(function() {
+            if (logs.length !== logLen) {
+                // XXX debug use
+                console.error("log lenght should not change during undo!");
+            }
+            // update cursor, so intermediate redo fail doest have side effect
+            logCursor = cursor;
+            deferred.resolve(cursor);
+        })
+        .fail(deferred.reject);
 
         return deferred.promise();
     }
@@ -660,6 +635,8 @@ window.SQL = (function($, SQL) {
                 // fallthrough
             case (SQLOps.ResizeTableCols):
                 // fallthrough
+            case (SQLOps.DragResizeTableCol):
+                // fallthrough
             case (SQLOps.HideTable):
                 // fallthrough
             case (SQLOps.UnhideTable):
@@ -752,7 +729,7 @@ window.SQL = (function($, SQL) {
     //     var string = "cast";
     //     string += " " + options.dsName;
     //     string += " " + options.colName;
-        
+
     //     switch (options.newType) {
     //         case ("string"):
     //             string += " DfString";
@@ -833,7 +810,7 @@ window.SQL = (function($, SQL) {
     //     // Now we need to escape quotes. We don't need to do it for the thrift
     //     // call because that's a thrift field. However, now that everything is
     //     // lumped into one string, we have to do some fun escaping
-        
+
     //     flt = flt.replace(/["']/g, "\\$&");
     //     string += " \"" + flt + "\"";
     //     string += " " + options.newTableName;
@@ -904,7 +881,7 @@ window.SQL = (function($, SQL) {
     //     string += " " + options.newTableName;
     //     return (string);
     // }
-    
+
     // function cliMapHelper(options) {
     //     var string = "map";
     //     string += " --eval";

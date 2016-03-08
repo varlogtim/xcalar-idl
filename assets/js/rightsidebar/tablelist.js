@@ -255,7 +255,7 @@ window.TableList = (function($, TableList) {
             noAnimate: true,
             position : position
         });
-        
+
         if (wasOpen) {
             $tableList = $('#activeTablesList .tableInfo[data-id="' +
                             tableId + '"]');
@@ -348,7 +348,7 @@ window.TableList = (function($, TableList) {
             $tablesSelected = $tableList.find(".addTableBtn.selected")
                                         .closest(".tableInfo");
         }
-        
+
         var $buttons = $tableList.find('.btnLarge');
         var promises = [];
         var failures = [];
@@ -591,6 +591,42 @@ window.TableList = (function($, TableList) {
         return (deferred.promise());
     };
 
+    TableList.removeTable = function(tableId, type) {
+        var tableType;
+        var $li = $();
+        if (type) {
+            tableType = type;
+        } else {
+            var table = gTables[tableId];
+            if (table.active) {
+                tableType = "active";
+            } else if (table.isOrphaned) {
+                tableType = "orphaned";
+            } else {
+                tableType = "inactive";
+            }
+        }
+
+        if (tableType === "active") {
+            $li = $("#activeTablesList").find('.tableInfo[data-id="' +
+                                                    tableId + '"]');
+        } else if (tableType === "inactive") {
+            $li = $('#archivedTableList').find('.tableInfo[data-id="' +
+                                                    tableId + '"]');
+        } else if (tableType === "orphaned") {
+            $li = $('#orphanedTableList').find('.tableInfo[data-id="' +
+                                                    tableId + '"]');
+        }
+
+        var $timeLine = $li.closest(".timeLine");
+
+        $li.remove();
+        if ($timeLine.find('.tableInfo').length === 0) {
+            $timeLine.remove();
+        }
+    };
+
+
     function addOrphanedTable(tableName) {
         var deferred = jQuery.Deferred();
 
@@ -787,7 +823,7 @@ window.TableList = (function($, TableList) {
                 } else {
                     $dateDivider.prepend(html);
                 }
-                
+
             } else {
                 var $li = $(html).hide();
 
@@ -1096,7 +1132,7 @@ window.TableList = (function($, TableList) {
         var wsId = WSManager.getWSFromTable(tableId);
         $('#worksheetTab-' + wsId).trigger(fakeEvent.mousedown);
         var animation;
-        
+
         if (gMinModeOn) {
             animation = false;
         } else {

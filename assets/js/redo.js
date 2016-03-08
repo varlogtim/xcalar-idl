@@ -1,511 +1,85 @@
-window.Replay = (function($, Replay) {
-    var argsMap = null;
-    var tabMap  = null;
-    var hashTag = null;
+window.Redo = (function($, Redo) {
 
-    var Tab = {
-        "DS": "#dataStoresTab",
-        "WS": "#workspaceTab"
-    };
 
-    var outTime = 60000; // 1min for time out
-    var checkTime = 500; // time interval of 500ms
+    Redo.run = function(sql) {
+        xcHelper.assert((sql != null), "invalid sql");
 
-    Replay.run = function(sqls) {
-        var deferred = jQuery.Deferred();
-        var isArray = (sqls instanceof Array);
-
-        if (typeof sqls === "object" && !isArray) {
-            // when pass in the whole sqls (logs + errors)
-            if (sqls.hasOwnProperty("logs")) {
-                sqls = sqls.logs;
-            } else {
-                alert("Cannot replay the arg passed in");
-                deferred.reject("Cannot replay the arg passed in");
-                return (deferred.promise());
-            }
-        } else if (!isArray) {
-            // when pass in logs array
-            alert("Wrong Type of args");
-            deferred.reject("Wrong Type of args");
-            return (deferred.promise());
-        }
-
-        var mindModeCache = gMinModeOn;
-
-        gMinModeOn = true;
-        // call it here instead of start up time
-        // to lower the overhead of start up.
-        if (argsMap == null) {
-            createFuncArgsMap();
-        }
-
-        if (tabMap == null) {
-            createTabMap();
-        }
-
-        if (hashTag == null) {
-            hashTag = Authentication.getInfo().hashTag;
-        }
-
-        // filter out auto-triggered sql
-        sqls = sqls.filter(sqlFilter);
-        // assume the usernode is empty
-        var promises = [];
-
-        for (var i = 0, len = sqls.length; i < len; i++) {
-            var prevSql = (i === 0) ? null : sqls[i - 1];
-            var nextSql = (i === len - 1) ? null : sqls[i + 1];
-            promises.push(Replay.execSql.bind(this, sqls[i], prevSql, nextSql));
-        }
-
-        chain(promises)
-        .then(function() {
-            alert("Replay Finished!");
-            deferred.resolve();
-        })
-        .fail(function(error) {
-            alert("Replay Fails!");
-            deferred.reject(error);
-        })
-        .always(function() {
-            gMinModeOn = mindModeCache;
-        });
-
-        return (deferred.promise());
-    };
-
-    Replay.execSql = function(sql, prevSql, nextSql) {
-        var deferred = jQuery.Deferred();
-        var options = sql.options;
-
-        if (options == null) {
-            console.error("Invalid sql", sql);
-            deferred.reject("Invalid sql");
-            return (deferred.promise());
-        }
-
-        var operation = options.operation;
-        var tab  = tabMap[operation] || Tab.WS; // default is in worksheet
-
-        console.log("replay:", sql);
-
-        if (tab != null) {
-            $(tab).click();
-        }
-
-        options = $.extend(options, {
-            "prevReplay": prevSql,
-            "nextReplay": nextSql
-        });
-
-        execSql(operation, options)
-        .then(function() {
-            console.log("Replay", operation, "finished!");
-            deferred.resolve();
-        })
-        .fail(function(error) {
-            console.error("Replay", operation, "fails!", error);
-
-            if (sql.sqlType === SQLType.Error && isValidError(error)) {
-                if ($("#alertModal").is(":visible")) {
-                    var callback = function() {
-                        $("#alertModal .close").click();
-                        deferred.resolve();
-                    };
-
-                    delayAction(callback, "Show alert modal");
-                } else {
-                    console.log("This conitnue to replay after", operation);
-                    deferred.resolve();
-                }
-            } else {
-                deferred.reject(error);
-            }
-        });
-
-        return (deferred.promise());
-    };
-
-    function isValidError(status) {
-        switch (status) {
-            case StatusT.StatusConnReset:
-            case StatusT.StatusNoMem:
-                return false;
-            default:
-                return true;
-        }
-    }
-
-    function execSql(operation, options) {
         var deferred = jQuery.Deferred();
 
-        if (replayFuncs.hasOwnProperty(operation)) {
-            return (replayFuncs[operation](options));
+        var options = sql.getOptions();
+        var operation = sql.getOperation();
+
+        if (redoFuncs.hasOwnProperty(operation)) {
+            redoFuncs[operation](options)
+            .then(deferred.resolve)
+            .fail(function() {
+                // XX do we do anything with the cursor?
+                deferred.reject("redo failed");
+            });
         } else {
             console.error("Unknown operation", operation);
             deferred.reject("Unknown operation");
-            return (deferred.promise());
-        }
-    }
 
-    // function clearTable() {
-    //     var promises = [];
-
-    //     for (var id in gTables) {
-    //         promises.push(delTable.bind(this, gTables[id]));
-    //     }
-
-    //     return chain(promises);
-
-    //     function delTable(table) {
-    //         var deferred = jQuery.Deferred();
-    //         var resultSetId = table.resultSetId;
-    //         var tableName = table.tableName;
-
-    //         XcalarSetFree(resultSetId)
-    //         .then(function() {
-    //             return (XcalarDeleteTable(tableName));
-    //         })
-    //         .then(deferred.resolve)
-    //         .fail(deferred.reject);
-
-    //         return (deferred.promise());
-    //     }
-    // }
-
-    function getArgs(options) {
-        var neededArgs = argsMap[options.operation];
-
-        if (neededArgs == null) {
-            return (null);
         }
 
-        var args = [];
-        var argKey;
-        var arg;
+        return (deferred.promise());
+    };
 
-        for (var i = 0, len = neededArgs.length; i < len; i++) {
-            argKey = neededArgs[i];
-            arg = options[argKey];
 
-            if (argKey === "tableId") {
-                arg = getTableId(arg);
-            }
-            args.push(arg);
-        }
-
-        return (args);
-    }
-
-    // need to use the idCount, but the hasId is different
-    function getTableId(oldId) {
-        var idCount = oldId.substring(2);
-        return (hashTag + idCount);
-    }
-
-    function changeTableName(tableName) {
-        var name = xcHelper.getTableName(tableName);
-        var id = xcHelper.getTableId(tableName);
-
-        return (name + "#" + getTableId(id));
-    }
-
-    function createFuncArgsMap() {
-        argsMap = {};
-        // DS.load()
-        argsMap[SQLOps.DSLoad] = ["dsName", "dsFormat", "loadURL",
-                                    "fieldDelim", "lineDelim", "hasHeader",
-                                    "moduleName", "funcName"];
-        argsMap[SQLOps.Sort] = ["colNum", "tableId", "order"];
-        argsMap[SQLOps.Filter] = ["colNum", "tableId", "fltOptions"];
-        argsMap[SQLOps.Aggr] = ["colNum", "tableId", "aggrOp"];
-        argsMap[SQLOps.Map] = ["colNum", "tableId", "fieldName",
-                                "mapString", "mapOptions"];
-        argsMap[SQLOps.Join] = ["lColNums", "lTableId", "rColNums", "rTableId",
-                                "joinStr", "newTableName"];
-        argsMap[SQLOps.GroupBy] = ["operator", "tableId", "indexedCols",
-                                    "aggColName", "isIncSample", "newColName"];
-        argsMap[SQLOps.RenameTable] = ["tableId", "newTableName"];
-        argsMap[SQLOps.HideTable] = ["tableId"];
-        argsMap[SQLOps.UnhideTable] = ["tableId"];
-        argsMap[SQLOps.DeleteTable] = ["tables", "tableType"];
-        argsMap[SQLOps.DeleteCol] = ["colNums", "tableId"];
-        argsMap[SQLOps.HideCols] = ["colNums", "tableId"];
-        argsMap[SQLOps.UnHideCols] = ["colNums", "tableId"];
-        argsMap[SQLOps.TextAlign] = ["colNum", "tableId", "alignment"];
-        argsMap[SQLOps.DupCol] = ["colNum", "tableId"];
-        argsMap[SQLOps.DelDupCol] = ["colNum", "tableId"];
-        argsMap[SQLOps.DelAllDupCols] = ["tableId"];
-        argsMap[SQLOps.ReorderTable] = ["tableId", "srcIndex", "desIndex"];
-        argsMap[SQLOps.ReorderCol] = ["tableId", "oldColNum", "newColNum"];
-        argsMap[SQLOps.RenameCol] = ["colNum", "tableId", "newName"];
-        argsMap[SQLOps.PullCol] = ["colNum", "tableId",
-                                    "nameInfo", "pullColOptions"];
-        argsMap[SQLOps.SortTableCols] = ["tableId", "direction"];
-        argsMap[SQLOps.ResizeTableCols] = ["tableId", "resizeTo", "columnNums"];
-        argsMap[SQLOps.DragResizeTableCol] = ["tableId", "colNum", "fromWidth",
-                                               "toWidth"];
-        argsMap[SQLOps.DSRename] = ["dsId", "newName"];
-        argsMap[SQLOps.DSToDir] = ["folderId"];
-        argsMap[SQLOps.Profile] = ["tableId", "colNum"];
-        argsMap[SQLOps.QuickAgg] = ["tableId"];
-        argsMap[SQLOps.Corr] = ["tableId"];
-        argsMap[SQLOps.AddOhterUserDS] = ["name", "format", "path"];
-        argsMap[SQLOps.ExportTable] = ["tableName", "exportName", "targetName", "numCols", "columns"];
-        argsMap[SQLOps.SplitCol] = ["colNum", "tableId",
-                                    "delimiter", "numColToGet"];
-        argsMap[SQLOps.ChangeType] = ["colTypeInfos", "tableId"];
-        argsMap[SQLOps.ChangeFormat] = ["colNum", "tableId", "format"];
-        argsMap[SQLOps.RoundToFixed] = ["colNum", "tableId", "decimals"];
-    }
-
-    function createTabMap() {
-        tabMap = {};
-
-        tabMap[SQLOps.DSLoad] = Tab.DS;
-        tabMap[SQLOps.IndexDS] = Tab.DS;
-        tabMap[SQLOps.CreateFolder] = Tab.DS;
-        tabMap[SQLOps.DSRename] = Tab.DS;
-        tabMap[SQLOps.DSDropIn] = Tab.DS;
-        tabMap[SQLOps.DSInsert] = Tab.DS;
-        tabMap[SQLOps.DSToDir] = Tab.DS;
-        tabMap[SQLOps.DSDropBack] = Tab.DS;
-        tabMap[SQLOps.DelFolder] = Tab.DS;
-        tabMap[SQLOps.AddOhterUserDS] = Tab.DS;
-    }
-
-    function sqlFilter(sql) {
-        var options = sql.options || {};
-        var sqlType = options.sqlType;
-
-        if (sqlType === SQLType.Fail) {
-            return false;
-        } else {
-            return true;
-        }
-
-        return true;
-    }
-
-    /* REPLAYFUNCS HOLDS ALL THE REPLAY FUNCTIONS */
-
-    var replayFuncs = {
-        loadDataSet : function(options) {
-            var args = getArgs(options);
-            return (DS.load.apply(window, args));
-        },
-
-        indexFromDataset: function(options) {
-            var deferred = jQuery.Deferred();
-            // this is a UI simulation replay
-            var dsName     = options.dsName;
-            var dsId       = options.dsId;
-            var columns    = options.columns;
-            var tableName  = options.tableName;
-            var $mainFrame = $("#mainFrame");
-
-            var $grid = DS.getGrid(dsId);
-            var originTableLen;
-
-            $grid.click();
-            var chekFunc = function() {
-                return ($grid.find('.waitingIcon').length === 0);
-            };
-
-            checkHelper(chekFunc, "data sample table is ready")
-            .then(function() {
-                // when sample table is loaded
-                var $inputs = $("#worksheetTable .editableHead");
-                // make sure only have this cart
-                DataCart.clear();
-
-                // add to data cart
-                for (var i = 0, len = columns.length; i < len; i++) {
-                    var colName = columns[i];
-                    // skip DATA column
-                    if (colName === "DATA") {
-                        continue;
-                    }
-
-                    $inputs.filter(function() {
-                        return $(this).val() === colName;
-                    }).click();
-                }
-
-                var name = xcHelper.getTableName(tableName);
-                $("#DataCart .tableNameEdit").val(name);
-
-                originTableLen = $mainFrame.find(".xcTableWrap").length;
-
-                var callback = function() {
-                    $("#submitDSTablesBtn").click();
-                };
-                // delay 2 seconds to show UI
-                return delayAction(callback, "Show Data Cart", 2000);
-            })
-            .then(function() {
-                var checkFunc2 = function() {
-                    var tableLenDiff = $mainFrame.find(".xcTableWrap").length -
-                                        originTableLen;
-                    if (tableLenDiff === 1) {
-                        return true; // pass check
-                    } else if (tableLenDiff === 0) {
-                        return false; // keep checking
-                    } else {
-                        return null; // error case, fail check
-                    }
-                };
-                return checkHelper(checkFunc2, "xc table is ready");
-            })
-            .then(deferred.resolve)
-            .fail(deferred.reject);
-
-            return (deferred.promise());
-        },
+    var redoFuncs = {
 
         sort: function(options) {
-            var args = getArgs(options);
-            return (xcFunction.sort.apply(window, args));
+
         },
 
         filter: function(options) {
-            var args = getArgs(options);
-            return (xcFunction.filter.apply(window, args));
+            var worksheet = WSManager.getWSFromTable(options.tableId);
+            return (TblManager.refreshTable([options.newTableName], null,
+                                            [options.tableName],
+                                            worksheet, {isRedo: true}));
         },
 
         aggregate: function(options) {
-            var deferred = jQuery.Deferred();
-            var args = getArgs(options);
-            // this is a UI simulation replay
-            xcFunction.aggregate.apply(window, args)
-            .then(function() {
-                var callback = function() {
-                    $("#alertModal .close").click();
-                };
-                return (delayAction(callback, "Show alert modal"));
-            })
-            .then(deferred.resolve)
-            .fail(deferred.reject);
 
-            return (deferred.promise());
         },
 
         map: function(options) {
-            var args = getArgs(options);
-            return (xcFunction.map.apply(window, args));
+            var worksheet = WSManager.getWSFromTable(options.tableId);
+            return (TblManager.refreshTable([options.newTableName], null,
+                                            [options.tableName],
+                                            worksheet, {isRedo: true}));
         },
 
         join: function(options) {
-            // change tableId
-            options.lTableId = getTableId(options.lTableId);
-            options.rTableId = getTableId(options.rTableId);
-            // HACK: this is tricky that if we do not call Authentication.getHashId(),
-            // the id cursor cannot sync with the original one.
-            // Better way is to append hashId to newTableName in xcFunction.join()
-            options.newTableName = xcHelper.getTableName(options.newTableName) +
-                                    Authentication.getHashId();
+            var deferred = jQuery.Deferred();
+            TblManager.refreshTable([options.newTableName], null,
+                                    [options.lTableName, options.rTableName],
+                                     options.worksheet,
+                                     {isRedo: true})
+            .then(deferred.resolve)
+            .fail(deferred.fail);
 
-            var args = getArgs(options);
-            return (xcFunction.join.apply(window, args));
+            return (deferred.promise());
         },
 
         groupBy: function(options) {
-            var args = getArgs(options);
-            return (xcFunction.groupBy.apply(window, args));
+
         },
 
         renameTable: function(options) {
-            options.newTableName = changeTableName(options.newTableName);
-            var args = getArgs(options);
-            return (xcFunction.rename.apply(window, args));
+
         },
 
         deleteTable: function(options) {
-            // XXX TODO: test it when delete table is enabled
-            var tableType = options.tableType;
 
-            // XXX lack of delete some intermediate table (in stats modal)
-            // and delete unknown source table
-            if (tableType === TableType.Active) {
-                var args = getArgs(options);
-                return (deleteTable.apply(window, args));
-            } else if (tableType === TableType.Unknown){
-                // XXX not sure if it's good
-                // XXX not test yet
-                var deferred = jQuery.Deferred();
-                var tableName = changeTableName(tableName);
-
-                XcalarDeleteTable(tableName, options)
-                .then(function() {
-                    Dag.makeInactive(tableName, true);
-                    deferred.resolve();
-                })
-                .fail(deferred.reject);
-                return (deferred.promise());
-            } else {
-                return (promiseWrapper(null));
-            }
         },
 
         destroyDataSet: function(options) {
-            // UI simulation replay
-            var deferred = jQuery.Deferred();
-            var $gridView = $("#exploreView").find(".gridItems");
-            var $ds = DS.getGrid(options.dsId);
 
-            var dSLen = $gridView.find(".ds").length;
-
-            DS.remove($ds);
-
-            var callback = function() {
-                $("#alertModal .confirm").click();
-            };
-
-            delayAction(callback, "Show alert modal")
-            .then(function() {
-                var checkFunc = function() {
-                    var dsLenDiff = $gridView.find(".ds").length - dSLen;
-
-                    if (dsLenDiff === -1) {
-                        // when ds is deleted, pass check
-                        return true;
-                    } else if (dsLenDiff === 0) {
-                        // when table not craeted yet, keep checking
-                        return false;
-                    } else {
-                        // error case, fail check
-                        return null;
-                    }
-                };
-                return checkHelper(checkFunc, "DataSet is deleted");
-            })
-            .then(deferred.resolve)
-            .fail(deferred.reject);
-
-            return (deferred.promise());
         },
 
         exportTable: function(options) {
-            var deferred = jQuery.Deferred();
 
-            options.tableName = changeTableName(options.tableName);
-
-            var args = getArgs(options);
-            var callback = function() {
-                $("#alertHeader .close").click();
-            };
-
-            // XXX a potential issue here is that if exportName exists in
-            // backend, it fails to export because of name confilict
-            xcFunction.exportTable.apply(window, args)
-            .then(function() {
-                return delayAction(callback, "Show alert modal");
-            })
-            .then(deferred.resolve)
-            .fail(deferred.resolve); // still resolve even fail!
-
-            return (deferred.promise());
         },
 
         addNewCol: function(options) {
@@ -545,16 +119,12 @@ window.Replay = (function($, Replay) {
         },
 
         hideCols: function(options) {
-            var args = getArgs(options);
-            ColManager.hideCols.apply(window, args);
-
+            ColManager.hideCols(options.colNums, options.tableId);
             return (promiseWrapper(null));
         },
 
         unHideCols: function(options) {
-            var args = getArgs(options);
-            ColManager.unhideCols.apply(window, args);
-
+            ColManager.unhideCols(options.colNums, options.tableId);
             return (promiseWrapper(null));
         },
 
@@ -708,7 +278,7 @@ window.Replay = (function($, Replay) {
             return promiseWrapper(null);
         },
 
-        dragResizeTableCol: function(options) {
+        dragResizeTableCol: function(options, isReverse) {
             var args = getArgs(options);
             console.log('resized replay');
             TblAnim.resizeColumn.apply(window, args);
@@ -884,45 +454,6 @@ window.Replay = (function($, Replay) {
 
         createFolder: function(options) {
             DS.newFolder();
-            return (promiseWrapper(null));
-        },
-
-        dsRename: function(options) {
-            var args = getArgs(options);
-            DS.rename.apply(window, args);
-            return (promiseWrapper(null));
-        },
-
-        dsDropIn: function(options) {
-            var $grid   = DS.getGrid(options.dsId);
-            var $target = DS.getGrid(options.targetDSId);
-            DS.dropToFolder($grid, $target);
-            return (promiseWrapper(null));
-        },
-
-        dsInsert: function(options) {
-            var $grid    = DS.getGrid(options.dsId);
-            var $sibling = DS.getGrid(options.siblingDSId);
-            var isBefore = options.isBefore;
-            DS.insert($grid, $sibling, isBefore);
-            return (promiseWrapper(null));
-        },
-
-        goToDir: function(options) {
-             var args = getArgs(options);
-            DS.goToDir.apply(window, args);
-            return (promiseWrapper(null));
-        },
-
-        dsBack: function(options) {
-            var $grid = DS.getGrid(options.dsId);
-            DS.dropToParent($grid);
-            return (promiseWrapper(null));
-        },
-
-        deleteFolder: function(options) {
-            var $grid = DS.getGrid(options.dsId);
-            DS.remove($grid);
             return (promiseWrapper(null));
         },
 
@@ -1175,67 +706,6 @@ window.Replay = (function($, Replay) {
         // },
     };
 
-    function profileKeepOpenCheck(options) {
-        var nextSql = options.nextReplay || {};
-        var nextOptions = nextSql.options || {};
-        if (nextOptions.operation === SQLOps.ProfileSort ||
-            nextOptions.operation === SQLOps.ProfileBucketing)
-        {
-            if (options.modalId === nextOptions.modalId) {
-                return true;
-            }
-        }
 
-        return false;
-    }
-
-    function checkHelper(checkFunc, msg) {
-        var deferred = jQuery.Deferred();
-        var timeCnt = 0;
-        var timer = setInterval(function() {
-            if (msg != null) {
-                console.log("Check:", msg, "Timer:", timeCnt);
-            }
-
-            var res = checkFunc();
-            if (res === true) {
-                // make sure graphisc shows up
-                clearInterval(timer);
-                deferred.resolve();
-            } else if (res === null) {
-                deferred.reject("Check Error!");
-            } else {
-                console.info("check not pass yet!");
-                timeCnt += checkTime;
-                if (timeCnt > outTime) {
-                    clearInterval(timer);
-                    console.error("Time out!");
-                    deferred.reject("Time out");
-                }
-            }
-        }, checkTime);
-
-        return (deferred.promise());
-    }
-
-    function delayAction(callback, msg, time) {
-        var deferred = jQuery.Deferred();
-
-        time = time || 5000;
-
-        if (msg != null) {
-            console.log(msg, "dealy time:", time, "ms");
-        }
-
-        setTimeout(function() {
-            if (callback != null) {
-                callback();
-            }
-            deferred.resolve();
-        }, time);
-
-        return (deferred.promise());
-    }
-
-    return (Replay);
+    return (Redo);
 }(jQuery, {}));

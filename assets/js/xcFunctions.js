@@ -99,7 +99,7 @@ window.xcFunction = (function($, xcFunction) {
 
                 deferred.resolve();
             }, 500);
-            
+
             return (deferred.promise());
         }
 
@@ -278,6 +278,8 @@ window.xcFunction = (function($, xcFunction) {
         var rTable     = gTables[rTableId];
         var rTableName = rTable.tableName;
         var newTableId = xcHelper.getTableId(newTableName);
+        var lTablePos  = WSManager.getTableRelativePosition(lTableId);
+        var rTablePos  = WSManager.getTableRelativePosition(rTableId);
 
         // joined table will in the current active worksheet.
         var worksheet = WSManager.getActiveWS();
@@ -286,12 +288,16 @@ window.xcFunction = (function($, xcFunction) {
             "operation"   : SQLOps.Join,
             "lTableName"  : lTableName,
             "lTableId"    : lTableId,
+            "lTablePos"   : lTablePos,
             "lColNums"    : lColNums,
             "rTableName"  : rTableName,
             "rTableId"    : rTableId,
+            "rTablePos"   : rTablePos,
             "rColNums"    : rColNums,
             "newTableName": newTableName,
-            "joinStr"     : joinStr
+            "joinStr"     : joinStr,
+            "worksheet"   : worksheet,
+            "htmlExclude" : ["lTablePos", "rTablePos", "worksheet"]
         };
 
         var txId = Transaction.start({
@@ -782,7 +788,7 @@ window.xcFunction = (function($, xcFunction) {
                     // when the groupby col name has dot, it should be escsped
                     colName = colName.replace(/\./g, "\\\.");
                 }
-                
+
                 finalCols[1 + i] = ColManager.newCol({
                     "name"    : progCol.name || colName,
                     "type"    : progCol.type || null,

@@ -225,7 +225,7 @@ window.ColManager = (function($, ColManager) {
         moveTableTitlesAnimated(tableId, tableWidth, colWidths, 200);
         var noSave = true;
         FnBar.clear(noSave);
-        
+
         jQuery.when.apply($, promises).done(function() {
             var numAllCols = table.tableCols.length;
             updateTableHeader(tableId);
@@ -236,7 +236,7 @@ window.ColManager = (function($, ColManager) {
                       .removeClass('col' + oldColNum)
                       .addClass('col' + j);
             }
-                
+
             matchHeaderSizes($table);
             xcHelper.removeSelectionRange();
 
@@ -282,7 +282,7 @@ window.ColManager = (function($, ColManager) {
 
         var tableName   = table.tableName;
         var siblColName = table.tableCols[colNum - 1].name;
-        var newColName  = xcHelper.getUniqColName(fullName, tableCols);   
+        var newColName  = xcHelper.getUniqColName(fullName, tableCols);
         var direction;
         if (isDataTd) {
             direction = "L";
@@ -434,8 +434,11 @@ window.ColManager = (function($, ColManager) {
                     TblManager.setOrphanTableMeta(newTableName, newTablCols);
                     return promiseWrapper(null);
                 } else {
+                    var options = {
+                        selectCol: curColNum - 1
+                    };
                     return TblManager.refreshTable([newTableName], newTablCols,
-                                               [tableName], worksheet);
+                                               [tableName], worksheet, options);
                 }
             })
             .then(function() {
@@ -1344,7 +1347,7 @@ window.ColManager = (function($, ColManager) {
                 groupbyTable = ".tempGB." + tableNamePart +
                                 Authentication.getHashId();
                 groupByCol = xcHelper.randName("randCol");
-                
+
                 var groupByOp = AggrOp.Count;
                 var incSample = false;
 
@@ -1520,7 +1523,7 @@ window.ColManager = (function($, ColManager) {
             for (i = 1; i <= numColToGet; i++) {
                 promises.push(splitColHelper.bind(this, i));
             }
-            
+
             return chain(promises);
         })
         .then(function(newTableId) {
@@ -1734,7 +1737,7 @@ window.ColManager = (function($, ColManager) {
                 newColName = "Date_UTS_integer";
                 mapStr = "int(Date_UTS)";
                 return (XcalarMap(newColName, mapStr, srcTable, newTableName,
-                                  null, false))
+                                  null, false));
             })
             .then(function() {
                 tableId = xcHelper.getTableId(srcTable);
@@ -1765,7 +1768,7 @@ window.ColManager = (function($, ColManager) {
                             var newCols = xcHelper.deepCopy(gTables[tableId].
                                                             tableCols);
                             var idx = getColNum("Max_Date", tableId);
-                            newCols.splice(idx+1, 0, 
+                            newCols.splice(idx+1, 0,
                                           (ColManager.newPullCol("Final Touch",
                                                                  "string")));
                             return (TblManager.refreshTable([newTableName],
@@ -1789,15 +1792,15 @@ window.ColManager = (function($, ColManager) {
                 var idx = getColNum("Line Item Product Type", tableId);
                 newCols.splice(idx+1, 0,
                                ColManager.newPullCol("Final PT", "string"));
-                xcHelper.unlockTable(tableId); 
+                xcHelper.unlockTable(tableId);
                 return (TblManager.refreshTable([newTableName], newCols,
                                                 [tableName], worksheet));
             });
         }
-        
+
         function genLineItemPT(tableName) {
             // Step 1: Change Forecasted Detail Actual Dollar Amount to float
-            // Step 2: xcFunction.groupBy(sum, tableId, indexedCols, 
+            // Step 2: xcFunction.groupBy(sum, tableId, indexedCols,
             // aggColName, false, newColName)
             // Step 3: single groupBy(max
             // Step 4: multi join ROW ID, max == forecasted_float
@@ -1867,7 +1870,7 @@ window.ColManager = (function($, ColManager) {
                 // XXX Why is delCol 1-indexed? Leftover from last time?
                 ColManager.delCol([1, 4, 5, 6], xcHelper.getTableId(tn));
                 TblManager.archiveTable(xcHelper.getTableId(tableNameStore[0]));
-            })
+            });
         }
         // TODO this should be in xcHelper
         function getColNum(colName, tableId) {
@@ -1884,10 +1887,10 @@ window.ColManager = (function($, ColManager) {
         function genNoOfDays(colName, tableName) {
             // Step 1: Create column Modified No Blank
             // Step 2: Create column Last_Modified_Latest by doing ifelse on
-            // Final Date and ModifiedNoBlank 
-            // Step 3: Create No Days since col 
+            // Final Date and ModifiedNoBlank
+            // Step 3: Create No Days since col
             // Step 4: Change col to float
-            // Step 5: Map <= 60 
+            // Step 5: Map <= 60
             var tableId = xcHelper.getTableId(tableName);
             var table = gTables[tableId];
             var newTableName = tableNameRoot + Authentication.getHashId();
@@ -2219,7 +2222,7 @@ window.ColManager = (function($, ColManager) {
         var name = $input.val().trim();
         var isDuplicate = false;
         var title = ErrTStr.ColumnConfilct;
-        
+
         if (parseCol) {
             name = name.replace(/^\$/, '');
         }
@@ -2354,7 +2357,7 @@ window.ColManager = (function($, ColManager) {
         var tableWidth = $tableWrap.width();
         var colName = table.tableCols[colNum - 1].name;
         var colWidths = delDupColHelper(colNum, tableId);
-        
+
         if (gMinModeOn) {
             matchHeaderSizes($tableWrap.find('.xcTable'));
         } else {
@@ -2386,7 +2389,7 @@ window.ColManager = (function($, ColManager) {
                 continue;
             } else {
                 delDupColHelper(i + 1, tableId, forwardCheck);
-            }    
+            }
         }
 
         matchHeaderSizes($table);
@@ -2411,7 +2414,7 @@ window.ColManager = (function($, ColManager) {
         var tableWidth = $table.width();
         var tdSelectors = "";
         var $ths = $();
-        
+
         for (var i = 0; i < numCols; i++) {
             var colNum = colNums[i];
             tdSelectors += "td.col" + colNum + ",";
@@ -2434,7 +2437,7 @@ window.ColManager = (function($, ColManager) {
                 $ths.addClass("userHidden");
                 $tds.addClass("userHidden");
             });
-            
+
             moveTableTitlesAnimated(tableId, tableWidth, widthDiff, 250);
         } else {
             $ths.width(10);
@@ -2455,14 +2458,13 @@ window.ColManager = (function($, ColManager) {
         });
     };
 
-    ColManager.unhideCols = function(colNums, tableId, hideOptions) {
+    ColManager.unhideCols = function(colNums, tableId) {
         var $table     = $('#xcTable-' + tableId);
         var tableWidth = $table.width();
         var table      = gTables[tableId];
         var tableCols = table.tableCols;
         var numCols    = colNums.length;
         var colNames   = [];
-        var autoResize = hideOptions && hideOptions.autoResize;
         var widthDiff = 0;
         // var thSelectors = "";
         // var tdSelectors = "";
@@ -2477,31 +2479,28 @@ window.ColManager = (function($, ColManager) {
             col.isHidden = false;
             colNames.push(col.name);
 
-            if (autoResize) {
-                if (!gMinModeOn) {
-                    promises.push(jQuery.Deferred());
-                    var count = 0;
-                    $th.animate({width: col.width}, 250, "linear", function() {
-                        promises[count].resolve();
-                        count++;
-                    });
-                } else {
-                    $th.css("width", col.width);
-                }  
+            if (!gMinModeOn) {
+                promises.push(jQuery.Deferred());
+                var count = 0;
+                $th.animate({width: col.width}, 250, "linear", function() {
+                    promises[count].resolve();
+                    count++;
+                });
+            } else {
+                $th.css("width", col.width);
             }
+
             $table.find("th.col" + colNum + ",td.col" + colNum)
                   .removeClass("userHidden");
         }
 
-        if (autoResize) {
-            if (!gMinModeOn) {
-                jQuery.when.apply($, promises).done(function() {
-                    matchHeaderSizes($table);
-                });
-                moveTableTitlesAnimated(tableId, tableWidth, -widthDiff);
-            } else {
+        if (!gMinModeOn) {
+            jQuery.when.apply($, promises).done(function() {
                 matchHeaderSizes($table);
-            }
+            });
+            moveTableTitlesAnimated(tableId, tableWidth, -widthDiff);
+        } else {
+            matchHeaderSizes($table);
         }
 
         SQL.add("Unhide Columns", {
@@ -2509,8 +2508,7 @@ window.ColManager = (function($, ColManager) {
             "tableName"  : table.tableName,
             "tableId"    : tableId,
             "colNames"   : colNames,
-            "colNums"    : colNums,
-            "hideOptions": hideOptions
+            "colNums"    : colNums
         });
     };
 
@@ -2534,7 +2532,7 @@ window.ColManager = (function($, ColManager) {
             colNums = colNum;
         }
         var numCols = colNums.length;
-        
+
         for (var i = 0; i < numCols; i++) {
             var curCol = table.tableCols[colNums[i] - 1];
             $table.find('td.col' + colNums[i])
@@ -2705,7 +2703,7 @@ window.ColManager = (function($, ColManager) {
                             childArrayVals[col] = true;
                         }
                     }
-                    
+
                     // if it's the index array field, pull indexed one instead
                     if (secondPull && tableCols[col].isSortedArray) {
                         $input = $table.find('th.col' + (col + 1) +
@@ -2770,7 +2768,7 @@ window.ColManager = (function($, ColManager) {
                     tdValue = jsonData[row];
                     columnTypes[col] = "mixed";
                     parsedVal = xcHelper.parseJsonValue(tdValue);
-   
+
                     tBodyHTML +=
                         '<td class="col' + (col + 1) + ' jsonElement">' +
                             '<div class="elementText" data-toggle="tooltip" ' +
@@ -2851,7 +2849,7 @@ window.ColManager = (function($, ColManager) {
             if (tableCols[i].name === "recordNum") {
                 $header.addClass('recordNum');
             }
-            
+
             if (tableCols[i].isHidden) {
                 $table.find('td.col' + (i + 1)).addClass('userHidden');
             }
@@ -2919,7 +2917,7 @@ window.ColManager = (function($, ColManager) {
             if (!table.hasBackCol(escapedColName)) {
                 colNames.push(colName);
                 escapedColNames.push(escapedColName);
-            }    
+            }
         }
 
         if (colNames.length === 0) {
@@ -2957,7 +2955,7 @@ window.ColManager = (function($, ColManager) {
             } else {
                 cols.splice(newColNum + 1, 0, newCol);
             }
-          
+
             if (key === table.key) {
                 columnClass += " indexedColumn";
             }
@@ -3005,7 +3003,7 @@ window.ColManager = (function($, ColManager) {
         moveTableDropdownBoxes();
         moveFirstColumn();
         moveTableTitles();
-    }
+    };
 
     function pullColHelper(key, newColid, tableId, startIndex, numberOfRows) {
         if (key !== "" & key != null) {
@@ -3031,7 +3029,7 @@ window.ColManager = (function($, ColManager) {
         var endingIndex   = -1;
         var decimals = tableCol.decimals;
         var format   = tableCol.format;
-                
+
         if (!startIndex) {
             startingIndex = parseInt($table.find("tbody tr:first")
                                            .attr('class').substring(3));
@@ -3191,7 +3189,7 @@ window.ColManager = (function($, ColManager) {
             } else {
                 colWidths += columns[i].width;
             }
-           
+
             delColHelper(currThNum, i + 1, tableId, null, null, forwardCheck);
             if (i < index) {
                 index--;
@@ -3268,7 +3266,7 @@ window.ColManager = (function($, ColManager) {
             $tableWrap.find(".col" + cellNum).remove();
             if (!multipleCols) {
                 removeColHelper(colNum - 1, tableId);
-                
+
 
                 for (var i = colNum + 1; i <= numCols; i++) {
                     $tableWrap.find(".col" + i)
@@ -3354,14 +3352,14 @@ window.ColManager = (function($, ColManager) {
             });
             return;
         }
-       
+
         var $matchedInputs = $searchableFields.filter(function() {
             if ($(this).is('.editableHead')) {
                 return ($(this).val().toLowerCase().indexOf(val) !== -1);
             } else if ($(this).is('.text')) {
                 return ($(this).data('title').toLowerCase().indexOf(val) !== -1);
             }
-            
+
         });
         var numMatches = $matchedInputs.length;
         var position = Math.min(1, numMatches);

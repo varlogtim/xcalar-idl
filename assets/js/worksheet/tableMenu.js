@@ -611,7 +611,7 @@ window.TblMenu = (function(TblMenu, $) {
             }
             var colNum = $colMenu.data('colNum');
             var tableId = $colMenu.data('tableId');
-            ColManager.unhideCols([colNum], tableId, {"autoResize": true});
+            ColManager.unhideCols([colNum], tableId);
         });
 
         $subMenu.on('mouseup', '.textAlign', function(event) {

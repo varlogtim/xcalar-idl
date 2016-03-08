@@ -20,7 +20,9 @@ window.TblAnim = (function($, TblAnim) {
         } else if (el.closest('th').hasClass("userHidden")) {
             // This is a hidden column! we need to unhide it
             // return;
-            ColManager.unhideCols([colNum], rescol.tableId, {"autoResize": false});
+            $table.find("th.col" + colNum + ",td.col" + colNum)
+                  .removeClass("userHidden");
+            gTables[rescol.tableId].tableCols[colNum - 1].isHidden = false;
         }
         event.preventDefault();
         rescol.mouseStart = event.pageX;
@@ -36,7 +38,7 @@ window.TblAnim = (function($, TblAnim) {
         rescol.newWidth = rescol.startWidth;
         rescol.table = $table;
         rescol.tableHead = el.closest('.xcTableWrap').find('.xcTheadWrap');
-        
+
         rescol.tempCellMinWidth = rescol.cellMinWidth;
         rescol.leftDragMax = rescol.tempCellMinWidth - rescol.startWidth;
         $table.addClass('resizingCol');
@@ -65,6 +67,7 @@ window.TblAnim = (function($, TblAnim) {
         }
         rescol.grabbedCell.outerWidth(newWidth);
         rescol.newWidth = newWidth;
+
         moveTableTitles();
         if (rescol.isDatastore) {
             rescol.$tableWrap.width(rescol.$worksheetTable.width());
@@ -78,6 +81,8 @@ window.TblAnim = (function($, TblAnim) {
         $(document).off('mousemove.onColResize');
         $(document).off('mouseup.endColResize');
         var rescol = gRescol;
+        var isDatastore = rescol.isDatastore;
+        var wasResized = true;
         $('#resizeCursor').remove();
         $('body').removeClass('tooltipOff');
         rescol.table.closest('.xcTableWrap').find('.rowGrab')
@@ -87,7 +92,7 @@ window.TblAnim = (function($, TblAnim) {
         if (!rescol.isDatastore) {
             var table = gTables[rescol.tableId];
             var progCol = table.tableCols[rescol.index - 1];
-            
+
             if (rescol.newWidth === 15) {
                 rescol.table
                       .find('th.col' + rescol.index + ',td.col' + rescol.index)
@@ -96,16 +101,17 @@ window.TblAnim = (function($, TblAnim) {
             } else {
                 progCol.width = rescol.grabbedCell.outerWidth();
             }
-            if (rescol.newWidth - 1 > rescol.startWidth ||
-                rescol.newWidth + 1 < rescol.startWidth) {
+            if (Math.abs(rescol.newWidth - rescol.startWidth) > 1) {
                 // set autoresize to header only if column moved at least 2 pixels
                 var column = gTables[rescol.tableId].tableCols[rescol.index - 1];
                 column.sizeToHeader = true;
             }
+            if (rescol.newWidth === rescol.startWidth) {
+                wasResized = false;
+            }
         } else {
             rescol.isDatastore = false;
-            if (rescol.newWidth - 1 > rescol.startWidth ||
-                rescol.newWidth + 1 < rescol.startWidth) {
+            if (Math.abs(rescol.newWidth - rescol.startWidth) > 1) {
                 // set autoresize to header only if column moved at least 2 pixels
                 rescol.grabbedCell.find('.colGrab').data('sizetoheader', true);
             }
@@ -119,9 +125,48 @@ window.TblAnim = (function($, TblAnim) {
         setTimeout(function() {
             unhideOffScreenTables();
         }, 0);
-        
+
         moveTableDropdownBoxes();
+
+        if (!isDatastore && wasResized) {
+            SQL.add("Resize Column", {
+                "operation": SQLOps.DragResizeTableCol,
+                "tableName": gTables[rescol.tableId].tableName,
+                "tableId"  : rescol.tableId,
+                "colNum"   : rescol.index,
+                "fromWidth": rescol.startWidth,
+                "toWidth"  : rescol.newWidth,
+                "htmlExclude": ["colNum", "fromWidth", "toWidth"]
+            });
+        }
     }
+
+    // used for replaying
+    TblAnim.resizeColumn = function(tableId, colNum, fromWidth, toWidth) {
+        var $table = $('#xcTable-' + tableId);
+        var progCol = gTables[tableId].tableCols[colNum - 1];
+        var $th = $table.find('th.col' + colNum);
+        var $allCells = $table.find("th.col" + colNum + ",td.col" + colNum);
+        if ($th.hasClass("userHidden")) {
+            // This is a hidden column! we need to unhide it
+
+            $allCells.removeClass("userHidden");
+            progCol.isHidden = false;
+        }
+        if (toWidth <= 15) {
+            $allCells.addClass("userHidden");
+            progCol.isHidden = true;
+        } else {
+            progCol.width = toWidth;
+        }
+        $th.outerWidth(toWidth);
+        if (Math.abs(toWidth - fromWidth) > 1) {
+            // set autoresize to header only if column moved at least 2 pixels
+            progCol.sizeToHeader = true;
+        }
+        moveTableTitles();
+        moveTableDropdownBoxes();
+    };
 
     /* END COLUMN RESIZING */
 
@@ -143,7 +188,7 @@ window.TblAnim = (function($, TblAnim) {
         }
 
         rowInfo.startHeight = rowInfo.targetTd.outerHeight();
-        
+
         $(document).on('mousemove.checkRowResize', checkRowResize);
         $(document).on('mouseup.endRowResize', endRowResize);
     };
@@ -158,14 +203,14 @@ window.TblAnim = (function($, TblAnim) {
             hideOffScreenTables();
             var el = rowInfo.$el;
             var $table = rowInfo.$table;
-            
+
             rowInfo.tableId = xcHelper.parseTableId($table);
-            
+
             rowInfo.rowIndex = rowInfo.targetTd.closest('tr').index();
             rowInfo.$divs = $table.find('tbody tr:eq(' + rowInfo.rowIndex +
                                         ') td > div');
             xcHelper.disableTextSelection();
-   
+
             $('body').addClass('hideScroll tooltipOff')
                      .append('<div id="rowResizeCursor"></div>');
             rowInfo.targetTd.closest('tr').addClass('changedHeight');
@@ -266,7 +311,7 @@ window.TblAnim = (function($, TblAnim) {
         $('.highlightBox').remove();
 
         $(document).on('mousemove.checkColDrag', checkColDrag);
-        $(document).on('mouseup.endColDrag', endColDrag);   
+        $(document).on('mouseup.endColDrag', endColDrag);
     };
 
     // checks if mouse has moved and will initiate the column dragging
@@ -280,7 +325,7 @@ window.TblAnim = (function($, TblAnim) {
             var pageX = event.pageX;
             dragInfo.colNum = xcHelper.parseColNum(el);
             var $tableWrap = dragInfo.$tableWrap;
-            
+
             var $table = el.closest('.xcTable');
             var $tbodyWrap = $table.parent();
             var $editableHead = el.find('.editableHead');
@@ -314,10 +359,10 @@ window.TblAnim = (function($, TblAnim) {
 
             // the following code deals with hiding non visible tables and locking the
             // scrolling when we reach the left or right side of the table
-            
+
             var $mainFrame = $('#mainFrame');
             var mfWidth = $mainFrame.width();
-            
+
             var mfScrollLeft = $mainFrame.scrollLeft();
             var tableLeft = dragInfo.$table.offset().left;
             $mainFrame.addClass('scrollLocked');
@@ -379,7 +424,7 @@ window.TblAnim = (function($, TblAnim) {
             // then just clean up and exit
             gMouseStatus = null;
             $(document).off('mousemove.checkColDrag');
-            
+
             return;
         }
         $(document).off('mousemove.onColDrag');
@@ -411,7 +456,7 @@ window.TblAnim = (function($, TblAnim) {
                 );
             }, 0);
         }
-        
+
         $('#dropTargets').remove();
         $('#mainFrame').off('scroll', mainFrameScrollDropTargets)
                        .scrollTop(0);
@@ -420,7 +465,7 @@ window.TblAnim = (function($, TblAnim) {
         if (dragInfo.inFocus) {
             dragInfo.element.find('.editableHead').focus();
         }
-       
+
         // only pull col if column is dropped in new location
         if ((dragInfo.colIndex) !== dragInfo.colNum) {
             var tableId  = dragInfo.tableId;
@@ -469,7 +514,7 @@ window.TblAnim = (function($, TblAnim) {
                         '</div>');
         dragInfo.fauxCol = $('#fauxCol');
         var $fauxTable = $('#fauxTable');
-        
+
         var rowHeight = 25;
         // turn this into binary search later
         var topPx = $table.find('.header').offset().top - rowHeight;
@@ -482,7 +527,7 @@ window.TblAnim = (function($, TblAnim) {
                 return (false);
             }
         });
-         
+
         var cloneHTML = "";
         // check to see if topRowEl was found;
         if (topRowIndex === -1) {
@@ -496,11 +541,11 @@ window.TblAnim = (function($, TblAnim) {
         }
 
         // Clone head
-       
+
         $table.find('tr:first').each(function(i, ele) {
             cloneHTML += cloneCellHelper(ele);
         });
-       
+
         if (dragInfo.selected) {
             $fauxTable.addClass('selectedCol');
         }
@@ -523,7 +568,7 @@ window.TblAnim = (function($, TblAnim) {
         // Ensure rows are offset correctly
         var fauxTableHeight = $fauxTable.height() +
                               $fauxTable.find('tr:first').outerHeight();
-        
+
         var xcTableWrapHeight = $tableWrap.height();
         var fauxColHeight = Math.min(fauxTableHeight, xcTableWrapHeight - 36);
         dragInfo.fauxCol.height(fauxColHeight);
@@ -540,13 +585,13 @@ window.TblAnim = (function($, TblAnim) {
         }
         var colLeft;
         // targets extend this many pixels to left of each column
-       
+
         if (!dropTargetIndex) {
             // create targets that will trigger swapping of columns on hover
             var dropTargets = "";
             dragInfo.$table.find('tr').eq(0).find('th').each(function(i) {
                 if (i === 0 || i === dragInfo.colIndex) {
-                    return true;  
+                    return true;
                 }
                 colLeft = $(this).position().left;
                 var targetWidth;
@@ -578,7 +623,7 @@ window.TblAnim = (function($, TblAnim) {
                 dragdropSwapColumns($(this));
             });
             $('#mainFrame').scroll(mainFrameScrollDropTargets);
-           
+
         } else {
             // targets have already been created, so just adjust the one
             // corresponding to the column that was swapped
@@ -623,7 +668,7 @@ window.TblAnim = (function($, TblAnim) {
         setTimeout(function() {
             dragInfo.$table.find('.header').css('height', '36px');
         }, 0);
-        
+
         var left = dragInfo.element.position().left;
         $('#shadowDiv').css('left', left);
         dragInfo.colIndex = dropTargetId;
@@ -653,7 +698,7 @@ window.TblAnim = (function($, TblAnim) {
         if (Math.abs(dragInfo.mouseX - dragInfo.pageX) > 0) {
             $(document).off('mousemove.checkTableDrag');
             $(document).on('mousemove.onTableDrag', onTableDrag);
-           
+
             gMouseStatus = "dragging";
             dragInfo.$el.find('.tableGrab').addClass('noDropdown');
             dragInfo.$table = dragInfo.$el.closest('.xcTableWrap');
@@ -702,7 +747,7 @@ window.TblAnim = (function($, TblAnim) {
             return;
         }
         $(document).off('mousemove.onTableDrag');
-        
+
         gMouseStatus = null;
         dragInfo.$table.removeClass('tableDragging').css({
             'left'  : '0px',
@@ -734,7 +779,7 @@ window.TblAnim = (function($, TblAnim) {
             mainFrameHeight -= 11;
         }
         var shadowHeight = Math.min(mainFrameHeight, tableHeight + 5);
-        
+
         var shadowTable = '<div id="shadowTable" ' +
                     'style="width:' + width + 'px;height:' +
                     shadowHeight + 'px;">' +
@@ -758,12 +803,12 @@ window.TblAnim = (function($, TblAnim) {
 
         dragInfo.$activeTables.each(function(i) {
             if (i === dragInfo.tableIndex) {
-                return true;  
+                return true;
             }
 
             targetWidth = Math.round(0.5 * $(this).outerWidth());
             targetWidth = Math.min(targetWidth, dragInfo.halfWidth);
-            
+
             if (i > dragInfo.tableIndex) {
                 offset = tempOffset - dragInfo.halfWidth + 5;
             } else {
@@ -823,7 +868,7 @@ window.TblAnim = (function($, TblAnim) {
         }
 
         dragInfo.$table.scrollTop(dragInfo.tableScrollTop);
-        
+
         var oldIndex = dragInfo.tableIndex;
         dragInfo.tableIndex = dropTargetIndex;
         moveTableDropTargets(dropTargetIndex, oldIndex, $table);
@@ -851,12 +896,12 @@ window.TblAnim = (function($, TblAnim) {
                 left = $mainFrame.scrollLeft() + 40;
                 $mainFrame.scrollLeft(left);
             } else if (dragInfo.pageX < 30) { // scroll left;
-                 
+
                 left = $mainFrame.scrollLeft() - 40;
                 $mainFrame.scrollLeft(left);
 
             }
-                
+
             setTimeout(function() {
                 dragdropMoveMainFrame(dragInfo, timer);
             }, timer);
@@ -881,7 +926,7 @@ window.TblAnim = (function($, TblAnim) {
         }
     }
 
-    
+
     // set display none on tables that are not currently in the viewport but are
     // active. Tables will maintain their widths;
     function hideOffScreenTables(options) {
@@ -890,7 +935,7 @@ window.TblAnim = (function($, TblAnim) {
         var marginRight = options.marginRight || 0;
         var $tableWraps = $('.xcTableWrap:not(.inActive)');
         var viewWidth = $('#mainFrame').width() + marginRight;
-        
+
         $tableWraps.each(function() {
             var $table = $(this);
             var $thead = $table.find('.xcTheadWrap');

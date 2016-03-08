@@ -199,6 +199,11 @@ TableMeta.prototype = {
         return this;
     },
 
+    beOrphaned: function() {
+        this.isOrphaned = true;
+        return this;
+    },
+
     updateTimeStamp: function() {
         this.timeStamp = xcHelper.getTimeInMS();
         return this;

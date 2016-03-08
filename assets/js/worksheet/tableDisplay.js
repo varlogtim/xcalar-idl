@@ -16,6 +16,13 @@ window.TblManager = (function($, TblManager) {
             afterStartup: boolean, default is true. Set to false if tables are
                       being added during page load
             selectCol: number. column to be highlighted when table is ready
+            isUndo: boolean, default is false. Set to true if this table is being
+                  created from an undo operation,
+            isRedo: boolean, default is false. Set to true if this table is being
+                  created from an undo operation,
+            position: int, used to place a table in a certain spot if not replacing
+                        an older table. Currently has to be paired with undo or
+                        redo
 
     */
     TblManager.refreshTable = function(newTableNames, tableCols, oldTableNames,
@@ -55,7 +62,16 @@ window.TblManager = (function($, TblManager) {
             "isActive"       : true,
             "tableProperties": options.tableProperties
         };
-        TblManager.setgTable(newTableName, tableCols, setOptions)
+
+        var promise;
+        if (options.isUndo || options.isRedo) {
+        // we're getting table through an undo or redo so columns are already set
+            promise = setResultSet(newTableName);
+        } else {
+            promise = TblManager.setgTable(newTableName, tableCols, setOptions);
+        }
+
+        promise
         .then(function() {
             if (focusWorkspace) {
                 focusOnWorkspace();
@@ -113,8 +129,11 @@ window.TblManager = (function($, TblManager) {
                 addTableOptions = {
                     "afterStartup": afterStartup,
                     "lockTable"   : lockTable,
-                    "selectCol"   : selectCol
+                    "selectCol"   : selectCol,
+                    "isUndo"      : options.isUndo,
+                    "isRedo"      : options.isRedo
                 };
+
                 addTable([newTableName], oldTNames, tablesToRemove,
                                     addTableOptions)
                 .then(function() {
@@ -137,7 +156,9 @@ window.TblManager = (function($, TblManager) {
             } else {
                 // append newly created table to the back, do not remove any tables
                 addTableOptions = {
-                    "afterStartup": afterStartup
+                    "afterStartup": afterStartup,
+                    "isUndo"      : options.isUndo,
+                    "isRedo"      : options.isRedo
                 };
                 addTable([newTableName], oldTableNames, [], addTableOptions)
                 .then(function() {
@@ -339,14 +360,7 @@ window.TblManager = (function($, TblManager) {
             WSManager.archiveTable(tableId, tempHide);
             TableList.moveTable(tableId);
         } else {
-            var $li = $("#activeTablesList").find('.tableInfo[data-id="' +
-                                                    tableId + '"]');
-            var $timeLine = $li.closest(".timeLine");
-
-            $li.remove();
-            if ($timeLine.find('.tableInfo').length === 0) {
-                $timeLine.remove();
-            }
+            TableList.removeTable(tableId, 'active');
         }
 
         if (gActiveTableId === tableId) {
@@ -363,6 +377,37 @@ window.TblManager = (function($, TblManager) {
         // disallow dragging if only 1 table in worksheet
         checkTableDraggable();
     };
+
+    function sendTableToOrphaned(tableId) {
+        $("#xcTableWrap-" + tableId).addClass('tableToRemove');
+        $("#rowScroller-" + tableId).addClass('rowScrollerToRemove');
+        $("#dagWrap-" + tableId).addClass('dagWrapToRemove');
+
+        TableList.removeTable(tableId);
+
+        var table = gTables[tableId];
+        table.freeResultset();
+        table.beInActive()
+             .beOrphaned()
+             .updateTimeStamp();
+
+        WSManager.removeTable(tableId);
+        Dag.makeInactive(tableId);
+
+        if (gActiveTableId === tableId) {
+            gActiveTableId = null;
+        }
+        if ($('.xcTableWrap:not(.inActive').length === 0) {
+            RowScroller.empty();
+        }
+
+        moveTableDropdownBoxes();
+        moveTableTitles();
+        moveFirstColumn();
+
+        // disallow dragging if only 1 table in worksheet
+        checkTableDraggable();
+    }
 
     TblManager.deleteTables = function(tables, tableType) {
         // XXX not tested yet!!!
@@ -569,6 +614,7 @@ window.TblManager = (function($, TblManager) {
         var table = gTables[tableId];
         var tableCols = table.tableCols;
         var order;
+        var oldOrder = [];
         var newIndex;
         var oldOrder = []; // to save the old column order
         if (direction === "reverse") {
@@ -710,11 +756,13 @@ window.TblManager = (function($, TblManager) {
 
         var $th;
         var $table = $('#xcTable-' + tableId);
+        var oldColumnWidths = [];
 
         for (var i = 0, numCols = columns.length; i < numCols; i++) {
             $th = $table.find('th.col' + (colNums[i]));
             columns[i].sizeToHeader = !sizeToHeader;
             columns[i].isHidden = false;
+            oldColumnWidths.push(columns[i].width);
 
             autosizeCol($th, {
                 "dblClick"      : true,
@@ -733,7 +781,10 @@ window.TblManager = (function($, TblManager) {
             "operation": SQLOps.ResizeTableCols,
             "tableName": table.tableName,
             "tableId"  : tableId,
-            "resizeTo" : resizeTo
+            "resizeTo" : resizeTo,
+            "columnNums": colNums,
+            "oldColumnWidths": oldColumnWidths,
+            "htmlExclude": ["columnNums", "oldColumnWidths"]
         });
     };
 
@@ -873,6 +924,10 @@ window.TblManager = (function($, TblManager) {
         lockTable: boolean, if true then this is an intermediate table that will
                    be locked throughout it's active life
         selectCol: number, column to be selected once new table is ready
+        isUndo: boolean, default is false. If true, we are adding this table
+                through an undo
+        isRedo: boolean, default is false. If true, we are adding this table
+                through a redo
 
     */
 
@@ -885,7 +940,10 @@ window.TblManager = (function($, TblManager) {
         var lockTable = options.lockTable || false;
         var selectCol = options.selectCol;
 
-        if (oldTableNames[0] == null) {
+        if (options.isUndo && options.position !== null) {
+            WSManager.replaceTable(tableId, null, null,
+                                  {position: options.position});
+        } else if (oldTableNames[0] == null) {
             WSManager.replaceTable(tableId);
         } else {
             oldId = xcHelper.getTableId(oldTableNames[0]);
@@ -898,15 +956,24 @@ window.TblManager = (function($, TblManager) {
             }
         }
 
+        if (options.isUndo) {
+            TableList.removeTable(tableId, "inactive");
+        }
+
         // WSManager.replaceTable need to know oldTable's location
         // so remove table after that
         if (tablesToRemove) {
             for (var i = 0; i < tablesToRemove.length; i++) {
                 if (gTables[tablesToRemove[i]].active) {
-                    TblManager.archiveTable(tablesToRemove[i], {
-                        "del"              : ArchiveTable.Keep,
-                        "delayTableRemoval": true
-                    });
+                    if (options.isUndo) {
+                        sendTableToOrphaned(tablesToRemove[i]);
+                    } else {
+                        TblManager.archiveTable(tablesToRemove[i], {
+                            "del"              : ArchiveTable.Keep,
+                            "delayTableRemoval": true
+                        });
+                    }
+
                 }
             }
         }
@@ -939,6 +1006,27 @@ window.TblManager = (function($, TblManager) {
             return (TblManager.parallelConstruct(tableId, tablesToRemove,
                                                  parallelOptions));
         }
+    }
+
+        // used for recreating undone tables in refreshTables
+    function setResultSet(tableName) {
+        var deferred = jQuery.Deferred();
+        var tableId = xcHelper.getTableId(tableName);
+        var table = gTables[tableId];
+
+        getResultSet(tableName)
+        .then(function(resultSet) {
+            table.updateFromResultset(resultSet);
+            table.beActive();
+            table.isOrphaned = false;
+            deferred.resolve();
+        })
+        .fail(function(error) {
+            console.error("setTableMeta Fails!", error);
+            deferred.reject(error);
+        });
+
+        return (deferred.promise());
     }
 
     function focusOnWorkspace() {
