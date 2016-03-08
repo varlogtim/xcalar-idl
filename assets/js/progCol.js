@@ -950,7 +950,7 @@ window.ColManager = (function($, ColManager) {
             var innerDeferred = jQuery.Deferred();
 
             var newTableName = tableNameRoot + Authentication.getHashId();
-            var mapStr = "genUnique(1)";
+            var mapStr = "genUnique()";
             var newColName = "orig_order_" + randNumber;
 
             var innerSql = {
