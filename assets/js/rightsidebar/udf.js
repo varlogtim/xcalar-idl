@@ -478,6 +478,10 @@ window.UDF = (function($, UDF) {
         'def splitWithDelim(txt, index, delim):\n' +
             '\treturn delim.join(txt.split(delim)[index:])\n' +
         '\n' +
+        '# get the current time\n'+
+        'def now():\n'+
+            '\treturn str(int(time.time()))\n'+
+        '\n' +
         '# used for multijoin and multiGroupby\n' +
         'def multiJoin(*arg):\n' +
             '\tstri = ""\n' +
