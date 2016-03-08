@@ -1,5 +1,5 @@
 .PHONY: all
-all: build
+all: build alert
 
 installer: build removeConfig
 
@@ -30,3 +30,8 @@ removeConfig:
 	touch prod/assets/js/config.js
 	echo "var portNumber = 9090;" > prod/assets/js/config.js
 	
+alert:
+	@echo "=== ALERT! ==="
+	@echo "If you are part of the backend team, and you do not"
+	@echo "have a custom config.js file, please RERUN with"
+	@echo "make installer"
