@@ -157,7 +157,8 @@ function dblClickResize($el, options) {
             gRescol.clicks = 0; //after action performed, reset counter
         }, gRescol.delay);
     } else {
-        $('#col-resizeCursor').remove();
+        $('#resizeCursor').remove();
+        $('body').removeClass('tooltipOff');
         $el.tooltip('destroy');
         gMouseStatus = null;
         $(document).off('mousemove.onColResize');

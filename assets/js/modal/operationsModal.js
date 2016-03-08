@@ -1652,6 +1652,8 @@ window.OperationsModal = (function($, OperationsModal) {
                 StatusBox.show(ErrorTextTStr.InvalidColName, $argInputs.eq(0));
                 return (false);
             }
+        } else {
+            colIndex = colNum;
         }
 
         var filterString = formulateFilterString(operator, args);
