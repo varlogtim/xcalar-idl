@@ -602,13 +602,14 @@ window.WKBKManager = (function($, WKBKManager) {
             // retive key from username and wkbkId
             var gInfoKey = generateKey(wkbkId, "gInfo");
             var gLogKey  = generateKey(wkbkId, "gLog");
+            var gErrKey  = generateKey(wkbkId, "gErr");
 
             if (sessionStorage.getItem("xcalar.safe") != null) {
                 wkbkId = sessionStorage.getItem("xcalar.safe");
                 console.warn("Entering in safe mode of", wkbkId);
             }
 
-            KVStore.setup(gInfoKey, gLogKey);
+            KVStore.setup(gInfoKey, gLogKey, gErrKey);
             deferred.resolve();
         })
         .fail(function(error) {
@@ -885,8 +886,10 @@ window.WKBKManager = (function($, WKBKManager) {
 
         var oldInfoKey = generateKey(srcId, "gInfo");
         var oldLogKey  = generateKey(srcId, "gLog");
+        var oldErrKey  = generateKey(srcId, "gErr");
         var newInfoKey = generateKey(newId, "gInfo");
         var newLogKey  = generateKey(newId, "gLog");
+        var newErrKey  = generateKey(newId, "gErr");
 
         // copy all info to new key
         KVStore.get(oldInfoKey, gKVScope.META)
@@ -898,6 +901,12 @@ window.WKBKManager = (function($, WKBKManager) {
         })
         .then(function(value) {
             return KVStore.put(newLogKey, value, true, gKVScope.LOG);
+        })
+        .then(function() {
+            return KVStore.get(oldErrKey, gKVScope.ERR);
+        })
+        .then(function(value) {
+            return KVStore.put(newErrKey, value, true, gKVScope.ERR);
         })
         .then(deferred.resolve)
         .fail(deferred.reject);

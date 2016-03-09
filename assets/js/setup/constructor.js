@@ -90,6 +90,24 @@ function SQLConstructor(args) {
 
     return this;
 }
+
+SQLConstructor.prototype = {
+    "isError": function() {
+        if (this.sqlType === SQLType.Error) {
+            return true;
+        } else {
+            return false;
+        }
+    },
+
+    "getOperation": function() {
+        return this.options.operation;
+    },
+
+    "getOptions": function() {
+        return this.options;
+    }
+};
 // gTables
 
 // Constructor for table meata data

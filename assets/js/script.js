@@ -144,9 +144,9 @@ window.StartManager = (function(StartManager, $) {
             } else {
                 // when it's an error from backend we cannot handle
                 var title;
-                if (error.error.indexOf('Update required') !== -1) {
+                if (error.error != null && error.error.indexOf('Update required') !== -1) {
                     title = ThriftTStr.UpdateErr;
-                } else if (error.error.indexOf('Connection') !== -1) {
+                } else if (error.error != null && error.error.indexOf('Connection') !== -1) {
                     title = ThriftTStr.CCNBEErr;
                 } else {
                     title = ThriftTStr.SetupErr;

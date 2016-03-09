@@ -4,9 +4,10 @@ window.KVStore = (function($, KVStore) {
     // apply to all places
     var KVKeys = KVKeysInfo();
 
-    KVStore.setup = function(gStorageKey, gLogKey) {
+    KVStore.setup = function(gStorageKey, gLogKey, gErrKey) {
         KVStore.gStorageKey = gStorageKey;
         KVStore.gLogKey = gLogKey;
+        KVStore.gErrKey = gErrKey;
         KVStore.commitKey = gStorageKey + "-" + "commitkey";
     };
 

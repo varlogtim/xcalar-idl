@@ -24,6 +24,7 @@ var gMinTableWidth = 30;
   "WKBK": Workbook info (XXX this should be XcalarApiKeyScopeUser, no support yet!)
   "META": all meta data need for UI (XXX this should be XcalarApiKeyScopeUser, no support yet!)
   "LOG" : SQL Log (this use append) (XXX this should be XcalarApiKeyScopeUser, no support yet!)
+  "Err" : SQL Error (this use append) (XXX this should be XcalarApiKeyScopeUser, no support yet!)
   "FLAG": special commitFlag to make sure UI have right to write (should be XcalarApiKeyScopeSession)
  */
 var gKVScope = {
@@ -32,6 +33,7 @@ var gKVScope = {
     "WKBK": XcalarApiKeyScopeT.XcalarApiKeyScopeGlobal,
     "META": XcalarApiKeyScopeT.XcalarApiKeyScopeGlobal,
     "LOG" : XcalarApiKeyScopeT.XcalarApiKeyScopeGlobal,
+    "ERR" : XcalarApiKeyScopeT.XcalarApiKeyScopeGlobal,
     "FLAG": XcalarApiKeyScopeT.XcalarApiKeyScopeSession,
     "VER" : XcalarApiKeyScopeT.XcalarApiKeyScopeGlobal
 };

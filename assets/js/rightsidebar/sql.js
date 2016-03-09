@@ -3,11 +3,17 @@ window.SQL = (function($, SQL) {
     var $textarea = $("#sql-TextArea");
     var $machineTextarea = $("#sql-MachineTextArea");
 
-    var logs = [];
+    var sqlCache;
+    var logCursor = -1;
     var sqlToCommit = "";
+    var errToCommit = "";
+    var logs;
+    var errors;
+    var isUndoRedo; // mark if it's in a undo redo action
 
     // constant
     var sqlLocalStoreKey = "xcalar-query";
+    var sqlRestoreError = "restore sql error";
 
     SQL.setup = function() {
         // show human readabl SQL as default
@@ -41,7 +47,7 @@ window.SQL = (function($, SQL) {
                                 "human and android cannot coexist!");
                 xcHelper.assert($textarea.is(":visible"),
                                 "At least one bar should be showing");
-                value = JSON.stringify(SQL.getLogs());
+                value = JSON.stringify(SQL.getAllLogs());
             }
 
             $hiddenInput.val(value).select();
@@ -57,19 +63,23 @@ window.SQL = (function($, SQL) {
             return;
         }
 
+        if (isUndoRedo) {
+            console.info("In undo redo, do not add sql");
+            return;
+        }
+
         var sql = new SQLConstructor({
             "title"  : title,
             "options": options,
             "cli"    : cli
         });
 
-        logs.push(sql);
+        addLog(sql);
 
         sqlToCommit += JSON.stringify(sql) + ",";
 
         // XXX FIXME: uncomment it if commit on errorLog only has bug
         // localCommit();
-        showSQL(sql);
         SQL.scrollToBottom();
     };
 
@@ -81,24 +91,20 @@ window.SQL = (function($, SQL) {
             "error"     : error,
             "revertable": false
         });
-        logs.push(sql);
+        errors.push(sql);
 
-        sqlToCommit += JSON.stringify(sql) + ",";
+        errToCommit += JSON.stringify(sql) + ",";
         localCommit();
     };
 
     SQL.commit = function() {
         var deferred = jQuery.Deferred();
-        if (sqlToCommit === "") {
-            deferred.resolve();
-            return (deferred.promise());
-        }
 
-        KVStore.append(KVStore.gLogKey, sqlToCommit, true, gKVScope.LOG)
+        commitLogs()
         .then(function() {
-            sqlToCommit = "";
-            deferred.resolve();
+            return commitErrors();
         })
+        .then(deferred.resolve)
         .fail(deferred.reject);
 
         return (deferred.promise());
@@ -108,14 +114,173 @@ window.SQL = (function($, SQL) {
         return logs;
     };
 
+    SQL.getErrorLogs = function() {
+        return errors;
+    };
+
+    SQL.getAllLogs = function() {
+        return sqlCache;
+    };
+
     SQL.getLocalStorage = function() {
         return localStorage.getItem(sqlLocalStoreKey);
     };
 
     SQL.restore = function() {
         var deferred = jQuery.Deferred();
+
+        initialize();
+
+        restoreLogs()
+        .then(function() {
+            return restoreErrors();
+        })
+        .then(function() {
+            // XXX FIXME change back to localCommit() if it's buggy
+            resetLoclStore();
+            deferred.resolve();
+        })
+        .fail(function(error) {
+            if (error === sqlRestoreError) {
+                SQL.clear();
+                deferred.resolve();
+            } else {
+                deferred.reject(error);
+            }
+        });
+
+        return (deferred.promise());
+    };
+
+    SQL.clear = function() {
+        $textarea.html("");
+        $machineTextarea.html("");
+        initialize();
+    };
+
+    SQL.scrollToBottom = function() {
+        xcHelper.scrollToBottom($textarea);
+        xcHelper.scrollToBottom($machineTextarea);
+    };
+
+    SQL.undo = function(step) {
+        if (step == null) {
+            step = 1;
+        }
+
+        var logLen = logs.length;
+        var c = logCursor;
+        for (var i = 0; i < step; i++) {
+            if (c < 0) {
+                // cannot undo anymore
+                break;
+            }
+
+            var sql = logs[c];
+            if (!isValidToUndo(sql)) {
+                // the operation cannot undo
+                break;
+            }
+            undoLog(sql);
+            if (logs.length !== logLen) {
+                // XXX debug use
+                console.error("log lenght should not change during undo!");
+            }
+            c--;
+        }
+
+        // cursor in the current position
+        logCursor = c;
+        updateLogPanel(logCursor);
+    };
+
+    SQL.redo = function(step) {
+        if (step == null) {
+            step = 1;
+        }
+
+        var logLen = logs.length;
+        var c = logCursor + 1;
+        for (var i = 0; i < step; i++) {
+            if (c >= logLen) {
+                // cannot redo anymore
+                break;
+            }
+
+            var sql = logs[c];
+            if (!isValidToUndo(sql)) {
+                console.error("Should not have unrevertable opeartion in redo!");
+                break;
+            }
+
+            redoLog(sql);
+            if (logs.length !== logLen) {
+                // XXX debug use
+                console.error("log lenght should not change during undo!");
+            }
+            c++;
+        }
+
+        // cursor in the current position
+        logCursor = c - 1;
+        updateLogPanel(logCursor);
+    };
+
+    function initialize() {
+        logCursor = -1;
+        sqlToCommit = "";
+        errToCommit = "";
+        sqlCache = {
+            "logs"  : [],
+            "errors": []
+        };
+
+        // a quick reference
+        logs = sqlCache.logs;
+        errors = sqlCache.errors;
+
+        isUndoRedo = false;
+    }
+
+    function commitLogs() {
+        if (sqlToCommit === "") {
+            return jQuery.Deferred().resolve().promise();
+        }
+
+        var deferred = jQuery.Deferred();
+
+        KVStore.append(KVStore.gLogKey, sqlToCommit, true, gKVScope.LOG)
+        .then(function() {
+            sqlToCommit = "";
+            deferred.resolve();
+        })
+        .fail(deferred.reject);
+
+        return (deferred.promise());
+    }
+
+    function commitErrors() {
+        if (errToCommit === "") {
+            return jQuery.Deferred().resolve().promise();
+        }
+
+        var deferred = jQuery.Deferred();
+
+        KVStore.append(KVStore.gErrKey, errToCommit, true, gKVScope.ERR)
+        .then(function() {
+            errToCommit = "";
+            deferred.resolve();
+        })
+        .fail(deferred.reject);
+
+        return (deferred.promise());
+    }
+
+    function restoreLogs() {
+        var deferred = jQuery.Deferred();
         var oldLogs = [];
 
+        // restore log
         KVStore.get(KVStore.gLogKey, gKVScope.LOG)
         .then(function(value) {
             if (value != null) {
@@ -127,51 +292,242 @@ window.SQL = (function($, SQL) {
                     var sqlStr = "[" + value + "]";
                     oldLogs = JSON.parse(sqlStr);
                 } catch(err) {
-                    deferred.reject(err);
+                    console.error("restore logs failed!", err);
+                    deferred.reject(sqlRestoreError);
                 }
             }
         })
         .then(function() {
             oldLogs.forEach(function(oldSQL) {
                 var sql = new SQLConstructor(oldSQL);
-                logs.push(sql);
-                showSQL(sql);
+                addLog(sql);
             });
 
-            // XXX FIXME change back to localCommit() if it's buggy
-            resetLoclStore();
             deferred.resolve();
         })
         .fail(deferred.reject);
 
         return (deferred.promise());
-    };
+    }
 
-    SQL.clear = function() {
-        $textarea.html("");
-        $machineTextarea.html("");
-        logs = [];
-    };
+    function restoreErrors() {
+        var deferred = jQuery.Deferred();
+        var oldErrors = [];
 
-    SQL.scrollToBottom = function() {
-        xcHelper.scrollToBottom($textarea);
-        xcHelper.scrollToBottom($machineTextarea);
-    };
+        // restore log
+        KVStore.get(KVStore.gErrKey, gKVScope.ERR)
+        .then(function(value) {
+            if (value != null) {
+                try {
+                    var len = value.length;
+                    if (value.charAt(len - 1) === ",") {
+                        value = value.substring(0, len - 1);
+                    }
+                    var errStr = "[" + value + "]";
+                    oldErrors = JSON.parse(errStr);
+                } catch(err) {
+                    console.error("restore error logs failed!", err);
+                    deferred.reject(sqlRestoreError);
+                }
+            } else {
+                // because if always has no error,
+                // console log will keep showing "key not found" warning
+                KVStore.put(KVStore.gErrKey, "", true, gKVScope.ERR);
+            }
+        })
+        .then(function() {
+            oldErrors.forEach(function(oldErr) {
+                var errorLog = new SQLConstructor(oldErr);
+                errors.push(errorLog);
+            });
+
+            deferred.resolve();
+        })
+        .fail(deferred.reject);
+
+        return (deferred.promise());
+    }
+
+    function addLog(sql) {
+        // normal log
+        var logLen = logs.length;
+        if (logCursor !== logLen - 1) {
+            // when user do a undo before
+            console.info("Previous redo ops will be removed");
+
+            logCursor++;
+            logs[logCursor] = sql;
+            logs.length = logCursor + 1;
+
+            localCommit();
+
+            var logStr = JSON.stringify(logs);
+            // strip "[" and "]" and add comma
+            logStr = logStr.substring(1, logStr.length - 1) + ",";
+            KVStore.put(KVStore.gLogKey, logStr, true, gKVScope.LOG)
+            .then(function() {
+                sqlToCommit = "";
+                localCommit();
+
+                // should also keep all meta in sync
+                return KVStore.commit();
+            })
+            .then(function() {
+                // XXX test
+                console.info("Overwrite sql log");
+            })
+            .fail(function(error) {
+                console.error("Overwrite Sql fails!", error);
+            });
+        } else {
+            logCursor++;
+            logs[logCursor] = sql;
+        }
+
+        showSQL(sql, logCursor);
+    }
+
+    function isValidToUndo(sql) {
+        var operation = sql.getOperation();
+        if (operation == null) {
+            console.error("Invalid sql!");
+            return false;
+        }
+
+        switch (operation) {
+            case SQLOps.DSLoad:
+            case SQLOps.IndexDS:
+            case SQLOps.PreviewDS:
+            case SQLOps.DestroyPreviewDS:
+            case SQLOps.RenameOrphanTable:
+            case SQLOps.AddDS:
+            case SQLOps.DestroyDS:
+            case SQLOps.ExportTable:
+            case SQLOps.DeleteTable:
+            case SQLOps.CreateFolder:
+            case SQLOps.DSRename:
+            case SQLOps.SDropIn:
+            case SQLOps.DSInsert:
+            case SQLOps.DSToDir:
+            case SQLOps.DSDropBack:
+            case SQLOps.DelFolder:
+            case SQLOps.Profile:
+            case SQLOps.ProfileSort:
+            case SQLOps.ProfileBucketing:
+            case SQLOps.QuickAgg:
+            case SQLOps.Corr:
+                return false;
+            default:
+                return true;
+
+        }
+    }
+
+    function undoLog(sql) {
+        console.log("undo", sql);
+        xcHelper.assert((sql != null), "invalid sql");
+        isUndoRedo = true;
+        // action here
+
+        // XXX test
+        var options = sql.getOptions();
+        var operation = sql.getOperation();
+        if (operation === SQLOps.UnHideCols) {
+            ColManager.hideCols(options.colNums, options.tableId);
+        } else if (operation === SQLOps.HideCols) {
+            ColManager.unhideCols(options.colNums, options.tableId, {
+                "autoResize": true
+            });
+        }
+
+        isUndoRedo = false;
+    }
+
+    function redoLog(sql) {
+        console.log("redo", sql);
+        xcHelper.assert((sql != null), "invalid sql");
+        isUndoRedo = true;
+        // action here
+
+        // XXX test
+        var options = sql.getOptions();
+        var operation = sql.getOperation();
+        if (operation === SQLOps.UnHideCols) {
+            ColManager.unhideCols(options.colNums, options.tableId, options.hideOptions);
+        } else if (operation === SQLOps.HideCols) {
+            ColManager.hideCols(options.colNums, options.tableId);
+        }
+        isUndoRedo = false;
+    }
+
+    function updateLogPanel(cursor) {
+        // the idea is: we use an id the mark the sql and cli,
+        // so all sqls/clis before logCurosor's position should show
+        // others should hide
+        var $sqls = $($textarea.find(".sqlContentWrap").get().reverse());
+        $sqls.show();
+        $sqls.each(function() {
+            var $sql = $(this);
+            var sqlId = $sql.data("sql");
+            if (sqlId > cursor) {
+                $sql.hide();
+            } else {
+                return false; // stop loop
+            }
+        });
+
+        var $clis = $($machineTextarea.find(".cliWrap").get().reverse());
+        $clis.show();
+        $clis.each(function() {
+            var $cli = $(this);
+            var cliId = $cli.data("cli");
+            if (cliId > cursor) {
+                $cli.hide();
+            } else {
+                return false; // stop loop
+            }
+        });
+
+        SQL.scrollToBottom();
+    }
 
     function resetLoclStore() {
         localStorage.removeItem(sqlLocalStoreKey);
     }
 
     function localCommit() {
-        localStorage.setItem(sqlLocalStoreKey, JSON.stringify(logs));
+        localStorage.setItem(sqlLocalStoreKey, JSON.stringify(sqlCache));
     }
 
-    function showSQL(sql) {
-        $textarea.append(getCliHTML(sql));
-        $machineTextarea.append(getCliMachine(sql));
+    function showSQL(sql, cursor) {
+        // some sql is overwritten because of undo and redo, should remove them
+        var $sqls = $($textarea.find(".sqlContentWrap").get().reverse());
+        $sqls.each(function() {
+            var $sql = $(this);
+            var sqlId = $sql.data("sql");
+            if (sqlId > cursor) {
+                $sql.remove();
+            } else {
+                return false; // stop loop
+            }
+        });
+
+        var $clis = $($machineTextarea.find(".cliWrap").get().reverse());
+        $clis.each(function() {
+            var $cli = $(this);
+            var cliId = $cli.data("cli");
+            if (cliId > cursor) {
+                $cli.remove();
+            } else {
+                return false; // stop loop
+            }
+        });
+
+        $textarea.append(getCliHTML(sql, logCursor));
+        $machineTextarea.append(getCliMachine(sql, logCursor));
     }
 
-    function getCliHTML(sql) {
+    function getCliHTML(sql, id) {
         var options = sql.options;
         if (sql.sqlType === SQLType.Error) {
             return ("");
@@ -180,9 +536,9 @@ window.SQL = (function($, SQL) {
         var opsToExclude = options.htmlExclude || []; // array of keys to
         // exclude from HTML
 
-        var html =  '<div class="sqlContentWrap">' +
-                        '<div class="title"> >>' + sql.title + ':</div>' +
-                        '<div class="content">{';
+        var html = '<div class="sqlContentWrap" data-sql=' + id + '>' +
+                    '<div class="title"> >>' + sql.title + ':</div>' +
+                    '<div class="content">{';
         var count = 0;
 
         for (var key in options) {
@@ -211,7 +567,7 @@ window.SQL = (function($, SQL) {
         return (html);
     }
 
-    function getCliMachine(sql) {
+    function getCliMachine(sql, id) {
         var options = sql.options;
         var string = "";
         // Here's the real code
@@ -318,7 +674,9 @@ window.SQL = (function($, SQL) {
             case (SQLOps.Profile):
             case (SQLOps.ProfileSort):
             case (SQLOps.ProfileBucketing):
-                string += sql.cli;
+                string += '<span class="cliWrap" data-cli=' + id + '>' +
+                            sql.cli +
+                          '</span>';
                 break;
             default:
                 console.warn("XXX! Operation unexpected", options.operation);

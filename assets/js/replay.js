@@ -13,7 +13,19 @@ window.Replay = (function($, Replay) {
 
     Replay.run = function(sqls) {
         var deferred = jQuery.Deferred();
-        if (!(sqls instanceof Array)) {
+        var isArray = (sqls instanceof Array);
+
+        if (typeof sqls === "object" && !isArray) {
+            // when pass in the whole sqls (logs + errors)
+            if (sqls.hasOwnProperty("logs")) {
+                sqls = sqls.logs;
+            } else {
+                alert("Cannot replay the arg passed in");
+                deferred.reject("Cannot replay the arg passed in");
+                return (deferred.promise());
+            }
+        } else if (!isArray) {
+            // when pass in logs array
             alert("Wrong Type of args");
             deferred.reject("Wrong Type of args");
             return (deferred.promise());

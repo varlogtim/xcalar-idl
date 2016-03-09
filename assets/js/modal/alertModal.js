@@ -216,25 +216,21 @@ window.Alert = (function($, Alert){
                 $(this).blur();
                 var $hiddenInput = $("<input>");
                 $("body").append($hiddenInput);
-                var logText = "";
-                // logText += "Error: " + $('#alertHeader').find('.text')
-                //                                         .text() + ", ";
-                // logText += "Description: " + $('#alertContent').find('.text')
-                //                                                .text();
-                var sqlLogs = SQL.getLogs();
+
+                var sqlCaches = SQL.getAllLogs();
                 var sql;
-                if (sqlLogs.length === 0) {
+                if (sqlCaches.logs.length === 0 &&
+                    sqlCaches.erros.length === 0)
+                {
                     sql = SQL.getLocalStorage();
+                    if (sql == null) {
+                        sql = "";
+                    }
                 } else {
-                    sql = JSON.stringify(sqlLogs);
+                    sql = JSON.stringify(sqlCaches);
                 }
 
-                if (sql !== "[]") {
-                    // logText += ", SQL: " + sql;
-                    logText = sql;
-                }
-
-                $hiddenInput.val(logText).select();
+                $hiddenInput.val(sql).select();
                 document.execCommand("copy");
                 $hiddenInput.remove();
                 xcHelper.showSuccess();
