@@ -48,6 +48,7 @@ window.Alert = (function($, Alert){
             cancel:  callback to trigger when click cancel button
             lockScreen: if screen should be frozen
             noAnimate: boolean, if true then remove fade in animation
+            focusOnConfirm: boolean, if true then set focus on confirm button
         */
         if ($alertModal.hasClass('locked')) {
             // this handle the case that some modal failure handler
@@ -87,6 +88,9 @@ window.Alert = (function($, Alert){
             $modalBackground.show();
             $alertModal.show();
             Tips.refresh();
+            if (options.focusOnConfirm) {
+                $btnSection.find(".confirm").focus();
+            }
         } else {
             // alert should be fast, so the fade time
             // is different from other Modal,
@@ -94,6 +98,9 @@ window.Alert = (function($, Alert){
             $modalBackground.fadeIn(180, function() {
                 $alertModal.fadeIn(100);
                 Tips.refresh();
+                if (options.focusOnConfirm) {
+                    $btnSection.find(".confirm").focus();
+                }
             });
         }
     };

@@ -141,7 +141,7 @@ window.UDF = (function($, UDF) {
         // panel needs to be active to set editor value to udf default
         $('#udfSection').addClass('active');
         editor.refresh();
-        
+
         if (!wasActive) { // only remove active class if it didnt start active
             $('#udfSection').removeClass('active');
         }
@@ -267,6 +267,7 @@ window.UDF = (function($, UDF) {
         $fnName.keypress(function(event) {
             if (event.which === keyCode.Enter) {
                 $('#udf-fnUpload').click();
+                $(this).blur();
             }
         });
 
@@ -346,7 +347,8 @@ window.UDF = (function($, UDF) {
                     "msg"       : msg,
                     "isCheckBox": false,
                     "confirm"   : function() { uploadHelper(); },
-                    "cancel"    : function() { deferred.resolve(); }
+                    "cancel"    : function() { deferred.resolve(); },
+                    "focusOnConfirm": true
             });
         } else {
             uploadHelper();
@@ -391,7 +393,8 @@ window.UDF = (function($, UDF) {
                 "isCheckBox": false,
                 "confirm"   : function() {
                     $("#udfBtn").parent().click();
-                }
+                },
+                "focusOnConfirm": true
             });
         }
 
