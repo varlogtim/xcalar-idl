@@ -124,109 +124,9 @@ window.WorkbookModal = (function($, WorkbookModal) {
 
         // click confirm button
         $workbookModal.on("click", ".confirm", function(event) {
-            var $btn = $(this);
-            var isValid;
-            var workbookName = $workbookInput.val().trim();
-
+            var $btn = $(this).blur();
             event.stopPropagation();
-            // Validation check
-            // new workbook and copy workbook must have new workbook name
-            // and should not have duplicate name
-            if (activeActionNo !== 1) {
-                var err1 = xcHelper.replaceMsg(ErrWRepTStr.WKBKConflict, {
-                    "name": workbookName
-                });
-                isValid = xcHelper.validate([
-                    {
-                        "$selector": $workbookInput,
-                        "formMode" : true
-                    },
-                    {
-                        "$selector": $workbookInput,
-                        "formMode" : true,
-                        "text"     : err1,
-                        "check"    : function() {
-                            var workbooks = WKBKManager.getWKBKS();
-                            for (var wkbkId in workbooks) {
-                                if (workbooks[wkbkId].name === workbookName) {
-                                    return true;
-                                }
-                            }
-                            return false;
-                        }
-                    }
-                ]);
-
-                if (!isValid) {
-                    return;
-                }
-            }
-
-            // continue workbook and copy workbook must select one wkbk
-            if (activeActionNo !== 0) {
-                isValid = xcHelper.validate({
-                    "$selector": $btn,
-                    "text"     : ErrTStr.NoWKBKSelect,
-                    "check"    : function() {
-                        return ($workbookLists.find(".active").length === 0);
-                    }
-                });
-
-                if (!isValid) {
-                    return;
-                }
-            }
-
-            $workbookInput.blur();
-
-            if (activeActionNo === 0) {
-                // create new workbook part
-                modalHelper.submit();
-                goWaiting();
-
-                WKBKManager.newWKBK(workbookName)
-                .then(function(id) {
-                    WKBKManager.switchWKBK(id, modalHelper);
-                })
-                .fail(function(error) {
-                    StatusBox.show(error.error, $workbookInput);
-                    cancelWaiting();
-                })
-                .always(function() {
-                    modalHelper.enableSubmit();
-                });
-                return;
-            }
-
-            var workbookId = $workbookLists.find(".active").data("wkbkid");
-
-            if (activeActionNo === 1) {
-                // continue workbook part
-                goWaiting();
-
-                WKBKManager.switchWKBK(workbookId);
-
-                return;
-            }
-
-            if (activeActionNo === 2) {
-                // copy workbook part
-                modalHelper.submit();
-                goWaiting(true);
-
-                WKBKManager.copyWKBK(workbookId, workbookName)
-                .then(function(id) {
-                    WKBKManager.switchWKBK(id);
-                })
-                .fail(function(error) {
-                    StatusBox.show(error.error, $workbookInput);
-                })
-                .always(function() {
-                    modalHelper.enableSubmit();
-                });
-
-                return;
-            }
+            workbookAction($btn);
         });
 
         // click title to srot
@@ -411,6 +311,116 @@ window.WorkbookModal = (function($, WorkbookModal) {
         });
 
         $workbookLists.html(html);
+    }
+
+    function workbookAction($btn) {
+        modalHelper.submit();
+
+        Support.commitCheck()
+        .then(function() {
+            var isValid;
+            var workbookName = $workbookInput.val().trim();
+
+            // Validation check
+            // new workbook and copy workbook must have new workbook name
+            // and should not have duplicate name
+            if (activeActionNo !== 1) {
+                var err1 = xcHelper.replaceMsg(ErrWRepTStr.WKBKConflict, {
+                    "name": workbookName
+                });
+                isValid = xcHelper.validate([
+                    {
+                        "$selector": $workbookInput,
+                        "formMode" : true
+                    },
+                    {
+                        "$selector": $workbookInput,
+                        "formMode" : true,
+                        "text"     : err1,
+                        "check"    : function() {
+                            var workbooks = WKBKManager.getWKBKS();
+                            for (var wkbkId in workbooks) {
+                                if (workbooks[wkbkId].name === workbookName) {
+                                    return true;
+                                }
+                            }
+                            return false;
+                        }
+                    }
+                ]);
+
+                if (!isValid) {
+                    return;
+                }
+            }
+
+            // continue workbook and copy workbook must select one wkbk
+            if (activeActionNo !== 0) {
+                isValid = xcHelper.validate({
+                    "$selector": $btn,
+                    "text"     : ErrTStr.NoWKBKSelect,
+                    "check"    : function() {
+                        return ($workbookLists.find(".active").length === 0);
+                    }
+                });
+
+                if (!isValid) {
+                    return;
+                }
+            }
+
+            $workbookInput.blur();
+
+            if (activeActionNo === 0) {
+                // create new workbook part
+                goWaiting();
+
+                WKBKManager.newWKBK(workbookName)
+                .then(function(id) {
+                    WKBKManager.switchWKBK(id, modalHelper);
+                })
+                .fail(function(error) {
+                    if ($workbookModal.is(":visible")) {
+                        // if error is commit key not match,
+                        // then now show it
+                        StatusBox.show(error.error, $workbookInput);
+                    }
+                    cancelWaiting();
+                })
+                .always(function() {
+                    modalHelper.enableSubmit();
+                });
+                return;
+            }
+
+            var workbookId = $workbookLists.find(".active").data("wkbkid");
+
+            if (activeActionNo === 1) {
+                // continue workbook part
+                goWaiting();
+                WKBKManager.switchWKBK(workbookId);
+
+                return;
+            }
+
+            if (activeActionNo === 2) {
+                // copy workbook part
+                goWaiting(true);
+
+                WKBKManager.copyWKBK(workbookId, workbookName)
+                .then(function(id) {
+                    WKBKManager.switchWKBK(id);
+                })
+                .fail(function(error) {
+                    StatusBox.show(error.error, $workbookInput);
+                });
+
+                return;
+            }
+        })
+        .always(function() {
+            modalHelper.enableSubmit();
+        });
     }
 
     function sortObj(objs, key, isNum) {

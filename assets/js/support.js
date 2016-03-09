@@ -63,6 +63,7 @@ window.Support = (function(Support, $) {
             XcalarKeyLookup(KVStore.commitKey, gKVScope.FLAG)
             .then(function(val) {
                 if (val == null || val.value !== commitFlag) {
+                    commitMismatchHandler();
                     deferred.reject(commitCheckError);
                 } else {
                     deferred.resolve();
@@ -70,6 +71,7 @@ window.Support = (function(Support, $) {
             })
             .fail(function(error) {
                 if (error.status === StatusT.StatusSessionNotFound) {
+                    commitMismatchHandler();
                     deferred.reject(commitCheckError);
                 } else {
                     deferred.reject(error);
@@ -97,17 +99,6 @@ window.Support = (function(Support, $) {
             })
             .fail(function(error) {
                 console.error(error);
-                if (error === commitCheckError) {
-                    clearInterval(commitCheckTimer);
-                    // this browser tab does not hold any more
-                    sessionStorage.removeItem(username);
-                    Alert.show({
-                        "title"     : WKBKTStr.Expire,
-                        "msg"       : WKBKTStr.ExpireMsg,
-                        "lockScreen": true,
-                        "logout"    : true
-                    });
-                }
             });
 
         }, commitCheckInterval);
@@ -169,6 +160,24 @@ window.Support = (function(Support, $) {
 
             return (innerDeferred.promise());
         }
+    }
+
+    function commitMismatchHandler() {
+        Support.stopHeartbeatCheck();
+
+        // hide all modal
+        $(".modalContainer").hide();
+        // this browser tab does not hold any more
+        sessionStorage.removeItem(username);
+        // user should force to logout
+        sessionStorage.removeItem("xcalar-username");
+
+        Alert.show({
+            "title"     : WKBKTStr.Expire,
+            "msg"       : WKBKTStr.ExpireMsg,
+            "lockScreen": true,
+            "logout"    : true
+        });
     }
 
     function randCommitFlag() {
