@@ -61,6 +61,7 @@ window.TblManager = (function($, TblManager) {
                 focusOnWorkspace();
             }
             var addTableOptions;
+            var oldTNames = [];
 
             if (numOldTables) {
                 // there are old tables we will replace
@@ -75,6 +76,7 @@ window.TblManager = (function($, TblManager) {
                 if (numOldTables < 2) {
                     // only have one table to remove
                     targetTable = oldTableNames[0];
+                    oldTNames = [targetTable];
                 } else {
                     // find the first table in the worksheet,
                     // that is the target worksheet
@@ -83,17 +85,18 @@ window.TblManager = (function($, TblManager) {
                         var index = oldTableIds.indexOf(wsTables[i]);
                         if (index >= 0) {
                             targetTable = oldTableNames[index];
+                            oldTNames = [targetTable];
+                            break;
                         }
-
-                        break;
                     }
 
                     if (targetTable == null) {
-                        // Actually we should not go to this part
-                        // since we always get worksheet from one of old tables
-                        // if it's really goes here, then replace with first one
-                        console.error("Not Find Target Table!");
-                        targetTable = oldTableNames[0];
+                        // If we're here, we could not find a table in the
+                        // active worksheet to be replaced so the new table
+                        // will eventually just be appended to the active worksheet
+                        // The old tables will still be removed;
+                        console.warn("Current WS has no tables to replace");
+                        // oldTNames will remain an empty array
                     }
                 }
 
@@ -112,7 +115,7 @@ window.TblManager = (function($, TblManager) {
                     "lockTable"   : lockTable,
                     "selectCol"   : selectCol
                 };
-                addTable([newTableName], [targetTable], tablesToRemove,
+                addTable([newTableName], oldTNames, tablesToRemove,
                                     addTableOptions)
                 .then(function() {
                     // highlight the table if no other tables in WS are selected
