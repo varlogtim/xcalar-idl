@@ -31,7 +31,7 @@ window.DagPanel = (function($, DagPanel) {
             if (!$workspacePanel.hasClass('active')) {
                 wasOnWorksheetPanel = false;
             }
-            
+
             if ($dagPanel.hasClass('hidden')) {
                 // open dag panel
                 $dagPanel.removeClass('invisible');
@@ -56,7 +56,7 @@ window.DagPanel = (function($, DagPanel) {
                         clickDisabled = false;
                     }, 350);
                 }, 0);
-                
+
             } else if (wasOnWorksheetPanel) {
                 // hide dag panel
                 closePanel($compSwitch);
@@ -161,10 +161,10 @@ window.DagPanel = (function($, DagPanel) {
                 }
                 return (style.replace(/top[^;]+;?/g, ''));
             });
-            
+
             clickDisabled = false;
             $dagPanel.addClass('invisible');
-        }, 400);    
+        }, 400);
     }
 
     function setDagTranslate(pct) {
@@ -182,7 +182,7 @@ window.DagPanel = (function($, DagPanel) {
         var $menu = $dagPanel.find('.dagTableDropDown');
         addMenuBehaviors($menu);
         dagTableDropDownActions($menu);
-        
+
         var selection = '.dagTable:not(.dataStore) .dagTableIcon,' +
                         '.dagTable:not(.dataStore) .icon,' +
                         '.dagTable:not(.dataStore) .tableTitle';
@@ -353,7 +353,7 @@ window.DagPanel = (function($, DagPanel) {
     function positionAndShowRightClickDropdown(e, $menu) {
         var topMargin = 3;
         var leftMargin = 7;
-        
+
         var top = e.pageY + topMargin;
         var left = e.pageX + leftMargin;
 
@@ -488,13 +488,13 @@ window.DagPanel = (function($, DagPanel) {
             var tableId = $menu.data('tableId');
             var wsId    = $menu.data('ws');
             $('#worksheetTab-' + wsId).click();
-            
+
             if ($dagPanel.hasClass('full')) {
                 $('#dagPulloutTab').click();
             }
             var $tableWrap = $('#xcTableWrap-' + tableId);
             xcHelper.centerFocusedTable($tableWrap);
-           
+
             $tableWrap.mousedown();
             moveFirstColumn();
         });
@@ -582,7 +582,7 @@ window.DagPanel = (function($, DagPanel) {
             }
         });
     }
-             
+
     return (DagPanel);
 
 }(jQuery, {}));
@@ -609,7 +609,7 @@ window.Dag = (function($, Dag) {
             if (!isDagPanelVisible) {
                 $('#dagPanel').removeClass('invisible');
             }
-            
+
             var outerDag =
                 '<div class="dagWrap clearfix" id="dagWrap-' +
                     tableId + '" data-id="' + tableId + '">' +
@@ -647,15 +647,15 @@ window.Dag = (function($, Dag) {
                 }
             }
 
-            var $dagWrap = $('#dagWrap-' + tableId);   
+            var $dagWrap = $('#dagWrap-' + tableId);
             Dag.createDagImage(dagObj.node, $dagWrap, {savable: true});
-            
+
             Dag.focusDagForActiveTable(tableId);
             addDagEventListeners($dagWrap);
             if (!dagAdded) {
                 preventUnintendedScrolling();
             }
-            
+
             dagAdded = true;
             var activeWS = WSManager.getActiveWS();
             var tableWS = WSManager.getWSFromTable(tableId);
@@ -694,14 +694,14 @@ window.Dag = (function($, Dag) {
         for (var i = 0; i < nodeArray.length; i++) {
             x += nodeArray[i].name.name + " ";
         }
-       
+
         var dagImageHtml = drawDagNode(node, prop, nodeArray, index,
                                        parentChildMap, children);
         dagImageHtml = '<div class="dagImageWrap"><div class="dagImage">' +
                             dagImageHtml + '</div></div>';
         $container.append(dagImageHtml);
-        
-        var $dagImage = $container.find('.dagImage');  
+
+        var $dagImage = $container.find('.dagImage');
         var canvasClone = createCanvas($container);
         var ctxClone = canvasClone.getContext('2d');
         ctxClone.strokeStyle = '#999999';
@@ -711,7 +711,7 @@ window.Dag = (function($, Dag) {
                     var el = $(this);
                     drawDagLines(el, ctxClone);
                 });
-        
+
         if (options.savable) {
             var fullCanvas = true;
             var canvas = createCanvas($container, fullCanvas);
@@ -731,7 +731,7 @@ window.Dag = (function($, Dag) {
                 drawDagTableToCanvas($dagTable, ctx, top, left);
             }
         });
-        
+
         $dagImage.find('.actionType').each(function() {
             var $actionType = $(this);
             var top = Math.floor($actionType.position().top) + 4;
@@ -791,12 +791,13 @@ window.Dag = (function($, Dag) {
         var $dags;
         if (nameProvided) {
             tableName = tableId;
-            $dags = $('.dagTable[data-tableName=' + tableName + ']');
+            $dags = $dagPanel.find('.dagTable[data-tableName="' +
+                                   tableName + '"]');
         } else {
             tableName = gTables[tableId].tableName;
-            $dags = $('.dagTable[data-id=' + tableId + ']');
+            $dags = $dagPanel.find('.dagTable[data-id="' + tableId + '"]');
         }
-        
+
         $dags.removeClass('Ready')
              .addClass('Dropped');
         $dags.find('.icon').attr({
@@ -837,13 +838,13 @@ window.Dag = (function($, Dag) {
 
             var scrollTop = $dagPanel.find('.dagArea').scrollTop();
             var dagTop = $dagWrap.position().top;
-            
+
             if (dagTop - 95 + $dagPanel.scrollTop() === 0) {
                 $dagPanel.scrollTop(0);
             } else {
                 $dagPanel.find('.dagArea').scrollTop(scrollTop + dagTop - 16);
             }
-        }     
+        }
     };
 
     function drawSavableCanvasBackground(canvas, ctx, $dagWrap, canvasClone) {
@@ -852,7 +853,7 @@ window.Dag = (function($, Dag) {
         img.onload = function() {
             var ptrn = ctx.createPattern(img, 'repeat');
             ctx.fillStyle = ptrn;
-            ctx.fillRect(0, 0, canvas.width, canvas.height);  
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
             ctx.drawImage(canvasClone, 0, 50);
             ctx.save();
             var tableTitleText = $dagWrap.find('.tableTitleArea')
@@ -887,7 +888,7 @@ window.Dag = (function($, Dag) {
             // tableImage = tableIconImage;
             tableImage.src = paths.dTable;
         }
-        
+
         tableImage.onload = function() {
             ctx.drawImage(tableImage, iconLeft, iconTop);
 
@@ -896,7 +897,7 @@ window.Dag = (function($, Dag) {
             var x = left - 45;
             var y = top + 38;
             var text = $dagTable.find('.tableTitle').text();
-    
+
             ctx.save();
             ctx.beginPath();
             ctx.rect(x, y, 130, 26);
@@ -918,7 +919,7 @@ window.Dag = (function($, Dag) {
                                .replace(/"/g, '');
         var rectImage = new Image();
         rectImage.src = paths.roundedRect;
-        
+
         rectImage.onload = function() {
             ctx.drawImage(rectImage, left + 20, top);
 
@@ -971,7 +972,7 @@ window.Dag = (function($, Dag) {
         var dagHeight = $dagWrap.height();
         var dagAreaHeight = $dagArea.height();
         var dagTop = $dagWrap.position().top;
-       
+
         if (dagTop - 30 > dagAreaHeight || dagTop + dagHeight < 50) {
             return (false);
         }
@@ -999,7 +1000,7 @@ window.Dag = (function($, Dag) {
     }
 
     function addDagEventListeners($dagWrap) {
-      
+
         $dagWrap.on('mouseenter', '.dagTable.Ready', function() {
             var $dagTable = $(this);
             var timer = setTimeout(function(){
@@ -1013,7 +1014,7 @@ window.Dag = (function($, Dag) {
                                 showDagSchema($dagTable);
                                 scrollPosition = $('.dagArea').scrollTop();
                             }
-                            
+
                         }, 100);
             $dagTable.data('hover', timer);
         });
@@ -1044,7 +1045,7 @@ window.Dag = (function($, Dag) {
             tableName = table.tableName;
             numCols = table.tableCols.length;
         }
-      
+
         var html = '<div id="dagSchema">' +
                     '<div class="title">' +
                         '<span class="tableName">' +
@@ -1061,7 +1062,7 @@ window.Dag = (function($, Dag) {
                         '<div class="sample"></div>' +
                     '</div>';
         html += '<ul>';
-       
+
         for (var i = 0; i < numCols; i++) {
             if (numCols === 1 || table.tableCols[i].name === 'DATA') {
                 continue;
@@ -1103,7 +1104,7 @@ window.Dag = (function($, Dag) {
         } else {
             schemaLeft = $('#rightSideBar').offset().left - $schema.width() - 5;
         }
-        
+
         var left;
         if (tableLeft > schemaLeft) {
             left = schemaLeft;
@@ -1174,13 +1175,13 @@ window.Dag = (function($, Dag) {
             var msg = 'renamed ' + backName + ' to ' + name;
             $dagWrap.find(".columnOriginInfo[data-rename='" + msg + "']")
                     .remove();
-           
+
             var rect = $dagTable[0].getBoundingClientRect();
             var top = rect.top - 35;
             var left = rect.left;
             if ($('#dagPanel').hasClass('midway')) {
                 top -= $('#dagPanel').offset().top + 15;
-            }       
+            }
             $dagWrap.append('<div class="columnOriginInfo " ' +
                 'data-rename="' + msg + '" ' +
                 'style="top: ' + top + 'px;left: ' + left + 'px">' + msg +
@@ -1219,7 +1220,7 @@ window.Dag = (function($, Dag) {
                 tableId = xcHelper.getTableId(tables[i]);
                 table = gTables[tableId];
             }
-            
+
             var $dagTable;
             var parents;
             if (table) {
@@ -1256,8 +1257,8 @@ window.Dag = (function($, Dag) {
                                 break;
                             }
                         } else if (userStr === cols[j].userStr) {
-                            $dagTable = $dagWrap
-                                    .find('.dagTable[data-id=' + tableId + ']');
+                            $dagTable = $dagWrap.find('.dagTable[data-id="' +
+                                                       tableId + '"]');
                             parents = $dagTable.data('parents').split(',');
                             var currentName = cols[j].name;
                             highlightColumnSource(tableId, $dagWrap,
@@ -1271,7 +1272,7 @@ window.Dag = (function($, Dag) {
                 }
             } else if (tables[i].indexOf('.XcalarDS.') !== 0) {
                 $dagTable = $dagWrap
-                        .find('.dagTable[data-tablename=' + tables[i] + ']');
+                        .find('.dagTable[data-tablename="' + tables[i] + '"]');
                 if ($dagTable.length !== 0 && $dagTable.hasClass('Dropped')) {
                     parents = $dagTable.data('parents').split(',');
                     findColumnSource(name, userStr, tableId, parents, $dagWrap);
@@ -1288,7 +1289,7 @@ window.Dag = (function($, Dag) {
 
     function highlightColumnHelper(tableId, $dagWrap, col, userStr) {
         var currentName = col.name;
-        var $dagTable = $dagWrap.find('.dagTable[data-id=' + tableId + ']');
+        var $dagTable = $dagWrap.find('.dagTable[data-id="' + tableId + '"]');
         var parents = $dagTable.data('parents').split(',');
 
         highlightColumnSource(tableId, $dagWrap, currentName);
@@ -1302,23 +1303,23 @@ window.Dag = (function($, Dag) {
     function highlightColumnSource(sourceId, $dagWrap, name, isDataset) {
         var $dagTable;
         if (isDataset) {
-            $dagTable = $dagWrap.find('.dagTable[data-tablename=' +
-                                        sourceId + ']');
+            $dagTable = $dagWrap.find('.dagTable[data-tablename="' +
+                                        sourceId + '"]');
         } else {
-            $dagTable = $dagWrap.find('.dagTable[data-id=' +
-                                        sourceId + ']');
+            $dagTable = $dagWrap.find('.dagTable[data-id="' +
+                                        sourceId + '"]');
         }
         $dagTable.addClass('highlighted');
         var id = $dagTable.data('id');
 
         var rect = $dagTable[0].getBoundingClientRect();
-        if ($dagWrap.find('.columnOriginInfo[data-id=' + id + ']')
+        if ($dagWrap.find('.columnOriginInfo[data-id="' + id + '"]')
                     .length === 0) {
             var top = rect.top - 15;
             var left = rect.left;
             if ($('#dagPanel').hasClass('midway')) {
                 top -= $('#dagPanel').offset().top;
-            }       
+            }
             $dagWrap.append('<div class="columnOriginInfo " data-id="' + id +
                 '" style="top: ' + top + 'px;left: ' + left + 'px">' +
                 name + '</div>');
@@ -1356,7 +1357,7 @@ window.Dag = (function($, Dag) {
         if (children[0] === ",") {
             children = children.substr(1);
         }
-        
+
         for (var i = 0; i < numParents; i++) {
             var parentIndex = parentChildMap[index][i];
             properties.y = i * 2 + 1 - numParents + prop.y;
@@ -1365,7 +1366,7 @@ window.Dag = (function($, Dag) {
                                                 properties, dagArray,
                                                 parentIndex, parentChildMap,
                                                 children);
-            
+
         }
         var oneTable = drawDagTable(dagNode, dagArray, parentChildMap, index,
                                     children);
@@ -1399,7 +1400,7 @@ window.Dag = (function($, Dag) {
             if (tableName.indexOf('.XcalarDS.') === 0) {
                 tableName = tableName.substr('.XcalarDS.'.length);
             }
-            
+
             dagTable += '<div class="dagTable dataStore" ' +
                         'data-tablename="' + tableName + '" ' +
                         'data-table="' + originalTableName + '" ' +
@@ -1570,7 +1571,7 @@ window.Dag = (function($, Dag) {
                 var filterStr = value.filterStr;
                 parenIndex = filterStr.indexOf("(");
                 var abbrFilterType = filterStr.slice(0, parenIndex);
-                
+
                 info.type = "filter" + abbrFilterType;
                 info.text = filterStr;
                 filterType = "";
@@ -1609,7 +1610,7 @@ window.Dag = (function($, Dag) {
                                        " is " + filterType + " " +
                                        filterValue + ".";
                     }
-                    
+
                 } else {
                     var commaIndex = filterStr.indexOf(',');
                     if (commaIndex !== -1) {
@@ -1671,7 +1672,7 @@ window.Dag = (function($, Dag) {
                     }
                     info.text = "sorted " + order + "on " + value.keyName;
                 } else {
-                    
+
                     if (value.source.isTable) {
                         info.tooltip = "Indexed by " + value.keyName;
                         info.type = "index";
@@ -1683,7 +1684,7 @@ window.Dag = (function($, Dag) {
                     info.text = "indexed on " + value.keyName;
                 }
 
-               
+
                 break;
             case ('joinInput'):
                 info.text = JoinOperatorTStr[value.joinType];
@@ -1698,7 +1699,7 @@ window.Dag = (function($, Dag) {
                 } else {
                     joinText = joinType[0].toUpperCase() + joinType.slice(1);
                 }
-                
+
                 info.tooltip = joinText + " Join between table &quot;" +
                                parents[0] + "&quot; and table &quot;" +
                                parents[1] + "&quot;";
@@ -1722,7 +1723,7 @@ window.Dag = (function($, Dag) {
                 } catch (err) {
                     console.error('Could not find export filename');
                 }
-                
+
                 break;
             default:
                 console.error('Dag type not recognized');
@@ -1815,7 +1816,7 @@ window.Dag = (function($, Dag) {
         if (vertDist < 60) {
             xoffset = 1000 / vertDist;
         }
-       
+
         ctx.beginPath();
         ctx.moveTo(x1 + xoffset, y1);
         ctx.bezierCurveTo( x2 + 50, y1,

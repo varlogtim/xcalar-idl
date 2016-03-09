@@ -38,7 +38,7 @@ window.TblManager = (function($, TblManager) {
         }
 
         var numOldTables = oldTableNames.length;
-      
+
 
         // XX temp;
         var newTableName = newTableNames[0];
@@ -97,7 +97,7 @@ window.TblManager = (function($, TblManager) {
                     }
                 }
 
-        
+
                 for (var i = 0, len = oldTableIds.length; i < len; i++) {
                     var oldTableId = oldTableIds[i];
                     if (tablesToRemove.indexOf(oldTableId) < 0) {
@@ -159,14 +159,14 @@ window.TblManager = (function($, TblManager) {
             }
             deferred.reject(error);
         });
-        
+
         return (deferred.promise());
     };
 
     /*
         This functions adds new tables to the display and the dag at the same
         time.
-        
+
         Possible Options:
         afterStartup: boolean to indicate if the table is added after page load
         selectCol: number. column to be highlighted when table is ready
@@ -198,7 +198,8 @@ window.TblManager = (function($, TblManager) {
             }
             if (addToTableList) {
                 var $existingTableList = $('#activeTablesList')
-                                        .find('[data-id=' + table.tableId + ']');
+                                        .find('[data-id="' +
+                                               table.tableId + '"]');
                 if ($existingTableList.length) {
                     $existingTableList.closest('.tableInfo')
                                       .removeClass('hiddenWS')
@@ -299,7 +300,7 @@ window.TblManager = (function($, TblManager) {
     /*
         Removes a table from the display and puts it in the rightside bar inactive
         list. Shifts all the ids. Does not delete the table from backend!
-        
+
         Possible Options:
         del: boolean. If true, will delete the table (currently disabled),
             otherwise it will send table to inactive list
@@ -686,7 +687,7 @@ window.TblManager = (function($, TblManager) {
         var colNums = [];
         var numCols;
         if (columnNums !== undefined) {
-            
+
             if (typeof columnNums !== "object") {
                 colNums.push(columnNums);
             } else {
@@ -772,7 +773,7 @@ window.TblManager = (function($, TblManager) {
                 !firstRow.hasClass('row0'))
             {
                 scrollCount++;
-                
+
                 if (scrollCount < 2) {
                     // var initialTop = firstRow.offset().top;
                     numRowsToAdd = Math.min(gNumEntriesPerPage, topRowNum,
@@ -825,7 +826,7 @@ window.TblManager = (function($, TblManager) {
                         "tableName": table.tableName,
                         "tableId"  : tableId
                     };
-                    
+
                     goToPage(table.currentRowNumber, numRowsToAdd,
                              RowDirection.Bottom, false, info)
                     .then(function() {
@@ -862,7 +863,7 @@ window.TblManager = (function($, TblManager) {
         newTableNames is an array of tablenames to be added
         oldTableNames is an array of old tablenames to be replaced
         tablesToRemove is an array of tableNames to be removed later
-        
+
         Possible Options:
         afterStartup: boolean to indicate if these tables are added after
                       page load
@@ -871,7 +872,7 @@ window.TblManager = (function($, TblManager) {
         selectCol: number, column to be selected once new table is ready
 
     */
-    
+
     function addTable(newTableNames, oldTableNames, tablesToRemove, options) {
         //XX don't just get first array value
         var tableId = xcHelper.getTableId(newTableNames[0]);
@@ -976,7 +977,7 @@ window.TblManager = (function($, TblManager) {
                                 .attr("data-id", newId);
     }
 
-    /*  
+    /*
         Start the process of building table
         Possible Options:
         selectCol: number. column to be highlighted when table is ready
@@ -1098,7 +1099,7 @@ window.TblManager = (function($, TblManager) {
                             ' .flexContainer').mousedown();
             }
         }
-        
+
         if (numRows === 0) {
             $table.find('.idSpan').text("");
         }
@@ -1670,7 +1671,7 @@ window.TblManager = (function($, TblManager) {
             } else {
                 newTable += TblManager.generateColumnHeadHTML(columnClass,
                                                     color, (i + 1), columns[i]);
-            }  
+            }
         }
 
         newTable += '</tr></thead><tbody></tbody></table>';
@@ -1742,7 +1743,7 @@ window.TblManager = (function($, TblManager) {
             deferred.resolve();
         })
         .fail(deferred.reject);
-        
+
         return (deferred.promise());
     }
 
