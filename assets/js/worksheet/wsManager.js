@@ -645,13 +645,6 @@ window.WSManager = (function($, WSManager) {
             WSManager.rmNoSheetTable(tableId);
             WSManager.addTable(tableId, wsId);
         });
-
-        SQL.add("Add no sheet tables", {
-            "operation"     : SQLOps.AddNoSheetTables,
-            "tableIds"      : tableIds,
-            "worksheetName" : wsLookUp[wsId].name,
-            "worksheetIndex": WSManager.getWSOrder(wsId)
-        });
     };
 
     // Get all aggreagte information
@@ -1178,7 +1171,6 @@ window.WSManager = (function($, WSManager) {
     // Helper function to delete worksheet
     function delWSHelper(wsId) {
         var ws = wsLookUp[wsId];
-        var msg;
         var sqlOptions = {
             "operation"     : SQLOps.DelWS,
             "worksheetIndex": WSManager.getWSOrder(wsId),

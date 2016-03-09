@@ -400,7 +400,9 @@ TblTStr = {
     'Del': 'Delete Tables',
     'DelMsg': 'Are you sure you want to delete table <table>?',
     'DelFail': 'Delete Tables Failed',
-    'Archive': 'Archive Tables'
+    'Archive': 'Archive Tables',
+    'Active': 'Send Tables to Worksheet',
+    'ActiveFail': 'Add Inactive Tables Failed'
 };
 
 ColTStr = {

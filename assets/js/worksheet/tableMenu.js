@@ -60,13 +60,7 @@ window.TblMenu = (function(TblMenu, $) {
                 "title"  : TblTStr.Del,
                 "msg"    : msg,
                 "confirm": function() {
-                    TblManager.deleteTable(tableId, TableType.Active)
-                    .then(function() {
-                        KVStore.commit();
-                    })
-                    .fail(function(error) {
-                        Alert.error(StatusMessageTStr.DeleteTableFailed, error);
-                    });
+                    TblManager.deleteTables(tableId, TableType.Active);
                 }
             });
         });
@@ -667,11 +661,10 @@ window.TblMenu = (function(TblMenu, $) {
             if (event.which !== 1) {
                 return;
             }
-            var $li = $(this);
             var colNum = $colMenu.data('colNum');
             var tableId = $colMenu.data('tableId');
             var classNames = $(this)[0].className.split(/\s+/);
-            for (var i = 0; i<classNames.length; i++) {
+            for (var i = 0; i < classNames.length; i++) {
                 if (classNames[i].indexOf("efunc-") > -1) {
                     ColManager.extension(colNum, tableId, classNames[i]);
                     break;
@@ -1193,7 +1186,7 @@ window.TblMenu = (function(TblMenu, $) {
                     '<div class="divider functionsDivider"></div>' +
                     '<li class="extensions parentMenu" data-submenu="extensions">' +
                         MenuTStr.Exts +
-                    '</li>'+
+                    '</li>' +
                     '<li class="multiColumn hideColumns">' +
                         MenuTStr.HideColPlura +
                     '</li>' +

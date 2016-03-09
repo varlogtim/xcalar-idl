@@ -216,7 +216,7 @@ window.Replay = (function($, Replay) {
         argsMap[SQLOps.RenameTable] = ["tableId", "newTableName"];
         argsMap[SQLOps.HideTable] = ["tableId"];
         argsMap[SQLOps.UnhideTable] = ["tableId"];
-        argsMap[SQLOps.DeleteTable] = ["tableId", "tableType"];
+        argsMap[SQLOps.DeleteTable] = ["tables", "tableType"];
         argsMap[SQLOps.DeleteCol] = ["colNums", "tableId"];
         argsMap[SQLOps.HideCols] = ["colNums", "tableId"];
         argsMap[SQLOps.UnHideCols] = ["colNums", "tableId", "hideOptions"];
@@ -268,6 +268,8 @@ window.Replay = (function($, Replay) {
         if (sqlType === SQLType.Fail) {
             return false;
         }
+
+        return true;
     }
 
     /* REPLAYFUNCS HOLDS ALL THE REPLAY FUNCTIONS */
@@ -656,26 +658,26 @@ window.Replay = (function($, Replay) {
             return (deferred.promise());
         },
 
-        tableBulkActions: function(options) {
-            var action = options.action;
-            var tableType = options.tableType;
-            var tableName = options.tableName;
-            var tableId;
+        // tableBulkActions: function(options) {
+        //     var action = options.action;
+        //     var tableType = options.tableType;
+        //     var tableName = options.tableName;
+        //     var tableId;
 
-            if (tableType === TableType.InActive) {
-                tableId = getTableId(xcHelper.getTableId(tableName));
-                $('#inactiveTablesList .tableInfo[data-id="' +
-                        tableId + '"] .addTableBtn').click();
-            } else if (tableType === TableType.Orphan) {
-                $('#orphanedTableList .tableInfo[data-tablename="' +
-                        tableName + '"] .addTableBtn').click();
-            } else {
-                console.error("Invalid table bulk action");
-                return (promiseWrapper(null));
-            }
+        //     if (tableType === TableType.InActive) {
+        //         tableId = getTableId(xcHelper.getTableId(tableName));
+        //         $('#inactiveTablesList .tableInfo[data-id="' +
+        //                 tableId + '"] .addTableBtn').click();
+        //     } else if (tableType === TableType.Orphan) {
+        //         $('#orphanedTableList .tableInfo[data-tablename="' +
+        //                 tableName + '"] .addTableBtn').click();
+        //     } else {
+        //         console.error("Invalid table bulk action");
+        //         return (promiseWrapper(null));
+        //     }
 
-            return (TableList.tableBulkAction(action, tableType));
-        },
+        //     return (TableList.tableBulkAction(action, tableType));
+        // },
 
         sortTableCols: function(options) {
             var args = getArgs(options);
@@ -834,18 +836,18 @@ window.Replay = (function($, Replay) {
             return (promiseWrapper(null));
         },
 
-        addNoSheetTables: function(options) {
-            var tableIds = options.tableIds;
-            for (var i = 0, len = tableIds.length; i < len; i++) {
-                tableIds[i] = getTableId(tableIds[i]);
-            }
+        // addNoSheetTables: function(options) {
+        //     var tableIds = options.tableIds;
+        //     for (var i = 0, len = tableIds.length; i < len; i++) {
+        //         tableIds[i] = getTableId(tableIds[i]);
+        //     }
 
-            var wsIndex = options.worksheetIndex;
-            var wsId    = WSManager.getOrders()[wsIndex];
+        //     var wsIndex = options.worksheetIndex;
+        //     var wsId    = WSManager.getOrders()[wsIndex];
 
-            WSManager.addNoSheetTables(tableIds, wsId);
-            return (promiseWrapper(null));
-        },
+        //     WSManager.addNoSheetTables(tableIds, wsId);
+        //     return (promiseWrapper(null));
+        // },
 
         moveInactiveTableToWorksheet: function(options) {
             var tableId = getTableId(options.tableId);

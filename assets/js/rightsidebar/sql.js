@@ -237,7 +237,7 @@ window.SQL = (function($, SQL) {
                 // fallthrough
             case (SQLOps.ArchiveTable):
                 // fallthrough
-            case (SQLOps.TableBulkActions):
+            case (SQLOps.ActiveTables):
                 // fallthrough
             case (SQLOps.RenameCol):
                 // fallthrough
@@ -268,8 +268,6 @@ window.SQL = (function($, SQL) {
             case (SQLOps.MoveTableToWS):
                 // fallthrough
             case (SQLOps.MoveInactiveTableToWS):
-                // fallthrough
-            case (SQLOps.AddNoSheetTables):
                 // fallthrough
             case (SQLOps.CreateFolder):
                 // fallthrough

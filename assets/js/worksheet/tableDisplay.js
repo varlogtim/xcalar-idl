@@ -360,29 +360,17 @@ window.TblManager = (function($, TblManager) {
         checkTableDraggable();
     };
 
-    TblManager.deleteTable = function(tableIdOrName, tableType) {
-        if (tableType === TableType.Orphan) {
-            // delete orphaned
-            return (deleteOrphaned(tableIdOrName));
+    TblManager.deleteTables = function(tables, tableType) {
+        // XXX not tested yet!!!
+        var deferred = jQuery.Deferred();
+
+        if (!(tables instanceof Array)) {
+            tables = [tables];
         }
-
-        // delete active or inactive table;
-        var tableId = tableIdOrName;
-
-        if (tableId == null) {
-            console.warn("DeleteTable: Table Id cannot be null!");
-            return (promiseWrapper(null));
-        }
-
-        var deferred    = jQuery.Deferred();
-        var table       = gTables[tableId];
-        var tableName   = table.tableName;
-        var resultSetId = table.resultSetId;
 
         var sql = {
             "operation" : SQLOps.DeleteTable,
-            "tableId"   : tableId,
-            "tableName" : tableName,
+            "tables"    : tables,
             "tableType" : tableType,
             "revertable": false
         };
@@ -390,68 +378,31 @@ window.TblManager = (function($, TblManager) {
             "operation": SQLOps.DeleteTable,
             "sql"      : sql
         });
-        
-        // Free the result set pointer that is still pointing to it
-        XcalarSetFree(resultSetId)
+
+        var defArray = [];
+
+        if (tableType === TableType.Orphan) {
+            // delete orphaned
+            tables.forEach(function(tableName) {
+                var def = delOrphanedHelper(tableName, tableType, txId);
+                defArray.push(def);
+            });
+        } else {
+            tables.forEach(function(tableId) {
+                var def = delTableHelper(tableId, tableType, txId);
+                defArray.push(def);
+            });
+        }
+
+        xcHelper.when.apply(window, defArray)
         .then(function() {
-            // check if it is the only table in this workbook
-            // The following logic can be uncommented when we reenable copy
-            // to worksheet. However, this time, we should have # after the
-            // table name to distinguish between the two tables. This removes
-            // our need to rely on tableNum
-            /**
-            for (var i = 0; i < gTables.length; i++) {
-                if (getTNPrefix(gTables[i].tableName) ===
-                    getTNPrefix(tableName) &&
-                    (deleteArchived || getTNSuffix(gTables[i].tableName) !==
-                                       getTNSuffix(tableName))) {
-                    console.log("delete copy table");
-                    return (promiseWrapper(null));
-                }
-            }
-
-            for (var i = 0; i < gHiddenTables.length; i++) {
-                if (getTNPrefix(gHiddenTables[i].tableName) ===
-                    getTNPrefix(tableName) &&
-                    (deleteArchived || getTNSuffix(gTables[i].tableName) !==
-                                       getTNSuffix(tableName))) {
-                    console.log("delete copy table");
-                    return (promiseWrapper(null));
-                }
-            }
-            */
-            return XcalarDeleteTable(tableName, txId);
-        })
-        .then(function() {
-            // XXX if we'd like to hide the cannot delete bug,
-            // copy it to the fail function
-            WSManager.removeTable(tableId);
-            Dag.makeInactive(tableId);
-            delete gTables[tableId];
-
-            if (tableType === TableType.Active) {
-                // when delete active table
-                TblManager.archiveTable(tableId, {del: ArchiveTable.Delete});
-
-                setTimeout(function() {
-                    var activeTable = gTables[gActiveTableId];
-                    if (activeTable && activeTable.resultSetCount !== 0) {
-                        RowScroller.genFirstVisibleRowNum();
-                    }
-                }, 300);
-            } else if (tableType === TableType.Agg) {
-                // XXX as delete table is temporarily disabled
-                // this case is not tested yet!
-                TableList.removeAggTable(tableId);
-            }
-
-            Transaction.done(txId, {"noCommit": true});
+            Transaction.done(txId);
             deferred.resolve();
         })
         .fail(function(error){
             Transaction.fail(txId, {
                 "error"  : error,
-                "noAlert": true
+                "failMsg": StatusMessageTStr.DeleteTableFailed
             });
             deferred.reject(error);
         });
@@ -1733,19 +1684,49 @@ window.TblManager = (function($, TblManager) {
         return (dataIndex);
     }
 
-    function deleteOrphaned(tableName) {
+    function delTableHelper(tableId, tableType, txId) {
         var deferred = jQuery.Deferred();
 
-        var sql = {
-            "operation" : SQLOps.DeleteTable,
-            "tableName" : tableName,
-            "tableType" : TableType.Orphan,
-            "revertable": false
-        };
-        var txId = Transaction.start({
-            "operation": SQLOps.DeleteTable,
-            "sql"      : sql
-        });
+        var table = gTables[tableId];
+        var tableName = table.tableName;
+
+        // Free the result set pointer that is still pointing to it
+        XcalarSetFree(table.resultSetId)
+        .then(function() {
+            return XcalarDeleteTable(tableName, txId);
+        })
+        .then(function() {
+            // XXX if we'd like to hide the cannot delete bug,
+            // copy it to the fail function
+            WSManager.removeTable(tableId);
+            Dag.makeInactive(tableId);
+            delete gTables[tableId];
+
+            if (tableType === TableType.Active) {
+                // when delete active table
+                TblManager.archiveTable(tableId, {del: ArchiveTable.Delete});
+
+                setTimeout(function() {
+                    var activeTable = gTables[gActiveTableId];
+                    if (activeTable && activeTable.resultSetCount !== 0) {
+                        RowScroller.genFirstVisibleRowNum();
+                    }
+                }, 300);
+            } else if (tableType === TableType.Agg) {
+                // XXX as delete table is temporarily disabled
+                // this case is not tested yet!
+                TableList.removeAggTable(tableId);
+            }
+
+            deferred.resolve();
+        })
+        .fail(deferred.reject(error));
+
+        return (deferred.promise());
+    }
+
+    function delOrphanedHelper(tableName, txId) {
+        var deferred = jQuery.Deferred();
 
         XcalarDeleteTable(tableName, txId)
         .then(function() {
@@ -1758,16 +1739,9 @@ window.TblManager = (function($, TblManager) {
                 delete gTables[tableId];
             }
 
-            Transaction.done(txId, {"noCommit": true});
             deferred.resolve();
         })
-        .fail(function(error) {
-            Transaction.fail(txId, {
-                "error"  : error,
-                "noAlert": true
-            });
-            deferred.reject(error);
-        });
+        .fail(deferred.reject);
         
         return (deferred.promise());
     }
