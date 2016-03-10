@@ -26,6 +26,15 @@ window.Undo = (function($, Undo) {
 
     var undoFuncs = {};
 
+    /* START BACKEND OPERATIONS */
+
+    undoFuncs[SQLOps.Sort] = function(options) {
+        var worksheet = WSManager.getWSFromTable(options.tableId);
+        return(TblManager.refreshTable([options.tableName], null,
+                                       [options.newTableName],
+                                       worksheet, {isUndo: true}));
+    };
+
     undoFuncs[SQLOps.Filter] = function(options) {
         var worksheet = WSManager.getWSFromTable(options.tableId);
         return(TblManager.refreshTable([options.tableName], null,
@@ -118,6 +127,17 @@ window.Undo = (function($, Undo) {
         return (deferred.promise());
     };
 
+    undoFuncs[SQLOps.GroupBy] = function(options) {
+        // TblManager.archiveTable(tableId, {"del": ArchiveTable.Keep});
+        var tableId = xcHelper.getTableId(options.newTableName);
+        TblManager.sendTableToOrphaned(tableId, {'remove': true});
+        return (promiseWrapper(null));
+    };
+
+    /* END BACKEND OPERATIONS */
+
+    /* USER STYLING/FORMATING OPERATIONS */
+
     undoFuncs[SQLOps.HideCols] = function(options) {
         ColManager.unhideCols(options.colNums, options.tableId);
         return (promiseWrapper(null));
@@ -127,6 +147,31 @@ window.Undo = (function($, Undo) {
         ColManager.hideCols(options.colNums, options.tableId);
         return (promiseWrapper(null));
     };
+
+    undoFuncs[SQLOps.ReorderCol] = function(options) {
+        ColManager.reorderCol(options.tableId, options.newColNum,
+                              options.oldColNum, {"undoRedo": true});
+        return (promiseWrapper(null));
+    };
+
+    undoFuncs[SQLOps.SortTableCols] = function(options) {
+        TblManager.orderAllColumns(options.tableId, options.originalOrder);
+        return (promiseWrapper(null));
+    };
+
+    undoFuncs[SQLOps.ResizeTableCols] = function(options) {
+        TblManager.resizeColsToWidth(options.tableId, options.columnNums,
+                                     options.oldColumnWidths);
+        return (promiseWrapper(null));
+    };
+
+    undoFuncs[SQLOps.DragResizeTableCol] = function(options) {
+        TblAnim.resizeColumn(options.tableId, options.colNum, options.toWidth,
+                             options.fromWidth);
+        return (promiseWrapper(null));
+    };
+
+    /* END USER STYLING/FORMATING OPERATIONS */
 
     return (Undo);
 }(jQuery, {}));

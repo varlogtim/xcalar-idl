@@ -2079,7 +2079,10 @@ window.ColManager = (function($, ColManager) {
         });
     };
 
-    ColManager.reorderCol = function(tableId, oldColNum, newColNum) {
+    // currently only being used by drag and drop (and undo/redo)
+    // options:
+    // undoRedo: boolean, if true change html of columns
+    ColManager.reorderCol = function(tableId, oldColNum, newColNum, options) {
         var oldIndex = oldColNum - 1;
         var newIndex = newColNum - 1;
         var $table   = $("#xcTable-" + tableId);
@@ -2113,6 +2116,21 @@ window.ColManager = (function($, ColManager) {
         $table.find('.colNumToChange')
             .addClass('col' + newColNum)
             .removeClass('colNumToChange');
+
+        if (options && options.undoRedo) {
+            var target = newColNum;
+            if (newColNum < oldColNum) {
+                target = newColNum - 1;
+            }
+
+            $table.find('th').eq(target)
+                             .after($table.find('th.col' + newColNum));
+
+            $table.find('tbody tr').each(function() {
+                $(this).find('td').eq(target)
+                                  .after($(this).find('td.col' + newColNum));
+            });
+        }
 
         // add sql
         SQL.add("Change Column Order", {

@@ -164,8 +164,7 @@ window.TblAnim = (function($, TblAnim) {
             // set autoresize to header only if column moved at least 2 pixels
             progCol.sizeToHeader = true;
         }
-        moveTableTitles();
-        moveTableDropdownBoxes();
+        matchHeaderSizes($table);
     };
 
     /* END COLUMN RESIZING */

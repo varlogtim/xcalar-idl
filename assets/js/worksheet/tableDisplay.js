@@ -378,10 +378,19 @@ window.TblManager = (function($, TblManager) {
         checkTableDraggable();
     };
 
-    function sendTableToOrphaned(tableId) {
-        $("#xcTableWrap-" + tableId).addClass('tableToRemove');
-        $("#rowScroller-" + tableId).addClass('rowScrollerToRemove');
-        $("#dagWrap-" + tableId).addClass('dagWrapToRemove');
+    // currently used only for undo redo
+    //options:
+    // remove: boolean, if true will remove table from html
+    TblManager.sendTableToOrphaned = function(tableId, options) {
+        if (options && options.remove) {
+            $("#xcTableWrap-" + tableId).remove();
+            $("#rowScroller-" + tableId).remove();
+            $("#dagWrap-" + tableId).remove();
+        } else {
+            $("#xcTableWrap-" + tableId).addClass('tableToRemove');
+            $("#rowScroller-" + tableId).addClass('rowScrollerToRemove');
+            $("#dagWrap-" + tableId).addClass('dagWrapToRemove');
+        }
 
         TableList.removeTable(tableId);
 
@@ -407,7 +416,7 @@ window.TblManager = (function($, TblManager) {
 
         // disallow dragging if only 1 table in worksheet
         checkTableDraggable();
-    }
+    };
 
     TblManager.deleteTables = function(tables, tableType) {
         // XXX not tested yet!!!
@@ -712,6 +721,63 @@ window.TblManager = (function($, TblManager) {
         });
     };
 
+    // provide an order ex. [2,0,3,1];
+    TblManager.orderAllColumns = function(tableId, order) {
+        var progCols = gTables[tableId].tableCols;
+        var numCols = order.length;
+        var index;
+        var newCols = [];
+        var indices = [];
+
+        var $table = $('#xcTable-' + tableId);
+        var $ths = $table.find('th');
+        var thHtml = $ths.eq(0)[0].outerHTML;
+        var tdHtml = "";
+        var numRows = $table.find('tbody tr').length;
+        var $th;
+
+        // column headers
+        for (var i = 0; i < numCols; i++) {
+            index = order.indexOf(i);
+            indices.push(index);
+            newCols.push(progCols[index]);
+            $th = $ths.eq(index + 1);
+            $th.removeClass('col' + (index + 1));
+            $th.addClass('col' + (i + 1));
+            $th.find('.col' + (index + 1)).removeClass('col' + (index + 1))
+                .addClass('col' + (i + 1));
+            thHtml += $th[0].outerHTML;
+
+        }
+
+        // column rows and tds
+        var $tds;
+        var $td;
+        $table.find('tbody tr').each(function(rowNum) {
+            tdHtml += '<tr class="row' + rowNum + '">';
+            $tds = $(this).find('td');
+            tdHtml += $tds.eq(0)[0].outerHTML;
+            for (var i = 0; i < numCols; i++) {
+                index = indices[i];
+                $td = $tds.eq(index + 1);
+                $td.removeClass('col' + (index + 1));
+                $td.addClass('col' + (i + 1));
+                $td.find('.col' + (index + 1)).removeClass('col' + (index + 1))
+                   .addClass('col' + (i + 1));
+                tdHtml += $td[0].outerHTML;
+            }
+            tdHtml += '</tr>';
+        });
+
+        // update everything
+        gTables[tableId].tableCols = newCols;
+        $table.find('thead tr').html(thHtml);
+        $table.find('tbody').html(tdHtml);
+
+        TableList.updateTableInfo(tableId);
+        addRowListeners($table.find('tbody'));
+    };
+
     TblManager.resizeColumns = function(tableId, resizeTo, columnNums) {
         var sizeToHeader = false;
         var fitAll = false;
@@ -757,6 +823,7 @@ window.TblManager = (function($, TblManager) {
         var $th;
         var $table = $('#xcTable-' + tableId);
         var oldColumnWidths = [];
+        var newWidths = [];
 
         for (var i = 0, numCols = columns.length; i < numCols; i++) {
             $th = $table.find('th.col' + (colNums[i]));
@@ -764,17 +831,17 @@ window.TblManager = (function($, TblManager) {
             columns[i].isHidden = false;
             oldColumnWidths.push(columns[i].width);
 
-            autosizeCol($th, {
+            newWidths.push(autosizeCol($th, {
                 "dblClick"      : true,
                 "minWidth"      : 17,
                 "unlimitedWidth": false,
                 "includeHeader" : sizeToHeader,
                 "fitAll"        : fitAll,
                 "multipleCols"  : true
-            });
+            }));
         }
 
-        $table.find('.userHidden').removeClass('userHidden');
+
         matchHeaderSizes($table);
 
         SQL.add("Resize Columns", {
@@ -784,8 +851,27 @@ window.TblManager = (function($, TblManager) {
             "resizeTo" : resizeTo,
             "columnNums": colNums,
             "oldColumnWidths": oldColumnWidths,
-            "htmlExclude": ["columnNums", "oldColumnWidths"]
+            "newColumnWidths": newWidths,
+            "htmlExclude": ["columnNums", "oldColumnWidths", "newColumnWidths"]
         });
+    };
+
+    // only used for undo / redos
+    TblManager.resizeColsToWidth = function(tableId, colNums, widths) {
+        var $table = $('#xcTable-' + tableId);
+        $table.find('.userHidden').removeClass('userHidden');
+        var progCols = gTables[tableId].tableCols;
+        var numCols = colNums.length;
+        var colNum;
+        for (var i = 0; i < numCols; i++) {
+            colNum = colNums[i];
+            if (!widths) {
+                console.log('not found');
+            }
+            $table.find('th.col' + colNum).outerWidth(widths[i]);
+            progCols[colNum - 1].width = widths[i];
+        }
+        matchHeaderSizes($table);
     };
 
     function infScrolling(tableId) {
@@ -966,7 +1052,7 @@ window.TblManager = (function($, TblManager) {
             for (var i = 0; i < tablesToRemove.length; i++) {
                 if (gTables[tablesToRemove[i]].active) {
                     if (options.isUndo) {
-                        sendTableToOrphaned(tablesToRemove[i]);
+                        TblManager.sendTableToOrphaned(tablesToRemove[i]);
                     } else {
                         TblManager.archiveTable(tablesToRemove[i], {
                             "del"              : ArchiveTable.Keep,

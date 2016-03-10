@@ -23,7 +23,7 @@ function getTextWidth(el, val, options) {
         text = val;
     }
     text = text.replace(/\</g, "&lt;").replace(/\>/g, "&gt;");
-    
+
     tempDiv = $('<div>' + text + '</div>');
     tempDiv.css({
         'font-family': defaultStyle.fontFamily || el.css('font-family'),
@@ -66,7 +66,7 @@ function autosizeCol($th, options) {
     var minWidth = options.minWidth || (gRescol.cellMinWidth - 5);
     var maxWidth = options.maxWidth || 700;
     var datastore = options.datastore || false;
-    
+
     var widestTdWidth = getWidestTdWidth($th, {
         "includeHeader": includeHeader,
         "fitAll"       : fitAll,
@@ -95,6 +95,7 @@ function autosizeCol($th, options) {
     if (!options.multipleCols) {
         matchHeaderSizes($table);
     }
+    return (newWidth);
 }
 
 function getWidestTdWidth(el, options) {
@@ -123,7 +124,7 @@ function getWidestTdWidth(el, options) {
             extraPadding += 4;
         }
         headerWidth = getTextWidth($th) + extraPadding;
-       
+
         if (!fitAll) {
             return (headerWidth);
         }
@@ -153,7 +154,7 @@ function dblClickResize($el, options) {
     // $el is the colGrab div inside the header
     gRescol.clicks++;  //count clicks
     if (gRescol.clicks === 1) {
-        gRescol.timer = setTimeout(function() {   
+        gRescol.timer = setTimeout(function() {
             gRescol.clicks = 0; //after action performed, reset counter
         }, gRescol.delay);
     } else {
@@ -172,6 +173,8 @@ function dblClickResize($el, options) {
         var $th = $el.parent().parent();
         var $table = $th.closest('.dataTable');
         var oldColumnWidths = [];
+        var newColumnWidths = [];
+
         $table.find('.colGrab')
               .removeAttr('data-toggle data-original-title title');
 
@@ -194,7 +197,7 @@ function dblClickResize($el, options) {
         });
 
         var includeHeader = false;
-        
+
         if (target === "datastore") {
 
             $selectedCols.find('.colGrab').each(function() {
@@ -223,24 +226,25 @@ function dblClickResize($el, options) {
                 oldColumnWidths.push(columns[indices[i]].width);
             }
         }
-        
+
         var minWidth;
         if (options.minWidth) {
             minWidth = options.minWidth;
         } else {
             minWidth = 17;
         }
-        
+
+
         $selectedCols.each(function() {
-            autosizeCol($(this), {
+            newColumnWidths.push(autosizeCol($(this), {
                 "dblClick"      : true,
                 "minWidth"      : minWidth,
                 "unlimitedWidth": true,
                 "includeHeader" : includeHeader,
                 "datastore"     : target === "datastore"
-            });
+            }));
         });
-       
+
         $('#col-resizeCursor').remove();
         clearTimeout(gRescol.timer);    //prevent single-click action
         gRescol.clicks = 0;      //after action performed, reset counter
@@ -262,7 +266,9 @@ function dblClickResize($el, options) {
                 "resizeTo" : resizeTo,
                 "columnNums": colNums,
                 "oldColumnWidths": oldColumnWidths,
-                "htmlExclude": ["columnNums", "oldColumnWidths"]
+                "newColumnWidths": newColumnWidths,
+                "htmlExclude": ["columnNums", "oldColumnWidths",
+                                "newColumnWidths"]
             });
         }
     }
@@ -310,7 +316,7 @@ function createTableHeader(tableId) {
                 event.preventDefault();
                 event.stopPropagation();
                 renameTableHead($(this));
-            }        
+            }
         },
         "keydown": function(event) {
             if (event.which === keyCode.Space) {
@@ -352,7 +358,7 @@ function createTableHeader(tableId) {
         var classes   = "tableMenu";
         var $dropdown = $(this);
         var $tableWrap = $dropdown.closest('.xcTableWrap');
-        
+
 
         if ($tableWrap.hasClass('tableLocked')) {
             classes += " locked";
@@ -500,7 +506,7 @@ function updateTableHeader(tableId, $tHead) {
                     'data-container="body" ' +
                     'title="' + CommonTxtTstr.NumCol + '">' +
                     ' [' + cols + ']</span>';
-                    
+
     $tHead.html(tableName + colsHTML);
     var $tableName = $tHead.find('.tableName');
     var width = getTextWidth($tableName, $tableName.val());
@@ -594,7 +600,7 @@ function addMenuBehaviors($mainMenu) {
             $mainMenu.find('.' + className).addClass('selected');
             clearTimeout(hideTimeout);
         });
-        
+
         // prevents input from closing unless you hover over a different li
         // on the main column menu
         $subMenu.find('input').on({
@@ -637,7 +643,7 @@ function addMenuBehaviors($mainMenu) {
                 var className = $li.parent().attr('class');
                 $mainMenu.find('.' + className).addClass('selected');
                 $li.addClass('selected');
-                
+
                 if (!$li.hasClass('inputSelected')) {
                     $subMenu.find('.inputSelected').removeClass('inputSelected');
                 }
@@ -663,7 +669,7 @@ function addMenuBehaviors($mainMenu) {
             return;
         }
         event.stopPropagation();
-        
+
         if (!$li.hasClass('unavailable')) {
             // hide li if doesnt have a submenu or an input field
             closeMenu($allMenus);
@@ -682,7 +688,7 @@ function addMenuBehaviors($mainMenu) {
             $mainMenu.addClass('hovering');
             $li.addClass('selected');
             var hasSubMenu = $li.hasClass('parentMenu');
-            
+
             if (!hasSubMenu || $li.hasClass('unavailable')) {
                 if ($subMenu) {
                     if (event.keyTriggered) {
@@ -705,7 +711,7 @@ function addMenuBehaviors($mainMenu) {
                     showSubMenu($li, subMenuClass);
                 }, 150);
             }
-            
+
         },
         "mouseleave": function() {
             if ($mainMenu.hasClass('disableMouseEnter')) {
@@ -721,7 +727,7 @@ function addMenuBehaviors($mainMenu) {
 
     function showSubMenu($li, subMenuClass) {
         if ($li.hasClass('selected')) {
-            $subMenu.show();   
+            $subMenu.show();
             var $targetSubMenu = $subMenu.find('.' + subMenuClass);
             var visible = false;
             if ($targetSubMenu.is(':visible')) {
@@ -986,7 +992,7 @@ function dropdownClick($el, options) {
     if (options.type !== "tabMenu") {
         tableId = xcHelper.parseTableId($el.closest(".xcTableWrap"));
     }
-    
+
     var $menu;
     var $subMenu;
     var $allMenus;
@@ -1002,7 +1008,7 @@ function dropdownClick($el, options) {
         $menu = $('#tableMenu');
         $subMenu = $('#tableSubMenu');
         $allMenus = $menu.add($subMenu);
-    
+
         // case that should close table menu
         if ($menu.is(":visible") && $menu.data('tableId') === tableId) {
             closeMenu($allMenus);
@@ -1155,7 +1161,7 @@ function dropdownClick($el, options) {
     if (options.type === 'thDropdown') {
         $subMenu.find('.sort').removeClass('unavailable');
     }
-    
+
     //position menu
     var topMargin  = options.type === "tdDropdown" ? 15 : -4;
     var leftMargin = 5;
@@ -1193,7 +1199,7 @@ function dropdownClick($el, options) {
     // set scrollArea states
     $menu.find('.scrollArea.top').addClass('stopped');
     $menu.find('.scrollArea.bottom').removeClass('stopped');
-    
+
 
     //positioning if dropdown menu is on the right side of screen
     if (!options.ignoreSideBar) {
@@ -1203,7 +1209,7 @@ function dropdownClick($el, options) {
             $menu.css('left', left).addClass('leftColMenu');
         }
     }
-    
+
     //positioning if td menu is below the screen
     if (options.type === "tdDropdown" || options.type === "tabMenu") {
         if (top + $menu.height() + 5 > $(window).height()) {
@@ -1264,7 +1270,7 @@ function moveTableDropdownBoxes() {
     } else {
         tablesAreVisible = false;
     }
-    
+
     var rightSideBarWidth = 10;
     var windowWidth = $(window).width();
     if (windowWidth === $('#container').width()) {
@@ -1372,7 +1378,7 @@ function moveTableTitlesAnimated(tableId, oldWidth, widthChange, speed) {
             expectedTitleWidth = titleWidth +
                                  Math.min(inputWidthChange, -widthChange);
         }
-        
+
         titleWidth = expectedTitleWidth;
         var tableWidth = oldWidth - widthChange - 5;
         var center;
@@ -1490,7 +1496,7 @@ function moveFirstColumn($targetTable) {
     } else {
         datasetPreview = true;
     }
-    
+
     if ($targetTable && $targetTable.length > 0) {
         var $idCol =  $targetTable.find('.idSpan');
         var cellWidth = $idCol.width();
@@ -1502,7 +1508,7 @@ function moveFirstColumn($targetTable) {
         } else {
             scrollLeft = -$targetTable.offset().left;
         }
-        
+
         var rightDiff = rightOffset - (cellWidth + 15);
         if (rightDiff < 0) {
             scrollLeft += rightDiff;
@@ -1553,12 +1559,12 @@ function centerPositionElement($target, options) {
             top = Math.max(top, 0);
         }
     }
-    
+
     var winWidth    = $window.width();
     var modalWidth  = $target.width();
 
     var left = ((winWidth - modalWidth) / 2);
-    
+
     if (options.horizontalOnly) {
         $target.css({"left": left});
     } else {
