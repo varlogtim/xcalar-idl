@@ -108,7 +108,46 @@ window.Redo = (function($, Redo) {
 
     /* END USER STYLING/FORMATING OPERATIONS */
 
+    /* Archive and UnArchive */
+    redoFuncs[SQLOps.ArchiveTable] = function(options) {
+        TblManager.inActiveTables(options.tableIds);
+        return (promiseWrapper(null));
+    }
 
+    redoFuncs[SQLOps.ActiveTables] = function(options) {
+        // redo sent to worksheet
+        var tableNames = options.tableNames;
+        var $tableList;
+        var tableType = options.tableType;
+
+        if (tableType === TableType.InActive) {
+            $tableList = $('#archivedTableList');
+        } else if (tableType === TableType.Orphan) {
+            $tableList = $('#orphanedTableList');
+        } else if (tableType === TableType.Agg) {
+            $tableList = $("#aggregateTableList");
+        } else {
+            console.error(tableType, "not support redo!")''
+        }
+
+        var tableIds = [];
+        for (var i = 0, len = tableNames.length; i < len; i++) {
+            var tableId = xcHelper.getTableId(tableNames[i]);
+            tableIds.push(tableId);
+        }
+
+        $tableList.find(".tableInfo").each(function() {
+            var $li = $(this);
+            var id = $li.data("id");
+            if (tableIds.indexOf(id) >= 0) {
+                $li.find(".addTableBtn").click();
+            }
+        });
+
+        return TableList.activeTables(tableType,
+                                      options.noSheetTables, options.wsToSent);
+    };
+    /* End of Archive and UnArchive */
 
     return (Redo);
 }(jQuery, {}));

@@ -323,6 +323,36 @@ window.TblManager = (function($, TblManager) {
         return table;
     };
 
+    TblManager.inActiveTables = function(tableIds) {
+        // a wrapper function to archive bunch of tables
+        xcHelper.assert((tableIds != null), "Invalid arguments");
+
+        if (!(tableIds instanceof Array)) {
+            tableIds = [tableIds];
+        }
+
+        var options = {"del": ArchiveTable.Keep};
+        var tableNames = [];
+        var tablePos = [];
+
+        for (var i = 0, len = tableIds.length; i < len; i++) {
+            var tableId = tableIds[i];
+            var table = gTables[tableId];
+            tableNames.push(gTables[tableId].tableName);
+            tablePos.push(WSManager.getTableRelativePosition(tableId));
+            TblManager.archiveTable(tableId, options);
+        }
+
+        // add sql
+        SQL.add('Archive Table', {
+            "operation"  : SQLOps.ArchiveTable,
+            "tableIds"   : tableIds,
+            "tableNames" : tableNames,
+            "tablePos"   : tablePos,
+            "htmlExclude": ["tablePos"]
+        });
+    };
+
     /*
         Removes a table from the display and puts it in the rightside bar inactive
         list. Shifts all the ids. Does not delete the table from backend!

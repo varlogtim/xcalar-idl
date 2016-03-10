@@ -269,6 +269,7 @@ window.TableList = (function($, TableList) {
     };
 
     TableList.activeTables = function(tableType, noSheetTables, wsToSent) {
+        var deferred = jQuery.Deferred();
         var sql = {
             "operation": SQLOps.ActiveTables,
             "tableType": tableType
@@ -298,9 +299,12 @@ window.TableList = (function($, TableList) {
 
             sql.tableNames = tableNames;
             Transaction.done(txId, {
-                "sql"  : sql,
-                "title": TblTStr.Active
+                "sql"     : sql,
+                "title"   : TblTStr.Active,
+                "noCommit": true
             });
+
+            deferred.resolve();
         })
         .fail(function(error) {
             Transaction.fail(txId, {
@@ -308,7 +312,11 @@ window.TableList = (function($, TableList) {
                 "failMsg": TblTStr.ActiveFail,
                 "error"  : error
             });
+
+            deferred.reject(error);
         });
+
+        return deferred.promise();
     };
 
     TableList.tableBulkAction = function(action, tableType, wsId) {
@@ -896,7 +904,7 @@ window.TableList = (function($, TableList) {
                         '<div class="worksheetInfo" data-toggle="tooltip" ' +
                         'data-placement="top" data-container="body" ' +
                         'title="' + dstTable + '">' +
-                            'No sheet' +
+                            SideBarTStr.NoSheet +
                         '</div>';
                 } else {
                     wsInfo =

@@ -192,6 +192,69 @@ window.Undo = (function($, Undo) {
 
     /* END USER STYLING/FORMATING OPERATIONS */
 
+
+    /* Archive and UnArchive */
+    undoFuncs[SQLOps.ArchiveTable] = function(options) {
+        // archived table should in inActive list
+
+        options = options || {};
+        var tableIds = options.tableIds || [];
+        var tableNames = options.tableNames || [];
+        var tablePos = options.tablePos || [];
+        var promises = [];
+
+        for (var i = 0, len = tableIds.length; i < len; i++) {
+            var tableName = tableNames[i];
+            var options = {
+                "isUndo"  : true,
+                "position": tablePos[i]
+            };
+            promises.push(TblManager.refreshTable.bind(this, [tableName], null,
+                                                      [], null, options));
+        }
+
+        return chain(promises);
+    };
+
+    undoFuncs[SQLOps.ActiveTables] = function(options) {
+        // undo sent to worksheet, that is archive
+        var tableType = options.tableType;
+        var tableNames = options.tableNames;
+        var tableIds = [];
+        var promises = [];
+
+        for (var i = 0, len = tableNames.length; i < len; i++) {
+            var tableId = xcHelper.getTableId(tableNames[i]);
+            tableIds.push(tableId);
+        }
+
+        if (tableType === TableType.InActive) {
+            TblManager.inActiveTables(tableIds);
+            if (options.noSheetTables != null) {
+                var $tableList = $("#inactiveTablesList");
+                options.noSheetTables.forEach(function(tId) {
+                    WSManager.removeTable(tId);
+
+                    $tableList.find('.tableInfo[data-id="' + tId + '"] .worksheetInfo')
+                    .addClass("inactive").text(SideBarTStr.NoSheet);
+                });
+            }
+            return promiseWrapper(null);
+        } else if (tableType === TableType.Orphan) {
+            tableIds.forEach(function(tId) {
+                TblManager.sendTableToOrphaned(tId, {"remove": true});
+            });
+            TableList.refreshOrphanList();
+            return promiseWrapper(null);
+        } else if (tableType === TableType.Agg) {
+            console.error("Not support agg table undo!");
+        } else {
+            console.error(tableType, "not support undo!");
+            return promiseWrapper(null);
+        }
+    };
+    /* End of Archive and UnArchive */
+
     return (Undo);
 }(jQuery, {}));
 

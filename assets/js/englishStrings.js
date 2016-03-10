@@ -485,7 +485,7 @@ MenuTStr = {
 SideBarTStr = {
     'SendToWS': 'Send To Worksheet',
     'WSTOSend': 'Worksheet to send',
-    'NoSheet': 'No sheet',
+    'NoSheet': 'No Sheet',
     'NoSheetTableInstr': 'You have tables that are not in any worksheet, ' +
                          'please choose a worksheet for these tables!',
     'PopBack': 'pop back in',

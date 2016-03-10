@@ -22,13 +22,7 @@ window.TblMenu = (function(TblMenu, $) {
                 return;
             }
             var tableId = $tableMenu.data('tableId');
-            TblManager.archiveTable(tableId, {"del": ArchiveTable.Keep});
-            // add sql
-            SQL.add('Archive Table', {
-                "operation": SQLOps.ArchiveTable,
-                "tableId"  : tableId,
-                "tableName": gTables[tableId].tableName
-            });
+            TblManager.inActiveTables([tableId]);
         });
 
         $tableMenu.on('mouseup', '.hideTable', function(event) {

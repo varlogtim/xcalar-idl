@@ -1286,10 +1286,10 @@ window.WSManager = (function($, WSManager) {
         }
 
         $("#inactiveTablesList").find(".worksheetInfo.worksheet-" + wsId)
-                .addClass("inactive").text("No Sheet");
+                .addClass("inactive").text(SideBarTStr.NoSheet);
 
         $("#aggTablesList").find(".worksheetInfo.worksheet-" + wsId)
-                .removeClass("worksheet-" + wsId).text("No Sheet");
+                .removeClass("worksheet-" + wsId).text(SideBarTStr.NoSheet);
         rmWorksheet(wsId);
     }
 
