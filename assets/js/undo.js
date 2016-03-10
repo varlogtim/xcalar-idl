@@ -24,6 +24,15 @@ window.Undo = (function($, Undo) {
         return (deferred.promise());
     };
 
+    Undo.setup = function() {
+        $('#undo').click(function() {
+            SQL.undo();
+        });
+        $('#redo').click(function() {
+            SQL.redo();
+        });
+    };
+
     var undoFuncs = {};
 
     /* START BACKEND OPERATIONS */

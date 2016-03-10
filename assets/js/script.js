@@ -103,6 +103,7 @@ window.StartManager = (function(StartManager, $) {
             DagPanel.setup();
             DFGPanel.setup();
             setupModals();
+            Undo.setup();
 
             WSManager.focusOnWorksheet();
         })
@@ -607,7 +608,7 @@ window.StartManager = (function(StartManager, $) {
             if (!scrollPrevented) {
                 moveFirstColumn();
                 moveTableTitles();
-            } 
+            }
         });
 
         function mainFrameScrollingStop() {
