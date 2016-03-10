@@ -659,7 +659,7 @@ window.TblMenu = (function(TblMenu, $) {
             var tableId = $colMenu.data('tableId');
             var classNames = $(this)[0].className.split(/\s+/);
             for (var i = 0; i < classNames.length; i++) {
-                if (classNames[i].indexOf("efunc-") > -1) {
+                if (classNames[i].indexOf("::") > -1) {
                     ColManager.extension(colNum, tableId, classNames[i]);
                     break;
                 }
@@ -1243,14 +1243,7 @@ window.TblMenu = (function(TblMenu, $) {
                         MenuTStr.ResizeToAll +
                     '</li>' +
                 '</ul>' +
-                // XXX Note that this part didn't change to use MenTStr
-                // because it should actaully moved to a seperate file
-                // of extension
                 '<ul class="extensions">' +
-                    '<li class="extensions efunc-lastTouch">Last Touch</li>' +
-                    '<li class="extensions efunc-genFinalPT">Final PT</li>' +
-                    '<li class="extensions efunc-genLineItemPT">Line Item PT</li>' +
-                    '<li class="extensions efunc-genNoOfDays">No Of Days Since</li>' +
                 '</ul>' +
                 '<ul class="rename">' +
                     '<li style="text-align: center" class="rename clickable">' +

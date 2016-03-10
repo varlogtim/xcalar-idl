@@ -107,7 +107,7 @@ window.UDF = (function($, UDF) {
         return (deferred.promise());
     }
 
-    function storePython(moduleName, entireString) {
+    UDF.storePython = function(moduleName, entireString) {
         if (storedUDF.hasOwnProperty(moduleName)) {
             // the case of overwrite a module
             $listDropdown.find('li').filter(function() {
@@ -357,7 +357,7 @@ window.UDF = (function($, UDF) {
         function uploadHelper() {
             XcalarUploadPython(moduleName, entireString)
             .then(function() {
-                storePython(moduleName, entireString);
+                UDF.storePython(moduleName, entireString);
                 KVStore.commit();
                 uploadSuccess();
 
@@ -494,7 +494,7 @@ window.UDF = (function($, UDF) {
 
         XcalarUploadPython(moduleName, entireString)
         .then(function() {
-            storePython(moduleName, entireString);
+            UDF.storePython(moduleName, entireString);
         })
         .fail(function(error) {
             console.error(error);
