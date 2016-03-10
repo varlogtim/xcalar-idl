@@ -164,12 +164,15 @@ window.SQL = (function($, SQL) {
     };
 
     SQL.undo = function(step) {
+        xcHelper.assert((isUndoRedo === false), "Doing other undo/redo operation?");
+
         if (step == null) {
             step = 1;
         }
 
-        var logLen = logs.length;
         var c = logCursor;
+        var promises = [];
+
         for (var i = 0; i < step; i++) {
             if (c < 0) {
                 // cannot undo anymore
@@ -181,26 +184,37 @@ window.SQL = (function($, SQL) {
                 // the operation cannot undo
                 break;
             }
-            undoLog(sql);
-            if (logs.length !== logLen) {
-                // XXX debug use
-                console.error("log lenght should not change during undo!");
-            }
+            promises.push(undoLog.bind(this, sql, c));
             c--;
         }
 
-        // cursor in the current position
-        logCursor = c;
-        updateLogPanel(logCursor);
+        isUndoRedo = true;
+
+        chain(promises)
+        .then(function() {
+            // cursor in the current position
+            logCursor = c;
+            updateLogPanel(logCursor);
+        })
+        .fail(function(error) {
+            console.error("undo failed", error);
+        })
+        .always(function() {
+            isUndoRedo = false;
+        });
     };
 
     SQL.redo = function(step) {
+        xcHelper.assert((isUndoRedo === false), "Doing other undo/redo operation?");
+
         if (step == null) {
             step = 1;
         }
 
         var logLen = logs.length;
         var c = logCursor + 1;
+        var promises = [];
+
         for (var i = 0; i < step; i++) {
             if (c >= logLen) {
                 // cannot redo anymore
@@ -213,17 +227,23 @@ window.SQL = (function($, SQL) {
                 break;
             }
 
-            redoLog(sql);
-            if (logs.length !== logLen) {
-                // XXX debug use
-                console.error("log lenght should not change during undo!");
-            }
+            promises.push(redoLog.bind(this, sql, c));
             c++;
         }
 
-        // cursor in the current position
-        logCursor = c - 1;
-        updateLogPanel(logCursor);
+        isUndoRedo = true;
+
+        chain(promises)
+        .then(function() {
+            logCursor = c - 1;
+            updateLogPanel(logCursor);
+        })
+        .fail(function(error) {
+            console.error("undo failed", error);
+        })
+        .always(function() {
+            isUndoRedo = false;
+        });
     };
 
     function initialize() {
@@ -423,30 +443,47 @@ window.SQL = (function($, SQL) {
         }
     }
 
-    function undoLog(sql) {
+    function undoLog(sql, cursor) {
         console.log("undo", sql);
         xcHelper.assert((sql != null), "invalid sql");
-        isUndoRedo = true;
-        // action here
 
+        var deferred = jQuery.Deferred();
+        // action here
         // XXX test
         var options = sql.getOptions();
         var operation = sql.getOperation();
+
         if (operation === SQLOps.UnHideCols) {
             ColManager.hideCols(options.colNums, options.tableId);
+            return jQuery.Deferred().resolve(cursor).promise();
         } else if (operation === SQLOps.HideCols) {
             ColManager.unhideCols(options.colNums, options.tableId, {
                 "autoResize": true
             });
+            return jQuery.Deferred().resolve(cursor).promise();
         }
 
-        isUndoRedo = false;
+        // var logLen = logs.length;
+        // Undo.run(sql)
+        // .then(function() {
+        //     if (logs.length !== logLen) {
+        //         // XXX debug use
+        //         console.error("log lenght should not change during undo!");
+        //     }
+        //     // update cursor, so intermediate undo fail doest have side effect
+        //     logCursor = cursor - 1; // update cursor
+        //     deferred.resolve(cursor);
+        // })
+        // .fail(deferred.reject);
+
+        return deferred.promise();
     }
 
-    function redoLog(sql) {
+    function redoLog(sql, cursor) {
         console.log("redo", sql);
         xcHelper.assert((sql != null), "invalid sql");
-        isUndoRedo = true;
+
+        var deferred = jQuery.Deferred();
         // action here
 
         // XXX test
@@ -454,10 +491,26 @@ window.SQL = (function($, SQL) {
         var operation = sql.getOperation();
         if (operation === SQLOps.UnHideCols) {
             ColManager.unhideCols(options.colNums, options.tableId, options.hideOptions);
+            return jQuery.Deferred().resolve(cursor).promise();
         } else if (operation === SQLOps.HideCols) {
             ColManager.hideCols(options.colNums, options.tableId);
+            return jQuery.Deferred().resolve(cursor).promise();
         }
-        isUndoRedo = false;
+
+        // var logLen = logs.length;
+        // Redo.run(sql)
+        // .then(function() {
+        //     if (logs.length !== logLen) {
+        //         // XXX debug use
+        //         console.error("log lenght should not change during undo!");
+        //     }
+        //     // update cursor, so intermediate redo fail doest have side effect
+        //     logCursor = cursor;
+        //     deferred.resolve(cursor);
+        // })
+        // .fail(deferred.reject);
+
+        return deferred.promise();
     }
 
     function updateLogPanel(cursor) {
