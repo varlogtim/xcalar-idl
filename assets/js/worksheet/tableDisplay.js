@@ -131,7 +131,8 @@ window.TblManager = (function($, TblManager) {
                     "lockTable"   : lockTable,
                     "selectCol"   : selectCol,
                     "isUndo"      : options.isUndo,
-                    "isRedo"      : options.isRedo
+                    "isRedo"      : options.isRedo,
+                    "position"    : options.position
                 };
 
                 addTable([newTableName], oldTNames, tablesToRemove,
@@ -158,7 +159,8 @@ window.TblManager = (function($, TblManager) {
                 addTableOptions = {
                     "afterStartup": afterStartup,
                     "isUndo"      : options.isUndo,
-                    "isRedo"      : options.isRedo
+                    "isRedo"      : options.isRedo,
+                    "position"    : options.position
                 };
                 addTable([newTableName], oldTableNames, [], addTableOptions)
                 .then(function() {
@@ -1026,7 +1028,7 @@ window.TblManager = (function($, TblManager) {
         var lockTable = options.lockTable || false;
         var selectCol = options.selectCol;
 
-        if (options.isUndo && options.position !== null) {
+        if (options.isUndo && options.position != null) {
             WSManager.replaceTable(tableId, null, null,
                                   {position: options.position});
         } else if (oldTableNames[0] == null) {

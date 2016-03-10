@@ -136,6 +136,16 @@ window.Undo = (function($, Undo) {
 
     /* END BACKEND OPERATIONS */
 
+    /* TABLE OPERATIONS */
+
+    undoFuncs[SQLOps.ArchiveTable] = function(options) {
+        var worksheet = WSManager.getWSFromTable(options.tableId);
+        return(TblManager.refreshTable([options.tableName], null, [],
+                                         null,
+                                         {isUndo: true,
+                                          position: 0}));
+    };
+
     /* USER STYLING/FORMATING OPERATIONS */
 
     undoFuncs[SQLOps.HideCols] = function(options) {
