@@ -282,8 +282,6 @@ window.TableList = (function($, TableList) {
             sql.wsToSent = wsToSent;
         }
 
-        var txId = Transaction.start({"operation": SQLOps.ActiveTables});
-
         TableList.tableBulkAction("add", tableType)
         .then(function(tableNames) {
             if (!$("#workspaceTab").hasClass("active")) {
@@ -298,21 +296,12 @@ window.TableList = (function($, TableList) {
             }
 
             sql.tableNames = tableNames;
-            Transaction.done(txId, {
-                "sql"     : sql,
-                "title"   : TblTStr.Active,
-                "noCommit": true
-            });
+            SQL.add(TblTStr.Active, sql);
 
             deferred.resolve();
         })
         .fail(function(error) {
-            Transaction.fail(txId, {
-                "sql"    : sql,
-                "failMsg": TblTStr.ActiveFail,
-                "error"  : error
-            });
-
+            Alert.error(TblTStr.ActiveFail, error);
             deferred.reject(error);
         });
 

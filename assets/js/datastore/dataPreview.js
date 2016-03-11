@@ -256,7 +256,11 @@ window.DataPreview = (function($, DataPreview) {
 
                 $(window).on("resize", resizePreivewTable);
 
-                Transaction.done(txId, {"noCommit": true});
+                // not cache to sql log, only show when fail
+                Transaction.done(txId, {
+                    "noCommit": true,
+                    "noSql"   : true
+                });
             })
             .fail(function(error) {
                 $waitSection.addClass("hidden");
@@ -355,7 +359,10 @@ window.DataPreview = (function($, DataPreview) {
             XcalarDestroyDataset(tableName, txId)
             .then(function() {
                 tableName = null;
-                Transaction.done(txId, {"noCommit": true});
+                Transaction.done(txId, {
+                    "noCommit": true,
+                    "noSql"   : true
+                });
                 deferred.resolve();
             })
             .fail(function(error) {

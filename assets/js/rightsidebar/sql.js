@@ -80,7 +80,7 @@ window.SQL = (function($, SQL) {
         });
     };
 
-    SQL.add = function(title, options, cli) {
+    SQL.add = function(title, options, cli, willCommit) {
         options = options || {};
         if ($.isEmptyObject(options)) {
             console.warn("Options for", title, "is empty!");
@@ -98,12 +98,8 @@ window.SQL = (function($, SQL) {
             "cli"    : cli
         });
 
-        addLog(sql);
+        addLog(sql, false, willCommit);
 
-        sqlToCommit += JSON.stringify(sql) + ",";
-
-        // XXX FIXME: uncomment it if commit on errorLog only has bug
-        // localCommit();
         SQL.scrollToBottom();
         updateUndoRedoState();
     };
@@ -366,7 +362,7 @@ window.SQL = (function($, SQL) {
         .then(function() {
             oldLogs.forEach(function(oldSQL) {
                 var sql = new SQLConstructor(oldSQL);
-                addLog(sql);
+                addLog(sql, true);
             });
 
             deferred.resolve();
@@ -414,7 +410,7 @@ window.SQL = (function($, SQL) {
         return (deferred.promise());
     }
 
-    function addLog(sql) {
+    function addLog(sql, isRestore, willCommit) {
         // normal log
         var logLen = logs.length;
         if (logCursor !== logLen - 1) {
@@ -426,17 +422,23 @@ window.SQL = (function($, SQL) {
             logs.length = logCursor + 1;
 
             localCommit();
+            // must set to "" before async call, other wise KVStore.commit
+            // may mess it up
+            sqlToCommit = "";
 
             var logStr = JSON.stringify(logs);
             // strip "[" and "]" and add comma
             logStr = logStr.substring(1, logStr.length - 1) + ",";
             KVStore.put(KVStore.gLogKey, logStr, true, gKVScope.LOG)
             .then(function() {
-                sqlToCommit = "";
                 localCommit();
 
                 // should also keep all meta in sync
-                return KVStore.commit();
+                if (!willCommit) {
+                    // if willCommit is true,
+                    // this operation is commit in Transaction.done
+                    return KVStore.commit();
+                }
             })
             .then(function() {
                 // XXX test
@@ -448,6 +450,12 @@ window.SQL = (function($, SQL) {
         } else {
             logCursor++;
             logs[logCursor] = sql;
+
+            if (!isRestore) {
+                sqlToCommit += JSON.stringify(sql) + ",";
+                // XXX FIXME: uncomment it if commit on errorLog only has bug
+                // localCommit();
+            }
         }
 
         showSQL(sql, logCursor);
@@ -693,100 +701,75 @@ window.SQL = (function($, SQL) {
     }
 
     function getCliMachine(sql, id) {
-        var options = sql.options;
-        var string = "";
         // Here's the real code
         if (sql.sqlType === SQLType.Error) {
-            return ("");
+            return "";
         }
-        switch (options.operation) {
-            case (SQLOps.DupCol):
-                // fallthrough
-            case (SQLOps.DelDupCol):
-                // fallthrough
-            case (SQLOps.DelAllDupCols):
-                // fallthrough
-            case (SQLOps.DeleteCol):
-                // fallthrough
-            case (SQLOps.ReorderCol):
-                // fallthrough
-            case (SQLOps.ReorderTable):
-                // fallthrough
-            case (SQLOps.AddNewCol):
-                // fallthrough
-            case (SQLOps.PullCol):
-                // fallthrough
-            case (SQLOps.PullAllCols):
-                // fallthrough
-            case (SQLOps.ArchiveTable):
-                // fallthrough
-            case (SQLOps.ActiveTables):
-                // fallthrough
-            case (SQLOps.RenameCol):
-                // fallthrough
-            case (SQLOps.TextAlign):
-                // fallthrough
-            case (SQLOps.HideCols):
-                // fallthrough
-            case (SQLOps.UnHideCols):
-                // fallthrough
-            case (SQLOps.SortTableCols):
-                // fallthrough
-            case (SQLOps.ResizeTableCols):
-                // fallthrough
-            case (SQLOps.DragResizeTableCol):
-                // fallthrough
-            case (SQLOps.HideTable):
-                // fallthrough
-            case (SQLOps.UnhideTable):
-                // fallthrough
-            case (SQLOps.AddWS):
-                // fallthrough
-            case (SQLOps.RenameWS):
-                // fallthrough
-            case (SQLOps.SwitchWS):
-                // fallthrough
-            case (SQLOps.ReorderWS):
-                // fallthrough
-            case (SQLOps.DelWS):
-                // fallthrough
-            case (SQLOps.HideWS):
-                // fallthrough
-            case (SQLOps.UnHideWS):
-                // fallthrough
-            case (SQLOps.MoveTableToWS):
-                // fallthrough
-            case (SQLOps.MoveInactiveTableToWS):
-                // fallthrough
-            case (SQLOps.CreateFolder):
-                // fallthrough
-            case (SQLOps.DSRename):
-                // fallthrough
-            case (SQLOps.DSDropIn):
-                // fallthrough
-            case (SQLOps.DSInsert):
-                // fallthrough
-            case (SQLOps.DSToDir):
-                // fallthrough
-            case (SQLOps.DSDropBack):
-                // fallthrough
-            case (SQLOps.DelFolder):
-                // fallthrough
-            case (SQLOps.AddOhterUserDS):
-                // fallthrough
-            case (SQLOps.ChangeFormat):
-                // fallthrough
-            case (SQLOps.RoundToFixed):
-                // fallthrough
-                // XXX should export tables have an effect?
-                break;
 
-            // Use reverse parser
+        var isBackOp = isBackendOperation(sql);
+
+        if (isBackOp == null || isBackOp === false) {
+            // unsupport operation or front end operation
+            return "";
+        } else {
+            // thrift operation
+            var string = '<span class="cliWrap" data-cli=' + id + '>' +
+                            sql.cli +
+                         '</span>';
+            return string;
+        }
+    }
+
+    function isBackendOperation(sql) {
+        var operation = sql.getOperation();
+
+        switch (operation) {
+            // front end opeartion
+            case (SQLOps.DupCol):
+            case (SQLOps.DelDupCol):
+            case (SQLOps.DelAllDupCols):
+            case (SQLOps.DeleteCol):
+            case (SQLOps.ReorderCol):
+            case (SQLOps.ReorderTable):
+            case (SQLOps.AddNewCol):
+            case (SQLOps.PullCol):
+            case (SQLOps.PullAllCols):
+            case (SQLOps.ArchiveTable):
+            case (SQLOps.ActiveTables):
+            case (SQLOps.RenameCol):
+            case (SQLOps.TextAlign):
+            case (SQLOps.HideCols):
+            case (SQLOps.UnHideCols):
+            case (SQLOps.SortTableCols):
+            case (SQLOps.ResizeTableCols):
+            case (SQLOps.DragResizeTableCol):
+            case (SQLOps.HideTable):
+            case (SQLOps.UnhideTable):
+            case (SQLOps.AddWS):
+            case (SQLOps.RenameWS):
+            case (SQLOps.SwitchWS):
+            case (SQLOps.ReorderWS):
+            case (SQLOps.DelWS):
+            case (SQLOps.HideWS):
+            case (SQLOps.UnHideWS):
+            case (SQLOps.MoveTableToWS):
+            case (SQLOps.MoveInactiveTableToWS):
+            case (SQLOps.CreateFolder):
+            case (SQLOps.DSRename):
+            case (SQLOps.DSDropIn):
+            case (SQLOps.DSInsert):
+            case (SQLOps.DSToDir):
+            case (SQLOps.DSDropBack):
+            case (SQLOps.DelFolder):
+            case (SQLOps.AddOhterUserDS):
+            case (SQLOps.ChangeFormat):
+            case (SQLOps.RoundToFixed):
+                return false;
+            // thrift operation
             case (SQLOps.DestroyDS):
             case (SQLOps.PreviewDS):
             case (SQLOps.DestroyPreviewDS):
             case (SQLOps.DeleteTable):
-            // XXX hang on as export table's api will change
             case (SQLOps.ExportTable):
             case (SQLOps.DSLoad):
             case (SQLOps.Filter):
@@ -807,15 +790,11 @@ window.SQL = (function($, SQL) {
             case (SQLOps.Profile):
             case (SQLOps.ProfileSort):
             case (SQLOps.ProfileBucketing):
-                string += '<span class="cliWrap" data-cli=' + id + '>' +
-                            sql.cli +
-                          '</span>';
-                break;
+                return true;
             default:
-                console.warn("XXX! Operation unexpected", options.operation);
+                console.warn("XXX! Operation unexpected", operation);
+                return null;
         }
-
-        return (string);
     }
 
     // function cliRenameColHelper(options) {

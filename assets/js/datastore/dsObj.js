@@ -676,7 +676,10 @@ window.DS = (function ($, DS) {
 
                 XcalarDestroyDataset(dsName, txId)
                 .then(function() {
-                    Transaction.done(txId, {"noCommit": true});
+                    Transaction.done(txId, {
+                        "noCommit": true,
+                        "noSql"   : true
+                    });
                 })
                 .fail(function(error) {
                     Transaction.fail(txId, {

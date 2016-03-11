@@ -47,19 +47,23 @@ window.Transaction = (function(Transaction, $) {
         }
 
         // add sql
-        var cli = txLog.getCli();
-        // if has new sql, use the new one, otherwise, use the cached one
-        var sql = options.sql || txLog.getSQL();
-        var title = options.title || txLog.getOperation();
-        title = xcHelper.capitalize(title);
+        var willCommit = !options.noCommit;
+        if (!options.noSql) {
 
-        SQL.add(title, sql, cli);
+            var cli = txLog.getCli();
+            // if has new sql, use the new one, otherwise, use the cached one
+            var sql = options.sql || txLog.getSQL();
+            var title = options.title || txLog.getOperation();
+            title = xcHelper.capitalize(title);
+
+            SQL.add(title, sql, cli, willCommit);
+        }
 
         // remove transaction
         removeTX(txId);
 
         // commit
-        if (!options.noCommit) {
+        if (willCommit) {
             KVStore.commit();
         }
     };

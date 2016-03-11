@@ -616,6 +616,7 @@ window.DataCart = (function($, DataCart) {
                                             [], worksheet, options);
         })
         .then(function() {
+            // this will be saved later
             Transaction.done(txId, {
                 "msgTable": xcHelper.getTableId(tableName),
                 "title"   : TblTStr.Create,

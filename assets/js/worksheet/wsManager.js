@@ -448,9 +448,6 @@ window.WSManager = (function($, WSManager) {
             "newWorksheetId"  : newWSId,
             "newWorksheetName": newWS.name
         };
-        var txId = Transaction.start({
-            "operation": SQLOps.MoveInactiveTableToWS
-        });
 
         findTableListHelper()
         .then(function() {
@@ -458,18 +455,12 @@ window.WSManager = (function($, WSManager) {
         })
         .then(function() {
             WSManager.focusOnLastTable();
-
-            Transaction.done(txId, {
-                "sql"     : sql,
-                "noCommit": true
-            });
+            // this sql is modified in findTableListHelper()
+            SQL.add("Move Inactive Table To Worksheet", sql);
             deferred.resolve();
         })
         .fail(function(error) {
-            Transaction.fail(txId, {
-                "sql"  : sql,
-                "error": error
-            });
+            console.error("Move inactive to worksheet failed", error);
             deferred.reject();
         });
 

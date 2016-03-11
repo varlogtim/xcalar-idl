@@ -572,7 +572,8 @@ window.DagPanel = (function($, DagPanel) {
                 XcalarDeleteTable(tableName, txId)
                 .then(function() {
                     Dag.makeInactive(tableName, true);
-                    Transaction.done(txId, {"noCommit": true});
+                    // delete table will change meta, so should commit
+                    Transaction.done(txId);
                 })
                 .fail(function(error) {
                     Transaction.fail(txId, {
