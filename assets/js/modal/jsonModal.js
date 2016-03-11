@@ -81,7 +81,7 @@ window.JSONModal = (function($, JSONModal) {
             jsonModalDocumentEvent();
             $("body").addClass("hideScroll");
         }
-        
+
         refreshJsonModal($jsonTd, isArray, isModalOpen); // shows json modal
 
         if (isModalOpen) {
@@ -158,7 +158,6 @@ window.JSONModal = (function($, JSONModal) {
                     }
                 }
 
-
                 var pullColOptions = {
                     "isDataTd" : isDataCol,
                     "isArray"  : isArray,
@@ -186,7 +185,7 @@ window.JSONModal = (function($, JSONModal) {
             var newComparisonNum;
 
             if ($checkMark.hasClass('on')) {// uncheck this jsonwrap
-                
+
                 $checkMark.removeClass('on first');
                 $checkMark.closest('.jsonWrap')
                           .removeClass('active comparison');
@@ -210,7 +209,7 @@ window.JSONModal = (function($, JSONModal) {
                 $checkMark.addClass('on');
                 $checkMark.closest('.jsonWrap').addClass('active');
             }
-            
+
             $checkMarks = $jsonArea.find('.checkMark.on');
 
             // only run comparison if more than 2 checkmarks are on
@@ -236,7 +235,7 @@ window.JSONModal = (function($, JSONModal) {
                 updateSearchResults();
                 searchText();
             }
-            
+
         });
 
         $jsonArea.on("click", ".split", function() {
@@ -277,7 +276,7 @@ window.JSONModal = (function($, JSONModal) {
             // var isCheckmarkOn = $jsonWrap.find('.checkMark.on').length !== 0;
             var index = $jsonWrap.index();
             $jsonWrap.find('.remove').tooltip('destroy');
-            
+
             if ($jsonWrap.find('.checkMark.on').length) {
                 $jsonWrap.find('.checkMark').click();
             }
@@ -296,10 +295,10 @@ window.JSONModal = (function($, JSONModal) {
                         $checkMark.attr('title', title);
                     } else {
                         $checkMark.attr('data-original-title', title);
-                    }    
-                });  
+                    }
+                });
             }
-            
+
             jsonData.splice(index, 1);
             delete comparisonObjs[index];
 
@@ -375,7 +374,7 @@ window.JSONModal = (function($, JSONModal) {
                 $checkMark.attr('data-original-title', title);
             }
         });
-      
+
 
         var numData = jsonData.length;
         for (var i = numData - 1; i > index; i--) {
@@ -397,9 +396,9 @@ window.JSONModal = (function($, JSONModal) {
         var currentWidth = $jsonModal.width();
         var offsetLeft = $jsonModal.offset().left;
         var maxWidth = winWidth - offsetLeft;
-        
+
         var desiredWidth = Math.min(numJsons * 200, maxWidth);
-    
+
         if (currentWidth < desiredWidth) {
             var newWidth = Math.min(desiredWidth, currentWidth + 200);
             $jsonModal.width(newWidth);
@@ -441,7 +440,7 @@ window.JSONModal = (function($, JSONModal) {
         }
 
         if ($searchInput.val().length !== 0) {
-         
+
             $counter.find('.total').text("of " + searchHelper.numMatches);
 
             if (searchHelper.numMatches > 0) {
@@ -474,7 +473,7 @@ window.JSONModal = (function($, JSONModal) {
         var $targets = $jsonText.find('.text').filter(function() {
             return ($(this).text().toLowerCase().indexOf(text) !== -1);
         });
-        
+
         text = xcHelper.escapeRegExp(text);
         var regex = new RegExp(text, "gi");
 
@@ -527,7 +526,7 @@ window.JSONModal = (function($, JSONModal) {
             setTimeout(function() {
                 $searchBar.find('input').focus();
             }, 310);
-            
+
         } else {
             $searchBar.addClass('closed');
             $searchInput.val("");
@@ -581,7 +580,7 @@ window.JSONModal = (function($, JSONModal) {
         if (!isModalOpen) {
             var height = Math.min(500, $(window).height());
             $jsonModal.height(height).width(500);
-       
+
             if (gMinModeOn) {
                 $('#sideBarModal').show();
                 $modalBackground.show();
@@ -617,7 +616,7 @@ window.JSONModal = (function($, JSONModal) {
                     $checkMark.attr('data-original-title', title);
                 }
             });
-            
+
         }
     }
 
@@ -674,7 +673,7 @@ window.JSONModal = (function($, JSONModal) {
                     }
                     tempActiveObj[key] = jsonObjs[key];
                     tempPartials.push(tempActiveObj);
-                    
+
                     numMatches--;
                     i--;
                 } else {
@@ -723,7 +722,7 @@ window.JSONModal = (function($, JSONModal) {
             var matchedJsons = []; // when both objs have same key and values
             var unmatchedJsons = [];
             var partialMatchedJsons = []; // when both objs have the same key but different values
-        
+
             for (var i = 0; i < numObjs; i++) {
                 matchedJsons.push([]);
                 unmatchedJsons.push([]);
@@ -732,19 +731,19 @@ window.JSONModal = (function($, JSONModal) {
             for (var i = 0; i < numKeys; i++) {
                 for (var j = 1; j < 2; j++) {
                     var key = keys[i];
-                    
+
                     var compareResult = deepCompare(jsonObjs[0][key],
                                                     jsonObjs[j][key]);
-                    
+
                     var obj = {};
                     obj[key] = jsonObjs[0][key];
-                    
+
                     if (compareResult) {
                         matchedJsons[0].push(obj);
                         matchedJsons[j].push(obj);
                         delete jsonObjs[j][key];
                     } else if (jsonObjs[j].hasOwnProperty(key)) {
-                        
+
                         partialMatchedJsons[0].push(obj);
                         var secondObj = {};
                         secondObj[key] = jsonObjs[j][key];
@@ -906,7 +905,7 @@ window.JSONModal = (function($, JSONModal) {
             highlightCell($jsonTd, tableId, rowNum, colNum, false,
                             {jsonModal: true});
         }
-        
+
     }
 
     function getJsonWrapHtml(prettyJson) {
@@ -959,7 +958,7 @@ window.JSONModal = (function($, JSONModal) {
     function resortJsons(initialIndex, newIndex) {
         var json = jsonData.splice(initialIndex, 1)[0];
         jsonData.splice(newIndex, 0, json);
-        
+
         // var min = Math.min(initialIndex, newIndex);
         // var max = Math.max(initialIndex, newIndex);
         // var keys = Object.keys(comparisonObjs);
@@ -1030,7 +1029,7 @@ window.JSONModal = (function($, JSONModal) {
                     $(this).find('.tableCover.jsonCover')
                            .height(tableHeight - 36);
                 });
-                
+
                 $tableWrap.find('.tableCover.jsonCover').addClass('visible');
                 $jsonModal.addClass('hidden').show();
                 var hiddenClassTimer = 50;
@@ -1053,7 +1052,7 @@ window.JSONModal = (function($, JSONModal) {
                 setTimeout(function() {
                     $jsonModal.fadeIn(shortTimer);
                 }, shortTimer);
-                
+
                 $jsonTd.addClass('modalHighlighted');
                 setTimeout(function() {
                     $jsonTd.addClass('jsonModalOpen');
@@ -1173,7 +1172,7 @@ window.JSONModal = (function($, JSONModal) {
         }
 
         --options.inarray;
-        
+
         if (options.comparison) {
             // removes last comma unless inside div
             return (result.replace(/\, $/, "").replace(/\,$/, ""));
@@ -1181,7 +1180,7 @@ window.JSONModal = (function($, JSONModal) {
             // .replace used to remove comma if last value in object
             return (result.replace(/\,<\/div>$/, "</div>").replace(/\, $/, "")
                                                           .replace(/\,$/, ""));
-        
+
         }
     }
 

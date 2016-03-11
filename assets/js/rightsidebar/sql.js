@@ -619,6 +619,8 @@ window.SQL = (function($, SQL) {
                 // fallthrough
             case (SQLOps.PullCol):
                 // fallthrough
+            case (SQLOps.PullAllCols):
+                // fallthrough
             case (SQLOps.ArchiveTable):
                 // fallthrough
             case (SQLOps.ActiveTables):

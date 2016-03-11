@@ -144,6 +144,8 @@ window.ColManager = (function($, ColManager) {
             updateTableHeader(tableId);
             TableList.updateTableInfo(tableId);
             $tableWrap.find('.rowGrab').width($table.width());
+            matchHeaderSizes($table);
+            moveFirstColumn();
         } else {
             // var $th = $tableWrap.find('.th.col' + newColid);
             $th.width(10);
@@ -196,8 +198,11 @@ window.ColManager = (function($, ColManager) {
         }
     };
 
-    ColManager.delCol = function(colNums, tableId) {
+    //options
+    // noAnimate: boolean, if true, no animation is applied
+    ColManager.delCol = function(colNums, tableId, options) {
         // deletes an array of columns
+        var deferred  = jQuery.Deferred();
         var table     = gTables[tableId];
         var tableName = table.tableName;
         var $table    = $('#xcTable-' + tableId);
@@ -208,21 +213,28 @@ window.ColManager = (function($, ColManager) {
         var promises = [];
         var colWidths = 0;
         var tableWidth = $table.closest('.xcTableWrap').width();
-
+        var progCols = [];
+        var options = options || {};
         for (var i = 0; i < numCols; i++) {
             colNum = colNums[i];
             colIndex = colNum - i;
             var col = table.tableCols[colIndex - 1];
             colNames.push(col.name);
+            progCols.push(col);
             if (col.isHidden) {
                 colWidths += 15;
             } else {
                 colWidths += table.tableCols[colIndex - 1].width;
             }
-            promises.push(delColHelper(colNum, colNum, tableId, true, colIndex));
+            promises.push(delColHelper(colNum, colNum, tableId, true, colIndex,
+                                       options.noAnimate));
+        }
+        if (gMinModeOn || options && options.noAnimate) {
+            moveTableTitles($table.closest('.xcTableWrap'));
+        } else {
+            moveTableTitlesAnimated(tableId, tableWidth, colWidths, 200);
         }
 
-        moveTableTitlesAnimated(tableId, tableWidth, colWidths, 200);
         var noSave = true;
         FnBar.clear(noSave);
 
@@ -246,9 +258,14 @@ window.ColManager = (function($, ColManager) {
                 "tableName": tableName,
                 "tableId"  : tableId,
                 "colNames" : colNames,
-                "colNums"  : colNums
+                "colNums"  : colNums,
+                "progCols" : progCols,
+                "htmlExclude": ["progCols"]
             });
+            deferred.resolve();
         });
+
+        return (deferred.promise());
     };
 
     // specifically used for json modal
@@ -2374,7 +2391,10 @@ window.ColManager = (function($, ColManager) {
         var $tableWrap = $('#xcTableWrap-' + tableId);
         var tableWidth = $tableWrap.width();
         var colName = table.tableCols[colNum - 1].name;
-        var colWidths = delDupColHelper(colNum, tableId);
+        var colInfo = delDupColHelper(colNum, tableId);
+        var colWidths = colInfo.colWidths;
+        var colNums = colInfo.colNums;
+        var progCols = colInfo.progCols;
 
         if (gMinModeOn) {
             matchHeaderSizes($tableWrap.find('.xcTable'));
@@ -2393,7 +2413,10 @@ window.ColManager = (function($, ColManager) {
             "tableName": table.tableName,
             "tableId"  : tableId,
             "colNum"   : colNum,
-            "colName"  : colName
+            "colName"  : colName,
+            "colNums"  : colNums,
+            "progCols" : progCols,
+            "htmlExclude"  : ["progCols"]
         });
     };
 
@@ -2402,22 +2425,42 @@ window.ColManager = (function($, ColManager) {
         var columns = table.tableCols;
         var forwardCheck = true;
         var $table = $('#xcTable-' + tableId);
+        var progCols = [];
+        var colNums = [];
+        var colInfo;
+        var allCols = [];
+        var originalNumCols = columns.length - 1;
+        var numColsRemoved = 0;
         for (var i = 0; i < columns.length; i++) {
             if (columns[i].func.func && columns[i].func.func === "raw") {
                 continue;
             } else {
-                delDupColHelper(i + 1, tableId, forwardCheck);
+                colInfo = null;
+                colInfo = delDupColHelper(i + 1, tableId, forwardCheck);
+                console.log(colInfo);
+                if (colInfo && colInfo.colNums.length) {
+                    colNums = colInfo.colNums;
+                    for (var j = 0; j < colNums.length; j++) {
+                        allCols.push(colNums[j] + numColsRemoved);
+                        progCols.push(colInfo.progCols[j]);
+                    }
+                    numColsRemoved += colNums.length;
+                }
             }
         }
 
         matchHeaderSizes($table);
+        moveFirstColumn();
         updateTableHeader(tableId);
         TableList.updateTableInfo(tableId);
 
         SQL.add("Delete All Duplicate Columns", {
             "operation": SQLOps.DelAllDupCols,
             "tableName": table.tableName,
-            "tableId"  : tableId
+            "tableId"  : tableId,
+            "colNums"  : allCols,
+            "progCols" : progCols,
+            "htmlExclude": ["progCols"]
         });
     };
 
@@ -2899,6 +2942,7 @@ window.ColManager = (function($, ColManager) {
         }
 
         var colNum = xcHelper.parseColNum($jsonTd);
+        var jsonRowNum = xcHelper.parseRowNum($jsonTd.closest('tr'));
         var $table = $jsonTd.closest('table');
         var tableId  = $table.data('id');
         var table = gTables[tableId];
@@ -2910,6 +2954,7 @@ window.ColManager = (function($, ColManager) {
         var escapedColName;
         var openSymbol;
         var closingSymbol;
+        var colNums = [];
         // var tempName;
 
         for (var arrayKey in jsonTdObj) {
@@ -2982,7 +3027,7 @@ window.ColManager = (function($, ColManager) {
             if (!options.isDataTd) {
                 colHeadNum++;
             }
-
+            colNums.push(colHeadNum);
             ths += TblManager.generateColumnHeadHTML(columnClass, color, colHeadNum,
                                           {name: key, width: width});
         }
@@ -3018,9 +3063,19 @@ window.ColManager = (function($, ColManager) {
                                 RowDirection.Bottom);
         updateTableHeader(tableId);
         TableList.updateTableInfo(tableId);
-        moveTableDropdownBoxes();
+        matchHeaderSizes($table);
         moveFirstColumn();
-        moveTableTitles();
+
+        SQL.add("Pull All Columns", {
+            "operation"  : SQLOps.PullAllCols,
+            "tableName"  : table.tableName,
+            "tableId"    : tableId,
+            "colNum"     : colNum,
+            "colNums"    : colNums,
+            "rowNum"     : jsonRowNum,
+            "isArray"    : isArray,
+            "options"    : options
+        });
     };
 
     function pullColHelper(key, newColid, tableId, startIndex, numberOfRows) {
@@ -3162,6 +3217,7 @@ window.ColManager = (function($, ColManager) {
         }
     }
 
+    //  returns {colWidths: colWidths, colNums: colNums, progCOls: progCols};
     function delDupColHelper(colNum, tableId, forwardCheck) {
         var index   = colNum - 1;
         var columns = gTables[tableId].tableCols;
@@ -3169,10 +3225,12 @@ window.ColManager = (function($, ColManager) {
         var args    = columns[index].func.args;
         var start   = forwardCheck ? index : 0;
         var operation;
-        // var thNum = start + (thsDeleted || 0);
+
         var thNum = start;
         var numColsDeleted = 0;
         var colWidths = 0;
+        var colNums = [];
+        var progCols = [];
 
         if (args) {
             operation = args[0];
@@ -3195,6 +3253,7 @@ window.ColManager = (function($, ColManager) {
             thNum++;
         }
 
+
         function delColAndAdjustLoop() {
             var currThNum;
             if (gMinModeOn || forwardCheck) {
@@ -3207,7 +3266,7 @@ window.ColManager = (function($, ColManager) {
             } else {
                 colWidths += columns[i].width;
             }
-
+            progCols.push(columns[i]);
             delColHelper(currThNum, i + 1, tableId, null, null, forwardCheck);
             if (i < index) {
                 index--;
@@ -3215,8 +3274,9 @@ window.ColManager = (function($, ColManager) {
             numCols--;
             i--;
             numColsDeleted++;
+            colNums.push(thNum);
         }
-        return (colWidths);
+        return ({colWidths: colWidths, colNums: colNums, progCols: progCols});
     }
 
     // Help Functon for pullAllCols and pullCOlHelper

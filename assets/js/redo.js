@@ -17,7 +17,7 @@ window.Redo = (function($, Redo) {
                 deferred.reject("redo failed");
             });
         } else {
-            console.error("Unknown operation", operation);
+            console.warn("Unknown operation cannot redo", operation);
             deferred.reject("Unknown operation");
 
         }
@@ -63,7 +63,6 @@ window.Redo = (function($, Redo) {
     };
 
     redoFuncs[SQLOps.GroupBy] = function(options) {
-        // TblManager.archiveTable(tableId, {"del": ArchiveTable.Keep});
         var worksheet = WSManager.getWSFromTable(options.tableId);
         return(TblManager.refreshTable([options.newTableName], null, [],
                                          worksheet, {isRedo: true}));
@@ -81,6 +80,61 @@ window.Redo = (function($, Redo) {
     redoFuncs[SQLOps.UnHideCols] = function(options) {
         ColManager.unhideCols(options.colNums, options.tableId);
         return (promiseWrapper(null));
+    };
+
+    redoFuncs[SQLOps.AddNewCol] = function(options) {
+        var addColOptions = {
+            "direction": options.direction,
+            "isNewCol" : true,
+            "inFocus"  : true
+        };
+
+        ColManager.addCol(options.siblColNum, options.tableId, null,
+                          addColOptions);
+
+        return (promiseWrapper(null));
+    };
+
+    redoFuncs[SQLOps.DeleteCol] = function(options) {
+        return (ColManager.delCol(options.colNums, options.tableId));
+    };
+
+    redoFuncs[SQLOps.PullCol] = function(options) {
+        return (ColManager.pullCol(options.colNum, options.tableId,
+                                  options.nameInfo, options.pullColOptions));
+    };
+
+    redoFuncs[SQLOps.PullAllCols] = function(options) {
+        var $table = $('#xcTable-' + options.tableId);
+        var $row = $table.find('tr.row' + options.rowNum);
+        var $td = $table.find('.jsonElement');
+
+        ColManager.unnest($td, options.isArray, options.options);
+        return (promiseWrapper(null));
+    };
+
+    redoFuncs[SQLOps.DupCol] = function(options) {
+        return (ColManager.dupCol(options.colNum, options.tableId));
+    };
+
+    redoFuncs[SQLOps.DelDupCol] = function(options) {
+        // delCol is 1 indexed;
+        var colNums = options.colNums;
+        var newColNums = [];
+        for (var i = 0; i < colNums.length; i++) {
+            newColNums.push(colNums[i] + 1);
+        }
+        return (ColManager.delCol(newColNums, options.tableId));
+    };
+
+    redoFuncs[SQLOps.DelAllDupCols] = function(options) {
+        // delCol is 1 indexed;
+        var colNums = options.colNums;
+        var newColNums = [];
+        for (var i = 0; i < colNums.length; i++) {
+            newColNums.push(colNums[i] + 1);
+        }
+        return (ColManager.delCol(newColNums, options.tableId));
     };
 
     redoFuncs[SQLOps.ReorderCol] = function(options) {

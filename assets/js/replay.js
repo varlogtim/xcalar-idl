@@ -242,6 +242,7 @@ window.Replay = (function($, Replay) {
         argsMap[SQLOps.RenameCol] = ["colNum", "tableId", "newName"];
         argsMap[SQLOps.PullCol] = ["colNum", "tableId",
                                     "nameInfo", "pullColOptions"];
+        argsMap[SQLOps.PullAllCols] = ["$jsonTd", "isArray", "options"];
         argsMap[SQLOps.SortTableCols] = ["tableId", "direction"];
         argsMap[SQLOps.ResizeTableCols] = ["tableId", "resizeTo", "columnNums"];
         argsMap[SQLOps.DragResizeTableCol] = ["tableId", "colNum", "fromWidth",
@@ -651,6 +652,16 @@ window.Replay = (function($, Replay) {
         pullCol: function(options) {
             var args = getArgs(options);
             return (ColManager.pullCol.apply(window, args));
+        },
+
+        pullAllCols: function(options) {
+            var $table = $('#xcTable-' + options.tableId);
+            var $row = $table.find('tr.row' + options.rowNum);
+            var $td = $table.find('.jsonElement');
+            var args = getArgs(options);
+            args.splice(0, 0, $td);
+
+            return (ColManager.unnest.apply(window, args));
         },
 
         archiveTable: function(options) {

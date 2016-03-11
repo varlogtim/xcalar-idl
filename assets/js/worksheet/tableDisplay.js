@@ -1289,7 +1289,7 @@ window.TblManager = (function($, TblManager) {
         TblManager.pullRowsBulk(tableId, jsonObj, startIndex, dataIndex, null);
         addTableListeners(tableId);
         createTableHeader(tableId);
-        addColListeners($table, tableId);
+        TblManager.addColListeners($table, tableId);
 
         var activeWS = WSManager.getActiveWS();
         var tableWS = WSManager.getWSFromTable(tableId);
@@ -1383,7 +1383,7 @@ window.TblManager = (function($, TblManager) {
         }
     }
 
-    function addColListeners($table, tableId) {
+    TblManager.addColListeners = function($table, tableId) {
         var $thead = $table.find('thead tr');
         var $tbody = $table.find("tbody");
         var lastSelectedCell;
@@ -1771,10 +1771,10 @@ window.TblManager = (function($, TblManager) {
 
             return false;
         };
-    }
+    };
 
     // creates thead and cells but not the body of the table
-    function generateTableShell(columns, tableId, options) {
+    function generateTableShell(columns, tableId) {
         var table = gTables[tableId];
         var activeWS = WSManager.getActiveWS();
         var tableWS = WSManager.getWSFromTable(tableId);
@@ -1808,8 +1808,26 @@ window.TblManager = (function($, TblManager) {
 
         var newTable =
             '<table id="xcTable-' + tableId + '" class="xcTable dataTable" ' +
-            'style="width:0px;" data-id="' + tableId + '">' +
-              '<thead>' +
+            'style="width:0px;" data-id="' + tableId + '">';
+        tHeadTbodyInfo = TblManager.generateTheadTbody(columns, tableId);
+        newTable += tHeadTbodyInfo.html;
+        newTable += '</table>';
+        newTable += '<div class="rowGrab last"></div>';
+        $('#xcTbodyWrap-' + tableId).append(newTable);
+        $('#xcTbodyWrap-' + tableId).find('.rowGrab.last').mousedown(function(event) {
+            if (event.which === 1) {
+                TblAnim.startRowResize($(this), event);
+            }
+        });
+
+        return (tHeadTbodyInfo.dataIndex);
+    }
+
+    // returns {html: html, dataIndex: dataIndex};
+    TblManager.generateTheadTbody = function(columns, tableId) {
+        var table = gTables[tableId];
+        var newTable =
+            '<thead>' +
               '<tr>' +
                 '<th style="width: 50px;" class="col0 th rowNumHead"' +
                     ' title="select all columns" data-toggle="tooltip"' +
@@ -1856,42 +1874,42 @@ window.TblManager = (function($, TblManager) {
                 if (width === 'auto') {
                     width = 400;
                 }
-                newTable +=
-                    '<th class="col' + newColid + ' th dataCol' + thClass + '" ' +
-                        'style="width:' + width + 'px;">' +
-                        '<div class="header type-data">' +
-                            '<div class="dragArea"></div>' +
-                            '<div class="colGrab"></div>' +
-                            '<div class="flexContainer flexRow">' +
-                            '<div class="flexWrap flex-left"></div>' +
-                            '<div class="flexWrap flex-mid">' +
-                                '<input value="DATA" spellcheck="false" ' +
-                                    ' class="dataCol col' + newColid + '"' +
-                                    ' data-toggle="tooltip" data-placement="bottom" ' +
-                                    '" title="raw data" disabled>' +
-                            '</div>' +
-                            '<div class="flexWrap flex-right">' +
-                                '<div class="dropdownBox">' +
-                                    '<div class="innerBox"></div>' +
-                                '</div>' +
-                            '</div>' +
-                        '</div>' +
-                    '</th>';
+                newTable += generateDataHeadHTML(newColid, thClass, width);
             } else {
                 newTable += TblManager.generateColumnHeadHTML(columnClass,
                                                     color, (i + 1), columns[i]);
             }
         }
 
-        newTable += '</tr></thead><tbody></tbody></table>';
-        newTable += '<div class="rowGrab last"></div>';
-        $('#xcTbodyWrap-' + tableId).append(newTable);
-        $('#xcTbodyWrap-' + tableId).find('.rowGrab.last').mousedown(function(event) {
-            if (event.which === 1) {
-                TblAnim.startRowResize($(this), event);
-            }
-        });
-        return (dataIndex);
+        newTable += '</tr></thead><tbody></tbody>';
+
+        return ({html: newTable, dataIndex: dataIndex});
+    };
+
+    function generateDataHeadHTML(newColid, thClass, width) {
+        var newTable =
+            '<th class="col' + newColid + ' th dataCol' + thClass + '" ' +
+                'style="width:' + width + 'px;">' +
+                '<div class="header type-data">' +
+                    '<div class="dragArea"></div>' +
+                    '<div class="colGrab"></div>' +
+                    '<div class="flexContainer flexRow">' +
+                    '<div class="flexWrap flex-left"></div>' +
+                    '<div class="flexWrap flex-mid">' +
+                        '<input value="DATA" spellcheck="false" ' +
+                            ' class="dataCol col' + newColid + '"' +
+                            ' data-toggle="tooltip" data-placement="bottom" ' +
+                            '" title="raw data" disabled>' +
+                    '</div>' +
+                    '<div class="flexWrap flex-right">' +
+                        '<div class="dropdownBox">' +
+                            '<div class="innerBox"></div>' +
+                        '</div>' +
+                    '</div>' +
+                '</div>' +
+            '</th>';
+
+        return (newTable);
     }
 
     function delTableHelper(tableId, tableType, txId) {

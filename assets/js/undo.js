@@ -16,9 +16,8 @@ window.Undo = (function($, Undo) {
                  deferred.reject("undo failed");
             });
         } else {
-            console.error("Unknown operation", operation);
+            console.warn("Unknown operation cannot undo", operation);
             deferred.reject("Unknown operation");
-
         }
 
         return (deferred.promise());
@@ -167,6 +166,46 @@ window.Undo = (function($, Undo) {
         return (promiseWrapper(null));
     };
 
+    undoFuncs[SQLOps.AddNewCol] = function(options) {
+        var colNum = options.siblColNum;
+        if (options.direction === "R") {
+            colNum++;
+        }
+        return (ColManager.delCol([colNum], options.tableId));
+    };
+
+    undoFuncs[SQLOps.DeleteCol] = function(options) {
+        undoDeleteHelper(options, -1);
+        return (promiseWrapper(null));
+    };
+
+    undoFuncs[SQLOps.PullCol] = function(options) {
+        var colNum = options.colNum;
+        if (options.direction === "R") {
+            colNum++;
+        }
+        return (ColManager.delCol([colNum], options.tableId));
+    };
+
+    undoFuncs[SQLOps.PullAllCols] = function(options) {
+        return (ColManager.delCol(options.colNums, options.tableId,
+                                 {"noAnimate": true}));
+    };
+
+    undoFuncs[SQLOps.DupCol] = function(options) {
+        return (ColManager.delCol([options.colNum + 1], options.tableId));
+    };
+
+    undoFuncs[SQLOps.DelDupCol] = function(options) {
+        undoDeleteHelper(options);
+        return (promiseWrapper(null));
+    };
+
+    undoFuncs[SQLOps.DelAllDupCols] = function(options) {
+        undoDeleteHelper(options);
+        return (promiseWrapper(null));
+    };
+
     undoFuncs[SQLOps.ReorderCol] = function(options) {
         ColManager.reorderCol(options.tableId, options.newColNum,
                               options.oldColNum, {"undoRedo": true});
@@ -254,6 +293,40 @@ window.Undo = (function($, Undo) {
         }
     };
     /* End of Archive and UnArchive */
+
+    function undoDeleteHelper(options, shift) {
+        var progCols = options.progCols;
+        var tableId = options.tableId;
+        var currProgCols = gTables[tableId].tableCols;
+        var colNums = options.colNums;
+        var nameInfo;
+        var $table = $('#xcTable-' + tableId);
+        var dataIndex = xcHelper.parseColNum($table.find('th.dataCol'));
+        var newProgCol;
+        shift = shift || 0;
+
+        for (var i = 0, len = progCols.length; i < len; i++) {
+            newProgCol = ColManager.newCol(progCols[i]);
+            currProgCols.splice(colNums[i] + shift, 0, newProgCol);
+        }
+
+        var jsonObj = {normal: []};
+        $table.find('tbody').find('.col' + dataIndex).each(function() {
+            jsonObj.normal.push($(this).text());
+        });
+
+        var tHeadBodyInfo = TblManager.generateTheadTbody(currProgCols, tableId);
+        var newDataIndex = tHeadBodyInfo.dataIndex;
+        var rowNum = xcHelper.parseRowNum($table.find('tbody').find('tr:eq(0)'));
+
+        var tableHtml = tHeadBodyInfo.html;
+        $table.html(tableHtml);
+
+        TblManager.pullRowsBulk(tableId, jsonObj, rowNum, newDataIndex,
+                                RowDirection.Bottom);
+        TblManager.addColListeners($table, tableId);
+        moveFirstColumn();
+    }
 
     return (Undo);
 }(jQuery, {}));
