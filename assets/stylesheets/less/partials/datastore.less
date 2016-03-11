@@ -615,14 +615,23 @@ input {
         }
 
         .suggestSection {
-            display: block !important;
-
             .suggestPart {
-                display: none !important;
+                .hint {
+                    display: none !important;
+                }
             }
+        }
+    }
+}
 
-            .iconPart {
-                float: right;
+@media screen and (max-width: 900px) {
+    #dsPreviewWrap {
+        .suggestSection {
+            .suggestPart {
+                .action {
+                    max-width: 80px;
+                    display: inline-block;
+                }
             }
         }
     }
