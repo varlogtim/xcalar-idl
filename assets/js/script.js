@@ -515,6 +515,10 @@ window.StartManager = (function(StartManager, $) {
                 case keyCode.End:
                     isPreventEvent = tableScroll("homeEnd", false);
                     break;
+                case keyCode.Y:
+                case keyCode.Z:
+                    checkUndoRedo(event);
+                    break;
                 default:
                     break;
             }
@@ -756,6 +760,31 @@ window.StartManager = (function(StartManager, $) {
             }
 
             return false;
+        }
+
+        function checkUndoRedo(event) {
+            if (!(isSystemMac && event.metaKey) &&
+                !(!isSystemMac && event.ctrlKey))
+            {
+                return;
+            }
+            if ($('#workspacePanel').hasClass('active') &&
+                !$('.modalContainer:visible').length &&
+                !$('textarea:focus').length &&
+                !$('input:focus').length) {
+
+                event.preventDefault();
+                $('.menu').hide();
+                removeMenuKeyboardNavigation();
+                $('.highlightBox').remove();
+                $('body').removeClass('noSelection');
+
+                if (event.which === keyCode.Z) {
+                    $('#undo').click();
+                } else if (event.which === keyCode.Y) {
+                    $('#redo').click();
+                }
+            }
         }
     }
 

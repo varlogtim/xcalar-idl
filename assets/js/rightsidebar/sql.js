@@ -229,7 +229,7 @@ window.SQL = (function($, SQL) {
             isUndo = false;
 
             updateUndoRedoState();
-            xcHelper.refreshTooltip($undo);
+            xcHelper.refreshTooltip($undo, 2000);
         });
     };
 
@@ -275,7 +275,7 @@ window.SQL = (function($, SQL) {
             isRedo = false;
 
             updateUndoRedoState();
-            xcHelper.refreshTooltip($redo);
+            xcHelper.refreshTooltip($redo, 2000);
         });
     };
 

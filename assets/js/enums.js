@@ -129,7 +129,9 @@ var keyCode = {
     PageDown: 34,
     PageUp: 33,
     Home: 36,
-    End: 35
+    End: 35,
+    Y: 89, // for redo
+    Z: 90
 };
 
 var AggrOp = {

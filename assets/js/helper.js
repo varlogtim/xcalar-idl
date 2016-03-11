@@ -355,7 +355,7 @@ window.xcHelper = (function($, xcHelper) {
                 $('.xcTableWrap').not('#xcTableWrap-' + tableId)
                                  .addClass('tableDarkened');
             }
-            
+
             $rightSideBar.addClass('modalOpen');
             $mainFrame.addClass('modalOpen');
             var fadeInTime = options.time || 150;
@@ -437,7 +437,7 @@ window.xcHelper = (function($, xcHelper) {
             } catch(error) {
                 console.error(error);
             }
-            
+
         } else if (document.body.createTextRange) {
             range = document.body.createTextRange();
             range.moveToElementText(element);
@@ -523,9 +523,17 @@ window.xcHelper = (function($, xcHelper) {
         return (res);
     };
 
-    xcHelper.refreshTooltip = function($ele) {
+    var tooltipTimer;
+
+    xcHelper.refreshTooltip = function($ele, timer) {
+        clearTimeout(tooltipTimer);
         $ele.mouseenter();
         $ele.mouseover();
+        if (timer) {
+            tooltipTimer = setTimeout(function() {
+                $ele.mouseleave();
+            }, timer);
+        }
     };
 
     xcHelper.showRefreshIcon = function($location) {
@@ -538,7 +546,7 @@ window.xcHelper = (function($, xcHelper) {
                                     .height(37)
                                     .width(35);
         }, 0);
-        
+
         setTimeout(function(){
             $waitingIcon.fadeOut(100, function() {
                 $waitingIcon.remove();
@@ -559,7 +567,7 @@ window.xcHelper = (function($, xcHelper) {
             setTimeout(function() {
                 $text.removeClass('hidden');
             }, 200);
-            
+
             setTimeout(function() {
                 $checkMark.show().removeClass('hidden')
                                  .addClass('bounceInDown animated');
@@ -569,7 +577,7 @@ window.xcHelper = (function($, xcHelper) {
             setTimeout(function() {
                 $textAndCheckMark.addClass('hidden');
             }, 1800);
-            
+
             setTimeout(function() {
                 $successMessage.hide();
             }, 2400);
@@ -813,7 +821,7 @@ window.xcHelper = (function($, xcHelper) {
                 clearTimeout(timer.fadeOut);
                 clearTimeout(timer.setMouseMoveFalse);
                 isMouseMoving = true;
-                
+
                 timer.fadeIn = setTimeout(fadeIn, 200);
 
                 timer.fadeOut = setTimeout(fadeOut, 800);
@@ -1189,7 +1197,7 @@ window.xcHelper = (function($, xcHelper) {
                             if (searchBar.matchIndex < 0) {
                                 searchBar.matchIndex = searchBar.numMatches - 1;
                             }
-                            
+
                         } else if (event.which === keyCode.Down ||
                                    event.which === keyCode.Enter) {
                             searchBar.matchIndex++;
@@ -1684,7 +1692,7 @@ window.xcHelper = (function($, xcHelper) {
             return (promiseWrapper(null));
         }
         var mainDeferred = jQuery.Deferred();
-        
+
         var numDone = 0;
         var returns = [];
         var argument = arguments;
@@ -1769,7 +1777,7 @@ window.xcHelper = (function($, xcHelper) {
         } else {
             scrollPosition = leftPosition - ((windowWidth - tableWidth) / 2);
         }
-        
+
         if (animate && !gMinModeOn) {
             $('#mainFrame').animate({scrollLeft: scrollPosition}, 500,
                                 function() {
@@ -1846,7 +1854,7 @@ window.xcHelper = (function($, xcHelper) {
     xcHelper.genSub = function() {
         var deferred = jQuery.Deferred();
 
-        XcalarSupportGenerate() 
+        XcalarSupportGenerate()
         .then(function(filePath, bid) {
             var msg = xcHelper.replaceMsg(CommonTxtTstr.SupportBundleMsg, {
                 "id"  : bid,
