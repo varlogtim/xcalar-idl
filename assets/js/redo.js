@@ -126,7 +126,7 @@ window.Redo = (function($, Redo) {
     redoFuncs[SQLOps.PullAllCols] = function(options) {
         var $table = $('#xcTable-' + options.tableId);
         var $row = $table.find('tr.row' + options.rowNum);
-        var $td = $table.find('.jsonElement');
+        var $td = $row.find('td.col' + options.colNum);
 
         ColManager.unnest($td, options.isArray, options.options);
         return (promiseWrapper(null));
