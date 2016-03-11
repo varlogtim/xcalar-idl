@@ -56,6 +56,12 @@ var ArchiveTable = {
     Keep: false
 };
 
+var DelWSType = {
+    "Del": "delete tables",
+    "Archive": "archive tables",
+    "Empty": 'empty sheet'
+};
+
 var TableType = {
     "InActive": "inactive",
     "Active"  : "active",
@@ -185,6 +191,8 @@ var SQLOps = {
     SwitchWS: "switchWorksheet",
     ReorderWS: "reorderWorksheet",
     DelWS: "deleteWorksheet",
+    HideWS: "hideWorksheet",
+    UnHideWS: "unhideWorksheet",
     MoveTableToWS: "moveTableToWorkSheet",
     MoveInactiveTableToWS: "moveInactiveTableToWorksheet",
     CreateFolder: "createFolder",

@@ -162,7 +162,14 @@ window.Redo = (function($, Redo) {
 
     /* END USER STYLING/FORMATING OPERATIONS */
 
-    /* Archive and UnArchive */
+    /* Table Operations */
+    redoFuncs[SQLOps.RenameTable] = function(options) {
+        var tableId = options.tableId;
+        var newTableName = options.newTableName;
+
+        return xcFunction.rename(tableId, newTableName);
+    };
+
     redoFuncs[SQLOps.ArchiveTable] = function(options) {
         TblManager.inActiveTables(options.tableIds);
         return (promiseWrapper(null));
@@ -181,7 +188,7 @@ window.Redo = (function($, Redo) {
         } else if (tableType === TableType.Agg) {
             $tableList = $("#aggregateTableList");
         } else {
-            console.error(tableType, "not support redo!")''
+            console.error(tableType, "not support redo!");
         }
 
         var tableIds = [];
@@ -201,7 +208,60 @@ window.Redo = (function($, Redo) {
         return TableList.activeTables(tableType,
                                       options.noSheetTables, options.wsToSent);
     };
-    /* End of Archive and UnArchive */
+    /* End of Table Operations */
+
+    /* Worksheet Opeartion */
+    redoFuncs[SQLOps.AddWS] = function(options) {
+        WSManager.addWS(options.worksheetId, options.worksheetName);
+        return promiseWrapper(null);
+    };
+
+    redoFuncs[SQLOps.RenameWS] = function(options) {
+        WSManager.renameWS(options.worksheetId, options.newName);
+        return promiseWrapper(null);
+    };
+
+    redoFuncs[SQLOps.ReorderWS] = function(options) {
+        var oldWSIndex = options.oldWorksheetIndex;
+        var newWSIndex = options.newWorksheetIndex;
+
+        WSManager.reorderWS(oldWSIndex, newWSIndex);
+        return promiseWrapper(null);
+    };
+
+    redoFuncs[SQLOps.MoveTableToWS] = function(options) {
+        WSManager.moveTable(options.tableId, options.newWorksheetId);
+        return promiseWrapper(null);
+    };
+
+    redoFuncs[SQLOps.MoveInactiveTableToWS] = function(options) {
+        var tableId = options.tableId;
+        var tableType = options.tableType;
+        var newWSId = options.newWorksheetId;
+
+        return WSManager.moveInactiveTable(tableId, newWSId, tableType);
+    };
+
+    redoFuncs[SQLOps.HideWS] = function(options) {
+        var wsId = options.worksheetId;
+        WSManager.hideWS(wsId);
+
+        return promiseWrapper(null);
+    };
+
+    redoFuncs[SQLOps.UnHideWS] = function(options) {
+        var wsIds = options.worksheetIds;
+        WSManager.unhideWS(wsIds);
+        return promiseWrapper(null);
+    };
+
+    redoFuncs[SQLOps.SwitchWS] = function(options) {
+        var wsId = options.newWorksheetId;
+        $("#worksheetTab-" + wsId).trigger(fakeEvent.mousedown);
+
+        return promiseWrapper(null);
+    };
+    /* End of Worksheet Operation */
 
     return (Redo);
 }(jQuery, {}));

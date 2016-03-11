@@ -1,4 +1,5 @@
 window.Undo = (function($, Undo) {
+    var undoFuncs = {};
 
     Undo.run = function(sql) {
         xcHelper.assert((sql != null), "invalid sql");
@@ -13,7 +14,7 @@ window.Undo = (function($, Undo) {
             .then(deferred.resolve)
             .fail(function() {
                 // XX do we do anything with the cursor?
-                 deferred.reject("undo failed");
+                deferred.reject("undo failed");
             });
         } else {
             console.warn("Unknown operation cannot undo", operation);
@@ -32,27 +33,25 @@ window.Undo = (function($, Undo) {
         });
     };
 
-    var undoFuncs = {};
-
     /* START BACKEND OPERATIONS */
 
     undoFuncs[SQLOps.Sort] = function(options) {
         var worksheet = WSManager.getWSFromTable(options.tableId);
-        return(TblManager.refreshTable([options.tableName], null,
+        return (TblManager.refreshTable([options.tableName], null,
                                        [options.newTableName],
                                        worksheet, {isUndo: true}));
     };
 
     undoFuncs[SQLOps.Filter] = function(options) {
         var worksheet = WSManager.getWSFromTable(options.tableId);
-        return(TblManager.refreshTable([options.tableName], null,
+        return (TblManager.refreshTable([options.tableName], null,
                                        [options.newTableName],
                                        worksheet, {isUndo: true}));
     };
 
     undoFuncs[SQLOps.Map] = function(options) {
         var worksheet = WSManager.getWSFromTable(options.tableId);
-        return(TblManager.refreshTable([options.tableName], null,
+        return (TblManager.refreshTable([options.tableName], null,
                                        [options.newTableName],
                                        worksheet, {isUndo: true}));
     };
@@ -67,16 +66,16 @@ window.Undo = (function($, Undo) {
         var rTableWorksheet = WSManager.getWSFromTable(options.rTableId);
 
         var leftTable = {
-            name: options.lTableName,
-            id: options.lTableId,
-            position: options.lTablePos,
+            name     : options.lTableName,
+            id       : options.lTableId,
+            position : options.lTablePos,
             worksheet: lTableWorksheet
         };
 
         var rightTable = {
-            name: options.rTableName,
-            id: options.rTableId,
-            position: options.rTablePos,
+            name     : options.rTableName,
+            id       : options.rTableId,
+            position : options.rTablePos,
             worksheet: rTableWorksheet
         };
 
@@ -98,7 +97,7 @@ window.Undo = (function($, Undo) {
             }
         }
 
-        if (currTableWorksheet !== leftTable.worksheet  &&
+        if (currTableWorksheet !== leftTable.worksheet &&
             currTableWorksheet !== rightTable.worksheet) {
             firstTable = leftTable;
             secondTable = rightTable;
@@ -232,7 +231,14 @@ window.Undo = (function($, Undo) {
     /* END USER STYLING/FORMATING OPERATIONS */
 
 
-    /* Archive and UnArchive */
+    /* Table Operations */
+    undoFuncs[SQLOps.RenameTable] = function(options) {
+        var tableId = options.tableId;
+        var oldTableName = options.oldTableName;
+
+        return xcFunction.rename(tableId, oldTableName);
+    };
+
     undoFuncs[SQLOps.ArchiveTable] = function(options) {
         // archived table should in inActive list
 
@@ -292,7 +298,106 @@ window.Undo = (function($, Undo) {
             return promiseWrapper(null);
         }
     };
-    /* End of Archive and UnArchive */
+    /* End of Table Operations */
+
+
+    /* Worksheet Opeartion */
+    undoFuncs[SQLOps.AddWS] = function(options) {
+        WSManager.delWS(options.worksheetId, DelWSType.Empty);
+        WSManager.focusOnWorksheet(options.currentWorksheet);
+
+        return promiseWrapper(null);
+    };
+
+    undoFuncs[SQLOps.RenameWS] = function(options) {
+        WSManager.renameWS(options.worksheetId, options.oldName);
+        return promiseWrapper(null);
+    };
+
+    undoFuncs[SQLOps.RenameWS] = function(options) {
+        WSManager.renameWS(options.worksheetId, options.oldName);
+        return promiseWrapper(null);
+    };
+
+    undoFuncs[SQLOps.ReorderWS] = function(options) {
+        var oldWSIndex = options.oldWorksheetIndex;
+        var newWSIndex = options.newWorksheetIndex;
+
+        WSManager.reorderWS(newWSIndex, oldWSIndex);
+        return promiseWrapper(null);
+    };
+
+    undoFuncs[SQLOps.MoveTableToWS] = function(options) {
+        var deferred = jQuery.Deferred();
+
+        var tableId = options.tableId;
+        var tableName = gTables[tableId].tableName;
+        var oldWS = options.oldWorksheetId;
+        var tablePos = options.oldTablePos;
+        // the idead is:
+        // 1. archive this table
+        // 2, remove it from current worksheet
+        // 3, refresh back to the old worksheet
+        // XXXX fix it if you have better idea
+        TblManager.inActiveTables([tableId]);
+        WSManager.removeTable(tableId);
+
+        TblManager.refreshTable([tableName], null, [], oldWS, {
+            "isUndo"  : true,
+            "position": tablePos
+        })
+        .then(function() {
+            WSManager.focusOnWorksheet(oldWS, false, tableId);
+            deferred.resolve();
+        })
+        .fail(deferred.reject);
+
+        return deferred.promise();
+    };
+
+    undoFuncs[SQLOps.MoveInactiveTableToWS] = function(options) {
+        var tableId = options.tableId;
+        var tableType = options.tableType;
+
+        if (tableType === TableType.InActive) {
+            // change worksheet
+            var oldWSId = options.oldWorksheetId;
+            WSManager.removeTable(tableId);
+            WSManager.addTable(tableId, oldWSId);
+            TblManager.inActiveTables([tableId]);
+        } else if (tableType == TableType.Orphan) {
+            TblManager.sendTableToOrphaned(tableId, {"remove": true});
+        } else {
+            console.error(tableType, "cannot undo!");
+        }
+
+        return promiseWrapper(null);
+    };
+
+    undoFuncs[SQLOps.HideWS] = function(options) {
+        var wsId = options.worksheetId;
+        WSManager.unhideWS(wsId);
+
+        return promiseWrapper(null);
+    };
+
+    undoFuncs[SQLOps.UnHideWS] = function(options) {
+        var wsIds = options.worksheetIds;
+
+        for (var i = 0, len = wsIds.length; i < len; i++) {
+            WSManager.hideWS(wsIds[i]);
+        }
+
+        return promiseWrapper(null);
+    };
+
+    undoFuncs[SQLOps.SwitchWS] = function(options) {
+        var wsId = options.oldWoksheetId;
+        $("#worksheetTab-" + wsId).trigger(fakeEvent.mousedown);
+
+        return promiseWrapper(null);
+    };
+    /* End of Worksheet Operation */
 
     function undoDeleteHelper(options, shift) {
         var progCols = options.progCols;

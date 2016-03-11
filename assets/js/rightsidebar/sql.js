@@ -9,7 +9,9 @@ window.SQL = (function($, SQL) {
     var errToCommit = "";
     var logs;
     var errors;
-    var isUndoRedo; // mark if it's in a undo redo action
+    // mark if it's in a undo redo action
+    var isUndo;
+    var isRedo;
 
     // constant
     var sqlLocalStoreKey = "xcalar-query";
@@ -63,7 +65,7 @@ window.SQL = (function($, SQL) {
             return;
         }
 
-        if (isUndoRedo) {
+        if (isUndo || isRedo) {
             console.info("In undo redo, do not add sql");
             return;
         }
@@ -164,7 +166,7 @@ window.SQL = (function($, SQL) {
     };
 
     SQL.undo = function(step) {
-        xcHelper.assert((isUndoRedo === false), "Doing other undo/redo operation?");
+        xcHelper.assert((isUndo === false), "Doing other undo/redo operation?");
 
         if (step == null) {
             step = 1;
@@ -189,7 +191,7 @@ window.SQL = (function($, SQL) {
             c--;
         }
 
-        isUndoRedo = true;
+        isUndo = true;
 
         chain(promises)
         .then(function() {
@@ -201,12 +203,12 @@ window.SQL = (function($, SQL) {
             console.error("undo failed", error);
         })
         .always(function() {
-            isUndoRedo = false;
+            isUndo = false;
         });
     };
 
     SQL.redo = function(step) {
-        xcHelper.assert((isUndoRedo === false), "Doing other undo/redo operation?");
+        xcHelper.assert((isRedo === false), "Doing other undo/redo operation?");
 
         if (step == null) {
             step = 1;
@@ -232,7 +234,7 @@ window.SQL = (function($, SQL) {
             c++;
         }
 
-        isUndoRedo = true;
+        isRedo = true;
 
         chain(promises)
         .then(function() {
@@ -243,8 +245,16 @@ window.SQL = (function($, SQL) {
             console.error("undo failed", error);
         })
         .always(function() {
-            isUndoRedo = false;
+            isRedo = false;
         });
+    };
+
+    SQL.isUndo = function() {
+        return isUndo;
+    };
+
+    SQL.isRedo = function() {
+        return isRedo;
     };
 
     function initialize() {
@@ -260,7 +270,8 @@ window.SQL = (function($, SQL) {
         logs = sqlCache.logs;
         errors = sqlCache.errors;
 
-        isUndoRedo = false;
+        isUndo = false;
+        isRedo = false;
     }
 
     function commitLogs() {
@@ -437,6 +448,9 @@ window.SQL = (function($, SQL) {
             case SQLOps.ProfileBucketing:
             case SQLOps.QuickAgg:
             case SQLOps.Corr:
+
+            // temporary not support it, because of the agg info table
+            case SQLOps.DelWS:
                 return false;
             default:
                 return true;
@@ -652,6 +666,10 @@ window.SQL = (function($, SQL) {
             case (SQLOps.ReorderWS):
                 // fallthrough
             case (SQLOps.DelWS):
+                // fallthrough
+            case (SQLOps.HideWS):
+                // fallthrough
+            case (SQLOps.UnHideWS):
                 // fallthrough
             case (SQLOps.MoveTableToWS):
                 // fallthrough

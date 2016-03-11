@@ -33,7 +33,7 @@ describe('Worksheet Interactivity', function() {
             gMinModeOn = true;
             var numTabsBefore = $tabs.length;
             var wsId = $tabs.last().data('ws');
-            WSManager.__testOnly__.delWSHelper(wsId);
+            WSManager.delWS(wsId, DelWSType.Empty);
             $tabs = $('#worksheetTabs').find('.worksheetTab');
             expect($tabs).to.have.length(numTabsBefore - 1);
             expect($('#worksheetTabs').find('[data-ws=' + wsId +']'))

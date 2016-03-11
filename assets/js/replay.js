@@ -793,23 +793,9 @@ window.Replay = (function($, Replay) {
         },
 
         reorderWorksheet: function(options) {
-            var oldWSIndex = options.oldWorksheetIndex;
-            var newWSIndex = options.newWorksheetIndex;
-
-            var $tabs = $("#worksheetTabs .worksheetTab");
-            var $dragTab = $tabs.eq(oldWSIndex);
-            var $targetTab = $tabs.eq(newWSIndex);
-
-            if (newWSIndex > oldWSIndex) {
-                $targetTab.after($dragTab);
-            } else if (newWSIndex < oldWSIndex) {
-                $targetTab.before($dragTab);
-            } else {
-                console.error("Reorder error, same worksheet index!");
-            }
-
-            WSManager.reorderWS(oldWSIndex, newWSIndex);
-
+            var oldIndex = options.oldWorksheetIndex;
+            var newIndex = options.newWorksheetIndex;
+            WSManager.reorderWS(oldIndex, newIndex);
             return promiseWrapper(null);
         },
 

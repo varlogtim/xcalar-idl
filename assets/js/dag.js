@@ -470,15 +470,16 @@ window.DagPanel = (function($, DagPanel) {
                 return;
             }
             var tableId = $menu.data('tableId');
-            WSManager.moveInactiveTable(tableId, WSManager.getActiveWS());
-            $('#inactiveTablesList').find('.tableInfo').each(function() {
-                var $li = $(this);
-                if ($li.data('id') === tableId) {
-                    $li.find('.addTableBtn').click();
-                    $('#submitTablesBtn').click();
-                    return (false);
-                }
-            });
+            var wsId = WSManager.getActiveWS();
+            var tableType;
+
+            if (WSManager.getWSFromTable(tableId) == null) {
+                tableType = TableType.Orphan;
+            } else {
+                tableType = TableType.InActive;
+            }
+
+            WSManager.moveInactiveTable(tableId, wsId, tableType);
         });
 
         $menu.find('.focusTable').mouseup(function(event) {
