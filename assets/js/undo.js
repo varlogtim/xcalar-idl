@@ -112,17 +112,19 @@ window.Undo = (function($, Undo) {
 
         TblManager.refreshTable([firstTable.name], null,
                                 [options.newTableName],
-                                firstTable.worksheet,
-                                {isUndo: true,
-                                 position: firstTable.position})
+                                firstTable.worksheet, {
+            "isUndo"  : true,
+            "position": firstTable.position
+        })
         .then(function() {
             if (isSelfJoin) {
                 deferred.resolve();
             } else {
                 TblManager.refreshTable([secondTable.name], null, [],
-                                         secondTable.worksheet,
-                                         {isUndo: true,
-                                          position: secondTable.position})
+                                         secondTable.worksheet, {
+                    "isUndo"  : true,
+                    "position": secondTable.position
+                })
                 .then(deferred.resolve)
                 .fail(deferred.reject);
             }
@@ -307,12 +309,11 @@ window.Undo = (function($, Undo) {
 
         for (var i = 0, len = tableIds.length; i < len; i++) {
             var tableName = tableNames[i];
-            var options = {
+            promises.push(TblManager.refreshTable.bind(this, [tableName], null,
+                                                      [], null, {
                 "isUndo"  : true,
                 "position": tablePos[i]
-            };
-            promises.push(TblManager.refreshTable.bind(this, [tableName], null,
-                                                      [], null, options));
+            }));
         }
 
         return chain(promises);
@@ -323,7 +324,6 @@ window.Undo = (function($, Undo) {
         var tableType = options.tableType;
         var tableNames = options.tableNames;
         var tableIds = [];
-        var promises = [];
 
         for (var i = 0, len = tableNames.length; i < len; i++) {
             var tableId = xcHelper.getTableId(tableNames[i]);
@@ -348,8 +348,7 @@ window.Undo = (function($, Undo) {
             tableIds.forEach(function(tId) {
                 TblManager.sendTableToOrphaned(tId, {"remove": true});
             });
-            TableList.refreshOrphanList();
-            return promiseWrapper(null);
+            return TableList.refreshOrphanList();
         } else if (tableType === TableType.Agg) {
             console.error("Not support agg table undo!");
         } else {
@@ -443,7 +442,7 @@ window.Undo = (function($, Undo) {
             WSManager.removeTable(tableId);
             WSManager.addTable(tableId, oldWSId);
             TblManager.inActiveTables([tableId]);
-        } else if (tableType == TableType.Orphan) {
+        } else if (tableType === TableType.Orphan) {
             TblManager.sendTableToOrphaned(tableId, {"remove": true});
         } else {
             console.error(tableType, "cannot undo!");
@@ -506,24 +505,21 @@ window.Undo = (function($, Undo) {
 
             return chain(promises);
         } else if (delType === DelWSType.Archive) {
-            var options = {
-                "isUndo"  : true
-            };
             makeWorksheetHelper();
             WSManager.addNoSheetTables(tables, wsId);
             WSManager.addNoSheetTables(hiddenTables, wsId);
 
             tables.forEach(function(tableId) {
-                WSManager.addTable(tableId)
+                WSManager.addTable(tableId);
                 var tableName = gTables[tableId].tableName;
                 promises.push(TblManager.refreshTable.bind(this, [tableName], null,
-                                                      [], null, options));
+                                                [], null, {"isUndo": true}));
             });
 
             var $lists = $("#archivedTableList .tableInfo");
             hiddenTables.forEach(function(tableId) {
                 // reArchive the table
-                var $li = $lists.filter(function() {
+                $lists.filter(function() {
                     return $(this).data("id") === tableId;
                 }).remove();
 
@@ -553,7 +549,6 @@ window.Undo = (function($, Undo) {
         var tableId = options.tableId;
         var currProgCols = gTables[tableId].tableCols;
         var colNums = options.colNums;
-        var nameInfo;
         var $table = $('#xcTable-' + tableId);
         var dataIndex = xcHelper.parseColNum($table.find('th.dataCol'));
         var newProgCol;

@@ -88,7 +88,7 @@ window.SQL = (function($, SQL) {
         }
 
         if (isUndo || isRedo) {
-            console.info("In undo redo, do not add sql");
+            // console.info("In undo redo, do not add sql");
             return;
         }
 
@@ -415,7 +415,6 @@ window.SQL = (function($, SQL) {
         var logLen = logs.length;
         if (logCursor !== logLen - 1) {
             // when user do a undo before
-            console.info("Previous redo ops will be removed");
 
             logCursor++;
             logs[logCursor] = sql;
@@ -497,7 +496,6 @@ window.SQL = (function($, SQL) {
     }
 
     function undoLog(sql, cursor) {
-        console.log("undo", sql);
         xcHelper.assert((sql != null), "invalid sql");
 
         var deferred = jQuery.Deferred();
@@ -519,7 +517,6 @@ window.SQL = (function($, SQL) {
     }
 
     function redoLog(sql, cursor) {
-        console.log("redo", sql);
         xcHelper.assert((sql != null), "invalid sql");
 
         var deferred = jQuery.Deferred();

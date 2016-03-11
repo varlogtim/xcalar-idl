@@ -1,5 +1,5 @@
 window.Redo = (function($, Redo) {
-
+    var redoFuncs = {};
 
     Redo.run = function(sql) {
         xcHelper.assert((sql != null), "invalid sql");
@@ -32,8 +32,6 @@ window.Redo = (function($, Redo) {
         return (deferred.promise());
     };
 
-    var redoFuncs = {};
-
     /* START BACKEND OPERATIONS */
 
     redoFuncs[SQLOps.Sort] = function(options) {
@@ -59,19 +57,19 @@ window.Redo = (function($, Redo) {
 
     redoFuncs[SQLOps.Join] = function(options) {
         var deferred = jQuery.Deferred();
-            TblManager.refreshTable([options.newTableName], null,
-                                    [options.lTableName, options.rTableName],
-                                     options.worksheet,
-                                     {isRedo: true})
-            .then(deferred.resolve)
-            .fail(deferred.fail);
+        TblManager.refreshTable([options.newTableName], null,
+                                [options.lTableName, options.rTableName],
+                                    options.worksheet,
+                                {isRedo: true})
+        .then(deferred.resolve)
+        .fail(deferred.fail);
 
         return (deferred.promise());
     };
 
     redoFuncs[SQLOps.GroupBy] = function(options) {
         var worksheet = WSManager.getWSFromTable(options.tableId);
-        return(TblManager.refreshTable([options.newTableName], null, [],
+        return (TblManager.refreshTable([options.newTableName], null, [],
                                          worksheet, {isRedo: true}));
     };
 
@@ -90,7 +88,7 @@ window.Redo = (function($, Redo) {
     };
 
     redoFuncs[SQLOps.IndexDS] = function(options) {
-        return(TblManager.refreshTable([options.tableName], null, [],
+        return (TblManager.refreshTable([options.tableName], null, [],
                                         options.worksheet, {isRedo: true}));
     };
 
@@ -280,7 +278,7 @@ window.Redo = (function($, Redo) {
     };
 
     redoFuncs[SQLOps.TextAlign] = function(options) {
-        var numCols = options.colNums.length;
+        // var numCols = options.colNums.length;
         ColManager.textAlign(options.colNums, options.tableId,
                              options.cachedAlignment);
         return (promiseWrapper(null));
@@ -343,7 +341,7 @@ window.Redo = (function($, Redo) {
     redoFuncs[SQLOps.DelWS] = function(options) {
         var delType = options.delType;
         var wsId = options.worksheetId;
-        WSManager.delWS (wsId, delType);
+        WSManager.delWS(wsId, delType);
         return promiseWrapper(null);
     };
     /* End of Worksheet Operation */
