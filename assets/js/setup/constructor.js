@@ -104,6 +104,10 @@ SQLConstructor.prototype = {
         return this.options.operation;
     },
 
+    "getTitle": function() {
+        return this.title;
+    },
+
     "getOptions": function() {
         return this.options;
     }

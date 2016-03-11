@@ -797,8 +797,7 @@ window.DS = (function ($, DS) {
 
             toggleDSView(isListView);
             // refresh tooltip
-            $btn.mouseenter();
-            $btn.mouseover();
+            xcHelper.refreshTooltip($btn);
         });
 
          // click "Add New Folder" button to add new folder

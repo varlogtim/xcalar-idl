@@ -103,7 +103,6 @@ window.StartManager = (function(StartManager, $) {
             DagPanel.setup();
             DFGPanel.setup();
             setupModals();
-            Undo.setup();
 
             WSManager.focusOnWorksheet();
         })

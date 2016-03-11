@@ -3,6 +3,9 @@ window.SQL = (function($, SQL) {
     var $textarea = $("#sql-TextArea");
     var $machineTextarea = $("#sql-MachineTextArea");
 
+    var $undo = $("#undo");
+    var $redo = $("#redo");
+
     var sqlCache;
     var logCursor = -1;
     var sqlToCommit = "";
@@ -18,6 +21,9 @@ window.SQL = (function($, SQL) {
     var sqlRestoreError = "restore sql error";
 
     SQL.setup = function() {
+        // SQL.restore will not be triggered is kvstore is empty
+        // so add an extra one here
+        updateUndoRedoState();
         // show human readabl SQL as default
         $machineTextarea.hide();
 
@@ -56,6 +62,22 @@ window.SQL = (function($, SQL) {
             document.execCommand("copy");
             $hiddenInput.remove();
         });
+
+        $undo.click(function() {
+            if ($(this).hasClass("disabled")) {
+                return;
+            }
+
+            SQL.undo();
+        });
+
+        $redo.click(function() {
+            if ($(this).hasClass("disabled")) {
+                return;
+            }
+
+            SQL.redo();
+        });
     };
 
     SQL.add = function(title, options, cli) {
@@ -83,6 +105,7 @@ window.SQL = (function($, SQL) {
         // XXX FIXME: uncomment it if commit on errorLog only has bug
         // localCommit();
         SQL.scrollToBottom();
+        updateUndoRedoState();
     };
 
     SQL.errorLog = function(title, options, cli, error) {
@@ -149,6 +172,9 @@ window.SQL = (function($, SQL) {
             } else {
                 deferred.reject(error);
             }
+        })
+        .always(function() {
+            updateUndoRedoState();
         });
 
         return (deferred.promise());
@@ -192,6 +218,7 @@ window.SQL = (function($, SQL) {
         }
 
         isUndo = true;
+        $undo.addClass("disabled");
 
         chain(promises)
         .then(function() {
@@ -204,6 +231,9 @@ window.SQL = (function($, SQL) {
         })
         .always(function() {
             isUndo = false;
+
+            updateUndoRedoState();
+            xcHelper.refreshTooltip($undo);
         });
     };
 
@@ -235,6 +265,7 @@ window.SQL = (function($, SQL) {
         }
 
         isRedo = true;
+        $redo.addClass("disabled");
 
         chain(promises)
         .then(function() {
@@ -246,6 +277,9 @@ window.SQL = (function($, SQL) {
         })
         .always(function() {
             isRedo = false;
+
+            updateUndoRedoState();
+            xcHelper.refreshTooltip($redo);
         });
     };
 
@@ -500,6 +534,55 @@ window.SQL = (function($, SQL) {
         .fail(deferred.reject);
 
         return deferred.promise();
+    }
+
+    function updateUndoRedoState() {
+        // check redo
+        if (logCursor === logs.length - 1) {
+            // when nothing to redo
+            $redo.addClass("disabled")
+                 .attr("data-title", TooltipTStr.NoRedo)
+                 .attr("data-original-title", TooltipTStr.NoRedo);
+
+        } else {
+            // when can redo
+            var redoTitle = xcHelper.replaceMsg(TooltipTStr.Redo, {
+                "op": logs[logCursor + 1].getTitle()
+            });
+
+            $redo.removeClass("disabled")
+                 .attr("data-title", redoTitle)
+                 .attr("data-original-title", redoTitle);
+        }
+
+        // check undo
+        var curSql = logs[logCursor];
+        var undoTitle;
+        if (logCursor === -1) {
+            // when no operation to undo
+            $undo.addClass("disabled")
+                 .attr("data-title", TooltipTStr.NoUndoNoOp)
+                 .attr("data-original-title", TooltipTStr.NoUndoNoOp);
+
+        } else if (isValidToUndo(curSql)) {
+            // when can undo
+            undoTitle = xcHelper.replaceMsg(TooltipTStr.Undo, {
+                "op": curSql.getTitle()
+            });
+            $undo.removeClass("disabled")
+                 .attr("data-title", undoTitle)
+                 .attr("data-original-title", undoTitle);
+
+        } else {
+            // when cannot undo
+            undoTitle = xcHelper.replaceMsg(TooltipTStr.NoUndo, {
+                "op": curSql.getTitle()
+            });
+
+            $undo.addClass("disabled")
+                 .attr("data-title", undoTitle)
+                 .attr("data-original-title", undoTitle);
+        }
     }
 
     function updateLogPanel(cursor) {

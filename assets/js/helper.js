@@ -523,6 +523,11 @@ window.xcHelper = (function($, xcHelper) {
         return (res);
     };
 
+    xcHelper.refreshTooltip = function($ele) {
+        $ele.mouseenter();
+        $ele.mouseover();
+    };
+
     xcHelper.showRefreshIcon = function($location) {
         var $waitingIcon = $('<div class="refreshIcon"><img src=""' +
                             'style="display:none;height:0px;width:0px;"></div>');

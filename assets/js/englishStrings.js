@@ -47,7 +47,12 @@ TooltipTStr = {
     'NoJoin': 'Cannot join <type>',
     'SuggKey': 'Suggested Key',
     'NoWSToMV': 'no worksheet to move to',
-    'NoExport': 'Cannot export column of type <type>'
+    'NoExport': 'Cannot export column of type <type>',
+    'Undo': 'Undo: <op>',
+    'NoUndo': 'Last operation is "<op>", cannot undo',
+    'NoUndoNoOp': 'No operation to undo',
+    'Redo': 'Redo: <op>',
+    'NoRedo': 'No operation to redo'
 };
 
 CommonTxtTstr = {
