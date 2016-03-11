@@ -287,7 +287,58 @@ window.TblAnim = (function($, TblAnim) {
         setTimeout(function() {
             unhideOffScreenTables();
         }, 0);
+
+
+        SQL.add("Resize Row", {
+            "operation": SQLOps.DragResizeRow,
+            "tableName": gTables[rowInfo.tableId].tableName,
+            "tableId"  : rowInfo.tableId,
+            "rowNum"   : rowNum - 1,
+            "fromHeight": rowInfo.startHeight,
+            "toHeight" : newRowHeight,
+            "htmlExclude": ["rowNum", "fromHeight", "toHeight"]
+        });
     }
+
+    TblAnim.resizeRow = function(rowNum, tableId, fromHeight, toHeight) {
+        var padding = 4; // top + bottom padding in td
+        var $table = $('#xcTable-' + tableId);
+        var $targetRow = $table.find('.row' + rowNum);
+        var $targetTd = $targetRow.find('.col0');
+
+        var $divs = $targetRow.find('td > div');
+        if (toHeight < gRescol.minCellHeight) {
+            $targetTd.outerHeight(gRescol.minCellHeight);
+            $divs.css('max-height', gRescol.minCellHeight - padding);
+            $divs.eq(0).css('max-height', gRescol.minCellHeight);
+        } else {
+            $targetTd.outerHeight(toHeight);
+            $divs.css('max-height', toHeight - padding);
+            $divs.eq(0).css('max-height', toHeight);
+        }
+        var rowObj = gTables[tableId].rowHeights;
+        var pageNum = Math.floor((rowNum) / gNumEntriesPerPage);
+
+        if (toHeight !== gRescol.minCellHeight) {
+            if (rowObj[pageNum] == null) {
+                rowObj[pageNum] = {};
+            }
+            rowObj[pageNum][rowNum + 1] = toHeight;
+            $targetRow.addClass('changedHeight');
+        } else {
+            // remove this rowNumber from gTables and
+            //if no other rows exist in the page, remove the pageNumber as well
+            if (rowObj[pageNum] != null) {
+                delete rowObj[pageNum][rowNum  + 1];
+                if ($.isEmptyObject(rowObj[pageNum])) {
+                    delete rowObj[pageNum];
+                }
+            }
+            $targetTd.parent().removeClass('changedHeight');
+            $targetTd.parent().find('.jsonElement >  div')
+                                     .css('max-height', 16);
+        }
+    };
 
     /* END ROW RESIZING */
 

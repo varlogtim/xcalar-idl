@@ -132,17 +132,28 @@ window.Undo = (function($, Undo) {
         return (promiseWrapper(null));
     };
 
+    undoFuncs[SQLOps.SplitCol] = function(options) {
+        var worksheet = WSManager.getWSFromTable(options.tableId);
+        return (TblManager.refreshTable([options.tableName], null,
+                                       [options.newTableName],
+                                       worksheet, {isUndo: true}));
+    };
+
+    undoFuncs[SQLOps.ChangeType] = function(options) {
+        var worksheet = WSManager.getWSFromTable(options.tableId);
+        return (TblManager.refreshTable([options.tableName], null,
+                                       [options.newTableName],
+                                       worksheet, {isUndo: true}));
+    };
+
+    undoFuncs[SQLOps.IndexDS] = function(options) {
+        var tableId = xcHelper.getTableId(options.tableName);
+        TblManager.sendTableToOrphaned(tableId, {'remove': true});
+        return (promiseWrapper(null));
+    };
+
     /* END BACKEND OPERATIONS */
 
-    /* TABLE OPERATIONS */
-
-    undoFuncs[SQLOps.ArchiveTable] = function(options) {
-        var worksheet = WSManager.getWSFromTable(options.tableId);
-        return(TblManager.refreshTable([options.tableName], null, [],
-                                         null,
-                                         {isUndo: true,
-                                          position: 0}));
-    };
 
     /* USER STYLING/FORMATING OPERATIONS */
 
@@ -219,6 +230,54 @@ window.Undo = (function($, Undo) {
         return (promiseWrapper(null));
     };
 
+    undoFuncs[SQLOps.DragResizeRow] = function(options) {
+        TblAnim.resizeRow(options.rowNum, options.tableId, options.toHeight,
+                          options.fromHeight);
+        return (promiseWrapper(null));
+    };
+
+    undoFuncs[SQLOps.RenameCol] = function(options) {
+        ColManager.renameCol(options.colNum, options.tableId, options.colName,
+                             {keepEditable: options.wasNew});
+        return (promiseWrapper(null));
+    };
+
+    undoFuncs[SQLOps.TextAlign] = function(options) {
+        var numCols = options.colNums.length;
+        var alignment;
+        for (var i = 0; i < numCols; i++) {
+            alignment = options.prevAlignments[i];
+            if (alignment === "Left") {
+                alignment = "leftAlign";
+            } else if (alignment === "Right"){
+                alignment = "rightAlign";
+            } else if (alignment === "Center") {
+                alignment = "centerAlign";
+            } else {
+                alignment = "wrapAlign";
+            }
+            ColManager.textAlign([options.colNums[i]], options.tableId,
+                                 alignment);
+        }
+        return (promiseWrapper(null));
+    };
+
+    undoFuncs[SQLOps.ChangeFormat] = function(options) {
+        var format = options.oldFormat;
+        if (format == null) {
+            format = "default";
+        }
+        ColManager.format(options.colNum, options.tableId, format);
+        return (promiseWrapper(null));
+    };
+
+    undoFuncs[SQLOps.RoundToFixed] = function(options) {
+        ColManager.roundToFixed(options.colNum, options.tableId,
+                                option.prevDecimals);
+        return (promiseWrapper(null));
+    };
+
+
     /* END USER STYLING/FORMATING OPERATIONS */
 
 
@@ -289,6 +348,25 @@ window.Undo = (function($, Undo) {
             return promiseWrapper(null);
         }
     };
+
+    undoFuncs[SQLOps.ReorderTable] = function(options) {
+        // ColManager.reorderCol(options.tableId, options.newColNum,
+        //                       options.oldColNum, {"undoRedo": true});
+        reorderAfterTableDrop(options.tableId, options.desIndex, options.srcIndex,
+                                {undoRedo: true});
+        return (promiseWrapper(null));
+    };
+
+    undoFuncs[SQLOps.BookmarkRow] = function(options) {
+        unbookmarkRow(options.rowNum, options.tableId);
+        return (promiseWrapper(null));
+    };
+
+    undoFuncs[SQLOps.RemoveBookmark] = function(options) {
+        bookmarkRow(options.rowNum, options.tableId);
+        return (promiseWrapper(null));
+    };
+
     /* End of Table Operations */
 
 

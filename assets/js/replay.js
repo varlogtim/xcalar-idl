@@ -247,6 +247,8 @@ window.Replay = (function($, Replay) {
         argsMap[SQLOps.ResizeTableCols] = ["tableId", "resizeTo", "columnNums"];
         argsMap[SQLOps.DragResizeTableCol] = ["tableId", "colNum", "fromWidth",
                                                "toWidth"];
+        argsMap[SQLOps.DragResizeRow] = ["rowNum", "tableId", "fromHeight",
+                                         "toHeight"];
         argsMap[SQLOps.DSRename] = ["dsId", "newName"];
         argsMap[SQLOps.DSToDir] = ["folderId"];
         argsMap[SQLOps.Profile] = ["tableId", "colNum"];
@@ -727,6 +729,24 @@ window.Replay = (function($, Replay) {
             return promiseWrapper(null);
         },
 
+        dragResizeRow: function(options) {
+            var args = getArgs(options);
+            TblAnim.resizeRow.apply(window, args);
+            return promiseWrapper(null);
+        },
+
+        bookmarkRow: function(options) {
+            var args = getArgs(options);
+            bookmarkRow.apply(window, args);
+            return promiseWrapper(null);
+        },
+
+        removeBookmark: function(options) {
+            var args = getArgs(options);
+            unbookmarkRow.apply(window, args);
+            return promiseWrapper(null);
+        },
+
         hideTable: function(options) {
             var args = getArgs(options);
             TblManager.hideTable.apply(window, args);
@@ -793,9 +813,23 @@ window.Replay = (function($, Replay) {
         },
 
         reorderWorksheet: function(options) {
-            var oldIndex = options.oldWorksheetIndex;
-            var newIndex = options.newWorksheetIndex;
-            WSManager.reorderWS(oldIndex, newIndex);
+            var oldWSIndex = options.oldWorksheetIndex;
+            var newWSIndex = options.newWorksheetIndex;
+
+            var $tabs = $("#worksheetTabs .worksheetTab");
+            var $dragTab = $tabs.eq(oldWSIndex);
+            var $targetTab = $tabs.eq(newWSIndex);
+
+            if (newWSIndex > oldWSIndex) {
+                $targetTab.after($dragTab);
+            } else if (newWSIndex < oldWSIndex) {
+                $targetTab.before($dragTab);
+            } else {
+                console.error("Reorder error, same worksheet index!");
+            }
+
+            WSManager.reorderWS(oldWSIndex, newWSIndex);
+
             return promiseWrapper(null);
         },
 

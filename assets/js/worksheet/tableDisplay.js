@@ -1597,10 +1597,6 @@ window.TblManager = (function($, TblManager) {
                 }
 
                 ColManager.renameCol(colNum, tableId, colName);
-
-                $input.parent().removeClass("editable");
-                // this will make the fnBar from not editable to editable
-                FnBar.focusOnCol($input, tableId, colNum, true);
             }
         });
 

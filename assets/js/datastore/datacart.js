@@ -310,7 +310,7 @@ window.DataCart = (function($, DataCart) {
                     }
                 }
             }
-            
+
             deferred.resolve(newName);
         })
         .fail(function(error) {
@@ -563,7 +563,8 @@ window.DataCart = (function($, DataCart) {
             "dsId"      : cart.getId(),
             "tableName" : tableName,
             "columns"   : [],
-            "revertable": false
+            "worksheet" : WSManager.getActiveWS(),
+            "htmlExclude": ["worksheet"]
         };
 
         var items = cart.items;

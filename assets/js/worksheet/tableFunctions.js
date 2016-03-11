@@ -1464,6 +1464,12 @@ function bookmarkRow(rowNum, tableId) {
     if (table.bookmarks.indexOf(rowNum) < 0) {
         table.bookmarks.push(rowNum);
     }
+    SQL.add("Bookmark Row", {
+        "operation": SQLOps.BookmarkRow,
+        "tableId"  : tableId,
+        "tableName": gTables[tableId].tableName,
+        "rowNum"   : rowNum
+    });
 }
 
 function unbookmarkRow(rowNum, tableId) {
@@ -1475,6 +1481,12 @@ function unbookmarkRow(rowNum, tableId) {
     var table = gTables[tableId];
     var index = table.bookmarks.indexOf(rowNum);
     table.bookmarks.splice(index, 1);
+    SQL.add("Remove Bookmark", {
+        "operation": SQLOps.RemoveBookmark,
+        "tableId"  : tableId,
+        "tableName": gTables[tableId].tableName,
+        "rowNum"   : rowNum
+    });
 }
 
 function moveFirstColumn($targetTable) {
@@ -1575,20 +1587,45 @@ function centerPositionElement($target, options) {
     }
 }
 
-function reorderAfterTableDrop(tableId, srcIndex, desIndex) {
+//options:
+// undoRedo: boolean, if true we replace html (for undo/redo)
+function reorderAfterTableDrop(tableId, srcIndex, desIndex, options) {
     WSManager.reorderTable(tableId, srcIndex, desIndex);
+    options = options || {};
+    var undoRedo = options.undoRedo;
 
     var newIndex = WSManager.getTablePosition(tableId);
 
     var $dagWrap = $('#dagWrap-' + tableId);
     var $dagWraps = $('.dagWrap:not(.tableToRemove)');
+    var $tableWrap;
+    var $tableWraps;
+    if (undoRedo) {
+        $tableWraps = $('.xcTableWrap:not(.tableToRemove)');
+        $tableWrap = $('#xcTableWrap-' + tableId);
+    }
 
     if (newIndex === 0) {
         $('.dagArea').find('.legendArea').after($dagWrap);
+        if (undoRedo) {
+            $('#mainFrame').prepend($tableWrap);
+        }
     } else if (srcIndex < desIndex) {
         $dagWraps.eq(newIndex).after($dagWrap);
+        if (undoRedo) {
+            $tableWraps.eq(newIndex).after($tableWrap);
+        }
     } else if (srcIndex > desIndex) {
         $dagWraps.eq(newIndex).before($dagWrap);
+        if (undoRedo) {
+            $tableWraps.eq(newIndex).before($tableWrap);
+        }
+    }
+
+    if (undoRedo) {
+        moveTableDropdownBoxes();
+        moveFirstColumn();
+        moveTableTitles();
     }
 
     SQL.add("Change Table Order", {

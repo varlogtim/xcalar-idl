@@ -68,6 +68,25 @@ window.Redo = (function($, Redo) {
                                          worksheet, {isRedo: true}));
     };
 
+    redoFuncs[SQLOps.SplitCol] = function(options) {
+        var worksheet = WSManager.getWSFromTable(options.tableId);
+        return (TblManager.refreshTable([options.newTableName], null,
+                                            [options.tableName],
+                                            worksheet, {isRedo: true}));
+    };
+
+    redoFuncs[SQLOps.ChangeType] = function(options) {
+        var worksheet = WSManager.getWSFromTable(options.tableId);
+        return (TblManager.refreshTable([options.newTableName], null,
+                                            [options.tableName],
+                                            worksheet, {isRedo: true}));
+    };
+
+    redoFuncs[SQLOps.IndexDS] = function(options) {
+        return(TblManager.refreshTable([options.tableName], null, [],
+                                        options.worksheet, {isRedo: true}));
+    };
+
     /* END BACKEND OPERATIONS */
 
     /* USER STYLING/FORMATING OPERATIONS */
@@ -160,6 +179,32 @@ window.Redo = (function($, Redo) {
         return (promiseWrapper(null));
     };
 
+    redoFuncs[SQLOps.DragResizeRow] = function(options) {
+        TblAnim.resizeRow(options.rowNum, options.tableId, options.fromHeight,
+                          options.toHeight);
+        return (promiseWrapper(null));
+    };
+
+    redoFuncs[SQLOps.RenameCol] = function(options) {
+        ColManager.renameCol(options.colNum, options.tableId, options.newName);
+        return (promiseWrapper(null));
+    };
+
+    redoFuncs[SQLOps.ChangeFormat] = function(options) {
+        var format = options.format;
+        if (format == null) {
+            format = "default";
+        }
+        ColManager.format(options.colNum, options.tableId, format);
+        return (promiseWrapper(null));
+    };
+
+    redoFuncs[SQLOps.RoundToFixed] = function(options) {
+        ColManager.roundToFixed(options.colNum, options.tableId,
+                                options.decimals);
+        return (promiseWrapper(null));
+    };
+
     /* END USER STYLING/FORMATING OPERATIONS */
 
     /* Table Operations */
@@ -173,7 +218,7 @@ window.Redo = (function($, Redo) {
     redoFuncs[SQLOps.ArchiveTable] = function(options) {
         TblManager.inActiveTables(options.tableIds);
         return (promiseWrapper(null));
-    }
+    };
 
     redoFuncs[SQLOps.ActiveTables] = function(options) {
         // redo sent to worksheet
@@ -208,6 +253,32 @@ window.Redo = (function($, Redo) {
         return TableList.activeTables(tableType,
                                       options.noSheetTables, options.wsToSent);
     };
+
+    redoFuncs[SQLOps.ReorderTable] = function(options) {
+        // ColManager.reorderCol(options.tableId, options.oldColNum,
+        //                       options.newColNum, {"undoRedo": true});
+        reorderAfterTableDrop(options.tableId, options.srcIndex, options.desIndex,
+                                {undoRedo: true});
+        return (promiseWrapper(null));
+    };
+
+    redoFuncs[SQLOps.BookmarkRow] = function(options) {
+        bookmarkRow(options.rowNum, options.tableId);
+        return (promiseWrapper(null));
+    };
+
+    redoFuncs[SQLOps.RemoveBookmark] = function(options) {
+        unbookmarkRow(options.rowNum, options.tableId);
+        return (promiseWrapper(null));
+    };
+
+    redoFuncs[SQLOps.TextAlign] = function(options) {
+        var numCols = options.colNums.length;
+        ColManager.textAlign(options.colNums, options.tableId,
+                             options.cachedAlignment);
+        return (promiseWrapper(null));
+    };
+
     /* End of Table Operations */
 
     /* Worksheet Opeartion */

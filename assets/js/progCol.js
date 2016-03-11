@@ -1552,7 +1552,7 @@ window.ColManager = (function($, ColManager) {
                 "operation"   : SQLOps.SplitCol,
                 "tableName"   : tableName,
                 "tableId"     : tableId,
-                "newTableName": newTableNames[1],
+                "newTableName": newTableNames[numColToGet],
                 "colNum"      : colNum,
                 "delimiter"   : delimiter,
                 "numColToGet" : numColToGet
@@ -1571,7 +1571,7 @@ window.ColManager = (function($, ColManager) {
                 "operation"   : SQLOps.SplitCol,
                 "tableName"   : tableName,
                 "tableId"     : tableId,
-                "newTableName": newTableNames[1],
+                "newTableName": newTableNames[numColToGet],
                 "colNum"      : colNum,
                 "delimiter"   : delimiter,
                 "numColToGet" : numColToGet
@@ -2008,16 +2008,31 @@ window.ColManager = (function($, ColManager) {
         }
     };
 
-    ColManager.renameCol = function(colNum, tableId, newName) {
+    // options
+    // keepEditable: boolean, if true then we dont remove disabled and editable class
+    ColManager.renameCol = function(colNum, tableId, newName, options) {
         var table   = gTables[tableId];
         var $table  = $("#xcTable-" + tableId);
+        var $th     = $table.find('th.col' + colNum);
         var curCol  = table.tableCols[colNum - 1];
         var oldName = curCol.name;
+        options = options || {};
 
         curCol.name = newName;
-        $table.find('.editableHead.col' + colNum).val(newName)
-                                                .attr("value", newName)
-                                                .prop("disabled", true);
+        var wasEditable = $th.find('.flexWrap.editable').length;
+        var $editableHead = $th.find('.editableHead');
+        if (!options.keepEditable) {
+            $th.find('.flexWrap.editable').removeClass('editable');
+            $editableHead.prop("disabled", true);
+
+            FnBar.focusOnCol($editableHead, tableId, colNum, true);
+        } else {
+            $th.find('.flexWrap.flex-mid').addClass('editable');
+            $th.find('.editableHead').prop("disabled", false);
+        }
+
+        $editableHead.val(newName).attr("value", newName);
+
 
         // adjust rightsidebar column name
         TableList.updateColName(tableId, colNum, newName);
@@ -2028,7 +2043,9 @@ window.ColManager = (function($, ColManager) {
             "tableId"  : tableId,
             "colName"  : oldName,
             "colNum"   : colNum,
-            "newName"  : newName
+            "newName"  : newName,
+            "wasNew"   : wasEditable,
+            "htmlExclude": ["wasNew"]
         });
 
         KVStore.commit();
@@ -2066,7 +2083,9 @@ window.ColManager = (function($, ColManager) {
             "tableId"  : tableId,
             "colName"  : tableCol.name,
             "colNum"   : colNum,
-            "format"   : format
+            "format"   : format,
+            "oldFormat": oldFormat,
+            "htmlExclude": ["oldFormat"]
         });
     };
 
@@ -2074,6 +2093,7 @@ window.ColManager = (function($, ColManager) {
         var table = gTables[tableId];
         var tableCol = table.tableCols[colNum - 1];
         var format = tableCol.format;
+        var prevDecimals = tableCol.decimals;
 
         $('#xcTableWrap-' + tableId).find('td.col' + colNum).each(function() {
             var $td = $(this);
@@ -2092,7 +2112,9 @@ window.ColManager = (function($, ColManager) {
             "tableId"  : tableId,
             "colName"  : tableCol.name,
             "colNum"   : colNum,
-            "decimals" : decimals
+            "decimals" : decimals,
+            "prevDecimals": prevDecimals,
+            "htmlExclude": ["prevDecimals"]
         });
     };
 
@@ -2573,7 +2595,8 @@ window.ColManager = (function($, ColManager) {
         });
     };
 
-    ColManager.textAlign = function(colNum, tableId, alignment) {
+    ColManager.textAlign = function(colNums, tableId, alignment) {
+        var cachedAlignment = alignment;
         if (alignment.indexOf("leftAlign") > -1) {
             alignment = "Left";
         } else if (alignment.indexOf("rightAlign") > -1) {
@@ -2585,17 +2608,13 @@ window.ColManager = (function($, ColManager) {
         }
         var table  = gTables[tableId];
         var $table = $('#xcTable-' + tableId);
-        var colNums = [];
         var colNames = [];
-        if (typeof colNum !== "object") {
-            colNums.push(colNum);
-        } else {
-            colNums = colNum;
-        }
         var numCols = colNums.length;
+        var prevAlignments = [];
 
         for (var i = 0; i < numCols; i++) {
             var curCol = table.tableCols[colNums[i] - 1];
+            prevAlignments.push(curCol.textAlign);
             $table.find('td.col' + colNums[i])
                 .removeClass('textAlignLeft')
                 .removeClass('textAlignRight')
@@ -2606,25 +2625,17 @@ window.ColManager = (function($, ColManager) {
             colNames.push(curCol.name);
         }
 
-        if (numCols === 1) {
-            SQL.add("Text Align", {
-                "operation": "textAlign",
-                "tableName": table.tableName,
-                "tableId"  : tableId,
-                "colName"  : colNames[0],
-                "colNum"   : colNums[0],
-                "alignment": alignment
-            });
-        } else {
-            SQL.add("Text Align", {
-                "operation": "textAlign",
-                "tableName": table.tableName,
-                "tableId"  : tableId,
-                "colNames" : colNames,
-                "colNums"  : colNums,
-                "alignment": alignment
-            });
-        }
+        SQL.add("Text Align", {
+            "operation": SQLOps.TextAlign,
+            "tableName": table.tableName,
+            "tableId"  : tableId,
+            "colNames" : colNames,
+            "colNums"  : colNums,
+            "alignment": alignment,
+            "prevAlignments": prevAlignments,
+            "cachedAlignment": cachedAlignment,
+            "htmlExclude": ["prevAlignments", "cachedAlignment"]
+        });
     };
 
     ColManager.pullAllCols = function(startIndex, jsonObj, dataIndex,

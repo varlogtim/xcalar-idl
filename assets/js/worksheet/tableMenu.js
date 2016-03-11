@@ -613,14 +613,14 @@ window.TblMenu = (function(TblMenu, $) {
                 return;
             }
             var $li = $(this);
-            var colNum;
+            var colNums;
             if ($li.closest('.multiTextAlign').length !== 0) {
-                colNum = $colMenu.data('columns');
+                colNums = $colMenu.data('columns');
             } else {
-                colNum = $colMenu.data('colNum');
+                colNums = [$colMenu.data('colNum')];
             }
             var tableId = $colMenu.data('tableId');
-            ColManager.textAlign(colNum, tableId, $(this).attr("class"));
+            ColManager.textAlign(colNums, tableId, $(this).attr("class"));
         });
 
         $subMenu.on('mouseup', '.resize', function(event) {

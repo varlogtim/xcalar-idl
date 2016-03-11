@@ -470,7 +470,6 @@ window.SQL = (function($, SQL) {
 
         switch (operation) {
             case SQLOps.DSLoad:
-            case SQLOps.IndexDS:
             case SQLOps.PreviewDS:
             case SQLOps.DestroyPreviewDS:
             case SQLOps.RenameOrphanTable:
@@ -743,6 +742,9 @@ window.SQL = (function($, SQL) {
             case (SQLOps.SortTableCols):
             case (SQLOps.ResizeTableCols):
             case (SQLOps.DragResizeTableCol):
+            case (SQLOps.DragResizeRow):
+            case (SQLOps.BookmarkRow):
+            case (SQLOps.RemoveBookmark):
             case (SQLOps.HideTable):
             case (SQLOps.UnhideTable):
             case (SQLOps.AddWS):
