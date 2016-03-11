@@ -10,11 +10,18 @@ window.Undo = (function($, Undo) {
         var operation = sql.getOperation();
 
         if (undoFuncs.hasOwnProperty(operation)) {
+            var minModeCache = gMinModeOn;
+            // do not use any animation
+            gMinModeOn = true;
+
             undoFuncs[operation](options)
             .then(deferred.resolve)
             .fail(function() {
                 // XX do we do anything with the cursor?
                 deferred.reject("undo failed");
+            })
+            .always(function() {
+                gMinModeOn = minModeCache;
             });
         } else {
             console.warn("Unknown operation cannot undo", operation);
@@ -327,8 +334,10 @@ window.Undo = (function($, Undo) {
             TblManager.inActiveTables(tableIds);
             if (options.noSheetTables != null) {
                 var $tableList = $("#inactiveTablesList");
+                var noSheetTables = WSManager.getNoSheetTables();
                 options.noSheetTables.forEach(function(tId) {
                     WSManager.removeTable(tId);
+                    noSheetTables.push(tId);
 
                     $tableList.find('.tableInfo[data-id="' + tId + '"] .worksheetInfo')
                     .addClass("inactive").text(SideBarTStr.NoSheet);
@@ -465,6 +474,77 @@ window.Undo = (function($, Undo) {
         $("#worksheetTab-" + wsId).trigger(fakeEvent.mousedown);
 
         return promiseWrapper(null);
+    };
+
+    undoFuncs[SQLOps.DelWS] = function(options) {
+        var delType = options.delType;
+        var wsId = options.worksheetId;
+        var wsName = options.worksheetName;
+        var wsIndex = options.worksheetIndex;
+        var tables = options.tables;
+        var hiddenTables = options.hiddenTables;
+        var promises = [];
+
+        if (delType === DelWSType.Empty) {
+            makeWorksheetHelper();
+            return promiseWrapper(null);
+        } else if (delType === DelWSType.Del) {
+            makeWorksheetHelper();
+
+            tables.forEach(function(tableId) {
+                promises.push(WSManager.moveInactiveTable.bind(this,
+                    tableId, wsId, TableType.Orphan));
+            });
+
+            hiddenTables.forEach(function(tableId) {
+                WSManager.addTable(tableId, wsId);
+                gTables[tableId].isOrphaned = false;
+                TblManager.archiveTable(tableId);
+            });
+
+            promises.push(TableList.refreshOrphanList.bind(this));
+
+            return chain(promises);
+        } else if (delType === DelWSType.Archive) {
+            var options = {
+                "isUndo"  : true
+            };
+            makeWorksheetHelper();
+            WSManager.addNoSheetTables(tables, wsId);
+            WSManager.addNoSheetTables(hiddenTables, wsId);
+
+            tables.forEach(function(tableId) {
+                WSManager.addTable(tableId)
+                var tableName = gTables[tableId].tableName;
+                promises.push(TblManager.refreshTable.bind(this, [tableName], null,
+                                                      [], null, options));
+            });
+
+            var $lists = $("#archivedTableList .tableInfo");
+            hiddenTables.forEach(function(tableId) {
+                // reArchive the table
+                var $li = $lists.filter(function() {
+                    return $(this).data("id") === tableId;
+                }).remove();
+
+                TblManager.archiveTable(tableId);
+            });
+
+            return chain(promises);
+        } else {
+            console.error("Unexpected delete worksheet type");
+            return promiseWrapper(null);
+        }
+
+        function makeWorksheetHelper() {
+            WSManager.addWS(wsId, wsName);
+            var $tabs = $("#worksheetTabs .worksheetTab");
+            var $tab = $tabs.eq(wsIndex);
+            if (!($tab.data("ws") === wsId)) {
+                $("#worksheetTab-" + wsId).insertBefore($tab);
+            }
+
+        }
     };
     /* End of Worksheet Operation */
 

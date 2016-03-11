@@ -10,11 +10,18 @@ window.Redo = (function($, Redo) {
         var operation = sql.getOperation();
 
         if (redoFuncs.hasOwnProperty(operation)) {
+            var minModeCache = gMinModeOn;
+            // do not use any animation
+            gMinModeOn = true;
+
             redoFuncs[operation](options)
             .then(deferred.resolve)
             .fail(function() {
                 // XX do we do anything with the cursor?
                 deferred.reject("redo failed");
+            })
+            .always(function() {
+                gMinModeOn = minModeCache;
             });
         } else {
             console.warn("Unknown operation cannot redo", operation);
@@ -330,6 +337,13 @@ window.Redo = (function($, Redo) {
         var wsId = options.newWorksheetId;
         $("#worksheetTab-" + wsId).trigger(fakeEvent.mousedown);
 
+        return promiseWrapper(null);
+    };
+
+    redoFuncs[SQLOps.DelWS] = function(options) {
+        var delType = options.delType;
+        var wsId = options.worksheetId;
+        WSManager.delWS (wsId, delType);
         return promiseWrapper(null);
     };
     /* End of Worksheet Operation */

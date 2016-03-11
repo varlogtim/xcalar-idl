@@ -124,7 +124,7 @@ window.WSManager = (function($, WSManager) {
     WSManager.addWS = function(wsId, wsName) {
         var currentWorksheet = activeWorksheet;
 
-        if (SQL.isRedo()) {
+        if (SQL.isRedo() || SQL.isUndo()) {
             if (wsId == null) {
                 console.error("Undo Add worksheet must have wsId!");
                 return;
@@ -152,6 +152,8 @@ window.WSManager = (function($, WSManager) {
             "worksheetId"   : wsId,
             "worksheetIndex": wsIndex,
             "worksheetName" : ws.name,
+            "tables"        : xcHelper.deepCopy(ws.tables),
+            "hiddenTables"  : xcHelper.deepCopy(ws.hiddenTables),
             "delType"       : delType
         };
 
@@ -161,18 +163,19 @@ window.WSManager = (function($, WSManager) {
                 ws.tempHiddenTables.length === 0) {
                 rmWorksheet(wsId);
 
+                // for empty worksheet, no need for this two attr
+                delete sqlOptions.tables;
+                delete sqlOptions.hiddenTables;
                 SQL.add("Delete Worksheet", sqlOptions);
             } else {
                 console.error("Not an empty worksheet!");
                 return;
             }
-        } else if (delType === TblTStr.Del) {
-            delTableHelper(wsId)
-            .then(function() {
-                rmWorksheet(wsId);
-                SQL.add("Delete Worksheet", sqlOptions);
-            });
-        } else if (delType === TblTStr.Archive) {
+        } else if (delType === DelWSType.Del) {
+            delTableHelper(wsId);
+            rmWorksheet(wsId);
+            SQL.add("Delete Worksheet", sqlOptions);
+        } else if (delType === DelWSType.Archive) {
             archiveTableHelper(wsId);
             rmWorksheet(wsId);
             SQL.add("Delete Worksheet", sqlOptions);
@@ -789,11 +792,9 @@ window.WSManager = (function($, WSManager) {
                 isFocus = true;
                 focusTable(tableId);
             }
-            var $table;
-            var $tableWrap;
             $curActiveTables.find('.xcTable').each(function() {
-                $table = $(this);
-                $tableWrap = $table.closest('.xcTableWrap');
+                var $table = $(this);
+                var $tableWrap = $table.closest('.xcTableWrap');
                 matchHeaderSizes($table);
                 $tableWrap.find('.rowGrab').width($table.width());
             });
@@ -1355,14 +1356,13 @@ window.WSManager = (function($, WSManager) {
                 "title"  : WSTStr.DelWS,
                 "msg"    : WSTStr.DelWSMsg,
                 "buttons": [
-                    // {
-                    //     "name"     : TblTStr.Del,
-                    //     "className": "deleteTale",
-                    //     "func"     : function() {
-                    //         WSManager.delWS(wsId, DelWSType.Del);
-                    //     }
-                    // },
-                    // XXX temporarily hiding ability to delete tables
+                    {
+                        "name"     : TblTStr.Del,
+                        "className": "deleteTale",
+                        "func"     : function() {
+                            WSManager.delWS(wsId, DelWSType.Del);
+                        }
+                    },
                     {
                         "name"     : TblTStr.Archive,
                         "className": "archiveTable",
@@ -1386,55 +1386,78 @@ window.WSManager = (function($, WSManager) {
 
     // Helper function to delete tables in a worksheet
     function delTableHelper(wsId) {
-        var deferred    = jQuery.Deferred();
-        var promises    = [];
-        var $tableLists = $("#inactiveTablesList");
+        // var deferred    = jQuery.Deferred();
+        // var promises    = [];
+        // var $tableLists = $("#inactiveTablesList");
 
-        // click all inactive table in this worksheet
-        $tableLists.find(".addTableBtn.selected").click();
-        $tableLists.find(".worksheet-" + wsId)
-                    .closest(".tableInfo")
-                    .find(".addTableBtn").click();
+        // // click all inactive table in this worksheet
+        // $tableLists.find(".addTableBtn.selected").click();
+        // $tableLists.find(".worksheet-" + wsId)
+        //             .closest(".tableInfo")
+        //             .find(".addTableBtn").click();
 
 
-        // for active table, use this to delete
-        var activeTables = wsLookUp[wsId].tables;
-        for (var i = 0, len = activeTables.length; i < len; i++) {
-            var tableId = activeTables[i];
-            promises.push(deleteTable.bind(this, tableId, TableType.Active));
-        }
+        // // for active table, use this to delete
+        // var activeTables = wsLookUp[wsId].tables;
+        // for (var i = 0, len = activeTables.length; i < len; i++) {
+        //     var tableId = activeTables[i];
+        //     promises.push(deleteTable.bind(this, tableId, TableType.Active));
+        // }
 
-        chain(promises)
-        .then(function() {
-            return (TableList.tableBulkAction("delete", TableType.InActive));
-        })
-        .then(function() {
-            deferred.resolve();
-        })
-        .fail(function(error) {
-            Alert.error("Delete Table Fails", error);
-            deferred.reject(error);
+        // chain(promises)
+        // .then(function() {
+        //     return (TableList.tableBulkAction("delete", TableType.InActive));
+        // })
+        // .then(function() {
+        //     deferred.resolve();
+        // })
+        // .fail(function(error) {
+        //     Alert.error("Delete Table Fails", error);
+        //     deferred.reject(error);
+        // });
+        var options = {"remove": true};
+        var ws = wsLookUp[wsId];
+        var tableIds = [];
+
+        // TblManager.sendTableToOrphaned will change ws structure
+        // so need tableIds to cahce first
+        ws.tables.forEach(function(tableId) {
+            tableIds.push(tableId);
         });
 
-        return (deferred.promise());
+        ws.hiddenTables.forEach(function(tableId) {
+            tableIds.push(tableId);
+        });
+
+        tableIds.forEach(function(tableId) {
+            TblManager.sendTableToOrphaned(tableId, options);
+        });
+        TableList.refreshOrphanList();
+        // return (deferred.promise());
     }
 
     // Helper function to archive tables in a worksheet
     function archiveTableHelper(wsId) {
         // archive all active tables (save it in a temp array because
         // archiveTable will change the structure of worksheets[].tables)
-        var tableIds = [];
-        var tables = wsLookUp[wsId].tables;
+        var ws = wsLookUp[wsId];
 
-        for (var i = 0, len = tables.length; i < len; i++) {
-            tableIds[i] = tables[i];
-        }
-
-        for (var i = 0, len = tableIds.length; i < len; i++) {
-            var tableId = tableIds[i];
-            TblManager.archiveTable(tableId, {del: ArchiveTable.Keep});
+        // put hiddenTables first, becaues archive will change the meta
+        ws.hiddenTables.forEach(function(tableId) {
             noSheetTables.push(tableId);
-        }
+        });
+
+        var tableIds = [];
+        ws.tables.forEach(function(tableId) {
+            noSheetTables.push(tableId);
+            tableIds.push(tableId);
+        });
+
+        // use tableIds as a cache because TblManager.archiveTable
+        // will change the structure of ws.tables
+        tableIds.forEach(function(tableId) {
+            TblManager.archiveTable(tableId, {"del": ArchiveTable.Keep});
+        });
 
         $("#inactiveTablesList").find(".worksheetInfo.worksheet-" + wsId)
                 .addClass("inactive").text(SideBarTStr.NoSheet);

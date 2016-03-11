@@ -489,9 +489,6 @@ window.SQL = (function($, SQL) {
             case SQLOps.ProfileBucketing:
             case SQLOps.QuickAgg:
             case SQLOps.Corr:
-
-            // temporary not support it, because of the agg info table
-            case SQLOps.DelWS:
                 return false;
             default:
                 return true;
