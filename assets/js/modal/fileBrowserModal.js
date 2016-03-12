@@ -800,6 +800,19 @@ window.FileBrowser = (function($, FileBrowser) {
             sortedFiles.forEach(function(file) {
                 resultFiles.push(file[0]);
             });
+        } else if (key === "date") {
+            // sort by mtime
+            files.forEach(function(file) {
+                sortedFiles.push([file, file.attr.mtime]);
+            });
+
+            sortedFiles.sort(function(a, b) {
+                return (a[1] - b[1]);
+            });
+
+            sortedFiles.forEach(function(file) {
+                resultFiles.push(file[0]);
+            });
         } else {
             // not sort by size, first sort by name
             files.forEach(function(file) {
