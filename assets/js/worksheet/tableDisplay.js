@@ -436,7 +436,10 @@ window.TblManager = (function($, TblManager) {
 
         if (gActiveTableId === tableId) {
             gActiveTableId = null;
+            $('#rowInput').val("").data("val", "");
+            $('#numPages').empty();
         }
+
         if ($('.xcTableWrap:not(.inActive').length === 0) {
             RowScroller.empty();
         }
