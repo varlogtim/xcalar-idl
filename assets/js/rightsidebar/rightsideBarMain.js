@@ -232,8 +232,6 @@ window.RightSideBar = (function($, RightSideBar) {
         $rightSideBar.find('.popOut')
                      .attr('data-original-title', SideBarTStr.PopBack);
         $('.tooltip').hide();
-        // var offset = $('#rightSideBar').offset();
-        console.log(offset);
         $('#rightSideBar').css({
             left: offset.left - 5,
             top : offset.top - 5

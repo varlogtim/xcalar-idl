@@ -41,7 +41,7 @@ window.ExportModal = (function($, ExportModal) {
 
         // click confirm button
         $exportModal.on("click", ".confirm", function() {
-            
+
             submitForm()
             .fail(function(error) {
                 // being handled in xcfunction.export
@@ -130,7 +130,7 @@ window.ExportModal = (function($, ExportModal) {
             exportTargInfo = targs;
             restoreExportPaths(targs);
             modalHelper.setup();
-            
+
             if (gMinModeOn) {
                 $exportModal.show();
             } else {
@@ -150,7 +150,7 @@ window.ExportModal = (function($, ExportModal) {
         .fail(function(error) {
             console.error(error);
         });
-        
+
     };
 
     function submitForm() {
@@ -162,7 +162,7 @@ window.ExportModal = (function($, ExportModal) {
             columnsVal[i] = jQuery.trim(val);
         });
         columnsVal = columnsVal.join(",");
-        
+
         //remove commas at either ends
         if (columnsVal.indexOf(",") === 0) {
             columnsVal = columnsVal.substring(1, columnsVal.length);
@@ -204,7 +204,7 @@ window.ExportModal = (function($, ExportModal) {
             deferred.reject({error: 'invalid input'});
             return (deferred.promise());
         }
-        
+
         var frontColumnNames = columnsVal.split(",");
         var backColumnNames = convertFrontColNamesToBack(frontColumnNames);
         // convertFrontColnamesToBack will return an array of column names if
@@ -233,13 +233,13 @@ window.ExportModal = (function($, ExportModal) {
             ]);
             isValid = false;
         }
-        
+
 
         if (!isValid) {
             deferred.reject({error: 'invalid input'});
             return (deferred.promise());
         }
-        
+
         checkDuplicateExportName(exportName + ".csv") // XX csv is temporary
         .then(function(hasDuplicate) {
             if (hasDuplicate) {
@@ -253,6 +253,7 @@ window.ExportModal = (function($, ExportModal) {
                 ]);
             } else {
                 var closeModal = true;
+                var modalClosed = false;
 
                 xcFunction.exportTable(exportTableName, exportName,
                                        $exportPath.val(),
@@ -260,7 +261,10 @@ window.ExportModal = (function($, ExportModal) {
                                        backColumnNames, frontColumnNames)
                 .then(function() {
                     closeModal = false;
-                    closeExportModal();
+                    if (!modalClosed) {
+                        closeExportModal();
+                    }
+
                     deferred.resolve();
                 })
                 .fail(function(error) {
@@ -270,6 +274,7 @@ window.ExportModal = (function($, ExportModal) {
 
                 setTimeout(function() {
                     if (closeModal) {
+                        modalClosed = true;
                         closeExportModal();
                     }
                 }, 200);
@@ -306,7 +311,7 @@ window.ExportModal = (function($, ExportModal) {
                         return;
                     }
                 }
-   
+
                 deferred.resolve(false);
             })
             .fail(function(error) {
@@ -314,7 +319,7 @@ window.ExportModal = (function($, ExportModal) {
                 deferred.resolve(false);
             });
         }
-           
+
         return (deferred.promise());
     }
 
@@ -370,7 +375,7 @@ window.ExportModal = (function($, ExportModal) {
             // column could be a duplicate so check against the columns we
             // already found and had removed
             if (!colFound) {
-                
+
                 for (j = 0; j < numColsFound; j++) {
                     tableCol = foundColsArray[j];
                     if (frontColName === tableCol.name) {
@@ -562,7 +567,7 @@ window.ExportModal = (function($, ExportModal) {
                 break;
             }
         }
-        
+
         $exportColumns.val(newValue);
         $exportColumns[0].setSelectionRange(selectStart + 1, selectStart + 1);
     }
@@ -579,7 +584,7 @@ window.ExportModal = (function($, ExportModal) {
         var $defaultLi = $exportList.find('li').filter(function() {
             return ($(this).text().indexOf('Default') === 0);
         });
-       
+
         $exportPath.val($defaultLi.text()).attr('value', $defaultLi.text());
     }
 
@@ -595,7 +600,7 @@ window.ExportModal = (function($, ExportModal) {
             if (colNum === -1) {
                 return false;
             }
-            
+
             if (gExportNoCheck) {
                 if (tableCols[colNum].isNewCol ||
                     tableCols[colNum].name === "DATA") {
@@ -662,7 +667,7 @@ window.ExportModal = (function($, ExportModal) {
                         $currCells = $table.find('th.col' + i + ', td.col' + i);
                         if ($currCells.hasClass('modalHighlighted')) {
                             deselectColumn($currCells, i);
-                        }                      
+                        }
                     }
                 } else {
                     deselectColumn($cells, colNum);
@@ -746,7 +751,7 @@ window.ExportModal = (function($, ExportModal) {
         $exportColumns.val(newVal);
     }
 
-    
+
     function restoreColumns() {
         // removes listeners and classes
         var $table = $('#xcTable-' + tableId);
@@ -756,7 +761,7 @@ window.ExportModal = (function($, ExportModal) {
         $ths.removeClass('modalHighlighted');
         $table.find('td:not(.jsonElement):not(:first-child)')
               .removeClass('modalHighlighted');
-        
+
         // $ths.find('input').removeAttr('disabled');
         $ths.find('input').css('pointer-events', 'initial');
         focusedHeader = null;
