@@ -574,6 +574,8 @@ window.Undo = (function($, Undo) {
         TblManager.pullRowsBulk(tableId, jsonObj, rowNum, newDataIndex,
                                 RowDirection.Bottom);
         TblManager.addColListeners($table, tableId);
+        updateTableHeader(tableId);
+        TableList.updateTableInfo(tableId);
         moveFirstColumn();
     }
 

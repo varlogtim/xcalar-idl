@@ -37,7 +37,7 @@ window.RightSideBar = (function($, RightSideBar) {
             var $section   = $rightSideBar.find('.rightBarSection').eq(index);
 
             if (!$rightSideBar.hasClass("open") ||
-                !$section.hasClass("active")) 
+                !$section.hasClass("active"))
             {
                 // right side bar is closed or
                 // switch to this section
@@ -67,7 +67,7 @@ window.RightSideBar = (function($, RightSideBar) {
                     // disable closing if popped out
                     closeRightSidebar();
                 }
-                
+
             }
 
             delayClick();
@@ -90,7 +90,7 @@ window.RightSideBar = (function($, RightSideBar) {
             } else {
                 popOutModal($rightSideBar);
             }
-            
+
         });
 
         $rightSideBar.draggable({
@@ -99,11 +99,75 @@ window.RightSideBar = (function($, RightSideBar) {
             cursor     : '-webkit-grabbing'
         });
 
+        var sideDragging;
+
+        $rightSideBar.on('mousedown', '.ui-resizable-handle', function() {
+            if ($(this).hasClass('ui-resizable-w')) {
+                sideDragging = "left";
+            } else if ($(this).hasClass('ui-resizable-e')) {
+                sideDragging = "right";
+            } else if ($(this).hasClass('ui-resizable-n')) {
+                sideDragging = "top";
+            } else if ($(this).hasClass('ui-resizable-s')) {
+                sideDragging = "bottom";
+            } else if ($(this).hasClass('ui-resizable-se')) {
+                sideDragging = "bottomRight";
+            }
+        });
+
+        var poppedOut = false;
+
         $rightSideBar.resizable({
             handles    : "n, e, s, w, se",
-            minHeight  : 500,
             minWidth   : 264,
-            containment: "document"
+            minHeight  : 300,
+            "start": function(event, ui) {
+                if (!$rightSideBar.hasClass('poppedOut')) {
+                    poppedOut = false;
+                } else {
+                    poppedOut = true;
+                }
+
+                // set boundaries so it can't resize past window
+                var panelRight = $rightSideBar[0].getBoundingClientRect().right;
+                var panelBottom = $rightSideBar[0].getBoundingClientRect().bottom;
+
+                if (sideDragging === "left") {
+                    $rightSideBar.css('max-width', panelRight - 10);
+                } else if (sideDragging === "right") {
+                    panelRight = $(window).width() - panelRight +
+                                 $rightSideBar.width();
+                    $rightSideBar.css('max-width', panelRight);
+                } else if (sideDragging === "top") {
+                    $rightSideBar.css('max-height', panelBottom);
+                } else if (sideDragging === "bottom") {
+                    panelBottom = $(window).height() - panelBottom +
+                                  $rightSideBar.height();
+                    $rightSideBar.css('max-height', panelBottom);
+                } else if (sideDragging === "bottomRight") {
+                    panelRight = $(window).width() - panelRight +
+                                 $rightSideBar.width();
+                    $rightSideBar.css('max-width', panelRight);
+                    panelBottom = $(window).height() - panelBottom +
+                                  $rightSideBar.height();
+                    $rightSideBar.css('max-height', panelBottom);
+                }
+            },
+            "stop": function() {
+                $rightSideBar.css('max-width', 'auto').css('max-height', 'auto');
+            },
+            "resize": function(event, ui) {
+                if (!poppedOut) {
+                    return;
+                }
+                if (ui.position.left <= 0) {
+                    $rightSideBar.css('left', 0);
+                }
+                if (ui.position.top <= 0) {
+                    $rightSideBar.css('top', 0);
+                }
+            }
+            // containment: "document"
         });
 
         $rightSideBar.on("resize", function() {
@@ -151,6 +215,7 @@ window.RightSideBar = (function($, RightSideBar) {
 
         function closeRightSidebar() {
             $rightSideBar.removeClass("open");
+            $rightSideBar.css('right', - ($rightSideBar.width() - 10));
             $sliderBtns.removeClass("active");
             // since close right side bar has slider animition,
             // delay the close of section
@@ -161,15 +226,17 @@ window.RightSideBar = (function($, RightSideBar) {
     }
 
     function popOutModal($rightSideBar) {
+        var offset = $('#rightSideBar').offset();
         $rightSideBar.addClass('poppedOut');
         $('#rightSideBarBtns').appendTo($rightSideBar);
         $rightSideBar.find('.popOut')
                      .attr('data-original-title', SideBarTStr.PopBack);
         $('.tooltip').hide();
-        var offset = $('#rightSideBar').offset();
+        // var offset = $('#rightSideBar').offset();
+        console.log(offset);
         $('#rightSideBar').css({
-            left: offset.left,
-            top : offset.top
+            left: offset.left - 5,
+            top : offset.top - 5
         });
     }
 
