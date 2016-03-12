@@ -81,10 +81,9 @@ window.AggModal = (function($, AggModal) {
         aggTableInitialize();
 
         var sql = {
-            "operation" : SQLOps.QuickAgg,
-            "tableId"   : tableId,
-            "tableName" : tableName,
-            "revertable": false
+            "operation": SQLOps.QuickAgg,
+            "tableId"  : tableId,
+            "tableName": tableName
         };
         var txId = Transaction.start({
             "operation": SQLOps.QuickAgg,
@@ -119,10 +118,9 @@ window.AggModal = (function($, AggModal) {
         corrTableInitialize();
 
         var sql = {
-            "operation" : SQLOps.Corr,
-            "tableId"   : tableId,
-            "tableName" : tableName,
-            "revertable": false
+            "operation": SQLOps.Corr,
+            "tableId"  : tableId,
+            "tableName": tableName
         };
         var txId = Transaction.start({
             "operation": SQLOps.Corr,

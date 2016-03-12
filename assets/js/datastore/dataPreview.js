@@ -181,8 +181,7 @@ window.DataPreview = (function($, DataPreview) {
                 "fieldDelim": "Null",
                 "lineDelim" : "\n",
                 "moduleName": "Null",
-                "funcName"  : "Null",
-                "revertable": false
+                "funcName"  : "Null"
             };
             var txId = Transaction.start({
                 "operation": SQLOps.PreviewDS,
@@ -347,9 +346,8 @@ window.DataPreview = (function($, DataPreview) {
 
         if (tableName != null) {
             var sql = {
-                "operation" : SQLOps.DestroyPreviewDS,
-                "dsName"    : tableName,
-                "revertable": false
+                "operation": SQLOps.DestroyPreviewDS,
+                "dsName"   : tableName
             };
             var txId = Transaction.start({
                 "operation": SQLOps.DestroyPreviewDS,

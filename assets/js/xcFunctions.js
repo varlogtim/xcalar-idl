@@ -594,8 +594,7 @@ window.xcFunction = (function($, xcFunction) {
             "targetName"  : targetName,
             "numCols"     : numCols,
             "frontColumns": frontColumns,
-            "backColumns" : backColumns,
-            "revertable"  : false
+            "backColumns" : backColumns
         };
         var txId = Transaction.start({
             "msg"      : StatusMessageTStr.ExportTable + ": " + tableName,

@@ -30,7 +30,7 @@ window.TblAnim = (function($, TblAnim) {
         rescol.startWidth = rescol.grabbedCell.outerWidth();
 
         hideOffScreenTables({
-            marginLeft: rescol.startWidth,
+            marginLeft : rescol.startWidth,
             marginRight: rescol.startWidth
         });
 
@@ -119,7 +119,7 @@ window.TblAnim = (function($, TblAnim) {
         // tooltip will show if we don't delay the reenabling of text selection
         setTimeout(function() {
             xcHelper.reenableTextSelection();
-        },500);
+        }, 500);
 
         // set timeout because unhiding is slow
         setTimeout(function() {
@@ -130,12 +130,12 @@ window.TblAnim = (function($, TblAnim) {
 
         if (!isDatastore && wasResized) {
             SQL.add("Resize Column", {
-                "operation": SQLOps.DragResizeTableCol,
-                "tableName": gTables[rescol.tableId].tableName,
-                "tableId"  : rescol.tableId,
-                "colNum"   : rescol.index,
-                "fromWidth": rescol.startWidth,
-                "toWidth"  : rescol.newWidth,
+                "operation"  : SQLOps.DragResizeTableCol,
+                "tableName"  : gTables[rescol.tableId].tableName,
+                "tableId"    : rescol.tableId,
+                "colNum"     : rescol.index,
+                "fromWidth"  : rescol.startWidth,
+                "toWidth"    : rescol.newWidth,
                 "htmlExclude": ["colNum", "fromWidth", "toWidth"]
             });
         }
@@ -200,7 +200,7 @@ window.TblAnim = (function($, TblAnim) {
             gMouseStatus = "rowMove";
 
             hideOffScreenTables();
-            var el = rowInfo.$el;
+            // var el = rowInfo.$el;
             var $table = rowInfo.$table;
 
             rowInfo.tableId = xcHelper.parseTableId($table);
@@ -290,12 +290,12 @@ window.TblAnim = (function($, TblAnim) {
 
 
         SQL.add("Resize Row", {
-            "operation": SQLOps.DragResizeRow,
-            "tableName": gTables[rowInfo.tableId].tableName,
-            "tableId"  : rowInfo.tableId,
-            "rowNum"   : rowNum - 1,
-            "fromHeight": rowInfo.startHeight,
-            "toHeight" : newRowHeight,
+            "operation"  : SQLOps.DragResizeRow,
+            "tableName"  : gTables[rowInfo.tableId].tableName,
+            "tableId"    : rowInfo.tableId,
+            "rowNum"     : rowNum - 1,
+            "fromHeight" : rowInfo.startHeight,
+            "toHeight"   : newRowHeight,
             "htmlExclude": ["rowNum", "fromHeight", "toHeight"]
         });
     }
@@ -329,7 +329,7 @@ window.TblAnim = (function($, TblAnim) {
             // remove this rowNumber from gTables and
             //if no other rows exist in the page, remove the pageNumber as well
             if (rowObj[pageNum] != null) {
-                delete rowObj[pageNum][rowNum  + 1];
+                delete rowObj[pageNum][rowNum + 1];
                 if ($.isEmptyObject(rowObj[pageNum])) {
                     delete rowObj[pageNum];
                 }
@@ -424,7 +424,7 @@ window.TblAnim = (function($, TblAnim) {
             rightLimit = Math.max(rightLimit, mfScrollLeft);
 
             var hideOptions = {
-                marginLeft: mfScrollLeft - leftLimit,
+                marginLeft : mfScrollLeft - leftLimit,
                 marginRight: rightLimit - mfScrollLeft
             };
             hideOffScreenTables(hideOptions);
@@ -737,7 +737,7 @@ window.TblAnim = (function($, TblAnim) {
         dragInfo.mouseX = e.pageX;
         dragInfo.$el = $el;
 
-         var cursorStyle = '<div id="moveCursor"></div>';
+        var cursorStyle = '<div id="moveCursor"></div>';
         $('body').addClass('tooltipOff').append(cursorStyle);
         $(document).on('mousemove.checkTableDrag', checkTableDrag);
         $(document).on('mouseup.endTableDrag', endTableDrag);

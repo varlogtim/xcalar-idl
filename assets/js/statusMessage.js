@@ -445,7 +445,7 @@ window.StatusMessage = (function($, StatusMessage) {
                 $(document).mouseup(removeSelectionRange);
             });
 
-            if (status.indexOf('failed') === -1 && 
+            if (status.indexOf('failed') === -1 &&
                 (classes.indexOf('right') > -1 ||
                  classes.indexOf('left') > -1)) {
                 // detects if user scrolls to table. If so, remove mainFrame

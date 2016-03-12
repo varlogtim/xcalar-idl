@@ -217,8 +217,7 @@ window.DS = (function ($, DS) {
             "fieldDelim": fieldDelim,
             "lineDelim" : lineDelim,
             "moduleName": moduleName,
-            "funcName"  : funcName,
-            "revertable": false
+            "funcName"  : funcName
         };
         var txId = Transaction.start({
             "operation": SQLOps.DSLoad,
@@ -546,10 +545,9 @@ window.DS = (function ($, DS) {
         var dsId = dsObj.getId();
 
         var sql = {
-            "operation" : SQLOps.DestroyDS,
-            "dsName"    : dsName,
-            "dsId"      : dsId,
-            "revertable": false
+            "operation": SQLOps.DestroyDS,
+            "dsName"   : dsName,
+            "dsId"     : dsId
         };
         var txId = Transaction.start({
             "operation": SQLOps.DestroyDS,
@@ -665,9 +663,8 @@ window.DS = (function ($, DS) {
                 // if it's the current user's preview ds,
                 // then we delete it on start up time
                 var sql = {
-                    "operation" : SQLOps.DestroyPreviewDS,
-                    "dsName"    : dsName,
-                    "revertable": false
+                    "operation": SQLOps.DestroyPreviewDS,
+                    "dsName"   : dsName
                 };
                 var txId = Transaction.start({
                     "operation": SQLOps.DestroyPreviewDS,

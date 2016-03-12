@@ -343,12 +343,12 @@ window.UDF = (function($, UDF) {
             });
 
             Alert.show({
-                    "title"     : SideBarTStr.DupUDF,
-                    "msg"       : msg,
-                    "isCheckBox": false,
-                    "confirm"   : function() { uploadHelper(); },
-                    "cancel"    : function() { deferred.resolve(); },
-                    "focusOnConfirm": true
+                "title"         : SideBarTStr.DupUDF,
+                "msg"           : msg,
+                "isCheckBox"    : false,
+                "confirm"       : function() { uploadHelper(); },
+                "cancel"        : function() { deferred.resolve(); },
+                "focusOnConfirm": true
             });
         } else {
             uploadHelper();
@@ -481,9 +481,9 @@ window.UDF = (function($, UDF) {
         'def splitWithDelim(txt, index, delim):\n' +
             '\treturn delim.join(txt.split(delim)[index:])\n' +
         '\n' +
-        '# get the current time\n'+
-        'def now():\n'+
-            '\treturn str(int(time.time()))\n'+
+        '# get the current time\n' +
+        'def now():\n' +
+            '\treturn str(int(time.time()))\n' +
         '\n' +
         '# used for multijoin and multiGroupby\n' +
         'def multiJoin(*arg):\n' +

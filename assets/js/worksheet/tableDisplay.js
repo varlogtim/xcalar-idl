@@ -337,7 +337,6 @@ window.TblManager = (function($, TblManager) {
 
         for (var i = 0, len = tableIds.length; i < len; i++) {
             var tableId = tableIds[i];
-            var table = gTables[tableId];
             tableNames.push(gTables[tableId].tableName);
             tablePos.push(WSManager.getTableRelativePosition(tableId));
             TblManager.archiveTable(tableId, options);
@@ -459,10 +458,9 @@ window.TblManager = (function($, TblManager) {
         }
 
         var sql = {
-            "operation" : SQLOps.DeleteTable,
-            "tables"    : tables,
-            "tableType" : tableType,
-            "revertable": false
+            "operation": SQLOps.DeleteTable,
+            "tables"   : tables,
+            "tableType": tableType
         };
         var txId = Transaction.start({
             "operation": SQLOps.DeleteTable,
@@ -655,7 +653,6 @@ window.TblManager = (function($, TblManager) {
         var table = gTables[tableId];
         var tableCols = table.tableCols;
         var order;
-        var oldOrder = [];
         var newIndex;
         var oldOrder = []; // to save the old column order
         if (direction === "reverse") {
@@ -765,7 +762,7 @@ window.TblManager = (function($, TblManager) {
         var $ths = $table.find('th');
         var thHtml = $ths.eq(0)[0].outerHTML;
         var tdHtml = "";
-        var numRows = $table.find('tbody tr').length;
+        // var numRows = $table.find('tbody tr').length;
         var $th;
 
         // column headers
@@ -832,7 +829,6 @@ window.TblManager = (function($, TblManager) {
         var table   = gTables[tableId];
         var columns = [];
         var colNums = [];
-        var numCols;
         if (columnNums !== undefined) {
 
             if (typeof columnNums !== "object") {
@@ -840,13 +836,11 @@ window.TblManager = (function($, TblManager) {
             } else {
                 colNums = columnNums;
             }
-            numCols = colNums.length;
-            for (var i = 0; i < numCols; i++) {
+            for (var i = 0; i < colNums.length; i++) {
                 columns.push(table.tableCols[colNums[i] - 1]);
             }
         } else {
             columns = table.tableCols;
-            numCols = columns.length;
             for (var i = 0; i < columns.length; i++) {
                 colNums.push(i + 1);
             }
@@ -877,14 +871,14 @@ window.TblManager = (function($, TblManager) {
         matchHeaderSizes($table);
 
         SQL.add("Resize Columns", {
-            "operation": SQLOps.ResizeTableCols,
-            "tableName": table.tableName,
-            "tableId"  : tableId,
-            "resizeTo" : resizeTo,
-            "columnNums": colNums,
+            "operation"      : SQLOps.ResizeTableCols,
+            "tableName"      : table.tableName,
+            "tableId"        : tableId,
+            "resizeTo"       : resizeTo,
+            "columnNums"     : colNums,
             "oldColumnWidths": oldColumnWidths,
             "newColumnWidths": newWidths,
-            "htmlExclude": ["columnNums", "oldColumnWidths", "newColumnWidths"]
+            "htmlExclude"    : ["columnNums", "oldColumnWidths", "newColumnWidths"]
         });
     };
 
@@ -1771,7 +1765,7 @@ window.TblManager = (function($, TblManager) {
 
     // creates thead and cells but not the body of the table
     function generateTableShell(columns, tableId) {
-        var table = gTables[tableId];
+        // var table = gTables[tableId];
         var activeWS = WSManager.getActiveWS();
         var tableWS = WSManager.getWSFromTable(tableId);
         var tableClasses = "";
@@ -1802,13 +1796,14 @@ window.TblManager = (function($, TblManager) {
             // be placing the new table is the proper position
         }
 
+        var tHeadTbodyInfo = TblManager.generateTheadTbody(columns, tableId);
         var newTable =
             '<table id="xcTable-' + tableId + '" class="xcTable dataTable" ' +
-            'style="width:0px;" data-id="' + tableId + '">';
-        tHeadTbodyInfo = TblManager.generateTheadTbody(columns, tableId);
-        newTable += tHeadTbodyInfo.html;
-        newTable += '</table>';
-        newTable += '<div class="rowGrab last"></div>';
+            'style="width:0px;" data-id="' + tableId + '">' +
+                tHeadTbodyInfo.html +
+            '</table>' +
+            '<div class="rowGrab last"></div>';
+
         $('#xcTbodyWrap-' + tableId).append(newTable);
         $('#xcTbodyWrap-' + tableId).find('.rowGrab.last').mousedown(function(event) {
             if (event.which === 1) {

@@ -106,11 +106,10 @@ window.SQL = (function($, SQL) {
 
     SQL.errorLog = function(title, options, cli, error) {
         var sql = new SQLConstructor({
-            "title"     : title,
-            "options"   : options,
-            "cli"       : cli,
-            "error"     : error,
-            "revertable": false
+            "title"  : title,
+            "options": options,
+            "cli"    : cli,
+            "error"  : error
         });
         errors.push(sql);
 

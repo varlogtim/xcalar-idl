@@ -16,8 +16,11 @@ window.FnBar = (function(FnBar, $) {
                 var trimmedVal = val.trim();
                 if (trimmedVal.indexOf('=') !== 0) {
                     $functionArea.addClass('searching');
-                    var args = {value: trimmedVal, searchBar: searchHelper,
-                                initialTableId: initialTableId};
+                    var args = {
+                        "value"         : trimmedVal,
+                        "searchBar"     : searchHelper,
+                        "initialTableId": initialTableId
+                    };
                     ColManager.execCol({func: {func: 'search'}}, null, null, args);
                 } else {
                     $functionArea.removeClass('searching');
@@ -70,8 +73,8 @@ window.FnBar = (function(FnBar, $) {
     };
 
     FnBar.clear = function(noSave) {
-        var val = $fnBar.val();
-        var trimmedVal = val.trim();
+        // var val = $fnBar.val();
+        // var trimmedVal = val.trim();
         if (!noSave) {
             saveInput();
         } else {

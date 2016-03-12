@@ -559,10 +559,9 @@ window.DagPanel = (function($, DagPanel) {
                 // delete another table in the dag node of A but that table is
                 // not in orphaned list
                 var sql = {
-                    "operation" : SQLOps.DeleteTable,
-                    "tableName" : tableName,
-                    "tableType" : TableType.Unknown,
-                    "revertable": false
+                    "operation": SQLOps.DeleteTable,
+                    "tableName": tableName,
+                    "tableType": TableType.Unknown
                 };
                 var txId = Transaction.start({
                     "operation": SQLOps.DeleteTable,

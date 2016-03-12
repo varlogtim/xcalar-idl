@@ -241,13 +241,12 @@ window.Profile = (function($, Profile, d3) {
         var curStatsCol = statsCol;
 
         var sql = {
-            "operation" : SQLOps.Profile,
-            "tableName" : table.tableName,
-            "tableId"   : tableId,
-            "colNum"    : colNum,
-            "colName"   : colName,
-            "modalId"   : statsCol.modalId,
-            "revertable": false
+            "operation": SQLOps.Profile,
+            "tableName": table.tableName,
+            "tableId"  : tableId,
+            "colNum"   : colNum,
+            "colName"  : colName,
+            "modalId"  : statsCol.modalId
         };
         var txId = Transaction.start({
             "msg"      : StatusMessageTStr.Profile + " " + colName,
@@ -1407,8 +1406,7 @@ window.Profile = (function($, Profile, d3) {
             "tableId"   : curTableId,
             "colNum"    : curColNum,
             "bucketSize": bucketNum,
-            "modalId"   : statsCol.modalId,
-            "revertable": false
+            "modalId"   : statsCol.modalId
         };
         var txId = Transaction.start({
             "operation": SQLOps.ProfileSort,
@@ -1553,8 +1551,7 @@ window.Profile = (function($, Profile, d3) {
             "bucketSize": newBucketNum,
             "tableId"   : curTableId,
             "colNum"    : curColNum,
-            "modalId"   : statsCol.modalId,
-            "revertable": false
+            "modalId"   : statsCol.modalId
         };
         var txId = Transaction.start({
             "operation": SQLOps.ProfileBucketing,

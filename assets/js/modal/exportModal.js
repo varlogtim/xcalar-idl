@@ -207,7 +207,7 @@ window.ExportModal = (function($, ExportModal) {
         
         var frontColumnNames = columnsVal.split(",");
         var backColumnNames = convertFrontColNamesToBack(frontColumnNames);
-        // convertFrontColnamesToBack will return an array of column names if 
+        // convertFrontColnamesToBack will return an array of column names if
         // successful, or will return an error object with the first invalid column name
 
         if (backColumnNames.invalid) {
@@ -299,7 +299,7 @@ window.ExportModal = (function($, ExportModal) {
         } else {
             XcalarListFiles(filePath)
             .then(function(result) {
-                var dupFound = false;
+                // var dupFound = false;
                 for (var i = 0; i < result.numFiles; i++) {
                     if (result.files[i].name === name) {
                         deferred.resolve(true);
@@ -318,7 +318,7 @@ window.ExportModal = (function($, ExportModal) {
         return (deferred.promise());
     }
 
-    // returns array if all columns valid or returns an error object with 
+    // returns array if all columns valid or returns an error object with
     // first invalid column name and reason why it's invalid
     function convertFrontColNamesToBack(frontColNames) {
         var backCols = [];
@@ -327,8 +327,8 @@ window.ExportModal = (function($, ExportModal) {
         var numColsFound = 0;
         var numFrontColNames = frontColNames.length;
         var i;
-        var numFoundCols;
-        var isObj;
+        // var numFoundCols;
+        // var isObj;
         var frontColName;
 
         // take all of gTables columns and filter out arrays, data, newcols, objs etc
@@ -348,7 +348,7 @@ window.ExportModal = (function($, ExportModal) {
             for (j = 0; j < numTableCols; j++) {
                 tableCol = colsArray[j];
                 // if we find a match, we push the backcolumn name into backCols
-                // and remove the column from colsArray and put it into 
+                // and remove the column from colsArray and put it into
                 // foundColsArray. If we later have a duplicate backcolumn name
                 // it will no longer be in colsArray and we will search for it
                 // in foundColsArray
@@ -379,7 +379,7 @@ window.ExportModal = (function($, ExportModal) {
                         break;
                     }
                 }
-                // column name is not a duplicate and is not found in the 
+                // column name is not a duplicate and is not found in the
                 // valid column array so we check if it's in one of the invalid
                 // progCols
 
@@ -390,21 +390,21 @@ window.ExportModal = (function($, ExportModal) {
                         if (frontColName === tableCol.name) {
                             return {
                                 invalid: true,
-                                reason: 'type',
-                                type: tableCol.type,
-                                name: frontColName
+                                reason : 'type',
+                                type   : tableCol.type,
+                                name   : frontColName
                             };
                         }
                     }
                 }
             }
-            // if column name was not found in any of the progcols, then 
+            // if column name was not found in any of the progcols, then
             // it doesn't exist
             if (!colFound) {
                 return {
                     invalid: true,
-                    reason: 'notFound',
-                    name: frontColName
+                    reason : 'notFound',
+                    name   : frontColName
                 };
             }
         }
@@ -417,7 +417,7 @@ window.ExportModal = (function($, ExportModal) {
         var numTableCols = tableCols.length;
         var colsArray = [];
         var invalidProgCols = [];
-         for (var i = 0; i < numTableCols; i++) {
+        for (var i = 0; i < numTableCols; i++) {
             if (tableCols[i].name !== "DATA" &&
                 !tableCols[i].isNewCol)
             {
@@ -444,7 +444,7 @@ window.ExportModal = (function($, ExportModal) {
         }
 
         return {
-            validProgCols: colsArray,
+            validProgCols  : colsArray,
             invalidProgCols: invalidProgCols
         };
     }

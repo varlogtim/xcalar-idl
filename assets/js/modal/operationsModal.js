@@ -61,7 +61,7 @@ window.OperationsModal = (function($, OperationsModal) {
                     } else {
                         functionsListScroller.showOrHideScrollers();
                     }
-                } 
+                }
             },
             'input': function() {
                 suggest($(this));
@@ -2179,7 +2179,6 @@ window.OperationsModal = (function($, OperationsModal) {
 
     function checkInputSize($input) {
         var currentWidth = $input.outerWidth();
-        // var textWidth 
         // var textWidth = getTextWidth($input) + 20;
         var textWidth = $input[0].scrollWidth;
         var newWidth;

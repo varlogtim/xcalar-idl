@@ -118,10 +118,10 @@ window.RightSideBar = (function($, RightSideBar) {
         var poppedOut = false;
 
         $rightSideBar.resizable({
-            handles    : "n, e, s, w, se",
-            minWidth   : 264,
-            minHeight  : 300,
-            "start": function(event, ui) {
+            "handles"  : "n, e, s, w, se",
+            "minWidth" : 264,
+            "minHeight": 300,
+            "start"    : function() {
                 if (!$rightSideBar.hasClass('poppedOut')) {
                     poppedOut = false;
                 } else {
@@ -215,7 +215,7 @@ window.RightSideBar = (function($, RightSideBar) {
 
         function closeRightSidebar() {
             $rightSideBar.removeClass("open");
-            $rightSideBar.css('right', - ($rightSideBar.width() - 10));
+            $rightSideBar.css('right', -($rightSideBar.width() - 10));
             $sliderBtns.removeClass("active");
             // since close right side bar has slider animition,
             // delay the close of section

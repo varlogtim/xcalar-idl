@@ -6,9 +6,9 @@ function getTextWidth(el, val, options) {
     if (options.defaultHeaderStyle) {
         defaultStyle = { // styling we use for column header
             "fontFamily": "'Open Sans', 'Trebuchet MS', Arial, sans-serif",
-            "fontSize": "13px",
+            "fontSize"  : "13px",
             "fontWeight": "600",
-            "padding": 48
+            "padding"   : 48
         };
     } else {
         defaultStyle = {padding: 0};
@@ -260,15 +260,15 @@ function dblClickResize($el, options) {
             }
 
             SQL.add("Resize Columns", {
-                "operation": SQLOps.ResizeTableCols,
-                "tableName": table.tableName,
-                "tableId"  : tableId,
-                "resizeTo" : resizeTo,
-                "columnNums": colNums,
+                "operation"      : SQLOps.ResizeTableCols,
+                "tableName"      : table.tableName,
+                "tableId"        : tableId,
+                "resizeTo"       : resizeTo,
+                "columnNums"     : colNums,
                 "oldColumnWidths": oldColumnWidths,
                 "newColumnWidths": newColumnWidths,
-                "htmlExclude": ["columnNums", "oldColumnWidths",
-                                "newColumnWidths"]
+                "htmlExclude"    : ["columnNums", "oldColumnWidths",
+                                    "newColumnWidths"]
             });
         }
     }

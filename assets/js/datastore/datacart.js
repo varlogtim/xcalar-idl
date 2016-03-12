@@ -558,12 +558,12 @@ window.DataCart = (function($, DataCart) {
 
         // add sql
         var sql = {
-            "operation" : SQLOps.IndexDS,
-            "dsName"    : dsName,
-            "dsId"      : cart.getId(),
-            "tableName" : tableName,
-            "columns"   : [],
-            "worksheet" : WSManager.getActiveWS(),
+            "operation"  : SQLOps.IndexDS,
+            "dsName"     : dsName,
+            "dsId"       : cart.getId(),
+            "tableName"  : tableName,
+            "columns"    : [],
+            "worksheet"  : WSManager.getActiveWS(),
             "htmlExclude": ["worksheet"]
         };
 
