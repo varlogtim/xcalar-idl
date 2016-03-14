@@ -1,6 +1,7 @@
 #schedulerPanel {
     position: relative;
     background-color: white;
+
     .topBar {
         .buttonArea {
             .size(@width: 157px, @height: 100%);
@@ -11,11 +12,6 @@
                }
             }
 
-        }
-
-        .rightHeaderArea {
-            padding-left: 20px;
-            float: left;
         }
     }
 
@@ -615,7 +611,7 @@
                 }
             }
             &.selected {
-                background: #4CA1D0;
+                background: @color-dataflow-list-active;
                 background: #C5E1F1;
                 .checkmark {
                     .image("../../images/checkmark-white.png", 40%, 50%);
@@ -705,7 +701,7 @@
                 cursor: default;
 
                 &.active {
-                    background: #4CA1D0;
+                    background: @color-dataflow-list-active;
                     color: @color-white;
                 }
             }

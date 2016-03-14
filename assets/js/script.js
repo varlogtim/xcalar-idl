@@ -103,7 +103,7 @@ window.StartManager = (function(StartManager, $) {
             DagPanel.setup();
             DFGPanel.setup();
             setupModals();
-            ExtensionManager.setup();
+            setupExtensions();
 
             WSManager.focusOnWorksheet();
         })
@@ -175,6 +175,11 @@ window.StartManager = (function(StartManager, $) {
         .fail(deferred.reject);
 
         return deferred.promise();
+    }
+
+    function setupExtensions() {
+        ExtensionManager.setup();
+        ExtensionPanel.setup();
     }
 
     function setupModals() {
@@ -298,6 +303,9 @@ window.StartManager = (function(StartManager, $) {
                     $('#monitorPanel').addClass("active");
                     MonitorPanel.updateDonuts();
                     MonitorGraph.start();
+                    break;
+                case ("extensionTab"):
+                    $('#extensionPanel').addClass("active");
                     break;
                 default:
                     $(".underConstruction").addClass("active");

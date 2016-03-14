@@ -37,7 +37,7 @@ body {
 
 .mainContainer {
     .position(relative);
-    .size(@height: 100vh, @min-height: 260px, @min-width: 824px);
+    .size(@height: 100vh, @min-height: 260px, @min-width: 965px);
     font-size: 14px;
     overflow: hidden;
     display: none;
@@ -122,6 +122,8 @@ body {
 
 .topBar {
     top: -1px;
+    overflow: hidden;
+
     .buttonArea {
         .size(@width: 127px, @height: 100%);
         .darkDarkGray-gradient;
@@ -134,9 +136,13 @@ body {
         }
 
         .icon {
-            margin: 6px 4px 0 10px;
             float: left;
         }
+    }
+
+    .rightHeaderArea {
+        padding-left: 20px;
+        float: left;
     }
 
     .text {
@@ -1542,25 +1548,30 @@ ul.inputMenu {
         }
 
         .mountain-icon {
-            .image("../../images/mountain.png");
+            .image("../../images/mainMenuTab/mountain.png");
         }
 
         .page-icon {
-            .image("../../images/page.png");
+            .image("../../images/mainMenuTab/page.png");
             margin-top: 0px;
         }
 
         .db-icon {
-            .image("../../images/db-icon.png");
+            .image("../../images/mainMenuTab/db-icon.png");
         }
 
         .monitor-icon {
-            .image("../../images/monitor.png");
+            .image("../../images/mainMenuTab/monitor.png");
         }
 
         .scheduler-icon {
-            .image("../../images/scheduler-icon.png");
+            .image("../../images/mainMenuTab/scheduler-icon.png");
             margin-top: 0px;
+        }
+
+        .extension-icon {
+            .image("../../images/mainMenuTab/extension.png");
+            margin-top: -1px;
         }
     }
 }

@@ -1,0 +1,392 @@
+#extensionPanel {
+    background-color: white;
+
+    .topBar {
+        .buttonArea {
+            .size(@height: 100%);
+
+            .icon {
+                margin-left: 6px;
+                .size(30px, 36px);
+            }
+        }
+    }
+
+    #xcExtensionButton {
+        .size(@width: 187px);
+
+        .icon {
+            .image("../../images/extension/xcExt.png", 50%, 50%);
+        }
+
+    }
+
+    #customeExtensionButton {
+        .size(@width: 127px);
+
+        .icon {
+            .image("../../images/extension/customExt.png", 45%, 25%);
+        }
+    }
+
+    .mainContent {
+        height: ~"calc(100% - 37px)";
+        margin-top: -1px;
+    }
+
+    #extensionView {
+        height: 100%;
+    }
+
+    .leftContent {
+        .size(@width: 314px, @height: 100%);
+        border-right: 1px solid @color-border-sidebar;
+        background-color: @color-background-darkGray;
+        float: left;
+
+        .headingArea {
+            height: 35px;
+            .gray-gradient;
+            text-align: center;
+            padding-top: 6px;
+            .font(@weight: 700, @size: 15px, @color: @color-text-darkdarkGray);
+        }
+
+        .extensionListArea {
+            .size(@height: ~"calc(100% - 35px)");
+            padding: 9px;
+            overflow-y: auto;
+            overflow-x: hidden;
+            // .position(relative);
+            // overflow: hidden;
+
+            // .scrollbarWrapper {
+            //     .size(@width: ~"calc(100% + 20px)", @height: 100%);
+            //     .position(absolute);
+            //     overflow-x: hidden;
+            //     overflow-y: scroll;
+            // }
+
+            // .scheduleLists {
+            //     .position(relative, @left: -13px);
+            // }
+
+            .extensionLists{
+                // without speciy size, it will change position
+                // when adding scroll bar
+                .size(@width: 293px);
+                // .position(relative, @left: -13px);
+
+                .extensionList {
+                    line-height: 25px;
+                    margin-top: 10px;
+                    cursor: default;
+                    .noSelection;
+
+                    &.active {
+                        .listBox {
+                            background-color: #c5e1f1;
+                        }
+
+                        .iconWrap {
+                            .action-gradient;
+                        }
+
+                        .count {
+                            color: @color-text-blue;
+                        }
+                    }
+                }
+            }
+
+            .listBox {
+                .size(@width: 266px, @height: 25px);
+                .rounded;
+                margin: 0 auto;
+                background-color: @color-white;
+                box-shadow: 1px 2px 1px rgba(0,0,0,.2);
+                overflow: hidden;
+                cursor: pointer;
+
+                .iconWrap {
+                    .size(@width: 25px, @height: 100%);
+                    .gray-gradient;
+                    float: left;
+                    .rounded(3px 0 0 3px);
+
+                    .icon {
+                        .size(100%, 100%);
+                        .image("../../images/mainMenuTab/extension.png", 50%, 50%);
+                    }
+                }
+
+                .name {
+                    .size(@width: ~"calc(100% - 55px)");
+                    float: left;
+                    padding: 0 10px;
+                    margin: 5px 0;
+                    // border-right: 1px solid #A2C2D4;
+                    white-space: nowrap;
+                    text-align: left;
+                    line-height: 15px;
+                    .textOverflow;
+                    .font(@size: 13px, @color: @color-text-darkGray);
+                }
+            }
+
+            .itemList {
+                .size(@width: 266px);
+                margin: 0 auto;
+                display: none;
+
+                .item {
+                    .size(@height: 20px);
+                    margin-top: 5px;
+                    margin-left: 10px;
+
+                    &.active {
+                        .info {
+                            background-color: @color-dataflow-list-active;
+                            color: white;
+                        }
+                    }
+
+                    .info {
+                        .size(@width: ~"calc(100% - 20px)", @height: 100%);
+                        float: left;
+                        .rounded;
+                        background-color: @color-background-columnList;
+                        padding-left: 10px;
+                        padding-right: 5px;
+                        .font(@size: 12px, @line-height: 20px);
+
+                        > span {
+                            display: inline-block;
+                        }
+
+                        .name {
+                            .size(@width: ~"calc(100% - 75px)");
+                        }
+
+                        .check {
+                            .size(@width: 20px, @height: 20px);
+                            .image("../../images/checkmark.png", 50%, 50%);
+                            float: right;
+                        }
+
+                        .status {
+                            .size(@width: 55px);
+                            float: right;
+                        }
+                    }
+
+                    .delete {
+                        .size(@width: 20px, @height: 20px);
+                        float: right;
+                        .image("../../images/bin-blue.png", 100%, 50%);
+                    }
+                }
+            }
+        }
+    }
+
+    .midContent {
+        .size(@width: ~"calc(100% - 314px);", @height: 100%);
+        float: left;
+        overflow-y: scroll;
+
+        .midContentHeader {
+            .size(@height: 35px);
+            padding: 5px 15px 5px 20px;
+            background-color: @color-background-darkGray;
+
+            .searchArea {
+                .size(@width: ~"calc(100% - 100px)");
+                float: left;
+                .input-box(@w: ~"calc(100% - 40px)", @h: 24px);
+
+                input {
+                    margin-top: 1px;
+                    float: left;
+                }
+
+                .icon {
+                    .size(@width: 30px, @height: 25px);
+                    margin-left: 5px;
+                    .image("../../images/ds-search.png", 50%, 50%);
+                }
+            }
+
+            .buttonArea {
+                .size(@width: 60px);
+                float: right;
+
+                .btn {
+                    .size(@width: 25px, @height: 25px);
+                    .icon {
+                        .size(100%, 100%);
+                    }
+
+                    &.active {
+                        .action-inverse-gradient;
+                    }
+
+                    &.listView {
+                        .icon {
+                            .image("../../images/ds-listView.png", 50%, 50%);
+                        }
+                    }
+
+                    &.gridView {
+                        .icon {
+                            .image("../../images/ds-iconView.png", 50%, 50%);
+                        }
+                    }
+                }
+            }
+        }
+
+        // midContentMain
+        .midContentMain {
+            .size(@height: ~"calc(100% - 35px)");
+            overflow-x: hidden;
+            overflow-y: auto;
+
+            .category {
+                margin-top: 10px;
+
+                .title {
+                    .size(@height: 35px);
+                    .font(@size: 18px, @weight: 700, @line-height: 30px, @color: @color-text-blue);
+                    padding-left: 15px;
+                    border-bottom: 1px solid @color-border-bottomGrayMed;
+                }
+
+                .items {
+                    box-shadow: 0 3px 2px rgba(0, 0, 0, 0.2);
+                    .flex-display;
+
+                    .item {
+                        .logoArea {
+                            &.default1 {
+                                .image("../../images/extension/logo1.png");
+                            }
+
+                            &.default2 {
+                                .image("../../images/extension/logo2.png");
+                            }
+
+                            &.tableau {
+                                .image("../../images/extension/logo-tableau.png");
+                            }
+                        }
+
+                        .instruction {
+                            .extensionName {
+                                .size(@height: 20px);
+                                .font(@size: 14px, @weight: bold, @line-height: 15px);
+                                border-bottom: 1px solid @color-border-bottomGrayMed;
+                            }
+
+                            .author {
+                                .size(@height: 15px);
+                                .font(@size: 12px, @line-height: 15px, @color: @color-text-instructions);
+                            }
+
+                            .detail {
+                                margin-top: 5px;
+                                .size(@height: 50px);
+                                .font(@size: 12px);
+
+                                // A weird way to show multiline ellpsis
+                                // https://css-tricks.com/line-clampin/
+                                -webkit-line-clamp: 3;
+                                display: -webkit-box;
+                                -webkit-box-orient: vertical;
+                            }
+                        }
+
+                        .buttonArea {
+                            .btn {
+                                .size(@width: 120px);
+                            }
+                        }
+                    }
+                }
+            }
+
+            &.gridView {
+                .items {
+                    padding: 10px 5px;
+                    .flex-flow(row wrap);
+
+                    .item {
+                        .size(@width: 300px, @height: 250px);
+                        .rounded(3px);
+
+                        > div {
+                            .size(@width: 100%);
+                        }
+
+                        margin: 10px;
+                        box-shadow: 0px 1px 1px 1px rgba(0, 0, 0, 0.2);
+
+                        .logoArea {
+                            .size(@width: 300px, @height: 100px);
+                            background-size: 300px 100px;
+                        }
+
+                        .instruction {
+                            .size( @height: 100px);
+                            padding: 5px 20px;
+                        }
+
+                        .buttonArea {
+                            .size(@height: 50px);
+                            padding-top: 5px;
+
+                            .btn {
+                                margin-left: 20px;
+                            }
+                        }
+                    }
+                }
+            }
+
+            &.listView {
+                .items {
+                    .flex-flow(column wrap);
+
+                    .item {
+                        .size(@width: 100%, @height: 102px);
+                        padding: 5px 15px;
+                        border-bottom: 1px solid @color-border-lightGray;
+
+                        > div {
+                            float: left;
+                            margin-right: 30px;
+                        }
+
+                        .logoArea {
+                            .size(@width: 90px, @height: 90px);
+                            background-size: 90px 90px;
+                        }
+
+                        .instruction {
+                            .size(@max-width: ~"calc(100% - 300px)", @height: 90px);
+                        }
+
+                        .buttonArea {
+                            .size(@width: 120px);
+
+                            .btn {
+                                margin-top: 10px;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        // end of midContentMain
+    }
+}
