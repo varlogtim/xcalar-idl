@@ -328,46 +328,46 @@ window.Alert = (function($, Alert){
             } else {
                 $alertModal.find(".close, .cancel").show();
             }
-
-            if (options.buttons) {
-                $confirmBtn.hide();
-                options.buttons.forEach(function(btnOption) {
-                    var className = "funcBtn";
-                    if (btnOption.className) {
-                        className += " " + btnOption.className;
-                    }
-
-                    var $btn = $confirmBtn.clone();
-
-                    $btnSection.prepend($btn);
-                    $btn.show();
-                    $btn.text(btnOption.name);
-                    $btn.addClass(className);
-                    $btn.click(function (event) {
-                        event.stopPropagation();
-                        closeAlertModal();
-                        btnOption.func();
-                    });
-                });
-                return;
-            } else {
-                if (options.lockScreen) {
-                    $confirmBtn.hide();
-                } else {
-                    $confirmBtn.show();
-                    $alertModal.on("click.alert", ".confirm", function(event) {
-                        event.stopPropagation();
-                        closeAlertModal();
-                        if (options.confirm) {
-                            options.confirm();
-                        }
-                    });
-                }
-            }
         } else {
             $confirmBtn.hide();
             if (options.lockScreen) {
                 $alertModal.find(".close, .cancel").hide();
+            }
+        }
+
+        if (options.buttons) {
+            $confirmBtn.hide();
+            options.buttons.forEach(function(btnOption) {
+                var className = "funcBtn";
+                if (btnOption.className) {
+                    className += " " + btnOption.className;
+                }
+
+                var $btn = $confirmBtn.clone();
+
+                $btnSection.prepend($btn);
+                $btn.show();
+                $btn.text(btnOption.name);
+                $btn.addClass(className);
+                $btn.click(function (event) {
+                    event.stopPropagation();
+                    closeAlertModal();
+                    btnOption.func();
+                });
+            });
+            return;
+        } else if (!options.isAlert) {
+            if (options.lockScreen) {
+                $confirmBtn.hide();
+            } else {
+                $confirmBtn.show();
+                $alertModal.on("click.alert", ".confirm", function(event) {
+                    event.stopPropagation();
+                    closeAlertModal();
+                    if (options.confirm) {
+                        options.confirm();
+                    }
+                });
             }
         }
     }

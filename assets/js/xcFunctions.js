@@ -623,7 +623,15 @@ window.xcFunction = (function($, xcFunction) {
                 "isCheckBox": true,
                 "onClose"   : function() {
                     $('#alertContent').removeClass('leftalign');
-                }
+                },
+                "buttons": [{
+                            name: "CLOSE",
+                            className: "close",
+                            func: function(){}}],
+                "hideButtons": ["cancel"]
+
+
+
             });
             $('#alertContent').addClass('leftAlign');
             Transaction.done(txId, {
