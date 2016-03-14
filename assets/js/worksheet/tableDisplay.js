@@ -19,7 +19,7 @@ window.TblManager = (function($, TblManager) {
             isUndo: boolean, default is false. Set to true if this table is being
                   created from an undo operation,
             isRedo: boolean, default is false. Set to true if this table is being
-                  created from an undo operation,
+                  brought from inactive or orphaned and is replacing an active table,
             position: int, used to place a table in a certain spot if not replacing
                         an older table. Currently has to be paired with undo or
                         redo
@@ -132,7 +132,8 @@ window.TblManager = (function($, TblManager) {
                     "selectCol"   : selectCol,
                     "isUndo"      : options.isUndo,
                     "isRedo"      : options.isRedo,
-                    "position"    : options.position
+                    "position"    : options.position,
+                    "from"        : options.from
                 };
 
                 addTable([newTableName], oldTNames, tablesToRemove,
@@ -160,7 +161,8 @@ window.TblManager = (function($, TblManager) {
                     "afterStartup": afterStartup,
                     "isUndo"      : options.isUndo,
                     "isRedo"      : options.isRedo,
-                    "position"    : options.position
+                    "position"    : options.position,
+                    "from"        : options.from
                 };
                 addTable([newTableName], oldTableNames, [], addTableOptions)
                 .then(function() {
@@ -1042,7 +1044,7 @@ window.TblManager = (function($, TblManager) {
         isUndo: boolean, default is false. If true, we are adding this table
                 through an undo
         isRedo: boolean, default is false. If true, we are adding this table
-                through a redo
+                from inactive or orphaned list and replacing an active table
 
     */
 
@@ -1080,7 +1082,7 @@ window.TblManager = (function($, TblManager) {
         if (tablesToRemove) {
             for (var i = 0; i < tablesToRemove.length; i++) {
                 if (gTables[tablesToRemove[i]].active) {
-                    if (options.isUndo) {
+                    if (options.isUndo && options.from !== "inactive") {
                         TblManager.sendTableToOrphaned(tablesToRemove[i]);
                     } else {
                         TblManager.archiveTable(tablesToRemove[i], {

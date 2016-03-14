@@ -230,6 +230,7 @@ window.Replay = (function($, Replay) {
         argsMap[SQLOps.HideTable] = ["tableId"];
         argsMap[SQLOps.UnhideTable] = ["tableId"];
         argsMap[SQLOps.DeleteTable] = ["tables", "tableType"];
+        argsMap[SQLOps.RevertTable] = [];
         argsMap[SQLOps.DeleteCol] = ["colNums", "tableId"];
         argsMap[SQLOps.HideCols] = ["colNums", "tableId"];
         argsMap[SQLOps.UnHideCols] = ["colNums", "tableId"];
@@ -685,6 +686,23 @@ window.Replay = (function($, Replay) {
             .fail(deferred.reject);
 
             return (deferred.promise());
+        },
+
+        revertTable: function(options) {
+            var wsId = WSManager.getActiveWS();
+            TblManager.refreshTable([options.newTableName], null,
+                                    [options.oldTableName], options.wsId,
+                                    {isUndo: true})
+            .then(function() {
+                SQL.add("Revert Table", {
+                    "operation": SQLOps.RevertTable,
+                    "tableName": options.tableName,
+                    "oldTableName": options.oldTableName,
+                    "tableId"  : options.tableId,
+                    "tableType": options.tableType,
+                    "htmlExclude": ["tableType", "oldTableName"]
+                });
+            });
         },
 
         // tableBulkActions: function(options) {

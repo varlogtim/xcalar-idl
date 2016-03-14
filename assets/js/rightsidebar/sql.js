@@ -749,6 +749,7 @@ window.SQL = (function($, SQL) {
             case (SQLOps.UnHideWS):
             case (SQLOps.MoveTableToWS):
             case (SQLOps.MoveInactiveTableToWS):
+            case (SQLOps.RevertTable):
             case (SQLOps.CreateFolder):
             case (SQLOps.DSRename):
             case (SQLOps.DSDropIn):

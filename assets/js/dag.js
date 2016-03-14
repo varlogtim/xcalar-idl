@@ -186,6 +186,7 @@ window.DagPanel = (function($, DagPanel) {
         var selection = '.dagTable:not(.dataStore) .dagTableIcon,' +
                         '.dagTable:not(.dataStore) .icon,' +
                         '.dagTable:not(.dataStore) .tableTitle';
+
         $dagPanel.on('click', selection, function() {
             $('.menu').hide().removeClass('leftColMenu');
             removeMenuKeyboardNavigation();
@@ -208,7 +209,7 @@ window.DagPanel = (function($, DagPanel) {
             $('#activeTablesList').find('.tableInfo').each(function() {
                 var $li = $(this);
                 if ($li.data('id') === tableId) {
-                    $menu.find('.addTable').addClass('hidden');
+                    $menu.find('.addTable, .revertTable').addClass('hidden');
                     $menu.find('.focusTable').removeClass('hidden');
                     activeFound = true;
                     tableWSId = WSManager.getWSFromTable(tableId);
@@ -218,20 +219,18 @@ window.DagPanel = (function($, DagPanel) {
             });
 
             if (activeFound) {
-                $menu.find('.addTable').addClass('hidden');
+                $menu.find('.addTable, .revertTable').addClass('hidden');
             } else {
-                $menu.find('.addTable').removeClass('hidden');
+                $menu.find('.addTable, .revertTable').removeClass('hidden');
                 $menu.find('.focusTable').addClass('hidden');
             }
 
             if ($dagTable.hasClass('locked')) {
-                $menu.find('.lockTable').hide();
+                $menu.find('li').hide();
                 $menu.find('.unlockTable').show();
-                $menu.find('.deleteTable').hide();
             } else {
-                $menu.find('.lockTable').show();
+                $menu.find('li').show();
                 $menu.find('.unlockTable').hide();
-                $menu.find('.deleteTable').show();
             }
 
             positionAndShowDagTableDropdown($dagTable, $menu, $(event.target));
@@ -428,6 +427,9 @@ window.DagPanel = (function($, DagPanel) {
             '<li class="addTable">' +
                 'Add Table To Worksheet' +
             '</li>' +
+            '<li class="revertTable">' +
+                'Revert To This Table' +
+            '</li>' +
             '<li class="focusTable">' +
                 'Find Table In Worksheet' +
             '</li>' +
@@ -480,6 +482,42 @@ window.DagPanel = (function($, DagPanel) {
             }
 
             WSManager.moveInactiveTable(tableId, wsId, tableType);
+        });
+
+        $menu.find('.revertTable').mouseup(function(event) {
+            if (event.which !== 1) {
+                return;
+            }
+            var tableId = $menu.data('tableId');
+            if (WSManager.getWSFromTable(tableId) == null) {
+                tableType = TableType.Orphan;
+            } else {
+                tableType = TableType.InActive;
+            }
+
+            var newTableName = $menu.data('tablename');
+            var $tableIcon = $menu.data('tableelement');
+            var $dagWrap = $tableIcon.closest('.dagWrap');
+            var oldTableName = $dagWrap.find('.tableName').text();
+            var wsId = WSManager.getActiveWS();
+
+            TblManager.refreshTable([newTableName], null, [oldTableName], wsId,
+                                    {isUndo: true})
+            .then(function() {
+                var tableId = xcHelper.getTableId(newTableName);
+                var $tableWrap = $('#xcTableWrap-' + tableId).mousedown();
+                Dag.focusDagForActiveTable();
+                xcHelper.centerFocusedTable($tableWrap, true);
+
+                SQL.add("Revert Table", {
+                    "operation": SQLOps.RevertTable,
+                    "tableName": newTableName,
+                    "oldTableName": oldTableName,
+                    "tableId"  : tableId,
+                    "tableType": tableType,
+                    "htmlExclude": ["tableType", "oldTableName"]
+                });
+            });
         });
 
         $menu.find('.focusTable').mouseup(function(event) {

@@ -200,6 +200,7 @@ var SQLOps = {
     UnHideWS: "unhideWorksheet",
     MoveTableToWS: "moveTableToWorkSheet",
     MoveInactiveTableToWS: "moveInactiveTableToWorksheet",
+    RevertTable: "revertTable",
     CreateFolder: "createFolder",
     DSRename: "dsRename",
     DSDropIn: "dsDropIn",

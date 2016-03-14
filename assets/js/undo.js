@@ -319,6 +319,13 @@ window.Undo = (function($, Undo) {
         return chain(promises);
     };
 
+    undoFuncs[SQLOps.RevertTable] = function(options) {
+        var worksheet = WSManager.getWSFromTable(options.tableId);
+        return (TblManager.refreshTable([options.oldTableName], null,
+                                [options.tableName], worksheet,
+                            {isUndo: true, from: options.tableType}));
+    };
+
     undoFuncs[SQLOps.ActiveTables] = function(options) {
         // undo sent to worksheet, that is archive
         var tableType = options.tableType;
@@ -536,7 +543,7 @@ window.Undo = (function($, Undo) {
             WSManager.addWS(wsId, wsName);
             var $tabs = $("#worksheetTabs .worksheetTab");
             var $tab = $tabs.eq(wsIndex);
-            if (!($tab.data("ws") === wsId)) {
+            if (($tab.data("ws") !== wsId)) {
                 $("#worksheetTab-" + wsId).insertBefore($tab);
             }
 

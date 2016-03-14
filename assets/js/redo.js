@@ -225,6 +225,13 @@ window.Redo = (function($, Redo) {
         return (promiseWrapper(null));
     };
 
+    redoFuncs[SQLOps.RevertTable] = function(options) {
+        var worksheet = WSManager.getWSFromTable(options.tableId);
+        return (TblManager.refreshTable([options.tableName], null,
+                                [options.oldTableName], worksheet,
+                            {isUndo: true}));
+    };
+
     redoFuncs[SQLOps.ActiveTables] = function(options) {
         // redo sent to worksheet
         var tableNames = options.tableNames;
