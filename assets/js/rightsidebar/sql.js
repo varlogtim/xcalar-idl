@@ -6,15 +6,19 @@ window.SQL = (function($, SQL) {
     var $undo = $("#undo");
     var $redo = $("#redo");
 
-    var sqlCache;
+    // keep in sync with initialize
     var logCursor = -1;
     var sqlToCommit = "";
     var errToCommit = "";
-    var logs;
-    var errors;
+    var sqlCache = {
+        "logs"  : [],
+        "errors": []
+    };
+    var logs = sqlCache.logs;
+    var errors = sqlCache.errors;
     // mark if it's in a undo redo action
-    var isUndo;
-    var isRedo;
+    var isUndo = false;
+    var isRedo = false;
 
     // constant
     var sqlLocalStoreKey = "xcalar-query";
@@ -148,12 +152,12 @@ window.SQL = (function($, SQL) {
 
     SQL.restore = function() {
         var deferred = jQuery.Deferred();
-
+        var newErrors = errors;
         initialize();
 
         restoreLogs()
         .then(function() {
-            return restoreErrors();
+            return restoreErrors(newErrors);
         })
         .then(function() {
             // XXX FIXME change back to localCommit() if it's buggy
@@ -371,7 +375,7 @@ window.SQL = (function($, SQL) {
         return (deferred.promise());
     }
 
-    function restoreErrors() {
+    function restoreErrors(newErrors) {
         var deferred = jQuery.Deferred();
         var oldErrors = [];
 
@@ -401,6 +405,8 @@ window.SQL = (function($, SQL) {
                 var errorLog = new SQLConstructor(oldErr);
                 errors.push(errorLog);
             });
+
+            errors = errors.concat(newErrors);
 
             deferred.resolve();
         })
