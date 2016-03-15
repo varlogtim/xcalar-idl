@@ -690,6 +690,14 @@ window.Dag = (function($, Dag) {
             Dag.createDagImage(dagObj.node, $dagWrap, {savable: true});
 
             Dag.focusDagForActiveTable(tableId);
+
+            if ($('#xcTableWrap-' + tableId).find('.tblTitleSelected').length) {
+                $('.dagWrap.selected').removeClass('selected')
+                                      .addClass('notSelected');
+                $('#dagWrap-' + tableId).removeClass('notSelected')
+                                        .addClass('selected');
+            }
+
             addDagEventListeners($dagWrap);
             if (!dagAdded) {
                 preventUnintendedScrolling();

@@ -1697,7 +1697,7 @@ window.ColManager = (function($, ColManager) {
 
     ColManager.extension = function(colNum, tableId, functionName, args) {
         ExtensionManager.trigger(colNum, tableId, functionName, args);
-    }
+    };
 
     // options
     // keepEditable: boolean, if true then we dont remove disabled and editable
@@ -3123,6 +3123,8 @@ window.ColManager = (function($, ColManager) {
                                      .closest('.xcTableWrap')
                                      .find('.tblTitleSelected')
                                      .removeClass('tblTitleSelected');
+                $('.dagWrap.selected').removeClass('selected')
+                                      .addClass('notSelected');
 
                 if (initialTableId && initialTableId === gActiveTableId) {
                     focusTable(initialTableId, true);
@@ -3157,13 +3159,15 @@ window.ColManager = (function($, ColManager) {
                              .closest('.xcTableWrap')
                              .find('.tblTitleSelected')
                              .removeClass('tblTitleSelected');
+        $('.dagWrap.selected').removeClass('selected')
+                              .addClass('notSelected');
+
         RowScroller.empty();
         if (numMatches !== 0) {
             searchBar.scrollMatchIntoView($matches.eq(0));
             searchBar.highlightSelected($matches.eq(0));
         }
     }
-
 
 
     function formatColumnCell(val, format, decimals) {

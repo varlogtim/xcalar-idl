@@ -101,7 +101,7 @@ window.FnBar = (function(FnBar, $) {
         var colNum   = xcHelper.parseColNum($colInput);
         var table    = gTables[tableId];
         var tableCol = table.tableCols[colNum - 1];
-        
+
         tableCol.userStr = "\"" + tableCol.func.args[0] + "\"" + " = " +
                             fnBarVal;
     }
@@ -117,6 +117,8 @@ window.FnBar = (function(FnBar, $) {
                     highlightColumn($match);
                     $('#mainFrame').find('.tblTitleSelected')
                                    .removeClass('tblTitleSelected');
+                    $('.dagWrap.selected').removeClass('selected')
+                                          .addClass('notSelected');
                     RowScroller.empty();
                 } else if ($match.is('.tableTitle')) {
                     var tableId = $match.closest('.xcTableWrap').data('id');

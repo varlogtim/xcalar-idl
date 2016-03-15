@@ -43,7 +43,7 @@ body {
     display: none;
 }
 
-.clearfix:after { 
+.clearfix:after {
    content: ".";
    visibility: hidden;
    display: block;
@@ -162,7 +162,7 @@ body {
     border-right: 1px solid @color-tab-divider;
     float: left;
     line-height: 25px;
-    
+
     input {
         .size(@height: 25px);
         padding: 0 4px;
@@ -209,7 +209,7 @@ body {
     }
 
     &:active {
-        box-shadow: inset 0px 1px 1px 0px rgba(0, 0, 0, 0.5), 
+        box-shadow: inset 0px 1px 1px 0px rgba(0, 0, 0, 0.5),
                     0px 1px 1px 0 rgba(255, 255, 255, 0.3);
     }
 
@@ -485,7 +485,7 @@ input {
         &:nth-child(even) {
             background-color: @color-white;
             td {
-                border-right: 5px solid @color-white; 
+                border-right: 5px solid @color-white;
                 &:nth-child(odd) {
                     background-color: @color-table-lightGray;
                 }
@@ -494,7 +494,7 @@ input {
                 }
                 &.indexedColumn {
                     background-color: @color-table-indexed-lightBlue !important;
-                } 
+                }
                 &.selectedCell {
                     background-color: @color-selectedCell-light;
                 }
@@ -513,7 +513,7 @@ input {
 
     &:not(.tableLocked) tbody tr:not(.notDragging):hover, tbody tr.dragging {
         td {
-            border-right: 5px solid @color-text-placeholder; 
+            border-right: 5px solid @color-text-placeholder;
             &:nth-child(odd) {
                 background-color: @color-join-divider;
             }
@@ -522,7 +522,7 @@ input {
             }
             &.indexedColumn {
                 background-color: @color-iron !important;
-            } 
+            }
             &.selectedCell, &.colSelected, &.selectedCol {
                 background-color: @color-heather !important;
             }
@@ -607,7 +607,7 @@ input {
         .position(relative);
         .size(@width: ~"calc(100% + 2px)");
         padding: 0px 0px 0px 3px;
-        background-color: transparent; 
+        background-color: transparent;
         border: none;
         display: block;
         text-align: center;
@@ -667,7 +667,7 @@ input {
         overflow-wrap: break-word !important;
     }
 
-    .elementText{ 
+    .elementText{
         cursor: pointer;
         text-align: center;
         white-space: pre;
@@ -734,8 +734,8 @@ input {
                     background-color: @color-table-col-darkGray;
                 }
             }
-           
-        }              
+
+        }
     }
 
     &:not(.tableLocked) tbody tr:not(.notDragging):hover, tbody tr.dragging {
@@ -947,7 +947,7 @@ input {
 
     .inputSelected {
         visibility: visible !important;
-        background-color: @color-selectedCell-green;  
+        background-color: @color-selectedCell-green;
     }
 
     .filter ul {
@@ -973,7 +973,7 @@ input {
                 height: 30px;
                 .gray-gradient;
                 overflow: hidden;
-                
+
             }
             .flexWrap.flex-right {
                 .flex(1 1 auto);
@@ -1139,10 +1139,10 @@ input {
             &.resizeColumns {
                 display: list-item !important;
                 li {
-                    display: list-item !important; 
+                    display: list-item !important;
                 }
             }
-        } 
+        }
 
         .multiTextAlign {
             li {
@@ -1203,7 +1203,7 @@ input {
         display: none !important;
     }
 
-    &.type-object, &.type-newColumn, &.type-mixed, 
+    &.type-object, &.type-newColumn, &.type-mixed,
     &.recordNum, &.childOfArray, &.sortedArray {
         .sort, .aggregate, .groupby, .filter, .joinList, .map, .operations,
         .profile
@@ -1258,7 +1258,7 @@ input {
     }
 
     &.type-data {
-        .sort, .aggregate, .groupby, .filter, .joinList, .deleteColumn, 
+        .sort, .aggregate, .groupby, .filter, .joinList, .deleteColumn,
         .deleteDuplicates, .duplicate, .rename, .map, .operations,
         .changeDataType, .profile, .divider, .format, .roundToFixed ,
         .extensions {
@@ -1342,14 +1342,14 @@ input {
             .arrow {
                 .image("../../images/arrow-up-gray-flat.png", 50%, 40%);
             }
-            
+
         }
         &.bottom {
             bottom: 0;
             .arrow {
                 .image("../../images/arrow-down-gray-flat.png", 50%, 60%);
             }
-        }   
+        }
     }
 }
 
@@ -1627,7 +1627,7 @@ ul.inputMenu {
             margin-top: -6px;
             line-height: 16px;
         }
-        
+
     }
     #signout {
         padding: 5px 0 0 5px;
@@ -1711,8 +1711,8 @@ ul.inputMenu {
 
         .spinner {
             width: 30px;
-            
-        }  
+
+        }
     }
 }
 
@@ -1751,10 +1751,10 @@ ul.inputMenu {
 }
 
 @keyframes bouncedelay {
-    0%, 80%, 100% { 
+    0%, 80%, 100% {
     transform: scale(0.0);
     -webkit-transform: scale(0.0);
-    } 40% { 
+    } 40% {
     transform: scale(1.0);
     -webkit-transform: scale(1.0);
     }
@@ -1821,15 +1821,15 @@ ul.inputMenu {
 }
 
 #cliBtn {
-    background-image: url(../../images/cli-icon.png); 
+    background-image: url(../../images/cli-icon.png);
 }
 
 #scratchpadBtn {
-    background-image: url(../../images/pencil.png); 
+    background-image: url(../../images/pencil.png);
 }
 
 #infoBtn {
-    background-image: url(../../images/questionMark.png); 
+    background-image: url(../../images/questionMark.png);
 }
 
 #bottomTabArea {
@@ -2230,8 +2230,8 @@ ul.inputMenu {
             float: left;
             .font(@size: 14px, @line-height: 16px);
         }
-    } 
-    
+    }
+
     .message {
         color: @color-text-darkGray;
         .font(@size: 12px, @line-height: 18px);
@@ -2378,7 +2378,7 @@ ul.inputMenu {
         position: absolute;
         bottom: 98px;
         z-index: 1;
-        
+
         &.hidden {
             bottom: 120%;
             .transition(bottom 0.4s ease-out);
@@ -2591,7 +2591,7 @@ ul.inputMenu {
     }
     &.refresh {
         top:50%;
-        width:100%; 
+        width:100%;
         display:block;
         background-position: center;
         top: 45%;
@@ -2601,7 +2601,7 @@ ul.inputMenu {
         background-position: center center;
         width: 35px;
         margin: 0px auto;
-        
+
         width: 100%;
     }
 }
@@ -2785,7 +2785,7 @@ input[type=number]::-webkit-outer-spin-button {
 .tooltip.error {
     opacity: 1 !important;
     display: block !important;
-        
+
     .tooltip-inner, .tooltip-arrow {
         color: @color-text-darkGray;
         opacity: 1 !important;
@@ -2882,7 +2882,7 @@ body.tooltipOff {
 /* JQUERY RESIZABLE */
 .ui-resizable-handle {
     position: absolute;
-}  
+}
 
 .ui-resizable-n, .ui-resizable-s {
     .size (100%, 15px);

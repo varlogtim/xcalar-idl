@@ -258,7 +258,7 @@ window.MonitorPanel = (function($, MonitorPanel) {
                 used = allStats[index].sumUsed;
                 total = allStats[index].sumTot;
             }
-            
+
             updateOneDonut(el, used, total);
             updateDonutStatsSection(el, index, allStats[index]);
         });
@@ -275,7 +275,7 @@ window.MonitorPanel = (function($, MonitorPanel) {
         } else {
             val = Math.min(val, total);
         }
-       
+
         var data = [val, total - val];
         var donut = d3.select(el);
         var paths = donut.selectAll("path").data(pie(data));
@@ -312,7 +312,7 @@ window.MonitorPanel = (function($, MonitorPanel) {
                 .tween("text", function() {
                     var startNum = this.textContent;
                     var size = xcHelper.sizeTranslater(num, true);
-                    var i;         
+                    var i;
 
                     if (index === 1 || index === 2) {
                         startNum = xcHelper.textToBytesTranslator(startNum +
@@ -321,7 +321,7 @@ window.MonitorPanel = (function($, MonitorPanel) {
                     } else {
                         i = d3.interpolate(startNum, size[0]);
                     }
-                    
+
                     return (function(t) {
                         var size = xcHelper.sizeTranslater(i(t), true);
                         num = parseFloat(size[0]).toFixed(1);
@@ -335,7 +335,7 @@ window.MonitorPanel = (function($, MonitorPanel) {
                         if (index !== 3) {
                             $sizeType.html(size[1]);
                         }
-                        
+
                         this.textContent = num;
                     });
                 });
@@ -346,7 +346,7 @@ window.MonitorPanel = (function($, MonitorPanel) {
         var numNodes = stats.used.length;
         var $statsSection = $(el).next();
         var listHTML = "";
-        
+
         if (index === 0) {
             var avgUsed = Math.round((stats.sumUsed / numNodes) * 100) / 100;
             $statsSection.find('.statsHeadingBar .avgNum').text(avgUsed);
@@ -370,7 +370,7 @@ window.MonitorPanel = (function($, MonitorPanel) {
                 $statsSection.find('.statsHeadingBar .avgNum')
                              .text(sumUsed[0] + " " + sumUsed[1]);
             }
-            
+
             for (var i = 0; i < numNodes; i++) {
                 var total = xcHelper.sizeTranslater(stats.tot[i], true);
                 var used = xcHelper.sizeTranslater(stats.used[i], true);
@@ -383,7 +383,7 @@ window.MonitorPanel = (function($, MonitorPanel) {
                     usedUnits = used[1];
                     totalUnits = total[1];
                 }
-                
+
                 listHTML += '<li>' +
                                 '<span class="name">' +
                                     'Node ' + (i + 1) +
@@ -403,7 +403,7 @@ window.MonitorPanel = (function($, MonitorPanel) {
     function populateNodeInformation() {
         $("#phyNode").text(hostname);
         // Insert information here regarding virtual nodes next time
-    }      
+    }
 
 
     return (MonitorPanel);
@@ -420,7 +420,7 @@ window.MonitorGraph = (function($, MonitorGraph) {
     var xGridVals;
     var svg;
     var graphCycle;
-    
+
     MonitorGraph.setup = function() {
         var $monitorPanel = $('#monitorPanel');
         $monitorPanel.find('.sideTab').click(function() {
@@ -463,7 +463,7 @@ window.MonitorGraph = (function($, MonitorGraph) {
         datasets = [[0], [0]];
         var numGraphs = datasets.length;
         $('#ramTab, #cpuTab').addClass('active');
-        
+
         xGridVals = [];
         for (var i = 0; i < 300; i += 60) {
             xGridVals.push(i);
@@ -488,7 +488,7 @@ window.MonitorGraph = (function($, MonitorGraph) {
                     .innerTickSize(-width);
 
         var svgWrap = d3.select("#graph .svgWrap").append("svg");
-        
+
         svg = svgWrap.attr("width", width)
                      .attr("height", height)
                      .attr("class", "mainSvg")
@@ -537,7 +537,7 @@ window.MonitorGraph = (function($, MonitorGraph) {
         setTimeout(function() {
             //XX Hack - the graph refuses to move unless I change more
             // of its attributes
-            var rand = Math.random() * .1;
+            var rand = Math.random() * 0.1;
             svgWrap.attr("height", 210 + rand);
         }, 300);
 
@@ -578,7 +578,7 @@ window.MonitorGraph = (function($, MonitorGraph) {
             var numNodes;
             if (count % 10 === 0) {
                 xGridVals.push(numXGridMarks * gridWidth);
-                numXGridMarks++;    
+                numXGridMarks++;
 
                 if (count % 40 === 0) {
                     var time = xcHelper.getTime();
@@ -627,7 +627,7 @@ window.MonitorGraph = (function($, MonitorGraph) {
                 {
                     $graphWrap.scrollLeft(newWidth);
                 }
-                
+
             })
             .fail(function(error) {
                 console.error('XcalarGetStats failed', error);
@@ -638,12 +638,12 @@ window.MonitorGraph = (function($, MonitorGraph) {
             setTimeout(function() {
                 //XX Hack - the graph refuses to move unless I change more
                 // of its attributes
-                var rand = Math.random() * .1;
+                var rand = Math.random() * 0.1;
                 svgWrap.attr("height", 210 + rand);
             }, 150);
         }
     }
-    
+
     function createTempGrid() {
         var tempGridWrap = d3.select('#grids').append("svg");
         var gridSvg = tempGridWrap.attr("width", 4020)
@@ -714,7 +714,7 @@ window.MonitorGraph = (function($, MonitorGraph) {
                             .linear()
                             .domain([0, yMax[i]])
                             .range([height, 0]);
-   
+
             var line = d3.svg.line()
                             .x(function(d, j) {
                                 return (xScale(j));
@@ -733,7 +733,7 @@ window.MonitorGraph = (function($, MonitorGraph) {
                             });
 
             svg.selectAll(".line" + i)
-               .data([datasets[i]]) 
+               .data([datasets[i]])
                .attr("d", line);
 
             svg.selectAll(".area" + i)

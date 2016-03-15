@@ -291,6 +291,9 @@ function createTableHeader(tableId) {
     var tableTitleClass = "";
     if ($('.xcTable:visible').length === 1) {
         tableTitleClass = " tblTitleSelected";
+        $('.dagWrap.selected').removeClass('selected').addClass('notSelected');
+        $('#dagWrap-' + tableId).removeClass('notSelected')
+                                .addClass('selected');
     }
 
     var html = '<div class="tableTitle ' + tableTitleClass + '">' +
@@ -1430,6 +1433,8 @@ function focusTable(tableId, focusDag) {
         var tableFocused = true;
         Dag.focusDagForActiveTable(null, tableFocused);
     }
+    $('.dagWrap').addClass('notSelected').removeClass('selected');
+    $('#dagWrap-' + tableId).addClass('selected').removeClass('notSelected');
 
     Tips.refresh();
 }

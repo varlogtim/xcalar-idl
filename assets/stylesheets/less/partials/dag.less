@@ -29,7 +29,7 @@
             border: 1px solid @color-bar-border;
             border-top: none;
             .rounded(0 0 3px 3px);
-            z-index: 10;                                         
+            z-index: 10;
         }
 
         .tabShadow {
@@ -81,17 +81,24 @@
         }
     }
 
-    #closeDag {
-        .position(absolute, @top: 16px, @right: 24px);
+    .topButtons {
+        .position(absolute, @top: 14px, @right: 22px);
         z-index: 20;
+        width: 57px;
+        height: 27px;
+        background-color: rgba(255,255,255,0.5);
+        box-shadow: 0px 0px 5px 0px rgba(255,255,255,0.5);
+    }
+
+    #closeDag {
+        .position(absolute, @top: 2px, @right: 2px);
         .iconClose {
             background-image: url(../../images/close-icon.png);
         }
     }
 
     #maximizeDag {
-        .position(absolute, @top: 16px, @right: 54px);
-        z-index: 20;
+        .position(absolute, @top: 2px, @right: 32px);
         .iconMaximize {
             background-image: url(../../images/expand.png);
         }
@@ -111,8 +118,8 @@
         background-color: rgba(255,255,255, 0.6);
         padding: 15px 0px 0px 24px;
         font-size: 10px;
-        color: @color-text-midGray; 
-        font-weight: 700; 
+        color: @color-text-midGray;
+        font-weight: 700;
     }
 
     .descriptionArea {
@@ -198,7 +205,7 @@
 
 .actionTypeWrap {
     .position(absolute);
-    .size(@width: 100px, @height: 32px, 
+    .size(@width: 100px, @height: 32px,
           @max-width: 119px, @max-height: 70px);
     .dag-gradient;
     line-height: 30px;
@@ -211,6 +218,18 @@
 .dagWrap {
     // .position(relative); // not sure if we need it to be relative
     margin-bottom: 10px;
+    border: 1px solid transparent;
+
+    &.selected {
+        box-shadow: inset 0px 0px 9px 0px @color-border-topAction, 0px 1px 4px 0px @color-border-topAction;
+        border: 1px solid @color-border-bottomAction;
+        .tableTitleArea {
+            color: @color-text-blue;
+        }
+    }
+    &.notSelected {
+      // opacity: 0.8;
+    }
 
     &.inActive {
         display: none;
@@ -520,22 +539,22 @@
             &.inner {
                 .icon {
                     .image("../../images/dagIcons/inner-join.png", 40%, 40%);
-                } 
+                }
             }
             &.left {
                 .icon {
                     .image("../../images/dagIcons/left-outer-join.png", 40%, 40%);
-                } 
+                }
             }
             &.right {
                 .icon {
                     .image("../../images/dagIcons/right-outer-join.png", 40%, 40%);
-                } 
+                }
             }
             &.fullOuter {
                 .icon {
                     .image("../../images/dagIcons/outer-join.png", 40%, 40%);
-                } 
+                }
             }
         }
 
@@ -562,7 +581,7 @@
         cursor: auto;
         .noSelection;
         border-radius: 2px;
-        max-width: 300px; 
+        max-width: 300px;
 
         .title {
             display: block;
