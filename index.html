@@ -2639,40 +2639,53 @@
     </section>
     <!-- Profile Modal Main Section, for agg info -->
     <section class="modalMain">
-      <div class="sortSection loadHidden">
-        <div class="sort asc">
-          <div class="wrap clickable" title="ASC Sort" data-toggle="tooltip" data-placement="top" data-container="body">
-            <span class="icon"></span>
-            <span class="text">(asc)</span>
-          </div>
-        </div>
-        <div class="sort origin">
-          <div class="wrap clickable" title="Original Data" data-toggle="tooltip" data-placement="top" data-container="body">
-            <span class="icon"></span>
-          </div>
-        </div>
-        <div class="sort desc">
-          <div class="wrap clickable" title="DESC Sort" data-toggle="tooltip" data-placement="top" data-container="body">
-            <span class="text">(desc)</span>
-            <span class="icon"></span>
+      <!-- scroll section -->
+      <div class="scrollSection loadHidden">
+        <div class="rowScrollArea">
+          <div class="scrollBar">
+            <div class="scroller"></div>
           </div>
         </div>
       </div>
-      <!-- scroller section -->
-      <div class="scrollSection loadHidden">
-        <div class="rowInput">
-           <input id="stats-rowInput" class="min-range" val="1" spellcheck="false">
-           <label>of </label>
-           <label for="stats-rowInput" class="max-range"></label>
-        </div>
-        <div class="rowScrollArea">
-          <div class="scrollBar">
-            <div class="scroller">
-              <!-- for cursor pointer -->
-              <div class="subRowMarker top"></div>
-              <div class="subRowMarker middle"></div>
-              <div class="subRowMarker bottom"></div>
+      <div class="sortAndInputSection loadHidden">
+        <!-- sortSection -->
+        <div class="sortSection">
+          <div class="label">Sort by:</div>
+          <div class="sort asc">
+            <div class="radioWrap">
+              <div class="radio">
+                <span class="dot"></span>
+              </div>
+              <span class="icon"></span>
+              <span class="text">ascending</span>
             </div>
+          </div>
+          <div class="sort origin">
+            <div class="radioWrap">
+              <div class="radio">
+                <span class="dot"></span>
+              </div>
+              <span class="icon"></span>
+              <span class="text">original</span>
+            </div>
+          </div>
+          <div class="sort desc">
+            <div class="radioWrap">
+              <div class="radio">
+                <span class="dot"></span>
+              </div>
+              <span class="icon"></span>
+              <span class="text">descending</span>
+            </div>
+          </div>
+        </div>
+        <!-- row input -->
+        <div class="rowInputSection">
+          <div class="rowInput">
+            <label>Skip to</label>
+            <input id="stats-rowInput" class="min-range" val="1" spellcheck="false">
+            <label>of </label>
+            <label for="stats-rowInput" class="max-range"></label>
           </div>
         </div>
       </div>

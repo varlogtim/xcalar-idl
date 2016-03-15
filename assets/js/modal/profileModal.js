@@ -65,6 +65,7 @@ window.Profile = (function($, Profile, d3) {
                     statsCol.groupByInfo.isComplete === true)
                 {
                     buildGroupGraphs(null, true);
+                    resizeScroller();
                 }
             }
         });
@@ -107,15 +108,15 @@ window.Profile = (function($, Profile, d3) {
         // event on sort section
         var $sortSection = $modal.find(".sortSection");
 
-        $sortSection.on("click", ".asc .clickable", function() {
+        $sortSection.on("click", ".asc .radioWrap", function() {
             sortData(sortMap.asc, statsCol);
         });
 
-        $sortSection.on("click", ".origin .clickable", function() {
+        $sortSection.on("click", ".origin .radioWrap", function() {
             sortData(sortMap.origin, statsCol);
         });
 
-        $sortSection.on("click", ".desc .clickable", function() {
+        $sortSection.on("click", ".desc .radioWrap", function() {
             sortData(sortMap.desc, statsCol);
         });
 
@@ -402,7 +403,6 @@ window.Profile = (function($, Profile, d3) {
 
         // hide scroll bar first
         $modal.addClass("noScrollBar");
-        $modal.find(".scrollSection").hide();
         $modalBg.on("mouseover.profileModal", resetTooltip);
     }
 
@@ -1142,39 +1142,35 @@ window.Profile = (function($, Profile, d3) {
     }
 
     function resetScrollBar() {
-        var $section = $modal.find(".scrollSection");
         if (totalRows <= numRowsToFetch) {
-
-            if (gMinModeOn) {
-                $section.hide();
-            } else {
-                $section.slideUp(100);
-            }
-
             $modal.addClass("noScrollBar");
-            return;
-        }
-
-        $modal.removeClass("noScrollBar");
-
-        if (gMinModeOn) {
-            $section.show();
         } else {
-            $section.slideDown(100);
+            $modal.removeClass("noScrollBar");
+            $modal.find(".scroller").css("left", 0);
+            resizeScroller();
         }
 
-        var $scrollerArea = $section.find(".rowScrollArea");
-        
-        var $maxRange = $section.find(".max-range");
         var $rowInput = $("#stats-rowInput").val(1).data("rowNum", 1);
-        $modal.find(".scroller").css("transform", "");
+        var $maxRange = $rowInput.siblings(".max-range");
 
         // set width of elements
         $maxRange.text(totalRows.toLocaleString());
         $rowInput.width($maxRange.width() + 5); // 5 is for input padding
+    }
 
-        var extraWidth = $section.find(".rowInput").outerWidth() + 1;
-        $scrollerArea.css("width", "calc(100% - " + extraWidth + "px)");
+    function resizeScroller() {
+        var $section = $modal.find(".scrollSection");
+        var $scrollBar = $section.find(".scrollBar");
+        var $scroller = $scrollBar.find(".scroller");
+
+        // the caculation is based on: if totalRows === numRowsToFetch,
+        // then scrollerWidth == scrollBarWidth
+        var scrollBarWidth = $scrollBar.width();
+        var scrollerWidth = Math.floor(scrollBarWidth * numRowsToFetch / totalRows);
+        scrollerWidth = Math.min(scrollBarWidth - 10, scrollerWidth);
+        scrollerWidth = Math.max(25, scrollerWidth);
+
+        $scroller.width(scrollerWidth);
     }
 
     function setupScrollBar() {
@@ -1182,12 +1178,14 @@ window.Profile = (function($, Profile, d3) {
         var $scrollerArea = $section.find(".rowScrollArea");
         // move scroll bar event, setup it here since we need statsCol info
         var $scrollerBar = $scrollerArea.find(".scrollBar");
-        var $scroller    = $scrollerArea.find(".scroller");
-        var isDragging   = false;
+        var $scroller = $scrollerArea.find(".scroller");
+        var isDragging = false;
+        var xDiff = 0;
 
         // this use mousedown and mouseup to mimic click
         $scrollerBar.on("mousedown", function() {
             isDragging = true;
+            xDiff = 0;
         });
 
         // mimic move of scroller
@@ -1196,17 +1194,30 @@ window.Profile = (function($, Profile, d3) {
             isDragging = true;
             $scroller.addClass("scrolling");
             $modal.addClass("dragging");
+            // use xDiff to get the position of the most left of scroller
+            xDiff = event.pageX - $scroller.offset().left;
         });
 
         $(document).on({
             "mouseup.profileModal": function(event) {
                 if (isDragging === true) {
                     $scroller.removeClass("scrolling");
-                    var mouseX = event.pageX - $scrollerBar.offset().left;
+                    var mouseX = event.pageX - $scrollerBar.offset().left - xDiff;
                     var rowPercent = mouseX / $scrollerBar.width();
-
                     // make sure rowPercent in [0, 1]
                     rowPercent = Math.min(1, Math.max(0, rowPercent));
+
+                    if (xDiff !== 0) {
+                        // when it's dragging the scroller,
+                        // not clicking on scrollbar
+                        var scrollerRight = $scroller.offset().left + $scroller.width();
+                        var scrollBarRight = $scrollerBar.offset().left + $scrollerBar.width();
+
+                        if (scrollerRight >= scrollBarRight) {
+                            rowPercent = 1 - numRowsToFetch / totalRows;
+                        }
+                    }
+
                     positionScrollBar(rowPercent);
                     $modal.removeClass("dragging");
                 }
@@ -1214,12 +1225,12 @@ window.Profile = (function($, Profile, d3) {
             },
             "mousemove.profileModal": function(event) {
                 if (isDragging) {
-                    var mouseX = event.pageX - $scrollerBar.offset().left;
+                    var mouseX = event.pageX - $scrollerBar.offset().left - xDiff;
                     var rowPercent = mouseX / $scrollerBar.width();
                     // make sure rowPercent in [0, 1]
                     rowPercent = Math.min(1, Math.max(0, rowPercent));
-                    var translate = getTranslate(rowPercent);
-                    $scroller.css("transform", "translate(" + translate + "%, 0)");
+                    var left = getPosition(rowPercent, $scroller, $scrollerBar);
+                    $scroller.css("left", left);
                 }
             }
         });
@@ -1247,16 +1258,24 @@ window.Profile = (function($, Profile, d3) {
         });
     }
 
-    function getTranslate(percent) {
-        return (Math.min(99.9, Math.max(0, percent * 100)));
+    function getPosition(percent, $scroller, $scrollerBar) {
+        precent = Math.min(99.9, Math.max(0, percent * 100));
+        var barWidth =  $scrollerBar.width();
+        var position = barWidth * percent;
+
+        position = Math.max(0, position);
+        position = Math.min(position, barWidth - $scroller.width());
+
+        return (position + "px");
     }
 
     function positionScrollBar(rowPercent, rowNum) {
-        var translate;
+        var left;
         var isFromInput = false;
 
         var $section = $modal.find(".scrollSection");
-        var $scroller = $section.find(".rowScrollArea .scroller");
+        var $scrollBar = $section.find(".scrollBar");
+        var $scroller = $scrollBar.find(".scroller");
         var $rowInput = $("#stats-rowInput");
 
         if (rowNum != null) {
@@ -1272,8 +1291,8 @@ window.Profile = (function($, Profile, d3) {
             // case of going to same row
             // put the row scoller in right place
             $rowInput.val(rowNum);
-            translate = getTranslate(rowPercent);
-            $scroller.css("transform", "translate(" + translate + "%, 0)");
+            left = getPosition(rowPercent, $scroller, $scrollBar);
+            $scroller.css("left", left);
             return;
         }
 
@@ -1290,26 +1309,26 @@ window.Profile = (function($, Profile, d3) {
                 rowsToFetch = totalRows;
             }
 
-            var oldTranslate = getTranslate(rowPercent);
+            var oldLeft = getPosition(rowPercent, $scroller, $scrollBar);
             if (isFromInput) {
                 rowPercent = (totalRows === 1) ?
                                         0 : (rowNum - 1) / (totalRows - 1);
 
-                translate = getTranslate(rowPercent);
+                left = getPosition(rowPercent, $scroller, $scrollBar);
                 $scroller.addClass("scrolling")
-                    .css("transform", "translate(" + oldTranslate + "%, 0)");
+                    .css("left", oldLeft);
 
                 // use setTimout to have the animation
                 setTimeout(function() {
                     $scroller.removeClass("scrolling")
-                        .css("transform", "translate(" + translate + "%, 0)");
+                        .css("left", left);
                 }, 1);
             } else {
-                $scroller.css("transform", "translate(" + oldTranslate + "%, 0)");
+                $scroller.css("left", oldLeft);
             }
         } else {
-            translate = getTranslate(rowPercent);
-            $scroller.css("transform", "translate(" + translate + "%, 0)");
+            left = getPosition(rowPercent, $scroller, $scrollBar);
+            $scroller.css("left", left);
 
             rowsToFetch = numRowsToFetch;
         }
@@ -1381,9 +1400,12 @@ window.Profile = (function($, Profile, d3) {
     }
 
     function resetSortSection() {
-        $modal.find(".sortSection").find(".active").removeClass("active")
-            .end()
-            .find("." + order).addClass("active");
+        var $sortSection = $modal.find(".sortSection");
+        var $activeSort = $sortSection.find(".active");
+        $activeSort.removeClass("active").find(".radio").removeClass("checked");
+
+        $sortSection.find("." + order).addClass("active")
+                    .find(".radio").addClass("checked");
     }
 
     function sortData(newOrder, curStatsCol) {

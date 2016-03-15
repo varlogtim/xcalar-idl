@@ -2373,13 +2373,8 @@ html.microsoft {
     .size(@width: 850px, @height: 415px);
 
     &.noScrollBar {
-        .size(@height: 370px);
-        .modalTopMain {
-            .size(@height: ~"calc(100% - 264px)", @min-height: 105px);
-        }
-
-        .modalMain {
-            .size(@height: 120px);
+        .rowScrollArea {
+            display: none;
         }
     }
 
@@ -2508,9 +2503,10 @@ html.microsoft {
         .size(@height: 165px);
         padding: 0 0 5px 0;
 
-        .sortSection {
-            .size(@width: 100%, @height: 20px);
-            padding: 0 25px;
+        .scrollSection {
+            .size(@width: 100%, @height: 11px);
+            cursor: default;
+            background-color: @color-modal-whiteGray;
 
             &.hidden {
                 display: block;
@@ -2520,78 +2516,35 @@ html.microsoft {
                 }
             }
 
-            .flex-display;
+            .rowScrollArea {
+                padding: 0px 25px;
 
-            .sort {
-                .flex(1 1 auto);
-                .flex-display;
-
-                &.active {
-                    .clickable {
-                        opacity: 1;
-                        cursor: default;
-                    }
+                .scrollBar {
+                    .size(@width: 100%, @height: 10px);
+                    .position(relative);
+                    .linear-gradient(top, @color-profile-scroller-top, @color-profile-scroller-bottom);
                 }
 
-                .clickable {
-                    opacity: 0.5;
+                .scroller {
+                    .position(absolute, @top: 0, @left: 0);
+                    .size(@width: 25px, @height: 10px);
+                    background-color: @color-profile-scroller;
+                    .transition(left 0.13s);
                     cursor: pointer;
+                    .rounded(5px);
 
-                    &:hover {
-                        opacity: 1;
-                    }
-                }
-
-                .icon {
-                    .size(20px, 20px);
-                }
-
-                .text {
-                    .size(@width: 40px, @height: 20px);
-                    .font(@line-height: 20px, @size: 13px, @weight: bold, @color: @color-text-blue);
-                }
-
-                &.asc {
-                    .justify-content(flex-start);
-
-                    .icon {
-                        float: left;
-                        .image("../../images/profileModal/ascC.png", 50%, 50%);
-                    }
-
-                    .text {
-                        margin-left: 10px;
-                    }
-                }
-
-                &.origin {
-                    .justify-content(center);
-
-                    .icon {
-                        .image("../../images/profileModal/origC.png", 50%, 50%);
-                    }
-                }
-
-                &.desc {
-                    .justify-content(flex-end);
-
-                    .icon {
-                        float: right;
-                        .image("../../images/profileModal/descC.png", 50%, 50%);
-                    }
-
-                    .text {
-                        margin-right: 10px;
+                    &.scrolling {
+                        .transition(left 0s);
                     }
                 }
             }
         }
 
-        .scrollSection {
-            .size(@width: 100%, @height: 45px);
-            padding: 10px 25px;
-            cursor: default;
-            .gray-gradient;
+        .sortAndInputSection {
+            .size(@width: 100%, @height: 36px);
+            padding: 8px 25px;
+            background-color: @color-background-lightLightGray;
+            .flex-display;
 
             &.hidden {
                 display: block;
@@ -2601,72 +2554,106 @@ html.microsoft {
                 }
             }
 
-            .rowInput {
+            > div {
                 .size(@height: 20px);
-                padding: 0 15px 0 0;
-                float: left;
-                border-right: 1px solid @color-tab-divider;
-                .noSelection;
+            }
 
-                input, label {
-                    .size(@height: 20px);
-                    .font(@line-height: 20px, @size: 12px);
+            .sortSection {
+                .flex(1 1 65%);
+                .flex-display;
+                padding-right: 5px;
+                border-right: 1px solid @color-white;
+
+                > div {
+                    float: left;
                 }
 
-                .min-range {
-                    .size(@width: 35px);
-                    background: @color-input-background;
-                    outline: none;
-                    padding: 0 4px;
-                    margin-right: 5px;
-                    text-align: left;
+                > .label {
+                    .flex(0 1 65px);
+                    .font(@size: 14px, @color: @color-text-darkGray);
+                }
 
-                    &:focus {
-                        background-color: @color-white;
-                        box-shadow: 0px 2px 2px 0 @color-defaultGray inset;
-                        color: @color-bar-border;
+                .sort {
+                    .flex(1 1 100px);
+
+                    &.active {
+                        .radioWrap {
+                            cursor: default;
+                        }
+
+                        .text {
+                            color: @color-text-blue;
+                        }
+
+                        &.asc .icon {
+                            .image("../../images/profileModal/ascC.png", 50%, 50%);
+                        }
+
+                        &.origin .icon {
+                            .image("../../images/profileModal/origC.png", 50%, 50%);
+                        }
+
+                        &.desc .icon {
+                            .image("../../images/profileModal/descC.png", 50%, 50%);
+                        }
+                    }
+
+                    .radioWrap {
+                        cursor: pointer;
+                    }
+
+                    .icon {
+                        float: left;
+                        margin: 0 5px;
+                        .size(20px, 20px);
+                    }
+
+                    .text {
+                        .size(@width: 40px, @height: 20px);
+                        .font(@line-height: 20px, @size: 13px, @weight: bold, @color: @color-text-instructions);
+                    }
+
+                    &.asc .icon {
+                        .image("../../images/profileModal/ascG.png", 50%, 50%);
+                    }
+
+                    &.origin .icon {
+                        .image("../../images/profileModal/origG.png", 50%, 50%);
+                    }
+
+                    &.desc .icon {
+                        .image("../../images/profileModal/descG.png", 50%, 50%);
                     }
                 }
             }
 
-            .rowScrollArea {
-                .size(@height: 20px);
-                float: right;
-                padding-left: 15px;
+            .rowInputSection {
+                .flex(2 1 35%);
+                .noSelection;
+                border-left: 1px solid @color-border-midGrayMed;
+                padding-left: 5px;
 
-                .scrollBar {
-                    .size(@width: 100%, @height: 11px);
-                    .vertical-align;
-                    background-color: @color-bar-border;
-                    box-shadow: inset 0px 1px @color-profile-scroller-in-shadow, 0px 1px @color-profile-scroller-out-shadow;
-                }
+                .rowInput {
+                    float: right;
 
-                .scroller {
-                    .position(absolute, @top: -10px, @left: -7px);
-                    .size(@width: ~"calc(100% - 1px)", @height: 31px);
-                    display: inline-block;
-                    .image("../../images/locator1.png");
-                    background-size: 15px 31px;
-                    .transition (transform 0.13s);
-
-                    &.scrolling {
-                        .transition (transform 0s);
+                    input, label {
+                        .size(@height: 20px);
+                        .font(@line-height: 20px, @size: 12px);
                     }
 
-                    .subRowMarker {
-                        .size(@width: 10px, @height: 10px);
-                        .position(absolute, @top: 0, @left: 3px);
-                        cursor: pointer;
+                    .min-range {
+                        .size(@width: 35px);
+                        background: @color-input-background;
+                        outline: none;
+                        padding: 0 4px;
+                        margin-right: 5px;
+                        text-align: left;
 
-                        &.middle {
-                            .size(@width: 3px);
-                            .position(@top: 11px, @left: 6px);
+                        &:focus {
+                            background-color: @color-white;
+                            box-shadow: 0px 2px 2px 0 @color-defaultGray inset;
+                            color: @color-bar-border;
                         }
-
-                        &.bottom {
-                            .position(@top: 22px);
-                        }
-
                     }
                 }
             }
