@@ -1,3 +1,4 @@
+// sets up monitor panel and donuts, not monitor graph
 window.MonitorPanel = (function($, MonitorPanel) {
     MonitorPanel.setup = function() {
         var $monitorPanel = $("#monitorPanel");
@@ -13,11 +14,6 @@ window.MonitorPanel = (function($, MonitorPanel) {
                 return;
             }
 
-            // if ($btn.attr("id") === "setupButton") {
-            //     // XXX TODO: enable it when this feature complete
-            //     return;
-            // }
-
             $btn.siblings(".active").removeClass("active");
             $monitorPanel.find(".monitorSection.active").removeClass("active");
 
@@ -31,7 +27,6 @@ window.MonitorPanel = (function($, MonitorPanel) {
                     $("#monitor-queries").addClass("active");
                     break;
                 case ("setupButton"):
-                    // coming soon
                     $("#monitor-setup").addClass("active");
                     break;
                 default:
@@ -102,20 +97,6 @@ window.MonitorPanel = (function($, MonitorPanel) {
                 MonitorPanel.updateDonuts();
             }, refreshTime);
         }
-
-        // $monitorPanel.find('.buttonArea').click(function() {
-        //     var $tab = $(this);
-        //     var tabName = $(this).attr('id');
-        //     if (tabName === 'queriesButton') return;
-        //     tabName = tabName.substr(0, tabName.indexOf('Button'));
-        //     var $panel = $('#' + tabName + 'Panel');
-        //     if (!$panel.hasClass('active')) {
-        //         $monitorPanel.find('.buttonArea').removeClass('active');
-        //         $monitorPanel.find('.monitorSubPanel').removeClass('active');
-        //         $tab.addClass('active');
-        //         $panel.addClass('active');
-        //     }
-        // });
 
         MonitorGraph.setup();
     };
@@ -411,9 +392,9 @@ window.MonitorPanel = (function($, MonitorPanel) {
 
 
 window.MonitorGraph = (function($, MonitorGraph) {
-    var width = 60;
+    var interval = 3000; // update interval in milliseconds
+    var xGridWidth = 60; // space between each x-axis grid line
     var height = 210;
-    var xAxis;
     var yAxis;
     var yScale;
     var datasets;
@@ -461,8 +442,176 @@ window.MonitorGraph = (function($, MonitorGraph) {
 
     MonitorGraph.start = function() {
         datasets = [[0], [0]];
-        var numGraphs = datasets.length;
+
         $('#ramTab, #cpuTab').addClass('active');
+
+        setupLabelsPathsAndScales();
+
+        setTimeout(function() {
+            //XX Hack - the graph refuses to move unless I change more
+            // of its attributes
+            var rand = Math.random() * 0.1;
+            svgWrap.attr("height", height + rand);
+        }, 300);
+
+        createTempGrid(); // initial grid that gets pushed off
+        startCycle();
+    };
+
+    MonitorGraph.clear = function() {
+        var $graph = $('#graph');
+        $graph.find('svg').remove();
+        $graph.find('.xLabels').empty();
+        clearInterval(graphCycle);
+    };
+
+    MonitorGraph.stop = function() {
+        clearInterval(graphCycle);
+    };
+
+    var pointsPerGrid = 10;
+    var shiftWidth = xGridWidth / pointsPerGrid;
+    var count = 0;
+    var gridRight;
+    var newWidth;
+    var svgWrap;
+    var firstTime;
+    var numXGridMarks;
+    var $graphWrap;
+    var timeStamp;
+
+    function startCycle() {
+        count = 0;
+        newWidth = xGridWidth + shiftWidth;
+        numXGridMarks = 5;
+        gridRight = shiftWidth;
+        $graphWrap = $('#graphWrap');
+        svgWrap = svg.select(function() {
+                            return (this.parentNode);
+                        });
+        var apiTopResult;
+        firstTime = true;
+
+        getStatsAndUpdateGraph(firstTime);
+        graphCycle = setInterval(getStatsAndUpdateGraph, interval);
+    }
+
+    function getStatsAndUpdateGraph(firstTime) {
+        var numNodes;
+        if (count % 10 === 0) {
+            xGridVals.push(numXGridMarks * xGridWidth);
+            numXGridMarks++;
+
+            if (count % 40 === 0) {
+                var time = xcHelper.getTime();
+                time = time.substr(0, (time.length - 3));
+                timeStamp = '<span>' + time + '</span>';
+            }
+        }
+
+        XcalarApiTop()
+        .then(function(result) {
+            apiTopResult = result;
+            numNodes = result.numNodes;
+            return (XcalarGetStats(numNodes));
+        })
+        .then(function(nodes) {
+            var allStats = MonitorPanel.processNodeStats(nodes,
+                                                    apiTopResult, numNodes);
+            updateGraph(allStats, numNodes);
+
+        })
+        .fail(function(error) {
+            console.error('XcalarGetStats failed', error);
+        });
+
+        count++;
+
+        setTimeout(function() {
+            //XX Hack - the graph refuses to move unless I change more
+            // of its attributes
+            var rand = Math.random() * 0.1;
+            svgWrap.attr("height", height + rand);
+        }, 150);
+    }
+
+    function updateGraph(allStats, numNodes) {
+        var numGraphs = 2;
+        for (var i = 0; i < numGraphs; i++) {
+            var xVal = allStats[i].sumUsed;
+            if (i === 0) { // cpu %
+                xVal /= numNodes;
+                xVal = Math.min(100, xVal);
+            }
+
+            if (i === 1) {
+                xVal = xcHelper.sizeTranslater(xVal, true)[0];
+            }
+            datasets[i].push(xVal);
+        }
+        var yMax = xcHelper.sizeTranslater(allStats[1].sumTot, true)[0];
+        yMax = [100, yMax];
+
+        redraw(newWidth, gridRight, numGraphs, yMax);
+
+        $('.xLabelsWrap').width(newWidth);
+        svgWrap.attr("width", newWidth);
+        newWidth += shiftWidth;
+        gridRight += shiftWidth;
+
+        if (timeStamp) {
+            $('.xLabels').append(timeStamp);
+            timeStamp = null;
+        }
+
+        if ($graphWrap.scrollLeft() >=
+            (newWidth - $graphWrap.width() - xGridWidth))
+        {
+            $graphWrap.scrollLeft(newWidth);
+        }
+    }
+
+    // monitor graph is made up of 2 grids, with "tempGrid" being one of them.
+    // tempGrid is the initial grid you see, it is later pushed out by a new
+    // grid that contains the colored graphs
+    function createTempGrid() {
+        var maxScreenSize = 4020; // grid has static size so we pick 4020
+        // because it's wide enough to accomodate most screens
+        var tempGridWrap = d3.select('#grids').append("svg");
+        var gridSvg = tempGridWrap.attr("width", maxScreenSize)
+                                .attr("height", height)
+                                .attr("class", "gridSvg")
+                                .append("g");
+        var tempXGridVals = [];
+        for (var i = 0; i < maxScreenSize; i += 60) {
+            tempXGridVals.push(i);
+        }
+
+        var xScale = d3.scale.linear()
+                          .domain([0, maxScreenSize])
+                          .range([0, maxScreenSize]);
+
+        var tempXAxis = d3.svg.axis()
+                        .scale(xScale)
+                        .orient("bottom")
+                        .innerTickSize(-height)
+                        .tickValues(tempXGridVals);
+
+        gridSvg.append("g")
+               .attr("class", "x axis")
+               .attr("transform", "translate(0," + height + ")")
+               .call(tempXAxis);
+
+        yAxis.innerTickSize(-maxScreenSize);
+
+        gridSvg.append("g")
+               .attr("class", "y axis")
+               .call(yAxis);
+    }
+
+    function setupLabelsPathsAndScales() {
+        var numGraphs = datasets.length;
+        var xAxis;
 
         xGridVals = [];
         for (var i = 0; i < 300; i += 60) {
@@ -471,7 +620,7 @@ window.MonitorGraph = (function($, MonitorGraph) {
 
         xScale = d3.scale.linear()
                    .domain([0, 10])
-                   .range([0, width]);
+                   .range([0, xGridWidth]);
 
         yScale = d3.scale.linear()
                     .range([height, 0]);
@@ -485,11 +634,11 @@ window.MonitorGraph = (function($, MonitorGraph) {
         yAxis = d3.svg.axis()
                     .scale(yScale)
                     .orient("left")
-                    .innerTickSize(-width);
+                    .innerTickSize(-xGridWidth);
 
         var svgWrap = d3.select("#graph .svgWrap").append("svg");
 
-        svg = svgWrap.attr("width", width)
+        svg = svgWrap.attr("width", xGridWidth)
                      .attr("height", height)
                      .attr("class", "mainSvg")
                      .append("g");
@@ -533,148 +682,6 @@ window.MonitorGraph = (function($, MonitorGraph) {
                .attr("transform", "translate(60, 0)")
                .attr("d", area);
         }
-
-        setTimeout(function() {
-            //XX Hack - the graph refuses to move unless I change more
-            // of its attributes
-            var rand = Math.random() * 0.1;
-            svgWrap.attr("height", 210 + rand);
-        }, 300);
-
-        createTempGrid();
-        startCycle();
-    };
-
-    MonitorGraph.clear = function() {
-        var $graph = $('#graph');
-        $graph.find('svg').remove();
-        $graph.find('.xLabels').empty();
-        clearInterval(graphCycle);
-    };
-
-    MonitorGraph.stop = function() {
-        clearInterval(graphCycle);
-    };
-
-    function startCycle() {
-        var gridWidth = 60;
-        var pointsPerGrid = 10;
-        var count = 0;
-        var interval = 3000; // in milliseconds
-        var shiftWidth = gridWidth / pointsPerGrid;
-        var newWidth = width + shiftWidth;
-        var numXGridMarks = 5;
-        var gridRight = shiftWidth;
-        var $graphWrap = $('#graphWrap');
-        var svgWrap = svg.select(function() {
-                            return (this.parentNode);
-                        });
-        var timeStamp;
-        var firstTime = true;
-        getStatsAndUpdateGraph(firstTime);
-        graphCycle = setInterval(getStatsAndUpdateGraph, interval);
-
-        function getStatsAndUpdateGraph(firstTime) {
-            var numNodes;
-            if (count % 10 === 0) {
-                xGridVals.push(numXGridMarks * gridWidth);
-                numXGridMarks++;
-
-                if (count % 40 === 0) {
-                    var time = xcHelper.getTime();
-                    time = time.substr(0, (time.length - 3));
-                    timeStamp = '<span>' + time + '</span>';
-                }
-            }
-
-            XcalarApiTop()
-            .then(function(result) {
-                apiTopResult = result;
-                numNodes = result.numNodes;
-                return (XcalarGetStats(numNodes));
-            })
-            .then(function(nodes) {
-                var allStats = MonitorPanel.processNodeStats(nodes,
-                                                        apiTopResult, numNodes);
-                var numGraphs = 2;
-                for (var i = 0; i < numGraphs; i++) {
-                    var xVal = allStats[i].sumUsed;
-                    if (i === 0) { // cpu %
-                        xVal /= numNodes;
-                        xVal = Math.min(100, xVal);
-                    }
-
-                    if (i === 1) {
-                        xVal = xcHelper.sizeTranslater(xVal, true)[0];
-                    }
-                    datasets[i].push(xVal);
-                }
-                yMax2 = xcHelper.sizeTranslater(allStats[1].sumTot, true)[0];
-                var yMax = [100, yMax2];
-                redraw(newWidth, gridRight, numGraphs, yMax, firstTime);
-                $('.xLabelsWrap').width(newWidth);
-                svgWrap.attr("width", newWidth);
-                newWidth += shiftWidth;
-                gridRight += shiftWidth;
-
-                if (timeStamp) {
-                    $('.xLabels').append(timeStamp);
-                    timeStamp = null;
-                }
-
-                if ($graphWrap.scrollLeft() >=
-                    (newWidth - $graphWrap.width() - gridWidth))
-                {
-                    $graphWrap.scrollLeft(newWidth);
-                }
-
-            })
-            .fail(function(error) {
-                console.error('XcalarGetStats failed', error);
-            });
-
-            count++;
-
-            setTimeout(function() {
-                //XX Hack - the graph refuses to move unless I change more
-                // of its attributes
-                var rand = Math.random() * 0.1;
-                svgWrap.attr("height", 210 + rand);
-            }, 150);
-        }
-    }
-
-    function createTempGrid() {
-        var tempGridWrap = d3.select('#grids').append("svg");
-        var gridSvg = tempGridWrap.attr("width", 4020)
-                                .attr("height", height)
-                                .attr("class", "gridSvg")
-                                .append("g");
-        var tempXGridVals = [];
-        for (var i = 0; i < 4020; i += 60) {
-            tempXGridVals.push(i);
-        }
-
-        var xScale = d3.scale.linear()
-                          .domain([0, 4020])
-                          .range([0, 4020]);
-
-        var tempXAxis = d3.svg.axis()
-                        .scale(xScale)
-                        .orient("bottom")
-                        .innerTickSize(-height)
-                        .tickValues(tempXGridVals);
-
-        gridSvg.append("g")
-               .attr("class", "x axis")
-               .attr("transform", "translate(0," + height + ")")
-               .call(tempXAxis);
-
-        yAxis.innerTickSize(-4020);
-
-        gridSvg.append("g")
-               .attr("class", "y axis")
-               .call(yAxis);
     }
 
     function drawRightYAxis(yMax) {
@@ -703,9 +710,10 @@ window.MonitorGraph = (function($, MonitorGraph) {
                                 .call(yAxis);
     }
 
-    function redraw(newWidth, gridRight, numGraphs, yMax, firstTime) {
+    function redraw(newWidth, gridRight, numGraphs, yMax) {
         if (firstTime) {
             drawRightYAxis(yMax);
+            firstTime = false;
         }
 
         for (var i = 0; i < numGraphs; i++) {

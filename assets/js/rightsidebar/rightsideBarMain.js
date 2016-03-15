@@ -154,7 +154,7 @@ window.RightSideBar = (function($, RightSideBar) {
                 }
             },
             "stop": function() {
-                $rightSideBar.css('max-width', 'auto').css('max-height', 'auto');
+                $rightSideBar.css('max-width', '').css('max-height', '');
             },
             "resize": function(event, ui) {
                 if (!poppedOut) {
@@ -198,7 +198,6 @@ window.RightSideBar = (function($, RightSideBar) {
 
                 $rightSideBar.addClass("open");
             } else {
-
                 closeRightSidebar();
             }
 
