@@ -36,6 +36,23 @@
 
     #extensionView {
         height: 100%;
+
+        &.custom {
+            .leftContent {
+                .buttonArea {
+                    display: block;
+                }
+
+                .extensionListArea {
+                    .size(@height: ~"calc(100% - 85px)");
+                    padding-top: 0;
+                }
+            }
+
+            .midContentTopMain {
+                display: block;
+            }
+        }
     }
 
     .leftContent {
@@ -45,11 +62,27 @@
         float: left;
 
         .headingArea {
-            height: 35px;
+            .size(@height: 35px);
             .gray-gradient;
             text-align: center;
             padding-top: 6px;
             .font(@weight: 700, @size: 15px, @color: @color-text-darkdarkGray);
+        }
+
+        .buttonArea {
+            display: none;
+
+            .size(@height: 50px);
+            padding: 10px 0;
+            box-shadow: 0px 2px 1px 1px rgba(0, 0, 0, 0.2);
+
+            .btn {
+                .size(@width: 266px);
+                .horizontal-align;
+                .icon {
+                    .image("../../images/extension/uploadExt.png", 50%, 50%);
+                }
+            }
         }
 
         .extensionListArea {
@@ -193,7 +226,6 @@
     .midContent {
         .size(@width: ~"calc(100% - 314px);", @height: 100%);
         float: left;
-        overflow-y: scroll;
 
         .midContentHeader {
             .size(@height: 35px);
@@ -246,11 +278,33 @@
             }
         }
 
+        .midContentTopMain {
+            display: none;
+
+            .size(@height: 50px);
+            padding: 10px 0 10px 20px;
+            box-shadow: 0px 2px 1px 1px rgba(0, 0, 0, 0.2);
+
+            .text {
+                .size(@width: 50px, @height: 30px);
+                .font(@size: 14px, @weight: bold, @line-height: 30px, @color: @color-text-darkGray);
+            }
+
+            .input-box(@w: ~"calc(100% - 375px)", @h: 25px);
+
+            input {
+                background-color: @color-background-topForm;
+                margin: 0 15px;
+            }
+        }
+
         // midContentMain
         .midContentMain {
             .size(@height: ~"calc(100% - 35px)");
             overflow-x: hidden;
             overflow-y: auto;
+            // since scroll bar is overlap by rightsidebar
+            margin-right: 10px;
 
             .category {
                 margin-top: 10px;
@@ -278,6 +332,10 @@
 
                             &.tableau {
                                 .image("../../images/extension/logo-tableau.png");
+                            }
+
+                            &.custom {
+                                .image("../../images/extension/logo-custom.png");
                             }
                         }
 
@@ -333,7 +391,7 @@
 
                         .logoArea {
                             .size(@width: 300px, @height: 100px);
-                            background-size: 300px 100px;
+                            background-size: 300px 100px !important;
                         }
 
                         .instruction {
@@ -369,7 +427,7 @@
 
                         .logoArea {
                             .size(@width: 90px, @height: 90px);
-                            background-size: 90px 90px;
+                            background-size: 90px 90px !important;
                         }
 
                         .instruction {

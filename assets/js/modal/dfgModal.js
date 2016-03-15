@@ -68,8 +68,8 @@ window.DataFlowModal = (function($, DataFlowModal) {
 
         tableName = $dagWrap.find('.tableName').text();
         var $existingFlow = $modalMain.find('li').filter(function() {
-                                return ($(this).text() === tableName);
-                            });
+            return ($(this).text() === tableName);
+        });
 
         var numLists = $modalMain.find('.listBox').length;
         if (numLists === 0) {

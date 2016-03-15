@@ -1,13 +1,25 @@
 window.ExtensionPanel = (function(ExtensionPanel, $) {
+    var $extView = $("#extensionView");
     var $panel = $("#extensionInstallPanel");
     var $extLists = $("#extensionLists");
+    var curXcExts = [];
+    var allXcExts = [];
+    var curCustomExts = [];
+    var allCustomExts = [];
 
     ExtensionPanel.setup = function() {
         // XXX test use
         test();
 
+        switchExtension(false);
+
+        ExtensionModal.setup();
         // default is gridView, later will add usersettings
         $panel.removeClass("listView").addClass("gridView");
+
+        $panel.on("click", ".item .more", function() {
+            ExtensionModal.show();
+        });
 
         var $btns = $("#extensionViewButtons").find(".btn");
         $btns.click(function() {
@@ -38,45 +50,111 @@ window.ExtensionPanel = (function(ExtensionPanel, $) {
                     .find(".itemList").slideDown(200);
             }
         });
+
+        var $xcExtBtn = $("#xcExtensionButton");
+        var $customExtBtn = $("#customeExtensionButton");
+
+        $xcExtBtn.click(function() {
+            var $btn = $(this);
+            if ($btn.hasClass("active")) {
+                return;
+            }
+
+            $customExtBtn.removeClass("active");
+            $btn.addClass("active");
+            switchExtension(false);
+        });
+
+        $customExtBtn.click(function() {
+            var $btn = $(this);
+            if ($btn.hasClass("active")) {
+                return;
+            }
+
+            $xcExtBtn.removeClass("active");
+            $btn.addClass("active");
+            switchExtension(true);
+        });
     };
 
     function test() {
-        // XXX test use
-        var n = 30;
-        var html = "";
-        for (var i = 0; i < n; i++) {
-            items = [];
-            for (var j = 0; j < 5; j++) {
-                items[j] =  "Extension Name";
+        // XXX test use only
+        var n1 = 30, n2 = 5;
+        for (var i = 0; i < n1; i++) {
+            var items = [];
+            for (var j = 0; j < n2; j++) {
+                items.push("Extension Name");
             }
-            html += getExtensionListHTML("Category" + (i + 1), items);
+
+            curXcExts.push( {
+                "name" : "Category" + (i + 1),
+                "items": items
+            });
+
+            allXcExts.push( {
+                "name" : "Popular Extension " + (i + 1),
+                "items": items
+            });
+        }
+
+        n1 = 10;
+        for (var i = 0; i < n1; i++) {
+            var items = [];
+            for (var j = 0; j < n2; j++) {
+                items.push("Extension Name");
+            }
+
+            curCustomExts.push( {
+                "name" : "Category" + (i + 1),
+                "items": items
+            });
+
+            allCustomExts.push( {
+                "name" : "Custom Extension" + (i + 1),
+                "items": items
+            });
+        }
+    }
+
+    function switchExtension(toCustom) {
+        if (toCustom) {
+            $extView.addClass("custom");
+            generateExtList(curCustomExts);
+            generateExtView(allCustomExts);
+        } else {
+            $extView.removeClass("custom");
+            generateExtList(curXcExts);
+            generateExtView(allXcExts);
+        }
+    }
+
+    function generateExtList(categories) {
+        var html = "";
+        for (var i = 0, len = categories.length; i < len; i++) {
+            html += getExtListHTML(categories[i]);
         }
 
         $extLists.html(html);
+    }
 
-        n = 5;
-        html = "";
-        for (var i = 0; i < n; i ++) {
-            var category = "Popular Extensions" + (i + 1);
-            var items = [];
-            for (var j = 0; j < 5; j++) {
-                items[j] =  "Extension Name";
-            }
-
-            html += getExtensionCatrgoryHTML(category, items);
+    function generateExtView(categories) {
+        var html = "";
+        for (var i = 0, len = categories.length; i < len; i++) {
+            html += getExtViewHTML(categories[i]);
         }
 
         $panel.html(html);
     }
 
-    function getExtensionListHTML(name, items) {
+    function getExtListHTML(category) {
+        var items = category.items;
         var html = '<li class="clearfix extensionList">' +
                         '<div class="listBox">' +
                             '<div class="iconWrap">' +
                               '<span class="icon"></span>' +
                             '</div>' +
                             '<div class="name">' +
-                              name +
+                              category.name +
                             '</div>' +
                             '<div class="count">' +
                                 '0' +
@@ -105,16 +183,19 @@ window.ExtensionPanel = (function(ExtensionPanel, $) {
         return html;
     }
 
-    function getExtensionCatrgoryHTML(category, items) {
+    function getExtViewHTML(category) {
+        var items = category.items;
         var html = '<div class="category">' +
                     '<div class="title textOverflowOneLine">' +
-                        category +
+                        category.name +
                     '</div>' +
                     '<div class="items">';
 
         for (var i = 0, len = items.length; i < len; i++) {
             var logoClass;
-            if (i % 3 === 0) {
+            if ($extView.hasClass("custom")) {
+                logoClass = "custom";
+            } else if (i % 3 === 0) {
                 logoClass = "default1";
             } else if (i % 3 === 1) {
                 logoClass = "tableau";
@@ -157,4 +238,63 @@ window.ExtensionPanel = (function(ExtensionPanel, $) {
     }
 
     return (ExtensionPanel);
+}({}, jQuery));
+
+window.ExtensionModal = (function(ExtensionModal, $) {
+    var $modalBg = $("#modalBackground");
+    var $extModal = $("#extensionModal");
+
+    var minHeight = 400;
+    var minWidth = 700;
+    var modalHelper = new xcHelper.Modal($extModal, {
+        "minHeight": minHeight,
+        "minWidth" : minWidth
+    });
+
+    ExtensionModal.setup = function() {
+        $extModal.draggable({
+            "handle"     : ".modalHeader",
+            "cursor"     : "-webkit-grabbing",
+            "containment": 'window'
+        });
+
+        $extModal.resizable({
+            "handles"    : "n, e, s, w, se",
+            "minHeight"  : minHeight,
+            "minWidth"   : minWidth,
+            "containment": "document"
+        });
+
+        $extModal.on("click", ".close, .cancel", function() {
+            closeExtModal();
+        });
+    };
+
+    ExtensionModal.show = function() {
+        modalHelper.setup();
+
+        if (gMinModeOn) {
+            $modalBg.show();
+            $extModal.show();
+            Tips.refresh();
+        } else {
+            $modalBg.fadeIn(300, function() {
+                $extModal.fadeIn(180);
+                Tips.refresh();
+            });
+        }
+    };
+
+    function closeExtModal() {
+        modalHelper.clear();
+
+        var fadeOutTime = gMinModeOn ? 0 : 300;
+
+        $extModal.hide();
+        $modalBg.fadeOut(fadeOutTime, function() {
+            Tips.refresh();
+        });
+    }
+
+    return ExtensionModal;
 }({}, jQuery));
