@@ -194,7 +194,7 @@ window.RightSideBar = (function($, RightSideBar) {
                 $section.addClass("active")
                         .addClass("lastOpen");
 
-                $sliderBtns.eq(index).addClass("active");
+                $sliderBtns.eq(index - 1).addClass("active");
 
                 $rightSideBar.addClass("open");
             } else {
