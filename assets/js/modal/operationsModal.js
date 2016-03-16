@@ -259,7 +259,7 @@ window.OperationsModal = (function($, OperationsModal) {
                 }, 200);
 
                 updateDescription();
-                if ($input.siblings('.argIconWrap').length) {
+                if ($input.siblings('.argIconWrap:visible').length) {
                     checkInputSize($input);
                 }
             },
@@ -272,7 +272,9 @@ window.OperationsModal = (function($, OperationsModal) {
                         $(this).hide();
                     }
                 });
-                checkInputSize($activeInput);
+                if ($activeInput.siblings('.argIconWrap:visible').length) {
+                    checkInputSize($activeInput);
+                }
             }
         }, '.argument');
 
