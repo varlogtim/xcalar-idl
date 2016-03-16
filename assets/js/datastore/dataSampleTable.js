@@ -6,6 +6,7 @@ window.DataSampleTable = (function($, DataSampleTable) {
     var $tableWrap = $("#dataSetTableWrap");
     var currentRow = 0;
     var totalRows = 0;
+    var initialNumRowsToFetch = 40;
     var previousColSelected; // used for shift clicking columns
 
     DataSampleTable.setup = function() {
@@ -49,7 +50,7 @@ window.DataSampleTable = (function($, DataSampleTable) {
 
         // XcalarSample sets gDatasetBrowserResultSetId
         var datasetName = dsObj.getFullName();
-        XcalarSample(datasetName, 40)
+        XcalarSample(datasetName, initialNumRowsToFetch)
         .then(function(result, totalEntries) {
             // update info here
             dsObj.setNumEntries(totalEntries);
@@ -156,13 +157,13 @@ window.DataSampleTable = (function($, DataSampleTable) {
 
     function dataStoreTableScroll($tableWrapper) {
         var numRowsToFetch = 20;
-        if (currentRow + 20 >= totalRows) {
+        if (currentRow + initialNumRowsToFetch >= totalRows) {
             return;
         }
         if ($tableWrapper[0].scrollHeight - $tableWrapper.scrollTop() -
                    $tableWrapper.outerHeight() <= 1) {
             if (currentRow === 0) {
-                currentRow += 40;
+                currentRow += initialNumRowsToFetch;
             } else {
                 currentRow += numRowsToFetch;
             }
