@@ -149,6 +149,9 @@ input {
     &.previewMode {
         height: 151px !important;
 
+        .buttonWrap {
+            display: none;
+        }
         #importDataBottomForm, #fileBrowserBtn, #fileFormat,
         #udfCheckbox, #promoteHeaderCheckbox, #previewBtn {
             display: none;
@@ -179,6 +182,11 @@ input {
         line-height: 30px;
         margin-bottom: 30px;
         .flex-display;
+        .flex-wrap(wrap);
+
+        .buttonWrap {
+            display: inline-block;
+        }
 
         label {
             display: inline-block;
@@ -189,6 +197,8 @@ input {
         input {
             .size(@width: ~"calc(100% - 340px)",
                  @min-width: ~"calc(100% - 340px)");
+            .size(@width: ~"calc(100% - 420px)",
+                 @min-width: ~"calc(100% - 420px)");
             box-shadow: inset 0 1px 2px rgba(0,0,0,0.3);
             float: left;
         }
@@ -196,19 +206,20 @@ input {
 
         &#fileNameSelector {
             &.optionsOpen {
-                input {
-                    .size(@width: ~"calc(100% - 470px)",
-                        @min-width: ~"calc(100% - 470px)", @max-width: 410px);
+                #fileName {
+                    .size(@width: ~"calc(100% - 380px)",
+                        @min-width: ~"calc(100% - 380px)", @max-width: 410px);
                 }
             }
-            #fileFormat {
-                .styleDropDownList(110px, 30px, true);
-                outline: none;
-                margin-left: 20px;
+        }
+        #fileFormat {
+            .styleDropDownList(110px, 30px, true);
+            outline: none;
+            margin-left: 20px;
+            float: right;
 
-                input {
-                    .input-placeholder(@color-text-lightGray);
-                }
+            input {
+                .input-placeholder(@color-text-lightGray);
             }
         }
     }
@@ -218,6 +229,7 @@ input {
         .font(@weight: 700, @size: 13px);
         margin-left: 10px;
         .noSelection;
+        float: right;
 
         &#udfCheckbox {
             margin-left: 20px;
@@ -265,10 +277,52 @@ input {
     padding: 30px 20px 1px 20px;
 }
 
+@media screen and (max-width: 1300px) {
+    #filePath, #fileName {
+        .size(@width: ~"calc(100% - 360px)",
+            @min-width: ~"calc(100% - 360px)");
+    }
+    .btnMid {
+        width: 120px;
+    }
+}
+
+@media screen and (max-width: 1024px) {
+    .dataStoreFormTop {
+        .importFormRow {
+            height: 55px;
+            .buttonWrap {
+                width: 100%;
+                float: right;
+            }
+            &#fileNameSelector.optionsOpen #fileName {
+                .size(@width: ~"calc(100% - 80px)",
+                        @min-width: ~"calc(100% - 80px)");
+            }
+        }
+    }
+
+    #filePath, #fileName {
+        .size(@width: ~"calc(100% - 80px)",
+            @min-width: ~"calc(100% - 80px)");
+        margin-bottom: 10px;
+    }
+
+    #fileNameSelector {
+        display: block;
+    }
+    // .btnMid {
+    //     width: 120px;
+    // }
+}
+
 #udfArgs {
     .hintSection {
         clear: both;
         .font(@size: 13px, @color: @color-text-lightGray);
+        .text {
+            white-space: normal;
+        }
     }
 }
 
@@ -356,6 +410,12 @@ input {
                 }
             }
         }
+    }
+}
+
+@media screen and (max-width: 900px) {
+    #udfArgs .wrapper {
+        width: 100% !important;
     }
 }
 // End of Bottom Form Section
@@ -637,7 +697,7 @@ input {
     }
 }
 
- 
+
 #previewTable {
     width: 100%;
     white-space: pre-wrap;
@@ -645,7 +705,7 @@ input {
     // for both th and td
     .td {
         display: inline-block;
-        
+
         &.has-tab {
             width: 26px;
             tab-size: 4;
@@ -959,7 +1019,7 @@ input {
                 overflow: auto;
                 padding-bottom: 2px;
                 .grid-unit.hidden {
-                    > .gridIcon, > .listIcon, > .label, > .dsCount, 
+                    > .gridIcon, > .listIcon, > .label, > .dsCount,
                     > .dragWrap {
                         display: none !important;
                     }
@@ -1006,7 +1066,7 @@ input {
                 .grid-unit.folder.display {
                     > .label {
                         &input {
-                           cursor: text; 
+                           cursor: text;
                         }
 
                         &:focus {
@@ -1209,7 +1269,7 @@ input {
                 margin: 2px 0 5px 0;
             }
         }
-        
+
         /* START DATASET TABLE */
         .contentViewTable {
             height: ~"calc(100% - 93px)";
@@ -1370,7 +1430,7 @@ input {
     .gridViewWrapper {
         border-top: none;
     }
-    
+
     .gridItems {
         overflow: visible !important;
         .divider {
@@ -1452,7 +1512,7 @@ input {
                 font-size: 14px;
             }
         }
-        
+
     }
     .dataStoreFormBottom {
         // padding-left: 10px;
@@ -1479,7 +1539,7 @@ input {
                 margin-left: 10%;
                 label {
                     width: 50px;
-                } 
+                }
                 input {
                     width: ~"calc(100% - 50px)";
                 }

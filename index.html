@@ -685,8 +685,10 @@
               <label>File Path:</label>
               <input id="filePath" type="text" name="filePath" spellcheck="false"
                autocomplete="off" placeholder="Enter File Directory" required>
-              <button id="fileBrowserBtn" class="btn btnMid" type="button">BROWSE</button>
-              <button id="previewBtn" class="btn btnMid" type="button">PREVIEW</button>
+                <div class="buttonWrap">
+                  <button id="previewBtn" class="btn btnMid" type="button">PREVIEW</button>
+                  <button id="fileBrowserBtn" class="btn btnMid" type="button">BROWSE</button>
+                </div>
             </div>
             <!-- file name -->
             <div id="fileNameSelector" class="importFormRow">
@@ -696,44 +698,46 @@
                pattern="^\w+$"  spellcheck="false"
                title="A valid name with no special characters" required>
                <!-- file formt -->
-               <div id="fileFormat" class="dropDownList">
-                  <input class="text" type="text" spellcheck="false"
-                  placeholder="Format" disabled>
-                  <div class="iconWrapper">
+              <div class="buttonWrap">
+                <div id="promoteHeaderCheckbox" class="checkboxSection hidden default-hidden">
+                  <div class="checkbox iconWrapper">
                     <span class="icon"></span>
                   </div>
-                  <!-- Format Menu -->
-                  <div id="fileFormatMenu" class="list">
-                    <ul>
-                      <li class="hint">Format</li>
-                      <li name="CSV">CSV</li>
-                      <li name="JSON">JSON</li>
-                      <li name="EXCEL">Excel</li>
-                      <li name="RAW">Raw</li>
-                      <li name="RANDOM">Random</li>
-                    </ul>
-                    <div class="scrollArea top">
-                      <div class="arrow"></div>
+                  <div class="text">Header</div>
+                  <div title="Check to Promote First Row As Header" data-toggle="tooltip"
+                  data-placement="top" data-container="body" class="hint qMark"></div>
+                </div>
+                <!-- udf checkbox -->
+                <div id="udfCheckbox" class="checkboxSection hidden default-hidden">
+                  <div class="checkbox iconWrapper">
+                    <span class="icon"></span>
+                  </div>
+                  <div class="text">UDF</div>
+                </div>
+                <div id="fileFormat" class="dropDownList">
+                    <input class="text" type="text" spellcheck="false"
+                    placeholder="Format" disabled>
+                    <div class="iconWrapper">
+                      <span class="icon"></span>
                     </div>
-                    <div class="scrollArea bottom">
-                      <div class="arrow"></div>
+                    <!-- Format Menu -->
+                    <div id="fileFormatMenu" class="list">
+                      <ul>
+                        <li class="hint">Format</li>
+                        <li name="CSV">CSV</li>
+                        <li name="JSON">JSON</li>
+                        <li name="EXCEL">Excel</li>
+                        <li name="RAW">Raw</li>
+                        <li name="RANDOM">Random</li>
+                      </ul>
+                      <div class="scrollArea top">
+                        <div class="arrow"></div>
+                      </div>
+                      <div class="scrollArea bottom">
+                        <div class="arrow"></div>
+                      </div>
                     </div>
                 </div>
-              </div>
-              <!-- udf checkbox -->
-              <div id="udfCheckbox" class="checkboxSection hidden default-hidden">
-                <div class="checkbox iconWrapper">
-                  <span class="icon"></span>
-                </div>
-                <div class="text">UDF</div>
-              </div>
-              <div id="promoteHeaderCheckbox" class="checkboxSection hidden default-hidden">
-                <div class="checkbox iconWrapper">
-                  <span class="icon"></span>
-                </div>
-                <div class="text">Header</div>
-                <div title="Check to Promote First Row As Header" data-toggle="tooltip"
-                data-placement="top" data-container="body" class="hint qMark"></div>
               </div>
             </div>
           </div>

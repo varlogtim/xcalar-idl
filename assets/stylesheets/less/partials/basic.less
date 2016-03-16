@@ -37,7 +37,7 @@ body {
 
 .mainContainer {
     .position(relative);
-    .size(@height: 100vh, @min-height: 260px, @min-width: 965px);
+    .size(@height: 100vh, @min-height: 260px, @min-width: 824px);
     font-size: 14px;
     overflow: hidden;
     display: none;
@@ -1538,6 +1538,10 @@ ul.inputMenu {
             }
         }
 
+        &#monitorTab {
+            padding-left: 31px;
+        }
+
         .icon {
             .position(absolute);
             .size(24px, 24px);
@@ -1562,6 +1566,7 @@ ul.inputMenu {
 
         .monitor-icon {
             .image("../../images/mainMenuTab/monitor.png");
+            margin-left: -24px;
         }
 
         .scheduler-icon {
@@ -1574,6 +1579,16 @@ ul.inputMenu {
             margin-top: -1px;
         }
     }
+
+    @media screen and (max-width: 1024px) {
+        .mainMenuTab {
+            padding: 5px 10px 0px 30px;
+            margin-right: 7px;
+            #monitorTab {
+                padding-left: 27px;
+            }
+        }
+    }
 }
 
 #logo {
@@ -1582,6 +1597,9 @@ ul.inputMenu {
     .image("../../images/xcalar-logo-white.png");
     float: right;
     display: inline-block;
+    @media screen and (max-width: 1024px) {
+        margin-right: 0px;
+    }
 }
 
 #userNameArea {
@@ -1589,9 +1607,14 @@ ul.inputMenu {
     float: right;
     margin: 10px 25px 0 0;
     display: inline-block;
-    max-width: ~"calc(100% - 715px)";
+    max-width: ~"calc(100% - 860px)";
     overflow: hidden;
     white-space: nowrap;
+
+    @media screen and (max-width: 1024px) {
+        max-width: ~"calc(100% - 725px)";
+        margin-right: 16px;
+    }
 
     .text {
         color: @color-text-topAction;
@@ -3104,11 +3127,8 @@ body.tooltipOff {
                 width: 100%;
                 min-width: 0px;
             }
-            .btnMid {
-                width: 100px;
-            }
             #fileNameSelector.optionsOpen input {
-                min-width: ~"calc(100% - 340px)" !important;
+                // min-width: ~"calc(100% - 340px)" !important;
             }
             #csvDelim {
                 .dropDownList {
@@ -3129,16 +3149,16 @@ body.tooltipOff {
             }
 
             #udfCheckbox, #promoteHeaderCheckbox {
-                margin-left: 0 !important;
-                margin-right: 3px;
+                // margin-left: 0 !important;
+                // margin-right: 3px;
 
-                .checkbox {
-                    margin-right: 2px;
-                }
+                // .checkbox {
+                //     margin-right: 2px;
+                // }
 
-                .hint {
-                    display: none;
-                }
+                // .hint {
+                //     display: none;
+                // }
             }
 
             .previewMode {
