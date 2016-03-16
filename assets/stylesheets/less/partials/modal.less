@@ -4024,6 +4024,14 @@ html.microsoft {
         .aggCols, .groupByCols, .descArgs {
             color: @color-text-blue;
         }
+        .char {
+            background-color: transparent;
+            .transition(2s all ease-in);
+            &.visible {
+                // color: @color-text-green;
+                background-color: yellow;
+            }
+        }
     }
 
     .modalMain {

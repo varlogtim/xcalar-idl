@@ -19,7 +19,7 @@ window.OperationsModal = (function($, OperationsModal) {
     var categoryListScroller;
     var functionsListScroller;
     var quotesNeeded = [];
-    
+
     var modalHelper = new xcHelper.Modal($operationsModal, {
         "noResize": true
     });
@@ -201,7 +201,7 @@ window.OperationsModal = (function($, OperationsModal) {
                 var $input = $(this);
                 var $list = $input.siblings('.openList');
                 if (event.which === keyCode.Down && $list.length) {
-                    
+
                     $operationsModal.find('li.highlighted')
                                     .removeClass('highlighted');
                     $list.addClass('hovering').find('li')
@@ -244,7 +244,7 @@ window.OperationsModal = (function($, OperationsModal) {
                 }, 0);
                 restoreInputSize($(this));
             },
-            'input': function() {
+            'input': function(event) {
                 // Suggest column name
                 var $input = $(this);
                 if ($input.closest(".dropDownList").hasClass("colNameSection")) {
@@ -430,7 +430,7 @@ window.OperationsModal = (function($, OperationsModal) {
 
             $('#xcTable-' + newTableId).find('.col' + colNum)
                                    .addClass('modalHighlighted');
-            
+
             // groupby and aggregates stick to num 6,
             // filter and map use 0-5;
 
@@ -630,7 +630,7 @@ window.OperationsModal = (function($, OperationsModal) {
             delete operatorsMap[udfCategoryNum];
             return;
         }
-        
+
         operatorsMap[udfCategoryNum] = [];
         for (var i = 0; i < arrayLen; i++) {
             operatorsMap[udfCategoryNum].push(opArray[i]);
@@ -638,7 +638,7 @@ window.OperationsModal = (function($, OperationsModal) {
     }
 
     function sortHTML(a, b){
-        return ($(b).text()) < ($(a).text()) ? 1 : -1;    
+        return ($(b).text()) < ($(a).text()) ? 1 : -1;
     }
 
     function argSuggest($input) {
@@ -729,7 +729,7 @@ window.OperationsModal = (function($, OperationsModal) {
                 return;
             } else if (inputNum === 0) {
                 updateFunctionsList();
-            }  
+            }
         }
 
         $operationsModal.find('.circle' + inputNum).addClass('done');
@@ -754,7 +754,7 @@ window.OperationsModal = (function($, OperationsModal) {
                 !isNewCol) {
                 inputNumToFocus++;
             }
-            
+
             var $input = $operationsModal.find('input').eq(inputNumToFocus);
             if (inputNum === 1 && !$input.is(':visible')) {
                 $input = $operationsModal.find('input:visible').last();
@@ -1052,7 +1052,7 @@ window.OperationsModal = (function($, OperationsModal) {
                                                            func);
                     }
                 }
-                
+
 
                 $rows.eq(numArgs).addClass('colNameRow')
                                 .find('.dropDownList')
@@ -1189,17 +1189,21 @@ window.OperationsModal = (function($, OperationsModal) {
                                 .removeClass('manyArgs');
             }
             $argInputs = $operationsModal.find('.argumentSection input:visible');
-            checkIfStringReplaceNeeded();
+            var noHighlight = true;
+            checkIfStringReplaceNeeded(noHighlight);
         }
     }
 
-    function updateDescription() {
+    function updateDescription(noHighlight) {
         var $description = $operationsModal.find(".funcDescription");
+
         var numArgs = $argInputs.length;
         // var val;
         var $inputs = $argInputs;
-        $description.find(".aggCols, .descArgs").text("");
+
+        var newText = "";
         if (operatorName === "map" || operatorName === "filter") {
+            var oldText = $description.find('.descArgs').text();
             if (operatorName === "map") {
                 numArgs--;
                 $inputs = $argInputs.not(':last');
@@ -1209,19 +1213,175 @@ window.OperationsModal = (function($, OperationsModal) {
                 if (quotesNeeded[i]) {
                     val = JSON.stringify(val);
                 }
-                $description.find(".descArgs").append(val);
+
                 if (i < numArgs - 1) {
-                    $description.find(".descArgs").append(", ");
+                    val += ", ";
                 }
+                newText += val;
+
             });
+            if (noHighlight) {
+                var tempText = newText;
+                newText = "";
+                for (var i = 0; i < tempText.length; i++) {
+                    newText += "<span class='char'>" + tempText[i] + "</span>";
+                }
+                $description.find(".descArgs").html(newText);
+            } else {
+                var $spanWrap = $description.find(".descArgs");
+                var $spans = $spanWrap.find('span.char');
+                modifyDescText(oldText, newText, $spanWrap, $spans);
+            }
+
+
         } else if (operatorName === "group by") {
-            $description.find(".aggCols").text($argInputs.eq(0).val())
-                            .end()
-                            .find(".groupByCols").text($argInputs.eq(1).val());
+            var aggColOldText = $description.find(".aggCols").text();
+            var aggColNewText = $argInputs.eq(0).val();
+            var gbColOldText = $description.find(".groupByCols").text();
+            var gbColNewText = $argInputs.eq(1).val();
+
+            if (noHighlight) {
+                var tempText = aggColNewText;
+                aggColNewText = "";
+                for (var i = 0; i < tempText.length; i++) {
+                    aggColNewText += "<span class='char'>" + tempText[i] +
+                                     "</span>";
+                }
+                $description.find(".aggCols").html(aggColNewText);
+
+                tempText = gbColNewText;
+                gbColNewText = "";
+                for (var i = 0; i < tempText.length; i++) {
+                    gbColNewText+= "<span class='char'>" + tempText[i] +
+                                    "</span>";
+                }
+                $description.find(".groupByCols").html(gbColNewText);
+            } else {
+                var aggColDiff = findStringDiff(aggColOldText, aggColNewText);
+                var gbColDiff = findStringDiff(gbColOldText, gbColNewText);
+
+                var $aggColWrap = $description.find(".aggCols");
+                var $aggColSpans = $aggColWrap.find('span.char');
+                modifyDescText(aggColOldText, aggColNewText, $aggColWrap,
+                                $aggColSpans);
+
+                var $gbColWrap = $description.find(".groupByCols");
+                var $gbColSpans = $gbColWrap.find('span.char');
+                modifyDescText(gbColOldText, gbColNewText, $gbColWrap,
+                                $gbColSpans);
+            }
         }
     }
 
-    function checkIfStringReplaceNeeded() {
+    function modifyDescText(oldText, newText, $spanWrap, $spans) {
+        var diff = findStringDiff(oldText, newText);
+        if (diff.type !== "none") {
+            var type = diff.type;
+            switch (type) {
+                case ('remove'):
+                // do nothing
+                    var position = diff.start;
+                    for (var i = 0; i < diff.removed; i++) {
+                        $spans.eq(position++).remove();
+                    }
+
+                    break;
+                case ('add'):
+                    var tempText = newText;
+                    newText = "";
+                    for (var i = diff.start; i < diff.start + diff.added; i++) {
+                        newText += "<span class='char visible'>" +
+                                    tempText[i] + "</span>";
+                    }
+                    if (diff.start === 0) {
+                        $spanWrap.prepend(newText);
+                    } else {
+                        $spans.eq(diff.start - 1).after(newText);
+                    }
+                    break;
+                case ('replace'):
+                    var tempText = newText;
+                    var position = diff.start;
+                    newText = "";
+                    for (var i = 0; i < diff.removed; i++) {
+                        $spans.eq(position++).remove();
+                    }
+                    for (var i = diff.start; i < diff.start + diff.added; i++) {
+                        newText += "<span class='char visible'>" +
+                                    tempText[i] + "</span>";
+
+                    }
+                    if (diff.start === 0) {
+                        $spanWrap.prepend(newText);
+                    } else {
+                        $spans.eq(diff.start - 1).after(newText);
+                    }
+
+                    break;
+                default:
+                //nothing;
+                    break;
+            }
+
+            // delay hiding the diff or else it won't have transition
+            setTimeout(function() {
+                $spanWrap.find('.char').removeClass('visible');
+            });
+
+        } else {
+            return;
+        }
+
+    }
+
+    function findStringDiff(oldText, newText) {
+
+        // Find the index at which the change began
+        var s = 0;
+        while (s < oldText.length && s < newText.length &&
+              oldText[s] == newText[s]) {
+            s++;
+        }
+
+        // Find the index at which the change ended (relative to the end of the string)
+        var e = 0;
+        while(e < oldText.length &&
+            e < newText.length &&
+            oldText.length - e > s &&
+            newText.length - e > s &&
+            oldText[oldText.length - 1 - e] == newText[newText.length - 1 - e]) {
+            e++;
+        }
+
+        // The change end of the new string (ne) and old string (oe)
+        var ne = newText.length - e;
+        var oe = oldText.length - e;
+
+        // The number of chars removed and added
+        var removed = oe - s;
+        var added = ne - s;
+
+        var type;
+        switch(true) {
+            case removed === 0 && added > 0:
+                type = 'add';
+                break;
+            case removed > 0 && added === 0:
+                type = 'remove';
+                break;
+            case removed > 0 && added > 0:
+                type = 'replace';
+                break;
+            default:
+                type = 'none';
+                s = 0;
+        }
+
+        return { type: type, start: s, removed: removed, added: added };
+    }
+
+    // noHighlight: boolean; if true, will not highlight new changes
+    function checkIfStringReplaceNeeded(noHighlight) {
         var existingTypes = {};
         var colPrefix = '$';
         var typeIds = [];
@@ -1259,7 +1419,7 @@ window.OperationsModal = (function($, OperationsModal) {
             }
             typeIds.push($input.data('typeid'));
         });
-    
+
         $argInputs.each(function(i) {
             var $input = $(this);
             var arg = $(this).val().trim();
@@ -1282,7 +1442,7 @@ window.OperationsModal = (function($, OperationsModal) {
                 quotesNeeded.push(false);
             }
         });
-        updateDescription();
+        updateDescription(noHighlight);
     }
 
     function checkArgumentParams() {
@@ -1327,9 +1487,9 @@ window.OperationsModal = (function($, OperationsModal) {
             // Special case: When the user actually wants to have <space>
             // or \n as an input, then we should not trim it.
             var origLength = $(this).val().length;
-            
+
             var val = $(this).val().trim();
-            
+
             var newLength = val.length;
             if (origLength > 0 && newLength === 0) {
                 val = $(this).val();
@@ -1458,7 +1618,7 @@ window.OperationsModal = (function($, OperationsModal) {
                     isPassing = !ColManager.checkColDup($nameInput, null,
                                                 tableId, true);
                 }
-                
+
                 break;
             case ('group by'):
                 // check new col name
@@ -1527,7 +1687,7 @@ window.OperationsModal = (function($, OperationsModal) {
             var origLength = $input.val().length;
 
             var arg = $input.val().trim();
-            
+
             var newLength = arg.length;
 
             if (origLength > 0 && newLength === 0) {
@@ -1627,7 +1787,7 @@ window.OperationsModal = (function($, OperationsModal) {
         } else {
             return (true);
         }
-        
+
         // if (operatorName === "group by") {
         //     for (var i = 0; i < )
         // }
@@ -2017,7 +2177,7 @@ window.OperationsModal = (function($, OperationsModal) {
         if (args.length > 0) {
             mapString = mapString.slice(0, -2);
         }
-        
+
         mapString += ")";
         return (mapString);
     }
@@ -2031,7 +2191,7 @@ window.OperationsModal = (function($, OperationsModal) {
         if (args.length > 0) {
             filterString = filterString.slice(0, -2);
         }
-        
+
         filterString += ")";
         return (filterString);
     }
@@ -2065,7 +2225,7 @@ window.OperationsModal = (function($, OperationsModal) {
 
         return backColName;
     }
-            
+
     function getAutoGenColName(name) {
         var takenNames = {};
         var tableCols  = gTables[tableId].tableCols;
