@@ -4058,27 +4058,34 @@ html.microsoft {
         border-top-left-radius: 3px;
         border-top-right-radius: 3px;
         overflow: hidden;
+    }
 
-        .thWrap {
-            .size(@width: 55%, @height: 30px);
-            color: @color-white;
-            font-weight: bold;
-            font-size: 13px;
-            line-height: 30px;
+    .thWrap {
+        .size(@width: 55%, @height: 30px);
+        color: @color-white;
+        font-weight: bold;
+        font-size: 13px;
+        line-height: 30px;
+        float: left;
+        background-color: @color-background-joinGray;
+        border-left: 1px solid @color-white;
+        overflow: hidden;
+        .text {
             padding-left: 12px;
-            float: left;
-            background-color: @color-background-joinGray;
-            border-left: 1px solid @color-white;
         }
+    }
 
-        .thWrap:first-child {
-            .size(@width: ~"calc(35% + 1px)");
-            border-left: none;
-        }
-        .thWrap:last-child {
-           .size(@width: ~"calc(10% - 1px)");
-           padding-left: 4px;
-        }
+    .thWrap:first-child {
+        .size(@width: ~"calc(35% + 1px)");
+        border-left: none;
+    }
+    .thWrap:last-child {
+       .size(@width: ~"calc(10% - 2px)");
+        box-shadow: 1px 0px 0px 1px @color-border-joinGray;
+       .text {
+            padding-left: 4px;
+       }
+
     }
 
     .tableContainer {
@@ -4107,7 +4114,7 @@ html.microsoft {
                     border-right: 1px solid @color-border-joinGray;
 
                     &:first-of-type {
-                        width: 35%;
+                        width: 223px;
                     }
                     &:last-of-type {
                         width: 10%;
@@ -4252,6 +4259,49 @@ html.microsoft {
                         display: none;
                     }
                 }
+            }
+        }
+    }
+
+    .tableHeader .cast, .tableContainer .tableWrapper table td.cast {
+        // display: none;
+        width: 0px;
+        padding-left: 0px;
+        border-left-width: 0px;
+        overflow: hidden;
+        .transition(all 0.3s);
+        &.showing {
+            width: 140px;
+            border-left-width: 1px;
+            div.text {
+                padding-left: 12px;
+            }
+        }
+        &.overflowVisible {
+            overflow: visible;
+        }
+    }
+
+    .tableHeader .descCell, .tableContainer .tableWrapper table td.descCell {
+        .transition(all 0.3s);
+        &.castShowing {
+            width: 209px;
+        }
+    }
+
+    .cast {
+        .dropDownList {
+            width: 123px;
+            margin-left: 8px;
+            &.hidden {
+                display: none;
+            }
+            ul {
+                position: fixed;
+                width: 100px;
+            }
+            li.default {
+                color: @color-text-lightGray;
             }
         }
     }

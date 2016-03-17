@@ -381,7 +381,7 @@ window.ColManager = (function($, ColManager) {
             col = tableCols[colInfo.colNum - 1];
             // here use front col name to generate newColName
             newFieldNames[i] = col.name + "_" + colInfo.type;
-            mapStrings[i] = mapStrHelper(col.getBackColName(), colInfo.type);
+            mapStrings[i] = xcHelper.castStrHelper(col.getBackColName(), colInfo.type);
         }
 
         // this makes it easy to get previous table name
@@ -468,33 +468,9 @@ window.ColManager = (function($, ColManager) {
 
             return (innerDeferred.promise());
         }
-
-        function mapStrHelper(colName, colType) {
-            var mapStr = "";
-            switch (colType) {
-                case ("boolean"):
-                    mapStr += "bool(";
-                    break;
-                case ("float"):
-                    mapStr += "float(";
-                    break;
-                case ("integer"):
-                    mapStr += "int(";
-                    break;
-                case ("string"):
-                    mapStr += "string(";
-                    break;
-                default:
-                    console.warn("XXX no such operator! Will guess");
-                    mapStr += colType + "(";
-                    break;
-            }
-
-            mapStr += colName + ")";
-
-            return (mapStr);
-        }
     };
+
+
 
     // XXX temporarily invalid it because xcalarQuery may crash
     // instead of return error status

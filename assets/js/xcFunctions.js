@@ -66,7 +66,7 @@ window.xcFunction = (function($, xcFunction) {
     };
 
     // aggregate table column
-    xcFunction.aggregate = function(colNum, tableId, aggrOp) {
+    xcFunction.aggregate = function(colNum, tableId, aggrOp, aggStr) {
         var deferred = jQuery.Deferred();
 
         var table        = gTables[tableId];
@@ -109,7 +109,9 @@ window.xcFunction = (function($, xcFunction) {
             "tableId"  : tableId,
             "colName"  : frontColName,
             "colNum"   : colNum,
-            "aggrOp"   : aggrOp
+            "aggrOp"   : aggrOp,
+            "aggStr"   : aggStr,
+            "htmlExclude": ["aggStr"]
         };
         var msg = StatusMessageTStr.Aggregate + " " + aggrOp + " " +
                   StatusMessageTStr.OnColumn + ": " + frontColName;
@@ -119,7 +121,7 @@ window.xcFunction = (function($, xcFunction) {
             "sql"      : sql
         });
 
-        XcalarAggregate(backColName, tableName, aggrOp, txId)
+        XcalarAggregate(aggStr, tableName, aggrOp, txId)
         .then(function(value, dstDagName) {
             try {
                 var val = JSON.parse(value);

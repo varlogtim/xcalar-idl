@@ -231,6 +231,21 @@ TableMeta.prototype = {
         return false;
     },
 
+    getBackColNum: function(backColName) {
+        var tableCols = this.tableCols;
+        for (var i = 0, len = tableCols.length; i < len; i++) {
+            var progCol = tableCols[i];
+
+            if (progCol.isNewCol || progCol.isDATACol()) {
+                // skip new column and DATA column
+                continue;
+            } else if (progCol.getBackColName() === backColName) {
+                return i;
+            }
+        }
+        return -1;
+    },
+
     hasCol: function(colName) {
         // check both fronName and backName
         var tableCols = this.tableCols;

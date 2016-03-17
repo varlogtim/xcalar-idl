@@ -169,7 +169,7 @@ window.Function.prototype.bind = function() {
 };
 
 function chain(funcs) {
-    if (!funcs || 
+    if (!funcs ||
         !Array.isArray(funcs) ||
         typeof funcs[0] !== "function") {
         return promiseWrapper(null);
@@ -182,7 +182,7 @@ function chain(funcs) {
 }
 
 // Jerene's debug function
-function atos(func, args) {                                               
+function atos(func, args) {
     func.apply(this, args).then(
         function(retObj) {
             console.log(retObj);
@@ -303,7 +303,7 @@ function XcalarGetVersion() {
     if (insertError(arguments.callee, deferred)) {
         return (deferred.promise());
     }
-    
+
     xcalarGetVersion(tHandle)
     .then(deferred.resolve)
     .fail(function(error) {
@@ -353,7 +353,7 @@ function XcalarLoad(url, format, datasetName, fieldDelim, recordDelim,
         setTimeout(checkIter.bind(null, def, sqlString, dsName, txId),
                    1000);
     }
-    
+
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return (promiseWrapper(null));
     }
@@ -431,7 +431,7 @@ function XcalarLoad(url, format, datasetName, fieldDelim, recordDelim,
             } else if (typeof (error2) === "string") {
                 checkForDatasetLoad(deferred, error2, datasetName, txId);
             }
-        } else {  
+        } else {
             var thriftError = thriftLog("XcalarLoad", error1, error2);
             deferred.reject(thriftError);
         }
@@ -455,7 +455,7 @@ function XcalarAddODBCExportTarget(targetName, connStr, txId) {
     target.type = DsTargetTypeT.DsTargetODBCType;
     specInput.odbcInput = new DsAddTargetODBCInputT();
     specInput.odbcInput.connectionString = connStr;
-         
+
     var workItem = xcalarAddExportTargetWorkItem(target, specInput);
     var def1 = xcalarAddExportTarget(tHandle, target, specInput);
     var def2 = jQuery.Deferred().resolve().promise();
@@ -489,7 +489,7 @@ function XcalarAddLocalFSExportTarget(targetName, path, txId) {
     target.type = DsTargetTypeT.DsTargetSFType;
     specInput.sfInput = new DsAddTargetSFInputT();
     specInput.sfInput.url = path;
-         
+
     var workItem = xcalarAddExportTargetWorkItem(target, specInput);
     var def1 = xcalarAddExportTarget(tHandle, target, specInput);
     // var def2 = XcalarGetQuery(workItem);
@@ -517,7 +517,7 @@ function XcalarListExportTargets(typePattern, namePattern) {
     if (insertError(arguments.callee, deferred)) {
         return (deferred.promise());
     }
-         
+
     var workItem = xcalarListExportTargetsWorkItem(typePattern, namePattern);
     var def1 = xcalarListExportTargets(tHandle, typePattern, namePattern);
     // var def2 = XcalarGetQuery(workItem);
@@ -625,8 +625,8 @@ function XcalarDestroyDataset(dsName, txId) {
     if (insertError(arguments.callee, deferred)) {
         return (deferred.promise());
     }
-    
-    
+
+
     dsName = parseDS(dsName);
     var workItem = xcalarDeleteDagNodesWorkItem(dsName,
                                                 SourceTypeT.SrcDataset);
@@ -693,7 +693,7 @@ function XcalarIndexFromTable(srcTablename, key, tablename, ordering,
     .then(function(unsortedSrcTablename) {
         var workItem = xcalarIndexTableWorkItem(unsortedSrcTablename, tablename,
                                                 key, dhtName, ordering);
-    
+
         var def1 = xcalarIndexTable(tHandle, unsortedSrcTablename, key,
                                     tablename, dhtName, ordering);
         var def2 = XcalarGetQuery(workItem);
@@ -1035,7 +1035,7 @@ function XcalarMakeResultSetFromDataset(datasetName) {
     });
 
     return (deferred.promise());
-    
+
 }
 
 function XcalarSetAbsolute(resultSetId, position) {
@@ -1201,7 +1201,7 @@ function XcalarMap(newFieldName, evalStr, srcTablename, dstTablename,
     if (insertError(arguments.callee, deferred)) {
         return (deferred.promise());
     }
-    
+
     if (evalStr.length > XcalarApisConstantsT.XcalarApiMaxEvalStringLen) {
         deferred.reject(thriftLog("XcalarMap", "Eval string too long"));
         return (deferred.promise());
@@ -1233,7 +1233,7 @@ function XcalarMap(newFieldName, evalStr, srcTablename, dstTablename,
         });
     });
     return (deferred.promise());
-}   
+}
 
 function generateAggregateString(fieldName, op) {
     var evalStr = "";
@@ -1267,7 +1267,7 @@ function generateAggregateString(fieldName, op) {
         default:
             console.log("bug!:" + op);
     }
-    
+
     evalStr += fieldName;
     evalStr += ")";
     return (evalStr);
@@ -1410,7 +1410,7 @@ function XcalarProject(columns, tableName, dstTableName, txId) {
             deferred.reject(thriftError);
         });
     });
-                                 
+
     return (deferred.promise());
 }
 
@@ -1422,7 +1422,7 @@ function XcalarQuery(queryName, queryString) {
     /* some test case :
         "load --url file:///var/tmp/gdelt --format csv --name test"
         "filter yelpUsers 'regex(user_id,\"--O\")'"
-        
+
     */
     if (tHandle == null) {
         return (promiseWrapper(null));
@@ -1573,7 +1573,7 @@ function XcalarMakeRetina(retName, tableArray, txId) {
     });
     return (deferred.promise());
 }
-        
+
 function XcalarListRetinas() {
     // XXX This function is wrong because it does not take in a tablename even
     // though it should. Hence we just assume that all retinas belong to the
@@ -1726,7 +1726,7 @@ function XcalarDeleteRetina(retName, txId) {
     var def1 = xcalarApiDeleteRetina(tHandle, retName);
     var def2 = jQuery.Deferred().resolve().promise();
     // var def2 = XcalarGetQuery(workItem);
-    
+
     jQuery.when(def1, def2)
     .then(function(ret1, ret2) {
         // Transaction.log(txId, ret2);
@@ -2141,7 +2141,7 @@ function XcalarNewWorkbook(newWorkbookName, isCopy, copyFromWhichWorkbook) {
         return (promiseWrapper(null));
     }
     var deferred = jQuery.Deferred();
-    
+
     xcalarApiSessionNew(tHandle, newWorkbookName, isCopy,
                         copyFromWhichWorkbook)
     .then(function(output) {
@@ -2160,7 +2160,7 @@ function XcalarDeleteWorkbook(workbookName) {
         return (promiseWrapper(null));
     }
     var deferred = jQuery.Deferred();
-    
+
     xcalarApiSessionDelete(tHandle, workbookName)
     .then(function(output) {
         deferred.resolve(output);
@@ -2178,7 +2178,7 @@ function XcalarInActiveWorkbook(workbookName) {
         return (promiseWrapper(null));
     }
     var deferred = jQuery.Deferred();
-    
+
     xcalarApiSessionInact(tHandle, workbookName)
     .then(function(output) {
         deferred.resolve(output);
@@ -2196,7 +2196,7 @@ function XcalarListWorkbooks(pattern) {
         return (promiseWrapper(null));
     }
     var deferred = jQuery.Deferred();
-    
+
     xcalarApiSessionList(tHandle, pattern)
     .then(function(output) {
         deferred.resolve(output);
@@ -2214,7 +2214,7 @@ function XcalarSaveWorkbooks(pattern) {
         return (promiseWrapper(null));
     }
     var deferred = jQuery.Deferred();
-    
+
     xcalarApiSessionPersist(tHandle, pattern)
     .then(function(output) {
         deferred.resolve(output);

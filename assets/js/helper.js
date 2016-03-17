@@ -1458,5 +1458,31 @@ window.xcHelper = (function($, xcHelper) {
                                .prop('disabled', false);
     };
 
+    xcHelper.castStrHelper = function(colName, colType) {
+        var mapStr = "";
+        switch (colType) {
+            case ("boolean"):
+                mapStr += "bool(";
+                break;
+            case ("float"):
+                mapStr += "float(";
+                break;
+            case ("integer"):
+                mapStr += "int(";
+                break;
+            case ("string"):
+                mapStr += "string(";
+                break;
+            default:
+                console.warn("XXX no such operator! Will guess");
+                mapStr += colType + "(";
+                break;
+        }
+
+        mapStr += colName + ")";
+
+        return (mapStr);
+    };
+
     return (xcHelper);
 }(jQuery, {}));

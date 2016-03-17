@@ -326,6 +326,9 @@ window.OperationsModal = (function($, OperationsModal) {
                 unminimizeTable();
                 $operationsModal.find('.checkbox').removeClass('checked');
                 $operationsModal.find('.minimize').hide();
+                $operationsModal.find('td.cast').find('.dropDownList')
+                                                .addClass('hidden');
+                hideCastColumn();
             });
 
             var isHide = true;
@@ -353,6 +356,40 @@ window.OperationsModal = (function($, OperationsModal) {
                 }
             }
             allowInputChange = true;
+        });
+
+
+        var $lists = $operationsModal.find(".cast .dropDownList");
+        xcHelper.dropdownList($lists, {
+            "onOpen": function($list) {
+                var $td = $list.parent();
+                var $ul = $list.find('ul');
+                var top = $td.offset().top + 30;
+                var left = $td.offset().left + 9;
+                $ul.css({'top': top, 'left': left});
+                StatusBox.forceHide();
+            },
+            "onSelect": function($li) {
+                var $list  = $li.closest(".list");
+                var $input = $list.siblings(".text");
+                var type   = $li.text();
+                var casted;
+                var castedType;
+
+                $input.val(type);
+                if (type === "default") {
+                    casted = false;
+                    castedType = null;
+                } else {
+                    casted = true;
+                    castedType = type;
+                }
+                $input.closest('td').prev().find('input')
+                                           .data('casted', casted)
+                                           .data('casttype', type);
+                StatusBox.forceHide();
+            },
+            "container": "#operationsModal"
         });
 
         categoryListScroller = new xcHelper.dropdownList($('#categoryList'), {
@@ -717,11 +754,12 @@ window.OperationsModal = (function($, OperationsModal) {
                 $list.find('ul').prepend($li);
             }
         }
-
     }
 
     function hideDropdowns() {
-        $operationsModal.find('.list, .list li').hide();
+        $operationsModal.find('.list').hide();
+        $operationsModal.find('.list li').hide();
+        $operationsModal.find('.cast .list li').show();
     }
 
     function enterInput(inputNum, noFocus) {
@@ -759,7 +797,8 @@ window.OperationsModal = (function($, OperationsModal) {
                 inputNumToFocus++;
             }
 
-            var $input = $operationsModal.find('input').eq(inputNumToFocus);
+            var $input = $operationsModal.find('input:not(.nonEditable)')
+                                         .eq(inputNumToFocus);
             if (inputNum === 1 && !$input.is(':visible')) {
                 $input = $operationsModal.find('input:visible').last();
             }
@@ -1000,7 +1039,12 @@ window.OperationsModal = (function($, OperationsModal) {
                        .find('.colNameSection')
                        .removeClass('colNameSection');
 
+            $rows.find('.cast input').val('default');
+            hideCastColumn();
+
             $rows.find('input').data('typeid', -1)
+                               .data('casted', false)
+                               .data('casttype', null)
                  .end()
                  .find('.checkboxSection')
                  .removeClass('checkboxSection')
@@ -1030,7 +1074,7 @@ window.OperationsModal = (function($, OperationsModal) {
                     typeId = Math.pow(2, keyLen + 1) - 1;
                 }
 
-                var $input = $rows.eq(i).find('input');
+                var $input = $rows.eq(i).find('.argument');
                 if (i === 0) {
                     $input.val(defaultValue);
                 } else {
@@ -1062,7 +1106,7 @@ window.OperationsModal = (function($, OperationsModal) {
                                 .find('.dropDownList')
                                 .addClass('colNameSection')
                                 .end()
-                                .find('input').val(autoGenColName)
+                                .find('.argument').val(autoGenColName)
                                 .end()
                                 .find('.description').text(description);
                 ++numArgs;
@@ -1071,7 +1115,7 @@ window.OperationsModal = (function($, OperationsModal) {
                             '<p class="funcDescription textOverflow">' +
                                 operObj.fnName + '(' +
                                 '<span class="descArgs">' +
-                                    $rows.eq(0).find("input").val() +
+                                    $rows.eq(0).find(".argument").val() +
                                 '</span>' +
                                 ')' +
                             '</p>';
@@ -1088,7 +1132,7 @@ window.OperationsModal = (function($, OperationsModal) {
                 }
 
                 $rowToListen = $rows.eq(numArgs).addClass("rowToListen");
-                $rowToListen.find('input').val(sortedCol)
+                $rowToListen.find('.argument').val(sortedCol)
                             .end()
                             .find('.description').text(description);
 
@@ -1102,7 +1146,7 @@ window.OperationsModal = (function($, OperationsModal) {
                                  .find('.dropDownList')
                                     .addClass('colNameSection')
                                 .end()
-                                .find('input').val(autoGenColName)
+                                .find('.argument').val(autoGenColName)
                                 .end()
                                 .find('.description').text(description);
                 ++numArgs;
@@ -1116,7 +1160,7 @@ window.OperationsModal = (function($, OperationsModal) {
                 $rows.eq(numArgs).addClass('colNameRow')
                         .find('.dropDownList').addClass('checkboxSection')
                         .end()
-                        .find('input').val("").attr("type", "checkbox")
+                        .find('.argument').val("").attr("type", "checkbox")
                                                 .attr("checked", false)
                                                 .attr("id", "incSample")
                             .after(checkboxText)
@@ -1132,7 +1176,7 @@ window.OperationsModal = (function($, OperationsModal) {
                             '<p class="funcDescription textOverflow">' +
                                 operObj.fnName + '(' +
                                 '<span class="aggCols">' +
-                                    $rows.eq(0).find("input").val() +
+                                    $rows.eq(0).find(".argument").val() +
                                 '</span>' +
                                 '), GROUP BY ' +
                                 '<span class="groupByCols">' +
@@ -1178,7 +1222,7 @@ window.OperationsModal = (function($, OperationsModal) {
                             '<p class="funcDescription textOverflow">' +
                                 operObj.fnName + '(' +
                                 '<span class="descArgs">' +
-                                    $rows.eq(0).find("input").val() +
+                                    $rows.eq(0).find(".argument").val() +
                                 '</span>' +
                                 ')' +
                             '</p>';
@@ -1192,7 +1236,7 @@ window.OperationsModal = (function($, OperationsModal) {
                 $operationsModal.find('.tableContainer')
                                 .removeClass('manyArgs');
             }
-            $argInputs = $operationsModal.find('.argumentSection input:visible');
+            $argInputs = $operationsModal.find('.argumentSection .argument:visible');
             var noHighlight = true;
             checkIfStringReplaceNeeded(noHighlight);
         }
@@ -1335,7 +1379,6 @@ window.OperationsModal = (function($, OperationsModal) {
         } else {
             return;
         }
-
     }
 
     function findStringDiff(oldText, newText) {
@@ -1349,7 +1392,7 @@ window.OperationsModal = (function($, OperationsModal) {
 
         // Find the index at which the change ended (relative to the end of the string)
         var e = 0;
-        while(e < oldText.length &&
+        while (e < oldText.length &&
             e < newText.length &&
             oldText.length - e > s &&
             newText.length - e > s &&
@@ -1653,16 +1696,16 @@ window.OperationsModal = (function($, OperationsModal) {
         // all operation have their own way to show error StatusBox
         switch (operatorName) {
             case ('aggregate'):
-                isPassing = aggregate(funcCapitalized, args);
+                isPassing = aggregateCheck(args);
                 break;
             case ('filter'):
-                isPassing = filter(func, args);
+                isPassing = filterCheck(func, args);
                 break;
             case ('group by'):
-                isPassing = groupBy(funcCapitalized, args);
+                isPassing = groupByCheck(args);
                 break;
             case ('map'):
-                isPassing = map(funcLower, args);
+                isPassing = true;
                 break;
             default:
                 showErrorMessage(0);
@@ -1672,9 +1715,62 @@ window.OperationsModal = (function($, OperationsModal) {
 
         if (isPassing) {
             $operationsModal.find('.close').trigger('click', {slow: true});
+
+            var colTypeInfos = getCastInfo(args);
+
+            switch (operatorName) {
+                case ('aggregate'):
+                    aggregate(funcCapitalized, args, colTypeInfos);
+                    break;
+                case ('filter'):
+                    filter(func, args, colTypeInfos);
+                    break;
+                case ('group by'):
+                    groupBy(funcCapitalized, args, colTypeInfos);
+                    break;
+                case ('map'):
+                    map(funcLower, args, colTypeInfos);
+                    break;
+                default:
+                    showErrorMessage(0);
+                    isPassing = false;
+                    break;
+            }
+
         } else {
             modalHelper.enableSubmit();
         }
+    }
+
+    // returns an array of objects that include the new type and argument number
+    function getCastInfo(args) {
+        var table = gTables[tableId];
+        var $input;
+        var colTypeInfos = [];
+        var colNum;
+        var castType;
+        var newColNames = [];
+        var progCol;
+
+        // set up colTypeInfos, filter out any that shouldn't be casted
+        $argInputs.each(function(i) {
+            $input = $(this);
+            isCasting = $input.data('casted');
+            if (isCasting) {
+                colNum = table.getBackColNum(args[i]);
+                if (colNum > -1) {
+                    isValid = true;
+                    castType = $input.data('casttype');
+                    progCol = table.tableCols[colNum];
+                    if (castType !== progCol.type) {
+                        colTypeInfos.push({type: castType,
+                                           argNum: i});
+                    }
+                }
+            }
+        });
+
+        return (colTypeInfos);
     }
 
     function argumentFormatHelper(existingTypes) {
@@ -1683,8 +1779,15 @@ window.OperationsModal = (function($, OperationsModal) {
         var colPrefix = "$";
         var colTypes;
         var typeid;
+        var allColTypes = [];
+        var errorText;
+        var $errorInput;
+        var errorType;
+        var invalidNonColumnType = false; // when an input does not have a
+        // a column name but still has an invalid type
+
         // XXX this part may still have potential bugs
-        $argInputs.each(function() {
+        $argInputs.each(function(inputNum) {
             var $input = $(this);
 
             // Edge case. GUI-1929
@@ -1711,6 +1814,7 @@ window.OperationsModal = (function($, OperationsModal) {
                 var frontColName = arg;
                 var tempColNames = arg.split(",");
                 var backColNames = "";
+
                 for (var i = 0; i < tempColNames.length; i++) {
                     if (i > 0) {
                         backColNames += ",";
@@ -1718,62 +1822,223 @@ window.OperationsModal = (function($, OperationsModal) {
                     backColNames += getBackColName(tempColNames[i].trim());
                 }
                 arg = backColNames;
-
                 // Since there is currently no way for users to specify what
                 // col types they are expecting in the python functions, we will
                 // skip this type check if the function category is user defined
                 // function.
                 if ($("#categoryList input").val().indexOf("user") !== 0) {
-                    colTypes = getAllColumnTypesFromArg(frontColName);
-
-                    // var inValidTypes = [];
-                    var numTypes = colTypes.length;
-                    var types = parseType(typeid);
-                    for (var i = 0; i < numTypes; i++) {
-                        if (colTypes[i] != null) {
-                            if (types.indexOf(colTypes[i]) < 0) {
-                                isPassing = false;
-                                var errorText = xcHelper.replaceMsg(ErrWRepTStr.InvalidOpsType, {
-                                    "type1": types.join("/"),
-                                    "type2": colTypes[i]
-                                });
-                                StatusBox.show(errorText, $input);
-                                return (false);
-                            }
+                    var types;
+                    if (tempColNames.length > 1 &&
+                        (operatorName !== "group by" ||
+                        (operatorName === "group by" && inputNum !== 1))) {
+                        // non group by fields cannot have multiple column names;
+                        allColTypes.push({});
+                        errorText = ErrTStr.InvalidColName;
+                        $errorInput = $input;
+                        errorType = "invalidCol";
+                        isPassing = false;
+                    } else {
+                        colTypes = getAllColumnTypesFromArg(frontColName);
+                        types = parseType(typeid);
+                        if (colTypes.length) {
+                            allColTypes.push({inputTypes: colTypes,
+                                            requiredTypes: types,
+                                            inputNum: inputNum});
                         } else {
-                            console.error("colType is null/col not pulled!");
+                            allColTypes.push({});
+                            errorText = xcHelper.replaceMsg(
+                                            ErrWRepTStr.InvalidCol, {
+                                            "name": frontColName
+                                        });
+                                        $errorInput = $input;
+                            errorType = "invalidCol";
+                            isPassing = false;
                         }
                     }
+
+                    if (isPassing) {
+                        var isCasted = $input.data('casted');
+                        if (!isCasted) {
+                            var numTypes = colTypes.length;
+
+                            for (var i = 0; i < numTypes; i++) {
+                                if (colTypes[i] != null) {
+                                    if (types.indexOf(colTypes[i]) < 0) {
+                                        isPassing = false;
+                                        errorText = xcHelper.replaceMsg(
+                                            ErrWRepTStr.InvalidOpsType, {
+                                            "type1": types.join("/"),
+                                            "type2": colTypes[i]
+                                        });
+                                        $errorInput = $input;
+                                        errorType = "invalidColType";
+
+                                        // return (false);
+                                    }
+                                } else {
+                                    console.error("colType is null/col not pulled!");
+                                }
+                            }
+                        }
+
+                    }
+                } else {
+                    allColTypes.push({});
                 }
+            } else if (!isPassing) {
+                // leave it
             } else if (hasFuncFormat(arg)) {
                 // leave arg the way it is
             } else {
                 var checkRes = checkArgTypes(arg, typeid);
 
-                if (checkRes != null) {
+                if (checkRes != null && !invalidNonColumnType) {
                     isPassing = false;
-                    var errorText = xcHelper.replaceMsg(ErrWRepTStr.InvalidOpsType, {
+                    invalidNonColumnType = true;
+                    errorText = xcHelper.replaceMsg(ErrWRepTStr.InvalidOpsType, {
                         "type1": checkRes.validType.join("/"),
                         "type2": checkRes.currentType
                     });
-
-                    StatusBox.show(errorText, $input);
-                    return (false);
-                }
-                var formatArgumentResults = formatArgumentInput(arg, typeid,
+                    $errorInput = $input;
+                    errorType = "invalidType";
+                } else {
+                    var formatArgumentResults = formatArgumentInput(arg, typeid,
                                                             existingTypes);
-                // if (!formatArgumentResults.isString && newLength === 0) {
-                //     isPassing = false;
-                //     var text = ErrTStr.NoEmpty;
-                //     StatusBox.show(text, $input);
-                //     return (false);
-                // }
-                arg = formatArgumentResults.value;
+                    arg = formatArgumentResults.value;
+                }
             }
 
             args.push(arg);
         });
-        return ({args: args, isPassing: isPassing});
+
+        if (!isPassing) {
+            if (errorType === "invalidColType") {
+                var castIsVisible = $operationsModal.find('.cast')
+                                                    .hasClass('showing');
+                showCastColumn(allColTypes)
+                .then(function() {
+                    if (!castIsVisible) {
+                        var $castDropdown = $errorInput.closest('td').next()
+                                            .find('.dropDownList:visible');
+                        if ($castDropdown.length) {
+                            $errorInput = $castDropdown.find('input');
+                        }
+                        StatusBox.show(errorText, $errorInput);
+                    }
+                });
+                if (castIsVisible) {
+                    var $castDropdown = $errorInput.closest('td').next()
+                                            .find('.dropDownList:visible');
+                    if ($castDropdown.length) {
+                        $errorInput = $castDropdown.find('input');
+                    }
+                    StatusBox.show(errorText, $errorInput);
+                }
+            } else {
+                resetCastOptions($errorInput);
+                StatusBox.show(errorText, $errorInput);
+            }
+
+        }
+
+        return ({args: args, isPassing: isPassing, allColTypes: allColTypes});
+    }
+
+    var castMap = {
+        string: ['boolean', 'integer', 'float'],
+        integer: ['boolean', 'integer', 'float', 'string'],
+        float: ['boolean', 'integer', 'float', 'string'],
+        number: ['boolean', 'integer', 'float', 'string'],
+        boolean: ['integer', 'float', 'string'],
+        undefined: [],
+        array: [],
+        'Array Value': [],
+        object: [],
+        mixed: []
+    };
+
+    function showCastColumn(allColTypes) {
+        var deferred = jQuery.Deferred();
+        $operationsModal.find('.cast').addClass('showing');
+        $operationsModal.find('.descCell').addClass('castShowing');
+        var $dropdowns = $operationsModal.find('.cast .dropDownList');
+        getProperCastOptions(allColTypes);
+        displayCastOptions(allColTypes);
+
+        setTimeout(function() {
+            $operationsModal.find('.cast').addClass('overflowVisible');
+            deferred.resolve();
+        }, 250);
+
+        return (deferred.promise());
+    }
+
+    function getProperCastOptions(allColTypes) {
+        var inputColTypes;
+        var requiredTypes;
+        var filteredTypes;
+        var inputNum;
+        var castTypes;
+        for (var i = 0; i < allColTypes.length; i++) {
+            inputColTypes = allColTypes[i];
+            inputNum = inputColTypes.inputNum;
+            if (inputNum === undefined) {
+                return;
+            }
+            // this wil hold the valid column types that the current input can
+            // be casted to
+            inputColTypes.filteredTypes = [];
+            requiredTypes = inputColTypes.requiredTypes;
+
+            // check if each valid column type can be applied to the current
+            // column type that is in the input
+            for (var j = 0; j < requiredTypes.length; j++) {
+                var isValid = true;
+                for (var k = 0; k < inputColTypes.inputTypes.length; k++) {
+                    castTypes = castMap[inputColTypes.inputTypes[k]];
+                    if (!castTypes ||
+                        castTypes.indexOf(requiredTypes[j]) === -1) {
+                        isValid = false;
+                        break;
+                    }
+                }
+
+                if (isValid) {
+                    inputColTypes.filteredTypes.push(requiredTypes[j]);
+                }
+            }
+        }
+    }
+
+    function displayCastOptions(allColTypes) {
+        var $castDropdowns = $operationsModal.find('td.cast')
+                                             .find('.dropDownList');
+        $castDropdowns.addClass('hidden');
+        var lis;
+        for (var i = 0; i < allColTypes.length; i++) {
+            if (allColTypes[i].filteredTypes &&
+                allColTypes[i].filteredTypes.length) {
+                lis = "<li class='default'>default</li>";
+                // lis = "";
+                $castDropdowns.eq(allColTypes[i].inputNum).removeClass('hidden');
+                for (var j = 0; j < allColTypes[i].filteredTypes.length; j++) {
+                    lis += "<li>" + allColTypes[i].filteredTypes[j] + "</li>";
+                }
+                $castDropdowns.eq(allColTypes[i].inputNum).find('ul').html(lis);
+            }
+        }
+    }
+
+    // $input is an $argInput
+    function resetCastOptions($input) {
+       $input.closest('td').next().find('input').val('default');
+       $input.data('casted', false);
+       $input.data('casttype', null);
+    }
+
+    function hideCastColumn() {
+        $operationsModal.find('.cast').removeClass('showing overflowVisible');
+        $operationsModal.find('.descCell').removeClass('castShowing');
     }
 
     function checkNoEmptyFields(args) {
@@ -1791,37 +2056,57 @@ window.OperationsModal = (function($, OperationsModal) {
         } else {
             return (true);
         }
-
-        // if (operatorName === "group by") {
-        //     for (var i = 0; i < )
-        // }
     }
 
-    function aggregate(aggrOp, args) {
+    function aggregateCheck(args) {
         var colIndex = getColIndex(args[0]);
         if (colIndex === -1) {
             StatusBox.show(ErrTStr.InvalidColName, $argInputs.eq(0));
             return (false);
+        } else {
+            return (true);
+        }
+    }
+
+    function aggregate(aggrOp, args, colTypeInfos) {
+        var colIndex     = getColIndex(args[0]);
+        var table        = gTables[tableId];
+        var tableCol     = table.tableCols[colIndex];
+        var backColName  = tableCol.getBackColName();
+        var aggStr = backColName;
+        if (colTypeInfos.length) {
+            aggStr = xcHelper.castStrHelper(args[0], colTypeInfos[0].type);
         }
 
-        xcFunction.aggregate(colIndex, tableId, aggrOp);
+        xcFunction.aggregate(colIndex, tableId, aggrOp, aggStr);
         return (true);
     }
 
-    function filter(operator, args) {
-        var options = {};
+    function filterCheck(operator, args) {
         var colIndex = -1;
         if (operator !== 'not') {
             colIndex = getColIndex(args[0]);
             if (colIndex === -1) {
                 StatusBox.show(ErrTStr.InvalidColName, $argInputs.eq(0));
                 return (false);
+            } else {
+                return (true);
             }
+        } else {
+            return (true);
+        }
+    }
+
+    function filter(operator, args, colTypeInfos) {
+        var options = {};
+        var colIndex = -1;
+        if (operator !== 'not') {
+            colIndex = getColIndex(args[0]);
         } else {
             colIndex = colNum;
         }
 
-        var filterString = formulateFilterString(operator, args);
+        var filterString = formulateFilterString(operator, args, colTypeInfos);
         options = {"filterString": filterString};
         xcFunction.filter(colIndex, tableId, options);
 
@@ -1829,8 +2114,9 @@ window.OperationsModal = (function($, OperationsModal) {
     }
 
     function getColIndex(backColName) {
+        var tId = tableId;
         var colIndex = -1;
-        var columns = gTables[tableId].tableCols;
+        var columns = gTables[tId].tableCols;
         var numCols = columns.length;
         for (var i = 0; i < numCols; i++) {
             if (columns[i].getBackColName() === backColName) {
@@ -1841,7 +2127,7 @@ window.OperationsModal = (function($, OperationsModal) {
         return (colIndex);
     }
 
-    function groupBy(operator, args) {
+    function groupBy(operator, args, colTypeInfos) {
         // Current groupBy has 4 arguments:
         // 1. grouby col
         // 2. indexed col
@@ -1849,36 +2135,53 @@ window.OperationsModal = (function($, OperationsModal) {
         // 4. new col name
 
         var groupbyColName = args[0];
-        var singleArg = true;
-        var indexedColNames = args[1];
-        var isGroupbyColNameValid = checkValidColNames($argInputs.eq(0),
-                                                        groupbyColName,
-                                                        singleArg);
 
-        if (!isGroupbyColNameValid) {
-            return (false);
-        } else {
-            var areIndexedColNamesValid = checkValidColNames($argInputs.eq(1),
-                                                        indexedColNames);
-            if (!areIndexedColNamesValid) {
-                return (false);
+        if (colTypeInfos.length) {
+            for (var i = 0; i < colTypeInfos.length; i++) {
+                if (colTypeInfos[i].argNum === 0) {
+                    groupbyColName = xcHelper.castStrHelper(args[0],
+                                                    colTypeInfos[i].type);
+                    break;
+                }
             }
         }
+
+        var singleArg = true;
+        var indexedColNames = args[1];
 
         var newColName  = args[2];
         var isIncSample = $argInputs.eq(3).is(':checked');
 
         xcFunction.groupBy(operator, tableId, indexedColNames, groupbyColName,
                             isIncSample, newColName);
-        return (true);
     }
 
-    function map(operator, args) {
+    function groupByCheck(args) {
+        var groupbyColName = args[0];
+        var singleArg = true;
+        var indexedColNames = args[1];
+        var isGroupbyColNameValid = checkValidColNames($argInputs.eq(0),
+                                                        groupbyColName,
+                                                        singleArg);
+        if (!isGroupbyColNameValid) {
+            StatusBox.show(ErrTStr.InvalidColName, $argInputs.eq(0));
+            return (false);
+        } else {
+            var areIndexedColNamesValid = checkValidColNames($argInputs.eq(1),
+                                                        indexedColNames);
+            if (!areIndexedColNamesValid) {
+                StatusBox.show(ErrTStr.InvalidColName, $argInputs.eq(1));
+                return (false);
+            } else {
+                return (true);
+            }
+        }
+    }
+
+    function map(operator, args, colTypeInfos) {
         var numArgs = args.length;
-        // var $nameInput = $operationsModal.find('.argument')
-        //                                    .eq(numArgs - 1);
         var newColName = args.splice(numArgs - 1, 1)[0];
-        var mapStr = formulateMapString(operator, args);
+        var mapStr = formulateMapString(operator, args, colTypeInfos);
         var mapOptions = {};
         if (isNewCol) {
             mapOptions.replaceColumn = true;
@@ -1889,8 +2192,6 @@ window.OperationsModal = (function($, OperationsModal) {
             }
         }
         xcFunction.map(colNum, tableId, newColName, mapStr, mapOptions);
-
-        return (true);
     }
 
     function getColumnTypeFromArg(value) {
@@ -2172,8 +2473,15 @@ window.OperationsModal = (function($, OperationsModal) {
         return (types);
     }
 
-    function formulateMapString(operator, args) {
+    function formulateMapString(operator, args, colTypeInfos) {
         var mapString = operator + "(";
+        var argNum;
+        for (var i = 0; i < colTypeInfos.length; i++) {
+            argNum = colTypeInfos[i].argNum;
+            args[argNum] = xcHelper.castStrHelper(args[argNum],
+                                                 colTypeInfos[i].type);
+        }
+
         for (var i = 0; i < args.length; i++) {
             mapString += args[i] + ", ";
         }
@@ -2186,8 +2494,15 @@ window.OperationsModal = (function($, OperationsModal) {
         return (mapString);
     }
 
-    function formulateFilterString(operator, args) {
+    function formulateFilterString(operator, args, colTypeInfos) {
         var filterString = operator + "(";
+        var argNum;
+        for (var i = 0; i < colTypeInfos.length; i++) {
+            argNum = colTypeInfos[i].argNum;
+            args[argNum] = xcHelper.castStrHelper(args[argNum],
+                                                 colTypeInfos[i].type);
+        }
+
         for (var i = 0; i < args.length; i++) {
             filterString += args[i] + ", ";
         }

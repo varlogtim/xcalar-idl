@@ -219,7 +219,7 @@ window.Replay = (function($, Replay) {
                                     "moduleName", "funcName"];
         argsMap[SQLOps.Sort] = ["colNum", "tableId", "order"];
         argsMap[SQLOps.Filter] = ["colNum", "tableId", "fltOptions"];
-        argsMap[SQLOps.Aggr] = ["colNum", "tableId", "aggrOp"];
+        argsMap[SQLOps.Aggr] = ["colNum", "tableId", "aggrOp", "aggStr"];
         argsMap[SQLOps.Map] = ["colNum", "tableId", "fieldName",
                                 "mapString", "mapOptions"];
         argsMap[SQLOps.Join] = ["lColNums", "lTableId", "rColNums", "rTableId",
