@@ -332,7 +332,6 @@ window.DatastoreForm = (function($, DatastoreForm) {
         $form.find("input").val("");
         $form.removeClass("previewMode")
              .find(".default-hidden").addClass("hidden");
-        $fileNameSelector.removeClass("optionsOpen");
 
         // keep header to be checked
         $udfCheckbox.find(".checkbox").removeClass("checked");
@@ -340,7 +339,6 @@ window.DatastoreForm = (function($, DatastoreForm) {
 
     function toggleFormat(format) {
         $formatText.val(format);
-        $fileNameSelector.addClass("optionsOpen");
 
         var $fieldDelim = $("#fieldDelim");
         var $udfHint = $("#udfArgs .hintSection");

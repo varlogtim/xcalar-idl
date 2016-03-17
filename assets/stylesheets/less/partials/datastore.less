@@ -194,6 +194,7 @@ input {
             font-weight: 700;
             float: left;
         }
+
         input {
             .size(@width: ~"calc(100% - 340px)",
                  @min-width: ~"calc(100% - 340px)");
@@ -204,16 +205,8 @@ input {
         }
         .input-placeholder(@color-text-instructions);
 
-        &#fileNameSelector {
-            &.optionsOpen {
-                #fileName {
-                    .size(@width: ~"calc(100% - 380px)",
-                        @min-width: ~"calc(100% - 380px)", @max-width: 410px);
-                }
-            }
-        }
         #fileFormat {
-            .styleDropDownList(110px, 30px, true);
+            .styleDropDownList(150px, 30px, true);
             outline: none;
             margin-left: 20px;
             float: right;
@@ -224,16 +217,20 @@ input {
         }
     }
 
+    .fileFormatPadding {
+        .size(@width: 20px, @height: 30px);
+        float: right;
+    }
+
     .checkboxSection {
         .size(@width: auto, @height: 30px);
         .font(@weight: 700, @size: 13px);
-        margin-left: 10px;
         .noSelection;
         float: right;
 
+
         &#udfCheckbox {
-            margin-left: 20px;
-            margin-right: 5px;
+            margin-right: 10px;
         }
 
         &.hidden {
@@ -282,6 +279,29 @@ input {
         .size(@width: ~"calc(100% - 360px)",
             @min-width: ~"calc(100% - 360px)");
     }
+
+    #fileFormat {
+        width: 120px !important;
+    }
+
+    #promoteHeaderCheckbox {
+        margin-left: 5px;
+
+        .hint {
+            display: none;
+        }
+    }
+
+    #udfCheckbox {
+        margin-right: 1px !important;
+    }
+
+    #promoteHeaderCheckbox, #udfCheckbox {
+        .text {
+            margin-left: 4px;
+        }
+    }
+
     .btnMid {
         width: 120px;
     }
@@ -294,10 +314,6 @@ input {
             .buttonWrap {
                 width: 100%;
                 float: right;
-            }
-            &#fileNameSelector.optionsOpen #fileName {
-                .size(@width: ~"calc(100% - 80px)",
-                        @min-width: ~"calc(100% - 80px)");
             }
         }
     }
