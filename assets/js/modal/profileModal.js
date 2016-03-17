@@ -1053,7 +1053,7 @@ window.Profile = (function($, Profile, d3) {
 
         function getXAxis(d) {
             var name = formatNumber(d[xName]);
-            if (!noBucket && !noSort) {
+            if (!noBucket && !noSort && d.type !== "nullVal") {
                 var num2 = formatNumber(d[xName] + tableInfo.bucketSize);
                 name = name + "-" + num2;
             }
@@ -1101,7 +1101,7 @@ window.Profile = (function($, Profile, d3) {
             // may have better way
             var title;
 
-            if (noBucket) {
+            if (noBucket || d.type === "nullVal") {
                 // xName is the backColName, may differenet with frontColName
                 title = statsCol.frontColName + ": " +
                         formatNumber(d[xName]) + "<br>";
