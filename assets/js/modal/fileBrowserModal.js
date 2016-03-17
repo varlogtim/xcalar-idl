@@ -45,6 +45,8 @@ window.FileBrowser = (function($, FileBrowser) {
     });
 
     FileBrowser.show = function(path) {
+        var deferred = jQuery.Deferred();
+
         path = path || "";
         modalHelper.setup();
         addKeyBoardEvent();
@@ -60,7 +62,6 @@ window.FileBrowser = (function($, FileBrowser) {
                 });
             });
         }
-
 
         retrievePaths(path, true)
         .then(function(result) {
@@ -81,11 +82,16 @@ window.FileBrowser = (function($, FileBrowser) {
                     changeFileSource(defaultFilePath, true);
                 }
             }
+
+            deferred.resolve();
         })
         .fail(function(result) {
             closeAll();
             StatusBox.show(result.error, $filePath, true);
+            deferred.reject();
         });
+
+        return deferred.promise();
 
         function showHandler(result) {
             Tips.refresh();
@@ -471,6 +477,7 @@ window.FileBrowser = (function($, FileBrowser) {
 
     function appendPath(path, noPathUpdate) {
         var shortPath = getShortPath(path);
+
         if (!noPathUpdate) {
             $pathText.val(shortPath);
         }
@@ -591,8 +598,12 @@ window.FileBrowser = (function($, FileBrowser) {
     }
 
     function goToPath($newPath) {
+        // for unit test, use promise
+        var deferred = jQuery.Deferred();
+
         if ($newPath == null || $newPath.length === 0) {
-            return;
+            deferred.resolve();
+            return deferred.promise();
         }
         var oldPath = getCurrentPath();
         var path = $newPath.text();
@@ -614,10 +625,14 @@ window.FileBrowser = (function($, FileBrowser) {
             folder = folder.substring(0, folder.indexOf('/'));
             focusOn(folder);
             checkIfCanGoUP();
+            deferred.resolve();
         })
         .fail(function(error) {
             Alert.error(ThriftTStr.ListFileErr, error);
+            deferred.reject(error);
         });
+
+        return deferred.promise();
     }
 
     function checkIfCanGoUP() {
@@ -665,7 +680,6 @@ window.FileBrowser = (function($, FileBrowser) {
 
         var path = curDir + fileName;
         $filePath.val(path);
-
         getShortName(fileName)
         .then(function(shortName) {
             $("#fileName").val(shortName);
@@ -762,7 +776,7 @@ window.FileBrowser = (function($, FileBrowser) {
 
         for (var i = 0, len = files.length; i < len; i++) {
             var fileObj = files[i];
-            var name    = fileObj.name;
+            var name = fileObj.name;
             // not filter folder
             if (fileObj.attr.isDirectory || regEx.test(name) === true) {
                 result.push(fileObj);
@@ -1156,7 +1170,6 @@ window.FileBrowser = (function($, FileBrowser) {
     }
 
     function findVerticalIcon($curIcon, code) {
-        
         var curIconTop = $curIcon.position().top;
         var curIconLeft = $curIcon.position().left;
         var targetTop;
@@ -1222,6 +1235,25 @@ window.FileBrowser = (function($, FileBrowser) {
                                        .css('margin-bottom'));
         }
     }
+
+    /* Unit Test Only */
+    if (window.unitTestMode) {
+        FileBrowser.__testOnly__ = {};
+        FileBrowser.__testOnly__.getCurrentPath = getCurrentPath;
+        FileBrowser.__testOnly__.getShortPath = getShortPath;
+        FileBrowser.__testOnly__.getGridUnitName = getGridUnitName;
+        FileBrowser.__testOnly__.getFormat = getFormat;
+        FileBrowser.__testOnly__.getShortName = getShortName;
+        FileBrowser.__testOnly__.appendPath = appendPath;
+        FileBrowser.__testOnly__.updateFileName = updateFileName;
+        FileBrowser.__testOnly__.filterFiles = filterFiles;
+        FileBrowser.__testOnly__.sortFiles = sortFiles;
+        FileBrowser.__testOnly__.changeFileSource = changeFileSource;
+        FileBrowser.__testOnly__.goToPath = goToPath;
+        FileBrowser.__testOnly__.focusOn = focusOn;
+        FileBrowser.__testOnly__.getFocusGrid = getFocusGrid;
+    }
+    /* End Of Unit Test Only */
 
     return (FileBrowser);
 }(jQuery, {}));
