@@ -119,7 +119,7 @@ window.UDF = (function($, UDF) {
         var li = '<li>' + moduleName + '</li>';
         $blankFunc.after(li);
         storedUDF[moduleName] = entireString;
-    }
+    };
 
     // setup UDF section
     function setupUDF() {
@@ -355,6 +355,18 @@ window.UDF = (function($, UDF) {
         }
 
         function uploadHelper() {
+            var isIconBtn = true;
+            var $fileUplodBtn = $("#udf-fileUpload");
+            var $fnUpload = $("#udf-fnUpload");
+            var hasToggleBtn = false;
+
+            // if upload finish with in 1 second, do not toggle
+            var timer = setTimeout(function() {
+                hasToggleBtn = true;
+                xcHelper.toggleBtnInProgress($fileUplodBtn, isIconBtn);
+                xcHelper.toggleBtnInProgress($fnUpload, isIconBtn);
+            }, 1000);
+
             XcalarUploadPython(moduleName, entireString)
             .then(function() {
                 UDF.storePython(moduleName, entireString);
@@ -383,6 +395,15 @@ window.UDF = (function($, UDF) {
 
                 Alert.error(title, error);
                 deferred.reject(error);
+            })
+            .always(function() {
+                if (hasToggleBtn) {
+                    // toggle back
+                    xcHelper.toggleBtnInProgress($fileUplodBtn);
+                    xcHelper.toggleBtnInProgress($fnUpload);
+                } else {
+                    clearTimeout(timer);
+                }
             });
         }
 

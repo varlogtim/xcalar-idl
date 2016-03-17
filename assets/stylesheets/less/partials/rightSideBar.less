@@ -838,6 +838,21 @@
     }
 }
 
+#udf-fnUpload.btnInProgress {
+    padding-left: 30px;
+
+    .text {
+        width: auto !important;
+        padding-right: 0 !important;
+        top: 0;
+    }
+
+    .animatedEllipsis {
+        margin-left: 5px;
+        float: left;
+    }
+}
+
 #udf-uploadSection {
     margin: 0 auto;
     padding-top: 15px;
@@ -899,6 +914,11 @@
         .dropDownList {
             float: left;
             .styleDropDownList(60%, 30px);
+
+            input {
+                text-overflow: ellipsis;
+            }
+
             .list {
                 background-color: #F8F8F8;
                 text-transform: lowercase;
@@ -1000,6 +1020,7 @@
                 box-shadow: inset -1px 1px 2px rgba(0, 0, 0, 0.5);
                 .flex(1 0 90px);
                 text-transform: lowercase;
+                text-overflow: ellipsis;
 
                 &:focus {
                     outline: none;

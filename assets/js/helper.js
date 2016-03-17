@@ -611,15 +611,29 @@ window.xcHelper = (function($, xcHelper) {
         return txt;
     };
 
-    xcHelper.toggleBtnInProgress = function($btn) {
+    xcHelper.toggleBtnInProgress = function($btn, isIconBtn) {
         var text;
+        var html;
 
         if ($btn.hasClass("btnInProgress")) {
-            text = $btn.find(".text").text();
-            $btn.text(text).removeClass("btnInProgress");
+            text = $btn.find(".text").text().trim();
+
+            if (isIconBtn) {
+                // when it's icon button
+                html = '<span class="icon"></span>' +
+                        '<span class="text">' +
+                            text +
+                        '</span>';
+            } else {
+                // when it's normal button
+                html = text;
+            }
+
+            $btn.html(html).removeClass("btnInProgress");
+
         } else {
-            text = $btn.text();
-            var html = '<div class="wrapper">' +
+            text = $btn.text().trim();
+            html = '<div class="wrapper">' +
                             '<div class="text">' +
                                 text +
                             '</div>' +
