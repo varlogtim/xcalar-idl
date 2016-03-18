@@ -153,6 +153,7 @@ var SQLType = {
 var SQLOps = {
     DSLoad : "loadDataSet",
     IndexDS: "indexFromDataset",
+    AddOtherUserDS: "addOtherUserDS",
     Sort: "sort",
     Filter: "filter",
     Aggr: "aggregate",

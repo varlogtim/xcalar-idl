@@ -493,6 +493,7 @@ window.SQL = (function($, SQL) {
             case SQLOps.ProfileBucketing:
             case SQLOps.QuickAgg:
             case SQLOps.Corr:
+            case SQLOps.AddOtherUserDS:
                 return false;
             default:
                 return true;
@@ -766,6 +767,7 @@ window.SQL = (function($, SQL) {
             case (SQLOps.AddOhterUserDS):
             case (SQLOps.ChangeFormat):
             case (SQLOps.RoundToFixed):
+            case (SQLOps.AddOtherUserDS):
                 return false;
             // thrift operation
             case (SQLOps.DestroyDS):

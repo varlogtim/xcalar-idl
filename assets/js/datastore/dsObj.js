@@ -124,12 +124,12 @@ window.DS = (function ($, DS) {
             "parentId"  : userFolderObj.getId()
         });
 
-        SQL.add("Add Other User's Dataset", {
-            "operation": SQLOps.AddOhterUserDS,
-            "name"     : fullDSName,
-            "format"   : format,
-            "path"     : path
-        });
+        // SQL.add("Add Other User's Dataset", {
+        //     "operation": SQLOps.AddOtherUserDS,
+        //     "name"     : fullDSName,
+        //     "format"   : format,
+        //     "path"     : path
+        // });
     };
 
     DS.focusOn = function($grid) {

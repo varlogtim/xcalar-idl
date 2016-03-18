@@ -249,7 +249,7 @@ describe('FilebrowserModal', function() {
 
     after(function() {
         // reset data form
-        // $("#importDataReset").click();
+        $("#importDataReset").click();
         gMinModeOn = minModeCache;
     });
 });

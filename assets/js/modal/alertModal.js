@@ -206,7 +206,7 @@ window.Alert = (function($, Alert){
                                 'Log Out</button>');
 
             var $supportBtn = $('<button type="button" ' +
-                                'class="btn btnMid logout" ' +
+                                'class="btn btnMid genSub" ' +
                                 'data-toggle="tooltip" ' +
                                 'title="Generate Support Bundle">' +
                                 'Generate Bundle</button>');
