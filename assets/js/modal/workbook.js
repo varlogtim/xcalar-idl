@@ -162,6 +162,9 @@ window.WorkbookModal = (function($, WorkbookModal) {
         // choose an option
         $optionSection.on("click", ".radioWrap", function(event){
             var $option = $(this);
+            if  ($option.hasClass('disabled')) {
+                return;
+            }
             var no = Number($option.data("no"));
 
             event.stopPropagation();
@@ -193,6 +196,7 @@ window.WorkbookModal = (function($, WorkbookModal) {
     }
 
     function getWorkbookInfo(isForceMode) {
+
         var $instr = $workbookModal.find(".modalInstruction .text");
         var user = Support.getUser();
         var html;
@@ -315,6 +319,23 @@ window.WorkbookModal = (function($, WorkbookModal) {
                     '<div>' + (workbook.curUser || "") + '</div>' +
                 '</div>';
         });
+
+        if (!sorted.length) {
+            var text = WKBKTStr.WKBKnotExists;
+            $optionSection.find('.radioWrap').not(':first-child')
+                                             .addClass('disabled')
+                                             .attr("data-toggle", "tooltip")
+                                             .attr("data-original-title", text)
+                                             .attr("data-container", "body")
+                                             .attr("title", text);
+        } else {
+            $optionSection.find('.radioWrap').removeClass('disabled')
+                                            .removeAttr("data-toggle")
+                                            .removeAttr("data-placement")
+                                            .removeAttr("data-original-title")
+                                            .removeAttr("data-container")
+                                            .removeAttr("title");
+        }
 
         $workbookLists.html(html);
     }
@@ -518,10 +539,10 @@ window.WKBKManager = (function($, WKBKManager) {
                 innerDeferred.resolve(null, sessionInfo);
                 return (innerDeferred.promise());
             }
-
+            var wkbkId;
             for (var i = 0; i < numSessions; i++) {
                 var wkbkName = sessions[i].name;
-                var wkbkId = getWKBKId(wkbkName);
+                wkbkId = getWKBKId(wkbkName);
                 var wkbk;
 
                 if (oldWorkbooks.hasOwnProperty(wkbkId)) {
@@ -801,7 +822,7 @@ window.WKBKManager = (function($, WKBKManager) {
         .always(function() {
             if (modalHelper) {
                 modalHelper.enableSubmit();
-            }       
+            }
         });
     };
 
@@ -863,7 +884,7 @@ window.WKBKManager = (function($, WKBKManager) {
 
         // delete all workbooks
         var workbooks = wkbkSet.getAll();
-        for (wkbkId in workbooks) {
+        for (var wkbkId in workbooks) {
             promises.push(delWKBKHelper.bind(this, wkbkId));
         }
 

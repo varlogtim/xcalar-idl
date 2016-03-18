@@ -1339,6 +1339,13 @@ html.microsoft {
             .radioWrap {
                 .flex(1 1 33%);
                 .justify-content(center);
+                &.disabled {
+                    opacity: 0.4;
+                    cursor: initial;
+                    .radio, .label {
+                        pointer-events: none;
+                    }
+                }
             }
         }
 

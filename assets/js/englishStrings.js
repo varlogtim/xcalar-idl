@@ -86,14 +86,14 @@ ErrTStr = {
 
     'InvalidFileName': 'Invalid file name, ' +
                        'cannot find the file in current directory.',
-                        
+
     'NoHashTag': "Please input a valid name with no # symbols.",
 
     'NoSpecialChar': "Please input a valid name with no special characters.",
 
     'NoSpecialCharOrSpace': "Please input a valid name with no special" +
                             " characters or spaces.",
-                            
+
     'NoSpecialCharInParam': "No special characters or spaces allowed within" +
                             " parameter braces.",
 
@@ -303,7 +303,8 @@ WKBKTStr = {
     'ExpireMsg': 'You are logged in somewhere else!',
     'Hold': 'Signed on elsewhere',
     'HoldMsg': 'Please close your other session.',
-    'Release': 'Force Release'
+    'Release': 'Force Release',
+    'WKBKnotExists': 'No workbooks exist'
 };
 
 SchedTStr = {
