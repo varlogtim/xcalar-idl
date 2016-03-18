@@ -12,16 +12,18 @@ window.DataFlowModal = (function($, DataFlowModal) {
     var $newGroupNameInput = $('#newGroupNameInput');
     var $confirmBtn = $("#dataFlowModalConfirm");
     var tableName;
-
+    var modalHelper;
+    // constant
     var minHeight = 400;
     var minWidth  = 700;
-    var modalHelper = new xcHelper.Modal($dfgModal, {
-        "focusOnOpen": true,
-        "minHeight"  : minHeight,
-        "minWidth"   : minWidth
-    });
 
-    DataFlowModal.setup = function() {    
+    DataFlowModal.setup = function() {
+        modalHelper = new ModalHelper($dfgModal, {
+            "focusOnOpen": true,
+            "minHeight"  : minHeight,
+            "minWidth"   : minWidth
+        });
+
         $dfgModal.draggable({
             "handle"     : ".modalHeader",
             "cursor"     : "-webkit-grabbing",

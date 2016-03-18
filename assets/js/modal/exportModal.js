@@ -1,5 +1,6 @@
 window.ExportModal = (function($, ExportModal) {
-    var $exportModal     = $("#exportModal");
+    var $exportModal = $("#exportModal");
+    var modalHelper;
 
     var $exportName = $("#exportName");
     var $exportPath = $("#exportPath");
@@ -10,17 +11,20 @@ window.ExportModal = (function($, ExportModal) {
     var tableId;
     var focusedHeader;
 
-    var minHeight = 296;
-    var minWidth  = 296;
-    var modalHelper = new xcHelper.Modal($exportModal, {
-        "minHeight": minHeight,
-        "minWidth" : minWidth
-    });
     var columnsToExport = [];
     var exportTargInfo;
+
+    // constant
     var validTypes = ['string', 'integer', 'float', 'boolean'];
+    var minHeight = 296;
+    var minWidth  = 296;
 
     ExportModal.setup = function() {
+        modalHelper = new ModalHelper($exportModal, {
+            "minHeight": minHeight,
+            "minWidth" : minWidth
+        });
+
         $exportModal.draggable({
             "handle"     : ".modalHeader",
             "cursor"     : "-webkit-grabbing",

@@ -39,10 +39,7 @@ window.FileBrowser = (function($, FileBrowser) {
     var sortRegEx;
     var reverseSort = false;
 
-    var modalHelper = new xcHelper.Modal($fileBrowser, {
-        "minHeight": minHeight,
-        "minWidth" : minWidth
-    });
+    var modalHelper;
 
     FileBrowser.show = function(path) {
         var deferred = jQuery.Deferred();
@@ -108,6 +105,11 @@ window.FileBrowser = (function($, FileBrowser) {
     };
 
     FileBrowser.setup = function() {
+        modalHelper = new ModalHelper($fileBrowser, {
+            "minHeight": minHeight,
+            "minWidth" : minWidth
+        });
+
         $fileBrowser.draggable({
             "handle"     : ".modalHeader",
             "cursor"     : "-webkit-grabbing",

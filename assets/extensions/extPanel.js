@@ -243,15 +243,18 @@ window.ExtensionPanel = (function(ExtensionPanel, $) {
 window.ExtensionModal = (function(ExtensionModal, $) {
     var $modalBg = $("#modalBackground");
     var $extModal = $("#extensionModal");
+    var modalHelper;
 
+    // constant
     var minHeight = 400;
     var minWidth = 700;
-    var modalHelper = new xcHelper.Modal($extModal, {
-        "minHeight": minHeight,
-        "minWidth" : minWidth
-    });
 
     ExtensionModal.setup = function() {
+        modalHelper = new ModalHelper($extModal, {
+            "minHeight": minHeight,
+            "minWidth" : minWidth
+        });
+
         $extModal.draggable({
             "handle"     : ".modalHeader",
             "cursor"     : "-webkit-grabbing",

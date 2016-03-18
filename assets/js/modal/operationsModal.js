@@ -20,9 +20,7 @@ window.OperationsModal = (function($, OperationsModal) {
     var functionsListScroller;
     var quotesNeeded = [];
 
-    var modalHelper = new xcHelper.Modal($operationsModal, {
-        "noResize": true
-    });
+    var modalHelper;
     var corrector;
 
     var tableId;
@@ -32,6 +30,10 @@ window.OperationsModal = (function($, OperationsModal) {
     };
 
     OperationsModal.setup = function() {
+        modalHelper = new ModalHelper($operationsModal, {
+            "noResize": true
+        });
+
         var allowInputChange = true;
 
         var $autocompleteInputs = $operationsModal.find('.autocomplete');
@@ -436,7 +438,7 @@ window.OperationsModal = (function($, OperationsModal) {
             // groupby and aggregates stick to num 6,
             // filter and map use 0-5;
 
-            corrector = new xcHelper.Corrector(colNames);
+            corrector = new Corrector(colNames);
 
             // get modal's origin classes
             var classes = $operationsModal.attr('class').split(' ');

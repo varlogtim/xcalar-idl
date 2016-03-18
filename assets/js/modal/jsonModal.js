@@ -9,18 +9,21 @@ window.JSONModal = (function($, JSONModal) {
     var isDataCol;
     var comparisonObjs = {};
     var jsonData = [];
-
-    var minHeight = 300;
-    var minWidth  = 300;
-    var modalHelper = new xcHelper.Modal($jsonModal, {
-        "minHeight" : minHeight,
-        "minWidth"  : minWidth,
-        "noTabFocus": true,
-        "noEsc"     : true
-    });
+    var modalHelper;
     var searchHelper;
 
+    // constant
+    var minHeight = 300;
+    var minWidth  = 300;
+
     JSONModal.setup = function() {
+        modalHelper = new ModalHelper($jsonModal, {
+            "minHeight" : minHeight,
+            "minWidth"  : minWidth,
+            "noTabFocus": true,
+            "noEsc"     : true
+        });
+
         $('#jsonModal .closeJsonModal').click(function() {
             if ($('#jsonModal').css('display') === 'block') {
                 closeJSONModal();
@@ -94,7 +97,7 @@ window.JSONModal = (function($, JSONModal) {
 
     function addEventListeners() {
         var $searchArea = $('#jsonSearch');
-        searchHelper = new xcHelper.SearchBar($searchArea, {
+        searchHelper = new SearchBar($searchArea, {
             "removeSelected": function() {
                 $jsonText.find('.selected').removeClass('selected');
             },

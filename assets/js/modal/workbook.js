@@ -1,19 +1,15 @@
 window.WorkbookModal = (function($, WorkbookModal) {
     var $modalBackground = $("#modalBackground");
-    var $workbookModal   = $("#workbookModal");
+    var $workbookModal = $("#workbookModal");
+    var modalHelper;
 
     var $optionSection = $workbookModal.find(".optionSection");
     var $workbookInput = $("#workbookInput");
     var $workbookLists = $("#workbookLists");
 
+    // constant
     var minHeight = 400;
     var minWidth  = 750;
-
-    var modalHelper = new xcHelper.Modal($workbookModal, {
-        "focusOnOpen": true,
-        "minWidth"   : minWidth,
-        "minHeight"  : minHeight
-    });
 
     // default select all workbooks and sort by name
     var reverseLookup = {
@@ -51,6 +47,16 @@ window.WorkbookModal = (function($, WorkbookModal) {
     };
 
     WorkbookModal.show = function(isForceShow) {
+        // put is here because workbook may be showed
+        // before setup is called
+        if (modalHelper == null) {
+            modalHelper = new ModalHelper($workbookModal, {
+                "focusOnOpen": true,
+                "minWidth"   : minWidth,
+                "minHeight"  : minHeight
+            });
+        }
+
         $(document).on("keypress", workbookKeyPress);
 
         if (isForceShow) {

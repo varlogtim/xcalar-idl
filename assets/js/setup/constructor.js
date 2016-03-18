@@ -1246,3 +1246,464 @@ SchedObj.prototype = {
     }
 };
 /* End of SchedObj */
+
+/* Corrector */
+Corrector = function(words) {
+    // traing texts
+    // words = ["pull", "sort", "join", "filter", "aggreagte", "map"];
+    var self = this;
+    self.modelMap = {};
+    self.model = transformAndTrain(words);
+
+    return (self);
+    // convert words to lowercase and train the word
+    function transformAndTrain(features) {
+        var res = {};
+        var word;
+
+        for (var i = 0, len = features.length; i < len; i++) {
+            word = features[i].toLowerCase();
+            if (word in res) {
+                res[word] += 1;
+            } else {
+                res[word] = 2; // start with 2
+                self.modelMap[word] = features[i];
+            }
+        }
+        return (res);
+    }
+};
+
+Corrector.prototype = {
+    correct: function(word, isEdits2) {
+        word = word.toLowerCase();
+        var model = this.model;
+
+        var edits1Res = edits1(word);
+        var candidate;
+
+        if (isEdits2) {
+            candidate = known({word: true}) || known(edits1Res) ||
+                        knownEdits2(edits1Res) || {word: true};
+        } else {
+            candidate = known({word: true}) || known(edits1Res) || {word: true};
+        }
+
+        var max = 0;
+        var result;
+
+        for (var key in candidate) {
+            var count = getWordCount(key);
+
+            if (count > max) {
+                max = count;
+                result = key;
+            }
+        }
+
+        return (result);
+
+        function getWordCount(w) {
+            // smooth for no-exist word, model[word_not_here] = 1
+            return (model[w] || 1);
+        }
+
+        function known(words) {
+            var res = {};
+
+            for (var w in words) {
+                if (w in model) {
+                    res[w] = true;
+                }
+            }
+
+            return ($.isEmptyObject(res) ? null : res);
+        }
+
+        // edit distabnce of word;
+        function edits1(w) {
+            var splits = {};
+            var part1;
+            var part2;
+            var wrongWord;
+
+            for (var i = 0, len = w.length; i <= len; i++) {
+                part1 = w.slice(0, i);
+                part2 = w.slice(i, len);
+                splits[part1] = part2;
+            }
+
+            var deletes    = {};
+            var transposes = {};
+            var replaces   = {};
+            var inserts    = {};
+            var alphabets  = "abcdefghijklmnopqrstuvwxyz".split("");
+
+            for (part1 in splits) {
+                part2 = splits[part1];
+
+                if (part2) {
+                    wrongWord = part1 + part2.substring(1);
+                    deletes[wrongWord] = true;
+                }
+
+                if (part2.length > 1) {
+                    wrongWord = part1 + part2.charAt(1) + part2.charAt(0) +
+                                part2.substring(2);
+                    transposes[wrongWord] = true;
+                }
+
+                for (var i = 0, len = alphabets.length; i < len; i++) {
+                    if (part2) {
+                        wrongWord = part1 + alphabets[i] + part2.substring(1);
+                        replaces[wrongWord] = true;
+                    }
+
+                    wrongWord = part1 + alphabets[i] + part2;
+                    inserts[wrongWord] = true;
+                }
+            }
+
+            return $.extend({}, splits, deletes,
+                            transposes, replaces, inserts);
+        }
+
+        function knownEdits2(e1Sets) {
+            var res = {};
+
+            for (var e1 in e1Sets) {
+                var e2Sets = edits1(e1);
+                for (var e2 in e2Sets) {
+                    if (e2 in model) {
+                        res[e2] = true;
+                    }
+                }
+            }
+
+            return ($.isEmptyObject() ? null : res);
+        }
+    },
+
+    suggest: function(word, isEdits2) {
+        word = word.toLowerCase();
+
+        var startStrCandidate = [];
+        var subStrCandidate   = [];
+
+        for (var w in this.model) {
+            if (w.startsWith(word)) {
+                startStrCandidate.push(w);
+            } else if (w.indexOf(word) > -1) {
+                subStrCandidate.push(w);
+            }
+        }
+
+        if (startStrCandidate.length >= 1) {
+            // suggest the only candidate that start with word
+            if (startStrCandidate.length === 1) {
+                return (this.modelMap[startStrCandidate[0]]);
+            }
+        } else if (subStrCandidate.length === 1) {
+            // no candidate start with word
+            // but has only one substring with word
+            return (this.modelMap[subStrCandidate[0]]);
+        }
+
+        var res = this.correct(word, isEdits2);
+        return (this.modelMap[res]);
+    }
+};
+/* End of Corrector */
+
+/* SearchBar */
+SearchBar = function($searchArea, options) {
+    this.$searchArea = $searchArea;
+    this.$searchInput = $searchArea.find('input');
+    this.$counter = $searchArea.find('.counter');
+    this.$position = this.$counter.find('.position');
+    this.$total = this.$counter.find('.total');
+    this.$arrows = $searchArea.find('.arrows');
+    this.$upArrow = $searchArea.find('.upArrow');
+    this.$downArrow = $searchArea.find('.downArrow');
+    this.options = options || {};
+    this.matchIndex = null;
+    this.numMatches = 0;
+    this.$matches = [];
+    return (this);
+};
+
+SearchBar.prototype = {
+    setup: function() {
+        var searchBar = this;
+        var options = searchBar.options || {};
+        var $searchInput = searchBar.$searchInput;
+
+        $searchInput.on({
+            "keydown": function(event) {
+                if (searchBar.numMatches === 0) {
+                    return;
+                }
+                if (event.which === keyCode.Up ||
+                    event.which === keyCode.Down ||
+                    event.which === keyCode.Enter) {
+                    // if ignore value exists in the input, do not search
+                    if (options.ignore &&
+                        $searchInput.val().trim()
+                                    .indexOf(options.ignore) !== -1) {
+                        return;
+                    }
+
+                    if (event.preventDefault) {
+                        event.preventDefault();
+                    }
+                    var $matches = searchBar.$matches;
+
+                    if (event.which === keyCode.Up) {
+                        searchBar.matchIndex--;
+                        if (searchBar.matchIndex < 0) {
+                            searchBar.matchIndex = searchBar.numMatches - 1;
+                        }
+
+                    } else if (event.which === keyCode.Down ||
+                               event.which === keyCode.Enter) {
+                        searchBar.matchIndex++;
+                        if (searchBar.matchIndex >= searchBar.numMatches) {
+                            searchBar.matchIndex = 0;
+                        }
+                    }
+                    if (options.removeSelected) {
+                        options.removeSelected();
+                    }
+                    var $selectedMatch = $matches.eq(searchBar.matchIndex);
+                    if (options.highlightSelected) {
+                        options.highlightSelected($selectedMatch);
+                    }
+                    $selectedMatch.addClass('selected');
+                    searchBar.$position.html(searchBar.matchIndex + 1);
+                    if (options.scrollMatchIntoView) {
+                        options.scrollMatchIntoView($selectedMatch);
+                    }
+                }
+            }
+        });
+        searchBar.$arrows.mousedown(function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        });
+
+        searchBar.$downArrow.click(function() {
+            var evt = {which: keyCode.Down, type: 'keydown'};
+            $searchInput.trigger(evt);
+        });
+
+        searchBar.$upArrow.click(function() {
+            var evt = {which: keyCode.Up, type: 'keydown'};
+            $searchInput.trigger(evt);
+        });
+    },
+    highlightSelected: function($match) {
+        if (this.options.highlightSelected) {
+            return (this.options.highlightSelected($match));
+        } else {
+            return (undefined);
+        }
+    },
+    scrollMatchIntoView: function($match) {
+        if (this.options.scrollMatchIntoView) {
+            return (this.options.scrollMatchIntoView($match));
+        } else {
+            return (undefined);
+        }
+    },
+    clearSearch: function(callback) {
+        var searchBar = this;
+        searchBar.$position.html("");
+        searchBar.$total.html("");
+        searchBar.matchIndex = 0;
+        searchBar.$matches = [];
+        searchBar.numMatches = 0;
+        if (typeof callback === "function") {
+            callback();
+        }
+    }
+};
+/* End of SearchBar */
+
+/* Modal Helper */
+// an object used for global Modal Actions
+ModalHelper = function($modal, options) {
+    /* options include:
+     * focusOnOpen: if set true, will focus on confirm btn when open modal
+     * noResize: if set true, will not reszie the modal
+     * noCenter: if set true, will not center the modal
+     * noTabFocus: if set true, press tab will use browser's default behavior
+     * noEsc: if set true, no event listener on key esc
+     */
+    this.$modal = $modal;
+    this.options = options || {};
+    this.id = $modal.attr("id");
+
+    return (this);
+};
+
+ModalHelper.prototype = {
+    setup: function(extraOptions) {
+        var $modal  = this.$modal;
+        var options = $.extend(this.options, extraOptions) || {};
+
+        $("body").addClass("no-selection");
+        xcHelper.removeSelectionRange();
+        // hide tooltip when open the modal
+        $(".tooltip").hide();
+        $(".selectedCell").removeClass("selectedCell");
+        FnBar.clear();
+
+        if (!options.noResize) {
+            // resize modal
+            var winWidth  = $(window).width();
+            var winHeight = $(window).height();
+            var minWidth  = options.minWidth || 0;
+            var minHeight = options.minHeight || 0;
+            var width  = $modal.width();
+            var height = $modal.height();
+
+            if (width > winWidth - 10) {
+                width = Math.max(winWidth - 40, minWidth);
+            }
+
+            if (height > winHeight - 10) {
+                height = Math.max(winHeight - 40, minHeight);
+            }
+
+            $modal.width(width).height(height);
+            $modal.css({
+                "minHeight": minHeight,
+                "minWidth" : minWidth
+            });
+        }
+
+        // center modal
+        if (!options.noCenter) {
+            centerPositionElement($modal, {limitTop: true});
+        }
+
+        // Note: to find the visiable btn, must show the modal first
+        if (!options.noTabFocus) {
+            var eleLists = [
+                $modal.find(".btn"),     // buttons
+                $modal.find("input")     // input
+            ];
+
+            var focusIndex  = 0;
+            var $focusables = [];
+
+            // make an array for all focusable element
+            eleLists.forEach(function($eles) {
+                $eles.each(function() {
+                    $focusables.push($(this));
+                });
+            });
+
+            for (var i = 0, len = $focusables.length; i < len; i++) {
+                addFocusEvent($focusables[i], i);
+            }
+
+            // focus on the right most button
+            if (this.options.focusOnOpen) {
+                getEleToFocus();
+            }
+        }
+
+        $(document).on("keydown.xcModal" + this.id, function(event) {
+            if (event.which === keyCode.Tab) {
+                 // for switch between modal tab using tab key
+                event.preventDefault();
+
+                if (!options.noTabFocus) {
+                    getEleToFocus();
+                }
+
+                return false;
+            } else if (event.which === keyCode.Escape) {
+                if (options.noEsc) {
+                    return true;
+                }
+                $modal.find(".modalHeader .close").click();
+                return false;
+            }
+        });
+
+        function addFocusEvent($focusable, index) {
+            $focusable.addClass("focusable").data("tabid", index);
+            $focusable.on("focus.xcModal", function() {
+                var $ele = $(this);
+                if (!isActive($ele)) {
+                    return;
+                }
+                focusOn($ele.data("tabid"));
+            });
+        }
+
+        // find the input or button that is visible and not disabled to focus
+        function getEleToFocus() {
+            // the current ele is not active, should no by focused
+            if (!isActive($focusables[focusIndex])) {
+                var start  = focusIndex;
+                focusIndex = (focusIndex + 1) % len;
+
+                while (focusIndex !== start &&
+                        !isActive($focusables[focusIndex]))
+                {
+                    focusIndex = (focusIndex + 1) % len;
+                }
+                // not find any active ele that could be focused
+                if (focusIndex === start) {
+                    focusIndex = -1;
+                }
+            }
+
+            if (focusIndex >= 0) {
+                $focusables[focusIndex].focus();
+            } else {
+                focusIndex = 0; // reset
+            }
+        }
+
+        function focusOn(index) {
+            focusIndex = index;
+            // go to next index
+            focusIndex = (focusIndex + 1) % len;
+        }
+
+        function isActive($ele) {
+            if ($ele == null) {
+                console.error("undefined element!");
+                throw "undefined element!";
+            }
+            return ($ele.is(":visible") && !$ele.is("[disabled]") &&
+                    !$ele.is("[readonly]") && !$ele.hasClass("unavailable"));
+        }
+    },
+
+    checkBtnFocus: function() {
+        // check if any button is on focus
+        return (this.$modal.find(".btn:focus").length > 0);
+    },
+
+    submit: function() {
+        xcHelper.disableSubmit(this.$modal.find(".confirm"));
+    },
+
+    enableSubmit: function() {
+        xcHelper.enableSubmit(this.$modal.find(".confirm"));
+    },
+
+    clear: function() {
+        $(document).off("keydown.xcModal" + this.id);
+        this.$modal.find(".focusable").off(".xcModal")
+                                  .removeClass("focusable");
+        this.enableSubmit();
+        $("body").removeClass("no-selection");
+    }
+};
+/* End of ModalHelper */

@@ -1,6 +1,7 @@
 window.Profile = (function($, Profile, d3) {
-    var $modal   = $("#profileModal");
+    var $modal = $("#profileModal");
     var $modalBg = $("#modalBackground");
+    var modalHelper;
 
     var $rangeSection = $modal.find(".rangeSection");
     var $rangeInput = $("#stats-step");
@@ -47,14 +48,16 @@ window.Profile = (function($, Profile, d3) {
     var statsCol = null;
     var percentageLabel = false;
 
+    // constant
     var minHeight = 415;
     var minWidth  = 750;
-    var modalHelper = new xcHelper.Modal($modal, {
-       "minHeight": minHeight,
-       "minWidth" : minWidth
-    });
 
     Profile.setup = function() {
+        modalHelper = new ModalHelper($modal, {
+           "minHeight": minHeight,
+           "minWidth" : minWidth
+        });
+
         $modal.resizable({
             "handles"    : "n, e, s, w, se",
             "minHeight"  : minHeight,

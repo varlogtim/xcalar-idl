@@ -1,12 +1,11 @@
 window.MultiCastModal = (function($, MultiCastModal) {
     var $modal = $("#multiCastModal");
     var $modalBg = $("#modalBackground");
+    var modalHelper;
+
     var $table = $("#multiCast-table");
     var $resultSection = $("#multiCast-result");
     var $castBtn = $("#multiCast-cast");
-
-    var minHeight = 500;
-    var minWidth  = 600;
 
     var curTableId;
     var newColTypes = [];
@@ -15,12 +14,16 @@ window.MultiCastModal = (function($, MultiCastModal) {
     var colTypes = [];
     var recTypes = [];
 
-    var modalHelper = new xcHelper.Modal($modal, {
-        "minHeight": minHeight,
-        "minWidth" : minWidth
-    });
+    // constant
+    var minHeight = 500;
+    var minWidth  = 600;
 
     MultiCastModal.setup = function() {
+        modalHelper = new ModalHelper($modal, {
+            "minHeight": minHeight,
+            "minWidth" : minWidth
+        });
+
         $modal.resizable({
             handles    : "n, e, s, w, se",
             minHeight  : minHeight,

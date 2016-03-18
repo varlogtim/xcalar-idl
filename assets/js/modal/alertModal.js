@@ -1,15 +1,10 @@
 window.Alert = (function($, Alert){
-    var $alertModal       = $("#alertModal");
-    var $modalBackground  = $("#modalBackground");
+    var $alertModal = $("#alertModal");
+    var $modalBackground = $("#modalBackground");
+    var modalHelper;
 
     var $alertOptionInput = $("#alertOptionInput");
-    var $btnSection       = $("#alertActions");
-
-    var modalHelper = new xcHelper.Modal($alertModal, {
-        "focusOnOpen": true,
-        "noResize"   : true,
-        "noCenter"   : true
-    });
+    var $btnSection = $("#alertActions");
 
     Alert.setup = function() {
         $alertModal.draggable({
@@ -26,6 +21,16 @@ window.Alert = (function($, Alert){
     };
 
     Alert.show = function(options) {
+        // put it here because alert modal may be displayed
+        // before setup is called
+        if (modalHelper == null) {
+            modalHelper = new ModalHelper($alertModal, {
+                "focusOnOpen": true,
+                "noResize"   : true,
+                "noCenter"   : true
+            });
+        }
+
         options = options || {};
        /* options includes:
             title: titile of the alert

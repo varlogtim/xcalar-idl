@@ -107,7 +107,7 @@ window.FnBar = (function(FnBar, $) {
     }
 
     function setupSearchHelper() {
-        searchHelper = new xcHelper.SearchBar($functionArea, {
+        searchHelper = new SearchBar($functionArea, {
             "removeSelected": function() {
                 $('.xcTable:visible').find('.selectedCell')
                                      .removeClass('selectedCell');

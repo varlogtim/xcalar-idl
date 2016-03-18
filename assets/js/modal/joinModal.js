@@ -1,12 +1,12 @@
 window.JoinModal = (function($, JoinModal) {
     var $modalBackground = $("#modalBackground");
-
     var $joinModal = $("#joinModal");
+    var modalHelper;
     // var $joinInstr = $("#joinInstr");
 
     var $joinSelect   = $("#joinType");
     var $joinDropdown = $("#joinTypeSelect");
-    var $joinPreview = $('#joinPreview');
+    var $joinPreview  = $('#joinPreview');
     var $mainJoin     = $("#mainJoin");
 
     var $joinTableName  = $("#joinRoundedInput");
@@ -28,16 +28,19 @@ window.JoinModal = (function($, JoinModal) {
                 'spellcheck="false" disabled/>' +
         '</div>';
 
-    var dragSide  = null;
-    var minHeight = 600;
-    var minWidth  = 800;
-    var modalHelper = new xcHelper.Modal($joinModal, {
-        "minHeight": minHeight,
-        "minWidth" : minWidth
-    });
+    var dragSide = null;
     var isOpenTime;
 
+    // constant
+    var minHeight = 600;
+    var minWidth  = 800;
+
     JoinModal.setup = function () {
+        modalHelper = new ModalHelper($joinModal, {
+            "minHeight": minHeight,
+            "minWidth" : minWidth
+        });
+
         $("#closeJoin, #cancelJoin").click(function() {
             resetJoinTables();
         });

@@ -1,14 +1,16 @@
 window.AddScheduleModal = (function($, AddScheduleModal) {
-    var $modal   = $('#addScheduleModal');
+    var $modal = $('#addScheduleModal');
     var $modalBg = $("#modalBackground");
+    var modalHelper;
 
-    var modalHelper = new xcHelper.Modal($modal, {"focusOnOpen": true});
     var $list = $modal.find('.scheduleList');
     var $scheduleListInput = $modal.find('.scheduleListInput');
     var $shceduleInfo = $modal.find('.scheInfoSection .text');
     var groupName;
 
-    AddScheduleModal.setup = function() {    
+    AddScheduleModal.setup = function() {
+        modalHelper = new ModalHelper($modal, {"focusOnOpen": true});
+
         $modal.draggable({
             "handle"     : ".modalHeader",
             "cursor"     : "-webkit-grabbing",

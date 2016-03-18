@@ -1,6 +1,7 @@
 window.AggModal = (function($, AggModal) {
     var $modalBg = $("#modalBackground");
     var $aggModal = $("#aggModal");
+    var modalHelper;
 
     var $aggInstr = $("#aggModal-instr");
     var $aggTableName = $("#aggModal-tableName");
@@ -17,14 +18,16 @@ window.AggModal = (function($, AggModal) {
     var corrCache = {};
     var aggOpMap  = {};
 
+    // constant
     var minWidth  = 580;
     var minHeight = 300;
-    var modalHelper = new xcHelper.Modal($aggModal, {
-        "minWidth" : minWidth,
-        "minHeight": minHeight
-    });
 
     AggModal.setup = function() {
+        modalHelper = new ModalHelper($aggModal, {
+            "minWidth" : minWidth,
+            "minHeight": minHeight
+        });
+
         aggOpMap[AggrOp.Sum] = 0;
         aggOpMap[AggrOp.Avg] = 1;
         aggOpMap[AggrOp.Min] = 2;

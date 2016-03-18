@@ -1,7 +1,7 @@
 window.DFGParamModal = (function($, DFGParamModal){
     var $dfgParamModal = $("#dfgParameterModal");
-    var $modalBg       = $("#modalBackground");
-    var modalHelper    = new xcHelper.Modal($dfgParamModal, { "noResize": true });
+    var $modalBg = $("#modalBackground");
+    var modalHelper;
 
     var $paramLists  = $("#dagModleParamList");
     var $editableRow = $dfgParamModal.find('.editableRow');
@@ -41,6 +41,8 @@ window.DFGParamModal = (function($, DFGParamModal){
     // };
 
     DFGParamModal.setup = function() {
+        modalHelper = new ModalHelper($dfgParamModal, { "noResize": true });
+
         $dfgParamModal.find('.cancel, .close').click(function() {
             closeDFGParamModal();
         });
