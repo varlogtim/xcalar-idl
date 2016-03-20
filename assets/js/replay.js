@@ -654,7 +654,15 @@ window.Replay = (function($, Replay) {
 
         pullCol: function(options) {
             var args = getArgs(options);
-            return (ColManager.pullCol.apply(window, args));
+            if (options.pullColOptions &&
+                options.pullColOptions.source === "fnBar") {
+
+                return (ColManager("pull", options.usrStr, options.tableId,
+                                   options.colNum));
+            } else {
+                return (ColManager.pullCol.apply(window, args));
+            }
+
         },
 
         pullAllCols: function(options) {

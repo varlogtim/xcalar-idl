@@ -40,7 +40,7 @@ window.DataFlowModal = (function($, DataFlowModal) {
         $dfExport.scroll(function(){
             $(this).scrollTop(0);
         });
-        
+
         addModalEvents();
         setupDFGList();
     };
@@ -343,7 +343,7 @@ window.DataFlowModal = (function($, DataFlowModal) {
     function filterDFG(str) {
         var delay = 50;
         var $dfgLists = $sideListSection.find(".dataFlowGroup");
-        
+
         // show all lists
         if (!str || str.trim() === "") {
             $dfgLists.fadeIn(delay);
@@ -411,7 +411,7 @@ window.DataFlowModal = (function($, DataFlowModal) {
             for (var i = 0; i < listLen; i++) {
                 html += '<li>' + list[i].name + '</li>';
             }
-                    
+
             html += '</ul></div>';
             groupCnt++;
         }
@@ -438,8 +438,7 @@ window.DataFlowModal = (function($, DataFlowModal) {
             var thClass = "col" + colNum + " type-" + type;
             var exportable = true;
             var validTypes = ["string", "integer", "float", "boolean"];
-            if (tableCols[i].args &&
-                tableCols[colNum].args[0].indexOf(".") > -1) {
+            if (tableCols[i].backName.indexOf(".") > -1) {
                 exportable = false;
             } else if (validTypes.indexOf(type) === -1) {
                 exportable = false;

@@ -769,6 +769,7 @@ window.xcFunction = (function($, xcFunction) {
         var width = getTextWidth($(), newColName, widthOptions);
 
         var newProgCol = ColManager.newCol({
+            "backName": escapedName,
             "name"    : newColName,
             "width"   : width,
             "isNewCol": false,
@@ -799,6 +800,7 @@ window.xcFunction = (function($, xcFunction) {
                 }
 
                 finalCols[1 + i] = ColManager.newCol({
+                    "backName": colName,
                     "name"    : progCol.name || colName,
                     "type"    : progCol.type || null,
                     "width"   : progCol.width || gNewCellWidth,

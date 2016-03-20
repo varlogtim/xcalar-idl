@@ -124,8 +124,13 @@ window.Redo = (function($, Redo) {
     };
 
     redoFuncs[SQLOps.PullCol] = function(options) {
-        return (ColManager.pullCol(options.colNum, options.tableId,
+        if (options.pullColOptions.source === "fnBar") {
+            return (ColManager.execCol("pull", options.usrStr, options.tableId,
+                                        options.colNum));
+        } else {
+            return (ColManager.pullCol(options.colNum, options.tableId,
                                   options.nameInfo, options.pullColOptions));
+        }
     };
 
     redoFuncs[SQLOps.PullAllCols] = function(options) {

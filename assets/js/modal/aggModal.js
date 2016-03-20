@@ -329,7 +329,7 @@ window.AggModal = (function($, AggModal) {
     function getColLabelHTML(labels) {
         var html = '<div class="padding"></div>' +
                     '<div class="aggTableField colLabel blankSpace"></div>';
-    
+
         for (var i = 0, len = labels.length; i < len; i++) {
             html += '<div class="aggTableField colLabel">' +
                         '<span title="' + labels[i] + '" ' +
@@ -467,7 +467,7 @@ window.AggModal = (function($, AggModal) {
 
         for (var i = colNo + 1, len = aggCols.length; i < len; i++) {
             var cols = aggCols[i].col;
-            if (cols.func.func !== "raw" && cols.getBackColName() === args) {
+            if (cols.func.name !== "raw" && cols.getBackColName() === args) {
                 dups.push(i);
             }
         }

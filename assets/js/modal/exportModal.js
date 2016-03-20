@@ -362,8 +362,8 @@ window.ExportModal = (function($, ExportModal) {
                 // it will no longer be in colsArray and we will search for it
                 // in foundColsArray
                 if (frontColName === tableCol.name) {
-                    if (tableCol.func.args) {
-                        backCols.push(tableCol.func.args[0]);
+                    if (tableCol.backName) {
+                        backCols.push(tableCol.backName);
                     }
                     var foundCol = colsArray.splice(j, 1)[0];
                     foundColsArray.push(foundCol);
@@ -383,7 +383,7 @@ window.ExportModal = (function($, ExportModal) {
                 for (j = 0; j < numColsFound; j++) {
                     tableCol = foundColsArray[j];
                     if (frontColName === tableCol.name) {
-                        backCols.push(tableCol.func.args[0]);
+                        backCols.push(tableCol.backName);
                         colFound = true;
                         break;
                     }
@@ -426,29 +426,29 @@ window.ExportModal = (function($, ExportModal) {
         var numTableCols = tableCols.length;
         var colsArray = [];
         var invalidProgCols = [];
+        var col;
         for (var i = 0; i < numTableCols; i++) {
-            if (tableCols[i].name !== "DATA" &&
-                !tableCols[i].isNewCol)
+            col = tableCols[i];
+            if (col.name !== "DATA" &&
+                !col.isNewCol)
             {
                 if (gExportNoCheck) {
-                    colsArray.push(tableCols[i]);
+                    colsArray.push(col);
                 } else {
-                    if (tableCols[i].args &&
-                        tableCols[i].args[0].indexOf(".") > -1)
-                    {
+                    if (xcHelper.isColNameObject(colName)) {
                         isObj = true;
                     } else {
                         isObj = false;
                     }
                     if (!isObj &&
-                        validTypes.indexOf(tableCols[i].type) !== -1) {
-                        colsArray.push(tableCols[i]);
+                        validTypes.indexOf(col.type) !== -1) {
+                        colsArray.push(col);
                     } else {
-                        invalidProgCols.push(tableCols[i]);
+                        invalidProgCols.push(col);
                     }
                 }
             } else {
-                invalidProgCols.push(tableCols[i]);
+                invalidProgCols.push(col);
             }
         }
 
@@ -614,8 +614,7 @@ window.ExportModal = (function($, ExportModal) {
             }
 
             var isObj;
-            if (tableCols[colNum].args &&
-                tableCols[colNum].args[0].indexOf(".") > -1) {
+            if (xcHelper.isColNameObject(tableCols[colNum].backName)) {
                 isObj = true;
             }
             return (!isObj &&
@@ -785,7 +784,7 @@ window.ExportModal = (function($, ExportModal) {
                 continue;
             }
             if (!cols[i].isNewCol) {
-                columnsToExport.push(cols[i].func.args[0]);
+                columnsToExport.push(cols[i].backName);
                 // we're allowing garbage columns as well
             }
         }

@@ -298,6 +298,7 @@ function ProgCol(options) {
         this.isNewCol = options.isNewCol;
     }
 
+    this.backName = options.backName || "";
     this.name = options.name || "";
     this.type = options.type || "undefined";
     this.func = new ColFunc(options.func);
@@ -315,7 +316,7 @@ function ProgCol(options) {
 
 function ColFunc(options) {
     options = options || {};
-    this.func = options.func;
+    this.name = options.name;
     this.args = options.args || [];
 
     return this;
@@ -323,7 +324,7 @@ function ColFunc(options) {
 
 ProgCol.prototype = {
     "isDATACol": function() {
-        if (this.name === "DATA" && this.func.func === "raw") {
+        if (this.name === "DATA" && this.func.name === "raw") {
             return true;
         } else {
             return false;
@@ -335,15 +336,7 @@ ProgCol.prototype = {
     },
 
     "getBackColName": function() {
-        if (this.func.args && this.func.args.length > 0) {
-            return this.func.args[0];
-        } else {
-            if (!this.isNewCol) {
-                // If code goes here, it's an error case!!
-                console.error("No Back Col!");
-            }
-            return null;
-        }
+        return this.backName;
     },
 
     "getType": function() {

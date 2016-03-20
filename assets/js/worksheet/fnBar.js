@@ -21,7 +21,7 @@ window.FnBar = (function(FnBar, $) {
                         "searchBar"     : searchHelper,
                         "initialTableId": initialTableId
                     };
-                    ColManager.execCol({func: {func: 'search'}}, null, null, args);
+                    ColManager.execCol("search", null, null, null, args);
                 } else {
                     $functionArea.removeClass('searching');
                 }
@@ -102,7 +102,7 @@ window.FnBar = (function(FnBar, $) {
         var table    = gTables[tableId];
         var tableCol = table.tableCols[colNum - 1];
 
-        tableCol.userStr = "\"" + tableCol.func.args[0] + "\"" + " = " +
+        tableCol.userStr = "\"" + tableCol.name + "\"" + " = " +
                             fnBarVal;
     }
 
@@ -187,22 +187,21 @@ window.FnBar = (function(FnBar, $) {
             if (!isValid) {
                 return;
             }
-            var progCol = parseFunc(newFuncStr, colNum, table, true);
-            // add sql
-            SQL.add("Pull Column", {
-                "operation": "pullCol",
-                "tableName": table.tableName,
-                "colName"  : progCol.name,
-                "colIndex" : colNum
-            });
+            var operation = getOperationFromFuncStr(newFuncStr);
 
-            ColManager.execCol(progCol, tableId, colNum)
+            ColManager.execCol(operation, newFuncStr, tableId, colNum)
             .then(function() {
                 updateTableHeader(tableId);
                 TableList.updateTableInfo(tableId);
                 KVStore.commit();
             });
         }
+    }
+
+    function getOperationFromFuncStr(funcStr) {
+        var operation = funcStr.substring(funcStr.indexOf("=") + 1).trim();
+        operation = operation.substr(0, operation.indexOf("("));
+        return (operation);
     }
 
     function checkFuncSyntaxValidity(funcStr) {
@@ -224,45 +223,6 @@ window.FnBar = (function(FnBar, $) {
         }
 
         return (count === 0);
-    }
-
-    function parseFunc(funcString, colNum, table, modifyCol) {
-        // Everything must be in a "name" = function(args) format
-        var open   = funcString.indexOf("\"");
-        var close  = (funcString.substring(open + 1)).indexOf("\"") + open + 1;
-        var name   = funcString.substring(open + 1, close);
-        var funcSt = funcString.substring(funcString.indexOf("=") + 1);
-        var progCol;
-
-        if (modifyCol) {
-            progCol = table.tableCols[colNum - 1];
-        } else {
-            progCol = ColManager.newCol();
-        }
-
-        progCol.name = name;
-        progCol.func = cleanseFunc(funcSt, name);
-        progCol.userStr = '"' + progCol.func.args[0] + '" =' + funcSt;
-
-        return (progCol);
-    }
-
-    function cleanseFunc(funcString, name) {
-        // funcString should be: function(args)
-        var open  = funcString.indexOf("(");
-        var close = funcString.lastIndexOf(")");
-        var func  = funcString.substring(0, open).trim();
-        var args  = (funcString.substring(open + 1, close)).split(",");
-
-        if (func === "map") {
-            args = [name];
-        } else {
-            for (var i = 0; i < args.length; i++) {
-                args[i] = args[i].trim();
-            }
-        }
-
-        return new ColFunc({"func": func, "args": args});
     }
 
     return (FnBar);

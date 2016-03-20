@@ -254,21 +254,27 @@ window.xcHelper = (function($, xcHelper) {
             }
 
             var newProgCol = ColManager.newCol({
+                "backName": colName,
                 "name"    : colName,
                 "width"   : cellWidth,
-                "userStr" : '"' + colName + '" =map(' + mapStr + ')',
+                "userStr" : '"' + colName + '" = map(' + mapStr + ')',
                 "isNewCol": false
             });
 
-            newProgCol.func.func = "pull";
-            newProgCol.func.args = [];
-            newProgCol.func.args[0] = colName.replace(/\./g, "\\\.");
+
+
+            // newProgCol.func.name = "map";
+            // newProgCol.func.args = [];
+            // newProgCol.func.args[0] = mapStr;
 
             if (options.replaceColumn) {
                 copiedCols.splice(colNum - 1, 1, newProgCol);
             } else {
                 copiedCols.splice(colNum - 1, 0, newProgCol);
             }
+
+            ColManager.parseFunc(newProgCol.userStr, colNum,
+                                {tableCols: copiedCols}, true);
         }
 
         return (copiedCols);
@@ -1482,6 +1488,32 @@ window.xcHelper = (function($, xcHelper) {
         mapStr += colName + ")";
 
         return (mapStr);
+    };
+
+    // determines that "votes.funny" is an object but "votes\.funny" isn't
+    xcHelper.isColNameObject = function(colName) {
+        var splitName = colName.split(".");
+        var nonEscapedDotFound = false;
+        for (var i = 0; i < splitName.length - 1; i++) {
+            if (splitName[i].lastIndexOf('\\') !== (splitName[i].length - 1)) {
+                return true;
+            }
+        }
+        return false;
+    };
+
+    // if string is somet/"thing then str is somet/"thing
+    // and startIndex is the index of the quote you're testing -> 7
+    xcHelper.isQuoteEscaped = function(str, startIndex) {
+        var backSlashCount = 0;
+        for (var i = startIndex - 1; i >= 0; i--) {
+            if (str[i] === "\\") {
+                backSlashCount++;
+            } else {
+                break;
+            }
+        }
+        return (backSlashCount % 2 === 1);
     };
 
     return (xcHelper);

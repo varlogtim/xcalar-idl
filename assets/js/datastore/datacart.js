@@ -587,12 +587,13 @@ window.DataCart = (function($, DataCart) {
             width = getTextWidth($(), colname, widthOptions);
 
             var progCol = ColManager.newCol({
+                "backName": escapedName,
                 "name"    : colname,
                 "width"   : width,
                 "isNewCol": false,
                 "userStr" : '"' + colname + '" = pull(' + escapedName + ')',
                 "func"    : {
-                    "func": "pull",
+                    "name": "pull",
                     "args": [escapedName]
                 }
             });

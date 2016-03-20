@@ -190,11 +190,34 @@ window.Undo = (function($, Undo) {
     };
 
     undoFuncs[SQLOps.PullCol] = function(options) {
-        var colNum = options.colNum;
-        if (options.direction === "R") {
-            colNum++;
+        if (options.pullColOptions.source === "fnBar") {
+            if (options.wasNewCol) {
+                var col = gTables[options.tableId].tableCols[options.colNum - 1];
+                col.userStr = options.origUsrStr;
+                col.backName = options.backName;
+                col.type = options.type;
+                col.func = options.func;
+                $('#xcTable-' + options.tableId)
+                        .find('td.col' + options.colNum).empty();
+                $('#xcTable-' + options.tableId).find('th.col' + options.colNum)
+                                                .addClass('newColumn')
+                                                .find('.header')
+                                                .attr('class', 'header')
+                                                .find('.iconHelper')
+                                                .attr('title', '');
+                return (promiseWrapper(null));
+            } else {
+                return (ColManager.execCol("pull", options.origUsrStr,
+                                       options.tableId, options.colNum,
+                                        {undo: true, backName: options.backName}));
+            }
+        } else {
+            var colNum = options.colNum;
+            if (options.direction === "R") {
+                colNum++;
+            }
+            return (ColManager.delCol([colNum], options.tableId));
         }
-        return (ColManager.delCol([colNum], options.tableId));
     };
 
     undoFuncs[SQLOps.PullAllCols] = function(options) {

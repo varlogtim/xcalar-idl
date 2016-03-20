@@ -492,7 +492,7 @@ window.Scheduler = (function(Scheduler, $) {
         $freqSection.find(".radio.checked").removeClass("checked");
 
         var $checkBox;
-       
+
         if (isNew) {
             $checkBox = $freqSection.find(".radioWrap").eq(0);
         } else {
@@ -895,7 +895,7 @@ window.Scheduler = (function(Scheduler, $) {
             }
         } else {
             // Example: next Second Sunday of a Month;
-            
+
             // go to the first day of the month;
             startTime.setDate(1);
 

@@ -1853,7 +1853,7 @@ window.TblManager = (function($, TblManager) {
 
             if (backName === table.keyName) {
                 columnClass = " indexedColumn";
-            } else if (columns[i].name === "" || columns[i].func.func === "") {
+            } else if (columns[i].name === "" || columns[i].func.name === "") {
                 columnClass = " newColumn";
             }
             if (backName === "DATA") {
