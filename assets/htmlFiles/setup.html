@@ -1,0 +1,42 @@
+<html lang="en-US">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<title>Xcalar Installer</title>
+<link href='../../3rd/fonts/raleway/raleway.css' rel='stylesheet' type='text/css'>
+<link href='../../3rd/fonts/opensans/opensans.css' rel='stylesheet' type='text/css'>
+<script src="../../3rd/bower_components/jquery/dist/jquery.min.js"></script>
+<link href="../stylesheets/css/login.css" rel="stylesheet" type="text/css">
+<script src="../js/setup/paths.js"></script>
+<script src="../js/installer.js"></script>
+</head>
+<body>
+    <div id="serverInfo">
+        <table id="getNumServers">
+            <tr>
+                <th>Number of Servers:</th>
+                <th><input type="number" id="numServers"></th>
+            </tr>
+        </table>
+        <div id = "step2">
+            <table id="tableForm">
+                <tr>
+                    <th>Server FQDN</th>
+                    <th>Username</th>
+                    <th>Password</th>
+                </tr>
+                <tr>
+                    <th></th>
+                    <th><input type="checkbox" id="sameuser">Same username</th>
+                    <th><input type="checkbox" id="samepass">Same password</th>
+                </tr>
+            </table>
+            <div id="installButton">INSTALL ON ALL</div>
+        </div>
+    </div>
+<script>
+    Installer.setup();
+</script>
+</body>
+</html>
+
