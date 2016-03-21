@@ -7,7 +7,24 @@ window.ExtButton = (function(ExtButton, $) {
     };
 
     function genComplexButton(modName, fnName, buttonText, arrayOfFields) {
-        // TODO
+        var html = '<ul class="extensions '+modName+'">';
+        html += '<li style="text-align: center" class="clickable extensions">';
+        // XXX Need to think about how to include this
+        // html += '<div>'+buttonText+'</div>';
+        for (var i = 0; i<arrayOfFields.length; i++) {
+            html += '<div>'+arrayOfFields[i].name+'</div>';
+            html += '<div class="inputWrap">'+
+                        '<input class="'+arrayOfFields[i].fieldClass+
+                            '" type="'+arrayOfFields[i].type+'"'+
+                        ' spellcheck="false"/>'+
+                        '<div class="iconWrapper inputAction">'+
+                            '<span class="icon extensions '+modName+'::'
+                                +fnName+'"></span>'+
+                        '</div>'+
+                    '</div>';
+        }
+        html += "</li></ul>";
+        return (html);
     };
 
     function newButtonHTML(modName, fnName, buttonText, arrayOfFields) {
@@ -28,8 +45,7 @@ window.ExtButton = (function(ExtButton, $) {
         // For horizontal partitioning, buttonText = "horizontal partition"
         // arrayOfFields = [{"type": "number",
         //                   "name": "No. of Partitions",
-        //                   "fieldClass": "partitionNums",
-        //                   "argCheckFn": fnPtrToLessThan10Check}]
+        //                   "fieldClass": "partitionNums"}]
         if (arrayOfFields == undefined || arrayOfFields.length == 0) {
             // Simple button, no input
             return (genSimpleButton(modName, fnName, buttonText));
@@ -77,6 +93,10 @@ window.ExtensionManager = (function(ExtensionManager, $) {
         for (var i = 0; i<extList.length; i++) {
             var buttonList = window[extList[i]].buttons;
             $("ul.extensions").append(ExtButton.getButtonHTML(extList[i]));
+            if (i < extList.length - 1) {
+                $("ul.extensions").append(
+                '<div class="divider identityDivider thDropdown"></div>');
+            }
         }
     }
 
@@ -105,6 +125,7 @@ window.ExtensionManager = (function(ExtensionManager, $) {
             }
         })
         .fail(function() {
+            console.error("Extension failed to upload. Removing: "+extName);
             // Remove extension from list
             removeExt(extName);
             numChecksLeft--;
@@ -117,7 +138,7 @@ window.ExtensionManager = (function(ExtensionManager, $) {
     function setupPart3Fail(extName, error) {
         removeExt(extName);
         numChecksLeft--;
-        console.log("File not found!");
+        console.log("Python file not found!");
         if (numChecksLeft === 0) {
             // I am the last guy that completed. Since JS is single threaded
             // hallelujah
@@ -129,7 +150,11 @@ window.ExtensionManager = (function(ExtensionManager, $) {
         // XcalarListXdfs with fnName = extPrefix+":"
         // Also check that the module has a python file
         var needReupload = [];
-        for (var j = 0; j<extFileNames; j++) {
+        for (var j = 0; j<extFileNames.length; j++) {
+            needReupload.push(extFileNames[j]);
+            continue;
+            // XXX This part is not run because we are currently blindly
+            // reuploading everything
             var extPrefix = extFileNames[j].substring(0,
                                                    extFileNames[j].length - 4);
             var found = false;
@@ -155,10 +180,11 @@ window.ExtensionManager = (function(ExtensionManager, $) {
             var jsFile = extLoaded[i]["src"];
                 
             // extract module name
-            var strLoc = jsFile.indexOf("assets/extensions");
+            var strLoc = jsFile.indexOf("assets/extensions/installed/");
             if (strLoc !== -1) {
-                jsFile = jsFile.substring(strLoc+"assets/extensions/".length,
-                                          jsFile.length-3);
+                jsFile = jsFile.substring(strLoc+
+                                         "assets/extensions/installed/".length,
+                                         jsFile.length-3);
                 extFileNames[i] = jsFile;   
             } else {
                 extFileNames[i] = "";
@@ -167,8 +193,8 @@ window.ExtensionManager = (function(ExtensionManager, $) {
             }
         }
         // Check that the python modules are uploaded
-        // var pythonReuploadList = checkPythonFunctions(extFileNames);
-        var pythonReuploadList = ["intel.ext"];
+        // For now, we reupload everything everytime.
+        var pythonReuploadList = checkPythonFunctions(extFileNames);
         if (pythonReuploadList.length === 0) {
             // No python requires reuploading
             setupPart4();
@@ -178,7 +204,8 @@ window.ExtensionManager = (function(ExtensionManager, $) {
             for (var i = 0; i<pythonReuploadList.length; i++) {
                 jQuery.ajax({
                     type: "GET",
-                    url: "assets/extensions/"+pythonReuploadList[i]+".py",
+                    url: "assets/extensions/installed/"+
+                         pythonReuploadList[i]+".py",
                     success: (function(valOfI) {
                         return function(data) {
                             setupPart3Success(pythonReuploadList[valOfI],data);
@@ -239,6 +266,12 @@ window.ExtensionManager = (function(ExtensionManager, $) {
             // XXX alert error
             return;
         }
+
+        var $tableMenu = $('#colMenu');
+        var $subMenu = $('#colSubMenu');
+        var $allMenus = $tableMenu.add($subMenu);
+ 
+        argList["allMenus"] = $allMenus;
         window[modName]["actionFn"](colNum, tableId, funcName, argList);
     };
     return (ExtensionManager);

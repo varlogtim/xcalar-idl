@@ -474,112 +474,6 @@ window.TblMenu = (function(TblMenu, $) {
             }
         });
 
-        $subMenu.on('keypress', '.partitionNums', function(event) {
-            if (event.which === keyCode.Enter) {
-                var colNum = $colMenu.data("colNum");
-                var tableId = $colMenu.data('tableId');
-
-                var $input = $(this);
-                var partitionNums = Number($input.val().trim());
-                var rangeErr = xcHelper.replaceMsg(ErrWRepTStr.InvalidRange, {
-                    "num1": 1,
-                    "num2": 10
-                });
-
-                var isValid = xcHelper.validate([
-                    {
-                        "$selector": $input,
-                        "text"     : ErrTStr.OnlyNumber
-                    },
-                    {
-                        "$selector": $input,
-                        "text"     : ErrTStr.OnlyNumber,
-                        "check"    : function() {
-                            return (isNaN(partitionNums) ||
-                                    !Number.isInteger(partitionNums));
-                        }
-                    },
-                    {
-                        "$selector": $input,
-                        "text"     : rangeErr,
-                        "check"    : function() {
-                            return partitionNums < 1 || partitionNums > 10;
-                        }
-                    }
-                ]);
-
-                if (!isValid) {
-                    return;
-                }
-
-                ColManager.hPartition(colNum, tableId, partitionNums);
-                $input.val("").blur();
-                closeMenu($allMenus);
-            }
-        });
-
-        $subMenu.on('keypress', '.window input', function(event) {
-            if (event.which === keyCode.Enter) {
-                var colNum = $colMenu.data("colNum");
-                var tableId = $colMenu.data('tableId');
-                var $li = $(this).closest("li");
-                var $lagInput = $li.find(".lag");
-                var $leadInput = $li.find(".lead");
-
-                var lag = Number($lagInput.val());
-                var lead = Number($leadInput.val());
-                // validation check
-                var isValid = xcHelper.validate([
-                    {
-                        "$selector": $lagInput
-                    },
-                    {
-                        "$selector": $leadInput
-                    },
-                    {
-                        "$selector": $lagInput,
-                        "text"     : ErrTStr.OnlyNumber,
-                        "check"    : function() {
-                            return (isNaN(lag) || !Number.isInteger(lag));
-                        }
-                    },
-                    {
-                        "$selector": $lagInput,
-                        "text"     : ErrTStr.NoNegativeNumber,
-                        "check"    : function() { return (lag < 0); }
-                    },
-                    {
-                        "$selector": $leadInput,
-                        "text"     : ErrTStr.OnlyNumber,
-                        "check"    : function() {
-                            return (isNaN(lead) || !Number.isInteger(lead));
-                        }
-                    },
-                    {
-                        "$selector": $leadInput,
-                        "text"     : ErrTStr.NoNegativeNumber,
-                        "check"    : function() { return (lead < 0); }
-                    },
-                    {
-                        "$selector": $leadInput,
-                        "text"     : ErrTStr.NoAllZeros,
-                        "check"    : function() {
-                            return (lag === 0 && lead === 0);
-                        }
-                    }
-                ]);
-
-                if (!isValid) {
-                    return;
-                }
-
-                ColManager.windowChain(colNum, tableId, lag, lead);
-                $lagInput.val("").blur();
-                $leadInput.val("").blur();
-                closeMenu($allMenus);
-            }
-        });
-
         $colMenu.on('mouseup', '.duplicate', function(event) {
             if (event.which !== 1) {
                 return;
@@ -660,11 +554,23 @@ window.TblMenu = (function(TblMenu, $) {
             var classNames = $(this)[0].className.split(/\s+/);
             for (var i = 0; i < classNames.length; i++) {
                 if (classNames[i].indexOf("::") > -1) {
-                    ColManager.extension(colNum, tableId, classNames[i]);
+                    var argList = collectArgs($(this));
+                    ColManager.extension(colNum, tableId, classNames[i],
+                                         argList);
                     break;
                 }
             }
-
+            function collectArgs($elem) {
+                var argList = {};
+                var $inputWrapParent = $elem.closest("li");
+                if ($inputWrapParent) {
+                    var inputList = $inputWrapParent.find("input");
+                    for (var i = 0; i<inputList.length; i++) {
+                        argList[inputList[i].className] = $(inputList[i]).val();
+                    }
+                }
+                return (argList);
+            }
         });
 
         $subMenu.on('mouseup', '.typeList', function(event) {
@@ -1140,14 +1046,9 @@ window.TblMenu = (function(TblMenu, $) {
                     '<li class="splitCol parentMenu" data-submenu="splitCol">' +
                         MenuTStr.SplitCol +
                     '</li>' +
-                    '<li class="hPartition parentMenu" data-submenu="hPartition">' +
-                        MenuTStr.HP +
-                    '</li>' +
-                    '<li class="changeDataType parentMenu" data-submenu="changeDataType">' +
+                    '<li class="changeDataType parentMenu" '+
+                        'data-submenu="changeDataType">' +
                         MenuTStr.ChangeType +
-                    '</li>' +
-                    '<li class="window parentMenu" data-submenu="window">' +
-                        MenuTStr.Win +
                     '</li>' +
                     '<li class="format parentMenu" data-submenu="format">' +
                         MenuTStr.Format +
@@ -1307,46 +1208,7 @@ window.TblMenu = (function(TblMenu, $) {
                             ' spellcheck="false"/>' +
                     '</li>' +
                 '</ul>' +
-                '<ul class="hPartition">' +
-                    '<li style="text-align: center" class="clickable">' +
-                        '<div>' +
-                            MenuTStr.HPNum +
-                        '</div>' +
-                        '<div class="inputWrap">' +
-                            '<input class="partitionNums" type="number" ' +
-                            'placeholder="' + MenuTStr.HPPlaceholder + '" ' +
-                            'spellcheck="false"/>' +
-                            '<div class="iconWrapper inputAction">' +
-                                '<span class="icon"></span>' +
-                            '</div>' +
-                        '</div>' +
-                    '</li>' +
-                '</ul>' +
                 '<ul class="changeDataType">' + typeMenu + '</ul>' +
-                '<ul class="window">' +
-                    '<li style="text-align: center" class="clickable">' +
-                        '<div>' +
-                           MenuTStr.WinLag +
-                        '</div>' +
-                        '<div class="inputWrap">' +
-                            '<input class="lag" type="number"' +
-                            ' spellcheck="false"/>' +
-                            '<div class="iconWrapper inputAction">' +
-                                '<span class="icon"></span>' +
-                            '</div>' +
-                        '</div>' +
-                        '<div>' +
-                            MenuTStr.WinLead +
-                        '</div>' +
-                        '<div class="inputWrap">' +
-                            '<input class="lead" type="number"' +
-                            ' spellcheck="false"/>' +
-                            '<div class="iconWrapper inputAction">' +
-                                '<span class="icon"></span>' +
-                            '</div>' +
-                        '</div>' +
-                    '</li>' +
-                '</ul>' +
                 '<ul class="sort">' +
                     '<li class="sort">' +
                         '<span class="sortUp"></span>' + MenuTStr.SortAsc +
