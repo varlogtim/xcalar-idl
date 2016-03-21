@@ -48,12 +48,26 @@ function setup() {
 }
 
 var testDatasets = {
-    sp500: {
+    "sp500": {
         url: "file:///netstore/datasets/sp500.csv",
         format: "CSV",
         fieldDelim: "\t",
         lineDelim: "\n",
         hasHeader: false,
+        moduleName: "",
+        funcName: ""
+    },
+
+    "schedule": {
+        url: "file:///var/tmp/qa/indexJoin/schedule/",
+        format: "JSON",
+        moduleName: "",
+        funcName: ""
+    },
+
+    "fakeYelp": {
+        url: "file:///netstore/datasets/unittest/test_yelp.json",
+        format: "JSON",
         moduleName: "",
         funcName: ""
     }

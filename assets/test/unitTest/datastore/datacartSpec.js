@@ -3,16 +3,11 @@ function dataCartModuleTest() {
     // so do not initialize any resuable varible here
     // instead, initialize in the it() function
     var previousCart;
-    var minModeCache;
     var testCartId;
     var fakeDSObj;
 
     before(function(){
         previousCart = DataCart.getCarts();
-
-        // turn off min mode, as it affectes DOM test
-        minModeCache = gMinModeOn;
-        gMinModeOn = true;
 
         fakeDSObj = DS.__testOnly__.createDS({
             "id"      : "testDS" + Math.floor(Math.random() * 1000 + 1),
@@ -147,7 +142,5 @@ function dataCartModuleTest() {
     after(function() {
         var $ds = DS.getGrid(fakeDSObj.getId());
         DS.__testOnly__.removeDS($ds);
-
-        gMinModeOn = minModeCache;
     });
 }

@@ -673,6 +673,13 @@ DSObj.prototype = {
         var slashIndex = loadURL.lastIndexOf('/');
         var curFileName = null;
 
+        if (slashIndex === loadURL.length - 1) {
+            // when last char is '/', then the url is a folder
+            // should remove the last '/' first
+            loadURL = loadURL.substr(0, slashIndex);
+            slashIndex = loadURL.lastIndexOf('/');
+        }
+
         curFileName = loadURL.substr(slashIndex + 1);
         loadURL = loadURL.substr(0, slashIndex + 1);
 

@@ -536,9 +536,11 @@ window.DataCart = (function($, DataCart) {
         emptyAllCarts();
 
         chain(promises)
-        .then(function() {
+        .then(function(lastTableName) {
             KVStore.commit();
-            deferred.resolve();
+
+            // resolve lastTableName for unit test
+            deferred.resolve(lastTableName);
         })
         .fail(function(error) {
             Alert.error(StatusMessageTStr.TableCreationFailed, error);
@@ -623,7 +625,7 @@ window.DataCart = (function($, DataCart) {
                 "title"   : TblTStr.Create,
                 "noCommit": true
             });
-            deferred.resolve();
+            deferred.resolve(tableName);
         })
         .fail(function(error) {
             Transaction.fail(txId, {
@@ -643,6 +645,7 @@ window.DataCart = (function($, DataCart) {
         DataCart.__testOnly__.filterCarts = filterCarts;
         DataCart.__testOnly__.getUnusedTableName = getUnusedTableName;
         DataCart.__testOnly__.isCartNameValid = isCartNameValid;
+        DataCart.__testOnly__.createWorksheet = createWorksheet;
     }
     /* End Of Unit Test Only */
 

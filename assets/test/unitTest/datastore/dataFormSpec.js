@@ -219,8 +219,6 @@ function dataFormModuleTest() {
         var $alertModal;
 
         before(function() {
-            minModeCache = gMinModeOn;
-            gMinModeOn = true;
             $alertModal = $("#alertModal");
             promoptHeaderAlert = DatastoreForm.__testOnly__.promoptHeaderAlert;
         });
@@ -289,10 +287,6 @@ function dataFormModuleTest() {
                 done();
             });
         });
-
-        after(function() {
-            gMinModeOn = minModeCache;
-        })
     });
 
     describe("Delimiter Func Test", function() {

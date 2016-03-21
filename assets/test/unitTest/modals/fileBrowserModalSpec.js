@@ -194,7 +194,7 @@ describe('FilebrowserModal', function() {
         it('Should toggle view', function() {
             var $fileBrowserMain = $("#fileBrowserMain");
             var expect1, expect2;
-            if ($fileBrowserMain.hasClass("lisView")) {
+            if ($fileBrowserMain.hasClass("listView")) {
                 expect1 = "gridView";
                 expect2 = "listView";
             } else {

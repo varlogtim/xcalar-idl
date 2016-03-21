@@ -1,11 +1,16 @@
 // A basic test
 describe('Datastore Test', function() {
     var $mainTabCache;
+    var minModeCache;
 
     before(function() {
         // go to the data store tab, or some UI effect like :visible cannot test
         $mainTabCache = $(".mainMenuTab.active");
         $('#dataStoresTab').click();
+
+        // turn off min mode, as it affectes DOM test
+        minModeCache = gMinModeOn;
+        gMinModeOn = true;
     });
 
     describe('Datastore Module Test', datasetModuleTest);
@@ -13,10 +18,12 @@ describe('Datastore Test', function() {
     describe('Data Form Module Test', dataFormModuleTest);
     describe('Data Preview Module Test', dataPreviewModuleTest);
     describe('Data Cart Module Test', dataCartModuleTest);
+    describe('Data Sample Table Test', dataSampleTableTest);
 
     after(function() {
         // go back to previous tab
         $mainTabCache.click();
+        gMinModeOn = minModeCache;
     });
 });
 

@@ -1,6 +1,4 @@
 function dsObjTest() {
-    var minModeCache;
-
     var $gridView;
     var $statusBox;
 
@@ -12,9 +10,6 @@ function dsObjTest() {
         $gridView = $("#exploreView").find(".gridItems");
         $statusBox = $("#statusBox");
         user = Support.getUser();
-
-        minModeCache = gMinModeOn;
-        gMinModeOn = true;
     });
 
     describe("Grid View Test", function() {
@@ -311,9 +306,7 @@ function dsObjTest() {
         });
     });
 
-
     after(function() {
         $(".tooltip").hide(); // toggle list view test may have tooltip
-        gMinModeOn = minModeCache;
     });
 }

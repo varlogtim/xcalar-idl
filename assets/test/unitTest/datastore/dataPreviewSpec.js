@@ -2,8 +2,6 @@ function dataPreviewModuleTest() {
     // Note that this function is called in very early time
     // so do not initialize any resuable varible here
     // instead, initialize in the it() function
-    var minModeCache;
-
     var $previewTable;
     var $highLightBtn;
     var $rmHightLightBtn;
@@ -12,10 +10,6 @@ function dataPreviewModuleTest() {
         $previewTable = $("#previewTable");
         $highLightBtn = $("#preview-highlight");
         $rmHightLightBtn = $("#preview-rmHightlight");
-
-        // turn off min mode, as it affectes DOM test
-        minModeCache = gMinModeOn;
-        gMinModeOn = true;
     });
 
     describe("Basic Function Test", function() {
@@ -492,9 +486,5 @@ function dataPreviewModuleTest() {
             // so call clearAll() to totally clear
             DataPreview.__testOnly__.clearAll();
         });
-    });
-
-    after(function() {
-        gMinModeOn = minModeCache;
     });
 }
