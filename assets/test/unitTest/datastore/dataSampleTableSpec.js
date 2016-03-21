@@ -90,7 +90,7 @@ function dataSampleTableTest() {
         it("Should select all columns", function() {
             $("#selectDSCols").click();
             // all columns(11 cols) all selected
-            expect($("#worksheetTable th.selectedCol").length).to.equal(11);
+            expect($("#worksheetTable th.selectedCol").length).to.equal(12);
         });
 
         it("Should select no columns", function() {

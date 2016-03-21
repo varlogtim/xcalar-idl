@@ -818,7 +818,7 @@ DSObj.prototype = {
                 "$selector": DS.getGrid(self.id),
                 "text"     : ErrTStr.NoSpecialChar,
                 "check"    : function() {
-                    return xcHelper.hasSpecialChar(newName, true);
+                    return /[^a-zA-Z\(\)\d\s:]/.test(newName);
                 }
             },
             {
