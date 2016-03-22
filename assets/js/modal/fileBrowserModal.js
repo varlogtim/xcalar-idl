@@ -209,7 +209,7 @@ window.FileBrowser = (function($, FileBrowser) {
         }
 
         // click on title to sort
-        $fileBrowserMain.on("click", ".title.clickable", function(event) {
+        $fileBrowserMain.on("click", ".title", function(event) {
             var $title = $(this);
 
             event.stopPropagation();

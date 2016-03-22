@@ -2175,14 +2175,12 @@ html.microsoft {
                 float: left;
                 .position(relative);
                 .size(@height: 30px);
-                .font(@weight: bold, @size: 12px, @line-height: 30px);
+                .font(@weight: bold, @size: 12px, @line-height: 30px, @color: @color-filebrowser-title);
                 margin-left: 10px;
                 padding-left: 15px;
                 .gray-gradient;
                 .rounded;
-                color: @color-filebrowser-title;
                 cursor: default;
-
 
                 &.fileName {
                     .size(@width: ~"calc(50% - 10px)");
@@ -2193,22 +2191,11 @@ html.microsoft {
                 &.fileSize {
                     .size(@width: ~"calc(25% - 18px)");
                 }
-                &.clickable {
-                    .icon {
-                        display: inline;
-                    }
-                    &:hover {
-                        .gray-inverse-gradient;
-                    }
+
+                &:hover {
+                    .gray-inverse-gradient;
                 }
-                &:not(.clickable) {
-                    > span {
-                        .textOverflowOneLine;
-                        display: inline-block;
-                        width: 100%;
-                        padding-right: 5px;
-                    }
-                }
+
                 &.select {
                     .action-gradient;
                     color: @color-white;
@@ -2216,11 +2203,19 @@ html.microsoft {
                         .action-inverse-gradient;
                     }
                 }
+
+                .label {
+                    display: inline-block;
+                    .size(@width: ~"calc(100% - 25px)", @height: 100%);
+                    float: left;
+                    .textOverflowOneLine;
+                }
+
                 .icon {
-                    display: none;
-                    .position(absolute, @right: 2px);
-                    .size(@width: 25px, @height: 30px);
-                    .image("../../images/fileBrowserModal/sort.png", 50%, 50%);
+                    display: inline-block;
+                    float: right;
+                    .size(@width: 20px, @height: 30px);
+                    .image("../../images/fileBrowserModal/sort.png", 0%, 50%);
                 }
             }
         }
@@ -2286,12 +2281,15 @@ html.microsoft {
                 > .label {
                     .size(@width: ~"calc(50% - 30px)");
                     padding-left: 5px;
+                    .textOverflowOneLine;
                 }
 
                 .fileSize, .fileDate {
                     margin-left: 10px;
                     padding-left: 15px;
+                    .textOverflowOneLine;
                 }
+
                 .fileDate {
                     .size(@width: ~"calc(25% - 15px)");
                 }
