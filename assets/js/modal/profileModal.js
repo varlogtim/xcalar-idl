@@ -882,6 +882,7 @@ window.Profile = (function($, Profile, d3) {
                 .attr("height", chartHeight + 2)
                 .style("position", "relative")
                 .style("left", left)
+                .style("overflow", "visible")
             .append("g")
                 .attr("class", "barChart")
                 .attr("transform", "translate(" + marginLeft + ", 0)");
