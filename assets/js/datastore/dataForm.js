@@ -11,7 +11,7 @@ window.DatastoreForm = (function($, DatastoreForm) {
     var $form = $("#importDataForm");
     var $formatLists = $("#fileFormat");
     var $formatText  = $formatLists.find(".text");
-    var $fileNameSelector = $("#fileNameSelector");
+    // var $fileNameSelector = $("#fileNameSelector");
 
     var $csvDelim = $("#csvDelim"); // csv delimiter args
     var $fieldText = $("#fieldText");
@@ -87,7 +87,19 @@ window.DatastoreForm = (function($, DatastoreForm) {
             $(this).blur();
 
             if (isValidToPreview()) {
-                DataPreview.show();
+                var udfCheckRes = checkUDF();
+                if (udfCheckRes.isValid) {
+                    var udfModule = null;
+                    var udfFunc = null;
+
+                    if (udfCheckRes.hasUDF) {
+                        udfModule = udfCheckRes.moduleName;
+                        udfFunc = udfCheckRes.funcName;
+                        cacheUDF(udfModule, udfFunc);
+                    }
+
+                    DataPreview.show(udfModule, udfFunc);
+                }
             }
         });
 
@@ -249,9 +261,6 @@ window.DatastoreForm = (function($, DatastoreForm) {
         var dsFormat = formatMap[$formatText.val()];
         var loadURL  = $filePath.val().trim();
 
-        var moduleName = "";
-        var funcName   = "";
-
         var isValid = xcHelper.validate([
             {
                 "$selector": $formatText,
@@ -273,7 +282,65 @@ window.DatastoreForm = (function($, DatastoreForm) {
             return deferred.promise();
         }
 
+        var udfCheckRes = checkUDF();
+        if (!udfCheckRes.isValid) {
+            return deferred.reject("Checking Invalid").promise();
+        }
+
+        var moduleName = udfCheckRes.moduleName;
+        var funcName = udfCheckRes.funcName;
+        var fieldDelim = delimiterTranslate($fieldText);
+        var lineDelim = delimiterTranslate($lineText);
+        var header = $headerCheckBox.find(".checkbox").hasClass("checked");
+
+        promoptHeaderAlert(dsFormat, header)
+        .then(function() {
+            return DatastoreForm.load(dsName, dsFormat, loadURL,
+                            fieldDelim, lineDelim, header,
+                            moduleName, funcName);
+        })
+        .then(deferred.resolve)
+        .fail(deferred.reject);
+
+        if (udfCheckRes.hasUDF) {
+            cacheUDF();
+        }
+        cacheDelimiter(dsFormat);
+
+        return deferred.promise();
+    }
+
+    function resetForm() {
+        $form.find("input").val("");
+        $form.removeClass("previewMode")
+             .find(".default-hidden").addClass("hidden");
+
+        // keep header to be checked
+        $udfCheckbox.find(".checkbox").removeClass("checked");
+    }
+
+    function cacheUDF(moduleName, funcName) {
+        // cache udf module and func name
+        lastUDFModule = moduleName;
+        lastUDFFunc = funcName;
+    }
+
+    function cacheDelimiter(format) {
+        // cache delimiter
+        if (format === "CSV") {
+            lastFieldDelim = $fieldText.val();
+            lastLineDelim = $lineText.val();
+        } else if (format === "raw") {
+            lastLineDelim = $lineText.val();
+        }
+    }
+
+    function checkUDF() {
         var hasUDF = $udfCheckbox.find(".checkbox").hasClass("checked");
+        var isValid = true;
+        var moduleName = "";
+        var funcName = "";
+
         if (hasUDF) {
             var $moduleInput = $udfModuleList.find("input");
             var $funcInput = $udfFuncList.find("input");
@@ -291,50 +358,14 @@ window.DatastoreForm = (function($, DatastoreForm) {
                     "text"     : ErrTStr.NoEmptyList
                 }
             ]);
-
-            if (!isValid) {
-                deferred.reject("Checking Invalid");
-                return deferred.promise();
-            }
         }
 
-        var fieldDelim = delimiterTranslate($fieldText);
-        var lineDelim  = delimiterTranslate($lineText);
-        var header = $headerCheckBox.find(".checkbox").hasClass("checked");
-
-        promoptHeaderAlert(dsFormat, header)
-        .then(function() {
-            return DatastoreForm.load(dsName, dsFormat, loadURL,
-                            fieldDelim, lineDelim, header,
-                            moduleName, funcName);
-        })
-        .then(deferred.resolve)
-        .fail(deferred.reject);
-
-        // cache udf module and func name
-        if (hasUDF) {
-            lastUDFModule = moduleName;
-            lastUDFFunc = funcName;
-        }
-
-        // cache delimiter
-        if (dsFormat === "CSV") {
-            lastFieldDelim = $fieldText.val();
-            lastLineDelim = $lineText.val();
-        } else if (dsFormat === "raw") {
-            lastLineDelim = $lineText.val();
-        }
-
-        return deferred.promise();
-    }
-
-    function resetForm() {
-        $form.find("input").val("");
-        $form.removeClass("previewMode")
-             .find(".default-hidden").addClass("hidden");
-
-        // keep header to be checked
-        $udfCheckbox.find(".checkbox").removeClass("checked");
+        return {
+            "isValid"   : isValid,
+            "hasUDF"    : hasUDF,
+            "moduleName": moduleName,
+            "funcName"  : funcName
+        };
     }
 
     function toggleFormat(format) {
@@ -716,6 +747,7 @@ window.DatastoreForm = (function($, DatastoreForm) {
         DatastoreForm.__testOnly__.resetForm = resetForm;
         DatastoreForm.__testOnly__.submitForm = submitForm;
         DatastoreForm.__testOnly__.toggleFormat = toggleFormat;
+        DatastoreForm.__testOnly__.checkUDF = checkUDF;
         DatastoreForm.__testOnly__.isValidPathToBrowse = isValidPathToBrowse;
         DatastoreForm.__testOnly__.isValidToPreview = isValidToPreview;
         DatastoreForm.__testOnly__.promoptHeaderAlert = promoptHeaderAlert;

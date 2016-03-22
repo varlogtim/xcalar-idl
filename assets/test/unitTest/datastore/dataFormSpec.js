@@ -77,6 +77,22 @@ function dataFormModuleTest() {
         });
     });
 
+    describe("Reset Form Test2", function() {
+        before(function() {
+            // set some test value and reset
+            $filePath.val("test");
+            $fileName.val("test");
+            $formatText.val("test");
+        });
+
+        it("Should Use DatastoreForm.clear() to reset", function() {
+            DatastoreForm.clear();
+            expect($filePath.val()).to.be.empty;
+            expect($fileName.val()).to.be.empty;
+            expect($formatText.val()).to.be.empty;
+        });
+    });
+
     describe("Format Change Test", function() {
         beforeEach(function() {
             DatastoreForm.__testOnly__.resetForm();
@@ -208,6 +224,64 @@ function dataFormModuleTest() {
 
             // check status box
             assert.isFalse($statusBox.is(":visible"), "no statux box");
+        });
+
+        after(function() {
+            DatastoreForm.__testOnly__.resetForm();
+        });
+    });
+
+    describe("Check UDF Test", function() {
+        var checkUDF;
+
+        before(function() {
+            checkUDF = DatastoreForm.__testOnly__.checkUDF;
+            DatastoreForm.__testOnly__.toggleFormat("CSV");
+        });
+
+        it("Should be valid with no udf", function() {
+            var res = checkUDF();
+            expect(res).to.be.an('object');
+            expect(res).to.have.property('isValid', true);
+            expect(res).to.have.property('hasUDF', false);
+            expect(res).to.have.property('moduleName', '');
+            expect(res).to.have.property('funcName', '');
+        });
+
+        it("Should be invalid with udf check but no module", function() {
+            $("#udfCheckbox .checkbox").click();
+            var res = checkUDF();
+            expect(res).to.be.an('object');
+            expect(res).to.have.property('isValid', false);
+            expect(res).to.have.property('hasUDF', true);
+            expect(res).to.have.property('moduleName', '');
+            expect(res).to.have.property('funcName', '');
+            // check status box
+            assert.isTrue($statusBox.is(":visible"), "see statux box");
+            assert.equal($statusBox.find(".message").text(), ErrTStr.NoEmptyList);
+        });
+
+        it("Should be invalid with no func", function() {
+            $("#udfArgs-moduleList .text").val("testModule");
+            var res = checkUDF();
+            expect(res).to.be.an('object');
+            expect(res).to.have.property('isValid', false);
+            expect(res).to.have.property('hasUDF', true);
+            expect(res).to.have.property('moduleName', 'testModule');
+            expect(res).to.have.property('funcName', '');
+            // check status box
+            assert.isTrue($statusBox.is(":visible"), "see statux box");
+            assert.equal($statusBox.find(".message").text(), ErrTStr.NoEmptyList);
+        });
+
+        it("Should be valid with module and func", function() {
+            $("#udfArgs-funcList .text").val("testFunc");
+            var res = checkUDF();
+            expect(res).to.be.an('object');
+            expect(res).to.have.property('isValid', true);
+            expect(res).to.have.property('hasUDF', true);
+            expect(res).to.have.property('moduleName', 'testModule');
+            expect(res).to.have.property('funcName', 'testFunc');
         });
 
         after(function() {

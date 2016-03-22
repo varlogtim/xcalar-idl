@@ -14,7 +14,11 @@ window.DataPreview = (function($, DataPreview) {
     var delimiter   = "";
     var highlighter = "";
     var dsFormat    = "CSV";
-    var rowsToFetch = 40; // constant
+    var moduleName  = "";
+    var funcName    = "";
+
+    // constant
+    var rowsToFetch = 40;
 
     var promoteHeader =
             '<div class="header" ' +
@@ -140,12 +144,30 @@ window.DataPreview = (function($, DataPreview) {
         });
     };
 
-    DataPreview.show = function() {
+    DataPreview.show = function(udfModule, udfFunc) {
         var deferred = jQuery.Deferred();
-        var loadURL  = $("#filePath").val().trim();
+        var loadURL = $("#filePath").val().trim();
         var refId;
         var $waitSection;
         var $errorSection;
+
+        if (udfModule != null && udfFunc != null &&
+            udfModule !== "" && udfFunc !== "") {
+            moduleName = udfModule;
+            funcName = udfFunc;
+            $("#preview-udf").show()
+                             .find(".text").text(moduleName + ":" + funcName);
+        } else if (udfModule === "" && udfFunc === "" ||
+                   udfModule == null && udfFunc == null) {
+            moduleName = "";
+            funcName = "";
+            $("#preview-udf").hide()
+                             .find(".text").text("");
+        } else {
+            // when udf module == null or udf func == null
+            // it's an error case
+            return deferred.reject("Error Case!").promise();
+        }
 
         $("#importDataForm").on("keypress.preview", function(event) {
             if (event.which === keyCode.Enter) {
@@ -166,11 +188,7 @@ window.DataPreview = (function($, DataPreview) {
             $errorSection = $previeWrap.find(".errorSection")
                                         .addClass("hidden");
 
-            tableName = $("#fileName").val().trim();
-            tableName = xcHelper.wrapDSName(tableName);
-            tableName = xcHelper.randName(tableName) ||   // when table name is empty
-                        xcHelper.randName("previewTable");
-            tableName += ".preview"; // specific format for preview table
+            tableName = getPreviewTableName();
 
             var sql = {
                 "operation" : SQLOps.PreviewDS,
@@ -180,8 +198,8 @@ window.DataPreview = (function($, DataPreview) {
                 "hasHeader" : hasHeader,
                 "fieldDelim": "Null",
                 "lineDelim" : "\n",
-                "moduleName": "Null",
-                "funcName"  : "Null"
+                "moduleName": moduleName,
+                "funcName"  : funcName
             };
             var txId = Transaction.start({
                 "operation": SQLOps.PreviewDS,
@@ -191,7 +209,7 @@ window.DataPreview = (function($, DataPreview) {
             showPreviewPanel()
             .then(function() {
                 return XcalarLoad(loadURL, "raw", tableName, "", "\n",
-                                    hasHeader, "", "", txId);
+                                hasHeader, moduleName, funcName, txId);
             })
             .then(DS.release)
             .then(function() {
@@ -310,8 +328,10 @@ window.DataPreview = (function($, DataPreview) {
                 return DatastoreForm.load(dsName, "Excel", loadURL,
                                             "\t", "\n", hasHeader, "", "");
             } else {
+                // only CSV should apply module and funcName
                 return DatastoreForm.load(dsName, "CSV", loadURL,
-                                            delimiter, "\n", hasHeader, "", "");
+                                          delimiter, "\n", hasHeader,
+                                          moduleName, funcName);
             }
         }
     };
@@ -342,6 +362,8 @@ window.DataPreview = (function($, DataPreview) {
         hasHeader = false;
         delimiter = "";
         dsFormat = "CSV";
+        moduleName = "";
+        funcName = "";
         applyHighlight(""); // remove highlighter
 
         if (tableName != null) {
@@ -639,6 +661,15 @@ window.DataPreview = (function($, DataPreview) {
                 }
             }
         });
+    }
+
+    function getPreviewTableName() {
+        var name = $("#fileName").val().trim();
+        name = xcHelper.wrapDSName(name);
+        name = xcHelper.randName(name) ||   // when table name is empty
+                    xcHelper.randName("previewTable");
+        name += ".preview"; // specific format for preview table
+        return name;
     }
 
     function getTheadHTML(datas, tdLen) {

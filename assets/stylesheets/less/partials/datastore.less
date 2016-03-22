@@ -493,7 +493,7 @@ input {
         .minimize {
             .size(@width: 75px, @height: 10px);
             .horizontal-align;
-            top: 5px;
+            top: 3px;
             cursor: pointer;
 
             > div {
@@ -511,11 +511,15 @@ input {
 
             .title {
                 .font(@size: 14px, @weight: bold);
-                margin-right: 5px;
+
+                &#preview-udf {
+                    margin-left: 5px;
+                }
             }
 
             .text {
-                .font(@color: @color-text-midGray);
+                margin-left: 5px;
+                .font(@color: @color-text-midGray, @weight: 600);
             }
         }
 
@@ -1124,14 +1128,13 @@ input {
             }
 
             &.listView {
-                padding: 4px 0;
-                overflow-y: scroll;
+                padding: 4px 5px;
 
                 .grid-unit {
                     .listViewForGrid;
 
                     > .label {
-                        width: ~"calc(95% - 15px)";
+                        width: ~"calc(100% - 25px)";
                         padding-right: 30px;
                         white-space: nowrap;
                         overflow: hidden;
