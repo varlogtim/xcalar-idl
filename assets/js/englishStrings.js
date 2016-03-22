@@ -464,7 +464,7 @@ MenuTStr = {
    'RenameCol': 'Rename column',
    'RenameColTitle': 'New Column Name',
    'SplitCol': 'Split column',
-   'SplitColDelim': 'Split Column By',
+   'SplitColDelim': 'Split Column By Delimiter',
    'SplitColNum': 'Number of Splits',
    'HP': 'Horizontal Partition',
    'HPNum': 'Number of partitions',
