@@ -171,6 +171,7 @@ function dataFormModuleTest() {
 
         it("Should not allow preivew of empty path", function() {
             $filePath.val("");
+            $formatText.val("CSV");
             var isValid = DatastoreForm.__testOnly__.isValidToPreview();
             expect(isValid).to.be.false;
 
@@ -180,7 +181,8 @@ function dataFormModuleTest() {
         });
 
         it("Should not allow preivew json", function() {
-            $filePath.val("test.json");
+            $filePath.val("test");
+            $formatText.val("JSON");
             var isValid = DatastoreForm.__testOnly__.isValidToPreview();
             expect(isValid).to.be.false;
 
@@ -190,7 +192,7 @@ function dataFormModuleTest() {
         });
 
         it("Should not allow preivew excel", function() {
-            $filePath.val("test.xlsx");
+            $formatText.val("Excel");
             var isValid = DatastoreForm.__testOnly__.isValidToPreview();
             expect(isValid).to.be.false;
 
@@ -200,7 +202,7 @@ function dataFormModuleTest() {
         });
 
         it("Should allow other case", function() {
-            $filePath.val("test");
+            $formatText.val("CSV");
             var isValid = DatastoreForm.__testOnly__.isValidToPreview();
             expect(isValid).to.be.true;
 

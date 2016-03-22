@@ -399,16 +399,20 @@ window.DatastoreForm = (function($, DatastoreForm) {
     }
 
     function isValidToPreview() {
+        // We use the format to check instead of useing suffix of the file
+        // this is in case user wrongly name the file and could not preview
         var path = $filePath.val();
+        var format = formatMap[$formatText.val()];
         var options = {"type": "info"};
+
         if (path.trim() === "") {
             StatusBox.show(ErrTStr.NoEmpty, $filePath, false, options);
             return false;
-        } else if (path.endsWith("json")) {
+        } else if (format === "JSON") {
             // Invalid json preview
             StatusBox.show(ErrTStr.NoPreviewJSON, $filePath, false, options);
             return false;
-        } else if (path.endsWith("xlsx")) {
+        } else if (format === "Excel") {
             StatusBox.show(ErrTStr.NoPreviewExcel, $filePath, false, options);
             return false;
         }
