@@ -187,7 +187,7 @@ window.DagPanel = (function($, DagPanel) {
                         '.dagTable:not(.dataStore) .icon,' +
                         '.dagTable:not(.dataStore) .tableTitle';
 
-        $dagPanel.on('click', selection, function() {
+        $dagPanel.on('click', selection, function(event) {
             $('.menu').hide().removeClass('leftColMenu');
             removeMenuKeyboardNavigation();
             $('#dagSchema').hide();

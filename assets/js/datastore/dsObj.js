@@ -1127,7 +1127,7 @@ window.DS = (function ($, DS) {
     };
 
     // Helper function for drag enter event
-    DS.onDragEnter = function() {
+    DS.onDragEnter = function(event) {
         var $dragWrap = $(event.target);
         var targetId = $dragWrap.attr("id");
         var $curDropTarget = getDropTarget();
