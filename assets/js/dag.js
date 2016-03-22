@@ -35,6 +35,8 @@ window.DagPanel = (function($, DagPanel) {
             if ($dagPanel.hasClass('hidden')) {
                 // open dag panel
                 $dagPanel.removeClass('invisible');
+                $compSwitch.attr('data-original-title', TooltipTStr.CloseQG);
+                $('.tooltip').hide();
 
                 // without set timeout, animation would not work because
                 // we're setting dagpanel from display none to display block
@@ -64,6 +66,8 @@ window.DagPanel = (function($, DagPanel) {
 
             if (!wasOnWorksheetPanel) {
                 $('#workspaceTab').trigger('click');
+                $compSwitch.attr('data-original-title', TooltipTStr.CloseQG);
+                $('.tooltip').hide();
             }
 
             $('.columnOriginInfo').remove();
@@ -146,6 +150,8 @@ window.DagPanel = (function($, DagPanel) {
 
     function closePanel($compSwitch) {
         $compSwitch.removeClass('active');
+        $compSwitch.attr('data-original-title', TooltipTStr.OpenQG);
+        $('.tooltip').hide();
         $dagPanel.removeClass('noTransform');
         $('#mainFrame').height('calc(100% - 38px)');
         $dagArea.css('height', (100 - dagTopPct) + '%');

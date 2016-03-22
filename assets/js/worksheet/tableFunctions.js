@@ -1463,7 +1463,9 @@ function bookmarkRow(rowNum, tableId) {
     var $table = $('#xcTable-' + tableId);
     var td = $table.find('.row' + rowNum + ' .col0');
     td.addClass('rowBookmarked');
-    td.find('.idSpan').attr('title', 'bookmarked');
+    td.find('.idSpan').attr('data-original-title', TooltipTStr.Bookmarked);
+    td.find('.idSpan').attr('title', '');
+    $('.tooltip').hide();
     RowScroller.addBookMark(rowNum, tableId);
     var table = gTables[tableId];
     if (table.bookmarks.indexOf(rowNum) < 0) {
@@ -1482,6 +1484,8 @@ function unbookmarkRow(rowNum, tableId) {
     var td = $table.find('.row' + rowNum + ' .col0');
     td.removeClass('rowBookmarked');
     td.find('.idSpan').attr('title', '');
+    td.find('.idSpan').attr('data-original-title', TooltipTStr.Bookmark);
+    $('.tooltip').hide();
     RowScroller.removeBookMark(rowNum, tableId);
     var table = gTables[tableId];
     var index = table.bookmarks.indexOf(rowNum);

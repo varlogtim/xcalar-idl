@@ -313,6 +313,13 @@ window.StartManager = (function(StartManager, $) {
             if (lastTabId === "monitorTab") {
                 MonitorGraph.clear();
             }
+            if (lastTabId === "workspaceTab") {
+                var $activeCompSwitch = $('.dagTab.active');
+                if ($activeCompSwitch.length) {
+                    $activeCompSwitch.attr('data-original-title',
+                                            TooltipTStr.OpenQG);
+                }
+            }
             StatusMessage.updateLocation();
         });
     }

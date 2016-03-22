@@ -52,7 +52,11 @@ TooltipTStr = {
     'NoUndo': 'Last operation is "<op>", cannot undo',
     'NoUndoNoOp': 'No operation to undo',
     'Redo': 'Redo: <op>',
-    'NoRedo': 'No operation to redo'
+    'NoRedo': 'No operation to redo',
+    'CloseQG': 'click to hide query graph',
+    'OpenQG': 'click to view query graph',
+    'Bookmark': 'click to add bookmark',
+    'Bookmarked': 'bookmarked'
 };
 
 CommonTxtTstr = {
