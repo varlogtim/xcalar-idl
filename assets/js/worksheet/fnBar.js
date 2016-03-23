@@ -58,13 +58,14 @@ window.FnBar = (function(FnBar, $) {
         }
 
         $lastColInput = $colInput;
-
         var progCol = gTables[tableId].tableCols[colNum - 1];
         if ($colInput.parent().hasClass("editable")) {
             if (!progCol.isNewCol) {
                 throw "Error Case, only new column can be editable";
             }
-            $fnBar.val(FnBarTStr.NewCol).addClass("disabled");
+
+            $fnBar.val(FnBarTStr.NewCol).addClass("disabled")
+                                        .removeClass('active');
         } else {
             var userStr = progCol.userStr;
             userStr = userStr.substring(userStr.indexOf('='));

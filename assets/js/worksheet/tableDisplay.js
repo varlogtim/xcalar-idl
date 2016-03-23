@@ -1606,7 +1606,13 @@ window.TblManager = (function($, TblManager) {
                 $input.closest('.selectedCell').length === 0)
             {
                 $input.val("");
-                $('#fnBar').removeClass("disabled");
+                var $activeTarget = gMouseEvents.getLastMouseDownTarget();
+
+                if (!$activeTarget.closest('.header')
+                                  .find('.flex-mid')
+                                  .hasClass('editable')) {
+                    $('#fnBar').removeClass("disabled");
+                }
             }
         });
 

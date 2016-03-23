@@ -793,7 +793,9 @@ window.OperationsModal = (function($, OperationsModal) {
 
         if (!noFocus) {
             var inputNumToFocus = inputNum + 1;
-            if (inputNum === 1 && operatorName !== "aggregate" &&
+            if (inputNum === 1 &&
+                operatorName !== "aggregate" &&
+                operatorName !== "group by" &&
                 !isNewCol) {
                 inputNumToFocus++;
             }
@@ -1075,7 +1077,7 @@ window.OperationsModal = (function($, OperationsModal) {
                 }
 
                 var $input = $rows.eq(i).find('.argument');
-                if (i === 0) {
+                if (i === 0 && operatorName !== "group by") {
                     $input.val(defaultValue);
                 } else {
                     $input.val("");
@@ -1121,18 +1123,10 @@ window.OperationsModal = (function($, OperationsModal) {
                             '</p>';
             } else if (operatorName === 'group by') {
                 var $rowToListen;
-                // group by sort col field
                 description = 'Field name to group by';
 
-                var sortedCol = gTables[tableId].keyName;
-                if (sortedCol === "recordNum") {
-                    sortedCol = "";
-                } else {
-                    sortedCol = colPrefix + sortedCol;
-                }
-
                 $rowToListen = $rows.eq(numArgs).addClass("rowToListen");
-                $rowToListen.find('.argument').val(sortedCol)
+                $rowToListen.find('.argument').val(defaultValue)
                             .end()
                             .find('.description').text(description);
 
@@ -1180,7 +1174,7 @@ window.OperationsModal = (function($, OperationsModal) {
                                 '</span>' +
                                 '), GROUP BY ' +
                                 '<span class="groupByCols">' +
-                                    sortedCol +
+                                    defaultValue +
                                 '</span>' +
                             '</p>';
 

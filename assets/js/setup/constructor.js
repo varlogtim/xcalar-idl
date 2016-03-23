@@ -46,6 +46,8 @@ function KVKeysInfo() {
 }
 
 // global MouseEvents
+// useful to keep track of mousedown so when a blur happens, we know what
+// element was clicked on to cause the blur
 function MouseEvents() {
     var lastMouseDownTarget = $(document);
     var lastClickTarget = lastMouseDownTarget;
