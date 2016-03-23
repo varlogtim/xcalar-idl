@@ -927,11 +927,6 @@ window.TblManager = (function($, TblManager) {
             focusTable(tableId);
             var $table = $('#xcTable-' + tableId);
 
-            if ($table.height() < $('#mainFrame').height()) {
-                // prevent scrolling on a short table
-                $(this).scrollTop(0);
-            }
-
             var innerDeferred = jQuery.Deferred();
             var firstRow = $table.find('tbody tr:first');
             var topRowNum = xcHelper.parseRowNum(firstRow);
@@ -943,6 +938,7 @@ window.TblManager = (function($, TblManager) {
             } else if ($(this).scrollTop() === 0 &&
                 !firstRow.hasClass('row0'))
             {
+                // scrolling to top
                 scrollCount++;
 
                 if (scrollCount < 2) {
@@ -978,8 +974,8 @@ window.TblManager = (function($, TblManager) {
                     innerDeferred.resolve();
                 }
             } else if ($(this)[0].scrollHeight - $(this).scrollTop() -
-                       // $(this).outerHeight() <= 1) {
                        $(this).outerHeight() <= 1) {
+                // scrolling to bottom
                 scrollCount++;
 
                 if (scrollCount < 2) {
