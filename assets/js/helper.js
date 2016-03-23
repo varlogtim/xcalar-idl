@@ -1502,9 +1502,9 @@ window.xcHelper = (function($, xcHelper) {
         return false;
     };
 
-    // if string is somet/"thing then str is somet/"thing
+    // if string is somet\"thing then str is somet\"thing
     // and startIndex is the index of the quote you're testing -> 7
-    xcHelper.isQuoteEscaped = function(str, startIndex) {
+    xcHelper.isCharEscaped = function(str, startIndex) {
         var backSlashCount = 0;
         for (var i = startIndex - 1; i >= 0; i--) {
             if (str[i] === "\\") {

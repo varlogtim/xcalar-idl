@@ -2011,7 +2011,7 @@ window.ColManager = (function($, ColManager) {
 
         for (var i = 0; i < funcString.length; i++) {
             if (funcString[i] === "\"" &&
-                xcHelper.isQuoteEscaped(funcString, i)) {
+                xcHelper.isCharEscaped(funcString, i)) {
                 if (!inQuotes) {
                     inQuotes = true;
                 } else {

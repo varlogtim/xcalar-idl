@@ -26,7 +26,7 @@ window.FnBar = (function(FnBar, $) {
                     $functionArea.removeClass('searching');
                 }
             },
-            "keyup": function(event) {
+            "keydown": function(event) {
                 if (event.which === keyCode.Enter) {
                     functionBarEnter();
                 }

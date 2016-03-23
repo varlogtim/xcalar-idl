@@ -19,6 +19,7 @@ window.OperationsModal = (function($, OperationsModal) {
     var categoryListScroller;
     var functionsListScroller;
     var quotesNeeded = [];
+    var colPrefix = '$';
 
     var modalHelper;
     var corrector;
@@ -1007,7 +1008,6 @@ window.OperationsModal = (function($, OperationsModal) {
         }
 
         if (operObj != null) {
-            var colPrefix = "$";
             var defaultValue = colPrefix + colName;
 
             if (firstArgExceptions[category] &&
@@ -1259,7 +1259,10 @@ window.OperationsModal = (function($, OperationsModal) {
             $inputs.each(function(i) {
                 var val = $(this).val();
                 if (quotesNeeded[i]) {
-                    val = JSON.stringify(val);
+                    val = replaceEscapedColPrefixes(val);
+                    val = "\"" + val + "\"";
+                    // stringify puts in too many slashes
+                    // val = JSON.stringify(val);
                 }
 
                 if (i < numArgs - 1) {
@@ -1430,7 +1433,7 @@ window.OperationsModal = (function($, OperationsModal) {
     // noHighlight: boolean; if true, will not highlight new changes
     function checkIfStringReplaceNeeded(noHighlight) {
         var existingTypes = {};
-        var colPrefix = '$';
+
         var typeIds = [];
         quotesNeeded = [];
         $argInputs.each(function() {
@@ -1441,14 +1444,13 @@ window.OperationsModal = (function($, OperationsModal) {
             // ignore new colname input
             if ($input.closest(".dropDownList").hasClass("colNameSection")) {
                 return;
-            } else if (arg.indexOf(colPrefix) >= 0) {
+            } else if  (hasFuncFormat(arg)) {
+                // skip
+            } else if (hasValidColPrefix(arg)) {
                 arg = arg.replace(/\$/g, '');
                 if ($("#categoryList input").val().indexOf("user") !== 0) {
                     type = getColumnTypeFromArg(arg);
                 }
-            } else if (hasFuncFormat(arg)) {
-
-                // skip
             } else {
                 var isString = formatArgumentInput(arg, $input.data('typeid'),
                                                    existingTypes).isString;
@@ -1472,7 +1474,7 @@ window.OperationsModal = (function($, OperationsModal) {
             var arg = $(this).val().trim();
             var parsedType = parseType(typeIds[i]);
             if (!$input.closest(".dropDownList").hasClass("colNameSection") &&
-                arg.indexOf(colPrefix) === -1 &&
+                !hasValidColPrefix(arg) &&
                 parsedType.indexOf("string") !== -1 &&
                 !hasFuncFormat(arg)) {
 
@@ -1611,9 +1613,6 @@ window.OperationsModal = (function($, OperationsModal) {
         var args = [];
         var trimmedArgs = [];
 
-        // constant
-        var colPrefix = "$";
-
         // get colType first
         var existingTypes = {};
         $argInputs.each(function() {
@@ -1625,7 +1624,7 @@ window.OperationsModal = (function($, OperationsModal) {
             if ($input.closest(".dropDownList").hasClass("colNameSection")) {
                 arg = arg.replace(/\$/g, '');
                 type = getColumnTypeFromArg(arg);
-            } else if (arg.indexOf(colPrefix) >= 0) {
+            } else if (hasValidColPrefix(arg)) {
                 arg = arg.replace(/\$/g, '');
 
                 // Since there is currently no way for users to specify what
@@ -1693,6 +1692,7 @@ window.OperationsModal = (function($, OperationsModal) {
         var funcLower = func.substring(0, 1).toLowerCase() + func.substring(1);
         var funcCapitalized = func.substr(0, 1).toUpperCase() + func.substr(1);
         var isPassing;
+
         // all operation have their own way to show error StatusBox
         switch (operatorName) {
             case ('aggregate'):
@@ -1776,7 +1776,6 @@ window.OperationsModal = (function($, OperationsModal) {
     function argumentFormatHelper(existingTypes) {
         var args = [];
         var isPassing = true;
-        var colPrefix = "$";
         var colTypes;
         var typeid;
         var allColTypes = [];
@@ -1796,6 +1795,7 @@ window.OperationsModal = (function($, OperationsModal) {
             var arg = $input.val().trim();
 
             var newLength = arg.length;
+            var containsColumn = false;
 
             if (origLength > 0 && newLength === 0) {
                 arg = $input.val();
@@ -1806,10 +1806,12 @@ window.OperationsModal = (function($, OperationsModal) {
             // col name field, do not add quote
             if ($input.closest(".dropDownList").hasClass("colNameSection")) {
                 arg = arg.replace(/\$/g, '');
-            } else if (arg.indexOf(colPrefix) >= 0) {
+            } else if (hasFuncFormat(arg)) {
+                // leave arg the way it is
+            } else if (hasValidColPrefix(arg)) {
                 // if it contains a column name
                 // note that field like pythonExc can have more than one $col
-
+                containsColumn = true;
                 arg = arg.replace(/\$/g, '');
                 var frontColName = arg;
                 var tempColNames = arg.split(",");
@@ -1887,8 +1889,6 @@ window.OperationsModal = (function($, OperationsModal) {
                 }
             } else if (!isPassing) {
                 // leave it
-            } else if (hasFuncFormat(arg)) {
-                // leave arg the way it is
             } else {
                 var checkRes = checkArgTypes(arg, typeid);
 
@@ -1938,12 +1938,12 @@ window.OperationsModal = (function($, OperationsModal) {
                 resetCastOptions($errorInput);
                 StatusBox.show(errorText, $errorInput);
             }
-
         }
 
         return ({args: args, isPassing: isPassing, allColTypes: allColTypes});
     }
 
+    // shows valid cast types
     var castMap = {
         string: ['boolean', 'integer', 'float'],
         integer: ['boolean', 'integer', 'float', 'string'],
@@ -2194,6 +2194,48 @@ window.OperationsModal = (function($, OperationsModal) {
         xcFunction.map(colNum, tableId, newColName, mapStr, mapOptions);
     }
 
+    function formulateMapString(operator, args, colTypeInfos) {
+        var mapString = operator + "(";
+        var argNum;
+        for (var i = 0; i < colTypeInfos.length; i++) {
+            argNum = colTypeInfos[i].argNum;
+            args[argNum] = xcHelper.castStrHelper(args[argNum],
+                                                 colTypeInfos[i].type);
+        }
+
+        for (var i = 0; i < args.length; i++) {
+            mapString += args[i] + ", ";
+        }
+        // remove last comma and space;
+        if (args.length > 0) {
+            mapString = mapString.slice(0, -2);
+        }
+
+        mapString += ")";
+        return (mapString);
+    }
+
+    function formulateFilterString(operator, args, colTypeInfos) {
+        var filterString = operator + "(";
+        var argNum;
+        for (var i = 0; i < colTypeInfos.length; i++) {
+            argNum = colTypeInfos[i].argNum;
+            args[argNum] = xcHelper.castStrHelper(args[argNum],
+                                                 colTypeInfos[i].type);
+        }
+
+        for (var i = 0; i < args.length; i++) {
+            filterString += args[i] + ", ";
+        }
+        // remove last comma and space;
+        if (args.length > 0) {
+            filterString = filterString.slice(0, -2);
+        }
+
+        filterString += ")";
+        return (filterString);
+    }
+
     function getColumnTypeFromArg(value) {
         // if value = "col1, col2", it only check col1
         value = value.split(",")[0];
@@ -2409,7 +2451,11 @@ window.OperationsModal = (function($, OperationsModal) {
 
         if (shouldBeString) {
             // add quote if the field support string
-            value = JSON.stringify(value);
+
+            value = replaceEscapedColPrefixes(value);
+            value = "\"" + value + "\"";
+            // stringify puts in too many slashes
+            // value = JSON.stringify(value);
         }
 
         return ({value: value, isString: shouldBeString});
@@ -2471,48 +2517,6 @@ window.OperationsModal = (function($, OperationsModal) {
         }
 
         return (types);
-    }
-
-    function formulateMapString(operator, args, colTypeInfos) {
-        var mapString = operator + "(";
-        var argNum;
-        for (var i = 0; i < colTypeInfos.length; i++) {
-            argNum = colTypeInfos[i].argNum;
-            args[argNum] = xcHelper.castStrHelper(args[argNum],
-                                                 colTypeInfos[i].type);
-        }
-
-        for (var i = 0; i < args.length; i++) {
-            mapString += args[i] + ", ";
-        }
-        // remove last comma and space;
-        if (args.length > 0) {
-            mapString = mapString.slice(0, -2);
-        }
-
-        mapString += ")";
-        return (mapString);
-    }
-
-    function formulateFilterString(operator, args, colTypeInfos) {
-        var filterString = operator + "(";
-        var argNum;
-        for (var i = 0; i < colTypeInfos.length; i++) {
-            argNum = colTypeInfos[i].argNum;
-            args[argNum] = xcHelper.castStrHelper(args[argNum],
-                                                 colTypeInfos[i].type);
-        }
-
-        for (var i = 0; i < args.length; i++) {
-            filterString += args[i] + ", ";
-        }
-        // remove last comma and space;
-        if (args.length > 0) {
-            filterString = filterString.slice(0, -2);
-        }
-
-        filterString += ")";
-        return (filterString);
     }
 
     function fillInputPlaceholder(inputNum) {
@@ -2671,6 +2675,39 @@ window.OperationsModal = (function($, OperationsModal) {
 
     function restoreInputSize($input) {
         $input.parent().width('100%').removeClass('modifiedWidth');
+    }
+
+    // not only looks for $ but checks to make sure it's not preceded by
+    // anything other than a ,
+    function hasValidColPrefix(str) {
+        var hasPrefix = false;
+        str = str.replace(/\s/g, '');
+        for (var i = 0; i < str.length; i++) {
+            if (str[i] === colPrefix) {
+                if (i === 0) {
+                    hasPrefix = true;
+                } else if (str[i - 1] !== ",") {
+                    return false;
+                } else {
+                    return true;
+                }
+            }
+        }
+        return (hasPrefix);
+    }
+
+    // turns dollar\$sign into dollar$sign
+    // but leaves dollar\\$sign as is
+    function replaceEscapedColPrefixes(str) {
+        for (var i = 1; i < str.length; i++) {
+            if (str[i] === colPrefix) {
+                if (xcHelper.isCharEscaped(str, i)) {
+                    str = str.slice(0, i - 1) + str.slice(i);
+                    i--;
+                }
+            }
+        }
+        return (str);
     }
 
 
