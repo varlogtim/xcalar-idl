@@ -21,7 +21,7 @@ StatusMessageTStr = {
 'SplitColumn': 'Split column',
 'SplitColumnFailed': 'Split column failed',
 'ChangeType': 'Change data type',
-"ChangeTypeFailed": 'Change data type failed',
+'ChangeTypeFailed': 'Change data type failed',
 'OnColumn' : 'on column',
 'Sort' : 'Sorting column',
 'SortFailed' : 'Sort column failed',
@@ -33,10 +33,10 @@ StatusMessageTStr = {
 'FilterFailed' : 'Filter column failed',
 'Profile' : 'Profile of',
 'ProfileFailed' : 'Profile failed',
-"Window": "Performing Window",
-"WindowFailed": "Window Failed",
-"HorizontalPartition": "Performing Horizontal Partition",
-"HPartitionFailed": "Horizontal Partition Failed"
+'Window': 'Performing Window',
+'WindowFailed': 'Window Failed',
+'HorizontalPartition': 'Performing Horizontal Partition',
+'HPartitionFailed': 'Horizontal Partition Failed'
 };
 
 TooltipTStr = {
@@ -78,30 +78,30 @@ CommonTxtTstr = {
     'SupportBundleMsg': 'Support upload bundle id <id> successfully generated! ' +
                         'It is located on your Xcalar Server at <path>',
     'SuppoortBundleFail': 'Generation failed',
-    'OpFail': 'Opeartion Failed'
+    'OpFail': 'Operation Failed'
 };
 
 ErrTStr = {
     'NoEmpty': 'Please fill out this field.',
 
-    'InvalidField': "Invalid Field.",
+    'InvalidField': 'Invalid Field.',
 
     'InvalidFilePath': 'Invalid file path',
 
     'InvalidFileName': 'Invalid file name, ' +
                        'cannot find the file in current directory.',
 
-    'NoHashTag': "Please input a valid name with no # symbols.",
+    'NoHashTag': 'Please input a valid name with no # symbols.',
 
-    'NoSpecialChar': "Please input a valid name with no special characters.",
+    'NoSpecialChar': 'Please input a valid name with no special characters.',
 
-    'NoSpecialCharOrSpace': "Please input a valid name with no special" +
-                            " characters or spaces.",
+    'NoSpecialCharOrSpace': 'Please input a valid name with no special' +
+                            ' characters or spaces.',
 
-    'NoSpecialCharInParam': "No special characters or spaces allowed within" +
-                            " parameter braces.",
+    'NoSpecialCharInParam': 'No special characters or spaces allowed within' +
+                            ' parameter braces.',
 
-    'UnclosedParamBracket': "Unclosed parameter bracket detected.",
+    'UnclosedParamBracket': 'Unclosed parameter bracket detected.',
 
     'NoEmptyList': 'Please choose an option on the dropdown list.',
 
@@ -138,9 +138,9 @@ ErrTStr = {
 
     'NoNegativeNumber': 'Please input a number bigger than or equal to 0',
 
-    'NoAllZeros': "Values cannot all be zeros",
+    'NoAllZeros': 'Values cannot all be zeros',
 
-    'NoWKBKSelect': "No Workbook selected.",
+    'NoWKBKSelect': 'No Workbook selected.',
 
     'NoGroupSelect': 'No group selected.',
 
@@ -202,22 +202,22 @@ ErrWRepTStr = {
 };
 
 TipsTStr = {
-    "Scrollbar": "Scroll Table Here",
-    "AddWorksheet": "Add Worksheet",
-    "EditColumn": "Click here to edit column name",
-    "LineMarker": "Click row number to add bookmark",
-    "JSONEle": "Double-click to view, then click on key names to pull columns",
-    "ToggleGridView": "Toggle between grid view and list view",
-    "DragGrid": "You can drag datasets or folders around to reorder",
-    "DataSampleTable": "Click table header to add/remove columns to/from " +
-        "data cart. Click on column headings to further modify the column.",
-    "Datacart": "Datacart area, you can add columns from datasets into your "+
-                "cart. These columns will be used to create the table in your "+
-                "active worksheet. You can add columns in the worksheet " +
-                "screen too.",
-    "PullRightsidebar": "Click to open and close side bar",
-    "TablList": "Click to see details",
-    "PullColumn": "Click key to add the column to your table"
+    'Scrollbar': 'Scroll Table Here',
+    'AddWorksheet': 'Add Worksheet',
+    'EditColumn': 'Click here to edit column name',
+    'LineMarker': 'Click row number to add bookmark',
+    'JSONEle': 'Double-click to view, then click on key names to pull columns',
+    'ToggleGridView': 'Toggle between grid view and list view',
+    'DragGrid': 'You can drag datasets or folders around to reorder',
+    'DataSampleTable': 'Click table header to add/remove columns to/from ' +
+        'data cart. Click on column headings to further modify the column.',
+    'Datacart': 'Datacart area, you can add columns from datasets into your ' +
+                'cart. These columns will be used to create the table in your ' +
+                'active worksheet. You can add columns in the worksheet ' +
+                'screen too.',
+    'PullRightsidebar': 'Click to open and close side bar',
+    'TablList': 'Click to see details',
+    'PullColumn': 'Click key to add the column to your table'
 };
 
 ThriftTStr = {
@@ -510,7 +510,7 @@ SideBarTStr = {
     'UpoladUDF': 'Upload Success',
     'UploadUDFMsg': 'Your python script has been successfully uploaded!',
     'UploadError': 'Upload Error',
-    'SyntaxError': 'Syntax Erro'
+    'SyntaxError': 'Syntax Error'
 };
 
 DaysTStr = {
