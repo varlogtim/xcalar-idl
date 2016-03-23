@@ -887,13 +887,6 @@ window.DS = (function ($, DS) {
 
                 $label.removeClass("focused");
                 xcHelper.removeSelectionRange();
-            },
-            // prevent drag to trigger when focus on label
-            "mousedown": function() {
-                $(this).closest(".grid-unit").attr("draggable", false);
-            },
-            "mouseup": function() {
-                $(this).closest(".grid-unit").attr("draggable", true);
             }
         }, ".folder > .label");
 
