@@ -66,6 +66,12 @@ window.OperationsModal = (function($, OperationsModal) {
                     }
                 }
             },
+            'keydown': function(event) {
+                if (event.which === keyCode.Tab) {
+                    // hide previous dropdown when tabbing to next input
+                    hideDropdowns();
+                }
+            },
             'input': function() {
                 suggest($(this));
             },
@@ -235,6 +241,9 @@ window.OperationsModal = (function($, OperationsModal) {
                     submitForm();
                 }
             },
+            'focus': function() {
+                hideDropdowns();
+            },
             'blur': function() {
                 setTimeout(function() {
                     var $mouseTarget = gMouseEvents.getLastMouseDownTarget();
@@ -280,6 +289,10 @@ window.OperationsModal = (function($, OperationsModal) {
                 }
             }
         }, '.argument');
+
+        $operationsModal.on('dblclick', 'input', function() {
+            this.setSelectionRange(0, this.value.length);
+        });
 
         $operationsModal.find('.argument').parent().each(function(i) {
             $(this).css('z-index', 10 - i);
@@ -805,11 +818,11 @@ window.OperationsModal = (function($, OperationsModal) {
             if (inputNum === 1 && !$input.is(':visible')) {
                 $input = $operationsModal.find('input:visible').last();
             }
+
             $input.focus();
             var val = $input.val();
             $input[0].selectionStart = $input[0].selectionEnd = val.length;
         }
-
         setTimeout(function() {
             $operationsModal.find('.circle' + (inputNum + 1))
                             .addClass('filled');
