@@ -900,6 +900,8 @@ window.DS = (function ($, DS) {
         // make textarea's height flexible
         $gridView.on("keyup", ".folder > .label textarea", function() {
             var textarea = $(this).get(0);
+            // with this, textarea can back to 15px when do delete
+            textarea.style.height = "15px";
             textarea.style.height = (textarea.scrollHeight) + "px";
         });
 
