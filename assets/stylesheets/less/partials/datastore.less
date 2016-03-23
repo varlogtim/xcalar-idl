@@ -1023,8 +1023,18 @@ input {
         .gridItems {
             .size(@width: 240px);
 
+            .grid-unit.display {
+                > .label {
+                   textarea {
+                        background: @color-background-white;
+                        outline: none;
+                        resize: none;
+                    }
+                }
+            }
+
             &.gridView {
-                overflow: auto;
+                overflow: visible;
                 padding-bottom: 2px;
                 .grid-unit.hidden {
                     > .gridIcon, > .listIcon, > .label, > .dsCount,
@@ -1042,7 +1052,6 @@ input {
 
                     > .label {
                         display: block;
-                        margin-top: -2px;
                         padding: 0;
                         background-color: transparent;
                         text-align: center;
@@ -1073,20 +1082,19 @@ input {
 
                 .grid-unit.folder.display {
                     > .label {
-                        &input {
-                           cursor: text;
+                        .position(relative);
+
+                        &.focused {
+                            overflow: visible;
                         }
 
-                        &:focus {
-                            .size(@width: 130%);
+                        textarea {
+                            .size(@width: 150%, @height: 15px, @min-height: 15px, @max-height: 30px);
                             .position(absolute, @left: -7px);
                             box-shadow: inset 0px 0px 3px black;
-                            background: @color-background-white;
-                            outline: none;
-                            // white-space: nowrap;
-                            overflow-y: hidden;
-                            text-overflow: clip;
                             padding: 1px 1px;
+                            .font(@size: 9px);
+                            text-align: center;
                         }
                     }
 
@@ -1138,10 +1146,7 @@ input {
                         padding-right: 30px;
                         white-space: nowrap;
                         overflow: hidden;
-
-                        &:focus {
-                            cursor: text;
-                        }
+                        line-height: 25px;
                     }
                 }
 
@@ -1174,8 +1179,13 @@ input {
                         display: block;
                     }
 
-                    .label:focus {
-                        outline: none;
+                    > .label {
+                        textarea {
+                            .size(100%, 100%);
+                            .font(@size: 11px, @line-height: 25px);
+                            white-space: nowrap;
+                            overflow: hidden;
+                        }
                     }
 
                     .dsCount {

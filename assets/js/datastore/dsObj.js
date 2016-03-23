@@ -63,7 +63,7 @@ window.DS = (function ($, DS) {
 
         // forcus on folder's label for renaming
         DS.getGrid(ds.id).click()
-                    .find('.label').focus();
+                .find('.label').click();
 
         return ds;
     };
@@ -328,12 +328,13 @@ window.DS = (function ($, DS) {
         var $label  = DS.getGrid(dsId).find("> .label");
         var oldName = dsObj.getName();
 
-        if (newName === oldName) {
+        if (newName === oldName || newName === "") {
+            $label.html(oldName);
             return false;
         } else {
             if (dsObj.rename(newName)) {
                 // valid rename
-                $label.val(newName)
+                $label.html(newName)
                     .data("dsname", newName)
                     .attr("data-dsname", newName)
                     .attr("title", newName);
@@ -348,7 +349,7 @@ window.DS = (function ($, DS) {
                 KVStore.commit();
                 return true;
             } else {
-                $label.val(oldName);
+                $label.html(oldName);
                 return false;
             }
         }
@@ -858,23 +859,33 @@ window.DS = (function ($, DS) {
                     $(this).blur();
                 }
             },
-            // select all on focus
-            "focus": function() {
-                var $label = $(this);
-                var name = $label.data("dsname");
-                $label.val(name);
 
-                var input = $label.get(0);
-                input.setSelectionRange(0, name.length);
+            'click': function() {
+                var $label = $(this);
+                var dsId = $label.closest(".grid-unit").data("dsid");
+                var isEditable = DS.getDSObj(dsId).isEditable();
+                if ($label.hasClass("focused") || !isEditable) {
+                    return;
+                }
+
+                $label.addClass("focused");
+                var name = $label.data("dsname");
+                $label.html('<textarea spellcheck="false">' + name + '</textarea>').focus();
+
+                // select all text
+                var $textarea = $label.find("textarea").select();
+                var textarea = $textarea.get(0);
+                textarea.style.height = (textarea.scrollHeight) + "px";
             },
+
             "blur": function() {
                 var $label  = $(this);
-                var dsId    = $label.closest(".grid-unit").data("dsid");
-                var newName = $label.val().trim();
+                var dsId = $label.closest(".grid-unit").data("dsid");
+                var newName = $label.find("textarea").val().trim();
                 DS.rename(dsId, newName);
                 truncateDSName($label);
 
-                this.scrollLeft = 0;    //scroll to the start of text;
+                $label.removeClass("focused");
                 xcHelper.removeSelectionRange();
             },
             // prevent drag to trigger when focus on label
@@ -884,7 +895,13 @@ window.DS = (function ($, DS) {
             "mouseup": function() {
                 $(this).closest(".grid-unit").attr("draggable", true);
             }
-        }, ".folder .label");
+        }, ".folder > .label");
+
+        // make textarea's height flexible
+        $gridView.on("keyup", ".folder > .label textarea", function() {
+            var textarea = $(this).get(0);
+            textarea.style.height = (textarea.scrollHeight) + "px";
+        });
 
         // dbclick grid view folder
         $gridView.on("dblclick", ".folder > .gridIcon, .folder > .dsCount",
@@ -981,9 +998,10 @@ window.DS = (function ($, DS) {
                     '<span class="icon"></span>' +
                 '</div>' +
                 '<div class="dsCount">0</div>' +
-                '<input title="' + name + '" class="label"' +
-                    ' value="' + name + '" data-dsname="' + name + '"' +
-                    ' spellcheck="false">' +
+                '<div title="' + name + '" class="label"' +
+                    ' data-dsname="' + name + '">' +
+                    name +
+                '</div>' +
             '</div>';
         } else {
             // when it's a dataset
