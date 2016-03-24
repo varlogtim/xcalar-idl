@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <meta charset="UTF-8">
+    <title>Xcalar</title>
+    <link href='3rd/fonts/sourcecodepro/sourcecodepro.css' rel='stylesheet' type='text/css'>
+    <link href='3rd/fonts/opensans/opensans.css' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" href="3rd/bower_components/CodeMirror/lib/codemirror.css">
+    <link href="assets/stylesheets/css/style.css" rel="stylesheet" type="text/css">
+    <script src="3rd/bower_components/jquery/dist/jquery.min.js"></script>
+    <script src="assets/js/setup/paths.js" type="text/javascript"></script>
+    <script type="text/javascript">
+      var redirectToLogin = false;
+      (function() {
+          var username = sessionStorage.getItem("xcalar-username");
+          if (username == null || username === "") {
+              redirectToLogin = true;
+              var loginPath;
+              if (window.paths != null) {
+                loginPath = paths.login;
+              } else {
+                // XXX in case paths is not load at that time
+                loginPath = "assets/htmlFiles/login.html";
+              }
+              window.location = loginPath;
+          }
+      })();
+    </script>
+  </head>
+  <body class="hideScroll" style="background-color:rgb(56,71,79);">
+    <div id="initialLoadScreen">
+      <div class="waitingIcon"></div>
+    </div>
+    <!-- CONTAINER -->
+    <div id="container" class="mainContainer" style="display:none;">
+      <script type="text/javascript">
+        if (!window.redirectToLogin) {
+            document.getElementById('container').style.display = 'block';
+        }
+      </script>
+
+      include "partials/menuBar.html"
+      <!-- WORK SPACE PANEL -->
+      <div id="workspacePanel" class="mainPanel no-selection active">
+        include "partials/workspaceBar.html"
+        <div id="watermark"></div>
+        <div id="insight"></div>
+        <div id="mainFrame"></div>
+
+        include "partials/dag.html"
+        include "partials/modal/dataFlowModal.html"
+        include "partials/modal/operationsModal.html"
+      </div>
+      <!-- END WORKSPACE PANEL -->
+      include "partials/monitor.html"
+      include "partials/extension.html"
+      include "partials/datastore.html"
+      include "partials/scheduler.html"
+
+      <div class="underConstruction mainPanel">
+        <div class="topBar"></div>
+        <div class="alert"></div>
+        <br><br>
+        This page is still under construction!
+      </div>
+
+      include "partials/rightSideBar.html"
+      include "partials/bottomBar.html"
+
+      <!-- Fixed positioned StatusBox -->
+      <div id="statusBox">
+        <div class="arrow"></div>
+        <div class="boxInnerWrap">
+          <div id="statusBoxClose" class="close"></div>
+          <div class="title">
+            <span class="icon"></span>
+            <span class="titleText"></span>
+          </div>
+          <div class="message textOverflow"></div>
+        </div>
+      </div>
+      <!-- End Of StatusBox -->
+
+      <div id="successMessageWrap">
+        <div class="checkMark"></div>
+        <div class="successMessage">
+          <div class="textBox">
+            <span class="largeText">Success</span>
+            Your action was successfully applied.
+          </div>
+        </div>
+      </div>
+
+      include "partials/modal/aggModal.html"
+      include "partials/modal/dfgParameterModal.html"
+      include "partials/modal/joinModal.html"
+      <!-- Modal Background -->
+      <div id="modalBackground"></div>
+
+      include "partials/modal/jsonModal.html"
+      <!-- ScratchPad -->
+      <!-- <div id="scratchpadArea">
+        <table class="scratchpad">
+          <thead>
+            <tr>
+              <td id="scratchpadTitle">Xcalar Scratchpad</td>
+            </tr>
+          <thead>
+          <tbody>
+          </tbody>
+        </table>
+      </div> -->
+      <!-- End of ScratchPad -->
+
+      include "partials/modal/addScheduleModal.html"
+      include "partials/modal/alertModal.html"
+      include "partials/modal/workbook.html"
+      include "partials/modal/fileBrowserModal.html"
+      include "partials/modal/profileModal.html"
+      include "partials/modal/exportModal.html"
+      include "partials/modal/multiCastModal.html"
+      include "partials/modal/extensionModal.html"
+    </div>
+    <!-- END CONTAINER -->
+    include "partials/script.html"
+    <script>
+      documentReadyIndexFunction();
+    </script>
+  </body>
+</html>

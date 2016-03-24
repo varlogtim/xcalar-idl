@@ -99,7 +99,7 @@ window.StartManager = (function(StartManager, $) {
             DataStore.setup();
             TblMenu.setup();
             WSManager.setup();
-            loadMonitorPanel();
+            MonitorPanel.setup();
             DagPanel.setup();
             DFGPanel.setup();
             setupModals();
@@ -196,12 +196,6 @@ window.StartManager = (function(StartManager, $) {
         DFGParamModal.setup();
         AddScheduleModal.setup();
         MultiCastModal.setup();
-    }
-
-    function loadMonitorPanel() {
-        $('#monitorPanel').load(paths.monitor, function() {
-            MonitorPanel.setup();
-        });
     }
 
     function setupLogout() {

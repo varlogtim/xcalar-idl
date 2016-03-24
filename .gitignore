@@ -5,3 +5,5 @@
 *.css
 *.DS_Store
 /prod/*
+/node_modules/*
+index.html

@@ -1,0 +1,536 @@
+<!-- DATASTORE PANEL -->
+<div id="datastorePanel" class="mainPanel">
+  <!-- Datastore header -->
+  <div id="contentHeader" class="topBar">
+    <div id="contentHeaderLeft" class="no-selection">
+      <div id="inButton" class="buttonArea active">
+        <div class="icon"></div>
+        <div class="text">IN</div>
+      </div>
+      <div id="outButton" class="buttonArea">
+        <div class="icon"></div>
+        <div class="text">OUT</div>
+      </div>
+    </div>
+    <div id="contentHeaderMid" class="no-selection">
+      <div class="text" style="margin-left:20px">DATASET</div>
+    </div>
+    <div id="contentHeaderRight" class="no-selection">
+      <div class="icon"></div>
+      <div class="text">DATA CART</div>
+    </div>
+  </div>
+  <!-- Import Data Form -->
+  <div id="importDataView" class="dataStoreFormView">
+    <div id="importHelp"  class="formHelp no-selection">
+      <div class="contentViewMidWrap">
+        <h2>Point To New Dataset</h2>
+        <span class="icon"></span>
+        <p>
+           INPUT FILE PATH AND FILE NAME TO POINT TO DATASET.
+           THEN SELECT FILE FORMAT. POINTED DATA WILL BE LISTED ON THE LEFT.
+        </p>
+      </div>
+    </div>
+    <!-- Data Form -->
+    <form id="importDataForm" class="dataStoreForm" target="_blank">
+      <!-- Top Form -->
+      <div id="importDataTopForm" class="dataStoreFormTop no-selection">
+        <div class="contentViewMidWrap">
+          <!-- file path -->
+          <div id="filePathSelector" class="importFormRow">
+            <label>File Path:</label>
+            <input id="filePath" type="text" name="filePath" spellcheck="false"
+             autocomplete="off" placeholder="Enter File Directory" required>
+              <div class="buttonWrap">
+                <button id="previewBtn" class="btn btnMid" type="button">PREVIEW</button>
+                <button id="fileBrowserBtn" class="btn btnMid" type="button">BROWSE</button>
+              </div>
+          </div>
+          <!-- file name -->
+          <div id="fileNameSelector" class="importFormRow">
+            <label>Name:</label>
+            <input id="fileName" name="fileName" type="text"
+             placeholder="Enter Dataset Name" autocomplete="off"
+             pattern="^\w+$"  spellcheck="false"
+             title="A valid name with no special characters" required>
+             <!-- file formt -->
+            <div class="buttonWrap">
+              <div id="promoteHeaderCheckbox" class="checkboxSection hidden default-hidden">
+                <div class="checkbox iconWrapper">
+                  <span class="icon"></span>
+                </div>
+                <div class="text">Header</div>
+                <div title="Check to Promote First Row As Header" data-toggle="tooltip"
+                data-placement="top" data-container="body" class="hint qMark"></div>
+              </div>
+              <!-- udf checkbox -->
+              <div id="udfCheckbox" class="checkboxSection hidden default-hidden">
+                <div class="checkbox iconWrapper">
+                  <span class="icon"></span>
+                </div>
+                <div class="text">UDF</div>
+              </div>
+              <div class="fileFormatPadding"></div>
+              <div id="fileFormat" class="dropDownList">
+                  <input class="text" type="text" spellcheck="false"
+                  placeholder="Format" disabled>
+                  <div class="iconWrapper">
+                    <span class="icon"></span>
+                  </div>
+                  <!-- Format Menu -->
+                  <div id="fileFormatMenu" class="list">
+                    <ul>
+                      <li class="hint">Format</li>
+                      <li name="CSV">CSV</li>
+                      <li name="JSON">JSON</li>
+                      <li name="EXCEL">Excel</li>
+                      <li name="RAW">Raw</li>
+                      <li name="RANDOM">Random</li>
+                    </ul>
+                    <div class="scrollArea top">
+                      <div class="arrow"></div>
+                    </div>
+                    <div class="scrollArea bottom">
+                      <div class="arrow"></div>
+                    </div>
+                  </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Bottom Form -->
+      <div id="importDataBottomForm"  class="dataStoreFormBottom no-selection">
+        <div class="contentViewMidWrap">
+          <!-- UDF Args -->
+          <div id="udfArgs" class="hidden clearfix default-hidden">
+            <div class="optionSection">
+              <section class="wrapper">
+                <span class="label">Module Name:</span>
+                <div id="udfArgs-moduleList" class="dropDownList">
+                  <input class="text" type="text" spellcheck="false" disabled>
+                  <div class="iconWrapper">
+                    <span class="icon"></span>
+                  </div>
+                  <div class="list">
+                    <ul></ul>
+                    <div class="scrollArea top">
+                      <div class="arrow"></div>
+                    </div>
+                    <div class="scrollArea bottom">
+                      <div class="arrow"></div>
+                    </div>
+                  </div>
+                </div>
+              </section>
+              <section class="wrapper">
+                <span class="label">Function Name:</span>
+                <div id="udfArgs-funcList" class="dropDownList">
+                  <input class="text" type="text" spellcheck="false" disabled>
+                  <div class="iconWrapper">
+                    <span class="icon"></span>
+                  </div>
+                  <div class="list">
+                    <ul></ul>
+                    <div class="scrollArea top"><div class="arrow"></div></div>
+                    <div class="scrollArea bottom"><div class="arrow"></div></div>
+                  </div>
+                </div>
+              </section>
+            </div>
+            <div class="hintSection">
+              <span class="text">Please select the field and line delimiters that are used in the output of the UDF</span>
+            </div>
+          </div>
+          <!-- End of Udf Args -->
+          <!-- Delimiters -->
+          <div id="csvDelim" class="hidden clearfix default-hidden">
+            <!-- Field Delimiter -->
+            <section id="fieldDelim" class="wrapper">
+              <span class="label">Field Delimiter:</span>
+              <div class="dropDownList">
+                <input id="fieldText" class="text" type="text"
+                spellcheck="false" disabled>
+                <div class="iconWrapper">
+                  <span class="icon"></span>
+                </div>
+                <!-- dropdown menu -->
+                <div class="list">
+                  <ul>
+                    <li name="default">Default (\t)</li>
+                    <li name="comma">Comma (,)</li>
+                    <li name="null" class="nullVal">Null</li>
+                    <li name="other" class="other">
+                      <span>Other</span>
+                      <input class="delimVal" type="text" spellcheck="false">
+                    </li>
+                  </ul>
+                  <div class="scrollArea top"><div class="arrow"></div></div>
+                  <div class="scrollArea bottom"><div class="arrow"></div></div>
+                </div>
+              </div>
+            </section>
+            <!-- Line Delimiter -->
+            <section id="lineDelim" class="wrapper">
+              <span class="label">Line Delimiter:</span>
+              <div class="dropDownList">
+                <input id="lineText" class="text" type="text"
+                spellcheck="false" disabled>
+                <div class="iconWrapper">
+                  <span class="icon"></span>
+                </div>
+                <!-- dropdown menu -->
+                <div class="list">
+                  <ul>
+                    <li name="default">Default (\n)</li>
+                    <li name="null" class="nullVal">Null</li>
+                    <li name="other" class="other">
+                      <span>Other</span>
+                      <input class="delimVal" type="text" spellcheck="false">
+                    </li>
+                  </ul>
+                  <div class="scrollArea top">
+                    <div class="arrow"></div>
+                  </div>
+                  <div class="scrollArea bottom">
+                    <div class="arrow"></div>
+                  </div>
+                </div>
+              </div>
+            </section>
+          </div>
+          <!-- End Of Delimiters -->
+          <button id="importDataSubmit" class="btn btnMid" type="submit">POINT TO DATA</button>
+          <button id="importDataReset" class="btn btnMid btn-cancel" type="reset">CANCEL</button>
+        </div>
+      </div>
+    </form>
+    <!-- Preview Section -->
+    <section id="dsPreviewWrap" class="hidden">
+      <div class="container">
+        <div class="infoSection">
+          <!-- Info Section 1 -->
+          <div class="infoPart1">
+            <!-- minimize -->
+            <div id="preview-minimize" class="minimize" title="Toggle minimize" data-toggle="tooltip" data-placement="top" data-container="body">
+              <div class="divider"></div>
+              <div class="divider"></div>
+              <div class="divider"></div>
+            </div>
+          </div>
+          <!-- Info Section 2 -->
+          <div class="infoPart2">
+            <section class="titleSection textOverflowOneLine">
+              <span class="title">Previewing:</span>
+              <span id="preview-url" class="text"></span>
+              <span id="preview-udf" class="title">UDF:
+                <span class="text"></span>
+              </span>
+            </section>
+            <section class="btnSection">
+              <button id="preview-close" class="btn btnMid btn-cancel close loadHidden" type="button">EXIT</button>
+              <button id="preview-apply" class="btn btnMid save loadHidden" type="button">SAVE & EXIT</button>
+            </section>
+          </div>
+        </div>
+        <!-- Waiting Part -->
+        <div class="waitSection hidden">
+          <div class="icon"></div>
+          <div class="text">DATASET IS LOADING...</div>
+        </div>
+        <!-- Error Message Part -->
+        <div class="errorSection loadError hidden"></div>
+        <!-- Suggestion Section -->
+        <div class="suggestSection loadHidden no-selection">
+          <section id="previewSugg" class="suggestPart">
+            <div class="title">Suggestion:</div>
+            <div class="content"></div>
+          </section>
+          <!-- highlight icon -->
+            <section class="iconPart">
+              <!-- remove highlight icon -->
+              <div id="preview-rmHightlight" class="rmHightLight iconWrapper" title="Remove highlights" data-toggle="tooltip" data-placement="top" data-container="body">
+                <span class="icon"></span>
+              </div>
+              <!-- apply highlight icon -->
+              <div id="preview-highlight" class="highlight iconWrapper" title="Apply highlighted characters as delimiter" data-toggle="tooltip" data-placement="top" data-container="body">
+                <span class="icon"></span>
+              </div>
+            </section>
+        </div>
+        <!-- Preview -->
+        <div class="previewSection">
+          <div id="dsPreviewTableWrap" class="datasetTableWrap">
+            <!-- Preview Part -->
+            <div class="datasetTbodyWrap loadHidden">
+              <table id="previewTable" class="datasetTable dataTable"></table>
+              <div class="previewBottom">End of Preview</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <!-- End Of Preview Section -->
+  </div>
+  <!-- Main Content -->
+  <div id="mainContent">
+    <!-- Explore View -->
+    <div id="exploreView">
+      <div class="contentView">
+        <div class="contentViewLeft no-selection">
+          <div id="datasetExplore" class="headingArea">
+            <span>Datasets (<span class="numDataStores">0</span>)</span>
+            <div class="buttonGroup">
+              <div id="refreshDS" class="refresh btn dataViewBtn">
+                <span class="icon" data-toggle="tooltip" data-placement="top"
+                data-container="body" title="" data-original-title="Refresh Datasets"></span>
+              </div>
+
+              <div id="dataViewBtn" class="btn dataViewBtn selected gridView toggleListGrid"
+              data-toggle="tooltip" data-placement="top"
+              data-original-title="Switch to List view" data-container="body">
+                <span class="icon"></span>
+              </div>
+            </div>
+          </div>
+          <div id="importDataArea" class="mainButtonArea no-selection">
+            <button id="importDataButton" class="btn btnLarge iconBtn">
+              <span class="icon"></span>POINT TO NEW DATASET
+            </button>
+          </div>
+          <!-- Grid Views of ds -->
+          <div class="gridViewButtonArea no-selection">
+            <div id="backFolderBtn"  class="gridViewBtn backBtn disabled"
+                title="See previous folders" data-container="body"
+                data-toggle="tooltip" data-placement="bottom"
+                ondrop="DS.onDropBack(event)"
+                ondragover="DS.allowDrop(event)"
+                ondragenter="DS.onDragEnter(event)">
+              <div class="icon"></div>
+              <div class="label">..</div>
+            </div>
+            <div id="addFolderBtn" class="gridViewBtn addBtn" title="Add New Folder"
+            data-container="body" data-toggle="tooltip" data-placement="bottom">
+              <div class="icon"></div>
+              <div class="label">NEW</div>
+            </div>
+            <div id="deleteFolderBtn" class="gridViewBtn deleteBtn disabled"
+                title="Delete folder or dataset" data-container="body"
+                data-toggle="tooltip" data-placement="bottom">
+              <div class="icon"></div>
+              <div class="label">DELETE</div>
+            </div>
+          </div>
+          <!-- Grid View -->
+          <div class="gridViewWrapper">
+            <div class="gridView gridItems"></div>
+          </div>
+        </div>
+        <div class="contentViewMid hidden">
+          <div class="contentViewHeader">
+            <div class="dbText">
+              <h2 id="dsInfo-title">Datasets</h2>
+              <p>
+                Created by: <span id="dsInfo-author"></span> |
+                Dataset Modified Date: <span id="dsInfo-modifyDate"></span>
+              </p>
+              <p>
+                Records: <span id="dsInfo-records">12,435</span> |
+                Size: <span id="dsInfo-size">21 GB</span> |
+                Path: <span id="dsInfo-path">N/A</span>
+              </p>
+            </div>
+          </div>
+          <!-- Datastore Table -->
+          <div class="contentViewTable">
+            <!-- Title Wrap -->
+            <div class="datasetTitleWrap no-selection">
+              <!-- Title Info -->
+              <div class="titleInfo">
+                <div class="heading">
+                   <h2>Dataset Preview</h2>
+                </div>
+                <div class="dsInfo">
+                  <span>Format:</span>
+                  <span id="schema-format"></span>
+                </div>
+              </div>
+              <!-- Button Group -->
+              <div id="dsColsBtn" class="buttonGroup">
+                <div class="buttonWrap">
+                  <div id="noDScols" class="noCols modifyDSButton">
+                    <span class="icon"></span>
+                    <span class="text">Select Columns Later</span>
+                  </div>
+                  <div title="Create A Table Without Picking Any Column"
+                  data-toggle="tooltip" data-container="body" class="qMark"></div>
+                </div>
+                <div class="buttonWrap">
+                  <div id="selectDSCols" class="selectAll modifyDSButton">
+                    <span class="icon"></span>
+                    <span class="text">Select All</span>
+                  </div>
+                  <div class="divider"></div>
+                  <div id="clearDsCols" class="clear modifyDSButton">
+                    <span class="icon"></span>
+                    <span class="text">Clear All</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- Dataset Wrap -->
+            <div id="datasetWrap">
+              <div id="dataSetTableWrap" class="datasetTableWrap"></div>
+            </div>
+          </div>
+        </div>
+        <!-- End Datastore Table -->
+
+        <!-- Datastore Cart -->
+        <div class="contentViewRight no-selection">
+          <div class="buttonArea">
+            <button id="submitDSTablesBtn" class="btn btnLarge iconBtn">
+              <span class="icon"></span>SEND TO ACTIVE WORKSHEET
+            </button>
+            <!--   <button id="submitMultipleDBTablesBtn"
+                class="btn btnLarge btnInactive iconBtn" tabindex="-1">
+              <span class="icon"></span>SEND TO MULTIPLE WORKSHEETS
+            </button> -->
+            <button id="clearDataCart" class="btn btnLarge iconBtn">
+              <span class="icon"></span>CLEAR DATA CART
+            </button>
+            <div id="dataCartTitle" class="title"></div>
+            <div class="border"></div>
+          </div>
+          <div id="dataCartWrap">
+            <div id="dataCart"></div>
+          </div>
+        </div>
+        <!-- End of Datastore Cart -->
+      </div>
+    </div>
+    <!-- Export View -->
+    <div id="exportView">
+      <div class="contentView">
+        <div class="contentViewLeft no-selection">
+          <div class="headingArea">
+            <span>Targets (<span class="numExportTargets">0</span>)</span>
+            <div class="buttonGroup">
+              <div class="btn dataViewBtn refresh">
+                <span class="icon" title="Refresh Targets" data-toggle="tooltip"
+                data-placement="top" data-container="body"></span>
+              </div>
+
+              <div id="exportViewBtn" class="btn dataViewBtn selected gridView toggleListGrid"
+              data-toggle="tooltip" data-placement="top"
+              data-original-title="Switch to List view" data-container="body">
+                <span class="icon"></span>
+              </div>
+            </div>
+          </div>
+          <div class="mainButtonArea no-selection">
+            <button id="createExportButton" class="btn btnLarge iconBtn">
+              <span class="icon"></span>CREATE NEW EXPORT TARGET
+            </button>
+          </div>
+          <!-- Grid View -->
+          <div class="gridViewWrapper">
+            <div class="gridView gridItems"></div>
+          </div>
+        </div>
+        <div class="contentViewMid dataStoreFormView">
+          <div class="formHelp no-selection">
+            <div class="contentViewMidWrap">
+              <h2>Create Export Target</h2>
+              <span class="icon"></span>
+              <p>
+                 SELECT A TARGET TYPE AND CHOOSE A NAME FOR YOUR EXPORT TARGET. PROVIDE ANY ADDITIONAL INFORMATION AS NEEDED.
+              </p>
+            </div>
+          </div>
+          <!-- Data Form -->
+          <form id="exportDataForm" class="dataStoreForm" target="_blank">
+            <!-- Top Form -->
+            <div id="exportDataTopForm" class="dataStoreFormTop no-selection">
+              <div class="contentViewMidWrap">
+                <!-- file path -->
+                <div id="targetTypeSelector" class="importFormRow">
+                  <label for="targetTypeList">Target Type:</label>
+                  <div id="targetTypeList" class="dropDownList">
+                    <input class="text hint" type="text" value=""
+                    spellcheck="false" disabled>
+                    <div class="iconWrapper">
+                      <span class="icon"></span>
+                    </div>
+                    <ul id="fileFormatMenu" class="list">
+                      <li class="hint"></li>
+                      <li name="LocalFilesystem">Local Filesystem</li>
+                      <li name="ODBC" class="unavailable">ODBC</li>
+                    </ul>
+                  </div>
+                </div>
+                <div id="targetNameSelector" class="importFormRow">
+                  <label for="targetName">Name:</label>
+                  <input id="targetName" name="targetName" type="text"
+                   placeholder="" autocomplete="off"
+                   pattern="^\w+$"  spellcheck="false"
+                   title="A valid name with no special characters" required>
+                </div>
+                <!-- file name -->
+              </div>
+            </div>
+            <!-- Bottom Form -->
+            <div id="exportDataBottomForm" class="dataStoreFormBottom no-selection">
+              <h2>Add New Connector</h2>
+              <div class="contentViewMidWrap">
+                <div class="importFormRow">
+                  <label for="exportURL">URL:</label>
+                  <input type="url" id="exportURL" spellcheck="false">
+                </div>
+                <div class="importFormRow">
+                  <div class="inputSet">
+                    <label for="exportService">Service:</label>
+                    <input type="text" id="exportService" spellcheck="false">
+                  </div>
+                  <div class="inputSet">
+                    <label for="exportPort">Port:</label>
+                    <input type="text" id="exportPort" spellcheck="false">
+                  </div>
+                </div>
+                <div class="importFormRow radioSection">
+                  <div class="radioWrap windowsAuth">
+                    <div class="radio">
+                      <span class="dot"></span>
+                    </div>
+                    <div class="label">Use windows authentication</div>
+                  </div>
+                  <div class="radioWrap usernameAuth">
+                    <div class="radio">
+                      <span class="dot"></span>
+                    </div>
+                    <div class="label">Use specific username and password</div>
+                  </div>
+                </div>
+                <div class="importFormRow">
+                  <label for="userNameExport">User name:</label>
+                  <input type="text" id="userNameExport" spellcheck="false">
+                </div>
+                <div class="importFormRow">
+                  <label for="passwordExport">Password:</label>
+                  <input type="password" id="passwordExport" spellcheck="false">
+                </div>
+                <button id="exportFormSubmit" class="btn btnMid"
+                        type="submit">ADD</button>
+                <button id="exportFormReset" class="btn btnMid btn-cancel"
+                        type="reset">CLEAR</button>
+              </div>
+            </div>
+          </form>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- END DATASTORE PANEL -->

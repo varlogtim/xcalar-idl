@@ -1,0 +1,110 @@
+<!-- DATAFLOW MODAL -->
+<div id="dataFlowModal" class="modalContainer">
+  <!-- DATAFLOW Header -->
+  <header class="modalHeader">
+    <span class="text">Add To Data Flow Group</span>
+    <div class="close">
+      <span class="icon"></span>
+    </div>
+  </header>
+  <!-- Data Flow Modal Instruction -->
+  <section class="modalInstruction">
+    <div class="icon"></div>
+    <div class="text">Add a data flow to a data flow group. Select the data flow group that you would like to add the current data flow to and click on the save button.</div>
+  </section>
+  <!-- Data Flow Modal Top Section-->
+  <section class="modalTopMain">
+    <!-- option section -->
+    <div class="optionSection">
+        <!-- option: new data flow group -->
+        <div class="radioWrap" data-no="0">
+          <div class="radio checked">
+            <span class="dot"></span>
+          </div>
+          <div class="label">New Data Flow Group</div>
+        </div>
+        <!-- option: add to existing data flow -->
+        <div class="radioWrap" data-no="1">
+          <div class="radio">
+            <span class="dot"></span>
+          </div>
+          <div class="label">Append to Existing Data Flow</div>
+        </div>
+    </div>
+    <!-- input section for new group name -->
+    <div class="inputSection">
+      <span class="label">New Group Name:</span>
+      <input id="newGroupNameInput" type="text" spellcheck="false">
+    </div>
+  </section>
+  <!-- Data Flow Modal Main Section -->
+  <section class="modalMain unavailable">
+    <!-- Data Flow Lists Section -->
+    <section class="sideListSection">
+      <!-- header -->
+      <header class="title">
+        <h2>Data Flow Groups (<span class="num">0</span>)</h2>
+      </header>
+      <!-- data flow lists -->
+      <div class="sideLists">
+        <!-- search area -->
+        <div class="searchArea">
+          <input id="dataFlowSearch" type="text" spellcheck="false" placeholder="Search keyword...">
+          <div class="iconWrap clear">
+            <span class="icon"></span>
+          </div>
+        </div>
+        <!-- list section -->
+        <div class="listSection">
+          <div class="dataFlowGroup">
+            <div class="listBox">
+              <div class="iconWrap">
+                <span class="icon"></span>
+              </div>
+              <div class="label">DFG 1</div>
+            </div>
+            <ul class="sublist list">
+              <li>something</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+    <!-- Preview Section -->
+    <section class="previewSection">
+      <!-- title section -->
+      <section class="titleSection">
+        <div class="titleWrap textOverflow">
+          <span class="text">Preview</span>
+        </div>
+        <div class="buttonGroup">
+          <!-- select all btn -->
+          <div class="selectAll modifyDSButton">
+            <span class="icon"></span>
+            <span class="text">Select All</span>
+          </div>
+          <!-- clear all btn -->
+          <div class="clear modifyDSButton">
+            <span class="icon"></span>
+            <span class="text">Clear All</span>
+          </div>
+        </div>
+      </section>
+      <!-- Data Flow list section -->
+      <section id="dataFlowPreviews" class="listSection"></section>
+      <section id="dataFlowExport" class="tableSection" style="display:none;">
+        <div class="tablePadding"></div>
+        <div class="headerBackground"></div>
+        <div class="headerShadow"></div>
+        <table id="dataFlowTable" class="dataFlowTable dataTable"></table>
+      </section>
+    </section>
+  </section>
+  <!-- Button Section -->
+  <section class="modalBottom">
+    <button id="dataFlowModalConfirm" type="button" class="btn btnMid confirm next">Next</button>
+    <button type="button" class="btn btnMid back">Back</button>
+    <button type="button" class="btn btnMid cancel">CANCEL</button>
+  </section>
+</div>
+<!-- End of DATAFLOW MODAL -->

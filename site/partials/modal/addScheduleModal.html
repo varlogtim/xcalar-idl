@@ -1,0 +1,58 @@
+<!-- AddSchedule Modal -->
+<div id="addScheduleModal" class="modalContainer">
+  <!-- AddSchedule Modal Header -->
+  <header class="modalHeader">
+    <span class="text">Add Schedule</span>
+    <div class="close">
+      <span class="icon"></span>
+    </div>
+  </header>
+  <!-- AddSchedule Modal Instruction -->
+  <section class="modalInstruction">
+    <div class="icon"></div>
+    <div class="text">
+        Select a schedule to add to the Data Flow Group. Or you can also create a new schedule.
+    </div>
+  </section>
+  <!-- AddSchedule Main Section -->
+  <section class="modalTopMain">
+    <!-- schedule info section -->
+    <div class="scheInfoSection">
+      <h3>Attached schedules:</h3>
+      <div class="text">N/A</div>
+    </div>
+    <!-- select schedule section -->
+    <div class="selectScheSection">
+      <h3>Select a schedule:</h3>
+      <div class="dropDownList scheduleList">
+        <input class="text focusable scheduleListInput" type="text" value=""
+          spellcheck="false" disabled>
+        <div class="iconWrapper">
+            <span class="icon"></span>
+        </div>
+        <div class="list" style="display: none;">
+          <ul></ul>
+          <div class="scrollArea top">
+            <div class="arrow"></div>
+          </div>
+          <div class="scrollArea bottom">
+            <div class="arrow"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- create new schedule section -->
+    <div class="newScheSection">
+      <h3>Create a new schedule:</h3>
+      <div>
+        <button type="button" class="btn btnMid createNewSchedule">create new schedule</button>
+      </div>
+    </div>
+  </section>
+  <!-- Button Section -->
+  <section class="modalBottom">
+    <button type="button" class="btn btnMid confirm">SAVE</button>
+    <button type="button" class="btn btnMid cancel">CANCEL</button>
+  </section>
+</div>
+<!-- End of AddSchedule Modal -->

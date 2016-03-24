@@ -1,0 +1,315 @@
+<!-- SCHEDULER PANEL -->
+<div id="schedulerPanel" class="mainPanel">
+  <div id="schedulerTopBar" class="topBar">
+      <div id="dataflowButton" class="buttonArea active">
+        <div class="icon"></div>
+        <div class="text">DATA FLOW GRP</div>
+      </div>
+      <div id="schedulesButton" class="buttonArea">
+        <div class="icon"></div>
+        <div class="text">SCHEDULES</div>
+      </div>
+      <div class="rightHeaderArea">
+        <div class="text">DETAIL</div>
+      </div>
+  </div>
+  <div class="mainContent">
+    <div id="dataflowView">
+      <div class="leftContent no-selection">
+        <div class="headingArea">
+          Data Flow Groups (<span class="numGroups">0</span>)
+        </div>
+        <div class="listSection"></div>
+      </div>
+      <div class="midContent">
+        <!-- midContentHeader -->
+        <div class="midContentHeader">
+          <div class="leftSection">
+            <h2></h2>
+            <ul class="schedulesList"></ul>
+          </div>
+          <!-- Retina Tab Section -->
+          <div class="retTabSection no-selection hidden">
+            <div class="retTab">
+              <div class="tabWrap">
+                <span class="retTitle">Parameters</span>
+                <div class="caret">
+                  <span class="icon"></span>
+                </div>
+              </div>
+              <!-- retPopUp -->
+               <div class="retPopUp">
+                <div class="divider"></div>
+                <div class="inputSection">
+                  <input class="newParam" type="text" placeholder="Input New Parameter" spellcheck="false">
+                  <div class="btn addParam">
+                    <span class="icon"></span>
+                    <span class="label">CREATE NEW PARAMETER</span>
+                  </div>
+                </div>
+                <div class="tableHeader">
+                  <div class="thWrap paramName">Parameter</div>
+                  <div class="thWrap paramVal">Value</div>
+                  <div class="thWrap paramAction">Action</div>
+                </div>
+                <div class="tableContainer">
+                  <div class="tableWrapper">
+                    <table>
+                      <tbody></tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+              <!-- End of retPopUp -->
+            </div>
+          </div>
+          <!-- End Of Retina Tab Section -->
+        </div>
+        <!-- End of midContentHeader -->
+        <div class="midContentMain"></div>
+      </div>
+    </div>
+    <!-- END Data Flow View -->
+    <!-- schedules view -->
+    <div id="schedulesView">
+      <!-- leftContent -->
+      <div class="leftContent">
+        <div class="headingArea">
+          Schedules (<span class="num">0</span>)
+        </div>
+        <div class="mainButtonArea">
+          <button id="addSchedule" class="btn btnLarge iconBtn">
+            <span class="icon"></span>
+            CREATE NEW SCHEDULE
+          </button>
+        </div>
+        <!-- scheduleListArea -->
+        <div class="scheduleListArea">
+          <div class="scrollbarWrapper">
+            <ul id="scheduleLists" class="scheduleLists support-animation"></ul>
+          </div>
+        </div>
+      </div>
+      <!-- midContent -->
+      <div class="midContent">
+        <!-- midContentHeader -->
+        <div id="scheduleInfos" class="midContentHeader no-selection">
+          <h2 class="heading textOverflow"></h2>
+          <div class="scheduleInfoSection">
+            <!-- created -->
+            <div class="scheduleInfo created">
+              <span class="name">Created:</span>
+              <span class="text"></span>
+            </div>
+            <!-- modified -->
+            <div class="scheduleInfo modified">
+              <span class="name">Last modified:</span>
+              <span class="text"></span>
+            </div>
+            <div class="scheduleInfo frequency">
+              <span class="name">Frequency:</span>
+              <span class="text"></span>
+            </div>
+            <div class="scheduleInfo recur">
+              <span class="name">Repeat Time:</span>
+              <span class="text"></span>
+            </div>
+          </div>
+        </div>
+        <!-- midContentTable -->
+        <div id="scheduleTable" class="midContentTable">
+          <section class="titleSection">
+            <div class="titleWrapper">
+              <div class="title name">Data Flow Group Name</div>
+              <div class="title time">Initial Run Time</div>
+              <div class="title status">Status</div>
+            </div>
+          </section>
+          <section class="mainSection"></section>
+          <section class="bottomSection">
+            <div class="lastRunInfo">
+              Last Run:
+              <span class="text">N/A</span>
+            </div>
+            <div class="nextRunInfo">
+              Next Run:
+              <span class="text">N/A</span>
+            </div>
+            <div class="btnWrapper">
+              <button id="scheduleForm-edit" class="iconBtn btn btnMid" title="MODIFY Schedule">
+                <span class="icon"></span>
+                MODIFY SCHEDULE
+              </button>
+            </div>
+          </section>
+        </div>
+        <!-- midContentForm -->
+        <div id="scheduleForm" class="midContentForm new">
+          <section class="content">
+            <div class="nameSection">
+              <div class="text">Schedule Name:</div>
+              <input class="name textOverflow" type="text" placeholder="please input schedule name" spellcheck="false" >
+            </div>
+            <div class="divider"></div>
+            <!-- time section -->
+            <div class="timeSection" id="startTimeSection">
+              <div class="text">Start Time:</div>
+              <div class="datePickerPart">
+                <input class="date" type="text" spellcheck="false">
+              </div>
+              <div class="timePickerPart">
+                <input class="time timePickerBox" type="text" spellcheck="false">
+                <!-- Timepicker -->
+                <div id="scheduler-timePicker"class="timePicker">
+                  <div class="textSection">
+                    <span class="text">Hour</span>
+                    <span class="text">Minute</span>
+                  </div>
+                  <div class="buttonSection">
+                    <button class="btn btnMid increase hour">
+                      <div class="bar"></div>
+                      <div class="bar vertical"></div>
+                    </button>
+                    <button class="btn btnMid increase minute">
+                      <div class="bar"></div>
+                      <div class="bar vertical"></div>
+                    </button>
+                    <button class="btn btnMid increase ampm">
+                      <div class="bar"></div>
+                      <div class="bar vertical"></div>
+                    </button>
+                  </div>
+                  <div class="inputSection">
+                    <input class="hour" type="text" disabled
+                      spellcheck="false">
+                    <input class="minute" type="text" disabled
+                      spellcheck="false">
+                    <span class="ampm">PM</span>
+                  </div>
+                  <div class="buttonSection">
+                    <button class="btn btnMid decrease hour">
+                      <div class="bar"></div>
+                    </button>
+                    <button class="btn btnMid decrease minute">
+                      <div class="bar"></div>
+                    </button>
+                    <button class="btn btnMid decrease ampm">
+                      <div class="bar"></div>
+                    </button>
+                  </div>
+                </div>
+                <!-- End Timepicker -->
+              </div>
+            </div>
+            <!-- divider -->
+            <div class="divider"></div>
+            <!-- frequency section -->
+            <div class="frequencySection">
+              <!-- part1 -->
+              <div class="freq1">
+                <div class="title">Frequency:</div>
+                <div class="radioWrap" data-option="minute">
+                  <div class="radio checked">
+                    <span class="dot"></span>
+                  </div>
+                  <div class="label">Every Minute</div>
+                </div>
+                <div class="radioWrap" data-option="hourly">
+                  <div class="radio checked">
+                    <span class="dot"></span>
+                  </div>
+                  <div class="label">Hourly</div>
+                </div>
+                <div class="radioWrap" data-option="daily">
+                  <div class="radio">
+                    <span class="dot"></span>
+                  </div>
+                  <div class="label">Daily</div>
+                </div>
+                <div class="radioWrap" data-option="weekly">
+                  <div class="radio">
+                    <span class="dot"></span>
+                  </div>
+                  <div class="label">Weekly</div>
+                </div>
+                <div class="radioWrap" data-option="biweekly">
+                  <div class="radio">
+                    <span class="dot"></span>
+                  </div>
+                  <div class="label">Biweekly</div>
+                </div>
+                <!-- <div class="radioWrap" data-option="monthly">
+                  <div class="radio">
+                    <span class="dot"></span>
+                  </div>
+                  <div class="label">Monthly</div>
+                </div> -->
+              </div>
+              <!-- part2 -->
+              <!--
+              <div class="freq2 inActive">
+                <div class="radioWrap" data-option="dayPerMonth">
+                  <div class="radio">
+                    <span class="dot"></span>
+                  </div>
+                  <div class="label">The</div>
+                </div>
+                <div class="dropDownList radix">
+                  <input class="text" value="First" disabled spellcheck="false">
+                  <div class="iconWrapper">
+                    <span class="icon"></span>
+                  </div>
+                  <ul class="list">
+                    <li>First</li>
+                    <li>Second</li>
+                    <li>Third</li>
+                    <li>Fourth</li>
+                    <li>Last</li>
+                  </ul>
+                </div>
+                <div class="dropDownList day">
+                  <input class="text" value="Sunday" disabled spellcheck="false">
+                  <div class="iconWrapper">
+                    <span class="icon"></span>
+                  </div>
+                  <ul class="list">
+                    <li>Sunday</li>
+                    <li>Monday</li>
+                    <li>Tuesday</li>
+                    <li>Wednesday</li>
+                    <li>Thursday</li>
+                    <li>Friday</li>
+                    <li>Saturday</li>
+                  </ul>
+                </div>
+                <div class="textSection">
+                  <span class="text">of every month</span>
+                </div>
+              </div> -->
+            </div>
+            <!-- End of frequency section -->
+            <!-- divider -->
+            <div class="divider"></div>
+            <div class="recurSection">
+              <div class="text">Number of Runs:</div>
+              <input type="number" spellcheck="false"
+                placeholder="how many times to run this">
+            </div>
+          </section>
+          <section class="buttonArea">
+            <button id="scheduleForm-cancel" type="button" class="btn btnMid cancel">
+              CANCEL
+            </button>
+            <button id="scheduleForm-save" type="button" class="btn btnMid confirm">
+              SAVE
+            </button>
+          </section>
+        </div>
+        <div class="midContentBottom"></div>
+      </div>
+      <!-- END midContent -->
+    </div>
+    <!-- END schedulesView -->
+  </div>
+</div>
+<!-- END SCHEDULER PANEL -->

@@ -10,7 +10,7 @@ expect = chai.expect;
 assert = chai.assert
 window.unitTestMode = true;
 
-function setup() {    
+function setup() {
     $(document).ready(function() {
         $("#xc").load(paths.indexAbsolute, function() {
             // after load the index.html, run mocha

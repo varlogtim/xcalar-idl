@@ -1,0 +1,346 @@
+<!-- Right Side Bar Section -->
+<div id="rightSideBar">
+  <!-- Top Buttons -->
+  <div class="sideBarTopButtons">
+    <div class="btn btnDeselected">
+      <span class="icon iconClose"></span>
+    </div>
+    <div class="btn btnDeselected">
+      <span class="icon popOut" data-toggle="tooltip" data-placement="top" data-container="body" title="pop out"></span>
+    </div>
+    <div id="sqlButtonWrap">
+      <div class="btn btnDeselected">
+        <span class="icon humanSQL" data-toggle="tooltip" data-placement="top" data-container="body" title="toggle machine/human SQL"></span>
+      </div>
+      <div class="btn btnDeselected">
+        <span class="icon copySQL" data-toggle="tooltip" data-placement="top" data-container="body" title="Copy SQL"></span>
+      </div>
+    </div>
+  </div>
+  <!-- End Of Top Buttons -->
+  <!-- Table List Section -->
+  <section id="tableListSection" class="rightBarSection no-selection">
+    <!-- Heading -->
+    <header class="heading draggable">
+      <h2>Tables</h2>
+    </header>
+    <!-- Main Content -->
+    <div class="rightBarContent">
+      <!-- Tabs -->
+      <section id="tableListSectionTabs">
+        <div class="tableListSectionTab active">Active</div>
+        <div class="tableListSectionTab">Inactive</div>
+        <div class="tableListSectionTab">Aggregates</div>
+        <div class="tableListSectionTab">Orphaned</div>
+      </section>
+      <!-- Sections -->
+      <section id="tableListSections">
+        <!-- active list -->
+        <div id="tableList" class="tableListSection">
+          <ul id="activeTablesList" class="tableLists"></ul>
+        </div>
+        <!-- inactive list -->
+        <div id="archivedTableList" class="tableListSection">
+          <div class="buttonWrap">
+            <button id="submitTablesBtn" type="button" class="btn btnLarge btnInactive iconBtn submitBtn">
+              <span class="icon"></span>ADD TO WORKSHEET
+            </button>
+            <!-- <button id="deleteTablesBtn" type="button" class="btn btnLarge btnInactive iconBtn deleteBtn">
+              <span class="icon"></span>DELETE TABLES
+            </button> -->
+            <!-- temporarily hidding delete tables btn -->
+          </div>
+          <div class="secondButtonWrap">
+            <div class="btn btnSmall btnDeselected clearAll">
+              <span class="icon" data-toggle="tooltip" data-placement="top" data-container="body" title="" data-original-title="deselect all"></span>
+            </div>
+            <div class="btn btnSmall selectAll">
+              <span class="icon" data-toggle="tooltip" data-placement="top" data-container="body" title="" data-original-title="select all"></span>
+            </div>
+          </div>
+          <ul id="inactiveTablesList" class="tableLists"></ul>
+        </div>
+        <!-- aggregate table list -->
+        <div id="aggregateTableList" class="tableListSection">
+          <div class="buttonWrap">
+            <!-- XXX temporary disable -->
+           <!--  <button id="submitAggTablesBtn" type="button" class="btn btnLarge btnInactive iconBtn submitBtn">
+              <span class="icon"></span>ADD TO WORKSHEET
+            </button> -->
+            <!-- <button id="deleteAggTablesBtn" type="button" class="btn btnLarge btnInactive iconBtn deleteBtn">
+              <span class="icon"></span>DELETE TABLES
+            </button> -->
+          </div>
+         <!--  <div class="secondButtonWrap">
+            <div class="btn btnSmall btnDeselected clearAll">
+              <span class="icon" data-toggle="tooltip" data-placement="top" data-container="body" title="" data-original-title="clear all">
+              </span>
+            </div>
+            <div class="btn btnSmall selectAll">
+              <span class="icon" data-toggle="tooltip" data-placement="top" data-container="body" title="" data-original-title="select all">
+              </span>
+            </div>
+          </div> -->
+          <ul id="aggTablesList" class="tableLists"></ul>
+        </div>
+        <!-- orphaned table list -->
+        <div id="orphanedTableList" class="tableListSection">
+          <div class="buttonWrap">
+            <button id="submitOrphanedTablesBtn" type="button" class="btn btnLarge btnInactive iconBtn submitBtn">
+              <span class="icon"></span>ADD TO WORKSHEET
+            </button>
+           <!--  <button id="deleteOrphanedTablesBtn" type="button" class="btn btnLarge btnInactive iconBtn deleteBtn">
+              <span class="icon"></span>DELETE TABLES
+            </button> -->
+            <!-- temporarily hidding delete tables btn -->
+          </div>
+          <div class="divider"></div>
+          <div class="secondButtonWrap">
+            <div class="btn btnSmall btnDeselected clearAll">
+              <span class="icon" data-toggle="tooltip" data-placement="top" data-container="body" title="" data-original-title="deselect all"></span>
+            </div>
+            <div class="btn btnSmall selectAll">
+              <span class="icon" data-toggle="tooltip" data-placement="top" data-container="body" title="" data-original-title="select all"></span>
+            </div>
+            <div class="btn btnSmall refresh">
+              <span class="icon" data-toggle="tooltip" data-placement="top" data-container="body" title="" data-original-title="refresh tables"></span>
+            </div>
+          </div>
+          <div id="orphanedTableList-search" class="searchArea">
+              <input type="text" placeholder="Filter Orphaned Table"
+                spellcheck="false" />
+              <div class="clear iconWrap">
+                <span class="icon"></span>
+              </div>
+          </div>
+          <ul id="orphanedTablesList" class="tableLists"></ul>
+        </div>
+      </section>
+      <!-- End Of Sections -->
+    </div>
+  </section>
+
+  <!-- SQL Section -->
+  <section id="sqlSection" class="rightBarSection">
+    <header class="heading draggable">
+      <h2>SQL</h2>
+    </header>
+    <div class="rightBarContent">
+      <div id="sql-TextScrollWrap">
+        <div id="sql-TextArea" class="sqlTextArea"></div>
+        <div id="sql-MachineTextArea" class="sqlTextArea"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- UDF Section -->
+  <section id="udfSection" class="rightBarSection no-selection">
+    <!-- Heading -->
+    <header class="heading draggable">
+      <h2>User Defined Function</h2>
+    </header>
+    <!-- Content -->
+    <div class="rightBarContent">
+      <!-- Section to switch between upload and input section -->
+      <section class="tabSectionContainer">
+        <div id="udf-tabs" class="tabSection">
+          <!-- option for code input section -->
+          <div class="radioWrap" data-tab="udf-fnSection">
+            <div class="radio checked">
+              <span class="dot"></span>
+            </div>
+            <div class="label">Write your function</div>
+          </div>
+          <!-- option for upload section -->
+          <div class="radioWrap" data-tab="udf-uploadSection">
+            <div class="radio">
+              <span class="dot"></span>
+            </div>
+            <div class="label">Upload your script</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Main Content -->
+      <section class="mainSectionContainer">
+        <!-- Section to write function -->
+        <section id="udf-fnSection" class="mainSection">
+          <!-- Choose File Teamplate -->
+          <section class="templateSection">
+            <div class="sectionContainer">
+              <!-- template dropdown menu -->
+              <div id="udf-fnList" class="dropDownList">
+                <input id="udf-fnTemplate" class="text" spellcheck="false"
+                       placeholder="Choose your template" disabled>
+                <div class="iconWrapper">
+                  <span class="icon"></span>
+                </div>
+                <div id="udf-fnMenu" class="list">
+                  <ul>
+                    <li name="blank">Blank Function</li>
+                  </ul>
+                  <div class="scrollArea top"><div class="arrow"></div></div>
+                  <div class="scrollArea bottom"><div class="arrow"></div></div>
+                </div>
+              </div>
+              <!-- Download Teamplate -->
+              <div class="downloadSection">
+                 <div class="btnSection">
+                  <button id="udf-fnDownload" class="btn btnMid disabled" type="button">
+                    <span class="iconWrap"><span class="icon"></span></span>
+                    <span class="text">DOWNLOAD</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </section>
+          <!-- Edit section -->
+          <section class="editSection">
+            <div class="editArea">
+              <textarea id="udf-codeArea"></textarea>
+            </div>
+          </section>
+          <!-- Submit Section -->
+          <section class="submitSection">
+            <div class="sectionContainer">
+              <div class="inputSection">
+                <span class="label">
+                  <label for="udf-fnName">Module Name:</label>
+                </span>
+                <input id="udf-fnName" type="text" spellcheck="false" placeholder="lowercase only">
+              </div>
+              <div class="btnSection">
+                <button id="udf-fnUpload"
+                      class="btn btnMid upload" type="button">
+                  <span class="icon"></span>
+                  <span class="text">UPLOAD</span>
+                </button>
+              </div>
+            </div>
+          </section>
+        </section>
+        <!-- Section to upload file -->
+        <section id="udf-uploadSection" class="mainSection hidden">
+          <!-- head part -->
+          <div>
+            <h3 class="label">
+              <label for="udf-filePath">File Path:</label>
+            </h3>
+          </div>
+          <!-- file path part -->
+          <div class="pathSection">
+            <input id="udf-filePath" type="text" spellcheck="false">
+            <div id="udf-clearPath" class="iconWrap">
+              <span class="icon"></span>
+            </div>
+          </div>
+          <!-- button part -->
+          <div class="btnSection">
+            <button id="udf-browseBtn" class="btn btnMid" type="button">BROWSE</button>
+            <input id="udf-fileBrowser"  spellcheck="false" type="file"
+              style="display: none;">
+            <button id="udf-fileUpload" class="btn btnMid upload" type="button">
+              <span class="icon"></span>
+              <span class="text">UPLOAD</span>
+            </button>
+          </div>
+        </section>
+        <!-- End of Write Function Section -->
+      </section>
+      <!-- End of Main Section -->
+    </div>
+  </section>
+
+  <!-- CLI Section -->
+  <section id="cliSection" class="rightBarSection">
+    <header class="heading draggable">
+      <h2>CLI</h2>
+    </header>
+    <div class="rightBarContent">
+      <div class="textBoxContainer">
+        <div spellcheck="false" class="lineArea"></div>
+        <div class="cliArea"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Scratch Pad Section -->
+ <!--  <section id="scratchPadSection" class="rightBarSection">
+    <header class="heading">
+      <h2>ScratchPad</h2>
+    </header>
+    <div class="rightBarContent">
+      <div class="textBoxContainer">
+        <div spellcheck="false" class="lineArea"></div>
+        <div class="cliArea">
+        </div>
+      </div>
+    </div>
+  </section> -->
+
+  <!-- Help Section -->
+  <section id="helpSection" class="rightBarSection no-selection">
+    <header class="heading draggable">
+      <h2>Help</h2>
+    </header>
+    <div class="rightBarContent">
+      <!-- Help Search -->
+      <div id="helpSearchArea" class="clearfix">
+        <input id="helpSearch" title="Coming Soon" type="text"
+          spellcheck="false" placeholder="Type in your question..."
+          data-toggle="tooltip" data-placement="bottom"
+          data-container="body" disabled>
+        <div id="helpSubmit" title="Coming Soon" class="btnInactive"
+        data-toggle="tooltip" data-placement="bottom" data-container="body">
+          <span class="icon iconSearch"></span>Find
+        </div>
+      </div>
+      <div class="border"></div>
+      <!-- Help Result -->
+      <div id="helpResults" class="helpBox">
+        <div>
+          <span>There are no help results</span>
+        </div>
+      </div>
+      <!-- Help On Off Button -->
+      <div class="helpOnOffWrap">
+        <div id="helpOnOff" class="onOffBtn on off">
+          <div class="slider"></div>
+          <div class="text offText">OFF</div>
+          <div class="text onText">ON</div>
+        </div>
+        <div class="text">In-Page Help</div>
+      </div>
+      <!-- Intro Tutorials -->
+      <div id="helpTopics" class="helpBox">
+        <div>
+          <ul>
+            <span>Start a Walkthrough:</span>
+            <li id="workbookWT" class="walkthrough">
+              <span>Workbook Tutorial</span>
+            </li>
+            <li id="datastoreWT1" class="walkthrough">
+              <span>Data Stores Tutorial - Part 1</span>
+            </li>
+            <li id="datastoreWT2" class="walkthrough">
+              <span>Data Stores Tutorial - Part 2</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+      <!-- Generate Sub Button -->
+      <div class="henpGenSubPart">
+        <div class="wrap">
+          <div class="icon"></div>
+          <div class="text">GENERATE SUB</div>
+          <button id="helpGenSub" class="btn btnMid">GENERATE</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="topBorder"></div>
+  <div id="pulloutTab"></div>
+  <div id="sideBarModal"></div>
+</div>
+<!-- End Of Rightsidebar -->

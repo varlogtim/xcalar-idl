@@ -1,0 +1,91 @@
+<!-- Workbook Modal -->
+<div id="workbookModal" class="modalContainer">
+  <!-- Workbook Modal Header -->
+  <header class="modalHeader">
+    <span class="text">Workbook Browser</span>
+    <div class="close">
+      <span class="icon"></span>
+    </div>
+  </header>
+  <!-- Workbook Modal Instruction -->
+  <section class="modalInstruction">
+    <div class="icon"></div>
+    <div class="text"></div>
+  </section>
+  <!-- Workbook Modal Top Section-->
+  <section class="modalTopMain">
+    <!-- option section -->
+    <div class="optionSection">
+        <!-- option: new workbook -->
+        <div class="radioWrap" data-no="0">
+          <div class="radio">
+            <span class="dot"></span>
+          </div>
+          <div class="label">New Workbook</div>
+        </div>
+        <!-- option: continue workbook -->
+        <div class="radioWrap" data-no="1">
+          <div class="radio">
+            <span class="dot"></span>
+          </div>
+          <div class="label">Continue from Workbook</div>
+        </div>
+        <!-- option: copy workbook -->
+        <div class="radioWrap" data-no="2">
+          <div class="radio">
+            <span class="dot"></span>
+          </div>
+          <div class="label">Copy of Existing Workbook</div>
+        </div>
+    </div>
+    <!-- input section for new workbook name -->
+    <div class="inputSection">
+      <span class="label">New Workbook Name:</span>
+      <input id="workbookInput" type="text" spellcheck="false">
+    </div>
+  </section>
+  <!-- Workbook Modal Main Section -->
+  <section class="modalMain">
+    <!-- Workbook Section -->
+    <section class="workbookSection">
+      <!-- title section -->
+      <section class="titleSection">
+        <section class="innerTitleSection">
+          <div class="title" data-sortkey="name">
+            <span class="label">Name</span>
+            <span class="icon"></span>
+          </div>
+          <!--  date created-->
+          <div class="title" data-sortkey="created">
+            <span class="label">Date Created</span>
+            <span class="icon"></span>
+          </div>
+          <!--  date modified-->
+          <div class="title" data-sortkey="modified">
+            <span class="label">Date Modified</span>
+            <span class="icon"></span>
+          </div>
+          <!-- number of table -->
+          <div class="title" data-sortkey="srcUser">
+            <span class="label">Created By</span>
+            <span class="icon"></span>
+          </div>
+          <!-- number of worksheet -->
+          <div class="title" data-sortkey="curUser">
+            <span class="label">Last Modified By</span>
+            <span class="icon"></span>
+          </div>
+        </section>
+         <!-- name -->
+      </section>
+      <!-- workbook list section -->
+      <section id="workbookLists" class="listSection"></section>
+    </section>
+  </section>
+  <!-- Button Section -->
+  <section class="modalBottom">
+    <button type="button" class="btn btnMid confirm">CREATE</button>
+    <button type="button" class="btn btnMid cancel">CANCEL</button>
+  </section>
+</div>
+<!-- End of Workbook Modal -->

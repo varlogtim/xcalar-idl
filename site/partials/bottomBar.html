@@ -1,0 +1,108 @@
+<!-- Bottom Bar -->
+<div id="bottomArea">
+  <!-- Worksheet Bar -->
+  <div id="worksheetBar" class="workspaceBar clearfix">
+    <section id="worksheetInfo" class="clearfix">
+      <div class="workspaceArea">Xcalar Insight</div>
+      <div class="workspaceArea">
+        Workbook: <span class="wkbkName"></span>
+      </div>
+      <div id="workspaceDate" class="workspaceArea">
+        Created On: <span class="date"></span>
+      </div>
+      <div class="workspaceArea">
+        <span>Last Saved On:</span>
+        <span id="autoSavedInfo"></span>
+      </div>
+      <div class="workspaceArea">
+        <span id="pageStatusText">Establishing Connection</span>
+        <div id="loadingIconWrap">
+          <div class="spinner">
+            <div class="bounce1"></div>
+            <div class="bounce2"></div>
+            <div class="bounce3"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <!-- Buttons to pop out rightside bar -->
+    <section id="rightSideBarBtns" class="bottomButtonsArea no-selection">
+      <!-- tablelist -->
+      <div class="btn btnSmall sliderBtn">
+        <span id="tableListBtn" class="icon" data-toggle="tooltip"
+        data-placement="top" data-container="body" title="tables list"></span>
+      </div>
+      <!-- sql -->
+      <div class="btn btnSmall sliderBtn">
+        <span id="sqlBtn" data-toggle="tooltip"
+        data-placement="top" data-container="body" title="SQL"></span>
+      </div>
+      <!-- udf -->
+      <div class="btn btnSmall sliderBtn">
+        <span id="udfBtn" class="icon" data-toggle="tooltip"
+        data-placement="top" data-container="body" title="UDF"></span>
+      </div>
+      <!-- cli -->
+      <div class="btn btnSmall sliderBtn">
+        <span id="cliBtn" class="icon" data-toggle="tooltip"
+        data-placement="top" data-container="body" title="CLI"></span>
+      </div>
+      <!-- scratchpad -->
+      <!-- <div class="btn btnSmall sliderBtn">
+        <span id="scratchpadBtn" data-toggle="tooltip"
+        data-placement="top" data-container="body" title="scratchpad"></span>
+      </div> -->
+      <!-- help section -->
+      <div class="btn btnSmall sliderBtn">
+        <span id="infoBtn" data-toggle="tooltip"
+        data-placement="top" data-container="body" title="help"></span>
+      </div>
+    </section>
+  </div>
+  <!-- Bottom Worksheet Tabs -->
+  <div id="bottomTabArea">
+    <div id="addWorksheet" class="btn btnSmall"
+         title="Add Worksheet" data-toggle="tooltip"
+         data-placement="top" data-container="body">
+
+      <span class="icon"></span>
+    </div>
+    <!-- Worksheet Tabs -->
+    <div id="worksheetTabs">
+      <!-- Placeholder, Keep it so user don't see difference when loading -->
+      <section class="worksheetTab active">
+        <div class="label">
+          <div class="iconWrapper wsIconWrap">
+            <span class="wsIcon"></span>
+          </div>
+          <div class="draggableArea">
+            <div class="text">Sheet 1</div>
+          </div>
+        </div>
+        <!-- dag tab -->
+        <div id="compSwitch">
+          <span class="icon"></span>
+        </div>
+      </section>
+    </div>
+    <div id="hiddenWorksheetsTab" class="dropDownList">
+      <div class="mainTab"  title="hidden worksheets"
+          data-toggle="tooltip" data-placement="top" data-container="body">...(0)</div>
+      <div class="list">
+        <ul>
+          <div class="divider"></div>
+          <li class="unhideAll" data-ws="all"><span class="icon"></span><span class="icon"></span>Unhide all worksheets</li>
+        </ul>
+      </div>
+    </div>
+    <div id="worksheetTabMenu" class="menu">
+      <ul>
+        <li class="rename">Rename</li>
+        <li class="hide">Hide Worksheet</li>
+        <li class="delete">Delete Worksheet</li>
+      </ul>
+      <div class="arrow"></div>
+    </div>
+  </div>
+</div>
+<!-- End Of Bottom Bar -->

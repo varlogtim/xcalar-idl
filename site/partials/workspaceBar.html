@@ -1,0 +1,36 @@
+<!-- Work Space Bar -->
+<div id="workspaceBar" class="workspaceBar topBar">
+  <div id="undoRedoArea" class="workspaceArea">
+    <div id="undo" class="disabled" data-toggle="tooltip" data-container="body" data-placement="right"></div>
+    <div id="redo" class="disabled" data-toggle="tooltip" data-container="body" data-placement="right"></div>
+  </div>
+  <!-- FnBar -->
+  <div id="functionArea" class="workspaceArea">
+    <label for="fnBar">f(x)</label>
+    <input id="fnBar" value="" spellcheck="false">
+    <div class="closeBox iconWrap">
+      <span class="icon"></span>
+    </div>
+    <div class="counter">
+      <span class="position"></span>
+      <span class="total"></span>
+    </div>
+    <div class="arrows">
+      <div class="upArrow iconWrap">
+        <span class="icon"></span>
+      </div>
+      <div class="downArrow iconWrap">
+        <span class="icon"></span>
+      </div>
+    </div>
+  </div>
+  <!-- Row Input -->
+  <div id="rowInputArea" class="workspaceArea">
+    <label for="rowInput">Skip to row:</label>
+    <!-- only allow integer -->
+    <input id="rowInput" type="number" min="0" step="1" spellcheck="false">
+    <label id="numPages" for="rowInput"></label>
+  </div>
+  <div id="rowScrollerArea" class="workspaceArea"></div>
+</div>
+<!-- End Of Work Space Bar -->

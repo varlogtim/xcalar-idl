@@ -1,0 +1,66 @@
+<!-- MultiCast Modal -->
+<div id="multiCastModal" class="modalContainer">
+  <!-- Header Section -->
+  <header class="modalHeader">
+    <span class="text">Multi-Cast</span>
+    <div class="close">
+      <span class="icon"></span>
+    </div>
+  </header>
+  <!-- Instrunction Section -->
+  <section class="modalInstruction">
+    <div class="icon"></div>
+    <div class="text">
+      Select the columns you want to cast by clicking on the dropdown menu.
+      "Smart Cast" will scan through all the columns and recommend casts.
+      Casts that are machine recommended will be in blue.
+      User casts are in green. To remove a column from the cast operation,
+      click on the column name to focus on the column and click on the check
+      mark next to the column name.
+    </div>
+  </section>
+  <!-- Top Section -->
+  <section class="modalTopMain"></section>
+  <!-- Main Section -->
+  <section class="modalMain">
+     <div class="resultContainer">
+      <div class="title">
+        <span class="label">Cast Result</span>
+        <div id="multiCast-clear" class="modifyButton">
+          <span class="icon"></span>
+          <span class="text">Clear All</span>
+        </div>
+      </div>
+      <div class="header">
+        <div class="row">
+          <div class="colName">Column Name</div>
+          <div class="oldType">Original</div>
+          <div class="newType">New Type</div>
+        </div>
+      </div>
+      <div id="multiCast-result" class="content"></div>
+    </div>
+    <div id="multiCast-tableContainer"class="tableContainer">
+      <div class="title">
+         <button id="multiCast-cast" class="btn btnMid iconBtn">
+            <span class="icon"></span>
+            SMART CAST
+          </button>
+      </div>
+      <div class="tableSection">
+        <div class="background"></div>
+        <table id="multiCast-table" class="multiCastTable dataTable"></table>
+      </div>
+    </div>
+  </section>
+  <!-- Button Section -->
+  <section class="modalBottom">
+    <button class="btn btnMid confirm" type="button">
+      CAST ALL SELECTED
+    </button>
+    <button class="btn btnMid cancel" type="button">
+      CANCEL
+    </button>
+  </section>
+</div>
+<!-- End Of MultiCast Modal -->
