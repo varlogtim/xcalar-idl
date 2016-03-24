@@ -68,7 +68,8 @@ var TableType = {
     "Agg"     : "aggregate",
     "Orphan"  : "orphaned",
     "WSHidden": "hidden",
-    "Unknown" : "unknown source"
+    "Unknown" : "unknown source",
+    "Trash"   : "trash"
 };
 
 var DSObjTerm = {

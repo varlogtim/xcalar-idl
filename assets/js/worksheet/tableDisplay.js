@@ -311,7 +311,7 @@ window.TblManager = (function($, TblManager) {
             "tableId"   : tableId,
             "tableName" : tableName,
             "tableCols" : tableCols,
-            "isOrphaned": true
+            "status"    : TableType.Orphan
         });
 
         var tableProperties = options.tableProperties;
@@ -510,7 +510,7 @@ window.TblManager = (function($, TblManager) {
 
             if (table.isLocked) {
                 table.isLocked = false;
-                table.active = false;
+                table.status = TableType.Orphan;
             }
 
             gTables[tableId] = table;
@@ -1077,7 +1077,7 @@ window.TblManager = (function($, TblManager) {
         // so remove table after that
         if (tablesToRemove) {
             for (var i = 0; i < tablesToRemove.length; i++) {
-                if (gTables[tablesToRemove[i]].active) {
+                if (gTables[tablesToRemove[i]].status === TableType.Active) {
                     if (options.isUndo && options.from !== "inactive") {
                         TblManager.sendTableToOrphaned(tablesToRemove[i]);
                     } else {
@@ -1131,7 +1131,6 @@ window.TblManager = (function($, TblManager) {
         .then(function(resultSet) {
             table.updateFromResultset(resultSet);
             table.beActive();
-            table.isOrphaned = false;
             deferred.resolve();
         })
         .fail(function(error) {

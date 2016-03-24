@@ -124,20 +124,30 @@ function TableMeta(options) {
         console.error("error table meta!");
     }
 
+    // xx start temp fix conversion used to apply table status
+    if (options.hasOwnProperty('active')) {
+        if (options.active) {
+            options.status = TableType.Active;
+        } else if (options.isOrphaned) {
+            options.status = TableType.Orphan;
+        } else {
+            options.status = TableType.InActive;
+        }
+    } else if (options.hasOwnProperty('isOrphaned')) {
+        if (options.isOrphaned) {
+            options.status = TableType.Orphan;
+        } else {
+            options.status = TableType.InActive;
+        }
+    }
+    // end temp fix
+
     this.tableName = options.tableName;
     this.tableId = options.tableId;
     this.isLocked = options.isLocked;
-    this.isOrphaned = options.isOrphaned || false;
     this.isSortedArray = options.isSortedArray || false;
-
-    if (this.isOrphaned) {
-        // orphaned table is always inactive!
-        this.active = false;
-    } else if (options.active != null) {
-        this.active = options.active;
-    } else {
-        this.active = true;
-    }
+    this.status = options.status || TableType.Active;
+    // reference enum TableType for possible types
 
     this.timeStamp = options.timeStamp || xcHelper.getTimeInMS();
 
@@ -196,17 +206,17 @@ TableMeta.prototype = {
     },
 
     beInActive: function() {
-        this.active = false;
+        this.status = TableType.InActive;
         return this;
     },
 
     beActive: function() {
-        this.active = true;
+        this.status = TableType.Active;
         return this;
     },
 
     beOrphaned: function() {
-        this.isOrphaned = true;
+        this.status = TableType.Orphan;
         return this;
     },
 

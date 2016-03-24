@@ -564,7 +564,7 @@ window.TableList = (function($, TableList) {
 
             for (var tableId in gTables) {
                 var table = gTables[tableId];
-                if (!table.isOrphaned &&
+                if (table.status !== TableType.Orphan &&
                     tableMap.hasOwnProperty(table.tableName))
                 {
                     delete tableMap[table.tableName];
@@ -595,23 +595,17 @@ window.TableList = (function($, TableList) {
             tableType = type;
         } else {
             var table = gTables[tableId];
-            if (table.active) {
-                tableType = "active";
-            } else if (table.isOrphaned) {
-                tableType = "orphaned";
-            } else {
-                tableType = "inactive";
-            }
+            tableType = table.status;
         }
 
         if (tableType === "active") {
             $li = $("#activeTablesList").find('.tableInfo[data-id="' +
                                                     tableId + '"]');
-        } else if (tableType === "inactive") {
-            $li = $('#archivedTableList').find('.tableInfo[data-id="' +
-                                                    tableId + '"]');
         } else if (tableType === "orphaned") {
             $li = $('#orphanedTableList').find('.tableInfo[data-id="' +
+                                                    tableId + '"]');
+        } else {
+              $li = $('#archivedTableList').find('.tableInfo[data-id="' +
                                                     tableId + '"]');
         }
 
@@ -635,7 +629,7 @@ window.TableList = (function($, TableList) {
         if (tableId != null && gTables[tableId] != null) {
             // when meta is in gTables
             var table = gTables[tableId];
-            if (!table.isOrphaned) {
+            if (table.status !== TableType.Orphan) {
                 throw "Error, table is not orphaned!";
             }
             newTableCols = table.tableCols;
@@ -1144,11 +1138,11 @@ window.TableList = (function($, TableList) {
 
         for (var tableId in gTables) {
             var table = gTables[tableId];
-            if (table.isOrphaned) {
+            if (table.status === TableType.Orphan) {
                 continue;
             }
 
-            if (table.active) {
+            if (table.status === TableType.Active) {
                 activeTables.push(table);
             } else {
                 hiddenTables.push(table);

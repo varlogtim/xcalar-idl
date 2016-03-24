@@ -527,7 +527,7 @@ window.Undo = (function($, Undo) {
 
             hiddenTables.forEach(function(tableId) {
                 WSManager.addTable(tableId, wsId);
-                gTables[tableId].isOrphaned = false;
+                gTables[tableId].status = TableType.InActive;
                 TblManager.archiveTable(tableId);
             });
 

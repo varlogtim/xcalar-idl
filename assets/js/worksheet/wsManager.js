@@ -925,7 +925,7 @@ window.WSManager = (function($, WSManager) {
     // remove one entry of aggregate information
     WSManager.activeAggInfo = function(key, tableId) {
         aggInfos[key].isActive = true;
-        gTables[tableId].isAggTable = true;
+        gTables[tableId].status = TableType.Agg;
     };
 
     // remove one entry of aggregate information
