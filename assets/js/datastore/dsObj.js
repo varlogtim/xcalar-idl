@@ -850,6 +850,24 @@ window.DS = (function ($, DS) {
             DS.focusOn($grid);
         });
 
+        $gridView.on("click", ".folder > .label", function() {
+            var $label = $(this);
+            var dsId = $label.closest(".grid-unit").data("dsid");
+            var isEditable = DS.getDSObj(dsId).isEditable();
+            if ($label.hasClass("focused") || !isEditable) {
+                return;
+            }
+
+            $label.addClass("focused");
+            var name = $label.data("dsname");
+            $label.html('<textarea spellcheck="false">' + name + '</textarea>').focus();
+
+            // select all text
+            var $textarea = $label.find("textarea").select();
+            var textarea = $textarea.get(0);
+            textarea.style.height = (textarea.scrollHeight) + "px";
+        });
+
         // Input event on folder
         $gridView.on({
             // press enter to remove focus from folder label
@@ -860,35 +878,25 @@ window.DS = (function ($, DS) {
                 }
             },
 
-            'click': function() {
-                var $label = $(this);
-                var dsId = $label.closest(".grid-unit").data("dsid");
-                var isEditable = DS.getDSObj(dsId).isEditable();
-                if ($label.hasClass("focused") || !isEditable) {
-                    return;
-                }
-
-                $label.addClass("focused");
-                var name = $label.data("dsname");
-                $label.html('<textarea spellcheck="false">' + name + '</textarea>').focus();
-
-                // select all text
-                var $textarea = $label.find("textarea").select();
-                var textarea = $textarea.get(0);
+            'keyup': function() {
+                var textarea = $(this).get(0);
+                // with this, textarea can back to 15px when do delete
+                textarea.style.height = "15px";
                 textarea.style.height = (textarea.scrollHeight) + "px";
             },
 
             "blur": function() {
-                var $label  = $(this);
+                var $textarea = $(this);
+                var $label  = $textarea.closest(".label");
                 var dsId = $label.closest(".grid-unit").data("dsid");
-                var newName = $label.find("textarea").val().trim();
+                var newName = $textarea.val().trim();
                 DS.rename(dsId, newName);
                 truncateDSName($label);
 
                 $label.removeClass("focused");
                 xcHelper.removeSelectionRange();
             }
-        }, ".folder > .label");
+        }, ".folder > .label textarea");
 
         // make textarea's height flexible
         $gridView.on("keyup", ".folder > .label textarea", function() {
@@ -898,18 +906,6 @@ window.DS = (function ($, DS) {
             textarea.style.height = (textarea.scrollHeight) + "px";
         });
 
-        // dbclick grid view folder
-        $gridView.on("dblclick", ".folder > .gridIcon, .folder > .dsCount",
-            function() {
-                var $grid = $(this).closest(".folder");
-                $gridView.find(".active").removeClass("active");
-                $deleteFolderBtn.addClass("disabled");
-
-                if ($gridView.hasClass("gridView")) {
-                    DS.goToDir($grid.data("dsid"));
-                }
-            }
-        );
 
         // click list view folder
         $gridView.on("click", ".folder > .listIcon, .folder > .dsCount",
