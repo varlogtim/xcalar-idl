@@ -1,0 +1,169 @@
+<!-- Data Form -->
+<form id="importDataForm" class="dataStoreForm" target="_blank">
+  <!-- Top Form -->
+  <div id="importDataTopForm" class="dataStoreFormTop no-selection">
+    <div class="contentViewMidWrap">
+      <!-- file path -->
+      <div id="filePathSelector" class="importFormRow">
+        <label>File Path:</label>
+        <input id="filePath" type="text" name="filePath" spellcheck="false" autocomplete="off" placeholder="Enter File Directory" required>
+          <div class="buttonWrap">
+            <button id="previewBtn" class="btn btnMid" type="button">PREVIEW</button>
+            <button id="fileBrowserBtn" class="btn btnMid" type="button">BROWSE</button>
+          </div>
+      </div>
+      <!-- file name -->
+      <div id="fileNameSelector" class="importFormRow">
+        <label>Name:</label>
+        <input id="fileName" name="fileName" type="text" placeholder="Enter Dataset Name" autocomplete="off" pattern="^\w+$"  spellcheck="false" title="A valid name with no special characters" required>
+         <!-- file formt -->
+        <div class="buttonWrap">
+          <div id="promoteHeaderCheckbox" class="checkboxSection hidden default-hidden">
+            <div class="checkbox iconWrapper">
+              <span class="icon"></span>
+            </div>
+            <div class="text">Header</div>
+            <div title="Check to Promote First Row As Header" data-toggle="tooltip" data-placement="top" data-container="body" class="hint qMark"></div>
+          </div>
+          <!-- udf checkbox -->
+          <div id="udfCheckbox" class="checkboxSection hidden default-hidden">
+            <div class="checkbox iconWrapper">
+              <span class="icon"></span>
+            </div>
+            <div class="text">UDF</div>
+          </div>
+          <div class="fileFormatPadding"></div>
+          <div id="fileFormat" class="dropDownList">
+              <input class="text" type="text" spellcheck="false"
+              placeholder="Format" disabled>
+              <div class="iconWrapper">
+                <span class="icon"></span>
+              </div>
+              <!-- Format Menu -->
+              <div id="fileFormatMenu" class="list">
+                <ul>
+                  <li class="hint">Format</li>
+                  <li name="CSV">CSV</li>
+                  <li name="JSON">JSON</li>
+                  <li name="EXCEL">Excel</li>
+                  <li name="RAW">Raw</li>
+                  <li name="RANDOM">Random</li>
+                </ul>
+                <div class="scrollArea top">
+                  <div class="arrow"></div>
+                </div>
+                <div class="scrollArea bottom">
+                  <div class="arrow"></div>
+                </div>
+              </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Bottom Form -->
+  <div id="importDataBottomForm"  class="dataStoreFormBottom no-selection">
+    <div class="contentViewMidWrap">
+      <!-- UDF Args -->
+      <div id="udfArgs" class="hidden clearfix default-hidden">
+        <div class="optionSection">
+          <section class="wrapper">
+            <span class="label">Module Name:</span>
+            <div id="udfArgs-moduleList" class="dropDownList">
+              <input class="text" type="text" spellcheck="false" disabled>
+              <div class="iconWrapper">
+                <span class="icon"></span>
+              </div>
+              <div class="list">
+                <ul></ul>
+                <div class="scrollArea top">
+                  <div class="arrow"></div>
+                </div>
+                <div class="scrollArea bottom">
+                  <div class="arrow"></div>
+                </div>
+              </div>
+            </div>
+          </section>
+          <section class="wrapper">
+            <span class="label">Function Name:</span>
+            <div id="udfArgs-funcList" class="dropDownList">
+              <input class="text" type="text" spellcheck="false" disabled>
+              <div class="iconWrapper">
+                <span class="icon"></span>
+              </div>
+              <div class="list">
+                <ul></ul>
+                <div class="scrollArea top"><div class="arrow"></div></div>
+                <div class="scrollArea bottom"><div class="arrow"></div></div>
+              </div>
+            </div>
+          </section>
+        </div>
+        <div class="hintSection">
+          <span class="text">Please select the field and line delimiters that are used in the output of the UDF</span>
+        </div>
+      </div>
+      <!-- End of Udf Args -->
+      <!-- Delimiters -->
+      <div id="csvDelim" class="hidden clearfix default-hidden">
+        <!-- Field Delimiter -->
+        <section id="fieldDelim" class="wrapper">
+          <span class="label">Field Delimiter:</span>
+          <div class="dropDownList">
+            <input id="fieldText" class="text" type="text"
+            spellcheck="false" disabled>
+            <div class="iconWrapper">
+              <span class="icon"></span>
+            </div>
+            <!-- dropdown menu -->
+            <div class="list">
+              <ul>
+                <li name="default">Default (\t)</li>
+                <li name="comma">Comma (,)</li>
+                <li name="null" class="nullVal">Null</li>
+                <li name="other" class="other">
+                  <span>Other</span>
+                  <input class="delimVal" type="text" spellcheck="false">
+                </li>
+              </ul>
+              <div class="scrollArea top"><div class="arrow"></div></div>
+              <div class="scrollArea bottom"><div class="arrow"></div></div>
+            </div>
+          </div>
+        </section>
+        <!-- Line Delimiter -->
+        <section id="lineDelim" class="wrapper">
+          <span class="label">Line Delimiter:</span>
+          <div class="dropDownList">
+            <input id="lineText" class="text" type="text" spellcheck="false" disabled>
+            <div class="iconWrapper">
+              <span class="icon"></span>
+            </div>
+            <!-- dropdown menu -->
+            <div class="list">
+              <ul>
+                <li name="default">Default (\n)</li>
+                <li name="null" class="nullVal">Null</li>
+                <li name="other" class="other">
+                  <span>Other</span>
+                  <input class="delimVal" type="text" spellcheck="false">
+                </li>
+              </ul>
+              <div class="scrollArea top">
+                <div class="arrow"></div>
+              </div>
+              <div class="scrollArea bottom">
+                <div class="arrow"></div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+      <!-- End Of Delimiters -->
+      <button id="importDataSubmit" class="btn btnMid" type="submit">POINT TO DATA</button>
+      <button id="importDataReset" class="btn btnMid btn-cancel" type="reset">CANCEL</button>
+    </div>
+  </div>
+</form>
+<!-- End of Data Form -->

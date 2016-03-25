@@ -1,0 +1,110 @@
+<div class="contentView">
+  <!-- content left -->
+  <div class="contentViewLeft no-selection">
+    <div class="headingArea">
+      <span>Targets (<span class="numExportTargets">0</span>)</span>
+      <div class="buttonGroup">
+        <div class="btn dataViewBtn refresh">
+          <span class="icon" title="Refresh Targets" data-toggle="tooltip" data-placement="top" data-container="body"></span>
+        </div>
+
+        <div id="exportViewBtn" class="btn dataViewBtn selected gridView toggleListGrid" data-toggle="tooltip" data-placement="top" data-original-title="Switch to List view" data-container="body">
+          <span class="icon"></span>
+        </div>
+      </div>
+    </div>
+    <div class="mainButtonArea no-selection">
+      <button id="createExportButton" class="btn btnLarge iconBtn">
+        <span class="icon"></span>CREATE NEW EXPORT TARGET
+      </button>
+    </div>
+    <!-- Grid View -->
+    <div class="gridViewWrapper">
+      <div class="gridView gridItems"></div>
+    </div>
+  </div>
+  <!-- content mid -->
+  <div class="contentViewMid dataStoreFormView">
+    <div class="formHelp no-selection">
+      <div class="contentViewMidWrap">
+        <h2>Create Export Target</h2>
+        <span class="icon"></span>
+        <p>
+           SELECT A TARGET TYPE AND CHOOSE A NAME FOR YOUR EXPORT TARGET. PROVIDE ANY ADDITIONAL INFORMATION AS NEEDED.
+        </p>
+      </div>
+    </div>
+    <!-- Data Form -->
+    <form id="exportDataForm" class="dataStoreForm" target="_blank">
+      <!-- Top Form -->
+      <div id="exportDataTopForm" class="dataStoreFormTop no-selection">
+        <div class="contentViewMidWrap">
+          <!-- file path -->
+          <div id="targetTypeSelector" class="importFormRow">
+            <label for="targetTypeList">Target Type:</label>
+            <div id="targetTypeList" class="dropDownList">
+              <input class="text hint" type="text" value="" spellcheck="false" disabled>
+              <div class="iconWrapper">
+                <span class="icon"></span>
+              </div>
+              <ul id="fileFormatMenu" class="list">
+                <li class="hint"></li>
+                <li name="LocalFilesystem">Local Filesystem</li>
+                <li name="ODBC" class="unavailable">ODBC</li>
+              </ul>
+            </div>
+          </div>
+          <div id="targetNameSelector" class="importFormRow">
+            <label for="targetName">Name:</label>
+            <input id="targetName" name="targetName" type="text" placeholder="" autocomplete="off" pattern="^\w+$"  spellcheck="false" title="A valid name with no special characters" required>
+          </div>
+          <!-- file name -->
+        </div>
+      </div>
+      <!-- Bottom Form -->
+      <div id="exportDataBottomForm" class="dataStoreFormBottom no-selection">
+        <h2>Add New Connector</h2>
+        <div class="contentViewMidWrap">
+          <div class="importFormRow">
+            <label for="exportURL">URL:</label>
+            <input type="url" id="exportURL" spellcheck="false">
+          </div>
+          <div class="importFormRow">
+            <div class="inputSet">
+              <label for="exportService">Service:</label>
+              <input type="text" id="exportService" spellcheck="false">
+            </div>
+            <div class="inputSet">
+              <label for="exportPort">Port:</label>
+              <input type="text" id="exportPort" spellcheck="false">
+            </div>
+          </div>
+          <div class="importFormRow radioSection">
+            <div class="radioWrap windowsAuth">
+              <div class="radio">
+                <span class="dot"></span>
+              </div>
+              <div class="label">Use windows authentication</div>
+            </div>
+            <div class="radioWrap usernameAuth">
+              <div class="radio">
+                <span class="dot"></span>
+              </div>
+              <div class="label">Use specific username and password</div>
+            </div>
+          </div>
+          <div class="importFormRow">
+            <label for="userNameExport">User name:</label>
+            <input type="text" id="userNameExport" spellcheck="false">
+          </div>
+          <div class="importFormRow">
+            <label for="passwordExport">Password:</label>
+            <input type="password" id="passwordExport" spellcheck="false">
+          </div>
+          <button id="exportFormSubmit" class="btn btnMid" type="submit">ADD</button>
+          <button id="exportFormReset" class="btn btnMid btn-cancel" type="reset">CLEAR</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>

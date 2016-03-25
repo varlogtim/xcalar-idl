@@ -1,0 +1,80 @@
+<!-- DATASTORE PANEL -->
+<div id="datastorePanel" class="mainPanel">
+  <!-- Datastore header -->
+  <div id="contentHeader" class="topBar">
+    <div id="contentHeaderLeft" class="no-selection">
+      <div id="inButton" class="buttonArea active">
+        <div class="icon"></div>
+        <div class="text">IN</div>
+      </div>
+      <div id="outButton" class="buttonArea">
+        <div class="icon"></div>
+        <div class="text">OUT</div>
+      </div>
+    </div>
+    <div id="contentHeaderMid" class="no-selection">
+      <div class="text" style="margin-left:20px">DATASET</div>
+    </div>
+    <div id="contentHeaderRight" class="no-selection">
+      <div class="icon"></div>
+      <div class="text">DATA CART</div>
+    </div>
+  </div>
+  <!-- Import Data Form -->
+  <div id="importDataView" class="dataStoreFormView">
+    <div id="importHelp" class="formHelp no-selection">
+      <div class="contentViewMidWrap">
+        <h2>Point To New Dataset</h2>
+        <span class="icon"></span>
+        <p>
+           INPUT FILE PATH AND FILE NAME TO POINT TO DATASET.
+           THEN SELECT FILE FORMAT. POINTED DATA WILL BE LISTED ON THE LEFT.
+        </p>
+      </div>
+    </div>
+    include "dsForm.html"
+    include "dsPreview.html"
+  </div>
+  <!-- Main Content -->
+  <div id="mainContent">
+    <!-- Explore View -->
+    <div id="exploreView">
+      <div class="contentView">
+        <div class="contentViewLeft no-selection">
+          include "gridView.html"
+        </div>
+        <div class="contentViewMid hidden">
+          <div class="contentViewHeader">
+            <div class="dbText">
+              <h2 id="dsInfo-title">Datasets</h2>
+              <p>
+                Created by: <span id="dsInfo-author"></span> |
+                Dataset Modified Date: <span id="dsInfo-modifyDate"></span>
+              </p>
+              <p>
+                Records: <span id="dsInfo-records">12,435</span> |
+                Size: <span id="dsInfo-size">21 GB</span> |
+                Path: <span id="dsInfo-path">N/A</span>
+              </p>
+            </div>
+          </div>
+          <!-- Datastore Table -->
+          <div class="contentViewTable">
+            include "dsSampleTable.html"
+          </div>
+        </div>
+        <!-- End Datastore Table -->
+        <!-- Datastore Cart -->
+        <div class="contentViewRight no-selection">
+          include "dsCart.html"
+        </div>
+        <!-- End of Datastore Cart -->
+      </div>
+    </div>
+    <!-- Export View -->
+    <div id="exportView">
+      include "dsExport.html"
+    </div>
+  </div>
+</div>
+<!-- END DATASTORE PANEL -->
