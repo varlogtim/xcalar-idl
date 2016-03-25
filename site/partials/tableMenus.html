@@ -1,0 +1,360 @@
+<!-- TABLE MENU -->
+
+<div id="tableMenu" class="menu tableMenu" data-submenu="tableSubMenu">
+    <ul>
+        <li class="archiveTable"><%= dicts.MenuTStr.Archive %></li>
+        <li class="hideTable"><%= dicts.MenuTStr.HideTbl %></li>
+        <li class="unhideTable"><%= dicts.MenuTStr.UnHideTbl %></li>
+        <!-- <li class="deleteTable">  dicts.MenuTStr.DelTbl  </li>  XXX temporary -->
+        <li class="exportTable"><%= dicts.MenuTStr.ExportTbl %></li>
+        <!--
+        <li class="visualize">
+            <a href="paths.tableau" target="_blank"
+        style="text-decoration:none;color:#838383">
+        dicts.MenuTStr.Visual  </a>
+        </li>
+        <li class="copyColNames">  dicts.MenuTStr.CPColNames  </li> -->
+        <li class="delAllDuplicateCols"><%= dicts.MenuTStr.DelAllDups %></li>
+        <li class="quickAgg parentMenu" data-submenu="quickAgg">
+          <%= dicts.MenuTStr.QuickAgg %>
+        </li>
+        <li class="multiCast"><%= dicts.MenuTStr.SmartCast %>...</li>
+        <li class="moveToWorksheet parentMenu"
+            data-submenu="moveToWorksheet" data-toggle="tooltip"
+            data-placement="top"
+            title="<%= TooltipTStr.NoWSToMV %>">
+          <%= dicts.MenuTStr.MVWS %>
+        </li>
+        <li class="sort parentMenu" data-submenu="sort">
+          <%= dicts.MenuTStr.SortCols %>
+        </li>
+        <li class="resizeCols parentMenu" data-submenu="resizeCols">
+          <%= dicts.MenuTStr.ResizeAllCols %>
+        </li>
+    </ul>
+    <div class="scrollArea top">
+        <div class="arrow"></div>
+    </div>
+    <div class="scrollArea bottom">
+        <div class="arrow"></div>
+    </div>
+</div>
+
+<div id="tableSubMenu" class="menu subMenu">
+    <ul class="quickAgg">
+        <li class="aggregates">
+          <%= dicts.MenuTStr.QuckAggaggFunc %>
+        </li>
+        <li class="correlation">
+          <%= dicts.MenuTStr.QuickAggcorrFunc %>
+        </li>
+    </ul>
+    <ul class="moveToWorksheet">
+        <li style="text-align: center" class="clickable">
+            <span><%= dicts.WSTStr.WSName %></span>
+            <div class="dropDownList">
+                <input class="wsName" type="text" width="100px"
+                placeholder="  CommonTxtTstr.ClickToOpts  "
+                spellcheck="false" />
+                <ul class="list wsList"></ul>
+            </div>
+        </li>
+        <div class="subMenuArea"></div>
+    </ul>
+    <ul class="sort">
+        <li class="sortForward">
+            <span class="sortUp"></span>
+            <%= dicts.MenuTStr.SortAsc %>
+        </li>
+        <li class="sortReverse">
+            <span class="sortDown"></span>
+            <%= dicts.MenuTStr.SortDesc %>
+        </li>
+        <div class="subMenuArea"></div>
+    </ul>
+    <ul class="resizeCols">
+        <li class="sizeToHeader">
+          <%= dicts.MenuTStr.ResizeHeader %>
+        </li>
+        <li class="sizeToContents">
+          <%= dicts.MenuTStr.ResizeToContents %>
+        </li>
+        <li class="sizeToFitAll">
+          <%= dicts.MenuTStr.ResizeToAll %>
+        </li>
+        <div class="subMenuArea"></div>
+    </ul>
+    <div class="subMenuArea"></div>
+</div>
+
+<!-- END TABLE MENU -->
+
+<!-- START COLUMN MENU -->
+
+<% var types = ['Boolean', 'Integer', 'Float', 'String']; %>
+
+<div id="colMenu" class="menu mainMenu" data-submenu="colSubMenu">
+    <ul>
+        <li class="addColumn parentMenu" data-submenu="addColumn">
+            <%= dicts.MenuTStr.AddCol %>
+        </li>
+        <li class="deleteColumn"><%= dicts.MenuTStr.DelCol %></li>
+        <li class="duplicate"><%= dicts.MenuTStr.DupCol %></li>
+        <li class="deleteDuplicates">
+            <%= dicts.MenuTStr.DelOtherDups %>
+        </li>
+        <li class="hide"><%=  dicts.MenuTStr.HideCol %></li>
+        <li class="unhide"><%=  dicts.MenuTStr.UnHideCol %></li>
+        <li class="textAlign parentMenu" data-submenu="textAlign">
+            <%= dicts.MenuTStr.TxtAlign %>
+        </li>
+        <li class="resize parentMenu" data-submenu="resize">
+            <%= dicts.MenuTStr.Resize %>
+        </li>
+        <div class="divider identityDivider thDropdown"></div>
+        <li class="rename parentMenu" data-submenu="rename">
+            <%= dicts.MenuTStr.RenameCol %>
+        </li>
+        <li class="splitCol parentMenu" data-submenu="splitCol">
+            <%= dicts.MenuTStr.SplitCol %>
+        </li>
+        <li class="changeDataType parentMenu"
+            data-submenu="changeDataType">
+            <%= dicts.MenuTStr.ChangeType %>
+        </li>
+        <li class="format parentMenu" data-submenu="format">
+            <%= dicts.MenuTStr.Format %>
+        </li>
+        <li class="roundToFixed parentMenu" data-submenu="roundToFixed">
+            <%= dicts.MenuTStr.Round %>
+        </li>
+        <div class="divider functionsDivider"></div>
+        <li class="sort parentMenu" data-submenu="sort">
+            <%= dicts.MenuTStr.Sort %>
+        </li>
+        <li class="functions aggregate">
+            <%= dicts.MenuTStr.Agg %>...
+        </li>
+        <li class="functions filter">
+            <%= dicts.MenuTStr.Flt %>...
+        </li>
+        <li class="functions groupby">
+            <%= dicts.MenuTStr.GB %>...
+        </li>
+        <li class="functions map">
+            <%= dicts.MenuTStr.Map %>...
+        </li>
+        <li class="joinList">
+            <%= dicts.MenuTStr.Join %>...
+        </li>
+        <li class="profile">
+            <%= dicts.MenuTStr.Profile %>...
+        </li>
+        <div class="divider functionsDivider"></div>
+        <li class="extensions parentMenu" data-submenu="extensions">
+            <%= dicts.MenuTStr.Exts %>
+        </li>
+        <li class="multiColumn hideColumns">
+            <%= dicts.MenuTStr.HideColPlura %>
+        </li>
+        <li class="multiColumn unhideColumns">
+            <%= dicts.MenuTStr.UnHideColPlura %>
+        </li>
+        <li class="multiColumn deleteColumns">
+            <%= dicts.MenuTStr.DelColPlura %>
+        </li>
+        <li class="multiColumn textAlignColumns parentMenu" data-submenu="multiTextAlign">
+            <%= dicts.MenuTStr.TxtAlign %>
+        </li>
+        <li class="multiColumn resizeColumns parentMenu" data-submenu="multiResize">
+            <%= dicts.MenuTStr.Resize %>
+        </li>
+        <li class="multiColumn multiChangeDataType parentMenu" data-submenu="multiChangeDataType">
+            <%= dicts.MenuTStr.ChangeType %>
+        </li>
+    </ul>
+    <div class="scrollArea top">
+        <div class="arrow"></div>
+    </div>
+    <div class="scrollArea bottom">
+        <div class="arrow"></div>
+    </div>
+</div>
+
+<div id="colSubMenu" class="menu subMenu">
+    <ul class="addColumn">
+        <li class="addColumn addColLeft">
+            <%= dicts.MenuTStr.AddColLeft %>
+        </li>
+        <li class="addColumn addColRight">
+            <%= dicts.MenuTStr.AddColRight %>
+        </li>
+    </ul>
+    <ul class="textAlign">
+        <li class="textAlign leftAlign">
+            <%= dicts.MenuTStr.TxtAlignLeft %>
+        </li>
+        <li class="textAlign centerAlign">
+            <%= dicts.MenuTStr.TxtAlignCenter %>
+        </li>
+        <li class="textAlign rightAlign">
+            <%= dicts.MenuTStr.TxtAlignRight %>
+        </li>
+        <li class="textAlign wrapAlign">
+            <%= dicts.MenuTStr.TxtAlignWrap %>
+        </li>
+    </ul>
+    <ul class="resize">
+        <li class="resize sizeToHeader">
+            <%= dicts.MenuTStr.ResizeHeader %>
+        </li>
+        <li class="resize sizeToContents">
+            <%= dicts.MenuTStr.ResizeToContents %>
+        </li>
+        <li class="resize sizeToFitAll">
+            <%= dicts.MenuTStr.ResizeToAll %>
+        </li>
+    </ul>
+    <ul class="extensions">
+    </ul>
+    <ul class="rename">
+        <li style="text-align: center" class="rename clickable">
+            <div>
+              <%= dicts.MenuTStr.RenameColTitle %>
+            </div>
+            <div class="inputWrap">
+                <input class="colName" type="text"
+                     autocomplete="on" spellcheck="false"/>
+                <div class="iconWrapper inputAction">
+                    <span class="icon"></span>
+                </div>
+            </div>
+        </li>
+    </ul>
+    <ul class="format">
+        <li class="changeFormat" data-format="percent">
+          <%= dicts.MenuTStr.Percent %>
+        </li>
+        <li class="changeFormat" data-format="default">
+          <%= dicts.CommonTxtTstr.BackToOrig %>
+        </li>
+    </ul>
+    <ul class="roundToFixed">
+        <li style="text-align: center" class="clickable">
+            <div title="ex. an input of 2 would change 1.2345
+            to 1.23">
+              <%= dicts.MenuTStr.RoundTitle %>
+            </div>
+            <div class="inputWrap">
+                <input class="digitsToRound" type="number"
+                    max="14" min="0" autocomplete="on"
+                    spellcheck="false" />
+                    <div class="iconWrapper inputAction">
+                    <span class="icon"></span>
+                </div>
+            </div>
+        </li>
+        <div class="divider"></div>
+        <li class="changeRound default">
+          <%= dicts.CommonTxtTstr.BackToOrig %>
+        </li>
+    </ul>
+    <ul class="splitCol">
+        <li style="text-align: center" class="clickable">
+            <div>
+              <%= dicts.MenuTStr.SplitColDelim %>
+            </div>
+            <div class="inputWrap">
+                <input class="delimiter" type="text"
+                 spellcheck="false"/>
+                <div class="iconWrapper inputAction">
+                    <span class="icon"></span>
+                </div>
+            </div>
+            <div>
+              <%= dicts.MenuTStr.SplitColNum %>
+            </div>
+            <input class="num" type="number"
+                 placeholder="  CommonTxtTstr.Optional  "
+                 spellcheck="false"/>
+        </li>
+    </ul>
+    <ul class="changeDataType">
+        <% _(types).each(function(type) { %><li class="flexContainer flexRow typeList type-<%=
+            type.toLowerCase() %> ">
+            <div class="flexWrap flex-left">
+                <span class="type icon"></span>
+            </div>
+            <div class="flexWrap flex-right">
+                <span class="label"><%= type %></span>
+            </div>
+        </li>
+        <% }) %>
+     </ul>
+    <ul class="sort">
+        <li class="sort">
+            <span class="sortUp"></span><%= dicts.MenuTStr.SortAsc %>
+        </li>
+        <li class="revSort">
+            <span class="sortDown"></span><%= dicts.MenuTStr.SortDesc %>
+        </li>
+    </ul>
+    <ul class="multiTextAlign">
+        <li class="textAlign leftAlign">
+          <%= dicts.MenuTStr.TxtAlignLeft %>
+        </li>
+        <li class="textAlign centerAlign">
+          <%= dicts.MenuTStr.TxtAlignCenter %>
+        </li>
+        <li class="textAlign rightAlign">
+          <%= dicts.MenuTStr.TxtAlignRight %>
+        </li>
+        <li class="textAlign wrapAlign">
+          <%= dicts.MenuTStr.TxtAlignWrap %>
+        </li>
+    </ul>
+    <ul class="multiResize">
+        <li class="resize sizeToHeader">
+          <%= dicts.MenuTStr.ResizeHeader %>
+        </li>
+        <li class="resize sizeToContents">
+          <%= dicts.MenuTStr.ResizeToContents %>
+        </li>
+        <li class="resize sizeToFitAll">
+          <%= dicts.MenuTStr.ResizeToAll %>
+        </li>
+    </ul>
+    <ul class="multiChangeDataType">
+      <% _(types).each(function(type) { %><li class="flexContainer flexRow typeList type-<%= type.toLowerCase() %> ">
+            <div class="flexWrap flex-left">
+                <span class="type icon"></span>
+            </div>
+            <div class="flexWrap flex-right">
+                <span class="label"><%= type %></span>
+            </div>
+        </li>
+      <% }) %>
+    </ul>
+    <div class="subMenuArea"></div>
+</div>
+<!-- END COLUMN MENU -->
+
+<!-- START CELL MENU -->
+<ul id="cellMenu" class="menu">
+    <li class="tdFilter">
+      <%= dicts.MenuTStr.FltCell %>
+    </li>
+    <li class="tdExclude">
+      <%= dicts.MenuTStr.ExclCell %>
+    </li>
+    <li class="tdJsonModal">
+      <%= dicts.MenuTStr.ExamCell %>
+    </li>
+    <li class="tdUnnest">
+      <%= dicts.MenuTStr.PullAllCell %>
+    </li>
+    <li class="tdCopy">
+      <%= dicts.MenuTStr.CPCell %>
+    </li>
+</ul>
+<!-- END CELL MENU -->

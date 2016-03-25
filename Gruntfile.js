@@ -20,16 +20,38 @@ module.exports = function(grunt) {
           silent: true
         }
       }
+    },
+
+    prettify: {
+      options: {
+
+      },
+      one: {
+        src: 'index.html',
+        dest: 'index.html'
+      }
+    },
+
+    watch: {
+      render: {
+        files: ['site/**/*.html', '!' + tmpDest + '/index.html'],
+        tasks: ['includes', 'template', 'clean', 'prettify'],
+        options: {
+          atBegin: true
+        }
+      }
     }
   });
 
+  grunt.loadNpmTasks('grunt-contrib-watch');
   grunt.loadNpmTasks('grunt-includes');
   grunt.loadNpmTasks('grunt-contrib-clean');
+  grunt.loadNpmTasks('grunt-prettify');
 
   grunt.registerTask('html', ['includes']);
   grunt.registerTask('template', function() {
     render(tmpDest);
   });
 
-  grunt.registerTask("render", ['html', 'template', 'clean']);
+  grunt.registerTask("render", ['html', 'template', 'clean', 'prettify']);
 };
