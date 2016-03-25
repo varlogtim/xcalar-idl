@@ -1,29 +1,76 @@
+<% var userNameAttr = (dicts.tutor.name == "workbookDemo") ? 'data-introstep="9"' : 'style="display:none;"' %>
+
 <!-- Top Menu Bar -->
 <div id="menuBar" class="clearfix no-selection">
+  <!-- workbook btn-->
+  <% if (dicts.tutor.name == "workbookDemo") { %>
+  <div id="workbookBtn" class="btn btnSmall" data-introstep="1">
+    <span class="icon"></span>
+  </div>
+  <% } else { %>
   <div id="workbookBtn" class="btn btnSmall" data-toggle="tooltip" data-placement="right" data-container="body" title="Workbook">
     <span class="icon"></span>
   </div>
+  <% } %>
+
+  <!-- maiu menu-->
   <div id="mainMenu" class="clearfix">
+    <!-- workspance tab -->
+    <% if (!dicts.isTutor) { %>
     <div id="workspaceTab" class="mainMenuTab active">
       <span class="icon mountain-icon"></span><%= dicts.menuBar.ws %>
     </div>
+    <% } else if (dicts.tutor.name == "workbookDemo") { %>
+    <div id="workspaceTab" class="mainMenuTab active" data-introstep="2">
+      <span class="icon mountain-icon"></span><%= dicts.menuBar.ws %>
+    </div>
+    <% } else { %>
+    <div id="workspaceTab" class="mainMenuTab">
+      <span class="icon mountain-icon"></span><%= dicts.menuBar.ws %>
+    </div>
+    <% } %>
+
+    <!-- monitor tab -->
+    <% if (dicts.tutor.name == "workbookDemo") { %>
+    <div id="monitorTab" class="mainMenuTab" data-introstep="3">
+      <span class="icon monitor-icon"></span><%= dicts.menuBar.monitor %>
+    </div>
+    <% } else { %>
     <div id="monitorTab" class="mainMenuTab">
       <span class="icon monitor-icon"></span><%= dicts.menuBar.monitor %>
     </div>
+    <% } %>
+
+    <!-- data store tab -->
+    <% if (!dicts.isTutor) { %>
     <div id="dataStoresTab" class="mainMenuTab firsTouch">
       <span class="icon db-icon"></span><%= dicts.menuBar.ds %>
     </div>
+    <% } else if (dicts.tutor.name == "workbookDemo") { %>
+    <div id="dataStoresTab" class="mainMenuTab" data-introstep="4">
+      <span class="icon db-icon"></span><%= dicts.menuBar.ds %>
+    </div>
+    <% } else { %>
+    <div id="dataStoresTab" class="mainMenuTab active">
+      <span class="icon db-icon"></span><%= dicts.menuBar.ds %>
+    </div>
+    <% } %>
+
+    <!-- scheduler tab -->
     <div id="schedulerTab" class="mainMenuTab">
       <span class="icon scheduler-icon"></span><%= dicts.menuBar.schde %>
     </div>
+    <!-- extension tab -->
     <div id="extensionTab" class="mainMenuTab">
       <span class="icon extension-icon"></span><%= dicts.menuBar.exts %>
     </div>
   </div>
   <div id="logo"></div>
-  <div id="userNameArea" style="display:none;">
+  <div id="userNameArea" <%= userNameAttr %>>
     <span><%= dicts.menuBar.welcome %>: </span>
-    <span id="userName" class="text"><%= dicts.menuBar.user %></span>
+    <span id="userName" class="text">
+      <%= dicts.isTutor ? dicts.tutor.user : dicts.menuBar.user %>
+    </span>
   </div>
   <div id="userNamePopout">
     <div id="peri"><%= dicts.menuBar.signInAs %>:</div>

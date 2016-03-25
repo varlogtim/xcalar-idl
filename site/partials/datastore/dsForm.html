@@ -1,3 +1,14 @@
+<!-- Form Help -->
+<div id="importHelp" class="formHelp no-selection">
+  <div class="contentViewMidWrap">
+    <h2>Point To New Dataset</h2>
+    <span class="icon"></span>
+    <p>
+       INPUT FILE PATH AND FILE NAME TO POINT TO DATASET.
+       THEN SELECT FILE FORMAT. POINTED DATA WILL BE LISTED ON THE LEFT.
+    </p>
+  </div>
+</div>
 <!-- Data Form -->
 <form id="importDataForm" class="dataStoreForm" target="_blank">
   <!-- Top Form -->
@@ -6,16 +17,16 @@
       <!-- file path -->
       <div id="filePathSelector" class="importFormRow">
         <label>File Path:</label>
-        <input id="filePath" type="text" name="filePath" spellcheck="false" autocomplete="off" placeholder="Enter File Directory" required>
+        <input id="filePath" type="text" name="filePath" spellcheck="false" autocomplete="off" placeholder="Enter File Directory" required <%= (dicts.tutor.name == 'datastoreDemo1') ? 'data-introstep="3"' : '' %>>
           <div class="buttonWrap">
             <button id="previewBtn" class="btn btnMid" type="button">PREVIEW</button>
-            <button id="fileBrowserBtn" class="btn btnMid" type="button">BROWSE</button>
+            <button id="fileBrowserBtn" class="btn btnMid" type="button" <%= (dicts.tutor.name == 'datastoreDemo1') ? 'data-introstep="2"' : '' %>>BROWSE</button>
           </div>
       </div>
       <!-- file name -->
       <div id="fileNameSelector" class="importFormRow">
         <label>Name:</label>
-        <input id="fileName" name="fileName" type="text" placeholder="Enter Dataset Name" autocomplete="off" pattern="^\w+$"  spellcheck="false" title="A valid name with no special characters" required>
+        <input id="fileName" name="fileName" type="text" placeholder="Enter Dataset Name" autocomplete="off" pattern="^\w+$"  spellcheck="false" title="A valid name with no special characters" required <%= (dicts.tutor.name == 'datastoreDemo1') ? 'data-introstep="4"' : '' %>>
          <!-- file formt -->
         <div class="buttonWrap">
           <div id="promoteHeaderCheckbox" class="checkboxSection hidden default-hidden">
@@ -33,7 +44,7 @@
             <div class="text">UDF</div>
           </div>
           <div class="fileFormatPadding"></div>
-          <div id="fileFormat" class="dropDownList">
+          <div id="fileFormat" class="dropDownList" <%= (dicts.tutor.name == 'datastoreDemo1') ? 'data-introstep="5"' : '' %>>
               <input class="text" type="text" spellcheck="false"
               placeholder="Format" disabled>
               <div class="iconWrapper">
@@ -161,7 +172,7 @@
         </section>
       </div>
       <!-- End Of Delimiters -->
-      <button id="importDataSubmit" class="btn btnMid" type="submit">POINT TO DATA</button>
+      <button id="importDataSubmit" class="btn btnMid" type="submit" <%= (dicts.tutor.name == 'datastoreDemo1') ? 'data-introstep="7"' : '' %>>POINT TO DATA</button>
       <button id="importDataReset" class="btn btnMid btn-cancel" type="reset">CANCEL</button>
     </div>
   </div>

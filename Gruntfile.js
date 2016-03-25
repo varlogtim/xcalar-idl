@@ -24,11 +24,22 @@ module.exports = function(grunt) {
 
     prettify: {
       options: {
-
       },
       one: {
         src: 'index.html',
         dest: 'index.html'
+      },
+      two: {
+        src: 'assets/htmlFiles/walk/datastoreDemo1.html',
+        dest: 'assets/htmlFiles/walk/datastoreDemo1.html'
+      },
+      three: {
+        src: 'assets/htmlFiles/walk/datastoreDemo2.html',
+        dest: 'assets/htmlFiles/walk/datastoreDemo2.html'
+      },
+      four: {
+        src: 'assets/htmlFiles/walk/workbookDemo.html',
+        dest: 'assets/htmlFiles/walk/workbookDemo.html'
       }
     },
 

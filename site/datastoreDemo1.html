@@ -1,0 +1,34 @@
+<div id="demoContainer" class="mainContainer" style="display:block !important;">
+  include "partials/menuBar.html"
+  <!-- DATASTORE PANEL -->
+  <div id="datastorePanel" class="mainPanel active">
+    include "partials/datastore/dsHeader.html"
+    <!-- Import Data Form -->
+    <div id="importDataView" class="dataStoreFormView">
+      include "partials/datastore/dsForm.html"
+    </div>
+    <!-- Main Content -->
+    <div id="mainContent">
+      <!-- Explore View -->
+      <div id="exploreView">
+        <div class="contentView">
+          <div class="contentViewLeft no-selection">
+            include "partials/datastore/gridView.html"
+          </div>
+          <div class="contentViewMid hidden"></div>
+          <div class="contentViewRight no-selection">
+            include "partials/datastore/dsCart.html"
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- END DATASTORE PANEL -->
+  <!-- Right Side Bar Section -->
+  <div id="rightSideBar" class="ui-draggable ui-resizable">
+    <div class="topBorder"></div>
+    <div id="pulloutTab"></div>
+  </div>
+  <!-- End Of Rightsidebar -->
+  include "partials/bottomBar.html"
+</div>

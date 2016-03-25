@@ -1,17 +1,66 @@
+<!-- Datastore Cart -->
 <div class="buttonArea">
-  <button id="submitDSTablesBtn" class="btn btnLarge iconBtn">
+  <% if (dicts.tutor.name !== "datastoreDemo2") { %>
+  <button id="submitDSTablesBtn" class="btn btnLarge iconBtn btnInactive">
     <span class="icon"></span>SEND TO ACTIVE WORKSHEET
   </button>
+  <% } else { %>
+  <button id="submitDSTablesBtn" class="btn btnLarge iconBtn" data-introstep="9" data-introposition="left">
+    <span class="icon"></span>SEND TO ACTIVE WORKSHEET
+  </button>
+  <% }%>
   <!--   <button id="submitMultipleDBTablesBtn"
       class="btn btnLarge btnInactive iconBtn" tabindex="-1">
     <span class="icon"></span>SEND TO MULTIPLE WORKSHEETS
   </button> -->
-  <button id="clearDataCart" class="btn btnLarge iconBtn">
+  <% if (dicts.tutor.name !== "datastoreDemo2") { %>
+  <button id="clearDataCart" class="btn btnLarge iconBtn btnInactive">
     <span class="icon"></span>CLEAR DATA CART
   </button>
-  <div id="dataCartTitle" class="title"></div>
+  <% } else { %>
+  <button id="clearDataCart" class="btn btnLarge iconBtn" data-introstep="8" data-introposition="left">
+    <span class="icon"></span>CLEAR DATA CART
+  </button>
+  <% }%>
+  <div id="dataCartTitle" class="title">
+    <% if (dicts.tutor.name !== "datastoreDemo2") { %>
+    <b>No Tables Selected</b>
+    <% } else { %>
+    <b>Selected Columns</b>
+    <% }%>
+  </div>
   <div class="border"></div>
 </div>
 <div id="dataCartWrap">
-  <div id="dataCart"></div>
+  <div id="dataCart">
+    <% if (dicts.tutor.name == "datastoreDemo2") { %>
+    <div id="selectedTable-yelpUsers" class="selectedTable">
+      <div class="cartTitleArea" data-introstep="7">
+        <input class="tableNameEdit" type="text" spellcheck="false" value="yelpUsers">
+        <div class="iconWrapper">
+          <span class="icon"></span>
+        </div>
+      </div>
+      <ul data-introstep="6">
+        <li style="font-size:13px;" class="colWrap" data-colnum="2">
+          <span class="colName">yelping_since</span>
+          <div class="removeCol">
+            <span class="closeIcon"></span>
+          </div>
+        </li>
+        <li style="font-size:13px;" class="colWrap" data-colnum="3">
+          <span class="colName">compliments</span>
+          <div class="removeCol">
+            <span class="closeIcon"></span>
+          </div>
+        </li>
+      </ul>
+    </div>
+    <% } else { %>
+    <span class="helpText">
+      To add a column to the data cart, select a dataset on the left and click on the column names that you are interested in inside the center panel.
+    </span>
+    <% } %>
+  </div>
 </div>
+<!-- End of Datastore Cart -->

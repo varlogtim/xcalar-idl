@@ -1,0 +1,57 @@
+<div id="datasetExplore" class="headingArea">
+  <span>Datasets (<span class="numDataStores">0</span>)</span>
+  <div class="buttonGroup">
+    <div id="refreshDS" class="refresh btn dataViewBtn">
+      <span class="icon" data-toggle="tooltip" data-placement="top" data-container="body" title="" data-original-title="Refresh Datasets"></span>
+    </div>
+    <% if (dicts.tutor.name !== "datastoreDemo2") { %>
+    <div id="dataViewBtn" class="btn dataViewBtn selected gridView toggleListGrid" data-toggle="tooltip" data-placement="top" data-original-title="Switch to List view" data-container="body">
+      <span class="icon"></span>
+    </div>
+    <% } else { %>
+    <div id="dataViewBtn" class="btn dataViewBtn selected gridView toggleListGrid" data-introstep="13">
+      <span class="icon"></span>
+    </div>
+    <% } %>
+  </div>
+</div>
+<div id="importDataArea" class="mainButtonArea no-selection">
+  <% if (dicts.tutor.name !== "datastoreDemo1") { %>
+  <button id="importDataButton" class="btn btnLarge iconBtn">
+    <span class="icon"></span>POINT TO NEW DATASET
+  </button>
+  <% } else { %>
+  <button id="importDataButton" class="btn btnLarge iconBtn" data-introstep="1">
+    <span class="icon"></span>POINT TO NEW DATASET
+  </button>
+  <% } %>
+</div>
+<!-- Grid Views of ds -->
+<div class="gridViewButtonArea no-selection">
+  <div id="backFolderBtn"  class="gridViewBtn backBtn disabled" title="See previous folders" data-container="body" data-toggle="tooltip" data-placement="bottom" ondrop="DS.onDropBack(event)" ondragover="DS.allowDrop(event)" ondragenter="DS.onDragEnter(event)">
+    <div class="icon"></div>
+    <div class="label">..</div>
+  </div>
+  <% if (dicts.tutor.name !== "datastoreDemo2") { %>
+  <div id="addFolderBtn" class="gridViewBtn addBtn" title="Add New Folder" data-container="body" data-toggle="tooltip" data-placement="bottom">
+    <div class="icon"></div>
+    <div class="label">NEW</div>
+  </div>
+  <% } else { %>
+  <div id="addFolderBtn" class="gridViewBtn addBtn" data-introstep="10">
+    <div class="icon"></div>
+    <div class="label">NEW</div>
+  </div>
+  <% } %>
+  <% if (dicts.tutor.name !== "datastoreDemo2") { %>
+  <div id="deleteFolderBtn" class="gridViewBtn deleteBtn disabled" title="Delete folder or dataset" data-container="body" data-toggle="tooltip" data-placement="bottom">
+    <div class="icon"></div>
+    <div class="label">DELETE</div>
+  </div>
+  <% } else { %>
+  <div id="deleteFolderBtn" class="gridViewBtn deleteBtn disabled" data-introstep="12">
+    <div class="icon"></div>
+    <div class="label">DELETE</div>
+  </div>
+  <% } %>
+</div>

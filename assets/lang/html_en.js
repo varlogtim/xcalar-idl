@@ -8,6 +8,7 @@ module.exports = {
         'exts': 'Extensions',
         'welcome': 'Welcome',
         'user': 'User',
+        'tutorUser':  'John Smith',
         'signInAs': 'Signed in as',
         'Vikram': 'Vikram Joshi',
         'signOut': 'Sign out'
@@ -137,5 +138,28 @@ module.exports = {
         'OpenQG': 'click to view query graph',
         'Bookmark': 'click to add bookmark',
         'Bookmarked': 'bookmarked'
+    },
+
+    bottomBar: {
+        'EC': 'Establishing Connection'
+    },
+
+    tutor: {
+        'user': 'John Smith',
+        'wkbk': 'Walkthrough',
+        'wkbkDate': '3-31-2016',
+        'wkbkSaveDate': '3-31-2016 0:00:00 AM',
+        'meta': {
+            // leave it empty, it will be overwritten by render.js
+        },
+        'datastoreDemo1': {
+            'tab': 'Viewing Data Stores'
+        },
+        'datastoreDemo2': {
+            'tab': 'Viewing Data Stores'
+        },
+        'workbookDemo': {
+            'tab': 'Viewing Worksheet'
+        }
     }
 };
