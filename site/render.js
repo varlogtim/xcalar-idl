@@ -16,7 +16,6 @@ var tutorMap = {
 };
 
 function render(srcDir) {
-    console.log(srcDir);
     files = fs.readdirSync(srcDir);
     for (var i = 0, len = files.length; i < len; i++) {
         renderHelper(files[i], srcDir);

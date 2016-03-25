@@ -446,10 +446,9 @@ window.DagPanel = (function($, DagPanel) {
                 'title="Allow table to be deleted">' +
                 'Unlock Table' +
             '</li>' +
-            // '<li class="deleteTable">' +
-            //     'Delete Table' +
-            // '</li>' +
-            // XXX temporarily hiding delete table
+            '<li class="deleteTable">' +
+                'Delete Table' +
+            '</li>' +
             '<li class="deleteTableDescendants unavailable" data-toggle="tooltip" ' +
                 'data-placement="bottom" data-container="body" ' +
                 'title="' + TooltipTStr.ComingSoon + '">' +
@@ -483,8 +482,10 @@ window.DagPanel = (function($, DagPanel) {
 
             if (WSManager.getWSFromTable(tableId) == null) {
                 tableType = TableType.Orphan;
+            } else if (gTables[tableId].status === TableType.Orphan) {
+                tableType = TableType.Orphan;
             } else {
-                tableType = TableType.InActive;
+                 tableType = TableType.Archived;
             }
 
             WSManager.moveInactiveTable(tableId, wsId, tableType);
@@ -495,22 +496,36 @@ window.DagPanel = (function($, DagPanel) {
                 return;
             }
             var tableId = $menu.data('tableId');
+            var wsId;
+            var worksheet;
             if (WSManager.getWSFromTable(tableId) == null) {
+                tableType = "noSheet";
+                wsId = WSManager.getActiveWS();
+                worksheet = wsId;
+            } else if (gTables[tableId] && gTables[tableId].status ===
+                        TableType.Orphan) {
                 tableType = TableType.Orphan;
+                wsId = null;
+                worksheet = WSManager.getWSFromTable(tableId);
             } else {
-                tableType = TableType.InActive;
+                tableType = TableType.Archived;
+                wsId = null;
+                worksheet = WSManager.getWSFromTable(tableId);
             }
 
             var newTableName = $menu.data('tablename');
             var $tableIcon = $menu.data('tableelement');
             var $dagWrap = $tableIcon.closest('.dagWrap');
             var oldTableName = $dagWrap.find('.tableName').text();
-            var wsId = WSManager.getActiveWS();
 
-            TblManager.refreshTable([newTableName], null, [oldTableName], wsId,
-                                    {isUndo: true})
+            TblManager.refreshTable([newTableName], null, [oldTableName], wsId)
             .then(function() {
                 var tableId = xcHelper.getTableId(newTableName);
+                // if (tableType === "noSheet") {
+                //     tableType = TableType.Orphan;
+                // }
+                // TableList.removeTable(tableId, tableType);
+
                 var $tableWrap = $('#xcTableWrap-' + tableId).mousedown();
                 Dag.focusDagForActiveTable();
                 xcHelper.centerFocusedTable($tableWrap, true);
@@ -521,7 +536,8 @@ window.DagPanel = (function($, DagPanel) {
                     "oldTableName": oldTableName,
                     "tableId"  : tableId,
                     "tableType": tableType,
-                    "htmlExclude": ["tableType", "oldTableName"]
+                    "worksheet": worksheet,
+                    "htmlExclude": ["tableType", "oldTableName", "worksheet"]
                 });
             });
         });
@@ -577,28 +593,52 @@ window.DagPanel = (function($, DagPanel) {
             // check if table visibile, else check if its in the inactivelist,
             // else check if its in the orphan list, else just delete the table
             if ($table.length !== 0 && !$table.hasClass('locked')) {
-                var mouseup = {type: "mouseup", which: 1};
-                $('#tableMenu-' + tableId).find('.deleteTable')
-                                          .trigger(mouseup);
-            } else if (table) {
-                $('#inactiveTablesList').find('.tableInfo').each(function() {
-                    var $li = $(this);
-                    if ($li.data('id') === tableId) {
-                        $li.find('.addTableBtn').click();
-                        $('#deleteTablesBtn').click();
-                        return (false);
+                var msg = xcHelper.replaceMsg(TblTStr.DelMsg,
+                                                {"table": tableName});
+                Alert.show({
+                    "title"  : TblTStr.Del,
+                    "msg"    : msg,
+                    "confirm": function() {
+                        TblManager.deleteTables(tableId, TableType.Active);
                     }
                 });
-            } else if (gOrphanTables.indexOf(tableName) !== -1) {
+            } else if (table) {
+                if (table.status === TableType.Orphan) {
+                    TableList.refreshOrphanList().
+                    then(function() {
+                        $('#orphanedTablesList').find('.tableInfo').each(function() {
+                            var $li = $(this);
+                            if ($li.data('tablename') === tableName) {
+                                $li.find('.addTableBtn').click();
+                                $('#deleteOrphanedTablesBtn').click();
+                                return (false);
+                            }
+                        });
+                    });
+                } else {
+                    $('#inactiveTablesList').find('.tableInfo').each(function() {
+                        var $li = $(this);
+                        if ($li.data('id') === tableId) {
+                            $li.find('.addTableBtn').click();
+                            $('#deleteTablesBtn').click();
+                            return (false);
+                        }
+                    });
+                }
+            } else {
+                var orphanFound = false;
                 $('#orphanedTablesList').find('.tableInfo').each(function() {
                     var $li = $(this);
                     if ($li.data('tablename') === tableName) {
                         $li.find('.addTableBtn').click();
                         $('#deleteOrphanedTablesBtn').click();
+                        orphanFound = true;
                         return (false);
                     }
                 });
-            } else {
+                if (orphanFound) {
+                    return;
+                }
                 // this is the case when user pull out a backend table A, then
                 // delete another table in the dag node of A but that table is
                 // not in orphaned list
@@ -645,6 +685,12 @@ window.Dag = (function($, Dag) {
 
         XcalarGetDag(tableName)
         .then(function(dagObj) {
+            if (tablesToRemove) {
+                for (var i = 0, len = tablesToRemove.length; i < len; i++) {
+                    var tblId = tablesToRemove[i];
+                    $('#dagWrap-' + tblId).remove();
+                }
+            }
             var isWorkspacePanelVisible = $('#workspacePanel')
                                             .hasClass('active');
             var isDagPanelVisible = !$('#dagPanel').hasClass('invisible');

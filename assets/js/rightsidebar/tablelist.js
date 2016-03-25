@@ -89,7 +89,7 @@ window.TableList = (function($, TableList) {
         });
 
         $("#submitTablesBtn").click(function() {
-            activeTableAlert(TableType.InActive);
+            activeTableAlert(TableType.Archived);
         });
 
         $('#submitOrphanedTablesBtn').click(function() {
@@ -103,7 +103,7 @@ window.TableList = (function($, TableList) {
         $("#deleteTablesBtn, #deleteOrphanedTablesBtn").click(function() {
             var tableType;
             if ($(this).is('#deleteTablesBtn')) {
-                tableType = TableType.InActive;
+                tableType = TableType.Archived;
             } else {
                 tableType = TableType.Orphan;
             }
@@ -318,7 +318,7 @@ window.TableList = (function($, TableList) {
         var $tableList;
         var hiddenWS = false;
 
-        if (tableType === TableType.InActive) {
+        if (tableType === TableType.Archived) {
             $tableList = $('#archivedTableList');
         } else if (tableType === TableType.WSHidden) {
             $tableList = $('#activeTablesList');
@@ -358,9 +358,9 @@ window.TableList = (function($, TableList) {
                 var tableIdOrName;
 
                 if (tableType === TableType.Orphan) {
-                    tableIdOrName = tableName;
+                    tableIdOrName = $(ele).data('tablename');
                 } else {
-                    tableIdOrName = tableId;
+                    tableIdOrName = $(ele).data('id');
                 }
 
                 tables.push(tableIdOrName);
@@ -425,14 +425,7 @@ window.TableList = (function($, TableList) {
                         table.beActive();
                         table.updateTimeStamp();
 
-                        var tblCols = table.tableCols;
-                        var tableProperties = {
-                            "bookmarks" : table.bookmarks,
-                            "rowHeights": table.rowHeights
-                        };
-
-                        TblManager.refreshTable([tableName], tblCols, [], null,
-                                        {"tableProperties": tableProperties})
+                        TblManager.refreshTable([tableName], null, [], null)
                         .then(function() {
                             doneHandler($li, tableName, hiddenWS);
                             innerDeferred.resolve();
@@ -565,6 +558,7 @@ window.TableList = (function($, TableList) {
             for (var tableId in gTables) {
                 var table = gTables[tableId];
                 if (table.status !== TableType.Orphan &&
+                    table.status !== TableType.Trash &&
                     tableMap.hasOwnProperty(table.tableName))
                 {
                     delete tableMap[table.tableName];
@@ -595,14 +589,19 @@ window.TableList = (function($, TableList) {
             tableType = type;
         } else {
             var table = gTables[tableId];
-            tableType = table.status;
+            if (!table) {
+                tableType = "orphaned";
+            } else {
+                tableType = table.status;
+            }
         }
 
         if (tableType === "active") {
             $li = $("#activeTablesList").find('.tableInfo[data-id="' +
                                                     tableId + '"]');
         } else if (tableType === "orphaned") {
-            $li = $('#orphanedTableList').find('.tableInfo[data-id="' +
+            // if orphan, tableId is actually tableName
+            $li = $('#orphanedTableList').find('.tableInfo[data-tablename="' +
                                                     tableId + '"]');
         } else {
               $li = $('#archivedTableList').find('.tableInfo[data-id="' +
@@ -612,9 +611,22 @@ window.TableList = (function($, TableList) {
         var $timeLine = $li.closest(".timeLine");
 
         $li.remove();
+        var $tableList = $timeLine.closest('.tableLists');
         if ($timeLine.find('.tableInfo').length === 0) {
             $timeLine.remove();
         }
+        if ($tableList.find('ul').length === 0) {
+            if ($tableList.closest('#orphanedTableList').length) {
+                $tableList.siblings('.secondButtonWrap')
+                          .find('.btn:not(.refresh)')
+                          .hide();
+            } else {
+                $tableList.siblings('.secondButtonWrap').hide();
+            }
+
+            $tableList.siblings('.searchArea').hide();
+        }
+
     };
 
 
@@ -626,19 +638,35 @@ window.TableList = (function($, TableList) {
         // get workshett before async call
         var worksheet = WSManager.getActiveWS();
 
-        if (tableId != null && gTables[tableId] != null) {
+        if (tableId != null && gTables.hasOwnProperty(tableId)) {
             // when meta is in gTables
             var table = gTables[tableId];
             if (table.status !== TableType.Orphan) {
                 throw "Error, table is not orphaned!";
+            } else {
+                var oldWS = WSManager.getWSFromTable(tableId);
+                if (oldWS) {
+                    worksheet = oldWS;
+                    WSManager.removeTable(tableId);
+                }
             }
-            newTableCols = table.tableCols;
-            var tableProperties = {
-                "bookmarks" : table.bookmarks,
-                "rowHeights": table.rowHeights
-            };
-            TblManager.refreshTable([tableName], newTableCols, [], worksheet,
-                                    {"tableProperties": tableProperties})
+
+            TblManager.refreshTable([tableName], null, [], worksheet)
+            .then(function() {
+                deferred.resolve(tableName);
+            })
+            .fail(deferred.reject);
+
+            return deferred.promise();
+        } else {
+            renameOrphanIfNeeded()
+            .then(function(newTableName) {
+                tableName = newTableName;
+                newTableCols.push(ColManager.newDATACol());
+
+                return TblManager.refreshTable([tableName], newTableCols,
+                                                [], worksheet);
+            })
             .then(function() {
                 deferred.resolve(tableName);
             })
@@ -647,20 +675,7 @@ window.TableList = (function($, TableList) {
             return deferred.promise();
         }
 
-        renameOrphanIfNeeded()
-        .then(function(newTableName) {
-            tableName = newTableName;
-            newTableCols.push(ColManager.newDATACol());
 
-            return TblManager.refreshTable([tableName], newTableCols,
-                                            [], worksheet);
-        })
-        .then(function() {
-            deferred.resolve(tableName);
-        })
-        .fail(deferred.reject);
-
-        return deferred.promise();
 
         function renameOrphanIfNeeded() {
             var innerDeferred = jQuery.Deferred();
@@ -1016,7 +1031,7 @@ window.TableList = (function($, TableList) {
     function activeTableAlert(tableType) {
         var $tableList;
 
-        if (tableType === TableType.InActive) {
+        if (tableType === TableType.Archived) {
             $tableList = $('#archivedTableList');
         } else if (tableType === TableType.Agg) {
             $tableList = $("#aggregateTableList");
@@ -1134,23 +1149,24 @@ window.TableList = (function($, TableList) {
 
     function initializeTableList() {
         var activeTables = [];
-        var hiddenTables = [];
+        var archivedTables = [];
 
         for (var tableId in gTables) {
             var table = gTables[tableId];
-            if (table.status === TableType.Orphan) {
+            if (table.status === TableType.Orphan ||
+                table.status === TableType.Trash) {
                 continue;
             }
 
             if (table.status === TableType.Active) {
                 activeTables.push(table);
             } else {
-                hiddenTables.push(table);
+                archivedTables.push(table);
             }
         }
 
         TableList.addTables(activeTables, IsActive.Active);
-        TableList.addTables(hiddenTables, IsActive.Inactive);
+        TableList.addTables(archivedTables, IsActive.Inactive);
 
         generateOrphanList(gOrphanTables);
         TableList.refreshAggTables();

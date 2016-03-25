@@ -19,7 +19,7 @@ window.TblMenu = (function(TblMenu, $) {
                 return;
             }
             var tableId = $tableMenu.data('tableId');
-            TblManager.inActiveTables([tableId]);
+            TblManager.archiveTables([tableId]);
         });
 
         $tableMenu.on('mouseup', '.hideTable', function(event) {
@@ -45,6 +45,7 @@ window.TblMenu = (function(TblMenu, $) {
             }
             var tableId = $tableMenu.data('tableId');
             var tableName = gTables[tableId].tableName;
+            // TblManager.sendTablesToTrash(tableId, TableType.Active);
 
             var msg = xcHelper.replaceMsg(TblTStr.DelMsg, {"table": tableName});
             Alert.show({

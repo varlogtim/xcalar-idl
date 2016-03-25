@@ -1071,14 +1071,12 @@ window.xcHelper = (function($, xcHelper) {
     xcHelper.getTableId = function(wholeName) {
         // get out hashId from tableName + hashId
         var hashIndex = wholeName.lastIndexOf('#');
-        var hashId;
         if (hashIndex > -1) {
-            hashId = wholeName.substring(hashIndex + 1);
+            return (wholeName.substring(hashIndex + 1));
         } else {
-            hashId = null;
             console.warn('Table name does not contain hashId');
+            return (null);
         }
-        return (hashId);
     };
 
     xcHelper.getBackTableSet = function() {

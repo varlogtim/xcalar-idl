@@ -24,6 +24,9 @@ module.exports = function(grunt) {
 
     prettify: {
       options: {
+        wrap_line_length: 80,
+        preserve_newlines: true,
+        max_preserve_newlines: 2
       },
       one: {
         src: 'index.html',
@@ -48,8 +51,11 @@ module.exports = function(grunt) {
         files: ['site/**/*.html', '!' + tmpDest + '/index.html'],
         tasks: ['includes', 'template', 'clean', 'prettify'],
         options: {
-          atBegin: true
+          atBegin: true,
         }
+      },
+      grunt: {
+        files: ['Gruntfile.js', 'package.json']
       }
     }
   });

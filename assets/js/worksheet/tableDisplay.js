@@ -18,8 +18,6 @@ window.TblManager = (function($, TblManager) {
             selectCol: number. column to be highlighted when table is ready
             isUndo: boolean, default is false. Set to true if this table is being
                   created from an undo operation,
-            isRedo: boolean, default is false. Set to true if this table is being
-                  brought from inactive or orphaned and is replacing an active table,
             position: int, used to place a table in a certain spot if not replacing
                         an older table. Currently has to be paired with undo or
                         redo
@@ -32,22 +30,6 @@ window.TblManager = (function($, TblManager) {
 
         options = options || {};
         oldTableNames = oldTableNames || [];
-
-        var focusWorkspace = options.focusWorkspace;
-        var lockTable = options.lockTable;
-        var afterStartup;
-        var selectCol = options.selectCol;
-
-        if (options.afterStartup == null) {
-            afterStartup = true;
-        } else {
-            afterStartup = options.afterStartup;
-        }
-
-        var numOldTables = oldTableNames.length;
-
-
-        // XX temp;
         var newTableName = newTableNames[0];
         var newTableId = xcHelper.getTableId(newTableName);
 
@@ -58,127 +40,71 @@ window.TblManager = (function($, TblManager) {
         }
         // the only case that worksheet is null is add from inActive list
 
-        var setOptions = {
-            "isActive"       : true,
-            "tableProperties": options.tableProperties
-        };
-
         var promise;
-        if (options.isUndo || options.isRedo) {
-        // we're getting table through an undo or redo so columns are already set
+        if (!tableCols) {
+            if (gTables[newTableId] &&
+                gTables[newTableId].status === TableType.Orphan) {
+                TableList.removeTable(newTableName);
+            } else {
+                TableList.removeTable(newTableId);
+            }
+            // if no tableCols provided, columns are already set
             promise = setResultSet(newTableName);
         } else {
+            var setOptions = {
+                "isActive"       : true,
+                "tableProperties": options.tableProperties
+            };
             promise = TblManager.setgTable(newTableName, tableCols, setOptions);
         }
 
         promise
         .then(function() {
-            if (focusWorkspace) {
+            if (options.focusWorkspace) {
                 focusOnWorkspace();
             }
             var addTableOptions;
-            var oldTNames = [];
+            var tablesToReplace = [];
+            var tablesToRemove = [];
 
-            if (numOldTables) {
-                // there are old tables we will replace
-                var targetTable;
-                var tablesToRemove = [];
-                var oldTableIds = [];
+            if (oldTableNames.length > 0) {
+                // figure out which old table we will replace
+                setTablesToReplace(oldTableNames, worksheet, tablesToReplace, tablesToRemove);
+            }
 
-                for (var i = 0, len = oldTableNames.length; i < len; i++) {
-                    oldTableIds[i] = xcHelper.getTableId(oldTableNames[i]);
-                }
+            // append newly created table to the back, do not remove any tables
+            addTableOptions = {
+                "afterStartup": true,
+                "lockTable"   : options.lockTable,
+                "selectCol"   : options.selectCol,
+                "isUndo"      : options.isUndo,
+                "position"    : options.position,
+                "from"        : options.from
+            };
 
-                if (numOldTables < 2) {
-                    // only have one table to remove
-                    targetTable = oldTableNames[0];
-                    oldTNames = [targetTable];
+            addTable([newTableName], tablesToReplace, tablesToRemove,
+                     addTableOptions)
+            .then(function() {
+                if (options.focusWorkspace) {
+                    scrollAndFocusTable(newTableName);
                 } else {
-                    // find the first table in the worksheet,
-                    // that is the target worksheet
-                    var wsTables = WSManager.getWSById(worksheet).tables;
-                    for (var i = 0, len = wsTables.length; i < len; i++) {
-                        var index = oldTableIds.indexOf(wsTables[i]);
-                        if (index >= 0) {
-                            targetTable = oldTableNames[index];
-                            oldTNames = [targetTable];
-                            break;
-                        }
-                    }
-
-                    if (targetTable == null) {
-                        // If we're here, we could not find a table in the
-                        // active worksheet to be replaced so the new table
-                        // will eventually just be appended to the active worksheet
-                        // The old tables will still be removed;
-                        console.warn("Current WS has no tables to replace");
-                        // oldTNames will remain an empty array
-                    }
-                }
-
-
-                for (var i = 0, len = oldTableIds.length; i < len; i++) {
-                    var oldTableId = oldTableIds[i];
-                    if (tablesToRemove.indexOf(oldTableId) < 0) {
-                        // if oldTableId alredy exists (like self join)
-                        // not add again
-                        tablesToRemove.push(oldTableId);
-                    }
-                }
-
-                addTableOptions = {
-                    "afterStartup": afterStartup,
-                    "lockTable"   : lockTable,
-                    "selectCol"   : selectCol,
-                    "isUndo"      : options.isUndo,
-                    "isRedo"      : options.isRedo,
-                    "position"    : options.position,
-                    "from"        : options.from
-                };
-
-                addTable([newTableName], oldTNames, tablesToRemove,
-                                    addTableOptions)
-                .then(function() {
-                    // highlight the table if no other tables in WS are selected
                     var wsNum = WSManager.getActiveWS();
                     if ($('.xcTableWrap.worksheet-' + wsNum).find('.tblTitleSelected')
-                                                            .length === 0) {
+                                                        .length === 0) {
                         var tableId = xcHelper.getTableId(newTableName);
                         focusTable(tableId);
                     }
-                    deferred.resolve();
-                })
-                .fail(function(error) {
-                    console.error("refreshTable fails!");
-                    if (worksheet != null) {
-                        WSManager.removeTable(newTableId);
-                    }
-                    deferred.reject(error);
-                });
-            } else {
-                // append newly created table to the back, do not remove any tables
-                addTableOptions = {
-                    "afterStartup": afterStartup,
-                    "isUndo"      : options.isUndo,
-                    "isRedo"      : options.isRedo,
-                    "position"    : options.position,
-                    "from"        : options.from
-                };
-                addTable([newTableName], oldTableNames, [], addTableOptions)
-                .then(function() {
-                    if (focusWorkspace) {
-                        scrollAndFocusTable(newTableName);
-                    }
-                    deferred.resolve();
-                })
-                .fail(function(error) {
-                    console.error("refreshTable fails!");
-                    if (worksheet != null) {
-                        WSManager.removeTable(newTableId);
-                    }
-                    deferred.reject(error);
-                });
-            }
+                }
+
+                deferred.resolve();
+            })
+            .fail(function(error) {
+                console.error("refreshTable fails!");
+                if (worksheet != null) {
+                    WSManager.removeTable(newTableId);
+                }
+                deferred.reject(error);
+            });
         })
         .fail(function(error) {
             console.log("set gTables fails!");
@@ -190,6 +116,52 @@ window.TblManager = (function($, TblManager) {
 
         return (deferred.promise());
     };
+
+    function setTablesToReplace(oldTableNames, worksheet, tablesToReplace,
+                                tablesToRemove) {
+        var oldTableIds = [];
+
+        for (var i = 0, len = oldTableNames.length; i < len; i++) {
+            oldTableIds.push(xcHelper.getTableId(oldTableNames[i]));
+        }
+
+        if (oldTableNames.length === 1) {
+            // only have one table to remove
+            tablesToReplace.push(oldTableNames[0]);
+        } else {
+            // find the first table in the worksheet,
+            // that is the target worksheet
+            var targetTable;
+            var wsTables = WSManager.getWSById(worksheet).tables;
+            var index;
+            for (var i = 0, len = wsTables.length; i < len; i++) {
+                index = oldTableIds.indexOf(wsTables[i]);
+                if (index > -1) {
+                    tablesToReplace.push(oldTableNames[index]);
+                    break;
+                }
+            }
+
+            if (tablesToReplace.length === 0) {
+                // If we're here, we could not find a table to be replaced in the
+                // active worksheet, so the new table
+                // will eventually just be appended to the active worksheet
+                // The old tables will still be removed;
+                console.warn("Current WS has no tables to replace");
+                // tablesToReplace will remain an empty array
+            }
+        }
+
+        var oldTableId;
+        for (var i = 0, len = oldTableIds.length; i < len; i++) {
+            oldTableId = oldTableIds[i];
+            if (tablesToRemove.indexOf(oldTableId) < 0) {
+                // if oldTableId alredy exists (like self join)
+                // not add again
+                tablesToRemove.push(oldTableId);
+            }
+        }
+    }
 
     /*
         This functions adds new tables to the display and the dag at the same
@@ -325,7 +297,7 @@ window.TblManager = (function($, TblManager) {
         return table;
     };
 
-    TblManager.inActiveTables = function(tableIds) {
+    TblManager.archiveTables = function(tableIds) {
         // a wrapper function to archive bunch of tables
         xcHelper.assert((tableIds != null), "Invalid arguments");
 
@@ -388,9 +360,10 @@ window.TblManager = (function($, TblManager) {
             var table = gTables[tableId];
             // free result set when archieve
             table.freeResultset();
-            table.beInActive();
+            table.beArchived();
             table.updateTimeStamp();
-            WSManager.archiveTable(tableId, tempHide);
+            // WSManager.archiveTable(tableId, tempHide);
+            WSManager.changeTableStatus(tableId, TableType.Archived);
             TableList.moveTable(tableId);
         } else {
             TableList.removeTable(tableId, 'active');
@@ -411,11 +384,56 @@ window.TblManager = (function($, TblManager) {
         checkTableDraggable();
     };
 
-    // currently used only for undo redo
+    // TblManager.sendTablesToTrash = function(tableIds, tableType) {
+    //     var deferred = jQuery.Deferred();
+
+    //     if (!(tableIds instanceof Array)) {
+    //         tableIds = [tableIds];
+    //     }
+    //     var sql = {
+    //         "operation": SQLOps.DeleteTable,
+    //         "tables"   : tableIds,
+    //         "tableType": tableType
+    //     };
+    //     var txId = Transaction.start({
+    //         "operation": SQLOps.DeleteTable,
+    //         "sql"      : sql
+    //     });
+
+    //     var defArray = [];
+
+    //     tableIds.forEach(function(tableId) {
+    //         var options = {
+    //             remove: true,
+    //             trash: true
+    //         };
+    //         var def = TblManager.sendTableToOrphaned(tableId, options);
+    //         defArray.push(def);
+    //     });
+
+    //     xcHelper.when.apply(window, defArray)
+    //     .then(function() {
+    //         Transaction.done(txId);
+    //         deferred.resolve();
+    //     })
+    //     .fail(function(error){
+    //         Transaction.fail(txId, {
+    //             "error"  : error,
+    //             "failMsg": StatusMessageTStr.DeleteTableFailed
+    //         });
+    //         deferred.reject(error);
+    //     });
+
+    //     return (deferred.promise());
+    // };
+
     //options:
     // remove: boolean, if true will remove table from html
+    // keepInWS: boolean, if true will not remove table from WSManager
     TblManager.sendTableToOrphaned = function(tableId, options) {
-        if (options && options.remove) {
+        var deferred = jQuery.Deferred();
+        options = options || {};
+        if (options.remove) {
             $("#xcTableWrap-" + tableId).remove();
             $("#rowScroller-" + tableId).remove();
             $("#dagWrap-" + tableId).remove();
@@ -425,34 +443,93 @@ window.TblManager = (function($, TblManager) {
             $("#dagWrap-" + tableId).addClass('dagWrapToRemove');
         }
 
-        TableList.removeTable(tableId);
-
         var table = gTables[tableId];
-        table.freeResultset();
-        table.beInActive()
-             .beOrphaned()
-             .updateTimeStamp();
+        table.freeResultset()
+        .then(function() {
+            TableList.removeTable(tableId);
+            if (!options.keepInWS) {
+                WSManager.removeTable(tableId);
+                Dag.makeInactive(tableId);
+            }
 
-        WSManager.removeTable(tableId);
-        Dag.makeInactive(tableId);
+            table.beOrphaned()
+                 .updateTimeStamp();
 
-        if (gActiveTableId === tableId) {
-            gActiveTableId = null;
-            $('#rowInput').val("").data("val", "");
-            $('#numPages').empty();
-        }
+            if (gActiveTableId === tableId) {
+                gActiveTableId = null;
+                $('#rowInput').val("").data("val", "");
+                $('#numPages').empty();
+            }
 
-        if ($('.xcTableWrap:not(.inActive').length === 0) {
-            RowScroller.empty();
-        }
+            if ($('.xcTableWrap:not(.inActive').length === 0) {
+                RowScroller.empty();
+            }
 
-        moveTableDropdownBoxes();
-        moveTableTitles();
-        moveFirstColumn();
+            moveTableDropdownBoxes();
+            moveTableTitles();
+            moveFirstColumn();
 
-        // disallow dragging if only 1 table in worksheet
-        checkTableDraggable();
+            // disallow dragging if only 1 table in worksheet
+            checkTableDraggable();
+            deferred.resolve();
+        })
+        .fail(function(error) {
+            deferred.reject(error);
+        });
+
+        return (deferred.promise());
     };
+
+    // // Currently called when removing old tables during an add table
+    // //options:
+    // // delayTableRemoval: boolean. If true, special class will be added to
+    // //        table until it is removed later
+    // function makeTableOrphaned(tableId, options) {
+    //     var deferred = jQuery.Deferred();
+    //     options = options || {};
+    //     if (options.delayTableRemoval) {
+    //         $("#xcTableWrap-" + tableId).addClass('tableToRemove');
+    //         $("#rowScroller-" + tableId).addClass('rowScrollerToRemove');
+    //         $("#dagWrap-" + tableId).addClass('dagWrapToRemove');
+    //     } else {
+    //         $("#xcTableWrap-" + tableId).remove();
+    //         $("#rowScroller-" + tableId).remove();
+    //         $("#dagWrap-" + tableId).remove();
+    //     }
+
+    //     var table = gTables[tableId];
+    //     table.freeResultset()
+    //     .then(function() {
+    //         TableList.removeTable(tableId);
+    //         table.beOrphaned()
+    //              .updateTimeStamp();
+
+    //         Dag.makeInactive(tableId);
+
+    //         if (gActiveTableId === tableId) {
+    //             gActiveTableId = null;
+    //             $('#rowInput').val("").data("val", "");
+    //             $('#numPages').empty();
+    //         }
+
+    //         if ($('.xcTableWrap:not(.inActive').length === 0) {
+    //             RowScroller.empty();
+    //         }
+
+    //         moveTableDropdownBoxes();
+    //         moveTableTitles();
+    //         moveFirstColumn();
+
+    //         // disallow dragging if only 1 table in worksheet
+    //         checkTableDraggable();
+    //         deferred.resolve();
+    //     })
+    //     .fail(function(error) {
+    //         deferred.reject(error);
+    //     });
+
+    //     return (deferred.promise());
+    // }
 
     TblManager.deleteTables = function(tables, tableType) {
         // XXX not tested yet!!!
@@ -477,7 +554,7 @@ window.TblManager = (function($, TblManager) {
         if (tableType === TableType.Orphan) {
             // delete orphaned
             tables.forEach(function(tableName) {
-                var def = delOrphanedHelper(tableName, tableType, txId);
+                var def = delOrphanedHelper(tableName, txId);
                 defArray.push(def);
             });
         } else {
@@ -1028,8 +1105,8 @@ window.TblManager = (function($, TblManager) {
         removes old tables.
 
         newTableNames is an array of tablenames to be added
-        oldTableNames is an array of old tablenames to be replaced
-        tablesToRemove is an array of tableNames to be removed later
+        tablesToReplace is an array of old tablenames to be replaced
+        tablesToRemove is an array of tableIds to be removed later
 
         Possible Options:
         afterStartup: boolean to indicate if these tables are added after
@@ -1039,54 +1116,57 @@ window.TblManager = (function($, TblManager) {
         selectCol: number, column to be selected once new table is ready
         isUndo: boolean, default is false. If true, we are adding this table
                 through an undo
-        isRedo: boolean, default is false. If true, we are adding this table
-                from inactive or orphaned list and replacing an active table
 
     */
 
-    function addTable(newTableNames, oldTableNames, tablesToRemove, options) {
+    function addTable(newTableNames, tablesToReplace, tablesToRemove, options) {
         //XX don't just get first array value
-        var tableId = xcHelper.getTableId(newTableNames[0]);
+        var newTableId = xcHelper.getTableId(newTableNames[0]);
         var oldId;
         options = options || {};
         var afterStartup = options.afterStartup || false;
         var lockTable = options.lockTable || false;
         var selectCol = options.selectCol;
+        var wasTableReplaced = false;
 
         if (options.isUndo && options.position != null) {
-            WSManager.replaceTable(tableId, null, null,
+            WSManager.replaceTable(newTableId, null, null,
                                   {position: options.position});
-        } else if (oldTableNames[0] == null) {
-            WSManager.replaceTable(tableId);
+        } else if (tablesToReplace[0] == null) {
+            WSManager.replaceTable(newTableId);
         } else {
-            oldId = xcHelper.getTableId(oldTableNames[0]);
+            oldId = xcHelper.getTableId(tablesToReplace[0]);
             var tablePosition = WSManager.getTablePosition(oldId);
 
             if (tablePosition > -1) {
-                WSManager.replaceTable(tableId, oldId, tablesToRemove);
+                WSManager.replaceTable(newTableId, oldId, tablesToRemove);
+                wasTableReplaced = true;
             } else {
-                WSManager.replaceTable(tableId);
+                WSManager.replaceTable(newTableId);
             }
-        }
-
-        if (options.isUndo) {
-            TableList.removeTable(tableId, "inactive");
         }
 
         // WSManager.replaceTable need to know oldTable's location
         // so remove table after that
         if (tablesToRemove) {
             for (var i = 0; i < tablesToRemove.length; i++) {
+                if (wasTableReplaced && tablesToRemove[i] !== oldId) {
+                    WSManager.changeTableStatus(tablesToRemove[i],
+                                                TableType.Orphan);
+                }
                 if (gTables[tablesToRemove[i]].status === TableType.Active) {
-                    if (options.isUndo && options.from !== "inactive") {
+                    var orphanOptions = {};
+                    if (options.from === TableType.Archived) {
+                        TblManager.archiveTable(tablesToRemove[i], {
+                            delayTableRemoval: true
+                        });
+                    } else if (options.from === "noSheet") {
                         TblManager.sendTableToOrphaned(tablesToRemove[i]);
                     } else {
-                        TblManager.archiveTable(tablesToRemove[i], {
-                            "del"              : ArchiveTable.Keep,
-                            "delayTableRemoval": true
+                        TblManager.sendTableToOrphaned(tablesToRemove[i], {
+                            "keepInWS": true
                         });
                     }
-
                 }
             }
         }
@@ -1096,19 +1176,19 @@ window.TblManager = (function($, TblManager) {
             // see the flicker of intermediate tables
 
             if (oldId == null) {
-                oldId = xcHelper.getTableId(oldTableNames[0]);
+                oldId = xcHelper.getTableId(tablesToReplace[0]);
             }
 
             $("#xcTableWrap-" + oldId).removeClass("tableToRemove")
                                 .find(".tableTitle .hashName")
-                                .text('#' + tableId);
-            $("#rowScroller-" + oldId).attr('id', 'rowScroller-' + tableId)
+                                .text('#' + newTableId);
+            $("#rowScroller-" + oldId).attr('id', 'rowScroller-' + newTableId)
                                     .removeClass("rowScrollerToRemove");
-            $('#dagWrap-' + oldId).attr('id', 'dagWrap-' + tableId)
+            $('#dagWrap-' + oldId).attr('id', 'dagWrap-' + newTableId)
                                 .removeClass("dagWrapToRemove");
-            changeTableId(oldId, tableId);
+            changeTableId(oldId, newTableId);
 
-            var table = gTables[tableId];
+            var table = gTables[newTableId];
             TableList.addTables([table], IsActive.Active);
             return (promiseWrapper(null));
         } else {
@@ -1116,12 +1196,12 @@ window.TblManager = (function($, TblManager) {
                 afterStartup: afterStartup,
                 selectCol   : selectCol
             };
-            return (TblManager.parallelConstruct(tableId, tablesToRemove,
+            return (TblManager.parallelConstruct(newTableId, tablesToRemove,
                                                  parallelOptions));
         }
     }
 
-        // used for recreating undone tables in refreshTables
+    // used for recreating undone tables in refreshTables
     function setResultSet(tableName) {
         var deferred = jQuery.Deferred();
         var tableId = xcHelper.getTableId(tableName);
@@ -1129,7 +1209,9 @@ window.TblManager = (function($, TblManager) {
 
         getResultSet(tableName)
         .then(function(resultSet) {
+
             table.updateFromResultset(resultSet);
+
             table.beActive();
             deferred.resolve();
         })
@@ -1924,7 +2006,6 @@ window.TblManager = (function($, TblManager) {
             // copy it to the fail function
             WSManager.removeTable(tableId);
             Dag.makeInactive(tableId);
-            delete gTables[tableId];
 
             if (tableType === TableType.Active) {
                 // when delete active table
@@ -1940,11 +2021,17 @@ window.TblManager = (function($, TblManager) {
                 // XXX as delete table is temporarily disabled
                 // this case is not tested yet!
                 TableList.removeAggTable(tableId);
+            } else if (tableType === TableType.Archived) {
+                TableList.removeTable(tableId);
             }
+
+            delete gTables[tableId];
 
             deferred.resolve();
         })
-        .fail(deferred.reject(error));
+        .fail(function(error) {
+            deferred.reject(error);
+        });
 
         return (deferred.promise());
     }
@@ -1957,9 +2044,11 @@ window.TblManager = (function($, TblManager) {
             var tableIndex = gOrphanTables.indexOf(tableName);
             gOrphanTables.splice(tableIndex, 1);
             Dag.makeInactive(tableName, true);
+            TableList.removeTable(tableName, TableType.Orphan);
 
             var tableId = xcHelper.getTableId(tableName);
             if (tableId != null && gTables[tableId] != null) {
+                WSManager.removeTable(tableId);
                 delete gTables[tableId];
             }
 

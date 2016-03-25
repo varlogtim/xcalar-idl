@@ -322,7 +322,7 @@ window.TestSuite = (function($, TestSuite) {
             $("#fieldDelim .icon").click();
             $("#fieldDelim .list li[name='comma']").click();
             $("#importDataSubmit").click();
-            
+
             // import airports dataset
             $("#importDataButton").click();
             $("#fileBrowserModal .close").click();
@@ -432,7 +432,7 @@ window.TestSuite = (function($, TestSuite) {
                 TestSuite.fail(deferred, testName, currentTestNumber);
             });
         }
-        
+
         // Filter flight table
         function flightTestPart4() {
             var wsId = WSManager.getOrders()[0];
@@ -536,7 +536,7 @@ window.TestSuite = (function($, TestSuite) {
                 }
 
                 setTimeout(function() {
-                    
+
                     var lTableName = $("#leftJoin").find(".tableLabel.active")
                                                    .text();
                     var rTableName = $("#rightJoin").find(".tableLabel.active")
@@ -628,12 +628,13 @@ window.TestSuite = (function($, TestSuite) {
         checkExists("#worksheetTab-" + wsId)
         .then(function() {
             $("#tableListBtn").click();
-            $(".tableListSectionTab").eq(1).click();
-            return (checkExists("#inactiveTablesList"));
+            $(".tableListSectionTab").eq(3).click();
+            $('#orphanedTableList .refresh').click();
+            return (checkExists("#orphanedTableList-search:visible"));
         })
         .then(function() {
             // move the flight table (the one that has id #XX5)
-            var $li = $("#inactiveTablesList .tableInfo").filter(function () {
+            var $li = $("#orphanedTablesList .tableInfo").filter(function () {
                 return $(this).data("id").endsWith("5");
             });
             if (!$li.find(".tableName").text().startsWith("flight")) {
@@ -641,7 +642,7 @@ window.TestSuite = (function($, TestSuite) {
             }
             $li.find(".addTableBtn").click();
 
-            $("#submitTablesBtn").click();
+            $("#submitOrphanedTablesBtn").click();
             $("#rightSideBar .iconClose").click();
             $("#worksheetTabs .worksheetTab:first-child")
                                                 .trigger(fakeEvent.mousedown);
@@ -735,7 +736,7 @@ window.TestSuite = (function($, TestSuite) {
             $(".leftClause").eq(1).val("teacher_id");
             $(".rightClause").eq(0).val("DayofMonth");
             $(".rightClause").eq(1).val("DayOfWeek");
-            
+
             var lTableName = $("#leftJoin").find(".tableLabel.active").text();
             var rTableName = $("#rightJoin").find(".tableLabel.active").text();
             var newName = xcHelper.getTableName(lTableName) + '-' +
@@ -1066,7 +1067,7 @@ window.TestSuite = (function($, TestSuite) {
             $activeTable.find('.jsonElement').eq(2).trigger("dblclick");
             $('#jsonModal .checkMark').eq(2).trigger(fakeEvent.click);
             assert($jsonModal.find('.matched').eq(0).text() ===
-                   $jsonModal.find('.matched').eq(2).text() && 
+                   $jsonModal.find('.matched').eq(2).text() &&
                    $jsonModal.find('.matched').eq(1).text() ===
                    $jsonModal.find('.matched').eq(2).text());
             assert($jsonModal.find('.partial:eq(0)').text() !=
@@ -1116,7 +1117,7 @@ window.TestSuite = (function($, TestSuite) {
     TestSuite.add(jsonModalTest, "JsonModalTest",
                   defaultTimeout, TestCaseEnabled);
 // =========== TO RUN, OPEN UP CONSOLE AND TYPE TestSuite.run() ============ //
-    
+
     /* Unit Test Only */
     if (window.unitTestMode) {
         TestSuite.__testOnly__ = {};

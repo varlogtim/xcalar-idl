@@ -38,29 +38,28 @@ window.Redo = (function($, Redo) {
         var worksheet = WSManager.getWSFromTable(options.tableId);
         return (TblManager.refreshTable([options.newTableName], null,
                                             [options.tableName],
-                                            worksheet, {isRedo: true}));
+                                            worksheet));
     };
 
     redoFuncs[SQLOps.Filter] = function(options) {
         var worksheet = WSManager.getWSFromTable(options.tableId);
         return (TblManager.refreshTable([options.newTableName], null,
                                             [options.tableName],
-                                            worksheet, {isRedo: true}));
+                                            worksheet));
     };
 
     redoFuncs[SQLOps.Map] = function(options) {
         var worksheet = WSManager.getWSFromTable(options.tableId);
         return (TblManager.refreshTable([options.newTableName], null,
                                             [options.tableName],
-                                            worksheet, {isRedo: true}));
+                                            worksheet));
     };
 
     redoFuncs[SQLOps.Join] = function(options) {
         var deferred = jQuery.Deferred();
         TblManager.refreshTable([options.newTableName], null,
                                 [options.lTableName, options.rTableName],
-                                    options.worksheet,
-                                {isRedo: true})
+                                    options.worksheet)
         .then(deferred.resolve)
         .fail(deferred.fail);
 
@@ -70,26 +69,26 @@ window.Redo = (function($, Redo) {
     redoFuncs[SQLOps.GroupBy] = function(options) {
         var worksheet = WSManager.getWSFromTable(options.tableId);
         return (TblManager.refreshTable([options.newTableName], null, [],
-                                         worksheet, {isRedo: true}));
+                                         worksheet));
     };
 
     redoFuncs[SQLOps.SplitCol] = function(options) {
         var worksheet = WSManager.getWSFromTable(options.tableId);
         return (TblManager.refreshTable([options.newTableName], null,
                                             [options.tableName],
-                                            worksheet, {isRedo: true}));
+                                            worksheet));
     };
 
     redoFuncs[SQLOps.ChangeType] = function(options) {
         var worksheet = WSManager.getWSFromTable(options.tableId);
         return (TblManager.refreshTable([options.newTableName], null,
                                             [options.tableName],
-                                            worksheet, {isRedo: true}));
+                                            worksheet));
     };
 
     redoFuncs[SQLOps.IndexDS] = function(options) {
         return (TblManager.refreshTable([options.tableName], null, [],
-                                        options.worksheet, {isRedo: true}));
+                                        options.worksheet));
     };
 
     /* END BACKEND OPERATIONS */
@@ -226,7 +225,7 @@ window.Redo = (function($, Redo) {
     };
 
     redoFuncs[SQLOps.ArchiveTable] = function(options) {
-        TblManager.inActiveTables(options.tableIds);
+        TblManager.archiveTables(options.tableIds);
         return (promiseWrapper(null));
     };
 
@@ -243,7 +242,7 @@ window.Redo = (function($, Redo) {
         var $tableList;
         var tableType = options.tableType;
 
-        if (tableType === TableType.InActive) {
+        if (tableType === TableType.Archived) {
             $tableList = $('#archivedTableList');
         } else if (tableType === TableType.Orphan) {
             $tableList = $('#orphanedTableList');

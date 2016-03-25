@@ -40,7 +40,7 @@ window.Intro = (function($, Intro) {
     * @param {Object} userOptions : options the user wishes to change
     */
     Intro.setOptions = function(userOptions) {
-        for (option in userOptions) {
+        for (var option in userOptions) {
             options[option] = userOptions[option];
         }
         return (options);
@@ -50,16 +50,20 @@ window.Intro = (function($, Intro) {
         if (typeof options.onStart === "function") {
             options.onStart();
         }
-        
+
         steps.currentStep = -1;
-        $stepElems = $('[data-introstep]:visible');
+
+        $stepElems = $('[data-introstep]').filter(function() {
+            return $(this).is(':visible');
+        });
+
         if ($stepElems.length === 0) {
             return ('No steps defined');
         }
         orderStepElems();
 
         createOverlay();
-        
+
         if (options.video) {
             setupVideo();
             setupVideoBreakpoints();
@@ -74,7 +78,7 @@ window.Intro = (function($, Intro) {
         $(window).resize(winResize);
         // temp
         $('#xcalarVid').attr('muted', true);
-        
+
     };
 
     function orderStepElems() {
@@ -138,7 +142,7 @@ window.Intro = (function($, Intro) {
         setTimeout(function() {
             $popover.css('opacity', 1);
         }, 100);
-        
+
         if (!options.includeNumbering) {
             $popover.find('.intro-number').hide();
         }
@@ -156,7 +160,7 @@ window.Intro = (function($, Intro) {
         $popover.find('.skip').click(function() {
             nextStep({skip: true});
         });
-        
+
         $popover.find('.close').click(function() {
             closeIntro();
         });
@@ -208,7 +212,7 @@ window.Intro = (function($, Intro) {
 
         if (options.video) {
             $popover.css({'opacity': 0});
-            
+
             if (steps.currentStep === 0) {
                 $popover.css({'visibility': 'hidden'});
             } else {
@@ -216,7 +220,7 @@ window.Intro = (function($, Intro) {
                     $popover.css({'visibility': 'hidden'});
                 }, 1000);
             }
-            
+
             removeHighlightBox();
             video.play();
             if (steps.currentStep >= $stepElems.length) {
@@ -251,7 +255,7 @@ window.Intro = (function($, Intro) {
         $currElem.addClass('intro-highlightedElement');
 
         currElemRect = $currElem[0].getBoundingClientRect();
-        
+
         moveElementLayer();
         if (!options.video) {
             moveHighlightBox();
@@ -279,7 +283,7 @@ window.Intro = (function($, Intro) {
         if (!initial) {
             $popover.css('opacity', 1);
         }
-        
+
         var $popoverNumber = $popover.find('.intro-number');
         $popoverNumber.removeClass('left right');
         $popoverNumber.find('.innerNumber').text(steps.currentStep + 1);
@@ -353,20 +357,20 @@ window.Intro = (function($, Intro) {
                            arrowHeight;
                     break;
             }
-          
+
             $infoArrow.addClass(userPosition);
         }
         top = Math.max(0, top);
         top = Math.min(windowHeight - popoverHeight, top);
         $popover.css('top', top);
-        
+
 
         if (left + popoverWidth > windowWidth) {
             left = windowWidth - popoverWidth - options.popoverMargin;
             $infoArrow.css('left', currElemRect.left - left - 5);
             $popoverNumber.addClass('left');
         }
-      
+
         $popover.css({
             'left': left
         });
@@ -383,7 +387,7 @@ window.Intro = (function($, Intro) {
             $infoArrow.css('top', vertDiff - 10);
 
         }
-       
+
         $popover.find('.textContainer').height(textHeight);
     }
 
@@ -506,7 +510,7 @@ window.Intro = (function($, Intro) {
     }
 
     function setupVideoBreakpoints() {
-        
+
         video.addEventListener("timeupdate", function() {
             if (this.currentTime >= options.videoBreakpoints[steps.currentStep]) {
                 this.pause();

@@ -22,7 +22,6 @@ window.xcFunction = (function($, xcFunction) {
 
         var worksheet = WSManager.getWSFromTable(tableId);
 
-
         var sql = {
             "operation"   : SQLOps.Filter,
             "tableName"   : tableName,

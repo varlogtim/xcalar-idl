@@ -1,0 +1,17 @@
+addTable from dataset-
+ just adds a table and sets up metaInfo (must pass in columns)
+ add tablelist
+
+ undo should put the table in orphan list, and remove from worksheet completely
+ redo should add table back normally and clear orphan list
+ Wsmanager should not need to keep track
+
+filter, map, etc. (replacing table)
+ undo should fetch the old table from orphaned list and put the newer table
+ in the orphan list without a specified source (need to remove from worksheet)
+  when fetching old table, need to remove it from orphaned list/wsmanager section
+  redo should out the active table into the orphaned list and wsmanager.orphanedlist
+  it should fetch the replacing table from the orphaned list , clearing the orphan list
+
+archive Table -
+move tablelist

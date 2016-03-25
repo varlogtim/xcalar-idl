@@ -65,11 +65,12 @@ var DelWSType = {
 var TableType = {
     "InActive": "inactive",
     "Active"  : "active",
+    "Archived": "archived",
     "Agg"     : "aggregate",
     "Orphan"  : "orphaned",
     "WSHidden": "hidden",
     "Unknown" : "unknown source",
-    "Trash"   : "trash"
+    "Trash"   : "trashed"
 };
 
 var DSObjTerm = {

@@ -35,7 +35,6 @@ THandleDoesntExistError.prototype = Error.prototype;
 function thriftLog() {
     var errorLists = [];
     var title = arguments[0] || "thrift call";
-
     // check all errors
     for (var i = 1, len = arguments.length; i < len; i++) {
         var errRes = arguments[i];
@@ -73,7 +72,6 @@ function thriftLog() {
         }
 
         thriftError.error = "Error: " + error;
-        console.error('(╯°□°）╯︵ ┻━┻ ' +  msg);
 
         errorLists.push(thriftError);
 
@@ -230,7 +228,9 @@ function getUnsortedTableName(tableName, otherTableName) {
     var deferred = jQuery.Deferred();
     var deferred1 = XcalarGetDag(tableName);
     var parentChildMap;
+
     if (!otherTableName) {
+        var srcTableName = tableName;
         deferred1
         .then(function(nodeArray) {
             // Check if the last one is a sort. If it is, then use the unsorted
@@ -244,65 +244,124 @@ function getUnsortedTableName(tableName, otherTableName) {
                     XcalarOrderingT.XcalarOrderingDescending) {
                     // Find parent and return parent's name
                     xcHelper.assert(indexInput.source.isTable);
+
                     parentChildMap = Dag.getParentChildDagMap(nodeArray.node);
-                    var srcTableName = Dag.getDagSourceNames(parentChildMap, 0,
+                    srcTableName = Dag.getDagSourceNames(parentChildMap, 0,
                                                              nodeArray.node)[0];
 
+                    var hasReadyState = checkIfTableHasReadyState(
+                                        nodeArray.node[parentChildMap[0][0]]);
+
+                    if (!hasReadyState) {
+                        var newId   = Authentication.getHashId().split("#")[1];
+                        srcTableName  = tableName.split("#")[0] + "#" + newId;
+                        var key = indexInput.keyName;
+                        var order = XcalarOrderingT.XcalarOrderingUnordered;
+                        return (XcalarIndexFromTable(tableName, key,
+                                                    srcTableName, order,
+                                                    null, true));
+                    } else {
+                        return promiseWrapper(null);
+                    }
                     console.log("Using unsorted table instead: " +
                                 srcTableName);
-                    deferred.resolve(srcTableName);
-                    return;
                 }
             }
-            deferred.resolve(tableName);
+            return promiseWrapper(null);
+        })
+        .then(function() {
+            deferred.resolve(srcTableName);
         })
         .fail(deferred.reject);
     } else {
         var deferred2 = XcalarGetDag(otherTableName);
+        var unsortedName1;
+        var unsortedName2;
         xcHelper.when(deferred1, deferred2)
         .then(function(na1, na2) {
-            var unsortedName1 = tableName;
-            var unsortedName2 = otherTableName;
-            var indexInput;
+            unsortedName1 = tableName;
+            unsortedName2 = otherTableName;
+            var t1hasReadyState = true;
+            var t2hasReadyState = true;
+            var indexInput1;
+            var indexInput2;
             var parentChildMap;
 
             if (XcalarApisTStr[na1.node[0].api] === "XcalarApiIndex") {
-                indexInput = na1.node[0].input.indexInput;
-                if (indexInput.ordering ===
+                indexInput1 = na1.node[0].input.indexInput;
+                if (indexInput1.ordering ===
                     XcalarOrderingT.XcalarOrderingAscending ||
-                    indexInput.ordering ===
+                    indexInput1.ordering ===
                     XcalarOrderingT.XcalarOrderingDescending) {
                     // Find parent and return parent's name
-                    xcHelper.assert(indexInput.source.isTable);
+                    xcHelper.assert(indexInput1.source.isTable);
                     parentChildMap = Dag.getParentChildDagMap(na1.node);
-                    var srcTableName = Dag.getDagSourceNames(parentChildMap, 0,
+                    unsortedName1 = Dag.getDagSourceNames(parentChildMap, 0,
                                                              na1.node)[0];
+                    t1hasReadyState = checkIfTableHasReadyState(
+                                            na1.node[parentChildMap[0][0]]);
                     console.log("Using unsorted table instead: " +
                                 srcTableName);
-                    unsortedName1 = srcTableName;
                 }
             }
             if (XcalarApisTStr[na2.node[0].api] === "XcalarApiIndex") {
-                indexInput = na2.node[0].input.indexInput;
-                if (indexInput.ordering ===
+                indexInput2 = na2.node[0].input.indexInput;
+                if (indexInput2.ordering ===
                     XcalarOrderingT.XcalarOrderingAscending ||
-                    indexInput.ordering ===
+                    indexInput2.ordering ===
                     XcalarOrderingT.XcalarOrderingDescending) {
                     // Find parent and return parent's name
-                    xcHelper.assert(indexInput.source.isTable);
+                    xcHelper.assert(indexInput2.source.isTable);
                     parentChildMap = Dag.getParentChildDagMap(na2.node);
-                    var srcTableName = Dag.getDagSourceNames(parentChildMap, 0,
+                    unsortedName2 = Dag.getDagSourceNames(parentChildMap, 0,
                                                              na2.node)[0];
+                    t2hasReadyState = checkIfTableHasReadyState(
+                                         na2.node[parentChildMap[0][0]]);
                     console.log("Using unsorted table instead: " +
                                 srcTableName);
-                    unsortedName2 = srcTableName;
                 }
             }
+            var promise1;
+            var promise2;
+            var order = XcalarOrderingT.XcalarOrderingUnordered;
+            if (!t1hasReadyState) {
+                var newId   = Authentication.getHashId().split("#")[1];
+                unsortedName1 = tableName.split("#")[0] + "#" + newId;
+                var key = indexInput1.keyName;
+                promise1 = XcalarIndexFromTable(tableName, key, unsortedName1,
+                                                order, null, true);
+            } else {
+                promise1 = promiseWrapper(null);
+            }
+            if (!t2hasReadyState) {
+                var newId   = Authentication.getHashId().split("#")[1];
+                unsortedName2 = otherTableName.split("#")[0] + "#" + newId;
+                var tableId = xcHelper.getTableId(otherTableName);
+                var key = indexInput2.keyName;
+
+                promise2 = XcalarIndexFromTable(oldTableName, key,
+                                                unsortedName2, order, null,
+                                                true);
+            } else {
+                promise2 = promiseWrapper(null);
+            }
+
+            return (xcHelper.when(promise1, promise2));
+        })
+        .then(function() {
             deferred.resolve(unsortedName1, unsortedName2);
         })
         .fail(deferred.reject);
     }
     return (deferred.promise());
+}
+
+function checkIfTableHasReadyState(node) {
+    if (node.state !== DgDagStateT.DgDagStateReady) {
+        return false;
+    } else {
+        return true;
+    }
 }
 
 // ========================= MAIN FUNCTIONS  =============================== //
@@ -691,7 +750,7 @@ function XcalarIndexFromDataset(datasetName, key, tablename, txId) {
 }
 
 function XcalarIndexFromTable(srcTablename, key, tablename, ordering,
-                              txId) {
+                              txId, unsorted) {
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return (promiseWrapper(null));
     }
@@ -701,7 +760,13 @@ function XcalarIndexFromTable(srcTablename, key, tablename, ordering,
         return (deferred.promise());
     }
     var dhtName = ""; // XXX TODO fill in later
-    getUnsortedTableName(srcTablename)
+    var promise;
+    if (unsorted) {
+        promise = promiseWrapper(srcTablename);
+    } else {
+        promise = getUnsortedTableName(srcTablename);
+    }
+    promise
     .then(function(unsortedSrcTablename) {
         var workItem = xcalarIndexTableWorkItem(unsortedSrcTablename, tablename,
                                                 key, dhtName, ordering);
@@ -712,7 +777,9 @@ function XcalarIndexFromTable(srcTablename, key, tablename, ordering,
 
         jQuery.when(def1, def2)
         .then(function(ret1, ret2) {
-            Transaction.log(txId, ret2);
+            if (!unsorted) {
+                Transaction.log(txId, ret2);
+            }
             deferred.resolve(ret1);
         })
         .fail(function(error1, error2) {
@@ -727,8 +794,8 @@ function XcalarDeleteTable(tableName, txId) {
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return (promiseWrapper(null));
     }
-    return (promiseWrapper(null));
-    /** XXX Temporary commented out because this causes crash
+    // return (promiseWrapper(null));
+    // * XXX Temporary commented out because this causes crash
     var deferred = jQuery.Deferred();
     if (insertError(arguments.callee, deferred)) {
         return (deferred.promise());
@@ -748,7 +815,7 @@ function XcalarDeleteTable(tableName, txId) {
         deferred.reject(thriftError);
     });
 
-    return (deferred.promise()); */
+    return (deferred.promise());
 }
 
 function XcalarRenameTable(oldTableName, newTableName, txId) {

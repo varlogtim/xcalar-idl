@@ -393,17 +393,17 @@ window.StartManager = (function(StartManager, $) {
                     promises.push(restoreActiveTable.bind(this, tableId, failures));
                 }
 
-                // create hidden tables
-                var wsHiddenTables = ws.hiddenTables;
-                var numHiddenWsTables = wsHiddenTables.length;
-                for (var j = 0; j < numHiddenWsTables; j++) {
-                    tableId = wsHiddenTables[j];
+                // create archived tables
+                var wsArchivedTables = ws.archivedTables;
+                var numArchivedWsTables = wsArchivedTables.length;
+                for (var j = 0; j < numArchivedWsTables; j++) {
+                    tableId = wsArchivedTables[j];
 
                     if (!checkIfTableHasMeta(tableId, backTableSet)) {
                         continue;
                     }
 
-                    gTables[tableId].beInActive();
+                    gTables[tableId].beArchived();
                 }
             }
 
@@ -418,7 +418,8 @@ window.StartManager = (function(StartManager, $) {
                     continue;
                 }
 
-                gTables[tableId].beInActive();
+                // gTables[tableId].beInActive();
+                gTables[tableId].beArchived();
             }
 
             // set up tables in hidden worksheets
@@ -437,10 +438,10 @@ window.StartManager = (function(StartManager, $) {
                     checkIfTableHasMeta(tableId, backTableSet);
                 }
 
-                numArchivedTables = ws.hiddenTables.length;
+                numArchivedTables = ws.archivedTables.length;
 
                 for (var j = 0; j < numArchivedTables; j++) {
-                    tableId = ws.hiddenTables[j];
+                    tableId = ws.archivedTables[j];
                     checkIfTableHasMeta(tableId, backTableSet);
                 }
             }

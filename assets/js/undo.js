@@ -109,7 +109,8 @@ window.Undo = (function($, Undo) {
             secondTable = leftTable;
         }
 
-
+        // var tableId = xcHelper.getTableId(firstTable.name);
+        // WSManager.removeTable(tableId);
         TblManager.refreshTable([firstTable.name], null,
                                 [options.newTableName],
                                 firstTable.worksheet, {
@@ -136,8 +137,8 @@ window.Undo = (function($, Undo) {
 
     undoFuncs[SQLOps.GroupBy] = function(options) {
         // TblManager.archiveTable(tableId, {"del": ArchiveTable.Keep});
-        var tableId = xcHelper.getTableId(options.newTableName);
-        TblManager.sendTableToOrphaned(tableId, {'remove': true});
+        // var tableId = xcHelper.getTableId(options.newTableName);
+        // TblManager.sendTableToOrphaned(tableId, {'remove': true});
         return (promiseWrapper(null));
     };
 
@@ -343,10 +344,32 @@ window.Undo = (function($, Undo) {
     };
 
     undoFuncs[SQLOps.RevertTable] = function(options) {
+        var deferred = jQuery.Deferred();
+
         var worksheet = WSManager.getWSFromTable(options.tableId);
-        return (TblManager.refreshTable([options.oldTableName], null,
+        TblManager.refreshTable([options.oldTableName], null,
                                 [options.tableName], worksheet,
-                            {isUndo: true, from: options.tableType}));
+                            {isUndo: true, from: options.tableType})
+        .then(function() {
+            if (worksheet !== options.worksheet) {
+                var status = gTables[options.tableId].status;
+                var type;
+                if (status === TableType.Archived) {
+                    type = "archivedTables";
+                } else if (status === TableType.Orphan) {
+                    type = "orphanedTables";
+                }
+                WSManager.moveTable(options.tableId, options.worksheet, type);
+                var hiddenWS = WSManager.getHiddenWS();
+                TableList.tablesToHiddenWS(hiddenWS);
+            }
+            deferred.resolve();
+        })
+        .fail(function(error) {
+            deferred.reject(error);
+        });
+
+        return (deferred.promise());
     };
 
     undoFuncs[SQLOps.ActiveTables] = function(options) {
@@ -360,8 +383,8 @@ window.Undo = (function($, Undo) {
             tableIds.push(tableId);
         }
 
-        if (tableType === TableType.InActive) {
-            TblManager.inActiveTables(tableIds);
+        if (tableType === TableType.Archived) {
+            TblManager.archiveTables(tableIds);
             if (options.noSheetTables != null) {
                 var $tableList = $("#inactiveTablesList");
                 var noSheetTables = WSManager.getNoSheetTables();
@@ -466,7 +489,7 @@ window.Undo = (function($, Undo) {
         var tableId = options.tableId;
         var tableType = options.tableType;
 
-        if (tableType === TableType.InActive) {
+        if (tableType === TableType.Archived) {
             // change worksheet
             var oldWSId = options.oldWorksheetId;
             WSManager.removeTable(tableId);
@@ -511,7 +534,7 @@ window.Undo = (function($, Undo) {
         var wsName = options.worksheetName;
         var wsIndex = options.worksheetIndex;
         var tables = options.tables;
-        var hiddenTables = options.hiddenTables;
+        var archivedTables = options.archivedTables;
         var promises = [];
 
         if (delType === DelWSType.Empty) {
@@ -525,9 +548,9 @@ window.Undo = (function($, Undo) {
                     tableId, wsId, TableType.Orphan));
             });
 
-            hiddenTables.forEach(function(tableId) {
+            archivedTables.forEach(function(tableId) {
                 WSManager.addTable(tableId, wsId);
-                gTables[tableId].status = TableType.InActive;
+                gTables[tableId].status = TableType.Archived;
                 TblManager.archiveTable(tableId);
             });
 
@@ -537,7 +560,7 @@ window.Undo = (function($, Undo) {
         } else if (delType === DelWSType.Archive) {
             makeWorksheetHelper();
             WSManager.addNoSheetTables(tables, wsId);
-            WSManager.addNoSheetTables(hiddenTables, wsId);
+            WSManager.addNoSheetTables(archivedTables, wsId);
 
             tables.forEach(function(tableId) {
                 WSManager.addTable(tableId);
@@ -547,7 +570,7 @@ window.Undo = (function($, Undo) {
             });
 
             var $lists = $("#archivedTableList .tableInfo");
-            hiddenTables.forEach(function(tableId) {
+            archivedTables.forEach(function(tableId) {
                 // reArchive the table
                 $lists.filter(function() {
                     return $(this).data("id") === tableId;

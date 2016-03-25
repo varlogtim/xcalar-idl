@@ -131,13 +131,13 @@ function TableMeta(options) {
         } else if (options.isOrphaned) {
             options.status = TableType.Orphan;
         } else {
-            options.status = TableType.InActive;
+            options.status = TableType.Archived;
         }
     } else if (options.hasOwnProperty('isOrphaned')) {
         if (options.isOrphaned) {
             options.status = TableType.Orphan;
         } else {
-            options.status = TableType.InActive;
+            options.status = TableType.Archived;
         }
     }
     // end temp fix
@@ -210,6 +210,11 @@ TableMeta.prototype = {
         return this;
     },
 
+    beArchived: function() {
+        this.status = TableType.Archived;
+        return this;
+    },
+
     beActive: function() {
         this.status = TableType.Active;
         return this;
@@ -217,6 +222,11 @@ TableMeta.prototype = {
 
     beOrphaned: function() {
         this.status = TableType.Orphan;
+        return this;
+    },
+
+    beTrashed: function() {
+        this.status = TableType.Trash;
         return this;
     },
 
