@@ -1,7 +1,9 @@
 .PHONY: all
-all: build alert
+all: generateHtml build alert
 
-installer: build removeConfig
+installer: generateHtml build removeConfig
+
+render: generateHtml
 
 .PHONY: build
 build:
@@ -35,3 +37,8 @@ alert:
 	@echo "If you are part of the backend team, and you do not"
 	@echo "have a custom config.js file, please RERUN with"
 	@echo "make installer"
+
+generateHtml:
+	@echo "=== Generating html ==="
+	@mkdir -p assets/htmlFiles/walk
+	@grunt render
