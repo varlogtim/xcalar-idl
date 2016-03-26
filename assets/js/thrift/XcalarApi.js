@@ -1365,6 +1365,56 @@ function xcalarApiMap(thriftHandle, newFieldName, evalStr, srcTableName,
     return (deferred.promise());
 }
 
+function xcalarApiGetRowNumWorkItem(srcTableName, dstTableName,
+                              newFieldName) {
+    var workItem = new WorkItem();
+    workItem.input = new XcalarApiInputT();
+    workItem.input.getRowNumInput = new XcalarApiGetRowNumInputT();
+    workItem.input.getRowNumInput.srcTable = new XcalarApiTableT();
+    workItem.input.getRowNumInput.dstTable = new XcalarApiTableT();
+
+    workItem.api = XcalarApisT.XcalarApiGetRowNum;
+    workItem.input.getRowNumInput.srcTable.tableName = srcTableName;
+    workItem.input.getRowNumInput.srcTable.tableId = XcalarApiTableIdInvalidT;
+    workItem.input.getRowNumInput.dstTable.tableName = dstTableName;
+    workItem.input.getRowNumInput.dstTable.tableId = XcalarApiTableIdInvalidT;
+    workItem.input.getRowNumInput.newFieldName = newFieldName;
+    return (workItem);
+}
+
+function xcalarApiGetRowNum(thriftHandle, newFieldName, evalStr, srcTableName,
+                      dstTableName) {
+    var deferred = jQuery.Deferred();
+    if (verbose) {
+        console.log("xcalarApiGetRowNum(newFieldName = " + newFieldName +
+                    ", srcTableName = " + srcTableName +
+                    ", dstTableName = " + dstTableName + ")");
+    }
+
+    var workItem = xcalarApiGetRowNumWorkItem(evalStr, srcTableName, dstTableName,
+                                        newFieldName);
+
+    thriftHandle.client.queueWorkAsync(workItem)
+    .then(function(result){
+        var getRowNumOutput = result.output.outputResult.getRowNumOutput;
+        var status = result.output.hdr.status;
+
+        if (result.jobStatus != StatusT.StatusOk) {
+            status = result.jobStatus;
+        }
+        if (status != StatusT.StatusOk) {
+            deferred.reject(status);
+        }
+        deferred.resolve(getRowNumOutput);
+    })
+    .fail(function(error) {
+        console.log("xcalarApiGetRowNum() caught exception:", error);
+        deferred.reject(error);
+    });
+
+    return (deferred.promise());
+}
+
 function xcalarAggregateWorkItem(srcTableName, dstTableName, aggregateEvalStr) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();

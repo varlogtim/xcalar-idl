@@ -2675,7 +2675,7 @@ XcalarApiDagNameT.prototype.write = function(output) {
 XcalarApiRetinaDstT = function(args) {
   this.numColumns = null;
   this.target = null;
-  this.columnNames = null;
+  this.columns = null;
   if (args) {
     if (args.numColumns !== undefined) {
       this.numColumns = args.numColumns;
@@ -2683,8 +2683,8 @@ XcalarApiRetinaDstT = function(args) {
     if (args.target !== undefined) {
       this.target = args.target;
     }
-    if (args.columnNames !== undefined) {
-      this.columnNames = args.columnNames;
+    if (args.columns !== undefined) {
+      this.columns = args.columns;
     }
   }
 };
@@ -2721,7 +2721,7 @@ XcalarApiRetinaDstT.prototype.read = function(input) {
       if (ftype == Thrift.Type.LIST) {
         var _size32 = 0;
         var _rtmp336;
-        this.columnNames = [];
+        this.columns = [];
         var _etype35 = 0;
         _rtmp336 = input.readListBegin();
         _etype35 = _rtmp336.etype;
@@ -2729,8 +2729,9 @@ XcalarApiRetinaDstT.prototype.read = function(input) {
         for (var _i37 = 0; _i37 < _size32; ++_i37)
         {
           var elem38 = null;
-          elem38 = input.readString().value;
-          this.columnNames.push(elem38);
+          elem38 = new DsColumnNameT();
+          elem38.read(input);
+          this.columns.push(elem38);
         }
         input.readListEnd();
       } else {
@@ -2758,15 +2759,15 @@ XcalarApiRetinaDstT.prototype.write = function(output) {
     this.target.write(output);
     output.writeFieldEnd();
   }
-  if (this.columnNames !== null && this.columnNames !== undefined) {
-    output.writeFieldBegin('columnNames', Thrift.Type.LIST, 3);
-    output.writeListBegin(Thrift.Type.STRING, this.columnNames.length);
-    for (var iter39 in this.columnNames)
+  if (this.columns !== null && this.columns !== undefined) {
+    output.writeFieldBegin('columns', Thrift.Type.LIST, 3);
+    output.writeListBegin(Thrift.Type.STRUCT, this.columns.length);
+    for (var iter39 in this.columns)
     {
-      if (this.columnNames.hasOwnProperty(iter39))
+      if (this.columns.hasOwnProperty(iter39))
       {
-        iter39 = this.columnNames[iter39];
-        output.writeString(iter39);
+        iter39 = this.columns[iter39];
+        iter39.write(output);
       }
     }
     output.writeListEnd();

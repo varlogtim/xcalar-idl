@@ -390,7 +390,8 @@ StatusT = {
   'StatusExportTargetNotSupported' : 381,
   'StatusExportNoColumns' : 382,
   'StatusExportEmptyResultSet' : 383,
-  'StatusExportUnresolvedSchema' : 384
+  'StatusExportUnresolvedSchema' : 384,
+  'StatusDfCastTruncationOccurred' : 385
 };
 StatusTStr = {0 : 'Success',
 1 : 'Operation not permitted',
@@ -776,5 +777,6 @@ StatusTStr = {0 : 'Success',
 381 : 'Export target is not supported',
 382 : 'No columns specified for export',
 383 : 'Empty result set cannot be exported',
-384 : 'Export requires a known schema'
+384 : 'Export requires a known schema',
+385 : 'Field value truncated during cast'
 };

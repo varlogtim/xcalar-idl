@@ -1426,7 +1426,15 @@
         retinaName = "yelpRetina-1";
         var dstTable = new XcalarApiRetinaDstT();
         dstTable.numColumns = 3;
-        dstTable.columnNames = ["user_id", "name", "votes.funny"];
+        var columnNames = ["user_id", "name", "votes.funny"];
+        var headerColumns = ["User ID", "User Name", "Number of Funny Votes"];
+        var columns = columnNames.map(function (e, i) {
+            var col = new DsColumnNameT();
+            col.name = columnNames[i];
+            col.headerAlias = headerColumns[i];
+            return col;
+        });
+        dstTable.columns = columns;
         dstTable.target = new XcalarApiNamedInputT();
         dstTable.target.name = "yelp/user-votes.funny-gt900-average";
         dstTable.target.isTable = true;
@@ -1489,8 +1497,8 @@
                                 DsTargetTypeTStr[exportTargetType] + " (" + exportTargetType + ")");
                     console.log("\tnode[" + ii + "].meta.numColumns = " +
                                 exportInput.meta.numColumns);
-                    console.log("\tnode[" + ii + "].meta.columnNames = " +
-                                exportInput.meta.columnNames);
+                    console.log("\tnode[" + ii + "].meta.columns = " +
+                                JSON.stringify(exportInput.meta.columns));
                     switch (exportTargetType) {
                     case DsTargetTypeT.DsTargetODBCType:
                         console.log("\tnode[" + ii + "].meta.specificInput.odbcInput.tableName = " +
