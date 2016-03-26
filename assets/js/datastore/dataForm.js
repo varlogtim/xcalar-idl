@@ -421,7 +421,7 @@ window.DatastoreForm = (function($, DatastoreForm) {
             return true;
         } else if (path.startsWith("file:///") ||
                     path.startsWith("nfs:///") ||
-                    path.startsWith("hdfs:///"))
+                    path.startsWith("hdfs://"))
         {
             return true;
         } else {
