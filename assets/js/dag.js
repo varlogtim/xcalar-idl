@@ -638,7 +638,7 @@ window.Dag = (function($, Dag) {
     var scrollPosition = -1;
     var dagAdded = false;
 
-    Dag.construct = function(tableId) {
+    Dag.construct = function(tableId, tablesToRemove) {
         var deferred = jQuery.Deferred();
         var table = gTables[tableId];
         var tableName = table.tableName;
@@ -653,6 +653,14 @@ window.Dag = (function($, Dag) {
             }
             if (!isDagPanelVisible) {
                 $('#dagPanel').removeClass('invisible');
+            }
+
+            if (tablesToRemove) {
+                var tblId;
+                for (var i = 0, len = tablesToRemove.length; i < len; i++) {
+                    tblId = tablesToRemove[i];
+                    $('#dagWrap-' + tblId).remove();
+                }
             }
 
             var outerDag =
@@ -739,10 +747,10 @@ window.Dag = (function($, Dag) {
             parentCount: 0
         };
         var index = 0;
-        var numNodes = nodeArray.length;
         var node = nodeArray[index];
         var children = "";
-        var parentChildMap = getParentChildDagMap(nodeArray, numNodes);
+        var parentChildMap = Dag.getParentChildDagMap(nodeArray);
+
         var x = "";
         for (var i = 0; i < nodeArray.length; i++) {
             x += nodeArray[i].name.name + " ";
@@ -898,6 +906,30 @@ window.Dag = (function($, Dag) {
                 $dagPanel.find('.dagArea').scrollTop(scrollTop + dagTop - 16);
             }
         }
+    };
+
+    Dag.getParentChildDagMap = function(nodeArray) {
+        var map = {}; // holds a map of nodes & array indices of parents
+        var parentIndex = 0;
+        var numParents;
+        for (var i = 0; i < nodeArray.length; i++) {
+            numParents = getDagnumParents(nodeArray[i]);
+            map[i] = [];
+            for (var j = 0; j < numParents; j++) {
+                map[i].push(++parentIndex);
+            }
+        }
+        return (map);
+    };
+
+    Dag.getDagSourceNames = function(parentChildMap, index, dagArray) {
+        var parentNames = [];
+        for (var i = 0; i < parentChildMap[index].length; i++) {
+            var parentIndex = parentChildMap[index][i];
+            var parentName = dagArray[parentIndex].name.name;
+            parentNames.push(parentName);
+        }
+        return (parentNames);
     };
 
     function drawSavableCanvasBackground(canvas, ctx, $dagWrap, canvasClone) {
@@ -1469,7 +1501,7 @@ window.Dag = (function($, Dag) {
         var dagTable = '<div class="dagTableWrap clearfix">' +
                         dagOrigin;
         var key = getInputType(XcalarApisTStr[dagNode.api]);
-        var parents = getDagParentsNames(parentChildMap, index, dagArray);
+        var parents = Dag.getDagSourceNames(parentChildMap, index, dagArray);
         var dagInfo = getDagNodeInfo(dagNode, key, parents);
         var state = dagInfo.state;
         var tableName = getDagName(dagNode);
@@ -1536,7 +1568,7 @@ window.Dag = (function($, Dag) {
         var numParents = getDagnumParents(dagNode);
 
         if (numParents > 0) {
-            var parents = getDagParentsNames(parentChildMap, index, dagArray);
+            var parents = Dag.getDagSourceNames(parentChildMap, index, dagArray);
             var additionalInfo = "";
             var firstParent = parents[0];
             if (numParents === 2) {
@@ -1592,20 +1624,6 @@ window.Dag = (function($, Dag) {
         return (originHTML);
     }
 
-    function getParentChildDagMap(dagArray, numNodes) {
-        var map = {}; // holds a map of nodes & array indices of parents
-        var parentIndex = 0;
-        var numParents;
-        for (var i = 0; i < numNodes; i++) {
-            numParents = getDagnumParents(dagArray[i]);
-            map[i] = [];
-            for (var j = 0; j < numParents; j++) {
-                map[i].push(++parentIndex);
-            }
-        }
-        return (map);
-    }
-
     function getDagnumParents(dagNode) {
         var numParents = 0;
         if (dagNode.api === XcalarApisT.XcalarApiJoin) {
@@ -1614,16 +1632,6 @@ window.Dag = (function($, Dag) {
             numParents = 1;
         }
         return (numParents);
-    }
-
-    function getDagParentsNames(parentChildMap, index, dagArray) {
-        var parentNames = [];
-        for (var i = 0; i < parentChildMap[index].length; i++) {
-            var parentIndex = parentChildMap[index][i];
-            var parentName = dagArray[parentIndex].name.name;
-            parentNames.push(parentName);
-        }
-        return (parentNames);
     }
 
     function getDagName(dagNode) {

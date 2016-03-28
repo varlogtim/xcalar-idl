@@ -73,7 +73,7 @@ function thriftLog() {
         }
 
         thriftError.error = "Error: " + error;
-        console.error(msg);
+        console.error('(╯°□°）╯︵ ┻━┻ ' +  msg);
 
         errorLists.push(thriftError);
 
@@ -229,6 +229,7 @@ function insertError(argCallee, deferred) {
 function getUnsortedTableName(tableName, otherTableName) {
     var deferred = jQuery.Deferred();
     var deferred1 = XcalarGetDag(tableName);
+    var parentChildMap;
     if (!otherTableName) {
         deferred1
         .then(function(nodeArray) {
@@ -243,9 +244,13 @@ function getUnsortedTableName(tableName, otherTableName) {
                     XcalarOrderingT.XcalarOrderingDescending) {
                     // Find parent and return parent's name
                     xcHelper.assert(indexInput.source.isTable);
+                    parentChildMap = Dag.getParentChildDagMap(nodeArray.node);
+                    var srcTableName = Dag.getDagSourceNames(parentChildMap, 0,
+                                                             nodeArray.node)[0];
+
                     console.log("Using unsorted table instead: " +
-                                indexInput.source.name);
-                    deferred.resolve(indexInput.source.name);
+                                srcTableName);
+                    deferred.resolve(srcTableName);
                     return;
                 }
             }
@@ -259,6 +264,7 @@ function getUnsortedTableName(tableName, otherTableName) {
             var unsortedName1 = tableName;
             var unsortedName2 = otherTableName;
             var indexInput;
+            var parentChildMap;
 
             if (XcalarApisTStr[na1.node[0].api] === "XcalarApiIndex") {
                 indexInput = na1.node[0].input.indexInput;
@@ -268,9 +274,12 @@ function getUnsortedTableName(tableName, otherTableName) {
                     XcalarOrderingT.XcalarOrderingDescending) {
                     // Find parent and return parent's name
                     xcHelper.assert(indexInput.source.isTable);
+                    parentChildMap = Dag.getParentChildDagMap(na1.node);
+                    var srcTableName = Dag.getDagSourceNames(parentChildMap, 0,
+                                                             na1.node)[0];
                     console.log("Using unsorted table instead: " +
-                                indexInput.source.name);
-                    unsortedName1 = indexInput.source.name;
+                                srcTableName);
+                    unsortedName1 = srcTableName;
                 }
             }
             if (XcalarApisTStr[na2.node[0].api] === "XcalarApiIndex") {
@@ -281,9 +290,12 @@ function getUnsortedTableName(tableName, otherTableName) {
                     XcalarOrderingT.XcalarOrderingDescending) {
                     // Find parent and return parent's name
                     xcHelper.assert(indexInput.source.isTable);
+                    parentChildMap = Dag.getParentChildDagMap(na2.node);
+                    var srcTableName = Dag.getDagSourceNames(parentChildMap, 0,
+                                                             na2.node)[0];
                     console.log("Using unsorted table instead: " +
-                                indexInput.source.name);
-                    unsortedName2 = indexInput.source.name;
+                                srcTableName);
+                    unsortedName2 = srcTableName;
                 }
             }
             deferred.resolve(unsortedName1, unsortedName2);

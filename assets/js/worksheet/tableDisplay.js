@@ -203,7 +203,7 @@ window.TblManager = (function($, TblManager) {
         options = options || {};
         var deferred  = jQuery.Deferred();
         var deferred1 = startBuildTable(tableId, tablesToRemove, options);
-        var deferred2 = Dag.construct(tableId);
+        var deferred2 = Dag.construct(tableId, tablesToRemove);
         var table = gTables[tableId];
         var addToTableList = options.afterStartup || false;
 
@@ -1203,7 +1203,6 @@ window.TblManager = (function($, TblManager) {
                     var tblId = tablesToRemove[i];
                     $("#xcTableWrap-" + tblId).remove();
                     $("#rowScroller-" + tblId).remove();
-                    $('#dagWrap-' + tblId).remove();
                 }
             }
             table.currentRowNumber = jsonObj.normal.length;
