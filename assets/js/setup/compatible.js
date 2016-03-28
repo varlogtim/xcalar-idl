@@ -41,16 +41,6 @@ window.Compatible = (function($, Compatible) {
                 return String.prototype.indexOf.apply(this, arguments) !== -1;
             };
         }
-
-        (function(){
-            if(window.console && console.error){
-                var old = console.error;
-                console.error = function(){
-                    Array.prototype.unshift.call(arguments, '(╯°□°）╯︵ ┻━┻ ');
-                    old.apply(this, arguments)
-                }
-            }
-        })();
     }
 
     function browserCheck() {
