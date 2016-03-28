@@ -850,36 +850,22 @@ window.DS = (function ($, DS) {
             DS.focusOn($grid);
         });
 
-        $gridView.on({
-            "click": function() {
-                var $label = $(this);
-                var dsId = $label.closest(".grid-unit").data("dsid");
-                var isEditable = DS.getDSObj(dsId).isEditable();
-                if ($label.hasClass("focused") || !isEditable) {
-                    return;
-                }
-
-                $label.addClass("focused");
-                var name = $label.data("dsname");
-                $label.html('<textarea spellcheck="false">' + name + '</textarea>').focus();
-
-                // select all text
-                var $textarea = $label.find("textarea").select();
-                var textarea = $textarea.get(0);
-                textarea.style.height = (textarea.scrollHeight) + "px";
-            },
-
-            "blur": function() {
-                var $label = $(this);
-                var dsId = $label.closest(".grid-unit").data("dsid");
-                var newName = $label.find("textarea").val().trim();
-                DS.rename(dsId, newName);
-                truncateDSName($label);
-
-                $label.removeClass("focused");
-                xcHelper.removeSelectionRange();
+        $gridView.on("click", ".folder > .label", function() {
+            var $label = $(this);
+            var dsId = $label.closest(".grid-unit").data("dsid");
+            var isEditable = DS.getDSObj(dsId).isEditable();
+            if ($label.hasClass("focused") || !isEditable) {
+                return;
             }
-        }, ".folder > .label");
+            $label.addClass("focused");
+            var name = $label.data("dsname");
+            $label.html('<textarea spellcheck="false">' + name + '</textarea>').focus();
+
+            // select all text
+            var $textarea = $label.find("textarea").select();
+            var textarea = $textarea.get(0);
+            textarea.style.height = (textarea.scrollHeight) + "px";
+        });
 
         // Input event on folder
         $gridView.on({
@@ -898,11 +884,36 @@ window.DS = (function ($, DS) {
                 textarea.style.height = (textarea.scrollHeight) + "px";
             },
 
-            "blur": function(event) {
-                // stop it trigger blur of label
-                event.stopPropagation();
+            "blur": function() {
+                var $textarea = $(this);
+                var $label = $textarea.closest(".label");
+
+                if (!$label.hasClass("focused")) {
+                    return;
+                }
+
+                var dsId = $label.closest(".grid-unit").data("dsid");
+                var newName = $textarea.val().trim();
+                DS.rename(dsId, newName);
+                truncateDSName($label);
+
+                $label.removeClass("focused");
+                xcHelper.removeSelectionRange();
             }
         }, ".folder > .label textarea");
+
+        // dbclick grid view folder
+        $gridView.on("dblclick", ".folder > .gridIcon, .folder > .dsCount",
+            function() {
+                var $grid = $(this).closest(".folder");
+                $gridView.find(".active").removeClass("active");
+                $deleteFolderBtn.addClass("disabled");
+
+                if ($gridView.hasClass("gridView")) {
+                    DS.goToDir($grid.data("dsid"));
+                }
+            }
+        );
 
         // click list view folder
         $gridView.on("click", ".folder > .listIcon, .folder > .dsCount",

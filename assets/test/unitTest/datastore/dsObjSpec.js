@@ -66,6 +66,10 @@ function dsObjTest() {
             expect(testFolder).to.have.property("totalChildren");
             expect(testFolder).to.have.property("isFolder").to.be.true;
             expect(testFolder).to.have.property("uneditable").to.be.false;
+
+            // should blur it first, otherwise rename will have bug
+            var $grid = DS.getGrid(testFolder.getId());
+            $grid.find(".label textarea").blur();
         });
 
         it("Should get testFolder from id", function() {
