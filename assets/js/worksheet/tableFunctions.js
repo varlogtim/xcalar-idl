@@ -1208,7 +1208,7 @@ function dropdownClick($el, options) {
     if (!options.ignoreSideBar) {
         var leftBoundary = $('#rightSideBar')[0].getBoundingClientRect().left;
         if ($menu[0].getBoundingClientRect().right > leftBoundary) {
-            left = $el[0].getBoundingClientRect().right - $menu.width();
+            left = leftBoundary - $menu.width();
             $menu.css('left', left).addClass('leftColMenu');
         }
     }
