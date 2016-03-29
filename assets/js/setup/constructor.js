@@ -16,35 +16,6 @@ function AuthInfo(options) {
     return this;
 }
 
-// userSettings.js
-function SettingInfo(options) {
-    options = options || {};
-    this.datasetListView = options.datasetListView || false;
-    this.browserListView = options.browserListView || false;
-    this.lastRightSideBar = options.lastRightSideBar || null;
-    this.activeWorksheet = options.activeWorksheet || null;
-
-    return this;
-}
-
-// store.js
-function KVKeysInfo() {
-    // the key should be as short as possible
-    // and when change the store key, change it here, it will
-    // apply to all places
-    return {
-        "TI"   : "TILookup",
-        "WS"   : "worksheets",
-        "DS"   : "gDSObj",
-        "CLI"  : "scratchPad",
-        "CART" : "datacarts",
-        "STATS": "statsCols",
-        "USER" : "userSettings",
-        "DFG"  : "DFG",
-        "SCHE" : "schedule"
-    };
-}
-
 // global MouseEvents
 // useful to keep track of mousedown so when a blur happens, we know what
 // element was clicked on to cause the blur
@@ -371,25 +342,33 @@ ProgCol.prototype = {
 };
 
 // store.js
-function METAConstructor(KVKeys, atStartUp) {
-    KVKeys = KVKeys || {};
+function getMETAKeys() {
+    // the key should be as short as possible
+    // and when change the store key, change it here, it will
+    // apply to all places
+    return {
+        "TI"   : "TILookup",
+        "WS"   : "worksheets",
+        "DS"   : "gDSObj",
+        "CLI"  : "scratchPad",
+        "CART" : "datacarts",
+        "STATS": "statsCols",
+        "USER" : "userSettings",
+        "DFG"  : "DFG",
+        "SCHE" : "schedule"
+    };
+}
+
+function METAConstructor(METAKeys) {
+    METAKeys = METAKeys || {};
     // basic thing to store
-    this[KVKeys.TI] = savegTables();
-    this[KVKeys.WS] = WSManager.getAllMeta();
-
-    this[KVKeys.DS] = DS.getHomeDir();
-    this[KVKeys.CLI] = CLIBox.getCli(); // string
-
-    this[KVKeys.CART] = DataCart.getCarts();
-    this[KVKeys.STATS] = Profile.getCache();
-    this[KVKeys.DFG] = DFG.getAllGroups(); // a set of DFGObj
-    this[KVKeys.SCHE] = Scheduler.getAllSchedules(); // list of SchedObj
-
-    if (atStartUp) {
-        this[KVKeys.USER] = UserSettings.getSettings();
-    } else {
-        this[KVKeys.USER] = UserSettings.setSettings();
-    }
+    this[METAKeys.TI] = savegTables();
+    this[METAKeys.WS] = WSManager.getAllMeta();
+    this[METAKeys.CLI] = CLIBox.getCli(); // string
+    this[METAKeys.CART] = DataCart.getCarts();
+    this[METAKeys.STATS] = Profile.getCache();
+    this[METAKeys.DFG] = DFG.getAllGroups(); // a set of DFGObj
+    this[METAKeys.SCHE] = Scheduler.getAllSchedules(); // list of SchedObj
 
     return this;
 
@@ -407,6 +386,46 @@ function METAConstructor(KVKeys, atStartUp) {
 
         return persistTables;
     }
+}
+
+// userSettings.js
+function getUserInfoKeys() {
+    // the key should be as short as possible
+    // and when change the store key, change it here, it will
+    // apply to all places
+    return {
+        "DS"  : "gDSObj",
+        "PREF": "userpreference"
+    };
+}
+
+function UserPref(options) {
+    options = options || {};
+    this.datasetListView = options.datasetListView || false;
+    this.browserListView = options.browserListView || false;
+    this.lastRightSideBar = options.lastRightSideBar || null;
+    this.activeWorksheet = options.activeWorksheet || null;
+
+    return this;
+}
+
+UserPref.prototype = {
+    'update': function() {
+        this.datasetListView = $('#dataViewBtn').hasClass('listView');
+        this.browserListView = $('#fileBrowserGridView').hasClass('listView');
+        this.lastRightSideBar = $('#rightSideBar .rightBarSection.lastOpen').attr('id');
+        this.activeWorksheet = WSManager.getActiveWS();
+
+        return this;
+    }
+};
+
+function UserInfoConstructor(UserInfoKeys, options) {
+    options = options || {};
+    this[UserInfoKeys.DS] = options.DS || null;
+    this[UserInfoKeys.PREF] = options.PREF || null;
+
+    return this;
 }
 
 // datastore.js

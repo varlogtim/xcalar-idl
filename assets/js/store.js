@@ -2,12 +2,15 @@ window.KVStore = (function($, KVStore) {
     // the key should be as short as possible
     // and when change the store key, change it here, it will
     // apply to all places
-    var KVKeys = KVKeysInfo();
+    var METAKeys;
 
-    KVStore.setup = function(gStorageKey, gLogKey, gErrKey) {
+    KVStore.setup = function(gStorageKey, gLogKey, gErrKey, gUsreKey) {
+        METAKeys = getMETAKeys();
+
         KVStore.gStorageKey = gStorageKey;
         KVStore.gLogKey = gLogKey;
         KVStore.gErrKey = gErrKey;
+        KVStore.gUsreKey = gUsreKey;
         KVStore.commitKey = gStorageKey + "-" + "commitkey";
     };
 
@@ -100,11 +103,16 @@ window.KVStore = (function($, KVStore) {
 
     KVStore.commit = function(atStartUp) {
         var deferred = jQuery.Deferred();
-        var storage = new METAConstructor(KVKeys, atStartUp);
+        var meta = new METAConstructor(METAKeys);
 
-        KVStore.put(KVStore.gStorageKey, JSON.stringify(storage), true, gKVScope.META)
+        KVStore.put(KVStore.gStorageKey, JSON.stringify(meta), true, gKVScope.META)
         .then(function() {
             return SQL.commit();
+        })
+        .then(function() {
+            if (!atStartUp) {
+                return UserSettings.commit();
+            }
         })
         .then(function() {
             var d = new Date();
@@ -127,37 +135,30 @@ window.KVStore = (function($, KVStore) {
 
     KVStore.restore = function() {
         var deferred = jQuery.Deferred();
-        var gDSObjFolder;
 
         KVStore.getAndParse(KVStore.gStorageKey, gKVScope.META)
         .then(function(gInfos) {
             if (gInfos) {
-                if (gInfos[KVKeys.TI]) {
-                    TblManager.restoreTableMeta(gInfos[KVKeys.TI]);
+                if (gInfos[METAKeys.TI]) {
+                    TblManager.restoreTableMeta(gInfos[METAKeys.TI]);
                 }
-                if (gInfos[KVKeys.WS]) {
-                    WSManager.restore(gInfos[KVKeys.WS]);
+                if (gInfos[METAKeys.WS]) {
+                    WSManager.restore(gInfos[METAKeys.WS]);
                 }
-                if (gInfos[KVKeys.DS]) {
-                    gDSObjFolder = gInfos[KVKeys.DS];
+                if (gInfos[METAKeys.CLI]) {
+                    CLIBox.restore(gInfos[METAKeys.CLI]);
                 }
-                if (gInfos[KVKeys.CLI]) {
-                    CLIBox.restore(gInfos[KVKeys.CLI]);
+                if (gInfos[METAKeys.CART]) {
+                    DataCart.restore(gInfos[METAKeys.CART]);
                 }
-                if (gInfos[KVKeys.CART]) {
-                    DataCart.restore(gInfos[KVKeys.CART]);
+                if (gInfos[METAKeys.STATS]) {
+                    Profile.restore(gInfos[METAKeys.STATS]);
                 }
-                if (gInfos[KVKeys.STATS]) {
-                    Profile.restore(gInfos[KVKeys.STATS]);
+                if (gInfos[METAKeys.DFG]) {
+                    DFG.restore(gInfos[METAKeys.DFG]);
                 }
-                if (gInfos[KVKeys.USER]) {
-                    UserSettings.restore(gInfos[KVKeys.USER]);
-                }
-                if (gInfos[KVKeys.DFG]) {
-                    DFG.restore(gInfos[KVKeys.DFG]);
-                }
-                if (gInfos[KVKeys.SCHE]) {
-                    Scheduler.restore(gInfos[KVKeys.SCHE]);
+                if (gInfos[METAKeys.SCHE]) {
+                    Scheduler.restore(gInfos[METAKeys.SCHE]);
                 }
 
                 return SQL.restore();
@@ -169,7 +170,7 @@ window.KVStore = (function($, KVStore) {
             }
         })
         .then(function() {
-            return DS.restore(gDSObjFolder, true);
+            UserSettings.restore();
         })
         .then(function() {
             KVStore.commit(true);

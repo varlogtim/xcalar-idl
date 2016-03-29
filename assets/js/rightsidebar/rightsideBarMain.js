@@ -248,10 +248,10 @@ window.RightSideBar = (function($, RightSideBar) {
     }
 
     function setLastRightSidePanel() {
-        var settings = UserSettings.getSettings();
-        if (settings.lastRightSideBar &&
+        var lastRightSideBar = UserSettings.getPreference().lastRightSideBar;
+        if (lastRightSideBar &&
             !$('.rightBarSection').hasClass('lastOpen')) {
-            $('#' + settings.lastRightSideBar).addClass('lastOpen');
+            $('#' + lastRightSideBar).addClass('lastOpen');
         }
     }
 

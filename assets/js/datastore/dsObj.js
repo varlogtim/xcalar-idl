@@ -25,8 +25,8 @@ window.DS = (function ($, DS) {
 
     DS.initialize = function() {
         // restore list view if saved and ellipsis the icon
-        var settings = UserSettings.getSettings();
-        toggleDSView(settings.datasetListView);
+        var preference = UserSettings.getPreference();
+        toggleDSView(preference.datasetListView);
     };
 
     // Get home folder
@@ -55,6 +55,7 @@ window.DS = (function ($, DS) {
             "isFolder": true
         });
 
+        UserSettings.logDSChange();
         SQL.add("Create folder", {
             "operation": SQLOps.CreateFolder,
             "dsName"   : ds.name,
@@ -256,6 +257,7 @@ window.DS = (function ($, DS) {
                 }
             }
 
+            UserSettings.logDSChange();
             Transaction.done(txId);
             deferred.resolve(dsObj);
         })
@@ -339,6 +341,7 @@ window.DS = (function ($, DS) {
                     .attr("data-dsname", newName)
                     .attr("title", newName);
 
+                UserSettings.logDSChange();
                 SQL.add("Rename Folder", {
                     "operation": SQLOps.DSRename,
                     "dsId"     : dsId,
@@ -411,6 +414,7 @@ window.DS = (function ($, DS) {
                 "confirm": function() { delDSHelper($grid, dsObj); }
             });
         } else if (removeDS($grid) === true) {
+            UserSettings.logDSChange();
             // when remove folder
             SQL.add("Delete Folder", {
                 "operation": SQLOps.DelFolder,
@@ -569,6 +573,7 @@ window.DS = (function ($, DS) {
             DataStore.update();
 
             focusOnFirstDS();
+            UserSettings.logDSChange();
 
             Transaction.done(txId);
             deferred.resolve();
@@ -1237,6 +1242,7 @@ window.DS = (function ($, DS) {
             $target.append($grid);
             refreshDS();
 
+            UserSettings.logDSChange();
             SQL.add("Drop dataset/folder", {
                 "operation"   : SQLOps.DSDropIn,
                 "dsId"        : dragDsId,
@@ -1280,6 +1286,7 @@ window.DS = (function ($, DS) {
             }
             refreshDS();
 
+            UserSettings.logDSChange();
             SQL.add("Insert dataset/folder", {
                 "operation"    : SQLOps.DSInsert,
                 "dsId"         : dragDsId,
@@ -1304,6 +1311,7 @@ window.DS = (function ($, DS) {
             $grandPa.append($grid);
             refreshDS();
 
+            UserSettings.logDSChange();
             SQL.add("Drop dataset/folder back", {
                 "operation"    : SQLOps.DSDropBack,
                 "dsId"         : dsId,

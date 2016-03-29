@@ -1233,9 +1233,9 @@ window.WSManager = (function($, WSManager) {
             }
         }
         // focus on the saved or first worksheet
-        var settings = UserSettings.getSettings();
-        if (!clearing && wsOrder.indexOf(settings.activeWorksheet) > -1) {
-            activeWorksheet = settings.activeWorksheet;
+        var storedWS = UserSettings.getPreference().activeWorksheet;
+        if (!clearing && wsOrder.indexOf(storedWS) > -1) {
+            activeWorksheet = storedWS;
         } else {
             activeWorksheet = wsOrder[0];
         }

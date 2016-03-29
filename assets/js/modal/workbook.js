@@ -162,7 +162,7 @@ window.WorkbookModal = (function($, WorkbookModal) {
         // choose an option
         $optionSection.on("click", ".radioWrap", function(event){
             var $option = $(this);
-            if  ($option.hasClass('disabled')) {
+            if ($option.hasClass('disabled')) {
                 return;
             }
             var no = Number($option.data("no"));
@@ -630,13 +630,14 @@ window.WKBKManager = (function($, WKBKManager) {
             var gInfoKey = generateKey(wkbkId, "gInfo");
             var gLogKey  = generateKey(wkbkId, "gLog");
             var gErrKey  = generateKey(wkbkId, "gErr");
+            var gUsreKey = generateKey(username, 'gUser');
 
             if (sessionStorage.getItem("xcalar.safe") != null) {
                 wkbkId = sessionStorage.getItem("xcalar.safe");
                 console.warn("Entering in safe mode of", wkbkId);
             }
 
-            KVStore.setup(gInfoKey, gLogKey, gErrKey);
+            KVStore.setup(gInfoKey, gLogKey, gErrKey, gUsreKey);
             deferred.resolve();
         })
         .fail(function(error) {

@@ -118,7 +118,6 @@ window.ExtensionManager = (function(ExtensionManager, $) {
         XcalarUploadPython(pyModName, pyString)
         .then(function() {
             UDF.storePython(pyModName, pyString);
-            KVStore.commit();
             numChecksLeft--;
             if (numChecksLeft === 0) {
                 setupPart4();
