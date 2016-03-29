@@ -53,7 +53,7 @@ window.UserSettings = (function($, UserSettings) {
     };
 
     UserSettings.getPreference = function() {
-        return userPreference;
+        return userPreference || {};
     };
 
     UserSettings.logDSChange = function() {
