@@ -6,14 +6,14 @@
       <span class="icon iconClose"></span>
     </div>
     <div class="btn btnDeselected">
-      <span class="icon popOut" data-toggle="tooltip" data-placement="top" data-container="body" title="pop out"></span>
+      <span class="icon popOut" data-toggle="tooltip" data-placement="top" data-container="body" title="<%= dicts.rightsideBar.popOutBtn %>"></span>
     </div>
     <div id="sqlButtonWrap">
       <div class="btn btnDeselected">
-        <span class="icon humanSQL" data-toggle="tooltip" data-placement="top" data-container="body" title="toggle machine/human SQL"></span>
+        <span class="icon humanSQL" data-toggle="tooltip" data-placement="top" data-container="body" title="<%= dicts.rightsideBar.toggleSqlBtn %>"></span>
       </div>
       <div class="btn btnDeselected">
-        <span class="icon copySQL" data-toggle="tooltip" data-placement="top" data-container="body" title="Copy SQL"></span>
+        <span class="icon copySQL" data-toggle="tooltip" data-placement="top" data-container="body" title="<%= dicts.rightsideBar.copySqlBtn %>"></span>
       </div>
     </div>
   </div>
@@ -22,16 +22,16 @@
   <section id="tableListSection" class="rightBarSection no-selection">
     <!-- Heading -->
     <header class="heading draggable">
-      <h2>Tables</h2>
+      <h2><%= dicts.rightsideBar.Tables %></h2>
     </header>
     <!-- Main Content -->
     <div class="rightBarContent">
       <!-- Tabs -->
       <section id="tableListSectionTabs">
-        <div class="tableListSectionTab active">Active</div>
-        <div class="tableListSectionTab">Archived</div>
-        <div class="tableListSectionTab">Aggregates</div>
-        <div class="tableListSectionTab">Orphaned</div>
+        <div class="tableListSectionTab active"><%= dicts.rightsideBar.ActiveList %></div>
+        <div class="tableListSectionTab"><%= dicts.rightsideBar.InActiveList %></div>
+        <div class="tableListSectionTab"><%= dicts.rightsideBar.AggList %></div>
+        <div class="tableListSectionTab"><%= dicts.rightsideBar.OrphanList %></div>
       </section>
       <!-- Sections -->
       <section id="tableListSections">
@@ -43,7 +43,7 @@
         <div id="archivedTableList" class="tableListSection">
           <div class="buttonWrap">
             <button id="submitTablesBtn" type="button" class="btn btnLarge btnInactive iconBtn submitBtn">
-              <span class="icon"></span>ADD TO WORKSHEET
+              <span class="icon"></span><%= dicts.rightsideBar.activeBtn %>
             </button>
             <button id="deleteTablesBtn" type="button" class="btn btnLarge btnInactive iconBtn deleteBtn">
               <span class="icon"></span>DELETE TABLES
@@ -52,10 +52,10 @@
           </div>
           <div class="secondButtonWrap">
             <div class="btn btnSmall btnDeselected clearAll">
-              <span class="icon" data-toggle="tooltip" data-placement="top" data-container="body" title="" data-original-title="deselect all"></span>
+              <span class="icon" data-toggle="tooltip" data-placement="top" data-container="body" title="" data-original-title="<%= dicts.rightsideBar.deselectAll %>"></span>
             </div>
             <div class="btn btnSmall selectAll">
-              <span class="icon" data-toggle="tooltip" data-placement="top" data-container="body" title="" data-original-title="select all"></span>
+              <span class="icon" data-toggle="tooltip" data-placement="top" data-container="body" title="" data-original-title="<%= dicts.rightsideBar.selectAll %>"></span>
             </div>
           </div>
           <ul id="inactiveTablesList" class="tableLists"></ul>
@@ -87,7 +87,7 @@
         <div id="orphanedTableList" class="tableListSection">
           <div class="buttonWrap">
             <button id="submitOrphanedTablesBtn" type="button" class="btn btnLarge btnInactive iconBtn submitBtn">
-              <span class="icon"></span>ADD TO WORKSHEET
+              <span class="icon"></span><%= dicts.rightsideBar.activeBtn %>
             </button>
             <button id="deleteOrphanedTablesBtn" type="button" class="btn btnLarge btnInactive iconBtn deleteBtn">
               <span class="icon"></span>DELETE TABLES
@@ -97,17 +97,17 @@
           <div class="divider"></div>
           <div class="secondButtonWrap">
             <div class="btn btnSmall btnDeselected clearAll">
-              <span class="icon" data-toggle="tooltip" data-placement="top" data-container="body" title="" data-original-title="deselect all"></span>
+              <span class="icon" data-toggle="tooltip" data-placement="top" data-container="body" title="" data-original-title="<%= dicts.rightsideBar.deselectAll %>"></span>
             </div>
             <div class="btn btnSmall selectAll">
-              <span class="icon" data-toggle="tooltip" data-placement="top" data-container="body" title="" data-original-title="select all"></span>
+              <span class="icon" data-toggle="tooltip" data-placement="top" data-container="body" title="" data-original-title="<%= dicts.rightsideBar.selectAll %>"></span>
             </div>
             <div class="btn btnSmall refresh">
-              <span class="icon" data-toggle="tooltip" data-placement="top" data-container="body" title="" data-original-title="refresh tables"></span>
+              <span class="icon" data-toggle="tooltip" data-placement="top" data-container="body" title="" data-original-title="<%= dicts.rightsideBar.refresh %>"></span>
             </div>
           </div>
           <div id="orphanedTableList-search" class="searchArea">
-              <input type="text" placeholder="Filter Orphaned Table"
+              <input type="text" placeholder="<%= dicts.rightsideBar.filterOrphan %>"
                 spellcheck="false" />
               <div class="clear iconWrap">
                 <span class="icon"></span>
@@ -137,7 +137,7 @@
   <section id="udfSection" class="rightBarSection no-selection">
     <!-- Heading -->
     <header class="heading draggable">
-      <h2>User Defined Function</h2>
+      <h2><%= dicts.rightsideBar.UDF %></h2>
     </header>
     <!-- Content -->
     <div class="rightBarContent">
@@ -149,14 +149,14 @@
             <div class="radio checked">
               <span class="dot"></span>
             </div>
-            <div class="label">Write your function</div>
+            <div class="label"><%= dicts.rightsideBar.udfWrite %></div>
           </div>
           <!-- option for upload section -->
           <div class="radioWrap" data-tab="udf-uploadSection">
             <div class="radio">
               <span class="dot"></span>
             </div>
-            <div class="label">Upload your script</div>
+            <div class="label"><%= dicts.rightsideBar.udfUpload %></div>
           </div>
         </div>
       </section>
@@ -170,17 +170,20 @@
             <div class="sectionContainer">
               <!-- template dropdown menu -->
               <div id="udf-fnList" class="dropDownList">
-                <input id="udf-fnTemplate" class="text" spellcheck="false"
-                       placeholder="Choose your template" disabled>
+                <input id="udf-fnTemplate" class="text" spellcheck="false" placeholder="<%= dicts.rightsideBar.chooseTemplate %>" disabled>
                 <div class="iconWrapper">
                   <span class="icon"></span>
                 </div>
                 <div id="udf-fnMenu" class="list">
                   <ul>
-                    <li name="blank">Blank Function</li>
+                    <li name="blank"><%= dicts.rightsideBar.blankFunc %></li>
                   </ul>
-                  <div class="scrollArea top"><div class="arrow"></div></div>
-                  <div class="scrollArea bottom"><div class="arrow"></div></div>
+                  <div class="scrollArea top">
+                    <div class="arrow"></div>
+                  </div>
+                  <div class="scrollArea bottom">
+                    <div class="arrow"></div>
+                  </div>
                 </div>
               </div>
               <!-- Download Teamplate -->
@@ -188,7 +191,7 @@
                  <div class="btnSection">
                   <button id="udf-fnDownload" class="btn btnMid disabled" type="button">
                     <span class="iconWrap"><span class="icon"></span></span>
-                    <span class="text">DOWNLOAD</span>
+                    <span class="text"><%= dicts.rightsideBar.download %></span>
                   </button>
                 </div>
               </div>
@@ -205,15 +208,14 @@
             <div class="sectionContainer">
               <div class="inputSection">
                 <span class="label">
-                  <label for="udf-fnName">Module Name:</label>
+                  <label for="udf-fnName"><%= dicts.common.ModuleName %>:</label>
                 </span>
-                <input id="udf-fnName" type="text" spellcheck="false" placeholder="lowercase only">
+                <input id="udf-fnName" type="text" spellcheck="false" placeholder="<%= dicts.rightsideBar.lowercase %>">
               </div>
               <div class="btnSection">
-                <button id="udf-fnUpload"
-                      class="btn btnMid upload" type="button">
+                <button id="udf-fnUpload" class="btn btnMid upload" type="button">
                   <span class="icon"></span>
-                  <span class="text">UPLOAD</span>
+                  <span class="text"><%= dicts.rightsideBar.upload %></span>
                 </button>
               </div>
             </div>
@@ -224,7 +226,7 @@
           <!-- head part -->
           <div>
             <h3 class="label">
-              <label for="udf-filePath">File Path:</label>
+              <label for="udf-filePath"><%= dicts.common.FilePath %>:</label>
             </h3>
           </div>
           <!-- file path part -->
@@ -236,12 +238,11 @@
           </div>
           <!-- button part -->
           <div class="btnSection">
-            <button id="udf-browseBtn" class="btn btnMid" type="button">BROWSE</button>
-            <input id="udf-fileBrowser"  spellcheck="false" type="file"
-              style="display: none;">
+            <button id="udf-browseBtn" class="btn btnMid" type="button"><%= dicts.common.BROWSE %></button>
+            <input id="udf-fileBrowser"  spellcheck="false" type="file" style="display: none;">
             <button id="udf-fileUpload" class="btn btnMid upload" type="button">
               <span class="icon"></span>
-              <span class="text">UPLOAD</span>
+              <span class="text"><%= dicts.rightsideBar.upload %></span>
             </button>
           </div>
         </section>
@@ -281,7 +282,7 @@
   <!-- Help Section -->
   <section id="helpSection" class="rightBarSection no-selection">
     <header class="heading draggable">
-      <h2>Help</h2>
+      <h2><%= dicts.rightsideBar.Help %></h2>
     </header>
     <div class="rightBarContent">
       <!-- Help Search -->
@@ -292,38 +293,38 @@
           data-container="body" disabled>
         <div id="helpSubmit" title="Coming Soon" class="btnInactive"
         data-toggle="tooltip" data-placement="bottom" data-container="body">
-          <span class="icon iconSearch"></span>Find
+          <span class="icon iconSearch"></span><%= dicts.rightsideBar.Find %>
         </div>
       </div>
       <div class="border"></div>
       <!-- Help Result -->
       <div id="helpResults" class="helpBox">
         <div>
-          <span>There are no help results</span>
+          <span><%= dicts.rightsideBar.noRes %></span>
         </div>
       </div>
       <!-- Help On Off Button -->
       <div class="helpOnOffWrap">
         <div id="helpOnOff" class="onOffBtn on off">
           <div class="slider"></div>
-          <div class="text offText">OFF</div>
-          <div class="text onText">ON</div>
+          <div class="text offText"><%= dicts.common.OFF %></div>
+          <div class="text onText"><%= dicts.common.ON %></div>
         </div>
-        <div class="text">In-Page Help</div>
+        <div class="text"><%= dicts.rightsideBar.InPageHelp %></div>
       </div>
       <!-- Intro Tutorials -->
       <div id="helpTopics" class="helpBox">
         <div>
           <ul>
-            <span>Start a Walkthrough:</span>
+            <span><%= dicts.rightsideBar.Walkthrough %>:</span>
             <li id="workbookWT" class="walkthrough">
-              <span>Workbook Tutorial</span>
+              <span><%= dicts.rightsideBar.wkbkTutor %></span>
             </li>
             <li id="datastoreWT1" class="walkthrough">
-              <span>Data Stores Tutorial - Part 1</span>
+              <span><%= dicts.rightsideBar.dsTutor1 %></span>
             </li>
             <li id="datastoreWT2" class="walkthrough">
-              <span>Data Stores Tutorial - Part 2</span>
+              <span><%= dicts.rightsideBar.dsTutor2 %></span>
             </li>
           </ul>
         </div>
@@ -332,8 +333,8 @@
       <div class="henpGenSubPart">
         <div class="wrap">
           <div class="icon"></div>
-          <div class="text">GENERATE SUB</div>
-          <button id="helpGenSub" class="btn btnMid">GENERATE</button>
+          <div class="text"><%= dicts.monitor.GENSUB %></div>
+          <button id="helpGenSub" class="btn btnMid"><%= dicts.common.GEN %></button>
         </div>
       </div>
     </div>

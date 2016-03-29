@@ -213,19 +213,21 @@ window.DataFlowModal = (function($, DataFlowModal) {
     }
 
     function exportStep() {
+        var text = xcHelper.replaceMsg(ExportTStr.ExportOfCol, {
+            "table": tableName
+        });
         $dfgModal.addClass("exportMode");
-        $confirmBtn.removeClass("next").text("Save");
-        $previewSection.find(".titleSection .titleWrap .text")
-                       .text("Export columns of " + tableName);
+        $confirmBtn.removeClass("next").text(CommonTxtTstr.SAVE);
+        $previewSection.find(".titleSection .titleWrap .text").text(text);
         $dfPreviews.hide();
         $dfExport.show();
     }
 
     function backToDFGView() {
         $dfgModal.removeClass("exportMode");
-        $confirmBtn.addClass("next").text("Next");
+        $confirmBtn.addClass("next").text(CommonTxtTstr.NEXT);
         $previewSection.find(".titleSection .titleWrap .text")
-                       .text("Preview");
+                       .text(CommonTxtTstr.Preview);
         $dfExport.hide();
         $dfPreviews.show();
     }

@@ -5,19 +5,19 @@
     <section id="worksheetInfo" class="clearfix">
       <div class="workspaceArea">Xcalar Insight</div>
       <div class="workspaceArea">
-        <span>Workbook: </span>
+        <span><%= dicts.common.WKBK %>: </span>
         <span class="wkbkName">
           <%= dicts.isTutor ? dicts.tutor.wkbk : "" %>
         </span>
       </div>
       <div id="workspaceDate" class="workspaceArea">
-        <span>Created On: </span>
+        <span><%= dicts.ws.create %>: </span>
         <span class="date">
           <%= dicts.isTutor ? dicts.tutor.wkbkDate : "" %>
         </span>
       </div>
       <div class="workspaceArea">
-        <span>Last Saved On:</span>
+        <span><%= dicts.ws.save %>:</span>
         <span id="autoSavedInfo">
           <%= dicts.isTutor ? dicts.tutor.wkbkSaveDate : "" %>
         </span>
@@ -39,7 +39,7 @@
     <section id="rightSideBarBtns" class="bottomButtonsArea no-selection">
       <!-- tablelist -->
       <div class="btn btnSmall sliderBtn">
-        <span id="tableListBtn" class="icon" data-toggle="tooltip" data-placement="top" data-container="body" title="tables list"></span>
+        <span id="tableListBtn" class="icon" data-toggle="tooltip" data-placement="top" data-container="body" title="<%= dicts.bottomBar.tblList %>"></span>
       </div>
       <!-- sql -->
       <div class="btn btnSmall sliderBtn">
@@ -65,7 +65,7 @@
       </div>
       <% } else { %>
       <div class="btn btnSmall sliderBtn">
-        <span id="infoBtn" data-toggle="tooltip" data-placement="top" data-container="body" title="help"></span>
+        <span id="infoBtn" data-toggle="tooltip" data-placement="top" data-container="body" title="<%= dicts.bottomBar.help %>"></span>
       </div>
       <% } %>
     </section>
@@ -78,7 +78,7 @@
       <span class="icon"></span>
     </div>
     <% } else { %>
-    <div id="addWorksheet" class="btn btnSmall" title="Add Worksheet" data-toggle="tooltip" data-placement="top" data-container="body">
+    <div id="addWorksheet" class="btn btnSmall" title="<%= dicts.ws.add %>" data-toggle="tooltip" data-placement="top" data-container="body">
       <span class="icon"></span>
     </div>
     <% } %>
@@ -91,7 +91,7 @@
             <span class="wsIcon"></span>
           </div>
           <div class="draggableArea">
-            <div class="text">Sheet 1</div>
+            <input type="text" class="text textOverflow" spellcheck="false" value="<%= dicts.ws.sheet %> 1" style="width: 63px;">
           </div>
         </div>
         <!-- dag tab -->
@@ -105,7 +105,7 @@
               <span class="wsIcon"></span>
             </div>
             <div class="draggableArea">
-              <div class="text">Sheet 2</div>
+              <input type="text" class="text textOverflow" spellcheck="false" value="<%= dicts.ws.sheet %> 2">
             </div>
           </div>
           <div class="dagTab">
@@ -120,7 +120,7 @@
             <span class="wsIcon"></span>
           </div>
           <div class="draggableArea">
-            <div class="text">Sheet 1</div>
+            <input type="text" class="text textOverflow" spellcheck="false" value="<%= dicts.ws.sheet %> 1">
           </div>
         </div>
         <!-- dag tab -->
@@ -140,16 +140,16 @@
           <li class="unhideAll" data-ws="all">
             <span class="icon"></span>
             <span class="icon"></span>
-            Unhide all worksheets
+            <%= dicts.ws.unHideAll %>
           </li>
         </ul>
       </div>
     </div>
     <div id="worksheetTabMenu" class="menu">
       <ul>
-        <li class="rename">Rename</li>
-        <li class="hide">Hide Worksheet</li>
-        <li class="delete">Delete Worksheet</li>
+        <li class="rename"><%= dicts.common.Rename %></li>
+        <li class="hide"><%= dicts.ws.hide %></li>
+        <li class="delete"><%= dicts.ws.del %></li>
       </ul>
       <div class="arrow"></div>
     </div>

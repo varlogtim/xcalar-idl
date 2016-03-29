@@ -3,15 +3,15 @@
   <div id="monitorTopBar" class="topBar">
     <div id="systemButton" class="buttonArea active">
       <div class="icon"></div>
-      <div class="text">SYSTEM</div>
+      <div class="text"><%= dicts.monitor.SYS %></div>
     </div>
     <div id="queriesButton" class="buttonArea">
       <div class="icon"></div>
-      <div class="text">QUERIES</div>
+      <div class="text"><%= dicts.monitor.QUERIES %></div>
     </div>
     <div id="setupButton" class="buttonArea">
       <div class="icon"></div>
-      <div class="text">SETUP</div>
+      <div class="text"><%= dicts.monitor.SETUP %></div>
     </div>
   </div>
   <!-- System Section -->
@@ -21,17 +21,17 @@
     <div class="asupSubSection">
       <div class="asupSection">
         <div class="icon"></div>
-        <div class="title">AUTO SUPPORT SETTINGS</div>
+        <div class="title"><%= dicts.monitor.AUTOSUPPORT %></div>
         <div id="asupBtn" class="onOffBtn off">
           <div class="slider"></div>
-          <div class="text offText">OFF</div>
-          <div class="text onText">ON</div>
+          <div class="text offText"><%= dicts.common.OFF %></div>
+          <div class="text onText"><%= dicts.common.ON %></div>
         </div>
       </div>
       <div class="subSection">
           <div class="icon"></div>
-          <div class="title">GENERATE SUB</div>
-          <button id="subBtn" class="btn btnMid">GENERATE</button>
+          <div class="title"><%= dicts.monitor.GENSUB %></div>
+          <button id="subBtn" class="btn btnMid"><%= dicts.common.GEN %></button>
       </div>
     </div>
     <!-- end of asupsub section -->
@@ -40,40 +40,40 @@
       <div class="sideTabs">
         <div id="cpuTab" class="sideTab active">
           <div class="icon"></div>
-          <div class="text">CPU</div>
+          <div class="text"><%= dicts.monitor.CPU %></div>
         </div>
         <div id="ramTab" class="sideTab">
           <div class="icon"></div>
-          <div class="text">RAM</div>
+          <div class="text"><%= dicts.monitor.RAM %></div>
         </div>
-        <div id="flashTab" class="sideTab" data-toggle="tooltip" data-placement="bottom" data-container="body" title="Coming Soon">
+        <div id="flashTab" class="sideTab" data-toggle="tooltip" data-placement="bottom" data-container="body" title="<%= dicts.common.ComeSoon %>">
             <div class="icon"></div>
-            <div class="text">FLASH</div>
+            <div class="text"><%= dicts.monitor.FLASH %></div>
         </div>
-        <div id="diskTab" class="sideTab" data-toggle="tooltip" data-placement="bottom" data-container="body" title="Coming Soon">
+        <div id="diskTab" class="sideTab" data-toggle="tooltip" data-placement="bottom" data-container="body" title="<%= dicts.common.ComeSoon %>">
             <div class="icon"></div>
-            <div class="text">NETWORK</div>
+            <div class="text"><%= dicts.monitor.NETWORK %></div>
         </div>
       </div>
       <div class="graphSection">
         <div class="graphTop">
           <div id="connectionInfo">
-            <span class="text" id="phyNodeText">Physical Node: </span>
+            <span class="text" id="phyNodeText"><%= dicts.monitor.PhysicalNode %>: </span>
             <span class="text" id="phyNode">localhost</span>
-            <span class="text" id="virNodeText">Virtual Node: </span>
+            <span class="text" id="virNodeText"><%= dicts.monitor.VirtualNode %>: </span>
             <span class="text" id="virNode">Node 0</span>
           </div>
           <div id="refreshGraph">
-            <span class="text">Auto Refresh</span>
+            <span class="text"><%= dicts.monitor.AutoRefresh %></span>
             <!-- <div class="icon"></div> -->
           </div>
           <div id="refreshBtn" class="onOffBtn off">
             <div class="slider"></div>
-            <div class="text offText">OFF</div>
-            <div class="text onText">ON</div>
+            <div class="text offText"><%= dicts.common.OFF %></div>
+            <div class="text onText"><%= dicts.common.ON %></div>
           </div>
           <div class="time">
-            <span class="text">Last Check Time: </span>
+            <span class="text"><%= dicts.monitor.LastCheckTime %>: </span>
             <span id="graphTime"></span>
           </div>
        </div>
@@ -129,7 +129,7 @@
           </div>
           <div class="statsHeadingBar small open">
             <span class="arrow"></span>
-            <span class="title">CPU</span>
+            <span class="title"><%= dicts.monitor.CPU %></span>
             <span class="percent">%</span>
             <span class="num avgNum">0</span>
           </div>
@@ -157,12 +157,12 @@
         </div>
         <div class="statsSection">
           <div class="statsTopHeading">
-              <span class="global">Global Total</span>
-              <span class="user">User Total</span>
+              <span class="global"><%= dicts.monitor.GTotal %></span>
+              <span class="user"><%= dicts.monitor.UTotal %></span>
           </div>
           <div class="statsHeadingBar open">
             <span class="arrow"></span>
-            <span class="title">RAM</span>
+            <span class="title"><%= dicts.monitor.RAM %></span>
             <span class="userSize">
               <span class="avgNum">45 GB</span>
             </span>
@@ -179,7 +179,7 @@
       <div id="donut2" class="donutSection">
         <div class="icon"></div>
         <div class="donut">
-          <div class="sampleText">SAMPLE</div>
+          <div class="sampleText"><%= dicts.monitor.SAMPLE %></div>
           <div class="innerCircle"></div>
           <div class="donutInfo">
             <span class="userSize">
@@ -195,12 +195,12 @@
         </div>
         <div class="statsSection">
           <div class="statsTopHeading">
-              <span class="global">Global Total</span>
-              <span class="user">User Total</span>
+            <span class="global"><%= dicts.monitor.GTotal %></span>
+            <span class="user"><%= dicts.monitor.UTotal %></span>
           </div>
           <div class="statsHeadingBar open">
             <span class="arrow"></span>
-            <span class="title">FLASH</span>
+            <span class="title"><%= dicts.monitor.FLASH %></span>
             <span class="userSize">
               <span class="avgNum">45 GB</span>
             </span>
@@ -217,7 +217,7 @@
       <div id="donut3" class="donutSection">
         <div class="icon"></div>
         <div class="donut">
-          <div class="sampleText">SAMPLE</div>
+          <div class="sampleText"><%= dicts.monitor.SAMPLE %></div>
           <div class="innerCircle"></div>
           <div class="donutInfo">
             <span class="userSize">
@@ -233,12 +233,12 @@
         </div>
         <div class="statsSection">
           <div class="statsTopHeading">
-            <span class="global">Global Total</span>
-            <span class="user">User Total</span>
+            <span class="global"><%= dicts.monitor.GTotal %></span>
+            <span class="user"><%= dicts.monitor.UTotal %></span>
           </div>
           <div class="statsHeadingBar open">
             <span class="arrow"></span>
-            <span class="title">NETWORK</span>
+            <span class="title"><%= dicts.monitor.NETWORK %></span>
             <span class="userSize">
               <span class="avgNum">45</span> Mbps
             </span>
@@ -260,7 +260,7 @@
     <!-- Left Section, list of queries -->
     <div class="leftSection">
       <section class="titleSection">
-        <h1>Recent Queries</h1>
+        <h1><%= dicts.monitor.RecentQueries %></h1>
       </section>
       <!-- Queery list Section -->
       <section class="queryListSection">
@@ -310,23 +310,23 @@
       <!-- Status Part -->
       <section class="statusSection">
         <div class="title">
-          <h2>STATUS</h2>
+          <h2><%= dicts.monitor.STATUS %></h2>
         </div>
         <div class="conent">
           <div class="status">
-            <span class="name">Started Time:</span>
+            <span class="name"><%= dicts.monitor.StartedTime %>:</span>
             <span class="text">06:25:45 02-15-2015 GMT-08:00</span>
           </div>
           <div class="status">
-            <span class="name">Elapsed Time:</span>
+            <span class="name"><%= dicts.monitor.ElaspedTime %>:</span>
             <span class="text">01:28:21</span>
           </div>
           <div class="status">
-            <span class="name">Remaining Time:</span>
+            <span class="name"><%= dicts.monitor.RemainTime %>:</span>
             <span class="text">00:00:00</span>
           </div>
           <div class="status">
-            <span class="name">Total Time:</span>
+            <span class="name"><%= dicts.monitor.TotalTime %>:</span>
             <span class="text">01:28:21</span>
           </div>
         </div>
@@ -335,17 +335,17 @@
       <!-- Output Detail -->
       <section class="outputSection">
         <div class="title">
-          <h2>OUTPUT</h2>
+          <h2><%= dicts.monitor.OUTPUT %></h2>
         </div>
         <div class="content">
-          <span class="text">in progress...</span>
+          <span class="text"><%= dicts.monitor.ip %>...</span>
         </div>
         <div class="buttonArea">
           <button id="monitor-inspect" class="btn btnLarge iconBtn btnInactive">
-            <span class="icon"></span>VIEW OUTPUT
+            <span class="icon"></span><%= dicts.monitor.VIEWOUTPUT %>
           </button>
           <button id="monitor-export" class="btn btnLarge iconBtn btnInactive">
-            <span class="icon"></span>EXPORT OUTPUT TO WORKSHEET
+            <span class="icon"></span><%= dicts.monitor.EXPORT %>
           </button>
         </div>
       </section>
@@ -353,7 +353,7 @@
       <!-- SQL Part -->
       <section class="operationSection">
         <div class="title">
-          <h2>OPERATION</h2>
+          <h2><%= dicts.common.OP %></h2>
         </div>
         <div class="content">
           <div class="sqlWrap">
@@ -367,7 +367,7 @@
   <!-- End Of Queries Section -->
   <!-- Setup Section -->
   <section id="monitor-setup" class="monitorSection">
-    <div class="topSection">Configuration</div>
+    <div class="topSection"><%= dicts.monitor.Config %></div>
     <div class="midSection">
       <div class="visualArea">
         <div class="clusterIcon">
@@ -380,15 +380,15 @@
       <div class="optionsArea">
         <div class="optionRow">
           <div class="nameArea">
-            <span class="label">Name: </span>
+            <span class="label"><%= dicts.common.Name %>: </span>
             <span class="name">DsDefaultSampleSize</span>
           </div>
           <div class="valueArea">
-            <span class="label">Value: </span>
+            <span class="label"><%= dicts.common.Val %>: </span>
             <input type="text">
           </div>
           <div class="buttonArea">
-            <button class="btn btnMid">BROWSE</button>
+            <button class="btn btnMid"><%= dicts.common.BROWSE %></button>
           </div>
         </div>
         <div class="optionRow"></div>
@@ -414,9 +414,9 @@
       </div>
     </div>
     <div class="bottomSection">
-      <button class="btn btnMid">CONFIRM & SAVE</button>
-      <button class="btn btnMid">CONFIRM & RESTART</button>
-      <button class="btn btnMid cancel">CANCEL</button>
+      <button class="btn btnMid"><%= dicts.common.CONFIRMSAVE %></button>
+      <button class="btn btnMid"><%= dicts.common.CONFIRMRESTART %></button>
+      <button class="btn btnMid cancel"><%= dicts.common.CANCEL %></button>
     </div>
   </section>
   <!-- End of Setup Section -->

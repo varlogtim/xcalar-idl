@@ -2,7 +2,7 @@
 <div id="multiCastModal" class="modalContainer">
   <!-- Header Section -->
   <header class="modalHeader">
-    <span class="text">Multi-Cast</span>
+    <span class="text"><%= dicts.multiCastModal.header %></span>
     <div class="close">
       <span class="icon"></span>
     </div>
@@ -10,14 +10,7 @@
   <!-- Instrunction Section -->
   <section class="modalInstruction">
     <div class="icon"></div>
-    <div class="text">
-      Select the columns you want to cast by clicking on the dropdown menu.
-      "Smart Cast" will scan through all the columns and recommend casts.
-      Casts that are machine recommended will be in blue.
-      User casts are in green. To remove a column from the cast operation,
-      click on the column name to focus on the column and click on the check
-      mark next to the column name.
-    </div>
+    <div class="text"><%= dicts.multiCastModal.instr %></div>
   </section>
   <!-- Top Section -->
   <section class="modalTopMain"></section>
@@ -25,17 +18,17 @@
   <section class="modalMain">
      <div class="resultContainer">
       <div class="title">
-        <span class="label">Cast Result</span>
+        <span class="label"><%= dicts.multiCastModal.CastResult %></span>
         <div id="multiCast-clear" class="modifyButton">
           <span class="icon"></span>
-          <span class="text">Clear All</span>
+          <span class="text"><%= dicts.common.ClearAll %></span>
         </div>
       </div>
       <div class="header">
         <div class="row">
-          <div class="colName">Column Name</div>
-          <div class="oldType">Original</div>
-          <div class="newType">New Type</div>
+          <div class="colName"><%= dicts.multiCastModal.ColName %></div>
+          <div class="oldType"><%= dicts.common.Original %></div>
+          <div class="newType"><%= dicts.multiCastModal.NewType %></div>
         </div>
       </div>
       <div id="multiCast-result" class="content"></div>
@@ -44,7 +37,7 @@
       <div class="title">
          <button id="multiCast-cast" class="btn btnMid iconBtn">
             <span class="icon"></span>
-            SMART CAST
+            <%= dicts.multiCastModal.SmartBtn %>
           </button>
       </div>
       <div class="tableSection">
@@ -55,12 +48,8 @@
   </section>
   <!-- Button Section -->
   <section class="modalBottom">
-    <button class="btn btnMid confirm" type="button">
-      CAST ALL SELECTED
-    </button>
-    <button class="btn btnMid cancel" type="button">
-      CANCEL
-    </button>
+    <button class="btn btnMid confirm" type="button"><%= dicts.multiCastModal.CONFIRM %></button>
+    <button class="btn btnMid cancel" type="button"><%= dicts.common.CANCEL %></button>
   </section>
 </div>
 <!-- End Of MultiCast Modal -->

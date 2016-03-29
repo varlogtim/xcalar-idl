@@ -2,7 +2,7 @@
 <div id="aggModal" class="modalContainer">
   <!-- Header -->
   <header class="modalHeader">
-    <span class="text">Quick Aggregates</span>
+    <span class="text"><%= dicts.aggModal.header %></span>
     <div class="close">
       <span class="icon"></span>
     </div>
@@ -15,13 +15,13 @@
   <!-- Quick Aggregates Input Section -->
   <section class="modalTopMain">
     <div id="aggModal-tableName" class="tableName textOverflowOneLine">
-      <span>Table Name:</span>
+      <span><%= dicts.aggModal.TableName %>:</span>
       <span class="text"></span>
     </div>
   </section>
   <!-- Quick Aggregates Main Section -->
   <section id="aggModal-quickAgg" class="mainAgg clearfix modalMain">
-    <div class="tableText">Quick aggregates for each individual column</div>
+    <div class="tableText"><%= dicts.aggModal.QuickAgg %></div>
     <div class="aggTable">
       <div class="headerContainer"></div>
       <div class="tableContainer">
@@ -31,7 +31,7 @@
     </div>
   </section>
   <section id="aggModal-corr" class="mainAgg clearfix modalMain">
-    <div class="tableText">Correlation coefficients for every pair of columns</div>
+    <div class="tableText"><%= dicts.aggModal.Corr %></div>
     <div class="aggTable">
       <div class="headerContainer"></div>
       <div class="tableContainer">

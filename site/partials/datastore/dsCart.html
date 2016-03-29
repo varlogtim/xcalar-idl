@@ -2,11 +2,11 @@
 <div class="buttonArea">
   <% if (dicts.tutor.name !== "datastoreDemo2") { %>
   <button id="submitDSTablesBtn" class="btn btnLarge iconBtn btnInactive">
-    <span class="icon"></span>SEND TO ACTIVE WORKSHEET
+    <span class="icon"></span><%= dicts.dsCart.SENDTOACTIVEWS %>
   </button>
   <% } else { %>
   <button id="submitDSTablesBtn" class="btn btnLarge iconBtn" data-introstep="9" data-introposition="left">
-    <span class="icon"></span>SEND TO ACTIVE WORKSHEET
+    <span class="icon"></span><%= dicts.dsCart.SENDTOACTIVEWS %>
   </button>
   <% }%>
   <!--   <button id="submitMultipleDBTablesBtn"
@@ -15,18 +15,18 @@
   </button> -->
   <% if (dicts.tutor.name !== "datastoreDemo2") { %>
   <button id="clearDataCart" class="btn btnLarge iconBtn btnInactive">
-    <span class="icon"></span>CLEAR DATA CART
+    <span class="icon"></span><%= dicts.dsCart.CLEARALL %>
   </button>
   <% } else { %>
   <button id="clearDataCart" class="btn btnLarge iconBtn" data-introstep="8" data-introposition="left">
-    <span class="icon"></span>CLEAR DATA CART
+    <span class="icon"></span><%= dicts.dsCart.CLEARALL %>
   </button>
   <% }%>
   <div id="dataCartTitle" class="title">
     <% if (dicts.tutor.name !== "datastoreDemo2") { %>
-    <b>No Tables Selected</b>
+    <b><%= dicts.dsCart.NoCartsHint %></b>
     <% } else { %>
-    <b>Selected Columns</b>
+    <b><%= dicts.dsCart.HasCartsHint %></b>
     <% }%>
   </div>
   <div class="border"></div>
@@ -57,9 +57,7 @@
       </ul>
     </div>
     <% } else { %>
-    <span class="helpText">
-      To add a column to the data cart, select a dataset on the left and click on the column names that you are interested in inside the center panel.
-    </span>
+    <span class="helpText"><%= dicts.dsCart.NoCartInstr %></span>
     <% } %>
   </div>
 </div>

@@ -2,7 +2,7 @@
 <div id="profileModal" class="modalContainer">
   <!-- Profile Modal Header -->
   <header class="modalHeader">
-    <span class="text">Profile</span>
+    <span class="text"><%= dicts.profile.header %></span>
     <div class="close">
       <span class="icon"></span>
     </div>
@@ -36,14 +36,14 @@
     <div class="sortAndInputSection loadHidden">
       <!-- sortSection -->
       <div class="sortSection">
-        <div class="label">Sort by:</div>
+        <div class="label"><%= dicts.profile.SortBy %>:</div>
         <div class="sort asc">
           <div class="radioWrap">
             <div class="radio">
               <span class="dot"></span>
             </div>
             <span class="icon"></span>
-            <span class="text">ascending</span>
+            <span class="text"><%= dicts.profile.asc %></span>
           </div>
         </div>
         <div class="sort origin">
@@ -52,7 +52,7 @@
               <span class="dot"></span>
             </div>
             <span class="icon"></span>
-            <span class="text">original</span>
+            <span class="text"><%= dicts.profile.orig %></span>
           </div>
         </div>
         <div class="sort desc">
@@ -61,16 +61,16 @@
               <span class="dot"></span>
             </div>
             <span class="icon"></span>
-            <span class="text">descending</span>
+            <span class="text"><%= dicts.profile.desc %></span>
           </div>
         </div>
       </div>
       <!-- row input -->
       <div class="rowInputSection">
         <div class="rowInput">
-          <label>Skip to</label>
+          <label><%= dicts.profile.SkipTo %></label>
           <input id="stats-rowInput" class="min-range" val="1" spellcheck="false">
-          <label>of </label>
+          <label><%= dicts.common.of %> </label>
           <label for="stats-rowInput" class="max-range"></label>
         </div>
       </div>
@@ -78,49 +78,45 @@
     <!-- aggregate info section -->
     <div class="aggInfoSection">
       <div class="aggInfo">
-        <span>count:</span>
+        <span><%= dicts.common.count %>:</span>
         <span data-toggle="tooltip"
           data-placement="top" data-container="body" class="text count tooltipOverflow"></span>
       </div>
        <div class="aggInfo">
-        <span>min:</span>
-        <span data-toggle="tooltip"
-          data-placement="top" data-container="body" class="text min tooltipOverflow"></span>
+        <span><%= dicts.common.min %>:</span>
+        <span data-toggle="tooltip" data-placement="top" data-container="body" class="text min tooltipOverflow"></span>
       </div>
       <div class="aggInfo">
-        <span>max:</span>
-        <span data-toggle="tooltip"
-          data-placement="top" data-container="body" class="text max tooltipOverflow"></span>
+        <span><%= dicts.common.max %>:</span>
+        <span data-toggle="tooltip" data-placement="top" data-container="body" class="text max tooltipOverflow"></span>
       </div>
       <div class="aggInfo">
-        <span>average:</span>
-        <span data-toggle="tooltip"
-          data-placement="top" data-container="body" class="text average tooltipOverflow"></span>
+        <span><%= dicts.common.average %>:</span>
+        <span data-toggle="tooltip" data-placement="top" data-container="body" class="text average tooltipOverflow"></span>
       </div>
       <div class="aggInfo">
-        <span>sum:</span>
-        <span data-toggle="tooltip"
-          data-placement="top" data-container="body" class="text sum tooltipOverflow"></span>
+        <span><%= dicts.common.sum %>:</span>
+        <span data-toggle="tooltip" data-placement="top" data-container="body" class="text sum tooltipOverflow"></span>
       </div>
     </div>
     <!-- range section -->
     <div class="rangeSection loadDisable">
       <div class="buttonSection">
-        <span class="text single">Single</span>
+        <span class="text single"><%= dicts.profile.Single %></span>
         <div class="rangeBtn">
           <div class="slider"></div>
         </div>
-        <span class="text range">Range</span>
+        <span class="text range"><%= dicts.profile.Range %></span>
       </div>
       <div class="inputSection">
-        <span class="text">Input range size (e.g. 0.5, 10):</span>
+        <span class="text"><%= dicts.profile.BucketInstr %>:</span>
         <input id="stats-step" type="number" step="1" min="1" spellcheck="false">
       </div>
     </div>
   </section>
   <!-- Button Section -->
   <section class="modalBottom">
-    <button type="button" class="btn btnMid cancel">CLOSE</button>
+    <button type="button" class="btn btnMid cancel"><%= dicts.common.CLOSE %></button>
   </section>
 </div>
 <!-- End of Profile Modal -->

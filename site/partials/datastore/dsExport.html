@@ -2,20 +2,20 @@
   <!-- content left -->
   <div class="contentViewLeft no-selection">
     <div class="headingArea">
-      <span>Targets (<span class="numExportTargets">0</span>)</span>
+      <span><%= dicts.dsExport.Targets %> (<span class="numExportTargets">0</span>)</span>
       <div class="buttonGroup">
         <div class="btn dataViewBtn refresh">
-          <span class="icon" title="Refresh Targets" data-toggle="tooltip" data-placement="top" data-container="body"></span>
+          <span class="icon" title="<%= dicts.dsExport.RefreshTargets %>" data-toggle="tooltip" data-placement="top" data-container="body"></span>
         </div>
 
-        <div id="exportViewBtn" class="btn dataViewBtn selected gridView toggleListGrid" data-toggle="tooltip" data-placement="top" data-original-title="Switch to List view" data-container="body">
+        <div id="exportViewBtn" class="btn dataViewBtn selected gridView toggleListGrid" data-toggle="tooltip" data-placement="top" data-original-title="<%= dicts.dsView.SwitchToListView %>" data-container="body">
           <span class="icon"></span>
         </div>
       </div>
     </div>
     <div class="mainButtonArea no-selection">
       <button id="createExportButton" class="btn btnLarge iconBtn">
-        <span class="icon"></span>CREATE NEW EXPORT TARGET
+        <span class="icon"></span><%= dicts.dsExport.createBtn %>
       </button>
     </div>
     <!-- Grid View -->
@@ -27,11 +27,9 @@
   <div class="contentViewMid dataStoreFormView">
     <div class="formHelp no-selection">
       <div class="contentViewMidWrap">
-        <h2>Create Export Target</h2>
+        <h2><%= dicts.dsExport.CreateTarget %></h2>
         <span class="icon"></span>
-        <p>
-           SELECT A TARGET TYPE AND CHOOSE A NAME FOR YOUR EXPORT TARGET. PROVIDE ANY ADDITIONAL INFORMATION AS NEEDED.
-        </p>
+        <p><%= dicts.dsExport.CreateTargetInstr %></p>
       </div>
     </div>
     <!-- Data Form -->
@@ -41,7 +39,7 @@
         <div class="contentViewMidWrap">
           <!-- file path -->
           <div id="targetTypeSelector" class="importFormRow">
-            <label for="targetTypeList">Target Type:</label>
+            <label for="targetTypeList"><%= dicts.dsExport.TargetType %>:</label>
             <div id="targetTypeList" class="dropDownList">
               <input class="text hint" type="text" value="" spellcheck="false" disabled>
               <div class="iconWrapper">
@@ -49,33 +47,35 @@
               </div>
               <ul id="fileFormatMenu" class="list">
                 <li class="hint"></li>
-                <li name="LocalFilesystem">Local Filesystem</li>
+                <li name="LocalFilesystem">
+                  <%= dicts.dsExport.LocalFS %>
+                </li>
                 <li name="ODBC" class="unavailable">ODBC</li>
               </ul>
             </div>
           </div>
           <div id="targetNameSelector" class="importFormRow">
-            <label for="targetName">Name:</label>
-            <input id="targetName" name="targetName" type="text" placeholder="" autocomplete="off" pattern="^\w+$"  spellcheck="false" title="A valid name with no special characters" required>
+            <label for="targetName"><%= dicts.common.Name %>:</label>
+            <input id="targetName" name="targetName" type="text" placeholder="" autocomplete="off" pattern="^\w+$" spellcheck="false" title="<%= dicts.dsForm.fileNameTitle %>" required>
           </div>
           <!-- file name -->
         </div>
       </div>
       <!-- Bottom Form -->
       <div id="exportDataBottomForm" class="dataStoreFormBottom no-selection">
-        <h2>Add New Connector</h2>
+        <h2><%= dicts.dsExport.AddConnector %></h2>
         <div class="contentViewMidWrap">
           <div class="importFormRow">
-            <label for="exportURL">URL:</label>
+            <label for="exportURL"><%= dicts.common.URL %>:</label>
             <input type="url" id="exportURL" spellcheck="false">
           </div>
           <div class="importFormRow">
             <div class="inputSet">
-              <label for="exportService">Service:</label>
+              <label for="exportService"><%= dicts.common.Service %>:</label>
               <input type="text" id="exportService" spellcheck="false">
             </div>
             <div class="inputSet">
-              <label for="exportPort">Port:</label>
+              <label for="exportPort"><%= dicts.common.Port %>:</label>
               <input type="text" id="exportPort" spellcheck="false">
             </div>
           </div>
@@ -84,25 +84,25 @@
               <div class="radio">
                 <span class="dot"></span>
               </div>
-              <div class="label">Use windows authentication</div>
+              <div class="label"><%= dicts.dsExport.windowsAuth %></div>
             </div>
             <div class="radioWrap usernameAuth">
               <div class="radio">
                 <span class="dot"></span>
               </div>
-              <div class="label">Use specific username and password</div>
+              <div class="label"><%= dicts.dsExport.usernameAuth %></div>
             </div>
           </div>
           <div class="importFormRow">
-            <label for="userNameExport">User name:</label>
+            <label for="userNameExport"><%= dicts.common.UserName %>:</label>
             <input type="text" id="userNameExport" spellcheck="false">
           </div>
           <div class="importFormRow">
-            <label for="passwordExport">Password:</label>
+            <label for="passwordExport"><%= dicts.common.Password %>:</label>
             <input type="password" id="passwordExport" spellcheck="false">
           </div>
-          <button id="exportFormSubmit" class="btn btnMid" type="submit">ADD</button>
-          <button id="exportFormReset" class="btn btnMid btn-cancel" type="reset">CLEAR</button>
+          <button id="exportFormSubmit" class="btn btnMid" type="submit"><%= dicts.common.ADD %></button>
+          <button id="exportFormReset" class="btn btnMid btn-cancel" type="reset"><%= dicts.common.CLEAR %></button>
         </div>
       </div>
     </form>

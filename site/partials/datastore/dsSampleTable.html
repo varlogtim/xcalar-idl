@@ -1,14 +1,14 @@
 <div class="contentViewHeader">
   <div class="dbText">
-    <h2 id="dsInfo-title">Datasets</h2>
+    <h2 id="dsInfo-title"><%= dicts.ds.Datasets %></h2>
     <p>
-      Created by: <span id="dsInfo-author"></span> |
-      Dataset Modified Date: <span id="dsInfo-modifyDate"></span>
+      <%= dicts.dsTable.CreatedBy %>: <span id="dsInfo-author"></span> |
+      <%= dicts.dsTable.ModifiedDate %>: <span id="dsInfo-modifyDate"></span>
     </p>
     <p>
-      Records: <span id="dsInfo-records">12,435</span> |
-      Size: <span id="dsInfo-size">21 GB</span> |
-      Path: <span id="dsInfo-path">N/A</span>
+      <%= dicts.dsTable.Records %>: <span id="dsInfo-records">N/A</span> |
+      <%= dicts.dsTable.Size %>: <span id="dsInfo-size">N/A</span> |
+      <%= dicts.dsTable.Path %>: <span id="dsInfo-path">N/A</span>
     </p>
   </div>
 </div>
@@ -19,10 +19,10 @@
     <!-- Title Info -->
     <div class="titleInfo">
       <div class="heading">
-         <h2>Dataset Preview</h2>
+         <h2><%= dicts.dsTable.DSPreview %></h2>
       </div>
       <div class="dsInfo">
-        <span>Format:</span>
+        <span><%= dicts.ds.Format %>:</span>
         <span id="schema-format"></span>
       </div>
     </div>
@@ -31,20 +31,20 @@
       <div class="buttonWrap">
         <div id="noDScols" class="noCols modifyDSButton">
           <span class="icon"></span>
-          <span class="text">Select Columns Later</span>
+          <span class="text"><%= dicts.dsTable.SelectLater %></span>
         </div>
-        <div title="Create A Table Without Picking Any Column"
+        <div title="<%= dicts.dsTable.SelectLaterHint %>"
         data-toggle="tooltip" data-container="body" class="qMark"></div>
       </div>
       <div class="buttonWrap">
         <div id="selectDSCols" class="selectAll modifyDSButton">
           <span class="icon"></span>
-          <span class="text">Select All</span>
+          <span class="text"><%= dicts.common.SelectAll %></span>
         </div>
         <div class="divider"></div>
         <div id="clearDsCols" class="clear modifyDSButton">
           <span class="icon"></span>
-          <span class="text">Clear All</span>
+          <span class="text"><%= dicts.common.ClearAll %></span>
         </div>
       </div>
     </div>

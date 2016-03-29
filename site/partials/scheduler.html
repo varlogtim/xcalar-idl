@@ -3,21 +3,21 @@
   <div id="schedulerTopBar" class="topBar">
       <div id="dataflowButton" class="buttonArea active">
         <div class="icon"></div>
-        <div class="text">DATA FLOW GRP</div>
+        <div class="text"><%= dicts.sched.DFG %></div>
       </div>
       <div id="schedulesButton" class="buttonArea">
         <div class="icon"></div>
-        <div class="text">SCHEDULES</div>
+        <div class="text"><%= dicts.sched.SCHEDS %></div>
       </div>
       <div class="rightHeaderArea">
-        <div class="text">DETAIL</div>
+        <div class="text"><%= dicts.sched.DETAIL %></div>
       </div>
   </div>
   <div class="mainContent">
     <div id="dataflowView">
       <div class="leftContent no-selection">
         <div class="headingArea">
-          Data Flow Groups (<span class="numGroups">0</span>)
+          <%= dicts.sched.dfgs %> (<span class="numGroups">0</span>)
         </div>
         <div class="listSection"></div>
       </div>
@@ -32,7 +32,7 @@
           <div class="retTabSection no-selection hidden">
             <div class="retTab">
               <div class="tabWrap">
-                <span class="retTitle">Parameters</span>
+                <span class="retTitle"><%= dicts.sched.params %></span>
                 <div class="caret">
                   <span class="icon"></span>
                 </div>
@@ -41,16 +41,16 @@
                <div class="retPopUp">
                 <div class="divider"></div>
                 <div class="inputSection">
-                  <input class="newParam" type="text" placeholder="Input New Parameter" spellcheck="false">
+                  <input class="newParam" type="text" placeholder="<%= dicts.sched.inputNewParam %>" spellcheck="false">
                   <div class="btn addParam">
                     <span class="icon"></span>
-                    <span class="label">CREATE NEW PARAMETER</span>
+                    <span class="label"><%= dicts.sched.newParam %></span>
                   </div>
                 </div>
                 <div class="tableHeader">
-                  <div class="thWrap paramName">Parameter</div>
-                  <div class="thWrap paramVal">Value</div>
-                  <div class="thWrap paramAction">Action</div>
+                  <div class="thWrap paramName"><%= dicts.sched.param %></div>
+                  <div class="thWrap paramVal"><%= dicts.sched.val %></div>
+                  <div class="thWrap paramAction"><%= dicts.sched.action %></div>
                 </div>
                 <div class="tableContainer">
                   <div class="tableWrapper">
@@ -75,12 +75,12 @@
       <!-- leftContent -->
       <div class="leftContent">
         <div class="headingArea">
-          Schedules (<span class="num">0</span>)
+          <%= dicts.sched.scheds %> (<span class="num">0</span>)
         </div>
         <div class="mainButtonArea">
           <button id="addSchedule" class="btn btnLarge iconBtn">
             <span class="icon"></span>
-            CREATE NEW SCHEDULE
+            <%= dicts.sched.newSched %>
           </button>
         </div>
         <!-- scheduleListArea -->
@@ -98,20 +98,20 @@
           <div class="scheduleInfoSection">
             <!-- created -->
             <div class="scheduleInfo created">
-              <span class="name">Created:</span>
+              <span class="name"><%= dicts.sched.created %>:</span>
               <span class="text"></span>
             </div>
             <!-- modified -->
             <div class="scheduleInfo modified">
-              <span class="name">Last modified:</span>
+              <span class="name"><%= dicts.sched.modified %>:</span>
               <span class="text"></span>
             </div>
             <div class="scheduleInfo frequency">
-              <span class="name">Frequency:</span>
+              <span class="name"><%= dicts.sched.freq %>:</span>
               <span class="text"></span>
             </div>
             <div class="scheduleInfo recur">
-              <span class="name">Repeat Time:</span>
+              <span class="name"><%= dicts.sched.recur %>:</span>
               <span class="text"></span>
             </div>
           </div>
@@ -120,25 +120,25 @@
         <div id="scheduleTable" class="midContentTable">
           <section class="titleSection">
             <div class="titleWrapper">
-              <div class="title name">Data Flow Group Name</div>
-              <div class="title time">Initial Run Time</div>
-              <div class="title status">Status</div>
+              <div class="title name"><%= dicts.sched.dfgName %></div>
+              <div class="title time"><%= dicts.sched.initialRun %></div>
+              <div class="title status"><%= dicts.sched.status %></div>
             </div>
           </section>
           <section class="mainSection"></section>
           <section class="bottomSection">
             <div class="lastRunInfo">
-              Last Run:
+              <%= dicts.sched.lastRun %>:
               <span class="text">N/A</span>
             </div>
             <div class="nextRunInfo">
-              Next Run:
+              <%= dicts.sched.nextRun %>:
               <span class="text">N/A</span>
             </div>
             <div class="btnWrapper">
-              <button id="scheduleForm-edit" class="iconBtn btn btnMid" title="MODIFY Schedule">
+              <button id="scheduleForm-edit" class="iconBtn btn btnMid">
                 <span class="icon"></span>
-                MODIFY SCHEDULE
+                <%= dicts.sched.modifySched %>
               </button>
             </div>
           </section>
@@ -147,13 +147,13 @@
         <div id="scheduleForm" class="midContentForm new">
           <section class="content">
             <div class="nameSection">
-              <div class="text">Schedule Name:</div>
+              <div class="text"><%= dicts.sched.schedName %>:</div>
               <input class="name textOverflow" type="text" placeholder="please input schedule name" spellcheck="false" >
             </div>
             <div class="divider"></div>
             <!-- time section -->
             <div class="timeSection" id="startTimeSection">
-              <div class="text">Start Time:</div>
+              <div class="text"><%= dicts.sched.startTime %>:</div>
               <div class="datePickerPart">
                 <input class="date" type="text" spellcheck="false">
               </div>
@@ -162,8 +162,8 @@
                 <!-- Timepicker -->
                 <div id="scheduler-timePicker"class="timePicker">
                   <div class="textSection">
-                    <span class="text">Hour</span>
-                    <span class="text">Minute</span>
+                    <span class="text"><%= dicts.sched.hour %></span>
+                    <span class="text"><%= dicts.sched.min %></span>
                   </div>
                   <div class="buttonSection">
                     <button class="btn btnMid increase hour">
@@ -180,10 +180,8 @@
                     </button>
                   </div>
                   <div class="inputSection">
-                    <input class="hour" type="text" disabled
-                      spellcheck="false">
-                    <input class="minute" type="text" disabled
-                      spellcheck="false">
+                    <input class="hour" type="text" spellcheck="false" disabled>
+                    <input class="minute" type="text" spellcheck="false" disabled>
                     <span class="ampm">PM</span>
                   </div>
                   <div class="buttonSection">
@@ -207,36 +205,36 @@
             <div class="frequencySection">
               <!-- part1 -->
               <div class="freq1">
-                <div class="title">Frequency:</div>
+                <div class="title"><%= dicts.sched.freq %>:</div>
                 <div class="radioWrap" data-option="minute">
                   <div class="radio checked">
                     <span class="dot"></span>
                   </div>
-                  <div class="label">Every Minute</div>
+                  <div class="label"><%= dicts.sched.perMin %></div>
                 </div>
                 <div class="radioWrap" data-option="hourly">
                   <div class="radio checked">
                     <span class="dot"></span>
                   </div>
-                  <div class="label">Hourly</div>
+                  <div class="label"><%= dicts.sched.hourly %></div>
                 </div>
                 <div class="radioWrap" data-option="daily">
                   <div class="radio">
                     <span class="dot"></span>
                   </div>
-                  <div class="label">Daily</div>
+                  <div class="label"><%= dicts.sched.daily %></div>
                 </div>
                 <div class="radioWrap" data-option="weekly">
                   <div class="radio">
                     <span class="dot"></span>
                   </div>
-                  <div class="label">Weekly</div>
+                  <div class="label"><%= dicts.sched.weekly %></div>
                 </div>
                 <div class="radioWrap" data-option="biweekly">
                   <div class="radio">
                     <span class="dot"></span>
                   </div>
-                  <div class="label">Biweekly</div>
+                  <div class="label"><%= dicts.sched.biweekly %></div>
                 </div>
                 <!-- <div class="radioWrap" data-option="monthly">
                   <div class="radio">
@@ -291,18 +289,13 @@
             <!-- divider -->
             <div class="divider"></div>
             <div class="recurSection">
-              <div class="text">Number of Runs:</div>
-              <input type="number" spellcheck="false"
-                placeholder="how many times to run this">
+              <div class="text"><%= dicts.sched.numRun %>:</div>
+              <input type="number" spellcheck="false" placeholder="<%= dicts.sched.numRunHint %>">
             </div>
           </section>
           <section class="buttonArea">
-            <button id="scheduleForm-cancel" type="button" class="btn btnMid cancel">
-              CANCEL
-            </button>
-            <button id="scheduleForm-save" type="button" class="btn btnMid confirm">
-              SAVE
-            </button>
+            <button id="scheduleForm-cancel" type="button" class="btn btnMid cancel"><%= dicts.common.CANCEL %></button>
+            <button id="scheduleForm-save" type="button" class="btn btnMid confirm"><%= dicts.common.SAVE %></button>
           </section>
         </div>
         <div class="midContentBottom"></div>

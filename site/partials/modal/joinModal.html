@@ -2,7 +2,7 @@
 <div id="joinModal" class="modalContainer">
   <!-- Join Modal Header -->
   <header id="joinHeader" class="modalHeader">
-    <span class="text">Join Tables</span>
+    <span class="text"><%= dicts.joinModdal.header %></span>
     <div id="closeJoin" class="close">
       <span class="icon"></span>
     </div>
@@ -10,27 +10,22 @@
   <!-- Jonin Modal Instrunction Section -->
   <section id="joinInstr" class="modalInstruction">
     <div class="icon"></div>
-    <div class="text">
-      First, select the column from the left table that you would like to join
-      on. <br>
-      Next, select the table followed by the column from the right that you
-      would like to join on.
-    </div>
+    <div class="text"><%= dicts.joinModdal.instr %></div>
   </section>
   <!-- Join Modal Input Section -->
   <section class="modalTopMain">
-    <div class="text">New Table Name:</div>
+    <div class="text"><%= dicts.joinModdal.NewTableName %>:</div>
     <input id="joinRoundedInput" type="textbox" required spellcheck="false" autofocus>
     <div id="joinType" class="dropDownList">
-      <div class="text">Inner Join</div>
+      <div class="text"><%= dicts.joinModdal.InnerJoin %></div>
       <div class="iconWrapper">
           <div class="icon"></div>
       </div>
       <ul id="joinTypeSelect" class="list">
-        <li>Inner Join</li>
-        <li>Left Outer Join</li>
-        <li>Right Outer Join</li>
-        <li>Full Outer Join</li>
+        <li><%= dicts.joinModdal.InnerJoin %></li>
+        <li><%= dicts.joinModdal.LeftJoin %></li>
+        <li><%= dicts.joinModdal.RightJoin %></li>
+        <li><%= dicts.joinModdal.FullJoin %></li>
       </ul>
     </div>
     <div id="multiJoinBtn" data-container="body" data-toggle="tooltip">
@@ -50,12 +45,8 @@
     <!-- left join -->
     <div id="leftJoin" class="joinContainer">
       <div class="tableText">
-        <span class="text">Left Table</span>
-        <button class="smartSuggest btn"
-          title="Suggest a key in left table to match right table"
-          data-toggle="tooltip" data-placement="top" data-container="body">
-          Smart Suggest
-        </button>
+        <span class="text"><%= dicts.joinModdal.LeftTable %></span>
+        <button class="smartSuggest btn" title="<%= dicts.joinModdal.SuggLeftHint %>" data-toggle="tooltip" data-placement="top" data-container="body"><%= dicts.joinModdal.SmartSuggBtn %></button>
         <span class="suggError">e</span>
       </div>
       <div class="mainTable">
@@ -73,8 +64,8 @@
     <div id="multiJoin" class="joinContainer">
       <div class="tableText"></div>
       <div class="mainTable">
-        <div class="title">Multi Clause Join</div>
-        <div class="instruction">Drap and drop columns to join</div>
+        <div class="title"><%= dicts.joinModdal.MultiJoin %></div>
+        <div class="instruction"><%= dicts.joinModdal.MultiJoinInstr %></div>
         <div class="clauseArea">
            <div class="joinClause placeholder">
             <div class="clause leftClause">
@@ -99,13 +90,8 @@
     <!-- right join -->
     <div id="rightJoin" class="joinContainer">
       <div class="tableText">
-        <span class="text">Right Table</span>
-        <button class="smartSuggest btn"
-        title="Suggest a key in right table to match left table"
-        data-toggle="tooltip" data-placement="top"
-        data-container="body">
-          Smart Suggest
-        </button>
+        <span class="text"><%= dicts.joinModdal.RightTable %></span>
+        <button class="smartSuggest btn" title="<%= dicts.joinModdal.SuggRightHint %>" data-toggle="tooltip" data-placement="top" data-container="body"><%= dicts.joinModdal.SmartSuggBtn %></button>
         <span class="suggError">e</span>
       </div>
       <div class="mainTable">
@@ -122,12 +108,8 @@
   </section>
   <!-- Join Modal Button Section -->
   <section id="joinActions" class="modalBottom">
-    <button id="joinTables" class="btn btnMid confirm" type="button">
-      JOIN TABLES
-    </button>
-    <button id="cancelJoin" class="btn btnMid cancel" type="button">
-      CANCEL JOIN
-    </button>
+    <button id="joinTables" class="btn btnMid confirm" type="button"><%= dicts.joinModdal.CONFIRM %></button>
+    <button id="cancelJoin" class="btn btnMid cancel" type="button"><%= dicts.common.CANCEL %></button>
   </section>
 </div>
 <!-- End Of Join Modal -->

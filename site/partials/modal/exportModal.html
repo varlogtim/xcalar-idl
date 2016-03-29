@@ -2,7 +2,7 @@
 <div id="exportModal" class="modalContainer">
   <!-- Export Modal Header -->
   <header class="modalHeader">
-    <span class="text">Export Table</span>
+    <span class="text"><%= dicts.exportModal.header %></span>
     <div class="close">
       <span class="icon"></span>
     </div>
@@ -10,59 +10,46 @@
   <!-- Export Modal Instruction -->
   <section class="modalInstruction">
     <div class="icon"></div>
-    <div class="text">
-      Please fill in the file name, choose where to export, and select the colums you wish to export.
-    </div>
+    <div class="text"><%= dicts.exportModal.instr %></div>
   </section>
   <!-- Export Modal Top Section-->
   <section class="modalTopMain">
     <!-- export name section -->
     <div class="exportNameSection formRow">
-        <span class="label">Export As:</span>
+        <span class="label"><%= dicts.exportModal.ExportAs %>:</span>
         <input id="exportName" class="text" type="text" spellcheck="false" required>
     </div>
     <!-- export path section -->
     <div class="exportPathSection formRow">
-      <span class="label">Location:</span>
+      <span class="label"><%= dicts.exportModal.Location %>:</span>
       <div id="exportLists" class="dropDownList">
           <input id="exportPath" class="text" type="text" value="Local Filesystem" spellcheck="false" disabled>
           <div class="iconWrapper">
               <span class="icon"></span>
           </div>
           <div class="list">
-            <ul>
-              <li class="hint">Choose a connector</li>
-              <li>Google BigQuery</li>
-              <li>Amazon RedShift</li>
-              <li>Amazon S3</li>
-              <li>HDFS</li>
-              <li>Local Filesystem</li>
-              <li>Oracle Exadata</li>
-              <li>HP Vertica</li>
-              <li>Teradata</li>
-            </ul>
-            <div class="scrollArea top"><div class="arrow"></div></div>
-            <div class="scrollArea bottom"><div class="arrow"></div></div>
+            <ul></ul>
+            <div class="scrollArea top">
+              <div class="arrow"></div>
+            </div>
+            <div class="scrollArea bottom">
+              <div class="arrow"></div>
+            </div>
           </div>
         </div>
     </div>
     <div class="exportColumnsSection formRow">
-      <span class="label">Columns:</span>
-      <input id="exportColumns" type="text" placholder="column1, column2 etc." spellcheck="false" required>
-      <div class="clearInput iconWrap"><span class="icon"></span></div>
+      <span class="label"><%= dicts.exportModal.Columns %>:</span>
+      <input id="exportColumns" type="text" placeholder="<%= dicts.exportModal.ColumnsHint %>" spellcheck="false" required>
+      <div class="clearInput iconWrap">
+        <span class="icon"></span>
+      </div>
     </div>
-  </section>
-  <!-- Export Modal Main Section -->
-  <section class="modalMain">
-    <!-- <button id="go">go</button> -->
- <!--    Selected columns: -->
-    <!-- <div class="columnsSelected">All</div>
-    <div class="selectAll">select all</div> -->
   </section>
   <!-- Button Section -->
   <section class="modalBottom">
-    <button type="button" class="btn btnMid confirm">EXPORT</button>
-    <button type="button" class="btn btnMid cancel">CANCEL</button>
+    <button type="button" class="btn btnMid confirm"><%= dicts.exportModal.CONFIRM %></button>
+    <button type="button" class="btn btnMid cancel"><%= dicts.common.CANCEL %></button>
   </section>
 </div>
 <!-- End of Export Modal -->

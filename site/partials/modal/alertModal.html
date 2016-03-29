@@ -18,8 +18,7 @@
     <div class="options">
       <span id="alertOptionLabel" class="label"></span>
       <div class="dropDownList">
-          <input id="alertOptionInput" type="text" spellcheck="false"
-                 placeholder="click to see options">
+          <input id="alertOptionInput" type="text" spellcheck="false" placeholder="<%= dicts.alertModal.optionHint %>">
           <ul id="alertlist" class="list"></ul>
       </div>
     </div>
@@ -28,13 +27,13 @@
   <section id="alertOption" class="modalMain">
     <div id="alertCheckBox">
       <div class="checkbox"></div>
-      <div class="text">Don't show again</div>
+      <div class="text"><%= dicts.alertModal.checkBox %></div>
     </div>
   </section>
   <!-- Button Section -->
   <section id="alertActions" class="modalBottom">
-    <button type="button" class="btn btnMid confirm">CONFIRM</button>
-    <button type="button" class="btn btnMid cancel">CANCEL</button>
+    <button type="button" class="btn btnMid confirm"><%= dicts.common.CONFIRM %></button>
+    <button type="button" class="btn btnMid cancel"><%= dicts.common.CANCEL %></button>
   </section>
 </div>
 <!-- End of Alert Modal -->

@@ -5,7 +5,7 @@
       <!-- Info Section 1 -->
       <div class="infoPart1">
         <!-- minimize -->
-        <div id="preview-minimize" class="minimize" title="Toggle minimize" data-toggle="tooltip" data-placement="top" data-container="body">
+        <div id="preview-minimize" class="minimize" title="<%= dicts.dsPreview.minize %>" data-toggle="tooltip" data-placement="top" data-container="body">
           <div class="divider"></div>
           <div class="divider"></div>
           <div class="divider"></div>
@@ -14,39 +14,39 @@
       <!-- Info Section 2 -->
       <div class="infoPart2">
         <section class="titleSection textOverflowOneLine">
-          <span class="title">Previewing:</span>
+          <span class="title"><%= dicts.dsPreview.Previewing %>:</span>
           <span id="preview-url" class="text"></span>
-          <span id="preview-udf" class="title">UDF:
+          <span id="preview-udf" class="title"><%= dicts.common.UDF %>:
             <span class="text"></span>
           </span>
         </section>
         <section class="btnSection">
-          <button id="preview-close" class="btn btnMid btn-cancel close loadHidden" type="button">EXIT</button>
-          <button id="preview-apply" class="btn btnMid save loadHidden" type="button">SAVE & EXIT</button>
+          <button id="preview-close" class="btn btnMid btn-cancel close loadHidden" type="button"><%= dicts.common.EXIT %></button>
+          <button id="preview-apply" class="btn btnMid save loadHidden" type="button"><%= dicts.common.SAVEEXIT %></button>
         </section>
       </div>
     </div>
     <!-- Waiting Part -->
     <div class="waitSection hidden">
       <div class="icon"></div>
-      <div class="text">DATASET IS LOADING...</div>
+      <div class="text"><%= dicts.dsPreview.LOAD %>...</div>
     </div>
     <!-- Error Message Part -->
     <div class="errorSection loadError hidden"></div>
     <!-- Suggestion Section -->
     <div class="suggestSection loadHidden no-selection">
       <section id="previewSugg" class="suggestPart">
-        <div class="title">Suggestion:</div>
+        <div class="title"><%= dicts.common.Sugg %>:</div>
         <div class="content"></div>
       </section>
       <!-- highlight icon -->
         <section class="iconPart">
           <!-- remove highlight icon -->
-          <div id="preview-rmHightlight" class="rmHightLight iconWrapper" title="Remove highlights" data-toggle="tooltip" data-placement="top" data-container="body">
+          <div id="preview-rmHightlight" class="rmHightLight iconWrapper" title="<%= dicts.dsPreview.RmHighlight %>" data-toggle="tooltip" data-placement="top" data-container="body">
             <span class="icon"></span>
           </div>
           <!-- apply highlight icon -->
-          <div id="preview-highlight" class="highlight iconWrapper" title="Apply highlighted characters as delimiter" data-toggle="tooltip" data-placement="top" data-container="body">
+          <div id="preview-highlight" class="highlight iconWrapper" title="<%= dicts.dsPreview.ApplyHighlight %>" data-toggle="tooltip" data-placement="top" data-container="body">
             <span class="icon"></span>
           </div>
         </section>
@@ -57,7 +57,7 @@
         <!-- Preview Part -->
         <div class="datasetTbodyWrap loadHidden">
           <table id="previewTable" class="datasetTable dataTable"></table>
-          <div class="previewBottom">End of Preview</div>
+          <div class="previewBottom"><%= dicts.dsPreview.EndOfPreview %></div>
         </div>
       </div>
     </div>

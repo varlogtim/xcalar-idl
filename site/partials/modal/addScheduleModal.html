@@ -2,7 +2,7 @@
 <div id="addScheduleModal" class="modalContainer">
   <!-- AddSchedule Modal Header -->
   <header class="modalHeader">
-    <span class="text">Add Schedule</span>
+    <span class="text"><%= dicts.addSchedModal.header %></span>
     <div class="close">
       <span class="icon"></span>
     </div>
@@ -10,23 +10,20 @@
   <!-- AddSchedule Modal Instruction -->
   <section class="modalInstruction">
     <div class="icon"></div>
-    <div class="text">
-        Select a schedule to add to the Data Flow Group. Or you can also create a new schedule.
-    </div>
+    <div class="text"><%= dicts.addSchedModal.instr %></div>
   </section>
   <!-- AddSchedule Main Section -->
   <section class="modalTopMain">
     <!-- schedule info section -->
     <div class="scheInfoSection">
-      <h3>Attached schedules:</h3>
+      <h3><%= dicts.addSchedModal.AttachedSched %>:</h3>
       <div class="text">N/A</div>
     </div>
     <!-- select schedule section -->
     <div class="selectScheSection">
-      <h3>Select a schedule:</h3>
+      <h3><%= dicts.addSchedModal.SelectSched %>:</h3>
       <div class="dropDownList scheduleList">
-        <input class="text focusable scheduleListInput" type="text" value=""
-          spellcheck="false" disabled>
+        <input class="text focusable scheduleListInput" type="text" value="" spellcheck="false" disabled>
         <div class="iconWrapper">
             <span class="icon"></span>
         </div>
@@ -43,16 +40,16 @@
     </div>
     <!-- create new schedule section -->
     <div class="newScheSection">
-      <h3>Create a new schedule:</h3>
+      <h3><%= dicts.addSchedModal.CreateNew %>:</h3>
       <div>
-        <button type="button" class="btn btnMid createNewSchedule">create new schedule</button>
+        <button type="button" class="btn btnMid createNewSchedule"><%= dicts.addSchedModal.CreateNewBtn %></button>
       </div>
     </div>
   </section>
   <!-- Button Section -->
   <section class="modalBottom">
-    <button type="button" class="btn btnMid confirm">SAVE</button>
-    <button type="button" class="btn btnMid cancel">CANCEL</button>
+    <button type="button" class="btn btnMid confirm"><%= dicts.common.SAVE %></button>
+    <button type="button" class="btn btnMid cancel"><%= dicts.common.CANCEL %></button>
   </section>
 </div>
 <!-- End of AddSchedule Modal -->

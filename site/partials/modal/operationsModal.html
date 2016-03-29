@@ -2,7 +2,7 @@
 <div id="operationsModal" class="modalContainer">
   <!-- Header -->
   <div class="modalHeader operationsModalHeader ">
-    <span class="text">Select Your Operation</span>
+    <span class="text"></span>
     <div class="minimize headerBtn">
       <span class="icon"></span>
     </div>
@@ -16,11 +16,7 @@
   <!-- Instruction -->
   <div class="modalInstruction">
     <div class="icon"></div>
-    <div class="text"> Select a category (e.g Arithmetic Functions).
-    Then select a specific function, e.g. add.
-    Finally, enter in any arguments if applicable. Column names should be
-    preceded by a $ sign, e.g. $column1.
-    </div>
+    <div class="text"><%= dicts.opsModal.instr %></div>
   </div>
   <!-- StepChain -->
   <div class="stepChain">
@@ -57,29 +53,33 @@
   <div class="modalTopMain clearfix">
     <!-- Category Section -->
     <section class="step">
-      <b>Category: </b>
+      <b><%= dicts.common.Category %>: </b>
       <div id="categoryList" class="dropDownList">
-        <input class="text autocomplete" placeholder="aggregate"
-        spellcheck="false" tabindex="10" required>
+        <input class="text autocomplete" placeholder="aggregate" spellcheck="false" tabindex="10" required>
         <div class="iconWrapper dropdown">
           <span class="icon"></span>
         </div>
         <div id="categoryMenu" class="list">
           <ul>
-            <li class="all">all</li>
+            <li class="all">
+              <%= dicts.common.all %>
+            </li>
           </ul>
-          <div class="scrollArea top"><div class="arrow"></div></div>
-          <div class="scrollArea bottom"><div class="arrow"></div></div>
+          <div class="scrollArea top">
+            <div class="arrow"></div>
+          </div>
+          <div class="scrollArea bottom">
+            <div class="arrow"></div>
+          </div>
         </div>
       </div>
     </section>
     <div class="border"></div>
     <!-- Function Section -->
     <section class="step inactive">
-      <b>Function: </b>
+      <b><%= dicts.common.Func %>: </b>
       <div id="functionList" class="dropDownList">
-        <input class="text autocomplete"
-        tabindex="10" spellcheck="false" disabled required>
+        <input class="text autocomplete" tabindex="10" spellcheck="false" disabled required>
         <div class="iconWrapper dropdown">
           <span class="icon"></span>
         </div>
@@ -98,15 +98,23 @@
   </div>
   <!-- Modal Main -->
   <div class="modalMain step inactive">
-    <b>Description of Function:</b>
+    <b><%= dicts.opsModal.DescripFunc %>:</b>
     <div class="argumentSection">
       <p class="descriptionText">N/A</p>
-      <b class="argumentListTitle">Argument List:</b>
+      <b class="argumentListTitle"><%= dicts.opsModal.ArgList %>:</b>
       <div class="tableHeader">
-        <div class="thWrap"><div class="text">Argument</div></div>
-        <div class="thWrap cast"><div class="text">Cast</div></div>
-        <div class="thWrap descCell"><div class="text">Description</div></div>
-        <div class="thWrap"><div class="text">Empty</div></div>
+        <div class="thWrap">
+          <div class="text"><%= dicts.common.Arg %></div>
+        </div>
+        <div class="thWrap cast">
+          <div class="text"><%= dicts.common.Cast %></div>
+        </div>
+        <div class="thWrap descCell">
+          <div class="text"><%= dicts.common.Descrip %></div>
+        </div>
+        <div class="thWrap">
+          <div class="text"><%= dicts.common.Empty %></div>
+        </div>
       </div>
       <div class="tableContainer">
         <div class="tableWrapper">
@@ -131,8 +139,7 @@
                       <div class="iconWrapper dropdown">
                         <span class="icon"></span>
                       </div>
-                      <ul class="list">
-                      </ul>
+                      <ul class="list"></ul>
                    </div>
                 </td>
                 <td class="descCell">
@@ -140,8 +147,7 @@
                 </td>
                 <td>
                   <div class="checkboxWrap">
-                    <span class="checkbox" data-container="body"
-                    data-toggle="tooltip" title="select to allow empty field"></span>
+                    <span class="checkbox" data-container="body" data-toggle="tooltip" title="<%= dicts.opsModal.EmptyHint %>"></span>
                   </div>
                 </td>
               </tr>
@@ -150,8 +156,7 @@
                 <td>
                   <div class="inputWrap">
                      <div class="dropDownList">
-                      <input class="argument" type="text" tabindex="10"
-                            spellcheck="false">
+                      <input class="argument" type="text" tabindex="10" spellcheck="false">
                       <div class="argIconWrap">
                         <span class="icon"></span>
                       </div>
@@ -165,8 +170,7 @@
                       <div class="iconWrapper dropdown">
                         <span class="icon"></span>
                       </div>
-                      <ul class="list">
-                      </ul>
+                      <ul class="list"></ul>
                    </div>
                 </td>
                 <td class="descCell">
@@ -174,8 +178,7 @@
                 </td>
                 <td>
                   <div class="checkboxWrap">
-                    <span class="checkbox" data-container="body"
-                    data-toggle="tooltip" title="select to allow empty field"></span>
+                    <span class="checkbox" data-container="body" data-toggle="tooltip" title="<%= dicts.opsModal.EmptyHint %>"></span>
                   </div>
                 </td>
               </tr>
@@ -184,8 +187,7 @@
                 <td>
                   <div class="inputWrap">
                      <div class="dropDownList">
-                      <input class="argument" type="text" tabindex="10"
-                            spellcheck="false">
+                      <input class="argument" type="text" tabindex="10" spellcheck="false">
                       <div class="argIconWrap">
                         <span class="icon"></span>
                       </div>
@@ -208,8 +210,7 @@
                 </td>
                 <td>
                   <div class="checkboxWrap">
-                    <span class="checkbox" data-container="body"
-                    data-toggle="tooltip" title="select to allow empty field"></span>
+                    <span class="checkbox" data-container="body" data-toggle="tooltip" title="<%= dicts.opsModal.EmptyHint %>"></span>
                   </div>
                 </td>
               </tr>
@@ -218,15 +219,18 @@
                 <td>
                   <div class="inputWrap">
                      <div class="dropDownList">
-                      <input class="argument" type="text" tabindex="10"
-                            spellcheck="false">
+                      <input class="argument" type="text" tabindex="10" spellcheck="false">
                       <div class="argIconWrap">
                         <span class="icon"></span>
                       </div>
                       <div class="list hint">
                         <ul></ul>
-                        <div class="scrollArea top"><div class="arrow"></div></div>
-                        <div class="scrollArea bottom"><div class="arrow"></div></div>
+                        <div class="scrollArea top">
+                          <div class="arrow"></div>
+                        </div>
+                        <div class="scrollArea bottom">
+                          <div class="arrow"></div>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -246,8 +250,7 @@
                 </td>
                 <td class="descCell">
                   <div class="checkboxWrap">
-                    <span class="checkbox" data-container="body"
-                    data-toggle="tooltip" title="select to allow empty field"></span>
+                    <span class="checkbox" data-container="body" data-toggle="tooltip" title="<%= dicts.opsModal.EmptyHint %>"></span>
                   </div>
                 </td>
               </tr>
@@ -256,15 +259,18 @@
                 <td>
                   <div class="inputWrap">
                     <div class="dropDownList udfSection">
-                      <input class="argument text textNoCap" type="text"
-                            spellcheck="false" disabled>
+                      <input class="argument text textNoCap" type="text" spellcheck="false" disabled>
                       <div class="iconWrapper">
                         <span class="icon"></span>
                       </div>
                       <div class="list">
                         <ul></ul>
-                        <div class="scrollArea top"><div class="arrow"></div></div>
-                        <div class="scrollArea bottom"><div class="arrow"></div></div>
+                        <div class="scrollArea top">
+                          <div class="arrow"></div>
+                        </div>
+                        <div class="scrollArea bottom">
+                          <div class="arrow"></div>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -275,8 +281,7 @@
                       <div class="iconWrapper dropdown">
                         <span class="icon"></span>
                       </div>
-                      <ul class="list">
-                      </ul>
+                      <ul class="list"></ul>
                    </div>
                 </td>
                 <td class="descCell">
@@ -284,8 +289,7 @@
                 </td>
                 <td>
                   <div class="checkboxWrap">
-                    <span class="checkbox" data-container="body"
-                    data-toggle="tooltip" title="select to allow empty field"></span>
+                    <span class="checkbox" data-container="body" data-toggle="tooltip" title="<%= dicts.opsModal.EmptyHint %>"></span>
                   </div>
                 </td>
               </tr>
@@ -294,15 +298,18 @@
                 <td>
                   <div class="inputWrap">
                     <div class="dropDownList udfSection">
-                      <input class="argument text textNoCap" type="text"
-                              tabindex="10" spellcheck="false">
+                      <input class="argument text textNoCap" type="text" tabindex="10" spellcheck="false">
                       <div class="iconWrapper">
                         <span class="icon"></span>
                       </div>
                       <div class="list">
                         <ul></ul>
-                        <div class="scrollArea top"><div class="arrow"></div></div>
-                        <div class="scrollArea bottom"><div class="arrow"></div></div>
+                        <div class="scrollArea top">
+                          <div class="arrow"></div>
+                        </div>
+                        <div class="scrollArea bottom">
+                          <div class="arrow"></div>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -313,8 +320,7 @@
                       <div class="iconWrapper dropdown">
                         <span class="icon"></span>
                       </div>
-                      <ul class="list">
-                      </ul>
+                      <ul class="list"></ul>
                    </div>
                 </td>
                 <td class="descCell">
@@ -322,8 +328,7 @@
                 </td>
                 <td>
                   <div class="checkboxWrap">
-                    <span class="checkbox" data-container="body"
-                    data-toggle="tooltip" title="select to allow empty field"></span>
+                    <span class="checkbox" data-container="body" data-toggle="tooltip" title="<%= dicts.opsModal.EmptyHint %>"></span>
                   </div>
                 </td>
               </tr>
@@ -335,8 +340,8 @@
   </div>
   <!-- Modal Bottom -->
   <div class="modalBottom clearfix">
-    <button class="btn btnMid confirm" tabindex="11">APPLY</button>
-    <button class="btn btnMid cancel" tabindex="10">CANCEL</button>
+    <button class="btn btnMid confirm" tabindex="11"><%= dicts.opsModal.CONFIRM %></button>
+    <button class="btn btnMid cancel" tabindex="10"><%= dicts.common.CANCEL %></button>
   </div>
 </div>
 <!-- END OPERATIONS MODAL -->

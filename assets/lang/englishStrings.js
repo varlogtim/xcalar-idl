@@ -78,7 +78,10 @@ CommonTxtTstr = {
     'SupportBundleMsg': 'Support upload bundle id <id> successfully generated! ' +
                         'It is located on your Xcalar Server at <path>',
     'SuppoortBundleFail': 'Generation failed',
-    'OpFail': 'Operation Failed'
+    'OpFail': 'Operation Failed',
+    'SAVE': 'SAVE',
+    'NEXT': 'NEXT',
+    'Preview': 'Preview'
 };
 
 ErrTStr = {
@@ -277,7 +280,8 @@ ExportTStr = {
     'Success': 'Export Success',
     'SuccessMsg': 'File Name: <file>.csv\n File Location: <location>',
     'SuccessInstr': 'Table \"<table>\" was succesfully exported to <location> ' +
-                    'under the name: <file>.csv'
+                    'under the name: <file>.csv',
+    'ExportOfCol': 'Export columns of <table>'
 };
 
 MultiCastTStr = {
