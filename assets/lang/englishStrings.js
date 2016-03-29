@@ -13,7 +13,7 @@ StatusMessageTStr = {
 'JoinFailed' : 'Join table failed',
 'DeleteTable' : 'Deleting table',
 'DeleteTableFailed': 'Delete table failed',
-'CouldNotDelete' : 'could not be deleted',
+'CouldNotDelete' : 'Could not be deleted',
 'ExportTable' : 'Exporting table',
 'ExportFailed' : 'Export failed',
 'Aggregate' : 'Performing Aggregate',
@@ -43,7 +43,7 @@ TooltipTStr = {
     'ComingSoon': 'Coming Soon',
     'FocusColumn': 'Focused Column',
     'ChooseUdfModule': 'Please choose a module first',
-    'ChooeseColToExport': 'Please Selected Columns you want to export',
+    'ChooseColToExport': 'Please select the columns you want to export',
     'NoJoin': 'Cannot join <type>',
     'SuggKey': 'Suggested Key',
     'NoWSToMV': 'no worksheet to move to',
@@ -67,7 +67,7 @@ CommonTxtTstr = {
     'DefaultVal': 'Default Value',
     'HoldToDrag': 'click and hold to drag',
     'IntFloatOnly': 'Integer/Float Only',
-    'NumCol': 'number of column',
+    'NumCol': 'number of columns',
     'Exit': 'Exit',
     'ClickToOpts': 'click to see options',
     'BackToOrig': 'Back to original',
@@ -133,7 +133,7 @@ ErrTStr = {
                             'please choose another name.',
 
     'InvalidWSInList': 'Invalid worksheet name, please choose a ' +
-                        'worksheet in the pop up list.',
+                        'worksheet from the pop up list.',
 
     'OnlyNumber': 'Please input a number.',
 
@@ -177,7 +177,7 @@ ErrTStr = {
 
     'PreservedName': 'This name is preserved, please use another name.',
 
-    'InvalidWin': 'Cannot window a unsorted table'
+    'InvalidWin': 'Cannot window an unsorted table'
 };
 
 ErrWRepTStr = {
@@ -216,8 +216,8 @@ TipsTStr = {
         'data cart. Click on column headings to further modify the column.',
     'Datacart': 'Datacart area, you can add columns from datasets into your ' +
                 'cart. These columns will be used to create the table in your ' +
-                'active worksheet. You can add columns in the worksheet ' +
-                'screen too.',
+                'active worksheet. You can also add columns in the worksheet ' +
+                'screen.',
     'PullRightsidebar': 'Click to open and close side bar',
     'TablList': 'Click to see details',
     'PullColumn': 'Click key to add the column to your table'
@@ -299,7 +299,7 @@ WKBKTStr = {
     'Location': 'Workbook Browser',
     'NewWKBK': 'New Workbook',
     'NewWKBKInstr': 'Hello <b><user></b>, ' +
-                    ' you have no workbook yet, you can create new workbook, ' +
+                    ' you do not have a workbook yet. You can create new workbook, ' +
                     'continue a workbook or copy a workbook',
     'CurWKBKInstr': 'Hello <b><user></b>, ' +
                     'current workbook is <b><workbook></b>',

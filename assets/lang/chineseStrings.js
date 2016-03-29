@@ -42,7 +42,7 @@ TooltipTStr = {
 'ComingSoon': '快来了',
 'FocusColumn': '重点列',
 'ChooseUdfModule': '请首先选择一个模块',
-'ChooeseColToExport': '请选定列要导出',
+'ChooseColToExport': '请选定列要导出',
 'NoJoin': 'Knnot接合<type>',
 'SuggKey': '建议重点',
 'NoWSToMV': '没有工作表移动到',

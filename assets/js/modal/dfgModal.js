@@ -279,7 +279,7 @@ window.DataFlowModal = (function($, DataFlowModal) {
         if ($ths.length === 0) {
             var $tablePadding = $dfExport.find(".tablePadding");
             $tablePadding.tooltip({
-                "title"    : TooltipTStr.ChooeseColToExport,
+                "title"    : TooltipTStr.ChooseColToExport,
                 "placement": "top",
                 "animation": "true",
                 "container": "#dataFlowModal",

@@ -72,7 +72,7 @@ function thriftLog() {
         }
 
         thriftError.error = "Error: " + error;
-
+        console.error('(╯°□°）╯︵ ┻━┻' + msg);
         errorLists.push(thriftError);
 
         var alertError;

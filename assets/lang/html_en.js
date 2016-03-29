@@ -83,7 +83,7 @@ module.exports = {
         'user': 'User',
         'tutorUser':  'John Smith',
         'signInAs': 'Signed in as',
-        'Vikram': 'Vikram Joshi',
+        'unknown': 'unknown',
         'signOut': 'Sign out'
     },
 
@@ -157,60 +157,17 @@ module.exports = {
     },
 
     WSTStr : {
-        'SearchTableAndColumn': 'search for a table or column',
-        'WSName': 'Worksheet Name',
-        'WSHidden': 'worksheet is hidden',
-        'InvalidWSName': 'Invalid worksheet name',
-        'InvalidWSNameErr': 'please input a valid name!',
-        'AddOrphanFail': 'Add Orphaned Table Failed',
-        'AddWSFail': 'Cannot Create Worksheet',
-        'AddWSFailMsg': 'There are too many worksheets in the panel',
-        'DelWS': 'Delete Worksheet',
-        'DelWSMsg': 'There are active tables in this worksheet. ' +
-                    'How would you like to handle them?',
-
+        'WSName': 'Worksheet Name'
     },
 
     CommonTxtTstr : {
-        'XcWelcome': 'Have fun with Xcalar Insight!',
-        'Create': 'Create',
-        'Continue': 'Continue',
-        'Copy': 'Copy',
-        'DefaultVal': 'Default Value',
-        'HoldToDrag': 'click and hold to drag',
-        'IntFloatOnly': 'Integer/Float Only',
-        'NumCol': 'number of column',
-        'Exit': 'Exit',
         'ClickToOpts': 'click to see options',
         'BackToOrig': 'Back to original',
-        'Optional': 'Optional',
-        'LogoutWarn': 'Please logout or you may lose unsaved work.',
-        'SupportBundle': 'Support Bundle Generated',
-        'SupportBundleInstr': 'Please check your backend for a .tar.gz file',
-        'SupportBundleMsg': 'Support upload bundle id <id> successfully generated! ' +
-                            'It is located on your Xcalar Server at <path>',
-        'SuppoortBundleFail': 'Generation failed',
-        'OpFail': 'Operation Failed'
+        'Optional': 'Optional'
     },
 
     TooltipTStr : {
-        'ComingSoon': 'Coming Soon',
-        'FocusColumn': 'Focused Column',
-        'ChooseUdfModule': 'Please choose a module first',
-        'ChooeseColToExport': 'Please Selected Columns you want to export',
-        'NoJoin': 'Cannot join <type>',
-        'SuggKey': 'Suggested Key',
-        'NoWSToMV': 'no worksheet to move to',
-        'NoExport': 'Cannot export column of type <type>',
-        'Undo': 'Undo: <op>',
-        'NoUndo': 'Last operation is "<op>", cannot undo',
-        'NoUndoNoOp': 'No operation to undo',
-        'Redo': 'Redo: <op>',
-        'NoRedo': 'No operation to redo',
-        'CloseQG': 'click to hide query graph',
-        'OpenQG': 'click to view query graph',
-        'Bookmark': 'click to add bookmark',
-        'Bookmarked': 'bookmarked'
+        'NoWSToMV': 'no worksheet to move to'
     },
 
     workspaceBar: {
