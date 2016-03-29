@@ -1,44 +1,55 @@
-.PHONY: all
+.PHONY: all installer render build removeConfig alert generateHtml
+
+export PATH:=$(PWD)/node_modules/.bin:$(PATH)
+NOW :=$(shell date +'%Y%m%d-%H%M%S')
+DESTDIR ?= .
+
 all: generateHtml build alert
 
 installer: generateHtml build removeConfig
 
 render: generateHtml
 
-.PHONY: build
-build:
-	@echo "=== Removing old prod folder if any ===" 
+$(DESTDIR):
+	@mkdir -p $@
+
+build: $(DESTDIR) generateHtml
+	@echo "=== Removing old prod folder if any ==="
 	@rm -rf xcalar-gui
 	@rm -rf prod
 	@echo "=== Creating new prod folder ==="
-	@mkdir prod
-	@rsync -a * prod --exclude prod
+	@mkdir -p $(DESTDIR)/prod
+	@rsync -a * $(DESTDIR)/prod --exclude prod --exclude node_modules
 	@echo "=== Compile Less ==="
-	lessc prod/assets/stylesheets/less/login.less > prod/assets/stylesheets/css/login.css
-	lessc prod/assets/stylesheets/less/style.less > prod/assets/stylesheets/css/style.css
-	@rm -rf prod/assets/stylesheets/less/*
+	cd $(DESTDIR) && lessc prod/assets/stylesheets/less/login.less > prod/assets/stylesheets/css/login.css
+	cd $(DESTDIR) && lessc prod/assets/stylesheets/less/style.less > prod/assets/stylesheets/css/style.css
+	@rm -rf $(DESTDIR)/prod/assets/stylesheets/less/*
 	@echo "=== Minifying ==="
-	./prod/assets/bin/MINIFY.sh
-	./prod/assets/bin/autoGenFiles.sh
+	cd $(DESTDIR) && ./prod/assets/bin/MINIFY.sh
+	export GIT_DIR=`pwd`/.git && cd $(DESTDIR) && ./prod/assets/bin/autoGenFiles.sh
 	@echo "=== Running python build.py ==="
-	@python assets/python/build.py
-	chmod -R 777 prod/*
+	@cd $(DESTDIR) && python prod/assets/python/build.py
+	chmod -R 777 $(DESTDIR)/prod/*
 	@echo "=== Done building ==="
 
-removeConfig:
+removeConfig: build
 	@echo "=== Autogenerating Files ==="
-	touch prod/assets/js/config.js
-	rm prod/assets/js/config.js
-	touch prod/assets/js/config.js
-	echo "var portNumber = 9090;" > prod/assets/js/config.js
-	
+	touch $(DESTDIR)/prod/assets/js/config.js
+	rm $(DESTDIR)/prod/assets/js/config.js
+	touch $(DESTDIR)/prod/assets/js/config.js
+	echo "var portNumber = 9090;" > $(DESTDIR)/prod/assets/js/config.js
+
 alert:
 	@echo "=== ALERT! ==="
 	@echo "If you are part of the backend team, and you do not"
 	@echo "have a custom config.js file, please RERUN with"
 	@echo "make installer"
 
-generateHtml:
+node_modules/.bin/grunt: package.json
+	npm install --save-dev
+	touch $@
+
+generateHtml: node_modules/.bin/grunt
 	@echo "=== Generating html ==="
 	@mkdir -p assets/htmlFiles/walk
 	@grunt render
