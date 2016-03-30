@@ -48,7 +48,6 @@ function getResultSet(tableName) {
     return (XcalarMakeResultSetFromTable(tableName));
 }
 
-
 // rowNumber is the row number we're starting from
 // if our table has rows 0-60 and we're scrolling downwards, rowNumber = 60
 // if our table has rows 60-120 and we're scrolling upwards, rowNumber = 40 if we're fetching 20 rows
@@ -108,8 +107,8 @@ function goToPage(rowNumber, numRowsToAdd, direction, loop, info,
                 return (scrollDownHelper(position, rowPosition, jsonLen,
                         totalRowsStillNeeded, table, $table, info));
             } else { // scrolling up
-                return (scrollUpHelper(position, totalRowsStillNeeded,
-                        numRowsLacking, $table, info));
+               return (scrollUpHelper(position, totalRowsStillNeeded,
+                                      numRowsLacking, $table, info));
             }
         } else {
             return (promiseWrapper(null));
@@ -301,73 +300,72 @@ function generateDataColumnJson(table, direction, notIndexed, numRowsToFetch,
     }
 
     XcalarGetNextPage(table.resultSetId, numRowsToFetch)
-        .then(function(tableOfEntries) {
-            var tableId = table.tableId;
-            var keyName = table.keyName;
-            var kvPairs = tableOfEntries.kvPair;
-            var numKvPairs = tableOfEntries.numKvPairs;
+    .then(function(tableOfEntries) {
+        var tableId = table.tableId;
+        var keyName = table.keyName;
+        var kvPairs = tableOfEntries.kvPair;
+        var numKvPairs = tableOfEntries.numKvPairs;
 
-            if (numKvPairs < gNumEntriesPerPage) {
-                resultSetId = 0;
-            }
-            if (notIndexed) {
-                ColManager.setupProgCols(tableId);
-            }
+        if (numKvPairs < gNumEntriesPerPage) {
+            resultSetId = 0;
+        }
+        if (notIndexed) {
+            ColManager.setupProgCols(tableId);
+        }
 
-            var numRows = Math.min(numRowsToFetch, numKvPairs);
-            var jsonNormal = [];
-            var jsonWithKey = [];
-            var index;
-            var key;
-            var value;
-            var newValue;
+        var numRows = Math.min(numRowsToFetch, numKvPairs);
+        var jsonNormal = [];
+        var jsonWithKey = [];
+        var index;
+        var key;
+        var value;
+        var newValue;
 
-            for (var i = 0; i < numRows; i++) {
-                index = (direction === 1) ? (numRows - 1 - i) : i;
-                key = kvPairs[index].key;
-                value = kvPairs[index].value;
+        for (var i = 0; i < numRows; i++) {
+            index = (direction === 1) ? (numRows - 1 - i) : i;
+            key = kvPairs[index].key;
+            value = kvPairs[index].value;
 
-                jsonNormal.push(value);
-                // remove the last char, which should be "}"
-                newValue = value.substring(0, value.length - 1);
+            jsonNormal.push(value);
+            // remove the last char, which should be "}"
+            newValue = value.substring(0, value.length - 1);
 
-                newValue += ',"' + keyName + '_indexed":' + key + '}';
-                jsonWithKey.push(newValue);
-            }
+            newValue += ',"' + keyName + '_indexed":' + key + '}';
+            jsonWithKey.push(newValue);
+        }
 
-            jsonObj = {
-                "normal": jsonNormal,
-                "withKey": jsonWithKey
-            };
+        jsonObj = {
+            "normal": jsonNormal,
+            "withKey": jsonWithKey
+        };
 
-            deferred.resolve(jsonObj, keyName);
-        })
-        .fail(function(error) {
-            if (!retry && error.status === StatusT.StatusInvalidResultSetId) {
-                XcalarMakeResultSetFromTable(table.tableName)
-                    .then(function(result) {
-                        table.resultSetId = result.resultSetId;
-                        generateDataColumnJson(table, direction, notIndexed,
-                                numRowsToFetch, true)
-                            .then(function(data1, data2) {
-                                deferred.resolve(data1, data2);
-                            })
-                            .fail(function(error) {
-                                console.error("2nd attempt of generateDataColumnJson " +
-                                    "fails!", error);
-                                deferred.reject(error);
-                            });
-                    })
-                    .fail(function(error) {
-                        console.error("generateDataColumnJson fails!", error);
-                        deferred.reject(error);
-                    });
-            } else {
+        deferred.resolve(jsonObj, keyName);
+    })
+    .fail(function(error) {
+        if (!retry && error.status === StatusT.StatusInvalidResultSetId) {
+            XcalarMakeResultSetFromTable(table.tableName)
+            .then(function(result) {
+                table.resultSetId = result.resultSetId;
+                generateDataColumnJson(table, direction, notIndexed,
+                        numRowsToFetch, true)
+                .then(function(data1, data2) {
+                    deferred.resolve(data1, data2);
+                })
+                .fail(function(error) {
+                    console.error("2nd attempt of generateDataColumnJson " +
+                        "fails!", error);
+                    deferred.reject(error);
+                });
+            })
+            .fail(function(error) {
                 console.error("generateDataColumnJson fails!", error);
                 deferred.reject(error);
-            }
-
-        });
+            });
+        } else {
+            console.error("generateDataColumnJson fails!", error);
+            deferred.reject(error);
+        }
+    });
 
     return (deferred.promise());
 }

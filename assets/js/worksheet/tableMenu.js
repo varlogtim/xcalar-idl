@@ -638,7 +638,7 @@ window.TblMenu = (function(TblMenu, $) {
             }
             var colNum = $colMenu.data('colNum');
             var tableId = $colMenu.data('tableId');
-            var func = $(this).text().replace(/\./g, '');
+            var func = $(this).data('func');
             OperationsModal.show(tableId, colNum, func);
         });
 

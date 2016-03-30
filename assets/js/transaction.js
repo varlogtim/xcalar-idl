@@ -89,6 +89,9 @@ window.Transaction = (function(Transaction, $) {
         var sql = options.sql || txLog.getSQL();
         var cli = txLog.getCli();
         var title = options.title || failMsg;
+        if (!title) {
+            title = txLog.getOperation();
+        }
         title = xcHelper.capitalize(title);
 
         SQL.errorLog(title, sql, cli, error);

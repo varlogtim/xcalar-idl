@@ -8,7 +8,7 @@ describe('Worksheet Interactivity', function() {
     });
 
     describe('Worksheet existence', function() {
-       
+
         it('should have at least one worksheet', function() {
             $tabs = $('#worksheetTabs').find('.worksheetTab');
             expect($tabs).to.have.length.above(0);
@@ -57,7 +57,7 @@ describe('Worksheet Interactivity', function() {
                 done();
             });
         });
-        
+
 
         it('should center on table when moving worksheet', function() {
             var $lastTab = $('#worksheetTabs').find('.worksheetTab')
@@ -78,13 +78,13 @@ describe('Worksheet Interactivity', function() {
                                       .to.have.length.of(1);
             expect($tableWrap).to.have.length.of(1);
             expect($tableWrap.find('.tblTitleSelected')).to.have.length.of(1);
-            
+
             var winTop = $(window).scrollTop();
             var mainFrameTop = $('#mainFrame').offset().top;
             $(window).scrollTop(mainFrameTop);
 
             var windowCenter = $(window).width() / 2;
-            var yCoor = mainFrameTop - $(window).scrollTop() + 15; 
+            var yCoor = mainFrameTop - $(window).scrollTop() + 15;
             var el = document.elementFromPoint(windowCenter, yCoor);
             $(window).scrollTop(winTop);
             var correctTable = $(el).closest('#xcTableWrap-' + tableId).length >
@@ -154,8 +154,8 @@ function autoAddTable() {
         dsIcon = '#exploreView .grid-unit[data-dsname="' +
                   dsName + '"]:not(.inactive)';
     }
-    
-    
+
+
     TestSuite.__testOnly__.checkExists(dsIcon)
     .then(function() {
         var $grid = $(dsIcon).click();
@@ -166,7 +166,7 @@ function autoAddTable() {
             $("#selectDSCols .icon").click();
             // wait for datacart name to change
             setTimeout(function() {
-                
+
                 dsName = DataCart.getCartById(dsId).find('input').val();
                 $("#submitDSTablesBtn").click();
                 TestSuite.__testOnly__.checkExists('.xcTableWrap' +
@@ -176,7 +176,7 @@ function autoAddTable() {
                     deferred.resolve();
                 });
             }, 1000);
-            
+
         });
     });
     return deferred.promise();

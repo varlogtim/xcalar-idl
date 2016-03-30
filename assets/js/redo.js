@@ -33,6 +33,10 @@ window.Redo = (function($, Redo) {
     };
 
     /* START BACKEND OPERATIONS */
+    redoFuncs[SQLOps.IndexDS] = function(options) {
+        return (TblManager.refreshTable([options.tableName], null, [],
+                                        options.worksheet));
+    };
 
     redoFuncs[SQLOps.Sort] = function(options) {
         var worksheet = WSManager.getWSFromTable(options.tableId);
@@ -84,11 +88,6 @@ window.Redo = (function($, Redo) {
         return (TblManager.refreshTable([options.newTableName], null,
                                             [options.tableName],
                                             worksheet));
-    };
-
-    redoFuncs[SQLOps.IndexDS] = function(options) {
-        return (TblManager.refreshTable([options.tableName], null, [],
-                                        options.worksheet));
     };
 
     /* END BACKEND OPERATIONS */

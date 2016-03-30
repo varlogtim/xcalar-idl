@@ -228,7 +228,7 @@ window.DS = (function ($, DS) {
         XcalarLoad(loadURL, dsFormat, fullDSName,
                    fieldDelim, lineDelim, hasHeader,
                    moduleName, funcName, txId)
-        .then(function() {
+        .then(function(ret) {
             // sample the dataset to see if it can be parsed
             return XcalarSample(fullDSName, 1);
         })

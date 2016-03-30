@@ -97,7 +97,7 @@ describe('FilebrowserModal', function() {
                     } else {
                         return false;
                     }
-                }
+                };
 
                 return getShortName(testName);
             })
@@ -107,12 +107,12 @@ describe('FilebrowserModal', function() {
                 done();
             })
             .fail(function() {
-                throw "Error case"
+                throw "Error case";
             });
         });
 
         it('Should append path', function() {
-            var testPath = "file:///test"
+            var testPath = "file:///test";
             FileBrowser.__testOnly__.appendPath(testPath);
             var $li = $pathLists.find("li:first-of-type");
             var $pathText = $("#fileBrowserPath .text");

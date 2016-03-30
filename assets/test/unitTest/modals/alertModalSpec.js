@@ -12,7 +12,7 @@ describe('AlertModal', function() {
         gMinModeOn = true;
 
         $alertModal = $("#alertModal");
-        $alertTitle = $("#alertHeader").find(".text")
+        $alertTitle = $("#alertHeader").find(".text");
         $alertMsg = $("#alertContent").find(".text");
         $alertInstr = $("#alertInstruction").find(".text");
         $modalBg = $("#modalBackground");

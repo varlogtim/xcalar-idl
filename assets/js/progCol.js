@@ -1153,10 +1153,12 @@ window.ColManager = (function($, ColManager) {
         return (deferred.promise());
     };
 
+    // @$inputs: check $input against the names of $inputs
+    // @tableId: check $input against back column names.
+    // You do not need both $inputs and tableId
     ColManager.checkColDup = function ($input, $inputs, tableId, parseCol,
                                        colNum) {
-        // $inputs checks the names of $inputs, tableId is used to check
-        // back column names. You do not need both
+
         var name = $input.val().trim();
         var isDuplicate = false;
         var title = ErrTStr.ColumnConfilct;

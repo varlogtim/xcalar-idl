@@ -33,6 +33,12 @@ window.Undo = (function($, Undo) {
 
     /* START BACKEND OPERATIONS */
 
+    undoFuncs[SQLOps.IndexDS] = function(options) {
+        var tableId = xcHelper.getTableId(options.tableName);
+        TblManager.sendTableToOrphaned(tableId, {'remove': true});
+        return (promiseWrapper(null));
+    };
+
     undoFuncs[SQLOps.Sort] = function(options) {
         var worksheet = WSManager.getWSFromTable(options.tableId);
         return (TblManager.refreshTable([options.tableName], null,
@@ -154,12 +160,6 @@ window.Undo = (function($, Undo) {
         return (TblManager.refreshTable([options.tableName], null,
                                        [options.newTableName],
                                        worksheet, {isUndo: true}));
-    };
-
-    undoFuncs[SQLOps.IndexDS] = function(options) {
-        var tableId = xcHelper.getTableId(options.tableName);
-        TblManager.sendTableToOrphaned(tableId, {'remove': true});
-        return (promiseWrapper(null));
     };
 
     /* END BACKEND OPERATIONS */

@@ -49,7 +49,6 @@ window.OperationsModal = (function($, OperationsModal) {
             },
             'click': function() {
                 var $list = $(this).siblings('.list');
-
                 if (!$list.is(':visible')) {
                     hideDropdowns();
                     $operationsModal.find('li.highlighted')
@@ -58,7 +57,6 @@ window.OperationsModal = (function($, OperationsModal) {
                     $list.show().find('li').sort(sortHTML)
                                            .prependTo($list.children('ul'))
                                            .show();
-
                     if ($list.attr('id') === "categoryMenu") {
                         categoryListScroller.showOrHideScrollers();
                     } else {
@@ -90,7 +88,7 @@ window.OperationsModal = (function($, OperationsModal) {
                     clearInput(inputNum, true);
                     return;
                 }
-                produceArgumentTable();
+
                 if ($input.val() !== "") {
                     enterInput(inputNum);
                 }
@@ -126,6 +124,7 @@ window.OperationsModal = (function($, OperationsModal) {
             if ($list.is(':visible')) {
                 hideDropdowns();
             } else {
+
                 hideDropdowns();
                 $operationsModal.find('li.highlighted')
                                 .removeClass('highlighted');
@@ -353,6 +352,8 @@ window.OperationsModal = (function($, OperationsModal) {
 
         $operationsModal.on('click', function() {
             var $mousedownTarget = gMouseEvents.getLastMouseDownTarget();
+            // close if user clicks somewhere on the op modal, unless
+            // they're clicking on a dropdownlist
             if ($mousedownTarget.closest('.dropDownList').length === 0) {
                 var dropdownHidden = false;
                 $menus.each(function() {
@@ -445,8 +446,14 @@ window.OperationsModal = (function($, OperationsModal) {
             event.stopPropagation();
             var value = $li.text();
             var $input = $li.closest('.list').siblings('.autocomplete');
-
+            var originalInputValue = $input.val();
             hideDropdowns();
+
+            // value didn't change
+            if (originalInputValue === value) {
+                return;
+            }
+
             $input.val(value);
 
             if (value === $functionsMenu.data('category')) {
@@ -458,11 +465,13 @@ window.OperationsModal = (function($, OperationsModal) {
         }
     };
 
-    OperationsModal.show = function(newTableId, newColNum, operator) {
-        tableId = newTableId;
+    OperationsModal.show = function(currTableId, currColNum, operator) {
+        var deferred = jQuery.Deferred();
+
+        tableId = currTableId;
         var tableCols = gTables[tableId].tableCols;
-        currentCol = tableCols[newColNum - 1];
-        colNum = newColNum;
+        currentCol = tableCols[currColNum - 1];
+        colNum = currColNum;
         colName = currentCol.name;
         isNewCol = currentCol.isNewCol;
 
@@ -483,11 +492,8 @@ window.OperationsModal = (function($, OperationsModal) {
                 }
             });
 
-            $('#xcTable-' + newTableId).find('.col' + colNum)
+            $('#xcTable-' + tableId).find('.col' + colNum)
                                    .addClass('modalHighlighted');
-
-            // groupby and aggregates stick to num 6,
-            // filter and map use 0-5;
 
             corrector = new Corrector(colNames);
 
@@ -524,10 +530,13 @@ window.OperationsModal = (function($, OperationsModal) {
                 $functionInput.focus();
             }
             $operationsModal.find('.list').removeClass('hovering');
+            deferred.resolve();
         })
         .fail(function(error) {
             Alert.error("Listing of UDFs failed", error.error);
+            deferred.reject();
         });
+        return (deferred.promise());
     };
 
     function toggleModalDisplay(isHide, time) {
@@ -1571,66 +1580,15 @@ window.OperationsModal = (function($, OperationsModal) {
         }
     }
 
-    function submitForm() {
-        var isPassing = false;
-        modalHelper.submit();
-
-        if (!isOperationValid(0)) {
-            showErrorMessage(0);
-        } else if (!isOperationValid(1)) {
-            showErrorMessage(1);
-        } else {
-            isPassing = checkArgumentParams();
-        }
-
-        if (!isPassing) {
-            modalHelper.enableSubmit();
-            return;
-        }
-
-        var $invalidInput;
-        var validBlanks = true;
-        $argInputs.each(function() {
-            var $input   = $(this);
-            var val   = $input.val().trim();
-            var $checkboxWrap = $input.closest('tr').find('.checkboxWrap');
-            var check = false;
-            if ($checkboxWrap.hasClass('hidden')) {
-                check = true;
-            } else if ($checkboxWrap.find('.checkbox').hasClass('checked')) {
-                check = true;
-            }
-
-            if (val === "" && !check) {
-                validBlanks = false;
-                $invalidInput = $input;
-                return false; // stop iteration
-            }
-        });
-
-        if (!validBlanks) {
-            var hasEmptyOption = $invalidInput.closest('.colNameSection')
-                                              .length === 0;
-            var errorMsg;
-            if (hasEmptyOption) {
-                errorMsg = ErrTStr.NoEmptyOrCheck;
-            } else {
-                errorMsg = ErrTStr.NoEmpty;
-            }
-            StatusBox.show(errorMsg, $invalidInput);
-            modalHelper.enableSubmit();
-            return;
-        }
-
-        var args = [];
-        var trimmedArgs = [];
-
-        // get colType first
+    function getExistingTypes() {
         var existingTypes = {};
+        var arg;
+        var $input;
+        var type;
         $argInputs.each(function() {
-            var $input = $(this);
-            var arg    = $input.val().trim();
-            var type   = null;
+            $input = $(this);
+            arg    = $input.val().trim();
+            type   = null;
 
             // col name field, do not add quote
             if ($input.closest(".dropDownList").hasClass("colNameSection")) {
@@ -1651,10 +1609,51 @@ window.OperationsModal = (function($, OperationsModal) {
             if (type != null) {
                 existingTypes[type] = true;
             }
-            trimmedArgs.push(arg);
         });
+        return (existingTypes);
+    }
 
+    function submitForm() {
+        var isPassing = false;
+        modalHelper.submit();
+
+        if (!isOperationValid(0)) {
+            showErrorMessage(0);
+        } else if (!isOperationValid(1)) {
+            showErrorMessage(1);
+        } else {
+            isPassing = checkArgumentParams();
+        }
+
+        if (!isPassing) {
+            modalHelper.enableSubmit();
+            return;
+        }
+
+        var invalidInputs = [];
+
+        var validBlanks = checkIfBlanksAreValid(invalidInputs);
+
+        if (!validBlanks) {
+            var hasEmptyOption = invalidInputs[0].closest('.colNameSection')
+                                              .length === 0;
+            var errorMsg;
+            if (hasEmptyOption) {
+                errorMsg = ErrTStr.NoEmptyOrCheck;
+            } else {
+                errorMsg = ErrTStr.NoEmpty;
+            }
+            StatusBox.show(errorMsg, $invalidInputs[0]);
+            modalHelper.enableSubmit();
+            return;
+        }
+
+        var args = [];
+
+        // get colType first
+        var existingTypes = getExistingTypes();
         var argFormatHelper = argumentFormatHelper(existingTypes);
+
         isPassing = argFormatHelper.isPassing;
         args = argFormatHelper.args;
 
@@ -1692,10 +1691,6 @@ window.OperationsModal = (function($, OperationsModal) {
             return;
         }
 
-        var hasNoEmptyFields = checkNoEmptyFields(trimmedArgs);
-        if (!hasNoEmptyFields) {
-            console.warn('empty field detected');
-        }
         submitFinalForm(args);
     }
 
@@ -1888,6 +1883,7 @@ window.OperationsModal = (function($, OperationsModal) {
                                             "type2": colTypes[i]
                                         });
                                         $errorInput = $input;
+
                                         errorType = "invalidColType";
 
                                         // return (false);
@@ -1897,7 +1893,6 @@ window.OperationsModal = (function($, OperationsModal) {
                                 }
                             }
                         }
-
                     }
                 } else {
                     allColTypes.push({});
@@ -1958,32 +1953,25 @@ window.OperationsModal = (function($, OperationsModal) {
         return ({args: args, isPassing: isPassing, allColTypes: allColTypes});
     }
 
-    // shows valid cast types
-    var castMap = {
-        'string'     : ['boolean', 'integer', 'float'],
-        'integer'    : ['boolean', 'integer', 'float', 'string'],
-        'float'      : ['boolean', 'integer', 'float', 'string'],
-        'number'     : ['boolean', 'integer', 'float', 'string'],
-        'boolean'    : ['integer', 'float', 'string'],
-        'undefined'  : [],
-        'array'      : [],
-        'Array Value': [],
-        'object'     : [],
-        'mixed'      : []
-    };
-
     function showCastColumn(allColTypes) {
         var deferred = jQuery.Deferred();
-        $operationsModal.find('.cast').addClass('showing');
-        $operationsModal.find('.descCell').addClass('castShowing');
-        // var $dropdowns = $operationsModal.find('.cast .dropDownList');
-        getProperCastOptions(allColTypes);
-        displayCastOptions(allColTypes);
 
-        setTimeout(function() {
-            $operationsModal.find('.cast').addClass('overflowVisible');
+        getProperCastOptions(allColTypes);
+        var isCastAvailable = displayCastOptions(allColTypes);
+
+        if (isCastAvailable) {
+            $operationsModal.find('.cast').addClass('showing');
+            $operationsModal.find('.descCell').addClass('castShowing');
+            setTimeout(function() {
+                if ($operationsModal.find('.cast.showing').length) {
+                    $operationsModal.find('.cast').addClass('overflowVisible');
+                }
+
+                deferred.resolve();
+            }, 250);
+        } else {
             deferred.resolve();
-        }, 250);
+        }
 
         return (deferred.promise());
     }
@@ -2026,15 +2014,17 @@ window.OperationsModal = (function($, OperationsModal) {
     }
 
     function displayCastOptions(allColTypes) {
+
         var $castDropdowns = $operationsModal.find('td.cast')
                                              .find('.dropDownList');
         $castDropdowns.addClass('hidden');
         var lis;
+        var castAvailable = false;
         for (var i = 0; i < allColTypes.length; i++) {
             if (allColTypes[i].filteredTypes &&
                 allColTypes[i].filteredTypes.length) {
+                castAvailable = true;
                 lis = "<li class='default'>default</li>";
-                // lis = "";
                 $castDropdowns.eq(allColTypes[i].inputNum).removeClass('hidden');
                 for (var j = 0; j < allColTypes[i].filteredTypes.length; j++) {
                     lis += "<li>" + allColTypes[i].filteredTypes[j] + "</li>";
@@ -2042,6 +2032,7 @@ window.OperationsModal = (function($, OperationsModal) {
                 $castDropdowns.eq(allColTypes[i].inputNum).find('ul').html(lis);
             }
         }
+        return (castAvailable);
     }
 
     // $input is an $argInput
@@ -2129,17 +2120,7 @@ window.OperationsModal = (function($, OperationsModal) {
     }
 
     function getColIndex(backColName) {
-        var tId = tableId;
-        var colIndex = -1;
-        var columns = gTables[tId].tableCols;
-        var numCols = columns.length;
-        for (var i = 0; i < numCols; i++) {
-            if (columns[i].getBackColName() === backColName) {
-                colIndex = i;
-                break;
-            }
-        }
-        return (colIndex);
+        return (gTables[tableId].getBackColNum(backColName));
     }
 
     function groupBy(operator, args, colTypeInfos) {
@@ -2424,6 +2405,30 @@ window.OperationsModal = (function($, OperationsModal) {
         return null;
     }
 
+    function checkIfBlanksAreValid() {
+        var isValidBlanks = true;
+        var check;
+        $argInputs.each(function() {
+            var $input   = $(this);
+            var val   = $input.val().trim();
+            var $checkboxWrap = $input.closest('tr').find('.checkboxWrap');
+            check = false;
+            if ($checkboxWrap.hasClass('hidden')) {
+                check = true;
+            } else if ($checkboxWrap.find('.checkbox').hasClass('checked')) {
+                check = true;
+            }
+
+            if (val === "" && !check) {
+                isValidBlanks = false;
+                $invalidInputs.push($input);
+                return false; // stop iteration
+            }
+        });
+
+        return (isValidBlanks);
+    }
+
     function formatArgumentInput(value, typeid, existingTypes) {
         var strShift    = 1 << DfFieldTypeT.DfString;
         var numberShift =
@@ -2696,15 +2701,35 @@ window.OperationsModal = (function($, OperationsModal) {
     // anything other than a ,
     function hasValidColPrefix(str) {
         var hasPrefix = false;
+        if (typeof str !== "string") {
+            return false;
+        }
         str = str.replace(/\s/g, '');
+
+        var colNames = [];
+        var cursor = 0;
         for (var i = 0; i < str.length; i++) {
-            if (str[i] === colPrefix) {
-                if (i === 0) {
-                    hasPrefix = true;
-                } else if (str[i - 1] !== ",") {
+            if (str[i] === "," && !xcHelper.isCharEscaped(str, i)) {
+                colNames.push(str.slice(cursor, i));
+                cursor = i + 1;
+            }
+        }
+        colNames.push(str.slice(cursor, i));
+
+        var colName;
+        for (var i = 0; i < colNames.length; i++) {
+            colName = colNames[i];
+            if (colName.length < 2) {
+                return false;
+            }
+            if (colName[0] === colPrefix) {
+                hasPrefix = true;
+            } else {
+                return false;
+            }
+            for (var j = 1; j < colName.length; j++) {
+                if (colName[j] === colPrefix && !xcHelper.isCharEscaped(colName, j)) {
                     return false;
-                } else {
-                    return true;
                 }
             }
         }
@@ -2725,11 +2750,29 @@ window.OperationsModal = (function($, OperationsModal) {
         return (str);
     }
 
+    // shows valid cast types
+    var castMap = {
+        string: ['boolean', 'integer', 'float'],
+        integer: ['boolean', 'integer', 'float', 'string'],
+        float: ['boolean', 'integer', 'float', 'string'],
+        number: ['boolean', 'integer', 'float', 'string'],
+        boolean: ['integer', 'float', 'string'],
+        undefined: [],
+        array: [],
+        'Array Value': [],
+        object: [],
+        mixed: []
+    };
+
 
     /* Unit Test Only */
     if (window.unitTestMode) {
         OperationsModal.__testOnly__ = {};
         OperationsModal.__testOnly__.hasFuncFormat = hasFuncFormat;
+        OperationsModal.__testOnly__.getExistingTypes = getExistingTypes;
+        OperationsModal.__testOnly__.argumentFormatHelper = argumentFormatHelper;
+        OperationsModal.__testOnly__.parseType = parseType;
+        OperationsModal.__testOnly__.hasValidColPrefix = hasValidColPrefix;
     }
     /* End Of Unit Test Only */
 
