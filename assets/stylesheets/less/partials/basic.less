@@ -94,17 +94,42 @@ body {
 }
 
 #initialLoadScreen {
-    width: 100%;
-    height: ~"calc(100% - 113px)";
+    .size(@width: 100%, @height:  ~"calc(100% - 113px)", @min-height: 147px);
+    .position(fixed, @top: 41px);
     z-index: 9999;
-    position: fixed;
-    top: 41px;
-    cursor: wait;
     cursor: progress;
-    .waitingIcon {
-    //     display: block;
-    //     .center-align();
-    //     background-image: '../../images/spin2.gif';
+    background-color: rgba(0, 0, 0, 0.15);
+
+    .dialog {
+        .size(@width: 600px, @height: 75px, @min-width: 180px, @max-width: 95%);
+        .horizontal-align;
+        top: 30%;
+        .rounded;
+        text-align: center;
+        background-color: rgba(47, 47, 47, 0.6);
+
+        .wrapper {
+            .size(@width: 130px, @height: 100%);
+            .horizontal-align;
+
+            > div {
+                .size(@height: 100%);
+                float: left;
+            }
+
+            .text {
+                .font(@size: 15px, @color: @color-white, @weight: bold, @line-height: 75px);
+            }
+
+            .animatedEllipsis {
+                margin-left: 3px;
+
+                > div {
+                    margin-left: 0;
+                   .font(@size: 15px, @color: @color-white, @weight: bold, @line-height: 75px); 
+                }
+            }
+        }
     }
 }
 

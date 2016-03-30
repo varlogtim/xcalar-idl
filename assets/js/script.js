@@ -73,14 +73,6 @@ window.StartManager = (function(StartManager, $) {
     StartManager.setup = function() {
         gMinModeOn = true; // startup use min mode;
 
-        var timer = setTimeout(function() {
-            // add waiting icon since restore wkbk may take long time
-            $("#initialLoadScreen .waitingIcon").css({
-                left: "50%",
-                top : "50%"
-            }).fadeIn();
-        }, 3000);
-
         Compatible.check();
         setupThrift();
         // Support.setup() get username, so need to be at very eary time
@@ -157,8 +149,13 @@ window.StartManager = (function(StartManager, $) {
             }
         })
         .always(function() {
-            clearTimeout(timer);
-            $("#initialLoadScreen").remove();
+            if (!gMinModeOn) {
+                $("#initialLoadScreen").fadeOut(200, function() {
+                    $("#initialLoadScreen").remove();
+                });
+            } else {
+                $("#initialLoadScreen").remove();
+            }
             RowScroller.genFirstVisibleRowNum();
         });
     };

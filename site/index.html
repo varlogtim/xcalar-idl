@@ -29,7 +29,16 @@
   </head>
   <body class="hideScroll" style="background-color:rgb(56,71,79);">
     <div id="initialLoadScreen">
-      <div class="waitingIcon"></div>
+      <div class="dialog">
+        <div class="wrapper">
+          <div class="text"><%= dicts.common.PleaseWait %></div>
+          <div class="animatedEllipsis">
+            <div>.</div>
+            <div>.</div>
+            <div>.</div>
+          </div>
+        </div>
+      </div>
     </div>
     <!-- CONTAINER -->
     <div id="container" class="mainContainer" style="display:none;">

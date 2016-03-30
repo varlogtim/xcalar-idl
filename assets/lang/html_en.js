@@ -70,7 +70,8 @@ module.exports = {
         'min': 'min',
         'max': 'max',
         'average': 'average',
-        'sum': 'sum'
+        'sum': 'sum',
+        'PleaseWait': 'Please Waiting'
     },
 
     menuBar: {
