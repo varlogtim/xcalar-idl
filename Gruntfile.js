@@ -1,5 +1,34 @@
 render = require('./site/render.js');
 tmpDest = 'site/tmp';
+prettifyOptions = {
+  options: {
+    wrap_line_length: 80,
+    preserve_newlines: true,
+    max_preserve_newlines: 2
+  }
+};
+
+destMap = {
+    "index.html": "index.html",
+    "datastoreDemo1.html": "assets/htmlFiles/walk/datastoreDemo1.html",
+    "datastoreDemo2.html": "assets/htmlFiles/walk/datastoreDemo2.html",
+    "workbookDemo.html": "assets/htmlFiles/walk/workbookDemo.html",
+    "login.html": "assets/htmlFiles/login.html",
+    "installerLogin.html": "assets/htmlFiles/installerLogin.html",
+    "dologout.html": "assets/htmlFiles/dologout.html",
+    "setup.html": "assets/htmlFiles/setup.html",
+    "tableau.html": "assets/htmlFiles/tableau.html"
+};
+
+count = 0
+for (var src in destMap) {
+  var dest = destMap[src];
+  prettifyOptions["html" + count] = {
+    "src": dest,
+    "dest": dest
+  };
+  count++;
+}
 
 module.exports = function(grunt) {
 
@@ -22,29 +51,7 @@ module.exports = function(grunt) {
       }
     },
 
-    prettify: {
-      options: {
-        wrap_line_length: 80,
-        preserve_newlines: true,
-        max_preserve_newlines: 2
-      },
-      one: {
-        src: 'index.html',
-        dest: 'index.html'
-      },
-      two: {
-        src: 'assets/htmlFiles/walk/datastoreDemo1.html',
-        dest: 'assets/htmlFiles/walk/datastoreDemo1.html'
-      },
-      three: {
-        src: 'assets/htmlFiles/walk/datastoreDemo2.html',
-        dest: 'assets/htmlFiles/walk/datastoreDemo2.html'
-      },
-      four: {
-        src: 'assets/htmlFiles/walk/workbookDemo.html',
-        dest: 'assets/htmlFiles/walk/workbookDemo.html'
-      }
-    },
+    prettify: prettifyOptions,
 
     watch: {
       render: {
@@ -67,7 +74,7 @@ module.exports = function(grunt) {
 
   grunt.registerTask('html', ['includes']);
   grunt.registerTask('template', function() {
-    render(tmpDest);
+    render(tmpDest, destMap);
   });
 
   grunt.registerTask("render", ['html', 'template', 'clean', 'prettify']);
