@@ -1,0 +1,34 @@
+<html lang="en-US">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<title>Xcalar Installer</title>
+include "partials/loginPart.html"
+$(document).ready(function() {
+    $('#loginButton').click(function(event) {
+
+        var username = $("#loginNameBox").val();
+        var fullUsername = username;
+        if (username === "") {
+            return;
+        }
+
+        var index = username.indexOf("/");
+        if (index > 0) {
+            username = username.substring(0, index);
+        }
+
+        // XXX prevent form to submit, temporary use
+        event.preventDefault();
+        console.log("username:", username);
+        sessionStorage.setItem("xcalar-username", username);
+        sessionStorage.setItem("xcalar-fullUsername", fullUsername);
+        // XXX this redirect is only for temporary use
+        window.location = paths.installer;
+    });
+    $("#insightVersion").html("Version SHA: " +
+        XVM.getSHA().substring(0, 6) + ", Revision " + XVM.getVersion());
+});
+</script>
+</body>
+</html>

@@ -6,7 +6,12 @@ var destMap = {
     "index.html": "index.html",
     "datastoreDemo1.html": "assets/htmlFiles/walk/datastoreDemo1.html",
     "datastoreDemo2.html": "assets/htmlFiles/walk/datastoreDemo2.html",
-    "workbookDemo.html": 'assets/htmlFiles/walk/workbookDemo.html'
+    "workbookDemo.html": "assets/htmlFiles/walk/workbookDemo.html",
+    "login.html": "assets/htmlFiles/login.html",
+    "installerLogin.html": "assets/htmlFiles/installerLogin.html",
+    "dologout.html": "assets/htmlFiles/dologout.html",
+    "setup.html": "assets/htmlFiles/setup.html",
+    "tableau.html": "assets/htmlFiles/tableau.html"
 };
 
 var tutorMap = {

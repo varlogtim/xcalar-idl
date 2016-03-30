@@ -7,4 +7,4 @@
 /prod/*
 /node_modules/*
 index.html
-/assets/htmlFiles/walk/*.html
+/assets/htmlFiles/*

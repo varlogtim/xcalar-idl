@@ -14,5 +14,6 @@ var paths = {
     dTable        : 'assets/images/dtable.png',
     roundedRect   : 'assets/images/rounded-rect.png',
     hourglass     : 'assets/images/hourglass-white.png',
-    waitIcon      : 'assets/images/waiting-1.gif'
+    waitIcon      : 'assets/images/waiting-1.gif',
+    installer     : 'setup.html'
 };

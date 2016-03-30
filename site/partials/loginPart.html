@@ -1,8 +1,3 @@
-<html lang="en-US">
-<head>
-<meta charset="UTF-8">
-<meta http-equiv="X-UA-Compatible" content="IE=edge">
-<title>Xcalar Insight</title>
 <link href='../../3rd/fonts/raleway/raleway.css' rel='stylesheet' type='text/css'>
 <link href='../../3rd/fonts/opensans/opensans.css' rel='stylesheet' type='text/css'>
 <script src="../../3rd/bower_components/jquery/dist/jquery.min.js"></script>
@@ -52,44 +47,4 @@
   Version: Current
 </div>
 <script>
-$(document).ready(function() {
-    $("#insightVersion").hide();
-    $("#loginContainer").hide();
-    var stage = new swiffy.Stage(document.getElementById('swiffycontainer'),
-                                 swiffyobject, {  });
-    stage.start();
-    setTimeout(function() {
-        $('#swiffycontainer').fadeOut(1000, function() {
-            $("#loginContainer").fadeIn(200);
-            $('#loginNameBox').focus();
-            $("#insightVersion").fadeIn(200);
-        });
-    }, 4500);
-    
-    $('#loginButton').click(function(event) {
 
-        var username = $("#loginNameBox").val();
-        var fullUsername = username;
-        if (username === "") {
-            return;
-        }
-
-        var index = username.indexOf("/");
-        if (index > 0) {
-            username = username.substring(0, index);
-        }
-
-        // XXX prevent form to submit, temporary use
-        event.preventDefault();
-        console.log("username:", username);
-        sessionStorage.setItem("xcalar-username", username);
-        sessionStorage.setItem("xcalar-fullUsername", fullUsername);
-        // XXX this redirect is only for temporary use
-        window.location = paths.indexAbsolute;
-    });
-    $("#insightVersion").html("Version SHA: " +
-        XVM.getSHA().substring(0, 6) + ", Revision " + XVM.getVersion());
-});
-</script>
-</body>
-</html>
