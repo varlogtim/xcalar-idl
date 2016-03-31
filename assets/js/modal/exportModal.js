@@ -435,7 +435,7 @@ window.ExportModal = (function($, ExportModal) {
                 if (gExportNoCheck) {
                     colsArray.push(col);
                 } else {
-                    if (xcHelper.isColNameObject(colName)) {
+                    if (xcHelper.isColNameObject(col.backName)) {
                         isObj = true;
                     } else {
                         isObj = false;
