@@ -678,19 +678,32 @@ window.DatastoreForm = (function($, DatastoreForm) {
                 // input other delimiters
                 if (event.which === keyCode.Enter) {
                     var $input = $(this);
-                    var val    = $input.val();
 
                     event.stopPropagation();
-
-                    if (val !== "") {
-                        $input.closest(".dropDownList")
-                                .find(".text").val(val).removeClass("nullVal");
-                        $input.val("").blur();
-                        hideDropdownMenu();
-                    }
+                    applyOhterDelim($input);
                 }
             }
         }, ".delimVal");
+
+        $csvDelim.find(".inputAction").on("mousedown", function() {
+            var $input = $(this).siblings(".delimVal");
+            applyOhterDelim($input);
+        });
+    }
+
+    function applyOhterDelim($input) {
+        if ($input == null || $input.length == 0) {
+            // invalid case
+            return;
+        }
+
+        var val = $input.val();
+        if (val !== "") {
+            $input.closest(".dropDownList")
+                    .find(".text").val(val).removeClass("nullVal");
+            $input.val("").blur();
+            hideDropdownMenu();
+        }
     }
 
     function secretForm(file) {
