@@ -604,7 +604,7 @@ window.TableList = (function($, TableList) {
             $li = $('#orphanedTableList').find('.tableInfo[data-tablename="' +
                                                     tableId + '"]');
         } else {
-              $li = $('#archivedTableList').find('.tableInfo[data-id="' +
+            $li = $('#archivedTableList').find('.tableInfo[data-id="' +
                                                     tableId + '"]');
         }
 

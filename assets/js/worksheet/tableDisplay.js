@@ -131,7 +131,7 @@ window.TblManager = (function($, TblManager) {
         } else {
             // find the first table in the worksheet,
             // that is the target worksheet
-            var targetTable;
+            // var targetTable;
             var wsTables = WSManager.getWSById(worksheet).tables;
             var index;
             for (var i = 0, len = wsTables.length; i < len; i++) {
@@ -280,10 +280,10 @@ window.TblManager = (function($, TblManager) {
 
         var tableId = xcHelper.getTableId(tableName);
         var table = new TableMeta({
-            "tableId"   : tableId,
-            "tableName" : tableName,
-            "tableCols" : tableCols,
-            "status"    : TableType.Orphan
+            "tableId"  : tableId,
+            "tableName": tableName,
+            "tableCols": tableCols,
+            "status"   : TableType.Orphan
         });
 
         var tableProperties = options.tableProperties;
@@ -341,7 +341,7 @@ window.TblManager = (function($, TblManager) {
         options = options || {};
         var del = options.del || false;
         var delayTableRemoval = options.delayTableRemoval || false;
-        var tempHide = options.tempHide || false;
+        // var tempHide = options.tempHide || false;
         if (delayTableRemoval) {
             $("#xcTableWrap-" + tableId).addClass('tableToRemove');
             $("#rowScroller-" + tableId).addClass('rowScrollerToRemove');
@@ -1155,7 +1155,7 @@ window.TblManager = (function($, TblManager) {
                                                 TableType.Orphan);
                 }
                 if (gTables[tablesToRemove[i]].status === TableType.Active) {
-                    var orphanOptions = {};
+                    // var orphanOptions = {};
                     if (options.from === TableType.Archived) {
                         TblManager.archiveTable(tablesToRemove[i], {
                             delayTableRemoval: true

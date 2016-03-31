@@ -1,5 +1,5 @@
 window.Installer = (function($, Installer) {
-    var numFields = 3;
+    // var numFields = 3;
     
     function createServerObj(host, user, pass) {
         return ({"hostname": host, "username": user, "password": pass});
@@ -11,7 +11,7 @@ window.Installer = (function($, Installer) {
             $(allRows[0]).find(".password input").val() === "") {
             return false;
         }
-        for (var i = 0; i<allRows.length; i++) {
+        for (var i = 0; i < allRows.length; i++) {
             var fqdn = $(allRows[i]).find(".fqdn input").val();
             var user = $(allRows[i]).find(".username input").val();
             var pass = $(allRows[i]).find(".password input").val();
@@ -25,26 +25,26 @@ window.Installer = (function($, Installer) {
 
     function populateValue(kind) {
         var allRows = $(".server");
-        var valToPop = $(allRows[0]).find("."+kind+" input").val();
-        for (var i = 1; i<allRows.length; i++) {
-            $(allRows[i]).find("."+kind+" input").val(valToPop);
+        var valToPop = $(allRows[0]).find("." + kind + " input").val();
+        for (var i = 1; i < allRows.length; i++) {
+            $(allRows[i]).find("." + kind + " input").val(valToPop);
         }
     }
 
     function sendViaHttps(arrayToSend) {
         jQuery.ajax({
-            method: "POST",
-            url: "https://cantor.int.xcalar.com:12124",
-            data: JSON.stringify(arrayToSend),
+            method     : "POST",
+            url        : "https://cantor.int.xcalar.com:12124",
+            data       : JSON.stringify(arrayToSend),
             contentType: "application/json",
-            success: function(retVal) {
+            success    : function(retVal) {
                 console.log(retVal);
                 alert("Success!");
             },
             error: function(xhr, text, retVal) {
                 alert("Failure: ", xhr);
             }
-        })
+        });
     }
 
     Installer.setup = function() {
@@ -64,14 +64,14 @@ window.Installer = (function($, Installer) {
         $("#sameuser").on("change", function() {
             if (this.checked) {
                 var servList = $(".server:gt(0) .username input");
-                for (var i = 0; i<servList.length; i++) {
+                for (var i = 0; i < servList.length; i++) {
                     $(servList[i]).attr("disabled", true)
                                   .css("background-color", "#EEE")
                                   .val("same as first");
                 }
             } else {
                 var servList = $(".server:gt(0) .username input");
-                for (var i = 0; i<servList.length; i++) {
+                for (var i = 0; i < servList.length; i++) {
                     $(servList[i]).attr("disabled", false)
                                   .css("background-color", "#FFF")
                                   .val("");
@@ -81,14 +81,14 @@ window.Installer = (function($, Installer) {
         $("#samepass").on("change", function() {
             if (this.checked) {
                 var servList = $(".server:gt(0) .password input");
-                for (var i = 0; i<servList.length; i++) {
+                for (var i = 0; i < servList.length; i++) {
                     $(servList[i]).attr("disabled", true)
                                   .css("background-color", "#EEE")
                                   .val("password");
                 }
             } else {
                 var servList = $(".server:gt(0) .password input");
-                for (var i = 0; i<servList.length; i++) {
+                for (var i = 0; i < servList.length; i++) {
                     $(servList[i]).attr("disabled", false)
                                   .css("background-color", "#FFF")
                                   .val("");
@@ -109,7 +109,7 @@ window.Installer = (function($, Installer) {
             if ($("#samepass")[0].checked) {
                 populateValue("password");
             }
-            for (var i = 0; i<allRows.length; i++) {
+            for (var i = 0; i < allRows.length; i++) {
                 var fqdn = $(allRows[i]).find(".fqdn input").val();
                 var user = $(allRows[i]).find(".username input").val();
                 var pass = $(allRows[i]).find(".password input").val();
@@ -119,10 +119,10 @@ window.Installer = (function($, Installer) {
             }
             sendViaHttps(sendOver);
         });
-    }
+    };
     
     function showStep2(numServers) {
-        for (var i = 0; i<numServers; i++) {
+        for (var i = 0; i < numServers; i++) {
             var htmlStr = "<tr class='server'>";
             htmlStr += "<td class='fqdn'><input type='text'></td>";
             htmlStr += "<td class='username'><input type='text'></td>";

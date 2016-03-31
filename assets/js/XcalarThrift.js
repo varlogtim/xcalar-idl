@@ -253,8 +253,8 @@ function getUnsortedTableName(tableName, otherTableName) {
                                         nodeArray.node[parentChildMap[0][0]]);
 
                     if (!hasReadyState) {
-                        var newId   = Authentication.getHashId().split("#")[1];
-                        srcTableName  = tableName.split("#")[0] + "#" + newId;
+                        var newId = Authentication.getHashId().split("#")[1];
+                        srcTableName = tableName.split("#")[0] + "#" + newId;
                         var key = indexInput.keyName;
                         var order = XcalarOrderingT.XcalarOrderingUnordered;
                         return (XcalarIndexFromTable(tableName, key,
@@ -659,7 +659,7 @@ function XcalarExport(tableName, exportName, targetName, numColumns,
                 break;
         }
         var columns = [];
-        for (var i = 0; i<backColName.length; i++) {
+        for (var i = 0; i < backColName.length; i++) {
             var colNameObj = new DsColumnNameT();
             colNameObj.name = backColName[i];
             colNameObj.headerAlias = frontColName[i];

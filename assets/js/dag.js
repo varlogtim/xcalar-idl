@@ -531,13 +531,13 @@ window.DagPanel = (function($, DagPanel) {
                 xcHelper.centerFocusedTable($tableWrap, true);
 
                 SQL.add("Revert Table", {
-                    "operation": SQLOps.RevertTable,
-                    "tableName": newTableName,
+                    "operation"   : SQLOps.RevertTable,
+                    "tableName"   : newTableName,
                     "oldTableName": oldTableName,
-                    "tableId"  : tableId,
-                    "tableType": tableType,
-                    "worksheet": worksheet,
-                    "htmlExclude": ["tableType", "oldTableName", "worksheet"]
+                    "tableId"     : tableId,
+                    "tableType"   : tableType,
+                    "worksheet"   : worksheet,
+                    "htmlExclude" : ["tableType", "oldTableName", "worksheet"]
                 });
             });
         });

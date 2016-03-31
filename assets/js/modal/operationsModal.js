@@ -256,7 +256,7 @@ window.OperationsModal = (function($, OperationsModal) {
                 }, 0);
                 restoreInputSize($(this));
             },
-            'input': function(event) {
+            'input': function() {
                 // Suggest column name
                 var $input = $(this);
                 if ($input.closest(".dropDownList").hasClass("colNameSection")) {
@@ -388,15 +388,15 @@ window.OperationsModal = (function($, OperationsModal) {
                 var $input = $list.siblings(".text");
                 var type   = $li.text();
                 var casted;
-                var castedType;
+                // var castedType;
 
                 $input.val(type);
                 if (type === "default") {
                     casted = false;
-                    castedType = null;
+                    // castedType = null;
                 } else {
                     casted = true;
-                    castedType = type;
+                    // castedType = type;
                 }
                 $input.closest('td').prev().find('input')
                                            .data('casted', casted)
@@ -1255,7 +1255,7 @@ window.OperationsModal = (function($, OperationsModal) {
         var numArgs = $argInputs.length;
         // var val;
         var $inputs = $argInputs;
-
+        var tempText;
         var newText = "";
         if (operatorName === "map" || operatorName === "filter") {
             var oldText = $description.find('.descArgs').text();
@@ -1279,7 +1279,7 @@ window.OperationsModal = (function($, OperationsModal) {
 
             });
             if (noHighlight) {
-                var tempText = newText;
+                tempText = newText;
                 newText = "";
                 for (var i = 0; i < tempText.length; i++) {
                     newText += "<span class='char'>" + tempText[i] + "</span>";
@@ -1299,7 +1299,7 @@ window.OperationsModal = (function($, OperationsModal) {
             var gbColNewText = $argInputs.eq(1).val();
 
             if (noHighlight) {
-                var tempText = aggColNewText;
+                tempText = aggColNewText;
                 aggColNewText = "";
                 for (var i = 0; i < tempText.length; i++) {
                     aggColNewText += "<span class='char'>" + tempText[i] +
@@ -1310,13 +1310,14 @@ window.OperationsModal = (function($, OperationsModal) {
                 tempText = gbColNewText;
                 gbColNewText = "";
                 for (var i = 0; i < tempText.length; i++) {
-                    gbColNewText+= "<span class='char'>" + tempText[i] +
+                    gbColNewText += "<span class='char'>" +
+                                        tempText[i] +
                                     "</span>";
                 }
                 $description.find(".groupByCols").html(gbColNewText);
             } else {
-                var aggColDiff = findStringDiff(aggColOldText, aggColNewText);
-                var gbColDiff = findStringDiff(gbColOldText, gbColNewText);
+                // var aggColDiff = findStringDiff(aggColOldText, aggColNewText);
+                // var gbColDiff = findStringDiff(gbColOldText, gbColNewText);
 
                 var $aggColWrap = $description.find(".aggCols");
                 var $aggColSpans = $aggColWrap.find('span.char');
@@ -1335,10 +1336,12 @@ window.OperationsModal = (function($, OperationsModal) {
         var diff = findStringDiff(oldText, newText);
         if (diff.type !== "none") {
             var type = diff.type;
+            var position;
+
             switch (type) {
                 case ('remove'):
                 // do nothing
-                    var position = diff.start;
+                    position = diff.start;
                     for (var i = 0; i < diff.removed; i++) {
                         $spans.eq(position++).remove();
                     }
@@ -1359,7 +1362,7 @@ window.OperationsModal = (function($, OperationsModal) {
                     break;
                 case ('replace'):
                     var tempText = newText;
-                    var position = diff.start;
+                    position = diff.start;
                     newText = "";
                     for (var i = 0; i < diff.removed; i++) {
                         $spans.eq(position++).remove();
@@ -1396,7 +1399,8 @@ window.OperationsModal = (function($, OperationsModal) {
         // Find the index at which the change began
         var s = 0;
         while (s < oldText.length && s < newText.length &&
-              oldText[s] == newText[s]) {
+              oldText[s] === newText[s])
+        {
             s++;
         }
 
@@ -1406,7 +1410,8 @@ window.OperationsModal = (function($, OperationsModal) {
             e < newText.length &&
             oldText.length - e > s &&
             newText.length - e > s &&
-            oldText[oldText.length - 1 - e] == newText[newText.length - 1 - e]) {
+            oldText[oldText.length - 1 - e] === newText[newText.length - 1 - e])
+        {
             e++;
         }
 
@@ -1419,7 +1424,7 @@ window.OperationsModal = (function($, OperationsModal) {
         var added = ne - s;
 
         var type;
-        switch(true) {
+        switch (true) {
             case removed === 0 && added > 0:
                 type = 'add';
                 break;
@@ -1451,7 +1456,7 @@ window.OperationsModal = (function($, OperationsModal) {
             // ignore new colname input
             if ($input.closest(".dropDownList").hasClass("colNameSection")) {
                 return;
-            } else if  (hasFuncFormat(arg)) {
+            } else if (hasFuncFormat(arg)) {
                 // skip
             } else if (hasValidColPrefix(arg)) {
                 arg = arg.replace(/\$/g, '');
@@ -1756,7 +1761,7 @@ window.OperationsModal = (function($, OperationsModal) {
         var colTypeInfos = [];
         var colNum;
         var castType;
-        var newColNames = [];
+        // var newColNames = [];
         var progCol;
 
         // set up colTypeInfos, filter out any that shouldn't be casted
@@ -1770,8 +1775,10 @@ window.OperationsModal = (function($, OperationsModal) {
                     castType = $input.data('casttype');
                     progCol = table.tableCols[colNum];
                     if (castType !== progCol.type) {
-                        colTypeInfos.push({type: castType,
-                                           argNum: i});
+                        colTypeInfos.push({
+                            "type"  : castType,
+                            "argNum": i
+                        });
                     }
                 }
             }
@@ -1802,7 +1809,7 @@ window.OperationsModal = (function($, OperationsModal) {
             var arg = $input.val().trim();
 
             var newLength = arg.length;
-            var containsColumn = false;
+            // var containsColumn = false;
 
             if (origLength > 0 && newLength === 0) {
                 arg = $input.val();
@@ -1818,7 +1825,7 @@ window.OperationsModal = (function($, OperationsModal) {
             } else if (hasValidColPrefix(arg)) {
                 // if it contains a column name
                 // note that field like pythonExc can have more than one $col
-                containsColumn = true;
+                // containsColumn = true;
                 arg = arg.replace(/\$/g, '');
                 var frontColName = arg;
                 var tempColNames = arg.split(",");
@@ -1850,16 +1857,17 @@ window.OperationsModal = (function($, OperationsModal) {
                         colTypes = getAllColumnTypesFromArg(frontColName);
                         types = parseType(typeid);
                         if (colTypes.length) {
-                            allColTypes.push({inputTypes: colTypes,
-                                            requiredTypes: types,
-                                            inputNum: inputNum});
+                            allColTypes.push({
+                                "inputTypes"   : colTypes,
+                                "requiredTypes": types,
+                                "inputNum"     : inputNum
+                            });
                         } else {
                             allColTypes.push({});
-                            errorText = xcHelper.replaceMsg(
-                                            ErrWRepTStr.InvalidCol, {
-                                            "name": frontColName
-                                        });
-                                        $errorInput = $input;
+                            errorText = xcHelper.replaceMsg( ErrWRepTStr.InvalidCol, {
+                                "name": frontColName
+                            });
+                            $errorInput = $input;
                             errorType = "invalidCol";
                             isPassing = false;
                         }
@@ -1952,23 +1960,23 @@ window.OperationsModal = (function($, OperationsModal) {
 
     // shows valid cast types
     var castMap = {
-        string: ['boolean', 'integer', 'float'],
-        integer: ['boolean', 'integer', 'float', 'string'],
-        float: ['boolean', 'integer', 'float', 'string'],
-        number: ['boolean', 'integer', 'float', 'string'],
-        boolean: ['integer', 'float', 'string'],
-        undefined: [],
-        array: [],
+        'string'     : ['boolean', 'integer', 'float'],
+        'integer'    : ['boolean', 'integer', 'float', 'string'],
+        'float'      : ['boolean', 'integer', 'float', 'string'],
+        'number'     : ['boolean', 'integer', 'float', 'string'],
+        'boolean'    : ['integer', 'float', 'string'],
+        'undefined'  : [],
+        'array'      : [],
         'Array Value': [],
-        object: [],
-        mixed: []
+        'object'     : [],
+        'mixed'      : []
     };
 
     function showCastColumn(allColTypes) {
         var deferred = jQuery.Deferred();
         $operationsModal.find('.cast').addClass('showing');
         $operationsModal.find('.descCell').addClass('castShowing');
-        var $dropdowns = $operationsModal.find('.cast .dropDownList');
+        // var $dropdowns = $operationsModal.find('.cast .dropDownList');
         getProperCastOptions(allColTypes);
         displayCastOptions(allColTypes);
 
@@ -1983,7 +1991,7 @@ window.OperationsModal = (function($, OperationsModal) {
     function getProperCastOptions(allColTypes) {
         var inputColTypes;
         var requiredTypes;
-        var filteredTypes;
+        // var filteredTypes;
         var inputNum;
         var castTypes;
         for (var i = 0; i < allColTypes.length; i++) {
@@ -2038,9 +2046,9 @@ window.OperationsModal = (function($, OperationsModal) {
 
     // $input is an $argInput
     function resetCastOptions($input) {
-       $input.closest('td').next().find('input').val('default');
-       $input.data('casted', false);
-       $input.data('casttype', null);
+        $input.closest('td').next().find('input').val('default');
+        $input.data('casted', false);
+        $input.data('casttype', null);
     }
 
     function hideCastColumn() {
@@ -2153,7 +2161,7 @@ window.OperationsModal = (function($, OperationsModal) {
             }
         }
 
-        var singleArg = true;
+        // var singleArg = true;
         var indexedColNames = args[1];
 
         var newColName  = args[2];
@@ -2545,9 +2553,9 @@ window.OperationsModal = (function($, OperationsModal) {
         var backColName = frontColName;
         for (var i = 0; i < numCols; i++) {
             if (columns[i].getFronColName() === frontColName) {
-                var colName = columns[i].getBackColName();
-                if (colName != null) {
-                    backColName = colName;
+                var name = columns[i].getBackColName();
+                if (name != null) {
+                    backColName = name;
                 }
                 break;
             }

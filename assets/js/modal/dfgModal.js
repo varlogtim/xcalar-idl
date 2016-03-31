@@ -302,7 +302,7 @@ window.DataFlowModal = (function($, DataFlowModal) {
             var progCol = tableCols[colNum - 1];
             columns.push({
                 "frontCol": progCol.getFronColName(),
-                "backCol" :  progCol.getBackColName()
+                "backCol" : progCol.getBackColName()
             });
         });
 

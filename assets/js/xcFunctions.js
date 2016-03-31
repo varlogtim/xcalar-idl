@@ -103,13 +103,13 @@ window.xcFunction = (function($, xcFunction) {
         }
 
         var sql = {
-            "operation": SQLOps.Aggr,
-            "tableName": tableName,
-            "tableId"  : tableId,
-            "colName"  : frontColName,
-            "colNum"   : colNum,
-            "aggrOp"   : aggrOp,
-            "aggStr"   : aggStr,
+            "operation"  : SQLOps.Aggr,
+            "tableName"  : tableName,
+            "tableId"    : tableId,
+            "colName"    : frontColName,
+            "colNum"     : colNum,
+            "aggrOp"     : aggrOp,
+            "aggStr"     : aggStr,
             "htmlExclude": ["aggStr"]
         };
         var msg = StatusMessageTStr.Aggregate + " " + aggrOp + " " +
@@ -626,9 +626,10 @@ window.xcFunction = (function($, xcFunction) {
                     $('#alertContent').removeClass('leftalign');
                 },
                 "buttons": [{
-                            name: "CLOSE",
-                            className: "close",
-                            func: function(){}}],
+                            "name"     : "CLOSE",
+                            "className": "close",
+                            func       : function(){}
+                }],
                 "hideButtons": ["cancel"]
 
 

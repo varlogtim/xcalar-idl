@@ -25,11 +25,11 @@ window.ColManager = (function($, ColManager) {
     ColManager.newDATACol = function() {
         var progCol = ColManager.newCol({
             "backName": "DATA",
-            "name"   : "DATA",
-            "type"   : "object",
-            "width"  : "auto",// to be determined when building table
-            "userStr": "DATA = raw()",
-            "func"   : {
+            "name"    : "DATA",
+            "type"    : "object",
+            "width"   : "auto",// to be determined when building table
+            "userStr" : "DATA = raw()",
+            "func"    : {
                 "name": "raw",
                 "args": []
             },
@@ -46,10 +46,10 @@ window.ColManager = (function($, ColManager) {
         // the menus specific to the main key
         var newProgCol = ColManager.newCol({
             "backName": keyName,
-            "name"   : keyName,
-            "width"  : gNewCellWidth,
-            "userStr": '"' + keyName + '" = pull(' + keyName + ')',
-            "func"   : {
+            "name"    : keyName,
+            "width"   : gNewCellWidth,
+            "userStr" : '"' + keyName + '" = pull(' + keyName + ')',
+            "func"    : {
                 "name": "pull",
                 "args": [keyName]
             },
@@ -218,7 +218,7 @@ window.ColManager = (function($, ColManager) {
         var colWidths = 0;
         var tableWidth = $table.closest('.xcTableWrap').width();
         var progCols = [];
-        var options = options || {};
+        options = options || {};
         for (var i = 0; i < numCols; i++) {
             colNum = colNums[i];
             colIndex = colNum - i;
@@ -258,12 +258,12 @@ window.ColManager = (function($, ColManager) {
 
              // add SQL
             SQL.add("Delete Column", {
-                "operation": SQLOps.DeleteCol,
-                "tableName": tableName,
-                "tableId"  : tableId,
-                "colNames" : colNames,
-                "colNums"  : colNums,
-                "progCols" : progCols,
+                "operation"  : SQLOps.DeleteCol,
+                "tableName"  : tableName,
+                "tableId"    : tableId,
+                "colNames"   : colNames,
+                "colNums"    : colNums,
+                "progCols"   : progCols,
                 "htmlExclude": ["progCols"]
             });
             deferred.resolve();
@@ -903,13 +903,13 @@ window.ColManager = (function($, ColManager) {
         TableList.updateColName(tableId, colNum, newName);
 
         SQL.add("Rename Column", {
-            "operation": SQLOps.RenameCol,
-            "tableName": table.tableName,
-            "tableId"  : tableId,
-            "colName"  : oldName,
-            "colNum"   : colNum,
-            "newName"  : newName,
-            "wasNew"   : wasEditable,
+            "operation"  : SQLOps.RenameCol,
+            "tableName"  : table.tableName,
+            "tableId"    : tableId,
+            "colName"    : oldName,
+            "colNum"     : colNum,
+            "newName"    : newName,
+            "wasNew"     : wasEditable,
             "htmlExclude": ["wasNew"]
         });
 
@@ -943,13 +943,13 @@ window.ColManager = (function($, ColManager) {
         tableCol.format = format;
 
         SQL.add("Change Format", {
-            "operation": SQLOps.ChangeFormat,
-            "tableName": table.tableName,
-            "tableId"  : tableId,
-            "colName"  : tableCol.name,
-            "colNum"   : colNum,
-            "format"   : format,
-            "oldFormat": oldFormat,
+            "operation"  : SQLOps.ChangeFormat,
+            "tableName"  : table.tableName,
+            "tableId"    : tableId,
+            "colName"    : tableCol.name,
+            "colNum"     : colNum,
+            "format"     : format,
+            "oldFormat"  : oldFormat,
             "htmlExclude": ["oldFormat"]
         });
     };
@@ -972,14 +972,14 @@ window.ColManager = (function($, ColManager) {
         tableCol.decimals = decimals;
 
         SQL.add("Round To Fixed", {
-            "operation": SQLOps.RoundToFixed,
-            "tableName": table.tableName,
-            "tableId"  : tableId,
-            "colName"  : tableCol.name,
-            "colNum"   : colNum,
-            "decimals" : decimals,
+            "operation"   : SQLOps.RoundToFixed,
+            "tableName"   : table.tableName,
+            "tableId"     : tableId,
+            "colName"     : tableCol.name,
+            "colNum"      : colNum,
+            "decimals"    : decimals,
             "prevDecimals": prevDecimals,
-            "htmlExclude": ["prevDecimals"]
+            "htmlExclude" : ["prevDecimals"]
         });
     };
 
@@ -1050,9 +1050,6 @@ window.ColManager = (function($, ColManager) {
     // noLog: boolean, if true, no sql will be logged
     ColManager.execCol = function(operation, usrStr, tableId, colNum, args) {
         var deferred = jQuery.Deferred();
-        var regex;
-        var matches;
-        var fieldName;
         var progCol;
         var table = gTables[tableId];
 
@@ -1109,7 +1106,6 @@ window.ColManager = (function($, ColManager) {
                 deferred.resolve();
                 break;
             case ("map"):
-
                 var fieldName = table.tableCols[colNum - 1].name;
                 var mapString = usrStr.substring(usrStr.indexOf("=" + 1))
                                       .trim();
@@ -1311,14 +1307,14 @@ window.ColManager = (function($, ColManager) {
         TableList.updateTableInfo(tableId);
 
         SQL.add("Delete Duplicate Columns", {
-            "operation": SQLOps.DelDupCol,
-            "tableName": table.tableName,
-            "tableId"  : tableId,
-            "colNum"   : colNum,
-            "colName"  : colName,
-            "colNums"  : colNums,
-            "progCols" : progCols,
-            "htmlExclude"  : ["progCols"]
+            "operation"  : SQLOps.DelDupCol,
+            "tableName"  : table.tableName,
+            "tableId"    : tableId,
+            "colNum"     : colNum,
+            "colName"    : colName,
+            "colNums"    : colNums,
+            "progCols"   : progCols,
+            "htmlExclude": ["progCols"]
         });
     };
 
@@ -1331,7 +1327,7 @@ window.ColManager = (function($, ColManager) {
         var colNums = [];
         var colInfo;
         var allCols = [];
-        var originalNumCols = columns.length - 1;
+        // var originalNumCols = columns.length - 1;
         var numColsRemoved = 0;
         for (var i = 0; i < columns.length; i++) {
             if (columns[i].func.func && columns[i].func.func === "raw") {
@@ -1356,11 +1352,11 @@ window.ColManager = (function($, ColManager) {
         TableList.updateTableInfo(tableId);
 
         SQL.add("Delete All Duplicate Columns", {
-            "operation": SQLOps.DelAllDupCols,
-            "tableName": table.tableName,
-            "tableId"  : tableId,
-            "colNums"  : allCols,
-            "progCols" : progCols,
+            "operation"  : SQLOps.DelAllDupCols,
+            "tableName"  : table.tableName,
+            "tableId"    : tableId,
+            "colNums"    : allCols,
+            "progCols"   : progCols,
             "htmlExclude": ["progCols"]
         });
     };
@@ -1466,11 +1462,11 @@ window.ColManager = (function($, ColManager) {
         }
 
         SQL.add("Unhide Columns", {
-            "operation"  : SQLOps.UnHideCols,
-            "tableName"  : table.tableName,
-            "tableId"    : tableId,
-            "colNames"   : colNames,
-            "colNums"    : colNums
+            "operation": SQLOps.UnHideCols,
+            "tableName": table.tableName,
+            "tableId"  : tableId,
+            "colNames" : colNames,
+            "colNums"  : colNums
         });
     };
 
@@ -1505,15 +1501,15 @@ window.ColManager = (function($, ColManager) {
         }
 
         SQL.add("Text Align", {
-            "operation": SQLOps.TextAlign,
-            "tableName": table.tableName,
-            "tableId"  : tableId,
-            "colNames" : colNames,
-            "colNums"  : colNums,
-            "alignment": alignment,
-            "prevAlignments": prevAlignments,
+            "operation"      : SQLOps.TextAlign,
+            "tableName"      : table.tableName,
+            "tableId"        : tableId,
+            "colNames"       : colNames,
+            "colNums"        : colNums,
+            "alignment"      : alignment,
+            "prevAlignments" : prevAlignments,
             "cachedAlignment": cachedAlignment,
-            "htmlExclude": ["prevAlignments", "cachedAlignment"]
+            "htmlExclude"    : ["prevAlignments", "cachedAlignment"]
         });
     };
 
@@ -1539,7 +1535,6 @@ window.ColManager = (function($, ColManager) {
         var dataVal;
         var childOfArray;
         var col;
-        var nested;
         var tdValue;
         var parsedVal;
         var i;
@@ -1896,10 +1891,10 @@ window.ColManager = (function($, ColManager) {
 
             var newCol = ColManager.newCol({
                 "backName": escapedKey,
-                "name"   : key,
-                "width"  : width,
-                "userStr": usrStr,
-                "func"   : {
+                "name"    : key,
+                "width"   : width,
+                "userStr" : usrStr,
+                "func"    : {
                     "name": "pull",
                     "args": [escapedKey]
                 },
@@ -1959,14 +1954,14 @@ window.ColManager = (function($, ColManager) {
         moveFirstColumn();
 
         SQL.add("Pull All Columns", {
-            "operation"  : SQLOps.PullAllCols,
-            "tableName"  : table.tableName,
-            "tableId"    : tableId,
-            "colNum"     : colNum,
-            "colNums"    : colNums,
-            "rowNum"     : jsonRowNum,
-            "isArray"    : isArray,
-            "options"    : options
+            "operation": SQLOps.PullAllCols,
+            "tableName": table.tableName,
+            "tableId"  : tableId,
+            "colNum"   : colNum,
+            "colNums"  : colNums,
+            "rowNum"   : jsonRowNum,
+            "isArray"  : isArray,
+            "options"  : options
         });
     };
 
@@ -2031,7 +2026,7 @@ window.ColManager = (function($, ColManager) {
                     // after a )
                     if (tempString !== "") {
                         // convert strings to numbers
-                        if (parseInt(tempString) == tempString) {
+                        if (parseInt(tempString) === tempString) {
                             tempString = parseInt(tempString);
                         }
 

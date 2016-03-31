@@ -1491,7 +1491,7 @@ window.xcHelper = (function($, xcHelper) {
     // determines that "votes.funny" is an object but "votes\.funny" isn't
     xcHelper.isColNameObject = function(colName) {
         var splitName = colName.split(".");
-        var nonEscapedDotFound = false;
+        // var nonEscapedDotFound = false;
         for (var i = 0; i < splitName.length - 1; i++) {
             if (splitName[i].lastIndexOf('\\') !== (splitName[i].length - 1)) {
                 return true;

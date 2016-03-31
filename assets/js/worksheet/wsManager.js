@@ -1465,7 +1465,7 @@ window.WSManager = (function($, WSManager) {
     // Helper function to delete tables in a worksheet
     function delTableHelper(wsId) {
         var deferred    = jQuery.Deferred();
-        var promises    = [];
+        // var promises    = [];
         var $tableLists = $("#inactiveTablesList");
 
         // click all inactive table in this worksheet
@@ -1494,9 +1494,9 @@ window.WSManager = (function($, WSManager) {
             Alert.error("Delete Table Fails", error);
             deferred.reject(error);
         });
-        var options = {"remove": true};
-        var ws = wsLookUp[wsId];
-        var tableIds = [];
+        // var options = {"remove": true};
+        // var ws = wsLookUp[wsId];
+        // var tableIds = [];
 
         // TblManager.sendTableToOrphaned will change ws structure
         // so need tableIds to cahce first

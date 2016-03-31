@@ -1,6 +1,4 @@
 window.TblMenu = (function(TblMenu, $) {
-    var $workspacePanel = $('#workspacePanel');
-
     TblMenu.setup = function() {
         addMenuBehaviors($('#tableMenu'));
         addMenuBehaviors($('#colMenu'));
@@ -563,7 +561,7 @@ window.TblMenu = (function(TblMenu, $) {
                 var $inputWrapParent = $elem.closest("li");
                 if ($inputWrapParent) {
                     var inputList = $inputWrapParent.find("input");
-                    for (var i = 0; i<inputList.length; i++) {
+                    for (var i = 0; i < inputList.length; i++) {
                         argList[inputList[i].className] = $(inputList[i]).val();
                     }
                 }
