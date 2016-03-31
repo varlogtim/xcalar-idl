@@ -73,7 +73,7 @@ window.Help = (function($, Help) {
             //     }
             // };
 
-            introHelper('workbookDemo', w1_en, options);
+            introHelper('workbookDemo', WalkThroughtTStr.w1, options);
         });
 
         $('#datastoreWT1').click(function() {
@@ -88,11 +88,11 @@ window.Help = (function($, Help) {
                 }
             };
 
-            introHelper('datastoreDemo1', w2_en, options);
+            introHelper('datastoreDemo1', WalkThroughtTStr.w2, options);
         });
 
         $('#datastoreWT2').click(function() {
-            introHelper('datastoreDemo2', w3_en);
+            introHelper('datastoreDemo2', WalkThroughtTStr.w3);
         });
 
         function toggleRefresh($target) {
