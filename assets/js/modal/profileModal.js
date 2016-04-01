@@ -280,7 +280,6 @@ window.Profile = (function($, Profile, d3) {
 
         $modal.find(".groupbyChart").empty();
         modalHelper.clear();
-        resetScrollBar();
         freePointer();
 
         curTableId = null;
