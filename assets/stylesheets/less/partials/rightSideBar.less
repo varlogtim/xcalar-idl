@@ -79,11 +79,21 @@
         .ui-resizable-handle {
             display: none !important;
         }
+        &.open {
+           .ui-resizable-handle.ui-resizable-w {
+                display: none !important;
+                z-index: -1;
+           }
+        }
 
         &.poppedOut {
             #sideBarModal:after {
                 display: none;
             }
+        }
+
+        #pulloutTab {
+            z-index: 10;
         }
     }
 

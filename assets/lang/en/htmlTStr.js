@@ -76,7 +76,7 @@ module.exports = {
 
     menuBar: {
         'ws': 'Worksheet',
-        'monitor': 'monitor',
+        'monitor': 'Monitor',
         'ds': 'Data Stores',
         'schde': 'Scheduler',
         'exts': 'Extensions',

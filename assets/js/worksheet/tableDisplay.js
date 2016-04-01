@@ -1411,6 +1411,10 @@ window.TblManager = (function($, TblManager) {
 
     function addRowListeners(newCells) {
         newCells.find('.jsonElement').dblclick(function() {
+                if ($('#mainFrame').hasClass('modalOpen') &&
+                    !$(this).closest('.xcTableWrap').hasClass('jsonModalOpen')) {
+                    return;
+                }
                 JSONModal.show($(this));
             }
         );
