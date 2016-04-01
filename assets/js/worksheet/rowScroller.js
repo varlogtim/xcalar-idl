@@ -27,7 +27,7 @@ window.RowScroller = (function($, RowScroller) {
                 rowScrollerStartDrag(event, $(event.target).parent());
                 return;
             }
-            
+
             var $rowScroller = $('#rowScroller-' + tableId);
             if ($rowScroller.hasClass('locked')) {
                 return;
@@ -201,6 +201,7 @@ window.RowScroller = (function($, RowScroller) {
             inputWidth = Math.max(inputWidth, 10 + (numDigits * 8));
         }
         $rowInput.width(inputWidth);
+
     };
 
     RowScroller.empty = function() {

@@ -109,7 +109,7 @@ window.StartManager = (function(StartManager, $) {
 
             console.log('%c ' + CommonTxtTstr.XcWelcome + ' ',
             'background: linear-gradient(to bottom, #378cb3, #5cb2e8); ' +
-            'color: #ffffff; font-size:20px; font-family:Open Sans, Arial;');
+            'color: #ffffff; font-size:18px; font-family:Open Sans, Arial;');
 
             XVM.commitVersionInfo();
             // start heartbeat check
@@ -152,11 +152,13 @@ window.StartManager = (function(StartManager, $) {
             if (!gMinModeOn) {
                 $("#initialLoadScreen").fadeOut(200, function() {
                     $("#initialLoadScreen").remove();
+                    RowScroller.genFirstVisibleRowNum();
                 });
             } else {
                 $("#initialLoadScreen").remove();
+                RowScroller.genFirstVisibleRowNum();
             }
-            RowScroller.genFirstVisibleRowNum();
+
         });
     };
 
@@ -583,6 +585,7 @@ window.StartManager = (function(StartManager, $) {
                 RowScroller.genFirstVisibleRowNum();
             }
             moveTableDropdownBoxes();
+            TblManager.adjustRowFetchQuantity();
             resizing = false;
         }
 

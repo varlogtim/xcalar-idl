@@ -5,6 +5,8 @@
 // =================================== Globals =================================
 var gNumEntriesPerPage = 20;
 var gMaxEntriesPerPage = 60;
+var gMinRowsPerScreen = 60;
+var gFirstRowPositionTop = 71;
 var gNewCellWidth = 125;
 var gMouseStatus = null;
 var gMouseEvents = new MouseEvents();

@@ -70,7 +70,6 @@ function goToPage(rowNumber, numRowsToAdd, direction, loop, info,
     }
 
     var prepullTableHeight;
-    // var numRowsBefore;
     var resultSetId = table.resultSetId;
     var funcStep = 0;
     gIsTableScrolling = true;
@@ -100,10 +99,16 @@ function goToPage(rowNumber, numRowsToAdd, direction, loop, info,
         prepullTableHeight = $table.height();
 
         info.numRowsAdded += jsonLen;
-        // numRowsBefore = $table.find('tbody tr').length;
 
         TblManager.pullRowsBulk(tableId, jsonObj, rowPosition, null,
                      direction, rowToPrependTo);
+        if (jsonLen > 0) {
+            if (direction === RowDirection.Bottom) {
+                if (rowPosition + jsonLen > info.currentLastRow) {
+                    info.currentLastRow = rowPosition + jsonLen;
+                }
+            }
+        }
 
         var numRowsStillNeeded = info.numRowsToAdd - info.numRowsAdded;
 
@@ -158,16 +163,23 @@ function goToPage(rowNumber, numRowsToAdd, direction, loop, info,
                     if (numRowsStillNeeded > 0 && info.targetRow !== 0) {
                         info.targetRow -= numRowsStillNeeded;
                         newRowToGoTo = Math.max(info.targetRow, 0);
+                        info.currentFirstRow = newRowToGoTo + numRowsStillNeeded;
                         return (goToPage(newRowToGoTo, numRowsStillNeeded,
                                          direction, true, info));
                     } else {
                         deferred2.resolve();
                         return (deferred2.promise());
-                    }       
+                    }
                 } else {
+                    // if newRowToGoTo is 95, numRowsToFetch is 10, but
+                    // info.currentFirstRow is 100, we only want to fetch 5 rows
+                    // not 10
+                    if (newRowToGoTo + numRowsToFetch > info.currentFirstRow) {
+                        numRowsToFetch = info.currentFirstRow - newRowToGoTo;
+                    }
                     return (goToPage(newRowToGoTo, numRowsToFetch, direction,
                                      true, info, newRowToGoTo + numRowsToFetch));
-                }  
+                }
             }
         } else {
             deferred2.resolve();
@@ -228,7 +240,6 @@ function removeOldRows($table, tableId, info, direction, prepullTableHeight) {
     if (direction === RowDirection.Top) {
         $table.find("tbody tr").slice(gMaxEntriesPerPage).remove();
         scrollTop = Math.max(2, postpullTableHeight - prepullTableHeight);
-
         $xcTbodyWrap.scrollTop(scrollTop);
     } else {
         var preScrollTop = $xcTbodyWrap.scrollTop();
@@ -236,7 +247,14 @@ function removeOldRows($table, tableId, info, direction, prepullTableHeight) {
             table.resultSetMax = info.lastRowToDisplay - info.numRowsToAdd;
             table.currentRowNumber = table.resultSetMax;
         }
-        $table.find("tbody tr").slice(0, info.numRowsAdded).remove();
+        var numRowsToRemove;
+        if (info.bulk) {
+            numRowsToRemove = $table.find("tbody tr").length - info.numRowsAdded;
+        } else {
+            numRowsToRemove = info.numRowsAdded;
+        }
+
+        $table.find("tbody tr").slice(0, numRowsToRemove).remove();
         var postRowRemovalHeight = $table.height();
         scrollTop = Math.max(2, preScrollTop - (postpullTableHeight -
                                                     postRowRemovalHeight));
@@ -258,6 +276,7 @@ function getFirstPage(table, notIndexed) {
     if (table.resultSetId === 0) {
         return (promiseWrapper(null));
     }
+    TblManager.adjustRowFetchQuantity();
     var numRowsToAdd = Math.min(gMaxEntriesPerPage, table.resultSetCount);
     return (generateDataColumnJson(table, null, notIndexed, numRowsToAdd));
 }
@@ -345,7 +364,7 @@ function generateDataColumnJson(table, direction, notIndexed, numRowsToFetch,
             console.error("generateDataColumnJson fails!", error);
             deferred.reject(error);
         }
-        
+
     });
 
     return (deferred.promise());

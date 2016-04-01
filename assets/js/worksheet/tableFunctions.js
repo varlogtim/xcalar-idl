@@ -1451,11 +1451,20 @@ function checkTableDraggable() {
 }
 
 function isTableScrollable(tableId) {
+    var $firstRow = $('#xcTable-' + tableId).find('tbody tr:first');
+    var topRowNum = xcHelper.parseRowNum($firstRow);
     var tHeadHeight = $('#xcTheadWrap-' + tableId).height();
     var tBodyHeight = $('#xcTable-' + tableId).height();
     var tableWrapHeight = $('#xcTableWrap-' + tableId).height();
-
-    return ((tHeadHeight + tBodyHeight) >= (tableWrapHeight));
+    if ((tHeadHeight + tBodyHeight) >= (tableWrapHeight)) {
+        return (true);
+    }
+    if (topRowNum === 0 &&
+        gTables[tableId].currentRowNumber === gTables[tableId].resultSetMax) {
+        return (false);
+    } else {
+        return (true);
+    }
 }
 
 function bookmarkRow(rowNum, tableId) {

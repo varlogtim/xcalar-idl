@@ -982,9 +982,24 @@ window.TblManager = (function($, TblManager) {
         matchHeaderSizes($table);
     };
 
+    TblManager.adjustRowFetchQuantity = function() {
+        // cannot calculate mainFrame height directly because sometimes
+        // it may not be visible
+        var mainFrameTop = $('.mainPanel.active').find('.topBar')[0]
+                                .getBoundingClientRect().bottom;
+        var mainFrameBottom = $('#bottomArea').offset().top;
+        var mainFrameHeight = mainFrameBottom - mainFrameTop;
+        var tableAreaHeight = mainFrameHeight - gFirstRowPositionTop;
+        var maxVisibleRows = Math.ceil(tableAreaHeight / gRescol.minCellHeight);
+        var buffer = 5;
+        var rowsNeeded = maxVisibleRows + gNumEntriesPerPage + buffer;
+        gMaxEntriesPerPage = Math.max(rowsNeeded, gMinRowsPerScreen);
+        gMaxEntriesPerPage = Math.ceil(gMaxEntriesPerPage / 10) * 10;
+    };
+
     function infScrolling(tableId) {
         var $rowScroller = $('#rowScrollerArea');
-        var scrollCount = 0;
+        var scrolling = false;
         var $xcTbodyWrap = $('#xcTbodyWrap-' + tableId);
 
         $xcTbodyWrap.scroll(function() {
@@ -1016,9 +1031,8 @@ window.TblManager = (function($, TblManager) {
                 !firstRow.hasClass('row0'))
             {
                 // scrolling to top
-                scrollCount++;
-
-                if (scrollCount < 2) {
+                if (!scrolling) {
+                    scrolling = true;
                     // var initialTop = firstRow.offset().top;
                     numRowsToAdd = Math.min(gNumEntriesPerPage, topRowNum,
                                             table.resultSetMax);
@@ -1033,29 +1047,30 @@ window.TblManager = (function($, TblManager) {
                         "lastRowToDisplay": lastRowToDisplay,
                         "bulk"            : false,
                         "tableName"       : table.tableName,
-                        "tableId"         : tableId
+                        "tableId"         : tableId,
+                        "currentFirstRow": topRowNum,
+                        "currentLastRow": table.currentRowNumber
                     };
 
                     goToPage(rowNumber, numRowsToAdd, RowDirection.Top, false, info)
                     .then(function() {
-
-                        scrollCount--;
                         innerDeferred.resolve();
                     })
                     .fail(function(error) {
-                        scrollCount--;
                         innerDeferred.reject(error);
+                    })
+                    .always(function() {
+                        scrolling = false;
                     });
                 } else {
-                    scrollCount--;
                     innerDeferred.resolve();
                 }
             } else if ($(this)[0].scrollHeight - $(this).scrollTop() -
                        $(this).outerHeight() <= 1) {
                 // scrolling to bottom
-                scrollCount++;
 
-                if (scrollCount < 2) {
+                if (!scrolling) {
+                    scrolling = true;
                     numRowsToAdd = Math.min(gNumEntriesPerPage,
                                     table.resultSetMax -
                                     table.currentRowNumber);
@@ -1068,21 +1083,23 @@ window.TblManager = (function($, TblManager) {
                                             numRowsToAdd,
                         "bulk"     : false,
                         "tableName": table.tableName,
-                        "tableId"  : tableId
+                        "tableId"  : tableId,
+                        "currentFirstRow": topRowNum,
+                        "currentLastRow": table.currentRowNumber
                     };
 
                     goToPage(table.currentRowNumber, numRowsToAdd,
                              RowDirection.Bottom, false, info)
                     .then(function() {
-                        scrollCount--;
                         innerDeferred.resolve();
                     })
                     .fail(function(error) {
-                        scrollCount--;
                         innerDeferred.reject(error);
+                    })
+                    .always(function() {
+                        scrolling = false;
                     });
                 } else {
-                    scrollCount--;
                     innerDeferred.resolve();
                 }
             } else {
