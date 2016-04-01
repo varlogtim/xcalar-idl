@@ -167,9 +167,6 @@ window.Scheduler = (function(Scheduler, $) {
             }
             resetScheduleForm();
         });
-
-        // focus on the scheduler tab
-        $("#schedulesButton").click();
     };
 
     Scheduler.getAllSchedules = function() {

@@ -500,6 +500,7 @@ window.DFGPanel = (function($, DFGPanel) {
         var groups = DFG.getAllGroups();
         var $activeGroup = $dfgView.find('.listBox.selected');
         var activeGroupName;
+
         if ($activeGroup.length) {
             activeGroupName = $activeGroup.find('.label').text();
         }
@@ -533,14 +534,29 @@ window.DFGPanel = (function($, DFGPanel) {
                     
             html += '</ul></div>';
         }
+
         $dfgView.find('.listSection').html(html);
         $dfgView.find('.numGroups').text(numGroups);
-        if (activeGroupName) {
-            $dfgView.find('.listBox').filter(function() {
-                return ($(this).find('.label').text() === activeGroupName);
-            }).closest('.listBox').trigger('click', {show: true});
+
+        if (numGroups === 0) {
+            var hint = '<div class="hint no-selection">' +
+                        '<div class="icon"></div>' +
+                        '<div class="text">' +
+                            DFGTStr.NoDFG1 +
+                            '<br>' +
+                            DFGTStr.NoDFG2 +
+                        '</div>' +
+                       '</div>';
+            $dfgView.find(".midContentMain").html(hint);
         } else {
-            $dfgView.find('.listBox').eq(0).trigger('click', {show: true});
+            $dfgView.find(".midContentMain").html("");
+            if (activeGroupName) {
+                $dfgView.find('.listBox').filter(function() {
+                    return ($(this).find('.label').text() === activeGroupName);
+                }).closest('.listBox').trigger('click', {show: true});
+            } else {
+                $dfgView.find('.listBox').eq(0).trigger('click', {show: true});
+            }
         }
     }
 

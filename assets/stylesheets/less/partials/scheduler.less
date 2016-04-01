@@ -981,6 +981,7 @@
             .dagImage {
                 margin-bottom: 4px; // otherwise theres weird vertical scrolling
             }
+
             .dagTable {
                 cursor: auto;
                 &.dataStore, &.export {
@@ -994,6 +995,7 @@
                     }
                 }
             }
+
             .actionType {
                 &.filter {
                     cursor: pointer;
@@ -1009,9 +1011,34 @@
                     }
                 }
             }
+
             canvas {
                 pointer-events: none;
                 z-index: 0;
+            }
+
+            .hint {
+                .size(@width: 320px, @height: 60px);
+                .horizontal-align;
+                top: 30%;
+                .rounded;
+                border: 1px solid @color-white;
+                padding: 10px 0;
+                background-color: rgba(249, 249, 249, 0.8);
+
+                > div {
+                    float: left;
+                }
+
+                .icon {
+                    .size(@width: 60px, @height: 100%);
+                    .image("../../images/exclamation_gray.png", 50%, 50%);
+                }
+
+                .text {
+                    .size(@width: ~"calc(100% - 60px)", @height: 100%);
+                    .font(@color: #838383, @size: 13px, @weight: bold);
+                }
             }
         }
     } 

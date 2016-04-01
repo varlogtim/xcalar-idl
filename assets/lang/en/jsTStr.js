@@ -326,7 +326,9 @@ DFGTStr = {
     'AddParamHint': 'Please create parameters in Data Flow Group Panel first.',
     'DFCreateFail': 'Data Flow Creation Failed',
     'ParamModalFail': 'Parameter Modal Failed',
-    'UpdateParamFail': 'Update Params Failed'
+    'UpdateParamFail': 'Update Params Failed',
+    'NoDFG1': 'No data flow group added',
+    'NoDFG2': 'Add a data flow group in Query Graph.'
 };
 
 DSTStr = {
