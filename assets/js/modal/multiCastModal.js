@@ -294,7 +294,12 @@ window.MultiCastModal = (function($, MultiCastModal) {
             $label.text("Cast Result");
         }
 
-        $resultSection.html(html);
+        if (gMinModeOn) {
+            $resultSection.html(html);
+        } else {
+            // make it blink to get user's attention
+            $resultSection.hide().html(html).fadeIn(100);
+        }
     }
 
     function suggestType($tbody, colNum, type) {

@@ -452,12 +452,17 @@ window.DataFlowModal = (function($, DataFlowModal) {
             html += '<th class="' + thClass + '" data-col="' + colNum + '">' +
                         '<div class="header">' +
                             '<div class="columnPadding"></div>' +
-                            '<div title="' + colName +
-                            '" data-toggle="tooltip" data-placement="top" ' +
-                            'data-container="body" ' +
-                            'class="columnTab textOverflow tooltipOverflow">' +
-                                colName +
-                            '</div>' +
+                            '<div class="columnTab">' +
+                                '<div class="iconWrap">' +
+                                    '<span class="icon"></span>' +
+                                '</div>' +
+                                '<div title="' + colName +
+                                '" data-toggle="tooltip" data-placement="top" ' +
+                                'data-container="body" ' +
+                                'class="text textOverflowOneLine tooltipOverflow">' +
+                                    colName +
+                                '</div>' +
+                            '<div>' +
                         '</div>' +
                     '</th>';
         }

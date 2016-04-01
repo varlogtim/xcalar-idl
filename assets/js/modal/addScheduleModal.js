@@ -9,7 +9,10 @@ window.AddScheduleModal = (function($, AddScheduleModal) {
     var groupName;
 
     AddScheduleModal.setup = function() {
-        modalHelper = new ModalHelper($modal, {"focusOnOpen": true});
+        modalHelper = new ModalHelper($modal, {
+            "focusOnOpen": true,
+            "noCenter"   : true
+        });
 
         $modal.draggable({
             "handle"     : ".modalHeader",
@@ -25,6 +28,22 @@ window.AddScheduleModal = (function($, AddScheduleModal) {
         modalHelper.setup();
 
         updateModalList(schedule);
+
+        // Note that the modal's center position
+        // is different from other modal, need this handle
+        var $window = $(window);
+        var winHeight = $window.height();
+        var winWidth = $window.width();
+        var modalWidth  = $modal.width();
+        var modalHeight = $modal.height();
+
+        var left = ((winWidth - modalWidth) / 2);
+        var top = ((winHeight - modalHeight) / 4);
+
+        $modal.css({
+            "left": left,
+            "top" : top
+        });
 
         if (gMinModeOn) {
             $modalBg.show();
