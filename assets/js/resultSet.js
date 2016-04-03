@@ -48,15 +48,19 @@ function getResultSet(tableName) {
     return (XcalarMakeResultSetFromTable(tableName));
 }
 
+
+// rowNumber is the row number we're starting from
+// if our table has rows 0-60 and we're scrolling downwards, rowNumber = 60
+// if our table has rows 60-120 and we're scrolling upwards, rowNumber = 40 if we're fetching 20 rows
 function goToPage(rowNumber, numRowsToAdd, direction, loop, info,
-                  rowToPrependTo, retry) {
+    rowToPrependTo, retry) {
     // rowNumber is checked for validity before calling goToPage()
     var deferred = jQuery.Deferred();
     info = info || {};
 
     var tableId = info.tableId;
     var table = gTables[tableId];
-    var $table;
+    var $table = $("#xcTable-" + tableId);
 
     if (rowNumber >= table.resultSetMax) {
         console.log("Already at last page!");
@@ -70,23 +74,24 @@ function goToPage(rowNumber, numRowsToAdd, direction, loop, info,
     }
 
     var prepullTableHeight;
-    var resultSetId = table.resultSetId;
-    var funcStep = 0;
+    var setAbsolutePassed = false;
     gIsTableScrolling = true;
 
-    XcalarSetAbsolute(resultSetId, rowPosition)
-    .then(function(){
-        funcStep++;
+    XcalarSetAbsolute(table.resultSetId, rowPosition)
+    .then(function() {
+        setAbsolutePassed = true;
         return (generateDataColumnJson(table, null, false, numRowsToAdd));
     })
     .then(function(jsonObj, keyName) {
-        var deferred2 = jQuery.Deferred();
-        var jsonLen   = jsonObj.normal.length;
+        prepullTableHeight = $table.height();
+        TblManager.pullRowsBulk(tableId, jsonObj, rowPosition, null,
+            direction, rowToPrependTo);
 
-        var numRowsLacking     = numRowsToAdd - jsonLen;
+        var jsonLen = jsonObj.normal.length;
+        info.numRowsAdded += jsonLen;
+        var numRowsLacking = numRowsToAdd - jsonLen;
         var numRowsToIncrement = Math.max(1, jsonLen);
-
-        var position = rowNumber + numRowsToIncrement;
+        var position = rowPosition + numRowsToIncrement;
 
         if (jsonLen === 0) {
             if (!info.missingRows) {
@@ -95,95 +100,19 @@ function goToPage(rowNumber, numRowsToAdd, direction, loop, info,
             info.missingRows.push(position);
         }
 
-        $table = $("#xcTable-" + tableId);
-        prepullTableHeight = $table.height();
-
-        info.numRowsAdded += jsonLen;
-
-        TblManager.pullRowsBulk(tableId, jsonObj, rowPosition, null,
-                     direction, rowToPrependTo);
-        if (jsonLen > 0) {
-            if (direction === RowDirection.Bottom) {
-                if (rowPosition + jsonLen > info.currentLastRow) {
-                    info.currentLastRow = rowPosition + jsonLen;
-                }
-            }
-        }
-
-        var numRowsStillNeeded = info.numRowsToAdd - info.numRowsAdded;
-
-        if (numRowsStillNeeded > 0) {
+        var totalRowsStillNeeded = info.numRowsToAdd - info.numRowsAdded;
+        if (totalRowsStillNeeded > 0) {
             showWaitCursor();
             info.looped = true;
-            var newRowToGoTo;
-            var numRowsToFetch;
-
             if (direction === RowDirection.Bottom) {
-                if (position < table.resultSetMax) {
-                    newRowToGoTo = Math.min(position, table.resultSetMax);
-                    numRowsToFetch = Math.min(numRowsStillNeeded,
-                                        (table.resultSetMax - newRowToGoTo));
-
-                    return (goToPage(newRowToGoTo, numRowsToFetch,
-                                     direction, true, info));
-
-                } else if (info.bulk) {
-                    newRowToGoTo = (info.targetRow - info.numRowsToAdd) -
-                                        numRowsStillNeeded;
-
-                    numRowsStillNeeded = Math.min(info.targetRow -
-                                        info.numRowsToAdd, numRowsStillNeeded);
-                    info.targetRow = newRowToGoTo;
-                    if (!info.reverseLooped) {
-                        table.resultSetMax = jsonLen + rowPosition;
-                        table.currentRowNumber = table.resultSetMax;
-                        var numRowsToRemove = $table.find("tbody tr").length -
-                                              info.numRowsAdded;
-                        $table.find("tbody tr").slice(0, numRowsToRemove)
-                                               .remove();
-                    }
-                    info.reverseLooped = true;
-                    return (goToPage(newRowToGoTo, numRowsStillNeeded,
-                                     RowDirection.Top, true, info));
-                } else {
-                    deferred2.resolve();
-                    return (deferred2.promise());
-                }
+                return (scrollDownHelper(position, rowPosition, jsonLen,
+                        totalRowsStillNeeded, table, $table, info));
             } else { // scrolling up
-                // var newRowToGoTo = position + 1;
-                newRowToGoTo = position;
-                numRowsToFetch = numRowsLacking;
-
-                if (numRowsToFetch <= 0) {
-                    var firstRow = $table.find('tbody tr:first');
-                    var topRowNum = xcHelper.parseRowNum(firstRow);
-
-                    numRowsStillNeeded =
-                                Math.min(numRowsStillNeeded, topRowNum);
-                    if (numRowsStillNeeded > 0 && info.targetRow !== 0) {
-                        info.targetRow -= numRowsStillNeeded;
-                        newRowToGoTo = Math.max(info.targetRow, 0);
-                        info.currentFirstRow = newRowToGoTo + numRowsStillNeeded;
-                        return (goToPage(newRowToGoTo, numRowsStillNeeded,
-                                         direction, true, info));
-                    } else {
-                        deferred2.resolve();
-                        return (deferred2.promise());
-                    }
-                } else {
-                    // if newRowToGoTo is 95, numRowsToFetch is 10, but
-                    // info.currentFirstRow is 100, we only want to fetch 5 rows
-                    // not 10
-                    if (newRowToGoTo + numRowsToFetch > info.currentFirstRow) {
-                        numRowsToFetch = info.currentFirstRow - newRowToGoTo;
-                    }
-                    return (goToPage(newRowToGoTo, numRowsToFetch, direction,
-                                     true, info, newRowToGoTo + numRowsToFetch));
-                }
+                return (scrollUpHelper(position, totalRowsStillNeeded,
+                        numRowsLacking, $table, info));
             }
         } else {
-            deferred2.resolve();
-            return (deferred2.promise());
+            return (promiseWrapper(null));
         }
     })
     .then(function() {
@@ -193,19 +122,19 @@ function goToPage(rowNumber, numRowsToAdd, direction, loop, info,
             removeOldRows($table, tableId, info, direction, prepullTableHeight);
         } else if (!loop && info.missingRows) {
             console.log('some rows were too large to be retrieved, rows: ' +
-                        info.missingRows);
+                info.missingRows);
         }
         deferred.resolve();
     })
     .fail(function(error) {
-        if (!retry && funcStep === 0 &&
+        if (!retry && !setAbsolutePassed &&
             error.status === StatusT.StatusInvalidResultSetId) {
 
             XcalarMakeResultSetFromTable(table.tableName)
             .then(function(result) {
                 table.resultSetId = result.resultSetId;
                 goToPage(rowNumber, numRowsToAdd, direction, loop, info,
-                  rowToPrependTo, true)
+                        rowToPrependTo, true)
                 .then(function(data1, data2) {
                     deferred.resolve();
                 })
@@ -228,6 +157,79 @@ function goToPage(rowNumber, numRowsToAdd, direction, loop, info,
     });
 
     return (deferred.promise());
+}
+
+// fetches more rows when scrolling down
+function scrollDownHelper(position, oldPosition, jsonLen, numRowsStillNeeded,
+                            table, $table, info) {
+    var newRowToGoTo;
+    if (position < table.resultSetMax) {
+        newRowToGoTo = Math.min(position, table.resultSetMax);
+        numRowsToFetch = Math.min(numRowsStillNeeded,
+                                  (table.resultSetMax - newRowToGoTo));
+
+        return (goToPage(newRowToGoTo, numRowsToFetch, RowDirection.Bottom,
+                         true, info));
+
+    } else if (info.bulk) {
+        // reached the very end of table, will start scrolling up for
+        // the first time and should never scroll back down
+        newRowToGoTo = Math.max(0, info.currentFirstRow - numRowsStillNeeded);
+
+        numRowsStillNeeded = Math.min(info.currentFirstRow, numRowsStillNeeded);
+        info.targetRow = newRowToGoTo;
+        if (!info.reverseLooped) {
+            table.resultSetMax = jsonLen + oldPosition;
+            table.currentRowNumber = table.resultSetMax;
+            var numRowsToRemove = $table.find("tbody tr").length -
+                info.numRowsAdded;
+            $table.find("tbody tr").slice(0, numRowsToRemove)
+                .remove();
+        }
+        if (numRowsStillNeeded === 0) {
+            return (promiseWrapper(null));
+        } else {
+            info.reverseLooped = true;
+            return (goToPage(newRowToGoTo, numRowsStillNeeded, RowDirection.Top,
+                         true, info));
+        }
+    } else {
+        return (promiseWrapper(null));
+    }
+}
+
+// fetches more rows when scrolling up
+function scrollUpHelper(position, totalRowsStillNeeded, numRowsToFetch, $table,
+                        info) {
+    if (numRowsToFetch > 0) {
+        if (position + numRowsToFetch > info.currentFirstRow) {
+            // if newRowToGoTo is 95, numRowsToFetch is 10, but
+            // info.currentFirstRow is 100, we only want to fetch 5 rows
+            // not 10
+            numRowsToFetch = info.currentFirstRow - position;
+        }
+        if (numRowsToFetch > 0) {
+            return (goToPage(position, numRowsToFetch, RowDirection.Top, true,
+                            info, position + numRowsToFetch));
+        } else {
+            return (scrollUpHelper(position, totalRowsStillNeeded,
+                                   numRowsToFetch, $table, info));
+        }
+    } else {
+        var firstRow = $table.find('tbody tr:first');
+        var topRowNum = xcHelper.parseRowNum(firstRow);
+
+        totalRowsStillNeeded = Math.min(totalRowsStillNeeded, topRowNum);
+        if (totalRowsStillNeeded > 0 && info.targetRow !== 0) {
+            info.targetRow -= totalRowsStillNeeded;
+            position = Math.max(info.targetRow, 0);
+            info.currentFirstRow = position + totalRowsStillNeeded;
+            return (goToPage(position, totalRowsStillNeeded, RowDirection.Top,
+                             true, info));
+        } else {
+            return (promiseWrapper(null));
+        }
+    }
 }
 
 function removeOldRows($table, tableId, info, direction, prepullTableHeight) {
@@ -257,7 +259,7 @@ function removeOldRows($table, tableId, info, direction, prepullTableHeight) {
         $table.find("tbody tr").slice(0, numRowsToRemove).remove();
         var postRowRemovalHeight = $table.height();
         scrollTop = Math.max(2, preScrollTop - (postpullTableHeight -
-                                                    postRowRemovalHeight));
+            postRowRemovalHeight));
         $xcTbodyWrap.scrollTop(scrollTop - 1);
     }
 
@@ -267,7 +269,7 @@ function removeOldRows($table, tableId, info, direction, prepullTableHeight) {
 
     if (info.missingRows) {
         console.warn('some rows were too large to be retrieved, rows: ' +
-                    info.missingRows);
+            info.missingRows);
     }
 }
 
@@ -281,12 +283,12 @@ function getFirstPage(table, notIndexed) {
     return (generateDataColumnJson(table, null, notIndexed, numRowsToAdd));
 }
 
- // produces an array of all the td values that will go into the DATA column
+// produces an array of all the td values that will go into the DATA column
 function generateDataColumnJson(table, direction, notIndexed, numRowsToFetch,
-                                retry) {
+    retry) {
     var deferred = jQuery.Deferred();
     var jsonObj = {
-        "normal" : [],
+        "normal": [],
         "withKey": []
     };
 
@@ -299,73 +301,73 @@ function generateDataColumnJson(table, direction, notIndexed, numRowsToFetch,
     }
 
     XcalarGetNextPage(table.resultSetId, numRowsToFetch)
-    .then(function(tableOfEntries) {
-        var tableId = table.tableId;
-        var keyName = table.keyName;
-        var kvPairs = tableOfEntries.kvPair;
-        var numKvPairs = tableOfEntries.numKvPairs;
+        .then(function(tableOfEntries) {
+            var tableId = table.tableId;
+            var keyName = table.keyName;
+            var kvPairs = tableOfEntries.kvPair;
+            var numKvPairs = tableOfEntries.numKvPairs;
 
-        if (numKvPairs < gNumEntriesPerPage) {
-            resultSetId = 0;
-        }
-        if (notIndexed) {
-            ColManager.setupProgCols(tableId);
-        }
+            if (numKvPairs < gNumEntriesPerPage) {
+                resultSetId = 0;
+            }
+            if (notIndexed) {
+                ColManager.setupProgCols(tableId);
+            }
 
-        var numRows     = Math.min(numRowsToFetch, numKvPairs);
-        var jsonNormal  = [];
-        var jsonWithKey = [];
-        var index;
-        var key;
-        var value;
-        var newValue;
+            var numRows = Math.min(numRowsToFetch, numKvPairs);
+            var jsonNormal = [];
+            var jsonWithKey = [];
+            var index;
+            var key;
+            var value;
+            var newValue;
 
-        for (var i = 0; i < numRows; i++) {
-            index = (direction === 1) ? (numRows - 1 - i) : i;
-            key = kvPairs[index].key;
-            value = kvPairs[index].value;
+            for (var i = 0; i < numRows; i++) {
+                index = (direction === 1) ? (numRows - 1 - i) : i;
+                key = kvPairs[index].key;
+                value = kvPairs[index].value;
 
-            jsonNormal.push(value);
-            // remove the last char, which should be "}"
-            newValue = value.substring(0, value.length - 1);
+                jsonNormal.push(value);
+                // remove the last char, which should be "}"
+                newValue = value.substring(0, value.length - 1);
 
-            newValue += ',"' + keyName + '_indexed":' + key + '}';
-            jsonWithKey.push(newValue);
-        }
+                newValue += ',"' + keyName + '_indexed":' + key + '}';
+                jsonWithKey.push(newValue);
+            }
 
-        jsonObj = {
-            "normal" : jsonNormal,
-            "withKey": jsonWithKey
-        };
+            jsonObj = {
+                "normal": jsonNormal,
+                "withKey": jsonWithKey
+            };
 
-        deferred.resolve(jsonObj, keyName);
-    })
-    .fail(function(error) {
-        if (!retry && error.status === StatusT.StatusInvalidResultSetId) {
-            XcalarMakeResultSetFromTable(table.tableName)
-            .then(function(result) {
-                table.resultSetId = result.resultSetId;
-                generateDataColumnJson(table, direction, notIndexed,
-                                       numRowsToFetch, true)
-                .then(function(data1, data2) {
-                    deferred.resolve(data1, data2);
-                })
-                .fail(function(error) {
-                    console.error("2nd attempt of generateDataColumnJson " +
-                                  "fails!", error);
-                    deferred.reject(error);
-                });
-            })
-            .fail(function(error) {
+            deferred.resolve(jsonObj, keyName);
+        })
+        .fail(function(error) {
+            if (!retry && error.status === StatusT.StatusInvalidResultSetId) {
+                XcalarMakeResultSetFromTable(table.tableName)
+                    .then(function(result) {
+                        table.resultSetId = result.resultSetId;
+                        generateDataColumnJson(table, direction, notIndexed,
+                                numRowsToFetch, true)
+                            .then(function(data1, data2) {
+                                deferred.resolve(data1, data2);
+                            })
+                            .fail(function(error) {
+                                console.error("2nd attempt of generateDataColumnJson " +
+                                    "fails!", error);
+                                deferred.reject(error);
+                            });
+                    })
+                    .fail(function(error) {
+                        console.error("generateDataColumnJson fails!", error);
+                        deferred.reject(error);
+                    });
+            } else {
                 console.error("generateDataColumnJson fails!", error);
                 deferred.reject(error);
-            });
-        } else {
-            console.error("generateDataColumnJson fails!", error);
-            deferred.reject(error);
-        }
+            }
 
-    });
+        });
 
     return (deferred.promise());
 }

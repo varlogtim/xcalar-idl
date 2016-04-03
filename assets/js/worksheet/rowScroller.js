@@ -73,6 +73,7 @@ window.RowScroller = (function($, RowScroller) {
 
             var tableId = gActiveTableId;
             var table = gTables[tableId];
+            var $table = $('#xcTable-' + tableId);
 
             if (!table) {
                 return;
@@ -109,6 +110,9 @@ window.RowScroller = (function($, RowScroller) {
 
             var rowOnScreen = xcHelper.getLastVisibleRowNum(tableId) -
                                 curRow + 1;
+            if (isNaN(rowOnScreen)) {
+                rowOnScreen = xcHelper.parseRowNum($table.find('tr:last'));
+            }
             // divide evenly on both top and bottom buffer
             var rowToBuffer = Math.floor((gMaxEntriesPerPage - rowOnScreen) / 2);
 
@@ -117,12 +121,12 @@ window.RowScroller = (function($, RowScroller) {
 
             $rowInput.data("val", targetRow).val(targetRow);
 
-            backRow = Math.min(maxRow - gMaxEntriesPerPage,
+            backRow = Math.min(table.resultSetMax - gMaxEntriesPerPage,
                                 targetRow - rowToBuffer);
             backRow = Math.max(backRow, 0);
 
             var tableName = table.tableName;
-            var numRowsToAdd = Math.min(gMaxEntriesPerPage, maxRow);
+            var numRowsToAdd = Math.min(gMaxEntriesPerPage, table.resultSetMax);
             var info = {
                 "numRowsToAdd"    : numRowsToAdd,
                 "numRowsAdded"    : 0,
@@ -130,12 +134,18 @@ window.RowScroller = (function($, RowScroller) {
                 "targetRow"       : targetRow,
                 "bulk"            : true,
                 "tableName"       : tableName,
-                "tableId"         : tableId
+                "tableId"         : tableId,
+                "currentFirstRow" : backRow
             };
 
             goToPage(backRow, numRowsToAdd, RowDirection.Bottom, false, info)
             .then(function() {
-                var rowToScrollTo = Math.min(targetRow, maxRow);
+                var arr = [];
+                $table.find('tbody tr').each(function() {
+                    arr.push($(this).find('td:first').text());
+                });
+
+                var rowToScrollTo = Math.min(targetRow, table.resultSetMax);
                 positionScrollbar(rowToScrollTo, tableId);
                 RowScroller.genFirstVisibleRowNum();
                 if (!event.rowScrollerMousedown) {

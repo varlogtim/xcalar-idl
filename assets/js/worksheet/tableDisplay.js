@@ -1038,7 +1038,8 @@ window.TblManager = (function($, TblManager) {
                                             table.resultSetMax);
 
                     var rowNumber = topRowNum - numRowsToAdd;
-                    var lastRowToDisplay = $table.find('tbody tr:lt(30)');
+                    var lastRowToDisplay = table.currentRowNumber -
+                                           numRowsToAdd;
 
                     info = {
                         "numRowsToAdd"    : numRowsToAdd,
@@ -1048,8 +1049,7 @@ window.TblManager = (function($, TblManager) {
                         "bulk"            : false,
                         "tableName"       : table.tableName,
                         "tableId"         : tableId,
-                        "currentFirstRow": topRowNum,
-                        "currentLastRow": table.currentRowNumber
+                        "currentFirstRow" : topRowNum
                     };
 
                     goToPage(rowNumber, numRowsToAdd, RowDirection.Top, false, info)
@@ -1084,8 +1084,7 @@ window.TblManager = (function($, TblManager) {
                         "bulk"     : false,
                         "tableName": table.tableName,
                         "tableId"  : tableId,
-                        "currentFirstRow": topRowNum,
-                        "currentLastRow": table.currentRowNumber
+                        "currentFirstRow": topRowNum
                     };
 
                     goToPage(table.currentRowNumber, numRowsToAdd,
@@ -1314,6 +1313,8 @@ window.TblManager = (function($, TblManager) {
                                      $table.find('tbody tr').length;
 
             if (numRowsStillNeeded > 0) {
+                var firstRow = $table.find('tbody tr:first');
+                var topRowNum = xcHelper.parseRowNum(firstRow);
                 var info = {
                     "numRowsToAdd"    : numRowsStillNeeded,
                     "numRowsAdded"    : 0,
@@ -1322,7 +1323,8 @@ window.TblManager = (function($, TblManager) {
                     "bulk"            : false,
                     "dontRemoveRows"  : true,
                     "tableName"       : tableName,
-                    "tableId"         : tableId
+                    "tableId"         : tableId,
+                    "currentFirstRow" : topRowNum
                 };
 
                 return goToPage(table.currentRowNumber, numRowsStillNeeded,
