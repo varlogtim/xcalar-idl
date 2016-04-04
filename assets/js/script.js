@@ -73,11 +73,11 @@ window.StartManager = (function(StartManager, $) {
     StartManager.setup = function() {
         gMinModeOn = true; // startup use min mode;
 
+        setupLogout();
         Compatible.check();
         setupThrift();
         // Support.setup() get username, so need to be at very eary time
         Support.setup();
-        setupLogout();
 
         XVM.checkVersionMatch()
         .then(setupSession)
@@ -198,32 +198,12 @@ window.StartManager = (function(StartManager, $) {
     }
 
     function setupLogout() {
-        var $userName = $("#userName");
-        var $popOut = $("#userNamePopout");
-        // var username = Support.getUser();
         var username = sessionStorage.getItem("xcalar-fullUsername");
         if (username == null) {
             username = Support.getUser();
         }
 
-        $userName.text(username);
-        $('#userNameArea').show();
-        $popOut.find(".text").text(username);
-
-        $userName.click(function(event) {
-            var top  = $userName.position().top + $userName.height();
-            var left = $userName.position().left + $userName.width() / 2 -
-                        $popOut.width() / 2;
-
-            event.stopPropagation();
-
-            $popOut.toggle();
-            $popOut.css({"top": top, "left": left});
-        });
-
-        $("body").click(function() {
-            $popOut.hide();
-        });
+        $("#userName").text(username);
 
         $("#signout").click(function() {
             unloadHandler();

@@ -1,4 +1,4 @@
-<% var userNameAttr = (dicts.tutor.name == "workbookDemo") ? 'data-introstep="9"' : 'style="display:none;"' %>
+<% var userNameAttr = (dicts.tutor.name == "workbookDemo") ? 'data-introstep="9"' : '' %>
 
 <!-- Top Menu Bar -->
 <div id="menuBar" class="clearfix no-selection">
@@ -71,12 +71,8 @@
     <span id="userName" class="text">
       <%= dicts.isTutor ? dicts.tutor.user : dicts.menuBar.user %>
     </span>
-  </div>
-  <div id="userNamePopout">
-    <div id="peri"><%= dicts.menuBar.signInAs %>:</div>
-    <br/>
-    <div id="name"><span class="text"><%= dicts.menuBar.unknown %></span> |</div>
-    <div id="signout"><%= dicts.menuBar.signOut %></div>
+    <span>|</span>
+    <span id="signout" class="text"><%= dicts.menuBar.signOut %></span>
   </div>
 </div>
 <!-- End of Menu Bar -->

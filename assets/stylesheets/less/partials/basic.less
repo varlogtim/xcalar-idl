@@ -1646,45 +1646,18 @@ ul.inputMenu {
 
     .text {
         color: @color-text-topAction;
-        cursor: pointer;
         .textOverflowOneLine;
         display: inline-block;
         vertical-align: bottom;
         max-width: ~"calc(100% - 65px)";
     }
-}
 
-#userNamePopout {
-    .position(absolute);
-    .size(@width: 168px, @height: 46px);
-    .image("../../images/signout.png");
-    .font(@size: 10px, @line-height: 5px);
-    display: none;
-    z-index: 42;
-
-    #peri {
-        padding: 13px 0 0 10px;
-        color: @color-text-signout-lightGray;
-    }
-    #name {
-        padding: 5px 0 0 10px;
-        color: @color-text-signout-darkGray;
-        float: left;
-        .text {
-            max-width: 100px;
-            .textOverflowOneLine;
-            display: inline-block;
-            float: left;
-            margin-top: -6px;
-            line-height: 16px;
-        }
-
-    }
     #signout {
-        padding: 5px 0 0 5px;
+        display: inline-block;
+        width: 55px;
         color: @color-text-signout-blue;
-        float: left;
         cursor: pointer;
+        .textOverflowOneLine
     }
 }
  /* End Of Top Menu Bar  */
