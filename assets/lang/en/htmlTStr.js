@@ -71,7 +71,7 @@ module.exports = {
         'max': 'max',
         'average': 'average',
         'sum': 'sum',
-        'PleaseWait': 'Please Waiting'
+        'PleaseWait': 'Please Wait'
     },
 
     menuBar: {
@@ -426,7 +426,8 @@ module.exports = {
         'MultiJoin': 'Multi Clause Join',
         'MultiJoinInstr': 'Drap and drop columns to join',
         'RightTable': 'Right Table',
-        'CONFIRM': 'JOIN TABLES'
+        'CONFIRM': 'JOIN TABLES',
+        'viewTables': 'view other tables'
     },
 
     jsonModal: {

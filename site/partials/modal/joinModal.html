@@ -46,13 +46,27 @@
     <div id="leftJoin" class="joinContainer">
       <div class="tableText">
         <span class="text"><%= dicts.joinModdal.LeftTable %></span>
+        <div class="dropDownList joinTableList">
+          <div class="text"></div>
+          <div class="iconWrapper" title="<%= dicts.joinModdal.viewTables %>" data-toggle="tooltip" data-placement="top" data-container="body">
+              <div class="icon"></div>
+          </div>
+          <div class="list">
+            <ul >
+            </ul>
+            <div class="scrollArea top">
+              <div class="arrow"></div>
+            </div>
+            <div class="scrollArea bottom">
+              <div class="arrow"></div>
+            </div>
+          </div>
+        </div>
         <button class="smartSuggest btn" title="<%= dicts.joinModdal.SuggLeftHint %>" data-toggle="tooltip" data-placement="top" data-container="body"><%= dicts.joinModdal.SmartSuggBtn %></button>
         <span class="suggError">e</span>
       </div>
       <div class="mainTable">
         <div class="tabArea">
-          <div class="worksheetTabs"></div>
-          <div class="tableTabs"></div>
           <div class="joinTableArea">
             <div class="background"></div>
             <div class="outline"></div>
@@ -67,7 +81,7 @@
         <div class="title"><%= dicts.joinModdal.MultiJoin %></div>
         <div class="instruction"><%= dicts.joinModdal.MultiJoinInstr %></div>
         <div class="clauseArea">
-           <div class="joinClause placeholder">
+          <div class="joinClause placeholder">
             <div class="clause leftClause">
               <div class="iconWrapper">
                 <span class="icon"></span>
@@ -91,13 +105,27 @@
     <div id="rightJoin" class="joinContainer">
       <div class="tableText">
         <span class="text"><%= dicts.joinModdal.RightTable %></span>
+        <div class="dropDownList joinTableList">
+          <div class="text"></div>
+          <div class="iconWrapper" title="<%= dicts.joinModdal.viewTables %>" data-toggle="tooltip" data-placement="top" data-container="body">
+              <div class="icon"></div>
+          </div>
+          <div class="list">
+            <ul >
+            </ul>
+            <div class="scrollArea top">
+              <div class="arrow"></div>
+            </div>
+            <div class="scrollArea bottom">
+              <div class="arrow"></div>
+            </div>
+          </div>
+        </div>
         <button class="smartSuggest btn" title="<%= dicts.joinModdal.SuggRightHint %>" data-toggle="tooltip" data-placement="top" data-container="body"><%= dicts.joinModdal.SmartSuggBtn %></button>
         <span class="suggError">e</span>
       </div>
       <div class="mainTable">
         <div class="tabArea">
-          <div class="worksheetTabs"></div>
-          <div class="tableTabs"></div>
           <div class="joinTableArea">
             <div class="background"></div>
             <div class="outline"></div>

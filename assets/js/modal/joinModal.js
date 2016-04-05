@@ -1,13 +1,15 @@
 window.JoinModal = (function($, JoinModal) {
     var $modalBackground = $("#modalBackground");
+    var $mainJoin     = $("#mainJoin");
     var $joinModal = $("#joinModal");
+    var $tableDropDown = $mainJoin.find('.joinTableList');
     var modalHelper;
     // var $joinInstr = $("#joinInstr");
 
     var $joinSelect   = $("#joinType");
     var $joinDropdown = $("#joinTypeSelect");
     var $joinPreview  = $('#joinPreview');
-    var $mainJoin     = $("#mainJoin");
+
 
     var $joinTableName  = $("#joinRoundedInput");
     var $leftJoinTable  = $("#leftJoin");
@@ -46,8 +48,6 @@ window.JoinModal = (function($, JoinModal) {
         });
 
         $joinSelect.click(function(event) {
-            event.stopPropagation();
-
             $joinSelect.toggleClass("open");
             $joinDropdown.toggle();
         });
@@ -65,10 +65,57 @@ window.JoinModal = (function($, JoinModal) {
 
             $joinSelect.find(".text").text(joinType);
             updatePreviewText();
-            hideJoinTypeSelect();
+            hideDropdowns({close: true});
         });
 
-        $joinModal.click(hideJoinTypeSelect);
+        $tableDropDown.on('click', 'li', function(event) {
+            var $li  = $(this);
+            event.stopPropagation();
+            hideDropdowns({close: true});
+            var $tableNameText = $li.closest('.dropDownList').find('.text');
+            var tableName = $li.text();
+            var originalText = $tableNameText.text();
+            var tableId = $li.data("id");
+
+            if (originalText !== tableName) {
+                $tableNameText.text(tableName).data('id', tableId);
+                $li.siblings().removeClass('selected');
+                $li.addClass('selected');
+                updatePreviewText();
+            } else {
+                return;
+            }
+
+            var $modal = $li.closest('.joinContainer');
+
+
+            $modal.find(".colSelected").removeClass("colSelected");
+            $modal.find(".joinTable").hide();
+            $modal.find('.joinTable[data-id="' + tableId + '"]').show();
+
+            if ($mainJoin.hasClass("multiClause")) {
+                // when multijoin, empty left or right inputs if new table
+                // selected
+                if ($modal.attr('id') === 'rightJoin')
+                {
+                    $joinModal.find('.rightClause').val("");
+                } else {
+                    $joinModal.find('.leftClause').val("");
+                }
+            }
+        });
+
+        xcHelper.dropdownList($tableDropDown.eq(0), {
+            "container"    : "#mainJoin",
+            "bounds"       : '#mainJoin'
+        });
+
+        xcHelper.dropdownList($tableDropDown.eq(1), {
+            "container"    : "#mainJoin",
+            "bounds"       : '#mainJoin'
+        });
+
+        $joinModal.click(hideDropdowns);
 
         // This submits the joined tables
         $("#joinTables").click(function() {
@@ -97,7 +144,7 @@ window.JoinModal = (function($, JoinModal) {
                 });
                 return;
             }
-            
+
             modalHelper.submit();
 
             xcHelper.checkDuplicateTableName(newTableName)
@@ -132,19 +179,6 @@ window.JoinModal = (function($, JoinModal) {
                             .siblings(".offBox").addClass("active");
                 toggleMultiClause(false);
             }
-
-            // XXX Hack From Cheng: I know it's a bad workaround,
-            // the reason is because we use css with 0.5s delay to do animation,
-            // so this is the way I could think
-            // to move ws tab with table tab in sync
-            // change it if you have better idea!
-            var $wsLabels = $joinModal.find(".worksheetLabel");
-            $wsLabels.hide();
-            setTimeout(function() {
-                updateWSTabSize($leftJoinTable);
-                updateWSTabSize($rightJoinTable);
-                $wsLabels.show();
-            }, 600);
         });
 
         // add multi clause
@@ -250,11 +284,7 @@ window.JoinModal = (function($, JoinModal) {
             handles    : "n, e, s, w, se",
             minHeight  : minHeight,
             minWidth   : minWidth,
-            containment: "document",
-            resize     : function() {
-                updateWSTabSize($leftJoinTable);
-                updateWSTabSize($rightJoinTable);
-            }
+            containment: "document"
         });
 
         addModalTabListeners($leftJoinTable, true);
@@ -265,7 +295,7 @@ window.JoinModal = (function($, JoinModal) {
         isOpenTime = true;
         $("body").on("keypress", joinTableKeyPress);
         $("body").on("mouseup", removeCursors);
-        $modalBackground.on("click", hideJoinTypeSelect);
+        $modalBackground.on("click", hideDropdowns);
         updateJoinTableName();
         modalHelper.setup();
 
@@ -288,8 +318,6 @@ window.JoinModal = (function($, JoinModal) {
         isOpenTime = false;
 
         function showHandler() {
-            updateWSTabSize($leftJoinTable);
-            updateWSTabSize($rightJoinTable);
             scrollToColumn($leftJoinTable.find("th.colSelected"));
             // this is the case when right table has suggested col
             scrollToColumn($rightJoinTable.find("th.colSelected"));
@@ -368,12 +396,12 @@ window.JoinModal = (function($, JoinModal) {
             // only when left Clause and rightClause has less that 1 column,
             // then do the rehighlight
             if (lCols.length === 1) {
-                var lTableId = $leftJoinTable.find(".tableLabel.active").data("id");
+                var lTableId = $leftJoinTable.find(".joinTableList .text").data("id");
                 highlightColumn(lTableId, lCols[0], true);
             }
 
             if (rCols.length === 1) {
-                var rTableId = $rightJoinTable.find(".tableLabel.active").data("id");
+                var rTableId = $rightJoinTable.find(".joinTableList .text").data("id");
                 highlightColumn(rTableId, rCols[0], false);
             }
             return;
@@ -448,14 +476,14 @@ window.JoinModal = (function($, JoinModal) {
         }
 
         // left table
-        var $lTLabel = $leftJoinTable.find(".tableLabel.active");
-        var lTableId = $lTLabel.data('id');
+        var $lTText = $leftJoinTable.find(".joinTableList .text");
+        var lTableId = $lTText.data('id');
         var $lTable  = $leftJoinTable.find('.joinTable[data-id="' +
                                             lTableId + '"]');
 
         // right table
-        var $rTLabel = $rightJoinTable.find(".tableLabel.active");
-        var rTableId = $rTLabel.data('id');
+        var $rTText = $rightJoinTable.find(".joinTableList .text");
+        var rTableId = $rTText.data('id');
         var $rTable  = $rightJoinTable.find('.joinTable[data-id="' +
                                                 rTableId + '"]');
 
@@ -495,7 +523,7 @@ window.JoinModal = (function($, JoinModal) {
     function resetJoinTables() {
         $("body").off("keypress", joinTableKeyPress);
         $("body").off("mouseup", removeCursors);
-        $modalBackground.off("click", hideJoinTypeSelect);
+        $modalBackground.off("click", hideDropdowns);
 
         modalHelper.clear();
         modalHelper.enableSubmit();
@@ -516,42 +544,28 @@ window.JoinModal = (function($, JoinModal) {
                     .find(".offBox").addClass("active");
         $multiJoin.find(".placeholder").siblings().remove();
 
-
-        $joinModal.find('.tableLabel').remove();
+        $tableDropDown.find('.text').text("").data('id', "").end()
+                      .find('ul').empty();
         $joinModal.find('.joinTable').remove();
         $joinModal.width(920).height(620);
     }
 
-    function hideJoinTypeSelect() {
-        $joinSelect.removeClass("open");
-        $joinDropdown.hide();
+    function hideDropdowns(event) {
+        if (!event.close && $(event.target).closest('.dropDownList').length) {
+            $joinModal.find('.dropDownList').each(function() {
+                if (!$(this).is($(event.target).closest('.dropDownList'))) {
+                    $(this).removeClass('open').find('.list').hide();
+                }
+            });
+            return;
+        }
+        $joinModal.find('.open').removeClass('open');
+        $joinModal.find('.list').hide();
     }
 
     function updateJoinTableName() {
         var joinTableName = "";
         $joinTableName.val(joinTableName);
-    }
-
-    function updateWSTabSize($section) {
-        // Caculate each table tab's width in the worksheet
-        // and make the ws tab to be that size
-        var $tabs = $section.find(".tableLabel");
-        var includeMargin = true;
-
-        $section.find(".worksheetLabel").each(function() {
-            var $wsLabel = $(this);
-            var ws = $wsLabel.data("ws");
-            var width = 0;
-
-            $tabs.each(function() {
-                var $tab = $(this);
-                if ($tab.data("ws") === ws) {
-                    width += $tab.outerWidth(includeMargin);
-                }
-            });
-
-            $wsLabel.css("flex", "0 1 " + width + "px");
-        });
     }
 
     function joinTableKeyPress(event) {
@@ -577,15 +591,20 @@ window.JoinModal = (function($, JoinModal) {
             $modal.find(".tabArea").html($sibling.find(".tabArea").html());
             $modal.find(".joinTableArea").html(
                     $sibling.find(".joinTableArea").html());
+            var tableListHtml = $tableDropDown.eq(1).find('ul').html();
+            $tableDropDown.eq(0).find('ul').html(tableListHtml);
         } else {
             joinModalHTMLHelper($modal);
         }
         // trigger click of table and column
         if (tableId != null) {
             // this is for left join table
-            $modal.find(".tableLabel").filter(function() {
+            $modal.find($tableDropDown).find('li').filter(function() {
                 return ($(this).data("id") === tableId);
             }).click();
+            var tableName = gTables[tableId].tableName;
+            $tableDropDown.eq(0).find('.text').text(tableName)
+                                .data('id', tableId);
 
             if (colNum > 0) {
                 var $table = $("#xcTable-" + tableId);
@@ -599,15 +618,14 @@ window.JoinModal = (function($, JoinModal) {
             }
         } else {
             // for right join table
-            $modal.find('.tableLabel:first').click();
+           $tableDropDown.eq(1).find('li').eq(0).click();
         }
     }
 
     function joinModalHTMLHelper($modal) {
-        var wsTabHtml   = "";
-        var tabHtml     = "";
         var $columnArea = $modal.find(".joinTableArea");
         var wsOrders    = WSManager.getOrders();
+        var tableLis    = "";
         // group table tab by worksheet (only show active table)
         for (var i = 0, len = wsOrders.length; i < len; i++) {
             var wsId = wsOrders[i];
@@ -617,35 +635,18 @@ window.JoinModal = (function($, JoinModal) {
             for (var j = 0; j < wsTables.length; j++) {
                 var tableId = wsTables[j];
                 var table   = gTables[tableId];
-
-                if (j === 0) {
-                    wsTabHtml +=
-                        '<div title="' + ws.name + '" ' +
-                        '"data-toggle="tooltip" data-placement="top" ' +
-                        'data-container="body" ' +
-                        'class="worksheetLabel textOverflow tooltipOverflow" ' +
-                        'data-ws="' + wsId + '" ' +
-                        'data-id="' + tableId + '">' +
-                            ws.name +
-                        '</div>';
+                if (j === 0 && wsOrders.length > 1) {
+                    tableLis += '<div class="sectionLabel">'+ ws.name +'</div>';
                 }
 
-                tabHtml +=
-                    '<div class="tableLabel textOverflow tooltipOverflow" ' +
-                    'title="' + table.tableName +
-                    '" data-toggle="tooltip" data-placement="top" ' +
-                    'data-container="body" ' +
-                    'data-ws="' + wsId + '" ' +
-                    'data-id="' + tableId + '">' +
-                        table.tableName +
-                    '</div>';
-
+                tableLis += '<li data-ws="' + wsId + '" data-id="' + tableId +
+                            '">' + table.tableName + '</li>';
                 appendColHTML(tableId, table.tableCols);
             }
         }
 
-        $modal.find(".worksheetTabs").html(wsTabHtml);
-        $modal.find(".tableTabs").html(tabHtml);
+        $joinModal.find('.joinTableList').eq(1).find('ul').html(tableLis);
+
 
         function appendColHTML(id, tableCols) {
             var colHtml = '<table class="dataTable joinTable" ' +
@@ -704,59 +705,29 @@ window.JoinModal = (function($, JoinModal) {
     }
 
     function addModalTabListeners($modal, isLeft) {
-        $modal.on('click', '.tableLabel', function() {
-            var $tableLabel = $(this);
-            if ($tableLabel.hasClass('active')) {
-                return;
-            }
-
-            var tableId = $tableLabel.data("id");
-            $modal.find(".tableLabel.active").removeClass("active");
-            $tableLabel.addClass("active");
-
-
-            $modal.find(".colSelected").removeClass("colSelected");
-            $modal.find(".joinTable").hide();
-            $modal.find('.joinTable[data-id="' + tableId + '"]').show();
-
-            if ($mainJoin.hasClass("multiClause")) {
-                // when multijoin, empty left or right inputs if new table
-                // selected
-                if ($tableLabel.closest('.joinContainer').attr('id') ===
-                    'rightJoin')
-                {
-                    $joinModal.find('.rightClause').val("");
-                } else {
-                    $joinModal.find('.leftClause').val("");
-                }
-            }
-
-            updateWSTabSize($modal);
-            updatePreviewText();
-        });
 
         $modal.on("click", ".smartSuggest", function() {
             $(".tooltip").hide();
             var $suggErrorArea = $(this).siblings(".suggError");
             var $checkSection = isLeft ? $rightJoinTable :
                                          $leftJoinTable;
-            var $tableLabel = $checkSection.find(".tableLabel.active");
+            var $tableText = $checkSection.find('.joinTableList .text');
             var text;
 
-            if ($tableLabel.length > 0) {
-                var tableId = $tableLabel.data("id");
+            if ($tableText.text() !== "") {
+                var tableId = $tableText.data("id");
                 var $th = $checkSection.find('.joinTable[data-id="' + tableId +
                                         '"] th.colSelected');
                 if ($th.length > 0) {
                     var $suggSection = isLeft ? $leftJoinTable :
                                                 $rightJoinTable;
-                    var $suggTableLabel = $suggSection.find(".tableLabel.active");
-                    if ($suggTableLabel.length === 0) {
+                    var $suggTableText = $suggSection.find('.joinTableList .text');
+                    if ($suggTableText.text() === "") {
                         console.error("Error, none of the lable is active!");
                         return;
                     }
 
-                    var suggTableId = $suggTableLabel.data("id");
+                    var suggTableId = $suggTableText.data("id");
                     var isFind = suggestJoinKey(tableId, $th,
                                                 $suggSection, suggTableId);
 
@@ -777,7 +748,7 @@ window.JoinModal = (function($, JoinModal) {
             function toolTipHelper(title) {
                 $suggErrorArea.tooltip({
                     "title"    : title,
-                    "placement": "right",
+                    "placement": "left",
                     "animation": "true",
                     "container": "#" + $modal.attr("id"),
                     "trigger"  : "manual",
@@ -787,7 +758,7 @@ window.JoinModal = (function($, JoinModal) {
                 $suggErrorArea.tooltip("show");
                 setTimeout(function() {
                     $suggErrorArea.tooltip("destroy");
-                }, 1000);
+                }, 1500);
             }
         });
 
@@ -1016,7 +987,7 @@ window.JoinModal = (function($, JoinModal) {
 
         // if find the suggeest join key
         if (tableIdToClick != null) {
-            $suggSection.find(".tableLabel").filter(function() {
+            $suggSection.find($tableDropDown).find('li').filter(function() {
                 return ($(this).data("id") === tableIdToClick);
             }).click();
 
@@ -1265,8 +1236,8 @@ window.JoinModal = (function($, JoinModal) {
 
     function updatePreviewText() {
         var joinType = $joinSelect.find(".text").text();
-        var lTableName = $leftJoinTable.find(".tableLabel.active").text();
-        var rTableName = $rightJoinTable.find(".tableLabel.active").text();
+        var lTableName = $leftJoinTable.find(".joinTableList .text").text();
+        var rTableName = $rightJoinTable.find(".joinTableList .text").text();
         var isMultiJoin = $mainJoin.hasClass("multiClause");
         var previewText = '<span class="joinType">' + joinType +
                           '</span> <span class="highlighted">' + lTableName +
@@ -1285,7 +1256,7 @@ window.JoinModal = (function($, JoinModal) {
                 pair = [lClause, rClause];
                 columnPairs.push(pair);
             });
-            
+
         } else {
             lClause = $leftJoinTable.find("th.colSelected").text();
             rClause = $rightJoinTable.find('th.colSelected').text();

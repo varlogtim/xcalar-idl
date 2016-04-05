@@ -1381,6 +1381,22 @@ input {
     }
 }
 
+// styling common to menus and lists
+.menu, .list {
+    .sectionLabel {
+        height: 16px;
+        line-height: 14px;
+        font-weight: 600;
+        font-size: 11px;
+        padding-left: 10px;
+        border-bottom: 1px solid @color-border-lightLightGray;
+        border-top: 1px solid @color-border-lightLightGray;
+        background-color: @color-background-listSectionGray !important;
+        color: @color-text-softGray;
+        .textOverflowOneLine;
+    }
+}
+
 .subMenu {
     &.left {
         margin-left: -325px;
@@ -2817,7 +2833,8 @@ input[type=number]::-webkit-outer-spin-button {
 
     .tooltip-arrow {
         background-color: transparent !important;
-        border-top-color: @color-error-border;
+        // border-top-color: @color-error-border;
+        border-left-color: #FDB8B8;
     }
 
     .tooltip-inner {
