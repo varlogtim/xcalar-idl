@@ -176,6 +176,27 @@ TableMeta.prototype = {
         return deferred.promise();
     },
 
+    getColDirection: function(backColName) {
+        var deferred = jQuery.Deferred();
+        var tableName = this.tableName;
+
+        XcalarGetDag(tableName)
+        .then(function(nodeArray) {
+            if (XcalarApisTStr[nodeArray.node[0].api] === "XcalarApiIndex") {
+                var indexInput = nodeArray.node[0].input.indexInput;
+                if (indexInput.keyName === backColName) {
+                    deferred.resolve(indexInput.ordering)
+                    return;
+                }
+            }
+
+            deferred.resolve(XcalarOrderingT.XcalarOrderingUnordered);
+        })
+        .fail(deferred.reject);
+
+        return deferred.promise();
+    },
+
     beInActive: function() {
         this.status = TableType.InActive;
         return this;
@@ -554,7 +575,9 @@ function ProfileInfo(options) {
     this.modalId = options.modalId;
     this.colName = options.colName;
     this.type = options.type;
+
     this.aggInfo = new ProfileAggInfo(options.aggInfo);
+    this.statsInfo = new ProfileStatsInfo(options.statsInfo);
     this.groupByInfo = new ProfileGroupbyInfo(options.groupByInfo);
 
     return this;
@@ -568,11 +591,48 @@ ProfileInfo.prototype = {
 
 function ProfileAggInfo(options) {
     options = options || {};
-    this.max = options.max || null;
-    this.min = options.min || null;
-    this.count = options.count || null;
-    this.sum = options.sum || null;
-    this.average = options.average || null;
+
+    if (options.max != null) {
+        this.max = options.max
+    }
+
+    if (options.min != null) {
+        this.min = options.min;
+    }
+
+    if (options.count != null) {
+        this.count = options.count;
+    }
+
+    if (options.sum != null) {
+        this.sum = options.sum;
+    }
+
+    if (options.average != null) {
+        this.average = options.average;
+    }
+
+    return this;
+}
+
+function ProfileStatsInfo(options) {
+    options = options || {};
+
+    if (options.unsorted) {
+        this.unsorted = options.unsorted;
+    }
+
+    if (options.lowerQuartile != null) {
+        this.lowerQuartile = options.lowerQuartile
+    }
+
+    if (options.median != null) {
+        this.median = options.median;
+    }
+
+    if (options.upperQuartile != null) {
+        this.upperQuartile = options.upperQuartile;
+    }
 
     return this;
 }

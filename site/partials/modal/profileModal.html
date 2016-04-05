@@ -1,4 +1,4 @@
-<!-- Profile Modal -->
+Profile Modal -->
 <div id="profileModal" class="modalContainer">
   <!-- Profile Modal Header -->
   <header class="modalHeader">
@@ -75,32 +75,9 @@
         </div>
       </div>
     </div>
-    <!-- aggregate info section -->
-    <div class="aggInfoSection">
-      <div class="aggInfo">
-        <span><%= dicts.common.count %>:</span>
-        <span data-toggle="tooltip"
-          data-placement="top" data-container="body" class="text count tooltipOverflow"></span>
-      </div>
-       <div class="aggInfo">
-        <span><%= dicts.common.min %>:</span>
-        <span data-toggle="tooltip" data-placement="top" data-container="body" class="text min tooltipOverflow"></span>
-      </div>
-      <div class="aggInfo">
-        <span><%= dicts.common.max %>:</span>
-        <span data-toggle="tooltip" data-placement="top" data-container="body" class="text max tooltipOverflow"></span>
-      </div>
-      <div class="aggInfo">
-        <span><%= dicts.common.average %>:</span>
-        <span data-toggle="tooltip" data-placement="top" data-container="body" class="text average tooltipOverflow"></span>
-      </div>
-      <div class="aggInfo">
-        <span><%= dicts.common.sum %>:</span>
-        <span data-toggle="tooltip" data-placement="top" data-container="body" class="text sum tooltipOverflow"></span>
-      </div>
-    </div>
     <!-- range section -->
     <div class="rangeSection loadDisable">
+      <div class="title"><%= dicts.profile.BucketTitle %></div>
       <div class="buttonSection">
         <span class="text single"><%= dicts.profile.Single %></span>
         <div class="rangeBtn">
@@ -113,10 +90,50 @@
         <input id="stats-step" type="number" step="1" min="1" spellcheck="false">
       </div>
     </div>
-  </section>
-  <!-- Button Section -->
-  <section class="modalBottom">
-    <button type="button" class="btn btnMid cancel"><%= dicts.common.CLOSE %></button>
+    <!-- info section -->
+    <div class="infoSection">
+      <!-- agginfo -->
+      <div class="infoContainer aggInfo">
+        <div class="title"><%= dicts.profile.AggSummary %></div>
+        <div class="info">
+          <span class="label"><%= dicts.common.count %>:</span>
+          <span data-toggle="tooltip" data-placement="top" data-container="body" class="text count tooltipOverflow"></span>
+        </div>
+         <div class="info">
+          <span class="label"><%= dicts.common.min %>:</span>
+          <span data-toggle="tooltip" data-placement="top" data-container="body" class="text min tooltipOverflow"></span>
+        </div>
+        <div class="info">
+          <span class="label"><%= dicts.common.max %>:</span>
+          <span data-toggle="tooltip" data-placement="top" data-container="body" class="text max tooltipOverflow"></span>
+        </div>
+        <div class="info">
+          <span class="label"><%= dicts.common.average %>:</span>
+          <span data-toggle="tooltip" data-placement="top" data-container="body" class="text average tooltipOverflow"></span>
+        </div>
+        <div class="info">
+          <span class="label"><%= dicts.common.sum %>:</span>
+          <span data-toggle="tooltip" data-placement="top" data-container="body" class="text sum tooltipOverflow"></span>
+        </div>
+      </div>
+      <!-- stats info -->
+      <div class="infoContainer statsInfo">
+        <div class="title"><%= dicts.profile.QuartileSummary %></div>
+        <div class="instruction"><%= dicts.profile.QuartileInstr %></div>
+        <div class="info">
+          <span class="label">25%:</span>
+          <span data-toggle="tooltip" data-placement="top" data-container="body" class="text lowerQuartile tooltipOverflow"></span>
+        </div>
+        <div class="info">
+          <span class="label">50%:</span>
+          <span data-toggle="tooltip" data-placement="top" data-container="body" class="text median tooltipOverflow"></span>
+        </div>
+        <div class="info">
+          <span class="label">75%:</span>
+          <span data-toggle="tooltip" data-placement="top" data-container="body" class="text upperQuartile tooltipOverflow"></span>
+        </div>
+      </div>
+    </div>
   </section>
 </div>
-<!-- End of Profile Modal -->
+<!-- End of Profile Modal

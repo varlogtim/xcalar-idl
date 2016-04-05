@@ -66,7 +66,6 @@ CommonTxtTstr = {
     'Copy': 'Copy',
     'DefaultVal': 'Default Value',
     'HoldToDrag': 'click and hold to drag',
-    'IntFloatOnly': 'Integer/Float Only',
     'NumCol': 'number of columns',
     'Exit': 'Exit',
     'ClickToOpts': 'click to see options',

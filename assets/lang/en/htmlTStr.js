@@ -462,9 +462,13 @@ module.exports = {
         'orig': 'original',
         'desc': 'descending',
         'SkipTo': 'Skip to',
+        'BucketTitle': 'Range Bucketing',
         'Single': 'Single',
         'Range': 'Range',
-        'BucketInstr': 'Input range size (e.g. 0.5, 10)'
+        'BucketInstr': 'Input range size (e.g. 0.5, 10)',
+        'AggSummary': 'Aggregate Summary',
+        'QuartileSummary': 'Quartile Summary',
+        'QuartileInstr': 'Quartile statistics can only be calculated when the column is sorted'
     },
 
     workbook: {

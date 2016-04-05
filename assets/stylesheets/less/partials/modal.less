@@ -2409,6 +2409,25 @@ html.microsoft {
         cursor: pointer;
     }
 
+    &.type-string {
+        .modalTopMain {
+            .size(@height: ~"calc(100% - 165px)");
+        }
+
+        .modalMain {
+            .size(@height: 47px);
+            padding: 0;
+
+            .rangeSection {
+                display: none;
+            }
+
+            .infoSection {
+                display: none;
+            }
+        }
+    }
+
     .modalTopMain {
         .size(@height: ~"calc(100% - 309px)", @min-height: 105px);
         .position(relative);
@@ -2519,8 +2538,9 @@ html.microsoft {
     }
 
     .modalMain {
-        .size(@height: 165px);
+        .size(@height: 215px);
         padding: 0 0 5px 0;
+        .rounded(0 0 3px 3px);
 
         .scrollSection {
             .size(@width: 100%, @height: 11px);
@@ -2678,44 +2698,17 @@ html.microsoft {
             }
         }
 
-        .aggInfoSection {
-            .size(@width: 100%, @height: 50px);
-            padding: 15px 20px;
-
-            .flex-display;
-
-            .aggInfo {
-                .flex(1 1 auto);
-                .font(@size: 13px, @line-height: 20px);
-                padding: 0 2px;
-                white-space: nowrap;
-
-                .text {
-                    margin-left: 2px;
-                    .font(@weight: 900, @color: @color-profile-agg-text);
-                    display: inline-block;
-                    width: ~"calc(100% - 50px)";
-                    .textOverflow;
-                    vertical-align: bottom;
-
-                    &.animatedEllipsis {
-                        float: none;
-                        vertical-align: sub;
-                        width: 2px;
-                    }
-                }
-            }
+        .rangeSection, .infoSection {
+            .size(@width: 50%, @height: ~"calc(100% - 50px)");
+            float: left;
         }
 
         .rangeSection {
-            .size(@width: 100%, @height: 50px);
-            padding: 0 20px;
-            border-top: 1px solid @color-border-topGrayMed;
-            border-bottom: 1px solid @color-border-topGrayMed;
-            line-height: 48px;
+            padding: 10px 10px 10px 20px;
 
             > div {
-                float: left;
+                .size(@width:100%, @height: 30px);
+                .font(@size: 12px, @line-height: 30px);
             }
 
             &.range {
@@ -2742,13 +2735,15 @@ html.microsoft {
                 }
             }
 
-            .buttonSection {
-                .size(@width: 25%, @height: 100%);
+            .title {
+                .font(@size: 13px, @weight: bold);
+            }
 
+            .buttonSection {
                 .text {
                     float: left;
-                    font-weight: bold;
                     cursor: pointer;
+                    font-weight: bold;
 
                     &.single {
                         color: @color-text-blue;
@@ -2784,13 +2779,16 @@ html.microsoft {
             }
 
             .inputSection {
-                .size(@width: 75%, @height: 100%);
                 opacity: 0.5;
 
-                .input-box(@w: 150px, @h: 25px);
+                .text {
+                    display: inline-block;
+                    .size(@width: 170px);
+                }
+
+                .input-box(@w: ~"calc(100% - 200px)", @h: 25px);
 
                 input {
-                    margin-left: 10px;
                     background-color: @color-profile-input-background;
 
                     &.disabled {
@@ -2800,11 +2798,80 @@ html.microsoft {
                 }
             }
         }
-    }
 
-    .modalBottom {
-        .btn {
-            margin: 8px 15px 0 0;
+        .infoSection {
+            padding: 10px 20px 10px 0;
+
+            .infoContainer {
+                .size(@width: ~"calc(50% - 5px)", @height: 100%);
+                float: left;
+                background-color: @color-modal-whiteGray;
+                padding: 5px;
+                border: 1px solid @color-border-lightLightGray;
+                box-shadow: inset 0px 1px 0px rgba(0, 0, 0, 0.2);
+                .rounded(3px);
+
+                &:first-child {
+                    margin-right: 5px;
+                }
+
+                &.aggInfo .info {
+                    .label {
+                        .size(@width: 55px);
+                        text-transform: capitalize;
+                    }
+
+                    .text {
+                        .size(@width: ~"calc(100% - 55px)");
+                    }
+                }
+
+                &.statsInfo .info {
+                    .label {
+                        .size(@width: 31px);
+                    }
+
+                    .text {
+                        .size(@width: ~"calc(100% - 35px)");
+                    }
+                }
+            }
+
+            .info, .title {
+                .size(@height: 20px);
+                .font(@line-height: 20px);
+            }
+
+            .title {
+                .font(@size: 13px, @weight: bold);
+                margin-bottom: 5px;
+            }
+
+            .instruction {
+                .font(@size: 12px, @color: @color-text-instructions);
+            }
+
+            .info {
+                .font(@size: 12px, @line-height: 20px);
+                white-space: nowrap;
+
+                .label {
+                    display: inline-block;
+                }
+
+                .text {
+                    .font(@weight: 900, @color: @color-profile-agg-text);
+                    display: inline-block;
+                    .textOverflow;
+                    vertical-align: bottom;
+
+                    &.animatedEllipsis {
+                        float: none;
+                        vertical-align: sub;
+                        width: 2px !important;
+                    }
+                }
+            }
         }
     }
 }
