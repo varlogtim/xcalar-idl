@@ -286,7 +286,10 @@ module.exports = {
         'ip': 'in progress',
         'VIEWOUTPUT': 'VIEW OUTPUT',
         'EXPORT': 'EXPORT OUTPUT TO WORKSHEET',
-        'Config': 'Configuration'
+        'Config': 'Configuration',
+        'INSTALL': 'INSTALL',
+        'UNINSTALL': 'UNINSTALL',
+        'UPGRADE': 'UPGRADE'
     },
 
     ds: {

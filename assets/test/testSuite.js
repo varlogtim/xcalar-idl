@@ -528,8 +528,8 @@ window.TestSuite = (function($, TestSuite) {
             var $colMenu = $("#colMenu .joinList");
             $colMenu.trigger(fakeEvent.mouseup);
             setTimeout(function() {
-                $("#rightJoin .tableLabel:contains('airport')")
-                    .trigger(fakeEvent.click);
+                $('.joinTableList').eq(1).find("li:contains('airport')")
+                                        .trigger(fakeEvent.click);
                 var $th = $("#rightJoin .columnTab:contains('iata')");
                 if (!$th.parent().hasClass("colSelected")) {
                     $th.trigger(fakeEvent.click);
@@ -537,10 +537,8 @@ window.TestSuite = (function($, TestSuite) {
 
                 setTimeout(function() {
 
-                    var lTableName = $("#leftJoin").find(".tableLabel.active")
-                                                   .text();
-                    var rTableName = $("#rightJoin").find(".tableLabel.active")
-                                                   .text();
+                    var lTableName = $('.joinTableList').eq(0).find('.text').text();
+                    var rTableName = $('.joinTableList').eq(1).find('.text').text();
                     var newName = xcHelper.getTableName(lTableName) + '-' +
                           xcHelper.getTableName(rTableName);
                     $('#joinRoundedInput').val(newName);
@@ -731,14 +729,14 @@ window.TestSuite = (function($, TestSuite) {
             return (checkExists("#multiJoin .title"));
         }).then(function() {
             $(".joinClause").eq(1).click();
-            $(".tableLabel").eq(6).click();
+            $('.joinTableList').eq(1).find('li').eq(2).click();
             $(".leftClause").eq(0).val("class_id");
             $(".leftClause").eq(1).val("teacher_id");
             $(".rightClause").eq(0).val("DayofMonth");
             $(".rightClause").eq(1).val("DayOfWeek");
 
-            var lTableName = $("#leftJoin").find(".tableLabel.active").text();
-            var rTableName = $("#rightJoin").find(".tableLabel.active").text();
+            var lTableName = $('.joinTableList').eq(0).find('.text').text();
+            var rTableName = $('.joinTableList').eq(1).find('.text').text();
             var newName = xcHelper.getTableName(lTableName) + '-' +
                           xcHelper.getTableName(rTableName);
             $('#joinRoundedInput').val(newName);

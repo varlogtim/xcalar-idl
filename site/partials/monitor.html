@@ -368,6 +368,19 @@
   <!-- Setup Section -->
   <section id="monitor-setup" class="monitorSection">
     <div class="topSection"><%= dicts.monitor.Config %></div>
+    <div class="leftSection no-selection">
+      <div class="buttonSection">
+        <button id="configInstall" class="btn btnLarge iconBtn"><span class="icon"></span>
+          <%= dicts.monitor.INSTALL %>
+        </button>
+        <button id="configUninstall" class="btn btnLarge iconBtn"><span class="icon"></span>
+          <%= dicts.monitor.UNINSTALL %>
+        </button>
+        <button id="configUpgrade" class="btn btnLarge iconBtn"><span class="icon"></span>
+          <%= dicts.monitor.UPGRADE %>
+        </button>
+      </div>
+    </div>
     <div class="midSection">
       <div class="visualArea">
         <div class="clusterIcon">
@@ -378,6 +391,30 @@
         </div>
       </div>
       <div class="optionsArea">
+      <% var names = ['DsDefaultSampleSize', 'StatTurnOnDiffStats', 'DsMaxUncompressedFileSize',
+      'XcalarRootCompletePath', 'XcalarRootCompletePath', 'DfMaxRecords', 'ConfigUiKvStorePath',
+      'StatTurnOnDiffStats', 'StatTurnOnDiffStats', 'DsMaxUncompressedFileSize',
+      'XcalarRootCompletePath', 'XcalarRootCompletePath', 'DfMaxRecords', 'ConfigUiKvStorePath',
+      'StatTurnOnDiffStats']; %>
+      <% var inputValues = [524280000, false, 1073741824, '//var//tmp/xcalar//1073741824',
+      '//var//tmp//UI.kvStore', false, 1073741824, 1073741824, 1073741824, 1073741824,
+      1073741824, 1073741824, 1073741824, 1073741824]; %>
+      <% _.each(names, function(name, i) { %>
+
+        <div class="optionRow">
+          <div class="nameArea">
+            <span class="label"><%= dicts.common.Name %>: </span>
+            <span class="name"><%= name %></span>
+          </div>
+          <div class="valueArea">
+            <span class="label"><%= dicts.common.Val %>: </span>
+            <input type="text" value="<%= inputValues[i] %>">
+          </div>
+          <div class="buttonArea">
+            <button class="btn btnMid"><%= dicts.common.BROWSE %></button>
+          </div>
+        </div>
+       <% }) %>
         <div class="optionRow">
           <div class="nameArea">
             <span class="label"><%= dicts.common.Name %>: </span>
@@ -421,4 +458,4 @@
   </section>
   <!-- End of Setup Section -->
 </div>
-<!-- END OF MONITOR PANEL -->
+<!-- END OF MONITOR PANEL
