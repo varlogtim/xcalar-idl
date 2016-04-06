@@ -31,8 +31,8 @@
 .noSelection {
     -webkit-touch-callout: none;
     -webkit-user-select: none;
-    -moz-user-select: none; 
-    -ms-user-select: none; 
+    -moz-user-select: none;
+    -ms-user-select: none;
     user-select: none;
 }
 
@@ -63,7 +63,11 @@
 }
 
 .noTransition {
-    .transition(0s) !important;
+    -webkit-transition: 0s !important;
+    -moz-transition: 0s !important;
+    -ms-transition: 0s !important;
+    -o-transition: 0s !important;
+    transition: 0s !important;
 }
 
 .cursor-move() {
@@ -121,7 +125,7 @@
     -o-tab-size: @size; /* Code for Opera 10.6-12.1 */
 }
 
-.position(@position: null, @top: null, @right: null, 
+.position(@position: null, @top: null, @right: null,
           @bottom: null, @left: null) {
   .property(position, @position);
   .property(top, @top);
@@ -724,15 +728,15 @@
     }
 
     &:-moz-placeholder { /* Firefox 18- */
-       color: @color;  
+       color: @color;
     }
 
     &::-moz-placeholder {  /* Firefox 19+ */
-       color: @color;  
+       color: @color;
     }
 
-    &:-ms-input-placeholder {  
-       color: @color;  
+    &:-ms-input-placeholder {
+       color: @color;
     }
 }
 
@@ -776,7 +780,7 @@
     background: -moz-linear-gradient(@origin, @start, @stop);
     background: -o-linear-gradient(@origin, @start, @stop);
     background: -ms-linear-gradient(@origin, @start, @stop);
-  
+
     .parser(top) {
         background: linear-gradient(to bottom, @start, @stop);
     }
