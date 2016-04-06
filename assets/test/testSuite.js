@@ -840,22 +840,22 @@ window.TestSuite = (function($, TestSuite) {
             assert($(".barArea .xlabel:contains('153')").length > 0);
             assert($(".barArea .xlabel:contains('272')").length > 0);
 
-            assert($(".aggInfoSection .min").text() ===
+            assert($(".infoSection .min").eq(0).text() ===
                     Number(1).toLocaleString());
-            assert($(".aggInfoSection .count").text() ===
+            assert($(".infoSection .count").text() ===
                     Number(1953).toLocaleString());
-            assert($(".aggInfoSection .average").text() ===
+            assert($(".infoSection .average").text() ===
                     Number(6.506912).toLocaleString());
-            assert($(".aggInfoSection .sum").text() ===
+            assert($(".infoSection .sum").text() ===
                     Number(12708).toLocaleString());
-            assert($(".aggInfoSection .max").text() ===
+            assert($(".infoSection .max").eq(0).text() ===
                     Number(12).toLocaleString());
 
             $(".sort.asc .icon").click();
             setTimeout(function() {
                 assert($(".barArea .xlabel").eq(0).text() === "134");
                 assert($(".barArea .xlabel").eq(7).text() === "626");
-                $("#profileModal .modalBottom button").click();
+                $("#profileModal .close").click();
                 TestSuite.pass(deferred, testName, currentTestNumber);
             }, 1000);
         })

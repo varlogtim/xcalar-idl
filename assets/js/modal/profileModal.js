@@ -247,8 +247,6 @@ window.Profile = (function($, Profile, d3) {
         // update front col name
         statsCol.frontColName = progCol.getFronColName();
 
-        var curStatsCol = statsCol;
-
         var sql = {
             "operation": SQLOps.Profile,
             "tableName": table.tableName,
@@ -271,8 +269,8 @@ window.Profile = (function($, Profile, d3) {
             deferred.resolve();
         })
         .fail(function(error) {
-            failureHandler(curStatsCol, error, txId);
-            deferred.reject(error);
+            console.error("Profile failed", error);
+            deferred.resolve();
         });
 
         return (deferred.promise());
@@ -348,7 +346,7 @@ window.Profile = (function($, Profile, d3) {
                 showProfile();
             })
             .fail(function(error) {
-                console.error(error);
+                failureHandler(statsCol, error, txId);
                 innerDeferred.reject(error);
             });
 
@@ -364,14 +362,13 @@ window.Profile = (function($, Profile, d3) {
         .then(deferred.resolve)
         .fail(function() {
             var error;
-            console.error(arguments);
             for (var t = 0; t < arguments.length; t++) {
                 error = error || arguments[t];
             }
             deferred.reject(error);
         });
 
-        return (deferred.promise());
+        return deferred.promise();
     }
 
     function showProfile() {
@@ -401,20 +398,32 @@ window.Profile = (function($, Profile, d3) {
     }
 
     // refresh profile
-    function refreshProfile(resetRefresh) {
+    function refreshProfile() {
+        var instruction = ProfileTStr.ProfileOf +
+                          " <b>" + statsCol.frontColName + ".</b><br>";
+
+        // update instruction
+        if (statsCol.groupByInfo.isComplete === true) {
+            instruction += ProfileTStr.Instr;
+        } else {
+            instruction += ProfileTStr.LoadInstr;
+        }
+
+        $modal.find(".modalInstruction .text").html(instruction);
+
+        refreshAggInfo(statsCol.type);
+        refreshStatsInfo(statsCol.type);
+
+        return refreshGroupbyInfo();
+    }
+
+    function refreshGroupbyInfo(resetRefresh) {
         var deferred = jQuery.Deferred();
 
-        var $infoSection = $modal.find(".infoSection");
         var $loadingSection = $modal.find(".loadingSection");
         var $loadHiddens = $modal.find(".loadHidden");
         var $loadDisables = $modal.find(".loadDisable");
-
-        var instruction = ProfileTStr.ProfileOf +
-                          " <b>" + statsCol.frontColName + ".</b><br>";
-        var type = statsCol.type;
-
-        refreshAggInfo(type, $infoSection);
-        refreshStatsInfo(type, $infoSection);
+        var $errorSection = $modal.find(".errorSection");
 
         if (resetRefresh) {
             $loadHiddens.addClass("disabled");
@@ -424,6 +433,7 @@ window.Profile = (function($, Profile, d3) {
 
         $loadDisables.addClass("disabled");
         $loadingSection.removeClass("hidden");
+        $errorSection.addClass("hidden").find(".text").text("");
 
         // update groupby info
         if (statsCol.groupByInfo.isComplete === true) {
@@ -468,24 +478,25 @@ window.Profile = (function($, Profile, d3) {
                 failureHandler(statsCol, error);
                 deferred.reject(error);
             });
-
-            instruction += ProfileTStr.Instr;
         } else {
             // the data is loading, show loadingSection and hide groupby section
-            instruction += ProfileTStr.LoadInstr;
             deferred.resolve();
         }
 
-        $modal.find(".modalInstruction .text").html(instruction);
-
-        return (deferred.promise());
+        return deferred.promise();
     }
 
-    function refreshAggInfo(type, $infoSection) {
+    function refreshAggInfo(type, aggKeysToRefesh) {
         // update agg info
-
         if (type === "integer" || type === "float") {
-            aggKeys.forEach(function(aggkey) {
+            var $infoSection = $modal.find(".infoSection");
+
+            aggKeysToRefesh = aggKeysToRefesh || aggKeys;
+            if (!(aggKeysToRefesh instanceof Array)) {
+                aggKeysToRefesh = [aggKeysToRefesh];
+            }
+
+            aggKeysToRefesh.forEach(function(aggkey) {
                 var aggVal = statsCol.aggInfo[aggkey];
                 if (aggVal == null) {
                     // when aggregate is still running
@@ -503,9 +514,10 @@ window.Profile = (function($, Profile, d3) {
         }
     }
 
-    function refreshStatsInfo(type, $infoSection) {
+    function refreshStatsInfo(type) {
         // update stats info
         if (type === "integer" || type === "float") {
+            var $infoSection = $modal.find(".infoSection");
             var $statsInfo = $infoSection.find(".statsInfo");
 
             if (statsCol.statsInfo.unsorted) {
@@ -582,11 +594,7 @@ window.Profile = (function($, Profile, d3) {
 
             // modal is open and is for that column
             if (isModalVisible(curStatsCol)) {
-                var text = res.toLocaleString();
-                $modal.find(".aggInfoSection ." + aggkey)
-                        .removeClass("animatedEllipsis")
-                        .attr("title", text)
-                        .text(text);
+                refreshAggInfo(curStatsCol.type, aggkey);
             }
         });
 
@@ -620,7 +628,7 @@ window.Profile = (function($, Profile, d3) {
         .then(getStats)
         .then(function() {
             if (isModalVisible(curStatsCol)) {
-                refreshProfile();
+                refreshStatsInfo(curStatsCol.type);
             }
             deferred.resolve();
         })
@@ -700,7 +708,6 @@ window.Profile = (function($, Profile, d3) {
                 var kvPairs = tableOfEntries.kvPair;
 
                 if (numKvPairs === rowsToFetch) {
-                    console.log(tableOfEntries);
                     var sum = 0;
                     for (var i = 0; i < rowsToFetch; i++) {
                         sum += Number(kvPairs[i].key);
@@ -730,9 +737,7 @@ window.Profile = (function($, Profile, d3) {
     function runGroupby(table, curStatsCol, curBucketNum, txId) {
         var deferred  = jQuery.Deferred();
         if (curBucketNum !== 0) {
-            console.error("Invalid bucket num");
-            deferred.reject("Invalid bucket num");
-            return (deferred.promise());
+            return deferred.reject("Invalid bucket num").promise();
         }
 
         var tableName = table.tableName;
@@ -803,11 +808,15 @@ window.Profile = (function($, Profile, d3) {
         .then(function() {
             // modal is open and is for that column
             if (isModalVisible(curStatsCol)) {
-                return refreshProfile();
+                refreshGroupbyInfo();
             }
+
+            deferred.resolve();
         })
-        .then(deferred.resolve)
-        .fail(deferred.reject);
+        .fail(function(error) {
+            failureHandler(curStatsCol, error, txId);
+            deferred.reject(error);
+        });
 
         return (deferred.promise());
     }
@@ -934,7 +943,7 @@ window.Profile = (function($, Profile, d3) {
 
         XcalarSetAbsolute(resultSetId, rowPosition)
         .then(function() {
-            return (XcalarGetNextPage(resultSetId, rowsToFetch));
+            return XcalarGetNextPage(resultSetId, rowsToFetch);
         })
         .then(function(tableOfEntries) {
             var kvPairs = tableOfEntries.kvPair;
@@ -974,7 +983,7 @@ window.Profile = (function($, Profile, d3) {
                     newPosition = rowPosition + numRows;
                 }
 
-                return (fetchGroupbyData(newPosition, numStillNeeds));
+                return fetchGroupbyData(newPosition, numStillNeeds);
             }
         })
         .then(deferred.resolve)
@@ -1328,7 +1337,9 @@ window.Profile = (function($, Profile, d3) {
             resizeScroller();
         }
 
-        var $rowInput = $("#stats-rowInput").val(1).data("rowNum", 1);
+        // total row might be 0 in error case
+        var rowNum = (totalRows <= 0) ? 0 : 1;
+        var $rowInput = $("#stats-rowInput").val(rowNum).data("rowNum", rowNum);
         var $maxRange = $rowInput.siblings(".max-range");
 
         // set width of elements
@@ -1596,7 +1607,7 @@ window.Profile = (function($, Profile, d3) {
         var refreshTimer = setTimeout(function() {
             // refresh if not complete
             if (curStatsCol.groupByInfo.isComplete === "running") {
-                refreshProfile(true);
+                refreshGroupbyInfo(true);
             }
         }, 500);
 
@@ -1619,7 +1630,7 @@ window.Profile = (function($, Profile, d3) {
             clearTimeout(refreshTimer);
             order = newOrder;
             curStatsCol.groupByInfo.isComplete = true;
-            refreshProfile(true);
+            refreshGroupbyInfo(true);
 
             Transaction.done(txId);
         })
@@ -1735,7 +1746,7 @@ window.Profile = (function($, Profile, d3) {
         var refreshTimer = setTimeout(function() {
             // refresh if not complete
             if (curStatsCol.groupByInfo.isComplete === "running") {
-                refreshProfile(true);
+                refreshGroupbyInfo(true);
             }
         }, 500);
 
@@ -1759,7 +1770,7 @@ window.Profile = (function($, Profile, d3) {
             order = sortMap.origin; // reset to normal order
             curStatsCol.groupByInfo.isComplete = true;
 
-            refreshProfile(true);
+            refreshGroupbyInfo(true);
             Transaction.done(txId);
         })
         .fail(function(error) {
@@ -1822,8 +1833,8 @@ window.Profile = (function($, Profile, d3) {
                                         txId);
         })
         .then(function() {
-            var def1 = getAggResult(bucketColName, finalTable, aggMap.max);
-            var def2 = getAggResult(bucketColName, finalTable, aggMap.sum);
+            var def1 = getAggResult(bucketColName, finalTable, aggMap.max, txId);
+            var def2 = getAggResult(bucketColName, finalTable, aggMap.sum, txId);
             return xcHelper.when(def1, def2);
         })
         .then(function(maxVal, sumVal) {
@@ -1892,16 +1903,28 @@ window.Profile = (function($, Profile, d3) {
     }
 
     function failureHandler(curStatsCol, error, txId) {
-        console.error("Profile Fails", error);
+        console.error("Profile error", error);
         if (isModalVisible(curStatsCol)) {
-            // turn gMinModeOn so that hide modalBg in clostStats()
-            // has no delay affect to Alert.error()
-            gMinModeOn = true;
-            closeProfileModal();
-            gMinModeOn = false;
-            Transaction.fail(txId, {
-                "failMsg": StatusMessageTStr.ProfileFailed
-            });
+            if (txId != null) {
+                Transaction.fail(txId, {
+                    "failMsg": StatusMessageTStr.ProfileFailed,
+                    "noAlert": true
+                });
+            }
+
+            if (typeof error === "object") {
+                error = error.error;
+            }
+
+            $modal.find(".loadHidden").removeClass("hidden").removeClass("disabled");
+            $modal.find(".loadDisable").removeClass("disabled");
+            $modal.find(".loadingSection").addClass("hidden");
+            $modal.find(".groubyInfoSection").addClass("hidden");
+            $modal.find(".errorSection").removeClass("hidden")
+                .find(".text").text(error);
+
+            resetSortSection();
+            resetScrollBar();
         }
     }
 

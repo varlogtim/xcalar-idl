@@ -1006,6 +1006,10 @@
                 right: 1px;
                 width: ~"calc(100% - 2px)";
                 border-radius: 0px 0px 3px 3px;
+
+                li {
+                    padding-right: 5px;
+                }
             }
             li.selected {
                 // background-color: @color-dag-schema-selected;
@@ -2435,6 +2439,20 @@ html.microsoft {
             .waitingIcon {
                 display: block;
                 .center-align;
+            }
+        }
+
+        .errorSection {
+            padding: 0 20px;
+
+            .title {
+                .size(@height: 25px);
+                .font(@size: 13px, @line-height: 25px, @color: @color-text-error);
+            }
+
+            .text {
+                .size(@height: 20px);
+                .font(@size: 12px, @line-height: 20px, @color: @color-text-error);
             }
         }
 
