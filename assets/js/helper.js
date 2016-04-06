@@ -253,14 +253,17 @@ window.xcHelper = (function($, xcHelper) {
                 cellWidth = getTextWidth($(), colName, widthOptions);
             }
 
+            // backend will return an escaped name and then we'll have to use
+            // an escaped version of that escaped name to access it =)
+            var escapedName = xcHelper.escapeColName(colName.replace(/\./g, "\\."));
+
             var newProgCol = ColManager.newCol({
-                "backName": colName,
+                "backName": escapedName,
                 "name"    : colName,
                 "width"   : cellWidth,
                 "userStr" : '"' + colName + '" = map(' + mapStr + ')',
                 "isNewCol": false
             });
-
 
 
             // newProgCol.func.name = "map";
@@ -1409,6 +1412,15 @@ window.xcHelper = (function($, xcHelper) {
 
     xcHelper.escapeRegExp = function(str) {
         return (str.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&"));
+    };
+
+    xcHelper.escapeColName = function(str) {
+        // adds a backslash before each of these: [ ] / . \
+        return (str.replace(/[\[\]\/\.\\]/g, "\\$&"));
+    };
+
+    xcHelper.unescapeColName = function(str) {
+
     };
 
     xcHelper.scrollToBottom = function($target) {

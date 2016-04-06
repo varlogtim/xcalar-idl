@@ -1843,6 +1843,7 @@ window.OperationsModal = (function($, OperationsModal) {
                     backColNames += getBackColName(tempColNames[i].trim());
                 }
                 arg = backColNames;
+
                 // Since there is currently no way for users to specify what
                 // col types they are expecting in the python functions, we will
                 // skip this type check if the function category is user defined
@@ -1869,7 +1870,7 @@ window.OperationsModal = (function($, OperationsModal) {
                             });
                         } else {
                             allColTypes.push({});
-                            errorText = xcHelper.replaceMsg( ErrWRepTStr.InvalidCol, {
+                            errorText = xcHelper.replaceMsg(ErrWRepTStr.InvalidCol, {
                                 "name": frontColName
                             });
                             $errorInput = $input;
@@ -2100,8 +2101,10 @@ window.OperationsModal = (function($, OperationsModal) {
 
     function filterCheck(operator, args) {
         var colIndex = -1;
+        var colName;
         if (operator !== 'not') {
-            colIndex = getColIndex(args[0]);
+            colName = args[0];
+            colIndex = getColIndex(colName);
             if (colIndex === -1) {
                 StatusBox.show(ErrTStr.InvalidColName, $argInputs.eq(0));
                 return (false);
@@ -2116,8 +2119,10 @@ window.OperationsModal = (function($, OperationsModal) {
     function filter(operator, args, colTypeInfos) {
         var options = {};
         var colIndex = -1;
+        var colName;
         if (operator !== 'not') {
-            colIndex = getColIndex(args[0]);
+            colName = args[0];
+            colIndex = getColIndex(colName);
         } else {
             colIndex = colNum;
         }

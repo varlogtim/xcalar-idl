@@ -665,6 +665,7 @@ window.TblMenu = (function(TblMenu, $) {
             var $header = $table.find("th.col" + colNum + " .header");
 
             var colName = gTables[tableId].tableCols[colNum - 1].getBackColName();
+            colName = colName.replace(/\\\./g, ".").replace(/\\\\/g, "\\");
             var $highlightBoxs = $table.find(".highlightBox");
 
             var notValid = false;

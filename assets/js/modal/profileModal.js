@@ -770,13 +770,8 @@ window.Profile = (function($, Profile, d3) {
         })
         .then(function() {
             finalTable = getNewName(tableName, ".profile.final", true);
-            var sortCol = colName;
-
             // escaping colName like votes.funny
-            if (colName.indexOf('.') > -1) {
-                sortCol = colName.replace(/\./g, "\\\.");
-            }
-
+            var sortCol = xcHelper.escapeColName(colName);
             return XcalarIndexFromTable(groupbyTable, sortCol, finalTable,
                                         XcalarOrderingT.XcalarOrderingAscending,
                                         txId);
@@ -1799,9 +1794,7 @@ window.Profile = (function($, Profile, d3) {
 
         var colName = curStatsCol.colName;
         // escaping colName like votes.funny
-        if (colName.indexOf('.') > -1) {
-            colName = colName.replace(/\./g, "\\\.");
-        }
+        colName = xcHelper.escapeColName(colName);
         var mapCol = xcHelper.randName("bucketMap", 4);
 
         // example map(mult(floor(div(review_count, 10)), 10))

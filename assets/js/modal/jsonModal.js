@@ -1204,11 +1204,7 @@ window.JSONModal = (function($, JSONModal) {
                 key = '.' + $jInfo.data('key');
             }
 
-            escapedKey = key;
-
-            if (key.substr(1).indexOf('.') > -1) {
-                escapedKey = key.replace(/\./g, "\\\.").substr(1);
-            }
+            escapedKey = xcHelper.escapeColName(key).substr(1);
 
             name = key + name;
             escapedName = escapedKey + escapedName;

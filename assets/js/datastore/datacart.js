@@ -578,11 +578,7 @@ window.DataCart = (function($, DataCart) {
 
         for (var i = 0; i < itemLen; i++) {
             var colname = items[i].value;
-            var escapedName = colname;
-
-            if (colname.indexOf('.') > -1) {
-                escapedName = colname.replace(/\./g, "\\\.");
-            }
+            var escapedName = xcHelper.escapeColName(colname);
 
             width = getTextWidth($(), colname, widthOptions);
 

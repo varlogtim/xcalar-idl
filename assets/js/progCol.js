@@ -296,7 +296,7 @@ window.ColManager = (function($, ColManager) {
             }
 
             escapedName = col.getBackColName() + symbol + escapedName;
-            fullName = col.getBackColName().replace(/\\./g, ".") + symbol +
+            fullName = col.getBackColName().replace(/\\\./g, ".") + symbol +
                        fullName;
         }
         var usrStr = '"' + fullName + '" = pull(' + escapedName + ')';
@@ -1848,7 +1848,9 @@ window.ColManager = (function($, ColManager) {
         for (var arrayKey in jsonTdObj) {
             if (options.isDataTd) {
                 colName = arrayKey;
-                escapedColName = arrayKey.replace(/\./g, "\\\.");
+                // escapedColName = arrayKey.replace(/\./g, "\\\.");
+                // escapedColName = arrayKey.replace(/\\/g, "\\\\").replace(/\./g, "\\\.");
+                escapedColName = xcHelper.escapeColName(arrayKey);
             } else {
                 openSymbol = "";
                 closingSymbol = "";
@@ -1861,8 +1863,10 @@ window.ColManager = (function($, ColManager) {
 
                 colName = cols[colNum - 1].getBackColName().replace(/\\./g, ".") +
                           openSymbol + arrayKey + closingSymbol;
+                // escapedColName = cols[colNum - 1].getBackColName() + openSymbol +
+                //                 arrayKey.replace(/\./g, "\\\.") + closingSymbol;
                 escapedColName = cols[colNum - 1].getBackColName() + openSymbol +
-                                arrayKey.replace(/\./g, "\\\.") + closingSymbol;
+                                xcHelper.escapeColName(arrayKey) + closingSymbol;
             }
 
             if (!table.hasBackCol(escapedColName)) {
@@ -2254,11 +2258,13 @@ window.ColManager = (function($, ColManager) {
         var nested = key.replace(/\]/g, "")
                         .replace(/\[/g, ".")
                         .match(/([^\\.]|\\.)+/g);
+
         if (nested == null) {
             return ("");
         }
         for (var i = 0; i < nested.length; i++) {
-            nested[i] = nested[i].replace(/\\./g, "\.");
+            nested[i] = nested[i].replace(/\\\\/g, "\\");
+            nested[i] = nested[i].replace(/\\\./g, "\.");
         }
 
         return (nested);

@@ -381,11 +381,10 @@ window.xcFunction = (function($, xcFunction) {
         // extract groupByCols and their types
         var groupByCols = indexedCols.split(",");
         var groupByColsLen = groupByCols.length;
+
         var isMultiGroupby = (groupByColsLen > 1);
         var groupByColTypes = [];
-
         for (var i = 0; i < groupByColsLen; i++) {
-            groupByCols[i] = groupByCols[i].trim();
             var progCol = table.getProgCol(groupByCols[i]);
             if (progCol != null) {
                 groupByColTypes[i] = progCol.type;
@@ -759,9 +758,12 @@ window.xcFunction = (function($, xcFunction) {
 
         // the groupBy result column
         var escapedName = newColName;
-        if (newColName.indexOf('.') > -1) {
-            escapedName = newColName.replace(/\./g, "\\\.");
-        }
+
+            // xx kinda crazy but the backend returns a lot of \ slashes
+        var escapedName = xcHelper.escapeColName(newColName.replace(/\./g, "\\."));
+        // front name of a.b turns into a\.b in the backend and then
+        // we need to escape the \ and . in a\.b to access it so it becomes a\\\.b
+
 
         var widthOptions = {
             defaultHeaderStyle: true
@@ -791,24 +793,23 @@ window.xcFunction = (function($, xcFunction) {
             finalCols = [newProgCol];
             // Pull out each individual groupByCols
             for (var i = 0; i < numGroupByCols; i++) {
-                var colName = groupByCols[i];
-                var progCol = table.getProgCol(colName) || {};
-
-                if (colName.indexOf('.') > -1) {
-                    // when the groupby col name has dot, it should be escsped
-                    colName = colName.replace(/\./g, "\\\.");
-                }
+                var backColName = groupByCols[i];
+                var progCol = table.getProgCol(backColName) || {};
+                // even though backColName may be escaped, the returned column
+                // from the backend will be escaped again
+                var escapedName = xcHelper.escapeColName(backColName);
+                var colName = progCol.name || backColName;
 
                 finalCols[1 + i] = ColManager.newCol({
-                    "backName": colName,
+                    "backName": escapedName,
                     "name"    : progCol.name || colName,
                     "type"    : progCol.type || null,
                     "width"   : progCol.width || gNewCellWidth,
                     "isNewCol": false,
-                    "userStr" : '"' + colName + '" = pull(' + colName + ')',
+                    "userStr" : '"' + colName + '" = pull(' + escapedName + ')',
                     "func"    : {
                         "func": "pull",
-                        "args": [colName]
+                        "args": [escapedName]
                     }
                 });
             }
