@@ -955,12 +955,10 @@
             position: relative;
 
             .smartSuggest {
-                .position(relative, @top: 5px);
-                .font(@size: 11px);
+                .position(relative, @top: 3px);
+                .font(@size: 11px, @weight: bold);
                 float: right;
                 margin-right: 15px;
-                cursor: pointer;
-                font-weight: bold;
             }
 
             .suggError {
@@ -976,7 +974,7 @@
             max-width: 250px;
             width: ~"calc(100% - 250px)";
             height: 30px;
-            background-color: @color-modal-whiteGray;
+            background-color: @color-background-darkGray;
             box-shadow: inset 0px 2px 2px 1px rgba(0,0,0,0.2);
             top: 0px;
             left: 110px;
@@ -985,21 +983,21 @@
             font-size: 12px;
 
             .text {
-                width: ~"calc(100% - 36px)";
+                width: ~"calc(100% - 35px)";
                 .textOverflowOneLine;
             }
 
             .iconWrapper {
-                height: 30px;
-                width: 32px;
-                background: @color-background-joinDropDownGray;
-                box-shadow: inset -2px 2px 2px 0px rgba(0, 0, 0, 0.2);
+                .size(@width: 30px, @height: 30px);
+                background: transparent;
+                box-shadow: inset -2px 1px 0px -1px rgba(0, 0, 0, 0.2);
             }
 
             .icon {
                 height: inherit;
                 width: inherit;
-                .image("../../images/joinModal/joinDots.png", 50%, 50%);
+                .image("../../images/dropDown.png", 50%, 50%);
+                opacity: 1;
             }
 
             .list {
@@ -1069,17 +1067,15 @@
         .background {
             .position(absolute);
             .size(@width: inherit, @height: 36px);
-            background-color: @color-selectedCell-light;
+            background-color: @color-background-darkGray;
             z-index: 1;
             left: 0;
         }
 
         .outline {
-            .position(absolute);
+            .position(absolute, @left: 0);
             .size(@width: inherit, @height: 36px);
-            left: 0;
-            border: 1px solid @color-border-joinGray;
-            border-top: 0;
+            border-bottom: 1px solid @color-border-joinGray;
             z-index: 5;
             pointer-events: none;
         }
@@ -1092,8 +1088,6 @@
             z-index: 2;
 
             th {
-                background-color: @color-selectedCell-light;
-                border-color: @color-selectedCell-light;
                 .size(@width: 120px, @height: 36px);
                 &:first-child {
                     width: 125px !important;

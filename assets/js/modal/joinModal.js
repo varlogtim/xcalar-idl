@@ -708,7 +708,8 @@ window.JoinModal = (function($, JoinModal) {
 
         $modal.on("click", ".smartSuggest", function() {
             $(".tooltip").hide();
-            var $suggErrorArea = $(this).siblings(".suggError");
+            var $btn = $(this).blur();
+            var $suggErrorArea = $btn.siblings(".suggError");
             var $checkSection = isLeft ? $rightJoinTable :
                                          $leftJoinTable;
             var $tableText = $checkSection.find('.joinTableList .text');
