@@ -462,3 +462,7 @@ DaysTStr = {
     'LastWeek': 'Last week',
     'Older': 'Older'
 };
+
+OpModalTStr = {
+    'EmptyHint': 'select to allow empty field'
+};
