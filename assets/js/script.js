@@ -195,6 +195,7 @@ window.StartManager = (function(StartManager, $) {
         DFGParamModal.setup();
         AddScheduleModal.setup();
         MultiCastModal.setup();
+        ExtModal.setup();
     }
 
     function setupLogout() {

@@ -4,6 +4,8 @@ window.xcHelper = (function($, xcHelper) {
         var id;
         if (idOrEl instanceof jQuery) {
             id = idOrEl.attr('id');
+        } else if (typeof(idOrEl) == "object") {
+            id = $(idOrEl).attr('id');
         } else {
             id = idOrEl;
         }

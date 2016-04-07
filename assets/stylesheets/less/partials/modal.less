@@ -1196,7 +1196,34 @@ html.microsoft {
     }
 }
 /* End Of Join Modal */
+/* Extension Modal */
+#extModal {
+    .size(@width: 700px, @height: 700px);
+    bottom: auto;
+    z-index: 100;
+    .modalHeader {
+        text-transform: uppercase;
+    }
 
+    #extInstruction {
+        .size(@height: 60px);
+    }
+
+    #extContent {
+        .size(@width: 100%, @height: ~"calc(100% - 150px)");
+        vertical-align: middle;
+    }
+    .modalBottom {
+        .btn {
+            .size(@width: 130px);
+            margin: 10px 10px 0px 0;
+        }
+    }
+    .vizArea {
+        .size(@width: 100%, @height: 100%);
+    }
+}
+/* End of Extension Modal */
 /* Alert Modal */
 #alertModal {
     .size(@width: 500px, @height: auto);

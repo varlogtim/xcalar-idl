@@ -575,7 +575,8 @@ window.xcFunction = (function($, xcFunction) {
     // export table
     // backColumns and frontColumns are arrays of column names
     xcFunction.exportTable = function(tableName, exportName, targetName,
-                                      numCols, backColumns, frontColumns) {
+                                      numCols, backColumns, frontColumns,
+                                      dontShowModal) {
         var deferred = jQuery.Deferred();
         var retName  = $(".retTitle:disabled").val();
 
@@ -614,27 +615,25 @@ window.xcFunction = (function($, xcFunction) {
                 "file"    : exportName,
                 "location": targetName
             });
-
-            Alert.show({
-                "title"     : ExportTStr.Success,
-                "msg"       : msg,
-                "instr"     : instr,
-                "isAlert"   : true,
-                "isCheckBox": true,
-                "onClose"   : function() {
-                    $('#alertContent').removeClass('leftalign');
-                },
-                "buttons": [{
-                            "name"     : "CLOSE",
-                            "className": "close",
-                            func       : function(){}
-                }],
-                "hideButtons": ["cancel"]
-
-
-
-            });
-            $('#alertContent').addClass('leftAlign');
+            if (!dontShowModal) {
+                Alert.show({
+                    "title"     : ExportTStr.Success,
+                    "msg"       : msg,
+                    "instr"     : instr,
+                    "isAlert"   : true,
+                    "isCheckBox": true,
+                    "onClose"   : function() {
+                        $('#alertContent').removeClass('leftalign');
+                    },
+                    "buttons": [{
+                                "name"     : "CLOSE",
+                                "className": "close",
+                                func       : function(){}
+                    }],
+                    "hideButtons": ["cancel"],
+                });
+                $('#alertContent').addClass('leftAlign');
+            }
             Transaction.done(txId, {
                 "msgTable": xcHelper.getTableId(tableName)
             });

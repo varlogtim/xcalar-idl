@@ -92,7 +92,7 @@ window.ExtensionManager = (function(ExtensionManager, $) {
 
         for (var i = 0; i<extList.length; i++) {
             var buttonList = window[extList[i]].buttons;
-            $("ul.extensions").append(ExtButton.getButtonHTML(extList[i]));
+            $("ul.extensions").eq(0).append(ExtButton.getButtonHTML(extList[i]));
             if (i < extList.length - 1) {
                 $("ul.extensions").append(
                 '<div class="divider identityDivider thDropdown"></div>');

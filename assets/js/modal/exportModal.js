@@ -262,7 +262,8 @@ window.ExportModal = (function($, ExportModal) {
                 xcFunction.exportTable(exportTableName, exportName,
                                        $exportPath.val(),
                                        frontColumnNames.length,
-                                       backColumnNames, frontColumnNames)
+                                       backColumnNames, frontColumnNames,
+                                       false)
                 .then(function() {
                     closeModal = false;
                     if (!modalClosed) {
