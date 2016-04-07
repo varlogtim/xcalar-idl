@@ -515,7 +515,11 @@ window.OperationsModal = (function($, OperationsModal) {
                 $operationsModal.addClass('numArgs4');
             }
 
-            modalHelper.setup();
+            var modalTop = $('#xcTable-' + tableId).find('tbody tr').eq(0)
+                                                   .offset().top +
+                            gRescol.minCellHeight;
+            // we want the modal to show up ~ below the first row
+            modalHelper.setup({maxTop: modalTop});
             toggleModalDisplay(false);
 
             $categoryInput.focus();

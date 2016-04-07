@@ -1585,6 +1585,16 @@ function centerPositionElement($target, options) {
         var winHeight   = $window.height();
         var modalHeight = $target.height();
         top = ((winHeight - modalHeight) / 2);
+
+        // maxTop if we'd like to position the modal say at least 100 pixels
+        // from the top of the screen if possible
+        if (options.maxTop && top < options.maxTop) {
+            top = options.maxTop;
+            var bottom = top + modalHeight;
+            if (bottom > winHeight) {
+                top -= (bottom - winHeight);
+            }
+        }
         if (options.limitTop) {
             top = Math.max(top, 0);
         }

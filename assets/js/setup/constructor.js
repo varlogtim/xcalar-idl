@@ -185,7 +185,7 @@ TableMeta.prototype = {
             if (XcalarApisTStr[nodeArray.node[0].api] === "XcalarApiIndex") {
                 var indexInput = nodeArray.node[0].input.indexInput;
                 if (indexInput.keyName === backColName) {
-                    deferred.resolve(indexInput.ordering)
+                    deferred.resolve(indexInput.ordering);
                     return;
                 }
             }
@@ -593,7 +593,7 @@ function ProfileAggInfo(options) {
     options = options || {};
 
     if (options.max != null) {
-        this.max = options.max
+        this.max = options.max;
     }
 
     if (options.min != null) {
@@ -623,7 +623,7 @@ function ProfileStatsInfo(options) {
     }
 
     if (options.lowerQuartile != null) {
-        this.lowerQuartile = options.lowerQuartile
+        this.lowerQuartile = options.lowerQuartile;
     }
 
     if (options.median != null) {
@@ -1697,7 +1697,8 @@ ModalHelper.prototype = {
 
         // center modal
         if (!options.noCenter) {
-            centerPositionElement($modal, {limitTop: true});
+            centerPositionElement($modal, {limitTop: true,
+                                           maxTop: options.maxTop});
         }
 
         // Note: to find the visiable btn, must show the modal first
