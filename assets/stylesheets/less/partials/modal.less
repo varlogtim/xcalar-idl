@@ -1198,7 +1198,7 @@ html.microsoft {
 /* End Of Join Modal */
 /* Extension Modal */
 #extModal {
-    .size(@width: 700px, @height: 700px);
+    .size(@width: 900px, @height: 700px);
     bottom: auto;
     z-index: 100;
     .modalHeader {
@@ -1210,10 +1210,12 @@ html.microsoft {
     }
 
     #extContent {
-        .size(@width: 100%, @height: ~"calc(100% - 150px)");
+        .size(@width: 100%, @height: ~"calc(100% - 120px)");
         vertical-align: middle;
+        background-color: white;
     }
     .modalBottom {
+        display: none;
         .btn {
             .size(@width: 130px);
             margin: 10px 10px 0px 0;
@@ -1221,6 +1223,10 @@ html.microsoft {
     }
     .vizArea {
         .size(@width: 100%, @height: 100%);
+        > iframe {
+            width: 100% !important;
+            height: 100% !important;
+        }
     }
 }
 /* End of Extension Modal */
