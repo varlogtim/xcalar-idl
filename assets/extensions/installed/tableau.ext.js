@@ -1,5 +1,4 @@
 // XXX Do not use alertModal! Write your own for extensions!!!!
-var intTimer;
 window.UExtTableau = (function(UExtTableau, $) {
     UExtTableau.buttons = [
         {"buttonText": "Visualize",
@@ -10,15 +9,15 @@ window.UExtTableau = (function(UExtTableau, $) {
 
     UExtTableau.undoActionFn = undefined;
     UExtTableau.actionFn = function(colNum, tableId, functionName, argList) {
-        switch (functionName) {
-        case ("visualize"):
-            closeMenu(argList["allMenus"]);
-            visualizeInTableau(colNum, tableId);
-            break;
-        default:
-            break;
-        }
         var waitTime = 45;
+        switch (functionName) {
+            case ("visualize"):
+                closeMenu(argList["allMenus"]);
+                visualizeInTableau(colNum, tableId);
+                break;
+            default:
+                break;
+        }
         function initializeViz(vizName) {
             // First remove current div. This is because tableau sucks shit
             $("#extContent").empty();
@@ -68,30 +67,70 @@ window.UExtTableau = (function(UExtTableau, $) {
             xcFunction.exportTable(tableName, tempExportName, "Default",
                                    1, [backColName],["Value"], true)
             .then(function() {
-
-                $("#extHeader .text").text("GENERATING VISUALIZATION");
-                $("#extInstruction .text").text("Your column "+colName+
-                    " is currently being visualized in Tableau. "+
-                    "Please wait.");
-                $("#extContent").empty().text(waitTime);
-                ExtModal.show();
-                intTimer = setInterval(function() {
-                    var timeLeft = $("#extContent").text();
-                    if (jQuery.isNumeric(timeLeft)) {
-                        timeLeft = parseInt(timeLeft)-1;
-                        if (timeLeft == 0) {
-                            console.log("here");
-                            clearInterval(intTimer);
-                            initializeViz(tempExportName);
-                        } else {
-                            $("#extContent").text(timeLeft);
-                        }
-                    } else {
-                        $("#extContent").text(waitTime);
-                    }
-                }, 1000);
+                showModal(colName, waitTime);
+                return waitForUpdate(waitTime);
+            })
+            .then(function() {
+                console.log("here");
+                initializeViz(tempExportName);
             });
         }
+    }
+
+    function showModal(colName, waitTime) {
+        $("#extHeader .text").text("GENERATING VISUALIZATION");
+        $("#extInstruction .text").text("Your column " + colName +
+                    " is currently being visualized in Tableau. " +
+                    "Please wait.");
+
+        var html = '<div class="tableauWaitingContainer">' +
+                        '<div class="waitingTime">' +
+                            '<span class="title">' +
+                                'Wait Time:' +
+                            '</span>' +
+                            '<span class="text">' +
+                                waitTime +
+                            '</span>' +
+                        '</div>' +
+                        '<div class="progressContainer">' +
+                            '<div class="progressBar" style="width:0px"></div>' +
+                        '</div>' +
+                    '</div>';
+        $("#extContent").html(html);
+        ExtModal.show();
+    }
+
+    function waitForUpdate(waitTime) {
+        var deferred = jQuery.Deferred();
+        var $waitTime = $("#extContent .waitingTime .text");
+        var $progressContainer = $("#extContent .progressContainer");
+        var $progressBar = $progressContainer.find(".progressBar");
+
+        var intTimer = setInterval(function() {
+            var timeLeft = $waitTime.text();
+            if (jQuery.isNumeric(timeLeft)) {
+                timeLeft = parseInt(timeLeft) - 1;
+                // since the css has 1s transition, the prgoress
+                // show be ahead of 1s for it
+                var progress = 1 - (timeLeft - 1) / waitTime;
+                // two digits
+                progress = Math.round(progress * 100) / 100;
+                progress = Math.min(progress, 1);
+
+                var newWidth = $progressContainer.width() * progress;
+                $progressBar.width(newWidth);
+                $waitTime.text(timeLeft);
+
+                if (timeLeft == 0) {
+                    clearInterval(intTimer);
+                    deferred.resolve();
+                }
+            } else {
+                $waitTime.text(waitTime);
+            }
+        }, 1000);
+
+        return deferred.promise();
     }
                     
     return (UExtTableau);
