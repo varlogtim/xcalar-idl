@@ -622,6 +622,10 @@ function ProfileStatsInfo(options) {
         this.unsorted = options.unsorted;
     }
 
+    if (options.zeroQuartile != null) {
+        this.zeroQuartile = options.zeroQuartile;
+    }
+
     if (options.lowerQuartile != null) {
         this.lowerQuartile = options.lowerQuartile;
     }
@@ -632,6 +636,10 @@ function ProfileStatsInfo(options) {
 
     if (options.upperQuartile != null) {
         this.upperQuartile = options.upperQuartile;
+    }
+
+    if (options.fullQuartile != null) {
+        this.fullQuartile = options.fullQuartile;
     }
 
     return this;

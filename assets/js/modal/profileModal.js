@@ -16,9 +16,11 @@ window.Profile = (function($, Profile, d3) {
         "sum"    : AggrOp.Sum
     };
     var statsKeyMap = {
+        "zeroQuartile" : "zeroQuartile",
         "lowerQuartile": "lowerQuartile",
         "median"       : "median",
-        "upperQuartile": "upperQuartile"
+        "upperQuartile": "upperQuartile",
+        "fullQuartile" : "fullQuartile"
     };
     var sortMap = {
         "asc"   : "asc",
@@ -150,6 +152,10 @@ window.Profile = (function($, Profile, d3) {
             }
 
             toggleRange(true);
+        });
+
+        $rangeSection.on("click", ".fitAllSection .btn", function() {
+            fullSizeBucketing(statsCol);
         });
 
         $rangeInput.keypress(function(event) {
@@ -640,9 +646,11 @@ window.Profile = (function($, Profile, d3) {
         function getStats(tableDirection) {
             var innerDeferred = jQuery.Deferred();
 
+            var zeroKey = statsKeyMap.zeroQuartile;
             var lowerKey = statsKeyMap.lowerQuartile;
             var medianKey = statsKeyMap.median;
             var upperKey = statsKeyMap.upperQuartile;
+            var fullKey = statsKeyMap.fullQuartile;
             var resultId;
 
             if (tableDirection === XcalarOrderingT.XcalarOrderingUnordered) {
@@ -669,9 +677,11 @@ window.Profile = (function($, Profile, d3) {
                     upperRowStart = lowerRowEnd;
                 }
 
+                promises.push(getMedian.bind(this, resultId, 1, 1, zeroKey));
                 promises.push(getMedian.bind(this, resultId, 1, numEntries, medianKey));
                 promises.push(getMedian.bind(this, resultId, 1, lowerRowEnd, lowerKey));
                 promises.push(getMedian.bind(this, resultId, upperRowStart, numEntries, upperKey));
+                promises.push(getMedian.bind(this, resultId, numEntries, numEntries, fullKey));
 
                 return chain(promises);
             })
@@ -687,19 +697,20 @@ window.Profile = (function($, Profile, d3) {
         function getMedian(resultId, startRow, endRow, statsKey) {
             var innerDeferred = jQuery.Deferred();
             var numRows = endRow - startRow + 1;
-            var rowPosition;
+            var rowNum;
             var rowsToFetch;
 
             if (numRows % 2 === 0) {
                 // even rows
-                rowPosition = startRow + numRows / 2 - 1;
+                rowNum = startRow + numRows / 2 - 1;
                 rowsToFetch = 2;
             } else {
-                rowPosition = startRow + (numRows + 1) / 2 - 1;
+                rowNum = startRow + (numRows + 1) / 2 - 1;
                 rowsToFetch = 1;
             }
 
-            XcalarSetAbsolute(resultId, rowPosition)
+            // row position start with 0
+            XcalarSetAbsolute(resultId, rowNum - 1)
             .then(function() {
                 return XcalarGetNextPage(resultId, rowsToFetch);
             })
@@ -728,7 +739,11 @@ window.Profile = (function($, Profile, d3) {
                 }
             })
             .then(innerDeferred.resolve)
-            .fail(innerDeferred.reject);
+            .fail(function(error) {
+                console.error("Run stats failed", error);
+                curStatsCol.statsInfo[statsKey] = '--';
+                innerDeferred.resolve();
+            });
 
             return innerDeferred.promise();
         }
@@ -1724,6 +1739,14 @@ window.Profile = (function($, Profile, d3) {
             $rangeSection.removeClass("range");
             bucketData(0, statsCol);
         }
+    }
+
+    function fullSizeBucketing(curStatsCol) {
+        return;
+        // var bucketSize = (curStatsCol.aggInfo.max - curStatsCol.aggInfo.min) / numRowsToFetch;
+        // // have mostly two digits after decimal
+        // bucketSize = Math.round(bucketSize * 100) / 100;
+        // bucketData(bucketSize, curStatsCol);
     }
 
     function bucketData(newBucketNum, curStatsCol) {
