@@ -1,4 +1,4 @@
-function getTextWidth(el, val, options) {
+function getTextWidth($el, val, options) {
     var width;
     var text;
     options = options || {};
@@ -14,10 +14,13 @@ function getTextWidth(el, val, options) {
         defaultStyle = {padding: 0};
     }
     if (val === undefined) {
-        if (el.is('input')) {
-            text = $.trim(el.val() + " ");
+        if ($el.is('input')) {
+            text = $.trim($el.val() + " ");
         } else {
-            text = $.trim(el.text());
+            if ($el.hasClass('truncated')) {
+                $el = $el.find('.truncated');
+            }
+            text = $.trim($el.text());
         }
     } else {
         text = val;
@@ -26,9 +29,9 @@ function getTextWidth(el, val, options) {
 
     tempDiv = $('<div>' + text + '</div>');
     tempDiv.css({
-        'font-family': defaultStyle.fontFamily || el.css('font-family'),
-        'font-size'  : defaultStyle.fontSize || el.css('font-size'),
-        'font-weight': defaultStyle.fontWeight || el.css('font-weight'),
+        'font-family': defaultStyle.fontFamily || $el.css('font-family'),
+        'font-size'  : defaultStyle.fontSize || $el.css('font-size'),
+        'font-weight': defaultStyle.fontWeight || $el.css('font-weight'),
         'position'   : 'absolute',
         'display'    : 'inline-block',
         'white-space': 'pre'
@@ -134,7 +137,12 @@ function getWidestTdWidth(el, options) {
         // we're going to take advantage of monospaced font
         //and assume text length has an exact correlation to text width
         var $td = $(this).children(':eq(' + (id) + ')');
-        textLength = $.trim($td.text()).length;
+        if ($td.hasClass('truncated')) {
+            textLength = $.trim($td.find('.truncated').text()).length;
+        } else {
+            textLength = $.trim($td.text()).length;
+        }
+
         if (textLength > longestText) {
             longestText = textLength;
             largestTd = $td;
@@ -1112,7 +1120,7 @@ function dropdownClick($el, options) {
             if ($el.text().trim() === "") {
                 $menu.find(".tdJsonModal").addClass("hidden");
                 $menu.find(".tdUnnest").addClass("hidden");
-            } else if (isMultiCell){
+            } else if (isMultiCell) {
                 // when more than one cell is selected
                 $menu.find(".tdJsonModal").addClass("hidden");
                 $menu.find(".tdUnnest").addClass("hidden");
@@ -1121,7 +1129,11 @@ function dropdownClick($el, options) {
                 $menu.find(".tdUnnest").removeClass("hidden");
             }
         } else {
-            $menu.find(".tdJsonModal").addClass("hidden");
+            if ($el.hasClass('truncated')) {
+                $menu.find(".tdJsonModal").removeClass("hidden");
+            } else {
+                $menu.find(".tdJsonModal").addClass("hidden");
+            }
             $menu.find(".tdUnnest").addClass("hidden");
         }
     } else if (options.type === "tabMenu") {

@@ -672,6 +672,7 @@ window.TblMenu = (function(TblMenu, $) {
             var uniqueVals = {};
             var hasCheckExist = false;
             var colVal;
+            var $textDiv;
 
             $highlightBoxs.each(function() {
                 var $td = $(this).closest("td");
@@ -700,10 +701,20 @@ window.TblMenu = (function(TblMenu, $) {
                     // colVal = colVal + ""; // if it's number, change to string
                     // XXX for string, text is more reliable
                     // since data-val might be messed up
-                    colVal = $td.children(".addedBarTextWrap").text();
+                    $textDiv = $td.find(".addedBarTextWrap");
+                    if ($textDiv.hasClass('truncated')) {
+                        colVal = $textDiv.siblings('.fullText').text();
+                    } else {
+                        colVal = $textDiv.text();
+                    }
                     colVal = JSON.stringify(colVal);
                 } else if ($header.hasClass("type-boolean")) {
-                    colVal = $td.children(".addedBarTextWrap").text();
+                    $textDiv = $td.find(".addedBarTextWrap");
+                    if ($textDiv.hasClass('truncated')) {
+                        colVal = $textDiv.siblings('.fullText').text();
+                    } else {
+                        colVal = $textDiv.text();
+                    }
                     if (colVal === "true") {
                         colVal = true;
                     } else {
@@ -797,7 +808,9 @@ window.TblMenu = (function(TblMenu, $) {
             var $td     = $table.find(".row" + rowNum + " .col" + colNum);
             var isArray = $table.find("th.col" + colNum + " > div")
                                 .hasClass('type-array');
-            JSONModal.show($td, isArray);
+            var colType = gTables[tableId].tableCols[colNum - 1].type;
+
+            JSONModal.show($td, isArray, colType);
         });
 
         $cellMenu.on('mouseup', '.tdUnnest', function(event) {
@@ -828,9 +841,15 @@ window.TblMenu = (function(TblMenu, $) {
             var valArray = [];
             var colVal;
             var cells = sortHightlightCells($highlightBoxs);
-
+            var $textDiv;
             for (var i = 0, len = cells.length; i < len; i++) {
-                colVal = cells[i].siblings(".addedBarTextWrap").text();
+                $textDiv = cells[i].siblings(".addedBarTextWrap");
+                if ($textDiv.hasClass('truncated')) {
+                    colVal = $textDiv.siblings('.fullText').text();
+                } else {
+                    colVal = $textDiv.text();
+                }
+
                 valArray.push(colVal);
             }
 

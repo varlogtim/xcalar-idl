@@ -19,8 +19,8 @@ $(document).ready(function() {
         });
     }, 4500);
 
-    $('#loginButton').click(function(event) {
 
+  $(document).on('submit', 'form', function() {
         var username = $("#loginNameBox").val();
         var fullUsername = username;
         if (username === "") {
@@ -49,7 +49,7 @@ $(document).ready(function() {
                     submit();
                 } else if (ret == "Fail") {
                     alert('Incorrect Password. Please try again.');
-                    console.log('ret fail', data, ret);
+                    console.log('ret == "Fail"', data, ret);
                 } else {
                     //Auth server probably down or something. Just let them in
                     console.log('shouldnt be here', data, ret);
@@ -72,7 +72,6 @@ $(document).ready(function() {
 
         return false; // prevents form from having it's default action
     });
-
 
     $("#insightVersion").html("Version SHA: " +
         XVM.getSHA().substring(0, 6) + ", Revision " + XVM.getVersion());

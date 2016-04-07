@@ -1112,9 +1112,16 @@ window.JoinModal = (function($, JoinModal) {
         var total = 0;
         var datas = [];
         var values = [];
+        var $textDi;
+        var val;
 
         $table.find("td.col" + colNum).each(function() {
-            var val = $(this).find(".addedBarTextWrap").text();
+            $textDiv = $(this).find(".addedBarTextWrap");
+            if ($textDiv.hasClass('truncated')) {
+                val = $textDiv.siblings('.fullText').text();
+            } else {
+                val = $textDiv.text();
+            }
             var d;
 
             if (type === "string") {

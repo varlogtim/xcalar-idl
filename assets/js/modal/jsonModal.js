@@ -11,6 +11,7 @@ window.JSONModal = (function($, JSONModal) {
     var jsonData = [];
     var modalHelper;
     var searchHelper;
+    var notObject = false; // true if in preview mode due to truncated text
 
     // constant
     var minHeight = 300;
@@ -67,7 +68,8 @@ window.JSONModal = (function($, JSONModal) {
         addEventListeners();
     };
 
-    JSONModal.show = function ($jsonTd, isArray) {
+    // type is only included if not a typical array or object
+    JSONModal.show = function ($jsonTd, isArray, type) {
         if ($.trim($jsonTd.text()).length === 0) {
             return;
         }
@@ -85,7 +87,8 @@ window.JSONModal = (function($, JSONModal) {
             $("body").addClass("hideScroll");
         }
 
-        refreshJsonModal($jsonTd, isArray, isModalOpen); // shows json modal
+        // shows json modal
+        refreshJsonModal($jsonTd, isArray, isModalOpen, type);
 
         if (isModalOpen) {
             updateSearchResults();
@@ -559,6 +562,7 @@ window.JSONModal = (function($, JSONModal) {
         jsonData = [];
         comparisonObjs = {};
         $jsonText = null;
+        notObject = false;
 
         $('#sideBarModal').hide();
         $('#rightSideBar').removeClass('modalOpen');
@@ -566,16 +570,26 @@ window.JSONModal = (function($, JSONModal) {
         $('.tooltip').hide();
     }
 
-    function refreshJsonModal($jsonTd, isArray, isModalOpen) {
-        var text = $jsonTd.find("div").eq(0).text();
+    function refreshJsonModal($jsonTd, isArray, isModalOpen, type) {
+        var text;
+        if ($jsonTd.find('.fullText').length) {
+            text = $jsonTd.find('.fullText').text();
+        } else {
+            text = $jsonTd.find("div").eq(0).text();
+        }
+
         var jsonObj;
 
-        try {
-            jsonObj = JSON.parse(text);
-        } catch (error) {
-            console.error(error, text);
-            closeJSONModal();
-            return;
+        if (type && (type !== "array" && type !== "object")) {
+            jsonObj = text;
+        } else {
+            try {
+                jsonObj = JSON.parse(text);
+            } catch (error) {
+                console.error(error, text);
+                closeJSONModal();
+                return;
+            }
         }
 
         jsonData.push(jsonObj);
@@ -595,15 +609,18 @@ window.JSONModal = (function($, JSONModal) {
         }
 
         if (gMinModeOn || isModalOpen) {
-            fillJsonArea(jsonObj, $jsonTd, isArray);
+            fillJsonArea(jsonObj, $jsonTd, isArray, type);
             if (!isModalOpen) {
                 $jsonText = $jsonModal.find('.prettyJson:visible');
                 searchHelper.$matches = $jsonText.find('.highlightedText');
             }
         } else {
-            fillJsonArea(jsonObj, $jsonTd, isArray);
-            $jsonText = $jsonModal.find('.prettyJson:visible');
-            searchHelper.$matches = $jsonText.find('.highlightedText');
+            fillJsonArea(jsonObj, $jsonTd, isArray, type);
+            // wait for jsonModal to become visible
+            setTimeout(function() {
+                $jsonText = $jsonModal.find('.prettyJson:visible');
+                searchHelper.$matches = $jsonText.find('.highlightedText');
+            }, 250);
         }
 
         if (isModalOpen) {
@@ -619,19 +636,46 @@ window.JSONModal = (function($, JSONModal) {
                     $checkMark.attr('data-original-title', title);
                 }
             });
-
         }
     }
 
-    function fillJsonArea(jsonObj, $jsonTd, isArray) {
-        var prettyJson = prettifyJson(jsonObj, null, {inarray: isArray});
-        prettyJson = '<div class="jObject"><span class="jArray jInfo">' +
+    function fillJsonArea(jsonObj, $jsonTd, isArray, type) {
+        var prettyJson;
+        if (type && (type !== "object" && type !== "array")) {
+            var typeClass = "";
+            switch (type) {
+                case ('string'):
+                    typeClass = "jString";
+                    break;
+                case ('integer'):
+                    typeClass = "jNum";
+                    break;
+                case ('float'):
+                    typeClass = "jNum";
+                    break;
+                case ('boolean'):
+                    typeClass = "jBool";
+                    break;
+                default:
+                    typeClass = "jUndf";
+                    break;
+            }
+            prettyJson = '<span class="previewText text ' + typeClass + '">' +
+                            jsonObj + '</span>';
+            if (type === "string") {
+                prettyJson = '"' + prettyJson + '"';
+            }
+            notObject = true;
+        } else {
+            prettyJson = prettifyJson(jsonObj, null, {inarray: isArray});
+            prettyJson = '<div class="jObject"><span class="jArray jInfo">' +
                          prettyJson +
                          '</span></div>';
-        if (isArray) {
-            prettyJson = '[' + prettyJson + ']';
-        } else {
-            prettyJson = '{' + prettyJson + '}';
+            if (isArray) {
+                prettyJson = '[' + prettyJson + ']';
+            } else {
+                prettyJson = '{' + prettyJson + '}';
+            }
         }
 
         $jsonArea.append(getJsonWrapHtml(prettyJson));

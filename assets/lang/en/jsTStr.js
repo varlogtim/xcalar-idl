@@ -419,7 +419,8 @@ TblTStr = {
     'DelFail': 'Delete Tables Failed',
     'Archive': 'Archive Tables',
     'Active': 'Send Tables to Worksheet',
-    'ActiveFail': 'Add Inactive Tables Failed'
+    'ActiveFail': 'Add Inactive Tables Failed',
+    'Truncate': 'additional characters were truncated'
 };
 
 ColTStr = {
