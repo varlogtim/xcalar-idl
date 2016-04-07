@@ -1061,6 +1061,8 @@ window.TblManager = (function($, TblManager) {
                     })
                     .always(function() {
                         scrolling = false;
+                        $('#xcTableWrap-' + tableId).find('.tableCoverWaiting')
+                                            .remove();
                     });
                 } else {
                     innerDeferred.resolve();
@@ -1097,6 +1099,8 @@ window.TblManager = (function($, TblManager) {
                     })
                     .always(function() {
                         scrolling = false;
+                        $('#xcTableWrap-' + tableId).find('.tableCoverWaiting')
+                                                    .remove();
                     });
                 } else {
                     innerDeferred.resolve();
@@ -1340,6 +1344,11 @@ window.TblManager = (function($, TblManager) {
                                 $table.find('th.col' + options.selectCol +
                                             ' .flexContainer').mousedown();
                             }
+                        })
+                        .always(function() {
+                            $('#xcTableWrap-' + tableId)
+                                            .find('.tableCoverWaiting')
+                                            .remove();
                         });
             }
         })

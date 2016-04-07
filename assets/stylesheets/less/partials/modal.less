@@ -446,10 +446,12 @@
     .jString {
         color: @color-json-string;
         white-space: pre-wrap;
+        word-break: break-all;
     }
 
     .jNum, .jBool, .jNull , .jUndf {
         color: @color-json-num;
+        word-break: break-all;
     }
     .jNull, .jUndf {
         font-style: italic;
@@ -458,6 +460,7 @@
     .jArray > .jString {
         color: @color-json-array;
         white-space: nowrap;
+        word-break: break-all;
     }
 
     .emptyObj, .emptyArray {

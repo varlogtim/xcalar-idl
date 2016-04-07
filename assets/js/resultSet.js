@@ -101,7 +101,11 @@ function goToPage(rowNumber, numRowsToAdd, direction, loop, info,
 
         var totalRowsStillNeeded = info.numRowsToAdd - info.numRowsAdded;
         if (totalRowsStillNeeded > 0) {
-            showWaitCursor();
+            if (!info.looped) {
+                $('#xcTableWrap-' + tableId)
+                            .append('<div class="tableCoverWaiting"></div>');
+            }
+
             info.looped = true;
             if (direction === RowDirection.Bottom) {
                 return (scrollDownHelper(position, rowPosition, jsonLen,
@@ -115,7 +119,6 @@ function goToPage(rowNumber, numRowsToAdd, direction, loop, info,
         }
     })
     .then(function() {
-        removeWaitCursor();
         moveFirstColumn();
         if (!loop && !info.reverseLooped && !info.dontRemoveRows) {
             removeOldRows($table, tableId, info, direction, prepullTableHeight);

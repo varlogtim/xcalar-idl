@@ -532,7 +532,6 @@ window.DataCart = (function($, DataCart) {
             promises.push(createWorksheetHelper.bind(this, cart, worksheet));
         });
 
-        showWaitCursor();
         emptyAllCarts();
 
         chain(promises)

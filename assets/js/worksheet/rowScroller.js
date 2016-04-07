@@ -144,6 +144,8 @@ window.RowScroller = (function($, RowScroller) {
                 $table.find('tbody tr').each(function() {
                     arr.push($(this).find('td:first').text());
                 });
+                $('#xcTableWrap-' + tableId).find('.tableCoverWaiting')
+                                            .remove();
 
                 var rowToScrollTo = Math.min(targetRow, table.resultSetMax);
                 positionScrollbar(rowToScrollTo, tableId);
