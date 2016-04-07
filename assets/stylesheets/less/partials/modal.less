@@ -2782,95 +2782,82 @@ html.microsoft {
         .rangeSection {
             padding: 10px 10px 10px 20px;
 
-            > div {
-                .size(@width:100%, @height: 30px);
-                .font(@size: 12px, @line-height: 30px);
-            }
-
-            &.range {
-                .buttonSection {
-                    .text {
-                        &.single {
-                            color: @color-text-lightGray;
-                            opacity: 0.5;
-                        }
-
-                        &.range {
-                            color: @color-text-blue;
-                            opacity: 1;
-                        }
-                    }
-
-                    .slider {
-                        left: 27px !important;
-                    }
-                }
-
-                .inputSection {
-                    opacity: 1;
-                }
-            }
-
             .title {
+                .size(@height: 30px);
                 .font(@size: 13px, @weight: bold);
             }
 
-            .buttonSection {
-                .text {
+            .content {
+
+                > div {
                     float: left;
-                    cursor: pointer;
-                    font-weight: bold;
-
-                    &.single {
-                        color: @color-text-blue;
-                        opacity: 1;
-                    }
-
-                    &.range {
-                        color: @color-text-lightGray;
-                        opacity: 0.5;
-                    }
+                    .size(@height: 110px);
                 }
 
-                .rangeBtn {
-                    .size(@width: 60px, @height: 25px);
-                    margin: 0 10px;
-                    float: left;
-                    .vertical-align;
-                    .rounded(20px);
-                    .action-gradient;
-                    border: 1px solid rgba(1, 1, 1, .2);
-                    box-shadow: -1px 0px 0px 0px rgba(1, 1, 1, .3) inset;
-                    cursor: pointer;
+                .sliderSection {
+                    .size(@width: 30px);
 
-                    .slider {
-                        .position(relative, @left: 0);
-                        .size(@width: 30px, @height: 100%);
-                        .rounded(20px);
-                        background: @color-profile-range-slider;
-                        .transition(all 0.2s);
+                    .sliderBar {
+                        .size(@width: 10px, @height: 90px);
+                        background-color: @color-modal-whiteGray;
+                        border: 1px solid @color-border-topGrayMed;
+                        .horizontal-align;
+
+                        .wrap {
+                            .size(@width: 100%, @height: 30px);
+                            .position(absolute);
+                            background-color: transparent;
+
+                            &.single {
+                                top: 0
+                            }
+
+                            &.range {
+                                top: 30px;
+                            }
+
+                            &.fitAll {
+                                top:60px;
+                            }
+                        }
+
+                        .slider {
+                            .position(relative, @left: -5px, @top: 0);
+                            .size(@width: 20px, @height: 11px);
+                            display: inline-block;
+                            background-color: @color-profile-bar;
+                            .transition(top 0.75s);
+
+                            &.range {
+                                top: 35px;
+                            }
+
+                            &.fitAll {
+                                top: 70px;
+                            }
+                        }
                     }
-
                 }
             }
 
-            .inputSection {
-                opacity: 0.5;
+            .rangePart {
+                .size(@width: 300px, @height: 25px);
+                .font(@size: 12px, @line-height: 25px);
+                .rounded(5px);
+                margin-bottom: 10px;
+                padding-left: 10px;
+                cursor: pointer;
+                opacity: 0.7;
 
-                .text {
-                    display: inline-block;
-                    .size(@width: 170px);
+                &.active {
+                    opacity: 7;
                 }
 
-                .input-box(@w: ~"calc(100% - 200px)", @h: 25px);
+                .input-box(@w: 200px, @h: 25px);
 
                 input {
                     background-color: @color-profile-input-background;
-
-                    &.disabled {
-                        pointer-events: none;
-                        cursor: default;
-                    }
+                    margin-left: 10px;
                 }
             }
         }

@@ -131,31 +131,12 @@ window.Profile = (function($, Profile, d3) {
         });
 
         // event on range section
-        $rangeSection.on("click", ".rangeBtn", function() {
-            toggleRange();
+        $rangeSection.on("click", ".rangePart", function() {
+            toggleRange($(this).data("val"));
         });
 
-        $rangeSection.on("click", ".buttonSection .text", function() {
-            var $span = $(this);
-            if ($span.hasClass("range")) {
-                // go to range
-                toggleRange(true);
-            } else {
-                // go to single
-                toggleRange(false);
-            }
-        });
-
-        $rangeSection.on("click", ".inputSection .text, .inputSection input", function() {
-            if ($rangeInput.hasClass("disabled")) {
-                return;
-            }
-
-            toggleRange(true);
-        });
-
-        $rangeSection.on("click", ".fitAllSection .btn", function() {
-            fullSizeBucketing(statsCol);
+        $rangeSection.on("click", ".sliderSection .wrap", function(event) {
+            toggleRange($(this).data("val"));
         });
 
         $rangeInput.keypress(function(event) {
@@ -1708,45 +1689,55 @@ window.Profile = (function($, Profile, d3) {
         return (deferred.promise());
     }
 
-    function toggleRange(isToRange) {
-        var isRangeNow = $rangeSection.hasClass("range");
-        var isSingleNow = !isRangeNow;
+    function toggleRange(rangeOption) {
+        var $rangePart = $rangeSection.find(".rangePart").filter(function() {
+            return $(this).data("val") === rangeOption;
+        });
 
-        if (isToRange == null) {
-            // when has no args, and current status is single
-            // we go to range
-            isToRange = isSingleNow;
-        }
-
-        if (isToRange && isRangeNow || !isToRange && isSingleNow) {
-            // when go to range but already in range
-            // or go to single but already in single
+        if ($rangePart.hasClass("active")) {
             return;
         }
 
-        if (isToRange) {
-            // go to range
-            $rangeSection.addClass("range");
-            bucketData($rangeInput.val(), statsCol);
-        } else {
-            // go to single
-            var curBucketNum = Number($rangeInput.val());
-            if (isNaN(curBucketNum) || curBucketNum <= 0) {
-                // for invalid case or original case(bucketNum = 0)
-                // clear input
-                $rangeInput.val("");
-            }
-            $rangeSection.removeClass("range");
-            bucketData(0, statsCol);
+        $rangeSection.find(".active").removeClass("active");
+        $rangePart.addClass("active");
+
+        $rangeSection.find(".slider")
+                    .removeClass()
+                    .addClass("slider " + rangeOption);
+
+        switch (rangeOption) {
+            case "range":
+                // go to range
+                bucketData($rangeInput.val(), statsCol);
+                break;
+            case "fitAll":
+                // fit all
+                var bucketSize = (statsCol.aggInfo.max - statsCol.aggInfo.min) / numRowsToFetch;
+                // have mostly two digits after decimal
+                bucketSize = Math.round(bucketSize * 100) / 100;
+                bucketData(bucketSize, statsCol);
+                break;
+            case "single":
+                // go to single
+                var curBucketNum = Number($rangeInput.val());
+                if (isNaN(curBucketNum) || curBucketNum <= 0) {
+                    // for invalid case or original case(bucketNum = 0)
+                    // clear input
+                    $rangeInput.val("");
+                }
+                bucketData(0, statsCol);
+                break;
+            default:
+                console.error("Error Case");
+                return;
         }
     }
 
     function fullSizeBucketing(curStatsCol) {
-        return;
-        // var bucketSize = (curStatsCol.aggInfo.max - curStatsCol.aggInfo.min) / numRowsToFetch;
-        // // have mostly two digits after decimal
-        // bucketSize = Math.round(bucketSize * 100) / 100;
-        // bucketData(bucketSize, curStatsCol);
+        var bucketSize = (curStatsCol.aggInfo.max - curStatsCol.aggInfo.min) / numRowsToFetch;
+        // have mostly two digits after decimal
+        bucketSize = Math.round(bucketSize * 100) / 100;
+        bucketData(bucketSize, curStatsCol);
     }
 
     function bucketData(newBucketNum, curStatsCol) {

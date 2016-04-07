@@ -82,20 +82,30 @@
     <!-- range section -->
     <div class="rangeSection loadDisable">
       <div class="title"><%= dicts.profile.BucketTitle %></div>
-      <div class="buttonSection">
-        <span class="text single"><%= dicts.profile.Single %></span>
-        <div class="rangeBtn">
-          <div class="slider"></div>
+      <div class="content">
+        <!-- slider -->
+        <div class="sliderSection">
+          <div class="sliderBar">
+            <div class="wrap single" data-val="single"></div>
+            <div class="wrap range" data-val="range"></div>
+            <div class="wrap fitAll" data-val="fitAll"></div>
+            <span class="slider"></span>
+          </div>
         </div>
-        <span class="text range"><%= dicts.profile.Range %></span>
+        <!-- options -->
+        <div class="optionSection">
+          <div class="rangePart active" data-val="single">
+            <span class="text"><%= dicts.profile.Single %></span>
+          </div>
+          <div class="rangePart" data-val="range">
+            <span class="text"><%= dicts.profile.Range %></span>
+            <input id="stats-step" type="number" step="1" min="1" spellcheck="false" placeholder="<%= dicts.profile.BucketInstr %>">
+          </div>
+          <div class="rangePart" data-val="fitAll">
+            <span class="text"><%= dicts.profile.FitAll %></span>
+          </div>
+        </div>
       </div>
-      <div class="inputSection">
-        <span class="text"><%= dicts.profile.BucketInstr %>:</span>
-        <input id="stats-step" type="number" step="1" min="1" spellcheck="false">
-      </div>
-      <!-- <div class="fitAllSection">
-        <button class="btn btnMid" type="button">Fit All</button>
-      </div> -->
     </div>
     <!-- info section -->
     <div class="infoSection">
