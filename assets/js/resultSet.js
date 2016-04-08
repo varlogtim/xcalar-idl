@@ -26,7 +26,7 @@ function freeAllResultSetsSync() {
                 continue;
             }
 
-            promises.push(table.freeResultset.bind(this));
+            promises.push(table.freeResultset.bind(table));
         }
 
         // Free datasetBrowser resultSetId
