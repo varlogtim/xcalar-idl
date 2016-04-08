@@ -291,7 +291,8 @@ MultiCastTStr = {
 ProfileTStr = {
     'ProfileOf': 'Profile of',
     'Instr': 'Hover on the bar to see details. Use scroll bar and input box to view more data.',
-    'LoadInstr': 'Please wait for the data preparation, you can close the modal and view it later.'
+    'LoadInstr': 'Please wait for the data preparation, you can close the modal and view it later.',
+    'RowInfo': 'Showing <span><row></span> Results'
 };
 
 WKBKTStr = {

@@ -14,13 +14,29 @@
   </section>
   <!-- Profile Modal Top Section, for statistics groupby info-->
   <section class="modalTopMain">
+    <!-- loading section -->
     <div class="loadingSection hidden">
       <div class="waitingIcon"></div>
     </div>
+    <!-- error section -->
     <div class="errorSection hidden">
       <div class="title"><%= dicts.profile.fail %></div>
       <div class="text"></div>
     </div>
+    <!-- info section -->
+    <div class="infoSection loadHidden">
+      <div class="numInfo">
+        <div title="<%= dicts.profile.RowMore %>" class="icon more">
+          <div class="plus"></div>
+          <div class="plus vertical"></div>
+        </div>
+        <div class="text"></div>
+        <div title="<%= dicts.profile.RowLess %>" class="icon less">
+          <div class="plus"></div>
+        </div>
+      </div>
+    </div>
+    <!-- groupby section -->
     <div class="groubyInfoSection loadHidden">
       <svg class="groupbyChart"></svg>
       <div class="arrow left-arrow"></div>

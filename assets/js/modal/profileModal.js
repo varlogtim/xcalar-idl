@@ -40,7 +40,9 @@ window.Profile = (function($, Profile, d3) {
     };
     var statsColName = "statsGroupBy";
     var bucketColName = "bucketGroupBy";
-    var numRowsToFetch = 20;
+    var defaultRowsToFetch = 20;
+    var minRowsToFetch = 10;
+    var maxRowsToFetch = 60;
 
     var statsInfos = {};
 
@@ -54,9 +56,10 @@ window.Profile = (function($, Profile, d3) {
     var order = sortMap.origin;
     var statsCol = null;
     var percentageLabel = false;
+    var numRowsToFetch = defaultRowsToFetch;
 
     // constant
-    var minHeight = 415;
+    var minHeight = 425;
     var minWidth  = 750;
 
     Profile.setup = function() {
@@ -173,6 +176,28 @@ window.Profile = (function($, Profile, d3) {
         $modal.on("click", ".arrow", function() {
             var isLeft = $(this).hasClass("left-arrow");
             clickArrowEvent(isLeft);
+        });
+
+        // event on infoSection
+        var $infoSection = $modal.find(".infoSection");
+        $infoSection.on("click", ".numInfo .icon", function() {
+            var $icon = $(this);
+            if ($icon.hasClass("disabled")) {
+                return;
+            }
+
+            var diff = 10;
+            var newRowsToFetch;
+
+            if ($icon.hasClass("more")) {
+                // 52 should return 60, 50 should reutrn 60
+                newRowsToFetch = (Math.floor(numRowsToFetch / diff) + 1) * diff;
+            } else {
+                // 52 should return 50, 50 should return 40
+                newRowsToFetch = (Math.ceil(numRowsToFetch / diff) - 1) * diff;
+            }
+
+            updateRowsToFetch(newRowsToFetch);
         });
     };
 
@@ -291,6 +316,9 @@ window.Profile = (function($, Profile, d3) {
         $("#stats-rowInput").off();
 
         $rangeInput.val("");
+
+        numRowsToFetch = defaultRowsToFetch;
+        resetRowsInfo();
     }
 
     function generateProfile(table, txId) {
@@ -452,8 +480,7 @@ window.Profile = (function($, Profile, d3) {
                 $loadHiddens.removeClass("hidden").removeClass("disabled");
                 $loadDisables.removeClass("disabled");
 
-                resetScrollBar();
-                resetSortSection();
+                resetGroupbyInfo();
 
                 groupByData = addNullValue(groupByData);
                 buildGroupGraphs(true);
@@ -1070,7 +1097,7 @@ window.Profile = (function($, Profile, d3) {
                 .attr("height", chartHeight + 2)
                 .style("left", left);
 
-            var time = 60;
+            var time = 100;
             barAreas = chart.selectAll(".barArea");
 
             barAreas.select(".bar")
@@ -1315,27 +1342,26 @@ window.Profile = (function($, Profile, d3) {
     }
 
     function formatNumber(num) {
+        if (num === "") {
+            console.error("error formating");
+            return "";
+        }
         // if not speify maximumFractionDigits, 168711.0001 will be 168,711
         return num.toLocaleString("en", {"maximumFractionDigits": "5"});
     }
 
-    function resetScrollBar() {
+    function resetScrollBar(updateRowInfo) {
         if (totalRows <= numRowsToFetch) {
             $modal.addClass("noScrollBar");
         } else {
             $modal.removeClass("noScrollBar");
-            $modal.find(".scroller").css("left", 0);
-            resizeScroller();
         }
 
-        // total row might be 0 in error case
-        var rowNum = (totalRows <= 0) ? 0 : 1;
-        var $rowInput = $("#stats-rowInput").val(rowNum).data("rowNum", rowNum);
-        var $maxRange = $rowInput.siblings(".max-range");
+        if (!updateRowInfo) {
+            $modal.find(".scroller").css("left", 0);
+        }
 
-        // set width of elements
-        $maxRange.text(totalRows.toLocaleString());
-        $rowInput.width($maxRange.width() + 5); // 5 is for input padding
+        resizeScroller();
     }
 
     function resizeScroller() {
@@ -1347,6 +1373,7 @@ window.Profile = (function($, Profile, d3) {
         // then scrollerWidth == scrollBarWidth
         var scrollBarWidth = $scrollBar.width();
         var scrollerWidth = Math.floor(scrollBarWidth * numRowsToFetch / totalRows);
+        scrollerWidth = Math.min(scrollerWidth, scrollBarWidth);
         scrollerWidth = Math.min(scrollBarWidth - 10, scrollerWidth);
         scrollerWidth = Math.max(25, scrollerWidth);
 
@@ -1449,10 +1476,9 @@ window.Profile = (function($, Profile, d3) {
         return (position + "px");
     }
 
-    function positionScrollBar(rowPercent, rowNum) {
+    function positionScrollBar(rowPercent, rowNum, forceUpdate) {
         var left;
         var isFromInput = false;
-
         var $section = $modal.find(".scrollSection");
         var $scrollBar = $section.find(".scrollBar");
         var $scroller = $scrollBar.find(".scroller");
@@ -1473,7 +1499,10 @@ window.Profile = (function($, Profile, d3) {
             $rowInput.val(rowNum);
             left = getPosition(rowPercent, $scroller, $scrollBar);
             $scroller.css("left", left);
-            return;
+
+            if (!forceUpdate) {
+                return;
+            }
         }
 
         var rowsToFetch = totalRows - rowNum + 1;
@@ -1527,10 +1556,11 @@ window.Profile = (function($, Profile, d3) {
         var rowPosition = rowNum - 1;
         groupByData = [];
 
+        setArrows(null, true);
         fetchGroupbyData(rowPosition, rowsToFetch)
         .then(function() {
             groupByData = addNullValue(groupByData);
-            buildGroupGraphs();
+            buildGroupGraphs(forceUpdate);
             $loadingSection.addClass("hidden");
             clearTimeout(loadTimer);
             highlightBar(tempRowNum);
@@ -1544,10 +1574,19 @@ window.Profile = (function($, Profile, d3) {
         });
     }
 
-    function setArrows(rowNum) {
+    function setArrows(rowNum, fetchingData) {
         var $groupbySection = $modal.find(".groubyInfoSection");
         var $leftArrow = $groupbySection.find(".left-arrow");
         var $rightArrow = $groupbySection.find(".right-arrow");
+
+        if (fetchingData) {
+            $leftArrow.addClass("disabled");
+            $rightArrow.addClass("disabled");
+            return;
+        }
+
+        $leftArrow.removeClass("disabled");
+        $rightArrow.removeClass("disabled");
 
         if (totalRows <= numRowsToFetch) {
             $leftArrow.hide();
@@ -1579,7 +1618,68 @@ window.Profile = (function($, Profile, d3) {
         positionScrollBar(null, curRowNum);
     }
 
-    function resetSortSection() {
+    function updateRowsToFetch(newRowsToFetch) {
+        newRowsToFetch = Math.max(newRowsToFetch, minRowsToFetch);
+        newRowsToFetch = Math.min(newRowsToFetch, maxRowsToFetch);
+        newRowsToFetch = Math.min(newRowsToFetch, totalRows);
+
+        numRowsToFetch = newRowsToFetch;
+
+        var curRowNum = Number($("#stats-rowInput").val());
+        resetRowsInfo();
+        resetScrollBar(true);
+        positionScrollBar(null, curRowNum, true);
+    }
+
+    function resetGroupbyInfo() {
+        resetScrollBar();
+        resetRowInput();
+        resetSortInfo();
+        resetRowsInfo();
+    }
+
+    function resetRowsInfo() {
+        var $numInfo = $modal.find(".infoSection .numInfo");
+        var $activeRange = $rangeSection.find(".rangePart.active");
+
+        if ($activeRange.data("val") === "fitAll" ||
+            totalRows <= minRowsToFetch)
+        {
+            // case that cannot show more or less results
+            $numInfo.hide();
+        } else {
+            $numInfo.show();
+
+            var $moreIcon = $numInfo.find(".more").removeClass("disabled");
+            var $lessIcon = $numInfo.find(".less").removeClass("disabled");
+
+            if (numRowsToFetch <= minRowsToFetch) {
+                $lessIcon.addClass("disabled");
+            }
+
+            if (numRowsToFetch >= maxRowsToFetch || numRowsToFetch >= totalRows) {
+                $moreIcon.addClass("disabled");
+            }
+
+            var html = xcHelper.replaceMsg(ProfileTStr.RowInfo, {
+                "row": numRowsToFetch
+            });
+            $numInfo.find(".text").html(html);
+        }
+    }
+
+    function resetRowInput() {
+        // total row might be 0 in error case
+        var rowNum = (totalRows <= 0) ? 0 : 1;
+        var $rowInput = $("#stats-rowInput").val(rowNum).data("rowNum", rowNum);
+        var $maxRange = $rowInput.siblings(".max-range");
+
+        // set width of elements
+        $maxRange.text(totalRows.toLocaleString());
+        $rowInput.width($maxRange.width() + 5); // 5 is for input padding
+    }
+
+    function resetSortInfo() {
         var $sortSection = $modal.find(".sortSection");
         var $activeSort = $sortSection.find(".active");
         $activeSort.removeClass("active").find(".radio").removeClass("checked");
@@ -1927,8 +2027,7 @@ window.Profile = (function($, Profile, d3) {
             $modal.find(".errorSection").removeClass("hidden")
                 .find(".text").text(error);
 
-            resetSortSection();
-            resetScrollBar();
+            resetGroupbyInfo();
         }
     }
 

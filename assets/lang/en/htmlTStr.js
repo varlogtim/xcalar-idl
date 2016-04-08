@@ -470,7 +470,9 @@ module.exports = {
         'AggSummary': 'Aggregate Summary',
         'QuartileSummary': 'Quartile Summary',
         'QuartileInstr': 'Quartile statistics can only be calculated when the column is sorted',
-        'fail': 'Cannot profile the data'
+        'fail': 'Cannot profile the data',
+        'RowMore': 'Show More Results',
+        'RowLess': 'Show Less Results'
     },
 
     workbook: {
