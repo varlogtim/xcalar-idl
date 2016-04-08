@@ -135,7 +135,7 @@ window.Profile = (function($, Profile, d3) {
             toggleRange($(this).data("val"));
         });
 
-        $rangeSection.on("click", ".sliderSection .wrap", function(event) {
+        $rangeSection.on("click", ".sliderSection .wrap", function() {
             toggleRange($(this).data("val"));
         });
 
@@ -281,6 +281,7 @@ window.Profile = (function($, Profile, d3) {
         statsCol = null;
         percentageLabel = false;
         $modal.removeData("id");
+        toggleRange("single", true); // reset the range
 
         $modal.find(".min-range .text").off();
         $modalBg.off("mouseover.profileModal");
@@ -289,8 +290,7 @@ window.Profile = (function($, Profile, d3) {
         $(document).off(".profileModal");
         $("#stats-rowInput").off();
 
-        $modal.find(".rangeSection").removeClass("range")
-                    .find("input").val("");
+        $rangeInput.val("");
     }
 
     function generateProfile(table, txId) {
@@ -1689,7 +1689,8 @@ window.Profile = (function($, Profile, d3) {
         return (deferred.promise());
     }
 
-    function toggleRange(rangeOption) {
+    function toggleRange(rangeOption, reset) {
+        var bucketSize;
         var $rangePart = $rangeSection.find(".rangePart").filter(function() {
             return $(this).data("val") === rangeOption;
         });
@@ -1708,14 +1709,13 @@ window.Profile = (function($, Profile, d3) {
         switch (rangeOption) {
             case "range":
                 // go to range
-                bucketData($rangeInput.val(), statsCol);
+                bucketSize = $rangeInput.val();
                 break;
             case "fitAll":
                 // fit all
-                var bucketSize = (statsCol.aggInfo.max - statsCol.aggInfo.min) / numRowsToFetch;
+                bucketSize = (statsCol.aggInfo.max - statsCol.aggInfo.min) / numRowsToFetch;
                 // have mostly two digits after decimal
                 bucketSize = Math.round(bucketSize * 100) / 100;
-                bucketData(bucketSize, statsCol);
                 break;
             case "single":
                 // go to single
@@ -1725,19 +1725,16 @@ window.Profile = (function($, Profile, d3) {
                     // clear input
                     $rangeInput.val("");
                 }
-                bucketData(0, statsCol);
+                bucketSize = 0;
                 break;
             default:
                 console.error("Error Case");
                 return;
         }
-    }
 
-    function fullSizeBucketing(curStatsCol) {
-        var bucketSize = (curStatsCol.aggInfo.max - curStatsCol.aggInfo.min) / numRowsToFetch;
-        // have mostly two digits after decimal
-        bucketSize = Math.round(bucketSize * 100) / 100;
-        bucketData(bucketSize, curStatsCol);
+        if (!reset) {
+            bucketData(bucketSize, statsCol);
+        }
     }
 
     function bucketData(newBucketNum, curStatsCol) {
