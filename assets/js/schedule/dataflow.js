@@ -243,7 +243,7 @@ window.DFG = (function($, DFG) {
                                 dagNodeId, node.paramType, node.paramValue));
                     }
 
-                    return (chain(promises));
+                    return (PromiseHelper.chain(promises));
                 })
                 .then(innerDeferred.resolve)
                 .fail(innerDeferred.reject);

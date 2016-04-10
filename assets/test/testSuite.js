@@ -111,7 +111,7 @@ window.TestSuite = (function($, TestSuite) {
             gMinModeOn = true;
         }
 
-        // Start chaining the callbacks
+        // Start PromiseHelper.chaining the callbacks
         for (var ii = 0; ii < testCases.length; ii++) {
             deferred = deferred.then(
                 // Need to trap the value of testCase and ii
@@ -189,7 +189,7 @@ window.TestSuite = (function($, TestSuite) {
             gMinModeOn = minModeCache;
         });
 
-        // This starts the entire chain
+        // This starts the entire PromiseHelper.chain
         initialDeferred.resolve();
     };
 

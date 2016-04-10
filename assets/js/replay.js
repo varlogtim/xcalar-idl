@@ -59,7 +59,7 @@ window.Replay = (function($, Replay) {
             promises.push(Replay.execSql.bind(this, sqls[i], prevSql, nextSql));
         }
 
-        chain(promises)
+        PromiseHelper.chain(promises)
         .then(function() {
             alert("Replay Finished!");
             deferred.resolve();
@@ -156,7 +156,7 @@ window.Replay = (function($, Replay) {
     //         promises.push(delTable.bind(this, gTables[id]));
     //     }
 
-    //     return chain(promises);
+    //     return PromiseHelper.chain(promises);
 
     //     function delTable(table) {
     //         var deferred = jQuery.Deferred();

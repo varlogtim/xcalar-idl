@@ -571,7 +571,7 @@ window.Scheduler = (function(Scheduler, $) {
             promises.push(Scheduler.updateDFG.bind(this, scheduleName, dfgName));
         });
 
-        chain(promises)
+        PromiseHelper.chain(promises)
         .then(function() {
             // update info on this schedule
             listSchedule(scheduleName);

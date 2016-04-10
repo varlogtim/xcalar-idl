@@ -1259,52 +1259,6 @@ window.xcHelper = (function($, xcHelper) {
         }
     };
 
-    xcHelper.when = function() {
-        var numProm = arguments.length;
-        if (numProm === 0) {
-            return (promiseWrapper(null));
-        }
-        var mainDeferred = jQuery.Deferred();
-
-        var numDone = 0;
-        var returns = [];
-        var argument = arguments;
-        var hasFailures = false;
-
-        for (var t = 0; t < numProm; t++) {
-            whenCall(t);
-        }
-
-        function whenCall(i) {
-            argument[i].then(function(ret) {
-                console.log("Promise", i, "done!");
-                numDone++;
-                returns[i] = ret;
-
-                if (numDone === numProm) {
-                    console.log("All done!");
-                    if (hasFailures) {
-                        mainDeferred.reject.apply($, returns);
-                    } else {
-                        mainDeferred.resolve.apply($, returns);
-                    }
-                }
-            }, function(ret) {
-                console.warn("Promise", i, "failed!");
-                numDone++;
-                returns[i] = ret;
-                hasFailures = true;
-                if (numDone === numProm) {
-                    console.log("All done!");
-                    mainDeferred.reject.apply($, returns);
-                }
-
-            });
-        }
-
-        return (mainDeferred.promise());
-    };
-
     xcHelper.assert = function(statement, error) {
         error = error || "Assert fail!";
         if (!statement) {

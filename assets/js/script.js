@@ -429,7 +429,7 @@ window.StartManager = (function(StartManager, $) {
             // setup leftover tables
             setupOrphanedList(backTableSet);
 
-            chain(promises)
+            PromiseHelper.chain(promises)
             .then(function() {
                 if (hasTable) {
                     RowScroller.resize();

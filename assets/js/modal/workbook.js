@@ -863,7 +863,7 @@ window.WKBKManager = (function($, WKBKManager) {
                 }
             }
 
-            return chain(promises);
+            return PromiseHelper.chain(promises);
         })
         .then(function() {
             return XcalarKeyDelete(activeWKBKKey, gKVScope.WKBK);
@@ -892,7 +892,7 @@ window.WKBKManager = (function($, WKBKManager) {
         // delete all active workbook key
         promises.push(KVStore.delete.bind(this, activeWKBKKey, gKVScope.WKBK));
 
-        chain(promises)
+        PromiseHelper.chain(promises)
         .then(function() {
             return KVStore.delete(wkbkKey, gKVScope.WKBK);
         })

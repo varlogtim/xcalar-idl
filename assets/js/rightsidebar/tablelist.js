@@ -443,7 +443,7 @@ window.TableList = (function($, TableList) {
         });
 
         if (action === "add") {
-            chain(promises)
+            PromiseHelper.chain(promises)
             .then(function() {
                 // anything faile to alert
                 if (failures.length > 0) {

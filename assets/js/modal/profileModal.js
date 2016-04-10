@@ -373,7 +373,7 @@ window.Profile = (function($, Profile, d3) {
             showProfile();
         }
 
-        xcHelper.when.apply(window, promises)
+        PromiseHelper.when.apply(window, promises)
         .then(deferred.resolve)
         .fail(function() {
             var error;
@@ -691,7 +691,7 @@ window.Profile = (function($, Profile, d3) {
                 promises.push(getMedian.bind(this, resultId, upperRowStart, numEntries, upperKey));
                 promises.push(getMedian.bind(this, resultId, numEntries, numEntries, fullKey));
 
-                return chain(promises);
+                return PromiseHelper.chain(promises);
             })
             .then(function() {
                 XcalarSetFree(resultId);
@@ -802,7 +802,7 @@ window.Profile = (function($, Profile, d3) {
         .then(function() {
             var def1 = getAggResult(statsColName, finalTable, aggMap.max, txId);
             var def2 = getAggResult(statsColName, finalTable, aggMap.sum, txId);
-            return xcHelper.when(def1, def2);
+            return PromiseHelper.when(def1, def2);
         })
         .then(function(maxVal, sumVal) {
             curStatsCol.addBucket(0, {
@@ -1939,7 +1939,7 @@ window.Profile = (function($, Profile, d3) {
         .then(function() {
             var def1 = getAggResult(bucketColName, finalTable, aggMap.max, txId);
             var def2 = getAggResult(bucketColName, finalTable, aggMap.sum, txId);
-            return xcHelper.when(def1, def2);
+            return PromiseHelper.when(def1, def2);
         })
         .then(function(maxVal, sumVal) {
             curStatsCol.addBucket(newBucketNum, {
@@ -1958,7 +1958,7 @@ window.Profile = (function($, Profile, d3) {
             // Note that grouby table can not delete because when sort bucket table
             // it looks for the unsorted table, which is this one
 
-            xcHelper.when(def1, def2)
+            PromiseHelper.when(def1, def2)
             .always(function() {
                 deferred.resolve();
             });

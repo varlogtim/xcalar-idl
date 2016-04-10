@@ -1482,7 +1482,7 @@ window.WSManager = (function($, WSManager) {
         //     promises.push(deleteTable.bind(this, tableId, TableType.Active));
         // }
 
-        // chain(promises)
+        // PromiseHelper.chain(promises)
         TblManager.deleteTables(activeTables, TableType.Active)
         .then(function() {
             return (TableList.tableBulkAction("delete", TableType.Archived));

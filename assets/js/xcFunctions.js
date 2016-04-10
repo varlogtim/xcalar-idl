@@ -65,7 +65,8 @@ window.xcFunction = (function($, xcFunction) {
     };
 
     // aggregate table column
-    xcFunction.aggregate = function(colNum, tableId, aggrOp, aggStr) {
+    xcFunction.aggregate = function(colNum, tableId, aggrOp, aggStr,
+                                    dontShowModal) {
         var deferred = jQuery.Deferred();
 
         var table        = gTables[tableId];
@@ -139,12 +140,14 @@ window.xcFunction = (function($, xcFunction) {
             Transaction.done(txId, {"msgTable": tableId});
 
             // show result in alert modal
-            Alert.show({
-                "title"  : title,
-                "instr"  : instr,
-                "msg"    : value,
-                "isAlert": true
-            });
+            if (!dontShowModal) {
+                Alert.show({
+                    "title"  : title,
+                    "instr"  : instr,
+                    "msg"    : value,
+                    "isAlert": true
+                });
+            }
 
             deferred.resolve();
         })
@@ -318,7 +321,7 @@ window.xcFunction = (function($, xcFunction) {
             var deferred2 = checkTableIndex(res.rColName, res.rTableId, txId);
 
             // Step 2: index the left table and right table
-            return xcHelper.when(deferred1, deferred2);
+            return PromiseHelper.when(deferred1, deferred2);
         })
         .then(function(lInexedTable, rIndexedTable) {
             // Step 3: join left table and right table
@@ -1018,7 +1021,7 @@ window.xcFunction = (function($, xcFunction) {
 
         var lastTableName = currTableName;
 
-        chain(promises)
+        PromiseHelper.chain(promises)
         .then(function() {
             deferred.resolve(lastTableName);
         })
@@ -1122,7 +1125,7 @@ window.xcFunction = (function($, xcFunction) {
             var deferred2 = XcalarMap(rColName, rString,
                                     rTableName, rNewName, txId);
 
-            xcHelper.when(deferred1, deferred2)
+            PromiseHelper.when(deferred1, deferred2)
             .then(function() {
                 var lTableCols = xcHelper.deepCopy(lCols);
                 var rTableCols = xcHelper.deepCopy(rCols);

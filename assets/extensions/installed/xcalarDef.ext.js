@@ -116,7 +116,7 @@ window.UExtXcalarDef = (function(UExtXcalarDef, $) {
                                                         i, colType));
                 }
 
-                return chain(promises);
+                return PromiseHelper.chain(promises);
             })
             .then(function(finalTableId) {
                 xcHelper.unlockTable(tableId);
@@ -511,7 +511,7 @@ window.UExtXcalarDef = (function(UExtXcalarDef, $) {
 
                 defArray.push(ladLeadMap(WinState.cur, -1,
                                          tableWithUniqIndex, uniqColName));
-                return xcHelper.when.apply(window, defArray);
+                return PromiseHelper.when.apply(window, defArray);
             })
             .then(function() {
                 // Step 4 Create unique col names for each of the tables
@@ -526,7 +526,7 @@ window.UExtXcalarDef = (function(UExtXcalarDef, $) {
                 }
 
                 defArray.push(winColRename(WinState.cur, -1, colName));
-                return xcHelper.when.apply(window, defArray);
+                return PromiseHelper.when.apply(window, defArray);
             })
             .then(function() {
                 // Step 5 Reindex!
@@ -540,7 +540,7 @@ window.UExtXcalarDef = (function(UExtXcalarDef, $) {
                 }
 
                 defArray.push(genUniqColIndex(WinState.cur, -1));
-                return xcHelper.when.apply(window, defArray);
+                return PromiseHelper.when.apply(window, defArray);
             })
             .then(function() {
                 // Step 5.5 Need to recast the original sorted by column in cur
@@ -557,7 +557,7 @@ window.UExtXcalarDef = (function(UExtXcalarDef, $) {
                 var newTableName;
                 var i;
                 for (i = 0; i < lag; i++) {
-                    newTableName = tableNameRoot + "_chain_" +
+                    newTableName = tableNameRoot + "_PromiseHelper.chain_" +
                                     Authentication.getHashId();
                     rTable = tableNames.lag[i];
                     finalTableName = newTableName;
@@ -567,7 +567,7 @@ window.UExtXcalarDef = (function(UExtXcalarDef, $) {
                 }
 
                 for (i = 0; i < lead; i++) {
-                    newTableName = tableNameRoot + "_chain_" +
+                    newTableName = tableNameRoot + "_PromiseHelper.chain_" +
                                     Authentication.getHashId();
                     rTable = tableNames.lead[i];
                     finalTableName = newTableName;
@@ -576,7 +576,7 @@ window.UExtXcalarDef = (function(UExtXcalarDef, $) {
                     lTable = newTableName;
                 }
 
-                return chain(defChain);
+                return PromiseHelper.chain(defChain);
             })
             .then(function() {
                 // Step 7 Sort ascending or descending by the cur order number

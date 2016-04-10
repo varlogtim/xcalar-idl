@@ -411,7 +411,7 @@ window.TblManager = (function($, TblManager) {
     //         defArray.push(def);
     //     });
 
-    //     xcHelper.when.apply(window, defArray)
+    //     PromiseHelper.when.apply(window, defArray)
     //     .then(function() {
     //         Transaction.done(txId);
     //         deferred.resolve();
@@ -564,7 +564,7 @@ window.TblManager = (function($, TblManager) {
             });
         }
 
-        xcHelper.when.apply(window, defArray)
+        PromiseHelper.when.apply(window, defArray)
         .then(function() {
             Transaction.done(txId);
             deferred.resolve();

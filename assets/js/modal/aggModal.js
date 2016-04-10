@@ -405,7 +405,7 @@ window.AggModal = (function($, AggModal) {
             }
         }
 
-        xcHelper.when.apply(window, promises)
+        PromiseHelper.when.apply(window, promises)
         .then(deferred.resolve)
         .fail(function() {
             for (var i = 0, len = arguments.length; i < len; i++) {
@@ -458,7 +458,7 @@ window.AggModal = (function($, AggModal) {
             }
         }
 
-        return xcHelper.when.apply(window, promises);
+        return PromiseHelper.when.apply(window, promises);
     }
 
     function checkDupCols(colNo) {

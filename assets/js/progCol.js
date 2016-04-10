@@ -413,7 +413,7 @@ window.ColManager = (function($, ColManager) {
             promises.push(chagneTypeHelper.bind(this, i));
         }
 
-        chain(promises)
+        PromiseHelper.chain(promises)
         .then(function(newTableId) {
             // map do not change stats of the table
             Profile.copy(tableId, newTableId);
@@ -612,7 +612,7 @@ window.ColManager = (function($, ColManager) {
     //                                               currentWS, table, archive));
     //         }
 
-    //         return (chain(promises));
+    //         return (PromiseHelper.chain(promises));
     //     })
     //     .then(function() {
     //         return (refreshTable(finalTable, tableName));
@@ -714,7 +714,7 @@ window.ColManager = (function($, ColManager) {
                 promises.push(splitColHelper.bind(this, i));
             }
 
-            return chain(promises);
+            return PromiseHelper.chain(promises);
         })
         .then(function(newTableId) {
             // map do not change stats of the table

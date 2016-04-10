@@ -32,7 +32,7 @@ function freeAllResultSetsSync() {
         // Free datasetBrowser resultSetId
         promises.push(DS.release.bind(this));
 
-        return chain(promises);
+        return PromiseHelper.chain(promises);
 
     })
     .then(deferred.resolve)

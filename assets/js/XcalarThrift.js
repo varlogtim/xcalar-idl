@@ -166,19 +166,6 @@ window.Function.prototype.bind = function() {
     });
 };
 
-function chain(funcs) {
-    if (!funcs ||
-        !Array.isArray(funcs) ||
-        typeof funcs[0] !== "function") {
-        return promiseWrapper(null);
-    }
-    var head = funcs[0]();
-    for (var i = 1; i < funcs.length; i++) {
-        head = head.then(funcs[i]);
-    }
-    return (head);
-}
-
 // Jerene's debug function
 function atos(func, args) {
     func.apply(this, args).then(
@@ -277,7 +264,7 @@ function getUnsortedTableName(tableName, otherTableName) {
         var deferred2 = XcalarGetDag(otherTableName);
         var unsortedName1;
         var unsortedName2;
-        xcHelper.when(deferred1, deferred2)
+        PromiseHelper.when(deferred1, deferred2)
         .then(function(na1, na2) {
             unsortedName1 = tableName;
             unsortedName2 = otherTableName;
@@ -346,7 +333,7 @@ function getUnsortedTableName(tableName, otherTableName) {
                 promise2 = promiseWrapper(null);
             }
 
-            return (xcHelper.when(promise1, promise2));
+            return (PromiseHelper.when(promise1, promise2));
         })
         .then(function() {
             deferred.resolve(unsortedName1, unsortedName2);
@@ -483,7 +470,7 @@ function XcalarLoad(url, format, datasetName, fieldDelim, recordDelim,
     var def2 = XcalarGetQuery(workItem);
     // We are using our .when instead of jQuery's because if load times out,
     // we still want to use the return for def2.
-    xcHelper.when(def1, def2)
+    PromiseHelper.when(def1, def2)
     .then(function(ret1, ret2) {
         Transaction.log(txId, ret2);
         deferred.resolve(ret1);

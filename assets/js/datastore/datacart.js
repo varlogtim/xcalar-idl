@@ -534,7 +534,7 @@ window.DataCart = (function($, DataCart) {
 
         emptyAllCarts();
 
-        chain(promises)
+        PromiseHelper.chain(promises)
         .then(function(lastTableName) {
             KVStore.commit();
 

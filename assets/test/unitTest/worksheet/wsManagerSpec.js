@@ -112,7 +112,7 @@ function ensureTableExists(minNumTables) {
         for (var i = 0; i < numTablesNeeded; i++) {
             promises.push(autoAddTable);
         }
-        chain(promises).
+        PromiseHelper.chain(promises).
         then(deferred.resolve);
     } else {
         deferred.resolve();

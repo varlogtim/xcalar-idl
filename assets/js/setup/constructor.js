@@ -1261,7 +1261,7 @@ DFGObj.prototype = {
             promises.push(Scheduler.updateDFG.bind(this, scheduleName, dfgName));
         });
 
-        return (chain(promises));
+        return (PromiseHelper.chain(promises));
     }
 };
 /* End of SchedObj */

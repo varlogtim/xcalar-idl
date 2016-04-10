@@ -219,7 +219,7 @@ window.SQL = (function($, SQL) {
         isUndo = true;
         $undo.addClass("disabled");
 
-        chain(promises)
+        PromiseHelper.chain(promises)
         .then(function() {
             // cursor in the current position
             logCursor = c;
@@ -266,7 +266,7 @@ window.SQL = (function($, SQL) {
         isRedo = true;
         $redo.addClass("disabled");
 
-        chain(promises)
+        PromiseHelper.chain(promises)
         .then(function() {
             logCursor = c - 1;
             updateLogPanel(logCursor);

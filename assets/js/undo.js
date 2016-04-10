@@ -339,7 +339,7 @@ window.Undo = (function($, Undo) {
             }));
         }
 
-        return chain(promises);
+        return PromiseHelper.chain(promises);
     };
 
     undoFuncs[SQLOps.RevertTable] = function(options) {
@@ -564,7 +564,7 @@ window.Undo = (function($, Undo) {
 
             promises.push(TableList.refreshOrphanList.bind(this));
 
-            return chain(promises);
+            return PromiseHelper.chain(promises);
         } else if (delType === DelWSType.Archive) {
             makeWorksheetHelper();
             WSManager.addNoSheetTables(tables, wsId);
@@ -587,7 +587,7 @@ window.Undo = (function($, Undo) {
                 TblManager.archiveTable(tableId);
             });
 
-            return chain(promises);
+            return PromiseHelper.chain(promises);
         } else {
             console.error("Unexpected delete worksheet type");
             return promiseWrapper(null);
