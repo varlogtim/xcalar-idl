@@ -391,10 +391,8 @@ window.OperationsModal = (function($, OperationsModal) {
                 $input.val(type);
                 if (type === "default") {
                     casted = false;
-                    // castedType = null;
                 } else {
                     casted = true;
-                    // castedType = type;
                 }
                 $input.closest('td').prev().find('input')
                                            .data('casted', casted)
@@ -1487,15 +1485,16 @@ window.OperationsModal = (function($, OperationsModal) {
                     type = getColumnTypeFromArg(arg);
                 }
             } else {
-                var isString = formatArgumentInput(arg, $input.data('typeid'),
+                var parsedType = parseType($input.data('typeid'));
+                if (parsedType.length === 6) {
+                    type = null;
+                } else {
+                    var isString = formatArgumentInput(arg, $input.data('typeid'),
                                                    existingTypes).isString;
-                if (isString) {
-                    type = "string";
+                    if (isString) {
+                        type = "string";
+                    }
                 }
-            }
-            // UDFS only accepts strings for now
-            if ($("#categoryList input").val().indexOf("user") === 0) {
-                type = "string";
             }
 
             if (type != null) {
@@ -1900,8 +1899,6 @@ window.OperationsModal = (function($, OperationsModal) {
                                         $errorInput = $input;
 
                                         errorType = "invalidColType";
-
-                                        // return (false);
                                     }
                                 } else {
                                     console.error("colType is null/col not pulled!");
@@ -1927,9 +1924,12 @@ window.OperationsModal = (function($, OperationsModal) {
                     $errorInput = $input;
                     errorType = "invalidType";
                 } else {
-                    var formatArgumentResults = formatArgumentInput(arg, typeid,
+                    var parsedType = parseType(typeid);
+                    if (parsedType.length < 6) {
+                        var formatArgumentResults = formatArgumentInput(arg, typeid,
                                                             existingTypes);
-                    arg = formatArgumentResults.value;
+                        arg = formatArgumentResults.value;
+                    }
                 }
             }
 
@@ -2424,7 +2424,7 @@ window.OperationsModal = (function($, OperationsModal) {
         return null;
     }
 
-    function checkIfBlanksAreValid() {
+    function checkIfBlanksAreValid(invalidInputs) {
         var isValidBlanks = true;
         var check;
         $argInputs.each(function() {
@@ -2440,7 +2440,7 @@ window.OperationsModal = (function($, OperationsModal) {
 
             if (val === "" && !check) {
                 isValidBlanks = false;
-                $invalidInputs.push($input);
+                invalidInputs.push($input);
                 return false; // stop iteration
             }
         });
@@ -2494,7 +2494,6 @@ window.OperationsModal = (function($, OperationsModal) {
             value = replaceEscapedColPrefixes(value);
             value = "\"" + value + "\"";
             // stringify puts in too many slashes
-            // value = JSON.stringify(value);
         }
 
         return ({value: value, isString: shouldBeString});
@@ -2660,7 +2659,6 @@ window.OperationsModal = (function($, OperationsModal) {
         val = val.trim();
         val = val.replace(/"([^"]+)"/g, ''); // remove quotes and text between quotes
         var valLen = val.length;
-        // var isValidFunc = false;
 
         if (valLen < 4) { // must be at least this long: a(b)
             return false;
@@ -2747,7 +2745,8 @@ window.OperationsModal = (function($, OperationsModal) {
                 return false;
             }
             for (var j = 1; j < colName.length; j++) {
-                if (colName[j] === colPrefix && !xcHelper.isCharEscaped(colName, j)) {
+                if (colName[j] === colPrefix &&
+                                   !xcHelper.isCharEscaped(colName, j)) {
                     return false;
                 }
             }
@@ -2774,7 +2773,8 @@ window.OperationsModal = (function($, OperationsModal) {
         '<td>' +
           '<div class="inputWrap">' +
              '<div class="dropDownList">' +
-              '<input class="argument" type="text" tabindex="10" spellcheck="false">' +
+              '<input class="argument" type="text" tabindex="10" ' +
+                'spellcheck="false">' +
               '<div class="argIconWrap">' +
                 '<span class="icon"></span>' +
               '</div>' +
