@@ -1097,7 +1097,7 @@ window.Profile = (function($, Profile, d3) {
                 .attr("height", chartHeight + 2)
                 .style("left", left);
 
-            var time = 100;
+            var time = 60 / defaultRowsToFetch * numRowsToFetch;
             barAreas = chart.selectAll(".barArea");
 
             barAreas.select(".bar")

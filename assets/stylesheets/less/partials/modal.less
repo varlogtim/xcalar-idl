@@ -2546,12 +2546,11 @@ html.microsoft {
 
                     .plus {
                         .size(@width: 14px, @height: 3px);
-                        .position(absolute, @top: 50%, @left: 50%);
-                        .transform(translate(-50%, -50%));
+                        .position(absolute, @top: 6px, @left: 0);
                         background-color: @color-profile-bar-hover;
 
                         &.vertical {
-                            .transform(translate(-58%, -66%) rotate(90deg));
+                            .transform(rotate(90deg));
                         }
                     }
                 }
@@ -2870,7 +2869,7 @@ html.microsoft {
                             .size(@width: 20px, @height: 11px);
                             display: inline-block;
                             background-color: @color-profile-bar;
-                            .transition(top 0.75s);
+                            .transition(top 0.45s);
 
                             &.range {
                                 top: 35px;
