@@ -976,46 +976,6 @@ window.TblAnim = (function($, TblAnim) {
         }
     }
 
-
-    // set display none on tables that are not currently in the viewport but are
-    // active. Tables will maintain their widths;
-    function hideOffScreenTables(options) {
-        options = options || {};
-        var leftLimit = -options.marginLeft || 0;
-        var marginRight = options.marginRight || 0;
-        var $tableWraps = $('.xcTableWrap:not(.inActive)');
-        var viewWidth = $('#mainFrame').width() + marginRight;
-
-        $tableWraps.each(function() {
-            var $table = $(this);
-            var $thead = $table.find('.xcTheadWrap');
-            if (!$thead.length) {
-                return null;
-            }
-
-            var rect = $thead[0].getBoundingClientRect();
-            if (rect.right > leftLimit) {
-                if (rect.left < viewWidth) {
-                    $table.addClass('inViewPort');
-                } else {
-                    return false;
-                }
-            }
-        });
-
-        $tableWraps.not('.inViewPort').each(function() {
-            var $table = $(this);
-            $table.width($table.width()).addClass('hollowed');
-        });
-    }
-
-    function unhideOffScreenTables() {
-        var $tableWraps = $('.xcTableWrap:not(.inActive)');
-        $tableWraps.width('auto');
-        $tableWraps.removeClass('inViewPort hollowed');
-    }
-
-
     return (TblAnim);
 
 }(jQuery, {}));
