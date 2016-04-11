@@ -4,6 +4,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <title>Xcalar Insight</title>
 include "partials/loginPart.html"
+<script>
 $(document).ready(function() {
     $("#insightVersion").hide();
     $("#loginContainer").hide();
@@ -17,7 +18,7 @@ $(document).ready(function() {
             $("#insightVersion").fadeIn(200);
         });
     }, 4500);
-    
+
     $('#loginButton').click(function(event) {
 
         var username = $("#loginNameBox").val();
@@ -31,14 +32,48 @@ $(document).ready(function() {
             username = username.substring(0, index);
         }
 
-        // XXX prevent form to submit, temporary use
-        event.preventDefault();
         console.log("username:", username);
-        sessionStorage.setItem("xcalar-username", username);
-        sessionStorage.setItem("xcalar-fullUsername", fullUsername);
-        // XXX this redirect is only for temporary use
-        window.location = paths.indexAbsolute;
+        var pass = $('#loginPasswordBox').val();
+        var str = {"xipassword": pass};
+
+        $.ajax({
+            type: 'POST',
+            data: JSON.stringify(str),
+            contentType: 'application/json',
+            url: 'http://146.148.59.48:12123',
+            success: function(data) {
+                // ret = JSON.stringify(data);
+                ret = data;
+                if (ret == "Success") {
+                    console.log('success');
+                    submit();
+                } else if (ret == "Fail") {
+                    alert('Incorrect Password. Please try again.');
+                    console.log('ret fail', data, ret);
+                } else {
+                    //Auth server probably down or something. Just let them in
+                    console.log('shouldnt be here', data, ret);
+                    submit();
+                }
+            },
+            error: function(data) {
+                //Auth server probably down or something. Just let them in
+                console.error(error);
+                submit();
+            }
+        });
+
+        function submit() {
+            sessionStorage.setItem("xcalar-username", username);
+            sessionStorage.setItem("xcalar-fullUsername", fullUsername);
+            // XXX this redirect is only for temporary use
+            window.location = paths.indexAbsolute;
+        }
+
+        return false; // prevents form from having it's default action
     });
+
+
     $("#insightVersion").html("Version SHA: " +
         XVM.getSHA().substring(0, 6) + ", Revision " + XVM.getVersion());
 });
