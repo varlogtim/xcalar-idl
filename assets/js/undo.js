@@ -469,7 +469,7 @@ window.Undo = (function($, Undo) {
         // 2, remove it from current worksheet
         // 3, refresh back to the old worksheet
         // XXXX fix it if you have better idea
-        TblManager.inActiveTables([tableId]);
+        TblManager.archiveTables([tableId]);
         WSManager.removeTable(tableId);
 
         TblManager.refreshTable([tableName], null, [], oldWS, {
@@ -494,7 +494,7 @@ window.Undo = (function($, Undo) {
             var oldWSId = options.oldWorksheetId;
             WSManager.removeTable(tableId);
             WSManager.addTable(tableId, oldWSId);
-            TblManager.inActiveTables([tableId]);
+            TblManager.archiveTables([tableId]);
         } else if (tableType === TableType.Orphan) {
             TblManager.sendTableToOrphaned(tableId, {"remove": true});
         } else {

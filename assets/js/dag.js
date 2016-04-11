@@ -485,7 +485,7 @@ window.DagPanel = (function($, DagPanel) {
             } else if (gTables[tableId].status === TableType.Orphan) {
                 tableType = TableType.Orphan;
             } else {
-                 tableType = TableType.Archived;
+                tableType = TableType.Archived;
             }
 
             WSManager.moveInactiveTable(tableId, wsId, tableType);
