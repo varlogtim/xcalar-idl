@@ -291,6 +291,15 @@ window.DatastoreForm = (function($, DatastoreForm) {
         var funcName = udfCheckRes.funcName;
         var fieldDelim = delimiterTranslate($fieldText);
         var lineDelim = delimiterTranslate($lineText);
+        if (typeof fieldDelim === "object" || typeof lineDelim === "object") {
+            if (typeof fieldDelim === "object") {
+                StatusBox.show(DSFormTStr.InvalidDelim, $fieldText, true);
+            } else {
+                StatusBox.show(DSFormTStr.InvalidDelim, $lineText, true);
+            }
+            return deferred.reject("invalid delimiter").promise();
+        }
+
         var header = $headerCheckBox.find(".checkbox").hasClass("checked");
 
         promoptHeaderAlert(dsFormat, header)
@@ -485,14 +494,24 @@ window.DatastoreForm = (function($, DatastoreForm) {
         }
 
         var delimiter = $input.val();
-        switch (delimiter) {
-            case "\\t":
-                return "\t";
-            case "\\n":
-                return "\n";
-            default:
-                return (delimiter);
+        for (var i = 0; i < delimiter.length; i++) {
+            if (delimiter[i] === "\"" &&
+                !xcHelper.isCharEscaped(delimiter, i)) {
+                delimiter = delimiter.slice(0, i) + "\\" + delimiter.slice(i);
+                i++;
+            }
         }
+
+        // hack to turn user's escaped string into its actual value
+        var obj = '{"val":"' + delimiter + '"}';
+        try {
+            delimiter = JSON.parse(obj).val;
+        } catch (err) {
+            delimiter = {fail: true, error: err};
+            console.error(err);
+        }
+
+        return delimiter;
     }
 
     function resetDelimiter() {
@@ -692,7 +711,7 @@ window.DatastoreForm = (function($, DatastoreForm) {
     }
 
     function applyOhterDelim($input) {
-        if ($input == null || $input.length == 0) {
+        if ($input == null || $input.length === 0) {
             // invalid case
             return;
         }

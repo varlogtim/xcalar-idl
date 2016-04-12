@@ -355,7 +355,8 @@ DSTStr = {
 
 DSFormTStr = {
     'LoadConfirm': 'Load Dataset Confirmation',
-    'NoHeader': 'You have not checked header option to promote first row as header.'
+    'NoHeader': 'You have not checked header option to promote first row as header.',
+    'InvalidDelim': 'Invalid delimiter.'
 };
 
 DataCartStr = {
