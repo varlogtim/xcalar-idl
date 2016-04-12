@@ -142,9 +142,8 @@ window.Undo = (function($, Undo) {
     };
 
     undoFuncs[SQLOps.GroupBy] = function(options) {
-        // TblManager.archiveTable(options.tableId, {"del": ArchiveTable.Keep});
-        // var tableId = xcHelper.getTableId(options.newTableName);
-        // TblManager.sendTableToOrphaned(tableId, {'remove': true});
+        var tableId = xcHelper.getTableId(options.newTableName);
+        TblManager.sendTableToOrphaned(tableId, {'remove': true});
         return (promiseWrapper(null));
     };
 
