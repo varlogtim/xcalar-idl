@@ -136,6 +136,11 @@ var keyCode = {
     Z: 90
 };
 
+var FltOp = {
+    "Filter" : "Filter",
+    "Exclude": "Exclude"
+};
+
 var AggrOp = {
     "Max"       : "Max",
     "Min"       : "Min",

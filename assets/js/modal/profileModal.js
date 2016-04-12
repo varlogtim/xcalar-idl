@@ -49,7 +49,7 @@ window.Profile = (function($, Profile, d3) {
     var curTableId = null;
     var curColNum = null;
     var resultSetId = null;
-    var totalRows = null;
+    var totalRows = 0;
     var groupByData = [];
     var bucketNum = 0;
     var order = sortMap.origin;
@@ -96,13 +96,19 @@ window.Profile = (function($, Profile, d3) {
             closeProfileModal();
         });
 
+        $modal.on("mouseenter", ".tooltipOverflow", function(){
+            xcHelper.autoTooltip(this);
+        });
+
         // show tootip in barArea and do not let in blink in padding
         $modal.on("mouseover", ".barArea", function(event) {
             event.stopPropagation();
             resetTooltip();
             // XXX FIXME g tag can not use addClass, fix it if it's not true
-            $(this).attr("class", $(this).attr("class") + " hover")
+            if (!$modal.hasClass("drawing")) {
+                $(this).attr("class", $(this).attr("class") + " hover")
                     .tooltip("show");
+            }
         });
 
         // only trigger in padding area btw bars
@@ -112,14 +118,23 @@ window.Profile = (function($, Profile, d3) {
 
         $modal.on("mouseover", resetTooltip);
 
-        $modal.on("click", ".bar-extra, .bar, .xlabel", function() {
+        var $groupbySection = $modal.find(".groubyInfoSection");
+        $groupbySection.on("click", ".bar-extra, .bar, .xlabel", function() {
             percentageLabel = !percentageLabel;
             buildGroupGraphs();
             highlightBar();
         });
 
-        $modal.on("mouseenter", ".tooltipOverflow", function(){
-            xcHelper.autoTooltip(this);
+        $groupbySection.on("click", ".arrow", function() {
+            var isLeft = $(this).hasClass("left-arrow");
+            clickArrowEvent(isLeft);
+        });
+
+        $modal.on("mousedown", ".modalTopMain", function(event) {
+            if (event.which !== 1) {
+                return;
+            }
+            createFilterSelection(event.pageX, event.pageY);
         });
 
         // event on sort section
@@ -151,13 +166,6 @@ window.Profile = (function($, Profile, d3) {
                 var val = $rangeInput.val();
                 var isValid = xcHelper.validate([
                     {
-                        "$selector": $rangeInput,
-                        "text"     : ErrTStr.NoBucketOnStr,
-                        "check"    : function() {
-                            return (statsCol.type === "string");
-                        }
-                    },
-                    {
                         "$selector": $rangeInput
                     },
                     {
@@ -177,14 +185,9 @@ window.Profile = (function($, Profile, d3) {
             }
         });
 
-        $modal.on("click", ".arrow", function() {
-            var isLeft = $(this).hasClass("left-arrow");
-            clickArrowEvent(isLeft);
-        });
-
-        // event on infoSection
-        var $infoSection = $modal.find(".infoSection");
-        $infoSection.on("click", ".numInfo .icon", function() {
+        // event on helpInfoSection
+        var $helpInfoSection = $modal.find(".helpInfoSection");
+        $helpInfoSection.on("click", ".numInfo .icon", function() {
             var $icon = $(this);
             if ($icon.hasClass("disabled")) {
                 return;
@@ -202,6 +205,21 @@ window.Profile = (function($, Profile, d3) {
             }
 
             updateRowsToFetch(newRowsToFetch);
+        });
+
+        $("#profile-filterOption").on("mousedown", ".option", function(event) {
+            if (event.which !== 1) {
+                return;
+            }
+
+            var $option = $(this);
+            if ($option.hasClass("filter")) {
+                filterSelectedValues(FltOp.Filter);
+            } else if ($option.hasClass("exclude")) {
+                filterSelectedValues(FltOp.Exclude);
+            } else {
+                toggleFilterOption(true);
+            }
         });
     };
 
@@ -304,7 +322,7 @@ window.Profile = (function($, Profile, d3) {
 
         curTableId = null;
         curColNum = null;
-        totalRows = null;
+        totalRows = 0;
         groupByData = [];
         bucketNum = 0;
         order = sortMap.origin;
@@ -323,6 +341,7 @@ window.Profile = (function($, Profile, d3) {
         $rangeInput.val("");
 
         numRowsToFetch = defaultRowsToFetch;
+        toggleFilterOption(true);
         resetRowsInfo();
     }
 
@@ -395,10 +414,10 @@ window.Profile = (function($, Profile, d3) {
         modalHelper.setup();
         setupScrollBar();
 
-        if (statsCol.type === "string") {
-            $modal.addClass("type-string");
+        if (statsCol.type === "integer" || statsCol.type === "float") {
+            $modal.addClass("type-number");
         } else {
-            $modal.removeClass("type-string");
+            $modal.removeClass("type-number");
         }
 
         if (gMinModeOn) {
@@ -1347,8 +1366,8 @@ window.Profile = (function($, Profile, d3) {
     }
 
     function formatNumber(num) {
-        if (num === "") {
-            console.error("error formating");
+        if (num === "" || num == null) {
+            console.warn("cannot format empty or null value");
             return "";
         }
         // if not speify maximumFractionDigits, 168711.0001 will be 168,711
@@ -1564,6 +1583,7 @@ window.Profile = (function($, Profile, d3) {
         setArrows(null, true);
         fetchGroupbyData(rowPosition, rowsToFetch)
         .then(function() {
+            toggleFilterOption(true);
             groupByData = addNullValue(groupByData);
             buildGroupGraphs(forceUpdate);
             $loadingSection.addClass("hidden");
@@ -1626,7 +1646,6 @@ window.Profile = (function($, Profile, d3) {
     function updateRowsToFetch(newRowsToFetch) {
         newRowsToFetch = Math.max(newRowsToFetch, minRowsToFetch);
         newRowsToFetch = Math.min(newRowsToFetch, maxRowsToFetch);
-        newRowsToFetch = Math.min(newRowsToFetch, totalRows);
 
         numRowsToFetch = newRowsToFetch;
 
@@ -1640,11 +1659,12 @@ window.Profile = (function($, Profile, d3) {
         resetScrollBar();
         resetRowInput();
         resetSortInfo();
+        toggleFilterOption(true);
         resetRowsInfo();
     }
 
     function resetRowsInfo() {
-        var $numInfo = $modal.find(".infoSection .numInfo");
+        var $numInfo = $modal.find(".helpInfoSection .numInfo");
         var $activeRange = $rangeSection.find(".rangePart.active");
 
         if ($activeRange.data("val") === "fitAll" ||
@@ -1653,8 +1673,8 @@ window.Profile = (function($, Profile, d3) {
             // case that cannot show more or less results
             $numInfo.hide();
         } else {
+            numRowsToFetch = Math.min(numRowsToFetch, totalRows);
             $numInfo.show();
-
             var $moreIcon = $numInfo.find(".more").removeClass("disabled");
             var $lessIcon = $numInfo.find(".less").removeClass("disabled");
 
@@ -1991,6 +2011,367 @@ window.Profile = (function($, Profile, d3) {
         $(".barArea.hover").attr("class", function(index, d) {
             return d.split(" hover").join("");
         });
+    }
+
+
+    function createFilterSelection(startX, startY) {
+        var $modalTopMain = $modal.find(".modalTopMain");
+        var $chart = $modalTopMain.find(".groupbyChart");
+        var bound = $modalTopMain.get(0).getBoundingClientRect();
+
+        function FilterSelection(x, y) {
+            var self = this;
+            self.x = x;
+            self.y = y;
+
+            var left = x - bound.left;
+            var top = y - bound.top;
+
+            var html = '<div id="profile-filterSelection" style="left:' + left +
+                        'px; top:' + top + 'px; width:0; height:0;"></div>';
+
+            $("#profile-filterSelection").remove();
+            $("#profile-filterOption").fadeOut(200);
+            $modalTopMain.append(html);
+            $modal.addClass("drawing");
+            addSelectRectEvent(self);
+
+            return self;
+        }
+
+        function addSelectRectEvent(selectRect) {
+            $(document).on("mousemove.selectRect", function(event) {
+                selectRect.draw(event.pageX, event.pageY);
+            });
+
+            $(document).on("mouseup.selectRect", function() {
+                selectRect.end();
+                $(document).off(".selectRect");
+            });
+        }
+
+        FilterSelection.prototype = {
+            "draw": function(x, y) {
+                // x should be within bound.left and bound.right
+                x = Math.max(bound.left, Math.min(bound.right, x));
+                // y should be within boud.top and bound.bottom
+                y = Math.max(bound.top, Math.min(bound.bottom, y));
+
+                // update rect's position
+                var left;
+                var top;
+                var w = x - this.x;
+                var h = y - this.y;
+                var $rect = $("#profile-filterSelection");
+
+                if (w >= 0) {
+                    left = this.x - bound.left;
+                } else {
+                    left = x - bound.left;
+                    w = -w;
+                }
+
+                if (h >= 0) {
+                    top = this.y - bound.top;
+                } else {
+                    top = y - bound.top;
+                    h = -h;
+                }
+
+                var bottom = top + h;
+                var right = left + w;
+
+                $rect.css("left", left)
+                    .css("top", top)
+                    .width(w).height(h);
+
+                $chart.find(".barArea").each(function() {
+                    var barArea = this;
+                    var classList = barArea.classList;
+
+                    var barBound = barArea.getBoundingClientRect();
+                    var barTop = barBound.top - bound.top;
+                    var barLeft = barBound.left - bound.left;
+                    var barRight = barBound.right - bound.left;
+
+                    if (bottom < barTop || right < barLeft || left > barRight) {
+                        classList.remove("selecting");
+                    } else {
+                        classList.add("selecting");
+                    }
+                });
+            },
+
+            "end": function() {
+                $("#profile-filterSelection").remove();
+                $modal.removeClass("drawing");
+
+                var $barToSelect = $modal.find(".groupbyChart .barArea.selecting");
+                if ($barToSelect.length === 0) {
+                    $chart.find(".barArea").each(function() {
+                        var barArea = this;
+                        var classList = barArea.classList;
+                        classList.remove("unselected");
+                        classList.remove("selected");
+                    });
+                } else {
+                    $chart.find(".barArea").each(function() {
+                        var barArea = this;
+                        var classList = barArea.classList;
+
+                        if (classList.contains("selecting")) {
+                            classList.remove("selecting");
+                            classList.remove("unselected");
+                            classList.add("selected");
+                        } else {
+                            classList.remove("selected");
+                            classList.add("unselected");
+                        }
+                    });
+                }
+
+                toggleFilterOption();
+            }
+        };
+
+        return new FilterSelection(startX, startY);
+    }
+
+    function toggleFilterOption(isHidden) {
+        var $filterOption = $("#profile-filterOption");
+        var $bars = $modal.find(".groupbyChart .barArea.selected");
+
+        if ($bars.length === 0) {
+            isHidden = true;
+        }
+
+        if (isHidden) {
+            $bars.each(function() {
+                var classList = this.classList;
+                classList.remove("selected");
+                classList.remove("unselected");
+            });
+            $filterOption.fadeOut(200);
+        } else {
+            var bound = $modal.find(".modalTopMain").get(0).getBoundingClientRect();
+            var barBound = $bars.get(-1).getBoundingClientRect();
+            var right = bound.right - barBound.right;
+            var bottom = bound.bottom - barBound.bottom;
+            var w = $filterOption.width();
+
+            if (w + 5 < right) {
+                // when can move right,
+                // move the optoin label as right as possible
+                right -= (w + 5);
+            }
+
+            $filterOption.css({
+                "right" : right,
+                "bottom": bottom
+            }).show();
+        }
+    }
+
+    function filterSelectedValues(operator) {
+        var noBucket = (bucketNum === 0) ? 1 : 0;
+        var noSort = (order === sortMap.origin);
+        var tableInfo = statsCol.groupByInfo.buckets[bucketNum];
+        var bucketSize = tableInfo.bucketSize;
+        var xName = tableInfo.colName;
+        var $bars = $modal.find(".groupbyChart .barArea.selected");
+        var uniqueVals = {};
+        var isExist = false;
+
+        var colName = statsCol.colName;
+        var filterTableId = curTableId; // in case close modal clear curTableId
+        var colNum = gTables[filterTableId].getBackColNum(colName);
+        var hasNull = (groupByData[0].type === "nullVal");
+        var isString = (statsCol.type === "string");
+
+        $bars.each(function() {
+            var rowNum = $(this).get(0).getAttribute("data-rowNum");
+            rowNum = Number(rowNum);
+            if (isNaN(rowNum)) {
+                console.error("invalid row num!");
+            } else {
+                // when has nullVal, the first ele's rowNum is 0,
+                // otherwise, the first ele's rowNum is 1
+                var index = hasNull ? rowNum : rowNum - 1;
+                if (groupByData[index].type === "nullVal") {
+                    isExist = true;
+                } else {
+                    var val = groupByData[index][xName];
+                    if (isString) {
+                        val = JSON.stringify(val);
+                    }
+
+                    uniqueVals[val] = true;
+                }
+            }
+        });
+
+        var options;
+        var isNumber = statsCol.type === "integer" || statsCol.type === "float";
+        if (isNumber && noSort) {
+            // this suit for numbers
+            options = getNumFltOpt(operator, colName,
+                                    uniqueVals, isExist, bucketSize);
+        } else if (noBucket) {
+            options = xcHelper.getFilterOptions(operator, colName,
+                                                    uniqueVals, isExist);
+        } else {
+            options = getBucketFltOpt(operator, colName, uniqueVals,
+                                      isExist, bucketSize);
+        }
+
+        if (options != null) {
+            closeProfileModal();
+            xcFunction.filter(colNum, filterTableId, options);
+        }
+    }
+
+    function fltExist(operator, colName, fltStr) {
+        if (operator === FltOp.Filter) {
+            if (fltStr === "" || fltStr == null) {
+                fltStr = "not(exists(" + colName + "))";
+            } else {
+                fltStr = "or(" + fltStr + ", not(exists(" + colName + ")))";
+            }
+        } else if (operator === FltOp.Exclude) {
+            if (fltStr === "" || fltStr == null) {
+                fltStr = "exists(" + colName + ")";
+            } else {
+                fltStr = "and(" + fltStr + ", exists(" + colName + "))";
+            }
+        }
+
+        return fltStr;
+    }
+
+    function getBucketFltOpt(operator, colName, uniqueVals, isExist, bucketSize) {
+        var colVals = [];
+
+        for (var val in uniqueVals) {
+            colVals.push(Number(val));
+        }
+
+        var str = "";
+        var len = colVals.length;
+
+        if (operator === FltOp.Filter) {
+            if (len > 0) {
+                for (var i = 0; i < len - 1; i++) {
+                    str += "or(and(ge(" + colName + ", " + colVals[i] + "), " +
+                                  "lt(" + colName + ", " + (colVals[i] + bucketSize) + ")), ";
+                }
+
+                str += "and(ge(" + colName + ", " + colVals[i] + "), " +
+                           "lt(" + colName + ", " + (colVals[i] + bucketSize) + ")";
+
+                for (var i = 0; i < len; i++) {
+                    str += ")";
+                }
+            }
+        } else if (operator === FltOp.Exclude){
+            if (len > 0) {
+                for (var i = 0; i < len - 1; i++) {
+                    str += "and(or(lt(" + colName + ", " + colVals[i] + "), " +
+                                  "ge(" + colName + ", " + (colVals[i] + bucketSize) + ")), ";
+                }
+
+                str += "or(lt(" + colName + ", " + colVals[i] + "), " +
+                          "ge(" + colName + ", " + (colVals[i] + bucketSize) + ")";
+
+                for (var i = 0; i < len; i++) {
+                    str += ")";
+                }
+            }
+        } else {
+            console.error("error case");
+            return null;
+        }
+
+        if (isExist) {
+            if (len > 0) {
+                str = fltExist(operator, colName, str);
+            } else {
+                str = fltExist(operator, colName);
+            }
+        }
+
+        return {
+            "operator"    : operator,
+            "filterString": str
+        };
+    }
+
+    function getNumFltOpt(operator, colName, uniqueVals, isExist, bucketSize) {
+        // this suit for numbers that are unsorted by count
+        var min = Number.MAX_VALUE;
+        var max = Number.MIN_VALUE;
+        var str = "";
+        var count = 0;
+
+        bucketSize = bucketSize || 0;
+
+        for (var val in uniqueVals) {
+            var num = Number(val);
+            min = Math.min(num, min);
+            max = Math.max(num + bucketSize, max);
+            count++;
+        }
+
+        if (bucketSize === 0) {
+            if (operator === FltOp.Filter) {
+                if (count > 1) {
+                    // [min, max]
+                    str = "and(ge(" + colName + ", " + min + "), " +
+                              "le(" + colName + ", " + max + "))";
+                } else if (count === 1) {
+                    str = "eq(" + colName + ", " + min + ")";
+                }
+            } else if (operator === FltOp.Exclude) {
+                if (count > 1) {
+                    // exclude [min, max]
+                    str = "or(lt(" + colName + ", " + min + "), " +
+                             "gt(" + colName + ", " + max + "))";
+                } else if (count === 1) {
+                    str = "not(eq(" + colName + ", " + min + "))";
+                }
+            } else {
+                return null;
+            }
+        } else {
+            // bucket case
+            if (operator === FltOp.Filter) {
+                if (count > 0) {
+                    // should be [min, max)
+                    str = "and(ge(" + colName + ", " + min + "), " +
+                              "lt(" + colName + ", " + max + "))";
+                }
+            } else if (operator === FltOp.Exclude) {
+                // should exclude [min, max)
+                if (count > 0) {
+                    str = "or(lt(" + colName + ", " + min + "), " +
+                             "ge(" + colName + ", " + max + "))";
+                }
+            } else {
+                return null;
+            }
+        }
+
+        if (isExist) {
+            if (count > 0) {
+                str = fltExist(operator, colName, str);
+            } else {
+                str = fltExist(operator, colName);
+            }
+        }
+
+        return {
+            "operator"    : operator,
+            "filterString": str
+        };
     }
 
     function getNewName(tableName, affix, rand) {

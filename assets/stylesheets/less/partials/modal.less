@@ -2479,7 +2479,7 @@ html.microsoft {
         cursor: pointer;
     }
 
-    &.type-string {
+    &:not(.type-number) {
         .modalTopMain {
             .size(@height: ~"calc(100% - 150px)");
         }
@@ -2505,6 +2505,13 @@ html.microsoft {
         background-color: @color-modal-whiteGray;
         overflow: hidden;
 
+        #profile-filterSelection {
+            .position(absolute);
+            background-color: @color-background-bottomAction;
+            opacity: 0.4;
+            border: 1px solid rgba(0, 0, 0, 0.3);
+        }
+
         .loadingSection {
             .size(@width: 100%, @height: 100%);
             .position(absolute);
@@ -2528,11 +2535,26 @@ html.microsoft {
             }
         }
 
-        .infoSection {
+        .helpInfoSection {
             .size(@width: 100%, @height: 20px);
             .font(@size: 12px, @line-height: 15px);
             float: right;
             margin-right: 25px;
+
+            .filterInfo {
+                float: right;
+                color: @color-text-blue;
+                display: none;
+
+                .text {
+                    cursor: pointer;
+                    margin-right: 5px;
+
+                    &:last-child {
+                        margin-right: 0;
+                    }
+                }
+            }
 
             .numInfo {
                 > div {
@@ -2631,6 +2653,51 @@ html.microsoft {
                         }
                     }
                 }
+
+                &.selected {
+                    &, &.hover {
+                        .bar-extra {
+                            fill: @color-profile-selected-bar-extra;
+                            opacity: 1;
+                        }
+
+                        .bar {
+                            fill: @color-profile-selected-bar;
+
+                            &.bar-nullVal {
+                                fill: @color-profile-selected-bar-null;
+                            }
+                        }
+                    }
+                }
+
+                &.unselected {
+                    opacity: 0.7;
+
+                    &.hover {
+                        .bar {
+                            fill: @color-profile-bar;
+
+                            &.bar-nullVal {
+                                fill: @color-profile-bar-null;
+                            }
+                        }
+
+                        .bar-extra {
+                            fill: @color-table-col-darkGray;
+                            opacity: 1;
+                        }
+                    }
+                }
+
+                &.selecting {
+                    &, &.hover {
+                        .bar-border {
+                            stroke: @color-profile-bar-border-highlight;
+                            stroke-width: 2;
+                        }
+                    }
+                }
             }
 
             .bar {
@@ -2660,6 +2727,35 @@ html.microsoft {
 
             .bar, .bar-extra, .xlabel {
                 cursor: pointer;
+            }
+        }
+
+        .filterOption {
+            .size(@width: 120px, @height: 92px);
+            .position(absolute);
+            background-color: rgba(221, 221, 221, 0.9);
+            box-shadow: 1px 1px 1px 1px rgba(0, 0, 0, 0.2);
+            padding: 7px 10px;
+            display: none;
+
+            .option {
+                .size(@height: 26px);
+                padding: 3px 0;
+                cursor: pointer;
+
+                .textWrapper {
+                    background-color: @color-profile-option;
+                    .rounded(5px);
+                    text-align: center;
+                    .font(@line-height: 20px, @size: 11px, @color: @color-profile-option-text);
+                }
+
+                &.cancel .textWrapper {
+                    background-color: @color-profile-cancel;
+                    text-transform: uppercase;
+                    color: @color-profile-cancel-text;
+                }
+
             }
         }
     }
@@ -2849,10 +2945,10 @@ html.microsoft {
                     .size(@width: 30px);
 
                     .sliderBar {
-                        .size(@width: 10px, @height: 90px);
-                        background-color: @color-modal-whiteGray;
-                        border: 1px solid @color-border-topGrayMed;
+                        .size(@width: 20px, @height: 90px);
                         .horizontal-align;
+                        .image("../../images/profileModal/slider.png");
+                        background-size: 20px 90px;
 
                         .wrap {
                             .size(@width: 100%, @height: 30px);
@@ -2873,18 +2969,19 @@ html.microsoft {
                         }
 
                         .slider {
-                            .position(relative, @left: -6px, @top: 0);
-                            .size(@width: 20px, @height: 11px);
+                            .position(relative, @left: 4px, @top: 0);
+                            .size(@width: 12px, @height: 12px);
+                            .rounded(12px);
                             display: inline-block;
                             background-color: @color-profile-bar;
-                            .transition(top 0.45s);
+                            .transition(top 0.2s linear);
 
                             &.range {
-                                top: 35px;
+                                top: 36px;
                             }
 
                             &.fitAll {
-                                top: 70px;
+                                top: 72px;
                             }
                         }
                     }

@@ -24,7 +24,12 @@
       <div class="text"></div>
     </div>
     <!-- info section -->
-    <div class="infoSection loadHidden">
+    <div class="helpInfoSection loadHidden">
+     <!--  <div class="filterInfo hidden">
+        <span class="text filter"><%= dicts.profile.filter %></span>
+        <span class="text exclude"><%= dicts.profile.exclude %></span>
+        <span class="text cancel"><%= dicts.profile.cancelFilter %></span>
+      </div> -->
       <div class="numInfo">
         <div title="<%= dicts.profile.RowMore %>" class="icon more">
           <div class="plus"></div>
@@ -41,6 +46,17 @@
       <svg class="groupbyChart"></svg>
       <div class="arrow left-arrow"></div>
       <div class="arrow right-arrow"></div>
+    </div>
+    <div id="profile-filterOption" class="filterOption">
+      <div class="option filter">
+        <div class="textWrapper"><%= dicts.profile.filter %>...</div>
+      </div>
+      <div class="option exclude">
+        <div class="textWrapper"><%= dicts.profile.exclude %>...</div>
+      </div>
+      <div class="option cancel">
+        <div class="textWrapper"><%= dicts.profile.cancelFilter %></div>
+      </div>
     </div>
   </section>
   <!-- Profile Modal Main Section, for agg info -->

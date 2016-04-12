@@ -670,7 +670,7 @@ window.TblMenu = (function(TblMenu, $) {
 
             var notValid = false;
             var uniqueVals = {};
-            var hasCheckExist = false;
+            var isExist = false;
             var colVal;
             var $textDiv;
 
@@ -679,21 +679,21 @@ window.TblMenu = (function(TblMenu, $) {
 
                 if ($td.find(".undefined").length > 0) {
                     // FNF case
-                    hasCheckExist = true;
+                    isExist = true;
                     return true; // continue to next iteration
                 }
 
                 if ($header.hasClass("type-integer")) {
                     colVal = $td.data("val");
                     if (colVal == null || colVal === "") {
-                        hasCheckExist = true;
+                        isExist = true;
                         return true; // continue to next iteration
                     }
                     colVal = parseInt(colVal);
                 } else if ($header.hasClass("type-float")) {
                     colVal = $td.data("val");
                     if (colVal == null || colVal === "") {
-                        hasCheckExist = true;
+                        isExist = true;
                         return true; // continue to next iteration
                     }
                     colVal = parseFloat(colVal);
@@ -728,72 +728,17 @@ window.TblMenu = (function(TblMenu, $) {
                 uniqueVals[colVal] = true;
             });
 
-            if (notValid) {
-                $highlightBoxs.remove();
-                return;
-            }
+            if (!notValid) {
+                var operator = $li.hasClass("tdFilter") ? FltOp.Filter :
+                                                          FltOp.Exclude;
+                var options = xcHelper.getFilterOptions(operator, colName,
+                                        uniqueVals, isExist);
 
-            var colVals = [];
-
-            for (var val in uniqueVals) {
-                colVals.push(val);
-            }
-
-            var operator;
-            var str = "";
-            var len = colVals.length;
-
-            if ($li.hasClass("tdFilter")) {
-                operator = "eq";
-
-                if (len > 0) {
-                    for (var i = 0; i < len - 1; i++) {
-                        str += "or(eq(" + colName + ", " + colVals[i] + "), ";
-                    }
-
-                    str += "eq(" + colName + ", " + colVals[len - 1];
-
-                    for (var i = 0; i < len; i++) {
-                        str += ")";
-                    }
-                }
-
-                if (hasCheckExist) {
-                    if (len > 0) {
-                        str = "or(" + str + ", not(exists(" + colName + ")))";
-                    } else {
-                        str = "not(exists(" + colName + "))";
-                    }
-                }
-            } else {
-                operator = "exclude";
-
-                if (len > 0) {
-                    for (var i = 0; i < len - 1; i++) {
-                        str += "and(not(eq(" + colName + ", " + colVals[i] + ")), ";
-                    }
-
-                    str += "not(eq(" + colName + ", " + colVals[len - 1] + ")";
-
-                    for (var i = 0; i < len; i++) {
-                        str += ")";
-                    }
-                }
-
-                if (hasCheckExist) {
-                    if (len > 0) {
-                        str = "and(" + str + ", exists(" + colName + "))";
-                    } else {
-                        str = "exists(" + colName + ")";
-                    }
+                if (options != null) {
+                    xcFunction.filter(colNum - 1, tableId, options);
                 }
             }
 
-            var options = {
-                "operator"    : operator,
-                "filterString": str
-            };
-            xcFunction.filter(colNum - 1, tableId, options);
             $highlightBoxs.remove();
         });
 

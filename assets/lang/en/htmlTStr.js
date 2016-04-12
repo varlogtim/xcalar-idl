@@ -494,7 +494,10 @@ module.exports = {
         'QuartileInstr': 'Quartile statistics can only be calculated when the column is sorted',
         'fail': 'Cannot profile the data',
         'RowMore': 'Show More Results',
-        'RowLess': 'Show Less Results'
+        'RowLess': 'Show Less Results',
+        'filter': 'Filter',
+        'exclude': 'Exclude',
+        'cancelFilter': 'clear all'
     },
 
     workbook: {

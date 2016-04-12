@@ -4,7 +4,7 @@ window.xcHelper = (function($, xcHelper) {
         var id;
         if (idOrEl instanceof jQuery) {
             id = idOrEl.attr('id');
-        } else if (typeof(idOrEl) == "object") {
+        } else if (typeof (idOrEl) == "object") {
             id = $(idOrEl).attr('id');
         } else {
             id = idOrEl;
@@ -104,6 +104,67 @@ window.xcHelper = (function($, xcHelper) {
         }
 
         return (type);
+    };
+
+    xcHelper.getFilterOptions = function(operator, colName, uniqueVals, isExist) {
+        var colVals = [];
+
+        for (var val in uniqueVals) {
+            colVals.push(val);
+        }
+
+        var str = "";
+        var len = colVals.length;
+
+        if (operator === FltOp.Filter) {
+            if (len > 0) {
+                for (var i = 0; i < len - 1; i++) {
+                    str += "or(eq(" + colName + ", " + colVals[i] + "), ";
+                }
+
+                str += "eq(" + colName + ", " + colVals[len - 1];
+
+                for (var i = 0; i < len; i++) {
+                    str += ")";
+                }
+            }
+
+            if (isExist) {
+                if (len > 0) {
+                    str = "or(" + str + ", not(exists(" + colName + ")))";
+                } else {
+                    str = "not(exists(" + colName + "))";
+                }
+            }
+        } else if (operator === FltOp.Exclude){
+            if (len > 0) {
+                for (var i = 0; i < len - 1; i++) {
+                    str += "and(not(eq(" + colName + ", " + colVals[i] + ")), ";
+                }
+
+                str += "not(eq(" + colName + ", " + colVals[len - 1] + ")";
+
+                for (var i = 0; i < len; i++) {
+                    str += ")";
+                }
+            }
+
+            if (isExist) {
+                if (len > 0) {
+                    str = "and(" + str + ", exists(" + colName + "))";
+                } else {
+                    str = "exists(" + colName + ")";
+                }
+            }
+        } else {
+            console.error("error case");
+            return null;
+        }
+
+        return {
+            "operator"    : operator,
+            "filterString": str
+        };
     };
 
     xcHelper.getLastVisibleRowNum = function(tableId) {
