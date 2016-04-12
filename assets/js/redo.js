@@ -294,6 +294,15 @@ window.Redo = (function($, Redo) {
         return (promiseWrapper(null));
     };
 
+    redoFuncs[SQLOps.HideTable] = function(options) {
+        TblManager.hideTable(options.tableId);
+        return promiseWrapper(null);
+    };
+
+    redoFuncs[SQLOps.UnhideTable] = function(options) {
+        TblManager.unHideTable(options.tableId);
+        return promiseWrapper(null);
+    };
     /* End of Table Operations */
 
     /* Worksheet Opeartion */

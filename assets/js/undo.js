@@ -142,7 +142,7 @@ window.Undo = (function($, Undo) {
     };
 
     undoFuncs[SQLOps.GroupBy] = function(options) {
-        // TblManager.archiveTable(tableId, {"del": ArchiveTable.Keep});
+        // TblManager.archiveTable(options.tableId, {"del": ArchiveTable.Keep});
         // var tableId = xcHelper.getTableId(options.newTableName);
         // TblManager.sendTableToOrphaned(tableId, {'remove': true});
         return (promiseWrapper(null));
@@ -428,6 +428,15 @@ window.Undo = (function($, Undo) {
         return (promiseWrapper(null));
     };
 
+    undoFuncs[SQLOps.HideTable] = function(options) {
+        TblManager.unHideTable(options.tableId);
+        return promiseWrapper(null);
+    };
+
+    undoFuncs[SQLOps.UnhideTable] = function(options) {
+        TblManager.hideTable(options.tableId);
+        return promiseWrapper(null);
+    };
     /* End of Table Operations */
 
 
