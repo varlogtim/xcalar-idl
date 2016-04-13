@@ -386,6 +386,18 @@ window.OperationsModal = (function($, OperationsModal) {
             allowInputChange = true;
         });
 
+        // focus on section's input if you click anywhere in the section except
+        // for the actual input and dropdown
+        $operationsModal.find('.modalTopMain').on('mousedown', '.step',
+                                                            function(event) {
+            var $section = $(this);
+            if ($(event.target).closest('.dropDownList').length === 0) {
+                event.stopPropagation();
+                event.preventDefault();
+                hideDropdowns();
+                $section.find('input').focus();
+            }
+        });
 
         var $lists = $operationsModal.find(".cast .dropDownList");
         xcHelper.dropdownList($lists, {
