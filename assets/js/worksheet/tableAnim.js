@@ -83,6 +83,7 @@ window.TblAnim = (function($, TblAnim) {
         var rescol = gRescol;
         var isDatastore = rescol.isDatastore;
         var wasResized = true;
+        var widthState;
         $('#resizeCursor').remove();
         $('body').removeClass('tooltipOff');
         rescol.table.closest('.xcTableWrap').find('.rowGrab')
@@ -101,9 +102,10 @@ window.TblAnim = (function($, TblAnim) {
             } else {
                 progCol.width = rescol.grabbedCell.outerWidth();
             }
+            var column = gTables[rescol.tableId].tableCols[rescol.index - 1];
+            widthState = column.sizeToHeader;
             if (Math.abs(rescol.newWidth - rescol.startWidth) > 1) {
                 // set autoresize to header only if column moved at least 2 pixels
-                var column = gTables[rescol.tableId].tableCols[rescol.index - 1];
                 column.sizeToHeader = true;
             }
             if (rescol.newWidth === rescol.startWidth) {
@@ -136,13 +138,15 @@ window.TblAnim = (function($, TblAnim) {
                 "colNum"     : rescol.index,
                 "fromWidth"  : rescol.startWidth,
                 "toWidth"    : rescol.newWidth,
-                "htmlExclude": ["colNum", "fromWidth", "toWidth"]
+                "widthState" : widthState,
+                "htmlExclude": ["colNum", "fromWidth", "toWidth", "widthState"]
             });
         }
     }
 
-    // used for replaying
-    TblAnim.resizeColumn = function(tableId, colNum, fromWidth, toWidth) {
+    // used for replaying and redo/undo
+    TblAnim.resizeColumn = function(tableId, colNum, fromWidth, toWidth,
+                                    widthState) {
         var $table = $('#xcTable-' + tableId);
         var progCol = gTables[tableId].tableCols[colNum - 1];
         var $th = $table.find('th.col' + colNum);
@@ -160,11 +164,30 @@ window.TblAnim = (function($, TblAnim) {
             progCol.width = toWidth;
         }
         $th.outerWidth(toWidth);
-        if (Math.abs(toWidth - fromWidth) > 1) {
-            // set autoresize to header only if column moved at least 2 pixels
-            progCol.sizeToHeader = true;
+        var oldWidthState = progCol.sizeToHeader;
+        if (widthState == null) {
+            if (Math.abs(toWidth - fromWidth) > 1) {
+                // set autoresize to header only if column moved at least 2 pixels
+                progCol.sizeToHeader = true;
+            }
+        } else {
+            progCol.sizeToHeader = widthState;
         }
+        var newWidthState = progCol.sizeToHeader;
         matchHeaderSizes($table);
+
+        SQL.add("Resize Column", {
+            "operation"  : SQLOps.DragResizeTableCol,
+            "tableName"  : gTables[tableId].tableName,
+            "tableId"    : tableId,
+            "colNum"     : colNum,
+            "fromWidth"  : fromWidth,
+            "toWidth"    : toWidth,
+            "oldWidthState" : oldWidthState,
+            "newWidthState" : newWidthState,
+            "htmlExclude": ["colNum", "fromWidth", "toWidth", "oldWidthState",
+                            "newWidthState"]
+        });
     };
 
     /* END COLUMN RESIZING */
@@ -338,6 +361,15 @@ window.TblAnim = (function($, TblAnim) {
             $targetTd.parent().find('.jsonElement >  div')
                                      .css('max-height', 16);
         }
+        SQL.add("Resize Row", {
+            "operation"  : SQLOps.DragResizeRow,
+            "tableName"  : gTables[tableId].tableName,
+            "tableId"    : tableId,
+            "rowNum"     : rowNum,
+            "fromHeight" : fromHeight,
+            "toHeight"   : toHeight,
+            "htmlExclude": ["rowNum", "fromHeight", "toHeight"]
+        });
     };
 
     /* END ROW RESIZING */

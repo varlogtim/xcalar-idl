@@ -260,7 +260,7 @@ window.JSONModal = (function($, JSONModal) {
             closeJSONModal();
             //set timeout to allow modal to close before unnesting many cols
             setTimeout(function() {
-                ColManager.unnest($td, false, {isDataTd: true});
+                ColManager.unnest(tableId, colNum, rowNum, false, {isDataTd: true});
             }, 0);
         });
 
@@ -709,8 +709,8 @@ window.JSONModal = (function($, JSONModal) {
                 var possibleMatch = matches[i];
                 var tempActiveObj = {};
                 var tempObj;
-                var compareResult = deepCompare(possibleMatch[key],
-                                                jsonObjs[key]);
+                var compareResult = xcHelper.deepCompare(possibleMatch[key],
+                                                          jsonObjs[key]);
                 if (compareResult) {
                     activeObj.matches.push(possibleMatch);
                 } else if (jsonObjs.hasOwnProperty(key)) {
@@ -779,8 +779,8 @@ window.JSONModal = (function($, JSONModal) {
                 for (var j = 1; j < 2; j++) {
                     var key = keys[i];
 
-                    var compareResult = deepCompare(jsonObjs[0][key],
-                                                    jsonObjs[j][key]);
+                    var compareResult = xcHelper.deepCompare(jsonObjs[0][key],
+                                                            jsonObjs[j][key]);
 
                     var obj = {};
                     obj[key] = jsonObjs[0][key];
@@ -853,88 +853,6 @@ window.JSONModal = (function($, JSONModal) {
                                        .find('.prettyJson.secondary')
                                        .html(html);
         }
-    }
-
-    function deepCompare() {
-        var leftChain;
-        var rightChain;
-
-        function compare2Objects(x, y) {
-            // check if both are NaN
-            if (isNaN(x) && isNaN(y) && typeof x === 'number' &&
-                typeof y === 'number') {
-                return (true);
-            }
-
-            if (x === y) {
-                return (true);
-            }
-
-            if (!(x instanceof Object && y instanceof Object)) {
-                return (false);
-            }
-
-            // Check for infinitive linking loops
-            if (leftChain.indexOf(x) > -1 || rightChain.indexOf(y) > -1) {
-                return (false);
-            }
-
-            // Quick checking of one object being a subset of another.
-            for (var p in y) {
-                if (y.hasOwnProperty(p) !== x.hasOwnProperty(p)) {
-                    return (false);
-                } else if (typeof y[p] !== typeof x[p]) {
-                    return (false);
-                }
-            }
-
-            for (var p in x) {
-                if (y.hasOwnProperty(p) !== x.hasOwnProperty(p)) {
-                    return (false);
-                } else if (typeof y[p] !== typeof x[p]) {
-                    return (false);
-                }
-
-                switch (typeof (x[p])) {
-                    case ('object'):
-                    case ('function'):
-
-                        leftChain.push(x);
-                        rightChain.push(y);
-
-                        if (!compare2Objects(x[p], y[p])) {
-                            return (false);
-                        }
-
-                        leftChain.pop();
-                        rightChain.pop();
-                        break;
-                    default:
-                        if (x[p] !== y[p]) {
-                            return (false);
-                        }
-                        break;
-                }
-            }
-
-            return (true);
-        }
-
-        if (arguments.length < 1) {
-            return (true);
-        }
-        var len = arguments.length;
-        for (var i = 1; i < len; i++) {
-
-            leftChain = [];
-            rightChain = [];
-
-            if (!compare2Objects(arguments[0], arguments[i])) {
-                return (false);
-            }
-        }
-
-        return (true);
     }
 
     function addDataToJsonWrap($jsonArea, $jsonTd, isArray) {

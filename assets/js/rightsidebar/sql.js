@@ -191,6 +191,7 @@ window.SQL = (function($, SQL) {
     };
 
     SQL.undo = function(step) {
+        var deferred = jQuery.Deferred();
         xcHelper.assert((isUndo === false), "Doing other undo/redo operation?");
 
         if (step == null) {
@@ -218,25 +219,32 @@ window.SQL = (function($, SQL) {
 
         isUndo = true;
         $undo.addClass("disabled");
-
+        var passed = false;
         PromiseHelper.chain(promises)
         .then(function() {
             // cursor in the current position
             logCursor = c;
             updateLogPanel(logCursor);
+            passed = true;
         })
         .fail(function(error) {
             console.error("undo failed", error);
+            deferred.reject(error);
         })
         .always(function() {
             isUndo = false;
 
             updateUndoRedoState();
             xcHelper.refreshTooltip($undo, 2000);
+            if (passed) {
+                deferred.resolve();
+            }
         });
+        return (deferred.promise());
     };
 
     SQL.redo = function(step) {
+        var deferred = jQuery.Deferred();
         xcHelper.assert((isRedo === false), "Doing other undo/redo operation?");
 
         if (step == null) {
@@ -265,21 +273,27 @@ window.SQL = (function($, SQL) {
 
         isRedo = true;
         $redo.addClass("disabled");
-
+        var passed = false;
         PromiseHelper.chain(promises)
         .then(function() {
             logCursor = c - 1;
             updateLogPanel(logCursor);
+            passed = true;
         })
         .fail(function(error) {
             console.error("undo failed", error);
+            deferred.reject(error);
         })
         .always(function() {
             isRedo = false;
 
             updateUndoRedoState();
             xcHelper.refreshTooltip($redo, 2000);
+            if (passed) {
+                deferred.resolve();
+            }
         });
+        return (deferred.promise());
     };
 
     SQL.isUndo = function() {
@@ -288,6 +302,15 @@ window.SQL = (function($, SQL) {
 
     SQL.isRedo = function() {
         return isRedo;
+    };
+
+    SQL.viewLastAction = function() {
+        var curSql = logs[logCursor];
+        if (logCursor !== -1) {
+            return curSql.getTitle();
+        } else {
+            return "none";
+        }
     };
 
     function initialize() {

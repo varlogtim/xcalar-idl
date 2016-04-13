@@ -449,7 +449,9 @@ window.TblManager = (function($, TblManager) {
             TableList.removeTable(tableId);
             if (!options.keepInWS) {
                 WSManager.removeTable(tableId);
-                Dag.makeInactive(tableId);
+                // Dag.makeInactive(tableId);
+            } else {
+                WSManager.changeTableStatus(tableId, TableType.Orphan);
             }
 
             table.beOrphaned()
@@ -932,13 +934,16 @@ window.TblManager = (function($, TblManager) {
         var $table = $('#xcTable-' + tableId);
         var oldColumnWidths = [];
         var newWidths = [];
+        var oldWidthStates = [];
+        var newWidthStates = [];
 
         for (var i = 0, numCols = columns.length; i < numCols; i++) {
             $th = $table.find('th.col' + (colNums[i]));
+            oldWidthStates.push(columns[i].sizeToHeader);
             columns[i].sizeToHeader = !sizeToHeader;
+            newWidthStates.push(columns[i].sizeToHeader);
             columns[i].isHidden = false;
             oldColumnWidths.push(columns[i].width);
-
             newWidths.push(autosizeCol($th, {
                 "dblClick"      : true,
                 "minWidth"      : 17,
@@ -948,7 +953,6 @@ window.TblManager = (function($, TblManager) {
                 "multipleCols"  : true
             }));
         }
-
 
         matchHeaderSizes($table);
 
@@ -960,12 +964,16 @@ window.TblManager = (function($, TblManager) {
             "columnNums"     : colNums,
             "oldColumnWidths": oldColumnWidths,
             "newColumnWidths": newWidths,
-            "htmlExclude"    : ["columnNums", "oldColumnWidths", "newColumnWidths"]
+            "oldWidthStates" : oldWidthStates,
+            "newWidthStates" : newWidthStates,
+            "htmlExclude"    : ["columnNums", "oldWidthStates",
+                                "newWidthStates", "oldColumnWidths",
+                                "newColumnWidths"]
         });
     };
 
     // only used for undo / redos
-    TblManager.resizeColsToWidth = function(tableId, colNums, widths) {
+    TblManager.resizeColsToWidth = function(tableId, colNums, widths, widthStates) {
         var $table = $('#xcTable-' + tableId);
         $table.find('.userHidden').removeClass('userHidden');
         var progCols = gTables[tableId].tableCols;
@@ -978,6 +986,7 @@ window.TblManager = (function($, TblManager) {
             }
             $table.find('th.col' + colNum).outerWidth(widths[i]);
             progCols[colNum - 1].width = widths[i];
+            progCols[colNum - 1].sizeToHeader = widthStates[i];
         }
         matchHeaderSizes($table);
     };

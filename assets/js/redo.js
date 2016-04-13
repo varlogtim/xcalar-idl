@@ -15,7 +15,9 @@ window.Redo = (function($, Redo) {
             gMinModeOn = true;
 
             redoFuncs[operation](options)
-            .then(deferred.resolve)
+            .then(function(){
+                deferred.resolve();
+            })
             .fail(function() {
                 // XX do we do anything with the cursor?
                 deferred.reject("redo failed");
@@ -136,7 +138,8 @@ window.Redo = (function($, Redo) {
         var $row = $table.find('tr.row' + options.rowNum);
         var $td = $row.find('td.col' + options.colNum);
 
-        ColManager.unnest($td, options.isArray, options.options);
+        ColManager.unnest(options.tableId, options.colNum, options.rowNum,
+                            options.isArray, options.options);
         return (promiseWrapper(null));
     };
 
@@ -177,13 +180,14 @@ window.Redo = (function($, Redo) {
 
     redoFuncs[SQLOps.ResizeTableCols] = function(options) {
         TblManager.resizeColsToWidth(options.tableId, options.columnNums,
-                                     options.newColumnWidths);
+                                     options.newColumnWidths,
+                                     options.newWidthStates);
         return (promiseWrapper(null));
     };
 
     redoFuncs[SQLOps.DragResizeTableCol] = function(options) {
         TblAnim.resizeColumn(options.tableId, options.colNum, options.fromWidth,
-                             options.toWidth);
+                             options.toWidth, options.newWidthState);
         return (promiseWrapper(null));
     };
 
@@ -237,36 +241,50 @@ window.Redo = (function($, Redo) {
 
     redoFuncs[SQLOps.ActiveTables] = function(options) {
         // redo sent to worksheet
+        var deferred = jQuery.Deferred();
         var tableNames = options.tableNames;
         var $tableList;
         var tableType = options.tableType;
 
-        if (tableType === TableType.Archived) {
-            $tableList = $('#archivedTableList');
-        } else if (tableType === TableType.Orphan) {
-            $tableList = $('#orphanedTableList');
-        } else if (tableType === TableType.Agg) {
-            $tableList = $("#aggregateTableList");
-        } else {
-            console.error(tableType, "not support redo!");
-        }
-
-        var tableIds = [];
-        for (var i = 0, len = tableNames.length; i < len; i++) {
-            var tableId = xcHelper.getTableId(tableNames[i]);
-            tableIds.push(tableId);
-        }
-
-        $tableList.find(".tableInfo").each(function() {
-            var $li = $(this);
-            var id = $li.data("id");
-            if (tableIds.indexOf(id) >= 0) {
-                $li.find(".addTableBtn").click();
+        TableList.refreshOrphanList()
+        .then(function() {
+            if (tableType === TableType.Archived) {
+                $tableList = $('#archivedTableList');
+            } else if (tableType === TableType.Orphan) {
+                $tableList = $('#orphanedTableList');
+            } else if (tableType === TableType.Agg) {
+                $tableList = $("#aggregateTableList");
+            } else {
+                console.error(tableType, "not support redo!");
             }
+
+            var tableIds = [];
+            for (var i = 0, len = tableNames.length; i < len; i++) {
+                var tableId = xcHelper.getTableId(tableNames[i]);
+                tableIds.push(tableId);
+            }
+
+            $tableList.find(".tableInfo").each(function() {
+                var $li = $(this);
+                var id = $li.data("id");
+                if (tableIds.indexOf(id) >= 0) {
+                    $li.find(".addTableBtn").click();
+                }
+            });
+
+            return TableList.activeTables(tableType, options.noSheetTables,
+                                            options.wsToSent);
+        })
+        .then(function() {
+            deferred.resolve();
+        })
+        .fail(function() {
+            deferred.reject();
         });
 
-        return TableList.activeTables(tableType,
-                                      options.noSheetTables, options.wsToSent);
+        return deferred.promise();
+
+
     };
 
     redoFuncs[SQLOps.ReorderTable] = function(options) {
@@ -345,9 +363,9 @@ window.Redo = (function($, Redo) {
     };
 
     redoFuncs[SQLOps.UnHideWS] = function(options) {
+        var deferred = jQuery.Deferred();
         var wsIds = options.worksheetIds;
-        WSManager.unhideWS(wsIds);
-        return promiseWrapper(null);
+        return WSManager.unhideWS(wsIds);
     };
 
     redoFuncs[SQLOps.SwitchWS] = function(options) {

@@ -115,7 +115,7 @@ function TableMeta(options) {
 
     this.tableName = options.tableName;
     this.tableId = options.tableId;
-    this.isLocked = options.isLocked;
+    this.isLocked = options.isLocked || false;
     this.isSortedArray = options.isSortedArray || false;
     this.status = options.status || TableType.Active;
     // reference enum TableType for possible types

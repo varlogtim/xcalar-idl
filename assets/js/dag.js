@@ -520,13 +520,13 @@ window.DagPanel = (function($, DagPanel) {
 
             TblManager.refreshTable([newTableName], null, [oldTableName], wsId)
             .then(function() {
-                var tableId = xcHelper.getTableId(newTableName);
+                var newTableId = xcHelper.getTableId(newTableName);
                 // if (tableType === "noSheet") {
                 //     tableType = TableType.Orphan;
                 // }
                 // TableList.removeTable(tableId, tableType);
 
-                var $tableWrap = $('#xcTableWrap-' + tableId).mousedown();
+                var $tableWrap = $('#xcTableWrap-' + newTableId).mousedown();
                 Dag.focusDagForActiveTable();
                 xcHelper.centerFocusedTable($tableWrap, true);
 
@@ -534,10 +534,13 @@ window.DagPanel = (function($, DagPanel) {
                     "operation"   : SQLOps.RevertTable,
                     "tableName"   : newTableName,
                     "oldTableName": oldTableName,
-                    "tableId"     : tableId,
+                    "oldTableId"  : oldTableId,
+                    "tableId"     : newTableId,
                     "tableType"   : tableType,
                     "worksheet"   : worksheet,
-                    "htmlExclude" : ["tableType", "oldTableName", "worksheet"]
+                    "worksheetIndex": WSManager.getWSOrder(worksheet),
+                    "htmlExclude" : ["tableType", "oldTableName", "worksheet",
+                                    "worksheetIndex"]
                 });
             });
         });

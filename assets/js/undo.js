@@ -35,8 +35,7 @@ window.Undo = (function($, Undo) {
 
     undoFuncs[SQLOps.IndexDS] = function(options) {
         var tableId = xcHelper.getTableId(options.tableName);
-        TblManager.sendTableToOrphaned(tableId, {'remove': true});
-        return (promiseWrapper(null));
+        return (TblManager.sendTableToOrphaned(tableId, {'remove': true}));
     };
 
     undoFuncs[SQLOps.Sort] = function(options) {
@@ -50,7 +49,8 @@ window.Undo = (function($, Undo) {
         var worksheet = WSManager.getWSFromTable(options.tableId);
         return (TblManager.refreshTable([options.tableName], null,
                                        [options.newTableName],
-                                       worksheet, {isUndo: true}));
+                                       worksheet, {isUndo: true,
+                                                    from: "noSheet"}));
     };
 
     undoFuncs[SQLOps.Map] = function(options) {
@@ -143,8 +143,7 @@ window.Undo = (function($, Undo) {
 
     undoFuncs[SQLOps.GroupBy] = function(options) {
         var tableId = xcHelper.getTableId(options.newTableName);
-        TblManager.sendTableToOrphaned(tableId, {'remove': true});
-        return (promiseWrapper(null));
+        return (TblManager.sendTableToOrphaned(tableId, {'remove': true}));
     };
 
     undoFuncs[SQLOps.SplitCol] = function(options) {
@@ -252,13 +251,14 @@ window.Undo = (function($, Undo) {
 
     undoFuncs[SQLOps.ResizeTableCols] = function(options) {
         TblManager.resizeColsToWidth(options.tableId, options.columnNums,
-                                     options.oldColumnWidths);
+                                     options.oldColumnWidths,
+                                     options.oldWidthStates);
         return (promiseWrapper(null));
     };
 
     undoFuncs[SQLOps.DragResizeTableCol] = function(options) {
         TblAnim.resizeColumn(options.tableId, options.colNum, options.toWidth,
-                             options.fromWidth);
+                             options.fromWidth, options.oldWidthState);
         return (promiseWrapper(null));
     };
 
@@ -305,7 +305,7 @@ window.Undo = (function($, Undo) {
 
     undoFuncs[SQLOps.RoundToFixed] = function(options) {
         ColManager.roundToFixed(options.colNum, options.tableId,
-                                option.prevDecimals);
+                                options.prevDecimals);
         return (promiseWrapper(null));
     };
 
@@ -398,7 +398,8 @@ window.Undo = (function($, Undo) {
             return promiseWrapper(null);
         } else if (tableType === TableType.Orphan) {
             tableIds.forEach(function(tId) {
-                TblManager.sendTableToOrphaned(tId, {"remove": true});
+                TblManager.sendTableToOrphaned(tId, {"remove": true,
+                                                     "keepInWS":true});
             });
             return TableList.refreshOrphanList();
         } else if (tableType === TableType.Agg) {
@@ -494,6 +495,7 @@ window.Undo = (function($, Undo) {
     };
 
     undoFuncs[SQLOps.MoveInactiveTableToWS] = function(options) {
+        var deferred = jQuery.Deferred();
         var tableId = options.tableId;
         var tableType = options.tableType;
 
@@ -503,20 +505,29 @@ window.Undo = (function($, Undo) {
             WSManager.removeTable(tableId);
             WSManager.addTable(tableId, oldWSId);
             TblManager.archiveTables([tableId]);
+            setTimeout(function() {
+                deferred.resolve();
+            },1000);
         } else if (tableType === TableType.Orphan) {
-            TblManager.sendTableToOrphaned(tableId, {"remove": true});
+            TblManager.sendTableToOrphaned(tableId, {"remove": true})
+            .then(function() {
+                deferred.resolve();
+            })
+            .fail(function() {
+                deferred.reject();
+            });
         } else {
             console.error(tableType, "cannot undo!");
         }
 
-        return promiseWrapper(null);
+        return deferred.promise();
     };
 
     undoFuncs[SQLOps.HideWS] = function(options) {
+        var deferred = jQuery.Deferred();
         var wsId = options.worksheetId;
-        WSManager.unhideWS(wsId);
-
-        return promiseWrapper(null);
+        var wsIndex = options.worksheetIndex;
+        return WSManager.unhideWS(wsId, wsIndex);
     };
 
     undoFuncs[SQLOps.UnHideWS] = function(options) {
@@ -594,7 +605,7 @@ window.Undo = (function($, Undo) {
         }
 
         function makeWorksheetHelper() {
-            WSManager.addWS(wsId, wsName);
+            WSManager.addWS(wsId, wsName, wsIndex);
             var $tabs = $("#worksheetTabs .worksheetTab");
             var $tab = $tabs.eq(wsIndex);
             if (($tab.data("ws") !== wsId)) {
@@ -622,7 +633,11 @@ window.Undo = (function($, Undo) {
 
         var jsonObj = {normal: []};
         $table.find('tbody').find('.col' + dataIndex).each(function() {
-            jsonObj.normal.push($(this).text());
+            if ($(this).hasClass('truncated')) {
+                jsonObj.normal.push($(this).find('.fullText').text());
+            } else {
+                jsonObj.normal.push($(this).text());
+            }
         });
 
         var tHeadBodyInfo = TblManager.generateTheadTbody(currProgCols, tableId);

@@ -76,12 +76,15 @@ window.ColManager = (function($, ColManager) {
         var select      = options.select || false;
         var inFocus     = options.inFocus || false;
         var newProgCol  = options.progCol;
+        var type        = newProgCol ? "undefined" : "newColumn";
         var noAnimate   = options.noAnimate;
         var isHidden    = options.isHidden || false;
         var decimals    = options.decimals || -1;
         var format      = options.format || null;
         var columnClass;
         var color;
+        var type;
+
 
         if (options.direction !== "L") {
             newColid += 1;
@@ -115,6 +118,7 @@ window.ColManager = (function($, ColManager) {
                 "width"   : width,
                 "userStr" : '"' + name + '" = ',
                 "isNewCol": isNewCol,
+                "type"    : type,
                 "isHidden": isHidden,
                 "decimals": decimals,
                 "format"  : format
@@ -181,9 +185,7 @@ window.ColManager = (function($, ColManager) {
         }
 
         var newCellHTML = '<td ' + 'class="' + color + ' ' + columnClass +
-                          ' col' + newColid + '">' +
-                            '&nbsp;' +
-                          '</td>';
+                          ' col' + newColid + '"></td>';
 
         var i = startingIndex;
         while (i <= endingIndex) {
@@ -645,11 +647,13 @@ window.ColManager = (function($, ColManager) {
         var deferred = jQuery.Deferred();
         var cancelError = "cancel splitCol";
         var splitWithDelimIndex = null;
+        var userNumColToGet = numColToGet;
 
         var worksheet   = WSManager.getActiveWS();
         var table       = gTables[tableId];
         var tableName   = table.tableName;
         var tableCols   = table.tableCols;
+        var newColNum   = colNum;
         var colName     = tableCols[colNum - 1].name;
         var backColName = tableCols[colNum - 1].getBackColName();
 
@@ -728,7 +732,9 @@ window.ColManager = (function($, ColManager) {
                 "newTableName": newTableNames[numColToGet],
                 "colNum"      : colNum,
                 "delimiter"   : delimiter,
-                "numColToGet" : numColToGet
+                "numColToGet" : userNumColToGet,
+                "numNewCols"  : numColToGet,
+                "htmlExclude" : ['numColToGet']
             };
 
             Transaction.done(txId, {
@@ -747,7 +753,9 @@ window.ColManager = (function($, ColManager) {
                 "newTableName": newTableNames[numColToGet],
                 "colNum"      : colNum,
                 "delimiter"   : delimiter,
-                "numColToGet" : numColToGet
+                "numColToGet" : userNumColToGet,
+                "numNewCols"  : numColToGet,
+                "htmlExclude" : ['numColToGet']
             };
 
             if (error === cancelError) {
@@ -787,7 +795,7 @@ window.ColManager = (function($, ColManager) {
             .then(function() {
                 var curTableId   = xcHelper.getTableId(curTableName);
                 var curTableCols = gTables[curTableId].tableCols;
-                var newTableCols = xcHelper.mapColGenerate(++colNum,
+                var newTableCols = xcHelper.mapColGenerate(++newColNum,
                                         fieldName, mapString, curTableCols);
                 if (index < numColToGet) {
                     TblManager.setOrphanTableMeta(newTableName, newTableCols);
@@ -1881,7 +1889,9 @@ window.ColManager = (function($, ColManager) {
         return ($tBody);
     };
 
-    ColManager.unnest = function($jsonTd, isArray, options) {
+    ColManager.unnest = function(tableId, colNum, rowNum, isArray, options) {
+        var $jsonTd = $('#xcTable-' + tableId).find('.row' + rowNum)
+                                              .find('td.col' + colNum);
         var $textDiv = $jsonTd.find("div").eq(0);
         var text;
         if ($textDiv.hasClass('truncated')) {
@@ -1899,10 +1909,10 @@ window.ColManager = (function($, ColManager) {
             return;
         }
 
-        var colNum = xcHelper.parseColNum($jsonTd);
-        var jsonRowNum = xcHelper.parseRowNum($jsonTd.closest('tr'));
+        // var colNum = xcHelper.parseColNum($jsonTd);
+        // var jsonRowNum = xcHelper.parseRowNum($jsonTd.closest('tr'));
+        var jsonRowNum = rowNum;
         var $table = $jsonTd.closest('table');
-        var tableId  = $table.data('id');
         var table = gTables[tableId];
         var cols = table.tableCols;
         var numCols = cols.length;

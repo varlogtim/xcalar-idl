@@ -819,9 +819,9 @@ window.xcFunction = (function($, xcFunction) {
             var $dataCol = $("#xcTable-" + tableId).find('th.dataCol');
             var dataColNum = xcHelper.parseColNum($dataCol) - 1;
             var dataCol = tableCols[dataColNum];
-            dataCol.width = 'auto';
 
             finalCols[1 + numGroupByCols] = xcHelper.deepCopy(dataCol);
+            finalCols[1 + numGroupByCols].width = 'auto';
         }
 
         return finalCols;

@@ -822,12 +822,11 @@ window.TblMenu = (function(TblMenu, $) {
             var rowNum  = $cellMenu.data('rowNum');
             var colNum  = $cellMenu.data('colNum');
             var $table  = $("#xcTable-" + tableId);
-            var $td     = $table.find(".row" + rowNum + " .col" + colNum);
             var isArray = $table.find("th.col" + colNum + " > div")
                                 .hasClass('type-array');
             $(".xcTable").find(".highlightBox").remove();
             setTimeout(function() {
-               ColManager.unnest($td, isArray);
+               ColManager.unnest(tableId, colNum, rowNum, isArray);
            }, 0);
         });
 
