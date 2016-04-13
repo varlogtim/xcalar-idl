@@ -313,13 +313,16 @@ window.SQL = (function($, SQL) {
         }
 
         var deferred = jQuery.Deferred();
+        var tmpSql = sqlToCommit;
+        sqlToCommit = "";
+        // should change sqlToCommit before async call
 
-        KVStore.append(KVStore.gLogKey, sqlToCommit, true, gKVScope.LOG)
-        .then(function() {
-            sqlToCommit = "";
-            deferred.resolve();
-        })
-        .fail(deferred.reject);
+        KVStore.append(KVStore.gLogKey, tmpSql, true, gKVScope.LOG)
+        .then(deferred.resolve)
+        .fail(function(error) {
+            sqlToCommit = tmpSql;
+            deferred.reject(error);
+        });
 
         return (deferred.promise());
     }
@@ -330,13 +333,15 @@ window.SQL = (function($, SQL) {
         }
 
         var deferred = jQuery.Deferred();
+        var tmpSql = errToCommit;
+        errToCommit = "";
 
-        KVStore.append(KVStore.gErrKey, errToCommit, true, gKVScope.ERR)
-        .then(function() {
-            errToCommit = "";
-            deferred.resolve();
-        })
-        .fail(deferred.reject);
+        KVStore.append(KVStore.gErrKey, tmpSql, true, gKVScope.ERR)
+        .then(deferred.resolve)
+        .fail(function(error) {
+            errToCommit = tmpSql;
+            deferred.reject(error);
+        });
 
         return (deferred.promise());
     }
