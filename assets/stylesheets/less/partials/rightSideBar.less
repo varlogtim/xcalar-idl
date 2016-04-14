@@ -231,10 +231,12 @@
         border-top: 1px solid @color-table-borderGray;
         border-left: 1px solid @color-table-borderGray;
         margin-left: -1px;
+        .flex-display;
 
         .tableListSectionTab {
-            .size(@width: 25%, @height: 100%);
-            float: left;
+            .flex(1 1 33%);
+            .size(@height: 100%);
+            // float: left;
             display: inline-block;
             .font(@weight: 700, @line-height: 35px, @size: 13px, @color: @color-text-darkGray);
             text-align: center;
@@ -288,7 +290,7 @@
 
             .btnLarge {
                 margin: 0px 5px 9px;
-                .flex(1 0 170px);
+                .flex(1 0 181px);
                 white-space: nowrap;
                 text-indent: 2px;
 

@@ -374,7 +374,7 @@ module.exports = {
     dsExport: {
         'Targets': 'Targets',
         'RefreshTargets': 'Refresh Targets',
-        'createBtn': 'CREATE NEW EXPORT TARGET',
+        'createBtn': 'CREATE EXPORT TARGET',
         'CreateTarget': 'Create Export Target',
         'CreateTargetInstr': 'SELECT A TARGET TYPE AND CHOOSE A NAME FOR YOUR EXPORT TARGET. PROVIDE ANY ADDITIONAL INFORMATION AS NEEDED.',
         'TargetType': 'Target Type',

@@ -1,4 +1,4 @@
-<!-- Right Side Bar Section -->
+Right Side Bar Section -->
 <div id="rightSideBar">
   <!-- Top Buttons -->
   <div class="sideBarTopButtons">
@@ -30,7 +30,8 @@
       <section id="tableListSectionTabs">
         <div class="tableListSectionTab active"><%= dicts.rightsideBar.ActiveList %></div>
         <div class="tableListSectionTab"><%= dicts.rightsideBar.InActiveList %></div>
-        <div class="tableListSectionTab"><%= dicts.rightsideBar.AggList %></div>
+        <!-- temporary hide it till we have actual use  -->
+        <!-- <div class="tableListSectionTab"><%= dicts.rightsideBar.AggList %></div> -->
         <div class="tableListSectionTab"><%= dicts.rightsideBar.OrphanList %></div>
       </section>
       <!-- Sections -->
@@ -61,8 +62,8 @@
           <ul id="inactiveTablesList" class="tableLists"></ul>
         </div>
         <!-- aggregate table list -->
-        <div id="aggregateTableList" class="tableListSection">
-          <div class="buttonWrap">
+        <!-- <div id="aggregateTableList" class="tableListSection">
+          <div class="buttonWrap"> -->
             <!-- XXX temporary disable -->
            <!--  <button id="submitAggTablesBtn" type="button" class="btn btnLarge btnInactive iconBtn submitBtn">
               <span class="icon"></span>ADD TO WORKSHEET
@@ -70,7 +71,7 @@
             <!-- <button id="deleteAggTablesBtn" type="button" class="btn btnLarge btnInactive iconBtn deleteBtn">
               <span class="icon"></span>DELETE TABLES
             </button> -->
-          </div>
+          <!-- </div> -->
          <!--  <div class="secondButtonWrap">
             <div class="btn btnSmall btnDeselected clearAll">
               <span class="icon" data-toggle="tooltip" data-placement="top" data-container="body" title="" data-original-title="clear all">
@@ -81,8 +82,8 @@
               </span>
             </div>
           </div> -->
-          <ul id="aggTablesList" class="tableLists"></ul>
-        </div>
+          <!-- <ul id="aggTablesList" class="tableLists"></ul> -->
+        <!-- </div> -->
         <!-- orphaned table list -->
         <div id="orphanedTableList" class="tableListSection">
           <div class="buttonWrap">
@@ -344,4 +345,4 @@
   <div id="pulloutTab"></div>
   <div id="sideBarModal"></div>
 </div>
-<!-- End Of Rightsidebar -->
+<!-- End Of Rightsidebar
