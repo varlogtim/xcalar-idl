@@ -551,6 +551,7 @@ window.WKBKManager = (function($, WKBKManager) {
                 } else {
                     console.warn("Error!", wkbkName, "has no meta.");
                     wkbk = new WKBK({
+                        "id"    : wkbkId,
                         "name"  : wkbkName,
                         "noMeta": true
                     });
