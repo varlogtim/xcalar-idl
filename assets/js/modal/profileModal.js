@@ -1814,8 +1814,10 @@ window.Profile = (function($, Profile, d3) {
             case "fitAll":
                 // fit all
                 bucketSize = (statsCol.aggInfo.max - statsCol.aggInfo.min) / numRowsToFetch;
-                // have mostly two digits after decimal
-                bucketSize = Math.round(bucketSize * 100) / 100;
+                if (bucketSize >= 0.01) {
+                    // have mostly two digits after decimal
+                    bucketSize = Math.round(bucketSize * 100) / 100;
+                }
                 break;
             case "single":
                 // go to single
