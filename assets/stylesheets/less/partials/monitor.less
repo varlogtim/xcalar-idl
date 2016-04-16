@@ -697,11 +697,11 @@
         // .flex-display;
 
         .titleSection {
-            .size(@height: 55px);
-            .font(@line-height: 55px, @color: @color-text-blue);
+            .size(@height: 45px);
+            .font(@line-height: 45px, @color: @color-text-blue);
 
             h1 {
-                font-size: 20px;
+                font-size: 18px;
             }
         }
 
@@ -718,10 +718,17 @@
                 .size(@height: ~"calc(100% - 58px)");
                 // in order to show box-shadow
                 .position(relative, @top: 3px);
-                overflow-y: scroll;
+                overflow-y: auto;
+
+                .hint {
+                    .size(@width: 320px, @height: 60px);
+                    .horizontal-align;
+                    top: 30%;
+                    .font(@size: 13px, @weight: bold, @color: @color-text-darkdarkGray);
+                }
             }
 
-            .queryList {
+            .query {
                 .size(@height: 80px);
                 .position(relative);
                 .linear-gradient(top, @color-white, @color-table-midGray);
@@ -817,7 +824,7 @@
                     }
                 }
 
-                &.play {
+                &.processing {
                     .barIcon {
                         .image("../../images/monitor/queries/inProgress.png", 50%, 50%);
                     }
@@ -845,6 +852,11 @@
                         .image("../../images/monitor/queries/doneBarUnit.png");
                         .size(@width: 100%);
                     }
+                }
+
+                &.error {
+                    opacity: 0.7;
+                    pointer-events: none;
                 }
             }
         }
@@ -940,22 +952,22 @@
                     .size(@width: 100%, @height: ~"calc(100% - 20px)");
                     background-color: @color-white;
                     box-shadow: inset 0px 2px 2px 1px rgba(0,0,0,0.2);
+                    padding: 10px;
+                    // .sqlWrap {
+                    //     .size(@width: 100%, @height: 100%);
+                    //     .position(relative, @top: 3px, @left: 2px);
+                    // }
 
-                    .sqlWrap {
-                        .size(@width: 100%, @height: 100%);
-                        .position(relative, @top: 3px, @left: 2px);
-                    }
+                    // .lineMarkerArea {
+                    //     .size(@width: 40px, @height: 100%);
+                    //     float: left;
+                    //     background-color: #f7f7f7;
+                    // }
 
-                    .lineMarkerArea {
-                        .size(@width: 40px, @height: 100%);
-                        float: left;
-                        background-color: #f7f7f7;
-                    }
-
-                    .sqlArea {
-                        .size(@width: ~"calc(100% - 40px)", @height: 100%);
-                        float: left;
-                    }
+                    // .sqlArea {
+                    //     .size(@width: ~"calc(100% - 40px)", @height: 100%);
+                    //     float: left;
+                    // }
                 }
             }
         }

@@ -263,49 +263,14 @@
         <h1><%= dicts.monitor.RecentQueries %></h1>
       </section>
       <!-- Queery list Section -->
-      <section class="queryListSection">
-        <!-- placeholder -->
-        <div class="queryList play">
-          <div class="headBar"></div>
-          <div class="queryInfo">
-            <div class="name">Xcalar worksheet 01</div>
-            <div class="date">Started 06:25:45 02-26-2015</div>
-          </div>
-          <div class="queryProgress">
-            <div class="barIcon icon"></div>
-            <div class="barContainer">
-                <div class="progressBar" style="width:40%"></div>
-            </div>
-            <div class="refreshIcon icon"></div>
-            <div class="deleteIcon icon"></div>
-            <div class="divider"></div>
-            <div class="inspectIcon icon"></div>
-          </div>
-        </div>
-
-        <div class="queryList done active">
-          <div class="headBar"></div>
-          <div class="queryInfo">
-            <div class="name">Xcalar worksheet 03</div>
-            <div class="date">Started 06:25:45 02-15-2015</div>
-          </div>
-          <div class="queryProgress">
-            <div class="barIcon icon"></div>
-            <div class="barContainer">
-                <div class="progressBar"></div>
-            </div>
-            <div class="refreshIcon icon"></div>
-            <div class="deleteIcon icon"></div>
-            <div class="divider"></div>
-            <div class="inspectIcon icon"></div>
-          </div>
-        </div>
+      <section id="monitor-queryList" class="queryListSection">
+        <div class="hint no-selection"><%= dicts.monitor.QueryHint %></div>
       </section>
     </div>
     <!-- Right section, queries detatils -->
-    <div class="rightSection">
+    <div id="monitor-queryDetail" class="rightSection">
       <section class="titleSection">
-        <h1>Detail of Xcalar worksheet 03</h1>
+        <h1><%= dicts.monitor.DetailQuery %></h1>
       </section>
       <!-- Status Part -->
       <section class="statusSection">
@@ -313,21 +278,21 @@
           <h2><%= dicts.monitor.STATUS %></h2>
         </div>
         <div class="conent">
-          <div class="status">
+          <div class="status start">
             <span class="name"><%= dicts.monitor.StartedTime %>:</span>
-            <span class="text">06:25:45 02-15-2015 GMT-08:00</span>
+            <span class="text">N/A</span>
           </div>
           <div class="status">
             <span class="name"><%= dicts.monitor.ElaspedTime %>:</span>
-            <span class="text">01:28:21</span>
+            <span class="text">N/A</span>
           </div>
           <div class="status">
             <span class="name"><%= dicts.monitor.RemainTime %>:</span>
-            <span class="text">00:00:00</span>
+            <span class="text">N/A</span>
           </div>
           <div class="status">
             <span class="name"><%= dicts.monitor.TotalTime %>:</span>
-            <span class="text">01:28:21</span>
+            <span class="text">N/A</span>
           </div>
         </div>
       </section>
@@ -355,12 +320,7 @@
         <div class="title">
           <h2><%= dicts.common.OP %></h2>
         </div>
-        <div class="content">
-          <div class="sqlWrap">
-            <div class="lineMarkerArea"></div>
-            <div class="sqlArea"></div>
-          </div>
-        </div>
+        <div class="content"></div>
       </section>
     </div>
   </section>

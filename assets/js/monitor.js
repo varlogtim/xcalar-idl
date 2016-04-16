@@ -33,6 +33,7 @@ window.MonitorPanel = (function($, MonitorPanel) {
                     break;
             }
 
+            QueryManager.check();
         });
 
         // text next to refreshBtn
@@ -99,6 +100,18 @@ window.MonitorPanel = (function($, MonitorPanel) {
         }
 
         MonitorGraph.setup();
+        QueryManager.setup();
+    };
+
+    MonitorPanel.active = function() {
+        MonitorPanel.updateDonuts();
+        MonitorGraph.start();
+        QueryManager.check();
+    };
+
+    MonitorPanel.inActive = function() {
+        MonitorGraph.clear();
+        QueryManager.check(true);
     };
 
     MonitorPanel.updateDonuts = function() {

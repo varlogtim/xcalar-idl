@@ -626,7 +626,7 @@ window.TestSuite = (function($, TestSuite) {
         checkExists("#worksheetTab-" + wsId)
         .then(function() {
             $("#tableListBtn").click();
-            $(".tableListSectionTab").eq(3).click();
+            $(".tableListSectionTab:contains(Orphaned)").click();
             $('#orphanedTableList .refresh').click();
             return (checkExists("#orphanedTableList-search:visible"));
         })

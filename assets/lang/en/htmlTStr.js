@@ -297,6 +297,8 @@ module.exports = {
         'GTotal': 'Global Total',
         'UTotal': 'User Total',
         'RecentQueries': 'Recent Queries',
+        'QueryHint': 'No query added',
+        'DetailQuery': 'Detail of Query',
         'STATUS': 'STATUS',
         'StartedTime': 'Started Time',
         'ElaspedTime': 'Elapsed Time',

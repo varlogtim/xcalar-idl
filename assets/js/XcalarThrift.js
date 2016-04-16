@@ -1510,6 +1510,28 @@ function XcalarQuery(queryName, queryString) {
     return (deferred.promise());
 }
 
+function XcalarQueryState(queryName) {
+    if (tHandle == null) {
+        return (promiseWrapper(null));
+    }
+
+    var deferred = jQuery.Deferred();
+
+    if (insertError(arguments.callee, deferred)) {
+        return (deferred.promise());
+    }
+
+    xcalarQueryState(tHandle, queryName)
+    .then(deferred.resolve)
+    .fail(function(error) {
+        var thriftError = thriftLog("XcalarQueryState", error);
+        SQL.errorLog("XcalarQueryState", null, null, thriftError);
+        deferred.reject(thriftError);
+    });
+
+    return (deferred.promise());
+}
+
 function XcalarQueryCheck(queryName) {
     if (tHandle == null) {
         return (promiseWrapper(null));
@@ -1523,7 +1545,7 @@ function XcalarQueryCheck(queryName) {
 
     var checkTime = 1000; // 1s per check
     var timer = setInterval(function() {
-        xcalarQueryState(tHandle, queryName)
+        XcalarQueryState(queryName)
         .then(function(queryStateOutput) {
             var state = queryStateOutput.queryState;
             if (state === QueryStateT.qrFinished) {

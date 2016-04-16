@@ -1369,7 +1369,7 @@ SchedObj.prototype = {
 /* End of SchedObj */
 
 /* Corrector */
-Corrector = function(words) {
+function Corrector(words) {
     // traing texts
     // words = ["pull", "sort", "join", "filter", "aggreagte", "map"];
     var self = this;
@@ -1393,7 +1393,7 @@ Corrector = function(words) {
         }
         return (res);
     }
-};
+}
 
 Corrector.prototype = {
     correct: function(word, isEdits2) {
@@ -1537,7 +1537,7 @@ Corrector.prototype = {
 /* End of Corrector */
 
 /* SearchBar */
-SearchBar = function($searchArea, options) {
+function SearchBar($searchArea, options) {
     this.$searchArea = $searchArea;
     this.$searchInput = $searchArea.find('input');
     this.$counter = $searchArea.find('.counter');
@@ -1550,8 +1550,8 @@ SearchBar = function($searchArea, options) {
     this.matchIndex = null;
     this.numMatches = 0;
     this.$matches = [];
-    return (this);
-};
+    return this;
+}
 
 SearchBar.prototype = {
     setup: function() {
@@ -1650,9 +1650,82 @@ SearchBar.prototype = {
 };
 /* End of SearchBar */
 
+/* Query */
+function XcQuery(options) {
+    options = options || {};
+    this.name = options.name;
+    this.time = options.time;
+    this.query = options.query;
+    this.fullName = options.fullName; // real name for backend
+
+    if (options.state == null) {
+        this.state = QueryStateT.qrNotStarted;
+    } else {
+        this.state = options.state;
+    }
+
+    return this;
+}
+
+XcQuery.prototype = {
+    "getName": function() {
+        return this.name;
+    },
+
+    "getFullName": function() {
+        return this.fullName;
+    },
+
+    "getTime": function() {
+        return this.time;
+    },
+
+    "getQuery": function() {
+        // XXX XcalarQueryState also return the query,
+        // so maybe not store it into backend?
+        return this.query;
+    },
+
+    "getState": function() {
+        return this.state;
+    },
+
+    getStateString: function() {
+        return QueryStateTStr[this.state];
+    },
+
+    "run": function() {
+        if (this.state === QueryStateT.qrNotStarted) {
+            return XcalarQuery(this.fullName, this.query);
+        } else {
+            var error = "cannot run query that with state:" +
+                        this.getStateString();
+            return jQuery.Deferred().reject({
+                "error": error,
+                "state": this.state
+            });
+        }
+    },
+
+    "check": function() {
+        var self = this;
+        var deferred = jQuery.Deferred();
+        XcalarQueryState(self.fullName)
+        .then(function(res) {
+            self.state = res.queryState;
+            deferred.resolve(res);
+        })
+        .fail(deferred.reject);
+
+        return deferred.promise();
+    }
+};
+
+/* End of Query */
+
 /* Modal Helper */
 // an object used for global Modal Actions
-ModalHelper = function($modal, options) {
+function ModalHelper($modal, options) {
     /* options include:
      * focusOnOpen: if set true, will focus on confirm btn when open modal
      * noResize: if set true, will not reszie the modal
@@ -1664,8 +1737,8 @@ ModalHelper = function($modal, options) {
     this.options = options || {};
     this.id = $modal.attr("id");
 
-    return (this);
-};
+    return this;
+}
 
 ModalHelper.prototype = {
     setup: function(extraOptions) {
@@ -1705,8 +1778,10 @@ ModalHelper.prototype = {
 
         // center modal
         if (!options.noCenter) {
-            centerPositionElement($modal, {limitTop: true,
-                                           maxTop: options.maxTop});
+            centerPositionElement($modal, {
+                "limitTop": true,
+                "maxTop"  : options.maxTop
+            });
         }
 
         // Note: to find the visiable btn, must show the modal first

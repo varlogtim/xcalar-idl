@@ -80,7 +80,8 @@ CommonTxtTstr = {
     'OpFail': 'Operation Failed',
     'SAVE': 'SAVE',
     'NEXT': 'NEXT',
-    'Preview': 'Preview'
+    'Preview': 'Preview',
+    'StartTime': 'Start Time'
 };
 
 ErrTStr = {
@@ -176,7 +177,9 @@ ErrTStr = {
 
     'PreservedName': 'This name is preserved, please use another name.',
 
-    'InvalidWin': 'Cannot window an unsorted table'
+    'InvalidWin': 'Cannot window an unsorted table',
+
+    'InvalidQuery': 'Query Failed'
 };
 
 ErrWRepTStr = {

@@ -275,8 +275,7 @@ window.StartManager = (function(StartManager, $) {
                     break;
                 case ("monitorTab"):
                     $('#monitorPanel').addClass("active");
-                    MonitorPanel.updateDonuts();
-                    MonitorGraph.start();
+                    MonitorPanel.active();
                     break;
                 case ("extensionTab"):
                     $('#extensionPanel').addClass("active");
@@ -285,7 +284,7 @@ window.StartManager = (function(StartManager, $) {
                     $(".underConstruction").addClass("active");
             }
             if (lastTabId === "monitorTab") {
-                MonitorGraph.clear();
+                MonitorPanel.inActive();
             }
             if (lastTabId === "workspaceTab") {
                 var $activeCompSwitch = $('.dagTab.active');
