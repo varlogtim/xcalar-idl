@@ -595,10 +595,15 @@ function addMenuBehaviors($mainMenu) {
     var subMenuId = $mainMenu.data('submenu');
     var hideTimeout;
     var showTimeout;
+    var subListScroller;
 
     if (subMenuId) {
         $subMenu = $('#' + subMenuId);
         $allMenus = $allMenus.add($subMenu);
+        subListScroller = new xcHelper.dropdownList($subMenu, {
+            scrollerOnly: true,
+            bottomPadding: 4
+        });
 
         $subMenu.on('mousedown', '.subMenuArea', function(event) {
             if (event.which !== 1) {
@@ -745,9 +750,11 @@ function addMenuBehaviors($mainMenu) {
             if ($targetSubMenu.is(':visible')) {
                 visible = true;
             }
-            $subMenu.children('ul').hide();
+            $subMenu.children('ul').hide().css('max-height', 'none');
             $subMenu.find('li').removeClass('selected');
+            $subMenu.css('max-height', 'none');
             $targetSubMenu.show();
+
             if (!visible) {
                 StatusBox.forceHide();
             }
@@ -779,8 +786,11 @@ function addMenuBehaviors($mainMenu) {
                     top += 29;
                 }
             }
+            top = Math.max(2, top);
 
             $subMenu.css({left: left, top: top});
+            $subMenu.find('.scrollArea').hide();
+            subListScroller.showOrHideScrollers($targetSubMenu);
         }
     }
 

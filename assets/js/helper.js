@@ -954,7 +954,10 @@ window.xcHelper = (function($, xcHelper) {
             }
         }
 
-        function showOrHideScrollers() {
+        function showOrHideScrollers($newUl) {
+            if ($newUl) {
+                $ul = $newUl;
+            }
             if (numScrollAreas === 0) {
                 return;
             }
@@ -972,16 +975,16 @@ window.xcHelper = (function($, xcHelper) {
                                   listHeight);
             listHeight = Math.max(listHeight - 1, 40);
             $list.css('max-height', listHeight);
-            $list.children('ul').css('max-height', listHeight).scrollTop(0);
+            $ul.css('max-height', listHeight).scrollTop(0);
 
-            var ulHeight = $list.find('ul')[0].scrollHeight;
+            var ulHeight = $ul[0].scrollHeight;
 
             if (ulHeight > $list.height()) {
-                $list.children('ul').css('max-height', listHeight);
+                $ul.css('max-height', listHeight);
                 $list.find('.scrollArea').show();
                 $list.find('.scrollArea.bottom').addClass('active');
             } else {
-                $list.children('ul').css('max-height', 'auto');
+                $ul.css('max-height', 'auto');
                 $list.find('.scrollArea').hide();
             }
             // set scrollArea states

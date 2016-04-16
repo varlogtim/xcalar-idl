@@ -1,13 +1,15 @@
 window.ExtButton = (function(ExtButton, $) {
     function genSimpleButton(modName, fnName, buttonText) {
-        var html = '<li class="extensions '+modName+'::'+fnName+'">';
+        var html = '<div class="sectionLabel">' + fnName + '</div>';
+        html += '<li class="extensions '+modName+'::'+fnName+'">';
         html += buttonText;
         html += '</li>';
         return (html);
-    };
+    }
 
     function genComplexButton(modName, fnName, buttonText, arrayOfFields) {
         var html = '<ul class="extensions '+modName+'">';
+        html += '<div class="sectionLabel">' + fnName + '</div>';
         html += '<li style="text-align: center" class="clickable extensions">';
         // XXX Need to think about how to include this
         // html += '<div>'+buttonText+'</div>';
@@ -18,21 +20,21 @@ window.ExtButton = (function(ExtButton, $) {
                             '" type="'+arrayOfFields[i].type+'"'+
                         ' spellcheck="false"/>'+
                         '<div class="iconWrapper inputAction">'+
-                            '<span class="icon extensions '+modName+'::'
-                                +fnName+'"></span>'+
+                            '<span class="icon extensions '+modName+'::' +
+                                fnName+'"></span>'+
                         '</div>'+
                     '</div>';
         }
         html += "</li></ul>";
         return (html);
-    };
+    }
 
     function newButtonHTML(modName, fnName, buttonText, arrayOfFields) {
         // buttonText: this is the text that is on the button
         // arrayOfFields: this is an array of field that are texts for args
         // each entry in arrayOfFields contain descriptions for the types of
         // values that are allowable in the input boxes.
-        
+
         // For example, for window, buttonText = "window"
         // arrayOfFields = [lagObj, leadObj]
         // lagObj = {"type": "number", <-kind of argument
@@ -46,7 +48,7 @@ window.ExtButton = (function(ExtButton, $) {
         // arrayOfFields = [{"type": "number",
         //                   "name": "No. of Partitions",
         //                   "fieldClass": "partitionNums"}]
-        if (arrayOfFields == undefined || arrayOfFields.length == 0) {
+        if (arrayOfFields === undefined || arrayOfFields.length === 0) {
             // Simple button, no input
             return (genSimpleButton(modName, fnName, buttonText));
         } else {
@@ -54,7 +56,7 @@ window.ExtButton = (function(ExtButton, $) {
                                      arrayOfFields));
         }
     }
-    
+
     ExtButton.getButtonHTML = function(modName) {
         var buttonList = window[modName].buttons;
         var buttonsHTML = "";
@@ -64,7 +66,7 @@ window.ExtButton = (function(ExtButton, $) {
                                          buttonList[i]["arrayOfFields"]);
         }
         return (buttonsHTML);
-    }
+    };
 
     return (ExtButton);
 
@@ -79,8 +81,8 @@ window.ExtensionManager = (function(ExtensionManager, $) {
         for (var objs in window) {
             if (objs.indexOf("UExt") === 0 ) {
                 for (var i = 0; i<extFileNames.length; i++) {
-                    if (objs.toLowerCase().substring(4, objs.length)+".ext"
-                        === extFileNames[i].toLowerCase()) {
+                    if (objs.toLowerCase().substring(4, objs.length)+".ext" ===
+                        extFileNames[i].toLowerCase()) {
                         // Found it!
                         extList.push(objs);
                         break;
@@ -90,11 +92,11 @@ window.ExtensionManager = (function(ExtensionManager, $) {
         }
         console.log("Extensions list: "+extList);
 
-        for (var i = 0; i<extList.length; i++) {
+        for (var i = 0; i < extList.length; i++) {
             var buttonList = window[extList[i]].buttons;
             $("ul.extensions").eq(0).append(ExtButton.getButtonHTML(extList[i]));
             if (i < extList.length - 1) {
-                $("ul.extensions").append(
+                $("ul.extensions").eq(0).append(
                 '<div class="divider identityDivider thDropdown"></div>');
             }
         }
@@ -133,7 +135,7 @@ window.ExtensionManager = (function(ExtensionManager, $) {
             }
         });
     }
-    
+
     function setupPart3Fail(extName, error) {
         removeExt(extName);
         numChecksLeft--;
@@ -144,7 +146,7 @@ window.ExtensionManager = (function(ExtensionManager, $) {
             setupPart4();
         }
     }
-    
+
     function checkPythonFunctions(extFileNames) {
         // XcalarListXdfs with fnName = extPrefix+":"
         // Also check that the module has a python file
@@ -177,14 +179,14 @@ window.ExtensionManager = (function(ExtensionManager, $) {
         var extLoaded = $("ul.extensions script");
         for (var i = 0; i<extLoaded.length; i++) {
             var jsFile = extLoaded[i]["src"];
-                
+
             // extract module name
             var strLoc = jsFile.indexOf("assets/extensions/installed/");
             if (strLoc !== -1) {
                 jsFile = jsFile.substring(strLoc+
                                          "assets/extensions/installed/".length,
                                          jsFile.length-3);
-                extFileNames[i] = jsFile;   
+                extFileNames[i] = jsFile;
             } else {
                 extFileNames[i] = "";
                 console.error("extensions are not located in extensions");
@@ -208,12 +210,12 @@ window.ExtensionManager = (function(ExtensionManager, $) {
                     success: (function(valOfI) {
                         return function(data) {
                             setupPart3Success(pythonReuploadList[valOfI],data);
-                        }
+                        };
                     })(i),
                     error: (function(valOfI) {
                         return function(error) {
                           setupPart3Fail(pythonReuploadList[valOfI], error);
-                        }
+                        };
                     })(i)
                 });
             }
@@ -230,7 +232,7 @@ window.ExtensionManager = (function(ExtensionManager, $) {
     // This registers an extension.
     // The extension must have already been added via addExtension
     ExtensionManager.registerExtension = function(extName) {
-        
+
     };
     // This unregisters an extension. This does not remove it from the system.
     ExtensionManager.unregisterExtension = function(extName) {
@@ -269,7 +271,7 @@ window.ExtensionManager = (function(ExtensionManager, $) {
         var $tableMenu = $('#colMenu');
         var $subMenu = $('#colSubMenu');
         var $allMenus = $tableMenu.add($subMenu);
- 
+
         argList["allMenus"] = $allMenus;
         window[modName]["actionFn"](colNum, tableId, funcName, argList);
     };
