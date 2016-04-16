@@ -1,16 +1,15 @@
 window.AggModal = (function($, AggModal) {
-    var $modalBg = $("#modalBackground");
-    var $aggModal = $("#aggModal");
+    var $modalBg;  // $("#modalBackground")
+    var $aggModal; // $("#aggModal")
+
+    var $aggInstr;     // $("#aggModal-instr")
+    var $aggTableName; // $("#aggModal-tableName")
+
+    var $quickAgg; // $("#aggModal-quickAgg")
+    var $corr;     // $("#aggModal-corr")
+
     var modalHelper;
-
-    var $aggInstr = $("#aggModal-instr");
-    var $aggTableName = $("#aggModal-tableName");
-
-    var $quickAgg = $("#aggModal-quickAgg");
-    var $corr = $("#aggModal-corr");
-
-    var aggrFunctions = [AggrOp.Sum, AggrOp.Avg, AggrOp.Min,
-                        AggrOp.Max, AggrOp.Count];
+    var aggrFunctions; // [AggrOp.Sum, AggrOp.Avg, AggrOp.Min, AggrOp.Max, AggrOp.Count]
 
     var aggCols = [];
     // UI cahce, not save to KVStore
@@ -23,6 +22,8 @@ window.AggModal = (function($, AggModal) {
     var minHeight = 300;
 
     AggModal.setup = function() {
+        initialize();
+
         modalHelper = new ModalHelper($aggModal, {
             "minWidth" : minWidth,
             "minHeight": minHeight
@@ -146,6 +147,20 @@ window.AggModal = (function($, AggModal) {
 
         return (deferred.promise());
     };
+
+    function initialize() {
+        $modalBg = $("#modalBackground");
+        $aggModal = $("#aggModal");
+
+        $aggInstr = $("#aggModal-instr");
+        $aggTableName = $("#aggModal-tableName");
+
+        $quickAgg = $("#aggModal-quickAgg");
+        $corr = $("#aggModal-corr");
+
+        aggrFunctions = [AggrOp.Sum, AggrOp.Avg, AggrOp.Min,
+                         AggrOp.Max, AggrOp.Count];
+    }
 
     function showAggModal(tableName, mode) {
         var $header = $aggModal.find(".modalHeader .text");

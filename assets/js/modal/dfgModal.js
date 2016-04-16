@@ -1,16 +1,17 @@
 window.DataFlowModal = (function($, DataFlowModal) {
-    var $dfgModal = $('#dataFlowModal');
-    var $dfPreviews = $('#dataFlowPreviews');
-    var $dfExport = $("#dataFlowExport");
-    var $dfTable  = $("#dataFlowTable");
-    var $modalBackground = $("#modalBackground");
-    var $modalMain = $dfgModal.find('.modalMain');
-    var $sideListSection = $dfgModal.find('.sideListSection');
-    var $previewSection = $dfgModal.find('.previewSection');
-    var $searchInput = $("#dataFlowSearch");
-    var $radios = $dfgModal.find('.radio');
-    var $newGroupNameInput = $('#newGroupNameInput');
-    var $confirmBtn = $("#dataFlowModalConfirm");
+    var $modalBg;           // $("#modalBackground")
+    var $dfgModal;          // $('#dataFlowModal')
+    var $dfPreviews;        // $('#dataFlowPreviews')
+    var $dfExport;          // $("#dataFlowExport")
+    var $dfTable;           // $("#dataFlowTable")
+    var $modalMain;         // $dfgModal.find('.modalMain')
+    var $sideListSection;   // $dfgModal.find('.sideListSection')
+    var $previewSection;    // $dfgModal.find('.previewSection')
+    var $searchInput;       // $("#dataFlowSearch")
+    var $radios;            // $dfgModal.find('.radio')
+    var $newGroupNameInput; // $('#newGroupNameInput')
+    var $confirmBtn;        // $("#dataFlowModalConfirm")
+
     var tableName;
     var modalHelper;
     // constant
@@ -18,6 +19,8 @@ window.DataFlowModal = (function($, DataFlowModal) {
     var minWidth  = 700;
 
     DataFlowModal.setup = function() {
+        initialize();
+
         modalHelper = new ModalHelper($dfgModal, {
             "focusOnOpen": true,
             "minHeight"  : minHeight,
@@ -47,7 +50,7 @@ window.DataFlowModal = (function($, DataFlowModal) {
 
     DataFlowModal.show = function($dagWrap) {
         modalHelper.setup();
-        $modalBackground.fadeIn(300, function() {
+        $modalBg.fadeIn(300, function() {
             Tips.refresh();
         });
 
@@ -94,6 +97,21 @@ window.DataFlowModal = (function($, DataFlowModal) {
 
         $newGroupNameInput.focus();
     };
+
+    function initialize() {
+        $modalBg = $("#modalBackground");
+        $dfgModal = $('#dataFlowModal');
+        $dfPreviews = $('#dataFlowPreviews');
+        $dfExport = $("#dataFlowExport");
+        $dfTable = $("#dataFlowTable");
+        $modalMain = $dfgModal.find('.modalMain');
+        $sideListSection = $dfgModal.find('.sideListSection');
+        $previewSection = $dfgModal.find('.previewSection');
+        $searchInput = $("#dataFlowSearch");
+        $radios = $dfgModal.find('.radio');
+        $newGroupNameInput = $('#newGroupNameInput');
+        $confirmBtn = $("#dataFlowModalConfirm");
+    }
 
     function saveDataFlow(groupName, columns, isNewGroup) {
         var $dagImage = $dfPreviews.find('.dagImage');
@@ -370,7 +388,7 @@ window.DataFlowModal = (function($, DataFlowModal) {
     function closeDFGModal() {
         modalHelper.clear();
         $dfgModal.hide();
-        $modalBackground.fadeOut(300, function() {
+        $modalBg.fadeOut(300, function() {
             Tips.refresh();
             modalHelper.clear();
             resetDFGModal();

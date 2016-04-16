@@ -2,28 +2,34 @@
  * Module for mamgement of dsObj
  */
 window.DS = (function ($, DS) {
-    var homeDirId = DSObjTerm.homeDirId;
+    var homeDirId; // DSObjTerm.homeDirId
 
     var curDirId;       // current folder id
     var folderIdCount;  // counter
     var dsLookUpTable;  // find DSObj by dsId
     var homeFolder;
 
-    var $explorePanel = $("#exploreView");
-    var $backFolderBtn = $("#backFolderBtn");
-    var $deleteFolderBtn = $("#deleteFolderBtn");
-    var $gridView = $explorePanel.find(".gridItems");
+    var $explorePanel;    // $("#exploreView")
+    var $backFolderBtn;   // $("#backFolderBtn")
+    var $deleteFolderBtn; // $("#deleteFolderBtn")
+    var $gridView;        // $explorePanel.find(".gridItems")
 
     // for DS drag n drop
     var $dragDS;
     var $dropTarget;
+
+    // Restore dsObj
+    DS.initialize = function(oldHomeFolder) {
+        initialize();
+        return restoreDS(oldHomeFolder, true);
+    };
 
     DS.setup = function() {
         setupGridViewButtons();
         setupGrids();
     };
 
-    DS.initialize = function() {
+    DS.setupView = function() {
         // restore list view if saved and ellipsis the icon
         var preference = UserSettings.getPreference();
         toggleDSView(preference.datasetListView);
@@ -298,31 +304,6 @@ window.DS = (function ($, DS) {
         return (deferred.promise());
     };
 
-    // Restore dsObj
-    DS.restore = function(oldHomeFolder, atStartUp) {
-        var deferred = jQuery.Deferred();
-
-        DS.clear();
-
-        XcalarGetDatasets()
-        .then(function(datasets) {
-            restoreHelper(oldHomeFolder, datasets, atStartUp);
-
-            if (!atStartUp) {
-                // if user trigger the restore, save!
-                KVStore.commit();
-            }
-
-            deferred.resolve();
-        })
-        .fail(function(error) {
-            console.error("Restore DS fails!", error);
-            deferred.reject(error);
-        });
-
-        return deferred.promise();
-    };
-
     // Rename dsObj
     DS.rename = function(dsId, newName) {
         // now only for folders (later also rename datasets?)
@@ -488,6 +469,14 @@ window.DS = (function ($, DS) {
         dsLookUpTable[homeFolder.getId()] = homeFolder;
     };
 
+    function initialize() {
+        homeDirId = DSObjTerm.homeDirId;
+        $explorePanel = $("#exploreView");
+        $backFolderBtn = $("#backFolderBtn");
+        $deleteFolderBtn = $("#deleteFolderBtn");
+        $gridView = $explorePanel.find(".gridItems");
+    }
+
     // Create dsObj for new dataset/folder
     function createDS(options) {
         options = options || {};
@@ -652,6 +641,24 @@ window.DS = (function ($, DS) {
             });
             return false;
         }
+    }
+
+    function restoreDS(oldHomeFolder, atStartUp) {
+        var deferred = jQuery.Deferred();
+
+        DS.clear();
+
+        XcalarGetDatasets()
+        .then(function(datasets) {
+            restoreHelper(oldHomeFolder, datasets, atStartUp);
+            deferred.resolve();
+        })
+        .fail(function(error) {
+            console.error("Restore DS fails!", error);
+            deferred.reject(error);
+        });
+
+        return deferred.promise();
     }
 
     function restoreHelper(oldHomeFolder, datasets, atStartUp) {
@@ -834,7 +841,10 @@ window.DS = (function ($, DS) {
         // refresh dataset
         $("#refreshDS").click(function() {
             xcHelper.showRefreshIcon($explorePanel.find('.gridViewWrapper'));
-            DS.restore(DS.getHomeDir());
+            restoreDS(DS.getHomeDir())
+            .then(function() {
+                return KVStore.commit();
+            });
         });
 
         // click empty area on gridView

@@ -2,14 +2,16 @@
  * Module for data sample table
  */
 window.DataSampleTable = (function($, DataSampleTable) {
-    var $datasetWrap = $("#datasetWrap");
-    var $tableWrap = $("#dataSetTableWrap");
+    var $datasetWrap; // $("#datasetWrap")
+    var $tableWrap;   // $("#dataSetTableWrap")
+
     var currentRow = 0;
     var totalRows = 0;
     var initialNumRowsToFetch = 40;
     var previousColSelected; // used for shift clicking columns
 
     DataSampleTable.setup = function() {
+        initialize();
         setupSampleTable();
     };
 
@@ -97,6 +99,11 @@ window.DataSampleTable = (function($, DataSampleTable) {
         }
         $datasetWrap.height(tableHeight + scrollBarPadding);
     };
+
+    function initialize() {
+        $datasetWrap = $("#datasetWrap");
+        $tableWrap = $("#dataSetTableWrap");
+    }
 
     function getSampleTable(dsObj, jsonKeys, jsons) {
         var html = getSampleTableHTML(dsObj, jsonKeys, jsons);

@@ -1,22 +1,21 @@
 window.JoinModal = (function($, JoinModal) {
-    var $modalBackground = $("#modalBackground");
-    var $mainJoin     = $("#mainJoin");
-    var $joinModal = $("#joinModal");
-    var $tableDropDown = $mainJoin.find('.joinTableList');
+    var $modalBg;        // $("#modalBackground")
+    var $mainJoin;       // $("#mainJoin")
+    var $joinModal;      // $("#joinModal")
+    var $tableDropDown;  // $mainJoin.find('.joinTableList')
+
+    var $joinSelect;     // $("#joinType")
+    var $joinDropdown;   // $("#joinTypeSelect")
+    var $joinPreview;    // $('#joinPreview')
+
+    var $joinTableName;  // $("#joinRoundedInput")
+    var $leftJoinTable;  // $("#leftJoin")
+    var $rightJoinTable; // $("#rightJoin")
+
+    var $multiJoinBtn;   // $("#multiJoinBtn")
+    var $multiJoin;      // $("#multiJoin")
+
     var modalHelper;
-    // var $joinInstr = $("#joinInstr");
-
-    var $joinSelect   = $("#joinType");
-    var $joinDropdown = $("#joinTypeSelect");
-    var $joinPreview  = $('#joinPreview');
-
-
-    var $joinTableName  = $("#joinRoundedInput");
-    var $leftJoinTable  = $("#leftJoin");
-    var $rightJoinTable = $("#rightJoin");
-
-    var $multiJoinBtn = $("#multiJoinBtn");
-    var $multiJoin    = $("#multiJoin");
     var multiClauseTemplate =
         '<div class="joinClause">' +
             '<input class="clause leftClause no-selection" type="text" ' +
@@ -38,6 +37,7 @@ window.JoinModal = (function($, JoinModal) {
     var minWidth  = 800;
 
     JoinModal.setup = function () {
+        initialize();
         modalHelper = new ModalHelper($joinModal, {
             "minHeight": minHeight,
             "minWidth" : minWidth
@@ -47,7 +47,7 @@ window.JoinModal = (function($, JoinModal) {
             resetJoinTables();
         });
 
-        $joinSelect.click(function(event) {
+        $joinSelect.click(function() {
             $joinSelect.toggleClass("open");
             $joinDropdown.toggle();
         });
@@ -106,13 +106,13 @@ window.JoinModal = (function($, JoinModal) {
         });
 
         xcHelper.dropdownList($tableDropDown.eq(0), {
-            "container"    : "#mainJoin",
-            "bounds"       : '#mainJoin'
+            "container": "#mainJoin",
+            "bounds"   : '#mainJoin'
         });
 
         xcHelper.dropdownList($tableDropDown.eq(1), {
-            "container"    : "#mainJoin",
-            "bounds"       : '#mainJoin'
+            "container": "#mainJoin",
+            "bounds"   : '#mainJoin'
         });
 
         $joinModal.click(hideDropdowns);
@@ -295,7 +295,7 @@ window.JoinModal = (function($, JoinModal) {
         isOpenTime = true;
         $("body").on("keypress", joinTableKeyPress);
         $("body").on("mouseup", removeCursors);
-        $modalBackground.on("click", hideDropdowns);
+        $modalBg.on("click", hideDropdowns);
         updateJoinTableName();
         modalHelper.setup();
 
@@ -305,11 +305,11 @@ window.JoinModal = (function($, JoinModal) {
         updatePreviewText();
 
         if (gMinModeOn) {
-            $modalBackground.show();
+            $modalBg.show();
             $joinModal.show();
             showHandler();
         } else {
-            $modalBackground.fadeIn(300, function() {
+            $modalBg.fadeIn(300, function() {
                 $joinModal.fadeIn(180);
                 showHandler();
             });
@@ -331,6 +331,22 @@ window.JoinModal = (function($, JoinModal) {
             $joinTableName.focus();
         }
     };
+
+    function initialize() {
+        $modalBg = $("#modalBackground");
+        $mainJoin = $("#mainJoin");
+        $joinModal = $("#joinModal");
+        $tableDropDown = $mainJoin.find('.joinTableList');
+        $joinSelect = $("#joinType");
+        $joinDropdown = $("#joinTypeSelect");
+        $joinPreview = $('#joinPreview');
+        $joinTableName = $("#joinRoundedInput");
+        $leftJoinTable = $("#leftJoin");
+        $rightJoinTable = $("#rightJoin");
+
+        $multiJoinBtn = $("#multiJoinBtn");
+        $multiJoin = $("#multiJoin");
+    }
 
     function toggleMultiClause(toMultiClause) {
         if (toMultiClause) {
@@ -523,7 +539,7 @@ window.JoinModal = (function($, JoinModal) {
     function resetJoinTables() {
         $("body").off("keypress", joinTableKeyPress);
         $("body").off("mouseup", removeCursors);
-        $modalBackground.off("click", hideDropdowns);
+        $modalBg.off("click", hideDropdowns);
 
         modalHelper.clear();
         modalHelper.enableSubmit();
@@ -531,7 +547,7 @@ window.JoinModal = (function($, JoinModal) {
         var fadeOutTime = gMinModeOn ? 0 : 300;
 
         $joinModal.hide();
-        $modalBackground.fadeOut(fadeOutTime, function() {
+        $modalBg.fadeOut(fadeOutTime, function() {
             Tips.refresh();
         });
 
@@ -618,14 +634,14 @@ window.JoinModal = (function($, JoinModal) {
             }
         } else {
             // for right join table
-           $tableDropDown.eq(1).find('li').eq(0).click();
+            $tableDropDown.eq(1).find('li').eq(0).click();
         }
     }
 
     function joinModalHTMLHelper($modal) {
         var $columnArea = $modal.find(".joinTableArea");
-        var wsOrders    = WSManager.getOrders();
-        var tableLis    = "";
+        var wsOrders = WSManager.getOrders();
+        var tableLis = "";
         // group table tab by worksheet (only show active table)
         for (var i = 0, len = wsOrders.length; i < len; i++) {
             var wsId = wsOrders[i];
@@ -634,9 +650,11 @@ window.JoinModal = (function($, JoinModal) {
 
             for (var j = 0; j < wsTables.length; j++) {
                 var tableId = wsTables[j];
-                var table   = gTables[tableId];
+                var table = gTables[tableId];
                 if (j === 0 && wsOrders.length > 1) {
-                    tableLis += '<div class="sectionLabel">'+ ws.name +'</div>';
+                    tableLis += '<div class="sectionLabel">' +
+                                    ws.name +
+                                '</div>';
                 }
 
                 tableLis += '<li data-ws="' + wsId + '" data-id="' + tableId +
@@ -1112,7 +1130,6 @@ window.JoinModal = (function($, JoinModal) {
         var total = 0;
         var datas = [];
         var values = [];
-        var $textDi;
         var val;
 
         $table.find("td.col" + colNum).each(function() {

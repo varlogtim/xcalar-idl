@@ -1,13 +1,15 @@
 window.ExportTarget = (function($, ExportTarget) {
+    var $exportView;      // $('#exportView')
+    var $form;            // $('#exportDataForm')
+    var $gridView;        // $exportView.find('.gridItems')
+    var $targetTypeList;  // $('#targetTypeList')
+    var $targetTypeInput; // $targetTypeList.find('.text')
+    var $nameInput;       // $('#targetName')
+
     var exportTargets = [];
-    var $exportView = $('#exportView');
-    var $form = $('#exportDataForm');
-    var $gridView = $exportView.find('.gridItems');
-    var $targetTypeList = $('#targetTypeList');
-    var $targetTypeInput = $targetTypeList.find('.text');
-    var $nameInput = $('#targetName');
 
     ExportTarget.setup = function() {
+        initizliae();
 
         xcHelper.dropdownList($targetTypeList, {
             "onSelect": function($li) {
@@ -24,7 +26,7 @@ window.ExportTarget = (function($, ExportTarget) {
         });
 
         $exportView.find('.refresh').click(function() {
-            ExportTarget.restore();
+            restoreExportTarget();
         });
 
         $gridView.on("click", ".grid-unit", function(event) {
@@ -69,46 +71,12 @@ window.ExportTarget = (function($, ExportTarget) {
                             .addClass('btn-cancel');
         $form.find('.iconWrapper').css('background', '#AEAEAE');
         $('#targetTypeList').css('pointer-events', 'none');
+
+        restoreExportTarget();
     };
 
     ExportTarget.getTargets = function() {
         return exportTargets;
-    };
-
-    ExportTarget.restore = function() {
-        xcHelper.showRefreshIcon($exportView.find('.gridViewWrapper'));
-
-        XcalarListExportTargets("*", "*")
-        .then(function(targs) {
-            var targets = targs.targets;
-            var numTargs = targs.numTargets;
-            var types = [];
-            exportTargets = [];
-            for (var i = 0; i < numTargs; i++) {
-                var type = DsTargetTypeTStr[targets[i].hdr.type];
-                if (type === "file") {
-                    type = "Local Filesystem";
-                } else if (type === "odbc") {
-                    type = "ODBC";
-                }
-                var typeIndex = types.indexOf(type);
-                if (typeIndex === -1) {
-                    types.push(type);
-                    typeIndex = types.length - 1;
-                    exportTargets.push({name: type, targets: []});
-                }
-                exportTargets[typeIndex].targets.push(targets[i].hdr.name);
-                // Here we can make use of targets[i].specificInput.(odbcInput|
-                // sfInput).(connectionString|url) to display more information
-                // For eg for sfInput, we can now get back the exact location.
-                // We no longer require the users to memorize where default
-                // points to
-            }
-            restoreGrids();
-        })
-        .fail(function(error) {
-            Alert.error(DSExportTStr.RestoreFail, error.error);
-        });
     };
 
     ExportTarget.submitForm = function(targetType, name) {
@@ -159,6 +127,51 @@ window.ExportTarget = (function($, ExportTarget) {
     //     $form.find(".dropDownList").removeClass("open")
     //                               .find(".list").hide();
     // }
+
+    function initizliae() {
+        $exportView = $('#exportView');
+        $form = $('#exportDataForm');
+        $gridView = $exportView.find('.gridItems');
+        $targetTypeList = $('#targetTypeList');
+        $targetTypeInput = $targetTypeList.find('.text');
+        $nameInput = $('#targetName');
+    }
+
+    function restoreExportTarget() {
+        xcHelper.showRefreshIcon($exportView.find('.gridViewWrapper'));
+
+        XcalarListExportTargets("*", "*")
+        .then(function(targs) {
+            var targets = targs.targets;
+            var numTargs = targs.numTargets;
+            var types = [];
+            exportTargets = [];
+            for (var i = 0; i < numTargs; i++) {
+                var type = DsTargetTypeTStr[targets[i].hdr.type];
+                if (type === "file") {
+                    type = "Local Filesystem";
+                } else if (type === "odbc") {
+                    type = "ODBC";
+                }
+                var typeIndex = types.indexOf(type);
+                if (typeIndex === -1) {
+                    types.push(type);
+                    typeIndex = types.length - 1;
+                    exportTargets.push({name: type, targets: []});
+                }
+                exportTargets[typeIndex].targets.push(targets[i].hdr.name);
+                // Here we can make use of targets[i].specificInput.(odbcInput|
+                // sfInput).(connectionString|url) to display more information
+                // For eg for sfInput, we can now get back the exact location.
+                // We no longer require the users to memorize where default
+                // points to
+            }
+            restoreGrids();
+        })
+        .fail(function(error) {
+            Alert.error(DSExportTStr.RestoreFail, error.error);
+        });
+    }
 
     function restoreGrids() {
         // return;

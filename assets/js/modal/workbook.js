@@ -1,12 +1,11 @@
 window.WorkbookModal = (function($, WorkbookModal) {
-    var $modalBackground = $("#modalBackground");
-    var $workbookModal = $("#workbookModal");
+    var $modalBg;       // $("#modalBackground")
+    var $workbookModal; // $("#workbookModal")
+    var $optionSection; // $workbookModal.find(".optionSection")
+    var $workbookInput; // $("#workbookInput")
+    var $workbookLists; // $("#workbookLists")
+
     var modalHelper;
-
-    var $optionSection = $workbookModal.find(".optionSection");
-    var $workbookInput = $("#workbookInput");
-    var $workbookLists = $("#workbookLists");
-
     // constant
     var minHeight = 400;
     var minWidth  = 750;
@@ -24,6 +23,7 @@ window.WorkbookModal = (function($, WorkbookModal) {
     var activeActionNo = 0;
 
     WorkbookModal.setup = function() {
+        initizliae();
         $workbookModal.draggable({
             "handle"     : ".modalHeader",
             "cursor"     : "-webkit-grabbing",
@@ -71,11 +71,11 @@ window.WorkbookModal = (function($, WorkbookModal) {
         addWorkbooks();
 
         if (gMinModeOn) {
-            $modalBackground.fadeIn(300);
+            $modalBg.fadeIn(300);
             $workbookModal.show();
             Tips.refresh();
         } else {
-            $modalBackground.fadeIn(300, function() {
+            $modalBg.fadeIn(300, function() {
                 $workbookModal.fadeIn(180);
                 Tips.refresh();
             });
@@ -83,6 +83,7 @@ window.WorkbookModal = (function($, WorkbookModal) {
     };
 
     WorkbookModal.forceShow = function() {
+        initizliae();
         addWorkbookEvents();
         $workbookModal.find(".cancel, .close").hide();
 
@@ -93,6 +94,14 @@ window.WorkbookModal = (function($, WorkbookModal) {
         var input = $workbookInput.get(0);
         input.setSelectionRange(0, input.value.length);
     };
+
+    function initizliae() {
+        $modalBg = $("#modalBackground");
+        $workbookModal = $("#workbookModal");
+        $optionSection = $workbookModal.find(".optionSection");
+        $workbookInput = $("#workbookInput");
+        $workbookLists = $("#workbookLists");
+    }
 
     function resetWorkbookModal() {
         $workbookModal.find(".active").removeClass("active");
@@ -114,7 +123,7 @@ window.WorkbookModal = (function($, WorkbookModal) {
 
         var fadeOutTime = gMinModeOn ? 0 : 300;
         $workbookModal.hide();
-        $modalBackground.fadeOut(fadeOutTime, function() {
+        $modalBg.fadeOut(fadeOutTime, function() {
             Tips.refresh();
         });
 

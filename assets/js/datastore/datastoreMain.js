@@ -10,7 +10,6 @@ window.DataStore = (function($, DataStore) {
         DataSampleTable.setup();
         DataCart.setup();
         ExportTarget.setup();
-        ExportTarget.restore();
     };
 
     DataStore.update = function(numDatasets) {

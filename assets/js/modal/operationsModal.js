@@ -1,11 +1,11 @@
 window.OperationsModal = (function($, OperationsModal) {
-    var $operationsModal = $('#operationsModal');
-    var $categoryInput = $('#categoryList').find('.autocomplete');
-    var $categoryUl = $('#categoryMenu').find('ul');
-    var $functionInput = $('#functionList').find('.autocomplete');
-    var $functionsMenu = $('#functionsMenu');
-    var $functionsUl = $functionsMenu.find('ul');
-    var $menus = $('#categoryMenu, #functionsMenu');
+    var $operationsModal; // $('#operationsModal')
+    var $categoryInput;   // $('#categoryList').find('.autocomplete')
+    var $categoryUl;      // $('#categoryMenu').find('ul')
+    var $functionInput;   // $('#functionList').find('.autocomplete')
+    var $functionsMenu;   // $('#functionsMenu')
+    var $functionsUl;     // $functionsMenu.find('ul')
+    var $menus;           // $('#categoryMenu, #functionsMenu')
     var $argInputs;
     var currentCol;
     var colNum = "";
@@ -26,11 +26,27 @@ window.OperationsModal = (function($, OperationsModal) {
 
     var tableId;
 
+    // shows valid cast types
+    var castMap = {
+        string       : ['boolean', 'integer', 'float'],
+        integer      : ['boolean', 'integer', 'float', 'string'],
+        float        : ['boolean', 'integer', 'float', 'string'],
+        number       : ['boolean', 'integer', 'float', 'string'],
+        boolean      : ['integer', 'float', 'string'],
+        undefined    : [],
+        array        : [],
+        'Array Value': [],
+        object       : [],
+        mixed        : []
+    };
+
+    // XXX can it be removed?
     OperationsModal.getOperatorsMap = function() {
         return (operatorsMap);
     };
 
     OperationsModal.setup = function() {
+        initialize();
         modalHelper = new ModalHelper($operationsModal, {
             "noResize": true
         });
@@ -537,6 +553,16 @@ window.OperationsModal = (function($, OperationsModal) {
         });
         return (deferred.promise());
     };
+
+    function initialize() {
+        $operationsModal = $('#operationsModal');
+        $categoryInput = $('#categoryList').find('.autocomplete');
+        $categoryUl = $('#categoryMenu').find('ul');
+        $functionInput = $('#functionList').find('.autocomplete');
+        $functionsMenu = $('#functionsMenu');
+        $functionsUl = $functionsMenu.find('ul');
+        $menus = $('#categoryMenu, #functionsMenu');
+    }
 
     function toggleModalDisplay(isHide, time) {
         xcHelper.toggleModal(tableId, isHide, {
@@ -1046,8 +1072,8 @@ window.OperationsModal = (function($, OperationsModal) {
                 numArgs = 1; // Refer to operObj.numArgs for min number
             }
             var $tbody = $operationsModal.find('.argumentTable tbody');
-            var numRowsInTable = $tbody.find('tr').length;
-            var numRowsNeeded = (numArgs + 1) - numRowsInTable;
+            // var numRowsInTable = $tbody.find('tr').length;
+            // var numRowsNeeded = (numArgs + 1) - numRowsInTable;
             // if (numRowsNeeded) {
             //     var rowHtml = "";
             //     for (var i = 0; i < numRowsNeeded; i++) {
@@ -1600,8 +1626,8 @@ window.OperationsModal = (function($, OperationsModal) {
         var type;
         $argInputs.each(function() {
             $input = $(this);
-            arg    = $input.val().trim();
-            type   = null;
+            arg = $input.val().trim();
+            type = null;
 
             // col name field, do not add quote
             if ($input.closest(".dropDownList").hasClass("colNameSection")) {
@@ -2768,68 +2794,52 @@ window.OperationsModal = (function($, OperationsModal) {
         return (str);
     }
 
-    function getArgRowHtml() {
-       var html = '<tr>' +
-        '<td>' +
-          '<div class="inputWrap">' +
-             '<div class="dropDownList">' +
-              '<input class="argument" type="text" tabindex="10" ' +
-                'spellcheck="false">' +
-              '<div class="argIconWrap">' +
-                '<span class="icon"></span>' +
-              '</div>' +
-              '<div class="list hint">' +
-                '<ul></ul>' +
-                '<div class="scrollArea top">' +
-                 ' <div class="arrow"></div>' +
-               ' </div>' +
-                '<div class="scrollArea bottom">' +
-                  '<div class="arrow"></div>' +
-                '</div>' +
-              '</div>' +
-            '</div>' +
-          '</div>' +
-        '</td>' +
-        '<td class="cast">' +
-          '<div class="dropDownList">' +
-              '<input class="text nonEditable" value="default" disabled>' +
-              '<div class="iconWrapper dropdown">' +
-                '<span class="icon"></span>' +
-              '</div>' +
-              '<ul class="list">' +
-              '</ul>' +
-           '</div>' +
-        '</td>' +
-        '<td class="descCell">' +
-          '<div class="description"></div>' +
-        '</td>' +
-        '<td >' +
-          '<div class="checkboxWrap">' +
-            '<span class="checkbox" data-container="body" ' +
-                'data-toggle="tooltip" title="' + OpModalTStr.EmptyHint + '">' +
-            '</span>' +
-          '</div>' +
-        '</td>' +
-      '</tr>';
-      return (html);
-    }
-
-    // shows valid cast types
-    var castMap = {
-        string: ['boolean', 'integer', 'float'],
-        integer: ['boolean', 'integer', 'float', 'string'],
-        float: ['boolean', 'integer', 'float', 'string'],
-        number: ['boolean', 'integer', 'float', 'string'],
-        boolean: ['integer', 'float', 'string'],
-        undefined: [],
-        array: [],
-        'Array Value': [],
-        object: [],
-        mixed: []
-    };
-
-
-
+    // function getArgRowHtml() {
+    //     var html =
+    //     '<tr>' +
+    //         '<td>' +
+    //           '<div class="inputWrap">' +
+    //              '<div class="dropDownList">' +
+    //               '<input class="argument" type="text" tabindex="10" ' +
+    //                 'spellcheck="false">' +
+    //               '<div class="argIconWrap">' +
+    //                 '<span class="icon"></span>' +
+    //               '</div>' +
+    //               '<div class="list hint">' +
+    //                 '<ul></ul>' +
+    //                 '<div class="scrollArea top">' +
+    //                  ' <div class="arrow"></div>' +
+    //                ' </div>' +
+    //                 '<div class="scrollArea bottom">' +
+    //                   '<div class="arrow"></div>' +
+    //                 '</div>' +
+    //               '</div>' +
+    //             '</div>' +
+    //           '</div>' +
+    //         '</td>' +
+    //         '<td class="cast">' +
+    //           '<div class="dropDownList">' +
+    //               '<input class="text nonEditable" value="default" disabled>' +
+    //               '<div class="iconWrapper dropdown">' +
+    //                 '<span class="icon"></span>' +
+    //               '</div>' +
+    //               '<ul class="list">' +
+    //               '</ul>' +
+    //            '</div>' +
+    //         '</td>' +
+    //         '<td class="descCell">' +
+    //           '<div class="description"></div>' +
+    //         '</td>' +
+    //         '<td>' +
+    //           '<div class="checkboxWrap">' +
+    //             '<span class="checkbox" data-container="body" ' +
+    //                 'data-toggle="tooltip" title="' + OpModalTStr.EmptyHint + '">' +
+    //             '</span>' +
+    //           '</div>' +
+    //         '</td>' +
+    //     '</tr>';
+    //     return (html);
+    // }
 
     /* Unit Test Only */
     if (window.unitTestMode) {

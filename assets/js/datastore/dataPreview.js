@@ -2,10 +2,10 @@
  * Module for preview table
  */
 window.DataPreview = (function($, DataPreview) {
-    var $previeWrap = $("#dsPreviewWrap");
-    var $previewTable = $("#previewTable");
-    var $highLightBtn = $("#preview-highlight");
-    var $rmHightLightBtn = $("#preview-rmHightlight");
+    var $previeWrap;      // $("#dsPreviewWrap")
+    var $previewTable;    // $("#previewTable")
+    var $highLightBtn;    // $("#preview-highlight")
+    var $rmHightLightBtn; // $("#preview-rmHightlight")
 
     var tableName = null;
     var rawData   = null;
@@ -40,6 +40,7 @@ window.DataPreview = (function($, DataPreview) {
             '</td>';
 
     DataPreview.setup = function() {
+        initialize();
         // promot header
         $previewTable.on("click", ".promote, .undo-promote", function() {
             togglePromote();
@@ -345,6 +346,13 @@ window.DataPreview = (function($, DataPreview) {
             return clearAll(previewMode);
         }
     };
+
+    function initialize() {
+        $previeWrap = $("#dsPreviewWrap");
+        $previewTable = $("#previewTable");
+        $highLightBtn = $("#preview-highlight");
+        $rmHightLightBtn = $("#preview-rmHightlight");
+    }
 
     function clearAll(previewMode) {
         var deferred = jQuery.Deferred();

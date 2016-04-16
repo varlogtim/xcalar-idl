@@ -451,7 +451,7 @@ function Cart(options) {
     options = options || {};
     this.dsId = options.dsId;
     this.tableName = options.tableName;
-    // items will be restored in DataCart.restore
+    // items will be restored in DataCart.initialize
     this.items = [];
 
     return this;

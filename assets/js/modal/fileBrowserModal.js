@@ -1,20 +1,19 @@
 window.FileBrowser = (function($, FileBrowser) {
-    var $modalBg         = $("#modalBackground");
-    var $fileBrowser     = $("#fileBrowserModal");
-    var $container       = $("#fileBrowserContainer");
-    var $fileBrowserMain = $("#fileBrowserMain");
-    var $fileName        = $("#fileBrowserInputName");
+    var $modalBg;         // $("#modalBackground")
+    var $fileBrowser;     // $("#fileBrowserModal")
+    var $container;       // $("#fileBrowserContainer")
+    var $fileBrowserMain; // $("#fileBrowserMain")
+    var $fileName;        // $("#fileBrowserInputName")
 
-    var $formatSection = $("#fileBrowserFormat");
+    var $formatSection;   // $("#fileBrowserFormat")
 
-    var $pathSection = $("#fileBrowserPath");
-    var $pathLists   = $("#fileBrowserPathMenu");
-    var $pathText    = $pathSection.find(".text");
+    var $pathSection;     // $("#fileBrowserPath")
+    var $pathLists;       // $("#fileBrowserPathMenu")
+    var $pathText;        // $pathSection.find(".text")
 
-    var $sortSection = $("#fileBrowserSort");
-    var $sortMenu    = $("#fileBrowserSortMenu");
-
-    var $filePath = $("#filePath");
+    var $sortSection;     // $("#fileBrowserSort")
+    var $sortMenu;        // $("#fileBrowserSortMenu")
+    var $filePath;        //$("#filePath")
 
     /* Contants */
     var defaultNFSPath  = "nfs:///";
@@ -41,70 +40,9 @@ window.FileBrowser = (function($, FileBrowser) {
 
     var modalHelper;
 
-    FileBrowser.show = function(path) {
-        var deferred = jQuery.Deferred();
-
-        path = path || "";
-        modalHelper.setup();
-        addKeyBoardEvent();
-
-        if (gMinModeOn) {
-            $modalBg.show();
-            $fileBrowser.show().focus();
-        } else {
-            $modalBg.fadeIn(300, function() {
-                $fileBrowser.fadeIn(180, function() {
-                    $(this).focus();
-                    measureDSIconHeight();
-                });
-            });
-        }
-
-        retrievePaths(path, true)
-        .then(function(result) {
-            setTimeout(function() {
-                // do this because fadeIn has 300 dealy,
-                // if statusBox show before the fadeIn finish, it will fail
-                showHandler(result);
-            }, 300);
-            measureDSIconHeight();
-
-            if (!result.defaultPath && path !== "") {
-                // toggle nfs if we detect it
-                if (path.startsWith(defaultNFSPath)) {
-                    changeFileSource(defaultNFSPath, true);
-                } else if (path.startsWith(defaultHDFSPath)) {
-                    changeFileSource(defaultHDFSPath, true);
-                } else {
-                    changeFileSource(defaultFilePath, true);
-                }
-            }
-
-            deferred.resolve();
-        })
-        .fail(function(result) {
-            closeAll();
-            StatusBox.show(result.error, $filePath, true);
-            deferred.reject();
-        });
-
-        return deferred.promise();
-
-        function showHandler(result) {
-            Tips.refresh();
-
-            if (result.defaultPath) {
-                setTimeout(function() {
-                    var error = xcHelper.replaceMsg(ErrWRepTStr.NoPath, {
-                        "path": result.path
-                    });
-                    StatusBox.show(error, $pathSection, false, {side: 'top'});
-                }, 40);
-            }
-        }
-    };
-
     FileBrowser.setup = function() {
+        initialize();
+
         modalHelper = new ModalHelper($fileBrowser, {
             "minHeight": minHeight,
             "minWidth" : minWidth
@@ -320,6 +258,84 @@ window.FileBrowser = (function($, FileBrowser) {
             return false;
         });
     };
+
+    FileBrowser.show = function(path) {
+        var deferred = jQuery.Deferred();
+
+        path = path || "";
+        modalHelper.setup();
+        addKeyBoardEvent();
+
+        if (gMinModeOn) {
+            $modalBg.show();
+            $fileBrowser.show().focus();
+        } else {
+            $modalBg.fadeIn(300, function() {
+                $fileBrowser.fadeIn(180, function() {
+                    $(this).focus();
+                    measureDSIconHeight();
+                });
+            });
+        }
+
+        retrievePaths(path, true)
+        .then(function(result) {
+            setTimeout(function() {
+                // do this because fadeIn has 300 dealy,
+                // if statusBox show before the fadeIn finish, it will fail
+                showHandler(result);
+            }, 300);
+            measureDSIconHeight();
+
+            if (!result.defaultPath && path !== "") {
+                // toggle nfs if we detect it
+                if (path.startsWith(defaultNFSPath)) {
+                    changeFileSource(defaultNFSPath, true);
+                } else if (path.startsWith(defaultHDFSPath)) {
+                    changeFileSource(defaultHDFSPath, true);
+                } else {
+                    changeFileSource(defaultFilePath, true);
+                }
+            }
+
+            deferred.resolve();
+        })
+        .fail(function(result) {
+            closeAll();
+            StatusBox.show(result.error, $filePath, true);
+            deferred.reject();
+        });
+
+        return deferred.promise();
+
+        function showHandler(result) {
+            Tips.refresh();
+
+            if (result.defaultPath) {
+                setTimeout(function() {
+                    var error = xcHelper.replaceMsg(ErrWRepTStr.NoPath, {
+                        "path": result.path
+                    });
+                    StatusBox.show(error, $pathSection, false, {side: 'top'});
+                }, 40);
+            }
+        }
+    };
+
+    function initialize() {
+        $modalBg = $("#modalBackground");
+        $fileBrowser = $("#fileBrowserModal");
+        $container = $("#fileBrowserContainer");
+        $fileBrowserMain = $("#fileBrowserMain");
+        $fileName = $("#fileBrowserInputName");
+        $formatSection = $("#fileBrowserFormat");
+        $pathSection = $("#fileBrowserPath");
+        $pathLists = $("#fileBrowserPathMenu");
+        $pathText = $pathSection.find(".text");
+        $sortSection = $("#fileBrowserSort");
+        $sortMenu = $("#fileBrowserSortMenu");
+        $filePath = $("#filePath");
+    }
 
     function toggleView(toListView, refreshTooltip) {
         var $btn = $("#fileBrowserGridView");

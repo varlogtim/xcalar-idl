@@ -149,7 +149,7 @@ window.KVStore = (function($, KVStore) {
                     CLIBox.restore(gInfos[METAKeys.CLI]);
                 }
                 if (gInfos[METAKeys.CART]) {
-                    DataCart.restore(gInfos[METAKeys.CART]);
+                    DataCart.initialize(gInfos[METAKeys.CART]);
                 }
                 if (gInfos[METAKeys.STATS]) {
                     Profile.restore(gInfos[METAKeys.STATS]);
@@ -165,7 +165,7 @@ window.KVStore = (function($, KVStore) {
             } else {
                 console.info("KVStore is empty!");
                 // this will help to reset all modules
-                KVStore.emptyAll(true);
+                // KVStore.emptyAll(true);
                 return promiseWrapper(null);
             }
         })

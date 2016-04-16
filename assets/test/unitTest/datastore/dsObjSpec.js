@@ -242,7 +242,7 @@ function dsObjTest() {
             var curHomeFolder = DS.getHomeDir();
             expect(curHomeFolder.totalChildren).to.equal(0);
 
-            DS.restore(oldHomeFolder, false)
+            DS.initialize(oldHomeFolder, false)
             .then(function() {
                 curHomeFolder = DS.getHomeDir();
                 // at least has the test folder and test ds

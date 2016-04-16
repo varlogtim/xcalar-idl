@@ -1,11 +1,12 @@
 window.DFGParamModal = (function($, DFGParamModal){
-    var $dfgParamModal = $("#dfgParameterModal");
-    var $modalBg = $("#modalBackground");
-    var modalHelper;
+    var $dfgParamModal; // $("#dfgParameterModal")
+    var $modalBg;       //$("#modalBackground");
 
-    var $paramLists  = $("#dagModleParamList");
-    var $editableRow = $dfgParamModal.find('.editableRow');
+    var $paramLists;  // $("#dagModleParamList")
+    var $editableRow; // $dfgParamModal.find(".editableRow")
+
     var validParams = [];
+    var modalHelper;
     var dropdownHelper;
 
     var paramListTrLen = 5;
@@ -29,18 +30,9 @@ window.DFGParamModal = (function($, DFGParamModal){
                             '</div>' +
                         '</td>' +
                     '</tr>';
-    // var filterTypeMap = {
-    //     "gt"   : ">",
-    //     "ge"   : "&ge;",
-    //     "eq"   : "=",
-    //     "lt"   : "<",
-    //     "le"   : "&le;",
-    //     "regex": "regex",
-    //     "like" : "like",
-    //     "not"  : "not"
-    // };
 
     DFGParamModal.setup = function() {
+        initialize();
         modalHelper = new ModalHelper($dfgParamModal, { "noResize": true });
 
         $dfgParamModal.find('.cancel, .close').click(function() {
@@ -377,6 +369,13 @@ window.DFGParamModal = (function($, DFGParamModal){
     DFGParamModal.allowParamDrop = function(event) {
         event.preventDefault();
     };
+
+    function initialize() {
+        $dfgParamModal = $("#dfgParameterModal");
+        $modalBg = $("#modalBackground");
+        $paramLists = $("#dagModleParamList");
+        $editableRow = $dfgParamModal.find(".editableRow");
+    }
 
     function suggest($input) {
         var value = $input.val().trim().toLowerCase();

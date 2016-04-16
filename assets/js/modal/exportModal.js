@@ -1,10 +1,8 @@
 window.ExportModal = (function($, ExportModal) {
-    var $exportModal = $("#exportModal");
-    var modalHelper;
-
-    var $exportName = $("#exportName");
-    var $exportPath = $("#exportPath");
-    var $exportColumns = $('#exportColumns');
+    var $exportModal;   // $("#exportModal")
+    var $exportName;    // $("#exportName")
+    var $exportPath;    // $("#exportPath")
+    var $exportColumns; // $("#exportColumns")
 
     var $selectableThs;
     var exportTableName;
@@ -14,12 +12,16 @@ window.ExportModal = (function($, ExportModal) {
     var columnsToExport = [];
     var exportTargInfo;
 
+    var modalHelper;
+
     // constant
     var validTypes = ['string', 'integer', 'float', 'boolean'];
     var minHeight = 296;
     var minWidth  = 296;
 
     ExportModal.setup = function() {
+        initialize();
+
         modalHelper = new ModalHelper($exportModal, {
             "minHeight": minHeight,
             "minWidth" : minWidth
@@ -45,11 +47,8 @@ window.ExportModal = (function($, ExportModal) {
 
         // click confirm button
         $exportModal.on("click", ".confirm", function() {
-
-            submitForm()
-            .fail(function(error) {
-                // being handled in xcfunction.export
-            });
+            // error is handled in xcfunction.export
+            submitForm();
         });
 
         xcHelper.dropdownList($("#exportLists"), {
@@ -154,8 +153,14 @@ window.ExportModal = (function($, ExportModal) {
         .fail(function(error) {
             console.error(error);
         });
-
     };
+
+    function initialize() {
+        $exportModal = $("#exportModal");
+        $exportName = $("#exportName");
+        $exportPath = $("#exportPath");
+        $exportColumns = $("#exportColumns");
+    }
 
     function submitForm() {
         var deferred = jQuery.Deferred();
@@ -285,9 +290,7 @@ window.ExportModal = (function($, ExportModal) {
                 }, 200);
             }
         })
-        .fail(function(error) {
-            // don't need to do anything yet
-        });
+        .fail(deferred.reject);
 
         return (deferred.promise());
     }

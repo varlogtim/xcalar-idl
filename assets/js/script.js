@@ -270,7 +270,7 @@ window.StartManager = (function(StartManager, $) {
                     DataSampleTable.sizeTableWrapper();
                     if ($curTab.hasClass("firsTouch")) {
                         $curTab.removeClass("firsTouch");
-                        DS.initialize();
+                        DS.setupView();
                     }
                     break;
                 case ("monitorTab"):

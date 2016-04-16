@@ -1,15 +1,15 @@
 window.ExtModal = (function($, ExtModal){
-    var $extModal = $("#extModal");
-    var $modalBackground = $("#modalBackground");
-    var modalHelper;
+    var $extModal;   // $("#extModal")
+    var $btnSection; // $("#extActions")
 
-    var $btnSection = $("#extActions");
+    // var modalHelper;
 
     /**
         Options currently has one option only. onClose which should
         be a function decl.
     */
     ExtModal.setup = function(options) {
+        initialize();
         $extModal.draggable({
             "handle"     : ".modalHeader",
             "cursor"     : "-webkit-grabbing",
@@ -50,6 +50,11 @@ window.ExtModal = (function($, ExtModal){
 
         $extModal.show();
     };
+
+    function initialize() {
+        $extModal = $("#extModal");
+        $btnSection = $("#extActions");
+    }
 
     function closeExtModal() {
         $btnSection.find(".funcBtn").remove();

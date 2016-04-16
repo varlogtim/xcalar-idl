@@ -2,27 +2,27 @@
  * Module for the datastore form part
  */
 window.DatastoreForm = (function($, DatastoreForm) {
-    var $importDataView = $("#importDataView");
-    var $explorePanel = $("#exploreView");
+    var $importDataView; // $("#importDataView")
+    var $explorePanel;   // $("#exploreView")
 
-    var $filePath = $("#filePath");
-    var $fileName = $("#fileName");
+    var $filePath; // $("#filePath")
+    var $fileName; // $("#fileName")
 
-    var $form = $("#importDataForm");
-    var $formatLists = $("#fileFormat");
-    var $formatText  = $formatLists.find(".text");
-    // var $fileNameSelector = $("#fileNameSelector");
+    var $form;        // $("#importDataForm")
+    var $formatLists; // $("#fileFormat")
+    var $formatText;  // $formatLists.find(".text")
 
-    var $csvDelim = $("#csvDelim"); // csv delimiter args
-    var $fieldText = $("#fieldText");
-    var $lineText = $("#lineText");
+    // csv delimiter args
+    var $csvDelim; // $("#csvDelim")
+    var $fieldText; // $("#fieldText")
+    var $lineText; // $("#lineText")
 
-    var $udfArgs  = $("#udfArgs");
-    var $udfModuleList = $("#udfArgs-moduleList");
-    var $udfFuncList = $("#udfArgs-funcList");
+    var $udfArgs;       // $("#udfArgs")
+    var $udfModuleList; // $("#udfArgs-moduleList")
+    var $udfFuncList;   // $("#udfArgs-funcList")
 
-    var $headerCheckBox = $("#promoteHeaderCheckbox"); // promote header checkbox
-    var $udfCheckbox = $("#udfCheckbox"); // udf checkbox
+    var $headerCheckBox; // $("#promoteHeaderCheckbox") promote header checkbox
+    var $udfCheckbox;    // $("#udfCheckbox") udf checkbox
 
     // UI cache
     var lastFieldDelim = "\\t";
@@ -41,6 +41,7 @@ window.DatastoreForm = (function($, DatastoreForm) {
     };
 
     DatastoreForm.setup = function() {
+        initialize();
         setupFormUDF();
         setupFormDelimiter();
 
@@ -254,6 +255,29 @@ window.DatastoreForm = (function($, DatastoreForm) {
         DatastoreForm.show();
         resetForm();
     };
+
+    function initialize() {
+        $importDataView = $("#importDataView");
+        $explorePanel = $("#exploreView");
+
+        $filePath = $("#filePath");
+        $fileName = $("#fileName");
+
+        $form = $("#importDataForm");
+        $formatLists = $("#fileFormat");
+        $formatText = $formatLists.find(".text");
+
+        $csvDelim = $("#csvDelim");
+        $fieldText = $("#fieldText");
+        $lineText = $("#lineText");
+
+        $udfArgs = $("#udfArgs");
+        $udfModuleList = $("#udfArgs-moduleList");
+        $udfFuncList = $("#udfArgs-funcList");
+
+        $headerCheckBox = $("#promoteHeaderCheckbox");
+        $udfCheckbox = $("#udfCheckbox");
+    }
 
     function submitForm() {
         var deferred = jQuery.Deferred();

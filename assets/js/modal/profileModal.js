@@ -1,11 +1,10 @@
 window.Profile = (function($, Profile, d3) {
-    var $modal = $("#profileModal");
-    var $modalBg = $("#modalBackground");
+    var $modal;        // $("#profileModal");
+    var $modalBg;      // $("#modalBackground");
+    var $rangeSection; // $modal.find(".rangeSection");
+    var $rangeInput;   // $("#stats-step");
+
     var modalHelper;
-
-    var $rangeSection = $modal.find(".rangeSection");
-    var $rangeInput = $("#stats-step");
-
     // constants
     var aggKeys = ["min", "average", "max", "count", "sum"];
     var aggMap = {
@@ -63,6 +62,7 @@ window.Profile = (function($, Profile, d3) {
     var minWidth  = 750;
 
     Profile.setup = function() {
+        initialize();
         modalHelper = new ModalHelper($modal, {
            "minHeight": minHeight,
            "minWidth" : minWidth
@@ -287,6 +287,13 @@ window.Profile = (function($, Profile, d3) {
 
         return (deferred.promise());
     };
+
+    function initialize() {
+        $modal = $("#profileModal");
+        $modalBg = $("#modalBackground");
+        $rangeSection = $modal.find(".rangeSection");
+        $rangeInput = $("#stats-step");
+    }
 
     function closeProfileModal() {
         var fadeOutTime = gMinModeOn ? 0 : 300;

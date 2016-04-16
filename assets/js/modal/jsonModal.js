@@ -1,10 +1,10 @@
 window.JSONModal = (function($, JSONModal) {
-    var $jsonModal = $("#jsonModal");
-    var $jsonArea = $jsonModal.find(".jsonArea");
-    var $modalBackground = $("#modalBackground");
-    var $searchInput = $('#jsonSearch').find('input');
-    var $jsonText = $jsonModal.find('.prettyJson');
-    var $counter = $('#jsonSearch').find('.counter');
+    var $jsonModal;   // $("#jsonModal")
+    var $jsonArea;    // $jsonModal.find(".jsonArea")
+    var $modalBg;     // $("#modalBackground")
+    var $searchInput; // $('#jsonSearch').find('input')
+    var $jsonText;    // $jsonModal.find('.prettyJson')
+    var $counter;     // $('#jsonSearch').find('.counter')
     var matchIndex;
     var isDataCol;
     var comparisonObjs = {};
@@ -18,6 +18,7 @@ window.JSONModal = (function($, JSONModal) {
     var minWidth  = 300;
 
     JSONModal.setup = function() {
+        initialize();
         modalHelper = new ModalHelper($jsonModal, {
             "minHeight" : minHeight,
             "minWidth"  : minWidth,
@@ -97,6 +98,15 @@ window.JSONModal = (function($, JSONModal) {
 
         increaseModalSize();
     };
+
+    function initialize() {
+        $jsonModal = $("#jsonModal");
+        $jsonArea = $jsonModal.find(".jsonArea");
+        $modalBg = $("#modalBackground");
+        $searchInput = $('#jsonSearch').find('input');
+        $jsonText = $jsonModal.find('.prettyJson');
+        $counter = $('#jsonSearch').find('.counter');
+    }
 
     function addEventListeners() {
         var $searchArea = $('#jsonSearch');
@@ -552,11 +562,11 @@ window.JSONModal = (function($, JSONModal) {
         toggleModal(null, true, 200);
 
         $jsonModal.hide();
-        $modalBackground.hide();
+        $modalBg.hide();
         Tips.refresh();
         $jsonArea.empty();
         $jsonModal.width(500);
-        $modalBackground.removeClass('light');
+        $modalBg.removeClass('light');
         modalHelper.clear();
 
         jsonData = [];
@@ -600,7 +610,7 @@ window.JSONModal = (function($, JSONModal) {
 
             if (gMinModeOn) {
                 $('#sideBarModal').show();
-                $modalBackground.show();
+                $modalBg.show();
                 $jsonModal.show();
                 toggleModal($jsonTd, false, 0);
             } else {
@@ -1013,7 +1023,7 @@ window.JSONModal = (function($, JSONModal) {
                 }
                 $('#sideBarModal').fadeIn(longTimer);
                 $('#rightSideBar').addClass('modalOpen');
-                $modalBackground.addClass('light').fadeIn(longTimer);
+                $modalBg.addClass('light').fadeIn(longTimer);
                 setTimeout(function() {
                     $jsonModal.fadeIn(shortTimer);
                 }, shortTimer);

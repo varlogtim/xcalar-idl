@@ -1,19 +1,21 @@
 window.Alert = (function($, Alert){
-    var $alertModal = $("#alertModal");
-    var $modalBackground = $("#modalBackground");
+    var $modal;   // $("#alertModal")
+    var $modalBg; // $("#modalBackground")
+
+    var $alertOptionInput; // $("#alertOptionInput")
+    var $btnSection;       // $("#alertActions")
+
     var modalHelper;
 
-    var $alertOptionInput = $("#alertOptionInput");
-    var $btnSection = $("#alertActions");
-
     Alert.setup = function() {
-        $alertModal.draggable({
+        initialize();
+        $modal.draggable({
             "handle"     : ".modalHeader",
             "cursor"     : "-webkit-grabbing",
             "containment": "window"
         });
 
-        xcHelper.dropdownList($alertModal.find(".dropDownList"), {
+        xcHelper.dropdownList($modal.find(".dropDownList"), {
             "onSelect": function($li) {
                 $alertOptionInput.val($li.text()).focus();
             }
@@ -24,7 +26,7 @@ window.Alert = (function($, Alert){
         // put it here because alert modal may be displayed
         // before setup is called
         if (modalHelper == null) {
-            modalHelper = new ModalHelper($alertModal, {
+            modalHelper = new ModalHelper($modal, {
                 "focusOnOpen": true,
                 "noResize"   : true,
                 "noCenter"   : true
@@ -55,11 +57,11 @@ window.Alert = (function($, Alert){
             noAnimate: boolean, if true then remove fade in animation
             focusOnConfirm: boolean, if true then set focus on confirm button
         */
-        if ($alertModal.hasClass('locked')) {
+        if ($modal.hasClass('locked')) {
             // this handle the case that some modal failure handler
             // may close the modal and it will hide modalBackground
-            $modalBackground.show();
-            $modalBackground.addClass('locked');
+            $modalBg.show();
+            $modalBg.addClass('locked');
             // alert modal is already opened and locked due to connection error
             return;
         }
@@ -68,7 +70,7 @@ window.Alert = (function($, Alert){
 
         if (options.lockScreen) {
             modalHelper.setup({"noEsc": true});
-            $modalBackground.addClass('locked');
+            $modalBg.addClass('locked');
         } else {
             modalHelper.setup();
         }
@@ -78,20 +80,20 @@ window.Alert = (function($, Alert){
         var $window = $(window);
         var winHeight   = $window.height();
         var winWidth    = $window.width();
-        var modalWidth  = $alertModal.width();
-        var modalHeight = $alertModal.height();
+        var modalWidth  = $modal.width();
+        var modalHeight = $modal.height();
 
         var left = ((winWidth - modalWidth) / 2);
         var top  = ((winHeight - modalHeight) / 4);
 
-        $alertModal.css({
+        $modal.css({
             "left": left,
             "top" : top
         });
 
         if (gMinModeOn || options.noAnimate) {
-            $modalBackground.show();
-            $alertModal.show();
+            $modalBg.show();
+            $modal.show();
             Tips.refresh();
             if (options.focusOnConfirm) {
                 $btnSection.find(".confirm").focus();
@@ -100,8 +102,8 @@ window.Alert = (function($, Alert){
             // alert should be fast, so the fade time
             // is different from other Modal,
             // XXX change it if there is better effect
-            $modalBackground.fadeIn(180, function() {
-                $alertModal.fadeIn(100);
+            $modalBg.fadeIn(180, function() {
+                $modal.fadeIn(100);
                 Tips.refresh();
                 if (options.focusOnConfirm) {
                     $btnSection.find(".confirm").focus();
@@ -135,27 +137,34 @@ window.Alert = (function($, Alert){
         return (jQuery.trim(val));
     };
 
+    function initialize() {
+        $modal = $("#alertModal");
+        $modalBg = $("#modalBackground");
+        $alertOptionInput = $("#alertOptionInput");
+        $btnSection = $("#alertActions");
+    }
+
     function closeAlertModal($modalContainer) {
         $btnSection.find(".funcBtn").remove();
         // remove all event listener
-        $alertModal.off(".alert");
+        $modal.off(".alert");
         modalHelper.clear();
 
         if ($modalContainer) {
-            $alertModal.hide();
+            $modal.hide();
             $modalContainer.css("z-index", 40);
             return;
         }
 
         var fadeOutTime = gMinModeOn ? 0 : 300;
 
-        $alertModal.hide();
+        $modal.hide();
 
         if ($(".modalContainer:visible:not(#alertModal)").length > 0) {
             // apart from alert modal, other modal is on
             Tips.refresh();
         } else {
-            $modalBackground.fadeOut(fadeOutTime, function() {
+            $modalBg.fadeOut(fadeOutTime, function() {
                 Tips.refresh();
             });
         }
@@ -192,7 +201,7 @@ window.Alert = (function($, Alert){
         // lock screen if necessary
         if (options.lockScreen) {
             $('#alertHeader').find('.close').css('pointer-events', 'none');
-            $alertModal.addClass('locked');
+            $modal.addClass('locked');
             var $copySqlBtn = $('<button type="button" ' +
                                 'class="btn btnMid copySql" ' +
                                 'data-toggle="tooltip" ' +
@@ -276,7 +285,7 @@ window.Alert = (function($, Alert){
         $checkbox.find(".checkbox").removeClass("checked");
         $checkbox.addClass("inactive"); // now make it disabled
         if (options.isCheckBox) {
-            $alertModal.on("click.alert", ".checkbox", function(event) {
+            $modal.on("click.alert", ".checkbox", function(event) {
                 event.stopPropagation();
                 $(this).toggleClass("checked");
             });
@@ -288,7 +297,7 @@ window.Alert = (function($, Alert){
         $('.logout, .cancel, .copySql').show();
         if (options.hideButtons) {
             for (var i = 0; i < options.hideButtons.length; i++) {
-                $alertModal.find('.' + options.hideButtons[i]).hide();
+                $modal.find('.' + options.hideButtons[i]).hide();
             }
         }
 
@@ -299,14 +308,14 @@ window.Alert = (function($, Alert){
             $("#alertlist").empty().append(options.optList.list);
             $("#alertOptionLabel").text(options.optList.label);
             $optionSection.show();
-            $alertModal.addClass("withOptions");
+            $modal.addClass("withOptions");
         } else {
             $optionSection.hide();
-            $alertModal.removeClass("withOptions");
+            $modal.removeClass("withOptions");
         }
 
         // close alert modal
-        $alertModal.on("click.alert", ".close, .cancel", function(event) {
+        $modal.on("click.alert", ".close, .cancel", function(event) {
             event.stopPropagation();
 
             closeAlertModal(options.modal);
@@ -329,14 +338,14 @@ window.Alert = (function($, Alert){
         // var $cancelBtn  = $btnSection.find(".cancel");
         if (!options.isAlert) {
             if (options.noCancel || options.lockScreen) {
-                $alertModal.find(".close, .cancel").hide();
+                $modal.find(".close, .cancel").hide();
             } else {
-                $alertModal.find(".close, .cancel").show();
+                $modal.find(".close, .cancel").show();
             }
         } else {
             $confirmBtn.hide();
             if (options.lockScreen) {
-                $alertModal.find(".close, .cancel").hide();
+                $modal.find(".close, .cancel").hide();
             }
         }
 
@@ -366,7 +375,7 @@ window.Alert = (function($, Alert){
                 $confirmBtn.hide();
             } else {
                 $confirmBtn.show();
-                $alertModal.on("click.alert", ".confirm", function(event) {
+                $modal.on("click.alert", ".confirm", function(event) {
                     event.stopPropagation();
                     closeAlertModal();
                     if (options.confirm) {
