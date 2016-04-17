@@ -4785,6 +4785,90 @@ XcalarApiMapInputT.prototype.write = function(output) {
   return;
 };
 
+XcalarApiGetRowNumInputT = function(args) {
+  this.srcTable = null;
+  this.dstTable = null;
+  this.newFieldName = null;
+  if (args) {
+    if (args.srcTable !== undefined) {
+      this.srcTable = args.srcTable;
+    }
+    if (args.dstTable !== undefined) {
+      this.dstTable = args.dstTable;
+    }
+    if (args.newFieldName !== undefined) {
+      this.newFieldName = args.newFieldName;
+    }
+  }
+};
+XcalarApiGetRowNumInputT.prototype = {};
+XcalarApiGetRowNumInputT.prototype.read = function(input) {
+  input.readStructBegin();
+  while (true)
+  {
+    var ret = input.readFieldBegin();
+    var fname = ret.fname;
+    var ftype = ret.ftype;
+    var fid = ret.fid;
+    if (ftype == Thrift.Type.STOP) {
+      break;
+    }
+    switch (fid)
+    {
+      case 1:
+      if (ftype == Thrift.Type.STRUCT) {
+        this.srcTable = new XcalarApiTableT();
+        this.srcTable.read(input);
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 2:
+      if (ftype == Thrift.Type.STRUCT) {
+        this.dstTable = new XcalarApiTableT();
+        this.dstTable.read(input);
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 3:
+      if (ftype == Thrift.Type.STRING) {
+        this.newFieldName = input.readString().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      default:
+        input.skip(ftype);
+    }
+    input.readFieldEnd();
+  }
+  input.readStructEnd();
+  return;
+};
+
+XcalarApiGetRowNumInputT.prototype.write = function(output) {
+  output.writeStructBegin('XcalarApiGetRowNumInputT');
+  if (this.srcTable !== null && this.srcTable !== undefined) {
+    output.writeFieldBegin('srcTable', Thrift.Type.STRUCT, 1);
+    this.srcTable.write(output);
+    output.writeFieldEnd();
+  }
+  if (this.dstTable !== null && this.dstTable !== undefined) {
+    output.writeFieldBegin('dstTable', Thrift.Type.STRUCT, 2);
+    this.dstTable.write(output);
+    output.writeFieldEnd();
+  }
+  if (this.newFieldName !== null && this.newFieldName !== undefined) {
+    output.writeFieldBegin('newFieldName', Thrift.Type.STRING, 3);
+    output.writeString(this.newFieldName);
+    output.writeFieldEnd();
+  }
+  output.writeFieldStop();
+  output.writeStructEnd();
+  return;
+};
+
 XcalarApiQueryStateInputT = function(args) {
   this.queryName = null;
   if (args) {
@@ -8482,6 +8566,7 @@ XcalarApiInputT = function(args) {
   this.listSchedTaskInput = null;
   this.deleteRetinaInput = null;
   this.projectInput = null;
+  this.getRowNumInput = null;
   if (args) {
     if (args.loadInput !== undefined) {
       this.loadInput = args.loadInput;
@@ -8650,6 +8735,9 @@ XcalarApiInputT = function(args) {
     }
     if (args.projectInput !== undefined) {
       this.projectInput = args.projectInput;
+    }
+    if (args.getRowNumInput !== undefined) {
+      this.getRowNumInput = args.getRowNumInput;
     }
   }
 };
@@ -9107,6 +9195,14 @@ XcalarApiInputT.prototype.read = function(input) {
         input.skip(ftype);
       }
       break;
+      case 57:
+      if (ftype == Thrift.Type.STRUCT) {
+        this.getRowNumInput = new XcalarApiGetRowNumInputT();
+        this.getRowNumInput.read(input);
+      } else {
+        input.skip(ftype);
+      }
+      break;
       default:
         input.skip(ftype);
     }
@@ -9396,6 +9492,11 @@ XcalarApiInputT.prototype.write = function(output) {
   if (this.projectInput !== null && this.projectInput !== undefined) {
     output.writeFieldBegin('projectInput', Thrift.Type.STRUCT, 56);
     this.projectInput.write(output);
+    output.writeFieldEnd();
+  }
+  if (this.getRowNumInput !== null && this.getRowNumInput !== undefined) {
+    output.writeFieldBegin('getRowNumInput', Thrift.Type.STRUCT, 57);
+    this.getRowNumInput.write(output);
     output.writeFieldEnd();
   }
   output.writeFieldStop();
@@ -10081,6 +10182,7 @@ XcalarApiOutputResultT = function(args) {
   this.listSchedTaskOutput = null;
   this.supportGenerateOutput = null;
   this.projectOutput = null;
+  this.getRowNumOutput = null;
   if (args) {
     if (args.getVersionOutput !== undefined) {
       this.getVersionOutput = args.getVersionOutput;
@@ -10192,6 +10294,9 @@ XcalarApiOutputResultT = function(args) {
     }
     if (args.projectOutput !== undefined) {
       this.projectOutput = args.projectOutput;
+    }
+    if (args.getRowNumOutput !== undefined) {
+      this.getRowNumOutput = args.getRowNumOutput;
     }
   }
 };
@@ -10504,6 +10609,14 @@ XcalarApiOutputResultT.prototype.read = function(input) {
         input.skip(ftype);
       }
       break;
+      case 38:
+      if (ftype == Thrift.Type.STRUCT) {
+        this.getRowNumOutput = new XcalarApiNewTableOutputT();
+        this.getRowNumOutput.read(input);
+      } else {
+        input.skip(ftype);
+      }
+      break;
       default:
         input.skip(ftype);
     }
@@ -10698,6 +10811,11 @@ XcalarApiOutputResultT.prototype.write = function(output) {
   if (this.projectOutput !== null && this.projectOutput !== undefined) {
     output.writeFieldBegin('projectOutput', Thrift.Type.STRUCT, 37);
     this.projectOutput.write(output);
+    output.writeFieldEnd();
+  }
+  if (this.getRowNumOutput !== null && this.getRowNumOutput !== undefined) {
+    output.writeFieldBegin('getRowNumOutput', Thrift.Type.STRUCT, 38);
+    this.getRowNumOutput.write(output);
     output.writeFieldEnd();
   }
   output.writeFieldStop();

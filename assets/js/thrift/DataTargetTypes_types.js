@@ -5,7 +5,7 @@
 //
 
 
-DsAddTargetODBCInputT = function(args) {
+ExAddTargetODBCInputT = function(args) {
   this.connectionString = null;
   if (args) {
     if (args.connectionString !== undefined) {
@@ -13,8 +13,8 @@ DsAddTargetODBCInputT = function(args) {
     }
   }
 };
-DsAddTargetODBCInputT.prototype = {};
-DsAddTargetODBCInputT.prototype.read = function(input) {
+ExAddTargetODBCInputT.prototype = {};
+ExAddTargetODBCInputT.prototype.read = function(input) {
   input.readStructBegin();
   while (true)
   {
@@ -46,8 +46,8 @@ DsAddTargetODBCInputT.prototype.read = function(input) {
   return;
 };
 
-DsAddTargetODBCInputT.prototype.write = function(output) {
-  output.writeStructBegin('DsAddTargetODBCInputT');
+ExAddTargetODBCInputT.prototype.write = function(output) {
+  output.writeStructBegin('ExAddTargetODBCInputT');
   if (this.connectionString !== null && this.connectionString !== undefined) {
     output.writeFieldBegin('connectionString', Thrift.Type.STRING, 1);
     output.writeString(this.connectionString);
@@ -58,7 +58,7 @@ DsAddTargetODBCInputT.prototype.write = function(output) {
   return;
 };
 
-DsAddTargetSFInputT = function(args) {
+ExAddTargetSFInputT = function(args) {
   this.url = null;
   if (args) {
     if (args.url !== undefined) {
@@ -66,8 +66,8 @@ DsAddTargetSFInputT = function(args) {
     }
   }
 };
-DsAddTargetSFInputT.prototype = {};
-DsAddTargetSFInputT.prototype.read = function(input) {
+ExAddTargetSFInputT.prototype = {};
+ExAddTargetSFInputT.prototype.read = function(input) {
   input.readStructBegin();
   while (true)
   {
@@ -99,8 +99,8 @@ DsAddTargetSFInputT.prototype.read = function(input) {
   return;
 };
 
-DsAddTargetSFInputT.prototype.write = function(output) {
-  output.writeStructBegin('DsAddTargetSFInputT');
+ExAddTargetSFInputT.prototype.write = function(output) {
+  output.writeStructBegin('ExAddTargetSFInputT');
   if (this.url !== null && this.url !== undefined) {
     output.writeFieldBegin('url', Thrift.Type.STRING, 1);
     output.writeString(this.url);
@@ -111,7 +111,7 @@ DsAddTargetSFInputT.prototype.write = function(output) {
   return;
 };
 
-DsAddTargetSpecificInputT = function(args) {
+ExAddTargetSpecificInputT = function(args) {
   this.odbcInput = null;
   this.sfInput = null;
   if (args) {
@@ -123,8 +123,8 @@ DsAddTargetSpecificInputT = function(args) {
     }
   }
 };
-DsAddTargetSpecificInputT.prototype = {};
-DsAddTargetSpecificInputT.prototype.read = function(input) {
+ExAddTargetSpecificInputT.prototype = {};
+ExAddTargetSpecificInputT.prototype.read = function(input) {
   input.readStructBegin();
   while (true)
   {
@@ -139,7 +139,7 @@ DsAddTargetSpecificInputT.prototype.read = function(input) {
     {
       case 1:
       if (ftype == Thrift.Type.STRUCT) {
-        this.odbcInput = new DsAddTargetODBCInputT();
+        this.odbcInput = new ExAddTargetODBCInputT();
         this.odbcInput.read(input);
       } else {
         input.skip(ftype);
@@ -147,7 +147,7 @@ DsAddTargetSpecificInputT.prototype.read = function(input) {
       break;
       case 2:
       if (ftype == Thrift.Type.STRUCT) {
-        this.sfInput = new DsAddTargetSFInputT();
+        this.sfInput = new ExAddTargetSFInputT();
         this.sfInput.read(input);
       } else {
         input.skip(ftype);
@@ -162,8 +162,8 @@ DsAddTargetSpecificInputT.prototype.read = function(input) {
   return;
 };
 
-DsAddTargetSpecificInputT.prototype.write = function(output) {
-  output.writeStructBegin('DsAddTargetSpecificInputT');
+ExAddTargetSpecificInputT.prototype.write = function(output) {
+  output.writeStructBegin('ExAddTargetSpecificInputT');
   if (this.odbcInput !== null && this.odbcInput !== undefined) {
     output.writeFieldBegin('odbcInput', Thrift.Type.STRUCT, 1);
     this.odbcInput.write(output);
@@ -179,7 +179,7 @@ DsAddTargetSpecificInputT.prototype.write = function(output) {
   return;
 };
 
-DsExportTargetHdrT = function(args) {
+ExExportTargetHdrT = function(args) {
   this.type = null;
   this.name = null;
   if (args) {
@@ -191,8 +191,8 @@ DsExportTargetHdrT = function(args) {
     }
   }
 };
-DsExportTargetHdrT.prototype = {};
-DsExportTargetHdrT.prototype.read = function(input) {
+ExExportTargetHdrT.prototype = {};
+ExExportTargetHdrT.prototype.read = function(input) {
   input.readStructBegin();
   while (true)
   {
@@ -228,8 +228,8 @@ DsExportTargetHdrT.prototype.read = function(input) {
   return;
 };
 
-DsExportTargetHdrT.prototype.write = function(output) {
-  output.writeStructBegin('DsExportTargetHdrT');
+ExExportTargetHdrT.prototype.write = function(output) {
+  output.writeStructBegin('ExExportTargetHdrT');
   if (this.type !== null && this.type !== undefined) {
     output.writeFieldBegin('type', Thrift.Type.I32, 1);
     output.writeI32(this.type);
@@ -245,7 +245,7 @@ DsExportTargetHdrT.prototype.write = function(output) {
   return;
 };
 
-DsExportTargetT = function(args) {
+ExExportTargetT = function(args) {
   this.hdr = null;
   this.specificInput = null;
   if (args) {
@@ -257,8 +257,8 @@ DsExportTargetT = function(args) {
     }
   }
 };
-DsExportTargetT.prototype = {};
-DsExportTargetT.prototype.read = function(input) {
+ExExportTargetT.prototype = {};
+ExExportTargetT.prototype.read = function(input) {
   input.readStructBegin();
   while (true)
   {
@@ -273,7 +273,7 @@ DsExportTargetT.prototype.read = function(input) {
     {
       case 1:
       if (ftype == Thrift.Type.STRUCT) {
-        this.hdr = new DsExportTargetHdrT();
+        this.hdr = new ExExportTargetHdrT();
         this.hdr.read(input);
       } else {
         input.skip(ftype);
@@ -281,7 +281,7 @@ DsExportTargetT.prototype.read = function(input) {
       break;
       case 2:
       if (ftype == Thrift.Type.STRUCT) {
-        this.specificInput = new DsAddTargetSpecificInputT();
+        this.specificInput = new ExAddTargetSpecificInputT();
         this.specificInput.read(input);
       } else {
         input.skip(ftype);
@@ -296,8 +296,8 @@ DsExportTargetT.prototype.read = function(input) {
   return;
 };
 
-DsExportTargetT.prototype.write = function(output) {
-  output.writeStructBegin('DsExportTargetT');
+ExExportTargetT.prototype.write = function(output) {
+  output.writeStructBegin('ExExportTargetT');
   if (this.hdr !== null && this.hdr !== undefined) {
     output.writeFieldBegin('hdr', Thrift.Type.STRUCT, 1);
     this.hdr.write(output);
@@ -313,7 +313,7 @@ DsExportTargetT.prototype.write = function(output) {
   return;
 };
 
-DsInitExportODBCInputT = function(args) {
+ExInitExportODBCInputT = function(args) {
   this.tableName = null;
   if (args) {
     if (args.tableName !== undefined) {
@@ -321,8 +321,8 @@ DsInitExportODBCInputT = function(args) {
     }
   }
 };
-DsInitExportODBCInputT.prototype = {};
-DsInitExportODBCInputT.prototype.read = function(input) {
+ExInitExportODBCInputT.prototype = {};
+ExInitExportODBCInputT.prototype.read = function(input) {
   input.readStructBegin();
   while (true)
   {
@@ -354,8 +354,8 @@ DsInitExportODBCInputT.prototype.read = function(input) {
   return;
 };
 
-DsInitExportODBCInputT.prototype.write = function(output) {
-  output.writeStructBegin('DsInitExportODBCInputT');
+ExInitExportODBCInputT.prototype.write = function(output) {
+  output.writeStructBegin('ExInitExportODBCInputT');
   if (this.tableName !== null && this.tableName !== undefined) {
     output.writeFieldBegin('tableName', Thrift.Type.STRING, 1);
     output.writeString(this.tableName);
@@ -366,7 +366,7 @@ DsInitExportODBCInputT.prototype.write = function(output) {
   return;
 };
 
-DsInitExportCSVArgsT = function(args) {
+ExInitExportCSVArgsT = function(args) {
   this.fieldDelim = null;
   this.recordDelim = null;
   if (args) {
@@ -378,8 +378,8 @@ DsInitExportCSVArgsT = function(args) {
     }
   }
 };
-DsInitExportCSVArgsT.prototype = {};
-DsInitExportCSVArgsT.prototype.read = function(input) {
+ExInitExportCSVArgsT.prototype = {};
+ExInitExportCSVArgsT.prototype.read = function(input) {
   input.readStructBegin();
   while (true)
   {
@@ -415,8 +415,8 @@ DsInitExportCSVArgsT.prototype.read = function(input) {
   return;
 };
 
-DsInitExportCSVArgsT.prototype.write = function(output) {
-  output.writeStructBegin('DsInitExportCSVArgsT');
+ExInitExportCSVArgsT.prototype.write = function(output) {
+  output.writeStructBegin('ExInitExportCSVArgsT');
   if (this.fieldDelim !== null && this.fieldDelim !== undefined) {
     output.writeFieldBegin('fieldDelim', Thrift.Type.STRING, 1);
     output.writeString(this.fieldDelim);
@@ -432,7 +432,7 @@ DsInitExportCSVArgsT.prototype.write = function(output) {
   return;
 };
 
-DsInitExportJSONArgsT = function(args) {
+ExInitExportJSONArgsT = function(args) {
   this.array = null;
   if (args) {
     if (args.array !== undefined) {
@@ -440,8 +440,8 @@ DsInitExportJSONArgsT = function(args) {
     }
   }
 };
-DsInitExportJSONArgsT.prototype = {};
-DsInitExportJSONArgsT.prototype.read = function(input) {
+ExInitExportJSONArgsT.prototype = {};
+ExInitExportJSONArgsT.prototype.read = function(input) {
   input.readStructBegin();
   while (true)
   {
@@ -473,8 +473,8 @@ DsInitExportJSONArgsT.prototype.read = function(input) {
   return;
 };
 
-DsInitExportJSONArgsT.prototype.write = function(output) {
-  output.writeStructBegin('DsInitExportJSONArgsT');
+ExInitExportJSONArgsT.prototype.write = function(output) {
+  output.writeStructBegin('ExInitExportJSONArgsT');
   if (this.array !== null && this.array !== undefined) {
     output.writeFieldBegin('array', Thrift.Type.BOOL, 1);
     output.writeBool(this.array);
@@ -485,7 +485,7 @@ DsInitExportJSONArgsT.prototype.write = function(output) {
   return;
 };
 
-DsInitExportSQLArgsT = function(args) {
+ExInitExportSQLArgsT = function(args) {
   this.tableName = null;
   this.dropTable = null;
   this.createTable = null;
@@ -501,8 +501,8 @@ DsInitExportSQLArgsT = function(args) {
     }
   }
 };
-DsInitExportSQLArgsT.prototype = {};
-DsInitExportSQLArgsT.prototype.read = function(input) {
+ExInitExportSQLArgsT.prototype = {};
+ExInitExportSQLArgsT.prototype.read = function(input) {
   input.readStructBegin();
   while (true)
   {
@@ -545,8 +545,8 @@ DsInitExportSQLArgsT.prototype.read = function(input) {
   return;
 };
 
-DsInitExportSQLArgsT.prototype.write = function(output) {
-  output.writeStructBegin('DsInitExportSQLArgsT');
+ExInitExportSQLArgsT.prototype.write = function(output) {
+  output.writeStructBegin('ExInitExportSQLArgsT');
   if (this.tableName !== null && this.tableName !== undefined) {
     output.writeFieldBegin('tableName', Thrift.Type.STRING, 1);
     output.writeString(this.tableName);
@@ -567,7 +567,7 @@ DsInitExportSQLArgsT.prototype.write = function(output) {
   return;
 };
 
-DsInitExportFormatSpecificArgsT = function(args) {
+ExInitExportFormatSpecificArgsT = function(args) {
   this.csv = null;
   this.json = null;
   this.sql = null;
@@ -583,8 +583,8 @@ DsInitExportFormatSpecificArgsT = function(args) {
     }
   }
 };
-DsInitExportFormatSpecificArgsT.prototype = {};
-DsInitExportFormatSpecificArgsT.prototype.read = function(input) {
+ExInitExportFormatSpecificArgsT.prototype = {};
+ExInitExportFormatSpecificArgsT.prototype.read = function(input) {
   input.readStructBegin();
   while (true)
   {
@@ -599,7 +599,7 @@ DsInitExportFormatSpecificArgsT.prototype.read = function(input) {
     {
       case 1:
       if (ftype == Thrift.Type.STRUCT) {
-        this.csv = new DsInitExportCSVArgsT();
+        this.csv = new ExInitExportCSVArgsT();
         this.csv.read(input);
       } else {
         input.skip(ftype);
@@ -607,7 +607,7 @@ DsInitExportFormatSpecificArgsT.prototype.read = function(input) {
       break;
       case 2:
       if (ftype == Thrift.Type.STRUCT) {
-        this.json = new DsInitExportJSONArgsT();
+        this.json = new ExInitExportJSONArgsT();
         this.json.read(input);
       } else {
         input.skip(ftype);
@@ -615,7 +615,7 @@ DsInitExportFormatSpecificArgsT.prototype.read = function(input) {
       break;
       case 3:
       if (ftype == Thrift.Type.STRUCT) {
-        this.sql = new DsInitExportSQLArgsT();
+        this.sql = new ExInitExportSQLArgsT();
         this.sql.read(input);
       } else {
         input.skip(ftype);
@@ -630,8 +630,8 @@ DsInitExportFormatSpecificArgsT.prototype.read = function(input) {
   return;
 };
 
-DsInitExportFormatSpecificArgsT.prototype.write = function(output) {
-  output.writeStructBegin('DsInitExportFormatSpecificArgsT');
+ExInitExportFormatSpecificArgsT.prototype.write = function(output) {
+  output.writeStructBegin('ExInitExportFormatSpecificArgsT');
   if (this.csv !== null && this.csv !== undefined) {
     output.writeFieldBegin('csv', Thrift.Type.STRUCT, 1);
     this.csv.write(output);
@@ -652,9 +652,144 @@ DsInitExportFormatSpecificArgsT.prototype.write = function(output) {
   return;
 };
 
-DsInitExportSFInputT = function(args) {
+ExSFFileSplitSpecificT = function(args) {
+  this.numFiles = null;
+  this.maxSize = null;
+  if (args) {
+    if (args.numFiles !== undefined) {
+      this.numFiles = args.numFiles;
+    }
+    if (args.maxSize !== undefined) {
+      this.maxSize = args.maxSize;
+    }
+  }
+};
+ExSFFileSplitSpecificT.prototype = {};
+ExSFFileSplitSpecificT.prototype.read = function(input) {
+  input.readStructBegin();
+  while (true)
+  {
+    var ret = input.readFieldBegin();
+    var fname = ret.fname;
+    var ftype = ret.ftype;
+    var fid = ret.fid;
+    if (ftype == Thrift.Type.STOP) {
+      break;
+    }
+    switch (fid)
+    {
+      case 1:
+      if (ftype == Thrift.Type.I64) {
+        this.numFiles = input.readI64().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 2:
+      if (ftype == Thrift.Type.I64) {
+        this.maxSize = input.readI64().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      default:
+        input.skip(ftype);
+    }
+    input.readFieldEnd();
+  }
+  input.readStructEnd();
+  return;
+};
+
+ExSFFileSplitSpecificT.prototype.write = function(output) {
+  output.writeStructBegin('ExSFFileSplitSpecificT');
+  if (this.numFiles !== null && this.numFiles !== undefined) {
+    output.writeFieldBegin('numFiles', Thrift.Type.I64, 1);
+    output.writeI64(this.numFiles);
+    output.writeFieldEnd();
+  }
+  if (this.maxSize !== null && this.maxSize !== undefined) {
+    output.writeFieldBegin('maxSize', Thrift.Type.I64, 2);
+    output.writeI64(this.maxSize);
+    output.writeFieldEnd();
+  }
+  output.writeFieldStop();
+  output.writeStructEnd();
+  return;
+};
+
+ExSFFileSplitRuleT = function(args) {
+  this.type = null;
+  this.spec = null;
+  if (args) {
+    if (args.type !== undefined) {
+      this.type = args.type;
+    }
+    if (args.spec !== undefined) {
+      this.spec = args.spec;
+    }
+  }
+};
+ExSFFileSplitRuleT.prototype = {};
+ExSFFileSplitRuleT.prototype.read = function(input) {
+  input.readStructBegin();
+  while (true)
+  {
+    var ret = input.readFieldBegin();
+    var fname = ret.fname;
+    var ftype = ret.ftype;
+    var fid = ret.fid;
+    if (ftype == Thrift.Type.STOP) {
+      break;
+    }
+    switch (fid)
+    {
+      case 1:
+      if (ftype == Thrift.Type.I32) {
+        this.type = input.readI32().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 2:
+      if (ftype == Thrift.Type.STRUCT) {
+        this.spec = new ExSFFileSplitSpecificT();
+        this.spec.read(input);
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      default:
+        input.skip(ftype);
+    }
+    input.readFieldEnd();
+  }
+  input.readStructEnd();
+  return;
+};
+
+ExSFFileSplitRuleT.prototype.write = function(output) {
+  output.writeStructBegin('ExSFFileSplitRuleT');
+  if (this.type !== null && this.type !== undefined) {
+    output.writeFieldBegin('type', Thrift.Type.I32, 1);
+    output.writeI32(this.type);
+    output.writeFieldEnd();
+  }
+  if (this.spec !== null && this.spec !== undefined) {
+    output.writeFieldBegin('spec', Thrift.Type.STRUCT, 2);
+    this.spec.write(output);
+    output.writeFieldEnd();
+  }
+  output.writeFieldStop();
+  output.writeStructEnd();
+  return;
+};
+
+ExInitExportSFInputT = function(args) {
   this.fileName = null;
   this.format = null;
+  this.splitRule = null;
+  this.headerType = null;
   this.formatArgs = null;
   if (args) {
     if (args.fileName !== undefined) {
@@ -663,13 +798,19 @@ DsInitExportSFInputT = function(args) {
     if (args.format !== undefined) {
       this.format = args.format;
     }
+    if (args.splitRule !== undefined) {
+      this.splitRule = args.splitRule;
+    }
+    if (args.headerType !== undefined) {
+      this.headerType = args.headerType;
+    }
     if (args.formatArgs !== undefined) {
       this.formatArgs = args.formatArgs;
     }
   }
 };
-DsInitExportSFInputT.prototype = {};
-DsInitExportSFInputT.prototype.read = function(input) {
+ExInitExportSFInputT.prototype = {};
+ExInitExportSFInputT.prototype.read = function(input) {
   input.readStructBegin();
   while (true)
   {
@@ -698,7 +839,22 @@ DsInitExportSFInputT.prototype.read = function(input) {
       break;
       case 3:
       if (ftype == Thrift.Type.STRUCT) {
-        this.formatArgs = new DsInitExportFormatSpecificArgsT();
+        this.splitRule = new ExSFFileSplitRuleT();
+        this.splitRule.read(input);
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 4:
+      if (ftype == Thrift.Type.I32) {
+        this.headerType = input.readI32().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 5:
+      if (ftype == Thrift.Type.STRUCT) {
+        this.formatArgs = new ExInitExportFormatSpecificArgsT();
         this.formatArgs.read(input);
       } else {
         input.skip(ftype);
@@ -713,8 +869,8 @@ DsInitExportSFInputT.prototype.read = function(input) {
   return;
 };
 
-DsInitExportSFInputT.prototype.write = function(output) {
-  output.writeStructBegin('DsInitExportSFInputT');
+ExInitExportSFInputT.prototype.write = function(output) {
+  output.writeStructBegin('ExInitExportSFInputT');
   if (this.fileName !== null && this.fileName !== undefined) {
     output.writeFieldBegin('fileName', Thrift.Type.STRING, 1);
     output.writeString(this.fileName);
@@ -725,8 +881,18 @@ DsInitExportSFInputT.prototype.write = function(output) {
     output.writeI32(this.format);
     output.writeFieldEnd();
   }
+  if (this.splitRule !== null && this.splitRule !== undefined) {
+    output.writeFieldBegin('splitRule', Thrift.Type.STRUCT, 3);
+    this.splitRule.write(output);
+    output.writeFieldEnd();
+  }
+  if (this.headerType !== null && this.headerType !== undefined) {
+    output.writeFieldBegin('headerType', Thrift.Type.I32, 4);
+    output.writeI32(this.headerType);
+    output.writeFieldEnd();
+  }
   if (this.formatArgs !== null && this.formatArgs !== undefined) {
-    output.writeFieldBegin('formatArgs', Thrift.Type.STRUCT, 3);
+    output.writeFieldBegin('formatArgs', Thrift.Type.STRUCT, 5);
     this.formatArgs.write(output);
     output.writeFieldEnd();
   }
@@ -735,7 +901,7 @@ DsInitExportSFInputT.prototype.write = function(output) {
   return;
 };
 
-DsInitExportSpecificInputT = function(args) {
+ExInitExportSpecificInputT = function(args) {
   this.odbcInput = null;
   this.sfInput = null;
   if (args) {
@@ -747,8 +913,8 @@ DsInitExportSpecificInputT = function(args) {
     }
   }
 };
-DsInitExportSpecificInputT.prototype = {};
-DsInitExportSpecificInputT.prototype.read = function(input) {
+ExInitExportSpecificInputT.prototype = {};
+ExInitExportSpecificInputT.prototype.read = function(input) {
   input.readStructBegin();
   while (true)
   {
@@ -763,7 +929,7 @@ DsInitExportSpecificInputT.prototype.read = function(input) {
     {
       case 1:
       if (ftype == Thrift.Type.STRUCT) {
-        this.odbcInput = new DsInitExportODBCInputT();
+        this.odbcInput = new ExInitExportODBCInputT();
         this.odbcInput.read(input);
       } else {
         input.skip(ftype);
@@ -771,7 +937,7 @@ DsInitExportSpecificInputT.prototype.read = function(input) {
       break;
       case 2:
       if (ftype == Thrift.Type.STRUCT) {
-        this.sfInput = new DsInitExportSFInputT();
+        this.sfInput = new ExInitExportSFInputT();
         this.sfInput.read(input);
       } else {
         input.skip(ftype);
@@ -786,8 +952,8 @@ DsInitExportSpecificInputT.prototype.read = function(input) {
   return;
 };
 
-DsInitExportSpecificInputT.prototype.write = function(output) {
-  output.writeStructBegin('DsInitExportSpecificInputT');
+ExInitExportSpecificInputT.prototype.write = function(output) {
+  output.writeStructBegin('ExInitExportSpecificInputT');
   if (this.odbcInput !== null && this.odbcInput !== undefined) {
     output.writeFieldBegin('odbcInput', Thrift.Type.STRUCT, 1);
     this.odbcInput.write(output);
@@ -803,7 +969,7 @@ DsInitExportSpecificInputT.prototype.write = function(output) {
   return;
 };
 
-DsColumnNameT = function(args) {
+ExColumnNameT = function(args) {
   this.name = null;
   this.headerAlias = null;
   if (args) {
@@ -815,8 +981,8 @@ DsColumnNameT = function(args) {
     }
   }
 };
-DsColumnNameT.prototype = {};
-DsColumnNameT.prototype.read = function(input) {
+ExColumnNameT.prototype = {};
+ExColumnNameT.prototype.read = function(input) {
   input.readStructBegin();
   while (true)
   {
@@ -852,8 +1018,8 @@ DsColumnNameT.prototype.read = function(input) {
   return;
 };
 
-DsColumnNameT.prototype.write = function(output) {
-  output.writeStructBegin('DsColumnNameT');
+ExColumnNameT.prototype.write = function(output) {
+  output.writeStructBegin('ExColumnNameT');
   if (this.name !== null && this.name !== undefined) {
     output.writeFieldBegin('name', Thrift.Type.STRING, 1);
     output.writeString(this.name);
@@ -869,10 +1035,11 @@ DsColumnNameT.prototype.write = function(output) {
   return;
 };
 
-DsExportMetaT = function(args) {
+ExExportMetaT = function(args) {
   this.target = null;
   this.specificInput = null;
   this.createRule = null;
+  this.sorted = null;
   this.numColumns = null;
   this.columns = null;
   if (args) {
@@ -885,6 +1052,9 @@ DsExportMetaT = function(args) {
     if (args.createRule !== undefined) {
       this.createRule = args.createRule;
     }
+    if (args.sorted !== undefined) {
+      this.sorted = args.sorted;
+    }
     if (args.numColumns !== undefined) {
       this.numColumns = args.numColumns;
     }
@@ -893,8 +1063,8 @@ DsExportMetaT = function(args) {
     }
   }
 };
-DsExportMetaT.prototype = {};
-DsExportMetaT.prototype.read = function(input) {
+ExExportMetaT.prototype = {};
+ExExportMetaT.prototype.read = function(input) {
   input.readStructBegin();
   while (true)
   {
@@ -909,7 +1079,7 @@ DsExportMetaT.prototype.read = function(input) {
     {
       case 1:
       if (ftype == Thrift.Type.STRUCT) {
-        this.target = new DsExportTargetHdrT();
+        this.target = new ExExportTargetHdrT();
         this.target.read(input);
       } else {
         input.skip(ftype);
@@ -917,7 +1087,7 @@ DsExportMetaT.prototype.read = function(input) {
       break;
       case 2:
       if (ftype == Thrift.Type.STRUCT) {
-        this.specificInput = new DsInitExportSpecificInputT();
+        this.specificInput = new ExInitExportSpecificInputT();
         this.specificInput.read(input);
       } else {
         input.skip(ftype);
@@ -931,13 +1101,20 @@ DsExportMetaT.prototype.read = function(input) {
       }
       break;
       case 4:
-      if (ftype == Thrift.Type.I64) {
-        this.numColumns = input.readI64().value;
+      if (ftype == Thrift.Type.BOOL) {
+        this.sorted = input.readBool().value;
       } else {
         input.skip(ftype);
       }
       break;
       case 5:
+      if (ftype == Thrift.Type.I32) {
+        this.numColumns = input.readI32().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 6:
       if (ftype == Thrift.Type.LIST) {
         var _size0 = 0;
         var _rtmp34;
@@ -949,7 +1126,7 @@ DsExportMetaT.prototype.read = function(input) {
         for (var _i5 = 0; _i5 < _size0; ++_i5)
         {
           var elem6 = null;
-          elem6 = new DsColumnNameT();
+          elem6 = new ExColumnNameT();
           elem6.read(input);
           this.columns.push(elem6);
         }
@@ -967,8 +1144,8 @@ DsExportMetaT.prototype.read = function(input) {
   return;
 };
 
-DsExportMetaT.prototype.write = function(output) {
-  output.writeStructBegin('DsExportMetaT');
+ExExportMetaT.prototype.write = function(output) {
+  output.writeStructBegin('ExExportMetaT');
   if (this.target !== null && this.target !== undefined) {
     output.writeFieldBegin('target', Thrift.Type.STRUCT, 1);
     this.target.write(output);
@@ -984,13 +1161,18 @@ DsExportMetaT.prototype.write = function(output) {
     output.writeI32(this.createRule);
     output.writeFieldEnd();
   }
+  if (this.sorted !== null && this.sorted !== undefined) {
+    output.writeFieldBegin('sorted', Thrift.Type.BOOL, 4);
+    output.writeBool(this.sorted);
+    output.writeFieldEnd();
+  }
   if (this.numColumns !== null && this.numColumns !== undefined) {
-    output.writeFieldBegin('numColumns', Thrift.Type.I64, 4);
-    output.writeI64(this.numColumns);
+    output.writeFieldBegin('numColumns', Thrift.Type.I32, 5);
+    output.writeI32(this.numColumns);
     output.writeFieldEnd();
   }
   if (this.columns !== null && this.columns !== undefined) {
-    output.writeFieldBegin('columns', Thrift.Type.LIST, 5);
+    output.writeFieldBegin('columns', Thrift.Type.LIST, 6);
     output.writeListBegin(Thrift.Type.STRUCT, this.columns.length);
     for (var iter7 in this.columns)
     {

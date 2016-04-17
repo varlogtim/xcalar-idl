@@ -5,25 +5,47 @@
 //
 
 
-DsTargetTypeT = {
-  'DsTargetUnknownType' : 0,
-  'DsTargetODBCType' : 1,
-  'DsTargetSFType' : 2
+ExTargetTypeT = {
+  'ExTargetUnknownType' : 0,
+  'ExTargetODBCType' : 1,
+  'ExTargetSFType' : 2
 };
-DsExportCreateRuleT = {
-  'DsExportUnknownRule' : 0,
-  'DsExportCreateOnly' : 1,
-  'DsExportCreateOrAppend' : 2,
-  'DsExportAppendOnly' : 3,
-  'DsExportDeleteAndReplace' : 4
+ExExportCreateRuleT = {
+  'ExExportUnknownRule' : 0,
+  'ExExportCreateOnly' : 1,
+  'ExExportCreateOrAppend' : 2,
+  'ExExportAppendOnly' : 3,
+  'ExExportDeleteAndReplace' : 4
 };
-DsTargetTypeTStr = {0 : 'unknown',
+ExSFFileSplitTypeT = {
+  'ExSFFileSplitUnknownType' : 0,
+  'ExSFFileSplitNone' : 1,
+  'ExSFFileSplitForceSingle' : 2,
+  'ExSFFileSplitSize' : 3
+};
+ExSFHeaderTypeT = {
+  'ExSFHeaderUnknownType' : 0,
+  'ExSFHeaderEveryFile' : 1,
+  'ExSFHeaderSeparateFile' : 2,
+  'ExSFHeaderNone' : 3
+};
+ExTargetTypeTStr = {0 : 'unknown',
 1 : 'odbc',
 2 : 'file'
 };
-DsExportCreateRuleTStr = {0 : 'unknown',
+ExExportCreateRuleTStr = {0 : 'unknown',
 1 : 'createOnly',
 2 : 'createOrAppend',
 3 : 'appendOnly',
 4 : 'deleteAndReplace'
+};
+ExSFFileSplitTypeTStr = {0 : 'unknown',
+1 : 'none',
+2 : 'single',
+3 : 'size'
+};
+ExSFHeaderTypeTStr = {0 : 'unknown',
+1 : 'every',
+2 : 'separate',
+3 : 'none'
 };

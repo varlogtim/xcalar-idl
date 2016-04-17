@@ -1301,6 +1301,19 @@
         })
     }
 
+    function testApiGetRowNum(deferred, testName, currentTestNumber) {
+        xcalarApiGetRowNum(thriftHandle, "rowNum",
+                           "yelp/user-votes.funny-gt900",
+                           "yelp/user-votes.funny-rowNum")
+        .done(function(getRowNumOutput) {
+            printResult(getRowNumOutput);
+            pass(deferred, testName, currentTestNumber);
+        })
+        .fail(function(reason) {
+            fail(deferred, testName, currentTestNumber, reason);
+        })
+    }
+
     function testDestroyDatasetInUse(deferred, testName, currentTestNumber) {
         xcalarDeleteDagNodes(thriftHandle, loadOutput.dataset.name, SourceTypeT.SrcDataset)
         .done(function(status) {

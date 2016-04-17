@@ -54,6 +54,7 @@
     // For start nodes test
     var startNodesState;
     var system = require('system');
+    var fs = require('fs');
     var qaTestDir = system.env['QATEST_DIR'];
 
     console.log("Qa test dir: " + qaTestDir);
@@ -1330,12 +1331,12 @@
     }
 
     function testAddExportTarget(deferred, testName, currentTestNumber) {
-        var target = new DsExportTargetT();
-        target.hdr = new DsExportTargetHdrT();
+        var target = new ExExportTargetT();
+        target.hdr = new ExExportTargetHdrT();
         target.hdr.name = "Mgmtd Export Target";
-        target.hdr.type = DsTargetTypeT.DsTargetSFType;
-        target.specificInput = new DsAddTargetSpecificInputT();
-        target.specificInput.odbcInput = new DsAddTargetODBCInputT();
+        target.hdr.type = ExTargetTypeT.ExTargetSFType;
+        target.specificInput = new ExAddTargetSpecificInputT();
+        target.specificInput.odbcInput = new ExAddTargetODBCInputT();
 
         xcalarAddExportTarget(thriftHandle, target)
         .done(function(status) {
@@ -1359,25 +1360,28 @@
     }
 
     function testExportCSV(deferred, testName, currentTestNumber) {
-        var specInput = new DsInitExportSpecificInputT();
-        specInput.sfInput = new DsInitExportSFInputT();
+        var specInput = new ExInitExportSpecificInputT();
+        specInput.sfInput = new ExInitExportSFInputT();
         specInput.sfInput.fileName = "yelp-mgmtdTest" +
                                      Math.floor(Math.random()*10000) + ".csv";
+        specInput.sfInput.splitRule = new ExSFFileSplitRuleT();
+        specInput.sfInput.splitRule.type = ExSFFileSplitTypeT.ExSFFileSplitNone;
+        specInput.sfInput.headerType = ExSFHeaderTypeT.ExSFHeaderSeparateFile;
         specInput.sfInput.format = DfFormatTypeT.DfFormatCsv;
-        specInput.sfInput.formatArgs = new DsInitExportFormatSpecificArgsT();
-        specInput.sfInput.formatArgs.csv = new DsInitExportCSVArgsT();
+        specInput.sfInput.formatArgs = new ExInitExportFormatSpecificArgsT();
+        specInput.sfInput.formatArgs.csv = new ExInitExportCSVArgsT();
         specInput.sfInput.formatArgs.csv.fieldDelim = ",";
         specInput.sfInput.formatArgs.csv.recordDelim = "\n";
 
         console.log("\texport file name = " + specInput.sfInput.fileName);
-        var target = new DsExportTargetHdrT();
-        target.type = DsTargetTypeT.DsTargetSFType;
+        var target = new ExExportTargetHdrT();
+        target.type = ExTargetTypeT.ExTargetSFType;
         target.name = "Default";
         var numColumns = 2;
         var columnNames = ["user_id", "name"];
         var headerColumns = ["id_of_user", "user name"];
         var columns = columnNames.map(function (e, i) {
-            var col = new DsColumnNameT();
+            var col = new ExColumnNameT();
             col.name = columnNames[i];
             col.headerAlias = headerColumns[i];
             return col;
@@ -1385,8 +1389,8 @@
 
         xcalarExport(thriftHandle, "yelp/user-votes.funny-gt900",
                      target, specInput,
-                     DsExportCreateRuleT.DsExportCreateOnly,
-                     numColumns, columns)
+                     ExExportCreateRuleT.ExExportDeleteAndReplace,
+                     true, numColumns, columns)
         .done(function(status) {
             printResult(status);
             pass(deferred, testName, currentTestNumber);
@@ -1397,26 +1401,29 @@
     }
 
     function testExportSQL(deferred, testName, currentTestNumber) {
-        var specInput = new DsInitExportSpecificInputT();
-        specInput.sfInput = new DsInitExportSFInputT();
+        var specInput = new ExInitExportSpecificInputT();
+        specInput.sfInput = new ExInitExportSFInputT();
         specInput.sfInput.fileName = "yelp-mgmtdTest" +
                                      Math.floor(Math.random()*10000) + ".sql";
+        specInput.sfInput.splitRule = new ExSFFileSplitRuleT();
+        specInput.sfInput.splitRule.type = ExSFFileSplitTypeT.ExSFFileSplitNone;
+        specInput.sfInput.headerType = ExSFHeaderTypeT.ExSFHeaderSeparateFile;
         specInput.sfInput.format = DfFormatTypeT.DfFormatSql;
-        specInput.sfInput.formatArgs = new DsInitExportFormatSpecificArgsT();
-        specInput.sfInput.formatArgs.sql = new DsInitExportSQLArgsT();
+        specInput.sfInput.formatArgs = new ExInitExportFormatSpecificArgsT();
+        specInput.sfInput.formatArgs.sql = new ExInitExportSQLArgsT();
         specInput.sfInput.formatArgs.sql.tableName = "exportSqlTableName"
         specInput.sfInput.formatArgs.sql.dropTable = true;
         specInput.sfInput.formatArgs.sql.createTable = true;
 
         console.log("\texport file name = " + specInput.sfInput.fileName);
-        var target = new DsExportTargetHdrT();
-        target.type = DsTargetTypeT.DsTargetSFType;
+        var target = new ExExportTargetHdrT();
+        target.type = ExTargetTypeT.ExTargetSFType;
         target.name = "Default";
         var numColumns = 2;
         var columnNames = ["user_id", "name"];
         var headerColumns = ["id_of_user", "user name"];
         var columns = columnNames.map(function (e, i) {
-            var col = new DsColumnNameT();
+            var col = new ExColumnNameT();
             col.name = columnNames[i];
             col.headerAlias = headerColumns[i];
             return col;
@@ -1424,8 +1431,8 @@
 
         xcalarExport(thriftHandle, "yelp/user-votes.funny-gt900",
                      target, specInput,
-                     DsExportCreateRuleT.DsExportCreateOnly,
-                     numColumns, columns)
+                     ExExportCreateRuleT.ExExportCreateOnly,
+                     true, numColumns, columns)
         .done(function(status) {
             printResult(status);
             pass(deferred, testName, currentTestNumber);
@@ -1442,7 +1449,7 @@
         var columnNames = ["user_id", "name", "votes.funny"];
         var headerColumns = ["User ID", "User Name", "Number of Funny Votes"];
         var columns = columnNames.map(function (e, i) {
-            var col = new DsColumnNameT();
+            var col = new ExColumnNameT();
             col.name = columnNames[i];
             col.headerAlias = headerColumns[i];
             return col;
@@ -1507,17 +1514,17 @@
                     var exportInput = getRetinaOutput.retina.retinaDag.node[ii].input.exportInput;
                     var exportTargetType = exportInput.meta.target.type;
                     console.log("\tnode[" + ii + "].meta.exportTarget = " +
-                                DsTargetTypeTStr[exportTargetType] + " (" + exportTargetType + ")");
+                                ExTargetTypeTStr[exportTargetType] + " (" + exportTargetType + ")");
                     console.log("\tnode[" + ii + "].meta.numColumns = " +
                                 exportInput.meta.numColumns);
                     console.log("\tnode[" + ii + "].meta.columns = " +
                                 JSON.stringify(exportInput.meta.columns));
                     switch (exportTargetType) {
-                    case DsTargetTypeT.DsTargetODBCType:
+                    case ExTargetTypeT.ExTargetODBCType:
                         console.log("\tnode[" + ii + "].meta.specificInput.odbcInput.tableName = " +
                                     exportInput.meta.specificInput.odbcInput.tableName);
                         break;
-                    case DsTargetTypeT.DsTargetSFType:
+                    case ExTargetTypeT.ExTargetSFType:
                         console.log("\tnode[" + ii + "].meta.specificInput.sfInput.fileName = " +
                                     exportInput.meta.specificInput.sfInput.fileName);
                         if (iter == 2) {
@@ -1603,18 +1610,22 @@
             }
 
             var exportTarget = listExportTargetsOutput.targets[0];
-            if (exportTarget.hdr.type != DsTargetTypeT.DsTargetSFType) {
+            if (exportTarget.hdr.type != ExTargetTypeT.ExTargetSFType) {
                 var reason = "Default export target not filesystem"
                 fail(deferred, testName, currentTestNumber, reason);
                 return;
             }
 
             var fullPath = exportTarget.specificInput.sfInput.url.substring("file://".length) + "/" + retinaExportParamStr
-            var fs = require("fs");
 
-            if (fs.exists(fullPath) && fs.isFile(fullPath)) {
+            // Take the .csv off
+            fullPath = fullPath.slice(0, -".csv".length);
+
+            console.log("Checking for" + fullPath);
+
+            if (fs.exists(fullPath) && fs.isDirectory(fullPath)) {
                 console.log("Deleting " + fullPath);
-                fs.remove(fullPath);
+                fs.removeTree(fullPath);
             }
 
             xcalarExecuteRetina(thriftHandle, retinaName, parameters)
@@ -2199,68 +2210,50 @@
         .then(startCreateDhtTest, startCreateDhtTest);
     }
 
-    function testUploadDownloadPython(deferred, testName, currentTestNumber) {
-        var pythonCode =
-            "def strLength( strVal ):\n  return \"%d\" % len(strVal)\n";
-        xcalarApiUploadPython(thriftHandle, "MgmtTest", pythonCode)
-        .then(function() {
-            return xcalarApiDownloadPython(thriftHandle, "MgmtTest");
-        })
-        .then(function(downloadPythonOutput) {
-            if (downloadPythonOutput.pythonSrc === pythonCode) {
-                pass(deferred, testName, currentTestNumber);
-            } else {
-                fail(deferred, testName, currentTestNumber,
-                     "Incorrect python source downloaded: " +
-                     downloadPythonOutput.pythonSrc);
-            }
-        })
-        .fail(function(reason) {
-            fail(deferred, testName, currentTestNumber, reason);
-        });
-    }
-
     function testPyExecOnLoad(deferred, testName, currentTestNumber) {
-        var fs = require('fs');
 
         var content = fs.read(system.env['MGMTDTEST_DIR'] + '/PyExecOnLoadTest.py');
 
-        xcalarApiUploadPython(thriftHandle, "PyExecOnLoadTest", content)
-        .done(function(uploadPythonOutput) {
-            if (status == StatusT.StatusOk) {
-                loadArgs = new XcalarApiDfLoadArgsT();
-                loadArgs.csv = new XcalarApiDfCsvLoadArgsT();
-                loadArgs.pyLoadArgs = new XcalarApiPyLoadArgsT();
-                loadArgs.csv.recordDelim = XcalarApiDefaultRecordDelimT;
-                loadArgs.csv.fieldDelim = XcalarApiDefaultFieldDelimT;
-                loadArgs.csv.isCRLF = false;
-                loadArgs.pyLoadArgs.fullyQualifiedFnName = "PyExecOnLoadTest:poorManCsvToJson";
+        xcalarApiUdfDelete(thriftHandle, "PyExecOnLoadTest")
+        .always(function() {
+            xcalarApiUdfAdd(thriftHandle, UdfTypeT.UdfTypePython,
+                            "PyExecOnLoadTest", content)
+            .done(function(uploadPythonOutput) {
+                if (status == StatusT.StatusOk) {
+                    loadArgs = new XcalarApiDfLoadArgsT();
+                    loadArgs.csv = new XcalarApiDfCsvLoadArgsT();
+                    loadArgs.udfLoadArgs = new XcalarApiUdfLoadArgsT();
+                    loadArgs.csv.recordDelim = XcalarApiDefaultRecordDelimT;
+                    loadArgs.csv.fieldDelim = XcalarApiDefaultFieldDelimT;
+                    loadArgs.csv.isCRLF = false;
+                    loadArgs.udfLoadArgs.fullyQualifiedFnName = "PyExecOnLoadTest:poorManCsvToJson";
 
-                xcalarLoad(thriftHandle,
-                           "file://" + qaTestDir + "/operatorsTest/movies/movies.csv",
-                           "movies",
-                           DfFormatTypeT.DfFormatJson,
-                           0,
-                           loadArgs)
-                .done(function(result) {
-                    printResult(result);
-                    loadOutput = result;
-                    moviesDataset = loadOutput.dataset.name;
-                    moviesDatasetSet = true;
-                    origDataset = loadOutput.dataset.name;
-                    pass(deferred, testName, currentTestNumber);
-                })
-                .fail(function(reason) {
-                    fail(deferred, testName, currentTestNumber,
-                         StatusTStr[reason]);
-                });
-            } else {
-                var reason = "status = " + status;
+                    xcalarLoad(thriftHandle,
+                               "file://" + qaTestDir + "/operatorsTest/movies/movies.csv",
+                               "movies",
+                               DfFormatTypeT.DfFormatJson,
+                               0,
+                               loadArgs)
+                    .done(function(result) {
+                        printResult(result);
+                        loadOutput = result;
+                        moviesDataset = loadOutput.dataset.name;
+                        moviesDatasetSet = true;
+                        origDataset = loadOutput.dataset.name;
+                        pass(deferred, testName, currentTestNumber);
+                    })
+                    .fail(function(reason) {
+                        fail(deferred, testName, currentTestNumber,
+                             StatusTStr[reason]);
+                    });
+                } else {
+                    var reason = "status = " + status;
+                    fail(deferred, testName, currentTestNumber, reason);
+                }
+            })
+            .fail(function(reason) {
                 fail(deferred, testName, currentTestNumber, reason);
-            }
-        })
-        .fail(function(reason) {
-            fail(deferred, testName, currentTestNumber, reason);
+            });
         });
     }
 
@@ -2455,7 +2448,6 @@
     }
 
     function testSupportGenerate(deferred, testName, currentTestNumber) {
-        var fs = require('fs');
 
         xcalarApiSupportGenerate(thriftHandle)
         .done(function(output) {
@@ -2473,6 +2465,59 @@
         });
     }
 
+    function testUdf(deferred, testName, currentTestNumber)
+    {
+        var source1 = "def foo():\n return 'foo'\n";
+        var source2 = "def bar():\n return 'bar'\n";
+
+        xcalarApiUdfDelete(thriftHandle, "mgmttest*")
+        .always(function () {
+            xcalarApiUdfAdd(thriftHandle, UdfTypeT.UdfTypePython,
+                            "mgmttestfoo", source1)
+            .then(function () {
+                return xcalarApiUdfGet(thriftHandle, "mgmttestfoo");
+            })
+            .then(function (output) {
+                if (output.source != source1) {
+                    printResult(output);
+                    fail(deferred, testName, currentTestNumber,
+                         "Expected source '" + source1 + "' got '" + output.source + "'.");
+                } else {
+                    return xcalarApiUdfUpdate(thriftHandle,
+                                              UdfTypeT.UdfTypePython,
+                                              "mgmttestfoo", source2);
+                }
+            })
+            .then(function () {
+                return xcalarApiUdfGet(thriftHandle, "mgmttestfoo");
+            })
+            .then(function (output) {
+                if (output.source != source2) {
+                    printResult(output);
+                    fail(deferred, testName, currentTestNumber,
+                         "Expected source '" + source2 + "' got '" + output.source + "'.");
+                } else {
+                    return xcalarApiUdfDelete(thriftHandle, "mgmttestfoo");
+                }
+            })
+            .then(function () {
+                pass(deferred, testName, currentTestNumber);
+            })
+            .fail(function(reason) {
+                fail(deferred, testName, currentTestNumber, StatusTStr[reason]);
+            });
+        });
+    }
+
+    // XXX: Implement me
+    function testImportRetina(deferred, testName, currentTestNumber) {
+
+        xcalarApiImportRetina(thriftHandle)
+        .always(function() {
+            fail(deferred, testName, currentTestNumber, "Not implemented");
+        });
+    }
+
     passes            = 0;
     fails             = 0;
     skips             = 0;
@@ -2480,8 +2525,7 @@
     defaultTimeout    = 256000000;
     disableIsPass     = true;
 
-    var fs2 = require('fs');
-    var content = fs2.read(system.env['MGMTDTEST_DIR'] + '/test-config.cfg');
+    var content = fs.read(system.env['MGMTDTEST_DIR'] + '/test-config.cfg');
     var port = content.slice(content.indexOf('Thrift.Port'))
     port = port.slice(port.indexOf('=') + 1, port.indexOf('\n'))
 
@@ -2590,12 +2634,16 @@
     addTestCase(testCases, testListParametersInRetina, "listParametersInRetina", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testCases, testDeleteRetina, "deleteRetina", defaultTimeout, TestCaseEnabled, "");
 
+    // XXX: Re-enable once implemented
+    addTestCase(testCases, testImportRetina, "importRetina", defaultTimeout, TestCaseDisabled, "");
+
     addTestCase(testCases, testListFiles, "list files", defaultTimeout, TestCaseEnabled, "");
-    addTestCase(testCases, testUploadDownloadPython, "upload and download python", defaultTimeout, TestCaseEnabled, "");
 
     // This pair must go together
     addTestCase(testCases, testPyExecOnLoad, "python during load", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testCases, testDestroyDataset, "destroy dataset", defaultTimeout, TestCaseEnabled, "");
+
+    addTestCase(testCases, testUdf, "UDF test", defaultTimeout, TestCaseEnabled, "");
 
     // Witness to bug 238
     addTestCase(testCases, testApiMapLongEvalString, "Map long eval string", defaultTimeout, TestCaseEnabled, "238");
@@ -2619,7 +2667,8 @@
     // Witness to bug Xc-2371
     addTestCase(testCases, indexAggregateRaceTest, "index-aggregate race test", defaultTimeout, TestCaseEnabled, "2371")
 
-    addTestCase(testCases, testSupportGenerate, "support generate", defaultTimeout, TestCaseEnabled, "");
+    // XXX Re-enable when waitpid bug is fixed
+    addTestCase(testCases, testSupportGenerate, "support generate", defaultTimeout, TestCaseDisabled, "");
 
     // Re-enabled with delete DHT added
     addTestCase(testCases, testCreateDht, "create DHT test", defaultTimeout, TestCaseEnabled, "");

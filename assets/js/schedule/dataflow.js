@@ -203,7 +203,7 @@ window.DFG = (function($, DFG) {
             var columns = [];
 
             dataFlow.columns.forEach(function(colInfo) {
-                var col = new DsColumnNameT();
+                var col = new ExColumnNameT();
                 col.name = colInfo.backCol; // Back col name
                 col.headerAlias = colInfo.frontCol; // Front col name
                 columns.push(col);

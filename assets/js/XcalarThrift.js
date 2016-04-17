@@ -459,8 +459,8 @@ function XcalarLoad(url, format, datasetName, fieldDelim, recordDelim,
         loadArgs.csv.hasHeader = false;
     }
     if (moduleName !== "" && funcName !== "") {
-        loadArgs.pyLoadArgs = new XcalarApiPyLoadArgsT();
-        loadArgs.pyLoadArgs.fullyQualifiedFnName = moduleName + ":" + funcName;
+        loadArgs.udfLoadArgs = new XcalarApiUdfLoadArgsT();
+        loadArgs.udfLoadArgs.fullyQualifiedFnName = moduleName + ":" + funcName;
     }
 
     var workItem = xcalarLoadWorkItem(url, datasetName, formatType, 0,
@@ -498,6 +498,7 @@ function XcalarLoad(url, format, datasetName, fieldDelim, recordDelim,
     return (deferred.promise());
 }
 
+// XXX Not tested!!
 function XcalarAddODBCExportTarget(targetName, connStr, txId) {
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return (promiseWrapper(null));
@@ -507,11 +508,11 @@ function XcalarAddODBCExportTarget(targetName, connStr, txId) {
     if (insertError(arguments.callee, deferred)) {
         return (deferred.promise());
     }
-    var target = new DsExportTargetT();
-    var specInput = new DsAddTargetSpecificInputT();
+    var target = new ExExportTargetT();
+    var specInput = new ExAddTargetSpecificInputT();
     target.name = targetName;
-    target.type = DsTargetTypeT.DsTargetODBCType;
-    specInput.odbcInput = new DsAddTargetODBCInputT();
+    target.type = ExTargetTypeT.ExTargetODBCType;
+    specInput.odbcInput = new ExAddTargetODBCInputT();
     specInput.odbcInput.connectionString = connStr;
 
     var workItem = xcalarAddExportTargetWorkItem(target, specInput);
@@ -532,6 +533,7 @@ function XcalarAddODBCExportTarget(targetName, connStr, txId) {
     return (deferred.promise());
 }
 
+// XXX: Not tested
 function XcalarAddLocalFSExportTarget(targetName, path, txId) {
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return (promiseWrapper(null));
@@ -541,11 +543,11 @@ function XcalarAddLocalFSExportTarget(targetName, path, txId) {
     if (insertError(arguments.callee, deferred)) {
         return (deferred.promise());
     }
-    var target = new DsExportTargetT();
-    var specInput = new DsAddTargetSpecificInputT();
+    var target = new ExExportTargetT();
+    var specInput = new ExAddTargetSpecificInputT();
     target.name = targetName;
-    target.type = DsTargetTypeT.DsTargetSFType;
-    specInput.sfInput = new DsAddTargetSFInputT();
+    target.type = ExTargetTypeT.ExTargetSFType;
+    specInput.sfInput = new ExAddTargetSFInputT();
     specInput.sfInput.url = path;
 
     var workItem = xcalarAddExportTargetWorkItem(target, specInput);
@@ -603,10 +605,10 @@ function XcalarExport(tableName, exportName, targetName, numColumns,
         return (deferred.promise());
     }
 
-    var target = new DsExportTargetHdrT();
-    target.type = DsTargetTypeT.DsTargetUnknownType;
+    var target = new ExExportTargetHdrT();
+    target.type = ExTargetTypeT.ExTargetUnknownType;
     target.name = targetName;
-    var specInput = new DsInitExportSpecificInputT();
+    var specInput = new ExInitExportSpecificInputT();
     XcalarListExportTargets("*", targetName)
     .then(function(out) {
         if (out.numTargets < 1) {
@@ -621,23 +623,28 @@ function XcalarExport(tableName, exportName, targetName, numColumns,
                 break;
             }
         }
-        if (target.type === DsTargetTypeT.DsTargetUnknownType) {
+        if (target.type === ExTargetTypeT.ExTargetUnknownType) {
             deferred.reject(thriftLog("XcalarExport", "Export target is not" +
                             " on the target list"));
             return;
         }
         switch (target.type) {
-            case (DsTargetTypeT.DsTargetODBCType):
-                specInput.odbcInput = new DsInitExportODBCInputT();
+            case (ExTargetTypeT.ExTargetODBCType):
+                specInput.odbcInput = new ExInitExportODBCInputT();
                 specInput.odbcInput.tableName = exportName;
                 break;
-            case (DsTargetTypeT.DsTargetSFType):
-                specInput.sfInput = new DsInitExportSFInputT();
+            case (ExTargetTypeT.ExTargetSFType):
+                specInput.sfInput = new ExInitExportSFInputT();
                 specInput.sfInput.fileName = exportName + ".csv";
+                specInput.sfInput.splitRule = new ExSFFileSplitRuleT();
+                specInput.sfInput.splitRule.type =
+                                    ExSFFileSplitTypeT.ExSFFileSplitSplitNone;
+                specInput.sfInput.headerType =
+                                            ExSFHeaderTypeT.ExSFHeaderEveryFile;
                 specInput.sfInput.format = DfFormatTypeT.DfFormatCsv;
                 specInput.sfInput.formatArgs = new
-                                            DsInitExportFormatSpecificArgsT();
-                specInput.sfInput.formatArgs.csv = new DsInitExportCSVArgsT();
+                                            ExInitExportFormatSpecificArgsT();
+                specInput.sfInput.formatArgs.csv = new ExInitExportCSVArgsT();
                 specInput.sfInput.formatArgs.csv.fieldDelim = gExportFDelim;
                 specInput.sfInput.formatArgs.csv.recordDelim = gExportRDelim;
                 break;
@@ -647,20 +654,20 @@ function XcalarExport(tableName, exportName, targetName, numColumns,
         }
         var columns = [];
         for (var i = 0; i < backColName.length; i++) {
-            var colNameObj = new DsColumnNameT();
+            var colNameObj = new ExColumnNameT();
             colNameObj.name = backColName[i];
             colNameObj.headerAlias = frontColName[i];
             columns.push(colNameObj);
         }
 
         var workItem = xcalarExportWorkItem(tableName, target, specInput,
-                                  DsExportCreateRuleT.DsExportCreateOnly,
-                                            columns.length, columns);
+                                  ExExportCreateRuleT.ExExportCreateOnly,
+                                            true, numColumns, columns);
         var def1 = xcalarExport(tHandle, tableName, target, specInput,
-                                DsExportCreateRuleT.DsExportCreateOnly,
-                                numColumns, columns);
-        var def2 = XcalarGetQuery(workItem);
-        // var def2 = jQuery.Deferred().resolve().promise();
+                                ExExportCreateRuleT.ExExportCreateOnly,
+                                true, numColumns, columns);
+        // var def2 = XcalarGetQuery(workItem);
+        var def2 = jQuery.Deferred().resolve().promise();
         jQuery.when(def1, def2)
         .then(function(ret1, ret2) {
             Transaction.log(txId, ret2);
@@ -1480,6 +1487,30 @@ function XcalarProject(columns, tableName, dstTableName, txId) {
     return (deferred.promise());
 }
 
+function XcalarGenRowNum(srcTableName, dstTableName, newFieldName, txId) {
+    var deferred = jQuery.Deferred();
+    if (insertError(arguments.callee, deferred)) {
+        return (deferred.promise());
+    }
+    // DO NOT GET THE UNSORTED TABLE NAMEEE! We actually want the sorted order
+    var workItem = xcalarApiGetRowNumWorkItem(srcTableName, dstTableName,
+                                              newFieldName);
+    var def1 = xcalarApiGetRowNum(tHandle, newFieldName, srcTableName,
+                                  dstTableName);
+    var def2 = XcalarGetQuery(workItem);
+    jQuery.when(def1, def2)
+    .then(function(ret1, ret2) {
+        // XXX This part doesn't work yet
+        Transaction.log(txId, ret2);
+    })
+    .fail(function(error1, error2) {
+        var thriftError = thriftLog("XcalarGenRowNum", error1, error2);
+        deferred.reject(thriftError);
+    })
+
+
+}
+
 // PSA!!! This place does not check for unsorted table. So the caller
 // must make sure that the first table that is being passed into XcalarQuery
 // is an unsorted table! Otherwise backend may crash
@@ -2175,11 +2206,90 @@ function XcalarUploadPython(moduleName, pythonStr) {
         return (deferred.promise());
     }
 
-    xcalarApiUploadPython(tHandle, moduleName, pythonStr)
+    xcalarApiUdfAdd(tHandle, UdfTypeT.UdfTypePython, moduleName, pythonStr)
     .then(deferred.resolve)
     .fail(function(error) {
-        var thriftError = thriftLog("XcalarUploadPython", error);
-        SQL.errorLog("Upload Python", null, null, thriftError);
+        if (error && jQuery.isNumeric(error)) {
+            if (error == StatusT["StatusUdfModuleAlreadyExists"]) {
+                XcalarUpdatePython(moduleName, pythonStr)
+                .then(function() {
+                    deferred.resolve();
+                })
+                .fail(function(error2) {
+                    var thriftError = thriftLog("XcalarUpdateAfterUpload",
+                                      error2);
+                    SQL.errorLog("Update of Upload Python", null, null,
+                                 thriftError);
+                    deferred.reject(thriftError);
+                })
+                // here do the update call
+            } else if (error == StatusT["StatusUdfModuleEmpty"]) {
+                // This is not an error because extensions may upload
+                // empty udfs. So just go ahead and resolve
+                deferred.resolve();
+                return;
+            }
+        } else {
+            var thriftError = thriftLog("XcalarUploadPython", error);
+            SQL.errorLog("Upload Python", null, null, thriftError);
+            deferred.reject(thriftError);
+        }
+    });
+    return (deferred.promise());
+}
+
+function XcalarUpdatePython(moduleName, pythonStr) {
+    if ([null, undefined].indexOf(tHandle) !== -1) {
+        return (promiseWrapper(null));
+    }
+    var deferred = jQuery.Deferred();
+    if (insertError(arguments.callee, deferred)) {
+        return (deferred.promise());
+    }
+
+    xcalarApiUdfUpdate(tHandle, UdfTypeT.UdfTypePython, moduleName,
+                          pythonStr)
+    .then(deferred.resolve)
+    .fail(function(error) {
+        var thriftError = thriftLog("XcalarUpdatePython", error);
+        SQL.errorLog("Update Python", null, null, thriftError);
+        defered.reject(thriftError);
+    });
+    return (deferred.promise());
+}
+
+function XcalarDeletePython(moduleName) {
+    if ([null, undefined].indexOf(tHandle) !== -1) {
+        return (promiseWrapper(null));
+    }
+    var deferred = jQuery.Deferred();
+    if (insertError(arguments.callee, deferred)) {
+        return (deferred.promise());
+    }
+
+    xcalarApiUdfDelete(tHandle, moduleName)
+    .then(deferred.resolve)
+    .fail(function(error) {
+        var thriftError = thriftLog("XcalarDeletePython", error);
+        SQL.errorLog("Delete Python", null, null, thriftError);
+        defered.reject(thriftError);
+    });
+    return (deferred.promise());
+}
+
+function XcalarDownloadPython(moduleName) {
+    if ([null, undefined].indexOf(tHandle) !== -1) {
+        return (promiseWrapper(null));
+    }
+    var deferred = jQuery.Deferred();
+    // fromWhichWorkbook can be null
+    xcalarApiUdfGet(tHandle, moduleName)
+    .then(function(output) {
+        deferred.resolve(output.pythonSrc);
+    })
+    .fail(function(error) {
+        var thriftError = thriftLog("XcalarDownloadPython", error);
+        SQL.errorLog("Download Python", null, null, thriftError);
         deferred.reject(thriftError);
     });
     return (deferred.promise());
@@ -2364,24 +2474,6 @@ function XcalarSupportGenerate() {
     .fail(function(error) {
         var thriftError = thriftLog("XcalarSupportGenerate", error);
         SQL.errorLog("Support Generate", null, null, thriftError);
-        deferred.reject(thriftError);
-    });
-    return (deferred.promise());
-}
-
-function XcalarDownloadPython(moduleName) {
-    if ([null, undefined].indexOf(tHandle) !== -1) {
-        return (promiseWrapper(null));
-    }
-    var deferred = jQuery.Deferred();
-    // fromWhichWorkbook can be null
-    xcalarApiDownloadPython(tHandle, moduleName)
-    .then(function(output) {
-        deferred.resolve(output.pythonSrc);
-    })
-    .fail(function(error) {
-        var thriftError = thriftLog("XcalarDownloadPython", error);
-        SQL.errorLog("Download Python", null, null, thriftError);
         deferred.reject(thriftError);
     });
     return (deferred.promise());

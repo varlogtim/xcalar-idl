@@ -147,7 +147,7 @@ window.ExportTarget = (function($, ExportTarget) {
             var types = [];
             exportTargets = [];
             for (var i = 0; i < numTargs; i++) {
-                var type = DsTargetTypeTStr[targets[i].hdr.type];
+                var type = ExTargetTypeTStr[targets[i].hdr.type];
                 if (type === "file") {
                     type = "Local Filesystem";
                 } else if (type === "odbc") {
