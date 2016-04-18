@@ -25,9 +25,7 @@ window.SQL = (function($, SQL) {
     var sqlRestoreError = "restore sql error";
 
     SQL.setup = function() {
-        // SQL.restore will not be triggered is kvstore is empty
-        // so add an extra one here
-        updateUndoRedoState();
+        initialize();
         // show human readabl SQL as default
         $machineTextarea.hide();
 
@@ -82,6 +80,40 @@ window.SQL = (function($, SQL) {
 
             SQL.redo();
         });
+    };
+
+    SQL.restore = function(isKVEmpty) {
+        var deferred = jQuery.Deferred();
+
+        if (isKVEmpty) {
+            updateUndoRedoState();
+            return deferred.resolve().promise();
+        }
+
+        var newErrors = errors;
+
+        restoreLogs()
+        .then(function() {
+            return restoreErrors(newErrors);
+        })
+        .then(function() {
+            // XXX FIXME change back to localCommit() if it's buggy
+            resetLoclStore();
+            deferred.resolve();
+        })
+        .fail(function(error) {
+            if (error === sqlRestoreError) {
+                SQL.clear();
+                deferred.resolve();
+            } else {
+                deferred.reject(error);
+            }
+        })
+        .always(function() {
+            updateUndoRedoState();
+        });
+
+        return (deferred.promise());
     };
 
     SQL.add = function(title, options, cli, willCommit) {
@@ -148,35 +180,6 @@ window.SQL = (function($, SQL) {
 
     SQL.getLocalStorage = function() {
         return localStorage.getItem(sqlLocalStoreKey);
-    };
-
-    SQL.restore = function() {
-        var deferred = jQuery.Deferred();
-        var newErrors = errors;
-        initialize();
-
-        restoreLogs()
-        .then(function() {
-            return restoreErrors(newErrors);
-        })
-        .then(function() {
-            // XXX FIXME change back to localCommit() if it's buggy
-            resetLoclStore();
-            deferred.resolve();
-        })
-        .fail(function(error) {
-            if (error === sqlRestoreError) {
-                SQL.clear();
-                deferred.resolve();
-            } else {
-                deferred.reject(error);
-            }
-        })
-        .always(function() {
-            updateUndoRedoState();
-        });
-
-        return (deferred.promise());
     };
 
     SQL.clear = function() {

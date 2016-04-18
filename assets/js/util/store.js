@@ -138,42 +138,28 @@ window.KVStore = (function($, KVStore) {
 
         KVStore.getAndParse(KVStore.gStorageKey, gKVScope.META)
         .then(function(gInfos) {
-            if (gInfos) {
-                if (gInfos[METAKeys.TI]) {
-                    TblManager.restoreTableMeta(gInfos[METAKeys.TI]);
-                }
-                if (gInfos[METAKeys.WS]) {
-                    WSManager.restore(gInfos[METAKeys.WS]);
-                }
-                if (gInfos[METAKeys.CLI]) {
-                    CLIBox.restore(gInfos[METAKeys.CLI]);
-                }
-                if (gInfos[METAKeys.CART]) {
-                    DataCart.initialize(gInfos[METAKeys.CART]);
-                }
-                if (gInfos[METAKeys.STATS]) {
-                    Profile.restore(gInfos[METAKeys.STATS]);
-                }
-                if (gInfos[METAKeys.DFG]) {
-                    DFG.restore(gInfos[METAKeys.DFG]);
-                }
-                if (gInfos[METAKeys.SCHE]) {
-                    Scheduler.restore(gInfos[METAKeys.SCHE]);
-                }
+            var isEmpty = (gInfos == null);
+            gInfos = gInfos || {};
 
-                return SQL.restore();
-            } else {
+            WSManager.restore(gInfos[METAKeys.WS]);
+            TblManager.restoreTableMeta(gInfos[METAKeys.TI]);
+            DataCart.restore(gInfos[METAKeys.CART]);
+            Profile.restore(gInfos[METAKeys.STATS]);
+            DFG.restore(gInfos[METAKeys.DFG]);
+            Scheduler.restore(gInfos[METAKeys.SCHE]);
+            CLIBox.restore(gInfos[METAKeys.CLI]);
+
+            if (isEmpty) {
                 console.info("KVStore is empty!");
-                // this will help to reset all modules
-                // KVStore.emptyAll(true);
-                return promiseWrapper(null);
+            } else {
+                return SQL.restore();
             }
         })
         .then(function() {
-            UserSettings.restore();
+            return UserSettings.restore();
         })
         .then(function() {
-            KVStore.commit(true);
+            // KVStore.commit(true);
             deferred.resolve();
         })
         .fail(function(error) {

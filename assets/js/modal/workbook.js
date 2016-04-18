@@ -23,7 +23,14 @@ window.WorkbookModal = (function($, WorkbookModal) {
     var activeActionNo = 0;
 
     WorkbookModal.setup = function() {
-        initizliae();
+        initialize();
+
+        modalHelper = new ModalHelper($workbookModal, {
+            "focusOnOpen": true,
+            "minWidth"   : minWidth,
+            "minHeight"  : minHeight
+        });
+
         $workbookModal.draggable({
             "handle"     : ".modalHeader",
             "cursor"     : "-webkit-grabbing",
@@ -43,24 +50,15 @@ window.WorkbookModal = (function($, WorkbookModal) {
         });
 
         addWorkbookEvents();
-        getWorkbookInfo();
     };
 
     WorkbookModal.show = function(isForceShow) {
-        // put is here because workbook may be showed
-        // before setup is called
-        if (modalHelper == null) {
-            modalHelper = new ModalHelper($workbookModal, {
-                "focusOnOpen": true,
-                "minWidth"   : minWidth,
-                "minHeight"  : minHeight
-            });
-        }
-
         $(document).on("keypress", workbookKeyPress);
 
         if (isForceShow) {
             modalHelper.setup({"noEsc": true});
+            $workbookModal.draggable("destroy");
+            $workbookModal.resizable("destroy");
         } else {
             modalHelper.setup();
         }
@@ -68,6 +66,7 @@ window.WorkbookModal = (function($, WorkbookModal) {
         // default choose first option (new workbook)
         $optionSection.find(".radio").eq(0).click();
 
+        getWorkbookInfo(isForceShow);
         addWorkbooks();
 
         if (gMinModeOn) {
@@ -83,11 +82,7 @@ window.WorkbookModal = (function($, WorkbookModal) {
     };
 
     WorkbookModal.forceShow = function() {
-        initizliae();
-        addWorkbookEvents();
         $workbookModal.find(".cancel, .close").hide();
-
-        getWorkbookInfo(true);
         WorkbookModal.show(true);
         // deafult value for new workbook
         $workbookInput.val("untitled");
@@ -95,7 +90,7 @@ window.WorkbookModal = (function($, WorkbookModal) {
         input.setSelectionRange(0, input.value.length);
     };
 
-    function initizliae() {
+    function initialize() {
         $modalBg = $("#modalBackground");
         $workbookModal = $("#workbookModal");
         $optionSection = $workbookModal.find(".optionSection");
@@ -205,7 +200,6 @@ window.WorkbookModal = (function($, WorkbookModal) {
     }
 
     function getWorkbookInfo(isForceMode) {
-
         var $instr = $workbookModal.find(".modalInstruction .text");
         var user = Support.getUser();
         var html;
@@ -641,11 +635,6 @@ window.WKBKManager = (function($, WKBKManager) {
             var gLogKey  = generateKey(wkbkId, "gLog");
             var gErrKey  = generateKey(wkbkId, "gErr");
             var gUsreKey = generateKey(username, 'gUser');
-
-            if (sessionStorage.getItem("xcalar.safe") != null) {
-                wkbkId = sessionStorage.getItem("xcalar.safe");
-                console.warn("Entering in safe mode of", wkbkId);
-            }
 
             KVStore.setup(gInfoKey, gLogKey, gErrKey, gUsreKey);
             deferred.resolve();

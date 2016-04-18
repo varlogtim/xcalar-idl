@@ -15,6 +15,9 @@ window.UDF = (function($, UDF) {
 
     UDF.setup = function() {
         setupUDF();
+    };
+
+    UDF.initialize = function() {
         initializeUDFList()
         .then(defaultUDFUpload);
         // Note that defaultUDFUpload() will append the default UDF

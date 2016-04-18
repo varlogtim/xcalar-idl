@@ -9,7 +9,8 @@ window.QueryManager = (function(QueryManager, $) {
     var checkInterval = 2000; // check query every 2s
 
     QueryManager.setup = function() {
-        initialize();
+        $queryList = $("#monitor-queryList");
+        $queryDetail = $("#monitor-queryDetail");
 
         $queryList.on("click", ".query", function() {
             focuOnQuery($(this));
@@ -66,11 +67,6 @@ window.QueryManager = (function(QueryManager, $) {
             });
         }
     };
-
-    function initialize() {
-        $queryList = $("#monitor-queryList");
-        $queryDetail = $("#monitor-queryDetail");
-    }
 
     function focuOnQuery($target) {
         if ($target.hasClass("active")) {

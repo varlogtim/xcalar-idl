@@ -18,15 +18,20 @@ window.DS = (function ($, DS) {
     var $dragDS;
     var $dropTarget;
 
-    // Restore dsObj
-    DS.initialize = function(oldHomeFolder) {
-        initialize();
-        return restoreDS(oldHomeFolder, true);
-    };
-
     DS.setup = function() {
+        homeDirId = DSObjTerm.homeDirId;
+        $explorePanel = $("#exploreView");
+        $backFolderBtn = $("#backFolderBtn");
+        $deleteFolderBtn = $("#deleteFolderBtn");
+        $gridView = $explorePanel.find(".gridItems");
+
         setupGridViewButtons();
         setupGrids();
+    };
+
+    // Restore dsObj
+    DS.restore = function(oldHomeFolder) {
+        return restoreDS(oldHomeFolder, true);
     };
 
     DS.setupView = function() {
@@ -468,14 +473,6 @@ window.DS = (function ($, DS) {
 
         dsLookUpTable[homeFolder.getId()] = homeFolder;
     };
-
-    function initialize() {
-        homeDirId = DSObjTerm.homeDirId;
-        $explorePanel = $("#exploreView");
-        $backFolderBtn = $("#backFolderBtn");
-        $deleteFolderBtn = $("#deleteFolderBtn");
-        $gridView = $explorePanel.find(".gridItems");
-    }
 
     // Create dsObj for new dataset/folder
     function createDS(options) {

@@ -1,8 +1,6 @@
 window.TableList = (function($, TableList) {
 
     TableList.setup = function() {
-        initializeTableList();
-
         // setup table list section listeners
         var $tabsSection       = $("#tableListSectionTabs");
         var $tableListSections = $("#tableListSections .tableListSection");
@@ -133,6 +131,10 @@ window.TableList = (function($, TableList) {
         $("#orphanedTableList-search").on("click", ".clear", function() {
             clearTableListFilter($("#orphanedTableList"), null);
         });
+    };
+
+    TableList.initialize = function() {
+        initializeTableList();
     };
 
     TableList.clear = function() {

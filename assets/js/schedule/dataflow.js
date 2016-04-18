@@ -2,11 +2,14 @@ window.DFG = (function($, DFG) {
     var dfGroups = {};
 
     DFG.restore = function(groups) {
+        groups = groups || {};
         dfGroups = {};
 
         for (var name in groups) {
             dfGroups[name] = new DFGObj(name, groups[name]);
         }
+
+        DFGPanel.updateDFG();
     };
 
     DFG.getAllGroups = function() {

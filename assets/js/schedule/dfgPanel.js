@@ -23,7 +23,6 @@ window.DFGPanel = (function($, DFGPanel) {
     DFGPanel.setup = function() {
         addListeners();
         setupViewToggling();
-        updateList();
         setupDagDropdown();
         setupRetinaTab();
         Scheduler.setup();

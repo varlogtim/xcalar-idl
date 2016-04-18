@@ -169,15 +169,8 @@ window.Scheduler = (function(Scheduler, $) {
         });
     };
 
-    Scheduler.getAllSchedules = function() {
-        return schedules;
-    };
-
     Scheduler.restore = function(oldSchedules) {
-        if (oldSchedules == null) {
-            return;
-        }
-
+        oldSchedules = oldSchedules || {};
         var html = "";
 
         for (var i = 0, len = oldSchedules.length; i < len; i++) {
@@ -195,6 +188,10 @@ window.Scheduler = (function(Scheduler, $) {
 
         $scheduleLists.html(html);
         updateScheduleInfo();
+    };
+
+    Scheduler.getAllSchedules = function() {
+        return schedules;
     };
 
     Scheduler.refresh = function(dfgName) {

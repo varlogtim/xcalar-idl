@@ -6,7 +6,11 @@ window.RightSideBar = (function($, RightSideBar) {
         UDF.setup();
         CLIBox.setup();
         Help.setup();
+    };
 
+    RightSideBar.initialize = function() {
+        TableList.initialize();
+        UDF.initialize();
         setLastRightSidePanel();
     };
 

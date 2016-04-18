@@ -24,26 +24,11 @@ window.WSManager = (function($, WSManager) {
     // Setup function for WSManager Module
     WSManager.setup = function() {
         addWSEvents();
-        initializeWorksheet();
-        initializeHiddenWorksheets();
-    };
-
-    // Clear all data in WSManager
-    WSManager.clear = function() {
-        wsLookUp = {};
-        wsOrder = [];
-        noSheetTables = [];
-        tableIdToWSIdMap = {};
-        wsNameToIdMap = {};
-        aggInfos = {};
-        activeWorksheet = null;
-        nameSuffix = 1;
-        initializeWorksheet(true);
-        initializeHiddenWorksheets();
     };
 
     // Restore worksheet structure from backend
     WSManager.restore = function(sheetInfos) {
+        sheetInfos = sheetInfos || {};
         wsOrder = sheetInfos.wsOrder || [];
         hiddenWS = sheetInfos.hiddenWS || [];
         wsLookUp = sheetInfos.wsInfos || {};
@@ -78,6 +63,23 @@ window.WSManager = (function($, WSManager) {
                 tableIdToWSIdMap[orphanedTables[i]] = wsId;
             }
         }
+
+        initializeWorksheet();
+        initializeHiddenWorksheets();
+    };
+
+    // Clear all data in WSManager
+    WSManager.clear = function() {
+        wsLookUp = {};
+        wsOrder = [];
+        noSheetTables = [];
+        tableIdToWSIdMap = {};
+        wsNameToIdMap = {};
+        aggInfos = {};
+        activeWorksheet = null;
+        nameSuffix = 1;
+        initializeWorksheet(true);
+        initializeHiddenWorksheets();
     };
 
     WSManager.getAllMeta = function() {

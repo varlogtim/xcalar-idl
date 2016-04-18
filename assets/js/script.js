@@ -79,30 +79,28 @@ window.StartManager = (function(StartManager, $) {
         // Support.setup() get username, so need to be at very eary time
         Support.setup();
 
+        setupTooltips();
+        setupMenuBar();
+        StatusMessage.setup();
+        RightSideBar.setup();
+        DataStore.setup();
+        TblMenu.setup();
+        WSManager.setup();
+        MonitorPanel.setup();
+        DagPanel.setup();
+        DFGPanel.setup();
+        setupModals();
+
         XVM.checkVersionMatch()
         .then(setupSession)
         .then(function() {
             documentReadyGeneralFunction();
-            setupTooltips();
-            setupMenuBar();
-
-            StatusMessage.setup();
-            RightSideBar.setup();
-            DataStore.setup();
-            TblMenu.setup();
-            WSManager.setup();
-            MonitorPanel.setup();
-            DagPanel.setup();
-            DFGPanel.setup();
-            setupModals();
+            RightSideBar.initialize();
             setupExtensions();
 
             WSManager.focusOnWorksheet();
         })
         .then(function() {
-            // this should come in last!
-            // KVStore.safeSetup();
-
             if (!isBrowseFireFox) {
                 gMinModeOn = false; // turn off min mode
             }

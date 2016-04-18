@@ -11,9 +11,9 @@ window.UserSettings = (function($, UserSettings) {
         .then(function(res) {
             if (res != null) {
                 userPreference = new UserPref(res[UserInfoKeys.PREF]);
-                return DS.initialize(res[UserInfoKeys.DS]);
+                return DS.restore(res[UserInfoKeys.DS]);
             } else {
-                return DS.initialize(null);
+                return DS.restore(null);
             }
         })
         .then(deferred.resolve)

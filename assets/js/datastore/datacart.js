@@ -2,29 +2,12 @@
  * Module for data cart part on the right of datastore panel
  */
 window.DataCart = (function($, DataCart) {
-    var $cartArea;     // $("#dataCart")
-    var $explorePanel; // $("#exploreView")
-
+    var $cartArea; // $("#dataCart")
     var innerCarts = [];
 
-    // restore the cart
-    DataCart.initialize = function(carts) {
-        initialize();
-
-        var noNameCheck = true;
-        for (var i = carts.length - 1; i >= 0; i--) {
-            // add cart use Array.unshift, so here should restore from end to 0
-            var cart = carts[i];
-            var resotredCart = addCart(cart.dsId, cart.tableName, noNameCheck);
-            appendCartItem(resotredCart, cart.items);
-        }
-
-        refreshCart();
-    };
-
     DataCart.setup = function() {
-        // XXX this is a temp fix for kvStore is empty issue
-        initialize();
+        $cartArea = $("#dataCart");
+
         // send to worksheet button
         $("#submitDSTablesBtn").click(function() {
             var $submitBtn = $(this).blur();
@@ -93,6 +76,23 @@ window.DataCart = (function($, DataCart) {
         $cartArea.on("click", ".cartTitleArea .iconWrapper", function() {
             $(this).siblings(".tableNameEdit").focus();
         });
+    };
+
+    // restore the cart
+    DataCart.restore = function(carts) {
+        carts = carts || [];
+        var noNameCheck = true;
+        var len = carts.length;
+        for (var i = len - 1; i >= 0; i--) {
+            // add cart use Array.unshift, so here should restore from end to 0
+            var cart = carts[i];
+            var resotredCart = addCart(cart.dsId, cart.tableName, noNameCheck);
+            appendCartItem(resotredCart, cart.items);
+        }
+
+        if (len > 0) {
+            refreshCart();
+        }
     };
 
     // get information about carts
@@ -182,6 +182,7 @@ window.DataCart = (function($, DataCart) {
     };
 
     DataCart.overflowShadow = function() {
+        var $explorePanel = $("#exploreView");
         if ($cartArea.height() > $('#dataCartWrap').height()) {
             $explorePanel.find('.contentViewRight').find('.buttonArea')
                                 .addClass('cartOverflow');
@@ -190,11 +191,6 @@ window.DataCart = (function($, DataCart) {
                                 .removeClass('cartOverflow');
         }
     };
-
-    function initialize() {
-        $cartArea = $("#dataCart");
-        $explorePanel = $("#exploreView");
-    }
 
     function filterCarts(dsId) {
         for (var i = 0, len = innerCarts.length; i < len; i++) {

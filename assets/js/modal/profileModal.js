@@ -62,7 +62,11 @@ window.Profile = (function($, Profile, d3) {
     var minWidth  = 750;
 
     Profile.setup = function() {
-        initialize();
+        $modal = $("#profileModal");
+        $modalBg = $("#modalBackground");
+        $rangeSection = $modal.find(".rangeSection");
+        $rangeInput = $("#stats-step");
+
         modalHelper = new ModalHelper($modal, {
            "minHeight": minHeight,
            "minWidth" : minWidth
@@ -201,19 +205,20 @@ window.Profile = (function($, Profile, d3) {
         });
     };
 
-    Profile.getCache = function() {
-        return (statsInfos);
-    };
-
     Profile.restore = function(oldInfos) {
+        oldInfos = oldInfos || {};
         statsInfos = {};
         for (var tableId in oldInfos) {
             statsInfos[tableId] = {};
-            var colInfos = oldInfos[tableId];
+            var colInfos = oldInfos[tableId] || {};
             for (var colName in colInfos) {
                 statsInfos[tableId][colName] = new ProfileInfo(colInfos[colName]);
             }
         }
+    };
+
+    Profile.getCache = function() {
+        return (statsInfos);
     };
 
     Profile.copy = function(oldTableId, newTableId) {
@@ -287,13 +292,6 @@ window.Profile = (function($, Profile, d3) {
 
         return (deferred.promise());
     };
-
-    function initialize() {
-        $modal = $("#profileModal");
-        $modalBg = $("#modalBackground");
-        $rangeSection = $modal.find(".rangeSection");
-        $rangeInput = $("#stats-step");
-    }
 
     function closeProfileModal() {
         var fadeOutTime = gMinModeOn ? 0 : 300;

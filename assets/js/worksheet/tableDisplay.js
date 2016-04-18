@@ -583,6 +583,7 @@ window.TblManager = (function($, TblManager) {
     };
 
     TblManager.restoreTableMeta = function(oldgTables) {
+        oldgTables = oldgTables || {};
         for (var tableId in oldgTables) {
             var oldMeta = oldgTables[tableId];
             var table = new TableMeta(oldMeta);

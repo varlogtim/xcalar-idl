@@ -30,17 +30,6 @@ window.Alert = (function($, Alert){
     };
 
     Alert.show = function(options) {
-        // put it here because alert modal may be displayed
-        // before setup is called
-        if (modalHelper == null) {
-            initialize();
-            modalHelper = new ModalHelper($modal, {
-                "focusOnOpen": true,
-                "noResize"   : true,
-                "noCenter"   : true
-            });
-        }
-
         options = options || {};
        /* options includes:
             title: titile of the alert
@@ -79,6 +68,7 @@ window.Alert = (function($, Alert){
         if (options.lockScreen) {
             modalHelper.setup({"noEsc": true});
             $modalBg.addClass('locked');
+            $modal.draggable("destroy");
         } else {
             modalHelper.setup();
         }
