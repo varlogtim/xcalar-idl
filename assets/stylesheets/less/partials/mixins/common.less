@@ -610,9 +610,10 @@
 
 // grid-unit
 .gridViewForGrid() {
-    .size(@width: 45px, @height: 65px);
+    .size(@width: 53px, @height: 65px);
     .position(relative);
-    margin: 7px;
+    margin: 3px;
+    margin-top: 7px;
     margin-bottom: 0px;
     text-align: center;
     float: left;
@@ -624,10 +625,10 @@
     }
 
     &.ds > .gridIcon {
-        .image("../../images/datastore/db-large.png", 4.5px, 3px);
+        .image("../../images/datastore/db-large.png", 7px, 3px);
     }
     &.folder > .gridIcon {
-        .image("../../images/datastore/folder-lg.png", 3px, 3px);
+        .image("../../images/datastore/folder-lg.png", 6px, 3px);
         background-size: 39px 33px;
     }
 
@@ -638,7 +639,8 @@
     > .label {
         .font(@size: 9px, @weight: 600);
         .transition (opacity 0.6s);
-        .size(@width: 45px, @height: 20px);
+        // .size(@width: 45px, @height: 20px);
+        .size(@width: 53px, @height: 20px);
         line-height: 10px;
         white-space: normal;
         word-break: break-word;

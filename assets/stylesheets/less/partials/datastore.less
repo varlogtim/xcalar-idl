@@ -1038,6 +1038,7 @@ input {
     .gridViewWrapper {
         .flex(1 1 auto);
         padding: 9px 5px;
+        padding-left: 8px;
         position: relative;
         overflow-x: hidden;
         overflow-y: auto;
@@ -1078,6 +1079,9 @@ input {
                         padding: 0;
                         background-color: transparent;
                         text-align: center;
+                    }
+                    .waitingIcon {
+                        left: 8px;
                     }
                 }
 
@@ -1122,7 +1126,7 @@ input {
                     }
 
                     .dsCount {
-                        .position(absolute, 11px, 0, 0, -3px);
+                        .position(absolute, 12px, 0, 0, 2px);
                         .size(@width: 50px, @height: 20px);
                         .font(@weight: 700, @color: @color-text-blue);
                     }
@@ -1160,6 +1164,7 @@ input {
 
             &.listView {
                 padding: 4px 5px;
+                padding-left: 2px;
 
                 .grid-unit {
                     .listViewForGrid;
