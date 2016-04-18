@@ -579,7 +579,8 @@ window.xcFunction = (function($, xcFunction) {
     // backColumns and frontColumns are arrays of column names
     xcFunction.exportTable = function(tableName, exportName, targetName,
                                       numCols, backColumns, frontColumns,
-                                      dontShowModal) {
+                                      keepOrder, dontShowModal) {
+
         var deferred = jQuery.Deferred();
         var retName  = $(".retTitle:disabled").val();
 
@@ -598,7 +599,8 @@ window.xcFunction = (function($, xcFunction) {
             "targetName"  : targetName,
             "numCols"     : numCols,
             "frontColumns": frontColumns,
-            "backColumns" : backColumns
+            "backColumns" : backColumns,
+            "keepOrder"   : keepOrder || false
         };
         var txId = Transaction.start({
             "msg"      : StatusMessageTStr.ExportTable + ": " + tableName,
@@ -607,7 +609,7 @@ window.xcFunction = (function($, xcFunction) {
         });
 
         XcalarExport(tableName, exportName, targetName, numCols, backColumns,
-                     frontColumns, txId)
+                     frontColumns, keepOrder, txId)
         .then(function() {
             var instr = xcHelper.replaceMsg(ExportTStr.SuccessInstr, {
                 "table"   : tableName,

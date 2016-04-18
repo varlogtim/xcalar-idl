@@ -1350,12 +1350,11 @@ html.microsoft {
             margin: 0 auto;
             .font(@weight: bold, @size: 13px);
             .checkbox {
-                display: inline-block;
-                .background("../../images/alertModal/checkbox-unchecked.png",
+                .background("../../images/checkbox-unchecked.png",
                             16px, 17px);
 
                 &.checked {
-                    background-image: url(../../images/alertModal/checkbox-checked.png);
+                    background-image: url(../../images/checkbox-checked.png);
                 }
             }
             .text {
@@ -1367,7 +1366,7 @@ html.microsoft {
             // now make it disabled
             &.inactive {
                 .checkbox {
-                    background-image: url(../../images/alertModal/checkbox-unchecked.png);
+                    background-image: url(../../images/checkbox-unchecked.png);
                 }
                 opacity: 0.5;
             }
@@ -2136,11 +2135,6 @@ html.microsoft {
                     .size(@width: 16px, @height: 30px);
                     float: left;
                     margin-right: 5px;
-                    .image("../../images/alertModal/checkbox-unchecked.png", 50%, 50%);
-
-                    &.checked {
-                        .image("../../images/alertModal/checkbox-checked.png", 50%, 50%);
-                    }
                 }
 
                 .text {
@@ -3114,7 +3108,7 @@ html.microsoft {
         padding: 15px 0;
 
         .formRow {
-            .size(@width: 75%, @height: 35px);
+            .size(@width: 85%, @height: 35px);
             .position(relative);
             margin: 0 auto;
             padding: 5px 0;
@@ -3127,7 +3121,7 @@ html.microsoft {
                 .size(20px, 20px);
                 .rounded();
                 position: absolute;
-                right: 43px;
+                right: 4px;
                 top: 8px;
                 .gray-gradient;
                 cursor: pointer;
@@ -3151,13 +3145,35 @@ html.microsoft {
             .noSelection;
         }
 
-        .exportNameSection, .exportColumnsSection {
-            .input-box(@w: ~"calc(100% - 115px)", @h: 25px, @focus: true);
+        .checkboxWrap {
+            display: inline-block;
+            color: @color-text-instructions;
+            margin-left: 16px;
+            .text {
+                margin-left: 4px;
+            }
+        }
+
+        .qMark {
+            float: right;
+            margin-top: 3px;
+            margin-left: 4px;
+        }
+
+        .text {
+            display: inline-block;
+        }
+
+        .exportNameSection {
+            .input-box(@w: ~"calc(100% - 210px)", @h: 25px, @focus: true);
+        }
+        .exportColumnsSection {
+            .input-box(@w: ~"calc(100% - 75px)", @h: 25px, @focus: true);
         }
 
         .exportPathSection {
             .dropDownList {
-                .styleDropDownList(~"calc(100% - 115px)", 25px);
+                .styleDropDownList(~"calc(100% - 75px)", 25px);
             }
         }
     }
@@ -3168,6 +3184,10 @@ html.microsoft {
         .btn {
             margin: 15px 15px 0 0;
         }
+    }
+
+    .ui-resizable-e {
+        height: ~"calc(100% + 15px)";
     }
 }
 /* End Of Export Modal */
@@ -3855,15 +3875,8 @@ html.microsoft {
                     text-align: center;
 
                     .checkbox {
-                        display: inline-block;
                         .size(@width: 16px, @height: 30px);
                         .position(relative, @top: 5px);
-                        cursor: pointer;
-                        .image("../../images/alertModal/checkbox-unchecked.png", 50%, 50%);
-
-                        &.checked {
-                            .image("../../images/alertModal/checkbox-checked.png", 50%, 50%);
-                        }
                     }
                 }
 
@@ -4458,15 +4471,8 @@ html.microsoft {
                     text-align: center;
 
                     .checkbox {
-                        display: inline-block;
                         .size(@width: 16px, @height: 30px);
                         .position(relative, @top: 5px);
-                        cursor: pointer;
-                        .image("../../images/alertModal/checkbox-unchecked.png", 50%, 50%);
-
-                        &.checked {
-                            .image("../../images/alertModal/checkbox-checked.png", 50%, 50%);
-                        }
                     }
                     &.hidden {
                         display: none;

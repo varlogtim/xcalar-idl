@@ -18,6 +18,15 @@
     <div class="exportNameSection formRow">
         <span class="label"><%= dicts.exportModal.ExportAs %>:</span>
         <input id="exportName" class="text" type="text" spellcheck="false" required>
+        <div class="checkboxWrap keepOrderedCBWrap">
+          <div class="checkbox">
+            <span class="icon"></span>
+          </div>
+          <div class="text"><%= dicts.exportModal.keepOrder %></div>
+          <div class="hint qMark" data-container="body" data-toggle="tooltip"
+                title="<%= dicts.exportModal.orderHint %>"></div>
+        </div>
+
     </div>
     <!-- export path section -->
     <div class="exportPathSection formRow">

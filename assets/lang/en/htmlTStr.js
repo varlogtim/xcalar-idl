@@ -422,7 +422,9 @@ module.exports = {
         'Location': 'Location',
         'Columns': 'Columns',
         'ColumnsHint': 'column1, column2 etc.',
-        'CONFIRM': 'EXPORT'
+        'CONFIRM': 'EXPORT',
+        'keepOrder': 'Keep Order',
+        'orderHint': 'Check to preserve table\'s row order',
     },
 
     fileBrowser: {

@@ -38,7 +38,7 @@ window.ExportModal = (function($, ExportModal) {
 
         $exportModal.resizable({
             handles    : "e, w",
-            minWidth   : 400,
+            minWidth   : 500,
             containment: "document"
         });
 
@@ -52,6 +52,10 @@ window.ExportModal = (function($, ExportModal) {
         $exportModal.on("click", ".confirm", function() {
             // error is handled in xcfunction.export
             submitForm();
+        });
+
+        $exportModal.find('.keepOrderedCBWrap').click(function() {
+            $(this).find('.checkbox').toggleClass('checked');
         });
 
         xcHelper.dropdownList($("#exportLists"), {
@@ -161,6 +165,12 @@ window.ExportModal = (function($, ExportModal) {
     function submitForm() {
         var deferred = jQuery.Deferred();
 
+        var keepOrder = false;
+        if ($exportModal.find('.keepOrderedCBWrap')
+                        .find('.checkbox.checked').length) {
+            keepOrder = true;
+        }
+
         var exportName = $exportName.val().trim();
         var columnsVal = $exportColumns.val().split(",");
         jQuery.each(columnsVal, function(i, val) {
@@ -264,7 +274,7 @@ window.ExportModal = (function($, ExportModal) {
                                        $exportPath.val(),
                                        frontColumnNames.length,
                                        backColumnNames, frontColumnNames,
-                                       false)
+                                       keepOrder, false)
                 .then(function() {
                     closeModal = false;
                     if (!modalClosed) {
@@ -811,6 +821,7 @@ window.ExportModal = (function($, ExportModal) {
         $selectableThs = null;
         $(document).off(".exportModal");
         modalHelper.clear();
+        $exportModal.find('.checkbox').removeClass('checked');
 
         restoreColumns();
         var hide = true;

@@ -595,7 +595,7 @@ function XcalarListExportTargets(typePattern, namePattern) {
 }
 
 function XcalarExport(tableName, exportName, targetName, numColumns,
-                      backColName, frontColName, txId) {
+                      backColName, frontColName, keepOrder, txId) {
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return (promiseWrapper(null));
     }
@@ -665,7 +665,7 @@ function XcalarExport(tableName, exportName, targetName, numColumns,
                                             true, numColumns, columns);
         var def1 = xcalarExport(tHandle, tableName, target, specInput,
                                 ExExportCreateRuleT.ExExportCreateOnly,
-                                true, numColumns, columns);
+                                keepOrder, numColumns, columns);
         // var def2 = XcalarGetQuery(workItem);
         var def2 = jQuery.Deferred().resolve().promise();
         jQuery.when(def1, def2)
