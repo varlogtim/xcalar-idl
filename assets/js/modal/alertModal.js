@@ -9,6 +9,13 @@ window.Alert = (function($, Alert){
 
     Alert.setup = function() {
         initialize();
+
+        modalHelper = new ModalHelper($modal, {
+            "focusOnOpen": true,
+            "noResize"   : true,
+            "noCenter"   : true
+        });
+
         $modal.draggable({
             "handle"     : ".modalHeader",
             "cursor"     : "-webkit-grabbing",
@@ -26,6 +33,7 @@ window.Alert = (function($, Alert){
         // put it here because alert modal may be displayed
         // before setup is called
         if (modalHelper == null) {
+            initialize();
             modalHelper = new ModalHelper($modal, {
                 "focusOnOpen": true,
                 "noResize"   : true,
