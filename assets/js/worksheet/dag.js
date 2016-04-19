@@ -517,14 +517,11 @@ window.DagPanel = (function($, DagPanel) {
             var $tableIcon = $menu.data('tableelement');
             var $dagWrap = $tableIcon.closest('.dagWrap');
             var oldTableName = $dagWrap.find('.tableName').text();
+            var oldTableId = xcHelper.getTableId(oldTableName);
 
             TblManager.refreshTable([newTableName], null, [oldTableName], wsId)
             .then(function() {
                 var newTableId = xcHelper.getTableId(newTableName);
-                // if (tableType === "noSheet") {
-                //     tableType = TableType.Orphan;
-                // }
-                // TableList.removeTable(tableId, tableType);
 
                 var $tableWrap = $('#xcTableWrap-' + newTableId).mousedown();
                 Dag.focusDagForActiveTable();
