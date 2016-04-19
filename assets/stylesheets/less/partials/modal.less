@@ -2662,11 +2662,15 @@ html.microsoft {
                         }
 
                         .bar {
-                            fill: @color-profile-selected-bar;
-
+                            fill: @color-profile-bar-hover;
                             &.bar-nullVal {
                                 fill: @color-profile-selected-bar-null;
                             }
+                        }
+
+                        .bar-border {
+                            stroke: @color-profile-bar-hover;
+                            stroke-width: 2;
                         }
                     }
                 }
@@ -2693,9 +2697,12 @@ html.microsoft {
                 &.selecting {
                     &, &.hover {
                         .bar-border {
-                            stroke: @color-profile-bar-border-highlight;
+                            stroke: @color-profile-bar-hover;
                             stroke-width: 2;
                         }
+                    }
+                    .bar {
+                        fill: @color-profile-bar-hover;
                     }
                 }
             }
