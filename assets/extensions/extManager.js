@@ -271,7 +271,11 @@ window.ExtensionManager = (function(ExtensionManager, $) {
         var $tableMenu = $('#colMenu');
         var $subMenu = $('#colSubMenu');
         var $allMenus = $tableMenu.add($subMenu);
+        var colArray = $("#colMenu").data("columns");
 
+        if (colArray.length > 1) {
+            colNum = colArray;
+        }
         argList["allMenus"] = $allMenus;
         window[modName]["actionFn"](colNum, tableId, funcName, argList);
     };
