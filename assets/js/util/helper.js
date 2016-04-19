@@ -357,18 +357,29 @@ window.xcHelper = (function($, xcHelper) {
         return time;
     };
 
-    xcHelper.sizeTranslater = function(size, unitSeparated) {
+    // assigned unit is a unit (MB, GB etc) that you want to convert to
+    xcHelper.sizeTranslator = function(size, unitSeparated, convertTo) {
         var unit  = ["B", "KB", "MB", "GB", "TB", "PB"];
         var start = 0;
         var end   = unit.length - 2;
 
-        while (size >= 1024 && start <= end) {
-            size = (size / 1024).toFixed(1);
-            ++start;
+        if (convertTo && unit.indexOf(convertTo) > -1) {
+            var index = unit.indexOf(convertTo);
+            size = (size * (1 / Math.pow(1024, index))).toFixed(2);
+            size = parseFloat(size);
+            start = index;
+        } else {
+            while (size >= 1024 && start <= end) {
+                    size = (size / 1024).toFixed(1);
+                    ++start;
+            }
+            if (size >= 10) {
+                size = Math.ceil(size);
+            }
         }
-        if (size >= 10) {
-            size = Math.ceil(size);
-        }
+
+        size = parseFloat(size);
+
 
         if (unitSeparated) {
             return ([size, unit[start]]);

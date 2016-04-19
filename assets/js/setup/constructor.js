@@ -876,7 +876,7 @@ DSObj.prototype = {
                         size = 'N/A';
                         break;
                     } else {
-                        size = xcHelper.sizeTranslater(file.attr.size);
+                        size = xcHelper.sizeTranslator(file.attr.size);
                         if (isSingleFile && fileName === file.name) {
                             break;
                         }

@@ -1,5 +1,7 @@
 // sets up monitor panel and donuts, not monitor graph
 window.MonitorPanel = (function($, MonitorPanel) {
+    var failCount = 0;
+
     MonitorPanel.setup = function() {
         var $monitorPanel = $("#monitorPanel");
 
@@ -135,9 +137,16 @@ window.MonitorPanel = (function($, MonitorPanel) {
             var allStats = MonitorPanel.processNodeStats(nodes, apiTopResult,
                                                          numNodes);
             updateDonutSection(allStats, numNodes);
+            failCount = 0;
         })
         .fail(function(error) {
             console.error('XcalarGetStats failed', error);
+            failCount++;
+            // if it fails 2 times in a row, we show a connection error
+            if (failCount === 2) {
+                thriftLog('XcalarGetStats failed',
+                         {status: StatusT.StatusConnRefused});
+            }
         });
     };
 
@@ -305,7 +314,7 @@ window.MonitorPanel = (function($, MonitorPanel) {
                 .duration(duration)
                 .tween("text", function() {
                     var startNum = this.textContent;
-                    var size = xcHelper.sizeTranslater(num, true);
+                    var size = xcHelper.sizeTranslator(num, true);
                     var i;
 
                     if (index === 1 || index === 2) {
@@ -317,7 +326,7 @@ window.MonitorPanel = (function($, MonitorPanel) {
                     }
 
                     return (function(t) {
-                        var size = xcHelper.sizeTranslater(i(t), true);
+                        var size = xcHelper.sizeTranslator(i(t), true);
                         num = parseFloat(size[0]).toFixed(1);
                         if (num >= 10 || index === 0) {
                             num = Math.round(num);
@@ -356,8 +365,8 @@ window.MonitorPanel = (function($, MonitorPanel) {
                             '</li>';
             }
         } else {
-            var sumTotal = xcHelper.sizeTranslater(stats.sumTot, true);
-            var sumUsed = xcHelper.sizeTranslater(stats.sumUsed, true);
+            var sumTotal = xcHelper.sizeTranslator(stats.sumTot, true);
+            var sumUsed = xcHelper.sizeTranslator(stats.sumUsed, true);
             if (index !== 3) {
                 $statsSection.find('.statsHeadingBar .totNum')
                              .text(sumTotal[0] + " " + sumTotal[1]);
@@ -366,8 +375,8 @@ window.MonitorPanel = (function($, MonitorPanel) {
             }
 
             for (var i = 0; i < numNodes; i++) {
-                var total = xcHelper.sizeTranslater(stats.tot[i], true);
-                var used = xcHelper.sizeTranslater(stats.used[i], true);
+                var total = xcHelper.sizeTranslator(stats.tot[i], true);
+                var used = xcHelper.sizeTranslator(stats.used[i], true);
                 var usedUnits;
                 var totalUnits;
 

@@ -472,7 +472,7 @@ window.FileBrowser = (function($, FileBrowser) {
         //         } else {
         //             validNameFound = true;
         //         }
-                
+
         //         if (!validNameFound) {
         //             tries++;
         //             name = originalName + tries;
@@ -1024,7 +1024,7 @@ window.FileBrowser = (function($, FileBrowser) {
             }
 
             var size = isDirectory ? "" :
-                        xcHelper.sizeTranslater(fileObj.attr.size);
+                        xcHelper.sizeTranslator(fileObj.attr.size);
             var gridClass = isDirectory ? "folder" : "ds";
             var date = xcHelper.timeStampTranslater(mtime) || "";
 

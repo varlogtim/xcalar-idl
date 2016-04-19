@@ -69,6 +69,7 @@ window.MonitorGraph = (function($, MonitorGraph) {
         var $graph = $('#graph');
         $graph.find('svg').remove();
         $graph.find('.xLabels').empty();
+        $('#rightYAxis').empty();
         clearInterval(graphCycle);
     };
 
@@ -86,6 +87,7 @@ window.MonitorGraph = (function($, MonitorGraph) {
     var numXGridMarks;
     var $graphWrap;
     var timeStamp;
+    var failCount = 0;
 
     function startCycle() {
         count = 0;
@@ -126,10 +128,16 @@ window.MonitorGraph = (function($, MonitorGraph) {
             var allStats = MonitorPanel.processNodeStats(nodes,
                                                     apiTopResult, numNodes);
             updateGraph(allStats, numNodes);
-
+            failCount = 0;
         })
         .fail(function(error) {
             console.error('XcalarGetStats failed', error);
+            failCount++;
+            // if it fails 2 times in a row, we show a connection error
+            if (failCount === 2) {
+                thriftLog('XcalarGetStats failed',
+                          {status: StatusT.StatusConnRefused});
+            }
         });
 
         count++;
@@ -144,22 +152,26 @@ window.MonitorGraph = (function($, MonitorGraph) {
 
     function updateGraph(allStats, numNodes) {
         var numGraphs = 2;
+        var rightYMaxUnit;
         for (var i = 0; i < numGraphs; i++) {
             var xVal = allStats[i].sumUsed;
+
             if (i === 0) { // cpu %
                 xVal /= numNodes;
                 xVal = Math.min(100, xVal);
             }
 
             if (i === 1) {
-                xVal = xcHelper.sizeTranslater(xVal, true)[0];
+                rightYMaxUnit = xcHelper.sizeTranslator(allStats[i].sumTot,
+                                                        true)[1];
+                xVal = xcHelper.sizeTranslator(xVal, true, rightYMaxUnit)[0];
             }
             datasets[i].push(xVal);
         }
-        var yMax = xcHelper.sizeTranslater(allStats[1].sumTot, true)[0];
+        var yMax = xcHelper.sizeTranslator(allStats[1].sumTot, true)[0];
         yMax = [100, yMax];
 
-        redraw(newWidth, gridRight, numGraphs, yMax);
+        redraw(newWidth, gridRight, numGraphs, yMax, rightYMaxUnit);
 
         $('.xLabelsWrap').width(newWidth);
         svgWrap.attr("width", newWidth);
@@ -291,7 +303,7 @@ window.MonitorGraph = (function($, MonitorGraph) {
         }
     }
 
-    function drawRightYAxis(yMax) {
+    function drawRightYAxis(yMax, unit) {
         var yScale = d3.scale.linear()
                             .domain([0, yMax[1]])
                             .range([height, 0]);
@@ -315,11 +327,12 @@ window.MonitorGraph = (function($, MonitorGraph) {
                                 .attr("transform",
                                       "translate(-2,8)")
                                 .call(yAxis);
+        $('#rightYAxis').append("<span>0 (" + unit + ")</span>");
     }
 
-    function redraw(newWidth, gridRight, numGraphs, yMax) {
+    function redraw(newWidth, gridRight, numGraphs, yMax, unit) {
         if (firstTime) {
-            drawRightYAxis(yMax);
+            drawRightYAxis(yMax, unit);
             firstTime = false;
         }
 
