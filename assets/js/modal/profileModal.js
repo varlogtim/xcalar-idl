@@ -2061,6 +2061,7 @@ window.Profile = (function($, Profile, d3) {
             "checkMovement": function (x, y) {
                 var self = this;
                 if (Math.abs(x - self.x) > 0 || Math.abs(y - self.y) > 0) {
+                    filterDragging = true;
                     $(document).off('mousemove.checkMovement');
                     $(document).on("mousemove.selectRect", function(event) {
                         self.draw(event.pageX, event.pageY);
