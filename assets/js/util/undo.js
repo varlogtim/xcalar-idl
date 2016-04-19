@@ -160,6 +160,11 @@ window.Undo = (function($, Undo) {
                                        worksheet, {isUndo: true}));
     };
 
+    undoFuncs[SQLOps.Project] = function(options) {
+        var tableId = xcHelper.getTableId(options.newTableName);
+        return (TblManager.sendTableToOrphaned(tableId, {'remove': true}));
+    };
+
     /* END BACKEND OPERATIONS */
 
 

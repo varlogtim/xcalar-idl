@@ -261,7 +261,8 @@
     .jsonWrap {
         .font(@size: 15px, @family: @font-code, @color: @color-json-default);
         .flex(1 1 0px);
-        min-width: 160px !important;
+        min-width: 220px !important;
+        // min-width: 240px !important;  // for tabs
         resize: none;
         height: 100%;
         padding-bottom: 10px;
@@ -272,7 +273,8 @@
         }
 
         &:last-child {
-            min-width: 160px !important;
+            min-width: 240px !important;
+            // min-width: 260px !important; // for tabs
         }
 
         &:only-child {
@@ -310,16 +312,51 @@
                 display: block;
             }
         }
+
+        &.projectMode {
+            .jArray  {
+                > .jString, > .jNum, > .jBool, > .jNull , > .jUndf {
+                    cursor: default;
+                    &:hover {
+                        background-color: transparent;
+                        box-shadow: none;
+                    }
+                }
+            }
+            .jKey {
+                pointer-events: none;
+                cursor: default;
+                &:hover {
+                    background-color: transparent;
+                    box-shadow: none;
+                }
+            }
+
+            .jObject > .jArray > .jsonBlock > .jKey {
+                cursor: pointer;
+                pointer-events: auto;
+                &:hover {
+                    background-color: @color-modal-innerCircleGray;
+                    box-shadow: 0px 0px 1px @color-table-borderBlue;
+                }
+            }
+        }
     }
 
     .optionsBar {
         height: 29px;
         background-color: @color-json-options-bar;
+        color: @color-text-darkGray;
+        font-size: 13px;
+        font-family: @font-base;
+        font-weight: 600;
+        overflow: hidden;
         .noSelection;
 
         > div {
             float: left;
             cursor: pointer;
+            line-height: 28px;
         }
 
         .dragHandle {
@@ -339,6 +376,7 @@
             border-left: 1px solid @color-border-bottomGrayMed;
             height: 16px;
             margin-top: 6px;
+            pointer-events: none;
         }
 
         .btn {
@@ -375,6 +413,135 @@
                 .image("../../images/ds-importMultiple.png", 50%, 50%);
                 margin-left: 1px;
                 background-size: 90% 90%;
+            }
+        }
+
+        .tabWrap {
+            width: ~"calc(100% - 130px)";
+            height: 100%;
+            background-color:  @color-json-tab;
+            cursor: default;
+            margin-left: 10px;
+            display: none;
+        }
+
+        .tabs {
+            width: 100%;
+            max-width: 400px;
+            height: 100%;
+            float: left;
+        }
+
+        .tab {
+            float: left;
+            display: inline-block;
+            background-color: @color-json-tab;
+            height: 100%;
+            line-height: 28px;
+            border-left: 1px solid @color-json-tab-border;
+            padding-right: 4px;
+
+            &:last-child {
+                border-right: 1px solid @color-json-tab-border;
+            }
+
+            &.active {
+                background-color: @color-white;
+            }
+
+            span {
+                display: inline-block;
+            }
+
+            .icon {
+                width: 26px;
+                height: 100%;
+                float: left;
+                margin: 0 5%;
+            }
+
+            .text {
+                .textOverflowOneLine;
+                width: ~"calc(90% - 26px)";
+            }
+
+            &.seeAll {
+                width: 28%;
+                .icon {
+                    .image("../../images/eye-dark.png", 50%, 50%);
+                }
+            }
+             &.original {
+                width: 28%;
+                .icon {
+                    .image("../../images/ds-icon-dark.png", 50%, 50%);
+                }
+            }
+            &.xcOriginated {
+                width: 44%;
+                .icon {
+                    width: 30px;
+                    .image("../../images/ds-icon-gears.png", 50%, 76%);
+                }
+                .text {
+                    width: ~"calc(90% - 30px)";
+                }
+            }
+        }
+
+        .tabs.small {
+            background-color: @color-json-tab;
+            .tab {
+                width: 33%;
+                padding-right: 0px;
+                &:last-child {
+                    width: 34%;
+                    border-right: none;
+                    .icon {
+                        .image("../../images/ds-icon-gears.png", 58%, 76%);
+                    }
+                }
+                .icon {
+                    width: 100%;
+                    margin: 0;
+                }
+                .text {
+                    display: none;
+                }
+            }
+        }
+
+        .projectWrap {
+            height: 100%;
+            cursor: default;
+            margin-left: 10px;
+            color: @color-text-midlightGray;
+            display: inline-block;
+
+            .checkbox {
+                float: left;
+            }
+
+            .qMark {
+                float: right;
+                margin-top: 8px;
+                margin-left: 4px;
+            }
+
+            .text {
+                display: inline-block;
+                margin-left: 4px;
+                line-height: 28px;
+            }
+
+        }
+
+        .selectBtn, .submitProject {
+            display: inline-block;
+            margin: 0 10px;
+            color: @color-text-blue;
+            &.hidden {
+                display: none;
             }
         }
     }
@@ -512,6 +679,11 @@
         &.selected {
             background-color: orange;
         }
+    }
+
+    .projectSelected {
+        background-color: #7CB5D8 !important;
+        box-shadow: none !important;
     }
 }
 

@@ -1049,22 +1049,28 @@ window.Dag = (function($, Dag) {
         top += 50;
         var $dagIcon = $actionType.find('.dagIcon');
         var iconSource = $dagIcon.find('.icon').css('background-image');
-        iconSource = iconSource.replace('url(', '').replace(')', '')
+
+        if (iconSource !== "none") {
+            iconSource = iconSource.replace('url(', '').replace(')', '')
                                .replace(/"/g, '');
+        }
+
         var rectImage = new Image();
         rectImage.src = paths.roundedRect;
 
         rectImage.onload = function() {
             ctx.drawImage(rectImage, left + 20, top);
 
-            var dagIcon = new Image();
-            var iconLeft = left + 23;
-            var iconTop = top + 7;
-            dagIcon.src = iconSource;
+            if (iconSource !== "none") {
+                var dagIcon = new Image();
+                var iconLeft = left + 23;
+                var iconTop = top + 7;
+                dagIcon.src = iconSource;
 
-            dagIcon.onload = function() {
-                ctx.drawImage(dagIcon, iconLeft, iconTop);
-            };
+                dagIcon.onload = function() {
+                    ctx.drawImage(dagIcon, iconLeft, iconTop);
+                };
+            }
 
             // first line text
             var maxWidth = 78;
@@ -1149,7 +1155,7 @@ window.Dag = (function($, Dag) {
                                 scrollPosition = $('.dagArea').scrollTop();
                             }
 
-                        }, 100);
+                        }, 200);
             $dagTable.data('hover', timer);
         });
 
@@ -1696,7 +1702,7 @@ window.Dag = (function($, Dag) {
         info.type = "unknown";
         info.text = "";
         info.tooltip = "";
-        info.column = "unknown";
+        info.column = "";
         info.id = dagNode.dagNodeId;
         info.state = DgDagStateTStr[dagNode.state];
 
@@ -1853,6 +1859,18 @@ window.Dag = (function($, Dag) {
                 info.column = evalStr.slice(evalStr.indexOf('(') + 1,
                                             evalStr.lastIndexOf(')'));
                 break;
+            case ('projectInput'):
+                for (var i = 0; i < value.numColumns; i++) {
+                    info.column += value.columnNames[i] + ", ";
+                }
+                info.column = info.column.slice(0, info.column.length - 2);
+                if (info.column.length > 80) {
+                    info.column = info.column.slice(0, 80) + "...";
+                }
+                info.tooltip = "Projected columns: " + info.column;
+                info.text = info.tooltip;
+                info.type = "project";
+                break;
             case ('exportInput'):
                 info.type = "export";
                 try {
@@ -1863,7 +1881,16 @@ window.Dag = (function($, Dag) {
 
                 break;
             default:
-                console.error('Dag type not recognized');
+                var name;
+                if (key.slice(key.length - 5) === "Input") {
+                    name = key.slice(0, key.length - 5);
+                } else {
+                    name = key;
+                }
+                info.type = name;
+                info.text = name;
+                info.tooltip = name[0].toUpperCase() + name.slice(1);
+                console.warn('Dag type "' + key + '" not recognized');
                 break;
         }
         return (info);

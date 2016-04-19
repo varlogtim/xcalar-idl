@@ -832,6 +832,7 @@ window.SQL = (function($, SQL) {
             case (SQLOps.Profile):
             case (SQLOps.ProfileSort):
             case (SQLOps.ProfileBucketing):
+            case (SQLOps.Project):
                 return true;
             default:
                 console.warn("XXX! Operation unexpected", operation);

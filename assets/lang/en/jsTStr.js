@@ -36,7 +36,9 @@ StatusMessageTStr = {
 'Window': 'Performing Window',
 'WindowFailed': 'Window Failed',
 'HorizontalPartition': 'Performing Horizontal Partition',
-'HPartitionFailed': 'Horizontal Partition Failed'
+'HPartitionFailed': 'Horizontal Partition Failed',
+'Project': 'Projecting Columns',
+'ProjectFailed': 'Projection Failed'
 };
 
 TooltipTStr = {
@@ -476,4 +478,18 @@ DaysTStr = {
 
 OpModalTStr = {
     'EmptyHint': 'select to allow empty field'
+};
+
+JsonModalTStr = {
+  'RemoveCol': 'Remove this column',
+  'Duplicate': 'Duplicate this column',
+  'PullAll': 'Pull all fields',
+  'Compare': 'Click to select for comparison',
+  'SelectOther': 'Select another data cell from a table to compare',
+  'SeeAll': 'See All',
+  'Original': 'Original',
+  'XcOriginated': 'Xcalar Originated',
+  'SeeAllTip': 'View all fields',
+  'OriginalTip': 'View the original data fields',
+  'XcOriginatedTip': 'View Xcalar generated fields'
 };

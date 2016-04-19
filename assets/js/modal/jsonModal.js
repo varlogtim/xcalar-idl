@@ -16,6 +16,8 @@ window.JSONModal = (function($, JSONModal) {
     // constant
     var minHeight = 300;
     var minWidth  = 300;
+    var jsonAreaMinWidth = 340;
+    gProjectOff = true;
 
     JSONModal.setup = function() {
         $jsonModal = $("#jsonModal");
@@ -50,11 +52,30 @@ window.JSONModal = (function($, JSONModal) {
             containment: "window"
         });
 
+        var $jsonWraps;
+        var modalMinWidth;
+        var $tabSets;
+        var small = false;
+
         $jsonModal.resizable({
             handles    : "n, e, s, w, se",
             minHeight  : minHeight,
             minWidth   : minWidth,
-            containment: "document"
+            containment: "document",
+            start: function(event, ui) {
+                $jsonWraps = $jsonModal.find('.jsonWrap');
+                $tabSets = $jsonWraps.find('.tabs');
+                modalMinWidth = $jsonWraps.length * jsonAreaMinWidth;
+            },
+            resize: function(event, ui) {
+                if (!small && ui.size.width < modalMinWidth) {
+                    $tabSets.addClass('small');
+                    small = true;
+                } else if (small && ui.size.width > modalMinWidth) {
+                    $tabSets.removeClass('small');
+                    small = false;
+                }
+            }
         });
 
         var initialIndex;
@@ -135,57 +156,7 @@ window.JSONModal = (function($, JSONModal) {
         $jsonArea.on({
             "click": function() {
                 var $el = $(this);
-                var $jsonWrap = $el.closest('.jsonWrap');
-                var tableId   = $jsonWrap.data('tableid');
-                var table     = gTables[tableId];
-                var cols      = table.tableCols;
-                var colNum    = $jsonWrap.data('colnum');
-                var isArray   = $jsonWrap.data('isarray');
-                var nameInfo  = createJsonSelectionExpression($el);
-                var numCols   = cols.length;
-                var colName;
-
-                if (isDataCol) {
-                    colName = nameInfo.escapedName;
-                } else {
-                    var symbol = "";
-                    if (!isArray) {
-                        symbol = ".";
-                    }
-
-                    colName = cols[colNum - 1].getBackColName() + symbol +
-                              nameInfo.escapedName;
-                }
-                // check if the column already exists
-                for (var i = 0; i < numCols; i++) {
-                    // skip DATA col and new col
-                    if (cols[i].isDATACol() || cols[i].isNewCol) {
-                        continue;
-                    }
-
-                    if (cols[i].getBackColName() === colName) {
-                        var animation = gMinModeOn ? false : true;
-                        closeJSONModal();
-                        xcHelper.centerFocusedColumn(tableId, i, animation);
-                        return;
-                    }
-                }
-
-                var pullColOptions = {
-                    "isDataTd" : isDataCol,
-                    "isArray"  : isArray,
-                    "noAnimate": true
-                };
-
-                ColManager.pullCol(colNum, tableId, nameInfo, pullColOptions)
-                .always(function() {
-                    var animation = gMinModeOn ? false : true;
-                    closeJSONModal();
-                    if (isDataCol) {
-                        colNum--; // column appended to left, so colNum - 1
-                    }
-                    xcHelper.centerFocusedColumn(tableId, colNum, animation);
-                });
+                selectJsonKey($el);
             }
         }, ".jKey, .jArray>.jString, .jArray>.jNum");
 
@@ -248,7 +219,6 @@ window.JSONModal = (function($, JSONModal) {
                 updateSearchResults();
                 searchText();
             }
-
         });
 
         $jsonArea.on("click", ".split", function() {
@@ -331,6 +301,52 @@ window.JSONModal = (function($, JSONModal) {
             searchText();
         });
 
+        $jsonArea.on("click", ".projectWrap", function() {
+            var $projectWrap = $(this);
+            var $checkbox = $projectWrap.find('.checkbox');
+            var $jsonWrap = $projectWrap.closest('.jsonWrap');
+            var $selectBtns = $jsonWrap.find('.selectBtn');
+            if ($checkbox.hasClass('checked')) {
+                $checkbox.removeClass('checked');
+                $jsonWrap.removeClass('projectMode');
+                $selectBtns.addClass('hidden');
+                // XX don't select all submits
+                $('.submitProject').addClass('hidden');
+            } else {
+                $checkbox.addClass('checked');
+                $jsonWrap.addClass('projectMode');
+                $selectBtns.removeClass('hidden');
+                // XX don't select all submits
+                $('.submitProject').removeClass('hidden');
+            }
+        });
+
+        $jsonArea.on("click", ".selectBtn", function() {
+            var $btn = $(this);
+            var $jsonWrap = $btn.closest('.jsonWrap');
+            if ($btn.hasClass('selectAll')) {
+                $jsonWrap.find('.jObject').children().children().children('.jKey')
+                .addClass('projectSelected');
+            } else {
+                $jsonWrap.find('.jObject').children().children().children('.jKey')
+                .removeClass('projectSelected');
+            }
+        });
+
+        $jsonArea.on("click", ".submitProject", function() {
+            var index = $(this).closest('.jsonWrap').index();
+            submitProject(index);
+        });
+
+        $jsonArea.on("mousedown", ".tab", function() {
+            var $tab = $(this);
+            if ($tab.hasClass('active')) {
+                return;
+            }
+            $tab.closest('.tabs').find('.tab').removeClass('active');
+            $tab.addClass('active');
+        });
+
         $jsonArea.on("mousedown", ".jsonDragHandle", function() {
             var cursorStyle =
                 '<style id="moveCursor" type="text/css">*' +
@@ -346,7 +362,70 @@ window.JSONModal = (function($, JSONModal) {
                 $(document).off('.dragHandleMouseUp');
             });
         });
+    }
 
+    function selectJsonKey($el) {
+        var $jsonWrap = $el.closest('.jsonWrap');
+        var tableId   = $jsonWrap.data('tableid');
+        var table     = gTables[tableId];
+        var cols      = table.tableCols;
+        var colNum    = $jsonWrap.data('colnum');
+        var isArray   = $jsonWrap.data('isarray');
+        var nameInfo;
+        var numCols   = cols.length;
+        var colName;
+
+        if ($jsonWrap.hasClass('projectMode')) {
+            // $el.closest('.jInfo').data('key');
+            if ($el.hasClass('projectSelected')) {
+                $el.removeClass('projectSelected');
+            } else {
+                $el.addClass('projectSelected');
+            }
+        } else {
+            var nameInfo = createJsonSelectionExpression($el);
+            if (isDataCol) {
+                colName = nameInfo.escapedName;
+            } else {
+                var symbol = "";
+                if (!isArray) {
+                    symbol = ".";
+                }
+
+                colName = cols[colNum - 1].getBackColName() + symbol +
+                          nameInfo.escapedName;
+            }
+            // check if the column already exists
+            for (var i = 0; i < numCols; i++) {
+                // skip DATA col and new col
+                if (cols[i].isDATACol() || cols[i].isNewCol) {
+                    continue;
+                }
+
+                if (cols[i].getBackColName() === colName) {
+                    var animation = gMinModeOn ? false : true;
+                    closeJSONModal();
+                    xcHelper.centerFocusedColumn(tableId, i, animation);
+                    return;
+                }
+            }
+
+            var pullColOptions = {
+                "isDataTd" : isDataCol,
+                "isArray"  : isArray,
+                "noAnimate": true
+            };
+
+            ColManager.pullCol(colNum, tableId, nameInfo, pullColOptions)
+            .always(function() {
+                var animation = gMinModeOn ? false : true;
+                closeJSONModal();
+                if (isDataCol) {
+                    colNum--; // column appended to left, so colNum - 1
+                }
+                xcHelper.centerFocusedColumn(tableId, colNum, animation);
+            });
+        }
     }
 
     function duplicateView($jsonWrap) {
@@ -422,6 +501,20 @@ window.JSONModal = (function($, JSONModal) {
                 centerPositionElement($jsonModal, {horizontalOnly: true});
             }
         }
+        checkTabSizes();
+    }
+
+    function checkTabSizes() {
+        var $jsonWraps = $jsonModal.find('.jsonWrap');
+        var $tabSets = $jsonWraps.find('.tabs');
+        var modalMinWidth = $jsonWraps.length * jsonAreaMinWidth;
+        var currentModalWidth = $jsonModal.width();
+
+        if (currentModalWidth < modalMinWidth) {
+            $tabSets.addClass('small');
+        } else if (currentModalWidth > modalMinWidth) {
+            $tabSets.removeClass('small');
+        }
     }
 
     function decreaseModalSize() {
@@ -439,6 +532,7 @@ window.JSONModal = (function($, JSONModal) {
                 centerPositionElement($jsonModal, {horizontalOnly: true});
             }
         }
+        checkTabSizes();
     }
 
     // updates search after split or remove jsonWrap
@@ -687,6 +781,10 @@ window.JSONModal = (function($, JSONModal) {
 
         $jsonArea.append(getJsonWrapHtml(prettyJson));
 
+        if (gProjectOff) {
+            $('.projectWrap').hide();
+        }
+
         addDataToJsonWrap($jsonArea, $jsonTd, isArray);
     }
 
@@ -887,31 +985,91 @@ window.JSONModal = (function($, JSONModal) {
             '<div class="optionsBar">' +
                 '<div class="dragHandle jsonDragHandle"></div>' +
                 '<div class="vertLine"></div>' +
-                '<div class="checkMark single" data-toggle="tooltip"' +
+                '<div class="checkMark single" data-toggle="tooltip" ' +
                     'data-container="body" ' +
-                    'title="Select another data cell from a table to compare">' +
+                    'title="' + JsonModalTStr.SelectOther + '">' +
                 '</div>' +
-                '<div class="btn btnDeselected remove" data-toggle="tooltip"' +
+                '<div class="btn btnDeselected remove" data-toggle="tooltip" ' +
                     'data-container="body" ' +
-                    'title="Remove this column">' +
+                    'title="' + JsonModalTStr.RemoveCol + '">' +
                     '<div class="icon"></div>' +
                 '</div>' +
                 '<div class="btn btnDeselected split" data-toggle="tooltip"' +
                     'data-container="body" ' +
-                    'title="Duplicate this column">' +
+                    'title="' + JsonModalTStr.Duplicate + '">' +
                     '<div class="icon"></div>' +
                 '</div>' +
                 '<div class="btn btnDeselected binaryIcon" ' +
-                'data-toggle="tooltip"' +
+                'data-toggle="tooltip" ' +
                     'data-container="body" ' +
                     'title="' + TooltipTStr.ComingSoon + '">' +
                     '<div class="icon"></div>' +
                 '</div>' +
                 '<div class="btn btnDeselected pullAll" data-toggle="tooltip"' +
-                    'data-container="body" ' +
-                    'title="Pull all fields">' +
+                    ' data-container="body" ' +
+                    'title="' + JsonModalTStr.PullAll + '">' +
                     '<div class="icon"></div>' +
                 '</div>' +
+                '<div class="tabWrap">' +
+                    '<div class="tabs">' +
+                        '<div class="tab seeAll active" ' +
+                        'data-toggle="tooltip" ' +
+                        'data-container="body" ' +
+                        'title="' +JsonModalTStr.SeeAllTip + '">' +
+                            '<span class="icon"></span>' +
+                            '<span class="text">' + JsonModalTStr.SeeAll +
+                            '</span>' +
+                        '</div>' +
+                        '<div class="tab original" data-toggle="tooltip" ' +
+                        'data-container="body" ' +
+                        'title="' + JsonModalTStr.OriginalTip + '">' +
+                            '<span class="icon"></span>' +
+                            '<span class="text">' + JsonModalTStr.Original +
+                            '</span>' +
+                        '</div>' +
+                        '<div class="tab xcOriginated" data-toggle="tooltip" ' +
+                        'data-container="body" ' +
+                        'title="' + JsonModalTStr.XcOriginatedTip + '">' +
+                            '<span class="icon"></span>' +
+                            '<span class="text">' + JsonModalTStr.XcOriginated +
+                            '</span>' +
+                        '</div>' +
+                    '</div>' +
+                '</div>' +
+                '<div class="projectWrap">' +
+                     '<div class="checkbox">' +
+                        '<span class="icon"></span>' +
+                      '</div>' +
+                      '<div class="text">Project</div>' +
+                      '<div class="hint qMark" data-container="body" ' +
+                      'data-toggle="tooltip" ' +
+                      'title="Allow selection of columns to project"></div>' +
+                '</div>' +
+                '<div class="selectBtn selectAll hidden">' +
+                    "Select All" +
+                '</div>' +
+                '<div class="selectBtn clearAll hidden">' +
+                    "Clear All" +
+                '</div>' +
+                '<div class="submitProject hidden">' +
+                    "Submit" +
+                '</div>' +
+                // '<div style="inline-block" data-container="body" ' +
+                //       'data-toggle="tooltip" ' +
+                //       'title="Select all columns">' +
+                //     '<div class="checkbox">' +
+                //         '<span class="icon"></span>' +
+                //       '</div>' +
+                //       '<div class="text">All</div>' +
+                // '</div>' +
+                // '<div style="inline-block" data-container="body" ' +
+                //       'data-toggle="tooltip" ' +
+                //       'title="Deselect all columns">' +
+                //     '<div class="checkbox">' +
+                //         '<span class="icon"></span>' +
+                //       '</div>' +
+                //       '<div class="text">Clear</div>' +
+                // '</div>' +
             '</div>' +
             '<div class="prettyJson primary">' +
                 prettyJson +
@@ -1186,6 +1344,103 @@ window.JSONModal = (function($, JSONModal) {
 
         return ({"name"       : name,
                  "escapedName": escapedName});
+    }
+
+    function submitProject(index) {
+        var colNames = [];
+        var tableName;
+        var tableId;
+        var dstTableName;
+        var worksheet;
+        var $jsonWrap = $('.jsonWrap').eq(index);
+        $jsonWrap.find('.projectSelected').each(function() {
+            colNames.push($(this).text());
+        });
+
+        if (colNames.length) {
+            // XX This code should probably go inside xcFunctions
+
+            tableId = $jsonWrap.data('tableid');
+            tableName = gTables[tableId].tableName;
+
+            dstTableName = tableName.split("#")[0] + Authentication.getHashId();
+            worksheet = WSManager.getWSFromTable(tableId);
+            var txId = Transaction.start({
+                "msg"      : StatusMessageTStr.Project,
+                "operation": SQLOps.Project
+            });
+            xcHelper.lockTable(tableId);
+
+            closeJSONModal();
+
+            var startTime = (new Date()).getTime();
+            var focusOnTable = false;
+            var startScrollPosition = $('#mainFrame').scrollLeft();
+
+            XcalarProject(colNames, tableName, dstTableName, txId)
+            .then(function() {
+                var timeAllowed = 1000;
+                var endTime = (new Date()).getTime();
+                var elapsedTime = endTime - startTime;
+                var timeSinceLastClick = endTime -
+                                         gMouseEvents.getLastMouseDownTime();
+                // we'll focus on table if its been less than timeAllowed OR
+                // if the user hasn't clicked or scrolled
+                if (elapsedTime < timeAllowed ||
+                    (timeSinceLastClick >= elapsedTime &&
+                        ($('#mainFrame').scrollLeft() === startScrollPosition))) {
+                    focusOnTable = true;
+                }
+                var options = {"focusWorkspace": focusOnTable};
+
+                var $dataCol = $("#xcTable-" + tableId).find('th.dataCol');
+                var dataColNum = xcHelper.parseColNum($dataCol) - 1;
+                var tableCols = gTables[tableId].tableCols;
+                tableCols = xcHelper.deepCopy(tableCols);
+                var finalTableCols = [];
+                for (var i = 0; i < tableCols.length; i++) {
+                    if (colNames.indexOf(tableCols[i].backName) > -1) {
+                        finalTableCols.push(tableCols[i]);
+                    } else if (tableCols[i].backName === "DATA") {
+                        finalTableCols.push(tableCols[i]);
+                    }
+                }
+
+                // var dataCol = gTables[tableId].tableCols[dataColNum];
+                // var tableCols = [xcHelper.deepCopy(dataCol)];
+
+                return TblManager.refreshTable([dstTableName], finalTableCols,
+                                                null , worksheet, options);
+            })
+            .then(function() {
+                xcHelper.unlockTable(tableId);
+                var sql = {
+                    "operation"   : SQLOps.Project,
+                    "tableName"   : tableName,
+                    "tableId"     : tableId,
+                    "colNames"    : colNames,
+                    "newTableName": dstTableName
+                };
+
+                var finalTableId = xcHelper.getTableId(dstTableName);
+
+                Transaction.done(txId, {
+                    "msgTable"      : finalTableId,
+                    "sql"           : sql,
+                    "noNotification": focusOnTable
+                });
+            })
+            .fail(function(error) {
+                xcHelper.unlockTable(tableId);
+                Transaction.fail(txId, {
+                    "failMsg": StatusMessageTStr.ProjectFailed,
+                    "error"  : error
+                });
+            });
+        } else {
+            // shouldn't have been able to submit anyways
+            console.warn('no columns selected');
+        }
     }
 
     return (JSONModal);

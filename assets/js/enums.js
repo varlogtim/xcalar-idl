@@ -167,6 +167,7 @@ var SQLOps = {
     Map: "map",
     Join: "join",
     GroupBy: "groupBy",
+    Project: "project",
     RenameTable: "renameTable",
     RenameOrphanTable: "renameOrphanTable",
     DeleteTable: "deleteTable",

@@ -92,6 +92,12 @@ window.Redo = (function($, Redo) {
                                             worksheet));
     };
 
+    redoFuncs[SQLOps.Project] = function(options) {
+        var worksheet = WSManager.getWSFromTable(options.tableId);
+        return (TblManager.refreshTable([options.newTableName], null, [],
+                                         worksheet));
+    };
+
     /* END BACKEND OPERATIONS */
 
     /* USER STYLING/FORMATING OPERATIONS */
