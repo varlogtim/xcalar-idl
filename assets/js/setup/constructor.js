@@ -317,7 +317,13 @@ function ProgCol(options) {
     this.sizeToHeader = options.sizeToHeader || false;
     this.userStr = options.userStr || "";
     this.textAlign = options.textAlign || "Center";
-    this.decimals = options.decimals || -1;
+
+    if (options.decimals == null) {
+        this.decimals = -1;
+    } else {
+        this.decimals = options.decimals;
+    }
+
     this.format = options.format || null;
     this.isSortedArray = options.isSortedArray || false;
     this.isHidden = options.isHidden || false;
