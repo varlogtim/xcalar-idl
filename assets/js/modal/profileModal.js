@@ -1843,7 +1843,11 @@ window.Profile = (function($, Profile, d3) {
                 break;
             case "fitAll":
                 // fit all
-                bucketSize = (statsCol.aggInfo.max - statsCol.aggInfo.min) / numRowsToFetch;
+                // if max = 100, min = 0, numRowsToFetch = 20,
+                // (max - min) / numRowsToFetch will get bucketSize 5
+                // but range [100, 105) is the 21th size,
+                // so we should do (max + min + numRowsToFetch) / numRowsToFetch
+                bucketSize = (statsCol.aggInfo.max - statsCol.aggInfo.min + numRowsToFetch) / numRowsToFetch;
                 if (bucketSize >= 0.01) {
                     // have mostly two digits after decimal
                     bucketSize = Math.round(bucketSize * 100) / 100;

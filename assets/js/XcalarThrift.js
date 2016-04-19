@@ -2221,7 +2221,8 @@ function XcalarUploadPython(moduleName, pythonStr) {
                     SQL.errorLog("Update of Upload Python", null, null,
                                  thriftError);
                     deferred.reject(thriftError);
-                })
+                });
+                return;
                 // here do the update call
             } else if (error == StatusT["StatusUdfModuleEmpty"]) {
                 // This is not an error because extensions may upload
@@ -2229,11 +2230,12 @@ function XcalarUploadPython(moduleName, pythonStr) {
                 deferred.resolve();
                 return;
             }
-        } else {
-            var thriftError = thriftLog("XcalarUploadPython", error);
-            SQL.errorLog("Upload Python", null, null, thriftError);
-            deferred.reject(thriftError);
         }
+
+        // all other case
+        var thriftError = thriftLog("XcalarUploadPython", error);
+        SQL.errorLog("Upload Python", null, null, thriftError);
+        deferred.reject(thriftError);
     });
     return (deferred.promise());
 }
