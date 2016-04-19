@@ -2669,7 +2669,7 @@ html.microsoft {
                         }
 
                         .bar-border {
-                            stroke: @color-profile-bar-hover;
+                            stroke: @color-profile-bar-selected-border;
                             stroke-width: 2;
                         }
                     }
@@ -2697,7 +2697,7 @@ html.microsoft {
                 &.selecting {
                     &, &.hover {
                         .bar-border {
-                            stroke: @color-profile-bar-hover;
+                            stroke: @color-profile-bar-border-highlight;
                             stroke-width: 2;
                         }
                     }
@@ -2755,12 +2755,18 @@ html.microsoft {
                     .rounded(5px);
                     text-align: center;
                     .font(@line-height: 20px, @size: 11px, @color: @color-profile-option-text);
+                    &:hover {
+                        background-color: @color-profile-option-hover;
+                    }
                 }
 
                 &.cancel .textWrapper {
                     background-color: @color-profile-cancel;
                     text-transform: uppercase;
                     color: @color-profile-cancel-text;
+                    &:hover {
+                        background-color: @color-profile-cancel-hover;
+                    }
                 }
 
             }

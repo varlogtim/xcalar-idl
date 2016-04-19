@@ -56,6 +56,7 @@ window.Profile = (function($, Profile, d3) {
     var statsCol = null;
     var percentageLabel = false;
     var numRowsToFetch = defaultRowsToFetch;
+    var filterDragging = false;
 
     // constant
     var minHeight = 425;
@@ -120,6 +121,10 @@ window.Profile = (function($, Profile, d3) {
 
         var $groupbySection = $modal.find(".groubyInfoSection");
         $groupbySection.on("click", ".bar-extra, .bar, .xlabel", function() {
+            if (filterDragging) {
+                filterDragging = false;
+                return;
+            }
             percentageLabel = !percentageLabel;
             buildGroupGraphs();
             highlightBar();
@@ -695,7 +700,7 @@ window.Profile = (function($, Profile, d3) {
             .then(function(res) {
                 resultId = res.resultSetId;
                 var promises = [];
-                var numEntries = res.numEntries;         
+                var numEntries = res.numEntries;
                 var lowerRowEnd;
                 var upperRowStart;
 
@@ -2040,17 +2045,28 @@ window.Profile = (function($, Profile, d3) {
         }
 
         function addSelectRectEvent(selectRect) {
-            $(document).on("mousemove.selectRect", function(event) {
-                selectRect.draw(event.pageX, event.pageY);
+            $(document).on("mousemove.checkMovement", function(event) {
+                // check for mousemovement before actually calling draw
+                selectRect.checkMovement(event.pageX, event.pageY);
             });
 
             $(document).on("mouseup.selectRect", function() {
                 selectRect.end();
                 $(document).off(".selectRect");
+                $(document).off("mousemove.checkMovement");
             });
         }
 
         FilterSelection.prototype = {
+            "checkMovement": function (x, y) {
+                var self = this;
+                if (Math.abs(x - self.x) > 0 || Math.abs(y - self.y) > 0) {
+                    $(document).off('mousemove.checkMovement');
+                    $(document).on("mousemove.selectRect", function(event) {
+                        self.draw(event.pageX, event.pageY);
+                    });
+                }
+            },
             "draw": function(x, y) {
                 // x should be within bound.left and bound.right
                 x = Math.max(bound.left, Math.min(bound.right, x));
@@ -2129,6 +2145,11 @@ window.Profile = (function($, Profile, d3) {
                         }
                     });
                 }
+
+                // allow click event to occur before setting filterdrag to false
+                setTimeout(function() {
+                    filterDragging = false;
+                }, 10);
 
                 toggleFilterOption();
             }
