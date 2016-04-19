@@ -40,7 +40,11 @@ window.DataPreview = (function($, DataPreview) {
             '</td>';
 
     DataPreview.setup = function() {
-        initialize();
+        $previeWrap = $("#dsPreviewWrap");
+        $previewTable = $("#previewTable");
+        $highLightBtn = $("#preview-highlight");
+        $rmHightLightBtn = $("#preview-rmHightlight");
+
         // promot header
         $previewTable.on("click", ".promote, .undo-promote", function() {
             togglePromote();
@@ -346,13 +350,6 @@ window.DataPreview = (function($, DataPreview) {
             return clearAll(previewMode);
         }
     };
-
-    function initialize() {
-        $previeWrap = $("#dsPreviewWrap");
-        $previewTable = $("#previewTable");
-        $highLightBtn = $("#preview-highlight");
-        $rmHightLightBtn = $("#preview-rmHightlight");
-    }
 
     function clearAll(previewMode) {
         var deferred = jQuery.Deferred();

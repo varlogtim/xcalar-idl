@@ -1,9 +1,9 @@
 // displays load message and animated waiting icon near CLI button
 window.StatusMessage = (function($, StatusMessage) {
-    var $statusText = $('#pageStatusText');
-    var $waitingIcon = $('#loadingIconWrap');
-    var isLoading = false;
+    var $statusText;  // $('#pageStatusText');
+    var $waitingIcon; // $('#loadingIconWrap');
 
+    var isLoading = false;
     var rotateInterval;
     var messages = [];
     var msgObjs = {};
@@ -20,6 +20,9 @@ window.StatusMessage = (function($, StatusMessage) {
     var failNotificationTime = 8000;
 
     StatusMessage.setup = function() {
+        $statusText = $('#pageStatusText');
+        $waitingIcon = $('#loadingIconWrap');
+
         $statusText.on('click', '.close', function() {
             removeFailedMsg($(this).parent());
         });

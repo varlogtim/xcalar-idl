@@ -1,17 +1,17 @@
 window.AggModal = (function($, AggModal) {
-    var $modalBg;  // $("#modalBackground")
-    var $aggModal; // $("#aggModal")
+    var $modalBg;      // $("#modalBackground")
+    var $aggModal;     // $("#aggModal")
 
     var $aggInstr;     // $("#aggModal-instr")
     var $aggTableName; // $("#aggModal-tableName")
 
-    var $quickAgg; // $("#aggModal-quickAgg")
-    var $corr;     // $("#aggModal-corr")
-
+    var $quickAgg;     // $("#aggModal-quickAgg")
+    var $corr;         // $("#aggModal-corr")
     var modalHelper;
-    var aggrFunctions; // [AggrOp.Sum, AggrOp.Avg, AggrOp.Min, AggrOp.Max, AggrOp.Count]
 
+    var aggFunctions;  // [AggrOp.Sum, AggrOp.Avg, AggrOp.Min, AggrOp.Max, AggrOp.Count]
     var aggCols = [];
+
     // UI cahce, not save to KVStore
     var aggCache  = {};
     var corrCache = {};
@@ -22,12 +22,22 @@ window.AggModal = (function($, AggModal) {
     var minHeight = 300;
 
     AggModal.setup = function() {
-        initialize();
+        $modalBg = $("#modalBackground");
+        $aggModal = $("#aggModal");
+
+        $aggInstr = $("#aggModal-instr");
+        $aggTableName = $("#aggModal-tableName");
+
+        $quickAgg = $("#aggModal-quickAgg");
+        $corr = $("#aggModal-corr");
 
         modalHelper = new ModalHelper($aggModal, {
             "minWidth" : minWidth,
             "minHeight": minHeight
         });
+
+        aggFunctions = [AggrOp.Sum, AggrOp.Avg, AggrOp.Min,
+                         AggrOp.Max, AggrOp.Count];
 
         aggOpMap[AggrOp.Sum] = 0;
         aggOpMap[AggrOp.Avg] = 1;
@@ -148,20 +158,6 @@ window.AggModal = (function($, AggModal) {
         return (deferred.promise());
     };
 
-    function initialize() {
-        $modalBg = $("#modalBackground");
-        $aggModal = $("#aggModal");
-
-        $aggInstr = $("#aggModal-instr");
-        $aggTableName = $("#aggModal-tableName");
-
-        $quickAgg = $("#aggModal-quickAgg");
-        $corr = $("#aggModal-corr");
-
-        aggrFunctions = [AggrOp.Sum, AggrOp.Avg, AggrOp.Min,
-                         AggrOp.Max, AggrOp.Count];
-    }
-
     function showAggModal(tableName, mode) {
         var $header = $aggModal.find(".modalHeader .text");
 
@@ -228,7 +224,7 @@ window.AggModal = (function($, AggModal) {
 
     function aggTableInitialize() {
         var colLen = aggCols.length;
-        var funLen = aggrFunctions.length;
+        var funLen = aggFunctions.length;
         var wholeTable = "";
         var colLabels = [];
 
@@ -261,7 +257,7 @@ window.AggModal = (function($, AggModal) {
         }
 
         $quickAgg.find(".headerContainer").html(getColLabelHTML(colLabels));
-        $quickAgg.find(".labelContainer").html(getRowLabelHTML(aggrFunctions));
+        $quickAgg.find(".labelContainer").html(getRowLabelHTML(aggFunctions));
         $quickAgg.find(".aggContainer").html(wholeTable);
     }
 
@@ -440,7 +436,7 @@ window.AggModal = (function($, AggModal) {
         var promises = [];
 
         var colLen = aggCols.length;
-        var funLen = aggrFunctions.length;
+        var funLen = aggFunctions.length;
         // First we need to determine if this is a dataset-table
         // or just a regular table
         var dupCols = [];
@@ -465,7 +461,7 @@ window.AggModal = (function($, AggModal) {
                     for (var row = 0; row < funLen; row++) {
                         var promise = runAgg(tableId, tableName,
                                             progCol.getBackColName(),
-                                            aggrFunctions[row], row, col,
+                                            aggFunctions[row], row, col,
                                             dups, txId);
                         promises.push(promise);
                     }

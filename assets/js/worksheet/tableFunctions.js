@@ -601,8 +601,8 @@ function addMenuBehaviors($mainMenu) {
         $subMenu = $('#' + subMenuId);
         $allMenus = $allMenus.add($subMenu);
         subListScroller = new xcHelper.dropdownList($subMenu, {
-            scrollerOnly: true,
-            bottomPadding: 4
+            "scrollerOnly" : true,
+            "bottomPadding": 4
         });
 
         $subMenu.on('mousedown', '.subMenuArea', function(event) {

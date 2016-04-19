@@ -1,11 +1,14 @@
 window.FnBar = (function(FnBar, $) {
-    var $functionArea = $("#functionArea");
-    var $fnBar = $("#fnBar");
+    var $functionArea; // $("#functionArea");
+    var $fnBar;        // $("#fnBar");
 
     var $lastColInput = null;
     var searchHelper;
 
     FnBar.setup = function() {
+        $functionArea = $("#functionArea");
+        $fnBar = $("#fnBar");
+
         setupSearchHelper();
         var initialTableId; //used to track table that was initially active
         // when user started searching

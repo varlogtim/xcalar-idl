@@ -557,15 +557,15 @@ window.TblMenu = (function(TblMenu, $) {
                 }
             }
             function collectArgs($elem) {
-                var argList = {};
+                var res = {};
                 var $inputWrapParent = $elem.closest("li");
                 if ($inputWrapParent) {
                     var inputList = $inputWrapParent.find("input");
                     for (var i = 0; i < inputList.length; i++) {
-                        argList[inputList[i].className] = $(inputList[i]).val();
+                        res[inputList[i].className] = $(inputList[i]).val();
                     }
                 }
-                return (argList);
+                return res;
             }
         });
 

@@ -9,7 +9,12 @@ window.ExportTarget = (function($, ExportTarget) {
     var exportTargets = [];
 
     ExportTarget.setup = function() {
-        initizliae();
+        $exportView = $('#exportView');
+        $form = $('#exportDataForm');
+        $gridView = $exportView.find('.gridItems');
+        $targetTypeList = $('#targetTypeList');
+        $targetTypeInput = $targetTypeList.find('.text');
+        $nameInput = $('#targetName');
 
         xcHelper.dropdownList($targetTypeList, {
             "onSelect": function($li) {
@@ -122,20 +127,6 @@ window.ExportTarget = (function($, ExportTarget) {
 
         return (deferred.promise());
     };
-
-    // function hideDropdownMenu() {
-    //     $form.find(".dropDownList").removeClass("open")
-    //                               .find(".list").hide();
-    // }
-
-    function initizliae() {
-        $exportView = $('#exportView');
-        $form = $('#exportDataForm');
-        $gridView = $exportView.find('.gridItems');
-        $targetTypeList = $('#targetTypeList');
-        $targetTypeInput = $targetTypeList.find('.text');
-        $nameInput = $('#targetName');
-    }
 
     function restoreExportTarget() {
         xcHelper.showRefreshIcon($exportView.find('.gridViewWrapper'));

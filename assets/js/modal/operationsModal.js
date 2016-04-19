@@ -46,7 +46,14 @@ window.OperationsModal = (function($, OperationsModal) {
     };
 
     OperationsModal.setup = function() {
-        initialize();
+        $operationsModal = $('#operationsModal');
+        $categoryInput = $('#categoryList').find('.autocomplete');
+        $categoryUl = $('#categoryMenu').find('ul');
+        $functionInput = $('#functionList').find('.autocomplete');
+        $functionsMenu = $('#functionsMenu');
+        $functionsUl = $functionsMenu.find('ul');
+        $menus = $('#categoryMenu, #functionsMenu');
+
         modalHelper = new ModalHelper($operationsModal, {
             "noResize": true
         });
@@ -565,16 +572,6 @@ window.OperationsModal = (function($, OperationsModal) {
         });
         return (deferred.promise());
     };
-
-    function initialize() {
-        $operationsModal = $('#operationsModal');
-        $categoryInput = $('#categoryList').find('.autocomplete');
-        $categoryUl = $('#categoryMenu').find('ul');
-        $functionInput = $('#functionList').find('.autocomplete');
-        $functionsMenu = $('#functionsMenu');
-        $functionsUl = $functionsMenu.find('ul');
-        $menus = $('#categoryMenu, #functionsMenu');
-    }
 
     function toggleModalDisplay(isHide, time) {
         xcHelper.toggleModal(tableId, isHide, {

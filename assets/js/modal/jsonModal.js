@@ -18,7 +18,13 @@ window.JSONModal = (function($, JSONModal) {
     var minWidth  = 300;
 
     JSONModal.setup = function() {
-        initialize();
+        $jsonModal = $("#jsonModal");
+        $jsonArea = $jsonModal.find(".jsonArea");
+        $modalBg = $("#modalBackground");
+        $searchInput = $('#jsonSearch').find('input');
+        $jsonText = $jsonModal.find('.prettyJson');
+        $counter = $('#jsonSearch').find('.counter');
+
         modalHelper = new ModalHelper($jsonModal, {
             "minHeight" : minHeight,
             "minWidth"  : minWidth,
@@ -98,15 +104,6 @@ window.JSONModal = (function($, JSONModal) {
 
         increaseModalSize();
     };
-
-    function initialize() {
-        $jsonModal = $("#jsonModal");
-        $jsonArea = $jsonModal.find(".jsonArea");
-        $modalBg = $("#modalBackground");
-        $searchInput = $('#jsonSearch').find('input');
-        $jsonText = $jsonModal.find('.prettyJson');
-        $counter = $('#jsonSearch').find('.counter');
-    }
 
     function addEventListeners() {
         var $searchArea = $('#jsonSearch');

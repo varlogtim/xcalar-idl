@@ -1,9 +1,9 @@
 window.DFGPanel = (function($, DFGPanel) {
-    var $dfgView = $('#dataflowView');
-    var $listSection = $dfgView.find('.listSection');
-    var $header = $dfgView.find('.midContentHeader h2');
+    var $dfgView;       // $('#dataflowView');
+    var $listSection;   // $dfgView.find('.listSection');
+    var $header;        // $dfgView.find('.midContentHeader h2');
+    var $retTabSection; // $dfgView.find('.retTabSection');
 
-    var $retTabSection = $dfgView.find('.retTabSection');
     var retinaTrLen = 7;
     var retinaTr = '<tr class="unfilled">' +
                         '<td class="paramNameWrap">' +
@@ -21,6 +21,11 @@ window.DFGPanel = (function($, DFGPanel) {
     var currentDFG = null;
 
     DFGPanel.setup = function() {
+        $dfgView = $('#dataflowView');
+        $listSection = $dfgView.find('.listSection');
+        $header = $dfgView.find('.midContentHeader h2');
+        $retTabSection = $dfgView.find('.retTabSection');
+
         addListeners();
         setupViewToggling();
         setupDagDropdown();

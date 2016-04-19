@@ -19,7 +19,12 @@ window.MultiCastModal = (function($, MultiCastModal) {
     var minWidth  = 600;
 
     MultiCastModal.setup = function() {
-        initialize();
+        $modal = $("#multiCastModal");
+        $modalBg = $("#modalBackground");
+        $table = $("#multiCast-table");
+        $resultSection = $("#multiCast-result");
+        $castBtn = $("#multiCast-cast");
+
         modalHelper = new ModalHelper($modal, {
             "minHeight": minHeight,
             "minWidth" : minWidth
@@ -140,14 +145,6 @@ window.MultiCastModal = (function($, MultiCastModal) {
             xcHelper.hideDropdowns($modal);
         });
     };
-
-    function initialize() {
-        $modal = $("#multiCastModal");
-        $modalBg = $("#modalBackground");
-        $table = $("#multiCast-table");
-        $resultSection = $("#multiCast-result");
-        $castBtn = $("#multiCast-cast");
-    }
 
     function closeMultiCastModal() {
         var fadeOutTime = gMinModeOn ? 0 : 300;

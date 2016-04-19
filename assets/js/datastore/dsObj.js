@@ -213,6 +213,7 @@ window.DS = (function ($, DS) {
         $grid.addClass('inactive');
         $grid.append('<div class="waitingIcon"></div>');
         $grid.find('.waitingIcon').fadeIn(200);
+
         DS.focusOn($grid); // focus on grid before load
         DataStore.update();
         // the class will be removed in DataSampleTable.show()

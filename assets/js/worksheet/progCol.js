@@ -83,7 +83,6 @@ window.ColManager = (function($, ColManager) {
         var format      = options.format || null;
         var columnClass;
         var color;
-        var type;
 
 
         if (options.direction !== "L") {
@@ -1568,7 +1567,6 @@ window.ColManager = (function($, ColManager) {
         var colTruncLimit = 500; // the character limit for other tds
         var truncClass = "";
         var truncatedVal;
-        var truncHelpText;
         var truncLen;
         var colTruncLen;
         var tdValLen;
@@ -2484,7 +2482,7 @@ window.ColManager = (function($, ColManager) {
         if (isTruncated) {
             truncClass = " truncated";
         }
-        var html = '<div class="addedBarTextWrap clickable' + truncClass+ '">' +
+        var html = '<div class="addedBarTextWrap clickable' + truncClass + '">' +
                         value +
                    '</div>';
         return (html);

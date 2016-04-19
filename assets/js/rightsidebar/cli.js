@@ -1,7 +1,7 @@
 // CLI right side bar for users to talk to the backend
 window.CLIBox = (function($, CLIBox) {
-    var $cliBox  = $("#cliSection .cliArea");
-    var $lineBox = $("#cliSection .lineArea");
+    var $cliBox;  // $("#cliSection .cliArea");
+    var $lineBox; // $("#cliSection .lineArea");
 
     var nl = "> ";
     var cliUnit = "<div contenteditable='true' spellcheck='false'" +
@@ -9,6 +9,9 @@ window.CLIBox = (function($, CLIBox) {
     var lineUnit = "<div class='lineUnit'>" + nl + "</div>";
 
     CLIBox.setup = function() {
+        $cliBox  = $("#cliSection .cliArea");
+        $lineBox = $("#cliSection .lineArea");
+
         addNl();
         focusOnClick(); // focus the editable area when you click area below it
     };

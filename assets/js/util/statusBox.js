@@ -1,11 +1,14 @@
 // StatusBox Modal
 window.StatusBox = (function($, StatusBox){
-    var $statusBox = $("#statusBox");
-    var $doc = $(document);
+    var $statusBox; // $("#statusBox");
+    var $doc;       // $(document);
     var $targetInput;
     var open = false;
 
     StatusBox.show = function(text, $target, isFormMode, options) {
+        $statusBox = $("#statusBox");
+        $doc = $(document);
+
         options =  options || {};
         // position the message
         var msgType = options.type || "error";

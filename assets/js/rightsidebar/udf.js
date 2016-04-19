@@ -1,11 +1,11 @@
 // this is a sub module of rightSideBar
 window.UDF = (function($, UDF) {
-    var $fnName       = $("#udf-fnName");
-    var $template     = $("#udf-fnTemplate");
-    var $downloadBtn  = $("#udf-fnDownload");
-    var $browserBtn   = $("#udf-fileBrowser");
-    var $filePath     = $("#udf-filePath");
-    var $listDropdown = $("#udf-fnMenu");
+    var $fnName;       // $("#udf-fnName");
+    var $template;     // $("#udf-fnTemplate");
+    var $downloadBtn;  // $("#udf-fnDownload");
+    var $browserBtn;   // $("#udf-fileBrowser");
+    var $filePath;     // $("#udf-filePath");
+    var $listDropdown; // $("#udf-fnMenu");
 
     var editor;
     var udfDefault = "# PLEASE TAKE NOTE: \n" +
@@ -14,6 +14,13 @@ window.UDF = (function($, UDF) {
     var storedUDF = {};
 
     UDF.setup = function() {
+        $fnName = $("#udf-fnName");
+        $template = $("#udf-fnTemplate");
+        $downloadBtn = $("#udf-fnDownload");
+        $browserBtn = $("#udf-fileBrowser");
+        $filePath = $("#udf-filePath");
+        $listDropdown = $("#udf-fnMenu");
+
         setupUDF();
     };
 

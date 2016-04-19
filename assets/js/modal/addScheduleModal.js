@@ -9,7 +9,11 @@ window.AddScheduleModal = (function($, AddScheduleModal) {
     var modalHelper;
 
     AddScheduleModal.setup = function() {
-        initialize();
+        $modal = $('#addScheduleModal');
+        $modalBg = $("#modalBackground");
+        $list = $modal.find('.scheduleList');
+        $scheduleListInput = $modal.find('.scheduleListInput');
+        $shceduleInfo = $modal.find('.scheInfoSection .text');
 
         modalHelper = new ModalHelper($modal, {
             "focusOnOpen": true,
@@ -66,14 +70,6 @@ window.AddScheduleModal = (function($, AddScheduleModal) {
             }
         });
     };
-
-    function initialize() {
-        $modal = $('#addScheduleModal');
-        $modalBg = $("#modalBackground");
-        $list = $modal.find('.scheduleList');
-        $scheduleListInput = $modal.find('.scheduleListInput');
-        $shceduleInfo = $modal.find('.scheInfoSection .text');
-    }
 
     function updateModalList(selectedSchedule) {
         var schedules = Scheduler.getAllSchedules();

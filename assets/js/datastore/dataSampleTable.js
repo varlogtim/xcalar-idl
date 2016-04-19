@@ -11,7 +11,9 @@ window.DataSampleTable = (function($, DataSampleTable) {
     var previousColSelected; // used for shift clicking columns
 
     DataSampleTable.setup = function() {
-        initialize();
+        $datasetWrap = $("#datasetWrap");
+        $tableWrap = $("#dataSetTableWrap");
+
         setupSampleTable();
     };
 
@@ -99,11 +101,6 @@ window.DataSampleTable = (function($, DataSampleTable) {
         }
         $datasetWrap.height(tableHeight + scrollBarPadding);
     };
-
-    function initialize() {
-        $datasetWrap = $("#datasetWrap");
-        $tableWrap = $("#dataSetTableWrap");
-    }
 
     function getSampleTable(dsObj, jsonKeys, jsons) {
         var html = getSampleTableHTML(dsObj, jsonKeys, jsons);

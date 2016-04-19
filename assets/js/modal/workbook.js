@@ -19,11 +19,14 @@ window.WorkbookModal = (function($, WorkbookModal) {
         "curUser" : false
     };
     var sortkey = "name";
-
     var activeActionNo = 0;
 
     WorkbookModal.setup = function() {
-        initialize();
+        $modalBg = $("#modalBackground");
+        $workbookModal = $("#workbookModal");
+        $optionSection = $workbookModal.find(".optionSection");
+        $workbookInput = $("#workbookInput");
+        $workbookLists = $("#workbookLists");
 
         modalHelper = new ModalHelper($workbookModal, {
             "focusOnOpen": true,
@@ -89,14 +92,6 @@ window.WorkbookModal = (function($, WorkbookModal) {
         var input = $workbookInput.get(0);
         input.setSelectionRange(0, input.value.length);
     };
-
-    function initialize() {
-        $modalBg = $("#modalBackground");
-        $workbookModal = $("#workbookModal");
-        $optionSection = $workbookModal.find(".optionSection");
-        $workbookInput = $("#workbookInput");
-        $workbookLists = $("#workbookLists");
-    }
 
     function resetWorkbookModal() {
         $workbookModal.find(".active").removeClass("active");

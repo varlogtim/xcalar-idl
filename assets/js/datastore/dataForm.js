@@ -13,9 +13,9 @@ window.DatastoreForm = (function($, DatastoreForm) {
     var $formatText;  // $formatLists.find(".text")
 
     // csv delimiter args
-    var $csvDelim; // $("#csvDelim")
+    var $csvDelim;  // $("#csvDelim")
     var $fieldText; // $("#fieldText")
-    var $lineText; // $("#lineText")
+    var $lineText;  // $("#lineText")
 
     var $udfArgs;       // $("#udfArgs")
     var $udfModuleList; // $("#udfArgs-moduleList")
@@ -41,7 +41,27 @@ window.DatastoreForm = (function($, DatastoreForm) {
     };
 
     DatastoreForm.setup = function() {
-        initialize();
+        $importDataView = $("#importDataView");
+        $explorePanel = $("#exploreView");
+
+        $filePath = $("#filePath");
+        $fileName = $("#fileName");
+
+        $form = $("#importDataForm");
+        $formatLists = $("#fileFormat");
+        $formatText = $formatLists.find(".text");
+
+        $csvDelim = $("#csvDelim");
+        $fieldText = $("#fieldText");
+        $lineText = $("#lineText");
+
+        $udfArgs = $("#udfArgs");
+        $udfModuleList = $("#udfArgs-moduleList");
+        $udfFuncList = $("#udfArgs-funcList");
+
+        $headerCheckBox = $("#promoteHeaderCheckbox");
+        $udfCheckbox = $("#udfCheckbox");
+
         setupFormUDF();
         setupFormDelimiter();
 
@@ -255,29 +275,6 @@ window.DatastoreForm = (function($, DatastoreForm) {
         DatastoreForm.show();
         resetForm();
     };
-
-    function initialize() {
-        $importDataView = $("#importDataView");
-        $explorePanel = $("#exploreView");
-
-        $filePath = $("#filePath");
-        $fileName = $("#fileName");
-
-        $form = $("#importDataForm");
-        $formatLists = $("#fileFormat");
-        $formatText = $formatLists.find(".text");
-
-        $csvDelim = $("#csvDelim");
-        $fieldText = $("#fieldText");
-        $lineText = $("#lineText");
-
-        $udfArgs = $("#udfArgs");
-        $udfModuleList = $("#udfArgs-moduleList");
-        $udfFuncList = $("#udfArgs-funcList");
-
-        $headerCheckBox = $("#promoteHeaderCheckbox");
-        $udfCheckbox = $("#udfCheckbox");
-    }
 
     function submitForm() {
         var deferred = jQuery.Deferred();

@@ -1,9 +1,8 @@
 window.Scheduler = (function(Scheduler, $) {
-    var $schedulesView = $("#schedulesView");
-    var $scheduleForm  = $("#scheduleForm");
-    var $scheduleLists = $("#scheduleLists");
-
-    var $timePicker = $("#scheduler-timePicker");
+    var $schedulesView; // $("#schedulesView");
+    var $scheduleForm;  // $("#scheduleForm");
+    var $scheduleLists; // $("#scheduleLists");
+    var $timePicker;    // $("#scheduler-timePicker");
 
     // constant
     var scheduleFreq = {
@@ -38,6 +37,10 @@ window.Scheduler = (function(Scheduler, $) {
     var scheduleLookUpMap = {};
 
     Scheduler.setup = function() {
+        $schedulesView = $("#schedulesView");
+        $scheduleForm = $("#scheduleForm");
+        $scheduleLists = $("#scheduleLists");
+        $timePicker = $("#scheduler-timePicker");
         // click on schedule list
         $scheduleLists.on("click", ".scheduleList", function() {
             var $li = $(this);

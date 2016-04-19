@@ -1,9 +1,12 @@
 window.RowScroller = (function($, RowScroller) {
-    var $rowInput = $("#rowInput");
-    var $rowScrollerArea = $("#rowScrollerArea");
+    var $rowInput;        // $("#rowInput");
+    var $rowScrollerArea; // $("#rowScrollerArea");
     var rowInfo = {};
 
     RowScroller.setup = function() {
+        $rowInput = $("#rowInput");
+        $rowScrollerArea = $("#rowScrollerArea");
+
         $rowInput.val("").data("");
         $rowInput.blur(function() {
             var val = $(this).data('val');

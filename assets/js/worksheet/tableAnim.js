@@ -1,12 +1,10 @@
 window.TblAnim = (function($, TblAnim) {
     // This module consists of column resizing, row resizing,
     // column drag and dropping, and table drag and dropping
-
     var dragInfo = {};
     var rowInfo = {};
 
     /* START COLUMN RESIZING */
-
     TblAnim.startColResize = function(el, event, options) {
         var rescol   = gRescol;
         var $table   = el.closest('.dataTable');
@@ -177,16 +175,16 @@ window.TblAnim = (function($, TblAnim) {
         matchHeaderSizes($table);
 
         SQL.add("Resize Column", {
-            "operation"  : SQLOps.DragResizeTableCol,
-            "tableName"  : gTables[tableId].tableName,
-            "tableId"    : tableId,
-            "colNum"     : colNum,
-            "fromWidth"  : fromWidth,
-            "toWidth"    : toWidth,
-            "oldWidthState" : oldWidthState,
-            "newWidthState" : newWidthState,
-            "htmlExclude": ["colNum", "fromWidth", "toWidth", "oldWidthState",
-                            "newWidthState"]
+            "operation"    : SQLOps.DragResizeTableCol,
+            "tableName"    : gTables[tableId].tableName,
+            "tableId"      : tableId,
+            "colNum"       : colNum,
+            "fromWidth"    : fromWidth,
+            "toWidth"      : toWidth,
+            "oldWidthState": oldWidthState,
+            "newWidthState": newWidthState,
+            "htmlExclude"  : ["colNum", "fromWidth", "toWidth", "oldWidthState",
+                              "newWidthState"]
         });
     };
 

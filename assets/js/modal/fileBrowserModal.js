@@ -41,7 +41,18 @@ window.FileBrowser = (function($, FileBrowser) {
     var modalHelper;
 
     FileBrowser.setup = function() {
-        initialize();
+        $modalBg = $("#modalBackground");
+        $fileBrowser = $("#fileBrowserModal");
+        $container = $("#fileBrowserContainer");
+        $fileBrowserMain = $("#fileBrowserMain");
+        $fileName = $("#fileBrowserInputName");
+        $formatSection = $("#fileBrowserFormat");
+        $pathSection = $("#fileBrowserPath");
+        $pathLists = $("#fileBrowserPathMenu");
+        $pathText = $pathSection.find(".text");
+        $sortSection = $("#fileBrowserSort");
+        $sortMenu = $("#fileBrowserSortMenu");
+        $filePath = $("#filePath");
 
         modalHelper = new ModalHelper($fileBrowser, {
             "minHeight": minHeight,
@@ -60,7 +71,6 @@ window.FileBrowser = (function($, FileBrowser) {
             "minWidth"   : minWidth,
             "containment": "document"
         });
-
 
         // click blank space to remove foucse on folder/dsds
         $fileBrowser.on("click", function() {
@@ -321,21 +331,6 @@ window.FileBrowser = (function($, FileBrowser) {
             }
         }
     };
-
-    function initialize() {
-        $modalBg = $("#modalBackground");
-        $fileBrowser = $("#fileBrowserModal");
-        $container = $("#fileBrowserContainer");
-        $fileBrowserMain = $("#fileBrowserMain");
-        $fileName = $("#fileBrowserInputName");
-        $formatSection = $("#fileBrowserFormat");
-        $pathSection = $("#fileBrowserPath");
-        $pathLists = $("#fileBrowserPathMenu");
-        $pathText = $pathSection.find(".text");
-        $sortSection = $("#fileBrowserSort");
-        $sortMenu = $("#fileBrowserSortMenu");
-        $filePath = $("#filePath");
-    }
 
     function toggleView(toListView, refreshTooltip) {
         var $btn = $("#fileBrowserGridView");

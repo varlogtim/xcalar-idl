@@ -9,7 +9,9 @@ window.ExtModal = (function($, ExtModal){
         be a function decl.
     */
     ExtModal.setup = function(options) {
-        initialize();
+        $extModal = $("#extModal");
+        $btnSection = $("#extActions");
+
         $extModal.draggable({
             "handle"     : ".modalHeader",
             "cursor"     : "-webkit-grabbing",
@@ -51,14 +53,8 @@ window.ExtModal = (function($, ExtModal){
         $extModal.show();
     };
 
-    function initialize() {
-        $extModal = $("#extModal");
-        $btnSection = $("#extActions");
-    }
-
     function closeExtModal() {
         $btnSection.find(".funcBtn").remove();
-
         $extModal.hide();
     }
 

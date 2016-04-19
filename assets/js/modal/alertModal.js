@@ -8,7 +8,10 @@ window.Alert = (function($, Alert){
     var modalHelper;
 
     Alert.setup = function() {
-        initialize();
+        $modal = $("#alertModal");
+        $modalBg = $("#modalBackground");
+        $alertOptionInput = $("#alertOptionInput");
+        $btnSection = $("#alertActions");
 
         modalHelper = new ModalHelper($modal, {
             "focusOnOpen": true,
@@ -134,13 +137,6 @@ window.Alert = (function($, Alert){
         var val = $alertOptionInput.val();
         return (jQuery.trim(val));
     };
-
-    function initialize() {
-        $modal = $("#alertModal");
-        $modalBg = $("#modalBackground");
-        $alertOptionInput = $("#alertOptionInput");
-        $btnSection = $("#alertActions");
-    }
 
     function closeAlertModal($modalContainer) {
         $btnSection.find(".funcBtn").remove();

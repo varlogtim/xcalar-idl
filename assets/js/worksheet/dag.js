@@ -1,8 +1,11 @@
 window.DagPanel = (function($, DagPanel) {
-    var $dagPanel = $('#dagPanel');
-    var $dagArea = $dagPanel.find('.dagArea');
+    var $dagPanel; // $('#dagPanel');
+    var $dagArea;  // $dagPanel.find('.dagArea');
 
     DagPanel.setup = function() {
+        $dagPanel = $('#dagPanel');
+        $dagArea = $dagPanel.find('.dagArea');
+
         setupDagPanelSliding();
         setupDagTableDropdown();
         setupRightClickDropdown();
@@ -528,16 +531,16 @@ window.DagPanel = (function($, DagPanel) {
                 xcHelper.centerFocusedTable($tableWrap, true);
 
                 SQL.add("Revert Table", {
-                    "operation"   : SQLOps.RevertTable,
-                    "tableName"   : newTableName,
-                    "oldTableName": oldTableName,
-                    "oldTableId"  : oldTableId,
-                    "tableId"     : newTableId,
-                    "tableType"   : tableType,
-                    "worksheet"   : worksheet,
+                    "operation"     : SQLOps.RevertTable,
+                    "tableName"     : newTableName,
+                    "oldTableName"  : oldTableName,
+                    "oldTableId"    : oldTableId,
+                    "tableId"       : newTableId,
+                    "tableType"     : tableType,
+                    "worksheet"     : worksheet,
                     "worksheetIndex": WSManager.getWSOrder(worksheet),
-                    "htmlExclude" : ["tableType", "oldTableName", "worksheet",
-                                    "worksheetIndex"]
+                    "htmlExclude"   : ["tableType", "oldTableName", "worksheet",
+                                       "worksheetIndex"]
                 });
             });
         });

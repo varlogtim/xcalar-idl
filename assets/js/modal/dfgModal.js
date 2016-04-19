@@ -19,7 +19,18 @@ window.DataFlowModal = (function($, DataFlowModal) {
     var minWidth  = 700;
 
     DataFlowModal.setup = function() {
-        initialize();
+        $modalBg = $("#modalBackground");
+        $dfgModal = $('#dataFlowModal');
+        $dfPreviews = $('#dataFlowPreviews');
+        $dfExport = $("#dataFlowExport");
+        $dfTable = $("#dataFlowTable");
+        $modalMain = $dfgModal.find('.modalMain');
+        $sideListSection = $dfgModal.find('.sideListSection');
+        $previewSection = $dfgModal.find('.previewSection');
+        $searchInput = $("#dataFlowSearch");
+        $radios = $dfgModal.find('.radio');
+        $newGroupNameInput = $('#newGroupNameInput');
+        $confirmBtn = $("#dataFlowModalConfirm");
 
         modalHelper = new ModalHelper($dfgModal, {
             "focusOnOpen": true,
@@ -97,21 +108,6 @@ window.DataFlowModal = (function($, DataFlowModal) {
 
         $newGroupNameInput.focus();
     };
-
-    function initialize() {
-        $modalBg = $("#modalBackground");
-        $dfgModal = $('#dataFlowModal');
-        $dfPreviews = $('#dataFlowPreviews');
-        $dfExport = $("#dataFlowExport");
-        $dfTable = $("#dataFlowTable");
-        $modalMain = $dfgModal.find('.modalMain');
-        $sideListSection = $dfgModal.find('.sideListSection');
-        $previewSection = $dfgModal.find('.previewSection');
-        $searchInput = $("#dataFlowSearch");
-        $radios = $dfgModal.find('.radio');
-        $newGroupNameInput = $('#newGroupNameInput');
-        $confirmBtn = $("#dataFlowModalConfirm");
-    }
 
     function saveDataFlow(groupName, columns, isNewGroup) {
         var $dagImage = $dfPreviews.find('.dagImage');

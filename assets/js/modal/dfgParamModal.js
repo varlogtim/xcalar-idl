@@ -2,8 +2,8 @@ window.DFGParamModal = (function($, DFGParamModal){
     var $dfgParamModal; // $("#dfgParameterModal")
     var $modalBg;       //$("#modalBackground");
 
-    var $paramLists;  // $("#dagModleParamList")
-    var $editableRow; // $dfgParamModal.find(".editableRow")
+    var $paramLists;    // $("#dagModleParamList")
+    var $editableRow;   // $dfgParamModal.find(".editableRow")
 
     var validParams = [];
     var modalHelper;
@@ -32,7 +32,10 @@ window.DFGParamModal = (function($, DFGParamModal){
                     '</tr>';
 
     DFGParamModal.setup = function() {
-        initialize();
+        $dfgParamModal = $("#dfgParameterModal");
+        $modalBg = $("#modalBackground");
+        $paramLists = $("#dagModleParamList");
+        $editableRow = $dfgParamModal.find(".editableRow");
         modalHelper = new ModalHelper($dfgParamModal, { "noResize": true });
 
         $dfgParamModal.find('.cancel, .close').click(function() {
@@ -369,13 +372,6 @@ window.DFGParamModal = (function($, DFGParamModal){
     DFGParamModal.allowParamDrop = function(event) {
         event.preventDefault();
     };
-
-    function initialize() {
-        $dfgParamModal = $("#dfgParameterModal");
-        $modalBg = $("#modalBackground");
-        $paramLists = $("#dagModleParamList");
-        $editableRow = $dfgParamModal.find(".editableRow");
-    }
 
     function suggest($input) {
         var value = $input.val().trim().toLowerCase();

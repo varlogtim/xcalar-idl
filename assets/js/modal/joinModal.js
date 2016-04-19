@@ -37,7 +37,19 @@ window.JoinModal = (function($, JoinModal) {
     var minWidth  = 800;
 
     JoinModal.setup = function () {
-        initialize();
+        $modalBg = $("#modalBackground");
+        $mainJoin = $("#mainJoin");
+        $joinModal = $("#joinModal");
+        $tableDropDown = $mainJoin.find('.joinTableList');
+        $joinSelect = $("#joinType");
+        $joinDropdown = $("#joinTypeSelect");
+        $joinPreview = $('#joinPreview');
+        $joinTableName = $("#joinRoundedInput");
+        $leftJoinTable = $("#leftJoin");
+        $rightJoinTable = $("#rightJoin");
+        $multiJoinBtn = $("#multiJoinBtn");
+        $multiJoin = $("#multiJoin");
+
         modalHelper = new ModalHelper($joinModal, {
             "minHeight": minHeight,
             "minWidth" : minWidth
@@ -331,22 +343,6 @@ window.JoinModal = (function($, JoinModal) {
             $joinTableName.focus();
         }
     };
-
-    function initialize() {
-        $modalBg = $("#modalBackground");
-        $mainJoin = $("#mainJoin");
-        $joinModal = $("#joinModal");
-        $tableDropDown = $mainJoin.find('.joinTableList');
-        $joinSelect = $("#joinType");
-        $joinDropdown = $("#joinTypeSelect");
-        $joinPreview = $('#joinPreview');
-        $joinTableName = $("#joinRoundedInput");
-        $leftJoinTable = $("#leftJoin");
-        $rightJoinTable = $("#rightJoin");
-
-        $multiJoinBtn = $("#multiJoinBtn");
-        $multiJoin = $("#multiJoin");
-    }
 
     function toggleMultiClause(toMultiClause) {
         if (toMultiClause) {

@@ -1087,16 +1087,14 @@ window.TblManager = (function($, TblManager) {
                                     table.resultSetMax -
                                     table.currentRowNumber);
                     info = {
-                        "numRowsToAdd": numRowsToAdd,
-                        "numRowsAdded": 0,
-                        "targetRow"   : table.currentRowNumber +
-                                        numRowsToAdd,
-                        "lastRowToDisplay": table.currentRowNumber +
-                                            numRowsToAdd,
-                        "bulk"     : false,
-                        "tableName": table.tableName,
-                        "tableId"  : tableId,
-                        "currentFirstRow": topRowNum
+                        "numRowsToAdd"    : numRowsToAdd,
+                        "numRowsAdded"    : 0,
+                        "targetRow"       : table.currentRowNumber + numRowsToAdd,
+                        "lastRowToDisplay": table.currentRowNumber + numRowsToAdd,
+                        "bulk"            : false,
+                        "tableName"       : table.tableName,
+                        "tableId"         : tableId,
+                        "currentFirstRow" : topRowNum
                     };
 
                     goToPage(table.currentRowNumber, numRowsToAdd,

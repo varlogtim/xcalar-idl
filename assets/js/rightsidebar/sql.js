@@ -1,10 +1,10 @@
 window.SQL = (function($, SQL) {
-    var $sqlButtons = $("#sqlButtonWrap");
-    var $textarea = $("#sql-TextArea");
-    var $machineTextarea = $("#sql-MachineTextArea");
+    var $sqlButtons;      // $("#sqlButtonWrap");
+    var $textarea;        // $("#sql-TextArea");
+    var $machineTextarea; // $("#sql-MachineTextArea");
 
-    var $undo = $("#undo");
-    var $redo = $("#redo");
+    var $undo; // $("#undo");
+    var $redo; // $("#redo");
 
     // keep in sync with initialize
     var logCursor = -1;
@@ -25,6 +25,13 @@ window.SQL = (function($, SQL) {
     var sqlRestoreError = "restore sql error";
 
     SQL.setup = function() {
+        $sqlButtons = $("#sqlButtonWrap");
+        $textarea = $("#sql-TextArea");
+        $machineTextarea = $("#sql-MachineTextArea");
+
+        $undo = $("#undo");
+        $redo = $("#redo");
+
         initialize();
         // show human readabl SQL as default
         $machineTextarea.hide();

@@ -20,7 +20,10 @@ window.ExportModal = (function($, ExportModal) {
     var minWidth  = 296;
 
     ExportModal.setup = function() {
-        initialize();
+        $exportModal = $("#exportModal");
+        $exportName = $("#exportName");
+        $exportPath = $("#exportPath");
+        $exportColumns = $("#exportColumns");
 
         modalHelper = new ModalHelper($exportModal, {
             "minHeight": minHeight,
@@ -154,13 +157,6 @@ window.ExportModal = (function($, ExportModal) {
             console.error(error);
         });
     };
-
-    function initialize() {
-        $exportModal = $("#exportModal");
-        $exportName = $("#exportName");
-        $exportPath = $("#exportPath");
-        $exportColumns = $("#exportColumns");
-    }
 
     function submitForm() {
         var deferred = jQuery.Deferred();

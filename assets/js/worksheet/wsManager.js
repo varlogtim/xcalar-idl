@@ -1,4 +1,7 @@
 window.WSManager = (function($, WSManager) {
+    var $workSheetTabSection; // $("#worksheetTabs");
+    var $tabMenu;             // $('#worksheetTabMenu');
+
     var wsLookUp = {}; // {id, date, tables, archivedTables}
     var wsOrder = [];
     var hiddenWS = [];
@@ -15,14 +18,12 @@ window.WSManager = (function($, WSManager) {
     // var for naming worksheet automatically
     var defaultName = "Sheet ";
     var nameSuffix = 1;
-
-    var $workSheetTabSection = $("#worksheetTabs");
-
     var maxWSLen = 260; // 26 letters * 10 nums
-    var $tabMenu = $('#worksheetTabMenu');
 
     // Setup function for WSManager Module
     WSManager.setup = function() {
+        $workSheetTabSection = $("#worksheetTabs");
+        $tabMenu = $('#worksheetTabMenu');
         addWSEvents();
     };
 
@@ -515,12 +516,12 @@ window.WSManager = (function($, WSManager) {
 
         // this sql will be modified in findTableListHelper()
         var sql = {
-            "operation"       : SQLOps.MoveInactiveTableToWS,
-            "tableId"         : tableId,
-            "tableType"       : tableType,
-            "newWorksheetId"  : newWSId,
+            "operation"        : SQLOps.MoveInactiveTableToWS,
+            "tableId"          : tableId,
+            "tableType"        : tableType,
+            "newWorksheetId"   : newWSId,
             "newWorksheetIndex": WSManager.getWSOrder(newWSId),
-            "newWorksheetName": newWS.name
+            "newWorksheetName" : newWS.name
         };
 
         findTableListHelper()
@@ -642,11 +643,11 @@ window.WSManager = (function($, WSManager) {
         }
 
         SQL.add("Hide Worksheet", {
-            "operation"    : SQLOps.HideWS,
-            "worksheetId"  : wsId,
-            "worksheetName": ws.name,
+            "operation"     : SQLOps.HideWS,
+            "worksheetId"   : wsId,
+            "worksheetName" : ws.name,
             "worksheetIndex": index,
-            "htmlExclude"  : ['worksheetIndex']
+            "htmlExclude"   : ['worksheetIndex']
         });
     };
 
@@ -711,11 +712,11 @@ window.WSManager = (function($, WSManager) {
             // focus on last that unhide
             WSManager.focusOnWorksheet(curWSId);
             SQL.add("Unhide Worksheet", {
-                "operation"     : SQLOps.UnHideWS,
-                "worksheetIds"  : wsIds,
-                "worksheetNames": wsNames,
+                "operation"      : SQLOps.UnHideWS,
+                "worksheetIds"   : wsIds,
+                "worksheetNames" : wsNames,
                 "worksheetOrders": hiddenWSOrder,
-                "htmlExclude": ["worksheetOrders"]
+                "htmlExclude"    : ["worksheetOrders"]
             });
             deferred.resolve();
         })
