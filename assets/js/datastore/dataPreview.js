@@ -465,7 +465,7 @@ window.DataPreview = (function($, DataPreview) {
 
         // add alert
         if (dsFormat === "CSV" &&
-            (delimiter === "" || !hasHeader))
+            (delimiter === "" && hasSpecialChar() || !hasHeader))
         {
             var msg;
             if (delimiter === "" && !hasHeader) {
@@ -809,6 +809,10 @@ window.DataPreview = (function($, DataPreview) {
                     cellClass += " has-margin has-comma";
                 } else if (d === "|") {
                     cellClass += " has-pipe";
+                } else if (d === "\'" || d === "\"") {
+                    cellClass += " has-quote";
+                } else if (/\W/.test(d)) {
+                    cellClass += " has-specialChar";
                 }
                 html += '<span class="' + cellClass + '">' + d + '</span>';
             }
@@ -840,7 +844,7 @@ window.DataPreview = (function($, DataPreview) {
                 }
                 // case to choose a highlighter
                 var commaLen = $previewTable.find(".has-comma").length;
-                var tabLen   = $previewTable.find(".has-tab").length;
+                var tabLen = $previewTable.find(".has-tab").length;
                 var commaHtml =
                     '<span class="action active commaDelim">' +
                         DSPreviewTStr.CommaAsDelim +
@@ -880,11 +884,15 @@ window.DataPreview = (function($, DataPreview) {
                 }
 
                 if (html === "") {
-                    // select char
-                    html =
-                        '<span class="action hint">' +
-                            DSPreviewTStr.HighlightDelimHint +
-                        '</span>';
+                    if (hasSpecialChar()) {
+                        // select char
+                        html = '<span class="action hint">' +
+                                    DSPreviewTStr.HighlightDelimHint +
+                               '</span>';
+                    } else {
+                        // when no special char, sugg promote header
+                        html = promoteSugg(html);
+                    }
                 } else {
                     // select another char
                     html +=
@@ -904,33 +912,8 @@ window.DataPreview = (function($, DataPreview) {
                     '</span>';
             }
         } else {
-            var shouldPromote = headerPromoteDetect();
             // case to apply/replay delimiter promote/unpromote header
-            if (hasHeader) {
-                if (!shouldPromote) {
-                    html +=
-                        '<span class="action active promote">' +
-                            DSPreviewTStr.UnPromote +
-                        '</span>';
-                }
-            } else {
-                if (shouldPromote) {
-                    html +=
-                        '<span class="action active promote">' +
-                            DSPreviewTStr.Promote +
-                        '</span>';
-                }
-            }
-
-            html +=
-                '<span class="action active apply-all">' +
-                    DSPreviewTStr.Save +
-                '</span>';
-
-            html +=
-                '<span class="action active rm-highlight">' +
-                    DSPreviewTStr.RMDelim +
-                '</span>';
+            html = promoteSugg(html);
         }
 
         $content.html(html);
@@ -961,13 +944,49 @@ window.DataPreview = (function($, DataPreview) {
                     .find(".content").html(html);
     }
 
-    function headerPromoteDetect() {
-        if (delimiter === "") {
-            // has not specified delimiter
-            // not recommend to promote
-            return false;
+    function promoteSugg(html) {
+        // case to apply/replay delimiter promote/unpromote header
+        if (html == null) {
+            html = "";
+        }
+        var shouldPromote = headerPromoteDetect();
+        if (hasHeader) {
+            if (!shouldPromote) {
+                html +=
+                    '<span class="action active promote">' +
+                        DSPreviewTStr.UnPromote +
+                    '</span>';
+            }
+        } else {
+            if (shouldPromote) {
+                html +=
+                    '<span class="action active promote">' +
+                        DSPreviewTStr.Promote +
+                    '</span>';
+            }
         }
 
+        html +=
+            '<span class="action active apply-all">' +
+                DSPreviewTStr.Save +
+            '</span>';
+
+        if (delimiter !== "") {
+            html +=
+                '<span class="action active rm-highlight">' +
+                    DSPreviewTStr.RMDelim +
+                '</span>';
+        }
+
+        return html;
+    }
+
+    function hasSpecialChar() {
+        var $specialChars = $previewTable.find(".has-specialChar");
+        return ($specialChars.length > 0);
+    }
+
+    function headerPromoteDetect() {
         var col;
         var row;
         var $trs = $previewTable.find("tbody tr");
@@ -1012,6 +1031,12 @@ window.DataPreview = (function($, DataPreview) {
 
             for (row = rowStart; row < rowLen; row++) {
                 var tdText = tds[row][col];
+                var quotePattern = /^['"].+["']$/;
+                if (quotePattern.test(tdText)) {
+                    // strip "9" to 9
+                    tdText = tdText.substring(1, tdText.length - 1);
+                }
+
                 if ($.isNumeric(tdText)) {
                     // header is string and td is number
                     // valid this td
