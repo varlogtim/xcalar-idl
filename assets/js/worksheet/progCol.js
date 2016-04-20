@@ -440,11 +440,11 @@ window.ColManager = (function($, ColManager) {
 
             var curTableName = newTableNames[index + 1];
             var newTableName = newTableNames[index];
-            var fieldName    = newFieldNames[index];
-            var mapString    = mapStrings[index];
-            var curColNum    = colTypeInfos[index].colNum;
+            var fieldName = newFieldNames[index];
+            var mapString = mapStrings[index];
+            var curColNum = colTypeInfos[index].colNum;
 
-            XcalarMap(fieldName, mapString, curTableName, newTableName, txId)
+            XIApi.map(txId, mapString, curTableName, fieldName, newTableName)
             .then(function() {
                 var mapOptions = {"replaceColumn": true};
                 var curTableId = xcHelper.getTableId(curTableName);
@@ -790,7 +790,7 @@ window.ColManager = (function($, ColManager) {
             var fieldName = newFieldNames[index];
             var newTableId = xcHelper.getTableId(newTableName);
 
-            XcalarMap(fieldName, mapString, curTableName, newTableName, txId)
+            XIApi.map(txId, mapString, curTableName, fieldName, newTableName)
             .then(function() {
                 var curTableId   = xcHelper.getTableId(curTableName);
                 var curTableCols = gTables[curTableId].tableCols;
@@ -822,32 +822,24 @@ window.ColManager = (function($, ColManager) {
                 return (innerDeferred.promise());
             }
 
-            var mapString    = 'countChar(' + backColName + ', "' +
+            var mapString = 'countChar(' + backColName + ', "' +
                                 delimiter + '")';
-            var fieldName    = xcHelper.randName("mappedCol");
+            var fieldName = xcHelper.randName("mappedCol");
             var curTableName = tableName;
             var newTableName = ".tempMap." + tableNamePart +
                                 Authentication.getHashId();
 
-            XcalarMap(fieldName, mapString, curTableName, newTableName, txId)
+            XIApi.map(txId, mapString, curTableName, fieldName, newTableName)
             .then(function() {
-                var op = AggrOp.MaxInteger;
-                return XcalarAggregate(fieldName, newTableName, op, txId);
+                return XIApi.aggregate(txId, AggrOp.MaxInteger,
+                                       fieldName, newTableName);
             })
             .then(function(value) {
-                try {
-                    var val = JSON.parse(value);
-                    // Note that the splitColNum should be charCountNum + 1
-                    alertHelper(val.Value + 1, null, innerDeferred);
-                } catch (error) {
-                    innerDeferred.reject(error);
-                }
-
+                // Note that the splitColNum should be charCountNum + 1
+                alertHelper(value + 1, null, innerDeferred);
                 // XXXX Should delete the newTableName when delete is enabled
             })
-            .fail(function(error) {
-                innerDeferred.reject(error);
-            });
+            .fail(innerDeferred.reject);
 
             return (innerDeferred.promise());
         }

@@ -277,6 +277,10 @@ window.TblManager = (function($, TblManager) {
     */
     TblManager.setOrphanTableMeta = function(tableName, tableCols, options) {
         options = options || {};
+        if (tableCols == null) {
+            // at last have data col
+            tableCols = ColManager.newDATACol();
+        }
 
         var tableId = xcHelper.getTableId(tableName);
         var table = new TableMeta({

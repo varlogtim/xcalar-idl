@@ -801,18 +801,38 @@ window.Profile = (function($, Profile, d3) {
         var tableToDelete;
 
         curStatsCol.groupByInfo.isComplete = "running";
-        checkTableIndex(tableId, tableName, colName, txId)
-        .then(function(indexedTableName, nullCount) {
-            curStatsCol.groupByInfo.nullCount = nullCount;
+
+        XIApi.index(txId, colName, tableName)
+        .then(function(indexedTableName, hasIndexed) {
+            var innerDeferred = jQuery.Deferred();
 
             if (indexedTableName !== tableName) {
                 tableToDelete = indexedTableName;
             }
 
+            if (hasIndexed) {
+                getAggResult(colName, indexedTableName, aggMap.count, txId)
+                .then(function(val) {
+                    // the gTables[tableId].resultSetCount should eqaul to the
+                    // totalCount after right index, if not, a way to resolve
+                    // is to get resulSetCount from the right src table
+                    var nullCount = gTables[tableId].resultSetCount - val;
+                    innerDeferred.resolve(indexedTableName, nullCount);
+                })
+                .fail(innerDeferred.reject);
+            } else {
+                innerDeferred.resolve(indexedTableName, 0);
+            }
+
+            return innerDeferred.promise();
+        })
+        .then(function(indexedTableName, nullCount) {
+            curStatsCol.groupByInfo.nullCount = nullCount;
+
             // here user old table name to generate table name
             groupbyTable = getNewName(tableName, ".profile.GB", true);
 
-            var operator    = AggrOp.Count;
+            var operator = AggrOp.Count;
             var newColName  = statsColName;
             var isIncSample = false;
 
@@ -868,121 +888,8 @@ window.Profile = (function($, Profile, d3) {
         return (deferred.promise());
     }
 
-    function checkTableIndex(tableId, tableName, colName, txId) {
-        var deferred = jQuery.Deferred();
-        var table = gTables[tableId];
-        var tableKey = table.keyName;
-
-        getUnsortedTableName(tableName)
-        .then(function(unsorted) {
-            var innerDeferred = jQuery.Deferred();
-            var parentIndexedWrongly = false;
-
-            if (unsorted !== tableName) {
-                // this is sorted table, should index a unsorted one
-                XcalarMakeResultSetFromTable(unsorted)
-                .then(function(resultSet) {
-                    resultSet = resultSet || {};
-                    var parentKey = resultSet.keyAttrHeader.name;
-
-                    if (parentKey !== colName) {
-                        if (parentKey !== tableKey) {
-                            // if current is sorted, the parent should also
-                            // index on the column to remove "KNF", first
-                            var indexTable = getNewName(tableName,
-                                                    ".stats.indexParent", true);
-
-                            XcalarIndexFromTable(unsorted, tableKey, indexTable,
-                                         XcalarOrderingT.XcalarOrderingUnordered,
-                                         txId)
-                            .then(function() {
-                                if (tableKey === colName) {
-                                    // when the parent has right index
-                                    parentIndexedWrongly = false;
-                                } else {
-                                    // when parent need another index on colName
-                                    parentIndexedWrongly = true;
-                                }
-
-                                innerDeferred.resolve(parentIndexedWrongly,
-                                                        indexTable);
-                            })
-                            .fail(innerDeferred.reject);
-                        } else {
-                            // when parent is indexed on tableKey,
-                            // still but need another index on colName
-                            parentIndexedWrongly = true;
-                            innerDeferred.resolve(parentIndexedWrongly, unsorted);
-                        }
-                    } else {
-                        innerDeferred.resolve(parentIndexedWrongly, unsorted);
-                    }
-                })
-                .fail(innerDeferred.reject);
-            } else {
-                // this is the unsorted table
-                if (colName !== tableKey) {
-                    parentIndexedWrongly = true;
-                }
-
-                innerDeferred.resolve(parentIndexedWrongly, tableName);
-            }
-
-            return (innerDeferred.promise());
-        })
-        .then(function(parentIndexedWrongly, unsortedTable) {
-            if (!parentIndexedWrongly) {
-                deferred.resolve(unsortedTable, 0);
-            } else {
-                var newTableName = getNewName(tableName, ".stats.index", true);
-                // lock the table when do index
-                xcHelper.lockTable(tableId);
-
-                XcalarIndexFromTable(unsortedTable, colName, newTableName,
-                                     XcalarOrderingT.XcalarOrderingUnordered,
-                                     txId)
-                .then(function() {
-                    // Aggregate count on origingal already remove the null value!
-                    return getAggResult(colName, unsortedTable,
-                                        aggMap.count, txId);
-                })
-                .then(function(val) {
-                    // the gTables[tableId].resultSetCount should eqaul to the
-                    // totalCount after right index, if not, a way to resolve
-                    // is to get resulSetCount from the right src table
-                    var nullCount = gTables[tableId].resultSetCount - val;
-                    deferred.resolve(newTableName, nullCount);
-                })
-                .fail(deferred.reject)
-                .always(function() {
-                    xcHelper.unlockTable(tableId, false);
-                });
-            }
-        })
-        .fail(deferred.reject);
-
-        return (deferred.promise());
-    }
-
-    function getAggResult(colName, tableName, aggrOp, txId) {
-        var deferred = jQuery.Deferred();
-
-        XcalarAggregate(colName, tableName, aggrOp, txId)
-        .then(function(value) {
-            var val;
-            try {
-                var obj = jQuery.parseJSON(value);
-                val = obj.Value;
-
-                deferred.resolve(val);
-            } catch (error) {
-                console.error(error, val);
-                deferred.reject(error);
-            }
-        })
-        .fail(deferred.reject);
-
-        return (deferred.promise());
+    function getAggResult(colName, tableName, aggOp, txId) {
+        return XIApi.aggregate(txId, aggOp, colName, tableName);
     }
 
     function fetchGroupbyData(rowPosition, rowsToFetch) {
@@ -1948,7 +1855,7 @@ window.Profile = (function($, Profile, d3) {
         var mapString = "mult(floor(div(" + colName + ", " + newBucketNum +
                         ")), " + newBucketNum + ")";
 
-        XcalarMap(mapCol, mapString, tableName, mapTable, txId)
+        XIApi.map(txId, mapString, tableName, mapCol, mapTable)
         .then(function() {
             indexTable = getNewName(mapTable, ".index", true);
             return XcalarIndexFromTable(mapTable, mapCol, indexTable,

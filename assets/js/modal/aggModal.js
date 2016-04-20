@@ -503,27 +503,17 @@ window.AggModal = (function($, AggModal) {
             }
         }
 
-        XcalarAggregate(fieldName, tableName, opString, txId)
+        XIApi.aggregate(txId, opString, fieldName, tableName)
         .then(function(value) {
-            var val;
-
-            try {
-                var obj = jQuery.parseJSON(value);
-                val = obj.Value;
-            } catch (error) {
-                console.error(error, obj);
-                val = "--";
-            }
-
             // cache value
             aggCache[tableId] = aggCache[tableId] || {};
             tableAgg = aggCache[tableId];
             tableAgg[fieldName] = tableAgg[fieldName] || [];
             colAgg = tableAgg[fieldName];
-            colAgg[aggOpMap[opString]] = val;
+            colAgg[aggOpMap[opString]] = value;
             // end of cache value
 
-            applyAggResult(val);
+            applyAggResult(value);
             deferred.resolve();
         })
         .fail(function(error) {
@@ -568,24 +558,14 @@ window.AggModal = (function($, AggModal) {
             }
         }
 
-        XcalarAggregateHelper(tableName, evalStr, txId)
+        XIApi.aggregateWithEvalStr(txId, evalStr, tableName)
         .then(function(value) {
-            var val;
-
-            try {
-                var obj = jQuery.parseJSON(value);
-                val = obj.Value;
-            } catch (error) {
-                console.error(error, obj);
-                val = "--";
-            }
-
             // cache value
             corrCache[tableId] = corrCache[tableId] || {};
-            corrCache[tableId][evalStr] = val;
+            corrCache[tableId][evalStr] = value;
             // end of cache value
 
-            applyCorrResult(row, col, val, colDups);
+            applyCorrResult(row, col, value, colDups);
             deferred.resolve();
         })
         .fail(function(error) {

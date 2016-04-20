@@ -1346,12 +1346,7 @@ function generateAggregateString(fieldName, op) {
     return (evalStr);
 }
 
-function XcalarAggregate(fieldName, srcTablename, op, txId) {
-    var evalStr = generateAggregateString(fieldName, op);
-    return (XcalarAggregateHelper(srcTablename, evalStr, txId));
-}
-
-function XcalarAggregateHelper(srcTablename, evalStr, txId) {
+function XcalarAggregate(evalStr, srcTablename, txId) {
     if (tHandle == null) {
         return (promiseWrapper(null));
     }

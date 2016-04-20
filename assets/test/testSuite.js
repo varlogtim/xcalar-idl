@@ -602,7 +602,7 @@ window.TestSuite = (function($, TestSuite) {
                 return checkExists("#alertHeader:visible .text:contains(Agg)");
             })
             .then(function() {
-                if ($("#alertContent .text").html().split(": ")[1]
+                if ($("#alertContent .text").html().split(":")[1].trim()
                     .indexOf("31.229") > -1) {
                     $("#alertActions .cancel").click();
                     TestSuite.pass(deferred, testName, currentTestNumber);
