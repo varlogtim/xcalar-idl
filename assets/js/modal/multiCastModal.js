@@ -317,7 +317,7 @@ window.MultiCastModal = (function($, MultiCastModal) {
         var isNumber;
         var isInteger;
         var isFloat;
-        var isOnly10;
+        // var isOnly10;
         var isBoolean;
 
         $tds.each(function() {
@@ -341,13 +341,13 @@ window.MultiCastModal = (function($, MultiCastModal) {
                         isInteger = true;
                         isFloat = false;
 
-                        if ((isOnly10 == null || isOnly10) &&
-                            (num === 0 || num === 1))
-                        {
-                            isOnly10 = true;
-                        } else {
-                            isOnly10 = false;
-                        }
+                        // if ((isOnly10 == null || isOnly10) &&
+                        //     (num === 0 || num === 1))
+                        // {
+                        //     isOnly10 = true;
+                        // } else {
+                        //     isOnly10 = false;
+                        // }
                     } else {
                         isFloat = true;
                         isInteger = false;
@@ -359,9 +359,9 @@ window.MultiCastModal = (function($, MultiCastModal) {
         });
 
         if (type === "integer" || isInteger) {
-            if (isOnly10) {
-                return "boolean";
-            }
+            // if (isOnly10) {
+            //     return "boolean";
+            // }
             return "integer";
         } else if (isFloat) {
             return "float";
@@ -403,7 +403,7 @@ window.MultiCastModal = (function($, MultiCastModal) {
     }
 
     function buildTable(tableId) {
-        var validTyps = ["string", "integer", "float"];
+        var validTyps = ["string", "integer", "float", "boolean"];
         var tableCols = gTables[tableId].tableCols;
         var list;
         var html = '<thead>' +
