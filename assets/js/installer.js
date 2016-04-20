@@ -122,14 +122,24 @@ window.Installer = (function($, Installer) {
     };
     
     function showStep2(numServers) {
+        var inputNum = 0;
+        $(".stepChain").find('.circle' + inputNum).addClass('done');
+        $(".stepChain").find('.link' + inputNum).addClass('filled');
+        setTimeout(function() {
+            $(".stepChain").find('.circle' + (inputNum + 1))
+                            .addClass('filled');
+        }, 300);
+        var htmlStr = ""
         for (var i = 0; i < numServers; i++) {
-            var htmlStr = "<tr class='server'>";
+            htmlStr += "<tr class='server'>";
             htmlStr += "<td class='fqdn'><input type='text'></td>";
             htmlStr += "<td class='username'><input type='text'></td>";
             htmlStr += "<td class='password'><input type='password'></td>";
             htmlStr += "</tr>";
-            $("#tableForm").append(htmlStr);
         }
+        $("#tableForm tr:gt(1)").remove();
+        $("#tableForm").append(htmlStr);
+        //$("#tableForm tbody").html(htmlStr);
         $("#step2").show();
     }
 
