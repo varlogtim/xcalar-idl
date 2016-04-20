@@ -638,7 +638,7 @@ function XcalarExport(tableName, exportName, targetName, numColumns,
                 specInput.sfInput.fileName = exportName + ".csv";
                 specInput.sfInput.splitRule = new ExSFFileSplitRuleT();
                 specInput.sfInput.splitRule.type =
-                                    ExSFFileSplitTypeT.ExSFFileSplitNone;
+                                    ExSFFileSplitTypeT.ExSFFileSplitForceSingle;
                 specInput.sfInput.headerType =
                                             ExSFHeaderTypeT.ExSFHeaderEveryFile;
                 specInput.sfInput.format = DfFormatTypeT.DfFormatCsv;
