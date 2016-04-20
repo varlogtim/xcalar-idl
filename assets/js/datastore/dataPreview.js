@@ -884,14 +884,14 @@ window.DataPreview = (function($, DataPreview) {
                 }
 
                 if (html === "") {
+                    html = promoteSugg(html);
+
                     if (hasSpecialChar()) {
                         // select char
-                        html = '<span class="action hint">' +
+                        html += '<span class="action hint">' +
+                                    DSPreviewTStr.Or + " " +
                                     DSPreviewTStr.HighlightDelimHint +
                                '</span>';
-                    } else {
-                        // when no special char, sugg promote header
-                        html = promoteSugg(html);
                     }
                 } else {
                     // select another char
