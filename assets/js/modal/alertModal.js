@@ -35,9 +35,9 @@ window.Alert = (function($, Alert){
     Alert.show = function(options) {
         options = options || {};
        /* options includes:
-            title: titile of the alert
+            title: title of the alert
             instr: instruction information
-            msg: alert cnotent
+            msg: alert content
             msgTemplate: instead of change alert text, change it's html
             isAlert: if it is an alert or a confirm
             isCheckBox: if checkbox is enabled or disabled

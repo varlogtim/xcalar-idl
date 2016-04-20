@@ -1136,7 +1136,6 @@ window.TableList = (function($, TableList) {
             }
         }
 
-
         var wsId = WSManager.getWSFromTable(tableId);
         $('#worksheetTab-' + wsId).trigger(fakeEvent.mousedown);
         var animation;

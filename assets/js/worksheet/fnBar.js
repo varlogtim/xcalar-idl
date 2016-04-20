@@ -29,9 +29,40 @@ window.FnBar = (function(FnBar, $) {
                     $functionArea.removeClass('searching');
                 }
             },
-            "keydown": function(event) {
-                if (event.which === keyCode.Enter) {
-                    functionBarEnter();
+            "keypress": function(event) {
+                if (event.which === 40) {
+                    /** Jerene WIP here
+                    setTimeout(function() {
+                        var e = jQuery.Event('keypress');
+                        e.which = 41;
+                        $fnBar.trigger(e);
+                    }, 0);
+                    */
+                } else if (event.which === 41) {
+                    // we can decide whether the way sublime handles it is good
+                } else if (event.which === keyCode.Enter) {
+                    if (matchBracket()) {
+                        functionBarEnter();
+                    } else {
+                        var savedStr = $fnBar.val();
+                        var savedColInput = $lastColInput;
+                        Alert.show({
+                            "title"  : AlertTStr.BracketsMis,
+                            "msg"    : ErrTStr.BracketsMis,
+                            "isAlert": true,
+                            "cancel" : function() {
+                                savedColInput.trigger({
+                                    type: "mousedown",
+                                    which: 1
+                                });
+                                $fnBar.removeAttr("disabled");
+                                $fnBar.val(savedStr);
+                                $fnBar.focus();
+                            }
+                        });
+                        $fnBar.val(savedStr);
+                        $fnBar.prop("disabled", "true");
+                    }
                 }
             },
             "mousedown": function() {
@@ -147,6 +178,42 @@ window.FnBar = (function(FnBar, $) {
         });
 
         searchHelper.setup();
+    }
+
+    function matchBracket() {
+        var fnBarVal = $fnBar.val();
+        var numOpens = 0;
+
+        var inQuotes = false;
+        var escaped = false;
+        for (var i = 0; i<fnBarVal.length; i++) {
+            if (escaped) {
+                escaped = false;
+                continue;
+            }
+            if (inQuotes) {
+                if (fnBarVal[i] === '"') {
+                    inQuotes = false;
+                }
+                continue;
+            }
+            if (fnBarVal[i] === '"') {
+                inQuotes = true;
+            } else if (fnBarVal[i] === '\\') {
+                escaped = true;
+            } else if (fnBarVal[i] === "(") {
+                numOpens++;
+            } else if (fnBarVal[i] === ")") {
+                numOpens--;
+                if (numOpens < 0) {
+                    return (false);
+                }
+            }
+        }
+        if (numOpens === 0) {
+            return (true);
+        }
+        return (false);
     }
 
     function functionBarEnter() {

@@ -179,7 +179,9 @@ ErrTStr = {
 
     'InvalidWin': 'Cannot window an unsorted table',
 
-    'InvalidQuery': 'Query Failed'
+    'InvalidQuery': 'Query Failed',
+
+    'BracketsMis': 'Your function string has mismatched brackets.',
 };
 
 ErrWRepTStr = {
@@ -237,7 +239,8 @@ ThriftTStr = {
 AlertTStr = {
     'Error': 'Error',
     'NoDel': 'Cannot Delete',
-    'ContinueConfirm': 'Are you sure you want to continue?'
+    'ContinueConfirm': 'Are you sure you want to continue?',
+    'BracketsMis': 'Mismatched Brackets',
 };
 
 FnBarTStr = {
@@ -358,7 +361,9 @@ DSTStr = {
 
 DSFormTStr = {
     'LoadConfirm': 'Load Dataset Confirmation',
-    'NoHeader': 'You have not checked header option to promote first row as header.',
+    'NoHeader': 'You have not checked the Header option to promote the first'+
+                ' row to the table header. You will not be able to change the '+
+                'table header from the default after this.',
     'InvalidDelim': 'Invalid delimiter.'
 };
 

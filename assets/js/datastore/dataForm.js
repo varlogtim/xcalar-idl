@@ -488,7 +488,7 @@ window.DatastoreForm = (function($, DatastoreForm) {
             dsFormat === formatMap.Raw ||
             dsFormat === formatMap.Excel)) {
 
-            var msg = DSFormTStr.NoHeader + " " + AlertTStr.ContinueConfirm;
+            var msg = DSFormTStr.NoHeader;
 
             Alert.show({
                 "title"  : DSFormTStr.LoadConfirm,
