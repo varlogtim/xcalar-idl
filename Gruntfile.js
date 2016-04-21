@@ -20,7 +20,7 @@ destMap = {
     "tableau.html": "assets/htmlFiles/tableau.html"
 };
 
-count = 0
+count = 0;
 for (var src in destMap) {
   var dest = destMap[src];
   prettifyOptions["html" + count] = {
@@ -33,6 +33,18 @@ for (var src in destMap) {
 module.exports = function(grunt) {
 
   grunt.initConfig({
+    // tags is for dev use only
+    tags: {
+      index: {
+        src: ['assets/dev/**/*.js', 'assets/dev/**/*.css'],
+        dest: 'index.html'
+      },
+      login: {
+        src: ['assets/dev/**/*.js', 'assets/dev/**/*.css'],
+        dest: destMap["login.html"]
+      }
+    },
+
     clean: {
       render: {
         src: [tmpDest]
@@ -56,7 +68,7 @@ module.exports = function(grunt) {
     watch: {
       render: {
         files: ['site/**/*.html', '!' + tmpDest + '/index.html'],
-        tasks: ['includes', 'template', 'clean', 'prettify'],
+        tasks: ['includes', 'template', 'clean', 'tags', 'prettify'],
         options: {
           atBegin: true,
         }
@@ -67,6 +79,7 @@ module.exports = function(grunt) {
     }
   });
 
+  grunt.loadNpmTasks('grunt-script-link-tags');
   grunt.loadNpmTasks('grunt-contrib-watch');
   grunt.loadNpmTasks('grunt-includes');
   grunt.loadNpmTasks('grunt-contrib-clean');
@@ -77,5 +90,9 @@ module.exports = function(grunt) {
     render(tmpDest, destMap);
   });
 
+  // used for prod
   grunt.registerTask("render", ['html', 'template', 'clean', 'prettify']);
+
+  // used for dev
+  grunt.registerTask("dev", ['html', 'template', 'clean', 'tags', 'prettify']);
 };

@@ -24,6 +24,7 @@ build: $(DESTDIR) generateHtml
 	cd $(DESTDIR) && lessc prod/assets/stylesheets/less/login.less > prod/assets/stylesheets/css/login.css
 	cd $(DESTDIR) && lessc prod/assets/stylesheets/less/style.less > prod/assets/stylesheets/css/style.css
 	@rm -rf $(DESTDIR)/prod/assets/stylesheets/less/*
+	@rm -rf $(DESTDIR)/prod/assets/dev
 	@echo "=== Minifying ==="
 	cd $(DESTDIR) && ./prod/assets/bin/MINIFY.sh
 	export GIT_DIR=`pwd`/.git && cd $(DESTDIR) && ./prod/assets/bin/autoGenFiles.sh

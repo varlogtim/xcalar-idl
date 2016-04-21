@@ -149,48 +149,6 @@ window.DatastoreForm = (function($, DatastoreForm) {
                 xcHelper.enableSubmit($submitBtn);
             });
         });
-
-        // XXX This should be removed in production
-        $filePath.keyup(function() {
-            var val = $(this).val();
-            if (val.length === 2) {
-                var file = null;
-                switch (val) {
-                    case ("za"):
-                        file = "yelpUsers";
-                        break;
-                    case ("zb"):
-                        file = "yelpReviews";
-                        break;
-                    case ("zc"):
-                        file = "gdelt";
-                        break;
-                    case ("zd"):
-                        file = "sp500";
-                        break;
-                    case ("ze"):
-                        file = "classes";
-                        break;
-                    case ("zf"):
-                        file = "schedule";
-                        break;
-                    case ("zg"):
-                        file = "students";
-                        break;
-                    case ("zh"):
-                        file = "teachers";
-                        break;
-                    case ("zi"):
-                        file = "jsonGen";
-                        break;
-                    default:
-                        break;
-                }
-                if (file) {
-                    secretForm(file);
-                }
-            }
-        });
     };
 
     DatastoreForm.show = function(options) {
@@ -744,54 +702,6 @@ window.DatastoreForm = (function($, DatastoreForm) {
             $input.val("").blur();
             hideDropdownMenu();
         }
-    }
-
-    function secretForm(file) {
-        var filePath = "";
-        var $formatDropdown = $("#fileFormatMenu");
-        switch (file) {
-            case ("yelpUsers"):
-                filePath = "yelp/user";
-                break;
-            case ("yelpReviews"):
-                filePath = "yelp/reviews";
-                break;
-            case ("gdelt"):
-                filePath = "gdelt";
-                break;
-            case ("sp500"):
-                filePath = "sp500";
-                break;
-            case ("classes"):
-                filePath = "qa/indexJoin/classes";
-                break;
-            case ("schedule"):
-                filePath = "qa/indexJoin/schedule";
-                break;
-            case ("students"):
-                filePath = "qa/indexJoin/students";
-                break;
-            case ("teachers"):
-                filePath = "qa/indexJoin/teachers";
-                break;
-            case ("jsonGen"):
-                filePath = "jsonGen";
-                break;
-            default:
-                break;
-        }
-
-        $filePath.val('file:///var/tmp/' + filePath);
-
-        $fileName.val(file);
-
-        if (file === "sp500" || file === "gdelt") {
-            $formatDropdown.find('li[name="CSV"]').click();
-        } else {
-            $formatDropdown.find('li[name="JSON"]').click();
-        }
-
-        $fileName.focus();
     }
 
     /* Unit Test Only */

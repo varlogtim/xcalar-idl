@@ -1011,7 +1011,7 @@ function dropdownClick($el, options) {
         return;
     }
 
-    if (options.type !== "tabMenu") {
+    if (options.type !== "tabMenu" && options.type !== "other") {
         tableId = xcHelper.parseTableId($el.closest(".xcTableWrap"));
     }
 
@@ -1148,6 +1148,13 @@ function dropdownClick($el, options) {
         }
     } else if (options.type === "tabMenu") {
         $menu = $('#worksheetTabMenu');
+    } else if (options.type === "other") {
+        $menu = options.$menu;
+        $subMenu = options.$subMenu;
+        $allMenus = $menu.add($subMenu);
+        menuHeight = $(window).height() - 100;
+        $menu.css('max-height', menuHeight);
+        $menu.children('ul').css('max-height', menuHeight);
     }
 
     if (options.type !== "tdDropdown") {
