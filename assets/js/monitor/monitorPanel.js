@@ -232,7 +232,7 @@ window.MonitorPanel = (function($, MonitorPanel) {
             return (svg);
         }
 
-        function drawPath(svg, color) {
+        function drawPath(svg, color, pie, arc) {
             var data = [0, 100];
             svg.selectAll("path")
                 .data(pie(data))

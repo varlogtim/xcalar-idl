@@ -254,17 +254,16 @@ window.FnBar = (function(FnBar, $) {
             $colInput.closest('th').removeClass('unusedCell');
             $table.find('td:nth-child(' + colNum + ')')
                   .removeClass('unusedCell');
-            var isValid = checkFuncSyntaxValidity(fnBarValTrim);
-            if (!isValid) {
-                return;
-            }
+
             var operation = getOperationFromFuncStr(newFuncStr);
 
             ColManager.execCol(operation, newFuncStr, tableId, colNum)
-            .then(function() {
-                updateTableHeader(tableId);
-                TableList.updateTableInfo(tableId);
-                KVStore.commit();
+            .then(function(ret) {
+                if (ret === "update") {
+                    updateTableHeader(tableId);
+                    TableList.updateTableInfo(tableId);
+                    KVStore.commit();
+                }
             });
         }
     }
@@ -275,26 +274,6 @@ window.FnBar = (function(FnBar, $) {
         return (operation);
     }
 
-    function checkFuncSyntaxValidity(funcStr) {
-        if (funcStr.indexOf("(") === -1 || funcStr.indexOf(")") === -1) {
-            return false;
-        }
-
-        var count = 0;
-        var strLen = funcStr.length;
-        for (var i = 0; i < strLen; i++) {
-            if (funcStr[i] === "(") {
-                count++;
-            } else if (funcStr[i] === ")") {
-                count--;
-            }
-            if (count < 0) {
-                return false;
-            }
-        }
-
-        return (count === 0);
-    }
 
     return (FnBar);
 }({}, jQuery));

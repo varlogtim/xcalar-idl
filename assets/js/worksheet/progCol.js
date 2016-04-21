@@ -1106,7 +1106,7 @@ window.ColManager = (function($, ColManager) {
                     };
                     SQL.add("Pull Column", sqlOptions);
                 }
-                deferred.resolve();
+                deferred.resolve("update");
                 break;
             case ("raw"):
                 console.log("Raw data");
