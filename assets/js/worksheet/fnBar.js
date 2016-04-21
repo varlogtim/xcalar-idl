@@ -29,8 +29,24 @@ window.FnBar = (function(FnBar, $) {
                     $functionArea.removeClass('searching');
                 }
             },
+            "keyup": function(event) {
+                if (event.which === 8) {
+                    setTimeout(function() {
+                        var oldStr = $fnBar.val();
+                        var oldCaret = $fnBar.caret();
+                        var nextIsBracket = oldStr.substring(oldCaret);
+                        if (nextIsBracket.indexOf(")") == 0) {
+                            // Immediate close bracket
+                            $fnBar.val(oldStr.substring(0, oldCaret) +
+                                       oldStr.substring(oldCaret+1));
+                            $fnBar.caret(oldCaret);
+                        }
+                    }, 0);
+                }
+            },
             "keypress": function(event) {
                 if (event.which === 40) {
+                    // Open paren
                     setTimeout(function() {
                         var oldStr = $fnBar.val();
                         var oldCaret = $fnBar.caret();
