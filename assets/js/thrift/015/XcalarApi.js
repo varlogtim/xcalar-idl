@@ -1474,7 +1474,7 @@ function xcalarAddExportTargetWorkItem(target) {
 function xcalarAddExportTarget(thriftHandle, target) {
     var deferred = jQuery.Deferred();
     console.log("xcalarAddExportTarget(target.hdr.name = " + target.hdr.name +
-                ", target.hdr.type = " + DsTargetTypeTStr[target.hdr.type] +
+                ", target.hdr.type = " + ExTargetTypeTStr[target.hdr.type] +
                 ")");
 
     var workItem = xcalarAddExportTargetWorkItem(target);
@@ -1540,18 +1540,19 @@ function xcalarListExportTargets(thriftHandle, typePattern, namePattern) {
 }
 
 function xcalarExportWorkItem(tableName, target, specInput, createRule,
-                              numColumns, columns) {
+                              sorted, numColumns, columns) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
     workItem.input.exportInput = new XcalarApiExportInputT();
     workItem.input.exportInput.srcTable = new XcalarApiTableT();
-    workItem.input.exportInput.meta = new DsExportMetaT();
+    workItem.input.exportInput.meta = new ExExportMetaT();
 
     workItem.api = XcalarApisT.XcalarApiExport;
     workItem.input.exportInput.srcTable.tableName = tableName;
     workItem.input.exportInput.srcTable.tableId = XcalarApiTableIdInvalidT;
     workItem.input.exportInput.meta.target = target;
     workItem.input.exportInput.meta.specificInput = specInput;
+    workItem.input.exportInput.meta.sorted = sorted;
     workItem.input.exportInput.meta.numColumns = numColumns;
     workItem.input.exportInput.meta.columns = columns;
     workItem.input.exportInput.meta.createRule = createRule;
@@ -1559,20 +1560,22 @@ function xcalarExportWorkItem(tableName, target, specInput, createRule,
 }
 
 function xcalarExport(thriftHandle, tableName, target, specInput, createRule,
-                      numColumns, columns) {
+                      sorted, numColumns, columns) {
     var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarExport(tableName = " + tableName +
-                    ", target.type = " + DsTargetTypeTStr[target.type] +
+                    ", target.type = " + ExTargetTypeTStr[target.type] +
                     ", target.name = " + target.name +
                     ", createRule = " + createRule +
+                    ", specInput = " + JSON.stringify(specInput) +
+                    ", sorted = " + sorted +
                     ", numColumns = " + numColumns +
                     ", columns = " + JSON.stringify(columns) +
                     ")");
     }
 
     var workItem = xcalarExportWorkItem(tableName, target, specInput, createRule,
-                                        numColumns, columns);
+                                        sorted, numColumns, columns);
 
     thriftHandle.client.queueWorkAsync(workItem)
     .then(function(result) {
@@ -2549,25 +2552,30 @@ function xcalarApiListXdfs(thriftHandle, fnNamePattern, categoryPattern) {
     return (deferred.promise());
 }
 
-function xcalarApiUploadPythonWorkItem(moduleName, pythonSrc) {
+function xcalarApiUdfAddUpdateWorkItem(api, type, moduleName, source)
+{
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
-    workItem.input.uploadPythonInput = new XcalarApiUploadPythonInputT();
+    workItem.input.udfAddUpdateInput = new UdfModuleSrcT();
 
-    workItem.api = XcalarApisT.XcalarApiUploadPython;
-    workItem.input.uploadPythonInput.moduleName = moduleName;
-    workItem.input.uploadPythonInput.pythonSrc = pythonSrc;
+    workItem.api = api;
+
+    workItem.input.udfAddUpdateInput.type = type;
+    workItem.input.udfAddUpdateInput.moduleName = moduleName;
+    workItem.input.udfAddUpdateInput.source = source;
+
     return (workItem);
 }
 
-function xcalarApiUploadPython(thriftHandle, moduleName, pythonSrc) {
+function xcalarApiUdfAdd(thriftHandle, type, moduleName, source)
+{
     var deferred = jQuery.Deferred();
     if (verbose) {
-        console.log("xcalarApiUploadPython(pythonSrc = ", pythonSrc, ", ",
-                    "moduleName = ", moduleName, ")");
+        console.log("xcalarApiUdfAdd(type = ", type, ", moduleName = ",
+                    moduleName, ", ", "source = ", source, ")");
     }
-    var workItem = xcalarApiUploadPythonWorkItem(moduleName, pythonSrc);
-
+    var workItem = xcalarApiUdfAddUpdateWorkItem(XcalarApisT.XcalarApiUdfAdd,
+                                                 type, moduleName, source);
     thriftHandle.client.queueWorkAsync(workItem)
     .then(function(result) {
         var status = result.output.hdr.status;
@@ -2582,35 +2590,26 @@ function xcalarApiUploadPython(thriftHandle, moduleName, pythonSrc) {
         deferred.resolve(status);
     })
     .fail(function(error) {
-        console.log("xcalarApiUploadPython() caught exception: ", error);
+        console.log(JSON.stringify(error));
+        console.log("xcalarApiUdfAdd() caught exception: ", error);
         deferred.reject(error);
     });
 
     return (deferred.promise());
 }
 
-function xcalarApiDownloadPythonWorkItem(moduleName) {
-    var workItem = new WorkItem();
-    workItem.input = new XcalarApiInputT();
-    workItem.input.downloadPythonInput = new XcalarApiDownloadPythonInputT();
-
-    workItem.api = XcalarApisT.XcalarApiDownloadPython;
-    workItem.input.downloadPythonInput.moduleName = moduleName;
-    return (workItem);
-}
-
-function xcalarApiDownloadPython(thriftHandle, moduleName) {
+function xcalarApiUdfUpdate(thriftHandle, type, moduleName, source)
+{
     var deferred = jQuery.Deferred();
     if (verbose) {
-        console.log("xcalarApiDownloadPython(moduleName = ", moduleName,")");
+        console.log("xcalarApiUdfUpdate(moduleName = ", moduleName,
+                    ", ", "source = ", source, ")");
     }
-    var workItem = xcalarApiDownloadPythonWorkItem(moduleName);
-
+    var workItem = xcalarApiUdfAddUpdateWorkItem(XcalarApisT.XcalarApiUdfUpdate,
+                                                 type, moduleName, source);
     thriftHandle.client.queueWorkAsync(workItem)
     .then(function(result) {
         var status = result.output.hdr.status;
-        var downloadPythonOutput =
-                                result.output.outputResult.downloadPythonOutput;
 
         if (result.jobStatus != StatusT.StatusOk) {
             status = result.jobStatus;
@@ -2619,10 +2618,95 @@ function xcalarApiDownloadPython(thriftHandle, moduleName) {
             deferred.reject(status);
         }
 
-        deferred.resolve(downloadPythonOutput);
+        deferred.resolve(status);
     })
     .fail(function(error) {
-        console.log("xcalarApiDownloadPython() caught exception: ", error);
+        console.log(JSON.stringify(error));
+        console.log("xcalarApiUdfUpdate() caught exception: ", error);
+        deferred.reject(error);
+    });
+
+    return (deferred.promise());
+}
+
+function xcalarApiUdfDeleteWorkItem(moduleName)
+{
+    var workItem = new WorkItem();
+    workItem.input = new XcalarApiInputT();
+    workItem.input.udfDeleteInput = new XcalarApiUdfDeleteInputT();
+
+    workItem.api = XcalarApisT.XcalarApiUdfDelete;
+
+    workItem.input.udfDeleteInput.moduleName = moduleName;
+
+    return (workItem);
+}
+
+function xcalarApiUdfDelete(thriftHandle, moduleName)
+{
+    var deferred = jQuery.Deferred();
+    if (verbose) {
+        console.log("xcalarApiUdfDelete(moduleName = ", moduleName, ")");
+    }
+    var workItem = xcalarApiUdfDeleteWorkItem(moduleName);
+    thriftHandle.client.queueWorkAsync(workItem)
+    .then(function(result) {
+        var status = result.output.hdr.status;
+
+        if (result.jobStatus != StatusT.StatusOk) {
+            status = result.jobStatus;
+        }
+        if (status != StatusT.StatusOk) {
+            deferred.reject(status);
+        }
+
+        deferred.resolve(status);
+    })
+    .fail(function(error) {
+        console.log(JSON.stringify(error));
+        console.log("xcalarApiUdfDelete() caught exception: ", error);
+        deferred.reject(error);
+    });
+
+    return (deferred.promise());
+}
+
+function xcalarApiUdfGetWorkItem(moduleName)
+{
+    var workItem = new WorkItem();
+    workItem.input = new XcalarApiInputT();
+    workItem.input.udfGetInput = new XcalarApiUdfGetInputT();
+
+    workItem.api = XcalarApisT.XcalarApiUdfGet;
+
+    workItem.input.udfGetInput.moduleName = moduleName;
+
+    return (workItem);
+}
+
+function xcalarApiUdfGet(thriftHandle, moduleName)
+{
+    var deferred = jQuery.Deferred();
+    if (verbose) {
+        console.log("xcalarApiUdfGet(moduleName = ", moduleName, ")");
+    }
+    var workItem = xcalarApiUdfGetWorkItem(moduleName);
+    thriftHandle.client.queueWorkAsync(workItem)
+    .then(function(result) {
+        var status = result.output.hdr.status;
+
+        if (result.jobStatus != StatusT.StatusOk) {
+            status = result.jobStatus;
+        }
+        if (status != StatusT.StatusOk) {
+            deferred.reject(status);
+        }
+
+        deferred.resolve(result.output.outputResult.udfGetOutput);
+    })
+    .fail(function(error) {
+        console.log(JSON.stringify(error));
+        console.log("xcalarApiUdfGet() caught exception: ", error);
         deferred.reject(error);
     });
 
@@ -2906,3 +2990,19 @@ function xcalarListSchedTask(thriftHandle, namePattern) {
     });
     return (deferred.promise());
 }
+
+// XXX: Implement me
+function xcalarApiImportRetinaWorkItem() {
+    var workItem = new WorkItem();
+    workItem.input = new XcalarApiInputT();
+
+    workItem.api = XcalarApisT.XcalarApiImportRetina;
+    return (workItem);
+}
+
+// XXX: Implement me
+function xcalarApiImportRetina(thriftHandle) {
+    var deferred = jQuery.Deferred();
+    return (deferred.promise());
+}
+

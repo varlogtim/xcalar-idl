@@ -1382,7 +1382,7 @@ function xcalarApiGetRowNumWorkItem(srcTableName, dstTableName,
     return (workItem);
 }
 
-function xcalarApiGetRowNum(thriftHandle, newFieldName, evalStr, srcTableName,
+function xcalarApiGetRowNum(thriftHandle, newFieldName, srcTableName,
                       dstTableName) {
     var deferred = jQuery.Deferred();
     if (verbose) {
@@ -1391,7 +1391,7 @@ function xcalarApiGetRowNum(thriftHandle, newFieldName, evalStr, srcTableName,
                     ", dstTableName = " + dstTableName + ")");
     }
 
-    var workItem = xcalarApiGetRowNumWorkItem(evalStr, srcTableName, dstTableName,
+    var workItem = xcalarApiGetRowNumWorkItem(srcTableName, dstTableName,
                                         newFieldName);
 
     thriftHandle.client.queueWorkAsync(workItem)
