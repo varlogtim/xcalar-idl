@@ -55,10 +55,15 @@ window.WorkbookModal = (function($, WorkbookModal) {
         addWorkbookEvents();
     };
 
+    WorkbookModal.initialize = function() {
+        getWorkbookInfo();
+    };
+
     WorkbookModal.show = function(isForceShow) {
         $(document).on("keypress", workbookKeyPress);
 
         if (isForceShow) {
+            getWorkbookInfo(isForceShow);
             modalHelper.setup({"noEsc": true});
             $workbookModal.draggable("destroy");
             $workbookModal.resizable("destroy");
@@ -68,8 +73,6 @@ window.WorkbookModal = (function($, WorkbookModal) {
 
         // default choose first option (new workbook)
         $optionSection.find(".radio").eq(0).click();
-
-        getWorkbookInfo(isForceShow);
         addWorkbooks();
 
         if (gMinModeOn) {

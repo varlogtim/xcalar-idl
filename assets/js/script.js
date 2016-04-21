@@ -96,6 +96,7 @@ window.StartManager = (function(StartManager, $) {
         .then(function() {
             documentReadyGeneralFunction();
             RightSideBar.initialize();
+            WorkbookModal.initialize();
             setupExtensions();
 
             WSManager.focusOnWorksheet();
