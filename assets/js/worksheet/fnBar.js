@@ -31,15 +31,14 @@ window.FnBar = (function(FnBar, $) {
             },
             "keypress": function(event) {
                 if (event.which === 40) {
-                    /** Jerene WIP here
                     setTimeout(function() {
-                        var e = jQuery.Event('keypress');
-                        e.which = 41;
-                        $fnBar.trigger(e);
+                        var oldStr = $fnBar.val();
+                        var oldCaret = $fnBar.caret();
+                        var newStr = oldStr.substring(0, oldCaret) +
+                                     ")"+oldStr.substring(oldCaret);
+                        $fnBar.val(newStr);
+                        $fnBar.caret(oldCaret);
                     }, 0);
-                    */
-                } else if (event.which === 41) {
-                    // we can decide whether the way sublime handles it is good
                 } else if (event.which === keyCode.Enter) {
                     if (matchBracket()) {
                         functionBarEnter();
@@ -51,13 +50,18 @@ window.FnBar = (function(FnBar, $) {
                             "msg"    : ErrTStr.BracketsMis,
                             "isAlert": true,
                             "cancel" : function() {
-                                savedColInput.trigger({
-                                    type: "mousedown",
-                                    which: 1
-                                });
-                                $fnBar.removeAttr("disabled");
-                                $fnBar.val(savedStr);
-                                $fnBar.focus();
+                                if (savedColInput) {
+                                    savedColInput.trigger({
+                                        type: "mousedown",
+                                        which: 1
+                                    });
+                                    $fnBar.removeAttr("disabled");
+                                    $fnBar.val(savedStr);
+                                    $fnBar.focus();
+                                } else {
+                                    $fnBar.removeAttr("disabled");
+                                }
+
                             }
                         });
                         $fnBar.val(savedStr);
@@ -185,22 +189,20 @@ window.FnBar = (function(FnBar, $) {
         var numOpens = 0;
 
         var inQuotes = false;
-        var escaped = false;
         for (var i = 0; i<fnBarVal.length; i++) {
-            if (escaped) {
-                escaped = false;
-                continue;
-            }
             if (inQuotes) {
                 if (fnBarVal[i] === '"') {
                     inQuotes = false;
+                } else if (fnBarVal[i] === '\\') {
+                    i++; // ignore next character
+                    continue;
                 }
                 continue;
             }
             if (fnBarVal[i] === '"') {
                 inQuotes = true;
             } else if (fnBarVal[i] === '\\') {
-                escaped = true;
+                i++; // ignore next character
             } else if (fnBarVal[i] === "(") {
                 numOpens++;
             } else if (fnBarVal[i] === ")") {
