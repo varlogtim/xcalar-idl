@@ -3,6 +3,10 @@ window.MonitorPanel = (function($, MonitorPanel) {
     var failCount = 0;
 
     MonitorPanel.setup = function() {
+        MonitorGraph.setup();
+        QueryManager.setup();
+        MonitorConfig.setup();
+
         var $monitorPanel = $("#monitorPanel");
 
         initializeDonuts();
@@ -100,9 +104,6 @@ window.MonitorPanel = (function($, MonitorPanel) {
                 MonitorPanel.updateDonuts();
             }, refreshTime);
         }
-
-        MonitorGraph.setup();
-        QueryManager.setup();
     };
 
     MonitorPanel.active = function() {

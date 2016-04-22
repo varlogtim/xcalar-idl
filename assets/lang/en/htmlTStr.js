@@ -311,7 +311,9 @@ module.exports = {
         'Config': 'Configuration',
         'INSTALL': 'INSTALL',
         'UNINSTALL': 'UNINSTALL',
-        'UPGRADE': 'UPGRADE'
+        'UPGRADE': 'UPGRADE',
+        'STARTNODE': 'START NODES',
+        'STOPNODE': 'STOP NODES'
     },
 
     ds: {
