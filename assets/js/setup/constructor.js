@@ -847,7 +847,7 @@ DSObj.prototype = {
                 loadURL = loadURL.substr(0, slashIndex + 1);
                 return XcalarListFiles(loadURL);
             } else {
-                return promiseWrapper(files);
+                return PromiseHelper.resolve(files);
             }
         })
         .then(function(files) {
@@ -1706,7 +1706,7 @@ XcQuery.prototype = {
         } else {
             var error = "cannot run query that with state:" +
                         this.getStateString();
-            return jQuery.Deferred().reject({
+            return PromiseHelper.reject({
                 "error": error,
                 "state": this.state
             });

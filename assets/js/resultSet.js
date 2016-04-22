@@ -63,7 +63,7 @@ function goToPage(rowNumber, numRowsToAdd, direction, loop, info,
 
     if (rowNumber >= table.resultSetMax) {
         console.log("Already at last page!");
-        return (promiseWrapper(null));
+        return PromiseHelper.resolve(null);
     }
 
     var rowPosition = rowNumber;
@@ -115,7 +115,7 @@ function goToPage(rowNumber, numRowsToAdd, direction, loop, info,
                                       numRowsLacking, $table, info));
             }
         } else {
-            return (promiseWrapper(null));
+            return PromiseHelper.resolve(null);
         }
     })
     .then(function() {
@@ -189,14 +189,14 @@ function scrollDownHelper(position, oldPosition, jsonLen, numRowsStillNeeded,
                 .remove();
         }
         if (numRowsStillNeeded === 0) {
-            return (promiseWrapper(null));
+            return PromiseHelper.resolve(null);
         } else {
             info.reverseLooped = true;
             return (goToPage(newRowToGoTo, numRowsStillNeeded, RowDirection.Top,
                          true, info));
         }
     } else {
-        return (promiseWrapper(null));
+        return PromiseHelper.resolve(null);
     }
 }
 
@@ -229,7 +229,7 @@ function scrollUpHelper(position, totalRowsStillNeeded, numRowsToFetch, $table,
             return (goToPage(position, totalRowsStillNeeded, RowDirection.Top,
                              true, info));
         } else {
-            return (promiseWrapper(null));
+            return PromiseHelper.resolve(null);
         }
     }
 }
@@ -278,7 +278,7 @@ function removeOldRows($table, tableId, info, direction, prepullTableHeight) {
 
 function getFirstPage(table, notIndexed) {
     if (table.resultSetId === 0) {
-        return (promiseWrapper(null));
+        return PromiseHelper.resolve(null);
     }
     TblManager.adjustRowFetchQuantity();
     var numRowsToAdd = Math.min(gMaxEntriesPerPage, table.resultSetCount);
@@ -295,7 +295,7 @@ function generateDataColumnJson(table, direction, notIndexed, numRowsToFetch,
     };
 
     if (table.resultSetId === 0) {
-        return (promiseWrapper(null));
+        return PromiseHelper.resolve(null);
     }
     if (numRowsToFetch === 0) {
         deferred.resolve(jsonObj);

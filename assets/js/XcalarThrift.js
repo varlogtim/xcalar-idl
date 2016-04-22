@@ -175,12 +175,6 @@ function atos(func, args) {
     );
 }
 
-function promiseWrapper(value) {
-    var deferred = jQuery.Deferred();
-    deferred.resolve(value);
-    return (deferred.promise());
-}
-
 // ======================== ERROR INJECTION TESTING =========================//
 function getFailPercentage(funcName) {
     if (funcFailPercentage.hasOwnProperty(funcName)) {
@@ -248,13 +242,13 @@ function getUnsortedTableName(tableName, otherTableName) {
                                                     srcTableName, order,
                                                     null, true));
                     } else {
-                        return promiseWrapper(null);
+                        return PromiseHelper.resolve(null);
                     }
                     console.log("Using unsorted table instead: " +
                                 srcTableName);
                 }
             }
-            return promiseWrapper(null);
+            return PromiseHelper.resolve(null);
         })
         .then(function() {
             deferred.resolve(srcTableName);
@@ -318,7 +312,7 @@ function getUnsortedTableName(tableName, otherTableName) {
                 promise1 = XcalarIndexFromTable(tableName, key, unsortedName1,
                                                 order, null, true);
             } else {
-                promise1 = promiseWrapper(null);
+                promise1 = PromiseHelper.resolve(null);
             }
             if (!t2hasReadyState) {
                 var newId   = Authentication.getHashId().split("#")[1];
@@ -330,7 +324,7 @@ function getUnsortedTableName(tableName, otherTableName) {
                                                 unsortedName2, order, null,
                                                 true);
             } else {
-                promise2 = promiseWrapper(null);
+                promise2 = PromiseHelper.resolve(null);
             }
 
             return (PromiseHelper.when(promise1, promise2));
@@ -354,7 +348,7 @@ function checkIfTableHasReadyState(node) {
 // ========================= MAIN FUNCTIONS  =============================== //
 function XcalarGetVersion() {
     if ([null, undefined].indexOf(tHandle) !== -1) {
-        return (promiseWrapper(null));
+        return PromiseHelper.resolve(null);
     }
 
     var deferred = jQuery.Deferred();
@@ -413,7 +407,7 @@ function XcalarLoad(url, format, datasetName, fieldDelim, recordDelim,
     }
 
     if ([null, undefined].indexOf(tHandle) !== -1) {
-        return (promiseWrapper(null));
+        return PromiseHelper.resolve(null);
     }
 
     var deferred = jQuery.Deferred();
@@ -501,7 +495,7 @@ function XcalarLoad(url, format, datasetName, fieldDelim, recordDelim,
 // XXX Not tested!!
 function XcalarAddODBCExportTarget(targetName, connStr, txId) {
     if ([null, undefined].indexOf(tHandle) !== -1) {
-        return (promiseWrapper(null));
+        return PromiseHelper.resolve(null);
     }
 
     var deferred = jQuery.Deferred();
@@ -536,7 +530,7 @@ function XcalarAddODBCExportTarget(targetName, connStr, txId) {
 // XXX: Not tested
 function XcalarAddLocalFSExportTarget(targetName, path, txId) {
     if ([null, undefined].indexOf(tHandle) !== -1) {
-        return (promiseWrapper(null));
+        return PromiseHelper.resolve(null);
     }
 
     var deferred = jQuery.Deferred();
@@ -570,7 +564,7 @@ function XcalarAddLocalFSExportTarget(targetName, path, txId) {
 
 function XcalarListExportTargets(typePattern, namePattern) {
     if ([null, undefined].indexOf(tHandle) !== -1) {
-        return (promiseWrapper(null));
+        return PromiseHelper.resolve(null);
     }
 
     var deferred = jQuery.Deferred();
@@ -597,7 +591,7 @@ function XcalarListExportTargets(typePattern, namePattern) {
 function XcalarExport(tableName, exportName, targetName, numColumns,
                       backColName, frontColName, keepOrder, txId) {
     if ([null, undefined].indexOf(tHandle) !== -1) {
-        return (promiseWrapper(null));
+        return PromiseHelper.resolve(null);
     }
 
     var deferred = jQuery.Deferred();
@@ -683,7 +677,7 @@ function XcalarExport(tableName, exportName, targetName, numColumns,
 
 function XcalarDestroyDataset(dsName, txId) {
     if ([null, undefined].indexOf(tHandle) !== -1) {
-        return (promiseWrapper(null));
+        return PromiseHelper.resolve(null);
     }
 
     var deferred = jQuery.Deferred();
@@ -713,7 +707,7 @@ function XcalarDestroyDataset(dsName, txId) {
 
 function XcalarIndexFromDataset(datasetName, key, tablename, txId) {
     if ([null, undefined].indexOf(tHandle) !== -1) {
-        return (promiseWrapper(null));
+        return PromiseHelper.resolve(null);
     }
 
     var deferred = jQuery.Deferred();
@@ -746,7 +740,7 @@ function XcalarIndexFromDataset(datasetName, key, tablename, txId) {
 function XcalarIndexFromTable(srcTablename, key, tablename, ordering,
                               txId, unsorted) {
     if ([null, undefined].indexOf(tHandle) !== -1) {
-        return (promiseWrapper(null));
+        return PromiseHelper.resolve(null);
     }
 
     var deferred = jQuery.Deferred();
@@ -756,7 +750,7 @@ function XcalarIndexFromTable(srcTablename, key, tablename, ordering,
     var dhtName = ""; // XXX TODO fill in later
     var promise;
     if (unsorted) {
-        promise = promiseWrapper(srcTablename);
+        promise = PromiseHelper.resolve(srcTablename);
     } else {
         promise = getUnsortedTableName(srcTablename);
     }
@@ -786,10 +780,9 @@ function XcalarIndexFromTable(srcTablename, key, tablename, ordering,
 
 function XcalarDeleteTable(tableName, txId) {
     if ([null, undefined].indexOf(tHandle) !== -1) {
-        return (promiseWrapper(null));
+        return PromiseHelper.resolve(null);
     }
-    // return (promiseWrapper(null));
-    // * XXX Temporary commented out because this causes crash
+
     var deferred = jQuery.Deferred();
     if (insertError(arguments.callee, deferred)) {
         return (deferred.promise());
@@ -815,7 +808,7 @@ function XcalarDeleteTable(tableName, txId) {
 function XcalarRenameTable(oldTableName, newTableName, txId) {
     if (tHandle == null || oldTableName == null || oldTableName === "" ||
         newTableName == null || newTableName === "") {
-        return (promiseWrapper(null));
+        return PromiseHelper.resolve(null);
     }
 
     var deferred = jQuery.Deferred();
@@ -928,7 +921,7 @@ function XcalarGetTableCount(tableName) {
 
 function XcalarGetDatasets() {
     if ([null, undefined].indexOf(tHandle) !== -1) {
-        return (promiseWrapper(null));
+        return PromiseHelper.resolve(null);
     }
 
     var deferred = jQuery.Deferred();
@@ -958,7 +951,7 @@ function XcalarGetDatasets() {
 
 function XcalarGetTables(tableName) {
     if ([null, undefined].indexOf(tHandle) !== -1) {
-        return (promiseWrapper(null));
+        return PromiseHelper.resolve(null);
     }
     var deferred = jQuery.Deferred();
     if (insertError(arguments.callee, deferred)) {
@@ -985,7 +978,7 @@ function XcalarGetTables(tableName) {
 
 function XcalarShutdown(force) {
     if (tHandle == null) {
-        return (promiseWrapper(null));
+        return PromiseHelper.resolve(null);
     }
     if (force == null) {
         force = false;
@@ -1008,7 +1001,7 @@ function XcalarShutdown(force) {
 
 function XcalarStartNodes(numNodes) {
     if (tHandle == null) {
-        return (promiseWrapper(null));
+        return PromiseHelper.resolve(null);
     }
     var deferred = jQuery.Deferred();
     if (insertError(arguments.callee, deferred)) {
@@ -1028,7 +1021,7 @@ function XcalarStartNodes(numNodes) {
 function XcalarGetStats(nodeId) {
     // Today we have no use for this call yet.
     if (tHandle == null) {
-        return (promiseWrapper(null));
+        return PromiseHelper.resolve(null);
     }
 
     var deferred = jQuery.Deferred();
@@ -1048,7 +1041,7 @@ function XcalarGetStats(nodeId) {
 
 function XcalarGetTableRefCount(tableName) {
     if (tHandle == null) {
-        return (promiseWrapper(0));
+        return PromiseHelper.resolve(0);
     }
 
     var deferred = jQuery.Deferred();
@@ -1069,7 +1062,7 @@ function XcalarGetTableRefCount(tableName) {
 
 function XcalarMakeResultSetFromTable(tableName) {
     if ([null, undefined].indexOf(tHandle) !== -1) {
-        return (promiseWrapper(0));
+        return PromiseHelper.resolve(0);
     }
 
     var deferred = jQuery.Deferred();
@@ -1090,7 +1083,7 @@ function XcalarMakeResultSetFromTable(tableName) {
 
 function XcalarMakeResultSetFromDataset(datasetName) {
     if (tHandle == null) {
-        return (promiseWrapper(0));
+        return PromiseHelper.resolve(0);
     }
 
     var deferred = jQuery.Deferred();
@@ -1113,7 +1106,7 @@ function XcalarMakeResultSetFromDataset(datasetName) {
 
 function XcalarSetAbsolute(resultSetId, position) {
     if (tHandle == null) {
-        return (promiseWrapper(0));
+        return PromiseHelper.resolve(0);
     }
 
     var deferred = jQuery.Deferred();
@@ -1134,7 +1127,7 @@ function XcalarSetAbsolute(resultSetId, position) {
 
 function XcalarGetNextPage(resultSetId, numEntries) {
     if ([null, undefined].indexOf(tHandle) !== -1) {
-        return (promiseWrapper(null));
+        return PromiseHelper.resolve(null);
     }
 
     var deferred = jQuery.Deferred();
@@ -1155,7 +1148,7 @@ function XcalarGetNextPage(resultSetId, numEntries) {
 
 function XcalarSetFree(resultSetId) {
     if (tHandle == null) {
-        return (promiseWrapper(null));
+        return PromiseHelper.resolve(null);
     }
 
     var deferred = jQuery.Deferred();
@@ -1225,7 +1218,7 @@ function generateFilterString(operator, value1, value2, value3) {
 
 function XcalarFilter(evalStr, srcTablename, dstTablename, txId) {
     if (tHandle == null) {
-        return (promiseWrapper(null));
+        return PromiseHelper.resolve(null);
     }
 
     var deferred = jQuery.Deferred();
@@ -1267,7 +1260,7 @@ function XcalarFilter(evalStr, srcTablename, dstTablename, txId) {
 function XcalarMap(newFieldName, evalStr, srcTablename, dstTablename,
                    txId, doNotUnsort) {
     if (tHandle == null) {
-        return (promiseWrapper(null));
+        return PromiseHelper.resolve(null);
     }
 
     var deferred = jQuery.Deferred();
@@ -1348,7 +1341,7 @@ function generateAggregateString(fieldName, op) {
 
 function XcalarAggregate(evalStr, srcTablename, txId) {
     if (tHandle == null) {
-        return (promiseWrapper(null));
+        return PromiseHelper.resolve(null);
     }
 
     var deferred = jQuery.Deferred();
@@ -1391,7 +1384,7 @@ function XcalarAggregate(evalStr, srcTablename, txId) {
 
 function XcalarJoin(left, right, dst, joinType, txId) {
     if (tHandle == null) {
-        return (promiseWrapper(null));
+        return PromiseHelper.resolve(null);
     }
 
     var deferred = jQuery.Deferred();
@@ -1517,7 +1510,7 @@ function XcalarQuery(queryName, queryString) {
 
     */
     if (tHandle == null) {
-        return (promiseWrapper(null));
+        return PromiseHelper.resolve(null);
     }
 
     var deferred = jQuery.Deferred();
@@ -1538,7 +1531,7 @@ function XcalarQuery(queryName, queryString) {
 
 function XcalarQueryState(queryName) {
     if (tHandle == null) {
-        return (promiseWrapper(null));
+        return PromiseHelper.resolve(null);
     }
 
     var deferred = jQuery.Deferred();
@@ -1560,7 +1553,7 @@ function XcalarQueryState(queryName) {
 
 function XcalarQueryCheck(queryName) {
     if (tHandle == null) {
-        return (promiseWrapper(null));
+        return PromiseHelper.resolve(null);
     }
 
     var deferred = jQuery.Deferred();
@@ -1609,7 +1602,7 @@ function XcalarQueryWithCheck(queryName, queryString) {
 
 function XcalarGetDag(tableName) {
     if ([null, undefined].indexOf(tHandle) !== -1) {
-        return (promiseWrapper(null));
+        return PromiseHelper.resolve(null);
     }
 
     var deferred = jQuery.Deferred();
@@ -1630,7 +1623,7 @@ function XcalarGetDag(tableName) {
 
 function XcalarListFiles(url) {
     if (tHandle == null) {
-        return (promiseWrapper(null));
+        return PromiseHelper.resolve(null);
     }
 
     var deferred = jQuery.Deferred();
@@ -1665,7 +1658,7 @@ function XcalarMakeRetina(retName, tableArray, txId) {
         retName === "" || retName == null ||
         tableArray == null || tableArray.length <= 0)
     {
-        return (promiseWrapper(null));
+        return PromiseHelper.resolve(null);
     }
 
     var deferred = jQuery.Deferred();
@@ -1693,7 +1686,7 @@ function XcalarListRetinas() {
     // though it should. Hence we just assume that all retinas belong to the
     // leftmost table.
     if ([null, undefined].indexOf(tHandle) !== -1) {
-        return (promiseWrapper(null));
+        return PromiseHelper.resolve(null);
     }
 
     var deferred = jQuery.Deferred();
@@ -1714,7 +1707,7 @@ function XcalarListRetinas() {
 function XcalarGetRetina(retName) {
     if (retName === "" || retName == null ||
         [null, undefined].indexOf(tHandle) !== -1) {
-        return (promiseWrapper(null));
+        return PromiseHelper.resolve(null);
     }
 
     var deferred = jQuery.Deferred();
@@ -1748,7 +1741,7 @@ function XcalarGetRetina(retName) {
 // <argument> is used to denote a parameter
 function XcalarUpdateRetina(retName, dagNodeId, paramType, paramValue, txId) {
     if ([null, undefined].indexOf(tHandle) !== -1) {
-        return (promiseWrapper(null));
+        return PromiseHelper.resolve(null);
     }
 
     var deferred = jQuery.Deferred();
@@ -1783,7 +1776,7 @@ function XcalarUpdateRetina(retName, dagNodeId, paramType, paramValue, txId) {
 function XcalarExecuteRetina(retName, params, txId) {
     if (retName === "" || retName == null ||
         [null, undefined].indexOf(tHandle) !== -1) {
-        return (promiseWrapper(null));
+        return PromiseHelper.resolve(null);
     }
 
     var deferred = jQuery.Deferred();
@@ -1809,7 +1802,7 @@ function XcalarExecuteRetina(retName, params, txId) {
 
 function XcalarListParametersInRetina(retName) {
     if ([null, undefined].indexOf(tHandle) !== -1) {
-        return (promiseWrapper(null));
+        return PromiseHelper.resolve(null);
     }
 
     var deferred = jQuery.Deferred();
@@ -1829,7 +1822,7 @@ function XcalarListParametersInRetina(retName) {
 
 function XcalarDeleteRetina(retName, txId) {
     if ([null, undefined].indexOf(tHandle) !== -1) {
-        return (promiseWrapper(null));
+        return PromiseHelper.resolve(null);
     }
 
     var deferred = jQuery.Deferred();
@@ -1855,7 +1848,7 @@ function XcalarDeleteRetina(retName, txId) {
 
 function XcalarDeleteSched(schedName, txId) {
     if ([null, undefined].indexOf(tHandle) !== -1) {
-        return (promiseWrapper(null));
+        return PromiseHelper.resolve(null);
     }
 
     var deferred = jQuery.Deferred();
@@ -1894,7 +1887,7 @@ function XcalarCreateSched(schedName, schedInSec, period, recurCount, type, arg,
                            txId)
 {
     if ([null, undefined].indexOf(tHandle) !== -1) {
-        return (promiseWrapper(null));
+        return PromiseHelper.resolve(null);
     }
 
     var deferred = jQuery.Deferred();
@@ -1922,7 +1915,7 @@ function XcalarCreateSched(schedName, schedInSec, period, recurCount, type, arg,
 // namePattern is just thge star based naming pattern that we use
 function XcalarListSchedules(namePattern) {
     if ([null, undefined].indexOf(tHandle) !== -1) {
-        return (promiseWrapper(null));
+        return PromiseHelper.resolve(null);
     }
 
     var deferred = jQuery.Deferred();
@@ -1943,7 +1936,7 @@ function XcalarListSchedules(namePattern) {
 
 function XcalarKeyLookup(key, scope) {
     if (tHandle == null) {
-        return (promiseWrapper(null));
+        return PromiseHelper.resolve(null);
     }
 
     var deferred = jQuery.Deferred();
@@ -1977,7 +1970,7 @@ function XcalarKeyLookup(key, scope) {
 
 function XcalarKeyPut(key, value, persist, scope) {
     if (tHandle == null) {
-        return (promiseWrapper(null));
+        return PromiseHelper.resolve(null);
     }
 
     var deferred = jQuery.Deferred();
@@ -2006,7 +1999,7 @@ function XcalarKeyPut(key, value, persist, scope) {
 
 function XcalarKeyDelete(key, scope) {
     if (tHandle == null) {
-        return (promiseWrapper(null));
+        return PromiseHelper.resolve(null);
     }
 
     var deferred = jQuery.Deferred();
@@ -2038,7 +2031,7 @@ function XcalarKeyDelete(key, scope) {
 
 function XcalarKeySetIfEqual(scope, persist, keyCompare, oldValue, newValue) {
     if (tHandle == null) {
-        return (promiseWrapper(null));
+        return PromiseHelper.resolve(null);
     }
     var deferred = jQuery.Deferred();
     if (insertError(arguments.callee, deferred)) {
@@ -2066,7 +2059,7 @@ function XcalarKeySetIfEqual(scope, persist, keyCompare, oldValue, newValue) {
 function XcalarKeySetBothIfEqual(scope, persist, keyCompare, oldValue, newValue,
                                  otherKey, otherValue) {
     if (tHandle == null) {
-        return (promiseWrapper(null));
+        return PromiseHelper.resolve(null);
     }
     var deferred = jQuery.Deferred();
     if (insertError(arguments.callee, deferred)) {
@@ -2095,7 +2088,7 @@ function XcalarKeySetBothIfEqual(scope, persist, keyCompare, oldValue, newValue,
 
 function XcalarKeyAppend(key, stuffToAppend, persist, scope) {
     if (tHandle == null) {
-        return (promiseWrapper(null));
+        return PromiseHelper.resolve(null);
     }
     var deferred = jQuery.Deferred();
     if (insertError(arguments.callee, deferred)) {
@@ -2129,7 +2122,7 @@ function XcalarKeyAppend(key, stuffToAppend, persist, scope) {
 
 function XcalarGetStats(numNodes) {
     if (tHandle == null) {
-        return (promiseWrapper(null));
+        return PromiseHelper.resolve(null);
     }
     var deferred = jQuery.Deferred();
     if (insertError(arguments.callee, deferred)) {
@@ -2156,7 +2149,7 @@ function XcalarGetStats(numNodes) {
 
 function XcalarApiTop(measureIntervalInMs) {
     if ([null, undefined].indexOf(tHandle) !== -1) {
-        return (promiseWrapper(null));
+        return PromiseHelper.resolve(null);
     }
     var deferred = jQuery.Deferred();
     if (insertError(arguments.callee, deferred)) {
@@ -2175,7 +2168,7 @@ function XcalarApiTop(measureIntervalInMs) {
 
 function XcalarListXdfs(fnNamePattern, categoryPattern) {
     if ([null, undefined].indexOf(tHandle) !== -1) {
-        return (promiseWrapper(null));
+        return PromiseHelper.resolve(null);
     }
     var deferred = jQuery.Deferred();
     if (insertError(arguments.callee, deferred)) {
@@ -2194,7 +2187,7 @@ function XcalarListXdfs(fnNamePattern, categoryPattern) {
 
 function XcalarUploadPython(moduleName, pythonStr) {
     if ([null, undefined].indexOf(tHandle) !== -1) {
-        return (promiseWrapper(null));
+        return PromiseHelper.resolve(null);
     }
     var deferred = jQuery.Deferred();
     if (insertError(arguments.callee, deferred)) {
@@ -2237,7 +2230,7 @@ function XcalarUploadPython(moduleName, pythonStr) {
 
 function XcalarUpdatePython(moduleName, pythonStr) {
     if ([null, undefined].indexOf(tHandle) !== -1) {
-        return (promiseWrapper(null));
+        return PromiseHelper.resolve(null);
     }
     var deferred = jQuery.Deferred();
     if (insertError(arguments.callee, deferred)) {
@@ -2257,7 +2250,7 @@ function XcalarUpdatePython(moduleName, pythonStr) {
 
 function XcalarDeletePython(moduleName) {
     if ([null, undefined].indexOf(tHandle) !== -1) {
-        return (promiseWrapper(null));
+        return PromiseHelper.resolve(null);
     }
     var deferred = jQuery.Deferred();
     if (insertError(arguments.callee, deferred)) {
@@ -2276,7 +2269,7 @@ function XcalarDeletePython(moduleName) {
 
 function XcalarDownloadPython(moduleName) {
     if ([null, undefined].indexOf(tHandle) !== -1) {
-        return (promiseWrapper(null));
+        return PromiseHelper.resolve(null);
     }
     var deferred = jQuery.Deferred();
     // fromWhichWorkbook can be null
@@ -2294,7 +2287,7 @@ function XcalarDownloadPython(moduleName) {
 
 function XcalarMemory() {
     if ([null, undefined].indexOf(tHandle) !== -1) {
-        return (promiseWrapper(null));
+        return PromiseHelper.resolve(null);
     }
     var deferred = jQuery.Deferred();
     if (insertError(arguments.callee, deferred)) {
@@ -2315,7 +2308,7 @@ function XcalarMemory() {
 
 function XcalarGetQuery(workItem) {
     if ([null, undefined].indexOf(tHandle) !== -1) {
-        return (promiseWrapper(null));
+        return PromiseHelper.resolve(null);
     }
     var deferred = jQuery.Deferred();
     if (insertError(arguments.callee, deferred)) {
@@ -2333,7 +2326,7 @@ function XcalarGetQuery(workItem) {
 
 function XcalarNewWorkbook(newWorkbookName, isCopy, copyFromWhichWorkbook) {
     if ([null, undefined].indexOf(tHandle) !== -1) {
-        return (promiseWrapper(null));
+        return PromiseHelper.resolve(null);
     }
     var deferred = jQuery.Deferred();
 
@@ -2352,7 +2345,7 @@ function XcalarNewWorkbook(newWorkbookName, isCopy, copyFromWhichWorkbook) {
 
 function XcalarDeleteWorkbook(workbookName) {
     if ([null, undefined].indexOf(tHandle) !== -1) {
-        return (promiseWrapper(null));
+        return PromiseHelper.resolve(null);
     }
     var deferred = jQuery.Deferred();
 
@@ -2370,7 +2363,7 @@ function XcalarDeleteWorkbook(workbookName) {
 
 function XcalarInActiveWorkbook(workbookName) {
     if ([null, undefined].indexOf(tHandle) !== -1) {
-        return (promiseWrapper(null));
+        return PromiseHelper.resolve(null);
     }
     var deferred = jQuery.Deferred();
 
@@ -2388,7 +2381,7 @@ function XcalarInActiveWorkbook(workbookName) {
 
 function XcalarListWorkbooks(pattern) {
     if ([null, undefined].indexOf(tHandle) !== -1) {
-        return (promiseWrapper(null));
+        return PromiseHelper.resolve(null);
     }
     var deferred = jQuery.Deferred();
 
@@ -2406,7 +2399,7 @@ function XcalarListWorkbooks(pattern) {
 
 function XcalarSaveWorkbooks(pattern) {
     if ([null, undefined].indexOf(tHandle) !== -1) {
-        return (promiseWrapper(null));
+        return PromiseHelper.resolve(null);
     }
     var deferred = jQuery.Deferred();
 
@@ -2424,7 +2417,7 @@ function XcalarSaveWorkbooks(pattern) {
 
 function XcalarSwitchToWorkbook(toWhichWorkbook, fromWhichWorkbook) {
     if ([null, undefined].indexOf(tHandle) !== -1) {
-        return (promiseWrapper(null));
+        return PromiseHelper.resolve(null);
     }
     var deferred = jQuery.Deferred();
     // fromWhichWorkbook can be null
@@ -2442,7 +2435,7 @@ function XcalarSwitchToWorkbook(toWhichWorkbook, fromWhichWorkbook) {
 
 function XcalarRenameWorkbook(newName, oldName) {
     if ([null, undefined].indexOf(tHandle) !== -1) {
-        return (promiseWrapper(null));
+        return PromiseHelper.resolve(null);
     }
     var deferred = jQuery.Deferred();
     // fromWhichWorkbook can be null
@@ -2461,7 +2454,7 @@ function XcalarRenameWorkbook(newName, oldName) {
 // XXX Currently this function does nothing. Ask Ken for more details
 function XcalarSupportGenerate() {
     if ([null, undefined].indexOf(tHandle) !== -1) {
-        return (promiseWrapper(null));
+        return PromiseHelper.resolve(null);
     }
     var deferred = jQuery.Deferred();
     xcalarApiSupportGenerate(tHandle)

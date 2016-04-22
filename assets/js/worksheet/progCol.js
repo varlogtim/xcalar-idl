@@ -455,7 +455,7 @@ window.ColManager = (function($, ColManager) {
 
                 if (index > 0) {
                     TblManager.setOrphanTableMeta(newTableName, newTablCols);
-                    return promiseWrapper(null);
+                    return PromiseHelper.resolve(null);
                 } else {
                     var options = {
                         selectCol: curColNum - 1
@@ -798,7 +798,7 @@ window.ColManager = (function($, ColManager) {
                                         fieldName, mapString, curTableCols);
                 if (index < numColToGet) {
                     TblManager.setOrphanTableMeta(newTableName, newTableCols);
-                    return promiseWrapper(null);
+                    return PromiseHelper.resolve(null);
                 } else {
                     return TblManager.refreshTable([newTableName], newTableCols,
                                                 [tableName], worksheet);

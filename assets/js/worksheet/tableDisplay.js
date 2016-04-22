@@ -1222,7 +1222,7 @@ window.TblManager = (function($, TblManager) {
 
             var table = gTables[newTableId];
             TableList.addTables([table], IsActive.Active);
-            return (promiseWrapper(null));
+            return PromiseHelper.resolve(null);
         } else {
             var parallelOptions = {
                 afterStartup: afterStartup,

@@ -40,10 +40,6 @@ window.Support = (function(Support, $) {
 
     // in case you are hold forever
     Support.forceReleaseSession = function() {
-        // XXX this is old code for safeLiveSync
-        // if (!safeMode) {
-        //     return (promiseWrapper(null));
-        // }
         sessionStorage.removeItem(username);
         XcalarKeyPut(KVStore.commitKey, defaultCommitFlag, false, gKVScope.FLAG)
         .then(function() {

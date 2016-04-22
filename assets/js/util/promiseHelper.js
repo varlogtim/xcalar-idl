@@ -26,7 +26,7 @@ window.PromiseHelper = (function(PromiseHelper, $) {
 		}
 
 		return doWork();
-	}
+	};
 
 	/**
 	Same thing as doWhile except that it checks for the condition first before
@@ -38,7 +38,7 @@ window.PromiseHelper = (function(PromiseHelper, $) {
 		} else {
 			return jQuery.Deferred.promise().resolve();
 		}
-	}
+	};
 
 	/**
 	Runs all promises in the argument in parallel and resolves when all of
@@ -47,7 +47,7 @@ window.PromiseHelper = (function(PromiseHelper, $) {
 	PromiseHelper.when = function() {
         var numProm = arguments.length;
         if (numProm === 0) {
-            return (promiseWrapper(null));
+            return PromiseHelper.resolve(null);
         }
         var mainDeferred = jQuery.Deferred();
 
@@ -88,7 +88,7 @@ window.PromiseHelper = (function(PromiseHelper, $) {
         }
 
         return (mainDeferred.promise());
-	}
+	};
 
 	/**
 	Chains the promises such that only after promiseArray[i] completes, then
@@ -98,14 +98,24 @@ window.PromiseHelper = (function(PromiseHelper, $) {
 	    if (!promiseArray ||
 	        !Array.isArray(promiseArray) ||
 	        typeof promiseArray[0] !== "function") {
-	        return promiseWrapper(null);
+	        return PromiseHelper.resolve(null);
 	    }
 	    var head = promiseArray[0]();
 	    for (var i = 1; i < promiseArray.length; i++) {
 	        head = head.then(promiseArray[i]);
 	    }
 	    return (head);
-	}
+	};
+
+    /* return a promise with resvoled value */
+    PromiseHelper.resolve = function(value) {
+        return jQuery.Deferred().resolve(value).promise();
+    };
+
+    /* return a promise with rejected error */
+    PromiseHelper.reject = function(error) {
+        return jQuery.Deferred().reject(error).promise();
+    };
 
 	return (PromiseHelper);
 

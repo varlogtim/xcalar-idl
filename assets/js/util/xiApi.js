@@ -5,7 +5,7 @@ window.XIApi = (function(XIApi, $) {
 
     XIApi.filter = function(txId, fltStr, tableName, newTableName) {
         if (txId == null || fltStr == null || tableName == null) {
-            return jQuery.Deferred().reject("Invalid args in filter");
+            return PromiseHelper.reject("Invalid args in filter");
         }
 
         var deferred = jQuery.Deferred();
@@ -25,7 +25,7 @@ window.XIApi = (function(XIApi, $) {
 
     XIApi.aggregate = function(txId, aggOp, colName, tableName) {
         if (colName == null || tableName == null || aggOp == null || txId == null) {
-            return jQuery.Deferred().reject("Invalid args in aggregate");
+            return PromiseHelper.reject("Invalid args in aggregate");
         }
 
         var evalStr = generateAggregateString(colName, aggOp);
@@ -34,7 +34,7 @@ window.XIApi = (function(XIApi, $) {
 
     XIApi.aggregateWithEvalStr = function(txId, evalStr, tableName) {
         if (evalStr == null || tableName == null || txId == null) {
-            return jQuery.Deferred().reject("Invalid args in aggregate");
+            return PromiseHelper.reject("Invalid args in aggregate");
         }
 
         var deferred = jQuery.Deferred();
@@ -54,7 +54,7 @@ window.XIApi = (function(XIApi, $) {
 
     XIApi.index = function(txId, colToIndex, tableName) {
         if (txId == null || colToIndex == null || tableName == null) {
-            return jQuery.Deferred().reject("Invalid args in index");
+            return PromiseHelper.reject("Invalid args in index");
         }
 
         return checkTableIndex(colToIndex, tableName, txId, true);
@@ -64,7 +64,7 @@ window.XIApi = (function(XIApi, $) {
         if (txId == null || order == null || colName == null ||
             tableName == null || !(order in XcalarOrderingTStr))
         {
-            return jQuery.Deferred().reject("Invalid args in sort");
+            return PromiseHelper.reject("Invalid args in sort");
         }
 
         var deferred = jQuery.Deferred();
@@ -78,7 +78,7 @@ window.XIApi = (function(XIApi, $) {
                     indexInput.ordering === order)
                 {
                     deferred.reject({"error": IndexTStr.SortedErr});
-                    return promiseWrapper(null);
+                    return PromiseHelper.resolve(null);
                 }
             }
 
@@ -101,7 +101,7 @@ window.XIApi = (function(XIApi, $) {
         if (txId == null || mapStr == null ||
             tableName == null || newColName == null)
         {
-            return jQuery.Deferred().reject("Invalid args in map");
+            return PromiseHelper.reject("Invalid args in map");
         }
 
         var deferred = jQuery.Deferred();
@@ -125,7 +125,7 @@ window.XIApi = (function(XIApi, $) {
             joinType == null || txId == null ||
             !(joinType in JoinOperatorTStr))
         {
-            return jQuery.Deferred().reject("Invalid args in join");
+            return PromiseHelper.reject("Invalid args in join");
         }
 
         if (!xcHelper.isArray(lColNames)) {
@@ -137,7 +137,7 @@ window.XIApi = (function(XIApi, $) {
         }
 
         if (lColNames.length < 1 || lColNames.length !== rColNames.length) {
-            return jQuery.Deferred().reject("Invalid args in join");
+            return PromiseHelper.reject("Invalid args in join");
         }
 
         var deferred = jQuery.Deferred();
@@ -175,7 +175,7 @@ window.XIApi = (function(XIApi, $) {
             aggColName == null || isIncSample == null || tableName == null ||
             newColName == null || aggColName.length < 1)
         {
-            return jQuery.Deferred().reject("Invalid args in groupby");
+            return PromiseHelper.reject("Invalid args in groupby");
         }
 
         if (!xcHelper.isArray(groupByCols)) {
@@ -183,7 +183,7 @@ window.XIApi = (function(XIApi, $) {
         }
 
         if (groupByCols.length < 1) {
-            return jQuery.Deferred().reject("Invalid args in groupby");
+            return PromiseHelper.reject("Invalid args in groupby");
         }
 
         var deferred = jQuery.Deferred();
@@ -215,7 +215,7 @@ window.XIApi = (function(XIApi, $) {
                                          indexedColName, finalCols,
                                          isIncSample, txId);
             } else {
-                return promiseWrapper(newTableName);
+                return PromiseHelper.resolve(newTableName);
             }
         })
         .then(function(finalTableName) {

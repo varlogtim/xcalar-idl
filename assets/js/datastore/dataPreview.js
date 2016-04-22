@@ -234,7 +234,7 @@ window.DataPreview = (function($, DataPreview) {
                 if (!result) {
                     cannotParseHandler();
                     deferred.reject({"error": DSTStr.NoParse});
-                    return (promiseWrapper(null));
+                    return PromiseHelper.resolve(null);
                 }
 
                 var kvPairs = result.kvPair;
@@ -344,7 +344,7 @@ window.DataPreview = (function($, DataPreview) {
     DataPreview.clear = function() {
         if ($previeWrap.hasClass("hidden")) {
             // when preview table not shows up
-            return promiseWrapper(null);
+            return PromiseHelper.resolve(null);
         } else {
             var previewMode = true;
             return clearAll(previewMode);

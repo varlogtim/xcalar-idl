@@ -29,7 +29,7 @@ describe('Mocha Setup Test', function() {
 
         setTimeout(function() {
             deferred.resolve('pass');
-        }, 3000);
+        }, 4000);
 
         return deferred.promise();
     }

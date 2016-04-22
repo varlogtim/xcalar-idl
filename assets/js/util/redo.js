@@ -104,12 +104,12 @@ window.Redo = (function($, Redo) {
 
     redoFuncs[SQLOps.HideCols] = function(options) {
         ColManager.hideCols(options.colNums, options.tableId);
-        return (promiseWrapper(null));
+        return PromiseHelper.resolve(null);
     };
 
     redoFuncs[SQLOps.UnHideCols] = function(options) {
         ColManager.unhideCols(options.colNums, options.tableId);
-        return (promiseWrapper(null));
+        return PromiseHelper.resolve(null);
     };
 
     redoFuncs[SQLOps.AddNewCol] = function(options) {
@@ -122,7 +122,7 @@ window.Redo = (function($, Redo) {
         ColManager.addCol(options.siblColNum, options.tableId, null,
                           addColOptions);
 
-        return (promiseWrapper(null));
+        return PromiseHelper.resolve(null);
     };
 
     redoFuncs[SQLOps.DeleteCol] = function(options) {
@@ -146,7 +146,7 @@ window.Redo = (function($, Redo) {
 
         ColManager.unnest(options.tableId, options.colNum, options.rowNum,
                             options.isArray, options.options);
-        return (promiseWrapper(null));
+        return PromiseHelper.resolve(null);
     };
 
     redoFuncs[SQLOps.DupCol] = function(options) {
@@ -176,36 +176,36 @@ window.Redo = (function($, Redo) {
     redoFuncs[SQLOps.ReorderCol] = function(options) {
         ColManager.reorderCol(options.tableId, options.oldColNum,
                               options.newColNum, {"undoRedo": true});
-        return (promiseWrapper(null));
+        return PromiseHelper.resolve(null);
     };
 
     redoFuncs[SQLOps.SortTableCols] = function(options) {
         TblManager.sortColumns(options.tableId, options.direction);
-        return (promiseWrapper(null));
+        return PromiseHelper.resolve(null);
     };
 
     redoFuncs[SQLOps.ResizeTableCols] = function(options) {
         TblManager.resizeColsToWidth(options.tableId, options.columnNums,
                                      options.newColumnWidths,
                                      options.newWidthStates);
-        return (promiseWrapper(null));
+        return PromiseHelper.resolve(null);
     };
 
     redoFuncs[SQLOps.DragResizeTableCol] = function(options) {
         TblAnim.resizeColumn(options.tableId, options.colNum, options.fromWidth,
                              options.toWidth, options.newWidthState);
-        return (promiseWrapper(null));
+        return PromiseHelper.resolve(null);
     };
 
     redoFuncs[SQLOps.DragResizeRow] = function(options) {
         TblAnim.resizeRow(options.rowNum, options.tableId, options.fromHeight,
                           options.toHeight);
-        return (promiseWrapper(null));
+        return PromiseHelper.resolve(null);
     };
 
     redoFuncs[SQLOps.RenameCol] = function(options) {
         ColManager.renameCol(options.colNum, options.tableId, options.newName);
-        return (promiseWrapper(null));
+        return PromiseHelper.resolve(null);
     };
 
     redoFuncs[SQLOps.ChangeFormat] = function(options) {
@@ -214,13 +214,13 @@ window.Redo = (function($, Redo) {
             format = "default";
         }
         ColManager.format(options.colNum, options.tableId, format);
-        return (promiseWrapper(null));
+        return PromiseHelper.resolve(null);
     };
 
     redoFuncs[SQLOps.RoundToFixed] = function(options) {
         ColManager.roundToFixed(options.colNum, options.tableId,
                                 options.decimals);
-        return (promiseWrapper(null));
+        return PromiseHelper.resolve(null);
     };
 
     /* END USER STYLING/FORMATING OPERATIONS */
@@ -235,7 +235,7 @@ window.Redo = (function($, Redo) {
 
     redoFuncs[SQLOps.ArchiveTable] = function(options) {
         TblManager.archiveTables(options.tableIds);
-        return (promiseWrapper(null));
+        return PromiseHelper.resolve(null);
     };
 
     redoFuncs[SQLOps.RevertTable] = function(options) {
@@ -298,46 +298,46 @@ window.Redo = (function($, Redo) {
         //                       options.newColNum, {"undoRedo": true});
         reorderAfterTableDrop(options.tableId, options.srcIndex, options.desIndex,
                                 {undoRedo: true});
-        return (promiseWrapper(null));
+        return PromiseHelper.resolve(null);
     };
 
     redoFuncs[SQLOps.BookmarkRow] = function(options) {
         bookmarkRow(options.rowNum, options.tableId);
-        return (promiseWrapper(null));
+        return PromiseHelper.resolve(null);
     };
 
     redoFuncs[SQLOps.RemoveBookmark] = function(options) {
         unbookmarkRow(options.rowNum, options.tableId);
-        return (promiseWrapper(null));
+        return PromiseHelper.resolve(null);
     };
 
     redoFuncs[SQLOps.TextAlign] = function(options) {
         // var numCols = options.colNums.length;
         ColManager.textAlign(options.colNums, options.tableId,
                              options.cachedAlignment);
-        return (promiseWrapper(null));
+        return PromiseHelper.resolve(null);
     };
 
     redoFuncs[SQLOps.HideTable] = function(options) {
         TblManager.hideTable(options.tableId);
-        return promiseWrapper(null);
+        return PromiseHelper.resolve(null);
     };
 
     redoFuncs[SQLOps.UnhideTable] = function(options) {
         TblManager.unHideTable(options.tableId);
-        return promiseWrapper(null);
+        return PromiseHelper.resolve(null);
     };
     /* End of Table Operations */
 
     /* Worksheet Opeartion */
     redoFuncs[SQLOps.AddWS] = function(options) {
         WSManager.addWS(options.worksheetId, options.worksheetName);
-        return promiseWrapper(null);
+        return PromiseHelper.resolve(null);
     };
 
     redoFuncs[SQLOps.RenameWS] = function(options) {
         WSManager.renameWS(options.worksheetId, options.newName);
-        return promiseWrapper(null);
+        return PromiseHelper.resolve(null);
     };
 
     redoFuncs[SQLOps.ReorderWS] = function(options) {
@@ -345,12 +345,12 @@ window.Redo = (function($, Redo) {
         var newWSIndex = options.newWorksheetIndex;
 
         WSManager.reorderWS(oldWSIndex, newWSIndex);
-        return promiseWrapper(null);
+        return PromiseHelper.resolve(null);
     };
 
     redoFuncs[SQLOps.MoveTableToWS] = function(options) {
         WSManager.moveTable(options.tableId, options.newWorksheetId);
-        return promiseWrapper(null);
+        return PromiseHelper.resolve(null);
     };
 
     redoFuncs[SQLOps.MoveInactiveTableToWS] = function(options) {
@@ -365,7 +365,7 @@ window.Redo = (function($, Redo) {
         var wsId = options.worksheetId;
         WSManager.hideWS(wsId);
 
-        return promiseWrapper(null);
+        return PromiseHelper.resolve(null);
     };
 
     redoFuncs[SQLOps.UnHideWS] = function(options) {
@@ -378,14 +378,14 @@ window.Redo = (function($, Redo) {
         var wsId = options.newWorksheetId;
         $("#worksheetTab-" + wsId).trigger(fakeEvent.mousedown);
 
-        return promiseWrapper(null);
+        return PromiseHelper.resolve(null);
     };
 
     redoFuncs[SQLOps.DelWS] = function(options) {
         var delType = options.delType;
         var wsId = options.worksheetId;
         WSManager.delWS(wsId, delType);
-        return promiseWrapper(null);
+        return PromiseHelper.resolve(null);
     };
     /* End of Worksheet Operation */
 

@@ -234,8 +234,8 @@ function dataPreviewModuleTest() {
 
             $actions = $content.find(".action");
             expect($actions.length).to.equal(1);
-            expect($actions.eq(0).hasClass("hint")).to.be.true;
-            expect($actions.eq(0).text()).equal('Highlight a character as delimiter');
+            expect($actions.eq(0).hasClass("hint")).to.be.false;
+            expect($actions.eq(0).text()).equal('Save & Exit');
 
 
             // when delimiter on comma

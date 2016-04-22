@@ -500,7 +500,7 @@ window.Replay = (function($, Replay) {
                 .fail(deferred.reject);
                 return (deferred.promise());
             } else {
-                return (promiseWrapper(null));
+                return PromiseHelper.resolve(null);
             }
         },
 
@@ -597,21 +597,21 @@ window.Replay = (function($, Replay) {
             var args = getArgs(options);
             ColManager.delCol.apply(window, args);
 
-            return (promiseWrapper(null));
+            return PromiseHelper.resolve(null);
         },
 
         hideCols: function(options) {
             var args = getArgs(options);
             ColManager.hideCols.apply(window, args);
 
-            return (promiseWrapper(null));
+            return PromiseHelper.resolve(null);
         },
 
         unHideCols: function(options) {
             var args = getArgs(options);
             ColManager.unhideCols.apply(window, args);
 
-            return (promiseWrapper(null));
+            return PromiseHelper.resolve(null);
         },
 
         duplicateCol: function(options) {
@@ -622,20 +622,20 @@ window.Replay = (function($, Replay) {
         delDupCol: function(options) {
             var args = getArgs(options);
             ColManager.delDupCols.apply(window, args);
-            return (promiseWrapper(null));
+            return PromiseHelper.resolve(null);
         },
 
         delAllDupCols: function(options) {
             var args = getArgs(options);
             ColManager.delAllDupCols.apply(window, args);
-            return (promiseWrapper(null));
+            return PromiseHelper.resolve(null);
         },
 
         textAlign: function(options) {
             var args = getArgs(options);
             ColManager.textAlign.apply(window, args);
 
-            return (promiseWrapper(null));
+            return PromiseHelper.resolve(null);
         },
 
         reorderTable: function(options) {
@@ -659,7 +659,7 @@ window.Replay = (function($, Replay) {
 
             reorderAfterTableDrop.apply(window, args);
 
-            return (promiseWrapper(null));
+            return PromiseHelper.resolve(null);
         },
 
         reorderCol: function(options) {
@@ -695,13 +695,13 @@ window.Replay = (function($, Replay) {
 
             ColManager.reorderCol.apply(window, args);
 
-            return (promiseWrapper(null));
+            return PromiseHelper.resolve(null);
         },
 
         renameCol: function(options) {
             var args = getArgs(options);
             ColManager.renameCol.apply(window, args);
-            return (promiseWrapper(null));
+            return PromiseHelper.resolve(null);
         },
 
         pullCol: function(options) {
@@ -720,7 +720,7 @@ window.Replay = (function($, Replay) {
         pullAllCols: function(options) {
             var args = getArgs(options);
             ColManager.unnest.apply(window, args);
-            return (promiseWrapper(null));
+            return PromiseHelper.resolve(null);
         },
 
         archiveTable: function(options) {
@@ -791,7 +791,7 @@ window.Replay = (function($, Replay) {
         //                 tableName + '"] .addTableBtn').click();
         //     } else {
         //         console.error("Invalid table bulk action");
-        //         return (promiseWrapper(null));
+        //         return PromiseHelper.resolve(null);
         //     }
 
         //     return (TableList.tableBulkAction(action, tableType));
@@ -800,14 +800,14 @@ window.Replay = (function($, Replay) {
         sortTableCols: function(options) {
             var args = getArgs(options);
             TblManager.sortColumns.apply(window, args);
-            return (promiseWrapper(null));
+            return PromiseHelper.resolve(null);
         },
 
         resizeTableCols: function(options) {
             var args = getArgs(options);
             TblManager.resizeColumns.apply(window, args);
 
-            return promiseWrapper(null);
+            return PromiseHelper.resolve(null);
         },
 
         dragResizeTableCol: function(options) {
@@ -815,37 +815,37 @@ window.Replay = (function($, Replay) {
             console.log('resized replay');
             TblAnim.resizeColumn.apply(window, args);
 
-            return promiseWrapper(null);
+            return PromiseHelper.resolve(null);
         },
 
         dragResizeRow: function(options) {
             var args = getArgs(options);
             TblAnim.resizeRow.apply(window, args);
-            return promiseWrapper(null);
+            return PromiseHelper.resolve(null);
         },
 
         bookmarkRow: function(options) {
             var args = getArgs(options);
             bookmarkRow.apply(window, args);
-            return promiseWrapper(null);
+            return PromiseHelper.resolve(null);
         },
 
         removeBookmark: function(options) {
             var args = getArgs(options);
             unbookmarkRow.apply(window, args);
-            return promiseWrapper(null);
+            return PromiseHelper.resolve(null);
         },
 
         hideTable: function(options) {
             var args = getArgs(options);
             TblManager.hideTable.apply(window, args);
-            return promiseWrapper(null);
+            return PromiseHelper.resolve(null);
         },
 
         unhideTable: function(options) {
             var args = getArgs(options);
             TblManager.unHideTable.apply(window, args);
-            return promiseWrapper(null);
+            return PromiseHelper.resolve(null);
         },
 
         addWorksheet: function(options) {
@@ -883,7 +883,7 @@ window.Replay = (function($, Replay) {
             var wsId = WSManager.getOrders()[wsIndex];
             $("#worksheetTab-" + wsId + " .text").val(newName)
                                                 .trigger(fakeEvent.enter);
-            return (promiseWrapper(null));
+            return PromiseHelper.resolve(null);
         },
 
         switchWorksheet: function(options) {
@@ -919,7 +919,7 @@ window.Replay = (function($, Replay) {
 
             WSManager.reorderWS(oldWSIndex, newWSIndex);
 
-            return promiseWrapper(null);
+            return PromiseHelper.resolve(null);
         },
 
         deleteWorksheet: function(options) {
@@ -978,7 +978,7 @@ window.Replay = (function($, Replay) {
             var wsId = WSManager.getOrders()[wsIndex];
             WSManager.hideWS(wsId);
 
-            return promiseWrapper(null);
+            return PromiseHelper.resolve(null);
         },
 
         unhideWorksheet: function(options) {
@@ -997,7 +997,7 @@ window.Replay = (function($, Replay) {
             var wsId    = WSManager.getOrders()[wsIndex];
 
             WSManager.moveTable(tableId, wsId);
-            return (promiseWrapper(null));
+            return PromiseHelper.resolve(null);
         },
 
         activeTables: function(options) {
@@ -1060,7 +1060,7 @@ window.Replay = (function($, Replay) {
         //     var wsId    = WSManager.getOrders()[wsIndex];
 
         //     WSManager.addNoSheetTables(tableIds, wsId);
-        //     return (promiseWrapper(null));
+        //     return PromiseHelper.resolve(null);
         // },
 
         // when adding inactive/orphaned table from dag
@@ -1074,20 +1074,20 @@ window.Replay = (function($, Replay) {
 
         createFolder: function(options) {
             DS.newFolder();
-            return (promiseWrapper(null));
+            return PromiseHelper.resolve(null);
         },
 
         dsRename: function(options) {
             var args = getArgs(options);
             DS.rename.apply(window, args);
-            return (promiseWrapper(null));
+            return PromiseHelper.resolve(null);
         },
 
         dsDropIn: function(options) {
             var $grid   = DS.getGrid(options.dsId);
             var $target = DS.getGrid(options.targetDSId);
             DS.dropToFolder($grid, $target);
-            return (promiseWrapper(null));
+            return PromiseHelper.resolve(null);
         },
 
         dsInsert: function(options) {
@@ -1095,25 +1095,25 @@ window.Replay = (function($, Replay) {
             var $sibling = DS.getGrid(options.siblingDSId);
             var isBefore = options.isBefore;
             DS.insert($grid, $sibling, isBefore);
-            return (promiseWrapper(null));
+            return PromiseHelper.resolve(null);
         },
 
         goToDir: function(options) {
              var args = getArgs(options);
             DS.goToDir.apply(window, args);
-            return (promiseWrapper(null));
+            return PromiseHelper.resolve(null);
         },
 
         dsBack: function(options) {
             var $grid = DS.getGrid(options.dsId);
             DS.dropToParent($grid);
-            return (promiseWrapper(null));
+            return PromiseHelper.resolve(null);
         },
 
         deleteFolder: function(options) {
             var $grid = DS.getGrid(options.dsId);
             DS.remove($grid);
-            return (promiseWrapper(null));
+            return PromiseHelper.resolve(null);
         },
 
         profile: function(options, keepOpen) {
@@ -1135,7 +1135,7 @@ window.Replay = (function($, Replay) {
             })
             .then(function() {
                 if (keepOpen) {
-                    return promiseWrapper(null);
+                    return PromiseHelper.resolve(null);
                 } else {
                     var callback = function() {
                         $("#profileModal .close").click();
@@ -1172,7 +1172,7 @@ window.Replay = (function($, Replay) {
             })
             .then(function() {
                 if (keepOpen) {
-                    return promiseWrapper(null);
+                    return PromiseHelper.resolve(null);
                 } else {
                     var callback = function() {
                         $("#profileModal .close").click();
@@ -1226,7 +1226,7 @@ window.Replay = (function($, Replay) {
             })
             .then(function() {
                 if (keepOpen) {
-                    return promiseWrapper(null);
+                    return PromiseHelper.resolve(null);
                 } else {
                     var callback = function() {
                         $("#profileModal .close").click();
@@ -1277,7 +1277,7 @@ window.Replay = (function($, Replay) {
         addOtherUserDS: function(options) {
             var args = getArgs(options);
             DS.addOtherUserDS.apply(window, args);
-            return (promiseWrapper(null));
+            return PromiseHelper.resolve(null);
         },
 
         splitCol: function(options) {
@@ -1293,13 +1293,13 @@ window.Replay = (function($, Replay) {
         changeFormat: function(options) {
             var args = getArgs(options);
             ColManager.format.apply(window, args);
-            return promiseWrapper(null);
+            return PromiseHelper.resolve(null);
         },
 
         roundToFixed: function(options) {
             var args = getArgs(options);
             ColManager.roundToFixed.apply(window, args);
-            return promiseWrapper(null);
+            return PromiseHelper.resolve(null);
         },
 
         // correlationAction: function(options) {

@@ -1,6 +1,7 @@
 // ========== Right Side Bar ==========
 #rightSideBar {
-    .position(absolute, @right: -385px, @bottom: 74px);
+    position: absolute !important;
+    .position(@right: -385px, @bottom: 74px);
     .size(@width: 395px,  @height: ~"calc(100% - 152px)");
     border-left: 1px solid @color-bar-border;
     background-color: @color-background-sidebar;

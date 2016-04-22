@@ -172,12 +172,12 @@ window.Undo = (function($, Undo) {
 
     undoFuncs[SQLOps.HideCols] = function(options) {
         ColManager.unhideCols(options.colNums, options.tableId);
-        return (promiseWrapper(null));
+        return PromiseHelper.resolve(null);
     };
 
     undoFuncs[SQLOps.UnHideCols] = function(options) {
         ColManager.hideCols(options.colNums, options.tableId);
-        return (promiseWrapper(null));
+        return PromiseHelper.resolve(null);
     };
 
     undoFuncs[SQLOps.AddNewCol] = function(options) {
@@ -190,7 +190,7 @@ window.Undo = (function($, Undo) {
 
     undoFuncs[SQLOps.DeleteCol] = function(options) {
         undoDeleteHelper(options, -1);
-        return (promiseWrapper(null));
+        return PromiseHelper.resolve(null);
     };
 
     undoFuncs[SQLOps.PullCol] = function(options) {
@@ -209,7 +209,7 @@ window.Undo = (function($, Undo) {
                                                 .attr('class', 'header')
                                                 .find('.iconHelper')
                                                 .attr('title', '');
-                return (promiseWrapper(null));
+                return PromiseHelper.resolve(null);
             } else {
                 return (ColManager.execCol("pull", options.origUsrStr,
                                        options.tableId, options.colNum,
@@ -235,48 +235,48 @@ window.Undo = (function($, Undo) {
 
     undoFuncs[SQLOps.DelDupCol] = function(options) {
         undoDeleteHelper(options);
-        return (promiseWrapper(null));
+        return PromiseHelper.resolve(null);
     };
 
     undoFuncs[SQLOps.DelAllDupCols] = function(options) {
         undoDeleteHelper(options);
-        return (promiseWrapper(null));
+        return PromiseHelper.resolve(null);
     };
 
     undoFuncs[SQLOps.ReorderCol] = function(options) {
         ColManager.reorderCol(options.tableId, options.newColNum,
                               options.oldColNum, {"undoRedo": true});
-        return (promiseWrapper(null));
+        return PromiseHelper.resolve(null);
     };
 
     undoFuncs[SQLOps.SortTableCols] = function(options) {
         TblManager.orderAllColumns(options.tableId, options.originalOrder);
-        return (promiseWrapper(null));
+        return PromiseHelper.resolve(null);
     };
 
     undoFuncs[SQLOps.ResizeTableCols] = function(options) {
         TblManager.resizeColsToWidth(options.tableId, options.columnNums,
                                      options.oldColumnWidths,
                                      options.oldWidthStates);
-        return (promiseWrapper(null));
+        return PromiseHelper.resolve(null);
     };
 
     undoFuncs[SQLOps.DragResizeTableCol] = function(options) {
         TblAnim.resizeColumn(options.tableId, options.colNum, options.toWidth,
                              options.fromWidth, options.oldWidthState);
-        return (promiseWrapper(null));
+        return PromiseHelper.resolve(null);
     };
 
     undoFuncs[SQLOps.DragResizeRow] = function(options) {
         TblAnim.resizeRow(options.rowNum, options.tableId, options.toHeight,
                           options.fromHeight);
-        return (promiseWrapper(null));
+        return PromiseHelper.resolve(null);
     };
 
     undoFuncs[SQLOps.RenameCol] = function(options) {
         ColManager.renameCol(options.colNum, options.tableId, options.colName,
                              {keepEditable: options.wasNew});
-        return (promiseWrapper(null));
+        return PromiseHelper.resolve(null);
     };
 
     undoFuncs[SQLOps.TextAlign] = function(options) {
@@ -296,7 +296,7 @@ window.Undo = (function($, Undo) {
             ColManager.textAlign([options.colNums[i]], options.tableId,
                                  alignment);
         }
-        return (promiseWrapper(null));
+        return PromiseHelper.resolve(null);
     };
 
     undoFuncs[SQLOps.ChangeFormat] = function(options) {
@@ -305,16 +305,14 @@ window.Undo = (function($, Undo) {
             format = "default";
         }
         ColManager.format(options.colNum, options.tableId, format);
-        return (promiseWrapper(null));
+        return PromiseHelper.resolve(null);
     };
 
     undoFuncs[SQLOps.RoundToFixed] = function(options) {
         ColManager.roundToFixed(options.colNum, options.tableId,
                                 options.prevDecimals);
-        return (promiseWrapper(null));
+        return PromiseHelper.resolve(null);
     };
-
-
     /* END USER STYLING/FORMATING OPERATIONS */
 
 
@@ -400,7 +398,7 @@ window.Undo = (function($, Undo) {
                     .addClass("inactive").text(SideBarTStr.NoSheet);
                 });
             }
-            return promiseWrapper(null);
+            return PromiseHelper.resolve(null);
         } else if (tableType === TableType.Orphan) {
             tableIds.forEach(function(tId) {
                 TblManager.sendTableToOrphaned(tId, {"remove": true,
@@ -411,7 +409,7 @@ window.Undo = (function($, Undo) {
             console.error("Not support agg table undo!");
         } else {
             console.error(tableType, "not support undo!");
-            return promiseWrapper(null);
+            return PromiseHelper.resolve(null);
         }
     };
 
@@ -420,27 +418,27 @@ window.Undo = (function($, Undo) {
         //                       options.oldColNum, {"undoRedo": true});
         reorderAfterTableDrop(options.tableId, options.desIndex, options.srcIndex,
                                 {undoRedo: true});
-        return (promiseWrapper(null));
+        return PromiseHelper.resolve(null);
     };
 
     undoFuncs[SQLOps.BookmarkRow] = function(options) {
         unbookmarkRow(options.rowNum, options.tableId);
-        return (promiseWrapper(null));
+        return PromiseHelper.resolve(null);
     };
 
     undoFuncs[SQLOps.RemoveBookmark] = function(options) {
         bookmarkRow(options.rowNum, options.tableId);
-        return (promiseWrapper(null));
+        return PromiseHelper.resolve(null);
     };
 
     undoFuncs[SQLOps.HideTable] = function(options) {
         TblManager.unHideTable(options.tableId);
-        return promiseWrapper(null);
+        return PromiseHelper.resolve(null);
     };
 
     undoFuncs[SQLOps.UnhideTable] = function(options) {
         TblManager.hideTable(options.tableId);
-        return promiseWrapper(null);
+        return PromiseHelper.resolve(null);
     };
     /* End of Table Operations */
 
@@ -450,17 +448,17 @@ window.Undo = (function($, Undo) {
         WSManager.delWS(options.worksheetId, DelWSType.Empty);
         WSManager.focusOnWorksheet(options.currentWorksheet);
 
-        return promiseWrapper(null);
+        return PromiseHelper.resolve(null);
     };
 
     undoFuncs[SQLOps.RenameWS] = function(options) {
         WSManager.renameWS(options.worksheetId, options.oldName);
-        return promiseWrapper(null);
+        return PromiseHelper.resolve(null);
     };
 
     undoFuncs[SQLOps.RenameWS] = function(options) {
         WSManager.renameWS(options.worksheetId, options.oldName);
-        return promiseWrapper(null);
+        return PromiseHelper.resolve(null);
     };
 
     undoFuncs[SQLOps.ReorderWS] = function(options) {
@@ -468,7 +466,7 @@ window.Undo = (function($, Undo) {
         var newWSIndex = options.newWorksheetIndex;
 
         WSManager.reorderWS(newWSIndex, oldWSIndex);
-        return promiseWrapper(null);
+        return PromiseHelper.resolve(null);
     };
 
     undoFuncs[SQLOps.MoveTableToWS] = function(options) {
@@ -542,14 +540,14 @@ window.Undo = (function($, Undo) {
             WSManager.hideWS(wsIds[i]);
         }
 
-        return promiseWrapper(null);
+        return PromiseHelper.resolve(null);
     };
 
     undoFuncs[SQLOps.SwitchWS] = function(options) {
         var wsId = options.oldWoksheetId;
         $("#worksheetTab-" + wsId).trigger(fakeEvent.mousedown);
 
-        return promiseWrapper(null);
+        return PromiseHelper.resolve(null);
     };
 
     undoFuncs[SQLOps.DelWS] = function(options) {
@@ -563,7 +561,7 @@ window.Undo = (function($, Undo) {
 
         if (delType === DelWSType.Empty) {
             makeWorksheetHelper();
-            return promiseWrapper(null);
+            return PromiseHelper.resolve(null);
         } else if (delType === DelWSType.Del) {
             makeWorksheetHelper();
 
@@ -606,7 +604,7 @@ window.Undo = (function($, Undo) {
             return PromiseHelper.chain(promises);
         } else {
             console.error("Unexpected delete worksheet type");
-            return promiseWrapper(null);
+            return PromiseHelper.resolve(null);
         }
 
         function makeWorksheetHelper() {

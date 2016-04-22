@@ -247,7 +247,7 @@ window.DS = (function ($, DS) {
         .then(function(result) {
             if (!result) {
                 // if dataset cannot be parsed produce a load fail
-                return jQuery.Deferred().reject({
+                return PromiseHelper.reject({
                     "dsCreated": true,
                     "error"    : DSTStr.NoParse
                 });
