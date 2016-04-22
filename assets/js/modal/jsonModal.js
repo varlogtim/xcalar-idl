@@ -1015,7 +1015,7 @@ window.JSONModal = (function($, JSONModal) {
                         '<div class="tab seeAll active" ' +
                         'data-toggle="tooltip" ' +
                         'data-container="body" ' +
-                        'title="' +JsonModalTStr.SeeAllTip + '">' +
+                        'title="' + JsonModalTStr.SeeAllTip + '">' +
                             '<span class="icon"></span>' +
                             '<span class="text">' + JsonModalTStr.SeeAll +
                             '</span>' +
@@ -1393,8 +1393,8 @@ window.JSONModal = (function($, JSONModal) {
                 }
                 var options = {"focusWorkspace": focusOnTable};
 
-                var $dataCol = $("#xcTable-" + tableId).find('th.dataCol');
-                var dataColNum = xcHelper.parseColNum($dataCol) - 1;
+                // var $dataCol = $("#xcTable-" + tableId).find('th.dataCol');
+                // var dataColNum = xcHelper.parseColNum($dataCol) - 1;
                 var tableCols = gTables[tableId].tableCols;
                 tableCols = xcHelper.deepCopy(tableCols);
                 var finalTableCols = [];
@@ -1410,7 +1410,7 @@ window.JSONModal = (function($, JSONModal) {
                 // var tableCols = [xcHelper.deepCopy(dataCol)];
 
                 return TblManager.refreshTable([dstTableName], finalTableCols,
-                                                null , worksheet, options);
+                                                null, worksheet, options);
             })
             .then(function() {
                 xcHelper.unlockTable(tableId);

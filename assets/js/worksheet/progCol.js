@@ -386,7 +386,8 @@ window.ColManager = (function($, ColManager) {
             colInfo = colTypeInfos[i];
             col = tableCols[colInfo.colNum - 1];
             // here use front col name to generate newColName
-            newFieldNames[i] = col.name + "_" + colInfo.type;
+            newFieldNames[i] = xcHelper.getUniqColName(tableId,
+                                        col.getFronColName() + "_" + colInfo.type);
             mapStrings[i] = xcHelper.castStrHelper(col.getBackColName(), colInfo.type);
         }
 

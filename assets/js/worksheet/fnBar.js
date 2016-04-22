@@ -34,10 +34,10 @@ window.FnBar = (function(FnBar, $) {
                         var oldStr = $fnBar.val();
                         var oldCaret = $fnBar.caret();
                         var nextIsBracket = oldStr.substring(oldCaret);
-                        if (nextIsBracket.indexOf(")") == 0) {
+                        if (nextIsBracket.indexOf(")") === 0) {
                             // Immediate close bracket
                             $fnBar.val(oldStr.substring(0, oldCaret) +
-                                       oldStr.substring(oldCaret+1));
+                                       oldStr.substring(oldCaret + 1));
                             $fnBar.caret(oldCaret);
                         }
                     }, 0);
@@ -50,7 +50,7 @@ window.FnBar = (function(FnBar, $) {
                         var oldStr = $fnBar.val();
                         var oldCaret = $fnBar.caret();
                         var newStr = oldStr.substring(0, oldCaret) +
-                                     ")"+oldStr.substring(oldCaret);
+                                     ")" + oldStr.substring(oldCaret);
                         $fnBar.val(newStr);
                         $fnBar.caret(oldCaret);
                     }, 0);
@@ -67,7 +67,7 @@ window.FnBar = (function(FnBar, $) {
                             "cancel" : function() {
                                 if (savedColInput) {
                                     savedColInput.trigger({
-                                        type: "mousedown",
+                                        type : "mousedown",
                                         which: 1
                                     });
                                     $fnBar.removeAttr("disabled");
@@ -204,7 +204,7 @@ window.FnBar = (function(FnBar, $) {
         var numOpens = 0;
 
         var inQuotes = false;
-        for (var i = 0; i<fnBarVal.length; i++) {
+        for (var i = 0; i < fnBarVal.length; i++) {
             if (inQuotes) {
                 if (fnBarVal[i] === '"') {
                     inQuotes = false;

@@ -2,6 +2,8 @@ window.Replay = (function($, Replay) {
     var argsMap = null;
     var tabMap  = null;
     var hashTag = null;
+    var replayFuncs;
+
     Replay.log = [];
 
     var Tab = {
@@ -111,7 +113,6 @@ window.Replay = (function($, Replay) {
                 delete activeTables[i].timeStamp;
                 delete activeTables[i].resultSetId;
             }
-            var nonStringified = activeTables;
 
             var wsMeta = xcHelper.deepCopy(WSManager.getAllMeta());
             $.each(wsMeta.wsInfos, function(key, ws){
@@ -126,15 +127,15 @@ window.Replay = (function($, Replay) {
             // not checking for table list order, just for content
 
             var info = {
-                tables: activeTables,
-                wsMeta: wsMeta,
-                firstRowText: $('.xcTable tbody').find('tr:first').text(),
-                tableListText: tableListText,
-                dagText: $('#dagPanel .dagWrap:not(.inActive)').text().replace(/\s\s/g, ""),
-                lastAction: SQL.viewLastAction()
+                "tables"       : activeTables,
+                "wsMeta"       : wsMeta,
+                "firstRowText" : $('.xcTable tbody').find('tr:first').text(),
+                "tableListText": tableListText,
+                "dagText"      : $('#dagPanel .dagWrap:not(.inActive)').text().replace(/\s\s/g, ""),
+                "lastAction"   : SQL.viewLastAction()
             };
 
-              function getActiveTables() {
+            function getActiveTables() {
                 var activeTables = [];
                 for (var table in gTables) {
                     if (gTables[table].status === "active") {
@@ -341,8 +342,8 @@ window.Replay = (function($, Replay) {
 
     /* REPLAYFUNCS HOLDS ALL THE REPLAY FUNCTIONS */
 
-    var replayFuncs = {
-        loadDataSet : function(options) {
+    replayFuncs = {
+        loadDataSet: function(options) {
             var args = getArgs(options);
             return (DS.load.apply(window, args));
         },
@@ -350,7 +351,7 @@ window.Replay = (function($, Replay) {
         indexFromDataset: function(options) {
             var deferred = jQuery.Deferred();
             // this is a UI simulation replay
-            var dsName     = options.dsName;
+            // var dsName     = options.dsName;
             var dsId       = options.dsId;
             var columns    = options.columns;
             var tableName  = options.tableName;
@@ -758,15 +759,15 @@ window.Replay = (function($, Replay) {
                                     wsId, {isUndo: true})
             .then(function() {
                 SQL.add("Revert Table", {
-                    "operation"   : SQLOps.RevertTable,
-                    "tableName"   : newTableName,
-                    "oldTableName": oldTableName,
-                    "tableId"     : newTableId,
-                    "oldTableId"  : oldTableId,
-                    "tableType"   : options.tableType,
-                    "worksheet"   : wsId,
+                    "operation"     : SQLOps.RevertTable,
+                    "tableName"     : newTableName,
+                    "oldTableName"  : oldTableName,
+                    "tableId"       : newTableId,
+                    "oldTableId"    : oldTableId,
+                    "tableType"     : options.tableType,
+                    "worksheet"     : wsId,
                     "worksheetIndex": options.worksheetIndex,
-                    "htmlExclude" : ["tableType", "oldTableName"]
+                    "htmlExclude"   : ["tableType", "oldTableName"]
                 });
                 deferred.resolve();
             })
@@ -848,7 +849,7 @@ window.Replay = (function($, Replay) {
             return PromiseHelper.resolve(null);
         },
 
-        addWorksheet: function(options) {
+        addWorksheet: function() {
             // UI simulation
             var deferred    = jQuery.Deferred();
             var originWSLen = WSManager.getWSLen();
@@ -982,7 +983,6 @@ window.Replay = (function($, Replay) {
         },
 
         unhideWorksheet: function(options) {
-            var deferred = jQuery.Deferred();
             var wsOrders = options.worksheetOrders;
             var wsIds = [];
             for (var i = 0; i < wsOrders.length; i++) {
@@ -1043,7 +1043,7 @@ window.Replay = (function($, Replay) {
                 deferred.resolve();
             })
             .fail(function() {
-                 deferred.reject();
+                deferred.reject();
             });
 
             return (deferred.promise());
@@ -1072,7 +1072,7 @@ window.Replay = (function($, Replay) {
                                                 options.tableType));
         },
 
-        createFolder: function(options) {
+        createFolder: function() {
             DS.newFolder();
             return PromiseHelper.resolve(null);
         },
@@ -1099,7 +1099,7 @@ window.Replay = (function($, Replay) {
         },
 
         goToDir: function(options) {
-             var args = getArgs(options);
+            var args = getArgs(options);
             DS.goToDir.apply(window, args);
             return PromiseHelper.resolve(null);
         },

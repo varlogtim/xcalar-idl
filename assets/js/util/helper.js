@@ -225,7 +225,7 @@ window.xcHelper = (function($, xcHelper) {
         } else {
             return newColName;
         }
-    }
+    };
 
     // get a deep copy
     xcHelper.deepCopy = function(obj) {
@@ -366,8 +366,8 @@ window.xcHelper = (function($, xcHelper) {
             start = index;
         } else {
             while (size >= 1024 && start <= end) {
-                    size = (size / 1024).toFixed(1);
-                    ++start;
+                size = (size / 1024).toFixed(1);
+                ++start;
             }
             if (size >= 10) {
                 size = Math.ceil(size);
@@ -1272,7 +1272,7 @@ window.xcHelper = (function($, xcHelper) {
         }
 
         return "string";
-    }
+    };
 
     xcHelper.lockTable = function(tableId) {
         // lock worksheet as well

@@ -402,7 +402,6 @@ window.xcFunction = (function($, xcFunction) {
         var finalTableName;
         var finalTableCols;
 
-
         // current workshhet index
         var curWS = WSManager.getWSFromTable(tableId);
         var txId = Transaction.start({

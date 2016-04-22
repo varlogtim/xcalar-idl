@@ -9,6 +9,18 @@ window.MonitorGraph = (function($, MonitorGraph) {
     var svg;
     var graphCycle;
 
+    var pointsPerGrid = 10;
+    var shiftWidth = xGridWidth / pointsPerGrid;
+    var count = 0;
+    var gridRight;
+    var newWidth;
+    var svgWrap;
+    var firstTime;
+    var numXGridMarks;
+    var $graphWrap;
+    var timeStamp;
+    var failCount = 0;
+
     MonitorGraph.setup = function() {
         var $monitorPanel = $('#monitorPanel');
         $monitorPanel.find('.sideTab').click(function() {
@@ -77,18 +89,6 @@ window.MonitorGraph = (function($, MonitorGraph) {
         clearInterval(graphCycle);
     };
 
-    var pointsPerGrid = 10;
-    var shiftWidth = xGridWidth / pointsPerGrid;
-    var count = 0;
-    var gridRight;
-    var newWidth;
-    var svgWrap;
-    var firstTime;
-    var numXGridMarks;
-    var $graphWrap;
-    var timeStamp;
-    var failCount = 0;
-
     function startCycle() {
         count = 0;
         newWidth = xGridWidth + shiftWidth;
@@ -96,16 +96,15 @@ window.MonitorGraph = (function($, MonitorGraph) {
         gridRight = shiftWidth;
         $graphWrap = $('#graphWrap');
         svgWrap = svg.select(function() {
-                            return (this.parentNode);
-                        });
-        var apiTopResult;
+                        return (this.parentNode);
+                    });
         firstTime = true;
 
-        getStatsAndUpdateGraph(firstTime);
+        getStatsAndUpdateGraph();
         graphCycle = setInterval(getStatsAndUpdateGraph, interval);
     }
 
-    function getStatsAndUpdateGraph(firstTime) {
+    function getStatsAndUpdateGraph() {
         var numNodes;
         if (count % 10 === 0) {
             xGridVals.push(numXGridMarks * xGridWidth);
@@ -117,6 +116,8 @@ window.MonitorGraph = (function($, MonitorGraph) {
                 timeStamp = '<span>' + time + '</span>';
             }
         }
+
+        var apiTopResult;
 
         XcalarApiTop()
         .then(function(result) {
@@ -255,12 +256,11 @@ window.MonitorGraph = (function($, MonitorGraph) {
                     .orient("left")
                     .innerTickSize(-xGridWidth);
 
-        var svgWrap = d3.select("#graph .svgWrap").append("svg");
-
-        svg = svgWrap.attr("width", xGridWidth)
-                     .attr("height", height)
-                     .attr("class", "mainSvg")
-                     .append("g");
+        svg = d3.select("#graph .svgWrap").append("svg")
+                    .attr("width", xGridWidth)
+                    .attr("height", height)
+                    .attr("class", "mainSvg")
+                    .append("g");
 
         svg.append("g")
            .attr("class", "x axis")

@@ -111,7 +111,7 @@ function goToPage(rowNumber, numRowsToAdd, direction, loop, info,
                 return (scrollDownHelper(position, rowPosition, jsonLen,
                         totalRowsStillNeeded, table, $table, info));
             } else { // scrolling up
-               return (scrollUpHelper(position, totalRowsStillNeeded,
+                return (scrollUpHelper(position, totalRowsStillNeeded,
                                       numRowsLacking, $table, info));
             }
         } else {
@@ -140,14 +140,14 @@ function goToPage(rowNumber, numRowsToAdd, direction, loop, info,
                 .then(function(data1, data2) {
                     deferred.resolve();
                 })
-                .fail(function(error) {
-                    console.error("2nd attempt of goToPage fails!", error);
-                    deferred.reject(error);
+                .fail(function(error2) {
+                    console.error("2nd attempt of goToPage fails!", error2);
+                    deferred.reject(error2);
                 });
             })
-            .fail(function(error) {
-                console.error("generateDataColumnJson fails!", error);
-                deferred.reject(error);
+            .fail(function(error1) {
+                console.error("generateDataColumnJson fails!", error1);
+                deferred.reject(error1);
             });
         } else {
             console.error("goToPage fails!", error);
@@ -290,7 +290,7 @@ function generateDataColumnJson(table, direction, notIndexed, numRowsToFetch,
     retry) {
     var deferred = jQuery.Deferred();
     var jsonObj = {
-        "normal": [],
+        "normal" : [],
         "withKey": []
     };
 
@@ -338,7 +338,7 @@ function generateDataColumnJson(table, direction, notIndexed, numRowsToFetch,
         }
 
         jsonObj = {
-            "normal": jsonNormal,
+            "normal" : jsonNormal,
             "withKey": jsonWithKey
         };
 
@@ -354,15 +354,15 @@ function generateDataColumnJson(table, direction, notIndexed, numRowsToFetch,
                 .then(function(data1, data2) {
                     deferred.resolve(data1, data2);
                 })
-                .fail(function(error) {
+                .fail(function(error2) {
                     console.error("2nd attempt of generateDataColumnJson " +
-                        "fails!", error);
-                    deferred.reject(error);
+                        "fails!", error2);
+                    deferred.reject(error2);
                 });
             })
-            .fail(function(error) {
-                console.error("generateDataColumnJson fails!", error);
-                deferred.reject(error);
+            .fail(function(error1) {
+                console.error("generateDataColumnJson fails!", error1);
+                deferred.reject(error1);
             });
         } else {
             console.error("generateDataColumnJson fails!", error);
