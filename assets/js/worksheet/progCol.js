@@ -931,11 +931,11 @@ window.ColManager = (function($, ColManager) {
 
         $('#xcTableWrap-' + tableId).find('td.col' + colNum).each(function() {
             var $td = $(this);
-            var oldVal = $td.data("val");
+            var oldVal = $td.find(".originalData").text();
             if (oldVal != null) {
                 // not knf
                 var newVal = formatColumnCell(oldVal, format, decimals);
-                $td.children(".addedBarTextWrap").text(newVal);
+                $td.children(".displayedData").text(newVal);
             }
         });
 
@@ -961,11 +961,11 @@ window.ColManager = (function($, ColManager) {
 
         $('#xcTableWrap-' + tableId).find('td.col' + colNum).each(function() {
             var $td = $(this);
-            var oldVal = $td.data("val");
+            var oldVal = $td.find(".originalData").text();
             if (oldVal != null) {
                 // not knf
                 var newVal = formatColumnCell(oldVal, format, decimals);
-                $td.children(".addedBarTextWrap").text(newVal);
+                $td.children(".displayedData").text(newVal);
             }
         });
         tableCol.decimals = decimals;
@@ -1533,7 +1533,6 @@ window.ColManager = (function($, ColManager) {
         var knf = false;
         var dataValue;
         var rowNum;
-        var dataVal;
         var childOfArray;
         var col;
         var tdValue;
@@ -1558,7 +1557,8 @@ window.ColManager = (function($, ColManager) {
         var truncLimit = 1000; // the character limit for the data td
         var colTruncLimit = 500; // the character limit for other tds
         var truncClass = "";
-        var truncatedVal;
+        var originalDataClass = "";
+        var displayedVal;
         var truncLen;
         var colTruncLen;
         var tdValLen;
@@ -1726,21 +1726,13 @@ window.ColManager = (function($, ColManager) {
                         formatVal = formatColumnCell(parsedVal, format, decimals);
                     }
 
-                    dataVal = "";
-                    // XXX now only allow number in case weird string mess up html
-                    if (originalVal != null &&
-                        (columnTypes[col] === "integer" ||
-                        columnTypes[col] === "float"))
-                    {
-                        dataVal = 'data-val="' + originalVal + '"';
-                    }
-                    truncatedVal = formatVal;
+                    displayedVal = formatVal;
                     truncClass = "";
                     if (truncPossible) {
                         tdValLen = formatVal.length;
                         if (tdValLen > colTruncLimit) {
                             colTruncLen = tdValLen - colTruncLimit;
-                            truncatedVal = formatVal.substr(0, colTruncLimit) +
+                            displayedVal = formatVal.substr(0, colTruncLimit) +
                                     "...(" + (colTruncLen.toLocaleString("en")) +
                                     " " + TblTStr.Truncate + ")";
                             truncClass = " truncated";
@@ -1751,41 +1743,51 @@ window.ColManager = (function($, ColManager) {
                     } else {
                         isColTruncated = false;
                     }
-                    tBodyHTML += '<td class="' + tdClass + truncClass +
-                                    ' clickable" ' +
-                                    dataVal + '>' +
-                                    getTableCellHtml(truncatedVal, isColTruncated);
-                    if (isColTruncated) {
-                        tBodyHTML += '<div class="fullText">' + formatVal + '</div>';
+
+                    // XXX now only allow number in case weird string mess up html
+                    if (originalVal != null &&
+                        (columnTypes[col] === "integer" ||
+                        columnTypes[col] === "float"))
+                    {
+                        isColTruncated = true;
+                        formatVal = originalVal;
                     }
+
+                    tBodyHTML += '<td class="' + tdClass + truncClass +
+                                    ' clickable">' +
+                                    getTableCellHtml(displayedVal, isColTruncated, formatVal);
                     tBodyHTML += '</td>';
                 } else {
                     // make data td;
                     tdValue = jsonTdVal;
                     columnTypes[col] = "mixed";
                     parsedVal = xcHelper.parseJsonValue(tdValue);
-                    truncatedVal = parsedVal;
+                    displayedVal = parsedVal;
                     if (jsonTdTruncated) {
                         truncClass = " truncated";
-                        truncatedVal = parsedVal.substr(0, truncLimit) +
+                        originalDataClass = "";
+                        displayedVal = parsedVal.substr(0, truncLimit) +
                                     "...(" + (truncLen.toLocaleString("en")) +
                                     " " + TblTStr.Truncate + ")";
                     } else {
                         truncClass = "";
+                        originalDataClass = " originalData";
                     }
 
                     tBodyHTML +=
                         '<td class="col' + (col + 1) + ' jsonElement' +
                             truncClass + '">' +
-                            '<div class="elementText' + truncClass +
+                            '<div class="dataColText displayedData' +
+                                originalDataClass + truncClass +
                                 '" data-toggle="tooltip" ' +
                                 'data-placement="bottom" ' +
                                 'data-container="body" ' +
                                 'title="double-click to view">' +
-                                    truncatedVal +
+                                    displayedVal +
                             '</div>';
                     if (jsonTdTruncated) {
-                        tBodyHTML += '<div class="fullText">' + parsedVal + '</div>';
+                        tBodyHTML += '<div class="dataColText originalData">' +
+                                     parsedVal + '</div>';
                     }
 
                     tBodyHTML += '</td>';
@@ -1882,13 +1884,7 @@ window.ColManager = (function($, ColManager) {
     ColManager.unnest = function(tableId, colNum, rowNum, isArray, options) {
         var $jsonTd = $('#xcTable-' + tableId).find('.row' + rowNum)
                                               .find('td.col' + colNum);
-        var $textDiv = $jsonTd.find("div").eq(0);
-        var text;
-        if ($textDiv.hasClass('truncated')) {
-            text = $textDiv.siblings('.fullText').text();
-        } else {
-            text = $textDiv.text();
-        }
+        var text = $jsonTd.find('.originalData').text();
         var jsonTdObj;
         options = options || {};
 
@@ -1994,11 +1990,7 @@ window.ColManager = (function($, ColManager) {
         var origDataIndex = xcHelper.parseColNum($table.find('th.dataCol'));
         var jsonObj = {normal: []};
         $table.find('tbody').find('.col' + origDataIndex).each(function() {
-            if ($(this).hasClass('truncated')) {
-                jsonObj.normal.push($(this).find('.fullText').text());
-            } else {
-                jsonObj.normal.push($(this).text());
-            }
+            jsonObj.normal.push($(this).find('.originalData').text());
         });
         $table.find('tbody').empty(); // remove tbody contents for pullrowsbulk
         var endIndex;
@@ -2135,7 +2127,7 @@ window.ColManager = (function($, ColManager) {
         var truncHtml;
         var colTruncLen;
         var tdValLen;
-        var truncatedVal;
+        var displayedVal;
 
         var table    = gTables[tableId];
         var tableCol = table.tableCols[newColid - 1];
@@ -2173,11 +2165,10 @@ window.ColManager = (function($, ColManager) {
         var jsonStr;
         for (var i = startingIndex; i < endingIndex; i++) {
             $jsonTd = $table.find('.row' + i + ' .col' + colid);
+            jsonStr = $jsonTd.find('.originalData').text();
             if ($jsonTd.hasClass('truncated')) {
-                jsonStr = $jsonTd.find('.fullText').text();
                 jsonTdTruncated = true;
             } else {
-                jsonStr = $jsonTd.find('.elementText').text();
                 jsonTdTruncated = false;
             }
             var value = parseRowJSON(jsonStr);
@@ -2221,12 +2212,12 @@ window.ColManager = (function($, ColManager) {
 
             var $td = $table.find('.row' + i + ' .col' + newColid);
 
-            truncatedVal = formatVal;
+            displayedVal = formatVal;
             if (jsonTdTruncated) {
                 tdValLen = formatVal.length;
                 if (tdValLen > colTruncLimit) {
                     colTruncLen = tdValLen - colTruncLimit;
-                    truncatedVal = formatVal.substr(0, colTruncLimit) +
+                    displayedVal = formatVal.substr(0, colTruncLimit) +
                             "...(" + (colTruncLen.toLocaleString("en")) +
                             " " + TblTStr.Truncate + ")";
                     isColTruncated = true;
@@ -2236,19 +2227,22 @@ window.ColManager = (function($, ColManager) {
             } else {
                 isColTruncated = false;
             }
+            var formattedValSaved = false;
+            if (originalVal != null &&
+                (columnType === "integer" || columnType === "float"))
+            {
+                isColTruncated = true;
+                formatVal = originalVal;
+                formattedValSaved = true;
+            }
 
-            truncHtml = getTableCellHtml(truncatedVal, isColTruncated);
-            if (isColTruncated) {
-                truncHtml += '<div class="fullText">' + formatVal + '</div>';
+            truncHtml = getTableCellHtml(displayedVal, isColTruncated, formatVal);
+            if (isColTruncated && !formattedValSaved) {
                 $td.addClass('truncated');
             }
             $td.html(truncHtml).addClass('clickable');
             // XXX now only allow number in case weird string mess up html
-            if (originalVal != null &&
-                (columnType === "integer" || columnType === "float"))
-            {
-                $td.attr("data-val", originalVal);
-            }
+
         }
 
         if (columnType == null) {
@@ -2469,14 +2463,18 @@ window.ColManager = (function($, ColManager) {
         return (true);
     }
 
-    function getTableCellHtml(value, isTruncated) {
-        var truncClass = "";
-        if (isTruncated) {
-            truncClass = " truncated";
+    function getTableCellHtml(value, isTruncated, fullValue) {
+        var originalDataClass = "";
+        if (!isTruncated) {
+            originalDataClass = " originalData";
         }
-        var html = '<div class="addedBarTextWrap clickable' + truncClass + '">' +
+        var html = '<div class="tdText displayedData' + originalDataClass +
+                    ' clickable">' +
                         value +
                    '</div>';
+        if (isTruncated) {
+            html += '<div class="tdText originalData">' + fullValue + '</div>';
+        }
         return (html);
     }
 

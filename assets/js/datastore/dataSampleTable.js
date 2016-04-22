@@ -547,8 +547,8 @@ window.DataSampleTable = (function($, DataSampleTable) {
                 }
 
                 tr += '<td class="col' + (j + 1) + selected + '">' +
-                        '<div class="addedBarTextWrap">' +
-                            '<div class="addedBarText">' +
+                        '<div class="tdTextWrap">' +
+                            '<div class="tdText">' +
                                 parsedVal +
                             '</div>' +
                         '</div>' +

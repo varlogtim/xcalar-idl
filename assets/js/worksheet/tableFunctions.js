@@ -18,7 +18,7 @@ function getTextWidth($el, val, options) {
             text = $.trim($el.val() + " ");
         } else {
             if ($el.hasClass('truncated')) {
-                $el = $el.find('.truncated');
+                $el = $el.find('.displayedData');
             }
             text = $.trim($el.text());
         }
@@ -137,11 +137,7 @@ function getWidestTdWidth(el, options) {
         // we're going to take advantage of monospaced font
         //and assume text length has an exact correlation to text width
         var $td = $(this).children(':eq(' + (id) + ')');
-        if ($td.hasClass('truncated')) {
-            textLength = $.trim($td.find('.truncated').text()).length;
-        } else {
-            textLength = $.trim($td.text()).length;
-        }
+        textLength = $.trim($td.find('.displayedData').text()).length;
 
         if (textLength > longestText) {
             longestText = textLength;
@@ -972,7 +968,7 @@ function addMenuKeyboardNavigation($menu, $subMenu) {
                         e = $.Event('mouseenter');
                         e.keyTriggered = true;
                         $highlightedLi.trigger(e);
-                        var $subLis = $subMenu.find('li:visible');
+                        $subLis = $subMenu.find('li:visible');
                         $subLis.eq(0).mouseover();
                         if ($subLis.find('input').length > 0) {
                             $subLis.find('input').eq(0).focus();
@@ -1139,7 +1135,7 @@ function dropdownClick($el, options) {
                 $menu.find(".tdUnnest").removeClass("hidden");
             }
         } else {
-            if ($el.hasClass('truncated')) {
+            if ($el.parent().hasClass('truncated')) {
                 $menu.find(".tdJsonModal").removeClass("hidden");
             } else {
                 $menu.find(".tdJsonModal").addClass("hidden");

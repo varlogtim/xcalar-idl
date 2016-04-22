@@ -653,21 +653,13 @@ input {
         pointer-events: none;
     }
 
-    .addedBarTextTd {
-       overflow: hidden !important;
-    }
-
-    .addedBarTextTd:hover {
-        overflow-y: auto !important;
-    }
-
-    .addedBarText {
+    .datasetTable .tdText {
         cursor: default;
     }
 
     .textAlignLeft {
         text-align: left !important;
-        .elementText {
+        .dataColText {
             text-align: left;
         }
         .flexContainer {
@@ -678,7 +670,7 @@ input {
 
     .textAlignRight {
         text-align: right !important;
-        .elementText {
+        .dataColText {
             text-align: right;
         }
         .flexContainer {
@@ -688,7 +680,7 @@ input {
 
     .textAlignCenter {
         text-align: center !important;
-        .elementText {
+        .dataColText {
             text-align: center;
         }
         .flexContainer {
@@ -706,14 +698,18 @@ input {
         cursor: pointer;
     }
 
-    .elementText{
+    .originalData {
+        display: none;
+    }
+
+    .displayedData {
+        display: block;
+    }
+
+    .dataColText {
         cursor: pointer;
         text-align: center;
         white-space: pre;
-    }
-
-    .fullText {
-        display: none;
     }
 
     .indexedColumn {

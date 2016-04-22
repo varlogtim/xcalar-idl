@@ -672,13 +672,7 @@ window.JSONModal = (function($, JSONModal) {
     }
 
     function refreshJsonModal($jsonTd, isArray, isModalOpen, type) {
-        var text;
-        if ($jsonTd.find('.fullText').length) {
-            text = $jsonTd.find('.fullText').text();
-        } else {
-            text = $jsonTd.find("div").eq(0).text();
-        }
-
+        var text = $jsonTd.find('.originalData').text();
         var jsonObj;
 
         if (type && (type !== "array" && type !== "object")) {

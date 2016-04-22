@@ -636,11 +636,7 @@ window.Undo = (function($, Undo) {
 
         var jsonObj = {normal: []};
         $table.find('tbody').find('.col' + dataIndex).each(function() {
-            if ($(this).hasClass('truncated')) {
-                jsonObj.normal.push($(this).find('.fullText').text());
-            } else {
-                jsonObj.normal.push($(this).text());
-            }
+            jsonObj.normal.push($(this).find('.originalData').text());
         });
 
         var tHeadBodyInfo = TblManager.generateTheadTbody(currProgCols, tableId);

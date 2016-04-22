@@ -708,7 +708,7 @@ window.JoinModal = (function($, JoinModal) {
             $tbody.find('.col0').remove();
             $tbody.find('.jsonElement').remove();
             $tbody.find('.indexedColumn').removeClass('indexedColumn');
-            $tbody.find(".addedBarTextWrap.clickable").removeClass("clickable");
+            $tbody.find(".tdText.clickable").removeClass("clickable");
             $tbody.find(".selectedCell").removeClass("selectedCell");
 
             colHtml += $tbody.html();
@@ -1129,12 +1129,9 @@ window.JoinModal = (function($, JoinModal) {
         var val;
 
         $table.find("td.col" + colNum).each(function() {
-            $textDiv = $(this).find(".addedBarTextWrap");
-            if ($textDiv.hasClass('truncated')) {
-                val = $textDiv.siblings('.fullText').text();
-            } else {
-                val = $textDiv.text();
-            }
+            $textDiv = $(this).find(".originalData");
+            val = $textDiv.text();
+
             var d;
 
             if (type === "string") {

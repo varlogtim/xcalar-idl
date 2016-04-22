@@ -672,7 +672,6 @@ window.TblMenu = (function(TblMenu, $) {
             var uniqueVals = {};
             var isExist = false;
             var colVal;
-            var $textDiv;
 
             $highlightBoxs.each(function() {
                 var $td = $(this).closest("td");
@@ -684,14 +683,14 @@ window.TblMenu = (function(TblMenu, $) {
                 }
 
                 if ($header.hasClass("type-integer")) {
-                    colVal = $td.data("val");
+                    colVal = $td.find('.originalData').text();
                     if (colVal == null || colVal === "") {
                         isExist = true;
                         return true; // continue to next iteration
                     }
                     colVal = parseInt(colVal);
                 } else if ($header.hasClass("type-float")) {
-                    colVal = $td.data("val");
+                    colVal = $td.find('.originalData').text();
                     if (colVal == null || colVal === "") {
                         isExist = true;
                         return true; // continue to next iteration
@@ -701,20 +700,10 @@ window.TblMenu = (function(TblMenu, $) {
                     // colVal = colVal + ""; // if it's number, change to string
                     // XXX for string, text is more reliable
                     // since data-val might be messed up
-                    $textDiv = $td.find(".addedBarTextWrap");
-                    if ($textDiv.hasClass('truncated')) {
-                        colVal = $textDiv.siblings('.fullText').text();
-                    } else {
-                        colVal = $textDiv.text();
-                    }
+                    colVal = $td.find('.originalData').text();
                     colVal = JSON.stringify(colVal);
                 } else if ($header.hasClass("type-boolean")) {
-                    $textDiv = $td.find(".addedBarTextWrap");
-                    if ($textDiv.hasClass('truncated')) {
-                        colVal = $textDiv.siblings('.fullText').text();
-                    } else {
-                        colVal = $textDiv.text();
-                    }
+                    colVal = $td.find('.originalData').text();
                     if (colVal === "true") {
                         colVal = true;
                     } else {
@@ -785,14 +774,8 @@ window.TblMenu = (function(TblMenu, $) {
             var valArray = [];
             var colVal;
             var cells = sortHightlightCells($highlightBoxs);
-            var $textDiv;
             for (var i = 0, len = cells.length; i < len; i++) {
-                $textDiv = cells[i].siblings(".addedBarTextWrap");
-                if ($textDiv.hasClass('truncated')) {
-                    colVal = $textDiv.siblings('.fullText').text();
-                } else {
-                    colVal = $textDiv.text();
-                }
+                colVal = cells[i].siblings(".originalData").text();
 
                 valArray.push(colVal);
             }
@@ -843,15 +826,10 @@ window.TblMenu = (function(TblMenu, $) {
 
         var $tds = $("#xcTable-" + tableId).find("tbody td.col" + colNum);
         var datas = [];
+        var val;
 
         $tds.each(function() {
-            var val;
-            var $textDiv = $(this).find(".addedBarTextWrap");
-            if ($textDiv.hasClass('truncated')) {
-                val = $textDiv.siblings('.fullText').text();
-            } else {
-                val = $textDiv.text();
-            }
+            val = $(this).find('.originalData').text();
             datas.push(val);
         });
 

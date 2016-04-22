@@ -315,15 +315,9 @@ window.MultiCastModal = (function($, MultiCastModal) {
 
         var $tds = $tbody.find("td.col" + colNum);
         var datas = [];
-
+        var val;
         $tds.each(function() {
-            var val;
-            var $textDiv = $(this).find(".addedBarTextWrap");
-            if ($textDiv.hasClass('truncated')) {
-                val = $textDiv.siblings('.fullText').text();
-            } else {
-                val = $textDiv.text();
-            }
+            val = $(this).find('.originalData').text();
             datas.push(val);
         });
 
@@ -372,7 +366,7 @@ window.MultiCastModal = (function($, MultiCastModal) {
         $tbody.find(".col0").remove();
         $tbody.find(".jsonElement").remove();
         $tbody.find(".indexedColumn").removeClass('indexedColumn');
-        $tbody.find(".addedBarTextWrap.clickable").removeClass("clickable");
+        $tbody.find(".tdText.clickable").removeClass("clickable");
 
         for (var i = 0, len = tableCols.length; i < len; i++) {
             var colName = tableCols[i].name;

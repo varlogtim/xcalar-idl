@@ -488,7 +488,7 @@ window.DataFlowModal = (function($, DataFlowModal) {
         $tbody.find(".col0").remove();
         $tbody.find(".jsonElement").remove();
         $tbody.find(".indexedColumn").removeClass('indexedColumn');
-        $tbody.find(".addedBarTextWrap.clickable").removeClass("clickable");
+        $tbody.find(".tdText.clickable").removeClass("clickable");
 
         html += $tbody.html();
 
