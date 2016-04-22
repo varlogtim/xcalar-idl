@@ -313,63 +313,21 @@ window.MultiCastModal = (function($, MultiCastModal) {
             return type;
         }
 
-        var $tds = $tbody.find("td.col" + colNum + "");
-        var isNumber;
-        var isInteger;
-        var isFloat;
-        // var isOnly10;
-        var isBoolean;
+        var $tds = $tbody.find("td.col" + colNum);
+        var datas = [];
 
         $tds.each(function() {
-            var text = $(this).text().trim().toLowerCase();
-            if (text === "") {
-                // skip this one
-                return true;
+            var val;
+            var $textDiv = $(this).find(".addedBarTextWrap");
+            if ($textDiv.hasClass('truncated')) {
+                val = $textDiv.siblings('.fullText').text();
+            } else {
+                val = $textDiv.text();
             }
-
-            if (isNumber == null || isNumber) {
-                var num = Number(text);
-                if (isNaN(num)) {
-                    isNumber = false;
-                    isInteger = false;
-                    isFloat = false;
-                } else {
-                    isNumber = true;
-                    if ((isInteger == null || isInteger) &&
-                        Number.isInteger(num))
-                    {
-                        isInteger = true;
-                        isFloat = false;
-
-                        // if ((isOnly10 == null || isOnly10) &&
-                        //     (num === 0 || num === 1))
-                        // {
-                        //     isOnly10 = true;
-                        // } else {
-                        //     isOnly10 = false;
-                        // }
-                    } else {
-                        isFloat = true;
-                        isInteger = false;
-                    }
-                }
-            } else if (isBoolean == null || isBoolean) {
-                isBoolean = (text === "true" || text === "false" || text === "t" || text === "f");
-            }
+            datas.push(val);
         });
 
-        if (type === "integer" || isInteger) {
-            // if (isOnly10) {
-            //     return "boolean";
-            // }
-            return "integer";
-        } else if (isFloat) {
-            return "float";
-        } else if (isBoolean) {
-            return "boolean";
-        }
-
-        return "string";
+        return xcHelper.suggestType(datas, type);
     }
 
     function scrollToColumn($th) {

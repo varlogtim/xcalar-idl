@@ -154,7 +154,8 @@ var AggrOp = {
 
 var SQLType = {
     Fail: "fail handler",
-    Error: "error"
+    Error: "error",
+    Cancel: "cancel"
 };
 
 var SQLOps = {

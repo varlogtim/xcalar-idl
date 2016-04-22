@@ -610,7 +610,7 @@ window.TblMenu = (function(TblMenu, $) {
             }
             var colNum = $colMenu.data('colNum');
             var tableId = $colMenu.data('tableId');
-            xcFunction.sort(colNum, tableId, SortDirection.Forward);
+            sortColumn(colNum, tableId, SortDirection.Forward);
         });
 
         $subMenu.on('mouseup', 'li.revSort', function(event) {
@@ -619,7 +619,7 @@ window.TblMenu = (function(TblMenu, $) {
             }
             var colNum = $colMenu.data('colNum');
             var tableId = $colMenu.data('tableId');
-            xcFunction.sort(colNum, tableId, SortDirection.Backward);
+            sortColumn(colNum, tableId, SortDirection.Backward);
         });
 
         $colMenu.on('mouseup', '.joinList', function(event) {
@@ -830,6 +830,57 @@ window.TblMenu = (function(TblMenu, $) {
             var tableId = $colMenu.data('tableId');
             ColManager.unhideCols(columns, tableId, {"autoResize": true});
         });
+    }
+
+    function sortColumn(colNum, tableId, order) {
+        var progCol = gTables[tableId].tableCols[colNum - 1];
+        var type = progCol.getType();
+
+        if (type !== "string") {
+            xcFunction.sort(colNum, tableId, order);
+            return;
+        }
+
+        var $tds = $("#xcTable-" + tableId).find("tbody td.col" + colNum);
+        var datas = [];
+
+        $tds.each(function() {
+            var val;
+            var $textDiv = $(this).find(".addedBarTextWrap");
+            if ($textDiv.hasClass('truncated')) {
+                val = $textDiv.siblings('.fullText').text();
+            } else {
+                val = $textDiv.text();
+            }
+            datas.push(val);
+        });
+
+        var suggType = xcHelper.suggestType(datas, type);
+        if (suggType === "integer" || suggType === "float") {
+            var instr = xcHelper.replaceMsg(IndexTStr.SuggInstr, {
+                "type": suggType
+            });
+
+            Alert.show({
+                "title"  : IndexTStr.SuggTitle,
+                "instr"  : instr,
+                "msg"    : IndexTStr.SuggMsg,
+                "buttons": [{
+                    "name": IndexTStr.NoCast,
+                    "func": function() {
+                        xcFunction.sort(colNum, tableId, order);
+                    }
+                },
+                {
+                    "name": IndexTStr.CastToNum,
+                    "func": function() {
+                        xcFunction.sort(colNum, tableId, order, suggType);
+                    }
+                }]
+            });
+        } else {
+            xcFunction.sort(colNum, tableId, order);
+        }
     }
 
     function copyToClipboard(valArray, stringify) {

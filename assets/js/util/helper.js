@@ -214,22 +214,39 @@ window.xcHelper = (function($, xcHelper) {
     };
 
     // get unique column name
-    xcHelper.getUniqColName = function(name, tableCols) {
-        var colNames = {};
-        for (var i = 0, numCols = tableCols.length; i < numCols; i++) {
-            colNames[tableCols[i].name] = true;
+    xcHelper.getUniqColName = function(tableId, colName) {
+        if (colName == null) {
+            return xcHelper.randName("NewCol");
         }
 
-        var suffix  = 1;
-        var newName = name;
-
-        while (colNames.hasOwnProperty(newName)) {
-            newName = name + "_" + suffix;
-            ++suffix;
+        var table = gTables[tableId];
+        if (table == null) {
+            console.error("table not has meta, cannot check");
+            return colName;
         }
 
-        return (newName);
-    };
+        if (!table.hasCol(colName)) {
+            return colName;
+        }
+
+        var newColName;
+        var tryCount = 0;
+        while (tryCount <= 50) {
+            ++tryCount;
+            newColName = colName + "_" + tryCount;
+
+            if (!table.hasCol(newColName)) {
+                break;
+            }
+        }
+
+        if (tryCount > 50) {
+            console.warn("Too much try, give up");
+            return xcHelper.randName(colName);
+        } else {
+            return newColName;
+        }
+    }
 
     // get a deep copy
     xcHelper.deepCopy = function(obj) {
@@ -1203,6 +1220,80 @@ window.xcHelper = (function($, xcHelper) {
 
         return (deferred.promise());
     };
+
+    xcHelper.suggestType = function(datas, currentType) {
+        if (currentType === "integer" || currentType === "float") {
+            return currentType;
+        }
+
+        if (!xcHelper.isArray(datas)) {
+            datas = [datas];
+        }
+
+        var isNumber;
+        var isInteger;
+        var isFloat;
+        // var isOnly10;
+        var isBoolean;
+
+        for (var i = 0, len = datas.length; i < len; i++) {
+            var data = datas[i];
+            if (data == null) {
+                // skip this one
+                continue;
+            }
+
+            data = data.trim().toLowerCase();
+            if (data === "") {
+                // skip this one
+                continue;
+            }
+
+            if (isNumber == null || isNumber) {
+                var num = Number(data);
+                if (isNaN(num)) {
+                    isNumber = false;
+                    isInteger = false;
+                    isFloat = false;
+                } else {
+                    isNumber = true;
+                    if ((isInteger == null || isInteger) &&
+                        Number.isInteger(num))
+                    {
+                        isInteger = true;
+                        isFloat = false;
+
+                        // if ((isOnly10 == null || isOnly10) &&
+                        //     (num === 0 || num === 1))
+                        // {
+                        //     isOnly10 = true;
+                        // } else {
+                        //     isOnly10 = false;
+                        // }
+                    } else {
+                        isFloat = true;
+                        isInteger = false;
+                    }
+                }
+            } else if (isBoolean == null || isBoolean) {
+                isBoolean = (data === "true" || data === "false" ||
+                             data === "t" || data === "f");
+            }
+        }
+
+        if (currentType === "integer" || isInteger) {
+            // if (isOnly10) {
+            //     return "boolean";
+            // }
+            return "integer";
+        } else if (isFloat) {
+            return "float";
+        } else if (isBoolean) {
+            return "boolean";
+        }
+
+        return "string";
+    }
 
     xcHelper.lockTable = function(tableId) {
         // lock worksheet as well

@@ -165,16 +165,16 @@ window.xcFunction = (function($, xcFunction) {
     };
 
     // sort table column
-    xcFunction.sort = function(colNum, tableId, order) {
+    xcFunction.sort = function(colNum, tableId, order, typeToCast) {
         var deferred = jQuery.Deferred();
 
-        var table     = gTables[tableId];
+        var table = gTables[tableId];
         var tableName = table.tableName;
-        var pCol      = table.tableCols[colNum - 1];
-        var backFieldName = pCol.getBackColName();
-        var frontFieldName = pCol.getFronColName();
+        var tableCols = table.tableCols;
+        var progCol = tableCols[colNum - 1];
+        var backColName = progCol.getBackColName();
+        var frontColName = progCol.getFronColName();
 
-        var tablCols  = xcHelper.deepCopy(table.tableCols);
         var direction = (order === SortDirection.Forward) ? "ASC" : "DESC";
         var xcOrder;
 
@@ -184,24 +184,19 @@ window.xcFunction = (function($, xcFunction) {
             xcOrder = XcalarOrderingT.XcalarOrderingAscending;
         }
 
-        var newTableInfo = getNewTableInfo(tableName);
-        var newTableName = newTableInfo.tableName;
-        var newTableId = newTableInfo.tableId;
-
         var worksheet = WSManager.getWSFromTable(tableId);
         var sql = {
-            "operation"   : SQLOps.Sort,
-            "tableName"   : tableName,
-            "tableId"     : tableId,
-            "key"         : frontFieldName,
-            "colNum"      : colNum,
-            "order"       : order,
-            "direction"   : direction,
-            "newTableName": newTableName,
-            "sorted"      : true
+            "operation": SQLOps.Sort,
+            "tableName": tableName,
+            "tableId"  : tableId,
+            "key"      : frontColName,
+            "colNum"   : colNum,
+            "order"    : order,
+            "direction": direction,
+            "sorted"   : true
         };
         var txId = Transaction.start({
-            "msg"      : StatusMessageTStr.Sort + " " + frontFieldName,
+            "msg"      : StatusMessageTStr.Sort + " " + frontColName,
             "operation": SQLOps.Sort,
             "sql"      : sql
         });
@@ -214,11 +209,19 @@ window.xcFunction = (function($, xcFunction) {
             xcHelper.lockTable(tableId);
         }, 200);
 
-        XIApi.sort(txId, xcOrder, backFieldName, tableName, newTableName)
-        .then(function() {
+        var finalTableName;
+        var finalTableCols;
+
+        typeCastHelper()
+        .then(function(tableToSort, colToSort, newTableCols) {
+            finalTableCols = newTableCols;
+            return XIApi.sort(txId, xcOrder, colToSort, tableToSort);
+        })
+        .then(function(sortTableName) {
+            finalTableName = sortTableName;
             var options = {"selectCol": colNum - 1};
             // sort will filter out KNF, so it change the profile
-            return TblManager.refreshTable([newTableName], tablCols,
+            return TblManager.refreshTable([finalTableName], finalTableCols,
                                             [tableName], worksheet,
                                             options);
         })
@@ -227,7 +230,12 @@ window.xcFunction = (function($, xcFunction) {
             if (isLocked) {
                 xcHelper.unlockTable(tableId, true);
             }
-            Transaction.done(txId, {"msgTable": newTableId});
+
+            sql.newTableName = finalTableName;
+            Transaction.done(txId, {
+                "msgTable": xcHelper.getTableId(finalTableName),
+                "sql"     : sql
+            });
             deferred.resolve();
         })
         .fail(function(error) {
@@ -236,7 +244,10 @@ window.xcFunction = (function($, xcFunction) {
                 xcHelper.unlockTable(tableId);
             }
 
-            if (error.error === IndexTStr.SortedErr) {
+            if (error.error === SQLType.Cancel) {
+                Transaction.cancel(txId);
+                deferred.resolve();
+            } else if (error.error === IndexTStr.SortedErr) {
                 Transaction.cancel(txId);
                 var textOrder;
                 if (order === SortDirection.Forward) {
@@ -258,7 +269,32 @@ window.xcFunction = (function($, xcFunction) {
             deferred.reject(error);
         });
 
-        return (deferred.promise());
+        return deferred.promise();
+
+        function typeCastHelper() {
+            if (typeToCast == null) {
+                return PromiseHelper.resolve(tableName, backColName, tableCols);
+            }
+
+            sql.typeToCast = typeToCast;
+
+            var innerDeferred = jQuery.Deferred();
+            var mapString = xcHelper.castStrHelper(backColName, typeToCast);
+            var mapColName = backColName + "_" + typeToCast;
+
+            mapColName = xcHelper.getUniqColName(tableId, mapColName);
+
+            XIApi.map(txId, mapString, tableName, mapColName)
+            .then(function(mapTableName) {
+                var mapOptions = {"replaceColumn": true};
+                var mapTablCols = xcHelper.mapColGenerate(colNum, mapColName,
+                                        mapString, tableCols, mapOptions);
+                innerDeferred.resolve(mapTableName, mapColName, mapTablCols);
+            })
+            .fail(innerDeferred.reject);
+
+            return innerDeferred.promise();
+        }
     };
 
     // join two tables

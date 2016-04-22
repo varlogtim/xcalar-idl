@@ -687,10 +687,6 @@ window.XIApi = (function(XIApi, $) {
     function isValidTableName(tableName) {
         // XXX may need to check tableName contains id (using RegExp?)
         var isValid = (tableName != null) && (tableName !== "");
-        if (!isValid) {
-            console.error("invalid table name");
-        }
-
         return isValid;
     }
 

@@ -261,7 +261,7 @@ window.Replay = (function($, Replay) {
         argsMap[SQLOps.DSLoad] = ["dsName", "dsFormat", "loadURL",
                                     "fieldDelim", "lineDelim", "hasHeader",
                                     "moduleName", "funcName"];
-        argsMap[SQLOps.Sort] = ["colNum", "tableId", "order"];
+        argsMap[SQLOps.Sort] = ["colNum", "tableId", "order", "typeToCast"];
         argsMap[SQLOps.Filter] = ["colNum", "tableId", "fltOptions"];
         argsMap[SQLOps.Aggr] = ["colNum", "tableId", "aggrOp", "aggStr"];
         argsMap[SQLOps.Map] = ["colNum", "tableId", "fieldName",

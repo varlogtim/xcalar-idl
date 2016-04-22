@@ -304,7 +304,7 @@ window.ColManager = (function($, ColManager) {
 
         var tableName   = table.tableName;
         var siblColName = table.tableCols[colNum - 1].name;
-        var newColName  = xcHelper.getUniqColName(fullName, tableCols);
+        var newColName  = xcHelper.getUniqColName(tableId, fullName);
         var direction;
         if (isDataTd) {
             direction = "L";
@@ -644,7 +644,6 @@ window.ColManager = (function($, ColManager) {
         // when do replay, this flag is null, so no alert
         // since we assume user want to replay it.
         var deferred = jQuery.Deferred();
-        var cancelError = "cancel splitCol";
         var splitWithDelimIndex = null;
         var userNumColToGet = numColToGet;
 
@@ -757,7 +756,7 @@ window.ColManager = (function($, ColManager) {
                 "htmlExclude" : ['numColToGet']
             };
 
-            if (error === cancelError) {
+            if (error === SQLType.Cancel) {
                 Transaction.cancel(txId, {"sql": sql});
                 deferred.resolve();
             } else {
@@ -858,7 +857,7 @@ window.ColManager = (function($, ColManager) {
                         curDeferred.resolve(numToSplit, numDelim);
                     },
                     "cancel": function() {
-                        curDeferred.reject(cancelError);
+                        curDeferred.reject(SQLType.Cancel);
                     }
                 });
             } else {
@@ -1251,7 +1250,7 @@ window.ColManager = (function($, ColManager) {
         var format   = progCol.format;
         var name = progCol.getFronColName();
 
-        name = xcHelper.getUniqColName(name, tableCols);
+        name = xcHelper.getUniqColName(tableId, name);
 
         ColManager.addCol(colNum, tableId, name, {
             "width"   : width,

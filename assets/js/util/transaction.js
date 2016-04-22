@@ -126,8 +126,7 @@ window.Transaction = (function(Transaction, $) {
             var title = options.title || txLog.getOperation();
             title = xcHelper.capitalize(title);
 
-            var error = "cancel operation";
-            SQL.errorLog(title, sql, cli, error);
+            SQL.errorLog(title, sql, cli, SQLType.Cancel);
         }
 
         removeTX(txId);
