@@ -184,12 +184,12 @@ window.Alert = (function($, Alert){
         }
 
         // set alert instruction
-        var $alretInstr = $("#alertInstruction");
+        var $alertInstr = $("#alertInstruction");
         if (options.instr) {
-            $alretInstr.find(".text").text(options.instr);
-            $alretInstr.show();
+            $alertInstr.find(".text").text(options.instr);
+            $alertInstr.show();
         } else {
-            $alretInstr.hide();
+            $alertInstr.hide();
         }
 
         // lock screen if necessary
@@ -228,7 +228,7 @@ window.Alert = (function($, Alert){
                 var sqlCaches = SQL.getAllLogs();
                 var sql;
                 if (sqlCaches.logs.length === 0 &&
-                    sqlCaches.erros.length === 0)
+                    sqlCaches.errors.length === 0)
                 {
                     sql = SQL.getLocalStorage();
                     if (sql == null) {
