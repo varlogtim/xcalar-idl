@@ -1443,6 +1443,8 @@ function focusTable(tableId, focusDag) {
         console.warn("Table not in current worksheet");
         return;
     }
+    var alreadyFocused = gActiveTableId === tableId;
+
     var wsNum = WSManager.getActiveWS();
     $('.xcTableWrap.worksheet-' + wsNum).find('.tableTitle')
                                         .removeClass('tblTitleSelected');
@@ -1458,6 +1460,9 @@ function focusTable(tableId, focusDag) {
         $('#rowInput').val(0).data('val', 0);
     } else {
         RowScroller.genFirstVisibleRowNum();
+        if (!alreadyFocused) {
+            RowScroller.updateViewRange(tableId);
+        }
     }
     if (focusDag) {
         var tableFocused = true;

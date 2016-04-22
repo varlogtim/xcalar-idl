@@ -200,7 +200,10 @@ window.Shortcuts = (function($, Shortcuts) {
                     '<ul class="tests">' +
                         '<li class="testSuite">Test Suite</li>' +
                         '<li class="unitTest">Unit Test</li>' +
-                        '<li class="undoTest">Undo Test</li>' +
+                        '<li class="undoTest">Undo Test' +
+                        '<span class="menuOption">FE</span>' + // front end test
+                        '<span class="menuOption">BE</span>' + // back end test
+                        '</li>' +
                     '</ul>' +
                 '</div>';
 
@@ -238,17 +241,33 @@ window.Shortcuts = (function($, Shortcuts) {
 
         $subMenu.on('mouseup', '.tests li', function() {
             var testName = $(this).text();
-            startTest(testName);
+
+            var option;
+            if ($(event.target).hasClass('menuOption')) {
+                option = $(event.target).text();
+            }
+            if (testName === "Undo TestFEBE") {
+                testName = "Undo Test";
+            }
+            startTest(testName, option);
         });
     }
 
-    function startTest(testName) {
+    function startTest(testName, option) {
         if (testName === "Test Suite") {
             TestSuite.run();
         } else if (testName === "Unit Test") {
             TestSuite.unitTest();
         } else if (testName === "Undo Test") {
-            UndoRedoTest.run("worksheet");
+            var type = "worksheet";
+            if (option) {
+                if (option === "FE") {
+                    type = "frontEnd";
+                } else if (option === "BE") {
+                    type = "tableOps";
+                }
+            }
+            UndoRedoTest.run(type);
         }
     }
 

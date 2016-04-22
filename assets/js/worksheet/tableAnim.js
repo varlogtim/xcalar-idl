@@ -283,6 +283,7 @@ window.TblAnim = (function($, TblAnim) {
         $table.find('tr').removeClass('notDragging dragging');
         if (gTables[gActiveTableId].resultSetCount !== 0) {
             RowScroller.genFirstVisibleRowNum();
+            RowScroller.updateViewRange(rowInfo.tableId);
         }
 
         if (newRowHeight !== gRescol.minCellHeight) {
@@ -359,6 +360,8 @@ window.TblAnim = (function($, TblAnim) {
             $targetTd.parent().find('.jsonElement >  div')
                                      .css('max-height', 16);
         }
+        RowScroller.updateViewRange(tableId);
+
         SQL.add("Resize Row", {
             "operation"  : SQLOps.DragResizeRow,
             "tableName"  : gTables[tableId].tableName,

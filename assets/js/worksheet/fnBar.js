@@ -8,7 +8,6 @@ window.FnBar = (function(FnBar, $) {
     FnBar.setup = function() {
         $functionArea = $("#functionArea");
         $fnBar = $("#fnBar");
-
         setupSearchHelper();
         var initialTableId; //used to track table that was initially active
         // when user started searching

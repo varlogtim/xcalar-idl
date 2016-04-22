@@ -167,27 +167,6 @@ window.xcHelper = (function($, xcHelper) {
         };
     };
 
-    xcHelper.getLastVisibleRowNum = function(tableId) {
-        var $tableWrap = $("#xcTableWrap-" + tableId);
-        if ($tableWrap.length === 0) {
-            return null;
-        }
-
-        var tableBottom = $tableWrap.offset().top + $tableWrap.height();
-        var $trs = $tableWrap.find(".xcTable tbody tr");
-
-        for (var i = $trs.length - 1; i >= 0; i--) {
-            var $tr = $trs.eq(i);
-
-            if ($tr.offset().top < tableBottom) {
-                var rowNum = xcHelper.parseRowNum($tr) + 1;
-                return rowNum;
-            }
-        }
-
-        return null;
-    };
-
     xcHelper.wrapDSName = function(dsName) {
         dsName = dsName || "";
         var fulldsName = Support.getUser() + "." + dsName;

@@ -688,7 +688,7 @@ window.StartManager = (function(StartManager, $) {
 
                 var maxRow     = gTables[tableId].resultSetCount;
                 var curRow     = $rowInput.data("val");
-                var lastRowNum = xcHelper.getLastVisibleRowNum(tableId);
+                var lastRowNum = RowScroller.getLastVisibleRowNum(tableId);
                 var rowToGo;
 
                 // validation check

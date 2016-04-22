@@ -336,36 +336,101 @@
 
             .bookmark {
                 .position(absolute, @bottom: 0);
-                .size(@width: 3px, @height: 11px);
+                .size(@width: 2px, @height: 11px);
                 background-color: @color-background-bookmark;
                 margin-left: -1px;
+                z-index: 2;
             }
 
             .rowMarker {
-                .position(absolute, @top: -11px, @left: -6px);
-                .size(@width: ~"calc(100% - 1px)", @height: 35px);
+                .position(absolute, @top: -11px, @left: 0px);
+                .size(@width: 100%, @height: 35px);
                 display: inline-block;
-                .image("../../images/locator1.png");
                 .transition (transform 0.13s);
-
                 &.scrolling {
                     .transition (transform 0s);
                 }
+                z-index: 1;
+                pointer-events: none;
             }
 
-            .subRowMarker {
-                .position(absolute, @top: 0, @left: 2px);
-                .size(@width: 10px, @height: 11px);
+            .tooltipHelper {
+                width: 100%;
+                height: 20px;
+                top: -5px;
+                left: 0px;
+                position: absolute;
+            }
+
+            .rangeWrapper {
+                .position(absolute, @top: 11px, @left: 0px);
+                top: 5px;
+                min-width: 3px !important;
+                z-index: 1;
+                pointer-events: initial;
                 cursor: pointer;
-            }
+                height: 20px;
 
-            .bottom {
-                .position(@top: 22px);
-            }
+                .arrow {
+                    width: 15px;
+                    height: 20px;
+                }
 
-            .middle {
-                .position(@top: 11px, @left: 5px);
-                .size(@width: 3px);
+                .rangeBar {
+                    height: 11px;
+                    width: 100%;
+                    background-color: @color-rowScroller-range;
+                    border-left: 2px solid white;
+                    border-right: 2px solid white;
+                    position: absolute;
+                    top: 6px;
+                }
+
+                .bar {
+                    width: 2px;
+                    height: 11px;
+                    position: absolute;
+                    left: 7px;
+                    z-index: 1;
+                }
+
+                .top {
+                    position: absolute;
+                    top: -3px;
+                    left: -7px;
+                    .triangle {
+                        width: 0;
+                        height: 0;
+                        border-left: 8px solid transparent;
+                        border-right: 8px solid transparent;
+                        border-top: 8px solid white;
+                        position: absolute;
+                        top:1px;
+                    }
+                    .bar {
+                        top: 9px;
+                    }
+                }
+                .bottom {
+                    position: absolute;
+                    top: 6px;
+                    right: -7px;
+                    .triangle {
+                        width: 0;
+                        height: 0;
+                        border-left: 8px solid transparent;
+                        border-right: 8px solid transparent;
+
+                        border-bottom: 8px solid white;
+                        position: absolute;
+                        top: 11px;
+                        left: -1px;
+                    }
+                    .bar {
+                        top: 0px;
+                        left: 6px;
+                    }
+                }
             }
 
             &.hidden {
