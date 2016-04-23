@@ -4173,9 +4173,8 @@ html.microsoft {
                     background-size: 100% 100% !important;
                 }
 
-                .icon1 {
+                .logo {
                     .size(@width: 27%);
-                    .image("../../images/extension/logo1.png");
                 }
 
                 .icon2 {
@@ -4188,10 +4187,11 @@ html.microsoft {
                 .size(@width: 140px);
                 background-color: @color-modal-whiteGray;
                 padding: 0 0 10px 10px;
+                position: relative;
 
                 .topInfo {
                     .size(@height: 20px);
-                    .font(@size: 12px, @weight: bold, @line-height: 20px, @color: @color-text-blue);
+                    .font(@size: 11px, @weight: bold, @line-height: 20px, @color: @color-text-blue);
                     margin: 10px 0;
 
                     > span {
@@ -4219,7 +4219,7 @@ html.microsoft {
                 }
 
                 .bottomInfo {
-                    margin-top: 50px;
+                    .position(absolute, @bottom: 10px);
                     .font(@size: 11px, @weight: bold, @color: @color-text-midGray);
                 }
             }
@@ -4244,6 +4244,11 @@ html.microsoft {
         .btn {
             margin-top: 10px;
             margin-right: 20px;
+
+            &.disabled {
+                pointer-events: none;
+                opacity: 0.7;
+            }
         }
     }
 }

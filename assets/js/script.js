@@ -74,6 +74,7 @@ window.StartManager = (function(StartManager, $) {
         // use promise for better unit test
         var deferred = jQuery.Deferred();
         gMinModeOn = true; // startup use min mode;
+        $("body").addClass("xc-setup");
 
         setupLogout();
         Compatible.check();
@@ -153,6 +154,8 @@ window.StartManager = (function(StartManager, $) {
             deferred.reject(error);
         })
         .always(function() {
+            $("body").removeClass("xc-setup");
+
             if (!gMinModeOn) {
                 $("#initialLoadScreen").fadeOut(200, function() {
                     $("#initialLoadScreen").remove();
@@ -162,7 +165,6 @@ window.StartManager = (function(StartManager, $) {
                 $("#initialLoadScreen").remove();
                 RowScroller.genFirstVisibleRowNum();
             }
-
         });
 
         return deferred.promise();
@@ -285,6 +287,7 @@ window.StartManager = (function(StartManager, $) {
                     break;
                 case ("extensionTab"):
                     $('#extensionPanel').addClass("active");
+                    ExtensionPanel.active();
                     break;
                 default:
                     $(".underConstruction").addClass("active");

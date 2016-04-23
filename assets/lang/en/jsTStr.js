@@ -243,6 +243,7 @@ AlertTStr = {
     'NoDel': 'Cannot Delete',
     'ContinueConfirm': 'Are you sure you want to continue?',
     'BracketsMis': 'Mismatched Brackets',
+    'NoExt': 'Unknown Extension'
 };
 
 FnBarTStr = {

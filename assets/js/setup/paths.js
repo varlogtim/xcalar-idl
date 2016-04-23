@@ -15,5 +15,7 @@ var paths = {
     roundedRect   : 'assets/images/rounded-rect.png',
     hourglass     : 'assets/images/hourglass-white.png',
     waitIcon      : 'assets/images/waiting-1.gif',
-    installer     : 'setup.html'
+    installer     : 'setup.html',
+    XCExt         : 'assets/images/extension/logo-xc.png',
+    CustomExt     : 'assets/images/extension/logo-custom.png'
 };

@@ -1910,3 +1910,215 @@ ModalHelper.prototype = {
     }
 };
 /* End of ModalHelper */
+
+/* Extension Panel */
+function ExtItem(options) {
+    options = options || {};
+    this.name = options.name;
+    this.version = options.version;
+    this.description = options.description;
+    this.main = options.main;
+    this.repository = options.repository;
+    this.author = options.author;
+    this.devDependencies = options.devDependencies;
+    this.category = options.category;
+    this.imageUrl = options.imageUrl;
+    this.website = options.website;
+    this.installed = options.installed || false;
+}
+
+ExtItem.prototype = {
+    "getName": function() {
+        return this.name;
+    },
+
+    "getCategory": function() {
+        return this.category;
+    },
+
+    "getAuthor": function() {
+        return this.author || "N/A";
+    },
+
+    "getDesription": function() {
+        return this.description || "";
+    },
+
+    "getVersion": function() {
+        return this.version || "N/A";
+    },
+
+    "getWebsite": function() {
+        return this.website;
+    },
+
+    "getImage": function() {
+        if (this.imageUrl == null) {
+            return "";
+        }
+
+        return this.imageUrl;
+    },
+
+    "getUrl": function() {
+        if (this.repository != null) {
+            return this.repository.url;
+        }
+
+        return null;
+    },
+
+    "setImage": function(newImage) {
+        this.imageUrl = newImage;
+    },
+
+    "isInstalled": function() {
+        return this.installed;
+    }
+};
+
+
+function ExtCategory(categoryName) {
+    this.name = categoryName;
+    this.extensions = {};
+
+    return this;
+}
+
+ExtCategory.prototype = {
+    "getName": function() {
+        return this.name;
+    },
+
+    "getExtension": function(extName) {
+        return this.extensions[extName];
+    },
+
+    "hasExtension": function(extName) {
+        return this.extensions.hasOwnProperty(extName);
+    },
+
+    "addExtension": function(extension) {
+        var extName = extension.name;
+        if (extName == null || this.hasExtension(extName)) {
+            console.error("Duplicated extension");
+            return false;
+        }
+
+        this.extensions[extName] = new ExtItem(extension);
+        return true;
+    },
+
+    "getExtensionList": function(searchKey) {
+        searchKey = searchKey || "";
+        var extensions = this.extensions;
+        var listToSort = [];
+        var regExp = new RegExp(searchKey, "i");
+        for (var extName in extensions) {
+            if (!regExp.test(extName)) {
+                continue;
+            }
+            listToSort.push([extensions[extName], extName]);
+        }
+
+        // sort by extension name
+        listToSort.sort(function(a, b) {
+            return (a[1].localeCompare(b[1]));
+        });
+
+        var resList = [];
+        listToSort.forEach(function(res) {
+            resList.push(res[0]);
+        });
+
+        return resList;
+    },
+
+    "getInstalledExtensionList": function() {
+        var list = this.getExtensionList();
+        var resList = [];
+        for (var i = 0, len = list.length; i < len; i++) {
+            var extension = list[i];
+            if (extension.isInstalled()) {
+                resList.push(extension);
+            }
+        }
+        return resList;
+    }
+};
+
+function ExtCategorySet() {
+    this.market = {};
+    this.custom = {};
+    return this;
+}
+
+ExtCategorySet.prototype = {
+    "get": function(categoryName, isCustom) {
+        if (isCustom) {
+            return this.custom[categoryName];
+        } else {
+            return this.market[categoryName];
+        }
+    },
+
+    "has": function(categoryName, isCustom) {
+        if (isCustom) {
+            return this.custom.hasOwnProperty(categoryName);
+        } else {
+            return this.market.hasOwnProperty(categoryName);
+        }
+    },
+
+    "addExtension": function(extension) {
+        var categoryName = extension.category;
+        var isCustom = true;
+        if (extension.repository && extension.repository.type === "market") {
+            isCustom = false;
+        }
+
+        var extCategory;
+
+        if (this.has(categoryName, isCustom)) {
+            extCategory = this.get(categoryName, isCustom);
+        } else {
+            extCategory = new ExtCategory(categoryName);
+            if (isCustom) {
+                this.custom[categoryName] = extCategory;
+            } else {
+                this.market[categoryName] = extCategory;
+            }
+        }
+        extCategory.addExtension(extension);
+    },
+
+    "getExtension": function(categoryName, extensionName, isCustom) {
+        if (!this.has(categoryName, isCustom)) {
+            return null;
+        }
+
+        var category = this.get(categoryName, isCustom);
+        return category.getExtension(extensionName);
+    },
+
+    "getList": function(isCustom) {
+        var set = isCustom ? this.custom : this.market;
+        var listToSort = [];
+        for (var categoryName in set) {
+            listToSort.push([set[categoryName], categoryName]);
+        }
+
+        // sort by category
+        listToSort.sort(function(a, b) {
+            return (a[1].localeCompare(b[1]));
+        });
+
+        var resList = [];
+        listToSort.forEach(function(res) {
+            resList.push(res[0]);
+        });
+
+        return resList;
+    }
+};
+/* End of Extension Panel */

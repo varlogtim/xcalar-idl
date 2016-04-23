@@ -71,7 +71,8 @@ module.exports = {
         'max': 'max',
         'average': 'average',
         'sum': 'sum',
-        'PleaseWait': 'Please Wait'
+        'PleaseWait': 'Please Wait',
+        'Detail': 'Detail'
     },
 
     paths: {
@@ -481,6 +482,18 @@ module.exports = {
         'CONFIRM': 'APPLY'
     },
 
+    extModal: {
+        'title': 'Extension',
+        'instr': 'You are viewing details of the extension',
+        'website': 'VISIT WEBSITE',
+        'report': 'REPORT ERROR',
+        'Version': 'Version',
+        'Lang': 'Language',
+        'extName': 'Extension Name',
+        'categoryName': 'Category Name',
+        'confirm': 'INSTALL'
+    },
+
     profile: {
         'header': 'Profile',
         'SortBy': 'Sort by',
@@ -513,6 +526,17 @@ module.exports = {
         'CreateBy': 'Created By',
         'ModifiedBy': 'Last Modified By',
         'CONFIRM': 'CREATE'
+    },
+
+    extension: {
+        'XCEXT': 'XCALAR EXTENSIONS',
+        'CUSTOM': 'CUSTOM',
+        'EXTList': 'EXTENSION LIST',
+        'Installed': 'Installed',
+        'Updalod': 'UPLOAD CUSTOM EXTENSION',
+        'Load': 'Fetching Data',
+        'Hint': 'No Extension Added',
+        'SearchHint': 'Search for Extension'
     },
 
     tutor: {

@@ -33,6 +33,12 @@ body {
     overflow-y: hidden;
     background: @color-limedSpruce url("../../images/bg_page.png") repeat right top;
     overflow: hidden !important;
+
+    &.xc-setup {
+        #workbookBtn, #mainMenu {
+            pointer-events: none;
+        }
+    }
 }
 
 .mainContainer {
@@ -94,7 +100,7 @@ body {
 }
 
 #initialLoadScreen {
-    .size(@width: 100%, @height:  ~"calc(100% - 113px)", @min-height: 147px);
+    .size(@width: 100%, @height:  ~"calc(100% - 41px)", @min-height: 147px);
     .position(fixed, @top: 41px);
     z-index: 9999;
     cursor: progress;
