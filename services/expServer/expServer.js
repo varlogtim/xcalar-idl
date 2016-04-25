@@ -32,7 +32,7 @@ app.post('/', function(req, res) {
 				res.send(JSON.stringify(err));
 				return;
 			}
-			res.send(JSON.stringify(data));
+			res.send(data);
 		});
 		} else {
 			res.send("Fail");
