@@ -10,6 +10,7 @@ prettifyOptions = {
 
 destMap = {
     "index.html": "index.html",
+    "unitTest.html": "unitTest.html",
     "datastoreDemo1.html": "assets/htmlFiles/walk/datastoreDemo1.html",
     "datastoreDemo2.html": "assets/htmlFiles/walk/datastoreDemo2.html",
     "workbookDemo.html": "assets/htmlFiles/walk/workbookDemo.html",

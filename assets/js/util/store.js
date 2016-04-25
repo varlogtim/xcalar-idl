@@ -40,13 +40,13 @@ window.KVStore = (function($, KVStore) {
         .then(function(value) {
             // "" can not be JSO.parse
             if (value != null && value.value != null && value.value !== "") {
-                try {
+                // try {
                     value = JSON.parse(value.value);
                     deferred.resolve(value);
-                } catch(err) {
-                    console.error(err, value, key);
-                    deferred.reject(err);
-                }
+                // } catch(err) {
+                //     console.error(err, value, key);
+                //     deferred.reject(err);
+                // }
             } else {
                 deferred.resolve(null);
             }

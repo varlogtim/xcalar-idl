@@ -226,6 +226,10 @@ describe('OperationsModal', function() {
             });
         });
 
+        after(function() {
+            $("#operationsModal .cancel").click();
+        });
+
         function setArgInputs(arr) {
             $argInputs.each(function(i) {
                 if ([undefined, null].indexOf(arr[i]) > -1) {

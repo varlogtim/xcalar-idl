@@ -8,6 +8,7 @@
 /prod/*
 /node_modules/*
 index.html
+unitTest.html
 /assets/htmlFiles/*
 *~
 /js/

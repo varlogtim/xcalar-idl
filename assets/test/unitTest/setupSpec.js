@@ -2,6 +2,7 @@
 mocha.timeout(5000);
 describe('Mocha Setup Test', function() {
     this.timeout(5000);
+
     it('Should pass Hello World Test', function() {
         expect('hello world').to.equal('hello world');
     });
@@ -16,6 +17,18 @@ describe('Mocha Setup Test', function() {
         });
     });
 
+    it('Should set up XI', function(done) {
+        StartManager.setup()
+        .then(function() {
+            expect('pass').to.equal('pass');
+            done();
+        })
+        .fail(function(error) {
+            // fail case
+            throw error;
+        });
+    })
+
     it('Should be able to test DataCart module', function() {
         expect(DataCart.getCarts()).to.exist;
     });
@@ -29,7 +42,7 @@ describe('Mocha Setup Test', function() {
 
         setTimeout(function() {
             deferred.resolve('pass');
-        }, 4000);
+        }, 100);
 
         return deferred.promise();
     }

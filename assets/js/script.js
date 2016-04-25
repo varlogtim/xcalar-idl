@@ -71,6 +71,8 @@ function documentReadyIndexFunction() {
 window.StartManager = (function(StartManager, $) {
 
     StartManager.setup = function() {
+        // use promise for better unit test
+        var deferred = jQuery.Deferred();
         gMinModeOn = true; // startup use min mode;
 
         setupLogout();
@@ -113,6 +115,7 @@ window.StartManager = (function(StartManager, $) {
             XVM.commitVersionInfo();
             // start heartbeat check
             Support.heartbeatCheck();
+            deferred.resolve();
         })
         .fail(function(error) {
             if (typeof error === "string"){
@@ -146,6 +149,8 @@ window.StartManager = (function(StartManager, $) {
                 Alert.error(title, error, {"lockScreen": true});
                 StatusMessage.updateLocation(true, StatusMessageTStr.Error);
             }
+
+            deferred.reject(error);
         })
         .always(function() {
             if (!gMinModeOn) {
@@ -159,6 +164,8 @@ window.StartManager = (function(StartManager, $) {
             }
 
         });
+
+        return deferred.promise();
     };
 
     function setupSession() {

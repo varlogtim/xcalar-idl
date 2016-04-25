@@ -4,7 +4,15 @@
         <meta charset="UTF-8">
         <title>Xcalar UnitTest</title>
         <link rel="stylesheet" href="3rd/mocha.css" />
-
+        <link href='3rd/fonts/sourcecodepro/sourcecodepro.css' rel='stylesheet' type='text/css'>
+        <link href='3rd/fonts/opensans/opensans.css' rel='stylesheet' type='text/css'>
+        <link rel="stylesheet" href="3rd/bower_components/CodeMirror/lib/codemirror.css">
+        <link href="assets/stylesheets/css/style.css" rel="stylesheet" type="text/css">
+        <script src="3rd/bower_components/jquery/dist/jquery.min.js"></script>
+        <script src="assets/js/setup/paths.js" type="text/javascript"></script>
+        <script type="text/javascript">
+            window.unitTestMode = true;
+        </script>
         <style type="text/css">
             #unitTestBody {
                 background: transparent !important;
@@ -63,11 +71,41 @@
         <div id="mocha"></div>
         <div id="messages"></div>
         <div id="fixtures"></div>
-        <div id="xc" width="100%" height="300"></div>
-        <script src="3rd/bower_components/jquery/dist/jquery.min.js"></script>
+        <div id="xc" width="100%" height="300">
+            <div id="initialLoadScreen">
+              <div class="dialog">
+                <div class="wrapper">
+                  <div class="text"><%= dicts.common.PleaseWait %></div>
+                  <div class="animatedEllipsis">
+                    <div>.</div>
+                    <div>.</div>
+                    <div>.</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- CONTAINER -->
+            include "partials/container.html"
+            <!-- END CONTAINER -->
+        </div>
+        include "partials/script.html"
+        <!--script src="assets/js/util/helper.js" type="text/javascript" data-cover></script>
+        <script src="assets/js/modal/alertModal.js" type="text/javascript" data-cover></script>
+        <script src="assets/js/modal/workbook.js" type="text/javascript" data-cover></script>
+        <script src="assets/js/modal/fileBrowserModal.js" type="text/javascript" data-cover></script>
+        <script src="assets/js/datastore/dsObj.js" type="text/javascript" data-cover></script>
+        <script src="assets/js/datastore/dataForm.js" type="text/javascript" data-cover></script>
+        <script src="assets/js/datastore/dataSampleTable.js" type="text/javascript" data-cover></script>
+        <script src="assets/js/datastore/dataPreview.js" type="text/javascript" data-cover></script>
+        <script src="assets/js/datastore/datacart.js" type="text/javascript" data-cover></script>
+         <script src="assets/js/datastore/datastoreMain.js" type="text/javascript" data-cover></script>
+         <script src="assets/js/worksheet/wsManager.js" type="text/javascript" data-cover></script>
+         <script src="assets/js/modal/operationsModal.js" type="text/javascript" data-cover></script>
+        <script src="assets/js/script.js" type="text/javascript" data-cover></script>
+         <script src="assets/js/util/store.js" type="text/javascript" data-cover></script-->
         <script src="3rd/mocha.js"></script>
         <script src="3rd/chai.js"></script>
-        <script src="assets/js/setup/paths.js"></script>
+        <script src="3rd/blanket.min.js" data-cover-adapter="3rd/mocha-blanket.js"></script>
         <script src="assets/test/unitTest/setup.js"></script>
         <script src="assets/test/unitTest/setupSpec.js"></script>
         <script src="assets/test/unitTest/modals/alertModalSpec.js"></script>
@@ -82,24 +120,5 @@
         <script src="assets/test/unitTest/worksheet/wsManagerSpec.js"></script>
         <script src="assets/test/unitTest/modals/operationsModalSpec.js"></script>
         <script type="text/javascript">setup();</script>
-        <!--script src="3rd/blanket.min.js" data-cover-adapter="3rd/mocha-blanket.js"></script-->
     </body>
-
-<!-- XXX This is really stupid, after $.load in setup(), all js file we want to test is in the DOM. However, blanket js doesn't detect the aync load, so I have to mannuly specify the file I want to cover here -->
-
-<script src="assets/js/enums.js" type="text/javascript"></script>
-<!-- <script src="assets/js/setup/constructor.js" type="text/javascript"></script> -->
-<script src="assets/js/util/helper.js" type="text/javascript" data-cover></script>
-<script src="assets/js/modal/alertModal.js" type="text/javascript" data-cover></script>
-<script src="assets/js/modal/workbook.js" type="text/javascript" data-cover></script>
-<script src="assets/js/modal/fileBrowserModal.js" type="text/javascript" data-cover></script>
-<script src="assets/js/datastore/dsObj.js" type="text/javascript" data-cover></script>
-<script src="assets/js/datastore/dataForm.js" type="text/javascript" data-cover></script>
-<script src="assets/js/datastore/dataSampleTable.js" type="text/javascript" data-cover></script>
-<script src="assets/js/datastore/dataPreview.js" type="text/javascript" data-cover></script>
-<script src="assets/js/datastore/datacart.js" type="text/javascript" data-cover></script>
- <script src="assets/js/datastore/datastoreMain.js" type="text/javascript" data-cover></script>
- <script src="assets/js/worksheet/wsManager.js" type="text/javascript" data-cover></script>
- <script src="assets/js/modal/operationsModal.js" type="text/javascript" data-cover></script>
-
 </html>

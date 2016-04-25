@@ -1,0 +1,91 @@
+<div id="container" class="mainContainer" style="display:none;">
+  <script type="text/javascript">
+    if (!window.redirectToLogin) {
+        document.getElementById('container').style.display = 'block';
+    }
+  </script>
+
+  include "menuBar.html"
+  <!-- WORK SPACE PANEL -->
+  <div id="workspacePanel" class="mainPanel no-selection active">
+    include "workspaceBar.html"
+    <div id="watermark"></div>
+    <div id="insight"></div>
+    <div id="mainFrame"></div>
+
+    include "dag.html"
+    include "modal/dataFlowModal.html"
+    include "modal/operationsModal.html"
+    include "tableMenus.html"
+  </div>
+  <!-- END WORKSPACE PANEL -->
+  include "monitor.html"
+  include "extension.html"
+  include "datastore/dsPanel.html"
+  include "scheduler.html"
+
+  <div class="underConstruction mainPanel">
+    <div class="topBar"></div>
+    <div class="alert"></div>
+    <br><br>
+    This page is still under construction!
+  </div>
+
+  include "rightSideBar.html"
+  include "bottomBar.html"
+
+  <!-- Fixed positioned StatusBox -->
+  <div id="statusBox">
+    <div class="arrow"></div>
+    <div class="boxInnerWrap">
+      <div id="statusBoxClose" class="close"></div>
+      <div class="title">
+        <span class="icon"></span>
+        <span class="titleText"></span>
+      </div>
+      <div class="message textOverflow"></div>
+    </div>
+  </div>
+  <!-- End Of StatusBox -->
+
+  <div id="successMessageWrap">
+    <div class="checkMark"></div>
+    <div class="successMessage">
+      <div class="textBox">
+        <span class="largeText">Success</span>
+        Your action was successfully applied.
+      </div>
+    </div>
+  </div>
+
+  include "modal/aggModal.html"
+  include "modal/dfgParameterModal.html"
+  include "modal/joinModal.html"
+  <!-- Modal Background -->
+  <div id="modalBackground"></div>
+
+  include "modal/jsonModal.html"
+  <!-- ScratchPad -->
+  <!-- <div id="scratchpadArea">
+    <table class="scratchpad">
+      <thead>
+        <tr>
+          <td id="scratchpadTitle">Xcalar Scratchpad</td>
+        </tr>
+      <thead>
+      <tbody>
+      </tbody>
+    </table>
+  </div> -->
+  <!-- End of ScratchPad -->
+
+  include "modal/addScheduleModal.html"
+  include "modal/alertModal.html"
+  include "modal/workbook.html"
+  include "modal/fileBrowserModal.html"
+  include "modal/profileModal.html"
+  include "modal/exportModal.html"
+  include "modal/multiCastModal.html"
+  include "modal/extensionModal.html"
+  include "modal/extModal.html"
+</div>

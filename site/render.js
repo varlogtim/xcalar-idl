@@ -37,6 +37,12 @@ function renderHelper(file, srcDir, destMap) {
     } else {
         dicts.isTutor = false;
         dicts.tutor.name = "";
+
+        if (file === "unitTest.html") {
+            dicts.isUnitTest = true;
+        } else {
+            dicts.isUnitTest = null;
+        }
     }
 
     var html = fs.readFileSync(path).toString();

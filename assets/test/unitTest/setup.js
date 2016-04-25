@@ -4,18 +4,15 @@ mocha.setup({
     "ui": "bdd",
     "bail": true
 });
-
 // global
 expect = chai.expect;
 assert = chai.assert
-window.unitTestMode = true;
+
 
 function setup() {
     $(document).ready(function() {
-        $("#xc").load(paths.indexAbsolute, function() {
-            // after load the index.html, run mocha
-            mocha.run();
-        });
+        mocha.run();
+        console.log("Setup coder coverage!!!");
     });
 
     $("#hideXC").click(function() {
