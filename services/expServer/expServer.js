@@ -16,13 +16,28 @@ app.use(bodyParser.urlencoded({extended:false}));
 app.use(bodyParser.json());
 
 app.get('/', function(req, res) {
-	res.send('Please use post instead');
+	res.send('Random factoid on the internet: You owe jyang $5');
 });
 
 app.post('/', function(req, res) {
+	console.log("I just received a request");
 	var stuff = req.body;
-	if (stuff && stuff["xipassword"] === "Welcome1") {
-		res.send("Success");
+	if (stuff) {
+		if (stuff["xipassword"] === "eMtn397b") {
+			res.send("Success");
+		} else if (stuff["api"] === "listPackages") {
+			fs.readFile("marketplace.json", "utf-8", function(err, data) {
+			if (err) {
+				console.log(JSON.stringify(err));
+				res.send(JSON.stringify(err));
+				return;
+			}
+			res.send(JSON.stringify(data));
+		});
+		} else {
+			res.send("Fail");
+	  	}
+
 	} else {
 		res.send("Fail");
 	}

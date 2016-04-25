@@ -1,0 +1,51 @@
+[{
+	"name": "Halting Problem Solution",
+	"version": "1.0.1",
+	"description": "This package contains the solution to the halting problem. It will let you know whether or not your program will terminate on any arbitrary input.",
+	"main": "halting.ext.js",
+	"repository": {
+		"type": "market",
+		"url": "www.xcalar.com/marketplace/halting.tar.gz"
+	},
+	"author": "Smart Person",
+	"devDependencies": {
+		"aaa": "^0.1.0"
+	},
+	"category": "Utilities",
+	"imageUrl": "wetwet.jpg",
+	"website": "www.weareawesome.com",
+},
+{
+	"name": "Cheng is so handsome",
+	"version": "1.0.1",
+	"description": "This package explains why Cheng is so super handsome",
+	"main": "cheng.ext.js",
+	"repository": {
+		"type": "market",
+		"url": "www.xcalar.com/marketplace/cheng.tar.gz"
+	},
+	"author": "Smart Cheng",
+	"devDependencies": {
+		"aaa": "^0.1.0"
+	},
+	"category": "Main",
+	"imageUrl": "wetwet.jpg",
+	"website": "www.weareawesome.com",
+},
+{
+	"name": "Rudy is so smart",
+	"version": "1.0.1",
+	"description": "This package explains why Rudy is so super smart",
+	"main": "rudy.ext.js",
+	"repository": {
+		"type": "market",
+		"url": "www.xcalar.com/marketplace/rudy.tar.gz"
+	},
+	"author": "Awesome Rudy",
+	"devDependencies": {
+		"aaa": "^0.1.0"
+	},
+	"category": "Main",
+	"imageUrl": "wetwet.jpg",
+	"website": "www.weareawesome.com",
+}]
