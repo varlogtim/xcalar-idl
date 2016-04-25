@@ -365,14 +365,16 @@ window.DagPanel = (function($, DagPanel) {
         var top = e.pageY + topMargin;
         var left = e.pageX + leftMargin;
 
-        // if dagpanel is open halfway we have to change the top position
-        // of colmenu
-        if ($('#dagPanel').hasClass('midway')) {
-            top -= $('#dagPanel').offset().top;
+        if (!window.isBrowserMicrosoft) {
+            // if dagpanel is open halfway we have to change the top position
+            // of colmenu
+            if ($('#dagPanel').hasClass('midway')) {
+                top -= $('#dagPanel').offset().top;
+            }
         }
+
         $menu.removeClass('leftColMenu');
         $menu.find('.selected').removeClass('selected');
-
         $menu.css({'top': top, 'left': left});
         $menu.show();
 
@@ -402,11 +404,14 @@ window.DagPanel = (function($, DagPanel) {
             top = $target[0].getBoundingClientRect().bottom + topMargin;
         }
 
-        // if dagpanel is open halfway we have to change the top position
-        // of colmenu
-        if ($('#dagPanel').hasClass('midway')) {
-            top -= $('#dagPanel').offset().top;
+        if (!window.isBrowserMicrosoft) {
+            // if dagpanel is open halfway we have to change the top position
+            // of colmenu
+            if ($('#dagPanel').hasClass('midway')) {
+                top -= $('#dagPanel').offset().top;
+            }
         }
+
         $menu.removeClass('leftColMenu');
         $menu.find('.selected').removeClass('selected');
         $menu.css({'top': top, 'left': left});
@@ -1186,7 +1191,7 @@ window.Dag = (function($, Dag) {
             numCols = table.tableCols.length;
         }
 
-        var html = '<div id="dagSchema">' +
+        var html = '<div id="dagSchema" style="left:0;top:0;">' +
                     '<div class="title">' +
                         '<span class="tableName">' +
                             tableName +
@@ -1232,11 +1237,21 @@ window.Dag = (function($, Dag) {
         var $schema = $(html);
         $dagTable.append($schema);
         var height = $schema.height();
-        var top = $dagTable[0].getBoundingClientRect().top - height;
-        top = Math.max(2, top);
-        if ($('#dagPanel').hasClass('midway')) {
-            top -= $('#dagPanel').offset().top;
+        var tableTop = $dagTable[0].getBoundingClientRect().top;
+        var top = tableTop;
+        // ie and edge sets position of fixed elements relative to window
+        // whereas chrome and firefox position relative to closest container
+        if (window.isBrowserMicrosoft) {
+            top = tableTop - height;
+            top = Math.max(2, top);
+        } else {
+            top =  top - height;
+            top = Math.max(2, top);
+            if ($('#dagPanel').hasClass('midway')) {
+                top -= $('#dagPanel').offset().top;
+            }
         }
+
         var tableLeft = $dagTable[0].getBoundingClientRect().left + 10;
         var schemaLeft;
         if ($('#rightSideBar').hasClass('poppedOut')) {
@@ -1252,6 +1267,7 @@ window.Dag = (function($, Dag) {
         } else {
             left = tableLeft;
         }
+
         $schema.css('top', top);
         $schema.css('left', left);
 

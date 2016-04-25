@@ -204,6 +204,7 @@
         .flex-shrink(0);
         &:first-child {
             border-right: none;
+            min-width: 53px;
         }
     }
 }
@@ -943,6 +944,10 @@
     }
 }
 
+.microsoft .xcTheadWrap {
+    // width: ~"calc(100% - 22px)" !important;
+}
+
 .xcTbodyWrap {
     .position(@right: -17px);
     .size(@width: ~"calc(100% + 17px)", @max-height: ~"calc(100% - 31px)");
@@ -951,7 +956,8 @@
     margin-top: -3px;
     padding: 0;
     overflow-x: hidden;
-    overflow-y: auto;
+    // overflow-y: auto;
+    overflow-y: scroll;
 
     &::-webkit-scrollbar {
         display: none;
@@ -1209,6 +1215,12 @@ html.microsoft {
         .dropdownBox {
             opacity: 0 !important;
         }
+    }
+}
+
+html.microsoft .xcTable, html.microsoft .joinTable {
+    &::after {
+        // .size(@width: ~"calc(100% - 22px)");
     }
 }
 

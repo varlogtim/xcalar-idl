@@ -742,6 +742,10 @@ input {
     }
 }
 
+html.microsoft .dataTable {
+    margin-right: -12px;
+}
+
 .xcTable, .datasetTable {
     thead {
         th:first-child {
@@ -1408,11 +1412,16 @@ input {
         line-height: 14px;
         font-weight: 600;
         font-size: 11px;
-        padding-left: 10px;
+        padding-left: 8px;
+        padding-right: 8px;
         border-bottom: 1px solid @color-border-lightLightGray;
         border-top: 1px solid @color-border-lightLightGray;
         background-color: @color-background-listSectionGray !important;
         color: @color-text-softGray;
+        .textOverflowOneLine;
+    }
+
+    li {
         .textOverflowOneLine;
     }
 }

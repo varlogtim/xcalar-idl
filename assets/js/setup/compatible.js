@@ -55,7 +55,7 @@ window.Compatible = (function($, Compatible) {
             window.isBrowserMicrosoft = true;
         }
 
-        if (/Edge\/12./i.test(userAgent)) {
+        if (/Edge/i.test(userAgent)) {
            // this is Microsoft Edge
             window.isBrowserMicrosoft = true;
         }
