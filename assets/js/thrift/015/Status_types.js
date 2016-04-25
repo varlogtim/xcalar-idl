@@ -421,7 +421,8 @@ StatusT = {
   'StatusSupportFail' : 412,
   'StatusShmsgPayloadTooLarge' : 413,
   'StatusNoChild' : 414,
-  'StatusXdbMaxSgElemsExceeded' : 415
+  'StatusXdbMaxSgElemsExceeded' : 415,
+  'StatusAggregateResultNotFound' : 416
 };
 StatusTStr = {0 : 'Success',
 1 : 'Operation not permitted',
@@ -838,5 +839,6 @@ StatusTStr = {0 : 'Success',
 412 : 'Support bundle generation failed',
 413 : 'Message payload too large to fit within message',
 414 : 'No childnode is available to process the operation',
-415 : 'Number of pages in an Xdb slot exceeds max extent sg elements'
+415 : 'Number of pages in an Xdb slot exceeds max extent sg elements',
+416 : 'Could not find aggregate result'
 };

@@ -632,6 +632,7 @@ window.TestSuite = (function($, TestSuite) {
         })
         .then(function() {
             // move the flight table (the one that has id #XX5)
+            // XXX GUI-3837
             var $li = $("#orphanedTablesList .tableInfo").filter(function () {
                 return $(this).data("id").endsWith("5");
             });

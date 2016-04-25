@@ -422,7 +422,8 @@ StatusT = {
   'StatusShmsgPayloadTooLarge' : 413,
   'StatusNoChild' : 414,
   'StatusXdbMaxSgElemsExceeded' : 415,
-  'StatusAggregateResultNotFound' : 416
+  'StatusAggregateResultNotFound' : 416,
+  'StatusMaxRowSizeExceeded' : 417
 };
 StatusTStr = {0 : 'Success',
 1 : 'Operation not permitted',
@@ -840,5 +841,6 @@ StatusTStr = {0 : 'Success',
 413 : 'Message payload too large to fit within message',
 414 : 'No childnode is available to process the operation',
 415 : 'Number of pages in an Xdb slot exceeds max extent sg elements',
-416 : 'Could not find aggregate result'
+416 : 'Could not find aggregate result',
+417 : 'Maximum row size was exceeded'
 };
