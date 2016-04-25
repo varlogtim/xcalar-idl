@@ -36,13 +36,6 @@ window.UExtKMeans = (function(UExtKMeans, $) {
     UExtKMeans.actionFn = function(colList, tableId, functionName, argList) {
         var table = gTables[tableId];
         var colNames = [];
-        if (typeof(colList) == "number") {
-            colNames.push(table.tableCols[colList - 1].getBackColName());
-        } else {
-            for (var i = 0; i < colList.length; i++) {
-                colNames.push(table.tableCols[colList[i] - 1].getBackColName());
-            }
-        }
         var tableName = table.tableName;
         var tableNameRoot = tableName.split("#")[0];
         // all temporary tables will have this tag appended in tableName
@@ -50,9 +43,27 @@ window.UExtKMeans = (function(UExtKMeans, $) {
 
         switch (functionName) {
         case ("kMeans"):
-            // colName should be the column you want to cluster
-            // This will generate a bunch of tables. The the most important
-            // one is the last table which has the final cluster column
+            if (typeof(colList) == "number") {
+                var col = table.tableCols[colList - 1];
+                if (col.type != "integer" && col.type != "float") {
+                    Alert.error("Invalid type", "Column must be a number");
+                    break;
+                }
+                colNames.push(col.getBackColName());
+            } else {
+                for (var i = 0; i < colList.length; i++) {
+                    var col = table.tableCols[colList[i] - 1];
+                    if (col.type != "integer" && col.type != "float") {
+                        Alert.error("Invalid type", "Column must be a number");
+                        break;
+                    }
+                    colNames.push(col.getBackColName());
+                }
+            }
+
+            if (colNames.length != colList.length) {
+                break;
+            }
             kMeansStart(colNames, tableName, argList["k"],
                         argList["threshold"], argList["maxIter"]
                        );

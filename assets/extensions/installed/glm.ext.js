@@ -26,13 +26,17 @@ window.UExtGLM = (function(UExtGLM, $) {
     UExtGLM.undoActionFn = undefined;
     UExtGLM.actionFn = function(colList, tableId, functionName, argList) {
         var table = gTables[tableId];
-        var xCol = table.tableCols[colList[0] - 1].getBackColName();
-        var yCol = table.tableCols[colList[1] - 1].getBackColName();
         var tableName = table.tableName;
         var tableNameRoot = tableName.split("#")[0];
         var tmpTableTag = "_" + tableNameRoot + "_GLMtemp";
         switch (functionName) {
         case ("simpleLinearRegression"):
+            if (colList.length != 2) {
+                Alert.error("Invalid selection", "Please select 2 columns");
+                break;
+            }
+            var xCol = table.tableCols[colList[0] - 1].getBackColName();
+            var yCol = table.tableCols[colList[1] - 1].getBackColName();
             simpleLinearRegression(xCol, yCol, tableName);
             break;
         default:
