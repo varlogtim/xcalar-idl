@@ -271,12 +271,12 @@ IndexTStr = {
     'Sorted': 'Table already sorted',
     'SortedErr': 'Current table is already sorted on this column in <order> order',
     'SuggTitle': 'Sort Suggestion',
-    'SuggInstr': 'Select "Sort Numerically" to cast the column to type <type> ' +
-                 'and sort by numerical order.',
+    'SuggInstr': 'Select "Numerically" to cast the column to <type> ' +
+                 'before sorting in numerical order.',
     'SuggMsg': 'This column can be sorted either numerically or alphabetically. ' +
                'How would you like to sort?',
-    'CastToNum': 'Sort numerically',
-    'NoCast': 'Sort alphabetically'
+    'CastToNum': 'Numerically',
+    'NoCast': 'Alphabetically'
 };
 
 JoinTStr = {
