@@ -36,6 +36,7 @@ $(document).ready(function() {
         var pass = $('#loginPasswordBox').val();
         var str = {"xipassword": pass};
 
+        /**
         $.ajax({
             type: 'POST',
             data: JSON.stringify(str),
@@ -61,7 +62,7 @@ $(document).ready(function() {
                 console.error(error);
                 submit();
             }
-        });
+        });*/
 
         function submit() {
             sessionStorage.setItem("xcalar-username", username);
@@ -69,7 +70,7 @@ $(document).ready(function() {
             // XXX this redirect is only for temporary use
             window.location = paths.indexAbsolute;
         }
-
+        submit();
         return false; // prevents form from having it's default action
     });
 
