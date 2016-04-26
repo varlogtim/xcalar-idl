@@ -46,7 +46,6 @@ TooltipTStr = {
     'FocusColumn': 'Focused Column',
     'ChooseUdfModule': 'Please choose a module first',
     'ChooseColToExport': 'Please select the columns you want to export',
-    'NoJoin': 'Cannot join <type>',
     'SuggKey': 'Suggested Key',
     'NoWSToMV': 'no worksheet to move to',
     'NoExport': 'Cannot export column of type <type>',
@@ -281,14 +280,14 @@ IndexTStr = {
 };
 
 JoinTStr = {
-    'NoJoin': 'Cannot Join',
-    'NoJoinMsg': 'Select 2 columns to join by',
+    'NoJoin': 'Cannot join <type>',
     'NoKeyLeft': 'Left table has no selected key',
     'NoKeyRight': 'Right table has no selected key',
     'NoMatchLeft': 'Sorry, cannot find a good key to match the left table',
     'NoMatchRight': 'Sorry, cannot find a good key to match the right table',
     'ToSingleJoin': 'switch to single join',
-    'ToMultiJoin': 'switch to multi clause join'
+    'ToMultiJoin': 'switch to multi clause join',
+    'InvalidClause': 'Invalid Clause to join'
 };
 
 ExportTStr = {

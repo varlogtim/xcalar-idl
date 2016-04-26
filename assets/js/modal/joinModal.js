@@ -148,12 +148,11 @@ window.JoinModal = (function($, JoinModal) {
             var isMultiJoin = $mainJoin.hasClass("multiClause");
 
             if (!isMultiJoin && $mainJoin.find("th.colSelected").length !== 2) {
-                Alert.show({
-                    "title"  : JoinTStr.NoJoin,
-                    "msg"    : JoinTStr.NoJoinMsg,
-                    "modal"  : $joinModal,
-                    "isAlert": true
-                });
+                if ($("#leftJoin").find("th.colSelected").length === 0) {
+                    noJoinKeyTooltip(true);
+                } else {
+                    noJoinKeyTooltip(false);
+                }
                 return;
             }
 
@@ -164,7 +163,10 @@ window.JoinModal = (function($, JoinModal) {
                 var joinType = $joinSelect.find(".text").text();
                 var tabeName = newTableName + Authentication.getHashId();
                 if (isMultiJoin) {
-                    multiJoinHelper(joinType, tabeName);
+                    var isValid = multiJoinHelper(joinType, tabeName);
+                    if (!isValid) {
+                        modalHelper.enableSubmit();
+                    }
                 } else {
                     singleJoinHelper(joinType, tabeName);
                 }
@@ -172,7 +174,6 @@ window.JoinModal = (function($, JoinModal) {
             .fail(function() {
                 StatusBox.show(ErrTStr.TableConflict, $joinTableName, true);
                 modalHelper.enableSubmit();
-                // Alert.error("Error Naming New Table", error);
             });
         });
 
@@ -456,14 +457,10 @@ window.JoinModal = (function($, JoinModal) {
     function multiJoinHelper(joinType, newTableName) {
         var lCols = [];
         var rCols = [];
-        var notValid = false;
+        var $invalidClause = null;
 
         // check validation
         $multiJoin.find(".joinClause:not(.placeholder)").each(function() {
-            if (notValid) {
-                return;
-            }
-
             var $joinClause = $(this);
             var lClause = $joinClause.find(".leftClause").val().trim();
             var rClause = $joinClause.find(".rightClause").val().trim();
@@ -471,20 +468,16 @@ window.JoinModal = (function($, JoinModal) {
             if (lClause !== "" && rClause !== "") {
                 lCols.push(lClause);
                 rCols.push(rClause);
+                return true;
             } else if (!(lClause === "" && rClause === "")){
-                notValid = true;
+                $invalidClause = $joinClause;
+                return false;   // stop loop
             }
         });
 
-        if (notValid || lCols.length === 0) {
-            Alert.show({
-                "title"  : "Cannot Join",
-                "msg"    : "Invalid Multi Clause",
-                "modal"  : $joinModal,
-                "isAlert": true
-            });
-
-            return;
+        if ($invalidClause != null || lCols.length === 0) {
+            invalidMultiCaluseTooltip($invalidClause);
+            return false;
         }
 
         // left table
@@ -513,6 +506,7 @@ window.JoinModal = (function($, JoinModal) {
         resetJoinTables();
         xcFunction.join(lColNums, lTableId, rColNums, rTableId,
                         joinType, newTableName);
+        return true;
     }
 
     function addClause($placeholder, noAnimation) {
@@ -749,31 +743,29 @@ window.JoinModal = (function($, JoinModal) {
                     if (!isFind) {
                         text = isLeft ? JoinTStr.NoMatchRight :
                                         JoinTStr.NoMatchLeft;
-                        toolTipHelper(text);
+                        showErrorTooltip($suggErrorArea, {
+                            "title"    : text,
+                            "placement": "left",
+                            "animation": "true",
+                            "container": "#" + $modal.attr("id"),
+                            "trigger"  : "manual",
+                            "template" : TooltipTemplate.Error
+                        });
                     }
                 } else {
                     text = isLeft ? JoinTStr.NoKeyRight :
                                     JoinTStr.NoKeyLeft;
-                    toolTipHelper(text);
+                    showErrorTooltip($suggErrorArea, {
+                        "title"    : text,
+                        "placement": "left",
+                        "animation": "true",
+                        "container": "#" + $modal.attr("id"),
+                        "trigger"  : "manual",
+                        "template" : TooltipTemplate.Error
+                    });
                 }
             } else {
                 console.error("Error, none of the label is active!");
-            }
-
-            function toolTipHelper(title) {
-                $suggErrorArea.tooltip({
-                    "title"    : title,
-                    "placement": "left",
-                    "animation": "true",
-                    "container": "#" + $modal.attr("id"),
-                    "trigger"  : "manual",
-                    "template" : TooltipTemplate.Error
-                });
-
-                $suggErrorArea.tooltip("show");
-                setTimeout(function() {
-                    $suggErrorArea.tooltip("destroy");
-                }, 1500);
             }
         });
 
@@ -785,7 +777,7 @@ window.JoinModal = (function($, JoinModal) {
             }
 
             if ($th.hasClass("unselectable")) {
-                showErroTooltip($th, isLeft);
+                noJoinTooltip($th, isLeft);
                 return;
             }
 
@@ -816,7 +808,7 @@ window.JoinModal = (function($, JoinModal) {
             if ($mainJoin.hasClass('multiClause')) {
                 var $th = $(this).closest("th");
                 if ($th.hasClass("unselectable")) {
-                    showErroTooltip($th, isLeft);
+                    noJoinTooltip($th, isLeft);
                     return;
                 }
 
@@ -931,26 +923,61 @@ window.JoinModal = (function($, JoinModal) {
         return (match.split(" ")[0]);
     }
 
-    function showErroTooltip($th, isLeft) {
-        $(".tooltip").hide();
+    function noJoinTooltip($th, isLeft) {
         var $colPadding = $th.find(".colPadding");
         var id = isLeft ? "#leftJoin" : "#rightJoin";
-        var title = xcHelper.replaceMsg(TooltipTStr.NoJoin, {
+        var title = xcHelper.replaceMsg(JoinTStr.NoJoin, {
             "type": getType($th)
         });
 
-        $colPadding.tooltip({
+        showErrorTooltip($colPadding, {
             "title"    : title,
             "placement": "top",
             "animation": "true",
             "container": id,
             "trigger"  : "manual",
-             "template" : TooltipTemplate.Error
+            "template" : TooltipTemplate.Error
         });
+    }
 
-        $colPadding.tooltip("show");
+    function noJoinKeyTooltip(isLeft) {
+        var id = isLeft ? "#leftJoin" : "#rightJoin";
+        var $tab = $(id).find(".joinTableList");
+        var title = isLeft ? JoinTStr.NoKeyLeft : JoinTStr.NoKeyRight;
+        showErrorTooltip($tab, {
+            "title"    : title,
+            "placement": "top",
+            "animation": "true",
+            "container": id,
+            "trigger"  : "manual",
+            "template" : TooltipTemplate.Error
+        });
+    }
+
+    function invalidMultiCaluseTooltip($invalidClause) {
+        var id = "#multiJoin";
+        var title = JoinTStr.InvalidClause;
+        if ($invalidClause == null) {
+            // when no clause to join
+            $invalidClause = $multiJoin.find(".joinClause").eq(0);
+        }
+
+        showErrorTooltip($invalidClause, {
+            "title"    : title,
+            "placement": "top",
+            "animation": "true",
+            "container": id,
+            "trigger"  : "manual",
+            "template" : TooltipTemplate.Error
+        });
+    }
+
+    function showErrorTooltip($el, options) {
+        $(".tooltip").hide();
+        $el.tooltip(options);
+        $el.tooltip("show");
         setTimeout(function() {
-            $colPadding.tooltip("destroy");
+            $el.tooltip("destroy");
         }, 1000);
     }
 
