@@ -26,7 +26,6 @@
           <div class="hint qMark" data-container="body" data-toggle="tooltip"
                 title="<%= dicts.exportModal.orderHint %>"></div>
         </div>
-
     </div>
     <!-- export path section -->
     <div class="exportPathSection formRow">
@@ -52,6 +51,147 @@
       <input id="exportColumns" type="text" placeholder="<%= dicts.exportModal.ColumnsHint %>" spellcheck="false" required>
       <div class="clearInput iconWrap">
         <span class="icon"></span>
+      </div>
+    </div>
+
+     <!-- advanced section -->
+    <div class="advancedSection collapsed">
+      <div class="advancedTitle">
+        <span class="advancedIcon minimized" data-container="body"
+                data-toggle="tooltip"
+                title="<%= dicts.TooltipTStr.ToggleAdvanced %>"></span>
+        <span class="text">Advanced Options</span>
+      </div>
+      <div class="restore" data-container="body" data-toggle="tooltip"
+                title="<%= dicts.TooltipTStr.Restore %>"></div>
+      <div class="formRow typeRow">
+        <div class="label">Type:</div>
+        <div class="radioWrap" data-option="DfFormatCsv">
+          <div class="radio checked">
+            <span class="dot"></span>
+          </div>
+          <div class="label">CSV</div>
+        </div>
+        <div class="radioWrap" data-option="DfFormatSql">
+          <div class="radio">
+            <span class="dot"></span>
+          </div>
+          <div class="label">SQL</div>
+        </div>
+      </div>
+      <div class="formRow csvRow csvHidden">
+          <span class="label">Field Delimiter:</span>
+          <div class="dropDownList">
+            <input class="fieldDelim text" type="text" spellcheck="false" disabled="">
+            <div class="iconWrapper">
+              <span class="icon"></span>
+            </div>
+            <!-- dropdown menu -->
+            <div class="list">
+              <ul>
+                <li name="default">Default (\t)</li>
+                <li name="comma">Comma (,)</li>
+                <li name="null" class="nullVal">Null</li>
+                <li name="other" class="other">
+                  <span>Other</span>
+                  <div class="inputWrap">
+                    <input class="delimVal" type="text" spellcheck="false">
+                    <div class="inputAction">
+                      <span class="icon"></span>
+                    </div>
+                  </div>
+                </li>
+              </ul>
+              <div class="scrollArea top">
+                <div class="arrow"></div>
+              </div>
+              <div class="scrollArea bottom">
+                <div class="arrow"></div>
+              </div>
+            </div>
+          </div>
+      </div>
+      <div class="formRow csvRow csvHidden">
+        <span class="label">Record Delimiter:</span>
+        <div class="dropDownList">
+          <input class="text recordDelim" type="text" spellcheck="false" disabled="">
+          <div class="iconWrapper">
+            <span class="icon"></span>
+          </div>
+          <!-- dropdown menu -->
+          <div class="list">
+            <ul>
+              <li name="default">Default (\n)</li>
+              <li name="null" class="nullVal">Null</li>
+              <li name="other" class="other">
+                <span>Other</span>
+                <div class="inputWrap">
+                  <input class="delimVal" type="text" spellcheck="false">
+                  <div class="inputAction">
+                    <span class="icon"></span>
+                  </div>
+                </div>
+              </li>
+            </ul>
+            <div class="scrollArea top">
+              <div class="arrow"></div>
+            </div>
+            <div class="scrollArea bottom">
+              <div class="arrow"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="formRow splitType">
+        <div class="label">File:</div>
+        <div class="radioWrap" data-option="ExSFFileSplitForceSingle">
+          <div class="radio checked">
+            <span class="dot"></span>
+          </div>
+          <div class="label">One File</div>
+        </div>
+        <div class="radioWrap" data-option="ExSFFileSplitNone">
+          <div class="radio">
+            <span class="dot"></span>
+          </div>
+          <div class="label">Multiple Files</div>
+        </div>
+      </div>
+      <div class="formRow headerType">
+        <div class="label">Header:</div>
+        <div class="radioWrap" data-option="ExSFHeaderEveryFile">
+          <div class="radio checked">
+            <span class="dot"></span>
+          </div>
+          <div class="label">Every File</div>
+        </div>
+        <div class="radioWrap" data-option="ExSFHeaderSeparateFile">
+          <div class="radio">
+            <span class="dot"></span>
+          </div>
+          <div class="label">Separate File</div>
+        </div>
+      </div>
+      <div class="formRow overwrite createRule">
+        <div class="label">Overwrite?</div>
+        <div class="radioWrap" data-option="ExExportCreateOnly">
+          <div class="radio checked">
+            <span class="dot"></span>
+          </div>
+          <div class="label">Do Not Overwrite</div>
+        </div>
+        <div class="radioWrap" data-option="ExExportDeleteAndReplace">
+          <div class="radio">
+            <span class="dot"></span>
+          </div>
+          <div class="label">Overwrite Existing</div>
+        </div>
+        <div class="radioWrap" data-option="ExExportAppendOnly">
+          <div class="radio">
+            <span class="dot"></span>
+          </div>
+          <div class="label">Append To Existing</div>
+        </div>
       </div>
     </div>
   </section>

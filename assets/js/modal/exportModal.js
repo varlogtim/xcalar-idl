@@ -3,6 +3,7 @@ window.ExportModal = (function($, ExportModal) {
     var $exportName;    // $("#exportName")
     var $exportPath;    // $("#exportPath")
     var $exportColumns; // $("#exportColumns")
+    var $advancedSection; // $('#xportModal .advancedSection')
 
     var $selectableThs;
     var exportTableName;
@@ -24,6 +25,7 @@ window.ExportModal = (function($, ExportModal) {
         $exportName = $("#exportName");
         $exportPath = $("#exportPath");
         $exportColumns = $("#exportColumns");
+        $advancedSection = $exportModal.find('.advancedSection');
 
         modalHelper = new ModalHelper($exportModal, {
             "minHeight": minHeight,
@@ -38,7 +40,7 @@ window.ExportModal = (function($, ExportModal) {
 
         $exportModal.resizable({
             handles    : "e, w",
-            minWidth   : 500,
+            minWidth   : 660,
             containment: "document"
         });
 
@@ -58,6 +60,22 @@ window.ExportModal = (function($, ExportModal) {
             $(this).find('.checkbox').toggleClass('checked');
         });
 
+        $exportModal.find('.advancedTitle').click(function() {
+            if ($advancedSection.hasClass('collapsed')) {
+                $advancedSection.addClass('expanded').removeClass('collapsed');
+                var modalBottom = $exportModal[0].getBoundingClientRect().bottom;
+                var winBottom = $(window).height();
+                if (modalBottom > winBottom) {
+                    var diff = modalBottom - winBottom;
+                    var top = $exportModal[0].getBoundingClientRect().top;
+                    top = Math.max(0, top - diff);
+                    $exportModal.css('top', top);
+                }
+            } else {
+                $advancedSection.addClass('collapsed').removeClass('expanded');
+            }
+        });
+
         xcHelper.dropdownList($("#exportLists"), {
             "onSelect": function($li) {
                 if ($li.hasClass("hint")) {
@@ -71,6 +89,29 @@ window.ExportModal = (function($, ExportModal) {
                 $exportPath.val($li.text());
             }
         });
+
+        $exportModal.find('.radioWrap').click(function() {
+           var $radioWrap = $(this);
+           $radioWrap.siblings().find('.radio').removeClass('checked');
+           $radioWrap.find('.radio').addClass('checked');
+        });
+
+        $advancedSection.find('.typeRow').find('.radioWrap').click(function() {
+            var $radioWrap = $(this);
+            if ($(this).data('option') !== "DfFormatCsv") {
+                $advancedSection.find('.csvRow').removeClass('csvSelected')
+                                                .addClass('csvHidden');
+            } else {
+                 $advancedSection.find('.csvRow').addClass('csvSelected')
+                                                 .removeClass('csvHidden');
+            }
+        });
+
+        $advancedSection.find('.restore').click(function() {
+            restoreAdvanced();
+        });
+
+        setupFormDelimiter();
 
         var keyupTimeout;
 
@@ -123,6 +164,7 @@ window.ExportModal = (function($, ExportModal) {
         exportTableName = tableName;
         $exportName.val(tableName.split('#')[0].replace(/[\W_]+/g, "")).focus();
         $exportName[0].select();
+        restoreAdvanced();
 
         addColumnSelectListeners();
 
@@ -255,12 +297,23 @@ window.ExportModal = (function($, ExportModal) {
             return (deferred.promise());
         }
 
+        var advancedOptions = getAdvancedOptions();
+
         checkDuplicateExportName(exportName + ".csv") // XX csv is temporary
         .then(function(hasDuplicate) {
             if (hasDuplicate) {
                 xcHelper.validate([{
                         "$selector": $exportName,
                         "text"     : ErrTStr.ExportConflict,
+                        "check"    : function() {
+                            return true;
+                        }
+                    }
+                ]);
+            } else if (advancedOptions.error) {
+                xcHelper.validate([{
+                        "$selector": $advancedSection.find('.advancedTitle'),
+                        "text"     : advancedOptions.errorMsg,
                         "check"    : function() {
                             return true;
                         }
@@ -274,7 +327,7 @@ window.ExportModal = (function($, ExportModal) {
                                        $exportPath.val(),
                                        frontColumnNames.length,
                                        backColumnNames, frontColumnNames,
-                                       keepOrder, false)
+                                       keepOrder, false, advancedOptions)
                 .then(function() {
                     closeModal = false;
                     if (!modalClosed) {
@@ -812,6 +865,153 @@ window.ExportModal = (function($, ExportModal) {
                     .removeClass('modalHighlighted');
     }
 
+    function setupFormDelimiter() {
+         // set up dropdown list for csv de
+
+        // setUp both line delimiter and field delimiter
+        xcHelper.dropdownList($exportModal.find('.csvRow').find(".dropDownList"), {
+            "onSelect": function($li) {
+                var $input = $li.closest(".dropDownList").find(".text");
+                switch ($li.attr("name")) {
+                    case "default":
+                        if ($input.hasClass("fieldDelim")) {
+                            $input.val("\\t");
+                        } else {
+                            $input.val("\\n");
+                        }
+                        $input.removeClass("nullVal");
+                        return false;
+                    case "comma":
+                        $input.val(",");
+                        $input.removeClass("nullVal");
+                        return false;
+                    case "null":
+                        $input.val("Null");
+                        $input.addClass("nullVal");
+                        return false;
+                    default:
+                        // keep list open
+                        return true;
+                }
+            },
+            "container": "#exportModal",
+            "bounds"   : "#exportModal"
+        });
+
+        // Input event on csv args input box
+        $exportModal.find('.csvRow').on({
+            "keypress": function(event) {
+                // prevent form to be submitted
+                if (event.which === keyCode.Enter) {
+                    return false;
+                }
+            },
+            "keyup": function(event) {
+                // input other delimiters
+                if (event.which === keyCode.Enter) {
+                    var $input = $(this);
+
+                    event.stopPropagation();
+                    applyOtherDelim($input);
+                }
+            }
+        }, ".delimVal");
+
+        $exportModal.find(".inputAction").on("mousedown", function() {
+            var $input = $(this).siblings(".delimVal");
+            applyOtherDelim($input);
+        });
+    }
+
+    function applyOtherDelim($input) {
+        if ($input == null || $input.length === 0) {
+            // invalid case
+            return;
+        }
+
+        var val = $input.val();
+        if (val !== "") {
+            $input.closest(".dropDownList")
+                    .find(".text").val(val).removeClass("nullVal");
+            $input.val("").blur();
+            hideDropdownMenu();
+        }
+    }
+
+    function hideDropdownMenu() {
+        $exportModal.find(".dropDownList").removeClass("open")
+                            .find(".list").hide();
+        $exportModal.find('.csvRow').find(".delimVal").val("");
+    }
+
+    function resetDelimiter() {
+        // to show \t, \ should be escaped
+        $advancedSection.find('.csvRow').find('.text').removeClass("nullVal");
+    }
+
+    function restoreAdvanced() {
+        var $formRow;
+        $advancedSection.find('.formRow').each(function(){
+            $formRow = $(this);
+            if ($formRow.find('.radioWrap').length) {
+                $formRow.find('.radio').removeClass('checked');
+                $formRow.find('.radio').eq(0).addClass('checked');
+            }
+        });
+        $advancedSection.find('.csvRow').addClass('csvSelected')
+                                        .removeClass('csvHidden');
+
+        var $input;
+        $advancedSection.find('.csvRow').each(function() {
+            $input = $(this).find(".dropDownList").find(".text");
+            if ($input.hasClass("fieldDelim")) {
+                $input.val("\\t");
+            } else {
+                $input.val("\\n");
+            }
+        });
+        resetDelimiter();
+    }
+
+    // get selected options when submitting form
+    function getAdvancedOptions() {
+
+        var options = {};
+        options.format =  DfFormatTypeT[$advancedSection.find('.typeRow')
+                                                        .find('.checked')
+                                                        .closest('.radioWrap')
+                                                        .data('option')];
+        options.splitType = ExSFFileSplitTypeT[$advancedSection.find('.splitType')
+                                                        .find('.checked')
+                                                        .closest('.radioWrap')
+                                                        .data('option')];
+        options.headerType = ExSFHeaderTypeT[$advancedSection.find('.headerType')
+                                                        .find('.checked')
+                                                        .closest('.radioWrap')
+                                                        .data('option')];
+        options.createRule = ExExportCreateRuleT[$advancedSection.find('.createRule')
+                                                        .find('.checked')
+                                                        .closest('.radioWrap')
+                                                        .data('option')];
+        if (options.format === DfFormatTypeT.DfFormatCsv) {
+            options.csvArgs = {};
+            options.csvArgs.fieldDelim = xcHelper.delimiterTranslate(
+                                                    $advancedSection
+                                                        .find('.fieldDelim'));
+            options.csvArgs.recordDelim = xcHelper.delimiterTranslate(
+                                                    $advancedSection
+                                                        .find('.recordDelim'));
+        } else if (options.format === DfFormatTypeT.DfFormatSql) {
+            options.sqlArgs = {};
+
+            // XX are there sql specific arguments?
+        } else {
+            options.error = true;
+            options.errorMsg = ExportTStr.InvalidType;
+        }
+        return (options);
+    }
+
     function closeExportModal() {
         exportTableName = null;
         exportTargInfo = null;
@@ -822,8 +1022,10 @@ window.ExportModal = (function($, ExportModal) {
         $(document).off(".exportModal");
         modalHelper.clear();
         $exportModal.find('.checkbox').removeClass('checked');
-
+        restoreAdvanced();
         restoreColumns();
+        $advancedSection.addClass('collapsed').removeClass('expanded');
+
         var hide = true;
         var animationTime = gMinModeOn ? 0 : 300;
 

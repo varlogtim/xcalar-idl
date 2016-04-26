@@ -554,7 +554,7 @@ window.xcFunction = (function($, xcFunction) {
     // backColumns and frontColumns are arrays of column names
     xcFunction.exportTable = function(tableName, exportName, targetName,
                                       numCols, backColumns, frontColumns,
-                                      keepOrder, dontShowModal) {
+                                      keepOrder, dontShowModal, options) {
 
         var deferred = jQuery.Deferred();
         var retName  = $(".retTitle:disabled").val();
@@ -575,7 +575,9 @@ window.xcFunction = (function($, xcFunction) {
             "numCols"     : numCols,
             "frontColumns": frontColumns,
             "backColumns" : backColumns,
-            "keepOrder"   : keepOrder || false
+            "keepOrder"   : keepOrder || false,
+            "options"     : options,
+            "htmlExclude" : ['options']
         };
         var txId = Transaction.start({
             "msg"      : StatusMessageTStr.ExportTable + ": " + tableName,
@@ -584,15 +586,21 @@ window.xcFunction = (function($, xcFunction) {
         });
 
         XcalarExport(tableName, exportName, targetName, numCols, backColumns,
-                     frontColumns, keepOrder, txId)
+                     frontColumns, keepOrder, options, txId)
         .then(function() {
+            var ext = "";
+            if (options.format === DfFormatTypeT.DfFormatCsv) {
+                ext = ".csv";
+            } else if (options.format === DfFormatTypeT.DfFormatSql) {
+                ext = ".sql";
+            }
             var instr = xcHelper.replaceMsg(ExportTStr.SuccessInstr, {
                 "table"   : tableName,
                 "location": targetName,
-                "file"    : exportName
+                "file"    : exportName + ext
             });
             var msg = xcHelper.replaceMsg(ExportTStr.SuccessMsg, {
-                "file"    : exportName,
+                "file"    : exportName + ext,
                 "location": targetName
             });
             if (!dontShowModal) {

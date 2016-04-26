@@ -1699,5 +1699,31 @@ window.xcHelper = (function($, xcHelper) {
         return (true);
     };
 
+    xcHelper.delimiterTranslate = function($input) {
+        if ($input.hasClass("nullVal")) {
+            return "";
+        }
+
+        var delimiter = $input.val();
+        for (var i = 0; i < delimiter.length; i++) {
+            if (delimiter[i] === "\"" &&
+                !xcHelper.isCharEscaped(delimiter, i)) {
+                delimiter = delimiter.slice(0, i) + "\\" + delimiter.slice(i);
+                i++;
+            }
+        }
+
+        // hack to turn user's escaped string into its actual value
+        var obj = '{"val":"' + delimiter + '"}';
+        try {
+            delimiter = JSON.parse(obj).val;
+        } catch (err) {
+            delimiter = {fail: true, error: err};
+            console.error(err);
+        }
+
+        return (delimiter);
+    };
+
     return (xcHelper);
 }(jQuery, {}));

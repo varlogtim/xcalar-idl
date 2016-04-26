@@ -3269,7 +3269,8 @@ html.microsoft {
 
 /* Export Modal */
 #exportModal {
-    .size(@width: 520px, @height: auto);
+    .size(@width: 680px);
+    height: auto !important;
     margin: 0 !important;
     overflow: visible !important;
     bottom: auto !important;
@@ -3346,6 +3347,182 @@ html.microsoft {
         .exportPathSection {
             .dropDownList {
                 .styleDropDownList(~"calc(100% - 75px)", 25px);
+            }
+        }
+
+        .advancedSection {
+            margin-top: 10px;
+            margin-left: 7.5%;
+            width: 92.5%;
+            .formRow {
+                width: ~"calc(100% - 25px)";
+                margin-left: 25px;
+            }
+
+            &.collapsed {
+                .advancedIcon {
+                    .image("../../images/plus-dark.png", 0%, 50%);
+                }
+                .formRow {
+                    display: none;
+                }
+                .restore {
+                    display: none;
+                }
+            }
+            &.expanded {
+                .advancedIcon {
+                    .image("../../images/minus-dark.png", 0%, 50%);
+                }
+                .formRow {
+                    display: block;
+                }
+                .restore {
+                    display: block;
+                }
+            }
+        }
+        .advancedIcon {
+            width: 25px;
+            height: 25px;
+            display: inline-block;
+            float: left;
+            .image("../../images/plus-dark.png", 0%, 50%);
+        }
+        .advancedTitle {
+            display: inline-block;
+            cursor: pointer;
+            .text {
+                line-height: 25px;
+                font-weight: 700;
+            }
+        }
+
+        .restore {
+            float: right;
+            margin-right: 18px;
+            width: 25px;
+            height: 25px;
+            .image("../../images/restore-blue.png", 50%, 50%);
+            cursor: pointer;
+        }
+
+        .csvRow {
+            .label {
+                width: 130px;
+            }
+            .nullVal {
+                font-style: italic;
+            }
+
+            .dropDownList {
+                .styleDropDownList(120px, 25px);
+
+                &.disabled {
+                    opacity: 0.7;
+                    pointer-events: none;
+                }
+
+                .text {
+                    box-shadow: inset 0 1px 2px rgba(0,0,0,0.3);
+                }
+
+                .list {
+                    .font(@weight: 600);
+
+                    li {
+                        padding: 0 7px;
+
+                        &.hidden {
+                            display: none;
+                        }
+
+                        &:hover {
+                            background-color: @color-white;
+                        }
+
+                        // this use js to make hover status's color
+                        &.hover {
+                            background-color: @color-selectedCell-light;
+                        }
+                    }
+
+                    .other {
+                        .size(@height: 60px);
+                        .position(relative);
+
+                        span {
+                            display: block;
+                        }
+
+                        .inputWrap {
+                            .position(relative);
+                            .size(@width: 100%, @height: 20px);
+                            .font(@line-height: 20px);
+
+                            input {
+                                padding-right: 22px;
+                                .size(@width: 100%, @height: 20px);
+                                .font(@line-height: 20px);
+                                box-shadow: 0px 0px 0px 1px @color-selectedCell-dark;
+                                .rounded;
+                                outline: none;
+                                .textOverflow;
+                            }
+
+                            .inputAction {
+                                .size(@width: 18px, @height: 18px);
+                                .position(absolute, @top: 1px, @right: 0);
+                                .gray-gradient;
+                                .rounded;
+
+                                &:hover {
+                                    .gray-inverse-gradient;
+                                }
+
+                                .icon {
+                                    .size(100%, 100%);
+                                    .image("../../images/checkmark.png", 50%, 50%);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            &.csvHidden {
+                display: none !important;
+            }
+            &.csvSelected {
+                display: block;
+            }
+        }
+
+        .radioWrap {
+            height: 25px;
+            margin-right: 20px;
+            min-width: 93px;
+            .radio {
+                margin-top: 6px;
+            }
+            .label {
+                width: auto;
+                cursor: pointer;
+            }
+        }
+        .overwrite {
+            .label {
+                width: 85px;
+            }
+            .radio {
+                margin-right: 0px;
+            }
+            .radioWrap {
+                min-width: auto;
+                margin-right: 10px;
+                .label {
+                    width: auto;
+                }
             }
         }
     }

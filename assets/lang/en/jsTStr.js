@@ -292,10 +292,11 @@ JoinTStr = {
 
 ExportTStr = {
     'Success': 'Export Success',
-    'SuccessMsg': 'File Name: <file>.csv\n File Location: <location>',
+    'SuccessMsg': 'File Name: <file>\n File Location: <location>',
     'SuccessInstr': 'Table \"<table>\" was succesfully exported to <location> ' +
-                    'under the name: <file>.csv',
-    'ExportOfCol': 'Export columns of <table>'
+                    'under the name: <file>',
+    'ExportOfCol': 'Export columns of <table>',
+    'InvalidType': 'Invalid type selected'
 };
 
 MultiCastTStr = {

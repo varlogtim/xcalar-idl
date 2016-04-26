@@ -589,7 +589,7 @@ function XcalarListExportTargets(typePattern, namePattern) {
 }
 
 function XcalarExport(tableName, exportName, targetName, numColumns,
-                      backColName, frontColName, keepOrder, txId) {
+                      backColName, frontColName, keepOrder, options, txId) {
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return PromiseHelper.resolve(null);
     }
@@ -628,19 +628,42 @@ function XcalarExport(tableName, exportName, targetName, numColumns,
                 specInput.odbcInput.tableName = exportName;
                 break;
             case (ExTargetTypeT.ExTargetSFType):
+                // XX this is not a good check, fix later
+                if (options.splitType == null || options.headerType == null ||
+                    options.format == null) {
+                    deferred.reject(thriftLog("XcalarExport"),
+                                              'Not all options were declared');
+                    return;
+                }
                 specInput.sfInput = new ExInitExportSFInputT();
-                specInput.sfInput.fileName = exportName + ".csv";
                 specInput.sfInput.splitRule = new ExSFFileSplitRuleT();
-                specInput.sfInput.splitRule.type =
-                                    ExSFFileSplitTypeT.ExSFFileSplitForceSingle;
-                specInput.sfInput.headerType =
-                                            ExSFHeaderTypeT.ExSFHeaderEveryFile;
-                specInput.sfInput.format = DfFormatTypeT.DfFormatCsv;
+                specInput.sfInput.splitRule.type = options.splitType;
+                specInput.sfInput.headerType = options.headerType;
+                specInput.sfInput.format = options.format;
                 specInput.sfInput.formatArgs = new
                                             ExInitExportFormatSpecificArgsT();
-                specInput.sfInput.formatArgs.csv = new ExInitExportCSVArgsT();
-                specInput.sfInput.formatArgs.csv.fieldDelim = gExportFDelim;
-                specInput.sfInput.formatArgs.csv.recordDelim = gExportRDelim;
+                if (options.format === DfFormatTypeT.DfFormatCsv) {
+                    exportName += ".csv";
+                    specInput.sfInput.fileName = exportName;
+                    specInput.sfInput.formatArgs.csv = new ExInitExportCSVArgsT();
+                    specInput.sfInput.formatArgs.csv.fieldDelim = gExportFDelim;
+                    specInput.sfInput.formatArgs.csv.recordDelim = gExportRDelim;
+                } else if (options.format === DfFormatTypeT.DfFormatSql) {
+                    exportName += ".sql";
+                    specInput.sfInput.fileName = exportName;
+                    specInput.sfInput.formatArgs.sql = new ExInitExportSQLArgsT();
+                    specInput.sfInput.formatArgs.sql.tableName = exportName;
+                    specInput.sfInput.formatArgs.sql.createTable = true;
+                    if (options.createRule === ExExportCreateRuleT.ExExportCreateOnly) {
+                        specInput.sfInput.formatArgs.sql.dropTable = false;
+                    } else {
+                        specInput.sfInput.formatArgs.sql.dropTable = true;
+                    }
+                } else {
+                    deferred.reject(thriftLog("XcalarExport"),
+                                                "Invalid export type");
+                }
+
                 break;
             default:
                 deferred.reject(thriftLog("XcalarExport"));
@@ -655,11 +678,11 @@ function XcalarExport(tableName, exportName, targetName, numColumns,
         }
 
         var workItem = xcalarExportWorkItem(tableName, target, specInput,
-                                  ExExportCreateRuleT.ExExportCreateOnly,
-                                            true, numColumns, columns);
+                                  options.createRule, keepOrder, numColumns,
+                                  columns);
         var def1 = xcalarExport(tHandle, tableName, target, specInput,
-                                ExExportCreateRuleT.ExExportCreateOnly,
-                                keepOrder, numColumns, columns);
+                                options.createRule, keepOrder, numColumns,
+                                columns);
         // var def2 = XcalarGetQuery(workItem);
         var def2 = jQuery.Deferred().resolve().promise();
         jQuery.when(def1, def2)
@@ -1494,7 +1517,7 @@ function XcalarGenRowNum(srcTableName, dstTableName, newFieldName, txId) {
     .fail(function(error1, error2) {
         var thriftError = thriftLog("XcalarGenRowNum", error1, error2);
         deferred.reject(thriftError);
-    })
+    });
 
 
 }

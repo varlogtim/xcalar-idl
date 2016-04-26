@@ -189,7 +189,9 @@ module.exports = {
     },
 
     TooltipTStr : {
-        'NoWSToMV': 'no worksheet to move to'
+        'NoWSToMV': 'no worksheet to move to',
+        'Restore': 'restore to default',
+        'ToggleAdvanced': 'toggle advanced options'
     },
 
     workspaceBar: {

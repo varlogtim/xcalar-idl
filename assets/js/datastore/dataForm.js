@@ -268,8 +268,8 @@ window.DatastoreForm = (function($, DatastoreForm) {
 
         var moduleName = udfCheckRes.moduleName;
         var funcName = udfCheckRes.funcName;
-        var fieldDelim = delimiterTranslate($fieldText);
-        var lineDelim = delimiterTranslate($lineText);
+        var fieldDelim = xcHelper.delimiterTranslate($fieldText);
+        var lineDelim = xcHelper.delimiterTranslate($lineText);
         if (typeof fieldDelim === "object" || typeof lineDelim === "object") {
             if (typeof fieldDelim === "object") {
                 StatusBox.show(DSFormTStr.InvalidDelim, $fieldText, true);
