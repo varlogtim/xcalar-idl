@@ -1,6 +1,5 @@
 window.DFGParamModal = (function($, DFGParamModal){
     var $dfgParamModal; // $("#dfgParameterModal")
-    var $modalBg;       //$("#modalBackground");
 
     var $paramLists;    // $("#dagModleParamList")
     var $editableRow;   // $dfgParamModal.find(".editableRow")
@@ -33,7 +32,6 @@ window.DFGParamModal = (function($, DFGParamModal){
 
     DFGParamModal.setup = function() {
         $dfgParamModal = $("#dfgParameterModal");
-        $modalBg = $("#modalBackground");
         $paramLists = $("#dagModleParamList");
         $editableRow = $dfgParamModal.find(".editableRow");
         modalHelper = new ModalHelper($dfgParamModal, { "noResize": true });
@@ -226,19 +224,8 @@ window.DFGParamModal = (function($, DFGParamModal){
         }
 
         modalHelper.setup();
-        if (gMinModeOn) {
-            $modalBg.show();
-            $dfgParamModal.show();
-            Tips.refresh();
-        } else {
-            $modalBg.fadeIn(300, function() {
-                $dfgParamModal.fadeIn(180);
-                Tips.refresh();
-            });
-        }
 
         var $dummyInputs = $dfgParamModal.find('.dummy');
-
         $dummyInputs.on('dragenter', '.line', function() {
             $dummyInputs.find('.line, .space').removeClass('hover');
             $(this).addClass('hover');
@@ -253,7 +240,6 @@ window.DFGParamModal = (function($, DFGParamModal){
         $dummyInputs.on('dragleave', '.space', function() {
             $(this).removeClass('hover');
         });
-        
     };
 
     DFGParamModal.paramDragStart = function(event) {
@@ -878,13 +864,6 @@ window.DFGParamModal = (function($, DFGParamModal){
 
     function closeDFGParamModal() {
         modalHelper.clear();
-        var fadeOutTime = gMinModeOn ? 0 : 300;
-
-        $dfgParamModal.hide();
-        $modalBg.fadeOut(fadeOutTime, function() {
-            Tips.refresh();
-        });
-
         $editableRow.empty();
         $dfgParamModal.find('.draggableParams').empty();
         $paramLists.find("tbody").empty();

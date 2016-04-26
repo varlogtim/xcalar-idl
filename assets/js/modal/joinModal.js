@@ -310,27 +310,14 @@ window.JoinModal = (function($, JoinModal) {
         $("body").on("mouseup", removeCursors);
         $modalBg.on("click", hideDropdowns);
         updateJoinTableName();
-        modalHelper.setup();
 
         joinModalTabs($rightJoinTable, null, -1);
         joinModalTabs($leftJoinTable, tableId, colNum, $rightJoinTable);
         toggleMultiClauseToolTip(false);
         updatePreviewText();
 
-        if (gMinModeOn) {
-            $modalBg.show();
-            $joinModal.show();
-            showHandler();
-        } else {
-            $modalBg.fadeIn(300, function() {
-                $joinModal.fadeIn(180);
-                showHandler();
-            });
-        }
-
-        isOpenTime = false;
-
-        function showHandler() {
+        modalHelper.setup()
+        .always(function() {
             scrollToColumn($leftJoinTable.find("th.colSelected"));
             // this is the case when right table has suggested col
             scrollToColumn($rightJoinTable.find("th.colSelected"));
@@ -342,7 +329,9 @@ window.JoinModal = (function($, JoinModal) {
                 $(this).scrollTop(0);
             });
             $joinTableName.focus();
-        }
+
+            isOpenTime = false;
+        });
     };
 
     function toggleMultiClause(toMultiClause) {
@@ -527,19 +516,10 @@ window.JoinModal = (function($, JoinModal) {
     }
 
     function resetJoinTables() {
+        modalHelper.clear();
         $("body").off("keypress", joinTableKeyPress);
         $("body").off("mouseup", removeCursors);
         $modalBg.off("click", hideDropdowns);
-
-        modalHelper.clear();
-        modalHelper.enableSubmit();
-
-        var fadeOutTime = gMinModeOn ? 0 : 300;
-
-        $joinModal.hide();
-        $modalBg.fadeOut(fadeOutTime, function() {
-            Tips.refresh();
-        });
 
         // clean up multi clause section
         $mainJoin.removeClass("multiClause");

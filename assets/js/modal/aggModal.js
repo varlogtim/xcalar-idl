@@ -1,5 +1,4 @@
 window.AggModal = (function($, AggModal) {
-    var $modalBg;      // $("#modalBackground")
     var $aggModal;     // $("#aggModal")
 
     var $aggInstr;     // $("#aggModal-instr")
@@ -22,7 +21,6 @@ window.AggModal = (function($, AggModal) {
     var minHeight = 300;
 
     AggModal.setup = function() {
-        $modalBg = $("#modalBackground");
         $aggModal = $("#aggModal");
 
         $aggInstr = $("#aggModal-instr");
@@ -179,25 +177,12 @@ window.AggModal = (function($, AggModal) {
         }
 
         $aggTableName.find(".text").text(tableName);
-        modalHelper.setup();
-
-        if (gMinModeOn) {
-            $modalBg.show();
-            $aggModal.show();
-            showHandler();
-        } else {
-            $modalBg.fadeIn(300, function() {
-                $aggModal.fadeIn(180);
-                showHandler();
-            });
-        }
-
-        function showHandler() {
-            Tips.refresh();
+        modalHelper.setup()
+        .always(function() {
             $aggModal.find(".aggContainer")
                     .scrollTop(0)
                     .scrollLeft(0);
-        }
+        });
     }
 
     function aggColsInitialize(tableId) {
@@ -665,14 +650,8 @@ window.AggModal = (function($, AggModal) {
     }
 
     function closeAggModel() {
-        var fadeOutTime = gMinModeOn ? 0 : 300;
-
-        $aggModal.hide();
-        $modalBg.fadeOut(fadeOutTime, function() {
-            Tips.refresh();
-        });
-        $aggModal.width(920).height(670);
         modalHelper.clear();
+        $aggModal.width(920).height(670);
     }
 
     return (AggModal);

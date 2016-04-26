@@ -353,7 +353,10 @@ window.OperationsModal = (function($, OperationsModal) {
 
             $operationsModal.fadeOut(time, function() {
                 clearInput(0);
-                modalHelper.clear();
+                modalHelper.clear({"close": function() {
+                    // ops modal has its owne closer
+                    return PromiseHelper.resolve();
+                }});
                 $functionsMenu.data('category', 'null');
                 unminimizeTable();
                 $operationsModal.find('.checkbox').removeClass('checked');
@@ -552,7 +555,13 @@ window.OperationsModal = (function($, OperationsModal) {
                                                    .offset().top +
                             gRescol.minCellHeight;
             // we want the modal to show up ~ below the first row
-            modalHelper.setup({maxTop: modalTop});
+            modalHelper.setup({
+                "maxTop": modalTop,
+                "open"  : function() {
+                    // ops modal has its own opener
+                    return PromiseHelper.resolve();
+                }
+            });
             toggleModalDisplay(false);
 
             $categoryInput.focus();

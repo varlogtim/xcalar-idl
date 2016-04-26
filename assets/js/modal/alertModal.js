@@ -68,12 +68,11 @@ window.Alert = (function($, Alert){
 
         configAlertModal(options);
 
+        var extraOptions = null;
         if (options.lockScreen) {
-            modalHelper.setup({"noEsc": true});
+            extraOptions = {"noEsc": true};
             $modalBg.addClass('locked');
             $modal.draggable("destroy");
-        } else {
-            modalHelper.setup();
         }
 
         // Note that alert Modal's center position
@@ -92,25 +91,12 @@ window.Alert = (function($, Alert){
             "top" : top
         });
 
-        if (gMinModeOn || options.noAnimate) {
-            $modalBg.show();
-            $modal.show();
-            Tips.refresh();
+        modalHelper.setup(extraOptions)
+        .always(function() {
             if (options.focusOnConfirm) {
                 $btnSection.find(".confirm").focus();
             }
-        } else {
-            // alert should be fast, so the fade time
-            // is different from other Modal,
-            // XXX change it if there is better effect
-            $modalBg.fadeIn(180, function() {
-                $modal.fadeIn(100);
-                Tips.refresh();
-                if (options.focusOnConfirm) {
-                    $btnSection.find(".confirm").focus();
-                }
-            });
-        }
+        });
     };
 
     Alert.error = function(title, error, options) {
@@ -139,29 +125,34 @@ window.Alert = (function($, Alert){
     };
 
     function closeAlertModal($modalContainer) {
+        modalHelper.clear({"close": function() {
+            // alert modal has its own closer
+            return closeHelper($modalContainer);
+        }});
         $btnSection.find(".funcBtn").remove();
         // remove all event listener
         $modal.off(".alert");
-        modalHelper.clear();
+    }
+
+    function closeHelper($modalContainer) {
+        var deferred = jQuery.Deferred();
 
         if ($modalContainer) {
             $modal.hide();
             $modalContainer.css("z-index", 40);
-            return;
-        }
-
-        var fadeOutTime = gMinModeOn ? 0 : 300;
-
-        $modal.hide();
-
-        if ($(".modalContainer:visible:not(#alertModal)").length > 0) {
+            deferred.resolve();
+        } else if ($(".modalContainer:visible:not(#alertModal)").length > 0) {
             // apart from alert modal, other modal is on
-            Tips.refresh();
+            $modal.hide();
+            deferred.resolve();
         } else {
-            $modalBg.fadeOut(fadeOutTime, function() {
-                Tips.refresh();
-            });
+            var fadeOutTime = gMinModeOn ? 0 : 300;
+
+            $modal.hide();
+            $modalBg.fadeOut(fadeOutTime, deferred.resolve);
         }
+
+        return deferred.promise();
     }
 
     // configuration for alert modal

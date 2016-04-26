@@ -1,6 +1,5 @@
 window.MultiCastModal = (function($, MultiCastModal) {
     var $modal;         // $("#multiCastModal")
-    var $modalBg;       // $("#modalBackground")
 
     var $table;         // $("#multiCast-table")
     var $resultSection; // $("#multiCast-result")
@@ -20,7 +19,6 @@ window.MultiCastModal = (function($, MultiCastModal) {
 
     MultiCastModal.setup = function() {
         $modal = $("#multiCastModal");
-        $modalBg = $("#modalBackground");
         $table = $("#multiCast-table");
         $resultSection = $("#multiCast-result");
         $castBtn = $("#multiCast-cast");
@@ -113,22 +111,12 @@ window.MultiCastModal = (function($, MultiCastModal) {
 
     MultiCastModal.show = function(tableId) {
         curTableId = tableId;
-        modalHelper.setup($modal);
-
-        if (gMinModeOn) {
-            $modalBg.show();
-            $modal.show();
-        } else {
-            $modalBg.fadeIn(300, function() {
-                $modal.fadeIn(180);
-            });
-        }
 
         buildTable(tableId);
         smartSuggest();
+        modalHelper.setup();
 
         var $lists = $table.find("th:not(.unselectable) .dropDownList");
-
         xcHelper.dropdownList($lists, {
             "onSelect": function($li) {
                 var $list  = $li.closest(".list");
@@ -147,14 +135,10 @@ window.MultiCastModal = (function($, MultiCastModal) {
     };
 
     function closeMultiCastModal() {
-        var fadeOutTime = gMinModeOn ? 0 : 300;
         modalHelper.clear();
 
-        $modal.hide();
-        $modalBg.fadeOut(fadeOutTime);
         $table.html("");
         $resultSection.html("");
-
         $(document).off(".multiCastModal");
 
         newColTypes = [];

@@ -317,12 +317,8 @@ window.Profile = (function($, Profile, d3) {
     };
 
     function closeProfileModal() {
-        var fadeOutTime = gMinModeOn ? 0 : 300;
-        $modal.hide();
-        $modalBg.fadeOut(fadeOutTime);
-
-        $modal.find(".groupbyChart").empty();
         modalHelper.clear();
+        $modal.find(".groupbyChart").empty();
         freePointer();
 
         curTableId = null;
@@ -416,28 +412,22 @@ window.Profile = (function($, Profile, d3) {
     }
 
     function showProfile() {
-        modalHelper.setup();
-        setupScrollBar();
-
         if (statsCol.type === "integer" || statsCol.type === "float") {
             $modal.addClass("type-number");
         } else {
             $modal.removeClass("type-number");
         }
 
-        if (gMinModeOn) {
-            $modalBg.show();
-            $modal.show().data("id", statsCol.modalId);
-            refreshProfile();
-        } else {
-            $modalBg.fadeIn(300, function() {
-                $modal.fadeIn(180).data("id", statsCol.modalId);
-                refreshProfile();
-            });
-        }
-
         // hide scroll bar first
         $modal.addClass("noScrollBar");
+        $modal.data("id", statsCol.modalId);
+
+        modalHelper.setup()
+        .always(function() {
+            refreshProfile();
+        });
+
+        setupScrollBar();
         $modalBg.on("mouseover.profileModal", resetTooltip);
     }
 

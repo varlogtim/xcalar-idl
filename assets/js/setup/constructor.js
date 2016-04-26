@@ -1748,6 +1748,7 @@ function ModalHelper($modal, options) {
 
 ModalHelper.prototype = {
     setup: function(extraOptions) {
+        var deferred = jQuery.Deferred();
         var $modal  = this.$modal;
         var options = $.extend(this.options, extraOptions) || {};
 
@@ -1836,6 +1837,33 @@ ModalHelper.prototype = {
             }
         });
 
+        // this should be the last step
+        if (options.open != null && options.open instanceof Function) {
+            options.open()
+            .then(deferred.resolve)
+            .fail(deferred.reject)
+            .always(function() {
+                Tips.refresh();
+            });
+        } else {
+            var $modalBg = $("#modalBackground");
+
+            if (gMinModeOn) {
+                $modalBg.show();
+                $modal.show();
+                Tips.refresh();
+                deferred.resolve();
+            } else {
+                $modal.fadeIn(180);
+                $modalBg.fadeIn(300, function() {
+                    Tips.refresh();
+                    deferred.resolve();
+                });
+            }
+        }
+
+        return deferred.promise();
+
         function addFocusEvent($focusable, index) {
             $focusable.addClass("focusable").data("tabid", index);
             $focusable.on("focus.xcModal", function() {
@@ -1901,12 +1929,35 @@ ModalHelper.prototype = {
         xcHelper.enableSubmit(this.$modal.find(".confirm"));
     },
 
-    clear: function() {
+    clear: function(extraOptions) {
+        var deferred = jQuery.Deferred();
+        var options = $.extend(this.options, extraOptions) || {};
+        var $modal = this.$modal;
+
         $(document).off("keydown.xcModal" + this.id);
-        this.$modal.find(".focusable").off(".xcModal")
+        $modal.find(".focusable").off(".xcModal")
                                   .removeClass("focusable");
         this.enableSubmit();
         $("body").removeClass("no-selection");
+
+        if (options.close != null && options.close instanceof Function) {
+            options.close()
+            .then(deferred.resolve)
+            .fail(deferred.reject)
+            .always(function() {
+                Tips.refresh();
+            });
+        } else {
+            var $modalBg = $("#modalBackground");
+            var fadeOutTime = gMinModeOn ? 0 : 300;
+            $modal.hide();
+            $modalBg.fadeOut(fadeOutTime, function() {
+                Tips.refresh();
+                deferred.resolve();
+            });
+        }
+
+        return deferred.promise();
     }
 };
 /* End of ModalHelper */

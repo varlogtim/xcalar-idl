@@ -91,18 +91,18 @@ window.ExportModal = (function($, ExportModal) {
         });
 
         $exportModal.find('.radioWrap').click(function() {
-           var $radioWrap = $(this);
-           $radioWrap.siblings().find('.radio').removeClass('checked');
-           $radioWrap.find('.radio').addClass('checked');
+            var $radioWrap = $(this);
+            $radioWrap.siblings().find('.radio').removeClass('checked');
+            $radioWrap.find('.radio').addClass('checked');
         });
 
         $advancedSection.find('.typeRow').find('.radioWrap').click(function() {
-            var $radioWrap = $(this);
+            // var $radioWrap = $(this);
             if ($(this).data('option') !== "DfFormatCsv") {
                 $advancedSection.find('.csvRow').removeClass('csvSelected')
                                                 .addClass('csvHidden');
             } else {
-                 $advancedSection.find('.csvRow').addClass('csvSelected')
+                $advancedSection.find('.csvRow').addClass('csvSelected')
                                                  .removeClass('csvHidden');
             }
         });
@@ -181,13 +181,15 @@ window.ExportModal = (function($, ExportModal) {
         .then(function(targs) {
             exportTargInfo = targs;
             restoreExportPaths(targs);
-            modalHelper.setup();
+            modalHelper.setup({"open": function() {
+                if (gMinModeOn) {
+                    $exportModal.show();
+                } else {
+                    $exportModal.fadeIn(400);
+                }
 
-            if (gMinModeOn) {
-                $exportModal.show();
-            } else {
-                $exportModal.fadeIn(400);
-            }
+                return PromiseHelper.resolve();
+            }});
 
             $selectableThs.addClass('modalHighlighted');
             var allColNames = "";
@@ -977,7 +979,7 @@ window.ExportModal = (function($, ExportModal) {
     function getAdvancedOptions() {
 
         var options = {};
-        options.format =  DfFormatTypeT[$advancedSection.find('.typeRow')
+        options.format = DfFormatTypeT[$advancedSection.find('.typeRow')
                                                         .find('.checked')
                                                         .closest('.radioWrap')
                                                         .data('option')];
@@ -1013,6 +1015,14 @@ window.ExportModal = (function($, ExportModal) {
     }
 
     function closeExportModal() {
+        modalHelper.clear({"close": function() {
+            var animationTime = gMinModeOn ? 0 : 300;
+            $exportModal.hide();
+            xcHelper.toggleModal(tableId, true, {time: animationTime});
+            $('#xcTableWrap-' + tableId).removeClass('exportModalOpen');
+            return PromiseHelper.resolve();
+        }});
+
         exportTableName = null;
         exportTargInfo = null;
         $exportPath.val("Local Filesystem");
@@ -1020,22 +1030,10 @@ window.ExportModal = (function($, ExportModal) {
         $('.exportable').removeClass('exportable');
         $selectableThs = null;
         $(document).off(".exportModal");
-        modalHelper.clear();
         $exportModal.find('.checkbox').removeClass('checked');
         restoreAdvanced();
         restoreColumns();
         $advancedSection.addClass('collapsed').removeClass('expanded');
-
-        var hide = true;
-        var animationTime = gMinModeOn ? 0 : 300;
-
-        $exportModal.hide();
-        xcHelper.toggleModal(tableId, hide, {time: animationTime});
-
-        $('#xcTableWrap-' + tableId).removeClass('exportModalOpen');
-        setTimeout(function() {
-            Tips.refresh();
-        }, 200);
     }
 
     return (ExportModal);

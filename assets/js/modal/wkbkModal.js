@@ -62,29 +62,18 @@ window.WorkbookModal = (function($, WorkbookModal) {
     WorkbookModal.show = function(isForceShow) {
         $(document).on("keypress", workbookKeyPress);
 
+        var extraOptions;
         if (isForceShow) {
             getWorkbookInfo(isForceShow);
-            modalHelper.setup({"noEsc": true});
+            extraOptions = {"noEsc": true};
             $workbookModal.draggable("destroy");
             $workbookModal.resizable("destroy");
-        } else {
-            modalHelper.setup();
         }
 
         // default choose first option (new workbook)
         $optionSection.find(".radio").eq(0).click();
         addWorkbooks();
-
-        if (gMinModeOn) {
-            $modalBg.fadeIn(300);
-            $workbookModal.show();
-            Tips.refresh();
-        } else {
-            $modalBg.fadeIn(300, function() {
-                $workbookModal.fadeIn(180);
-                Tips.refresh();
-            });
-        }
+        modalHelper.setup(extraOptions);
     };
 
     WorkbookModal.forceShow = function() {
@@ -111,15 +100,8 @@ window.WorkbookModal = (function($, WorkbookModal) {
     }
 
     function closeWorkbookModal() {
-        $(document).off("keypress", workbookKeyPress);
         modalHelper.clear();
-
-        var fadeOutTime = gMinModeOn ? 0 : 300;
-        $workbookModal.hide();
-        $modalBg.fadeOut(fadeOutTime, function() {
-            Tips.refresh();
-        });
-
+        $(document).off("keypress", workbookKeyPress);
         resetWorkbookModal();
     }
 

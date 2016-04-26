@@ -1,6 +1,5 @@
 window.AddScheduleModal = (function($, AddScheduleModal) {
     var $modal;             // $('#addScheduleModal')
-    var $modalBg;           // $("#modalBackground")
     var $list;              // $modal.find('.scheduleList')
     var $scheduleListInput; // $modal.find('.scheduleListInput')
     var $shceduleInfo;      // $modal.find('.scheInfoSection .text')
@@ -10,7 +9,6 @@ window.AddScheduleModal = (function($, AddScheduleModal) {
 
     AddScheduleModal.setup = function() {
         $modal = $('#addScheduleModal');
-        $modalBg = $("#modalBackground");
         $list = $modal.find('.scheduleList');
         $scheduleListInput = $modal.find('.scheduleListInput');
         $shceduleInfo = $modal.find('.scheInfoSection .text');
@@ -31,8 +29,6 @@ window.AddScheduleModal = (function($, AddScheduleModal) {
 
     AddScheduleModal.show = function(curentGroup, schedule) {
         groupName = curentGroup;
-        modalHelper.setup();
-
         updateModalList(schedule);
 
         // Note that the modal's center position
@@ -51,17 +47,6 @@ window.AddScheduleModal = (function($, AddScheduleModal) {
             "top" : top
         });
 
-        if (gMinModeOn) {
-            $modalBg.show();
-            $modal.show();
-            Tips.refresh();
-        } else {
-            $modalBg.fadeIn(300, function() {
-                $modal.fadeIn(180);
-                Tips.refresh();
-            });
-        }
-
         $(document).on("keypress.addScheduleModal", function(e) {
             if (e.which === keyCode.Enter) {
                 if (!$modal.find('.confirm').hasClass('unavailable')) {
@@ -69,6 +54,8 @@ window.AddScheduleModal = (function($, AddScheduleModal) {
                 }
             }
         });
+
+        modalHelper.setup();
     };
 
     function updateModalList(selectedSchedule) {
@@ -190,17 +177,8 @@ window.AddScheduleModal = (function($, AddScheduleModal) {
     }
 
     function closeModal() {
-        $(document).off(".addScheduleModal");
         modalHelper.clear();
-
-
-        var fadeOutTime = gMinModeOn ? 0 : 300;
-
-        $modal.hide();
-        $modalBg.fadeOut(fadeOutTime, function() {
-            Tips.refresh();
-        });
-
+        $(document).off(".addScheduleModal");
         $shceduleInfo.text("N/A");
     }
 

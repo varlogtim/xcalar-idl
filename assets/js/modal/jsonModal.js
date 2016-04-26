@@ -62,7 +62,7 @@ window.JSONModal = (function($, JSONModal) {
             minHeight  : minHeight,
             minWidth   : minWidth,
             containment: "document",
-            start: function(event, ui) {
+            start      : function() {
                 $jsonWraps = $jsonModal.find('.jsonWrap');
                 $tabSets = $jsonWraps.find('.tabs');
                 modalMinWidth = $jsonWraps.length * jsonAreaMinWidth;
@@ -110,7 +110,10 @@ window.JSONModal = (function($, JSONModal) {
             $(".tooltip").hide();
             $(".xcTable").find(".highlightBox").remove();
             $searchInput.val("");
-            modalHelper.setup();
+            modalHelper.setup({"open": function() {
+                // json modal use its own opener
+                return PromiseHelper.resolve();
+            }});
             jsonModalDocumentEvent();
             $("body").addClass("hideScroll");
         }
@@ -231,8 +234,8 @@ window.JSONModal = (function($, JSONModal) {
             var rowNum = $jsonWrap.data('rownum');
             var colNum = $jsonWrap.data('colnum');
             var tableId =  $jsonWrap.data('tableid');
-            var $table = $("#xcTable-" + tableId);
-            var $td = $table.find(".row" + rowNum + " .col" + colNum);
+            // var $table = $("#xcTable-" + tableId);
+            // var $td = $table.find(".row" + rowNum + " .col" + colNum);
 
             closeJSONModal();
             //set timeout to allow modal to close before unnesting many cols
@@ -642,33 +645,34 @@ window.JSONModal = (function($, JSONModal) {
     }
 
     function closeJSONModal() {
+        modalHelper.clear({"close": function() {
+            // json modal use its own closer
+            $('.modalHighlighted').removeClass('modalHighlighted');
+            $('.jsonModalHighlightBox').remove();
+            toggleModal(null, true, 200);
+            $jsonModal.hide().width(500);
+            $modalBg.hide().removeClass('light');
+            
+            $('#sideBarModal').hide();
+            $('#rightSideBar').removeClass('modalOpen');
+            $("body").removeClass("hideScroll");
+            $('.tooltip').hide();
+
+            return PromiseHelper.resolve();
+        }});
+
         $(document).off(".jsonModal");
         searchHelper.$matches = [];
-        $('.modalHighlighted').removeClass('modalHighlighted');
         searchHelper.clearSearch(function() {
             clearSearch();
         });
         $('#jsonSearch').addClass('closed');
-        $('.jsonModalHighlightBox').remove();
-        toggleModal(null, true, 200);
-
-        $jsonModal.hide();
-        $modalBg.hide();
-        Tips.refresh();
         $jsonArea.empty();
-        $jsonModal.width(500);
-        $modalBg.removeClass('light');
-        modalHelper.clear();
 
         jsonData = [];
         comparisonObjs = {};
         $jsonText = null;
         notObject = false;
-
-        $('#sideBarModal').hide();
-        $('#rightSideBar').removeClass('modalOpen');
-        $("body").removeClass("hideScroll");
-        $('.tooltip').hide();
     }
 
     function refreshJsonModal($jsonTd, isArray, isModalOpen, type) {

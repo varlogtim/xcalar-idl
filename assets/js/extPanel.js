@@ -10,7 +10,6 @@ window.ExtensionPanel = (function(ExtensionPanel, $) {
         $panel = $("#extensionInstallPanel");
         $extLists = $("#extension-installedLists");
 
-        ExtensionModal.setup();
         // default is gridView, later will add usersettings
         $panel.removeClass("listView").addClass("gridView");
 
@@ -88,14 +87,13 @@ window.ExtensionPanel = (function(ExtensionPanel, $) {
     };
 
     ExtensionPanel.active = function() {
-        if(isFirstTouch) {
+        if (isFirstTouch) {
             isFirstTouch = false;
             fetchData();
         }
     };
 
     ExtensionPanel.install = function(ext) {
-        debugger;
         if (ext == null || !(ext instanceof ExtItem)) {
             return;
         }
@@ -121,7 +119,7 @@ window.ExtensionPanel = (function(ExtensionPanel, $) {
 
         $.ajax({
             "type"       : "POST",
-            "data"       : JSON.stringify({"api":"listPackages"}),
+            "data"       : JSON.stringify({"api": "listPackages"}),
             "contentType": "application/json",
             "url"        : "http://104.197.165.32:12123",
             "success"    : function(data) {
@@ -147,70 +145,70 @@ window.ExtensionPanel = (function(ExtensionPanel, $) {
             .find(".errorSection").fadeIn(100).html(error);
     }
 
-    function test() {
-        // XXX will removed it after no need to test
-        var sample =  {
-            "name"       : "Halting Problem Solution",
-            "version"    : "1.0.1",
-            "description": "This package contains the solution to the halting problem. It will let you know whether or not your program will terminate on any arbitrary input.",
-            "main"       : "halting.ext.js",
-            "repository" : {
-                "type": "market",
-                "url" : "www.xcalar.com/marketplace/halting.tar.gz"
-            },
-            "author"         : "Smart Person",
-            "devDependencies": {
-                "aaa": "^0.1.0"
-            },
-            "category": "Utilities",
-            "imageUrl": "wetwet.jpg",
-            "website" : "www.wetwet.com"
-        };
+    // function test() {
+    //     // XXX will removed it after no need to test
+    //     var sample =  {
+    //         "name"       : "Halting Problem Solution",
+    //         "version"    : "1.0.1",
+    //         "description": "This package contains the solution to the halting problem. It will let you know whether or not your program will terminate on any arbitrary input.",
+    //         "main"       : "halting.ext.js",
+    //         "repository" : {
+    //             "type": "market",
+    //             "url" : "www.xcalar.com/marketplace/halting.tar.gz"
+    //         },
+    //         "author"         : "Smart Person",
+    //         "devDependencies": {
+    //             "aaa": "^0.1.0"
+    //         },
+    //         "category": "Utilities",
+    //         "imageUrl": "wetwet.jpg",
+    //         "website" : "www.wetwet.com"
+    //     };
 
-        var list = [];
-        var n1 = 30, n2 = 5;
-        for (var i = 0; i < n1; i++) {
-            for (var j = 0; j < n2; j++) {
-                var ext = xcHelper.deepCopy(sample);
-                if (i > 0) {
-                    ext.category = "ZZ Test Extension" + "_" + i;
-                }
+    //     var list = [];
+    //     var n1 = 30, n2 = 5;
+    //     for (var i = 0; i < n1; i++) {
+    //         for (var j = 0; j < n2; j++) {
+    //             var ext = xcHelper.deepCopy(sample);
+    //             if (i > 0) {
+    //                 ext.category = "ZZ Test Extension" + "_" + i;
+    //             }
 
-                if (j > 0) {
-                    ext.name = "ZZ Test Category" + "_" + j;
-                }
+    //             if (j > 0) {
+    //                 ext.name = "ZZ Test Category" + "_" + j;
+    //             }
 
-                if (j % 5 === 0) {
-                    ext.installed = true;
-                }
+    //             if (j % 5 === 0) {
+    //                 ext.installed = true;
+    //             }
 
-                list.push(ext);
-            }
-        }
+    //             list.push(ext);
+    //         }
+    //     }
 
-        n1 = 10;
-        for (var i = 0; i < n1; i++) {
-            for (var j = 0; j < n2; j++) {
-                var ext = xcHelper.deepCopy(sample);
-                ext.repository.type = "custom";
-                if (i > 0) {
-                    ext.category = "ZZ Custom Extension" + "_" + i;
-                }
+    //     n1 = 10;
+    //     for (var i = 0; i < n1; i++) {
+    //         for (var j = 0; j < n2; j++) {
+    //             var ext = xcHelper.deepCopy(sample);
+    //             ext.repository.type = "custom";
+    //             if (i > 0) {
+    //                 ext.category = "ZZ Custom Extension" + "_" + i;
+    //             }
 
-                if (j > 0) {
-                    ext.name = "ZZ Custom Category" + "_" + j;
-                }
+    //             if (j > 0) {
+    //                 ext.name = "ZZ Custom Category" + "_" + j;
+    //             }
 
-                if (j % 5 === 0) {
-                    ext.installed = true;
-                }
+    //             if (j % 5 === 0) {
+    //                 ext.installed = true;
+    //             }
 
-                list.push(ext);
-            }
-        }
+    //             list.push(ext);
+    //         }
+    //     }
 
-        initializeExtCategory(list);
-    }
+    //     initializeExtCategory(list);
+    // }
 
     function initializeExtCategory(extensions) {
         extSet = new ExtCategorySet();
@@ -381,118 +379,4 @@ window.ExtensionPanel = (function(ExtensionPanel, $) {
     }
 
     return (ExtensionPanel);
-}({}, jQuery));
-
-window.ExtensionModal = (function(ExtensionModal, $) {
-    var $modalBg;  // $("#modalBackground");
-    var $extModal; // $("#extensionModal");
-    var modalHelper;
-
-    // constant
-    var minHeight = 400;
-    var minWidth = 700;
-    var curExt;
-
-    ExtensionModal.setup = function() {
-        $modalBg = $("#modalBackground");
-        $extModal = $("#extensionModal");
-
-        modalHelper = new ModalHelper($extModal, {
-            "minHeight": minHeight,
-            "minWidth" : minWidth
-        });
-
-        $extModal.draggable({
-            "handle"     : ".modalHeader",
-            "cursor"     : "-webkit-grabbing",
-            "containment": 'window'
-        });
-
-        $extModal.resizable({
-            "handles"    : "n, e, s, w, se",
-            "minHeight"  : minHeight,
-            "minWidth"   : minWidth,
-            "containment": "document"
-        });
-
-        $extModal.on("click", ".close, .cancel", function() {
-            closeExtModal();
-        });
-
-        $extModal.on("click", ".confirm", function() {
-            ExtensionPanel.install(curExt);
-            closeExtModal();
-        });
-
-        $("#extModal-website").click(function() {
-            var url = $(this).data("url");
-            if (url == null) {
-                return;
-            } else {
-                if (!url.startsWith("http:")) {
-                    url = "http://" + url;
-                }
-                window.open(url);
-            }
-        });
-
-        $("#extensionModal-logo").on("error", function() {
-            var imgSrc = $("#extensionView").hasClass("custom") ?
-                            paths.CustomExt : paths.XCExt;
-            this.src = imgSrc;
-        });
-    };
-
-    ExtensionModal.show = function(ext) {
-        modalHelper.setup();
-
-        if (gMinModeOn) {
-            $modalBg.show();
-            $extModal.show();
-            Tips.refresh();
-        } else {
-            $modalBg.fadeIn(300, function() {
-                $extModal.fadeIn(180);
-                Tips.refresh();
-            });
-        }
-
-        curExt = ext;
-
-        if (ext.isInstalled()) {
-            $extModal.find(".confirm").addClass("disabled");
-        } else {
-            $extModal.find(".confirm").removeClass("disabled");
-        }
-
-        updateDetail(ext);
-    };
-
-    function closeExtModal() {
-        modalHelper.clear();
-        curExt = null;
-        $("#extModal-website").removeData("url");
-
-        var fadeOutTime = gMinModeOn ? 0 : 300;
-
-        $extModal.hide();
-        $modalBg.fadeOut(fadeOutTime, function() {
-            Tips.refresh();
-        });
-    }
-
-    function updateDetail(ext) {
-        $("#extensionModal-logo").attr("src", ext.getImage());
-
-        var $infoArea = $extModal.find(".infoArea");
-        $infoArea.find(".version .text").text(ext.getVersion());
-        $("#extModal-website").data("url", ext.getWebsite());
-
-        var $detailArea = $extModal.find(".detailInfos");
-        $detailArea.find(".name .text").text(ext.getName());
-        $detailArea.find(".category .text").text(ext.getCategory());
-        $detailArea.find(".description .text").text(ext.getDesription());
-    }
-
-    return ExtensionModal;
 }({}, jQuery));

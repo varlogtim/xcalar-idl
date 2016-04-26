@@ -203,6 +203,7 @@ window.StartManager = (function(StartManager, $) {
         DFGParamModal.setup();
         AddScheduleModal.setup();
         MultiCastModal.setup();
+        ExtensionModal.setup();
         ExtModal.setup();
     }
 

@@ -344,7 +344,7 @@ window.TblMenu = (function(TblMenu, $) {
             $(this).siblings('input').trigger(fakeEvent.enter);
         });
 
-        $subMenu.on('keypress', 'input', function() {
+        $subMenu.on('keypress', 'input', function(event) {
             if (event.which === keyCode.Enter) {
                 var $input = $(this);
                 if ($input.closest('.extensions').length) {

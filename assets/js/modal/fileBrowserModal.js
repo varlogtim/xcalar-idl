@@ -1,5 +1,4 @@
 window.FileBrowser = (function($, FileBrowser) {
-    var $modalBg;         // $("#modalBackground")
     var $fileBrowser;     // $("#fileBrowserModal")
     var $container;       // $("#fileBrowserContainer")
     var $fileBrowserMain; // $("#fileBrowserMain")
@@ -41,7 +40,6 @@ window.FileBrowser = (function($, FileBrowser) {
     var modalHelper;
 
     FileBrowser.setup = function() {
-        $modalBg = $("#modalBackground");
         $fileBrowser = $("#fileBrowserModal");
         $container = $("#fileBrowserContainer");
         $fileBrowserMain = $("#fileBrowserMain");
@@ -273,20 +271,12 @@ window.FileBrowser = (function($, FileBrowser) {
         var deferred = jQuery.Deferred();
 
         path = path || "";
-        modalHelper.setup();
         addKeyBoardEvent();
 
-        if (gMinModeOn) {
-            $modalBg.show();
-            $fileBrowser.show().focus();
-        } else {
-            $modalBg.fadeIn(300, function() {
-                $fileBrowser.fadeIn(180, function() {
-                    $(this).focus();
-                    measureDSIconHeight();
-                });
-            });
-        }
+        modalHelper.setup()
+        .always(function() {
+            measureDSIconHeight();
+        });
 
         retrievePaths(path, true)
         .then(function(result) {
@@ -319,8 +309,6 @@ window.FileBrowser = (function($, FileBrowser) {
         return deferred.promise();
 
         function showHandler(result) {
-            Tips.refresh();
-
             if (result.defaultPath) {
                 setTimeout(function() {
                     var error = xcHelper.replaceMsg(ErrWRepTStr.NoPath, {
@@ -520,17 +508,10 @@ window.FileBrowser = (function($, FileBrowser) {
     }
 
     function closeAll() {
+        modalHelper.clear();
         // set to deault value
         clear(true);
-        modalHelper.clear();
         $(document).off(".fileBrowser");
-
-        var fadeOutTime = gMinModeOn ? 0 : 300;
-
-        $fileBrowser.hide();
-        $modalBg.fadeOut(fadeOutTime, function() {
-            Tips.refresh();
-        });
     }
 
     function changeFileSource(pathPrefix, noRetrieve) {
@@ -653,7 +634,7 @@ window.FileBrowser = (function($, FileBrowser) {
         if (defaultPath === defaultHDFSPath) {
             // Special case because HDFS's default is actually hdfs://xxxxx/
             var p =  getCurrentPath().replace(/hdfs:\/\/.*?\//i, "");
-            if (jQuery.trim(p).length == 0) {
+            if (jQuery.trim(p).length === 0) {
                 top = true;
             }
         } else {
@@ -979,11 +960,11 @@ window.FileBrowser = (function($, FileBrowser) {
         }
         // set defaultPath to defaultNFS/defaultFile or defaultHDFS based on what
         // the user entered
-        if (path.indexOf(defaultNFSPath) == 0) {
+        if (path.indexOf(defaultNFSPath) === 0) {
             defaultPath = defaultNFSPath;
-        } else if (path.indexOf(defaultFilePath) == 0) {
+        } else if (path.indexOf(defaultFilePath) === 0) {
             defaultPath = defaultFilePath;
-        } else if (path.indexOf(defaultHDFSPath) == 0) {
+        } else if (path.indexOf(defaultHDFSPath) === 0) {
             defaultPath = defaultHDFSPath;
         } else {
             console.log("Unsupported file path extension? Defaulting to file:///");

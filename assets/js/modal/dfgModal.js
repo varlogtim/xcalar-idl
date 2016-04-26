@@ -1,5 +1,4 @@
 window.DataFlowModal = (function($, DataFlowModal) {
-    var $modalBg;           // $("#modalBackground")
     var $dfgModal;          // $('#dataFlowModal')
     var $dfPreviews;        // $('#dataFlowPreviews')
     var $dfExport;          // $("#dataFlowExport")
@@ -19,7 +18,6 @@ window.DataFlowModal = (function($, DataFlowModal) {
     var minWidth  = 700;
 
     DataFlowModal.setup = function() {
-        $modalBg = $("#modalBackground");
         $dfgModal = $('#dataFlowModal');
         $dfPreviews = $('#dataFlowPreviews');
         $dfExport = $("#dataFlowExport");
@@ -60,22 +58,6 @@ window.DataFlowModal = (function($, DataFlowModal) {
     };
 
     DataFlowModal.show = function($dagWrap) {
-        modalHelper.setup();
-        $modalBg.fadeIn(300, function() {
-            Tips.refresh();
-        });
-
-        var winWidth = $(window).width();
-        var winHeight = $(window).height();
-        if ($dfgModal.width() > winWidth - 10) {
-            var updatedWidth = Math.max(winWidth - 40, minWidth);
-            $dfgModal.width(updatedWidth);
-        }
-        if ($dfgModal.height() > winHeight - 10) {
-            var updatedHeight = Math.max(winHeight - 40, minHeight);
-            $dfgModal.height(updatedHeight);
-        }
-
         $(document).on("keypress.dfgModal", function(e) {
             if (e.which === keyCode.Enter) {
                 submitForm();
@@ -102,11 +84,13 @@ window.DataFlowModal = (function($, DataFlowModal) {
         $modalMain.find('.dataFlowGroup:not(.unavailable)')
                   .removeAttr('title data-original-title');
 
-        $dfgModal.show();
         setupDFGImage($dagWrap);
         setupDFGTable();
 
-        $newGroupNameInput.focus();
+        modalHelper.setup()
+        .always(function() {
+            $newGroupNameInput.focus();
+        });
     };
 
     function saveDataFlow(groupName, columns, isNewGroup) {
@@ -382,11 +366,8 @@ window.DataFlowModal = (function($, DataFlowModal) {
     }
 
     function closeDFGModal() {
-        modalHelper.clear();
-        $dfgModal.hide();
-        $modalBg.fadeOut(300, function() {
-            Tips.refresh();
-            modalHelper.clear();
+        modalHelper.clear()
+        .always(function() {
             resetDFGModal();
         });
     }
