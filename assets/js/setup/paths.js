@@ -17,5 +17,6 @@ var paths = {
     waitIcon      : 'assets/images/waiting-1.gif',
     installer     : 'setup.html',
     XCExt         : 'assets/images/extension/logo-xc.png',
-    CustomExt     : 'assets/images/extension/logo-custom.png'
+    CustomExt     : 'assets/images/extension/logo-custom.png',
+    tableauExt    : 'assets/images/extension/logo-tableau.png'
 };

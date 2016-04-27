@@ -128,19 +128,19 @@ window.ExtensionPanel = (function(ExtensionPanel, $) {
                 clearTimeout(timer);
                 try {
                     var d = JSON.parse(data);
-                    initializeExtCatrgory(d);
+                    initializeExtCategory(d);
                 } catch(error) {
-                    hanndleError(error);
+                    handleError(error);
                 }
             },
             "error": function(error) {
                 clearTimeout(timer);
-                hanndleError(error);
+                handleError(error);
             }
         });
     }
 
-    function hanndleError(error) {
+    function handleError(error) {
         console.error("get extension error", error);
         $panel.find(".error-hidden").hide()
             .end()
@@ -209,14 +209,16 @@ window.ExtensionPanel = (function(ExtensionPanel, $) {
             }
         }
 
-        initializeExtCatrgory(list);
+        initializeExtCategory(list);
     }
 
-    function initializeExtCatrgory(extensions) {
+    function initializeExtCategory(extensions) {
         extSet = new ExtCategorySet();
 
         extensions = extensions || [];
         for (var i = 0, len = extensions.length; i < len; i++) {
+            // XXX TEMP!!
+            extensions[i].installed = true;
             extSet.addExtension(extensions[i]);
         }
 
@@ -310,7 +312,7 @@ window.ExtensionPanel = (function(ExtensionPanel, $) {
             html += '<li class="item ' + extClass + '">' +
                         '<div class="info">' +
                             '<span class="name textOverflowOneLine">' +
-                                'Extension ' + (i + 1) +
+                                category.getExtensionList()[i].getName() +
                             '</span>' +
                             '<span class="status">' +
                                 status +
@@ -342,10 +344,14 @@ window.ExtensionPanel = (function(ExtensionPanel, $) {
         for (var i = 0; i < extLen; i++) {
             var ext = extensions[i];
             var btnClass = ext.isInstalled() ? "disabled" : "";
+            var image = ext.getImage();
+            if (ext.getName().toLowerCase().indexOf("tableau") !== -1) {
+                image = paths.tableauExt;
+            }
 
             html += '<div class="item">' +
                         '<div class="logoArea">' +
-                            '<img src="' + ext.getImage() + '" ' + imgEvent + '>' +
+                            '<img src="' + image + '" ' + imgEvent + '>' +
                         '</div>' +
                         '<div class="instruction">' +
                             '<div class="extensionName textOverflowOneLine">' +
@@ -360,7 +366,7 @@ window.ExtensionPanel = (function(ExtensionPanel, $) {
                         '</div>' +
                         '<div class="buttonArea">' +
                             '<button class="btn btnMid install ' + btnClass + '">' +
-                                'INSTALL' +
+                                'INSTALLED' +
                             '</button>' +
                             '<button class="btn btnMid btn-cancel more">' +
                                 'VIEW MORE' +

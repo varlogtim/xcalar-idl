@@ -564,7 +564,10 @@ window.TblMenu = (function(TblMenu, $) {
                     var argList = collectArgs($(this));
                     ColManager.extension(colNum, tableId, classNames[i],
                                          argList);
-                    closeMenu($allMenus);
+                    if (classNames[i].indexOf('hPartition') === -1 &&
+                        classNames[i].indexOf('windowChain') === -1) {
+                        closeMenu($allMenus);
+                    }
                     break;
                 }
             }

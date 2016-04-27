@@ -1,51 +1,45 @@
 [{
-	"name": "Halting Problem Solution",
-	"version": "1.0.1",
-	"description": "This package contains the solution to the halting problem. It will let you know whether or not your program will terminate on any arbitrary input.",
-	"main": "halting.ext.js",
+	"name": "Tableau Plugin Extension",
+	"version": "1.0.0",
+	"description": "This package contains the ability to push data up into Xcalar's Tableau cloud instance and visualize your data in any of the common formats.",
+	"main": "tableau.ext.js",
 	"repository": {
 		"type": "market",
-		"url": "www.xcalar.com/marketplace/halting.tar.gz"
+		"url": "www.xcalar.com/marketplace/tableau.tar.gz"
 	},
-	"author": "Smart Person",
-	"devDependencies": {
-		"aaa": "^0.1.0"
-	},
-	"category": "Utilities",
-	"imageUrl": "wetwet.jpg",
-	"website": "www.weareawesome.com"
+	"author": "Jerene Yang",
+	"category": "Partner",
+	"imageUrl": "",
+	"website": "www.xcalar.com"
 },
 {
-	"name": "Cheng is so handsome",
-	"version": "1.0.1",
-	"description": "This package explains why Cheng is so super handsome",
-	"main": "cheng.ext.js",
+	"name": "Xcalar Default Extension",
+	"version": "1.0.2",
+	"description": "This package contains some common functionality like windowing and horizontal partitioning that can greatly increase productivity.",
+	"main": "xcalarDef.ext.js",
 	"repository": {
 		"type": "market",
-		"url": "www.xcalar.com/marketplace/cheng.tar.gz"
+		"url": "www.xcalar.com/marketplace/xcalarDef.tar.gz"
 	},
-	"author": "Smart Cheng",
-	"devDependencies": {
-		"aaa": "^0.1.0"
-	},
+	"author": "Cheng Zhang",
 	"category": "Main",
-	"imageUrl": "wetwet.jpg",
-	"website": "www.weareawesome.com"
+	"imageUrl": "",
+	"website": "www.xcalar.com"
 },
 {
-	"name": "Rudy is so smart",
-	"version": "1.0.1",
-	"description": "This package explains why Rudy is so super smart",
-	"main": "rudy.ext.js",
+	"name": "Xcalar ML Library",
+	"version": "1.0.0",
+	"description": "This package contains Linear Regression and K Means Clustering extensions. This package will be updated when more ML libraries become available.",
+	"main": "xcalarML.ext.js",
 	"repository": {
 		"type": "market",
-		"url": "www.xcalar.com/marketplace/rudy.tar.gz"
+		"url": "www.xcalar.com/marketplace/xcalarML.tar.gz"
 	},
-	"author": "Awesome Rudy",
+	"author": "Bohan Li",
 	"devDependencies": {
-		"aaa": "^0.1.0"
+		"xcalarDef": "^1.0.0"
 	},
 	"category": "Main",
-	"imageUrl": "wetwet.jpg",
-	"website": "www.weareawesome.com"
+	"imageUrl": "",
+	"website": "www.xcalar.com"
 }]
