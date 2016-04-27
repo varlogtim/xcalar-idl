@@ -18,7 +18,7 @@ window.FileBrowser = (function($, FileBrowser) {
     /* Contants */
     var defaultNFSPath  = "nfs:///";
     var defaultFilePath = "file:///";
-    var defaultHDFSPath = "hdfs:///";
+    var defaultHDFSPath = "hdfs://";
     var defaultSortKey  = "type"; // default is sort by type;
     var formatMap = {
         "JSON": "JSON",
@@ -101,7 +101,7 @@ window.FileBrowser = (function($, FileBrowser) {
                     listFiles(path)
                     .then(function() {
                         appendPath(path);
-                        checkIfCanGoUP();
+                        checkIfCanGoUp();
                     })
                     .fail(function(error) {
                         Alert.error(ThriftTStr.ListFileErr, error);
@@ -637,7 +637,7 @@ window.FileBrowser = (function($, FileBrowser) {
             var folder = oldPath.substring(path.length, oldPath.length);
             folder = folder.substring(0, folder.indexOf('/'));
             focusOn(folder);
-            checkIfCanGoUP();
+            checkIfCanGoUp();
             deferred.resolve();
         })
         .fail(function(error) {
@@ -648,8 +648,20 @@ window.FileBrowser = (function($, FileBrowser) {
         return deferred.promise();
     }
 
-    function checkIfCanGoUP() {
-        if (getCurrentPath() === defaultPath) {
+    function checkIfCanGoUp() {
+        var top = false;
+        if (defaultPath === defaultHDFSPath) {
+            // Special case because HDFS's default is actually hdfs://xxxxx/
+            var p =  getCurrentPath().replace(/hdfs:\/\/.*?\//i, "");
+            if (jQuery.trim(p).length == 0) {
+                top = true;
+            }
+        } else {
+            if (getCurrentPath() === defaultPath) {
+                top = true;
+            }
+        }
+        if (top) {
             $("#fileBrowserUp").addClass("disabled");
         } else {
             $("#fileBrowserUp").removeClass("disabled");
@@ -960,10 +972,24 @@ window.FileBrowser = (function($, FileBrowser) {
         }
         // parse path
         for (var i = path.length - 1; i >= (defaultPath.length - 1); i--) {
+            // XXX Does not handle file paths with escaped slashes
             if (path.charAt(i) === "/") {
                 paths.push(path.substring(0, i + 1));
             }
         }
+        // set defaultPath to defaultNFS/defaultFile or defaultHDFS based on what
+        // the user entered
+        if (path.indexOf(defaultNFSPath) == 0) {
+            defaultPath = defaultNFSPath;
+        } else if (path.indexOf(defaultFilePath) == 0) {
+            defaultPath = defaultFilePath;
+        } else if (path.indexOf(defaultHDFSPath) == 0) {
+            defaultPath = defaultHDFSPath;
+        } else {
+            console.log("Unsupported file path extension? Defaulting to file:///");
+            defaultPath = defaultFilePath;
+        }
+
         // cannot parse the path
         if (paths.length === 0) {
             if (openingBrowser) {
@@ -973,7 +999,6 @@ window.FileBrowser = (function($, FileBrowser) {
             } else {
                 var error = "Invalid Path, please input a valid one";
                 deferred.reject({"error": error});
-
                 return (deferred.promise());
             }
         }
@@ -997,7 +1022,7 @@ window.FileBrowser = (function($, FileBrowser) {
                                             path.length);
                 focusOn({"name": name});
             }
-            checkIfCanGoUP();
+            checkIfCanGoUp();
             deferred.resolve(status);
         })
         .fail(deferred.reject);
