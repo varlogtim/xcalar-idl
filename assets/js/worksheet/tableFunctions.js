@@ -627,9 +627,13 @@ function addMenuBehaviors($mainMenu) {
                        .parents('.subMenu').removeClass('inputSelected');
             },
             "keyup": function() {
+                if ($subMenu.find('li.selected').length) {
+                    return;
+                }
                 var $input = $(this);
                 $input.parents('li').addClass('inputSelected')
                 .parents('.subMenu').addClass('inputSelected');
+
             }
         }, 'input');
 
@@ -822,6 +826,9 @@ function addMenuKeyboardNavigation($menu, $subMenu) {
                 break;
             case (keyCode.Left):
                 if ($(event.target).is('input')) {
+                    if ($(event.target).attr('type') === "number") {
+                        return;
+                    }
                     if ($(event.target)[0].selectionStart !== 0) {
                         return;
                     }
@@ -896,6 +903,10 @@ function addMenuKeyboardNavigation($menu, $subMenu) {
             if ($subMenu && $subMenu.is(':visible')) {
                 // navigate vertically through sub menu if it's open
                 if ($highlightedSubLi.length) {
+                    if ($highlightedSubLi.hasClass('inputSelected')) {
+                        // we don't want navigation if an input has focus
+                        return;
+                    }
                     index = $subLis.index($highlightedSubLi);
                     $highlightedSubLi.removeClass('selected');
                     newIndex = (index + direction + numSubLis) % numSubLis;
