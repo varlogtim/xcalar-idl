@@ -454,7 +454,7 @@ module.exports = {
         'SuggRightHint': 'Suggest a key in right table to match left table',
         'SmartSuggBtn': 'Smart Suggest',
         'MultiJoin': 'Multi Clause Join',
-        'MultiJoinInstr': 'Drap and drop columns to join',
+        'MultiJoinInstr': 'Drag and drop columns to join',
         'RightTable': 'Right Table',
         'CONFIRM': 'JOIN TABLES',
         'viewTables': 'view other tables'

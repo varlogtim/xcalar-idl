@@ -272,7 +272,7 @@ IndexTStr = {
     'SortedErr': 'Current table is already sorted on this column in <order> order',
     'SuggTitle': 'Sort Suggestion',
     'SuggInstr': 'Select "Numerically" to cast the column to <type> ' +
-                 'before sorting in numerical order.',
+                 'before sorting in numerical order. Note that non-numeric row will be dropped.',
     'SuggMsg': 'This column can be sorted either numerically or alphabetically. ' +
                'How would you like to sort?',
     'CastToNum': 'Numerically',

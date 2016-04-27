@@ -833,7 +833,7 @@ window.TblMenu = (function(TblMenu, $) {
             datas.push(val);
         });
 
-        var suggType = xcHelper.suggestType(datas, type);
+        var suggType = xcHelper.suggestType(datas, type, 0.9);
         if (suggType === "integer" || suggType === "float") {
             var instr = xcHelper.replaceMsg(IndexTStr.SuggInstr, {
                 "type": suggType

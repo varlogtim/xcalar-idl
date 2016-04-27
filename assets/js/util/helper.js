@@ -1200,20 +1200,23 @@ window.xcHelper = (function($, xcHelper) {
         return (deferred.promise());
     };
 
-    xcHelper.suggestType = function(datas, currentType) {
+    xcHelper.suggestType = function(datas, currentType, confidentRate) {
         if (currentType === "integer" || currentType === "float") {
             return currentType;
+        }
+
+        if (confidentRate == null) {
+            confidentRate = 1;
         }
 
         if (!xcHelper.isArray(datas)) {
             datas = [datas];
         }
 
-        var isNumber;
-        var isInteger;
         var isFloat;
-        // var isOnly10;
-        var isBoolean;
+        var validData = 0;
+        var numHit = 0;
+        var booleanHit = 0;
 
         for (var i = 0, len = datas.length; i < len; i++) {
             var data = datas[i];
@@ -1228,50 +1231,34 @@ window.xcHelper = (function($, xcHelper) {
                 continue;
             }
 
-            if (isNumber == null || isNumber) {
-                var num = Number(data);
-                if (isNaN(num)) {
-                    isNumber = false;
-                    isInteger = false;
-                    isFloat = false;
-                } else {
-                    isNumber = true;
-                    if ((isInteger == null || isInteger) &&
-                        Number.isInteger(num))
-                    {
-                        isInteger = true;
-                        isFloat = false;
+            validData++;
+            var num = Number(data);
+            if (!isNaN(num)) {
+                numHit++;
 
-                        // if ((isOnly10 == null || isOnly10) &&
-                        //     (num === 0 || num === 1))
-                        // {
-                        //     isOnly10 = true;
-                        // } else {
-                        //     isOnly10 = false;
-                        // }
-                    } else {
-                        isFloat = true;
-                        isInteger = false;
-                    }
+                if (!isFloat && !Number.isInteger(num)) {
+                    // when it's float
+                    isFloat = true;
                 }
-            } else if (isBoolean == null || isBoolean) {
-                isBoolean = (data === "true" || data === "false" ||
-                             data === "t" || data === "f");
+            } else if (data === "true" || data === "false" ||
+                data === "t" || data === "f") {
+                booleanHit++;
             }
         }
 
-        if (currentType === "integer" || isInteger) {
-            // if (isOnly10) {
-            //     return "boolean";
-            // }
-            return "integer";
-        } else if (isFloat) {
-            return "float";
-        } else if (isBoolean) {
+        if (validData === 0) {
+            return "string";
+        } else if (numHit / validData >= confidentRate) {
+            if (isFloat) {
+                return "float";
+            } else {
+                return "integer";
+            }
+        } else if (booleanHit / validData) {
             return "boolean";
+        } else {
+            return "string";
         }
-
-        return "string";
     };
 
     xcHelper.lockTable = function(tableId) {

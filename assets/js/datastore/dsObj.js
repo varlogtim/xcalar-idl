@@ -1350,7 +1350,7 @@ window.DS = (function ($, DS) {
         return $dropTarget;
     }
 
-    // Set drap target
+    // Set drop target
     function setDropTraget($target) {
         $dropTarget = $target;
     }

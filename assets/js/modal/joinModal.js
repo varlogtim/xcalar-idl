@@ -713,7 +713,6 @@ window.JoinModal = (function($, JoinModal) {
     }
 
     function addModalTabListeners($modal, isLeft) {
-
         $modal.on("click", ".smartSuggest", function() {
             $(".tooltip").hide();
             var $btn = $(this).blur();
