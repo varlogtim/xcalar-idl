@@ -344,6 +344,16 @@ window.TblMenu = (function(TblMenu, $) {
             $(this).siblings('input').trigger(fakeEvent.enter);
         });
 
+        $subMenu.on('keypress', 'input', function() {
+            if (event.which === keyCode.Enter) {
+                var $input = $(this);
+                if ($input.closest('.extensions').length) {
+                    $input.siblings('.inputAction').find('.extensions')
+                                                   .trigger(fakeEvent.mouseup);
+                }
+            }
+        });
+
         $subMenu.on('keypress', '.rename input', function(event) {
             if (event.which === keyCode.Enter) {
                 var $input  = $(this);
@@ -545,6 +555,7 @@ window.TblMenu = (function(TblMenu, $) {
             if (event.which !== 1) {
                 return;
             }
+
             var colNum = $colMenu.data('colNum');
             var tableId = $colMenu.data('tableId');
             var classNames = $(this)[0].className.split(/\s+/);
@@ -553,6 +564,7 @@ window.TblMenu = (function(TblMenu, $) {
                     var argList = collectArgs($(this));
                     ColManager.extension(colNum, tableId, classNames[i],
                                          argList);
+                    closeMenu($allMenus);
                     break;
                 }
             }

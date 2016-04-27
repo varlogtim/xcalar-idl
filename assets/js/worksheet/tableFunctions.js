@@ -616,7 +616,8 @@ function addMenuBehaviors($mainMenu) {
 
         // prevents input from closing unless you hover over a different li
         // on the main column menu
-        $subMenu.find('input').on({
+        // $subMenu.find('input').on({
+        $subMenu.on({
             "focus": function() {
                 $(this).parents('li').addClass('inputSelected')
                        .parents('.subMenu').addClass('inputSelected');
@@ -630,7 +631,7 @@ function addMenuBehaviors($mainMenu) {
                 $input.parents('li').addClass('inputSelected')
                 .parents('.subMenu').addClass('inputSelected');
             }
-        });
+        }, 'input');
 
         $subMenu.on('mouseup', 'li', function(event) {
             if (event.which !== 1) {
@@ -707,6 +708,7 @@ function addMenuBehaviors($mainMenu) {
                     if (event.keyTriggered) {
                         $subMenu.hide();
                     } else {
+                        clearTimeout(hideTimeout);
                         hideTimeout = setTimeout(function() {
                             $subMenu.hide();
                         }, 150);
