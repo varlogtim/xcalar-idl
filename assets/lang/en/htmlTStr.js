@@ -199,7 +199,7 @@ module.exports = {
     },
 
     rightsideBar: {
-        'popOutBtn': 'pop out',
+        'popOutBtn': 'undock',
         'toggleSqlBtn': 'toggle machine/human SQL',
         'copySqlBtn': 'Copy SQL',
         'Tables': 'Tables',

@@ -1469,9 +1469,7 @@ function focusTable(tableId, focusDag) {
         $('#rowInput').val(0).data('val', 0);
     } else {
         RowScroller.genFirstVisibleRowNum();
-        if (!alreadyFocused) {
-            RowScroller.updateViewRange(tableId);
-        }
+        RowScroller.updateViewRange(tableId);
     }
     if (focusDag) {
         var tableFocused = true;

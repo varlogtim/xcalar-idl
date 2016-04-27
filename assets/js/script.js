@@ -558,23 +558,35 @@ window.StartManager = (function(StartManager, $) {
 
         var winResizeTimer;
         var resizing = false;
-        $(window).resize(function() {
+        var otherResize = false; // true if winresize is triggered by 3rd party code
+        $(window).resize(function(event) {
             if (!resizing) {
                 $('.menu').hide();
                 resizing = true;
             }
+
+            if (event.target !== window) {
+                otherResize = true;
+            } else {
+                otherResize = false;
+                moveTableTitles();
+            }
             clearTimeout(winResizeTimer);
             winResizeTimer = setTimeout(winResizeStop, 100);
-            moveTableTitles();
         });
 
         function winResizeStop() {
-            var table = gTables[gActiveTableId];
-            if (table && table.resultSetCount !== 0) {
-                RowScroller.genFirstVisibleRowNum();
+            if (otherResize) {
+                otherResize = false;
+            } else {
+                var table = gTables[gActiveTableId];
+                if (table && table.resultSetCount !== 0) {
+                    RowScroller.genFirstVisibleRowNum();
+                    RowScroller.updateViewRange(gActiveTableId);
+                }
+                moveTableDropdownBoxes();
+                TblManager.adjustRowFetchQuantity();
             }
-            moveTableDropdownBoxes();
-            TblManager.adjustRowFetchQuantity();
             resizing = false;
         }
 

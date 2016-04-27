@@ -59,6 +59,7 @@ window.DagPanel = (function($, DagPanel) {
                         $dagPanel.addClass('noTransform');
                         $dagPanel.css('top', dagTopPct + '%');
                         clickDisabled = false;
+                        RowScroller.updateViewRange(gActiveTableId);
                     }, 350);
                 }, 0);
 
@@ -101,6 +102,7 @@ window.DagPanel = (function($, DagPanel) {
                 $dagPanel.css('top', 0);
                 dagTopPct = 0;
                 clickDisabled = false;
+                RowScroller.updateViewRange(gActiveTableId);
             }, 400);
         });
 
@@ -113,7 +115,7 @@ window.DagPanel = (function($, DagPanel) {
             handles    : "n",
             containment: 'parent',
             start      : function(event, ui) {
-                $dagPanel.addClass('noTransform');
+                $dagPanel.addClass('noTransform resizing');
                 $dagPanel.css('top', dagPanelTop);
                 ui.originalPosition.top = dagPanelTop;
                 ui.position.top = dagPanelTop;
@@ -129,6 +131,7 @@ window.DagPanel = (function($, DagPanel) {
                     }
                     return (style.replace(/height[^;]+;?/g, ''));
                 });
+                $dagPanel.removeClass('resizing');
 
                 if (dagPanelTop < 30) {
                     dagPanelTop = 0;
@@ -139,6 +142,7 @@ window.DagPanel = (function($, DagPanel) {
                 if (dagPanelTop + 30 > containerHeight) {
                     // close the dag panel
                     closePanel($('#worksheetTabs').find('.dagTab.active'));
+                    RowScroller.updateViewRange(gActiveTableId);
                     return;
                 }
                 dagTopPct = 100 * (dagPanelTop / containerHeight);
@@ -147,6 +151,7 @@ window.DagPanel = (function($, DagPanel) {
                 $dagPanel.css('top', dagTopPct + '%');
                 $('#mainFrame').height('calc(' + dagTopPct + '% - ' + px + 'px)');
                 $dagArea.css('height', (100 - dagTopPct) + '%');
+                RowScroller.updateViewRange(gActiveTableId);
             }
         });
     }
@@ -173,6 +178,7 @@ window.DagPanel = (function($, DagPanel) {
 
             clickDisabled = false;
             $dagPanel.addClass('invisible');
+            RowScroller.updateViewRange(gActiveTableId);
         }, 400);
     }
 

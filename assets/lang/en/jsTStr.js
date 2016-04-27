@@ -455,8 +455,8 @@ SideBarTStr = {
     'NoSheet': 'No Sheet',
     'NoSheetTableInstr': 'You have tables that are not in any worksheet, ' +
                          'please choose a worksheet for these tables!',
-    'PopBack': 'pop back in',
-    'PopOut': 'pop out',
+    'PopBack': 'dock',
+    'PopOut': 'undock',
     'WalkThroughUA': 'Walkthrough Unavailable',
     'DelTablesMsg': 'Are you sure you want to delete the selected tables?',
     'SelectTable': 'select table',

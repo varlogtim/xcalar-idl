@@ -1041,7 +1041,7 @@ window.TblManager = (function($, TblManager) {
             $('.highlightBox').remove();
 
             var table = gTables[tableId];
-            focusTable(tableId);
+            RowScroller.genFirstVisibleRowNum();
             var $table = $('#xcTable-' + tableId);
 
             var innerDeferred = jQuery.Deferred();

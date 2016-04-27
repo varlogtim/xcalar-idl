@@ -263,6 +263,9 @@ window.RowScroller = (function($, RowScroller) {
     };
 
     RowScroller.updateViewRange = function(tableId) {
+        if (!tableId) {
+            return;
+        }
         var tableRowInfo = getTableRowInfo(tableId);
         var $rowMarker = $('#rowMarker-' + tableId);
 
@@ -357,6 +360,9 @@ window.RowScroller = (function($, RowScroller) {
                 return null;
             }
         } else {
+            var offsetTop = $table.parent().offset().top;
+            // tdYCoor may need to be changed when query graph is open
+            tdYCoor += (offsetTop - 114);
             var $trs = $table.find('tbody tr');
             var $tr;
             var rowNum = null;
@@ -376,8 +382,11 @@ window.RowScroller = (function($, RowScroller) {
         if ($tableWrap.length === 0) {
             return null;
         }
-
+        var tableWrapTop = $tableWrap.offset().top;
         var tableBottom = $tableWrap.offset().top + $tableWrap.height();
+        var minTableBottom = tableWrapTop + gFirstRowPositionTop +
+                             gRescol.minCellHeight;
+        tableBottom = Math.max(tableBottom, minTableBottom);
         var $trs = $tableWrap.find(".xcTable tbody tr");
 
         for (var i = $trs.length - 1; i >= 0; i--) {
@@ -388,7 +397,6 @@ window.RowScroller = (function($, RowScroller) {
                 return rowNum;
             }
         }
-
         return null;
     };
 
@@ -516,6 +524,12 @@ window.RowScroller = (function($, RowScroller) {
         var topRow = getFirstVisibleRowNum(tableId);
         var botRow = RowScroller.getLastVisibleRowNum(tableId);
         var totalRows = gTables[tableId].resultSetMax;
+         if (!botRow) {
+            var $table= $('#xcTable-' + tableId);
+            if ($table.length) {
+                botRow = $table.find('tbody tr').length;
+            }
+        }
         if (!botRow) {
             botRow = totalRows;
         }
@@ -534,6 +548,12 @@ window.RowScroller = (function($, RowScroller) {
         var topRow = getFirstVisibleRowNum() || 1;
         var botRow = RowScroller.getLastVisibleRowNum(tableId);
         var totalRows = gTables[tableId].resultSetMax;
+        if (!botRow) {
+            var $table= $('#xcTable-' + tableId);
+            if ($table.length) {
+                botRow = $table.find('tbody tr').length;
+            }
+        }
         if (!botRow) {
             botRow = totalRows;
         }
