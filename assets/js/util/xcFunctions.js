@@ -611,7 +611,7 @@ window.xcFunction = (function($, xcFunction) {
                     "isAlert"   : true,
                     "isCheckBox": true,
                     "onClose"   : function() {
-                        $('#alertContent').removeClass('leftalign');
+                        $('#alertContent').removeClass('leftAlign');
                     },
                     "buttons": [{
                                 "name"     : "CLOSE",
