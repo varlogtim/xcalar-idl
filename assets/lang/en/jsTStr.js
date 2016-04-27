@@ -114,7 +114,7 @@ ErrTStr = {
     'NoEmptyOrCheck': 'Please fill out this field ' +
                         'or keep it empty by checking the checkbox.',
 
-    'NameInUse': 'Name is in use, please another name.',
+    'NameInUse': 'Name is in use, please choose another name.',
 
     'DSNameConfilct': 'Dataset with the same name already exits. ' +
                         'please choose another name.',
