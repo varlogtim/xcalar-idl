@@ -2298,7 +2298,7 @@ function XcalarDownloadPython(moduleName) {
     // fromWhichWorkbook can be null
     xcalarApiUdfGet(tHandle, moduleName)
     .then(function(output) {
-        deferred.resolve(output.pythonSrc);
+        deferred.resolve(output.source);
     })
     .fail(function(error) {
         var thriftError = thriftLog("XcalarDownloadPython", error);
