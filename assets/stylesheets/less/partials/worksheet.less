@@ -873,10 +873,10 @@
             .position(absolute, @right: -3px, @bottom: -4px);
             .size(32px, 30px);
             z-index: 6;
-            opacity: 0;
+            opacity: 0.4;
             border: none;
             cursor: pointer;
-            .transition (opacity 0.02s linear);
+            .transition (opacity 0.15s linear);
             .transition-delay (0.08s);
 
             .innerBox {
@@ -1372,7 +1372,7 @@ td.col0:hover {
 
 .highlightBox, .jsonModalHighlightBox {
     position: absolute;
-    z-index: 0;
+    z-index: 1;
     .rounded(2px);
     box-shadow: inset 0px 0px 0px 2px @color-shadow-topAction;
 }

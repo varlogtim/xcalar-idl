@@ -40,6 +40,7 @@ window.TblAnim = (function($, TblAnim) {
         rescol.tempCellMinWidth = rescol.cellMinWidth;
         rescol.leftDragMax = rescol.tempCellMinWidth - rescol.startWidth;
         $table.addClass('resizingCol');
+        $('.xcTableWrap').find('.dropdownBox').hide();
 
         xcHelper.disableTextSelection();
 
@@ -84,6 +85,7 @@ window.TblAnim = (function($, TblAnim) {
         var widthState;
         $('#resizeCursor').remove();
         $('body').removeClass('tooltipOff');
+        $('.xcTableWrap').find('.dropdownBox').show();
         rescol.table.closest('.xcTableWrap').find('.rowGrab')
                                             .width(rescol.table.width());
         rescol.table.removeClass('resizingCol');
@@ -809,6 +811,7 @@ window.TblAnim = (function($, TblAnim) {
             createTableDropTargets();
             dragdropMoveMainFrame(dragInfo, 50);
             xcHelper.disableTextSelection();
+            $('.xcTableWrap').find('.dropdownBox').hide();
         }
     }
 
@@ -850,6 +853,7 @@ window.TblAnim = (function($, TblAnim) {
         moveTableDropdownBoxes();
         moveFirstColumn();
         moveTableTitles();
+        $('.xcTableWrap').find('.dropdownBox').show();
     }
 
     function createShadowTable() {
@@ -956,6 +960,8 @@ window.TblAnim = (function($, TblAnim) {
         dragInfo.tableIndex = dropTargetIndex;
         moveTableDropTargets(dropTargetIndex, oldIndex, $table);
         moveFirstColumn();
+        moveTableDropdownBoxes();
+        moveTableTitles();
     }
 
     function sizeTableForDragging() {
