@@ -1655,7 +1655,7 @@ window.TblManager = (function($, TblManager) {
                 // not focus when in modal
                 return;
             }
-            var options = {"type": "thDropdown"};
+            var options = {};
             var $el = $(this);
             var $th = $el.closest("th");
             var isRightClick = event.rightClick;
@@ -1723,7 +1723,7 @@ window.TblManager = (function($, TblManager) {
                 options.mouseCoors = {"x": event.pageX, "y": $el.offset().top + 34};
             }
 
-            dropdownClick($el, options);
+            xcHelper.dropdownOpen($el, $("#colMenu"), options);
         });
 
         $thead.on('mousedown', '.colGrab', function(event) {
@@ -1861,15 +1861,15 @@ window.TblManager = (function($, TblManager) {
                 singleSelection();
             }
 
-            dropdownClick($el, {
-                "type"      : "tdDropdown",
+            xcHelper.dropdownOpen($el, $('#cellMenu'), {
                 "colNum"    : colNum,
                 "rowNum"    : rowNum,
                 "classes"   : "tdMenu", // specify classes to update colmenu's class attr
                 "mouseCoors": {"x": event.pageX, "y": yCoor},
                 "shiftKey"  : event.shiftKey,
                 "isMutiCol" : isMultiColumn(),
-                "isUnSelect": isUnSelect
+                "isUnSelect": isUnSelect,
+                "floating"  : true
             });
 
             function singleSelection() {
@@ -1914,7 +1914,7 @@ window.TblManager = (function($, TblManager) {
                 // not focus when in modal
                 return false;
             }
-            var yCoor = Math.max(event.pageY, $el.offset().top + $el.height() - 10);
+            var yCoor = Math.max(event.pageY, $div.offset().top + $div.height() - 10);
             var colNum = xcHelper.parseColNum($td);
             var rowNum = xcHelper.parseRowNum($td.closest("tr"));
 
@@ -1927,8 +1927,7 @@ window.TblManager = (function($, TblManager) {
                 highlightCell($td, tableId, rowNum, colNum);
             }
 
-            dropdownClick($div, {
-                "type"      : "tdDropdown",
+            xcHelper.dropdownOpen($div, $("#cellMenu"), {
                 "colNum"    : colNum,
                 "rowNum"    : rowNum,
                 "classes"   : "tdMenu", // specify classes to update colmenu's class attr

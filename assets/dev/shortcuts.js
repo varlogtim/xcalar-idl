@@ -215,9 +215,7 @@ window.Shortcuts = (function($, Shortcuts) {
         addMenuActions();
 
         $('#shortcutMenuIcon').click(function(){
-            dropdownClick($(this), {type: 'other',
-                                    '$menu': $('#shortcutMenu'),
-                                    '$subMenu': $("#shortcutSubMenu")});
+            xcHelper.dropdownOpen($(this), $('#shortcutMenu'));
         });
     }
 

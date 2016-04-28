@@ -13,6 +13,7 @@ window.DS = (function ($, DS) {
     var $backFolderBtn;   // $("#backFolderBtn")
     var $deleteFolderBtn; // $("#deleteFolderBtn")
     var $gridView;        // $explorePanel.find(".gridItems")
+    var $gridMenu;
 
     // for DS drag n drop
     var $dragDS;
@@ -24,9 +25,12 @@ window.DS = (function ($, DS) {
         $backFolderBtn = $("#backFolderBtn");
         $deleteFolderBtn = $("#deleteFolderBtn");
         $gridView = $explorePanel.find(".gridItems");
+        $gridMenu = $('#gridViewMenu');
 
         setupGridViewButtons();
         setupGrids();
+        addMenuBehaviors($gridMenu);
+        setupMenuActions();
     };
 
     // Restore dsObj
@@ -778,7 +782,7 @@ window.DS = (function ($, DS) {
         }
 
         // add ds that is not in oldHomeFolder
-        for (dsName in searchHash) {
+        for (var dsName in searchHash) {
             ds = searchHash[dsName];
 
             if (ds != null) {
@@ -952,6 +956,28 @@ window.DS = (function ($, DS) {
                 }
             }
         );
+
+        // $gridView.parent()[0].oncontextmenu = function(event) {
+        //     var $target = $(event.target);
+        //     var options = {
+        //         "mouseCoors": {"x": event.pageX, "y": event.pageY + 10},
+        //         "classes": "",
+        //         "ignoreSideBar": true,
+        //         "floating": true
+        //     };
+        //     if ($target.closest('.grid-unit').length) {
+        //         if ($target.closest('.grid-unit').hasClass('ds')) {
+        //             options.classes += " dsOpts";
+        //         }
+        //         if ($target.closest('.grid-unit').hasClass('folder')) {
+        //             options.classes += " folderOpts";
+        //         }
+        //     } else {
+        //         options.classes += " bgOpts";
+        //     }
+        //     xcHelper.dropdownOpen($target, $gridMenu, options);
+        //     return false;
+        // };
     }
 
     // toggle between list view and grid view
@@ -1122,6 +1148,14 @@ window.DS = (function ($, DS) {
             var name = $label.data("dsname");
             xcHelper.middleEllipsis(name, $label, maxChar, isListView);
         });
+    }
+
+    function setupMenuActions() {
+        $gridMenu.on('mouseup', '.newFolder', function() {
+            DS.newFolder();
+        });
+
+        // add more actions here for delete, rename etc
     }
 
     /*** Drag and Drop API ***/

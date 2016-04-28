@@ -1114,10 +1114,10 @@ window.WSManager = (function($, WSManager) {
             if ($tabMenu.is(':visible') && $tabMenu.data('ws') === wsId) {
                 $tabMenu.hide();
             }
-            dropdownClick($wsIconWrap, {
-                "type"         : "tabMenu",
+            xcHelper.dropdownOpen($wsIconWrap, $tabMenu, {
                 "offsetX"      : -7,
                 "ignoreSideBar": true,
+                "floating": true,
                 "callback"     : function() {
                     if (numTabs === 1) {
                         $tabMenu.find('.delete').addClass('unavailable');

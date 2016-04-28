@@ -1859,5 +1859,313 @@ window.xcHelper = (function($, xcHelper) {
         return (false);
     };
 
+    /*
+    options: {
+        mouseCoors: {x: float, y: float},
+        offsetX: float,
+        offsetY: float,
+        classes: string, ("class1 class2") to assign to $menu
+        colNum: integer,
+        isMutiCol: boolean,
+        multipleColumns: [integers],
+        isUnselect: boolean,
+        shiftKey: boolean,
+        ignoreSidebar: boolean, (ignore rightsidebar if in the way)
+        floating: boolean (menu floats around and can pop up above user's mouse)
+        callback: function
+    }
+    */
+
+    xcHelper.dropdownOpen = function($dropdownIcon, $menu, options) {
+        options = options || {};
+
+        if (!($menu instanceof jQuery)) {
+            console.error("Need to provide $menu");
+            return;
+        }
+
+        var tableId;
+        var $subMenu;
+        var $allMenus;
+        var menuId = $menu.attr('id');
+
+        if ($menu.data('submenu')) {
+            $subMenu  = $('#' + $menu.data('submenu'));
+            $allMenus = $menu.add($subMenu);
+        } else {
+            $allMenus = $menu;
+        }
+
+        if (menuId === "tableMenu" || menuId === "colMenu" ||
+            menuId === "cellMenu") {
+            tableId = xcHelper.parseTableId($dropdownIcon.closest(".xcTableWrap"));
+        }
+
+        $('.menu .selected').removeClass('selected');
+        $(".leftColMenu").removeClass("leftColMenu");
+        $('.tooltip').hide();
+        removeMenuKeyboardNavigation();
+        $menu.removeData("rowNum");
+
+        if (typeof options.callback === "function") {
+            options.callback();
+        }
+
+        // custom options for each $menu type
+        // adds classes, decides whether to close the menu and return;
+        var menuHelperResult = menuHelper($dropdownIcon, $menu, $subMenu,
+                                          menuId, tableId, options);
+
+        if (menuHelperResult === "closeMenu") {
+            closeMenu($allMenus);
+            return;
+        }
+
+        $(".menu:visible").hide();
+
+        // case that should open the menu (note that colNum = 0 may make it false!)
+        if (options.colNum != null && options.colNum > -1) {
+            $menu.data("colNum", options.colNum);
+            $menu.data("tableId", tableId);
+        } else {
+            $menu.removeData("colNum");
+            $menu.removeData("tableId");
+        }
+        if (menuId === "tableMenu") {
+            $menu.data("tableId", tableId);
+        }
+
+        if (options.rowNum != null && options.rowNum > -1) {
+            $menu.data("rowNum", options.rowNum);
+        }
+
+        if (options.classes != null) {
+            var className = options.classes.replace("header", "");
+            $menu.attr("class", "menu " + className);
+            if ($subMenu) {
+                $subMenu.attr("class", "menu subMenu " + className);
+            }
+        }
+
+        // adjust menu height and position it properly
+        positionAndShowMenu(menuId, $menu, $dropdownIcon, options);
+
+        addMenuKeyboardNavigation($menu, $subMenu);
+        $('body').addClass('noSelection');
+    };
+
+    /*
+    options: {
+        mouseCoors: {x: float, y: float},
+        offsetX: float,
+        offsetY: float,
+        ignoreSidebar: boolean, (ignore rightsidebar if in the way)
+        floating: boolean (menu floats around and can pop up above user's mouse)
+    }
+    */
+    function positionAndShowMenu(menuId, $menu, $dropdownIcon, options) {
+        var winHeight = $(window).height();
+        var bottomMargin = 5;
+        var topMargin;
+        var menuHeight;
+        if (menuId === "cellMenu") {
+            topMargin = 15;
+        } else if (menuId === "colMenu" || menuId === "tableMenu") {
+            topMargin = -4;
+        } else {
+            topMargin = 0;
+        }
+        var leftMargin = 5;
+
+        var left;
+        var top;
+        if (options.mouseCoors) {
+            left = options.mouseCoors.x - 5;
+            top = options.mouseCoors.y + topMargin;
+        } else {
+            left = $dropdownIcon[0].getBoundingClientRect().left + leftMargin;
+            top = $dropdownIcon[0].getBoundingClientRect().bottom + topMargin;
+        }
+
+        if (options.offsetX) {
+            left += options.offsetX;
+        }
+        if (options.offsetY) {
+            left += options.offsetY;
+        }
+
+        menuHeight = winHeight - top - bottomMargin;
+        $menu.css('max-height', menuHeight);
+        $menu.children('ul').css('max-height', menuHeight);
+        $menu.css({"top": top, "left": left});
+        $menu.show();
+        $menu.children('ul').scrollTop(0);
+
+        // size menu and ul
+        var $ul = $menu.find('ul');
+        if ($ul.length > 0) {
+            var ulHeight = $menu.find('ul')[0].scrollHeight;
+            if (ulHeight > menuHeight) {
+                $menu.find('.scrollArea').show();
+                $menu.find('.scrollArea.bottom').addClass('active');
+            } else {
+                $menu.children('ul').css('max-height', 'none');
+                $menu.find('.scrollArea').hide();
+            }
+        }
+        // set scrollArea states
+        $menu.find('.scrollArea.top').addClass('stopped');
+        $menu.find('.scrollArea.bottom').removeClass('stopped');
+
+        //positioning if dropdown menu is on the right side of screen
+        if (!options.ignoreSideBar) {
+            var leftBoundary = $('#rightSideBar')[0].getBoundingClientRect().left;
+            if ($menu[0].getBoundingClientRect().right > leftBoundary) {
+                left = leftBoundary - $menu.width();
+                $menu.css('left', left).addClass('leftColMenu');
+            }
+        }
+
+        //positioning if td menu is below the screen and floating option is allowed
+        if (options.floating) {
+            $menu.css('max-height', 'none');
+            $menu.children('ul').css('max-height', 'none');
+            $menu.find('.scrollArea.bottom').addClass('stopped');
+            var offset = 15;
+            if (menuId === "worksheetTabMenu") {
+                offset = 25;
+            } else if (menuId === "cellMenu") {
+                offset = 20;
+            }
+            if (top + $menu.height() + 5 > winHeight) {
+                top -= ($menu.height() + offset);
+                $menu.css('top', top);
+            }
+        }
+    }
+
+    function menuHelper($dropdownIcon, $menu, $subMenu, menuId, tableId, options) {
+        switch (menuId) {
+            case ('tableMenu'):
+                // case that should close table menu
+                if ($menu.is(":visible") && $menu.data('tableId') === tableId) {
+                    return "closeMenu";
+                }
+                updateTableDropdown($menu, options);
+                $('.highlightBox').remove();
+                break;
+            case ('colMenu'):
+                // case that should close column menu
+                if ($menu.is(":visible") &&
+                    $menu.data("colNum") === options.colNum &&
+                    $menu.data('tableId') === tableId &&
+                    !$menu.hasClass('tdMenu')) {
+                    return "closeMenu";
+                }
+                if (options.multipleColNums) {
+                    $menu.data('columns', options.multipleColNums);
+                } else {
+                    $menu.data('columns', []);
+                }
+                $subMenu.find('.sort').removeClass('unavailable');
+                $('.highlightBox').remove();
+                break;
+            case ('cellMenu'):
+                // case that should close column menu
+                if (options.isUnSelect && !options.shiftKey) {
+                    return "closeMenu";
+                }
+                updateTdDropdown($dropdownIcon, $menu, tableId, options);
+                break;
+            default:
+                $('.highlightBox').remove();
+                break;
+        }
+    }
+
+    function updateTdDropdown($div, $menu, tableId, options) {
+        // If the tdDropdown is on a non-filterable value, we need to make the
+        // filter options unavailable
+        var tableCol = gTables[tableId].tableCols[options.colNum - 1];
+        var columnType = tableCol.type;
+        var shouldNotFilter = options.isMutiCol ||
+                            (
+                                columnType !== "string" &&
+                                columnType !== "float" &&
+                                columnType !== "integer" &&
+                                columnType !== "boolean"
+                            );
+        var notAllowed = $div.find('.null, .blank').length;
+        var isMultiCell = $("#xcTable-" + tableId).find(".highlightBox").length > 1;
+
+        var $tdFilter  = $menu.find(".tdFilter");
+        var $tdExclude = $menu.find(".tdExclude");
+
+        if (shouldNotFilter || notAllowed) {
+            $tdFilter.addClass("unavailable");
+            $tdExclude.addClass("unavailable");
+        } else {
+            $tdFilter.removeClass("unavailable");
+            $tdExclude.removeClass("unavailable");
+        }
+
+        if (!options.isMutiCol &&
+            (tableCol.format != null || tableCol.decimals > -1))
+        {
+            // when it's only on one column and column is formatted
+            if (isMultiCell) {
+                $tdFilter.text('Filter pre-formatted values');
+                $tdExclude.text('Exclude pre-formatted values');
+            } else {
+                $tdFilter.text('Filter pre-formatted value');
+                $tdExclude.text('Exclude pre-formatted value');
+            }
+            options.classes += " long";
+        } else {
+            if (isMultiCell) {
+                $tdFilter.text('Filter these values');
+                $tdExclude.text('Exclude these values');
+            } else {
+                $tdFilter.text('Filter this value');
+                $tdExclude.text('Exclude this value');
+            }
+        }
+
+        if ((columnType === "object" || columnType === "array") && !notAllowed) {
+            if ($div.text().trim() === "") {
+                $menu.find(".tdJsonModal").addClass("hidden");
+                $menu.find(".tdUnnest").addClass("hidden");
+            } else if (isMultiCell) {
+                // when more than one cell is selected
+                $menu.find(".tdJsonModal").addClass("hidden");
+                $menu.find(".tdUnnest").addClass("hidden");
+            } else {
+                $menu.find(".tdJsonModal").removeClass("hidden");
+                $menu.find(".tdUnnest").removeClass("hidden");
+            }
+        } else {
+            if ($div.parent().hasClass('truncated')) {
+                $menu.find(".tdJsonModal").removeClass("hidden");
+            } else {
+                $menu.find(".tdJsonModal").addClass("hidden");
+            }
+            $menu.find(".tdUnnest").addClass("hidden");
+        }
+    }
+
+    function updateTableDropdown($menu, options) {
+        if (options.classes && options.classes.indexOf('locked') !== -1) {
+            $menu.find('li:not(.hideTable, .unhideTable)')
+                  .addClass('unavailable');
+        } else {
+            $menu.find('li').removeClass('unavailable');
+        }
+        if (WSManager.getWSLen() <= 1) {
+            $menu.find(".moveToWorksheet").addClass("unavailable");
+        } else {
+            $menu.find(".moveToWorksheet").removeClass("unavailable");
+        }
+    }
+
     return (xcHelper);
 }(jQuery, {}));
