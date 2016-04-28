@@ -144,17 +144,14 @@ window.Profile = (function($, Profile, d3) {
 
         // event on sort section
         var $sortSection = $modal.find(".sortSection");
-
-        $sortSection.on("click", ".asc .radioWrap", function() {
-            sortData(sortMap.asc, statsCol);
-        });
-
-        $sortSection.on("click", ".origin .radioWrap", function() {
-            sortData(sortMap.origin, statsCol);
-        });
-
-        $sortSection.on("click", ".desc .radioWrap", function() {
-            sortData(sortMap.desc, statsCol);
+        xcHelper.raidoButtons($sortSection, function(option, $radio) {
+            if ($radio.hasClass("asc")) {
+                sortData(sortMap.asc, statsCol);
+            } else if ($radio.hasClass("desc")) {
+                sortData(sortMap.desc, statsCol);
+            } else {
+                sortData(sortMap.origin, statsCol);
+            }
         });
 
         // event on range section
@@ -1607,10 +1604,9 @@ window.Profile = (function($, Profile, d3) {
     function resetSortInfo() {
         var $sortSection = $modal.find(".sortSection");
         var $activeSort = $sortSection.find(".active");
-        $activeSort.removeClass("active").find(".radio").removeClass("checked");
+        $activeSort.removeClass("active");
 
-        $sortSection.find("." + order).addClass("active")
-                    .find(".radio").addClass("checked");
+        $sortSection.find("." + order).addClass("active");
     }
 
     function sortData(newOrder, curStatsCol) {

@@ -1576,22 +1576,19 @@ input {
                 }
             }
         }
-        .radioSection {
+        .radioButtonGroup {
             .justify-content(space-between);
             margin-top: 45px;
+
+            .label {
+                line-height: 20px;
+            }
+
+            .windowsAuth {
+                .flex(1 1 60%);
+            }
         }
 
-        .radioWrap {
-            height: 25px;
-            line-height: 25px;
-            .flex(1 1 auto);
-            .radio {
-                margin-top: 8px;
-            }
-            &:first-child {
-                .flex(2 1 auto);
-            }
-        }
         button {
             margin-bottom: 40px;
         }

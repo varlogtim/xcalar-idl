@@ -118,15 +118,10 @@ window.Scheduler = (function(Scheduler, $) {
         // frequent section event
         var $freqSection = $schedulesView.find(".frequencySection");
         var $freq2 = $freqSection.find(".freq2");
-
-        $freqSection.on("click", ".radioWrap", function() {
-            var $option = $(this);
+        xcHelper.raidoButtons($freqSection, function(option) {
             var $datepickerPart = $timeSection.find(".datePickerPart");
 
-            $freqSection.find(".radio").removeClass("checked");
-            $option.find(".radio").addClass("checked");
-
-            if ($option.data("option") === scheduleFreq.dayPerMonth) {
+            if (option === scheduleFreq.dayPerMonth) {
                 $freq2.removeClass("inActive");
                 $datepickerPart.addClass("inActive");
             } else {
@@ -398,8 +393,8 @@ window.Scheduler = (function(Scheduler, $) {
         var date    = $scheduleDate.val().trim();
         var time    = $scheduleTime.val().trim();
         var timeObj = $scheduleTime.data("date");
-        var repeat  = $scheduleForm.find(".frequencySection .radio.checked")
-                                    .closest(".radioWrap").data("option");
+        var repeat  = $scheduleForm.find(".frequencySection .radioButton.active")
+                                    .data("option");
 
         var isDayPerMonth = (repeat === scheduleFreq.dayPerMonth);
 
@@ -486,14 +481,14 @@ window.Scheduler = (function(Scheduler, $) {
         }
 
         var $freqSection = $scheduleForm.find(".frequencySection");
-        $freqSection.find(".radio.checked").removeClass("checked");
+        $freqSection.find(".radioButton.active").removeClass("active");
 
         var $checkBox;
 
         if (isNew) {
-            $checkBox = $freqSection.find(".radioWrap").eq(0);
+            $checkBox = $freqSection.find(".radioButton").eq(0);
         } else {
-            $checkBox = $freqSection.find('.radioWrap[data-option="' +
+            $checkBox = $freqSection.find('.radioButton[data-option="' +
                                             schedule.repeat + '"]');
         }
 

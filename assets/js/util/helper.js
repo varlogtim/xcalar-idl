@@ -729,6 +729,24 @@ window.xcHelper = (function($, xcHelper) {
         }
     };
 
+    xcHelper.raidoButtons = function($container, callback) {
+        $container.on("click", ".radioButton", function() {
+            var $radioButton = $(this);
+            if ($radioButton.hasClass("active") ||
+                $radioButton.hasClass("disabled"))
+            {
+                return;
+            }
+
+            $radioButton.closest(".radioButtonGroup")
+                        .find(".radioButton.active").removeClass("active");
+            $radioButton.addClass("active");
+
+            var option = $radioButton.data("option");
+            callback(option, $radioButton);
+        });
+    };
+
     // handle dropdown list generally
     xcHelper.dropdownList = function($dropDownList, options) {
         options = options || {};

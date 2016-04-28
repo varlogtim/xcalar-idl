@@ -206,42 +206,44 @@
               <!-- part1 -->
               <div class="freq1">
                 <div class="title"><%= dicts.sched.freq %>:</div>
-                <div class="radioWrap" data-option="minute">
-                  <div class="radio checked">
-                    <span class="dot"></span>
+                <div class="radioButtonGroup center">
+                  <div class="radioButton active" data-option="minute">
+                    <div class="radio">
+                      <span class="dot"></span>
+                    </div>
+                    <div class="label"><%= dicts.sched.perMin %></div>
                   </div>
-                  <div class="label"><%= dicts.sched.perMin %></div>
+                  <div class="radioButton" data-option="hourly">
+                    <div class="radio">
+                      <span class="dot"></span>
+                    </div>
+                    <div class="label"><%= dicts.sched.hourly %></div>
+                  </div>
+                  <div class="radioButton" data-option="daily">
+                    <div class="radio">
+                      <span class="dot"></span>
+                    </div>
+                    <div class="label"><%= dicts.sched.daily %></div>
+                  </div>
+                  <div class="radioButton" data-option="weekly">
+                    <div class="radio">
+                      <span class="dot"></span>
+                    </div>
+                    <div class="label"><%= dicts.sched.weekly %></div>
+                  </div>
+                  <div class="radioButton" data-option="biweekly">
+                    <div class="radio">
+                      <span class="dot"></span>
+                    </div>
+                    <div class="label"><%= dicts.sched.biweekly %></div>
+                  </div>
+                  <!-- <div class="radioButton" data-option="monthly">
+                    <div class="radio">
+                      <span class="dot"></span>
+                    </div>
+                    <div class="label">Monthly</div>
+                  </div> -->
                 </div>
-                <div class="radioWrap" data-option="hourly">
-                  <div class="radio checked">
-                    <span class="dot"></span>
-                  </div>
-                  <div class="label"><%= dicts.sched.hourly %></div>
-                </div>
-                <div class="radioWrap" data-option="daily">
-                  <div class="radio">
-                    <span class="dot"></span>
-                  </div>
-                  <div class="label"><%= dicts.sched.daily %></div>
-                </div>
-                <div class="radioWrap" data-option="weekly">
-                  <div class="radio">
-                    <span class="dot"></span>
-                  </div>
-                  <div class="label"><%= dicts.sched.weekly %></div>
-                </div>
-                <div class="radioWrap" data-option="biweekly">
-                  <div class="radio">
-                    <span class="dot"></span>
-                  </div>
-                  <div class="label"><%= dicts.sched.biweekly %></div>
-                </div>
-                <!-- <div class="radioWrap" data-option="monthly">
-                  <div class="radio">
-                    <span class="dot"></span>
-                  </div>
-                  <div class="label">Monthly</div>
-                </div> -->
               </div>
               <!-- part2 -->
               <!--

@@ -158,15 +158,7 @@ window.UDF = (function($, UDF) {
 
         /* switch between UDF sections */
         var $sections = $("#udfSection .mainSection");
-        var $radios   = $("#udf-tabs .radioWrap .radio");
-
-        $("#udf-tabs").on("click", ".radioWrap", function() {
-            var $option = $(this);
-            var tabId = $option.data("tab");
-
-            $radios.removeClass("checked");
-            $option.find(".radio").addClass("checked");
-
+        xcHelper.raidoButtons($("#udf-tabs"), function(tabId) {
             $sections.addClass("hidden");
             $("#" + tabId).removeClass("hidden");
 

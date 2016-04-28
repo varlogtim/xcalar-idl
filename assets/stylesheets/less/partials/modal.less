@@ -1564,20 +1564,11 @@ html.microsoft {
 
         .optionSection {
             .size(@width: 80%, @height: 30px);
-            .position(relative);
             margin: 0 auto;
-            .flex-display;
 
-            .radioWrap {
-                .flex(1 1 33%);
-                .justify-content(center);
-                &.disabled {
-                    opacity: 0.4;
-                    cursor: initial;
-                    .radio, .label {
-                        pointer-events: none;
-                    }
-                }
+            .radioButton.disabled {
+                opacity: 0.4;
+                pointer-events: none;
             }
         }
 
@@ -1779,6 +1770,11 @@ html.microsoft {
         .transition(opacity 0.4s);
     }
 
+    .radioButton {
+        .flex(1 1 33%);
+        .justify-content(center);
+    }
+
     .modalMain {
         .size(@height: ~"calc(100% - 260px)");
 
@@ -1814,13 +1810,10 @@ html.microsoft {
 
     .modalTopMain {
         .optionSection {
-            .radioWrap {
+            .radioButton {
                 .flex(0 1 33%);
                 &:nth-child(2) {
                     .flex(0 1 66%);
-                }
-                &.unavailable {
-                    pointer-events: none;
                 }
             }
         }
@@ -3016,11 +3009,7 @@ html.microsoft {
                 .sort {
                     .flex(1 1 100px);
 
-                    &.active {
-                        .radioWrap {
-                            cursor: default;
-                        }
-
+                    .radioButton.active {
                         .text {
                             color: @color-text-blue;
                         }
@@ -3038,10 +3027,6 @@ html.microsoft {
                         }
                     }
 
-                    .radioWrap {
-                        cursor: pointer;
-                    }
-
                     .icon {
                         float: left;
                         margin: 0 5px;
@@ -3053,15 +3038,15 @@ html.microsoft {
                         .font(@line-height: 20px, @size: 12px, @weight: bold, @color: @color-text-instructions);
                     }
 
-                    &.asc .icon {
+                    .asc .icon {
                         .image("../../images/profileModal/ascG.png", 50%, 50%);
                     }
 
-                    &.origin .icon {
+                    .origin .icon {
                         .image("../../images/profileModal/origG.png", 50%, 50%);
                     }
 
-                    &.desc .icon {
+                    .desc .icon {
                         .image("../../images/profileModal/descG.png", 50%, 50%);
                     }
                 }
@@ -3498,30 +3483,31 @@ html.microsoft {
             }
         }
 
-        .radioWrap {
-            height: 25px;
-            margin-right: 20px;
-            min-width: 93px;
-            .radio {
-                margin-top: 6px;
-            }
-            .label {
-                width: auto;
-                cursor: pointer;
+        .radioButtonGroup {
+            .size(@width: 232px, @height: 25px);
+
+            .radioButton {
+                .size(@height: 25px, @min-width: 93px);
+                .font(@line-height: 25px);
+                .flex(1 1 50%);
+
+                .label {
+                    width: auto;
+                    cursor: pointer;
+                }
             }
         }
+
         .overwrite {
             .label {
                 width: 85px;
             }
-            .radio {
-                margin-right: 0px;
-            }
-            .radioWrap {
-                min-width: auto;
-                margin-right: 10px;
-                .label {
-                    width: auto;
+
+            .radioButtonGroup {
+                .size(@width: auto);
+
+                .radioButton {
+                    .size(@min-width: auto);
                 }
             }
         }

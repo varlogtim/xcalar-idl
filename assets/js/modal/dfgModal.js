@@ -7,10 +7,11 @@ window.DataFlowModal = (function($, DataFlowModal) {
     var $sideListSection;   // $dfgModal.find('.sideListSection')
     var $previewSection;    // $dfgModal.find('.previewSection')
     var $searchInput;       // $("#dataFlowSearch")
-    var $radios;            // $dfgModal.find('.radio')
+    var $radios;            // $dfgModal.find('.radioButton')
     var $newGroupNameInput; // $('#newGroupNameInput')
     var $confirmBtn;        // $("#dataFlowModalConfirm")
 
+    var isFirstTouch = true;
     var tableName;
     var modalHelper;
     // constant
@@ -26,7 +27,7 @@ window.DataFlowModal = (function($, DataFlowModal) {
         $sideListSection = $dfgModal.find('.sideListSection');
         $previewSection = $dfgModal.find('.previewSection');
         $searchInput = $("#dataFlowSearch");
-        $radios = $dfgModal.find('.radio');
+        $radios = $dfgModal.find('.radioButton');
         $newGroupNameInput = $('#newGroupNameInput');
         $confirmBtn = $("#dataFlowModalConfirm");
 
@@ -54,10 +55,14 @@ window.DataFlowModal = (function($, DataFlowModal) {
         });
 
         addModalEvents();
-        setupDFGList();
     };
 
     DataFlowModal.show = function($dagWrap) {
+        if (isFirstTouch) {
+            setupDFGList();
+            isFirstTouch = false;
+        }
+
         $(document).on("keypress.dfgModal", function(e) {
             if (e.which === keyCode.Enter) {
                 submitForm();
@@ -71,11 +76,11 @@ window.DataFlowModal = (function($, DataFlowModal) {
 
         var numLists = $modalMain.find('.listBox').length;
         if (numLists === 0) {
-            $radios.eq(1).parent().addClass('unavailable');
+            $radios.eq(1).addClass('disabled');
         } else if (numLists === 1 && $existingFlow.length === 1) {
-            $radios.eq(1).parent().addClass('unavailable');
+            $radios.eq(1).addClass('disabled');
         } else {
-            $radios.eq(1).parent().removeClass('unavailable');
+            $radios.eq(1).removeClass('disabled');
         }
 
         $existingFlow.closest('.dataFlowGroup').addClass('unavailable')
@@ -121,11 +126,8 @@ window.DataFlowModal = (function($, DataFlowModal) {
             backToDFGView();
         });
 
-        $dfgModal.find(".radioWrap").click(function() {
-            var $option = $(this);
-            $radios.removeClass("checked");
-            $option.find(".radio").addClass("checked");
-            var optionNum = $(this).index();
+        xcHelper.raidoButtons($dfgModal.find(".radioButtonGroup"), function(option) {
+            var optionNum = Number(option);
             if (optionNum === 0) {
                 $modalMain.addClass('unavailable');
                 $newGroupNameInput.parent().removeClass('unavailable');
@@ -235,7 +237,7 @@ window.DataFlowModal = (function($, DataFlowModal) {
         // when in first step
         if (!$dfgModal.hasClass("exportMode")) {
 
-            if ($radios.eq(0).hasClass('checked')) {
+            if ($radios.eq(0).hasClass('active')) {
                 // when create new dfg
                 isValid = xcHelper.validate([
                     {

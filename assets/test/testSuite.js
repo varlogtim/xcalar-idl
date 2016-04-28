@@ -852,13 +852,14 @@ window.TestSuite = (function($, TestSuite) {
             assert($(".infoSection .max").eq(0).text() ===
                     Number(12).toLocaleString());
 
-            $(".sort.asc .icon").click();
-            setTimeout(function() {
-                assert($(".barArea .xlabel").eq(0).text() === "134");
-                assert($(".barArea .xlabel").eq(7).text() === "626");
-                $("#profileModal .close").click();
-                TestSuite.pass(deferred, testName, currentTestNumber);
-            }, 1000);
+            $("#profileModal .sort .asc").click();
+            return checkExists([".barArea:first-child .xlabel:contains('134')"], 30000);
+        })
+        .then(function() {
+            assert($(".barArea .xlabel").eq(0).text() === "134");
+            assert($(".barArea .xlabel").eq(7).text() === "626");
+            $("#profileModal .close").click();
+            TestSuite.pass(deferred, testName, currentTestNumber);
         })
         .fail(function(error) {
             TestSuite.fail(deferred, testName, currentTestNumber, error);
@@ -916,7 +917,7 @@ window.TestSuite = (function($, TestSuite) {
             .end()
             .find(".timePickerPart input").focus().focus().click()
             .end()
-            .find(".freq1 .radioWrap:eq(0)").click()
+            .find(".freq1 .radioButton:eq(0)").click()
             .end()
             .find(".recurSection input").val(1);
         $("#scheduleForm-save").click();
@@ -924,7 +925,7 @@ window.TestSuite = (function($, TestSuite) {
         checkExists("#scheduleLists .scheduleName:contains('" + schedName + "')")
         .then(function() {
             $("#scheduleForm-edit").click();
-            $form.find(".freq1 .radioWrap:eq(1)").click();
+            $form.find(".freq1 .radioButton:eq(1)").click();
             $("#scheduleForm-save").click();
             assert($("#scheduleInfos .scheduleInfo.frequency .text").text() === "hourly");
             TestSuite.pass(deferred, testName, currentTestNumber);

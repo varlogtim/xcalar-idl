@@ -90,20 +90,16 @@ window.ExportModal = (function($, ExportModal) {
             }
         });
 
-        $exportModal.find('.radioWrap').click(function() {
-            var $radioWrap = $(this);
-            $radioWrap.siblings().find('.radio').removeClass('checked');
-            $radioWrap.find('.radio').addClass('checked');
-        });
 
-        $advancedSection.find('.typeRow').find('.radioWrap').click(function() {
-            // var $radioWrap = $(this);
-            if ($(this).data('option') !== "DfFormatCsv") {
-                $advancedSection.find('.csvRow').removeClass('csvSelected')
-                                                .addClass('csvHidden');
-            } else {
-                $advancedSection.find('.csvRow').addClass('csvSelected')
-                                                 .removeClass('csvHidden');
+        xcHelper.raidoButtons($exportModal.find(".formRow"), function(option, $radio) {
+            if ($radio.closest(".typeRow").length > 0) {
+                if (option !== "DfFormatCsv") {
+                    $advancedSection.find('.csvRow').removeClass('csvSelected')
+                                                    .addClass('csvHidden');
+                } else {
+                    $advancedSection.find('.csvRow').addClass('csvSelected')
+                                                     .removeClass('csvHidden');
+                }
             }
         });
 
@@ -955,9 +951,10 @@ window.ExportModal = (function($, ExportModal) {
         var $formRow;
         $advancedSection.find('.formRow').each(function(){
             $formRow = $(this);
-            if ($formRow.find('.radioWrap').length) {
-                $formRow.find('.radio').removeClass('checked');
-                $formRow.find('.radio').eq(0).addClass('checked');
+            var $radios = $formRow.find('.radioButton');
+            if ($radios.length) {
+                $radios.removeClass('active');
+                $radios.eq(0).addClass('active');
             }
         });
         $advancedSection.find('.csvRow').addClass('csvSelected')
@@ -980,21 +977,18 @@ window.ExportModal = (function($, ExportModal) {
 
         var options = {};
         options.format = DfFormatTypeT[$advancedSection.find('.typeRow')
-                                                        .find('.checked')
-                                                        .closest('.radioWrap')
-                                                        .data('option')];
+                                                .find('.radioButton.active')
+                                                .data('option')];
         options.splitType = ExSFFileSplitTypeT[$advancedSection.find('.splitType')
-                                                        .find('.checked')
-                                                        .closest('.radioWrap')
-                                                        .data('option')];
+                                                .find('.radioButton.active')
+                                                .data('option')];
         options.headerType = ExSFHeaderTypeT[$advancedSection.find('.headerType')
-                                                        .find('.checked')
-                                                        .closest('.radioWrap')
-                                                        .data('option')];
+                                                .find('.radioButton.active')
+                                                .data('option')];
         options.createRule = ExExportCreateRuleT[$advancedSection.find('.createRule')
-                                                        .find('.checked')
-                                                        .closest('.radioWrap')
-                                                        .data('option')];
+                                                .find('.radioButton.active')
+                                                .data('option')];
+
         if (options.format === DfFormatTypeT.DfFormatCsv) {
             options.csvArgs = {};
             options.csvArgs.fieldDelim = xcHelper.delimiterTranslate(

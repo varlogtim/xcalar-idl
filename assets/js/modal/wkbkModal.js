@@ -71,7 +71,7 @@ window.WorkbookModal = (function($, WorkbookModal) {
         }
 
         // default choose first option (new workbook)
-        $optionSection.find(".radio").eq(0).click();
+        $optionSection.find(".radioButton").eq(0).click();
         addWorkbooks();
         modalHelper.setup(extraOptions);
     };
@@ -144,17 +144,8 @@ window.WorkbookModal = (function($, WorkbookModal) {
         });
 
         // choose an option
-        $optionSection.on("click", ".radioWrap", function(event){
-            var $option = $(this);
-            if ($option.hasClass('disabled')) {
-                return;
-            }
-            var no = Number($option.data("no"));
-
-            event.stopPropagation();
-            $option.siblings().find(".radio.checked").removeClass("checked");
-            $option.find(".radio").addClass("checked");
-
+        xcHelper.raidoButtons($optionSection, function(option) {
+            var no = Number(option);
             switchAction(no);
         });
 
@@ -298,19 +289,19 @@ window.WorkbookModal = (function($, WorkbookModal) {
 
         if (!sorted.length) {
             var text = WKBKTStr.WKBKnotExists;
-            $optionSection.find('.radioWrap').not(':first-child')
-                                             .addClass('disabled')
-                                             .attr("data-toggle", "tooltip")
-                                             .attr("data-original-title", text)
-                                             .attr("data-container", "body")
-                                             .attr("title", text);
+            $optionSection.find('.radioButton').not(':first-child')
+                                            .addClass('disabled')
+                                            .attr("data-toggle", "tooltip")
+                                            .attr("data-original-title", text)
+                                            .attr("data-container", "body")
+                                            .attr("title", text);
         } else {
-            $optionSection.find('.radioWrap').removeClass('disabled')
-                                            .removeAttr("data-toggle")
-                                            .removeAttr("data-placement")
-                                            .removeAttr("data-original-title")
-                                            .removeAttr("data-container")
-                                            .removeAttr("title");
+            $optionSection.find('.radioButton').removeClass('disabled')
+                                        .removeAttr("data-toggle")
+                                        .removeAttr("data-placement")
+                                        .removeAttr("data-original-title")
+                                        .removeAttr("data-container")
+                                        .removeAttr("title");
         }
 
         $workbookLists.html(html);
