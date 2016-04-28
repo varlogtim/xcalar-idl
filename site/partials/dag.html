@@ -37,6 +37,35 @@
         </div>
       </div>
     </div>
+    <ul class="menu dagTableDropDown">
+      <li class="addTable">
+          <%= dicts.MenuTStr.AddTblToWS %>
+      </li>
+      <li class="revertTable">
+          <%= dicts.MenuTStr.RevertTbl %>
+      </li>
+      <li class="focusTable">
+          <%= dicts.MenuTStr.FocusTbl %>
+      </li>
+      <li class="archiveTable">
+        <%= dicts.MenuTStr.Archive %>
+      </li>
+      <li class="deleteTable">
+        <%= dicts.MenuTStr.DelTbl %>
+      </li>
+      <li class="lockTable" title="<%= dicts.TooltipTStr.LockTable %>">
+          <%= dicts.MenuTStr.LockTbl %>
+      </li>
+      <li class="unlockTable"
+          title="<%= dicts.TooltipTStr.AllowDelete %>">
+          <%= dicts.MenuTStr.UnlockTbl %>
+      </li>
+      <li class="deleteTableDescendants unavailable" data-toggle="tooltip"
+          data-placement="bottom" data-container="body"
+          title="<%= dicts.common.ComeSoon %> ">
+          <%= dicts.MenuTStr.DelTblDesc %>
+      </li>
+    </ul>
   </div>
 </div>
 <!-- End Of Dag Panel -->

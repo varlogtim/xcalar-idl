@@ -175,7 +175,14 @@ module.exports = {
        'Exts': 'Extensions',
        'ExamCell': 'Examine',
        'PullAllCell': 'Pull all',
-       'CPCell': 'Copy to clipboard'
+       'CPCell': 'Copy to clipboard',
+       'AddTblToWS' : 'Add Table To Worksheet',
+       'RevertTbl': 'Revert To This Table',
+       'FindTbl': 'Find Table In Worksheet',
+       'LockTbl': 'Lock Table',
+       'UnlockTbl': 'Unlock Table',
+       'FocusTbl': 'Find Table In Worksheet',
+       'DelTblDesc': 'Delete Table & Descendents'
     },
 
     WSTStr : {
@@ -191,7 +198,9 @@ module.exports = {
     TooltipTStr : {
         'NoWSToMV': 'no worksheet to move to',
         'Restore': 'restore to default',
-        'ToggleAdvanced': 'toggle advanced options'
+        'ToggleAdvanced': 'toggle advanced options',
+        'AllowDelete': 'allow table to be deleted',
+        'LockTable': 'prevents table from being deleted'
     },
 
     workspaceBar: {

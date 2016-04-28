@@ -193,7 +193,6 @@ window.DagPanel = (function($, DagPanel) {
     }
 
     function setupDagTableDropdown() {
-        $dagPanel.append(getDagTableDropDownHTML());
         var $menu = $dagPanel.find('.dagTableDropDown');
         addMenuBehaviors($menu);
         dagTableDropDownActions($menu);
@@ -225,7 +224,7 @@ window.DagPanel = (function($, DagPanel) {
                 var $li = $(this);
                 if ($li.data('id') === tableId) {
                     $menu.find('.addTable, .revertTable').addClass('hidden');
-                    $menu.find('.focusTable').removeClass('hidden');
+                    $menu.find('.focusTable, .archiveTable').removeClass('hidden');
                     activeFound = true;
                     tableWSId = WSManager.getWSFromTable(tableId);
                     $menu.data('ws', tableWSId);
@@ -237,7 +236,7 @@ window.DagPanel = (function($, DagPanel) {
                 $menu.find('.addTable, .revertTable').addClass('hidden');
             } else {
                 $menu.find('.addTable, .revertTable').removeClass('hidden');
-                $menu.find('.focusTable').addClass('hidden');
+                $menu.find('.focusTable, .archiveTable').addClass('hidden');
             }
 
             if ($dagTable.hasClass('locked')) {
@@ -441,37 +440,6 @@ window.DagPanel = (function($, DagPanel) {
         $('.tooltip').hide();
     }
 
-    function getDagTableDropDownHTML() {
-        var html =
-        '<ul class="menu dagTableDropDown">' +
-            '<li class="addTable">' +
-                'Add Table To Worksheet' +
-            '</li>' +
-            '<li class="revertTable">' +
-                'Revert To This Table' +
-            '</li>' +
-            '<li class="focusTable">' +
-                'Find Table In Worksheet' +
-            '</li>' +
-            '<li class="lockTable" title="Prevents table from being deleted">' +
-                'Lock Table' +
-            '</li>' +
-            '<li class="unlockTable" ' +
-                'title="Allow table to be deleted">' +
-                'Unlock Table' +
-            '</li>' +
-            '<li class="deleteTable">' +
-                'Delete Table' +
-            '</li>' +
-            '<li class="deleteTableDescendants unavailable" data-toggle="tooltip" ' +
-                'data-placement="bottom" data-container="body" ' +
-                'title="' + TooltipTStr.ComingSoon + '">' +
-                'Delete Table & Descendants' +
-            '</li>' +
-        '</ul>';
-        return (html);
-    }
-
     function getRightClickDropDownHTML() {
         var html =
         '<ul class="menu rightClickDropDown">' +
@@ -592,6 +560,14 @@ window.DagPanel = (function($, DagPanel) {
                       .find('.lockIcon').remove();
         });
 
+        $menu.find('.archiveTable').mouseup(function(event) {
+            if (event.which !== 1) {
+                return;
+            }
+            var tableId = $menu.data('tableId');
+            TblManager.archiveTables([tableId]);
+        });
+
         $menu.find('.deleteTable').mouseup(function(event) {
             if (event.which !== 1) {
                 return;
@@ -688,7 +664,7 @@ window.DagPanel = (function($, DagPanel) {
 
 
 window.Dag = (function($, Dag) {
-    $dagPanel = $('#dagPanel');
+    var $dagPanel;
     var scrollPosition = -1;
     var dagAdded = false;
 
@@ -696,6 +672,7 @@ window.Dag = (function($, Dag) {
         var deferred = jQuery.Deferred();
         var table = gTables[tableId];
         var tableName = table.tableName;
+        $dagPanel = $('#dagPanel');
 
         XcalarGetDag(tableName)
         .then(function(dagObj) {
@@ -871,7 +848,7 @@ window.Dag = (function($, Dag) {
     };
 
     Dag.renameAllOccurrences = function(oldTableName, newTableName) {
-        var $dagPanel = $('#dagPanel');
+        $dagPanel = $('#dagPanel');
 
         $dagPanel.find('.tableName').filter(function() {
             return ($(this).text() === oldTableName);
@@ -910,6 +887,7 @@ window.Dag = (function($, Dag) {
     Dag.makeInactive = function(tableId, nameProvided) {
         var tableName;
         var $dags;
+        $dagPanel = $('#dagPanel');
         if (nameProvided) {
             tableName = tableId;
             $dags = $dagPanel.find('.dagTable[data-tableName="' +
@@ -934,6 +912,7 @@ window.Dag = (function($, Dag) {
         var activeTableId;
         var $dagWrap;
         var $dag;
+        $dagPanel = $('#dagPanel');
         if (tableId) {
             activeTableId = tableId;
             $dagWrap = $('#dagWrap-' + activeTableId);
@@ -1113,6 +1092,7 @@ window.Dag = (function($, Dag) {
     }
 
     function checkIfDagWrapVisible($dagWrap) {
+        $dagPanel = $('#dagPanel');
         if (!$dagWrap.is(':visible')) {
             return (false);
         }
