@@ -60,8 +60,7 @@ window.UExtKMeans = (function(UExtKMeans, $) {
                     colNames.push(col.getBackColName());
                 }
             }
-
-            if (colNames.length != colList.length) {
+            if (colList.length && colNames.length != colList.length) {
                 break;
             }
             kMeansStart(colNames, tableName, argList["k"],
