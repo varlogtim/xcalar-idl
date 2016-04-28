@@ -422,11 +422,9 @@ window.Profile = (function($, Profile, d3) {
         $modal.addClass("noScrollBar");
         $modal.data("id", statsCol.modalId);
 
-        modalHelper.setup()
-        .always(function() {
-            refreshProfile();
-        });
+        modalHelper.setup();
 
+        refreshProfile();
         setupScrollBar();
         $modalBg.on("mouseover.profileModal", resetTooltip);
     }
