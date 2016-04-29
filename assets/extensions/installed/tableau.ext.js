@@ -54,18 +54,30 @@ window.UExtTableau = (function(UExtTableau, $) {
             var colName     = tableCols[colNum - 1].name;
             var backColName = tableCols[colNum - 1].getBackColName();
             var newTables = [];
-            
+
             if (colType !== "integer" && colType !== "float" &&
                 colType !== "string" && colType !== "boolean") {
                 console.error("Invalid col type!");
                 xcHelper.assert(false,
                                 "Sorry cannot visualize this column type");
             }
-            
+
             var tempExportName = xcHelper.randName("tempGraph");
 
+            var options = {
+                "format": DfFormatTypeT.DfFormatCsv,
+                "splitType": ExSFFileSplitTypeT.ExSFFileSplitForceSingle,
+                "headerType": ExSFHeaderTypeT.ExSFHeaderEveryFile,
+                "createRule": ExExportCreateRuleT.ExExportCreateOnly,
+                "csvArgs": {
+                    "fieldDelim": "\t",
+                    "recordDelim": "\n"
+                }
+            };
+
             xcFunction.exportTable(tableName, tempExportName, "Default",
-                                   1, [backColName],["Value"], true)
+                                   1, [backColName],["Value"], true, false,
+                                   options)
             .then(function() {
                 showModal(colName, waitTime);
                 return waitForUpdate(waitTime);
@@ -75,7 +87,7 @@ window.UExtTableau = (function(UExtTableau, $) {
                 initializeViz(tempExportName);
             });
         }
-    }
+    };
 
     function showModal(colName, waitTime) {
         $("#extHeader .text").text("GENERATING VISUALIZATION");
@@ -121,7 +133,7 @@ window.UExtTableau = (function(UExtTableau, $) {
                 $progressBar.width(newWidth);
                 $waitTime.text(timeLeft);
 
-                if (timeLeft == 0) {
+                if (timeLeft === 0) {
                     clearInterval(intTimer);
                     deferred.resolve();
                 }
@@ -132,7 +144,7 @@ window.UExtTableau = (function(UExtTableau, $) {
 
         return deferred.promise();
     }
-                    
+
     return (UExtTableau);
 }({}, jQuery));
 
