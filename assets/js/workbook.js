@@ -245,22 +245,17 @@ window.WKBKManager = (function($, WKBKManager) {
     };
 
     // swtich to another workbook
-    WKBKManager.switchWKBK = function(wkbkId, modalHelper) {
+    WKBKManager.switchWKBK = function(wkbkId) {
         // validation
         if (wkbkId == null) {
-            console.error("Invalid wookbook Id!");
-            return;
+            return PromiseHelper.reject({"error": "Invalid wookbook Id!"});
         }
 
         if (wkbkId === activeWKBKId) {
-            console.info("Switch to itself");
-            return;
+            return PromiseHelper.reject({"error": "Switch to itself"});
         }
 
-        if (modalHelper) {
-            modalHelper.submit();
-        }
-
+        var deferred = jQuery.Deferred();
         var fromWkbkName;
         var toWkbkName;
 
@@ -269,8 +264,11 @@ window.WKBKManager = (function($, WKBKManager) {
             KVStore.put(activeWKBKKey, wkbkId, true, gKVScope.WKBK)
             .then(function() {
                 location.reload();
-            });
-            return;
+                deferred.resolve();
+            })
+            .fail(deferred.reject);
+
+            return deferred.promise();
         }
 
         // check if the wkbkId is right
@@ -282,11 +280,8 @@ window.WKBKManager = (function($, WKBKManager) {
                                     null :
                                     wkbkSet.get(activeWKBKId).name;
         } else {
-            console.error("No such workbook id!");
-            if (modalHelper) {
-                modalHelper.enableSubmit();
-            }
-            return;
+            deferred.reject({"error": "No such workbook id!"});
+            return deferred.promise();
         }
 
         // should stop check since seesion is released
@@ -309,17 +304,16 @@ window.WKBKManager = (function($, WKBKManager) {
         .then(function() {
             removeUnloadPrompt();
             location.reload();
+            deferred.resolve();
         })
         .fail(function(error) {
             console.error("Switch Workbook Fails", error);
             // restart if fails
             Support.heartbeatCheck();
-        })
-        .always(function() {
-            if (modalHelper) {
-                modalHelper.enableSubmit();
-            }
+            deferred.reject(error);
         });
+
+        return deferred.promise();
     };
 
     // copy workbook
