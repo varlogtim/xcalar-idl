@@ -55,7 +55,7 @@ window.FnBar = (function(FnBar, $) {
                         $fnBar.caret(oldCaret);
                     }, 0);
                 } else if (event.which === keyCode.Enter) {
-                    if (matchBracket()) {
+                    if (xcHelper.checkMatchingBrackets($fnBar.val())) {
                         functionBarEnter();
                     } else {
                         var savedStr = $fnBar.val();
@@ -197,40 +197,6 @@ window.FnBar = (function(FnBar, $) {
         });
 
         searchHelper.setup();
-    }
-
-    function matchBracket() {
-        var fnBarVal = $fnBar.val();
-        var numOpens = 0;
-
-        var inQuotes = false;
-        for (var i = 0; i < fnBarVal.length; i++) {
-            if (inQuotes) {
-                if (fnBarVal[i] === '"') {
-                    inQuotes = false;
-                } else if (fnBarVal[i] === '\\') {
-                    i++; // ignore next character
-                    continue;
-                }
-                continue;
-            }
-            if (fnBarVal[i] === '"') {
-                inQuotes = true;
-            } else if (fnBarVal[i] === '\\') {
-                i++; // ignore next character
-            } else if (fnBarVal[i] === "(") {
-                numOpens++;
-            } else if (fnBarVal[i] === ")") {
-                numOpens--;
-                if (numOpens < 0) {
-                    return (false);
-                }
-            }
-        }
-        if (numOpens === 0) {
-            return (true);
-        }
-        return (false);
     }
 
     function functionBarEnter() {

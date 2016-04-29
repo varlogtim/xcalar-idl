@@ -1521,7 +1521,7 @@ window.OperationsModal = (function($, OperationsModal) {
             // ignore new colname input
             if ($input.closest(".dropDownList").hasClass("colNameSection")) {
                 return;
-            } else if (hasFuncFormat(arg)) {
+            } else if (hasUnescapedParens(arg)) {
                 // skip
             } else if (hasValidColPrefix(arg)) {
                 arg = arg.replace(/\$/g, '');
@@ -1554,7 +1554,7 @@ window.OperationsModal = (function($, OperationsModal) {
             if (!$input.closest(".dropDownList").hasClass("colNameSection") &&
                 !hasValidColPrefix(arg) &&
                 parsedType.indexOf("string") !== -1 &&
-                !hasFuncFormat(arg)) {
+                !hasUnescapedParens(arg)) {
 
                 if (parsedType.length === 1) {
                     // if input only accepts strings
@@ -1872,8 +1872,15 @@ window.OperationsModal = (function($, OperationsModal) {
             // col name field, do not add quote
             if ($input.closest(".dropDownList").hasClass("colNameSection")) {
                 arg = arg.replace(/\$/g, '');
-            } else if (hasFuncFormat(arg)) {
-                // leave arg the way it is
+            } else if (hasUnescapedParens(arg)) {
+                if (hasFuncFormat(arg)) {
+                    // leave arg the way it is
+                } else {
+                    errorText = ErrTStr.BracketsMis;
+                    $errorInput = $input;
+                    errorType = "unmatchedParens";
+                    isPassing = false;
+                }
             } else if (hasValidColPrefix(arg)) {
                 // if it contains a column name
                 // note that field like pythonExc can have more than one $col
@@ -2148,11 +2155,10 @@ window.OperationsModal = (function($, OperationsModal) {
     }
 
     function filterCheck(operator, args) {
-        var colIndex = -1;
         var colName;
-        if (operator !== 'not') {
+        if (!hasUnescapedParens(args[0])) {
             colName = args[0];
-            colIndex = getColIndex(colName);
+            var colIndex = getColIndex(colName);
             if (colIndex === -1) {
                 StatusBox.show(ErrTStr.InvalidColName, $argInputs.eq(0));
                 return (false);
@@ -2166,13 +2172,12 @@ window.OperationsModal = (function($, OperationsModal) {
 
     function filter(operator, args, colTypeInfos) {
         var options = {};
-        var colIndex = -1;
+        var colIndex;
         var colName;
-        if (operator !== 'not') {
-            colName = args[0];
-            colIndex = getColIndex(colName);
+        if (!hasUnescapedParens(args[0])) {
+            colIndex = getColIndex(args[0]);
         } else {
-            colIndex = colNum;
+            colIndex = colNum - 1;
         }
 
         var filterString = formulateFilterString(operator, args, colTypeInfos);
@@ -2701,7 +2706,6 @@ window.OperationsModal = (function($, OperationsModal) {
 
     function hasFuncFormat(val) {
         val = val.trim();
-        val = val.replace(/"([^"]+)"/g, ''); // remove quotes and text between quotes
         var valLen = val.length;
 
         if (valLen < 4) { // must be at least this long: a(b)
@@ -2714,7 +2718,7 @@ window.OperationsModal = (function($, OperationsModal) {
             // with parens
             if (val.indexOf("(") !== 0 &&
                 val.lastIndexOf(")") === (valLen - 1)) {
-                return checkHasBalancedParams(val);
+                return xcHelper.checkMatchingBrackets(val);
             } else {
                 return false;
             }
@@ -2724,21 +2728,28 @@ window.OperationsModal = (function($, OperationsModal) {
         return false;
     }
 
-    function checkHasBalancedParams(val) {
-        var valLen = val.length;
-        var parenCount = 0;
-        // var valid = true;
-        for (var i = 0; i < valLen; i++) {
-            if (val[i] === "(") {
-                parenCount++;
-            } else if (val[i] === ")") {
-                parenCount--;
+    // checks to see if value has at least one parentheses that's not escaped
+    // or inside quotes
+    function hasUnescapedParens(val) {
+        var inQuotes = false;
+        for (var i = 0; i < val.length; i++) {
+            if (inQuotes) {
+                if (val[i] === '"') {
+                    inQuotes = false;
+                } else if (val[i] === '\\') {
+                    i++; // ignore next character
+                }
+                continue;
             }
-            if (parenCount < 0) {
-                return false;
+            if (val[i] === '"') {
+                inQuotes = true;
+            } else if (val[i] === '\\') {
+                i++; // ignore next character
+            } else if (val[i] === "(" || val[i] === ")") {
+                return (true);
             }
         }
-        return (parenCount === 0);
+        return (false);
     }
 
     function checkInputSize($input) {
@@ -2863,6 +2874,7 @@ window.OperationsModal = (function($, OperationsModal) {
     if (window.unitTestMode) {
         OperationsModal.__testOnly__ = {};
         OperationsModal.__testOnly__.hasFuncFormat = hasFuncFormat;
+        OperationsModal.__testOnly__.hasUnescapedParens = hasUnescapedParens;
         OperationsModal.__testOnly__.getExistingTypes = getExistingTypes;
         OperationsModal.__testOnly__.argumentFormatHelper = argumentFormatHelper;
         OperationsModal.__testOnly__.parseType = parseType;

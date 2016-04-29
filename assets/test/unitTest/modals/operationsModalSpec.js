@@ -1,15 +1,23 @@
 describe('OperationsModal', function() {
 
-    describe('function checkHasFuncFormat', function() {
+    describe('function hasFuncFormat', function() {
         var func;
         before(function() {
             func = OperationsModal.__testOnly__.hasFuncFormat;
         });
 
-        // it ('"add(x,1)" should be true', function() {
         it ('hasFuncFormat(arg) should return correctly', function() {
             expect(func('add(x,1)')).to.equal(true);
+            expect(func('a(()x,(1))')).to.equal(true);
+            expect(func('a("((("x,1)')).to.equal(true);
+            expect(func('a(""x,1)')).to.equal(true);
+            expect(func('a(x,1)')).to.equal(true);
+            expect(func('a("\\"",1)')).to.equal(true);
+
             expect(func('add(x,1')).to.equal(false);
+            expect(func('add(x,1\"')).to.equal(false);
+            expect(func('a("\"",1)')).to.equal(false);
+            expect(func('add(x,1")')).to.equal(false);
             expect(func('(xwf,1)')).to.equal(false);
             expect(func('add(xwf,1)x')).to.equal(false);
             expect(func('(xwf,1)x')).to.equal(false);
@@ -19,11 +27,26 @@ describe('OperationsModal', function() {
             expect(func('a(()x,1))')).to.equal(false);
             expect(func('a(()"("x,1))')).to.equal(false);
             expect(func('a(()x,1))')).to.equal(false);
+        });
+    });
 
-            expect(func('a(()x,(1))')).to.equal(true);
-            expect(func('a("((("x,1)')).to.equal(true);
-            expect(func('a(""x,1)')).to.equal(true);
-            expect(func('a(x,1)')).to.equal(true);
+    describe('function hasUnescapedParens', function() {
+        var func;
+        before(function() {
+            func = OperationsModal.__testOnly__.hasUnescapedParens;
+        });
+
+        it ('hasUnescapedParens(arg) should return correctly', function() {
+            expect(func('(')).to.equal(true);
+            expect(func(')')).to.equal(true);
+            expect(func('"")')).to.equal(true);
+            expect(func('"\\"")')).to.equal(true);
+            expect(func(')(')).to.equal(true);
+
+            expect(func('")"')).to.equal(false);
+            expect(func('")\\)"')).to.equal(false);
+            expect(func('\\)')).to.equal(false);
+            expect(func('"\\")')).to.equal(false);
         });
     });
 

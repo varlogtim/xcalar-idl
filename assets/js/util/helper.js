@@ -1743,5 +1743,36 @@ window.xcHelper = (function($, xcHelper) {
         return (delimiter);
     };
 
+    xcHelper.checkMatchingBrackets = function(val) {
+        var numOpens = 0;
+        var inQuotes = false;
+        for (var i = 0; i < val.length; i++) {
+            if (inQuotes) {
+                if (val[i] === '"') {
+                    inQuotes = false;
+                } else if (val[i] === '\\') {
+                    i++; // ignore next character
+                }
+                continue;
+            }
+            if (val[i] === '"') {
+                inQuotes = true;
+            } else if (val[i] === '\\') {
+                i++; // ignore next character
+            } else if (val[i] === "(") {
+                numOpens++;
+            } else if (val[i] === ")") {
+                numOpens--;
+                if (numOpens < 0) {
+                    return (false);
+                }
+            }
+        }
+        if (numOpens === 0) {
+            return (true);
+        }
+        return (false);
+    };
+
     return (xcHelper);
 }(jQuery, {}));

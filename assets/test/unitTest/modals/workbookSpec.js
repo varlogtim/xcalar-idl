@@ -17,13 +17,13 @@ describe('Workbook Test', function() {
         });
 
         it('Should switch action', function() {
-            var $radioWraps = $workbookModal.find(".radioWrap");
+            var $radioWraps = $workbookModal.find(".radioButton");
             $radioWraps.eq(0).click();
-            assert.isTrue($radioWraps.eq(0).find(".radio").hasClass("checked"));
+            assert.isTrue($radioWraps.eq(0).hasClass("active"));
             $radioWraps.eq(1).click();
-            assert.isTrue($radioWraps.eq(1).find(".radio").hasClass("checked"));
+            assert.isTrue($radioWraps.eq(1).hasClass("active"));
             $radioWraps.eq(2).click();
-            assert.isTrue($radioWraps.eq(2).find(".radio").hasClass("checked"));
+            assert.isTrue($radioWraps.eq(2).hasClass("active"));
         });
 
         it('Should close modal', function() {
