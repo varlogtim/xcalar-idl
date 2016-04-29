@@ -449,7 +449,8 @@ window.Profile = (function($, Profile, d3) {
     function refreshGroupbyInfo(resetRefresh) {
         var deferred = jQuery.Deferred();
 
-        var $loadingSection = $modal.find(".loadingSection");
+        $modal.addClass("loading");
+
         var $loadHiddens = $modal.find(".loadHidden");
         var $loadDisables = $modal.find(".loadDisable");
         var $errorSection = $modal.find(".errorSection");
@@ -461,7 +462,6 @@ window.Profile = (function($, Profile, d3) {
         }
 
         $loadDisables.addClass("disabled");
-        $loadingSection.removeClass("hidden");
         $errorSection.addClass("hidden").find(".text").text("");
 
         // update groupby info
@@ -490,7 +490,7 @@ window.Profile = (function($, Profile, d3) {
                 return fetchGroupbyData(0, numRowsToFetch);
             })
             .then(function() {
-                $loadingSection.addClass("hidden");
+                $modal.removeClass("loading");
                 $loadHiddens.removeClass("hidden").removeClass("disabled");
                 $loadDisables.removeClass("disabled");
 
@@ -1468,10 +1468,9 @@ window.Profile = (function($, Profile, d3) {
         // disable another fetching data event till this one done
         $section.addClass("disabled");
 
-        var $loadingSection = $modal.find(".loadingSection");
         var loadTimer = setTimeout(function() {
             // if the loading time is long, show the waiting icon
-            $loadingSection.removeClass("hidden");
+            $modal.addClass("loading");
         }, 500);
 
         var rowPosition = rowNum - 1;
@@ -1483,7 +1482,7 @@ window.Profile = (function($, Profile, d3) {
             toggleFilterOption(true);
             groupByData = addNullValue(groupByData);
             buildGroupGraphs(forceUpdate);
-            $loadingSection.addClass("hidden");
+            $modal.removeClass("loading");
             clearTimeout(loadTimer);
             highlightBar(tempRowNum);
             setArrows(tempRowNum);
@@ -2325,9 +2324,9 @@ window.Profile = (function($, Profile, d3) {
                 error = error.error;
             }
 
+            $modal.removeClass("loading");
             $modal.find(".loadHidden").removeClass("hidden").removeClass("disabled");
             $modal.find(".loadDisable").removeClass("disabled");
-            $modal.find(".loadingSection").addClass("hidden");
             $modal.find(".groubyInfoSection").addClass("hidden");
             $modal.find(".errorSection").removeClass("hidden")
                 .find(".text").text(error);
