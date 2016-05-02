@@ -467,7 +467,9 @@ SideBarTStr = {
     'UpoladUDF': 'Upload Success',
     'UploadUDFMsg': 'Your python script has been successfully uploaded!',
     'UploadError': 'Upload Error',
-    'SyntaxError': 'Syntax Error'
+    'SyntaxError': 'Syntax Error',
+    'DownloadError': 'Download UDF Failed',
+    'OverwriteErr': 'Cannot overwrite default UDF'
 };
 
 DaysTStr = {

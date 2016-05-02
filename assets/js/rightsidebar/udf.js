@@ -8,10 +8,13 @@ window.UDF = (function($, UDF) {
     var $listDropdown; // $("#udf-fnMenu");
 
     var editor;
+    var storedUDF = {};
+
+    // constant
     var udfDefault = "# PLEASE TAKE NOTE: \n" +
                     "# UDFs can only support\n" +
                     "# return values of type String\n\n";
-    var storedUDF = {};
+    var defaultModule = "default";
 
     UDF.setup = function() {
         $fnName = $("#udf-fnName");
@@ -332,13 +335,20 @@ window.UDF = (function($, UDF) {
             document.body.removeChild(element);
         })
         .fail(function(error) {
-            console.error("Dowload UDF fails!", error);
+            Alert.error(SideBarTStr.DownloadError, error);
         });
     }
 
     function uploadUDF(moduleName, entireString, isFnInputSection) {
-        var deferred = jQuery.Deferred();
         moduleName = moduleName.toLowerCase();
+
+        if (moduleName === defaultModule) {
+            Alert.error(SideBarTStr.UploadError, SideBarTStr.OverwriteErr);
+            return PromiseHelper.reject(SideBarTStr.OverwriteErr);
+        }
+
+        var deferred = jQuery.Deferred();
+
         if (storedUDF.hasOwnProperty(moduleName)) {
             var msg = xcHelper.replaceMsg(SideBarTStr.DupUDFMsg, {
                 "module": moduleName
@@ -421,11 +431,11 @@ window.UDF = (function($, UDF) {
             });
         }
 
-        return (deferred.promise());
+        return deferred.promise();
     }
 
     function defaultUDFUpload() {
-        var moduleName = "default";
+        var moduleName = defaultModule;
         var entireString =
         udfDefault +
         'import sys\n' +
@@ -540,7 +550,7 @@ window.UDF = (function($, UDF) {
             UDF.storePython(moduleName, entireString);
         })
         .fail(function(error) {
-            console.error(error);
+            console.error("upload default udf failed", error);
         });
     }
 
