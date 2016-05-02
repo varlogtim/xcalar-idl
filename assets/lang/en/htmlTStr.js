@@ -557,7 +557,7 @@ module.exports = {
         'Installed': 'Installed',
         'Updalod': 'UPLOAD CUSTOM EXTENSION',
         'Load': 'Fetching Data',
-        'Hint': 'No Extension Added',
+        'Hint': 'No Extension Added/Found',
         'SearchHint': 'Search for Extension'
     },
 

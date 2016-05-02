@@ -493,17 +493,20 @@ window.FileBrowser = (function($, FileBrowser) {
 
         $dropDownLists.removeClass("open")
                         .find(".list").hide();
-
         $fileName.val("");
 
         if (isALL) {
             $fileBrowser.find(".select").removeClass("select");
             $formatSection.find(".text").text("all");
+            $("#fileBrowserUp").addClass("disabled");
+            $pathText.val("");
+            $pathLists.empty();
+            $container.empty();
+
             curFiles = [];
             sortKey = defaultSortKey;
             sortRegEx = undefined;
             reverseSort = false;
-            $pathLists.empty();
         }
     }
 
@@ -1043,7 +1046,7 @@ window.FileBrowser = (function($, FileBrowser) {
                 '</div>';
         });
 
-        $container.empty().append(html);
+        $container.html(html);
         refreshEllipsis();
     }
 
