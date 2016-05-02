@@ -1771,8 +1771,11 @@ html.microsoft {
     }
 
     .radioButton {
-        .flex(1 1 33%);
+        .flex(1 1 35%);
         .justify-content(center);
+        &:first-child {
+           .flex(1 1 30%);
+        }
     }
 
     .modalMain {
@@ -3523,8 +3526,12 @@ html.microsoft {
                 width: 85px;
             }
 
+            .radio {
+                margin-right: 0px;
+            }
+
             .radioButtonGroup {
-                .size(@width: auto);
+                .size(@width: ~"calc(100% - 140px)", @min-width: 450px, @max-width: 550px);
 
                 .radioButton {
                     .size(@min-width: auto);
