@@ -1610,17 +1610,50 @@ input {
     &.loading {
         border: none;
         height: 40px !important;
-        .datasetTableWrap {
-            width: 200px !important;
+        .errorSection, .datasetTableWrap {
+            display: none !important;
+        }
+
+        .loadSection {
+            display: block;
         }
     }
 
     &.error {
         border: none;
         height: 40px !important;
-        .datasetTableWrap {
-            width: 100% !important;
+        .datasetTableWrap, .loadSection {
+            display: none !important;
         }
+
+        .errorSection {
+            display: block;
+        }
+    }
+
+    .loadSection {
+        display: none;
+        margin-left: 15px;
+
+        .text {
+            float: left;
+            margin-right: 5px;
+        }
+
+        .animatedEllipsis {
+            vertical-align: bottom;
+            float: none;
+
+            > div {
+                margin-left: -1px;
+            }
+        }
+    }
+
+    .errorSection {
+        display: none;
+        color: @color-table-red;
+        margin-left: 15px;
     }
 }
 
@@ -1648,19 +1681,6 @@ table.datasetTable {
     position: relative;
     display: inline-block;
     overflow: hidden;
-
-    .loadError {
-        color: @color-table-red;
-        margin-left: 15px;
-    }
-
-    .loadingMsg {
-        margin-left: 15px;
-        .animatedEllipsis {
-            vertical-align: bottom;
-            float: none;
-        }
-    }
 
     .header {
         .position(absolute, @top: 0);

@@ -873,7 +873,7 @@ function XcalarSample(datasetName, numEntries) {
         }
     })
     .then(function(tableOfEntries) {
-        deferred.resolve(tableOfEntries, totalEntries);
+        deferred.resolve(tableOfEntries, totalEntries, gDatasetBrowserResultSetId);
     })
     .fail(function(error) {
         var thriftError = thriftLog("XcalarSample", error);
@@ -2221,7 +2221,7 @@ function XcalarUploadPython(moduleName, pythonStr) {
     .then(deferred.resolve)
     .fail(function(error) {
         if (error && jQuery.isNumeric(error)) {
-            if (error == StatusT["StatusUdfModuleAlreadyExists"]) {
+            if (error === StatusT.StatusUdfModuleAlreadyExists) {
                 XcalarUpdatePython(moduleName, pythonStr)
                 .then(function() {
                     deferred.resolve();
@@ -2235,7 +2235,7 @@ function XcalarUploadPython(moduleName, pythonStr) {
                 });
                 return;
                 // here do the update call
-            } else if (error == StatusT["StatusUdfModuleEmpty"]) {
+            } else if (error === StatusT.StatusUdfModuleEmpty) {
                 // This is not an error because extensions may upload
                 // empty udfs. So just go ahead and resolve
                 deferred.resolve();

@@ -167,11 +167,7 @@ window.DS = (function ($, DS) {
         }
 
         // when switch to a ds, should clear others' ref count first!!
-        DataPreview.clear()
-        .then(DS.release)
-        .then(function() {
-            return DataSampleTable.show($grid.data("dsid"), isLoading);
-        })
+        DataSampleTable.show($grid.data("dsid"), isLoading)
         .then(function() {
             if (!isLoading) {
                 Tips.refresh();
@@ -216,8 +212,6 @@ window.DS = (function ($, DS) {
 
         DS.focusOn($grid); // focus on grid before load
         DataStore.update();
-        // the class will be removed in DataSampleTable.show()
-        $("#datasetWrap").addClass("loading");
 
         var fullDSName = dsObj.getFullName();
 
@@ -244,34 +238,38 @@ window.DS = (function ($, DS) {
             // sample the dataset to see if it can be parsed
             return XcalarSample(fullDSName, 1);
         })
-        .then(function(result) {
+        .then(function(result, totalEntries, dsResultSetId) {
             if (!result) {
                 // if dataset cannot be parsed produce a load fail
                 return PromiseHelper.reject({
                     "dsCreated": true,
                     "error"    : DSTStr.NoParse
                 });
-            } else {
+            }
+
+            // should release the ds pointer first
+            DS.releaseWithResultSetId(dsResultSetId)
+            .always(function() {
                 $grid.removeClass("inactive").find('.waitingIcon').remove();
-            }
 
-            // display new dataset
-            refreshDS();
-            if ($grid.hasClass('active')) {
-                // re-focus to trigger DataSampleTable.show()
-                if (gMinModeOn) {
-                    DS.focusOn($grid);
-                } else {
-                    $('#dataSetTableWrap').fadeOut(200, function() {
+                // display new dataset
+                refreshDS();
+                if ($grid.hasClass('active')) {
+                    // re-focus to trigger DataSampleTable.show()
+                    if (gMinModeOn) {
                         DS.focusOn($grid);
-                        $(this).fadeIn();
-                    });
+                    } else {
+                        $('#dataSetTableWrap').fadeOut(200, function() {
+                            DS.focusOn($grid);
+                            $(this).fadeIn();
+                        });
+                    }
                 }
-            }
 
-            UserSettings.logDSChange();
-            Transaction.done(txId);
-            deferred.resolve(dsObj);
+                UserSettings.logDSChange();
+                Transaction.done(txId);
+                deferred.resolve(dsObj);
+            });
         })
         .fail(function(error) {
             removeDS($grid);
@@ -451,6 +449,21 @@ window.DS = (function ($, DS) {
         }
 
         return (deferred.promise());
+    };
+
+    DS.releaseWithResultSetId = function(dsResultSetId) {
+        var deferred = jQuery.Deferred();
+
+        XcalarSetFree(dsResultSetId)
+        .then(function() {
+            if (gDatasetBrowserResultSetId === dsResultSetId) {
+                gDatasetBrowserResultSetId = 0;
+            }
+            deferred.resolve();
+        })
+        .fail(deferred.reject);
+
+        return deferred.promise();
     };
 
     // Clear dataset/folder in gridView area

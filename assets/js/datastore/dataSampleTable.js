@@ -7,8 +7,11 @@ window.DataSampleTable = (function($, DataSampleTable) {
 
     var currentRow = 0;
     var totalRows = 0;
-    var initialNumRowsToFetch = 40;
     var previousColSelected; // used for shift clicking columns
+    var lastDSToSample; // used to track the last table to samle in async call
+
+    // constant
+    var initialNumRowsToFetch = 40;
 
     DataSampleTable.setup = function() {
         $datasetWrap = $("#datasetWrap");
@@ -18,44 +21,59 @@ window.DataSampleTable = (function($, DataSampleTable) {
     };
 
     DataSampleTable.show = function(dsId, isLoading) {
-        var deferred = jQuery.Deferred();
         var dsObj = DS.getDSObj(dsId);
 
         if (dsObj == null) {
-            deferred.reject("No DS");
-            return (deferred.promise());
+            return PromiseHelper.reject("No DS");
         }
 
         // only show buttons(select all, clear all, etc) when table can be disablyed
         var $dsColsBtn = $("#dsColsBtn");
-
+        var notLastDSError = "not last ds";
         DatastoreForm.hide();
 
+        $datasetWrap.removeClass("error");
         // update date part of the table info first to make UI smooth
         var partialUpdate = true;
         updateTableInfo(dsObj, partialUpdate, isLoading);
 
         if (isLoading) {
-            var animatedDots = '<div class="animatedEllipsis">' +
-                                  '<div>.</div>' +
-                                  '<div>.</div>' +
-                                  '<div>.</div>' +
-                                '</div>';
-            var loadingMsg = '<div class="loadingMsg">' +
-                                DSTStr.LoadingDS + animatedDots +
-                            '</div>';
             $datasetWrap.addClass("loading");
-            $tableWrap.html(loadingMsg);
             $dsColsBtn.hide();
-            deferred.resolve();
 
-            return (deferred.promise());
+            return beforeShowAction();
         }
 
-        // XcalarSample sets gDatasetBrowserResultSetId
+        var deferred = jQuery.Deferred();
+        var timer;
+        var $worksheetTable = $('#worksheetTable');
+
+        if ($worksheetTable.length === 0 ||
+            $worksheetTable.data("dsid") !== dsObj.getId()) {
+            // when not the case of already focus on this ds and refresh again
+
+            // only when the loading is slow, show load section
+            timer = setTimeout(function() {
+                $datasetWrap.addClass("loading");
+                $dsColsBtn.hide();
+            }, 300);
+        }
+
         var datasetName = dsObj.getFullName();
-        XcalarSample(datasetName, initialNumRowsToFetch)
-        .then(function(result, totalEntries) {
+        lastDSToSample = datasetName;
+
+        beforeShowAction()
+        .then(function() {
+            // XcalarSample sets gDatasetBrowserResultSetId
+            return XcalarSample(datasetName, initialNumRowsToFetch);
+        })
+        .then(function(result, totalEntries, dsResultSetId) {
+            if (lastDSToSample !== datasetName) {
+                // when network is slow and user trigger another get sample table
+                // code will goes here
+                return PromiseHelper.reject(notLastDSError, dsResultSetId);
+            }
+
             // update info here
             dsObj.setNumEntries(totalEntries);
             updateTableInfo(dsObj);
@@ -63,22 +81,25 @@ window.DataSampleTable = (function($, DataSampleTable) {
             return parseSampleData(result);
         })
         .then(function(jsonKeys, jsons) {
+            clearTimeout(timer);
+
             $datasetWrap.removeClass("loading");
             getSampleTable(dsObj, jsonKeys, jsons);
-
             $dsColsBtn.show();
-            $datasetWrap.removeClass("error");
             deferred.resolve();
         })
-        .fail(function(error) {
-            $dsColsBtn.hide();
-            $datasetWrap.addClass("error");
-            var errorHTML = "<div class='loadError'>" +
-                                StatusMessageTStr.LoadFailed + ". " +
-                                error.error +
-                            "</div>";
+        .fail(function(error, dsResultSetId) {
+            clearTimeout(timer);
 
-            $tableWrap.html(errorHTML);
+            if (error === notLastDSError) {
+                DS.releaseWithResultSetId(dsResultSetId);
+                return;
+            }
+
+            $dsColsBtn.hide();
+            $datasetWrap.removeClass("loading").addClass("error");
+            var errorText = StatusMessageTStr.LoadFailed + ". " + error.error;
+            $datasetWrap.find(".errorSection").html(errorText);
             deferred.reject(error);
         });
 
@@ -101,6 +122,17 @@ window.DataSampleTable = (function($, DataSampleTable) {
         }
         $datasetWrap.height(tableHeight + scrollBarPadding);
     };
+
+    function beforeShowAction() {
+        var deferred = jQuery.Deferred();
+        // clear preview table and ref count,
+        // always resolve it
+        DataPreview.clear()
+        .then(DS.release)
+        .always(deferred.resolve);
+
+        return deferred.promise();
+    }
 
     function getSampleTable(dsObj, jsonKeys, jsons) {
         var html = getSampleTableHTML(dsObj, jsonKeys, jsons);

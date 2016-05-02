@@ -40,8 +40,8 @@ function dataSampleTableTest() {
                 assert.isTrue($datasetWrap.is(":visible"));
                 assert.isTrue($datasetWrap.hasClass("loading"));
 
-                var loadText = $tableWrap.find(".loadingMsg").text();
-                expect(loadText).to.equal("Dataset is loading...");
+                var loadText = $datasetWrap.find(".loadSection .text").text();
+                expect(loadText).to.equal("Dataset is loading");
                 done();
             })
             .fail(function() {
