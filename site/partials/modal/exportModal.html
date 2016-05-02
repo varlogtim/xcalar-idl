@@ -58,11 +58,11 @@
     <div class="advancedSection collapsed">
       <div class="advancedTitle">
         <span class="advancedIcon minimized" data-container="body" data-toggle="tooltip" title="<%= dicts.TooltipTStr.ToggleAdvanced %>"></span>
-        <span class="text">Advanced Options</span>
+        <span class="text"><%= dicts.exportModal.AdvancedOpts %></span>
       </div>
       <div class="restore" data-container="body" data-toggle="tooltip" title="<%= dicts.TooltipTStr.Restore %>"></div>
       <div class="formRow typeRow">
-        <div class="label">Type:</div>
+        <div class="label"><%= dicts.common.Type %>:</div>
         <div class="radioButtonGroup">
           <div class="radioButton active" data-option="DfFormatCsv">
             <div class="radio">
@@ -79,7 +79,7 @@
         </div>
       </div>
       <div class="formRow csvRow csvHidden">
-          <span class="label">Field Delimiter:</span>
+          <span class="label"><%= dicts.dsForm.FieldDelim %>:</span>
           <div class="dropDownList">
             <input class="fieldDelim text" type="text" spellcheck="false" disabled="">
             <div class="iconWrapper">
@@ -88,11 +88,11 @@
             <!-- dropdown menu -->
             <div class="list">
               <ul>
-                <li name="default">Default (\t)</li>
-                <li name="comma">Comma (,)</li>
-                <li name="null" class="nullVal">Null</li>
+                <li name="default"><%= dicts.common.Default %> (\t)</li>
+                <li name="comma"><%= dicts.common.Comma %> (,)</li>
+                <li name="null" class="nullVal"><%= dicts.common.Null %></li>
                 <li name="other" class="other">
-                  <span>Other</span>
+                  <span><%= dicts.common.Other %></span>
                   <div class="inputWrap">
                     <input class="delimVal" type="text" spellcheck="false">
                     <div class="inputAction">
@@ -111,7 +111,7 @@
           </div>
       </div>
       <div class="formRow csvRow csvHidden">
-        <span class="label">Record Delimiter:</span>
+        <span class="label"><%= dicts.exportModal.RecordDelim %>:</span>
         <div class="dropDownList">
           <input class="text recordDelim" type="text" spellcheck="false" disabled="">
           <div class="iconWrapper">
@@ -120,10 +120,10 @@
           <!-- dropdown menu -->
           <div class="list">
             <ul>
-              <li name="default">Default (\n)</li>
-              <li name="null" class="nullVal">Null</li>
+              <li name="default"><%= dicts.common.Default %> (\n)</li>
+              <li name="null" class="nullVal"><%= dicts.common.Null %></li>
               <li name="other" class="other">
-                <span>Other</span>
+                <span><%= dicts.common.Other %></span>
                 <div class="inputWrap">
                   <input class="delimVal" type="text" spellcheck="false">
                   <div class="inputAction">
@@ -142,59 +142,59 @@
         </div>
       </div>
       <div class="formRow splitType">
-        <div class="label">File:</div>
+        <div class="label"><%= dicts.common.File %>:</div>
         <div class="radioButtonGroup">
           <div class="radioButton active" data-option="ExSFFileSplitForceSingle">
             <div class="radio">
               <span class="dot"></span>
             </div>
-            <div class="label">One File</div>
+            <div class="label"><%= dicts.exportModal.OneFile %></div>
           </div>
           <div class="radioButton" data-option="ExSFFileSplitNone">
             <div class="radio">
               <span class="dot"></span>
             </div>
-            <div class="label">Multiple Files</div>
+            <div class="label"><%= dicts.exportModal.MultiFiles %></div>
           </div>
         </div>
       </div>
       <div class="formRow headerType">
-        <div class="label">Header:</div>
+        <div class="label"><%= dicts.common.Header %>:</div>
         <div class="radioButtonGroup">
             <div class="radioButton active" data-option="ExSFHeaderEveryFile">
             <div class="radio">
               <span class="dot"></span>
             </div>
-            <div class="label">Every File</div>
+            <div class="label"><%= dicts.exportModal.EveryFile %></div>
           </div>
           <div class="radioButton" data-option="ExSFHeaderSeparateFile">
             <div class="radio">
               <span class="dot"></span>
             </div>
-            <div class="label">Separate File</div>
+            <div class="label"><%= dicts.exportModal.SeparateFile %></div>
           </div>
         </div>
       </div>
       <div class="formRow overwrite createRule">
-        <div class="label">Overwrite?</div>
+        <div class="label"><%= dicts.exportModal.Overwrite %>?</div>
         <div class="radioButtonGroup">
           <div class="radioButton active" data-option="ExExportCreateOnly">
             <div class="radio">
               <span class="dot"></span>
             </div>
-            <div class="label">Do Not Overwrite</div>
+            <div class="label"><%= dicts.exportModal.DoNotOverwrite %></div>
           </div>
           <div class="radioButton" data-option="ExExportDeleteAndReplace">
             <div class="radio">
               <span class="dot"></span>
             </div>
-            <div class="label">Overwrite Existing</div>
+            <div class="label"><%= dicts.exportModal.OverwriteExisting %></div>
           </div>
           <div class="radioButton" data-option="ExExportAppendOnly">
             <div class="radio">
               <span class="dot"></span>
             </div>
-            <div class="label">Append To Existing</div>
+            <div class="label"><%= dicts.exportModal.AppendExisting %></div>
           </div>
         </div>
       </div>
