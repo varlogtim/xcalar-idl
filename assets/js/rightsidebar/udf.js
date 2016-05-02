@@ -491,6 +491,26 @@ window.UDF = (function($, UDF) {
             '\tfor row_idx in range(0, xl_sheet.nrows):    # Iterate through rows\n' +
                 '\t\tcurRow = list()\n' +
                 '\t\tfor col_idx in range(0, num_cols):  # Iterate through columns\n' +
+                    '\t\t\tval = xl_sheet.cell_value(row_idx, col_idx)  # Get cell object by row, col\n' +
+                    '\t\t\tif xl_sheet.cell_type(row_idx, col_idx) == xlrd.XL_CELL_DATE:\n' +
+                        '\t\t\t\tyear, month, day, hour, minute, second = xlrd.xldate_as_tuple(val, xl_workbook.datemode)\n' +
+                        '\t\t\t\tval = datetime.datetime(year, month, day).strftime("%m/%d/%Y");\n' +
+                    '\t\t\telse:\n' +
+                        '\t\t\t\tval = "%s" % val\n' +
+                    '\t\t\tcurRow.append(val)\n' +
+                '\t\tfileString += "\\t".join(curRow)\n' +
+                '\t\tfileString += "\\n"\n' +
+            '\treturn str(fileString.encode("ascii", "ignore"))\n' +
+        '\n' +
+        'def openExcelWithOriginalData(stream, fullPath):\n' +
+            '\t# this udf will not covert date format, instead, leave it as float\n' +
+            '\tfileString = ""\n' +
+            '\txl_workbook = xlrd.open_workbook(file_contents=stream)\n' +
+            '\txl_sheet = xl_workbook.sheet_by_index(0)\n' +
+            '\tnum_cols = xl_sheet.ncols   # Number of columns\n' +
+            '\tfor row_idx in range(0, xl_sheet.nrows):    # Iterate through rows\n' +
+                '\t\tcurRow = list()\n' +
+                '\t\tfor col_idx in range(0, num_cols):  # Iterate through columns\n' +
                     '\t\t\tcell_obj = xl_sheet.cell(row_idx, col_idx)  # Get cell object by row, col\n' +
                     '\t\t\tval = "%s" % (cell_obj.value)\n' +
                     '\t\t\tcurRow.append(val)\n' +
