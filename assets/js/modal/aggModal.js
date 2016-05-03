@@ -588,22 +588,25 @@ window.AggModal = (function($, AggModal) {
 
         if (isNumeric) {
             value = parseFloat(value);
-            var l;
+            // base color is hsl(197, 61%, 67%)
+            var h = 197;
+            var s = 61;
+            var l = 67;
 
             if (value > 0) {
-                // when value is 1, color is rgb(105, 183, 233),
-                // which is hsl(203, 75%, 66%)
-                l = 100 - Math.round(34 * value, 2);
-                bg = "hsl(203, 75%, " + l + "%)";
-            } else if (value === 0) {
-                bg = "rgb(255,255,255)";
-            } else {
-                // when value is -1, color is rgb(200, 200, 200),
-                // which is hsl(0, 0%, 78%)
-                l = 100 - Math.round(-22 * value, 2);
-                bg = "hsl(0, 0%, " + l + "%)";
+                // when value is 1, color is hsl(215, 49%, 29%),
+                h = 197 + Math.round(18 * value, 2);
+                s = 61 - Math.round(12 * value, 2);
+                l = 67 - Math.round(38 * value, 2);
+                // bg = "hsl(203, 75%, " + l + "%)";
+            } else if (value < 0) {
+                // when value is -1, color is hsl(197, 0, 40%),
+                h = 197;
+                s = 61 + Math.round(61 * value, 2);
+                l = 67 + Math.round(17 * value, 2);
             }
 
+            bg = "hsl(" + h + ", " + s + "%, " + l + "%)";
             $cell.css("background-color", bg);
         }
 
