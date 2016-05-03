@@ -49,8 +49,10 @@ window.Undo = (function($, Undo) {
         var worksheet = WSManager.getWSFromTable(options.tableId);
         return (TblManager.refreshTable([options.tableName], null,
                                        [options.newTableName],
-                                       worksheet, {isUndo: true,
-                                                    from: "noSheet"}));
+                                       worksheet, {
+                    isUndo: true,
+                    from  : "noSheet"
+                }));
     };
 
     undoFuncs[SQLOps.Map] = function(options) {
@@ -401,8 +403,8 @@ window.Undo = (function($, Undo) {
             return PromiseHelper.resolve(null);
         } else if (tableType === TableType.Orphan) {
             tableIds.forEach(function(tId) {
-                TblManager.sendTableToOrphaned(tId, {"remove": true,
-                                                     "keepInWS":true});
+                TblManager.sendTableToOrphaned(tId, {"remove"  : true,
+                                                     "keepInWS": true});
             });
             return TableList.refreshOrphanList();
         } else if (tableType === TableType.Agg) {
@@ -510,7 +512,7 @@ window.Undo = (function($, Undo) {
             TblManager.archiveTables([tableId]);
             setTimeout(function() {
                 deferred.resolve();
-            },1000);
+            }, 1000);
         } else if (tableType === TableType.Orphan) {
             TblManager.sendTableToOrphaned(tableId, {"remove": true})
             .then(function() {
@@ -527,7 +529,6 @@ window.Undo = (function($, Undo) {
     };
 
     undoFuncs[SQLOps.HideWS] = function(options) {
-        var deferred = jQuery.Deferred();
         var wsId = options.worksheetId;
         var wsIndex = options.worksheetIndex;
         return WSManager.unhideWS(wsId, wsIndex);
@@ -539,13 +540,6 @@ window.Undo = (function($, Undo) {
         for (var i = 0, len = wsIds.length; i < len; i++) {
             WSManager.hideWS(wsIds[i]);
         }
-
-        return PromiseHelper.resolve(null);
-    };
-
-    undoFuncs[SQLOps.SwitchWS] = function(options) {
-        var wsId = options.oldWoksheetId;
-        $("#worksheetTab-" + wsId).trigger(fakeEvent.mousedown);
 
         return PromiseHelper.resolve(null);
     };

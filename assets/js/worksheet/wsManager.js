@@ -1616,15 +1616,15 @@ window.WSManager = (function($, WSManager) {
             $mainFrame.scrollLeft(leftPos);
         }
 
-        SQL.add("Switch Worksheet", {
-            "operation"        : SQLOps.SwitchWS,
-            "oldWorksheetIndex": WSManager.getWSOrder(curWS),
-            "oldWoksheetId"    : curWS,
-            "oldWorksheetName" : WSManager.getWSName(curWS),
-            "newWorksheetIndex": WSManager.getWSOrder(wsId),
-            "newWorksheetName" : WSManager.getWSName(wsId),
-            "newWorksheetId"   : wsId
-        });
+        // SQL.add("Switch Worksheet", {
+        //     "operation"        : SQLOps.SwitchWS,
+        //     "oldWorksheetIndex": WSManager.getWSOrder(curWS),
+        //     "oldWoksheetId"    : curWS,
+        //     "oldWorksheetName" : WSManager.getWSName(curWS),
+        //     "newWorksheetIndex": WSManager.getWSOrder(wsId),
+        //     "newWorksheetName" : WSManager.getWSName(wsId),
+        //     "newWorksheetId"   : wsId
+        // });
     }
 
     // HTML of worksheet tab, helper function for makeWorksheet()

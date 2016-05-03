@@ -71,11 +71,11 @@ window.DS = (function ($, DS) {
         });
 
         UserSettings.logDSChange();
-        SQL.add("Create folder", {
-            "operation": SQLOps.CreateFolder,
-            "dsName"   : ds.name,
-            "dsId"     : ds.id
-        });
+        // SQL.add("Create folder", {
+        //     "operation": SQLOps.CreateFolder,
+        //     "dsName"   : ds.name,
+        //     "dsId"     : ds.id
+        // });
 
         // forcus on folder's label for renaming
         DS.getGrid(ds.id).click()
@@ -331,12 +331,12 @@ window.DS = (function ($, DS) {
                     .attr("title", newName);
 
                 UserSettings.logDSChange();
-                SQL.add("Rename Folder", {
-                    "operation": SQLOps.DSRename,
-                    "dsId"     : dsId,
-                    "oldName"  : oldName,
-                    "newName"  : newName
-                });
+                // SQL.add("Rename Folder", {
+                //     "operation": SQLOps.DSRename,
+                //     "dsId"     : dsId,
+                //     "oldName"  : oldName,
+                //     "newName"  : newName
+                // });
 
                 // KVStore.commit();
                 return true;
@@ -405,11 +405,11 @@ window.DS = (function ($, DS) {
         } else if (removeDS($grid) === true) {
             UserSettings.logDSChange();
             // when remove folder
-            SQL.add("Delete Folder", {
-                "operation": SQLOps.DelFolder,
-                "dsName"   : dsName,
-                "dsId"     : dsId
-            });
+            // SQL.add("Delete Folder", {
+            //     "operation": SQLOps.DelFolder,
+            //     "dsName"   : dsName,
+            //     "dsId"     : dsId
+            // });
         }
     };
 
@@ -431,11 +431,11 @@ window.DS = (function ($, DS) {
 
         refreshDS();
 
-        SQL.add("Go to folder", {
-            "operation" : SQLOps.DSToDir,
-            "folderId"  : folderId,
-            "folderName": DS.getDSObj(folderId).getName()
-        });
+        // SQL.add("Go to folder", {
+        //     "operation" : SQLOps.DSToDir,
+        //     "folderId"  : folderId,
+        //     "folderName": DS.getDSObj(folderId).getName()
+        // });
     };
 
     DS.release = function() {
@@ -1298,13 +1298,13 @@ window.DS = (function ($, DS) {
             refreshDS();
 
             UserSettings.logDSChange();
-            SQL.add("Drop dataset/folder", {
-                "operation"   : SQLOps.DSDropIn,
-                "dsId"        : dragDsId,
-                "dsName"      : ds.getName(),
-                "targetDSId"  : targetId,
-                "targetDSName": targetDS.getName()
-            });
+            // SQL.add("Drop dataset/folder", {
+            //     "operation"   : SQLOps.DSDropIn,
+            //     "dsId"        : dragDsId,
+            //     "dsName"      : ds.getName(),
+            //     "targetDSId"  : targetId,
+            //     "targetDSName": targetDS.getName()
+            // });
         }
     };
 
@@ -1342,14 +1342,14 @@ window.DS = (function ($, DS) {
             refreshDS();
 
             UserSettings.logDSChange();
-            SQL.add("Insert dataset/folder", {
-                "operation"    : SQLOps.DSInsert,
-                "dsId"         : dragDsId,
-                "dsName"       : ds.getName(),
-                "siblingDSId"  : siblingId,
-                "siblingDSName": siblingDs.getName(),
-                "isBefore"     : isBefore
-            });
+            // SQL.add("Insert dataset/folder", {
+            //     "operation"    : SQLOps.DSInsert,
+            //     "dsId"         : dragDsId,
+            //     "dsName"       : ds.getName(),
+            //     "siblingDSId"  : siblingId,
+            //     "siblingDSName": siblingDs.getName(),
+            //     "isBefore"     : isBefore
+            // });
         }
     };
 
@@ -1367,13 +1367,13 @@ window.DS = (function ($, DS) {
             refreshDS();
 
             UserSettings.logDSChange();
-            SQL.add("Drop dataset/folder back", {
-                "operation"    : SQLOps.DSDropBack,
-                "dsId"         : dsId,
-                "dsName"       : ds.getName(),
-                "newFolderId"  : grandPaId,
-                "newFolderName": grandPaDs.getName()
-            });
+            // SQL.add("Drop dataset/folder back", {
+            //     "operation"    : SQLOps.DSDropBack,
+            //     "dsId"         : dsId,
+            //     "dsName"       : ds.getName(),
+            //     "newFolderId"  : grandPaId,
+            //     "newFolderName": grandPaDs.getName()
+            // });
         }
     };
 

@@ -140,9 +140,9 @@ window.Redo = (function($, Redo) {
     };
 
     redoFuncs[SQLOps.PullAllCols] = function(options) {
-        var $table = $('#xcTable-' + options.tableId);
-        var $row = $table.find('tr.row' + options.rowNum);
-        var $td = $row.find('td.col' + options.colNum);
+        // var $table = $('#xcTable-' + options.tableId);
+        // var $row = $table.find('tr.row' + options.rowNum);
+        // var $td = $row.find('td.col' + options.colNum);
 
         ColManager.unnest(options.tableId, options.colNum, options.rowNum,
                             options.isArray, options.options);
@@ -369,16 +369,8 @@ window.Redo = (function($, Redo) {
     };
 
     redoFuncs[SQLOps.UnHideWS] = function(options) {
-        var deferred = jQuery.Deferred();
         var wsIds = options.worksheetIds;
         return WSManager.unhideWS(wsIds);
-    };
-
-    redoFuncs[SQLOps.SwitchWS] = function(options) {
-        var wsId = options.newWorksheetId;
-        $("#worksheetTab-" + wsId).trigger(fakeEvent.mousedown);
-
-        return PromiseHelper.resolve(null);
     };
 
     redoFuncs[SQLOps.DelWS] = function(options) {

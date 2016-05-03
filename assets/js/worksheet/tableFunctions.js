@@ -1194,8 +1194,14 @@ function moveTableTitlesAnimated(tableId, oldWidth, widthChange, speed) {
 function focusTable(tableId, focusDag) {
     if (WSManager.getWSFromTable(tableId) !== WSManager.getActiveWS())
     {
-        console.warn("Table not in current worksheet");
-        return;
+
+        if (SQL.isRedo() || SQL.isUndo()) {
+            var wsToFocus = WSManager.getWSFromTable(tableId);
+            $("#worksheetTab-" + wsToFocus).trigger(fakeEvent.mousedown);
+        } else {
+            console.warn("Table not in current worksheet");
+            return;
+        }
     }
     var alreadyFocused = gActiveTableId === tableId;
 

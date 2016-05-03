@@ -177,7 +177,6 @@ var SQLOps = {
     DestroyDS: "destroyDataSet",
     ExportTable: "exportTable",
     // XI operation
-    AddDS: "addDataset",
     AddNewCol: "addNewCol",
     DeleteCol: "deleteCol",
     HideCols: "hideCols",

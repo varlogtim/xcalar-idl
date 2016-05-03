@@ -23,6 +23,11 @@ window.SQL = (function($, SQL) {
     // constant
     var sqlLocalStoreKey = "xcalar-query";
     var sqlRestoreError = "restore sql error";
+    var UndoType = {
+        "Valid"  : 0,   // can undo/redo
+        "Skip"   : 1,   // should skip undo/redo
+        "Invalid": 2    // cannot undo/redo
+    };
 
     SQL.setup = function() {
         $sqlButtons = $("#sqlButtonWrap");
@@ -217,9 +222,21 @@ window.SQL = (function($, SQL) {
                 break;
             }
 
+            // find the first log that can undo/redo
+            while (c >= 0 && getUndoType(logs[c]) === UndoType.Skip) {
+                console.log("skip", logs[c]);
+                c--;
+            }
+
+            if (c < 0) {
+                // this is an error case
+                console.warn("Cannot find sql to undo");
+                break;
+            }
+
             var sql = logs[c];
-            if (!isValidToUndo(sql)) {
-                // the operation cannot undo
+            if (getUndoType(sql) !== UndoType.Valid) {
+                // cannot undo
                 break;
             }
 
@@ -272,13 +289,18 @@ window.SQL = (function($, SQL) {
             }
 
             var sql = logs[c];
-            if (!isValidToUndo(sql)) {
-                console.error("Should not have unrevertable opeartion in redo!");
+            if (getUndoType(sql) !== UndoType.Valid) {
+                console.warn("Invalid sql to redo", sql);
                 break;
             }
 
             promises.push(redoLog.bind(this, sql, c));
             c++;
+
+            // also get back the skipped log
+            while (c < logLen && getUndoType(logs[c]) === UndoType.Skip) {
+                c++;
+            }
         }
 
         isRedo = true;
@@ -455,8 +477,7 @@ window.SQL = (function($, SQL) {
 
     function addLog(sql, isRestore, willCommit) {
         // normal log
-        var logLen = logs.length;
-        if (logCursor !== logLen - 1) {
+        if (logCursor !== logs.length - 1) {
             // when user do a undo before
 
             logCursor++;
@@ -503,38 +524,38 @@ window.SQL = (function($, SQL) {
         showSQL(sql, logCursor);
     }
 
-    function isValidToUndo(sql) {
+    function getUndoType(sql) {
         var operation = sql.getOperation();
         if (operation == null) {
             console.error("Invalid sql!");
-            return false;
+            return UndoType.Invalid;
         }
 
         switch (operation) {
             case SQLOps.DSLoad:
+            case SQLOps.RenameOrphanTable:
+            case SQLOps.DestroyDS:
+            case SQLOps.DeleteTable:
+            // case SQLOps.CreateFolder:
+            // case SQLOps.DSRename:
+            // case SQLOps.DSDropIn:
+            // case SQLOps.DSInsert:
+            // case SQLOps.DSToDir:
+            // case SQLOps.DSDropBack:
+            // case SQLOps.DelFolder:
+            // case SQLOps.AddOtherUserDS:
+                return UndoType.Invalid;
             case SQLOps.PreviewDS:
             case SQLOps.DestroyPreviewDS:
-            case SQLOps.RenameOrphanTable:
-            case SQLOps.AddDS:
-            case SQLOps.DestroyDS:
             case SQLOps.ExportTable:
-            case SQLOps.DeleteTable:
-            case SQLOps.CreateFolder:
-            case SQLOps.DSRename:
-            case SQLOps.SDropIn:
-            case SQLOps.DSInsert:
-            case SQLOps.DSToDir:
-            case SQLOps.DSDropBack:
-            case SQLOps.DelFolder:
             case SQLOps.Profile:
             case SQLOps.ProfileSort:
             case SQLOps.ProfileBucketing:
             case SQLOps.QuickAgg:
             case SQLOps.Corr:
-            case SQLOps.AddOtherUserDS:
-                return false;
+                return UndoType.Skip;
             default:
-                return true;
+                return UndoType.Valid;
 
         }
     }
@@ -583,16 +604,26 @@ window.SQL = (function($, SQL) {
 
     function updateUndoRedoState() {
         // check redo
-        if (logCursor === logs.length - 1) {
+        var next = logCursor + 1;
+        while (next < logs.length && getUndoType(logs[next]) === UndoType.Skip) {
+            next++;
+        }
+
+        if (next === logs.length) {
             // when nothing to redo
             $redo.addClass("disabled")
                  .attr("data-title", TooltipTStr.NoRedo)
                  .attr("data-original-title", TooltipTStr.NoRedo);
 
+        } else if (getUndoType(logs[next]) !== UndoType.Valid) {
+            console.error("Have invalid sql to redo", sql);
+            $redo.addClass("disabled")
+                 .attr("data-title", TooltipTStr.NoRedo)
+                 .attr("data-original-title", TooltipTStr.NoRedo);
         } else {
             // when can redo
             var redoTitle = xcHelper.replaceMsg(TooltipTStr.Redo, {
-                "op": logs[logCursor + 1].getTitle()
+                "op": logs[next].getTitle()
             });
 
             $redo.removeClass("disabled")
@@ -601,30 +632,33 @@ window.SQL = (function($, SQL) {
         }
 
         // check undo
-        var curSql = logs[logCursor];
+        var cur = logCursor;
+        while (cur >= 0 && getUndoType(logs[cur]) === UndoType.Skip) {
+            cur--;
+        }
+
         var undoTitle;
-        if (logCursor === -1) {
+        if (cur === -1) {
             // when no operation to undo
             $undo.addClass("disabled")
                  .attr("data-title", TooltipTStr.NoUndoNoOp)
                  .attr("data-original-title", TooltipTStr.NoUndoNoOp);
 
-        } else if (isValidToUndo(curSql)) {
-            // when can undo
-            undoTitle = xcHelper.replaceMsg(TooltipTStr.Undo, {
-                "op": curSql.getTitle()
-            });
-            $undo.removeClass("disabled")
-                 .attr("data-title", undoTitle)
-                 .attr("data-original-title", undoTitle);
-
-        } else {
+        } else if (getUndoType(logs[cur]) !== UndoType.Valid) {
             // when cannot undo
             undoTitle = xcHelper.replaceMsg(TooltipTStr.NoUndo, {
-                "op": curSql.getTitle()
+                "op": logs[cur].getTitle()
             });
 
             $undo.addClass("disabled")
+                 .attr("data-title", undoTitle)
+                 .attr("data-original-title", undoTitle);
+        } else {
+            // when can undo
+            undoTitle = xcHelper.replaceMsg(TooltipTStr.Undo, {
+                "op": logs[cur].getTitle()
+            });
+            $undo.removeClass("disabled")
                  .attr("data-title", undoTitle)
                  .attr("data-original-title", undoTitle);
         }
@@ -700,7 +734,13 @@ window.SQL = (function($, SQL) {
     function getCliHTML(sql, id) {
         var options = sql.options;
         if (sql.sqlType === SQLType.Error) {
-            return ("");
+            return "";
+        }
+
+        var undoType = getUndoType(sql);
+        if (undoType === UndoType.Skip) {
+            // not display it
+            return "";
         }
 
         var opsToExclude = options.htmlExclude || []; // array of keys to
@@ -787,7 +827,6 @@ window.SQL = (function($, SQL) {
             case (SQLOps.UnhideTable):
             case (SQLOps.AddWS):
             case (SQLOps.RenameWS):
-            case (SQLOps.SwitchWS):
             case (SQLOps.ReorderWS):
             case (SQLOps.DelWS):
             case (SQLOps.HideWS):
@@ -795,17 +834,17 @@ window.SQL = (function($, SQL) {
             case (SQLOps.MoveTableToWS):
             case (SQLOps.MoveInactiveTableToWS):
             case (SQLOps.RevertTable):
-            case (SQLOps.CreateFolder):
-            case (SQLOps.DSRename):
-            case (SQLOps.DSDropIn):
-            case (SQLOps.DSInsert):
-            case (SQLOps.DSToDir):
-            case (SQLOps.DSDropBack):
-            case (SQLOps.DelFolder):
+            // case (SQLOps.CreateFolder):
+            // case (SQLOps.DSRename):
+            // case (SQLOps.DSDropIn):
+            // case (SQLOps.DSInsert):
+            // case (SQLOps.DSToDir):
+            // case (SQLOps.DSDropBack):
+            // case (SQLOps.DelFolder):
             case (SQLOps.AddOhterUserDS):
             case (SQLOps.ChangeFormat):
             case (SQLOps.RoundToFixed):
-            case (SQLOps.AddOtherUserDS):
+            // case (SQLOps.AddOtherUserDS):
                 return false;
             // thrift operation
             case (SQLOps.DestroyDS):
