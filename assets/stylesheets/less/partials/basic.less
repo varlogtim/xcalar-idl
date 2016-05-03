@@ -114,24 +114,16 @@ body {
         text-align: center;
         background-color: rgba(47, 47, 47, 0.6);
 
-        .wrapper {
+        .animatedEllipsisWrapper {
             .size(@width: 130px, @height: 100%);
             .horizontal-align;
-
-            > div {
-                .size(@height: 100%);
-                float: left;
-            }
 
             .text {
                 .font(@size: 15px, @color: @color-white, @weight: bold, @line-height: 75px);
             }
 
             .animatedEllipsis {
-                margin-left: 3px;
-
                 > div {
-                    margin-left: 0;
                    .font(@size: 15px, @color: @color-white, @weight: bold, @line-height: 75px);
                 }
             }
@@ -300,19 +292,17 @@ body {
     pointer-events: none;
     cursor: wait;
 
-    .wrapper {
-        .size(100%, 100%);
-    }
-
     .text {
-        display: inline-block;
-        .position(relative, @top: -11px);
+        float: none;
     }
 
     .animatedEllipsis {
         float: none;
-        margin-left: 2px;
-        .position(relative, @top: -3px);
+        vertical-align: bottom;
+
+        > div {
+            margin-left: 1px;
+        }
     }
 }
 
@@ -1831,6 +1821,18 @@ ul.inputMenu {
     }
 }
 
+.animatedEllipsisWrapper {
+    > div {
+        .size(@height: 100%);
+        float: left;
+        display: inline-block;
+    }
+
+    .animatedEllipsis {
+        margin-left: 2px;
+    }
+}
+
 .animatedEllipsis {
     animation: ellipsis 2s steps(4, end) infinite;
     -webkit-animation: ellipsis 2s steps(4, end) infinite;
@@ -1838,10 +1840,9 @@ ul.inputMenu {
     overflow: hidden;
     width: 0px;
     display: inline-block;
-    float: right;
+
     > div {
         display: inline;
-        margin-left: 1px;
     }
 }
 

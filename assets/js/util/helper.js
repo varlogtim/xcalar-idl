@@ -715,16 +715,16 @@ window.xcHelper = (function($, xcHelper) {
 
         } else {
             text = $btn.text().trim();
-            html = '<div class="wrapper">' +
-                            '<div class="text">' +
-                                text +
-                            '</div>' +
-                            '<div class="animatedEllipsis">' +
-                              '<div>.</div>' +
-                              '<div>.</div>' +
-                              '<div>.</div>' +
-                            '</div>' +
-                        '</div>';
+            html = '<div class="animatedEllipsisWrapper">' +
+                        '<div class="text">' +
+                            text +
+                        '</div>' +
+                        '<div class="animatedEllipsis">' +
+                          '<div>.</div>' +
+                          '<div>.</div>' +
+                          '<div>.</div>' +
+                        '</div>' +
+                    '</div>';
             $btn.html(html).addClass("btnInProgress");
         }
     };
