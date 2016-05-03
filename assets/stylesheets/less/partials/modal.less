@@ -272,7 +272,6 @@
     }
 
     .jsonWrap {
-        .font(@size: 15px, @family: @font-code, @color: @color-json-default);
         .flex(1 1 0px);
         min-width: 220px !important;
         // min-width: 240px !important;  // for tabs
@@ -280,6 +279,7 @@
         height: 100%;
         padding-bottom: 10px;
         line-height: 20px;
+        position: relative; // for dropdown menu
 
         &:not(:last-child) {
             border-right: 1px solid @color-border-topGrayMed;
@@ -288,6 +288,14 @@
         &:last-child {
             min-width: 240px !important;
             // min-width: 260px !important; // for tabs
+            .optionsBar {
+                .dropdownBox {
+                    margin-right: 36px;
+                }
+            }
+            .menu {
+                right: 36px;
+            }
         }
 
         &:only-child {
@@ -312,8 +320,8 @@
             .optionsBar {
                 background-color: @color-json-active-bar;
             }
-            .checkMark {
-                .image("../../images/checkmark-white.png", 50%, 50%);
+            .compareIcon {
+                .action-gradient !important;
             }
         }
 
@@ -327,6 +335,9 @@
         }
 
         &.projectMode {
+            .prettyJson {
+                background-color: @color-json-project-bg;
+            }
             .jArray  {
                 > .jString, > .jNum, > .jBool, > .jNull , > .jUndf {
                     cursor: default;
@@ -349,8 +360,33 @@
                 cursor: pointer;
                 pointer-events: auto;
                 &:hover {
-                    background-color: @color-modal-innerCircleGray;
+                    // background-color: @color-modal-innerCircleGray;
+                    background-color: #BCF0FD;
                     box-shadow: 0px 0px 1px @color-table-borderBlue;
+                }
+            }
+            .menu {
+                li.selectionOpt {
+                    color: @color-text-darkGray;
+                    .check {
+                        display: none;
+                    }
+                }
+                li.projectionOpt {
+                    color: @color-text-topAction;
+                    .check {
+                        display: inline-block;
+                    }
+                }
+            }
+            .split, .pullAll, .btn.compareIcon {
+                opacity: 0.5;
+                pointer-events: none;
+                display: none;
+            }
+            .optionsBar {
+                .clearAll, .submitProject {
+                    display: inline-block;
                 }
             }
         }
@@ -378,17 +414,11 @@
             .cursor-move;
         }
 
-        .checkMark {
-            .image("../../images/checkmark-light.png", 50%, 50%);
-            .size(19px, 19px);
-            margin: 5px 3px 0px 5px;
-            display: inline-block;
-        }
-
         .vertLine {
             border-left: 1px solid @color-border-bottomGrayMed;
             height: 16px;
             margin-top: 6px;
+            margin-right: 3px;
             pointer-events: none;
         }
 
@@ -403,6 +433,15 @@
             }
             &.btnDeselected {
                 background: @color-json-button;
+            }
+
+            &.disabled {
+                pointer-events: none;
+                opacity: 0.5;
+            }
+
+            &.compareIcon .icon {
+                .image("../../images/checkmark-white.png", 50%, 60%);
             }
 
             &.remove .icon {
@@ -426,6 +465,20 @@
                 .image("../../images/ds-importMultiple.png", 50%, 50%);
                 margin-left: 1px;
                 background-size: 90% 90%;
+            }
+            &.clearAll {
+                display: none;
+                .icon {
+                    .image("../../images/garbage-white.png", 50%, 50%);
+                    background-size: 90% 90%;
+                }
+            }
+            &.submitProject {
+                display: none;
+                .icon {
+                    .image("../../images/send-single.png", 50%, 50%);
+                    background-size: 90% 90%;
+                }
             }
         }
 
@@ -549,28 +602,46 @@
 
         }
 
-        .selectBtn, .submitProject {
-            display: inline-block;
-            margin: 0 10px;
-            color: @color-text-blue;
-            &.hidden {
-                display: none;
+        .dropdownBox {
+            .size(@width: 20px, @height: 20px);
+            margin-top: 4px;
+            margin-right: 4px;
+            background-color: @color-json-button;
+            float: right;
+            .transition(0.1s background-color);
+            &:hover {
+                background-color: @color-menu-dropdownbox-white;
             }
+            .icon {
+                .image("../../images/arrow-down-gray-flat.png", 50%, 50%);
+                height: 100%;
+                width: 100%;
+            }
+        }
+
+        .selectBtn, .submitProject {
+            // display: inline-block;
+            // margin: 0 10px;
+            // color: @color-text-blue;
+            // &.hidden {
+            //     display: none;
+            // }
         }
     }
     .jsonWrap:only-child {
         .btn.remove {
             pointer-events: none;
-            opacity: 0.6;
+            opacity: 0.5;
         }
     }
     .prettyJson {
-        .size(@height: ~"calc(100% - 25px)", @min-width: 100px, @min-height: 100px);
+        .size(@height: ~"calc(100% - 19px)", @min-width: 100px, @min-height: 100px);
         padding-left: 10px;
         padding: 10px 0px 10px 10px;
         overflow-y: auto;
         overflow-x: hidden;
         background-color: @color-background-white;
+        .font(@size: 15px, @family: @font-code, @color: @color-json-default);
 
         &.singleView {
             height: 100%;
@@ -695,10 +766,47 @@
     }
 
     .projectSelected {
-        background-color: #7CB5D8 !important;
+        background-color: @color-json-project-selected !important;
         box-shadow: none !important;
     }
+
+    .menu {
+        .size(@width: 150px);
+        .position(absolute, @top: 26px, @right: 4px);
+        li {
+            background-color: @color-menu-li-gray;
+            color: @color-text-darkGray;
+
+            &:hover {
+                color: @color-text-topAction !important;
+            }
+            &.active {
+                color: @color-text-topAction;
+                .check {
+                    display: inline-block;
+                }
+            }
+        }
+        .selectionOpt {
+            color: @color-text-topAction;
+            .check {
+                display: inline-block;
+            }
+        }
+        .check {
+            .size(@width: 24px, @height: 100%);
+            .image("../../images/tick-action.png", 50%, 50%);
+            .position(absolute, @left: 0px, @top: 0px);
+            display: none;
+        }
+        .text {
+            .position(absolute, @left: 24px);
+            font-weight: 600;
+        }
+    }
 }
+
+
 
 /* End Of Pretty Json Modal */
 

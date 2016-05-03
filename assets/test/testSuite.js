@@ -1060,14 +1060,14 @@ window.TestSuite = (function($, TestSuite) {
                     '#jsonModal .jsonWrap:eq(1)'])
         .then(function() {
             // compare matches on 2 data browser columns
-            $jsonModal.find('.checkMark').eq(0).trigger(fakeEvent.click);
-            $jsonModal.find('.checkMark').eq(1).trigger(fakeEvent.click);
+            $jsonModal.find('.compareIcon').eq(0).trigger(fakeEvent.click);
+            $jsonModal.find('.compareIcon').eq(1).trigger(fakeEvent.click);
             assert($jsonModal.find('.matched').eq(0).text() ===
                    $jsonModal.find('.matched').eq(1).text());
 
             // click on a 3rd column and compare matches
             $activeTable.find('.jsonElement').eq(2).trigger("dblclick");
-            $('#jsonModal .checkMark').eq(2).trigger(fakeEvent.click);
+            $('#jsonModal .compareIcon').eq(2).trigger(fakeEvent.click);
             assert($jsonModal.find('.matched').eq(0).text() ===
                    $jsonModal.find('.matched').eq(2).text() &&
                    $jsonModal.find('.matched').eq(1).text() ===

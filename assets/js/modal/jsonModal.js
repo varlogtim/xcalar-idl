@@ -17,7 +17,7 @@ window.JSONModal = (function($, JSONModal) {
     var minHeight = 300;
     var minWidth  = 300;
     var jsonAreaMinWidth = 340;
-    gProjectOff = true;
+    window.gProjectOff = true;
 
     JSONModal.setup = function() {
         $jsonModal = $("#jsonModal");
@@ -94,6 +94,7 @@ window.JSONModal = (function($, JSONModal) {
         });
 
         addEventListeners();
+        addMenuActions();
     };
 
     // type is only included if not a typical array or object
@@ -149,10 +150,14 @@ window.JSONModal = (function($, JSONModal) {
             searchText();
         });
         $jsonModal.find('.closeBox').click(function() {
-            searchHelper.clearSearch(function() {
-                var focus = true;
-                clearSearch(focus);
-            });
+            if ($searchInput.val() === "") {
+                toggleSearch();
+            } else {
+                searchHelper.clearSearch(function() {
+                    var focus = true;
+                    clearSearch(focus);
+                });
+            }
         });
         $jsonModal.find('.searchIcon').click(toggleSearch);
 
@@ -163,65 +168,8 @@ window.JSONModal = (function($, JSONModal) {
             }
         }, ".jKey, .jArray>.jString, .jArray>.jNum");
 
-        $jsonArea.on("click", ".checkMark", function() {
-            var $checkMark = $(this);
-            var $checkMarks = $jsonArea.find('.checkMark.on');
-            var numCheckMarks = $checkMarks.length;
-            var isSearchUpdateNeeded = true;
-            var multipleComparison = false;
-            var newComparisonNum;
-
-            if ($checkMark.hasClass('on')) {// uncheck this jsonwrap
-
-                $checkMark.removeClass('on first');
-                $checkMark.closest('.jsonWrap')
-                          .removeClass('active comparison');
-
-                //designate any other active checkmark as the anchor
-                $jsonArea.find('.checkMark.on').eq(0).addClass('first');
-
-                $jsonArea.find('.comparison').find('.prettyJson.secondary')
-                                             .empty();
-                $jsonArea.find('.comparison').removeClass('comparison');
-                comparisonObjs = {}; // empty any saved comparisons
-
-            } else { // check this jsonWrap
-                if (numCheckMarks === 0) {
-                    $checkMark.addClass('first');
-                    isSearchUpdateNeeded = false;
-                } else if (numCheckMarks > 1) {
-                    multipleComparison = true;
-                    newComparisonNum = $checkMark.closest('.jsonWrap').index();
-                }
-                $checkMark.addClass('on');
-                $checkMark.closest('.jsonWrap').addClass('active');
-            }
-
-            $checkMarks = $jsonArea.find('.checkMark.on');
-
-            // only run comparison if more than 2 checkmarks are on
-            if ($checkMarks.length > 1) {
-                var indices = [];
-                var objs = [];
-                if (multipleComparison) {
-                    compare(jsonData[newComparisonNum], newComparisonNum,
-                            multipleComparison);
-                } else {
-                    $checkMarks.each(function() {
-                        var index = $(this).closest('.jsonWrap').index();
-                        indices.push(index);
-                        objs.push(jsonData[index]);
-                    });
-
-                    compare(objs, indices);
-                }
-                displayComparison(comparisonObjs);
-            }
-
-            if (isSearchUpdateNeeded && $checkMarks.length !== 0) {
-                updateSearchResults();
-                searchText();
-            }
+        $jsonArea.on("click", ".compareIcon", function() {
+            compareIconSelect($(this));
         });
 
         $jsonArea.on("click", ".split", function() {
@@ -259,28 +207,27 @@ window.JSONModal = (function($, JSONModal) {
             }
 
             // handle removal of comparisons
-            // var isCheckmarkOn = $jsonWrap.find('.checkMark.on').length !== 0;
             var index = $jsonWrap.index();
             $jsonWrap.find('.remove').tooltip('destroy');
 
-            if ($jsonWrap.find('.checkMark.on').length) {
-                $jsonWrap.find('.checkMark').click();
+            if ($jsonWrap.find('.compareIcon.on').length) {
+                $jsonWrap.find('.compareIcon').click();
             }
 
             $jsonWrap.remove();
 
             if ($jsonArea.find('.jsonWrap').length === 1) {
-                var $checkMarks = $jsonArea.find('.checkMark')
+                var $compareIcons = $jsonArea.find('.compareIcon')
                                           .addClass('single');
                 var title = "Select another data cell from a table to compare";
-                var $checkMark;
+                var $compareIcon;
 
-                $checkMarks.each(function() {
-                    $checkMark = $(this);
-                    if ($checkMark.attr('title')) {
-                        $checkMark.attr('title', title);
+                $compareIcons.each(function() {
+                    $compareIcon = $(this);
+                    if ($compareIcon.attr('title')) {
+                        $compareIcon.attr('title', title);
                     } else {
-                        $checkMark.attr('data-original-title', title);
+                        $compareIcon.attr('data-original-title', title);
                     }
                 });
             }
@@ -324,15 +271,19 @@ window.JSONModal = (function($, JSONModal) {
             }
         });
 
-        $jsonArea.on("click", ".selectBtn", function() {
-            var $btn = $(this);
-            var $jsonWrap = $btn.closest('.jsonWrap');
-            if ($btn.hasClass('selectAll')) {
-                $jsonWrap.find('.jObject').children().children().children('.jKey')
-                .addClass('projectSelected');
+        $jsonArea.on("click", ".clearAll", function() {
+            clearAllProjectedCols($(this));
+        });
+
+        $jsonArea.on("click", ".dropdownBox", function() {
+            var $icon = $(this);
+            var $menu = $icon.closest('.jsonWrap').find('.menu');
+            var isVisible = $menu.is(":visible");
+            $jsonArea.find('.menu').hide();
+            if (isVisible) {
+                $menu.hide();
             } else {
-                $jsonWrap.find('.jObject').children().children().children('.jKey')
-                .removeClass('projectSelected');
+                $menu.show();
             }
         });
 
@@ -367,6 +318,74 @@ window.JSONModal = (function($, JSONModal) {
         });
     }
 
+    function compareIconSelect($compareIcon) {
+        var $compareIcons = $jsonArea.find('.compareIcon.on');
+        var numComparisons = $compareIcons.length;
+        var isSearchUpdateNeeded = true;
+        var multipleComparison = false;
+        var newComparisonNum;
+
+        if ($compareIcon.hasClass('on')) {// uncheck this jsonwrap
+
+            $compareIcon.removeClass('on first');
+            $compareIcon.closest('.jsonWrap')
+                      .removeClass('active comparison');
+
+            //designate any other active compareIcon as the anchor
+            $jsonArea.find('.compareIcon.on').eq(0).addClass('first');
+
+            $jsonArea.find('.comparison').find('.prettyJson.secondary')
+                                         .empty();
+            $jsonArea.find('.comparison').removeClass('comparison');
+            comparisonObjs = {}; // empty any saved comparisons
+
+        } else { // check this jsonWrap
+            if (numComparisons === 0) {
+                $compareIcon.addClass('first');
+                isSearchUpdateNeeded = false;
+            } else if (numComparisons > 1) {
+                multipleComparison = true;
+                newComparisonNum = $compareIcon.closest('.jsonWrap').index();
+            }
+            $compareIcon.addClass('on');
+            $compareIcon.closest('.jsonWrap').addClass('active');
+        }
+
+        $compareIcons = $jsonArea.find('.compareIcon.on');
+
+        // only run comparison if more than 2 compareIcons are on
+        if ($compareIcons.length > 1) {
+            var indices = [];
+            var objs = [];
+            if (multipleComparison) {
+                compare(jsonData[newComparisonNum], newComparisonNum,
+                        multipleComparison);
+            } else {
+                $compareIcons.each(function() {
+                    var index = $(this).closest('.jsonWrap').index();
+                    indices.push(index);
+                    objs.push(jsonData[index]);
+                });
+
+                compare(objs, indices);
+            }
+            displayComparison(comparisonObjs);
+        }
+
+        if (isSearchUpdateNeeded && $compareIcons.length !== 0) {
+            updateSearchResults();
+            searchText();
+        }
+    }
+
+    function clearAllProjectedCols($btn) {
+        var $jsonWrap = $btn.closest('.jsonWrap');
+        $jsonWrap.find('.jObject').children().children().children('.jKey')
+                 .removeClass('projectSelected');
+        $jsonWrap.find('.submitProject').addClass('disabled');
+        $jsonWrap.find('.clearAll').addClass('disabled');
+    }
+
     function selectJsonKey($el) {
         var $jsonWrap = $el.closest('.jsonWrap');
         var tableId   = $jsonWrap.data('tableid');
@@ -382,8 +401,16 @@ window.JSONModal = (function($, JSONModal) {
             // $el.closest('.jInfo').data('key');
             if ($el.hasClass('projectSelected')) {
                 $el.removeClass('projectSelected');
+                if ($jsonWrap.find('.projectSelected').length === 0) {
+                    $jsonWrap.find('.submitProject').addClass('disabled');
+                    $jsonWrap.find('.clearAll').addClass('disabled');
+                }
             } else {
-                $el.addClass('projectSelected');
+                if ($el.parent('.jArray').length === 0) {
+                    $el.addClass('projectSelected');
+                    $jsonWrap.find('.submitProject').removeClass('disabled');
+                    $jsonWrap.find('.clearAll').removeClass('disabled');
+                }
             }
         } else {
             var nameInfo = createJsonSelectionExpression($el);
@@ -442,7 +469,7 @@ window.JSONModal = (function($, JSONModal) {
         $jsonWrap.after($jsonClone);
         $jsonClone.removeClass('active comparison');
         $jsonClone.find('.selected').removeClass('selected');
-        $jsonClone.find('.checkMark').removeClass('on first');
+        $jsonClone.find('.compareIcon').removeClass('on first');
         $jsonClone.find('.prettyJson.secondary').empty();
 
         if (!$jsonWrap.hasClass('comparison')) {
@@ -457,16 +484,16 @@ window.JSONModal = (function($, JSONModal) {
                                 .find('.jsonModalHighlightBox');
         $highlightBox.data().count++;
 
-        var $checkMarks = $jsonArea.find('.checkMark').removeClass('single');
+        var $compareIcons = $jsonArea.find('.compareIcon').removeClass('single');
         var title = "Click to select for comparison";
-        var $checkMark;
+        var $compareIcon;
 
-        $checkMarks.each(function() {
-            $checkMark = $(this);
-            if ($checkMark.attr('title')) {
-                $checkMark.attr('title', title);
+        $compareIcons.each(function() {
+            $compareIcon = $(this);
+            if ($compareIcon.attr('title')) {
+                $compareIcon.attr('title', title);
             } else {
-                $checkMark.attr('data-original-title', title);
+                $compareIcon.attr('data-original-title', title);
             }
         });
 
@@ -652,7 +679,7 @@ window.JSONModal = (function($, JSONModal) {
             toggleModal(null, true, 200);
             $jsonModal.hide().width(500);
             $modalBg.hide().removeClass('light');
-            
+
             $('#sideBarModal').hide();
             $('#rightSideBar').removeClass('modalOpen');
             $("body").removeClass("hideScroll");
@@ -723,16 +750,16 @@ window.JSONModal = (function($, JSONModal) {
         }
 
         if (isModalOpen) {
-            var $checkMarks = $jsonArea.find('.checkMark')
+            var $compareIcons = $jsonArea.find('.compareIcon')
                                       .removeClass('single');
-            var $checkMark;
+            var $compareIcon;
             var title = "Click to select for comparison";
-            $checkMarks.each(function() {
-                $checkMark = $(this);
-                if ($checkMark.attr('title')) {
-                    $checkMark.attr('title', title);
+            $compareIcons.each(function() {
+                $compareIcon = $(this);
+                if ($compareIcon.attr('title')) {
+                    $compareIcon.attr('title', title);
                 } else {
-                    $checkMark.attr('data-original-title', title);
+                    $compareIcon.attr('data-original-title', title);
                 }
             });
         }
@@ -779,8 +806,8 @@ window.JSONModal = (function($, JSONModal) {
 
         $jsonArea.append(getJsonWrapHtml(prettyJson));
 
-        if (gProjectOff) {
-            $('.projectWrap').hide();
+        if (window.gProjectOff) {
+            $jsonModal.find('.dropdownBox').hide();
         }
 
         addDataToJsonWrap($jsonArea, $jsonTd, isArray);
@@ -983,9 +1010,10 @@ window.JSONModal = (function($, JSONModal) {
             '<div class="optionsBar">' +
                 '<div class="dragHandle jsonDragHandle"></div>' +
                 '<div class="vertLine"></div>' +
-                '<div class="checkMark single" data-toggle="tooltip" ' +
-                    'data-container="body" ' +
+                '<div class="btn btnDeselected compareIcon single" ' +
+                    'data-toggle="tooltip" data-container="body" ' +
                     'title="' + JsonModalTStr.SelectOther + '">' +
+                    '<div class="icon"></div>' +
                 '</div>' +
                 '<div class="btn btnDeselected remove" data-toggle="tooltip" ' +
                     'data-container="body" ' +
@@ -1003,9 +1031,19 @@ window.JSONModal = (function($, JSONModal) {
                     'title="' + TooltipTStr.ComingSoon + '">' +
                     '<div class="icon"></div>' +
                 '</div>' +
-                '<div class="btn btnDeselected pullAll" data-toggle="tooltip"' +
-                    ' data-container="body" ' +
+                '<div class="btn btnDeselected pullAll" ' +
+                    'data-toggle="tooltip" data-container="body" ' +
                     'title="' + JsonModalTStr.PullAll + '">' +
+                    '<div class="icon"></div>' +
+                '</div>' +
+                '<div class="btn btnDeselected clearAll disabled" ' +
+                    'data-toggle="tooltip" data-container="body" ' +
+                    'title="' + 'deselect all columns' + '">' +
+                    '<div class="icon"></div>' +
+                '</div>' +
+                '<div class="btn btnDeselected submitProject disabled" ' +
+                    'data-toggle="tooltip" data-container="body" ' +
+                    'title="' + 'submit projection' + '">' +
                     '<div class="icon"></div>' +
                 '</div>' +
                 '<div class="tabWrap">' +
@@ -1034,45 +1072,41 @@ window.JSONModal = (function($, JSONModal) {
                         '</div>' +
                     '</div>' +
                 '</div>' +
-                '<div class="projectWrap">' +
-                     '<div class="checkbox">' +
-                        '<span class="icon"></span>' +
-                      '</div>' +
-                      '<div class="text">Project</div>' +
-                      '<div class="hint qMark" data-container="body" ' +
-                      'data-toggle="tooltip" ' +
-                      'title="Allow selection of columns to project"></div>' +
-                '</div>' +
-                '<div class="selectBtn selectAll hidden">' +
-                    "Select All" +
-                '</div>' +
-                '<div class="selectBtn clearAll hidden">' +
-                    "Clear All" +
-                '</div>' +
-                '<div class="submitProject hidden">' +
-                    "Submit" +
-                '</div>' +
-                // '<div style="inline-block" data-container="body" ' +
-                //       'data-toggle="tooltip" ' +
-                //       'title="Select all columns">' +
-                //     '<div class="checkbox">' +
+                // '<div class="projectWrap">' +
+                //      '<div class="checkbox">' +
                 //         '<span class="icon"></span>' +
                 //       '</div>' +
-                //       '<div class="text">All</div>' +
-                // '</div>' +
-                // '<div style="inline-block" data-container="body" ' +
+                //       '<div class="text">Project</div>' +
+                //       '<div class="hint qMark" data-container="body" ' +
                 //       'data-toggle="tooltip" ' +
-                //       'title="Deselect all columns">' +
-                //     '<div class="checkbox">' +
-                //         '<span class="icon"></span>' +
-                //       '</div>' +
-                //       '<div class="text">Clear</div>' +
+                //       'title="Allow selection of columns to project"></div>' +
                 // '</div>' +
+                // '<div class="selectBtn selectAll hidden">' +
+                //     "Select All" +
+                // '</div>' +
+                // '<div class="selectBtn clearAll hidden">' +
+                //     "Clear All" +
+                // '</div>' +
+                // '<div class="submitProject hidden">' +
+                //     "Submit" +
+                // '</div>' +
+                '<div class="dropdownBox">' +
+                    '<div class="icon"></div>' +
+                '</div>' +
             '</div>' +
             '<div class="prettyJson primary">' +
                 prettyJson +
             '</div>' +
             '<div class="prettyJson secondary"></div>' +
+            '<ul class="jsonModalMenu menu">' +
+                '<li class="selectionOpt">' +
+                    '<span class="check"></span>' +
+                    '<span class="text">Selection Mode</span></li>' +
+                '<li class="projectionOpt">' +
+                    '<span class="check"></span>' +
+                    '<span class="text">Projection Mode</span>' +
+                '</li>' +
+            '</ul>' +
             '</div>';
         } else {
             html += '<div class="prettyJson singleView primary">' +
@@ -1371,14 +1405,14 @@ window.JSONModal = (function($, JSONModal) {
 
             closeJSONModal();
 
-            var startTime = (new Date()).getTime();
+            var startTime = Date.now();
             var focusOnTable = false;
             var startScrollPosition = $('#mainFrame').scrollLeft();
 
             XcalarProject(colNames, tableName, dstTableName, txId)
             .then(function() {
                 var timeAllowed = 1000;
-                var endTime = (new Date()).getTime();
+                var endTime = Date.now();
                 var elapsedTime = endTime - startTime;
                 var timeSinceLastClick = endTime -
                                          gMouseEvents.getLastMouseDownTime();
@@ -1400,7 +1434,8 @@ window.JSONModal = (function($, JSONModal) {
                     if (colNames.indexOf(tableCols[i].backName) > -1) {
                         finalTableCols.push(tableCols[i]);
                     } else if (tableCols[i].backName === "DATA") {
-                        finalTableCols.push(tableCols[i]);
+                        var dataCol = ColManager.newDATACol();
+                        finalTableCols.push(dataCol);
                     }
                 }
 
@@ -1439,6 +1474,27 @@ window.JSONModal = (function($, JSONModal) {
             // shouldn't have been able to submit anyways
             console.warn('no columns selected');
         }
+    }
+
+    function addMenuActions() {
+        var $li;
+        var $menu;
+        var $jsonWrap;
+        $jsonArea.on("click", ".menu li", function() {
+            $li = $(this);
+            $menu = $li.closest('.menu');
+            $jsonWrap = $menu.closest('.jsonWrap');
+            if ($li.hasClass('projectionOpt')) {
+                $jsonWrap.addClass('projectMode');
+                if ($jsonWrap.find('.compareIcon.on').length) {
+                    compareIconSelect($jsonWrap.find('.compareIcon'));
+                }
+            } else if ($li.hasClass('selectionOpt')) {
+                $jsonWrap.removeClass('projectMode');
+                clearAllProjectedCols($jsonWrap.find('.clearAll'));
+            }
+            $menu.hide();
+        });
     }
 
     return (JSONModal);
