@@ -77,6 +77,9 @@ window.WorkbookModal = (function($, WorkbookModal) {
 
     WorkbookModal.forceShow = function() {
         $workbookModal.find(".cancel, .close").hide();
+        var $logoutBtn = xcHelper.logoutButton();
+        $workbookModal.find(".modalBottom").append($logoutBtn);
+
         WorkbookModal.show(true);
         // deafult value for new workbook
         $workbookInput.val("untitled");

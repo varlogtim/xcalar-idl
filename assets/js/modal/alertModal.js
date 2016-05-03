@@ -187,82 +187,26 @@ window.Alert = (function($, Alert){
         if (options.lockScreen) {
             $('#alertHeader').find('.close').css('pointer-events', 'none');
             $modal.addClass('locked');
-            var $copySqlBtn = $('<button type="button" ' +
-                                'class="btn btnMid copySql" ' +
-                                'data-toggle="tooltip" ' +
-                                'title="Copy the SQL log onto your clipboard">' +
-                                'Copy log</button>');
+            var $copySqlBtn = xcHelper.logoutButton("sql");
+            var $logoutBtn = xcHelper.logoutButton();
 
-            var $logoutBtn = $('<button type="button" ' +
-                                'class="btn btnMid logout" ' +
-                                'data-toggle="tooltip" ' +
-                                'title="Log Out">' +
-                                'Log Out</button>');
-
-            var $supportBtn = $('<button type="button" ' +
-                                'class="btn btnMid genSub" ' +
-                                'data-toggle="tooltip" ' +
-                                'title="Generate Support Bundle">' +
-                                'Generate Bundle</button>');
+            var supportDone = function(path, bid) {
+                var text = ThriftTStr.CCNBE + "\n" +
+                            "Bundle Id " + bid + " Generated at " + path;
+                $("#alertContent .text").text(text);
+            };
+            var supportFail = function() {
+                var text = ThriftTStr.CCNBE + "\n" +
+                           CommonTxtTstr.GenBundleFail + ".";
+                $("#alertContent .text").text(text);
+            };
+            var $supportBtn = xcHelper.logoutButton("support", supportDone, supportFail);
 
             if (options.logout) {
                 $btnSection.prepend($logoutBtn, $copySqlBtn, $supportBtn);
             } else {
                 $btnSection.prepend($copySqlBtn, $logoutBtn, $supportBtn);
             }
-
-            $copySqlBtn.click(function() {
-                $(this).blur();
-                var $hiddenInput = $("<input>");
-                $("body").append($hiddenInput);
-
-                var sqlCaches = SQL.getAllLogs();
-                var sql;
-                if (sqlCaches.logs.length === 0 &&
-                    sqlCaches.errors.length === 0)
-                {
-                    sql = SQL.getLocalStorage();
-                    if (sql == null) {
-                        sql = "";
-                    }
-                } else {
-                    sql = JSON.stringify(sqlCaches);
-                }
-
-                $hiddenInput.val(sql).select();
-                document.execCommand("copy");
-                $hiddenInput.remove();
-                xcHelper.showSuccess();
-            });
-
-            $logoutBtn.click(function() {
-                $(this).blur();
-                unloadHandler();
-            });
-
-            $supportBtn.click(function() {
-                var $btn = $(this).blur();
-                xcHelper.toggleBtnInProgress($btn);
-                // Tis flow is a little from xcHelper.genSub
-                XcalarSupportGenerate()
-                .then(function(path, bid) {
-                    var text = ThriftTStr.CCNBE + "\n" +
-                                "Bundle Id " + bid + " Generated at " + path;
-                    $("#alertContent .text").text(text);
-                    xcHelper.showSuccess();
-                    $btn.text("Bundle Generated")
-                        .addClass("btnInactive");
-                })
-                .fail(function(error) {
-                    console.error(error);
-                    // XXX TODOs: use xcHelper.showFail() instead
-                    // (function not implement yet!)
-                    xcHelper.toggleBtnInProgress($btn);
-                    var text = ThriftTStr.CCNBE + "\n" +
-                                "Bundle Generated Failed!";
-                    $("#alertContent .text").text(text);
-                });
-            });
         }
 
         // set checkbox,  default is unchecked

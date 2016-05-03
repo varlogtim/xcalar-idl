@@ -57,7 +57,9 @@ TooltipTStr = {
     'CloseQG': 'click to hide query graph',
     'OpenQG': 'click to view query graph',
     'Bookmark': 'click to add bookmark',
-    'Bookmarked': 'bookmarked'
+    'Bookmarked': 'bookmarked',
+    'CopyLog': 'Copy the SQL log onto your clipboard',
+    'GenBundle': 'Generate Support Bundle',
 };
 
 CommonTxtTstr = {
@@ -73,16 +75,20 @@ CommonTxtTstr = {
     'BackToOrig': 'Back to original',
     'Optional': 'Optional',
     'LogoutWarn': 'Please logout or you may lose unsaved work.',
+    'GenBundle': 'Generate Bundle',
+    'GenBundleDone': 'Bundle Generated',
+    'GenBundleFail': 'Bundle Generated Failed',
     'SupportBundle': 'Support Bundle Generated',
     'SupportBundleInstr': 'Please check your backend for a .tar.gz file',
     'SupportBundleMsg': 'Support upload bundle id <id> successfully generated! ' +
                         'It is located on your Xcalar Server at <path>',
-    'SuppoortBundleFail': 'Generation failed',
     'OpFail': 'Operation Failed',
     'SAVE': 'SAVE',
     'NEXT': 'NEXT',
     'Preview': 'Preview',
-    'StartTime': 'Start Time'
+    'StartTime': 'Start Time',
+    'CopyLog': 'Copy log',
+    'LogOut': 'Log Out'
 };
 
 ErrTStr = {

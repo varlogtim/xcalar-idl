@@ -747,6 +747,91 @@ window.xcHelper = (function($, xcHelper) {
         });
     };
 
+    xcHelper.logoutButton = function(type, doneCallback, failCallback) {
+        var $btn;
+        var html;
+
+        switch (type) {
+            case "sql":
+                // copy sql button
+                html = '<button type="button" class="btn btnMid copySql" ' +
+                        'data-toggle="tooltip" title="' + TooltipTStr.CopyLog + '">' +
+                            CommonTxtTstr.CopyLog +
+                        '</button>';
+                $btn = $(html);
+                $btn.click(function() {
+                    $(this).blur();
+                    var $hiddenInput = $("<input>");
+                    $("body").append($hiddenInput);
+
+                    var sqlCaches = SQL.getAllLogs();
+                    var sql;
+                    if (sqlCaches.logs.length === 0 &&
+                        sqlCaches.errors.length === 0)
+                    {
+                        sql = SQL.getLocalStorage();
+                        if (sql == null) {
+                            sql = "";
+                        }
+                    } else {
+                        sql = JSON.stringify(sqlCaches);
+                    }
+
+                    $hiddenInput.val(sql).select();
+                    document.execCommand("copy");
+                    $hiddenInput.remove();
+                    xcHelper.showSuccess();
+                });
+                break;
+            case "support":
+                // generate bundle button
+                html = '<button type="button" class="btn btnMid genSub" ' +
+                        'data-toggle="tooltip" title="' + TooltipTStr.GenBundle + '">' +
+                            CommonTxtTstr.GenBundle +
+                        '</button>';
+                $btn = $(html);
+
+                $btn.click(function() {
+                    var $supportBtn = $(this).blur();
+                    xcHelper.toggleBtnInProgress($supportBtn);
+                    // Tis flow is a little from xcHelper.genSub
+                    XcalarSupportGenerate()
+                    .then(function(path, bid) {
+                        if (doneCallback instanceof Function) {
+                            doneCallback(path, bid);
+                        }
+                        xcHelper.showSuccess();
+                        $supportBtn.text(CommonTxtTstr.GenBundleDone)
+                            .addClass("btnInactive");
+                    })
+                    .fail(function(error) {
+                        console.error(error);
+                        // XXX TODOs: use xcHelper.showFail() instead
+                        // (function not implement yet!)
+                        xcHelper.toggleBtnInProgress($supportBtn);
+                        if (failCallback instanceof Function) {
+                            failCallback(error);
+                        }
+                    });
+                });
+
+                break;
+            default:
+                // log out button
+                html = '<button type="button" class="btn btnMid logout">' +
+                            CommonTxtTstr.LogOut +
+                        '</button>';
+                $btn = $(html);
+                $btn.click(function() {
+                    $(this).blur();
+                    unloadHandler();
+                });
+
+        }
+
+        return $btn;
+    };
+
     // handle dropdown list generally
     xcHelper.dropdownList = function($dropDownList, options) {
         options = options || {};
@@ -1555,7 +1640,7 @@ window.xcHelper = (function($, xcHelper) {
             deferred.resolve();
         })
         .fail(function(error) {
-            Alert.error(CommonTxtTstr.SuppoortBundleFail, error);
+            Alert.error(CommonTxtTstr.GenBundleFail, error);
             deferred.reject(error);
         });
 
