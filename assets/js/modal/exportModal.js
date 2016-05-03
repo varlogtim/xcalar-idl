@@ -173,31 +173,36 @@ window.ExportModal = (function($, ExportModal) {
             }
         });
 
+        modalHelper.addWaitingBG();
+
+        modalHelper.setup({"open": function() {
+            if (gMinModeOn) {
+                $exportModal.show();
+            } else {
+                $exportModal.fadeIn(400);
+            }
+
+            return PromiseHelper.resolve();
+        }});
+
+        $selectableThs.addClass('modalHighlighted');
+        var allColNames = "";
+        $selectableThs.each(function() {
+            var colNum = xcHelper.parseColNum($(this));
+            $table.find('td.col' + colNum).addClass('modalHighlighted');
+            allColNames += $(this).find('.editableHead').val() + ", ";
+        });
+
+        $exportColumns.val(allColNames.substr(0, allColNames.length - 2));
+
         XcalarListExportTargets("*", "*")
         .then(function(targs) {
             exportTargInfo = targs;
             restoreExportPaths(targs);
-            modalHelper.setup({"open": function() {
-                if (gMinModeOn) {
-                    $exportModal.show();
-                } else {
-                    $exportModal.fadeIn(400);
-                }
-
-                return PromiseHelper.resolve();
-            }});
-
-            $selectableThs.addClass('modalHighlighted');
-            var allColNames = "";
-            $selectableThs.each(function() {
-                var colNum = xcHelper.parseColNum($(this));
-                $table.find('td.col' + colNum).addClass('modalHighlighted');
-                allColNames += $(this).find('.editableHead').val() + ", ";
-            });
-
-            $exportColumns.val(allColNames.substr(0, allColNames.length - 2));
+            modalHelper.removeWaitingBG();
         })
         .fail(function(error) {
+            modalHelper.removeWaitingBG();
             console.error(error);
         });
     };
@@ -1019,7 +1024,7 @@ window.ExportModal = (function($, ExportModal) {
 
         exportTableName = null;
         exportTargInfo = null;
-        $exportPath.val("Local Filesystem");
+        $exportPath.val("");
         $exportColumns.val("");
         $('.exportable').removeClass('exportable');
         $selectableThs = null;
@@ -1028,6 +1033,7 @@ window.ExportModal = (function($, ExportModal) {
         restoreAdvanced();
         restoreColumns();
         $advancedSection.addClass('collapsed').removeClass('expanded');
+        modalHelper.removeWaitingBG();
     }
 
     return (ExportModal);

@@ -135,6 +135,19 @@
     }
 }
 
+#modalWaitingBG {
+    .size(@width: 100%, @height: ~"calc(100% - 36px)");
+    .position(absolute, @top: 36px, @left: 0);
+    background-color: rgba(255,255,255, 0.6);
+    z-index: 101; // higher than the resizable grabbers
+
+    .waitingIcon {
+        left: 50%;
+        top: 40%;
+        .transform(translate3d(-50%, 0%, 0));
+    }
+}
+
 
 /* Pretty Json Modal */
 #jsonModal {

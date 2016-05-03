@@ -363,8 +363,8 @@ window.OperationsModal = (function($, OperationsModal) {
                 $operationsModal.find('.minimize').hide();
                 $operationsModal.find('td.cast').find('.dropDownList')
                                                 .addClass('hidden');
-                // $operationsModal.find('.argumentTable').find('tr:gt(4)').remove();
                 hideCastColumn();
+                modalHelper.removeWaitingBG();
             });
 
             var isHide = true;
@@ -508,13 +508,51 @@ window.OperationsModal = (function($, OperationsModal) {
         colName = currentCol.name;
         isNewCol = currentCol.isNewCol;
 
+        $('#xcTable-' + tableId).find('.col' + colNum)
+                                .addClass('modalHighlighted');
+
+        $operationsModal.find('.operationsModalHeader .text')
+                        .text(operator);
+
+        // get modal's origin classes
+        var classes = $operationsModal.attr('class').split(' ');
+        for (var i = 0; i < classes.length; i++) {
+            if (classes[i].startsWith('numArgs')){
+                classes.splice(i, 1);
+                i--;
+            }
+        }
+
+        $operationsModal.attr('class', classes.join(' '));
+
+        operatorName = operator.toLowerCase().trim();
+
+        if (operatorName === 'aggregate') {
+            $operationsModal.addClass('numArgs0');
+        } else if (operatorName === 'map') {
+            $operationsModal.addClass('numArgs4');
+        } else if (operatorName === 'group by') {
+            $operationsModal.addClass('numArgs4');
+        }
+
+        // we want the modal to show up ~ below the first row
+        var modalTop = $('#xcTable-' + tableId).find('tbody tr').eq(0)
+                                               .offset().top +
+                                               gRescol.minCellHeight;
+
+        modalHelper.addWaitingBG();
+        modalHelper.setup({
+            "maxTop": modalTop,
+            "open"  : function() {
+                // ops modal has its own opener
+                return PromiseHelper.resolve();
+            }
+        });
+        toggleModalDisplay(false);
+
         XcalarListXdfs("*", "User*")
         .then(function(listXdfsObj) {
             udfUpdateOperatorsMap(listXdfsObj.fnDescs);
-
-            operatorName = operator.toLowerCase().trim();
-            $operationsModal.find('.operationsModalHeader .text')
-                            .text(operator);
 
             var colNames = [];
             tableCols.forEach(function(col) {
@@ -525,44 +563,10 @@ window.OperationsModal = (function($, OperationsModal) {
                 }
             });
 
-            $('#xcTable-' + tableId).find('.col' + colNum)
-                                   .addClass('modalHighlighted');
-
             corrector = new Corrector(colNames);
 
-            // get modal's origin classes
-            var classes = $operationsModal.attr('class').split(' ');
-            for (var i = 0; i < classes.length; i++) {
-                if (classes[i].startsWith('numArgs')){
-                    classes.splice(i, 1);
-                    i--;
-                }
-            }
-
-            $operationsModal.attr('class', classes.join(' '));
-
             populateInitialCategoryField(operatorName);
-
-            if (operatorName === 'aggregate') {
-                $operationsModal.addClass('numArgs0');
-            } else if (operatorName === 'map') {
-                $operationsModal.addClass('numArgs4');
-            } else if (operatorName === 'group by') {
-                $operationsModal.addClass('numArgs4');
-            }
-
-            var modalTop = $('#xcTable-' + tableId).find('tbody tr').eq(0)
-                                                   .offset().top +
-                            gRescol.minCellHeight;
-            // we want the modal to show up ~ below the first row
-            modalHelper.setup({
-                "maxTop": modalTop,
-                "open"  : function() {
-                    // ops modal has its own opener
-                    return PromiseHelper.resolve();
-                }
-            });
-            toggleModalDisplay(false);
+            fillInputPlaceholder(0);
 
             $categoryInput.focus();
             if ($categoryUl.find('li').length === 1) {
@@ -573,10 +577,14 @@ window.OperationsModal = (function($, OperationsModal) {
                 $functionInput.focus();
             }
             $operationsModal.find('.list').removeClass('hovering');
+
+            modalHelper.removeWaitingBG();
+
             deferred.resolve();
         })
         .fail(function(error) {
             Alert.error("Listing of UDFs failed", error.error);
+            modalHelper.removeWaitingBG();
             deferred.reject();
         });
         return (deferred.promise());

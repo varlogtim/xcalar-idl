@@ -234,6 +234,8 @@ window.TestSuite = (function($, TestSuite) {
                 } else if ($elem.length === 0) {
                     allElemsPresent = false;
                     break;
+                } else if ($('#modalWaitingBG').length) {
+                    allElemsPresent = false;
                 }
             }
             if (allElemsPresent) {

@@ -1958,6 +1958,33 @@ ModalHelper.prototype = {
         }
 
         return deferred.promise();
+    },
+
+    addWaitingBG: function() {
+        var $modal = this.$modal;
+        var waitingBg = '<div id="modalWaitingBG">' +
+                            '<div class="waitingIcon"></div>' +
+                        '</div>';
+        $modal.append(waitingBg);
+        var $waitingBg =  $('#modalWaitingBG');
+        var modalHeaderHeight = $modal.find('.modalHeader').height();
+        var modalHeight = $modal.height();
+
+        $waitingBg.height(modalHeight - modalHeaderHeight)
+                  .css('top', modalHeaderHeight);
+        setTimeout(function() {
+            $waitingBg.find('.waitingIcon').fadeIn();
+        }, 200);
+    },
+
+    removeWaitingBG: function() {
+        if (gMinModeOn) {
+            $('#modalWaitingBG').remove();
+        } else {
+            $('#modalWaitingBG').fadeOut(200, function() {
+                $(this).remove();
+            });
+        }
     }
 };
 /* End of ModalHelper */
