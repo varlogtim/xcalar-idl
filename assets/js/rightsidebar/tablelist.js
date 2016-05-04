@@ -397,7 +397,7 @@ window.TableList = (function($, TableList) {
                     tables.push(tableName);
 
                     if (tableType === TableType.Orphan) {
-                        addOrphanedTable(tableName)
+                        addOrphanedTable(tableName, wsId)
                         .then(function(){
                             doneHandler($li, tableName);
                             var tableIndex = gOrphanTables.indexOf(tableName);
@@ -632,7 +632,7 @@ window.TableList = (function($, TableList) {
     };
 
 
-    function addOrphanedTable(tableName) {
+    function addOrphanedTable(tableName, wsId) {
         var deferred = jQuery.Deferred();
 
         var tableId = xcHelper.getTableId(tableName);
@@ -650,6 +650,8 @@ window.TableList = (function($, TableList) {
                 if (oldWS) {
                     worksheet = oldWS;
                     WSManager.removeTable(tableId);
+                } else if (wsId) {
+                    worksheet = wsId;
                 }
             }
 

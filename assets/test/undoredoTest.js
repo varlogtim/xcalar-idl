@@ -45,6 +45,7 @@ window.UndoRedoTest = (function($, UndoRedoTest) {
         .then(function() {
             replayLogs = Replay.log;
             console.info("undo started");
+            // return (PromiseHelper.reject());
             return (undoAll());
         })
         .then(function() {
@@ -164,7 +165,7 @@ window.UndoRedoTest = (function($, UndoRedoTest) {
             wsMeta: wsMeta,
             firstRowText: $('.xcTable tbody').find('tr:first').text(),
             tableListText: tableListText,
-            dagText: $('#dagPanel .dagWrap:not(.inActive)').text().replace(/\s\s/g, ""),
+            dagText: $('#dagPanel .dagWrap').text().replace(/\s\s/g, ""),
             lastAction: SQL.viewLastAction()
         };
 
@@ -265,8 +266,7 @@ window.UndoRedoTest = (function($, UndoRedoTest) {
                 wsMeta: wsMeta,
                 firstRowText: $('.xcTable tbody').find('tr:first').text(),
                 tableListText: tableListText,
-                dagText: $('#dagPanel .dagWrap:not(.inActive)').text()
-                                                        .replace(/\s\s/g, "")
+                dagText: $('#dagPanel .dagWrap').text().replace(/\s\s/g, "")
             };
 
             for (var ws in info.wsMeta.wsInfos) {
@@ -325,14 +325,10 @@ window.UndoRedoTest = (function($, UndoRedoTest) {
                         "Delete Worksheet",
                         "Create Worksheet",
                         "Rename Worksheet",
-                        "Switch Worksheet",
                         "Create Worksheet",
-                        "Switch Worksheet",
                         "Reorder Worksheet",
-                        "Switch Worksheet",
                         "Delete Worksheet",
                         "Create Table",
-                        "Switch Worksheet",
                         "Create Table",
                         "Create Table",
                         "Move Table to worksheet",

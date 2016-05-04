@@ -434,6 +434,7 @@ window.TblManager = (function($, TblManager) {
     //options:
     // remove: boolean, if true will remove table from html
     // keepInWS: boolean, if true will not remove table from WSManager
+    // noFocusWS: boolean, if true will not focus on tableId's Worksheet
     TblManager.sendTableToOrphaned = function(tableId, options) {
         var deferred = jQuery.Deferred();
         options = options || {};
@@ -450,6 +451,11 @@ window.TblManager = (function($, TblManager) {
         var table = gTables[tableId];
         table.freeResultset()
         .then(function() {
+            var wsId;
+            if (!options.noFocusWS) {
+                wsId = WSManager.getWSFromTable(tableId);
+            }
+
             TableList.removeTable(tableId);
             if (!options.keepInWS) {
                 WSManager.removeTable(tableId);
@@ -469,6 +475,13 @@ window.TblManager = (function($, TblManager) {
 
             if ($('.xcTableWrap:not(.inActive').length === 0) {
                 RowScroller.empty();
+            }
+
+            if (!options.noFocusWS) {
+                var activeWS = WSManager.getActiveWS();
+                if (activeWS !== wsId) {
+                    WSManager.focusOnWorksheet(wsId);
+                }
             }
 
             moveTableDropdownBoxes();
@@ -1226,6 +1239,11 @@ window.TblManager = (function($, TblManager) {
         // WSManager.replaceTable need to know oldTable's location
         // so remove table after that
         if (tablesToRemove) {
+            var multipleTables = tablesToRemove.length > 1;
+            var noFocusWS = false;
+            if (multipleTables) {
+                noFocusWS = true;
+            }
             for (var i = 0; i < tablesToRemove.length; i++) {
                 if (wasTableReplaced && tablesToRemove[i] !== oldId) {
                     WSManager.changeTableStatus(tablesToRemove[i],
@@ -1241,7 +1259,8 @@ window.TblManager = (function($, TblManager) {
                         TblManager.sendTableToOrphaned(tablesToRemove[i]);
                     } else {
                         TblManager.sendTableToOrphaned(tablesToRemove[i], {
-                            "keepInWS": true
+                            "keepInWS": true,
+                            noFocusWS: noFocusWS
                         });
                     }
                 }

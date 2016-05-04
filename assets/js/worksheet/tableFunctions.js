@@ -1197,10 +1197,12 @@ function moveTableTitlesAnimated(tableId, oldWidth, widthChange, speed) {
 function focusTable(tableId, focusDag) {
     if (WSManager.getWSFromTable(tableId) !== WSManager.getActiveWS())
     {
-
-        if (SQL.isRedo() || SQL.isUndo()) {
+        if ((SQL.isRedo() || SQL.isUndo()) && SQL.viewLastAction() !== "Join") {
             var wsToFocus = WSManager.getWSFromTable(tableId);
-            $("#worksheetTab-" + wsToFocus).trigger(fakeEvent.mousedown);
+            var activeWS = WSManager.getActiveWS();
+            if (wsToFocus !== activeWS) {
+                $("#worksheetTab-" + wsToFocus).trigger(fakeEvent.mousedown);
+            }
         } else {
             console.warn("Table not in current worksheet");
             return;

@@ -526,7 +526,11 @@ window.WSManager = (function($, WSManager) {
 
         findTableListHelper()
         .then(function() {
-            return TableList.tableBulkAction("add", tableType);
+            var wsToSend = null;
+            if (tableType === TableType.Orphan) {
+                wsToSend = newWSId;
+            }
+            return TableList.tableBulkAction("add", tableType, wsToSend);
         })
         .then(function() {
             WSManager.focusOnLastTable();

@@ -103,16 +103,19 @@ window.Redo = (function($, Redo) {
     /* USER STYLING/FORMATING OPERATIONS */
 
     redoFuncs[SQLOps.HideCols] = function(options) {
+        focusTableHelper(options);
         ColManager.hideCols(options.colNums, options.tableId);
         return PromiseHelper.resolve(null);
     };
 
     redoFuncs[SQLOps.UnHideCols] = function(options) {
+        focusTableHelper(options);
         ColManager.unhideCols(options.colNums, options.tableId);
         return PromiseHelper.resolve(null);
     };
 
     redoFuncs[SQLOps.AddNewCol] = function(options) {
+        focusTableHelper(options);
         var addColOptions = {
             "direction": options.direction,
             "isNewCol" : true,
@@ -126,10 +129,12 @@ window.Redo = (function($, Redo) {
     };
 
     redoFuncs[SQLOps.DeleteCol] = function(options) {
+        focusTableHelper(options);
         return (ColManager.delCol(options.colNums, options.tableId));
     };
 
     redoFuncs[SQLOps.PullCol] = function(options) {
+        focusTableHelper(options);
         if (options.pullColOptions.source === "fnBar") {
             return (ColManager.execCol("pull", options.usrStr, options.tableId,
                                         options.colNum));
@@ -140,20 +145,19 @@ window.Redo = (function($, Redo) {
     };
 
     redoFuncs[SQLOps.PullAllCols] = function(options) {
-        // var $table = $('#xcTable-' + options.tableId);
-        // var $row = $table.find('tr.row' + options.rowNum);
-        // var $td = $row.find('td.col' + options.colNum);
-
+        focusTableHelper(options);
         ColManager.unnest(options.tableId, options.colNum, options.rowNum,
                             options.isArray, options.options);
         return PromiseHelper.resolve(null);
     };
 
     redoFuncs[SQLOps.DupCol] = function(options) {
+        focusTableHelper(options);
         return (ColManager.dupCol(options.colNum, options.tableId));
     };
 
     redoFuncs[SQLOps.DelDupCol] = function(options) {
+        focusTableHelper(options);
         // delCol is 1 indexed;
         var colNums = options.colNums;
         var newColNums = [];
@@ -164,6 +168,7 @@ window.Redo = (function($, Redo) {
     };
 
     redoFuncs[SQLOps.DelAllDupCols] = function(options) {
+        focusTableHelper(options);
         // delCol is 1 indexed;
         var colNums = options.colNums;
         var newColNums = [];
@@ -174,17 +179,20 @@ window.Redo = (function($, Redo) {
     };
 
     redoFuncs[SQLOps.ReorderCol] = function(options) {
+        focusTableHelper(options);
         ColManager.reorderCol(options.tableId, options.oldColNum,
                               options.newColNum, {"undoRedo": true});
         return PromiseHelper.resolve(null);
     };
 
     redoFuncs[SQLOps.SortTableCols] = function(options) {
+        focusTableHelper(options);
         TblManager.sortColumns(options.tableId, options.direction);
         return PromiseHelper.resolve(null);
     };
 
     redoFuncs[SQLOps.ResizeTableCols] = function(options) {
+        focusTableHelper(options);
         TblManager.resizeColsToWidth(options.tableId, options.columnNums,
                                      options.newColumnWidths,
                                      options.newWidthStates);
@@ -192,23 +200,27 @@ window.Redo = (function($, Redo) {
     };
 
     redoFuncs[SQLOps.DragResizeTableCol] = function(options) {
+        focusTableHelper(options);
         TblAnim.resizeColumn(options.tableId, options.colNum, options.fromWidth,
                              options.toWidth, options.newWidthState);
         return PromiseHelper.resolve(null);
     };
 
     redoFuncs[SQLOps.DragResizeRow] = function(options) {
+        focusTableHelper(options);
         TblAnim.resizeRow(options.rowNum, options.tableId, options.fromHeight,
                           options.toHeight);
         return PromiseHelper.resolve(null);
     };
 
     redoFuncs[SQLOps.RenameCol] = function(options) {
+        focusTableHelper(options);
         ColManager.renameCol(options.colNum, options.tableId, options.newName);
         return PromiseHelper.resolve(null);
     };
 
     redoFuncs[SQLOps.ChangeFormat] = function(options) {
+        focusTableHelper(options);
         var format = options.format;
         if (format == null) {
             format = "default";
@@ -218,6 +230,7 @@ window.Redo = (function($, Redo) {
     };
 
     redoFuncs[SQLOps.RoundToFixed] = function(options) {
+        focusTableHelper(options);
         ColManager.roundToFixed(options.colNum, options.tableId,
                                 options.decimals);
         return PromiseHelper.resolve(null);
@@ -227,6 +240,7 @@ window.Redo = (function($, Redo) {
 
     /* Table Operations */
     redoFuncs[SQLOps.RenameTable] = function(options) {
+        focusTableHelper(options);
         var tableId = options.tableId;
         var newTableName = options.newTableName;
 
@@ -234,7 +248,9 @@ window.Redo = (function($, Redo) {
     };
 
     redoFuncs[SQLOps.ArchiveTable] = function(options) {
+        var wsId = WSManager.getWSFromTable(options.tableIds[0]);
         TblManager.archiveTables(options.tableIds);
+        WSManager.focusOnWorksheet(wsId);
         return PromiseHelper.resolve(null);
     };
 
@@ -289,41 +305,42 @@ window.Redo = (function($, Redo) {
         });
 
         return deferred.promise();
-
-
     };
 
     redoFuncs[SQLOps.ReorderTable] = function(options) {
-        // ColManager.reorderCol(options.tableId, options.oldColNum,
-        //                       options.newColNum, {"undoRedo": true});
+        focusTableHelper(options);
         reorderAfterTableDrop(options.tableId, options.srcIndex, options.desIndex,
                                 {undoRedo: true});
         return PromiseHelper.resolve(null);
     };
 
     redoFuncs[SQLOps.BookmarkRow] = function(options) {
+        focusTableHelper(options);
         bookmarkRow(options.rowNum, options.tableId);
         return PromiseHelper.resolve(null);
     };
 
     redoFuncs[SQLOps.RemoveBookmark] = function(options) {
+        focusTableHelper(options);
         unbookmarkRow(options.rowNum, options.tableId);
         return PromiseHelper.resolve(null);
     };
 
     redoFuncs[SQLOps.TextAlign] = function(options) {
-        // var numCols = options.colNums.length;
+        focusTableHelper(options);
         ColManager.textAlign(options.colNums, options.tableId,
                              options.cachedAlignment);
         return PromiseHelper.resolve(null);
     };
 
     redoFuncs[SQLOps.HideTable] = function(options) {
+        focusTableHelper(options);
         TblManager.hideTable(options.tableId);
         return PromiseHelper.resolve(null);
     };
 
     redoFuncs[SQLOps.UnhideTable] = function(options) {
+        focusTableHelper(options);
         TblManager.unHideTable(options.tableId);
         return PromiseHelper.resolve(null);
     };
@@ -380,6 +397,12 @@ window.Redo = (function($, Redo) {
         return PromiseHelper.resolve(null);
     };
     /* End of Worksheet Operation */
+
+    function focusTableHelper(options) {
+        if (options.tableId !== gActiveTableId) {
+            focusTable(options.tableId, true);
+        }
+    }
 
     return (Redo);
 }(jQuery, {}));
