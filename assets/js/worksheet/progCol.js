@@ -2355,8 +2355,7 @@ window.ColManager = (function($, ColManager) {
             return ("");
         }
         for (var i = 0; i < nested.length; i++) {
-            nested[i] = nested[i].replace(/\\\\/g, "\\");
-            nested[i] = nested[i].replace(/\\\./g, "\.");
+            nested[i] = xcHelper.unescapeColName(nested[i]);
         }
 
         return (nested);

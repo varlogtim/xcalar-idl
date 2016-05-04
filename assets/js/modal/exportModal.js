@@ -140,7 +140,6 @@ window.ExportModal = (function($, ExportModal) {
             });
         });
 
-        $exportModal.find('.selectAll').click(selectAllCols);
         $exportModal.find('.clearInput').click(clearAllCols);
 
     };
@@ -253,7 +252,6 @@ window.ExportModal = (function($, ExportModal) {
                         return (columnsVal.length === 0);
                     } else {
                         return (columnsVal.length === 0 ||
-                            columnsVal.indexOf('.') !== -1 ||
                             columnsVal.indexOf('[') !== -1);
                     }
                 }
@@ -501,13 +499,7 @@ window.ExportModal = (function($, ExportModal) {
                 if (gExportNoCheck) {
                     colsArray.push(col);
                 } else {
-                    if (xcHelper.isColNameObject(col.backName)) {
-                        isObj = true;
-                    } else {
-                        isObj = false;
-                    }
-                    if (!isObj &&
-                        validTypes.indexOf(col.type) !== -1) {
+                    if (validTypes.indexOf(col.type) !== -1) {
                         colsArray.push(col);
                     } else {
                         invalidProgCols.push(col);
@@ -679,15 +671,15 @@ window.ExportModal = (function($, ExportModal) {
                 return true;
             }
 
-            var isObj;
-            if (xcHelper.isColNameObject(tableCols[colNum].backName)) {
-                isObj = true;
+            var classes = $header.attr('class').replace('type-', '').split(' ');
+            var validTypeFound = false;
+            for (var i = 0; i < classes.length; i++) {
+                if (validTypes.indexOf(classes[i]) > -1) {
+                    validTypeFound = true;
+                    break;
+                }
             }
-            return (!isObj &&
-                    ($header.hasClass('type-string') ||
-                    $header.hasClass('type-integer') ||
-                    $header.hasClass('type-float') ||
-                    $header.hasClass('type-boolean')));
+            return (validTypeFound);
 
         }).parent();
 
@@ -836,32 +828,8 @@ window.ExportModal = (function($, ExportModal) {
         focusedHeader = null;
     }
 
-    function selectAllCols() {
-        $('#xcTable-' + tableId).find('th:not(.dataCol), td:not(.jsonElement)')
-                                .addClass('modalHighlighted');
-
-        var $dataTh = $('#xcTable-' + tableId).find('th.dataCol');
-        var dataColNum = xcHelper.parseColNum($dataTh) - 1;
-        columnsToExport = [];
-        var cols = gTables[tableId].tableCols;
-        var numCols = cols.length;
-        for (var i = 0; i < numCols; i++) {
-            if (i === dataColNum) {
-                continue;
-            }
-            if (!cols[i].isNewCol) {
-                columnsToExport.push(cols[i].backName);
-                // we're allowing garbage columns as well
-            }
-        }
-        $exportModal.find('.columnsSelected')
-                    .html(JSON.stringify(columnsToExport));
-    }
-
     function clearAllCols() {
         columnsToExport = [];
-        $exportModal.find('.columnsSelected')
-                        .html(JSON.stringify(columnsToExport));
         $exportColumns.val("");
         $('#xcTable-' + tableId)
                     .find('th.modalHighlighted, td.modalHighlighted')

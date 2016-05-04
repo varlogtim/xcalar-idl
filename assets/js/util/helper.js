@@ -1611,7 +1611,9 @@ window.xcHelper = (function($, xcHelper) {
     };
 
     xcHelper.unescapeColName = function(str) {
-
+        str = str.replace(/\\\\/g, "\\");
+        str = str.replace(/\\\./g, "\.");
+        return (str);
     };
 
     xcHelper.scrollToBottom = function($target) {

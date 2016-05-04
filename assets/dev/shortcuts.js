@@ -101,6 +101,7 @@ window.Shortcuts = (function($, Shortcuts) {
         var $filePath = $("#filePath");
         var $fileName = $("#fileName");
         var filePath = "";
+        var filePathGiven = false;
         $filePath.on('keyup.shortcut', function() {
             var val = $(this).val();
             var file = null;
@@ -147,11 +148,20 @@ window.Shortcuts = (function($, Shortcuts) {
                 }
 
             } else {
+                filePathGiven = true;
                 switch (val) {
-                    case ("unittest"):
+                    case ("unit"):
                         file = "unittest";
                         filePath = "file:///netstore/datasets/unittest/" +
                                     "test_yelp.json";
+                        break;
+                    case ("net"):
+                        file = "netstore";
+                        filePath = "file:///netstore/datasets/";
+                        break;
+                    case ("exp"):
+                        file = "export";
+                        filePath = "file:///var/opt/xcalar/export/";
                         break;
                     default:
                         break;
@@ -160,8 +170,11 @@ window.Shortcuts = (function($, Shortcuts) {
 
             if (file) {
                 var $formatDropdown = $("#fileFormatMenu");
+                if (!filePathGiven) {
+                    filePath = 'file:///var/tmp/' + filePath;
+                }
 
-                $filePath.val('file:///var/tmp/' + filePath);
+                $filePath.val(filePath);
 
                 $fileName.val(file + Math.ceil(Math.random() * 1000));
 
