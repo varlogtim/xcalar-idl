@@ -1430,6 +1430,9 @@ input {
 }
 
 .moveToWorksheet, .dupToWorksheet {
+    li {
+       overflow: visible;
+    }
     .dropDownList {
         .size(@width: 100%, @height: 30px);
         .position(relative);
@@ -1438,7 +1441,7 @@ input {
 
         .list {
             .size(@width: 160px, @height: 20px);
-            .position(absolute, @top: 31px, @left: -3px);
+            .position(absolute, @top: 20px, @left: -3px);
             margin: 0;
             visibility: visible !important;
             display: none;

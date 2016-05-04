@@ -654,6 +654,9 @@ function addMenuBehaviors($mainMenu) {
 
         $subMenu.on({
             "mouseenter": function() {
+                if ($(this).closest('.dropDownList').length) {
+                    return;
+                }
                 $subMenu.find('li').removeClass('selected');
 
                 var $li = $(this);
