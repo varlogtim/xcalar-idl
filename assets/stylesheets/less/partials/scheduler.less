@@ -17,7 +17,7 @@
     #dataflowButton {
         .icon {
             margin: 0px 0px 0 0px;
-            .image("../../images/dfg-icon.png", 50%, 50%);
+            .image("../../images/schedule/dfg-icon.png", 50%, 50%);
             width: 30px;
             height: 36px;
         }
@@ -63,32 +63,6 @@
                 display: block;
                 margin: 0 auto;
                 width: 266px;
-
-                &#addSchedule .icon {
-                    .image("../../images/schedule/schedule_calendar.png", 50%, 50%);
-                }
-
-                &.addGroup {
-                    .icon {
-                        .image("../../images/addSchedule.png", 0%, 50%);
-                    }
-                }
-                &.delete {
-                    .icon {
-                        .image("../../images/garbage.png", 0%, 50%);
-                    }
-                }
-                &.combine {
-                    .icon {
-                        .image("../../images/combine.png", 0%, 50%);
-                    }
-                }
-
-                &.addGroup, &.delete, &.combine {
-                    .icon {
-                        margin-left: 3px;
-                    }
-                }
             }
         }
 
@@ -126,7 +100,7 @@
 
                     .deleteSchedule {
                         opacity: 0.6;
-                        .image("../../images/bin-blue.png", 50%, 50%);
+                        .image("../../images/garbage-sm-blue.png", 50%, 50%);
                     }
                 }
             }
@@ -169,7 +143,7 @@
                 .deleteSchedule {
                     margin-top: 5px;
                     .size(@width: 26px, @height: 15px);
-                    .image("../../images/bin-gray.png", 50%, 50%);
+                    .image("../../images/garbage-sm.png", 50%, 50%);
                     opacity: 0.8;
                 }
             }
@@ -555,9 +529,11 @@
         .mainButtonArea {
             height: 59px;
             padding: 5px 0;
+
             .btn {
-                &:last-child {
-                    margin-top: 8px;
+                margin-top: 8px;
+                .icon {
+                    .image("../../images/schedule/schedule_calendar.png", 50%, 50%);
                 }
             }
         }
@@ -593,8 +569,7 @@
             .flex-flow(row);
 
             &:hover {
-                background: #C5E1F1;
-                background: #E2EEF6;
+                background: @color-dataflow-list-hover;
                 .label {
                     border-color: #A2C2D4;
                 }
@@ -602,21 +577,19 @@
                     opacity: 0.6;
                 }
                 .addGroup {
-                    .image("../../images/schedule-blue-sm.png", 80%, 50%);
+                    .image("../../images/schedule/addschedule-blue.png", 80%, 50%);
                 }
                 .deleteGroup {
-                    .image("../../images/bin-blue.png", 50%, 50%);
+                    .image("../../images/garbage-sm-blue.png", 50%, 50%);
                 }
             }
             &.selected {
-                background: @color-dataflow-list-active;
-                background: #C5E1F1;
+                background: @color-dataflow-list-selected;
+
                 .checkmark {
                     .image("../../images/checkmark-white.png", 40%, 50%);
                 }
-                // .label {
-                //     color: white;
-                // }
+
                 .iconWrap {
                     .linear-gradient(top, #60B3E6, #3C8DB2);
                 }
@@ -628,11 +601,11 @@
                 }
                 .addGroup {
                     opacity: 1 !important;
-                    .image("../../images/schedule-blue-sm.png", 80%, 50%);
+                    .image("../../images/schedule/addschedule-blue.png", 80%, 50%);
                 }
                 .deleteGroup {
                     opacity: 0.6;
-                    .image("../../images/bin-blue.png", 50%, 50%);
+                    .image("../../images/garbage-sm-blue.png", 50%, 50%);
                 }
 
             }
@@ -645,7 +618,7 @@
                 .icon {
                     .position(relative, @top: 3px, @left: 3px);
                     .size(@width: 20px, @height: 19px);
-                    .image("../../images/dfg-icon.png", 40%, 50%);
+                    .image("../../images/schedule/dfg-icon.png", 40%, 50%);
                 }
             }
 
@@ -669,12 +642,12 @@
             .addGroup {
                 margin-top: 4px;
                 .size(26px, 16px);
-                .image("../../images/schedule-gray-sm.png", 80%, 50%);
+                .image("../../images/schedule/addschedule-gray.png", 80%, 50%);
             }
             .deleteGroup {
                 margin-top: 5px;
                 .size(26px, 15px);
-                .image("../../images/bin-gray.png", 50%, 50%);
+                .image("../../images/garbage-sm.png", 50%, 50%);
                 opacity: 0.8;
             }
         }
@@ -717,7 +690,7 @@
     }
 
     .midContent {
-        .image("../../images/dag-background.png", right, top, repeat);
+        .image("../../images/dagIcons/dag-background.png", right, top, repeat);
 
         .midContentHeader {
             height: 55px;

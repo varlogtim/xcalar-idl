@@ -50,7 +50,7 @@
         .close {
             .position(absolute, @top: 7px, @right: 7px);
             .icon {
-                .image("../../images/ds-close.png", 50%, 50%);
+                .image("../../images/close-sm.png", 50%, 50%);
             }
         }
     }
@@ -189,7 +189,7 @@
 
         .searchIcon {
             .size(32px, 100%);
-            .image("../../images/ds-search.png", 50%, 50%);
+            .image("../../images/search-lg.png", 50%, 50%);
             background-size: 22px;
             float: left;
             cursor: pointer;
@@ -409,7 +409,7 @@
         }
 
         .dragHandle {
-            .image("../../images/drag-handle.png", 50%, 45%);
+            .image("../../images/jsonModal/drag-handle.png", 50%, 45%);
             .size(20px, 100%);
             .cursor-move;
         }
@@ -445,13 +445,13 @@
             }
 
             &.remove .icon {
-                .image("../../images/close-med.png", 50%, 50%);
+                .image("../../images/close-sm.png", 50%, 50%);
                 background-size: 12px;
                 margin-top: 1px;
             }
 
             &.split .icon {
-                .image("../../images/split.png", 50%, 50%);
+                .image("../../images/jsonModal/split.png", 50%, 50%);
             }
 
             &.binaryIcon {
@@ -459,10 +459,10 @@
             }
 
             &.binaryIcon.icon {
-                .image("../../images/binary.png", 50%, 50%);
+                .image("../../images/jsonModal/binary.png", 50%, 50%);
             }
             &.pullAll .icon {
-                .image("../../images/ds-importMultiple.png", 50%, 50%);
+                .image("../../images/jsonModal/pullAll.png", 50%, 50%);
                 margin-left: 1px;
                 background-size: 90% 90%;
             }
@@ -534,20 +534,20 @@
             &.seeAll {
                 width: 28%;
                 .icon {
-                    .image("../../images/eye-dark.png", 50%, 50%);
+                    .image("../../images/jsonModal/eye-dark.png", 50%, 50%);
                 }
             }
              &.original {
                 width: 28%;
                 .icon {
-                    .image("../../images/ds-icon-dark.png", 50%, 50%);
+                    .image("../../images/datastore/db-dark.png", 50%, 50%);
                 }
             }
             &.xcOriginated {
                 width: 44%;
                 .icon {
                     width: 30px;
-                    .image("../../images/ds-icon-gears.png", 50%, 76%);
+                    .image("../../images/datastore/db-gears.png", 50%, 76%);
                 }
                 .text {
                     width: ~"calc(90% - 30px)";
@@ -564,7 +564,7 @@
                     width: 34%;
                     border-right: none;
                     .icon {
-                        .image("../../images/ds-icon-gears.png", 58%, 76%);
+                        .image("../../images/datastore/db-gears.png", 58%, 76%);
                     }
                 }
                 .icon {
@@ -1646,12 +1646,7 @@ html.microsoft {
             margin: 0 auto;
             .font(@weight: bold, @size: 13px);
             .checkbox {
-                .background("../../images/checkbox-unchecked.png",
-                            16px, 17px);
-
-                &.checked {
-                    background-image: url(../../images/checkbox-checked.png);
-                }
+                .size(16px, 17px);
             }
             .text {
                 .position(relative, @top: -4px);
@@ -1661,9 +1656,7 @@ html.microsoft {
             }
             // now make it disabled
             &.inactive {
-                .checkbox {
-                    background-image: url(../../images/checkbox-unchecked.png);
-                }
+                pointer-events: none;
                 opacity: 0.5;
             }
         }
@@ -1800,7 +1793,7 @@ html.microsoft {
                     .icon {
                         .position(absolute, @right: 2px);
                         .size(@width: 20px, @height: 30px);
-                        .image("../../images/fileBrowserModal/sort.png", 50%, 50%);
+                        .image("../../images/sort.png", 50%, 50%);
                         background-size: 10px 20px;
                     }
                     &:hover {
@@ -2057,7 +2050,7 @@ html.microsoft {
                             .icon {
                                 .position(relative, @top: 3px, @left: 3px);
                                 .size(@width: 20px, @height: 19px);
-                                .image("../../images/dfg-icon.png", 40%, 50%);
+                                .image("../../images/schedule/dfg-icon.png", 40%, 50%);
                             }
 
                         }
@@ -2376,7 +2369,7 @@ html.microsoft {
 
                 .icon {
                     .size(100%, 100%);
-                    .image("../../images/fileBrowserModal/up.png", 50%, 50%);
+                    .image("../../images/datastore/upFolder.png", 50%, 50%);
                 }
             }
 
@@ -2454,13 +2447,13 @@ html.microsoft {
                     }
 
                     &.icon-refresh .icon {
-                        .image("../../images/fileBrowserModal/refresh.png", 50%, 50%);
+                        .image("../../images/refresh.png", 50%, 50%);
                     }
 
                     &.icon-sort {
                         position: relative;
                         > .icon {
-                            .image("../../images/fileBrowserModal/sort.png", 50%, 50%);
+                            .image("../../images/sort.png", 50%, 50%);
                         }
                         .dropDown;
                         .dropdownBox {
@@ -2485,7 +2478,7 @@ html.microsoft {
                                     display: none;
                                     .position(absolute, @top: 0, @right: 6px);
                                     .size(@width: 15px, @height: 25px);
-                                    .image("../../images/dagIcons/tick-blue.png",
+                                    .image("../../images/checkmark-blue.png",
                                             50%, 50%);
                                 }
                                 &:hover {
@@ -2500,12 +2493,12 @@ html.microsoft {
 
                     &.icon-list.gridView .icon {
                         .size(@width: 26px);
-                        .image("../../images/fileBrowserModal/listView.png", 4px, 3px);
+                        .image("../../images/view-list.png", 4px, 3px);
                     }
 
                     &.icon-list.listView .icon {
                         .size(@width: 26px);
-                        .image("../../images/fileBrowserModal/gridView.png", 4px, 3px);
+                        .image("../../images/view-grid.png", 4px, 3px);
                     }
                 }
             }
@@ -2580,7 +2573,7 @@ html.microsoft {
                     display: inline-block;
                     float: right;
                     .size(@width: 20px, @height: 30px);
-                    .image("../../images/fileBrowserModal/sort.png", 0%, 50%);
+                    .image("../../images/sort.png", 0%, 50%);
                 }
             }
         }
@@ -2696,7 +2689,7 @@ html.microsoft {
                     }
                 }
                 &.ds > .listIcon .icon {
-                    .image("../../images/db-icon-white.png", 50%, 40%);
+                    .image("../../images/datastore/db-sm.png", 50%, 40%);
                 }
                 &.folder > .listIcon .icon {
                     .image("../../images/datastore/folder-sm.png", 50%, 50%);
@@ -4155,13 +4148,13 @@ html.microsoft {
 
                 &:hover {
                     .icon {
-                        .image("../../images/dfg-default-active.png", 50%, 50%);
+                        .image("../../images/schedule/dfg-default-active.png", 50%, 50%);
                     }
                 }
 
                 .icon {
                     .size(20px, 20px);
-                    .image("../../images/dfg-default.png", 50%, 50%);
+                    .image("../../images/schedule/dfg-default.png", 50%, 50%);
                 }
             }
         }
@@ -4278,7 +4271,7 @@ html.microsoft {
                     .size(@width: 467px);
                 }
 
-                &.checkbox {
+                &.empty {
                     padding-left: 2px;
                     .size(@width: 84px);
                 }
@@ -4341,13 +4334,12 @@ html.microsoft {
                              &.paramEdit {
                                 .icon {
                                     .position(relative, @top: 1px);
-                                    .background("../../images/ds-editDS.png", 15px, 15px);
-
+                                    .background("../../images/pencil-sm-blue.png", 15px, 15px);
                                 }
 
                                 &.selected {
                                     .icon {
-                                        .background("../../images/pencil-gray.png", 16px, 15px);
+                                        .background("../../images/pencil-sm-gray.png", 16px, 15px);
                                     }
                                 }
                             }
@@ -4577,11 +4569,11 @@ html.microsoft {
         display: none;
     }
     .minimize .icon {
-        .image("../../images/dash.png", 50%, 50%);
+        .image("../../images/resize-min.png", 50%, 50%);
     }
     .maximize {
         .icon {
-            .image("../../images/expand.png", 50%, 50%);
+            .image("../../images/resize-expand.png", 50%, 50%);
         }
     }
 
@@ -4711,7 +4703,7 @@ html.microsoft {
 
     &.numArgs0 {
         .stepChainImg {
-            .image("../../images/stepChainsTrimmed.png", 50%, 50%);
+            .image("../../images/opsModal/stepChainsTrimmed.png", 50%, 50%);
             .size (27px, 83px);
         }
         .link1 {
@@ -4908,7 +4900,7 @@ html.microsoft {
                             }
                             .icon {
                                 .size(20px, 20px);
-                                .image("../../images/columnSelect.png", 50%, 50%);
+                                .image("../../images/opsModal/columnSelect.png", 50%, 50%);
                             }
                         }
 
@@ -5120,7 +5112,7 @@ html.microsoft {
 
     .stepChainImg {
         .position(absolute, @top: 15px, @left: 21px);
-        .image("../../images/stepChains.png", 50%, 50%);
+        .image("../../images/opsModal/stepChains.png", 50%, 50%);
         .size(27px, 139px);
     }
 

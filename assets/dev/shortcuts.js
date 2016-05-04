@@ -106,6 +106,7 @@ window.Shortcuts = (function($, Shortcuts) {
             var val = $(this).val();
             var file = null;
             if (val.length === 2) {
+                filePathGiven = false;
                 switch (val) {
                     case ("za"):
                         file = "yelpUsers";

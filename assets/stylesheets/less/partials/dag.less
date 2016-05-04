@@ -9,7 +9,7 @@
     .size(@width: 100%, @height: 100%);
     z-index: 15;
     background-color: rgb(140, 173, 181);
-    .image("../../images/dag-background.png", right, top, repeat);
+    .image("../../images/dagIcons/dag-background.png", right, top, repeat);
     .transition (~"transform 0.3s ease-in");
     pointer-events: initial;
 
@@ -42,7 +42,7 @@
         #dagPulloutTab {
             .position(absolute, @top: -9px);
             .size(@width: 100%, @height: 15px);
-            .image("../../images/pullTab.png", 50%, 100%);
+            .image("../../images/dagIcons/pullTab.png", 50%, 100%);
             background-color: @color-background-sidebar;
         }
     }
@@ -108,7 +108,7 @@
     #maximizeDag {
         .position(absolute, @top: 2px, @right: 32px);
         .iconMaximize {
-            background-image: url(../../images/expand.png);
+            background-image: url(../../images/resize-expand.png);
         }
         &.unavailable {
             pointer-events: none;
@@ -145,7 +145,7 @@
         .icon {
             .position(absolute, @top: 6px, @left: 5px);
             .size(19px, 19px);
-            .image("../../images/db-icon-white.png", 50%, 50%);
+            .image("../../images/datastore/db-sm.png", 50%, 50%);
         }
         .legendIcon {
             float: left;
@@ -176,7 +176,7 @@
     .tableArea {
         .icon {
             .position(@top: 0px, @left: 5px);
-            .image("../../images/table-icon.png", 50%, 50%);
+            .image("../../images/dagIcons/table-icon.png", 50%, 50%);
             background-size: 30px 26px;
             .size(30px, 30px);
         }
@@ -293,7 +293,7 @@
         .addDataFlow {
             margin-left: 6px;
             .icon {
-                .image("../../images/save-dfg.png", 50%, 50%);
+                .image("../../images/schedule/save-dfg.png", 50%, 50%);
             }
         }
     }
@@ -351,12 +351,12 @@
                 border: 2px solid @color-dag-highlighted;
             }
             .icon {
-                .image("../../images/table-icon-gray.png", 50%, 50%);
+                .image("../../images/dagIcons/table-icon-gray.png", 50%, 50%);
             }
         }
         &.dataStore.highlighted {
             .icon {
-                .image("../../images/db-icon-gray.png", 55%, 55%);
+                .image("../../images/datastore/db-sm-gray.png", 55%, 55%);
             }
         }
 
@@ -369,16 +369,14 @@
         .icon {
             .position(absolute, @top: 5px, @left: 5px);
             .size(75%, 75%);
-            .image("../../images/table-icon.png", 50%, 50%);
+            .image("../../images/dagIcons/table-icon.png", 50%, 50%);
             background-size: contain;
         }
-
-
 
         .lockIcon {
             .position(absolute, @top: 0px, @right: 0px);
             .size(17px, 20px);
-            .image("../../images/lock-white.png", 50%, 50%);
+            .image("../../images/dagIcons/lock-white.png", 50%, 50%);
         }
 
         .dagTableIcon {
@@ -403,7 +401,7 @@
             .icon {
                 .position(@top: -1px, @left: -5px);
                 .size(100%, 100%);
-                .image("../../images/db-icon-white.png", 50%, 50%);
+                .image("../../images/datastore/db-sm.png", 50%, 50%);
             }
             .dataStoreIcon {
                 .position(absolute, @top: 6px, @left: 2px);

@@ -40,14 +40,14 @@ input {
 // two icons in #contentHeaderLeft
 #inButton .icon {
     margin: 0px 5px 0 8px;
-    .image("../../images/import-single.png", 50%, 50%);
+    .image("../../images/datastore/import-single.png", 50%, 50%);
     .size(30px, 36px);
 
 }
 
 #outButton .icon {
     margin: 0px 5px 0 8px;
-    .image("../../images/export-single.png", 50%, 50%);
+    .image("../../images/datastore/export-single.png", 50%, 50%);
     .size(30px, 36px);
 }
 
@@ -66,7 +66,7 @@ input {
 
     .icon {
         margin: 9px 0 0 8px;
-        .background("../../images/db-icon-white.png", 19px, 19px);
+        .background("../../images/datastore/db-sm.png", 19px, 19px);
         float: left;
     }
 
@@ -822,7 +822,7 @@ input {
 
             .icon {
                 .size(@width: 100%, @height: 100%);
-                .image("../../images/datastore/undo-promote.png", 50%, 50%);
+                .image("../../images/datastore/preview-unpromote.png", 50%, 50%);
             }
         }
     }
@@ -845,7 +845,7 @@ input {
             .size(@height: ~"calc(100% - 2px)");
             .icon {
                 .size(@width: 100%, @height: 100%);
-                .image("../../images/datastore/promote.png", 50%, 50%);
+                .image("../../images/datastore/preview-promote.png", 50%, 50%);
             }
         }
     }
@@ -918,17 +918,17 @@ input {
 
         .toggleListGrid {
             &.gridView .icon {
-                .image("../../images/ds-listView.png", 50%, 50%);
+                .image("../../images/view-list.png", 50%, 50%);
             }
 
             &.listView .icon {
-                .image("../../images/ds-iconView.png", 50%, 50%);
+                .image("../../images/view-grid.png", 50%, 50%);
             }
         }
 
         .refresh {
             .icon {
-                .image("../../images/fileBrowserModal/refresh.png", 50%, 50%);
+                .image("../../images/refresh.png", 50%, 50%);
                 background-size: 18px 18px;
             }
         }
@@ -944,7 +944,7 @@ input {
                 margin: 0 auto;
 
                 .icon {
-                    .image("../../images/db-icon-white.png", 50%, 50%);
+                    .image("../../images/datastore/db-sm.png", 50%, 50%);
                 }
             }
         }
@@ -997,14 +997,14 @@ input {
                 }
 
                 .icon {
-                    .image("../../images/datastore/btn-upper-folder.png");
+                    .image("../../images/datastore/upFolder.png");
                 }
             }
             .addBtn {
                 border-left: 1px solid rgba(118, 118, 118, 0.5);
                 border-right: 1px solid rgba(118, 118, 118, 0.5);
                 .icon {
-                    .image("../../images/datastore/btn-add-folder.png");
+                    .image("../../images/datastore/addFolder.png");
                 }
             }
 
@@ -1012,7 +1012,7 @@ input {
                 box-shadow: inset -11px 0px 8px -10px rgba(0, 0, 0, 0.3);
                 border-right: none;
                 .icon {
-                    .image("../../images/datastore/btn-delete-folder.png");
+                    .image("../../images/datastore/deleteFolder.png");
                 }
 
                 &.disabled {
@@ -1445,10 +1445,10 @@ input {
             }
 
             &#submitDSTablesBtn .icon {
-                .image("../../images/send-single.png", 0, 50%);
+                .image("../../images/datastore/send-single.png", 0, 50%);
             }
             &#submitMultipleDBTablesBtn .icon {
-                .image("../../images/send-multiple.png", 0, 50%);
+                .image("../../images/datastore/send-multiple.png", 0, 50%);
             }
             &#clearDataCart .icon {
                 .image("../../images/garbage.png", 0, 50%);
@@ -1749,7 +1749,7 @@ table.datasetTable {
 
             .tick.icon {
                 .size(@width: 15px, @height: 22px);
-                .image("../../images/datastore/tick.png", 50%, 70%);
+                .image("../../images/tick.png", 50%, 70%);
                 opacity: 0.5;
             }
         }
@@ -1937,7 +1937,7 @@ table.datasetTable {
                 .closeIcon {
                     display: inline-block;
                     .size(100%, 100%);
-                    .image("../../images/ds-close.png", 50%, 50%);
+                    .image("../../images/close-sm.png", 50%, 50%);
                 }
             }
         }

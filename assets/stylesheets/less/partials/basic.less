@@ -390,10 +390,10 @@ body {
     .size(@width: 16px, @height: 100%);
     display: inline-block;
     cursor: pointer;
-    .image("../../images/checkbox-unchecked.png", 50%, 50%);
+    .image("../../images/checkbox/unchecked.png", 50%, 50%);
 
     &.checked {
-        .image("../../images/checkbox-checked.png", 50%, 50%);
+        .image("../../images/checkbox/checked.png", 50%, 50%);
     }
 }
 
@@ -1050,73 +1050,6 @@ input {
         }
     }
 
-    .aggregate, .groupBy {
-        .maxIcon {
-            .image("../../images/max.png", 0, 50%);
-        }
-        .minIcon {
-            .image("../../images/min.png", 0, 50%);
-        }
-        .avgIcon {
-            .image("../../images/average.png", 0, 50%);
-        }
-        .countIcon {
-            .image("../../images/count.png", 0, 50%);
-        }
-        .sumIcon {
-            .image("../../images/sum.png", 0, 50%);
-        }
-    }
-
-    .filter {
-        .greaterThan {
-            .image("../../images/greaterThan.png", 0, 50%);
-        }
-        .greaterEqual {
-            .image("../../images/greaterEqual.png", 0, 50%);
-        }
-        .equal {
-            .image("../../images/equal.png", 0, 50%);
-        }
-        .lessEqual {
-            .image("../../images/lessEqual.png", 0, 50%);
-        }
-        .lessThan {
-            .image("../../images/lessThan.png", 0, 50%);
-        }
-        .exclude {
-            .image("../../images/notEqual.png", 0, 50%);
-            margin-left: -2px;
-            width: 26px;
-        }
-        .regex {
-            .image("../../images/regex.png", 0, 50%);
-        }
-        .like {
-            .image("../../images/like.png", 0, 50%);
-        }
-    }
-
-    .map {
-        span {
-            float: left;
-        }
-        .switch {
-            float: left;
-            .size(@width: 16px, @height: 16px);
-            .image("../../images/switch.png", 0, 50%);
-            opacity: 0.5;
-
-            &:hover {
-                opacity: 1.0;
-            }
-            &.selected {
-                background-color: @color-twilightBlue;
-                opacity: 1.0;
-            }
-        }
-    }
-
     .multiColumn {
         display: none;
     }
@@ -1662,7 +1595,7 @@ ul.inputMenu {
 #logo {
     .size(@width: 74px, @height: 34px);
     margin: 5px 10px 0 0;
-    .image("../../images/xcalar-logo-white.png");
+    .image("../../images/logo/xcalar-white-sm.png");
     float: right;
     display: inline-block;
     @media screen and (max-width: 1024px) {
@@ -1884,19 +1817,19 @@ ul.inputMenu {
 }
 
 #tableListBtn {
-    background-image: url(../../images/list-icon.png);
+    background-image: url(../../images/sidebar/tableList.png);
 }
 
 #sqlBtn {
-    background-image: url(../../images/sql.png);
+    background-image: url(../../images/sidebar/sql.png);
 }
 
 #udfBtn {
-    background-image: url(../../images/udf.png);
+    background-image: url(../../images/sidebar/udf.png);
 }
 
 #cliBtn {
-    background-image: url(../../images/cli-icon.png);
+    background-image: url(../../images/sidebar/cli.png);
 }
 
 #scratchpadBtn {
@@ -1904,7 +1837,7 @@ ul.inputMenu {
 }
 
 #infoBtn {
-    background-image: url(../../images/questionMark.png);
+    background-image: url(../../images/sidebar/help.png);
 }
 
 #bottomTabArea {
@@ -1992,7 +1925,7 @@ ul.inputMenu {
                 .size(@width: 18px, @height: 23px);
                 margin-left: 2px;
                 margin-top: -3px;
-                .image("../../images/worksheet-dots.png", 50%, 50%);
+                .image("../../images/worksheet/wsMenu.png", 50%, 50%);
                 float: left;
             }
 
@@ -2044,7 +1977,7 @@ ul.inputMenu {
 
             .icon {
                 .size(100%, 100%);
-                .image("../../images/comp-icon.png", 50%, 50%);
+                .image("../../images/dagIcons/comp-icon.png", 50%, 50%);
             }
 
             &:hover {
@@ -2202,7 +2135,7 @@ ul.inputMenu {
         border-top: 1px solid @color-border-lightLightGray;
     }
     .icon {
-        .image("../../images/hidden-ws.png", 2px, 6px);
+        .image("../../images/worksheet/hidden-ws.png", 2px, 6px);
         .size(@width:20px, @height:100%);
         float: left;
     }
@@ -2324,7 +2257,7 @@ ul.inputMenu {
 
         .title {
             .icon {
-                .image("../../images/blue-error-icon.png", 50%, 50%);
+                .image("../../images/error-blue-icon.png", 50%, 50%);
             }
             .titleText {
                 color: @color-text-blue;
@@ -2699,7 +2632,7 @@ ul.inputMenu {
 
 .qMark {
     .size(14px, 14px);
-    .image("../../images/datastore/qMark.png", 50%, 50%);
+    .image("../../images/qMark.png", 50%, 50%);
     display: inline-block;
 }
 
