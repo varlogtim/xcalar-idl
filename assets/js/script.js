@@ -210,7 +210,7 @@ window.StartManager = (function(StartManager, $) {
     function setupLogout() {
         var username = sessionStorage.getItem("xcalar-fullUsername");
         if (username == null) {
-            username = Support.getUser();
+            username = sessionStorage.getItem("xcalar-username");
         }
 
         $("#userName").text(username);
