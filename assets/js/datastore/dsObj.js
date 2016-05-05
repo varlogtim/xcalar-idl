@@ -487,7 +487,8 @@ window.DS = (function ($, DS) {
     // Clear dataset/folder in gridView area
     DS.clear = function() {
         $explorePanel.find(".gridItems .grid-unit").remove();
-
+        $backFolderBtn.addClass("disabled");
+        $gridMenu.find(".back, .moveUp").addClass("disabled");
         // reset home folder
         curDirId = homeDirId;
         folderIdCount = 0;
