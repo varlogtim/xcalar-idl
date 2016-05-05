@@ -1708,7 +1708,7 @@ window.OperationsModal = (function($, OperationsModal) {
             } else {
                 errorMsg = ErrTStr.NoEmpty;
             }
-            StatusBox.show(errorMsg, $invalidInputs[0]);
+            StatusBox.show(errorMsg, invalidInputs[0]);
             modalHelper.enableSubmit();
             return;
         }

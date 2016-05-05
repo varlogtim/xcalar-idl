@@ -23,6 +23,23 @@
         }
     }
 
+    &.small {
+        .buttonWrap {
+            height: 78px !important;
+            .btnLarge {
+                min-width: 200px;
+            }
+        }
+        #orphanedTablesList {
+            height: ~"calc(100% - 145px)" !important;
+        }
+        #archivedTableList {
+            .tableLists {
+                height: ~"calc(100% - 110px)" !important;
+            }
+        }
+    }
+
     &.poppedOut {
         .size (@height: ~"calc(100% - 119px)");
         .position(@right: 5px, @bottom: 46px);
@@ -68,7 +85,6 @@
         .ui-resizable-handle {
             display: block !important;
         }
-
     }
 
     &:not(.poppedOut) {
@@ -223,415 +239,459 @@
     .rightBarContent {
         .size(@width: ~"calc(100% - 20px)", @height: ~"calc(100% - 45px)");
     }
+}
 
-    #tableListSectionTabs {
-        .size(@width: ~"calc(100% + 2px)", @height: 35px);
-        border-top: 1px solid @color-table-borderGray;
-        border-left: 1px solid @color-table-borderGray;
-        margin-left: -1px;
+#tableListSectionTabs {
+    .size(@width: ~"calc(100% + 2px)", @height: 35px);
+    border-top: 1px solid @color-table-borderGray;
+    border-left: 1px solid @color-table-borderGray;
+    margin-left: -1px;
+    .flex-display;
+
+    .tableListSectionTab {
+        .flex(1 1 33%);
+        .size(@height: 100%);
+        // float: left;
+        display: inline-block;
+        .font(@weight: 700, @line-height: 35px, @size: 13px, @color: @color-text-darkGray);
+        text-align: center;
+        border-right: 1px solid @color-table-borderGray;
+        border-bottom: 1px solid @color-table-borderGray;
+        padding: 0 5px;
+        .gray-gradient;
+        .noSelection;
+        .textOverflow;
+        cursor: pointer;
+
+        &:hover {
+            .gray-inverse-gradient;
+        }
+
+        &.active {
+            .font(@size: 14px, @color: @color-white);
+            border-bottom: 1px solid @color-tab-borderBlue;
+            .action-gradient;
+            text-shadow: 2px 2px rgba(0,0,0,.3);
+        }
+    }
+}
+
+#tableListSections {
+    overflow-x: hidden;
+    overflow-y: auto;
+    height: ~"calc(100% - 35px)";
+    margin: 0 auto;
+
+    .tableListSection {
+        display: none;
+        width: 100%;
+        height: ~"calc(100% - 10px)";
+        margin: 0 auto;
+
+        &:first-child {
+            display: block;
+        }
+    }
+
+    ul {
+        list-style: none;
+        margin: 0 10px;
+    }
+
+    .buttonWrap {
         .flex-display;
+        .flex-wrap(wrap);
+        .justify-content(space-between);
+        margin: 10px 5px 0px;
+        height: 39px;
 
-        .tableListSectionTab {
-            .flex(1 1 33%);
-            .size(@height: 100%);
-            // float: left;
-            display: inline-block;
-            .font(@weight: 700, @line-height: 35px, @size: 13px, @color: @color-text-darkGray);
-            text-align: center;
-            border-right: 1px solid @color-table-borderGray;
-            border-bottom: 1px solid @color-table-borderGray;
-            padding: 0 5px;
-            .gray-gradient;
-            .noSelection;
-            .textOverflow;
-            cursor: pointer;
+        .btnLarge {
+            margin: 0px 5px 9px;
+            .flex(1 0 181px);
+            white-space: nowrap;
+            text-indent: 2px;
 
-            &:hover {
-                .gray-inverse-gradient;
+            .icon {
+                .size(@width: 25px, @height: 100%);
             }
 
-            &.active {
-                .font(@size: 14px, @color: @color-white);
-                border-bottom: 1px solid @color-tab-borderBlue;
-                .action-gradient;
-                text-shadow: 2px 2px rgba(0,0,0,.3);
+            &.submitBtn {
+                .icon {
+                    .image("../../images/datastore/send-single.png", 50%, 50%);
+                }
+            }
+
+            &.deleteBtn {
+                .icon {
+                    .image("../../images/garbageThick.png", 50%, 50%);
+                }
             }
         }
     }
 
-    #tableListSections {
-        overflow-x: hidden;
-        overflow-y: auto;
-        height: ~"calc(100% - 35px)";
-        margin: 0 auto;
+    .secondButtonWrap {
+        margin-right: 21px;
+        margin-top: 4px;
+        height: 24px;
+        float: right;
+        position: relative;
+        z-index: 2;
+        display: none;
 
-        .tableListSection {
-            display: none;
-            width: 100%;
-            margin: 0 auto;
-
-            &:first-child {
-                display: block;
-            }
-        }
-
-        ul {
-            list-style: none;
-            margin: 0 10px;
-        }
-
-        .buttonWrap {
-            .flex-display;
-            .flex-wrap(wrap);
-            .justify-content(space-between);
-            margin: 10px 5px 0px;
-
-            .btnLarge {
-                margin: 0px 5px 9px;
-                .flex(1 0 181px);
-                white-space: nowrap;
-                text-indent: 2px;
-
-                .icon {
-                    .size(@width: 25px, @height: 100%);
-                }
-
-                &.submitBtn {
-                    .icon {
-                        .image("../../images/datastore/send-single.png", 50%, 50%);
-                    }
-                }
-
-                &.deleteBtn {
-                    .icon {
-                        .image("../../images/garbageThick.png", 50%, 50%);
-                    }
-                }
-            }
-        }
-
-        .secondButtonWrap {
-            margin-right: 21px;
-            margin-top: 4px;
-            height: 24px;
+        .btn {
+            .size (23px, 23px);
             float: right;
-            position: relative;
-            z-index: 2;
-            display: none;
+            margin: 0 4px;
+            box-shadow: -1px 1px 1px 0px rgba(0, 0, 0, 0.3);
+            border-bottom: 1px solid rgba(0,0,0,0.3);
+            border-left: 1px solid rgba(0,0,0,0.3);
 
-            .btn {
-                .size (23px, 23px);
-                float: right;
-                margin: 0 4px;
-                box-shadow: -1px 1px 1px 0px rgba(0, 0, 0, 0.3);
-                border-bottom: 1px solid rgba(0,0,0,0.3);
-                border-left: 1px solid rgba(0,0,0,0.3);
-
-                &:active {
-                    box-shadow: inset 0px 1px 1px 0px rgba(0, 0, 0, 0.5),
-                                0px 1px 1px 0 rgba(255, 255, 255, 0.3);
-                }
-            }
-            .selectAll .icon {
-                margin-left: 1px;
-                width: 20px;
-                .image("../../images/select-all-white.png", 50%, 50%);
-            }
-            .clearAll .icon {
-                margin-left: 1px;
-                width: 20px;
-                .image("../../images/select-none-white.png", 50%, 50%);
-            }
-            .refresh .icon {
-                margin-left: 1px;
-                width: 20px;
-                .image("../../images/refresh.png", 50%, 50%);
-                background-size: 90%;
+            &:active {
+                box-shadow: inset 0px 1px 1px 0px rgba(0, 0, 0, 0.5),
+                            0px 1px 1px 0 rgba(255, 255, 255, 0.3);
             }
         }
+        .selectAll .icon {
+            margin-left: 1px;
+            width: 20px;
+            .image("../../images/select-all-white.png", 50%, 50%);
+        }
+        .clearAll .icon {
+            margin-left: 1px;
+            width: 20px;
+            .image("../../images/select-none-white.png", 50%, 50%);
+        }
+        .refresh .icon {
+            margin-left: 1px;
+            width: 20px;
+            .image("../../images/refresh.png", 50%, 50%);
+            background-size: 90%;
+        }
+    }
 
-        .tableLists {
-            .timeLine {
-                .size(@width: 100%);
-                margin-top: -1px;
-                .font(@line-height: 25px, @size: 13px, @color: @color-text-darkGray);
-                padding-top: 4px;
+    .tableLists {
+        .timeLine {
+            .size(@width: 100%);
+            margin-top: -1px;
+            .font(@line-height: 25px, @size: 13px, @color: @color-text-darkGray);
+            padding-top: 4px;
+        }
+
+        .tableInfo {
+            .size(@width: 100%, @min-height: 38px);
+            padding: 5px 5px 0 0;
+            .font(@line-height: 25px, @size: 13px, @color: @color-text-darkGray);
+
+            &.hiddenWS {
+                opacity: 0.6;
             }
 
-            .tableInfo {
-                .size(@width: 100%, @min-height: 38px);
-                padding: 5px 5px 0 0;
-                .font(@line-height: 25px, @size: 13px, @color: @color-text-darkGray);
+            &.transition {
+                min-height: 0;
+                height: 38px;
+            }
 
-                &.hiddenWS {
-                    opacity: 0.6;
-                }
+            &:hover .tableListBox .iconWrap {
+                .action-gradient;
+            }
 
-                &.transition {
-                    min-height: 0;
-                    height: 38px;
+            .active {
+                .tableListBox .iconWrap {
+                   .lightGray-gradient;
                 }
 
                 &:hover .tableListBox .iconWrap {
                     .action-gradient;
                 }
-
-                .active {
-                    .tableListBox .iconWrap {
-                       .lightGray-gradient;
-                    }
-
-                    &:hover .tableListBox .iconWrap {
-                        .action-gradient;
-                    }
-                }
-
-                &.highlight {
-                    background: @color-white;
-                    z-index: 100 !important;
-
-                }
             }
 
-            .timeStampWrap {
-                .position(relative, @top: 1px, @left: -1%);
-                .size(@width: 24%, @height: 25px);
-                display: inline-block;
-                float: left;
-                .font(@line-height: 12px, @size: 10px);
+            &.highlight {
+                background: @color-white;
+                z-index: 100 !important;
+
+            }
+        }
+
+        .timeStampWrap {
+            .position(relative, @top: 1px, @left: -1%);
+            .size(@width: 24%, @height: 25px);
+            display: inline-block;
+            float: left;
+            .font(@line-height: 12px, @size: 10px);
+            overflow: hidden;
+
+            .timeStamp {
+                .size(@width: ~"calc(100% - 7px)", @height: 12px);
+                text-align: right;
                 overflow: hidden;
-
-                .timeStamp {
-                    .size(@width: ~"calc(100% - 7px)", @height: 12px);
-                    text-align: right;
-                    overflow: hidden;
-                }
-
-                .time {
-                    white-space: nowrap;
-                }
-
-                .worksheetInfo {
-                    .size(@width: ~"calc(100% - 7px)", @height: 12px);
-                    text-align: right;
-                    .textOverflow;
-
-                    &.inactive {
-                        opacity: 0.5;
-                    }
-                }
             }
 
-            .tableListBox {
-                .size(@width: 76%, @height: 25px);
-                .rounded;
-                background-color: @color-white;
-                .flex-display;
-                box-shadow: 1px 2px 1px rgba(0,0,0,.2);
-                cursor: pointer;
+            .time {
                 white-space: nowrap;
-                overflow: hidden;
+            }
+
+            .worksheetInfo {
+                .size(@width: ~"calc(100% - 7px)", @height: 12px);
+                text-align: right;
+                .textOverflow;
+
+                &.inactive {
+                    opacity: 0.5;
+                }
+            }
+        }
+
+        .tableListBox {
+            .size(@width: 76%, @height: 25px);
+            .rounded;
+            background-color: @color-white;
+            .flex-display;
+            box-shadow: 1px 2px 1px rgba(0,0,0,.2);
+            cursor: pointer;
+            white-space: nowrap;
+            overflow: hidden;
+
+            .iconWrap {
+                display: inline-block;
+                .size(@height: 100%);
+                .gray-gradient;
+                float: left;
+                margin-right: 10px;
+                .rounded(3px 0 0 3px);
+
+                .icon {
+                    .size(25px, 25px);
+                    .image("../../images/dagIcons/table-icon.png", 50%, 50%);
+                }
+            }
+
+            .tableName {
+                display: inline-block;
+                white-space: nowrap;
+                .flex(1 0 0px);
+            }
+
+            .numCols {
+                float: right;
+                color: @color-text-topAction;
+                margin-right: 10px;
+                margin-left: 2px;
+            }
+
+            .addTableBtn {
+                .size(@width: 24px, @height: 100%);
+                display: inline-block;
+                float: right;
+                border-left: 1px solid @color-border-bottomGrayMed;
+                background: url(../../images/checkmark-inactive.png) 50% 50% no-repeat,
+                            linear-gradient(@color-background-topGrayMed, @color-background-bottomGrayMed);
+
+                &:hover {
+                    background: url(../../images/checkmark-inactive.png) 50% 50% no-repeat,
+                                linear-gradient(@color-background-topGrayMed, @color-background-midGrayMed);
+                }
+
+                &.selected {
+                    background: url(../../images/checkmark-inactive.png) 50% 50% no-repeat,
+                                linear-gradient(@color-background-topAction, @color-background-bottomAction);
+                }
+            }
+        }
+
+        .columnList {
+            display: none;
+            .position(relative);
+            .size(@width: ~"calc(76% - 26px)");
+            margin: 0px 0 10px 22px;
+            padding: 2px 0 0 0;
+            float: right;
+
+            li {
+                .size(@height: 20px);
+                margin-top: 5px;
+                .rounded;
+                .font(@size: 11px, @line-height: 20px, @color: @color-text-columnList);
+                background-color: @color-background-columnList;
+
+                .typeList(@w: 22px, @h: 20px);
 
                 .iconWrap {
-                    display: inline-block;
-                    .size(@height: 100%);
-                    .gray-gradient;
-                    float: left;
-                    margin-right: 10px;
+                    .size(@width: 22px, @height: 20px);
                     .rounded(3px 0 0 3px);
-
-                    .icon {
-                        .size(25px, 25px);
-                        .image("../../images/dagIcons/table-icon.png", 50%, 50%);
-                    }
-                }
-
-                .tableName {
                     display: inline-block;
-                    white-space: nowrap;
-                    .flex(1 0 0px);
+                    float: left;
+                    background-color: #bbbbbb;
                 }
 
-                .numCols {
-                    float: right;
-                    color: @color-text-topAction;
-                    margin-right: 10px;
-                }
-
-                .addTableBtn {
-                    .size(@width: 24px, @height: 100%);
+                .text {
                     display: inline-block;
-                    float: right;
-                    border-left: 1px solid @color-border-bottomGrayMed;
-                    background: url(../../images/checkmark-inactive.png) 50% 50% no-repeat,
-                                linear-gradient(@color-background-topGrayMed, @color-background-bottomGrayMed);
-
-                    &:hover {
-                        background: url(../../images/checkmark-inactive.png) 50% 50% no-repeat,
-                                    linear-gradient(@color-background-topGrayMed, @color-background-midGrayMed);
-                    }
-
-                    &.selected {
-                        background: url(../../images/checkmark-inactive.png) 50% 50% no-repeat,
-                                    linear-gradient(@color-background-topAction, @color-background-bottomAction);
-                    }
-                }
-            }
-
-            .columnList {
-                display: none;
-                .position(relative);
-                .size(@width: ~"calc(76% - 26px)");
-                margin: 0px 0 10px 22px;
-                padding: 2px 0 0 0;
-                float: right;
-
-                li {
-                    .size(@height: 20px);
-                    margin-top: 5px;
-                    .rounded;
-                    .font(@size: 11px, @line-height: 20px, @color: @color-text-columnList);
-                    background-color: @color-background-columnList;
-
-                    .typeList(@w: 22px, @h: 20px);
-
-                    .iconWrap {
-                        .size(@width: 22px, @height: 20px);
-                        .rounded(3px 0 0 3px);
-                        display: inline-block;
-                        float: left;
-                        background-color: #bbbbbb;
-                    }
-
-                    .text {
-                        display: inline-block;
-                        float: left;
-                        padding-left: 5px;
-                        .size(@width: ~"calc(100% - 30px)");
-                        .textOverflowOneLine;
-                    }
-
-
-                    &:hover {
-                        background-color: #B5B5B5;
-
-                        .iconWrap {
-                            background-color: #a5a5a5;
-                        }
-                    }
-                }
-            }
-        }
-
-        #activeTablesList {
-            margin-top: 10px;
-        }
-
-        #tableList, #archivedTableList, #orphanedTableList {
-            max-width: 490px;
-        }
-
-        #aggregateTableList {
-            .tableNameWrap {
-                .size(@width: 25%, @height: 25px);
-                float: left;
-                font-size: 12px;
-                padding-left: 10px;
-                white-space: nowrap;
-                text-align: right;
-                padding-right: 10px;
-            }
-
-            .aggStrWrap {
-                .size(@width: 34%, @height: 25px);
-                float: left;
-                .rounded(3px 0 0 3px);
-                .gray-gradient;
-                padding: 0 10px;
-                box-shadow: 0px 2px 1px rgba(0,0,0,.2);
-                text-align: center;
-            }
-
-            .tableListBox {
-                .size(@width: 39%, @height: 25px);
-                .rounded(0 3px 3px 0);
-                cursor: default;
-                padding-left: 10px;
-
-                .aggVal {
-                    .size(@width: ~"calc(100% - 24px)");
+                    float: left;
+                    padding-left: 5px;
+                    .size(@width: ~"calc(100% - 30px)");
                     .textOverflowOneLine;
                 }
 
-                .addTableBtn {
-                    cursor: pointer;
-                    // XXX temporary disable it
-                    display: none;
-                }
 
-                .worksheetInfo {
-                    .size(@width: 100px);
-                    text-align: right;
-                    float: right;
-                    padding-right: 10px;
-                    .font(@size: 11px, @color: @color-text-darkGray);
-                    .textOverflow;
+                &:hover {
+                    background-color: #B5B5B5;
 
-                    &.inactive {
-                        display: none;
+                    .iconWrap {
+                        background-color: #a5a5a5;
                     }
-                }
-            }
-
-            .tableInfo:first-child {
-                padding-top: 34px;
-                margin-top: -1px;
-                min-height: 67px;
-            }
-        }
-
-        #orphanedTableList {
-            .divider {
-                height: 1px;
-                background-color: @color-background-sidebar;
-                margin: 0 10px;
-            }
-
-            .secondButtonWrap {
-                margin-right: 6px;
-                height: 30px;
-            }
-
-            .searchArea {
-                margin-left: 12%;
-                clear: both;
-                .size(@width: 75%, @height: 25px);
-                .position(relative);
-
-                .input-box(@w: 100%, @h: 25px);
-                .input-placeholder(@color-text-midGray);
-                .closeIcon(@topOff: 3px, @rightOff: 4px);
-
-                input {
-                    .font(@weight: bold, @color: @color-text-midGray);
-                    padding-right: 30px;
-                }
-            }
-
-            .tableLists {
-                margin: 5px 0 0 0;
-
-                .tableListBox {
-                    margin-left: 12%;
-                }
-
-                .highlightedText {
-                    background-color: yellow;
                 }
             }
         }
     }
 }
+
+#activeTablesList {
+    margin-top: 10px !important;
+}
+
+#tableList, #archivedTableList, #orphanedTableList {
+    max-width: 490px;
+}
+
+#aggregateTableList {
+    .tableNameWrap {
+        .size(@width: 25%, @height: 25px);
+        float: left;
+        font-size: 12px;
+        padding-left: 10px;
+        white-space: nowrap;
+        text-align: right;
+        padding-right: 10px;
+    }
+
+    .aggStrWrap {
+        .size(@width: 34%, @height: 25px);
+        float: left;
+        .rounded(3px 0 0 3px);
+        .gray-gradient;
+        padding: 0 10px;
+        box-shadow: 0px 2px 1px rgba(0,0,0,.2);
+        text-align: center;
+    }
+
+    .tableListBox {
+        .size(@width: 39%, @height: 25px);
+        .rounded(0 3px 3px 0);
+        cursor: default;
+        padding-left: 10px;
+
+        .aggVal {
+            .size(@width: ~"calc(100% - 24px)");
+            .textOverflowOneLine;
+        }
+
+        .addTableBtn {
+            cursor: pointer;
+            // XXX temporary disable it
+            display: none;
+        }
+
+        .worksheetInfo {
+            .size(@width: 100px);
+            text-align: right;
+            float: right;
+            padding-right: 10px;
+            .font(@size: 11px, @color: @color-text-darkGray);
+            .textOverflow;
+
+            &.inactive {
+                display: none;
+            }
+        }
+    }
+
+    .tableInfo:first-child {
+        padding-top: 34px;
+        margin-top: -1px;
+        min-height: 67px;
+    }
+}
+
+#archivedTableList {
+    position: relative;
+    .secondButtonWrap {
+        position: absolute;
+        right: 0px;
+    }
+    .tableLists {
+        overflow: hidden;
+        overflow-y: auto;
+        height: ~"calc(100% - 70px)";
+        margin-top: 30px;
+        .timeLine:first-child {
+            padding-top: 0px;
+        }
+    }
+}
+
+#orphanedTableList {
+    .divider {
+        height: 1px;
+        background-color: @color-background-sidebar;
+        margin: 0 10px;
+    }
+
+    .secondButtonWrap {
+        margin-right: 6px;
+        height: 30px;
+    }
+
+    .searchbarArea {
+        margin-left: 12%;
+        clear: both;
+        .size(@width: 75%, @height: 25px);
+        .position(relative);
+
+        .input-box(@w: 100%, @h: 25px);
+        .input-placeholder(@color-text-midGray);
+        .closeIcon(@topOff: 3px, @rightOff: 4px);
+
+        input {
+            .font(@weight: bold, @color: @color-text-midGray);
+            padding-right: 30px;
+        }
+        .counter {
+            top: 4px;
+            right: 30px;
+        }
+        .arrows {
+            top: -3px;
+            right: -51px;
+        }
+        .iconWrap {
+            .size(@width: 20px, @height: 20px);
+            .icon {
+                .size(@width: 20px, @height: 20px);
+            }
+        }
+
+    }
+
+    .tableLists {
+        margin: 5px 0 0 0;
+        overflow: hidden;
+        overflow-y: auto;
+        height: ~"calc(100% - 105px)";
+        position: relative;
+
+        .tableListBox {
+            margin-left: 12%;
+        }
+
+        .highlightedText {
+            background-color: yellow;
+            &.selected {
+                background-color: orange;
+            }
+        }
+    }
+}
+
+
 /* ========== End Of Table List Section in Right Side Bar ========== */
 
 /* ========== SQL Section in Right Side Bar ========== */

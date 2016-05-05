@@ -101,10 +101,10 @@ window.Shortcuts = (function($, Shortcuts) {
         var $filePath = $("#filePath");
         var $fileName = $("#fileName");
         var filePath = "";
-        var filePathGiven = false;
         $filePath.on('keyup.shortcut', function() {
             var val = $(this).val();
             var file = null;
+            var filePathGiven = false;
             if (val.length === 2) {
                 filePathGiven = false;
                 switch (val) {

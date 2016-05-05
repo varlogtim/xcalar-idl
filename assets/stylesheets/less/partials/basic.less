@@ -2185,6 +2185,55 @@ ul.inputMenu {
 }
 /* End Of Bottom Section */
 
+/* Search Inputs */
+
+.searchbarArea {
+    .counter {
+        .position(absolute, @top: 5px, @right: 77px);
+        .size (@height: 30px);
+        .font(@color: @color-text-graySoft, @size: 13px);
+        pointer-events: none;
+    }
+
+    .arrows {
+        display: inline-block;
+        position: absolute;
+        right: 0px;
+
+        > div {
+            .size(14px, 11px);
+            display: inline-block;
+            float: left;
+        }
+
+        .iconWrap {
+            .size(19px, 19px);
+            .position(absolute, @top: 5px, @right: 4px);
+            .rounded;
+            .gray-gradient;
+            cursor: pointer;
+            box-shadow: 0px 1px 1px 0px rgba(0,0,0,0.5);
+                &:hover {
+                .gray-inverse-gradient;
+            }
+        }
+        .upArrow {
+            right: 28px;
+        }
+        .icon {
+            .size(19px, 19px);
+        }
+        .upArrow .icon {
+            .image("../../images/arrow-up-thin.png", 50%, 50%);
+        }
+        .downArrow .icon {
+            .image("../../images/arrow-down-thin.png", 50%, 50%);
+        }
+    }
+}
+
+/* End Search Inputs */
+
 /* Status Box */
 #statusBox {
     .position(fixed);

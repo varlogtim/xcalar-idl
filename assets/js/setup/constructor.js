@@ -1642,6 +1642,17 @@ SearchBar.prototype = {
             return (undefined);
         }
     },
+    updateResults: function($matches) {
+        var searchBar = this;
+        searchBar.$matches = $matches;
+        searchBar.numMatches = $matches.length;
+        searchBar.$matches.eq(0).addClass('selected');
+        var position = Math.min(1, searchBar.numMatches);
+        searchBar.matchIndex = position - 1;
+        searchBar.$position.text(position);
+        searchBar.$total.text("of " + searchBar.numMatches);
+
+    },
     clearSearch: function(callback) {
         var searchBar = this;
         searchBar.$position.html("");
@@ -1649,6 +1660,7 @@ SearchBar.prototype = {
         searchBar.matchIndex = 0;
         searchBar.$matches = [];
         searchBar.numMatches = 0;
+        searchBar.$searchInput.val("");
         if (typeof callback === "function") {
             callback();
         }

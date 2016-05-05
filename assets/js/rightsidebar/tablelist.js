@@ -1,5 +1,5 @@
 window.TableList = (function($, TableList) {
-
+    var searchHelper;
     TableList.setup = function() {
         // setup table list section listeners
         var $tabsSection       = $("#tableListSectionTabs");
@@ -7,6 +7,7 @@ window.TableList = (function($, TableList) {
         var $selectBtns        = $('#archivedTableList .secondButtonWrap,' +
                                    '#orphanedTableList .secondButtonWrap,' +
                                    '#aggregateTableList .secondButtonWrap');
+
 
         $tabsSection.on("click", ".tableListSectionTab", function() {
             var $tab  = $(this);
@@ -55,7 +56,9 @@ window.TableList = (function($, TableList) {
         });
 
         $selectBtns.find('.refresh').click(function() {
-            clearTableListFilter($("#orphanedTableList"), null);
+            searchHelper.clearSearch(function() {
+                clearTableListFilter($("#orphanedTableList"), null);
+            });
             TableList.refreshOrphanList(true);
         });
 
@@ -92,6 +95,9 @@ window.TableList = (function($, TableList) {
 
         $('#submitOrphanedTablesBtn').click(function() {
             TableList.activeTables(TableType.Orphan);
+            searchHelper.clearSearch(function() {
+                clearTableListFilter($("#orphanedTableList"), null);
+            });
         });
 
         $("#submitAggTablesBtn").click(function() {
@@ -111,6 +117,11 @@ window.TableList = (function($, TableList) {
                 "msg"       : SideBarTStr.DelTablesMsg,
                 "isCheckBox": true,
                 "confirm"   : function() {
+                    if (tableType === TableType.Orphan) {
+                        searchHelper.clearSearch(function() {
+                            clearTableListFilter($("#orphanedTableList"), null);
+                        });
+                    }
                     TableList.tableBulkAction("delete", tableType);
                 }
             });
@@ -123,13 +134,30 @@ window.TableList = (function($, TableList) {
             focusOnTableColumn($(this));
         });
 
+
+        searchHelper = new SearchBar($("#orphanedTableList-search"), {
+            "removeSelected": function() {
+                $("#orphanedTableList").find('.selected').removeClass('selected');
+            },
+            "highlightSelected": function($match) {
+                $match.addClass('selected');
+            },
+            "scrollMatchIntoView": function($match) {
+                scrollMatchIntoView($("#orphanedTableList"), $match);
+            }
+        });
+
+        searchHelper.setup();
+
         $("#orphanedTableList-search").on("input", "input", function() {
             var keyWord = $(this).val();
             filterTableList($("#orphanedTableList"), keyWord);
         });
 
         $("#orphanedTableList-search").on("click", ".clear", function() {
-            clearTableListFilter($("#orphanedTableList"), null);
+            searchHelper.clearSearch(function() {
+                clearTableListFilter($("#orphanedTableList"), null);
+            });
         });
     };
 
@@ -1011,6 +1039,8 @@ window.TableList = (function($, TableList) {
         });
 
         if (keyWord == null || keyWord === "") {
+            searchHelper.clearSearch();
+            $section.find('input').css("padding-right", 30);
             return;
         } else {
             var regex = new RegExp(keyWord, "gi");
@@ -1029,6 +1059,25 @@ window.TableList = (function($, TableList) {
                     $span.html(text);
                 }
             });
+            searchHelper.updateResults($section.find('.highlightedText'));
+            var counterWidth = $section.find('.counter').width();
+            $section.find('input').css("padding-right", counterWidth + 30);
+
+            if (searchHelper.numMatches !== 0) {
+                scrollMatchIntoView($section, searchHelper.$matches.eq(0));
+            }
+        }
+    }
+
+    function scrollMatchIntoView($section, $match) {
+        var $list = $section.find('.tableLists');
+        var listHeight = $list.height();
+        var scrollTop = $list.scrollTop();
+        var matchOffsetTop = $match.position().top;
+        if (matchOffsetTop > (listHeight - 25)) {
+            $list.scrollTop(matchOffsetTop + scrollTop - (listHeight / 2) + 30);
+        } else if (matchOffsetTop < -5) {
+            $list.scrollTop(scrollTop + matchOffsetTop - (listHeight / 2));
         }
     }
 

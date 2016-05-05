@@ -120,6 +120,9 @@ window.RightSideBar = (function($, RightSideBar) {
         });
 
         var poppedOut = false;
+        var tableListVisible = false;
+        var rightSideBarIsSmall = false;
+        var smallWidth = 425;
 
         $rightSideBar.resizable({
             "handles"  : "n, e, s, w, se",
@@ -156,11 +159,37 @@ window.RightSideBar = (function($, RightSideBar) {
                                   $rightSideBar.height();
                     $rightSideBar.css('max-height', panelBottom);
                 }
+
+                if ($('#tableListSection').hasClass('active')) {
+                    tableListVisible = true;
+                }
+                if ($rightSideBar.width() > 425) {
+                    rightSideBarIsSmall = false;
+                } else {
+                    rightSideBarIsSmall = true;
+                }
             },
             "stop": function() {
                 $rightSideBar.css('max-width', '').css('max-height', '');
+                tableListVisible = false;
+                if ($rightSideBar.width() > 425) {
+                    $rightSideBar.removeClass('small');
+                } else {
+                    $rightSideBar.addClass('small');
+                }
             },
             "resize": function(event, ui) {
+                if (tableListVisible) {
+                    if (ui.size.width > smallWidth) {
+                        if (rightSideBarIsSmall) {
+                            rightSideBarIsSmall = false;
+                            $rightSideBar.removeClass('small');
+                        }
+                    } else if (!rightSideBarIsSmall) {
+                        rightSideBarIsSmall = true;
+                        $rightSideBar.addClass('small');
+                    }
+                }
                 if (!poppedOut) {
                     return;
                 }

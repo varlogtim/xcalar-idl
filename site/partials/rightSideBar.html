@@ -1,5 +1,5 @@
 <!-- Right Side Bar Section -->
-<div id="rightSideBar">
+<div id="rightSideBar" class="small">
   <!-- Top Buttons -->
   <div class="sideBarTopButtons">
     <div class="btn btnDeselected">
@@ -107,11 +107,23 @@
               <span class="icon" data-toggle="tooltip" data-placement="top" data-container="body" title="" data-original-title="<%= dicts.rightsideBar.refresh %>"></span>
             </div>
           </div>
-          <div id="orphanedTableList-search" class="searchArea">
+          <div id="orphanedTableList-search" class="searchbarArea">
               <input type="text" placeholder="<%= dicts.rightsideBar.filterOrphan %>"
                 spellcheck="false" />
               <div class="clear iconWrap">
                 <span class="icon"></span>
+              </div>
+              <div class="counter">
+                <span class="position"></span>
+                <span class="total"></span>
+              </div>
+              <div class="arrows">
+                <div class="upArrow iconWrap">
+                  <span class="icon"></span>
+                </div>
+                <div class="downArrow iconWrap">
+                  <span class="icon"></span>
+                </div>
               </div>
           </div>
           <ul id="orphanedTablesList" class="tableLists"></ul>
@@ -233,7 +245,7 @@
           <!-- file path part -->
           <div class="pathSection">
             <input id="udf-filePath" type="text" spellcheck="false">
-            <div id="udf-clearPath" class="iconWrap">
+            <div id="udf-clearPath" class="iconWrap clear">
               <span class="icon"></span>
             </div>
           </div>

@@ -622,15 +622,10 @@ window.JSONModal = (function($, JSONModal) {
             });
             $(this).html(foundText);
         });
-        searchHelper.$matches = $jsonText.find('.highlightedText');
-        searchHelper.numMatches = searchHelper.$matches.length;
+        searchHelper.updateResults($jsonText.find('.highlightedText'));
         matchIndex = 0;
-        var position = Math.min(1, searchHelper.numMatches);
-        $counter.find('.position').text(position);
-        $counter.find('.total').text('of ' + searchHelper.numMatches);
         $searchInput.css("padding-right", $counter.width() + 25);
 
-        searchHelper.$matches.eq(0).addClass('selected');
         if (searchHelper.numMatches !== 0) {
             scrollMatchIntoView(searchHelper.$matches.eq(0));
         }

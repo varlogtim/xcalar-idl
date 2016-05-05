@@ -249,16 +249,6 @@
                 padding-right: 48px;
             }
         }
-
-        .closeIcon(@topOff: 5px, @rightOff: 76px);
-        .closeBox {
-            display: none !important;
-            .size(19px, 19px);
-            box-shadow: 0px 0px 1px 0px @color-search-shadow;
-            .icon {
-                background-position-y: 45%;
-            }
-        }
         .counter {
             .position(absolute, @top: 1px, @right: 68px);
             .size (@height: 30px);
@@ -267,28 +257,8 @@
         }
 
         .arrows {
-            float: left;
-            display: inline-block;
-            > div {
-                .size(14px, 11px);
-                display: inline-block;
-                float: left;
-            }
-            .closeIcon(@topOff: 4px, @rightOff: 19px);
-            .iconWrap {
-                .size(19px, 19px);
-                box-shadow: 0px 1px 1px 0px @color-search-shadow;
-            }
-            .upArrow {
-                right: 42px !important;
-            }
-            .upArrow .icon {
-                .image("../../images/arrow-up-thin.png", 50%, 50%);
-                background-position-y: 45%;
-            }
-            .downArrow .icon {
-                .image("../../images/arrow-down-thin.png", 50%, 50%);
-            }
+            right: 16px;
+            top: -2px;
         }
 
         .closeBox, .counter, .arrows {
