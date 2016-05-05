@@ -1477,6 +1477,25 @@ input {
             display: block;
         }
     }
+
+    .disabled {
+        opacity: 0.7;
+        pointer-events: none;
+    }
+
+    &.listView {
+        .back, .moveUp, .open {
+            // these options are weird in list view, so not show them
+            display: none;
+        }
+    }
+
+    &.uneditable {
+        .moveUp, .rename, .delete {
+            opacity: 0.7;
+            pointer-events: none;
+        }
+    }
 }
 
 #exportView {

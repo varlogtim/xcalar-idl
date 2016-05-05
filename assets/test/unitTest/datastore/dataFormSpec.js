@@ -120,9 +120,9 @@ function dataFormModuleTest() {
             assert.isFalse($csvDelim.is(":visible"), "no delimiter section");
         });
 
-        it("Format Should be Raw", function() {
-            DatastoreForm.__testOnly__.toggleFormat("Raw");
-            expect($formatText.val()).to.equal("Raw");
+        it("Format Should be Text", function() {
+            DatastoreForm.__testOnly__.toggleFormat("Text");
+            expect($formatText.val()).to.equal("Text");
 
             // UI part
             assert.isTrue($headerCheckBox.is(":visible"), "has header checkbox");
