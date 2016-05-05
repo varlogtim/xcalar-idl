@@ -243,6 +243,9 @@ window.xcHelper = (function($, xcHelper) {
 
     xcHelper.middleEllipsis = function(str, $ele, maxLen, isMultiLine) {
         var ele = $ele.get(0);
+
+        str = String(str);
+
         var strLen = str.length;
         maxLen = Math.min(maxLen, strLen);
 

@@ -379,7 +379,8 @@ window.FileBrowser = (function($, FileBrowser) {
     }
 
     function getGridUnitName($grid) {
-        return ($grid.find('.label').data("name"));
+        // edge case: null should be "null"
+        return String($grid.find('.label').data("name"));
     }
 
     function getFormat(name) {
@@ -496,7 +497,6 @@ window.FileBrowser = (function($, FileBrowser) {
         $fileName.val("");
 
         if (isALL) {
-            $fileBrowser.find(".select").removeClass("select");
             $formatSection.find(".text").text("all");
             $("#fileBrowserUp").addClass("disabled");
             $pathText.val("");
@@ -504,9 +504,14 @@ window.FileBrowser = (function($, FileBrowser) {
             $container.empty();
 
             curFiles = [];
-            sortKey = defaultSortKey;
             sortRegEx = undefined;
-            reverseSort = false;
+
+            // keep sort order, so comment out
+            // $fileBrowser.find(".select").removeClass("select");
+            // $formatSection.find(".text").text("all");
+            // sortKey = defaultSortKey;
+            // sortRegEx = undefined;
+            // reverseSort = false;
         }
     }
 
