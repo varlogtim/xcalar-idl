@@ -260,7 +260,7 @@ window.DataCart = (function($, DataCart) {
                 throw "Invalid Case!";
             }
 
-            var escapedVal = value.replace(/\</g, "&lt;").replace(/\>/g, "&gt;");
+            var escapedVal = xcHelper.escapeHTMlSepcialChar(value);
             li += '<li class="colWrap" data-colnum="' + colNum + '">' +
                         '<span class="colName textOverflow">' +
                             escapedVal +

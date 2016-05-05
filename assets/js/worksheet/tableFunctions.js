@@ -25,7 +25,9 @@ function getTextWidth($el, val, options) {
     } else {
         text = val;
     }
-    text = text.replace(/\</g, "&lt;").replace(/\>/g, "&gt;");
+
+    // XXX why this part need escape?
+    text = xcHelper.escapeHTMlSepcialChar(text);
 
     tempDiv = $('<div>' + text + '</div>');
     tempDiv.css({
