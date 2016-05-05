@@ -36,7 +36,7 @@ window.DatastoreForm = (function($, DatastoreForm) {
         "JSON"  : "JSON",
         "CSV"   : "CSV",
         "Random": "rand",
-        "Raw"   : "raw",
+        "Text"  : "raw",
         "Excel" : "Excel"
     };
 
@@ -371,7 +371,7 @@ window.DatastoreForm = (function($, DatastoreForm) {
                 $udfCheckbox.removeClass("hidden");
                 $udfHint.show();
                 break;
-            case "raw":
+            case "text":
                 $headerCheckBox.removeClass("hidden");
                 resetDelimiter();
                 $fieldDelim.hide();
@@ -443,7 +443,7 @@ window.DatastoreForm = (function($, DatastoreForm) {
         var deferred = jQuery.Deferred();
         if (!hasHeader &&
             (dsFormat === formatMap.CSV ||
-            dsFormat === formatMap.Raw ||
+            dsFormat === formatMap.Text ||
             dsFormat === formatMap.Excel)) {
 
             var msg = DSFormTStr.NoHeader;
