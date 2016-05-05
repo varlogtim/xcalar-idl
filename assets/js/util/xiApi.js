@@ -246,6 +246,89 @@ window.XIApi = (function(XIApi, $) {
         }
     };
 
+    XIApi.fetchData = function(tableName, startRowNum, rowsToFetch) {
+        if (tableName === null || startRowNum === null ||
+            rowsToFetch === null || rowsToFetch <= 0)
+        {
+            return PromiseHelper.reject("Invalid args in fetch data");
+        }
+
+        var deferred = jQuery.Deferred();
+        var resultSetId;
+        var finalData;
+
+        XcalarMakeResultSetFromTable(tableName)
+        .then(function(res) {
+            resultSetId = res.resultSetId;
+            var totalRows = res.numEntries;
+            // startRowNum starts with 1, rowPosition starts with 0
+            var rowPosition = startRowNum - 1;
+            return fetchDataHelper(resultSetId, rowPosition, rowsToFetch,
+                                   totalRows, [], 0);
+        })
+        .then(function(resData) {
+            finalData = resData;
+            return XcalarSetFree(resultSetId);
+        })
+        .then(function() {
+            deferred.resolve(finalData);
+        })
+        .fail(deferred.reject);
+
+        return deferred.promise();
+    };
+
+    function fetchDataHelper(resultSetId, rowPosition, rowsToFetch, totalRows, data, tryCnt) {
+        var deferred = jQuery.Deferred();
+
+        XcalarSetAbsolute(resultSetId, rowPosition)
+        .then(function() {
+            return XcalarGetNextPage(resultSetId, rowsToFetch);
+        })
+        .then(function(tableOfEntries) {
+            var kvPairs = tableOfEntries.kvPair;
+            var numKvPairs = tableOfEntries.numKvPairs;
+            var numStillNeeds = 0;
+
+            if (numKvPairs < rowsToFetch) {
+                if (rowPosition + numKvPairs >= totalRows) {
+                    numStillNeeds = 0;
+                } else {
+                    numStillNeeds = rowsToFetch - numKvPairs;
+                }
+            }
+
+            kvPairs.forEach(function(kvPair) {
+                data.push(kvPair.value);
+            });
+
+            if (numStillNeeds > 0) {
+                if (tryCnt >= 20) {
+                    console.warn("Too may tries, stop");
+                    return PromiseHelper.resolve();
+                }
+
+                var newPosition;
+                if (numStillNeeds === rowsToFetch) {
+                    // fetch 0 this time
+                    newPosition = rowPosition + 1;
+                    console.warn("cannot fetch position", rowPosition);
+                } else {
+                    newPosition = rowPosition + numRows;
+                }
+
+                return fetchDataHelper(resultSetId, newPosition, numStillNeeds,
+                                        totalRows, data, tryCnt + 1);
+            }
+        })
+        .then(function() {
+            deferred.resolve(data);
+        })
+        .fail(deferred.reject);
+
+        return deferred.promise();
+    }
+
     function multiJoinCheck(lColNames, lTableName, rColNames, rTableName, txId) {
         var deferred = jQuery.Deferred();
         var len = lColNames.length;
