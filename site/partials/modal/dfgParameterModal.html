@@ -1,20 +1,18 @@
 <!-- dfg Parameter Modal -->
 <div id="dfgParameterModal" class="modalContainer">
   <div class="modalHeader">
-    <span class="text">Parameterize Query</span>
+    <span class="text"><%= dicts.dfgParam.title %></span>
     <div class="close">
       <span class="icon"></span>
     </div>
   </div>
   <div class="modalInstruction">
     <div class="icon"></div>
-    <div class="text">To convert this query into a parameterized query,
-    please click the add new parameterized query button and drag and drop
-    the parameters into their appropriate places.</div>
+    <div class="text"><%= dicts.dfgParam.instr %></div>
   </div>
   <div class="modalTopMain clearfix">
     <div class="templateSection clearfix retinaModalSection">
-      <span class="heading">Current Query:</span>
+      <span class="heading"><%= dicts.dfgParam.query %>:</span>
       <table class="templateTable">
         <tr class="template"></tr>
       </table>
@@ -22,12 +20,12 @@
     <div class="border"></div>
     <div class="currentParameterList retinaModalSection"
       ondragover="DFGParamModal.allowParamDrop(event)">
-      <span class="heading">Current Parameter List:</span>
+      <span class="heading"><%= dicts.dfgParam.paramList %>:</span>
       <div class="draggableParams"></div>
     </div>
     <div class="border"></div>
     <div class="editableParamQuery retinaModalSection">
-      <span class="heading">Parameterized Query:</span>
+      <span class="heading"><%= dicts.dfgParam.editParam %>:</span>
       <table class="editableTable">
         <tr class="editableRow"></tr>
       </table>
@@ -36,9 +34,9 @@
   <!-- defaultListSection -->
   <div class="defaultListSection">
     <div class="tableHeader">
-      <div class="thWrap paramName">Parameter</div>
-      <div class="thWrap paramVal">Value</div>
-      <div class="thWrap empty">No Value</div>
+      <div class="thWrap paramName"><%= dicts.dfgParam.param %></div>
+      <div class="thWrap paramVal"><%= dicts.dfgParam.val %></div>
+      <div class="thWrap empty"><%= dicts.dfgParam.empty %></div>
     </div>
     <div class="tableContainer">
       <div class="tableWrapper">
@@ -50,8 +48,8 @@
   </div>
   <!-- end of defaultListSection -->
   <div class="modalBottom clearfix">
-    <button class="btn btnMid confirm">SAVE</button>
-    <button class="btn btnMid cancel">CANCEL</button>
+    <button class="btn btnMid confirm"><%= dicts.common.SAVE %></button>
+    <button class="btn btnMid cancel"><%= dicts.common.CANCEL %></button>
   </div>
 </div>
 <!-- End Of Parameter Modal -->

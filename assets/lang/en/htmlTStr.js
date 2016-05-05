@@ -1,6 +1,7 @@
 // for the rendering of html file
 module.exports = {
     common: {
+        'XI': 'Xcalar Insight',
         'ADD': 'ADD',
         'all': 'all',
         'Arg': 'Argument',
@@ -522,6 +523,17 @@ module.exports = {
         'extName': 'Extension Name',
         'categoryName': 'Category Name',
         'confirm': 'INSTALL'
+    },
+
+    dfgParam: {
+        'title': 'Parameterize Query',
+        'instr': 'To convert this query into a parameterized query, please click the add new parameterized query button and drag and drop the parameters into their appropriate places.',
+        'query': 'Current Query',
+        'paramList': 'Current Parameter List',
+        'editParam': 'Parameterized Query',
+        'param': 'Parameter',
+        'val': 'Value',
+        'empty': 'No Value'
     },
 
     profile: {
