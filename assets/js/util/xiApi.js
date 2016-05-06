@@ -97,6 +97,18 @@ window.XIApi = (function(XIApi, $) {
         return deferred.promise();
     };
 
+    XIApi.sortAscending = function(txId, colName, tableName, newTableName) {
+        // a quick function to sort ascending
+        var order = XcalarOrderingT.XcalarOrderingAscending;
+        return XIApi.sort(txId, order, colName, tableName, newTableName);
+    };
+
+    XIApi.sortDescending = function(txId, colName, tableName, newTableName) {
+        // a quick function to sort descending
+        var order = XcalarOrderingT.XcalarOrderingDescending;
+        return XIApi.sort(txId, order, colName, tableName, newTableName);
+    };
+
     XIApi.map = function(txId, mapStr, tableName, newColName, newTableName) {
         if (txId == null || mapStr == null ||
             tableName == null || newColName == null)
@@ -261,8 +273,14 @@ window.XIApi = (function(XIApi, $) {
         .then(function(res) {
             resultSetId = res.resultSetId;
             var totalRows = res.numEntries;
+
+            if (totalRows == null || totalRows === 0) {
+                return PromiseHelper.reject("No Data!");
+            }
+
             // startRowNum starts with 1, rowPosition starts with 0
             var rowPosition = startRowNum - 1;
+            rowsToFetch = Math.min(rowsToFetch, totalRows);
             return fetchDataHelper(resultSetId, rowPosition, rowsToFetch,
                                    totalRows, [], 0);
         })
@@ -272,6 +290,61 @@ window.XIApi = (function(XIApi, $) {
         })
         .then(function() {
             deferred.resolve(finalData);
+        })
+        .fail(deferred.reject);
+
+        return deferred.promise();
+    };
+
+    XIApi.fetchDataAndParse = function(tableName, startRowNum, rowsToFetch) {
+        // similar with XIApi.fetchData, but will parse the value
+        var deferred = jQuery.Deferred();
+
+        XIApi.fetchData(tableName, startRowNum, rowsToFetch)
+        .then(function(data) {
+            var parsedData = [];
+
+            for (var i = 0, len = data.length; i < len; i++) {
+                try {
+                    parsedData.push(JSON.parse(data[i]));
+                } catch (error) {
+                    console.error(error, data[i]);
+                    deferred.reject(error);
+                    return;
+                }
+            }
+
+            deferred.resolve(parsedData);
+        })
+        .fail(deferred.reject);
+
+        return deferred.promise();
+    };
+
+    XIApi.fetchColumnData = function(colName, tableName, startRowNum, rowsToFetch) {
+        if (colName === null) {
+            // other args with check in XIApi.fetchData
+            return PromiseHelper.reject("Invalid args in fetch data");
+        }
+
+        var deferred = jQuery.Deferred();
+
+        XIApi.fetchData(tableName, startRowNum, rowsToFetch)
+        .then(function(data) {
+            var result = [];
+
+            for (var i = 0, len = data.length; i < len; i++) {
+                try {
+                    var row = JSON.parse(data[i]);
+                    result.push(row[colName]);
+                } catch (error) {
+                    console.error(error, data[i]);
+                    deferred.reject(error);
+                    return;
+                }
+            }
+
+            deferred.resolve(result);
         })
         .fail(deferred.reject);
 

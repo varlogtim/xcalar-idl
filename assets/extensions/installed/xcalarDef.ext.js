@@ -181,7 +181,7 @@ window.UExtXcalarDef = (function(UExtXcalarDef, $) {
                         break;
                 }
 
-                XcalarFilter(fltStr, srcTable, filterTable, txId)
+                XIApi.filter(txId, fltStr, srcTable, filterTable)
                 .then(function() {
                     var filterCols = xcHelper.deepCopy(tableCols);
                     return TblManager.refreshTable([filterTable], filterCols,
@@ -199,123 +199,34 @@ window.UExtXcalarDef = (function(UExtXcalarDef, $) {
                 var innerDeferred = jQuery.Deferred();
                 var keyCol = backColName;
                 var srcTable = tableName;
-                var data = [];
-
-                var indexTable = ".tempIndex." + tableNamePart +
-                                 Authentication.getHashId();
-                var groupbyTable;
-                var groupByCol;
-                var sortTable;
 
                 // Step 1. Do groupby count($keyCol), GROUP BY ($keyCol)
                 // aka, index on keyCol and then groupby count
                 // this way we get the unique value of src table
-                XcalarIndexFromTable(srcTable, keyCol, indexTable,
-                    XcalarOrderingT.XcalarOrderingUnordered, txId)
-                .then(function() {
-                    groupbyTable = ".tempGB." + tableNamePart +
+                var isIncSample = false;
+                var groupByCol = xcHelper.randName("randCol");
+                var groupbyTable = ".tempGB." + tableNamePart +
                                     Authentication.getHashId();
-                    groupByCol = xcHelper.randName("randCol");
 
-                    var groupByOp = AggrOp.Count;
-                    var incSample = false;
-
-                    return XcalarGroupBy(groupByOp, groupByCol, keyCol,
-                                         indexTable,
-                                        groupbyTable, incSample, txId);
-                })
-                .then(function() {
+                XIApi.groupBy(txId, AggrOp.Count, keyCol, keyCol,
+                                isIncSample, srcTable,
+                                groupByCol, groupbyTable)
+                .then(function(tableAfterGroupby) {
                     // Step 2. Sort on desc on groupby table by groupByCol
                     // this way, the keyCol that has most count comes first
-                    sortTable = ".tempGB-Sort." + tableNamePart +
-                                Authentication.getHashId();
-
-                    return XcalarIndexFromTable(groupbyTable, groupByCol,
-                                                sortTable,
-                                XcalarOrderingT.XcalarOrderingDescending, txId);
+                    var sortTable = ".tempGB-Sort." + tableNamePart +
+                                    Authentication.getHashId();
+                    return XIApi.sortDescending(txId, groupByCol,
+                                                tableAfterGroupby, sortTable);
                 })
-                .then(function() {
+                .then(function(tableAfterSort) {
                     // Step 3, fetch data
-                    return getResultSet(sortTable);
+                    return XIApi.fetchColumnData(keyCol, tableAfterSort, 1, rowsToFetch);
                 })
-                .then(function(resultSet) {
-                    var resultSetId = resultSet.resultSetId;
-                    var totalRows = resultSet.numEntries;
-
-                    if (totalRows == null || totalRows === 0) {
-                        return PromiseHelper.reject("No Data!");
-                    } else {
-                        rowsToFetch = Math.min(rowsToFetch, totalRows);
-                        return fetchDataHelper(resultSetId, 0, rowsToFetch,
-                                               data);
-                    }
-                })
-                .then(function() {
-                    var result = [];
-                    for (var i = 0, len = data.length; i < len; i++) {
-                        result.push(data[i][keyCol]);
-                    }
-
+                .then(function(result) {
                     innerDeferred.resolve(result);
-                    // XXXX Should delete the interim table when delete is
-                    // enabled
-                    // XXXX should free sortTable
+                    // XXXX Should delete the interim table when delete is enabled
                 })
-                .fail(innerDeferred.reject);
-
-                return innerDeferred.promise();
-            }
-
-            function fetchDataHelper(resultSetId, rowPosition, rowsToFetch,
-                                     data) {
-                var innerDeferred = jQuery.Deferred();
-
-                XcalarSetAbsolute(resultSetId, rowPosition)
-                .then(function() {
-                    return XcalarGetNextPage(resultSetId, rowsToFetch);
-                })
-                .then(function(tableOfEntries) {
-                    var kvPairs = tableOfEntries.kvPair;
-                    var numKvPairs = tableOfEntries.numKvPairs;
-                    var numStillNeeds = 0;
-
-                    if (numKvPairs < rowsToFetch) {
-                        if (rowPosition + numKvPairs >= totalRows) {
-                            numStillNeeds = 0;
-                        } else {
-                            numStillNeeds = rowsToFetch - numKvPairs;
-                        }
-                    }
-
-                    var numRows = Math.min(rowsToFetch, numKvPairs);
-                    var value;
-
-                    for (var i = 0; i < numRows; i++) {
-                        try {
-                            value = $.parseJSON(kvPairs[i].value);
-                            data.push(value);
-                        } catch (error) {
-                            console.error(error, kvPairs[i].value);
-                            innerDeferred.reject(error);
-                            return (null);
-                        }
-                    }
-
-                    if (numStillNeeds > 0) {
-                        var newPosition;
-                        if (numStillNeeds === rowsToFetch) {
-                            // fetch 0 this time
-                            newPosition = rowPosition + 1;
-                            console.warn("cannot fetch position", rowPosition);
-                        } else {
-                            newPosition = rowPosition + numRows;
-                        }
-
-                        return fetchDataHelper(resultSetId, newPosition,
-                                                numStillNeeds, data);
-                    }
-                })
-                .then(innerDeferred.resolve)
                 .fail(innerDeferred.reject);
 
                 return innerDeferred.promise();
