@@ -142,16 +142,6 @@ function dataFormModuleTest() {
             assert.isFalse($csvDelim.is(":visible"), "no delimiter section");
         });
 
-        it("Format Should be Random", function() {
-            DatastoreForm.__testOnly__.toggleFormat("Random");
-            expect($formatText.val()).to.equal("Random");
-
-            // UI part
-            assert.isFalse($headerCheckBox.is(":visible"), "no header checkbox");
-            assert.isTrue($udfCheckbox.is(":visible"), "has udf checkbox");
-            assert.isFalse($csvDelim.is(":visible"), "no delimiter section");
-        });
-
         after(function() {
             DatastoreForm.__testOnly__.resetForm();
         });

@@ -393,6 +393,8 @@ window.DatastoreForm = (function($, DatastoreForm) {
             case "json":
             case "random":
                 // json and random
+                // Note: random is setup in shortcuts.js,
+                // so prod build will not have it
                 $headerCheckBox.addClass("hidden");
                 $csvDelim.addClass("hidden");
                 $udfCheckbox.removeClass("hidden");

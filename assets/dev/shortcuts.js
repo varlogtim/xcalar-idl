@@ -188,6 +188,8 @@ window.Shortcuts = (function($, Shortcuts) {
                 $fileName.focus();
             }
         });
+        // random format only in dev mode
+        $("#fileFormatMenu").find("ul").append('<li name="RANDOM">Random</li>');
     }
 
     function mainMenu() {
