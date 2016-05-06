@@ -1,4 +1,5 @@
 /assets/js/config.js
+/assets/js/tutorial/tags.js
 /assets/stylesheets/**/*.css
 /assets/widget/*.css
 /assets/js/setup/constructorVersion.js

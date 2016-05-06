@@ -26,11 +26,12 @@ build: $(DESTDIR) generateHtml
 	@rm -rf $(DESTDIR)/prod/assets/stylesheets/less/*
 	@rm -rf $(DESTDIR)/prod/assets/dev
 	@echo "=== Minifying ==="
+	@cd $(DESTDIR)/prod/assets/python && python getHashTags.py
 	cd $(DESTDIR) && ./prod/assets/bin/MINIFY.sh
 	export GIT_DIR=`pwd`/.git && cd $(DESTDIR) && ./prod/assets/bin/autoGenFiles.sh
 	@echo "=== Running python build.py ==="
 	@cd $(DESTDIR) && python prod/assets/python/build.py
-	chmod -R 777 $(DESTDIR)/prod/*
+	cd $(DESTDIR) && chmod -R 777 $(DESTDIR)/prod/*
 	@echo "=== Done building ==="
 
 removeConfig: build
@@ -47,7 +48,7 @@ alert:
 	@echo "make installer"
 
 node_modules/.bin/grunt: package.json
-	npm install --save-dev
+	#npm install --save-dev
 	touch $@
 
 generateHtml: node_modules/.bin/grunt

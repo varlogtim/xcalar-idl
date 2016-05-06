@@ -1,0 +1,23 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" MadCap:lastBlockDepth="6" MadCap:lastHeight="202" MadCap:lastWidth="754">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="description" content="" />
+        <meta name="author" content="" /><title></title>
+        <link href="../Stylesheets/StylesForHomePage.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <div id="contentBody" class="off-canvas-main">
+            <MadCap:bodyProxy />
+            <div class="footer center" style="padding-top: 10px;">
+                <div class="HomeMasterPageFooter outer-row">
+                    <div>
+                        <div class="footer-links"><a href="../../D_RefInformation/Faqs.htm">FAQs</a><a href="../../D_RefInformation/CompanyInfo.htm">Contact us</a>
+                        </div>
+                        <p class="Copyright">Copyright © <MadCap:variable name="General.Year" /> <MadCap:variable name="General.CompanyName" /></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>
