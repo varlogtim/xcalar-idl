@@ -181,13 +181,9 @@ window.Support = (function(Support, $) {
     }
 
     function getUserIdUnique(name) {
-        var len = Math.min(name.length, 5);
-        var id = 0;
-
-        for (var i = 0; i < len; i++) {
-            id += name.charCodeAt(i);
-        }
-
+        var hash = jQuery.md5(name);
+        var len = 5;
+        var id = parseInt("0x"+hash.substring(0, len)) + 4000000;
         return id;
     }
 
