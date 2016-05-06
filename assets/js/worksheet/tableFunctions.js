@@ -173,6 +173,7 @@ function dblClickResize($el, options) {
         $(document).off('mouseup.endColResize');
         unhideOffScreenTables();
         xcHelper.reenableTextSelection();
+        $('.xcTableWrap').find('.dropdownBox').show();
         options = options || {};
         var target = options.target;
         var tableId;

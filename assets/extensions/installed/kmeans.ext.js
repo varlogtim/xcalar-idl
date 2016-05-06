@@ -47,7 +47,7 @@ window.UExtKMeans = (function(UExtKMeans, $) {
                 var col = table.tableCols[colList - 1];
                 if (col.type != "integer" && col.type != "float") {
                     Alert.error("Invalid type", "Column must be a number");
-                    break;
+                    return (true);
                 }
                 colNames.push(col.getBackColName());
             } else {
@@ -55,20 +55,20 @@ window.UExtKMeans = (function(UExtKMeans, $) {
                     var col = table.tableCols[colList[i] - 1];
                     if (col.type != "integer" && col.type != "float") {
                         Alert.error("Invalid type", "Column must be a number");
-                        break;
+                        return (true);
                     }
                     colNames.push(col.getBackColName());
                 }
             }
             if (colList.length && colNames.length != colList.length) {
-                break;
+                return (false);
             }
             kMeansStart(colNames, tableName, argList["k"],
                         argList["threshold"], argList["maxIter"]
                        );
-            break;
+            return (true);
         default:
-            break;
+            return (true);
         }
 
         function kMeansStart(colNames, tableName, k, threshold, maxIter) {
@@ -139,7 +139,7 @@ window.UExtKMeans = (function(UExtKMeans, $) {
 
 
             // Step 2: Map given element cols into a stringified vector
-            var dstColName = "kMeansVector"
+            var dstColName = "kMeansVector";
             var dstTableName = "kMeansTable_" + tableNameRoot +
                 Authentication.getHashId();
             var numElems = colNames.length;
@@ -298,7 +298,7 @@ window.UExtKMeans = (function(UExtKMeans, $) {
                 return (oneIter(iteration)
                         .then(function(done) {
                             if ((!maxIter || iteration < maxIter) &&
-                                done == false) {
+                                done === false) {
                                 return iterate(iteration + 1);
                             }
                         }));
@@ -394,7 +394,7 @@ window.UExtKMeans = (function(UExtKMeans, $) {
                 }
 
                 // Step 6d: Join the resulting groupBy tables
-                var joinStr = ""
+                var joinStr = "";
                 var joinTableNames = [avgTableNames[0]];
                 for (var i = 0; i < numElems - 1; i++) {
                     joinTableNames.push("join_" + i + "_" + iteration + tmpTableTag +
@@ -440,8 +440,8 @@ window.UExtKMeans = (function(UExtKMeans, $) {
                 // Step 7c: View the distance table
                 // need to run the query to view the result, submit the query here
                 queryStr = startupStr + clusterStr + updateStr + compareStr;
-                XcalarQueryWithCheck("kMeans_" + tableNameRoot +"_iteration_" + iteration
-                                     + Authentication.getHashId(),
+                XcalarQueryWithCheck("kMeans_" + tableNameRoot +"_iteration_" +
+                                     iteration + Authentication.getHashId(),
                                      queryStr)
                 .then(function() {
                     return (XcalarMakeResultSetFromTable(distanceTableName));
@@ -476,7 +476,7 @@ window.UExtKMeans = (function(UExtKMeans, $) {
 
                 return (innerDeferred.promise());
             }
-        };
+        }
     };
     return (UExtKMeans);
 }({}, jQuery));

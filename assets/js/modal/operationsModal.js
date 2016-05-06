@@ -600,7 +600,7 @@ window.OperationsModal = (function($, OperationsModal) {
         if (isHide) {
             $functionInput.attr('placeholder', "");
             $table.off('mousedown', '.header, td.clickable', keepInputFocused);
-            $table.off('click', '.header, td.clickable', fillInputFromCell);
+            $table.off('click.columnPicker');
             $table.find('.modalHighlighted').removeClass('modalHighlighted');
 
             $('body').off('keydown', listHighlightListener);
@@ -611,7 +611,10 @@ window.OperationsModal = (function($, OperationsModal) {
                 $operationsModal.fadeIn(400);
             }
 
-            $table.on('click', '.header, td.clickable', fillInputFromCell);
+            $table.on('click.columnPicker', '.header, td.clickable',
+                function(event) {
+                xcHelper.fillInputFromCell(event, $lastInputFocused, colPrefix);
+            });
             $table.on('mousedown', '.header, td.clickable', keepInputFocused);
             $('body').on('keydown', listHighlightListener);
             fillInputPlaceholder(0);
@@ -665,28 +668,6 @@ window.OperationsModal = (function($, OperationsModal) {
     var firstArgExceptions = {
         'conditional functions': ['not']
     };
-
-    function fillInputFromCell(event) {
-        var $input = $lastInputFocused;
-        if (!$lastInputFocused.hasClass('argument') ||
-            $lastInputFocused.closest('.colNameSection').length !== 0 ||
-            $lastInputFocused.attr("type") === "checkbox")
-        {
-            return;
-        }
-        var $target;
-        var $eventTarg = $(event.target);
-        if ($eventTarg.closest('.header').length) {
-            $target = $eventTarg.closest('.header').find('.editableHead');
-        } else {
-            var colNum = xcHelper.parseColNum($eventTarg.closest('td'));
-            $target = $eventTarg.closest('table')
-                                .find('.editableHead.col' + colNum);
-        }
-        var value = $target.val();
-        xcHelper.insertText($input, value, "$");
-        gMouseEvents.setMouseDownTarget($input);
-    }
 
     function populateInitialCategoryField(operator) {
         functionsMap = {};

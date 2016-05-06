@@ -412,7 +412,13 @@ window.xcHelper = (function($, xcHelper) {
         options = options || {};
 
         if (isHide) {
-            var fadeOutTime = options.time || 150;
+            var fadeOutTime;
+            if (options.time == null) {
+                fadeOutTime = 150;
+            } else {
+                fadeOutTime = options.time;
+            }
+
             // when close the modal
             $modalBackground.fadeOut(fadeOutTime, function() {
                 $(this).removeClass('light');
@@ -1423,6 +1429,12 @@ window.xcHelper = (function($, xcHelper) {
     // inserts text into an input field and adds commas
     // detects where the current cursor is and if some text is already selected
     xcHelper.insertText = function($input, textToInsert, prefix) {
+        var inputType = $input.attr('type');
+        if (inputType !== "text") {
+            console.warn('inserting text on inputs of type: "' + inputType +
+                            '" is not supported');
+            return;
+        }
         var value  = $input.val();
         var valLen = value.length;
         var newVal;
@@ -1869,6 +1881,28 @@ window.xcHelper = (function($, xcHelper) {
             return (true);
         }
         return (false);
+    };
+
+    // $input needs class "argument"
+    xcHelper.fillInputFromCell = function (event, $input, prefix) {
+        if (!$input.hasClass('argument') ||
+            $input.closest('.colNameSection').length !== 0 ||
+            $input.attr("type") !== "text")
+        {
+            return;
+        }
+        var $target;
+        var $eventTarg = $(event.target);
+        if ($eventTarg.closest('.header').length) {
+            $target = $eventTarg.closest('.header').find('.editableHead');
+        } else {
+            var colNum = xcHelper.parseColNum($eventTarg.closest('td'));
+            $target = $eventTarg.closest('table')
+                                .find('.editableHead.col' + colNum);
+        }
+        var value = $target.val();
+        xcHelper.insertText($input, value, prefix);
+        gMouseEvents.setMouseDownTarget($input);
     };
 
     /*

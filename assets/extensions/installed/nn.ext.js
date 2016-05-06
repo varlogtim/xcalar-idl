@@ -59,12 +59,17 @@ window.UExtNN = (function(UExtNN, $) {
                         parseFloat(argList["rate"]),
                         parseInt(argList["maxIter"])
                        );
+                return (true);
+            } else {
+                return (false);
             }
             break;
         case ("nnTest"):
             nnTest(tableName, argList["dataNumTag"], argList["iterTag"]);
+            return (true);
             break;
         default:
+            return (true);
             break;
         }
 

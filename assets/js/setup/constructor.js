@@ -1753,7 +1753,8 @@ function ModalHelper($modal, options) {
      * noResize: if set true, will not reszie the modal
      * noCenter: if set true, will not center the modal
      * noTabFocus: if set true, press tab will use browser's default behavior
-     * noEsc: if set true, no event listener on key esc
+     * noEsc: if set true, no event listener on key esc,
+     * noBackground: if set true, no darkened modal background
      */
     this.$modal = $modal;
     this.options = options || {};
@@ -1861,7 +1862,7 @@ ModalHelper.prototype = {
             .always(function() {
                 Tips.refresh();
             });
-        } else {
+        } else if (!options.noBackground) {
             var $modalBg = $("#modalBackground");
 
             if (gMinModeOn) {
@@ -1876,6 +1877,10 @@ ModalHelper.prototype = {
                     deferred.resolve();
                 });
             }
+        } else {
+            $modal.show();
+            Tips.refresh();
+            deferred.resolve();
         }
 
         return deferred.promise();
@@ -1967,10 +1972,15 @@ ModalHelper.prototype = {
             var $modalBg = $("#modalBackground");
             var fadeOutTime = gMinModeOn ? 0 : 300;
             $modal.hide();
-            $modalBg.fadeOut(fadeOutTime, function() {
+            if (options.noBackground) {
                 Tips.refresh();
                 deferred.resolve();
-            });
+            } else {
+                $modalBg.fadeOut(fadeOutTime, function() {
+                    Tips.refresh();
+                    deferred.resolve();
+                });
+            }
         }
 
         return deferred.promise();

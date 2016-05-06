@@ -23,19 +23,30 @@ window.UExtXcalarDef = (function(UExtXcalarDef, $) {
     UExtXcalarDef.actionFn = function(colNum, tableId, functionName, argList) {
         switch (functionName) {
         case ("hPartition"):
-            if (hPartArgCheck($(".partitionNums"))) {
-                closeMenu(argList["allMenus"]); 
+            var $partitionNums = $('#extensionOpModal').find('.argument').eq(0);
+            if (hPartArgCheck($partitionNums)) {
+                ExtensionOpModal.close();
                 horizontalPartition(colNum, tableId, argList["partitionNums"]);
+                return (true);
+            } else {
+                return (false);
             }
             break;
         case ("windowChain"):
-            if (windowArgCheck($(".lag"), $(".lead"))) {
-                closeMenu(argList["allMenus"]);
+            var $lag = $('#extensionOpModal').find('.argument').eq(0);
+            var $lead = $('#extensionOpModal').find('.argument').eq(1);
+            if (windowArgCheck($lag, $lead)) {
                 windowChain(colNum, tableId, argList["lag"], argList["lead"]);
+                return (true);
+            } else {
+                return (false);
             }
-        default:
             break;
+        default:
+            return (true);
         }
+
+
 
         function hPartArgCheck($input) {
             var partitionNums = Number($input.val().trim());
@@ -406,7 +417,7 @@ window.UExtXcalarDef = (function(UExtXcalarDef, $) {
             })
             .then(function(tableWithUniqIndex, uniqColName) {
                 // Step 3 Generate the columns for lag and lead. We need to
-                // duplicate current table to have a unique column name if not 
+                // duplicate current table to have a unique column name if not
                 // later we will suffer when we self join
                 var defArray = [];
                 var i;
@@ -730,8 +741,8 @@ window.UExtXcalarDef = (function(UExtXcalarDef, $) {
                         "type"    : "float",
                         "width"   : gNewCellWidth,
                         "isNewCol": false,
-                        "userStr" : '"' + newColName + '" = pull(' + newColName
-                                    + ')',
+                        "userStr" : '"' + newColName + '" = pull(' +
+                                        newColName + ')',
                         "func"    : {
                             "func": "pull",
                             "args": [newColName]
@@ -857,7 +868,7 @@ window.UExtXcalarDef = (function(UExtXcalarDef, $) {
             }
         }
 
-    }
+    };
 
     return (UExtXcalarDef);
 }({}, jQuery));

@@ -241,7 +241,7 @@ window.ExtensionPanel = (function(ExtensionPanel, $) {
             Alert.error(AlertTStr.Error, AlertTStr.NoExt);
             console.error("Error Case");
         } else {
-            ExtensionModal.show(ext);
+            ExtensionInfoModal.show(ext);
         }
     }
 

@@ -60,6 +60,7 @@ window.UExtIntel = (function(UExtIntel, $) {
         default:
             break;
         }
+        return (true);
 
         function genLastTouch(colName, tableName) {
             // Steps:
@@ -91,7 +92,7 @@ window.UExtIntel = (function(UExtIntel, $) {
                 newColName = "Date_UTS_integer";
                 mapStr = "int(Date_UTS)";
                 return (XcalarMap(newColName, mapStr, srcTable, newTableName,
-                                  null, false))
+                                  null, false));
             })
             .then(function() {
                 tableId = xcHelper.getTableId(srcTable);
@@ -122,7 +123,7 @@ window.UExtIntel = (function(UExtIntel, $) {
                             var newCols = xcHelper.deepCopy(gTables[tableId].
                                                             tableCols);
                             var idx = getColNum("Max_Date", tableId);
-                            newCols.splice(idx+1, 0, 
+                            newCols.splice(idx+1, 0,
                                           (ColManager.newPullCol("Final Touch",
                                                                  "string")));
                             return (TblManager.refreshTable([newTableName],
@@ -146,15 +147,15 @@ window.UExtIntel = (function(UExtIntel, $) {
                 var idx = getColNum("Line Item Product Type", tableId);
                 newCols.splice(idx+1, 0,
                                ColManager.newPullCol("Final PT", "string"));
-                xcHelper.unlockTable(tableId); 
+                xcHelper.unlockTable(tableId);
                 return (TblManager.refreshTable([newTableName], newCols,
                                                 [tableName], worksheet));
             });
         }
-        
+
         function genLineItemPT(tableName) {
             // Step 1: Change Forecasted Detail Actual Dollar Amount to float
-            // Step 2: xcFunction.groupBy(sum, tableId, indexedCols, 
+            // Step 2: xcFunction.groupBy(sum, tableId, indexedCols,
             // aggColName, false, newColName)
             // Step 3: single groupBy(max
             // Step 4: multi join ROW ID, max == forecasted_float
@@ -224,7 +225,7 @@ window.UExtIntel = (function(UExtIntel, $) {
                 // XXX Why is delCol 1-indexed? Leftover from last time?
                 ColManager.delCol([1, 4, 5, 6], xcHelper.getTableId(tn));
                 TblManager.archiveTable(xcHelper.getTableId(tableNameStore[0]));
-            })
+            });
         }
         // TODO this should be in xcHelper
         function getColNum(colName, tableId) {
@@ -241,10 +242,10 @@ window.UExtIntel = (function(UExtIntel, $) {
         function genNoOfDays(colName, tableName) {
             // Step 1: Create column Modified No Blank
             // Step 2: Create column Last_Modified_Latest by doing ifelse on
-            // Final Date and ModifiedNoBlank 
-            // Step 3: Create No Days since col 
+            // Final Date and ModifiedNoBlank
+            // Step 3: Create No Days since col
             // Step 4: Change col to float
-            // Step 5: Map <= 60 
+            // Step 5: Map <= 60
             var tableId = xcHelper.getTableId(tableName);
             var table = gTables[tableId];
             var newTableName = tableNameRoot + Authentication.getHashId();

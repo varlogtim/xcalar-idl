@@ -1,31 +1,22 @@
 window.ExtButton = (function(ExtButton, $) {
     function genSimpleButton(modName, fnName, buttonText) {
-        var html = '<div class="sectionLabel">' + fnName + '</div>';
-        html += '<li class="extensions '+modName+'::'+fnName+'">';
+        // var html = '<div class="sectionLabel">' + fnName + '</div>';
+        var html = '';
+        html += '<li class="extensions ' + modName + '::' + fnName + '" ' +
+                 'data-modName="' + modName + '" data-fnName="' + fnName + '">';
         html += buttonText;
         html += '</li>';
         return (html);
     }
 
     function genComplexButton(modName, fnName, buttonText, arrayOfFields) {
-        var html = '<ul class="extensions '+modName+'">';
-        html += '<div class="sectionLabel">' + fnName + '</div>';
-        html += '<li style="text-align: center" class="clickable extensions">';
-        // XXX Need to think about how to include this
-        // html += '<div>'+buttonText+'</div>';
-        for (var i = 0; i<arrayOfFields.length; i++) {
-            html += '<div>'+arrayOfFields[i].name+'</div>';
-            html += '<div class="inputWrap">'+
-                        '<input class="'+arrayOfFields[i].fieldClass+
-                            '" type="'+arrayOfFields[i].type+'"'+
-                        ' spellcheck="false"/>'+
-                        '<div class="iconWrapper inputAction">'+
-                            '<span class="icon extensions '+modName+'::' +
-                                fnName+'"></span>'+
-                        '</div>'+
-                    '</div>';
-        }
-        html += "</li></ul>";
+        var html = '<li class="extensions complex '+ modName + '::' + fnName +
+                    '" data-modName="' + modName + '"' +
+                    ' data-fnName="' + fnName + '">';
+        html += '<span class="extTitle">' + buttonText + "</span>...";
+        html += '</li>';
+        ExtensionOpModal.addButton(modName, fnName, arrayOfFields);
+
         return (html);
     }
 
@@ -95,10 +86,10 @@ window.ExtensionManager = (function(ExtensionManager, $) {
         for (var i = 0; i < extList.length; i++) {
             var buttonList = window[extList[i]].buttons;
             $("ul.extensions").eq(0).append(ExtButton.getButtonHTML(extList[i]));
-            if (i < extList.length - 1) {
-                $("ul.extensions").eq(0).append(
-                '<div class="divider identityDivider thDropdown"></div>');
-            }
+            // if (i < extList.length - 1) {
+            //     $("ul.extensions").eq(0).append(
+            //     '<div class="divider identityDivider thDropdown"></div>');
+            // }
         }
     }
 
@@ -277,7 +268,8 @@ window.ExtensionManager = (function(ExtensionManager, $) {
             colNum = colArray;
         }
         argList["allMenus"] = $allMenus;
-        window[modName]["actionFn"](colNum, tableId, funcName, argList);
+        return (window[modName]["actionFn"]
+                (colNum, tableId, funcName, argList));
     };
     return (ExtensionManager);
 }({}, jQuery));

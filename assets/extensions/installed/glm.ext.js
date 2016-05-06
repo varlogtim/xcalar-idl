@@ -33,14 +33,14 @@ window.UExtGLM = (function(UExtGLM, $) {
         case ("simpleLinearRegression"):
             if (colList.length != 2) {
                 Alert.error("Invalid selection", "Please select 2 columns");
-                break;
+                return (false);
             }
             var xCol = table.tableCols[colList[0] - 1].getBackColName();
             var yCol = table.tableCols[colList[1] - 1].getBackColName();
             simpleLinearRegression(xCol, yCol, tableName);
-            break;
+            return (true);
         default:
-            break;
+            return (true);
         }
 
         function simpleLinearRegression(xCol, yCol, tableName) {
@@ -104,7 +104,7 @@ window.UExtGLM = (function(UExtGLM, $) {
             var xDiff = "slr_xDiff";
             var xDiffTableName = xDiff + tmpTableTag + Authentication.getHashId();
 
-            var squared = "slr_xDiff_squared"
+            var squared = "slr_xDiff_squared";
             var squaredTableName = squared + tmpTableTag + Authentication.getHashId();
 
             var variance = "slr_variance" + tmpTableTag + Authentication.getHashId();
@@ -179,8 +179,8 @@ window.UExtGLM = (function(UExtGLM, $) {
 
             // submit query here
             var queryStr = avgStr + BStr + lineStr + dropStr;
-            XcalarQueryWithCheck("slr_" + tableNameRoot +"_query_"
-                                 + Authentication.getHashId(), queryStr)
+            XcalarQueryWithCheck("slr_" + tableNameRoot +"_query_" +
+                                 Authentication.getHashId(), queryStr)
             .then(function() {
                 // FINAL:
                 // Step 5: Display x, y, and the output from line function
@@ -212,7 +212,7 @@ window.UExtGLM = (function(UExtGLM, $) {
                 deferred.reject(error);
             });
             return deferred.promise();
-        };
+        }
     };
     return (UExtGLM);
 }({}, jQuery));

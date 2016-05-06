@@ -1,5 +1,5 @@
-window.ExtensionModal = (function(ExtensionModal, $) {
-    var $extModal; // $("#extensionModal");
+window.ExtensionInfoModal = (function(ExtensionInfoModal, $) {
+    var $extModal; // $("#extensionInfoModal");
     var modalHelper;
 
     // constant
@@ -7,8 +7,8 @@ window.ExtensionModal = (function(ExtensionModal, $) {
     var minWidth = 700;
     var curExt;
 
-    ExtensionModal.setup = function() {
-        $extModal = $("#extensionModal");
+    ExtensionInfoModal.setup = function() {
+        $extModal = $("#extensionInfoModal");
 
         modalHelper = new ModalHelper($extModal, {
             "minHeight": minHeight,
@@ -49,14 +49,14 @@ window.ExtensionModal = (function(ExtensionModal, $) {
             }
         });
 
-        $("#extensionModal-logo").on("error", function() {
+        $("#extensionInfoModal-logo").on("error", function() {
             var imgSrc = $("#extensionView").hasClass("custom") ?
                             paths.CustomExt : paths.XCExt;
             this.src = imgSrc;
         });
     };
 
-    ExtensionModal.show = function(ext) {
+    ExtensionInfoModal.show = function(ext) {
         curExt = ext;
 
         if (ext.isInstalled()) {
@@ -76,7 +76,7 @@ window.ExtensionModal = (function(ExtensionModal, $) {
     }
 
     function updateDetail(ext) {
-        $("#extensionModal-logo").attr("src", ext.getImage());
+        $("#extensionInfoModal-logo").attr("src", ext.getImage());
 
         var $infoArea = $extModal.find(".infoArea");
         $infoArea.find(".version .text").text(ext.getVersion());
@@ -88,5 +88,5 @@ window.ExtensionModal = (function(ExtensionModal, $) {
         $detailArea.find(".description .text").text(ext.getDesription());
     }
 
-    return (ExtensionModal);
+    return (ExtensionInfoModal);
 }({}, jQuery));

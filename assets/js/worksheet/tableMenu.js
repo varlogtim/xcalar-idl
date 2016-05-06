@@ -551,22 +551,31 @@ window.TblMenu = (function(TblMenu, $) {
             }, 0);
         });
 
-        $subMenu.on('mouseup', '.extensions', function(event) {
+        $subMenu.on('mouseup', 'li.extensions', function(event) {
             if (event.which !== 1) {
                 return;
             }
-
+            var $li = $(this);
             var colNum = $colMenu.data('colNum');
             var tableId = $colMenu.data('tableId');
-            var classNames = $(this)[0].className.split(/\s+/);
+            var classNames = $li[0].className.split(/\s+/);
+            var modName = $li.data('modname');
+            var fnName = $li.data('fnname');
+
             for (var i = 0; i < classNames.length; i++) {
                 if (classNames[i].indexOf("::") > -1) {
-                    var argList = collectArgs($(this));
-                    ColManager.extension(colNum, tableId, classNames[i],
-                                         argList);
-                    if (classNames[i].indexOf('hPartition') === -1 &&
-                        classNames[i].indexOf('windowChain') === -1) {
-                        closeMenu($allMenus);
+                    if ($li.hasClass('complex')) {
+                        var title = $li.find('.extTitle').text();
+                        ExtensionOpModal.show(colNum, tableId, modName, fnName,
+                                              title);
+                    } else {
+
+                        var success = ColManager.extension(colNum, tableId,
+                                                            classNames[i],
+                                                            {});
+                        if (typeof success === "boolean" && success) {
+                            closeMenu($allMenus);
+                        }
                     }
                     break;
                 }

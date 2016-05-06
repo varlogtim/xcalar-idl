@@ -1,0 +1,108 @@
+#extensionOpModal {
+    .size(@width: auto, @height: auto, @min-width: 305px);
+    bottom: auto;
+    right: auto;
+
+    .modalHeader {
+        height: 32px;
+        line-height: 32px;
+        .text {
+            font-size: 17px;
+        }
+        .close {
+            top: 5px;
+        }
+    }
+
+    .modalInstruction {
+        display: none;
+    }
+
+    .modalTopMain {
+        border-top-width: 1px;
+    }
+
+    .argSection {
+        .flex-display;
+        .justify-content(center);
+        max-width: 85%;
+        margin: 0 auto;
+
+        .descs {
+            .flex(0 1 50px);
+            max-width: ~"calc(100% - 204px)";
+            font-weight: 700;
+            font-size: 13px;
+            .cell {
+                padding-right: 10px;
+            }
+            &.allNumbers {
+                max-width: ~"calc(100% - 104px)";
+            }
+        }
+        .args {
+            .flex(0 1 auto);
+            max-width: ~"calc(100% - 50px)";
+        }
+        .cell {
+            .textOverflowOneLine;
+            line-height: 40px;
+            &.type-number {
+                .inputWrap {
+                    width: 104px;
+                }
+            }
+        }
+        .inputWrap {
+            width: 204px;
+            margin: 0 2px;
+            position: relative;
+        }
+        input {
+            width: 100%;
+            text-align: center;
+            padding-left: 6px;
+            padding-right: 6px;
+            // padding-right: 25px; // xx temporary
+            .textOverflowOneLine;
+            height: 25px;
+            line-height: 22px;
+            border-bottom: 2px solid #EAEAEA;
+            border-top: 1px solid #EEEEEE;
+            border-right: 1px solid #DDDDDD;
+            box-shadow: 1px 0px 0px rgba(0, 0, 0, 0.1), inset 0px 1px 1px rgba(0, 0, 0, 0.1);
+            &[type=number] {
+                padding-right: 6px;
+            }
+        }
+
+        .argIconWrap {
+            .position(absolute, @top: 11px, @right: 2px);
+            .size (20px, 20px);
+            .rounded;
+            .gray-gradient;
+            cursor: pointer;
+            display: none; // XX temporary
+
+            &:active {
+                .gray-inverse-gradient;
+            }
+            .icon {
+                .size(20px, 20px);
+                .image("../../images/opsModal/columnSelect.png", 50%, 50%);
+                float: left;
+            }
+        }
+    }
+    .modalBottom {
+        background-color: @color-white;
+        padding-top: 10px;
+        .btn {
+            width: 120px;
+            margin-right: 20px;
+            &:last-child {
+                margin-left: 20px;
+            }
+        }
+    }
+}

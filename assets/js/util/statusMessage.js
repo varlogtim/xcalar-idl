@@ -184,7 +184,7 @@ window.StatusMessage = (function($, StatusMessage) {
 
             if (numRotations > msg.desiredRotations) {
                 var numTotalMessages = messages.length;
-                
+
                 if (numTotalMessages === 1) {
                     currIndex = i;
                     setTimeout(function() {
@@ -221,7 +221,7 @@ window.StatusMessage = (function($, StatusMessage) {
             var $firstSpan = $statusText.find('span').eq(0).clone();
             $statusText.append($firstSpan);
         }
-        
+
         messageRemoveHelper();
         if (messages.length <= $statusText.find('.fail').length) {
             $waitingIcon.hide();
@@ -376,13 +376,13 @@ window.StatusMessage = (function($, StatusMessage) {
                         classes += ' rightSide';
                     }
                 }
-            }            
+            }
         }
 
         if (popupNeeded) {
             $tableDonePopup.addClass(arrow + ' ' + classes)
                            .data('tableid', newTableId);
-            
+
             $tableDonePopup.mousedown(function(event) {
                 xcHelper.removeSelectionRange();
                 if (event.which !== 1) {
@@ -400,20 +400,21 @@ window.StatusMessage = (function($, StatusMessage) {
 
                     $('#workspaceTab').click();
 
-                    if ($dagPanel.hasClass('full')) {
-                        $('#dagPulloutTab').click();
+                    if (!$('#dagPanel').hasClass('invisible') &&
+                        $('#dagPanel').css('top') === "0px") {
+                        $('#closeDag').click();
                     }
 
                     if (wsId) {
                         $('#worksheetTab-' + wsId).click();
                     }
-                    
+
                     if ($tableWrap.length) {
                         var animate = true;
                         xcHelper.centerFocusedTable($tableWrap, animate);
                         $tableWrap.mousedown();
                     }
-                    
+
                 } else if (options.newDataSet) {
                     $('#dataStoresTab').click();
                     $('#inButton').click();
@@ -463,7 +464,7 @@ window.StatusMessage = (function($, StatusMessage) {
             if (!popupWrapExists) {
                 // we need to create a new container div for the popup
                 // and position it, otherwise we would have just appeneded
-                // the popup to an already existing container  
+                // the popup to an already existing container
                 if (popupNearTab) {
                     pos.left = popupNearTab.offset().left +
                                popupNearTab.outerWidth() + 6;
@@ -495,7 +496,7 @@ window.StatusMessage = (function($, StatusMessage) {
                     }
                     return;
                 }
-                
+
                 $tableDonePopup.fadeIn(200, function() {
                     var displayTime = notificationTime;
                     if (failed) {

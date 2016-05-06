@@ -57,7 +57,7 @@ window.UExtATags = (function(UExtATags, $) {
     		closeMenu($cellMenu);
     		return;
     	}
-    }
+    };
 
     return (UExtATags);
 }({}, jQuery));

@@ -23,6 +23,11 @@
 
         .text {
             .font(@weight: bold, @size: 18px, @color: @color-text-white);
+            display: inline-block;
+            width: 100%;
+            padding-left: 30px;
+            padding-right: 30px;
+            .textOverflowOneLine;
         }
         .headerBtn, .close {
             cursor: pointer;
@@ -4733,8 +4738,6 @@ html.microsoft {
         }
     }
 
-    .parameterTable();
-
     .tableHeader {
         .size(@height: 30px);
         border-top-left-radius: 3px;
@@ -4926,13 +4929,17 @@ html.microsoft {
                         .position(relative, @top: 5px);
                     }
                     &.hidden {
-                        display: none;
+                        .checkbox {
+                            display: none;
+                        }
                     }
                 }
 
                 .colNameRow {
                     .checkboxWrap {
-                        display: none;
+                        .checkbox {
+                            display: none;
+                        }
                     }
                 }
             }
@@ -5179,6 +5186,10 @@ html.microsoft {
     &.modalOpen {
         position: relative;
         z-index: 36;
+    }
+    &.extOpModalOpen {
+        position: static;
+        z-index: 0;
     }
 }
 

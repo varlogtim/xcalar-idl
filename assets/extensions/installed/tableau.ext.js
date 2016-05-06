@@ -12,11 +12,10 @@ window.UExtTableau = (function(UExtTableau, $) {
         var waitTime = 45;
         switch (functionName) {
             case ("visualize"):
-                closeMenu(argList["allMenus"]);
                 visualizeInTableau(colNum, tableId);
-                break;
+                return (true);
             default:
-                break;
+                return (true);
         }
         function initializeViz(vizName) {
             // First remove current div. This is because tableau sucks shit
@@ -76,7 +75,7 @@ window.UExtTableau = (function(UExtTableau, $) {
             };
 
             xcFunction.exportTable(tableName, tempExportName, "Default",
-                                   1, [backColName],["Value"], true, false,
+                                   1, [backColName],["Value"], false, true,
                                    options)
             .then(function() {
                 showModal(colName, waitTime);

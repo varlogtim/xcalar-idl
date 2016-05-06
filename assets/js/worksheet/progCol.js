@@ -868,7 +868,7 @@ window.ColManager = (function($, ColManager) {
     };
 
     ColManager.extension = function(colNum, tableId, functionName, args) {
-        ExtensionManager.trigger(colNum, tableId, functionName, args);
+        return (ExtensionManager.trigger(colNum, tableId, functionName, args));
     };
 
     // options
