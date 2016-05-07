@@ -68,6 +68,7 @@ module.exports = {
         'Size': 'Size',
         'Sugg': 'Suggestion',
         'sum': 'sum',
+        'sd': 'SD',
         'Table': 'Table',
         'Type': 'Type',
         'UDF': 'UDF',

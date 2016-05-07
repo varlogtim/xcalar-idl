@@ -6,13 +6,14 @@ window.Profile = (function($, Profile, d3) {
 
     var modalHelper;
     // constants
-    var aggKeys = ["min", "average", "max", "count", "sum"];
+    var aggKeys = ["min", "average", "max", "count", "sum", "sd"];
     var aggMap = {
         "min"    : AggrOp.Min,
         "average": AggrOp.Avg,
         "max"    : AggrOp.Max,
         "count"  : AggrOp.Count,
-        "sum"    : AggrOp.Sum
+        "sum"    : AggrOp.Sum,
+        "sd"     : "sd"
     };
     var statsKeyMap = {
         "zeroQuartile" : "zeroQuartile",
@@ -596,13 +597,12 @@ window.Profile = (function($, Profile, d3) {
 
     function runAgg(table, aggkey, curStatsCol, txId) {
         // pass in statsCol beacuse close modal may clear the global statsCol
-        var deferred = jQuery.Deferred();
-
         if (curStatsCol.aggInfo[aggkey] != null) {
             // when already have cached agg info
-            return deferred.resolve().promise();
+            return PromiseHelper.resolve();
         }
 
+        var deferred = jQuery.Deferred();
         var fieldName = curStatsCol.colName;
         var aggrOp = aggMap[aggkey];
         var res;
@@ -874,7 +874,16 @@ window.Profile = (function($, Profile, d3) {
     }
 
     function getAggResult(colName, tableName, aggOp, txId) {
-        return XIApi.aggregate(txId, aggOp, colName, tableName);
+        if (aggOp === "sd") {
+            // standard deviation
+            var totalNum = gTables[curTableId].resultSetCount;
+            var evalStr = "sqrt(div(sum(pow(sub(" + colName + ", avg(" +
+                          colName + ")), 2)), " + totalNum + "))";
+
+            return XIApi.aggregateWithEvalStr(txId, evalStr, tableName);
+        } else {
+            return XIApi.aggregate(txId, aggOp, colName, tableName);
+        }
     }
 
     function fetchGroupbyData(rowPosition, rowsToFetch) {
