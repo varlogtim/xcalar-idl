@@ -7,6 +7,7 @@ class xcalarTags:
         self.globalTags = dict()
 
     def getTagsInFile(self, filepath):
+
         f = open(filepath, "rb")
         fileString = f.read()
         d = pq(fileString)
@@ -88,7 +89,7 @@ if __name__ == "__main__":
 
     hashTagTree.getTagsFromFolder("../help/", "htm")
     hashTagTree.invertTags()
-    #hashTagTree.prettyPrint()
+    # hashTagTree.prettyPrint()
     array = hashTagTree.convertHashTagsDict()
     fout = open("../js/tutorial/tags.js", "wb")
     fout.write("var helpHashTags = {\"pages\":")

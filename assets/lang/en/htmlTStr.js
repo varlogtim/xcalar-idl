@@ -250,6 +250,8 @@ module.exports = {
         'Help': 'Help',
         'Find': 'Find',
         'noRes': 'There are no help results',
+        'useSearch': 'Search for a topic or',
+        'visitHelp': 'click here to visit our help guide',
         'InPageHelp': 'In-Page Help',
         'Walkthrough': 'Start a Walkthrough',
         'wkbkTutor': 'Workbook Tutorial',

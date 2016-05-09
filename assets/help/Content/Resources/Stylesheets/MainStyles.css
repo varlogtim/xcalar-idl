@@ -57,7 +57,7 @@ h3
 
 h4
 {
-	
+
 }
 
 li
@@ -159,6 +159,17 @@ ul.InPageSummary
 
 ul
 {
-	
+
 }
 
+/* Xcalar styling */
+// .SearchHighlight {
+// 	background-color: yellow;
+// }
+
+.sideContent .SearchHighlight {
+	background-color: transparent;
+}
+span.SearchHighlight {
+    background-color: #ede54b;
+}

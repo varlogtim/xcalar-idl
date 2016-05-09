@@ -18,5 +18,6 @@ var paths = {
     installer     : 'setup.html',
     XCExt         : 'assets/images/extension/logo-xc.png',
     CustomExt     : 'assets/images/extension/logo-custom.png',
-    tableauExt    : 'assets/images/extension/logo-tableau.png'
+    tableauExt    : 'assets/images/extension/logo-tableau.png',
+    helpGuide     : 'assets/help/Content/Home.htm'
 };

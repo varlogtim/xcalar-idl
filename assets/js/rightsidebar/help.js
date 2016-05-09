@@ -1,7 +1,9 @@
 window.Help = (function($, Help) {
-    
+
     Help.setup = function() {
         // Toggleing helper tooltips
+        HelpSearch.setup();
+
         $('#helpOnOff').click(function() {
             toggleRefresh($(this));
         });

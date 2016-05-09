@@ -5,7 +5,7 @@ var SortDirection = {
 
 var SortStatus = {
     Sorted: "Already sorted"
-}
+};
 
 var RowDirection = {
     Top: 1,

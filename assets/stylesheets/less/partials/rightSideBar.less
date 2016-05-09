@@ -1123,51 +1123,36 @@
 
 #helpSearchArea {
     padding: 6px 3% 5px 3%;
-    max-width: 500px;
     margin: 0 auto;
 
     input {
-        width: 70%;
-        padding: 2px 2px 2px 4px;
-        .font(@weight: bold, @size: 12px, @color: @color-text-darkGray);
-        background-color: @color-background-sidebar;
+        width: 100%;
+        padding: 2px 30px 2px 10px;
         float: left;
+        box-shadow: inset 0px 1px 0px 1px rgba(0,0,0,0.2);
 
         &:focus {
             background-color: @color-white;
             outline: none;
-            .input-placeholder(@color-text-lightGray);
+
+            box-shadow: inset 0px 1px 1px 1px rgba(0,0,0,0.3);
         }
-        .input-placeholder(@color-text-darkGray);
+        .input-placeholder(@color-text-lightGray);
     }
 }
 
 
 #helpSubmit {
-    .size(@width: 25%, @height: 30px);
-    .action-gradient;
-    .font(@size: 12px, @line-height: 30px, @color: @color-text-white);
-    .rounded;
-    float: right;
-    margin-left: 5px;
-    text-align: center;
-    padding-right: 10px;
-    .gray-gradient; // disabled
-    pointer-events: auto;
+    .size(@width: 36px, @height: 30px);
+    .image("../../images/search-md.png", 40%, 50%);
+    display: inline-block;
+    position: absolute;
+    right: 15px;
     cursor: pointer;
-
-    .iconSearch {
-        .size(@width: 18px, @height: 30px);
-        .image("../../images/search-sm.png", 50%, 50%);
-        margin: 0 5px;
-        display: inline-block;
-        float: left;
-    }
 }
 
 .helpBox {
     .size(@width: auto, @height: 148px);
-    max-width: 500px;
     margin: 0 auto;
     padding: 0 3%;
 
@@ -1179,18 +1164,131 @@
 }
 
 #helpResults {
+    height: ~"calc(100% - 290px)";
+    min-height: 80px;
+
+    a {
+        text-decoration: none;
+        &:hover {
+            text-decoration: underline;
+        }
+    }
+
     &> div {
-        text-align: center;
-        span {
+        text-align: left;
+        overflow-x: hidden;
+        overflow-y: auto;
+        word-break: break-word;
+        position: relative;
+        .noResults, #tipue_search_warning {
             .vertical-align;
+            .horizontal-align;
+            position: absolute;
             top: 40%;
             color: @color-text-lightGray;
         }
+        #tipue_search_warning {
+            position: relative;
+            text-align: center;
+        }
+        .tipue_search_content_title {
+            margin-top: 8px;
+
+            a {
+                font-weight: 700;
+                font-size: 16px;
+                color: @color-text-blue;
+            }
+        }
+        #tipue_search_content {
+            height: inherit;
+        }
+        .tipue_search_content_url a {
+            color: #35A575;
+            .textOverflowOneLine;
+            display: inline-block;
+            width: 100%;
+            font-size: 13px;
+        }
+        .h01 {
+            font-weight: 700;
+            color: @color-text-black;
+        }
+        #tipue_search_results_count {
+            padding: 2px 0px 0px;
+        }
+    }
+
+    .noResults {
+        width: 80%;
+        text-align: center;
+    }
+
+    .visitHelpGuide {
+        color: @color-text-topAction;
     }
 }
 
+#tipue_search_foot
+{
+     margin: 51px 0 21px 0;
+}
+#tipue_search_foot_boxes
+{
+    padding: 0;
+    margin: 0;
+     font: 12px 'Open Sans', sans-serif;
+}
+#tipue_search_foot_boxes li
+{
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: inline;
+}
+#tipue_search_foot_boxes li a
+{
+    padding: 10px 17px 11px 17px;
+     background-color: #fff;
+     border: 1px solid #e2e2e2;
+     border-radius: 1px;
+    color: #333;
+    margin-right: 7px;
+    text-decoration: none;
+    text-align: center;
+}
+#tipue_search_foot_boxes li.current
+{
+    padding: 10px 17px 11px 17px;
+     background: #f6f6f6;
+     border: 1px solid #e2e2e2;
+     border-radius: 1px;
+    color: #333;
+    margin-right: 7px;
+    text-align: center;
+    a {
+        cursor: initial;
+    }
+
+}
+
+#tipue_search_foot_boxes a {
+    cursor: pointer;
+}
+
+#tipue_search_foot_boxes li a:hover
+{
+     background: #f6f6f6;
+}
+
 #helpTopics {
-    margin-top: 20px;
+    margin-top: 10px;
+    height: ~"calc(100% - 260px)";
+    max-height: 110px;
+
+    > div {
+        overflow: auto;
+    }
 
     span {
         font-weight: 700;
@@ -1218,9 +1316,9 @@
 }
 
 .helpOnOffWrap {
-    .size(@width: 182px, @height: 65px);
+    .size(@width: 182px, @height: 55px);
     margin: 0 auto;
-    padding-top: 25px;
+    padding-top: 20px;
     white-space: nowrap;
 
     .onOffBtn {

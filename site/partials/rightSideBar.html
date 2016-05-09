@@ -1,4 +1,4 @@
-<!-- Right Side Bar Section -->
+Right Side Bar Section -->
 <div id="rightSideBar" class="small">
   <!-- Top Buttons -->
   <div class="sideBarTopButtons">
@@ -299,21 +299,20 @@
     </header>
     <div class="rightBarContent">
       <!-- Help Search -->
-      <div id="helpSearchArea" class="clearfix">
-        <input id="helpSearch" title="Coming Soon" type="text"
+      <form id="helpSearchArea" class="clearfix" action="index.html">
+        <!-- <input id="helpSearch" name="q" type="text" -->
+        <input id="helpSearch" type="text"
           spellcheck="false" placeholder="Type in your question..."
-          data-toggle="tooltip" data-placement="bottom"
-          data-container="body" disabled>
-        <div id="helpSubmit" title="Coming Soon" class="btnInactive"
-        data-toggle="tooltip" data-placement="bottom" data-container="body">
-          <span class="icon iconSearch"></span><%= dicts.rightsideBar.Find %>
-        </div>
-      </div>
+          autocomplete="off">
+          <div id="helpSubmit" class="icon">
+          </div>
+      </form>
       <div class="border"></div>
       <!-- Help Result -->
       <div id="helpResults" class="helpBox">
-        <div>
-          <span><%= dicts.rightsideBar.noRes %></span>
+        <div class="resultsArea">
+          <span class="noResults"><%= dicts.rightsideBar.useSearch %><br/><a href="assets/help/Content/Home.htm" target="xchelp" class="visitHelpGuide"><%= dicts.rightsideBar.visitHelp %></a></span>
+          <div id="tipue_search_content"></div>
         </div>
       </div>
       <!-- Help On Off Button -->
@@ -357,4 +356,4 @@
   <div id="pulloutTab"></div>
   <div id="sideBarModal"></div>
 </div>
-<!-- End Of Rightsidebar -->
+<!-- End Of Rightsidebar

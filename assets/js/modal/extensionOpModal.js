@@ -356,6 +356,11 @@ window.ExtensionOpModal = (function(ExtensionOpModal, $) {
         } else {
             $extModal.removeClass('hasColumnArg');
         }
+        if (hasColumnArg) {
+            $extModal.addClass('hasColumnArg');
+        } else {
+            $extModal.removeClass('hasColumnArg');
+        }
     }
 
 
