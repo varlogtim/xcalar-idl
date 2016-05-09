@@ -309,8 +309,15 @@ function ProgCol(options) {
         this.isNewCol = options.isNewCol;
     }
 
-    this.backName = options.backName || "";
     this.name = options.name || "";
+
+    if (options.backName == null) {
+        // xx kinda crazy but the backend returns a lot of \ slashes
+        this.backName = xcHelper.escapeColName(this.name.replace(/\./g, "\\."));
+    } else {
+        this.backName = options.backName;
+    }
+
     this.type = options.type || "undefined";
     this.func = new ColFunc(options.func);
     this.width = options.width || 0;

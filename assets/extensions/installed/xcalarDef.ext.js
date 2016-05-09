@@ -374,7 +374,7 @@ window.UExtXcalarDef = (function(UExtXcalarDef, $) {
             });
 
             // Step 0. Figure out column type info from orig table. We need it
-            // in step 5.5.
+            // in step 4.
             XcalarMakeResultSetFromTable(tableName)
             .then(function(ret) {
                 type = DfFieldTypeTStr[ret.keyAttrHeader.type];
@@ -405,38 +405,31 @@ window.UExtXcalarDef = (function(UExtXcalarDef, $) {
                 return XcalarSetFree(ret.resultSetId);
             })
             .then(function() {
-                // Step 1 Get Unique Column, on SORTED table. This goes against
-                // our axiom, but is the only way to do it for now T____T
-                return genUniqMap(tableName);
+                // Step 1 Get Unique Column, on SORTED table.
+                return genRowNum(tableName);
             })
             .then(function(tableWithUniqOrig, uniqColName) {
-                // Step 2 Index by any column unsorted, if not our checks will
-                // prevent us from sorting some columns later
-                // we choose to index on the unqiColName
-                return uniqTableIndex(tableWithUniqOrig, uniqColName);
-            })
-            .then(function(tableWithUniqIndex, uniqColName) {
-                // Step 3 Generate the columns for lag and lead. We need to
-                // duplicate current table to have a unique column name if not
+                // Step 2 Generate the columns for lag and lead. We need to
+                // duplicate current table to have a unique column name if not 
                 // later we will suffer when we self join
                 var defArray = [];
                 var i;
                 for (i = 0; i < lag; i++) {
                     defArray.push(ladLeadMap(WinState.lag, i,
-                                             tableWithUniqIndex, uniqColName));
+                                             tableWithUniqOrig, uniqColName));
                 }
 
                 for (i = 0; i < lead; i++) {
                     defArray.push(ladLeadMap(WinState.lead, i,
-                                             tableWithUniqIndex, uniqColName));
+                                             tableWithUniqOrig, uniqColName));
                 }
 
                 defArray.push(ladLeadMap(WinState.cur, -1,
-                                         tableWithUniqIndex, uniqColName));
+                                         tableWithUniqOrig, uniqColName));
                 return PromiseHelper.when.apply(window, defArray);
             })
             .then(function() {
-                // Step 4 Create unique col names for each of the tables
+                // Step 3 Create unique col names for each of the tables
                 // This is so that we don't suffer when we self join
                 var defArray = [];
                 var i;
@@ -451,31 +444,17 @@ window.UExtXcalarDef = (function(UExtXcalarDef, $) {
                 return PromiseHelper.when.apply(window, defArray);
             })
             .then(function() {
-                // Step 5 Reindex!
-                var defArray = [];
-                var i;
-                for (i = 0; i < lag; i++) {
-                    defArray.push(genUniqColIndex(WinState.lag, i));
-                }
-                for (i = 0; i < lead; i++) {
-                    defArray.push(genUniqColIndex(WinState.lead, i));
-                }
-
-                defArray.push(genUniqColIndex(WinState.cur, -1));
-                return PromiseHelper.when.apply(window, defArray);
-            })
-            .then(function() {
-                // Step 5.5 Need to recast the original sorted by column in cur
+                // Step 4 Need to recast the original sorted by column in cur
                 // table to avoid name collisions
                 var mapStr = type + "(" + origSortedOnCol + ")";
                 return reCastCurTable(newOrigSortedOnCol, mapStr);
             })
             .then(function() {
-                // Step 6 inner join funnesss!
+                // Step 5 inner join funnesss!
                 // Order: Take cur, join lags then join leads
                 var defChain = [];
                 var lTable = tableNames.cur;
-                var rTable;
+                var lCol = genUniqColNames.cur;
                 var newTableName;
                 var i;
                 for (i = 0; i < lag; i++) {
@@ -483,8 +462,8 @@ window.UExtXcalarDef = (function(UExtXcalarDef, $) {
                                     Authentication.getHashId();
                     rTable = tableNames.lag[i];
                     finalTableName = newTableName;
-                    defChain.push(winJoin.bind(this, lTable, rTable,
-                                               newTableName, i, WinState.lag));
+                    defChain.push(winJoin.bind(this, lCol, lTable,
+                                                newTableName, i, WinState.lag));
                     lTable = newTableName;
                 }
 
@@ -493,25 +472,22 @@ window.UExtXcalarDef = (function(UExtXcalarDef, $) {
                                     Authentication.getHashId();
                     rTable = tableNames.lead[i];
                     finalTableName = newTableName;
-                    defChain.push(winJoin.bind(this, lTable, rTable,
-                                               newTableName, i, WinState.lead));
+                    defChain.push(winJoin.bind(this, lCol, lTable,
+                                                newTableName, i, WinState.lead));
                     lTable = newTableName;
                 }
 
                 return PromiseHelper.chain(defChain);
             })
             .then(function() {
-                // Step 7 Sort ascending or descending by the cur order number
+                // Step 6 Sort ascending or descending by the cur order number
                 var oldTableName = finalTableName;
-                var newTableName = oldTableName.split("#")[0] +
-                                   Authentication.getHashId();
                 var indexCol = newOrigSortedOnCol;
-                finalTableName = newTableName;
-                return XcalarIndexFromTable(oldTableName, indexCol,
-                                            newTableName, direction, txId);
+                return XIApi.sort(txId, direction, indexCol, oldTableName);
             })
-            .then(function() {
-                // Step 8 YAY WE ARE FINALLY DONE! Just start picking out all
+            .then(function(tableAfterSort) {
+                finalTableName = tableAfterSort;
+                // Step 7 YAY WE ARE FINALLY DONE! Just start picking out all
                 // the columns now and do the sort and celebrate
                 var colNames = [];
                 var finalCols = [];
@@ -613,36 +589,16 @@ window.UExtXcalarDef = (function(UExtXcalarDef, $) {
 
             return deferred.promise();
 
-            function genUniqMap(srcTable) {
+            function genRowNum(srcTable) {
                 var innerDeferred = jQuery.Deferred();
 
                 var newTableName = tableNameRoot + Authentication.getHashId();
-                var mapStr = "genUnique()";
                 var newColName = "orig_order_" + randNumber;
 
-                var doNotUnsort = true;
-                XcalarMap(newColName, mapStr, srcTable, newTableName,
-                          txId, doNotUnsort)
+                XcalarGenRowNum(srcTable, newTableName, newColName, txId)
                 .then(function() {
                     TblManager.setOrphanTableMeta(newTableName, tableCols);
                     innerDeferred.resolve(newTableName, newColName);
-                })
-                .fail(innerDeferred.reject);
-
-                return innerDeferred.promise();
-            }
-
-            function uniqTableIndex(srcTable, indexCol) {
-                var innerDeferred = jQuery.Deferred();
-
-                var newTableName = tableNameRoot + Authentication.getHashId();
-                var order = XcalarOrderingT.XcalarOrderingUnordered;
-
-                XcalarIndexFromTable(srcTable, indexCol, newTableName,
-                                     order, txId)
-                .then(function() {
-                    TblManager.setOrphanTableMeta(newTableName, tableCols);
-                    innerDeferred.resolve(newTableName, indexCol);
                 })
                 .fail(innerDeferred.reject);
 
@@ -757,47 +713,6 @@ window.UExtXcalarDef = (function(UExtXcalarDef, $) {
                 return innerDeferred.promise();
             }
 
-            function genUniqColIndex(state, index) {
-                var innerDeferred = jQuery.Deferred();
-                var indexCol;
-                var srcTable;
-
-                if (state === WinState.lag || state === WinState.lead) {
-                    // lag and lead
-                    srcTable = tableNames[state][index];
-                    indexCol = genUniqColNames[state][index];
-                } else if (state === WinState.cur) {
-                    // cur
-                    srcTable = tableNames.cur;
-                    indexCol = genUniqColNames.cur;
-                } else {
-                    throw "Error Case!";
-                }
-
-                var newTableName = srcTable.split("#")[0] +
-                                    Authentication.getHashId();
-                // update tableName
-                if (state === WinState.cur) {
-                    tableNames.cur = newTableName;
-                } else {
-                    tableNames[state][index] = newTableName;
-                }
-
-                var order = XcalarOrderingT.XcalarOrderingUnordered;
-
-                XcalarIndexFromTable(srcTable, indexCol, newTableName,
-                                     order, txId)
-                .then(function() {
-                    var srcTableId = xcHelper.getTableId(srcTable);
-                    var srcTableCols = gTables[srcTableId].tableCols;
-                    TblManager.setOrphanTableMeta(newTableName, srcTableCols);
-                    innerDeferred.resolve();
-                })
-                .fail(innerDeferred.reject);
-
-                return innerDeferred.promise();
-            }
-
             function reCastCurTable(newMapCol, mapStr) {
                 var innerDeferred = jQuery.Deferred();
                 var srcTable = tableNames.cur;
@@ -817,47 +732,32 @@ window.UExtXcalarDef = (function(UExtXcalarDef, $) {
                 return innerDeferred.promise();
             }
 
-            function winJoin(lTable, rTable, newTableName, index, state) {
+            function winJoin(lCol, lTable, newTableName, index, state) {
+                if (state !== WinState.lag && state !== WinState.lead) {
+                    // state can only be lag or lead
+                    return PromiseHelper.reject("Error Case in win join");
+                }
+
                 var innerDeferred = jQuery.Deferred();
                 var joinType = JoinOperatorT.InnerJoin;
+                var rTable = tableNames[state][index];
+                var rCol = genUniqColNames[state][index];;
 
-                XcalarJoin(lTable, rTable, newTableName, joinType, txId)
+                XIApi.join(txId, joinType, lCol, lTable, rCol, rTable, newTableName)
                 .then(function() {
                     var lTableId = xcHelper.getTableId(lTable);
-                    var newCols = xcHelper.deepCopy(gTables[lTableId]
-                                                    .tableCols);
-                    var newCol;
-                    if (state === WinState.lag) {
-                        newCol = winColNames.lag[index];
-                        newCols.unshift(ColManager.newCol({
-                            "name"    : newCol,
-                            "type"    : "float",
-                            "width"   : gNewCellWidth,
-                            "isNewCol": false,
-                            "userStr" : '"' + newCol + '" = pull(' + newCol +
-                                        ')',
-                            "func"    : {
-                                "func": "pull",
-                                "args": [newCol]
-                            }
-                        }));
-                    } else if (state === WinState.lead) {
-                        newCol = winColNames.lead[index];
-                        var dataCol = newCols.pop();
-                        newCols.push(ColManager.newCol({
-                            "name"    : newCol,
-                            "type"    : "float",
-                            "width"   : gNewCellWidth,
-                            "isNewCol": false,
-                            "userStr" : '"' + newCol + '" = pull(' + newCol +
-                                        ')',
-                            "func"    : {
-                                "func": "pull",
-                                "args": [newCol]
-                            }
-                        }));
-                        newCols.push(dataCol);
-                    }
+                    var newCols = xcHelper.deepCopy(gTables[lTableId].tableCols);
+                    newCols.unshift(ColManager.newCol({
+                        "name"    : rCol,
+                        "type"    : "float",
+                        "width"   : gNewCellWidth,
+                        "isNewCol": false,
+                        "userStr" : '"' + rCol + '" = pull(' + rCol + ')',
+                        "func"    : {
+                            "func": "pull",
+                            "args": [rCol]
+                        }
+                    }));
 
                     TblManager.setOrphanTableMeta(newTableName, newCols);
                     innerDeferred.resolve();
@@ -867,7 +767,6 @@ window.UExtXcalarDef = (function(UExtXcalarDef, $) {
                 return innerDeferred.promise();
             }
         }
-
     };
 
     return (UExtXcalarDef);

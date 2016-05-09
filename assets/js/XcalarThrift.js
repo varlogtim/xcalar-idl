@@ -1513,13 +1513,14 @@ function XcalarGenRowNum(srcTableName, dstTableName, newFieldName, txId) {
     .then(function(ret1, ret2) {
         // XXX This part doesn't work yet
         Transaction.log(txId, ret2);
+        deferred.resolve(ret1);
     })
     .fail(function(error1, error2) {
         var thriftError = thriftLog("XcalarGenRowNum", error1, error2);
         deferred.reject(thriftError);
     });
 
-
+    return deferred.promise();
 }
 
 // PSA!!! This place does not check for unsorted table. So the caller
