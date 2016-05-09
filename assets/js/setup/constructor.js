@@ -618,6 +618,10 @@ function ProfileAggInfo(options) {
         this.average = options.average;
     }
 
+    if (options.sd != null) {
+        this.sd = options.sd;
+    }
+
     return this;
 }
 
