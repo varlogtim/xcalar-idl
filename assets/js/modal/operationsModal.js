@@ -1512,7 +1512,7 @@ window.OperationsModal = (function($, OperationsModal) {
                 return;
             } else if (hasUnescapedParens(arg)) {
                 // skip
-            } else if (hasValidColPrefix(arg)) {
+            } else if (xcHelper.hasValidColPrefix(arg, colPrefix)) {
                 arg = arg.replace(/\$/g, '');
                 if ($("#categoryList input").val().indexOf("user") !== 0) {
                     type = getColumnTypeFromArg(arg);
@@ -1541,7 +1541,7 @@ window.OperationsModal = (function($, OperationsModal) {
             var arg = $(this).val().trim();
             var parsedType = parseType(typeIds[i]);
             if (!$input.closest(".dropDownList").hasClass("colNameSection") &&
-                !hasValidColPrefix(arg) &&
+                !xcHelper.hasValidColPrefix(arg, colPrefix) &&
                 parsedType.indexOf("string") !== -1 &&
                 !hasUnescapedParens(arg)) {
 
@@ -1640,7 +1640,7 @@ window.OperationsModal = (function($, OperationsModal) {
             if ($input.closest(".dropDownList").hasClass("colNameSection")) {
                 arg = arg.replace(/\$/g, '');
                 type = getColumnTypeFromArg(arg);
-            } else if (hasValidColPrefix(arg)) {
+            } else if (xcHelper.hasValidColPrefix(arg, colPrefix)) {
                 arg = arg.replace(/\$/g, '');
 
                 // Since there is currently no way for users to specify what
@@ -1870,7 +1870,7 @@ window.OperationsModal = (function($, OperationsModal) {
                     errorType = "unmatchedParens";
                     isPassing = false;
                 }
-            } else if (hasValidColPrefix(arg)) {
+            } else if (xcHelper.hasValidColPrefix(arg, colPrefix)) {
                 // if it contains a column name
                 // note that field like pythonExc can have more than one $col
                 // containsColumn = true;
@@ -2758,46 +2758,6 @@ window.OperationsModal = (function($, OperationsModal) {
         $input.parent().width('100%').removeClass('modifiedWidth');
     }
 
-    // not only looks for $ but checks to make sure it's not preceded by
-    // anything other than a ,
-    function hasValidColPrefix(str) {
-        var hasPrefix = false;
-        if (typeof str !== "string") {
-            return false;
-        }
-        str = str.replace(/\s/g, '');
-
-        var colNames = [];
-        var cursor = 0;
-        for (var i = 0; i < str.length; i++) {
-            if (str[i] === "," && !xcHelper.isCharEscaped(str, i)) {
-                colNames.push(str.slice(cursor, i));
-                cursor = i + 1;
-            }
-        }
-        colNames.push(str.slice(cursor, i));
-
-        var colName;
-        for (var i = 0; i < colNames.length; i++) {
-            colName = colNames[i];
-            if (colName.length < 2) {
-                return false;
-            }
-            if (colName[0] === colPrefix) {
-                hasPrefix = true;
-            } else {
-                return false;
-            }
-            for (var j = 1; j < colName.length; j++) {
-                if (colName[j] === colPrefix &&
-                                   !xcHelper.isCharEscaped(colName, j)) {
-                    return false;
-                }
-            }
-        }
-        return (hasPrefix);
-    }
-
     // turns dollar\$sign into dollar$sign
     // but leaves dollar\\$sign as is
     function replaceEscapedColPrefixes(str) {
@@ -2867,7 +2827,6 @@ window.OperationsModal = (function($, OperationsModal) {
         OperationsModal.__testOnly__.getExistingTypes = getExistingTypes;
         OperationsModal.__testOnly__.argumentFormatHelper = argumentFormatHelper;
         OperationsModal.__testOnly__.parseType = parseType;
-        OperationsModal.__testOnly__.hasValidColPrefix = hasValidColPrefix;
     }
     /* End Of Unit Test Only */
 

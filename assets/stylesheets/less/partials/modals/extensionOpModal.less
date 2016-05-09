@@ -13,6 +13,13 @@
             top: 5px;
         }
     }
+    &.hasColumnArg {
+        .modalInstruction {
+            .flex-display;
+            height: 50px;
+            padding: 8px 12px;
+        }
+    }
 
     .modalInstruction {
         display: none;
@@ -51,6 +58,12 @@
                 .inputWrap {
                     width: 104px;
                 }
+            }
+        }
+        .type-column, .type-string {
+            // .flex(1 1 auto);
+            .inputWrap {
+                width: ~"calc(100% - 4px)";
             }
         }
         .inputWrap {
@@ -94,6 +107,13 @@
             }
         }
     }
+
+    &.hasStringArg {
+        .args {
+            .flex(1 1 auto);
+        }
+    }
+
     .modalBottom {
         background-color: @color-white;
         padding-top: 10px;

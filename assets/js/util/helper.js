@@ -1905,6 +1905,46 @@ window.xcHelper = (function($, xcHelper) {
         gMouseEvents.setMouseDownTarget($input);
     };
 
+    // not only looks for colPrefix but checks to make sure it's not preceded by
+    // anything other than a comma
+    xcHelper.hasValidColPrefix = function(str, colPrefix) {
+        var hasPrefix = false;
+        if (typeof str !== "string") {
+            return false;
+        }
+        str = str.replace(/\s/g, '');
+
+        var colNames = [];
+        var cursor = 0;
+        for (var i = 0; i < str.length; i++) {
+            if (str[i] === "," && !xcHelper.isCharEscaped(str, i)) {
+                colNames.push(str.slice(cursor, i));
+                cursor = i + 1;
+            }
+        }
+        colNames.push(str.slice(cursor, i));
+
+        var colName;
+        for (var i = 0; i < colNames.length; i++) {
+            colName = colNames[i];
+            if (colName.length < 2) {
+                return false;
+            }
+            if (colName[0] === colPrefix) {
+                hasPrefix = true;
+            } else {
+                return false;
+            }
+            for (var j = 1; j < colName.length; j++) {
+                if (colName[j] === colPrefix &&
+                                   !xcHelper.isCharEscaped(colName, j)) {
+                    return false;
+                }
+            }
+        }
+        return (hasPrefix);
+    };
+
     /*
     options: {
         mouseCoors: {x: float, y: float},

@@ -282,6 +282,24 @@ TableMeta.prototype = {
         return false;
     },
 
+    getBackColName: function(frontColName) {
+        var tableCols = this.tableCols;
+        for (var i = 0, len = tableCols.length; i < len; i++) {
+            var progCol = tableCols[i];
+
+            if (progCol.isDATACol()) {
+                // skip DATA column
+                continue;
+            }
+
+            if (progCol.name === frontColName) {
+                // check fronColName
+                return (progCol.getBackColName());
+            }
+        }
+        return (null);
+    },
+
     getProgCol: function(backColName) {
         // get progCol from backColName
         var tableCols = this.tableCols;

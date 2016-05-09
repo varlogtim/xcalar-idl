@@ -20,23 +20,24 @@ window.UExtGLM = (function(UExtGLM, $) {
     UExtGLM.buttons = [
         {"buttonText": "Simple Linear Regression",
          "fnName": "simpleLinearRegression",
-         "arrayOfFields": []
+         "arrayOfFields": [{"type": "column",
+                            "name": "column 1",
+                            "fieldClass": "col1"},
+                           {"type": "column",
+                            "name": "column 2",
+                            "fieldClass": "col2"}]
         }
     ];
     UExtGLM.undoActionFn = undefined;
-    UExtGLM.actionFn = function(colList, tableId, functionName, argList) {
+    UExtGLM.actionFn = function(colNum, tableId, functionName, argList) {
         var table = gTables[tableId];
         var tableName = table.tableName;
         var tableNameRoot = tableName.split("#")[0];
         var tmpTableTag = "_" + tableNameRoot + "_GLMtemp";
         switch (functionName) {
         case ("simpleLinearRegression"):
-            if (colList.length != 2) {
-                Alert.error("Invalid selection", "Please select 2 columns");
-                return (false);
-            }
-            var xCol = table.tableCols[colList[0] - 1].getBackColName();
-            var yCol = table.tableCols[colList[1] - 1].getBackColName();
+            var xCol = argList['col1'];
+            var yCol = argList['col2'];
             simpleLinearRegression(xCol, yCol, tableName);
             return (true);
         default:

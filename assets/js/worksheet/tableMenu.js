@@ -580,17 +580,6 @@ window.TblMenu = (function(TblMenu, $) {
                     break;
                 }
             }
-            function collectArgs($elem) {
-                var res = {};
-                var $inputWrapParent = $elem.closest("li");
-                if ($inputWrapParent) {
-                    var inputList = $inputWrapParent.find("input");
-                    for (var i = 0; i < inputList.length; i++) {
-                        res[inputList[i].className] = $(inputList[i]).val();
-                    }
-                }
-                return res;
-            }
         });
 
         $subMenu.on('mouseup', '.typeList', function(event) {

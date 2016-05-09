@@ -50,35 +50,36 @@ describe('OperationsModal', function() {
         });
     });
 
-    describe('function hasValidColPrefix', function() {
-        var func;
-        before(function() {
-            func = OperationsModal.__testOnly__.hasValidColPrefix;
-        });
+    // moved to helper.js
+    // describe('function hasValidColPrefix', function() {
+    //     var func;
+    //     before(function() {
+    //         func = OperationsModal.__testOnly__.hasValidColPrefix;
+    //     });
 
-        it ('hasValidColPrefix(str) should return correctly', function() {
-            expect(func('$')).to.equal(false);
-            expect(func('\\$')).to.equal(false);
-            expect(func('\\$blah')).to.equal(false);
-            expect(func('a\\$blah')).to.equal(false);
-            expect(func(',a\\$blah')).to.equal(false);
-            expect(func('$blah,   \\$blah')).to.equal(false);
-            expect(func('$blah $blah')).to.equal(false);
-            expect(func('$blah, a$blah')).to.equal(false);
-            expect(func('$blah, $$blah')).to.equal(false);
-            expect(func('$blah, \\$blah')).to.equal(false);
-            expect(func('$blah, $\\$$blah')).to.equal(false);
-            expect(func('$blah, $bl,ah')).to.equal(false);
+    //     it ('hasValidColPrefix(str) should return correctly', function() {
+    //         expect(func('$')).to.equal(false);
+    //         expect(func('\\$')).to.equal(false);
+    //         expect(func('\\$blah')).to.equal(false);
+    //         expect(func('a\\$blah')).to.equal(false);
+    //         expect(func(',a\\$blah')).to.equal(false);
+    //         expect(func('$blah,   \\$blah')).to.equal(false);
+    //         expect(func('$blah $blah')).to.equal(false);
+    //         expect(func('$blah, a$blah')).to.equal(false);
+    //         expect(func('$blah, $$blah')).to.equal(false);
+    //         expect(func('$blah, \\$blah')).to.equal(false);
+    //         expect(func('$blah, $\\$$blah')).to.equal(false);
+    //         expect(func('$blah, $bl,ah')).to.equal(false);
 
-            expect(func('$a')).to.equal(true);
-            expect(func('$blah')).to.equal(true);
-            expect(func('$blah, $blah')).to.equal(true);
-            expect(func('$blah,   $blah')).to.equal(true);
-            expect(func('$blah, $\\$blah')).to.equal(true);
-            expect(func('$blah, $bl\\,ah, $blah')).to.equal(true);
+    //         expect(func('$a')).to.equal(true);
+    //         expect(func('$blah')).to.equal(true);
+    //         expect(func('$blah, $blah')).to.equal(true);
+    //         expect(func('$blah,   $blah')).to.equal(true);
+    //         expect(func('$blah, $\\$blah')).to.equal(true);
+    //         expect(func('$blah, $bl\\,ah, $blah')).to.equal(true);
 
-        });
-    });
+    //     });
+    // });
 
     describe('group by', function() {
         var tableId;

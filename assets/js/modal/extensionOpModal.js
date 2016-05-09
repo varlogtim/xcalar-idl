@@ -96,7 +96,7 @@ window.ExtensionOpModal = (function(ExtensionOpModal, $) {
 
         $('#xcTable-' + tableId).on('click.columnPicker', '.header, td.clickable',
             function(event) {
-            xcHelper.fillInputFromCell(event, $lastInputFocused, "");
+            xcHelper.fillInputFromCell(event, $lastInputFocused, "$");
         });
         $('#xcTable-' + tableId).on('mousedown', '.header, td.clickable',
                                     keepInputFocused);
@@ -121,12 +121,12 @@ window.ExtensionOpModal = (function(ExtensionOpModal, $) {
     }
 
     function submitForm() {
-        var argList = {};
-        var $arguments = $extModal.find(".argument");
-        var args = extensionMap[exModName][exFnName];
-        $arguments.each(function(i) {
-            argList[args[i].fieldClass] = $(this).val();
-        });
+        var argList = getArgList();
+        if (!argList) {
+            // error message is being handled in getArgList
+            return;
+        }
+
         var success = ColManager.extension(exColNum, exTableId,
                                             exModName + "::" + exFnName,
                                             argList);
@@ -137,6 +137,57 @@ window.ExtensionOpModal = (function(ExtensionOpModal, $) {
             // next to input
         }
     }
+
+    function getArgList() {
+        var argList = {};
+        var $arguments = $extModal.find(".argument");
+        var args = extensionMap[exModName][exFnName];
+        var arg;
+        var invalidArg = false;
+        $arguments.each(function(i) {
+            arg = $(this).val();
+            if (args[i].type === "column" &&
+                xcHelper.hasValidColPrefix(arg, '$')) {
+                arg = getBackColName(arg, $(this));
+                if (!arg) {
+                    invalidArg = true;
+                    return (false);
+                }
+            }
+            argList[args[i].fieldClass] = arg;
+        });
+        if (invalidArg) {
+            return (null);
+        } else {
+            return (argList);
+        }
+    }
+
+    function getBackColName(arg, $input) {
+        arg = arg.replace(/\$/g, '');
+        var tempColNames = arg.split(",");
+        var backColNames = "";
+        var backColName;
+        for (var i = 0; i < tempColNames.length; i++) {
+            backColName = gTables[exTableId].getBackColName(tempColNames[i].trim());
+            if (backColName) {
+                if (i > 0) {
+                    backColNames += ",";
+                }
+                backColNames += backColName;
+            } else {
+                text = xcHelper.replaceMsg(ErrWRepTStr.InvalidCol, {
+                    "name": tempColNames[i]
+                });
+                StatusBox.show(text, $input);
+                return (false);
+            }
+        }
+        return (backColNames);
+    }
+
+
+
 
     function closeExtModal() {
         var time = 1;
@@ -167,12 +218,16 @@ window.ExtensionOpModal = (function(ExtensionOpModal, $) {
         var descsHtml = "";
         var argsHtml = "";
         var allNumbers = true;
+        var hasColumnArg = false;
         var inputType = "text";
         for (var i = 0; i < args.length; i++) {
             inputType = "text";
             if (args[i].type === "number") {
                inputType = "number";
             } else {
+                if (args[i].type === "column") {
+                    hasColumnArg = true;
+                }
                 allNumbers = false;
             }
             descsHtml += '<div class="cell type-' + args[i].type +'">' +
@@ -199,20 +254,30 @@ window.ExtensionOpModal = (function(ExtensionOpModal, $) {
             $descCol.addClass('allNumbers');
             $argCol.addClass('allNumbers');
             $extModal.addClass('allNumbers');
+            $extModal.removeClass('hasStringArg');
         } else {
             $descCol.removeClass('allNumbers');
             $argCol.removeClass('allNumbers');
             $extModal.removeClass('allNumbers');
+            $extModal.addClass('hasStringArg');
+        }
+        if (hasColumnArg) {
+            $extModal.addClass('hasColumnArg');
+        } else {
+            $extModal.removeClass('hasColumnArg');
         }
     }
 
 
     function setModalWidth() {
         var formPct = 0.85;
+        var maxInputWidth = 210;
         var $descCol = $extModal.find('.descs');
         var $argCol = $extModal.find('.args');
+
         $extModal.width(maxWidth);
-        var formWidth = $descCol.width() + $argCol.width();
+        var argColWidth = Math.min($argCol.width(), maxInputWidth);
+        var formWidth = $descCol.width() + argColWidth;
         var modalMinWidth = formWidth / formPct;
 
         modalMinWidth = Math.max(modalMinWidth, minWidth);

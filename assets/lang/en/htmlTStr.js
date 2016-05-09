@@ -514,6 +514,10 @@ module.exports = {
         'CONFIRM': 'APPLY'
     },
 
+    extOpsModal: {
+        'instr': 'Column names should be preceded by a $ sign, e.g. $column1.'
+    },
+
     extModal: {
         'title': 'Extension',
         'instr': 'You are viewing details of the extension',

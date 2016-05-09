@@ -1892,7 +1892,6 @@ window.Dag = (function($, Dag) {
                 info.type = name;
                 info.text = name;
                 info.tooltip = name[0].toUpperCase() + name.slice(1);
-                console.warn('Dag type "' + key + '" not recognized');
                 break;
         }
         return (info);
