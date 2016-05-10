@@ -1664,6 +1664,9 @@ window.TblManager = (function($, TblManager) {
         };
 
         $thead.find('.rowNumHead').mousedown(function() {
+            if ($thead.closest('.modalOpen').length) {
+                return;
+            }
             $thead.find('.editableHead').each(function() {
                 highlightColumn($(this), true);
             });

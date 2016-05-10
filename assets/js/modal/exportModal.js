@@ -660,7 +660,7 @@ window.ExportModal = (function($, ExportModal) {
             var $th = $header.parent();
             var colNum = xcHelper.parseColNum($th) - 1;
             if (colNum === -1) {
-                return false;
+                return true;
             }
 
             if (gExportNoCheck) {
@@ -683,7 +683,7 @@ window.ExportModal = (function($, ExportModal) {
 
         }).parent();
 
-        $selectableThs = $ths;
+        $selectableThs = $ths.not('.rowNumHead');
 
         $ths.find('input').css('pointer-events', 'none');
         $ths.addClass('exportable');
@@ -718,6 +718,18 @@ window.ExportModal = (function($, ExportModal) {
             var start;
             var end;
             var $currCells;
+
+            if ($th.hasClass('rowNumHead')) {
+
+                for (var i = 1; i < $table.find('th').length; i++) {
+                    $currCells = $table.find('th.col' + i + ', td.col' + i);
+                    if (!$currCells.hasClass('modalHighlighted') &&
+                        !$currCells.hasClass('dataCol')) {
+                        selectColumn($currCells, i);
+                    }
+                }
+                return;
+            }
 
             if ($th.hasClass('modalHighlighted')) {
                 if (event.shiftKey && focusedHeader) {
