@@ -222,6 +222,10 @@ TableMeta.prototype = {
         return this;
     },
 
+    "isActive": function() {
+        return (this.status === TableType.Active);
+    },
+
     updateTimeStamp: function() {
         this.timeStamp = xcHelper.getTimeInMS();
         return this;

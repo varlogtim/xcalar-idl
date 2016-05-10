@@ -1403,11 +1403,12 @@ window.xcHelper = (function($, xcHelper) {
         WSManager.lockTable(tableId);
     };
 
-    xcHelper.unlockTable = function(tableId, isHidden) {
+    xcHelper.unlockTable = function(tableId) {
         xcHelper.assert((tableId != null), "Invalid Parameters!");
 
-        gTables[tableId].isLocked = false;
-        if (!isHidden) {
+        var table = gTables[tableId];
+        table.isLocked = false;
+        if (table.isActive()) {
             var $tableWrap = $("#xcTableWrap-" + tableId);
             $tableWrap.find('.lockedIcon').remove();
             $tableWrap.find('.tableCover').remove();

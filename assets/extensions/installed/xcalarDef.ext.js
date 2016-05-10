@@ -544,7 +544,7 @@ window.UExtXcalarDef = (function(UExtXcalarDef, $) {
                                                 [], worksheet);
             })
             .then(function() {
-                xcHelper.unlockTable(tableId, false);
+                xcHelper.unlockTable(tableId);
 
                 var sql = {
                     "operation"   : SQLOps.Window,
@@ -565,7 +565,7 @@ window.UExtXcalarDef = (function(UExtXcalarDef, $) {
                 deferred.resolve();
             })
             .fail(function(error) {
-                xcHelper.unlockTable(tableId, false);
+                xcHelper.unlockTable(tableId);
 
                 var sql = {
                     "operation"   : SQLOps.Window,

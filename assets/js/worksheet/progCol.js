@@ -419,7 +419,7 @@ window.ColManager = (function($, ColManager) {
         .then(function(newTableId) {
             // map do not change stats of the table
             Profile.copy(tableId, newTableId);
-            xcHelper.unlockTable(tableId, true);
+            xcHelper.unlockTable(tableId);
 
             Transaction.done(txId, {"msgTable": newTableId});
             deferred.resolve(newTableId);
@@ -620,7 +620,7 @@ window.ColManager = (function($, ColManager) {
     //         return (refreshTable(finalTable, tableName));
     //     })
     //     .then(function() {
-    //         xcHelper.unlockTable(tableId, true);
+    //         xcHelper.unlockTable(tableId);
     //         StatusMessage.success(msgId, false, finalTableId);
 
     //         SQL.add("Change Data Type", sqlOptions, query);
@@ -722,7 +722,7 @@ window.ColManager = (function($, ColManager) {
         .then(function(newTableId) {
             // map do not change stats of the table
             Profile.copy(tableId, newTableId);
-            xcHelper.unlockTable(tableId, true);
+            xcHelper.unlockTable(tableId);
 
             var sql = {
                 "operation"   : SQLOps.SplitCol,

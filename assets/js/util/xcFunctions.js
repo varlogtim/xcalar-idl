@@ -46,7 +46,7 @@ window.xcFunction = (function($, xcFunction) {
                                             [tableName], worksheet, options);
         })
         .then(function() {
-            xcHelper.unlockTable(tableId, true);
+            xcHelper.unlockTable(tableId);
             Transaction.done(txId, {"msgTable": newTableId});
             deferred.resolve();
         })
@@ -228,7 +228,7 @@ window.xcFunction = (function($, xcFunction) {
         .then(function() {
             clearTimeout(timer);
             if (isLocked) {
-                xcHelper.unlockTable(tableId, true);
+                xcHelper.unlockTable(tableId);
             }
 
             sql.newTableName = finalTableName;
@@ -363,22 +363,19 @@ window.xcFunction = (function($, xcFunction) {
                                         [lTableName, rTableName], worksheet);
         })
         .then(function() {
-            xcHelper.unlockTable(lTableId, true);
-            xcHelper.unlockTable(rTableId, true);
-
             Transaction.done(txId, {"msgTable": newTableId});
-
             deferred.resolve();
         })
         .fail(function(error) {
-            xcHelper.unlockTable(lTableId);
-            xcHelper.unlockTable(rTableId);
-
             Transaction.fail(txId, {
                 "failMsg": StatusMessageTStr.JoinFailed,
                 "error"  : error
             });
             deferred.reject(error);
+        })
+        .always(function() {
+            xcHelper.unlockTable(lTableId);
+            xcHelper.unlockTable(rTableId);
         });
 
         return deferred.promise();
@@ -531,7 +528,7 @@ window.xcFunction = (function($, xcFunction) {
                                             [tableName], worksheet, options);
         })
         .then(function() {
-            xcHelper.unlockTable(tableId, true);
+            xcHelper.unlockTable(tableId);
             Transaction.done(txId, {"msgTable": newTableId});
 
             deferred.resolve();
