@@ -1,22 +1,21 @@
 // XXX Do not use alertModal! Write your own for extensions!!!!
 window.UExtTableau = (function(UExtTableau, $) {
-    UExtTableau.buttons = [
-        {"buttonText": "Visualize",
-         "fnName": "visualize",
-         "arrayOfFields": []
-        },
-    ];
+    UExtTableau.buttons = [{
+        "buttonText"  : "Visualize",
+        "fnName"      : "visualize",
+        "arrayOfFields": []
+    }];
 
     UExtTableau.undoActionFn = undefined;
-    UExtTableau.actionFn = function(colNum, tableId, functionName, argList) {
+    UExtTableau.actionFn = function(txId, colNum, tableId, functionName, argList) {
         var waitTime = 45;
         switch (functionName) {
             case ("visualize"):
-                visualizeInTableau(colNum, tableId);
-                return (true);
+                return visualizeInTableau(colNum, tableId);
             default:
-                return (true);
+                return PromiseHelper.reject("Invalid Function");
         }
+
         function initializeViz(vizName) {
             // First remove current div. This is because tableau sucks shit
             $("#extContent").empty();
@@ -78,13 +77,16 @@ window.UExtTableau = (function(UExtTableau, $) {
                                    1, [backColName],["Value"], false, true,
                                    options)
             .then(function() {
+                deferred.resolve();
                 showModal(colName, waitTime);
                 return waitForUpdate(waitTime);
             })
             .then(function() {
-                console.log("here");
                 initializeViz(tempExportName);
-            });
+            })
+            .fail(deferred.reject);
+
+            return deferred.promise();
         }
     };
 

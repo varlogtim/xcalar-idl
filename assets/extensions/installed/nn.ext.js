@@ -17,33 +17,48 @@
 // undoActionFn is a function that will get invoked once the user tries to undo
 // an action that belongs to this extension
 window.UExtNN = (function(UExtNN, $) {
-    UExtNN.buttons = [
-        {"buttonText": "Neural Network Training",
-         "fnName": "nnTrain",
-         "arrayOfFields": [{"type": "number",
-                            "name": "num datapoints",
-                            "fieldClass": "numDatapoints"},
-                           {"type": "number",
-                            "name": "learning rate",
-                            "fieldClass": "rate"},
-                           {"type": "number",
-                            "name": "max iter",
-                            "fieldClass": "maxIter"},
-                          ]
+    UExtNN.buttons = [{
+        "buttonText"   : "Neural Network Training",
+        "fnName"       : "nnTrain",
+        "arrayOfFields": [{
+            "type"      : "number",
+            "name"      : "num datapoints",
+            "fieldClass": "numDatapoints",
+            "typeCheck" : {
+                "integer": true
+            }
         },
-        {"buttonText": "Neural Network Training",
+        {
+            "type"      : "number",
+            "name"      : "learning rate",
+            "fieldClass": "rate"
+        },
+        {
+            "type"      : "number",
+            "name"      : "max iter",
+            "fieldClass": "maxIter",
+            "typeCheck" : {
+                "integer": true
+            }
+        }]
+    },
+    {
+        "buttonText": "Neural Network Training",
          "fnName": "nnTest",
-         "arrayOfFields": [{"type": "number",
-                            "name": "data num tag",
-                            "fieldClass": "dataNumTag"},
-                           {"type": "number",
-                            "name": "iteration tag",
-                            "fieldClass": "iterTag"},
-                          ]
-        }
-    ];
+         "arrayOfFields": [{
+            "type"      : "number",
+            "name"      : "data num tag",
+            "fieldClass": "dataNumTag"
+        },
+        {
+            "type"      : "number",
+            "name"      : "iteration tag",
+            "fieldClass": "iterTag"
+        }]
+    }];
+
     UExtNN.undoActionFn = undefined;
-    UExtNN.actionFn = function(colList, tableId, functionName, argList) {
+    UExtNN.actionFn = function(txId, colList, tableId, functionName, argList) {
         var table = gTables[tableId];
         var tableName = table.tableName;
         var tableNameRoot = tableName.split("#")[0];
@@ -52,28 +67,20 @@ window.UExtNN = (function(UExtNN, $) {
             + "nnTmpTable";
         var delim = '\\",\\"';
         switch (functionName) {
-        case ("nnTrain"):
-            if (argList["numDatpoints"] != "") {
-                nnTrain(tableName,
-                        parseInt(argList["numDatapoints"]),
-                        parseFloat(argList["rate"]),
-                        parseInt(argList["maxIter"])
-                       );
-                return (true);
-            } else {
-                return (false);
-            }
-            break;
-        case ("nnTest"):
-            nnTest(tableName, argList["dataNumTag"], argList["iterTag"]);
-            return (true);
-            break;
-        default:
-            return (true);
-            break;
+            case ("nnTrain"):
+                if (argList["numDatpoints"] != "") {
+                    return nnTrain(txId, tableName, argList["numDatapoints"],
+                                    argList["rate"], argList["maxIter"]);
+                } else {
+                    return PromiseHelper.reject(ErrTStr.NoEmpty);
+                }
+            case ("nnTest"):
+                return nnTest(txId, tableName, argList["dataNumTag"], argList["iterTag"]);
+            default:
+                return PromiseHelper.reject("Invalid Function");
         }
 
-        function nnTest(input, dataNumTag, iterTag) {
+        function nnTest(txId, input, dataNumTag, iterTag) {
             if (verbose) {
                 console.log("Starting Neural Network Testing");
             }
@@ -83,12 +90,6 @@ window.UExtNN = (function(UExtNN, $) {
             var table = gTables[tableId];
             var workSheet = WSManager.getWSFromTable(tableId);
             var resultSet;
-
-            var txId = Transaction.start({
-                msg: "Neural Network Testing",
-                operation: "NNTest",
-                sql: null
-            });
 
             var dataNumCol = "dataNum";
             var inputRow = "inputRow";
@@ -201,19 +202,10 @@ window.UExtNN = (function(UExtNN, $) {
             })
             */
             .then(function() {
-                // Step 12: Unlock the table and end the transaction
-                Transaction.done(txId, {
-                    msgTable: null
-                });
                 deferred.resolve();
-            }).fail(function(error) {
-                // FAILURE
-                Transaction.fail(txId, {
-                    failMsg: "Neural Network Training failed",
-                    error: error
-                    });
-                deferred.reject(error);
-            });
+            })
+            .fail(deferred.reject);
+
             return deferred.promise();
 
             // returns a query that performs A x B and stores result in table C
@@ -290,7 +282,7 @@ window.UExtNN = (function(UExtNN, $) {
             }
         }
 
-        function nnTrain(tableName, inputSize, rate, maxIter) {
+        function nnTrain(txId, tableName, inputSize, rate, maxIter) {
             if (verbose) {
                 console.log("Starting Neural Network Training");
             }
@@ -300,12 +292,6 @@ window.UExtNN = (function(UExtNN, $) {
             var table = gTables[tableId];
             var workSheet = WSManager.getWSFromTable(tableId);
             var resultSet;
-
-            var txId = Transaction.start({
-                msg: "Neural Network Training",
-                operation: "NNTrain",
-                sql: null
-            });
 
             var dataNumCol = "dataNum";
 
@@ -413,19 +399,9 @@ window.UExtNN = (function(UExtNN, $) {
               })
             */
             .then(function() {
-                // Step 12: Unlock the table and end the transaction
-                Transaction.done(txId, {
-                    msgTable: null
-                });
                 deferred.resolve();
-            }).fail(function(error) {
-                // FAILURE
-                Transaction.fail(txId, {
-                    failMsg: "Neural Network Training failed",
-                    error: error
-                    });
-                deferred.reject(error);
-            });
+            })
+            .fail(deferred.reject);
 
             return deferred.promise();
 

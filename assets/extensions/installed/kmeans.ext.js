@@ -17,23 +17,27 @@
 // undoActionFn is a function that will get invoked once the user tries to undo
 // an action that belongs to this extension
 window.UExtKMeans = (function(UExtKMeans, $) {
-    UExtKMeans.buttons = [
-        {"buttonText": "K-Means Clustering",
-         "fnName": "kMeans",
-         "arrayOfFields": [{"type": "number",
-                            "name": "Number of clusters",
-                            "fieldClass": "k"},
-                           {"type": "number",
-                            "name": "Threshold",
-                            "fieldClass": "threshold"},
-                           {"type": "number",
-                            "name": "Max Iterations",
-                            "fieldClass": "maxIter"},
-                          ]
-        }
-    ];
+    UExtKMeans.buttons = [{
+        "buttonText"   : "K-Means Clustering",
+        "fnName"       : "kMeans",
+        "arrayOfFields": [{
+            "type"      : "number",
+            "name"      : "Number of clusters",
+            "fieldClass": "k"
+        },
+        {
+            "type"      : "number",
+            "name"      : "Threshold",
+            "fieldClass": "threshold"
+        },
+        {
+            "type"      : "number",
+            "name"      : "Max Iterations",
+            "fieldClass": "maxIter"
+        }]
+    }];
     UExtKMeans.undoActionFn = undefined;
-    UExtKMeans.actionFn = function(colList, tableId, functionName, argList) {
+    UExtKMeans.actionFn = function(txId, colList, tableId, functionName, argList) {
         var table = gTables[tableId];
         var colNames = [];
         var tableName = table.tableName;
@@ -42,42 +46,39 @@ window.UExtKMeans = (function(UExtKMeans, $) {
         var tmpTableTag = "_" + tableNameRoot + "_" + "kMeansTmpTable";
 
         switch (functionName) {
-        case ("kMeans"):
-            if (typeof(colList) == "number") {
-                var col = table.tableCols[colList - 1];
-                if (col.type != "integer" && col.type != "float") {
-                    Alert.error("Invalid type", "Column must be a number");
-                    return (true);
-                }
-                colNames.push(col.getBackColName());
-            } else {
-                for (var i = 0; i < colList.length; i++) {
-                    var col = table.tableCols[colList[i] - 1];
+            case ("kMeans"):
+                // XXX later should change this as an input filed in modal
+                if (typeof(colList) == "number") {
+                    var col = table.tableCols[colList - 1];
                     if (col.type != "integer" && col.type != "float") {
-                        Alert.error("Invalid type", "Column must be a number");
-                        return (true);
+                        return PromiseHelper.reject("Column must be a number");
                     }
                     colNames.push(col.getBackColName());
+                } else {
+                    for (var i = 0; i < colList.length; i++) {
+                        var col = table.tableCols[colList[i] - 1];
+                        if (col.type != "integer" && col.type != "float") {
+                            return PromiseHelper.reject("Column must be a number");
+                        }
+                        colNames.push(col.getBackColName());
+                    }
                 }
-            }
-            if (colList.length && colNames.length != colList.length) {
-                return (false);
-            }
-            kMeansStart(colNames, tableName, argList["k"],
-                        argList["threshold"], argList["maxIter"]
-                       );
-            return (true);
-        default:
-            return (true);
+                if (colList.length && colNames.length != colList.length) {
+                    return PromiseHelper.reject("Invalid arguments");
+                }
+                return kMeansStart(txId, colNames, tableName, argList["k"],
+                            argList["threshold"], argList["maxIter"]
+                           );
+            default:
+                return PromiseHelper.reject("Invalid Function");
         }
 
-        function kMeansStart(colNames, tableName, k, threshold, maxIter) {
+        function kMeansStart(txId, colNames, tableName, k, threshold, maxIter) {
             if (verbose) {
                 console.log("Starting K-Means");
             }
             // Steps:
-            // INIT:
-            // Step 1: Lock the table and start the transaction
+            // Step 1: INIT
             // Step 2: Map given element cols into a stringified vector
 
             // Step 3: Calculate initial centroids
@@ -121,21 +122,14 @@ window.UExtKMeans = (function(UExtKMeans, $) {
             // FINAL:
             // Step 10: Display the final cluster assignment table
             // Step 11: Display the final centroid table
-            // Step 12: Unlock the table and end the transaction
 
             ////////////////////////////////////////////////////////////////////////////
 
-            // Step 1: Lock the table and start the transaction
+            // Step 1: INIT
             var outerDeferred = jQuery.Deferred();
             var tableId = xcHelper.getTableId(tableName);
             var table = gTables[tableId];
             var workSheet = WSManager.getWSFromTable(tableId);
-            var txId = Transaction.start({
-                msg: "KMeans with K = "+k+", threshold = "+threshold,
-                operation: "KMeans",
-                sql: null
-            });
-            xcHelper.lockTable(tableId);
 
 
             // Step 2: Map given element cols into a stringified vector
@@ -276,21 +270,9 @@ window.UExtKMeans = (function(UExtKMeans, $) {
                                                [], workSheet);
             })
             .then(function() {
-                // Step 12: Unlock the table and end the transaction
-                xcHelper.unlockTable(tableId);
-                Transaction.done(txId, {
-                    msgTable: xcHelper.getTableId(xcHelper.getTableId(clusterTableName))
-                });
-                deferred.resolve();
-            }).fail(function(error) {
-                // FAILURE
-                xcHelper.unlockTable(tableId);
-                Transaction.fail(txId, {
-                    failMsg: "KMeans failed",
-                    error: error
-                });
-                deferred.reject(error);
-            });
+                deferred.resolve(centroidTableName);
+            })
+            .fail(deferred.reject);
 
             return deferred.promise();
 

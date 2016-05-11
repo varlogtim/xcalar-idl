@@ -244,8 +244,8 @@ window.ExtensionManager = (function(ExtensionManager, $) {
          // Might not support in 1.0
     };
 
-    ExtensionManager.trigger = function(colNum, tableId, functionName,
-                                        argList) {
+    ExtensionManager.trigger = function(colNum, tableId, functionName, argList) {
+        var deferred = jQuery.Deferred();
         // function names must be of the form modName::funcName
         var args = functionName.split("::");
         if (args.length < 2) {
@@ -263,13 +263,78 @@ window.ExtensionManager = (function(ExtensionManager, $) {
         var $subMenu = $('#colSubMenu');
         var $allMenus = $tableMenu.add($subMenu);
         var colArray = $("#colMenu").data("columns");
+        var colNames = [];
 
         if (colArray.length > 1) {
             colNum = colArray;
         }
         argList["allMenus"] = $allMenus;
-        return (window[modName]["actionFn"]
-                (colNum, tableId, funcName, argList));
+
+        var table = gTables[tableId];
+        var sql = {
+            "operation"   : SQLOps.Ext,
+            "tableName"   : table.tableName,
+            "tableId"     : tableId,
+            "colNum"      : colNum,
+            "functionName": functionName,
+            "argList"     : argList,
+            "htmlExclude" : ["argList"]
+        };
+
+        xcHelper.lockTable(tableId);
+
+        var msg = xcHelper.replaceMsg(StatusMessageTStr.Ext, {
+            "extension": functionName
+        });
+        var txId = Transaction.start({
+            "msg"      : msg,
+            "operation": SQLOps.Ext
+        });
+
+        try {
+            window[modName].actionFn(txId, colNum, tableId, funcName, argList)
+            .then(function(newTables) {
+                xcHelper.unlockTable(tableId);
+
+                var finalTableId;
+                if (newTables != null) {
+                     if (!(newTables instanceof Array)) {
+                        newTables = [newTables];
+                    }
+                    sql.newTables = newTables;
+                    finalTableId = xcHelper.getTableId(newTables[newTables.length - 1]);
+                }
+
+                Transaction.done(txId, {
+                    "msgTable": finalTableId,
+                    "sql"     : sql
+                });
+
+                deferred.resolve();
+            })
+            .fail(function(error) {
+                xcHelper.unlockTable(tableId);
+                Transaction.fail(txId, {
+                    "failMsg": StatusMessageTStr.ExtFailed,
+                    "error"  : error,
+                    "sql"    : sql
+                });
+
+                deferred.reject(error);
+            });
+        } catch (error) {
+            // in case there is some run time error
+            xcHelper.unlockTable(tableId);
+            Transaction.fail(txId, {
+                "failMsg": StatusMessageTStr.ExtFailed,
+                "error"  : error,
+                "sql"    : sql
+            });
+
+            deferred.reject(error);
+        }
+
+        return deferred.promise();
     };
     return (ExtensionManager);
 }({}, jQuery));

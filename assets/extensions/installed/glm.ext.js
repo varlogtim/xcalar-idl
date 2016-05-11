@@ -17,39 +17,47 @@
 // undoActionFn is a function that will get invoked once the user tries to undo
 // an action that belongs to this extension
 window.UExtGLM = (function(UExtGLM, $) {
-    UExtGLM.buttons = [
-        {"buttonText": "Simple Linear Regression",
-         "fnName": "simpleLinearRegression",
-         "arrayOfFields": [{"type": "column",
-                            "name": "column 1",
-                            "fieldClass": "col1"},
-                           {"type": "column",
-                            "name": "column 2",
-                            "fieldClass": "col2"}]
-        }
-    ];
+    UExtGLM.buttons = [{
+        "buttonText"   : "Simple Linear Regression",
+        "fnName"       : "simpleLinearRegression",
+        "arrayOfFields": [{
+            "type"      : "column",
+            "name"      : "column 1",
+            "fieldClass": "col1",
+            "typeCheck" : {
+                "columnType": ["number"]
+            }
+        },
+        {
+            "type"      : "column",
+            "name"      : "column 2",
+            "fieldClass": "col2",
+            "typeCheck" : {
+                "columnType": ["number"]
+            }
+        }]
+    }];
+
     UExtGLM.undoActionFn = undefined;
-    UExtGLM.actionFn = function(colNum, tableId, functionName, argList) {
+    UExtGLM.actionFn = function(txId, colNum, tableId, functionName, argList) {
         var table = gTables[tableId];
         var tableName = table.tableName;
         var tableNameRoot = tableName.split("#")[0];
         var tmpTableTag = "_" + tableNameRoot + "_GLMtemp";
         switch (functionName) {
-        case ("simpleLinearRegression"):
-            var xCol = argList['col1'];
-            var yCol = argList['col2'];
-            simpleLinearRegression(xCol, yCol, tableName);
-            return (true);
-        default:
-            return (true);
+            case ("simpleLinearRegression"):
+                var xCol = argList['col1'];
+                var yCol = argList['col2'];
+                return simpleLinearRegression(xCol, yCol, tableName);
+            default:
+                return PromiseHelper.reject("Invalid Function");
         }
 
         function simpleLinearRegression(xCol, yCol, tableName) {
             if (verbose) {
                 console.log("Starting Simple Linear Regression");
             }
-            // INIT:
-            // Step 1: Start the transaction and lock the table
+            // Step 1: INIT
 
             // REGRESSION:
             // Step 2: Aggregate avg(x) and avg(y)
@@ -73,21 +81,12 @@ window.UExtGLM = (function(UExtGLM, $) {
             // Step 5: Display x, y, and the output from the line function
             // Step 6: Unlock the table and end the transaction
 
-            // INIT:
+            // Step 1: INIT
             var deferred = jQuery.Deferred();
             var tableId = xcHelper.getTableId(tableName);
             var table = gTables[tableId];
             var workSheet = WSManager.getWSFromTable(tableId);
             var resultSet;
-
-            // Step 1: Start the transaction and lock the table
-            var txId = Transaction.start({
-                msg: "Simple Linear Regression: x:" + xCol + " y:" + yCol,
-                operation: "SLR",
-                sql: null
-            });
-            xcHelper.lockTable(tableId);
-
 
             // REGRESSION:
             // Step 2: Aggregate avg(x) and avg(y)
@@ -197,21 +196,11 @@ window.UExtGLM = (function(UExtGLM, $) {
                                                [], workSheet);
             })
             .then(function() {
-                // Step 6: Unlock the table and end the transaction
-                xcHelper.unlockTable(tableId);
-                Transaction.done(txId, {
-                    msgTable: xcHelper.getTableId(xcHelper.getTableId(outputTableName))
-                });
-                deferred.resolve();
-            }).fail(function(error) {
-                // FAILURE
-                xcHelper.unlockTable(tableId);
-                Transaction.fail(txId, {
-                    failMsg: "Simple Linear Regression failed",
-                    error: error
-                });
-                deferred.reject(error);
-            });
+                // Step 6: Finish and return final table name
+                deferred.resolve(outputTableName);
+            })
+            .fail(deferred.reject);
+
             return deferred.promise();
         }
     };

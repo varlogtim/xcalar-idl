@@ -17,50 +17,52 @@
 // undoActionFn is a function that will get invoked once the user tries to undo
 // an action that belongs to this extension
 window.UExtIntel = (function(UExtIntel, $) {
-    UExtIntel.buttons = [
-        {"buttonText": "Last Touch",
-         "fnName": "lastTouch",
-         "arrayOfFields": []},
-        {"buttonText": "Final PT",
-         "fnName": "genFinalPT",
-         "arrayOfFields": []},
-        {"buttonText": "Line Item PT",
-         "fnName": "genLineItemPT",
-         "arrayOfFields": []},
-        {"buttonText": "No Of Days Since",
-         "fnName": "genNoOfDays",
-         "arrayOfFields": []}
-    ];
+    UExtIntel.buttons = [{
+        "buttonText"    : "Last Touch",
+         "fnName"       : "lastTouch",
+         "arrayOfFields": []
+    },
+    {
+        "buttonText"   : "Final PT",
+        "fnName"       : "genFinalPT",
+        "arrayOfFields": []
+    },
+    {
+        "buttonText"    : "Line Item PT",
+        "fnName"        : "genLineItemPT",
+         "arrayOfFields": []
+    },
+    {
+        "buttonText"   : "No Of Days Since",
+        "fnName"       : "genNoOfDays",
+        "arrayOfFields": []
+    }];
+
     UExtIntel.undoActionFn = undefined;
-    UExtIntel.actionFn = function(colNum, tableId, functionName, argList) {
+    UExtIntel.actionFn = function(txId, colNum, tableId, functionName, argList) {
         var table = gTables[tableId];
         var colName = table.tableCols[colNum - 1].name;
         var tableName = table.tableName;
         var tableNameRoot = tableName.split("#")[0];
         switch (functionName) {
-        case ("lastTouch"):
-            // colName should be the string column Date in AuditTrail
-            genLastTouch(colName, tableName);
-            // This will generate a groupByTable with 2 cols and the a map
-            break;
-        case ("genFinalPT"):
-            // TableName should be optyLineItem. We will look for pdt type or
-            // line item pdt type
-            genFinalPT(tableName);
-            break;
-        case ("genLineItemPT"):
-            // TableName should be optyLineItem. We will look for the 3 columns
-            genLineItemPT(tableName);
-            // This will generate a groupby table
-            break;
-        case ("genNoOfDays"):
-            // This must be run on the last_modified_latest col
-            genNoOfDays(colName, tableName);
-            break;
-        default:
-            break;
+            case ("lastTouch"):
+                // colName should be the string column Date in AuditTrail
+                return genLastTouch(colName, tableName);
+                // This will generate a groupByTable with 2 cols and the a map
+            case ("genFinalPT"):
+                // TableName should be optyLineItem. We will look for pdt type or
+                // line item pdt type
+                return genFinalPT(tableName);
+            case ("genLineItemPT"):
+                // TableName should be optyLineItem. We will look for the 3 columns
+                return genLineItemPT(tableName);
+                // This will generate a groupby table
+            case ("genNoOfDays"):
+                // This must be run on the last_modified_latest col
+                return genNoOfDays(colName, tableName);
+            default:
+                return PromiseHelper.reject("Invalid Function");
         }
-        return (true);
 
         function genLastTouch(colName, tableName) {
             // Steps:
@@ -68,13 +70,14 @@ window.UExtIntel = (function(UExtIntel, $) {
             // Step 2: We do a groupBy on Record ID with max UTS
             // Step 3: We do a map on max UTS to convert back to %m/%d/%Y
             // Step 4: We add table to current worksheet
+            var deferred = jQuery.Deferred();
             var newTableName = tableNameRoot + Authentication.getHashId();
             var mapStr = "default:convertToUnixTS(Date, \"%m/%d/%Y\")";
             var newColName = "Date_UTS";
             var srcTable = tableName;
             var tableId = xcHelper.getTableId(tableName);
             var worksheet = WSManager.getWSFromTable(tableId);
-            xcHelper.lockTable(tableId);
+
             XcalarMap(newColName, mapStr, srcTable, newTableName,
                       null, false)
             .then(function() {
@@ -86,7 +89,6 @@ window.UExtIntel = (function(UExtIntel, $) {
                                                 [srcTable], worksheet));
             })
             .then(function() {
-                xcHelper.unlockTable(tableId);
                 srcTable = newTableName;
                 newTableName = tableNameRoot + Authentication.getHashId();
                 newColName = "Date_UTS_integer";
@@ -131,26 +133,37 @@ window.UExtIntel = (function(UExtIntel, $) {
                                                             [srcTable],
                                                             worksheet));
                         }));
-            });
+            })
+            .then(function() {
+                deferred.resolve(newTableName);
+            })
+            .fail(deferred.reject);
+
+            return deferred.promise();
         }
 
         function genFinalPT(tableName) {
+            var deferred = jQuery.Deferred();
             var tableId = xcHelper.getTableId(tableName);
             var table = gTables[tableId];
             var newTableName = tableNameRoot + Authentication.getHashId();
             var mapStr = "intel:genFinalPT(Product Type, Line Item Product Type)";
             var worksheet = WSManager.getWSFromTable(tableId);
-            xcHelper.lockTable(tableId);
             XcalarMap("Final PT", mapStr, tableName, newTableName, null, false)
             .then(function() {
                 var newCols = xcHelper.deepCopy(gTables[tableId].tableCols);
                 var idx = getColNum("Line Item Product Type", tableId);
                 newCols.splice(idx+1, 0,
                                ColManager.newPullCol("Final PT", "string"));
-                xcHelper.unlockTable(tableId);
                 return (TblManager.refreshTable([newTableName], newCols,
                                                 [tableName], worksheet));
-            });
+            })
+            .then(function() {
+                deferred.resolve(newTableName);
+            })
+            .fail(deferred.reject);
+
+            return deferred.promise();
         }
 
         function genLineItemPT(tableName) {
@@ -160,13 +173,14 @@ window.UExtIntel = (function(UExtIntel, $) {
             // Step 3: single groupBy(max
             // Step 4: multi join ROW ID, max == forecasted_float
             // Step 5: GroupBy Row_ID count inc sample to randomly pick
+            var deferred = jQuery.Deferred();
             var tableId = xcHelper.getTableId(tableName);
             var table = gTables[tableId];
             var newTableName = tableNameRoot + Authentication.getHashId();
             var mapStr = "float(Forecasted Detail Actual Dollar Amount)";
             var worksheet = WSManager.getWSFromTable(tableId);
             var tableNameStore = [];
-            xcHelper.lockTable(tableId);
+
             XcalarMap("Forecasted_float", mapStr, tableName, newTableName,
                       null, false)
             .then(function() {
@@ -180,7 +194,6 @@ window.UExtIntel = (function(UExtIntel, $) {
                                                 [tableName], worksheet));
             })
             .then(function() {
-                xcHelper.unlockTable(tableId);
                 tableId = xcHelper.getTableId(newTableName);
                 tableName = newTableName;
                 newTableName = tableNameRoot + Authentication.getHashId();
@@ -225,7 +238,13 @@ window.UExtIntel = (function(UExtIntel, $) {
                 // XXX Why is delCol 1-indexed? Leftover from last time?
                 ColManager.delCol([1, 4, 5, 6], xcHelper.getTableId(tn));
                 TblManager.archiveTable(xcHelper.getTableId(tableNameStore[0]));
-            });
+            })
+            .then(function() {
+                deferred.resolve(tableNameStore);
+            })
+            .fail(deferred.reject);
+
+            return deferred.promise();
         }
         // TODO this should be in xcHelper
         function getColNum(colName, tableId) {
@@ -246,12 +265,13 @@ window.UExtIntel = (function(UExtIntel, $) {
             // Step 3: Create No Days since col
             // Step 4: Change col to float
             // Step 5: Map <= 60
+            var deferred = jQuery.Deferred();
             var tableId = xcHelper.getTableId(tableName);
             var table = gTables[tableId];
             var newTableName = tableNameRoot + Authentication.getHashId();
             var mapStr = "intel:ifElse(Last Modified, Created Date)";
             var worksheet = WSManager.getWSFromTable(tableId);
-            xcHelper.lockTable(tableId);
+
             XcalarMap("Last Modified_NoBlank", mapStr, tableName, newTableName,
                       null, false)
             .then(function() {
@@ -262,7 +282,6 @@ window.UExtIntel = (function(UExtIntel, $) {
                                                 [tableName], worksheet));
             })
             .then(function() {
-                xcHelper.unlockTable(tableId);
                 tableId = xcHelper.getTableId(newTableName);
                 tableName = newTableName;
                 newTableName = tableNameRoot + Authentication.getHashId();
@@ -342,8 +361,13 @@ window.UExtIntel = (function(UExtIntel, $) {
                 ColManager.delCol([2, 3, 4, 5, 6], tableId);
                 $("#xcTable-"+tableId).find("th.col1 .flexContainer")
                                       .mousedown() ;
-            });
+            })
+            .then(function() {
+                deferred.resolve(newTableName);
+            })
+            .fail(deferred.reject);
 
+            return deferred.promise();
         }
     };
     return (UExtIntel);

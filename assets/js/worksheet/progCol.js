@@ -867,10 +867,6 @@ window.ColManager = (function($, ColManager) {
         }
     };
 
-    ColManager.extension = function(colNum, tableId, functionName, args) {
-        return (ExtensionManager.trigger(colNum, tableId, functionName, args));
-    };
-
     // options
     // keepEditable: boolean, if true then we dont remove disabled and editable
     // class

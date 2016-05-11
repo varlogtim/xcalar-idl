@@ -19,7 +19,7 @@ window.ExtensionOpModal = (function(ExtensionOpModal, $) {
         modalHelper = new ModalHelper($extModal, {
             "minHeight": minHeight,
             "minWidth" : minWidth,
-            "noResize": true
+            "noResize" : true
         });
 
         $extModal.draggable({
@@ -62,15 +62,14 @@ window.ExtensionOpModal = (function(ExtensionOpModal, $) {
         });
     }
 
-    ExtensionOpModal.show = function(colNum, tableId, modName, fnName,
-                                              title) {
+    ExtensionOpModal.show = function(colNum, tableId, modName, fnName, title) {
         exColNum = colNum;
         exTableId = tableId;
         exModName = modName;
         exFnName = fnName;
 
         modalHelper.setup({
-            "open"  : function() {
+            "open": function() {
                 // modal has its own opener
                 return PromiseHelper.resolve();
             }
@@ -113,8 +112,6 @@ window.ExtensionOpModal = (function(ExtensionOpModal, $) {
         return (extensionMap);
     };
 
-    ExtensionOpModal.close = closeExtModal;
-
     function keepInputFocused(event) {
         event.preventDefault();
         event.stopPropagation();
@@ -127,67 +124,134 @@ window.ExtensionOpModal = (function(ExtensionOpModal, $) {
             return;
         }
 
-        var success = ColManager.extension(exColNum, exTableId,
-                                            exModName + "::" + exFnName,
-                                            argList);
-        if (typeof success !== "boolean" || success) {
-            closeExtModal();
-        } else {
-            // returned fail, keep modal open to show fail error message
-            // next to input
-        }
+        // do type check here!!!
+        // if fail, keep modal open to show fail error message next to input
+
+        closeExtModal();
+        ExtensionManager.trigger(exColNum, exTableId,
+                                 exModName + "::" + exFnName, argList);
     }
 
     function getArgList() {
         var argList = {};
         var $arguments = $extModal.find(".argument");
         var args = extensionMap[exModName][exFnName];
-        var arg;
         var invalidArg = false;
+
         $arguments.each(function(i) {
-            arg = $(this).val();
-            if (args[i].type === "column" &&
-                xcHelper.hasValidColPrefix(arg, '$')) {
-                arg = getBackColName(arg, $(this));
-                if (!arg) {
-                    invalidArg = true;
-                    return (false);
-                }
+            var argInfo = args[i];
+            var res = checkArg(argInfo, $(this));
+            if (!res.valid) {
+                invalidArg = true;
+                return false;
             }
-            argList[args[i].fieldClass] = arg;
+            argList[argInfo.fieldClass] = res.arg;
         });
+
         if (invalidArg) {
-            return (null);
+            return null;
         } else {
-            return (argList);
+            return argList;
         }
     }
 
-    function getBackColName(arg, $input) {
+    function checkArg(argInfo, $input) {
+        var arg = $input.val().trim();
+        var argType = argInfo.type;
+        var typeCheck = argInfo.typeCheck || {};
+        var error;
+
+        if (arg === "" && !typeCheck.allowEmpty) {
+            StatusBox.show(ErrTStr.NoEmpty, $input);
+            return { "vaild": false };
+        }
+
+        if (argType === "column") {
+            if (!xcHelper.hasValidColPrefix(arg, "$")) {
+                StatusBox.show(ErrTStr.ColInModal, $input);
+                return { "vaild": false };
+            }
+
+            arg = getBackColName(arg, typeCheck.columnType, $input);
+            if (arg == null) {
+                return { "vaild": false };
+            }
+        } else if (argType === "number") {
+            arg = Number(arg);
+
+            if (isNaN(arg)) {
+                StatusBox.show(ErrTStr.OnlyNumber, $input);
+                return { "vaild": false };
+            } else if (typeCheck.integer && !Number.isInteger(arg)) {
+                StatusBox.show(ErrTStr.OnlyInt, $input);
+                return { "vaild": false };
+            } else if (typeCheck.min != null && arg < typeCheck.min) {
+                error = xcHelper.replaceMsg(ErrWRepTStr.NoLessNum, {
+                    "num": typeCheck.min
+                });
+
+                StatusBox.show(error, $input);
+                return { "vaild": false };
+            } else if (typeCheck.max != null && arg > typeCheck.max) {
+                error = xcHelper.replaceMsg(ErrWRepTStr.NoBiggerNum, {
+                    "num": typeCheck.max
+                });
+
+                StatusBox.show(error, $input);
+                return { "vaild": false };
+            }
+        }
+
+        return {
+            "valid": true,
+            "arg"  : arg
+        };
+    }
+
+    function getBackColName(arg, validType, $input) {
         arg = arg.replace(/\$/g, '');
         var tempColNames = arg.split(",");
         var backColNames = "";
-        var backColName;
+        var table = gTables[exTableId];
+        var error;
+
+        if (validType != null && !(validType instanceof Array)) {
+            validType = [validType];
+        }
+
         for (var i = 0; i < tempColNames.length; i++) {
-            backColName = gTables[exTableId].getBackColName(tempColNames[i].trim());
-            if (backColName) {
+            var progCol = table.getProgColFromFrontColName(tempColNames[i].trim());
+            if (progCol != null) {
+                var colType = progCol.getType();
+                if (colType === "integer" || colType === "number") {
+                    colType = "number";
+                }
+
+                if (validType != null && validType.indexOf(colType) < 0) {
+                    error = xcHelper.replaceMsg(ErrWRepTStr.InvalidOpsType, {
+                        "type1": validType.join(","),
+                        "type2": colType
+                    });
+                    StatusBox.show(error, $input);
+                    return null;
+                }
+
+                var backColName = progCol.getBackColName();
                 if (i > 0) {
                     backColNames += ",";
                 }
                 backColNames += backColName;
             } else {
-                text = xcHelper.replaceMsg(ErrWRepTStr.InvalidCol, {
+                error = xcHelper.replaceMsg(ErrWRepTStr.InvalidCol, {
                     "name": tempColNames[i]
                 });
-                StatusBox.show(text, $input);
-                return (false);
+                StatusBox.show(error, $input);
+                return null;
             }
         }
-        return (backColNames);
+
+        return backColNames;
     }
-
-
-
 
     function closeExtModal() {
         var time = 1;
@@ -214,7 +278,7 @@ window.ExtensionOpModal = (function(ExtensionOpModal, $) {
     function updateInputFields() {
         var $argSection = $extModal.find('.argSection');
         var args = extensionMap[exModName][exFnName];
-        var inputFieldHtml = "";
+        // var inputFieldHtml = "";
         var descsHtml = "";
         var argsHtml = "";
         var allNumbers = true;
@@ -223,14 +287,14 @@ window.ExtensionOpModal = (function(ExtensionOpModal, $) {
         for (var i = 0; i < args.length; i++) {
             inputType = "text";
             if (args[i].type === "number") {
-               inputType = "number";
+                inputType = "number";
             } else {
                 if (args[i].type === "column") {
                     hasColumnArg = true;
                 }
                 allNumbers = false;
             }
-            descsHtml += '<div class="cell type-' + args[i].type +'">' +
+            descsHtml += '<div class="cell type-' + args[i].type + '">' +
                           args[i].name + ':</div>';
             argsHtml += '<div class="cell type-' + args[i].type + '">' +
                             '<div class="inputWrap">' +
@@ -242,8 +306,7 @@ window.ExtensionOpModal = (function(ExtensionOpModal, $) {
                                 '<span class="icon"></span>' +
                               '</div>';
             }
-            argsHtml +=   '</div>' +
-                        '</div>';
+            argsHtml += '</div></div>';
         }
         var $descCol = $argSection.find('.descs');
         var $argCol = $argSection.find('.args');

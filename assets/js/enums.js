@@ -226,8 +226,7 @@ var SQLOps = {
     ChangeType: "changeType",
     ChangeFormat: "changeFormat",
     RoundToFixed: "roundToFixed",
-    Window: "window",
-    hPartition: "horizontalPartition"
+    Ext: "extension"
 };
 
 var TooltipTemplate = {

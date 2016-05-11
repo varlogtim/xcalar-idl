@@ -867,12 +867,11 @@ window.SQL = (function($, SQL) {
             case (SQLOps.Corr):
             case (SQLOps.SplitCol):
             case (SQLOps.ChangeType):
-            case (SQLOps.hPartition):
-            case (SQLOps.Window):
             case (SQLOps.Profile):
             case (SQLOps.ProfileSort):
             case (SQLOps.ProfileBucketing):
             case (SQLOps.Project):
+            case (SQLOps.Ext):
                 return true;
             default:
                 console.warn("XXX! Operation unexpected", operation);

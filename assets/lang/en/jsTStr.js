@@ -33,12 +33,10 @@ StatusMessageTStr = {
 'FilterFailed' : 'Filter column failed',
 'Profile' : 'Profile of',
 'ProfileFailed' : 'Profile failed',
-'Window': 'Performing Window',
-'WindowFailed': 'Window Failed',
-'HorizontalPartition': 'Performing Horizontal Partition',
-'HPartitionFailed': 'Horizontal Partition Failed',
 'Project': 'Projecting Columns',
-'ProjectFailed': 'Projection Failed'
+'ProjectFailed': 'Projection Failed',
+'Ext': 'Performing Extension <extension>',
+'ExtFailed': 'Performing Extension Failed'
 };
 
 TooltipTStr = {
@@ -144,6 +142,8 @@ ErrTStr = {
 
     'OnlyNumber': 'Please input a number.',
 
+    'OnlyInt': 'Please input an integer.',
+
     'OnlyPositiveNumber': 'Please input a number bigger than 0.',
 
     'NoNegativeNumber': 'Please input a number bigger than or equal to 0',
@@ -155,6 +155,8 @@ ErrTStr = {
     'NoGroupSelect': 'No group selected.',
 
     'InvalidColName': 'Invalid column name.',
+
+    'ColInModal': 'Please input a column name that starts with $',
 
     'NoBucketOnStr': 'Column type is string, cannot bucket into range.',
 
@@ -212,7 +214,11 @@ ErrWRepTStr = {
 
     'InvalidRange': 'Please enter a value between <num1> and <num2>.',
 
-    'InvalidColType': 'Column "<name>" has an invalid type: <type>'
+    'InvalidColType': 'Column "<name>" has an invalid type: <type>',
+
+    'NoLessNum': 'Please enter a value bigger than or equal to <num>',
+
+    'NoBiggerNum': 'Please enter a value less than or equal to <num>',
 };
 
 TipsTStr = {

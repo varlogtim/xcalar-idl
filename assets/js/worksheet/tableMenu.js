@@ -569,13 +569,8 @@ window.TblMenu = (function(TblMenu, $) {
                         ExtensionOpModal.show(colNum, tableId, modName, fnName,
                                               title);
                     } else {
-
-                        var success = ColManager.extension(colNum, tableId,
-                                                            classNames[i],
-                                                            {});
-                        if (typeof success === "boolean" && success) {
-                            closeMenu($allMenus);
-                        }
+                        ExtensionManager.trigger(colNum, tableId,
+                                                classNames[i], {});
                     }
                     break;
                 }

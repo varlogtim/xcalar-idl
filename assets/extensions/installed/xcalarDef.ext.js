@@ -1,96 +1,54 @@
 window.UExtXcalarDef = (function(UExtXcalarDef, $) {
-    UExtXcalarDef.buttons = [
-        {"buttonText": "Horizontal Partition",
-         "fnName": "hPartition",
-         "arrayOfFields": [{"type": "number",
-                            "name": "No. of Partitions",
-                            "fieldClass": "partitionNums"},
-                          ]
+    UExtXcalarDef.buttons = [{
+        "buttonText"   : "Horizontal Partition",
+        "fnName"       : "hPartition",
+        "arrayOfFields": [{
+            "type"      : "number",
+            "name"      : "No. of Partitions",
+            "fieldClass": "partitionNums",
+            "typeCheck" : {
+                "integer": true,
+                "min"    : 1,
+                "max"    : 10
+            }
+        }]
+    },
+    {
+        "buttonText"   : "Windowing",
+        "fnName"       : "windowChain",
+        "arrayOfFields": [{
+            "type"      : "number",
+            "name"      : "Lag",
+            "fieldClass": "lag",
+            "typeCheck" : {
+                "integer": true,
+                "min"    : 0
+            }
         },
-        {"buttonText": "Windowing",
-         "fnName": "windowChain",
-         "arrayOfFields": [{"type": "number",
-                            "name": "Lag",
-                            "fieldClass": "lag"},
-                           {"type": "number",
-                            "name": "Lead",
-                            "fieldClass": "lead"}
-                          ]
-        },
-    ];
+        {
+            "type"      : "number",
+            "name"      : "Lead",
+            "fieldClass": "lead",
+            "typeCheck" : {
+                "integer": true,
+                "min"    : 0
+            }
+        }]
+    }];
 
     UExtXcalarDef.undoActionFn = undefined;
-    UExtXcalarDef.actionFn = function(colNum, tableId, functionName, argList) {
+    UExtXcalarDef.actionFn = function(txId, colNum, tableId, functionName, argList) {
         switch (functionName) {
-        case ("hPartition"):
-            var $partitionNums = $('#extensionOpModal').find('.argument').eq(0);
-            if (hPartArgCheck($partitionNums)) {
-                ExtensionOpModal.close();
-                horizontalPartition(colNum, tableId, argList["partitionNums"]);
-                return (true);
-            } else {
-                return (false);
-            }
-            break;
-        case ("windowChain"):
-            var $lag = $('#extensionOpModal').find('.argument').eq(0);
-            var $lead = $('#extensionOpModal').find('.argument').eq(1);
-            if (windowArgCheck($lag, $lead)) {
-                windowChain(colNum, tableId, argList["lag"], argList["lead"]);
-                return (true);
-            } else {
-                return (false);
-            }
-            break;
-        default:
-            return (true);
-        }
-
-
-
-        function hPartArgCheck($input) {
-            var partitionNums = Number($input.val().trim());
-            var rangeErr = xcHelper.replaceMsg(ErrWRepTStr.InvalidRange, {
-                "num1": 1,
-                "num2": 10
-            });
-
-            var isValid = xcHelper.validate([
-                {
-                    "$selector": $input,
-                    "text"     : ErrTStr.OnlyNumber
-                },
-                {
-                    "$selector": $input,
-                    "text"     : ErrTStr.OnlyNumber,
-                    "check"    : function() {
-                        return (isNaN(partitionNums) ||
-                                !Number.isInteger(partitionNums));
-                    }
-                },
-                {
-                    "$selector": $input,
-                    "text"     : rangeErr,
-                    "check"    : function() {
-                        return partitionNums < 1 || partitionNums > 10;
-                    }
-                }
-            ]);
-
-            if (!isValid) {
-                return (false);
-            }
-
-            $input.val("").blur();
-            return (true);
+            case ("hPartition"):
+                return horizontalPartition(txId,colNum, tableId, argList["partitionNums"]);
+            case ("windowChain"):
+                return windowChain(txId, colNum, tableId, argList["lag"], argList["lead"]);
+            default:
+                return PromiseHelper.reject("Invalid Function");
         }
 
         // Horizontal Partition
-        function horizontalPartition(colNum, tableId, partitionNums) {
-            var isValidParam = (colNum != null && tableId != null &&
-                                partitionNums != null);
-            xcHelper.assert(isValidParam, "Invalid Parameters");
-
+        function horizontalPartition(txId, colNum, tableId, partitionNums) {
             var deferred    = jQuery.Deferred();
             var worksheet   = WSManager.getWSFromTable(tableId);
             var table       = gTables[tableId];
@@ -110,13 +68,6 @@ window.UExtXcalarDef = (function(UExtXcalarDef, $) {
 
             var tableNamePart = tableName.split("#")[0];
 
-            xcHelper.lockTable(tableId);
-
-            var txId = Transaction.start({
-                "msg"      : StatusMessageTStr.HorizontalPartition,
-                "operation": SQLOps.hPartition
-            });
-
             getUniqueValues(partitionNums)
             .then(function(uniqueVals) {
                 var len = uniqueVals.length;
@@ -129,47 +80,12 @@ window.UExtXcalarDef = (function(UExtXcalarDef, $) {
 
                 return PromiseHelper.chain(promises);
             })
-            .then(function(finalTableId) {
-                xcHelper.unlockTable(tableId);
-
-                var sql = {
-                    "operation"    : SQLOps.hPartition,
-                    "tableName"    : tableName,
-                    "tableId"      : tableId,
-                    "colNum"       : colNum,
-                    "colName"      : colName,
-                    "partitionNums": partitionNums,
-                    "newTableNames": newTables
-                };
-
-                Transaction.done(txId, {
-                    "msgTable": finalTableId,
-                    "sql"     : sql
-                });
-                deferred.resolve();
+            .then(function() {
+                deferred.resolve(newTables);
             })
-            .fail(function(error) {
-                xcHelper.unlockTable(tableId);
+            .fail(deferred.reject);
 
-                var sql = {
-                    "operation"    : SQLOps.hPartition,
-                    "tableName"    : tableName,
-                    "tableId"      : tableId,
-                    "colNum"       : colNum,
-                    "colName"      : colName,
-                    "partitionNums": partitionNums,
-                    "newTableNames": newTables
-                };
-
-                Transaction.fail(txId, {
-                    "failMsg": StatusMessageTStr.HPartitionFailed,
-                    "error"  : error,
-                    "sql"    : sql
-                });
-                deferred.reject(error);
-            });
-
-            return (deferred.promise());
+            return deferred.promise();
 
             function hPartitionHelper(fltVal, index, type) {
                 var innerDeferred = jQuery.Deferred();
@@ -244,61 +160,15 @@ window.UExtXcalarDef = (function(UExtXcalarDef, $) {
             }
         }
 
-        function windowArgCheck($lagInput, $leadInput) {
-            var lag = Number($lagInput.val());
-            var lead = Number($leadInput.val());
-            // validation check
-            var isValid = xcHelper.validate([
-                {
-                    "$selector": $lagInput
-                },
-                {
-                    "$selector": $leadInput
-                },
-                {
-                    "$selector": $lagInput,
-                    "text"     : ErrTStr.OnlyNumber,
-                    "check"    : function() {
-                        return (isNaN(lag) || !Number.isInteger(lag));
-                    }
-                },
-                {
-                    "$selector": $lagInput,
-                    "text"     : ErrTStr.NoNegativeNumber,
-                    "check"    : function() { return (lag < 0); }
-                },
-                {
-                    "$selector": $leadInput,
-                    "text"     : ErrTStr.OnlyNumber,
-                    "check"    : function() {
-                        return (isNaN(lead) || !Number.isInteger(lead));
-                    }
-                },
-                {
-                    "$selector": $leadInput,
-                    "text"     : ErrTStr.NoNegativeNumber,
-                    "check"    : function() { return (lead < 0); }
-                },
-                {
-                    "$selector": $leadInput,
-                    "text"     : ErrTStr.NoAllZeros,
-                    "check"    : function() {
-                        return (lag === 0 && lead === 0);
-                    }
-                }
-            ]);
-
-            if (!isValid) {
-                return (false);
+        function windowChain(txId, colNum, tableId, lag, lead) {
+            if (lag === 0 && lead === 0) {
+                return PromiseHelper.reject(ErrTStr.NoAllZeros);
             }
 
-            $lagInput.val("").blur();
-            $leadInput.val("").blur();
-            return (true);
-        }
-
-        function windowChain(colNum, tableId, lag, lead) {
             var deferred = jQuery.Deferred();
+
+            lag = Number(lag);
+            lead = Number(lead);
             // XXX: Fill in all the SQL stuff
             var worksheet = WSManager.getWSFromTable(tableId);
 
@@ -355,7 +225,6 @@ window.UExtXcalarDef = (function(UExtXcalarDef, $) {
             // table. But backend should technically return us some information
             // XXX: Potential trap with tables created in the backend and then
             // inducted into the front end
-                Alert.error(StatusMessageTStr.WindowFailed, ErrTStr.InvalidWin);
                 deferred.reject(ErrTStr.InvalidWin);
                 return deferred.promise();
             } else {
@@ -366,12 +235,6 @@ window.UExtXcalarDef = (function(UExtXcalarDef, $) {
                     direction = XcalarOrderingT.XcalarOrderingAscending;
                 }
             }
-
-            xcHelper.lockTable(tableId);
-            var txId = Transaction.start({
-                "msg"      : StatusMessageTStr.Window,
-                "operation": SQLOps.Window
-            });
 
             // Step 0. Figure out column type info from orig table. We need it
             // in step 4.
@@ -544,48 +407,9 @@ window.UExtXcalarDef = (function(UExtXcalarDef, $) {
                                                 [], worksheet);
             })
             .then(function() {
-                xcHelper.unlockTable(tableId);
-
-                var sql = {
-                    "operation"   : SQLOps.Window,
-                    "tableName"   : tableName,
-                    "tableId"     : tableId,
-                    "colNum"      : colNum,
-                    "colName"     : colName,
-                    "lag"         : lag,
-                    "lead"        : lead,
-                    "newTableName": finalTableName
-                };
-
-                Transaction.done(txId, {
-                    "msgTable": xcHelper.getTableId(finalTableName),
-                    "sql"     : sql
-                });
-
-                deferred.resolve();
+                deferred.resolve(finalTableName);
             })
-            .fail(function(error) {
-                xcHelper.unlockTable(tableId);
-
-                var sql = {
-                    "operation"   : SQLOps.Window,
-                    "tableName"   : tableName,
-                    "tableId"     : tableId,
-                    "colNum"      : colNum,
-                    "colName"     : colName,
-                    "lag"         : lag,
-                    "lead"        : lead,
-                    "newTableName": finalTableName
-                };
-
-                Transaction.fail(txId, {
-                    "failMsg": StatusMessageTStr.WindowFailed,
-                    "error"  : error,
-                    "sql"    : sql
-                });
-
-                deferred.reject(error);
-            });
+            .fail(deferred.reject);
 
             return deferred.promise();
 
