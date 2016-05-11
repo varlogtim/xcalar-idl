@@ -553,6 +553,7 @@ window.SQL = (function($, SQL) {
             case SQLOps.ProfileBucketing:
             case SQLOps.QuickAgg:
             case SQLOps.Corr:
+            case SQLOps.Aggr:
                 return UndoType.Skip;
             default:
                 return UndoType.Valid;
