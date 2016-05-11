@@ -492,7 +492,7 @@ window.TestSuite = (function($, TestSuite) {
 
         // Map on flight table
         function flightTestPart6() {
-            $("#alertActions .confirm").click();
+            $("#alertActions .cancel").click();
             var wsId = WSManager.getOrders()[0];
             var tableId = WSManager.getWSById(wsId).tables[0];
 

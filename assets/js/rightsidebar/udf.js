@@ -421,13 +421,12 @@ window.UDF = (function($, UDF) {
 
         function uploadSuccess() {
             Alert.show({
-                "title"     : SideBarTStr.UpoladUDF,
-                "msg"       : SideBarTStr.UploadUDFMsg,
-                "isCheckBox": false,
-                "confirm"   : function() {
+                "title"  : SideBarTStr.UpoladUDF,
+                "msg"    : SideBarTStr.UploadUDFMsg,
+                "isAlert": true,
+                "cancel" : function() {
                     $("#udfBtn").parent().click();
-                },
-                "focusOnConfirm": true
+                }
             });
         }
 
@@ -503,7 +502,7 @@ window.UDF = (function($, UDF) {
                 '\t\tfor col_idx in range(0, num_cols):  # Iterate through columns\n' +
                     '\t\t\tval = xl_sheet.cell_value(row_idx, col_idx)  # Get cell object by row, col\n' +
                     '\t\t\tif xl_sheet.cell_type(row_idx, col_idx) == xlrd.XL_CELL_DATE:\n' +
-                        '\t\t\t\tval = "%s,%s" % (val, xl_workbook.datemode)\n' + 
+                        '\t\t\t\tval = "%s,%s" % (val, xl_workbook.datemode)\n' +
                     '\t\t\telse:\n' +
                         '\t\t\t\tval = "%s" % val\n' +
                     '\t\t\tcurRow.append(val)\n' +
@@ -512,11 +511,11 @@ window.UDF = (function($, UDF) {
             '\treturn str(fileString.encode("ascii", "ignore"))\n' +
         '\n' +
         'def convertExcelTime(colName, outputFormat):\n' +
-            '\t(val, datemode) = colName.split(",")\n'+
-            '\tif (not val or not datemode):\n'+
-                '\t\treturn "Your input must be val,datemode"\n'+
-            '\t(y, mon, d, h, m, s) = xlrd.xldate_as_tuple(float(val), int(datemode))\n'+
-            '\treturn str(datetime.datetime(y, mon, d, h, m, s).strftime(outputFormat))\n'+
+            '\t(val, datemode) = colName.split(",")\n' +
+            '\tif (not val or not datemode):\n' +
+                '\t\treturn "Your input must be val,datemode"\n' +
+            '\t(y, mon, d, h, m, s) = xlrd.xldate_as_tuple(float(val), int(datemode))\n' +
+            '\treturn str(datetime.datetime(y, mon, d, h, m, s).strftime(outputFormat))\n' +
         '\n' +
         '# get the substring of txt after the (index)th delimiter\n' +
         '# for example, splitWithDelim("a-b-c", "-", 1) gives "b-c"\n' +
