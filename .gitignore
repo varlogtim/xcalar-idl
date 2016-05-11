@@ -3,7 +3,6 @@
 /assets/stylesheets/**/*.css
 /assets/widget/*.css
 /assets/js/setup/constructorVersion.js
-*.css
 /assets/dev/!shortCutStyles.css
 *.DS_Store
 /prod/*
