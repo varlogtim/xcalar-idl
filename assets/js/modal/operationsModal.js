@@ -1318,17 +1318,28 @@ window.OperationsModal = (function($, OperationsModal) {
                 $inputs = $argInputs.not(':last');
             }
             $inputs.each(function(i) {
-                var val = $(this).val();
+                var $input = $(this);
+                var val = $input.val();
                 if (quotesNeeded[i]) {
                     val = replaceEscapedColPrefixes(val);
                     val = "\"" + val + "\"";
-                    // stringify puts in too many slashes
-                    // val = JSON.stringify(val);
                 }
 
-                if (i < numArgs - 1) {
-                    val += ", ";
+                if (i > 0) {
+                    // check: if arg is blank and is not a string then do not add comma
+                    // ex. add(6) instead of add(6, )
+                    if (val === "") {
+                        var typeId = $input.data('typeid');
+                        var types = parseType(typeId);
+                        if (types.indexOf("string") > -1 ||
+                            !$input.closest('tr').find('.checked').length) {
+                            val = ", " + val;
+                        }
+                    } else {
+                        val = ", " + val;
+                    }
                 }
+
                 newText += val;
 
             });
@@ -1451,49 +1462,48 @@ window.OperationsModal = (function($, OperationsModal) {
     function findStringDiff(oldText, newText) {
 
         // Find the index at which the change began
-        var s = 0;
-        while (s < oldText.length && s < newText.length &&
-              oldText[s] === newText[s])
-        {
-            s++;
+        var start = 0;
+        while (start < oldText.length && start < newText.length &&
+               oldText[start] === newText[start]) {
+            start++;
         }
 
         // Find the index at which the change ended (relative to the end of the string)
-        var e = 0;
-        while (e < oldText.length &&
-            e < newText.length &&
-            oldText.length - e > s &&
-            newText.length - e > s &&
-            oldText[oldText.length - 1 - e] === newText[newText.length - 1 - e])
+        var end = 0;
+        while (end < oldText.length &&
+            end < newText.length &&
+            oldText.length - end > start &&
+            newText.length - end > start &&
+            oldText[oldText.length - 1 - end] === newText[newText.length - 1 - end])
         {
-            e++;
+            end++;
         }
 
         // The change end of the new string (ne) and old string (oe)
-        var ne = newText.length - e;
-        var oe = oldText.length - e;
+        var newEnd = newText.length - end;
+        var oldEnd = oldText.length - end;
 
         // The number of chars removed and added
-        var removed = oe - s;
-        var added = ne - s;
+        var removed = oldEnd - start;
+        var added = newEnd - start;
 
         var type;
         switch (true) {
-            case removed === 0 && added > 0:
+            case (removed === 0 && added > 0):
                 type = 'add';
                 break;
-            case removed > 0 && added === 0:
+            case (removed > 0 && added === 0):
                 type = 'remove';
                 break;
-            case removed > 0 && added > 0:
+            case (removed > 0 && added > 0):
                 type = 'replace';
                 break;
             default:
                 type = 'none';
-                s = 0;
+                start = 0;
         }
 
-        return { type: type, start: s, removed: removed, added: added };
+        return ({type: type, start: start, removed: removed, added: added});
     }
 
     // noHighlight: boolean; if true, will not highlight new changes
@@ -2169,7 +2179,7 @@ window.OperationsModal = (function($, OperationsModal) {
             colIndex = colNum - 1;
         }
 
-        var filterString = formulateFilterString(operator, args, colTypeInfos);
+        var filterString = formulateMapFilterString(operator, args, colTypeInfos);
         options = {"filterString": filterString};
         xcFunction.filter(colIndex, tableId, options);
 
@@ -2234,7 +2244,7 @@ window.OperationsModal = (function($, OperationsModal) {
     function map(operator, args, colTypeInfos) {
         var numArgs = args.length;
         var newColName = args.splice(numArgs - 1, 1)[0];
-        var mapStr = formulateMapString(operator, args, colTypeInfos);
+        var mapStr = formulateMapFilterString(operator, args, colTypeInfos);
         var mapOptions = {};
         if (isNewCol) {
             mapOptions.replaceColumn = true;
@@ -2247,8 +2257,8 @@ window.OperationsModal = (function($, OperationsModal) {
         xcFunction.map(colNum, tableId, newColName, mapStr, mapOptions);
     }
 
-    function formulateMapString(operator, args, colTypeInfos) {
-        var mapString = operator + "(";
+    function formulateMapFilterString(operator, args, colTypeInfos) {
+        var str = operator + "(";
         var argNum;
         for (var i = 0; i < colTypeInfos.length; i++) {
             argNum = colTypeInfos[i].argNum;
@@ -2257,36 +2267,27 @@ window.OperationsModal = (function($, OperationsModal) {
         }
 
         for (var i = 0; i < args.length; i++) {
-            mapString += args[i] + ", ";
+            // check: if arg is blank and is not a string then do not add comma
+            // ex. add(6) instead of add(6, )
+            if (args[i] === "") {
+                var $input = $argInputs.eq(i);
+                var typeId = $input.data('typeid');
+                var types = parseType(typeId);
+                if (types.indexOf("string") > -1 ||
+                    !$input.closest('tr').find('.checked').length) {
+                    str += args[i] + ", ";
+                }
+            } else {
+                str += args[i] + ", ";
+            }
         }
         // remove last comma and space;
         if (args.length > 0) {
-            mapString = mapString.slice(0, -2);
+            str = str.slice(0, -2);
         }
 
-        mapString += ")";
-        return (mapString);
-    }
-
-    function formulateFilterString(operator, args, colTypeInfos) {
-        var filterString = operator + "(";
-        var argNum;
-        for (var i = 0; i < colTypeInfos.length; i++) {
-            argNum = colTypeInfos[i].argNum;
-            args[argNum] = xcHelper.castStrHelper(args[argNum],
-                                                 colTypeInfos[i].type);
-        }
-
-        for (var i = 0; i < args.length; i++) {
-            filterString += args[i] + ", ";
-        }
-        // remove last comma and space;
-        if (args.length > 0) {
-            filterString = filterString.slice(0, -2);
-        }
-
-        filterString += ")";
-        return (filterString);
+        str += ")";
+        return (str);
     }
 
     function getColumnTypeFromArg(value) {
