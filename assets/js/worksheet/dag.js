@@ -103,6 +103,7 @@ window.DagPanel = (function($, DagPanel) {
                 dagTopPct = 0;
                 clickDisabled = false;
                 RowScroller.updateViewRange(gActiveTableId);
+
             }, 400);
         });
 
@@ -110,6 +111,8 @@ window.DagPanel = (function($, DagPanel) {
         $dagPanel.on('mousedown', '.ui-resizable-n', function() {
             dagPanelTop = $dagPanel.position().top;
         });
+
+        var resizeTimer;
 
         $dagPanel.resizable({
             handles    : "n",
@@ -121,6 +124,22 @@ window.DagPanel = (function($, DagPanel) {
                 ui.position.top = dagPanelTop;
                 $('#mainFrame').height('calc(100% - 38px)');
                 $dagArea.css('height', '100%');
+            },
+            resize: function() {
+                if (window.isBrowserMicrosoft) {
+                    clearTimeout(resizeTimer);
+                    resizeTimer = setTimeout(function() {
+                        // hack because rows become invisible in IE/EDGE
+                        $('.xcTable').each(function() {
+                            var $tr = $(this).find('tr').last();
+                            var originalHeight = $tr.height();
+                            $tr.hide().show().height(originalHeight + 1);
+                            setTimeout(function() {
+                                $tr.hide().show().height(originalHeight);
+                            }, 0);
+                        });
+                    }, 200);
+                }
             },
             stop: function() {
                 var containerHeight = $('#dagPanelContainer').height();
@@ -152,6 +171,17 @@ window.DagPanel = (function($, DagPanel) {
                 $('#mainFrame').height('calc(' + dagTopPct + '% - ' + px + 'px)');
                 $dagArea.css('height', (100 - dagTopPct) + '%');
                 RowScroller.updateViewRange(gActiveTableId);
+                if (window.isBrowserMicrosoft) {
+                    // hack because rows become invisible in IE/EDGE
+                    $('.xcTable').each(function() {
+                        var $tr = $(this).find('tr').last();
+                        var originalHeight = $tr.height();
+                        $tr.hide().show().height(originalHeight + 1);
+                        setTimeout(function() {
+                            $tr.hide().show().height(originalHeight);
+                        }, 0);
+                    });
+                }
             }
         });
     }
@@ -179,6 +209,18 @@ window.DagPanel = (function($, DagPanel) {
             clickDisabled = false;
             $dagPanel.addClass('invisible');
             RowScroller.updateViewRange(gActiveTableId);
+
+            if (window.isBrowserMicrosoft) {
+                // hack because rows become invisible in IE/EDGE
+                $('.xcTable').each(function() {
+                    var $tr = $(this).find('tr').last();
+                    var originalHeight = $tr.height();
+                    $tr.hide().show().height(originalHeight + 1);
+                    setTimeout(function() {
+                        $tr.hide().show().height(originalHeight);
+                    }, 0);
+                });
+            }
         }, 400);
     }
 

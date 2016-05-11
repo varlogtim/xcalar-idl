@@ -713,8 +713,9 @@
                 overflow-y: auto;
 
                 .hint {
-                    .size(@width: 320px, @height: 60px);
-                    .horizontal-align;
+                    .size(@width: inherit, @height: 60px);
+                    text-align: center;
+                    position: relative;
                     top: 30%;
                     .font(@size: 13px, @weight: bold, @color: @color-text-darkdarkGray);
                 }

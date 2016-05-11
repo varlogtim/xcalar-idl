@@ -521,7 +521,7 @@ window.xcHelper = (function($, xcHelper) {
             try {
                 selection.addRange(range);
             } catch(error) {
-                console.error(error);
+                console.warn(error);
             }
 
         } else if (document.body.createTextRange) {
