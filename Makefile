@@ -48,7 +48,7 @@ alert:
 	@echo "make installer"
 
 node_modules/.bin/grunt: package.json
-	#npm install --save-dev
+	npm install --save-dev
 	touch $@
 
 generateHtml: node_modules/.bin/grunt
