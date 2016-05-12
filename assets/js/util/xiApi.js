@@ -77,8 +77,7 @@ window.XIApi = (function(XIApi, $) {
                 if (indexInput != null && indexInput.keyName === colName &&
                     indexInput.ordering === order)
                 {
-                    deferred.reject({"error": IndexTStr.SortedErr});
-                    return PromiseHelper.resolve(null);
+                    return PromiseHelper.reject({"error": SortStatus.Sorted});
                 }
             }
 

@@ -283,31 +283,49 @@ window.ExtensionOpModal = (function(ExtensionOpModal, $) {
         var argsHtml = "";
         var allNumbers = true;
         var hasColumnArg = false;
-        var inputType = "text";
+        var triggerCol = gTables[exTableId].tableCols[exColNum - 1].getFronColName();
+
         for (var i = 0; i < args.length; i++) {
-            inputType = "text";
-            if (args[i].type === "number") {
+            var inputType = "text";
+            var inputVal = "";
+            var inputHint = "";
+            var argType = args[i].type;
+
+            if (argType === "number") {
                 inputType = "number";
             } else {
-                if (args[i].type === "column") {
-                    hasColumnArg = true;
-                }
                 allNumbers = false;
+
+                if (argType === "column") {
+                    hasColumnArg = true;
+                    if (args[i].autofill) {
+                        inputVal = "$" + triggerCol;
+                    }
+                } else {
+                    if (args[i].autofill != null) {
+                        inputVal = args[i].autofill;
+                    }
+                }
             }
-            descsHtml += '<div class="cell type-' + args[i].type + '">' +
-                          args[i].name + ':</div>';
-            argsHtml += '<div class="cell type-' + args[i].type + '">' +
+
+            descsHtml += '<div class="cell type-' + argType + '">' +
+                            args[i].name + ':' +
+                        '</div>';
+            argsHtml += '<div class="cell type-' + argType + '">' +
                             '<div class="inputWrap">' +
                                 '<input class="argument" ' +
                                 'type="' + inputType + '" ' +
+                                'value="' + inputVal + '" ' +
+                                'placeholder="' + inputHint + '" ' +
                                 'spellcheck="false">';
             if (inputType === "text") {
                 argsHtml += '<div class="argIconWrap">' +
                                 '<span class="icon"></span>' +
-                              '</div>';
+                            '</div>';
             }
             argsHtml += '</div></div>';
         }
+
         var $descCol = $argSection.find('.descs');
         var $argCol = $argSection.find('.args');
         $descCol.html(descsHtml);

@@ -17,6 +17,29 @@ window.UExtXcalarDef = (function(UExtXcalarDef, $) {
         "buttonText"   : "Windowing",
         "fnName"       : "windowChain",
         "arrayOfFields": [{
+            "type"      : "column",
+            "name"      : "Window On",
+            "fieldClass": "winCol",
+            "autofill"  : true,
+            "typeCheck" : {
+                "columnType": ["number"]
+            }
+        },
+        {
+            "type"      : "column",
+            "name"      : "Sort On",
+            "fieldClass": "sortCol",
+            "typeCheck" : {
+                "columnType": ["string", "number"]
+            }
+        },
+        {
+            "type"      : "string",
+            "name"      : "Sort Order",
+            "autofill"  : "ascending",
+            "fieldClass": "order"
+        },
+        {
             "type"      : "number",
             "name"      : "Lag",
             "fieldClass": "lag",
@@ -42,7 +65,9 @@ window.UExtXcalarDef = (function(UExtXcalarDef, $) {
             case ("hPartition"):
                 return horizontalPartition(txId,colNum, tableId, argList["partitionNums"]);
             case ("windowChain"):
-                return windowChain(txId, colNum, tableId, argList["lag"], argList["lead"]);
+                return windowChain(txId, colNum, tableId,
+                                    argList.winCol, argList.sortCol, argList.order,
+                                    argList.lag, argList.lead);
             default:
                 return PromiseHelper.reject("Invalid Function");
         }
@@ -160,21 +185,26 @@ window.UExtXcalarDef = (function(UExtXcalarDef, $) {
             }
         }
 
-        function windowChain(txId, colNum, tableId, lag, lead) {
+        function windowChain(txId, colNum, tableId, winCol, sortCol, direction, lag, lead) {
             if (lag === 0 && lead === 0) {
                 return PromiseHelper.reject(ErrTStr.NoAllZeros);
             }
 
-            var deferred = jQuery.Deferred();
+            if (direction.startsWith("desc")) {
+                direction = XcalarOrderingT.XcalarOrderingDescending;
+            } else if (direction.startsWith("asc")) {
+                direction = XcalarOrderingT.XcalarOrderingAscending;
+            } else {
+                return PromiseHelper.reject("Sort Order Field can only be ascending or descending");
+            }
 
-            lag = Number(lag);
-            lead = Number(lead);
+            var deferred = jQuery.Deferred();
             // XXX: Fill in all the SQL stuff
             var worksheet = WSManager.getWSFromTable(tableId);
 
             var table = gTables[tableId];
             var tableCols = table.tableCols;
-            var colName = tableCols[colNum - 1].name;
+            var colName = winCol;
             var tableName = table.tableName;
             var tableNameRoot = tableName.split("#")[0];
             var finalTableName;
@@ -210,69 +240,22 @@ window.UExtXcalarDef = (function(UExtXcalarDef, $) {
             };
 
             var type = "string"; // default
-            var origSortedOnCol = "";
             var newOrigSortedOnCol;
-            var direction = XcalarOrderingT.XcalarOrderingAscending; // default
 
-            // Step -1. Figure out how the column is sorted before window,
-            // because we have to resort by this ordering once the window is
-            // done
-            var sortedStr = $("#dagWrap-" + tableId).find(".actionType:last")
-                             .attr("data-info");
-            if (sortedStr.indexOf("sort") === -1) {
-            // This is not a sorted table! I can just check that this table is
-            // sorted because of the way that the UI always uses the unsorted
-            // table. But backend should technically return us some information
-            // XXX: Potential trap with tables created in the backend and then
-            // inducted into the front end
-                deferred.reject(ErrTStr.InvalidWin);
-                return deferred.promise();
-            } else {
-                if (sortedStr.indexOf("desc") !== -1) {
-                    // Descending sort
-                    direction = XcalarOrderingT.XcalarOrderingDescending;
-                } else {
-                    direction = XcalarOrderingT.XcalarOrderingAscending;
-                }
-            }
-
-            // Step 0. Figure out column type info from orig table. We need it
-            // in step 4.
-            XcalarMakeResultSetFromTable(tableName)
-            .then(function(ret) {
-                type = DfFieldTypeTStr[ret.keyAttrHeader.type];
-                switch (type) {
-                    case ("DfString"):
-                        type = "string";
-                        break;
-                    case ("DfInt32"):
-                    case ("DfInt64"):
-                    case ("DfUInt32"):
-                    case ("DfUInt64"):
-                        type = "int";
-                        break;
-                    case ("DfFloat32"):
-                    case ("DfFloat64"):
-                        type = "float";
-                        break;
-                    case ("DfBoolean"):
-                        type = "bool";
-                        break;
-                    default:
-                        type = "string";
-                        break;
-                }
-                origSortedOnCol = ret.keyAttrHeader.name;
-                newOrigSortedOnCol = "orig_" + origSortedOnCol + "_" +
-                                     randNumber;
-                return XcalarSetFree(ret.resultSetId);
+            // Step 1: sort table
+            sortTable(tableName, sortCol)
+            .then(function(tableAfterSort) {
+                // Step 2. Figure out column type info from orig table.
+                // We need it in step 4.
+                return getSortColType(tableAfterSort);
             })
-            .then(function() {
-                // Step 1 Get Unique Column, on SORTED table.
-                return genRowNum(tableName);
+            .then(function(tableAfterSort, sortColType) {
+                type = sortColType;
+                // Step 3 Get Unique Column, on SORTED table.
+                return genRowNum(tableAfterSort);
             })
             .then(function(tableWithUniqOrig, uniqColName) {
-                // Step 2 Generate the columns for lag and lead. We need to
+                // Step 4 Generate the columns for lag and lead. We need to
                 // duplicate current table to have a unique column name if not 
                 // later we will suffer when we self join
                 var defArray = [];
@@ -292,7 +275,7 @@ window.UExtXcalarDef = (function(UExtXcalarDef, $) {
                 return PromiseHelper.when.apply(window, defArray);
             })
             .then(function() {
-                // Step 3 Create unique col names for each of the tables
+                // Step 5 Create unique col names for each of the tables
                 // This is so that we don't suffer when we self join
                 var defArray = [];
                 var i;
@@ -307,13 +290,16 @@ window.UExtXcalarDef = (function(UExtXcalarDef, $) {
                 return PromiseHelper.when.apply(window, defArray);
             })
             .then(function() {
-                // Step 4 Need to recast the original sorted by column in cur
+                // Step 6 Need to recast the original sorted by column in cur
                 // table to avoid name collisions
-                var mapStr = type + "(" + origSortedOnCol + ")";
+                newOrigSortedOnCol = "orig_" + sortCol + "_" +
+                                     randNumber;
+
+                var mapStr = type + "(" + sortCol + ")";
                 return reCastCurTable(newOrigSortedOnCol, mapStr);
             })
             .then(function() {
-                // Step 5 inner join funnesss!
+                // Step 7 inner join funnesss!
                 // Order: Take cur, join lags then join leads
                 var defChain = [];
                 var lTable = tableNames.cur;
@@ -343,14 +329,14 @@ window.UExtXcalarDef = (function(UExtXcalarDef, $) {
                 return PromiseHelper.chain(defChain);
             })
             .then(function() {
-                // Step 6 Sort ascending or descending by the cur order number
+                // Step 8 Sort ascending or descending by the cur order number
                 var oldTableName = finalTableName;
                 var indexCol = newOrigSortedOnCol;
                 return XIApi.sort(txId, direction, indexCol, oldTableName);
             })
             .then(function(tableAfterSort) {
                 finalTableName = tableAfterSort;
-                // Step 7 YAY WE ARE FINALLY DONE! Just start picking out all
+                // Step 9 YAY WE ARE FINALLY DONE! Just start picking out all
                 // the columns now and do the sort and celebrate
                 var colNames = [];
                 var finalCols = [];
@@ -412,6 +398,62 @@ window.UExtXcalarDef = (function(UExtXcalarDef, $) {
             .fail(deferred.reject);
 
             return deferred.promise();
+
+            function sortTable(srcTable, colToSort) {
+                var innerDeferred = jQuery.Deferred();
+
+                XIApi.sort(txId, direction, colToSort, srcTable)
+                .then(innerDeferred.resolve)
+                .fail(function(error) {
+                    if ((error instanceof Object) &&
+                        error.error === SortStatus.Sorted) {
+                        console.log("already sorted on ", srcTable);
+                        innerDeferred.resolve(srcTable);
+                    } else {
+                        innerDeferred.reject(error);
+                    }
+                });
+
+                return innerDeferred.promise();
+            }
+
+            function getSortColType(srcTable) {
+                var innerDeferred = jQuery.Deferred();
+                var sortColType = "string"; // default
+
+                XcalarMakeResultSetFromTable(srcTable)
+                .then(function(ret) {
+                    sortColType = DfFieldTypeTStr[ret.keyAttrHeader.type];
+                    switch (sortColType) {
+                        case ("DfString"):
+                            sortColType = "string";
+                            break;
+                        case ("DfInt32"):
+                        case ("DfInt64"):
+                        case ("DfUInt32"):
+                        case ("DfUInt64"):
+                            sortColType = "int";
+                            break;
+                        case ("DfFloat32"):
+                        case ("DfFloat64"):
+                            sortColType = "float";
+                            break;
+                        case ("DfBoolean"):
+                            sortColType = "bool";
+                            break;
+                        default:
+                            sortColType = "string";
+                            break;
+                    }
+                    return XcalarSetFree(ret.resultSetId);
+                })
+                .then(function() {
+                    innerDeferred.resolve(srcTable, sortColType);
+                })
+                .fail(innerDeferred.reject);
+
+                return innerDeferred.promise();
+            }
 
             function genRowNum(srcTable) {
                 var innerDeferred = jQuery.Deferred();

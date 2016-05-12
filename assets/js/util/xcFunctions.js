@@ -247,7 +247,7 @@ window.xcFunction = (function($, xcFunction) {
             if (error.error === SQLType.Cancel) {
                 Transaction.cancel(txId);
                 deferred.resolve();
-            } else if (error.error === IndexTStr.SortedErr) {
+            } else if (error.error === SortStatus.Sorted) {
                 Transaction.cancel(txId);
                 var textOrder;
                 if (order === SortDirection.Forward) {

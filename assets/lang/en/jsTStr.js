@@ -190,7 +190,7 @@ ErrTStr = {
 
     'InvalidQuery': 'Query Failed',
 
-    'BracketsMis': 'Your function string has mismatched brackets.',
+    'BracketsMis': 'Your function string has mismatched brackets.'
 };
 
 ErrWRepTStr = {
