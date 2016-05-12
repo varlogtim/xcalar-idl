@@ -47,8 +47,14 @@ alert:
 	@echo "have a custom config.js file, please RERUN with"
 	@echo "make installer"
 
-node_modules/.bin/grunt: package.json
+node_modules:
+	mkdir -p $@
+
+node_modules/.bin: node_modules
+	mkdir -p $@
 	npm install --save-dev
+
+node_modules/.bin/grunt: node_modules/.bin
 	touch $@
 
 generateHtml: node_modules/.bin/grunt
