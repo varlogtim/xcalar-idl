@@ -464,6 +464,16 @@ window.DataCart = (function($, DataCart) {
         var nameIsValid;
         var cart;
 
+
+        for (var i = 0; i < innerCarts.length; i++) {
+            cart = innerCarts[i];
+            nameIsValid = doesCartNameHaveValidChars(cart);
+            if (!nameIsValid) {
+                deferred.reject();
+                return deferred.promise();
+            }
+        }
+
         // check backend table name to see if has conflict
         xcHelper.getBackTableSet()
         .then(function(backTableSet) {
@@ -515,6 +525,9 @@ window.DataCart = (function($, DataCart) {
             error = ErrTStr.NoEmpty;
         } else if (nameMap.hasOwnProperty(tableName)) {
             error = ErrTStr.TableConflict;
+        } else if (tableName.length >=
+                    XcalarApisConstantsT.XcalarApiMaxTableNameLen) {
+            error = ErrTStr.TooLong;
         } else {
             return true;
         }
@@ -525,6 +538,20 @@ window.DataCart = (function($, DataCart) {
         StatusBox.show(error, $input, true, {'side': 'left'});
 
         return false;
+    }
+
+    function doesCartNameHaveValidChars(cart) {
+        var tableName = cart.tableName;
+        if (tableName && /^ | $|[*#'"]/.test(tableName) === true) {
+            var $cart = DataCart.getCartById(cart.getId());
+            var $input = $cart.find(' .tableNameEdit');
+            scrollToTableName($input);
+            StatusBox.show(ErrTStr.InvalidTableName, $input, true,
+                            {'side': 'left'});
+            return false;
+        } else {
+            return true;
+        }
     }
 
     function createWorksheet() {

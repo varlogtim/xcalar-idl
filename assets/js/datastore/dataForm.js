@@ -250,10 +250,14 @@ window.DatastoreForm = (function($, DatastoreForm) {
             },
             {
                 "$selector": $fileName,
-                "check"    : DS.has,
+                "check"    : function() {
+                    return ($fileName.val().length >=
+                             XcalarApisConstantsT.XcalarApiMaxTableNameLen);
+                },
                 "formMode" : true,
-                "text"     : ErrTStr.DSNameConfilct
-            }
+                "text"     : ErrTStr.TooLong
+            },
+
         ]);
 
         if (!isValid) {

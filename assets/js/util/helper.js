@@ -1936,12 +1936,6 @@ window.xcHelper = (function($, xcHelper) {
             } else {
                 return false;
             }
-            for (var j = 1; j < colName.length; j++) {
-                if (colName[j] === colPrefix &&
-                                   !xcHelper.isCharEscaped(colName, j)) {
-                    return false;
-                }
-            }
         }
         return (hasPrefix);
     };

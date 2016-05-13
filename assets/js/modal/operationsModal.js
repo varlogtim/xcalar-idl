@@ -1320,8 +1320,8 @@ window.OperationsModal = (function($, OperationsModal) {
             $inputs.each(function(i) {
                 var $input = $(this);
                 var val = $input.val();
+                val = parseColPrefixes(val);
                 if (quotesNeeded[i]) {
-                    val = replaceEscapedColPrefixes(val);
                     val = "\"" + val + "\"";
                 }
 
@@ -1359,9 +1359,11 @@ window.OperationsModal = (function($, OperationsModal) {
 
         } else if (operatorName === "group by") {
             var aggColOldText = $description.find(".aggCols").text();
-            var aggColNewText = $argInputs.eq(0).val();
+            var aggColNewText = $argInputs.eq(0).val().trim();
+            aggColNewText = parseColPrefixes(aggColNewText);
             var gbColOldText = $description.find(".groupByCols").text();
-            var gbColNewText = $argInputs.eq(1).val();
+            var gbColNewText = $argInputs.eq(1).val().trim();
+            gbColNewText = parseColPrefixes(gbColNewText);
 
             if (noHighlight) {
                 tempText = aggColNewText;
@@ -1523,7 +1525,7 @@ window.OperationsModal = (function($, OperationsModal) {
             } else if (hasUnescapedParens(arg)) {
                 // skip
             } else if (xcHelper.hasValidColPrefix(arg, colPrefix)) {
-                arg = arg.replace(/\$/g, '');
+                arg = parseColPrefixes(arg);
                 if ($("#categoryList input").val().indexOf("user") !== 0) {
                     type = getColumnTypeFromArg(arg);
                 }
@@ -1648,10 +1650,10 @@ window.OperationsModal = (function($, OperationsModal) {
 
             // col name field, do not add quote
             if ($input.closest(".dropDownList").hasClass("colNameSection")) {
-                arg = arg.replace(/\$/g, '');
+                arg = parseColPrefixes(arg);
                 type = getColumnTypeFromArg(arg);
             } else if (xcHelper.hasValidColPrefix(arg, colPrefix)) {
-                arg = arg.replace(/\$/g, '');
+                arg = parseColPrefixes(arg);
 
                 // Since there is currently no way for users to specify what
                 // col types they are expecting in the python functions, we will
@@ -1870,7 +1872,7 @@ window.OperationsModal = (function($, OperationsModal) {
 
             // col name field, do not add quote
             if ($input.closest(".dropDownList").hasClass("colNameSection")) {
-                arg = arg.replace(/\$/g, '');
+                arg = parseColPrefixes(arg);
             } else if (hasUnescapedParens(arg)) {
                 if (hasFuncFormat(arg)) {
                     // leave arg the way it is
@@ -1884,7 +1886,8 @@ window.OperationsModal = (function($, OperationsModal) {
                 // if it contains a column name
                 // note that field like pythonExc can have more than one $col
                 // containsColumn = true;
-                arg = arg.replace(/\$/g, '');
+                arg = parseColPrefixes(arg);
+
                 var frontColName = arg;
                 var tempColNames = arg.split(",");
                 var backColNames = "";
@@ -2526,11 +2529,9 @@ window.OperationsModal = (function($, OperationsModal) {
                 value = JSON.parse(value);
             }
         }
-
+        value = parseColPrefixes(value);
         if (shouldBeString) {
             // add quote if the field support string
-
-            value = replaceEscapedColPrefixes(value);
             value = "\"" + value + "\"";
             // stringify puts in too many slashes
         }
@@ -2759,18 +2760,32 @@ window.OperationsModal = (function($, OperationsModal) {
         $input.parent().width('100%').removeClass('modifiedWidth');
     }
 
-    // turns dollar\$sign into dollar$sign
-    // but leaves dollar\\$sign as is
-    function replaceEscapedColPrefixes(str) {
-        for (var i = 1; i < str.length; i++) {
+    function parseColPrefixes(str) {
+        for (var i = 0; i < str.length; i++) {
             if (str[i] === colPrefix) {
-                if (xcHelper.isCharEscaped(str, i)) {
-                    str = str.slice(0, i - 1) + str.slice(i);
-                    i--;
+                if (str[i - 1] === "\\") {
+                    str  = str.slice(0, i - 1) + str.slice(i);
+                } else if (isActualPrefix(str, i)) {
+                    str = str.slice(0, i) + str.slice(i + 1);
                 }
             }
         }
         return (str);
+    }
+
+    // returns true if previus character, not including spaces, is either
+    // a comma, a (, or the very beginning
+    function isActualPrefix(str, index) {
+        for (var i = index - 1; i >= 0; i--) {
+            if (str[i] === ",") {
+                return (true);
+            } else if (str[i] === "(") {
+                return (true);
+            } else if (str[i] !== " ") {
+                return (false);
+            }
+        }
+        return (true);
     }
 
     // function getArgRowHtml() {

@@ -453,6 +453,14 @@ function renameTableHead($div) {
             "check"    : function() {
                 return (newName.length === 0);
             }
+        },
+        {
+            "$selector": $div.find(".tableName"),
+            "text"     : ErrTStr.TooLong,
+            "check"    : function() {
+                return (newName.length >=
+                        XcalarApisConstantsT.XcalarApiMaxTableNameLen);
+            }
         }
     ]);
 

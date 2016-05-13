@@ -37,6 +37,8 @@ function dataSampleTableTest() {
             var isLoading = true;
             DataSampleTable.show(testDSId, isLoading)
             .then(function() {
+                // XX loading icon during sample load breaks this test
+
                 assert.isTrue($datasetWrap.is(":visible"));
                 assert.isTrue($datasetWrap.hasClass("loading"));
 

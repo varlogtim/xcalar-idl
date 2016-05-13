@@ -64,6 +64,18 @@ window.JoinModal = (function($, JoinModal) {
             $joinDropdown.toggle();
         });
 
+        $joinTableName.blur(function() {
+            var tableName = $joinTableName.val().trim();
+            if (tableName && /^ | $|[*#'"]/.test(tableName) === true) {
+                // status box would get closed on blur event if no timeout
+                setTimeout(function() {
+                    StatusBox.show(ErrTStr.InvalidTableName, $joinTableName);
+                }, 0);
+
+                return;
+            }
+        });
+
         $joinDropdown.on("click", "li", function(event) {
             var $li  = $(this);
 
@@ -140,8 +152,13 @@ window.JoinModal = (function($, JoinModal) {
                 StatusBox.show(ErrTStr.NoEmpty, $joinTableName, true);
                 return;
             }
-            if (newTableName.indexOf("#") > -1) {
-                StatusBox.show(ErrTStr.NoHashTag, $joinTableName, true);
+            if (/^ | $|[*#'"]/.test(newTableName) === true) {
+                StatusBox.show(ErrTStr.InvalidTableName, $joinTableName, true);
+                return;
+            }
+            if (newTableName.length >=
+                XcalarApisConstantsT.XcalarApiMaxTableNameLen) {
+                StatusBox.show(ErrTStr.TooLong, $joinTableName, true);
                 return;
             }
 

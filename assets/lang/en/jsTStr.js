@@ -98,6 +98,8 @@ ErrTStr = {
 
     'InvalidFileName': 'Invalid file name, ' +
                        'cannot find the file in current directory.',
+    'InvalidTableName': 'Table name cannot contain any of the ' +
+                        'following characters: *#\'\"',
 
     'NoHashTag': 'Please input a valid name with no # symbols.',
 
@@ -190,7 +192,9 @@ ErrTStr = {
 
     'InvalidQuery': 'Query Failed',
 
-    'BracketsMis': 'Your function string has mismatched brackets.'
+    'BracketsMis': 'Your function string has mismatched brackets.',
+
+    'TooLong': 'Please use fewer than 255 characters'
 };
 
 ErrWRepTStr = {
@@ -457,7 +461,7 @@ ColTStr = {
     'SplitColWarn': 'Many Columns will generate',
     'SplitColWarnMsg': 'About <num> columns will be generated, ' +
                        'do you still want to continue the operation?',
-    'RenamSpecialChar': 'Invalid name, cannot contain \'()\" or ' +
+    'RenamSpecialChar': 'Invalid name, cannot contain ,\'()\" or ' +
                         'starting or ending spaces'
 };
 

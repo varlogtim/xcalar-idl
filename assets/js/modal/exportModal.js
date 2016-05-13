@@ -242,6 +242,14 @@ window.ExportModal = (function($, ExportModal) {
                 }
             },
             {
+                "$selector": $exportName,
+                "text"     : ErrTStr.TooLong,
+                "check"    : function() {
+                    return ($exportName.val().length >=
+                            XcalarApisConstantsT.XcalarApiMaxTableNameLen);
+                }
+            },
+            {
                 "$selector": $exportColumns
             },
             {
