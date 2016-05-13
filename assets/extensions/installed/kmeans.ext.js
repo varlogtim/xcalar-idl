@@ -153,6 +153,9 @@ window.UExtKMeans = (function(UExtKMeans, $) {
                               k, threshold, maxIter,
                               tableId, txId, workSheet));
             })
+            .then(function(centroidTableName) {
+                outerDeferred.resolve(centroidTableName);
+            })
             .fail(outerDeferred.reject);
 
             return (outerDeferred.promise());

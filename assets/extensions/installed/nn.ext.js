@@ -142,7 +142,7 @@ window.UExtNN = (function(UExtNN, $) {
                     hw = out.nodeInfo[1].name;
                 }
 
-                debugger;
+                // debugger;
                 var queryStr =
                     multiMatrixMult(hw, hwRow, hwCol, hwData,
                                     input, inputRow, inputCol, inputData,
@@ -185,7 +185,7 @@ window.UExtNN = (function(UExtNN, $) {
             })
             .then(function(out) {
                 var json = jQuery.parseJSON(out.kvPair[0].value);
-                debugger;
+                // debugger;
                 XcalarSetFree(resultSet.resultSetId);
             })
             /*

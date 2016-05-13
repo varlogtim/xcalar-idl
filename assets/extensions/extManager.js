@@ -295,7 +295,6 @@ window.ExtensionManager = (function(ExtensionManager, $) {
             window[modName].actionFn(txId, colNum, tableId, funcName, argList)
             .then(function(newTables) {
                 xcHelper.unlockTable(tableId);
-
                 var finalTableId;
                 if (newTables != null) {
                      if (!(newTables instanceof Array)) {
