@@ -2026,6 +2026,7 @@ window.OperationsModal = (function($, OperationsModal) {
 
         getProperCastOptions(allColTypes);
         var isCastAvailable = displayCastOptions(allColTypes);
+        $operationsModal.find('.cast .list li').show();
 
         if (isCastAvailable) {
             $operationsModal.find('.cast').addClass('showing');
