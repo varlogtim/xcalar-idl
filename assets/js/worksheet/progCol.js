@@ -2111,7 +2111,9 @@ window.ColManager = (function($, ColManager) {
     }
 
     function pullColHelper(key, newColid, tableId, startIndex, numberOfRows) {
-        if (key !== "" & key != null) {
+        if (key === "") {
+            return;
+        } else if (key != null) {
             if (/\\.([0-9])/.test(key)) {
                 // slash followed by dot followed by number is ok
             } else if (/\.([0-9])/.test(key)) {
