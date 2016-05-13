@@ -19,7 +19,8 @@ window.ExtensionOpModal = (function(ExtensionOpModal, $) {
         modalHelper = new ModalHelper($extModal, {
             "minHeight": minHeight,
             "minWidth" : minWidth,
-            "noResize" : true
+            "noResize" : true,
+            "noCenter" : true
         });
 
         $extModal.draggable({
@@ -68,6 +69,8 @@ window.ExtensionOpModal = (function(ExtensionOpModal, $) {
         exModName = modName;
         exFnName = fnName;
 
+        $extModal.find('.modalHeader').find('.text').text(title);
+        updateInputFields();
         modalHelper.setup({
             "open": function() {
                 // modal has its own opener
@@ -85,20 +88,16 @@ window.ExtensionOpModal = (function(ExtensionOpModal, $) {
             $extModal.fadeIn(300);
         }
 
-        $extModal.find('.modalHeader').find('.text').text(title);
-        updateInputFields();
         setModalWidth();
         $('#xcTable-' + tableId).find('.col' + colNum)
                                 .addClass('modalHighlighted');
         var $firstInput = $extModal.find('input').eq(0).focus();
         $lastInputFocused = $firstInput;
 
-        $('#xcTable-' + tableId).on('click.columnPicker', '.header, td.clickable',
-            function(event) {
+        $('#xcTable-' + tableId).on('click.columnPicker', '.header, td.clickable', function(event) {
             xcHelper.fillInputFromCell(event, $lastInputFocused, "$");
         });
-        $('#xcTable-' + tableId).on('mousedown', '.header, td.clickable',
-                                    keepInputFocused);
+        $('#xcTable-' + tableId).on('mousedown', '.header, td.clickable', keepInputFocused);
     };
 
     ExtensionOpModal.addButton = function(modName, fnName, arrayOfFields) {
