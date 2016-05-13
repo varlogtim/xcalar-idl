@@ -231,7 +231,7 @@ function getUnsortedTableName(tableName, otherTableName) {
                                                              nodeArray.node)[0];
 
                     var hasReadyState = checkIfTableHasReadyState(
-                                        nodeArray.node[parentChildMap[0][0]]);
+                                  nodeArray.node[parentChildMap[0].parents[0]]);
 
                     if (!hasReadyState) {
                         var newId = Authentication.getHashId().split("#")[1];
@@ -280,7 +280,7 @@ function getUnsortedTableName(tableName, otherTableName) {
                     unsortedName1 = Dag.getDagSourceNames(parentChildMap, 0,
                                                              na1.node)[0];
                     t1hasReadyState = checkIfTableHasReadyState(
-                                            na1.node[parentChildMap[0][0]]);
+                                        na1.node[parentChildMap[0].parents[0]]);
                     console.log("Using unsorted table instead: " +
                                 srcTableName);
                 }
@@ -297,7 +297,7 @@ function getUnsortedTableName(tableName, otherTableName) {
                     unsortedName2 = Dag.getDagSourceNames(parentChildMap, 0,
                                                              na2.node)[0];
                     t2hasReadyState = checkIfTableHasReadyState(
-                                         na2.node[parentChildMap[0][0]]);
+                                       na2.node[parentChildMap[0].parents[0]]);
                     console.log("Using unsorted table instead: " +
                                 srcTableName);
                 }

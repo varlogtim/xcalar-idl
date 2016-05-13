@@ -48,8 +48,10 @@ window.DFG = (function($, DFG) {
     };
 
     DFG.drawCanvas = function($dagImage, isSchedulerPanel) {
+        var dagImageWidth = $dagImage.width();
+        var dagImageHeight = $dagImage.height();
         var canvas = $('<canvas class="previewCanvas" width="' +
-                        $dagImage.width() + '" height="' + $dagImage.height() +
+                        dagImageWidth + '" height="' + dagImageHeight +
                         '">')[0];
         $dagImage.append(canvas);
 
@@ -61,6 +63,7 @@ window.DFG = (function($, DFG) {
         var numTables = $dagTables.length;
         for (var i = 0; i < numTables; i++) {
             var $dagTable = $dagTables.eq(i);
+
             // var index = $dagTable.data('index');
             var children = ($dagTable.data('children') + "").split(",");
             var numChildren = children.length;
@@ -70,16 +73,26 @@ window.DFG = (function($, DFG) {
             } else {
                 child = children[numChildren - 2];
             }
-            
+
             var dagMidHeight = 21;
             var dagMidWidth = 20;
             if (child !== undefined) {
                 child = $dagImage.find('.dagTable[data-index=' + child + ']');
-                var top1 = parseInt($dagTable.css('top')) + dagMidHeight;
-                var left1 = parseInt($dagTable.css('left')) + dagMidWidth;
-                var top2 = parseInt(child.css('top')) + dagMidHeight;
-                var left2 = parseInt(child.css('left')) + 10;
-                
+                var top1, left1, top2, left2;
+                if (isSchedulerPanel) {
+                    top1 = parseInt($dagTable.css('top')) + dagMidHeight;
+                    left1 = parseInt($dagTable.css('left')) + dagMidWidth;
+                    top2 = parseInt(child.css('top')) + dagMidHeight;
+                    left2 = parseInt(child.css('left')) + 10;
+                } else {
+                    top1 = parseInt($dagTable.parent().css('top')) + dagMidHeight;
+                    left1 = dagImageWidth -
+                            parseInt($dagTable.parent().css('right')) - 32;
+                    top2 = parseInt(child.parent().css('top')) + dagMidHeight;
+                    left2 = dagImageWidth -
+                            parseInt(child.parent().css('right')) - 42;
+                }
+
                 ctx.beginPath();
                 ctx.moveTo(left1, top1);
 
@@ -102,7 +115,7 @@ window.DFG = (function($, DFG) {
                             endX, top1,
                             endX, endY);
                     }
-                     
+
                     ctx.lineTo(left2 + dagMidWidth, top2);
                 } else {
                     ctx.lineTo(left2, top2);
@@ -119,6 +132,8 @@ window.DFG = (function($, DFG) {
         var tableName;
         var operation;
         var firstDagTable;
+        var dagImageHeight = $dagImage.height();
+        var dagImageWidth = $dagImage.width();
         // put each blue table icon into an object, recording position and info
         $dagImage.find('.dagTable').each(function() {
             var $dagTable = $(this);
@@ -133,10 +148,12 @@ window.DFG = (function($, DFG) {
                 "index"   : $dagTable.data('index') + 1,
                 "children": children,
                 "type"    : $dagTable.data('type') || 'table',
-                "left"    : parseInt($dagTable.css('left')),
-                "top"     : parseInt($dagTable.css('top')),
+                "left"    : dagImageWidth -
+                            parseInt($dagTable.parent().css('right')) - 50,
+                "top"     : parseInt($dagTable.parent().css('top')),
                 "title"   : tableName
             };
+
             if ($dagTable.data('index') === 0) {
                 firstDagTable = table;
             }
@@ -168,7 +185,7 @@ window.DFG = (function($, DFG) {
             var $operation = $(this);
             var tooltip = $operation.attr('data-original-title') ||
                                      $operation.attr('title');
-            tooltip = tooltip.replace(/"/g, '&quot');                         
+            tooltip = tooltip.replace(/"/g, '&quot');
             operation = {
                 "tooltip": tooltip,
                 "type"   : $operation.data('type'),
@@ -176,8 +193,9 @@ window.DFG = (function($, DFG) {
                 "info"   : $operation.data('info'),
                 "table"  : $operation.data('table'),
                 "parents": $operation.find('.parentsTitle').text(),
-                "left"   : parseInt($operation.css('left')),
-                "top"    : parseInt($operation.css('top')),
+                "left"   : dagImageWidth -
+                           parseInt($operation.parent().css('right')) - 200,
+                "top"    : parseInt($operation.parent().css('top')) + 4,
                 "classes": $operation.find('.dagIcon').attr('class')
             };
             operations.push(operation);
@@ -187,11 +205,11 @@ window.DFG = (function($, DFG) {
         var canvasInfo = {
             "tables"    : tables,
             "operations": operations,
-            "height"    : $dagImage.height(),
-            "width"     : $dagImage.width()
+            "height"    : dagImageHeight,
+            "width"     : dagImageWidth
         };
         if (!withExport) {
-            canvasInfo.width += 150;
+            canvasInfo.width += 180;
         }
         return ({canvasInfo: canvasInfo, tableName: tableName});
     };
@@ -266,7 +284,7 @@ window.DFG = (function($, DFG) {
         var numNodes = retina.retinaDag.numNodes;
         var nodeIds = group.nodeIds;
         var tableName;
-        
+
         for (var i = 0; i < numNodes; i++) {
             tableName = nodes[i].name.name;
             nodeIds[tableName] = nodes[i].dagNodeId;

@@ -114,6 +114,16 @@
             pointer-events: none;
         }
     }
+
+    .dagTable.dataStore {
+        cursor: initial;
+    }
+
+    // menu
+    .rightClickDropDown .unsavable {
+        opacity: 0.5;
+        pointer-events: none;
+    }
 }
 
 .dagArea {
@@ -326,13 +336,7 @@
         vertical-align: middle;
         align-self: center;
         margin: 0 10px 10px 10px;
-    }
-
-    .dagTableWrap + .dagTableWrap {
-        margin-top: 50px;
-    }
-    .dagTableWrap + .joinWrap {
-        margin-top: 30px;
+        position: absolute;
     }
 
     .dagTable {
@@ -391,6 +395,7 @@
 
         &.dataStore {
             background: none;
+            left: 4px;
             .tableTitle {
                 .position(@top: 38px);
                 .transform (translateX(-55%));
@@ -944,9 +949,9 @@
 .canvas {
     .position(absolute, @top: 0, @left: -40px);
     z-index: -1;
-    // background-color: white;
 }
-.canvas:nth-child(2) {
+
+.canvas.full {
     z-index: 0;
     opacity: 0;
     visibility: hidden;

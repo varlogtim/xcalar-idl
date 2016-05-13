@@ -296,7 +296,6 @@ window.DagPanel = (function($, DagPanel) {
     }
 
     function setupRightClickDropdown() {
-        $dagPanel.append(getRightClickDropDownHTML());
         var $menu = $dagPanel.find('.rightClickDropDown');
         addMenuBehaviors($menu);
         addRightClickActions($menu);
@@ -420,6 +419,16 @@ window.DagPanel = (function($, DagPanel) {
             }
         }
 
+        var dagid = $menu.data('dagid');
+        var $dagImage = $('#' + dagid).find('.dagImage');
+        if ($dagImage.hasClass('unsavable')) {
+            $menu.find('li').hide();
+            $menu.find('.unsavable').show();
+        } else {
+            $menu.find('li').show();
+            $menu.find('.unsavable').hide();
+        }
+
         $menu.removeClass('leftColMenu');
         $menu.find('.selected').removeClass('selected');
         $menu.css({'top': top, 'left': left});
@@ -480,19 +489,6 @@ window.DagPanel = (function($, DagPanel) {
             $menu.css('top', '-=' + ($menu.height() + 35));
         }
         $('.tooltip').hide();
-    }
-
-    function getRightClickDropDownHTML() {
-        var html =
-        '<ul class="menu rightClickDropDown">' +
-            '<li class="saveImage">' +
-                'Save Image' +
-            '</li>' +
-            '<li class="newTabImage">' +
-                'Open Image In New Tab' +
-            '</li>' +
-        '</ul>';
-        return (html);
     }
 
     function dagTableDropDownActions($menu) {
@@ -820,25 +816,29 @@ window.Dag = (function($, Dag) {
 
     Dag.createDagImage = function(nodeArray, $container, options) {
         options = options || {};
-        var prop = {
+        var storedInfo = {
             x          : 0,
             y          : 0,
-            parentCount: 0
+            height     : 0,
+            width     : 0
         };
+
+        var dagTableHeight = 65;
+        var dagTableWidth = 214;
         var index = 0;
         var node = nodeArray[index];
         var children = "";
+        var depth = 0;
         var parentChildMap = Dag.getParentChildDagMap(nodeArray);
 
-        var x = "";
-        for (var i = 0; i < nodeArray.length; i++) {
-            x += nodeArray[i].name.name + " ";
-        }
+        var dagImageHtml = drawDagNode(node, storedInfo, nodeArray, index,
+                                       parentChildMap, children, depth).html;
 
-        var dagImageHtml = drawDagNode(node, prop, nodeArray, index,
-                                       parentChildMap, children);
-        dagImageHtml = '<div class="dagImageWrap"><div class="dagImage">' +
-                            dagImageHtml + '</div></div>';
+        var height = storedInfo.height * dagTableHeight + 30;
+        var width = storedInfo.width * dagTableWidth - 150;
+        dagImageHtml = '<div class="dagImageWrap"><div class="dagImage" ' +
+                        'style="height: ' + height + 'px;width: ' + width +
+                        'px;">' + dagImageHtml + '</div></div>';
         $container.append(dagImageHtml);
 
         var $dagImage = $container.find('.dagImage');
@@ -846,13 +846,17 @@ window.Dag = (function($, Dag) {
         var ctxClone = canvasClone.getContext('2d');
         ctxClone.strokeStyle = '#999999';
 
-        $dagImage.find('.joinWrap').eq(0).find('.dagTableWrap')
-                .each(function() {
-                    var el = $(this);
-                    drawDagLines(el, ctxClone);
-                });
+        $dagImage.find('.dagTableWrap').each(function(i) {
+            var $el = $(this);
+            var index = $el.find('.dagTable').data('index');
+            drawDagLines($el, ctxClone, parentChildMap, index);
+        });
 
         if (options.savable) {
+            // if more than 800 nodes, do not make savable, too much lag
+            if ($dagImage.find('.dagTableWrap').length > 800) {
+                return;
+            }
             var fullCanvas = true;
             var canvas = createCanvas($container, fullCanvas);
             var ctx = canvas.getContext('2d');
@@ -862,11 +866,9 @@ window.Dag = (function($, Dag) {
 
         $dagImage.find('.dagTable').each(function() {
             var $dagTable = $(this);
-            var top = Math.floor($dagTable.position().top);
-            var left = Math.floor($dagTable.position().left);
-            var $clone = $dagTable.clone();
-            $dagImage.append($clone);
-            $clone.css({top: top, left: left, position: 'absolute'});
+            var top = Math.floor($dagTable.parent().position().top);
+            var left = Math.floor($dagTable.parent().position().left +
+                                  $dagTable.position().left);
             if (options.savable) {
                 drawDagTableToCanvas($dagTable, ctx, top, left);
             }
@@ -874,19 +876,13 @@ window.Dag = (function($, Dag) {
 
         $dagImage.find('.actionType').each(function() {
             var $actionType = $(this);
-            var top = Math.floor($actionType.position().top) + 4;
-            var left = Math.floor($actionType.position().left);
-            var $clone = $actionType.clone();
-            $dagImage.append($clone);
-            $clone.css({top: top, left: left, position: 'absolute'});
+            var top = Math.floor($actionType.parent().position().top) + 4;
+            var left = Math.floor($actionType.parent().position().left);
+
             if (options.savable) {
                 drawDagActionTypeToCanvas($actionType, ctx, top, left);
             }
         });
-
-        $dagImage.height($dagImage.height() + 40);
-        $dagImage.width($dagImage.width());
-        $container.find('.joinWrap').eq(0).remove();
     };
 
     Dag.renameAllOccurrences = function(oldTableName, newTableName) {
@@ -990,23 +986,33 @@ window.Dag = (function($, Dag) {
     };
 
     Dag.getParentChildDagMap = function(nodeArray) {
-        var map = {}; // holds a map of nodes & array indices of parents
+        var map = {}; // holds a map of nodes & array indices of parents and child
         var parentIndex = 0;
         var numParents;
         for (var i = 0; i < nodeArray.length; i++) {
             numParents = getDagnumParents(nodeArray[i]);
-            map[i] = [];
+
+            if (!map[i]) {
+                map[i] = {};
+                map[i].child = -1;
+            }
+            map[i].parents = [];
             for (var j = 0; j < numParents; j++) {
-                map[i].push(++parentIndex);
+                map[i].parents.push(++parentIndex);
+
+                map[parentIndex] = {};
+                map[parentIndex].child = i;
             }
         }
+
         return (map);
     };
 
+
     Dag.getDagSourceNames = function(parentChildMap, index, dagArray) {
         var parentNames = [];
-        for (var i = 0; i < parentChildMap[index].length; i++) {
-            var parentIndex = parentChildMap[index][i];
+        for (var i = 0; i < parentChildMap[index].parents.length; i++) {
+            var parentIndex = parentChildMap[index].parents[i];
             var parentName = dagArray[parentIndex].name.name;
             parentNames.push(parentName);
         }
@@ -1020,7 +1026,7 @@ window.Dag = (function($, Dag) {
             var ptrn = ctx.createPattern(img, 'repeat');
             ctx.fillStyle = ptrn;
             ctx.fillRect(0, 0, canvas.width, canvas.height);
-            ctx.drawImage(canvasClone, 0, 50);
+            ctx.drawImage(canvasClone, -10, 50);
             ctx.save();
             var tableTitleText = $dagWrap.find('.tableTitleArea')
                                          .text();
@@ -1558,46 +1564,77 @@ window.Dag = (function($, Dag) {
         return (inputVal);
     }
 
-    function drawDagNode(dagNode, prop, dagArray, index, parentChildMap,
-                         children) {
-        var properties = {};
-        properties.x = prop.x + 1;
-        var numParents = parentChildMap[index].length;
+    function drawDagNode(dagNode, storedInfo, dagArray, index,
+                         parentChildMap, children, depth) {
+
+        storedInfo.width = Math.max(storedInfo.width, depth + 1);
+        var coor = {};
+        var lower;
+        var upper;
+        var numParents = parentChildMap[index].parents.length;
         var accumulatedDrawings = "";
         children += "," + index;
         if (children[0] === ",") {
             children = children.substr(1);
         }
 
+        var drawRet;
+
+        // recursive call of drawdagnode on node's parents
         for (var i = 0; i < numParents; i++) {
-            var parentIndex = parentChildMap[index][i];
-            properties.y = i * 2 + 1 - numParents + prop.y;
+            var parentIndex = parentChildMap[index].parents[i];
 
-            accumulatedDrawings += drawDagNode(dagArray[parentIndex],
-                                                properties, dagArray,
-                                                parentIndex, parentChildMap,
-                                                children);
+            drawRet = drawDagNode(dagArray[parentIndex], storedInfo,
+                                  dagArray,parentIndex, parentChildMap,
+                                  children, depth + 1);
 
-        }
-        var oneTable = drawDagTable(dagNode, dagArray, parentChildMap, index,
-                                    children);
-        var newHtml;
-        if (accumulatedDrawings) {
-            newHtml = "<div class='joinWrap'><div class='parentContainer'>" +
-                      accumulatedDrawings + "</div>" + oneTable + "</div>";
+            accumulatedDrawings += drawRet.html;
+
+            if (i === 0) {
+                lower = drawRet.yPos;
+            } else {
+                upper = drawRet.yPos;
+            }
         }
 
-        if (newHtml) {
-            return (newHtml);
+        var yPos;
+        if (numParents === 0) {
+            coor.y = storedInfo.height;
+            yPos = storedInfo.height;
+            storedInfo.lower = storedInfo.height;
+            storedInfo.upper = storedInfo.height;
+            storedInfo.height++;
+        } else if (numParents === 1) {
+            coor.y = lower;
+            yPos = lower;
         } else {
-            return (accumulatedDrawings + oneTable);
+            coor.y = (lower + upper) / 2;
+            yPos = ((lower + upper) / 2);
         }
+
+        coor.x = depth;
+
+        var oneTable = drawDagTable(dagNode, dagArray, parentChildMap, index,
+                                    children, coor);
+
+        var newHtml = accumulatedDrawings + oneTable;
+
+        return ({
+            html: newHtml,
+            yPos: yPos
+        });
     }
 
-    function drawDagTable(dagNode, dagArray, parentChildMap, index, children) {
+    function drawDagTable(dagNode, dagArray, parentChildMap, index, children,
+                          coor) {
         var dagOrigin = drawDagOperation(dagNode, dagArray, parentChildMap,
                                          index);
-        var dagTable = '<div class="dagTableWrap clearfix">' +
+        var dagTableHeight = 65;
+        var dagTableWidth = 214;
+        var top = coor.y * dagTableHeight;
+        var right = coor.x * dagTableWidth;
+        var dagTable = '<div class="dagTableWrap clearfix" ' +
+                        'style="top:' + top + 'px;right: '+ right + 'px;">' +
                         dagOrigin;
         var key = getInputType(XcalarApisTStr[dagNode.api]);
         var parents = Dag.getDagSourceNames(parentChildMap, index, dagArray);
@@ -1684,7 +1721,7 @@ window.Dag = (function($, Dag) {
             }
 
             originHTML += '<div class="actionType dropdownBox ' + operation +
-                        '" style="top:' + 0 + 'px; right:' + 0 + 'px;" ' +
+                        '" style="top:' + 0 + 'px;" ' +
                         'data-type="' + operation + '" ' +
                         'data-info="' + info.text.replace(/"/g, "'") + '" ' +
                         'data-column="' + info.column.replace(/"/g, "'") +
@@ -1941,8 +1978,8 @@ window.Dag = (function($, Dag) {
 
     /* Generation of dag elements and canvas lines */
     function createCanvas($dagWrap, full) {
-        var dagWidth = $dagWrap.find('.dagImage > div').width();
-        var dagHeight = $dagWrap.find('.dagImage > div').height();
+        var dagWidth = $dagWrap.find('.dagImage').width() + 50;
+        var dagHeight = $dagWrap.find('.dagImage').height();
         var className = "";
         if (full) {
             dagHeight += 50;
@@ -1950,65 +1987,50 @@ window.Dag = (function($, Dag) {
         }
         var canvasHTML = $('<canvas class="canvas' + className +
                             '" width="' + (dagWidth + 80) +
-                            '" height="' + (dagHeight + 40) + '"></canvas>');
+                            '" height="' + (dagHeight) + '"></canvas>');
         $dagWrap.find('.dagImage').append(canvasHTML);
         return (canvasHTML[0]);
     }
 
     // this function draws all the lines going into a blue table icon and its
     // corresponding gray origin rectangle
-    function drawDagLines(dagTable, ctx) {
-        if (dagTable.prev().children().length !== 2 ) { // exclude joins
-            if (dagTable.children('.dataStore').length === 0) {
-                //exclude datasets
-                drawStraightDagConnectionLine(dagTable, ctx);
+    function drawDagLines($dagTable, ctx, parentChildMap, index) {
+        var childIndex = parentChildMap[index].child;
+        var child;
+        var parents = parentChildMap[index].parents;
+
+        if (parents.length !== 2) { // exclude joins
+
+            if (parentChildMap[index].parents.length) { //exclude datasets
+                drawStraightDagConnectionLine($dagTable, ctx, parentChildMap);
             }
         } else { // draw lines for joins
+            var $dagImage = $dagTable.parent();
+            var origin1 = $dagImage.find('.dagTable[data-index="' +
+                                          parents[0] + '"]').parent();
+            var origin2 = $dagImage.find('.dagTable[data-index="' + parents[1] +
+                                          '"]').parent();
 
-            var origin1 = dagTable.prev().children().eq(0)
-                          .children().eq(1).find('.dagTable');
-            var origin2 = dagTable.prev().children().eq(1)
-                          .children().eq(1).find('.dagTable');
+            var tableX = $dagTable.position().left + 200;
+            var tableY = $dagTable.position().top + 20;
 
-            var desiredY = (origin1.position().top + origin2.position().top) / 2;
-            var currentY = dagTable.find('.dagTable').position().top;
-            var yAdjustment = (desiredY - currentY) * 2;
-            dagTable.css({'margin-top': yAdjustment});
-
-            var tableX = dagTable.find('.dagTable').position().left + 40;
-            var tableY = dagTable.find('.dagTable').position().top +
-                         dagTable.height() / 2;
-            drawLine(ctx, tableX, tableY); // line entering table
+            drawLine(ctx, tableX, tableY, null); // line entering table
 
             curvedLineCoor = {
-                x1: origin1.position().left + origin1.width() + 40,
-                y1: origin1.position().top + origin1.height() / 2,
-                x2: Math.floor(dagTable.find('.actionTypeWrap')
-                                        .position().left + 12 + 40),
-                y2: Math.floor(dagTable.find('.actionTypeWrap').position().top)
+                x1: origin1.position().left + 240,
+                y1: origin1.position().top + 20,
+                x2: $dagTable.position().left + 82,
+                y2: $dagTable.position().top + 3,
             };
             drawCurve(ctx, curvedLineCoor);
         }
     }
 
     // draw the lines corresponding to tables not resulting from joins
-    function drawStraightDagConnectionLine(dagTable, ctx) {
-        var tableX = dagTable.find('.dagTable').position().left + 40;
-        var farLeftX = dagTable.position().left + 40;
-        var currentY = dagTable.offset().top;
-        var desiredY;
-
-        if (dagTable.prev().children().children('.dagTableWrap').length > 0) {
-            desiredY = dagTable.prev().children()
-                                        .children('.dagTableWrap')
-                                        .offset().top;
-        } else {
-            desiredY = dagTable.prev().children('.dagTableWrap').offset().top;
-        }
-        var yAdjustment = (desiredY - currentY) * 2;
-        dagTable.css({'margin-top': yAdjustment});
-        var tableCenterY = dagTable.find('.dagTable').position().top +
-                     dagTable.height() / 2;
+    function drawStraightDagConnectionLine($dagTable, ctx, parentChildMap) {
+        var farLeftX = $dagTable.position().left + 40;
+        var tableX = farLeftX + 180;
+        var tableCenterY = $dagTable.position().top + 20;
         drawLine(ctx, tableX, tableCenterY, (tableX - farLeftX + 20));
     }
 
