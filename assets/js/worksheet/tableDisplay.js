@@ -1259,8 +1259,8 @@ window.TblManager = (function($, TblManager) {
                         TblManager.sendTableToOrphaned(tablesToRemove[i]);
                     } else {
                         TblManager.sendTableToOrphaned(tablesToRemove[i], {
-                            "keepInWS": true,
-                            noFocusWS: noFocusWS
+                            "keepInWS" : true,
+                            "noFocusWS": noFocusWS
                         });
                     }
                 }

@@ -1121,7 +1121,7 @@ window.WSManager = (function($, WSManager) {
             xcHelper.dropdownOpen($wsIconWrap, $tabMenu, {
                 "offsetX"      : -7,
                 "ignoreSideBar": true,
-                "floating": true,
+                "floating"     : true,
                 "callback"     : function() {
                     if (numTabs === 1) {
                         $tabMenu.find('.delete').addClass('unavailable');

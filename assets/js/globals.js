@@ -43,8 +43,6 @@ var gTables = {}; // This is the main global array containing structures
                     // Stores TableMeta structs
 var gOrphanTables = [];
 var gActiveTableId = "";
-var gDSObj = {};    //obj for DS folder structure
-var gRetinaObj = {}; //obj for retina modal
 var gLastClickTarget = $(window); // track which element was last clicked
 var gDatasetBrowserResultSetId = 0; // resultSetId for currently viewed
 var gIsTableScrolling = false;

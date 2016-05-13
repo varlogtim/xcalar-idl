@@ -509,7 +509,7 @@ window.RowScroller = (function($, RowScroller) {
             "upper": rowInfo.scrollAreaOffset + rowInfo.rowScrollerWidth -
                      rangeWidth
         };
-        rowInfo.maxTranslate = 100 - 100 *(rangeWidth / rowInfo.rowScrollerWidth) + 0.2;
+        rowInfo.maxTranslate = 100 - 100 * (rangeWidth / rowInfo.rowScrollerWidth) + 0.2;
 
         var cursorStyle = '<div id="moveCursor"></div>';
         $('body').addClass('tooltipOff').append(cursorStyle);
@@ -524,8 +524,8 @@ window.RowScroller = (function($, RowScroller) {
         var topRow = getFirstVisibleRowNum(tableId);
         var botRow = RowScroller.getLastVisibleRowNum(tableId);
         var totalRows = gTables[tableId].resultSetMax;
-         if (!botRow) {
-            var $table= $('#xcTable-' + tableId);
+        if (!botRow) {
+            var $table = $('#xcTable-' + tableId);
             if ($table.length) {
                 botRow = $table.find('tbody tr').length;
             }
@@ -537,8 +537,8 @@ window.RowScroller = (function($, RowScroller) {
         var pctRowsShowing = 100 * (numRowsShowing / totalRows);
 
         return ({
-            topRow: topRow,
-            botRow: botRow,
+            topRow        : topRow,
+            botRow        : botRow,
             numRowsShowing: numRowsShowing,
             pctRowsShowing: pctRowsShowing
         });
@@ -549,7 +549,7 @@ window.RowScroller = (function($, RowScroller) {
         var botRow = RowScroller.getLastVisibleRowNum(tableId);
         var totalRows = gTables[tableId].resultSetMax;
         if (!botRow) {
-            var $table= $('#xcTable-' + tableId);
+            var $table = $('#xcTable-' + tableId);
             if ($table.length) {
                 botRow = $table.find('tbody tr').length;
             }
