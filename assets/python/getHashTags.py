@@ -14,8 +14,9 @@ class xcalarTags:
         hashTags = hashTags.text().split(" ")
         pageTags = dict()
         title = d("h1").text()
+        inPageSummary = d(".InPageSummary").text()
         pageTags["pageTitle"] = title
-        pageTags["inPageSummary"] = d(".InPageSummary").text()
+        pageTags["InPageSummary"] = inPageSummary
         for tag in hashTags:
             if tag == "":
                 continue
@@ -23,7 +24,7 @@ class xcalarTags:
                 pageTags[tag] += 1
             else:
                 pageTags[tag] = 1
-        filepath = "assets"+filepath[2:]
+
         self.hashTagsDict[filepath] = pageTags
 
     def getTagsFromFolder(self, rootDir, ext):
@@ -44,17 +45,34 @@ class xcalarTags:
                     continue
                 if htag not in globalHashTag:
                     globalHashTag[htag] = set()
-                globalHashTag[htag].add((page, pageDict["pageTitle"],
-                                         pageDict["inPageSummary"]))
+                globalHashTag[htag].add((page, pageDict["pageTitle"]))
         finalHashTag = dict()
         for tag in globalHashTag:
             listOfLinks = list()
-            for link, title, summary in globalHashTag[tag]:
-                struct = {"link": link, "title": title, 
-                          "summary": summary}
+            for link, title in globalHashTag[tag]:
+                struct = {"link": link, "title": title}
                 listOfLinks.append(struct)
             finalHashTag[tag] = listOfLinks
         self.globalTags = finalHashTag
+
+    def convertHashTagsDict(self):
+        tagsList = list()
+        for key in self.hashTagsDict:
+            d = dict()
+            d["url"] = key
+            for tag in self.hashTagsDict[key]:
+                if tag == "pageTitle":
+                    d["title"] = self.hashTagsDict[key][tag]
+                elif tag == "InPageSummary":
+                    d["text"] = self.hashTagsDict[key][tag]
+                else:
+                    if "tags" in d:
+                        d["tags"] += tag + " "
+                    else:
+                        d["tags"] = tag + " "
+
+            tagsList.append(d)
+        return tagsList
 
     def prettyPrint(self):
         print "HashTagsDict: "
@@ -69,12 +87,13 @@ class xcalarTags:
 
 if __name__ == "__main__":
     hashTagTree = xcalarTags()
-    hashTagTree.getTagsFromFolder(
-            "../help/", "htm")
+
+    hashTagTree.getTagsFromFolder("../help/", "htm")
     hashTagTree.invertTags()
     #hashTagTree.prettyPrint()
+    array = hashTagTree.convertHashTagsDict()
     fout = open("../js/tutorial/tags.js", "wb")
     fout.write("var helpHashTags = ")
-    fout.write(json.dumps(hashTagTree.globalTags))
+    fout.write(json.dumps(array))
     fout.write(";")
 
