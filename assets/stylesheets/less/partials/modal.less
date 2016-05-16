@@ -2327,7 +2327,7 @@ html.microsoft {
         }
     }
 
-    .topSection .label, .inputSection .label {
+    .tag {
         .size(@width: 90px, @height: 25px);
         .font(@weight: bold, @size: 13px, @line-height: 25px);
         float: left;
@@ -2335,14 +2335,37 @@ html.microsoft {
         cursor: default;
     }
 
+    .leftSection {
+        // .size(@width: 130px, @height: 100%);
+        // float: left;
+        // background-color: @color-background-lightLightGray;
+        // box-shadow: 1px 0px 1px 0px rgba(0, 0, 0, 0.4);
+
+        // XXX temporary do it until backend support different target
+        display: none;
+    }
+
+    .rightSection {
+        .size(@width: ~"calc(100% - 130px)", @height: 100%);
+        float: left;
+
+        // XXX temporary do it until backend support different target
+        .size(@width: 100%, @height: 100%);
+    }
+
     .modalTopMain {
         .size(@height: 58px);
-        padding: 14px 0;
         cursor: default;
 
-        .topSection {
-            .size(@width: 90%, @height: 25px);
-            margin: 0px auto;
+        .leftSection {
+            .btn {
+                .size(@width: 110px);
+                .center-align;
+            }
+        }
+
+        .rightSection {
+            padding: 14px 11px;
 
             .label {
                 width: 70px;
@@ -2506,7 +2529,20 @@ html.microsoft {
     .modalMain {
         .position(relative);
         .size(@height: ~"calc(100% - 300px)");
-        padding: 5px 0;
+
+        .leftSection {
+            border-top: 1px solid @color-white;
+            overflow-y: auto;
+
+            .targetContainer {
+                margin: 0 auto;
+            }
+        }
+
+        .rightSection {
+            padding: 5px 0;
+            .position(relative);
+        }
 
         .loadingSection {
             display: none;
@@ -2587,6 +2623,14 @@ html.microsoft {
         }
 
         &.gridView {
+            .targetContainer {
+                .size(@width: 65px);
+
+                .grid-unit.active {
+                    background: @color-mercury;
+                }
+            }
+
             .titleSection, .fileDate, .fileSize {
                 display: none;
             }
@@ -2624,7 +2668,23 @@ html.microsoft {
                 overflow-y: scroll;
             }
 
-            .grid-unit {
+            .targetContainer {
+                .size(@width: 100px);
+
+                .grid-unit {
+                    .listViewForGrid;
+                    .size(@width: auto);
+                    margin-top: 7px;
+
+                    .label {
+                        .size(@width: ~"calc(100% - 25px)");
+                        margin-left: 25;
+                        .textOverflowOneLine;
+                    }
+                }
+            }
+
+            .mainSection .grid-unit {
                 .size(@height: 30px);
                 margin: 0 auto;
                 display: block;

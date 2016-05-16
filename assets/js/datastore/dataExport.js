@@ -194,7 +194,7 @@ window.ExportTarget = (function($, ExportTarget) {
     }
 
     function getGridHtml(name) {
-        var gridHtml = '<div class="ds grid-unit display">' +
+        var gridHtml = '<div class="target grid-unit display">' +
                             '<div class="gridIcon"></div>' +
                             '<div class="listIcon">' +
                                 '<span class="icon"></span>' +

@@ -475,7 +475,8 @@ module.exports = {
         'filePathHint': 'Click to see history',
         'CONFIRM': 'OPEN DATASET',
         'FileName': 'File Name',
-        'FileFormat': 'File Format'
+        'FileFormat': 'File Format',
+        'NewTraget': 'New Target'
     },
 
     joinModdal: {

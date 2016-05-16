@@ -25,7 +25,7 @@ window.FileBrowser = (function($, FileBrowser) {
         "XLSX": "Excel"
     };
     var dsIconHeight = 72;
-    var minWidth  = 480;
+    var minWidth  = 600;
     var minHeight = 400;
     /* End Of Contants */
 
@@ -107,6 +107,16 @@ window.FileBrowser = (function($, FileBrowser) {
                 }
             }
         }, ".grid-unit");
+
+        var $targetContainer = $fileBrowser.find(".targetContainer");
+        $targetContainer.on("click", ".grid-unit", function(event) {
+            event.stopPropagation();
+            $targetContainer.find(".grid-unit.active").removeClass("active");
+            $(this).addClass("active");
+            console.log("acttve");
+            // XXX to do, add function to switch target
+            // when backend is ready
+        });
 
         // confirm to open a ds
         $fileBrowser.on("click", ".confirm", function() {

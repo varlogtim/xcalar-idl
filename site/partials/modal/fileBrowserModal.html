@@ -4,7 +4,7 @@
   <header class="modalHeader">
     <span class="text"><%= dicts.fileBrowser.header %></span>
     <div class="close">
-        <span class="icon"></span>
+      <span class="icon"></span>
     </div>
   </header>
   <!-- File Browser Instruction -->
@@ -14,9 +14,14 @@
   </section>
   <!-- File Browser Menu Bar -->
   <section class="modalTopMain">
-    <div class="topSection">
+    <!-- data target part -->
+    <div class="leftSection">
+      <button id="fileBrowserTarget" class="btn btnMid"><%= dicts.fileBrowser.NewTraget %></button>
+    </div>
+    <!-- browser part -->
+    <div class="rightSection">
       <!-- Location -->
-      <div class="label"><%= dicts.fileBrowser.location %>:</div>
+      <div class="label tag"><%= dicts.fileBrowser.location %>:</div>
       <!-- up -->
       <div id="fileBrowserUp" class="iconWrapper icon-up disabled" title="<%= dicts.fileBrowser.Up %>" data-toggle="tooltip" data-placement="top" data-container="body">
         <span class="icon"></span>
@@ -48,19 +53,19 @@
           <!-- sort dropdown -->
           <ul id="fileBrowserSortMenu" class="menu">
             <li data-sortkey="name">
-              <span class="label"><%= dicts.common.Name %></span>
+              <span class="label tag"><%= dicts.common.Name %></span>
               <span class="icon"></span>
             </li>
             <li data-sortkey="size">
-              <span class="label"><%= dicts.common.Size %></span>
+              <span class="label tag"><%= dicts.common.Size %></span>
               <span class="icon"></span>
             </li>
             <li data-sortkey="type">
-                <span class="label"><%= dicts.common.Type %></span>
+                <span class="label tag"><%= dicts.common.Type %></span>
                 <span class="icon"></span>
             </li>
             <li data-sortkey="date">
-              <span class="label"><%= dicts.common.Date %></span>
+              <span class="label tag"><%= dicts.common.Date %></span>
               <span class="icon"></span>
             </li>
           </ul>
@@ -76,44 +81,59 @@
   </section>
   <!-- File Browser Main Section -->
   <section id="fileBrowserMain" class="modalMain gridView">
-    <!-- Loading Sectoin -->
-    <section class="loadingSection">
-      <div class="waitingIcon"></div>
-    </section>
-    <!-- Titles -->
-    <section class="titleSection">
+    <!-- data target part -->
+    <div class="leftSection">
+      <div class="targetContainer">
+        <div class="target grid-unit">
+          <div class="gridIcon"></div>
+          <div class="listIcon">
+            <span class="icon"></span>
+          </div>
+          <div class="label">Local File System</div>
+        </div>
+      </div>
+    </div>
+    <!-- browser part -->
+    <div class="rightSection">
+      <!-- Loading Sectoin -->
+      <section class="loadingSection">
+        <div class="waitingIcon"></div>
+      </section>
+      <!-- Titles -->
+      <section class="titleSection">
         <!-- file name -->
         <div class="title fileName" data-sortkey="name">
-          <span class="label"><%= dicts.common.Name %></span>
+          <span class="label tag"><%= dicts.common.Name %></span>
           <span class="icon"></span>
         </div>
         <!-- file date -->
         <div class="title fileDate" data-sortkey="date">
-          <span class="label"><%= dicts.common.DateModified %></span>
+          <span class="label tag"><%= dicts.common.DateModified %></span>
           <span class="icon"></span>
         </div>
         <!-- file size -->
         <div class="title fileSize" data-sortkey="size">
-          <span class="label"><%= dicts.common.Size %></span>
+          <span class="label tag"><%= dicts.common.Size %></span>
           <span class="icon"></span>
         </div>
-    </section>
-    <!-- Main Content -->
-    <div class="shadow"></div>
-    <section id="fileBrowserContainer" class="mainSection"></section>
+      </section>
+      <!-- Main Content -->
+      <div class="shadow"></div>
+      <section id="fileBrowserContainer" class="mainSection"></section>
+    </div>
   </section>
   <!-- File Info Section -->
   <section class="modalSubMain">
     <!-- Input for file name -->
     <section class="inputSection">
-      <div class="label">
+      <div class="label tag">
         <label for="fileBrowserInputName"><%= dicts.fileBrowser.FileName %>:</label>
       </div>
       <input id="fileBrowserInputName" type="text" value="" spellcheck="false">
     </section>
     <!-- Input for file format -->
     <section class="inputSection">
-      <div class="label"><%= dicts.fileBrowser.FileFormat %>:</div>
+      <div class="label tag"><%= dicts.fileBrowser.FileFormat %>:</div>
       <div id="fileBrowserFormat" class="dropDownList">
         <div class="text"><%= dicts.common.all %></div>
         <div class="iconWrapper">
