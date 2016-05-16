@@ -285,9 +285,8 @@
         &.ui-sortable-helper {
             height: ~"calc(100% - 30px)" !important;
             box-shadow: -1px 0px 0px @color-shadow-topGrayMed;
-            // height: 100px !important;
             .prettyJson {
-                height: ~"calc(100% - 19px)";
+                height: ~"calc(100% - 48px)";
             }
         }
         &.active {
@@ -366,7 +365,7 @@
         }
     }
 
-    .optionsBar {
+    .bar {
         height: 29px;
         background-color: @color-json-options-bar;
         color: @color-text-darkGray;
@@ -381,6 +380,10 @@
             cursor: pointer;
             line-height: 28px;
         }
+    }
+
+    .optionsBar {
+        border-bottom: 1px solid @color-border-bottomGrayMed;
 
         .dragHandle {
             .image("../../images/jsonModal/drag-handle.png", 50%, 45%);
@@ -602,6 +605,26 @@
             // }
         }
     }
+
+    .infoBar {
+        border-top: 1px solid @color-white;
+        .flex-display;
+        padding: 0px 5px 0px 22px;
+
+        .text {
+            color: @color-text-blue;
+        }
+
+        .tableName {
+            .flex(2 1 auto);
+            .textOverflowOneLine;
+            padding-right: 5px;
+        }
+        .rowNum {
+            .flex(3 1 auto);
+        }
+    }
+
     .jsonWrap:only-child {
         .btn.remove {
             pointer-events: none;
@@ -609,7 +632,7 @@
         }
     }
     .prettyJson {
-        .size(@height: ~"calc(100% - 19px)", @min-width: 100px, @min-height: 100px);
+        .size(@height: ~"calc(100% - 48px)", @min-width: 100px, @min-height: 100px);
         padding-left: 10px;
         padding: 10px 0px 10px 10px;
         overflow-y: auto;

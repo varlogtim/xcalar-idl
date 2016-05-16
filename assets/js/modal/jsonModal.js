@@ -799,7 +799,12 @@ window.JSONModal = (function($, JSONModal) {
             }
         }
 
-        $jsonArea.append(getJsonWrapHtml(prettyJson));
+        var $jsonWrap = $jsonArea.find('.jsonWrap:last');
+        var rowNum = xcHelper.parseRowNum($jsonTd.closest('tr')) + 1;
+        var tableId = xcHelper.parseTableId($jsonTd.closest('table'));
+        var tableName = gTables[tableId].tableName;
+
+        $jsonArea.append(getJsonWrapHtml(prettyJson, tableName, rowNum));
 
         if (window.gProjectOff) {
             $jsonModal.find('.dropdownBox').hide();
@@ -998,11 +1003,11 @@ window.JSONModal = (function($, JSONModal) {
 
     }
 
-    function getJsonWrapHtml(prettyJson) {
+    function getJsonWrapHtml(prettyJson, tableName, rowNum) {
         var html = '<div class="jsonWrap">';
         if (isDataCol) {
             html +=
-            '<div class="optionsBar">' +
+            '<div class="optionsBar bar">' +
                 '<div class="dragHandle jsonDragHandle"></div>' +
                 '<div class="vertLine"></div>' +
                 '<div class="btn btnDeselected compareIcon single" ' +
@@ -1087,6 +1092,18 @@ window.JSONModal = (function($, JSONModal) {
                 // '</div>' +
                 '<div class="dropdownBox">' +
                     '<div class="icon"></div>' +
+                '</div>' +
+            '</div>' +
+            '<div class="infoBar bar">' +
+                '<div class="tableName" ' +
+                        'data-toggle="tooltip" ' +
+                        'data-container="body" ' +
+                        'data-placement="bottom" ' +
+                        'title="' + tableName + '">Table:&nbsp;&nbsp;' +
+                    '<span class="text">' + tableName + '</span>' +
+                '</div>' +
+                '<div class="rowNum">Row:&nbsp;&nbsp;' +
+                    '<span class="text">' + rowNum.toLocaleString("en") + '</span>' +
                 '</div>' +
             '</div>' +
             '<div class="prettyJson primary">' +
