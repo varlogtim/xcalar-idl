@@ -60,16 +60,14 @@ class xcalarTags:
         for key in self.hashTagsDict:
             d = dict()
             d["url"] = key
+            d["tags"] = "" # all entries must have the tags key
             for tag in self.hashTagsDict[key]:
                 if tag == "pageTitle":
                     d["title"] = self.hashTagsDict[key][tag]
                 elif tag == "InPageSummary":
                     d["text"] = self.hashTagsDict[key][tag]
                 else:
-                    if "tags" in d:
-                        d["tags"] += tag + " "
-                    else:
-                        d["tags"] = tag + " "
+                    d["tags"] += tag + " "
 
             tagsList.append(d)
         return tagsList
