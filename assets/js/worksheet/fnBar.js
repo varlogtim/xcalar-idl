@@ -48,10 +48,15 @@ window.FnBar = (function(FnBar, $) {
                     // Open paren
                     var oldStr = $fnBar.val();
                     var oldCaret = $fnBar.caret();
-                    var newStr = oldStr.substring(0, oldCaret) +
+                    var valInFrontCaret = oldStr[oldCaret];
+                    if (valInFrontCaret === undefined ||
+                        valInFrontCaret === " " ||
+                        valInFrontCaret === ")") {
+                        var newStr = oldStr.substring(0, oldCaret) +
                                  ")" + oldStr.substring(oldCaret);
-                    $fnBar.val(newStr);
-                    $fnBar.caret(oldCaret);
+                        $fnBar.val(newStr);
+                        $fnBar.caret(oldCaret);
+                    }
                 } else if (event.which === keyCode.Enter) {
                     if (xcHelper.checkMatchingBrackets($fnBar.val())) {
                         functionBarEnter();
