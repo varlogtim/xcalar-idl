@@ -191,7 +191,8 @@ window.FnBar = (function(FnBar, $) {
                                         ((mainFrameWidth - matchWidth) / 2));
                 }
             },
-            "ignore": "="
+            "ignore": "=",
+            "arrowsPreventDefault": true
         });
 
         searchHelper.setup();

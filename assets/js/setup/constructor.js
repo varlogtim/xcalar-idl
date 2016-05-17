@@ -1664,10 +1664,6 @@ SearchBar.prototype = {
                 }
             }
         });
-        searchBar.$arrows.mousedown(function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-        });
 
         searchBar.$downArrow.click(function() {
             var evt = {which: keyCode.Down, type: 'keydown'};
@@ -1678,6 +1674,13 @@ SearchBar.prototype = {
             var evt = {which: keyCode.Up, type: 'keydown'};
             $searchInput.trigger(evt);
         });
+
+        if (options.arrowsPreventDefault) {
+            searchBar.$arrows.mousedown(function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+            });
+        }
     },
     highlightSelected: function($match) {
         if (this.options.highlightSelected) {
