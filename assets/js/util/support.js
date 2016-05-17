@@ -29,10 +29,12 @@ window.Support = (function(Support, $) {
 
         KVStore.commit()
         .then(function() {
-            sessionStorage.removeItem(username);
             return XcalarKeyPut(KVStore.commitKey, defaultCommitFlag, false, gKVScope.FLAG);
         })
-        .then(deferred.resolve)
+        .then(function() {
+            sessionStorage.removeItem(username);
+            deferred.resolve();
+        })
         .fail(deferred.reject);
 
         return (deferred.promise());
@@ -183,7 +185,7 @@ window.Support = (function(Support, $) {
     function getUserIdUnique(name) {
         var hash = jQuery.md5(name);
         var len = 5;
-        var id = parseInt("0x"+hash.substring(0, len)) + 4000000;
+        var id = parseInt("0x" + hash.substring(0, len)) + 4000000;
         return id;
     }
 

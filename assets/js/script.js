@@ -22,18 +22,23 @@ function getUrlVars() {
 }
 
 function unloadHandler(isAsync, doNotLogout) {
+    var deferred = jQuery.Deferred();
+
     if (isAsync) {
-        Support.releaseSession();
-        sleep("500ms");
+        Support.releaseSession()
+        .then(deferred.resolve)
+        .fail(deferred.reject);
+
         freeAllResultSets();
-        sleep("500ms");
     } else {
         freeAllResultSetsSync()
         .then(function() {
             return (Support.releaseSession());
         })
+        .then(deferred.resolve)
         .fail(function(error) {
             console.error(error);
+            deferred.reject(error);
         })
         .always(function() {
             removeUnloadPrompt();
@@ -45,6 +50,8 @@ function unloadHandler(isAsync, doNotLogout) {
             }
         });
     }
+
+    return deferred.promise();
 }
 
 function removeUnloadPrompt() {
@@ -487,7 +494,6 @@ window.StartManager = (function(StartManager, $) {
 
     function documentReadyGeneralFunction() {
         var backspaceIsPressed = false;
-        var hasRelease = false;
         var $rowInput = $("#rowInput");
 
         $(document).keydown(function(event){
@@ -535,27 +541,31 @@ window.StartManager = (function(StartManager, $) {
             }
         });
 
+        var releaseTimer;
+        var unloadPromise;
+
         window.onbeforeunload = function() {
+            unloadPromise = unloadHandler(true);
+            Support.stopHeartbeatCheck();
+
+            releaseTimer = setTimeout(function() {
+                // not unload;
+                unloadPromise.then(Support.holdSession)
+                .always(function() {
+                    Support.heartbeatCheck();
+                });
+            }, 500);
+
             if (backspaceIsPressed) {
                 backspaceIsPressed = false;
                 return CommonTxtTstr.LogoutWarn;
             } else {
                 return CommonTxtTstr.LogoutWarn;
-                /**
-                hasRelease = true;
-                Support.releaseSession();
-                sleep("500ms");
-                freeAllResultSets();
-                sleep("500ms"); */
             }
         };
 
         window.onunload = function() {
-            if (!hasRelease) {
-                // XXX this may not work
-                // now it's fine since backend do not has refCount
-                unloadHandler(true);
-            }
+            clearTimeout(releaseTimer);
         };
 
         var winResizeTimer;
