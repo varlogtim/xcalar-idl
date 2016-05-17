@@ -193,9 +193,18 @@ window.DataSampleTable = (function($, DataSampleTable) {
 
     function dataStoreTableScroll($tableWrapper) {
         var numRowsToFetch = 20;
+        var curDSId = $("#worksheetTable").data("dsid");
+
         if (currentRow + initialNumRowsToFetch >= totalRows) {
             return;
         }
+
+        if ($("#worksheetTable").hasClass("fetching")) {
+            // when still fetch the data, no new trigger
+            console.info("Still fetching previous data!");
+            return;
+        }
+
         if ($tableWrapper[0].scrollHeight - $tableWrapper.scrollTop() -
                    $tableWrapper.outerHeight() <= 1) {
             if (currentRow === 0) {
@@ -204,15 +213,23 @@ window.DataSampleTable = (function($, DataSampleTable) {
                 currentRow += numRowsToFetch;
             }
 
-            scrollSampleAndParse(currentRow, numRowsToFetch)
+            $("#worksheetTable").addClass("fetching");
+
+            scrollSampleAndParse(currentRow, numRowsToFetch, curDSId)
             .fail(function(error) {
                 if (error.status === StatusT.StatusInvalidResultSetId) {
                     var dsId = $("#worksheetTable").data("dsid");
+                    if (curDSId !== dsId) {
+                        // when change ds
+                        console.warn("Sample table change to", dsId, "cancel fetch");
+                        return;
+                    }
+
                     var datasetName = DS.getDSObj(dsId).getFullName();
                     XcalarMakeResultSetFromDataset(datasetName)
                     .then(function(result) {
                         gDatasetBrowserResultSetId = result.resultSetId;
-                        return scrollSampleAndParse(currentRow, numRowsToFetch);
+                        return scrollSampleAndParse(currentRow, numRowsToFetch, curDSId);
                     })
                     .fail(function(innerError) {
                         console.error("Scroll data sample table fails", innerError);
@@ -220,11 +237,16 @@ window.DataSampleTable = (function($, DataSampleTable) {
                 } else {
                     console.error("Scroll data sample table fails", error);
                 }
+            })
+            .always(function() {
+                // when switch ds, #worksheetTable will be re-built
+                // so this is the only place the needs to remove class
+                $("#worksheetTable").removeClass("fetching");
             });
         }
     }
 
-    function scrollSampleAndParse(rowToGo, rowsToFetch) {
+    function scrollSampleAndParse(rowToGo, rowsToFetch, curDSId) {
         var deferred = jQuery.Deferred();
 
         XcalarSetAbsolute(gDatasetBrowserResultSetId, rowToGo)
@@ -233,6 +255,14 @@ window.DataSampleTable = (function($, DataSampleTable) {
         })
         .then(parseSampleData)
         .then(function(jsonKeys, jsons) {
+            var dsId = $("#worksheetTable").data("dsid");
+            if (curDSId !== dsId) {
+                // when change ds
+                console.warn("Sample table change to", dsId, "cancel fetch");
+                deferred.resolve();
+                return;
+            }
+
             var selectedCols = {};
             var $worksheetTable = $("#worksheetTable");
             var realJsonKeys = [];
