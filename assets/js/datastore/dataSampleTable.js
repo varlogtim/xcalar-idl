@@ -529,7 +529,7 @@ window.DataSampleTable = (function($, DataSampleTable) {
         }
         // table header
         for (var i = 0; i < numKeys; i++) {
-            var key     = jsonKeys[i];
+            var key     = jsonKeys[i].replace(/\'/g, '&#39');
             var thClass = "th col" + (i + 1);
             var type    = columnsType[i];
             th +=

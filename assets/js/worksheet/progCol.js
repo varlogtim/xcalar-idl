@@ -2345,9 +2345,25 @@ window.ColManager = (function($, ColManager) {
         if (key == null) {
             return ("");
         }
-        var nested = key.replace(/\]/g, "")
-                        .replace(/\[/g, ".")
-                        .match(/([^\\.]|\\.)+/g);
+
+        // replace votes[funny] with votes.funny but votes\[funny\] will remain
+        var isEscaped = false;
+        for (var i = 0; i < key.length; i++) {
+            if (isEscaped) {
+                isEscaped = false;
+            } else {
+                if (key[i] === "[") {
+                    key = key.substr(0, i) + "." + key.substr(i + 1);
+                } else if (key[i] === "]") {
+                    key = key.substr(0, i) + key.substr(i + 1);
+                    i--;
+                } else if (key[i] === "\\") {
+                    isEscaped = true;
+                }
+            }
+        }
+
+        var nested = key.match(/([^\\.]|\\.)+/g);
 
         if (nested == null) {
             return ("");
@@ -2358,6 +2374,17 @@ window.ColManager = (function($, ColManager) {
 
         return (nested);
     }
+
+     function parseBracket(key) {
+        for (var i = 0; i < key.length; i++) {
+            if (key[i] === "[") {
+                key[i] = ".";
+            }
+        }
+        return (key);
+    }
+
+
     // parse json string of a table row
     function parseRowJSON(jsonStr) {
         var value;

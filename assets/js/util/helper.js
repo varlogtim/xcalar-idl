@@ -1629,13 +1629,15 @@ window.xcHelper = (function($, xcHelper) {
     };
 
     xcHelper.escapeColName = function(str) {
-        // adds a backslash before each of these: [ ] / . \
-        return (str.replace(/[\[\]\/\.\\]/g, "\\$&"));
+        // adds a backslash before each of these: [ ] . \
+        return (str.replace(/[\[\]\.\\]/g, "\\$&"));
     };
 
     xcHelper.unescapeColName = function(str) {
         str = str.replace(/\\\\/g, "\\");
         str = str.replace(/\\\./g, "\.");
+        str = str.replace(/\\\[/g, "\[");
+        str = str.replace(/\\\]/g, "\]");
         return (str);
     };
 

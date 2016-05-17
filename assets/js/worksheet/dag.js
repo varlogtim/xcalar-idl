@@ -1816,6 +1816,7 @@ window.Dag = (function($, Dag) {
                     filterType = filterTypeMap[abbrFilterType];
                     var filterValue = filterStr.slice(filterStr.indexOf(',') + 2,
                                                       filterStr.lastIndexOf(')'));
+
                     info.column = filteredOn;
                     if (filterType === "regex") {
                         info.tooltip = "Filtered table &quot;" + parents[0] +
@@ -1824,6 +1825,8 @@ window.Dag = (function($, Dag) {
                                        filteredOn + ".";
                     } else if (filterType === "not") {
                         filteredOn = filteredOn.slice(filteredOn.indexOf("(") + 1);
+                        filterValue = filterValue
+                                        .slice(0, filterValue.lastIndexOf(')'));
                         info.column = filteredOn;
                         info.tooltip = "Filtered table &quot;" + parents[0] +
                                        "&quot; excluding " + filterValue +

@@ -1249,7 +1249,7 @@ window.JSONModal = (function($, JSONModal) {
         for (var key in obj) {
             var value = obj[key];
             key = xcHelper.escapeHTMlSepcialChar(key);
-
+            var dataKey = key.replace(/\"/g, "&quot;"); // replace " with &quot;
             switch (typeof value) {
                 case ('string'):
                     value = xcHelper.escapeHTMlSepcialChar(value);
@@ -1258,7 +1258,7 @@ window.JSONModal = (function($, JSONModal) {
                     if (options.inarray) {
                         value =
                             '<span class="jArray jInfo" ' +
-                                'data-key="' + key + '">' +
+                                'data-key="' + dataKey + '">' +
                                 value +
                             '</span>, ';
                     }
@@ -1268,9 +1268,10 @@ window.JSONModal = (function($, JSONModal) {
                     value = '<span class="jNum text">' + value + '</span>';
 
                     if (options.inarray) {
+
                         value =
                             '<span class="jArray jInfo" ' +
-                                'data-key="' + key + '">' +
+                                'data-key="' + dataKey + '">' +
                                 value +
                             '</span>,';
                     }
@@ -1298,7 +1299,7 @@ window.JSONModal = (function($, JSONModal) {
                         }
                         value =
                         '[<span class="jArray jInfo ' + emptyArray + '" ' +
-                            'data-key="' + key + '">' +
+                            'data-key="' + dataKey + '">' +
                             prettifyJson(value, indent, options) +
                         '</span>],';
                     } else {
@@ -1314,7 +1315,7 @@ window.JSONModal = (function($, JSONModal) {
                         if (options.inarray) {
                             value =
                             '<span class="jArray jInfo" ' +
-                                'data-key="' + key + '">' +
+                                'data-key="' + dataKey + '">' +
                                 value +
                             '</span>,';
                         }
@@ -1335,9 +1336,9 @@ window.JSONModal = (function($, JSONModal) {
             } else {
                 value = value.replace(/,$/, "");
                 result +=
-                    '<div class="jsonBlock jInfo" data-key="' + key + '">' +
+                    '<div class="jsonBlock jInfo" data-key="' + dataKey + '">' +
                         indent +
-                        '"<span class="jKey text">' + key + '</span>": ' +
+                        '"<span class="jKey text">' + dataKey + '</span>": ' +
                         value + ',' +
                     '</div>';
             }
@@ -1365,15 +1366,29 @@ window.JSONModal = (function($, JSONModal) {
             var $jInfo     = $(this);
             var key        = "";
             var escapedKey = "";
+            var modifiedKey = "";
+            var needsBrackets = false;
+            var needsDot = false;
 
             if ($jInfo.parent().hasClass('jArray') &&
                 !$jInfo.hasClass('jsonBlock')) {
-                key = '[' + $jInfo.data('key') + ']';
-            } else if (!$jInfo.hasClass('jArray')) {
-                key = '.' + $jInfo.data('key');
-            }
+                key = $jInfo.data('key');
+                needsBrackets = true;
 
-            escapedKey = xcHelper.escapeColName(key).substr(1);
+            } else if (!$jInfo.hasClass('jArray')) {
+                key = $jInfo.data('key');
+                needsDot = true;
+            }
+            key += "";
+            escapedKey = xcHelper.escapeColName(key);
+
+            if (needsBrackets) {
+                key = "[" + key + "]";
+                escapedKey = "[" + escapedKey + "]";
+            } else if (needsDot) {
+                key = "." + key;
+                escapedKey = "." + escapedKey;
+            }
 
             name = key + name;
             escapedName = escapedKey + escapedName;

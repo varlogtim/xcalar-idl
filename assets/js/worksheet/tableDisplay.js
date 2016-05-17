@@ -660,6 +660,7 @@ window.TblManager = (function($, TblManager) {
             disabledProp = "disabled";
             disabledClass = "";
         }
+        columnName = columnName.replace(/\"/g, "&quot;");
 
         var tooltip = columnClass.indexOf("indexedColumn") < 0 ? "" :
                          ' title="Indexed Column" data-toggle="tooltip" ' +
