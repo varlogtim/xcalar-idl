@@ -187,35 +187,37 @@ window.TableList = (function($, TableList) {
     };
 
     TableList.refreshAggTables = function() {
-        var aggInfo = WSManager.getAggInfos();
-        var tables = [];
+        // XX temporarily disable until we have aggs stored as variables;
 
-        for (var key in aggInfo) {
-            // extract tableId, colName, and aggOps from key
-            var keySplits = key.split("#");
-            var tableId = keySplits[0];
-            var aggStr  = generateAggregateString(keySplits[1], keySplits[2]);
+        // var aggInfo = WSManager.getAggInfos();
+        // var tables = [];
 
-            tables.push({
-                "key"      : key,
-                "tableName": gTables[tableId].tableName,
-                "aggStr"   : aggStr,
-                "value"    : aggInfo[key]
-            });
-        }
+        // for (var key in aggInfo) {
+        //     // extract tableId, colName, and aggOps from key
+        //     var keySplits = key.split("#");
+        //     var tableId = keySplits[0];
+        //     var aggStr  = generateAggregateString(keySplits[1], keySplits[2]);
 
-        // sort by table Name
-        tables.sort(function(a, b) {
-            var compareRes = a.tableName.localeCompare(b.tableName);
-            if (compareRes === 0) {
-                // if table name is the same, compare aggStr
-                return (a.aggStr.localeCompare(b.aggStr));
-            } else {
-                return compareRes;
-            }
-        });
+        //     tables.push({
+        //         "key"      : key,
+        //         "tableName": gTables[tableId].tableName,
+        //         "aggStr"   : aggStr,
+        //         "value"    : aggInfo[key]
+        //     });
+        // }
 
-        generateAggTableList(tables);
+        // // sort by table Name
+        // tables.sort(function(a, b) {
+        //     var compareRes = a.tableName.localeCompare(b.tableName);
+        //     if (compareRes === 0) {
+        //         // if table name is the same, compare aggStr
+        //         return (a.aggStr.localeCompare(b.aggStr));
+        //     } else {
+        //         return compareRes;
+        //     }
+        // });
+
+        // generateAggTableList(tables);
     };
 
     TableList.removeAggTable = function(tableId) {
@@ -615,6 +617,7 @@ window.TableList = (function($, TableList) {
     TableList.removeTable = function(tableId, type) {
         var tableType;
         var $li = $();
+        var $listWrap;
         if (type) {
             tableType = type;
         } else {
@@ -627,34 +630,35 @@ window.TableList = (function($, TableList) {
         }
 
         if (tableType === "active") {
-            $li = $("#activeTablesList").find('.tableInfo[data-id="' +
-                                                    tableId + '"]');
+            $listWrap = $("#activeTablesList");
+            $li = $listWrap.find('.tableInfo[data-id="' + tableId + '"]');
         } else if (tableType === "orphaned") {
             // if orphan, tableId is actually tableName
-            $li = $('#orphanedTableList').find('.tableInfo[data-tablename="' +
+            $listWrap = $('#orphanedTableList');
+            $li = $listWrap.find('.tableInfo[data-tablename="' +
                                                     tableId + '"]');
         } else {
-            $li = $('#archivedTableList').find('.tableInfo[data-id="' +
-                                                    tableId + '"]');
+            $listWrap = $('#archivedTableList');
+            $li = $listWrap.find('.tableInfo[data-id="' + tableId + '"]');
         }
 
         var $timeLine = $li.closest(".timeLine");
-
         $li.remove();
-        var $tableList = $timeLine.closest('.tableLists');
+        var $tableList = $listWrap.find('.tableLists');
+
         if ($timeLine.find('.tableInfo').length === 0) {
             $timeLine.remove();
         }
-        if ($tableList.find('ul').length === 0) {
-            if ($tableList.closest('#orphanedTableList').length) {
+        if (tableType === TableType.Orphan) {
+            if ($tableList.find('li').length === 0) {
                 $tableList.siblings('.secondButtonWrap')
                           .find('.btn:not(.refresh)')
                           .hide();
-            } else {
-                $tableList.siblings('.secondButtonWrap').hide();
+                $listWrap.find('.searchbarArea').hide();
             }
-
-            $tableList.siblings('.searchArea').hide();
+        } else if ($tableList.find('ul').length === 0) {
+            $tableList.siblings('.secondButtonWrap').hide();
+            $listWrap.find('.searchbarArea').hide();
         }
 
     };
@@ -1144,7 +1148,7 @@ window.TableList = (function($, TableList) {
     }
 
     function clearTableListFilter($section) {
-        $section.find(".searchArea input").val("");
+        $section.find(".searchbarArea input").val("");
         filterTableList($section, null);
     }
 

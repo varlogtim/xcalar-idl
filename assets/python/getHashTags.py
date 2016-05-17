@@ -91,7 +91,7 @@ if __name__ == "__main__":
     #hashTagTree.prettyPrint()
     array = hashTagTree.convertHashTagsDict()
     fout = open("../js/tutorial/tags.js", "wb")
-    fout.write("var helpHashTags = ")
+    fout.write("var helpHashTags = {\"pages\":")
     fout.write(json.dumps(array))
-    fout.write(";")
+    fout.write("};")
 

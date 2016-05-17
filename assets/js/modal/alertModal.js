@@ -108,6 +108,9 @@ window.Alert = (function($, Alert){
         } else {
             msg = error;
         }
+        if (msg === undefined) {
+            msg = title;
+        }
 
         var alertOptions = {
             "title"  : title,
