@@ -13,6 +13,7 @@ StatusMessageTStr = {
 'JoinFailed' : 'Join table failed',
 'DeleteTable' : 'Deleting table',
 'DeleteTableFailed': 'Delete table failed',
+'PartialDeleteTableFail': 'Some tables could not be deleted',
 'CouldNotDelete' : 'Could not be deleted',
 'ExportTable' : 'Exporting table',
 'ExportFailed' : 'Export failed',
@@ -194,7 +195,11 @@ ErrTStr = {
 
     'BracketsMis': 'Your function string has mismatched brackets.',
 
-    'TooLong': 'Please use fewer than 255 characters'
+    'TooLong': 'Please use fewer than 255 characters',
+
+    'TablesNotDeleted': 'The following tables were not deleted:',
+
+    'NoTablesDeleted': 'No tables were deleted.'
 };
 
 ErrWRepTStr = {
@@ -223,6 +228,8 @@ ErrWRepTStr = {
     'NoLessNum': 'Please enter a value bigger than or equal to <num>',
 
     'NoBiggerNum': 'Please enter a value less than or equal to <num>',
+
+    'TableNotDeleted': 'Table <name> was not deleted.'
 };
 
 TipsTStr = {

@@ -588,12 +588,13 @@ window.TblManager = (function($, TblManager) {
             Transaction.done(txId);
             deferred.resolve();
         })
-        .fail(function(error){
-            Transaction.fail(txId, {
-                "error"  : error,
-                "failMsg": StatusMessageTStr.DeleteTableFailed
-            });
-            deferred.reject(error);
+        .fail(function() {
+            var success = tableDeleteFailHandler(arguments, tables, txId);
+            if (success) {
+                deferred.resolve(arguments);
+            } else {
+                deferred.reject(arguments);
+            }
         });
 
         return (deferred.promise());
@@ -1024,6 +1025,48 @@ window.TblManager = (function($, TblManager) {
         gMaxEntriesPerPage = Math.max(rowsNeeded, gMinRowsPerScreen);
         gMaxEntriesPerPage = Math.ceil(gMaxEntriesPerPage / 10) * 10;
     };
+
+    function tableDeleteFailHandler(results, tables, txId) {
+        var hasSuccess = false;
+        var fails = [];
+        var errorMsg = "";
+        var tablesMsg = "";
+        var failedTables = "";
+        for (var i = 0, len = results.length; i < len; i++) {
+            if (results[i] != null && results[i].error != null) {
+                fails.push({tables: tables[i], error: results[i].error});
+                failedTables += tables[i] + ", ";
+            } else {
+                hasSuccess = true;
+            }
+        }
+
+        var numFails = fails.length;
+        if (numFails) {
+            failedTables = failedTables.substr(0, failedTables.length - 2);
+            if (numFails > 1) {
+                tablesMsg = ErrTStr.TablesNotDeleted + " " + failedTables;
+            } else {
+                tablesMsg = xcHelper.replaceMsg(ErrWRepTStr.TableNotDeleted, {
+                                                    "name": failedTables
+                                                });
+            }
+        }
+
+        if (hasSuccess) {
+            Transaction.done(txId);
+            if (numFails) {
+                errorMsg = fails[0].error + ". " + tablesMsg;
+                Alert.error(StatusMessageTStr.PartialDeleteTableFail, errorMsg);
+            }
+        } else {
+            Transaction.fail(txId, {
+                "error"  : fails[0].error + ". " + ErrTStr.NoTablesDeleted,
+                "failMsg": StatusMessageTStr.DeleteTableFailed
+            });
+        }
+        return (hasSuccess);
+    }
 
 
     function infScrolling(tableId) {

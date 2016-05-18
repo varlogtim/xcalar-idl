@@ -148,6 +148,7 @@ window.TableList = (function($, TableList) {
         });
 
         searchHelper.setup();
+        searchHelper.$arrows.hide();
 
         $("#orphanedTableList-search").on("input", "input", function() {
             var keyWord = $(this).val();
@@ -157,6 +158,7 @@ window.TableList = (function($, TableList) {
         $("#orphanedTableList-search").on("click", ".clear", function() {
             searchHelper.clearSearch(function() {
                 clearTableListFilter($("#orphanedTableList"), null);
+                searchHelper.$arrows.hide();
             });
         });
     };
@@ -491,7 +493,10 @@ window.TableList = (function($, TableList) {
         } else if (action === "delete") {
             TblManager.deleteTables(tables, tableType)
             .then(deferred.resolve)
-            .fail(deferred.reject);
+            .fail(deferred.reject)
+            .always(function() {
+                $tableList.find('.addTableBtn').removeClass('selected');
+            });
         }
 
         return (deferred.promise());
@@ -661,6 +666,7 @@ window.TableList = (function($, TableList) {
             $listWrap.find('.searchbarArea').hide();
         }
 
+        $tableList.find('.addTableBtn').removeClass('selected');
     };
 
 
@@ -1043,7 +1049,9 @@ window.TableList = (function($, TableList) {
         });
 
         if (keyWord == null || keyWord === "") {
-            searchHelper.clearSearch();
+            searchHelper.clearSearch(function() {
+                searchHelper.$arrows.hide();
+            });
             $section.find('input').css("padding-right", 30);
             return;
         } else {
@@ -1069,6 +1077,9 @@ window.TableList = (function($, TableList) {
 
             if (searchHelper.numMatches !== 0) {
                 scrollMatchIntoView($section, searchHelper.$matches.eq(0));
+                searchHelper.$arrows.show();
+            } else {
+                searchHelper.$arrows.hide();
             }
         }
     }
