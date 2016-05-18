@@ -608,6 +608,9 @@ input {
         .flex-mid {
             position: relative;
             z-index: 2;
+            height: 18px;
+            margin-top: 4px;
+
             &.editable {
                 .editableHead {
                     pointer-events: initial;
@@ -636,7 +639,7 @@ input {
 
     .editableHead {
         .position(relative);
-        .size(@width: ~"calc(100% + 2px)");
+        .size(@width: ~"calc(100% + 2px)", @height: 18px);
         padding: 0px 0px 0px 3px;
         background-color: transparent;
         border: none;
@@ -1896,7 +1899,7 @@ ul.inputMenu {
         }
         .draggableArea {
             float: left;
-            height: 26px;
+            height: @height-colHeader;
             width: ~"calc(100% - 28px)";
             position: absolute;
             left: 27px;

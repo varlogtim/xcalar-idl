@@ -107,6 +107,18 @@
         .dataColText {
             padding-left: 15px;
         }
+        .dataCol .flex-mid {
+            display: none;
+        }
+    }
+    .dataCol {
+        .flexWrap.flex-left {
+           display: none;
+        }
+        input {
+            padding-right: 3px !important;
+            text-overflow: ellipsis;
+        }
     }
 }
 
@@ -983,7 +995,7 @@
     }
     .dataCol {
         .flexWrap.flex-left {
-            display: none;
+           display: none;
         }
         input {
             padding-right: 3px !important;
@@ -1108,6 +1120,7 @@ html.microsoft {
 
             .flexWrap.flex-right {
                 .flex(0 1 0px);
+                height: @height-colHeader;
             }
 
         }

@@ -2131,7 +2131,8 @@ window.TblManager = (function($, TblManager) {
                     '<div class="flexWrap flex-mid">' +
                         '<input value="DATA" spellcheck="false" ' +
                             ' class="dataCol col' + newColid + '"' +
-                            ' data-toggle="tooltip" data-placement="bottom" ' +
+                            ' data-container="body"' +
+                            ' data-toggle="tooltip" data-placement="top" ' +
                             '" title="raw data" disabled>' +
                     '</div>' +
                     '<div class="flexWrap flex-right">' +

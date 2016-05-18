@@ -1201,7 +1201,9 @@ function moveTableTitlesAnimated(tableId, oldWidth, widthChange, speed) {
             }
         }
         center = Math.floor(center);
-        $tableTitle.animate({left: center}, duration, "linear");
+        $tableTitle.animate({left: center}, duration, "linear", function() {
+            moveTableDropdownBoxes();
+        });
     }
 }
 
