@@ -76,6 +76,7 @@ module.exports = {
         'UserName': 'User name',
         'Val': 'Value',
         'WKBK': 'Workbook',
+        'SaveWKBK': 'Click to Save Now'
     },
 
     paths: {

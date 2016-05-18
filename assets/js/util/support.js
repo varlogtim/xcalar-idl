@@ -133,7 +133,7 @@ window.Support = (function(Support, $) {
                     innerDeferred.resolve();
                 } else if (sessionStorage.getItem(username) === "hold") {
                     // when this browser tab hold the seesion and not release
-                    console.error("Session not release last time...");
+                    console.warn("Session not release last time...");
                     innerDeferred.resolve();
                 } else {
                     // when seesion is hold by others

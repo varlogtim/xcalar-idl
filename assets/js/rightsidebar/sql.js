@@ -94,6 +94,10 @@ window.SQL = (function($, SQL) {
         });
     };
 
+    SQL.hasUnCommitChange = function() {
+        return (sqlToCommit !== "") || (logCursor !== logs.length - 1);
+    };
+
     SQL.restore = function(isKVEmpty) {
         var deferred = jQuery.Deferred();
 

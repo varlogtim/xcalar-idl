@@ -22,23 +22,18 @@ function getUrlVars() {
 }
 
 function unloadHandler(isAsync, doNotLogout) {
-    var deferred = jQuery.Deferred();
-
     if (isAsync) {
-        Support.releaseSession()
-        .then(deferred.resolve)
-        .fail(deferred.reject);
-
+        // async unload should only be called in beforeload
+        // this time, no commit, only free result set
+        // as commit may only partially finished, which is dangerous
         freeAllResultSets();
     } else {
         freeAllResultSetsSync()
         .then(function() {
             return (Support.releaseSession());
         })
-        .then(deferred.resolve)
         .fail(function(error) {
             console.error(error);
-            deferred.reject(error);
         })
         .always(function() {
             removeUnloadPrompt();
@@ -50,8 +45,6 @@ function unloadHandler(isAsync, doNotLogout) {
             }
         });
     }
-
-    return deferred.promise();
 }
 
 function removeUnloadPrompt() {
@@ -493,8 +486,8 @@ window.StartManager = (function(StartManager, $) {
     }
 
     function documentReadyGeneralFunction() {
-        var backspaceIsPressed = false;
         var $rowInput = $("#rowInput");
+        var backspaceIsPressed = false;
 
         $(document).keydown(function(event){
             var isPreventEvent;
@@ -535,37 +528,28 @@ window.StartManager = (function(StartManager, $) {
             }
         });
 
-        $(document).keyup(function(event){
+        $(document).keyup(function(event) {
             if (event.which === keyCode.Backspace) {
                 backspaceIsPressed = false;
             }
         });
 
-        var releaseTimer;
-        var unloadPromise;
+        $("#autoSaveBtn").click(function() {
+            KVStore.commit();
+        });
 
         window.onbeforeunload = function() {
-            unloadPromise = unloadHandler(true);
-            Support.stopHeartbeatCheck();
-
-            releaseTimer = setTimeout(function() {
-                // not unload;
-                unloadPromise.then(Support.holdSession)
-                .always(function() {
-                    Support.heartbeatCheck();
-                });
-            }, 500);
-
-            if (backspaceIsPressed) {
-                backspaceIsPressed = false;
+            unloadHandler(true);
+            if (SQL.hasUnCommitChange()) {
                 return CommonTxtTstr.LogoutWarn;
+            } else if (backspaceIsPressed) {
+                // when no commit change but may caused by backSapce
+                backspaceIsPressed = false; // reset
+                return CommonTxtTstr.LeaveWarn;
             } else {
-                return CommonTxtTstr.LogoutWarn;
+                // when no change, no need to warn
+                return null;
             }
-        };
-
-        window.onunload = function() {
-            clearTimeout(releaseTimer);
         };
 
         var winResizeTimer;
