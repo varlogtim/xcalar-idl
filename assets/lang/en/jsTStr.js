@@ -493,6 +493,7 @@ SideBarTStr = {
     'UploadError': 'Upload Error',
     'SyntaxError': 'Syntax Error',
     'DownloadError': 'Download UDF Failed',
+    'DownoladMsg': 'UDF is empty',
     'OverwriteErr': 'Cannot overwrite default UDF'
 };
 

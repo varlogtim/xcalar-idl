@@ -55,6 +55,21 @@ window.UDF = (function($, UDF) {
         return (storedUDF);
     };
 
+    // used in extManager.js
+    UDF.storePython = function(moduleName, entireString) {
+        if (storedUDF.hasOwnProperty(moduleName)) {
+            // the case of overwrite a module
+            $listDropdown.find('li').filter(function() {
+                return $(this).text() === moduleName;
+            }).remove();
+        }
+
+        var $blankFunc = $listDropdown.find('li[name=blank]');
+        var li = '<li>' + moduleName + '</li>';
+        $blankFunc.after(li);
+        storedUDF[moduleName] = entireString;
+    };
+
     function initializeUDFList() {
         var deferred = jQuery.Deferred();
         var $blankFunc = $listDropdown.find('li[name=blank]');
@@ -119,20 +134,6 @@ window.UDF = (function($, UDF) {
 
         return (deferred.promise());
     }
-
-    UDF.storePython = function(moduleName, entireString) {
-        if (storedUDF.hasOwnProperty(moduleName)) {
-            // the case of overwrite a module
-            $listDropdown.find('li').filter(function() {
-                return $(this).text() === moduleName;
-            }).remove();
-        }
-
-        var $blankFunc = $listDropdown.find('li[name=blank]');
-        var li = '<li>' + moduleName + '</li>';
-        $blankFunc.after(li);
-        storedUDF[moduleName] = entireString;
-    };
 
     // setup UDF section
     function setupUDF() {
@@ -247,7 +248,14 @@ window.UDF = (function($, UDF) {
                     $downloadBtn.removeClass("disabled");
                     getEntireUDF(moduleName)
                     .then(function(entireString) {
-                        editor.setValue(entireString);
+                        if (entireString == null) {
+                            editor.setValue("#" + SideBarTStr.DownoladMsg);
+                        } else {
+                            editor.setValue(entireString);
+                        }
+                    })
+                    .fail(function(error) {
+                        editor.setValue("#" + error);
                     });
                 }
             },
@@ -322,6 +330,11 @@ window.UDF = (function($, UDF) {
     function downLoadUDF(moduleName) {
         getEntireUDF(moduleName)
         .then(function(entireString) {
+            if (entireString == null) {
+                Alert.error(SideBarTStr.DownloadError, SideBarTStr.DownoladMsg);
+                return;
+            }
+
             // XXX FIXME fix it if you can find a way to download it as .py file
             var element = document.createElement('a');
             element.setAttribute('href', 'data:text/plain;charset=utf-8,' +
