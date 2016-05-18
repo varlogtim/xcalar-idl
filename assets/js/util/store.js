@@ -40,13 +40,13 @@ window.KVStore = (function($, KVStore) {
         .then(function(value) {
             // "" can not be JSO.parse
             if (value != null && value.value != null && value.value !== "") {
-                // try {
+                try {
                     value = JSON.parse(value.value);
                     deferred.resolve(value);
-                // } catch(err) {
-                //     console.error(err, value, key);
-                //     deferred.reject(err);
-                // }
+                } catch(err) {
+                    console.error(err, value, key);
+                    deferred.reject(err);
+                }
             } else {
                 deferred.resolve(null);
             }
@@ -141,18 +141,23 @@ window.KVStore = (function($, KVStore) {
             var isEmpty = (gInfos == null);
             gInfos = gInfos || {};
 
-            WSManager.restore(gInfos[METAKeys.WS]);
-            TblManager.restoreTableMeta(gInfos[METAKeys.TI]);
-            DataCart.restore(gInfos[METAKeys.CART]);
-            Profile.restore(gInfos[METAKeys.STATS]);
-            DFG.restore(gInfos[METAKeys.DFG]);
-            Scheduler.restore(gInfos[METAKeys.SCHE]);
-            CLIBox.restore(gInfos[METAKeys.CLI]);
+            try {
+                WSManager.restore(gInfos[METAKeys.WS]);
+                TblManager.restoreTableMeta(gInfos[METAKeys.TI]);
+                DataCart.restore(gInfos[METAKeys.CART]);
+                Profile.restore(gInfos[METAKeys.STATS]);
+                DFG.restore(gInfos[METAKeys.DFG]);
+                Scheduler.restore(gInfos[METAKeys.SCHE]);
+                CLIBox.restore(gInfos[METAKeys.CLI]);
 
-            if (isEmpty) {
-                console.info("KVStore is empty!");
-            } else {
-                return SQL.restore();
+                if (isEmpty) {
+                    console.info("KVStore is empty!");
+                } else {
+                    return SQL.restore();
+                }
+            } catch(error) {
+                console.error(error);
+                return PromiseHelper.reject(error);
             }
         })
         .then(function() {

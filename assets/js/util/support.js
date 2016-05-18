@@ -9,11 +9,14 @@ window.Support = (function(Support, $) {
     var defaultCommitFlag = "commit-default";
 
     Support.setup = function() {
-        username = sessionStorage.getItem("xcalar-username");
-
-        // set up session variables
-        userIdName = username;
-        userIdUnique = getUserIdUnique(username);
+        try {
+            username = sessionStorage.getItem("xcalar-username");
+            // set up session variables
+            userIdName = username;
+            userIdUnique = getUserIdUnique(username);
+        } catch(error) {
+            console.error(error);
+        }
     };
 
     Support.getUser = function() {

@@ -55,7 +55,12 @@ window.WorkbookModal = (function($, WorkbookModal) {
     };
 
     WorkbookModal.initialize = function() {
-        getWorkbookInfo();
+        try {
+            getWorkbookInfo();
+        } catch(error) {
+            console.error(error);
+            Alert.error(ThriftTStr.SetupErr, error);
+        }
     };
 
     WorkbookModal.show = function(isForceShow) {

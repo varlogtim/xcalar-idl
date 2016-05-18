@@ -23,13 +23,19 @@ window.XVM = (function(XVM) {
 
         XcalarGetVersion()
         .then(function(result) {
-            var versionNum = result.output.outputResult.getVersionOutput
+            try {
+                var versionNum = result.output.outputResult.getVersionOutput
                                                        .apiVersionSignatureShort;
-            if (versionNum !== XcalarApiVersionT.XcalarApiVersionSignature) {
+                if (versionNum !== XcalarApiVersionT.XcalarApiVersionSignature) {
 
+                    deferred.reject({error: ThriftTStr.Update});
+                } else {
+                    deferred.resolve();
+                }
+            } catch(error) {
+                // code may go here if thrift changes
+                console.error(error);
                 deferred.reject({error: ThriftTStr.Update});
-            } else {
-                deferred.resolve();
             }
         })
         .fail(function() {

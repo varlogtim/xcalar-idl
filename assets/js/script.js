@@ -119,9 +119,12 @@ window.StartManager = (function(StartManager, $) {
             deferred.resolve();
         })
         .fail(function(error) {
-            if (typeof error === "string"){
-                // when it's a front end error, already has handler
-                console.error("Setup fails", error);
+            if (error === WKBKTStr.NoWkbk){
+                // when it's new workbook
+                $('#initialLoadScreen').remove();
+                WorkbookModal.forceShow();
+                var text = StatusMessageTStr.Viewing + " " + WKBKTStr.Location;
+                StatusMessage.updateLocation(true, text);
             } else if (error.status === StatusT.StatusSessionNotFound) {
                 Alert.show({
                     "title"     : WKBKTStr.NoOldWKBK,
@@ -185,8 +188,13 @@ window.StartManager = (function(StartManager, $) {
     }
 
     function setupExtensions() {
-        ExtensionManager.setup();
-        ExtensionPanel.setup();
+        try {
+            ExtensionManager.setup();
+            ExtensionPanel.setup();
+        } catch(error) {
+            console.error(error);
+            Alert.error(ThriftTStr.SetupErr, error);
+        }
     }
 
     function setupModals() {
@@ -223,16 +231,16 @@ window.StartManager = (function(StartManager, $) {
 
     function setupTooltips() {
         $("body").tooltip({
-            selector: '[data-toggle="tooltip"]',
-            delay   : {
+            "selector": '[data-toggle="tooltip"]',
+            "html"    : true,
+            "delay"   : {
                 "show": 150,
                 "hide": 100
-            },
-            html: true
+            }
         });
 
-        $("body").on('mouseenter', '[data-toggle="tooltip"]', function() {
-            $('.tooltip').hide();
+        $("body").on("mouseenter", '[data-toggle="tooltip"]', function() {
+            $(".tooltip").hide();
         });
     }
 

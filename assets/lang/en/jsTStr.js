@@ -263,6 +263,7 @@ ThriftTStr = {
 
 AlertTStr = {
     'Error': 'Error',
+    'ErrorMsg': 'Error Occurred!',
     'NoDel': 'Cannot Delete',
     'ContinueConfirm': 'Are you sure you want to continue?',
     'BracketsMis': 'Mismatched Brackets',
@@ -336,6 +337,7 @@ ProfileTStr = {
 };
 
 WKBKTStr = {
+    'NoWkbk': 'No workbook for the user',
     'Location': 'Workbook Browser',
     'NewWKBK': 'New Workbook',
     'NewWKBKInstr': 'Hello <b><user></b>, ' +

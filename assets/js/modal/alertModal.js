@@ -104,7 +104,8 @@ window.Alert = (function($, Alert){
         var msg;
 
         if (type === "object") {
-            msg = error.error || "Error Occurred!";
+            // if it's an try/catch error, code will also goes here
+            msg = error.error || AlertTStr.ErrorMsg;
         } else {
             msg = error;
         }

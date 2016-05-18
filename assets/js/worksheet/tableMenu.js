@@ -1,10 +1,14 @@
 window.TblMenu = (function(TblMenu, $) {
     TblMenu.setup = function() {
-        addMenuBehaviors($('#tableMenu'));
-        addMenuBehaviors($('#colMenu'));
-        addMenuBehaviors($('#cellMenu'));
-        addTableMenuActions();
-        addColMenuActions();
+        try {
+            addMenuBehaviors($('#tableMenu'));
+            addMenuBehaviors($('#colMenu'));
+            addMenuBehaviors($('#cellMenu'));
+            addTableMenuActions();
+            addColMenuActions();
+        } catch(error) {
+            console.error(error);
+        }
     };
 
     function addTableMenuActions() {

@@ -10,12 +10,16 @@ function setupThrift() {
 
 function setupHostName() {
     if (window.hostname == null || window.hostname === "") {
-        var url = window.location.href;
-        var lastBackSlash = url.lastIndexOf("/");
-        url = url.substring(0, lastBackSlash);
-        // XXX when backend support the split of "http://"("https://"),
-        // we do not need the following code
-        window.hostname = url.split("http://")[1];
+        try {
+            var url = window.location.href;
+            var lastBackSlash = url.lastIndexOf("/");
+            url = url.substring(0, lastBackSlash);
+            // XXX when backend support the split of "http://"("https://"),
+            // we do not need the following code
+            window.hostname = url.split("http://")[1];
+        } catch(error) {
+            console.error(error);
+        }
     }
 }
 // for convenience, add the function list here and make them

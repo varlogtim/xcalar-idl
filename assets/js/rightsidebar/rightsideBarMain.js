@@ -9,9 +9,14 @@ window.RightSideBar = (function($, RightSideBar) {
     };
 
     RightSideBar.initialize = function() {
-        TableList.initialize();
-        UDF.initialize();
-        setLastRightSidePanel();
+        try {
+            TableList.initialize();
+            UDF.initialize();
+            setLastRightSidePanel();
+        } catch(error) {
+            console.error(error);
+            Alert.error(ThriftTStr.SetupErr, error);
+        }
     };
 
     RightSideBar.clear = function() {
