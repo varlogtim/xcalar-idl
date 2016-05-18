@@ -349,28 +349,7 @@ window.OperationsModal = (function($, OperationsModal) {
         $operationsModal.find('.confirm').on('click', submitForm);
 
         $operationsModal.find('.cancel, .close').on('click', function(e, data) {
-            var time = (data && data.slow) ? 300 : 150;
-
-            $operationsModal.fadeOut(time, function() {
-                clearInput(0);
-                modalHelper.clear({"close": function() {
-                    // ops modal has its owne closer
-                    return PromiseHelper.resolve();
-                }});
-                $functionsMenu.data('category', 'null');
-                unminimizeTable();
-                $operationsModal.find('.checkbox').removeClass('checked');
-                $operationsModal.find('.minimize').hide();
-                $operationsModal.find('td.cast').find('.dropDownList')
-                                                .addClass('hidden');
-                hideCastColumn();
-                modalHelper.removeWaitingBG();
-            });
-
-            var isHide = true;
-            toggleModalDisplay(isHide, time);
-            StatusBox.forceHide();// hides any error boxes;
-            $('.tooltip').hide();
+            closeModal();
         });
 
         $operationsModal.on('click', function() {
@@ -584,7 +563,6 @@ window.OperationsModal = (function($, OperationsModal) {
         })
         .fail(function(error) {
             Alert.error("Listing of UDFs failed", error.error);
-            modalHelper.removeWaitingBG();
             deferred.reject();
         });
         return (deferred.promise());
@@ -1779,7 +1757,7 @@ window.OperationsModal = (function($, OperationsModal) {
         }
 
         if (isPassing) {
-            $operationsModal.find('.close').trigger('click', {slow: true});
+            closeModal({slow: true});
 
             var colTypeInfos = getCastInfo(args);
 
@@ -2787,6 +2765,30 @@ window.OperationsModal = (function($, OperationsModal) {
             }
         }
         return (true);
+    }
+
+    function closeModal(speed) {
+        var time = (speed && speed.slow) ? 300 : 150;
+        $operationsModal.fadeOut(time, function() {
+            clearInput(0);
+            modalHelper.clear({"close": function() {
+                // ops modal has its owne closer
+                return PromiseHelper.resolve();
+            }});
+            $functionsMenu.data('category', 'null');
+            unminimizeTable();
+            $operationsModal.find('.checkbox').removeClass('checked');
+            $operationsModal.find('.minimize').hide();
+            $operationsModal.find('td.cast').find('.dropDownList')
+                                            .addClass('hidden');
+            hideCastColumn();
+            modalHelper.removeWaitingBG();
+        });
+
+        var isHide = true;
+        toggleModalDisplay(isHide, time);
+        StatusBox.forceHide();// hides any error boxes;
+        $('.tooltip').hide();
     }
 
     // function getArgRowHtml() {
