@@ -1057,15 +1057,15 @@ window.OperationsModal = (function($, OperationsModal) {
                 numArgs = 1; // Refer to operObj.numArgs for min number
             }
             var $tbody = $operationsModal.find('.argumentTable tbody');
-            // var numRowsInTable = $tbody.find('tr').length;
-            // var numRowsNeeded = (numArgs + 1) - numRowsInTable;
-            // if (numRowsNeeded) {
-            //     var rowHtml = "";
-            //     for (var i = 0; i < numRowsNeeded; i++) {
-            //         rowHtml += getArgRowHtml();
-            //     }
-            //     $tbody.append(rowHtml);
-            // }
+            var numRowsInTable = $tbody.find('tr').length;
+            var numRowsNeeded = (numArgs + 1) - numRowsInTable;
+            if (numRowsNeeded) {
+                var rowHtml = "";
+                for (var i = 0; i < numRowsNeeded; i++) {
+                    rowHtml += getArgRowHtml();
+                }
+                $tbody.append(rowHtml);
+            }
 
             $operationsModal.find('.checkbox').removeClass('checked')
                                               .parent()
@@ -1274,8 +1274,12 @@ window.OperationsModal = (function($, OperationsModal) {
             }
             $argInputs = $operationsModal.find('.argumentSection .argument:visible');
             $operationsModal.find('.argument').parent().each(function(i) {
-                $(this).css('z-index', 10 - i);
+                // xx this would be a bug if more than 100 arguments ¯\_(ツ)_/¯
+                $(this).css('z-index', 100 - i);
             });
+
+            modalHelper.refreshTabbing();
+
             var noHighlight = true;
             checkIfStringReplaceNeeded(noHighlight);
         }
@@ -1361,8 +1365,6 @@ window.OperationsModal = (function($, OperationsModal) {
                 }
                 $description.find(".groupByCols").html(gbColNewText);
             } else {
-                // var aggColDiff = findStringDiff(aggColOldText, aggColNewText);
-                // var gbColDiff = findStringDiff(gbColOldText, gbColNewText);
 
                 var $aggColWrap = $description.find(".aggCols");
                 var $aggColSpans = $aggColWrap.find('span.char');
@@ -1459,7 +1461,7 @@ window.OperationsModal = (function($, OperationsModal) {
             end++;
         }
 
-        // The change end of the new string (ne) and old string (oe)
+        // The change end of the new string (newEnd) and old string (oldEnd)
         var newEnd = newText.length - end;
         var oldEnd = oldText.length - end;
 
@@ -2791,52 +2793,52 @@ window.OperationsModal = (function($, OperationsModal) {
         $('.tooltip').hide();
     }
 
-    // function getArgRowHtml() {
-    //     var html =
-    //     '<tr>' +
-    //         '<td>' +
-    //           '<div class="inputWrap">' +
-    //              '<div class="dropDownList">' +
-    //               '<input class="argument" type="text" tabindex="10" ' +
-    //                 'spellcheck="false">' +
-    //               '<div class="argIconWrap">' +
-    //                 '<span class="icon"></span>' +
-    //               '</div>' +
-    //               '<div class="list hint">' +
-    //                 '<ul></ul>' +
-    //                 '<div class="scrollArea top">' +
-    //                  ' <div class="arrow"></div>' +
-    //                ' </div>' +
-    //                 '<div class="scrollArea bottom">' +
-    //                   '<div class="arrow"></div>' +
-    //                 '</div>' +
-    //               '</div>' +
-    //             '</div>' +
-    //           '</div>' +
-    //         '</td>' +
-    //         '<td class="cast">' +
-    //           '<div class="dropDownList">' +
-    //               '<input class="text nonEditable" value="default" disabled>' +
-    //               '<div class="iconWrapper dropdown">' +
-    //                 '<span class="icon"></span>' +
-    //               '</div>' +
-    //               '<ul class="list">' +
-    //               '</ul>' +
-    //            '</div>' +
-    //         '</td>' +
-    //         '<td class="descCell">' +
-    //           '<div class="description"></div>' +
-    //         '</td>' +
-    //         '<td>' +
-    //           '<div class="checkboxWrap">' +
-    //             '<span class="checkbox" data-container="body" ' +
-    //                 'data-toggle="tooltip" title="' + OpModalTStr.EmptyHint + '">' +
-    //             '</span>' +
-    //           '</div>' +
-    //         '</td>' +
-    //     '</tr>';
-    //     return (html);
-    // }
+    function getArgRowHtml() {
+        var html =
+        '<tr>' +
+            '<td>' +
+              '<div class="inputWrap">' +
+                 '<div class="dropDownList">' +
+                  '<input class="argument" type="text" tabindex="10" ' +
+                    'spellcheck="false">' +
+                  '<div class="argIconWrap">' +
+                    '<span class="icon"></span>' +
+                  '</div>' +
+                  '<div class="list hint">' +
+                    '<ul></ul>' +
+                    '<div class="scrollArea top">' +
+                     ' <div class="arrow"></div>' +
+                   ' </div>' +
+                    '<div class="scrollArea bottom">' +
+                      '<div class="arrow"></div>' +
+                    '</div>' +
+                  '</div>' +
+                '</div>' +
+              '</div>' +
+            '</td>' +
+            '<td class="cast">' +
+              '<div class="dropDownList">' +
+                  '<input class="text nonEditable" value="default" disabled>' +
+                  '<div class="iconWrapper dropdown">' +
+                    '<span class="icon"></span>' +
+                  '</div>' +
+                  '<ul class="list">' +
+                  '</ul>' +
+               '</div>' +
+            '</td>' +
+            '<td class="descCell">' +
+              '<div class="description"></div>' +
+            '</td>' +
+            '<td>' +
+              '<div class="checkboxWrap">' +
+                '<span class="checkbox" data-container="body" ' +
+                    'data-toggle="tooltip" title="' + OpModalTStr.EmptyHint + '">' +
+                '</span>' +
+              '</div>' +
+            '</td>' +
+        '</tr>';
+        return (html);
+    }
 
     /* Unit Test Only */
     if (window.unitTestMode) {

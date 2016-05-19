@@ -1860,42 +1860,12 @@ ModalHelper.prototype = {
 
         // Note: to find the visiable btn, must show the modal first
         if (!options.noTabFocus) {
-            var eleLists = [
-                $modal.find(".btn"),     // buttons
-                $modal.find("input")     // input
-            ];
-
-            var focusIndex  = 0;
-            var $focusables = [];
-
-            // make an array for all focusable element
-            eleLists.forEach(function($eles) {
-                $eles.each(function() {
-                    $focusables.push($(this));
-                });
-            });
-
-            for (var i = 0, len = $focusables.length; i < len; i++) {
-                addFocusEvent($focusables[i], i);
-            }
-
-            // focus on the right most button
-            if (this.options.focusOnOpen) {
-                getEleToFocus();
-            }
+            this.refreshTabbing();
         }
 
+
         $(document).on("keydown.xcModal" + this.id, function(event) {
-            if (event.which === keyCode.Tab) {
-                 // for switch between modal tab using tab key
-                event.preventDefault();
-
-                if (!options.noTabFocus) {
-                    getEleToFocus();
-                }
-
-                return false;
-            } else if (event.which === keyCode.Escape) {
+            if (event.which === keyCode.Escape) {
                 if (options.noEsc) {
                     return true;
                 }
@@ -1934,57 +1904,6 @@ ModalHelper.prototype = {
         }
 
         return deferred.promise();
-
-        function addFocusEvent($focusable, index) {
-            $focusable.addClass("focusable").data("tabid", index);
-            $focusable.on("focus.xcModal", function() {
-                var $ele = $(this);
-                if (!isActive($ele)) {
-                    return;
-                }
-                focusOn($ele.data("tabid"));
-            });
-        }
-
-        // find the input or button that is visible and not disabled to focus
-        function getEleToFocus() {
-            // the current ele is not active, should no by focused
-            if (!isActive($focusables[focusIndex])) {
-                var start  = focusIndex;
-                focusIndex = (focusIndex + 1) % len;
-
-                while (focusIndex !== start &&
-                        !isActive($focusables[focusIndex]))
-                {
-                    focusIndex = (focusIndex + 1) % len;
-                }
-                // not find any active ele that could be focused
-                if (focusIndex === start) {
-                    focusIndex = -1;
-                }
-            }
-
-            if (focusIndex >= 0) {
-                $focusables[focusIndex].focus();
-            } else {
-                focusIndex = 0; // reset
-            }
-        }
-
-        function focusOn(index) {
-            focusIndex = index;
-            // go to next index
-            focusIndex = (focusIndex + 1) % len;
-        }
-
-        function isActive($ele) {
-            if ($ele == null) {
-                console.error("undefined element!");
-                throw "undefined element!";
-            }
-            return ($ele.is(":visible") && !$ele.is("[disabled]") &&
-                    !$ele.is("[readonly]") && !$ele.hasClass("unavailable"));
-        }
     },
 
     checkBtnFocus: function() {
@@ -2006,6 +1925,7 @@ ModalHelper.prototype = {
         var $modal = this.$modal;
 
         $(document).off("keydown.xcModal" + this.id);
+        $(document).off("keydown.xcModalTabbing" + this.id);
         $modal.find(".focusable").off(".xcModal")
                                   .removeClass("focusable");
         this.enableSubmit();
@@ -2060,6 +1980,100 @@ ModalHelper.prototype = {
             $('#modalWaitingBG').fadeOut(200, function() {
                 $(this).remove();
             });
+        }
+    },
+
+    refreshTabbing: function() {
+        var $modal = this.$modal;
+
+        $(document).off("keydown.xcModalTabbing" + this.id);
+
+        $modal.find(".focusable").off(".xcModal")
+                                 .removeClass("focusable");
+
+        var eleLists = [
+            $modal.find(".btn"),     // buttons
+            $modal.find("input")     // input
+        ];
+
+        var focusIndex  = 0;
+        var $focusables = [];
+
+        // make an array for all focusable element
+        eleLists.forEach(function($eles) {
+            $eles.each(function() {
+                $focusables.push($(this));
+            });
+        });
+
+        for (var i = 0, len = $focusables.length; i < len; i++) {
+            addFocusEvent($focusables[i], i);
+        }
+
+        // focus on the right most button
+        if (this.options.focusOnOpen) {
+            getEleToFocus();
+        }
+
+        $(document).on("keydown.xcModalTabbing" + this.id, function(event) {
+            if (event.which === keyCode.Tab) {
+                 // for switch between modal tab using tab key
+                event.preventDefault();
+                getEleToFocus();
+
+                return false;
+            }
+        });
+
+        function addFocusEvent($focusable, index) {
+            $focusable.addClass("focusable").data("tabid", index);
+            $focusable.on("focus.xcModal", function() {
+                var $ele = $(this);
+                if (!isActive($ele)) {
+                    return;
+                }
+                focusOn($ele.data("tabid"));
+            });
+        }
+
+        // find the input or button that is visible and not disabled to focus
+        function getEleToFocus() {
+            // the current ele is not active, should no by focused
+            if (!isActive($focusables[focusIndex])) {
+                var start  = focusIndex;
+                focusIndex = (focusIndex + 1) % len;
+
+                while (focusIndex !== start &&
+                        !isActive($focusables[focusIndex]))
+                {
+                    focusIndex = (focusIndex + 1) % len;
+                }
+                // not find any active ele that could be focused
+                if (focusIndex === start) {
+                    focusIndex = -1;
+                }
+            }
+
+            if (focusIndex >= 0) {
+                $focusables[focusIndex].focus();
+            } else {
+                focusIndex = 0; // reset
+            }
+        }
+
+        function focusOn(index) {
+            focusIndex = index;
+            // go to next index
+            focusIndex = (focusIndex + 1) % len;
+        }
+
+        function isActive($ele) {
+            if ($ele == null) {
+                console.error("undefined element!");
+                throw "undefined element!";
+            }
+            return ($ele.is(":visible") && !$ele.is("[disabled]") &&
+                    !$ele.is("[readonly]") && !$ele.hasClass("unavailable"));
         }
     }
 };

@@ -91,7 +91,17 @@ window.ExtensionOpModal = (function(ExtensionOpModal, $) {
         setModalWidth();
         $('#xcTable-' + tableId).find('.col' + colNum)
                                 .addClass('modalHighlighted');
-        var $firstInput = $extModal.find('input').eq(0).focus();
+
+        // focus on first unfilled input
+        var $firstInput = $extModal.find('input').filter(function() {
+            return ($(this).val() === "");
+        }).eq(0);
+
+        if (!$firstInput.length) {
+            $firstInput = $extModal.find('input').eq(0);
+        }
+        $firstInput.focus();
+
         $lastInputFocused = $firstInput;
 
         $('#xcTable-' + tableId).on('click.columnPicker', '.header, td.clickable', function(event) {
