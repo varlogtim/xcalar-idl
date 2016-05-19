@@ -177,6 +177,9 @@ describe('OperationsModal', function() {
                 expect($operationsModal.find('.argument[type=text]:visible')).to.have.length(3);
                 $argInputs = $operationsModal.find('.argument[type=text]:visible');
             });
+            it ('should have 1 visible checkbox for inc sample', function() {
+                expect($operationsModal.find('.argument[type=checkbox]:visible')).to.have.length(1);
+            });
         });
 
         describe('test type checking', function() {

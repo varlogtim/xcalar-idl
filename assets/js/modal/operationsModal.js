@@ -1058,7 +1058,13 @@ window.OperationsModal = (function($, OperationsModal) {
             }
             var $tbody = $operationsModal.find('.argumentTable tbody');
             var numRowsInTable = $tbody.find('tr').length;
-            var numRowsNeeded = (numArgs + 1) - numRowsInTable;
+            var numRowsNeeded;
+            if (operatorName === "group by") {
+                numRowsNeeded = (numArgs + 3) - numRowsInTable;
+            } else {
+                numRowsNeeded = (numArgs + 1) - numRowsInTable;
+            }
+
             if (numRowsNeeded) {
                 var rowHtml = "";
                 for (var i = 0; i < numRowsNeeded; i++) {
@@ -1144,7 +1150,6 @@ window.OperationsModal = (function($, OperationsModal) {
                                                            func);
                     }
                 }
-
 
                 $rows.eq(numArgs).addClass('colNameRow')
                                 .find('.dropDownList')
