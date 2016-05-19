@@ -98,6 +98,35 @@ window.Redo = (function($, Redo) {
                                          worksheet));
     };
 
+    redoFuncs[SQLOps.Ext] = function(options) {
+        // XXX As extension can do anything, it may need fix
+        // as we add more extensions and some break the current code
+
+        // Tested: Window, hPartition
+
+        var newTables = options.newTables;
+
+        if (newTables == null) {
+            return PromiseHelper.resolve();
+        }
+
+        var tableId = options.tableId;
+        var worksheet = WSManager.getWSFromTable(tableId);
+        var promises = [];
+        var tableToReplace = gTables[tableId].isActive() ? [] :
+                                                           [options.tableName];
+
+        for (var i = 0, len = newTables.length; i < len; i++) {
+            var newTableName = newTables[i];
+            promises.push(TblManager.refreshTable.bind(window, [newTableName],
+                                                        null,
+                                                        tableToReplace,
+                                                        worksheet));
+        }
+
+        return PromiseHelper.chain(promises);
+    };
+
     /* END BACKEND OPERATIONS */
 
     /* USER STYLING/FORMATING OPERATIONS */

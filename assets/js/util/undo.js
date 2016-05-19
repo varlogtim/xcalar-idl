@@ -34,7 +34,6 @@ window.Undo = (function($, Undo) {
     /* START BACKEND OPERATIONS */
 
     undoFuncs[SQLOps.IndexDS] = function(options) {
-        var deferred = jQuery.Deferred();
         var tableId = xcHelper.getTableId(options.tableName);
         return (TblManager.sendTableToOrphaned(tableId, {'remove': true}));
     };
@@ -168,6 +167,38 @@ window.Undo = (function($, Undo) {
         return (TblManager.sendTableToOrphaned(tableId, {'remove': true}));
     };
 
+    undoFuncs[SQLOps.Ext] = function(options) {
+        // XXX As extension can do anything, it may need fix
+        // as we add more extensions and some break the current code
+
+        // Tested: Window, hPartition
+
+        var tableId = options.tableId;
+        var newTables = options.newTables;
+
+        if (newTables == null) {
+            return PromiseHelper.resolve();
+        }
+
+        if (gTables[tableId].isActive()) {
+            // when table is in active, just hide newTables
+            var promises = [];
+
+            for (var i = 0, len = newTables.length; i < len; i++) {
+                var newTableId = xcHelper.getTableId(newTables[i]);
+                promises.push(TblManager.sendTableToOrphaned.bind(window, newTableId,
+                                                                {'remove': true}));
+            }
+
+            return PromiseHelper.chain(promises);
+        } else {
+            var worksheet = WSManager.getWSFromTable(tableId);
+            // otherwise, replace table
+            return TblManager.refreshTable([options.tableName], null,
+                                       options.newTables,
+                                       worksheet, {isUndo: true});
+        }
+    };
     /* END BACKEND OPERATIONS */
 
 
@@ -398,7 +429,7 @@ window.Undo = (function($, Undo) {
         var tableType = options.tableType;
         var tableNames = options.tableNames;
         var tableIds = [];
-        var hasTableInActiveWS = false;
+        // var hasTableInActiveWS = false;
         for (var i = 0, len = tableNames.length; i < len; i++) {
             var tableId = xcHelper.getTableId(tableNames[i]);
             tableIds.push(tableId);
@@ -428,6 +459,7 @@ window.Undo = (function($, Undo) {
             return TableList.refreshOrphanList();
         } else if (tableType === TableType.Agg) {
             console.error("Not support agg table undo!");
+            return PromiseHelper.resolve(null);
         } else {
             console.error(tableType, "not support undo!");
             return PromiseHelper.resolve(null);
@@ -540,6 +572,7 @@ window.Undo = (function($, Undo) {
             });
         } else {
             console.error(tableType, "cannot undo!");
+            deferred.resolve();
         }
 
         return deferred.promise();
@@ -666,13 +699,13 @@ window.Undo = (function($, Undo) {
         moveFirstColumn();
     }
 
-    function focusOnActiveWS(options) {
-        var wsId = WSManager.getWSFromTable(options.tableId);
-        var activeWS = WSManager.getActiveWS();
-        if (activeWS !== wsId) {
-            WSManager.focusOnWorksheet(wsId);
-        }
-    }
+    // function focusOnActiveWS(options) {
+    //     var wsId = WSManager.getWSFromTable(options.tableId);
+    //     var activeWS = WSManager.getActiveWS();
+    //     if (activeWS !== wsId) {
+    //         WSManager.focusOnWorksheet(wsId);
+    //     }
+    // }
 
     function focusTableHelper(options) {
         if (options.tableId !== gActiveTableId) {
