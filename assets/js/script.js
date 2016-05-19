@@ -543,7 +543,19 @@ window.StartManager = (function(StartManager, $) {
         });
 
         $("#autoSaveBtn").click(function() {
-            KVStore.commit();
+            var $btn = $(this);
+            xcHelper.disableSubmit($btn);
+
+            KVStore.commit()
+            .then(function() {
+                xcHelper.showSuccess();
+            })
+            .fail(function(error) {
+                Alert.error(AlertTStr.Error, error);
+            })
+            .always(function() {
+                xcHelper.enableSubmit($btn);
+            });
         });
 
         window.onbeforeunload = function() {
