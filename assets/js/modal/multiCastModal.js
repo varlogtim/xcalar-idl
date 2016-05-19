@@ -304,7 +304,6 @@ window.MultiCastModal = (function($, MultiCastModal) {
             val = $(this).find('.originalData').text();
             datas.push(val);
         });
-
         return xcHelper.suggestType(datas, type);
     }
 
@@ -369,6 +368,7 @@ window.MultiCastModal = (function($, MultiCastModal) {
 
             if (type === "object" ||
                 type === "array" ||
+                type === "mixed" ||
                 type === "undefined")
             {
                 thClass += " unselectable";
