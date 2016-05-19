@@ -4,11 +4,20 @@ export PATH:=$(PWD)/node_modules/.bin:$(PATH)
 NOW :=$(shell date +'%Y%m%d-%H%M%S')
 DESTDIR ?= .
 
+ifeq ($(XLRDIR),)
+$(error "XLRDIR is not set! Bailing...")
+endif
+ifeq ($(XLRGUIDIR),)
+$(error "XLRGUIDIR is not set! Bailing...")
+endif
+
 all: generateHtml build alert
 
 installer: generateHtml build removeConfig
 
 render: generateHtml
+
+trunk: generateHtml thriftSync build removeConfig thriftAlert
 
 $(DESTDIR):
 	@mkdir -p $@
@@ -61,3 +70,15 @@ generateHtml: node_modules/.bin/grunt
 	@echo "=== Generating html ==="
 	@mkdir -p assets/htmlFiles/walk
 	@grunt render
+
+thriftSync: $(XLRDIR)/src/bin/thrift/js/XcalarApiService.js
+	@echo "=== Syncing with XLRDIR's .js files ==="
+	@./assets/bin/syncTrunk.sh
+
+thriftAlert:
+	@echo "=== ALERT! ==="
+	@echo "You just forced the UI to talk to trunk."
+	@echo "This may cause features to break if there are thrift changes "
+	@echo "that are not yet incorporated into the front end. "
+	@echo "If something that you expect to work breaks, "
+	@echo "please send an email to ui-core@xcalar.com"
