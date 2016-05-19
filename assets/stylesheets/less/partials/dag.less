@@ -256,7 +256,7 @@
     .header {
         margin: 15px 65px 0px 15px;
         border-bottom: 1px solid @color-dag-header-border;
-        margin-bottom: 10px;
+        margin-bottom: 0px;
         padding-bottom: 4px;
     }
 
@@ -320,6 +320,7 @@
         display: block;
         float: left;
         margin-left: 30px;
+        margin-top: 10px;
         padding: 0 30px 0px 0;
     }
 
@@ -337,7 +338,35 @@
         align-self: center;
         margin: 0 10px 10px 10px;
         position: absolute;
+        &.hidden {
+            display: none;
+        }
+        &.discovered {
+            .dagTableIcon, .dataStoreIcon {
+                .transition(all 3s);
+                box-shadow: none;
+            }
+
+            &.glowing {
+                .dagTableIcon, .dataStoreIcon {
+                    box-shadow: 0px 0px 15px 4px #43D3F7;
+                }
+            }
+        }
     }
+
+    .expandWrap {
+        position: absolute;
+        .size(@width: 30px, @height: 30px);
+        border: 1px solid @color-dag-line;
+        border-radius: 100%;
+        text-align: center;
+        background-color: @color-white;
+        font-size: 20px;
+        line-height: 15px;
+        cursor: pointer;
+    }
+
 
     .dagTable {
         .position(relative, @top: 0, @right: 0);

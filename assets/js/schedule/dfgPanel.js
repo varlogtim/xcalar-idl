@@ -239,7 +239,7 @@ window.DFGPanel = (function($, DFGPanel) {
                 $listSection.find('.list').slideUp(200);
                 $dfg.find('.list').slideDown(200);
             }
-            
+
         });
 
         $listSection.on('click', '.addGroup', function() {
@@ -323,8 +323,9 @@ window.DFGPanel = (function($, DFGPanel) {
                         '<div class="dagImageWrap">' +
                             '<div class="dagImage" style="width:' +
                             dataFlow.canvasInfo.width + 'px;height:' +
-                            dataFlow.canvasInfo.height + 'px;">';               
+                            dataFlow.canvasInfo.height + 'px;">';
             var tables = dataFlow.canvasInfo.tables;
+            var expandIcons = dataFlow.canvasInfo.expandIcons;
             var hasParam;
             var tableName;
             var nodeId;
@@ -352,6 +353,11 @@ window.DFGPanel = (function($, DFGPanel) {
                 }
                 html += getOperationHtml(operations[j], hasParam);
             }
+
+            for (var j = 0; j < expandIcons.length; j++) {
+                html += getExpandIconHtml(expandIcons[j]);
+            }
+
             html += '</div></div></div>';
         }
 
@@ -428,13 +434,24 @@ window.DFGPanel = (function($, DFGPanel) {
         return (html);
     }
 
+    function getExpandIconHtml(expandIcon) {
+        var html = "";
+        html += '<div class="expandWrap horz" style="left:' + expandIcon.left +
+                    'px;top:' + expandIcon.top + 'px;" '+
+                    ' data-toggle="tooltip"' +
+                    ' data-placement="top" data-container="body" ' +
+                    'title="' + expandIcon.tooltip + '">...</div>';
+
+        return (html);
+    }
+
     function setupDagDropdown() {
         var dropdownHtml = getDagDropDownHTML();
         var $dagArea = $dfgView.find('.midContent');
         $dfgView.find('.midContent').append(dropdownHtml);
 
         var $currentIcon;
-        
+
         var $menu = $dagArea.find('.dagDropDown');
 
         $dagArea[0].oncontextmenu = function(e) {
@@ -535,7 +552,7 @@ window.DFGPanel = (function($, DFGPanel) {
             for (var i = 0; i < listLen; i++) {
                 html += '<li>' + list[i].name + '</li>';
             }
-                    
+
             html += '</ul></div>';
         }
 

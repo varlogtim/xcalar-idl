@@ -60,7 +60,10 @@ TooltipTStr = {
     'CopyLog': 'Copy the SQL log onto your clipboard',
     'GenBundle': 'Generate Support Bundle',
     'ToGridView': 'Switch to Grid View',
-    'ToListView': 'Switch to List View'
+    'ToListView': 'Switch to List View',
+    'CollapsedTable': '1 table is hidden',
+     // with replace
+    'CollapsedTables': '<number> tables are hidden'
 };
 
 CommonTxtTstr = {

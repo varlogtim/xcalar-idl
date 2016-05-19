@@ -350,13 +350,18 @@ window.DagPanel = (function($, DagPanel) {
             var dagId = $menu.data('dagid');
             var $dagWrap = $('#' + dagId);
             var tableName = $dagWrap.find('.tableTitleArea .tableName').text();
-            var canvas = $dagWrap.find('canvas').eq(1)[0];
-            if ($('html').hasClass('microsoft')) { // for IE
-                var blob = canvas.msToBlob();
-                window.navigator.msSaveBlob(blob, tableName + '.png');
-            } else {
-                downloadImage(canvas, tableName);
-            }
+
+            Dag.createSavableCanvas($dagWrap)
+            .then(function() {
+                var canvas = $dagWrap.find('canvas').eq(1)[0];
+                if ($('html').hasClass('microsoft')) { // for IE
+                    var blob = canvas.msToBlob();
+                    window.navigator.msSaveBlob(blob, tableName + '.png');
+                } else {
+                    downloadImage(canvas, tableName);
+                }
+                $dagWrap.find('canvas').eq(1).remove();
+            });
         });
 
         $menu.find('.newTabImage').mouseup(function(event) {
@@ -365,9 +370,13 @@ window.DagPanel = (function($, DagPanel) {
             }
             var dagId = $menu.data('dagid');
             var $dagWrap = $('#' + dagId);
-            var canvas = $dagWrap.find('canvas').eq(1)[0];
 
-            window.open(canvas.toDataURL("image/png"));
+            Dag.createSavableCanvas($dagWrap)
+            .then(function() {
+                var canvas = $dagWrap.find('canvas').eq(1)[0];
+                window.open(canvas.toDataURL("image/png"));
+                $dagWrap.find('canvas').eq(1).remove();
+            });
         });
 
         $menu[0].oncontextmenu = function() {
@@ -706,6 +715,10 @@ window.Dag = (function($, Dag) {
     var scrollPosition = -1;
     var dagAdded = false;
 
+    // constants
+    var dagTableHeight = 65;
+    var dagTableWidth = 214; // includes the blue table and gray operation icon
+
     Dag.construct = function(tableId, tablesToRemove) {
         var deferred = jQuery.Deferred();
         var table = gTables[tableId];
@@ -820,70 +833,78 @@ window.Dag = (function($, Dag) {
             x          : 0,
             y          : 0,
             height     : 0,
-            width     : 0
+            width     : 0,
+            condensedWidth: 0
         };
 
-        var dagTableHeight = 65;
-        var dagTableWidth = 214;
+        var numNodes = nodeArray.length;
         var index = 0;
         var node = nodeArray[index];
         var children = "";
         var depth = 0;
-        var parentChildMap = Dag.getParentChildDagMap(nodeArray);
+        var condensedDepth = 0;
+
+        var allDagInfo = Dag.getParentChildDagMap(nodeArray);
+        var dagDepth = getDagDepth(allDagInfo);
+        var condensed = dagDepth > 20 ? true : false;
+        var dagOptions = {condensed: condensed};
 
         var dagImageHtml = drawDagNode(node, storedInfo, nodeArray, index,
-                                       parentChildMap, children, depth).html;
+                                       allDagInfo, children, depth,
+                                       condensedDepth, false, [], dagOptions).html;
 
         var height = storedInfo.height * dagTableHeight + 30;
-        var width = storedInfo.width * dagTableWidth - 150;
+        var width = storedInfo.condensedWidth * dagTableWidth - 150;
+
         dagImageHtml = '<div class="dagImageWrap"><div class="dagImage" ' +
                         'style="height: ' + height + 'px;width: ' + width +
                         'px;">' + dagImageHtml + '</div></div>';
         $container.append(dagImageHtml);
 
         var $dagImage = $container.find('.dagImage');
-        var canvasClone = createCanvas($container);
-        var ctxClone = canvasClone.getContext('2d');
-        ctxClone.strokeStyle = '#999999';
+        var canvas = createCanvas($container);
+        var ctx = canvas.getContext('2d');
+        ctx.strokeStyle = '#999999';
+        ctx.beginPath();
 
-        $dagImage.find('.dagTableWrap').each(function(i) {
-            var $el = $(this);
-            var index = $el.find('.dagTable').data('index');
-            drawDagLines($el, ctxClone, parentChildMap, index);
+        for (var node in allDagInfo) {
+            if (!allDagInfo[node].isHidden) {
+                drawDagLines($dagImage, ctx, allDagInfo, node, width);
+            }
+        }
+        $dagImage.find('.expandWrap').each(function() {
+            drawExpandLines($(this), ctx);
         });
+
+        ctx.stroke();
 
         if (options.savable) {
-            // if more than 800 nodes, do not make savable, too much lag
-            if ($dagImage.find('.dagTableWrap').length > 800) {
-                return;
+            // if more than 700 nodes, do not make savable, too much lag
+            // also canvas limit is 32,767 pixels height  or width
+            var canvasLimit = 32767;
+            if (numNodes > 700 || $(canvas).width() > canvasLimit ||
+                $(canvas).height() > canvasLimit) {
+                $dagImage.addClass('unsavable');
             }
-            var fullCanvas = true;
-            var canvas = createCanvas($container, fullCanvas);
-            var ctx = canvas.getContext('2d');
-            ctx.strokeStyle = '#999999';
-            drawSavableCanvasBackground(canvas, ctx, $container, canvasClone);
         }
 
-        $dagImage.find('.dagTable').each(function() {
-            var $dagTable = $(this);
-            var top = Math.floor($dagTable.parent().position().top);
-            var left = Math.floor($dagTable.parent().position().left +
-                                  $dagTable.position().left);
-            if (options.savable) {
-                drawDagTableToCanvas($dagTable, ctx, top, left);
-            }
-        });
-
-        $dagImage.find('.actionType').each(function() {
-            var $actionType = $(this);
-            var top = Math.floor($actionType.parent().position().top) + 4;
-            var left = Math.floor($actionType.parent().position().left);
-
-            if (options.savable) {
-                drawDagActionTypeToCanvas($actionType, ctx, top, left);
-            }
-        });
+        $container.data('allDagInfo', allDagInfo);
     };
+
+    function getDagDepth(allDagInfo) {
+        var maxDepth = 0;
+        getDepthHelper(0, 0);
+        return (maxDepth);
+
+        function getDepthHelper(index, depth) {
+            depth++;
+            maxDepth = Math.max(maxDepth, depth);
+            for (var i = 0; i < allDagInfo[index].numParents; i++) {
+                var parentIndex = allDagInfo[index].parents[i];
+                getDepthHelper(parentIndex, depth);
+            }
+        }
+    }
 
     Dag.renameAllOccurrences = function(oldTableName, newTableName) {
         $dagPanel = $('#dagPanel');
@@ -957,7 +978,7 @@ window.Dag = (function($, Dag) {
             $dag = $dagWrap.find('.dagImageWrap');
             var isDagVisible = checkIfDagWrapVisible($dagWrap);
             if (!isDagVisible) {
-                $dag.scrollLeft($dag.width());
+                $dag.scrollLeft($dag.find('.dagImage').width());
             }
         } else {
             activeTableId = gActiveTableId;
@@ -972,7 +993,7 @@ window.Dag = (function($, Dag) {
                 }
             }
 
-            $dag.scrollLeft($dag.width());
+            $dag.scrollLeft($dag.find('.dagImage').width());
 
             var scrollTop = $dagPanel.find('.dagArea').scrollTop();
             var dagTop = $dagWrap.position().top;
@@ -995,6 +1016,7 @@ window.Dag = (function($, Dag) {
             if (!map[i]) {
                 map[i] = {};
                 map[i].child = -1;
+                map[i].joined = false;
             }
             map[i].parents = [];
             for (var j = 0; j < numParents; j++) {
@@ -1002,12 +1024,18 @@ window.Dag = (function($, Dag) {
 
                 map[parentIndex] = {};
                 map[parentIndex].child = i;
+                if (numParents === 2) {
+                    map[parentIndex].joined = true;
+                } else {
+                    map[parentIndex].joined = false;
+                }
             }
+
+            map[i].numParents = numParents;
         }
 
         return (map);
     };
-
 
     Dag.getDagSourceNames = function(parentChildMap, index, dagArray) {
         var parentNames = [];
@@ -1019,7 +1047,154 @@ window.Dag = (function($, Dag) {
         return (parentNames);
     };
 
+    Dag.createSavableCanvas = function($dagWrap) {
+        var deferred = jQuery.Deferred();
+        var promises = [];
+        var fullCanvas = true;
+        var canvasClone = $dagWrap.find('canvas')[0];
+        var canvas = createCanvas($dagWrap, fullCanvas);
+        var ctx = canvas.getContext('2d');
+        ctx.strokeStyle = '#999999';
+        drawSavableCanvasBackground(canvas, ctx, $dagWrap, canvasClone)
+        .then(function() {
+
+            var tableImage = new Image();
+            var dbImage = new Image();
+            tableImage.src = paths.dTable;
+            dbImage.src = paths.dbDiamond;
+
+            tableImage.onload = function() {
+                dbImage.onload = function() {
+                    $dagWrap.find('.dagTable').each(function() {
+                        var $dagTable = $(this);
+                        if (!$dagTable.parent().hasClass('hidden')) {
+                            var top = Math.floor($dagTable.parent().position().top);
+                            var left = Math.floor($dagTable.parent().position().left +
+                                              $dagTable.position().left);
+                            drawDagTableToCanvas($dagTable, ctx, top, left,
+                                                 tableImage, dbImage);
+                        }
+                    });
+
+                    $dagWrap.find('.actionType').each(function() {
+                        var $actionType = $(this);
+                        if (!$actionType.parent().hasClass('hidden')) {
+                            var top = Math.floor($actionType.parent().position().top) + 4;
+                            var left = Math.floor($actionType.parent().position().left);
+                            promises.push(drawDagActionTypeToCanvas(
+                                                $actionType, ctx, top, left));
+                        }
+                    });
+
+                    $dagWrap.find('.expandWrap').each(function() {
+                        var $expandIcon = $(this);
+                        var top = Math.floor($expandIcon.position().top);
+                        var left = Math.floor($expandIcon.position().left);
+                        drawExpandIconToCanvas($expandIcon, ctx, top, left);
+                    });
+
+                    PromiseHelper.when.apply(window, promises)
+                    .then(function() {
+                        $(canvas).hide();
+                        deferred.resolve();
+                    })
+                    .fail(function() {
+                        deferred.reject("Image loading error");
+                    });
+                };
+            };
+        });
+
+        return (deferred.promise());
+    };
+
+    function expandGroup(group, $dagWrap) {
+        var allDagInfo = $dagWrap.data('allDagInfo');
+        var $dagImage = $dagWrap.find('.dagImage');
+        var dagImageWidth = $dagImage.outerWidth();
+        var prevScrollLeft = $dagImage.parent().scrollLeft();
+        var storedInfo = {
+            width: dagImageWidth
+        };
+        horzShift = -(dagTableWidth * 0.3);
+        var numGroupNodes = group.length;
+        var $collapsedTables = $();
+        for (var i = 0; i < numGroupNodes; i++) {
+            $collapsedTables = $collapsedTables.add(
+                        $dagImage.find('.dagTable[data-index=' + group[i] + ']')
+                        .parent());
+        }
+
+        expandGroupHelper(allDagInfo, group, group[numGroupNodes - 1], $dagWrap,
+                          horzShift, storedInfo);
+
+        var newWidth = storedInfo.width;
+
+        $dagImage.outerWidth(newWidth);
+        $dagImage.parent().scrollLeft(prevScrollLeft + (newWidth - dagImageWidth));
+
+        $dagWrap.find('canvas').eq(0).remove();
+
+        var canvas = createCanvas($dagWrap);
+        var ctx = canvas.getContext('2d');
+        ctx.strokeStyle = '#999999';
+        ctx.beginPath();
+
+        for (var node in allDagInfo) {
+            if (!allDagInfo[node].isHidden) {
+                drawDagLines($dagImage, ctx, allDagInfo, node, newWidth);
+            }
+        }
+        $dagImage.find('.expandWrap').each(function() {
+            drawExpandLines($(this), ctx, newWidth);
+        });
+
+        ctx.stroke();
+
+        setTimeout(function() {
+            $collapsedTables.removeClass('glowing');
+        }, 1000);
+        setTimeout(function() {
+            $collapsedTables.removeClass('discovered');
+        }, 5000);
+    }
+
+    function expandGroupHelper(allDagInfo, group, index, $dagWrap, horzShift,
+                               storedInfo) {
+        var nodeInfo = allDagInfo[index];
+        var groupIndex = group.indexOf(index);
+        var nodeX = nodeInfo.condensedX;
+        var $dagTable = $dagWrap.find('.dagTable[data-index=' + index + ']');
+        if (groupIndex > -1) {
+            $dagTable.parent().removeClass('hidden').addClass('discovered glowing');
+            horzShift += dagTableWidth;
+            nodeInfo.isHidden = false;
+            group.splice(groupIndex, 1);
+            nodeX += (horzShift - dagTableWidth);
+        } else {
+            nodeX += horzShift;
+            if (nodeInfo.isParentHidden) {
+                var $expandIcon = $dagWrap.find('.expandWrap[data-index=' + index + ']');
+                var expandIconRight = parseInt($expandIcon.css('right'));
+                $expandIcon.css('right', (expandIconRight + horzShift));
+            }
+        }
+
+
+        nodeInfo.condensedX = nodeX;
+        $dagTable.parent().css('right', nodeX);
+        storedInfo.width = Math.max(storedInfo.width, nodeX + 64);
+
+        var numParents = nodeInfo.numParents;
+        for (var i = 0; i < numParents; i++) {
+            var parentIndex = nodeInfo.parents[i] + "";
+            expandGroupHelper(allDagInfo, group, parentIndex, $dagWrap,
+                               horzShift, storedInfo);
+        }
+    }
+
     function drawSavableCanvasBackground(canvas, ctx, $dagWrap, canvasClone) {
+        var deferred = jQuery.Deferred();
         var img = new Image();
         img.src = paths.dagBackground;
         img.onload = function() {
@@ -1040,10 +1215,13 @@ window.Dag = (function($, Dag) {
             ctx.lineTo(canvas.width - 40, 33);
             ctx.strokeStyle = '#A5A5A5';
             ctx.stroke();
+            deferred.resolve();
         };
+
+        return (deferred.promise());
     }
 
-    function drawDagTableToCanvas($dagTable, ctx, top, left) {
+    function drawDagTableToCanvas($dagTable, ctx, top, left, tImage, dImage) {
         left += 40;
         top += 50;
         var iconLeft = left;
@@ -1052,37 +1230,34 @@ window.Dag = (function($, Dag) {
         var tableImage = new Image();
 
         if ($dagTable.hasClass('dataStore')) {
-            // tableImage = dataStoreImage;
-            tableImage.src = paths.dbDiamond;
+            tableImage = dImage;
             iconLeft -= 2;
             iconTop -= 4;
         } else {
-            // tableImage = tableIconImage;
-            tableImage.src = paths.dTable;
+            tableImage = tImage;
         }
 
-        tableImage.onload = function() {
-            ctx.drawImage(tableImage, iconLeft, iconTop);
+        ctx.drawImage(tableImage, iconLeft, iconTop);
 
-            var maxWidth = 130;
-            var lineHeight = 12;
-            var x = left - 45;
-            var y = top + 38;
-            var text = $dagTable.find('.tableTitle').text();
+        var maxWidth = 130;
+        var lineHeight = 12;
+        var x = left - 45;
+        var y = top + 38;
+        var text = $dagTable.find('.tableTitle').text();
 
-            ctx.save();
-            ctx.beginPath();
-            ctx.rect(x, y, 130, 26);
-            ctx.clip();
-            ctx.font = 'bold 10px Open Sans';
-            ctx.fillStyle = '#6e6e6e';
-            ctx.textAlign = 'center';
+        ctx.save();
+        ctx.beginPath();
+        ctx.rect(x, y, 130, 26);
+        ctx.clip();
+        ctx.font = 'bold 10px Open Sans';
+        ctx.fillStyle = '#6e6e6e';
+        ctx.textAlign = 'center';
 
-            wrapText(ctx, text, x + 65, y + 10, maxWidth, lineHeight);
-        };
+        wrapText(ctx, text, x + 65, y + 10, maxWidth, lineHeight);
     }
 
     function drawDagActionTypeToCanvas($actionType, ctx, top, left) {
+        var deferred = jQuery.Deferred();
         left += 40;
         top += 50;
         var $dagIcon = $actionType.find('.dagIcon');
@@ -1107,6 +1282,7 @@ window.Dag = (function($, Dag) {
 
                 dagIcon.onload = function() {
                     ctx.drawImage(dagIcon, iconLeft, iconTop);
+                    deferred.resolve();
                 };
             }
 
@@ -1136,7 +1312,25 @@ window.Dag = (function($, Dag) {
             ctx.fillStyle = '#4D4D4D';
 
             wrapText(ctx, text, x, y, maxWidth, lineHeight);
+            if (iconSource === "none") {
+                deferred.resolve();
+            }
         };
+        return (deferred.promise());
+    }
+
+    function drawExpandIconToCanvas($expandIcon, ctx, top, left) {
+        ctx.beginPath();
+        ctx.arc(left + 45, top + 65, 15, 0, 2 * Math.PI, false);
+        ctx.fillStyle = "white";
+        ctx.fill();
+        ctx.lineWidth = 1;
+        ctx.strokeStyle = '#999999';
+        ctx.stroke();
+
+        ctx.font = '20px Open Sans';
+        ctx.fillStyle = '#999999';
+        ctx.fillText('...', left + 37, top + 66);
     }
 
     function checkIfDagWrapVisible($dagWrap) {
@@ -1152,7 +1346,7 @@ window.Dag = (function($, Dag) {
         var dagAreaHeight = $dagArea.height();
         var dagTop = $dagWrap.position().top;
 
-        if (dagTop - 30 > dagAreaHeight || dagTop + dagHeight < 50) {
+        if (dagTop + 30 > dagAreaHeight || dagTop + dagHeight < 50) {
             return (false);
         }
         return (true);
@@ -1206,6 +1400,19 @@ window.Dag = (function($, Dag) {
             }
             $('#dagSchema').remove();
             scrollPosition = -1;
+        });
+
+        $dagWrap.on('click', '.expandWrap', function() {
+            var $expandIcon = $(this);
+            var group = $expandIcon.data('group');
+            if (typeof group === "string") {
+                group = group.split(",");
+            } else {
+                group = [group];
+            }
+            var $dagWrap = $expandIcon.closest('.dagWrap');
+            $expandIcon.remove();
+            expandGroup(group, $dagWrap);
         });
 
     }
@@ -1279,7 +1486,7 @@ window.Dag = (function($, Dag) {
             top = tableTop - height;
             top = Math.max(2, top);
         } else {
-            top =  top - height;
+            top = top - height;
             top = Math.max(2, top);
             if ($('#dagPanel').hasClass('midway')) {
                 top -= $('#dagPanel').offset().top;
@@ -1430,7 +1637,7 @@ window.Dag = (function($, Dag) {
         var parentTable;
         for (var i = 0; i < parentTables.length; i++) {
             var table;
-            var parentTable = parentTables[i];
+            parentTable = parentTables[i];
             var parentIsDataSet = false;
             if (parentTable.indexOf('.XcalarDS.') === 0) {
                 table = false;
@@ -1491,7 +1698,8 @@ window.Dag = (function($, Dag) {
                         .find('.dagTable[data-tablename="' + parentTable + '"]');
                 if ($dagTable.length !== 0 && $dagTable.hasClass('Dropped')) {
                     parents = $dagTable.data('parents').split(',');
-                    findColumnSource(name, sourceColNames, tableId, parents, $dagWrap);
+                    findColumnSource(name, sourceColNames, tableId, parents,
+                                      $dagWrap);
                 } else {
                     // table has no data, could be orphaned
                 }
@@ -1565,28 +1773,48 @@ window.Dag = (function($, Dag) {
     }
 
     function drawDagNode(dagNode, storedInfo, dagArray, index,
-                         parentChildMap, children, depth) {
-
-        storedInfo.width = Math.max(storedInfo.width, depth + 1);
+                         parentChildMap, children, depth, condensedDepth,
+                         isPrevHidden, group, options) {
         var coor = {};
-        var lower;
-        var upper;
-        var numParents = parentChildMap[index].parents.length;
+        var lower; // upper branch y-coordinate
+        var upper; // lower branch y-coordinate
+        var nodeInfo = parentChildMap[index];
+        var numParents = nodeInfo.parents.length;
         var accumulatedDrawings = "";
         children += "," + index;
         if (children[0] === ",") {
             children = children.substr(1);
         }
+        var isHidden = false;
+        var newCondensedDepth = condensedDepth;
+        if (options.condensed && !nodeInfo.joined &&
+            nodeInfo.numParents === 1 && nodeInfo.child !== -1) {
+            isHidden = true;
+            nodeInfo.isHidden = true;
+            if (!isPrevHidden) {
+                newCondensedDepth = condensedDepth + 0.3;
+                var child = nodeInfo.child;
+                parentChildMap[child].isParentHidden = true;
+            }
+        } else {
+            newCondensedDepth = condensedDepth + 1;
+            nodeInfo.isHidden = false;
+        }
+        var newDepth = depth + 1;
+        storedInfo.width = Math.max(storedInfo.width, newDepth);
+        storedInfo.condensedWidth = Math.max(storedInfo.condensedWidth,
+                                             newCondensedDepth);
 
         var drawRet;
 
         // recursive call of drawdagnode on node's parents
         for (var i = 0; i < numParents; i++) {
-            var parentIndex = parentChildMap[index].parents[i];
+            var parentIndex = nodeInfo.parents[i];
 
             drawRet = drawDagNode(dagArray[parentIndex], storedInfo,
                                   dagArray,parentIndex, parentChildMap,
-                                  children, depth + 1);
+                                  children, newDepth, newCondensedDepth,
+                                  isHidden, group, options);
 
             accumulatedDrawings += drawRet.html;
 
@@ -1613,9 +1841,11 @@ window.Dag = (function($, Dag) {
         }
 
         coor.x = depth;
+        coor.condensedX = condensedDepth;
 
         var oneTable = drawDagTable(dagNode, dagArray, parentChildMap, index,
-                                    children, coor);
+                                    children, coor, isHidden, isPrevHidden,
+                                    group, options);
 
         var newHtml = accumulatedDrawings + oneTable;
 
@@ -1626,21 +1856,44 @@ window.Dag = (function($, Dag) {
     }
 
     function drawDagTable(dagNode, dagArray, parentChildMap, index, children,
-                          coor) {
+                          coor, isHidden, isPrevHidden, group, options) {
         var dagOrigin = drawDagOperation(dagNode, dagArray, parentChildMap,
                                          index);
-        var dagTableHeight = 65;
-        var dagTableWidth = 214;
+
         var top = coor.y * dagTableHeight;
         var right = coor.x * dagTableWidth;
-        var dagTable = '<div class="dagTableWrap clearfix" ' +
-                        'style="top:' + top + 'px;right: '+ right + 'px;">' +
-                        dagOrigin;
+        var condensedRight = coor.condensedX * dagTableWidth;
+        var tableWrapRight = right;
+        var nodeInfo = parentChildMap[index];
+        nodeInfo.x = right;
+        nodeInfo.condensedX = condensedRight;
+        nodeInfo.y = top;
+
+        var hiddenClass = "";
+        if (options.condensed && isHidden) {
+            hiddenClass = " hidden";
+            group.push(index);
+            if (!isPrevHidden) {
+                nodeInfo.condensedX += (0.3 * dagTableWidth);
+            }
+        }
+        if (options.condensed) {
+            tableWrapRight = condensedRight;
+        }
+        var dagTable = "";
+
+        dagTable += '<div class="dagTableWrap clearfix' + hiddenClass + '" ' +
+                        'style="top:' + top + 'px;right: '+
+                        tableWrapRight + 'px;">' + dagOrigin;
+
+
+
         var key = getInputType(XcalarApisTStr[dagNode.api]);
         var parents = Dag.getDagSourceNames(parentChildMap, index, dagArray);
         var dagInfo = getDagNodeInfo(dagNode, key, parents);
         var state = dagInfo.state;
         var tableName = getDagName(dagNode);
+        // check for data store
         if (dagOrigin === "") {
             var url = dagInfo.url;
             var id = dagInfo.id;
@@ -1696,6 +1949,31 @@ window.Dag = (function($, Dag) {
                         '</span>';
         }
         dagTable += '</div></div>';
+
+        if (isHidden && !isPrevHidden) {
+            var tooltip;
+            var groupLength = group.length;
+            if (groupLength === 1) {
+                tooltip = TooltipTStr.CollapsedTable;
+            } else {
+                tooltip = xcHelper.replaceMsg(TooltipTStr.CollapsedTables,
+                            {number: groupLength + ""});
+            }
+            var condensedId = parentChildMap[group[groupLength - 1]].child;
+            // condensedId comes from the index of the child of rightmost
+            // hidden table
+
+            dagTable += '<div class="expandWrap horz" ' +
+                            'style="top:' + (top + 5) + 'px;right:' +
+                                tableWrapRight + 'px;" ' +
+                            'data-group="' + group + '" ' +
+                            'data-index="' + condensedId + '" ' +
+                            'data-toggle="tooltip" ' +
+                            'data-placement="top" ' +
+                            'data-container="body" ' +
+                            'title="' + tooltip + '">...</div>';
+            group.length = 0;
+        }
         return (dagTable);
     }
 
@@ -1981,7 +2259,7 @@ window.Dag = (function($, Dag) {
 
     /* Generation of dag elements and canvas lines */
     function createCanvas($dagWrap, full) {
-        var dagWidth = $dagWrap.find('.dagImage').width() + 50;
+        var dagWidth = $dagWrap.find('.dagImage').width() + 130;
         var dagHeight = $dagWrap.find('.dagImage').height();
         var className = "";
         if (full) {
@@ -1989,7 +2267,7 @@ window.Dag = (function($, Dag) {
             className = " full";
         }
         var canvasHTML = $('<canvas class="canvas' + className +
-                            '" width="' + (dagWidth + 80) +
+                            '" width="' + dagWidth +
                             '" height="' + (dagHeight) + '"></canvas>');
         $dagWrap.find('.dagImage').append(canvasHTML);
         return (canvasHTML[0]);
@@ -1997,44 +2275,48 @@ window.Dag = (function($, Dag) {
 
     // this function draws all the lines going into a blue table icon and its
     // corresponding gray origin rectangle
-    function drawDagLines($dagTable, ctx, parentChildMap, index) {
-        var childIndex = parentChildMap[index].child;
-        var child;
-        var parents = parentChildMap[index].parents;
+    function drawDagLines($dagImage, ctx, parentChildMap, index, canvasWidth) {
+        var nodeInfo = parentChildMap[index];
+        var parents = nodeInfo.parents;
+        var numParents = parents.length;
 
-        if (parents.length !== 2) { // exclude joins
-
-            if (parentChildMap[index].parents.length) { //exclude datasets
-                drawStraightDagConnectionLine($dagTable, ctx, parentChildMap);
+        if (numParents !== 2) { // exclude joins
+            if (numParents) { //exclude datasets
+                drawStraightDagConnectionLine(ctx, nodeInfo, canvasWidth);
             }
         } else { // draw lines for joins
-            var $dagImage = $dagTable.parent();
-            var origin1 = $dagImage.find('.dagTable[data-index="' +
-                                          parents[0] + '"]').parent();
-            var origin2 = $dagImage.find('.dagTable[data-index="' + parents[1] +
-                                          '"]').parent();
 
-            var tableX = $dagTable.position().left + 200;
-            var tableY = $dagTable.position().top + 20;
+            var origin = parentChildMap[parents[0]];
+
+            var tableX = canvasWidth - (nodeInfo.condensedX + dagTableWidth) + 200;
+            var tableY = nodeInfo.y + 20;
 
             drawLine(ctx, tableX, tableY, null); // line entering table
 
             curvedLineCoor = {
-                x1: origin1.position().left + 240,
-                y1: origin1.position().top + 20,
-                x2: $dagTable.position().left + 82,
-                y2: $dagTable.position().top + 3,
+                x1: canvasWidth - (origin.condensedX + dagTableWidth) + 240,
+                y1: Math.round(origin.y) + 20,
+                x2: tableX - 118,
+                y2: Math.round(nodeInfo.y) + 3,
             };
             drawCurve(ctx, curvedLineCoor);
         }
     }
 
+    function drawExpandLines($expandIcon, ctx) {
+        var x = $expandIcon.position().left + 60;
+        var y = $expandIcon.position().top + 15;
+        var length = 80;
+        drawLine(ctx, x, y, length);
+    }
+
     // draw the lines corresponding to tables not resulting from joins
-    function drawStraightDagConnectionLine($dagTable, ctx, parentChildMap) {
-        var farLeftX = $dagTable.position().left + 40;
+    function drawStraightDagConnectionLine(ctx, nodeInfo, canvasWidth) {
+        var farLeftX = canvasWidth - (nodeInfo.condensedX + dagTableWidth) + 40;
         var tableX = farLeftX + 180;
-        var tableCenterY = $dagTable.position().top + 20;
-        drawLine(ctx, tableX, tableCenterY, (tableX - farLeftX + 20));
+        var tableCenterY = nodeInfo.y + 20;
+        var length = tableX - farLeftX + 20;
+        drawLine(ctx, tableX, tableCenterY, length);
     }
 
     function drawCurve(ctx, coor) {
@@ -2049,7 +2331,6 @@ window.Dag = (function($, Dag) {
             xoffset = 1000 / vertDist;
         }
 
-        ctx.beginPath();
         ctx.moveTo(x1 + xoffset, y1);
         ctx.bezierCurveTo( x2 + 50, y1,
                             x2 + 50, y1 + (vertDist + 16) * 2,
@@ -2058,22 +2339,21 @@ window.Dag = (function($, Dag) {
         ctx.lineTo(x1 + xoffset, y1);
         ctx.moveTo(x1 - 10, y1 + (vertDist + 17) * 2);
         ctx.lineTo(x1 + xoffset, y1 + (vertDist + 16) * 2 + 1);
-        ctx.stroke();
     }
-
 
     function drawLine(ctx, x, y, length) {
         // draw a horizontal line
-        var dist = 30;
+        var dist;
         if (length != null) {
             dist = length;
+        } else {
+            dist = 30;
         }
-        ctx.beginPath();
         ctx.moveTo(x, y);
         ctx.lineTo(x - dist, y);
-        ctx.stroke();
     }
 
+    // used for testing
     // function drawDot(x, y) {
     //     var html = '<div style="font-size: 8px; width:3px;height:3px;' +
     //                'background-color:green;position:absolute; left:' + x +

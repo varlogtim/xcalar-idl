@@ -59,7 +59,7 @@ window.DFG = (function($, DFG) {
 
         ctx.strokeStyle = '#999999';
 
-        var $dagTables = $dagImage.find($('.dagTable'));
+        var $dagTables = $dagImage.find('.dagTable');
         var numTables = $dagTables.length;
         for (var i = 0; i < numTables; i++) {
             var $dagTable = $dagTables.eq(i);
@@ -84,6 +84,7 @@ window.DFG = (function($, DFG) {
                     left1 = parseInt($dagTable.css('left')) + dagMidWidth;
                     top2 = parseInt(child.css('top')) + dagMidHeight;
                     left2 = parseInt(child.css('left')) + 10;
+                    console.log('scheduler panel');
                 } else {
                     top1 = parseInt($dagTable.parent().css('top')) + dagMidHeight;
                     left1 = dagImageWidth -
@@ -91,6 +92,7 @@ window.DFG = (function($, DFG) {
                     top2 = parseInt(child.parent().css('top')) + dagMidHeight;
                     left2 = dagImageWidth -
                             parseInt(child.parent().css('right')) - 42;
+                    console.log('not scheduler panel');
                 }
 
                 ctx.beginPath();
@@ -123,20 +125,45 @@ window.DFG = (function($, DFG) {
                 ctx.stroke();
             }
         }
+
+        var $expandIcons = $dagImage.find('.expandWrap');
+        var numExpandIcons = $expandIcons.length;
+        for  (var i = 0; i < numExpandIcons; i++) {
+            var $expandIcon = $expandIcons.eq(i);
+            var x, y, dist;
+            if (isSchedulerPanel) {
+                x = parseInt($expandIcon.css('left')) + 200;
+                y = parseInt($expandIcon.css('top')) + 15;
+                dist = 250;
+            } else {
+                x = dagImageWidth - parseInt($expandIcon.css('right')) - 33;
+                y = parseInt($expandIcon.css('top')) + 16;
+                dist = 8;
+            }
+            console.log(x, y);
+            ctx.moveTo(x, y);
+            ctx.lineTo(x - dist, y);
+        }
+        ctx.stroke();
     };
 
     DFG.getCanvasInfo = function($dagImage, withExport) {
         var tables = [];
         var operations = [];
+        var expandIcons = [];
         var table;
         var tableName;
         var operation;
+        var expandIcon;
         var firstDagTable;
         var dagImageHeight = $dagImage.height();
         var dagImageWidth = $dagImage.width();
         // put each blue table icon into an object, recording position and info
         $dagImage.find('.dagTable').each(function() {
             var $dagTable = $(this);
+            if ($dagTable.parent().hasClass('hidden')) {
+                return;
+            }
 
             var children = ($dagTable.data('children') + "").split(",");
             children = parseInt(children[children.length - 2]) + 1 + "";
@@ -183,6 +210,9 @@ window.DFG = (function($, DFG) {
         // recording position and info
         $dagImage.find('.actionType').each(function() {
             var $operation = $(this);
+            if ($operation.parent().hasClass('hidden')) {
+                return;
+            }
             var tooltip = $operation.attr('data-original-title') ||
                                      $operation.attr('title');
             tooltip = tooltip.replace(/"/g, '&quot');
@@ -201,10 +231,24 @@ window.DFG = (function($, DFG) {
             operations.push(operation);
         });
 
+        $dagImage.find('.expandWrap').each(function() {
+            var $expandIcon = $(this);
+            var tooltip = $expandIcon.attr('data-original-title') ||
+                          $expandIcon.attr('title');
+            tooltip = tooltip.replace(/"/g, '&quot');
+            expandIcon = {
+                "tooltip": tooltip,
+                "left": dagImageWidth - parseInt($expandIcon.css('right')) - 30,
+                "top": parseInt($expandIcon.css('top'))
+            };
+            expandIcons.push(expandIcon);
+        });
+
         // insert new dfg into the main dfg object
         var canvasInfo = {
             "tables"    : tables,
             "operations": operations,
+            "expandIcons": expandIcons,
             "height"    : dagImageHeight,
             "width"     : dagImageWidth
         };

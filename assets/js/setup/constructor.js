@@ -1161,6 +1161,7 @@ function CanvasInfo(options) {
 
     this.tables = [];
     this.operations = [];
+    this.expandIcons = [];
 
     var tables = options.tables || [];
     for (var i = 0, len = tables.length; i < len; i++) {
@@ -1172,6 +1173,12 @@ function CanvasInfo(options) {
     for (var i = 0, len = operations.length; i < len; i++) {
         var canvasOpsInfo = new CanvasOpsInfo(operations[i]);
         this.operations.push(canvasOpsInfo);
+    }
+
+    var expandIcons = options.expandIcons || [];
+    for (var i = 0, len = expandIcons.length; i < len; i++) {
+        var canvasExpandInfo = new CanvasExpandInfo(expandIcons[i]);
+        this.expandIcons.push(canvasExpandInfo);
     }
 
     return this;
@@ -1204,6 +1211,16 @@ function CanvasOpsInfo(options) {
     this.left = options.left;
     this.top = options.top;
     this.classes = options.classes;
+
+    return this;
+}
+
+function CanvasExpandInfo(options) {
+    options = options || {};
+
+    this.tooltip = options.tooltip;
+    this.left = options.left;
+    this.top = options.top;
 
     return this;
 }
