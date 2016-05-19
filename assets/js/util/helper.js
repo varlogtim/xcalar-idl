@@ -2171,7 +2171,10 @@ window.xcHelper = (function($, xcHelper) {
         // filter options unavailable
         var tableCol = gTables[tableId].tableCols[options.colNum - 1];
         var columnType = tableCol.type;
-        var shouldNotFilter = options.isMutiCol ||
+        var isChildOfArray = $('#xcTable-' + tableId)
+                                .find('th.col' + options.colNum)
+                                .find('.header').hasClass('childOfArray');
+        var shouldNotFilter = options.isMutiCol || isChildOfArray ||
                             (
                                 columnType !== "string" &&
                                 columnType !== "float" &&

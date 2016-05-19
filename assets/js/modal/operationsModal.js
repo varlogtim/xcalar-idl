@@ -1853,7 +1853,7 @@ window.OperationsModal = (function($, OperationsModal) {
                 arg = parseColPrefixes(arg);
             } else if (hasUnescapedParens(arg)) {
                 if (hasFuncFormat(arg)) {
-                    // leave arg the way it is
+                    arg = parseColPrefixes(arg);
                 } else {
                     errorText = ErrTStr.BracketsMis;
                     $errorInput = $input;
@@ -2752,7 +2752,7 @@ window.OperationsModal = (function($, OperationsModal) {
         return (str);
     }
 
-    // returns true if previus character, not including spaces, is either
+    // returns true if previous character, not including spaces, is either
     // a comma, a (, or the very beginning
     function isActualPrefix(str, index) {
         for (var i = index - 1; i >= 0; i--) {
