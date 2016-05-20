@@ -80,6 +80,7 @@ function thriftLog() {
         errorLists.push(thriftError);
 
         var alertError;
+        // XXX We might need to include connection status 502 (Proxy error)
         if (status === StatusT.StatusConnReset ||
             status === StatusT.StatusConnRefused) {
             // This is bad, connection was lost so UI cannot do anything
@@ -1546,7 +1547,7 @@ function XcalarQuery(queryName, queryString) {
         return (deferred.promise());
     }
 
-    xcalarQuery(tHandle, queryName, queryString, false, "", true)
+    xcalarQuery(tHandle, queryName, queryString, true)
     .then(deferred.resolve)
     .fail(function(error) {
         var thriftError = thriftLog("XcalarQuery", error);
@@ -1626,6 +1627,28 @@ function XcalarQueryWithCheck(queryName, queryString) {
     .fail(deferred.reject);
 
     return (deferred.promise());
+}
+
+function XcalarCancelOp(dstTableName) {
+    if ([null, undefined].indexOf(tHandle) !== -1) {
+        return PromiseHelper.resolve(null);
+    }
+
+    var deferred = jQuery.Deferred();
+    if (insertError(arguments.callee, deferred)) {
+        return (deferred.promise());
+    }
+
+    xcalarApiCancelOp(tHandle, dstTableName)
+    .then(deferred.resolve)
+    .fail(function(error) {
+        var thriftError = thriftLog("XcalarCancelOp", error);
+        SQL.errorLog("Cancel Op", null, null, thriftError);
+        deferred.reject(thriftError);
+    });
+
+    return (deferred.promise());
+
 }
 
 function XcalarGetDag(tableName) {
@@ -2175,6 +2198,25 @@ function XcalarGetStats(numNodes) {
     return (deferred.resolve(nodeStruct));
 }
 
+function XcalarGetOpStats(dstTableName) {
+    if ([null, undefined].indexOf(tHandle) !== -1) {
+        return PromiseHelper.resolve(null);
+    }
+    var deferred = jQuery.Deferred();
+    if (insertError(arguments.callee, deferred)) {
+        return (deferred.promise());
+    }
+
+    xcalarApiGetOpStats(tHandle, dstTableName)
+    .then(deferred.resolve)
+    .fail(function(error) {
+        var thriftError = thriftLog("XcalarGetOpStats", error);
+        SQL.errorLog("XcalarGetOpStats", null, null, thriftError);
+        deferred.reject(thriftError);
+    });
+    return (deferred.promise());
+}
+
 function XcalarApiTop(measureIntervalInMs) {
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return PromiseHelper.resolve(null);
@@ -2224,14 +2266,18 @@ function XcalarUploadPython(moduleName, pythonStr) {
 
     xcalarApiUdfAdd(tHandle, UdfTypeT.UdfTypePython, moduleName, pythonStr)
     .then(deferred.resolve)
-    .fail(function(error) {
+    .fail(function(error, errorStruct) {
         if (error && jQuery.isNumeric(error)) {
             if (error === StatusT.StatusUdfModuleAlreadyExists) {
                 XcalarUpdatePython(moduleName, pythonStr)
                 .then(function() {
                     deferred.resolve();
                 })
-                .fail(function(error2) {
+                .fail(function(error2, errorStuct2) {
+                    if (errorStruct2 && errorStruct2.error.message.length > 0) {
+                        error2 = errorStruct2.error.message + "\nErrorCode: " +
+                                 error2;
+                    }
                     var thriftError = thriftLog("XcalarUpdateAfterUpload",
                                       error2);
                     SQL.errorLog("Update of Upload Python", null, null,
@@ -2249,6 +2295,10 @@ function XcalarUploadPython(moduleName, pythonStr) {
         }
 
         // all other case
+
+        if (errorStruct && errorStruct.error.message.length > 0) {
+            error = errorStruct.error.message + "\nErrorCode: " + error;
+        }
         var thriftError = thriftLog("XcalarUploadPython", error);
         SQL.errorLog("Upload Python", null, null, thriftError);
         deferred.reject(thriftError);
@@ -2266,9 +2316,13 @@ function XcalarUpdatePython(moduleName, pythonStr) {
     }
 
     xcalarApiUdfUpdate(tHandle, UdfTypeT.UdfTypePython, moduleName,
-                          pythonStr)
+                       pythonStr)
     .then(deferred.resolve)
-    .fail(function(error) {
+    .fail(function(error, errorStruct) {
+        if (errorStruct && errorStruct.error.message.length > 0) {
+            error = errorStruct.error.message + "\nErrorCode: "+error;
+        }
+
         var thriftError = thriftLog("XcalarUpdatePython", error);
         SQL.errorLog("Update Python", null, null, thriftError);
         defered.reject(thriftError);

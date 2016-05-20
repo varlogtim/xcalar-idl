@@ -7,12 +7,12 @@
 
 QueryStateT = {
   'qrNotStarted' : 0,
-  'qrProcssing' : 1,
+  'qrProcessing' : 1,
   'qrFinished' : 2,
   'qrError' : 3
 };
 QueryStateTStr = {0 : 'qrNotStarted',
-1 : 'qrProcssing',
+1 : 'qrProcessing',
 2 : 'qrFinished',
 3 : 'qrError'
 };

@@ -76,7 +76,10 @@ XcalarApisT = {
   'XcalarApiUdfUpdate' : 67,
   'XcalarApiUdfGet' : 68,
   'XcalarApiUdfDelete' : 69,
-  'XcalarApiFunctionInvalid' : 70
+  'XcalarApiCancelOp' : 70,
+  'XcalarApiGetPerNodeOpStats' : 71,
+  'XcalarApiGetOpStats' : 72,
+  'XcalarApiFunctionInvalid' : 73
 };
 XcalarApisTStr = {0 : 'XcalarApiUnknown',
 1 : 'XcalarApiGetVersion',
@@ -148,5 +151,8 @@ XcalarApisTStr = {0 : 'XcalarApiUnknown',
 67 : 'XcalarApiUdfUpdate',
 68 : 'XcalarApiUdfGet',
 69 : 'XcalarApiUdfDelete',
-70 : 'XcalarApiFunctionInvalid'
+70 : 'XcalarApiCancelOp',
+71 : 'XcalarApiGetPerNodeOpStats',
+72 : 'XcalarApiGetOpStats',
+73 : 'XcalarApiFunctionInvalid'
 };

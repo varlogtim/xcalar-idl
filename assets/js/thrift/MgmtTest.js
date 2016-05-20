@@ -1123,6 +1123,62 @@
         })
     }
 
+    function testGetOpStats(deferred, testName, currentTestNumber) {
+        xcalarApiGetOpStats(thriftHandle, "yelp/user-dummyjoin")
+        .done(function(result) {
+            printResult(result);
+            pass(deferred, testName, currentTestNumber);
+        })
+        .fail(function(reason) {
+            fail(deferred, testName, currentTestNumber, reason);
+        })
+    }
+
+    function testCancel(deferred, testName, currentTestNumber) {
+        var query = "index --key votes.funny --dataset " + datasetPrefix +
+                    "yelp" + " --dsttable cancelledTable ";
+
+        queryName = "testQuery";
+
+        xcalarQuery(thriftHandle, queryName, query, true)
+        .then(function() {
+            return (xcalarApiCancelOp(thriftHandle, "cancelledTable"));
+        })
+        .then(function(cancelStatus) {
+            (function wait() {
+            setTimeout(function() {
+                xcalarQueryState(thriftHandle, queryName)
+                .done(function(result) {
+                    var qrStateOutput = result;
+                    if (qrStateOutput.queryState === QueryStateT.qrProcessing ||
+                        qrStateOutput.queryState === QueryStateT.qrNotStarted) {
+                        return wait();
+                    }
+                    if (qrStateOutput.failedSingleQueryArray.length === 0) {
+                        fail(deferred, testName, currentTestNumber, "no failed query. queryState: " + QueryStateTStr[qrStateOutput.queryState]);
+                    }
+
+                    if (qrStateOutput.failedSingleQueryArray[0].status != StatusT.StatusCanceled) {
+                        console.log("xxx" + JSON.stringify(qrStateOutput))
+                        console.log(qrStateOutput.failedSingleQueryArray[0].status)
+                            fail(deferred, testName, currentTestNumber, "not canceled");
+                     }
+
+                    pass(deferred, testName, currentTestNumber);
+
+                 })
+                 .fail(function(reason) {
+                     fail(deferred, testName, currentTestNumber, reason);
+                 });
+             }, 1000);
+         })();
+
+        })
+        .fail(function(reason) {
+            fail(deferred, testName, currentTestNumber, "status: " + StatusTStr[reason]);
+        })
+    }
+
     function testQuery(deferred, testName, currentTestNumber) {
         var query = "index --key votes.funny --dataset " + datasetPrefix +
                     "yelp" + " --dsttable yelp-votesFunnyTable; index --key review_count" +
@@ -1136,7 +1192,7 @@
 
         queryName = "testQuery";
 
-        xcalarQuery(thriftHandle, queryName, query, false, "", false)
+        xcalarQuery(thriftHandle, queryName, query, false)
         .done(function(queryOutput) {
             printResult(queryOutput);
             pass(deferred, testName, currentTestNumber);
@@ -1154,7 +1210,7 @@
         var locaQueryName = "aggr query";
 
         console.log("submit query" + query);
-        xcalarQuery(thriftHandle, locaQueryName, query, false, "", true)
+        xcalarQuery(thriftHandle, locaQueryName, query, true)
         .done(function(queryOutput) {
             printResult(queryOutput);
 
@@ -2604,9 +2660,11 @@
     addTestCase(testCases, testFilter, "filter", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testCases, testProject, "project", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testCases, testJoin, "join", defaultTimeout, TestCaseEnabled, "");
+    addTestCase(testCases, testGetOpStats, "getOpStats", defaultTimeout, TestCaseEnabled, "");
 
     // XXX Re-enable when either the query-DAG bug is fixed or the test is changed to create a session and
     //     have the query run under the current session instead of creating its own.
+    addTestCase(testCases, testCancel, "test cancel", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testCases, testQuery, "Submit Query", defaultTimeout, TestCaseDisabled, "");
     addTestCase(testCases, testQueryState, "Request query state of indexing dataset (int)", defaultTimeout, TestCaseDisabled, "");
     addTestCase(testCases, waitForDag, "waitForDag", defaultTimeout, TestCaseDisabled, "");

@@ -605,8 +605,7 @@ function xcalarGetStatGroupIdMap(thriftHandle, nodeId, numGroupId) {
     return (deferred.promise());
 }
 
-function xcalarQueryWorkItem(queryName, queryStr, batch, targetName,
-                             sameSession) {
+function xcalarQueryWorkItem(queryName, queryStr, sameSession) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
     workItem.input.queryInput = new XcalarApiQueryInputT();
@@ -614,21 +613,17 @@ function xcalarQueryWorkItem(queryName, queryStr, batch, targetName,
     workItem.api = XcalarApisT.XcalarApiQuery;
     workItem.input.queryInput.queryName = queryName;
     workItem.input.queryInput.queryStr = queryStr;
-    workItem.input.queryInput.batch = batch;
-    workItem.input.queryInput.targetName = targetName;
     workItem.input.queryInput.sameSession = sameSession;
     return (workItem);
 }
 
-function xcalarQuery(thriftHandle, queryName, queryStr, batch, targetName,
-                     sameSession) {
+function xcalarQuery(thriftHandle, queryName, queryStr, sameSession) {
     var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarQuery(query name= " + queryName +
                     " queryStr" + queryStr + ")");
     }
-    var workItem = xcalarQueryWorkItem(queryName, queryStr, batch, targetName,
-                                       sameSession);
+    var workItem = xcalarQueryWorkItem(queryName, queryStr, sameSession);
 
     thriftHandle.client.queueWorkAsync(workItem)
     .then(function(result) {
@@ -687,6 +682,75 @@ function xcalarQueryState(thriftHandle, queryName) {
     .fail(function(error) {
         console.log("xcalarQueryState() caught exception:", error);
 
+        deferred.reject(error);
+    });
+
+    return (deferred.promise());
+}
+
+function xcalarGetOpStatsWorkItem(dstDagName) {
+    var workItem = new WorkItem();
+    workItem.input = new XcalarApiInputT();
+
+    workItem.api = XcalarApisT.XcalarApiGetOpStats;
+    workItem.input.dagTableNameInput = dstDagName;
+    return (workItem);
+}
+
+function xcalarApiGetOpStats(thriftHandle, dstDagName) {
+    var deferred = jQuery.Deferred();
+    if (verbose) {
+        console.log("xcalarApiGetOpStats(dstDagName = " + dstDagName + ")");
+    }
+    var workItem = xcalarGetOpStatsWorkItem(dstDagName);
+    thriftHandle.client.queueWorkAsync(workItem)
+    .then(function(result) {
+        var status = result.output.hdr.status;
+        var opStatsOutput = result.output.outputResult.opStatsOutput;
+        if (result.jobStatus != StatusT.StatusOk) {
+            status = result.jobStatus;
+        }
+        if (status != StatusT.StatusOk) {
+            deferred.reject(status);
+        }
+        deferred.resolve(opStatsOutput);
+    })
+    .fail(function(error) {
+        console.log("xcalarApiGetOpStats() caught exception: ", error);
+        deferred.reject(error);
+    });
+
+    return (deferred.promise());
+}
+
+function xcalarCancellationWorkItem(dstDagName) {
+    var workItem = new WorkItem();
+    workItem.input = new XcalarApiInputT();
+
+    workItem.api = XcalarApisT.XcalarApiCancelOp;
+    workItem.input.dagTableNameInput = dstDagName;
+    return (workItem);
+}
+
+function xcalarApiCancelOp(thriftHandle, dstDagName) {
+    var deferred = jQuery.Deferred();
+    if (verbose) {
+        console.log("xcalarApiCancelOp(dstDagName = " + dstDagName + ")");
+    }
+    var workItem = xcalarCancellationWorkItem(dstDagName);
+    thriftHandle.client.queueWorkAsync(workItem)
+    .then(function(result) {
+        var status = result.output.hdr.status;
+        if (result.jobStatus != StatusT.StatusOk) {
+            status = result.jobStatus;
+        }
+        if (status != StatusT.StatusOk) {
+            deferred.reject(status);
+        }
+        deferred.resolve(status);
+    })
+    .fail(function(error) {
+        console.log("xcalarApiCancelOp() caught exception: ", error);
         deferred.reject(error);
     });
 
@@ -2579,12 +2643,13 @@ function xcalarApiUdfAdd(thriftHandle, type, moduleName, source)
     thriftHandle.client.queueWorkAsync(workItem)
     .then(function(result) {
         var status = result.output.hdr.status;
+        var udfAddUpdateOutput = result.output.outputResult.udfAddUpdateOutput;
 
         if (result.jobStatus != StatusT.StatusOk) {
             status = result.jobStatus;
         }
         if (status != StatusT.StatusOk) {
-            deferred.reject(status);
+            deferred.reject(status, udfAddUpdateOutput);
         }
 
         deferred.resolve(status);
@@ -2610,12 +2675,13 @@ function xcalarApiUdfUpdate(thriftHandle, type, moduleName, source)
     thriftHandle.client.queueWorkAsync(workItem)
     .then(function(result) {
         var status = result.output.hdr.status;
+        var udfAddUpdateOutput = result.output.outputResult.udfAddUpdateOutput;
 
         if (result.jobStatus != StatusT.StatusOk) {
             status = result.jobStatus;
         }
         if (status != StatusT.StatusOk) {
-            deferred.reject(status);
+            deferred.reject(status, udfAddUpdateOutput);
         }
 
         deferred.resolve(status);
