@@ -37,7 +37,7 @@ window.DS = (function ($, DS) {
     DS.setupView = function() {
         // restore list view if saved and ellipsis the icon
         var preference = UserSettings.getPreference();
-        toggleDSView(preference.datasetListView);
+        toggleDSView(preference.datasetListView, true);
     };
 
     // Get home folder
@@ -1070,11 +1070,11 @@ window.DS = (function ($, DS) {
     }
 
     // toggle between list view and grid view
-    function toggleDSView(isListView) {
+    function toggleDSView(isListView, noRefreshTooltip) {
         var $btn = $("#dataViewBtn, #exportViewBtn");
         var $allGrids = $gridView.add($('#exportView').find('.gridItems'));
         // includes import and export grids
-        xcHelper.toggleListGridBtn($btn, isListView);
+        xcHelper.toggleListGridBtn($btn, isListView, noRefreshTooltip);
 
         if (isListView) {
             // show list view

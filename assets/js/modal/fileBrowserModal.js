@@ -150,13 +150,13 @@ window.FileBrowser = (function($, FileBrowser) {
         // toggle between listview and gridview
         $("#fileBrowserGridView").click(function(event){
             event.stopPropagation();
-            toggleView(null, true);
+            toggleView();
         });
 
         // restore list view if saved
         var preference = UserSettings.getPreference();
         if (preference.browserListView) {
-            toggleView(true, false);
+            toggleView(true, true);
         }
 
         // click on title to sort
@@ -326,7 +326,7 @@ window.FileBrowser = (function($, FileBrowser) {
         }
     };
 
-    function toggleView(toListView, refreshTooltip) {
+    function toggleView(toListView, noRefreshTooltip) {
         var $btn = $("#fileBrowserGridView");
         if (toListView == null) {
             // if current is gridView, change to listView;
@@ -341,7 +341,7 @@ window.FileBrowser = (function($, FileBrowser) {
             measureDSIconHeight();
         }
 
-        xcHelper.toggleListGridBtn($btn, toListView, !refreshTooltip);
+        xcHelper.toggleListGridBtn($btn, toListView, noRefreshTooltip);
         centerUnitIfHighlighted(toListView);
         refreshEllipsis();
     }
