@@ -174,7 +174,6 @@ window.MultiCastModal = (function($, MultiCastModal) {
 
             suggColFlags[colNum] = false;
         });
-
         updateTypeInfo();
     }
 
@@ -279,9 +278,9 @@ window.MultiCastModal = (function($, MultiCastModal) {
 
         var $label = $modal.find(".resultContainer .title .label");
         if (isFromSmartSugg) {
-            $label.text("Smart Cast Result");
+            $label.text(MultiCastTStr.SmartRes);
         } else {
-            $label.text("Cast Result");
+            $label.text(MultiCastTStr.CastRes);
         }
 
         if (gMinModeOn) {
@@ -300,6 +299,7 @@ window.MultiCastModal = (function($, MultiCastModal) {
         var $tds = $tbody.find("td.col" + colNum);
         var datas = [];
         var val;
+
         $tds.each(function() {
             val = $(this).find('.originalData').text();
             datas.push(val);
@@ -416,6 +416,37 @@ window.MultiCastModal = (function($, MultiCastModal) {
 
         $table.html(html);
     }
+
+    /* Unit Test Only */
+    if (window.unitTestMode) {
+        MultiCastModal.__testOnly__ = {};
+        MultiCastModal.__testOnly__.setNewColType = function(args) {
+            newColTypes = args;
+        };
+
+        MultiCastModal.__testOnly__.setSuggColFlags = function(args) {
+            suggColFlags = args;
+        };
+
+        MultiCastModal.__testOnly__.setColNames = function(args) {
+            colNames = args;
+        };
+
+        MultiCastModal.__testOnly__.setColTypes = function(args) {
+            colTypes = args;
+        };
+
+        MultiCastModal.__testOnly__.setRecTypes = function(args) {
+            recTypes = args;
+        };
+
+        MultiCastModal.__testOnly__.closeMultiCastModal = closeMultiCastModal;
+        MultiCastModal.__testOnly__.selectCols = selectCols;
+        MultiCastModal.__testOnly__.deSelectCols = deSelectCols;
+        MultiCastModal.__testOnly__.updateTypeInfo = updateTypeInfo;
+        MultiCastModal.__testOnly__.suggestType = suggestType;
+    }
+    /* End Of Unit Test Only */
 
     return (MultiCastModal);
 }(jQuery, {}));

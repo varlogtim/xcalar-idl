@@ -326,7 +326,9 @@ ExportTStr = {
 
 MultiCastTStr = {
     'NoRec': 'No smart cast recommendation',
-    'SelectCol': 'please select columns you want to cast.'
+    'SelectCol': 'please select columns you want to cast.',
+    'SmartRes': 'Smart Cast Result',
+    'CastRes': 'Cast Result'
 };
 
 ProfileTStr = {
