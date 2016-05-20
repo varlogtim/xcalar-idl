@@ -5,10 +5,6 @@ window.WorkbookModal = (function($, WorkbookModal) {
     var $workbookLists; // $("#workbookLists")
 
     var modalHelper;
-    // constant
-    var minHeight = 400;
-    var minWidth  = 750;
-
     // default select all workbooks and sort by name
     var reverseLookup = {
         "name"    : false,
@@ -26,16 +22,14 @@ window.WorkbookModal = (function($, WorkbookModal) {
         $workbookInput = $("#workbookInput");
         $workbookLists = $("#workbookLists");
 
+        // constant
+        var minHeight = 400;
+        var minWidth  = 750;
+
         modalHelper = new ModalHelper($workbookModal, {
             "focusOnOpen": true,
             "minWidth"   : minWidth,
             "minHeight"  : minHeight
-        });
-
-        $workbookModal.draggable({
-            "handle"     : ".modalHeader",
-            "cursor"     : "-webkit-grabbing",
-            "containment": 'window'
         });
 
         $workbookModal.resizable({
@@ -43,6 +37,12 @@ window.WorkbookModal = (function($, WorkbookModal) {
             minHeight  : minHeight,
             minWidth   : minWidth,
             containment: "document"
+        });
+
+        $workbookModal.draggable({
+            "handle"     : ".modalHeader",
+            "cursor"     : "-webkit-grabbing",
+            "containment": 'window'
         });
 
         // open workbook modal

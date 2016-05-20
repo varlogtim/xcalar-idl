@@ -2,22 +2,11 @@
  * Module for the datastore form part
  */
 window.DatastoreForm = (function($, DatastoreForm) {
-    var $importDataView; // $("#importDataView")
-    var $explorePanel;   // $("#exploreView")
-
     var $filePath; // $("#filePath")
-    var $fileName; // $("#fileName")
 
     var $form;        // $("#importDataForm")
-    var $formatLists; // $("#fileFormat")
-    var $formatText;  // $formatLists.find(".text")
+    var $formatText;  // $("#fileFormat .text")
 
-    // csv delimiter args
-    var $csvDelim;  // $("#csvDelim")
-    var $fieldText; // $("#fieldText")
-    var $lineText;  // $("#lineText")
-
-    var $udfArgs;       // $("#udfArgs")
     var $udfModuleList; // $("#udfArgs-moduleList")
     var $udfFuncList;   // $("#udfArgs-funcList")
 
@@ -41,21 +30,11 @@ window.DatastoreForm = (function($, DatastoreForm) {
     };
 
     DatastoreForm.setup = function() {
-        $importDataView = $("#importDataView");
-        $explorePanel = $("#exploreView");
-
         $filePath = $("#filePath");
-        $fileName = $("#fileName");
 
         $form = $("#importDataForm");
-        $formatLists = $("#fileFormat");
-        $formatText = $formatLists.find(".text");
+        $formatText = $("#fileFormat .text");
 
-        $csvDelim = $("#csvDelim");
-        $fieldText = $("#fieldText");
-        $lineText = $("#lineText");
-
-        $udfArgs = $("#udfArgs");
         $udfModuleList = $("#udfArgs-moduleList");
         $udfFuncList = $("#udfArgs-funcList");
 
@@ -78,7 +57,7 @@ window.DatastoreForm = (function($, DatastoreForm) {
         });
 
         // set up dropdown list for formats
-        xcHelper.dropdownList($formatLists, {
+        xcHelper.dropdownList($("#fileFormat"), {
             "onSelect": function($li) {
                 var text = $li.text();
                 if ($li.hasClass("hint") || $formatText.val() === text) {
@@ -153,7 +132,7 @@ window.DatastoreForm = (function($, DatastoreForm) {
 
     DatastoreForm.show = function(options) {
         options = options || {};
-
+        var $importDataView = $("#importDataView");
         if (!$importDataView.is(":visible") || $form.hasClass("previewMode"))
         {
             if (!options.noReset) {
@@ -162,19 +141,20 @@ window.DatastoreForm = (function($, DatastoreForm) {
 
             $importDataView.show();
             $("#dataSetTableWrap").empty();
-            $explorePanel.find(".contentViewMid").addClass("hidden");
-            $("#filePath").focus();
-            $explorePanel.find(".gridItems .grid-unit.active")
-                        .removeClass("active");
+            $("#exploreView").find(".contentViewMid").addClass("hidden")
+                            .end()
+                            .find(".gridItems .grid-unit.active")
+                            .removeClass("active");
             // when switch from data sample table to data form
             // preview table may still open, so close it
             $("#preview-close").click();
+            $("#filePath").focus();
         }
     };
 
     DatastoreForm.hide = function() {
-        $importDataView.hide();
-        $explorePanel.find(".contentViewMid").removeClass('hidden');
+        $("#importDataView").hide();
+        $("#exploreView").find(".contentViewMid").removeClass('hidden');
     };
 
     DatastoreForm.load = function(dsName, dsFormat, loadURL,
@@ -236,9 +216,11 @@ window.DatastoreForm = (function($, DatastoreForm) {
 
     function submitForm() {
         var deferred = jQuery.Deferred();
-        var dsName   = $fileName.val().trim();
+
+        var $fileName = $("#fileName");
+        var dsName = $fileName.val().trim();
         var dsFormat = formatMap[$formatText.val()];
-        var loadURL  = $filePath.val().trim();
+        var loadURL = $filePath.val().trim();
 
         var isValid = xcHelper.validate([
             {
@@ -254,10 +236,9 @@ window.DatastoreForm = (function($, DatastoreForm) {
                     return ($fileName.val().length >=
                              XcalarApisConstantsT.XcalarApiMaxTableNameLen);
                 },
-                "formMode" : true,
-                "text"     : ErrTStr.TooLong
-            },
-
+                "formMode": true,
+                "text"    : ErrTStr.TooLong
+            }
         ]);
 
         if (!isValid) {
@@ -272,6 +253,9 @@ window.DatastoreForm = (function($, DatastoreForm) {
 
         var moduleName = udfCheckRes.moduleName;
         var funcName = udfCheckRes.funcName;
+
+        var $fieldText = $("#fieldText");
+        var $lineText = $("#lineText");
         var fieldDelim = xcHelper.delimiterTranslate($fieldText);
         var lineDelim = xcHelper.delimiterTranslate($lineText);
         if (typeof fieldDelim === "object" || typeof lineDelim === "object") {
@@ -320,10 +304,10 @@ window.DatastoreForm = (function($, DatastoreForm) {
     function cacheDelimiter(format) {
         // cache delimiter
         if (format === "CSV") {
-            lastFieldDelim = $fieldText.val();
-            lastLineDelim = $lineText.val();
+            lastFieldDelim = $("#fieldText").val();
+            lastLineDelim = $("#lineText").val();
         } else if (format === "raw") {
-            lastLineDelim = $lineText.val();
+            lastLineDelim = $("#lineText").val();
         }
     }
 
@@ -363,6 +347,7 @@ window.DatastoreForm = (function($, DatastoreForm) {
     function toggleFormat(format) {
         $formatText.val(format);
 
+        var $csvDelim = $("#csvDelim");
         var $fieldDelim = $("#fieldDelim");
         var $udfHint = $("#udfArgs .hintSection");
 
@@ -389,7 +374,7 @@ window.DatastoreForm = (function($, DatastoreForm) {
                 $csvDelim.addClass("hidden");
                 $udfCheckbox.addClass("hidden")
                             .find(".checkbox").removeClass("checked");
-                $udfArgs.addClass("hidden");
+                $("#udfArgs").addClass("hidden");
                 // excel not show the whole udf section
                 break;
 
@@ -470,7 +455,7 @@ window.DatastoreForm = (function($, DatastoreForm) {
     function hideDropdownMenu() {
         $("#importDataView .dropDownList").removeClass("open")
                             .find(".list").hide();
-        $csvDelim.find(".delimVal").val("");
+        $("#csvDelim").find(".delimVal").val("");
     }
 
     function delimiterTranslate($input) {
@@ -501,8 +486,8 @@ window.DatastoreForm = (function($, DatastoreForm) {
 
     function resetDelimiter() {
         // to show \t, \ should be escaped
-        $fieldText.val(lastFieldDelim).removeClass("nullVal");
-        $lineText.val(lastLineDelim).removeClass("nullVal");
+        $("#fieldText").val(lastFieldDelim).removeClass("nullVal");
+        $("#lineText").val(lastLineDelim).removeClass("nullVal");
     }
 
     function resetUdfSection() {
@@ -606,6 +591,7 @@ window.DatastoreForm = (function($, DatastoreForm) {
         // udf checkbox
         $udfCheckbox.on("click", ".checkbox, .text", function() {
             var $checkbox = $udfCheckbox.find(".checkbox");
+            var $udfArgs = $("#udfArgs");
 
             if ($udfArgs.hasClass("hidden")) {
                 $checkbox.addClass("checked");
@@ -638,8 +624,8 @@ window.DatastoreForm = (function($, DatastoreForm) {
     }
 
     function setupFormDelimiter() {
-         // set up dropdown list for csv de
-
+        // set up dropdown list for csv de
+        var $csvDelim = $("#csvDelim");
         // setUp both line delimiter and field delimiter
         xcHelper.dropdownList($csvDelim.find(".dropDownList"), {
             "onSelect": function($li) {

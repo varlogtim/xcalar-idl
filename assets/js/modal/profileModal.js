@@ -1,6 +1,5 @@
 window.Profile = (function($, Profile, d3) {
     var $modal;        // $("#profileModal");
-    var $modalBg;      // $("#modalBackground");
     var $rangeSection; // $modal.find(".rangeSection");
     var $rangeInput;   // $("#stats-step");
 
@@ -59,15 +58,14 @@ window.Profile = (function($, Profile, d3) {
     var numRowsToFetch = defaultRowsToFetch;
     var filterDragging = false;
 
-    // constant
-    var minHeight = 425;
-    var minWidth  = 750;
-
     Profile.setup = function() {
         $modal = $("#profileModal");
-        $modalBg = $("#modalBackground");
         $rangeSection = $modal.find(".rangeSection");
         $rangeInput = $("#stats-step");
+
+        // constant
+        var minHeight = 425;
+        var minWidth  = 750;
 
         modalHelper = new ModalHelper($modal, {
            "minHeight": minHeight,
@@ -331,7 +329,7 @@ window.Profile = (function($, Profile, d3) {
         toggleRange("single", true); // reset the range
 
         $modal.find(".min-range .text").off();
-        $modalBg.off("mouseover.profileModal");
+        $("#modalBackground").off("mouseover.profileModal");
         // turn off scroll bar event
         $modal.find(".scrollBar").off();
         $(document).off(".profileModal");
@@ -424,7 +422,7 @@ window.Profile = (function($, Profile, d3) {
 
         refreshProfile();
         setupScrollBar();
-        $modalBg.on("mouseover.profileModal", resetTooltip);
+        $("#modalBackground").on("mouseover.profileModal", resetTooltip);
     }
 
     // refresh profile

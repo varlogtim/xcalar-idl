@@ -1,12 +1,9 @@
 window.JoinModal = (function($, JoinModal) {
-    var $modalBg;        // $("#modalBackground")
     var $mainJoin;       // $("#mainJoin")
     var $joinModal;      // $("#joinModal")
     var $tableDropDown;  // $mainJoin.find('.joinTableList')
 
     var $joinSelect;     // $("#joinType")
-    var $joinDropdown;   // $("#joinTypeSelect")
-    var $joinPreview;    // $('#joinPreview')
 
     var $joinTableName;  // $("#joinRoundedInput")
     var $leftJoinTable;  // $("#leftJoin")
@@ -32,36 +29,45 @@ window.JoinModal = (function($, JoinModal) {
     var dragSide = null;
     var isOpenTime;
 
-    // constant
-    var minHeight = 600;
-    var minWidth  = 800;
-
     JoinModal.setup = function () {
-        $modalBg = $("#modalBackground");
         $mainJoin = $("#mainJoin");
         $joinModal = $("#joinModal");
         $tableDropDown = $mainJoin.find('.joinTableList');
         $joinSelect = $("#joinType");
-        $joinDropdown = $("#joinTypeSelect");
-        $joinPreview = $('#joinPreview');
         $joinTableName = $("#joinRoundedInput");
         $leftJoinTable = $("#leftJoin");
         $rightJoinTable = $("#rightJoin");
         $multiJoinBtn = $("#multiJoinBtn");
         $multiJoin = $("#multiJoin");
 
+        // constant
+        var minHeight = 600;
+        var minWidth  = 800;
+
         modalHelper = new ModalHelper($joinModal, {
             "minHeight": minHeight,
             "minWidth" : minWidth
         });
 
-        $("#closeJoin, #cancelJoin").click(function() {
-            resetJoinTables();
+        $joinModal.resizable({
+            handles    : "n, e, s, w, se",
+            minHeight  : minHeight,
+            minWidth   : minWidth,
+            containment: "document"
         });
 
-        $joinSelect.click(function() {
-            $joinSelect.toggleClass("open");
-            $joinDropdown.toggle();
+        $joinModal.draggable({
+            handle     : '.modalHeader',
+            cursor     : '-webkit-grabbing',
+            containment: 'window'
+        });
+
+        $joinModal.on("mouseenter", ".tooltipOverflow", function(){
+            xcHelper.autoTooltip(this);
+        });
+
+        $("#closeJoin, #cancelJoin").click(function() {
+            resetJoinTables();
         });
 
         $joinTableName.blur(function() {
@@ -76,26 +82,17 @@ window.JoinModal = (function($, JoinModal) {
             }
         });
 
-        $joinDropdown.on("click", "li", function(event) {
-            var $li  = $(this);
-
-            event.stopPropagation();
-
-            if ($li.hasClass("inactive")) {
-                return;
+        xcHelper.dropdownList($joinSelect, {
+            "onSelect": function($li) {
+                var joinType = $li.text();
+                $joinSelect.find(".text").text(joinType);
+                updatePreviewText();
             }
-
-            var joinType = $li.text();
-
-            $joinSelect.find(".text").text(joinType);
-            updatePreviewText();
-            hideDropdowns({close: true});
         });
 
         $tableDropDown.on('click', 'li', function(event) {
             var $li  = $(this);
             event.stopPropagation();
-            hideDropdowns({close: true});
             var $tableNameText = $li.closest('.dropDownList').find('.text');
             var tableName = $li.text();
             var originalText = $tableNameText.text();
@@ -111,8 +108,6 @@ window.JoinModal = (function($, JoinModal) {
             }
 
             var $modal = $li.closest('.joinContainer');
-
-
             $modal.find(".colSelected").removeClass("colSelected");
             $modal.find(".joinTable").hide();
             $modal.find('.joinTable[data-id="' + tableId + '"]').show();
@@ -138,8 +133,6 @@ window.JoinModal = (function($, JoinModal) {
             "container": "#mainJoin",
             "bounds"   : '#mainJoin'
         });
-
-        $joinModal.click(hideDropdowns);
 
         // This submits the joined tables
         $("#joinTables").click(function() {
@@ -300,32 +293,28 @@ window.JoinModal = (function($, JoinModal) {
             return false;
         });
 
-        $joinModal.on("mouseenter", ".tooltipOverflow", function(){
-            xcHelper.autoTooltip(this);
-        });
-
-        $joinModal.draggable({
-            handle     : '.modalHeader',
-            cursor     : '-webkit-grabbing',
-            containment: 'window'
-        });
-
-        $joinModal.resizable({
-            handles    : "n, e, s, w, se",
-            minHeight  : minHeight,
-            minWidth   : minWidth,
-            containment: "document"
-        });
-
         addModalTabListeners($leftJoinTable, true);
         addModalTabListeners($rightJoinTable, false);
     };
 
     JoinModal.show = function(tableId, colNum) {
         isOpenTime = true;
-        $("body").on("keypress", joinTableKeyPress);
-        $("body").on("mouseup", removeCursors);
-        $modalBg.on("click", hideDropdowns);
+        $("body").on("keypress.joinModal", function(event) {
+            switch (event.which) {
+                case keyCode.Enter:
+                    // when focus on a button, no trigger
+                    if (modalHelper.checkBtnFocus()) {
+                        break;
+                    }
+                    $('#joinTables').click();
+                    break;
+                default:
+                    break;
+            }
+        });
+        $("body").on("mouseup.joinModal", function() {
+            $("#moveCursor").remove();
+        });
         updateJoinTableName();
 
         joinModalTabs($rightJoinTable, null, -1);
@@ -534,9 +523,7 @@ window.JoinModal = (function($, JoinModal) {
 
     function resetJoinTables() {
         modalHelper.clear();
-        $("body").off("keypress", joinTableKeyPress);
-        $("body").off("mouseup", removeCursors);
-        $modalBg.off("click", hideDropdowns);
+        $("body").off(".joinModal");
 
         // clean up multi clause section
         $mainJoin.removeClass("multiClause");
@@ -553,41 +540,11 @@ window.JoinModal = (function($, JoinModal) {
         $joinModal.width(920).height(620);
     }
 
-    function hideDropdowns(event) {
-        if (!event.close && $(event.target).closest('.dropDownList').length) {
-            $joinModal.find('.dropDownList').each(function() {
-                if (!$(this).is($(event.target).closest('.dropDownList'))) {
-                    $(this).removeClass('open').find('.list').hide();
-                }
-            });
-            return;
-        }
-        $joinModal.find('.open').removeClass('open');
-        $joinModal.find('.list').hide();
-    }
-
     function updateJoinTableName() {
         var joinTableName = "";
         $joinTableName.val(joinTableName);
     }
 
-    function joinTableKeyPress(event) {
-        switch (event.which) {
-            case keyCode.Enter:
-                // when focus on a button, no trigger
-                if (modalHelper.checkBtnFocus()) {
-                    break;
-                }
-                $('#joinTables').click();
-                break;
-            default:
-                break;
-        }
-    }
-
-    function removeCursors() {
-        $('#moveCursor').remove();
-    }
     // build left join table and right join table
     function joinModalTabs($modal, tableId, colNum, $sibling) {
         if ($sibling != null) {
@@ -1332,50 +1289,8 @@ window.JoinModal = (function($, JoinModal) {
             previewText = previewText.slice(0, textLen - 5);
         }
         previewText += ";";
-        $joinPreview.html(previewText);
+        $('#joinPreview').html(previewText);
     }
-
-    // function getNewTableName(lTableName, rTableName) {
-    //     var deferred = jQuery.Deferred();
-    //     var tempName = xcHelper.getTableName(lTableName) + '-' +
-    //                    xcHelper.getTableName(rTableName);
-    //     var destName;
-    //     var tableNames = {};
-    //     XcalarGetTables()
-    //     .then(function(result) {
-    //         var tables = result.nodeInfo;
-    //         for (var i = 0; i < result.numNodes; i++) {
-    //             var name = xcHelper.getTableName(tables[i].name);
-    //             tableNames[name] = 1;
-    //         }
-
-    //         var validNameFound = false;
-    //         var limit = 20; // we won't try more than 20 times
-    //         destName = tempName;
-    //         if (tableNames.hasOwnProperty(destName)) {
-    //             for (var i = 1; i <= limit; i++) {
-    //                 destName = tempName + i;
-    //                 if (!tableNames.hasOwnProperty(destName)) {
-    //                     validNameFound = true;
-    //                     break;
-    //                 }
-    //             }
-    //             if (!validNameFound) {
-    //                 var tries = 0;
-    //                 while (tableNames.hasOwnProperty(destName) && tries < 100) {
-    //                     destName = xcHelper.randName(tempName, 4);
-    //                     tries++;
-    //                 }
-    //             }
-    //         }
-    //         deferred.resolve(destName);
-    //     })
-    //     .fail(function(error) {
-    //         deferred.reject(error);
-    //     });
-
-    //     return (deferred.promise());
-    // }
 
     return (JoinModal);
 }(jQuery, {}));

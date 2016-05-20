@@ -1,16 +1,13 @@
 window.Alert = (function($, Alert){
     var $modal;   // $("#alertModal")
     var $modalBg; // $("#modalBackground")
-
-    var $alertOptionInput; // $("#alertOptionInput")
-    var $btnSection;       // $("#alertActions")
+    var $btnSection; // $("#alertActions")
 
     var modalHelper;
 
     Alert.setup = function() {
         $modal = $("#alertModal");
         $modalBg = $("#modalBackground");
-        $alertOptionInput = $("#alertOptionInput");
         $btnSection = $("#alertActions");
 
         modalHelper = new ModalHelper($modal, {
@@ -27,7 +24,7 @@ window.Alert = (function($, Alert){
 
         xcHelper.dropdownList($modal.find(".dropDownList"), {
             "onSelect": function($li) {
-                $alertOptionInput.val($li.text()).focus();
+                $("#alertOptionInput").val($li.text()).focus();
             }
         });
     };
@@ -124,8 +121,8 @@ window.Alert = (function($, Alert){
     };
 
     Alert.getOptionVal = function() {
-        var val = $alertOptionInput.val();
-        return (jQuery.trim(val));
+        var val = $("#alertOptionInput").val().trim();
+        return val;
     };
 
     function closeAlertModal($modalContainer) {
@@ -236,7 +233,7 @@ window.Alert = (function($, Alert){
 
         // set option list
         var $optionSection = $alertContent.find(".options");
-        $alertOptionInput.val("");
+        $("#alertOptionInput").val("");
         if (options.optList) {
             $("#alertlist").empty().append(options.optList.list);
             $("#alertOptionLabel").text(options.optList.label);

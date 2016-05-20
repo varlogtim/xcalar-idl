@@ -10,10 +10,6 @@ window.FileBrowser = (function($, FileBrowser) {
     var $pathLists;       // $("#fileBrowserPathMenu")
     var $pathText;        // $pathSection.find(".text")
 
-    var $sortSection;     // $("#fileBrowserSort")
-    var $sortMenu;        // $("#fileBrowserSortMenu")
-    var $filePath;        //$("#filePath")
-
     /* Contants */
     var defaultNFSPath  = "nfs:///";
     var defaultFilePath = "file:///";
@@ -25,8 +21,6 @@ window.FileBrowser = (function($, FileBrowser) {
         "XLSX": "Excel"
     };
     var dsIconHeight = 72;
-    var minWidth  = 600;
-    var minHeight = 400;
     /* End Of Contants */
 
     var defaultPath = defaultFilePath;
@@ -48,19 +42,13 @@ window.FileBrowser = (function($, FileBrowser) {
         $pathSection = $("#fileBrowserPath");
         $pathLists = $("#fileBrowserPathMenu");
         $pathText = $pathSection.find(".text");
-        $sortSection = $("#fileBrowserSort");
-        $sortMenu = $("#fileBrowserSortMenu");
-        $filePath = $("#filePath");
+
+        var minWidth  = 600;
+        var minHeight = 400;
 
         modalHelper = new ModalHelper($fileBrowser, {
             "minHeight": minHeight,
             "minWidth" : minWidth
-        });
-
-        $fileBrowser.draggable({
-            "handle"     : ".modalHeader",
-            "cursor"     : "-webkit-grabbing",
-            "containment": "window"
         });
 
         $fileBrowser.resizable({
@@ -68,6 +56,13 @@ window.FileBrowser = (function($, FileBrowser) {
             "minHeight"  : minHeight,
             "minWidth"   : minWidth,
             "containment": "document"
+        });
+
+
+        $fileBrowser.draggable({
+            "handle"     : ".modalHeader",
+            "cursor"     : "-webkit-grabbing",
+            "containment": "window"
         });
 
         // click blank space to remove foucse on folder/dsds
@@ -178,10 +173,11 @@ window.FileBrowser = (function($, FileBrowser) {
         });
 
         // toggle sort menu, should use mousedown for toggle
+        var $sortSection = $("#fileBrowserSort");
         $sortSection.on({
             "mousedown": function(event){
                 event.stopPropagation();
-                $sortMenu.toggle();
+                $("#fileBrowserSortMenu").toggle();
             },
             // prevent clear event to be trigger
             "click": function(event) {
@@ -189,8 +185,8 @@ window.FileBrowser = (function($, FileBrowser) {
             }
         }, ".icon, .dropdownBox");
 
-        $sortSection[0].oncontextmenu = function(e) {
-            e.preventDefault();
+        $sortSection[0].oncontextmenu = function(event) {
+            event.preventDefault();
         };
 
         // click sort option to sort
@@ -198,7 +194,7 @@ window.FileBrowser = (function($, FileBrowser) {
             var $li = $(this);
 
             event.stopPropagation();
-            $sortMenu.hide();
+            $("#fileBrowserSortMenu").hide();
             // already sort
             if (!$li.hasClass("select")) {
                 sortAction($li, true);
@@ -312,7 +308,7 @@ window.FileBrowser = (function($, FileBrowser) {
         })
         .fail(function(result) {
             closeAll();
-            StatusBox.show(result.error, $filePath, true);
+            StatusBox.show(result.error, $("#filePath"), true);
             deferred.reject();
         });
 
@@ -690,7 +686,7 @@ window.FileBrowser = (function($, FileBrowser) {
         }
 
         var path = curDir + fileName;
-        $filePath.val(path);
+        $("#filePath").val(path);
         getShortName(fileName)
         .then(function(shortName) {
             $("#fileName").val(shortName);
@@ -743,8 +739,8 @@ window.FileBrowser = (function($, FileBrowser) {
                 }
             });
         } else {
-           // mark sort key on li
-            $sortMenu.find("li").each(function() {
+            // mark sort key on li
+            $("#fileBrowserSortMenu").find("li").each(function() {
                 var $li = $(this);
 
                 if ($li.data("sortkey") === key) {

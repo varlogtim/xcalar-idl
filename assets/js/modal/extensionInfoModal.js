@@ -1,24 +1,17 @@
 window.ExtensionInfoModal = (function(ExtensionInfoModal, $) {
     var $extModal; // $("#extensionInfoModal");
     var modalHelper;
-
-    // constant
-    var minHeight = 400;
-    var minWidth = 700;
     var curExt;
 
     ExtensionInfoModal.setup = function() {
         $extModal = $("#extensionInfoModal");
 
+        var minHeight = 400;
+        var minWidth = 700;
+
         modalHelper = new ModalHelper($extModal, {
             "minHeight": minHeight,
             "minWidth" : minWidth
-        });
-
-        $extModal.draggable({
-            "handle"     : ".modalHeader",
-            "cursor"     : "-webkit-grabbing",
-            "containment": 'window'
         });
 
         $extModal.resizable({
@@ -26,6 +19,12 @@ window.ExtensionInfoModal = (function(ExtensionInfoModal, $) {
             "minHeight"  : minHeight,
             "minWidth"   : minWidth,
             "containment": "document"
+        });
+
+        $extModal.draggable({
+            "handle"     : ".modalHeader",
+            "cursor"     : "-webkit-grabbing",
+            "containment": 'window'
         });
 
         $extModal.on("click", ".close, .cancel", function() {

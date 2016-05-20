@@ -111,7 +111,7 @@ describe('OperationsModal', function() {
 
             OperationsModal.show(tableId, 1, 'group by')
             .then(function() {
-                console.log(tableId);
+                // console.log(tableId);
                 operatorsMap = OperationsModal.getOperatorsMap();
                 setTimeout(function() {
                     $categoryInput = $('#categoryList').find('input');

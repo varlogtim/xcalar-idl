@@ -1,20 +1,12 @@
 window.ExportTarget = (function($, ExportTarget) {
-    var $exportView;      // $('#exportView')
-    var $form;            // $('#exportDataForm')
-    var $gridView;        // $exportView.find('.gridItems')
-    var $targetTypeList;  // $('#targetTypeList')
-    var $targetTypeInput; // $targetTypeList.find('.text')
-    var $nameInput;       // $('#targetName')
-
+    var $exportView; // $('#exportView')
     var exportTargets = [];
 
     ExportTarget.setup = function() {
         $exportView = $('#exportView');
-        $form = $('#exportDataForm');
-        $gridView = $exportView.find('.gridItems');
-        $targetTypeList = $('#targetTypeList');
-        $targetTypeInput = $targetTypeList.find('.text');
-        $nameInput = $('#targetName');
+
+        var $targetTypeList = $('#targetTypeList');
+        var $targetTypeInput = $targetTypeList.find('.text');
 
         xcHelper.dropdownList($targetTypeList, {
             "onSelect": function($li) {
@@ -34,6 +26,7 @@ window.ExportTarget = (function($, ExportTarget) {
             restoreExportTarget();
         });
 
+        var $gridView = $exportView.find('.gridItems');
         $gridView.on("click", ".grid-unit", function(event) {
             event.stopPropagation(); // stop event bubbling
             var $grid = $(this);
@@ -42,6 +35,7 @@ window.ExportTarget = (function($, ExportTarget) {
             $grid.addClass("active");
         });
 
+        var $form = $('#exportDataForm');
         $form.submit(function(event) {
             event.preventDefault();
             $form.find('input').blur();
@@ -50,7 +44,7 @@ window.ExportTarget = (function($, ExportTarget) {
             xcHelper.disableSubmit($submitBtn);
 
             var targetType = $targetTypeInput.val();
-            var name = $nameInput.val().trim();
+            var name = $('#targetName').val().trim();
 
             ExportTarget.submitForm(targetType, name)
             .then(function() {
@@ -86,7 +80,8 @@ window.ExportTarget = (function($, ExportTarget) {
 
     ExportTarget.submitForm = function(targetType, name) {
         var deferred = jQuery.Deferred();
-        var isValid  = xcHelper.validate([
+        var $targetTypeInput = $('#targetTypeList').find('.text');
+        var isValid = xcHelper.validate([
             {
                 "$selector": $targetTypeInput,
                 "text"     : ErrTStr.NoEmptyList,
@@ -95,7 +90,7 @@ window.ExportTarget = (function($, ExportTarget) {
                 }
             },
             {
-                "$selector": $nameInput,
+                "$selector": $('#targetName'),
                 "text"     : ErrTStr.NoEmpty,
                 "check"    : function() {
                     return (name === "");

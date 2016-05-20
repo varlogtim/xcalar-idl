@@ -1,9 +1,6 @@
 window.MultiCastModal = (function($, MultiCastModal) {
-    var $modal;         // $("#multiCastModal")
-
-    var $table;         // $("#multiCast-table")
-    var $resultSection; // $("#multiCast-result")
-    var $castBtn;       // $("#multiCast-cast")
+    var $modal; // $("#multiCastModal")
+    var $table; // $("#multiCast-table")
 
     var modalHelper;
     var curTableId;
@@ -13,15 +10,13 @@ window.MultiCastModal = (function($, MultiCastModal) {
     var colTypes = [];
     var recTypes = [];
 
-    // constant
-    var minHeight = 500;
-    var minWidth  = 600;
-
     MultiCastModal.setup = function() {
         $modal = $("#multiCastModal");
         $table = $("#multiCast-table");
-        $resultSection = $("#multiCast-result");
-        $castBtn = $("#multiCast-cast");
+
+        // constant
+        var minHeight = 500;
+        var minWidth  = 600;
 
         modalHelper = new ModalHelper($modal, {
             "minHeight": minHeight,
@@ -73,7 +68,7 @@ window.MultiCastModal = (function($, MultiCastModal) {
             deSelectCols($ths);
         });
 
-        $castBtn.click(function() {
+        $("#multiCast-cast").click(function() {
             $(this).blur();
             smartSuggest();
         });
@@ -138,7 +133,7 @@ window.MultiCastModal = (function($, MultiCastModal) {
         modalHelper.clear();
 
         $table.html("");
-        $resultSection.html("");
+        $("#multiCast-result").html("");
         $(document).off(".multiCastModal");
 
         newColTypes = [];
@@ -283,6 +278,7 @@ window.MultiCastModal = (function($, MultiCastModal) {
             $label.text(MultiCastTStr.CastRes);
         }
 
+        var $resultSection = $("#multiCast-result");
         if (gMinModeOn) {
             $resultSection.html(html);
         } else {

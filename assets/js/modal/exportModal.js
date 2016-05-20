@@ -10,15 +10,12 @@ window.ExportModal = (function($, ExportModal) {
     var tableId;
     var focusedHeader;
 
-    var columnsToExport = [];
     var exportTargInfo;
 
     var modalHelper;
 
     // constant
     var validTypes = ['string', 'integer', 'float', 'boolean'];
-    var minHeight = 296;
-    var minWidth  = 296;
 
     ExportModal.setup = function() {
         $exportModal = $("#exportModal");
@@ -27,21 +24,24 @@ window.ExportModal = (function($, ExportModal) {
         $exportColumns = $("#exportColumns");
         $advancedSection = $exportModal.find('.advancedSection');
 
+        var minHeight = 296;
+        var minWidth  = 660;
+
         modalHelper = new ModalHelper($exportModal, {
             "minHeight": minHeight,
             "minWidth" : minWidth
+        });
+
+        $exportModal.resizable({
+            handles    : "e, w",
+            minWidth   : minWidth,
+            containment: "document"
         });
 
         $exportModal.draggable({
             "handle"     : ".modalHeader",
             "cursor"     : "-webkit-grabbing",
             "containment": "window"
-        });
-
-        $exportModal.resizable({
-            handles    : "e, w",
-            minWidth   : 660,
-            containment: "document"
         });
 
         // click cancel or close button
@@ -849,7 +849,6 @@ window.ExportModal = (function($, ExportModal) {
     }
 
     function clearAllCols() {
-        columnsToExport = [];
         $exportColumns.val("");
         $('#xcTable-' + tableId)
                     .find('th.modalHighlighted, td.modalHighlighted')

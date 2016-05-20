@@ -1,17 +1,13 @@
 window.AddScheduleModal = (function($, AddScheduleModal) {
     var $modal;             // $('#addScheduleModal')
-    var $list;              // $modal.find('.scheduleList')
     var $scheduleListInput; // $modal.find('.scheduleListInput')
-    var $shceduleInfo;      // $modal.find('.scheInfoSection .text')
 
     var groupName;
     var modalHelper;
 
     AddScheduleModal.setup = function() {
         $modal = $('#addScheduleModal');
-        $list = $modal.find('.scheduleList');
         $scheduleListInput = $modal.find('.scheduleListInput');
-        $shceduleInfo = $modal.find('.scheInfoSection .text');
 
         modalHelper = new ModalHelper($modal, {
             "focusOnOpen": true,
@@ -111,12 +107,12 @@ window.AddScheduleModal = (function($, AddScheduleModal) {
             $modal.find('.confirm').removeClass('unavailable');
         }
 
-        $list.find('ul').html(lis);
+        $modal.find('.scheduleList ul').html(lis);
 
         if (attachedSched == null) {
             attachedSched = "N/A";
         }
-        $shceduleInfo.text(attachedSched);
+        $modal.find('.scheInfoSection .text').text(attachedSched);
     }
 
     function submitForm() {
@@ -131,19 +127,21 @@ window.AddScheduleModal = (function($, AddScheduleModal) {
         }
 
         var selectedSchedule = $scheduleListInput.val();
-        closeModal();
-
-        Scheduler.addDFG(selectedSchedule, groupName)
+        var currentGroup = groupName;
+        // close modal will set group name to null
+        Scheduler.addDFG(selectedSchedule, currentGroup)
         .then(function() {
             xcHelper.showSuccess();
         })
         .fail(function(error) {
             Alert.error(SchedTStr.AddSchedFail, error);
         });
+
+        closeModal();
     }
 
     function addModalEvents() {
-        xcHelper.dropdownList($list, {
+        xcHelper.dropdownList($modal.find('.scheduleList'), {
             "onSelect": function($li) {
                 if ($li.hasClass("hint")) {
                     return false;
@@ -179,7 +177,8 @@ window.AddScheduleModal = (function($, AddScheduleModal) {
     function closeModal() {
         modalHelper.clear();
         $(document).off(".addScheduleModal");
-        $shceduleInfo.text("N/A");
+        $modal.find('.scheInfoSection .text').text("N/A");
+        groupName = null;
     }
 
     return (AddScheduleModal);

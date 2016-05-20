@@ -14,8 +14,6 @@ window.JSONModal = (function($, JSONModal) {
     var notObject = false; // true if in preview mode due to truncated text
 
     // constant
-    var minHeight = 300;
-    var minWidth  = 300;
     var jsonAreaMinWidth = 340;
     window.gProjectOff = true;
 
@@ -27,11 +25,20 @@ window.JSONModal = (function($, JSONModal) {
         $jsonText = $jsonModal.find('.prettyJson');
         $counter = $('#jsonSearch').find('.counter');
 
+        var minHeight = 300;
+        var minWidth  = 300;
+
         modalHelper = new ModalHelper($jsonModal, {
             "minHeight" : minHeight,
             "minWidth"  : minWidth,
             "noTabFocus": true,
             "noEsc"     : true
+        });
+
+        $jsonModal.draggable({
+            handle     : '.jsonDragArea',
+            cursor     : '-webkit-grabbing',
+            containment: "window"
         });
 
         $('#jsonModal .closeJsonModal').click(function() {
@@ -44,12 +51,6 @@ window.JSONModal = (function($, JSONModal) {
             if (!isDataCol && $('#jsonModal').css('display') === 'block') {
                 closeJSONModal();
             }
-        });
-
-        $jsonModal.draggable({
-            handle     : '.jsonDragArea',
-            cursor     : '-webkit-grabbing',
-            containment: "window"
         });
 
         var $jsonWraps;
@@ -79,7 +80,6 @@ window.JSONModal = (function($, JSONModal) {
         });
 
         var initialIndex;
-
         $jsonArea.sortable({
             revert: 300,
             axis  : "x",
@@ -414,6 +414,8 @@ window.JSONModal = (function($, JSONModal) {
             }
         } else {
             var nameInfo = createJsonSelectionExpression($el);
+            var animation = gMinModeOn ? false : true;
+
             if (isDataCol) {
                 colName = nameInfo.escapedName;
             } else {
@@ -433,7 +435,6 @@ window.JSONModal = (function($, JSONModal) {
                 }
 
                 if (cols[i].getBackColName() === colName) {
-                    var animation = gMinModeOn ? false : true;
                     closeJSONModal();
                     xcHelper.centerFocusedColumn(tableId, i, animation);
                     return;
@@ -448,7 +449,6 @@ window.JSONModal = (function($, JSONModal) {
 
             ColManager.pullCol(colNum, tableId, nameInfo, pullColOptions)
             .always(function() {
-                var animation = gMinModeOn ? false : true;
                 closeJSONModal();
                 if (isDataCol) {
                     colNum--; // column appended to left, so colNum - 1
@@ -799,7 +799,7 @@ window.JSONModal = (function($, JSONModal) {
             }
         }
 
-        var $jsonWrap = $jsonArea.find('.jsonWrap:last');
+        // var $jsonWrap = $jsonArea.find('.jsonWrap:last');
         var rowNum = xcHelper.parseRowNum($jsonTd.closest('tr')) + 1;
         var tableId = xcHelper.parseTableId($jsonTd.closest('table'));
         var tableName = gTables[tableId].tableName;
@@ -1366,7 +1366,7 @@ window.JSONModal = (function($, JSONModal) {
             var $jInfo     = $(this);
             var key        = "";
             var escapedKey = "";
-            var modifiedKey = "";
+            // var modifiedKey = "";
             var needsBrackets = false;
             var needsDot = false;
 

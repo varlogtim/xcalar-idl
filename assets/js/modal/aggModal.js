@@ -1,11 +1,8 @@
 window.AggModal = (function($, AggModal) {
     var $aggModal;     // $("#aggModal")
-
-    var $aggInstr;     // $("#aggModal-instr")
-    var $aggTableName; // $("#aggModal-tableName")
-
     var $quickAgg;     // $("#aggModal-quickAgg")
     var $corr;         // $("#aggModal-corr")
+
     var modalHelper;
 
     var aggFunctions;  // [AggrOp.Sum, AggrOp.Avg, AggrOp.Min, AggrOp.Max, AggrOp.Count]
@@ -16,23 +13,10 @@ window.AggModal = (function($, AggModal) {
     var corrCache = {};
     var aggOpMap  = {};
 
-    // constant
-    var minWidth  = 580;
-    var minHeight = 300;
-
     AggModal.setup = function() {
         $aggModal = $("#aggModal");
-
-        $aggInstr = $("#aggModal-instr");
-        $aggTableName = $("#aggModal-tableName");
-
         $quickAgg = $("#aggModal-quickAgg");
         $corr = $("#aggModal-corr");
-
-        modalHelper = new ModalHelper($aggModal, {
-            "minWidth" : minWidth,
-            "minHeight": minHeight
-        });
 
         aggFunctions = [AggrOp.Sum, AggrOp.Avg, AggrOp.Min,
                          AggrOp.Max, AggrOp.Count];
@@ -43,10 +27,12 @@ window.AggModal = (function($, AggModal) {
         aggOpMap[AggrOp.Max] = 3;
         aggOpMap[AggrOp.Count] = 4;
 
-        $aggModal.draggable({
-            "handle"     : ".modalHeader",
-            "cursor"     : "-webkit-grabbing",
-            "containment": "window"
+        var minWidth  = 580;
+        var minHeight = 300;
+
+        modalHelper = new ModalHelper($aggModal, {
+            "minWidth" : minWidth,
+            "minHeight": minHeight
         });
 
         $aggModal.resizable({
@@ -54,6 +40,12 @@ window.AggModal = (function($, AggModal) {
             "minHeight"  : minHeight,
             "minWidth"   : minWidth,
             "containment": "document"
+        });
+
+        $aggModal.draggable({
+            "handle"     : ".modalHeader",
+            "cursor"     : "-webkit-grabbing",
+            "containment": "window"
         });
 
         $aggModal.on("click", ".close", function() {
@@ -158,6 +150,7 @@ window.AggModal = (function($, AggModal) {
 
     function showAggModal(tableName, mode) {
         var $header = $aggModal.find(".modalHeader .text");
+        var $aggInstr = $aggModal.find(".modalInstruction .text");
 
         if (mode === "quickAgg") {
             // when it's quick aggregation
@@ -176,7 +169,7 @@ window.AggModal = (function($, AggModal) {
             throw "Invalid mode in quick agg!";
         }
 
-        $aggTableName.find(".text").text(tableName);
+        $("#aggModal-tableName").find(".text").text(tableName);
         modalHelper.setup()
         .always(function() {
             $aggModal.find(".aggContainer")

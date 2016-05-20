@@ -9,11 +9,9 @@ window.DS = (function ($, DS) {
     var dsLookUpTable;  // find DSObj by dsId
     var homeFolder;
 
-    var $explorePanel;    // $("#exploreView")
-    var $backFolderBtn;   // $("#backFolderBtn")
-    var $deleteFolderBtn; // $("#deleteFolderBtn")
-    var $gridView;        // $explorePanel.find(".gridItems")
-    var $gridMenu;        // $("#gridViewMenu")
+    var $explorePanel;  // $("#exploreView")
+    var $gridView;      // $explorePanel.find(".gridItems")
+    var $gridMenu;      // $("#gridViewMenu")
 
     // for DS drag n drop
     var $dragDS;
@@ -22,8 +20,6 @@ window.DS = (function ($, DS) {
     DS.setup = function() {
         homeDirId = DSObjTerm.homeDirId;
         $explorePanel = $("#exploreView");
-        $backFolderBtn = $("#backFolderBtn");
-        $deleteFolderBtn = $("#deleteFolderBtn");
         $gridView = $explorePanel.find(".gridItems");
         $gridMenu = $("#gridViewMenu");
 
@@ -162,7 +158,7 @@ window.DS = (function ($, DS) {
 
         $gridView.find(".active").removeClass("active");
         $grid.addClass("active");
-        $deleteFolderBtn.removeClass("disabled");
+        $("#deleteFolderBtn").removeClass("disabled");
 
         // folder do not show anything
         if ($grid.hasClass("folder")) {
@@ -436,10 +432,10 @@ window.DS = (function ($, DS) {
         curDirId = folderId;
 
         if (curDirId === homeDirId) {
-            $backFolderBtn.addClass("disabled");
+            $("#backFolderBtn").addClass("disabled");
             $gridMenu.find(".back, .moveUp").addClass("disabled");
         } else {
-            $backFolderBtn.removeClass("disabled");
+            $("#backFolderBtn").removeClass("disabled");
             $gridMenu.find(".back, .moveUp").removeClass("disabled");
         }
 
@@ -487,7 +483,7 @@ window.DS = (function ($, DS) {
     // Clear dataset/folder in gridView area
     DS.clear = function() {
         $explorePanel.find(".gridItems .grid-unit").remove();
-        $backFolderBtn.addClass("disabled");
+        $("#backFolderBtn").addClass("disabled");
         $gridMenu.find(".back, .moveUp").addClass("disabled");
         // reset home folder
         curDirId = homeDirId;
@@ -854,7 +850,7 @@ window.DS = (function ($, DS) {
         });
 
         // click "Delete Folder" button to delete folder
-        $deleteFolderBtn.click(function() {
+        $("#deleteFolderBtn").click(function() {
             if ($(this).hasClass("disabled")) {
                 return;
             }
@@ -873,7 +869,7 @@ window.DS = (function ($, DS) {
         $explorePanel.find(".gridViewWrapper").on("click", function() {
             // this hanlder is called before the following one
             $gridView.find(".active").removeClass("active");
-            $deleteFolderBtn.addClass("disabled");
+            $("#deleteFolderBtn").addClass("disabled");
         });
 
         // click a folder/ds
@@ -1059,7 +1055,7 @@ window.DS = (function ($, DS) {
         }
 
         $gridView.find(".active").removeClass("active");
-        $deleteFolderBtn.addClass("disabled");
+        $("#deleteFolderBtn").addClass("disabled");
 
         if ($gridView.hasClass("gridView")) {
             DS.goToDir(dsid);
@@ -1252,7 +1248,7 @@ window.DS = (function ($, DS) {
         // must add datatransfer to support firefox drag drop
         event.dataTransfer.setData("text", "");
 
-        $deleteFolderBtn.addClass("disabled");
+        $("#deleteFolderBtn").addClass("disabled");
 
         setDragDS($grid);
         resetDropTarget();
@@ -1265,7 +1261,7 @@ window.DS = (function ($, DS) {
         $gridView.on("dragenter", function(){
             resetDropTarget();
             $gridView.find(".active").removeClass("active");
-            $backFolderBtn.removeClass("active");
+            $("#backFolderBtn").removeClass("active");
         });
     };
 
@@ -1283,7 +1279,7 @@ window.DS = (function ($, DS) {
         $gridView.removeClass("drag");
         $gridView.off("dragenter");
         $gridView.find(".active").removeClass("active");
-        $backFolderBtn.removeClass("active");
+        $("#backFolderBtn").removeClass("active");
     };
 
     // Helper function for drag enter event
@@ -1355,7 +1351,7 @@ window.DS = (function ($, DS) {
         event.stopPropagation();
 
         if ($gridView.hasClass("listView") ||
-            $backFolderBtn.hasClass("disabled"))
+            $("#backFolderBtn").hasClass("disabled"))
         {
             return;
         }

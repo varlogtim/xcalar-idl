@@ -14,9 +14,6 @@ window.DataFlowModal = (function($, DataFlowModal) {
     var isFirstTouch = true;
     var tableName;
     var modalHelper;
-    // constant
-    var minHeight = 400;
-    var minWidth  = 700;
 
     DataFlowModal.setup = function() {
         $dfgModal = $('#dataFlowModal');
@@ -31,16 +28,13 @@ window.DataFlowModal = (function($, DataFlowModal) {
         $newGroupNameInput = $('#newGroupNameInput');
         $confirmBtn = $("#dataFlowModalConfirm");
 
+        var minHeight = 400;
+        var minWidth  = 700;
+
         modalHelper = new ModalHelper($dfgModal, {
             "focusOnOpen": true,
             "minHeight"  : minHeight,
             "minWidth"   : minWidth
-        });
-
-        $dfgModal.draggable({
-            "handle"     : ".modalHeader",
-            "cursor"     : "-webkit-grabbing",
-            "containment": 'window'
         });
 
         $dfgModal.resizable({
@@ -48,6 +42,12 @@ window.DataFlowModal = (function($, DataFlowModal) {
             "minHeight"  : minHeight,
             "minWidth"   : minWidth,
             "containment": "document"
+        });
+
+        $dfgModal.draggable({
+            "handle"     : ".modalHeader",
+            "cursor"     : "-webkit-grabbing",
+            "containment": 'window'
         });
 
         $dfExport.scroll(function(){
@@ -384,7 +384,7 @@ window.DataFlowModal = (function($, DataFlowModal) {
         $dfPreviews.show();
         $dfTable.empty();
         $previewSection.find(".titleSection .titleWrap .text").text("Preview");
-        $confirmBtn.text("Next").addClass("next");
+        $confirmBtn.addClass("next").text(CommonTxtTstr.NEXT);
         $(document).off('keypress.dfgModal');
     }
 
