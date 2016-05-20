@@ -612,6 +612,28 @@ window.xcHelper = (function($, xcHelper) {
         return (res);
     };
 
+    xcHelper.toggleListGridBtn = function($btn, ToListView, noRefresh) {
+        if ($btn == null) {
+            return;
+        }
+
+        if (ToListView) {
+            // toggle to list view
+            $btn.removeClass("gridView").addClass("listView");
+            // suggest become 'to grid view'
+            $btn.attr("data-original-title", TooltipTStr.ToGridView);
+        } else {
+            // toggle to grid view
+            $btn.removeClass("listView").addClass("gridView");
+            $btn.attr("data-original-title", TooltipTStr.ToListView);
+        }
+        // refresh tooltip
+        if (!noRefresh) {
+            xcHelper.refreshTooltip($btn);
+        }
+    };
+
+
     var tooltipTimer;
 
     xcHelper.refreshTooltip = function($ele, timer) {
@@ -1618,7 +1640,7 @@ window.xcHelper = (function($, xcHelper) {
     xcHelper.escapeHTMlSepcialChar = function(str) {
         // esacpe & to &amp;, so text &quot; will not become " in html
         // escape < & > so external html doesn't get injected
-        return  str.replace(/\&/g, "&amp;")
+        return str.replace(/\&/g, "&amp;")
                     .replace(/\</g, "&lt;")
                     .replace(/\>/g, "&gt;")
                     .replace(/\\t/g, "&emsp;");
@@ -1973,7 +1995,7 @@ window.xcHelper = (function($, xcHelper) {
         var menuId = $menu.attr('id');
 
         if ($menu.data('submenu')) {
-            $subMenu  = $('#' + $menu.data('submenu'));
+            $subMenu = $('#' + $menu.data('submenu'));
             $allMenus = $menu.add($subMenu);
         } else {
             $allMenus = $menu;

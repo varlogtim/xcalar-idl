@@ -59,6 +59,8 @@ TooltipTStr = {
     'Bookmarked': 'bookmarked',
     'CopyLog': 'Copy the SQL log onto your clipboard',
     'GenBundle': 'Generate Support Bundle',
+    'ToGridView': 'Switch to Grid View',
+    'ToListView': 'Switch to List View'
 };
 
 CommonTxtTstr = {
@@ -392,9 +394,7 @@ DSTStr = {
     'NoParse': 'Cannot parse the dataset.',
     // with replace
     'DelDSConfirm': 'Are you sure you want to delete dataset <ds> ?',
-    'DelUneditable': 'This <ds> is uneditable, cannot delete',
-    'ToGridView': 'Switch to Grid View',
-    'ToListView': 'Switch to List View'
+    'DelUneditable': 'This <ds> is uneditable, cannot delete'
 };
 
 DSFormTStr = {

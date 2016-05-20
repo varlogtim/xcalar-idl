@@ -217,7 +217,8 @@ module.exports = {
         'Restore': 'restore to default',
         'ToggleAdvanced': 'toggle advanced options',
         'AllowDelete': 'allow table to be deleted',
-        'LockTable': 'prevents table from being deleted'
+        'LockTable': 'prevents table from being deleted',
+        'SwitchToListView': 'Switch to List view',
     },
 
     workspaceBar: {
@@ -358,7 +359,6 @@ module.exports = {
 
     dsView: {
         'RefreshDS': 'Refresh Datasets',
-        'SwitchToListView': 'Switch to List view',
         'backFolderBtn': 'See previous folders',
         'addFolderBtn': 'Add New Folder',
         'delDSBtn': 'Delete folder or dataset'

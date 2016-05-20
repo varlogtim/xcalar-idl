@@ -338,29 +338,16 @@ window.FileBrowser = (function($, FileBrowser) {
         }
 
         if (toListView) {
-            $fileBrowserMain.removeClass("gridView")
-                            .addClass("listView");
-            $btn.removeClass("gridView")
-                .addClass("listView")
-                .attr("data-original-title", DSTStr.ToGridView);
+            $fileBrowserMain.removeClass("gridView").addClass("listView");
         } else {
             // change to grid view
-            $fileBrowserMain.removeClass("listView")
-                            .addClass("gridView");
-            $btn.removeClass("listView")
-                .addClass("gridView")
-                .attr("data-original-title", DSTStr.ToListView);
+            $fileBrowserMain.removeClass("listView").addClass("gridView");
             measureDSIconHeight();
         }
 
+        xcHelper.toggleListGridBtn($btn, toListView, !refreshTooltip);
         centerUnitIfHighlighted(toListView);
         refreshEllipsis();
-
-        if (refreshTooltip) {
-            // refresh tooltip
-            $btn.mouseenter();
-            $btn.mouseover();
-        }
     }
 
     // centers a grid-unit if it is highlighted

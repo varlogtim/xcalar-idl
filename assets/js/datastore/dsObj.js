@@ -839,8 +839,6 @@ window.DS = (function ($, DS) {
             }
 
             toggleDSView(isListView);
-            // refresh tooltip
-            xcHelper.refreshTooltip($btn);
         });
 
          // click "Add New Folder" button to add new folder
@@ -1080,15 +1078,13 @@ window.DS = (function ($, DS) {
         var $btn = $("#dataViewBtn, #exportViewBtn");
         var $allGrids = $gridView.add($('#exportView').find('.gridItems'));
         // includes import and export grids
+        xcHelper.toggleListGridBtn($btn, isListView);
+
         if (isListView) {
             // show list view
-            $btn.removeClass("gridView").addClass("listView");
             $allGrids.removeClass("gridView").addClass("listView");
-            $btn.attr('data-original-title', DSTStr.ToGridView);
         } else {
-            $btn.removeClass("listView").addClass("gridView");
             $allGrids.removeClass("listView").addClass("gridView");
-            $btn.attr('data-original-title', DSTStr.ToListView);
         }
 
         var $labels = $allGrids.find(".label:visible");

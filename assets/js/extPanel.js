@@ -23,22 +23,22 @@ window.ExtensionPanel = (function(ExtensionPanel, $) {
             installExtension(ext);
         });
 
-        var $btns = $("#extensionViewButtons").find(".btn");
-        $btns.click(function() {
+
+        $("#extension-viewBtn").click(function() {
             var $btn = $(this);
-            if ($btn.hasClass("active")) {
-                return;
-            }
+            var ToListView;
 
-            if ($btn.hasClass("listView")) {
-                // go to list View
+            if ($btn.hasClass("gridView")) {
+                // go to grid view
                 $panel.removeClass("gridView").addClass("listView");
+                ToListView = true;
             } else {
+                // go to list View
                 $panel.removeClass("listView").addClass("gridView");
+                ToListView = false;
             }
 
-            $btns.removeClass("active");
-            $btn.addClass("active");
+            xcHelper.toggleListGridBtn($btn, ToListView);
         });
 
         $extLists.on("click", ".extensionList .listBox", function() {

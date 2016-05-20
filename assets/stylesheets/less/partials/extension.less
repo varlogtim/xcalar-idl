@@ -239,32 +239,10 @@
                 }
             }
 
-            .buttonArea {
-                .size(@width: 60px);
+            .toggleListGrid {
+                .size(@width: 25px, @height: 25px);
                 float: right;
-
-                .btn {
-                    .size(@width: 25px, @height: 25px);
-                    .icon {
-                        .size(100%, 100%);
-                    }
-
-                    &.active {
-                        .action-inverse-gradient;
-                    }
-
-                    &.listView {
-                        .icon {
-                            .image("../../images/view-list.png", 50%, 50%);
-                        }
-                    }
-
-                    &.gridView {
-                        .icon {
-                            .image("../../images/view-grid.png", 50%, 50%);
-                        }
-                    }
-                }
+                margin-right: 5px;
             }
         }
 

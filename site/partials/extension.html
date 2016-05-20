@@ -36,21 +36,19 @@
             <input type="text" placeholder="<%= dicts.extension.SearchHint %>">
             <span class="icon"></span>
           </div>
-          <div id="extensionViewButtons" class="buttonArea">
-            <div class="btn listView">
-              <span class="icon"></span>
-            </div>
-            <div class="btn gridView active">
-              <span class="icon"></span>
-            </div>
+          <div id="extension-viewBtn" class="btn toggleListGrid gridView" data-toggle="tooltip" data-placement="top" data-original-title="<%= dicts.TooltipTStr.SwitchToListView %>" data-container="body">
+            <span class="icon"></span>
           </div>
         </div>
+        <!-- end of midContent Header -->
+        <!-- midContent Top Main -->
         <div class="midContentTopMain">
           <span class="text"><%= dicts.common.URL %>:</span>
           <input type="text">
           <button class="btn btnMid"><%= dicts.common.BROWSE %></button>
         </div>
-        <!-- end of midContent Header -->
+        <!-- end of midContent Top Main -->
+        <!-- midContentMain -->
         <div id="extensionInstallPanel" class="midContentMain">
           <div class="errorSection default-hidden wait-hidden"></div>
           <div class="waitSection default-hidden error-hidden">
