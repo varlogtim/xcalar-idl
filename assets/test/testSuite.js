@@ -545,8 +545,8 @@ window.TestSuite = (function($, TestSuite) {
                           xcHelper.getTableName(rTableName);
                     $('#joinRoundedInput').val(newName);
                     $("#joinTables").click();
-                    checkExists(".xcTableWrap .tableName[value*=" + newName +
-                                "]")
+                    checkExists(".xcTableWrap .tableName[value*='" + newName +
+                                "']")
                     .then(function() {
                         flightTestPart8();
                     })
@@ -573,7 +573,7 @@ window.TestSuite = (function($, TestSuite) {
                 $("#operationsModal .modalBottom .confirm").click();
 
                 return (checkExists(".xcTableWrap " +
-                                    ".tableName[value*=GB]"));
+                                    ".tableName[value*='GB']"));
             })
             .then(function() {
 
@@ -687,7 +687,7 @@ window.TestSuite = (function($, TestSuite) {
             $(".argumentTable .argument").eq(1).val("$Dest, $AirTime");
             $("#operationsModal .modalBottom .confirm").click();
             return (checkExists(".xcTableWrap " +
-                                ".tableName[value*=GB]"));
+                                ".tableName[value*='GB']"));
         })
         .then(function() {
             TestSuite.pass(deferred, testName, currentTestNumber);
@@ -744,8 +744,8 @@ window.TestSuite = (function($, TestSuite) {
                           xcHelper.getTableName(rTableName);
             $('#joinRoundedInput').val(newName);
             $("#joinTables").click();
-            return (checkExists(".xcTableWrap .tableName[value*=" +
-                                newName + "]",
+            return (checkExists(".xcTableWrap .tableName[value*='" +
+                                newName + "']",
                     30000));
         }).then(function() {
             if ($("#numPages").text().indexOf("1,953") > -1) {
@@ -802,7 +802,7 @@ window.TestSuite = (function($, TestSuite) {
         var tableId = WSManager.getWSById(wsId).tables[0];
         $("#xcTableWrap-" + tableId + " .tableName").val("NewTableName")
                                                     .trigger(fakeEvent.enter);
-        checkExists(".xcTableWrap .tableName[value*=New]")
+        checkExists(".xcTableWrap .tableName[value*='New']")
         .then(function() {
             var $header = $("#xcTable-" + tableId +
                             " .flexWrap.flex-mid input[value='Month']");
