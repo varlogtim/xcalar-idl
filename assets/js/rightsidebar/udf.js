@@ -438,9 +438,14 @@ window.UDF = (function($, UDF) {
                 "title"  : SideBarTStr.UpoladUDF,
                 "msg"    : SideBarTStr.UploadUDFMsg,
                 "isAlert": true,
-                "cancel" : function() {
-                    $("#udfBtn").parent().click();
-                }
+                "buttons": [{
+                            "name": "CLOSE",
+                            "className": "close",
+                            func : function() {
+                                $("#udfBtn").parent().click();
+                            }
+                }],
+                "hideButtons": ["cancel"]
             });
         }
 
