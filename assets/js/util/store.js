@@ -3,14 +3,16 @@ window.KVStore = (function($, KVStore) {
     // and when change the store key, change it here, it will
     // apply to all places
     var METAKeys;
+    var EMetaKeys; // Ephemeral meta data keys
 
-    KVStore.setup = function(gStorageKey, gLogKey, gErrKey, gUsreKey) {
+    KVStore.setup = function(gStorageKey, gEphStorageKey, gLogKey, gErrKey, gUserKey) {
         METAKeys = getMETAKeys();
-
+        EMetaKeys = getEMetaKeys();
         KVStore.gStorageKey = gStorageKey;
+        KVStore.gEphStorageKey = gEphStorageKey;
         KVStore.gLogKey = gLogKey;
         KVStore.gErrKey = gErrKey;
-        KVStore.gUsreKey = gUsreKey;
+        KVStore.gUserKey = gUserKey;
         KVStore.commitKey = gStorageKey + "-" + "commitkey";
     };
 
@@ -104,8 +106,14 @@ window.KVStore = (function($, KVStore) {
     KVStore.commit = function(atStartUp) {
         var deferred = jQuery.Deferred();
         var meta = new METAConstructor(METAKeys);
+        var ephMeta = new EMetaConstructor(EMetaKeys);
 
-        KVStore.put(KVStore.gStorageKey, JSON.stringify(meta), true, gKVScope.META)
+        KVStore.put(KVStore.gStorageKey, JSON.stringify(meta), true,
+                    gKVScope.META)
+        .then(function() {
+            return KVStore.put(KVStore.gEphStorageKey, JSON.stringify(ephMeta),
+                               false, gKVScope.EPHM);
+        })
         .then(function() {
             return SQL.commit();
         })
@@ -136,41 +144,60 @@ window.KVStore = (function($, KVStore) {
     KVStore.restore = function() {
         var deferred = jQuery.Deferred();
 
-        KVStore.getAndParse(KVStore.gStorageKey, gKVScope.META)
-        .then(function(gInfos) {
-            var isEmpty = (gInfos == null);
-            gInfos = gInfos || {};
+        var gInfos = {};
 
-            try {
-                WSManager.restore(gInfos[METAKeys.WS]);
-                TblManager.restoreTableMeta(gInfos[METAKeys.TI]);
-                DataCart.restore(gInfos[METAKeys.CART]);
-                Profile.restore(gInfos[METAKeys.STATS]);
-                DFG.restore(gInfos[METAKeys.DFG]);
-                Scheduler.restore(gInfos[METAKeys.SCHE]);
-                CLIBox.restore(gInfos[METAKeys.CLI]);
+        // If the ephmeral datastructure is corrupt, we move ahead with the
+        // rest of the restore since ephemeral isn't that important
+        KVStore.getAndParse(KVStore.gEphStorageKey, gKVScope.EPHM)
+        .then(getPersistentKeys, getPersistentKeys)
 
-                if (isEmpty) {
-                    console.info("KVStore is empty!");
-                } else {
-                    return SQL.restore();
+        function getPersistentKeys(gInfosE) {
+            if (typeof(gInfosE) === "object") {
+                for (var key in gInfosE) {
+                    gInfos[key] = gInfosE[key];
                 }
-            } catch(error) {
-                console.error(error);
-                return PromiseHelper.reject(error);
             }
-        })
-        .then(function() {
-            return UserSettings.restore();
-        })
-        .then(function() {
-            // KVStore.commit(true);
-            deferred.resolve();
-        })
-        .fail(function(error) {
-            console.error("KVStore restore fails!", error);
-            deferred.reject(error);
-        });
+            return KVStore.getAndParse(KVStore.gStorageKey, gKVScope.META)
+            .then(function(gInfosPart) {
+                var isEmpty = (gInfosPart == null);
+                gInfosPart = gInfosPart || {};
+
+                for (var key in gInfosPart) {
+                    gInfos[key] = gInfosPart[key];
+                }
+
+                try {
+                    WSManager.restore(gInfos[METAKeys.WS]);
+                    TblManager.restoreTableMeta(gInfos[METAKeys.TI]);
+                    DataCart.restore(gInfos[METAKeys.CART]);
+                    Profile.restore(gInfos[METAKeys.STATS]);
+                    CLIBox.restore(gInfos[METAKeys.CLI]);
+
+                    DFG.restore(gInfos[EMetaKeys.DFG]);
+                    Scheduler.restore(gInfos[EMetaKeys.SCHE]);
+
+                    if (isEmpty) {
+                        console.info("KVStore is empty!");
+                    } else {
+                        return SQL.restore();
+                    }
+                } catch(error) {
+                    console.error(error);
+                    return PromiseHelper.reject(error);
+                }
+            })
+            .then(function() {
+                return UserSettings.restore();
+            })
+            .then(function() {
+                // KVStore.commit(true);
+                deferred.resolve();
+            })
+            .fail(function(error) {
+                console.error("KVStore restore fails!", error);
+                deferred.reject(error);
+            });
+        }
 
         return (deferred.promise());
     };

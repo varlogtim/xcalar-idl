@@ -26,12 +26,13 @@ window.WKBKManager = (function($, WKBKManager) {
             activeWKBKId = wkbkId;
             // console.log("Current Workbook Id is", wkbkId);
             // retive key from username and wkbkId
-            var gInfoKey = generateKey(wkbkId, "gInfo");
-            var gLogKey  = generateKey(wkbkId, "gLog");
-            var gErrKey  = generateKey(wkbkId, "gErr");
-            var gUsreKey = generateKey(username, 'gUser');
+            var gInfoKey    = generateKey(wkbkId, "gInfo");
+            var gEphInfoKey = generateKey(wkbkId, "gEphInfo");
+            var gLogKey     = generateKey(wkbkId, "gLog");
+            var gErrKey     = generateKey(wkbkId, "gErr");
+            var gUserKey    = generateKey(username, 'gUser');
 
-            KVStore.setup(gInfoKey, gLogKey, gErrKey, gUsreKey);
+            KVStore.setup(gInfoKey, gEphInfoKey, gLogKey, gErrKey, gUserKey);
             deferred.resolve();
         })
         .fail(function(error) {
@@ -124,12 +125,14 @@ window.WKBKManager = (function($, WKBKManager) {
             var innerDeferred = jQuery.Deferred();
 
             var gInfoKey = generateKey(wkbk.id, "gInfo");
+            var gEphInfoKey = generateKey(wkbk.id, "gEphInfo");
             var gLogKey  = generateKey(wkbk.id, "gLog");
 
             var def1 = XcalarKeyDelete(gInfoKey, gKVScope.META);
+            var def3 = XcalarKeyDelete(gEphInfoKey, gKVScope.EPHM);
             var def2 = XcalarKeyDelete(gLogKey, gKVScope.LOG);
 
-            jQuery.when(def1, def2)
+            jQuery.when(def1, def2, def3)
             .always(function() {
                 innerDeferred.resolve();
             });
@@ -424,17 +427,25 @@ window.WKBKManager = (function($, WKBKManager) {
     function copyHelper(srcId, newId) {
         var deferred = jQuery.Deferred();
 
-        var oldInfoKey = generateKey(srcId, "gInfo");
-        var oldLogKey  = generateKey(srcId, "gLog");
-        var oldErrKey  = generateKey(srcId, "gErr");
-        var newInfoKey = generateKey(newId, "gInfo");
-        var newLogKey  = generateKey(newId, "gLog");
-        var newErrKey  = generateKey(newId, "gErr");
+        var oldInfoKey    = generateKey(srcId, "gInfo");
+        var oldEphInfoKey = generateKey(srcId, "gEphInfo");
+        var oldLogKey     = generateKey(srcId, "gLog");
+        var oldErrKey     = generateKey(srcId, "gErr");
+        var newInfoKey    = generateKey(newId, "gInfo");
+        var newEphInfoKey = generateKey(newId, "gEphInfo");
+        var newLogKey     = generateKey(newId, "gLog");
+        var newErrKey     = generateKey(newId, "gErr");
 
         // copy all info to new key
         KVStore.get(oldInfoKey, gKVScope.META)
         .then(function(value) {
             return KVStore.put(newInfoKey, value, true, gKVScope.META);
+        })
+        .then(function() {
+            return KVStore.get(oldEphInfoKey, gKVScope.EPHM)
+        })
+        .then(function(value) {
+            return KVStore.put(newEphInfoKey, value, false, gKVScope.EPH);
         })
         .then(function() {
             return KVStore.get(oldLogKey, gKVScope.LOG);
@@ -459,11 +470,15 @@ window.WKBKManager = (function($, WKBKManager) {
         var deferred   = jQuery.Deferred();
 
         var storageKey = generateKey(wkbkId, "gInfo");
+        var ephStorageKey = generateKey(wkbkId, "gEphInfo");
         var logKey     = generateKey(wkbkId, "gLog");
 
         XcalarKeyDelete(storageKey, gKVScope.META)
         .then(function() {
             return (XcalarKeyDelete(logKey, gKVScope.LOG));
+        })
+        .then(function() {
+            return (XcalarKeyDelete(ephStorageKey, gKVScore.EPHM));
         })
         .then(function() {
             console.log("Delete workbook", wkbkId);

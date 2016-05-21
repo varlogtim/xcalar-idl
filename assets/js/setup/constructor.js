@@ -425,8 +425,8 @@ function getMETAKeys() {
         "CART" : "datacarts",
         "STATS": "statsCols",
         "USER" : "userSettings",
-        "DFG"  : "DFG",
-        "SCHE" : "schedule"
+        //"DFG"  : "DFG",
+        //"SCHE" : "schedule"
     };
 }
 
@@ -438,9 +438,8 @@ function METAConstructor(METAKeys) {
     this[METAKeys.CLI] = CLIBox.getCli(); // string
     this[METAKeys.CART] = DataCart.getCarts();
     this[METAKeys.STATS] = Profile.getCache();
-    this[METAKeys.DFG] = DFG.getAllGroups(); // a set of DFGObj
-    this[METAKeys.SCHE] = Scheduler.getAllSchedules(); // list of SchedObj
-
+    // this[EMetaKeys.DFG] = DFG.getAllGroups(); // a set of DFGObj
+    // this[EMetaKeys.SCHE] = Scheduler.getAllSchedules(); // list of SchedObj
     return this;
 
     function savegTables() {
@@ -457,6 +456,20 @@ function METAConstructor(METAKeys) {
 
         return persistTables;
     }
+}
+
+function getEMetaKeys() {
+    return {
+        "DFG"  : "DFG",
+        "SCHE" : "schedule"
+    };
+}
+
+function EMetaConstructor(EMetaKeys) {
+    EMetaKeys = EMetaKeys || {};
+    this[EMetaKeys.DFG] = DFG.getAllGroups(); // a set of DFGObj
+    this[EMetaKeys.SCHE] = Scheduler.getAllSchedules(); // list of SchedObj
+    return this;
 }
 
 // userSettings.js

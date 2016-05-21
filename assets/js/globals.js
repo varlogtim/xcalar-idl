@@ -34,6 +34,7 @@ var gKVScope = {
     "USER": XcalarApiKeyScopeT.XcalarApiKeyScopeGlobal,
     "WKBK": XcalarApiKeyScopeT.XcalarApiKeyScopeGlobal,
     "META": XcalarApiKeyScopeT.XcalarApiKeyScopeGlobal,
+    "EPHM": XcalarApiKeyScopeT.XcalarApiKeyScopeGlobal,
     "LOG" : XcalarApiKeyScopeT.XcalarApiKeyScopeGlobal,
     "ERR" : XcalarApiKeyScopeT.XcalarApiKeyScopeGlobal,
     "FLAG": XcalarApiKeyScopeT.XcalarApiKeyScopeSession,
