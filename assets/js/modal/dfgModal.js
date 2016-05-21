@@ -297,6 +297,7 @@ window.DataFlowModal = (function($, DataFlowModal) {
         var columns = [];
         var tableId = xcHelper.getTableId(tableName);
         var tableCols = gTables[tableId].tableCols;
+        
         $ths.each(function() {
             var colNum = Number($(this).data("col"));
             var progCol = tableCols[colNum - 1];
@@ -476,7 +477,9 @@ window.DataFlowModal = (function($, DataFlowModal) {
         html += $tbody.html();
 
         $dfTable.html(html);
-        selectAllCols();
+        // Start with everything deselected because we want as little stuff
+        // out as possible. This is a choice based on backend LRQ.
+        // selectAllCols();
     }
 
     function showErrorTooltip($th) {

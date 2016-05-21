@@ -7,7 +7,7 @@ window.UserSettings = (function($, UserSettings) {
         var deferred = jQuery.Deferred();
         setup();
 
-        KVStore.getAndParse(KVStore.gUsreKey, gKVScope.USER)
+        KVStore.getAndParse(KVStore.gUserKey, gKVScope.USER)
         .then(function(res) {
             if (res != null) {
                 userPreference = new UserPref(res[UserInfoKeys.PREF]);
@@ -40,7 +40,7 @@ window.UserSettings = (function($, UserSettings) {
                 "PREF": curUserPref
             });
 
-            KVStore.put(KVStore.gUsreKey, JSON.stringify(userInfos), true, gKVScope.USER)
+            KVStore.put(KVStore.gUserKey, JSON.stringify(userInfos), true, gKVScope.USER)
             .then(deferred.resolve)
             .fail(function(error) {
                 console.error("Commit User Info failed", error);
