@@ -2275,8 +2275,7 @@ function XcalarUploadPython(moduleName, pythonStr) {
                 })
                 .fail(function(error2, errorStuct2) {
                     if (errorStruct2 && errorStruct2.error.message.length > 0) {
-                        error2 = errorStruct2.error.message + "\nErrorCode: " +
-                                 error2;
+                        error2 = errorStruct2.error.message;
                     }
                     var thriftError = thriftLog("XcalarUpdateAfterUpload",
                                       error2);
@@ -2297,7 +2296,7 @@ function XcalarUploadPython(moduleName, pythonStr) {
         // all other case
 
         if (errorStruct && errorStruct.error.message.length > 0) {
-            error = errorStruct.error.message + "\nErrorCode: " + error;
+            error = errorStruct.error.message;
         }
         var thriftError = thriftLog("XcalarUploadPython", error);
         SQL.errorLog("Upload Python", null, null, thriftError);
@@ -2320,7 +2319,7 @@ function XcalarUpdatePython(moduleName, pythonStr) {
     .then(deferred.resolve)
     .fail(function(error, errorStruct) {
         if (errorStruct && errorStruct.error.message.length > 0) {
-            error = errorStruct.error.message + "\nErrorCode: "+error;
+            error = errorStruct.error.message;
         }
 
         var thriftError = thriftLog("XcalarUpdatePython", error);
