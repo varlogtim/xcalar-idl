@@ -156,6 +156,9 @@ window.KVStore = (function($, KVStore) {
                 for (var key in gInfosE) {
                     gInfos[key] = gInfosE[key];
                 }
+            } else {
+                console.error("Expect gInfosE to be an object but it's a " +
+                              typeof(gInfosE) + " instead. Not restoring.");
             }
             return KVStore.getAndParse(KVStore.gStorageKey, gKVScope.META)
             .then(function(gInfosPart) {

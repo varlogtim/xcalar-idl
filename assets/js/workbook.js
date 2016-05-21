@@ -445,22 +445,29 @@ window.WKBKManager = (function($, WKBKManager) {
             return KVStore.get(oldEphInfoKey, gKVScope.EPHM)
         })
         .then(function(value) {
-            return KVStore.put(newEphInfoKey, value, false, gKVScope.EPH);
-        })
-        .then(function() {
-            return KVStore.get(oldLogKey, gKVScope.LOG);
-        })
-        .then(function(value) {
-            return KVStore.put(newLogKey, value, true, gKVScope.LOG);
-        })
-        .then(function() {
-            return KVStore.get(oldErrKey, gKVScope.ERR);
-        })
-        .then(function(value) {
-            return KVStore.put(newErrKey, value, true, gKVScope.ERR);
-        })
-        .then(deferred.resolve)
-        .fail(deferred.reject);
+            // If success, then put this key into the new workbook
+            // If fail, then ignore and proceed with the rest of the copying
+            return KVStore.put(newEphInfoKey, value, false, gKVScope.EPH)
+                   .then(continuation);
+        }, function(value) {
+            // Getting of newEphInfoKey failed, continue with rest
+            continuation();
+        });
+
+        function continuation() {
+            KVStore.get(oldLogKey, gKVScope.LOG)
+            .then(function(value) {
+                return KVStore.put(newLogKey, value, true, gKVScope.LOG);
+            })
+            .then(function() {
+                return KVStore.get(oldErrKey, gKVScope.ERR);
+            })
+            .then(function(value) {
+                return KVStore.put(newErrKey, value, true, gKVScope.ERR);
+            })
+            .then(deferred.resolve)
+            .fail(deferred.reject);
+        }
 
         return deferred.promise();
     }
