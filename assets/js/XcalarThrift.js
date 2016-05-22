@@ -963,7 +963,12 @@ function XcalarGetDatasets() {
         var datasets = listDatasetsOutput.datasets;
         var prefixIndex = ".XcalarDS.".length;
 
-        for (var i = 0; i < len; i++) {
+        for (var i = 0; i < datasets.length; i++) {
+            // We must hide all LRQ datasets
+            if (datasets[i].name.indexOf(".XcalarLRQ.") === 0) {
+                listDatasetsOutput.numDatasets--;
+                datasets.splice(i, 1);
+            }
             datasets[i].name = datasets[i].name.substring(prefixIndex);
         }
         deferred.resolve(listDatasetsOutput);
