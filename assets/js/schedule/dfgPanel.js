@@ -446,6 +446,8 @@ window.DFGPanel = (function($, DFGPanel) {
     }
 
     function setupDagDropdown() {
+        return; // Temporarily disable parameterization because backend cannot
+                // handle it
         var dropdownHtml = getDagDropDownHTML();
         var $dagArea = $dfgView.find('.midContent');
         $dfgView.find('.midContent').append(dropdownHtml);
