@@ -739,12 +739,35 @@ window.TableList = (function($, TableList) {
         }
     }
 
+    function getTwoWeeksDate() {
+        var res = [];
+        var d = new Date();
+        var day = d.getDate();
+        var date;
+
+        d.setHours(0, 0, 0, 0);
+
+        // date from today to lastweek, all dates' time is 0:00 am
+        for (var i = 0; i < 7; i++) {
+            date = new Date(d);
+            date.setDate(day - i);
+            res.push(date);
+        }
+
+        // older than one week
+        date = new Date(d);
+        date.setDate(day - 13);
+        res.push(date);
+
+        return res;
+    }
+
     function generateTableLists(tables, active, options) {
         options = options || {};
         var sortedTables = sortTableByTime(tables); // from oldest to newest
-        var dates = xcHelper.getTwoWeeksDate();
-        var p     = dates.length - 1;    // the length should be 8
-        var days  = [DaysTStr.Sunday, DaysTStr.Monday, DaysTStr.Tuesday,
+        var dates = getTwoWeeksDate();
+        var p = dates.length - 1;    // the length should be 8
+        var days = [DaysTStr.Sunday, DaysTStr.Monday, DaysTStr.Tuesday,
                     DaysTStr.Wednesday, DaysTStr.Thursday, DaysTStr.Friday,
                     DaysTStr.Saturday];
 
@@ -1174,8 +1197,7 @@ window.TableList = (function($, TableList) {
             }
             if (timeStamp == null) {
                 console.error("Time Stamp undefined");
-                timeStamp = xcHelper.getTimeInMS(null, "2014-02-14");
-                timeStamp = "";
+                timeStamp = xcHelper.getCurrentTimeStamp();
             }
 
             sortedTables.push([table, timeStamp]);

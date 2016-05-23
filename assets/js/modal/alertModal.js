@@ -188,8 +188,8 @@ window.Alert = (function($, Alert){
         if (options.lockScreen) {
             $('#alertHeader').find('.close').css('pointer-events', 'none');
             $modal.addClass('locked');
-            var $copySqlBtn = xcHelper.logoutButton("sql");
-            var $logoutBtn = xcHelper.logoutButton();
+            var $copySqlBtn = xcHelper.supportButton("sql");
+            var $logoutBtn = xcHelper.supportButton();
 
             var supportDone = function(path, bid) {
                 var text = ThriftTStr.CCNBE + "\n" +
@@ -201,7 +201,7 @@ window.Alert = (function($, Alert){
                            CommonTxtTstr.GenBundleFail + ".";
                 $("#alertContent .text").text(text);
             };
-            var $supportBtn = xcHelper.logoutButton("support", supportDone, supportFail);
+            var $supportBtn = xcHelper.supportButton("support", supportDone, supportFail);
 
             if (options.logout) {
                 $btnSection.prepend($logoutBtn, $copySqlBtn, $supportBtn);

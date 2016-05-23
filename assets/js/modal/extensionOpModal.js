@@ -105,7 +105,8 @@ window.ExtensionOpModal = (function(ExtensionOpModal, $) {
         $lastInputFocused = $firstInput;
 
         $('#xcTable-' + tableId).on('click.columnPicker', '.header, td.clickable', function(event) {
-            xcHelper.fillInputFromCell(event, $lastInputFocused, "$");
+            var $target = $(event.target);
+            xcHelper.fillInputFromCell($target, $lastInputFocused, "$");
         });
         $('#xcTable-' + tableId).on('mousedown', '.header, td.clickable', keepInputFocused);
     };

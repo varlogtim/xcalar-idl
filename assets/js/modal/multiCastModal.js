@@ -123,10 +123,6 @@ window.MultiCastModal = (function($, MultiCastModal) {
             },
             "container": "#multiCastModal"
         });
-
-        $(document).on("mousedown.multiCastModal", function() {
-            xcHelper.hideDropdowns($modal);
-        });
     };
 
     function closeMultiCastModal() {

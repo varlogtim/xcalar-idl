@@ -120,7 +120,7 @@ function TableMeta(options) {
     this.status = options.status || TableType.Active;
     // reference enum TableType for possible types
 
-    this.timeStamp = options.timeStamp || xcHelper.getTimeInMS();
+    this.timeStamp = options.timeStamp || xcHelper.getCurrentTimeStamp();
 
     if (options.tableCols != null) {
         this.tableCols = [];
@@ -227,7 +227,7 @@ TableMeta.prototype = {
     },
 
     updateTimeStamp: function() {
-        this.timeStamp = xcHelper.getTimeInMS();
+        this.timeStamp = xcHelper.getCurrentTimeStamp();
         return this;
     },
 
@@ -603,7 +603,8 @@ function WKBK(options) {
 
 WKBK.prototype = {
     "update": function() {
-        this.modified = xcHelper.getTimeInMS();  // store modified data
+        // store modified data
+        this.modified = xcHelper.getCurrentTimeStamp();
     }
 };
 

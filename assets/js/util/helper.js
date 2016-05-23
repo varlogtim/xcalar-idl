@@ -1,4 +1,11 @@
 window.xcHelper = (function($, xcHelper) {
+    xcHelper.assert = function(statement, error) {
+        error = error || "Assert failed";
+        if (!statement) {
+            throw error;
+        }
+    };
+
     xcHelper.parseTableId = function(idOrEl) {
         // can pass in a string or jQuery element
         var id;
@@ -9,31 +16,57 @@ window.xcHelper = (function($, xcHelper) {
         } else {
             id = idOrEl;
         }
-        return (id.split("-")[1]);
+
+        var idSplit = id.split("-");
+
+        if (idSplit.length !== 2) {
+            console.error("Unexpected id/ele to parse", idOrEl);
+            return null;
+        } else {
+            return idSplit[1];
+        }
     };
 
     xcHelper.parseRowNum = function($el) {
-        var keyword    = "row";
+        var keyword = "row";
         var classNames = $el.attr("class");
-        var index      = classNames.indexOf(keyword);
-        var substring  = classNames.substring(index + keyword.length);
 
-        return (parseInt(substring));
-    };
-
-    xcHelper.parseColNum = function($el) {
-        var keyword    = "col";
-        var classNames = $el.attr("class");
         if (classNames == null) {
-            // this is in case we meet some error and cannot goon run the code!
-            console.error("Error Case!");
+            console.error("Unexpected element to parse row", $el);
             return null;
         }
 
-        var index      = classNames.indexOf(keyword);
-        var substring  = classNames.substring(index + keyword.length);
+        var index = classNames.indexOf(keyword);
+        var substring = classNames.substring(index + keyword.length);
+        var rowNum = parseInt(substring);
 
-        return (parseInt(substring));
+        if (isNaN(rowNum)) {
+            console.error("Unexpected element to parse row", $el);
+            return null;
+        }
+
+        return rowNum;
+    };
+
+    xcHelper.parseColNum = function($el) {
+        var keyword = "col";
+        var classNames = $el.attr("class");
+        if (classNames == null) {
+            // this is in case we meet some error and cannot goon run the code!
+            console.error("Unexpected element to parse column", $el);
+            return null;
+        }
+
+        var index = classNames.indexOf(keyword);
+        var substring = classNames.substring(index + keyword.length);
+        var colNum = parseInt(substring);
+
+        if (isNaN(colNum)) {
+            console.error("Unexpected element to parse column", $el);
+            return null;
+        }
+
+        return colNum;
     };
 
     xcHelper.parseJsonValue = function(value, fnf) {
@@ -177,7 +210,7 @@ window.xcHelper = (function($, xcHelper) {
         var dsName;
 
         if (nameSplits.length === 1) {
-            user = "Unknow User";
+            user = DSTStr.UnknownUser;
             dsName = nameSplits[0];
         } else {
             user = nameSplits.splice(0, 1)[0];
@@ -266,7 +299,6 @@ window.xcHelper = (function($, xcHelper) {
         } else {
             var scrollHeight = ele.scrollHeight;
             var heightNotOverFlow = ele.offsetHeight + 1;
-
             while (scrollHeight > heightNotOverFlow && maxLen > 5) {
                 ellipsisHelper();
                 scrollHeight = ele.scrollHeight;
@@ -335,65 +367,11 @@ window.xcHelper = (function($, xcHelper) {
             } else {
                 copiedCols.splice(colNum - 1, 0, newProgCol);
             }
-
             ColManager.parseFunc(newProgCol.userStr, colNum,
                                 {tableCols: copiedCols}, true);
         }
 
         return (copiedCols);
-    };
-
-    xcHelper.timeStampTranslater = function(unixTime) {
-        if (unixTime == null) {
-            return null;
-        }
-
-        var timeStamp = unixTime * 1000;
-        time = xcHelper.getTime(null, timeStamp) + " " +
-               xcHelper.getDate("-", null, timeStamp);
-        return time;
-    };
-
-    // assigned unit is a unit (MB, GB etc) that you want to convert to
-    xcHelper.sizeTranslator = function(size, unitSeparated, convertTo) {
-        var unit  = ["B", "KB", "MB", "GB", "TB", "PB"];
-        var start = 0;
-        var end   = unit.length - 2;
-
-        if (convertTo && unit.indexOf(convertTo) > -1) {
-            var index = unit.indexOf(convertTo);
-            size = (size * (1 / Math.pow(1024, index))).toFixed(2);
-            size = parseFloat(size);
-            start = index;
-        } else {
-            while (size >= 1024 && start <= end) {
-                size = (size / 1024).toFixed(1);
-                ++start;
-            }
-            if (size >= 10) {
-                size = Math.ceil(size);
-            }
-        }
-
-        size = parseFloat(size);
-
-
-        if (unitSeparated) {
-            return ([size, unit[start]]);
-        } else {
-            return (size + unit[start]);
-        }
-    };
-
-    xcHelper.textToBytesTranslator = function(numText) {
-        // accepts parameters in the form of 23GB or 56.2 mb
-        // and converts them to bytes
-        var units  = ["B", "KB", "MB", "GB", "TB", "PB"];
-        var num = parseFloat(numText);
-        var text = $.trim(numText.substr(("" + num).length)).toUpperCase();
-        var index = units.indexOf(text);
-        var bytes = num * Math.pow(1024, index);
-        return (bytes);
     };
 
     xcHelper.toggleModal = function(tableId, isHide, options) {
@@ -451,32 +429,31 @@ window.xcHelper = (function($, xcHelper) {
         }
     };
 
-    xcHelper.randName = function(name, digits, strip) {
+    xcHelper.randName = function(name, digits) {
         if (digits == null) {
             digits = 5; // default
         }
 
         var max = Math.pow(10, digits);
-        var rand = Math.floor((Math.random() * max) + 1);
+        var rand = Math.floor(Math.random() * max);
 
-        if (strip) {
-            // strip when name is "abc-000"
-            var index = name.lastIndexOf("-");
-            if (index > 0) {
-                name = name.substring(0, index) + "-";
-            }
+        if (rand === 0) {
+            rand = 1;
         }
 
         function padZero(number, numDigits) {
             number = number.toString();
-            return ((number.length < numDigits) ?
-                    padZero("0" + number, numDigits) : number);
+            return (number.length < numDigits) ?
+                    new Array(numDigits - number.length + 1).join('0') + number :
+                    number;
         }
+
         rand = padZero(rand, digits);
         return (name + rand);
     };
 
     xcHelper.uniqueRandName = function(name, checkFunc, checkCnt) {
+        // used in testsuite
         var resName = xcHelper.randName(name);
         if (!(checkFunc instanceof Function)) {
             return resName;
@@ -502,45 +479,6 @@ window.xcHelper = (function($, xcHelper) {
         }
     };
 
-    xcHelper.createSelection = function(element, atEnd) {
-        if (element == null) {
-            return;
-        }
-        var range;
-        var selection;
-
-        if (window.getSelection && document.createRange) {
-            range = document.createRange();
-            range.selectNodeContents(element);
-            // move the cursor to end, else select all
-            if (atEnd) {
-                range.collapse(false);
-            }
-            selection = window.getSelection();
-            selection.removeAllRanges();
-            try {
-                selection.addRange(range);
-            } catch(error) {
-                console.warn(error);
-            }
-
-        } else if (document.body.createTextRange) {
-            range = document.body.createTextRange();
-            range.moveToElementText(element);
-
-            if (atEnd) {
-                range.collapse(false);
-            }
-            range.select();
-        }
-    };
-
-    xcHelper.removeSelectionRange = function() {
-        if (window.getSelection) {
-            window.getSelection().removeAllRanges();
-        }
-    };
-
     xcHelper.capitalize = function(s) {
         if (!s) {
             return s;
@@ -550,10 +488,6 @@ window.xcHelper = (function($, xcHelper) {
 
     xcHelper.isFloat = function(num) {
         return (num % 1 !== 0);
-    };
-
-    xcHelper.isArray = function(obj) {
-        return (obj.constructor.toString().indexOf("Array") > -1);
     };
 
     // fomart is mm-dd-yyyy
@@ -569,7 +503,7 @@ window.xcHelper = (function($, xcHelper) {
         }
         date = d.toLocaleDateString().replace(/\//g, delimiter);
 
-        return (date);
+        return date;
     };
 
     xcHelper.getTime = function(d, timeStamp) {
@@ -580,62 +514,76 @@ window.xcHelper = (function($, xcHelper) {
         return (d.toLocaleTimeString());
     };
 
-    // time in million seconds
-    xcHelper.getTimeInMS = function(d, timeStamp) {
-        if (d == null) {
-            d = (timeStamp == null) ? new Date() : new Date(timeStamp);
-        }
-
-        return d.getTime();
+    xcHelper.getCurrentTimeStamp = function() {
+        return new Date().getTime();
     };
 
-    xcHelper.getTwoWeeksDate = function() {
-        var res = [];
-        var d   = new Date();
-        var day = d.getDate();
-        var date;
-
-        d.setHours(0, 0, 0, 0);
-
-        // date from today to lastweek, all dates' time is 0:00 am
-        for (var i = 0; i < 7; i++) {
-            date = new Date(d);
-            date.setDate(day - i);
-            res.push(date);
+    xcHelper.timeStampTranslater = function(unixTime) {
+        if (unixTime == null) {
+            return null;
         }
 
-        // older than one week
-        date = new Date(d);
-        date.setDate(day - 13);
-        res.push(date);
-
-        return (res);
+        var timeStamp = unixTime * 1000;
+        time = xcHelper.getTime(null, timeStamp) + " " +
+               xcHelper.getDate("-", null, timeStamp);
+        return time;
     };
 
-    xcHelper.toggleListGridBtn = function($btn, ToListView, noRefresh) {
-        if ($btn == null) {
-            return;
-        }
+    // assigned unit is a unit (MB, GB etc) that you want to convert to
+    xcHelper.sizeTranslator = function(size, unitSeparated, convertTo) {
+        var unit  = ["B", "KB", "MB", "GB", "TB", "PB"];
+        var start = 0;
+        var end   = unit.length - 2;
 
-        if (ToListView) {
-            // toggle to list view
-            $btn.removeClass("gridView").addClass("listView");
-            // suggest become 'to grid view'
-            $btn.attr("data-original-title", TooltipTStr.ToGridView);
+        if (convertTo && unit.indexOf(convertTo) > -1) {
+            var index = unit.indexOf(convertTo);
+            size = (size * (1 / Math.pow(1024, index))).toFixed(2);
+            size = parseFloat(size);
+            start = index;
         } else {
-            // toggle to grid view
-            $btn.removeClass("listView").addClass("gridView");
-            $btn.attr("data-original-title", TooltipTStr.ToListView);
+            while (size >= 1024 && start <= end) {
+                size = (size / 1024).toFixed(1);
+                ++start;
+            }
+            if (size >= 10) {
+                size = Math.ceil(size);
+            }
         }
-        // refresh tooltip
-        if (!noRefresh) {
-            xcHelper.refreshTooltip($btn);
+
+        size = parseFloat(size);
+
+
+        if (unitSeparated) {
+            return ([size, unit[start]]);
+        } else {
+            return (size + unit[start]);
         }
     };
 
+    xcHelper.textToBytesTranslator = function(numText) {
+        // accepts parameters in the form of 23GB or 56.2 mb
+        // and converts them to bytes
+        var units  = ["B", "KB", "MB", "GB", "TB", "PB"];
+        var num = parseFloat(numText);
+        var text = $.trim(numText.substr(("" + num).length)).toUpperCase();
+        var index = units.indexOf(text);
+        var bytes = num * Math.pow(1024, index);
+        return (bytes);
+    };
+
+    xcHelper.autoTooltip = function(ele) {
+        var $ele = $(ele);
+        if (ele.offsetWidth < ele.scrollWidth){
+            $ele.attr({
+                'data-container': 'body',
+                'data-toggle'   : 'tooltip'
+            });
+        } else {
+            $ele.removeAttr('data-container data-toggle');
+        }
+    };
 
     var tooltipTimer;
-
     xcHelper.refreshTooltip = function($ele, timer) {
         clearTimeout(tooltipTimer);
         $ele.mouseenter();
@@ -645,24 +593,6 @@ window.xcHelper = (function($, xcHelper) {
                 $ele.mouseleave();
             }, timer);
         }
-    };
-
-    xcHelper.showRefreshIcon = function($location) {
-        var $waitingIcon = $('<div class="refreshIcon"><img src=""' +
-                            'style="display:none;height:0px;width:0px;"></div>');
-        $location.append($waitingIcon);
-        $waitingIcon.find('img').show();
-        setTimeout(function() {
-            $waitingIcon.find('img').attr('src', paths.waitIcon)
-                                    .height(37)
-                                    .width(35);
-        }, 0);
-
-        setTimeout(function(){
-            $waitingIcon.fadeOut(100, function() {
-                $waitingIcon.remove();
-            });
-        }, 1400);
     };
 
     xcHelper.showSuccess = function() {
@@ -722,6 +652,41 @@ window.xcHelper = (function($, xcHelper) {
         return txt;
     };
 
+    xcHelper.toggleListGridBtn = function($btn, ToListView, noRefresh) {
+        if (ToListView) {
+            // toggle to list view
+            $btn.removeClass("gridView").addClass("listView");
+            // suggest become 'to grid view'
+            $btn.attr("data-original-title", TooltipTStr.ToGridView);
+        } else {
+            // toggle to grid view
+            $btn.removeClass("listView").addClass("gridView");
+            $btn.attr("data-original-title", TooltipTStr.ToListView);
+        }
+        // refresh tooltip
+        if (!noRefresh) {
+            xcHelper.refreshTooltip($btn);
+        }
+    };
+
+    xcHelper.showRefreshIcon = function($location) {
+        var $waitingIcon = $('<div class="refreshIcon"><img src=""' +
+                            'style="display:none;height:0px;width:0px;"></div>');
+        $location.append($waitingIcon);
+        $waitingIcon.find('img').show();
+        setTimeout(function() {
+            $waitingIcon.find('img').attr('src', paths.waitIcon)
+                                    .height(37)
+                                    .width(35);
+        }, 0);
+
+        setTimeout(function(){
+            $waitingIcon.fadeOut(100, function() {
+                $waitingIcon.remove();
+            });
+        }, 1400);
+    };
+
     xcHelper.toggleBtnInProgress = function($btn, isIconBtn) {
         var text;
         var html;
@@ -758,7 +723,7 @@ window.xcHelper = (function($, xcHelper) {
         }
     };
 
-    xcHelper.raidoButtons = function($container, callback) {
+    xcHelper.optionButtonEvent = function($container, callback) {
         $container.on("click", ".radioButton", function() {
             var $radioButton = $(this);
             if ($radioButton.hasClass("active") ||
@@ -776,7 +741,7 @@ window.xcHelper = (function($, xcHelper) {
         });
     };
 
-    xcHelper.logoutButton = function(type, doneCallback, failCallback) {
+    xcHelper.supportButton = function(type, doneCallback, failCallback) {
         var $btn;
         var html;
 
@@ -1194,21 +1159,6 @@ window.xcHelper = (function($, xcHelper) {
         this.showOrHideScrollers = showOrHideScrollers;
     };
 
-    xcHelper.hideDropdowns = function($container) {
-        var $sections = $container.find(".dropDownList");
-        $sections.find(".list").hide().removeClass("openList");
-        $sections.removeClass("open");
-        $(document).off('click.closeDropDown');
-    };
-
-    xcHelper.hasSpecialChar = function(str, allowSpace) {
-        if (allowSpace) {
-            return /[^a-zA-Z\d\s:]/.test(str);
-        } else {
-            return /[^a-zA-Z\d]/.test(str);
-        }
-    };
-
     xcHelper.validate = function(eles) {
         /*
          * eles is an object or an array of object, each object includes:
@@ -1242,7 +1192,7 @@ window.xcHelper = (function($, xcHelper) {
                 notValid = ele.check(val);
                 error = ele.text || ErrTStr.InvalidField;
             } else {
-                notValid = (jQuery.trim(val) === "");
+                notValid = (val.trim() === "");
                 error = ele.text || ErrTStr.NoEmpty;
             }
 
@@ -1276,17 +1226,17 @@ window.xcHelper = (function($, xcHelper) {
         } else {
             tableName = wholeName;
         }
-        return (tableName);
+        return tableName;
     };
 
     xcHelper.getTableId = function(wholeName) {
         // get out hashId from tableName + hashId
         var hashIndex = wholeName.lastIndexOf('#');
         if (hashIndex > -1) {
-            return (wholeName.substring(hashIndex + 1));
+            return wholeName.substring(hashIndex + 1);
         } else {
             console.warn('Table name does not contain hashId');
-            return (null);
+            return null;
         }
     };
 
@@ -1311,7 +1261,7 @@ window.xcHelper = (function($, xcHelper) {
         return deferred.promise();
     };
 
-    xcHelper.checkDuplicateTableName = function(tableName) {
+    xcHelper.checkDupTableName = function(tableName) {
         var deferred = jQuery.Deferred();
 
         XcalarGetTables()
@@ -1320,7 +1270,8 @@ window.xcHelper = (function($, xcHelper) {
             for (var i = 0; i < result.numNodes; i++) {
                 var name = xcHelper.getTableName(tables[i].name);
                 if (name === tableName) {
-                    return (deferred.reject('table'));
+                    deferred.reject('table');
+                    return;
                 }
             }
             deferred.resolve('success');
@@ -1329,7 +1280,7 @@ window.xcHelper = (function($, xcHelper) {
             deferred.reject(error);
         });
 
-        return (deferred.promise());
+        return deferred.promise();
     };
 
     xcHelper.suggestType = function(datas, currentType, confidentRate) {
@@ -1341,7 +1292,7 @@ window.xcHelper = (function($, xcHelper) {
             confidentRate = 1;
         }
 
-        if (!xcHelper.isArray(datas)) {
+        if (!(datas instanceof Array)) {
             datas = [datas];
         }
 
@@ -1451,7 +1402,7 @@ window.xcHelper = (function($, xcHelper) {
 
     // inserts text into an input field and adds commas
     // detects where the current cursor is and if some text is already selected
-    xcHelper.insertText = function($input, textToInsert, prefix) {
+    xcHelper.insertText = function($input, textToInsert) {
         var inputType = $input.attr('type');
         if (inputType !== "text") {
             console.warn('inserting text on inputs of type: "' + inputType +
@@ -1466,20 +1417,18 @@ window.xcHelper = (function($, xcHelper) {
         var selectionEnd = $input[0].selectionEnd;
         var numCharSelected = selectionEnd - currentPos;
         var strLeft;
-        if (prefix == null) {
-            prefix = "";
-        }
-
-        textToInsert = prefix + textToInsert;
+        var resVal = "";
 
         if (valLen === 0) {
             // add to empty input box
             newVal = textToInsert;
+            resVal = newVal;
             currentPos = newVal.length;
         } else if (numCharSelected > 0) {
             // replace a column
             strLeft = value.substring(0, currentPos);
             newVal = textToInsert;
+            resVal = strLeft + newVal + value.substring(selectionEnd);
             currentPos = strLeft.length + newVal.length;
         } else if (currentPos === valLen) {
             // append a column
@@ -1492,19 +1441,18 @@ window.xcHelper = (function($, xcHelper) {
             } else {
                 newVal = ", " + textToInsert;
             }
+            resVal = value + newVal;
 
             currentPos = value.length + newVal.length;
         } else if (currentPos === 0) {
             // prepend a column
-            if (value.startsWith(",")) {
-                // value starts with ",""
-                newVal = textToInsert + " ";
-            } else if (value.trimLeft().startsWith(",")) {
+            if (value.trimLeft().startsWith(",")) {
                 // value start with sth like "  ,"
                 newVal = textToInsert;
             } else {
                 newVal = textToInsert + ", ";
             }
+            resVal = newVal + value;
 
             currentPos = newVal.length; // cursor at the start of value
         } else {
@@ -1512,12 +1460,14 @@ window.xcHelper = (function($, xcHelper) {
             strLeft = value.substring(0, currentPos);
 
             newVal = textToInsert + ", ";
+            resVal = strLeft + newVal + value.substring(selectionEnd);
+
             currentPos = strLeft.length + newVal.length;
         }
 
         $input.focus();
         if (!document.execCommand("insertText", false, newVal)) {
-            $input.val(value + newVal);
+            $input.val(resVal);
         }
 
         var inputText = $input.val().substring(0, currentPos);
@@ -1527,13 +1477,6 @@ window.xcHelper = (function($, xcHelper) {
         var widthDiff = textWidth - inputWidth;
         if (widthDiff > 0) {
             $input.scrollLeft(initialScrollPosition + newValWidth);
-        }
-    };
-
-    xcHelper.assert = function(statement, error) {
-        error = error || "Assert fail!";
-        if (!statement) {
-            throw error;
         }
     };
 
@@ -1625,15 +1568,11 @@ window.xcHelper = (function($, xcHelper) {
         return (tableRight >= 0) && (tableLeft <= windowWidth);
     };
 
-    xcHelper.autoTooltip = function(ele) {
-        var $ele = $(ele);
-        if (ele.offsetWidth < ele.scrollWidth){
-            $ele.attr({
-                'data-container': 'body',
-                'data-toggle'   : 'tooltip'
-            });
+    xcHelper.hasSpecialChar = function(str, allowSpace) {
+        if (allowSpace) {
+            return /[^a-zA-Z\d\s:]/.test(str);
         } else {
-            $ele.removeAttr('data-container data-toggle');
+            return /[^a-zA-Z\d]/.test(str);
         }
     };
 
@@ -1696,6 +1635,45 @@ window.xcHelper = (function($, xcHelper) {
         return (deferred.promise());
     };
 
+    xcHelper.createSelection = function(element, atEnd) {
+        if (element == null) {
+            return;
+        }
+        var range;
+        var selection;
+
+        if (window.getSelection && document.createRange) {
+            range = document.createRange();
+            range.selectNodeContents(element);
+            // move the cursor to end, else select all
+            if (atEnd) {
+                range.collapse(false);
+            }
+            selection = window.getSelection();
+            selection.removeAllRanges();
+            try {
+                selection.addRange(range);
+            } catch(error) {
+                console.warn(error);
+            }
+
+        } else if (document.body.createTextRange) {
+            range = document.body.createTextRange();
+            range.moveToElementText(element);
+
+            if (atEnd) {
+                range.collapse(false);
+            }
+            range.select();
+        }
+    };
+
+    xcHelper.removeSelectionRange = function() {
+        if (window.getSelection) {
+            window.getSelection().removeAllRanges();
+        }
+    };
+
     // globally prevents all text from being selected and disables all inputs
     xcHelper.disableTextSelection = function() {
         xcHelper.removeSelectionRange();
@@ -1740,25 +1718,14 @@ window.xcHelper = (function($, xcHelper) {
 
         mapStr += colName + ")";
 
-        return (mapStr);
-    };
-
-    // determines that "votes.funny" is an object but "votes\.funny" isn't
-    xcHelper.isColNameObject = function(colName) {
-        var splitName = colName.split(".");
-        // var nonEscapedDotFound = false;
-        for (var i = 0; i < splitName.length - 1; i++) {
-            if (splitName[i].lastIndexOf('\\') !== (splitName[i].length - 1)) {
-                return true;
-            }
-        }
-        return false;
+        return mapStr;
     };
 
     // if string is somet\"thing then str is somet\"thing
     // and startIndex is the index of the quote you're testing -> 7
     xcHelper.isCharEscaped = function(str, startIndex) {
         var backSlashCount = 0;
+
         for (var i = startIndex - 1; i >= 0; i--) {
             if (str[i] === "\\") {
                 backSlashCount++;
@@ -1857,6 +1824,7 @@ window.xcHelper = (function($, xcHelper) {
         }
 
         var delimiter = $input.val();
+        // this change " to \", otherwise cannot use json parse
         for (var i = 0; i < delimiter.length; i++) {
             if (delimiter[i] === "\"" &&
                 !xcHelper.isCharEscaped(delimiter, i)) {
@@ -1908,25 +1876,25 @@ window.xcHelper = (function($, xcHelper) {
         return (false);
     };
 
-    // $input needs class "argument"
-    xcHelper.fillInputFromCell = function (event, $input, prefix) {
+    xcHelper.fillInputFromCell = function ($target, $input, prefix) {
+        // $input needs class "argument"
         if (!$input.hasClass('argument') ||
             $input.closest('.colNameSection').length !== 0 ||
             $input.attr("type") !== "text")
         {
             return;
         }
-        var $target;
-        var $eventTarg = $(event.target);
-        if ($eventTarg.closest('.header').length) {
-            $target = $eventTarg.closest('.header').find('.editableHead');
+
+        var $col;
+        if ($target.closest('.header').length) {
+            $col = $target.closest('.header').find('.editableHead');
         } else {
-            var colNum = xcHelper.parseColNum($eventTarg.closest('td'));
-            $target = $eventTarg.closest('table')
-                                .find('.editableHead.col' + colNum);
+            var colNum = xcHelper.parseColNum($target.closest('td'));
+            $col = $target.closest('table')
+                            .find('.editableHead.col' + colNum);
         }
-        var value = $target.val();
-        xcHelper.insertText($input, value, prefix);
+        value = prefix + $col.val();
+        xcHelper.insertText($input, value);
         gMouseEvents.setMouseDownTarget($input);
     };
 
@@ -1961,7 +1929,7 @@ window.xcHelper = (function($, xcHelper) {
                 return false;
             }
         }
-        return (hasPrefix);
+        return hasPrefix;
     };
 
     /*
@@ -1980,7 +1948,6 @@ window.xcHelper = (function($, xcHelper) {
         callback: function
     }
     */
-
     xcHelper.dropdownOpen = function($dropdownIcon, $menu, options) {
         options = options || {};
 

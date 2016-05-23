@@ -560,9 +560,9 @@ window.OperationsModal = (function($, OperationsModal) {
                 $operationsModal.fadeIn(400);
             }
 
-            $table.on('click.columnPicker', '.header, td.clickable',
-                function(event) {
-                xcHelper.fillInputFromCell(event, $lastInputFocused, colPrefix);
+            $table.on('click.columnPicker', '.header, td.clickable', function(event) {
+                var $target = $(event.target);
+                xcHelper.fillInputFromCell($target, $lastInputFocused, colPrefix);
             });
             $table.on('mousedown', '.header, td.clickable', keepInputFocused);
             $('body').on('keydown', listHighlightListener);

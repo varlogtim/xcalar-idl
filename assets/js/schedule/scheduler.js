@@ -118,7 +118,7 @@ window.Scheduler = (function(Scheduler, $) {
         // frequent section event
         var $freqSection = $schedulesView.find(".frequencySection");
         var $freq2 = $freqSection.find(".freq2");
-        xcHelper.raidoButtons($freqSection, function(option) {
+        xcHelper.optionButtonEvent($freqSection, function(option) {
             var $datepickerPart = $timeSection.find(".datePickerPart");
 
             if (option === scheduleFreq.dayPerMonth) {
@@ -137,10 +137,6 @@ window.Scheduler = (function(Scheduler, $) {
                 $li.closest(".dropDownList").find("input").val(text);
             },
             "container": "#schedulesView"
-        });
-
-        $schedulesView.on("mousedown", function() {
-            xcHelper.hideDropdowns($schedulesView);
         });
 
         $("#scheduleForm-edit").on("click", function() {

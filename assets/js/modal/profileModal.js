@@ -143,7 +143,7 @@ window.Profile = (function($, Profile, d3) {
 
         // event on sort section
         var $sortSection = $modal.find(".sortSection");
-        xcHelper.raidoButtons($sortSection, function(option, $radio) {
+        xcHelper.optionButtonEvent($sortSection, function(option, $radio) {
             if ($radio.hasClass("asc")) {
                 sortData(sortMap.asc, statsCol);
             } else if ($radio.hasClass("desc")) {

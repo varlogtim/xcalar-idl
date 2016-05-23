@@ -168,7 +168,7 @@ window.JoinModal = (function($, JoinModal) {
 
             modalHelper.submit();
 
-            xcHelper.checkDuplicateTableName(newTableName)
+            xcHelper.checkDupTableName(newTableName)
             .then(function() {
                 var joinType = $joinSelect.find(".text").text();
                 var tabeName = newTableName + Authentication.getHashId();
@@ -181,8 +181,13 @@ window.JoinModal = (function($, JoinModal) {
                     singleJoinHelper(joinType, tabeName);
                 }
             })
-            .fail(function() {
-                StatusBox.show(ErrTStr.TableConflict, $joinTableName, true);
+            .fail(function(error) {
+                if (error === 'table') {
+                    StatusBox.show(ErrTStr.TableConflict, $joinTableName, true);
+                } else {
+                    StatusBox.show(error, $joinTableName, true);
+                }
+
                 modalHelper.enableSubmit();
             });
         });

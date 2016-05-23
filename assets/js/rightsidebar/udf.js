@@ -163,7 +163,7 @@ window.UDF = (function($, UDF) {
 
         /* switch between UDF sections */
         var $sections = $("#udfSection .mainSection");
-        xcHelper.raidoButtons($("#udf-tabs"), function(tabId) {
+        xcHelper.optionButtonEvent($("#udf-tabs"), function(tabId) {
             $sections.addClass("hidden");
             $("#" + tabId).removeClass("hidden");
 

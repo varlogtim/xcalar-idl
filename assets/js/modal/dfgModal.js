@@ -126,7 +126,7 @@ window.DataFlowModal = (function($, DataFlowModal) {
             backToDFGView();
         });
 
-        xcHelper.raidoButtons($dfgModal.find(".radioButtonGroup"), function(option) {
+        xcHelper.optionButtonEvent($dfgModal.find(".radioButtonGroup"), function(option) {
             var optionNum = Number(option);
             if (optionNum === 0) {
                 $modalMain.addClass('unavailable');

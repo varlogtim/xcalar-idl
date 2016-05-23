@@ -139,11 +139,11 @@ window.XIApi = (function(XIApi, $) {
             return PromiseHelper.reject("Invalid args in join");
         }
 
-        if (!xcHelper.isArray(lColNames)) {
+        if (!(lColNames instanceof Array)) {
             lColNames = [lColNames];
         }
 
-        if (!xcHelper.isArray(rColNames)) {
+        if (!(rColNames instanceof Array)) {
             rColNames = [rColNames];
         }
 
@@ -189,7 +189,7 @@ window.XIApi = (function(XIApi, $) {
             return PromiseHelper.reject("Invalid args in groupby");
         }
 
-        if (!xcHelper.isArray(groupByCols)) {
+        if (!(groupByCols instanceof Array)) {
             groupByCols = [groupByCols];
         }
 
@@ -618,7 +618,7 @@ window.XIApi = (function(XIApi, $) {
         var indexedTableName;
 
         var mapStr = "default:multiJoin(" + groupByCols.join(", ") + ")";
-        var groupByField = xcHelper.randName("multiGroupBy", 5);
+        var groupByField = xcHelper.randName("multiGroupBy");
 
         XcalarMap(groupByField, mapStr, tableName, mapTableName, txId)
         .then(function() {

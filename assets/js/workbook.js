@@ -105,7 +105,7 @@ window.WKBKManager = (function($, WKBKManager) {
 
         XcalarNewWorkbook(wkbkName, isCopy, copySrcName)
         .then(function() {
-            var time = xcHelper.getTimeInMS();
+            var time = xcHelper.getCurrentTimeStamp();
             var options = {
                 "id"      : getWKBKId(wkbkName),
                 "name"    : wkbkName,
@@ -442,7 +442,7 @@ window.WKBKManager = (function($, WKBKManager) {
             return KVStore.put(newInfoKey, value, true, gKVScope.META);
         })
         .then(function() {
-            return KVStore.get(oldEphInfoKey, gKVScope.EPHM)
+            return KVStore.get(oldEphInfoKey, gKVScope.EPHM);
         })
         .then(function(value) {
             // If success, then put this key into the new workbook

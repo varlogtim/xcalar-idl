@@ -469,18 +469,22 @@ function renameTableHead($div) {
     }
 
     // XXX Shall we really check if the name part has conflict?
-    xcHelper.checkDuplicateTableName(newName)
+    xcHelper.checkDupTableName(newName)
     .then(function() {
-        return (xcFunction.rename(tableId, newTableName));
+        return xcFunction.rename(tableId, newTableName);
     })
     .then(function() {
         $div.blur();
     })
-    .fail(function() {
-        var text = xcHelper.replaceMsg(ErrWRepTStr.TableConflict, {
-            "name": newName
-        });
-        StatusBox.show(text, $div, false);
+    .fail(function(error) {
+        if (error === 'table') {
+            var text = xcHelper.replaceMsg(ErrWRepTStr.TableConflict, {
+                "name": newName
+            });
+            StatusBox.show(text, $div, false);
+        } else {
+            StatusBox.show(error, $div, false);
+        }
     });
 }
 

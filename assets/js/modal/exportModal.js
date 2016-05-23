@@ -90,8 +90,7 @@ window.ExportModal = (function($, ExportModal) {
             }
         });
 
-
-        xcHelper.raidoButtons($exportModal.find(".formRow"), function(option, $radio) {
+        xcHelper.optionButtonEvent($exportModal.find(".formRow"), function(option, $radio) {
             if ($radio.closest(".typeRow").length > 0) {
                 if (option !== "DfFormatCsv") {
                     $advancedSection.find('.csvRow').removeClass('csvSelected')
@@ -163,9 +162,6 @@ window.ExportModal = (function($, ExportModal) {
 
         addColumnSelectListeners();
 
-        $(document).on("mousedown.exportModal", function() {
-            xcHelper.hideDropdowns($exportModal);
-        });
         $(document).on("keypress.exportModal", function(e) {
             if (e.which === keyCode.Enter) {
                 $exportModal.find(".confirm").trigger("click");

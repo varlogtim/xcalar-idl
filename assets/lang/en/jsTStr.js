@@ -389,6 +389,7 @@ DFGTStr = {
 };
 
 DSTStr = {
+    'UnknownUser': 'Unknow User',
     'DS': 'DATASET',
     'Export': 'EXPORT FORM',
     'LoadingDS': 'Dataset is loading',

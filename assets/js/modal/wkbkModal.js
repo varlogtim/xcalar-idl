@@ -82,7 +82,7 @@ window.WorkbookModal = (function($, WorkbookModal) {
 
     WorkbookModal.forceShow = function() {
         $workbookModal.find(".cancel, .close").hide();
-        var $logoutBtn = xcHelper.logoutButton();
+        var $logoutBtn = xcHelper.supportButton();
         $workbookModal.find(".modalBottom").append($logoutBtn);
 
         WorkbookModal.show(true);
@@ -151,7 +151,7 @@ window.WorkbookModal = (function($, WorkbookModal) {
         });
 
         // choose an option
-        xcHelper.raidoButtons($optionSection, function(option) {
+        xcHelper.optionButtonEvent($optionSection, function(option) {
             var no = Number(option);
             switchAction(no);
         });

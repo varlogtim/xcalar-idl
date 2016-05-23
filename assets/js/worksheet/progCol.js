@@ -1700,7 +1700,7 @@ window.ColManager = (function($, ColManager) {
                         tdValue = tdValue[nested[i]];
 
                         if (!childOfArray && i < nestedLength - 1 &&
-                            xcHelper.isArray(tdValue))
+                            (tdValue instanceof Array))
                         {
                             childArrayVals[col] = true;
                         }
@@ -2218,7 +2218,7 @@ window.ColManager = (function($, ColManager) {
                 value = value[nested[j]];
 
                 if (!childOfArray && j < nested.length - 1 &&
-                    xcHelper.isArray(value)) {
+                    (value instanceof Array)) {
                     childOfArray = true;
                 }
             }
@@ -2407,15 +2407,14 @@ window.ColManager = (function($, ColManager) {
         return (nested);
     }
 
-     function parseBracket(key) {
-        for (var i = 0; i < key.length; i++) {
-            if (key[i] === "[") {
-                key[i] = ".";
-            }
-        }
-        return (key);
-    }
-
+    // function parseBracket(key) {
+    //     for (var i = 0; i < key.length; i++) {
+    //         if (key[i] === "[") {
+    //             key[i] = ".";
+    //         }
+    //     }
+    //     return (key);
+    // }
 
     // parse json string of a table row
     function parseRowJSON(jsonStr) {
