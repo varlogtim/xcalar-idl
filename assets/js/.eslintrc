@@ -1,4 +1,4 @@
-{   
+{
     // rules mode: 0 = turn off, 1 = warning, 2 = error
     "rules": {
         "strict": 0, // not using stric mode
@@ -32,9 +32,9 @@
         ],
         "no-loop-func": 1,
         "no-trailing-spaces": [
-            2, 
-            { 
-                "skipBlankLines": true 
+            2,
+            {
+                "skipBlankLines": true
             }
         ],
         "no-redeclare": 1,

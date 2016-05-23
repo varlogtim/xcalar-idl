@@ -578,6 +578,7 @@ window.StartManager = (function(StartManager, $) {
         $(window).resize(function(event) {
             if (!resizing) {
                 $('.menu').hide();
+                $('#dagScrollBarWrap').hide();
                 resizing = true;
             }
 
@@ -602,6 +603,8 @@ window.StartManager = (function(StartManager, $) {
                 }
                 moveTableDropdownBoxes();
                 TblManager.adjustRowFetchQuantity();
+                DagPanel.setScrollBarId($(window).height());
+                DagPanel.adjustScrollBarPositionAndSize();
             }
             resizing = false;
         }

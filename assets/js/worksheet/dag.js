@@ -1,20 +1,61 @@
 window.DagPanel = (function($, DagPanel) {
     var $dagPanel; // $('#dagPanel');
     var $dagArea;  // $dagPanel.find('.dagArea');
+    var $scrollBarWrap; // $('#dagScrollBarWrap');
 
     DagPanel.setup = function() {
         $dagPanel = $('#dagPanel');
         $dagArea = $dagPanel.find('.dagArea');
+        $scrollBarWrap = $('#dagScrollBarWrap');
 
         setupDagPanelSliding();
         setupDagTableDropdown();
         setupRightClickDropdown();
         setupDataFlowBtn();
+        setupScrollBar();
     };
 
     DagPanel.clear = function() {
         $(".closeDag").click();
         $(".dagWrap").remove();
+    };
+
+    DagPanel.setScrollBarId = function(winHeight) {
+        // 76 or 89 depends on if scrollbar is showing
+        var el = document.elementFromPoint(10, winHeight - 89);
+        var $dagImageWrap = $(el).closest('.dagImageWrap');
+        if ($dagImageWrap.length) {
+            var dagImageWrapHeight = $dagImageWrap.height();
+            var offsetTop = $dagImageWrap.offset().top;
+            if ((winHeight - 76) < offsetTop + dagImageWrapHeight) {
+                var id = $dagImageWrap.closest('.dagWrap').data('id');
+                $scrollBarWrap.data('id', id);
+            } else {
+                $scrollBarWrap.data('id', 'none');
+            }
+        } else {
+            $scrollBarWrap.data('id', 'none');
+        }
+    };
+
+    DagPanel.adjustScrollBarPositionAndSize = function() {
+        var id = $scrollBarWrap.data('id');
+        if (id && id !== "none") {
+            var $dagWrap = $('#dagWrap-' + id);
+            var $dagImageWrap = $dagWrap.find('.dagImageWrap');
+            var $dagImage = $dagImageWrap.find('.dagImage');
+            var dagImageWidth = $dagImageWrap.outerWidth();
+            var scrollWidth = $dagImageWrap[0].scrollWidth;
+            if (scrollWidth > dagImageWidth) {
+                var scrollLeft = $dagImageWrap.scrollLeft();
+                $scrollBarWrap.show().find('.sizer').width(scrollWidth);
+                $scrollBarWrap.scrollLeft(scrollLeft);
+            } else {
+                $scrollBarWrap.hide();
+            }
+        } else {
+            $scrollBarWrap.hide();
+        }
     };
 
     var dagTopPct = 0; // open up dag to 100% by default;
@@ -60,6 +101,10 @@ window.DagPanel = (function($, DagPanel) {
                         $dagPanel.css('top', dagTopPct + '%');
                         clickDisabled = false;
                         RowScroller.updateViewRange(gActiveTableId);
+                        var winHeight = $(window).height();
+                        DagPanel.setScrollBarId(winHeight);
+                        DagPanel.adjustScrollBarPositionAndSize();
+
                     }, 350);
                 }, 0);
 
@@ -96,6 +141,7 @@ window.DagPanel = (function($, DagPanel) {
                 setDagTranslate(-dagTopPct);
             }
             $(this).addClass('unavailable');
+            $('#dagScrollBarWrap').hide();
             clickDisabled = true;
             setTimeout(function() {
                 $dagPanel.addClass('noTransform');
@@ -103,7 +149,9 @@ window.DagPanel = (function($, DagPanel) {
                 dagTopPct = 0;
                 clickDisabled = false;
                 RowScroller.updateViewRange(gActiveTableId);
-
+                var winHeight = $(window).height();
+                DagPanel.setScrollBarId(winHeight);
+                DagPanel.adjustScrollBarPositionAndSize();
             }, 400);
         });
 
@@ -139,6 +187,10 @@ window.DagPanel = (function($, DagPanel) {
                             }, 0);
                         });
                     }, 200);
+                } else {
+                    var winHeight = $(window).height();
+                    DagPanel.setScrollBarId(winHeight);
+                    DagPanel.adjustScrollBarPositionAndSize();
                 }
             },
             stop: function() {
@@ -194,6 +246,7 @@ window.DagPanel = (function($, DagPanel) {
         $('#mainFrame').height('calc(100% - 38px)');
         $dagArea.css('height', (100 - dagTopPct) + '%');
         $dagPanel.addClass('hidden');
+        $('#dagScrollBarWrap').hide();
         clickDisabled = true;
 
         setTimeout(function() {
@@ -708,6 +761,32 @@ window.DagPanel = (function($, DagPanel) {
         });
     }
 
+    function setupScrollBar() {
+        var $scrollBarWrap = $('#dagScrollBarWrap');
+        $scrollBarWrap.scroll(function(event) {
+            if (gMouseEvents.getLastMouseDownTarget().attr('id') ===
+                "dagScrollBarWrap") {
+                var scrollLeft = $(this).scrollLeft();
+                var id = $(this).data('id');
+                $('#dagWrap-' + id).find('.dagImageWrap')
+                                   .scrollLeft(scrollLeft);
+            }
+        });
+
+        var wheeling = false;
+        var wheelTimeout;
+        $scrollBarWrap.on('mousewheel', function() {
+            if (!wheeling) {
+                wheeling = true;
+                gMouseEvents.setMouseDownTarget($(this));
+            }
+            clearTimeout(wheelTimeout);
+            wheelTimeout = setTimeout(function() {
+                wheeling = false;
+            }, 100);
+        });
+    }
+
     return (DagPanel);
 
 }(jQuery, {}));
@@ -893,21 +972,6 @@ window.Dag = (function($, Dag) {
 
         $container.data('allDagInfo', allDagInfo);
     };
-
-    function getDagDepth(allDagInfo) {
-        var maxDepth = 0;
-        getDepthHelper(0, 0);
-        return (maxDepth);
-
-        function getDepthHelper(index, depth) {
-            depth++;
-            maxDepth = Math.max(maxDepth, depth);
-            for (var i = 0; i < allDagInfo[index].numParents; i++) {
-                var parentIndex = allDagInfo[index].parents[i];
-                getDepthHelper(parentIndex, depth);
-            }
-        }
-    }
 
     Dag.renameAllOccurrences = function(oldTableName, newTableName) {
         $dagPanel = $('#dagPanel');
@@ -1137,6 +1201,7 @@ window.Dag = (function($, Dag) {
         $dagImage.parent().scrollLeft(prevScrollLeft + (newWidth - dagImageWidth));
 
         $dagWrap.find('canvas').eq(0).remove();
+        $('.tooltip').hide();
 
         var canvas = createCanvas($dagWrap);
         var ctx = canvas.getContext('2d');
@@ -1160,6 +1225,21 @@ window.Dag = (function($, Dag) {
         setTimeout(function() {
             $collapsedTables.removeClass('discovered');
         }, 5000);
+    }
+
+    function getDagDepth(allDagInfo) {
+        var maxDepth = 0;
+        getDepthHelper(0, 0);
+        return (maxDepth);
+
+        function getDepthHelper(index, depth) {
+            depth++;
+            maxDepth = Math.max(maxDepth, depth);
+            for (var i = 0; i < allDagInfo[index].numParents; i++) {
+                var parentIndex = allDagInfo[index].parents[i];
+                getDepthHelper(parentIndex, depth);
+            }
+        }
     }
 
     function expandGroupHelper(allDagInfo, group, index, $dagWrap, horzShift,
@@ -1418,6 +1498,67 @@ window.Dag = (function($, Dag) {
             expandGroup(group, $dagWrap);
         });
 
+        dagScrollListeners($dagWrap.find('.dagImageWrap'));
+    }
+
+    function preventUnintendedScrolling() {
+        var winHeight;
+        var vertScrolling = false;
+        var vertScrollingTimeout;
+        $('.dagArea').scroll(function() {
+            if ($('#dagSchema').is(':visible') && scrollPosition > -1) {
+                $(this).scrollTop(scrollPosition);
+                return;
+            }
+            if (!vertScrolling) {
+                vertScrolling = true;
+                winHeight = $(window).height();
+            }
+            clearInterval(vertScrollingTimeout);
+            vertScrollingTimeout = setTimeout(function() {
+                vertScrolling = false;
+            }, 300);
+
+            DagPanel.setScrollBarId(winHeight);
+            DagPanel.adjustScrollBarPositionAndSize();
+        });
+    }
+
+    function dagScrollListeners($dagImageWrap) {
+        var winHeight;
+        var horzScrolling = false;
+        var horzScrollingTimeout;
+
+        $dagImageWrap.scroll(function() {
+            if (gMouseEvents.getLastMouseDownTarget().attr('id') ===
+                "dagScrollBarWrap") {
+                return;
+            }
+            if (!horzScrolling) {
+                horzScrolling = true;
+                winHeight = $(window).height();
+                DagPanel.setScrollBarId(winHeight);
+            }
+            clearInterval(horzScrollingTimeout);
+            horzScrollingTimeout = setTimeout(function() {
+                horzScrolling = false;
+            }, 300);
+
+            DagPanel.adjustScrollBarPositionAndSize();
+        });
+
+        var wheeling = false;
+        var wheelTimeout;
+        $dagImageWrap.on('mousewheel', function() {
+            if (!wheeling) {
+                wheeling = true;
+                gMouseEvents.setMouseDownTarget($(this));
+            }
+            clearTimeout(wheelTimeout);
+            wheelTimeout = setTimeout(function() {
+                wheeling = false;
+            }, 100);
+        });
     }
 
     function showDagSchema($dagTable) {
@@ -2363,14 +2504,6 @@ window.Dag = (function($, Dag) {
     //                'px;top:' + y + 'px;">' + x + ',' + y + '</div>';
     //     $('.dagImage').append(html);
     // }
-
-    function preventUnintendedScrolling() {
-        $('.dagArea').scroll(function() {
-            if ($('#dagSchema').is(':visible') && scrollPosition > -1) {
-                $(this).scrollTop(scrollPosition);
-            }
-        });
-    }
 
     return (Dag);
 
