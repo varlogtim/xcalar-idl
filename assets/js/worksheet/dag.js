@@ -386,6 +386,9 @@ window.DagPanel = (function($, DagPanel) {
 
     function downloadImage(canvas, filename) {
 
+        if (filename.split(".").pop().toLowerCase !== "png") {
+            filename = filename += ".png";
+        }
         /// create an "off-screen" anchor tag
         var lnk = document.createElement('a');
         var e;
