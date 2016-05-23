@@ -7,6 +7,10 @@ window.TestSuite = (function($, TestSuite) {
     var TestCaseEnabled = true;
     var TestCaseDisabled = false;
     var defaultTimeout = 2560000;
+    var defaultCheckTimeout = 60000;
+    var slowInternetFactor = gLongTestSuite || 1;
+                        // Change this to 2, 3, etc if you have a slow
+                        // internet
     var passes = 0;
     var fails = 0;
     var skips = 0;
@@ -204,7 +208,7 @@ window.TestSuite = (function($, TestSuite) {
     // example: ".xcTable" or ["#xcTable-ex1", "#xcTable-ex2"]
     function checkExists(elemSelectors, timeLimit, options) {
         var deferred = jQuery.Deferred();
-        timeLimit = timeLimit || 10000;
+        timeLimit = timeLimit * slowInternetFactor || defaultCheckTimeout;
         options = options || {};
 
         var intervalTime = 100;
