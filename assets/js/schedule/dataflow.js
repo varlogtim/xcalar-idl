@@ -84,7 +84,7 @@ window.DFG = (function($, DFG) {
                     left1 = parseInt($dagTable.css('left')) + dagMidWidth;
                     top2 = parseInt(child.css('top')) + dagMidHeight;
                     left2 = parseInt(child.css('left')) + 10;
-                    console.log('scheduler panel');
+                    // console.log('scheduler panel');
                 } else {
                     top1 = parseInt($dagTable.parent().css('top')) + dagMidHeight;
                     left1 = dagImageWidth -
@@ -92,7 +92,7 @@ window.DFG = (function($, DFG) {
                     top2 = parseInt(child.parent().css('top')) + dagMidHeight;
                     left2 = dagImageWidth -
                             parseInt(child.parent().css('right')) - 42;
-                    console.log('not scheduler panel');
+                    // console.log('not scheduler panel');
                 }
 
                 ctx.beginPath();

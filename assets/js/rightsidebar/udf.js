@@ -439,9 +439,9 @@ window.UDF = (function($, UDF) {
                 "msg"    : SideBarTStr.UploadUDFMsg,
                 "isAlert": true,
                 "buttons": [{
-                            "name": "CLOSE",
+                            "name"     : AlertTStr.CLOSE,
                             "className": "close",
-                            func : function() {
+                            func       : function() {
                                 $("#udfBtn").parent().click();
                             }
                 }],
