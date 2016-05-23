@@ -16,7 +16,13 @@ function setupHostName() {
             url = url.substring(0, lastBackSlash);
             // XXX when backend support the split of "http://"("https://"),
             // we do not need the following code
-            window.hostname = url.split("http://")[1];
+            var hname = url.split("http://")[1];
+            var hnamePort = hname.split(":");
+            window.hostname = hnamePort[0];
+            if (hnamePort.length > 1) {
+                window.hostname = hnamePort[0];
+                window.portNumber = hnamePort[1];
+            }
         } catch(error) {
             console.error(error);
         }
