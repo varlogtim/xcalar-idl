@@ -294,7 +294,7 @@ window.DataSampleTable = (function($, DataSampleTable) {
         var deferred = jQuery.Deferred();
 
         if (!result) {
-            deferred.reject({"error": DSTStr.NoParse});
+            deferred.reject({"error": DSTStr.NoRecords});
             return deferred.promise();
         }
 

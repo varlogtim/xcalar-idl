@@ -468,10 +468,16 @@ function XcalarLoad(url, format, datasetName, fieldDelim, recordDelim,
         loadArgs.udfLoadArgs.fullyQualifiedFnName = moduleName + ":" + funcName;
     }
 
-    var workItem = xcalarLoadWorkItem(url, datasetName, formatType, 0,
-                                      loadArgs);
+    var maxSampleSize = gMaxSampleSize;
+    if (gMaxSampleSize > 0) {
+        console.log("Max sample size set to: "+maxSampleSize);
+    }
 
-    var def1 = xcalarLoad(tHandle, url, datasetName, formatType, 0, loadArgs);
+    var workItem = xcalarLoadWorkItem(url, datasetName, formatType,
+                                      maxSampleSize, loadArgs);
+
+    var def1 = xcalarLoad(tHandle, url, datasetName, formatType, maxSampleSize,
+                          loadArgs);
     var def2 = XcalarGetQuery(workItem);
     // We are using our .when instead of jQuery's because if load times out,
     // we still want to use the return for def2.

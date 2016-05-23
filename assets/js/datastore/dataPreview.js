@@ -232,8 +232,8 @@ window.DataPreview = (function($, DataPreview) {
                 XcalarSetFree(refId);
 
                 if (!result) {
-                    cannotParseHandler();
-                    deferred.reject({"error": DSTStr.NoParse});
+                    cannotParseHandler(DSTStr.NoRecords);
+                    deferred.reject({"error": DSTStr.NoRecords});
                     return PromiseHelper.resolve(null);
                 }
 
@@ -272,7 +272,7 @@ window.DataPreview = (function($, DataPreview) {
                     deferred.resolve();
                 } catch(err) {
                     console.error(err, value);
-                    cannotParseHandler();
+                    cannotParseHandler(DSTStr.NoParse);
                     deferred.reject({"error": DSTStr.NoParse});
                 }
 
@@ -303,8 +303,8 @@ window.DataPreview = (function($, DataPreview) {
 
         return (deferred.promise());
 
-        function cannotParseHandler() {
-            $errorSection.html(DSTStr.NoParse).removeClass("hidden");
+        function cannotParseHandler(msg) {
+            $errorSection.html(msg).removeClass("hidden");
             errorSuggestHelper(loadURL);
             $("#preview-close").show();
         }

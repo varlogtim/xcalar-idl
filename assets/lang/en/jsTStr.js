@@ -395,6 +395,7 @@ DSTStr = {
                     ' that all datasets have been removed from folders prior' +
                     ' to deletion.',
     'NoParse': 'Cannot parse the dataset.',
+    'NoRecords': 'No records in dataset.',
     // with replace
     'DelDSConfirm': 'Are you sure you want to delete dataset <ds> ?',
     'DelUneditable': 'This <ds> is uneditable, cannot delete'

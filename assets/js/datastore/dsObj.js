@@ -250,7 +250,7 @@ window.DS = (function ($, DS) {
                 // if dataset cannot be parsed produce a load fail
                 return PromiseHelper.reject({
                     "dsCreated": true,
-                    "error"    : DSTStr.NoParse
+                    "error"    : DSTStr.NoRecords
                 });
             }
 

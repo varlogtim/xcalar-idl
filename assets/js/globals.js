@@ -53,6 +53,9 @@ var gEnableCopyCols = false;
 var gExportFDelim = "\t";
 var gExportRDelim = "\n";
 var gLongTestSuite = 1;
+var gMaxSampleSize = 0; // Max Sample Size for datasets. If this is set, all
+                        // datasets will abide by this limit. If you don't want
+                        // to use it anymore, just set it back to 0
 var KB = 1024;
 var MB = 1024 * KB;
 var GB = 1024 * MB;
