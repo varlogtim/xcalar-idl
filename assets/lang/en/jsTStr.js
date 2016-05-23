@@ -240,11 +240,9 @@ ErrWRepTStr = {
 
 TipsTStr = {
     'Scrollbar': 'Scroll Table Here',
-    'AddWorksheet': 'Add Worksheet',
-    'EditColumn': 'Click here to edit column name',
+    'DataType': 'Data Type',
     'LineMarker': 'Click row number to add bookmark',
     'JSONEle': 'Double-click to view, then click on key names to pull columns',
-    'ToggleGridView': 'Toggle between grid view and list view',
     'DragGrid': 'You can drag datasets or folders around to reorder',
     'DataSampleTable': 'Click table header to add/remove columns to/from ' +
         'data cart. Click on column headings to further modify the column.',

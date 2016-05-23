@@ -129,18 +129,19 @@ window.Tips = (function($, Tips) {
     }
 
     function addBottomAreaTips() {
-        // tips for add worksheet button
-        setTooltip($("#addWorksheet"), {
-            "title"    : TipsTStr.AddWorksheet,
-            "container": "#addWorksheet"
+        // tips for add worksheet tab
+        var $wsIcon = $(".worksheetTab:not(.inActive) .wsIconWrap");
+        setTooltip($wsIcon, {
+            "title"    : TipsTStr.WSOpts,
+            "container": "#worksheetTabs"
        });
     }
 
     function addWorksheetTips() {
-        var $tables  = $(".xcTableWrap");
+        var $tables = $(".xcTableWrap");
 
         for (var i = 0; i < $tables.length; i++) {
-            var $table  = $tables.eq(i);
+            var $table = $tables.eq(i);
 
             // only show tips on focused table
             if (!$table.filter(':visible').find(".tableTitle")
@@ -150,12 +151,12 @@ window.Tips = (function($, Tips) {
             var tableId = getIdStr($table);
 
             // tips on table header
-            var $header  = getMiddleElement($table.find('th:not(".dataCol")'))
+            var $header = getMiddleElement($table.find('th:not(".dataCol")'))
                                             .find(".header");
             // padding:"1px" is a trick to put this tip in right place,
             // the format is not right, should be corrected
-            setTooltip($header, {
-                "title"    : TipsTStr.EditColumn,
+            setTooltip($header.find(".type"), {
+                "title"    : TipsTStr.DataType,
                 "container": tableId,
                 "template" : templateZ10,
                 "viewport" : {
@@ -164,9 +165,15 @@ window.Tips = (function($, Tips) {
                 }
             });
 
+            // column dropdown menu
+            setTooltip($header.find(".dropdownBox"), {
+                "container": tableId,
+                "placement": "bottom"
+            });
+
             // tips on bookmark
-            var tableLeft   = $table.offset().left;
-            var tdX         = Math.max(0, tableLeft);
+            var tableLeft = $table.offset().left;
+            var tdX = Math.max(0, tableLeft);
             var tdY = 168; //top rows's distance from top of window
             var $ele = getElementFromPoint(tdX, tdY);
 
@@ -202,14 +209,7 @@ window.Tips = (function($, Tips) {
 
     function addDatastoreTips() {
         var dataView = "#datastorePanel";
-
         // grid view section
-        setTooltip($("#datasetExplore"), {
-            "title"    : TipsTStr.ToggleGridView,
-            "container": dataView,
-            "placement": "right"
-        });
-
         setTooltip($("#exploreView .gridView > .grid-unit:last-child"), {
             "title"    : TipsTStr.DragGrid,
             "container": dataView,
