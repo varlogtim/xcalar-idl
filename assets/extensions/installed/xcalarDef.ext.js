@@ -307,7 +307,7 @@ window.UExtXcalarDef = (function(UExtXcalarDef, $) {
                 var newTableName;
                 var i;
                 for (i = 0; i < lag; i++) {
-                    newTableName = tableNameRoot + "_PromiseHelper.chain_" +
+                    newTableName = tableNameRoot + "_Win_" +
                                     Authentication.getHashId();
                     rTable = tableNames.lag[i];
                     finalTableName = newTableName;
@@ -317,7 +317,7 @@ window.UExtXcalarDef = (function(UExtXcalarDef, $) {
                 }
 
                 for (i = 0; i < lead; i++) {
-                    newTableName = tableNameRoot + "_PromiseHelper.chain_" +
+                    newTableName = tableNameRoot + "_Win_" +
                                     Authentication.getHashId();
                     rTable = tableNames.lead[i];
                     finalTableName = newTableName;

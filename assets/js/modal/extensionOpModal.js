@@ -232,7 +232,7 @@ window.ExtensionOpModal = (function(ExtensionOpModal, $) {
             var progCol = table.getProgColFromFrontColName(tempColNames[i].trim());
             if (progCol != null) {
                 var colType = progCol.getType();
-                if (colType === "integer" || colType === "number") {
+                if (colType === "integer" || colType === "float") {
                     colType = "number";
                 }
 
