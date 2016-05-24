@@ -2295,7 +2295,9 @@ function XcalarUploadPython(moduleName, pythonStr) {
                     deferred.resolve();
                 })
                 .fail(function(error2, errorStuct2) {
-                    if (errorStruct2 && errorStruct2.error.message.length > 0) {
+                    if (errorStruct2 && errorStruct2.error &&
+                        errorStruct2.error.message &&
+                        errorStruct2.error.message.length > 0) {
                         error2 = errorStruct2.error.message;
                     }
                     var thriftError = thriftLog("XcalarUpdateAfterUpload",
