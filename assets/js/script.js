@@ -157,23 +157,17 @@ window.StartManager = (function(StartManager, $) {
                     "hideButtons": ['copySql']
                 });
             } else {
-                if ($("#alertModal").is(":visible")) {
-                    // in case other please has open alert but code goes here
-                    console.error(error);
-                    console.warn("Alert modal already open");
+                // when it's an error from backend we cannot handle
+                var title;
+                if (error.error != null && error.error.indexOf('Update required') !== -1) {
+                    title = ThriftTStr.UpdateErr;
+                } else if (error.error != null && error.error.indexOf('Connection') !== -1) {
+                    title = ThriftTStr.CCNBEErr;
                 } else {
-                   // when it's an error from backend we cannot handle
-                    var title;
-                    if (error.error != null && error.error.indexOf('Update required') !== -1) {
-                        title = ThriftTStr.UpdateErr;
-                    } else if (error.error != null && error.error.indexOf('Connection') !== -1) {
-                        title = ThriftTStr.CCNBEErr;
-                    } else {
-                        title = ThriftTStr.SetupErr;
-                    }
-                    Alert.error(title, error, {"lockScreen": true});
-                    StatusMessage.updateLocation(true, StatusMessageTStr.Error); 
+                    title = ThriftTStr.SetupErr;
                 }
+                Alert.error(title, error, {"lockScreen": true});
+                StatusMessage.updateLocation(true, StatusMessageTStr.Error); 
             }
 
             deferred.reject(error);
