@@ -60,7 +60,7 @@ ul.navigation
 	background-repeat: repeat;
 	background-position: center center;
 	color: #ffffff;
-	font-family: 'Open Sans Semibold';
+	font-family: ''Open Sans Semibold', Arial, Sans-Serif';
 	font-size: 18px;
 	font-weight: normal;
 	padding-left: 0px;
@@ -164,7 +164,7 @@ ul.navigation a
 	height: 100%;
 	outline: none;
 	color: #ffffff;
-	font-family: 'Open Sans Semibold';
+	font-family: ''Open Sans Semibold', Arial, Sans-Serif';
 	font-size: 18px;
 	font-weight: normal;
 }
@@ -181,7 +181,7 @@ ul.navigation li > a
 {
 	display: block;
 	line-height: 45px;
-	font-family: 'Open Sans Semibold';
+	font-family: ''Open Sans Semibold', Arial, Sans-Serif';
 	font-size: 18px;
 	margin-left: 0px;
 	margin-right: 0px;
@@ -256,7 +256,7 @@ ul.navigation ul > li:hover
 
 #resultList .glossary .term a:visited
 {
-	
+
 }
 
 #resultList h3.title a:visited
@@ -267,7 +267,7 @@ ul.navigation ul > li:hover
 
 #resultList .glossary .term a:focus
 {
-	
+
 }
 
 #resultList h3.title a:focus
@@ -305,7 +305,7 @@ ul.navigation ul ul ul ul > li > a:hover
 
 #resultList .glossary .term a:hover
 {
-	
+
 }
 
 #pagination a:hover
@@ -320,7 +320,7 @@ ul.navigation ul ul ul ul > li > a:hover
 
 #resultList .glossary .term a:active
 {
-	
+
 }
 
 #resultList h3.title a:active
@@ -432,7 +432,7 @@ nav.tab-bar .menu-icon
 	border-bottom-right-radius: 0px;
 	border-bottom-left-radius: 0px;
 	color: #b5b5b5;
-	font-family: 'Open Sans Semibold';
+	font-family: ''Open Sans Semibold', Arial, Sans-Serif';
 	font-size: 18px;
 	padding-left: 10px;
 	background-color: #ffffff;
@@ -546,7 +546,7 @@ html.pulseTopic .main-section .row.outer-row
 
 .inner-wrap nav.tab-bar .outer-row
 {
-	
+
 }
 
 .tab-bar .menu-icon span
@@ -556,12 +556,12 @@ html.pulseTopic .main-section .row.outer-row
 
 ul.navigation ul a
 {
-	
+
 }
 
 ul.navigation ul ul a
 {
-	
+
 }
 
 ul.navigation ul ul ul
@@ -579,7 +579,7 @@ ul.navigation ul ul ul
 
 ul.navigation ul ul ul a
 {
-	
+
 }
 
 ul.navigation ul ul ul ul
@@ -597,7 +597,7 @@ ul.navigation ul ul ul ul
 
 ul.navigation ul ul ul ul a
 {
-	
+
 }
 
 ul.navigation ul ul > li > a
@@ -682,7 +682,7 @@ ul.navigation ul ul ul ul > li:hover
 
 #resultList .glossary .definition
 {
-	
+
 }
 
 #resultList .glossary
@@ -703,7 +703,7 @@ ul.navigation ul ul ul ul > li:hover
 
 #resultList .glossary .term a
 {
-	
+
 }
 
 h1#results-heading

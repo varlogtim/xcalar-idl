@@ -617,7 +617,7 @@ a.activityText:visited
 ul.menu._Skins_SideMenu.mc-component
 {
 	color: #312c2d;
-	font-family: 'Open Sans Semibold';
+	font-family: ''Open Sans Semibold', Arial, Sans-Serif';
 	font-size: 16px;
 	font-weight: normal;
 	font-style: normal;
@@ -653,7 +653,7 @@ ul.menu._Skins_SideMenu.mc-component
 ul.menu._Skins_SideMenu.mc-component a
 {
 	color: #312c2d;
-	font-family: 'Open Sans Semibold';
+	font-family: ''Open Sans Semibold', Arial, Sans-Serif';
 	font-size: 16px;
 	font-weight: normal;
 	font-style: normal;

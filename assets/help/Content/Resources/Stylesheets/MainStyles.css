@@ -253,6 +253,7 @@ ul.navigation ul
 {
 	border: #000000 1px none;
 	border-radius: 10px;
+	border-top-right-radius: 0px;
 }
 
 span.SearchHighlight
