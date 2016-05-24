@@ -617,11 +617,11 @@ window.TestSuite = (function($, TestSuite) {
             })
             .then(function() {
                 if ($("#alertContent .text").html().split(":")[1].trim()
-                    .indexOf("31.229") > -1) {
+                    .indexOf("31.22") > -1) {
                     $("#alertActions .cancel").click();
                     TestSuite.pass(deferred, testName, currentTestNumber);
                 } else {
-                    console.log(error, "Average value wrong");
+                    console.log("Average value wrong");
                     TestSuite.fail(deferred, testName, currentTestNumber,
                                     "Average value wrong");
                 }
