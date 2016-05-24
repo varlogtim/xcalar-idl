@@ -139,22 +139,7 @@ window.Support = (function(Support, $) {
                     console.warn("Session not release last time...");
                     innerDeferred.resolve();
                 } else {
-                    // when seesion is hold by others
-                    Alert.show({
-                        "title"  : WKBKTStr.Hold,
-                        "msg"    : WKBKTStr.HoldMsg,
-                        "buttons": [
-                            {
-                                "name"     : WKBKTStr.Release,
-                                "className": "cancel",
-                                "func"     : function() {
-                                    Support.forceReleaseSession();
-                                }
-                            }
-                        ],
-                        "noCancel": true
-                    });
-                    innerDeferred.reject("Already in use!");
+                    innerDeferred.reject(WKBKTStr.Hold);
                 }
             })
             .fail(innerDeferred.reject);

@@ -125,6 +125,22 @@ window.StartManager = (function(StartManager, $) {
                 WorkbookModal.forceShow();
                 var text = StatusMessageTStr.Viewing + " " + WKBKTStr.Location;
                 StatusMessage.updateLocation(true, text);
+            } else if (error === WKBKTStr.Hold) {
+                // when seesion is hold by others
+                Alert.show({
+                    "title"  : WKBKTStr.Hold,
+                    "msg"    : WKBKTStr.HoldMsg,
+                    "buttons": [
+                        {
+                            "name"     : WKBKTStr.Release,
+                            "className": "cancel",
+                            "func"     : function() {
+                                Support.forceReleaseSession();
+                            }
+                        }
+                    ],
+                    "noCancel": true
+                });
             } else if (error.status === StatusT.StatusSessionNotFound) {
                 Alert.show({
                     "title"     : WKBKTStr.NoOldWKBK,
@@ -141,17 +157,23 @@ window.StartManager = (function(StartManager, $) {
                     "hideButtons": ['copySql']
                 });
             } else {
-                // when it's an error from backend we cannot handle
-                var title;
-                if (error.error != null && error.error.indexOf('Update required') !== -1) {
-                    title = ThriftTStr.UpdateErr;
-                } else if (error.error != null && error.error.indexOf('Connection') !== -1) {
-                    title = ThriftTStr.CCNBEErr;
+                if ($("#alertModal").is(":visible")) {
+                    // in case other please has open alert but code goes here
+                    console.error(error);
+                    console.warn("Alert modal already open");
                 } else {
-                    title = ThriftTStr.SetupErr;
+                   // when it's an error from backend we cannot handle
+                    var title;
+                    if (error.error != null && error.error.indexOf('Update required') !== -1) {
+                        title = ThriftTStr.UpdateErr;
+                    } else if (error.error != null && error.error.indexOf('Connection') !== -1) {
+                        title = ThriftTStr.CCNBEErr;
+                    } else {
+                        title = ThriftTStr.SetupErr;
+                    }
+                    Alert.error(title, error, {"lockScreen": true});
+                    StatusMessage.updateLocation(true, StatusMessageTStr.Error); 
                 }
-                Alert.error(title, error, {"lockScreen": true});
-                StatusMessage.updateLocation(true, StatusMessageTStr.Error);
             }
 
             deferred.reject(error);
