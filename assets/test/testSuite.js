@@ -18,6 +18,7 @@ window.TestSuite = (function($, TestSuite) {
     var startTime = 0;
     var totTime = 0;
     var testCases = [];
+    var startTableId;
 
     // For assert to use
     var curTestNumber;
@@ -382,6 +383,14 @@ window.TestSuite = (function($, TestSuite) {
                 return (checkExists(header));
             })
             .then(function() {
+                var $tableWrap = $(".xcTable .flexWrap.flex-mid input[value='ArrDelay']:eq(0)")
+                                    .closest(".xcTable");
+                if ($tableWrap.length > 1) {
+                    TestSuite.fail(deferred, testName, currentTestNumber,
+                                    "more tha one flight table in worksheet, cannot test");
+                    return;
+                }
+                startTableId = xcHelper.parseTableId($tableWrap);
                 flightTestPart3();
             })
             .fail(function(error) {
@@ -405,7 +414,6 @@ window.TestSuite = (function($, TestSuite) {
                         " input[value='ArrDelay_integer']:eq(0)")
             .then(function() {
                 flightTestPart3_2();
-                // flightTestPart4();
             })
             .fail(function(error) {
                 console.error(error, "flightTestPart3");
@@ -413,7 +421,7 @@ window.TestSuite = (function($, TestSuite) {
             });
         }
 
-        // Add genRand (map to get uniqueNum)
+        // Add genUnique (map to get uniqueNum)
         function flightTestPart3_2() {
             var wsId = WSManager.getOrders()[0];
             var tableId = WSManager.getWSById(wsId).tables[0];
@@ -637,10 +645,10 @@ window.TestSuite = (function($, TestSuite) {
             return (checkExists("#orphanedTableList-search:visible"));
         })
         .then(function() {
-            // move the flight table (the one that has id #XX5)
-            // XXX GUI-3837
+            // move the flight table (the one that has id startTableId + 5)
+            var idCount = parseInt(startTableId.substring(2));
             var $li = $("#orphanedTablesList .tableInfo").filter(function () {
-                return $(this).data("id").endsWith("5");
+                return $(this).data("id").endsWith(idCount + 5);
             });
             if (!$li.find(".tableName").text().startsWith("flight")) {
                 throw "Wrong table";
@@ -722,8 +730,13 @@ window.TestSuite = (function($, TestSuite) {
             var dsId = $grid.data("dsid");
             return (checkExists('#worksheetTable[data-dsid="' + dsId + '"]'));
         }).then(function(){
-            $(".contentViewTable .flexContainer").eq(0).click();
-            $(".contentViewTable .flexContainer").eq(5).click();
+            $("#worksheetTable .header .flexContainer").each(function() {
+                var $ele = $(this);
+                var val = $ele.find(".editableHead").val();
+                if (val === "class_id" || val === "teacher_id") {
+                    $ele.click();
+                }
+            });
             $("#submitDSTablesBtn").click();
             return (checkExists(".xcTable .flexWrap.flex-mid input[value=" +
                                 "'class_id']:eq(0)"));
