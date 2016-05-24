@@ -645,14 +645,13 @@ window.DagPanel = (function($, DagPanel) {
             }
             var tableId = $menu.data('tableId');
             var wsId    = $menu.data('ws');
-            $('#worksheetTab-' + wsId).click();
+            $('#worksheetTab-' + wsId).trigger(fakeEvent.mousedown);
 
             if ($dagPanel.hasClass('full')) {
                 $('#dagPulloutTab').click();
             }
             var $tableWrap = $('#xcTableWrap-' + tableId);
             xcHelper.centerFocusedTable($tableWrap);
-
             $tableWrap.mousedown();
             moveFirstColumn();
         });
