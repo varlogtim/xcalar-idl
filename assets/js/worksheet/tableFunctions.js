@@ -1243,6 +1243,9 @@ function focusTable(tableId, focusDag) {
     if (focusDag) {
         var tableFocused = true;
         Dag.focusDagForActiveTable(null, tableFocused);
+    } else {
+        DagPanel.setScrollBarId($(window).height());
+        DagPanel.adjustScrollBarPositionAndSize();
     }
     $('.dagWrap').addClass('notSelected').removeClass('selected');
     $('#dagWrap-' + tableId).addClass('selected').removeClass('notSelected');

@@ -380,13 +380,6 @@ window.DagPanel = (function($, DagPanel) {
                 return false;
             }
         };
-
-        $dagPanel.find('.dagArea').scroll(function() {
-            if ($('.menu').is(':visible')) {
-                $('.menu').hide();
-                removeMenuKeyboardNavigation();
-            }
-        });
     }
 
     function setupDataFlowBtn() {
@@ -1076,15 +1069,22 @@ window.Dag = (function($, Dag) {
             if (!isDagVisible) {
                 $dag.scrollLeft($dag.find('.dagImage').width());
             }
+            DagPanel.setScrollBarId($(window).height());
+            DagPanel.adjustScrollBarPositionAndSize();
         } else {
             activeTableId = gActiveTableId;
             $dagWrap = $('#dagWrap-' + activeTableId);
             $dag = $dagWrap.find('.dagImageWrap');
+
             if (!$dag.length) {
+                DagPanel.setScrollBarId($(window).height());
+                DagPanel.adjustScrollBarPositionAndSize();
                 return;
             }
             if (tableFocused) {
                 if (checkIfDagWrapVisible($dagWrap)) {
+                    DagPanel.setScrollBarId($(window).height());
+                    DagPanel.adjustScrollBarPositionAndSize();
                     return;
                 }
             }
@@ -1099,6 +1099,8 @@ window.Dag = (function($, Dag) {
             } else {
                 $dagPanel.find('.dagArea').scrollTop(scrollTop + dagTop - 16);
             }
+            DagPanel.setScrollBarId($(window).height());
+            DagPanel.adjustScrollBarPositionAndSize();
         }
     };
 
@@ -1583,11 +1585,16 @@ window.Dag = (function($, Dag) {
         var vertScrolling = false;
         var vertScrollingTimeout;
         $('.dagArea').scroll(function() {
-            if ($('#dagSchema').is(':visible') && scrollPosition > -1) {
-                $(this).scrollTop(scrollPosition);
-                return;
-            }
+
             if (!vertScrolling) {
+                if ($('#dagSchema').is(':visible') && scrollPosition > -1) {
+                    $(this).scrollTop(scrollPosition);
+                    return;
+                }
+                if ($('.menu').is(':visible')) {
+                    $('.menu').hide();
+                    removeMenuKeyboardNavigation();
+                }
                 vertScrolling = true;
                 winHeight = $(window).height();
             }
@@ -1615,6 +1622,10 @@ window.Dag = (function($, Dag) {
                 horzScrolling = true;
                 winHeight = $(window).height();
                 DagPanel.setScrollBarId(winHeight);
+                if ($('.menu').is(':visible')) {
+                    $('.menu').hide();
+                    removeMenuKeyboardNavigation();
+                }
             }
             clearInterval(horzScrollingTimeout);
             horzScrollingTimeout = setTimeout(function() {

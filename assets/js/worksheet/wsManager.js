@@ -883,6 +883,7 @@ window.WSManager = (function($, WSManager) {
         if (notfocusTable || $curActiveTables.length === 0) {
             // no table to focus
             RowScroller.empty();
+            $('#dagScrollBarWrap').hide();
             if ($curActiveTables.length > 0) {
                 $curActiveTables.find('.xcTable').each(function() {
                     matchHeaderSizes($(this));

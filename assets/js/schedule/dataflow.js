@@ -84,7 +84,6 @@ window.DFG = (function($, DFG) {
                     left1 = parseInt($dagTable.css('left')) + dagMidWidth;
                     top2 = parseInt(child.css('top')) + dagMidHeight;
                     left2 = parseInt(child.css('left')) + 10;
-                    // console.log('scheduler panel');
                 } else {
                     top1 = parseInt($dagTable.parent().css('top')) + dagMidHeight;
                     left1 = dagImageWidth -
@@ -92,7 +91,6 @@ window.DFG = (function($, DFG) {
                     top2 = parseInt(child.parent().css('top')) + dagMidHeight;
                     left2 = dagImageWidth -
                             parseInt(child.parent().css('right')) - 42;
-                    // console.log('not scheduler panel');
                 }
 
                 ctx.beginPath();
@@ -140,7 +138,6 @@ window.DFG = (function($, DFG) {
                 y = parseInt($expandIcon.css('top')) + 16;
                 dist = 8;
             }
-            console.log(x, y);
             ctx.moveTo(x, y);
             ctx.lineTo(x - dist, y);
         }
@@ -303,7 +300,6 @@ window.DFG = (function($, DFG) {
                     var retinaNodes = dfg.retinaNodes;
                     for (var dagNodeId in retinaNodes) {
                         var node = retinaNodes[dagNodeId];
-                        console.log(node);
                         promises.push(XcalarUpdateRetina.bind(this, retName,
                                 dagNodeId, node.paramType, node.paramValue));
                     }
