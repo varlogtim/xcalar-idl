@@ -205,7 +205,16 @@ ErrTStr = {
 
     'TablesNotDeleted': 'The following tables were not deleted:',
 
-    'NoTablesDeleted': 'No tables were deleted.'
+    'NoTablesDeleted': 'No tables were deleted.',
+
+    'LargeImgSave': 'Unable To Save Image',
+
+    'LargeImgTab': 'Unable To Open Image',
+
+    'LargeImgText': 'Image exceeds your browser\'s maximum allowable size',
+
+    'QGNoExpand': 'This query graph has reached your browser\'s maximum allowable size.'
+
 };
 
 ErrWRepTStr = {
