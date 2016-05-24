@@ -2345,7 +2345,7 @@ function XcalarUpdatePython(moduleName, pythonStr) {
 
         var thriftError = thriftLog("XcalarUpdatePython", error);
         SQL.errorLog("Update Python", null, null, thriftError);
-        defered.reject(thriftError);
+        deferred.reject(thriftError);
     });
     return (deferred.promise());
 }
@@ -2364,7 +2364,7 @@ function XcalarDeletePython(moduleName) {
     .fail(function(error) {
         var thriftError = thriftLog("XcalarDeletePython", error);
         SQL.errorLog("Delete Python", null, null, thriftError);
-        defered.reject(thriftError);
+        deferred.reject(thriftError);
     });
     return (deferred.promise());
 }
