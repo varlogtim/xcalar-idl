@@ -35,8 +35,7 @@ http://www.tipue.com/search
                     pages: []
                };
                $.ajaxSetup({
-                    async: false
-                    // async: true
+                    async: true
                });
                var tipuesearch_t_c = 0;
 
