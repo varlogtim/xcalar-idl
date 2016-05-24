@@ -356,7 +356,7 @@ window.UDF = (function($, UDF) {
     function uploadUDF(moduleName, entireString, isFnInputSection) {
         moduleName = moduleName.toLowerCase();
 
-        if (moduleName === defaultModule) {
+        if (moduleName === defaultModule && !gUdfDefaultNoCheck) {
             Alert.error(SideBarTStr.UploadError, SideBarTStr.OverwriteErr);
             return PromiseHelper.reject(SideBarTStr.OverwriteErr);
         }
