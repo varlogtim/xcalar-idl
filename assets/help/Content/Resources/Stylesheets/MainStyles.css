@@ -5,7 +5,8 @@ body
 {
 	color: #404040;
 	font-family: "Open Sans", Arial, sans-serif, Avenir, Myriad;
-	line-height: 1.7em;
+	line-height: 1.5em;
+	font-size: 18px;
 }
 
 a.MCBreadcrumbsLink
@@ -36,15 +37,18 @@ h1
 	margin-bottom: 8px;
 	padding-bottom: 10px;
 	margin-top: 30px;
-	font-size: 1.75em;
-	font-weight: 500;
+	font-size: 36px;
+	font-weight: bold;
+	color: #000000;
+	line-height: 42px;
 }
 
 h2
 {
 	margin-bottom: 4px;
 	margin-top: 20px;
-	font-weight: 500;
+	font-weight: bold;
+	color: #000000;
 }
 
 h3
@@ -52,12 +56,14 @@ h3
 	font-size: 1.1em;
 	margin-bottom: 4px;
 	margin-top: 16px;
-	font-weight: 500;
+	font-weight: bold;
+	color: #000000;
 }
 
 h4
 {
-
+	color: #454040;
+	font-weight: bold;
 }
 
 li
@@ -70,7 +76,7 @@ li
 MadCap|breadcrumbsProxy
 {
 	border-bottom: none;
-	font-size: .7em;
+	font-size: .8em;
 	font-style: italic;
 	mc-breadcrumbs-prefix: 'You are here: ';
 }
@@ -92,6 +98,8 @@ p
 	margin-bottom: 8px;
 	margin-top: 8px;
 	font-weight: normal;
+	color: #454040;
+	font-size: 18px;
 }
 
 div.sideContent
@@ -112,6 +120,7 @@ p.userInput
 	margin-bottom: 8px;
 	margin-top: 8px;
 	font-family: 'Courier New';
+	font-weight: bold;
 }
 
 img.BigImage
@@ -137,11 +146,12 @@ p.hashtag	/*Tag keywords for building dictionary for use in in-page help*/
 	margin-top: 8px;
 	font-weight: normal;
 	display: none;
+	color: #ff0000;
 }
 
 span.UIelement
 {
-	font-weight: 500;
+	font-weight: bold;
 }
 
 p.InPageSummary
@@ -150,6 +160,7 @@ p.InPageSummary
 	margin-top: 8px;
 	font-weight: normal;
 	display: none;
+	color: #ff0000;
 }
 
 ul.InPageSummary
@@ -162,14 +173,89 @@ ul
 
 }
 
-/* Xcalar styling */
-// .SearchHighlight {
-// 	background-color: yellow;
-// }
-
-.sideContent .SearchHighlight {
-	background-color: transparent;
+MadCap|dropDownBody
+{
+	border-bottom-color: #00bfff;
+	border-bottom-width: 2px;
+	border-bottom-style: solid;
 }
-span.SearchHighlight {
-    background-color: #ede54b;
+
+th
+{
+	font-weight: bold;
+}
+
+p.Example
+{
+	margin-bottom: 8px;
+	margin-top: 8px;
+	font-weight: normal;
+	color: #454040;
+	font-size: 18px;
+	padding: 14px;
+	mc-auto-number-format: '{b}Example: {/b}';
+	background-color: #b6daf5;
+}
+
+p.CLIoutput
+{
+	font-family: 'Courier New';
+	margin-bottom: 5px;
+	margin-top: 5px;
+}
+
+p.Important
+{
+	margin-bottom: 8px;
+	margin-top: 8px;
+	border-top: solid 2px #6495ed;
+	border-bottom: solid 2px #1e90ff;
+	border-bottom-color: #6495ed;
+	border-top-width: 3px;
+	border-bottom-width: 3px;
+	mc-auto-number-format: '{b}{color blue}IMPORTANT: {/color}{/b}';
+}
+
+p.faqQuestion
+{
+	margin-bottom: 8px;
+	margin-top: 8px;
+	color: #454040;
+	font-size: 18px;
+	font-weight: bold;
+}
+
+p.faqAnswer
+{
+	margin-bottom: 8px;
+	margin-top: 8px;
+	font-weight: normal;
+	color: #454040;
+	font-size: 18px;
+	padding: 14px;
+	background-color: #b6daf5;
+	mc-auto-number-format: '{b}Answer: {/b}';
+}
+
+p.Tip
+{
+	margin-bottom: 8px;
+	margin-top: 8px;
+	font-weight: normal;
+	color: #454040;
+	font-size: 18px;
+	padding: 14px;
+	background-color: #b6daf5;
+	mc-auto-number-format: '{b}TIP: {/b}';
+}
+
+ul.navigation ul
+{
+	border: #000000 1px none;
+	border-radius: 10px;
+}
+
+span.SearchHighlight
+{
+	background-color: #ede54b;
 }

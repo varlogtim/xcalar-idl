@@ -86,9 +86,13 @@
                                             <ul class="sub-menu">
                                                 <li><a href="../C_CommonTasks/CreateTable.htm">Creating a table</a>
                                                 </li>
+                                                <li><a href="../C_CommonTasks/AddColumns.htm">Adding columns from a dataset to a table</a>
+                                                </li>
                                                 <li><a href="../C_CommonTasks/ChangeDataType.htm">Changing the data type for a column</a>
                                                 </li>
-                                                <li><a href="../C_CommonTasks/AddColumns.htm">Adding columns from a dataset to a table</a>
+                                                <li><a href="../C_CommonTasks/ManipulateColumns.htm">Manipulating table columns</a>
+                                                </li>
+                                                <li><a href="../C_CommonTasks/CountOccurrencesOfValues.htm">Counting occurrences of values in a table column</a>
                                                 </li>
                                                 <li><a href="../C_CommonTasks/UndoRedo.htm">Undoing and redoing an operation</a>
                                                 </li>
@@ -98,13 +102,21 @@
                                                 </li>
                                                 <li><a href="../C_CommonTasks/GroupBy.htm">Grouping data in a table</a>
                                                 </li>
+                                                <li><a href="../C_CommonTasks/Map.htm">Using the map function to create new values from selected columns</a>
+                                                </li>
                                             </ul>
                                         </li>
                                         <li class="has-children"><a href="../D_RefInformation/Reference.htm">Reference information</a>
                                             <ul class="sub-menu">
+                                                <li><a href="../D_RefInformation/InsightWindow.htm">The Xcalar Insight window</a>
+                                                </li>
                                                 <li><a href="../D_RefInformation/WkbkBrowser.htm">The Workbook Browser</a>
                                                 </li>
-                                                <li><a href="../D_RefInformation/ColumnOperations.htm">Operations for manipulating values in a column</a>
+                                                <li><a href="../D_RefInformation/WorksheetWindow.htm">The worksheet window with tables</a>
+                                                </li>
+                                                <li><a href="../D_RefInformation/DataBrowser.htm">The Data Browser</a>
+                                                </li>
+                                                <li><a href="../D_RefInformation/QueryGraph.htm">The query graph viewer</a>
                                                 </li>
                                             </ul>
                                         </li>
@@ -192,22 +204,21 @@
                                         <h1>Basic  <span class="GeneralProductName">Xcalar Insight</span> concepts</h1>
                                         <p>This section explains basic concepts you must understand to use <span class="GeneralProductName">Xcalar Insight</span> efficiently.</p>
                                         <h2>Understanding the purpose of <span class="GeneralProductName">Xcalar Insight</span></h2>
-                                        <p><span class="GeneralProductName">Xcalar Insight</span> is a visual tool that enables you to interactively and intuitively design queries and algorithms, and to synthesize schema. The queries generated when you use  <span class="GeneralProductName">Xcalar Insight</span> interactively can be saved and operationalized. Xcalar insight can also be used to schedule operationalized queries.</p>
-                                        <p>The data being queried can be arbitrary data in arbitrary formats. It can reside on any arbitrary data source such as an HDFS, Amazon S3, or local ext4 file system. </p>
-                                        <h2>Understanding workbooks and worksheets</h2>
-                                        <p>You can create workbooks in <span class="GeneralProductName">Xcalar Insight</span>, which can be regarded as files. Within a workbook, you can create as many worksheets as you want. Worksheets in the same workbook usually contain data related to the same project. You can create tables in each worksheet.</p>
+                                        <p><span class="GeneralProductName">Xcalar Insight</span> is an HTML5-based visual tool that enables you to interactively and intuitively design queries and algorithms, and manipulate your data to derive insights. The queries generated when you use  <span class="GeneralProductName">Xcalar Insight</span> interactively can be saved and operationalized. You can also use Xcalar insight to schedule operationalized queries.</p>
+                                        <p>The data being queried can be arbitrary data in arbitrary formats. It can reside on data sources such as an HDFS, Amazon S3, or local ext4 file system. </p>
+                                        <h2><a name="Understa"></a>Understanding workbooks and worksheets</h2>
+                                        <p>You can create workbooks in <span class="GeneralProductName">Xcalar Insight</span>, which can be regarded as files. Within a workbook, you can create as many worksheets as you want. Worksheets in the same workbook usually contain data related to the same project. The worksheet displayed on your screen is the active worksheet.</p>
                                         <p>The relationship between a worksheet and a workbook is similar to the relationship between an Excel worksheet and workbook.</p>
+                                        <p>The following sample screen shows a <span class="UIelement">Worksheet</span> window for a workbook that contains two worksheets.</p>
+                                        <p>
+                                            <img src="../Resources/Images/Insight_screenshots/workbook_worksheet_selection.png" />
+                                        </p>
                                         <h2>Understanding tables</h2>
-                                        <p>You create a table from the dataset that points to a data source. With Xcalar's Data-In-Place architecture, data is pointed to at the source and analyzed without an explicit load or ETL (Extract, Transform and Load) processing. </p>
+                                        <p>Tables originate from a dataset that points to a data source. From each table, you can use various operations to create more tables. With Xcalar's Data-In-Place architecture, data is pointed to at the source and analyzed without any  ETL (Extract, Transform, and Load). </p>
                                         <p>You can manipulate data within a table (for example, by sorting) or you can manipulate multiple tables to create a new table (for example, by joining).&#160;You use table operations to implement an algorithm that you design for deriving meaning from your data.</p>
                                         <h2>Data formats supported</h2>
-                                        <p>Without any user-defined functions (UDFs), you can use <span class="GeneralProductName">Xcalar Insight</span> to point to data in CSV or JSON.</p>
-                                        <p class="Note" data-mc-autonum="&lt;b&gt;&lt;span style=&quot;color: Blue;&quot; class=&quot;mcFormatColor&quot;&gt;NOTE: &lt;/span&gt;&lt;/b&gt;"><span class="autonumber"><span><b><span style="color: Blue;" class="mcFormatColor">NOTE: </span></b></span></span>The CSV format includes not only comma-separated values but also other delimiter-separated values. You can select the delimiter for separating fields and for separating records. The default field delimiter is tab and the default record delimiter is newline (\n).</p>
-                                        <h2>Data encoding supported</h2>
-                                        <p>Unicode is supported for both delimiter-separated values and JSON that is UTF-8 encoded. UTF-16 or other encodings are not supported without UDFs.</p>
-                                        <h2>How to enter a string in <span class="GeneralProductName">Xcalar Insight</span></h2>
-                                        <p>In the <span class="GeneralProductName">Xcalar Insight</span> user interface, when you need to type a string value (for example, when you want to filter out rows containing the string "John"), always surround the string with quote marks. </p>
-                                        <p>If the string contains a backslash (\) for escaping a special character, you must use double quote marks. If the string contains a backslash that should be interpreted as a regular character, you must use single quote marks. Either single or double quote marks can be used if the string contains no backslashes.</p>
+                                        <p><span class="GeneralProductName">Xcalar Insight</span> natively supports CSV, JSON, Excel, and raw text, and can support proprietary formats using UDFs.</p>
+                                        <p class="Note" data-mc-autonum="&lt;b&gt;&lt;span style=&quot;color: Blue;&quot; class=&quot;mcFormatColor&quot;&gt;NOTE: &lt;/span&gt;&lt;/b&gt;"><span class="autonumber"><span><b><span style="color: Blue;" class="mcFormatColor">NOTE: </span></b></span></span>The CSV format includes not only comma-separated values but also other delimiter-separated values. The default field delimiter is tab and the default record delimiter is newline (\n). You can select the delimiter for separating fields and for separating records. </p>
                                         <p class="InPageSummary">To use <span class="GeneralProductName">Xcalar Insight</span> efficiently, you must understand some basic concepts such as the purpose of <span class="GeneralProductName">Xcalar Insight</span>, meanings of workbooks, worksheets, and tables, and what types of data encoding and data formats are supported.</p>
                                         <p class="hashtag">XcalarInsightpurpose</p>
                                         <p class="hashtag">WorkbookAndWorksheet</p>

@@ -86,9 +86,13 @@
                                             <ul class="sub-menu">
                                                 <li><a href="../C_CommonTasks/CreateTable.htm">Creating a table</a>
                                                 </li>
+                                                <li><a href="../C_CommonTasks/AddColumns.htm">Adding columns from a dataset to a table</a>
+                                                </li>
                                                 <li><a href="../C_CommonTasks/ChangeDataType.htm">Changing the data type for a column</a>
                                                 </li>
-                                                <li><a href="../C_CommonTasks/AddColumns.htm">Adding columns from a dataset to a table</a>
+                                                <li><a href="../C_CommonTasks/ManipulateColumns.htm">Manipulating table columns</a>
+                                                </li>
+                                                <li><a href="../C_CommonTasks/CountOccurrencesOfValues.htm">Counting occurrences of values in a table column</a>
                                                 </li>
                                                 <li><a href="../C_CommonTasks/UndoRedo.htm">Undoing and redoing an operation</a>
                                                 </li>
@@ -98,13 +102,21 @@
                                                 </li>
                                                 <li><a href="../C_CommonTasks/GroupBy.htm">Grouping data in a table</a>
                                                 </li>
+                                                <li><a href="../C_CommonTasks/Map.htm">Using the map function to create new values from selected columns</a>
+                                                </li>
                                             </ul>
                                         </li>
                                         <li class="has-children"><a href="../D_RefInformation/Reference.htm">Reference information</a>
                                             <ul class="sub-menu">
+                                                <li><a href="../D_RefInformation/InsightWindow.htm">The Xcalar Insight window</a>
+                                                </li>
                                                 <li><a href="../D_RefInformation/WkbkBrowser.htm">The Workbook Browser</a>
                                                 </li>
-                                                <li><a href="../D_RefInformation/ColumnOperations.htm">Operations for manipulating values in a column</a>
+                                                <li><a href="../D_RefInformation/WorksheetWindow.htm">The worksheet window with tables</a>
+                                                </li>
+                                                <li><a href="../D_RefInformation/DataBrowser.htm">The Data Browser</a>
+                                                </li>
+                                                <li><a href="../D_RefInformation/QueryGraph.htm">The query graph viewer</a>
                                                 </li>
                                             </ul>
                                         </li>
@@ -192,16 +204,25 @@
                                         <h1>Requirements for <span class="GeneralProductName">Xcalar Insight</span></h1>
                                         <p>Before starting Xcalar Insight, make sure that the following requirements are met:</p>
                                         <ul>
-                                            <li value="1">The Xcalar Compute Engine is properly installed.</li>
+                                            <li value="1">
+                                                <p>The <span class="GeneralProductName2">Xcalar Compute Engine</span> is properly installed. To verify, enter the following command on your server:</p>
+                                                <p class="userInput">service xcalar status </p>
+                                                <p>The following messages appear if the <span class="GeneralProductName2">Xcalar Compute Engine</span> is properly installed:</p>
+                                                <p class="CLIoutput">Getting Xcalar Status</p>
+                                                <p class="CLIoutput">Usrnodes started (1 / 1 instances on this host)</p>
+                                                <p class="CLIoutput">1 total usrnode instances configured in the cluster</p>
+                                                <p class="CLIoutput">Mgmtd started</p>
+                                                <p class="CLIoutput">1 childnodes started</p>
+                                            </li>
                                             <li value="2">You use Chrome as a web browser on your computer. Xcalar Insight is not supported on other browsers, and does not run on mobile devices such as tablets or cell phones.</li>
-                                            <li value="3">The databases from which you want to obtain the datasets are accessible to Xcalar Insight through the NFS or HDFS protocol.</li>
+                                            <li value="3">The data sources from which you want to obtain the datasets are accessible to <span class="GeneralProductName">Xcalar Insight</span> through the NFS or HDFS protocol.</li>
                                         </ul>
-                                        <p>The minimum screen resolution for Xcalar Insight is 1024 x 768.</p>
+                                        <p>The minimum recommended screen resolution for Xcalar Insight is 1024 x 768.</p>
                                         <p class="InPageSummary">Before starting Xcalar Insight, make sure that the following requirements are met:</p>
                                         <ul class="InPageSummary">
                                             <li value="1">The Xcalar Compute Engine is properly installed.</li>
                                             <li value="2">You use Chrome as a web browser on your computer. Xcalar Insight is not supported on other browsers, and does not run on mobile devices such as tablets or cell phones.</li>
-                                            <li value="3">The databases from which you want to obtain the datasets are accessible to Xcalar Insight through the NFS or HDFS protocol.</li>
+                                            <li value="3">The databases from which you want to obtain the datasets are accessible to <span class="GeneralProductName">Xcalar Insight</span> through the NFS or HDFS protocol.</li>
                                         </ul>
                                         <p class="InPageSummary">The minimum screen resolution for Xcalar Insight is 1024 x 768.</p>
                                         <p class="hashtag">NFS</p>

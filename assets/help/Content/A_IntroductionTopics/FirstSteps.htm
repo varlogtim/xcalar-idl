@@ -86,9 +86,13 @@
                                             <ul class="sub-menu">
                                                 <li><a href="../C_CommonTasks/CreateTable.htm">Creating a table</a>
                                                 </li>
+                                                <li><a href="../C_CommonTasks/AddColumns.htm">Adding columns from a dataset to a table</a>
+                                                </li>
                                                 <li><a href="../C_CommonTasks/ChangeDataType.htm">Changing the data type for a column</a>
                                                 </li>
-                                                <li><a href="../C_CommonTasks/AddColumns.htm">Adding columns from a dataset to a table</a>
+                                                <li><a href="../C_CommonTasks/ManipulateColumns.htm">Manipulating table columns</a>
+                                                </li>
+                                                <li><a href="../C_CommonTasks/CountOccurrencesOfValues.htm">Counting occurrences of values in a table column</a>
                                                 </li>
                                                 <li><a href="../C_CommonTasks/UndoRedo.htm">Undoing and redoing an operation</a>
                                                 </li>
@@ -98,13 +102,21 @@
                                                 </li>
                                                 <li><a href="../C_CommonTasks/GroupBy.htm">Grouping data in a table</a>
                                                 </li>
+                                                <li><a href="../C_CommonTasks/Map.htm">Using the map function to create new values from selected columns</a>
+                                                </li>
                                             </ul>
                                         </li>
                                         <li class="has-children"><a href="../D_RefInformation/Reference.htm">Reference information</a>
                                             <ul class="sub-menu">
+                                                <li><a href="../D_RefInformation/InsightWindow.htm">The Xcalar Insight window</a>
+                                                </li>
                                                 <li><a href="../D_RefInformation/WkbkBrowser.htm">The Workbook Browser</a>
                                                 </li>
-                                                <li><a href="../D_RefInformation/ColumnOperations.htm">Operations for manipulating values in a column</a>
+                                                <li><a href="../D_RefInformation/WorksheetWindow.htm">The worksheet window with tables</a>
+                                                </li>
+                                                <li><a href="../D_RefInformation/DataBrowser.htm">The Data Browser</a>
+                                                </li>
+                                                <li><a href="../D_RefInformation/QueryGraph.htm">The query graph viewer</a>
                                                 </li>
                                             </ul>
                                         </li>
@@ -190,25 +202,26 @@
                                         <div class="MCBreadcrumbsBox_0"><span class="MCBreadcrumbsPrefix">You are here: </span><a class="MCBreadcrumbsLink" href="Getting Started.htm">Getting started</a><span class="MCBreadcrumbsDivider"> &gt; </span><span class="MCBreadcrumbs">First steps</span>
                                         </div>
                                         <h1>First steps</h1>
-                                        <p>This section describes the steps up to the point where you can start performing database operations in tables presented in a <span class="GeneralProductName">Xcalar Insight</span> workbook. It does not provide detailed information about each screen displayed. </p>
+                                        <p>This section describes the steps up to the point where you can start performing database operations in tables presented in a <span class="GeneralProductName">Xcalar Insight</span> workbook. </p>
                                         <h2>Starting <span class="GeneralProductName">Xcalar Insight</span></h2>
                                         <p>Follow these steps to start <span class="GeneralProductName">Xcalar Insight</span>:</p>
                                         <ol>
                                             <li value="1">
                                                 <p>Point the browser to the location where <span class="GeneralProductName">Xcalar Insight</span> is installed. For example, enter the following URL that represents the location of <span class="GeneralProductName">Xcalar Insight</span>:</p>
-                                                <p class="userInput">http://myxcalar/index.html</p>
+                                                <p class="userInput">http://xcalar.mycompany.com/index.html</p>
                                             </li>
-                                            <li value="2">Log in by using the login name and password given to you by the <span class="GeneralProductName2">Xcalar Compute Engine</span> administrator. If you have never used this login credential to start <span class="GeneralProductName">Xcalar Insight</span> at the same URL, the Workbook Browser modal is displayed. Otherwise, <span class="GeneralProductName">Xcalar Insight</span> resumes where you left off last time you used it.</li>
+                                            <li value="2">Log in by using the login name and password given to you by the <span class="GeneralProductName2">Xcalar Compute Engine</span> administrator. If this is your first login, the <span class="UIelement">Workbook Browser</span> is displayed. Otherwise, <span class="GeneralProductName">Xcalar Insight</span> resumes where you left off last time you used it.</li>
                                         </ol>
                                         <h2><a name="Creating"></a>Creating a workbook as your workspace</h2>
                                         <p>Follow these steps to create a workbook:</p>
                                         <ol>
-                                            <li value="1">In the <span class="UIelement">Workbook Browser</span> modal window, click the New Workbook button.</li>
+                                            <li value="1">In the <span class="UIelement">Workbook Browser</span> modal window, click the <span class="UIelement">New Workbook</span> button.</li>
                                             <li value="2">
-                                                <p>In the <span class="UIelement">New Workbook Name</span> field, type the name of the workbook. Workbook names are case sensitive. There are no restrictions on special characters or length.</p>
+                                                <p>In the <span class="UIelement">New Workbook Name</span> field, type the name of the workbook. Workbook names are case sensitive and must be from 1 to 255 characters. There are no restrictions on special characters.</p>
                                             </li>
                                             <li value="3">Click the <span class="UIelement">CREATE</span> button. After the workbook is created,  it contains one worksheet named Sheet 1. The <span class="UIelement">Worksheet</span> tab is automatically selected, but the worksheet contains no contents until you point to a dataset. </li>
                                         </ol>
+                                        <p>For more information about the <span class="UIelement">Workbook Browser</span>, see <a href="../D_RefInformation/WkbkBrowser.htm" class="MCXref xref">The Workbook Browser</a>.</p>
                                         <h2>Creating a dataset from your data source</h2>
                                         <p>Follow these steps to create a dataset and point to it in your worksheet:</p>
                                         <ol>
@@ -217,30 +230,59 @@
                                                 <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/Insight_screenshots/point-to-new-dataset.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="1140" data-mc-height="528" src="../Resources/Images/Insight_screenshots/point-to-new-dataset_thumb_0_48.png" tabindex="" /></a>
                                                 </p>
                                             </li>
-                                            <li value="2">In the left panel, the IN&#160;heading is automatically selected, indicating that you can bring in data from an existing dataset or a new dataset that you create as described in the next step. The rest of this procedure assumes that you want to create a dataset.</li>
-                                            <li value="3">In the center panel, click BROWSE to navigate to the location of the data source. The data source can be a file or a directory. If you create the dataset from a directory, all files in the directory must be in the same format and have the same schema. The dataset created is a combination of all records from all files in the directory. </li>
-                                            <li value="4">When the <span class="UIelement">Browse Dataset</span> modal window opens, select the dataset and click <span class="UIelement">OPEN&#160;DATASET</span>. The <span class="UIelement">Browse Dataset</span> modal window closes.</li>
-                                            <li value="5">In the center panel , type the name of the dataset. For example, you can name the dataset my_test_dataset1.</li>
+                                            <li value="2">In the left panel, the <span class="UIelement">IN</span>&#160;heading is automatically selected, indicating that you can bring in data from an existing dataset or a new dataset that you create as described in the next step. The rest of this procedure assumes that you want to create a dataset.</li>
+                                            <li value="3">
+                                                <p>In the center panel, click <span class="UIelement">BROWSE</span> to navigate to the location of the data source. The data source can be a file or a directory. If you create the dataset from a directory, the dataset created is a combination of all records from all files in the directory. </p>
+                                                <p class="Important" data-mc-autonum="&lt;b&gt;&lt;span style=&quot;color: Blue;&quot; class=&quot;mcFormatColor&quot;&gt;IMPORTANT: &lt;/span&gt;&lt;/b&gt;"><span class="autonumber"><span><b><span style="color: Blue;" class="mcFormatColor">IMPORTANT: </span></b></span></span>Before creating a dataset from a directory, verify that all files in the directory are in the same format and have the same schema. Otherwise, the result might be unpredictable.</p>
+                                            </li>
+                                            <li value="4">
+                                                <p>When the <span class="UIelement">Browse Dataset</span> modal window opens, select the dataset and click <span class="UIelement">OPEN&#160;DATASET</span>. The <span class="UIelement">Browse Dataset</span> modal window closes.</p>
+                                                <p class="Note" data-mc-autonum="&lt;b&gt;&lt;span style=&quot;color: Blue;&quot; class=&quot;mcFormatColor&quot;&gt;NOTE: &lt;/span&gt;&lt;/b&gt;"><span class="autonumber"><span><b><span style="color: Blue;" class="mcFormatColor">NOTE: </span></b></span></span>Unicode is supported for both delimiter-separated values and JSON that is UTF-8 encoded. UTF-16 or other encoding systems are not supported without UDFs.</p>
+                                            </li>
+                                            <li value="5">
+                                                <p>In the center panel , you can accept the suggested dataset name or type the desired name. The dataset name is case-sensitive. The following list describes the dataset naming rules:</p>
+                                                <ul>
+                                                    <li value="1">Length can be from 1 to 255 characters.</li>
+                                                    <li value="2"> Characters can be A-Z, a-z, 0-9, and underscore (_). </li>
+                                                </ul>
+                                                <p>For example, you can name the dataset my_test_dataset1.</p>
+                                            </li>
                                             <li value="6">
-                                                <p>If the format of the data source is JSON, click <span class="UIelement">POINT&#160;TO&#160;DATA</span>. This is because data in JSON&#160;format cannot be previewed. If the format is CSV, follow these steps to preview  the data and then save the settings in the worksheet:</p>
-                                                <p class="Note" data-mc-autonum="&lt;b&gt;&lt;span style=&quot;color: Blue;&quot; class=&quot;mcFormatColor&quot;&gt;NOTE: &lt;/span&gt;&lt;/b&gt;"><span class="autonumber"><span><b><span style="color: Blue;" class="mcFormatColor">NOTE: </span></b></span></span>While the <span class="UIelement">POINT&#160;TO&#160;DATA</span> button is available for CSV datasets, it is strongly recommended that you follow these steps to create an easy-to-read preview. If you click POINT&#160;TO&#160;DATA, you will not be able to control the column headings for your dataset.</p>
+                                                <p>If the data format is CSV or text, follow these steps to preview  the data and then save the settings in the worksheet. If the format of the data source is not CSV or text (for example, JSON), click <span class="UIelement">POINT&#160;TO&#160;DATA</span>.  (Data not in the CSV or text format cannot  be previewed.)</p>
+                                                <p class="Important" data-mc-autonum="&lt;b&gt;&lt;span style=&quot;color: Blue;&quot; class=&quot;mcFormatColor&quot;&gt;IMPORTANT: &lt;/span&gt;&lt;/b&gt;"><span class="autonumber"><span><b><span style="color: Blue;" class="mcFormatColor">IMPORTANT: </span></b></span></span>If your dataset can be previewed, it is strongly recommended that you follow these steps to create an easy-to-read preview. If you click <span class="UIelement">POINT&#160;TO&#160;DATA</span>, you will not be able to change the column headings for your dataset at a later time.</p>
                                                 <ol style="list-style-type: lower-alpha;">
                                                     <li value="1">Click <span class="UIelement">Preview</span>.  </li>
                                                     <li value="2">
-                                                        <p>In the <span class="UIelement">Preview</span> panel, accept the suggested delimiter or choose another delimiter. For example, click <span class="UIelement">Apply tab</span> as delimiter as shown in the following sample screen:</p>
+                                                        <p>In the <span class="UIelement">Preview</span> panel, accept the suggested delimiter or choose another delimiter. For example, click <span class="UIelement">Apply tab as delimiter</span> as shown in the following sample screen:</p>
                                                         <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/Insight_screenshots/apply-tab-as-delimiter.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="664" data-mc-height="354" src="../Resources/Images/Insight_screenshots/apply-tab-as-delimiter_thumb_0_48.png" tabindex="" /></a>
                                                         </p>
-                                                        <p>If you do not want to use the default character as the delimiter, specify the desired characters. Use the cursor to highlight an occurrence of the characters in the preview. After <span class="GeneralProductName">Xcalar Insight</span> automatically highlights all occurrences, click <span class="UIelement">Apply highlighted characters as delimiter</span>.</p>
+                                                        <p>If you do not want to use the default character as the delimiter, specify the desired characters. Use the cursor to highlight an occurrence of the characters in the preview, and <span class="GeneralProductName">Xcalar Insight</span> will automatically highlight all instances of the selected characters. Click <span class="UIelement">Apply highlighted characters as delimiter</span>.</p>
                                                         <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/Insight_screenshots/highlight-delimiter.png"><img class="MCPopupThumbnail img" data-mc-width="882" data-mc-height="593" src="../Resources/Images/Insight_screenshots/highlight-delimiter_thumb_0_48.png" style="mc-thumbnail: popup;" tabindex="" /></a>
                                                         </p>
                                                         <p>After you apply the delimiter, data appears in a columnar, easy to read format with the appropriate delimiter separating the columns.</p>
                                                     </li>
-                                                    <li value="3">Promote the first row as header. A preview of the dataset formatted for readability is displayed.</li>
+                                                    <li value="3">
+                                                        <p>Promote the first row as header in one of two ways:</p>
+                                                        <ul>
+                                                            <li value="1">Click the <span class="UIelement">Promote first row as header</span> button.</li>
+                                                            <li value="2">Click the Promote Header icon on the left of the first row.</li>
+                                                        </ul>
+                                                        <p class="Note" data-mc-autonum="&lt;b&gt;&lt;span style=&quot;color: Blue;&quot; class=&quot;mcFormatColor&quot;&gt;NOTE: &lt;/span&gt;&lt;/b&gt;"><span class="autonumber"><span><b><span style="color: Blue;" class="mcFormatColor">NOTE: </span></b></span></span>If the dataset points to a directory of files, and each file has its own header row, you might see multiple header rows in the preview. After you save as described in the next step, <span class="GeneralProductName">Xcalar Insight</span> will remove the duplicate headers.</p>
+                                                        <p>A preview of the dataset formatted for readability is displayed.</p>
+                                                    </li>
                                                     <li value="4">Click <span class="UIelement">Save &amp; Exit</span>. </li>
                                                 </ol>
                                             </li>
                                         </ol>
-                                        <p class="InPageSummary">The first steps after starting <span class="GeneralProductName">Xcalar Insight</span> for the first time are creating a workbook and creating a dataset.</p>
+                                        <h2>Further information about navigating various <span class="GeneralProductName">Xcalar Insight</span> windows</h2>
+                                        <p>The following topics provide comprehensive information about navigating various windows:</p>
+                                        <p><a href="../D_RefInformation/WkbkBrowser.htm" class="MCXref xref">The Workbook Browser</a>
+                                        </p>
+                                        <p><a href="../D_RefInformation/WorksheetWindow.htm" class="MCXref xref">The worksheet window with tables</a>
+                                        </p>
+                                        <p><a href="../D_RefInformation/InsightWindow.htm" class="MCXref xref">The Xcalar Insight window</a>
+                                        </p>
+                                        <p class="InPageSummary">The steps after you start <span class="GeneralProductName">Xcalar Insight</span> for the first time are creating a workbook and creating a dataset.</p>
                                         <p class="hashtag">InsightLocation</p>
                                         <p class="hashtag">InsightLogin</p>
                                         <p class="hashtag">WorkbookBrowser</p>
@@ -250,10 +292,14 @@
                                         <p class="hashtag">DataStores</p>
                                         <p class="hashtag">CSV</p>
                                         <p class="hashtag">JSON</p>
+                                        <p class="hashtag">TextFormat</p>
+                                        <p class="hashtag">Text</p>
                                         <p class="hashtag">BrowseDataset</p>
                                         <p class="hashtag">PreviewData</p>
                                         <p class="hashtag">Delimiter</p>
                                         <p class="hashtag">PromoteFirstRow</p>
+                                        <p class="hashtag">WorkbookName</p>
+                                        <p class="hashtag">DatasetName</p>
                                     </div>
                                 </div>
                             </div>

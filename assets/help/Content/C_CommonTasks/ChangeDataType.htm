@@ -86,9 +86,13 @@
                                             <ul class="sub-menu">
                                                 <li><a href="CreateTable.htm">Creating a table</a>
                                                 </li>
+                                                <li><a href="AddColumns.htm">Adding columns from a dataset to a table</a>
+                                                </li>
                                                 <li><a href="#" class="selected">Changing the data type for a column</a>
                                                 </li>
-                                                <li><a href="AddColumns.htm">Adding columns from a dataset to a table</a>
+                                                <li><a href="ManipulateColumns.htm">Manipulating table columns</a>
+                                                </li>
+                                                <li><a href="CountOccurrencesOfValues.htm">Counting occurrences of values in a table column</a>
                                                 </li>
                                                 <li><a href="UndoRedo.htm">Undoing and redoing an operation</a>
                                                 </li>
@@ -98,13 +102,21 @@
                                                 </li>
                                                 <li><a href="GroupBy.htm">Grouping data in a table</a>
                                                 </li>
+                                                <li><a href="Map.htm">Using the map function to create new values from selected columns</a>
+                                                </li>
                                             </ul>
                                         </li>
                                         <li class="has-children"><a href="../D_RefInformation/Reference.htm">Reference information</a>
                                             <ul class="sub-menu">
+                                                <li><a href="../D_RefInformation/InsightWindow.htm">The Xcalar Insight window</a>
+                                                </li>
                                                 <li><a href="../D_RefInformation/WkbkBrowser.htm">The Workbook Browser</a>
                                                 </li>
-                                                <li><a href="../D_RefInformation/ColumnOperations.htm">Operations for manipulating values in a column</a>
+                                                <li><a href="../D_RefInformation/WorksheetWindow.htm">The worksheet window with tables</a>
+                                                </li>
+                                                <li><a href="../D_RefInformation/DataBrowser.htm">The Data Browser</a>
+                                                </li>
+                                                <li><a href="../D_RefInformation/QueryGraph.htm">The query graph viewer</a>
                                                 </li>
                                             </ul>
                                         </li>
@@ -179,9 +191,13 @@
                                                     <ul class="sub-menu">
                                                         <li><a href="CreateTable.htm">Creating a table</a>
                                                         </li>
+                                                        <li><a href="AddColumns.htm">Adding columns from a dataset to a table</a>
+                                                        </li>
                                                         <li><a href="#" class="selected">Changing the data type for a column</a>
                                                         </li>
-                                                        <li><a href="AddColumns.htm">Adding columns from a dataset to a table</a>
+                                                        <li><a href="ManipulateColumns.htm">Manipulating table columns</a>
+                                                        </li>
+                                                        <li><a href="CountOccurrencesOfValues.htm">Counting occurrences of values in a table column</a>
                                                         </li>
                                                         <li><a href="UndoRedo.htm">Undoing and redoing an operation</a>
                                                         </li>
@@ -191,6 +207,8 @@
                                                         </li>
                                                         <li><a href="GroupBy.htm">Grouping data in a table</a>
                                                         </li>
+                                                        <li><a href="Map.htm">Using the map function to create new values from selected columns</a>
+                                                        </li>
                                                     </ul>
                                                 </li>
                                             </ul>
@@ -198,7 +216,18 @@
                                         <div class="MCBreadcrumbsBox_0"><span class="MCBreadcrumbsPrefix">You are here: </span><a class="MCBreadcrumbsLink" href="Tasks.htm">Common tasks</a><span class="MCBreadcrumbsDivider"> &gt; </span><span class="MCBreadcrumbs">Changing the data type for a column</span>
                                         </div>
                                         <h1>Changing the data type for a column</h1>
-                                        <p>By default, the data type for each column is string. You can change the type to Boolean, Integer, or Float.</p>
+                                        <p>A column's data type can be one of the following types:</p>
+                                        <ul>
+                                            <li value="1">Array</li>
+                                            <li value="2">Boolean</li>
+                                            <li value="3">Float</li>
+                                            <li value="4">Integer</li>
+                                            <li value="5">Mixed</li>
+                                            <li value="6">Object</li>
+                                            <li value="7">String</li>
+                                            <li value="8">Unknown</li>
+                                        </ul>
+                                        <p>A column's initial data type is Mixed if there are different types of data in the column. A column's initial data type is Unknown if <span class="GeneralProductName">Xcalar Insight</span> cannot determine the data type or if all the values in the column are null or FNF (field not found).</p>
                                         <h2>Supported integer types and floating point values</h2>
                                         <p> The following integer types are supported:</p>
                                         <ul>
@@ -209,17 +238,31 @@
                                         <h2>Different ways to change the data type</h2>
                                         <p>Right-click the column heading to display a drop-down menu. Then you can use one of the following methods to change the data type:</p>
                                         <ul>
-                                            <li value="1">Select the <span class="UIelement">Change data type</span> option in the column drop-down menu. This method does not create a column.</li>
-                                            <li value="2">Select the <span class="UIelement">Map</span> option in the column drop-down menu. This method keeps the existing column intact and creates a column with the new data type.</li>
+                                            <li value="1">Select the <span class="UIelement">Change data type</span> option in the column drop-down menu. This method does not create a column. </li>
+                                            <li value="2">Select the <span class="UIelement">Map…</span> option in the column drop-down menu. This method keeps the existing column intact and creates a column with the new data type.</li>
                                         </ul>
-                                        <h2>Using the Map function to change the data type</h2>
-                                        <p>After you select the <span class="UIelement">Map</span> option in the column drop-down menu, the <span class="UIelement">Map</span> modal window is diaplayed. Follow these steps to change the data type:</p>
+                                        <h2>Using the map function to change the data type</h2>
+                                        <p>After you select the <span class="UIelement">Map…</span> option in the column drop-down menu, the <span class="UIelement">Map</span> modal window is displayed. </p>
+                                        <div class="MCDropDown MCDropDown_Open dropDown"><span class="MCDropDownHead dropDownHead"><a href="javascript:void(0);" class="MCDropDownHotSpot dropDownHotspot MCDropDownHotSpot_"><img class="MCDropDown_Image_Icon" src="../../Skins/Default/Stylesheets/Images/transparent.gif" height="11" width="16" alt="Closed" data-mc-alt2="Open" />Expand and read the following list that describes the rules and tips for entering information in a modal window launched by a <span class="GeneralProductName">Xcalar Insight</span> function.</a></span>
+                                            <div class="MCDropDownBody dropDownBody">
+                                                <ul>
+                                                    <li value="1">By default, the name of the column from which you start the function is displayed as an argument. If you want to use another column as an argument, you can change the argument to the name of another column.</li>
+                                                    <li value="2">When typing a column name as an argument, always start with the dollar sign ($).</li>
+                                                    <li value="3">If you provide a name for the column created by the function, simply type the column name without the dollar sign ($).</li>
+                                                    <li value="4">To avoid mistakes when typing a column name as an argument, when your insertion point is in the argument field, move the cursor to the active table and click anywhere in the desired column. The column's name is automatically entered in the argument field.</li>
+                                                    <li value="5">You can undo any typing with the undo key or key combination that you normally use in your browser.</li>
+                                                    <li value="6">If the argument list includes check boxes in the <span class="UIelement">Empty</span> column, leave the check boxes unselected unless the argument is an empty string.&#160;Selecting the check box indicates that you indeed want to pass an empty string as an argument to the function.</li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                        <p>Follow these steps to change the data type:</p>
                                         <ol>
                                             <li value="1">In the <span class="UIelement">Category</span> field, select <span class="UIelement">Type-Casting Functions</span>.</li>
-                                            <li value="2">In the Functions field, select the desired data type.</li>
+                                            <li value="2">In the <span class="UIelement">Functions</span> field, select the desired data type.</li>
                                             <li value="3">
-                                                <p>In the Argument list, you can accept the default name or enter a name for the new column that is created with the new data type. </p>
-                                                <p>If the desired data type is integer, you have the option of enter the base. For example, for binary, enter 2 as the base.</p>
+                                                <p>In the <span class="UIelement">Argument</span> list, you can accept the default name or enter a name for the new column that is created with the new data type. </p>
+                                                <p>If the desired data type is integer, you have the option of entering the base. For example, for binary, enter 2 as the base.</p>
+                                                <p class="Note" data-mc-autonum="&lt;b&gt;&lt;span style=&quot;color: Blue;&quot; class=&quot;mcFormatColor&quot;&gt;NOTE: &lt;/span&gt;&lt;/b&gt;"><span class="autonumber"><span><b><span style="color: Blue;" class="mcFormatColor">NOTE: </span></b></span></span>There are two check boxes in the <span class="UIelement">Empty</span> column. When changing the data type of a column, leave the check boxes unselected. These check boxes are for operations that manipulate strings.</p>
                                             </li>
                                             <li value="4">Click <span class="UIelement">Apply</span>. A new column is created with the new data type.</li>
                                         </ol>
@@ -234,6 +277,11 @@
                                         <p class="hashtag">TypeCastingFunctions</p>
                                         <p class="hashtag">IntegerType</p>
                                         <p class="hashtag">FloatingPointValue</p>
+                                        <p class="hashtag">MixedType</p>
+                                        <p class="hashtag">UnknownType</p>
+                                        <p class="hashtag">FNF</p>
+                                        <p class="hashtag">Array</p>
+                                        <p class="hashtag">Object</p>
                                     </div>
                                 </div>
                             </div>

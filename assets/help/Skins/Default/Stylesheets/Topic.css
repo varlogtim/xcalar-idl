@@ -479,7 +479,7 @@ a.glossaryTerm
 div.MCBreadcrumbsBox_0
 {
 	border-bottom: none;
-	font-size: .7em;
+	font-size: .8em;
 	font-style: italic;
 	border-bottom-width: 1px;
 	border-bottom-style: none;
@@ -497,6 +497,47 @@ div.MCBreadcrumbsBox_0
 .xref:hover
 {
 	color: #BED230;
+}
+
+.dropDownHotspot
+{
+	text-decoration: none;
+}
+
+.dropDownHotspot:link
+{
+	text-decoration: none;
+}
+
+.MCDropDownHotSpot_
+{
+	background-position: left;
+}
+
+.MCDropDown_Open .MCDropDownHotSpot_
+{
+	background-image: url('DropDownOpen.gif');
+	padding-left: 1px;
+	padding-right: 0px;
+}
+
+.MCDropDown_Closed .MCDropDownHotSpot_
+{
+	background-image: url('DropDownClosed.gif');
+	padding-left: 0px;
+	padding-right: 0px;
+}
+
+.dropDownHead
+{
+	text-decoration: none;
+}
+
+.dropDownBody
+{
+	border-bottom-color: #00bfff;
+	border-bottom-width: 2px;
+	border-bottom-style: solid;
 }
 
 .MCWebHelpFramesetLink a

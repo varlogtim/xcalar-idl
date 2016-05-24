@@ -86,9 +86,13 @@
                                             <ul class="sub-menu">
                                                 <li><a href="CreateTable.htm">Creating a table</a>
                                                 </li>
+                                                <li><a href="#" class="selected">Adding columns from a dataset to a table</a>
+                                                </li>
                                                 <li><a href="ChangeDataType.htm">Changing the data type for a column</a>
                                                 </li>
-                                                <li><a href="#" class="selected">Adding columns from a dataset to a table</a>
+                                                <li><a href="ManipulateColumns.htm">Manipulating table columns</a>
+                                                </li>
+                                                <li><a href="CountOccurrencesOfValues.htm">Counting occurrences of values in a table column</a>
                                                 </li>
                                                 <li><a href="UndoRedo.htm">Undoing and redoing an operation</a>
                                                 </li>
@@ -98,13 +102,21 @@
                                                 </li>
                                                 <li><a href="GroupBy.htm">Grouping data in a table</a>
                                                 </li>
+                                                <li><a href="Map.htm">Using the map function to create new values from selected columns</a>
+                                                </li>
                                             </ul>
                                         </li>
                                         <li class="has-children"><a href="../D_RefInformation/Reference.htm">Reference information</a>
                                             <ul class="sub-menu">
+                                                <li><a href="../D_RefInformation/InsightWindow.htm">The Xcalar Insight window</a>
+                                                </li>
                                                 <li><a href="../D_RefInformation/WkbkBrowser.htm">The Workbook Browser</a>
                                                 </li>
-                                                <li><a href="../D_RefInformation/ColumnOperations.htm">Operations for manipulating values in a column</a>
+                                                <li><a href="../D_RefInformation/WorksheetWindow.htm">The worksheet window with tables</a>
+                                                </li>
+                                                <li><a href="../D_RefInformation/DataBrowser.htm">The Data Browser</a>
+                                                </li>
+                                                <li><a href="../D_RefInformation/QueryGraph.htm">The query graph viewer</a>
                                                 </li>
                                             </ul>
                                         </li>
@@ -179,9 +191,13 @@
                                                     <ul class="sub-menu">
                                                         <li><a href="CreateTable.htm">Creating a table</a>
                                                         </li>
+                                                        <li><a href="#" class="selected">Adding columns from a dataset to a table</a>
+                                                        </li>
                                                         <li><a href="ChangeDataType.htm">Changing the data type for a column</a>
                                                         </li>
-                                                        <li><a href="#" class="selected">Adding columns from a dataset to a table</a>
+                                                        <li><a href="ManipulateColumns.htm">Manipulating table columns</a>
+                                                        </li>
+                                                        <li><a href="CountOccurrencesOfValues.htm">Counting occurrences of values in a table column</a>
                                                         </li>
                                                         <li><a href="UndoRedo.htm">Undoing and redoing an operation</a>
                                                         </li>
@@ -190,6 +206,8 @@
                                                         <li><a href="JoinTables.htm">Joining tables</a>
                                                         </li>
                                                         <li><a href="GroupBy.htm">Grouping data in a table</a>
+                                                        </li>
+                                                        <li><a href="Map.htm">Using the map function to create new values from selected columns</a>
                                                         </li>
                                                     </ul>
                                                 </li>
@@ -200,11 +218,12 @@
                                         <h1>Adding columns from a dataset to a table</h1>
                                         <p>This section assumes that you have created a table. Follow these steps to add columns to a table:</p>
                                         <ol>
-                                            <li value="1">Open the worksheet containing the table to which you want to add columns.</li>
-                                            <li value="2">In the table, double-click anywhere in the <span class="UIelement">DATA</span>&#160;column to open the <span class="UIelement">Data Browser</span> modal window, which displays  all fields in the dataset.</li>
-                                            <li value="3">Select a field to add to the table in one of the following ways:<ul><li value="1">Search for a field to quickly locate it.</li><li value="2">Click a field name to select it.</li><li value="3">Add all fields to the table.</li></ul><p><img src="../Resources/Images/Insight_screenshots/add-fields-from-data-browser.png" /></p></li>
+                                            <li value="1">Open the worksheet containing the table where you want to add a column.</li>
+                                            <li value="2">In the table, double click any row in the <span class="UIelement">DATA</span>&#160;column to open the <span class="UIelement">Data Browser</span>, which displays  all fields in the dataset.</li>
+                                            <li value="3">Select a field to add to the table in one of the following ways:<ul><li value="1">Search for a field to quickly locate it.</li><li value="2">Click a field name to select it.</li><li value="3">Add all fields to the table. The existing fields in the table are not duplicated. Only the ones that are currently not in the table are added.</li></ul><p><img src="../Resources/Images/Insight_screenshots/add-fields-from-data-browser.png" /></p></li>
                                         </ol>
-                                        <p class="Note" data-mc-autonum="&lt;b&gt;&lt;span style=&quot;color: Blue;&quot; class=&quot;mcFormatColor&quot;&gt;NOTE: &lt;/span&gt;&lt;/b&gt;"><span class="autonumber"><span><b><span style="color: Blue;" class="mcFormatColor">NOTE: </span></b></span></span>If you click a field that is already in a table, the modal window closes and the table is scrolled to the column, which is highlighted.</p>
+                                        <p class="Note" data-mc-autonum="&lt;b&gt;&lt;span style=&quot;color: Blue;&quot; class=&quot;mcFormatColor&quot;&gt;NOTE: &lt;/span&gt;&lt;/b&gt;"><span class="autonumber"><span><b><span style="color: Blue;" class="mcFormatColor">NOTE: </span></b></span></span>If you click a field that is already in a table, the <span class="UIelement">Data Browser</span> closes and the table is scrolled to the column, which is highlighted.</p>
+                                        <p>For more information about the <span class="UIelement">Data Browser</span>, see <a href="../D_RefInformation/DataBrowser.htm" class="MCXref xref">The Data Browser</a>.</p>
                                         <p class="InPageSummary">After you create a table, you can add fields from the dataset to the table. </p>
                                         <p class="hashtag">AddColumnToTable</p>
                                         <p class="hashtag">Add</p>

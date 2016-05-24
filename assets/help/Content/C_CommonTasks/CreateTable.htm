@@ -86,9 +86,13 @@
                                             <ul class="sub-menu">
                                                 <li><a href="#" class="selected">Creating a table</a>
                                                 </li>
+                                                <li><a href="AddColumns.htm">Adding columns from a dataset to a table</a>
+                                                </li>
                                                 <li><a href="ChangeDataType.htm">Changing the data type for a column</a>
                                                 </li>
-                                                <li><a href="AddColumns.htm">Adding columns from a dataset to a table</a>
+                                                <li><a href="ManipulateColumns.htm">Manipulating table columns</a>
+                                                </li>
+                                                <li><a href="CountOccurrencesOfValues.htm">Counting occurrences of values in a table column</a>
                                                 </li>
                                                 <li><a href="UndoRedo.htm">Undoing and redoing an operation</a>
                                                 </li>
@@ -98,13 +102,21 @@
                                                 </li>
                                                 <li><a href="GroupBy.htm">Grouping data in a table</a>
                                                 </li>
+                                                <li><a href="Map.htm">Using the map function to create new values from selected columns</a>
+                                                </li>
                                             </ul>
                                         </li>
                                         <li class="has-children"><a href="../D_RefInformation/Reference.htm">Reference information</a>
                                             <ul class="sub-menu">
+                                                <li><a href="../D_RefInformation/InsightWindow.htm">The Xcalar Insight window</a>
+                                                </li>
                                                 <li><a href="../D_RefInformation/WkbkBrowser.htm">The Workbook Browser</a>
                                                 </li>
-                                                <li><a href="../D_RefInformation/ColumnOperations.htm">Operations for manipulating values in a column</a>
+                                                <li><a href="../D_RefInformation/WorksheetWindow.htm">The worksheet window with tables</a>
+                                                </li>
+                                                <li><a href="../D_RefInformation/DataBrowser.htm">The Data Browser</a>
+                                                </li>
+                                                <li><a href="../D_RefInformation/QueryGraph.htm">The query graph viewer</a>
                                                 </li>
                                             </ul>
                                         </li>
@@ -179,9 +191,13 @@
                                                     <ul class="sub-menu">
                                                         <li><a href="#" class="selected">Creating a table</a>
                                                         </li>
+                                                        <li><a href="AddColumns.htm">Adding columns from a dataset to a table</a>
+                                                        </li>
                                                         <li><a href="ChangeDataType.htm">Changing the data type for a column</a>
                                                         </li>
-                                                        <li><a href="AddColumns.htm">Adding columns from a dataset to a table</a>
+                                                        <li><a href="ManipulateColumns.htm">Manipulating table columns</a>
+                                                        </li>
+                                                        <li><a href="CountOccurrencesOfValues.htm">Counting occurrences of values in a table column</a>
                                                         </li>
                                                         <li><a href="UndoRedo.htm">Undoing and redoing an operation</a>
                                                         </li>
@@ -191,6 +207,8 @@
                                                         </li>
                                                         <li><a href="GroupBy.htm">Grouping data in a table</a>
                                                         </li>
+                                                        <li><a href="Map.htm">Using the map function to create new values from selected columns</a>
+                                                        </li>
                                                     </ul>
                                                 </li>
                                             </ul>
@@ -198,7 +216,8 @@
                                         <div class="MCBreadcrumbsBox_0"><span class="MCBreadcrumbsPrefix">You are here: </span><a class="MCBreadcrumbsLink" href="Tasks.htm">Common tasks</a><span class="MCBreadcrumbsDivider"> &gt; </span><span class="MCBreadcrumbs">Creating a table</span>
                                         </div>
                                         <h1>Creating a table</h1>
-                                        <p>This section assumes that you have created one or multiple datasets.</p>
+                                        <p>This section assumes that you have created one or multiple datasets and you are familiar with pointing to datasets. Also, this section assumes that you are viewing the worksheet where you want to create the table. See <a href="../A_IntroductionTopics/BasicConcepts.htm#Understa" class="MCXref xref">Understanding workbooks and worksheets</a> for information about how to switch between worksheets.</p>
+                                        <p class="Note" data-mc-autonum="&lt;b&gt;&lt;span style=&quot;color: Blue;&quot; class=&quot;mcFormatColor&quot;&gt;NOTE: &lt;/span&gt;&lt;/b&gt;"><span class="autonumber"><span><b><span style="color: Blue;" class="mcFormatColor">NOTE: </span></b></span></span>Tables can be created as a result of table operations.&#160;For example, joining two tables results in a new table.&#160;This section is about creating a table from adding columns from a dataset. </p>
                                         <p>Follow these steps to create a table from the data in a dataset:</p>
                                         <ol>
                                             <li value="1">Select the <span class="UIelement">Data Stores</span> tab.</li>
@@ -212,17 +231,30 @@
                                                 </ul>
                                             </li>
                                             <li value="4">
-                                                <p>(Optional)&#160;In the right panel (<span class="UIelement">DATA&#160;CART</span> panel), edit the table name.</p>
+                                                <p>(Optional) If you want to  create an additional table from another dataset, click another dataset in the left panel. Then repeat step 3. An additional table name is displayed in the right panel (<span class="UIelement">DATA&#160;CART</span> panel).</p>
                                             </li>
                                             <li value="5">
-                                                <p>In the right panel (<span class="UIelement">DATA&#160;CART</span> panel), click <span class="UIelement">SEND&#160;TO&#160;ACTIVE&#160;WORKSHEET</span>.</p>
+                                                <p>(Optional)&#160;In the right panel (<span class="UIelement">DATA&#160;CART</span> panel), edit the table name.</p>
+                                                <div class="MCDropDown MCDropDown_Open dropDown"><span class="MCDropDownHead dropDownHead"><a href="javascript:void(0);" class="MCDropDownHotSpot dropDownHotspot MCDropDownHotSpot_"><img class="MCDropDown_Image_Icon" src="../../Skins/Default/Stylesheets/Images/transparent.gif" height="11" width="16" alt="Closed" data-mc-alt2="Open" />The following list describes the naming conventions for a table:</a></span>
+                                                    <div class="MCDropDownBody dropDownBody">
+                                                        <ul>
+                                                            <li value="1">The name can consist of any alphanumeric characters, space, and special characters except the following characters:<ul style="list-style-type: circle;"><li value="1">asterisk (*)</li><li value="2">hashtag (#)</li></ul></li>
+                                                            <li value="2">The name must not be a duplicate of an existing table name.</li>
+                                                            <li value="3">It must consist of 1 to 255 characters.</li>
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                            </li>
+                                            <li value="6">
+                                                <p>In the right panel (<span class="UIelement">DATA&#160;CART</span> panel), click <span class="UIelement">SEND&#160;TO&#160;ACTIVE&#160;WORKSHEET</span>. All tables shown in the data cart are sent to the same worksheet.</p>
                                             </li>
                                         </ol>
                                         <p>The following sample screen shows the center and right panels.</p>
                                         <p>
                                             <img src="../Resources/Images/Insight_screenshots/create-table-from-dataset.png" />
                                         </p>
-                                        <p class="InPageSummary">From your dataset, you can create one or multiple tables by selecting the fields in the dataset and sending them to a worksheet.</p>
+                                        <p>For more information about the worksheet window after you create a table, see <a href="../D_RefInformation/WorksheetWindow.htm" class="MCXref xref">The worksheet window with tables</a>. You are now ready for manipulating the data or starting queries by using the various functions in <span class="GeneralProductName">Xcalar Insight</span>.</p>
+                                        <p class="InPageSummary">From your datasets, you can create one or multiple tables by selecting the fields in each dataset. You can then send the tables to a worksheet.</p>
                                         <p class="hashtag">CreateTable</p>
                                         <p class="hashtag">Create</p>
                                         <p class="hashtag">Table</p>
@@ -234,6 +266,8 @@
                                         <p class="hashtag">DeselectTableColumn</p>
                                         <p class="hashtag">Deselect</p>
                                         <p class="hashtag">SendTableToWorksheet</p>
+                                        <p class="hashtag">TableName</p>
+                                        <p class="hashtag">EditTableName</p>
                                     </div>
                                 </div>
                             </div>

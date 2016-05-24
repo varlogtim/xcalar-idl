@@ -86,9 +86,13 @@
                                             <ul class="sub-menu">
                                                 <li><a href="CreateTable.htm">Creating a table</a>
                                                 </li>
+                                                <li><a href="AddColumns.htm">Adding columns from a dataset to a table</a>
+                                                </li>
                                                 <li><a href="ChangeDataType.htm">Changing the data type for a column</a>
                                                 </li>
-                                                <li><a href="AddColumns.htm">Adding columns from a dataset to a table</a>
+                                                <li><a href="ManipulateColumns.htm">Manipulating table columns</a>
+                                                </li>
+                                                <li><a href="CountOccurrencesOfValues.htm">Counting occurrences of values in a table column</a>
                                                 </li>
                                                 <li><a href="UndoRedo.htm">Undoing and redoing an operation</a>
                                                 </li>
@@ -98,13 +102,21 @@
                                                 </li>
                                                 <li><a href="#" class="selected">Grouping data in a table</a>
                                                 </li>
+                                                <li><a href="Map.htm">Using the map function to create new values from selected columns</a>
+                                                </li>
                                             </ul>
                                         </li>
                                         <li class="has-children"><a href="../D_RefInformation/Reference.htm">Reference information</a>
                                             <ul class="sub-menu">
+                                                <li><a href="../D_RefInformation/InsightWindow.htm">The Xcalar Insight window</a>
+                                                </li>
                                                 <li><a href="../D_RefInformation/WkbkBrowser.htm">The Workbook Browser</a>
                                                 </li>
-                                                <li><a href="../D_RefInformation/ColumnOperations.htm">Operations for manipulating values in a column</a>
+                                                <li><a href="../D_RefInformation/WorksheetWindow.htm">The worksheet window with tables</a>
+                                                </li>
+                                                <li><a href="../D_RefInformation/DataBrowser.htm">The Data Browser</a>
+                                                </li>
+                                                <li><a href="../D_RefInformation/QueryGraph.htm">The query graph viewer</a>
                                                 </li>
                                             </ul>
                                         </li>
@@ -179,9 +191,13 @@
                                                     <ul class="sub-menu">
                                                         <li><a href="CreateTable.htm">Creating a table</a>
                                                         </li>
+                                                        <li><a href="AddColumns.htm">Adding columns from a dataset to a table</a>
+                                                        </li>
                                                         <li><a href="ChangeDataType.htm">Changing the data type for a column</a>
                                                         </li>
-                                                        <li><a href="AddColumns.htm">Adding columns from a dataset to a table</a>
+                                                        <li><a href="ManipulateColumns.htm">Manipulating table columns</a>
+                                                        </li>
+                                                        <li><a href="CountOccurrencesOfValues.htm">Counting occurrences of values in a table column</a>
                                                         </li>
                                                         <li><a href="UndoRedo.htm">Undoing and redoing an operation</a>
                                                         </li>
@@ -191,6 +207,8 @@
                                                         </li>
                                                         <li><a href="#" class="selected">Grouping data in a table</a>
                                                         </li>
+                                                        <li><a href="Map.htm">Using the map function to create new values from selected columns</a>
+                                                        </li>
                                                     </ul>
                                                 </li>
                                             </ul>
@@ -198,11 +216,69 @@
                                         <div class="MCBreadcrumbsBox_0"><span class="MCBreadcrumbsPrefix">You are here: </span><a class="MCBreadcrumbsLink" href="Tasks.htm">Common tasks</a><span class="MCBreadcrumbsDivider"> &gt; </span><span class="MCBreadcrumbs">Grouping data in a table</span>
                                         </div>
                                         <h1>Grouping data in a table</h1>
-                                        <p>You can use the Group By function on a table column in a similar way as you would use the Group By clause in SQL. </p>
-                                        <p class="InPageSummary">You can use the Group By function on a table column in a similar way as you would use the Group By clause in SQL.</p>
+                                        <p>You can use the Group By function  in a similar way as you would with the Group By clause in SQL. </p>
+                                        <h2>Aggregate functions supported</h2>
+                                        <p>The following aggregate functions are supported:</p>
+                                        <ul>
+                                            <li value="1">Average</li>
+                                            <li value="2">Count</li>
+                                            <li value="3">List aggregate</li>
+                                            <li value="4">Maximum</li>
+                                            <li value="5">Maximum integer</li>
+                                            <li value="6">Minimum</li>
+                                            <li value="7">Minimum integer</li>
+                                            <li value="8">Sum</li>
+                                            <li value="9">Sum integer</li>
+                                        </ul>
+                                        <h2>Grouping data by columns</h2>
+                                        <p>Follow these steps to group data by one or multiple columns:</p>
+                                        <ol>
+                                            <li value="1">
+                                                <p>Right click the header of the column that you want to group by to display the drop-down menu. Then select <span class="UIelement">Group By…</span>.</p>
+                                                <div class="MCDropDown MCDropDown_Open dropDown"><span class="MCDropDownHead dropDownHead"><a href="javascript:void(0);" class="MCDropDownHotSpot dropDownHotspot MCDropDownHotSpot_"><img class="MCDropDown_Image_Icon" src="../../Skins/Default/Stylesheets/Images/transparent.gif" height="11" width="16" alt="Closed" data-mc-alt2="Open" />Expand and read the following list that describes the rules and tips for entering information in a modal window launched by a <span class="GeneralProductName">Xcalar Insight</span> function.</a></span>
+                                                    <div class="MCDropDownBody dropDownBody">
+                                                        <ul>
+                                                            <li value="1">By default, the name of the column from which you start the function is displayed as an argument. If you want to use another column as an argument, you can change the argument to the name of another column.</li>
+                                                            <li value="2">When typing a column name as an argument, always start with the dollar sign ($).</li>
+                                                            <li value="3">If you provide a name for the column created by the function, simply type the column name without the dollar sign ($).</li>
+                                                            <li value="4">To avoid mistakes when typing a column name as an argument, when your insertion point is in the argument field, move the cursor to the active table and click anywhere in the desired column. The column's name is automatically entered in the argument field.</li>
+                                                            <li value="5">You can undo any typing with the undo key or key combination that you normally use in your browser.</li>
+                                                            <li value="6">If the argument list includes check boxes in the <span class="UIelement">Empty</span> column, leave the check boxes unselected unless the argument is an empty string.&#160;Selecting the check box indicates that you indeed want to pass an empty string as an argument to the function.</li>
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                            </li>
+                                            <li value="2">
+                                                <p>In the <span class="UIelement">Group By…</span> modal window, follow these steps:</p>
+                                                <ol style="list-style-type: lower-alpha;">
+                                                    <li value="1">Select the aggregate function from the <span class="UIelement">Function</span> drop-down menu.</li>
+                                                    <li value="2">In the <span class="UIelement">Argument List</span>, enter the name of the column for which you want to perform the aggregate function.</li>
+                                                    <li value="3">In the <span class="UIelement">Argument List</span>, enter the name of the column to group by. You can enter multiple column names.</li>
+                                                    <li value="4">
+                                                        <p>If you group by one column, you can select <span class="UIelement">Include Sample</span> to include other columns not aggregated in the newly created table. Otherwise, the new table contains only the new column resulting from the aggregate function and the columns you group by. </p>
+                                                        <p>If you group by multiple columns, you cannot select <span class="UIelement">Include Sample</span>.</p>
+                                                    </li>
+                                                    <li value="5">
+                                                        <p>Accept the suggested name for the new column or type the desired name.</p>
+                                                    </li>
+                                                </ol>
+                                            </li>
+                                            <li value="3">Click <span class="UIelement">Apply</span>.</li>
+                                        </ol>
+                                        <p class="InPageSummary">You can use the Group By function on a table column in a similar way as you would with the Group By clause in SQL.</p>
                                         <p class="hashtag">GroupByFunction</p>
                                         <p class="hashtag">GroupBy</p>
                                         <p class="hashtag">GroupingData</p>
+                                        <p class="hashtag">GroupByMultipleColumns</p>
+                                        <p class="hashtag">GroupByAvg</p>
+                                        <p class="hashtag">GroupByCount</p>
+                                        <p class="hashtag">GroupByListAgg</p>
+                                        <p class="hashtag">GroupByMax</p>
+                                        <p class="hashtag">GroupByMaxInteger</p>
+                                        <p class="hashtag">GroupByMin</p>
+                                        <p class="hashtag">GroupByMinIngeger</p>
+                                        <p class="hashtag">GroupBySum</p>
+                                        <p class="hashtag">GroupBySumInteger</p>
                                     </div>
                                 </div>
                             </div>

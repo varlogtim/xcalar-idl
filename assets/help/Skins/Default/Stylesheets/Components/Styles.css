@@ -248,67 +248,67 @@ ul.menu li > a.selected
 
 ul.menu._Skins_SideMenu.mc-component li > a:hover
 {
-	color: #0000ff;
-	background: #f0ffff;
-	background: -moz-linear-gradient(top, #f0ffff 0%, #f0ffff 100%);
-	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#f0ffff), color-stop(100%,#f0ffff));
-	background: -webkit-linear-gradient(top, #f0ffff 0%, #f0ffff 100%);
-	background: -o-linear-gradient(top, #f0ffff 0%,#f0ffff 100%);
-	background: -ms-linear-gradient(top, #f0ffff 0%,#f0ffff 100%);
-	background: linear-gradient(top, #f0ffff 0%,#f0ffff 100%);
-	-pie-background: linear-gradient(#f0ffff, #f0ffff);
+	color: #5eb2e0;
+	background: #d8d8d8;
+	background: -moz-linear-gradient(top, #d8d8d8 0%, #d8d8d8 100%);
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#d8d8d8), color-stop(100%,#d8d8d8));
+	background: -webkit-linear-gradient(top, #d8d8d8 0%, #d8d8d8 100%);
+	background: -o-linear-gradient(top, #d8d8d8 0%,#d8d8d8 100%);
+	background: -ms-linear-gradient(top, #d8d8d8 0%,#d8d8d8 100%);
+	background: linear-gradient(top, #d8d8d8 0%,#d8d8d8 100%);
+	-pie-background: linear-gradient(#d8d8d8, #d8d8d8);
 }
 
 ul.menu._Skins_SideMenu.mc-component ul > li > a:hover
 {
 	background-repeat: repeat;
-	background: #f0ffff;
-	background: -moz-linear-gradient(top, #f0ffff 0%, #f0ffff 100%);
-	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#f0ffff), color-stop(100%,#f0ffff));
-	background: -webkit-linear-gradient(top, #f0ffff 0%, #f0ffff 100%);
-	background: -o-linear-gradient(top, #f0ffff 0%,#f0ffff 100%);
-	background: -ms-linear-gradient(top, #f0ffff 0%,#f0ffff 100%);
-	background: linear-gradient(top, #f0ffff 0%,#f0ffff 100%);
-	-pie-background: linear-gradient(#f0ffff, #f0ffff);
+	background: #d8d8d8;
+	background: -moz-linear-gradient(top, #d8d8d8 0%, #d8d8d8 100%);
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#d8d8d8), color-stop(100%,#d8d8d8));
+	background: -webkit-linear-gradient(top, #d8d8d8 0%, #d8d8d8 100%);
+	background: -o-linear-gradient(top, #d8d8d8 0%,#d8d8d8 100%);
+	background: -ms-linear-gradient(top, #d8d8d8 0%,#d8d8d8 100%);
+	background: linear-gradient(top, #d8d8d8 0%,#d8d8d8 100%);
+	-pie-background: linear-gradient(#d8d8d8, #d8d8d8);
 }
 
 ul.menu._Skins_SideMenu.mc-component ul ul > li > a:hover
 {
 	background-repeat: repeat;
-	background: #f0ffff;
-	background: -moz-linear-gradient(top, #f0ffff 0%, #f0ffff 100%);
-	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#f0ffff), color-stop(100%,#f0ffff));
-	background: -webkit-linear-gradient(top, #f0ffff 0%, #f0ffff 100%);
-	background: -o-linear-gradient(top, #f0ffff 0%,#f0ffff 100%);
-	background: -ms-linear-gradient(top, #f0ffff 0%,#f0ffff 100%);
-	background: linear-gradient(top, #f0ffff 0%,#f0ffff 100%);
-	-pie-background: linear-gradient(#f0ffff, #f0ffff);
+	background: #d8d8d8;
+	background: -moz-linear-gradient(top, #d8d8d8 0%, #d8d8d8 100%);
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#d8d8d8), color-stop(100%,#d8d8d8));
+	background: -webkit-linear-gradient(top, #d8d8d8 0%, #d8d8d8 100%);
+	background: -o-linear-gradient(top, #d8d8d8 0%,#d8d8d8 100%);
+	background: -ms-linear-gradient(top, #d8d8d8 0%,#d8d8d8 100%);
+	background: linear-gradient(top, #d8d8d8 0%,#d8d8d8 100%);
+	-pie-background: linear-gradient(#d8d8d8, #d8d8d8);
 }
 
 ul.menu._Skins_SideMenu.mc-component ul ul ul > li > a:hover
 {
 	background-repeat: repeat;
-	background: #f0ffff;
-	background: -moz-linear-gradient(top, #f0ffff 0%, #f0ffff 100%);
-	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#f0ffff), color-stop(100%,#f0ffff));
-	background: -webkit-linear-gradient(top, #f0ffff 0%, #f0ffff 100%);
-	background: -o-linear-gradient(top, #f0ffff 0%,#f0ffff 100%);
-	background: -ms-linear-gradient(top, #f0ffff 0%,#f0ffff 100%);
-	background: linear-gradient(top, #f0ffff 0%,#f0ffff 100%);
-	-pie-background: linear-gradient(#f0ffff, #f0ffff);
+	background: #d8d8d8;
+	background: -moz-linear-gradient(top, #d8d8d8 0%, #d8d8d8 100%);
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#d8d8d8), color-stop(100%,#d8d8d8));
+	background: -webkit-linear-gradient(top, #d8d8d8 0%, #d8d8d8 100%);
+	background: -o-linear-gradient(top, #d8d8d8 0%,#d8d8d8 100%);
+	background: -ms-linear-gradient(top, #d8d8d8 0%,#d8d8d8 100%);
+	background: linear-gradient(top, #d8d8d8 0%,#d8d8d8 100%);
+	-pie-background: linear-gradient(#d8d8d8, #d8d8d8);
 }
 
 ul.menu._Skins_SideMenu.mc-component ul ul ul ul > li > a:hover
 {
 	background-repeat: repeat;
-	background: #f0ffff;
-	background: -moz-linear-gradient(top, #f0ffff 0%, #f0ffff 100%);
-	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#f0ffff), color-stop(100%,#f0ffff));
-	background: -webkit-linear-gradient(top, #f0ffff 0%, #f0ffff 100%);
-	background: -o-linear-gradient(top, #f0ffff 0%,#f0ffff 100%);
-	background: -ms-linear-gradient(top, #f0ffff 0%,#f0ffff 100%);
-	background: linear-gradient(top, #f0ffff 0%,#f0ffff 100%);
-	-pie-background: linear-gradient(#f0ffff, #f0ffff);
+	background: #d8d8d8;
+	background: -moz-linear-gradient(top, #d8d8d8 0%, #d8d8d8 100%);
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#d8d8d8), color-stop(100%,#d8d8d8));
+	background: -webkit-linear-gradient(top, #d8d8d8 0%, #d8d8d8 100%);
+	background: -o-linear-gradient(top, #d8d8d8 0%,#d8d8d8 100%);
+	background: -ms-linear-gradient(top, #d8d8d8 0%,#d8d8d8 100%);
+	background: linear-gradient(top, #d8d8d8 0%,#d8d8d8 100%);
+	-pie-background: linear-gradient(#d8d8d8, #d8d8d8);
 }
 
 #resultList.communitySearch .title
@@ -616,11 +616,20 @@ a.activityText:visited
 
 ul.menu._Skins_SideMenu.mc-component
 {
-	color: #000000;
-	font-size: 1em;
+	color: #312c2d;
+	font-family: 'Open Sans Semibold';
+	font-size: 16px;
 	font-weight: normal;
 	font-style: normal;
 	line-height: 1em;
+	border-top: solid 1px #979797;
+	border-right: solid 1px #979797;
+	border-bottom: solid 1px #979797;
+	border-left: solid 1px #979797;
+	border-top-left-radius: 10px;
+	border-top-right-radius: 10px;
+	border-bottom-right-radius: 10px;
+	border-bottom-left-radius: 10px;
 	margin-left: 0px;
 	margin-right: 0px;
 	margin-top: 0px;
@@ -631,20 +640,28 @@ ul.menu._Skins_SideMenu.mc-component
 	padding-bottom: 10px;
 	width: 100%;
 	height: 100%;
-	background-color: #696969;
+	background: #f2f2f2;
+	background: -moz-linear-gradient(top, #f2f2f2 0%, #f2f2f2 100%);
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#f2f2f2), color-stop(100%,#f2f2f2));
+	background: -webkit-linear-gradient(top, #f2f2f2 0%, #f2f2f2 100%);
+	background: -o-linear-gradient(top, #f2f2f2 0%,#f2f2f2 100%);
+	background: -ms-linear-gradient(top, #f2f2f2 0%,#f2f2f2 100%);
+	background: linear-gradient(top, #f2f2f2 0%,#f2f2f2 100%);
+	-pie-background: linear-gradient(#f2f2f2, #f2f2f2);
 }
 
 ul.menu._Skins_SideMenu.mc-component a
 {
-	color: #000000;
-	font-size: 1em;
+	color: #312c2d;
+	font-family: 'Open Sans Semibold';
+	font-size: 16px;
 	font-weight: normal;
 	font-style: normal;
 }
 
 ul.menu._Skins_SideMenu.mc-component li > a
 {
-	color: #ffffff;
+	color: #312d2c;
 	margin-left: 0px;
 	margin-right: 0px;
 	margin-top: 0px;
@@ -653,15 +670,31 @@ ul.menu._Skins_SideMenu.mc-component li > a
 	padding-right: 0px;
 	padding-top: 4px;
 	padding-bottom: 4px;
-	background-color: transparent;
+	background: f2f2f2;
+	background: -moz-linear-gradient(top, #f2f2f2 0%, #f2f2f2 100%);
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#f2f2f2), color-stop(100%,#f2f2f2));
+	background: -webkit-linear-gradient(top, #f2f2f2 0%, #f2f2f2 100%);
+	background: -o-linear-gradient(top, #f2f2f2 0%,#f2f2f2 100%);
+	background: -ms-linear-gradient(top, #f2f2f2 0%,#f2f2f2 100%);
+	background: linear-gradient(top, #f2f2f2 0%,#f2f2f2 100%);
+	-pie-background: linear-gradient(#f2f2f2, #f2f2f2);
 }
 
 ul.menu._Skins_SideMenu.mc-component ul > li > a
 {
-	padding-left: 20px;
-	padding-top: 6px;
+	line-height: 1.25em;
+	padding-left: 30px;
+	padding-right: 30px;
+	padding-top: 18px;
 	padding-bottom: 6px;
-	background-color: transparent;
+	background: f2f2f2;
+	background: -moz-linear-gradient(top, #f2f2f2 0%, #f2f2f2 100%);
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#f2f2f2), color-stop(100%,#f2f2f2));
+	background: -webkit-linear-gradient(top, #f2f2f2 0%, #f2f2f2 100%);
+	background: -o-linear-gradient(top, #f2f2f2 0%,#f2f2f2 100%);
+	background: -ms-linear-gradient(top, #f2f2f2 0%,#f2f2f2 100%);
+	background: linear-gradient(top, #f2f2f2 0%,#f2f2f2 100%);
+	-pie-background: linear-gradient(#f2f2f2, #f2f2f2);
 }
 
 ul.menu._Skins_SideMenu.mc-component ul ul > li > a
@@ -669,7 +702,14 @@ ul.menu._Skins_SideMenu.mc-component ul ul > li > a
 	padding-left: 40px;
 	padding-top: 2px;
 	padding-bottom: 2px;
-	background-color: transparent;
+	background: f2f2f2;
+	background: -moz-linear-gradient(top, #f2f2f2 0%, #f2f2f2 100%);
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#f2f2f2), color-stop(100%,#f2f2f2));
+	background: -webkit-linear-gradient(top, #f2f2f2 0%, #f2f2f2 100%);
+	background: -o-linear-gradient(top, #f2f2f2 0%,#f2f2f2 100%);
+	background: -ms-linear-gradient(top, #f2f2f2 0%,#f2f2f2 100%);
+	background: linear-gradient(top, #f2f2f2 0%,#f2f2f2 100%);
+	-pie-background: linear-gradient(#f2f2f2, #f2f2f2);
 }
 
 ul.menu._Skins_SideMenu.mc-component ul ul ul > li > a
@@ -677,7 +717,14 @@ ul.menu._Skins_SideMenu.mc-component ul ul ul > li > a
 	padding-left: 60px;
 	padding-top: 2px;
 	padding-bottom: 2px;
-	background-color: transparent;
+	background: f2f2f2;
+	background: -moz-linear-gradient(top, #f2f2f2 0%, #f2f2f2 100%);
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#f2f2f2), color-stop(100%,#f2f2f2));
+	background: -webkit-linear-gradient(top, #f2f2f2 0%, #f2f2f2 100%);
+	background: -o-linear-gradient(top, #f2f2f2 0%,#f2f2f2 100%);
+	background: -ms-linear-gradient(top, #f2f2f2 0%,#f2f2f2 100%);
+	background: linear-gradient(top, #f2f2f2 0%,#f2f2f2 100%);
+	-pie-background: linear-gradient(#f2f2f2, #f2f2f2);
 }
 
 ul.menu._Skins_SideMenu.mc-component ul ul ul ul > li > a
@@ -685,26 +732,40 @@ ul.menu._Skins_SideMenu.mc-component ul ul ul ul > li > a
 	padding-left: 80px;
 	padding-top: 2px;
 	padding-bottom: 2px;
-	background-color: transparent;
+	background: f2f2f2;
+	background: -moz-linear-gradient(top, #f2f2f2 0%, #f2f2f2 100%);
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#f2f2f2), color-stop(100%,#f2f2f2));
+	background: -webkit-linear-gradient(top, #f2f2f2 0%, #f2f2f2 100%);
+	background: -o-linear-gradient(top, #f2f2f2 0%,#f2f2f2 100%);
+	background: -ms-linear-gradient(top, #f2f2f2 0%,#f2f2f2 100%);
+	background: linear-gradient(top, #f2f2f2 0%,#f2f2f2 100%);
+	-pie-background: linear-gradient(#f2f2f2, #f2f2f2);
 }
 
 ul.menu._Skins_SideMenu.mc-component li > a.selected
 {
-	color: #5cb2e8;
+	color: #312d2c;
 	font-weight: normal;
-	background-color: transparent;
+	background: transparent;
+	background: -moz-linear-gradient(top, transparent 0%, transparent 100%);
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,transparent), color-stop(100%,transparent));
+	background: -webkit-linear-gradient(top, transparent 0%, transparent 100%);
+	background: -o-linear-gradient(top, transparent 0%,transparent 100%);
+	background: -ms-linear-gradient(top, transparent 0%,transparent 100%);
+	background: linear-gradient(top, transparent 0%,transparent 100%);
+	-pie-background: linear-gradient(transparent, transparent);
 }
 
 ul.menu._Skins_SideMenu.mc-component li > a.selected:hover
 {
 	font-weight: bold;
-	background: #f0ffff;
-	background: -moz-linear-gradient(top, #f0ffff 0%, #f0ffff 100%);
-	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#f0ffff), color-stop(100%,#f0ffff));
-	background: -webkit-linear-gradient(top, #f0ffff 0%, #f0ffff 100%);
-	background: -o-linear-gradient(top, #f0ffff 0%,#f0ffff 100%);
-	background: -ms-linear-gradient(top, #f0ffff 0%,#f0ffff 100%);
-	background: linear-gradient(top, #f0ffff 0%,#f0ffff 100%);
-	-pie-background: linear-gradient(#f0ffff, #f0ffff);
+	background: #d8d8d8;
+	background: -moz-linear-gradient(top, #d8d8d8 0%, #d8d8d8 100%);
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#d8d8d8), color-stop(100%,#d8d8d8));
+	background: -webkit-linear-gradient(top, #d8d8d8 0%, #d8d8d8 100%);
+	background: -o-linear-gradient(top, #d8d8d8 0%,#d8d8d8 100%);
+	background: -ms-linear-gradient(top, #d8d8d8 0%,#d8d8d8 100%);
+	background: linear-gradient(top, #d8d8d8 0%,#d8d8d8 100%);
+	-pie-background: linear-gradient(#d8d8d8, #d8d8d8);
 }
 

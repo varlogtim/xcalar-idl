@@ -20,13 +20,15 @@ h1
 {
 	line-height: 30pt;
 	font-weight: bold;
-	font-size: 2.75em;
+	color: #454040;
+	font-size: 36px;
 }
 
 h2
 {
 	font-size: 1.5em;
 	font-weight: bold;
+	color: #454040;
 }
 
 h2.SubCenter
@@ -44,8 +46,8 @@ p
 {
 	margin-bottom: 8px;
 	margin-top: 8px;
-	color: #000000;
 	font-weight: normal;
+	color: #454040;
 }
 
 p.Copyright
@@ -221,9 +223,9 @@ div.topichero h2
 
 div.footer
 {
-	background-color: #292928;
-	padding-top: 40px;
 	padding-bottom: 20px;
+	padding-top: 20px;
+	background-color: #36454e;
 }
 
 div.footer a
@@ -542,6 +544,7 @@ div.HomeMasterPageFooter > div:nth-child(3)
 h3
 {
 	font-weight: 600;
+	color: #454040;
 }
 
 ul
@@ -552,6 +555,18 @@ ul
 li
 {
 	font-weight: normal;
+	color: #454040;
+}
+
+h4
+{
+	font-weight: bold;
+	color: #454040;
+}
+
+span.SearchHighlight
+{
+	background-color: #ede54b;
 }
 
 /* Medium Layout */
@@ -759,5 +774,11 @@ li
 div.main-text-section	/*This is for the body text on the home page.*/
 {
 	width: 12in;
+}
+
+ul.navigation ul
+{
+	border: #000000 1px none;
+	border-radius: 10px;
 }
 

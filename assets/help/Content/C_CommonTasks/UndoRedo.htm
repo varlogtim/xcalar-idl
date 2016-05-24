@@ -86,9 +86,13 @@
                                             <ul class="sub-menu">
                                                 <li><a href="CreateTable.htm">Creating a table</a>
                                                 </li>
+                                                <li><a href="AddColumns.htm">Adding columns from a dataset to a table</a>
+                                                </li>
                                                 <li><a href="ChangeDataType.htm">Changing the data type for a column</a>
                                                 </li>
-                                                <li><a href="AddColumns.htm">Adding columns from a dataset to a table</a>
+                                                <li><a href="ManipulateColumns.htm">Manipulating table columns</a>
+                                                </li>
+                                                <li><a href="CountOccurrencesOfValues.htm">Counting occurrences of values in a table column</a>
                                                 </li>
                                                 <li><a href="#" class="selected">Undoing and redoing an operation</a>
                                                 </li>
@@ -98,13 +102,21 @@
                                                 </li>
                                                 <li><a href="GroupBy.htm">Grouping data in a table</a>
                                                 </li>
+                                                <li><a href="Map.htm">Using the map function to create new values from selected columns</a>
+                                                </li>
                                             </ul>
                                         </li>
                                         <li class="has-children"><a href="../D_RefInformation/Reference.htm">Reference information</a>
                                             <ul class="sub-menu">
+                                                <li><a href="../D_RefInformation/InsightWindow.htm">The Xcalar Insight window</a>
+                                                </li>
                                                 <li><a href="../D_RefInformation/WkbkBrowser.htm">The Workbook Browser</a>
                                                 </li>
-                                                <li><a href="../D_RefInformation/ColumnOperations.htm">Operations for manipulating values in a column</a>
+                                                <li><a href="../D_RefInformation/WorksheetWindow.htm">The worksheet window with tables</a>
+                                                </li>
+                                                <li><a href="../D_RefInformation/DataBrowser.htm">The Data Browser</a>
+                                                </li>
+                                                <li><a href="../D_RefInformation/QueryGraph.htm">The query graph viewer</a>
                                                 </li>
                                             </ul>
                                         </li>
@@ -179,9 +191,13 @@
                                                     <ul class="sub-menu">
                                                         <li><a href="CreateTable.htm">Creating a table</a>
                                                         </li>
+                                                        <li><a href="AddColumns.htm">Adding columns from a dataset to a table</a>
+                                                        </li>
                                                         <li><a href="ChangeDataType.htm">Changing the data type for a column</a>
                                                         </li>
-                                                        <li><a href="AddColumns.htm">Adding columns from a dataset to a table</a>
+                                                        <li><a href="ManipulateColumns.htm">Manipulating table columns</a>
+                                                        </li>
+                                                        <li><a href="CountOccurrencesOfValues.htm">Counting occurrences of values in a table column</a>
                                                         </li>
                                                         <li><a href="#" class="selected">Undoing and redoing an operation</a>
                                                         </li>
@@ -190,6 +206,8 @@
                                                         <li><a href="JoinTables.htm">Joining tables</a>
                                                         </li>
                                                         <li><a href="GroupBy.htm">Grouping data in a table</a>
+                                                        </li>
+                                                        <li><a href="Map.htm">Using the map function to create new values from selected columns</a>
                                                         </li>
                                                     </ul>
                                                 </li>
@@ -200,12 +218,10 @@
                                         <h1>Undoing and redoing an operation</h1>
                                         <p>You can undo and redo an operation in one of two ways.</p>
                                         <h2>Using the Undo and Redo buttons</h2>
-                                        <p>The <span class="UIelement">Undo</span> and <span class="UIelement">Redo</span> buttons are located near the upper left corner of the <span class="GeneralProductName">Xcalar Insight</span> screen. When you hover over the button, a text string is displayed to indicate what operation will be undone or redone. </p>
-                                        <p>The <span class="UIelement">Undo</span> and <span class="UIelement">Redo</span> buttons work for operations that are internal to a table or operations that result in a new version of a table. The following examples show how the <span class="UIelement">Undo</span> button works:</p>
-                                        <ul>
-                                            <li value="1">After you delete a column, you can undo the delete, by clicking the <span class="UIelement">Undo</span> button.</li>
-                                            <li value="2">After you perform a filter on a particular value in a column, a new version of the table is created with only the rows containing that particular value in the column. To revert to the version of the table before the filter operation, click the <span class="UIelement">Undo</span> button.</li>
-                                        </ul>
+                                        <p>The <span class="UIelement">Undo</span> and <span class="UIelement">Redo</span> buttons are located in the upper left corner of the <span class="UIelement">Worksheet</span> window. When you hover over the button, a text string is displayed to indicate what operation will be undone or redone. </p>
+                                        <p>The <span class="UIelement">Undo</span> and <span class="UIelement">Redo</span> buttons work for operations that are internal to a table or operations that result in a new version of a table. </p>
+                                        <p class="Example" data-mc-autonum="&lt;b&gt;Example: &lt;/b&gt;"><span class="autonumber"><span><b>Example: </b></span></span>After you delete a column, you can undo the deletion by clicking the <span class="UIelement">Undo</span> button.</p>
+                                        <p class="Example" data-mc-autonum="&lt;b&gt;Example: &lt;/b&gt;"><span class="autonumber"><span><b>Example: </b></span></span>After you perform a filter on a particular value in a column, a new version of the table is created with only the rows containing that particular value in the column. To revert to the version of the table before the filter operation, click the <span class="UIelement">Undo</span> button.</p>
                                         <h2>Using the query graph</h2>
                                         <p>If an operation results in a new version of the table, you can use the query graph to revert to a previous version. The following example illustrates how to undo the filter operation:</p>
                                         <ol>

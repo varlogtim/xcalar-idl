@@ -86,9 +86,13 @@
                                             <ul class="sub-menu">
                                                 <li><a href="CreateTable.htm">Creating a table</a>
                                                 </li>
+                                                <li><a href="AddColumns.htm">Adding columns from a dataset to a table</a>
+                                                </li>
                                                 <li><a href="ChangeDataType.htm">Changing the data type for a column</a>
                                                 </li>
-                                                <li><a href="AddColumns.htm">Adding columns from a dataset to a table</a>
+                                                <li><a href="ManipulateColumns.htm">Manipulating table columns</a>
+                                                </li>
+                                                <li><a href="CountOccurrencesOfValues.htm">Counting occurrences of values in a table column</a>
                                                 </li>
                                                 <li><a href="UndoRedo.htm">Undoing and redoing an operation</a>
                                                 </li>
@@ -98,13 +102,21 @@
                                                 </li>
                                                 <li><a href="GroupBy.htm">Grouping data in a table</a>
                                                 </li>
+                                                <li><a href="Map.htm">Using the map function to create new values from selected columns</a>
+                                                </li>
                                             </ul>
                                         </li>
                                         <li class="has-children"><a href="../D_RefInformation/Reference.htm">Reference information</a>
                                             <ul class="sub-menu">
+                                                <li><a href="../D_RefInformation/InsightWindow.htm">The Xcalar Insight window</a>
+                                                </li>
                                                 <li><a href="../D_RefInformation/WkbkBrowser.htm">The Workbook Browser</a>
                                                 </li>
-                                                <li><a href="../D_RefInformation/ColumnOperations.htm">Operations for manipulating values in a column</a>
+                                                <li><a href="../D_RefInformation/WorksheetWindow.htm">The worksheet window with tables</a>
+                                                </li>
+                                                <li><a href="../D_RefInformation/DataBrowser.htm">The Data Browser</a>
+                                                </li>
+                                                <li><a href="../D_RefInformation/QueryGraph.htm">The query graph viewer</a>
                                                 </li>
                                             </ul>
                                         </li>
@@ -179,9 +191,13 @@
                                                     <ul class="sub-menu">
                                                         <li><a href="CreateTable.htm">Creating a table</a>
                                                         </li>
+                                                        <li><a href="AddColumns.htm">Adding columns from a dataset to a table</a>
+                                                        </li>
                                                         <li><a href="ChangeDataType.htm">Changing the data type for a column</a>
                                                         </li>
-                                                        <li><a href="AddColumns.htm">Adding columns from a dataset to a table</a>
+                                                        <li><a href="ManipulateColumns.htm">Manipulating table columns</a>
+                                                        </li>
+                                                        <li><a href="CountOccurrencesOfValues.htm">Counting occurrences of values in a table column</a>
                                                         </li>
                                                         <li><a href="UndoRedo.htm">Undoing and redoing an operation</a>
                                                         </li>
@@ -190,6 +206,8 @@
                                                         <li><a href="JoinTables.htm">Joining tables</a>
                                                         </li>
                                                         <li><a href="GroupBy.htm">Grouping data in a table</a>
+                                                        </li>
+                                                        <li><a href="Map.htm">Using the map function to create new values from selected columns</a>
                                                         </li>
                                                     </ul>
                                                 </li>
@@ -213,8 +231,36 @@
                                             <li value="1">Right click the heading of the column containing the value to filter. A drop-down menu appears.</li>
                                             <li value="2">Select <span class="UIelement">Filter...</span> from the menu. The <span class="UIelement">Filter</span> modal appears.</li>
                                             <li value="3">In the <span class="UIelement">Function</span> field, click the <span class="UIelement">Down</span> arrow to display a list of functions.</li>
-                                            <li value="4">Select the function to perform the filtering and then enter the arguments. For example, if you want to filter the <span class="UIelement">DepTime</span> column, you can select the <span class="UIelement">Contain</span> function and enter 740 as the argument. This function filters all values in the <span class="UIelement">DepTime</span> column that contain 740. As a result, you only see the flights with departure times of 740 and 1740. </li>
+                                            <li value="4">
+                                                <p>Select the function to perform the filtering and then enter the arguments. For example, if you want to filter the <span class="UIelement">DepTime</span> column, you can select the <span class="UIelement">Contain</span> function and enter 740 as the argument. This function filters all values in the <span class="UIelement">DepTime</span> column that contain 740. As a result, you only see the flights with departure times of 740 and 1740. </p>
+                                                <div class="MCDropDown MCDropDown_Open dropDown"><span class="MCDropDownHead dropDownHead"><a href="javascript:void(0);" class="MCDropDownHotSpot dropDownHotspot MCDropDownHotSpot_"><img class="MCDropDown_Image_Icon" src="../../Skins/Default/Stylesheets/Images/transparent.gif" height="11" width="16" alt="Closed" data-mc-alt2="Open" />The following conditional functions are supported:</a></span>
+                                                    <div class="MCDropDownBody dropDownBody">
+                                                        <ul>
+                                                            <li value="1">And</li>
+                                                            <li value="2">Between</li>
+                                                            <li value="3">Contains</li>
+                                                            <li value="4">Eq</li>
+                                                            <li value="5">Exists</li>
+                                                            <li value="6">Ge</li>
+                                                            <li value="7">Gt</li>
+                                                            <li value="8">If</li>
+                                                            <li value="9">IfInt</li>
+                                                            <li value="10">IfStr</li>
+                                                            <li value="11">IsBoolean</li>
+                                                            <li value="12">IsFloat</li>
+                                                            <li value="13">IsInteger</li>
+                                                            <li value="14">Le</li>
+                                                            <li value="15">Like</li>
+                                                            <li value="16">Lt</li>
+                                                            <li value="17">Not</li>
+                                                            <li value="18">Or</li>
+                                                            <li value="19">Regex</li>
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                            </li>
                                         </ol>
+                                        <p class="Tip" data-mc-autonum="&lt;b&gt;TIP: &lt;/b&gt;"><span class="autonumber"><span><b>TIP: </b></span></span>If you want to filter or exclude a value based on its occurrences, display the <span class="UIelement">Profile</span> window and start the filtering from the window as described in <a href="CountOccurrencesOfValues.htm" class="MCXref xref">Counting occurrences of values in a table column</a>. </p>
                                         <p class="InPageSummary">You can filter a value in a table column by specifying whether you want to include or exclude a value. Alternatively, you can perform conditional filtering, which decides whether a value should be included or excluded based on a condition.</p>
                                         <p class="hashtag">FilterInColumn</p>
                                         <p class="hashtag">Filter</p>
