@@ -189,7 +189,7 @@ window.OperationsModal = (function($, OperationsModal) {
         }, 'li');
 
         // for all lists (including hint li in argument table)
-        $operationsModal.find('.list').on({
+        $operationsModal.on({
             'mouseenter': function() {
                 if ($(this).closest('.list').hasClass('disableMouseEnter')) {
                     $(this).closest('.list').removeClass('disableMouseEnter');
@@ -207,7 +207,7 @@ window.OperationsModal = (function($, OperationsModal) {
                 $(this).removeClass('highlighted');
                 $(this).closest('.list').removeClass('hovering');
             }
-        }, 'li');
+        }, '.list li');
 
         // click on the hint list
         $operationsModal.on('click', '.hint li', function() {
@@ -388,36 +388,7 @@ window.OperationsModal = (function($, OperationsModal) {
             }
         });
 
-        var $lists = $operationsModal.find(".cast .dropDownList");
-        xcHelper.dropdownList($lists, {
-            "onOpen": function($list) {
-                var $td = $list.parent();
-                var $ul = $list.find('ul');
-                var top = $td.offset().top + 30;
-                var left = $td.offset().left + 9;
-                $ul.css({'top': top, 'left': left});
-                StatusBox.forceHide();
-            },
-            "onSelect": function($li) {
-                var $list  = $li.closest(".list");
-                var $input = $list.siblings(".text");
-                var type   = $li.text();
-                var casted;
-                // var castedType;
-
-                $input.val(type);
-                if (type === "default") {
-                    casted = false;
-                } else {
-                    casted = true;
-                }
-                $input.closest('td').prev().find('input')
-                                           .data('casted', casted)
-                                           .data('casttype', type);
-                StatusBox.forceHide();
-            },
-            "container": "#operationsModal"
-        });
+        addCastDropDownListener();
 
         categoryListScroller = new xcHelper.dropdownList($('#categoryList'), {
             scrollerOnly : true,
@@ -638,6 +609,40 @@ window.OperationsModal = (function($, OperationsModal) {
             // because there's a keypress listener trying to close the modal
             unminimizeTable();
         }
+    }
+
+    function addCastDropDownListener() {
+        var $lists = $operationsModal.find(".cast.new .dropDownList");
+        $lists.closest('.cast.new').removeClass('new');
+        xcHelper.dropdownList($lists, {
+            "onOpen": function($list) {
+                var $td = $list.parent();
+                var $ul = $list.find('ul');
+                var top = $td.offset().top + 30;
+                var left = $td.offset().left + 9;
+                $ul.css({'top': top, 'left': left});
+                StatusBox.forceHide();
+            },
+            "onSelect": function($li) {
+                var $list  = $li.closest(".list");
+                var $input = $list.siblings(".text");
+                var type   = $li.text();
+                var casted;
+                // var castedType;
+
+                $input.val(type);
+                if (type === "default") {
+                    casted = false;
+                } else {
+                    casted = true;
+                }
+                $input.closest('td').prev().find('input')
+                                           .data('casted', casted)
+                                           .data('casttype', type);
+                StatusBox.forceHide();
+            },
+            "container": "#operationsModal"
+        });
     }
 
     // empty array means the first argument will always be the column name
@@ -1071,6 +1076,7 @@ window.OperationsModal = (function($, OperationsModal) {
                     rowHtml += getArgRowHtml();
                 }
                 $tbody.append(rowHtml);
+                addCastDropDownListener();
             }
 
             $operationsModal.find('.checkbox').removeClass('checked')
@@ -2821,7 +2827,7 @@ window.OperationsModal = (function($, OperationsModal) {
                 '</div>' +
               '</div>' +
             '</td>' +
-            '<td class="cast">' +
+            '<td class="cast new">' +
               '<div class="dropDownList">' +
                   '<input class="text nonEditable" value="default" disabled>' +
                   '<div class="iconWrapper dropdown">' +
