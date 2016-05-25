@@ -1122,6 +1122,7 @@ input {
                     display: list-item !important;
                 }
             }
+
         }
 
         .multiTextAlign {
@@ -1158,6 +1159,21 @@ input {
                 }
             }
         }
+
+        .multiColumn.roundToFixed, .multiColumn.format {
+            display: none;
+        }
+
+        &.type-integer, &.type-float {
+            .multiColumn.format {
+                display: list-item !important;
+            }
+        }
+        &.type-float {
+            .multiColumn.roundToFixed {
+                display: list-item !important;
+            }
+        }
     }
 
     &.type-string, &.type-array {
@@ -1176,6 +1192,9 @@ input {
     &.type-float {
         .roundToFixed {
             display: list-item;
+        }
+        .multiColumn.roundToFixed {
+            display: none;
         }
     }
 

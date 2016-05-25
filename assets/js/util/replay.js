@@ -308,8 +308,8 @@ window.Replay = (function($, Replay) {
         argsMap[SQLOps.SplitCol] = ["colNum", "tableId",
                                     "delimiter", "numColToGet"];
         argsMap[SQLOps.ChangeType] = ["colTypeInfos", "tableId"];
-        argsMap[SQLOps.ChangeFormat] = ["colNum", "tableId", "format"];
-        argsMap[SQLOps.RoundToFixed] = ["colNum", "tableId", "decimals"];
+        argsMap[SQLOps.ChangeFormat] = ["colNums", "tableId", "formats"];
+        argsMap[SQLOps.RoundToFixed] = ["colNums", "tableId", "decimals"];
     }
 
     function createTabMap() {

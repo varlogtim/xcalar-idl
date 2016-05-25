@@ -385,11 +385,31 @@ window.TblMenu = (function(TblMenu, $) {
             if (event.which !== 1) {
                 return;
             }
-
-            var format = $(this).data("format");
-            var colNum = $colMenu.data('colNum');
+            var $li = $(this);
             var tableId = $colMenu.data('tableId');
-            ColManager.format(colNum, tableId, format);
+            var format = $(this).data("format");
+            var formats = [];
+            var colNums;
+            if ($li.closest('.multiFormat').length !== 0) {
+                colNums = $colMenu.data('columns');
+                var tableCols = gTables[tableId].tableCols;
+                var tableCol;
+                for (var i = 0; i < colNums.length; i++) {
+                    tableCol = tableCols[colNums[i] - 1];
+                    if (tableCol.type !== "integer" &&
+                        tableCol.type !== "float") {
+                        colNums.splice(i, 1);
+                        i--;
+                    } else {
+                        formats.push(format);
+                    }
+                }
+            } else {
+                colNums = [$colMenu.data('colNum')];
+                formats.push(format);
+            }
+
+            ColManager.format(colNums, tableId, formats);
         });
 
         $subMenu.on('keypress', '.digitsToRound', function(event) {
@@ -410,9 +430,30 @@ window.TblMenu = (function(TblMenu, $) {
                 });
                 return;
             }
-            var colNum = $colMenu.data('colNum');
+            var $li = $(this);
             var tableId = $colMenu.data('tableId');
-            ColManager.roundToFixed(colNum, tableId, val);
+            var colNums;
+            var vals = [];
+
+            if ($li.closest('.multiRoundToFixed').length !== 0) {
+                colNums = $colMenu.data('columns');
+                var tableCols = gTables[tableId].tableCols;
+                var tableCol;
+                for (var i = 0; i < colNums.length; i++) {
+                    tableCol = tableCols[colNums[i] - 1];
+                    if (tableCol.type !== "float") {
+                        colNums.splice(i, 1);
+                        i--;
+                    } else {
+                        vals.push(val);
+                    }
+                }
+            } else {
+                colNums = [$colMenu.data('colNum')];
+                vals.push(val);
+            }
+
+            ColManager.roundToFixed(colNums, tableId, vals);
             closeMenu($allMenus);
         });
 
@@ -421,9 +462,31 @@ window.TblMenu = (function(TblMenu, $) {
                 return;
             }
             // chagne round to default value
-            var colNum = $colMenu.data('colNum');
             var tableId = $colMenu.data('tableId');
-            ColManager.roundToFixed(colNum, tableId, -1);
+            var $li = $(this);
+            var decimals = [];
+            var colNums;
+
+            if ($li.closest('.multiRoundToFixed').length !== 0) {
+                colNums = $colMenu.data('columns');
+                var tableCols = gTables[tableId].tableCols;
+                var tableCol;
+
+                for (var i = 0; i < colNums.length; i++) {
+                    tableCol = tableCols[colNums[i] - 1];
+                    if (tableCol.type !== "float") {
+                        colNums.splice(i, 1);
+                        i--;
+                    } else {
+                        decimals.push(-1);
+                    }
+                }
+            } else {
+                colNums = [$colMenu.data('colNum')];
+                decimals.push(-1);
+            }
+
+            ColManager.roundToFixed(colNums, tableId, decimals);
         });
 
         $subMenu.on('keypress', '.splitCol input', function(event) {

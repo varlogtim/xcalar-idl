@@ -250,17 +250,20 @@ window.Redo = (function($, Redo) {
 
     redoFuncs[SQLOps.ChangeFormat] = function(options) {
         focusTableHelper(options);
-        var format = options.format;
-        if (format == null) {
-            format = "default";
+
+        var formats = options.formats;
+        for (var i = 0; i < formats; i++) {
+            if (formats[i] == null) {
+                formats[i] = "default";
+            }
         }
-        ColManager.format(options.colNum, options.tableId, format);
+        ColManager.format(options.colNums, options.tableId, formats);
         return PromiseHelper.resolve(null);
     };
 
     redoFuncs[SQLOps.RoundToFixed] = function(options) {
         focusTableHelper(options);
-        ColManager.roundToFixed(options.colNum, options.tableId,
+        ColManager.roundToFixed(options.colNums, options.tableId,
                                 options.decimals);
         return PromiseHelper.resolve(null);
     };

@@ -348,17 +348,19 @@ window.Undo = (function($, Undo) {
 
     undoFuncs[SQLOps.ChangeFormat] = function(options) {
         focusTableHelper(options);
-        var format = options.oldFormat;
-        if (format == null) {
-            format = "default";
+        var formats = options.oldFormats;
+        for (var i = 0; i < formats.length; i++) {
+            if (formats[i] == null) {
+                formats[i] = "default";
+            }
         }
-        ColManager.format(options.colNum, options.tableId, format);
+        ColManager.format(options.colNums, options.tableId, formats);
         return PromiseHelper.resolve(null);
     };
 
     undoFuncs[SQLOps.RoundToFixed] = function(options) {
         focusTableHelper(options);
-        ColManager.roundToFixed(options.colNum, options.tableId,
+        ColManager.roundToFixed(options.colNums, options.tableId,
                                 options.prevDecimals);
         return PromiseHelper.resolve(null);
     };

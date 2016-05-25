@@ -911,67 +911,99 @@ window.ColManager = (function($, ColManager) {
         KVStore.commit();
     };
 
-    ColManager.format = function(colNum, tableId, format) {
+    ColManager.format = function(colNums, tableId, formats) {
         var table = gTables[tableId];
-        var tableCol = table.tableCols[colNum - 1];
-        var oldFormat = tableCol.format;
-        var decimals = tableCol.decimals;
+        var tableCols = [];
+        var oldFormats = [];
+        var decimals = [];
+        var colNames = [];
+        var tableCol;
+        var decimal;
+        var colNum;
+        var $tableWrap = $('#xcTableWrap-' + tableId);
+        var filteredColNums = [];
+        var filteredFormats = [];
+        var format;
 
-        if (format === "default") {
-            format = null;
+        for (var i = 0; i < colNums.length; i++) {
+            colNum = colNums[i];
+            tableCol = table.tableCols[colNum - 1];
+            if (formats[i] === "default") {
+                formats[i] = null;
+            }
+            if (tableCol.format === formats[i]) {
+                continue;
+            }
+
+            filteredColNums.push(colNum);
+            filteredFormats.push(formats[i]);
+
+            tableCols.push(tableCol);
+            oldFormats.push(tableCol.format);
+            decimal = tableCol.decimals;
+            decimals.push(decimal);
+
+            $tableWrap.find('td.col' + colNum).each(function() {
+                var $td = $(this);
+                var oldVal = $td.find(".originalData").text();
+                if (oldVal != null) {
+                    // not knf
+                    var newVal = formatColumnCell(oldVal, formats[i], decimal);
+                    $td.children(".displayedData").text(newVal);
+                }
+            });
+            tableCol.format = formats[i];
+            colNames.push(tableCol.name);
         }
-
-        if (oldFormat === format) {
+        if (!filteredColNums.length) {
             return;
         }
-
-        $('#xcTableWrap-' + tableId).find('td.col' + colNum).each(function() {
-            var $td = $(this);
-            var oldVal = $td.find(".originalData").text();
-            if (oldVal != null) {
-                // not knf
-                var newVal = formatColumnCell(oldVal, format, decimals);
-                $td.children(".displayedData").text(newVal);
-            }
-        });
-
-        tableCol.format = format;
 
         SQL.add("Change Format", {
             "operation"  : SQLOps.ChangeFormat,
             "tableName"  : table.tableName,
             "tableId"    : tableId,
-            "colName"    : tableCol.name,
-            "colNum"     : colNum,
-            "format"     : format,
-            "oldFormat"  : oldFormat,
-            "htmlExclude": ["oldFormat"]
+            "colNames"   : colNames,
+            "colNums"    : filteredColNums,
+            "formats"    : filteredFormats,
+            "oldFormats" : oldFormats,
+            "htmlExclude": ["oldFormats"]
         });
     };
 
-    ColManager.roundToFixed = function(colNum, tableId, decimals) {
+    ColManager.roundToFixed = function(colNums, tableId, decimals) {
         var table = gTables[tableId];
-        var tableCol = table.tableCols[colNum - 1];
-        var format = tableCol.format;
-        var prevDecimals = tableCol.decimals;
+        var tableCol;
+        var format;
+        var prevDecimals = [];
+        var $tableWrap = $('#xcTableWrap-' + tableId);
+        var colNum;
+        var colNames = [];
 
-        $('#xcTableWrap-' + tableId).find('td.col' + colNum).each(function() {
-            var $td = $(this);
-            var oldVal = $td.find(".originalData").text();
-            if (oldVal != null) {
-                // not knf
-                var newVal = formatColumnCell(oldVal, format, decimals);
-                $td.children(".displayedData").text(newVal);
-            }
-        });
-        tableCol.decimals = decimals;
+        for (var i = 0; i < colNums.length; i++) {
+            colNum = colNums[i];
+            tableCol = table.tableCols[colNum - 1];
+            format = tableCol.format;
+            prevDecimals.push(tableCol.decimals);
+            colNames.push(tableCol.name);
+            $tableWrap.find('td.col' + colNum).each(function() {
+                var $td = $(this);
+                var oldVal = $td.find(".originalData").text();
+                if (oldVal != null) {
+                    // not knf
+                    var newVal = formatColumnCell(oldVal, format, decimals[i]);
+                    $td.children(".displayedData").text(newVal);
+                }
+            });
+            tableCol.decimals = decimals[i];
+        }
 
         SQL.add("Round To Fixed", {
             "operation"   : SQLOps.RoundToFixed,
             "tableName"   : table.tableName,
             "tableId"     : tableId,
-            "colName"     : tableCol.name,
-            "colNum"      : colNum,
+            "colNames"    : colNames,
+            "colNums"     : colNums,
             "decimals"    : decimals,
             "prevDecimals": prevDecimals,
             "htmlExclude" : ["prevDecimals"]

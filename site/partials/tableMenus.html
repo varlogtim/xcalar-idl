@@ -164,6 +164,12 @@
     <li class="multiColumn textAlignColumns parentMenu" data-submenu="multiTextAlign">
       <%= dicts.MenuTStr.TxtAlign %>
     </li>
+    <li class="multiColumn format parentMenu" data-submenu="multiFormat">
+      <%= dicts.MenuTStr.Format %>
+    </li>
+    <li class="multiColumn roundToFixed parentMenu" data-submenu="multiRoundToFixed">
+      <%= dicts.MenuTStr.Round %>
+    </li>
     <li class="multiColumn resizeColumns parentMenu" data-submenu="multiResize">
       <%= dicts.MenuTStr.Resize %>
     </li>
@@ -244,22 +250,22 @@
     <li style="text-align: center" class="clickable">
       <div title="ex. an input of 2 would change 1.2345
       to 1.23">
-      <%= dicts.MenuTStr.RoundTitle %>
-    </div>
-    <div class="inputWrap">
-      <input class="digitsToRound" type="number"
-      max="14" min="0" autocomplete="on"
-      spellcheck="false" />
-      <div class="iconWrapper inputAction">
-        <span class="icon"></span>
+        <%= dicts.MenuTStr.RoundTitle %>
       </div>
-    </div>
-  </li>
-  <div class="divider"></div>
-  <li class="changeRound default">
-    <%= dicts.CommonTxtTstr.BackToOrig %>
-  </li>
-</ul>
+      <div class="inputWrap">
+        <input class="digitsToRound" type="number"
+        max="14" min="0" autocomplete="on"
+        spellcheck="false" />
+        <div class="iconWrapper inputAction">
+          <span class="icon"></span>
+        </div>
+      </div>
+    </li>
+    <div class="divider"></div>
+    <li class="changeRound default">
+      <%= dicts.CommonTxtTstr.BackToOrig %>
+    </li>
+  </ul>
 <ul class="splitCol">
   <li style="text-align: center" class="clickable">
     <div>
@@ -312,6 +318,34 @@
   </li>
   <li class="textAlign wrapAlign">
     <%= dicts.MenuTStr.TxtAlignWrap %>
+  </li>
+</ul>
+<ul class="multiFormat">
+  <li class="changeFormat" data-format="percent">
+    <%= dicts.MenuTStr.Percent %>
+  </li>
+  <li class="changeFormat" data-format="default">
+    <%= dicts.CommonTxtTstr.BackToOrig %>
+  </li>
+</ul>
+<ul class="multiRoundToFixed">
+  <li style="text-align: center" class="clickable">
+    <div title="ex. an input of 2 would change 1.2345
+    to 1.23">
+      <%= dicts.MenuTStr.RoundTitle %>
+    </div>
+    <div class="inputWrap">
+      <input class="digitsToRound" type="number"
+      max="14" min="0" autocomplete="on"
+      spellcheck="false" />
+      <div class="iconWrapper inputAction">
+        <span class="icon"></span>
+      </div>
+    </div>
+  </li>
+  <div class="divider"></div>
+  <li class="changeRound default">
+    <%= dicts.CommonTxtTstr.BackToOrig %>
   </li>
 </ul>
 <ul class="multiResize">
