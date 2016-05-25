@@ -24,6 +24,7 @@ window.FnBar = (function(FnBar, $) {
                         "initialTableId": initialTableId
                     };
                     ColManager.execCol("search", null, null, null, args);
+                    $lastColInput = null;
                 } else {
                     $functionArea.removeClass('searching');
                 }
@@ -94,19 +95,27 @@ window.FnBar = (function(FnBar, $) {
             "focus": function() {
                 initialTableId = gActiveTableId;
             },
-            "blur": function() {
+            "blur": function(event) {
                 $(this).removeClass("inFocus");
                 $fnBar.attr('placeholder', "");
+
+                var keepVal = false;
+                if ($lastColInput) {
+                    keepVal = true;
+                }
+
+                var options = {keepVal: keepVal};
                 searchHelper.clearSearch(function() {
                     $functionArea.removeClass('searching');
-                });
+                }, options);
             }
         });
     };
 
     FnBar.focusOnCol = function($colInput, tableId, colNum, forceFocus) {
         if (!forceFocus && $lastColInput != null &&
-            $colInput.get(0) === $lastColInput.get(0))
+            $colInput.get(0) === $lastColInput.get(0) &&
+            !$fnBar.parent().hasClass('searching'))
         {
             // the function bar origin hasn't changed so just return
             // and do not rehighlight or update any text
@@ -126,12 +135,11 @@ window.FnBar = (function(FnBar, $) {
             var userStr = progCol.userStr;
             userStr = userStr.substring(userStr.indexOf('='));
             $fnBar.val(userStr).addClass('active').removeClass('disabled');
+            $fnBar.parent().removeClass('searching');
         }
     };
 
     FnBar.clear = function(noSave) {
-        // var val = $fnBar.val();
-        // var trimmedVal = val.trim();
         if (!noSave) {
             saveInput();
         } else {

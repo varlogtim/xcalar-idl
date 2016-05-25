@@ -167,7 +167,7 @@ window.StartManager = (function(StartManager, $) {
                     title = ThriftTStr.SetupErr;
                 }
                 Alert.error(title, error, {"lockScreen": true});
-                StatusMessage.updateLocation(true, StatusMessageTStr.Error); 
+                StatusMessage.updateLocation(true, StatusMessageTStr.Error);
             }
 
             deferred.reject(error);

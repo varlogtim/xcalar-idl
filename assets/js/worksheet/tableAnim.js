@@ -49,6 +49,7 @@ window.TblAnim = (function($, TblAnim) {
 
         if (!rescol.grabbedCell.hasClass('selectedCell')) {
             $('.selectedCell').removeClass('selectedCell');
+            FnBar.clear();
         }
 
         $(document).on('mousemove.onColResize', onColResize);

@@ -1737,14 +1737,17 @@ SearchBar.prototype = {
         searchBar.$total.text("of " + searchBar.numMatches);
 
     },
-    clearSearch: function(callback) {
+    clearSearch: function(callback, options) {
         var searchBar = this;
         searchBar.$position.html("");
         searchBar.$total.html("");
         searchBar.matchIndex = 0;
         searchBar.$matches = [];
         searchBar.numMatches = 0;
-        searchBar.$searchInput.val("");
+        if (!options || !options.keepVal) {
+            searchBar.$searchInput.val("");
+        }
+
         if (typeof callback === "function") {
             callback();
         }
