@@ -238,16 +238,13 @@ window.xcFunction = (function($, xcFunction) {
             });
             deferred.resolve();
         })
-        .fail(function(error) {
+        .fail(function(error, sorted) {
             clearTimeout(timer);
             if (isLocked) {
                 xcHelper.unlockTable(tableId);
             }
 
-            if (error.error === SQLType.Cancel) {
-                Transaction.cancel(txId);
-                deferred.resolve();
-            } else if (error.error === SortStatus.Sorted) {
+            if (sorted) {
                 Transaction.cancel(txId);
                 var textOrder;
                 if (order === SortDirection.Forward) {
@@ -260,7 +257,10 @@ window.xcFunction = (function($, xcFunction) {
                     "order": textOrder
                 });
                 Alert.error(IndexTStr.Sorted, mgs);
-            } else {
+            } else if (error.error === SQLType.Cancel) {
+                Transaction.cancel(txId);
+                deferred.resolve();
+            }  else {
                 Transaction.fail(txId, {
                     "failMsg": StatusMessageTStr.SortFailed,
                     "error"  : error
@@ -357,9 +357,8 @@ window.xcFunction = (function($, xcFunction) {
         xcHelper.lockTable(rTableId);
 
         XIApi.join(txId, joinType, lColNames, lTableName, rColNames, rTableName, newTableName)
-        .then(function() {
-            var newTableCols = createJoinedColumns(lTable, rTable);
-            return TblManager.refreshTable([newTableName], newTableCols,
+        .then(function(finalTableName, finalTableCols) {
+            return TblManager.refreshTable([finalTableName], finalTableCols,
                                         [lTableName, rTableName], worksheet);
         })
         .then(function() {
@@ -719,43 +718,6 @@ window.xcFunction = (function($, xcFunction) {
         var newName = tableName.split("#")[0] + "#" + newId;
 
         return { "tableName": newName, "tableId": newId };
-    }
-
-    // For xcFuncion.join, deepy copy of right table and left table columns
-    function createJoinedColumns(lTable, rTable) {
-        // Combine the columns from the 2 current tables
-        // Note that we have to create deep copies!!
-        var newTableCols = [];
-        var lCols = xcHelper.deepCopy(lTable.tableCols);
-        var rCols = xcHelper.deepCopy(rTable.tableCols);
-        var index = 0;
-        var dataCol;
-        var colName;
-
-        for (var i = 0; i < lCols.length; i++) {
-            colName = lCols[i].name;
-
-            if (colName === "DATA") {
-                dataCol = lCols[i];
-            } else {
-                newTableCols[index] = lCols[i];
-                ++index;
-            }
-        }
-
-        for (var i = 0; i < rCols.length; i++) {
-            colName = rCols[i].name;
-
-            if (colName !== "DATA") {
-                newTableCols[index] = rCols[i];
-                ++index;
-            }
-        }
-
-        // now newTablCols.length is differenet from len
-        newTableCols.push(dataCol);
-
-        return (newTableCols);
     }
 
     return (xcFunction);

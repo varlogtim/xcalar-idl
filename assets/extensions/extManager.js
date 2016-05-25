@@ -10,7 +10,7 @@ window.ExtButton = (function(ExtButton, $) {
     }
 
     function genComplexButton(modName, fnName, buttonText, arrayOfFields) {
-        var html = '<li class="extensions complex '+ modName + '::' + fnName +
+        var html = '<li class="extensions complex ' + modName + '::' + fnName +
                     '" data-modName="' + modName + '"' +
                     ' data-fnName="' + fnName + '">';
         html += '<span class="extTitle">' + buttonText + "</span>...";
@@ -51,10 +51,10 @@ window.ExtButton = (function(ExtButton, $) {
     ExtButton.getButtonHTML = function(modName) {
         var buttonList = window[modName].buttons;
         var buttonsHTML = "";
-        for (var i = 0; i<buttonList.length; i++) {
-            buttonsHTML += newButtonHTML(modName, buttonList[i]["fnName"],
-                                         buttonList[i]["buttonText"],
-                                         buttonList[i]["arrayOfFields"]);
+        for (var i = 0; i < buttonList.length; i++) {
+            buttonsHTML += newButtonHTML(modName, buttonList[i].fnName,
+                                         buttonList[i].buttonText,
+                                         buttonList[i].arrayOfFields);
         }
         return (buttonsHTML);
     };
@@ -71,9 +71,10 @@ window.ExtensionManager = (function(ExtensionManager, $) {
         // get list of extensions currently loaded into system
         for (var objs in window) {
             if (objs.indexOf("UExt") === 0 ) {
-                for (var i = 0; i<extFileNames.length; i++) {
-                    if (objs.toLowerCase().substring(4, objs.length)+".ext" ===
-                        extFileNames[i].toLowerCase()) {
+                for (var i = 0; i < extFileNames.length; i++) {
+                    if (objs.toLowerCase().substring(4, objs.length) + ".ext" ===
+                        extFileNames[i].toLowerCase())
+                    {
                         // Found it!
                         extList.push(objs);
                         break;
@@ -81,10 +82,10 @@ window.ExtensionManager = (function(ExtensionManager, $) {
                 }
             }
         }
-        console.log("Extensions list: "+extList);
+        // console.log("Extensions list: " + extList);
 
         for (var i = 0; i < extList.length; i++) {
-            var buttonList = window[extList[i]].buttons;
+            // var buttonList = window[extList[i]].buttons;
             $("ul.extensions").eq(0).append(ExtButton.getButtonHTML(extList[i]));
             // if (i < extList.length - 1) {
             //     $("ul.extensions").eq(0).append(
@@ -94,7 +95,7 @@ window.ExtensionManager = (function(ExtensionManager, $) {
     }
 
     function removeExt(extName) {
-        for (var i = 0; i<extFileNames.length; i++) {
+        for (var i = 0; i < extFileNames.length; i++) {
             if (extFileNames[i] === extName) {
                 extFileNames.splice(i, 1);
                 break;
@@ -107,7 +108,7 @@ window.ExtensionManager = (function(ExtensionManager, $) {
         // for upload
         var pyString = data;
         // Remove .ext
-        var pyModName = extName.substring(0, extName.length-4);
+        var pyModName = extName.substring(0, extName.length - 4);
         XcalarUploadPython(pyModName, pyString)
         .then(function() {
             UDF.storePython(pyModName, pyString);
@@ -117,7 +118,7 @@ window.ExtensionManager = (function(ExtensionManager, $) {
             }
         })
         .fail(function() {
-            console.error("Extension failed to upload. Removing: "+extName);
+            console.error("Extension failed to upload. Removing: " + extName);
             // Remove extension from list
             removeExt(extName);
             numChecksLeft--;
@@ -142,7 +143,7 @@ window.ExtensionManager = (function(ExtensionManager, $) {
         // XcalarListXdfs with fnName = extPrefix+":"
         // Also check that the module has a python file
         var needReupload = [];
-        for (var j = 0; j<extFileNames.length; j++) {
+        for (var j = 0; j < extFileNames.length; j++) {
             needReupload.push(extFileNames[j]);
             continue;
             // XXX This part is not run because we are currently blindly
@@ -150,15 +151,15 @@ window.ExtensionManager = (function(ExtensionManager, $) {
             var extPrefix = extFileNames[j].substring(0,
                                                    extFileNames[j].length - 4);
             var found = false;
-            for (var i = 0; i<udfFunctions.length; i++) {
-                if (udfFunctions[i].indexOf(extPrefix+":") !== -1) {
+            for (var i = 0; i < udfFunctions.length; i++) {
+                if (udfFunctions[i].indexOf(extPrefix + ":") !== -1) {
                     found = true;
-                    console.log("Found ext python: "+extPrefix);
+                    console.log("Found ext python: " + extPrefix);
                     break;
                 }
             }
             if (!found) {
-                console.log("Did not find ext python: "+extPrefix);
+                console.log("Did not find ext python: " + extPrefix);
                 needReupload.push(extFileNames[j]);
             }
         }
@@ -168,15 +169,15 @@ window.ExtensionManager = (function(ExtensionManager, $) {
     function setupPart2() {
         // check that python modules have been uploaded
         var extLoaded = $("ul.extensions script");
-        for (var i = 0; i<extLoaded.length; i++) {
-            var jsFile = extLoaded[i]["src"];
+        for (var i = 0; i < extLoaded.length; i++) {
+            var jsFile = extLoaded[i].src;
 
             // extract module name
             var strLoc = jsFile.indexOf("assets/extensions/installed/");
             if (strLoc !== -1) {
-                jsFile = jsFile.substring(strLoc+
+                jsFile = jsFile.substring(strLoc +
                                          "assets/extensions/installed/".length,
-                                         jsFile.length-3);
+                                         jsFile.length - 3);
                 extFileNames[i] = jsFile;
             } else {
                 extFileNames[i] = "";
@@ -193,19 +194,19 @@ window.ExtensionManager = (function(ExtensionManager, $) {
         } else {
         // if python module is gone, reupload by reading file from local system
             numChecksLeft = pythonReuploadList.length;
-            for (var i = 0; i<pythonReuploadList.length; i++) {
+            for (var i = 0; i < pythonReuploadList.length; i++) {
                 jQuery.ajax({
                     type: "GET",
-                    url: "assets/extensions/installed/"+
-                         pythonReuploadList[i]+".py",
+                    url : "assets/extensions/installed/" +
+                         pythonReuploadList[i] + ".py",
                     success: (function(valOfI) {
                         return function(data) {
-                            setupPart3Success(pythonReuploadList[valOfI],data);
+                            setupPart3Success(pythonReuploadList[valOfI], data);
                         };
                     })(i),
                     error: (function(valOfI) {
                         return function(error) {
-                          setupPart3Fail(pythonReuploadList[valOfI], error);
+                            setupPart3Fail(pythonReuploadList[valOfI], error);
                         };
                     })(i)
                 });
@@ -261,14 +262,126 @@ window.ExtensionManager = (function(ExtensionManager, $) {
 
         var $tableMenu = $('#colMenu');
         var $subMenu = $('#colSubMenu');
-        var $allMenus = $tableMenu.add($subMenu);
+        // var $allMenus = $tableMenu.add($subMenu);
         var colArray = $("#colMenu").data("columns");
         var colNames = [];
 
         if (colArray.length > 1) {
             colNum = colArray;
         }
-        argList["allMenus"] = $allMenus;
+        // argList.allMenus = $allMenus;
+
+        if (modName !== "UExtATags" && modName !== "UExtGLM" &&
+            modName !== "UExtIntel" && modName !== "UExtKMeans" &&
+            modName !== "UExtTableau") {
+            var worksheet = WSManager.getWSFromTable(tableId);
+            var table = gTables[tableId];
+            var tableName = table.tableName;
+            var progCol = table.tableCols[colNum - 1];
+            var colType = progCol.type;
+            var colName = progCol.name;
+            var backColName = progCol.getBackColName();
+
+            var hasStart = false;
+            var txId;
+            var sql = {
+                "operation"   : SQLOps.Ext,
+                "tableName"   : table.tableName,
+                "tableId"     : tableId,
+                "colNum"      : colNum,
+                "colName"     : colName,
+                "functionName": functionName,
+                "argList"     : argList,
+                "htmlExclude" : ["argList"]
+            };
+
+            // Note Use try catch in case user has come error in extension code
+            try {
+                var col = new XcSDK.Column(backColName, colType);
+                var ext = window[modName].actionFn(funcName);
+
+                if (ext == null || !(ext instanceof XcSDK.Extension)) {
+                    Alert.error(StatusMessageTStr.ExtFailed, ErrTStr.InvalidExt);
+                    return;
+                }
+
+                var buttons = window[modName].buttons;
+                var extButton = null;
+                if (buttons instanceof Array) {
+                    for (var i = 0, len = buttons.length; i < len; i++) {
+                        if (buttons[i].fnName === funcName) {
+                            extButton = buttons[i].arrayOfFields;
+                            break;
+                        }
+                    }
+                }
+
+                ext.initialize(col, tableName, worksheet, argList);
+                ext.runBeforeStart(extButton)
+                .then(function() {
+                    hasStart = true;
+                    xcHelper.lockTable(tableId);
+
+                    var msg = xcHelper.replaceMsg(StatusMessageTStr.Ext, {
+                        "extension": functionName
+                    });
+                    txId = Transaction.start({
+                        "msg"      : msg,
+                        "operation": SQLOps.Ext
+                    });
+
+                    return ext.run(txId);
+                })
+                .then(function() {
+                    return ext.runAfterFinish();
+                })
+                .then(function(finalTables) {
+
+                    xcHelper.unlockTable(tableId);
+
+                    sql.newTableNames = finalTables;
+                    // use the last finalTable as msgTable
+                    var finalTableName = finalTables[finalTables.length - 1];
+                    Transaction.done(txId, {
+                        "msgTable": xcHelper.getTableId(finalTableName),
+                        "sql"     : sql
+                    });
+                    deferred.resolve();
+                })
+                .fail(function(error) {
+                    if (error == null) {
+                        error = ErrTStr.Unknown;
+                    }
+
+                    if (hasStart) {
+                        xcHelper.unlockTable(tableId);
+
+                        Transaction.fail(txId, {
+                            "failMsg": StatusMessageTStr.ExtFailed,
+                            "error"  : error,
+                            "sql"    : sql
+                        });
+                    } else {
+                        Alert.error(StatusMessageTStr.ExtFailed, error);
+                    }
+                    deferred.reject(error);
+                });
+            } catch(error) {
+                if (hasStart) {
+                    xcHelper.unlockTable(tableId);
+
+                    Transaction.fail(txId, {
+                        "failMsg": StatusMessageTStr.ExtFailed,
+                        "error"  : error.toLocaleString(),
+                        "sql"    : sql
+                    });
+                } else {
+                    Alert.error(StatusMessageTStr.ExtFailed, error.toLocaleString());
+                }
+                deferred.reject(error);
+            }
+            return deferred.promise();
+        }
 
         var table = gTables[tableId];
         var sql = {
@@ -297,7 +410,7 @@ window.ExtensionManager = (function(ExtensionManager, $) {
                 xcHelper.unlockTable(tableId);
                 var finalTableId;
                 if (newTables != null) {
-                     if (!(newTables instanceof Array)) {
+                    if (!(newTables instanceof Array)) {
                         newTables = [newTables];
                     }
                     sql.newTables = newTables;

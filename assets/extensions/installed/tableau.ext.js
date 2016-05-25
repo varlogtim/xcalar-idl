@@ -1,8 +1,8 @@
 // XXX Do not use alertModal! Write your own for extensions!!!!
 window.UExtTableau = (function(UExtTableau, $) {
     UExtTableau.buttons = [{
-        "buttonText"  : "Visualize",
-        "fnName"      : "visualize",
+        "buttonText"   : "Visualize",
+        "fnName"       : "visualize",
         "arrayOfFields": []
     }];
 

@@ -3,10 +3,6 @@ var SortDirection = {
     Backward: 2
 };
 
-var SortStatus = {
-    Sorted: "Already sorted"
-};
-
 var RowDirection = {
     Top: 1,
     Bottom: 2

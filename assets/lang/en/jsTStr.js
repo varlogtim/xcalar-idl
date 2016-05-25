@@ -97,6 +97,8 @@ CommonTxtTstr = {
 };
 
 ErrTStr = {
+    'Unknown': 'Unknown Error',
+
     'NoEmpty': 'Please fill out this field.',
 
     'InvalidField': 'Invalid Field.',
@@ -213,8 +215,11 @@ ErrTStr = {
 
     'LargeImgText': 'Image exceeds your browser\'s maximum allowable size',
 
-    'QGNoExpand': 'This query graph has reached your browser\'s maximum allowable size.'
+    'QGNoExpand': 'This query graph has reached your browser\'s maximum allowable size.',
 
+    'InvalidExt': 'Invalid Extension',
+
+    'InvalidExtParam': 'Invalid Extension Parameters'
 };
 
 ErrWRepTStr = {

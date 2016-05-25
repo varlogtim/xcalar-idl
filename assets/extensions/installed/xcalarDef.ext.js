@@ -60,580 +60,484 @@ window.UExtXcalarDef = (function(UExtXcalarDef, $) {
     }];
 
     UExtXcalarDef.undoActionFn = undefined;
-    UExtXcalarDef.actionFn = function(txId, colNum, tableId, functionName, argList) {
+    UExtXcalarDef.actionFn = function(functionName) {
         switch (functionName) {
             case ("hPartition"):
-                return horizontalPartition(txId,colNum, tableId, argList["partitionNums"]);
+                return hPartitionExt();
             case ("windowChain"):
-                return windowChain(txId, colNum, tableId,
-                                    argList.winCol, argList.sortCol, argList.order,
-                                    argList.lag, argList.lead);
+                return windowExt();
             default:
-                return PromiseHelper.reject("Invalid Function");
+                return null;
         }
+    };
 
-        // Horizontal Partition
-        function horizontalPartition(txId, colNum, tableId, partitionNums) {
-            var deferred    = jQuery.Deferred();
-            var worksheet   = WSManager.getWSFromTable(tableId);
-            var table       = gTables[tableId];
-            var tableName   = table.tableName;
-            var tableCols   = table.tableCols;
-            var colType     = tableCols[colNum - 1].type;
-            var colName     = tableCols[colNum - 1].name;
-            var backColName = tableCols[colNum - 1].getBackColName();
-            var newTables = [];
+    function hPartitionExt() {
+        var ext = new XcSDK.Extension();
 
-            if (colType !== "integer" && colType !== "float" &&
-                colType !== "string" && colType !== "boolean") {
-                console.error("Invalid col type!");
-                deferred.reject("Invalid col type!");
-                return (deferred.promise());
-            }
+        ext.start = function() {
+            var self = this;
+            var deferred = XcSDK.Promise.deferred();
 
-            var tableNamePart = tableName.split("#")[0];
-
-            getUniqueValues(partitionNums)
+            getUniqueValues(self)
             .then(function(uniqueVals) {
                 var len = uniqueVals.length;
                 var promises = [];
 
+                // XXX can this part be simplified to not use bind???
                 for (var i = 0; i < len; i++) {
-                    promises.push(hPartitionHelper.bind(this, uniqueVals[i],
-                                                        i, colType));
+                    promises.push(hPartition.bind(window, self, uniqueVals[i], i));
                 }
 
-                return PromiseHelper.chain(promises);
+                return XcSDK.Promise.chain(promises);
             })
-            .then(function() {
-                deferred.resolve(newTables);
-            })
+            .then(deferred.resolve)
             .fail(deferred.reject);
 
             return deferred.promise();
+        };
 
-            function hPartitionHelper(fltVal, index, type) {
-                var innerDeferred = jQuery.Deferred();
+        return ext;
+    }
 
-                var srcTable = tableName;
-                var filterTable = tableNamePart + "-HP" + (index + 1) +
-                                    Authentication.getHashId();
-                var filterTableId = xcHelper.getTableId(filterTable);
-                var fltStr;
+    function windowExt() {
+        var ext = new XcSDK.Extension();
 
-                newTables[index] = filterTable;
+        ext.beforeStart = function() {
+            var self = this;
+            var args = self.getArgs();
 
-                switch (type) {
-                    case "string":
-                        fltStr = "eq(" + backColName + ", \"" + fltVal + "\")";
-                        break;
-                    default:
-                        // integer, float and boolean
-                        fltStr = "eq(" + backColName + ", " + fltVal + ")";
-                        break;
-                }
-
-                XIApi.filter(txId, fltStr, srcTable, filterTable)
-                .then(function() {
-                    var filterCols = xcHelper.deepCopy(tableCols);
-                    return TblManager.refreshTable([filterTable], filterCols,
-                                                    [], worksheet);
-                })
-                .then(function() {
-                    innerDeferred.resolve(filterTableId);
-                })
-                .fail(innerDeferred.reject);
-
-                return innerDeferred.promise();
-            }
-
-            function getUniqueValues(rowsToFetch) {
-                var innerDeferred = jQuery.Deferred();
-                var keyCol = backColName;
-                var srcTable = tableName;
-
-                // Step 1. Do groupby count($keyCol), GROUP BY ($keyCol)
-                // aka, index on keyCol and then groupby count
-                // this way we get the unique value of src table
-                var isIncSample = false;
-                var groupByCol = xcHelper.randName("randCol");
-                var groupbyTable = ".tempGB." + tableNamePart +
-                                    Authentication.getHashId();
-
-                XIApi.groupBy(txId, AggrOp.Count, keyCol, keyCol,
-                                isIncSample, srcTable,
-                                groupByCol, groupbyTable)
-                .then(function(tableAfterGroupby) {
-                    // Step 2. Sort on desc on groupby table by groupByCol
-                    // this way, the keyCol that has most count comes first
-                    var sortTable = ".tempGB-Sort." + tableNamePart +
-                                    Authentication.getHashId();
-                    return XIApi.sortDescending(txId, groupByCol,
-                                                tableAfterGroupby, sortTable);
-                })
-                .then(function(tableAfterSort) {
-                    // Step 3, fetch data
-                    return XIApi.fetchColumnData(keyCol, tableAfterSort, 1, rowsToFetch);
-                })
-                .then(function(result) {
-                    innerDeferred.resolve(result);
-                    // XXXX Should delete the interim table when delete is enabled
-                })
-                .fail(innerDeferred.reject);
-
-                return innerDeferred.promise();
-            }
-        }
-
-        function windowChain(txId, colNum, tableId, winCol, sortCol, direction, lag, lead) {
-            if (lag === 0 && lead === 0) {
-                return PromiseHelper.reject(ErrTStr.NoAllZeros);
-            }
-
-            if (direction.startsWith("desc")) {
-                direction = XcalarOrderingT.XcalarOrderingDescending;
-            } else if (direction.startsWith("asc")) {
-                direction = XcalarOrderingT.XcalarOrderingAscending;
+            if (args.order.startsWith("desc")) {
+                args.order = XcSDK.Enums.SortType.Desc;
+            } else if (args.order.startsWith("asc")) {
+                args.order = XcSDK.Enums.SortType.Asc;
             } else {
-                return PromiseHelper.reject("Sort Order Field can only be ascending or descending");
+                return XcSDK.Promise.reject("Sort Order Field can only be ascending or descending");
             }
 
-            var deferred = jQuery.Deferred();
-            // XXX: Fill in all the SQL stuff
-            var worksheet = WSManager.getWSFromTable(tableId);
+            if (args.lag === 0 && args.lead === 0) {
+                return XcSDK.Promise.reject("Lag and Lead cannot all be zeros");
+            }
 
-            var table = gTables[tableId];
-            var tableCols = table.tableCols;
-            var colName = winCol;
-            var tableName = table.tableName;
-            var tableNameRoot = tableName.split("#")[0];
-            var finalTableName;
-
-            var randNumber = Math.floor(Math.random() * 100);
-
+            // set some useful attribute
+            self.setAttribute("randNumber", Math.floor(Math.random() * 100));
             // constant to mark it's a lag table, lead table, or current table
-            var WinState = {
+            self.setAttribute("WinState", {
                 "lag" : "lag",
                 "lead": "lead",
                 "cur" : "cur"
-            };
+            });
 
             // cache tableNames for lag, lead and cur table
-            var tableNames = {
+            self.setAttribute("tableNames", {
                 "lag" : [],
                 "lead": [],
                 "cur" : ""
-            };
+            });
 
             // cache renamed col of the colName in lag, lead and cur table
-            var winColNames = {
+            self.setAttribute("winColNames", {
                 "lag" : [],
                 "lead": [],
                 "cur" : ""
-            };
+            });
 
             // cache names of genUniq col in lag, lead and cur table
-            var genUniqColNames = {
+            self.setAttribute("genUniqColNames", {
                 "lag" : [],
                 "lead": [],
                 "cur" : ""
-            };
+            });
+        };
 
-            var type = "string"; // default
+        ext.start = function() {
+            var deferred = XcSDK.Promise.deferred();
+            var self = this;
+            var args = self.getArgs();
+            var sortCol = args.sortCol;
+            var winCol = args.winCol;
+            var direction = args.order;
+            var lag = args.lag;
+            var lead = args.lead;
+
+            var WinState = self.getAttribute("WinState");
+            var finalTableName;
             var newOrigSortedOnCol;
 
             // Step 1: sort table
-            sortTable(tableName, sortCol)
+            winSortTable(self, sortCol, direction)
             .then(function(tableAfterSort) {
-                // Step 2. Figure out column type info from orig table.
-                // We need it in step 4.
-                return getSortColType(tableAfterSort);
+                // Step 2: Get Row Num Column, on SORTED table.
+                return winGenRowNum(self, tableAfterSort);
             })
-            .then(function(tableAfterSort, sortColType) {
-                type = sortColType;
-                // Step 3 Get Unique Column, on SORTED table.
-                return genRowNum(tableAfterSort);
-            })
-            .then(function(tableWithUniqOrig, uniqColName) {
-                // Step 4 Generate the columns for lag and lead. We need to
-                // duplicate current table to have a unique column name if not 
+            .then(function(tableWithRowNum, rowNumCol) {
+                // Step 3: Generate the columns for lag and lead. We need to
+                // duplicate current table to have a unique column name if not
                 // later we will suffer when we self join
                 var defArray = [];
                 var i;
                 for (i = 0; i < lag; i++) {
-                    defArray.push(ladLeadMap(WinState.lag, i,
-                                             tableWithUniqOrig, uniqColName));
+                    defArray.push(windLagLeadMap(self, WinState.lag, i,
+                                                tableWithRowNum, rowNumCol));
                 }
 
                 for (i = 0; i < lead; i++) {
-                    defArray.push(ladLeadMap(WinState.lead, i,
-                                             tableWithUniqOrig, uniqColName));
+                    defArray.push(windLagLeadMap(self, WinState.lead, i,
+                                                tableWithRowNum, rowNumCol));
                 }
 
-                defArray.push(ladLeadMap(WinState.cur, -1,
-                                         tableWithUniqOrig, uniqColName));
-                return PromiseHelper.when.apply(window, defArray);
+                defArray.push(windLagLeadMap(self, WinState.cur, -1,
+                                            tableWithRowNum, rowNumCol));
+                return XcSDK.Promise.when.apply(window, defArray);
             })
             .then(function() {
-                // Step 5 Create unique col names for each of the tables
+                // Step 4: Create unique col names for each of the tables
                 // This is so that we don't suffer when we self join
                 var defArray = [];
                 var i;
                 for (i = 0; i < lag; i++) {
-                    defArray.push(winColRename(WinState.lag, i, colName));
+                    defArray.push(winColRename(self, WinState.lag, i, winCol));
                 }
                 for (i = 0; i < lead; i++) {
-                    defArray.push(winColRename(WinState.lead, i, colName));
+                    defArray.push(winColRename(self, WinState.lead, i, winCol));
                 }
 
-                defArray.push(winColRename(WinState.cur, -1, colName));
-                return PromiseHelper.when.apply(window, defArray);
+                defArray.push(winColRename(self, WinState.cur, -1, winCol));
+                return XcSDK.Promise.when.apply(window, defArray);
             })
             .then(function() {
-                // Step 6 Need to recast the original sorted by column in cur
+                // Step 5: Need to rename the original sorted by column in cur
                 // table to avoid name collisions
-                newOrigSortedOnCol = "orig_" + sortCol + "_" +
-                                     randNumber;
-
-                var mapStr = type + "(" + sortCol + ")";
-                return reCastCurTable(newOrigSortedOnCol, mapStr);
+                return windRenameSortCol(ext, sortCol);
             })
-            .then(function() {
-                // Step 7 inner join funnesss!
+            .then(function(tableAfterCast, newColName) {
+                newOrigSortedOnCol = newColName;
+                // Step 6: inner join funnesss!
                 // Order: Take cur, join lags then join leads
                 var defChain = [];
+
+                var tableNames = self.getAttribute("tableNames");
+                var genUniqColNames = self.getAttribute("genUniqColNames");
+                var joinType = XcSDK.Enums.JoinType.InnerJoin;
                 var lTable = tableNames.cur;
                 var lCol = genUniqColNames.cur;
+                var rTable;
+                var rCol;
                 var newTableName;
                 var i;
+
                 for (i = 0; i < lag; i++) {
-                    newTableName = tableNameRoot + "_Win_" +
-                                    Authentication.getHashId();
+                    newTableName = self.createTableName(null, "_window");
                     rTable = tableNames.lag[i];
+                    rCol = genUniqColNames.lag[i];
                     finalTableName = newTableName;
-                    defChain.push(winJoin.bind(this, lCol, lTable,
-                                                newTableName, i, WinState.lag));
+                    defChain.push(self.join.bind(self, joinType, lCol, lTable,
+                                                 rCol, rTable, newTableName));
                     lTable = newTableName;
                 }
 
                 for (i = 0; i < lead; i++) {
-                    newTableName = tableNameRoot + "_Win_" +
-                                    Authentication.getHashId();
+                    newTableName = self.createTableName(null, "_chain");
                     rTable = tableNames.lead[i];
+                    rCol = genUniqColNames.lead[i];
                     finalTableName = newTableName;
-                    defChain.push(winJoin.bind(this, lCol, lTable,
-                                                newTableName, i, WinState.lead));
+                    defChain.push(self.join.bind(self, joinType, lCol, lTable,
+                                                rCol, rTable, newTableName));
                     lTable = newTableName;
                 }
 
-                return PromiseHelper.chain(defChain);
+                return XcSDK.Promise.chain(defChain);
             })
             .then(function() {
-                // Step 8 Sort ascending or descending by the cur order number
-                var oldTableName = finalTableName;
-                var indexCol = newOrigSortedOnCol;
-                return XIApi.sort(txId, direction, indexCol, oldTableName);
+                // Step 7: Sort ascending or descending by the cur order number
+                return self.sort(direction, newOrigSortedOnCol, finalTableName);
             })
             .then(function(tableAfterSort) {
-                finalTableName = tableAfterSort;
-                // Step 9 YAY WE ARE FINALLY DONE! Just start picking out all
+                // Step 8: YAY WE ARE FINALLY DONE! Just start picking out all
                 // the columns now and do the sort and celebrate
-                var colNames = [];
-                var finalCols = [];
-                // Don't pull cur. Instead pull the original sorted col which
-                // cur was generated on.
-                colNames.push(newOrigSortedOnCol);
-
-                for (var i = lag - 1; i >= 0; i--) {
-                    colNames.push(winColNames.lag[i]);
-                }
-
-                colNames.push(winColNames.cur);
-
-                for (var i = 0; i < lead; i++) {
-                    colNames.push(winColNames.lead[i]);
-                }
-
-                var colLen = colNames.length;
-                for (var i = 0; i < colLen; i++) {
-                    var colType;
-
-                    if (colNames[i] !== newOrigSortedOnCol) {
+                var table = self.getTable(tableAfterSort);
+                if (table != null) {
+                    table.deleteAllCols();
+                    // Don't pull cur. Instead pull the original sorted col which
+                    // cur was generated on.
+                    var winColNames = self.getAttribute("winColNames");
+                    var colType = sortCol.getType();
+                    if (colType === "integer" || colType === "float") {
+                        // both integer and float cast to float
                         colType = "float";
-                    } else {
-                        switch (type) {
-                            case ("int"):
-                                colType = "integer";
-                                break;
-                            case ("bool"):
-                                colType = "boolean";
-                                break;
-                            default:
-                                colType = type;
-                        }
+                    }
+                    var col = new XcSDK.Column(newOrigSortedOnCol, colType);
+                    table.addCol(col);
+                    
+                    for (var i = lag - 1; i >= 0; i--) {
+                        col = new XcSDK.Column(winColNames.lag[i], "float");
+                        table.addCol(col);
                     }
 
-                    finalCols[i] = ColManager.newCol({
-                        "name"    : colNames[i],
-                        "type"    : colType,
-                        "width"   : gNewCellWidth,
-                        "isNewCol": false,
-                        "userStr" : '"' + colNames[i] + '" = pull(' +
-                                    colNames[i] + ')',
-                        "func"    : {
-                            "func": "pull",
-                            "args": [colNames[i]]
-                        }
-                    });
+                    col = new XcSDK.Column(winColNames.cur, "float");
+                    table.addCol(col);
+
+                    for (var i = 0; i < lead; i++) {
+                        col = new XcSDK.Column(winColNames.lead[i], "float");
+                        table.addCol(col);
+                    }
+                    return table.addToWorksheet();
                 }
-
-                finalCols.push(ColManager.newDATACol());
-
-                return TblManager.refreshTable([finalTableName], finalCols,
-                                                [], worksheet);
             })
-            .then(function() {
-                deferred.resolve(finalTableName);
-            })
+            .then(deferred.resolve)
             .fail(deferred.reject);
 
             return deferred.promise();
+        };
 
-            function sortTable(srcTable, colToSort) {
-                var innerDeferred = jQuery.Deferred();
+        return ext;
+    }
 
-                XIApi.sort(txId, direction, colToSort, srcTable)
-                .then(innerDeferred.resolve)
-                .fail(function(error) {
-                    if ((error instanceof Object) &&
-                        error.error === SortStatus.Sorted) {
-                        console.log("already sorted on ", srcTable);
-                        innerDeferred.resolve(srcTable);
-                    } else {
-                        innerDeferred.reject(error);
-                    }
-                });
+    function winSortTable(ext, colToSort, direction) {
+        var deferred = XcSDK.Promise.deferred();
+        var srcTable = ext.getTriggerTable().getName();
+        var colName = colToSort.getName();
 
-                return innerDeferred.promise();
+        ext.sort(direction, colName, srcTable)
+        .then(deferred.resolve)
+        .fail(function(error, sorted) {
+            if (sorted) {
+                // when already sort correctly on the column
+                deferred.resolve(srcTable);
+            } else {
+                deferred.reject(error);
             }
+        });
 
-            function getSortColType(srcTable) {
-                var innerDeferred = jQuery.Deferred();
-                var sortColType = "string"; // default
+        return deferred.promise();
+    }
 
-                XcalarMakeResultSetFromTable(srcTable)
-                .then(function(ret) {
-                    sortColType = DfFieldTypeTStr[ret.keyAttrHeader.type];
-                    switch (sortColType) {
-                        case ("DfString"):
-                            sortColType = "string";
-                            break;
-                        case ("DfInt32"):
-                        case ("DfInt64"):
-                        case ("DfUInt32"):
-                        case ("DfUInt64"):
-                            sortColType = "int";
-                            break;
-                        case ("DfFloat32"):
-                        case ("DfFloat64"):
-                            sortColType = "float";
-                            break;
-                        case ("DfBoolean"):
-                            sortColType = "bool";
-                            break;
-                        default:
-                            sortColType = "string";
-                            break;
-                    }
-                    return XcalarSetFree(ret.resultSetId);
-                })
-                .then(function() {
-                    innerDeferred.resolve(srcTable, sortColType);
-                })
-                .fail(innerDeferred.reject);
+    function winGenRowNum(ext, srcTable) {
+        var deferred = XcSDK.Promise.deferred();
+        var newColName = "orig_order_" + ext.getAttribute("randNumber");
 
-                return innerDeferred.promise();
-            }
+        ext.getRowNum(srcTable, newColName)
+        .then(function(newTableName) {
+            deferred.resolve(newTableName, newColName);
+        })
+        .fail(deferred.reject);
 
-            function genRowNum(srcTable) {
-                var innerDeferred = jQuery.Deferred();
+        return deferred.promise();
+    }
 
-                var newTableName = tableNameRoot + Authentication.getHashId();
-                var newColName = "orig_order_" + randNumber;
+    function windLagLeadMap(ext, state, index, srcTable, rowNumCol) {
+        var deferred = XcSDK.Promise.deferred();
 
-                XcalarGenRowNum(srcTable, newTableName, newColName, txId)
-                .then(function() {
-                    TblManager.setOrphanTableMeta(newTableName, tableCols);
-                    innerDeferred.resolve(newTableName, newColName);
-                })
-                .fail(innerDeferred.reject);
+        var tableNames = ext.getAttribute("tableNames");
+        var genUniqColNames = ext.getAttribute("genUniqColNames");
+        var WinState = ext.getAttribute("WinState");
+        var randNumber = ext.getAttribute("randNumber");
 
-                return innerDeferred.promise();
-            }
+        var newColName;
+        var mapStr;
+        var suffix = (index + 1);
+        var tableNameSuffix;
 
-            function ladLeadMap(state, index, srcTable, uniqColName) {
-                var innerDeferred = jQuery.Deferred();
-                var newTableName;
-                var newColName;
-                var mapStr;
-                var suffix = (index + 1);
+        if (state === WinState.lag) {
+            // lagMapString
+            mapStr = "add(" + rowNumCol + ", " + suffix + ")";
+            tableNameSuffix = "_" + randNumber + "_lag_" + suffix;
+            newColName = "lag_" + suffix + "_" + randNumber;
 
-                if (state === WinState.lag) {
-                    // lagMapString
-                    mapStr = "add(" + uniqColName + ", " + suffix + ")";
-                    newTableName = tableNameRoot + "_" + randNumber + "_lag_" +
-                                    suffix + Authentication.getHashId();
-                    newColName = "lag_" + suffix + "_" + randNumber;
-
-                } else if (state === WinState.lead) {
-                    // leadMapString
-                    mapStr = "sub(" + uniqColName + ", " + suffix + ")";
-                    newTableName = tableNameRoot + "_" + randNumber + "_lead_" +
-                                    suffix + Authentication.getHashId();
-                    newColName = "lead_" + suffix + "_" + randNumber;
-                } else if (state === WinState.cur) {
-                    // curMapString
-                    mapStr = "float(" + uniqColName + ")";
-                    newTableName = tableNameRoot + "_" + randNumber + "_cur" +
-                                   Authentication.getHashId();
-                    newColName = "cur_" + randNumber;
-                } else {
-                    throw "Error Case!";
-                }
-
-                // cache tableName and colName for later user
-                if (state === WinState.cur) {
-                    tableNames.cur = newTableName;
-                    genUniqColNames.cur = newColName;
-                } else {
-                    tableNames[state][index] = newTableName;
-                    genUniqColNames[state][index] = newColName;
-                }
-
-                XcalarMap(newColName, mapStr, srcTable, newTableName, txId)
-                .then(function() {
-                    TblManager.setOrphanTableMeta(newTableName, tableCols);
-                    innerDeferred.resolve();
-                })
-                .fail(innerDeferred.reject);
-
-                return innerDeferred.promise();
-            }
-
-            function winColRename(state, index, winCol) {
-                var innerDeferred = jQuery.Deferred();
-                var newColName;
-
-                var srcTable;
-                var mapStr = "float(" + winCol + ")";
-                var suffix = (index + 1);
-
-                if (state === WinState.lag) {
-                    // lag
-                    srcTable = tableNames.lag[index];
-                    newColName = "lag_" + suffix + "_" + colName;
-                } else if (state === WinState.lead) {
-                    // lead
-                    srcTable = tableNames.lead[index];
-                    newColName = "lead_" + suffix + "_" + colName;
-                } else if (state === WinState.cur) {
-                    // cur
-                    srcTable = tableNames.cur;
-                    newColName = "cur_" + colName;
-                } else {
-                    throw "Error Case!";
-                }
-
-                var newTableName = srcTable.split("#")[0] +
-                                    Authentication.getHashId();
-                // update tableName and cache colName
-                if (state === WinState.cur) {
-                    tableNames.cur = newTableName;
-                    winColNames.cur = newColName;
-                } else {
-                    tableNames[state][index] = newTableName;
-                    winColNames[state][index] = newColName;
-                }
-
-                XcalarMap(newColName, mapStr, srcTable, newTableName, txId)
-                .then(function() {
-                    var newCols = [];
-                    newCols[0] = ColManager.newCol({
-                        "name"    : newColName,
-                        "type"    : "float",
-                        "width"   : gNewCellWidth,
-                        "isNewCol": false,
-                        "userStr" : '"' + newColName + '" = pull(' +
-                                        newColName + ')',
-                        "func"    : {
-                            "func": "pull",
-                            "args": [newColName]
-                        }
-                    });
-                    newCols.push(ColManager.newDATACol());
-                    TblManager.setOrphanTableMeta(newTableName, newCols);
-                    innerDeferred.resolve();
-                })
-                .fail(innerDeferred.reject);
-
-                return innerDeferred.promise();
-            }
-
-            function reCastCurTable(newMapCol, mapStr) {
-                var innerDeferred = jQuery.Deferred();
-                var srcTable = tableNames.cur;
-                var newTableName = srcTable.split("#")[0] +
-                                   Authentication.getHashId();
-                tableNames.cur = newTableName;
-
-                XcalarMap(newMapCol, mapStr, srcTable, newTableName, txId)
-                .then(function() {
-                    var srcTableId = xcHelper.getTableId(srcTable);
-                    var srcTableCols = gTables[srcTableId].tableCols;
-                    TblManager.setOrphanTableMeta(newTableName, srcTableCols);
-                    innerDeferred.resolve();
-                })
-                .fail(innerDeferred.reject);
-
-                return innerDeferred.promise();
-            }
-
-            function winJoin(lCol, lTable, newTableName, index, state) {
-                if (state !== WinState.lag && state !== WinState.lead) {
-                    // state can only be lag or lead
-                    return PromiseHelper.reject("Error Case in win join");
-                }
-
-                var innerDeferred = jQuery.Deferred();
-                var joinType = JoinOperatorT.InnerJoin;
-                var rTable = tableNames[state][index];
-                var rCol = genUniqColNames[state][index];;
-
-                XIApi.join(txId, joinType, lCol, lTable, rCol, rTable, newTableName)
-                .then(function() {
-                    var lTableId = xcHelper.getTableId(lTable);
-                    var newCols = xcHelper.deepCopy(gTables[lTableId].tableCols);
-                    newCols.unshift(ColManager.newCol({
-                        "name"    : rCol,
-                        "type"    : "float",
-                        "width"   : gNewCellWidth,
-                        "isNewCol": false,
-                        "userStr" : '"' + rCol + '" = pull(' + rCol + ')',
-                        "func"    : {
-                            "func": "pull",
-                            "args": [rCol]
-                        }
-                    }));
-
-                    TblManager.setOrphanTableMeta(newTableName, newCols);
-                    innerDeferred.resolve();
-                })
-                .fail(innerDeferred.reject);
-
-                return innerDeferred.promise();
-            }
+        } else if (state === WinState.lead) {
+            // leadMapString
+            mapStr = "sub(" + rowNumCol + ", " + suffix + ")";
+            tableNameSuffix = "_" + randNumber + "_lead_" + suffix;
+            newColName = "lead_" + suffix + "_" + randNumber;
+        } else if (state === WinState.cur) {
+            // curMapString
+            mapStr = "float(" + rowNumCol + ")";
+            tableNameSuffix = "_" + randNumber + "_cur";
+            newColName = "cur_" + randNumber;
+        } else {
+            throw "Error Case!";
         }
-    };
+
+        var newTableName = ext.createTableName(null, tableNameSuffix);
+        // cache tableName and colName for later user
+        if (state === WinState.cur) {
+            tableNames.cur = newTableName;
+            genUniqColNames.cur = newColName;
+        } else {
+            tableNames[state][index] = newTableName;
+            genUniqColNames[state][index] = newColName;
+        }
+
+        ext.map(mapStr, srcTable, newColName, newTableName)
+        .then(deferred.resolve)
+        .fail(deferred.reject);
+
+        return deferred.promise();
+    }
+
+    function winColRename(ext, state, index, winCol) {
+        var deferred = XcSDK.Promise.deferred();
+
+        var tableNames = ext.getAttribute("tableNames");
+        var winColNames = ext.getAttribute("winColNames");
+        var WinState = ext.getAttribute("WinState");
+
+        var winColName = winCol.getName();
+        var newColName;
+
+        var srcTable;
+        var mapStr = "float(" + winColName + ")";
+        var suffix = (index + 1);
+
+        if (state === WinState.lag) {
+            // lag
+            srcTable = tableNames.lag[index];
+            newColName = "lag_" + suffix + "_" + winColName;
+        } else if (state === WinState.lead) {
+            // lead
+            srcTable = tableNames.lead[index];
+            newColName = "lead_" + suffix + "_" + winColName;
+        } else if (state === WinState.cur) {
+            // cur
+            srcTable = tableNames.cur;
+            newColName = "cur_" + winColName;
+        } else {
+            return XcSDK.Promise.reject("Error Case");
+        }
+
+        var newTableName = ext.createTableName(null, null, srcTable);
+        // update tableName and cache colName
+        if (state === WinState.cur) {
+            tableNames.cur = newTableName;
+            winColNames.cur = newColName;
+        } else {
+            tableNames[state][index] = newTableName;
+            winColNames[state][index] = newColName;
+        }
+
+        ext.map(mapStr, srcTable, newColName, newTableName)
+        .then(function(tableAfterMap) {
+            var table = ext.getTable(tableAfterMap);
+            if (table != null) {
+                // add the col to meta
+                var colNum = table.getColNum(winCol);
+                if (colNum > 0) {
+                    var col = new XcSDK.Column(newColName, "float");
+                    // inseart to col before winCol
+                    table.addCol(col, colNum - 1);
+                }
+            }
+        })
+        .then(deferred.resolve)
+        .fail(deferred.reject);
+
+        return deferred.promise();
+    }
+
+    function windRenameSortCol(ext, sortCol) {
+        var deferred = XcSDK.Promise.deferred();
+
+        var colName = sortCol.getName();
+        var colType = sortCol.getType();
+        var mapStr;
+
+        switch (colType) {
+            // this is front end think of type, inaccurate,
+            // so cast it to float
+            case "integer":
+            case "float":
+                mapStr = "float(" + colName + ")";
+                break;
+            case "boolean":
+                mapStr = "bool(" + colName + ")";
+                break;
+            case "string":
+                mapStr = "string(" + colName + ")";
+                break;
+            default:
+                return XcSDK.Promise.reject("Wrong type in window");
+        }
+
+        var tableNames = ext.getAttribute("tableNames");
+        var srcTable = tableNames.cur;
+
+        var newColName = "orig_" + colName + "_" + ext.getAttribute("randNumber");
+        var newTableName = ext.createTableName(null, null, srcTable);
+
+        tableNames.cur = newTableName;
+
+        ext.map(mapStr, srcTable, newColName, newTableName)
+        .then(function(tableAfterMap) {
+            deferred.resolve(tableAfterMap, newColName);
+        })
+        .fail(deferred.reject);
+
+        return deferred.promise();
+    }
+
+    function getUniqueValues(ext) {
+        var deferred = XcSDK.Promise.deferred();
+        var keyCol = ext.getTriggerCol().getName();
+        var srcTable = ext.getTriggerTable().getName();
+        var rowsToFetch = ext.getArgs().partitionNums;
+
+        // Step 1. Do groupby count($keyCol), GROUP BY ($keyCol)
+        // aka, index on keyCol and then groupby count
+        // this way we get the unique value of src table
+        var isIncSample = false;
+        var groupByCol = ext.createColumnName();
+        var groupbyTable = ext.createTempTableName("GB.");
+        var aggOp = XcSDK.Enums.AggType.Count;
+
+        ext.groupBy(aggOp, keyCol, keyCol,
+                    isIncSample, srcTable,
+                    groupByCol, groupbyTable)
+        .then(function(tableAfterGroupby) {
+            // Step 2. Sort on desc on groupby table by groupByCol
+            // this way, the keyCol that has most count comes first
+            var sortTable = ext.createTempTableName("GB-Sort.");
+            return ext.sortDescending(groupByCol, tableAfterGroupby, sortTable);
+        })
+        .then(function(tableAfterSort) {
+            // Step 3, fetch data
+            return ext.fetchColumnData(keyCol, tableAfterSort, 1, rowsToFetch);
+        })
+        .then(deferred.resolve)
+        .fail(deferred.reject);
+
+        return deferred.promise();
+    }
+
+    function hPartition(ext, fltVal, index) {
+        var deferred = XcSDK.Promise.deferred();
+        var srcTable = ext.getTriggerTable().getName();
+        var filterTable = ext.createTableName(null, "-HP" + (index + 1));
+        var col = ext.getTriggerCol();
+        var colName = col.getName();
+        var colType = col.getType();
+        var fltStr;
+
+        switch (colType) {
+            case "string":
+                fltStr = "eq(" + colName + ", \"" + fltVal + "\")";
+                break;
+            default:
+                // integer, float and boolean
+                fltStr = "eq(" + colName + ", " + fltVal + ")";
+                break;
+        }
+
+        ext.filter(fltStr, srcTable, filterTable)
+        .then(function(tableAfterFilter) {
+            var table = ext.getTable(tableAfterFilter);
+            if (table != null) {
+                return table.addToWorksheet();
+            }
+        })
+        .then(deferred.resolve)
+        .fail(deferred.reject);
+
+        return deferred.promise();
+    }
 
     return (UExtXcalarDef);
 }({}, jQuery));

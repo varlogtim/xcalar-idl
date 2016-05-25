@@ -1175,6 +1175,9 @@ window.xcHelper = (function($, xcHelper) {
     };
 
     xcHelper.getTableId = function(wholeName) {
+        if (wholeName == null) {
+            return null;
+        }
         // get out hashId from tableName + hashId
         var hashIndex = wholeName.lastIndexOf('#');
         if (hashIndex > -1) {

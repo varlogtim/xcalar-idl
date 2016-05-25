@@ -1,8 +1,4 @@
 window.XIApi = (function(XIApi, $) {
-    XIApi.getNewTableName = function(tableName) {
-        return getNewTableName(tableName);
-    };
-
     XIApi.filter = function(txId, fltStr, tableName, newTableName) {
         if (txId == null || fltStr == null || tableName == null) {
             return PromiseHelper.reject("Invalid args in filter");
@@ -77,7 +73,7 @@ window.XIApi = (function(XIApi, $) {
                 if (indexInput != null && indexInput.keyName === colName &&
                     indexInput.ordering === order)
                 {
-                    return PromiseHelper.reject({"error": SortStatus.Sorted});
+                    return PromiseHelper.reject(null, true);
                 }
             }
 
@@ -171,7 +167,11 @@ window.XIApi = (function(XIApi, $) {
                                 joinType, txId);
         })
         .then(function() {
-            deferred.resolve(newTableName);
+            var lTableId = xcHelper.getTableId(lTableName);
+            var rTableId = xcHelper.getTableId(rTableName);
+            var joinedCols = createJoinedColumns(lTableId, rTableId);
+
+            deferred.resolve(newTableName, joinedCols);
         })
         .fail(deferred.reject);
 
@@ -255,6 +255,26 @@ window.XIApi = (function(XIApi, $) {
 
             return innerDeferred.promise();
         }
+    };
+
+    XIApi.getRowNum = function(txId, tableName, newColName, newTableName) {
+        if (txId == null || tableName == null || newColName == null) {
+            return PromiseHelper.reject("Invalid args in get row num");
+        }
+
+        var deferred = jQuery.Deferred();
+
+        if (!isValidTableName(newTableName)) {
+            newTableName = getNewTableName(tableName);
+        }
+
+        XcalarGenRowNum(tableName, newTableName, newColName, txId)
+        .then(function() {
+            deferred.resolve(newTableName);
+        })
+        .fail(deferred.reject);
+
+        return deferred.promise();
     };
 
     XIApi.fetchData = function(tableName, startRowNum, rowsToFetch) {
@@ -641,6 +661,52 @@ window.XIApi = (function(XIApi, $) {
         .fail(deferred.reject);
 
         return deferred.promise();
+    }
+
+    // For xiApi.join, deepy copy of right table and left table columns
+    function createJoinedColumns(lTableId, rTableId) {
+        // Combine the columns from the 2 current tables
+        // Note that we have to create deep copies!!
+        var newTableCols = [];
+        var lCols = [];
+        var rCols = [];
+        var index = 0;
+        var colName;
+        var dataCol = ColManager.newDATACol();
+
+        if (lTableId != null && gTables[lTableId] != null &&
+            gTables[lTableId].tableCols != null)
+        {
+            lCols = xcHelper.deepCopy(gTables[lTableId].tableCols);
+        }
+
+        if (rTableId != null && gTables[rTableId] != null &&
+            gTables[rTableId].tableCols != null)
+        {
+            rCols = xcHelper.deepCopy(gTables[rTableId].tableCols);
+        }
+
+        for (var i = 0; i < lCols.length; i++) {
+            colName = lCols[i].name;
+
+            if (colName !== "DATA") {
+                newTableCols[index] = lCols[i];
+                ++index;
+            }
+        }
+
+        for (var i = 0; i < rCols.length; i++) {
+            colName = rCols[i].name;
+
+            if (colName !== "DATA") {
+                newTableCols[index] = rCols[i];
+                ++index;
+            }
+        }
+
+        // now newTablCols.length is differenet from len
+        newTableCols.push(dataCol);
+        return (newTableCols);
     }
 
     function getFinalGroupByCols(tableName, groupByCols, newColName, isIncSample) {

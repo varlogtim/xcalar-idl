@@ -177,7 +177,7 @@ window.ExtensionOpModal = (function(ExtensionOpModal, $) {
                 return { "vaild": false };
             }
 
-            arg = getBackColName(arg, typeCheck.columnType, $input);
+            arg = getColInfo(arg, typeCheck.columnType, $input);
             if (arg == null) {
                 return { "vaild": false };
             }
@@ -213,11 +213,12 @@ window.ExtensionOpModal = (function(ExtensionOpModal, $) {
         };
     }
 
-    function getBackColName(arg, validType, $input) {
+    function getColInfo(arg, validType, $input) {
         arg = arg.replace(/\$/g, '');
         var tempColNames = arg.split(",");
         var backColNames = "";
         var table = gTables[exTableId];
+        var cols = [];
         var error;
 
         if (validType != null && !(validType instanceof Array)) {
@@ -228,24 +229,22 @@ window.ExtensionOpModal = (function(ExtensionOpModal, $) {
             var progCol = table.getProgColFromFrontColName(tempColNames[i].trim());
             if (progCol != null) {
                 var colType = progCol.getType();
+                var type = colType;
                 if (colType === "integer" || colType === "float") {
-                    colType = "number";
+                    type = "number";
                 }
 
-                if (validType != null && validType.indexOf(colType) < 0) {
+                if (validType != null && validType.indexOf(type) < 0) {
                     error = xcHelper.replaceMsg(ErrWRepTStr.InvalidOpsType, {
                         "type1": validType.join(","),
-                        "type2": colType
+                        "type2": type
                     });
                     StatusBox.show(error, $input);
                     return null;
                 }
 
                 var backColName = progCol.getBackColName();
-                if (i > 0) {
-                    backColNames += ",";
-                }
-                backColNames += backColName;
+                cols.push(new XcSDK.Column(backColName, colType));
             } else {
                 error = xcHelper.replaceMsg(ErrWRepTStr.InvalidCol, {
                     "name": tempColNames[i]
@@ -255,7 +254,11 @@ window.ExtensionOpModal = (function(ExtensionOpModal, $) {
             }
         }
 
-        return backColNames;
+        if (cols.length === 1) {
+            return cols[0];
+        } else {
+            return cols;
+        }
     }
 
     function closeExtModal() {

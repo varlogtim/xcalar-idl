@@ -35,7 +35,7 @@ window.PromiseHelper = (function(PromiseHelper, $) {
         if (!eval(condition)) {
             return PromiseHelper.doWhile(oneIter, args, condition, opaqueArgs);
         } else {
-            return jQuery.Deferred.promise().resolve();
+            return PromiseHelper.resolve();
         }
     };
 
@@ -110,7 +110,6 @@ window.PromiseHelper = (function(PromiseHelper, $) {
     PromiseHelper.resolve = function() {
         var deferred = jQuery.Deferred();
         deferred.resolve.apply(this, arguments);
-
         return deferred.promise();
     };
 
