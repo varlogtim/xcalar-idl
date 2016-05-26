@@ -127,7 +127,11 @@ window.FileBrowser = (function($, FileBrowser) {
 
         $("#fileBrowserNFS").click(function() {
             if ($(this).find(".checkbox").hasClass("checked")) {
-                changeFileSource(defaultFilePath);
+                if ($("#filePath").val().indexOf(defaultHDFSPath)==0) {
+                    changeFileSource(defaultHDFSPath);
+                } else {
+                    changeFileSource(defaultFilePath);
+                }
             } else {
                 changeFileSource(defaultNFSPath);
             }
@@ -522,7 +526,7 @@ window.FileBrowser = (function($, FileBrowser) {
         defaultPath = pathPrefix;
         $pathSection.find(".defaultPath").text(pathPrefix);
 
-        if (pathPrefix === defaultNFSPath || pathPrefix === defaultHDFSPath) {
+        if (pathPrefix === defaultNFSPath) {
             $checkbox.addClass("checked");
         } else {
             $checkbox.removeClass("checked");
