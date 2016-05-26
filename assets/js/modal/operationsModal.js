@@ -1168,10 +1168,10 @@ window.OperationsModal = (function($, OperationsModal) {
                 despText = '<p>' + despText + '</p>' +
                             '<b>String Preview:</b>' +
                             '<p class="funcDescription textOverflow">' +
-                                operObj.fnName + '(' +
+                                operatorName + '(' + operObj.fnName + '(' +
                                 '<span class="descArgs">' +
                                     $rows.eq(0).find(".argument").val() +
-                                '</span>' +
+                                '</span>)' +
                                 ')' +
                             '</p>';
             } else if (operatorName === 'group by') {
@@ -1267,10 +1267,10 @@ window.OperationsModal = (function($, OperationsModal) {
                 despText = '<p>' + despText + '</p>' +
                             '<b>String Preview:</b>' +
                             '<p class="funcDescription textOverflow">' +
-                                operObj.fnName + '(' +
+                                operatorName + '(' + operObj.fnName + '(' +
                                 '<span class="descArgs">' +
                                     $rows.eq(0).find(".argument").val() +
-                                '</span>' +
+                                '</span>)' +
                                 ')' +
                             '</p>';
             }
