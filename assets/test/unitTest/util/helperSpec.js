@@ -819,26 +819,26 @@ describe('xcHelper Test', function() {
 
     it('xcHelper.checkMatchingBrackets should work', function() {
         // case 1
-        var res = xcHelper.checkMatchingBrackets('(test)');
-        expect(res).to.be.true;
+        var res = xcHelper.checkMatchingBrackets('(test)').index;
+        expect(res).to.equal(-1);
         // case 2
-        res = xcHelper.checkMatchingBrackets('test)');
-        expect(res).to.be.false;
+        res = xcHelper.checkMatchingBrackets('test)').index;
+        expect(res).to.equal(4);
         // case 3
-        res = xcHelper.checkMatchingBrackets('(test');
-        expect(res).to.be.false;
+        res = xcHelper.checkMatchingBrackets('(test').index;
+        expect(res).to.equal(0);
         // case 4
-        res = xcHelper.checkMatchingBrackets('(())');
-        expect(res).to.be.true;
+        res = xcHelper.checkMatchingBrackets('(())').index;
+        expect(res).to.equal(-1);
         // case 5
-        res = xcHelper.checkMatchingBrackets('("(")');
-        expect(res).to.be.true;
+        res = xcHelper.checkMatchingBrackets('("(")').index;
+        expect(res).to.equal(-1);
         // case 6
-        res = xcHelper.checkMatchingBrackets('(\\")');
-        expect(res).to.be.true;
+        res = xcHelper.checkMatchingBrackets('(\\")').index;
+        expect(res).to.equal(-1);
         // case 7
-        res = xcHelper.checkMatchingBrackets('("\\"(")');
-        expect(res).to.be.true;
+        res = xcHelper.checkMatchingBrackets('("\\"(")').index;
+        expect(res).to.equal(-1);
     });
 
     it('xcHelper.fillInputFromCell should work', function() {

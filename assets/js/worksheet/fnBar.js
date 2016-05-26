@@ -1,6 +1,7 @@
 window.FnBar = (function(FnBar, $) {
     var $functionArea; // $("#functionArea");
     var $fnBar;        // $("#fnBar");
+    var $fnBarClone;   // $('.fnBarClone');
 
     var $lastColInput = null;
     var searchHelper;
@@ -8,6 +9,7 @@ window.FnBar = (function(FnBar, $) {
     FnBar.setup = function() {
         $functionArea = $("#functionArea");
         $fnBar = $("#fnBar");
+        $fnBarClone = $functionArea.find('.fnBarClone');
         setupSearchHelper();
         var initialTableId; //used to track table that was initially active
         // when user started searching
@@ -28,6 +30,7 @@ window.FnBar = (function(FnBar, $) {
                 } else {
                     $functionArea.removeClass('searching');
                 }
+                highlightBrackets();
             },
             "keydown": function(event) {
                 if (event.which === keyCode.Backspace) {
@@ -41,6 +44,7 @@ window.FnBar = (function(FnBar, $) {
                         $fnBar.val(oldStr.substring(0, oldCaret) +
                                    oldStr.substring(oldCaret + 1));
                         $fnBar.caret(oldCaret);
+                        highlightBrackets();
                     }
                 }
             },
@@ -57,16 +61,26 @@ window.FnBar = (function(FnBar, $) {
                                  ")" + oldStr.substring(oldCaret);
                         $fnBar.val(newStr);
                         $fnBar.caret(oldCaret);
+                        highlightBrackets();
                     }
                 } else if (event.which === keyCode.Enter) {
-                    if (xcHelper.checkMatchingBrackets($fnBar.val())) {
+                    var val = $fnBar.val();
+                    var mismatch = xcHelper.checkMatchingBrackets(val);
+                    if (mismatch.index === -1) {
                         functionBarEnter();
                     } else {
                         var savedStr = $fnBar.val();
                         var savedColInput = $lastColInput;
+                        var funcStr = "\"" + val.slice(0, mismatch.index) +
+                                        "<span style='color:red;" +
+                                        "font-weight:bold;'>" +
+                                        mismatch.char + "</span>" +
+                                        val.slice(mismatch.index + 1) + "\"";
+
                         Alert.show({
                             "title"  : AlertTStr.BracketsMis,
-                            "msg"    : ErrTStr.BracketsMis,
+                            "msgTemplate": ErrTStr.BracketsMis + "<br/>" +
+                                            funcStr,
                             "isAlert": true,
                             "cancel" : function() {
                                 if (savedColInput) {
@@ -76,14 +90,15 @@ window.FnBar = (function(FnBar, $) {
                                     });
                                     $fnBar.removeAttr("disabled");
                                     $fnBar.val(savedStr);
+                                    highlightBrackets();
                                     $fnBar.focus();
                                 } else {
                                     $fnBar.removeAttr("disabled");
                                 }
-
                             }
                         });
                         $fnBar.val(savedStr);
+                        highlightBrackets();
                         $fnBar.prop("disabled", "true");
                     }
                 }
@@ -131,10 +146,12 @@ window.FnBar = (function(FnBar, $) {
 
             $fnBar.val(FnBarTStr.NewCol).addClass("disabled")
                                         .removeClass('active');
+            highlightBrackets();
         } else {
             var userStr = progCol.userStr;
             userStr = userStr.substring(userStr.indexOf('='));
             $fnBar.val(userStr).addClass('active').removeClass('disabled');
+            highlightBrackets();
             $fnBar.parent().removeClass('searching');
         }
     };
@@ -147,6 +164,7 @@ window.FnBar = (function(FnBar, $) {
         }
         $lastColInput = null;
         $fnBar.val("").removeClass("active");
+        highlightBrackets();
     };
 
     function saveInput() {
@@ -269,6 +287,23 @@ window.FnBar = (function(FnBar, $) {
         return (operation);
     }
 
+    function highlightBrackets() {
+        // XX disabling due misalignment of highlight if input is scrolled
+        return;
+        // var val = $fnBar.val();
+        // if (val === "") {
+        //     $fnBarClone.empty();
+        //     return;
+        // }
+
+        // var mismatch = xcHelper.checkMatchingBrackets(val);
+        // if (mismatch.index > -1) {
+        //     var index = mismatch.index;
+        //     val = val.slice(0, index) + "<span>" + mismatch.char + "</span>" +
+        //     val.slice(index + 1);
+        // }
+        // $fnBarClone.html(val);
+    }
 
     return (FnBar);
 }({}, jQuery));

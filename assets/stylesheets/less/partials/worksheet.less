@@ -257,7 +257,7 @@
             .closeBox, .counter, .arrows {
                 display: inline-block;
             }
-            #fnBar {
+            #fnBar, .fnBarClone {
                 padding-right: 48px;
             }
         }
@@ -278,7 +278,7 @@
         }
     }
 
-    #fnBar {
+    #fnBar, .fnBarClone {
         .size(@width: ~"calc(100% - 28px)");
         margin-left: 4px;
         &.active {
@@ -289,6 +289,25 @@
         &.disabled {
             opacity: 0.7;
             pointer-events: none;
+        }
+    }
+
+    .fnBarClone {
+        background-color: transparent;
+        color: transparent;
+        pointer-events: none;
+        z-index:1;
+        position: absolute;
+        left: 25.5px; // 0.5 actually works in this case
+        height: 25px;
+        padding: 0 4px;
+        font-weight: bold;
+        line-height: 25px;
+        font-size: 14px;
+        width: ~"calc(100% - 50px)";
+        .textOverflowOneLine;
+        span {
+            color: red;
         }
     }
 

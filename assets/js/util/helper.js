@@ -1793,6 +1793,10 @@ window.xcHelper = (function($, xcHelper) {
     xcHelper.checkMatchingBrackets = function(val) {
         var numOpens = 0;
         var inQuotes = false;
+        var ret = {
+            char: "",
+            index: -1 // returns -1 if no mismatch found
+        };
         for (var i = 0; i < val.length; i++) {
             if (inQuotes) {
                 if (val[i] === '"') {
@@ -1811,14 +1815,19 @@ window.xcHelper = (function($, xcHelper) {
             } else if (val[i] === ")") {
                 numOpens--;
                 if (numOpens < 0) {
-                    return (false);
+                    ret.char = ")";
+                    ret.index = i;
+                    return (ret);
                 }
             }
         }
         if (numOpens === 0) {
-            return (true);
+            return (ret);
+        } else {
+            ret.char = "(";
+            ret.index = val.indexOf("(");
+            return (ret);
         }
-        return (false);
     };
 
     xcHelper.fillInputFromCell = function ($target, $input, prefix) {

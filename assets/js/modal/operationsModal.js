@@ -2697,7 +2697,7 @@ window.OperationsModal = (function($, OperationsModal) {
             // with parens
             if (val.indexOf("(") !== 0 &&
                 val.lastIndexOf(")") === (valLen - 1)) {
-                return xcHelper.checkMatchingBrackets(val);
+                return (xcHelper.checkMatchingBrackets(val).index === -1);
             } else {
                 return false;
             }
