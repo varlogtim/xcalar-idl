@@ -308,11 +308,17 @@ window.DagPanel = (function($, DagPanel) {
 
             var tableName = $.trim($dagTable.find('.tableTitle').text());
             var tableId = $dagTable.data('id');
+            var tableLocked = false;
+            if (gTables[tableId] && gTables[tableId].isLocked) {
+                tableLocked = true;
+            }
             $menu.data('tablename', tableName);
             $menu.data('tableId', tableId);
             $menu.data('tableelement', $dagTable);
             var activeFound = false;
             var tableWSId;
+
+            $menu.find('.deleteTable').removeClass('hidden');
 
             // if active table, hide "addTable" and show "focusTable"
             $('#activeTablesList').find('.tableInfo').each(function() {
@@ -320,6 +326,13 @@ window.DagPanel = (function($, DagPanel) {
                 if ($li.data('id') === tableId) {
                     $menu.find('.addTable, .revertTable').addClass('hidden');
                     $menu.find('.focusTable, .archiveTable').removeClass('hidden');
+                    if (!tableLocked) {
+                        $menu.find('.archiveTable, .deleteTable')
+                             .removeClass('hidden');
+                    } else {
+                        $menu.find('.archiveTable, .deleteTable')
+                             .addClass('hidden');
+                    }
                     activeFound = true;
                     tableWSId = WSManager.getWSFromTable(tableId);
                     $menu.data('ws', tableWSId);
@@ -373,7 +386,10 @@ window.DagPanel = (function($, DagPanel) {
             } else if ($dagWrap.length !== 0) {
                 $('.menu').hide().removeClass('leftColMenu');
                 $('#dagSchema').hide();
-                $menu.data('dagid', $dagWrap.attr('id'));
+                $menu.data('dagid', $dagWrap.data('id'));
+                var tableName = $dagWrap.find('.dagTable[data-index="0"]')
+                                        .data('tablename');
+                $menu.data('tableName', tableName);
                 positionAndShowRightClickDropdown(e, $menu);
                 addMenuKeyboardNavigation($menu);
                 $('body').addClass('noSelection');
@@ -389,50 +405,72 @@ window.DagPanel = (function($, DagPanel) {
     }
 
     function addRightClickActions($menu) {
-        $menu.find('.saveImage').mouseup(function(event) {
+
+        $menu.on('mouseup', 'li', function(event) {
             if (event.which !== 1) {
                 return;
             }
-            var dagId = $menu.data('dagid');
-            var $dagWrap = $('#' + dagId);
-            var tableName = $dagWrap.find('.tableTitleArea .tableName').text();
-
-            Dag.createSavableCanvas($dagWrap)
-            .then(function() {
-                var canvas = $dagWrap.find('canvas').eq(1)[0];
-                if ($('html').hasClass('microsoft')) { // for IE
-                    var blob = canvas.msToBlob();
-                    window.navigator.msSaveBlob(blob, tableName + '.png');
-                } else {
-                    downloadImage(canvas, tableName);
-                }
-                $dagWrap.find('canvas').eq(1).remove();
-            });
-        });
-
-        $menu.find('.newTabImage').mouseup(function(event) {
-            if (event.which !== 1) {
+            var action = $(this).data('action');
+            if (!action) {
                 return;
             }
-            var dagId = $menu.data('dagid');
-            var $dagWrap = $('#' + dagId);
 
-            Dag.createSavableCanvas($dagWrap)
-            .then(function() {
-                var canvas = $dagWrap.find('canvas').eq(1)[0];
-                var lnk = canvas.toDataURL("image/png");
-                if (lnk.length < 8) {
-                    // was not able to make url because image is probably too large
-                    Alert.show({
-                        "title"  : ErrTStr.LargeImgTab,
-                        "msg"    : ErrTStr.LargeImgText
+            var tableName = $menu.data('tableName');
+            var dagId = $menu.data('dagid');
+            var $dagWrap = $('#dagWrap-' + dagId);
+
+            switch (action) {
+                case 'saveImage':
+                    Dag.createSavableCanvas($dagWrap)
+                    .then(function() {
+                        var canvas = $dagWrap.find('canvas').eq(1)[0];
+                        if ($('html').hasClass('microsoft')) { // for IE
+                            var blob = canvas.msToBlob();
+                            var name = tableName + '.png';
+                            window.navigator.msSaveBlob(blob, name);
+                        } else {
+                            downloadImage(canvas, tableName);
+                        }
+                        $dagWrap.find('canvas').eq(1).remove();
                     });
-                    $dagWrap.find('.dagImage').addClass('unsavable');
-                } else {
-                    window.open(lnk);
-                }
-                $dagWrap.find('canvas').eq(1).remove();
-            });
+
+                    break;
+                case 'newTabImage':
+                    Dag.createSavableCanvas($dagWrap)
+                    .then(function() {
+                        var canvas = $dagWrap.find('canvas').eq(1)[0];
+                        var lnk = canvas.toDataURL("image/png");
+                        if (lnk.length < 8) {
+                            // was not able to make url because image is
+                            //probably too large
+                            Alert.show({
+                                "title"  : ErrTStr.LargeImgTab,
+                                "msg"    : ErrTStr.LargeImgText
+                            });
+                            $dagWrap.find('.dagImage').addClass('unsavable');
+                        } else {
+                            window.open(lnk);
+                        }
+                        $dagWrap.find('canvas').eq(1).remove();
+                    });
+                    break;
+                case 'archiveTable':
+                    var table = gTables[dagId];
+                    if (table && table.isLocked) {
+                        return;
+                    }
+                    TblManager.archiveTables([dagId]);
+                    break;
+                case 'deleteTable':
+                    deleteTable(dagId, tableName);
+                    break;
+                case 'none':
+                    // do nothing;
+                    break;
+                default:
+                    console.warn('menu action not recognized: ' + action);
+                    break;
+            }
         });
 
         $menu[0].oncontextmenu = function() {
@@ -496,14 +534,19 @@ window.DagPanel = (function($, DagPanel) {
             }
         }
 
-        var dagid = $menu.data('dagid');
-        var $dagImage = $('#' + dagid).find('.dagImage');
+        var dagId = $menu.data('dagid');
+        var $dagImage = $('#dagWrap-' + dagId).find('.dagImage');
         if ($dagImage.hasClass('unsavable')) {
-            $menu.find('li').hide();
+            $menu.find('.saveImage, .newTabImage').hide();
             $menu.find('.unsavable').show();
         } else {
-            $menu.find('li').show();
+            $menu.find('.saveImage, .newTabImage').show();
             $menu.find('.unsavable').hide();
+        }
+        if (gTables[dagId] && gTables[dagId].isLocked) {
+            $menu.find('.archiveTable, .deleteTable').hide();
+        } else {
+            $menu.find('.archiveTable, .deleteTable').show();
         }
 
         $menu.removeClass('leftColMenu');
@@ -679,6 +722,10 @@ window.DagPanel = (function($, DagPanel) {
                 return;
             }
             var tableId = $menu.data('tableId');
+            var table = gTables[tableId];
+            if (table && table.isLocked) {
+                return;
+            }
             TblManager.archiveTables([tableId]);
         });
 
@@ -688,88 +735,92 @@ window.DagPanel = (function($, DagPanel) {
             }
             var tableId = $menu.data('tableId');
             var tableName = $menu.data('tablename');
-            var table = gTables[tableId];
-            if (table && table.isLocked) {
-                return;
-            }
-            var $table = $('#xcTableWrap-' + tableId);
+            deleteTable(tableId, tableName);
+        });
+    }
 
-            // check if table visibile, else check if its in the inactivelist,
-            // else check if its in the orphan list, else just delete the table
-            if ($table.length !== 0 && !$table.hasClass('locked')) {
-                var msg = xcHelper.replaceMsg(TblTStr.DelMsg,
-                                                {"table": tableName});
-                Alert.show({
-                    "title"  : TblTStr.Del,
-                    "msg"    : msg,
-                    "confirm": function() {
-                        TblManager.deleteTables(tableId, TableType.Active);
-                    }
-                });
-            } else if (table) {
-                if (table.status === TableType.Orphan) {
-                    TableList.refreshOrphanList().
-                    then(function() {
-                        $('#orphanedTablesList').find('.tableInfo').each(function() {
-                            var $li = $(this);
-                            if ($li.data('tablename') === tableName) {
-                                $li.find('.addTableBtn').click();
-                                $('#deleteOrphanedTablesBtn').click();
-                                return (false);
-                            }
-                        });
-                    });
-                } else {
-                    $('#inactiveTablesList').find('.tableInfo').each(function() {
+    function deleteTable(tableId, tableName) {
+        var table = gTables[tableId];
+        if (table && table.isLocked) {
+            return;
+        }
+        var $table = $('#xcTableWrap-' + tableId);
+
+        // check if table visibile, else check if its in the inactivelist,
+        // else check if its in the orphan list, else just delete the table
+        if ($table.length !== 0 && !$table.hasClass('locked')) {
+            var msg = xcHelper.replaceMsg(TblTStr.DelMsg,
+                                            {"table": tableName});
+            Alert.show({
+                "title"  : TblTStr.Del,
+                "msg"    : msg,
+                "confirm": function() {
+                    TblManager.deleteTables(tableId, TableType.Active);
+                }
+            });
+        } else if (table) {
+            if (table.status === TableType.Orphan) {
+                TableList.refreshOrphanList().
+                then(function() {
+                    $('#orphanedTablesList').find('.tableInfo').each(function() {
                         var $li = $(this);
-                        if ($li.data('id') === tableId) {
+                        if ($li.data('tablename') === tableName) {
                             $li.find('.addTableBtn').click();
-                            $('#deleteTablesBtn').click();
+                            $('#deleteOrphanedTablesBtn').click();
                             return (false);
                         }
                     });
-                }
+                });
             } else {
-                var orphanFound = false;
-                $('#orphanedTablesList').find('.tableInfo').each(function() {
+                $('#inactiveTablesList').find('.tableInfo').each(function() {
                     var $li = $(this);
-                    if ($li.data('tablename') === tableName) {
+                    if ($li.data('id') === tableId) {
                         $li.find('.addTableBtn').click();
-                        $('#deleteOrphanedTablesBtn').click();
-                        orphanFound = true;
+                        $('#deleteTablesBtn').click();
                         return (false);
                     }
                 });
-                if (orphanFound) {
-                    return;
-                }
-                // this is the case when user pull out a backend table A, then
-                // delete another table in the dag node of A but that table is
-                // not in orphaned list
-                var sql = {
-                    "operation": SQLOps.DeleteTable,
-                    "tableName": tableName,
-                    "tableType": TableType.Unknown
-                };
-                var txId = Transaction.start({
-                    "operation": SQLOps.DeleteTable,
-                    "sql"      : sql
-                });
-
-                XcalarDeleteTable(tableName, txId)
-                .then(function() {
-                    Dag.makeInactive(tableName, true);
-                    // delete table will change meta, so should commit
-                    Transaction.done(txId);
-                })
-                .fail(function(error) {
-                    Transaction.fail(txId, {
-                        "failMsg": StatusMessageTStr.DeleteTableFailed,
-                        "error"  : error
-                    });
-                });
             }
-        });
+        } else {
+            var orphanFound = false;
+            $('#orphanedTablesList').find('.tableInfo').each(function() {
+                var $li = $(this);
+                if ($li.data('tablename') === tableName) {
+                    $li.find('.addTableBtn').click();
+                    $('#deleteOrphanedTablesBtn').click();
+                    orphanFound = true;
+                    return (false);
+                }
+            });
+            if (orphanFound) {
+                return;
+            }
+            // this is the case when user pull out a backend table A, then
+            // delete another table in the dag node of A but that table is
+            // not in orphaned list
+            var sql = {
+                "operation": SQLOps.DeleteTable,
+                "tableName": tableName,
+                "tableType": TableType.Unknown
+            };
+            var txId = Transaction.start({
+                "operation": SQLOps.DeleteTable,
+                "sql"      : sql
+            });
+
+            XcalarDeleteTable(tableName, txId)
+            .then(function() {
+                Dag.makeInactive(tableName, true);
+                // delete table will change meta, so should commit
+                Transaction.done(txId);
+            })
+            .fail(function(error) {
+                Transaction.fail(txId, {
+                    "failMsg": StatusMessageTStr.DeleteTableFailed,
+                    "error"  : error
+                });
+            });
+        }
     }
 
     function setupScrollBar() {
