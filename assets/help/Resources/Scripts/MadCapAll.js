@@ -112,39 +112,16 @@ MadCap.WebHelp=MadCap.CreateNamespace("WebHelp");MadCap.WebHelp.HelpSystem=funct
 /* Xcalar custom code */
 (function(){
     $(document).ready(function() {
-        // var searchQuery = getParameterByName("xcq");
-        var searchQuery = getParameterByName("Highlight");
-        if (!searchQuery) {
-            // can't find .searchhighlight unless we delay
-            setTimeout(function() {
-                if ($('.SearchHighlight').length) {
-                    var offset = $('.SearchHighlight').eq(0).offset().top;
-                    $(window).scrollTop(offset - 50);
-                }
-            }, 100);
-
-            return;
-        }
-        // searchQuery = searchQuery.toLowerCase();
-
-        // $targets = $('body').find("*");
-
-        // var text = searchQuery;
-        // var regex = new RegExp(text, "gi");
-
-        // $targets.each(function() {
-        //     var foundText = $(this).html();
-        //     foundText = foundText.replace(regex, function (match) {
-        //             return ('<span class="highlightedText" style="background-color:yellow;">' + match +
-        //                     '</span>');
-        //         });
-        //     $(this).html(foundText);
-        // });
-        if ($('.SearchHighlight').length) {
-            var offset = $('.SearchHighlight').eq(0).offset().top;
-            $(window).scrollTop(offset - 50);
-        }
+        // can't find .searchhighlight unless we delay
+        setTimeout(function() {
+            if ($('.SearchHighlight').length) {
+                var offset = $('.SearchHighlight').eq(0).offset().top;
+                $('body').animate({scrollTop: (offset - 50)});
+                // $(window).scrollTop(offset - 50);
+            }
+        }, 100);
     });
+
     function getParameterByName(name, url) {
         if (!url) url = window.location.href;
         name = name.replace(/[\[\]]/g, "\\$&");

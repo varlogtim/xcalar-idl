@@ -161,6 +161,7 @@ window.DagPanel = (function($, DagPanel) {
         });
 
         var resizeTimer;
+        var $xcTables;
 
         $dagPanel.resizable({
             handles    : "n",
@@ -172,13 +173,16 @@ window.DagPanel = (function($, DagPanel) {
                 ui.position.top = dagPanelTop;
                 $('#mainFrame').height('calc(100% - 38px)');
                 $dagArea.css('height', '100%');
+                if (window.isBrowserMicrosoft) {
+                    $xcTables = $('.xcTable');
+                }
             },
             resize: function() {
                 if (window.isBrowserMicrosoft) {
                     clearTimeout(resizeTimer);
                     resizeTimer = setTimeout(function() {
                         // hack because rows become invisible in IE/EDGE
-                        $('.xcTable').each(function() {
+                        $xcTables.each(function() {
                             var $tr = $(this).find('tr').last();
                             var originalHeight = $tr.height();
                             $tr.hide().show().height(originalHeight + 1);
@@ -1837,6 +1841,9 @@ window.Dag = (function($, Dag) {
 
     function getSourceColNames(func) {
         var names = [];
+
+        getNames(func.args);
+
         function getNames(args) {
             for (var i = 0; i < args.length; i++) {
                 if (typeof args[i] === "string") {
@@ -1850,7 +1857,6 @@ window.Dag = (function($, Dag) {
                 }
             }
         }
-        getNames(func.args);
 
         return (names);
     }
@@ -1976,6 +1982,7 @@ window.Dag = (function($, Dag) {
                     }
                 }
             } else if (!parentIsDataSet) {
+                // gTable doesn't exist so we move on to its parent
                 $dagTable = $dagWrap
                         .find('.dagTable[data-tablename="' + parentTable + '"]');
                 if ($dagTable.length !== 0 && $dagTable.hasClass('Dropped')) {
@@ -2017,20 +2024,23 @@ window.Dag = (function($, Dag) {
                                         sourceId + '"]');
         }
         $dagTable.addClass('highlighted');
-        var id = $dagTable.data('id');
 
-        var rect = $dagTable[0].getBoundingClientRect();
-        if ($dagWrap.find('.columnOriginInfo[data-id="' + id + '"]')
-                    .length === 0) {
-            var top = rect.top - 15;
-            var left = rect.left;
-            if ($('#dagPanel').hasClass('midway')) {
-                top -= $('#dagPanel').offset().top;
-            }
-            $dagWrap.append('<div class="columnOriginInfo " data-id="' + id +
-                '" style="top: ' + top + 'px;left: ' + left + 'px">' +
-                name + '</div>');
-        }
+        // XX showing column name on each table is disabled
+
+        // var id = $dagTable.data('id');
+
+        // var rect = $dagTable[0].getBoundingClientRect();
+        // if ($dagWrap.find('.columnOriginInfo[data-id="' + id + '"]')
+        //             .length === 0) {
+        //     var top = rect.top - 15;
+        //     var left = rect.left;
+        //     if ($('#dagPanel').hasClass('midway')) {
+        //         top -= $('#dagPanel').offset().top;
+        //     }
+        //     $dagWrap.append('<div class="columnOriginInfo " data-id="' + id +
+        //         '" style="top: ' + top + 'px;left: ' + left + 'px">' +
+        //         name + '</div>');
+        // }
     }
 
     function getInputType(api) {
