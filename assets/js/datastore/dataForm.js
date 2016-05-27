@@ -403,15 +403,15 @@ window.DatastoreForm = (function($, DatastoreForm) {
         {
             return true;
         } else if (path.startsWith("hdfs://")) {
-            var splitPaths = path.substring("hdfs://".length).split("/");
-            // the substring should be "hostname/else",
-            //so len should at least be 2
-            if (splitPaths.length < 2 || splitPaths[0] === "") {
-                return false;
-            } else {
+            // Special case because HDFS's default is actually hdfs://xxxxx/
+            // keep sync with the RegEx in changeFileSource() in fileBrowserModal.js
+            var match = path.match(/^hdfs:\/\/.*?\//);
+            if (match != null && match[0] !== "hdfs:///") {
                 return true;
+            } else {
+                return false;
             }
-        }else {
+        } else {
             return false;
         }
     }

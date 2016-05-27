@@ -10,6 +10,8 @@ window.FileBrowser = (function($, FileBrowser) {
     var $pathLists;       // $("#fileBrowserPathMenu")
     var $pathText;        // $pathSection.find(".text")
 
+    var fileBrowserId;
+
     /* Contants */
     var defaultNFSPath  = "nfs:///";
     var defaultFilePath = "file:///";
@@ -21,6 +23,7 @@ window.FileBrowser = (function($, FileBrowser) {
         "XLSX": "Excel"
     };
     var dsIconHeight = 72;
+    var oldBrowserError = "Deferred From Old Browser";
     /* End Of Contants */
 
     var defaultPath = defaultFilePath;
@@ -97,7 +100,9 @@ window.FileBrowser = (function($, FileBrowser) {
                         checkIfCanGoUp();
                     })
                     .fail(function(error) {
-                        Alert.error(ThriftTStr.ListFileErr, error);
+                        if (error.error !== oldBrowserError) {
+                            Alert.error(ThriftTStr.ListFileErr, error);
+                        }
                     });
                 }
             }
@@ -123,18 +128,6 @@ window.FileBrowser = (function($, FileBrowser) {
         // close file browser
         $fileBrowser.on("click", ".close, .cancel", function() {
             closeAll();
-        });
-
-        $("#fileBrowserNFS").click(function() {
-            if ($(this).find(".checkbox").hasClass("checked")) {
-                if ($("#filePath").val().startsWith(defaultHDFSPath)) {
-                    changeFileSource(defaultHDFSPath);
-                } else {
-                    changeFileSource(defaultFilePath);
-                }
-            } else {
-                changeFileSource(defaultNFSPath);
-            }
         });
 
         $("#fileBrowserRefresh").click(function(event){
@@ -247,7 +240,7 @@ window.FileBrowser = (function($, FileBrowser) {
                         return;
                     }
 
-                    retrievePaths(path, null, true);
+                    retrievePaths(path, true);
                 }, 400);
 
                 return false;
@@ -280,38 +273,48 @@ window.FileBrowser = (function($, FileBrowser) {
     FileBrowser.show = function(path) {
         var deferred = jQuery.Deferred();
 
-        path = path || "";
         addKeyBoardEvent();
+        fileBrowserId = xcHelper.randName("browser");
 
         modalHelper.setup();
 
-        retrievePaths(path, true)
-        .then(function(result) {
-            if (result.defaultPath) {
-                setTimeout(function() {
-                    // do this because fadeIn has 300 dealy,
-                    // if statusBox show before the fadeIn finish, it will fail
-                    showHandler(result);
-                }, 300);
-            }
+        if (!path) {
+            path = historyPath || defaultPath;
+        }
+
+        changeFileSource(path);
+
+        retrievePaths(path)
+        .then(function() {
             measureDSIconHeight();
             deferred.resolve();
         })
-        .fail(function(error, pathToList) {
-            loadFailHandler(error, pathToList);
-            deferred.reject(error);
+        .fail(function(error) {
+            if (error.error === oldBrowserError) {
+                // when it's an old deferred
+                return;
+            } else if (error.status === StatusT.StatusIO) {
+                loadFailHandler(error, path);
+                deferred.reject(error);
+            } else if (path === defaultPath) {
+                loadFailHandler(error, path);
+                deferred.reject(error);
+            } else {
+                retrievePaths(defaultPath)
+                .then(function() {
+                    redirectHandler(path);
+                    deferred.resolve();
+                })
+                .fail(function(innerError) {
+                    if (innerError.error !== oldBrowserError) {
+                        loadFailHandler(innerError, path);
+                    }
+                    deferred.reject(innerError);
+                });
+            }
         });
 
         return deferred.promise();
-
-        function showHandler(result) {
-            // if it's error, clean the filPath
-            $("#filePath").val("");
-            var error = xcHelper.replaceMsg(ErrWRepTStr.NoPath, {
-                "path": result.path
-            });
-            StatusBox.show(error, $pathSection, false, {side: 'top'});
-        }
     };
 
     function toggleView(toListView, noRefreshTooltip) {
@@ -501,32 +504,35 @@ window.FileBrowser = (function($, FileBrowser) {
         // set to deault value
         clear(true);
         $(document).off(".fileBrowser");
+        $fileBrowser.removeClass("loadMode");
+        fileBrowserId = null;
     }
 
-    function loadFailHandler(error, pathToList) {
+    function redirectHandler(path) {
+        setTimeout(function() {
+            // do this because fadeIn has 300 dealy,
+            // if statusBox show before the fadeIn finish, it will fail
+            var error = xcHelper.replaceMsg(ErrWRepTStr.NoPath, {
+                "path": path
+            });
+            StatusBox.show(error, $pathSection, false, {side: 'top'});
+        }, 300);
+    }
+
+    function loadFailHandler(error, path) {
         $pathLists.empty();
-        appendPath(pathToList);
+        appendPath(path);
 
         var html = '<div class="error">' +
                     '<div>' + error.error + '</div>' +
                     '<div>' + DSTStr.DSSourceHint + '</div>';
         $container.html(html);
+        // when has error, change defaultPath back to file:///
+        defaultPath = defaultFilePath;
     }
 
     function parsePath(path) {
         var paths = [];
-
-        if (path.startsWith(defaultNFSPath)) {
-            changeFileSource(defaultNFSPath, true);
-        } else if (path.startsWith(defaultHDFSPath)) {
-            changeFileSource(defaultHDFSPath, true);
-        } else if (path.startsWith(defaultFilePath)) {
-            changeFileSource(defaultFilePath, true);
-        } else {
-            console.warn("Unsupported file path extension? Defaulting to file:///");
-            changeFileSource(defaultFilePath, true);
-        }
-
         // parse path
         for (var i = path.length - 1; i >= (defaultPath.length - 1); i--) {
             // XXX Does not handle file paths with escaped slashes
@@ -535,35 +541,31 @@ window.FileBrowser = (function($, FileBrowser) {
             }
         }
 
-        if (paths.length > 0 && defaultPath === defaultHDFSPath) {
-            // hdfs should be hdfs://hostname/,
-            // so should remove the hdfs:// path
-            paths = paths.slice(0, paths.length - 1);
-        }
-
         return paths;
     }
 
-    function changeFileSource(pathPrefix, noRetrieve) {
-        var $checkbox = $("#fileBrowserNFS .checkbox");
-        var defaultPathCache = defaultPath;
+    function changeFileSource(path) {
+        // for any edage case, use default file path
+        var pathPrefix = defaultFilePath;
+
+        if (path.startsWith(defaultNFSPath)) {
+            pathPrefix = defaultNFSPath;
+        } else if (path.startsWith(defaultFilePath)) {
+            pathPrefix = defaultFilePath;
+        } else if (path.startsWith(defaultHDFSPath)) {
+            // Special case because HDFS's default is actually hdfs://xxxxx/
+            var match = path.match(/^hdfs:\/\/.*?\//);
+            if (match != null && match[0] !== "hdfs:///") {
+                pathPrefix = match[0];
+            } else {
+                console.warn("Unsupported file path extension? Defaulting to file:///");
+            }
+        } else {
+            console.warn("Unsupported file path extension? Defaulting to file:///");
+        }
 
         defaultPath = pathPrefix;
         $pathSection.find(".defaultPath").text(pathPrefix);
-
-        if (pathPrefix === defaultNFSPath) {
-            $checkbox.addClass("checked");
-        } else {
-            $checkbox.removeClass("checked");
-        }
-
-        if (!noRetrieve) {
-            historyPath = null;
-            var currentPath = getCurrentPath();
-            var path = currentPath.replace(defaultPathCache, pathPrefix);
-            retrievePaths(path)
-            .fail(loadFailHandler);
-        }
     }
 
     function updateFileName($grid) {
@@ -571,9 +573,10 @@ window.FileBrowser = (function($, FileBrowser) {
         $fileName.val(name);
     }
 
-    function listFiles(path, openingBrowser) {
+    function listFiles(path) {
         var deferred = jQuery.Deferred();
         var $loadSection = $fileBrowserMain.find(".loadingSection");
+        var curBrowserId = fileBrowserId;
 
         $fileBrowser.addClass("loadMode");
         var timer = setTimeout(function() {
@@ -582,36 +585,31 @@ window.FileBrowser = (function($, FileBrowser) {
 
         XcalarListFiles(path)
         .then(function(listFilesOutput) {
-            clear();
-            allFiles = listFilesOutput.files;
-            sortFilesBy(sortKey, sortRegEx);
-            deferred.resolve();
+            if (curBrowserId === fileBrowserId) {
+                clear();
+                allFiles = listFilesOutput.files;
+                sortFilesBy(sortKey, sortRegEx);
+                deferred.resolve();
+            } else {
+                deferred.reject({"error": oldBrowserError});
+            }
         })
         .fail(function(error) {
-            if (openingBrowser) {
-                if (path === defaultPath) {
-                    deferred.reject(error, path);
-                    return;
-                }
-
-                listFiles(defaultPath)
-                .then(function() {
-                    deferred.resolve('useDefaultPath');
-                })
-                .fail(function(err) {
-                    deferred.reject(err, path);
-                });
+            if (curBrowserId === fileBrowserId) {
+                deferred.reject(error);
             } else {
-                deferred.reject(error, path);
+                deferred.reject({"error": oldBrowserError});
             }
         })
         .always(function() {
-            $fileBrowser.removeClass("loadMode");
-            clearTimeout(timer);
-            $loadSection.hide();
+            if (curBrowserId === fileBrowserId) {
+                $fileBrowser.removeClass("loadMode");
+                clearTimeout(timer);
+                $loadSection.hide();
+            }
         });
 
-        return (deferred.promise());
+        return deferred.promise();
     }
 
     function goIntoFolder() {
@@ -638,10 +636,6 @@ window.FileBrowser = (function($, FileBrowser) {
         var oldPath = getCurrentPath();
         var path = $newPath.text();
 
-        // if (oldPath === path) {
-        //     return;
-        // }
-
         listFiles(path)
         .then(function() {
             $pathText.val(getShortPath(path));
@@ -658,7 +652,9 @@ window.FileBrowser = (function($, FileBrowser) {
             deferred.resolve();
         })
         .fail(function(error) {
-            Alert.error(ThriftTStr.ListFileErr, error);
+            if (error.error !== oldBrowserError) {
+                Alert.error(ThriftTStr.ListFileErr, error);
+            }
             deferred.reject(error);
         });
 
@@ -666,19 +662,7 @@ window.FileBrowser = (function($, FileBrowser) {
     }
 
     function checkIfCanGoUp() {
-        var top = false;
-        if (defaultPath === defaultHDFSPath) {
-            // Special case because HDFS's default is actually hdfs://xxxxx/
-            var p =  getCurrentPath().replace(/hdfs:\/\/.*?\//i, "");
-            if (jQuery.trim(p).length === 0) {
-                top = true;
-            }
-        } else {
-            if (getCurrentPath() === defaultPath) {
-                top = true;
-            }
-        }
-        if (top) {
+        if (getCurrentPath() === defaultPath) {
             $("#fileBrowserUp").addClass("disabled");
         } else {
             $("#fileBrowserUp").removeClass("disabled");
@@ -977,34 +961,17 @@ window.FileBrowser = (function($, FileBrowser) {
         return (grid);
     }
 
-    function retrievePaths(path, openingBrowser, noPathUpdate) {
-        var deferred = jQuery.Deferred();
-        var status = {};
-        if (!path) {
-            path = historyPath || defaultPath;
-        }
-
+    function retrievePaths(path, noPathUpdate) {
         var paths = parsePath(path);
         // cannot parse the path
         if (paths.length === 0) {
-            if (openingBrowser) {
-                paths.push(defaultPath);
-                status.path = path;
-                status.defaultPath = true;
-            } else {
-                deferred.reject({"error": ErrTStr.InvalidFilePath});
-                return deferred.promise();
-            }
+            return PromiseHelper.reject({"error": ErrTStr.InvalidFilePath});
         }
 
-        listFiles(paths[0], openingBrowser)
-        .then(function(result) {
-            if (result === 'useDefaultPath') {
-                status.defaultPath = true;
-                status.path = path;
-                path = defaultPath;
-                paths = [path];
-            }
+        var deferred = jQuery.Deferred();
+
+        listFiles(paths[0])
+        .then(function() {
             $pathLists.empty();
 
             for (var j = paths.length - 1; j >= 0; j--) {
@@ -1017,7 +984,7 @@ window.FileBrowser = (function($, FileBrowser) {
                 focusOn({"name": name});
             }
             checkIfCanGoUp();
-            deferred.resolve(status);
+            deferred.resolve();
         })
         .fail(deferred.reject);
 
