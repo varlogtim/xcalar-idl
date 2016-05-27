@@ -297,8 +297,8 @@ window.FileBrowser = (function($, FileBrowser) {
             measureDSIconHeight();
             deferred.resolve();
         })
-        .fail(function(error) {
-            $container.html('<div class="error">' + error.error + '</div>');
+        .fail(function(error, pathToList) {
+            loadFailHandler(error, pathToList);
             deferred.reject(error);
         });
 
@@ -503,6 +503,16 @@ window.FileBrowser = (function($, FileBrowser) {
         $(document).off(".fileBrowser");
     }
 
+    function loadFailHandler(error, pathToList) {
+        $pathLists.empty();
+        appendPath(pathToList);
+
+        var html = '<div class="error">' +
+                    '<div>' + error.error + '</div>' +
+                    '<div>Suggestion: Try Another Path or another data source</div>'; 
+        $container.html(html);
+    };
+
     function changeFileSource(pathPrefix, noRetrieve) {
         var $checkbox = $("#fileBrowserNFS .checkbox");
         var defaultPathCache = defaultPath;
@@ -520,7 +530,8 @@ window.FileBrowser = (function($, FileBrowser) {
             historyPath = null;
             var currentPath = getCurrentPath();
             var path = currentPath.replace(defaultPathCache, pathPrefix);
-            retrievePaths(path);
+            retrievePaths(path)
+            .fail(loadFailHandler);
         }
     }
 
@@ -547,14 +558,9 @@ window.FileBrowser = (function($, FileBrowser) {
         })
         .fail(function(error) {
             if (openingBrowser) {
-                if (defaultPath === path) {
-                    // when cannot list the default path
-                    if (defaultPath === defaultFilePath) {
-                        deferred.reject(error);
-                        return;
-                    } else {
-                        changeFileSource(defaultFilePath, true);
-                    }
+                if (path === defaultPath) {
+                    deferred.reject(error, path);
+                    return;
                 }
 
                 listFiles(defaultPath)
@@ -562,10 +568,10 @@ window.FileBrowser = (function($, FileBrowser) {
                     deferred.resolve('useDefaultPath');
                 })
                 .fail(function(err) {
-                    deferred.reject(err);
+                    deferred.reject(err, path);
                 });
             } else {
-                deferred.reject(error);
+                deferred.reject(error, path);
             }
         })
         .always(function() {
@@ -754,9 +760,6 @@ window.FileBrowser = (function($, FileBrowser) {
     }
 
     function sortFilesBy(key, regEx) {
-        if (allFiles.length === 0) {
-            return;
-        }
         curFiles = allFiles;
         if (regEx) {
             sortRegEx = regEx;
@@ -1006,7 +1009,7 @@ window.FileBrowser = (function($, FileBrowser) {
         })
         .fail(deferred.reject);
 
-        return (deferred.promise());
+        return deferred.promise();
     }
 
     function getHTMLFromFiles(files) {
