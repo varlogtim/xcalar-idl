@@ -424,7 +424,7 @@ function getMETAKeys() {
         "CLI"  : "scratchPad",
         "CART" : "datacarts",
         "STATS": "statsCols",
-        "USER" : "userSettings",
+        "USER" : "userSettings"
         //"DFG"  : "DFG",
         //"SCHE" : "schedule"
     };
@@ -460,8 +460,8 @@ function METAConstructor(METAKeys) {
 
 function getEMetaKeys() {
     return {
-        "DFG"  : "DFG",
-        "SCHE" : "schedule"
+        "DFG" : "DFG",
+        "SCHE": "schedule"
     };
 }
 
@@ -1850,7 +1850,7 @@ function ModalHelper($modal, options) {
 ModalHelper.prototype = {
     setup: function(extraOptions) {
         var deferred = jQuery.Deferred();
-        var $modal  = this.$modal;
+        var $modal = this.$modal;
         var options = $.extend(this.options, extraOptions) || {};
 
         $("body").addClass("no-selection");
@@ -1910,7 +1910,8 @@ ModalHelper.prototype = {
 
         // this should be the last step
         if (options.open != null && options.open instanceof Function) {
-            options.open()
+            // if options.open is not a promise, make it a promise
+            jQuery.when(options.open())
             .then(deferred.resolve)
             .fail(deferred.reject)
             .always(function() {
@@ -1966,7 +1967,7 @@ ModalHelper.prototype = {
         $("body").removeClass("no-selection");
 
         if (options.close != null && options.close instanceof Function) {
-            options.close()
+            jQuery.when(options.close())
             .then(deferred.resolve)
             .fail(deferred.reject)
             .always(function() {
@@ -1988,6 +1989,54 @@ ModalHelper.prototype = {
         }
 
         return deferred.promise();
+    },
+
+    toggleBG: function(tableId, isHide, options) {
+        var $modalBg = $("#modalBackground");
+        var $mainFrame = $("#mainFrame");
+        var $sideBarModal = $("#sideBarModal");
+        var $rightSideBar = $("#rightSideBar");
+        var $tableWrap;
+
+        if (tableId === "all") {
+            $tableWrap = $('.xcTableWrap:visible');
+        } else {
+            $tableWrap = $("#xcTableWrap-" + tableId);
+        }
+
+        options = options || {};
+
+        if (isHide) {
+            var fadeOutTime = options.time || 150;
+            // when close the modal
+            $modalBg.fadeOut(fadeOutTime, function() {
+                $modalBg.removeClass('light');
+                $mainFrame.removeClass('modalOpen');
+            });
+
+            $sideBarModal.fadeOut(fadeOutTime, function() {
+                $(this).removeClass('light');
+                $rightSideBar.removeClass('modalOpen');
+            });
+
+            $('.xcTableWrap').not('#xcTableWrap-' + tableId)
+                             .removeClass('tableDarkened');
+
+            $tableWrap.removeClass('modalOpen');
+        } else {
+            // when open the modal
+            $tableWrap.addClass('modalOpen');
+            if (tableId !== "all") {
+                $('.xcTableWrap').not('#xcTableWrap-' + tableId)
+                                 .addClass('tableDarkened');
+            }
+
+            $rightSideBar.addClass('modalOpen');
+            $mainFrame.addClass('modalOpen');
+            var fadeInTime = options.time || 150;
+            $sideBarModal.addClass('light').fadeIn(fadeInTime);
+            $modalBg.addClass('light').fadeIn(fadeInTime);
+        }
     },
 
     addWaitingBG: function() {

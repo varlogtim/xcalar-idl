@@ -348,7 +348,7 @@ window.OperationsModal = (function($, OperationsModal) {
 
         $operationsModal.find('.confirm').on('click', submitForm);
 
-        $operationsModal.find('.cancel, .close').on('click', function(e, data) {
+        $operationsModal.find('.cancel, .close').on('click', function() {
             closeModal();
         });
 
@@ -495,10 +495,9 @@ window.OperationsModal = (function($, OperationsModal) {
             "maxTop": modalTop,
             "open"  : function() {
                 // ops modal has its own opener
-                return PromiseHelper.resolve();
+                toggleModalDisplay(false);
             }
         });
-        toggleModalDisplay(false);
 
         XcalarListXdfs("*", "User*")
         .then(function(listXdfsObj) {
@@ -540,12 +539,9 @@ window.OperationsModal = (function($, OperationsModal) {
     };
 
     function toggleModalDisplay(isHide, time) {
-        xcHelper.toggleModal(tableId, isHide, {
-            "fadeOutTime": time
-        });
+        modalHelper.toggleBG(tableId, isHide, {"time": time});
 
         var $table = $("#xcTable-" + tableId);
-
         if (isHide) {
             $functionInput.attr('placeholder', "");
             $table.off('mousedown', '.header, td.clickable', keepInputFocused);
@@ -2756,7 +2752,7 @@ window.OperationsModal = (function($, OperationsModal) {
         for (var i = 0; i < str.length; i++) {
             if (str[i] === colPrefix) {
                 if (str[i - 1] === "\\") {
-                    str  = str.slice(0, i - 1) + str.slice(i);
+                    str = str.slice(0, i - 1) + str.slice(i);
                 } else if (isActualPrefix(str, i)) {
                     str = str.slice(0, i) + str.slice(i + 1);
                 }
@@ -2782,24 +2778,24 @@ window.OperationsModal = (function($, OperationsModal) {
 
     function closeModal(speed) {
         var time = (speed && speed.slow) ? 300 : 150;
-        $operationsModal.fadeOut(time, function() {
-            clearInput(0);
-            modalHelper.clear({"close": function() {
-                // ops modal has its owne closer
-                return PromiseHelper.resolve();
-            }});
-            $functionsMenu.data('category', 'null');
-            unminimizeTable();
-            $operationsModal.find('.checkbox').removeClass('checked');
-            $operationsModal.find('.minimize').hide();
-            $operationsModal.find('td.cast').find('.dropDownList')
-                                            .addClass('hidden');
-            hideCastColumn();
-            modalHelper.removeWaitingBG();
-        });
 
-        var isHide = true;
-        toggleModalDisplay(isHide, time);
+        modalHelper.clear({"close": function() {
+            // ops modal has its owne closer
+            $operationsModal.fadeOut(time, function() {
+                toggleModalDisplay(true, time);
+                clearInput(0);
+
+                $functionsMenu.data('category', 'null');
+                unminimizeTable();
+                $operationsModal.find('.checkbox').removeClass('checked');
+                $operationsModal.find('.minimize').hide();
+                $operationsModal.find('td.cast').find('.dropDownList')
+                                                .addClass('hidden');
+                hideCastColumn();
+                modalHelper.removeWaitingBG();
+            });
+        }});
+
         StatusBox.forceHide();// hides any error boxes;
         $('.tooltip').hide();
     }

@@ -73,20 +73,15 @@ window.ExtensionOpModal = (function(ExtensionOpModal, $) {
         updateInputFields();
         modalHelper.setup({
             "open": function() {
-                // modal has its own opener
-                return PromiseHelper.resolve();
+                if (gMinModeOn) {
+                    $extModal.show();
+                    modalHelper.toggleBG(tableId, false, {"time": 0});
+                } else {
+                    $extModal.fadeIn(300);
+                    modalHelper.toggleBG(tableId, false, {"time": 300});
+                }
             }
         });
-
-        xcHelper.toggleModal(tableId, false, {
-            "fadeOutTime": 300
-        });
-
-        if (gMinModeOn) {
-            $extModal.show();
-        } else {
-            $extModal.fadeIn(300);
-        }
 
         setModalWidth();
         $('#xcTable-' + tableId).find('.col' + colNum)
@@ -264,23 +259,18 @@ window.ExtensionOpModal = (function(ExtensionOpModal, $) {
     }
 
     function closeExtModal() {
-        var time = 1;
-        $extModal.fadeOut(time, function() {
-            modalHelper.clear({"close": function() {
-                // ops modal has its owne closer
-                return PromiseHelper.resolve();
-            }});
+        modalHelper.clear({"close": function() {
+            // ops modal has its owne closer
+            var time = 1;
+            $extModal.fadeOut(time);
+            modalHelper.toggleBG(exTableId, true, {"time": time});
+        }});
 
-            $('#xcTable-' + exTableId).off('click.columnPicker');
-            $('#xcTable-' + exTableId).off('mousedown', '.header, td.clickable',
+        $('#xcTable-' + exTableId).off('click.columnPicker');
+        $('#xcTable-' + exTableId).off('mousedown', '.header, td.clickable',
                                         keepInputFocused);
-        });
         $('#xcTable-' + exTableId).find('.col' + exColNum)
                                   .removeClass('modalHighlighted');
-        var isHide = true;
-        xcHelper.toggleModal(exTableId, isHide, {
-            "time": time
-        });
         StatusBox.forceHide();// hides any error boxes;
         $('.tooltip').hide();
     }

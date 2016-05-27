@@ -374,61 +374,6 @@ window.xcHelper = (function($, xcHelper) {
         return (copiedCols);
     };
 
-    xcHelper.toggleModal = function(tableId, isHide, options) {
-        var $modalBackground = $("#modalBackground");
-        var $mainFrame    = $("#mainFrame");
-        var $sideBarModal = $("#sideBarModal");
-        var $rightSideBar = $("#rightSideBar");
-        var $tableWrap;
-
-        if (tableId === "all") {
-            $tableWrap = $('.xcTableWrap:visible');
-        } else {
-            $tableWrap = $("#xcTableWrap-" + tableId);
-        }
-
-        options = options || {};
-
-        if (isHide) {
-            var fadeOutTime;
-            if (options.time == null) {
-                fadeOutTime = 150;
-            } else {
-                fadeOutTime = options.time;
-            }
-
-            // when close the modal
-            $modalBackground.fadeOut(fadeOutTime, function() {
-                $(this).removeClass('light');
-                $mainFrame.removeClass('modalOpen');
-            });
-
-            $sideBarModal.fadeOut(fadeOutTime, function() {
-                $(this).removeClass('light');
-                $rightSideBar.removeClass('modalOpen');
-            });
-
-            $('.xcTableWrap').not('#xcTableWrap-' + tableId)
-                             .removeClass('tableDarkened');
-
-            $tableWrap.removeClass('modalOpen');
-        } else {
-            // when open the modal
-            $tableWrap.addClass('modalOpen');
-            if (tableId !== "all") {
-                $('.xcTableWrap').not('#xcTableWrap-' + tableId)
-                                 .addClass('tableDarkened');
-            }
-
-            $rightSideBar.addClass('modalOpen');
-            $mainFrame.addClass('modalOpen');
-            var fadeInTime = options.time || 150;
-
-            $sideBarModal.addClass('light').fadeIn(fadeInTime);
-            $modalBackground.addClass('light').fadeIn(fadeInTime);
-        }
-    };
-
     xcHelper.randName = function(name, digits) {
         if (digits == null) {
             digits = 5; // default

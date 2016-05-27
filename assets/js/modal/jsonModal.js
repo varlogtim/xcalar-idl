@@ -679,8 +679,6 @@ window.JSONModal = (function($, JSONModal) {
             $('#rightSideBar').removeClass('modalOpen');
             $("body").removeClass("hideScroll");
             $('.tooltip').hide();
-
-            return PromiseHelper.resolve();
         }});
 
         $(document).off(".jsonModal");
@@ -1164,13 +1162,8 @@ window.JSONModal = (function($, JSONModal) {
     }
 
     function toggleModal($jsonTd, isHide, time) {
-        // return;
         if (isDataCol && !isHide) {
-            // setTimeout(function() {
-            xcHelper.toggleModal("all", isHide, {
-                "fadeOutTime": time
-            });
-            // }, 0);
+            modalHelper.toggleBG("all", isHide, {"time": time});
         }
         var noTimer = false;
         if (time === 0) {
