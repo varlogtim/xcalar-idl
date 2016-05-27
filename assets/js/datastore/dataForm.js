@@ -399,11 +399,19 @@ window.DatastoreForm = (function($, DatastoreForm) {
         if (path === "") {
             return true;
         } else if (path.startsWith("file:///") ||
-                    path.startsWith("nfs:///") ||
-                    path.startsWith("hdfs://"))
+                    path.startsWith("nfs:///"))
         {
             return true;
-        } else {
+        } else if (path.startsWith("hdfs://")) {
+            var splitPaths = path.substring("hdfs://".length).split("/");
+            // the substring should be "hostname/else",
+            //so len should at least be 2
+            if (splitPaths.length < 2 || splitPaths[0] === "") {
+                return false;
+            } else {
+                return true;
+            }
+        }else {
             return false;
         }
     }

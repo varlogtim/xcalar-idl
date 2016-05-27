@@ -190,7 +190,7 @@ ErrTStr = {
     'InvalidColumn' : 'Invalid column name: <name>',
 
     'InvalidURLToBrowse': 'Please add protocol to file path. ' +
-                          'For example: nfs:/// or hdfs:/// or ' +
+                          'For example: nfs:/// or hdfs://hostname/ or ' +
                           'file:/// (for local filesystem)',
 
     'PreservedName': 'This name is preserved, please use another name.',
@@ -407,7 +407,8 @@ DSTStr = {
     'NoRecords': 'No records in dataset.',
     // with replace
     'DelDSConfirm': 'Are you sure you want to delete dataset <ds> ?',
-    'DelUneditable': 'This <ds> is uneditable, cannot delete'
+    'DelUneditable': 'This <ds> is uneditable, cannot delete',
+    'DSSourceHint': 'Please try another path or use another protocol'
 };
 
 DSFormTStr = {

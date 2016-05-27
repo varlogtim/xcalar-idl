@@ -509,9 +509,40 @@ window.FileBrowser = (function($, FileBrowser) {
 
         var html = '<div class="error">' +
                     '<div>' + error.error + '</div>' +
-                    '<div>Suggestion: Try Another Path or another data source</div>'; 
+                    '<div>' + DSTStr.DSSourceHint + '</div>';
         $container.html(html);
-    };
+    }
+
+    function parsePath(path) {
+        var paths = [];
+
+        if (path.startsWith(defaultNFSPath)) {
+            changeFileSource(defaultNFSPath, true);
+        } else if (path.startsWith(defaultHDFSPath)) {
+            changeFileSource(defaultHDFSPath, true);
+        } else if (path.startsWith(defaultFilePath)) {
+            changeFileSource(defaultFilePath, true);
+        } else {
+            console.warn("Unsupported file path extension? Defaulting to file:///");
+            changeFileSource(defaultFilePath, true);
+        }
+
+        // parse path
+        for (var i = path.length - 1; i >= (defaultPath.length - 1); i--) {
+            // XXX Does not handle file paths with escaped slashes
+            if (path.charAt(i) === "/") {
+                paths.push(path.substring(0, i + 1));
+            }
+        }
+
+        if (paths.length > 0 && defaultPath === defaultHDFSPath) {
+            // hdfs should be hdfs://hostname/,
+            // so should remove the hdfs:// path
+            paths = paths.slice(0, paths.length - 1);
+        }
+
+        return paths;
+    }
 
     function changeFileSource(pathPrefix, noRetrieve) {
         var $checkbox = $("#fileBrowserNFS .checkbox");
@@ -948,31 +979,12 @@ window.FileBrowser = (function($, FileBrowser) {
 
     function retrievePaths(path, openingBrowser, noPathUpdate) {
         var deferred = jQuery.Deferred();
-        var paths = [];
         var status = {};
         if (!path) {
             path = historyPath || defaultPath;
         }
 
-        if (path.startsWith(defaultNFSPath)) {
-            changeFileSource(defaultNFSPath, true);
-        } else if (path.startsWith(defaultHDFSPath)) {
-            changeFileSource(defaultHDFSPath, true);
-        } else if (path.startsWith(defaultFilePath)) {
-            changeFileSource(defaultFilePath, true);
-        } else {
-            console.warn("Unsupported file path extension? Defaulting to file:///");
-            changeFileSource(defaultFilePath, true);
-        }
-
-        // parse path
-        for (var i = path.length - 1; i >= (defaultPath.length - 1); i--) {
-            // XXX Does not handle file paths with escaped slashes
-            if (path.charAt(i) === "/") {
-                paths.push(path.substring(0, i + 1));
-            }
-        }
-
+        var paths = parsePath(path);
         // cannot parse the path
         if (paths.length === 0) {
             if (openingBrowser) {

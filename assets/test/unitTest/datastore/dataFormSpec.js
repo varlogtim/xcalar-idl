@@ -155,14 +155,15 @@ function dataFormModuleTest() {
         });
 
         it("Should allow browse invalid path", function() {
-            var paths = ["", "file:///", "nfs:///", "hdfs:///"];
+            var paths = ["", "file:///", "nfs:///", "hdfs://host/"];
             paths.forEach(function(path) {
                 expect(isValidPathToBrowse(path)).to.be.true;
             });
         });
 
         it("Should not allow browse of invalid path", function() {
-            var paths = ["abc", "files:///", "test:///", "file://"];
+            var paths = ["abc", "files:///", "test:///", "file://",
+                        "hdfs://", "hdfs://hostNoSlash"];
             paths.forEach(function(path) {
                 expect(isValidPathToBrowse(path)).to.be.false;
             });
