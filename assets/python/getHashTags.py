@@ -1,5 +1,6 @@
 import os, json
 from pyquery import PyQuery as pq
+from stopWords import stopWords
 
 class xcalarTags:
     def __init__(self):
@@ -11,15 +12,23 @@ class xcalarTags:
         f = open(filepath, "rb")
         fileString = f.read()
         d = pq(fileString)
-        hashTags = d(".hashtag")
-        hashTags = hashTags.text().split(" ")
+        hashTags = d(".hashtag").text()
+        subHeaders = d("h2").text()
+        boldedText = d(".UIelement").text()
+        allTags = (hashTags + " " + subHeaders + " " + boldedText).split(" ")
+
         pageTags = dict()
         title = d("h1").text()
         inPageSummary = d(".InPageSummary").text()
         pageTags["pageTitle"] = title
         pageTags["InPageSummary"] = inPageSummary
-        for tag in hashTags:
-            if tag == "":
+
+        # add tags to pageTags and if exists, increment heat count
+        for tag in allTags:
+            tag = tag.lower()
+            if len(tag) < 3:
+                continue
+            if tag in stopWords:
                 continue
             if tag in pageTags:
                 pageTags[tag] += 1
