@@ -82,7 +82,17 @@ window.Profile = (function($, Profile, d3) {
                     statsCol.groupByInfo.isComplete === true)
                 {
                     buildGroupGraphs(null, true);
+                    var $scroller = $modal.find(".scrollSection .scroller");
                     resizeScroller();
+                    var curRowNum = Number($("#stats-rowInput").val());
+                    // if not add scolling class,
+                    // will have a transition to cause a lag
+                    $scroller.addClass("scrolling");
+                    positionScrollBar(null, curRowNum);
+                    // without setTimout will still have lag
+                    setTimeout(function() {
+                        $scroller.removeClass("scrolling");
+                    }, 1);
                 }
             }
         });
@@ -1304,7 +1314,6 @@ window.Profile = (function($, Profile, d3) {
         scrollerWidth = Math.min(scrollerWidth, scrollBarWidth);
         scrollerWidth = Math.min(scrollBarWidth - 10, scrollerWidth);
         scrollerWidth = Math.max(25, scrollerWidth);
-
         $scroller.width(scrollerWidth);
     }
 
