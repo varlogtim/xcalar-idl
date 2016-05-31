@@ -12,6 +12,7 @@ var paths = {
     dagBackground : 'assets/images/dagIcons/dag-background.png',
     dbDiamond     : 'assets/images/dagIcons/dbDiamond.png',
     dTable        : 'assets/images/dagIcons/dtable.png',
+    expandIcon    : 'assets/images/dagIcons/expand.png',
     roundedRect   : 'assets/images/dagIcons/rounded-rect.png',
     hourglass     : 'assets/images/hourglass-white.png',
     waitIcon      : 'assets/images/waiting-1.gif',

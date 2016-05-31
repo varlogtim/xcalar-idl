@@ -362,6 +362,7 @@ html.firefox, html.microsoft {
         align-self: center;
         margin: 0 10px 10px 10px;
         position: absolute;
+        // z-index: 1;
         &.hidden {
             display: none;
         }
@@ -381,16 +382,48 @@ html.firefox, html.microsoft {
 
     .expandWrap {
         position: absolute;
-        .size(@width: 30px, @height: 30px);
-        border: 1px solid @color-dag-line;
+        .size(@width: 20px, @height: 20px);
+        margin-top: 5px;
+        margin-right: 5px;
         border-radius: 100%;
         text-align: center;
-        background-color: @color-white;
-        font-size: 20px;
-        line-height: 15px;
+        font-size: 15px;
+        line-height: 10px;
         cursor: pointer;
+        color: @color-white;
+        .linear-gradient(top, @color-background-lightTopAction, @color-background-lightBottomAction);
+        z-index: 1;
+
+        &.expanded {
+            .transform(rotate(90deg));
+            .linear-gradient(left, @color-background-lightTopAction, @color-background-lightBottomAction);
+            &::after {
+                content: "";
+                display: inline-block;
+                width: 40px;
+                height: 45px;
+                margin-top: -30px;
+                margin-left: -10px;
+            }
+        }
     }
 
+    .groupOutline {
+        position: absolute;
+        .size(@width: 40px, @height: 64px);
+        margin-top: -10px;
+        display: none;
+        pointer-events: none;
+        border: 1px solid @color-border-topAction;
+        box-shadow: 0px 0px 1px 1px @color-border-topAction;
+        .rounded;
+        opacity: 0;
+
+        .transition(opacity 0.3s);
+        &.visible {
+            opacity: 0.8;
+        }
+    }
 
     .dagTable {
         .position(relative, @top: 0, @right: 0);
@@ -478,19 +511,6 @@ html.firefox, html.microsoft {
             white-space: normal;
             display: inline-block;
         }
-    }
-
-    .parentContainer > .dagTableWrap {
-        display: block;
-    }
-
-    .joinWrap {
-        .flex-display;
-        .justify-content(flex-end);
-    }
-
-    .joinWrap + .joinWrap {
-        margin-top: 15px;
     }
 
     .actionType {

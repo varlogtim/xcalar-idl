@@ -41,7 +41,6 @@ window.HelpSearch = (function($, HelpSearch) {
         //     // if (event.which === keyCode.)
         // });
 
-
         $('#helpSearchArea').submit(function() {
             $('#helpResults').find('.noResults').hide();
             $('#tipue_search_warning').remove();
