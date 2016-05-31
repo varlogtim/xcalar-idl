@@ -606,8 +606,10 @@ window.JoinModal = (function($, JoinModal) {
                                 '</div>';
                 }
 
-                tableLis += '<li data-ws="' + wsId + '" data-id="' + tableId +
-                            '">' + table.tableName + '</li>';
+                tableLis += '<li data-ws="' + wsId + '" data-id="' +
+                            tableId + '">' +
+                                table.getName() +
+                            '</li>';
                 appendColHTML(tableId, table.tableCols);
             }
         }

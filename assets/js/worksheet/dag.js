@@ -43,7 +43,7 @@ window.DagPanel = (function($, DagPanel) {
         if (id && id !== "none") {
             var $dagWrap = $('#dagWrap-' + id);
             var $dagImageWrap = $dagWrap.find('.dagImageWrap');
-            var $dagImage = $dagImageWrap.find('.dagImage');
+            // var $dagImage = $dagImageWrap.find('.dagImage');
             var dagImageWidth = $dagImageWrap.outerWidth();
             var scrollWidth = $dagImageWrap[0].scrollWidth;
             if (scrollWidth > dagImageWidth) {
@@ -313,7 +313,7 @@ window.DagPanel = (function($, DagPanel) {
             var tableName = $.trim($dagTable.find('.tableTitle').text());
             var tableId = $dagTable.data('id');
             var tableLocked = false;
-            if (gTables[tableId] && gTables[tableId].isLocked) {
+            if (gTables[tableId] && gTables[tableId].hasLock()) {
                 tableLocked = true;
             }
             $menu.data('tablename', tableName);
@@ -448,8 +448,8 @@ window.DagPanel = (function($, DagPanel) {
                             // was not able to make url because image is
                             //probably too large
                             Alert.show({
-                                "title"  : ErrTStr.LargeImgTab,
-                                "msg"    : ErrTStr.LargeImgText
+                                "title": ErrTStr.LargeImgTab,
+                                "msg"  : ErrTStr.LargeImgText
                             });
                             $dagWrap.find('.dagImage').addClass('unsavable');
                         } else {
@@ -460,7 +460,7 @@ window.DagPanel = (function($, DagPanel) {
                     break;
                 case 'archiveTable':
                     var table = gTables[dagId];
-                    if (table && table.isLocked) {
+                    if (table && table.hasLock()) {
                         return;
                     }
                     TblManager.archiveTables([dagId]);
@@ -501,8 +501,8 @@ window.DagPanel = (function($, DagPanel) {
         if (lnk.href.length < 8) {
             // was not able to make url because image is probably too large
             Alert.show({
-                "title"  : ErrTStr.LargeImgSave,
-                "msg"    : ErrTStr.LargeImgText
+                "title": ErrTStr.LargeImgSave,
+                "msg"  : ErrTStr.LargeImgText
             });
             $(canvas).closest('.dagImage').addClass('unsavable');
             return;
@@ -547,7 +547,7 @@ window.DagPanel = (function($, DagPanel) {
             $menu.find('.saveImage, .newTabImage').show();
             $menu.find('.unsavable').hide();
         }
-        if (gTables[dagId] && gTables[dagId].isLocked) {
+        if (gTables[dagId] && gTables[dagId].hasLock()) {
             $menu.find('.archiveTable, .deleteTable').hide();
         } else {
             $menu.find('.archiveTable, .deleteTable').show();
@@ -727,7 +727,7 @@ window.DagPanel = (function($, DagPanel) {
             }
             var tableId = $menu.data('tableId');
             var table = gTables[tableId];
-            if (table && table.isLocked) {
+            if (table && table.hasLock()) {
                 return;
             }
             TblManager.archiveTables([tableId]);
@@ -745,7 +745,7 @@ window.DagPanel = (function($, DagPanel) {
 
     function deleteTable(tableId, tableName) {
         var table = gTables[tableId];
-        if (table && table.isLocked) {
+        if (table && table.hasLock()) {
             return;
         }
         var $table = $('#xcTableWrap-' + tableId);
@@ -763,9 +763,9 @@ window.DagPanel = (function($, DagPanel) {
                 }
             });
         } else if (table) {
-            if (table.status === TableType.Orphan) {
-                TableList.refreshOrphanList().
-                then(function() {
+            if (table.getType() === TableType.Orphan) {
+                TableList.refreshOrphanList()
+                .then(function() {
                     $('#orphanedTablesList').find('.tableInfo').each(function() {
                         var $li = $(this);
                         if ($li.data('tablename') === tableName) {
@@ -829,7 +829,7 @@ window.DagPanel = (function($, DagPanel) {
 
     function setupScrollBar() {
         var $scrollBarWrap = $('#dagScrollBarWrap');
-        $scrollBarWrap.scroll(function(event) {
+        $scrollBarWrap.scroll(function() {
             if (gMouseEvents.getLastMouseDownTarget().attr('id') ===
                 "dagScrollBarWrap") {
                 var scrollLeft = $(this).scrollLeft();
@@ -978,10 +978,10 @@ window.Dag = (function($, Dag) {
     Dag.createDagImage = function(nodeArray, $container, options) {
         options = options || {};
         var storedInfo = {
-            x          : 0,
-            y          : 0,
-            height     : 0,
-            width     : 0,
+            x             : 0,
+            y             : 0,
+            height        : 0,
+            width         : 0,
             condensedWidth: 0
         };
 
@@ -1268,7 +1268,7 @@ window.Dag = (function($, Dag) {
         var prevScrollLeft = $dagImage.parent().scrollLeft();
         var numGroupNodes = group.length;
         var storedInfo = {
-            width: dagImageWidth,
+            width   : dagImageWidth,
             groupLen: numGroupNodes
         };
         horzShift = -(dagTableWidth * 0.3);
@@ -1591,7 +1591,7 @@ window.Dag = (function($, Dag) {
                 $dagWrap.find('.dagImage').addClass('unsavable');
                 $('.tooltip').hide();
                 StatusBox.show(ErrTStr.QGNoExpand, $expandIcon, false,
-                                {type: "info"}) ;
+                                {type: "info"});
             } else {
                 $expandIcon.remove();
                 expandGroup(group, $dagWrap);
@@ -1623,7 +1623,7 @@ window.Dag = (function($, Dag) {
 
     function checkExpandHelper(index, nodes, savedInfo) {
         var node = nodes[index];
-        var parents = node.parents;
+        // var parents = node.parents;
         if (node.numParents === 0) {
             savedInfo.depth = Math.max(node.depth, savedInfo.depth);
         } else {
@@ -2104,7 +2104,7 @@ window.Dag = (function($, Dag) {
             var parentIndex = nodeInfo.parents[i];
 
             drawRet = drawDagNode(dagArray[parentIndex], storedInfo,
-                                  dagArray,parentIndex, parentChildMap,
+                                  dagArray, parentIndex, parentChildMap,
                                   children, newDepth, newCondensedDepth,
                                   isHidden, group, options);
 
@@ -2176,7 +2176,7 @@ window.Dag = (function($, Dag) {
         var dagTable = "";
 
         dagTable += '<div class="dagTableWrap clearfix' + hiddenClass + '" ' +
-                        'style="top:' + top + 'px;right: '+
+                        'style="top:' + top + 'px;right: ' +
                         tableWrapRight + 'px;">' + dagOrigin;
 
 
@@ -2591,7 +2591,7 @@ window.Dag = (function($, Dag) {
                 x1: canvasWidth - (origin.condensedX + dagTableWidth) + 240,
                 y1: Math.round(origin.y) + 20,
                 x2: tableX - 118,
-                y2: Math.round(nodeInfo.y) + 3,
+                y2: Math.round(nodeInfo.y) + 3
             };
             drawCurve(ctx, curvedLineCoor);
         }

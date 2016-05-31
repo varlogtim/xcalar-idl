@@ -420,10 +420,10 @@ window.TableList = (function($, TableList) {
                     } else {
                         if (table == null) {
                             innerDeferred.reject("Error: do not find the table");
-                            return (innerDeferred.promise());
+                            return innerDeferred.promise();
                         }
 
-                        tableName = table.tableName;
+                        tableName = table.getName();
                     }
 
                     tables.push(tableName);
@@ -470,7 +470,7 @@ window.TableList = (function($, TableList) {
                         });
                     }
 
-                    return (innerDeferred.promise());
+                    return innerDeferred.promise();
 
                 }).bind(this));
             }
@@ -594,11 +594,13 @@ window.TableList = (function($, TableList) {
 
             for (var tableId in gTables) {
                 var table = gTables[tableId];
-                if (table.status !== TableType.Orphan &&
-                    table.status !== TableType.Trash &&
-                    tableMap.hasOwnProperty(table.tableName))
+                var tableName = table.getName();
+                var tableType = table.getType();
+                if (tableType !== TableType.Orphan &&
+                    tableType !== TableType.Trash &&
+                    tableMap.hasOwnProperty(tableName))
                 {
-                    delete tableMap[table.tableName];
+                    delete tableMap[tableName];
                 }
             }
             setupOrphanedList(tableMap);
@@ -628,16 +630,16 @@ window.TableList = (function($, TableList) {
         } else {
             var table = gTables[tableId];
             if (!table) {
-                tableType = "orphaned";
+                tableType = TableType.Orphan;
             } else {
-                tableType = table.status;
+                tableType = table.getType();
             }
         }
 
         if (tableType === "active") {
             $listWrap = $("#activeTablesList");
             $li = $listWrap.find('.tableInfo[data-id="' + tableId + '"]');
-        } else if (tableType === "orphaned") {
+        } else if (tableType === TableType.Orphan) {
             // if orphan, tableId is actually tableName
             $listWrap = $('#orphanedTableList');
             $li = $listWrap.find('.tableInfo[data-tablename="' +
@@ -680,8 +682,7 @@ window.TableList = (function($, TableList) {
 
         if (tableId != null && gTables.hasOwnProperty(tableId)) {
             // when meta is in gTables
-            var table = gTables[tableId];
-            if (table.status !== TableType.Orphan) {
+            if (gTables[tableId].getType() !== TableType.Orphan) {
                 throw "Error, table is not orphaned!";
             } else {
                 var oldWS = WSManager.getWSFromTable(tableId);
@@ -842,9 +843,9 @@ window.TableList = (function($, TableList) {
                 time = xcHelper.getTime(null, timeStamp);
             }
 
-            var tableName = table.tableName;
-            var tableId   = table.tableId;
-            var wsId      = WSManager.getWSFromTable(tableId);
+            var tableName = table.getName();
+            var tableId = table.getId();
+            var wsId = WSManager.getWSFromTable(tableId);
             var wsInfo;
 
             if (wsId == null) {
@@ -949,7 +950,7 @@ window.TableList = (function($, TableList) {
 
         for (var i = 0; i < numTables; i++) {
             var table      = tables[i];
-            var tableName  = table.tableName;
+            var tableName  = table.getName();
             var aggStr     = table.aggStr;
             var aggVal     = table.value.value;
             var isActive   = table.value.isActive;
@@ -1190,17 +1191,7 @@ window.TableList = (function($, TableList) {
         var sortedTables = [];
 
         tables.forEach(function(table) {
-            var tableId = table.tableId;
-            var timeStamp;
-            if (gTables[tableId]) {
-                timeStamp = gTables[tableId].timeStamp;
-            }
-            if (timeStamp == null) {
-                console.error("Time Stamp undefined");
-                timeStamp = xcHelper.getCurrentTimeStamp();
-            }
-
-            sortedTables.push([table, timeStamp]);
+            sortedTables.push([table, table.getTimeStamp()]);
         });
 
         // sort by time, from the oldest to newset
@@ -1208,7 +1199,7 @@ window.TableList = (function($, TableList) {
             return (a[1] - b[1]);
         });
 
-        return (sortedTables);
+        return sortedTables;
     }
 
     function focusOnTableColumn($listCol) {
@@ -1242,12 +1233,13 @@ window.TableList = (function($, TableList) {
 
         for (var tableId in gTables) {
             var table = gTables[tableId];
-            if (table.status === TableType.Orphan ||
-                table.status === TableType.Trash) {
+            var tableType = table.getType();
+            if (tableType === TableType.Orphan ||
+                tableType === TableType.Trash) {
                 continue;
             }
 
-            if (table.status === TableType.Active) {
+            if (tableType === TableType.Active) {
                 activeTables.push(table);
             } else {
                 archivedTables.push(table);

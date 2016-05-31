@@ -276,7 +276,7 @@ window.ExtensionManager = (function(ExtensionManager, $) {
             modName !== "UExtTableau") {
             var worksheet = WSManager.getWSFromTable(tableId);
             var table = gTables[tableId];
-            var tableName = table.tableName;
+            var tableName = table.getName();
             var progCol = table.tableCols[colNum - 1];
             var colType = progCol.type;
             var colName = progCol.name;
@@ -286,7 +286,7 @@ window.ExtensionManager = (function(ExtensionManager, $) {
             var txId;
             var sql = {
                 "operation"   : SQLOps.Ext,
-                "tableName"   : table.tableName,
+                "tableName"   : tableName,
                 "tableId"     : tableId,
                 "colNum"      : colNum,
                 "colName"     : colName,
@@ -386,7 +386,7 @@ window.ExtensionManager = (function(ExtensionManager, $) {
         var table = gTables[tableId];
         var sql = {
             "operation"   : SQLOps.Ext,
-            "tableName"   : table.tableName,
+            "tableName"   : table.getName(),
             "tableId"     : tableId,
             "colNum"      : colNum,
             "functionName": functionName,

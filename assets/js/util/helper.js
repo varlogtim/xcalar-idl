@@ -235,7 +235,7 @@ window.xcHelper = (function($, xcHelper) {
             return colName;
         }
 
-        if (!table.hasCol(colName)) {
+        if (!table.hasColWithFrontName(colName)) {
             return colName;
         }
 
@@ -245,7 +245,7 @@ window.xcHelper = (function($, xcHelper) {
             ++tryCount;
             newColName = colName + "_" + tryCount;
 
-            if (!table.hasCol(newColName)) {
+            if (!table.hasColWithFrontName(newColName)) {
                 break;
             }
         }
@@ -1320,7 +1320,7 @@ window.xcHelper = (function($, xcHelper) {
             moveTableTitles();
         }
 
-        gTables[tableId].isLocked = true;
+        gTables[tableId].lock();
         WSManager.lockTable(tableId);
         SQL.lockUndoRedo();
     };
@@ -1329,7 +1329,7 @@ window.xcHelper = (function($, xcHelper) {
         xcHelper.assert((tableId != null), "Invalid Parameters!");
 
         var table = gTables[tableId];
-        table.isLocked = false;
+        table.unlock();
         if (table.isActive()) {
             var $tableWrap = $("#xcTableWrap-" + tableId);
             $tableWrap.find('.lockedIcon').remove();
@@ -1799,7 +1799,7 @@ window.xcHelper = (function($, xcHelper) {
         var numOpens = 0;
         var inQuotes = false;
         var ret = {
-            char: "",
+            char : "",
             index: -1 // returns -1 if no mismatch found
         };
         for (var i = 0; i < val.length; i++) {

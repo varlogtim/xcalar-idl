@@ -694,7 +694,7 @@ window.ColManager = (function($, ColManager) {
                         newFieldNames[i] = colPrefix + "-" + i;
                     }
 
-                    if (table.hasCol(newFieldNames[i])) {
+                    if (table.hasColWithFrontName(newFieldNames[i])) {
                         newFieldNames = [];
                         colPrefix = colName + "-split-" + tryCount;
                         break;
@@ -1959,7 +1959,7 @@ window.ColManager = (function($, ColManager) {
                                 xcHelper.escapeColName(arrayKey) + closingSymbol;
             }
 
-            if (!table.hasBackCol(escapedColName)) {
+            if (!table.hasColWithBackName(escapedColName)) {
                 colNames.push(colName);
                 escapedColNames.push(escapedColName);
             }
@@ -2122,7 +2122,7 @@ window.ColManager = (function($, ColManager) {
                     // after a )
                     if (tempString !== "") {
                         // convert strings to numbers, keep eq eq
-                        if (parseInt(tempString) == tempString) {
+                        if (parseInt(tempString) === tempString) {
                             tempString = parseInt(tempString);
                             func.args.push(tempString);
                         } else {

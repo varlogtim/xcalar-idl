@@ -146,13 +146,53 @@ function TableMeta(options) {
 }
 
 TableMeta.prototype = {
-    updateFromResultset: function(resultSet) {
-        this.resultSetId = resultSet.resultSetId;
-        this.resultSetCount = resultSet.numEntries;
-        this.resultSetMax = resultSet.numEntries;
-        this.numPages = Math.ceil(this.resultSetCount / gNumEntriesPerPage);
-        this.keyName = resultSet.keyAttrHeader.name;
+    getId: function() {
+        return this.tableId;
+    },
+
+    getName: function() {
+        return this.tableName;
+    },
+
+    getTimeStamp: function() {
+        return this.timeStamp;
+    },
+
+    updateTimeStamp: function() {
+        this.timeStamp = xcHelper.getCurrentTimeStamp();
         return this;
+    },
+
+    lock: function() {
+        this.isLocked = true;
+    },
+
+    unlock: function() {
+        this.isLocked = false;
+    },
+
+    hasLock: function() {
+        return this.isLocked;
+    },
+
+    updateResultset: function() {
+        var deferred = jQuery.Deferred();
+        var self = this;
+
+        XcalarMakeResultSetFromTable(self.tableName)
+        .then(function(resultSet) {
+            // Note that this !== self in this scope
+            self.resultSetId = resultSet.resultSetId;
+            self.resultSetCount = resultSet.numEntries;
+            self.resultSetMax = resultSet.numEntries;
+            self.numPages = Math.ceil(self.resultSetCount / gNumEntriesPerPage);
+            self.keyName = resultSet.keyAttrHeader.name;
+
+            deferred.resolve();
+        })
+        .fail(deferred.reject);
+
+        return deferred.promise();
     },
 
     freeResultset: function() {
@@ -176,30 +216,8 @@ TableMeta.prototype = {
         return deferred.promise();
     },
 
-    getColDirection: function(backColName) {
-        var deferred = jQuery.Deferred();
-        var tableName = this.tableName;
-
-        XcalarGetDag(tableName)
-        .then(function(nodeArray) {
-            if (XcalarApisTStr[nodeArray.node[0].api] === "XcalarApiIndex") {
-                var indexInput = nodeArray.node[0].input.indexInput;
-                if (indexInput.keyName === backColName) {
-                    deferred.resolve(indexInput.ordering);
-                    return;
-                }
-            }
-
-            deferred.resolve(XcalarOrderingT.XcalarOrderingUnordered);
-        })
-        .fail(deferred.reject);
-
-        return deferred.promise();
-    },
-
-    beInActive: function() {
-        this.status = TableType.InActive;
-        return this;
+    getType: function() {
+        return this.status;
     },
 
     beArchived: function() {
@@ -226,12 +244,54 @@ TableMeta.prototype = {
         return (this.status === TableType.Active);
     },
 
-    updateTimeStamp: function() {
-        this.timeStamp = xcHelper.getCurrentTimeStamp();
-        return this;
+    getColNumByBackName: function(backColName) {
+        var tableCols = this.tableCols;
+        for (var i = 0, len = tableCols.length; i < len; i++) {
+            var progCol = tableCols[i];
+
+            if (progCol.getBackColName() === backColName) {
+                return i;
+            }
+        }
+        return -1;
     },
 
-    hasBackCol: function(backColName) {
+    getColByBackName: function(backColName) {
+        // get progCol from backColName
+        var tableCols = this.tableCols;
+        for (var i = 0, len = tableCols.length; i < len; i++) {
+            var progCol = tableCols[i];
+
+            if (progCol.isNewCol || progCol.isDATACol()) {
+                // skip new column and DATA column
+                continue;
+            } else if (progCol.getBackColName() === backColName) {
+                return progCol;
+            }
+        }
+
+        return null;
+    },
+
+    getColByFrontName: function(frontColName) {
+        var tableCols = this.tableCols;
+        for (var i = 0, len = tableCols.length; i < len; i++) {
+            var progCol = tableCols[i];
+
+            if (progCol.isDATACol()) {
+                // skip DATA column
+                continue;
+            }
+
+            if (progCol.name === frontColName) {
+                // check fronColName
+                return progCol;
+            }
+        }
+        return null;
+    },
+
+    hasColWithBackName: function(backColName) {
         // this check if table has the backCol,
         // it does not check frontCol
         var tableCols = this.tableCols;
@@ -249,19 +309,8 @@ TableMeta.prototype = {
         return false;
     },
 
-    getBackColNum: function(backColName) {
-        var tableCols = this.tableCols;
-        for (var i = 0, len = tableCols.length; i < len; i++) {
-            var progCol = tableCols[i];
 
-            if (progCol.getBackColName() === backColName) {
-                return i;
-            }
-        }
-        return -1;
-    },
-
-    hasCol: function(colName) {
+    hasColWithFrontName: function(colName) {
         // check both fronName and backName
         var tableCols = this.tableCols;
         for (var i = 0, len = tableCols.length; i < len; i++) {
@@ -284,59 +333,6 @@ TableMeta.prototype = {
         }
 
         return false;
-    },
-
-    getBackColName: function(frontColName) {
-        var tableCols = this.tableCols;
-        for (var i = 0, len = tableCols.length; i < len; i++) {
-            var progCol = tableCols[i];
-
-            if (progCol.isDATACol()) {
-                // skip DATA column
-                continue;
-            }
-
-            if (progCol.name === frontColName) {
-                // check fronColName
-                return (progCol.getBackColName());
-            }
-        }
-        return (null);
-    },
-
-    getProgCol: function(backColName) {
-        // get progCol from backColName
-        var tableCols = this.tableCols;
-        for (var i = 0, len = tableCols.length; i < len; i++) {
-            var progCol = tableCols[i];
-
-            if (progCol.isNewCol || progCol.isDATACol()) {
-                // skip new column and DATA column
-                continue;
-            } else if (progCol.getBackColName() === backColName) {
-                return progCol;
-            }
-        }
-
-        return null;
-    },
-
-    getProgColFromFrontColName: function(frontColName) {
-        var tableCols = this.tableCols;
-        for (var i = 0, len = tableCols.length; i < len; i++) {
-            var progCol = tableCols[i];
-
-            if (progCol.isDATACol()) {
-                // skip DATA column
-                continue;
-            }
-
-            if (progCol.name === frontColName) {
-                // check fronColName
-                return progCol;
-            }
-        }
-        return null;
     }
 };
 

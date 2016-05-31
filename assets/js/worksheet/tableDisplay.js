@@ -234,7 +234,6 @@ window.TblManager = (function($, TblManager) {
         var tableId = xcHelper.getTableId(tableName);
         options = options || {};
         var tableProperties = options.tableProperties;
-        var isActive = options.isActive || false;
 
         var table = new TableMeta({
             "tableId"  : tableId,
@@ -247,13 +246,12 @@ window.TblManager = (function($, TblManager) {
             table.rowHeights = tableProperties.rowHeights || {};
         }
 
-        if (isActive) {
+        if (options.isActive) {
             // the table is in active worksheet, should have meta from backend
-            table.currentRowNumber = 0;
+            // table.currentRowNumber = 0;
 
-            getResultSet(tableName)
-            .then(function(resultSet) {
-                table.updateFromResultset(resultSet);
+            table.updateResultset()
+            .then(function() {
                 gTables[tableId] = table;
                 deferred.resolve();
             })
@@ -267,7 +265,7 @@ window.TblManager = (function($, TblManager) {
             deferred.resolve();
         }
 
-        return (deferred.promise());
+        return deferred.promise();
     };
 
     /*
@@ -464,8 +462,8 @@ window.TblManager = (function($, TblManager) {
                 WSManager.changeTableStatus(tableId, TableType.Orphan);
             }
 
-            table.beOrphaned()
-                 .updateTimeStamp();
+            table.beOrphaned();
+            table.updateTimeStamp();
 
             if (gActiveTableId === tableId) {
                 gActiveTableId = null;
@@ -606,9 +604,9 @@ window.TblManager = (function($, TblManager) {
             var oldMeta = oldgTables[tableId];
             var table = new TableMeta(oldMeta);
 
-            if (table.isLocked) {
-                table.isLocked = false;
-                table.status = TableType.Orphan;
+            if (table.hasLock()) {
+                table.unlock();
+                table.beOrphaned();
             }
 
             gTables[tableId] = table;
@@ -1347,11 +1345,8 @@ window.TblManager = (function($, TblManager) {
         var tableId = xcHelper.getTableId(tableName);
         var table = gTables[tableId];
 
-        getResultSet(tableName)
-        .then(function(resultSet) {
-
-            table.updateFromResultset(resultSet);
-
+        table.updateResultset()
+        .then(function() {
             table.beActive();
             deferred.resolve();
         })

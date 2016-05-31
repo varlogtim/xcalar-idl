@@ -281,9 +281,9 @@ function dataPreviewModuleTest() {
             $actions = $content.find(".action");
             expect($actions.length).to.equal(2);
             expect($actions.eq(0).hasClass("excelLoad hasHeader")).to.be.true;
-            expect($actions.eq(0).text()).equal('Load as EXCEL dataset and promote header');
+            expect($actions.eq(0).text()).equal(DSPreviewTStr.LoadExcelWithHeader);
             expect($actions.eq(1).hasClass("excelLoad")).to.be.true;
-            expect($actions.eq(1).text()).equal('Load as EXCEL dataset');
+            expect($actions.eq(1).text()).equal(DSPreviewTStr.LoadExcel);
 
             // load json error
             DataPreview.__testOnly__.errorSuggestHelper("test.json");
@@ -291,7 +291,7 @@ function dataPreviewModuleTest() {
             $actions = $content.find(".action");
             expect($actions.length).to.equal(1);
             expect($actions.eq(0).hasClass("jsonLoad")).to.be.true;
-            expect($actions.eq(0).text()).equal('Load as JSON dataset');
+            expect($actions.eq(0).text()).equal(DSPreviewTStr.LoadJSON);
 
             // other kind of error
             DataPreview.__testOnly__.errorSuggestHelper("test");
@@ -299,7 +299,7 @@ function dataPreviewModuleTest() {
             $actions = $content.find(".action");
             expect($actions.length).to.equal(1);
             expect($actions.eq(0).hasClass("hint")).to.be.true;
-            expect($actions.eq(0).text()).equal('Use UDF to parse the dataset');
+            expect($actions.eq(0).text()).equal(DSPreviewTStr.LoadUDF);
         });
 
         it("headerPromoteDetect() should work", function() {

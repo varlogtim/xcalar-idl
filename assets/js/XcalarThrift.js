@@ -2,7 +2,7 @@ var tHandle;
 
 function setupThrift() {
     setupHostName();
-    if (!portNumber) {
+    if (!window.portNumber) {
         portNumber = 80;
     }
     tHandle = xcalarConnectThrift(hostname, portNumber.toString());

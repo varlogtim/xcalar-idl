@@ -216,7 +216,7 @@ window.ExtensionOpModal = (function(ExtensionOpModal, $) {
     function getColInfo(arg, validType, $input) {
         arg = arg.replace(/\$/g, '');
         var tempColNames = arg.split(",");
-        var backColNames = "";
+        // var backColNames = "";
         var table = gTables[exTableId];
         var cols = [];
         var error;
@@ -226,7 +226,7 @@ window.ExtensionOpModal = (function(ExtensionOpModal, $) {
         }
 
         for (var i = 0; i < tempColNames.length; i++) {
-            var progCol = table.getProgColFromFrontColName(tempColNames[i].trim());
+            var progCol = table.getColByFrontName(tempColNames[i].trim());
             if (progCol != null) {
                 var colType = progCol.getType();
                 var type = colType;

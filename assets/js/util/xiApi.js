@@ -48,6 +48,28 @@ window.XIApi = (function(XIApi, $) {
         return deferred.promise();
     };
 
+    XIApi.checkOrder = function(tableName) {
+        if (tableName == null) {
+            return PromiseHelper.reject("Invalid args in checkOrder");
+        }
+
+        var deferred = jQuery.Deferred();
+
+        XcalarGetDag(tableName)
+        .then(function(nodeArray) {
+            if (XcalarApisTStr[nodeArray.node[0].api] === "XcalarApiIndex") {
+                var indexInput = nodeArray.node[0].input.indexInput;
+                deferred.resolve(indexInput.ordering, indexInput.keyName);
+                return;
+            }
+
+            deferred.resolve(XcalarOrderingT.XcalarOrderingUnordered, null);
+        })
+        .fail(deferred.reject);
+
+        return deferred.promise();
+    };
+
     XIApi.index = function(txId, colToIndex, tableName) {
         if (txId == null || colToIndex == null || tableName == null) {
             return PromiseHelper.reject("Invalid args in index");
@@ -65,16 +87,10 @@ window.XIApi = (function(XIApi, $) {
 
         var deferred = jQuery.Deferred();
         // Check for case where table is already sorted
-        XcalarGetDag(tableName)
-        .then(function(nodeArray) {
-            if (XcalarApisTStr[nodeArray.node[0].api] === "XcalarApiIndex") {
-                var indexInput = nodeArray.node[0].input.indexInput;
-
-                if (indexInput != null && indexInput.keyName === colName &&
-                    indexInput.ordering === order)
-                {
-                    return PromiseHelper.reject(null, true);
-                }
+        XIApi.checkOrder(tableName)
+        .then(function(sortOrder, sortKey) {
+            if (order === sortOrder && colName === sortKey) {
+                return PromiseHelper.reject(null, true);
             }
 
             if (!isValidTableName(newTableName)) {
@@ -772,7 +788,7 @@ window.XIApi = (function(XIApi, $) {
             // Pull out each individual groupByCols
             for (var i = 0; i < numGroupByCols; i++) {
                 var backColName = groupByCols[i];
-                var progCol = table.getProgCol(backColName) || {};
+                var progCol = table.getColByBackName(backColName) || {};
                 // even though backColName may be escaped, the returned column
                 // from the backend will be escaped again
                 escapedName = xcHelper.escapeColName(backColName);
@@ -814,7 +830,7 @@ window.XIApi = (function(XIApi, $) {
         } else {
             var srcTable = gTables[scrTableId];
             for (var i = 0; i < numGroupByCols; i++) {
-                var progCol = srcTable.getProgCol(groupByCols[i]);
+                var progCol = srcTable.getColByBackName(groupByCols[i]);
                 if (progCol != null) {
                     groupByColTypes[i] = progCol.type;
                 } else {

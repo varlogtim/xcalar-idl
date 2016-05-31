@@ -76,8 +76,8 @@ window.AggModal = (function($, AggModal) {
     AggModal.quickAgg = function(tableId) {
         var deferred = jQuery.Deferred();
 
-        var table     = gTables[tableId];
-        var tableName = table.tableName;
+        var table = gTables[tableId];
+        var tableName = table.getName();
 
         showAggModal(tableName, "quickAgg");
 
@@ -114,8 +114,8 @@ window.AggModal = (function($, AggModal) {
     AggModal.corr = function(tableId) {
         var deferred = jQuery.Deferred();
 
-        var table     = gTables[tableId];
-        var tableName = table.tableName;
+        var table = gTables[tableId];
+        var tableName = table.getName();
         showAggModal(tableName, "corr");
 
         aggColsInitialize(tableId);

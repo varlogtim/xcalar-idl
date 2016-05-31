@@ -99,10 +99,7 @@ window.RowScroller = (function($, RowScroller) {
             var table = gTables[tableId];
             var $table = $('#xcTable-' + tableId);
 
-            if (!table) {
-                return;
-            }
-            if (table.isLocked) {
+            if (!table || table.hasLock()) {
                 return;
             }
 

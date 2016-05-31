@@ -230,7 +230,7 @@ describe('OperationsModal', function() {
                     arg1Types.push(arg1Type);
                 }
                 for (var i = 0; i < testArgs2.length; i++) {
-                    gTableColNum = gTables[tableId].getBackColNum(testArgs2[i]);
+                    gTableColNum = gTables[tableId].getColNumByBackName(testArgs2[i]);
                     arg2Type = gTables[tableId].tableCols[gTableColNum].type;
 
                     arg2Types.push(arg2Type);
@@ -335,10 +335,10 @@ describe('OperationsModal', function() {
                     argInfos.push(argumentFormatHelper(existingTypes));
 
                     if (hasValidColPrefix(testArgs1[i]) &&
-                        gTables[tableId].getBackColNum(testArgs1[i]) === -1) {
+                        gTables[tableId].getColNumByBackName(testArgs1[i]) === -1) {
                         hasValidTypes = false;
                     } else if (hasValidColPrefix(testArgs2[j]) &&
-                                gTables[tableId].getBackColNum(testArgs1[j]) === -1) {
+                                gTables[tableId].getColNumByBackName(testArgs1[j]) === -1) {
                         hasValidTypes = false;
                     } else if (arg1ValidTypes.indexOf(arg1Types[i]) > -1 &&
                         arg2ValidTypes.indexOf(arg2Types[j]) > -1) {

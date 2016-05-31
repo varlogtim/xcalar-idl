@@ -295,7 +295,7 @@ window.Profile = (function($, Profile, d3) {
 
         var sql = {
             "operation": SQLOps.Profile,
-            "tableName": table.tableName,
+            "tableName": table.getName(),
             "tableId"  : tableId,
             "colNum"   : colNum,
             "colName"  : colName,
@@ -490,7 +490,7 @@ window.Profile = (function($, Profile, d3) {
                 } else {
                     table = tableInfo.table;
                 }
-                return getResultSet(table);
+                return XcalarMakeResultSetFromTable(table);
             })
             .then(function(resultSet) {
                 resultSetId = resultSet.resultSetId;
@@ -615,7 +615,7 @@ window.Profile = (function($, Profile, d3) {
         var aggrOp = aggMap[aggkey];
         var res;
 
-        getAggResult(fieldName, table.tableName, aggrOp, txId)
+        getAggResult(fieldName, table.getName(), aggrOp, txId)
         .then(function(val) {
             res = val;
             deferred.resolve();
@@ -660,7 +660,8 @@ window.Profile = (function($, Profile, d3) {
             return deferred.resolve().promise();
         }
 
-        table.getColDirection(curStatsCol.colName)
+        var tableName = table.getName();
+        XIApi.checkOrder(tableName)
         .then(getStats)
         .then(function() {
             if (isModalVisible(curStatsCol)) {
@@ -673,7 +674,7 @@ window.Profile = (function($, Profile, d3) {
 
         return deferred.promise();
 
-        function getStats(tableDirection) {
+        function getStats(tableOrder, tableKey) {
             var innerDeferred = jQuery.Deferred();
 
             var zeroKey = statsKeyMap.zeroQuartile;
@@ -683,13 +684,14 @@ window.Profile = (function($, Profile, d3) {
             var fullKey = statsKeyMap.fullQuartile;
             var resultId;
 
-            if (tableDirection === XcalarOrderingT.XcalarOrderingUnordered) {
+            if (tableOrder === XcalarOrderingT.XcalarOrderingUnordered ||
+                tableKey !== curStatsCol.colName) {
                 // when table is unsorted
                 curStatsCol.statsInfo.unsorted = true;
                 return innerDeferred.resolve().promise();
             }
 
-            XcalarMakeResultSetFromTable(table.tableName)
+            XcalarMakeResultSetFromTable(tableName)
             .then(function(res) {
                 resultId = res.resultSetId;
                 var promises = [];
@@ -785,8 +787,7 @@ window.Profile = (function($, Profile, d3) {
             return deferred.reject("Invalid bucket num").promise();
         }
 
-        var tableName = table.tableName;
-        var tableId = table.tableId;
+        var tableName = table.getName();
 
         var groupbyTable;
         var finalTable;
@@ -806,10 +807,10 @@ window.Profile = (function($, Profile, d3) {
             if (hasIndexed) {
                 getAggResult(colName, indexedTableName, aggMap.count, txId)
                 .then(function(val) {
-                    // the gTables[tableId].resultSetCount should eqaul to the
+                    // the table.resultSetCount should eqaul to the
                     // totalCount after right index, if not, a way to resolve
                     // is to get resulSetCount from the right src table
-                    var nullCount = gTables[tableId].resultSetCount - val;
+                    var nullCount = table.resultSetCount - val;
                     innerDeferred.resolve(indexedTableName, nullCount);
                 })
                 .fail(innerDeferred.reject);
@@ -2116,7 +2117,7 @@ window.Profile = (function($, Profile, d3) {
 
         var colName = statsCol.colName;
         var filterTableId = curTableId; // in case close modal clear curTableId
-        var colNum = gTables[filterTableId].getBackColNum(colName);
+        var colNum = gTables[filterTableId].getColNumByBackName(colName);
         var hasNull = (groupByData[0].type === "nullVal");
         var isString = (statsCol.type === "string");
 

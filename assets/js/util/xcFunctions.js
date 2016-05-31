@@ -203,9 +203,7 @@ window.xcFunction = (function($, xcFunction) {
 
         // user timeout because it may fail soon if table is already sorted
         // lock table will cause blinking
-        var isLocked = false;
         var timer = setTimeout(function() {
-            isLocked = true;
             xcHelper.lockTable(tableId);
         }, 200);
 
@@ -227,7 +225,7 @@ window.xcFunction = (function($, xcFunction) {
         })
         .then(function() {
             clearTimeout(timer);
-            if (isLocked) {
+            if (table.hasLock()) {
                 xcHelper.unlockTable(tableId);
             }
 
@@ -240,7 +238,7 @@ window.xcFunction = (function($, xcFunction) {
         })
         .fail(function(error, sorted) {
             clearTimeout(timer);
-            if (isLocked) {
+            if (table.hasLock()) {
                 xcHelper.unlockTable(tableId);
             }
 

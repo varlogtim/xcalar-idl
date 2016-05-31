@@ -783,7 +783,7 @@ window.Replay = (function($, Replay) {
         //     var tableName = options.tableName;
         //     var tableId;
 
-        //     if (tableType === TableType.InActive) {
+        //     if (tableType === TableType.Archived) {
         //         tableId = getTableId(xcHelper.getTableId(tableName));
         //         $('#inactiveTablesList .tableInfo[data-id="' +
         //                 tableId + '"] .addTableBtn').click();

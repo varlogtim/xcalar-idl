@@ -629,10 +629,10 @@ describe('xcHelper Test', function() {
         });
 
         xcHelper.lockTable("xcTest");
-        expect(gTables["xcTest"].isLocked).to.be.true;
+        expect(gTables["xcTest"].hasLock()).to.be.true;
 
         xcHelper.unlockTable("xcTest");
-        expect(gTables["xcTest"].isLocked).to.be.false;
+        expect(gTables["xcTest"].hasLock()).to.be.false;
 
         delete gTables["xcTest"];
     });

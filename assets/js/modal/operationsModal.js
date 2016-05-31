@@ -1809,7 +1809,7 @@ window.OperationsModal = (function($, OperationsModal) {
             $input = $(this);
             isCasting = $input.data('casted');
             if (isCasting) {
-                colNum = table.getBackColNum(args[i]);
+                colNum = table.getColNumByBackName(args[i]);
                 if (colNum > -1) {
                     isValid = true;
                     castType = $input.data('casttype');
@@ -2103,22 +2103,22 @@ window.OperationsModal = (function($, OperationsModal) {
         $operationsModal.find('.descCell').removeClass('castShowing');
     }
 
-    function checkNoEmptyFields(args) {
-        var numArgs = args.length;
-        var emptyFields = [];
-        for (var i = 0; i < numArgs; i++) {
-            if (args[i] === "\"\"" || args[i] === "") {
-                if (!(operatorName === "group by" && i === numArgs - 1)) {
-                    emptyFields.push(i);
-                }
-            }
-        }
-        if (emptyFields.length) {
-            return (false);
-        } else {
-            return (true);
-        }
-    }
+    // function checkNoEmptyFields(args) {
+    //     var numArgs = args.length;
+    //     var emptyFields = [];
+    //     for (var i = 0; i < numArgs; i++) {
+    //         if (args[i] === "\"\"" || args[i] === "") {
+    //             if (!(operatorName === "group by" && i === numArgs - 1)) {
+    //                 emptyFields.push(i);
+    //             }
+    //         }
+    //     }
+    //     if (emptyFields.length) {
+    //         return (false);
+    //     } else {
+    //         return (true);
+    //     }
+    // }
 
     function aggregateCheck(args) {
         var colIndex = getColIndex(args[0]);
@@ -2163,7 +2163,7 @@ window.OperationsModal = (function($, OperationsModal) {
     function filter(operator, args, colTypeInfos) {
         var options = {};
         var colIndex;
-        var colName;
+        // var colName;
         if (!hasUnescapedParens(args[0])) {
             colIndex = getColIndex(args[0]);
         } else {
@@ -2178,7 +2178,7 @@ window.OperationsModal = (function($, OperationsModal) {
     }
 
     function getColIndex(backColName) {
-        return (gTables[tableId].getBackColNum(backColName));
+        return gTables[tableId].getColNumByBackName(backColName);
     }
 
     function groupBy(operator, args, colTypeInfos) {
@@ -2368,7 +2368,7 @@ window.OperationsModal = (function($, OperationsModal) {
                 value = trimmedVal;
             }
 
-            if (!table.hasBackCol(value)) {
+            if (!table.hasColWithBackName(value)) {
                 if (value.length === 2 && value.indexOf('""') === 0) {
                     text = ErrTStr.NoEmpty;
                 } else {

@@ -63,7 +63,6 @@ var DelWSType = {
 };
 
 var TableType = {
-    "InActive": "inactive",
     "Active"  : "active",
     "Archived": "archived",
     "Agg"     : "aggregate",

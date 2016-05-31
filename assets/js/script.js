@@ -335,18 +335,16 @@ window.StartManager = (function(StartManager, $) {
     function restoreActiveTable(tableId, failures) {
         var deferred = jQuery.Deferred();
         var table = gTables[tableId];
-        var tableName = table.tableName;
 
         table.beActive();
 
-        getResultSet(tableName)
-        .then(function(resultSet) {
-            gTables[tableId].updateFromResultset(resultSet);
+        table.updateResultset()
+        .then(function() {
             return TblManager.parallelConstruct(tableId);
         })
         .then(deferred.resolve)
         .fail(function(error) {
-            failures.push("Add table " + tableName +
+            failures.push("Add table " + table.getName() +
                         "fails: " + error.error);
             // still resolve but push error failures
             deferred.resolve();
@@ -432,7 +430,6 @@ window.StartManager = (function(StartManager, $) {
                     continue;
                 }
 
-                // gTables[tableId].beInActive();
                 gTables[tableId].beArchived();
             }
 
@@ -501,12 +498,12 @@ window.StartManager = (function(StartManager, $) {
 
                 return false;
             } else {
-                delete backTableSet[curTable.tableName];
+                delete backTableSet[curTable.getName()];
                 return true;
             }
         }
 
-        return (deferred.promise());
+        return deferred.promise();
     }
 
     function documentReadyGeneralFunction() {

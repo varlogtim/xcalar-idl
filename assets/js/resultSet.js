@@ -20,8 +20,9 @@ function freeAllResultSetsSync() {
     .then(function(backTableSet) {
         for (var tableId in gTables) {
             var table = gTables[tableId];
+            var tableName = table.getName();
 
-            if (!backTableSet.hasOwnProperty(table.tableName)) {
+            if (!backTableSet.hasOwnProperty(tableName)) {
                 console.error("Table not in backend!");
                 continue;
             }
@@ -31,9 +32,7 @@ function freeAllResultSetsSync() {
 
         // Free datasetBrowser resultSetId
         promises.push(DS.release.bind(this));
-
         return PromiseHelper.chain(promises);
-
     })
     .then(deferred.resolve)
     .fail(function(error) {
@@ -42,10 +41,6 @@ function freeAllResultSetsSync() {
     });
 
     return (deferred.promise());
-}
-
-function getResultSet(tableName) {
-    return (XcalarMakeResultSetFromTable(tableName));
 }
 
 // rowNumber is the row number we're starting from
@@ -132,7 +127,7 @@ function goToPage(rowNumber, numRowsToAdd, direction, loop, info,
         if (!retry && !setAbsolutePassed &&
             error.status === StatusT.StatusInvalidResultSetId) {
 
-            XcalarMakeResultSetFromTable(table.tableName)
+            XcalarMakeResultSetFromTable(table.getName())
             .then(function(result) {
                 table.resultSetId = result.resultSetId;
                 goToPage(rowNumber, numRowsToAdd, direction, loop, info,
@@ -304,7 +299,6 @@ function generateDataColumnJson(table, direction, notIndexed, numRowsToFetch,
 
     XcalarGetNextPage(table.resultSetId, numRowsToFetch)
     .then(function(tableOfEntries) {
-        var tableId = table.tableId;
         var keyName = table.keyName;
         var kvPairs = tableOfEntries.kvPair;
         var numKvPairs = tableOfEntries.numKvPairs;
@@ -313,7 +307,7 @@ function generateDataColumnJson(table, direction, notIndexed, numRowsToFetch,
             resultSetId = 0;
         }
         if (notIndexed) {
-            ColManager.setupProgCols(tableId);
+            ColManager.setupProgCols(table.getId());
         }
 
         var numRows = Math.min(numRowsToFetch, numKvPairs);
@@ -346,7 +340,7 @@ function generateDataColumnJson(table, direction, notIndexed, numRowsToFetch,
     })
     .fail(function(error) {
         if (!retry && error.status === StatusT.StatusInvalidResultSetId) {
-            XcalarMakeResultSetFromTable(table.tableName)
+            XcalarMakeResultSetFromTable(table.getName())
             .then(function(result) {
                 table.resultSetId = result.resultSetId;
                 generateDataColumnJson(table, direction, notIndexed,
