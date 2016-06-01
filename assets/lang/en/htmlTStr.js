@@ -248,6 +248,7 @@ module.exports = {
         'download': 'DOWNLOAD',
         'upload': 'UPLOAD',
         'Help': 'Help',
+        'HelpTopics': 'Help Topics',
         'Find': 'Find',
         'noRes': 'There are no help results',
         'useSearch': 'Search for a topic or',

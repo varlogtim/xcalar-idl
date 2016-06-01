@@ -19,5 +19,6 @@ var paths = {
     XCExt         : 'assets/images/extension/logo-xc.png',
     CustomExt     : 'assets/images/extension/logo-custom.png',
     tableauExt    : 'assets/images/extension/logo-tableau.png',
-    helpGuide     : 'assets/help/Content/Home.htm'
+    helpGuide     : 'assets/help/Content/Home.htm',
+    helpContent   : 'assets/help/Content/'
 };

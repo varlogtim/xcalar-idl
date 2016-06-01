@@ -1147,7 +1147,8 @@
     .image("../../images/search-md.png", 40%, 50%);
     display: inline-block;
     position: absolute;
-    right: 15px;
+    right: 0px;
+    margin-right: 3%;
     cursor: pointer;
 }
 
@@ -1167,6 +1168,10 @@
     height: ~"calc(100% - 290px)";
     min-height: 80px;
 
+    .resultsArea {
+        display: none;
+    }
+
     a {
         text-decoration: none;
         &:hover {
@@ -1174,12 +1179,15 @@
         }
     }
 
-    &> div {
+    > div {
         text-align: left;
         overflow-x: hidden;
         overflow-y: auto;
         word-break: break-word;
         position: relative;
+    }
+
+    .resultsArea {
         .noResults, #tipue_search_warning {
             .vertical-align;
             .horizontal-align;
@@ -1226,6 +1234,60 @@
 
     .visitHelpGuide {
         color: @color-text-topAction;
+    }
+
+    .categoryArea {
+        background-color: @color-background-darkGray;
+        .mainHeading, .subHeading {
+            color: @color-text-headerGray;
+            font-weight: bold;
+        }
+        .mainHeading {
+            font-size: 16px;
+        }
+        .subHeading {
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+        .categoryBlock {
+            background-color: @color-background-helpTopics;
+            padding: 4px;
+            margin-top: 8px;
+            border: 1px solid @color-border-helpTopic;
+            .rounded;
+        }
+        .linkWrap {
+            display: inline-block;
+            margin-right: 20px;
+            margin-bottom: 8px;
+            width: ~"calc(50% - 20px)";
+            float: left;
+        }
+        a {
+            color: @color-text-helpTopic;
+            font-weight: normal;
+            font-size: 14px;
+            line-height: 16px;
+        }
+
+        .linkWrap:last-child {
+            margin-right: 3px;
+            width: ~"calc(50% - 4px)";
+        }
+
+        .moreLink {
+            display: inline-block;
+            float: right;
+            margin-top: 2px;
+            margin-right: 2px;
+        }
+    }
+}
+
+#rightSideBar.small #helpResults .categoryArea {
+    .linkWrap {
+        width: 100%;
+        padding-right: 4px;
     }
 }
 

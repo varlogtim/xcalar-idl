@@ -841,6 +841,17 @@ describe('xcHelper Test', function() {
         expect(res).to.equal(-1);
     });
 
+    it('xcHelper.camelCaseToRegular should work', function() {
+        var func = xcHelper.camelCaseToRegular;
+        expect(func('a')).to.equal('A');
+        expect(func('aB')).to.equal('A B');
+        expect(func('ab')).to.equal('Ab');
+        expect(func('AB')).to.equal('A B');
+        expect(func('Ab')).to.equal('Ab');
+        expect(func('AaBbC')).to.equal('Aa Bb C');
+
+    });
+
     it('xcHelper.fillInputFromCell should work', function() {
         // case 1
         var $header = $('<div class="header">' +

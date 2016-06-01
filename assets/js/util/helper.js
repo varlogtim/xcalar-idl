@@ -1891,6 +1891,14 @@ window.xcHelper = (function($, xcHelper) {
         return hasPrefix;
     };
 
+    // turns camelCase to Camel Case
+    xcHelper.camelCaseToRegular = function(str) {
+        return (str.replace(/([A-Z])/g, ' $1')
+                             .replace(/^./, function(str) {
+                                 return (str.toUpperCase());
+                             }).trim());
+    };
+
     /*
     options: {
         mouseCoors: {x: float, y: float},
