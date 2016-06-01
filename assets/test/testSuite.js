@@ -320,7 +320,7 @@ window.TestSuite = (function($, TestSuite) {
             // Import flight dataset
             $("#importDataButton").click();
             $("#fileBrowserModal .close").click();
-            $("#filePath").val("file://"+testDataLoc+"flight" +
+            $("#filePath").val("nfs://"+testDataLoc+"flight" +
                                "/airlines_2007.csv");
             $("#fileName").val(dsName1);
             $("#fileFormat .iconWrapper .icon").click();
@@ -333,7 +333,7 @@ window.TestSuite = (function($, TestSuite) {
             // import airports dataset
             $("#importDataButton").click();
             $("#fileBrowserModal .close").click();
-            $("#filePath").val("file://"+testDataLoc+"flight" +
+            $("#filePath").val("nfs://"+testDataLoc+"flight" +
                                "/airports.csv");
             $("#fileName").val(dsName2);
             $("#fileFormat .iconWrapper .icon").click();
@@ -716,7 +716,7 @@ window.TestSuite = (function($, TestSuite) {
         $("#dataStoresTab").click();
         $("#importDataButton").click();
         $("#fileBrowserModal .close").click();
-        $("#filePath").val("file://"+testDataLoc+
+        $("#filePath").val("nfs://"+testDataLoc+
                            "indexJoin/schedule/schedule.json");
         $("#fileName").val(dsName);
         $("#fileFormat .iconWrapper .icon").click();
