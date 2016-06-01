@@ -4,9 +4,9 @@ StatusMessageTStr = {
 'Viewing' : 'Viewing',
 'Error' : 'Error encountered',
 'Loading' : 'Loading',
-'LoadingDataset' : 'Loading Dataset',
+'LoadingDataset' : 'Pointing to Dataset',
 'LoadingTables': 'Loading Tables',
-'LoadFailed' : 'Load dataset failed',
+'LoadFailed' : 'Point to dataset failed',
 'CreatingTable' : 'Creating table',
 'TableCreationFailed' : 'Table creation failed',
 'Join' : 'Joining tables',
@@ -399,7 +399,6 @@ DSTStr = {
     'UnknownUser': 'Unknow User',
     'DS': 'DATASET',
     'Export': 'EXPORT FORM',
-    'LoadingDS': 'Dataset is loading',
     'DelDS': 'Delete Dataset',
     'DelDSFail': 'Delete Dataset Failed',
     'NewFolder': 'New Folder',
@@ -419,7 +418,7 @@ DSTStr = {
 };
 
 DSFormTStr = {
-    'LoadConfirm': 'Load Dataset Confirmation',
+    'LoadConfirm': 'Point To Dataset',
     'NoHeader': 'You have not checked the Header option to promote the first'+
                 ' row to the table header. You will not be able to change the '+
                 'table header from the default after this.',
@@ -448,9 +447,9 @@ DSPreviewTStr = {
     'HighlightDelimHint': 'Highlight a character as delimiter',
     'Or': 'or',
     'HighlightAnyDelimHint': 'Highlight another character as delimiter',
-    'LoadJSON': 'Load as JSON dataset',
-    'LoadExcel': 'Load as EXCEL dataset',
-    'LoadExcelWithHeader': 'Load as EXCEL dataset and promote header',
+    'LoadJSON': 'Format as JSON',
+    'LoadExcel': 'Format as EXCEL',
+    'LoadExcelWithHeader': 'Format as EXCEL and promote header',
     'LoadUDF': 'Use UDF to parse the dataset',
     'NoDelim': 'You have not chosen a delimiter.',
     'NoHeader': 'You have not chosen a header row.',
