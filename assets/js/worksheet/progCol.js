@@ -2124,8 +2124,11 @@ window.ColManager = (function($, ColManager) {
                         // convert strings to numbers, keep eq eq
                         if (parseInt(tempString) == tempString) {
                             tempString = parseInt(tempString);
+                            func.args.push(tempString);
+                        } else {
+                            func.args.push(tempString.trim());
                         }
-                        func.args.push(tempString.trim());
+
                         tempString = "";
                     }
                     if (funcString[i] === ")") {
