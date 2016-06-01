@@ -1322,6 +1322,7 @@ window.xcHelper = (function($, xcHelper) {
 
         gTables[tableId].isLocked = true;
         WSManager.lockTable(tableId);
+        SQL.lockUndoRedo();
     };
 
     xcHelper.unlockTable = function(tableId) {
@@ -1338,6 +1339,7 @@ window.xcHelper = (function($, xcHelper) {
         }
 
         WSManager.unlockTable(tableId);
+        SQL.unlockUndoRedo();
     };
 
     xcHelper.disableSubmit = function($submitBtn) {
