@@ -2113,7 +2113,7 @@ window.ColManager = (function($, ColManager) {
                 tempString += funcString[i];
             } else {
                 if (funcString[i] === "(") {
-                    newFunc = new ColFunc({name: tempString});
+                    newFunc = new ColFunc({name: tempString.trim()});
                     func.args.push(newFunc);
                     tempString = "";
                     i += parseFuncString(funcString.substring(i + 1), newFunc);
@@ -2121,19 +2121,16 @@ window.ColManager = (function($, ColManager) {
                     // tempString could be blank if funcString[i] is a comma
                     // after a )
                     if (tempString !== "") {
-                        // convert strings to numbers
-                        if (parseInt(tempString) === tempString) {
+                        // convert strings to numbers, keep eq eq
+                        if (parseInt(tempString) == tempString) {
                             tempString = parseInt(tempString);
                         }
-                        func.args.push(tempString);
-
+                        func.args.push(tempString.trim());
                         tempString = "";
                     }
                     if (funcString[i] === ")") {
                         break;
                     }
-                } else if (funcString[i] === " ") {
-                    // ignore empty spaces
                 } else {
                     tempString += funcString[i];
                 }
