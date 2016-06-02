@@ -330,7 +330,7 @@ window.xcHelper = (function($, xcHelper) {
         options = options || {};
         var copiedCols = xcHelper.deepCopy(tableCols);
 
-        if (colNum > -1) {
+        if (colNum > 0) {
             var cellWidth;
             if (options.replaceColumn) {
                 if (options.width) {

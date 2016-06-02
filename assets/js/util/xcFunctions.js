@@ -10,26 +10,19 @@ window.xcFunction = (function($, xcFunction) {
     xcFunction.filter = function(colNum, tableId, fltOptions) {
         var deferred = jQuery.Deferred();
 
-        var table        = gTables[tableId];
-        var tableName    = table.tableName;
-        var frontColName = table.tableCols[colNum].getFronColName();
-        var tablCols     = xcHelper.deepCopy(table.tableCols);
-        var fltStr       = fltOptions.filterString;
-
-        var newTableInfo = getNewTableInfo(tableName);
-        var newTableName = newTableInfo.tableName;
-        var newTableId   = newTableInfo.tableId;
-
+        var table = gTables[tableId];
+        var tableName = table.getName();
+        var frontColName = table.getCol(colNum).getFronColName();
+        var fltStr = fltOptions.filterString;
         var worksheet = WSManager.getWSFromTable(tableId);
 
         var sql = {
-            "operation"   : SQLOps.Filter,
-            "tableName"   : tableName,
-            "tableId"     : tableId,
-            "colName"     : frontColName,
-            "colNum"      : colNum,
-            "newTableName": newTableName,
-            "fltOptions"  : fltOptions
+            "operation" : SQLOps.Filter,
+            "tableName" : tableName,
+            "tableId"   : tableId,
+            "colName"   : frontColName,
+            "colNum"    : colNum,
+            "fltOptions": fltOptions
         };
         var txId = Transaction.start({
             "msg"      : StatusMessageTStr.Filter + ': ' + frontColName,
@@ -37,17 +30,25 @@ window.xcFunction = (function($, xcFunction) {
             "sql"      : sql
         });
 
+        var finalTableName;
+
         xcHelper.lockTable(tableId);
 
-        XIApi.filter(txId, fltStr, tableName, newTableName)
-        .then(function() {
+        XIApi.filter(txId, fltStr, tableName)
+        .then(function(tableAfterFilter) {
+            finalTableName = tableAfterFilter;
             var options = {"selectCol": colNum};
-            return TblManager.refreshTable([newTableName], tablCols,
+            return TblManager.refreshTable([finalTableName], table.tableCols,
                                             [tableName], worksheet, options);
         })
         .then(function() {
             xcHelper.unlockTable(tableId);
-            Transaction.done(txId, {"msgTable": newTableId});
+
+            sql.newTableName = finalTableName;
+            Transaction.done(txId, {
+                "msgTable": xcHelper.getTableId(finalTableName),
+                "sql"     : sql
+            });
             deferred.resolve();
         })
         .fail(function(error) {
@@ -61,19 +62,18 @@ window.xcFunction = (function($, xcFunction) {
             deferred.reject(error);
         });
 
-        return (deferred.promise());
+        return deferred.promise();
     };
 
     // aggregate table column
-    xcFunction.aggregate = function(colNum, tableId, aggrOp, aggStr,
-                                    dontShowModal) {
+    xcFunction.aggregate = function(colNum, tableId, aggrOp, aggStr) {
         var deferred = jQuery.Deferred();
 
-        var table        = gTables[tableId];
-        var tableName    = table.tableName;
-        var tableCol     = table.tableCols[colNum];
-        var frontColName = tableCol.getFronColName();
-        var backColName  = tableCol.getBackColName();
+        var table = gTables[tableId];
+        var tableName = table.getName();
+        var progCol = table.getCol(colNum);
+        var frontColName = progCol.getFronColName();
+        var backColName = progCol.getBackColName();
 
         xcHelper.lockTable(tableId);
 
@@ -100,7 +100,7 @@ window.xcFunction = (function($, xcFunction) {
                 deferred.resolve();
             }, 500);
 
-            return (deferred.promise());
+            return deferred.promise();
         }
 
         var sql = {
@@ -134,18 +134,16 @@ window.xcFunction = (function($, xcFunction) {
             Transaction.done(txId, {"msgTable": tableId});
 
             // show result in alert modal
-            if (!dontShowModal) {
-                var alertMsg = xcHelper.replaceMsg(AggTStr.AggMsg, {
-                    "val": value
-                });
+            var alertMsg = xcHelper.replaceMsg(AggTStr.AggMsg, {
+                "val": value
+            });
 
-                Alert.show({
-                    "title"  : title,
-                    "instr"  : instr,
-                    "msg"    : alertMsg,
-                    "isAlert": true
-                });
-            }
+            Alert.show({
+                "title"  : title,
+                "instr"  : instr,
+                "msg"    : alertMsg,
+                "isAlert": true
+            });
 
             deferred.resolve();
         })
@@ -161,7 +159,7 @@ window.xcFunction = (function($, xcFunction) {
             xcHelper.unlockTable(tableId);
         });
 
-        return (deferred.promise());
+        return deferred.promise();
     };
 
     // sort table column
@@ -169,7 +167,7 @@ window.xcFunction = (function($, xcFunction) {
         var deferred = jQuery.Deferred();
 
         var table = gTables[tableId];
-        var tableName = table.tableName;
+        var tableName = table.getName();
         var tableCols = table.tableCols;
         var progCol = tableCols[colNum - 1];
         var backColName = progCol.getBackColName();
@@ -489,44 +487,50 @@ window.xcFunction = (function($, xcFunction) {
         mapOptions = mapOptions || {};
 
         var table = gTables[tableId];
-        var tableName = table.tableName;
-        var newTableInfo = getNewTableInfo(tableName);
-        var newTableName = newTableInfo.tableName;
-        var newTableId = newTableInfo.tableId;
+        var tableName = table.getName();
 
         var worksheet = WSManager.getWSFromTable(tableId);
         var sql = {
-            "operation"   : SQLOps.Map,
-            "tableName"   : tableName,
-            "tableId"     : tableId,
-            "newTableName": newTableName,
-            "colNum"      : colNum,
-            "fieldName"   : fieldName,
-            "mapString"   : mapString,
-            "mapOptions"  : mapOptions
+            "operation" : SQLOps.Map,
+            "tableName" : tableName,
+            "tableId"   : tableId,
+            "colNum"    : colNum,
+            "fieldName" : fieldName,
+            "mapString" : mapString,
+            "mapOptions": mapOptions
         };
         var txId = Transaction.start({
             "msg"      : StatusMessageTStr.Map + " " + fieldName,
             "operation": SQLOps.Map,
             "sql"      : sql
         });
+        var finalTableName;
+        var finalTableId;
 
         xcHelper.lockTable(tableId);
 
-        XIApi.map(txId, mapString, tableName, fieldName, newTableName)
-        .then(function() {
+        XIApi.map(txId, mapString, tableName, fieldName)
+        .then(function(tableAfterMap) {
+            finalTableName = tableAfterMap;
+            finalTableId = xcHelper.getTableId(finalTableName);
+
             var tablCols = xcHelper.mapColGenerate(colNum, fieldName, mapString,
                                                     table.tableCols, mapOptions);
 
             // map do not change groupby stats of the table
-            Profile.copy(tableId, newTableId);
+            Profile.copy(tableId, finalTableId);
             var options = {"selectCol": colNum - 1};
-            return TblManager.refreshTable([newTableName], tablCols,
+            return TblManager.refreshTable([finalTableName], tablCols,
                                             [tableName], worksheet, options);
         })
         .then(function() {
             xcHelper.unlockTable(tableId);
-            Transaction.done(txId, {"msgTable": newTableId});
+
+            sql.newTableName = finalTableName;
+            Transaction.done(txId, {
+                "msgTable": finalTableId,
+                "sql"     : sql
+            });
 
             deferred.resolve();
         })
@@ -541,7 +545,7 @@ window.xcFunction = (function($, xcFunction) {
             deferred.reject(error);
         });
 
-        return (deferred.promise());
+        return deferred.promise();
     };
 
     // export table
@@ -639,7 +643,7 @@ window.xcFunction = (function($, xcFunction) {
             deferred.reject(error);
         });
 
-        return (deferred.promise());
+        return deferred.promise();
     };
 
     xcFunction.rename = function(tableId, newTableName) {
@@ -702,15 +706,8 @@ window.xcFunction = (function($, xcFunction) {
             xcHelper.unlockTable(tableId);
         });
 
-        return (deferred.promise());
+        return deferred.promise();
     };
-
-    function getNewTableInfo(tableName) {
-        var newId   = Authentication.getHashId().split("#")[1];
-        var newName = tableName.split("#")[0] + "#" + newId;
-
-        return { "tableName": newName, "tableId": newId };
-    }
 
     return (xcFunction);
 }(jQuery, {}));

@@ -799,7 +799,7 @@ window.TblMenu = (function(TblMenu, $) {
                                         uniqueVals, isExist);
 
                 if (options != null) {
-                    xcFunction.filter(colNum - 1, tableId, options);
+                    xcFunction.filter(colNum, tableId, options);
                 }
             }
 

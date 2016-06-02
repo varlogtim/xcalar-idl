@@ -231,7 +231,7 @@ describe('OperationsModal', function() {
                 }
                 for (var i = 0; i < testArgs2.length; i++) {
                     gTableColNum = gTables[tableId].getColNumByBackName(testArgs2[i]);
-                    arg2Type = gTables[tableId].tableCols[gTableColNum].type;
+                    arg2Type = gTables[tableId].getCol(gTableColNum).getType();
 
                     arg2Types.push(arg2Type);
                 }

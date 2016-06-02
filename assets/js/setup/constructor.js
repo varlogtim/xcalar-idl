@@ -244,13 +244,22 @@ TableMeta.prototype = {
         return (this.status === TableType.Active);
     },
 
+    getCol: function(colNum) {
+        var tableCols = this.tableCols;
+        if (colNum < 1 || colNum > tableCols.length) {
+            return null;
+        }
+
+        return tableCols[colNum - 1];
+    },
+
     getColNumByBackName: function(backColName) {
         var tableCols = this.tableCols;
         for (var i = 0, len = tableCols.length; i < len; i++) {
             var progCol = tableCols[i];
 
             if (progCol.getBackColName() === backColName) {
-                return i;
+                return (i + 1);
             }
         }
         return -1;

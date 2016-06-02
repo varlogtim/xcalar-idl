@@ -2117,7 +2117,6 @@ window.Profile = (function($, Profile, d3) {
 
         var colName = statsCol.colName;
         var filterTableId = curTableId; // in case close modal clear curTableId
-        var colNum = gTables[filterTableId].getColNumByBackName(colName);
         var hasNull = (groupByData[0].type === "nullVal");
         var isString = (statsCol.type === "string");
 
@@ -2158,6 +2157,7 @@ window.Profile = (function($, Profile, d3) {
         }
 
         if (options != null) {
+            var colNum = gTables[filterTableId].getColNumByBackName(colName);
             closeProfileModal();
             xcFunction.filter(colNum, filterTableId, options);
         }

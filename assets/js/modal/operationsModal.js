@@ -1797,34 +1797,30 @@ window.OperationsModal = (function($, OperationsModal) {
     // returns an array of objects that include the new type and argument number
     function getCastInfo(args) {
         var table = gTables[tableId];
-        var $input;
         var colTypeInfos = [];
-        var colNum;
-        var castType;
-        // var newColNames = [];
-        var progCol;
 
         // set up colTypeInfos, filter out any that shouldn't be casted
         $argInputs.each(function(i) {
-            $input = $(this);
+            var $input = $(this);
             isCasting = $input.data('casted');
             if (isCasting) {
-                colNum = table.getColNumByBackName(args[i]);
-                if (colNum > -1) {
+                var progCol = table.getColByBackName(args[i]);
+                if (progCol != null) {
                     isValid = true;
-                    castType = $input.data('casttype');
-                    progCol = table.tableCols[colNum];
-                    if (castType !== progCol.type) {
+                    var castType = $input.data('casttype');
+                    if (castType !== progCol.getType()) {
                         colTypeInfos.push({
                             "type"  : castType,
                             "argNum": i
                         });
                     }
+                } else {
+                    console.error("Cannot find col", args[i]);
                 }
             }
         });
 
-        return (colTypeInfos);
+        return colTypeInfos;
     }
 
     function argumentFormatHelper(existingTypes) {
@@ -2121,63 +2117,59 @@ window.OperationsModal = (function($, OperationsModal) {
     // }
 
     function aggregateCheck(args) {
-        var colIndex = getColIndex(args[0]);
-        if (colIndex === -1) {
+        var aggColNum = getColNum(args[0]);
+        if (aggColNum < 1) {
             StatusBox.show(ErrTStr.InvalidColName, $argInputs.eq(0));
-            return (false);
+            return false;
         } else {
-            return (true);
+            return true;
         }
     }
 
     function aggregate(aggrOp, args, colTypeInfos) {
-        var colIndex     = getColIndex(args[0]);
-        var table        = gTables[tableId];
-        var tableCol     = table.tableCols[colIndex];
-        var backColName  = tableCol.getBackColName();
-        var aggStr = backColName;
+        var aggColNum = getColNum(args[0]);
+        var tableCol = gTables[tableId].getCol(aggColNum);
+        var aggStr = tableCol.getBackColName();
         if (colTypeInfos.length) {
             aggStr = xcHelper.castStrHelper(args[0], colTypeInfos[0].type);
         }
 
-        xcFunction.aggregate(colIndex, tableId, aggrOp, aggStr);
-        return (true);
+        xcFunction.aggregate(aggColNum, tableId, aggrOp, aggStr);
+        return true;
     }
 
     function filterCheck(operator, args) {
-        var colName;
         if (!hasUnescapedParens(args[0])) {
-            colName = args[0];
-            var colIndex = getColIndex(colName);
-            if (colIndex === -1) {
+            var filterColNum = getColNum(args[0]);
+            if (filterColNum < 1) {
                 StatusBox.show(ErrTStr.InvalidColName, $argInputs.eq(0));
-                return (false);
+                return false;
             } else {
-                return (true);
+                return true;
             }
         } else {
-            return (true);
+            return true;
         }
     }
 
     function filter(operator, args, colTypeInfos) {
-        var options = {};
-        var colIndex;
+        var filterColNum;
         // var colName;
         if (!hasUnescapedParens(args[0])) {
-            colIndex = getColIndex(args[0]);
+            filterColNum = getColNum(args[0]);
         } else {
-            colIndex = colNum - 1;
+            filterColNum = colNum;
         }
 
         var filterString = formulateMapFilterString(operator, args, colTypeInfos);
-        options = {"filterString": filterString};
-        xcFunction.filter(colIndex, tableId, options);
+        xcFunction.filter(filterColNum, tableId, {
+            "filterString": filterString
+        });
 
-        return (true);
+        return true;
     }
 
-    function getColIndex(backColName) {
+    function getColNum(backColName) {
         return gTables[tableId].getColNumByBackName(backColName);
     }
 

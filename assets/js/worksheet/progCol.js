@@ -1153,7 +1153,7 @@ window.ColManager = (function($, ColManager) {
                 fltString = fltString.substring(fltString.indexOf("(") + 1,
                                                 fltString.lastIndexOf(")"));
 
-                xcFunction.filter(colNum - 1, tableId, {
+                xcFunction.filter(colNum, tableId, {
                     "filterString": fltString
                 })
                 .then(deferred.resolve)
