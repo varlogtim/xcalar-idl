@@ -73,6 +73,17 @@ window.FileBrowser = (function($, FileBrowser) {
             clear();
         });
 
+        $("#fileBrowserRecur").click(function() {
+            var $checkBox = $(this).find(".checkbox");
+            if ($checkBox.hasClass("checked")) {
+                console.log('uncheck');
+                $checkBox.removeClass("checked");
+            } else {
+                console.log('check');
+                $checkBox.addClass("checked");
+            }
+        });
+
         $container.on({
             "click": function(event) {
                 // click to focus
