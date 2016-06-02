@@ -258,7 +258,7 @@ window.xcFunction = (function($, xcFunction) {
             } else if (error.error === SQLType.Cancel) {
                 Transaction.cancel(txId);
                 deferred.resolve();
-            }  else {
+            } else {
                 Transaction.fail(txId, {
                     "failMsg": StatusMessageTStr.SortFailed,
                     "error"  : error
@@ -604,15 +604,9 @@ window.xcFunction = (function($, xcFunction) {
                     "instr"     : instr,
                     "isAlert"   : true,
                     "isCheckBox": true,
-                    "onClose"   : function() {
+                    "onCancel"  : function() {
                         $('#alertContent').removeClass('leftAlign');
-                    },
-                    "buttons": [{
-                                "name"     : "CLOSE",
-                                "className": "close",
-                                func       : function(){}
-                    }],
-                    "hideButtons": ["cancel"]
+                    }
                 });
                 $('#alertContent').addClass('leftAlign');
             }
@@ -628,7 +622,7 @@ window.xcFunction = (function($, xcFunction) {
             // visible, then show a statusbox next to the name field
             if (error && (error.status === StatusT.StatusDsODBCTableExists ||
                 error.status === StatusT.StatusExist ||
-                error.status  === StatusT.StatusExportSFFileExists) &&
+                error.status === StatusT.StatusExportSFFileExists) &&
                 $('#exportName:visible').length !== 0) {
                 StatusBox.show(ErrTStr.NameInUse, $('#exportName'), true);
                 noAlert = true;

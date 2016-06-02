@@ -51,9 +51,9 @@ window.TblMenu = (function(TblMenu, $) {
 
             var msg = xcHelper.replaceMsg(TblTStr.DelMsg, {"table": tableName});
             Alert.show({
-                "title"  : TblTStr.Del,
-                "msg"    : msg,
-                "confirm": function() {
+                "title"    : TblTStr.Del,
+                "msg"      : msg,
+                "onConfirm": function() {
                     TblManager.deleteTables(tableId, TableType.Active);
                 }
             });

@@ -401,9 +401,9 @@ window.DS = (function ($, DS) {
             msg = xcHelper.replaceMsg(DSTStr.DelDSConfirm, {"ds": dsName});
             // add alert
             Alert.show({
-                "title"  : DSTStr.DelDS,
-                "msg"    : msg,
-                "confirm": function() { delDSHelper($grid, dsObj); }
+                "title"    : DSTStr.DelDS,
+                "msg"      : msg,
+                "onConfirm": function() { delDSHelper($grid, dsObj); }
             });
         } else if (removeDS($grid) === true) {
             UserSettings.logDSChange();

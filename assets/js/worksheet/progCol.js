@@ -851,10 +851,9 @@ window.ColManager = (function($, ColManager) {
                 });
 
                 Alert.show({
-                    "title"     : ColTStr.SplitColWarn,
-                    "msg"       : msg,
-                    "isCheckBox": false,
-                    "confirm"   : function () {
+                    "title"  : ColTStr.SplitColWarn,
+                    "msg"    : msg,
+                    "confirm": function() {
                         curDeferred.resolve(numToSplit, numDelim);
                     },
                     "cancel": function() {
@@ -923,7 +922,7 @@ window.ColManager = (function($, ColManager) {
         var $tableWrap = $('#xcTableWrap-' + tableId);
         var filteredColNums = [];
         var filteredFormats = [];
-        var format;
+        // var format;
 
         for (var i = 0; i < colNums.length; i++) {
             colNum = colNums[i];

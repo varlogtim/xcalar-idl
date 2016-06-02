@@ -448,8 +448,9 @@ window.DagPanel = (function($, DagPanel) {
                             // was not able to make url because image is
                             //probably too large
                             Alert.show({
-                                "title": ErrTStr.LargeImgTab,
-                                "msg"  : ErrTStr.LargeImgText
+                                "title"  : ErrTStr.LargeImgTab,
+                                "msg"    : ErrTStr.LargeImgText,
+                                "isAlert": true
                             });
                             $dagWrap.find('.dagImage').addClass('unsavable');
                         } else {
@@ -501,8 +502,9 @@ window.DagPanel = (function($, DagPanel) {
         if (lnk.href.length < 8) {
             // was not able to make url because image is probably too large
             Alert.show({
-                "title": ErrTStr.LargeImgSave,
-                "msg"  : ErrTStr.LargeImgText
+                "title"  : ErrTStr.LargeImgSave,
+                "msg"    : ErrTStr.LargeImgText,
+                "isAlert": true
             });
             $(canvas).closest('.dagImage').addClass('unsavable');
             return;
@@ -756,9 +758,9 @@ window.DagPanel = (function($, DagPanel) {
             var msg = xcHelper.replaceMsg(TblTStr.DelMsg,
                                             {"table": tableName});
             Alert.show({
-                "title"  : TblTStr.Del,
-                "msg"    : msg,
-                "confirm": function() {
+                "title"    : TblTStr.Del,
+                "msg"      : msg,
+                "onConfirm": function() {
                     TblManager.deleteTables(tableId, TableType.Active);
                 }
             });

@@ -437,7 +437,7 @@ window.DFGPanel = (function($, DFGPanel) {
     function getExpandIconHtml(expandIcon) {
         var html = "";
         html += '<div class="expandWrap horz" style="left:' + expandIcon.left +
-                    'px;top:' + expandIcon.top + 'px;" '+
+                    'px;top:' + expandIcon.top + 'px;" ' +
                     ' data-toggle="tooltip"' +
                     ' data-placement="top" data-container="body" ' +
                     'title="' + expandIcon.tooltip + '">...</div>';
@@ -599,14 +599,14 @@ window.DFGPanel = (function($, DFGPanel) {
         .then(function() {
             /// XXX TODO: add sql
             Alert.show({
-                "title"  : "Run Complete",
-                "msg"    : "Successfully ran DFG!",
+                "title"  : DFGTStr.RunDone,
+                "msg"    : DFGTStr.RunDoneMsg,
                 "isAlert": true
             });
             deferred.resolve();
         })
         .fail(function(error) {
-            Alert.error("Run DFG Failed", error);
+            Alert.error(DFGTStr.RunFail, error);
             deferred.reject(error);
         });
 

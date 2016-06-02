@@ -371,9 +371,8 @@ window.UDF = (function($, UDF) {
             Alert.show({
                 "title"         : SideBarTStr.DupUDF,
                 "msg"           : msg,
-                "isCheckBox"    : false,
-                "confirm"       : function() { uploadHelper(); },
-                "cancel"        : function() { deferred.resolve(); },
+                "onConfirm"     : function() { uploadHelper(); },
+                "onCancel"      : function() { deferred.resolve(); },
                 "focusOnConfirm": true
             });
         } else {
@@ -435,17 +434,12 @@ window.UDF = (function($, UDF) {
 
         function uploadSuccess() {
             Alert.show({
-                "title"  : SideBarTStr.UpoladUDF,
-                "msg"    : SideBarTStr.UploadUDFMsg,
-                "isAlert": true,
-                "buttons": [{
-                            "name"     : AlertTStr.CLOSE,
-                            "className": "close",
-                            func       : function() {
-                                $("#udfBtn").parent().click();
-                            }
-                }],
-                "hideButtons": ["cancel"]
+                "title"   : SideBarTStr.UpoladUDF,
+                "msg"     : SideBarTStr.UploadUDFMsg,
+                "isAlert" : true,
+                "onCancel": function() {
+                    $("#udfBtn").parent().click();
+                }
             });
         }
 

@@ -478,11 +478,9 @@ window.DataPreview = (function($, DataPreview) {
             msg += '\n' + AlertTStr.ContinueConfirm;
 
             Alert.show({
-                "title"  : DSFormTStr.LoadConfirm,
-                "msg"    : msg,
-                "confirm": function () {
-                    DataPreview.load();
-                }
+                "title"    : DSFormTStr.LoadConfirm,
+                "msg"      : msg,
+                "onConfirm": function() { DataPreview.load(); }
             });
         } else {
             DataPreview.load();

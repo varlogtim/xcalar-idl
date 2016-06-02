@@ -448,10 +448,10 @@ window.DatastoreForm = (function($, DatastoreForm) {
             var msg = DSFormTStr.NoHeader;
 
             Alert.show({
-                "title"  : DSFormTStr.LoadConfirm,
-                "msg"    : msg,
-                "confirm": function() { deferred.resolve(); },
-                "cancel" : function() { deferred.reject("canceled"); }
+                "title"    : DSFormTStr.LoadConfirm,
+                "msg"      : msg,
+                "onConfirm": function() { deferred.resolve(); },
+                "onCancel" : function() { deferred.reject("canceled"); }
             });
         } else {
             deferred.resolve();

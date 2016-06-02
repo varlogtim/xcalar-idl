@@ -569,7 +569,7 @@ window.Scheduler = (function(Scheduler, $) {
             KVStore.commit();
         })
         .fail(function(error) {
-            Alert.error("Update Schedule Fails", error);
+            Alert.error(SchedTStr.UpdateFail, error);
             scheduleLookUpMap[scheduleName] = oldSchedule;
         });
     }

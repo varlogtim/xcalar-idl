@@ -113,10 +113,9 @@ window.TableList = (function($, TableList) {
             }
 
             Alert.show({
-                "title"     : TblTStr.Del,
-                "msg"       : SideBarTStr.DelTablesMsg,
-                "isCheckBox": true,
-                "confirm"   : function() {
+                "title"    : TblTStr.Del,
+                "msg"      : SideBarTStr.DelTablesMsg,
+                "onConfirm": function() {
                     if (tableType === TableType.Orphan) {
                         searchHelper.clearSearch(function() {
                             clearTableListFilter($("#orphanedTableList"), null);
@@ -1153,7 +1152,7 @@ window.TableList = (function($, TableList) {
                     "label": SideBarTStr.WSTOSend + ":",
                     "list" : WSManager.getWSLists(true)
                 },
-                "confirm": function() {
+                "onConfirm": function() {
                     $noSheetTables.removeClass("highlight");
                     $("#rightSideBar.faux").remove();
 

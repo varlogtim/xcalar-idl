@@ -281,13 +281,15 @@ ThriftTStr = {
 };
 
 AlertTStr = {
+    'Title': 'Warning',
     'Error': 'Error',
     'ErrorMsg': 'Error Occurred!',
     'NoDel': 'Cannot Delete',
     'ContinueConfirm': 'Are you sure you want to continue?',
     'BracketsMis': 'Mismatched Brackets',
     'NoExt': 'Unknown Extension',
-    'CLOSE': 'CLOSE'
+    'CLOSE': 'CLOSE',
+    'CANCEL': 'CANCEL'
 };
 
 FnBarTStr = {
@@ -382,7 +384,8 @@ WKBKTStr = {
 SchedTStr = {
     'SelectSched': 'Select a schedule',
     'NoScheds': 'No available schedules',
-    'AddSchedFail': 'Add schedule failed'
+    'AddSchedFail': 'Add schedule failed',
+    'UpdateFail': 'Update Schedule Failed'
 };
 
 DFGTStr = {
@@ -392,7 +395,10 @@ DFGTStr = {
     'ParamModalFail': 'Parameter Modal Failed',
     'UpdateParamFail': 'Update Params Failed',
     'NoDFG1': 'No data flow group added',
-    'NoDFG2': 'Add a data flow group in Query Graph.'
+    'NoDFG2': 'Add a data flow group in Query Graph.',
+    'RunDone': 'Run Complete',
+    'RunDoneMsg': 'Successfully ran DFG!',
+    'RunFail': 'Run DFG Failed'
 };
 
 DSTStr = {

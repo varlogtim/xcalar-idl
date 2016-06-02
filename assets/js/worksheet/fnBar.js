@@ -78,11 +78,10 @@ window.FnBar = (function(FnBar, $) {
                                         val.slice(mismatch.index + 1) + "\"";
 
                         Alert.show({
-                            "title"  : AlertTStr.BracketsMis,
-                            "msgTemplate": ErrTStr.BracketsMis + "<br/>" +
-                                            funcStr,
-                            "isAlert": true,
-                            "cancel" : function() {
+                            "title"      : AlertTStr.BracketsMis,
+                            "msgTemplate": ErrTStr.BracketsMis + "<br/>" + funcStr,
+                            "isAlert"    : true,
+                            "onCancel"   : function() {
                                 if (savedColInput) {
                                     savedColInput.trigger({
                                         type : "mousedown",
@@ -110,7 +109,7 @@ window.FnBar = (function(FnBar, $) {
             "focus": function() {
                 initialTableId = gActiveTableId;
             },
-            "blur": function(event) {
+            "blur": function() {
                 $(this).removeClass("inFocus");
                 $fnBar.attr('placeholder', "");
 
@@ -222,7 +221,7 @@ window.FnBar = (function(FnBar, $) {
                                         ((mainFrameWidth - matchWidth) / 2));
                 }
             },
-            "ignore": "=",
+            "ignore"              : "=",
             "arrowsPreventDefault": true
         });
 
