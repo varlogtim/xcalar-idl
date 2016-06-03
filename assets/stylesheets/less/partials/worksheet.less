@@ -252,6 +252,14 @@
         .flex-display;
         position: relative;
         padding-left: 4px;
+        height: 37px;
+        padding-top: 5px;
+        margin-top: 0px;
+        border-right: none;
+
+        .label {
+            pointer-events: none;
+        }
 
         &.searching {
             .closeBox, .counter, .arrows {
@@ -262,7 +270,7 @@
             }
         }
         .counter {
-            .position(absolute, @top: 1px, @right: 68px);
+            .position(absolute, @top: 5px, @right: 68px);
             .size (@height: 30px);
             .font(@color: @color-text-graySoft, @size: 14px);
             pointer-events: none;
@@ -270,7 +278,7 @@
 
         .arrows {
             right: 16px;
-            top: -2px;
+            top: 3px;
         }
 
         .closeBox, .counter, .arrows {
@@ -313,6 +321,10 @@
 
     #searchBar {
         .size(@width: 180px);
+    }
+
+    #rowInputArea {
+        border-left: 1px solid @color-tab-divider;
     }
 
     #rowInput {

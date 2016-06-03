@@ -361,7 +361,6 @@ window.DagPanel = (function($, DagPanel) {
 
             positionAndShowDagTableDropdown($dagTable, $menu, $(event.target));
             addMenuKeyboardNavigation($menu);
-            $('body').addClass('noSelection');
         });
     }
 
@@ -396,7 +395,6 @@ window.DagPanel = (function($, DagPanel) {
                 $menu.data('tableName', tableName);
                 positionAndShowRightClickDropdown(e, $menu);
                 addMenuKeyboardNavigation($menu);
-                $('body').addClass('noSelection');
                 return false;
             }
         };

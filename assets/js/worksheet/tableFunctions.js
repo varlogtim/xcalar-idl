@@ -822,6 +822,7 @@ function addMenuBehaviors($mainMenu) {
 }
 
 function addMenuKeyboardNavigation($menu, $subMenu) {
+    $('body').addClass('noSelection');
     $(document).on('keydown.menuNavigation', function(event) {
         listHighlight(event);
     });
@@ -1020,11 +1021,11 @@ function addMenuKeyboardNavigation($menu, $subMenu) {
 
 function removeMenuKeyboardNavigation() {
     $(document).off('keydown.menuNavigation');
+    $('body').removeClass('noSelection');
 }
 
 function closeMenu($menu) {
     $menu.hide();
-    $('body').removeClass('noSelection');
     removeMenuKeyboardNavigation();
 }
 

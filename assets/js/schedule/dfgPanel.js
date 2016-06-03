@@ -505,7 +505,6 @@ window.DFGPanel = (function($, DFGPanel) {
                 }
             });
             addMenuKeyboardNavigation($menu);
-            $('body').addClass('noSelection');
         });
 
         addMenuBehaviors($menu);

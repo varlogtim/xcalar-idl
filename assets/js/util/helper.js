@@ -1990,7 +1990,6 @@ window.xcHelper = (function($, xcHelper) {
         positionAndShowMenu(menuId, $menu, $dropdownIcon, options);
 
         addMenuKeyboardNavigation($menu, $subMenu);
-        $('body').addClass('noSelection');
     };
 
     /*

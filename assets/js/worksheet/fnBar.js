@@ -13,6 +13,8 @@ window.FnBar = (function(FnBar, $) {
         setupSearchHelper();
         var initialTableId; //used to track table that was initially active
         // when user started searching
+        var skipParen; // state for moving cursor if next char is ) and
+                       // user presses )
 
         $fnBar.on({
             "input": function() {
@@ -38,6 +40,8 @@ window.FnBar = (function(FnBar, $) {
                     var oldCaret = $fnBar.caret();
                     var prevChar = oldStr[oldCaret - 1];
                     var nextIsBracket = oldStr.substring(oldCaret);
+
+                    // remove opening and closing paren if nothing in between
                     if (nextIsBracket.indexOf(")") === 0 &&
                         prevChar === "(") {
                         // Immediate close bracket
@@ -54,6 +58,8 @@ window.FnBar = (function(FnBar, $) {
                     var oldStr = $fnBar.val();
                     var oldCaret = $fnBar.caret();
                     var valInFrontCaret = oldStr[oldCaret];
+
+                    // autoclose parenthesis
                     if (valInFrontCaret === undefined ||
                         valInFrontCaret === " " ||
                         valInFrontCaret === ")") {
@@ -62,8 +68,27 @@ window.FnBar = (function(FnBar, $) {
                         $fnBar.val(newStr);
                         $fnBar.caret(oldCaret);
                         highlightBrackets();
+                        skipParen = true;
+                    } else {
+                        skipParen = false;
                     }
+                } else if (event.which === 41) {
+                    // close paren
+                    // skip close parenthesis if cursor is before )
+                    if (skipParen) {
+                        var oldStr = $fnBar.val();
+                        var oldCaret = $fnBar.caret();
+                        if (oldStr[oldCaret] === ")") {
+                            $fnBar.caret(oldCaret + 1);
+                            event.preventDefault();
+                        } else {
+                            console.warn('inspect this case', oldCaret, oldStr);
+                        }
+                    }
+                    skipParen = false;
+
                 } else if (event.which === keyCode.Enter) {
+                    skipParen = false;
                     var val = $fnBar.val();
                     var mismatch = xcHelper.checkMatchingBrackets(val);
                     if (mismatch.index === -1) {
@@ -100,18 +125,22 @@ window.FnBar = (function(FnBar, $) {
                         highlightBrackets();
                         $fnBar.prop("disabled", "true");
                     }
+
                 }
             },
             "mousedown": function() {
                 $(this).addClass("inFocus");
                 $fnBar.attr('placeholder', WSTStr.SearchTableAndColumn);
+                skipParen = false;
             },
             "focus": function() {
                 initialTableId = gActiveTableId;
+                skipParen = false;
             },
             "blur": function() {
                 $(this).removeClass("inFocus");
                 $fnBar.attr('placeholder', "");
+                skipParen = false;
 
                 var keepVal = false;
                 if ($lastColInput) {
@@ -122,6 +151,21 @@ window.FnBar = (function(FnBar, $) {
                 searchHelper.clearSearch(function() {
                     $functionArea.removeClass('searching');
                 }, options);
+            }
+        });
+
+        $functionArea.on('mousedown', function(e) {
+            // keep fnbar focused even when you click outside of it
+            if ($(e.target).attr('id') === 'functionArea') {
+                e.preventDefault();
+                e.stopPropagation();
+
+                $('.menu').hide();
+                removeMenuKeyboardNavigation();
+                $('.highlightBox').remove();
+
+                gMouseEvents.setMouseDownTarget($fnBar);
+                $fnBar.focus();
             }
         });
     };

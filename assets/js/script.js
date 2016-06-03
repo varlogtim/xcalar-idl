@@ -675,7 +675,6 @@ window.StartManager = (function(StartManager, $) {
                 $('.menu').hide();
                 removeMenuKeyboardNavigation();
                 $('.highlightBox').remove();
-                $('body').removeClass('noSelection');
             }
 
             if (!$target.is('#fnBar') && !$target.closest('.header').length) {
@@ -701,6 +700,9 @@ window.StartManager = (function(StartManager, $) {
         $(window).blur(function() {
             $('.menu').hide();
             removeMenuKeyboardNavigation();
+            // fnBar will flicker if you click on it's parent then away from window
+            // then click on somewhere on the screen
+            $('#fnBar').blur();
         });
 
         if (!window.isBrowseChrome) {
@@ -821,7 +823,6 @@ window.StartManager = (function(StartManager, $) {
                 $('.menu').hide();
                 removeMenuKeyboardNavigation();
                 $('.highlightBox').remove();
-                $('body').removeClass('noSelection');
 
                 if (event.which === keyCode.Z) {
                     $('#undo').click();
