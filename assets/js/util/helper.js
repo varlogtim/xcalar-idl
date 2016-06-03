@@ -1798,13 +1798,15 @@ window.xcHelper = (function($, xcHelper) {
     xcHelper.checkMatchingBrackets = function(val) {
         var numOpens = 0;
         var inQuotes = false;
+        var singleQuote = false; // ' is true, " is false
         var ret = {
             char : "",
             index: -1 // returns -1 if no mismatch found
         };
         for (var i = 0; i < val.length; i++) {
             if (inQuotes) {
-                if (val[i] === '"') {
+                if ((singleQuote && val[i] === "'") ||
+                    (!singleQuote && val[i] === '"'))  {
                     inQuotes = false;
                 } else if (val[i] === '\\') {
                     i++; // ignore next character
@@ -1813,6 +1815,10 @@ window.xcHelper = (function($, xcHelper) {
             }
             if (val[i] === '"') {
                 inQuotes = true;
+                singleQuote = false;
+            } else if (val[i] === "'") {
+                inQuotes = true;
+                singleQuote = true;
             } else if (val[i] === '\\') {
                 i++; // ignore next character
             } else if (val[i] === "(") {

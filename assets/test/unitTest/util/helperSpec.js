@@ -839,6 +839,21 @@ describe('xcHelper Test', function() {
         // case 7
         res = xcHelper.checkMatchingBrackets('("\\"(")').index;
         expect(res).to.equal(-1);
+        // case 8
+        res = xcHelper.checkMatchingBrackets('("(,\'")').index;
+        expect(res).to.equal(-1);
+         // case 9
+        res = xcHelper.checkMatchingBrackets('(\'(,"\')').index;
+        expect(res).to.equal(-1);
+        // case 11
+        res = xcHelper.checkMatchingBrackets('(\'(,")').index;
+        expect(res).to.equal(0);
+        // case 12
+        res = xcHelper.checkMatchingBrackets('("(,\')').index;
+        expect(res).to.equal(0);
+        // case 13 - testing nested quotes (xa\xaa\xax)
+        res = xcHelper.checkMatchingBrackets('("\'(\\"\'(\'\\"\'")').index;
+        expect(res).to.equal(-1);
     });
 
     it('xcHelper.camelCaseToRegular should work', function() {

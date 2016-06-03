@@ -2099,18 +2099,36 @@ window.ColManager = (function($, ColManager) {
         var tempString = "";
         var newFunc;
         var inQuotes = false;
+        var singleQuote = false;
         var hasComma = false;
+        var isEscaped = false;
 
         for (var i = 0; i < funcString.length; i++) {
-            if (funcString[i] === "\"" &&
-                !xcHelper.isCharEscaped(funcString, i)) {
-                if (inQuotes) {
+            if (isEscaped) {
+                tempString += funcString[i];
+                isEscaped = false;
+                continue;
+            }
+
+            if (inQuotes) {
+                if ((funcString[i] === "\"" && !singleQuote) ||
+                    (funcString[i] === "'" && singleQuote)) {
                     inQuotes = false;
-                } else {
+                }
+            } else {
+                if (funcString[i] === "\"") {
                     inQuotes = true;
+                    singleQuote = false;
+                } else if (funcString[i] === "'") {
+                    inQuotes = true;
+                    singleQuote = true;
                 }
             }
-            if (inQuotes) {
+
+            if (funcString[i] === "\\") {
+                isEscaped = true;
+                tempString += funcString[i];
+            } else if (inQuotes) {
                 tempString += funcString[i];
             } else {
                 if (funcString[i] === "(") {

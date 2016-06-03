@@ -88,10 +88,34 @@ describe('ColManager', function() {
         desiredStr = '[{"name":"concat","args":["\\\"wo rd\\\"",5]}]';
         expect(JSON.stringify(func.args)).to.equal(desiredStr);
 
+        str = 'concat (\'wo"r"a"d\',5)';
+        func = {args: []};
+        fn(str, func);
+        var desiredFunc = {
+            args: ["'wo\"r\"a\"d'", 5],
+            name: 'concat'
+        };
+        expect(func.args[0]).to.deep.equal(desiredFunc);
+
+        str = 'con\\"c\\,at (\'w\\,o"r\\\'d\',5)';
+        func = {args: []};
+        fn(str, func);
+        var desiredFunc = {
+            args: ["'w\\,o\"r\\'d'", 5],
+            name: 'con\\"c\\,at'
+        };
+        expect(func.args[0]).to.deep.equal(desiredFunc);
+
         str = 'concat ("wo\\"rd",6)';
         func = {args: []};
         fn(str, func);
         desiredStr = '[{"name":"concat","args":["\\"wo\\\\\\"rd\\"",6]}]';
+        expect(JSON.stringify(func.args)).to.equal(desiredStr);
+
+        str = 'concat ("w\'o\\"rd",7)';
+        func = {args: []};
+        fn(str, func);
+        desiredStr = '[{"name":"concat","args":["\\"w\'o\\\\\\"rd\\"",7]}]';
         expect(JSON.stringify(func.args)).to.equal(desiredStr);
 
         str = 'add(1e2,7)';
