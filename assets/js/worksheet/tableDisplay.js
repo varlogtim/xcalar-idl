@@ -1533,6 +1533,151 @@ window.TblManager = (function($, TblManager) {
         }
     }
 
+    function createTableHeader(tableId) {
+        var $xcTheadWrap = $('<div id="xcTheadWrap-' + tableId +
+                             '" class="xcTheadWrap dataTable" ' +
+                             '" data-id="' + tableId + '" ' +
+                             'style="top:0px;"></div>');
+
+        $('#xcTableWrap-' + tableId).prepend($xcTheadWrap);
+
+        // var tableName = "";
+        // build this table title somewhere else
+        // var table = gTables[tableId];
+        // if (table != null) {
+        //     tableName = table.tableName;
+        // }
+        var tableTitleClass = "";
+        if ($('.xcTable:visible').length === 1) {
+            tableTitleClass = " tblTitleSelected";
+            $('.dagWrap.selected').removeClass('selected').addClass('notSelected');
+            $('#dagWrap-' + tableId).removeClass('notSelected')
+                                    .addClass('selected');
+        }
+
+        var html = '<div class="tableTitle ' + tableTitleClass + '">' +
+                        '<div class="tableGrab"></div>' +
+                        '<div class="labelWrap">' +
+                            '<label class="text" ></label>' +
+                        '</div>' +
+                        '<div class="dropdownBox">' +
+                            '<span class="innerBox"></span>' +
+                        '</div>' +
+                    '</div>';
+
+        $xcTheadWrap.prepend(html);
+
+        //  title's Format is tablename  [cols]
+        updateTableHeader(tableId);
+
+        // Event Listener for table title
+        $xcTheadWrap.on({
+            // must use keypress to prevent contenteditable behavior
+            "keypress": function(event) {
+                if (event.which === keyCode.Enter) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    renameTableHelper($(this));
+                }
+            },
+            "keydown": function(event) {
+                if (event.which === keyCode.Space) {
+                    // XXX temporary do not allow space
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
+            }
+        }, ".tableTitle .text");
+
+        $xcTheadWrap.on({
+            "focus": function() {
+                var val = $(this).val();
+                var width = getTextWidth($(this), val);
+                $(this).width(width + 1);
+                $(this)[0].setSelectionRange(val.length, val.length);
+                moveTableTitles();
+            },
+            "blur": function() {
+                updateTableHeader(null, $(this).parent());
+                moveTableTitles();
+            },
+            "input": function() {
+                var width = getTextWidth($(this), $(this).val());
+                $(this).width(width + 1);
+                moveTableTitles($(this).closest('.xcTableWrap'));
+            }
+        }, ".tableTitle .tableName");
+
+        $xcTheadWrap[0].oncontextmenu = function(event) {
+            var $target = $(event.target).closest('.dropdownBox');
+            if ($target.length) {
+                $target.trigger('click');
+                event.preventDefault();
+            }
+        };
+
+        $xcTheadWrap.on('click', '.tableTitle > .dropdownBox', function(event) {
+            var classes = "tableMenu";
+            var $dropdown = $(this);
+            var $tableWrap = $dropdown.closest('.xcTableWrap');
+
+
+            if ($tableWrap.hasClass('tableLocked')) {
+                classes += " locked";
+            }
+
+            if ($tableWrap.hasClass('tableHidden')) {
+                classes += " tableHidden";
+            }
+
+            var options = {"classes": classes};
+
+            if (event.rightClick) {
+                options.mouseCoors = {
+                    "x": event.pageX,
+                    "y": $dropdown.offset().top + 30
+                };
+            }
+
+            xcHelper.dropdownOpen($dropdown, $('#tableMenu'), options);
+        });
+
+        // Change from $xcTheadWrap.find('.tableGrab').mosedown...
+        $xcTheadWrap.on('mousedown', '.tableGrab', function(event) {
+            // Not Mouse down
+            if (event.which !== 1) {
+                return;
+            }
+            TblAnim.startTableDrag($(this).parent(), event);
+        });
+
+        $xcTheadWrap.on('click', '.tableGrab', function(event) {
+            var $target = $(this);
+            if (!$(this).hasClass('noDropdown')) {
+                var click = $.Event("click");
+                click.rightClick = true;
+                click.pageX = event.pageX;
+                $target.siblings('.dropdownBox').trigger(click);
+                event.preventDefault();
+            }
+        });
+
+        $xcTheadWrap[0].oncontextmenu = function(event) {
+            var $target = $(event.target).closest('.tableGrab');
+            if ($target.length) {
+                var click = $.Event("click");
+                click.rightClick = true;
+                click.pageX = event.pageX;
+                $target.siblings('.dropdownBox').trigger(click);
+                event.preventDefault();
+            }
+        };
+
+        var $table = $('#xcTable-' + tableId);
+        $table.width(0);
+        matchHeaderSizes($table);
+    }
+
     function addTableListeners(tableId) {
         var $xcTableWrap = $('#xcTableWrap-' + tableId);
         var oldId = gActiveTableId;
@@ -2139,6 +2284,67 @@ window.TblManager = (function($, TblManager) {
             '</th>';
 
         return (newTable);
+    }
+
+    function renameTableHelper($div) {
+        var newName = $div.find(".tableName").val().trim();
+        var $th = $div.closest('.xcTheadWrap');
+        var tableId = xcHelper.parseTableId($th);
+        var newTableName = newName + "#" + tableId;
+        var oldTableName = gTables[tableId].getName();
+
+        if (newTableName === oldTableName) {
+            $div.blur();
+            return;
+        }
+
+        var isValid = xcHelper.validate([
+            {
+                "$selector": $div.find(".tableName"),
+                "text"     : ErrTStr.NoSpecialChar,
+                "check"    : function() {
+                    return xcHelper.hasSpecialChar(newName);
+                }
+            },
+            {
+                "$selector": $div.find(".tableName"),
+                "text"     : ErrTStr.InvalidColName,
+                "check"    : function() {
+                    return (newName.length === 0);
+                }
+            },
+            {
+                "$selector": $div.find(".tableName"),
+                "text"     : ErrTStr.TooLong,
+                "check"    : function() {
+                    return (newName.length >=
+                            XcalarApisConstantsT.XcalarApiMaxTableNameLen);
+                }
+            }
+        ]);
+
+        if (!isValid) {
+            return;
+        }
+
+        // XXX Shall we really check if the name part has conflict?
+        xcHelper.checkDupTableName(newName)
+        .then(function() {
+            return xcFunction.rename(tableId, newTableName);
+        })
+        .then(function() {
+            $div.blur();
+        })
+        .fail(function(error) {
+            if (error === 'table') {
+                var text = xcHelper.replaceMsg(ErrWRepTStr.TableConflict, {
+                    "name": newName
+                });
+                StatusBox.show(text, $div, false);
+            } else {
+                StatusBox.show(error, $div, false);
+            }
+        });
     }
 
     function delTableHelper(tableId, tableType, txId) {
