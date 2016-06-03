@@ -1090,6 +1090,7 @@ window.ColManager = (function($, ColManager) {
                 progCol = ColManager.parseFunc(usrStr, colNum, table, true);
                 if ((!args || !args.undo) && !parsePullColArgs(progCol) ) {
                     console.error("Arg parsing failed");
+                    progCol.func = xcHelper.deepCopy(origFunc);
                     deferred.reject("Arg parsing failed");
                     break;
                 }
@@ -2098,14 +2099,15 @@ window.ColManager = (function($, ColManager) {
         var tempString = "";
         var newFunc;
         var inQuotes = false;
+        var hasComma = false;
 
         for (var i = 0; i < funcString.length; i++) {
             if (funcString[i] === "\"" &&
-                xcHelper.isCharEscaped(funcString, i)) {
-                if (!inQuotes) {
-                    inQuotes = true;
-                } else {
+                !xcHelper.isCharEscaped(funcString, i)) {
+                if (inQuotes) {
                     inQuotes = false;
+                } else {
+                    inQuotes = true;
                 }
             }
             if (inQuotes) {
@@ -2120,18 +2122,26 @@ window.ColManager = (function($, ColManager) {
                     // tempString could be blank if funcString[i] is a comma
                     // after a )
                     if (tempString !== "") {
-                        // convert strings to numbers, keep eq eq
-                        if (parseInt(tempString) === tempString) {
-                            tempString = parseInt(tempString);
-                            func.args.push(tempString);
-                        } else {
-                            func.args.push(tempString.trim());
-                        }
+                        tempString = tempString.trim();
 
+                        if (funcString[i] !== ")" || hasComma ||
+                            tempString !== "") {
+
+                        // true if it's an int or decimal, false if its anything
+                        // else such as 0xff 1e2 or 023 -- we will keep these as
+                        // strings to retain the formatting
+                            if (/^[0-9.]+$/.test(tempString) &&
+                            tempString[0] !== "0") {
+                                tempString = parseFloat(tempString);
+                            }
+                            func.args.push(tempString);
+                        }
                         tempString = "";
                     }
                     if (funcString[i] === ")") {
                         break;
+                    } else {
+                        hasComma = true;
                     }
                 } else {
                     tempString += funcString[i];
@@ -2372,6 +2382,7 @@ window.ColManager = (function($, ColManager) {
 
     // Help Functon for pullAllCols and pullCOlHelper
     // parse tableCol.func.args
+    // assumes legal syntax ie. votes[funny] and not votes[funny]blah
     function parseColFuncArgs(key) {
         if (key == null) {
             return ("");
@@ -2379,15 +2390,20 @@ window.ColManager = (function($, ColManager) {
 
         // replace votes[funny] with votes.funny but votes\[funny\] will remain
         var isEscaped = false;
+        var bracketOpen = false;
         for (var i = 0; i < key.length; i++) {
             if (isEscaped) {
                 isEscaped = false;
             } else {
                 if (key[i] === "[") {
                     key = key.substr(0, i) + "." + key.substr(i + 1);
+                    bracketOpen = true;
                 } else if (key[i] === "]") {
-                    key = key.substr(0, i) + key.substr(i + 1);
-                    i--;
+                    if (bracketOpen) {
+                        key = key.substr(0, i) + key.substr(i + 1);
+                        i--;
+                        bracketOpen = false;
+                    }
                 } else if (key[i] === "\\") {
                     isEscaped = true;
                 }
@@ -2504,6 +2520,8 @@ window.ColManager = (function($, ColManager) {
         return (deferred.promise());
     }
 
+    // checks to make sure func.name is "pull" and that pull has
+    // exactly one argument
     function parsePullColArgs(progCol) {
         if (progCol.func.name !== "pull") {
             console.warn("Wrong function!");
@@ -2512,6 +2530,12 @@ window.ColManager = (function($, ColManager) {
 
         if (progCol.func.args.length !== 1) {
             console.warn("Wrong number of arguments!");
+            return (false);
+        }
+
+        var type = typeof progCol.func.args[0];
+        if (type !== "string" && type !== "number") {
+            console.warn("argument is not a string or number!");
             return (false);
         }
         return (true);
@@ -2592,12 +2616,17 @@ window.ColManager = (function($, ColManager) {
         }
     }
 
-
+    /*
+    *@property {string} val: Text that would be in a table td
+    *@property {string} format: "percent" or null which defaults to decimal rounding
+    *@property {integer} decimals: Number of decimal places to show, -1 for default
+    */
     function formatColumnCell(val, format, decimals) {
+        var cachedVal = val;
         val = parseFloat(val);
 
         if (isNaN(val)) {
-            return val;
+            return cachedVal;
         }
 
         // round it first
@@ -2647,6 +2676,18 @@ window.ColManager = (function($, ColManager) {
                 return val;
         }
     }
+
+    // parse pullcolargs
+
+    /* Unit Test Only */
+    if (window.unitTestMode) {
+        ColManager.__testOnly__ = {};
+        ColManager.__testOnly__.parsePullColArgs = parsePullColArgs;
+        ColManager.__testOnly__.parseFuncString = parseFuncString;
+        ColManager.__testOnly__.parseColFuncArgs = parseColFuncArgs;
+        ColManager.__testOnly__.formatColumnCell = formatColumnCell;
+    }
+    /* End Of Unit Test Only */
 
     return (ColManager);
 }(jQuery, {}));

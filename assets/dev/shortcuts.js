@@ -160,6 +160,10 @@ window.Shortcuts = (function($, Shortcuts) {
                         file = "netstore";
                         filePath = "file:///netstore/datasets/";
                         break;
+                    case ("edge"):
+                        file = "edgeCase";
+                        filePath = "file:///netstore/datasets/edgeCases/";
+                        break;
                     case ("exp"):
                         file = "export";
                         filePath = "file:///var/opt/xcalar/export/";
@@ -186,6 +190,9 @@ window.Shortcuts = (function($, Shortcuts) {
                 }
 
                 $fileName.focus();
+                if (filePathGiven) {
+                    $('#fileBrowserBtn').click();
+                }
             }
         });
         // random format only in dev mode

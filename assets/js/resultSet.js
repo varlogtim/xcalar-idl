@@ -335,7 +335,6 @@ function generateDataColumnJson(table, direction, notIndexed, numRowsToFetch,
             "normal" : jsonNormal,
             "withKey": jsonWithKey
         };
-
         deferred.resolve(jsonObj, keyName);
     })
     .fail(function(error) {
