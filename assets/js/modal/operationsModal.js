@@ -2769,7 +2769,12 @@ window.OperationsModal = (function($, OperationsModal) {
     }
 
     function closeModal(speed) {
-        var time = (speed && speed.slow) ? 300 : 150;
+        var time;
+        if (gMinModeOn) {
+            time = 0;
+        } else {
+            time = (speed && speed.slow) ? 300 : 150;
+        }
 
         modalHelper.clear({"close": function() {
             // ops modal has its owne closer

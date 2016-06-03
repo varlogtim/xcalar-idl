@@ -214,7 +214,7 @@ window.TestSuite = (function($, TestSuite) {
 
         var intervalTime = 100;
         var timeElapsed = 0;
-        var notExists = options.notExists; // if true, we're actualy doing a
+        var notExist = options.notExist; // if true, we're actualy doing a
         // check to make sure the element DOESN"T exist
         var optional = options.optional; // if true, existence of element is
         // optional and we return deferred.resolve regardless
@@ -231,7 +231,7 @@ window.TestSuite = (function($, TestSuite) {
             var $elem;
             for (var i = 0; i < numItems; i++) {
                 $elem = $(elemSelectors[i]);
-                if (options.notExist) {
+                if (notExist) {
                     if ($elem.length !== 0) {
                         allElemsPresent = false;
                         break;
@@ -283,7 +283,10 @@ window.TestSuite = (function($, TestSuite) {
         if (whichModal === "join") {
             return (checkExists("#joinModal:visible"));
         } else {
-            return (checkExists("#operationsModal:visible"));
+            return (checkExists("#operationsModal:hidden, " +
+                                "#operationsModal #modalWaitingBG", null, {
+                                    notExist: true
+                                }));
         }
     }
 // ======================== TEST DEFINITIONS GO HERE ======================= //
