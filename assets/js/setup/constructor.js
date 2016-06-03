@@ -1891,17 +1891,14 @@ ModalHelper.prototype = {
 
         // center modal
         if (!options.noCenter) {
-            centerPositionElement($modal, {
-                "limitTop": true,
-                "maxTop"  : options.maxTop
-            });
+            var centerOptions = options.center || {};
+            this.center(centerOptions);
         }
 
         // Note: to find the visiable btn, must show the modal first
         if (!options.noTabFocus) {
             this.refreshTabbing();
         }
-
 
         $(document).on("keydown.xcModal" + this.id, function(event) {
             if (event.which === keyCode.Escape) {
@@ -1994,6 +1991,59 @@ ModalHelper.prototype = {
         }
 
         return deferred.promise();
+    },
+
+    center: function(options) {
+        /*
+         * to position modal in the center of the window
+         * options:
+         * horizontalOnly: if true, only horizontal cenater
+         * verticalQuartile: if true, vertical top will be 1/4
+         * maxTop: max top it could be
+         * noLimitTop: if true, it will always center
+                    with equal space on top and bottom,
+                    if false, top will be minimum 0 and bottom will overfolw
+                    when modal height is larger then window height
+         */
+        options = options || {};
+
+        var $window = $(window);
+        var $modal = this.$modal;
+        var winWidth = $window.width();
+        var modalWidth = $modal.width();
+        var left = (winWidth - modalWidth) / 2;
+
+        if (options.horizontalOnly) {
+            $modal.css({"left": left});
+            return;
+        }
+
+        var winHeight = $window.height();
+        var modalHeight = $modal.height();
+        var top;
+
+        if (options.verticalQuartile) {
+            top = (winHeight - modalHeight) / 4;
+        } else {
+            top = (winHeight - modalHeight) / 2;
+        }
+
+        if (options.maxTop && top < options.maxTop) {
+            top = options.maxTop;
+            var bottom = top + modalHeight;
+            if (bottom > winHeight) {
+                top -= (bottom - winHeight);
+            }
+        }
+
+        if (!options.noLimitTop) {
+            top = Math.max(top, 0);
+        }
+
+        $modal.css({
+            "left": left,
+            "top" : top
+        });
     },
 
     toggleBG: function(tableId, isHide, options) {

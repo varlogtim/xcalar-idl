@@ -1226,7 +1226,7 @@ function focusTable(tableId, focusDag) {
             return;
         }
     }
-    var alreadyFocused = gActiveTableId === tableId;
+    // var alreadyFocused = gActiveTableId === tableId;
 
     var wsNum = WSManager.getActiveWS();
     $('.xcTableWrap.worksheet-' + wsNum).find('.tableTitle')
@@ -1392,46 +1392,6 @@ function showWaitCursor() {
 
 function removeWaitCursor() {
     $('#waitCursor').remove();
-}
-
-function centerPositionElement($target, options) {
-    // to position elements in the center of the window i.e. for modals
-    var $window = $(window);
-    var top;
-    options = options || {};
-
-    if (!options.horizontalOnly) {
-        var winHeight   = $window.height();
-        var modalHeight = $target.height();
-        top = ((winHeight - modalHeight) / 2);
-
-        // maxTop if we'd like to position the modal say at least 100 pixels
-        // from the top of the screen if possible
-        if (options.maxTop && top < options.maxTop) {
-            top = options.maxTop;
-            var bottom = top + modalHeight;
-            if (bottom > winHeight) {
-                top -= (bottom - winHeight);
-            }
-        }
-        if (options.limitTop) {
-            top = Math.max(top, 0);
-        }
-    }
-
-    var winWidth    = $window.width();
-    var modalWidth  = $target.width();
-
-    var left = ((winWidth - modalWidth) / 2);
-
-    if (options.horizontalOnly) {
-        $target.css({"left": left});
-    } else {
-        $target.css({
-            "left": left,
-            "top" : top
-        });
-    }
 }
 
 //options:

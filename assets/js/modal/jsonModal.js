@@ -528,7 +528,7 @@ window.JSONModal = (function($, JSONModal) {
             // center modal only if already somewhat centered
             if ((winWidth - currentWidth) / 2 + 100 > offsetLeft &&
                 (winWidth - currentWidth) / 2 - 100 < offsetLeft) {
-                centerPositionElement($jsonModal, {horizontalOnly: true});
+                modalHelper.center({"horizontalOnly": true});
             }
         }
         checkTabSizes();
@@ -559,7 +559,7 @@ window.JSONModal = (function($, JSONModal) {
             $jsonModal.width(newWidth);
             if ((winWidth - currentWidth) / 2 + 100 > offsetLeft &&
                 (winWidth - currentWidth) / 2 - 100 < offsetLeft) {
-                centerPositionElement($jsonModal, {horizontalOnly: true});
+                modalHelper.center({"horizontalOnly": true});
             }
         }
         checkTabSizes();

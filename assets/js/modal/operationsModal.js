@@ -492,7 +492,7 @@ window.OperationsModal = (function($, OperationsModal) {
 
         modalHelper.addWaitingBG();
         modalHelper.setup({
-            "maxTop": modalTop,
+            "center": {"maxTop": modalTop},
             "open"  : function() {
                 // ops modal has its own opener
                 toggleModalDisplay(false);
@@ -582,7 +582,7 @@ window.OperationsModal = (function($, OperationsModal) {
 
         $input.focus();
         $('body').on('keydown', opModalKeyListener);
-        centerPositionElement($operationsModal);
+        modalHelper.center();
         $('#statusBox').trigger('mousedown');
         checkInputSize($input);
     }
@@ -592,7 +592,7 @@ window.OperationsModal = (function($, OperationsModal) {
         $operationsModal.find('.minimize').show();
         $operationsModal.find('.maximize').hide();
         $('body').off('keydown', opModalKeyListener);
-        centerPositionElement($operationsModal);
+        modalHelper.center();
     }
 
     function opModalKeyListener(event) {

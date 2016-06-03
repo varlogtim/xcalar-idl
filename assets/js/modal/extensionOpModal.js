@@ -373,9 +373,7 @@ window.ExtensionOpModal = (function(ExtensionOpModal, $) {
         modalMinWidth = Math.min(modalMinWidth, maxWidth,
                                 ($(window).width() - 10));
         $extModal.width(modalMinWidth);
-        centerPositionElement($extModal, {
-            "limitTop": true
-        });
+        modalHelper.center();
     }
 
     return (ExtensionOpModal);

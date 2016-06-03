@@ -13,7 +13,7 @@ window.Alert = (function($, Alert){
         modalHelper = new ModalHelper($modal, {
             "focusOnOpen": true,
             "noResize"   : true,
-            "noCenter"   : true
+            "center"     : {"verticalQuartile": true}
         });
 
         $modal.draggable({
@@ -73,22 +73,6 @@ window.Alert = (function($, Alert){
             $modalBg.addClass('locked');
             $modal.draggable("destroy");
         }
-
-        // Note that alert Modal's center position
-        // is different from other modal, need this handle
-        var $window = $(window);
-        var winHeight   = $window.height();
-        var winWidth    = $window.width();
-        var modalWidth  = $modal.width();
-        var modalHeight = $modal.height();
-
-        var left = ((winWidth - modalWidth) / 2);
-        var top  = ((winHeight - modalHeight) / 4);
-
-        $modal.css({
-            "left": left,
-            "top" : top
-        });
 
         modalHelper.setup(extraOptions)
         .always(function() {
