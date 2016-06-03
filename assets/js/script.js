@@ -133,7 +133,7 @@ window.StartManager = (function(StartManager, $) {
                     "buttons": [
                         {
                             "name"     : WKBKTStr.Release,
-                            "className": "btnInactive",
+                            "className": "cancel",
                             "func"     : function() {
                                 Support.forceReleaseSession();
                             }

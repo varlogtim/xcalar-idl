@@ -242,6 +242,10 @@ window.Alert = (function($, Alert){
 
         var $confirmBtn = $btnSection.find(".confirm");
 
+        if (options.noCancel) {
+            $modal.find(".close, .cancel").hide();
+        }
+
         if (options.buttons) {
             $modal.find(".cancel").text(AlertTStr.CANCEL);
             $confirmBtn.hide();
@@ -269,10 +273,6 @@ window.Alert = (function($, Alert){
             $confirmBtn.hide();
         } else {
             $modal.find(".cancel").text(AlertTStr.CANCEL);
-        }
-
-        if (options.noCancel) {
-            $modal.find(".close, .cancel").hide();
         }
 
         // lock screen if necessary
