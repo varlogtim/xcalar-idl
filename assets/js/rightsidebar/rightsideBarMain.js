@@ -1,4 +1,7 @@
 window.RightSideBar = (function($, RightSideBar) {
+    var delay = 300;
+    var clickable = true;
+
     RightSideBar.setup = function() {
         setupButtons();
         SQL.setup();
@@ -26,63 +29,18 @@ window.RightSideBar = (function($, RightSideBar) {
         CLIBox.clear();
     };
 
+    function setLastRightSidePanel() {
+        var lastRightSideBar = UserSettings.getPreference().lastRightSideBar;
+        if (lastRightSideBar &&
+            !$('.rightBarSection').hasClass('lastOpen')) {
+            $('#' + lastRightSideBar).addClass('lastOpen');
+        }
+    }
+
     // setup buttons to open right side bar
     function setupButtons() {
-        var delay     = 300;
-        var clickable = true;
-
-        var $btnArea = $("#rightSideBarBtns");
-        var $sliderBtns = $btnArea.find(".sliderBtn");
         var $rightSideBar = $("#rightSideBar");
-        var $rightBarSections = $rightSideBar.find(".rightBarSection");
-
-        $btnArea.on("click", ".sliderBtn", function() {
-            if (!clickable) {
-                return;
-            }
-
-            var $sliderBtn = $(this);
-            var index      = $sliderBtn.index();
-            var $section   = $rightSideBar.find('.rightBarSection').eq(index);
-
-            if (!$rightSideBar.hasClass("open") ||
-                !$section.hasClass("active"))
-            {
-                // right side bar is closed or
-                // switch to this section
-                $sliderBtns.removeClass("active");
-                $sliderBtn.addClass("active");
-
-                $rightBarSections.removeClass("active");
-                $rightBarSections.removeClass("lastOpen");
-                // mark the section and open the right side bar
-                $section.addClass("active");
-                $section.addClass("lastOpen");
-
-                $rightSideBar.addClass("open");
-
-                if ($section.attr("id") === "sqlSection") {
-                    SQL.scrollToBottom();
-                    $("#sqlButtonWrap").show();
-                } else {
-                    $("#sqlButtonWrap").hide();
-                }
-                if ($section.attr("id") === "cliSection") {
-                    CLIBox.realignNl();
-                }
-            } else {
-                // section is active, close right side bar
-                if (!$rightSideBar.hasClass('poppedOut')) {
-                    // disable closing if popped out
-                    closeRightSidebar();
-                }
-
-            }
-
-            delayClick();
-        });
-
-        $rightSideBar.on("click", ".iconClose", function() {
+        $rightSideBar.on("click", ".close", function() {
             if ($rightSideBar.hasClass('poppedOut')) {
                 setTimeout(function() {
                     closeRightSidebar();
@@ -90,36 +48,35 @@ window.RightSideBar = (function($, RightSideBar) {
             } else {
                 closeRightSidebar();
             }
-            popInModal($rightSideBar);
+            popInModal();
         });
 
         $rightSideBar.on("click", ".popOut", function() {
             if ($rightSideBar.hasClass('poppedOut')) {
-                popInModal($rightSideBar);
+                popInModal();
             } else {
-                popOutModal($rightSideBar);
+                popOutModal();
             }
-
         });
 
         $rightSideBar.draggable({
-            handle     : '.heading.draggable',
-            containment: 'window',
-            cursor     : '-webkit-grabbing'
+            "handle"     : ".heading.draggable",
+            "cursor"     : "-webkit-grabbing",
+            "containment": "window"
         });
 
         var sideDragging;
-
         $rightSideBar.on('mousedown', '.ui-resizable-handle', function() {
-            if ($(this).hasClass('ui-resizable-w')) {
+            var $handle = $(this);
+            if ($handle.hasClass("ui-resizable-w")) {
                 sideDragging = "left";
-            } else if ($(this).hasClass('ui-resizable-e')) {
+            } else if ($handle.hasClass("ui-resizable-e")) {
                 sideDragging = "right";
-            } else if ($(this).hasClass('ui-resizable-n')) {
+            } else if ($handle.hasClass("ui-resizable-n")) {
                 sideDragging = "top";
-            } else if ($(this).hasClass('ui-resizable-s')) {
+            } else if ($handle.hasClass("ui-resizable-s")) {
                 sideDragging = "bottom";
-            } else if ($(this).hasClass('ui-resizable-se')) {
+            } else if ($handle.hasClass("ui-resizable-se")) {
                 sideDragging = "bottomRight";
             }
         });
@@ -207,70 +164,111 @@ window.RightSideBar = (function($, RightSideBar) {
             CLIBox.realignNl();
         });
 
-        $("#pulloutTab").click(function() {
+        $("#rightSideBarBtns").on("click", ".sliderBtn", function() {
             if (!clickable) {
                 return;
             }
 
-            var $section = $rightSideBar.children(".lastOpen");
-            var index    = 0;
-
-            if (!$rightSideBar.hasClass("open")) {
-                if ($section.length === 0) {
-                     // first time open right side bar
-                    $section = $rightBarSections.eq(0);
-                } else {
-                    // open last opened section
-                    index = $section.index();
-                }
-
-                $section.addClass("active")
-                        .addClass("lastOpen");
-
-                $sliderBtns.eq(index - 1).addClass("active");
-
-                $rightSideBar.addClass("open");
-            } else {
-                closeRightSidebar();
-            }
-
-            delayClick();
+            var index = $(this).index();
+            toggleRightSection(index);
         });
 
-        function delayClick() {
-            clickable = false;
-
-            setTimeout(function() {
-                clickable = true;
-            }, delay);
-        }
-
-        function closeRightSidebar() {
-            $rightSideBar.removeClass("open");
-            $rightSideBar.css('right', -($rightSideBar.width() - 10));
-            $sliderBtns.removeClass("active");
-            // since close right side bar has slider animition,
-            // delay the close of section
-            setTimeout(function() {
-                $rightBarSections.removeClass("active");
-            }, delay);
-        }
+        $("#pulloutTab").click(function() {
+            if (!clickable) {
+                return;
+            }
+            toggleRightSection();
+        });
     }
 
-    function popOutModal($rightSideBar) {
-        var offset = $('#rightSideBar').offset();
+    function closeRightSidebar() {
+        var $rightSideBar = $("#rightSideBar");
+        $rightSideBar.removeClass("open");
+        $rightSideBar.css('right', -($rightSideBar.width() - 10));
+        $("#rightSideBarBtns .sliderBtn.active").removeClass("active");
+        // since close right side bar has slider animition,
+        // delay the close of section
+        setTimeout(function() {
+            $rightSideBar.find(".rightBarSection.active")
+                         .removeClass("active");
+        }, delay);
+    }
+
+    function toggleRightSection(sectionIndex) {
+        var $rightSideBar = $("#rightSideBar");
+        var $rightBarSections = $rightSideBar.find(".rightBarSection");
+        var $sliderBtns = $("#rightSideBarBtns .sliderBtn");
+        var $section;
+
+        if (sectionIndex == null) {
+            $section = $rightSideBar.find(".lastOpen");
+
+            if ($section.length === 0) {
+                $section = $rightBarSections.eq(0);
+                sectionIndex = 0;
+            } else {
+                sectionIndex = $section.index();
+            }
+        } else {
+            $section = $rightBarSections.eq(sectionIndex);
+        }
+
+        if ($rightSideBar.hasClass("open") && $section.hasClass("active")) {
+            // section is active, close right side bar
+            if (!$rightSideBar.hasClass('poppedOut')) {
+                // disable closing if popped out
+                closeRightSidebar();
+            }
+        } else {
+            // right side bar is closed or
+            // switch to this section
+            $sliderBtns.removeClass("active");
+            $sliderBtns.eq(sectionIndex).addClass("active");
+
+            $rightBarSections.removeClass("active")
+                             .removeClass("lastOpen");
+            // mark the section and open the right side bar
+            $section.addClass("active")
+                    .addClass("lastOpen");
+
+            $rightSideBar.addClass("open");
+
+            if ($section.attr("id") === "sqlSection") {
+                SQL.scrollToBottom();
+                $("#sqlButtonWrap").show();
+            } else {
+                $("#sqlButtonWrap").hide();
+            }
+            if ($section.attr("id") === "cliSection") {
+                CLIBox.realignNl();
+            }
+        }
+
+        // dealay the next click as the rightsidebar open/close has animation
+        clickable = false;
+        setTimeout(function() {
+            clickable = true;
+        }, delay);
+    }
+
+    function popOutModal() {
+        var $rightSideBar = $("#rightSideBar");
+        var offset = $rightSideBar.offset();
+
         $rightSideBar.addClass('poppedOut');
         $('#rightSideBarBtns').appendTo($rightSideBar);
         $rightSideBar.find('.popOut')
                      .attr('data-original-title', SideBarTStr.PopBack);
         $('.tooltip').hide();
-        $('#rightSideBar').css({
-            left: offset.left - 5,
-            top : offset.top - 5
+        $rightSideBar.css({
+            "left": offset.left - 5,
+            "top" : offset.top - 5
         });
     }
 
-    function popInModal($rightSideBar) {
+    function popInModal() {
+        var $rightSideBar = $("#rightSideBar");
+
         $rightSideBar.removeClass('poppedOut');
         $('#rightSideBarBtns').appendTo('#worksheetBar');
         $rightSideBar.attr('style', "");
@@ -278,14 +276,6 @@ window.RightSideBar = (function($, RightSideBar) {
                      .attr('data-original-title', SideBarTStr.PopOut);
         $('.tooltip').hide();
         CLIBox.realignNl();
-    }
-
-    function setLastRightSidePanel() {
-        var lastRightSideBar = UserSettings.getPreference().lastRightSideBar;
-        if (lastRightSideBar &&
-            !$('.rightBarSection').hasClass('lastOpen')) {
-            $('#' + lastRightSideBar).addClass('lastOpen');
-        }
     }
 
     return (RightSideBar);

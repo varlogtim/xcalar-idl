@@ -1,9 +1,9 @@
-Right Side Bar Section -->
+<!-- Right Side Bar Section -->
 <div id="rightSideBar" class="small">
   <!-- Top Buttons -->
   <div class="sideBarTopButtons">
     <div class="btn btnDeselected">
-      <span class="icon iconClose"></span>
+      <span class="icon close"></span>
     </div>
     <div class="btn btnDeselected">
       <span class="icon popOut" data-toggle="tooltip" data-placement="top" data-container="body" title="<%= dicts.rightsideBar.popOutBtn %>"></span>
@@ -18,345 +18,346 @@ Right Side Bar Section -->
     </div>
   </div>
   <!-- End Of Top Buttons -->
-  <!-- Table List Section -->
-  <section id="tableListSection" class="rightBarSection no-selection">
-    <!-- Heading -->
-    <header class="heading draggable">
-      <h2><%= dicts.rightsideBar.Tables %></h2>
-    </header>
-    <!-- Main Content -->
-    <div class="rightBarContent">
-      <!-- Tabs -->
-      <section id="tableListSectionTabs">
-        <div class="tableListSectionTab active"><%= dicts.rightsideBar.ActiveList %></div>
-        <div class="tableListSectionTab"><%= dicts.rightsideBar.InActiveList %></div>
-        <!-- temporary hide it till we have actual use  -->
-        <!-- <div class="tableListSectionTab"><%= dicts.rightsideBar.AggList %></div> -->
-        <div class="tableListSectionTab"><%= dicts.rightsideBar.OrphanList %></div>
-      </section>
-      <!-- Sections -->
-      <section id="tableListSections">
-        <!-- active list -->
-        <div id="tableList" class="tableListSection">
-          <ul id="activeTablesList" class="tableLists"></ul>
-        </div>
-        <!-- archived list -->
-        <div id="archivedTableList" class="tableListSection">
-          <div class="buttonWrap">
-            <button id="submitTablesBtn" type="button" class="btn btnLarge btnInactive iconBtn submitBtn">
-              <span class="icon"></span><%= dicts.rightsideBar.activeBtn %>
-            </button>
-            <button id="deleteTablesBtn" type="button" class="btn btnLarge btnInactive iconBtn deleteBtn">
-              <span class="icon"></span>DELETE TABLES
-            </button>
-            <!-- temporarily hidding delete tables btn -->
-          </div>
-          <div class="secondButtonWrap">
-            <div class="btn btnSmall btnDeselected clearAll">
-              <span class="icon" data-toggle="tooltip" data-placement="top" data-container="body" title="" data-original-title="<%= dicts.rightsideBar.deselectAll %>"></span>
-            </div>
-            <div class="btn btnSmall selectAll">
-              <span class="icon" data-toggle="tooltip" data-placement="top" data-container="body" title="" data-original-title="<%= dicts.rightsideBar.selectAll %>"></span>
-            </div>
-          </div>
-          <ul id="inactiveTablesList" class="tableLists"></ul>
-        </div>
-        <!-- aggregate table list -->
-        <!-- <div id="aggregateTableList" class="tableListSection">
-          <div class="buttonWrap"> -->
-            <!-- XXX temporary disable -->
-           <!--  <button id="submitAggTablesBtn" type="button" class="btn btnLarge btnInactive iconBtn submitBtn">
-              <span class="icon"></span>ADD TO WORKSHEET
-            </button> -->
-            <!-- <button id="deleteAggTablesBtn" type="button" class="btn btnLarge btnInactive iconBtn deleteBtn">
-              <span class="icon"></span>DELETE TABLES
-            </button> -->
-          <!-- </div> -->
-         <!--  <div class="secondButtonWrap">
-            <div class="btn btnSmall btnDeselected clearAll">
-              <span class="icon" data-toggle="tooltip" data-placement="top" data-container="body" title="" data-original-title="clear all">
-              </span>
-            </div>
-            <div class="btn btnSmall selectAll">
-              <span class="icon" data-toggle="tooltip" data-placement="top" data-container="body" title="" data-original-title="select all">
-              </span>
-            </div>
-          </div> -->
-          <!-- <ul id="aggTablesList" class="tableLists"></ul> -->
-        <!-- </div> -->
-        <!-- orphaned table list -->
-        <div id="orphanedTableList" class="tableListSection">
-          <div class="buttonWrap">
-            <button id="submitOrphanedTablesBtn" type="button" class="btn btnLarge btnInactive iconBtn submitBtn">
-              <span class="icon"></span><%= dicts.rightsideBar.activeBtn %>
-            </button>
-            <button id="deleteOrphanedTablesBtn" type="button" class="btn btnLarge btnInactive iconBtn deleteBtn">
-              <span class="icon"></span>DELETE TABLES
-            </button>
-            <!-- temporarily hidding delete tables btn -->
-          </div>
-          <div class="divider"></div>
-          <div class="secondButtonWrap">
-            <div class="btn btnSmall btnDeselected clearAll">
-              <span class="icon" data-toggle="tooltip" data-placement="top" data-container="body" title="" data-original-title="<%= dicts.rightsideBar.deselectAll %>"></span>
-            </div>
-            <div class="btn btnSmall selectAll">
-              <span class="icon" data-toggle="tooltip" data-placement="top" data-container="body" title="" data-original-title="<%= dicts.rightsideBar.selectAll %>"></span>
-            </div>
-            <div class="btn btnSmall refresh">
-              <span class="icon" data-toggle="tooltip" data-placement="top" data-container="body" title="" data-original-title="<%= dicts.rightsideBar.refresh %>"></span>
-            </div>
-          </div>
-          <div id="orphanedTableList-search" class="searchbarArea">
-              <input type="text" placeholder="<%= dicts.rightsideBar.filterOrphan %>"
-                spellcheck="false" />
-              <div class="clear iconWrap">
-                <span class="icon"></span>
-              </div>
-              <div class="counter">
-                <span class="position"></span>
-                <span class="total"></span>
-              </div>
-              <div class="arrows">
-                <div class="upArrow iconWrap">
-                  <span class="icon"></span>
-                </div>
-                <div class="downArrow iconWrap">
-                  <span class="icon"></span>
-                </div>
-              </div>
-          </div>
-          <ul id="orphanedTablesList" class="tableLists"></ul>
-        </div>
-      </section>
-      <!-- End Of Sections -->
-    </div>
-  </section>
-
-  <!-- SQL Section -->
-  <section id="sqlSection" class="rightBarSection">
-    <header class="heading draggable">
-      <h2>SQL</h2>
-    </header>
-    <div class="rightBarContent">
-      <div id="sql-TextScrollWrap">
-        <div id="sql-TextArea" class="sqlTextArea"></div>
-        <div id="sql-MachineTextArea" class="sqlTextArea"></div>
-      </div>
-    </div>
-  </section>
-
-  <!-- UDF Section -->
-  <section id="udfSection" class="rightBarSection no-selection">
-    <!-- Heading -->
-    <header class="heading draggable">
-      <h2><%= dicts.rightsideBar.UDF %></h2>
-    </header>
-    <!-- Content -->
-    <div class="rightBarContent">
-      <!-- Section to switch between upload and input section -->
-      <section class="tabSectionContainer">
-        <div id="udf-tabs" class="radioButtonGroup center">
-          <!-- option for code input section -->
-          <div class="radioButton active" data-option="udf-fnSection">
-            <div class="radio">
-              <span class="dot"></span>
-            </div>
-            <div class="label"><%= dicts.rightsideBar.udfWrite %></div>
-          </div>
-          <!-- option for upload section -->
-          <div class="radioButton" data-option="udf-uploadSection">
-            <div class="radio">
-              <span class="dot"></span>
-            </div>
-            <div class="label"><%= dicts.rightsideBar.udfUpload %></div>
-          </div>
-        </div>
-      </section>
-
+  <div class="rightBarSectionContainer">
+    <!-- Table List Section -->
+    <section id="tableListSection" class="rightBarSection no-selection">
+      <!-- Heading -->
+      <header class="heading draggable">
+        <h2><%= dicts.rightsideBar.Tables %></h2>
+      </header>
       <!-- Main Content -->
-      <section class="mainSectionContainer">
-        <!-- Section to write function -->
-        <section id="udf-fnSection" class="mainSection">
-          <!-- Choose File Teamplate -->
-          <section class="templateSection">
-            <div class="sectionContainer">
-              <!-- template dropdown menu -->
-              <div id="udf-fnList" class="dropDownList">
-                <input id="udf-fnTemplate" class="text" spellcheck="false" placeholder="<%= dicts.rightsideBar.chooseTemplate %>" disabled>
-                <div class="iconWrapper">
+      <div class="rightBarContent">
+        <!-- Tabs -->
+        <section id="tableListSectionTabs">
+          <div class="tableListSectionTab active"><%= dicts.rightsideBar.ActiveList %></div>
+          <div class="tableListSectionTab"><%= dicts.rightsideBar.InActiveList %></div>
+          <!-- temporary hide it till we have actual use  -->
+          <!-- <div class="tableListSectionTab"><%= dicts.rightsideBar.AggList %></div> -->
+          <div class="tableListSectionTab"><%= dicts.rightsideBar.OrphanList %></div>
+        </section>
+        <!-- Sections -->
+        <section id="tableListSections">
+          <!-- active list -->
+          <div id="tableList" class="tableListSection">
+            <ul id="activeTablesList" class="tableLists"></ul>
+          </div>
+          <!-- archived list -->
+          <div id="archivedTableList" class="tableListSection">
+            <div class="buttonWrap">
+              <button id="submitTablesBtn" type="button" class="btn btnLarge btnInactive iconBtn submitBtn">
+                <span class="icon"></span><%= dicts.rightsideBar.activeBtn %>
+              </button>
+              <button id="deleteTablesBtn" type="button" class="btn btnLarge btnInactive iconBtn deleteBtn">
+                <span class="icon"></span>DELETE TABLES
+              </button>
+              <!-- temporarily hidding delete tables btn -->
+            </div>
+            <div class="secondButtonWrap">
+              <div class="btn btnSmall btnDeselected clearAll">
+                <span class="icon" data-toggle="tooltip" data-placement="top" data-container="body" title="" data-original-title="<%= dicts.rightsideBar.deselectAll %>"></span>
+              </div>
+              <div class="btn btnSmall selectAll">
+                <span class="icon" data-toggle="tooltip" data-placement="top" data-container="body" title="" data-original-title="<%= dicts.rightsideBar.selectAll %>"></span>
+              </div>
+            </div>
+            <ul id="inactiveTablesList" class="tableLists"></ul>
+          </div>
+          <!-- aggregate table list -->
+          <!-- <div id="aggregateTableList" class="tableListSection">
+            <div class="buttonWrap"> -->
+              <!-- XXX temporary disable -->
+             <!--  <button id="submitAggTablesBtn" type="button" class="btn btnLarge btnInactive iconBtn submitBtn">
+                <span class="icon"></span>ADD TO WORKSHEET
+              </button> -->
+              <!-- <button id="deleteAggTablesBtn" type="button" class="btn btnLarge btnInactive iconBtn deleteBtn">
+                <span class="icon"></span>DELETE TABLES
+              </button> -->
+            <!-- </div> -->
+           <!--  <div class="secondButtonWrap">
+              <div class="btn btnSmall btnDeselected clearAll">
+                <span class="icon" data-toggle="tooltip" data-placement="top" data-container="body" title="" data-original-title="clear all">
+                </span>
+              </div>
+              <div class="btn btnSmall selectAll">
+                <span class="icon" data-toggle="tooltip" data-placement="top" data-container="body" title="" data-original-title="select all">
+                </span>
+              </div>
+            </div> -->
+            <!-- <ul id="aggTablesList" class="tableLists"></ul> -->
+          <!-- </div> -->
+          <!-- orphaned table list -->
+          <div id="orphanedTableList" class="tableListSection">
+            <div class="buttonWrap">
+              <button id="submitOrphanedTablesBtn" type="button" class="btn btnLarge btnInactive iconBtn submitBtn">
+                <span class="icon"></span><%= dicts.rightsideBar.activeBtn %>
+              </button>
+              <button id="deleteOrphanedTablesBtn" type="button" class="btn btnLarge btnInactive iconBtn deleteBtn">
+                <span class="icon"></span>DELETE TABLES
+              </button>
+              <!-- temporarily hidding delete tables btn -->
+            </div>
+            <div class="divider"></div>
+            <div class="secondButtonWrap">
+              <div class="btn btnSmall btnDeselected clearAll">
+                <span class="icon" data-toggle="tooltip" data-placement="top" data-container="body" title="" data-original-title="<%= dicts.rightsideBar.deselectAll %>"></span>
+              </div>
+              <div class="btn btnSmall selectAll">
+                <span class="icon" data-toggle="tooltip" data-placement="top" data-container="body" title="" data-original-title="<%= dicts.rightsideBar.selectAll %>"></span>
+              </div>
+              <div class="btn btnSmall refresh">
+                <span class="icon" data-toggle="tooltip" data-placement="top" data-container="body" title="" data-original-title="<%= dicts.rightsideBar.refresh %>"></span>
+              </div>
+            </div>
+            <div id="orphanedTableList-search" class="searchbarArea">
+                <input type="text" placeholder="<%= dicts.rightsideBar.filterOrphan %>"
+                  spellcheck="false" />
+                <div class="clear iconWrap">
                   <span class="icon"></span>
                 </div>
-                <div id="udf-fnMenu" class="list">
-                  <ul>
-                    <li name="blank"><%= dicts.rightsideBar.blankFunc %></li>
-                  </ul>
-                  <div class="scrollArea top">
-                    <div class="arrow"></div>
+                <div class="counter">
+                  <span class="position"></span>
+                  <span class="total"></span>
+                </div>
+                <div class="arrows">
+                  <div class="upArrow iconWrap">
+                    <span class="icon"></span>
                   </div>
-                  <div class="scrollArea bottom">
-                    <div class="arrow"></div>
+                  <div class="downArrow iconWrap">
+                    <span class="icon"></span>
+                  </div>
+                </div>
+            </div>
+            <ul id="orphanedTablesList" class="tableLists"></ul>
+          </div>
+        </section>
+        <!-- End Of Sections -->
+      </div>
+    </section>
+
+    <!-- SQL Section -->
+    <section id="sqlSection" class="rightBarSection">
+      <header class="heading draggable">
+        <h2>SQL</h2>
+      </header>
+      <div class="rightBarContent">
+        <div id="sql-TextScrollWrap">
+          <div id="sql-TextArea" class="sqlTextArea"></div>
+          <div id="sql-MachineTextArea" class="sqlTextArea"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- UDF Section -->
+    <section id="udfSection" class="rightBarSection no-selection">
+      <!-- Heading -->
+      <header class="heading draggable">
+        <h2><%= dicts.rightsideBar.UDF %></h2>
+      </header>
+      <!-- Content -->
+      <div class="rightBarContent">
+        <!-- Section to switch between upload and input section -->
+        <section class="tabSectionContainer">
+          <div id="udf-tabs" class="radioButtonGroup center">
+            <!-- option for code input section -->
+            <div class="radioButton active" data-option="udf-fnSection">
+              <div class="radio">
+                <span class="dot"></span>
+              </div>
+              <div class="label"><%= dicts.rightsideBar.udfWrite %></div>
+            </div>
+            <!-- option for upload section -->
+            <div class="radioButton" data-option="udf-uploadSection">
+              <div class="radio">
+                <span class="dot"></span>
+              </div>
+              <div class="label"><%= dicts.rightsideBar.udfUpload %></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Main Content -->
+        <section class="mainSectionContainer">
+          <!-- Section to write function -->
+          <section id="udf-fnSection" class="mainSection">
+            <!-- Choose File Teamplate -->
+            <section class="templateSection">
+              <div class="sectionContainer">
+                <!-- template dropdown menu -->
+                <div id="udf-fnList" class="dropDownList">
+                  <input id="udf-fnTemplate" class="text" spellcheck="false" placeholder="<%= dicts.rightsideBar.chooseTemplate %>" disabled>
+                  <div class="iconWrapper">
+                    <span class="icon"></span>
+                  </div>
+                  <div id="udf-fnMenu" class="list">
+                    <ul>
+                      <li name="blank"><%= dicts.rightsideBar.blankFunc %></li>
+                    </ul>
+                    <div class="scrollArea top">
+                      <div class="arrow"></div>
+                    </div>
+                    <div class="scrollArea bottom">
+                      <div class="arrow"></div>
+                    </div>
+                  </div>
+                </div>
+                <!-- Download Teamplate -->
+                <div class="downloadSection">
+                   <div class="btnSection">
+                    <button id="udf-fnDownload" class="btn btnMid disabled" type="button">
+                      <span class="iconWrap"><span class="icon"></span></span>
+                      <span class="text"><%= dicts.rightsideBar.download %></span>
+                    </button>
                   </div>
                 </div>
               </div>
-              <!-- Download Teamplate -->
-              <div class="downloadSection">
-                 <div class="btnSection">
-                  <button id="udf-fnDownload" class="btn btnMid disabled" type="button">
-                    <span class="iconWrap"><span class="icon"></span></span>
-                    <span class="text"><%= dicts.rightsideBar.download %></span>
+            </section>
+            <!-- Edit section -->
+            <section class="editSection">
+              <div class="editArea">
+                <textarea id="udf-codeArea"></textarea>
+              </div>
+            </section>
+            <!-- Submit Section -->
+            <section class="submitSection">
+              <div class="sectionContainer">
+                <div class="inputSection">
+                  <span class="label">
+                    <label for="udf-fnName"><%= dicts.common.ModuleName %>:</label>
+                  </span>
+                  <input id="udf-fnName" type="text" spellcheck="false" placeholder="<%= dicts.rightsideBar.lowercase %>">
+                </div>
+                <div class="btnSection">
+                  <button id="udf-fnUpload" class="btn btnMid upload" type="button">
+                    <span class="icon"></span>
+                    <span class="text"><%= dicts.rightsideBar.upload %></span>
                   </button>
                 </div>
               </div>
-            </div>
+            </section>
           </section>
-          <!-- Edit section -->
-          <section class="editSection">
-            <div class="editArea">
-              <textarea id="udf-codeArea"></textarea>
+          <!-- Section to upload file -->
+          <section id="udf-uploadSection" class="mainSection hidden">
+            <!-- head part -->
+            <div>
+              <h3 class="label">
+                <label for="udf-filePath"><%= dicts.common.FilePath %>:</label>
+              </h3>
             </div>
-          </section>
-          <!-- Submit Section -->
-          <section class="submitSection">
-            <div class="sectionContainer">
-              <div class="inputSection">
-                <span class="label">
-                  <label for="udf-fnName"><%= dicts.common.ModuleName %>:</label>
-                </span>
-                <input id="udf-fnName" type="text" spellcheck="false" placeholder="<%= dicts.rightsideBar.lowercase %>">
-              </div>
-              <div class="btnSection">
-                <button id="udf-fnUpload" class="btn btnMid upload" type="button">
-                  <span class="icon"></span>
-                  <span class="text"><%= dicts.rightsideBar.upload %></span>
-                </button>
+            <!-- file path part -->
+            <div class="pathSection">
+              <input id="udf-filePath" type="text" spellcheck="false">
+              <div id="udf-clearPath" class="iconWrap clear">
+                <span class="icon"></span>
               </div>
             </div>
+            <!-- button part -->
+            <div class="btnSection">
+              <button id="udf-browseBtn" class="btn btnMid" type="button"><%= dicts.common.BROWSE %></button>
+              <input id="udf-fileBrowser"  spellcheck="false" type="file" style="display: none;">
+              <button id="udf-fileUpload" class="btn btnMid upload" type="button">
+                <span class="icon"></span>
+                <span class="text"><%= dicts.rightsideBar.upload %></span>
+              </button>
+            </div>
           </section>
+          <!-- End of Write Function Section -->
         </section>
-        <!-- Section to upload file -->
-        <section id="udf-uploadSection" class="mainSection hidden">
-          <!-- head part -->
+        <!-- End of Main Section -->
+      </div>
+    </section>
+
+    <!-- CLI Section -->
+    <section id="cliSection" class="rightBarSection">
+      <header class="heading draggable">
+        <h2>CLI</h2>
+      </header>
+      <div class="rightBarContent">
+        <div class="textBoxContainer">
+          <div spellcheck="false" class="lineArea"></div>
+          <div class="cliArea"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Scratch Pad Section -->
+   <!--  <section id="scratchPadSection" class="rightBarSection">
+      <header class="heading">
+        <h2>ScratchPad</h2>
+      </header>
+      <div class="rightBarContent">
+        <div class="textBoxContainer">
+          <div spellcheck="false" class="lineArea"></div>
+          <div class="cliArea">
+          </div>
+        </div>
+      </div>
+    </section> -->
+
+    <!-- Help Section -->
+    <section id="helpSection" class="rightBarSection no-selection">
+      <header class="heading draggable">
+        <h2><%= dicts.rightsideBar.Help %></h2>
+      </header>
+      <div class="rightBarContent">
+        <!-- Help Search -->
+        <form id="helpSearchArea" class="clearfix" action="index.html">
+          <!-- <input id="helpSearch" name="q" type="text" -->
+          <input id="helpSearch" type="text"
+            spellcheck="false" placeholder="Type in your question..."
+            autocomplete="off">
+            <div id="helpSubmit" class="icon">
+            </div>
+        </form>
+        <div class="border"></div>
+        <!-- Help Result -->
+        <div id="helpResults" class="helpBox">
+          <div class="categoryArea">
+            <div class="mainHeading">Help Topics</div>
+          </div>
+          <div class="resultsArea">
+            <span class="noResults"><%= dicts.rightsideBar.useSearch %><br/><a href="assets/help/Content/Home.htm" target="xchelp" class="visitHelpGuide"><%= dicts.rightsideBar.visitHelp %></a></span>
+            <div id="tipue_search_content"></div>
+          </div>
+        </div>
+        <!-- Help On Off Button -->
+        <div class="helpOnOffWrap">
+          <div id="helpOnOff" class="onOffBtn on off">
+            <div class="slider"></div>
+            <div class="text offText"><%= dicts.common.OFF %></div>
+            <div class="text onText"><%= dicts.common.ON %></div>
+          </div>
+          <div class="text"><%= dicts.rightsideBar.InPageHelp %></div>
+        </div>
+        <!-- Intro Tutorials -->
+        <div id="helpTopics" class="helpBox">
           <div>
-            <h3 class="label">
-              <label for="udf-filePath"><%= dicts.common.FilePath %>:</label>
-            </h3>
+            <ul>
+              <span><%= dicts.rightsideBar.Walkthrough %>:</span>
+              <li id="workbookWT" class="walkthrough">
+                <span><%= dicts.rightsideBar.wkbkTutor %></span>
+              </li>
+              <li id="datastoreWT1" class="walkthrough">
+                <span><%= dicts.rightsideBar.dsTutor1 %></span>
+              </li>
+              <li id="datastoreWT2" class="walkthrough">
+                <span><%= dicts.rightsideBar.dsTutor2 %></span>
+              </li>
+            </ul>
           </div>
-          <!-- file path part -->
-          <div class="pathSection">
-            <input id="udf-filePath" type="text" spellcheck="false">
-            <div id="udf-clearPath" class="iconWrap clear">
-              <span class="icon"></span>
-            </div>
+        </div>
+        <!-- Generate Sub Button -->
+        <div class="henpGenSubPart">
+          <div class="wrap">
+            <div class="icon"></div>
+            <div class="text"><%= dicts.monitor.GENSUB %></div>
+            <button id="helpGenSub" class="btn btnMid"><%= dicts.common.GEN %></button>
           </div>
-          <!-- button part -->
-          <div class="btnSection">
-            <button id="udf-browseBtn" class="btn btnMid" type="button"><%= dicts.common.BROWSE %></button>
-            <input id="udf-fileBrowser"  spellcheck="false" type="file" style="display: none;">
-            <button id="udf-fileUpload" class="btn btnMid upload" type="button">
-              <span class="icon"></span>
-              <span class="text"><%= dicts.rightsideBar.upload %></span>
-            </button>
-          </div>
-        </section>
-        <!-- End of Write Function Section -->
-      </section>
-      <!-- End of Main Section -->
-    </div>
-  </section>
-
-  <!-- CLI Section -->
-  <section id="cliSection" class="rightBarSection">
-    <header class="heading draggable">
-      <h2>CLI</h2>
-    </header>
-    <div class="rightBarContent">
-      <div class="textBoxContainer">
-        <div spellcheck="false" class="lineArea"></div>
-        <div class="cliArea"></div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Scratch Pad Section -->
- <!--  <section id="scratchPadSection" class="rightBarSection">
-    <header class="heading">
-      <h2>ScratchPad</h2>
-    </header>
-    <div class="rightBarContent">
-      <div class="textBoxContainer">
-        <div spellcheck="false" class="lineArea"></div>
-        <div class="cliArea">
         </div>
       </div>
-    </div>
-  </section> -->
-
-  <!-- Help Section -->
-  <section id="helpSection" class="rightBarSection no-selection">
-    <header class="heading draggable">
-      <h2><%= dicts.rightsideBar.Help %></h2>
-    </header>
-    <div class="rightBarContent">
-      <!-- Help Search -->
-      <form id="helpSearchArea" class="clearfix" action="index.html">
-        <!-- <input id="helpSearch" name="q" type="text" -->
-        <input id="helpSearch" type="text"
-          spellcheck="false" placeholder="Type in your question..."
-          autocomplete="off">
-          <div id="helpSubmit" class="icon">
-          </div>
-      </form>
-      <div class="border"></div>
-      <!-- Help Result -->
-      <div id="helpResults" class="helpBox">
-        <div class="categoryArea">
-          <div class="mainHeading">Help Topics</div>
-        </div>
-        <div class="resultsArea">
-          <span class="noResults"><%= dicts.rightsideBar.useSearch %><br/><a href="assets/help/Content/Home.htm" target="xchelp" class="visitHelpGuide"><%= dicts.rightsideBar.visitHelp %></a></span>
-          <div id="tipue_search_content"></div>
-        </div>
-      </div>
-      <!-- Help On Off Button -->
-      <div class="helpOnOffWrap">
-        <div id="helpOnOff" class="onOffBtn on off">
-          <div class="slider"></div>
-          <div class="text offText"><%= dicts.common.OFF %></div>
-          <div class="text onText"><%= dicts.common.ON %></div>
-        </div>
-        <div class="text"><%= dicts.rightsideBar.InPageHelp %></div>
-      </div>
-      <!-- Intro Tutorials -->
-      <div id="helpTopics" class="helpBox">
-        <div>
-          <ul>
-            <span><%= dicts.rightsideBar.Walkthrough %>:</span>
-            <li id="workbookWT" class="walkthrough">
-              <span><%= dicts.rightsideBar.wkbkTutor %></span>
-            </li>
-            <li id="datastoreWT1" class="walkthrough">
-              <span><%= dicts.rightsideBar.dsTutor1 %></span>
-            </li>
-            <li id="datastoreWT2" class="walkthrough">
-              <span><%= dicts.rightsideBar.dsTutor2 %></span>
-            </li>
-          </ul>
-        </div>
-      </div>
-      <!-- Generate Sub Button -->
-      <div class="henpGenSubPart">
-        <div class="wrap">
-          <div class="icon"></div>
-          <div class="text"><%= dicts.monitor.GENSUB %></div>
-          <button id="helpGenSub" class="btn btnMid"><%= dicts.common.GEN %></button>
-        </div>
-      </div>
-    </div>
-  </section>
-
+    </section>
+  </div>
   <div class="topBorder"></div>
   <div id="pulloutTab"></div>
   <div id="sideBarModal"></div>
 </div>
-<!-- End Of Rightsidebar
+<!-- End Of Rightsidebar -->

@@ -659,7 +659,7 @@ window.TestSuite = (function($, TestSuite) {
             $li.find(".addTableBtn").click();
 
             $("#submitOrphanedTablesBtn").click();
-            $("#rightSideBar .iconClose").click();
+            $("#rightSideBar .close").click();
             $("#worksheetTabs .worksheetTab:first-child")
                                                 .trigger(fakeEvent.mousedown);
             return (checkExists(".xcTableWrap:eq(2) .tableTitle " +
