@@ -84,6 +84,10 @@ window.RightSideBar = (function($, RightSideBar) {
         var poppedOut = false;
         var rightSideBarIsSmall = false;
         var smallWidth = 425;
+        var udfEditorVisible = false;
+        var $udfSection = $('#udfSection');
+        var $udfFnSection = $('#udf-fnSection');
+        var editor; // cannot assign it here because may not be ready
 
         $rightSideBar.resizable({
             "handles"  : "n, e, s, w, se",
@@ -94,6 +98,12 @@ window.RightSideBar = (function($, RightSideBar) {
                     poppedOut = false;
                 } else {
                     poppedOut = true;
+                }
+
+                udfEditorVisible = $udfSection.hasClass('active') &&
+                                   !$udfFnSection.hasClass('hidden');
+                if (udfEditorVisible) {
+                    editor = UDF.getEditor();
                 }
 
                 // set boundaries so it can't resize past window
@@ -135,6 +145,9 @@ window.RightSideBar = (function($, RightSideBar) {
                 } else {
                     $rightSideBar.addClass('small');
                 }
+                if (udfEditorVisible) {
+                    editor.refresh();
+                }
             },
             "resize": function(event, ui) {
                 if (ui.size.width > smallWidth) {
@@ -145,6 +158,9 @@ window.RightSideBar = (function($, RightSideBar) {
                 } else if (!rightSideBarIsSmall) {
                     rightSideBarIsSmall = true;
                     $rightSideBar.addClass('small');
+                }
+                if (udfEditorVisible) {
+                    editor.refresh();
                 }
 
                 if (!poppedOut) {
