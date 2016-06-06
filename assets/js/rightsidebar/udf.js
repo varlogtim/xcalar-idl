@@ -396,7 +396,7 @@ window.UDF = (function($, UDF) {
             .then(function() {
                 UDF.storePython(moduleName, entireString);
                 KVStore.commit();
-                uploadSuccess();
+                xcHelper.showSuccess();
 
                 // clearance
                 if (isFnInputSection) {
@@ -428,17 +428,6 @@ window.UDF = (function($, UDF) {
                     xcHelper.toggleBtnInProgress($fnUpload);
                 } else {
                     clearTimeout(timer);
-                }
-            });
-        }
-
-        function uploadSuccess() {
-            Alert.show({
-                "title"   : SideBarTStr.UpoladUDF,
-                "msg"     : SideBarTStr.UploadUDFMsg,
-                "isAlert" : true,
-                "onCancel": function() {
-                    $("#udfBtn").parent().click();
                 }
             });
         }
