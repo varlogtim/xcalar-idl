@@ -41,26 +41,17 @@ window.MultiCastModal = (function($, MultiCastModal) {
         });
 
         $modal.on("click", ".confirm", function() {
-            var len = newColTypes.length;
-            var colTypeInfos = [];
-
-            for (var colNum = 1; colNum < len; colNum++) {
-                var newType = newColTypes[colNum];
-
-                if (newType == null || newType === colTypes[colNum]) {
-                    continue;
+            var isValid = xcHelper.validate([{
+                "$selector": $("#multiCast-result"),
+                "text"     : MultiCastTStr.NoCast,
+                "check"    : function() {
+                    return ($("#multiCast-result .row").length === 0);
                 }
+            }]);
 
-                colTypeInfos.push({
-                    "colNum": colNum,
-                    "type"  : newType
-                });
+            if (isValid) {
+                submitForm();
             }
-
-            if (colTypeInfos.length > 0) {
-                ColManager.changeType(colTypeInfos, curTableId);
-            }
-            closeMultiCastModal();
         });
 
         $("#multiCast-clear").click(function() {
@@ -138,6 +129,29 @@ window.MultiCastModal = (function($, MultiCastModal) {
         colTypes = [];
         recTypes = [];
         curTableId = null;
+    }
+
+    function submitForm() {
+        var len = newColTypes.length;
+        var colTypeInfos = [];
+
+        for (var colNum = 1; colNum < len; colNum++) {
+            var newType = newColTypes[colNum];
+
+            if (newType == null || newType === colTypes[colNum]) {
+                continue;
+            }
+
+            colTypeInfos.push({
+                "colNum": colNum,
+                "type"  : newType
+            });
+        }
+
+        if (colTypeInfos.length > 0) {
+            ColManager.changeType(colTypeInfos, curTableId);
+        }
+        closeMultiCastModal();
     }
 
     function selectCols($ths) {

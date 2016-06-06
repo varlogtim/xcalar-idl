@@ -508,7 +508,7 @@ module.exports = {
 
     multiCastModal: {
         'header': 'Smart Cast',
-        'instr': 'Select the columns you want to cast by clicking on the dropdown menu. "Smart Cast" will scan through all the columns and recommend casts. Casts that are machine recommended will be in blue. User casts are in green. To remove a column from the cast operation, click on the column name to focus on the column and click on the check mark next to the column name.',
+        'instr': 'Select the columns you want to cast by clicking on the dropdown menu. "Smart Cast" will scan through all the columns and recommend casts. Casts that are machine recommended will be in blue. User casts are in green. To remove a column from the cast operation, click on the column name.',
         'CastResult': 'Cast Result',
         'ColName': 'Column Name',
         'NewType': 'New Type',

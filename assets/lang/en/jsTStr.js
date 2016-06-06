@@ -350,7 +350,8 @@ MultiCastTStr = {
     'NoRec': 'No smart cast recommendation',
     'SelectCol': 'please select columns you want to cast.',
     'SmartRes': 'Smart Cast Result',
-    'CastRes': 'Cast Result'
+    'CastRes': 'Cast Result',
+    'NoCast': 'No column to cast.'
 };
 
 ProfileTStr = {
