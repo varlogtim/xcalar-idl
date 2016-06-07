@@ -138,12 +138,16 @@ window.xcFunction = (function($, xcFunction) {
                 "val": value
             });
 
-            Alert.show({
-                "title"  : title,
-                "instr"  : instr,
-                "msg"    : alertMsg,
-                "isAlert": true
-            });
+            // dealy the show, because if it's too fast, ops modal may
+            // not close yet
+            setTimeout(function() {
+                Alert.show({
+                    "title"  : title,
+                    "instr"  : instr,
+                    "msg"    : alertMsg,
+                    "isAlert": true
+                });
+            }, 200);
 
             deferred.resolve();
         })
