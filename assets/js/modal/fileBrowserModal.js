@@ -24,6 +24,7 @@ window.FileBrowser = (function($, FileBrowser) {
     };
     var dsIconHeight = 72;
     var oldBrowserError = "Deferred From Old Browser";
+    var fileLenLimit = 1200;
     /* End Of Contants */
 
     var defaultPath = defaultFilePath;
@@ -786,6 +787,11 @@ window.FileBrowser = (function($, FileBrowser) {
     }
 
     function sortFilesBy(key, regEx) {
+        if (allFiles.length > fileLenLimit) {
+            oversizeHandler();
+            return;
+        }
+
         curFiles = allFiles;
         if (regEx) {
             sortRegEx = regEx;
@@ -793,6 +799,7 @@ window.FileBrowser = (function($, FileBrowser) {
         } else {
             sortRegEx = undefined; // default
         }
+
         if (key) {
             sortKey = key;
             curFiles = sortFiles(curFiles, key);
@@ -803,6 +810,13 @@ window.FileBrowser = (function($, FileBrowser) {
             curFiles.reverse();
         }
         getHTMLFromFiles(curFiles);
+    }
+
+    function oversizeHandler() {
+        var html = '<div class="error">' +
+                    '<div>' + 'Too many files in the folder, cannot read' + '</div>' +
+                   '</div>';
+        $container.html(html);
     }
 
     function filterFiles(files, regEx) {

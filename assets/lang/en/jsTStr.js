@@ -421,7 +421,8 @@ DSTStr = {
     // with replace
     'DelDSConfirm': 'Are you sure you want to delete dataset <ds> ?',
     'DelUneditable': 'This <ds> is uneditable, cannot delete',
-    'DSSourceHint': 'Please try another path or use another protocol'
+    'DSSourceHint': 'Please try another path or use another protocol',
+    'FileOversize': 'Too many files in the folder, cannot read, please load with the url directly'
 };
 
 DSFormTStr = {
