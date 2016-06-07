@@ -240,12 +240,16 @@ window.UDF = (function($, UDF) {
                 $li.addClass("selected");
                 var moduleName = $li.text();
 
+                StatusBox.forceHide();
                 $template.val(moduleName);
 
                 if ($li.attr("name") === "blank") {
+                    $fnName.val("");
                     $downloadBtn.addClass("disabled");
                     editor.setValue(udfDefault);
                 } else {
+                    // auto-fill moduleName
+                    $fnName.val(moduleName);
                     $downloadBtn.removeClass("disabled");
                     getEntireUDF(moduleName)
                     .then(function(entireString) {
@@ -399,11 +403,17 @@ window.UDF = (function($, UDF) {
                 xcHelper.showSuccess();
 
                 // clearance
-                if (isFnInputSection) {
-                    $fnName.val("");
-                    $template.val("");
-                    $downloadBtn.addClass("disabled");
-                } else {
+                // if (isFnInputSection) {
+                //     $fnName.val("");
+                //     $template.val("");
+                //     $downloadBtn.addClass("disabled");
+                // } else {
+                //     $browserBtn.val("");
+                //     $filePath.val("");
+                // }
+
+                // keep in the module if isFnInputSection
+                if (!isFnInputSection) {
                     $browserBtn.val("");
                     $filePath.val("");
                 }
