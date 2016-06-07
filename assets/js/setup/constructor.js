@@ -1630,9 +1630,21 @@ Corrector.prototype = {
 /* End of Corrector */
 
 /* SearchBar */
+/*
+ * options:
+ * ignore: string or number, if ignore value is present in input, searching
+ *         will not occur
+ * removeSelected: function, callback for removing highlighted text
+ * highlightSelected: function, callback for highlighted text
+ * scrollMatchIntoView: function, callback for scrolling to a highlighted match
+ * arrowsPreventDefault: boolean, if true, preventDefault & stopPropagation will
+                         be applied to the search arrows
+ * codeMirror: codeMirror object
+ * $input: jquery input, will search for 'input' in $searchArea by default
+ */
+
 function SearchBar($searchArea, options) {
     this.$searchArea = $searchArea;
-    this.$searchInput = $searchArea.find('input');
     this.$counter = $searchArea.find('.counter');
     this.$position = this.$counter.find('.position');
     this.$total = this.$counter.find('.total');
@@ -1643,6 +1655,16 @@ function SearchBar($searchArea, options) {
     this.matchIndex = null;
     this.numMatches = 0;
     this.$matches = [];
+
+    if (options.codeMirror) {
+        this.$searchInput = options.$input;
+        this.codeMirror = options.codeMirror;
+    } else {
+        this.$searchInput = $searchArea.find('input');
+    }
+
+
+
     return this;
 }
 
@@ -1650,65 +1672,95 @@ SearchBar.prototype = {
     setup: function() {
         var searchBar = this;
         var options = searchBar.options || {};
-        var $searchInput = searchBar.$searchInput;
+        var $searchInput;
+        if (options.codeMirror) {
+            $searchInput = searchBar.codeMirror;
+        } else {
+            $searchInput = searchBar.$searchInput;
+        }
 
-        $searchInput.on({
-            "keydown": function(event) {
-                if (searchBar.numMatches === 0) {
+        // secondaryEvent is the event passed in by codemirror
+        function handleKeyDownEvent(event, secondaryEvent) {
+            if (searchBar.numMatches === 0) {
+                return;
+            }
+            var e;
+            if (searchBar.codeMirror) {
+                e = secondaryEvent;
+            } else {
+                e = event;
+            }
+
+            // console.log(event, b);
+            if (e.which === keyCode.Up ||
+                e.which === keyCode.Down ||
+                e.which === keyCode.Enter) {
+                var val;
+                if (searchBar.codeMirror) {
+                    val = searchBar.codeMirror.getValue();
+                } else {
+                    val = $searchInput.val();
+                }
+                val = val.trim();
+                // if ignore value exists in the input, do not search
+                if (options.ignore && val.indexOf(options.ignore) !== -1) {
                     return;
                 }
-                if (event.which === keyCode.Up ||
-                    event.which === keyCode.Down ||
-                    event.which === keyCode.Enter) {
-                    // if ignore value exists in the input, do not search
-                    if (options.ignore &&
-                        $searchInput.val().trim()
-                                    .indexOf(options.ignore) !== -1) {
-                        return;
+
+                if (e.preventDefault) {
+                    e.preventDefault();
+                }
+                var $matches = searchBar.$matches;
+
+                if (e.which === keyCode.Up) {
+                    searchBar.matchIndex--;
+                    if (searchBar.matchIndex < 0) {
+                        searchBar.matchIndex = searchBar.numMatches - 1;
                     }
 
-                    if (event.preventDefault) {
-                        event.preventDefault();
-                    }
-                    var $matches = searchBar.$matches;
-
-                    if (event.which === keyCode.Up) {
-                        searchBar.matchIndex--;
-                        if (searchBar.matchIndex < 0) {
-                            searchBar.matchIndex = searchBar.numMatches - 1;
-                        }
-
-                    } else if (event.which === keyCode.Down ||
-                               event.which === keyCode.Enter) {
-                        searchBar.matchIndex++;
-                        if (searchBar.matchIndex >= searchBar.numMatches) {
-                            searchBar.matchIndex = 0;
-                        }
-                    }
-                    if (options.removeSelected) {
-                        options.removeSelected();
-                    }
-                    var $selectedMatch = $matches.eq(searchBar.matchIndex);
-                    if (options.highlightSelected) {
-                        options.highlightSelected($selectedMatch);
-                    }
-                    $selectedMatch.addClass('selected');
-                    searchBar.$position.html(searchBar.matchIndex + 1);
-                    if (options.scrollMatchIntoView) {
-                        options.scrollMatchIntoView($selectedMatch);
+                } else if (e.which === keyCode.Down ||
+                           e.which === keyCode.Enter) {
+                    searchBar.matchIndex++;
+                    if (searchBar.matchIndex >= searchBar.numMatches) {
+                        searchBar.matchIndex = 0;
                     }
                 }
+                if (options.removeSelected) {
+                    options.removeSelected();
+                }
+                var $selectedMatch = $matches.eq(searchBar.matchIndex);
+                if (options.highlightSelected) {
+                    options.highlightSelected($selectedMatch);
+                }
+                $selectedMatch.addClass('selected');
+                searchBar.$position.html(searchBar.matchIndex + 1);
+                if (options.scrollMatchIntoView) {
+                    options.scrollMatchIntoView($selectedMatch);
+                }
             }
+        }
+        // secondaryEvent is the event passed in by codemirror
+        $searchInput.on("keydown", function(event, secondaryEvent) {
+           handleKeyDownEvent(event, secondaryEvent);
         });
 
         searchBar.$downArrow.click(function() {
             var evt = {which: keyCode.Down, type: 'keydown'};
-            $searchInput.trigger(evt);
+            if (searchBar.codeMirror) {
+                handleKeyDownEvent(evt, evt);
+            } else {
+                $searchInput.trigger(evt);
+            }
+
         });
 
         searchBar.$upArrow.click(function() {
             var evt = {which: keyCode.Up, type: 'keydown'};
-            $searchInput.trigger(evt);
+            if (searchBar.codeMirror) {
+                handleKeyDownEvent(evt, evt);
+            } else {
+                $searchInput.trigger(evt);
+            }
         });
 
         if (options.arrowsPreventDefault) {
@@ -1751,7 +1803,11 @@ SearchBar.prototype = {
         searchBar.$matches = [];
         searchBar.numMatches = 0;
         if (!options || !options.keepVal) {
-            searchBar.$searchInput.val("");
+            if (searchBar.codeMirror) {
+                searchBar.codeMirror.setValue("");
+            } else {
+                searchBar.$searchInput.val("");
+            }
         }
 
         if (typeof callback === "function") {

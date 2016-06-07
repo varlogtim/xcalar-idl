@@ -1,171 +1,134 @@
 window.FnBar = (function(FnBar, $) {
     var $functionArea; // $("#functionArea");
     var $fnBar;        // $("#fnBar");
-    var $fnBarClone;   // $('.fnBarClone');
+    var $editor; // $('#functionArea .CodeMirror')
 
     var $lastColInput = null;
     var searchHelper;
 
     FnBar.setup = function() {
         $functionArea = $("#functionArea");
-        $fnBar = $("#fnBar");
-        $fnBarClone = $functionArea.find('.fnBarClone');
+
+        editor = CodeMirror.fromTextArea($('#fnBar')[0], {
+            "mode": "spreadsheetCustom",
+            "indentWithTabs": true,
+            "indentUnit"    : 4,
+            "matchBrackets" : true,
+            "placeholder": WSTStr.SearchTableAndColumn,
+            "autoCloseBrackets": true
+        });
+
+        $(window).blur(function() {
+            editor.getInputField().blur();
+            editor.getInputField().blur();
+        });
+
+        $functionArea.find('pre').addClass('fnbarPre');
+
+        $fnBar = $('#functionArea .CodeMirror');
+
+        $editor = $('#functionArea .CodeMirror');
         setupSearchHelper();
         var initialTableId; //used to track table that was initially active
         // when user started searching
-        var skipParen; // state for moving cursor if next char is ) and
-                       // user presses )
 
-        $fnBar.on({
-            "input": function() {
-                var val = $(this).val();
-                var trimmedVal = val.trim();
-                if (trimmedVal.indexOf('=') !== 0) {
-                    $functionArea.addClass('searching');
-                    var args = {
-                        "value"         : trimmedVal,
-                        "searchBar"     : searchHelper,
-                        "initialTableId": initialTableId
-                    };
-                    ColManager.execCol("search", null, null, null, args);
-                    $lastColInput = null;
-                } else {
-                    $functionArea.removeClass('searching');
-                }
-                highlightBrackets();
-            },
-            "keydown": function(event) {
-                if (event.which === keyCode.Backspace) {
-                    var oldStr = $fnBar.val();
-                    var oldCaret = $fnBar.caret();
-                    var prevChar = oldStr[oldCaret - 1];
-                    var nextIsBracket = oldStr.substring(oldCaret);
+        editor.on("keydown", function(instance, event) {
+            if (event.which !== keyCode.Enter) {
+                return;
+            }
+            var val = editor.getValue();
+            var mismatch = xcHelper.checkMatchingBrackets(val);
 
-                    // remove opening and closing paren if nothing in between
-                    if (nextIsBracket.indexOf(")") === 0 &&
-                        prevChar === "(") {
-                        // Immediate close bracket
-                        $fnBar.val(oldStr.substring(0, oldCaret) +
-                                   oldStr.substring(oldCaret + 1));
-                        $fnBar.caret(oldCaret);
-                        highlightBrackets();
-                    }
-                }
-            },
-            "keypress": function(event) {
-                if (event.which === 40) {
-                    // Open paren
-                    var oldStr = $fnBar.val();
-                    var oldCaret = $fnBar.caret();
-                    var valInFrontCaret = oldStr[oldCaret];
+            if (mismatch.index === -1) {
+                functionBarEnter();
+            } else {
+                var savedStr = editor.getValue();
+                var savedColInput = $lastColInput;
+                var funcStr = "\"" + val.slice(0, mismatch.index) +
+                                "<span style='color:red;" +
+                                "font-weight:bold;'>" +
+                                mismatch.char + "</span>" +
+                                val.slice(mismatch.index + 1) + "\"";
 
-                    // autoclose parenthesis
-                    if (valInFrontCaret === undefined ||
-                        valInFrontCaret === " " ||
-                        valInFrontCaret === ")") {
-                        var newStr = oldStr.substring(0, oldCaret) +
-                                 ")" + oldStr.substring(oldCaret);
-                        $fnBar.val(newStr);
-                        $fnBar.caret(oldCaret);
-                        highlightBrackets();
-                        skipParen = true;
-                    } else {
-                        skipParen = false;
-                    }
-                } else if (event.which === 41) {
-                    // close paren
-                    // skip close parenthesis if cursor is before )
-                    if (skipParen) {
-                        var oldStr = $fnBar.val();
-                        var oldCaret = $fnBar.caret();
-                        if (oldStr[oldCaret] === ")") {
-                            $fnBar.caret(oldCaret + 1);
-                            event.preventDefault();
+                Alert.show({
+                    "title"      : AlertTStr.BracketsMis,
+                    "msgTemplate": ErrTStr.BracketsMis + "<br/>" + funcStr,
+                    "isAlert"    : true,
+                    "onCancel"   : function() {
+                        if (savedColInput) {
+                            savedColInput.trigger({
+                                type : "mousedown",
+                                which: 1
+                            });
+                            $fnBar.removeAttr("disabled");
+                            editor.setValue(savedStr);
+                            $fnBar.focus();
                         } else {
-                            console.warn('inspect this case', oldCaret, oldStr);
+                            $fnBar.removeAttr("disabled");
                         }
                     }
-                    skipParen = false;
+                });
 
-                } else if (event.which === keyCode.Enter) {
-                    skipParen = false;
-                    var val = $fnBar.val();
-                    var mismatch = xcHelper.checkMatchingBrackets(val);
-                    if (mismatch.index === -1) {
-                        functionBarEnter();
-                    } else {
-                        var savedStr = $fnBar.val();
-                        var savedColInput = $lastColInput;
-                        var funcStr = "\"" + val.slice(0, mismatch.index) +
-                                        "<span style='color:red;" +
-                                        "font-weight:bold;'>" +
-                                        mismatch.char + "</span>" +
-                                        val.slice(mismatch.index + 1) + "\"";
-
-                        Alert.show({
-                            "title"      : AlertTStr.BracketsMis,
-                            "msgTemplate": ErrTStr.BracketsMis + "<br/>" + funcStr,
-                            "isAlert"    : true,
-                            "onCancel"   : function() {
-                                if (savedColInput) {
-                                    savedColInput.trigger({
-                                        type : "mousedown",
-                                        which: 1
-                                    });
-                                    $fnBar.removeAttr("disabled");
-                                    $fnBar.val(savedStr);
-                                    highlightBrackets();
-                                    $fnBar.focus();
-                                } else {
-                                    $fnBar.removeAttr("disabled");
-                                }
-                            }
-                        });
-                        $fnBar.val(savedStr);
-                        highlightBrackets();
-                        $fnBar.prop("disabled", "true");
-                    }
-
-                }
-            },
-            "mousedown": function() {
-                $(this).addClass("inFocus");
-                $fnBar.attr('placeholder', WSTStr.SearchTableAndColumn);
-                skipParen = false;
-            },
-            "focus": function() {
-                initialTableId = gActiveTableId;
-                skipParen = false;
-            },
-            "blur": function() {
-                $(this).removeClass("inFocus");
-                $fnBar.attr('placeholder', "");
-                skipParen = false;
-
-                var keepVal = false;
-                if ($lastColInput) {
-                    keepVal = true;
-                }
-
-                var options = {keepVal: keepVal};
-                searchHelper.clearSearch(function() {
-                    $functionArea.removeClass('searching');
-                }, options);
+                editor.setValue(savedStr);
+                $fnBar.prop("disabled", "true");
             }
+
         });
 
-        $functionArea.on('mousedown', function(e) {
-            // keep fnbar focused even when you click outside of it
-            if ($(e.target).attr('id') === 'functionArea') {
-                e.preventDefault();
-                e.stopPropagation();
+        editor.on("mousedown", function() {
+            $fnBar.addClass("inFocus");
+            $fnBar.attr('placeholder', WSTStr.SearchTableAndColumn);
+            $fnBar.find('.CodeMirror-placeholder').show();
+        });
+        editor.on("focus", function() {
+            initialTableId = gActiveTableId;
+        });
+        editor.on("blur", function() {
+            $fnBar.removeClass("inFocus");
+             $fnBar.find('.CodeMirror-placeholder').hide();
+            if ($fnBar.hasClass('disabled')) {
+                // don't want to clear placeholder if focused on new column
+                return;
+            }
 
-                $('.menu').hide();
-                removeMenuKeyboardNavigation();
-                $('.highlightBox').remove();
+            var keepVal = false;
+            if ($lastColInput) {
+                keepVal = true;
+            }
 
-                gMouseEvents.setMouseDownTarget($fnBar);
-                $fnBar.focus();
+            var options = {keepVal: keepVal};
+            searchHelper.clearSearch(function() {
+                $functionArea.removeClass('searching');
+            }, options);
+        });
+
+
+        // disallow adding newlines
+        editor.on("beforeChange", function(instance, change) {
+        // remove ALL \n
+            var newtext = change.text.join("").replace(/\n/g, "");
+            change.update(change.from, change.to, [newtext]);
+            return true;
+        });
+
+        editor.on("change", function(instance, change) {
+            var val = editor.getValue();
+            var trimmedVal = val.trim();
+            if ($fnBar.hasClass('disabled')) {
+                $functionArea.removeClass('searching');
+                return;
+            }
+            if (trimmedVal.indexOf('=') !== 0) {
+                $functionArea.addClass('searching');
+                var args = {
+                    "value"         : trimmedVal,
+                    "searchBar"     : searchHelper,
+                    "initialTableId": initialTableId
+                };
+                ColManager.execCol("search", null, null, null, args);
+                $lastColInput = null;
+            } else {
+                $functionArea.removeClass('searching');
             }
         });
     };
@@ -186,15 +149,19 @@ window.FnBar = (function(FnBar, $) {
             if (!progCol.isNewCol) {
                 throw "Error Case, only new column can be editable";
             }
+            editor.setValue(FnBarTStr.NewCol);
+            $fnBar.addClass("disabled").removeClass('active');
+            var keepVal = false;
+            if ($lastColInput) {
+                keepVal = true;
+            }
 
-            $fnBar.val(FnBarTStr.NewCol).addClass("disabled")
-                                        .removeClass('active');
-            highlightBrackets();
+            $functionArea.removeClass('searching');
         } else {
             var userStr = progCol.userStr;
             userStr = userStr.substring(userStr.indexOf('='));
-            $fnBar.val(userStr).addClass('active').removeClass('disabled');
-            highlightBrackets();
+            editor.setValue(userStr);
+            $fnBar.addClass('active').removeClass('disabled');
             $fnBar.parent().removeClass('searching');
         }
     };
@@ -206,15 +173,15 @@ window.FnBar = (function(FnBar, $) {
             $fnBar.removeClass('disabled');
         }
         $lastColInput = null;
-        $fnBar.val("").removeClass("active");
-        highlightBrackets();
+        editor.setValue("");
+        $fnBar.removeClass("active");
     };
 
     function saveInput() {
         if (!$lastColInput || !$lastColInput.length) {
             return;
         }
-        var fnBarVal = $fnBar.val().trim();
+        var fnBarVal = editor.getValue().trim();
         if (fnBarVal.indexOf("=") === 0) {
             fnBarVal = fnBarVal.substring(1);
         } else {
@@ -265,6 +232,8 @@ window.FnBar = (function(FnBar, $) {
                                         ((mainFrameWidth - matchWidth) / 2));
                 }
             },
+            "codeMirror"          : editor,
+            "$input"              : $fnBar,
             "ignore"              : "=",
             "arrowsPreventDefault": true
         });
@@ -273,7 +242,7 @@ window.FnBar = (function(FnBar, $) {
     }
 
     function functionBarEnter() {
-        var fnBarVal = $fnBar.val();
+        var fnBarVal = editor.getValue();
         var fnBarValTrim = fnBarVal.trim();
         var $colInput = $lastColInput;
 
@@ -328,24 +297,6 @@ window.FnBar = (function(FnBar, $) {
         var operation = funcStr.substring(funcStr.indexOf("=") + 1).trim();
         operation = operation.substr(0, operation.indexOf("("));
         return (operation);
-    }
-
-    function highlightBrackets() {
-        // XX disabling due misalignment of highlight if input is scrolled
-        return;
-        // var val = $fnBar.val();
-        // if (val === "") {
-        //     $fnBarClone.empty();
-        //     return;
-        // }
-
-        // var mismatch = xcHelper.checkMatchingBrackets(val);
-        // if (mismatch.index > -1) {
-        //     var index = mismatch.index;
-        //     val = val.slice(0, index) + "<span>" + mismatch.char + "</span>" +
-        //     val.slice(index + 1);
-        // }
-        // $fnBarClone.html(val);
     }
 
     return (FnBar);

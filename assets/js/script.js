@@ -677,7 +677,13 @@ window.StartManager = (function(StartManager, $) {
                 $('.highlightBox').remove();
             }
 
-            if (!$target.is('#fnBar') && !$target.closest('.header').length) {
+            // some code mirror elements don't have parents for some reason
+            if (!$target.hasClass('fnbarPre') &&
+                !$target.hasClass('CodeMirror-cursor') &&
+                !$target.closest('.fnbarPre').length &&
+                !$target.closest('#functionArea').length &&
+                !$target.closest('.header').length) {
+
                 if ($target.closest('.selectedCell').length !== 0) {
                     return;
                 } else if ($target.attr('id') === 'mainFrame') {
@@ -700,9 +706,6 @@ window.StartManager = (function(StartManager, $) {
         $(window).blur(function() {
             $('.menu').hide();
             removeMenuKeyboardNavigation();
-            // fnBar will flicker if you click on it's parent then away from window
-            // then click on somewhere on the screen
-            $('#fnBar').blur();
         });
 
         if (!window.isBrowseChrome) {

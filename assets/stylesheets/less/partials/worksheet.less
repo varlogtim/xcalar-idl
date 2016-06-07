@@ -268,6 +268,11 @@
             #fnBar, .fnBarClone {
                 padding-right: 48px;
             }
+            .fnbarPre {
+                span {
+                    color: @color-text-fnBar-blue;
+                }
+            }
         }
         .counter {
             .position(absolute, @top: 5px, @right: 68px);
@@ -279,10 +284,125 @@
         .arrows {
             right: 16px;
             top: 3px;
+            z-index: 3; // codeMirror has z-index of 2
         }
 
         .closeBox, .counter, .arrows {
             display: none;
+        }
+
+        .CodeMirror {
+            .size(@width: ~"calc(100% - 28px)") !important;
+            margin-left: 4px;
+            height: 25px !important;
+            padding: 0 4px;
+            font-weight: bold;
+            line-height: 25px;
+            font-size: 14px;
+            .rounded;
+            font-family: @font-base;
+            background-color: @color-input-background;
+            color: @color-text-darkGray;
+
+            &.active {
+                background-color: @color-background-darkGray;
+                box-shadow: 0px 2px 2px 0 @color-defaultGray inset;
+            }
+
+            &.CodeMirror-focused {
+                background-color: @color-input-active;
+                color: @color-text-fnBar-blue;
+                box-shadow: 0px 2px 2px 0 @color-defaultGray inset;
+            }
+
+            &.disabled {
+                opacity: 0.7;
+                pointer-events: none;
+                .fnbarPre {
+                    color: @color-text-darkGray;
+                    span {
+                        color: @color-text-darkGray;
+                    }
+                }
+            }
+
+            pre {
+                padding-left: 0px;
+            }
+        }
+        .CodeMirror-gutter-wrapper {
+            display: none;
+        }
+        .CodeMirror-scroll {
+            overflow: hidden !important;
+        }
+        .CodeMirror-hscrollbar, .CodeMirror-vscrollbar {
+            display: none !important;
+        }
+        .CodeMirror-gutters {
+            display: none;
+        }
+        .CodeMirror-cursor {
+            height: 19px !important;
+            top: 3px !important;
+        }
+        .CodeMirror-lines {
+            height: 25px;
+            padding: 0px;
+        }
+        .CodeMirror-selected {
+            height: 18px !important;
+            top: 4px !important;
+        }
+        .CodeMirror-selected { background:  @color-table-preview-highlight;}
+        .CodeMirror-focused .CodeMirror-selected { background:  @color-table-preview-highlight;}
+        .CodeMirror ::selection { background:  @color-table-preview-highlight;}
+        .CodeMirror ::-moz-selection { background:  @color-table-preview-highlight;}
+        .CodeMirror-placeholder {
+            pointer-events: none;
+            color: @color-lightSilverChalice;
+            display: none;
+        }
+
+        .fnbarPre {
+            color: @color-text-fnBar-blue;
+            &.CodeMirror-placeholder {
+                color: @color-lightSilverChalice;
+            }
+        }
+
+        &:not(.searching) {
+            .CodeMirror:not(.disabled) {
+                .cm-keyword {
+                    color: @color-text-fnBar-blue;
+                }
+                .cm-xckeyword {
+                    // color: orange;
+                }
+                .cm-xcspecial { // booleans and null
+                    color: @color-json-num;
+                }
+                .cm-string {
+                    color: @color-json-string;
+                }
+                .cm-number {
+                    color: @color-json-num;
+                }
+                .cm-bracket {
+                    color: @color-text-fnBar-blue;
+                }
+                .CodeMirror-nonmatchingbracket {
+                    color: red;
+                }
+                .cm-variable-2, .cm-error {
+                    color: @color-text-blue;
+                }
+                .cm-atom {
+                    color: @color-text-fnBar-blue;
+                }
+
+            }
+
         }
     }
 

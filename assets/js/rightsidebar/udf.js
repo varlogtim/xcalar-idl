@@ -148,7 +148,8 @@ window.UDF = (function($, UDF) {
             "lineNumbers"   : true,
             "indentWithTabs": true,
             "indentUnit"    : 4,
-            "matchBrackets" : true
+            "matchBrackets" : true,
+            "autoCloseBrackets": true
         });
 
         editor.setValue(udfDefault);
