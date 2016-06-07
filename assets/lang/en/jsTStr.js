@@ -171,6 +171,8 @@ ErrTStr = {
 
     'ColInModal': 'Please input a column name that starts with $',
 
+    'NoMultiCol': 'This field only accept one column.',
+
     'NoBucketOnStr': 'Column type is string, cannot bucket into range.',
 
     'ParamInUse': 'Cannot delete, this parameter is in use.',

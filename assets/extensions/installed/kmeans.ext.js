@@ -21,9 +21,21 @@ window.UExtKMeans = (function(UExtKMeans, $) {
         "buttonText"   : "K-Means Clustering",
         "fnName"       : "kMeans",
         "arrayOfFields": [{
+            "type"      : "column",
+            "name"      : "KMeans Columns",
+            "fieldClass": "colList",
+            "typeCheck" : {
+                "columnType" : "number",
+                "multiColumn": true
+            }
+        },
+        {
             "type"      : "number",
             "name"      : "Number of clusters",
-            "fieldClass": "k"
+            "fieldClass": "k",
+            "typeCheck" : {
+                "integer": true
+            }
         },
         {
             "type"      : "number",
@@ -33,11 +45,14 @@ window.UExtKMeans = (function(UExtKMeans, $) {
         {
             "type"      : "number",
             "name"      : "Max Iterations",
-            "fieldClass": "maxIter"
+            "fieldClass": "maxIter",
+            "typeCheck" : {
+                "integer": true
+            }
         }]
     }];
 
-    UExtKMeans.actionFn = function(txId, colList, tableId, functionName, argList) {
+    UExtKMeans.actionFn = function(txId, colNum, tableId, functionName, argList) {
         var table = gTables[tableId];
         var colNames = [];
         var tableName = table.tableName;
@@ -46,28 +61,12 @@ window.UExtKMeans = (function(UExtKMeans, $) {
         var tmpTableTag = "_" + tableNameRoot + "_" + "kMeansTmpTable";
         switch (functionName) {
             case ("kMeans"):
-                // XXX later should change this as an input filed in modal
-                if (typeof(colList) == "number") {
-                    var col = table.tableCols[colList - 1];
-                    if (col.type != "integer" && col.type != "float") {
-                        return PromiseHelper.reject("Column must be a number");
-                    }
-                    colNames.push(col.getBackColName());
-                } else {
-                    for (var i = 0; i < colList.length; i++) {
-                        var col = table.tableCols[colList[i] - 1];
-                        if (col.type != "integer" && col.type != "float") {
-                            return PromiseHelper.reject("Column must be a number");
-                        }
-                        colNames.push(col.getBackColName());
-                    }
-                }
-                if (colList.length && colNames.length != colList.length) {
-                    return PromiseHelper.reject("Invalid arguments");
+                var colList = argList.colList;
+                for (var i = 0; i < colList.length; i++) {
+                    colNames.push(colList[i].getName());
                 }
                 return kMeansStart(txId, colNames, tableName, argList["k"],
-                            argList["threshold"], argList["maxIter"]
-                           );
+                            argList["threshold"], argList["maxIter"]);
             default:
                 return PromiseHelper.reject("Invalid Function");
         }

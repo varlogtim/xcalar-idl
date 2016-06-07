@@ -180,6 +180,16 @@ window.ExtensionOpModal = (function(ExtensionOpModal, $) {
             arg = getColInfo(arg, typeCheck.columnType, $input);
             if (arg == null) {
                 return { "vaild": false };
+            } else if (!typeCheck.multiColumn &&
+                        arg instanceof Array &&
+                        arg.length > 0) {
+                StatusBox.show(ErrTStr.NoMultiCol, $input);
+                return { "vaild": false };
+            }
+
+            if (typeCheck.multiColumn && !(arg instanceof Array)) {
+                // if set multiColumn to be true, then always return array
+                arg = [arg];
             }
         } else if (argType === "number") {
             arg = Number(arg);
@@ -225,7 +235,7 @@ window.ExtensionOpModal = (function(ExtensionOpModal, $) {
             validType = [validType];
         }
 
-        for (var i = 0; i < tempColNames.length; i++) {
+        for (var i = 0, len = tempColNames.length; i < len; i++) {
             var progCol = table.getColByFrontName(tempColNames[i].trim());
             if (progCol != null) {
                 var colType = progCol.getType();
