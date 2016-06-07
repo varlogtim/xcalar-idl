@@ -38,7 +38,6 @@ window.UExtIntel = (function(UExtIntel, $) {
         "arrayOfFields": []
     }];
 
-    UExtIntel.undoActionFn = undefined;
     UExtIntel.actionFn = function(txId, colNum, tableId, functionName, argList) {
         var table = gTables[tableId];
         var colName = table.tableCols[colNum - 1].name;

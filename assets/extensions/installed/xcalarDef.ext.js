@@ -59,7 +59,6 @@ window.UExtXcalarDef = (function(UExtXcalarDef, $) {
         }]
     }];
 
-    UExtXcalarDef.undoActionFn = undefined;
     UExtXcalarDef.actionFn = function(functionName) {
         switch (functionName) {
             case ("hPartition"):

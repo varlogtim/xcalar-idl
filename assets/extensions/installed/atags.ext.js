@@ -5,7 +5,6 @@ window.UExtATags = (function(UExtATags, $) {
         "arrayOfFields": []
     }];
 
-    UExtATags.undoActionFn = undefined;
     UExtATags.actionFn = function(txId, colNum, tableId, functionName, argList) {
         var $cellMenu = $("#cellMenu");
         if ($cellMenu.find(".tdLink").length === 0) {

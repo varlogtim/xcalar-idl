@@ -36,7 +36,7 @@ window.UExtKMeans = (function(UExtKMeans, $) {
             "fieldClass": "maxIter"
         }]
     }];
-    UExtKMeans.undoActionFn = undefined;
+
     UExtKMeans.actionFn = function(txId, colList, tableId, functionName, argList) {
         var table = gTables[tableId];
         var colNames = [];
@@ -44,7 +44,6 @@ window.UExtKMeans = (function(UExtKMeans, $) {
         var tableNameRoot = tableName.split("#")[0];
         // all temporary tables will have this tag appended in tableName
         var tmpTableTag = "_" + tableNameRoot + "_" + "kMeansTmpTable";
-
         switch (functionName) {
             case ("kMeans"):
                 // XXX later should change this as an input filed in modal

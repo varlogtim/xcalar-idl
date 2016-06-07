@@ -6,7 +6,6 @@ window.UExtTableau = (function(UExtTableau, $) {
         "arrayOfFields": []
     }];
 
-    UExtTableau.undoActionFn = undefined;
     UExtTableau.actionFn = function(txId, colNum, tableId, functionName, argList) {
         var waitTime = 45;
         switch (functionName) {

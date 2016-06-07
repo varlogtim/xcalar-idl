@@ -57,7 +57,6 @@ window.UExtNN = (function(UExtNN, $) {
         }]
     }];
 
-    UExtNN.undoActionFn = undefined;
     UExtNN.actionFn = function(txId, colList, tableId, functionName, argList) {
         var table = gTables[tableId];
         var tableName = table.tableName;

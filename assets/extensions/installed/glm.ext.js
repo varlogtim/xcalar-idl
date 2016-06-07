@@ -24,6 +24,7 @@ window.UExtGLM = (function(UExtGLM, $) {
             "type"      : "column",
             "name"      : "column 1",
             "fieldClass": "col1",
+            "autofill"  : true,
             "typeCheck" : {
                 "columnType": ["number"]
             }
@@ -38,7 +39,6 @@ window.UExtGLM = (function(UExtGLM, $) {
         }]
     }];
 
-    UExtGLM.undoActionFn = undefined;
     UExtGLM.actionFn = function(txId, colNum, tableId, functionName, argList) {
         var table = gTables[tableId];
         var tableName = table.tableName;
@@ -46,8 +46,8 @@ window.UExtGLM = (function(UExtGLM, $) {
         var tmpTableTag = "_" + tableNameRoot + "_GLMtemp";
         switch (functionName) {
             case ("simpleLinearRegression"):
-                var xCol = argList['col1'];
-                var yCol = argList['col2'];
+                var xCol = argList['col1'].getName();
+                var yCol = argList['col2'].getName();
                 return simpleLinearRegression(xCol, yCol, tableName);
             default:
                 return PromiseHelper.reject("Invalid Function");
