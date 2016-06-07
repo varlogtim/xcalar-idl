@@ -871,10 +871,65 @@ function XcalarRenameTable(oldTableName, newTableName, txId) {
     return (deferred.promise());
 }
 
+function XcalarFetchData(resultSetId, rowPosition, rowsToFetch, totalRows, data, tryCnt) {
+    var deferred = jQuery.Deferred();
+    if (tryCnt == null) {
+        tryCnt = 0;
+    }
+
+    // row position start with 0
+    XcalarSetAbsolute(resultSetId, rowPosition)
+    .then(function() {
+        return XcalarGetNextPage(resultSetId, rowsToFetch);
+    })
+    .then(function(tableOfEntries) {
+        var kvPairs = tableOfEntries.kvPair;
+        var numKvPairs = tableOfEntries.numKvPairs;
+        var numStillNeeds = 0;
+
+        if (numKvPairs < rowsToFetch) {
+            if (rowPosition + numKvPairs >= totalRows) {
+                numStillNeeds = 0;
+            } else {
+                numStillNeeds = rowsToFetch - numKvPairs;
+            }
+        }
+
+        kvPairs.forEach(function(kvPair) {
+            data.push(kvPair);
+        });
+
+        if (numStillNeeds > 0) {
+            if (tryCnt >= 20) {
+                console.warn("Too may tries, stop");
+                return PromiseHelper.resolve();
+            }
+
+            var newPosition;
+            if (numStillNeeds === rowsToFetch) {
+                // fetch 0 this time
+                newPosition = rowPosition + 1;
+                console.warn("cannot fetch position", rowPosition);
+            } else {
+                newPosition = rowPosition + numKvPairs;
+            }
+
+            return XcalarFetchData(resultSetId, newPosition, numStillNeeds,
+                                    totalRows, data, tryCnt + 1);
+        }
+    })
+    .then(function() {
+        deferred.resolve(data);
+    })
+    .fail(deferred.reject);
+
+    return deferred.promise();
+}
+
 function XcalarSample(datasetName, numEntries) {
     var deferred = jQuery.Deferred();
     if (insertError(arguments.callee, deferred)) {
-        return (deferred.promise());
+        return deferred.promise();
     }
     var totalEntries = 0;
     XcalarMakeResultSetFromDataset(datasetName)
@@ -884,9 +939,9 @@ function XcalarSample(datasetName, numEntries) {
         totalEntries = result.numEntries;
         gDatasetBrowserResultSetId = resultSetId;
         if (totalEntries === 0) {
-            return (deferred.resolve());
+            return deferred.resolve();
         } else {
-            return (XcalarGetNextPage(resultSetId, numEntries));
+            return XcalarFetchData(resultSetId, 0, numEntries, totalEntries, []);
         }
     })
     .then(function(tableOfEntries) {
@@ -898,7 +953,7 @@ function XcalarSample(datasetName, numEntries) {
         deferred.reject(thriftError);
     });
 
-    return (deferred.promise());
+    return deferred.promise();
 }
 
 // Not being called. We just use make result set's output

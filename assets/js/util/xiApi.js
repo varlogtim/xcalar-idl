@@ -316,11 +316,14 @@ window.XIApi = (function(XIApi, $) {
             // startRowNum starts with 1, rowPosition starts with 0
             var rowPosition = startRowNum - 1;
             rowsToFetch = Math.min(rowsToFetch, totalRows);
-            return fetchDataHelper(resultSetId, rowPosition, rowsToFetch,
+            return XcalarFetchData(resultSetId, rowPosition, rowsToFetch,
                                    totalRows, [], 0);
         })
-        .then(function(resData) {
-            finalData = resData;
+        .then(function(result) {
+            finalData = [];
+            for (var i = 0, len = result.length; i < len; i++) {
+                finalData.push(result[i].value);
+            }
             return XcalarSetFree(resultSetId);
         })
         .then(function() {
@@ -385,57 +388,6 @@ window.XIApi = (function(XIApi, $) {
 
         return deferred.promise();
     };
-
-    function fetchDataHelper(resultSetId, rowPosition, rowsToFetch, totalRows, data, tryCnt) {
-        var deferred = jQuery.Deferred();
-
-        XcalarSetAbsolute(resultSetId, rowPosition)
-        .then(function() {
-            return XcalarGetNextPage(resultSetId, rowsToFetch);
-        })
-        .then(function(tableOfEntries) {
-            var kvPairs = tableOfEntries.kvPair;
-            var numKvPairs = tableOfEntries.numKvPairs;
-            var numStillNeeds = 0;
-
-            if (numKvPairs < rowsToFetch) {
-                if (rowPosition + numKvPairs >= totalRows) {
-                    numStillNeeds = 0;
-                } else {
-                    numStillNeeds = rowsToFetch - numKvPairs;
-                }
-            }
-
-            kvPairs.forEach(function(kvPair) {
-                data.push(kvPair.value);
-            });
-
-            if (numStillNeeds > 0) {
-                if (tryCnt >= 20) {
-                    console.warn("Too may tries, stop");
-                    return PromiseHelper.resolve();
-                }
-
-                var newPosition;
-                if (numStillNeeds === rowsToFetch) {
-                    // fetch 0 this time
-                    newPosition = rowPosition + 1;
-                    console.warn("cannot fetch position", rowPosition);
-                } else {
-                    newPosition = rowPosition + numRows;
-                }
-
-                return fetchDataHelper(resultSetId, newPosition, numStillNeeds,
-                                        totalRows, data, tryCnt + 1);
-            }
-        })
-        .then(function() {
-            deferred.resolve(data);
-        })
-        .fail(deferred.reject);
-
-        return deferred.promise();
-    }
 
     function multiJoinCheck(lColNames, lTableName, rColNames, rTableName, txId) {
         var deferred = jQuery.Deferred();

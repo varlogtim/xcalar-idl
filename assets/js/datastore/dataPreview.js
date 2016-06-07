@@ -237,17 +237,14 @@ window.DataPreview = (function($, DataPreview) {
                     return PromiseHelper.resolve(null);
                 }
 
-                var kvPairs = result.kvPair;
-                var numKvPairs = result.numKvPairs;
-
                 rawData = [];
 
                 var value;
                 var json;
 
                 try {
-                    for (var i = 0; i < numKvPairs; i++) {
-                        value = kvPairs[i].value;
+                    for (var i = 0, len = result.length; i < len; i++) {
+                        value = result[i].value;
                         json = $.parseJSON(value);
 
                         // get unique keys

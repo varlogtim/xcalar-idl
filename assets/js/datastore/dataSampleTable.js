@@ -77,7 +77,6 @@ window.DataSampleTable = (function($, DataSampleTable) {
             // update info here
             dsObj.setNumEntries(totalEntries);
             updateTableInfo(dsObj);
-
             return parseSampleData(result);
         })
         .then(function(jsonKeys, jsons) {
@@ -298,9 +297,6 @@ window.DataSampleTable = (function($, DataSampleTable) {
             return deferred.promise();
         }
 
-        var kvPairs    = result.kvPair;
-        var numKvPairs = result.numKvPairs;
-
         var value;
         var json;
         var uniqueJsonKey = {}; // store unique Json key
@@ -308,8 +304,8 @@ window.DataSampleTable = (function($, DataSampleTable) {
         var jsons = [];  // store all jsons
 
         try {
-            for (var i = 0; i < numKvPairs; i++) {
-                value = kvPairs[i].value;
+            for (var i = 0, len = result.length; i < len; i++) {
+                value = result[i].value;
                 json = jQuery.parseJSON(value);
                 // HACK: this is based on the assumption no other
                 // fields called recordNum, if more than one recordNum in
