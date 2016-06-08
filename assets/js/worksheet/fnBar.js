@@ -1,7 +1,6 @@
 window.FnBar = (function(FnBar, $) {
     var $functionArea; // $("#functionArea");
-    var $fnBar;        // $("#fnBar");
-    var $editor; // $('#functionArea .CodeMirror')
+    var $fnBar; // $('#functionArea .CodeMirror')
 
     var $lastColInput = null;
     var searchHelper;
@@ -20,14 +19,11 @@ window.FnBar = (function(FnBar, $) {
 
         $(window).blur(function() {
             editor.getInputField().blur();
-            editor.getInputField().blur();
         });
 
         $functionArea.find('pre').addClass('fnbarPre');
-
         $fnBar = $('#functionArea .CodeMirror');
 
-        $editor = $('#functionArea .CodeMirror');
         setupSearchHelper();
         var initialTableId; //used to track table that was initially active
         // when user started searching
@@ -107,10 +103,14 @@ window.FnBar = (function(FnBar, $) {
         editor.on("beforeChange", function(instance, change) {
         // remove ALL \n
             var newtext = change.text.join("").replace(/\n/g, "");
-            change.update(change.from, change.to, [newtext]);
+            if (change.update) {
+                change.update(change.from, change.to, [newtext]);
+            }
             return true;
         });
 
+        // change is triggered during user's input or when clearing/emptying
+        // the input field
         editor.on("change", function(instance, change) {
             var val = editor.getValue();
             var trimmedVal = val.trim();
@@ -118,7 +118,11 @@ window.FnBar = (function(FnBar, $) {
                 $functionArea.removeClass('searching');
                 return;
             }
-            if (trimmedVal.indexOf('=') !== 0) {
+            // only search if string does not begin with =
+            // if string is empty, then it should at least have a class searching
+            // otherwise we do not search
+            if (trimmedVal.indexOf('=') !== 0 &&
+                (trimmedVal.length || $functionArea.hasClass('searching'))) {
                 $functionArea.addClass('searching');
                 var args = {
                     "value"         : trimmedVal,

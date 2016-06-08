@@ -459,7 +459,7 @@ window.ColManager = (function($, ColManager) {
                     return PromiseHelper.resolve(null);
                 } else {
                     var options = {
-                        selectCol: curColNum - 1
+                        selectCol: curColNum
                     };
                     return TblManager.refreshTable([newTableName], newTablCols,
                                                [tableName], worksheet, options);
@@ -2590,7 +2590,6 @@ window.ColManager = (function($, ColManager) {
                                      .removeClass('tblTitleSelected');
                 $('.dagWrap.selected').removeClass('selected')
                                       .addClass('notSelected');
-
                 if (initialTableId && initialTableId === gActiveTableId) {
                     focusTable(initialTableId, true);
                 } else {

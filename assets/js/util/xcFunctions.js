@@ -219,7 +219,7 @@ window.xcFunction = (function($, xcFunction) {
         })
         .then(function(sortTableName) {
             finalTableName = sortTableName;
-            var options = {"selectCol": colNum - 1};
+            var options = {"selectCol": colNum};
             // sort will filter out KNF, so it change the profile
             return TblManager.refreshTable([finalTableName], finalTableCols,
                                             [tableName], worksheet,
@@ -523,7 +523,7 @@ window.xcFunction = (function($, xcFunction) {
 
             // map do not change groupby stats of the table
             Profile.copy(tableId, finalTableId);
-            var options = {"selectCol": colNum - 1};
+            var options = {"selectCol": colNum};
             return TblManager.refreshTable([finalTableName], tablCols,
                                             [tableName], worksheet, options);
         })

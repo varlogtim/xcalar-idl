@@ -1523,8 +1523,10 @@ window.TblManager = (function($, TblManager) {
         // highlights new cell if no other cell is selected
         if (options.selectCol != null) {
             if ($('.xcTable th.selectedCell').length === 0) {
-                $table.find('th.col' + (options.selectCol + 1) +
-                            ' .flexContainer').mousedown();
+                var mousedown = fakeEvent.mousedown;
+                mousedown.bypassModal = true;
+                $table.find('th.col' + (options.selectCol) +
+                            ' .flexContainer').trigger(mousedown);
             }
         }
 
@@ -1760,8 +1762,8 @@ window.TblManager = (function($, TblManager) {
         $thead.on("mousedown", ".flexContainer, .dragArea", function(event) {
             var $el = $(this);
 
-            if ($("#mainFrame").hasClass("modalOpen")) {
-                // not focus when in modal
+            if ($("#mainFrame").hasClass("modalOpen") && !event.bypassModal) {
+                // not focus when in modal unless bypassModa is true
                 return;
             } else if ($el.closest('.dataCol').length !== 0) {
                 return;
