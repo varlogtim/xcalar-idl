@@ -546,7 +546,6 @@ window.OperationsModal = (function($, OperationsModal) {
             $functionInput.attr('placeholder', "");
             $table.off('mousedown', '.header, td.clickable', keepInputFocused);
             $table.off('click.columnPicker');
-            $table.find('.modalHighlighted').removeClass('modalHighlighted');
 
             $('body').off('keydown', listHighlightListener);
         } else {
@@ -2778,6 +2777,9 @@ window.OperationsModal = (function($, OperationsModal) {
 
         modalHelper.clear({"close": function() {
             // ops modal has its owne closer
+            // highlighted column sticks out if we don't close it early
+            $("#xcTable-" + tableId).find('.modalHighlighted')
+                                    .removeClass('modalHighlighted');
             $operationsModal.fadeOut(time, function() {
                 toggleModalDisplay(true, time);
                 clearInput(0);
