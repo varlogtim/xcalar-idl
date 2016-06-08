@@ -385,6 +385,12 @@
                 .cm-string {
                     color: @color-json-string;
                 }
+                .cm-backslash { // not actually a string
+                    color: @color-text-blue;
+                     &+ .cm-operator {
+                       color: @color-text-blue;
+                    }
+                }
                 .cm-number {
                     color: @color-json-num;
                 }
@@ -396,9 +402,15 @@
                 }
                 .cm-variable-2, .cm-error {
                     color: @color-text-blue;
+                    &+ .cm-operator, &+ .cm-atom, &+ .cm-unknown {
+                       color: @color-text-blue;
+                    }
                 }
                 .cm-atom {
                     color: @color-text-fnBar-blue;
+                }
+                .cm-comma {
+                    color: @color-text-darkGray !important;
                 }
 
             }

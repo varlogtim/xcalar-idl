@@ -76,14 +76,16 @@
           stream.next();
           state.stack.unshift("characterClass");
           return "bracket";
-        case ":":
+        case ".":
           stream.next();
           return "operator";
         case "\\":
-          if (stream.match(/\\[a-z]+/)) return "string-2";
-          else return null;
-        case ".":
+          stream.next();
+          return "backslash";
         case ",":
+          stream.next();
+          return "comma";
+        case ":":
         case ";":
         case "*":
         case "-":
@@ -92,21 +94,30 @@
         case "<":
         case "/":
         case "=":
+        case "&":
+        case "!":
           stream.next();
           return "atom";
         case "$":
           stream.next();
           return "builtin";
+        default:
+          // find non-alphanumeric characters that arent brackets
+          if(peek.match(/[^a-zA-Z\d\s:]/) &&
+            ["[", "]", "(", ")", "{", "}"].indexOf(peek) === -1) {
+            stream.next();
+            return "unknown";
+          }
         }
 
         // xcalar custom code - tag map, pull, filter, null, true, false
         if (stream.match(keywords, false)) {
             stream.match(/^[a-zA-Z_]\w*/);
-            if (stream.match(/(?=[\(.])/, false)) return "xckeyword";
+            if (stream.match(/(?=[\(])/, false)) return "xckeyword";
             return "variable-2";
         } else if (stream.match(specialWords, false)) {
             stream.match(/^[a-zA-Z_]\w*/);
-            if (stream.match(/(?=[\(.])/, false)) return "keyword";
+            if (stream.match(/(?=[\(])/, false)) return "keyword";
             return "xcspecial";
         }
         // end xcalar custom code
@@ -115,7 +126,7 @@
           if (stream.match(/^\w+/)) return "error"; // 4sdf produces error
           return "number";
         } else if (stream.match(/^[a-zA-Z_]\w*/)) {
-          if (stream.match(/(?=[\(.])/, false)) return "keyword";
+          if (stream.match(/(?=[\(])/, false)) return "keyword";
           return "variable-2";
         } else if (["[", "]", "(", ")", "{", "}"].indexOf(peek) != -1) {
           stream.next();
