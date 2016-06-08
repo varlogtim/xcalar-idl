@@ -166,10 +166,9 @@ window.JoinModal = (function($, JoinModal) {
                 return;
             }
 
-            modalHelper.submit();
-
-            xcHelper.checkDupTableName(newTableName)
-            .then(function() {
+            var validTableName = xcHelper.checkDupTableName(newTableName);
+            if (validTableName) {
+                modalHelper.submit();
                 var joinType = $joinSelect.find(".text").text();
                 var tabeName = newTableName + Authentication.getHashId();
                 if (isMultiJoin) {
@@ -180,16 +179,9 @@ window.JoinModal = (function($, JoinModal) {
                 } else {
                     singleJoinHelper(joinType, tabeName);
                 }
-            })
-            .fail(function(error) {
-                if (error === 'table') {
-                    StatusBox.show(ErrTStr.TableConflict, $joinTableName, true);
-                } else {
-                    StatusBox.show(error, $joinTableName, true);
-                }
-
-                modalHelper.enableSubmit();
-            });
+            } else {
+                StatusBox.show(ErrTStr.TableConflict, $joinTableName, true);
+            }
         });
 
         // listener for toggle mutli clause section

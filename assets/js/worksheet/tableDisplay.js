@@ -2330,23 +2330,21 @@ window.TblManager = (function($, TblManager) {
         }
 
         // XXX Shall we really check if the name part has conflict?
-        xcHelper.checkDupTableName(newName)
-        .then(function() {
-            return xcFunction.rename(tableId, newTableName);
-        })
-        .then(function() {
-            $div.blur();
-        })
-        .fail(function(error) {
-            if (error === 'table') {
-                var text = xcHelper.replaceMsg(ErrWRepTStr.TableConflict, {
-                    "name": newName
-                });
-                StatusBox.show(text, $div, false);
-            } else {
+        var validName = xcHelper.checkDupTableName(newName);
+        if (validName) {
+            xcFunction.rename(tableId, newTableName)
+            .then(function() {
+                 $div.blur();
+            })
+            .fail(function(error) {
                 StatusBox.show(error, $div, false);
-            }
-        });
+            });
+        } else {
+            var text = xcHelper.replaceMsg(ErrWRepTStr.TableConflict, {
+                "name": newName
+            });
+            StatusBox.show(text, $div, false);
+        }
     }
 
     function delTableHelper(tableId, tableType, txId) {

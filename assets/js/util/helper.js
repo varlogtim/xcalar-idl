@@ -1210,25 +1210,21 @@ window.xcHelper = (function($, xcHelper) {
     };
 
     xcHelper.checkDupTableName = function(tableName) {
-        var deferred = jQuery.Deferred();
-
-        XcalarGetTables()
-        .then(function(result) {
-            var tables = result.nodeInfo;
-            for (var i = 0; i < result.numNodes; i++) {
-                var name = xcHelper.getTableName(tables[i].name);
-                if (name === tableName) {
-                    deferred.reject('table');
-                    return;
+        // we will only check against active and archived list
+        // there's a chance of conflict if a backend table has same tablename
+        // with hashtagId but that occurence is rare and is handled by the backend
+        var table;
+        for (var tableId in gTables) {
+            table = gTables[tableId];
+            if (table.status === TableType.Active ||
+                table.status === TableType.Archived) {
+                if (table.tableName.indexOf(tableName) === 0) {
+                    return (false);
                 }
             }
-            deferred.resolve('success');
-        })
-        .fail(function(error) {
-            deferred.reject(error);
-        });
+        }
 
-        return deferred.promise();
+        return (true);
     };
 
     xcHelper.suggestType = function(datas, currentType, confidentRate) {

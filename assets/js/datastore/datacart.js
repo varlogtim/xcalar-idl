@@ -18,14 +18,15 @@ window.DataCart = (function($, DataCart) {
 
             xcHelper.disableSubmit($submitBtn);
 
-            // check backend table name to see if has conflict
-            checkCartNames()
-            .then(function() {
-                return createWorksheet();
-            })
-            .always(function() {
+            // check valid characters & backend table name to see if has conflict
+            if(checkCartNames()) {
+                createWorksheet()
+                .then(function() {
+                    xcHelper.enableSubmit($submitBtn);
+                });
+            } else {
                 xcHelper.enableSubmit($submitBtn);
-            });
+            }
         });
 
         // clear cart
@@ -469,52 +470,29 @@ window.DataCart = (function($, DataCart) {
             cart = innerCarts[i];
             nameIsValid = doesCartNameHaveValidChars(cart);
             if (!nameIsValid) {
-                deferred.reject();
-                return deferred.promise();
+                return false;
             }
         }
 
-        // check backend table name to see if has conflict
-        xcHelper.getBackTableSet()
-        .then(function(backTableSet) {
-            for (var tableName in backTableSet) {
-                var name = xcHelper.getTableName(tableName);
+        // we will only check against active and archived list
+        var name;
+        for (var tableId in gTables) {
+            if (gTables[tableId].status === TableType.Active ||
+                gTables[tableId].status === TableType.Archived) {
+                name = xcHelper.getTableName(gTables[tableId].tableName);
                 tableNames[name] = true;
             }
+        }
 
-            for (var i = 0, len = innerCarts.length; i < len; i++) {
-                cart = innerCarts[i];
-                nameIsValid = isCartNameValid(cart, tableNames);
-                if (!nameIsValid) {
-                    deferred.reject();
-                    return;
-                }
+        for (var i = 0, len = innerCarts.length; i < len; i++) {
+            cart = innerCarts[i];
+            nameIsValid = isCartNameValid(cart, tableNames);
+            if (!nameIsValid) {
+                return (false);
             }
+        }
 
-            deferred.resolve();
-        })
-        .fail(function(error) {
-            console.error("Get Backend table failed!", error);
-            // when get backend table fail, we try our best,
-            // aka, we use front meta for checking
-            for (var tableId in gTables) {
-                var name = xcHelper.getTableName(gTables[tableId].tableName);
-                tableNames[name] = true;
-            }
-
-            for (var i = 0, len = innerCarts.length; i < len; i++) {
-                cart = innerCarts[i];
-                nameIsValid = isCartNameValid(cart, tableNames);
-                if (!nameIsValid) {
-                    deferred.reject();
-                    return;
-                }
-            }
-
-            deferred.resolve();
-        });
-
-        return deferred.promise();
+        return (true);
     }
 
     function isCartNameValid(cart, nameMap) {

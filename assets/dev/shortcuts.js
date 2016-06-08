@@ -208,6 +208,7 @@ window.Shortcuts = (function($, Shortcuts) {
                     'Create Table ...</li>' +
                 '<li class="tests parentMenu" data-submenu="tests">Tests ...</li>' +
                 '<li class="deleteAllTables">Delete All Tables</li>' +
+                '<li class="shortcutsOff">Turn Off Shortcuts</li>' +
             '</ul>' +
         '</div>';
 
@@ -248,6 +249,10 @@ window.Shortcuts = (function($, Shortcuts) {
 
         $menu.on('mouseup', '.deleteAllTables', function() {
             deleteAllTables();
+        });
+
+        $menu.on('mouseup', '.shortcutsOff', function() {
+            Shortcuts.off();
         });
 
         $subMenu.on('mouseup', '.createTable li', function(event) {

@@ -580,16 +580,10 @@ describe('xcHelper Test', function() {
         });
     });
 
-    it('xcHelper.checkDupTableName should work', function(done) {
+    it('xcHelper.checkDupTableName should work', function() {
         var tableName = xcHelper.randName("test-noConflict");
-        xcHelper.checkDupTableName(tableName)
-        .then(function(res) {
-            expect(res).to.equal('success');
-            done();
-        })
-        .fail(function(error) {
-            throw error;
-        });
+        var res = xcHelper.checkDupTableName(tableName);
+        expect(res).to.equal(true);
     });
 
     it("xcHelper.suggestType should work", function() {
