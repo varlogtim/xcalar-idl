@@ -429,7 +429,7 @@ function dataFormModuleTest() {
         var testDS;
 
         before(function() {
-            testDS = xcHelper.uniqueRandName("testSuites-dsForm-sp500", DS.has, 10);
+            testDS = xcHelper.uniqueRandName("testSuitesSp500", DS.has, 10);
             $filePath.val(testDatasets.sp500.url);
             $fileName.val(testDS);
             // test the case when have header(otherwise it will have header prmopt)

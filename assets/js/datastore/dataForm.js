@@ -220,46 +220,75 @@ window.DatastoreForm = (function($, DatastoreForm) {
         resetForm();
     };
 
-    function submitForm() {
-        var deferred = jQuery.Deferred();
-
+    DatastoreForm.validate = function() {
         var $fileName = $("#fileName");
-        var dsName = $fileName.val().trim();
-        var dsFormat = formatMap[$formatText.val()];
         var loadURL = $filePath.val().trim();
-
-        var isValid = xcHelper.validate([
-            {
-                "$selector": $formatText,
-                "text"     : ErrTStr.NoEmptyList,
-                "check"    : function() {
-                    return (dsFormat == null);
-                }
-            },
-            {
-                "$selector": $fileName,
-                "check"    : function() {
-                    return ($fileName.val().length >=
-                             XcalarApisConstantsT.XcalarApiMaxTableNameLen);
-                },
-                "formMode": true,
-                "text"    : ErrTStr.TooLong
-            },
-            {
+        var fileName = $fileName.val().trim();
+        // these are the ones that need to check
+        // from both data form and data preview
+        var isValid = xcHelper.validate([{
                 "$selector": $filePath,
                 "check"    : function() {
                     return (!isValidPathToBrowse(loadURL));
                 },
                 "formMode": true,
                 "text"    : ErrTStr.InvalidURLToBrowse
+            },
+            {
+                "$selector": $fileName
+            },
+            {
+                "$selector": $fileName,
+                "check"    : function() {
+                    return (fileName.length >=
+                            XcalarApisConstantsT.XcalarApiMaxTableNameLen);
+                },
+                "formMode": true,
+                "text"    : ErrTStr.TooLong
+            },
+            {
+                "$selector": $fileName,
+                "check"    : DS.has,
+                "formMode" : true,
+                "text"     : ErrTStr.DSNameConfilct
+            },
+            {
+                "$selector": $fileName,
+                "check"    : function() {
+                    return (!/^\w+$/.test(fileName));
+                },
+                "formMode": true,
+                "text"    : ErrTStr.NoSpecialCharOrSpace
             }
         ]);
+
+        return isValid;
+    };
+
+    function submitForm() {
+        var deferred = jQuery.Deferred();
+
+        var dsFormat = formatMap[$formatText.val()];
+        var isValid = DatastoreForm.validate();
+
+        if (isValid) {
+            isValid = xcHelper.validate([{
+                "$selector": $formatText,
+                "text"     : ErrTStr.NoEmptyList,
+                "check"    : function() {
+                    return (dsFormat == null);
+                }
+            }]);
+        }
 
         if (!isValid) {
             deferred.reject("Checking Invalid");
             return deferred.promise();
         }
 
+        var $fileName = $("#fileName");
+        var dsName = $fileName.val().trim();
+        var loadURL = $filePath.val().trim();
         var udfCheckRes = checkUDF();
         if (!udfCheckRes.isValid) {
             return deferred.reject("Checking Invalid").promise();

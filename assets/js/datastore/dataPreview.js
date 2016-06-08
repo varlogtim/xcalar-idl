@@ -439,23 +439,7 @@ window.DataPreview = (function($, DataPreview) {
     }
 
     function applyPreviewChange() {
-        var $fileName = $("#fileName");
-        var isValid = xcHelper.validate([
-            // check for "" should be kept for preview mode
-            // since it does't submit the form
-            {
-                "$selector": $fileName,
-                "formMode" : true
-            },
-            {
-                "$selector": $fileName,
-                "check"    : DS.has,
-                "formMode" : true,
-                "text"     : ErrTStr.DSNameConfilct
-            }
-        ]);
-
-        if (!isValid) {
+        if (!DatastoreForm.validate()) {
             toggleMinimize(true);
             return;
         }
