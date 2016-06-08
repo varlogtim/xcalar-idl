@@ -4,6 +4,8 @@
 window.DataCart = (function($, DataCart) {
     var $cartArea; // $("#dataCart")
     var innerCarts = [];
+    // constant
+    var animationLimit = 20;
 
     DataCart.setup = function() {
         $cartArea = $("#dataCart");
@@ -251,8 +253,9 @@ window.DataCart = (function($, DataCart) {
     function appendCartItem(cart, items) {
         var $cart = DataCart.getCartById(cart.dsId);
         var li = "";
+        var len = items.length;
 
-        for (var i = 0, len = items.length; i < len; i++) {
+        for (var i = 0; i < len; i++) {
             var item = items[i];
             var colNum = item.colNum;
             var value = item.value;
@@ -263,13 +266,13 @@ window.DataCart = (function($, DataCart) {
 
             var escapedVal = xcHelper.escapeHTMlSepcialChar(value);
             li += '<li class="colWrap" data-colnum="' + colNum + '">' +
-                        '<span class="colName textOverflow">' +
-                            escapedVal +
-                        '</span>' +
-                        '<div class="removeCol">' +
-                        '<span class="closeIcon"></span>' +
-                        '</div>' +
-                    '</li>';
+                    '<span class="colName textOverflow">' +
+                        escapedVal +
+                    '</span>' +
+                    '<div class="removeCol">' +
+                    '<span class="closeIcon"></span>' +
+                    '</div>' +
+                '</li>';
             cart.addItem(item);
         }
 
@@ -279,7 +282,7 @@ window.DataCart = (function($, DataCart) {
         $cart .find(".cartEmptyHint").hide();
         $cart.find("ul").append($lis);
 
-        if (!gMinModeOn) {
+        if (!gMinModeOn && len < animationLimit) {
             $lis.hide().slideDown(100);
         }
     }
