@@ -86,6 +86,12 @@ window.DatastoreForm = (function($, DatastoreForm) {
         $("#previewBtn").click(function() {
             $(this).blur();
 
+            var path = $filePath.val();
+            if (!isValidPathToBrowse(path)) {
+                StatusBox.show(ErrTStr.InvalidURLToBrowse, $filePath, true);
+                return;
+            }
+
             if (isValidToPreview()) {
                 var udfCheckRes = checkUDF();
                 if (udfCheckRes.isValid) {
@@ -238,6 +244,14 @@ window.DatastoreForm = (function($, DatastoreForm) {
                 },
                 "formMode": true,
                 "text"    : ErrTStr.TooLong
+            },
+            {
+                "$selector": $filePath,
+                "check"    : function() {
+                    return (!isValidPathToBrowse(loadURL));
+                },
+                "formMode": true,
+                "text"    : ErrTStr.InvalidURLToBrowse
             }
         ]);
 
