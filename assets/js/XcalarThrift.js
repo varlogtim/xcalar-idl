@@ -1053,6 +1053,39 @@ function XcalarGetDatasets() {
     return (deferred.promise());
 }
 
+function XcalarGetConstants(constantName) {
+    if ([null, undefined].indexOf(tHandle) !== -1) {
+        return PromiseHelper.resolve(null);
+    }
+    var deferred = jQuery.Deferred();
+    if (insertError(arguments.callee, deferred)) {
+        return (deferred.promise());
+    }
+
+    var patternMatch;
+
+    if (constantName == null) {
+        patternMatch = "*";
+    } else {
+        patternMatch = constantName;
+    }
+    xcalarListTables(tHandle, patternMatch, SourceTypeT.SrcConstant)
+    .then(function(ret) {
+        deferred.resolve(ret.nodeInfo);
+        // Return struct is an array of
+        // {dagNodeId: integer, // Ignore
+        //  name: string,       // Name of constant. Will start with @
+        //  state: integer}     // State of dag node.Read with DgDagStateTStr[x]
+    })
+    .fail(function(error) {
+        var thriftError = thriftLog("XcalarGetConstants", error);
+        SQL.errorLog("Get Constants", null, null, thriftError);
+        deferred.reject(thriftError);
+    });
+
+    return (deferred.promise());
+}
+
 function XcalarGetTables(tableName) {
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return PromiseHelper.resolve(null);
