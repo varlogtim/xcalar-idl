@@ -834,83 +834,77 @@ window.FileBrowser = (function($, FileBrowser) {
     }
 
     function sortFiles(files, key) {
-        var sortedFiles = [];
-        var resultFiles = [];
-
         if (key === "size") {
             var folders = [];
+            var datasets = [];
 
             files.forEach(function(file) {
                 // folders sort by name
                 if (file.attr.isDirectory) {
-                    folders.push([file, file.name]);
+                    folders.push(file);
                 } else {
-                    sortedFiles.push([file, file.attr.size]);
+                    datasets.push(file);
                 }
             });
 
+            // XXX this compare only work for english name
+            // but fast enough
+            // if want accurate sort, than do it and then
+            // another localeCompare sort
             folders.sort(function(a, b) {
-                return (a[1].localeCompare(b[1]));
+                return (a.name < b.name ? -1 : (a.name > b.name ? 1 : 0));
             });
-            sortedFiles.sort(function(a, b) {
-                return (a[1] - b[1]);
+            // folders.sort(function(a, b) {
+            //     return (a.name.localeCompare(b.name));
+            // });
+
+            datasets.sort(function(a, b) {
+                return (a.attr.size - b.attr.size);
             });
 
-            folders.forEach(function(file) {
-                resultFiles.push(file[0]);
-            });
-            sortedFiles.forEach(function(file) {
-                resultFiles.push(file[0]);
-            });
+            files = folders.concat(datasets);
         } else if (key === "date") {
             // sort by mtime
-            files.forEach(function(file) {
-                sortedFiles.push([file, file.attr.mtime]);
-            });
-
-            sortedFiles.sort(function(a, b) {
-                return (a[1] - b[1]);
-            });
-
-            sortedFiles.forEach(function(file) {
-                resultFiles.push(file[0]);
+            files.sort(function(a, b) {
+                return (a.attr.mtime - b.attr.mtime);
             });
         } else {
             // not sort by size, first sort by name
-            files.forEach(function(file) {
-                sortedFiles.push([file, file.name]);
+
+            // XXX this compare only work for english name
+            // but fast enough
+            // if want accurate sort, than do it and then
+            // another localeCompare sort
+            files.sort(function(a, b) {
+                return (a.name < b.name ? -1 : (a.name > b.name ? 1 : 0));
             });
-            sortedFiles.sort(function(a, b) {
-                return (a[1].localeCompare(b[1]));
-            });
+            // files.sort(function(a, b) {
+            //     return (a.name.localeCompare(b.name));
+            // });
             if (key === "type") {
+                // if it's sort by type, then need another sort
                 var dirFile        = [];
                 var fileWithoutExt = [];  // file with on extention
                 var fileWithExt    = [];   // file with extention
 
-                sortedFiles.forEach(function(file) {
-                    var name = file[1];
-                    var sortedFile = file[0];
-                    if (sortedFile.attr.isDirectory === true) {
-                        dirFile.push(sortedFile);
+                files.forEach(function(file) {
+                    if (file.attr.isDirectory === true) {
+                        dirFile.push(file);
                     } else {
                         if (name.indexOf(".") >= 0) {
-                            fileWithExt.push(sortedFile);
+                            fileWithExt.push(file);
                         } else {
-                            fileWithoutExt.push(sortedFile);
+                            fileWithoutExt.push(file);
                         }
                     }
-                    resultFiles = dirFile.concat(fileWithoutExt)
-                                        .concat(fileWithExt);
                 });
-            } else {
-                sortedFiles.forEach(function(file) {
-                    resultFiles.push(file[0]);
-                });
+
+                files = dirFile.concat(fileWithoutExt)
+                                .concat(fileWithExt);
             }
         }
 
-        return (resultFiles);
+        return files;
     }
 
     function reverseFiles() {
@@ -1019,19 +1013,20 @@ window.FileBrowser = (function($, FileBrowser) {
     function getHTMLFromFiles(files) {
         var html = "";
 
-        files.forEach(function(fileObj) {
+        for (var i = 0, len = files.length; i < len; i++) {
             // fileObj: {name, attr{isDirectory, size}}
+            var fileObj = files[i];
             var isDirectory = fileObj.attr.isDirectory;
             var name = fileObj.name;
             var mtime = fileObj.attr.mtime; // in untix time
 
             if (isDirectory && (name === '.' || name === '..')) {
-                return;
+                continue;
             }
 
+            var gridClass = isDirectory ? "folder" : "ds";
             var size = isDirectory ? "" :
                         xcHelper.sizeTranslator(fileObj.attr.size);
-            var gridClass = isDirectory ? "folder" : "ds";
             var date = xcHelper.timeStampTranslater(mtime) || "";
 
             html +=
@@ -1046,13 +1041,18 @@ window.FileBrowser = (function($, FileBrowser) {
                     '<div class="fileDate">' + date + '</div>' +
                     '<div class="fileSize">' + size + '</div>' +
                 '</div>';
-        });
+        }
 
-        $container.html(html);
+        // this is faster than $container.html
+        document.getElementById('fileBrowserContainer').innerHTML = html;
         refreshEllipsis();
     }
 
     function refreshEllipsis() {
+        // do not use middle ellipsis if too many files, it's slow
+        if (curFiles.length > fileLenLimit) {
+            return;
+        }
         var isListView = $fileBrowserMain.hasClass("listView");
         var maxChar = isListView ? 50 : 16;
 
@@ -1250,13 +1250,12 @@ window.FileBrowser = (function($, FileBrowser) {
     }
 
     function measureDSIconHeight() {
-        var iconHeight = $fileBrowser.find('.grid-unit').height();
+        var $grid = $container.children('.grid-unit').eq(0);
+        var iconHeight = $grid.height();
         if (iconHeight) {
             dsIconHeight = iconHeight +
-                           parseInt($fileBrowser.find('.grid-unit')
-                                       .css('margin-top')) +
-                           parseInt($fileBrowser.find('.grid-unit')
-                                       .css('margin-bottom'));
+                           parseInt($grid.css('margin-top')) +
+                           parseInt($grid.css('margin-bottom'));
         }
     }
 
