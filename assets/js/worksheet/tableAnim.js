@@ -9,7 +9,9 @@ window.TblAnim = (function($, TblAnim) {
         var rescol   = gRescol;
         var $table   = el.closest('.dataTable');
         var colNum   = xcHelper.parseColNum(el.parent().parent());
-        rescol.tableId = xcHelper.parseTableId($table);
+        if (!options || options.target !== "datastore") {
+            rescol.tableId = xcHelper.parseTableId($table);
+        }
         if (options && options.target === "datastore") {
             rescol.isDatastore = true;
             rescol.$tableWrap = $('#dataSetTableWrap');

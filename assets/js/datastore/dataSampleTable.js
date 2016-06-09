@@ -508,7 +508,10 @@ window.DataSampleTable = (function($, DataSampleTable) {
         var columnsType = [];  // track column type
         var numKeys = jsonKeys.length;
         numKeys = Math.min(1000, numKeys); // limit to 1000 ths
-
+        var colStrLimit = 250;
+        if (numKeys < 5) {
+            colStrLimit = Math.max(1000 / numKeys, colStrLimit);
+        }
         currentRow = 0;
 
         jsonKeys.forEach(function() {
@@ -516,7 +519,7 @@ window.DataSampleTable = (function($, DataSampleTable) {
         });
 
         // table rows
-        tr = getTableRowsHTML(jsonKeys, jsons, columnsType);
+        tr = getTableRowsHTML(jsonKeys, jsons, columnsType, null, colStrLimit);
         if (numKeys > 0) {
             th += '<th class="rowNumHead" title="select all columns"' +
                     ' data-toggle="tooltip" data-placement="top"' +
@@ -576,7 +579,8 @@ window.DataSampleTable = (function($, DataSampleTable) {
         return (html);
     }
 
-    function getTableRowsHTML(jsonKeys, jsons, columnsType, selectedCols) {
+    function getTableRowsHTML(jsonKeys, jsons, columnsType, selectedCols,
+                              colStrLimit) {
         var tr = "";
         var i  = 0;
         var knf = false;
@@ -598,6 +602,15 @@ window.DataSampleTable = (function($, DataSampleTable) {
                     knf = true;
                 }
                 var parsedVal = xcHelper.parseJsonValue(val, knf);
+                if (colStrLimit) {
+                    var hiddenStrLen = parsedVal.length - colStrLimit;
+                    if (hiddenStrLen > 0) {
+                        parsedVal = parsedVal.slice(0, colStrLimit) +
+                                    "...(" +
+                                    hiddenStrLen.toLocaleString("en") + " " +
+                                    TblTStr.Truncate + ")";
+                    }
+                }
 
                 var selected  = "";
                 if (selectedCols && selectedCols[j + 1]) {

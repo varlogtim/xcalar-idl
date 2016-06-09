@@ -51,8 +51,11 @@ window.DataPreview = (function($, DataPreview) {
         });
 
         // select a char as candidate delimiter
-        $previewTable.mouseup(function() {
+        $previewTable.mouseup(function(event) {
             if ($previewTable.hasClass("has-delimiter")) {
+                return;
+            }
+            if ($(event.target).hasClass('truncMessage')) {
                 return;
             }
 
@@ -246,7 +249,6 @@ window.DataPreview = (function($, DataPreview) {
                     for (var i = 0, len = result.length; i < len; i++) {
                         value = result[i].value;
                         json = $.parseJSON(value);
-
                         // get unique keys
                         for (var key in json) {
                             if (key === "recordNum") {
@@ -706,7 +708,6 @@ window.DataPreview = (function($, DataPreview) {
                         (j + 1) +
                     '</td>';
             }
-
             tbody += parseTdHelper(datas[i], delimiter) + '</tr>';
         }
 
@@ -729,12 +730,19 @@ window.DataPreview = (function($, DataPreview) {
                             : '<td class="cell">';
 
         var dataLen = data.length;
+        var rawStrLimit = 1000; // max number of characters in undelimited column
+        var maxColumns = 1000; // max number of columns
+        var colStrLimit = 250; // max number of characters in delimited column
         var i = 0;
+        var d;
 
         if (hasDelimiter) {
-            // when has deliliter
-            while (i < dataLen) {
-                var d = data[i];
+            // when has delimiter
+            var columnCount = 0;
+            var strLen = 0;
+            var hiddenStrLen = 0;
+            while (i < dataLen  && columnCount < maxColumns) {
+                d = data[i];
                 var isDelimiter = false;
 
                 if (!hasBackSlash && !hasQuote && d === dels[0]) {
@@ -750,6 +758,11 @@ window.DataPreview = (function($, DataPreview) {
 
                 if (isDelimiter) {
                     // skip delimiter
+                    if (hiddenStrLen) {
+                        html += "<span class='truncMessage'>...(" +
+                                hiddenStrLen.toLocaleString("en") + " " +
+                                TblTStr.Truncate + ")</span>";
+                    }
                     if (isTh) {
                         html += '</div></div></th>' +
                                 '<th>' +
@@ -761,6 +774,9 @@ window.DataPreview = (function($, DataPreview) {
                     }
 
                     i = i + delLen;
+                    columnCount++;
+                    strLen = 0;
+                    hiddenStrLen = 0;
                 } else {
                     if (hasBackSlash) {
                         // when previous char is \. espace this one
@@ -771,13 +787,19 @@ window.DataPreview = (function($, DataPreview) {
                         // toggle escape of quote
                         hasQuote = !hasQuote;
                     }
+                    if (strLen > colStrLimit) {
+                        hiddenStrLen++;
+                    } else {
+                        html += d;
+                    }
 
-                    html += d;
+                    strLen++;
                     ++i;
                 }
             }
         } else {
             // when not apply delimiter
+            dataLen = Math.min(rawStrLimit, dataLen); // limit to 1000 characters
             for (i = 0; i < dataLen; i++) {
                 d = data[i];
 
@@ -793,7 +815,14 @@ window.DataPreview = (function($, DataPreview) {
                 } else if (/\W/.test(d)) {
                     cellClass += " has-specialChar";
                 }
+
                 html += '<span class="' + cellClass + '">' + d + '</span>';
+            }
+            var lenDiff = data.length - dataLen;
+            if (lenDiff > 0) {
+                html += "<span class='truncMessage'>...(" +
+                        lenDiff.toLocaleString("en") + " " +
+                        TblTStr.Truncate + ")</span>";
             }
         }
 
@@ -802,7 +831,6 @@ window.DataPreview = (function($, DataPreview) {
         } else {
             html += '</td>';
         }
-
         return (html);
     }
 
