@@ -684,6 +684,7 @@ window.StartManager = (function(StartManager, $) {
                 !$target.closest('#functionArea').length &&
                 !$target.closest('.header').length) {
 
+
                 if ($target.closest('.selectedCell').length !== 0) {
                     return;
                 } else if ($target.attr('id') === 'mainFrame') {

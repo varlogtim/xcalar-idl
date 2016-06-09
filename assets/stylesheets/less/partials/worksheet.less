@@ -250,6 +250,7 @@
     #functionArea {
         .flex(4 1 380px);
         .flex-display;
+        max-width: ~"calc(100% - 400px)";
         position: relative;
         padding-left: 4px;
         height: 37px;
@@ -265,8 +266,8 @@
             .closeBox, .counter, .arrows {
                 display: inline-block;
             }
-            #fnBar, .fnBarClone {
-                padding-right: 48px;
+            #fnBar, .fnBarClone, .CodeMirror {
+                padding-right: 90px;
             }
             .fnbarPre {
                 span {
@@ -304,7 +305,7 @@
             background-color: @color-input-background;
             color: @color-text-darkGray;
 
-            &.active {
+            &.active, &.inFocus {
                 background-color: @color-background-darkGray;
                 box-shadow: 0px 2px 2px 0 @color-defaultGray inset;
             }
@@ -318,6 +319,7 @@
             &.disabled {
                 opacity: 0.7;
                 pointer-events: none;
+                background-color: @color-input-background;
                 .fnbarPre {
                     color: @color-text-darkGray;
                     span {
@@ -333,8 +335,14 @@
         .CodeMirror-gutter-wrapper {
             display: none;
         }
+        .CodeMirror-sizer {
+            border-width: 0px !important;
+        }
         .CodeMirror-scroll {
             overflow: hidden !important;
+            margin-right: 0px;
+            margin-bottom: 0px;
+            padding-bottom:0px;
         }
         .CodeMirror-hscrollbar, .CodeMirror-vscrollbar {
             display: none !important;
@@ -421,7 +429,7 @@
     #fnBar, .fnBarClone {
         .size(@width: ~"calc(100% - 28px)");
         margin-left: 4px;
-        &.active {
+        &.active, &.inFocus {
             background-color: @color-background-darkGray;
             box-shadow: 0px 2px 2px 0 @color-defaultGray inset;
         }

@@ -73,30 +73,14 @@ window.FnBar = (function(FnBar, $) {
 
         editor.on("mousedown", function() {
             $fnBar.addClass("inFocus");
-            $fnBar.attr('placeholder', WSTStr.SearchTableAndColumn);
             $fnBar.find('.CodeMirror-placeholder').show();
         });
         editor.on("focus", function() {
             initialTableId = gActiveTableId;
         });
-        editor.on("blur", function() {
-            $fnBar.removeClass("inFocus");
-             $fnBar.find('.CodeMirror-placeholder').hide();
-            if ($fnBar.hasClass('disabled')) {
-                // don't want to clear placeholder if focused on new column
-                return;
-            }
 
-            var keepVal = false;
-            if ($lastColInput) {
-                keepVal = true;
-            }
-
-            var options = {keepVal: keepVal};
-            searchHelper.clearSearch(function() {
-                $functionArea.removeClass('searching');
-            }, options);
-        });
+        // editor.on("blur") is triggered during selection range mousedown
+        // which it shouldn't (due to dragndrop) so it's not reliable to use
 
 
         // disallow adding newlines
@@ -173,12 +157,10 @@ window.FnBar = (function(FnBar, $) {
     FnBar.clear = function(noSave) {
         if (!noSave) {
             saveInput();
-        } else {
-            $fnBar.removeClass('disabled');
         }
         $lastColInput = null;
         editor.setValue("");
-        $fnBar.removeClass("active");
+        $fnBar.removeClass("active inFocus disabled");
     };
 
     function saveInput() {
@@ -261,7 +243,6 @@ window.FnBar = (function(FnBar, $) {
             var table    = gTables[tableId];
             var tableCol = table.tableCols[colNum - 1];
             var colName  = tableCol.name;
-            $fnBar.blur();
 
             if (tableCol.isNewCol && colName === "") {
                 // when it's new column and do not give name yet
