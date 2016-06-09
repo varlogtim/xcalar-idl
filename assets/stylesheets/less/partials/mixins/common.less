@@ -423,6 +423,18 @@
     }
 }
 
+// style for checkbox
+.checkbox {
+    .size(@width: 16px, @height: 100%);
+    display: inline-block;
+    cursor: pointer;
+    .image("../../images/checkbox/unchecked.png", 50%, 50%);
+
+    &.checked {
+        .image("../../images/checkbox/checked.png", 50%, 50%);
+    }
+}
+
 // style for radio check
 .radioButtonGroup {
     .flex-display;

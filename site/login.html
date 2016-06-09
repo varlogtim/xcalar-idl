@@ -7,21 +7,31 @@
 include "partials/loginPart.html"
 <script>
 $(document).ready(function() {
-    $("#insightVersion").hide();
-    $("#loginContainer").hide();
-    var stage = new swiffy.Stage(document.getElementById('swiffycontainer'),
-                                 swiffyobject, {  });
-    stage.start();
-    setTimeout(function() {
-        $('#swiffycontainer').fadeOut(1000, function() {
-            $("#loginContainer").fadeIn(200);
-            $('#loginNameBox').focus();
-            $("#insightVersion").fadeIn(200);
-        });
-    }, 4500);
+    // var hasLoginBefore = localStorage.getItem("xc-login");
+    // if (hasLoginBefore != null) {
+    //     $("#insightVersion").show();
+    //     $("#loginContainer").show();
+    //     $("#loginNameBox").focus();
+    //     $("#swiffycontainer").hide();
+    // } else {
+        $("#insightVersion").hide();
+        $("#loginContainer").hide();
+        var stage = new swiffy.Stage(document.getElementById('swiffycontainer'),
+                                     swiffyobject, {  });
+        stage.start();
+        setTimeout(function() {
+            $("#swiffycontainer").fadeOut(1000, function() {
+                // localStorage.setItem("xc-login", true);
+                $("#loginContainer").fadeIn(200);
+                $("#loginNameBox").focus();
+                $("#insightVersion").fadeIn(200);
+            });
+        }, 4500);
+    // }
 
-
-  $(document).on('submit', 'form', function() {
+  $("#loginForm").submit(function(event) {
+        // prevents form from having it's default action
+        event.preventDefault();
         var username = $("#loginNameBox").val();
         var fullUsername = username;
         if (username === "") {
@@ -72,7 +82,20 @@ $(document).ready(function() {
             window.location = paths.indexAbsolute;
         }
         submit();
-        return false; // prevents form from having it's default action
+    });
+
+    $("#signupButton").click(function() {
+        $("#loginContainer").addClass("signup");
+        $("#login").fadeOut(function() {
+            $("#signup").fadeIn();
+        });
+    });
+
+    $("#signup-login").click(function() {
+        $("#loginContainer").removeClass("signup");
+        $("#signup").fadeOut(function() {
+            $("#login").fadeIn();
+        });
     });
 
     $("#insightVersion").html("Version SHA: " +

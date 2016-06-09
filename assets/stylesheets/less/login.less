@@ -1,5 +1,10 @@
 @import "partials/mixins/common.less";
 
+html, body {
+    width: 100%;
+    height: 100%
+}
+
 table, tr, td, th, input, textarea, p {
     margin: 0;
     padding: 0;
@@ -40,117 +45,218 @@ body {
     min-width: 990px;
     position: relative;
     overflow: hidden;
+
+    &.signup {
+        #loginDivider {
+            .size(@height: 505px);
+        }
+    }
 }
 
 #loginBackgroundArt {
-  background: url(../../images/logo/loginBoxes.png) no-repeat;
-  width: 501px;
-  height: 800px;
-  top: 0px;
-  right: 0px;
-  position: absolute;
+    background: url(../../images/logo/loginBoxes.png) no-repeat;
+    width: 501px;
+    height: 800px;
+    top: 0px;
+    right: 0px;
+    position: absolute;
 }
 
 #loginLogo {
-  background: url(../../images/logo/xcalar-gray.png) no-repeat;
-  top: 10px;
-  left: 18px;
-  width: 106px;
-  height: 50px;
-  position: absolute;
+    background: url(../../images/logo/xcalar-gray.png) no-repeat;
+    top: 10px;
+    left: 18px;
+    width: 106px;
+    height: 50px;
+    position: absolute;
 }
 
 #loginDivider {
-  background: url(../../images/logo/loginBar.png) no-repeat;
-  left: 512px;
-  bottom: 87px;
-  width: 1px;
-  height: 281px;
-  position: absolute;
-  opacity: 0.26;
+    background: url(../../images/logo/loginBar.png) repeat;
+    left: 512px;
+    bottom: 87px;
+    width: 1px;
+    height: 281px;
+    position: absolute;
+    opacity: 0.26;
+    .transition(height 0.75s);
 }
 
 #loginInsight {
-  left: 568px;
-  bottom: 312px;
-  width: 403px;
-  height: 64px;
-  background: url(../../images/logo/xi.png) no-repeat;
-  position: absolute;
+    left: 568px;
+    bottom: 312px;
+    width: 403px;
+    height: 64px;
+    background: url(../../images/logo/xi.png) no-repeat;
+    position: absolute;
 }
 
 #loginShadow {
-  left: 510px;
-  bottom: 200px;
-  width: 503px;
-  height: 69px;
-  background: url(../../images/logo/loginShadow.png) no-repeat;
-  position: absolute;
-  opacity: 0.21;
+    left: 510px;
+    bottom: 200px;
+    width: 503px;
+    height: 69px;
+    background: url(../../images/logo/loginShadow.png) no-repeat;
+    position: absolute;
+    opacity: 0.21;
 }
 
 .action-gradient {
-    .linear-gradient(top, @color-background-topAction,
-                          @color-background-bottomAction);
+    .linear-gradient(top, @color-background-topAction, @color-background-bottomAction);
+}
+
+#login, #signup {
+    .size(@width: 500px);
+    .position(absolute, @left: 0, @bottom: 137px);
+    margin: auto;
+    z-index: 40;
+    padding-left: 72px;
+
+    form {
+        .size(@width: 410px);
+    }
+
+    .input {
+        .size(@height: 28px);
+        padding: 0px 4px;
+        .linear-gradient(top, @color-login-field-top, @color-login-field-bot);
+        .rounded;
+        .font(@size: 12px, @weight: bold);
+        box-shadow: 1px 1px 1px 1px rgba(0, 0, 0, 0.1);
+
+        &:focus {
+          box-shadow: 0px 2px 2px 0 @color-defaultGray inset;
+          outline: none;
+          color: @color-black;
+        }
+    }
+
+    .btn {
+        .size(@width: 110px, @height: 30px);
+        .font(@size: 16px, @weight: 600, @line-height: 30px);
+        .rounded;
+        text-align: center;
+        box-shadow: 1px 1px 1px 1px rgba(0,0,0,.1);
+        cursor: pointer;
+        float: right;
+
+        &.login {
+            .action-gradient;
+            margin-left: 15px;
+            color: @color-text-cyan;
+        }
+
+        &.signup {
+            .linear-gradient(top, #90c591, #81af82);
+            color: @color-white;
+        }
+    }
 }
 
 #login {
-    margin: auto;
-    margin-right: auto;
-    width: 500px;
     height: 220px;
-    z-index: 40;
-    position: absolute;
-    left: 0;
-    bottom: 137px;
     font-size: 20px;
     color: #F4EADD;
     font-family: 'Raleway', Sans Serif;
     letter-spacing: 1px;
-    .text {
-        float: left;
-        margin-right: 10px;
-        margin-left: 85px;
+
+    .section {
+        .size(@height: 28px);
+        margin-bottom: 18px;
     }
-    #loginPasswordBox,
-    #loginNameBox {
-        .linear-gradient(top, @color-login-field-top,
-                         @color-login-field-bot);
+
+    .text {
+        .size(@width: 120px);
+        line-height: 28px;
         float: left;
-        position: absolute;
-        left: 200px;
-        width: 250px;
-        height: 28px;
-        padding: 0px 4px;
-        border-radius: 3px;
-        background-color: @color-input-background;
-        font-weight: bold;
-        font-size: 12px;
-        box-shadow: 1px 1px 1px 1px rgba(0,0,0,.1);
-        &:focus {
-            background-color: @color-background-white;
-            box-shadow: 0px 2px 2px 0 @color-defaultGray inset;
-            outline: none;
-            color: @color-black;
-            font-size: 12px;
+    }
+
+    .input {
+        float: right;
+        width: 290px;
+    }
+}
+
+#signup {
+    display: none;
+    font-family: Open Sans, Sans Serif;
+
+    .text {
+        .size(@height: 20px);
+        .font(@size: 15px, @weight: bold);
+        color: #9E9E9E;
+
+        a {
+            color: @color-text-blue;
+            cursor: pointer;
+
+            &:hover {
+                color: @color-text-topAction;
+            }
         }
     }
-    #loginButton {
-        .action-gradient;
-        color: @color-text-cyan;
-        font-size: 16px;
-        font-weight: light;
-        text-align: center;
-        line-height: 30px;
-        width: 110px;
-        height: 30px;
-        border-radius: 3px 3px 3px 3px;
-        box-shadow: 1px 1px 1px 1px rgba(0,0,0,.1);
-        cursor: pointer;
-        position: absolute;
-        left: 340px;
-        bottom: 95px;
+
+    .section {
+        .size(@height: 53px);
+        margin-bottom: 10px;
+        clear: both;
+
+        .part {
+            &:first-child {
+                float: left;
+            }
+            &:last-child {
+               float: right;
+            }
+        }
+
+        .input {
+            .size(@width: 100%);
+            margin-top: 5px;
+        }
+
+        &.nameSection {
+            .input {
+                .size(@width: 185px);
+            }
+        }
+
+        &.submitSection {
+            .size(@height: 30px);
+            line-height: 30px;
+            margin-top: 20px;
+
+            .termPart {
+                .size(@height: 30px);
+                .position(relative, @top: 5px);
+                cursor: pointer;
+
+                div, input {
+                    float: left;
+                }
+
+                .text {
+                    margin-left: 10px;
+                }
+            }
+        }
     }
+
+    .lognInSection {
+        .size(@height: 23px);
+        line-height: 25px;
+        float: right;
+        margin-top: 10px;
+    }
+}
+
+#insightVersion {
+    position: absolute;
+    .position(absolute, @left: 10px, @bottom: 10px);
+    .size(@width: 300px, @height: 10px);
+    color: white;
+    opacity: 0.5;
+    font-size: 10pt;
 }
 
 #mainContainer {
@@ -195,9 +301,5 @@ body {
     input:not([type=checkbox]) {
         box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.3);
     }
-
-
-
 }
-
 /* END LOGIN */
