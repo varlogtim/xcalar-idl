@@ -369,8 +369,8 @@ module.exports = {
 
     dsForm: {
         'Instr': 'INPUT FILE PATH AND FILE NAME TO POINT TO DATASET. THEN SELECT FILE FORMAT. POINTED DATA WILL BE LISTED ON THE LEFT.',
-        'filePathHint': 'Enter File Directory',
-        'fileNameHint': 'Enter Dataset Name',
+        'filePathHint': 'Data Source Path',
+        'fileNameHint': 'Dataset Name',
         'fileNameTitle': 'A valid name with no special characters',
         'HeaderTitle': 'Check to Promote First Row As Header',
         'UDFHint': 'Please select the field and line delimiters that are used in the output of the UDF',
@@ -473,11 +473,11 @@ module.exports = {
 
     fileBrowser: {
         'header': 'Browse Dataset',
-        'instr': 'Select the dataset that you want to point to and then click the "OPEN DATASET" button to point to it.',
+        'instr': 'Select the data source that you want to point to and then click the "SELECT DATA SOURCE" button to point to it.',
         'location': 'location',
         'Up': 'Go back',
         'filePathHint': 'Click to see history',
-        'CONFIRM': 'OPEN DATASET',
+        'CONFIRM': 'SELECT DATA SOURCE',
         'FileName': 'File Name',
         'FileFormat': 'File Format',
         'NewTraget': 'New Target'
