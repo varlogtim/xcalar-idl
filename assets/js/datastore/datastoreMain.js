@@ -41,21 +41,26 @@ window.DataStore = (function($, DataStore) {
     };
 
     function setupViews() {
-        var $exploreView = $('#exploreView');
-        var $exportView = $('#exportView');
-        var $contentHeaderRight = $('#contentHeaderRight');
-        var $contentHeaderMidText = $('#contentHeaderMid').find('.text');
         $('#contentHeaderLeft').find('.buttonArea').click(function() {
             var $button = $(this);
             if ($button.hasClass('active')) {
                 return;
             }
 
+            var $exploreView = $('#exploreView');
+            var $exportView = $('#exportView');
+            var $contentHeaderRight = $('#contentHeaderRight');
+            var $contentHeaderMidText = $('#contentHeaderMid').find('.text');
+
             if ($button.attr('id') === "outButton") {
                 $exploreView.hide();
                 $contentHeaderRight.hide();
                 $exportView.show();
                 $contentHeaderMidText.text(DSTStr.Export);
+                if ($exportView.hasClass("firstTouch")) {
+                    ExportTarget.refresh();
+                    $exportView.removeClass("firstTouch");
+                }
             } else {
                 $exploreView.show();
                 $contentHeaderRight.show();
@@ -69,5 +74,4 @@ window.DataStore = (function($, DataStore) {
     }
 
     return (DataStore);
-
 }(jQuery, {}));

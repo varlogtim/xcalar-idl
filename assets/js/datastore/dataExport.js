@@ -22,8 +22,8 @@ window.ExportTarget = (function($, ExportTarget) {
             "container": "#exportDataForm"
         });
 
-        $exportView.find('.refresh').click(function() {
-            restoreExportTarget();
+        $("#dsExport-refresh").click(function() {
+            ExportTarget.refresh();
         });
 
         var $gridView = $exportView.find('.gridItems');
@@ -70,8 +70,42 @@ window.ExportTarget = (function($, ExportTarget) {
                             .addClass('btn-cancel');
         $form.find('.iconWrapper').css('background', '#AEAEAE');
         $('#targetTypeList').css('pointer-events', 'none');
+    };
 
-        restoreExportTarget();
+    ExportTarget.refresh = function() {
+        xcHelper.showRefreshIcon($exportView.find('.gridViewWrapper'));
+
+        XcalarListExportTargets("*", "*")
+        .then(function(targs) {
+            var targets = targs.targets;
+            var numTargs = targs.numTargets;
+            var types = [];
+            exportTargets = [];
+            for (var i = 0; i < numTargs; i++) {
+                var type = ExTargetTypeTStr[targets[i].hdr.type];
+                if (type === "file") {
+                    type = "Local Filesystem";
+                } else if (type === "odbc") {
+                    type = "ODBC";
+                }
+                var typeIndex = types.indexOf(type);
+                if (typeIndex === -1) {
+                    types.push(type);
+                    typeIndex = types.length - 1;
+                    exportTargets.push({name: type, targets: []});
+                }
+                exportTargets[typeIndex].targets.push(targets[i].hdr.name);
+                // Here we can make use of targets[i].specificInput.(odbcInput|
+                // sfInput).(connectionString|url) to display more information
+                // For eg for sfInput, we can now get back the exact location.
+                // We no longer require the users to memorize where default
+                // points to
+            }
+            restoreGrids();
+        })
+        .fail(function(error) {
+            Alert.error(DSExportTStr.RestoreFail, error.error);
+        });
     };
 
     ExportTarget.getTargets = function() {
@@ -122,42 +156,6 @@ window.ExportTarget = (function($, ExportTarget) {
 
         return (deferred.promise());
     };
-
-    function restoreExportTarget() {
-        xcHelper.showRefreshIcon($exportView.find('.gridViewWrapper'));
-
-        XcalarListExportTargets("*", "*")
-        .then(function(targs) {
-            var targets = targs.targets;
-            var numTargs = targs.numTargets;
-            var types = [];
-            exportTargets = [];
-            for (var i = 0; i < numTargs; i++) {
-                var type = ExTargetTypeTStr[targets[i].hdr.type];
-                if (type === "file") {
-                    type = "Local Filesystem";
-                } else if (type === "odbc") {
-                    type = "ODBC";
-                }
-                var typeIndex = types.indexOf(type);
-                if (typeIndex === -1) {
-                    types.push(type);
-                    typeIndex = types.length - 1;
-                    exportTargets.push({name: type, targets: []});
-                }
-                exportTargets[typeIndex].targets.push(targets[i].hdr.name);
-                // Here we can make use of targets[i].specificInput.(odbcInput|
-                // sfInput).(connectionString|url) to display more information
-                // For eg for sfInput, we can now get back the exact location.
-                // We no longer require the users to memorize where default
-                // points to
-            }
-            restoreGrids();
-        })
-        .fail(function(error) {
-            Alert.error(DSExportTStr.RestoreFail, error.error);
-        });
-    }
 
     function restoreGrids() {
         // return;

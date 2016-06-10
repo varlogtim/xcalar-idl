@@ -302,8 +302,8 @@ window.StartManager = (function(StartManager, $) {
                 case ("dataStoresTab"):
                     $("#datastorePanel").addClass("active");
                     DataSampleTable.sizeTableWrapper();
-                    if ($curTab.hasClass("firsTouch")) {
-                        $curTab.removeClass("firsTouch");
+                    if ($curTab.hasClass("firstTouch")) {
+                        $curTab.removeClass("firstTouch");
                         DS.setupView();
                     }
                     break;
