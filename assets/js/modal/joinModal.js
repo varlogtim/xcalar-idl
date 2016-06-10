@@ -441,6 +441,10 @@ window.JoinModal = (function($, JoinModal) {
         var rColNum   = xcHelper.parseColNum($rightCol) - 1;
         var rTableId  = $rightCol.closest(".joinTable").data("id");
 
+        // XXX to implement UI option to keep tables
+        // var options = {
+        //     keepTables: true
+        // };
         resetJoinTables();
         xcFunction.join([lColNum], lTableId, [rColNum], rTableId,
                         joinType, newTableName);
@@ -496,6 +500,10 @@ window.JoinModal = (function($, JoinModal) {
         }
 
         resetJoinTables();
+        // XXX to implement UI option to keep tables
+        // var options = {
+        //     keepTables: true
+        // };
         xcFunction.join(lColNums, lTableId, rColNums, rTableId,
                         joinType, newTableName);
         return true;

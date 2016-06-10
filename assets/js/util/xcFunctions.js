@@ -299,10 +299,11 @@ window.xcFunction = (function($, xcFunction) {
 
     // join two tables
     xcFunction.join = function(lColNums, lTableId, rColNums, rTableId,
-                                joinStr, newTableName)
+                                joinStr, newTableName, options)
     {
         var deferred = jQuery.Deferred();
         var joinType = joinLookUp[joinStr];
+        options = options || {};
 
         if (joinType == null) {
             deferred.reject("Incorrect join type!");
@@ -344,7 +345,8 @@ window.xcFunction = (function($, xcFunction) {
             "newTableName": newTableName,
             "joinStr"     : joinStr,
             "worksheet"   : worksheet,
-            "htmlExclude" : ["lTablePos", "rTablePos", "worksheet"]
+            "keepTables"  : options.keepTables,
+            "htmlExclude" : ["lTablePos", "rTablePos", "worksheet", "keepTables"]
         };
 
         var txId = Transaction.start({
@@ -356,13 +358,29 @@ window.xcFunction = (function($, xcFunction) {
         xcHelper.lockTable(lTableId);
         xcHelper.lockTable(rTableId);
 
-        XIApi.join(txId, joinType, lColNames, lTableName, rColNames, rTableName, newTableName)
+        var startTime = (new Date()).getTime();
+        var focusOnTable = false;
+        var startScrollPosition = $('#mainFrame').scrollLeft();
+
+        XIApi.join(txId, joinType, lColNames, lTableName, rColNames, rTableName,
+                    newTableName, options)
         .then(function(finalTableName, finalTableCols) {
+            var tablesToReplace = [];
+            var refreshOptions = {};
+            if (!options.keepTables) {
+                tablesToReplace = [lTableName, rTableName];
+            } else {
+                focusOnTable = checkIfShouldScrollNewTable(startTime,
+                                                        startScrollPosition);
+                refreshOptions = {"focusWorkspace": focusOnTable};
+            }
             return TblManager.refreshTable([finalTableName], finalTableCols,
-                                        [lTableName, rTableName], worksheet);
+                                        tablesToReplace, worksheet,
+                                        refreshOptions);
         })
         .then(function() {
-            Transaction.done(txId, {"msgTable": newTableId});
+            Transaction.done(txId, {"msgTable": newTableId,
+                                    "noNotification": focusOnTable});
             deferred.resolve();
         })
         .fail(function(error) {
@@ -416,18 +434,8 @@ window.xcFunction = (function($, xcFunction) {
             finalTableCols = nTableCols;
             finalTableName = nTableName;
 
-            var timeAllowed = 1000;
-            var endTime = (new Date()).getTime();
-            var elapsedTime = endTime - startTime;
-            var timeSinceLastClick = endTime -
-                                     gMouseEvents.getLastMouseDownTime();
-            // we'll focus on table if its been less than timeAllowed OR
-            // if the user hasn't clicked or scrolled
-            if (elapsedTime < timeAllowed ||
-                (timeSinceLastClick >= elapsedTime &&
-                    ($('#mainFrame').scrollLeft() === startScrollPosition))) {
-                focusOnTable = true;
-            }
+            focusOnTable = checkIfShouldScrollNewTable(startTime,
+                                                        startScrollPosition);
             var options = {"focusWorkspace": focusOnTable};
 
             return TblManager.refreshTable([finalTableName], finalTableCols,
@@ -712,6 +720,23 @@ window.xcFunction = (function($, xcFunction) {
 
         return deferred.promise();
     };
+
+    function checkIfShouldScrollNewTable(startTime, startScrollPosition) {
+        var timeAllowed = 1000;
+        var endTime = (new Date()).getTime();
+        var elapsedTime = endTime - startTime;
+        var timeSinceLastClick = endTime -
+                                 gMouseEvents.getLastMouseDownTime();
+        // we'll focus on table if its been less than timeAllowed OR
+        // if the user hasn't clicked or scrolled
+        if (elapsedTime < timeAllowed ||
+            (timeSinceLastClick >= elapsedTime &&
+                ($('#mainFrame').scrollLeft() === startScrollPosition))) {
+            return (true);
+        } else {
+            return (false);
+        }
+    }
 
     return (xcFunction);
 }(jQuery, {}));

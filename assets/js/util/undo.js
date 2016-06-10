@@ -65,6 +65,11 @@ window.Undo = (function($, Undo) {
     undoFuncs[SQLOps.Join] = function(options) {
         var deferred = jQuery.Deferred();
 
+        if (options.keepTables) {
+            var tableId = xcHelper.getTableId(options.newTableName);
+            return (TblManager.sendTableToOrphaned(tableId, {'remove': true}));
+        }
+
         var currTableId = xcHelper.getTableId(options.newTableName);
         var currTableWorksheet = WSManager.getWSFromTable(currTableId);
 
