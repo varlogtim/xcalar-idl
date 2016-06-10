@@ -85,17 +85,35 @@ function thriftLog() {
         console.error('(╯°□°）╯︵ ┻━┻ ' + msg);
         errorLists.push(thriftError);
 
-        var alertError;
-        // XXX We might need to include connection status 502 (Proxy error)
-        if (status === StatusT.StatusConnReset ||
-            status === StatusT.StatusConnRefused) {
-            // This is bad, connection was lost so UI cannot do anything
-            // LOCK THE SCREEN
-            alertError = {"error": ThriftTStr.CCNBE};
-            Alert.error(ThriftTStr.CCNBEErr, alertError, {"lockScreen": true});
-
+        if (status === StatusT.StatusOk) {
+            // if we get this status, there may not be a connection to the backend
+            // if xcalargetversion doesn't work then it's very probably that
+            // there is no connection so alert.
+            var connectionCheck = true;
+            XcalarGetVersion(connectionCheck)
+            .fail(function() {
+                console.warn('Checked XcalarGetVersion and did not return ' +
+                              'a successful response');
+                alertError = {"error": ThriftTStr.CCNBE};
+                Alert.error(ThriftTStr.CCNBEErr, alertError,
+                            {"lockScreen": true});
+            });
             return thriftError;
+        } else {
+            var alertError;
+            // XXX We might need to include connection status 502 (Proxy error)
+            if (status === StatusT.StatusConnReset ||
+                status === StatusT.StatusConnRefused) {
+                // This is bad, connection was lost so UI cannot do anything
+                // LOCK THE SCREEN
+                alertError = {"error": ThriftTStr.CCNBE};
+                Alert.error(ThriftTStr.CCNBEErr, alertError, {"lockScreen": true});
+
+                return thriftError;
+            }
         }
+
+
     }
 
     // case other than connection reset and no mem,
@@ -357,7 +375,7 @@ function checkIfTableHasReadyState(node) {
 }
 
 // ========================= MAIN FUNCTIONS  =============================== //
-function XcalarGetVersion() {
+function XcalarGetVersion(connectionCheck) {
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return PromiseHelper.resolve(null);
     }
@@ -370,7 +388,12 @@ function XcalarGetVersion() {
     xcalarGetVersion(tHandle)
     .then(deferred.resolve)
     .fail(function(error) {
-        deferred.reject(thriftLog("XcalarGetVersion()", error));
+        if (connectionCheck) {
+            // don't call thriftLog or else it may call XcalarGetVersion again
+            deferred.reject("ConnectionCheck Failed", error);
+        } else {
+            deferred.reject(thriftLog("XcalarGetVersion()", error));
+        }
     });
 
     return (deferred.promise());
