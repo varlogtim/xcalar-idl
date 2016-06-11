@@ -27,7 +27,7 @@
  * Sample: Please read hello.js as a start example
  *
  * Advanced:
- *   1. Read extensionApi_FASJ.js, understand the available operation
+ *   1. Read extensionApi_Operations.js, understand the available operation
  *
  *   2. Read promiseApi.js and uderstand how promise works
  *
