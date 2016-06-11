@@ -179,7 +179,7 @@ window.UExtKMeans = (function(UExtKMeans, $) {
 
             // Step 3: Calculate initial centroids
             // Step 3a: Map random clusters to each of the vectors
-            XcalarMap(prevClusterColName, 'int(kmeans:randCluster(' + (k-1) + '))',
+            XcalarMap(prevClusterColName, 'mod(genUnique(),' + k + ')',
                       tableName, clusterTableName, txId, false)
             .then(function() {
                 var queryStr = "";
