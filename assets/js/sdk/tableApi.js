@@ -90,11 +90,23 @@ window.XcSDK.Table.prototype = {
 
         this.active = true;
 
-        if (!tablesToReplace) {
+        if (tablesToReplace == null) {
             tablesToReplace = [];
         }
-        return TblManager.refreshTable([tableName], tableCols, tablesToReplace,
-                                        ws);    
+
+        if (!(tablesToReplace instanceof Array)) {
+            tablesToReplace = [tablesToReplace];
+        }
+
+        for (var i = 0, len = tablesToReplace.length; i < len; i++) {
+            var srcTableId = xcHelper.getTableId(tablesToReplace[i]);
+            if (gTables[srcTableId] == null || !gTables[srcTableId].isActive()) {
+                var error = 'Invalid Table "' + tablesToReplace[i] + '" to replace';
+                return PromiseHelper.reject(error);
+            }
+        }
+
+        return TblManager.refreshTable([tableName], tableCols, tablesToReplace, ws);
     },
 
     "addCol": function(col, position) {

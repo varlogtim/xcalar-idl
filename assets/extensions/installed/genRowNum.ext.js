@@ -66,7 +66,7 @@ window.UExtGenRowNum = (function(UExtGenRowNum) {
                 var newCol = new XcSDK.Column(newColName, "integer");
                 table.addCol(newCol);
 
-                return table.addToWorksheet([srcTableName]);
+                return table.addToWorksheet(srcTableName);
             })
             .then(deferred.resolve)
             .fail(deferred.reject);
