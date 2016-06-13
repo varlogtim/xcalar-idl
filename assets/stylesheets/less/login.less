@@ -228,7 +228,6 @@ body {
 
             .termPart {
                 .size(@height: 30px);
-                .position(relative, @top: 5px);
                 cursor: pointer;
 
                 div, input {
@@ -237,6 +236,11 @@ body {
 
                 .text {
                     margin-left: 10px;
+
+                    label {
+                        cursor: pointer;
+                        .noSelection;
+                    }
                 }
             }
         }
@@ -246,7 +250,7 @@ body {
         .size(@height: 23px);
         line-height: 25px;
         float: right;
-        margin-top: 10px;
+        margin-top: 5px;
     }
 }
 
