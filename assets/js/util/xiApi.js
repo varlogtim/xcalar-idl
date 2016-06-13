@@ -24,11 +24,6 @@ window.XIApi = (function(XIApi, $) {
         if (colName == null || tableName == null || aggOp == null || txId == null) {
             return PromiseHelper.reject("Invalid args in aggregate");
         }
-        if (!dstAggName) {
-            dstAggName =  tableName.split("#")[0] + "-aggregate" +
-                          Authentication.getHashId();
-        }
-
         var evalStr = generateAggregateString(colName, aggOp);
         return XIApi.aggregateWithEvalStr(txId, evalStr, tableName, dstAggName);
     };
@@ -39,12 +34,12 @@ window.XIApi = (function(XIApi, $) {
             return PromiseHelper.reject("Invalid args in aggregate");
         }
 
-        if (!dstAggName) {
-            dstAggName =  tableName.split("#")[0] + "-aggregate" +
-                          Authentication.getHashId();
+        var deferred = jQuery.Deferred();
+
+        if (!isValidTableName(dstAggName)) {
+            dstAggName = getNewTableName(tableName, "-aggregate");
         }
 
-        var deferred = jQuery.Deferred();
         XcalarAggregate(evalStr, dstAggName, tableName, txId)
         .then(function(value, dstDagName) {
             try {

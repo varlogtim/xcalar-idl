@@ -694,7 +694,7 @@ window.ColManager = (function($, ColManager) {
                         newFieldNames[i] = colPrefix + "-" + i;
                     }
 
-                    if (table.hasColWithFrontName(newFieldNames[i])) {
+                    if (table.hasCol(newFieldNames[i])) {
                         newFieldNames = [];
                         colPrefix = colName + "-split-" + tryCount;
                         break;

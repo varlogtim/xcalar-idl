@@ -359,7 +359,7 @@ window.ExtensionPanel = (function(ExtensionPanel, $) {
                                 'by <span class="text">' + ext.getAuthor() + '</span>' +
                             '</div>' +
                             '<div class="detail textOverflow">' +
-                                ext.getDesription() +
+                                ext.getDescription() +
                             '</div>' +
                         '</div>' +
                         '<div class="buttonArea">' +

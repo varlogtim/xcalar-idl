@@ -235,7 +235,7 @@ window.xcHelper = (function($, xcHelper) {
             return colName;
         }
 
-        if (!table.hasColWithFrontName(colName)) {
+        if (!table.hasCol(colName)) {
             return colName;
         }
 
@@ -245,7 +245,7 @@ window.xcHelper = (function($, xcHelper) {
             ++tryCount;
             newColName = colName + "_" + tryCount;
 
-            if (!table.hasColWithFrontName(newColName)) {
+            if (!table.hasCol(newColName)) {
                 break;
             }
         }

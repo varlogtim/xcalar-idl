@@ -84,7 +84,7 @@ window.ExtensionInfoModal = (function(ExtensionInfoModal, $) {
         var $detailArea = $extModal.find(".detailInfos");
         $detailArea.find(".name .text").text(ext.getName());
         $detailArea.find(".category .text").text(ext.getCategory());
-        $detailArea.find(".description .text").text(ext.getDesription());
+        $detailArea.find(".description .text").text(ext.getDescription());
     }
 
     return (ExtensionInfoModal);

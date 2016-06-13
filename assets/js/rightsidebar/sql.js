@@ -144,7 +144,7 @@ window.SQL = (function($, SQL) {
             return;
         }
 
-        var sql = new SQLConstructor({
+        var sql = new XcLog({
             "title"  : title,
             "options": options,
             "cli"    : cli
@@ -157,7 +157,7 @@ window.SQL = (function($, SQL) {
     };
 
     SQL.errorLog = function(title, options, cli, error) {
-        var sql = new SQLConstructor({
+        var sql = new XcLog({
             "title"  : title,
             "options": options,
             "cli"    : cli,
@@ -468,7 +468,7 @@ window.SQL = (function($, SQL) {
         })
         .then(function() {
             oldLogs.forEach(function(oldSQL) {
-                var sql = new SQLConstructor(oldSQL);
+                var sql = new XcLog(oldSQL);
                 addLog(sql, true);
             });
 
@@ -506,7 +506,7 @@ window.SQL = (function($, SQL) {
         })
         .then(function() {
             oldErrors.forEach(function(oldErr) {
-                var errorLog = new SQLConstructor(oldErr);
+                var errorLog = new XcLog(oldErr);
                 errors.push(errorLog);
             });
 

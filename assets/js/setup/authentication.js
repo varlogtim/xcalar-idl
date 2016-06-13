@@ -9,13 +9,13 @@ window.Authentication = (function(jQuery, Authentication) {
         KVStore.getAndParse(authKey, gKVScope.AUTH)
         .then(function(oldAuthInfo) {
             if (oldAuthInfo == null) {
-                authInfo = new AuthInfo({
+                authInfo = new XcAuth({
                     "idCount": 0,
                     "hashTag": generateHashTag()
                 });
                 KVStore.put(authKey, JSON.stringify(authInfo), true, gKVScope.AUTH);
             } else {
-                authInfo = new AuthInfo(oldAuthInfo);
+                authInfo = new XcAuth(oldAuthInfo);
             }
 
             deferred.resolve();

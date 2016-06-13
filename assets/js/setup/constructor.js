@@ -1,5 +1,5 @@
 // version.js
-function VersionInfo(options) {
+function XcVersion(options) {
     options = options || {};
     this.version = options.version;
     this.SHA = options.SHA;
@@ -8,7 +8,7 @@ function VersionInfo(options) {
 }
 
 // authentication.js
-function AuthInfo(options) {
+function XcAuth(options) {
     options = options || {};
     this.idCount = options.idCount;
     this.hashTag = options.hashTag;
@@ -46,7 +46,8 @@ function MouseEvents() {
     };
 }
 
-function SQLConstructor(args) {
+// sql.js
+function XcLog(args) {
     this.title = args.title;
     this.options = args.options || {};
 
@@ -64,7 +65,7 @@ function SQLConstructor(args) {
     return this;
 }
 
-SQLConstructor.prototype = {
+XcLog.prototype = {
     "isError": function() {
         if (this.sqlType === SQLType.Error) {
             return true;
@@ -94,24 +95,6 @@ function TableMeta(options) {
     if (!options.tableName || !options.tableId) {
         console.error("error table meta!");
     }
-
-    // xx start temp fix conversion used to apply table status
-    if (options.hasOwnProperty('active')) {
-        if (options.active) {
-            options.status = TableType.Active;
-        } else if (options.isOrphaned) {
-            options.status = TableType.Orphan;
-        } else {
-            options.status = TableType.Archived;
-        }
-    } else if (options.hasOwnProperty('isOrphaned')) {
-        if (options.isOrphaned) {
-            options.status = TableType.Orphan;
-        } else {
-            options.status = TableType.Archived;
-        }
-    }
-    // end temp fix
 
     this.tableName = options.tableName;
     this.tableId = options.tableId;
@@ -318,8 +301,7 @@ TableMeta.prototype = {
         return false;
     },
 
-
-    hasColWithFrontName: function(colName) {
+    hasCol: function(colName) {
         // check both fronName and backName
         var tableCols = this.tableCols;
         for (var i = 0, len = tableCols.length; i < len; i++) {
@@ -383,14 +365,6 @@ function ProgCol(options) {
     return this;
 }
 
-function ColFunc(options) {
-    options = options || {};
-    this.name = options.name;
-    this.args = options.args || [];
-
-    return this;
-}
-
 ProgCol.prototype = {
     "isDATACol": function() {
         if (this.name === "DATA" && this.func.name === "raw") {
@@ -417,6 +391,14 @@ ProgCol.prototype = {
     }
 };
 
+function ColFunc(options) {
+    options = options || {};
+    this.name = options.name;
+    this.args = options.args || [];
+
+    return this;
+}
+
 // store.js
 function getMETAKeys() {
     // the key should be as short as possible
@@ -426,12 +408,9 @@ function getMETAKeys() {
         "TI"   : "TILookup",
         "WS"   : "worksheets",
         "AGGS" : 'aggregates',
-        "DS"   : "gDSObj",
         "CLI"  : "scratchPad",
         "CART" : "datacarts",
-        "STATS": "statsCols",
-        "USER" : "userSettings",
-
+        "STATS": "statsCols"
         //"DFG"  : "DFG",
         //"SCHE" : "schedule"
     };
@@ -491,6 +470,14 @@ function getUserInfoKeys() {
     };
 }
 
+function UserInfoConstructor(UserInfoKeys, options) {
+    options = options || {};
+    this[UserInfoKeys.DS] = options.DS || null;
+    this[UserInfoKeys.PREF] = options.PREF || null;
+
+    return this;
+}
+
 function UserPref(options) {
     options = options || {};
     this.datasetListView = options.datasetListView || false;
@@ -511,14 +498,6 @@ UserPref.prototype = {
         return this;
     }
 };
-
-function UserInfoConstructor(UserInfoKeys, options) {
-    options = options || {};
-    this[UserInfoKeys.DS] = options.DS || null;
-    this[UserInfoKeys.PREF] = options.PREF || null;
-
-    return this;
-}
 
 // datastore.js
 function Cart(options) {
@@ -1128,32 +1107,6 @@ DSObj.prototype = {
 
 /* Start of DFGObj */
 /* dataflow.js */
-function DFGObj(name, options) {
-    options = options || {};
-    this.name = name;
-    this.schedules = options.schedules || [];
-    this.parameters = options.parameters || [];
-    this.paramMap = options.paramMap || {}; // a map
-    this.nodeIds = options.nodeIds || {}; // a map
-
-    this.dataFlows = [];
-    this.retinaNodes = {};
-
-    var dataFlows = options.dataFlows || [];
-    for (var i = 0, len = dataFlows.length; i < len; i++) {
-        this.addDataFlow(dataFlows[i]);
-    }
-
-    if (options.retinaNodes != null) {
-        for (var nodeId in options.retinaNodes) {
-            var retinaNode = options.retinaNodes[nodeId];
-            this.retinaNodes[nodeId] = new RetinaNode(retinaNode);
-        }
-    }
-
-    return this;
-}
-
 // a inner part of DFGObj
 function RetinaNode(options) {
     options = options || {};
@@ -1242,6 +1195,32 @@ function CanvasExpandInfo(options) {
     this.tooltip = options.tooltip;
     this.left = options.left;
     this.top = options.top;
+
+    return this;
+}
+
+function DFGObj(name, options) {
+    options = options || {};
+    this.name = name;
+    this.schedules = options.schedules || [];
+    this.parameters = options.parameters || [];
+    this.paramMap = options.paramMap || {}; // a map
+    this.nodeIds = options.nodeIds || {}; // a map
+
+    this.dataFlows = [];
+    this.retinaNodes = {};
+
+    var dataFlows = options.dataFlows || [];
+    for (var i = 0, len = dataFlows.length; i < len; i++) {
+        this.addDataFlow(dataFlows[i]);
+    }
+
+    if (options.retinaNodes != null) {
+        for (var nodeId in options.retinaNodes) {
+            var retinaNode = options.retinaNodes[nodeId];
+            this.retinaNodes[nodeId] = new RetinaNode(retinaNode);
+        }
+    }
 
     return this;
 }
@@ -2653,7 +2632,7 @@ ExtItem.prototype = {
         return this.author || "N/A";
     },
 
-    "getDesription": function() {
+    "getDescription": function() {
         return this.description || "";
     },
 

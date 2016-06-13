@@ -46,12 +46,14 @@ window.XVM = (function(XVM) {
     };
 
     XVM.commitVersionInfo = function() {
+        // the reason to put version info into kvStore
+        // is: when upgrade, we need to know the version
         var versionInfo;
 
         KVStore.get(versionKey, gKVScope.VER)
         .then(function(value) {
             if (value == null) {
-                versionInfo = new VersionInfo({
+                versionInfo = new XcVersion({
                     "version": fullVersion,
                     "SHA"    : XVM.getSHA()
                 });
