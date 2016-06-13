@@ -85,7 +85,7 @@ window.xcFunction = (function($, xcFunction) {
         });
 
         var aggInfo = Aggregates.checkAgg(tableId, backColName, aggrOp);
-        if (aggInfo != null) {
+        if (aggInfo != null && (!aggName || aggName[0] !== "@")) {
             xcHelper.unlockTable(tableId);
             setTimeout(function() {
                 var alertMsg = xcHelper.replaceMsg(AggTStr.AggMsg, {
@@ -138,7 +138,10 @@ window.xcFunction = (function($, xcFunction) {
             }
             var aggRes = {
                 "value"  : value,
-                "dagName": dstDagName
+                "dagName": dstDagName,
+                "tableId": tableId,
+                "backColName": backColName,
+                "op": aggrOp
             };
 
             Aggregates.addAgg(tableId, backColName, aggrOp, aggRes);

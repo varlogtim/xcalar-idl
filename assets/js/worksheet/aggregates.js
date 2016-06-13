@@ -23,7 +23,13 @@ window.Aggregates = (function(Aggregates, $) {
         // use this as key so that if later you want to sort,
         // write a sort function that split by "#" and
         // extract tableId/colNam/aggOp to sort by one of them
-        var key = tableId + "#" + colName + "#" + aggOp;
+        var key;
+        var dagName = aggRes.dagName;
+        if (dagName[0] === "@") {
+            key = dagName;
+        } else {
+            key = tableId + "#" + colName + "#" + aggOp;
+        }
 
         if (aggs.hasOwnProperty(key)) {
             // XXX now if this agg ops is exist, do not update it,
