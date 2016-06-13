@@ -102,7 +102,6 @@ window.Alert = (function($, Alert){
             "msg"    : msg,
             "isAlert": true
         };
-
         alertOptions = $.extend(options, alertOptions);
         Alert.show(alertOptions);
     };
@@ -121,7 +120,6 @@ window.Alert = (function($, Alert){
 
     function closeHelper($modalContainer) {
         var deferred = jQuery.Deferred();
-
         if ($modalContainer) {
             $modal.hide();
             $modalContainer.css("z-index", 40);

@@ -152,7 +152,7 @@ window.Support = (function(Support, $) {
         Support.stopHeartbeatCheck();
 
         // hide all modal
-        $(".modalContainer").hide();
+        $(".modalContainer:not(.locked)").hide();
         // this browser tab does not hold any more
         sessionStorage.removeItem(username);
         // user should force to logout
