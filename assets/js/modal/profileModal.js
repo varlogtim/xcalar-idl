@@ -883,18 +883,15 @@ window.Profile = (function($, Profile, d3) {
     }
 
     function getAggResult(colName, tableName, aggOp, txId) {
-        var dstAggName =  tableName.split("#")[0] + "-aggregate" +
-                          Authentication.getHashId();
         if (aggOp === "sd") {
             // standard deviation
             var totalNum = gTables[curTableId].resultSetCount;
             var evalStr = "sqrt(div(sum(pow(sub(" + colName + ", avg(" +
                           colName + ")), 2)), " + totalNum + "))";
 
-            return XIApi.aggregateWithEvalStr(txId, evalStr, dstAggName,
-                                              tableName);
+            return XIApi.aggregateWithEvalStr(txId, evalStr, tableName);
         } else {
-            return XIApi.aggregate(txId, aggOp, colName, dstAggName, tableName);
+            return XIApi.aggregate(txId, aggOp, colName, tableName);
         }
     }
 

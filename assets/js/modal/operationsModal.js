@@ -2294,8 +2294,7 @@ window.OperationsModal = (function($, OperationsModal) {
             aggStr = xcHelper.castStrHelper(args[0], colTypeInfos[0].type);
         }
         if (aggName.length < 2) {
-            aggName = gTables[tableId].tableName.split("#")[0] + "-aggregate" +
-                          Authentication.getHashId();
+            aggName = null;
         }
 
         xcFunction.aggregate(aggColNum, tableId, aggrOp, aggStr, aggName);

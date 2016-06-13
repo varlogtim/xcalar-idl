@@ -66,6 +66,7 @@ window.xcFunction = (function($, xcFunction) {
     };
 
     // aggregate table column
+    // aggName is optional and can be left blank (will autogenerate)
     xcFunction.aggregate = function(colNum, tableId, aggrOp, aggStr, aggName) {
         var deferred = jQuery.Deferred();
 
@@ -124,12 +125,17 @@ window.xcFunction = (function($, xcFunction) {
 
         // XXX temp hack because backend doesn't but should take @ as first char
         // for aggName
-        if (aggName[0] === "@") {
+        var hasPrefix = false;
+        if (aggName && aggName[0] === "@") {
             aggName = aggName.slice(1);
+            hasPrefix = true;
         }
 
-        XIApi.aggregate(txId, aggrOp, aggStr, aggName, tableName)
+        XIApi.aggregate(txId, aggrOp, aggStr, tableName, aggName)
         .then(function(value, dstDagName) {
+            if (hasPrefix) {
+                dstDagName = "@" + dstDagName;
+            }
             var aggRes = {
                 "value"  : value,
                 "dagName": dstDagName

@@ -24,16 +24,15 @@ window.XcSDK.Extension.prototype = (function() {
 
             return deferred.promise();
         },
-
-        "aggregate": function(aggOp, colName, dstAggName, tableName) {
+        // dstAggName is optional and can be left blank (will autogenerate)
+        "aggregate": function(aggOp, colName, tableName, dstAggName) {
             var txId = this.txId;
-            return XIApi.aggregate(txId, aggOp, colName, dstAggName, tableName);
+            return XIApi.aggregate(txId, aggOp, colName, tableName, dstAggName);
         },
-
-        "aggregateWithEvalStr": function(evalStr, dstAggName, tableName) {
+         // dstAggName is optional and can be left blank (will autogenerate)
+        "aggregateWithEvalStr": function(evalStr, tableName, dstAggName) {
             var txId = this.txId;
-            return XIApi.aggregateWithEvalStr(txId, evalStr, dstAggName,
-                                              tableName);
+            return XIApi.aggregateWithEvalStr(txId, evalStr, tableName, dstAggName);
         },
 
         "index": function(colToIndex, tableName) {

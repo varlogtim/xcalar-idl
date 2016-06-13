@@ -19,18 +19,29 @@ window.XIApi = (function(XIApi, $) {
         return deferred.promise();
     };
 
-    XIApi.aggregate = function(txId, aggOp, colName, dstAggName, tableName) {
+    // dstAggName is optional and can be left blank (will autogenerate)
+    XIApi.aggregate = function(txId, aggOp, colName, tableName, dstAggName) {
         if (colName == null || tableName == null || aggOp == null || txId == null) {
             return PromiseHelper.reject("Invalid args in aggregate");
         }
+        if (!dstAggName) {
+            dstAggName =  tableName.split("#")[0] + "-aggregate" +
+                          Authentication.getHashId();
+        }
 
         var evalStr = generateAggregateString(colName, aggOp);
-        return XIApi.aggregateWithEvalStr(txId, evalStr, dstAggName, tableName);
+        return XIApi.aggregateWithEvalStr(txId, evalStr, tableName, dstAggName);
     };
 
-    XIApi.aggregateWithEvalStr = function(txId, evalStr, dstAggName, tableName) {
+    // dstAggName is optional and can be left blank (will autogenerate)
+    XIApi.aggregateWithEvalStr = function(txId, evalStr, tableName, dstAggName) {
         if (evalStr == null || tableName == null || txId == null) {
             return PromiseHelper.reject("Invalid args in aggregate");
+        }
+
+        if (!dstAggName) {
+            dstAggName =  tableName.split("#")[0] + "-aggregate" +
+                          Authentication.getHashId();
         }
 
         var deferred = jQuery.Deferred();
