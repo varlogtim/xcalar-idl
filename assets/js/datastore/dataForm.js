@@ -57,7 +57,7 @@ window.DatastoreForm = (function($, DatastoreForm) {
         });
 
         // set up dropdown list for formats
-        xcHelper.dropdownList($("#fileFormat"), {
+        var dropdownList = new MenuHelper($("#fileFormat"), {
             "onSelect": function($li) {
                 var text = $li.text();
                 if ($li.hasClass("hint") || $formatText.val() === text) {
@@ -69,6 +69,7 @@ window.DatastoreForm = (function($, DatastoreForm) {
             "container": "#importDataView",
             "bounds"   : "#importDataView"
         });
+        dropdownList.setupListeners();
 
         // open file browser
         $("#fileBrowserBtn").click(function() {
@@ -655,7 +656,7 @@ window.DatastoreForm = (function($, DatastoreForm) {
         });
 
         // dropdown list for udf modules and function names
-        xcHelper.dropdownList($udfModuleList, {
+        var moduleList = new MenuHelper($udfModuleList, {
             "onSelect": function($li) {
                 var module = $li.text();
                 selectUDFModule(module);
@@ -663,8 +664,9 @@ window.DatastoreForm = (function($, DatastoreForm) {
             "container": "#importDataView",
             "bounds"   : "#importDataView"
         });
+        moduleList.setupListeners();
 
-        xcHelper.dropdownList($udfFuncList, {
+        var functionList = new MenuHelper($udfFuncList, {
             "onSelect": function($li) {
                 var func = $li.text();
                 selectUDFFunc(func);
@@ -672,13 +674,14 @@ window.DatastoreForm = (function($, DatastoreForm) {
             "container": "#importDataView",
             "bounds"   : "#importDataView"
         });
+        functionList.setupListeners();
     }
 
     function setupFormDelimiter() {
         // set up dropdown list for csv de
         var $csvDelim = $("#csvDelim");
         // setUp both line delimiter and field delimiter
-        xcHelper.dropdownList($csvDelim.find(".dropDownList"), {
+        var csvList = new MenuHelper($csvDelim.find(".dropDownList"), {
             "onSelect": function($li) {
                 var $input = $li.closest(".dropDownList").find(".text");
                 switch ($li.attr("name")) {
@@ -706,6 +709,7 @@ window.DatastoreForm = (function($, DatastoreForm) {
             "container": "#importDataView",
             "bounds"   : "#importDataView"
         });
+        csvList.setupListeners();
 
         // Input event on csv args input box
         $csvDelim.on({

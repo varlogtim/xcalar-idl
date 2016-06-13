@@ -8,7 +8,7 @@ window.ExportTarget = (function($, ExportTarget) {
         var $targetTypeList = $('#targetTypeList');
         var $targetTypeInput = $targetTypeList.find('.text');
 
-        xcHelper.dropdownList($targetTypeList, {
+        var targetList = new MenuHelper($targetTypeList, {
             "onSelect": function($li) {
                 if ($li.hasClass("hint")) {
                     return false;
@@ -21,6 +21,7 @@ window.ExportTarget = (function($, ExportTarget) {
             },
             "container": "#exportDataForm"
         });
+        targetList.setupListeners();
 
         $("#dsExport-refresh").click(function() {
             ExportTarget.refresh();

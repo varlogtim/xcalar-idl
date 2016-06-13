@@ -19,22 +19,22 @@ window.XIApi = (function(XIApi, $) {
         return deferred.promise();
     };
 
-    XIApi.aggregate = function(txId, aggOp, colName, tableName) {
+    XIApi.aggregate = function(txId, aggOp, colName, dstAggName, tableName) {
         if (colName == null || tableName == null || aggOp == null || txId == null) {
             return PromiseHelper.reject("Invalid args in aggregate");
         }
 
         var evalStr = generateAggregateString(colName, aggOp);
-        return XIApi.aggregateWithEvalStr(txId, evalStr, tableName);
+        return XIApi.aggregateWithEvalStr(txId, evalStr, dstAggName, tableName);
     };
 
-    XIApi.aggregateWithEvalStr = function(txId, evalStr, tableName) {
+    XIApi.aggregateWithEvalStr = function(txId, evalStr, dstAggName, tableName) {
         if (evalStr == null || tableName == null || txId == null) {
             return PromiseHelper.reject("Invalid args in aggregate");
         }
 
         var deferred = jQuery.Deferred();
-        XcalarAggregate(evalStr, tableName, txId)
+        XcalarAggregate(evalStr, dstAggName, tableName, txId)
         .then(function(value, dstDagName) {
             try {
                 var val = JSON.parse(value);

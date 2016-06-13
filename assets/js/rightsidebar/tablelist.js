@@ -190,7 +190,7 @@ window.TableList = (function($, TableList) {
     TableList.refreshAggTables = function() {
         // XX temporarily disable until we have aggs stored as variables;
 
-        // var aggInfo = WSManager.getAggInfos();
+        // var aggInfo = Aggregates.getAggs();
         // var tables = [];
 
         // for (var key in aggInfo) {
@@ -225,7 +225,7 @@ window.TableList = (function($, TableList) {
         var $list = $('#aggTablesList .tableInfo[data-id="' + tableId + '"]');
         if ($list.length > 0) {
             var key = $list.data("key");
-            WSManager.removeAggInfo(key);
+            Aggregates.removeAgg(key);
             $list.remove();
         }
     };
@@ -445,7 +445,6 @@ window.TableList = (function($, TableList) {
                         addOrphanedTable(tableName)
                         .then(function(finalTableName){
                             var finalTableId = xcHelper.getTableId(finalTableName);
-                            WSManager.activeAggInfo(key, finalTableId);
                             // TableList.refreshAggTables() is called after
                             // all promises done
                             innerDeferred.resolve();

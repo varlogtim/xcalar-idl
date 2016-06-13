@@ -66,7 +66,7 @@ window.xcFunction = (function($, xcFunction) {
     };
 
     // aggregate table column
-    xcFunction.aggregate = function(colNum, tableId, aggrOp, aggStr) {
+    xcFunction.aggregate = function(colNum, tableId, aggrOp, aggStr, aggName) {
         var deferred = jQuery.Deferred();
 
         var table = gTables[tableId];
@@ -83,7 +83,7 @@ window.xcFunction = (function($, xcFunction) {
             "op" : aggrOp
         });
 
-        var aggInfo = WSManager.checkAggInfo(tableId, backColName, aggrOp);
+        var aggInfo = Aggregates.checkAgg(tableId, backColName, aggrOp);
         if (aggInfo != null) {
             xcHelper.unlockTable(tableId);
             setTimeout(function() {
@@ -111,6 +111,7 @@ window.xcFunction = (function($, xcFunction) {
             "colNum"     : colNum,
             "aggrOp"     : aggrOp,
             "aggStr"     : aggStr,
+            "aggName"    : aggName,
             "htmlExclude": ["aggStr"]
         };
         var msg = StatusMessageTStr.Aggregate + " " + aggrOp + " " +
@@ -121,14 +122,20 @@ window.xcFunction = (function($, xcFunction) {
             "sql"      : sql
         });
 
-        XIApi.aggregate(txId, aggrOp, aggStr, tableName)
+        // XXX temp hack because backend doesn't but should take @ as first char
+        // for aggName
+        if (aggName[0] === "@") {
+            aggName = aggName.slice(1);
+        }
+
+        XIApi.aggregate(txId, aggrOp, aggStr, aggName, tableName)
         .then(function(value, dstDagName) {
             var aggRes = {
                 "value"  : value,
                 "dagName": dstDagName
             };
 
-            WSManager.addAggInfo(tableId, backColName, aggrOp, aggRes);
+            Aggregates.addAgg(tableId, backColName, aggrOp, aggRes);
             TableList.refreshAggTables();
 
             Transaction.done(txId, {"msgTable": tableId});

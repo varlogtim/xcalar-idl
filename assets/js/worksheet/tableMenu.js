@@ -141,12 +141,14 @@ window.TblMenu = (function(TblMenu, $) {
             $list.empty().append(WSManager.getWSLists(true));
         });
 
-        xcHelper.dropdownList($subMenu.find(".dropDownList"), {
+        var subMenuList = new MenuHelper(
+            $subMenu.find(".dropDownList"), {
             "onSelect": function($li) {
                 var $input = $li.closest(".dropDownList").find(".wsName");
                 $input.val($li.text()).focus();
             }
         });
+        subMenuList.setupListeners();
 
         $subMenu.on('keypress', '.moveToWorksheet input', function(event) {
             if (event.which === keyCode.Enter) {

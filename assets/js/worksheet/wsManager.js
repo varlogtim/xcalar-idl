@@ -7,7 +7,6 @@ window.WSManager = (function($, WSManager) {
     var hiddenWS = [];
 
     var noSheetTables = [];
-    var aggInfos = {};
 
     var wsScollBarPosMap = {}; // only a front cache of scroll bar position
 
@@ -34,7 +33,6 @@ window.WSManager = (function($, WSManager) {
         hiddenWS = sheetInfos.hiddenWS || [];
         wsLookUp = sheetInfos.wsInfos || {};
         noSheetTables = sheetInfos.noSheetTables || [];
-        aggInfos = sheetInfos.aggInfos || {};
 
         var wsId;
         for (wsId in wsLookUp) {
@@ -76,7 +74,6 @@ window.WSManager = (function($, WSManager) {
         noSheetTables = [];
         tableIdToWSIdMap = {};
         wsNameToIdMap = {};
-        aggInfos = {};
         activeWorksheet = null;
         nameSuffix = 1;
         initializeWorksheet(true);
@@ -88,8 +85,7 @@ window.WSManager = (function($, WSManager) {
             "wsInfos"      : wsLookUp,
             "wsOrder"      : wsOrder,
             "hiddenWS"     : hiddenWS,
-            "noSheetTables": noSheetTables,
-            "aggInfos"     : aggInfos
+            "noSheetTables": noSheetTables
         });
     };
 
@@ -997,46 +993,6 @@ window.WSManager = (function($, WSManager) {
         });
     };
 
-    // Get all aggreagte information
-    WSManager.getAggInfos = function() {
-        return (aggInfos);
-    };
-
-    WSManager.checkAggInfo = function(tableId, colName, aggOp) {
-        var key = tableId + "#" + colName + "#" + aggOp;
-        return (aggInfos[key]);
-    };
-
-    // add aggregate information
-    WSManager.addAggInfo = function(tableId, colName, aggOp, aggRes) {
-        // use this as key so that if later you want to sort,
-        // write a sort function that split by "#" and
-        // extract tableId/colNam/aggOp to sort by one of them
-        var key = tableId + "#" + colName + "#" + aggOp;
-
-        if (aggInfos.hasOwnProperty(key)) {
-            // XXX now if this agg ops is exist, do not update it,
-            // since update will make the old table info lost
-            console.warn("Aggregate result already exists!");
-        } else {
-            aggInfos[key] = aggRes;
-
-            var dstTableId = xcHelper.getTableId(aggRes.dagName);
-            noSheetTables.push(dstTableId);
-        }
-    };
-
-    // remove one entry of aggregate information
-    WSManager.activeAggInfo = function(key, tableId) {
-        aggInfos[key].isActive = true;
-        gTables[tableId].status = TableType.Agg;
-    };
-
-    // remove one entry of aggregate information
-    WSManager.removeAggInfo = function(key) {
-        delete aggInfos[key];
-    };
-
     // Add worksheet events, helper function for WSManager.setup()
     function addWSEvents() {
         // click to add new worksheet
@@ -1176,8 +1132,8 @@ window.WSManager = (function($, WSManager) {
         });
 
         var $hiddenWorksheetsTab = $('#hiddenWorksheetsTab');
-        // dropdown list for udf modules and function names
-        xcHelper.dropdownList($hiddenWorksheetsTab, {
+
+        var wslist = new MenuHelper($hiddenWorksheetsTab, {
             "onSelect": function($li) {
                 // var module = $li.text();
                 var wsId = $li.data('ws');
@@ -1196,6 +1152,7 @@ window.WSManager = (function($, WSManager) {
             },
             "container": "#bottomTabArea"
         });
+        wslist.setupListeners();
 
         $hiddenWorksheetsTab[0].oncontextmenu = function(e) {
             var $target = $(e.target).closest('.mainTab');

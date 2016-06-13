@@ -22,11 +22,12 @@ window.Alert = (function($, Alert){
             "containment": "window"
         });
 
-        xcHelper.dropdownList($modal.find(".dropDownList"), {
+        var alertList = new MenuHelper($modal.find(".dropDownList"), {
             "onSelect": function($li) {
                 $("#alertOptionInput").val($li.text()).focus();
             }
         });
+        alertList.setupListeners();
     };
 
     Alert.show = function(options) {

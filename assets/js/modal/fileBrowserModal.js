@@ -210,11 +210,12 @@ window.FileBrowser = (function($, FileBrowser) {
             }
         });
 
-        xcHelper.dropdownList($pathSection, {
+        var pathList = new MenuHelper($pathSection, {
             "onlyClickIcon": true,
             "onSelect"     : goToPath,
             "container"    : "#fileBrowserModal"
         });
+        pathList.setupListeners();
 
         var timer;
         $pathSection.on({
@@ -259,10 +260,11 @@ window.FileBrowser = (function($, FileBrowser) {
             }
         }, ".text");
 
-        xcHelper.dropdownList($formatSection, {
+        var formatList = new MenuHelper($formatSection, {
             "onSelect" : formatSectionHandler,
             "container": "#fileBrowserModal"
         });
+        formatList.setupListeners();
 
         $fileName.keyup(function(event) {
             var key = event.which;

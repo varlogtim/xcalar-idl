@@ -76,7 +76,7 @@ window.ExportModal = (function($, ExportModal) {
             }
         });
 
-        xcHelper.dropdownList($("#exportLists"), {
+        var expList = new MenuHelper($("#exportLists"), {
             "onSelect": function($li) {
                 if ($li.hasClass("hint")) {
                     return false;
@@ -89,6 +89,7 @@ window.ExportModal = (function($, ExportModal) {
                 $exportPath.val($li.text());
             }
         });
+        expList.setupListeners();
 
         xcHelper.optionButtonEvent($exportModal.find(".formRow"), function(option, $radio) {
             if ($radio.closest(".typeRow").length > 0) {
@@ -849,7 +850,8 @@ window.ExportModal = (function($, ExportModal) {
          // set up dropdown list for csv de
 
         // setUp both line delimiter and field delimiter
-        xcHelper.dropdownList($exportModal.find('.csvRow').find(".dropDownList"), {
+        var delimLists = new MenuHelper(
+            $exportModal.find('.csvRow').find(".dropDownList"), {
             "onSelect": function($li) {
                 var $input = $li.closest(".dropDownList").find(".text");
                 switch ($li.attr("name")) {
@@ -877,6 +879,7 @@ window.ExportModal = (function($, ExportModal) {
             "container": "#exportModal",
             "bounds"   : "#exportModal"
         });
+        delimLists.setupListeners();
 
         // Input event on csv args input box
         $exportModal.find('.csvRow').on({

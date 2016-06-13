@@ -234,8 +234,7 @@ window.UDF = (function($, UDF) {
 
         /* function input section */
         var $dropDownList = $("#udf-fnList");
-
-        xcHelper.dropdownList($dropDownList, {
+        var dropdownList = new MenuHelper($dropDownList, {
             "onSelect": function($li) {
                 $li.parent().find("li").removeClass("selected");
                 $li.addClass("selected");
@@ -269,6 +268,8 @@ window.UDF = (function($, UDF) {
             "bounds"       : '#udfSection',
             "bottomPadding": 2
         });
+        dropdownList.setupListeners();
+
 
         $downloadBtn.click(function() {
             $(this).blur();

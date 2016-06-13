@@ -112,6 +112,11 @@ ErrTStr = {
     'InvalidTableName': 'Table name cannot contain any of the ' +
                         'following characters: *#\'\"',
 
+    'InvalidAggName': 'Aggregate name must be prefixed with @',
+
+    'InvalidAggLength': 'Aggregate name must be prefixed with @ and ' +
+                        'followed by the name',
+
     'NoHashTag': 'Please input a valid name with no # symbols.',
 
     'NoSpecialChar': 'Please input a valid name with no special characters.',
@@ -223,7 +228,8 @@ ErrTStr = {
 
     'InvalidExt': 'Invalid Extension',
 
-    'InvalidExtParam': 'Invalid Extension Parameters'
+    'InvalidExtParam': 'Invalid Extension Parameters',
+
 };
 
 ErrWRepTStr = {
@@ -253,7 +259,10 @@ ErrWRepTStr = {
 
     'NoBiggerNum': 'Please enter a value less than or equal to <num>',
 
-    'TableNotDeleted': 'Table <name> was not deleted.'
+    'TableNotDeleted': 'Table <name> was not deleted.',
+
+    'AggConflict': 'Aggregate "@<name>" already exists, ' +
+                    'please choose another name.'
 };
 
 TipsTStr = {
@@ -546,7 +555,9 @@ DaysTStr = {
 };
 
 OpModalTStr = {
-    'EmptyHint': 'select to allow empty field'
+    'EmptyHint': 'select to allow empty field',
+    'ColNameDesc': 'New Resultant Column Name',
+    'AggNameDesc': 'New Resultant Aggregate Name (optional)'
 };
 
 JsonModalTStr = {

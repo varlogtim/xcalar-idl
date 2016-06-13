@@ -103,7 +103,7 @@ window.MultiCastModal = (function($, MultiCastModal) {
         modalHelper.setup();
 
         var $lists = $table.find("th:not(.unselectable) .dropDownList");
-        xcHelper.dropdownList($lists, {
+        var list = new MenuHelper($lists, {
             "onSelect": function($li) {
                 var $list  = $li.closest(".list");
                 var $input = $list.siblings(".text");
@@ -114,6 +114,7 @@ window.MultiCastModal = (function($, MultiCastModal) {
             },
             "container": "#multiCastModal"
         });
+        list.setupListeners();
     };
 
     function closeMultiCastModal() {

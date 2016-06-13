@@ -147,7 +147,7 @@ window.DFGParamModal = (function($, DFGParamModal){
                             '<td class="static">by</td>' +
                             getParameterInputHTML(1, "sm-med", {filter: true}) +
                             getParameterInputHTML(2, "medium allowEmpty");
-            
+
         } else if (type === "dataStore" || type === "export") {
             // do nothing
         } else { // index, sort, map etc to be added in later
@@ -180,7 +180,7 @@ window.DFGParamModal = (function($, DFGParamModal){
         if (type === "filter") {
             var $list = $dfgParamModal.find('.tdWrapper.dropDownList');
 
-            dropdownHelper = new xcHelper.dropdownList($list, {
+            var dropdownHelper = new MenuHelper($list, {
                 "onSelect": function($li) {
                     var func = $li.text();
                     var $input = $list.find("input.editableParamDiv");
@@ -203,6 +203,7 @@ window.DFGParamModal = (function($, DFGParamModal){
                 "bottomPadding": 5,
                 "exclude"      : '.draggableDiv, .defaultParam'
             });
+            dropdownHelper.setupListeners();
 
             XcalarListXdfs('*', 'Conditional*')
             .then(function(ret) {
@@ -397,7 +398,7 @@ window.DFGParamModal = (function($, DFGParamModal){
     }
 
     function sortHTML(a, b){
-        return ($(b).text()) < ($(a).text()) ? 1 : -1;    
+        return ($(b).text()) < ($(a).text()) ? 1 : -1;
     }
 
     function addParamToLists(paramName, paramVal, isRestore) {
@@ -673,7 +674,7 @@ window.DFGParamModal = (function($, DFGParamModal){
                         deferred.reject("Filter type not currently supported.");
                         return (deferred.promise());
                     }
-    
+
                     paramValue = filterText + "(" + str1 + "," + str2 + ")";
                     // paramInput.paramFilter = new XcalarApiParamFilterT();
                     // paramInput.paramFilter.filterStr = str;

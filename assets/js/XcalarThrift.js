@@ -1490,6 +1490,9 @@ function generateAggregateString(fieldName, op) {
         case (AggrOp.SumInteger):
             evalStr += "sumInteger(";
             break;
+        case (AggrOp.ListAgg):
+            evalStr += "listAgg(";
+            break;
         default:
             console.log("bug!:" + op);
     }
@@ -1499,7 +1502,7 @@ function generateAggregateString(fieldName, op) {
     return (evalStr);
 }
 
-function XcalarAggregate(evalStr, srcTablename, txId) {
+function XcalarAggregate(evalStr, dstAggName, srcTablename, txId) {
     if (tHandle == null) {
         return PromiseHelper.resolve(null);
     }
@@ -1517,21 +1520,18 @@ function XcalarAggregate(evalStr, srcTablename, txId) {
         return (deferred.promise());
     }
 
-    var dstDagName = srcTablename.split("#")[0] + "-aggregate" +
-                     Authentication.getHashId();
-
     getUnsortedTableName(srcTablename)
     .then(function(unsortedSrcTablename) {
         var workItem = xcalarAggregateWorkItem(unsortedSrcTablename,
-                                               dstDagName, evalStr);
+                                               dstAggName, evalStr);
 
-        var def1 = xcalarAggregate(tHandle, unsortedSrcTablename, dstDagName,
+        var def1 = xcalarAggregate(tHandle, unsortedSrcTablename, dstAggName,
                                    evalStr);
         var def2 = XcalarGetQuery(workItem);
         jQuery.when(def1, def2)
         .then(function(ret1, ret2) {
             Transaction.log(txId, ret2);
-            deferred.resolve(ret1, dstDagName);
+            deferred.resolve(ret1, dstAggName);
         })
         .fail(function(error1, error2) {
             var thriftError = thriftLog("XcalarAggregate", error1, error2);

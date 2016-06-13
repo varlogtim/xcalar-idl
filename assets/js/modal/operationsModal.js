@@ -20,9 +20,13 @@ window.OperationsModal = (function($, OperationsModal) {
     var functionsListScroller;
     var quotesNeeded = [];
     var colPrefix = '$';
+    var aggPrefix = "@";
 
     var modalHelper;
     var corrector;
+    var aggNameCorrector;
+    var aggNames = [];
+    var suggestLists = [];
 
     var tableId;
 
@@ -390,12 +394,13 @@ window.OperationsModal = (function($, OperationsModal) {
 
         addCastDropDownListener();
 
-        categoryListScroller = new xcHelper.dropdownList($('#categoryList'), {
+        categoryListScroller = new MenuHelper($('#categoryList'), {
             scrollerOnly : true,
             bounds       : '#operationsModal',
             bottomPadding: 5
         });
-        functionsListScroller = new xcHelper.dropdownList($('#functionList'), {
+
+        functionsListScroller = new MenuHelper($('#functionList'), {
             scrollerOnly : true,
             bounds       : '#operationsModal',
             bottomPadding: 5
@@ -422,6 +427,15 @@ window.OperationsModal = (function($, OperationsModal) {
         })
         .fail(function(error) {
             Alert.error("List XDFs failed", error.error);
+        });
+
+        $operationsModal.find('.hint').each(function() {
+            var scroller = new MenuHelper($(this), {
+                                scrollerOnly : true,
+                                bounds       : '#operationsModal',
+                                bottomPadding: 5
+                            });
+            suggestLists.push(scroller);
         });
 
         function listMouseup(event, $li) {
@@ -476,13 +490,13 @@ window.OperationsModal = (function($, OperationsModal) {
         $operationsModal.attr('class', classes.join(' '));
 
         operatorName = operator.toLowerCase().trim();
-
+        $operationsModal.removeClass('fewArgs numerousArgs');
         if (operatorName === 'aggregate') {
-            $operationsModal.addClass('numArgs0');
+            $operationsModal.addClass('fewArgs');
         } else if (operatorName === 'map') {
-            $operationsModal.addClass('numArgs4');
+            $operationsModal.addClass('numerousArgs');
         } else if (operatorName === 'group by') {
-            $operationsModal.addClass('numArgs4');
+            $operationsModal.addClass('numerousArgs');
         }
 
         // we want the modal to show up ~ below the first row
@@ -513,6 +527,12 @@ window.OperationsModal = (function($, OperationsModal) {
             });
 
             corrector = new Corrector(colNames);
+
+            var aggs = Aggregates.getAggs();
+            aggNames = [];
+            for (var i in aggs) {
+                aggNames.push(aggs[i].dagName);
+            }
 
             populateInitialCategoryField(operatorName);
             fillInputPlaceholder(0);
@@ -609,7 +629,7 @@ window.OperationsModal = (function($, OperationsModal) {
     function addCastDropDownListener() {
         var $lists = $operationsModal.find(".cast.new .dropDownList");
         $lists.closest('.cast.new').removeClass('new');
-        xcHelper.dropdownList($lists, {
+        var castList = new MenuHelper($lists, {
             "onOpen": function($list) {
                 var $td = $list.parent();
                 var $ul = $list.find('ul');
@@ -638,6 +658,7 @@ window.OperationsModal = (function($, OperationsModal) {
             },
             "container": "#operationsModal"
         });
+        castList.setupListeners();
     }
 
     // empty array means the first argument will always be the column name
@@ -716,14 +737,20 @@ window.OperationsModal = (function($, OperationsModal) {
     }
 
     function argSuggest($input) {
-        var curVal = $input.val();
+        var curVal = $input.val().trim();
         var $ul = $input.siblings(".list");
+        var index = $operationsModal.find('.hint').index($ul);
         var shouldSuggest = true;
         var corrected;
+        var hasAggPrefix = false;
+        var listLimit = 30; // do not show more than 30 results
 
         // when there is multi cols
         if (curVal.indexOf(",") > -1) {
             shouldSuggest = false;
+        } else if (curVal.indexOf(aggPrefix) === 0) {
+            shouldSuggest = true;
+            hasAggPrefix = true;
         } else {
             corrected = corrector.suggest(curVal);
 
@@ -735,14 +762,41 @@ window.OperationsModal = (function($, OperationsModal) {
 
         // should not suggest if the input val is already a column name
         if (shouldSuggest) {
-            $ul.empty()
-                .append('<li class="openli">' + corrected + '</li>')
-                .addClass("openList")
+            $ul.find('ul').empty();
+            if (hasAggPrefix) {
+                var filteredNames = [];
+                var lis = "";
+                var count = 0;
+                aggNames.forEach(function(name) {
+                    if (name.startsWith(curVal)) {
+                        lis += '<li class="openli">' + name + '</li>';
+                        count++;
+                    }
+                    if (count > listLimit) {
+                        return (false);
+                    }
+                });
+                if (!lis.length) {
+                    $ul.find('ul').empty().end().removeClass("openList").hide()
+                        .closest(".dropDownList").removeClass("open");
+                } else {
+                    var $lis = $(lis);
+                    $lis.sort(sortHTML);
+                    $ul.find('ul').append($lis).end().addClass('openList')
+                                                     .show();
+                    suggestLists[index].showOrHideScrollers();
+                }
+            } else {
+                $ul.find('ul').append('<li class="openli">' + corrected + '</li>')
+                .end().addClass("openList")
                 .show();
+            }
+
+
             $input.closest('.dropDownList').addClass('open');
             positionDropdown($ul);
         } else {
-            $ul.empty().removeClass("openList").hide()
+            $ul.find('ul').empty().end().removeClass("openList").hide()
                 .closest(".dropDownList").removeClass("open");
         }
     }
@@ -824,24 +878,39 @@ window.OperationsModal = (function($, OperationsModal) {
         }
 
         if (!noFocus) {
-            var inputNumToFocus = inputNum + 1;
-            if (inputNum === 1 &&
-                operatorName !== "aggregate" &&
-                operatorName !== "group by" &&
-                !isNewCol) {
-                inputNumToFocus++;
-            }
+            var $input;
+            if (inputNum === 1) {
+                if (operatorName === "aggregate") {
+                    $input = $argInputs.eq(0);
+                } else {
+                    $argInputs.each(function() {
+                        if ($(this).val().trim().length === 0) {
+                            $input = $(this);
+                            return false;
+                        }
+                    });
+                    if (!$input) {
+                        $input = $argInputs.last();
+                    }
+                }
+            } else {
 
-            var $input = $operationsModal.find('input:not(.nonEditable)')
+                var inputNumToFocus = inputNum + 1;
+                if (inputNum === 1 &&
+                    operatorName !== "aggregate" &&
+                    operatorName !== "group by" &&
+                    !isNewCol) {
+                    inputNumToFocus++;
+                }
+
+                $input = $operationsModal.find('input:not(.nonEditable)')
                                          .eq(inputNumToFocus);
-            if (inputNum === 1 && !$input.is(':visible')) {
-                $input = $operationsModal.find('input:visible').last();
             }
-
             $input.focus();
             var val = $input.val();
             $input[0].selectionStart = $input[0].selectionEnd = val.length;
         }
+
         setTimeout(function() {
             $operationsModal.find('.circle' + (inputNum + 1))
                             .addClass('filled');
@@ -1072,6 +1141,13 @@ window.OperationsModal = (function($, OperationsModal) {
                 }
                 $tbody.append(rowHtml);
                 addCastDropDownListener();
+                var scroller = new MenuHelper(
+                            $operationsModal.find('.hint').last(), {
+                                scrollerOnly : true,
+                                bounds       : 'body',
+                                bottomPadding: 5
+                            });
+                suggestLists.push(scroller);
             }
 
             $operationsModal.find('.checkbox').removeClass('checked')
@@ -1110,6 +1186,11 @@ window.OperationsModal = (function($, OperationsModal) {
                  .end()
                  .find('.checkBoxText').remove();
 
+            $rows.find('.argument').off('input.aggPrefix');
+            $rows.find('.argument').off('keydown.aggPrefix');
+            $rows.find('.argument').off('focus.aggPrefix');
+            $rows.find('.argument').off('blur.aggPrefix');
+
             var description;
             var autoGenColName;
             var typeId;
@@ -1136,7 +1217,7 @@ window.OperationsModal = (function($, OperationsModal) {
             }
 
             if (operatorName === 'map') {
-                description = 'New Resultant Column Name';
+                description = OpModalTStr.ColNameDesc;
                 var tempName = colName;
                 if (colName === "") {
                     tempName = "mapped";
@@ -1268,6 +1349,56 @@ window.OperationsModal = (function($, OperationsModal) {
                                 '</span>)' +
                                 ')' +
                             '</p>';
+            } else if (operatorName === "aggregate") {
+                var description = OpModalTStr.AggNameDesc;
+
+                $rows.eq(numArgs).addClass('colNameRow')
+                                .find('.dropDownList')
+                                .addClass('colNameSection')
+                                .end()
+                                .find('.argument').val("")
+                                .end()
+                                .find('.description').text(description);
+
+                var $nameInput =  $rows.eq(numArgs).find('.argument');
+
+                // focus, blur, keydown, input listeners ensures the aggPrefix
+                // is always the first chracter in the colname input
+                // and is only visible when focused or changed
+                $nameInput.on('focus.aggPrefix', function(event) {
+                    var $input = $(this);
+                    if ($input.val().trim() === "") {
+                        $input.val(aggPrefix);
+                    }
+                });
+                $nameInput.on('blur.aggPrefix', function(event) {
+                    var $input = $(this);
+                    if ($input.val().trim() === aggPrefix) {
+                        $input.val("");
+                    }
+                });
+                $nameInput.on('keydown.aggPrefix', function(event) {
+                        var $input = $(this);
+                        if ($input.caret() === 0 &&
+                            $input[0].selectionEnd === 0) {
+                            event.preventDefault();
+                            $input.caret(1);
+                            return false;
+                        }
+                });
+                $nameInput.on('input.aggPrefix', function(event) {
+                        var $input = $(this);
+                        var val = $input.val();
+                        var trimmedVal = $input.val().trim();
+                        if (trimmedVal[0] !== aggPrefix) {
+                            var caretPos = $input.caret();
+                            $input.val(aggPrefix + val);
+                            if (caretPos === 0) {
+                                $input.caret(1);
+                            }
+                        }
+                });
+                ++numArgs;
             }
 
             $rows.show().filter(":gt(" + (numArgs - 1) + ")").hide();
@@ -1308,7 +1439,9 @@ window.OperationsModal = (function($, OperationsModal) {
             $inputs.each(function(i) {
                 var $input = $(this);
                 var val = $input.val();
+                val = parseAggPrefixes(val);
                 val = parseColPrefixes(val);
+
                 if (quotesNeeded[i]) {
                     val = "\"" + val + "\"";
                 }
@@ -1348,9 +1481,11 @@ window.OperationsModal = (function($, OperationsModal) {
         } else if (operatorName === "group by") {
             var aggColOldText = $description.find(".aggCols").text();
             var aggColNewText = $argInputs.eq(0).val().trim();
+            aggColNewText = parseAggPrefixes(aggColNewText);
             aggColNewText = parseColPrefixes(aggColNewText);
             var gbColOldText = $description.find(".groupByCols").text();
             var gbColNewText = $argInputs.eq(1).val().trim();
+            gbColNewText = parseAggPrefixes(gbColNewText);
             gbColNewText = parseColPrefixes(gbColNewText);
 
             if (noHighlight) {
@@ -1515,6 +1650,8 @@ window.OperationsModal = (function($, OperationsModal) {
                 if ($("#categoryList input").val().indexOf("user") !== 0) {
                     type = getColumnTypeFromArg(arg);
                 }
+            } else if (arg[0] === aggPrefix) {
+                // skip
             } else {
                 var parsedType = parseType($input.data('typeid'));
                 if (parsedType.length === 6) {
@@ -1540,6 +1677,7 @@ window.OperationsModal = (function($, OperationsModal) {
             var parsedType = parseType(typeIds[i]);
             if (!$input.closest(".dropDownList").hasClass("colNameSection") &&
                 !xcHelper.hasValidColPrefix(arg, colPrefix) &&
+                arg[0] !== aggPrefix &&
                 parsedType.indexOf("string") !== -1 &&
                 !hasUnescapedParens(arg)) {
 
@@ -1708,6 +1846,7 @@ window.OperationsModal = (function($, OperationsModal) {
 
         // name duplication check
         var $nameInput;
+        var isPromise = false;
         switch (operatorName) {
             case ('map'):
                 $nameInput = $argInputs.eq(args.length - 1);
@@ -1726,16 +1865,35 @@ window.OperationsModal = (function($, OperationsModal) {
                 $nameInput = $argInputs.eq(2);
                 isPassing = !ColManager.checkColDup($nameInput, null, tableId);
                 break;
+            case ('aggregate'):
+                if (args[1].length > 1) {
+                    isPromise = true;
+                    checkAggregateNameValidity()
+                    .then(function(isPassing) {
+                        if (!isPassing) {
+                            modalHelper.enableSubmit();
+                        } else {
+                            submitFinalForm(args);
+                        }
+                    })
+                    .fail(function(err) {
+                        modalHelper.enableSubmit();
+                    });
+                } else {
+                    isPassing = true;
+                }
+
+                break;
             default:
                 break;
         }
-
-        if (!isPassing) {
-            modalHelper.enableSubmit();
-            return;
+        if (!isPromise) {
+            if (!isPassing) {
+                modalHelper.enableSubmit();
+            } else {
+                submitFinalForm(args);
+            }
         }
-
-        submitFinalForm(args);
     }
 
     function submitFinalForm(args) {
@@ -1864,6 +2022,8 @@ window.OperationsModal = (function($, OperationsModal) {
                     errorType = "unmatchedParens";
                     isPassing = false;
                 }
+            } else if (arg[0] === aggPrefix) {
+                // leave it
             } else if (xcHelper.hasValidColPrefix(arg, colPrefix)) {
                 // if it contains a column name
                 // note that field like pythonExc can have more than one $col
@@ -2129,12 +2289,27 @@ window.OperationsModal = (function($, OperationsModal) {
         var aggColNum = getColNum(args[0]);
         var tableCol = gTables[tableId].getCol(aggColNum);
         var aggStr = tableCol.getBackColName();
+        var aggName = args[1];
         if (colTypeInfos.length) {
             aggStr = xcHelper.castStrHelper(args[0], colTypeInfos[0].type);
         }
+        if (aggName.length < 2) {
+            aggName = gTables[tableId].tableName.split("#")[0] + "-aggregate" +
+                          Authentication.getHashId();
+        }
 
-        xcFunction.aggregate(aggColNum, tableId, aggrOp, aggStr);
+        xcFunction.aggregate(aggColNum, tableId, aggrOp, aggStr, aggName);
         return true;
+    }
+
+    function hasAggPrefix(val) {
+        if (val[0] === aggPrefix) {
+            return true;
+        } else if (val[0] === "\\" && val[1] === aggPrefix) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     function filterCheck(operator, args) {
@@ -2236,6 +2411,7 @@ window.OperationsModal = (function($, OperationsModal) {
                 mapOptions.width = width;
             }
         }
+
         xcFunction.map(colNum, tableId, newColName, mapStr, mapOptions);
     }
 
@@ -2375,6 +2551,76 @@ window.OperationsModal = (function($, OperationsModal) {
         return (true);
     }
 
+    function checkAggregateNameValidity() {
+        var deferred = jQuery.Deferred();
+        // Name input is always the 2nd input
+        var $input = $argInputs.eq(1);
+        var val = $input.val().trim();
+        var errorTitle;
+        var invalid = false;
+        if (val[0] !== aggPrefix) {
+            errorTitle = ErrTStr.InvalidAggName;
+            invalid = false;
+        } else if (/^ | $|[,\(\)'"]/.test(name) === true) {
+            errorTitle = ColTStr.RenamSpecialChar;
+            invalid = true;
+        } else if (val.length < 2) {
+            errorTitle = ErrTStr.InvalidAggLength;
+            invalid = true;
+        }
+
+        if (invalid) {
+            showInvalidAggregateName($input, errorTitle);
+            deferred.resolve(false);
+        } else {
+            // check duplicates
+            // XXX temp fix for backend not wanting @
+            val = val.slice(1);
+            XcalarGetConstants(val)
+            .then(function(ret) {
+                if (ret.length) {
+                    errorTitle = xcHelper.replaceMsg(ErrWRepTStr.AggConflict, {
+                        "name": val
+                    });
+                    showInvalidAggregateName($input, errorTitle);
+                    deferred.resolve(false);
+                } else {
+                    deferred.resolve(true);
+                }
+            })
+            .fail(function() {
+                deferred.reject();
+            });
+        }
+        return (deferred.promise());
+    }
+
+    function showInvalidAggregateName($input, errorTitle) {
+        var container = $input.closest('.mainPanel').attr('id');
+        var $toolTipTarget = $input.parent();
+
+        $toolTipTarget.tooltip({
+            "title"    : errorTitle,
+            "placement": "top",
+            "trigger"  : "manual",
+            "container": "#" + container,
+            "template" : TooltipTemplate.Error
+        });
+
+        $toolTipTarget.tooltip('show');
+        $input.click(hideTooltip);
+
+        var timeout = setTimeout(function() {
+            hideTooltip();
+        }, 5000);
+
+        function hideTooltip() {
+            $toolTipTarget.tooltip('destroy');
+            $input.off('click', hideTooltip);
+            clearTimeout(timeout);
+        }
+    }
+
     function checkArgTypes(arg, typeid) {
         var types = parseType(typeid);
         var argType = "string";
@@ -2457,6 +2703,9 @@ window.OperationsModal = (function($, OperationsModal) {
                 check = true;
             } else if ($checkboxWrap.find('.checkbox').hasClass('checked')) {
                 check = true;
+            } else if (operatorName === "aggregate" &&
+                $input.closest('.colNameSection').length) {
+                check = true;
             }
 
             if (val === "" && !check) {
@@ -2508,6 +2757,7 @@ window.OperationsModal = (function($, OperationsModal) {
                 value = JSON.parse(value);
             }
         }
+        value = parseAggPrefixes(value);
         value = parseColPrefixes(value);
         if (shouldBeString) {
             // add quote if the field support string
@@ -2746,6 +2996,17 @@ window.OperationsModal = (function($, OperationsModal) {
                     str = str.slice(0, i - 1) + str.slice(i);
                 } else if (isActualPrefix(str, i)) {
                     str = str.slice(0, i) + str.slice(i + 1);
+                }
+            }
+        }
+        return (str);
+    }
+
+    function parseAggPrefixes(str) {
+        for (var i = 0; i < str.length; i++) {
+            if (str[i] === aggPrefix) {
+                if (str[i - 1] === "\\") {
+                    str = str.slice(0, i - 1) + str.slice(i);
                 }
             }
         }

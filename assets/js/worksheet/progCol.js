@@ -831,8 +831,10 @@ window.ColManager = (function($, ColManager) {
 
             XIApi.map(txId, mapString, curTableName, fieldName, newTableName)
             .then(function() {
-                return XIApi.aggregate(txId, AggrOp.MaxInteger,
-                                       fieldName, newTableName);
+                var dstAggName = newTableName.split("#")[0] + "-aggregate" +
+                                 Authentication.getHashId();
+                return XIApi.aggregate(txId, AggrOp.MaxInteger, fieldName,
+                                       dstAggName, newTableName);
             })
             .then(function(value) {
                 // Note that the splitColNum should be charCountNum + 1

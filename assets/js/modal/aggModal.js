@@ -481,7 +481,10 @@ window.AggModal = (function($, AggModal) {
             }
         }
 
-        XIApi.aggregate(txId, opString, fieldName, tableName)
+        var dstAggName = tableName.split("#")[0] + "-aggregate" +
+                         Authentication.getHashId();
+
+        XIApi.aggregate(txId, opString, fieldName, dstAggName, tableName)
         .then(function(value) {
             // cache value
             aggCache[tableId] = aggCache[tableId] || {};
@@ -535,8 +538,10 @@ window.AggModal = (function($, AggModal) {
                 return (deferred.promise());
             }
         }
+        var dstAggName =  tableName.split("#")[0] + "-aggregate" +
+                          Authentication.getHashId();
 
-        XIApi.aggregateWithEvalStr(txId, evalStr, tableName)
+        XIApi.aggregateWithEvalStr(txId, evalStr, dstAggName, tableName)
         .then(function(value) {
             // cache value
             corrCache[tableId] = corrCache[tableId] || {};

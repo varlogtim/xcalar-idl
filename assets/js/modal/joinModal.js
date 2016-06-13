@@ -82,13 +82,14 @@ window.JoinModal = (function($, JoinModal) {
             }
         });
 
-        xcHelper.dropdownList($joinSelect, {
+        var joinTypeList = new MenuHelper($joinSelect, {
             "onSelect": function($li) {
                 var joinType = $li.text();
                 $joinSelect.find(".text").text(joinType);
                 updatePreviewText();
             }
         });
+        joinTypeList.setupListeners();
 
         $tableDropDown.on('click', 'li', function(event) {
             var $li  = $(this);
@@ -124,15 +125,17 @@ window.JoinModal = (function($, JoinModal) {
             }
         });
 
-        xcHelper.dropdownList($tableDropDown.eq(0), {
+        var tableList1 = new MenuHelper($tableDropDown.eq(0), {
             "container": "#mainJoin",
             "bounds"   : '#mainJoin'
         });
+        tableList1.setupListeners();
 
-        xcHelper.dropdownList($tableDropDown.eq(1), {
+        var tableList2 = new MenuHelper($tableDropDown.eq(1), {
             "container": "#mainJoin",
             "bounds"   : '#mainJoin'
         });
+        tableList2.setupListeners();
 
         // This submits the joined tables
         $("#joinTables").click(function() {

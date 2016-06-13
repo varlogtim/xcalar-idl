@@ -125,7 +125,7 @@ window.AddScheduleModal = (function($, AddScheduleModal) {
     }
 
     function addModalEvents() {
-        xcHelper.dropdownList($modal.find('.scheduleList'), {
+        var schedList = new MenuHelper($modal.find('.scheduleList'), {
             "onSelect": function($li) {
                 if ($li.hasClass("hint")) {
                     return false;
@@ -138,6 +138,7 @@ window.AddScheduleModal = (function($, AddScheduleModal) {
                 $scheduleListInput.val($li.text()).removeClass("hint");
             }
         });
+        schedList.setupListeners();
 
         // click cancel or close button
         $modal.on("click", ".close, .cancel", function(event) {

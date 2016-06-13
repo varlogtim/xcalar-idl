@@ -79,6 +79,9 @@
         case ".":
           stream.next();
           return "operator";
+        case "@":
+          stream.next();
+          return "variable-2";
         case "\\":
           stream.next();
           return "backslash";

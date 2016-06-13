@@ -25,14 +25,15 @@ window.XcSDK.Extension.prototype = (function() {
             return deferred.promise();
         },
 
-        "aggregate": function(aggOp, colName, tableName) {
+        "aggregate": function(aggOp, colName, dstAggName, tableName) {
             var txId = this.txId;
-            return XIApi.aggregate(txId, aggOp, colName, tableName);
+            return XIApi.aggregate(txId, aggOp, colName, dstAggName, tableName);
         },
 
-        "aggregateWithEvalStr": function(evalStr, tableName) {
+        "aggregateWithEvalStr": function(evalStr, dstAggName, tableName) {
             var txId = this.txId;
-            return XIApi.aggregateWithEvalStr(txId, evalStr, tableName);
+            return XIApi.aggregateWithEvalStr(txId, evalStr, dstAggName,
+                                              tableName);
         },
 
         "index": function(colToIndex, tableName) {

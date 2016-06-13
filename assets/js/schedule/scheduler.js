@@ -131,13 +131,14 @@ window.Scheduler = (function(Scheduler, $) {
         });
 
         // dropdown list event
-        xcHelper.dropdownList($freq2.find(".dropDownList"), {
+        var freqList = new MenuHelper($freq2.find(".dropDownList"), {
             "onSelect": function($li) {
                 var text = $li.text();
                 $li.closest(".dropDownList").find("input").val(text);
             },
             "container": "#schedulesView"
         });
+        freqList.setupListeners();
 
         $("#scheduleForm-edit").on("click", function() {
             $(this).blur();

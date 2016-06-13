@@ -149,7 +149,7 @@ window.KVStore = (function($, KVStore) {
         // If the ephmeral datastructure is corrupt, we move ahead with the
         // rest of the restore since ephemeral isn't that important
         KVStore.getAndParse(KVStore.gEphStorageKey, gKVScope.EPHM)
-        .then(getPersistentKeys, getPersistentKeys)
+        .then(getPersistentKeys, getPersistentKeys);
 
         function getPersistentKeys(gInfosE) {
             if (typeof(gInfosE) === "object") {
@@ -171,6 +171,7 @@ window.KVStore = (function($, KVStore) {
 
                 try {
                     WSManager.restore(gInfos[METAKeys.WS]);
+                    Aggregates.restore(gInfos[METAKeys.AGGS]);
                     TblManager.restoreTableMeta(gInfos[METAKeys.TI]);
                     DataCart.restore(gInfos[METAKeys.CART]);
                     Profile.restore(gInfos[METAKeys.STATS]);
@@ -214,6 +215,7 @@ window.KVStore = (function($, KVStore) {
 
         gTables = {};
         WSManager.clear();
+        Aggregates.clear();
         DataStore.clear();
         UserSettings.clear();
         RightSideBar.clear();

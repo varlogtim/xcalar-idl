@@ -148,7 +148,8 @@ var AggrOp = {
     "Sum"       : "Sum",
     "MaxInteger": "MaxInteger",
     "MinInteger": "MinInteger",
-    "SumInteger": "SumInteger"
+    "SumInteger": "SumInteger",
+    "ListAgg"   : "ListAgg"
 };
 
 var SQLType = {
