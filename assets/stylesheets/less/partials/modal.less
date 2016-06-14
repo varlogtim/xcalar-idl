@@ -1689,8 +1689,11 @@ html.microsoft {
         .size(@height: 100px);
         padding: 15px 0;
 
+        > div {
+            .size(@height: 30px);
+        }
+
         .optionSection {
-            .size(@width: 80%, @height: 30px);
             margin: 0 auto;
 
             .radioButton.disabled {
@@ -1701,7 +1704,6 @@ html.microsoft {
 
         .inputSection {
             .position(relative);
-            .size(@width: 80%, @height: 30px);
             margin: 10px auto 0 auto;
 
             &.unavailable {
@@ -1715,8 +1717,6 @@ html.microsoft {
                 float: left;
                 margin-right: 10px;
             }
-
-            .input-box(@w: ~"calc(100% - 235px)", @h: 25px);
         }
     }
 
@@ -1905,6 +1905,16 @@ html.microsoft {
         }
     }
 
+    .modalTopMain {
+        > div {
+            .size(@width: 85%);
+        }
+
+        .inputSection {
+            .input-box(@w: ~"calc(100% - 175px)", @h: 25px);
+        }
+    }
+
     .modalMain {
         .size(@height: ~"calc(100% - 260px)");
 
@@ -1939,6 +1949,10 @@ html.microsoft {
     }
 
     .modalTopMain {
+        > div {
+            .size(@width: 80%);
+        }
+
         .optionSection {
             .radioButton {
                 .flex(0 1 33%);
@@ -1946,6 +1960,10 @@ html.microsoft {
                     .flex(0 1 66%);
                 }
             }
+        }
+
+        .inputSection {
+            .input-box(@w: ~"calc(100% - 235px)", @h: 25px);
         }
     }
     .modalMain {

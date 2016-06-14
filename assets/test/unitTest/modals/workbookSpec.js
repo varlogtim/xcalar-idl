@@ -24,6 +24,8 @@ describe('Workbook Test', function() {
             assert.isTrue($radioWraps.eq(1).hasClass("active"));
             $radioWraps.eq(2).click();
             assert.isTrue($radioWraps.eq(2).hasClass("active"));
+            $radioWraps.eq(3).click();
+            assert.isTrue($radioWraps.eq(3).hasClass("active"));
         });
 
         it('Should close modal', function() {

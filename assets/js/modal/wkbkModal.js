@@ -203,10 +203,10 @@ window.WorkbookModal = (function($, WorkbookModal) {
 
     // helper function for toggle in option section
     function switchAction(no) {
-        xcHelper.assert((no >= 0 && no <= 2), "Invalid action");
+        xcHelper.assert((no >= 0 && no <= 3), "Invalid action");
 
         var $inputSection = $workbookModal.find(".inputSection");
-        var $mainSection  = $workbookModal.find(".modalMain");
+        var $mainSection = $workbookModal.find(".modalMain");
 
         activeActionNo = no;
 
@@ -240,6 +240,13 @@ window.WorkbookModal = (function($, WorkbookModal) {
                 $workbookModal.find(".modalBottom .confirm")
                             .text(CommonTxtTstr.Copy.toUpperCase());
                 break;
+            // rename workbook
+            case 3:
+                $inputSection.removeClass("unavailable");
+                $workbookInput.removeAttr("disabled"); // for tab key switch
+                $mainSection.addClass("unavailable");
+                $workbookModal.find(".modalBottom .confirm")
+                            .text(CommonTxtTstr.Rename.toUpperCase());
             default:
                 break;
         }
@@ -322,7 +329,7 @@ window.WorkbookModal = (function($, WorkbookModal) {
         // new workbook and copy workbook must have new workbook name
         // and should not have duplicate name
         if (activeActionNo !== 1) {
-            var err1 = xcHelper.replaceMsg(ErrWRepTStr.WKBKConflict, {
+            var err1 = xcHelper.replaceMsg(WKBKTStr.Conflict, {
                 "name": workbookName
             });
             isValid = xcHelper.validate([
@@ -352,7 +359,7 @@ window.WorkbookModal = (function($, WorkbookModal) {
         }
 
         // continue workbook and copy workbook must select one wkbk
-        if (activeActionNo !== 0) {
+        if (activeActionNo === 1 || activeActionNo === 2) {
             isValid = xcHelper.validate({
                 "$selector": $workbookLists,
                 "text"     : ErrTStr.NoWKBKSelect,
@@ -428,6 +435,14 @@ window.WorkbookModal = (function($, WorkbookModal) {
             .then(function(id) {
                 return WKBKManager.switchWKBK(id);
             })
+            .then(deferred.resolve)
+            .fail(function(error) {
+                cancelWaiting();
+                deferred.reject(error);
+            });
+        } else if (actionNo === 3) {
+            goWaiting();
+            WKBKManager.renameWKBK(workbookName)
             .then(deferred.resolve)
             .fail(function(error) {
                 cancelWaiting();

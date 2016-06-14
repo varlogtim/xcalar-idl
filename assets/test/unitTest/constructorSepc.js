@@ -422,7 +422,10 @@ describe('Constructor Test', function() {
             expect(wkbkSet.get('testId')).to.equal(wkbk);
             expect(wkbkSet.has('testId')).to.be.true;
             expect(wkbkSet.has('errorId')).to.be.false;
-            expect(wkbkSet.getWithStringify()).to.equal('{"testId":{"name":"test","id":"testId"}}');
+            expect(wkbkSet.getWithStringify().indexOf('testId') >= 0).to.be.true;
+
+            wkbkSet.delete('testId');
+            expect(wkbkSet.has('testId')).to.be.false;
         });
     });
 

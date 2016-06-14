@@ -579,10 +579,11 @@ module.exports = {
         'newWKBK': 'New Workbook',
         'continue': 'Continue from Workbook',
         'copy': 'Copy of Existing Workbook',
+        'rename': 'Rename Current Workbook',
         'newName': 'New Workbook Name',
         'CreateBy': 'Created By',
         'ModifiedBy': 'Last Modified By',
-        'CONFIRM': 'CREATE'
+        'CONFIRM': 'CREATE',
     },
 
     extension: {

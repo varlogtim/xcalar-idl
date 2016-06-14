@@ -95,7 +95,8 @@ CommonTxtTstr = {
     'Preview': 'Preview',
     'StartTime': 'Start Time',
     'CopyLog': 'Copy log',
-    'LogOut': 'Log Out'
+    'LogOut': 'Log Out',
+    'Rename': 'Rename'
 };
 
 ErrTStr = {
@@ -235,9 +236,6 @@ ErrTStr = {
 ErrWRepTStr = {
     'FolderConflict': 'Folder "<name>" already exists, ' +
                         'please choose another name.',
-
-    'WKBKConflict': 'Workbook "<name>" already exists, ' +
-                    'please choose another name.',
 
     'ParamConflict': 'Parameter "<name>" already exists, ' +
                     'please choose another name.',
@@ -390,7 +388,9 @@ WKBKTStr = {
     'Hold': 'Signed on elsewhere',
     'HoldMsg': 'Please close your other session.',
     'Release': 'Force Release',
-    'WKBKnotExists': 'No workbooks exist'
+    'WKBKnotExists': 'No workbooks exist',
+    'Conflict': 'Workbook "<name>" already exists, ' +
+                    'please choose another name.',
 };
 
 SchedTStr = {

@@ -576,13 +576,15 @@ function WKBK(options) {
         throw "Invalid workbook info!";
     }
 
+    var time = xcHelper.getCurrentTimeStamp();
+
     this.name = options.name;
     this.id = options.id;
     this.noMeta = options.noMeta;
     this.srcUser = options.srcUser;
     this.curUser = options.curUser;
-    this.created = options.created;
-    this.modified = options.modified;
+    this.created = options.created || time;
+    this.modified = options.modified || time;
 
     return this;
 }
@@ -619,6 +621,10 @@ WKBKSet.prototype = {
 
     "has": function(wkbkId) {
         return this.set.hasOwnProperty(wkbkId);
+    },
+
+    "delete": function(wkbkId) {
+        delete this.set[wkbkId];
     }
 };
 

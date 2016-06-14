@@ -105,12 +105,9 @@ window.WKBKManager = (function($, WKBKManager) {
 
         XcalarNewWorkbook(wkbkName, isCopy, copySrcName)
         .then(function() {
-            var time = xcHelper.getCurrentTimeStamp();
             var options = {
                 "id"      : getWKBKId(wkbkName),
                 "name"    : wkbkName,
-                "created" : time,
-                "modified": time,
                 "srcUser" : username,
                 "curUser" : username
             };
@@ -124,20 +121,10 @@ window.WKBKManager = (function($, WKBKManager) {
             // in case KVStore has some remants about wkbkId, clear it
             var innerDeferred = jQuery.Deferred();
 
-            var gInfoKey = generateKey(wkbk.id, "gInfo");
-            var gEphInfoKey = generateKey(wkbk.id, "gEphInfo");
-            var gLogKey  = generateKey(wkbk.id, "gLog");
+            delWKBKHelper(wkbk.id)
+            .always(innerDeferred.resolve);
 
-            var def1 = XcalarKeyDelete(gInfoKey, gKVScope.META);
-            var def3 = XcalarKeyDelete(gEphInfoKey, gKVScope.EPHM);
-            var def2 = XcalarKeyDelete(gLogKey, gKVScope.LOG);
-
-            jQuery.when(def1, def2, def3)
-            .always(function() {
-                innerDeferred.resolve();
-            });
-
-            return (innerDeferred.promise());
+            return innerDeferred.promise();
         })
         .then(function() {
             deferred.resolve(wkbk.id);
@@ -202,7 +189,7 @@ window.WKBKManager = (function($, WKBKManager) {
             return Support.releaseSession();
         })
         .then(function() {
-            return (XcalarSwitchToWorkbook(toWkbkName, fromWkbkName));
+            return XcalarSwitchToWorkbook(toWkbkName, fromWkbkName);
         })
         .then(function() {
             return XcalarKeyPut(activeWKBKKey, wkbkId, true, gKVScope.WKBK);
@@ -267,6 +254,64 @@ window.WKBKManager = (function($, WKBKManager) {
             removeUnloadPrompt();
             location.reload();
             deferred.resolve();
+        })
+        .fail(deferred.reject);
+
+        return deferred.promise();
+    };
+
+    WKBKManager.renameWKBK = function(newName) {
+        var newWKBKId = getWKBKId(newName);
+
+        if (wkbkSet.has(newWKBKId)) {
+            return PromiseHelper.reject('Workbook already exists');
+        }
+
+        var deferred = jQuery.Deferred();
+        var srcWKBKId = activeWKBKId;
+        var srcWKBK = wkbkSet.get(srcWKBKId);
+
+        // should follow theses order:
+        // 1. copy meta to new wkbkb,
+        // 2. rename wkbk
+        // 3. delete meta in current wkbk
+        // 3. update wkbkSet meta
+        // 4. change activity key
+        KVStore.commit()
+        .then(function() {
+            return copyHelper(srcWKBKId, newWKBKId);
+        })
+        .then(function() {
+            return XcalarRenameWorkbook(newName, srcWKBK.name);
+        })
+        .then(function() {
+            var innerDeferred = jQuery.Deferred();
+            delWKBKHelper(srcWKBK.id)
+            .always(innerDeferred.resolve);
+
+            return innerDeferred.promise();
+        })
+        .then(function() {
+            var options = {
+                "id"      : newWKBKId,
+                "name"    : newName,
+                "created" : srcWKBK.created,
+                "srcUser" : srcWKBK.srcUser,
+                "curUser" : srcWKBK.curUser
+            };
+
+            var newWkbk = new WKBK(options);
+            wkbkSet.put(newWKBKId, newWkbk);
+            wkbkSet.delete(srcWKBK.id);
+            return KVStore.put(wkbkKey, wkbkSet.getWithStringify(), true, gKVScope.WKBK);
+        })
+        .then(function() {
+            activeWKBKId = newWKBKId;
+            return KVStore.put(activeWKBKKey, activeWKBKId, true, gKVScope.WKBK);
+        })
+        .then(function() {
+            deferred.resolve();
+            location.reload();
         })
         .fail(deferred.reject);
 
@@ -474,19 +519,17 @@ window.WKBKManager = (function($, WKBKManager) {
 
     // helper for WKBKManager.emptyAll
     function delWKBKHelper(wkbkId) {
-        var deferred   = jQuery.Deferred();
+        var deferred = jQuery.Deferred();
 
         var storageKey = generateKey(wkbkId, "gInfo");
         var ephStorageKey = generateKey(wkbkId, "gEphInfo");
-        var logKey     = generateKey(wkbkId, "gLog");
+        var logKey = generateKey(wkbkId, "gLog");
 
-        XcalarKeyDelete(storageKey, gKVScope.META)
-        .then(function() {
-            return (XcalarKeyDelete(logKey, gKVScope.LOG));
-        })
-        .then(function() {
-            return (XcalarKeyDelete(ephStorageKey, gKVScore.EPHM));
-        })
+        var def1 = XcalarKeyDelete(storageKey, gKVScope.META);
+        var def3 = XcalarKeyDelete(ephStorageKey, gKVScope.EPHM);
+        var def2 = XcalarKeyDelete(logKey, gKVScope.LOG);
+
+        jQuery.when(def1, def2, def3)
         .then(function() {
             console.log("Delete workbook", wkbkId);
             deferred.resolve();
