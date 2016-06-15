@@ -9,6 +9,7 @@ window.UDF = (function($, UDF) {
 
     var editor;
     var storedUDF = {};
+    var udfWidgets = [];
 
     // constant
     var udfDefault = "# PLEASE TAKE NOTE: \n" +
@@ -145,14 +146,21 @@ window.UDF = (function($, UDF) {
                 "version"               : 3,
                 "singleLineStringErrors": false
             },
-            "lineNumbers"   : true,
-            "indentWithTabs": true,
-            "indentUnit"    : 4,
-            "matchBrackets" : true,
+            "lineNumbers"      : true,
+            "indentWithTabs"   : true,
+            "indentUnit"       : 4,
+            "matchBrackets"    : true,
             "autoCloseBrackets": true
         });
 
         editor.setValue(udfDefault);
+
+        var waiting;
+        editor.on("change", function() {
+            clearTimeout(waiting);
+            waiting = setTimeout(updateHints, 300);
+        });
+
         var wasActive = $('#udfSection').hasClass('active');
         // panel needs to be active to set editor value to udf default
         $('#udfSection').addClass('active');
@@ -424,13 +432,21 @@ window.UDF = (function($, UDF) {
                 deferred.resolve();
             })
             .fail(function(error) {
-                var title = SideBarTStr.UploadError;
                 if (error.status === StatusT.StatusPyExecFailedToCompile) {
                     // XXX might not actually be a syntax error
-                    title = SideBarTStr.SyntaxError;
+                    var syntaxErr = parseSytanxError(error);
+                    if (syntaxErr != null) {
+                        var errMsg = xcHelper.replaceMsg(SideBarTStr.UDFError, syntaxErr);
+                        Alert.error(SideBarTStr.SyntaxError, errMsg);
+                        updateHints(syntaxErr);
+                    } else {
+                        // when cannot parse the error
+                        Alert.error(SideBarTStr.SyntaxError, error);
+                    }
+                } else {
+                    Alert.error(SideBarTStr.UploadError, error);
                 }
 
-                Alert.error(title, error);
                 deferred.reject(error);
             })
             .always(function() {
@@ -445,6 +461,67 @@ window.UDF = (function($, UDF) {
         }
 
         return deferred.promise();
+    }
+
+    function parseSytanxError(error) {
+        if (!error || !error.error) {
+            return null;
+        }
+
+        var splits = error.error.split(",");
+        if (splits.length < 3) {
+            console.error("cannot parse error", error);
+            return null;
+        }
+
+        var reasonPart = splits[0].split("(");
+        if (reasonPart.length < 2) {
+            console.error("cannot parse error", error);
+            return null;
+        }
+
+        var reason = reasonPart[1].trim();
+        var line = Number(splits[2].trim());
+        if (!Number.isInteger(line)) {
+            console.error("cannot parse error", error);
+            return null;
+        }
+
+        return {
+            "reason": reason,
+            "line"  : line
+        };
+    }
+
+    function updateHints(error) {
+        editor.operation(function(){
+            for (var i = 0, len = udfWidgets.length; i < len; i++) {
+                editor.removeLineWidget(udfWidgets[i]);
+            }
+            udfWidgets.length = 0;
+
+            if (!error) {
+                return;
+            }
+
+            var msg = document.createElement("div");
+            var icon = msg.appendChild(document.createElement("span"));
+            icon.innerHTML = "!";
+            icon.className = "lint-error-icon";
+            msg.appendChild(document.createTextNode(error.reason));
+            msg.className = "lint-error";
+            udfWidgets.push(editor.addLineWidget(error.line - 1, msg, {
+                "coverGutter": false,
+                "noHScroll"  : true,
+                "above"      : true
+            }));
+        });
+
+        var info = editor.getScrollInfo();
+        var after = editor.charCoords({line: editor.getCursor().line + 1, ch: 0}, "local").top;
+        if (info.top + info.clientHeight < after) {
+            editor.scrollTo(null, after - info.clientHeight + 3);
+        }
     }
 
     function defaultUDFUpload() {

@@ -533,8 +533,9 @@ SideBarTStr = {
                  'do you want to replace it with this module?',
     'UpoladUDF': 'Upload Success',
     'UploadUDFMsg': 'Your python script has been successfully uploaded!',
-    'UploadError': 'Upload Error',
     'SyntaxError': 'Syntax Error',
+    'UploadError': 'Upload Error',
+    'UDFError': '<reason> found in line <line>',
     'DownloadError': 'Download UDF Failed',
     'DownoladMsg': 'UDF is empty',
     'OverwriteErr': 'Cannot overwrite default UDF'
