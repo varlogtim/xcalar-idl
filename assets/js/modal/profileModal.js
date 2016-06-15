@@ -175,9 +175,13 @@ window.Profile = (function($, Profile, d3) {
         $rangeInput.keypress(function(event) {
             if (event.which === keyCode.Enter) {
                 var val = $rangeInput.val();
+                // Note that because the input type is number,
+                // any no-numeric string in the input will get ""
+                // when do $rangeInput.val()
                 var isValid = xcHelper.validate([
                     {
-                        "$selector": $rangeInput
+                        "$selector": $rangeInput,
+                        "text"     : ErrTStr.OnlyPositiveNumber
                     },
                     {
                         "$selector": $rangeInput,
