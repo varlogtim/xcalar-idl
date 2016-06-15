@@ -66,10 +66,9 @@ window.Scheduler = (function(Scheduler, $) {
             "dayNamesMin"    : ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
             "minDate"        : 0,
             "beforeShow"     : function() {
-                if ($scheduleForm.hasClass("new")) {
+                if ($scheduleForm.hasClass("new") && $dateInput.val() === "") {
                     $dateInput.datepicker("setDate", new Date());
                 }
-
                 var $el = $("#ui-datepicker-div");
                 $el.addClass("schedulerDatePicker")
                     .appendTo($timeSection.find(".datePickerPart"));
@@ -102,17 +101,32 @@ window.Scheduler = (function(Scheduler, $) {
         $timePicker.on("click", ".btn", function() {
             var $btn = $(this);
             var isIncrease = $btn.hasClass("increase");
-            var btnType;
+            var type;
 
             if ($btn.hasClass("hour")) {
-                btnType = "hour";
+                type = "hour";
             } else if ($btn.hasClass("minute")) {
-                btnType = "minute";
+                type = "minute";
             } else {
-                btnType = "ampm";
+                type = "ampm";
             }
 
-            changeTime(btnType, isIncrease);
+            changeTime(type, isIncrease);
+        });
+
+        $timePicker.on("input", "input", function() {
+            var $input = $(this);
+            var type;
+            if ($input.hasClass("hour")) {
+                type = "hour";
+            } else if ($input.hasClass("minute")) {
+                type = "minute";
+            } else {
+                // invalid case
+                return;
+            }
+
+            inputTime(type, $input.val());
         });
 
         // frequent section event
@@ -716,10 +730,8 @@ window.Scheduler = (function(Scheduler, $) {
         }
 
         $timePicker.fadeIn(200);
-        var timeStamp = showTimeHelper(date);
-        $scheduleForm.find(".timeSection .time").val(timeStamp)
-                     .data("date", date);
         showTimeHelper(date);
+
         $(document).on("mousedown.timePicker", function(event) {
             var $el = $(event.target);
 
@@ -734,48 +746,88 @@ window.Scheduler = (function(Scheduler, $) {
         });
     }
 
-    function changeTime(btnType, isIncrease) {
-        var time = $timePicker.data("date").getTime();
+    function changeTime(type, isIncrease) {
         var ampm = $timePicker.find(".inputSection .ampm").text();
+        var date = $timePicker.data("date");
+        var hour = date.getHours();
+        var diff;
 
-        if (btnType === "ampm") {
-            var halfDay = 1000 * 60 * 60 * 12;
-
-            if (ampm === "AM") {
-                // toggle to PM, add 12 hours
-                time += halfDay;
-            } else {
-                time -= halfDay;
-            }
-        } else {
-            var timeDiff;
-
-            if (btnType === "hour") {
-                // one hour
-                timeDiff = 1000 * 60 * 60;
-            } else {
-                // one minute
-                timeDiff = 1000 * 60;
-            }
-
-            if (isIncrease) {
-                time += timeDiff;
-            } else {
-                time -= timeDiff;
-            }
+        switch (type) {
+            case "ampm":
+                if (ampm === "AM") {
+                    // toggle to PM, add 12 hours
+                    date.setHours(hour + 12);
+                } else {
+                    date.setHours(hour - 12);
+                }
+                break;
+            case "minute":
+                diff = isIncrease ? 1 : -1;
+                date.setMinutes(date.getMinutes() + diff);
+                // keep the same hour
+                date.setHours(hour);
+                break;
+            case "hour":
+                diff = isIncrease ? 1 : -1;
+                if (isIncrease && (hour + diff) % 12 === 0 ||
+                    !isIncrease && hour % 12 === 0) {
+                    // when there is am/pm change, keep the old am/pm
+                    date.setHours((hour + diff + 12) % 24);
+                } else {
+                    date.setHours(hour + diff);
+                }
+                break;
+            default:
+                // error case
+                break;
         }
-
-        var date = new Date(time);
-        var timeStamp = showTimeHelper(date);
-
-        $scheduleForm.find(".timeSection .time").val(timeStamp)
-                                    .data("date", date);
+        showTimeHelper(date);
     }
 
-    function showTimeHelper(date) {
-        var hours   = date.getHours();
+    function inputTime(type, val) {
+        if (val === "") {
+            return;
+        }
+        val = Number(val);
+        if (isNaN(val) || !Number.isInteger(val)) {
+            return;
+        }
+
+        var date = $timePicker.data("date");
+
+        switch (type) {
+            case "minute":
+                if (val < 0 || val > 59) {
+                    return;
+                }
+                date.setMinutes(val);
+                showTimeHelper(date, false, true);
+                break;
+            case "hour":
+                if (val < 1 || val > 12) {
+                    return;
+                }
+
+                var ampm = $timePicker.find(".inputSection .ampm").text();
+
+                if (val === 12 && ampm === "AM") {
+                    val = 0;
+                } else if (ampm === "PM" && val !== 12) {
+                    val += 12;
+                }
+                date.setHours(val);
+                showTimeHelper(date, true, false);
+                break;
+            default:
+                // error case
+                break;
+        }
+    }
+
+    function showTimeHelper(date, noHourRest, noMinReset) {
+        var hours = date.getHours();
         var minutes = date.getMinutes();
-        var ampm    = hours >= 12 ? "PM" : "AM";
+        var ampm = hours >= 12 ? "PM" : "AM";
 
         hours = hours % 12;
         hours = hours ? hours : 12; // the hour '0' should be '12'
@@ -784,13 +836,20 @@ window.Scheduler = (function(Scheduler, $) {
         minutes = minutes < 10 ? "0" + minutes : minutes;
 
         var $inputSection = $timePicker.find(".inputSection");
-        $inputSection.find(".hour").val(hours);
-        $inputSection.find(".minute").val(minutes);
+
+        if (!noHourRest) {
+            $inputSection.find(".hour").val(hours);
+        }
+        if (!noMinReset) {
+            $inputSection.find(".minute").val(minutes);
+        }
         $inputSection.find(".ampm").text(ampm);
 
         $timePicker.data("date", date);
 
-        return (hours + " : " + minutes + " " + ampm);
+        var timeStamp = hours + " : " + minutes + " " + ampm;
+        $scheduleForm.find(".timeSection .time").val(timeStamp)
+                                    .data("date", date);
     }
 
     function getRepeatPeriod(schedule) {
