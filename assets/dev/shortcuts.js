@@ -168,6 +168,10 @@ window.Shortcuts = (function($, Shortcuts) {
                         file = "export";
                         filePath = "file:///var/opt/xcalar/export/";
                         break;
+                    case ("thousand"):
+                        file = "thousand";
+                        filePath = "file:///netstore/qa/crashes/bug4293/Datasets/Tb/1K/";
+                        break;
                     default:
                         break;
                 }

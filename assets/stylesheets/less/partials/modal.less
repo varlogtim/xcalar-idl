@@ -2350,6 +2350,29 @@ html.microsoft {
         }
     }
 
+    &.unsortable {
+        #fileBrowserSort {
+            cursor: not-allowed;
+            .gray-gradient;
+            .dropdownBox {
+                cursor: not-allowed;
+            }
+        }
+        .titleSection .title {
+            cursor: not-allowed !important;
+            .gray-gradient !important;
+            .tag {
+                 cursor: not-allowed;
+            }
+        }
+    }
+
+    &.notChrome {
+        #innerFileBrowserContainer {
+            overflow: visible !important;
+        }
+    }
+
     .dropDownList {
         .styleDropDownList(450px, 25px);
         .text, .list li {
@@ -2645,6 +2668,19 @@ html.microsoft {
                 color: @color-text-error;
                 margin: 10px;
             }
+
+            &.manyFiles {
+                .grid-unit {
+                    display:none;
+                    &.visible {
+                        display: inline-block;
+                    }
+                }
+            }
+        }
+
+        #innerFileBrowserContainer {
+            overflow: hidden;
         }
 
         &.gridView {
@@ -2691,6 +2727,15 @@ html.microsoft {
                 .size(@height: ~"calc(100% - 40px)");
                 box-shadow: inset 0px 0px 1px rgba(0, 0, 0, 0.5);
                 overflow-y: scroll;
+
+                &.manyFiles {
+                    .grid-unit {
+                        display:none;
+                        &.visible {
+                            display: block;
+                        }
+                    }
+                }
             }
 
             .targetContainer {

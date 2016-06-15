@@ -4,6 +4,7 @@ window.FnBar = (function(FnBar, $) {
 
     var $lastColInput = null;
     var searchHelper;
+    var editor;
 
     FnBar.setup = function() {
         $functionArea = $("#functionArea");
