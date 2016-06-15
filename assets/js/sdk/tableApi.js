@@ -5,6 +5,7 @@ window.XcSDK.Table = function(tableName, worksheet) {
     this.worksheet = worksheet;
     // mark if this table is shown or hidden
     this.active = false;
+    this.tablesToReplace = null;
 
     var tableId = xcHelper.getTableId(tableName);
     if (tableId != null && gTables[tableId] != null) {
@@ -62,6 +63,10 @@ window.XcSDK.Table.prototype = {
         return this.active;
     },
 
+    "getTablesToReplace": function() {
+        return this.tablesToReplace;
+    },
+
     "addToWorksheet": function(tablesToReplace) {
         var tableName = this.tableName;
         var ws = this.worksheet;
@@ -88,8 +93,6 @@ window.XcSDK.Table.prototype = {
             delete gTables[tableId];
         }
 
-        this.active = true;
-
         if (tablesToReplace == null) {
             tablesToReplace = [];
         }
@@ -98,12 +101,17 @@ window.XcSDK.Table.prototype = {
             tablesToReplace = [tablesToReplace];
         }
 
-        for (var i = 0, len = tablesToReplace.length; i < len; i++) {
+        var len = tablesToReplace.length;
+        for (var i = 0; i < len; i++) {
             var srcTableId = xcHelper.getTableId(tablesToReplace[i]);
             if (gTables[srcTableId] == null || !gTables[srcTableId].isActive()) {
                 var error = 'Invalid Table "' + tablesToReplace[i] + '" to replace';
                 return PromiseHelper.reject(error);
             }
+        }
+        this.active = true;
+        if (len > 0) {
+            this.tablesToReplace = tablesToReplace;
         }
 
         return TblManager.refreshTable([tableName], tableCols, tablesToReplace, ws);

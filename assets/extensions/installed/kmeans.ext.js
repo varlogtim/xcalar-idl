@@ -151,8 +151,8 @@ window.UExtKMeans = (function(UExtKMeans, $) {
                               k, threshold, maxIter,
                               tableId, txId, workSheet));
             })
-            .then(function(centroidTableName) {
-                outerDeferred.resolve(centroidTableName);
+            .then(function(centroidTableName, clusterTableName) {
+                outerDeferred.resolve([centroidTableName, clusterTableName]);
             })
             .fail(outerDeferred.reject);
 
@@ -271,7 +271,7 @@ window.UExtKMeans = (function(UExtKMeans, $) {
                                                [], workSheet);
             })
             .then(function() {
-                deferred.resolve(centroidTableName);
+                deferred.resolve(centroidTableName, clusterTableName);
             })
             .fail(deferred.reject);
 

@@ -105,26 +105,30 @@ window.Redo = (function($, Redo) {
         // XXX As extension can do anything, it may need fix
         // as we add more extensions and some break the current code
 
-        // Tested: Window, hPartition
+        // Tested: Window, hPartition, genRowNum
+        var replace = options.replace || {};
+        var newTables = options.newTables || [];
 
-        var newTables = options.newTables;
+        var promises = [];
 
-        if (newTables == null) {
-            return PromiseHelper.resolve();
+        // first replace tables
+        for (var table in replace) {
+            var tablesToReplace = replace[table];
+            promises.push(TblManager.refreshTable.bind(window,
+                                                    [table], null,
+                                                    tablesToReplace));
         }
+
+        // next append new tables
 
         var tableId = options.tableId;
         var worksheet = WSManager.getWSFromTable(tableId);
-        var promises = [];
-        var tableToReplace = gTables[tableId].isActive() ? [] :
-                                                           [options.tableName];
 
         for (var i = 0, len = newTables.length; i < len; i++) {
-            var newTableName = newTables[i];
-            promises.push(TblManager.refreshTable.bind(window, [newTableName],
-                                                        null,
-                                                        tableToReplace,
-                                                        worksheet));
+            var newTable = newTables[i];
+            promises.push(TblManager.refreshTable.bind(window,
+                                                    [newTable], null,
+                                                    [], worksheet));
         }
 
         return PromiseHelper.chain(promises);

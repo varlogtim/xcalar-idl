@@ -237,6 +237,7 @@ window.XcSDK.Extension.prototype = (function() {
             .then(function() {
                 // clear .temp table
                 var finalActiveTables = [];
+                var finalReplaces = {};
                 var promises = [];
 
                 for (var i = 0, len = newTables.length; i < len; i++) {
@@ -246,13 +247,18 @@ window.XcSDK.Extension.prototype = (function() {
                         // a paraell delete of temp table
                         promises.push(deleteTempTable(tableName, txId));
                     } else if (xcTable.isInWorksheet()) {
-                        finalActiveTables.push(tableName);
+                        var tablesToReplace = xcTable.getTablesToReplace();
+                        if (tablesToReplace != null) {
+                            finalReplaces[tableName] = tablesToReplace;
+                        } else {
+                            finalActiveTables.push(tableName);
+                        }
                     }
                 }
 
                 PromiseHelper.when.apply(null, promises)
                 .always(function() {
-                    deferred.resolve(finalActiveTables);
+                    deferred.resolve(finalActiveTables, finalReplaces);
                 });
             })
             .fail(deferred.reject);

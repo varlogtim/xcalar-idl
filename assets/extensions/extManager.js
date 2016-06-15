@@ -335,13 +335,25 @@ window.ExtensionManager = (function(ExtensionManager, $) {
                 .then(function() {
                     return ext.runAfterFinish();
                 })
-                .then(function(finalTables) {
+                .then(function(finalTables, finalReplaces) {
 
                     xcHelper.unlockTable(tableId);
 
-                    sql.newTableNames = finalTables;
-                    // use the last finalTable as msgTable
-                    var finalTableName = finalTables[finalTables.length - 1];
+                    sql.newTables = finalTables;
+                    sql.replace = finalReplaces;
+
+                    var finalTableName;
+                    if (finalTables != null && finalTables.length > 0) {
+                        // use the last finalTable as msgTable
+                        finalTableName = finalTables[finalTables.length - 1];
+                    } else if (finalReplaces != null) {
+                        for (var key in finalReplaces) {
+                            // use a random table in finalReplaces as msgTable
+                            finalTableName = key;
+                            break;
+                        }
+                    }
+
                     Transaction.done(txId, {
                         "msgTable": xcHelper.getTableId(finalTableName),
                         "sql"     : sql

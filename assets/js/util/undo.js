@@ -176,33 +176,42 @@ window.Undo = (function($, Undo) {
         // XXX As extension can do anything, it may need fix
         // as we add more extensions and some break the current code
 
-        // Tested: Window, hPartition
+        // Tested: Window, hPartition, genRowNum
 
-        var tableId = options.tableId;
-        var newTables = options.newTables;
+        // var tableId = options.tableId;
+        var newTables = options.newTables || [];
+        var replace = options.replace || {};
 
-        if (newTables == null) {
-            return PromiseHelper.resolve();
+        // undo new append table, just hide newTables
+        var promises = [];
+
+        for (var i = 0; i < newTables.length; i++) {
+            var newTableId = xcHelper.getTableId(newTables[i]);
+            promises.push(TblManager.sendTableToOrphaned.bind(window, newTableId,
+                                                            {'remove': true}));
         }
 
-        if (gTables[tableId].isActive()) {
-            // when table is in active, just hide newTables
-            var promises = [];
-
-            for (var i = 0, len = newTables.length; i < len; i++) {
-                var newTableId = xcHelper.getTableId(newTables[i]);
-                promises.push(TblManager.sendTableToOrphaned.bind(window, newTableId,
-                                                                {'remove': true}));
+        for (var table in replace) {
+            var oldTables = replace[table];
+            for (var i = 0; i < oldTables.length; i++) {
+                var oldTable = oldTables[i];
+                if (i === 0) {
+                    promises.push(TblManager.refreshTable.bind(window,
+                                                            [oldTable], null,
+                                                            [table], null,
+                                                            {"isUndo": true}));
+                } else {
+                    var oldTableId = xcHelper.getTableId(oldTable);
+                    var worksheet = WSManager.getWSFromTable(oldTableId);
+                    promises.push(TblManager.refreshTable.bind(window,
+                                                            [oldTable], null,
+                                                            [], worksheet,
+                                                            {"isUndo": true}));
+                }
             }
-
-            return PromiseHelper.chain(promises);
-        } else {
-            var worksheet = WSManager.getWSFromTable(tableId);
-            // otherwise, replace table
-            return TblManager.refreshTable([options.tableName], null,
-                                       options.newTables,
-                                       worksheet, {isUndo: true});
         }
+
+        return PromiseHelper.chain(promises);
     };
     /* END BACKEND OPERATIONS */
 
