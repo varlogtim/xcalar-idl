@@ -323,7 +323,7 @@ window.DatastoreForm = (function($, DatastoreForm) {
         .fail(deferred.reject);
 
         if (udfCheckRes.hasUDF) {
-            cacheUDF();
+            cacheUDF(moduleName, funcName);
         }
         cacheDelimiter(dsFormat);
 
