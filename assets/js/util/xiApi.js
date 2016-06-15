@@ -148,7 +148,8 @@ window.XIApi = (function(XIApi, $) {
         return deferred.promise();
     };
 
-    XIApi.join = function(txId, joinType, lColNames, lTableName, rColNames, rTableName, newTableName) {
+    XIApi.join = function(txId, joinType, lColNames, lTableName, rColNames,
+                          rTableName, newTableName) {
         if (lColNames == null || lTableName == null ||
             rColNames == null || rTableName == null ||
             joinType == null || txId == null ||
@@ -182,7 +183,8 @@ window.XIApi = (function(XIApi, $) {
         })
         .then(function(lInexedTable, rIndexedTable) {
             if (!isValidTableName(newTableName)) {
-                newTableName = getNewTableName(tableName);
+                newTableName = getNewTableName(lTableName.substring(0, 5) + "-"+
+                                               rTableName.substring(0, 5));
             }
             // Step 3: join left table and right table
             return XcalarJoin(lInexedTable, rIndexedTable, newTableName,
