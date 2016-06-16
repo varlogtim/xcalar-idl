@@ -335,17 +335,23 @@ window.StartManager = (function(StartManager, $) {
     function restoreActiveTable(tableId, failures) {
         var deferred = jQuery.Deferred();
         var table = gTables[tableId];
+        var passedUpdateResultSet = false;
 
         table.beActive();
 
         table.updateResultset()
         .then(function() {
+            passedUpdateResultSet = true;
             return TblManager.parallelConstruct(tableId);
         })
         .then(deferred.resolve)
         .fail(function(error) {
             failures.push("Add table " + table.getName() +
                         "fails: " + error.error);
+            if (!passedUpdateResultSet) {
+                table.beOrphaned();
+                WSManager.removeTable(tableId);
+            }
             // still resolve but push error failures
             deferred.resolve();
         });
