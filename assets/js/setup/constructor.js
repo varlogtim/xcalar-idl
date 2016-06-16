@@ -2024,10 +2024,18 @@ ModalHelper.prototype = {
             $modal.hide();
             if (options.noBackground) {
                 Tips.refresh();
+                if (options.afterClose != null &&
+                    options.afterClose instanceof Function) {
+                    options.afterClose();
+                }
                 deferred.resolve();
             } else {
                 $modalBg.fadeOut(fadeOutTime, function() {
                     Tips.refresh();
+                    if (options.afterClose != null &&
+                        options.afterClose instanceof Function) {
+                        options.afterClose();
+                    }
                     deferred.resolve();
                 });
             }

@@ -626,8 +626,6 @@ window.FileBrowser = (function($, FileBrowser) {
     function clear(isALL) {
         var $dropDownLists = $fileBrowser.find(".dropDownList");
 
-        $fileBrowser.find(".active").removeClass("active");
-
         $dropDownLists.removeClass("open")
                         .find(".list").hide();
         $fileName.val("");
@@ -637,7 +635,8 @@ window.FileBrowser = (function($, FileBrowser) {
             $("#fileBrowserUp").addClass("disabled");
             $pathText.val("");
             $pathLists.empty();
-            $innerContainer.empty();
+            // we clear $innerContainer html in callback in modalhelper.clear
+            // for performance when there's 1000+ files
             $container.removeClass('manyFiles');
             $fileBrowser.removeClass('unsortable');
             $visibleFiles = $();
@@ -650,11 +649,16 @@ window.FileBrowser = (function($, FileBrowser) {
             // sortKey = defaultSortKey;
             // sortRegEx = undefined;
             // reverseSort = false;
+        } else {
+            $fileBrowser.find(".active").removeClass("active");
         }
     }
 
     function closeAll() {
-        modalHelper.clear();
+        modalHelper.clear({afterClose: function() {
+            // speedy clearing for 100,000 files
+            document.getElementById("innerFileBrowserContainer").innerHTML = "";
+        }});
         // set to deault value
         clear(true);
         $(document).off(".fileBrowser");
