@@ -1,1 +1,1 @@
-var testDataLoc = "/netstore/datasets/";
+var testDataLoc = "netstore/datasets/";

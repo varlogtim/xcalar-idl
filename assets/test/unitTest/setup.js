@@ -70,6 +70,8 @@ function findTestTableId(tableName) {
 var testDatasets = {
     "sp500": {
         url: "file:///netstore/datasets/sp500.csv",
+        protocol: "file:///",
+        path: "netstore/datasets/sp500.csv",
         format: "CSV",
         fieldDelim: "\t",
         lineDelim: "\n",
@@ -80,6 +82,8 @@ var testDatasets = {
 
     "schedule": {
         url: "file:///var/tmp/qa/indexJoin/schedule/",
+        protocol: "file:///",
+        path: "var/tmp/qa/indexJoin/schedule/",
         format: "JSON",
         moduleName: "",
         funcName: ""
@@ -87,6 +91,8 @@ var testDatasets = {
 
     "fakeYelp": {
         url: "file:///netstore/datasets/unittest/test_yelp.json",
+        protocol: "file:///",
+        path: "netstore/datasets/unittest/test_yelp.json",
         format: "JSON",
         moduleName: "",
         funcName: ""

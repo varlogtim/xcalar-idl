@@ -357,7 +357,15 @@ module.exports = {
         'DATACART': 'DATA CART',
         'IN': 'IN',
         'OUT': 'OUT',
-        'Format': 'Format'
+        'Format': 'Format',
+        'Protocol': 'Prtocol'
+    },
+
+    // keep in sync with the FileProtocol in enums.js
+    FileProtocol: {
+        "file": "file:///",
+        "nfs": "nfs:///",
+        "hdfs": "hdfs://"
     },
 
     dsView: {

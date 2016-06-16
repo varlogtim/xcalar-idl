@@ -15,9 +15,6 @@ window.FileBrowser = (function($, FileBrowser) {
     var fileBrowserId;
 
     /* Contants */
-    var defaultNFSPath  = "nfs:///";
-    var defaultFilePath = "file:///";
-    var defaultHDFSPath = "hdfs://";
     var defaultSortKey  = "type"; // default is sort by type;
     var formatMap = {
         "JSON": "JSON",
@@ -31,11 +28,9 @@ window.FileBrowser = (function($, FileBrowser) {
     var upperFileLimit = 110000; // show error if over 110K
     var sortFileLimit = 25000; // do not allow sort if over 25k
     var oldBrowserError = "Deferred From Old Browser";
-
-
     /* End Of Contants */
 
-    var defaultPath = defaultFilePath;
+    var defaultPath = FileProtocol.file;
     var historyPath;
     var curFiles = [];
     var allFiles = [];
@@ -77,7 +72,7 @@ window.FileBrowser = (function($, FileBrowser) {
             "minHeight"  : minHeight,
             "minWidth"   : minWidth,
             "containment": "document",
-            "resize": function() {
+            "resize"     : function() {
                 if (window.isBrowseChrome) {
                     $innerContainer.height(getScrollHeight());
                     if (curFiles.length > lowerFileLimit &&
@@ -322,7 +317,6 @@ window.FileBrowser = (function($, FileBrowser) {
 
     function fileBrowserScrolling() {
         var scrollTimer;
-        var $files;
         $container.scroll(function() {
             if ($(this).hasClass('noScrolling') || !window.isBrowseChrome ||
                 (curFiles.length <= lowerFileLimit ||
@@ -405,7 +399,7 @@ window.FileBrowser = (function($, FileBrowser) {
         return (scrollHeight + 3); // off by 3 pixels otherwise ¯\_(ツ)_/¯
     }
 
-    FileBrowser.show = function(path) {
+    FileBrowser.show = function(protocol, path) {
         var deferred = jQuery.Deferred();
 
         addKeyBoardEvent();
@@ -413,11 +407,14 @@ window.FileBrowser = (function($, FileBrowser) {
 
         modalHelper.setup();
 
-        if (!path) {
-            path = historyPath || defaultPath;
+        if (protocol == null) {
+            // this is an error case
+            console.error("No protocol!!");
+            protocol = FileProtocol.file;
         }
 
-        changeFileSource(path);
+        protocol = changeProtocol(protocol);
+        path = getPathWithProtocol(protocol, path);
 
         retrievePaths(path)
         .then(function() {
@@ -688,8 +685,6 @@ window.FileBrowser = (function($, FileBrowser) {
         $innerContainer.height(getScrollHeight());
         $container.removeClass('manyFiles');
         $fileBrowser.removeClass('unsortable');
-        // when has error, change defaultPath back to file:///
-        defaultPath = defaultFilePath;
     }
 
     function parsePath(path) {
@@ -705,28 +700,41 @@ window.FileBrowser = (function($, FileBrowser) {
         return paths;
     }
 
-    function changeFileSource(path) {
+    function changeProtocol(protocol) {
         // for any edage case, use default file path
-        var pathPrefix = defaultFilePath;
-
-        if (path.startsWith(defaultNFSPath)) {
-            pathPrefix = defaultNFSPath;
-        } else if (path.startsWith(defaultFilePath)) {
-            pathPrefix = defaultFilePath;
-        } else if (path.startsWith(defaultHDFSPath)) {
-            // Special case because HDFS's default is actually hdfs://xxxxx/
-            var match = path.match(/^hdfs:\/\/.*?\//);
-            if (match != null && match[0] !== "hdfs:///") {
-                pathPrefix = match[0];
-            } else {
-                console.warn("Unsupported file path extension? Defaulting to file:///");
+        var isValidProtocol = false;
+        for (var key in FileProtocol) {
+            if (protocol === FileProtocol[key]) {
+                isValidProtocol = true;
+                break;
             }
-        } else {
-            console.warn("Unsupported file path extension? Defaulting to file:///");
+        }
+        if (!isValidProtocol) {
+            // for any edage case, use default file protocol
+            console.warn("Unsupported file path extension? Defaulting to", FileProtocol.file);
+            protocol = FileProtocol.file;
         }
 
-        defaultPath = pathPrefix;
-        $pathSection.find(".defaultPath").text(pathPrefix);
+        $pathSection.find(".defaultPath").text(protocol);
+        defaultPath = protocol;
+
+        return protocol;
+    }
+
+    function getPathWithProtocol(protocol, path) {
+        if (!path) {
+            if (historyPath && historyPath.startsWith(protocol)) {
+                // when use the same protocol
+                path = historyPath;
+            } else {
+                // when no history path or use new protocol
+                path = protocol;
+            }
+        } else {
+            path = protocol + path;
+        }
+
+        return path;
     }
 
     function updateFileName($grid) {
@@ -860,12 +868,11 @@ window.FileBrowser = (function($, FileBrowser) {
             curDir = curDir.substring(0, slashIndex + 1);
         }
 
-
         if (ext != null) {
             $('#fileFormatMenu li[name="' + ext.toUpperCase() + '"]').click();
         }
 
-        var path = curDir + fileName;
+        var path = getShortPath(curDir + fileName);
         $("#filePath").val(path);
         getShortName(fileName)
         .then(function(shortName) {
@@ -1491,7 +1498,7 @@ window.FileBrowser = (function($, FileBrowser) {
         FileBrowser.__testOnly__.updateFileName = updateFileName;
         FileBrowser.__testOnly__.filterFiles = filterFiles;
         FileBrowser.__testOnly__.sortFiles = sortFiles;
-        FileBrowser.__testOnly__.changeFileSource = changeFileSource;
+        FileBrowser.__testOnly__.changeProtocol = changeProtocol;
         FileBrowser.__testOnly__.goToPath = goToPath;
         FileBrowser.__testOnly__.focusOn = focusOn;
         FileBrowser.__testOnly__.getFocusGrid = getFocusGrid;

@@ -453,7 +453,8 @@ function dataPreviewModuleTest() {
 
     describe("Preview API Test", function() {
         it("DataPreview.show() should work", function(done) {
-            $("#filePath").val(testDatasets.sp500.url);
+            $("#fileProtocol input").val(testDatasets.sp500.protocol);
+            $("#filePath").val(testDatasets.sp500.path);
 
             DataPreview.show()
             .then(function() {

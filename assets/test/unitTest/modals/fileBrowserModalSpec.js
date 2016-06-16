@@ -167,12 +167,12 @@ describe('FilebrowserModal', function() {
         });
 
         it('Should change file source', function() {
-            var changeFileSource = FileBrowser.__testOnly__.changeFileSource;
+            var changeProtocol = FileBrowser.__testOnly__.changeProtocol;
             var $defaultPath = $("#fileBrowserPath .defaultPath");
             var prevSource = $defaultPath.text();
-            changeFileSource("nfs:///", true);
+            changeProtocol("nfs:///");
             expect($defaultPath.text()).to.equal("nfs:///");
-            changeFileSource(prevSource, true);
+            changeProtocol(prevSource);
             expect($defaultPath.text()).to.equal(prevSource);
         });
     });
@@ -242,7 +242,7 @@ describe('FilebrowserModal', function() {
 
         it('Should import dataset', function() {
             $fileBrowser.find(".confirm").click();
-            expect($("#filePath").val()).to.equal("file:///netstore/datasets/sp500.csv");
+            expect($("#filePath").val()).to.equal("netstore/datasets/sp500.csv");
             assert.isFalse($fileBrowser.is(":visible"));
         });
     });

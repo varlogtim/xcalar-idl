@@ -201,10 +201,6 @@ ErrTStr = {
 
     'InvalidColumn' : 'Invalid column name: <name>',
 
-    'InvalidURLToBrowse': 'Please add protocol to file path. ' +
-                          'For example: nfs:/// or hdfs://hostname/ or ' +
-                          'file:/// (for local filesystem)',
-
     'PreservedName': 'This name is preserved, please use another name.',
 
     'InvalidWin': 'Cannot window an unsorted table',
@@ -433,7 +429,8 @@ DSTStr = {
     'DelDSConfirm': 'Are you sure you want to delete dataset <ds> ?',
     'DelUneditable': 'This <ds> is uneditable, cannot delete',
     'DSSourceHint': 'Please try another path or use another protocol',
-    'FileOversize': 'Too many files in the folder, cannot read, please load with the url directly'
+    'FileOversize': 'Too many files in the folder, cannot read, please load with the url directly',
+    'InvalidHDFS': 'Invalid HDFS path, valid format is: "hostname/url"'
 };
 
 DSFormTStr = {

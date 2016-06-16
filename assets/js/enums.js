@@ -80,6 +80,12 @@ var DSObjTerm = {
     "OtherUserFolderId": ".other"
 };
 
+var FileProtocol = {
+    "file": "file:///",
+    "nfs": "nfs:///",
+    "hdfs": "hdfs://"
+}
+
 var fakeEvent = {
     "click"     : {"type": "click", "which": 1},
     "dblclick"  : {"type": "click", "which": 1},

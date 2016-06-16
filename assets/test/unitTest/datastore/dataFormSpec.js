@@ -155,17 +155,41 @@ function dataFormModuleTest() {
         });
 
         it("Should allow browse invalid path", function() {
-            var paths = ["", "file:///", "nfs:///", "hdfs://host/"];
-            paths.forEach(function(path) {
-                expect(isValidPathToBrowse(path)).to.be.true;
+            var paths = [{
+                "protocol": "file:///",
+                "path"    : ""
+            },
+            {
+                "protocol": "nfs:///",
+                "path"    : ""
+            },
+            {
+                "protocol": "hdfs://",
+                "path"    : "host/"
+            }];
+            paths.forEach(function(pathObj) {
+                var isValid = isValidPathToBrowse(pathObj.protocol, pathObj.path);
+                expect(isValid).to.be.true;
+                assert.isFalse($statusBox.is(":visible"), "no statux box");
             });
         });
 
         it("Should not allow browse of invalid path", function() {
-            var paths = ["abc", "files:///", "test:///", "file://",
-                        "hdfs://", "hdfs://hostNoSlash"];
-            paths.forEach(function(path) {
-                expect(isValidPathToBrowse(path)).to.be.false;
+            var paths = [{
+                "protocol": "hdfs://",
+                "path"    : "hostNoSlash"
+            },
+            {
+                "protocol": "hdfs://",
+                "path"    : ""
+            }];
+            paths.forEach(function(pathObj) {
+                var isValid = isValidPathToBrowse(pathObj.protocol, pathObj.path);
+                expect(isValid).to.be.false;
+                assert.isTrue($statusBox.is(":visible"), "see statux box");
+
+                $("#statusBoxClose").mousedown();
+                assert.isFalse($statusBox.is(":visible"), "no statux box");
             });
         });
     });
@@ -430,7 +454,8 @@ function dataFormModuleTest() {
 
         before(function() {
             testDS = xcHelper.uniqueRandName("testSuitesSp500", DS.has, 10);
-            $filePath.val(testDatasets.sp500.url);
+            $("#fileProtocol input").val(testDatasets.sp500.protocol);
+            $filePath.val(testDatasets.sp500.path);
             $fileName.val(testDS);
             // test the case when have header(otherwise it will have header prmopt)
             $("#promoteHeaderCheckbox .checkbox").addClass("checked");
@@ -450,7 +475,7 @@ function dataFormModuleTest() {
 
         it("Should not pass invalid url", function(done) {
             DatastoreForm.__testOnly__.toggleFormat("CSV");
-            $filePath.val("file:///netstore/datasets/sp500-invalidurl");
+            $filePath.val("netstore/datasets/sp500-invalidurl");
 
             DatastoreForm.__testOnly__.submitForm()
             .then(function() {
@@ -467,7 +492,7 @@ function dataFormModuleTest() {
 
         it("Should load ds", function(done) {
             DatastoreForm.__testOnly__.toggleFormat("CSV");
-            $filePath.val("file:///netstore/datasets/sp500.csv");
+            $filePath.val("netstore/datasets/sp500.csv");
 
             var $grid;
 

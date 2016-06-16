@@ -100,6 +100,7 @@ window.Shortcuts = (function($, Shortcuts) {
     function datastoreForm() {
         var $filePath = $("#filePath");
         var $fileName = $("#fileName");
+        var protocol = FileProtocol.file;
         var filePath = "";
         $filePath.on('keyup.shortcut', function() {
             var val = $(this).val();
@@ -153,24 +154,24 @@ window.Shortcuts = (function($, Shortcuts) {
                 switch (val) {
                     case ("unit"):
                         file = "unittest";
-                        filePath = "file:///netstore/datasets/unittest/" +
+                        filePath = "netstore/datasets/unittest/" +
                                     "test_yelp.json";
                         break;
                     case ("net"):
                         file = "netstore";
-                        filePath = "file:///netstore/datasets/";
+                        filePath = "netstore/datasets/";
                         break;
                     case ("edge"):
                         file = "edgeCase";
-                        filePath = "file:///netstore/datasets/edgeCases/";
+                        filePath = "netstore/datasets/edgeCases/";
                         break;
                     case ("exp"):
                         file = "export";
-                        filePath = "file:///var/opt/xcalar/export/";
+                        filePath = "var/opt/xcalar/export/";
                         break;
                     case ("thousand"):
                         file = "thousand";
-                        filePath = "file:///netstore/qa/crashes/bug4293/Datasets/Tb/1K/";
+                        filePath = "netstore/qa/crashes/bug4293/Datasets/Tb/1K/";
                         break;
                     default:
                         break;
@@ -180,9 +181,10 @@ window.Shortcuts = (function($, Shortcuts) {
             if (file) {
                 var $formatDropdown = $("#fileFormatMenu");
                 if (!filePathGiven) {
-                    filePath = 'file:///var/tmp/' + filePath;
+                    filePath = 'var/tmp/' + filePath;
                 }
 
+                $("#fileProtocol input").val(protocol);
                 $filePath.val(filePath);
 
                 $fileName.val(file + Math.ceil(Math.random() * 1000));

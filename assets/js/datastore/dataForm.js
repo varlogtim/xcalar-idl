@@ -2,7 +2,7 @@
  * Module for the datastore form part
  */
 window.DatastoreForm = (function($, DatastoreForm) {
-    var $filePath; // $("#filePath")
+    var $filePath;     // $("#filePath")
 
     var $form;        // $("#importDataForm")
     var $formatText;  // $("#fileFormat .text")
@@ -48,16 +48,27 @@ window.DatastoreForm = (function($, DatastoreForm) {
         $("#importDataButton").click(function() {
             $(this).blur();
             DatastoreForm.show();
-            FileBrowser.show();
+            var protocol = getProtocol();
+            FileBrowser.show(protocol);
         });
 
         // csv promote checkbox
-        $headerCheckBox.on("click", ".checkbox, .text", function() {
+        $headerCheckBox.on("click", function() {
             $headerCheckBox.find(".checkbox").toggleClass("checked");
         });
 
+        //set up dropdown list for protocol
+        var dropdownList = new MenuHelper($("#fileProtocol"), {
+            "onSelect": function($li) {
+                setProtocol($li.text());
+            },
+            "container": "#importDataView",
+            "bounds"   : "#importDataView"
+        });
+        dropdownList.setupListeners();
+
         // set up dropdown list for formats
-        var dropdownList = new MenuHelper($("#fileFormat"), {
+        new MenuHelper($("#fileFormat"), {
             "onSelect": function($li) {
                 var text = $li.text();
                 if ($li.hasClass("hint") || $formatText.val() === text) {
@@ -68,18 +79,16 @@ window.DatastoreForm = (function($, DatastoreForm) {
             },
             "container": "#importDataView",
             "bounds"   : "#importDataView"
-        });
-        dropdownList.setupListeners();
+        }).setupListeners();
 
         // open file browser
         $("#fileBrowserBtn").click(function() {
             $(this).blur();
 
+            var protocol = getProtocol();
             var path = $filePath.val();
-            if (isValidPathToBrowse(path)) {
-                FileBrowser.show(path);
-            } else {
-                StatusBox.show(ErrTStr.InvalidURLToBrowse, $filePath, true);
+            if (isValidPathToBrowse(protocol, path)) {
+                FileBrowser.show(protocol, path);
             }
         });
 
@@ -87,9 +96,9 @@ window.DatastoreForm = (function($, DatastoreForm) {
         $("#previewBtn").click(function() {
             $(this).blur();
 
+            var protocol = getProtocol();
             var path = $filePath.val();
-            if (!isValidPathToBrowse(path)) {
-                StatusBox.show(ErrTStr.InvalidURLToBrowse, $filePath, true);
+            if (!isValidPathToBrowse(protocol, path)) {
                 return;
             }
 
@@ -223,18 +232,16 @@ window.DatastoreForm = (function($, DatastoreForm) {
 
     DatastoreForm.validate = function() {
         var $fileName = $("#fileName");
-        var loadURL = $filePath.val().trim();
+        var protocol = getProtocol();
+        var path = $filePath.val().trim();
         var fileName = $fileName.val().trim();
         // these are the ones that need to check
         // from both data form and data preview
-        var isValid = xcHelper.validate([{
-                "$selector": $filePath,
-                "check"    : function() {
-                    return (!isValidPathToBrowse(loadURL));
-                },
-                "formMode": true,
-                "text"    : ErrTStr.InvalidURLToBrowse
-            },
+        if (!isValidPathToBrowse(protocol, path)) {
+            return false;
+        }
+
+        var isValid = xcHelper.validate([
             {
                 "$selector": $fileName
             },
@@ -289,7 +296,7 @@ window.DatastoreForm = (function($, DatastoreForm) {
 
         var $fileName = $("#fileName");
         var dsName = $fileName.val().trim();
-        var loadURL = $filePath.val().trim();
+        var loadURL = getProtocol() + $filePath.val().trim();
         var udfCheckRes = checkUDF();
         if (!udfCheckRes.isValid) {
             return deferred.reject("Checking Invalid").promise();
@@ -331,12 +338,15 @@ window.DatastoreForm = (function($, DatastoreForm) {
     }
 
     function resetForm() {
+        var protocol = getProtocol();
         $form.find("input").val("");
         $form.removeClass("previewMode")
              .find(".default-hidden").addClass("hidden");
 
         // keep header to be checked
         $udfCheckbox.find(".checkbox").removeClass("checked");
+        // keep the current protocol
+        setProtocol(protocol);
     }
 
     function cacheUDF(moduleName, funcName) {
@@ -438,26 +448,21 @@ window.DatastoreForm = (function($, DatastoreForm) {
         }
     }
 
-    function isValidPathToBrowse(path) {
+    function isValidPathToBrowse(protocol, path) {
         path = path.trim();
-        if (path === "") {
-            return true;
-        } else if (path.startsWith("file:///") ||
-                    path.startsWith("nfs:///"))
-        {
-            return true;
-        } else if (path.startsWith("hdfs://")) {
-            // Special case because HDFS's default is actually hdfs://xxxxx/
-            // keep sync with the RegEx in changeFileSource() in fileBrowserModal.js
-            var match = path.match(/^hdfs:\/\/.*?\//);
-            if (match != null && match[0] !== "hdfs:///") {
+
+        if (protocol === FileProtocol.hdfs) {
+            var match = path.match(/^.*?\//);
+
+            if (match != null && match[0] !== "/") {
                 return true;
             } else {
+                StatusBox.show(DSTStr.InvalidHDFS, $filePath, true);
                 return false;
             }
-        } else {
-            return false;
         }
+
+        return true;
     }
 
     function isValidToPreview() {
@@ -534,6 +539,14 @@ window.DatastoreForm = (function($, DatastoreForm) {
         }
 
         return delimiter;
+    }
+
+    function getProtocol() {
+        return $("#fileProtocol input").val();
+    }
+
+    function setProtocol(protocol) {
+        $("#fileProtocol input").val(protocol);
     }
 
     function resetDelimiter() {
@@ -641,7 +654,7 @@ window.DatastoreForm = (function($, DatastoreForm) {
 
     function setupFormUDF() {
         // udf checkbox
-        $udfCheckbox.on("click", ".checkbox, .text", function() {
+        $udfCheckbox.on("click", function() {
             var $checkbox = $udfCheckbox.find(".checkbox");
             var $udfArgs = $("#udfArgs");
 

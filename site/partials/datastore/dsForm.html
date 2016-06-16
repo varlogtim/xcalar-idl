@@ -11,6 +11,30 @@
   <!-- Top Form -->
   <div id="importDataTopForm" class="dataStoreFormTop no-selection">
     <div class="contentViewMidWrap">
+      <!-- file source -->
+      <div id="fileProtocolSelector" class="importFormRow">
+        <label><%= dicts.ds.Protocol %>:</label>
+        <div id="fileProtocol" class="dropDownList">
+            <input class="text" type="text" spellcheck="false" value="file:///" disabled>
+            <div class="iconWrapper">
+              <span class="icon"></span>
+            </div>
+            <!-- Format Menu -->
+            <div id="fileProtocolMenu" class="list">
+              <ul>
+                <li name="file"><%= dicts.FileProtocol.file %></li>
+                <li name="nsf"><%= dicts.FileProtocol.nfs %></li>
+                <li name="hdfs"><%= dicts.FileProtocol.hdfs %></li>
+              </ul>
+              <div class="scrollArea top">
+                <div class="arrow"></div>
+              </div>
+              <div class="scrollArea bottom">
+                <div class="arrow"></div>
+              </div>
+            </div>
+        </div>
+      </div>
       <!-- file path -->
       <div id="filePathSelector" class="importFormRow">
         <label><%= dicts.common.FilePath %>:</label>

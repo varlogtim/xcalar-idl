@@ -154,7 +154,8 @@ window.DataPreview = (function($, DataPreview) {
 
     DataPreview.show = function(udfModule, udfFunc) {
         var deferred = jQuery.Deferred();
-        var loadURL = $("#filePath").val().trim();
+        var protocol = $("#fileProtocol input").val();
+        var loadURL = protocol + $("#filePath").val().trim();
         var refId;
         var $waitSection;
         var $errorSection;
@@ -741,7 +742,7 @@ window.DataPreview = (function($, DataPreview) {
             var columnCount = 0;
             var strLen = 0;
             var hiddenStrLen = 0;
-            while (i < dataLen  && columnCount < maxColumns) {
+            while (i < dataLen && columnCount < maxColumns) {
                 d = data[i];
                 var isDelimiter = false;
 
