@@ -76,8 +76,9 @@ window.Scheduler = (function(Scheduler, $) {
                 // not working if do not use setTimeout
                 setTimeout(function() {
                     $el.css({
-                        "top" : "28px",
-                        "left": "0"
+                        "top"    : "28px",
+                        "left"   : "0",
+                        "z-index": "3"
                     });
                 }, 0);
             }
