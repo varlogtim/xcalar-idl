@@ -1502,33 +1502,37 @@ window.Dag = (function($, Dag) {
         top += 50;
         var iconLeft = left;
         var iconTop = top + 6;
+        var maxWidth = 200;
         var tableImage;
+        var x;
 
         if ($dagTable.hasClass('dataStore')) {
             tableImage = dImage;
             iconLeft -= 2;
             iconTop -= 4;
+            maxWidth = 120;
+            x = left - 42;
         } else {
             tableImage = tImage;
+            x = left - 79;
         }
 
         ctx.drawImage(tableImage, iconLeft, iconTop);
 
-        var maxWidth = 130;
         var lineHeight = 12;
-        var x = left - 45;
+
         var y = top + 38;
         var text = $dagTable.find('.tableTitle').text();
 
         ctx.save();
         ctx.beginPath();
-        ctx.rect(x, y, 130, 26);
+        ctx.rect(x, y, maxWidth, 26);
         ctx.clip();
         ctx.font = 'bold 10px Open Sans';
         ctx.fillStyle = '#6e6e6e';
         ctx.textAlign = 'center';
 
-        wrapText(ctx, text, x + 65, y + 10, maxWidth, lineHeight);
+        wrapText(ctx, text, x + (maxWidth / 2), y + 10, maxWidth, lineHeight);
     }
 
     function drawDagActionTypeToCanvas($actionType, ctx, top, left) {
@@ -1724,7 +1728,7 @@ window.Dag = (function($, Dag) {
         });
 
         var groupOutlineTimeout;
-        var $groupOutline;
+        var $groupOutline = $();
 
         $dagWrap.on('mouseenter', '.expandWrap.expanded', function() {
             $groupOutline.hide();
