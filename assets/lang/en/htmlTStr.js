@@ -361,7 +361,7 @@ module.exports = {
         'IN': 'IN',
         'OUT': 'OUT',
         'Format': 'Format',
-        'Protocol': 'Prtocol'
+        'Protocol': 'Prtocol',
     },
 
     // keep in sync with the FileProtocol in enums.js
@@ -379,15 +379,27 @@ module.exports = {
     },
 
     dsForm: {
-        'Instr': 'INPUT FILE PATH AND FILE NAME TO POINT TO DATASET. THEN SELECT FILE FORMAT. POINTED DATA WILL BE LISTED ON THE LEFT.',
-        'filePathHint': 'Data Source Path',
-        'fileNameHint': 'Dataset Name',
+        'Instr': 'INPUT DATA SOURCE PATH, SELECT FORMAT AND THEN INPUT DATASET NAME TO POINT TO DATA. POINTED DATA WILL BE LISTED ON THE LEFT.',
+        'dsLocation': 'Data Source',
+        'filePath': 'Data Source Path',
+        'DSName': 'New Dataset Name',
         'fileNameTitle': 'A valid name with no special characters',
-        'HeaderTitle': 'Check to Promote First Row As Header',
-        'UDFHint': 'Please select the field and line delimiters that are used in the output of the UDF',
+        'DelimHint': 'If you parse data with UDF, field and line delimiters are applied after data is parsed',
+        'Delim': 'Delimiter',
         'FieldDelim': 'Field Delimiter',
         'LineDelim': 'Line Delimiter',
-        'CONFIRM': 'POINT TO DATA'
+        'CONFIRM': 'POINT TO DATA',
+        'Header': 'Promote First Row As Header',
+        'DSType': 'Format',
+        'UDF': 'Parse Data With UDF',
+        'Recur': 'Point to Data Souce Recursively'
+    },
+
+    dsFormat: {
+        'CSV': 'Separated Values(CSV, TSV...)',
+        'JSON': 'JSON',
+        'EXCEL': 'Excel',
+        'TEXT': 'Text'
     },
 
     dsTable: {

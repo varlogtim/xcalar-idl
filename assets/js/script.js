@@ -305,6 +305,7 @@ window.StartManager = (function(StartManager, $) {
                     if ($curTab.hasClass("firstTouch")) {
                         $curTab.removeClass("firstTouch");
                         DS.setupView();
+                        DatastoreForm.initialize();
                     }
                     break;
                 case ("monitorTab"):

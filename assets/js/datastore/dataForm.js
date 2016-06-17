@@ -12,6 +12,7 @@ window.DatastoreForm = (function($, DatastoreForm) {
 
     var $headerCheckBox; // $("#promoteHeaderCheckbox") promote header checkbox
     var $udfCheckbox;    // $("#udfCheckbox") udf checkbox
+    var $recurCheckbox;  // $("#recurCheckbox");
 
     // UI cache
     var lastFieldDelim = "\\t";
@@ -24,9 +25,9 @@ window.DatastoreForm = (function($, DatastoreForm) {
     var formatMap = {
         "JSON"  : "JSON",
         "CSV"   : "CSV",
-        "Random": "rand",
-        "Text"  : "raw",
-        "Excel" : "Excel"
+        "RANDOM": "rand",
+        "TEXT"  : "raw",
+        "EXCEL" : "Excel"
     };
 
     DatastoreForm.setup = function() {
@@ -40,6 +41,7 @@ window.DatastoreForm = (function($, DatastoreForm) {
 
         $headerCheckBox = $("#promoteHeaderCheckbox");
         $udfCheckbox = $("#udfCheckbox");
+        $recurCheckbox = $("#recurCheckbox");
 
         setupFormUDF();
         setupFormDelimiter();
@@ -50,6 +52,11 @@ window.DatastoreForm = (function($, DatastoreForm) {
             DatastoreForm.show();
             var protocol = getProtocol();
             FileBrowser.show(protocol);
+        });
+
+        // promote recur checkbox
+        $recurCheckbox.click(function() {
+            $recurCheckbox.find(".checkbox").toggleClass("checked");
         });
 
         // csv promote checkbox
@@ -70,12 +77,13 @@ window.DatastoreForm = (function($, DatastoreForm) {
         // set up dropdown list for formats
         new MenuHelper($("#fileFormat"), {
             "onSelect": function($li) {
+                var format = $li.attr("name");
                 var text = $li.text();
-                if ($li.hasClass("hint") || $formatText.val() === text) {
+                if ($formatText.data("format") === format) {
                     return;
                 }
 
-                toggleFormat(text);
+                toggleFormat(format, text);
             },
             "container": "#importDataView",
             "bounds"   : "#importDataView"
@@ -210,16 +218,16 @@ window.DatastoreForm = (function($, DatastoreForm) {
         return (deferred.promise());
     };
 
+    DatastoreForm.initialize = function() {
+        resetForm();
+        DatastoreForm.update();
+    };
+
     DatastoreForm.update = function() {
         // reset udf first as list xdf may slow
         resetUdfSection();
 
-        // update python module list
-        XcalarListXdfs("*", "User*")
-        .then(updateUDFList)
-        .fail(function(error) {
-            console.error("List UDF Fails!", error);
-        })
+        listUDFSection()
         .always(function() {
             resetUdfSection();
         });
@@ -276,7 +284,7 @@ window.DatastoreForm = (function($, DatastoreForm) {
     function submitForm() {
         var deferred = jQuery.Deferred();
 
-        var dsFormat = formatMap[$formatText.val()];
+        var dsFormat = formatMap[$formatText.data("format")];
         var isValid = DatastoreForm.validate();
 
         if (isValid) {
@@ -338,15 +346,16 @@ window.DatastoreForm = (function($, DatastoreForm) {
     }
 
     function resetForm() {
-        var protocol = getProtocol();
+        var protocol = getProtocol() || FileProtocol.file;
         $form.find("input").val("");
-        $form.removeClass("previewMode")
-             .find(".default-hidden").addClass("hidden");
-
+        $form.removeClass("previewMode");
+        $("#udfArgs .content").addClass("disabled");
         // keep header to be checked
         $udfCheckbox.find(".checkbox").removeClass("checked");
         // keep the current protocol
         setProtocol(protocol);
+        resetUdfSection();
+        toggleFormat("CSV");
     }
 
     function cacheUDF(moduleName, funcName) {
@@ -398,50 +407,44 @@ window.DatastoreForm = (function($, DatastoreForm) {
         };
     }
 
-    function toggleFormat(format) {
-        $formatText.val(format);
+    function toggleFormat(format, text) {
+        format = format.toUpperCase();
+        if (text == null) {
+            text = $('#fileFormatMenu li[name="' + format + '"]').text();
+        }
 
-        var $csvDelim = $("#csvDelim");
-        var $fieldDelim = $("#fieldDelim");
-        var $udfHint = $("#udfArgs .hintSection");
+        $formatText.data("format", format)
+                   .val(text);
 
-        switch (format.toLowerCase()) {
-            case "csv":
-                $headerCheckBox.removeClass("hidden");
+        var $csvDelim = $("#csvDelim").show();
+        var $fieldDelim = $("#fieldDelim").parent().show();
+        var $udfArgs = $("#udfArgs").show();
+        var $headerRow = $headerCheckBox.parent().show();
+
+        switch (format) {
+            case "CSV":
                 resetDelimiter();
-                $fieldDelim.show();
-                $csvDelim.removeClass("hidden");
-                $udfCheckbox.removeClass("hidden");
-                $udfHint.show();
                 break;
-            case "text":
-                $headerCheckBox.removeClass("hidden");
+            case "TEXT":
                 resetDelimiter();
+                // no field delimiter when format is text
                 $fieldDelim.hide();
-                $csvDelim.removeClass("hidden");
-                $udfCheckbox.removeClass("hidden");
-                $udfHint.show();
                 break;
-            case "excel":
-                $headerCheckBox.removeClass("hidden");
-                resetDelimiter();
-                $csvDelim.addClass("hidden");
-                $udfCheckbox.addClass("hidden")
-                            .find(".checkbox").removeClass("checked");
-                $("#udfArgs").addClass("hidden");
-                // excel not show the whole udf section
+            case "EXCEL":
+                $csvDelim.hide();
+                resetDelimiter(true);
+                // excel not use udf section
+                $udfArgs.hide();
                 break;
 
             // json and random
-            case "json":
-            case "random":
+            case "JSON":
+            case "RANDOM":
                 // json and random
                 // Note: random is setup in shortcuts.js,
                 // so prod build will not have it
-                $headerCheckBox.addClass("hidden");
-                $csvDelim.addClass("hidden");
-                $udfCheckbox.removeClass("hidden");
-                $udfHint.hide();
+                $headerRow.hide();
+                $csvDelim.hide();
                 break;
             default:
                 throw new ReferenceError("Format Not Support");
@@ -469,8 +472,13 @@ window.DatastoreForm = (function($, DatastoreForm) {
         // We use the format to check instead of useing suffix of the file
         // this is in case user wrongly name the file and could not preview
         var path = $filePath.val();
-        var format = formatMap[$formatText.val()];
+        var format = formatMap[$formatText.data("format")];
         var options = {"type": "info"};
+
+        if (format == null) {
+            StatusBox.show(ErrTStr.NoEmptyList, $filePath, false);
+            return false;
+        }
 
         if (path.trim() === "") {
             StatusBox.show(ErrTStr.NoEmpty, $filePath, false, options);
@@ -491,8 +499,8 @@ window.DatastoreForm = (function($, DatastoreForm) {
         var deferred = jQuery.Deferred();
         if (!hasHeader &&
             (dsFormat === formatMap.CSV ||
-            dsFormat === formatMap.Text ||
-            dsFormat === formatMap.Excel)) {
+            dsFormat === formatMap.TEXT ||
+            dsFormat === formatMap.EXCEL)) {
 
             var msg = DSFormTStr.NoHeader;
 
@@ -553,6 +561,21 @@ window.DatastoreForm = (function($, DatastoreForm) {
         // to show \t, \ should be escaped
         $("#fieldText").val(lastFieldDelim).removeClass("nullVal");
         $("#lineText").val(lastLineDelim).removeClass("nullVal");
+    }
+
+    function listUDFSection() {
+        var deferred = jQuery.Deferred();
+
+        // update python module list
+        XcalarListXdfs("*", "User*")
+        .then(updateUDFList)
+        .then(deferred.resolve)
+        .fail(function(error) {
+            console.error("List UDF Fails!", error);
+            deferred.reject(error);
+        });
+
+        return deferred.promise();
     }
 
     function resetUdfSection() {
@@ -658,13 +681,15 @@ window.DatastoreForm = (function($, DatastoreForm) {
             var $checkbox = $udfCheckbox.find(".checkbox");
             var $udfArgs = $("#udfArgs");
 
-            if ($udfArgs.hasClass("hidden")) {
-                $checkbox.addClass("checked");
-                $udfArgs.removeClass("hidden");
-                DatastoreForm.update();
-            } else {
+            if ($checkbox.hasClass("checked")) {
+                // uncheck box
                 $checkbox.removeClass("checked");
-                $udfArgs.addClass("hidden");
+                $udfArgs.find(".content").addClass("disabled");
+            } else {
+                // check the box
+                // listUDFSection();
+                $checkbox.addClass("checked");
+                $udfArgs.find(".content").removeClass("disabled");
             }
         });
 

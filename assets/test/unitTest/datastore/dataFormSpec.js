@@ -52,28 +52,14 @@ function dataFormModuleTest() {
             // set some test value and reset
             $filePath.val("test");
             $fileName.val("test");
-            $formatText.val("test");
-
-            expect($filePath.val()).to.equal("test");
-            expect($fileName.val()).to.equal("test");
-            expect($formatText.val()).to.equal("test");
+            $formatText.data("format", "test");
         });
 
         it("Should Reset Form When call resetForm()", function() {
             DatastoreForm.__testOnly__.resetForm();
             expect($filePath.val()).to.be.empty;
             expect($fileName.val()).to.be.empty;
-            expect($formatText.val()).to.be.empty;
-        });
-
-        it("Should not see checkbox", function() {
-            assert.isFalse($headerCheckBox.is(":visible"), "No header checkbox");
-            assert.isFalse($udfCheckbox.is(":visible"), "No udf checkbox");
-        });
-
-        it("Should not see delimiter and udf section", function() {
-            assert.isFalse($csvDelim.is(":visible"), "No delimiter section");
-            assert.isFalse($udfArgs.is(":visible"), "No udf checkbox");
+            expect($formatText.data('format')).to.equal('CSV');
         });
     });
 
@@ -82,14 +68,14 @@ function dataFormModuleTest() {
             // set some test value and reset
             $filePath.val("test");
             $fileName.val("test");
-            $formatText.val("test");
+            $formatText.data("format", "test");
         });
 
         it("Should Use DatastoreForm.clear() to reset", function() {
             DatastoreForm.clear();
             expect($filePath.val()).to.be.empty;
             expect($fileName.val()).to.be.empty;
-            expect($formatText.val()).to.be.empty;
+            expect($formatText.data("format")).to.equal("CSV");
         });
     });
 
@@ -100,7 +86,7 @@ function dataFormModuleTest() {
 
         it("Format Should be CSV", function() {
             DatastoreForm.__testOnly__.toggleFormat("CSV");
-            expect($formatText.val()).to.equal("CSV");
+            expect($formatText.data("format")).to.equal("CSV");
 
             // UI part
             assert.isTrue($headerCheckBox.is(":visible"), "has header checkbox");
@@ -112,7 +98,7 @@ function dataFormModuleTest() {
 
         it("Format Should be JSON", function() {
             DatastoreForm.__testOnly__.toggleFormat("JSON");
-            expect($formatText.val()).to.equal("JSON");
+            expect($formatText.data("format")).to.equal("JSON");
 
             // UI part
             assert.isFalse($headerCheckBox.is(":visible"), "no header checkbox");
@@ -122,7 +108,7 @@ function dataFormModuleTest() {
 
         it("Format Should be Text", function() {
             DatastoreForm.__testOnly__.toggleFormat("Text");
-            expect($formatText.val()).to.equal("Text");
+            expect($formatText.data("format")).to.equal("TEXT");
 
             // UI part
             assert.isTrue($headerCheckBox.is(":visible"), "has header checkbox");
@@ -134,7 +120,7 @@ function dataFormModuleTest() {
 
         it("Format Should be Excel", function() {
             DatastoreForm.__testOnly__.toggleFormat("Excel");
-            expect($formatText.val()).to.equal("Excel");
+            expect($formatText.data("format")).to.equal("EXCEL");
 
             // UI part
             assert.isTrue($headerCheckBox.is(":visible"), "has header checkbox");
@@ -202,7 +188,7 @@ function dataFormModuleTest() {
 
         it("Should not allow preivew of empty path", function() {
             $filePath.val("");
-            $formatText.val("CSV");
+            $formatText.data("format", "CSV");
             var isValid = DatastoreForm.__testOnly__.isValidToPreview();
             expect(isValid).to.be.false;
 
@@ -211,9 +197,20 @@ function dataFormModuleTest() {
             assert.equal($statusBox.find(".message").text(), ErrTStr.NoEmpty);
         });
 
+        it("Should not allow preivew of invalid format", function() {
+            $filePath.val("test");
+            $formatText.data("format", "wrongformat");
+            var isValid = DatastoreForm.__testOnly__.isValidToPreview();
+            expect(isValid).to.be.false;
+
+            // check status box
+            assert.isTrue($statusBox.is(":visible"), "see statux box");
+            assert.equal($statusBox.find(".message").text(), ErrTStr.NoEmptyList);
+        });
+
         it("Should not allow preivew json", function() {
             $filePath.val("test");
-            $formatText.val("JSON");
+            $formatText.data("format", "JSON");
             var isValid = DatastoreForm.__testOnly__.isValidToPreview();
             expect(isValid).to.be.false;
 
@@ -223,7 +220,7 @@ function dataFormModuleTest() {
         });
 
         it("Should not allow preivew excel", function() {
-            $formatText.val("Excel");
+            $formatText.data("format", "EXCEL");
             var isValid = DatastoreForm.__testOnly__.isValidToPreview();
             expect(isValid).to.be.false;
 
@@ -233,7 +230,7 @@ function dataFormModuleTest() {
         });
 
         it("Should allow other case", function() {
-            $formatText.val("CSV");
+            $formatText.data("format", "CSV");
             var isValid = DatastoreForm.__testOnly__.isValidToPreview();
             expect(isValid).to.be.true;
 
@@ -461,17 +458,18 @@ function dataFormModuleTest() {
             $("#promoteHeaderCheckbox .checkbox").addClass("checked");
         });
 
-        it("Should not allow empty format", function(done) {
-            DatastoreForm.__testOnly__.submitForm()
-            .then(function() {
-                // Intentionally fail the test
-                throw "Fail Case!";
-            })
-            .fail(function(error) {
-                expect(error).to.equal("Checking Invalid");
-                done();
-            });
-        });
+        // no format is always not empty, default is CSV
+        // it("Should not allow empty format", function(done) {
+        //     DatastoreForm.__testOnly__.submitForm()
+        //     .then(function() {
+        //         // Intentionally fail the test
+        //         throw "Fail Case!";
+        //     })
+        //     .fail(function(error) {
+        //         expect(error).to.equal("Checking Invalid");
+        //         done();
+        //     });
+        // });
 
         it("Should not pass invalid url", function(done) {
             DatastoreForm.__testOnly__.toggleFormat("CSV");

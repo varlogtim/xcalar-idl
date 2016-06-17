@@ -146,29 +146,39 @@ input {
 
 // Data Form Section
 .dataStoreForm {
+    height: ~"calc(100% - 93px)";
+    overflow: auto;
+
     &.previewMode {
         height: 151px !important;
 
-        .buttonWrap {
+        .dataStoreFormTop {
+            height: 151px !important;
+        }
+
+        .dataStoreFormBottom {
             display: none;
         }
-        #importDataBottomForm, #fileBrowserBtn, #fileFormat,
-        #udfCheckbox, #promoteHeaderCheckbox, #previewBtn {
+
+        .formSection {
             display: none;
-        }
 
-        #previewBtn {
-            min-width: 220px;
-        }
+            &.filePath, &.fileName {
+                display: block;
+            }
 
-        #filePath {
-            pointer-events: none;
-            opacity: 0.7;
-            color: @color-text-lightGray;
-        }
+            &.filePath {
+                .row, .btn {
+                    display: none;
+                }
 
-        #fileName, #filePath {
-            min-width: ~"calc(100% - 300px)" !important;
+                .row.filePathRow {
+                    display: block;
+                }
+
+                pointer-events: none;
+                opacity: 0.7;
+            }
         }
     }
 }
@@ -177,205 +187,88 @@ input {
     background-color: @color-background-topForm;
     padding: 30px 20px 1px 20px;
 
-    .importFormRow {
-        height: 30px;
-        line-height: 30px;
-        margin-bottom: 30px;
-        .flex-display;
-        .flex-wrap(wrap);
+    .disabled {
+        opacity: 0.7;
+        pointer-events: none;
 
-        .buttonWrap {
-            display: inline-block;
+        .checkbox, .text, label {
+            opacity: 0.5;
         }
+    }
 
-        label {
-            display: inline-block;
-            .size(@max-width: 100px, @min-width: 80px);
-            font-weight: 700;
+    .formSection {
+        .title {
+            .font(@weight: bold, @line-height: 30px);
+            .size(@width: 180px, @height: 100%);
             float: left;
         }
 
-        input {
-            .size(@width: ~"calc(100% - 340px)",
-                 @min-width: ~"calc(100% - 340px)");
-            .size(@width: ~"calc(100% - 420px)",
-                 @min-width: ~"calc(100% - 420px)");
-            box-shadow: inset 0 1px 2px rgba(0,0,0,0.3);
+        .content {
+            .size(@width: ~"calc(100% - 180px)");
             float: left;
-            padding: 0 10px;
         }
+    }
+
+    .row {
+        .size(@height: 30px);
         .input-placeholder(@color-text-instructions);
+        margin-bottom: 20px;
 
-        #fileProtocol {
-            .styleDropDownList(150px, 30px, false);
-        }
+        .rowContent {
+            margin-right: 20px;
+            float: left;
 
-        #fileFormat {
-            .styleDropDownList(150px, 30px, true);
-            outline: none;
-            margin-left: 20px;
-            float: right;
+            &:last-child {
+                margin-right: 0;
+            }
 
-            input {
-                .input-placeholder(@color-text-lightGray);
+            &.hint {
+                .size(@width: 130px, @height: 20px, @max-width: 15%);
+                .font(@size: 12px, @line-height: 30px, @weight: bold, @color: @color-text-lightGray);
+            }
+
+            &.input {
+                box-shadow: inset 0 1px 2px rgba(0,0,0,0.3);
+                padding: 0 10px;
+            }
+
+            &.input, {
+                .size(@width: ~"calc(100% - 310px)", @min-width: 150px);
+            }
+
+            &.btn {
+                float: right;
+                margin: 0;
             }
         }
     }
 
-    .fileFormatPadding {
-        .size(@width: 20px, @height: 30px);
-        float: right;
+    .dropDownList {
+        .styleDropDownList(~"calc(100% - 310px)", 30px, false);
+        min-width: 150px;
     }
 
     .checkboxSection {
         .size(@width: auto, @height: 30px);
-        .font(@weight: 700, @size: 13px);
+        .font(@weight: 700, @size: 13px, @line-height: 30px);
         .noSelection;
-        float: right;
         cursor: pointer;
-
-        &#udfCheckbox {
-            margin-right: 10px;
-        }
-
-        &.hidden {
-            display: none;
-        }
 
         > div {
             float: left;
         }
 
         .text {
-            color: @color-text-lightGray;
             margin-left: 5px;
-            cursor: pointer;
-        }
-
-        .hint {
-            .vertical-align;
-            margin-left: 3px;
-        }
-    }
-}
-// End of Top Form Section
-
-// Bottom Form Section
-.dataStoreFormBottom {
-    padding: 30px 20px 1px 20px;
-}
-
-@media screen and (max-width: 1300px) {
-    #filePath, #fileName {
-        .size(@width: ~"calc(100% - 360px)",
-            @min-width: ~"calc(100% - 360px)");
-    }
-
-    #fileFormat {
-        width: 120px !important;
-    }
-
-    #promoteHeaderCheckbox {
-        margin-left: 5px;
-
-        .hint {
-            display: none;
-        }
-    }
-
-    #udfCheckbox {
-        margin-right: 1px !important;
-    }
-
-    #promoteHeaderCheckbox, #udfCheckbox {
-        .text {
-            margin-left: 4px;
-        }
-    }
-    #datastorePanel .btnMid {
-        width: 120px;
-    }
-}
-
-@media screen and (max-width: 1024px) {
-    .dataStoreFormTop {
-        .importFormRow {
-            height: 55px;
-            .buttonWrap {
-                width: 100%;
-                float: right;
-            }
-        }
-    }
-
-    #filePath, #fileName {
-        .size(@width: ~"calc(100% - 80px)",
-            @min-width: ~"calc(100% - 80px)");
-        margin-bottom: 10px;
-    }
-
-    #fileNameSelector {
-        display: block;
-    }
-    // .btnMid {
-    //     width: 120px;
-    // }
-}
-
-#udfArgs {
-    .hintSection {
-        clear: both;
-        .font(@size: 13px, @color: @color-text-lightGray);
-        .text {
-            white-space: normal;
         }
     }
 }
 
 #csvDelim, #udfArgs {
-    visibility: visible;
-    opacity: 1;
-    .transition(opacity 0.3s);
-
-    &.hidden {
-        visibility: hidden;
-        opacity: 0;
-        display: none;
-    }
-
-    // .size(@min-height: 50px; @max-height: 95px);
-    margin-bottom: 15px;
-    .font(@weight: 700, @size: 12px);
-
-    .wrapper {
-        .size(@width: 50%, @height: 50px);
-        float: left;
-
-        &:first-child {
-            margin-right: 30px;
-            .size(@width: ~"calc(50% - 30px)");
-        }
-    }
-
-    .label {
-        .size(@width: 110px, @height: 30px);
-        .font(@size: 13px);
-    }
-
-    .nullVal {
-        font-style: italic;
-    }
-
     .dropDownList {
-        .styleDropDownList(~"calc(100% - 110px)", 30px);
-
         &.disabled {
             opacity: 0.7;
             pointer-events: none;
-        }
-
-        .text {
-            box-shadow: inset 0 1px 2px rgba(0,0,0,0.3);
         }
 
         .list {
@@ -442,9 +335,35 @@ input {
     }
 }
 
-@media screen and (max-width: 900px) {
-    #udfArgs .wrapper {
-        width: 100% !important;
+#csvDelim {
+    .position(relative);
+    .nullVal {
+        font-style: italic;
+    }
+
+    .qMark {
+        .position(absolute, @top: 9px, @left: 80px);     
+    }
+}
+// End of Top Form Section
+
+// Bottom Form Section
+.dataStoreFormBottom {
+    padding: 20px 20px 1px 20px;
+    height: 70px;
+}
+
+@media screen and (max-width: 1300px) {
+    #datastorePanel {
+        .dataStoreFormView {
+            .contentViewMidWrap {
+                .size(@width: 100%);
+            }
+        }
+
+        .btnMid {
+            width: 120px;
+        }
     }
 }
 // End of Bottom Form Section
@@ -1550,6 +1469,7 @@ input {
             max-width: 750px;
         }
     }
+
     .importFormRow {
         .flex-display();
         height: 25px;
@@ -1581,7 +1501,6 @@ input {
                 font-size: 14px;
             }
         }
-
     }
     .dataStoreFormBottom {
         // padding-left: 10px;

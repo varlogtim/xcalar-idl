@@ -11,73 +11,71 @@
   <!-- Top Form -->
   <div id="importDataTopForm" class="dataStoreFormTop no-selection">
     <div class="contentViewMidWrap">
-      <!-- file source -->
-      <div id="fileProtocolSelector" class="importFormRow">
-        <label><%= dicts.ds.Protocol %>:</label>
-        <div id="fileProtocol" class="dropDownList">
-            <input class="text" type="text" spellcheck="false" value="file:///" disabled>
-            <div class="iconWrapper">
+      <!-- file path -->
+      <section class="formSection filePath clearfix">
+        <!-- protocol -->
+        <div class="title"><%= dicts.dsForm.dsLocation %></div>
+        <div class="content">
+          <div class="row">
+            <div id="fileProtocol" class="rowContent dropDownList">
+              <input class="text" type="text" spellcheck="false" disabled>
+              <div class="iconWrapper">
+                <span class="icon"></span>
+              </div>
+              <!-- protocol Menu -->
+              <div id="fileProtocolMenu" class="list">
+                <ul>
+                  <li name="file"><%= dicts.FileProtocol.file %></li>
+                  <li name="nsf"><%= dicts.FileProtocol.nfs %></li>
+                  <li name="hdfs"><%= dicts.FileProtocol.hdfs %></li>
+                </ul>
+                <div class="scrollArea top">
+                  <div class="arrow"></div>
+                </div>
+                <div class="scrollArea bottom">
+                  <div class="arrow"></div>
+                </div>
+              </div>
+          </div>
+          <!-- hint -->
+          <div class="rowContent hint"><%= dicts.ds.Protocol %></div>
+          <button id="fileBrowserBtn" class="btn btnMid rowContent" type="button" <%= (dicts.tutor.name == 'datastoreDemo1') ? 'data-introstep="2"' : '' %>><%= dicts.common.BROWSE %></button>
+        </div>
+        <!-- souce path -->
+        <div class="row filePathRow">
+          <input id="filePath" class="rowContent input" type="text" name="filePath" spellcheck="false" autocomplete="off" required <%= (dicts.tutor.name == 'datastoreDemo1') ? 'data-introstep="3"' : '' %>>
+          <div class="hint rowContent"><%= dicts.dsForm.filePath %></div>
+          <button id="previewBtn" class="btn btnMid rowContent" type="button"><%= dicts.common.PREVIEW %></button>
+        </div>
+        <!-- recursive load -->
+        <div class="row">
+          <label class="rowTitle"></label>
+            <div id="recurCheckbox" class="checkboxSection rowContent">
+            <div class="checkbox iconWrapper">
               <span class="icon"></span>
             </div>
-            <!-- Format Menu -->
-            <div id="fileProtocolMenu" class="list">
-              <ul>
-                <li name="file"><%= dicts.FileProtocol.file %></li>
-                <li name="nsf"><%= dicts.FileProtocol.nfs %></li>
-                <li name="hdfs"><%= dicts.FileProtocol.hdfs %></li>
-              </ul>
-              <div class="scrollArea top">
-                <div class="arrow"></div>
-              </div>
-              <div class="scrollArea bottom">
-                <div class="arrow"></div>
-              </div>
-            </div>
+            <div class="text"><%= dicts.dsForm.Recur %></div>
+          </div>
         </div>
       </div>
-      <!-- file path -->
-      <div id="filePathSelector" class="importFormRow">
-        <label><%= dicts.common.FilePath %>:</label>
-        <input id="filePath" type="text" name="filePath" spellcheck="false" autocomplete="off" placeholder="<%= dicts.dsForm.filePathHint %>" required <%= (dicts.tutor.name == 'datastoreDemo1') ? 'data-introstep="3"' : '' %>>
-          <div class="buttonWrap">
-            <button id="previewBtn" class="btn btnMid" type="button"><%= dicts.common.PREVIEW %></button>
-            <button id="fileBrowserBtn" class="btn btnMid" type="button" <%= (dicts.tutor.name == 'datastoreDemo1') ? 'data-introstep="2"' : '' %>><%= dicts.common.BROWSE %></button>
-          </div>
-      </div>
-      <!-- file name -->
-      <div id="fileNameSelector" class="importFormRow">
-        <label><%= dicts.common.Name %>:</label>
-        <input id="fileName" name="fileName" type="text" placeholder="<%= dicts.dsForm.fileNameHint %>" autocomplete="off" spellcheck="false" title="<%= dicts.dsForm.fileNameTitle %>" required <%= (dicts.tutor.name == 'datastoreDemo1') ? 'data-introstep="4"' : '' %>>
-         <!-- file formt -->
-        <div class="buttonWrap">
-          <div id="promoteHeaderCheckbox" class="checkboxSection hidden default-hidden">
-            <div class="checkbox iconWrapper">
-              <span class="icon"></span>
-            </div>
-            <div class="text"><%= dicts.common.Header %></div>
-            <div title="<%= dicts.dsForm.HeaderTitle %>" data-toggle="tooltip" data-placement="top" data-container="body" class="hint qMark"></div>
-          </div>
-          <!-- udf checkbox -->
-          <div id="udfCheckbox" class="checkboxSection hidden default-hidden">
-            <div class="checkbox iconWrapper">
-              <span class="icon"></span>
-            </div>
-            <div class="text"><%= dicts.common.UDF %></div>
-          </div>
-          <div class="fileFormatPadding"></div>
-          <div id="fileFormat" class="dropDownList" <%= (dicts.tutor.name == 'datastoreDemo1') ? 'data-introstep="5"' : '' %>>
-              <input class="text" type="text" spellcheck="false" placeholder="<%= dicts.ds.Format %>" disabled>
+    </section>
+    <!-- file type -->
+    <section class="formSection clearfix">
+      <div class="title"><%= dicts.dsForm.DSType %></div>
+      <div class="content">
+        <div class="row">
+          <div id="fileFormat" class="dropDownList rowContent" <%= (dicts.tutor.name == 'datastoreDemo1') ? 'data-introstep="5"' : '' %>>
+              <input class="text" type="text" spellcheck="false" disabled>
               <div class="iconWrapper">
                 <span class="icon"></span>
               </div>
               <!-- Format Menu -->
               <div id="fileFormatMenu" class="list">
                 <ul>
-                  <li class="hint"><%= dicts.ds.Format %></li>
-                  <li name="CSV">CSV</li>
-                  <li name="JSON">JSON</li>
-                  <li name="EXCEL">Excel</li>
-                  <li name="TEXT">Text</li>
+                  <li name="CSV"><%= dicts.dsFormat.CSV %></li>
+                  <li name="JSON"><%= dicts.dsFormat.JSON %></li>
+                  <li name="EXCEL"><%= dicts.dsFormat.EXCEL %></li>
+                  <li name="TEXT"><%= dicts.dsFormat.TEXT %></li>
                 </ul>
                 <div class="scrollArea top">
                   <div class="arrow"></div>
@@ -88,63 +86,74 @@
               </div>
           </div>
         </div>
-      </div>
-    </div>
-  </div>
-  <!-- Bottom Form -->
-  <div id="importDataBottomForm"  class="dataStoreFormBottom no-selection">
-    <div class="contentViewMidWrap">
-      <!-- UDF Args -->
-      <div id="udfArgs" class="hidden clearfix default-hidden">
-        <div class="optionSection">
-          <section class="wrapper">
-            <span class="label"><%= dicts.common.ModuleName %>:</span>
-            <div id="udfArgs-moduleList" class="dropDownList">
-              <input class="text" type="text" spellcheck="false" disabled>
-              <div class="iconWrapper">
-                <span class="icon"></span>
-              </div>
-              <div class="list">
-                <ul></ul>
-                <div class="scrollArea top">
-                  <div class="arrow"></div>
-                </div>
-                <div class="scrollArea bottom">
-                  <div class="arrow"></div>
-                </div>
-              </div>
+        <div class="row">
+          <div id="promoteHeaderCheckbox" class="checkboxSection rowContent">
+            <div class="checkbox iconWrapper">
+              <span class="icon"></span>
             </div>
-          </section>
-          <section class="wrapper">
-            <span class="label"><%= dicts.common.FuncName %>:</span>
-            <div id="udfArgs-funcList" class="dropDownList">
-              <input class="text" type="text" spellcheck="false" disabled>
-              <div class="iconWrapper">
-                <span class="icon"></span>
-              </div>
-              <div class="list">
-                <ul></ul>
-                <div class="scrollArea top">
-                  <div class="arrow"></div>
-                </div>
-                <div class="scrollArea bottom">
-                  <div class="arrow"></div>
-                </div>
-              </div>
-            </div>
-          </section>
-        </div>
-        <div class="hintSection">
-          <span class="text"><%= dicts.dsForm.UDFHint %></span>
+            <div class="text"><%= dicts.dsForm.Header %></div>
+          </div>
         </div>
       </div>
-      <!-- End of Udf Args -->
-      <!-- Delimiters -->
-      <div id="csvDelim" class="hidden clearfix default-hidden">
-        <!-- Field Delimiter -->
-        <section id="fieldDelim" class="wrapper">
-          <span class="label"><%= dicts.dsForm.FieldDelim %>:</span>
-          <div class="dropDownList">
+    </section>
+    <!-- udf -->
+    <section id="udfArgs" class="formSection udf clearfix">
+      <!-- udf checkbox -->
+      <div id="udfCheckbox" class="checkboxSection title">
+        <div class="checkbox iconWrapper">
+          <span class="icon"></span>
+        </div>
+        <div class="text"><%= dicts.dsForm.UDF %></div>
+      </div>
+      <div class="content">
+        <div class="row">
+          <div id="udfArgs-moduleList" class="rowContent dropDownList">
+            <input class="text" type="text" spellcheck="false" disabled>
+            <div class="iconWrapper">
+              <span class="icon"></span>
+            </div>
+            <div class="list">
+              <ul></ul>
+              <div class="scrollArea top">
+                <div class="arrow"></div>
+              </div>
+              <div class="scrollArea bottom">
+                <div class="arrow"></div>
+              </div>
+            </div>
+          </div>
+          <div class="rowContent hint"><%= dicts.common.ModuleName %></div>
+        </div>
+        <div class="row">
+          <div id="udfArgs-funcList" class="rowContent dropDownList disabled">
+            <input class="text" type="text" spellcheck="false" disabled>
+            <div class="iconWrapper">
+              <span class="icon"></span>
+            </div>
+            <div class="list">
+              <ul></ul>
+              <div class="scrollArea top">
+                <div class="arrow"></div>
+              </div>
+              <div class="scrollArea bottom">
+                <div class="arrow"></div>
+              </div>
+            </div>
+          </div>
+          <div class="rowContent hint"><%= dicts.common.FuncName %></div>
+        </div>
+      </div>
+    </section>
+      <!-- delimiter -->
+    <section id="csvDelim" class="formSection delimiter clearfix">
+      <div class="title">
+        <%= dicts.dsForm.Delim %>
+        <div title="<%= dicts.dsForm.DelimHint %>" data-toggle="tooltip" data-container="body" class="qMark"></div>
+      </div>
+      <div class="content">
+        <div class="row">
+          <!-- Field Delimiter -->
+          <div id="fieldDelim" class="rowContent dropDownList">
             <input id="fieldText" class="text" type="text" spellcheck="false" disabled>
             <div class="iconWrapper">
               <span class="icon"></span>
@@ -169,11 +178,10 @@
               <div class="scrollArea bottom"><div class="arrow"></div></div>
             </div>
           </div>
-        </section>
-        <!-- Line Delimiter -->
-        <section id="lineDelim" class="wrapper">
-          <span class="label"><%= dicts.dsForm.LineDelim %>:</span>
-          <div class="dropDownList">
+          <div class="rowContent hint"><%= dicts.dsForm.FieldDelim %></div>
+        </div>
+        <div class="row">
+          <div id="lineDelim" class="rowContent dropDownList">
             <input id="lineText" class="text" type="text" spellcheck="false" disabled>
             <div class="iconWrapper">
               <span class="icon"></span>
@@ -201,9 +209,24 @@
               </div>
             </div>
           </div>
-        </section>
+          <div class="rowContent hint"><%= dicts.dsForm.LineDelim %></div>
+        </div>
       </div>
-      <!-- End Of Delimiters -->
+    </section>
+    <!-- file name -->
+    <section class="formSection fileName clearfix">
+      <div class="title"><%= dicts.dsForm.DSName %></div>
+      <div class="content">
+        <div class="row">
+          <input id="fileName" class="rowContent input" name="fileName" type="text" autocomplete="off" spellcheck="false" title="<%= dicts.dsForm.fileNameTitle %>" required <%= (dicts.tutor.name == 'datastoreDemo1') ? 'data-introstep="4"' : '' %>>
+        </div>
+      </div>
+    </section>
+    </div>
+  </div>
+  <!-- Bottom Form -->
+  <div id="importDataBottomForm"  class="dataStoreFormBottom no-selection">
+    <div class="contentViewMidWrap">
       <button id="importDataSubmit" class="btn btnMid" type="submit" <%= (dicts.tutor.name == 'datastoreDemo1') ? 'data-introstep="7"' : '' %>><%= dicts.dsForm.CONFIRM %></button>
       <button id="importDataReset" class="btn btnMid btn-cancel" type="reset"><%= dicts.common.CANCEL %></button>
     </div>
