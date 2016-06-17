@@ -144,9 +144,11 @@ html.firefox, html.microsoft {
     }
 
     // menu
-    .rightClickDropDown .unsavable {
-        opacity: 0.5;
-        pointer-events: none;
+    .rightClickDropDown {
+        .unsavable, .cannotExpand {
+            opacity: 0.5;
+            pointer-events: none;
+        }
     }
 }
 

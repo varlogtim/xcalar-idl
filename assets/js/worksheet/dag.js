@@ -426,7 +426,7 @@ window.DagPanel = (function($, DagPanel) {
             var $dagWrap = $('#dagWrap-' + dagId);
 
             switch (action) {
-                case 'saveImage':
+                case ('saveImage'):
                     Dag.createSavableCanvas($dagWrap)
                     .then(function() {
                         var canvas = $dagWrap.find('canvas').eq(1)[0];
@@ -441,7 +441,7 @@ window.DagPanel = (function($, DagPanel) {
                     });
 
                     break;
-                case 'newTabImage':
+                case ('newTabImage'):
                     Dag.createSavableCanvas($dagWrap)
                     .then(function() {
                         var canvas = $dagWrap.find('canvas').eq(1)[0];
@@ -461,17 +461,23 @@ window.DagPanel = (function($, DagPanel) {
                         $dagWrap.find('canvas').eq(1).remove();
                     });
                     break;
-                case 'archiveTable':
+                case ('expandAll'):
+                    Dag.expandAll($dagWrap);
+                    break;
+                case ('collapseAll'):
+                    Dag.collapseAll($dagWrap);
+                    break;
+                case ('archiveTable'):
                     var table = gTables[dagId];
                     if (table && table.hasLock()) {
                         return;
                     }
                     TblManager.archiveTables([dagId]);
                     break;
-                case 'deleteTable':
+                case ('deleteTable'):
                     deleteTable(dagId, tableName);
                     break;
-                case 'none':
+                case ('none'):
                     // do nothing;
                     break;
                 default:
@@ -543,7 +549,8 @@ window.DagPanel = (function($, DagPanel) {
         }
 
         var dagId = $menu.data('dagid');
-        var $dagImage = $('#dagWrap-' + dagId).find('.dagImage');
+        var $dagWrap = $('#dagWrap-' + dagId);
+        var $dagImage = $dagWrap.find('.dagImage');
         if ($dagImage.hasClass('unsavable')) {
             $menu.find('.saveImage, .newTabImage').hide();
             $menu.find('.unsavable').show();
@@ -551,6 +558,26 @@ window.DagPanel = (function($, DagPanel) {
             $menu.find('.saveImage, .newTabImage').show();
             $menu.find('.unsavable').hide();
         }
+
+        if ($dagWrap.find('.expandWrap:not(.expanded)').length) {
+            if (Dag.checkCanExpandAll($dagWrap)) {
+                $menu.find('.expandAll').show();
+                $menu.find('.cannotExpand').hide();
+            } else {
+                $menu.find('.expandAll').hide();
+                $menu.find('.cannotExpand').show();
+            }
+        } else {
+            $menu.find('.expandAll, .cannotExpand').hide();
+        }
+
+        if ($dagWrap.find('.expandWrap.expanded').length) {
+            $menu.find('.collapseAll').show();
+        } else {
+            $menu.find('.collapseAll').hide();
+        }
+
+
         if (gTables[dagId] && gTables[dagId].hasLock()) {
             $menu.find('.archiveTable, .deleteTable').hide();
         } else {
@@ -861,7 +888,6 @@ window.DagPanel = (function($, DagPanel) {
 
 }(jQuery, {}));
 
-
 window.Dag = (function($, Dag) {
     var $dagPanel;
     var scrollPosition = -1;
@@ -870,6 +896,7 @@ window.Dag = (function($, Dag) {
     // constants
     var dagTableHeight = 65;
     var dagTableWidth = 214; // includes the blue table and gray operation icon
+    var dataStoreWidth = 64;
     var canvasLimit = 32767;
     var canvasAreaLimit = 268435456;
 
@@ -1024,7 +1051,8 @@ window.Dag = (function($, Dag) {
         var allDagInfo = {
             nodes: dagInfo,
             depth: dagDepth,
-            groups: storedInfo.groups
+            groups: storedInfo.groups,
+            condensedWidth: width
         };
         $container.data('allDagInfo', allDagInfo);
     };
@@ -1241,6 +1269,174 @@ window.Dag = (function($, Dag) {
 
         return (deferred.promise());
     };
+    // groupInfo, $dagWrap, $expandIcon
+    Dag.expandAll = function($dagWrap) {
+        var allDagInfo = $dagWrap.data('allDagInfo');
+        var nodes = allDagInfo.nodes;
+        var groups = allDagInfo.groups;
+        var $dagImage = $dagWrap.find('.dagImage');
+        var dagImageWidth = $dagImage.outerWidth();
+        var prevScrollLeft = $dagImage.parent().scrollLeft();
+        var depth;
+        var size;
+        var right;
+        var node;
+        var groupWidth;
+        var $groupOutline;
+        var $expandWrap;
+
+        for (var i in nodes) {
+            node = nodes[i];
+            node.isHidden = false;
+            node.depth = node.expandedDepth;
+            if (node.x !== node.expandedX) {
+                node.x = node.expandedX;
+                $dagImage.find('.dagTable[data-index="' + i + '"]').parent()
+                         .css('right', node.expandedX).removeClass('hidden');
+            }
+        }
+        for (var i in groups) {
+            groups[i].collapsed = false;
+            depth = nodes[i].depth + 1;
+            right = nodes[groups[i].group[0]].x + 190;
+            $expandWrap = $dagImage.find('.expandWrap[data-index="' + i + '"]');
+            $expandWrap.css('right', right).data('depth', depth)
+                                           .addClass('expanded');
+            $expandWrap.attr('data-original-title', TooltipTStr.ClickCollapse);
+            $expandWrap.attr('title', "");
+            size = $expandWrap.data('size');
+            $groupOutline = $expandWrap.next();
+            groupWidth = size * dagTableWidth + 11;
+            $groupOutline.css('right', (right + 15) - groupWidth)
+                         .addClass('expanded');
+
+        }
+
+        depth = allDagInfo.depth;
+        var newWidth = (depth - 1) * dagTableWidth + dataStoreWidth;
+        $dagImage.outerWidth(newWidth);
+
+        $dagWrap.find('canvas').eq(0).remove();
+        $('.tooltip').hide();
+
+        var canvas = createCanvas($dagWrap);
+        var ctx = canvas.getContext('2d');
+        ctx.strokeStyle = '#999999';
+        ctx.beginPath();
+
+        for (var node in nodes) {
+            drawDagLines($dagImage, ctx, nodes, node, newWidth);
+        }
+        ctx.stroke();
+        $dagImage.parent().scrollLeft(prevScrollLeft + (newWidth -
+                                      dagImageWidth));
+    };
+
+    Dag.checkCanExpandAll = function($dagWrap) {
+        var currentCanvasHeight = $dagWrap.find('canvas').height();
+        var allDagInfo = $dagWrap.data('allDagInfo');
+        var depth = allDagInfo.depth;
+        var expectedWidth = (depth - 1) * dagTableWidth + dataStoreWidth + 100;
+
+        if (expectedWidth > canvasLimit ||
+            (expectedWidth * currentCanvasHeight) > canvasAreaLimit) {
+            return (false);
+        } else {
+            return (true);
+        }
+    };
+
+    Dag.collapseAll = function($dagWrap) {
+        var allDagInfo = $dagWrap.data('allDagInfo');
+        var nodes = allDagInfo.nodes;
+        var groups = allDagInfo.groups;
+        var $dagImage = $dagWrap.find('.dagImage');
+        var dagImageWidth = $dagImage.outerWidth();
+        var prevScrollLeft = $dagImage.parent().scrollLeft();
+        var depth;
+        var size;
+        var right;
+        var node;
+        var groupWidth;
+        var $groupOutline;
+        var $expandWrap;
+        var group;
+        var index;
+        var $dagTableWrap;
+        var tooltip;
+
+        for (var i in nodes) {
+            node = nodes[i];
+            // node.isHidden = true;
+            node.depth = node.condensedDepth;
+            if (node.x !== node.condensedX) {
+                node.x = node.condensedX;
+                $dagTableWrap = $dagImage.find('.dagTable[data-index="' + i + '"]')
+                                             .parent();
+
+                $dagTableWrap.css('right', node.condensedX);
+            }
+        }
+
+        $dagImage.find('.dagTable.dataStore').parent().removeClass('hidden');
+
+        for (var i in groups) {
+            groups[i].collapsed = true;
+            depth = nodes[i].depth + 1;
+            group = groups[i].group;
+            right = nodes[group[0]].x - dataStoreWidth;
+            $expandWrap = $dagImage.find('.expandWrap[data-index="' + i + '"]');
+            $expandWrap.css('right', right).data('depth', depth)
+                                           .removeClass('expanded');
+
+            size = $expandWrap.data('size');
+
+            if (size === 1) {
+                tooltip = TooltipTStr.CollapsedTable;
+            } else {
+                tooltip = xcHelper.replaceMsg(TooltipTStr.CollapsedTables,
+                            {number: size + ""});
+            }
+            $expandWrap.attr('data-original-title', tooltip);
+            $expandWrap.attr('title', "");
+
+            $groupOutline = $expandWrap.next();
+            groupWidth = size * dagTableWidth + 11;
+            $groupOutline.css('right', (right + 15) - groupWidth)
+                         .addClass('expanded');
+            for (var j = 0; j < group.length; j++) {
+                index = group[j];
+                nodes[index].isHidden = true;
+                $dagTableWrap = $dagImage.find('.dagTable[data-index="' + index + '"]')
+                                             .parent();
+                $dagTableWrap.addClass('hidden');
+            }
+        }
+
+        $dagImage.outerWidth(allDagInfo.condensedWidth);
+
+        $dagWrap.find('canvas').eq(0).remove();
+        $('.tooltip').hide();
+
+        var canvas = createCanvas($dagWrap);
+        var ctx = canvas.getContext('2d');
+        ctx.strokeStyle = '#999999';
+        ctx.beginPath();
+
+        for (var node in nodes) {
+            if (!nodes[node].isHidden) {
+                drawDagLines($dagImage, ctx, nodes, node,
+                             allDagInfo.condensedWidth);
+            }
+        }
+        $dagImage.find('.expandWrap').each(function() {
+            drawExpandLines($(this), ctx, allDagInfo.condensedWidth);
+        });
+
+        ctx.stroke();
+        $dagImage.parent().scrollLeft(prevScrollLeft +
+                                    (allDagInfo.condensedWidth - dagImageWidth));
+    };
 
     function loadImage(img) {
         var deferred = jQuery.Deferred();
@@ -1312,7 +1508,6 @@ window.Dag = (function($, Dag) {
         clearTimeout($expandIcon.data('discoverTimeout'));
         $expandIcon.data('glowTimeout', glowTimeout);
         $expandIcon.data('discoverTimeout', discoverTimeout);
-
     }
 
     function expandGroupHelper(nodes, group, index, $dagWrap, horzShift,
@@ -1339,7 +1534,7 @@ window.Dag = (function($, Dag) {
                 $expandIcon.css('right', (expandIconRight + horzShift));
                 $expandIcon.data('depth', $expandIcon.data('depth') +
                                           (storedInfo.groupLen - 0.3));
-                var $groupOutline = $dagWrap.find('.groupOutline[data-index=' + index + ']');
+                var $groupOutline = $expandIcon.next();
                 var groupRight = parseInt($groupOutline.css('right'));
                 $groupOutline.css('right', (groupRight + horzShift));
             }
@@ -1347,7 +1542,7 @@ window.Dag = (function($, Dag) {
         }
         nodeInfo.x = nodeX;
         $dagTable.parent().css('right', nodeX);
-        storedInfo.width = Math.max(storedInfo.width, nodeX + 64);
+        storedInfo.width = Math.max(storedInfo.width, nodeX + dataStoreWidth);
 
         var numParents = nodeInfo.numParents;
         for (var i = 0; i < numParents; i++) {
@@ -1379,7 +1574,7 @@ window.Dag = (function($, Dag) {
         var newWidth = 0;
         $dagWrap.find('.dagTable.dataStore').each(function() {
             var right = parseInt($(this).parent().css('right'));
-            newWidth = Math.max(newWidth, right + 64);
+            newWidth = Math.max(newWidth, right + dataStoreWidth);
         });
 
         $dagImage.outerWidth(newWidth);
@@ -1698,11 +1893,11 @@ window.Dag = (function($, Dag) {
                     $groupOutline.addClass('expanded');
                     var expandIconRight = parseInt($expandIcon.css('right'));
                     var newRight = expandIconRight +
-                                             (group.length * dagTableWidth) -
-                                             Math.round(0.11 * dagTableWidth);
+                                             (group.length * dagTableWidth) - 24;
                     $expandIcon.css('right', newRight);
                     expandGroup(groupInfo, $dagWrap, $expandIcon);
-                    $expandIcon.attr('data-original-title', 'click to collapse');
+                    $expandIcon.attr('data-original-title',
+                                     TooltipTStr.ClickCollapse);
                 }
             } else {
                 $expandIcon.removeClass('expanded');
@@ -1767,23 +1962,6 @@ window.Dag = (function($, Dag) {
             return (true);
         }
     }
-
-    function checkCanExpandAll($dagWrap) {
-        var currentCanvasHeight = $dagWrap.find('canvas').height();
-        var allDagInfo = $dagWrap.data('allDagInfo');
-        var depth = allDagInfo.depth;
-        var dataStoreWidth = 64;
-        var expectedWidth = (depth - 1) * dagTableWidth + dataStoreWidth + 100;
-
-        if (expectedWidth > canvasLimit ||
-            (expectedWidth * currentCanvasHeight) > canvasAreaLimit) {
-            return (false);
-        } else {
-            return (true);
-        }
-    }
-
-
 
     function checkExpandHelper(index, nodes, savedInfo) {
         var node = nodes[index];
@@ -2321,9 +2499,13 @@ window.Dag = (function($, Dag) {
         var condensedRight = Math.round(coor.condensedX * dagTableWidth);
         var tableWrapRight = right;
         var nodeInfo = parentChildMap[index];
+        nodeInfo.expandedX = right;
+        nodeInfo.condensedX = condensedRight;
         nodeInfo.x = condensedRight;
         nodeInfo.y = top;
         nodeInfo.depth = coor.condensedX;
+        nodeInfo.expandedDepth = coor.x;
+        nodeInfo.condensedDepth = coor.condensedX;
         var html = "";
         var hiddenClass = "";
         if (options.condensed && isHidden) {
@@ -2331,12 +2513,12 @@ window.Dag = (function($, Dag) {
             group.push(index);
             if (!isPrevHidden) {
                 nodeInfo.x += (0.3 * dagTableWidth);
+                nodeInfo.condensedX = nodeInfo.x;
             }
         }
         if (options.condensed) {
             tableWrapRight = condensedRight;
         }
-
 
         html += '<div class="dagTableWrap clearfix' + hiddenClass + '" ' +
                         'style="top:' + top + 'px;right: ' +
@@ -2432,7 +2614,6 @@ window.Dag = (function($, Dag) {
                             'style="top:' + top + 'px;right:' +
                                 (tableWrapRight - 20) + 'px;width:' +
                                 groupWidth + 'px;" ' +
-                            'data-depth="' + coor.condensedX + '" ' +
                             'data-index="' + condensedId + '"></div>';
             var groupCopy = [];
             for (var i = 0; i < groupLength; i++) {

@@ -63,6 +63,7 @@ TooltipTStr = {
     'GenBundle': 'Generate Support Bundle',
     'ToGridView': 'Switch to Grid View',
     'ToListView': 'Switch to List View',
+    'ClickCollapse': 'click to collapse',
     'CollapsedTable': '1 table is hidden',
      // with replace
     'CollapsedTables': '<number> tables are hidden'
