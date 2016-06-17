@@ -3,6 +3,10 @@ window.DagPanel = (function($, DagPanel) {
     var $dagArea;  // $dagPanel.find('.dagArea');
     var $scrollBarWrap; // $('#dagScrollBarWrap');
 
+    // constants
+    var canvasLimit = 32767;
+    var canvasAreaLimit = 268435456;
+
     DagPanel.setup = function() {
         $dagPanel = $('#dagPanel');
         $dagArea = $dagPanel.find('.dagArea');
@@ -866,6 +870,8 @@ window.Dag = (function($, Dag) {
     // constants
     var dagTableHeight = 65;
     var dagTableWidth = 214; // includes the blue table and gray operation icon
+    var canvasLimit = 32767;
+    var canvasAreaLimit = 268435456;
 
     Dag.construct = function(tableId, tablesToRemove) {
         var deferred = jQuery.Deferred();
@@ -995,7 +1001,7 @@ window.Dag = (function($, Dag) {
 
         var dagInfo = Dag.getParentChildDagMap(nodeArray);
         var dagDepth = getDagDepth(dagInfo);
-        var condensed = dagDepth > 3 ? true : false;
+        var condensed = dagDepth > 15 ? true : false;
         var dagOptions = {condensed: condensed};
         var isPrevHidden = false; // is parent node in a collapsed state
         var group = [];
@@ -1750,8 +1756,6 @@ window.Dag = (function($, Dag) {
         var expectedWidth = (group.length + savedInfo.depth) * dagTableWidth +
                             100;
         expectedWidth = Math.max(currentCanvasWidth, expectedWidth);
-        var canvasLimit = 32767;
-        var canvasAreaLimit = 268435456;
         if (expectedWidth > canvasLimit ||
             (expectedWidth * currentCanvasHeight) > canvasAreaLimit) {
             return (false);
@@ -1759,6 +1763,23 @@ window.Dag = (function($, Dag) {
             return (true);
         }
     }
+
+    function checkCanExpandAll($dagWrap) {
+        var currentCanvasHeight = $dagWrap.find('canvas').height();
+        var allDagInfo = $dagWrap.data('allDagInfo');
+        var depth = allDagInfo.depth;
+        var dataStoreWidth = 64;
+        var expectedWidth = (depth - 1) * dagTableWidth + dataStoreWidth + 100;
+
+        if (expectedWidth > canvasLimit ||
+            (expectedWidth * currentCanvasHeight) > canvasAreaLimit) {
+            return (false);
+        } else {
+            return (true);
+        }
+    }
+
+
 
     function checkExpandHelper(index, nodes, savedInfo) {
         var node = nodes[index];
@@ -2739,12 +2760,8 @@ window.Dag = (function($, Dag) {
         if (options.savable) {
             // if more than 700 nodes, do not make savable, too much lag
             // also canvas limit is 32,767 pixels height  or width
-
-            var canvasLimit = 32767;
-            var canvasAreaLimit = 268435456;
             var canvasWidth = $(canvas).width();
             var canvasHeight = $(canvas).height();
-
 
             if (numNodes > 700 || canvasWidth > canvasLimit ||
                 canvasHeight > canvasLimit || (canvasWidth * canvasHeight) >

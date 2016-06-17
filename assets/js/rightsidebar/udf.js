@@ -320,12 +320,14 @@ window.UDF = (function($, UDF) {
             if (entireString.trim() === "" ||
                 entireString.trim() === udfDefault.trim())
             {
-                StatusBox.show(ErrTStr.NoEmptyFn, $('.CodeMirror'), false,
+                StatusBox.show(ErrTStr.NoEmptyFn,
+                                $('#udf-fnSection .CodeMirror'), false,
                                 options);
                 return;
             } else if (entireString.trim().length >
                        XcalarApisConstantsT.XcalarApiMaxPyModuleSrcLen) {
-                StatusBox.show(ErrTStr.LargeFile, $(".CodeMirror"), false,
+                StatusBox.show(ErrTStr.LargeFile,
+                                $("#udf-fnSection .CodeMirror"), false,
                                 options);
                 return;
             }
