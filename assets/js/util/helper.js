@@ -272,56 +272,48 @@ window.xcHelper = (function($, xcHelper) {
         return (res);
     };
 
-    xcHelper.middleEllipsis = function(str, $ele, maxLen, isMultiLine) {
-        var ele = $ele.get(0);
-
-        str = String(str);
-
-        var strLen = str.length;
-        maxLen = Math.min(maxLen, strLen);
-
-        // back to initial value first
-        if ($ele.is("input")) {
-            $ele.val(str);
-        } else {
-            $ele.text(str);
-        }
-
+    // this function is generally looped over many times
+    // we pass in ctx (a reference to canvas) so that we don't create a new
+    // canvas within the function many times in the loop
+    // canvas is used to measure text width
+    xcHelper.middleEllipsis = function(text, $ele, checkLen, maxWidth,
+                                       isMultiLine, ctx) {
+        var textWidth = ctx.measureText(text).width;
+        var finalText;
         if (isMultiLine) {
-            var scrollWidth = ele.scrollWidth;
-            var widthNotOverflow = ele.offsetWidth + 1;
-
-            while (scrollWidth > widthNotOverflow && maxLen > 5) {
-                ellipsisHelper();
-                scrollWidth = ele.scrollWidth;
-                maxLen--;
-            }
+            maxWidth *= 2;
+        }
+        if (textWidth < maxWidth) {
+            finalText = text;
         } else {
-            var scrollHeight = ele.scrollHeight;
-            var heightNotOverFlow = ele.offsetHeight + 1;
-            while (scrollHeight > heightNotOverFlow && maxLen > 5) {
-                ellipsisHelper();
-                scrollHeight = ele.scrollHeight;
-                maxLen--;
-            }
+            var len = xcHelper.getMaxTextLen(ctx, text, maxWidth, checkLen,
+                                             text.length);
+            finalText = text.slice(0, len - 3) + "..." +
+                        text.slice(text.length - 3);
         }
 
-        function ellipsisHelper() {
-            var ellipsisStr;
+        if ($ele.is("input")) {
+            $ele.val(finalText);
+        } else {
+            $ele.text(finalText);
+        }
+    };
 
-            if (strLen <= maxLen) {
-                ellipsisStr = str;
-            } else {
-                // always show the last three characters
-                ellipsisStr = str.substring(0, maxLen - 4) + '...' +
-                                str.substring(strLen - 3);
-            }
-
-            if ($ele.is("input")) {
-                $ele.val(ellipsisStr);
-            } else {
-                $ele.text(ellipsisStr);
-            }
+    xcHelper.getMaxTextLen = function(ctx, text, desiredWidth, minLen, maxLen) {
+        if (maxLen - minLen <= 1) {
+            return minLen;
+        }
+        var midPoint = Math.floor((maxLen + minLen) / 2);
+        var modText = text.slice(0, midPoint);
+        var width = ctx.measureText(modText).width;
+        if (width > desiredWidth) {
+            return (xcHelper.getMaxTextLen(ctx, text, desiredWidth, minLen,
+                                           midPoint));
+        } else if (width < desiredWidth) {
+            return (xcHelper.getMaxTextLen(ctx, text, desiredWidth, midPoint,
+                                           maxLen));
+        } else {
+            return midPoint;
         }
     };
 

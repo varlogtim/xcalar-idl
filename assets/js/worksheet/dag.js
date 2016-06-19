@@ -1821,21 +1821,33 @@ window.Dag = (function($, Dag) {
     }
 
     function wrapText(ctx, text, x, y, maxWidth, lineHeight) {
-        var words = text.split(/-| /);
+        var words = text.split(/-| |\./);
         var line = '';
+        var minLen = 20; // minimum text length needed for overflow;
 
-        for (var n = 0; n < words.length; n++) {
-            var testLine = line + words[n] + ' ';
-            var metrics = ctx.measureText(testLine);
-            var testWidth = metrics.width;
-            if (testWidth > maxWidth && n > 0) {
-                ctx.fillText(line, x, y);
-                line = words[n] + ' ';
-                y += lineHeight;
+        if (words.length === 1) {
+            var width = ctx.measureText(words[0]).width;
+            if (width > maxWidth) {
+                var textLen = xcHelper.getMaxTextLen(ctx, text, maxWidth - 7,
+                                                     minLen, text.length);
+                line = text.slice(0, textLen) + "...";
             } else {
-                line = testLine;
+                line = text;
+            }
+        } else {
+            for (var n = 0; n < words.length; n++) {
+                var testLine = line + words[n] + ' ';
+                var width = ctx.measureText(testLine).width;
+                if (width > maxWidth && n > 0) {
+                    ctx.fillText(line, x, y);
+                    line = words[n] + ' ';
+                    y += lineHeight;
+                } else {
+                    line = testLine;
+                }
             }
         }
+
         ctx.fillText(line, x, y);
         ctx.restore();
     }

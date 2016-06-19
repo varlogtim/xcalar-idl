@@ -1228,12 +1228,17 @@ window.DS = (function ($, DS) {
             isListView = $gridView.hasClass("listView");
         }
 
-        var maxChar = isListView ? 32 : 16;
+        var maxChar = isListView ? 18 : 8;
+        var maxWidth = isListView ? 165 : 52;
+        var canvas = document.createElement('canvas');
+        var ctx = canvas.getContext('2d');
+        ctx.font = isListView ? '700 12px Open Sans' : '700 9px Open Sans';
 
         $labels.each(function() {
             var $label = $(this);
             var name = $label.data("dsname");
-            xcHelper.middleEllipsis(name, $label, maxChar, isListView);
+            xcHelper.middleEllipsis(name, $label, maxChar, maxWidth,
+                                    !isListView, ctx);
         });
     }
 
