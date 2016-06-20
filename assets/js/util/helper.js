@@ -278,6 +278,9 @@ window.xcHelper = (function($, xcHelper) {
     // canvas is used to measure text width
     xcHelper.middleEllipsis = function(text, $ele, checkLen, maxWidth,
                                        isMultiLine, ctx) {
+        // keep this because if pass in null, should change to string "null"
+        // (since text is come from $el.data(), text might be null)
+        text = String(text);
         var textWidth = ctx.measureText(text).width;
         var finalText;
         if (isMultiLine) {
