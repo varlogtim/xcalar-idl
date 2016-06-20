@@ -24,12 +24,15 @@
     }
 
     &.small {
-        .buttonWrap {
-            height: 78px !important;
-            .btnLarge {
-                min-width: 200px;
+        #archivedTableList, #orphanedTableList {
+            .buttonWrap {
+                height: 78px !important;
+                .btnLarge {
+                    min-width: 200px;
+                }
             }
         }
+
         #orphanedTablesList {
             height: ~"calc(100% - 145px)" !important;
         }
@@ -329,6 +332,12 @@
         }
     }
 
+    #archiveTablesBtn {
+        .icon {
+            .image("../../images/datastore/export-single.png", 50%, 50%);
+        }
+    }
+
     .secondButtonWrap {
         margin-right: 21px;
         margin-top: 4px;
@@ -336,7 +345,6 @@
         float: right;
         position: relative;
         z-index: 2;
-        display: none;
 
         .btn {
             .size (23px, 23px);
@@ -542,7 +550,7 @@
     margin-top: 10px !important;
 }
 
-#tableList, #archivedTableList, #orphanedTableList {
+#activeTableList, #archivedTableList, #orphanedTableList {
     max-width: 490px;
 }
 
@@ -605,19 +613,35 @@
     }
 }
 
-#archivedTableList {
+#activeTableList, #archivedTableList {
     position: relative;
     .secondButtonWrap {
         position: absolute;
         right: 0px;
+        .selectAll ,.clearAll{
+            display: none;
+        }
     }
     .tableLists {
         overflow: hidden;
         overflow-y: auto;
         height: ~"calc(100% - 70px)";
-        margin-top: 30px;
+        margin-top: 10px;
         .timeLine:first-child {
             padding-top: 0px;
+        }
+    }
+}
+#activeTableList {
+    .tableLists {
+        height: ~"calc(100% - 50px)";
+    }
+    .buttonWrap {
+        .justify-content(flex-end);
+        .btnLarge {
+            max-width: 338px;
+            margin-right: 20px;
+            margin-left: 20px;
         }
     }
 }

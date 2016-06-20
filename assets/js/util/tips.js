@@ -68,8 +68,8 @@ window.Tips = (function($, Tips) {
             addRightSideBarTips();
             addDatastoreTips();
 
-            if ($("#dagPanel").hasClass("hidden") || 
-                $("#dagPanel").hasClass("midway")) 
+            if ($("#dagPanel").hasClass("hidden") ||
+                $("#dagPanel").hasClass("midway"))
             {
                 // when dag panel is not on
                 addWorksheetTips();
@@ -179,8 +179,8 @@ window.Tips = (function($, Tips) {
 
             // make sure the pointed ele is line marker
             // (when scroll, the point may be other element)
-            if ($ele.find(".idWrap").length > 0 || 
-                $ele.closest(".idWrap").length > 0) 
+            if ($ele.find(".idWrap").length > 0 ||
+                $ele.closest(".idWrap").length > 0)
             {
                 var $lineMarker = $ele;
                 setTooltip($lineMarker, {
@@ -242,7 +242,7 @@ window.Tips = (function($, Tips) {
         });
 
         // tablelist in activeTableList
-        var $tableList = $("#tableList").find(".tableListBox").eq(0);
+        var $tableList = $("#activeTableList").find(".tableListBox").eq(0);
         setTooltip($tableList, {
             "title"    : TipsTStr.TablList,
             "container": "#activeTablesList .timeLine:first-child"

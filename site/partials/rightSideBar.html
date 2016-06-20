@@ -38,7 +38,22 @@
         <!-- Sections -->
         <section id="tableListSections">
           <!-- active list -->
-          <div id="tableList" class="tableListSection">
+          <div id="activeTableList" class="tableListSection">
+            <div class="buttonWrap">
+              <button id="archiveTablesBtn" type="button" class="btn btnLarge btnInactive iconBtn submitBtn">
+                <span class="icon"></span>
+                <%= dicts.rightsideBar.archiveBtn %>
+              </button>
+              <!-- temporarily hidding delete tables btn -->
+            </div>
+            <div class="secondButtonWrap">
+              <div class="btn btnSmall btnDeselected clearAll">
+                <span class="icon" data-toggle="tooltip" data-placement="top" data-container="body" title="" data-original-title="<%= dicts.rightsideBar.deselectAll %>"></span>
+              </div>
+              <div class="btn btnSmall selectAll">
+                <span class="icon" data-toggle="tooltip" data-placement="top" data-container="body" title="" data-original-title="<%= dicts.rightsideBar.selectAll %>"></span>
+              </div>
+            </div>
             <ul id="activeTablesList" class="tableLists"></ul>
           </div>
           <!-- archived list -->

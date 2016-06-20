@@ -238,6 +238,7 @@ module.exports = {
         'AggList': 'Aggregates',
         'OrphanList': 'Orphaned',
         'activeBtn': 'ADD TO WORKSHEET',
+        'archiveBtn': 'ARCHIVE TABLES',
         'selectAll': 'select all',
         'deselectAll': 'deselect all',
         'refresh': 'refresh tables',
