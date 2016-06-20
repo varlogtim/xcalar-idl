@@ -340,7 +340,8 @@ JoinTStr = {
     'NoMatchRight': 'Sorry, cannot find a good key to match the right table',
     'ToSingleJoin': 'switch to single join',
     'ToMultiJoin': 'switch to multi clause join',
-    'InvalidClause': 'Invalid Clause to join'
+    'InvalidClause': 'Invalid Clause to join',
+    'TypeMistch': 'Left selected column and right selected column has type mistch, cannot join'
 };
 
 ExportTStr = {

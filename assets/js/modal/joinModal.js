@@ -174,13 +174,16 @@ window.JoinModal = (function($, JoinModal) {
                 modalHelper.submit();
                 var joinType = $joinSelect.find(".text").text();
                 var tabeName = newTableName + Authentication.getHashId();
+                var isValid;
+
                 if (isMultiJoin) {
-                    var isValid = multiJoinHelper(joinType, tabeName);
-                    if (!isValid) {
-                        modalHelper.enableSubmit();
-                    }
+                    isValid = multiJoinHelper(joinType, tabeName);
                 } else {
-                    singleJoinHelper(joinType, tabeName);
+                    isValid = singleJoinHelper(joinType, tabeName);
+                }
+
+                if (!isValid) {
+                    modalHelper.enableSubmit();
                 }
             } else {
                 StatusBox.show(ErrTStr.TableConflict, $joinTableName, true);
@@ -324,20 +327,22 @@ window.JoinModal = (function($, JoinModal) {
 
         modalHelper.setup()
         .always(function() {
-            scrollToColumn($leftJoinTable.find("th.colSelected"));
-            // this is the case when right table has suggested col
-            scrollToColumn($rightJoinTable.find("th.colSelected"));
-
             // have to reattach scroll listener each time modal is opened
             // because it is lost for some reason
             $("#mainJoin .joinTableArea").off('scroll');
             $("#mainJoin .joinTableArea").scroll(function(){
                 $(this).scrollTop(0);
             });
+
             $joinTableName.focus();
 
             isOpenTime = false;
         });
+        // if put it in .always, will see the lag of scroll to column on gui
+        // so put it here.
+        scrollToColumn($leftJoinTable.find("th.colSelected"));
+        // this is the case when right table has suggested col
+        scrollToColumn($rightJoinTable.find("th.colSelected"));
     };
 
     function toggleMultiClause(toMultiClause) {
@@ -444,13 +449,31 @@ window.JoinModal = (function($, JoinModal) {
         var rColNum   = xcHelper.parseColNum($rightCol) - 1;
         var rTableId  = $rightCol.closest(".joinTable").data("id");
 
-        // XXX to implement UI option to keep tables
-        // var options = {
-        //     keepTables: true
-        // };
-        resetJoinTables();
-        xcFunction.join([lColNum], lTableId, [rColNum], rTableId,
-                        joinType, newTableName);
+        var lCol = gTables[lTableId].getCol(lColNum + 1);
+        var rCol = gTables[rTableId].getCol(rColNum + 1);
+
+        if (lCol.isNumberCol() && rCol.isNumberCol() ||
+            lCol.getType() === rCol.getType()) {
+            resetJoinTables();
+            // XXX to implement UI option to keep tables
+            // var options = {
+            //     keepTables: true
+            // };
+            xcFunction.join([lColNum], lTableId, [rColNum], rTableId,
+                            joinType, newTableName);
+            return true;
+        } else {
+            showErrorTooltip($rightCol.find(".colPadding"), {
+                "title"    : JoinTStr.TypeMistch,
+                "placement": "top",
+                "animation": "true",
+                "container": "#rightJoin",
+                "trigger"  : "manual",
+                "template" : TooltipTemplate.Error
+            });
+
+            return false;
+        }
     }
 
     function multiJoinHelper(joinType, newTableName) {
