@@ -194,6 +194,12 @@ input {
         .checkbox, .text, label {
             opacity: 0.5;
         }
+
+        .disabled {
+            // otherwise another opacity change may make
+            // style look different from other disabled field
+            opacity: 1 !important;
+        }
     }
 
     .formSection {
