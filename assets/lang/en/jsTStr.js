@@ -432,7 +432,7 @@ DSTStr = {
     'DelUneditable': 'This <ds> is uneditable, cannot delete',
     'DSSourceHint': 'Please try another path or use another protocol',
     'FileOversize': 'Too many files in the folder, cannot read, please load with the url directly',
-    'InvalidHDFS': 'Invalid HDFS path, valid format is: "hostname/url"'
+    'InvalidHDFS': 'Invalid HDFS path, valid format is: "hostname/pathToFile"'
 };
 
 DSFormTStr = {
