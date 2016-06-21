@@ -90,7 +90,6 @@
               <ul>
                 <li name="default"><%= dicts.common.Default %> (\t)</li>
                 <li name="comma"><%= dicts.common.Comma %> (,)</li>
-                <li name="null" class="nullVal"><%= dicts.common.Null %></li>
                 <li name="other" class="other">
                   <span><%= dicts.common.Other %></span>
                   <div class="inputWrap">
@@ -121,8 +120,8 @@
           <div class="list">
             <ul>
               <li name="default"><%= dicts.common.Default %> (\n)</li>
-              <li name="null" class="nullVal"><%= dicts.common.Null %></li>
-              <li name="other" class="other">
+              <!-- no other delimiter but \n currently works -->
+             <!--  <li name="other" class="other">
                 <span><%= dicts.common.Other %></span>
                 <div class="inputWrap">
                   <input class="delimVal" type="text" spellcheck="false">
@@ -130,7 +129,7 @@
                     <span class="icon"></span>
                   </div>
                 </div>
-              </li>
+              </li> -->
             </ul>
             <div class="scrollArea top">
               <div class="arrow"></div>

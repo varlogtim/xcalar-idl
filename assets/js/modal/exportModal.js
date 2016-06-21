@@ -298,6 +298,17 @@ window.ExportModal = (function($, ExportModal) {
         }
 
         var advancedOptions = getAdvancedOptions();
+        if (advancedOptions.error) {
+            xcHelper.validate([{
+                    "$selector": advancedOptions.$target,
+                    "text"     : advancedOptions.errorMsg,
+                    "check"    : function() {
+                        return true;
+                    }
+                }
+            ]);
+            return (deferred.promise());
+        }
 
         checkDuplicateExportName(exportName + ".csv") // XX csv is temporary
         .then(function(hasDuplicate) {
@@ -305,15 +316,6 @@ window.ExportModal = (function($, ExportModal) {
                 xcHelper.validate([{
                         "$selector": $exportName,
                         "text"     : ErrTStr.ExportConflict,
-                        "check"    : function() {
-                            return true;
-                        }
-                    }
-                ]);
-            } else if (advancedOptions.error) {
-                xcHelper.validate([{
-                        "$selector": $advancedSection.find('.advancedTitle'),
-                        "text"     : advancedOptions.errorMsg,
                         "check"    : function() {
                             return true;
                         }
@@ -976,12 +978,21 @@ window.ExportModal = (function($, ExportModal) {
 
         if (options.format === DfFormatTypeT.DfFormatCsv) {
             options.csvArgs = {};
-            options.csvArgs.fieldDelim = xcHelper.delimiterTranslate(
-                                                    $advancedSection
-                                                        .find('.fieldDelim'));
+            var $fieldDelim = $advancedSection.find('.fieldDelim');
+            var $recordDelim = $advancedSection.find('.recordDelim');
+            options.csvArgs.fieldDelim = xcHelper.delimiterTranslate($fieldDelim
+                                                    );
             options.csvArgs.recordDelim = xcHelper.delimiterTranslate(
-                                                    $advancedSection
-                                                        .find('.recordDelim'));
+                                                    $recordDelim);
+            if (options.csvArgs.fieldDelim === "") {
+                options.error = true;
+                options.errorMsg = ErrTStr.NoEmpty;
+                options.$target = $fieldDelim;
+            } else if (options.csvArgs.recordDelim === "") {
+                options.error = true;
+                options.errorMsg = ErrTStr.NoEmpty;
+                options.$target = $recordDelim;
+            }
         } else if (options.format === DfFormatTypeT.DfFormatSql) {
             options.sqlArgs = {};
 
@@ -989,6 +1000,7 @@ window.ExportModal = (function($, ExportModal) {
         } else {
             options.error = true;
             options.errorMsg = ExportTStr.InvalidType;
+            options.$target = $exportModal.find('.typeRow');
         }
         return (options);
     }
