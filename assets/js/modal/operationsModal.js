@@ -1077,7 +1077,7 @@ window.OperationsModal = (function($, OperationsModal) {
 
         var html = "";
         for (var i = 0, numOps = ops.length; i < numOps; i++) {
-            html += '<li>' + ops[i].fnName + '</li>';
+            html += '<li class="textNoCap">' + ops[i].fnName + '</li>';
         }
         var $list = $(html);
 
