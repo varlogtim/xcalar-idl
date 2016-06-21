@@ -6,6 +6,7 @@ window.OperationsModal = (function($, OperationsModal) {
     var $functionsMenu;   // $('#functionsMenu')
     var $functionsUl;     // $functionsMenu.find('ul')
     var $menus;           // $('#categoryMenu, #functionsMenu')
+    var $autocompleteInputs; // $operationsModal.find('.autocomplete');
     var $argInputs;
     var currentCol;
     var colNum = "";
@@ -64,7 +65,7 @@ window.OperationsModal = (function($, OperationsModal) {
 
         var allowInputChange = true;
 
-        var $autocompleteInputs = $operationsModal.find('.autocomplete');
+        $autocompleteInputs = $operationsModal.find('.autocomplete');
         $autocompleteInputs.on({
             'mousedown': function(event) {
                 gMouseEvents.setMouseDownTarget($(this));
@@ -92,9 +93,38 @@ window.OperationsModal = (function($, OperationsModal) {
                 }
             },
             'keydown': function(event) {
-                if (event.which === keyCode.Tab) {
-                    // hide previous dropdown when tabbing to next input
+                var $input = $(this);
+                if (event.which === keyCode.Enter || event.which ===
+                    keyCode.Tab) {
+                    var inputNum = $autocompleteInputs.index($input);
+                    var value    = $input.val().trim().toLowerCase();
+                    var prevValue = $input.data('value');
+                    $input.data('value', value);
+
+
+                    if (value === "") {
+                        clearInput(inputNum);
+                        return;
+                    }
+                    $input.blur();
                     hideDropdowns();
+
+                    if (prevValue === value && event.which === keyCode.Tab) {
+                        return;
+                    }
+
+                    // when choose the same category as before
+                    if (inputNum === 0 &&
+                        value === $functionsMenu.data('category'))
+                    {
+                        $autocompleteInputs.eq(1).focus();
+                        return;
+                    }
+                    enterInput(inputNum);
+                    // prevent modal tabbing
+                    return (false);
+                } else {
+                    closeListIfNeeded($input);
                 }
             },
             'input': function() {
@@ -106,6 +136,8 @@ window.OperationsModal = (function($, OperationsModal) {
                 }
                 var $input = $(this);
                 var inputNum = $autocompleteInputs.index($input);
+                var value = $input.val().trim().toLowerCase();
+                $input.data('value', value);
 
                 if (inputNum === 0) {
                     // when $input is $categoryInput
@@ -118,29 +150,6 @@ window.OperationsModal = (function($, OperationsModal) {
 
                 if ($input.val() !== "") {
                     enterInput(inputNum);
-                }
-            },
-            'keypress': function(event) {
-                var $input = $(this);
-                if (event.which === keyCode.Enter) {
-                    var inputNum = $autocompleteInputs.index($input);
-                    var value    = $input.val().trim();
-
-                    if (value === "") {
-                        clearInput(inputNum);
-                        return;
-                    }
-                    $input.blur();
-                    hideDropdowns();
-                    // when choose the same category as before
-                    if (inputNum === 1 &&
-                        value === $functionsMenu.data('category'))
-                    {
-                        return;
-                    }
-                    enterInput(inputNum);
-                } else {
-                    closeListIfNeeded($input);
                 }
             }
         });
@@ -458,6 +467,10 @@ window.OperationsModal = (function($, OperationsModal) {
             }
 
             var inputNum = $autocompleteInputs.index($input);
+            if (inputNum < 2) {
+                $autocompleteInputs.eq(inputNum).data('value',
+                                                    value.trim().toLowerCase());
+            }
             enterInput(inputNum);
         }
     };
@@ -790,6 +803,7 @@ window.OperationsModal = (function($, OperationsModal) {
                 $ul.find('ul').append('<li class="openli">' + corrected + '</li>')
                 .end().addClass("openList")
                 .show();
+                suggestLists[index].showOrHideScrollers();
             }
 
 
@@ -925,6 +939,9 @@ window.OperationsModal = (function($, OperationsModal) {
         }
         if (inputNum === 0) {
             $functionsMenu.data('category', 'null');
+        }
+        if (inputNum < 2) {
+            $autocompleteInputs.eq(inputNum).data('value', "");
         }
 
         hideDropdowns();
@@ -3043,6 +3060,9 @@ window.OperationsModal = (function($, OperationsModal) {
             $operationsModal.fadeOut(time, function() {
                 toggleModalDisplay(true, time);
                 clearInput(0);
+                $autocompleteInputs.each(function() {
+                    $(this).data('value', '');
+                });
 
                 $functionsMenu.data('category', 'null');
                 unminimizeTable();
