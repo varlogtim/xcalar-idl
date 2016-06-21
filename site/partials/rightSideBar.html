@@ -252,24 +252,30 @@
           </section>
           <!-- Section to upload file -->
           <section id="udf-uploadSection" class="mainSection hidden">
-            <!-- head part -->
-            <div>
-              <h3 class="label">
-                <label for="udf-filePath"><%= dicts.common.FilePath %>:</label>
-              </h3>
+            <div class="row">
+              <!-- head part -->
+              <label class="label" for="udf-upload-path"><%= dicts.common.File %>:</label>
+              <!-- file path part -->
+              <div class="inputSection">
+                <input id="udf-upload-path" type="text" spellcheck="false">
+                <div id="udf-upload-clearPath" class="iconWrap clear">
+                  <span class="icon"></span>
+                </div>
+              </div>
             </div>
-            <!-- file path part -->
-            <div class="pathSection">
-              <input id="udf-filePath" type="text" spellcheck="false">
-              <div id="udf-clearPath" class="iconWrap clear">
-                <span class="icon"></span>
+            <div class="row">
+              <!-- head part -->
+              <label class="label" for="udf-upload-name"><%= dicts.common.ModuleName %>:</label>
+              <!-- file path part -->
+              <div class="inputSection">
+                <input id="udf-upload-name" type="text" spellcheck="false" placeholder="<%= dicts.rightsideBar.lowercase %>">
               </div>
             </div>
             <!-- button part -->
             <div class="btnSection">
-              <button id="udf-browseBtn" class="btn btnMid" type="button"><%= dicts.common.BROWSE %></button>
-              <input id="udf-fileBrowser"  spellcheck="false" type="file" style="display: none;">
-              <button id="udf-fileUpload" class="btn btnMid upload" type="button">
+              <button id="udf-upload-browse" class="btn btnMid" type="button"><%= dicts.rightsideBar.ChooseFile %></button>
+              <input id="udf-upload-fileBrowser"  spellcheck="false" type="file" style="display: none;">
+              <button id="udf-upload-submit" class="btn btnMid upload" type="button">
                 <span class="icon"></span>
                 <span class="text"><%= dicts.rightsideBar.upload %></span>
               </button>

@@ -3,8 +3,8 @@ window.UDF = (function($, UDF) {
     var $fnName;       // $("#udf-fnName");
     var $template;     // $("#udf-fnTemplate");
     var $downloadBtn;  // $("#udf-fnDownload");
-    var $browserBtn;   // $("#udf-fileBrowser");
-    var $filePath;     // $("#udf-filePath");
+    var $browserBtn;   // $("#udf-upload-fileBrowser");
+    var $filePath;     // $("#udf-upload-path");
     var $listDropdown; // $("#udf-fnMenu");
 
     var editor;
@@ -21,8 +21,8 @@ window.UDF = (function($, UDF) {
         $fnName = $("#udf-fnName");
         $template = $("#udf-fnTemplate");
         $downloadBtn = $("#udf-fnDownload");
-        $browserBtn = $("#udf-fileBrowser");
-        $filePath = $("#udf-filePath");
+        $browserBtn = $("#udf-upload-fileBrowser");
+        $filePath = $("#udf-upload-path");
         $listDropdown = $("#udf-fnMenu");
 
         setupUDF();
@@ -184,25 +184,28 @@ window.UDF = (function($, UDF) {
 
         /* upload file section */
         // browser file
-        $("#udf-browseBtn").click(function() {
+        $("#udf-upload-browse").click(function() {
             $(this).blur();
             $browserBtn.click();
             return false;
         });
         // display the chosen file's path
         $browserBtn.change(function() {
-            $filePath.val($(this).val().replace(/C:\\fakepath\\/i, ''));
+            var path = $(this).val().replace(/C:\\fakepath\\/i, '');
+            $filePath.val(path);
+            var moduleName = path.substring(0, path.indexOf(".")).toLowerCase();
+            $("#udf-upload-name").val(moduleName);
         });
         // clear file path
-        $("#udf-clearPath").click(function() {
+        $("#udf-upload-clearPath").click(function() {
             $browserBtn.val("");
             $filePath.val("");
             $filePath.focus();
         });
         // upload file
-        $("#udf-fileUpload").click(function() {
+        $("#udf-upload-submit").click(function() {
             $(this).blur();
-            var val  = $filePath.val().trim();
+            var val = $filePath.val().trim();
             var file = $browserBtn[0].files[0];
             var path;
 
@@ -212,7 +215,8 @@ window.UDF = (function($, UDF) {
                 path = file.name;
             }
 
-            var moduleName = path.substring(0, path.indexOf("."));
+            var $uploadName = $("#udf-upload-name");
+            var moduleName = $uploadName.val().trim();
             var $submitBtn = $(this);
             var options = {"offset": 190};
 
@@ -220,6 +224,8 @@ window.UDF = (function($, UDF) {
                 StatusBox.show(ErrTStr.NoEmpty, $filePath, true, options);
             } else if (path === "") {
                 StatusBox.show(ErrTStr.InvalidFilePath, $filePath, true, options);
+            } else if (moduleName === "") {
+                StatusBox.show(ErrTStr.NoEmpty, $uploadName, true, options);
             } else if (moduleName.length >
                        XcalarApisConstantsT.XcalarApiMaxPyModuleNameLen) {
                 StatusBox.show(ErrTStr.LongFileName, $filePath, true, options);
@@ -397,7 +403,7 @@ window.UDF = (function($, UDF) {
 
         function uploadHelper() {
             var isIconBtn = true;
-            var $fileUplodBtn = $("#udf-fileUpload");
+            var $fileUplodBtn = $("#udf-upload-submit");
             var $fnUpload = $("#udf-fnUpload");
             var hasToggleBtn = false;
 

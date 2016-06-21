@@ -243,6 +243,7 @@ module.exports = {
         'deselectAll': 'deselect all',
         'refresh': 'refresh tables',
         'filterOrphan': 'Filter Orphaned Table',
+        'ChooseFile': 'Choose File',
         'UDF': 'User Defined Function',
         'udfWrite': 'Write your function',
         'udfUpload': 'Upload your script',
