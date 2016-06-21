@@ -652,7 +652,8 @@ window.xcFunction = (function($, xcFunction) {
             var noAlert;
             // if error is that export name already in use and modal is still
             // visible, then show a statusbox next to the name field
-            if (error && (error.status === StatusT.StatusDsODBCTableExists ||
+            if (error && error.status != null &&
+                (error.status === StatusT.StatusDsODBCTableExists ||
                 error.status === StatusT.StatusExist ||
                 error.status === StatusT.StatusExportSFFileExists) &&
                 $('#exportName:visible').length !== 0) {

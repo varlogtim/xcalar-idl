@@ -686,8 +686,10 @@ function XcalarExport(tableName, exportName, targetName, numColumns,
                     exportName += ".csv";
                     specInput.sfInput.fileName = exportName;
                     specInput.sfInput.formatArgs.csv = new ExInitExportCSVArgsT();
-                    specInput.sfInput.formatArgs.csv.fieldDelim = gExportFDelim;
-                    specInput.sfInput.formatArgs.csv.recordDelim = gExportRDelim;
+                    specInput.sfInput.formatArgs.csv.fieldDelim =
+                                                    options.csvArgs.fieldDelim;
+                    specInput.sfInput.formatArgs.csv.recordDelim =
+                                                    options.csvArgs.recordDelim;
                 } else if (options.format === DfFormatTypeT.DfFormatSql) {
                     exportName += ".sql";
                     specInput.sfInput.fileName = exportName;
