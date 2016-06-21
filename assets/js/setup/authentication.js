@@ -52,15 +52,28 @@ window.Authentication = (function(jQuery, Authentication) {
     };
 
     function generateHashTag() {
-        // 3111 = 51 * 61, possibility
-        // Caps and small O removed due to GUI-4256
-        var str = "0123456789abcedfghijklmnpqrstuvwxyzABCDEFGHIJKLMNPQRSTUVWXYZ";
+        // 2891 = 49 * 59, possibility
+        // Caps and small O, caps I removed due to GUI-4256
+        var str = "0123456789abcedfghijklmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ";
         // index1 should not include number
         // (if hashId="12", bind to data-id, it may return number 12)
-        var index1 = Math.floor(Math.random() * 51) + 10;
-        var index2 = Math.floor(Math.random() * 61);
+        var numDigits = 2; // This number needs to increase as we have more
+        // sessions to reduce the chance of collision
+        var probability = [25, 190]; // Birthday Paradox
+        var numUsers = 0; // XXX Ask Cheng
+        for (var i = 0; i<probability.length; i++) {
+            if (numUsers > probability[i]) {
+                numDigits++;
+            }
+        }
 
-        return (str.charAt(index1) + str.charAt(index2));
+        var hashTag = str.charAt(Math.floor(Math.random() * str.length - 10) +
+                      10);
+        for (var i = 0; i<numDigits-1; i++) {
+            hashTag += str.charAt(Math.floor(Math.random() * str.length));
+        }
+
+        return (hashTag);
     }
 
     return (Authentication);
