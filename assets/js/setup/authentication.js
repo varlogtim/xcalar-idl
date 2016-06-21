@@ -52,12 +52,13 @@ window.Authentication = (function(jQuery, Authentication) {
     };
 
     function generateHashTag() {
-        // 3844 = 52 * 62, possibility
-        var str = "0123456789abcedfghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        // 3111 = 51 * 61, possibility
+        // Caps and small O removed due to GUI-4256
+        var str = "0123456789abcedfghijklmnpqrstuvwxyzABCDEFGHIJKLMNPQRSTUVWXYZ";
         // index1 should not include number
         // (if hashId="12", bind to data-id, it may return number 12)
-        var index1 = Math.floor(Math.random() * 52) + 10;
-        var index2 = Math.floor(Math.random() * 62);
+        var index1 = Math.floor(Math.random() * 51) + 10;
+        var index2 = Math.floor(Math.random() * 61);
 
         return (str.charAt(index1) + str.charAt(index2));
     }

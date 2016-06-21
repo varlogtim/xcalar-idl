@@ -363,7 +363,7 @@ module.exports = {
         'IN': 'IN',
         'OUT': 'OUT',
         'Format': 'Format',
-        'Protocol': 'Prtocol',
+        'Protocol': 'Protocol',
     },
 
     // keep in sync with the FileProtocol in enums.js
