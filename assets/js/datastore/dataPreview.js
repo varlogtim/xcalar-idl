@@ -312,7 +312,7 @@ window.DataPreview = (function($, DataPreview) {
 
     // load a dataset
     DataPreview.load = function() {
-        var loadURL = $("#filePath").val().trim();
+        var loadURL = $("#preview-url").text().trim();
         var dsName  = $("#fileName").val().trim();
 
         loadHelper()
