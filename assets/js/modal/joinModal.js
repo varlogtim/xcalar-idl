@@ -190,6 +190,11 @@ window.JoinModal = (function($, JoinModal) {
             }
         });
 
+        // toggle keep tables
+        $joinModal.find('.keepTablesCBWrap').click(function() {
+            $(this).find(".checkbox").toggleClass("checked");
+        });
+
         // listener for toggle mutli clause section
         $multiJoinBtn.on("click", function() {
             var $activeBox = $multiJoinBtn.find(".offOnBox.active");
@@ -298,6 +303,13 @@ window.JoinModal = (function($, JoinModal) {
 
         addModalTabListeners($leftJoinTable, true);
         addModalTabListeners($rightJoinTable, false);
+    };
+
+    JoinModal.restore = function() {
+        var keepJoinTables = UserSettings.getPreference().keepJoinTables;
+        if (keepJoinTables) {
+            $joinModal.find('.keepTablesCBWrap .checkbox').addClass('checked');
+        }
     };
 
     JoinModal.show = function(tableId, colNum) {
@@ -456,11 +468,12 @@ window.JoinModal = (function($, JoinModal) {
             lCol.getType() === rCol.getType()) {
             resetJoinTables();
             // XXX to implement UI option to keep tables
-            // var options = {
-            //     keepTables: true
-            // };
+            var options = {
+                keepTables: $joinModal.find('.keepTablesCBWrap')
+                                      .find('.checkbox').hasClass('checked')
+            };
             xcFunction.join([lColNum], lTableId, [rColNum], rTableId,
-                            joinType, newTableName);
+                            joinType, newTableName, options);
             return true;
         } else {
             showErrorTooltip($rightCol.find(".colPadding"), {

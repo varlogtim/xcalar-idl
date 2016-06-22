@@ -66,34 +66,51 @@ module.exports = function(grunt) {
 
     prettify: prettifyOptions,
 
-    watch: {
-      render: {
-        files: ['site/**/*.html', '!' + tmpDest + '/index.html'],
+    customWatch: {
+      normal: {
+        files: ['site/**/*.html', '!' + tmpDest + '/index.html', 'Gruntfile.js', 'package.json'],
         tasks: ['includes', 'template', 'clean', 'tags', 'prettify'],
         options: {
           atBegin: true,
         }
       },
-      grunt: {
-        files: ['Gruntfile.js', 'package.json']
+      withReload: {
+        options: {
+          livereload: true
+        },
+        files: ['assets/stylesheets/css/**/*.css', 'assets/js/**/*.js', 'index.html']
       }
-    }
+    },
+    concurrent: {
+            options: {
+                logConcurrentOutput: true
+            },
+            set1: ['customWatch:withReload', 'customWatch:normal'],
+        },
+
   });
 
   grunt.loadNpmTasks('grunt-script-link-tags');
+
   grunt.loadNpmTasks('grunt-contrib-watch');
   grunt.loadNpmTasks('grunt-includes');
   grunt.loadNpmTasks('grunt-contrib-clean');
   grunt.loadNpmTasks('grunt-prettify');
+  grunt.loadNpmTasks('grunt-concurrent');
 
   grunt.registerTask('html', ['includes']);
   grunt.registerTask('template', function() {
     render(tmpDest, destMap);
   });
 
+  grunt.renameTask('watch', 'customWatch');
+  grunt.registerTask("watch", ['customWatch:normal']);
+  grunt.registerTask("reload", ['concurrent:set1']);
+
+
   // used for prod
   grunt.registerTask("render", ['html', 'template', 'clean', 'prettify']);
 
   // used for dev
-  grunt.registerTask("dev", ['html', 'template', 'clean', 'tags', 'prettify']);
+  grunt.registerTask("dev", ['html', 'template', 'clean', 'tags','prettify']);
 };

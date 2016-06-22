@@ -512,6 +512,8 @@ module.exports = {
         'header': 'Join Tables',
         'instr': 'First, select the column from the left table that you would like to join on. <br> Next, select the table followed by the column from the right that you would like to join on.',
         'NewTableName': 'New Table Name',
+        'keepTables': 'Keep Tables',
+        'keepTablesHint': 'Keep both left and right tables and append new table to the current worksheet',
         'InnerJoin': 'Inner Join',
         'LeftJoin': 'Left Outer Join',
         'RightJoin': 'Right Outer Join',

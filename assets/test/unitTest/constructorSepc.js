@@ -288,13 +288,15 @@ describe('Constructor Test', function() {
     it('UserPref should be a constructor', function() {
         var userPref = new UserPref();
         expect(userPref).to.be.an('object');
-        expect(Object.keys(userPref).length).to.equal(4);
+        expect(Object.keys(userPref).length).to.equal(5);
 
         expect(userPref).to.have.property('datasetListView');
         expect(userPref).to.have.property('browserListView');
         expect(userPref).to.have.property('lastRightSideBar')
         .and.to.be.null;
         expect(userPref).to.have.property('activeWorksheet')
+        .and.to.be.null;
+         expect(userPref).to.have.property('keepJoinTables')
         .and.to.be.null;
 
         userPref.update();
@@ -699,7 +701,7 @@ describe('Constructor Test', function() {
 
         it('ProfileStatsInfo should be a constructor', function() {
             // case 1
-            var statsInfo = new ProfileStatsInfo({'unsorted': true}); 
+            var statsInfo = new ProfileStatsInfo({'unsorted': true});
             expect(statsInfo).to.be.an('object');
             expect(Object.keys(statsInfo).length).to.equal(1);
             expect(statsInfo).to.have.property('unsorted').and.to.be.true;

@@ -991,7 +991,7 @@
         #joinRoundedInput {
             float: left;
             margin: 16px 15px 0 0;
-            .size(@width: 240px, @height: 25px);
+            .size(@width: 220px, @height: 25px);
             .font(@weight: bold, @size: 12px, @line-height: 25px);
             &:focus {
                 background-color: @color-background-white;
@@ -1002,7 +1002,7 @@
         }
 
         #joinType {
-            .styleDropDownList(201px, 25px);
+            .styleDropDownList(160px, 25px);
             margin-top: 16px;
             z-index: 12;
 
@@ -1019,8 +1019,28 @@
             }
         }
 
+        .keepTablesCBWrap {
+            display: inline-block;
+            margin-left: 25px;
+            font-weight: 600;
+            &> div {
+                display: inline-block;
+            }
+            .checkbox {
+                position: relative;
+                top: 1px;
+            }
+            .text {
+                margin-left: 5px;
+            }
+            .qMark {
+                position: relative;
+                top: 2px;
+            }
+        }
+
         #multiJoinBtn {
-            .position(relative, @right: 25px);
+            .position(relative, @right: 15px);
             .size(@width: 50px, @height: 25px);
             .vertical-align;
             line-height: 25px;
@@ -1281,6 +1301,7 @@
             position: absolute;
             z-index: 11;
             font-size: 12px;
+            .transition(width 0.5s linear);
 
             .text {
                 width: ~"calc(100% - 35px)";
@@ -1330,6 +1351,13 @@
                         .transition(~"visibility 0s linear 0.6s");
                     }
                 }
+
+
+            }
+
+            .joinTableList {
+                width: ~"calc(100% - 150px)";
+                min-width: 130px;
             }
 
             #leftJoin, #rightJoin {

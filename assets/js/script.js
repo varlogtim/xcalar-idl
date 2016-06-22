@@ -100,8 +100,11 @@ window.StartManager = (function(StartManager, $) {
             documentReadyGeneralFunction();
             RightSideBar.initialize();
             WorkbookModal.initialize();
-            setupExtensions();
+            // restore user settings
+            JoinModal.restore();
+            FileBrowser.restore();
 
+            setupExtensions();
             WSManager.focusOnWorksheet();
         })
         .then(function() {
@@ -213,12 +216,13 @@ window.StartManager = (function(StartManager, $) {
         }
     }
 
+    // excludes alert modal wish is set up earlier
     function setupModals() {
+        Alert.setup();
         JSONModal.setup();
         FileBrowser.setup();
         Profile.setup();
         ExportModal.setup();
-        Alert.setup();
         JoinModal.setup();
         AggModal.setup();
         OperationsModal.setup();

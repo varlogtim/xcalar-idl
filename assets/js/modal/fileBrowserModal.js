@@ -173,12 +173,6 @@ window.FileBrowser = (function($, FileBrowser) {
             toggleView();
         });
 
-        // restore list view if saved
-        var preference = UserSettings.getPreference();
-        if (preference.browserListView) {
-            toggleView(true, true);
-        }
-
         // click on title to sort
         $fileBrowserMain.on("click", ".title", function(event) {
             var $title = $(this);
@@ -302,6 +296,14 @@ window.FileBrowser = (function($, FileBrowser) {
 
         fileBrowserScrolling();
 
+    };
+
+    FileBrowser.restore = function() {
+        // restore list view if saved
+        var preference = UserSettings.getPreference();
+        if (preference.browserListView) {
+            toggleView(true, true);
+        }
     };
 
     function fileBrowserScrolling() {

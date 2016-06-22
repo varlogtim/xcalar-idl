@@ -484,6 +484,7 @@ function UserPref(options) {
     this.browserListView = options.browserListView || false;
     this.lastRightSideBar = options.lastRightSideBar || null;
     this.activeWorksheet = options.activeWorksheet || null;
+    this.keepJoinTables = options.keepJoinTables || false;
 
     return this;
 }
@@ -492,9 +493,12 @@ UserPref.prototype = {
     'update': function() {
         this.datasetListView = $('#dataViewBtn').hasClass('listView');
         this.browserListView = $('#fileBrowserGridView').hasClass('listView');
-        this.lastRightSideBar = $('#rightSideBar .rightBarSection.lastOpen').attr('id');
+        this.lastRightSideBar = $('#rightSideBar .rightBarSection.lastOpen')
+                                .attr('id');
         this.activeWorksheet = WSManager.getActiveWS();
-
+        this.keepJoinTables = $('#joinModal').find('.keepTablesCBWrap')
+                                             .find('.checkbox')
+                                             .hasClass('checked');
         return this;
     }
 };

@@ -160,7 +160,10 @@ window.KVStore = (function($, KVStore) {
                 console.error("Expect gInfosE to be an object but it's a " +
                               typeof(gInfosE) + " instead. Not restoring.");
             }
-            return KVStore.getAndParse(KVStore.gStorageKey, gKVScope.META)
+            return UserSettings.restore()
+            .then(function() {
+                return KVStore.getAndParse(KVStore.gStorageKey, gKVScope.META);
+            })
             .then(function(gInfosPart) {
                 var isEmpty = (gInfosPart == null);
                 gInfosPart = gInfosPart || {};
@@ -189,9 +192,6 @@ window.KVStore = (function($, KVStore) {
                     console.error(error);
                     return PromiseHelper.reject(error);
                 }
-            })
-            .then(function() {
-                return UserSettings.restore();
             })
             .then(function() {
                 // KVStore.commit(true);
