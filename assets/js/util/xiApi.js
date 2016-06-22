@@ -301,6 +301,13 @@ window.XIApi = (function(XIApi, $) {
         return deferred.promise();
     };
 
+    XIApi.getNumRows = function(tableName) {
+        if (tableName === null) {
+            return PromiseHelper.reject("Invalid args in getNumRows");
+        }
+        return (XcalarGetTableCount(tableName));
+    };
+
     XIApi.fetchData = function(tableName, startRowNum, rowsToFetch) {
         if (tableName === null || startRowNum === null ||
             rowsToFetch === null || rowsToFetch <= 0)

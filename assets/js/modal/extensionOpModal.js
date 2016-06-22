@@ -161,12 +161,34 @@ window.ExtensionOpModal = (function(ExtensionOpModal, $) {
     }
 
     function checkArg(argInfo, $input) {
-        var arg = $input.val().trim();
+        var arg;
         var argType = argInfo.type;
         var typeCheck = argInfo.typeCheck || {};
         var error;
 
-        if (arg === "" && !typeCheck.allowEmpty) {
+        if (argType !== "string") {
+            arg = $input.val().trim();
+        } else {
+            arg = $input.val(); // We cannot trim in this case
+        }
+
+        if (typeCheck.allowEmpty) {
+            if (argType === "string") {
+                return ({
+                    "valid" : true,
+                    "arg"   : arg
+                });
+            } else {
+                if (arg.length === 0) {
+                    return ({
+                        "valid": true,
+                        "arg"  : undefined
+                    });
+                }
+            }
+        }
+
+        if (arg === "") {
             StatusBox.show(ErrTStr.NoEmpty, $input);
             return { "vaild": false };
         }

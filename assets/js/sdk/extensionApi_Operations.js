@@ -162,6 +162,11 @@ window.XcSDK.Extension.prototype = (function() {
             return deferred.promise();
         },
 
+        "getNumRows": function(tableName) {
+            return XIApi.getNumRows(tableName);
+        },
+
+        // Row numbers start at 1
         "fetchData": function(tableName, startRowNum, rowsToFetch) {
             return XIApi.fetchData(tableName, startRowNum, rowsToFetch);
         },
