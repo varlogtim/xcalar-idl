@@ -425,7 +425,6 @@ module.exports = {
 
     dsPreview: {
         'Previewing': 'Previewing',
-        'minize': 'Toggle minimize',
         'LOAD': 'DATASET IS LOADING',
         'RmHighlight': 'Remove highlights',
         'ApplyHighlight': 'Apply highlighted characters as delimiter',

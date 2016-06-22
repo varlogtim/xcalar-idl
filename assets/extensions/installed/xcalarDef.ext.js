@@ -235,7 +235,7 @@ window.UExtXcalarDef = (function(UExtXcalarDef, $) {
                 }
 
                 for (i = 0; i < lead; i++) {
-                    newTableName = self.createTableName(null, "_chain");
+                    newTableName = self.createTableName(null, "_window");
                     rTable = tableNames.lead[i];
                     rCol = genUniqColNames.lead[i];
                     finalTableName = newTableName;

@@ -419,19 +419,6 @@ function dataPreviewModuleTest() {
             expect($previewTable.find(".undo-promote").length).to.equal(0);
         });
 
-        it("Should toggle minimize", function() {
-            var $previeWrap = $("#dsPreviewWrap");
-
-            // default is middleSize
-            expect($previeWrap.hasClass("fullSize")).to.be.false;
-
-            // can toggle
-            DataPreview.__testOnly__.toggleMinimize();
-            expect($previeWrap.hasClass("fullSize")).to.be.true;
-            DataPreview.__testOnly__.toggleMinimize();
-            expect($previeWrap.hasClass("fullSize")).to.be.false;
-        });
-
         it("Should clear preview table", function() {
             var data = [["h", ",", "i"]];
             DataPreview.__testOnly__.set(",", true, "", data);

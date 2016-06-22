@@ -79,6 +79,12 @@ module.exports = function(grunt) {
           livereload: true
         },
         files: ['assets/stylesheets/css/**/*.css', 'assets/js/**/*.js', 'index.html']
+      },
+      withReloadCssOnly: {
+        options: {
+          livereload: true
+        },
+        files: ['assets/stylesheets/css/**/*.css']
       }
     },
     concurrent: {
@@ -86,6 +92,7 @@ module.exports = function(grunt) {
                 logConcurrentOutput: true
             },
             set1: ['customWatch:withReload', 'customWatch:normal'],
+            set2: ['customWatch:withReloadCssOnly', 'customWatch:normal'],
         },
 
   });
@@ -106,7 +113,7 @@ module.exports = function(grunt) {
   grunt.renameTask('watch', 'customWatch');
   grunt.registerTask("watch", ['customWatch:normal']);
   grunt.registerTask("reload", ['concurrent:set1']);
-
+  grunt.registerTask("reloadCss", ['concurrent:set2']);
 
   // used for prod
   grunt.registerTask("render", ['html', 'template', 'clean', 'prettify']);

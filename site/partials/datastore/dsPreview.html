@@ -3,22 +3,20 @@
   <div class="container">
     <div class="infoSection">
       <!-- Info Section 1 -->
-      <div class="infoPart1">
-        <!-- minimize -->
-        <div id="preview-minimize" class="minimize" title="<%= dicts.dsPreview.minize %>" data-toggle="tooltip" data-placement="top" data-container="body">
-          <div class="divider"></div>
-          <div class="divider"></div>
-          <div class="divider"></div>
-        </div>
-      </div>
-      <!-- Info Section 2 -->
-      <div class="infoPart2">
+      <div class="infoPart">
         <section class="titleSection textOverflowOneLine">
           <span class="title"><%= dicts.dsPreview.Previewing %>:</span>
           <span id="preview-url" class="text"></span>
           <span id="preview-udf" class="title"><%= dicts.common.UDF %>:
             <span class="text"></span>
           </span>
+        </section>
+      </div>
+      <!-- Info Section 2 -->
+      <div class="infoPart">
+        <section class="inputSection">
+          <span class="title"><%= dicts.dsForm.DSName %>:</span>
+          <input id="preview-dsName" type="text" spellcheck="false">
         </section>
         <section class="btnSection">
           <button id="preview-close" class="btn btnMid btn-cancel close loadHidden" type="button"><%= dicts.common.EXIT %></button>

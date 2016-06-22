@@ -148,39 +148,6 @@ input {
 .dataStoreForm {
     height: ~"calc(100% - 93px)";
     overflow: auto;
-
-    &.previewMode {
-        height: 151px !important;
-
-        .dataStoreFormTop {
-            height: 151px !important;
-        }
-
-        .dataStoreFormBottom {
-            display: none;
-        }
-
-        .formSection {
-            display: none !important;
-
-            &.filePath, &.fileName {
-                display: block !important;
-            }
-
-            &.filePath {
-                .row, .btn {
-                    display: none !important;
-                }
-
-                .row.filePathRow {
-                    display: block !important;
-                }
-
-                pointer-events: none;
-                opacity: 0.7;
-            }
-        }
-    }
 }
 // Top Form Section
 .dataStoreFormTop {
@@ -379,18 +346,14 @@ input {
 #dsPreviewWrap {
     padding: 10px 10px 0 10px;
     background-color: @color-background-topForm;
-    .size(@width: 100%, @height:  ~"calc(100% - 244px)");
-    .position(absolute, @top: 244px);
-    .transition(~"top 0.7s, height 0.7s");
+    .size(@width: 100%, @height: 0, @min-width: 600px);
+    .position(absolute, @top: 100%);
+    .transition(~"top 1s, height 1s");
 
     &.fullSize {
         .size(@height: ~"calc(100% - 7px)");
         .position(absolute, @top: 7px);
         padding: 0px 10px 0 10px;
-    }
-
-    &.smallSize {
-        top: 100%;
     }
 
     &.hidden {
@@ -415,49 +378,48 @@ input {
     }
 
     .infoSection {
-        .size(@height: 50px);
-        padding-bottom: 10px;
+        .size(@height: 70px);
+        padding-top: 5px;
+        padding-bottom: 5px;
         background-color: @color-background-topForm;
         box-shadow: 0px 3px 0px 0px rgba(0, 0, 0, 0.3);
 
-        .infoPart1 {
-            .size(@height: 15px);
-        }
-
-        .infoPart2 {
+        .infoPart {
             .size(@height: 25px);
-        }
+            margin-top: 5px;
 
-        .minimize {
-            .size(@width: 75px, @height: 10px);
-            .horizontal-align;
-            top: 3px;
-            cursor: pointer;
-
-            > div {
-                .size(@width: 100%, @height: 2px);
-                border-top: 1px solid @color-text-signout-darkGray;
-                margin-top: 2px;
-                background-color: @color-white;
+            &:first-child {
+                margin-top: 0;
             }
         }
 
+        .title {
+            .font(@size: 14px, @weight: bold);
+        }
+
         .titleSection {
-            .size(@max-width: ~"calc(100% - 180px)", @height: 25px);
+            .size(@height: 22px);
             float: left;
-            line-height: 25px;
+            line-height: 22px;
 
-            .title {
-                .font(@size: 14px, @weight: bold);
-
-                &#preview-udf {
-                    margin-left: 5px;
-                }
+            #preview-udf {
+                margin-left: 5px;
             }
 
             .text {
                 margin-left: 5px;
                 .font(@color: @color-text-midGray, @weight: 600);
+            }
+        }
+
+        .inputSection {
+            .size(@width: ~"calc(100% - 180px)", @height: 25px);
+            float: left;
+            .input-box(@w: ~"calc(100% - 150px)", @h: 25px);
+
+            input {
+                .size(@max-width: 350px);
+                margin-left: 5px;
             }
         }
 
@@ -595,7 +557,7 @@ input {
     }
 
     .previewSection {
-        .size(@width: 100%, @height: ~"calc(100% - 80px)");
+        .size(@width: 100%, @height: ~"calc(100% - 100px)");
         overflow-y: hidden;
         overflow-x: auto;
     }

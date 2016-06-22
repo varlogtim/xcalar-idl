@@ -94,7 +94,7 @@ window.DatastoreForm = (function($, DatastoreForm) {
             $(this).blur();
 
             var protocol = getProtocol();
-            var path = $filePath.val();
+            var path = getFilePath();
             if (isValidPathToBrowse(protocol, path)) {
                 FileBrowser.show(protocol, path);
             }
@@ -105,7 +105,7 @@ window.DatastoreForm = (function($, DatastoreForm) {
             $(this).blur();
 
             var protocol = getProtocol();
-            var path = $filePath.val();
+            var path = getFilePath();
             if (!isValidPathToBrowse(protocol, path)) {
                 return;
             }
@@ -238,17 +238,11 @@ window.DatastoreForm = (function($, DatastoreForm) {
         resetForm();
     };
 
-    DatastoreForm.validate = function() {
-        var $fileName = $("#fileName");
-        var protocol = getProtocol();
-        var path = $filePath.val().trim();
+    DatastoreForm.validate = function($fileName) {
+        $fileName = $fileName || $("#fileName");
         var fileName = $fileName.val().trim();
         // these are the ones that need to check
         // from both data form and data preview
-        if (!isValidPathToBrowse(protocol, path)) {
-            return false;
-        }
-
         var isValid = xcHelper.validate([
             {
                 "$selector": $fileName
@@ -298,14 +292,21 @@ window.DatastoreForm = (function($, DatastoreForm) {
         }
 
         if (!isValid) {
-            deferred.reject("Checking Invalid");
-            return deferred.promise();
+            return deferred.reject("Checking Invalid").promise();
         }
 
         var $fileName = $("#fileName");
         var dsName = $fileName.val().trim();
-        var loadURL = getProtocol() + $filePath.val().trim();
+        var protocol = getProtocol();
+        var path = getFilePath();
+        var loadURL = protocol + path;
+
+        if (!isValidPathToBrowse(protocol, path)) {
+            return deferred.reject("Checking Invalid").promise();
+        }
+
         var udfCheckRes = checkUDF();
+
         if (!udfCheckRes.isValid) {
             return deferred.reject("Checking Invalid").promise();
         }
@@ -471,7 +472,6 @@ window.DatastoreForm = (function($, DatastoreForm) {
     function isValidToPreview() {
         // We use the format to check instead of useing suffix of the file
         // this is in case user wrongly name the file and could not preview
-        var path = $filePath.val();
         var format = formatMap[$formatText.data("format")];
         var options = {"type": "info"};
 
@@ -480,7 +480,7 @@ window.DatastoreForm = (function($, DatastoreForm) {
             return false;
         }
 
-        if (path.trim() === "") {
+        if (getFilePath() === "") {
             StatusBox.show(ErrTStr.NoEmpty, $filePath, false, options);
             return false;
         } else if (format === "JSON") {
@@ -555,6 +555,10 @@ window.DatastoreForm = (function($, DatastoreForm) {
 
     function setProtocol(protocol) {
         $("#fileProtocol input").val(protocol);
+    }
+
+    function getFilePath() {
+        return $filePath.val().trim();
     }
 
     function resetDelimiter() {
