@@ -24794,50 +24794,6 @@ StatusT = {
   'StatusInputTooLarge' : 374,
   'StatusConfigInvalid' : 375,
   'StatusInvalNodeId' : 376,
-<<<<<<< HEAD
-  'StatusDsFallocateNotSupported' : 377,
-  'StatusNoExtension' : 378,
-  'StatusExportTargetNotSupported' : 379,
-  'StatusExportInvalidCreateRule' : 380,
-  'StatusExportNoColumns' : 381,
-  'StatusExportTooManyColumns' : 382,
-  'StatusExportColumnNameTooLong' : 383,
-  'StatusExportEmptyResultSet' : 384,
-  'StatusExportUnresolvedSchema' : 385,
-  'StatusExportSFFileExists' : 386,
-  'StatusExportSFFileDoesntExist' : 387,
-  'StatusMonPortInvalid' : 388,
-  'StatusExportSFFileDirDuplicate' : 389,
-  'StatusExportSFFileCorrupted' : 390,
-  'StatusExportSFFileRuleNeedsNewFile' : 391,
-  'StatusExportSFFileRuleSizeTooSmall' : 392,
-  'StatusExportSFSingleSplitConflict' : 393,
-  'StatusExportSFAppendSepConflict' : 394,
-  'StatusExportSFInvalidHeaderType' : 395,
-  'StatusExportSFInvalidSplitType' : 396,
-  'StatusVersionMismatch' : 397,
-  'StatusFileCorrupt' : 398,
-  'StatusApiFunctionInvalid' : 399,
-  'StatusLibArchiveError' : 400,
-  'StatusSendSocketFail' : 401,
-  'StatusNodeSkipped' : 402,
-  'StatusDfCastTruncationOccurred' : 403,
-  'StatusEvalCastError' : 404,
-  'StatusLogUnaligned' : 405,
-  'StatusStrEncodingNotSupported' : 406,
-  'StatusShmsgInterfaceClosed' : 407,
-  'StatusOperationHasFinished' : 408,
-  'StatusOpstatisticsNotAvail' : 409,
-  'StatusRetinaParseError' : 410,
-  'StatusUdfModuleOverwrittenSuccessfully' : 411,
-  'StatusSupportFail' : 412,
-  'StatusShmsgPayloadTooLarge' : 413,
-  'StatusNoChild' : 414,
-  'StatusXdbMaxSgElemsExceeded' : 415,
-  'StatusAggregateResultNotFound' : 416,
-<<<<<<< HEAD
-  'StatusMaxRowSizeExceeded' : 417
-=======
   'StatusNoLocalNodes' : 377,
   'StatusDsFallocateNotSupported' : 378,
   'StatusNoExtension' : 379,
@@ -24882,12 +24838,6 @@ StatusT = {
   'StatusMaxRowSizeExceeded' : 418,
   'StatusInvalidDatasetName' : 419,
   'StatusMaxStatsGroupExceeded' : 420
->>>>>>> b6a2084... GUI-4099 Match latest trunk and also expose Udf Error status
-=======
-  'StatusMaxRowSizeExceeded' : 417,
-  'StatusInvalidDatasetName' : 418,
-  'StatusMaxStatsGroupExceeded' : 419
->>>>>>> 40921b1... GUI-4052 Update thrift for 0.9.9.9
 };
 StatusTStr = {0 : 'Success',
 1 : 'Operation not permitted',
@@ -25266,50 +25216,6 @@ StatusTStr = {0 : 'Success',
 374 : 'Input is too large',
 375 : 'Failed to parse Xcalar configuration file',
 376 : 'The node ID is invalid',
-<<<<<<< HEAD
-377 : 'Data source type does not support fallocate',
-378 : 'No file extension',
-379 : 'Export target is not supported',
-380 : 'Invalid creation rule specified',
-381 : 'No columns specified for export',
-382 : 'Too many columns specified for export',
-383 : 'Specified column name too long',
-384 : 'Empty result set cannot be exported',
-385 : 'Export requires a known schema',
-386 : 'Export file already exists',
-387 : 'Export file doesn\'t exist',
-388 : 'Monitor port number is invalid',
-389 : 'Export file and directory both exist with the same base name',
-390 : 'Files were corrupted during export',
-391 : 'Export file requires a new file be created',
-392 : 'Specified max export file size too small',
-393 : 'Cannot export to a single file while specifying header should be separate',
-394 : 'Cannot export append with a separate header file',
-395 : 'Invalid header type specified',
-396 : 'Invalid split type specified',
-397 : 'File version is unsupported',
-398 : 'Detected a file corruption',
-399 : 'An invalid request was sent to Xcalar',
-400 : 'Error occurred when using libarchive',
-401 : 'Failed to initialize send socket',
-402 : 'Node was skipped due to a previous error',
-403 : 'Field value truncated during cast',
-404 : 'Cast operation failed',
-405 : 'Log buffer is not aligned',
-406 : 'String encoding not supported',
-407 : 'Messaging interface with other process has been closed',
-408 : 'Operation has finished',
-409 : 'Operation statistics are not avaiable',
-410 : 'Failed to parse retina file',
-411 : 'Successfully overwrote UDF module',
-412 : 'Support bundle generation failed',
-413 : 'Message payload too large to fit within message',
-414 : 'No childnode is available to process the operation',
-415 : 'Number of pages in an Xdb slot exceeds max extent sg elements',
-416 : 'Could not find aggregate result',
-<<<<<<< HEAD
-417 : 'Maximum row size was exceeded'
-=======
 377 : 'There are no local nodes in the confiruation file',
 378 : 'Data source type does not support fallocate',
 379 : 'No file extension',
@@ -25354,12 +25260,6 @@ StatusTStr = {0 : 'Success',
 418 : 'Maximum row size was exceeded',
 419 : 'Invalid dataset name provided',
 420 : 'Max statistics group size was exceeded'
->>>>>>> b6a2084... GUI-4099 Match latest trunk and also expose Udf Error status
-=======
-417 : 'Maximum row size was exceeded',
-418 : 'Invalid dataset name provided',
-419 : 'Max statistics group size was exceeded'
->>>>>>> 40921b1... GUI-4052 Update thrift for 0.9.9.9
 };
 //
 // Autogenerated by Thrift Compiler (0.9.2)
@@ -26414,18 +26314,11 @@ function xcalarQueryState(thriftHandle, queryName) {
     return (deferred.promise());
 }
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
 function xcalarGetOpStatsWorkItem(dstDagName) {
-=======
-function xcalarGetOpStatsWorkItem(name) {
->>>>>>> 40921b1... GUI-4052 Update thrift for 0.9.9.9
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
 
     workItem.api = XcalarApisT.XcalarApiGetOpStats;
-<<<<<<< HEAD
     workItem.input.dagTableNameInput = dstDagName;
     return (workItem);
 }
@@ -26440,32 +26333,13 @@ function xcalarApiGetOpStats(thriftHandle, dstDagName) {
     .then(function(result) {
         var status = result.output.hdr.status;
         var opStatsOutput = result.output.outputResult.opStatsOutput;
-=======
-    workItem.input.dagTableNameInput = name;
-    return (workItem);
-}
-
-function xcalarApiGetOpStats(thriftHandle, name) {
-    var deferred = jQuery.Deferred();
-    if (verbose) {
-        console.log("xcalarApiGetOpStats(name = " + name + ")");
-    }
-    var workItem = xcalarGetOpStatsWorkItem(name);
-    thriftHandle.client.queueWorkAsync(workItem)
-    .then(function(result) {
-        var status = result.output.hdr.status;
->>>>>>> 40921b1... GUI-4052 Update thrift for 0.9.9.9
         if (result.jobStatus != StatusT.StatusOk) {
             status = result.jobStatus;
         }
         if (status != StatusT.StatusOk) {
             deferred.reject(status);
         }
-<<<<<<< HEAD
         deferred.resolve(opStatsOutput);
-=======
-        deferred.resolve(status);
->>>>>>> 40921b1... GUI-4052 Update thrift for 0.9.9.9
     })
     .fail(function(error) {
         console.log("xcalarApiGetOpStats() caught exception: ", error);
@@ -26475,16 +26349,11 @@ function xcalarApiGetOpStats(thriftHandle, name) {
     return (deferred.promise());
 }
 
-<<<<<<< HEAD
 function xcalarCancellationWorkItem(dstDagName) {
-=======
-function xcalarCancellationWorkItem(name) {
->>>>>>> 40921b1... GUI-4052 Update thrift for 0.9.9.9
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
 
     workItem.api = XcalarApisT.XcalarApiCancelOp;
-<<<<<<< HEAD
     workItem.input.dagTableNameInput = dstDagName;
     return (workItem);
 }
@@ -26495,18 +26364,6 @@ function xcalarApiCancelOp(thriftHandle, dstDagName) {
         console.log("xcalarApiCancelOp(dstDagName = " + dstDagName + ")");
     }
     var workItem = xcalarCancellationWorkItem(dstDagName);
-=======
-    workItem.input.dagTableNameInput = name;
-    return (workItem);
-}
-
-function xcalarApiCancelOp(thriftHandle, name) {
-    var deferred = jQuery.Deferred();
-    if (verbose) {
-        console.log("xcalarApiCancelOp(name = " + name + ")");
-    }
-    var workItem = xcalarCancellationWorkItem(name);
->>>>>>> 40921b1... GUI-4052 Update thrift for 0.9.9.9
     thriftHandle.client.queueWorkAsync(workItem)
     .then(function(result) {
         var status = result.output.hdr.status;
@@ -26526,10 +26383,6 @@ function xcalarApiCancelOp(thriftHandle, name) {
     return (deferred.promise());
 }
 
-<<<<<<< HEAD
->>>>>>> b6a2084... GUI-4099 Match latest trunk and also expose Udf Error status
-=======
->>>>>>> 40921b1... GUI-4052 Update thrift for 0.9.9.9
 function xcalarDagWorkItem(tableName) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();

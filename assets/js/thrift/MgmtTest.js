@@ -1,7 +1,7 @@
 // Scroll all the way down to add test cases
 // Or search for function addTestCase
 
-+function(undefined) {
+(function($, TestSuite) {
     "use strict";
 
     if (!jQuery || typeof jQuery.Deferred !== "function") {
@@ -49,9 +49,8 @@
     ,   retinaExportParamStr
     ,   paramInput;
 
-    testCases = new Array();
-
-    // For start nodes test
+    testCases = [];
+   // For start nodes test
     var startNodesState;
     var system = require('system');
     var fs = require('fs');
@@ -67,8 +66,80 @@
         }
     });
 
-    function startTest(deferred, testNameLocal, currentTestNumberLocal, timeout) {
+    function TestObj(options) {
+        this.deferred = options.deferred || jQuery.Deferred();
+        if (options.hasOwnProperty("currentTestNumber")) {
+            this.currentTestNumber = options.currentTestNumber;
+        } else {
+            this.currentTestNumber = -1;
+        }
+        this.testName = options.testName || "Unnamed test";
+        this.testFn = options.testFn;
+        this.timeout = options.timeout || defaultTimeout;
+        if (options.hasOwnProperty("testCaseEnabled")) {
+            this.testCaseEnabled = options.testCaseEnabled;
+        } else {
+            this.testCaseEnabled = TestCaseEnabled;
+        }
+        this.witness = options.witness;
+        return this;
     }
+
+    TestObj.prototype = {
+        "pass": function() {
+            if (this.deferred.state() == "pending") {
+                passes++;
+                console.log("ok " + this.currentTestNumber + " - Test \"" +
+                            this.testName + "\" passed");
+                this.deferred.resolve();
+            }
+        },
+        "fail": function(reason) {
+            if (this.deferred.state() == "pending") {
+                fails++;
+                console.log("Test " + this.testName + " failed -- " + reason);
+                console.log("not ok " + this.currentTestNumber + " - Test \"" +
+                            this.testName +
+                            "\" failed (" + reason + ")");
+                this.deferred.reject();
+            }
+        },
+        "skip": function() {
+            console.log("====== Skipping " + this.testName + " ======");
+            console.log("ok " + this.currentTestNumber + " - Test \"" +
+                        this.testName + "\" disabled # SKIP");
+            skips++;
+            if (disableIsPass) {
+                this.deferred.resolve();
+            } else {
+                this.deferred.reject();
+            }
+        },
+        "assert": function(statement, sucMsg, failMsg) {
+            if (!statement) {
+                var reason = "Assertion Failed!";
+                if (failMsg) {
+                    reason = "Assertion Failed! "+failMsg;
+                }
+                this.fail(reason);
+            } else {
+                if (sucMsg) {
+                    console.log(sucMsg);
+                }
+            }
+        },
+        "trivial": function(deferred) {
+            var self = this;
+            deferred
+            .then(function(retString) {
+                printResult(retString);
+                self.pass();
+            })
+            .fail(function(reason) {
+                self.fail(reason);
+            });
+        }
+    };
 
     function printResult(result) {
         if (result) {
@@ -76,46 +147,35 @@
         }
     }
 
-    function pass(deferred, testName, currentTestNumber)
-    {
-        if (deferred.state() == "pending") {
-            passes ++;
-            console.log("ok " + currentTestNumber + " - Test \"" + testName +
-                        "\" passed");
-            deferred.resolve();
-        }
+    function getDatasetCount(datasetName) {
+        var numRows = -1;
+        var deferred = jQuery.Deferred();
+        xcalarMakeResultSetFromDataset(thriftHandle, ".XcalarDS."+datasetName)
+        .then(function(ret) {
+            numRows = ret.numEntries;
+            console.log(JSON.stringify(ret));
+            return (xcalarFreeResultSet(thriftHandle, ret.resultSetId));
+        })
+        .then(function(ret) {
+            deferred.resolve(numRows);
+        })
+        .fail(function() {
+            deferred.reject("Failed to get dataset count");
+        });
+        return deferred.promise();
     }
 
-    function fail(deferred, testName, currentTestNumber, reason)
+    function addTestCase(testFn, testName, timeout, testCaseEnabled, witness)
     {
-        if (deferred.state() == "pending") {
-            fails ++;
-            console.log("Test " + testName + " failed -- " + reason);
-            console.log("not ok " + currentTestNumber + " - Test \"" + testName +
-                        "\" failed (" + reason + ")");
-            deferred.reject();
-        }
-    }
-
-    function skip(deferred, testName, currentTestNumber)
-    {
-        console.log("====== Skipping " + testName + " ======");
-        console.log("ok " + currentTestNumber + " - Test \"" + testName +
-                    "\" disabled # SKIP");
-        skips ++;
-        if (disableIsPass) {
-            deferred.resolve();
-        } else {
-            deferred.reject();
-        }
-    }
-
-    function addTestCase(testCases, testFn, testName, timeout, testCaseEnabled)
-    {
-        testCases[testCases.length] = {"testFn": testFn,
-                                       "testName": testName,
-                                       "timeout": timeout,
-                                       "testCaseEnabled": testCaseEnabled};
+        testCases.push(new TestObj({
+            "deferred": jQuery.Deferred(),
+            "currentTestNumber": testCases.length + 1,
+            "testName": testName,
+            "testFn": testFn,
+            "testCaseEnabled": testCaseEnabled,
+            "timeout": timeout,
+            "witness": witness
+        }));
     }
 
     function runTestSuite(testCases)
@@ -131,24 +191,28 @@
                 // Need to trap the value of testCase and ii
                 (function trapFn(testCase, currentTestNumber) {
                     return function() {
-                        var localDeferred = $.Deferred();
                         if (testCase.testCaseEnabled) {
-                            console.log("====================Test ", currentTestNumber, " Begin====================");
-                            console.log("Testing: ", testCase.testName, "                     ");
+                            console.log("====================Test ",
+                                        testCase.currentTestNumber,
+                                        " Begin====================");
+                            console.log("Testing: ", testCase.testName,
+                                        "                     ");
                             setTimeout(function() {
-                                if (localDeferred.state() == "pending") {
-                                    var reason = "Timed out after " + (testCase.timeout / 1000) + " seconds";
-                                    fail(localDeferred, testCase.testName, currentTestNumber, reason);
+                                if (testCase.deferred.state() == "pending") {
+                                    var reason = "Timed out after " +
+                                                 (testCase.timeout / 1000) +
+                                                 " seconds";
+                                    testCase.fail(reason);
                                 }
                             }, testCase.timeout);
 
-                            testCase.testFn(localDeferred, testCase.testName, currentTestNumber);
+                            testCase.testFn(testCase);
                         } else {
-                            skip(localDeferred, testCase.testName, currentTestNumber);
+                            testCase.skip();
                         }
 
-                        return localDeferred.promise();
-                    }
+                        return testCase.deferred.promise();
+                    };
                 })(testCases[ii], ii + 1) // Invoking trapFn
             );
         }
@@ -170,213 +234,233 @@
         initialDeferred.resolve();
     }
 
-    function testStartNodes(deferred, testName, currentTestNumber) {
-        xcalarStartNodes(thriftHandle, 4)
-        .done(function(result) {
-            printResult(result);
-            pass(deferred, testName, currentTestNumber);
-        })
-        .fail(function(reason) {
-            fail(deferred, testName, currentTestNumber, reason);
-        });
+    function testStartNodes(test) {
+        test.trivial(xcalarStartNodes(thriftHandle, 4));
     }
 
-    function testGetNumNodes(deferred, testName, currentTestNumber) {
-        xcalarGetNumNodes(thriftHandle)
-        .done(function(result) {
-            printResult(result);
-            pass(deferred, testName, currentTestNumber);
-        })
-        .fail(function(reason) {
-            fail(deferred, testName, currentTestNumber, reason);
-        });
+    function testGetNumNodes(test) {
+        test.trivial(xcalarGetNumNodes(thriftHandle));
     }
 
-    function testGetVersion(deferred, testName, currentTestNumber) {
-        xcalarGetVersion(thriftHandle)
-        .done(function(result) {
-            printResult(result);
-            pass(deferred, testName, currentTestNumber);
-        })
-        .fail(function(reason) {
-            fail(deferred, testName, currentTestNumber, reason);
-        });
+    function testGetVersion(test) {
+        test.trivial(xcalarGetVersion(thriftHandle));
     }
 
-    function testLoad(deferred, testName, currentTestNumber) {
+    function testLoad(test) {
         loadArgs = new XcalarApiDfLoadArgsT();
         loadArgs.csv = new XcalarApiDfCsvLoadArgsT();
         loadArgs.csv.recordDelim = XcalarApiDefaultRecordDelimT;
         loadArgs.csv.fieldDelim = XcalarApiDefaultFieldDelimT;
         loadArgs.csv.isCRLF = false;
 
-        xcalarLoad(thriftHandle, "file://" + qaTestDir + "/yelp/user", "yelp", DfFormatTypeT.DfFormatJson, 0, loadArgs)
-        .done(function(result) {
+        xcalarLoad(thriftHandle, "file://" + qaTestDir +
+                   "/yelp/user", "yelp",
+                   DfFormatTypeT.DfFormatJson, 0, loadArgs)
+        .then(function(result) {
             printResult(result);
             loadOutput = result;
             origDataset = loadOutput.dataset.name;
             yelpUserDataset = loadOutput.dataset.name;
-            pass(deferred, testName, currentTestNumber);
+            return getDatasetCount("yelp");
+        })
+        .then(function(count) {
+            test.assert(count === 70817)
+            test.pass();
         })
         .fail(function(reason) {
-            fail(deferred, testName, currentTestNumber, StatusTStr[reason]);
+            test.fail(StatusTStr[reason]);
         });
     }
 
-    function testBulkDestroyDs(deferred, testName, currentTestNumber) {
+    function loadHelper() {
+        var lArgs = new XcalarApiDfLoadArgsT();
+        lArgs.csv = new XcalarApiDfCsvLoadArgsT();
+        lArgs.csv.recordDelim = XcalarApiDefaultRecordDelimT;
+        lArgs.csv.fieldDelim = XcalarApiDefaultFieldDelimT;
+        lArgs.csv.isCRLF = false;
+        lArgs.csv.hasHeader = true;
+        return lArgs;
+    }
+
+    function testLoadEdgeCaseDos(test) {
+        var lArgs = loadHelper();
+        lArgs.csv.isCRLF = false;
+        lArgs.csv.fieldDelim = "\t";
+        lArgs.csv.recordDelim = "\r";
+        xcalarLoad(thriftHandle, "file://" + qaTestDir +
+                   "/edgeCases/dosFormat.csv", "dosFormat",
+                   DfFormatTypeT.DfFormatCsv, 0, lArgs)
+        .then(function(result) {
+            return getDatasetCount("dosFormat");
+        })
+        .then(function(numRows) {
+            test.assert(numRows == 123);
+            test.pass();
+        })
+        .fail(function(reason) {
+            test.fail(reason);
+        });
+    }
+
+
+    function testBadLoad(test) {
         loadArgs = new XcalarApiDfLoadArgsT();
         loadArgs.csv = new XcalarApiDfCsvLoadArgsT();
         loadArgs.csv.recordDelim = XcalarApiDefaultRecordDelimT;
         loadArgs.csv.fieldDelim = XcalarApiDefaultFieldDelimT;
         loadArgs.csv.isCRLF = false;
 
-        xcalarLoad(thriftHandle, "file://" + qaTestDir + "/yelp/reviews", "review",
-                   DfFormatTypeT.DfFormatJson, 0, loadArgs)
+        xcalarLoad(thriftHandle, "nfs://" + qaTestDir + "/edgeCases/bad.json", "bad", DfFormatTypeT.DfFormatJson, 0, loadArgs)
         .done(function(result) {
-            var testloadOutput = result;
-
-            xcalarDeleteDagNodes(thriftHandle, "*", SourceTypeT.SrcDataset)
-            .done(function(destroyDatasetsOutput) {
-                printResult(destroyDatasetsOutput);
-
-                for (var i = 0, delDsStatus = null;
-                    i < destroyDatasetsOutput.numDataset; i ++) {
-                    delDsStatus = destroyDatasetsOutput.statuses[i];
-                    console.log("\t" + delDsStatus.datasetName + ": " +
-                        StatusTStr[delDsStatus.status]);
-                }
-
-                pass(deferred, testName, currentTestNumber);
-            })
-            .fail(function(reason) {
-                fail(deferred, testName, currentTestNumber, reason);
-            });
-
+            printResult(result);
+            loadOutput = result;
+            var errStr = "line: 2 column: 1 position: 10892 error: end of file expected near '{'";
+            var errFile = "fileName: nfs://" + qaTestDir + "/edgeCases/bad.json";
+            if (loadOutput.errorString == errStr &&
+                loadOutput.errorFile == errFile) {
+                test.pass();
+            } else {
+                test.fail("errorString: \"" + loadOutput.errorString + "\" should be: \"" + errStr + "\" errorFile: \"" + loadOutput.errorFile + "\" should be: \"" + errFile);
+            }
         })
         .fail(function(reason) {
-            fail(deferred, testName, currentTestNumber, StatusTStr[reason]);
+            test.fail(StatusTStr[reason]);
         });
     }
 
-    function testLoadBogus(deferred, testName, currentTestNumber) {
-        xcalarLoad(thriftHandle, "somejunk", "junk", DfFormatTypeT.DfFormatJson, 0, loadArgs)
-        .done(function(bogusOutput) {
-            printResult(bogusOutput);
-            fail(deferred, testName, currentTestNumber, "load succeeded when it should have failed");
+    function testBulkDestroyDs(test) {
+        loadArgs = new XcalarApiDfLoadArgsT();
+        loadArgs.csv = new XcalarApiDfCsvLoadArgsT();
+        loadArgs.csv.recordDelim = XcalarApiDefaultRecordDelimT;
+        loadArgs.csv.fieldDelim = XcalarApiDefaultFieldDelimT;
+        loadArgs.csv.isCRLF = false;
+
+        xcalarLoad(thriftHandle, "file://" + qaTestDir + "/yelp/reviews",
+                   "review", DfFormatTypeT.DfFormatJson, 0, loadArgs)
+        .then(function(result) {
+            var testloadOutput = result;
+            return xcalarDeleteDagNodes(thriftHandle, "*",
+                                        SourceTypeT.SrcDataset);
         })
-        .fail(function() {
-            pass(deferred, testName, currentTestNumber);
+        .then(function(destroyDatasetsOutput) {
+            printResult(destroyDatasetsOutput);
+
+            for (var i = 0, delDsStatus = null;
+                i < destroyDatasetsOutput.numDataset; i ++) {
+                delDsStatus = destroyDatasetsOutput.statuses[i];
+                console.log("\t" + delDsStatus.datasetName + ": " +
+                            StatusTStr[delDsStatus.status]);
+            }
+            test.pass();
         })
+        .fail(function(reason) {
+            test.fail(StatusTStr[reason]);
+        });
     }
 
-    function testListDatasets(deferred, testName, currentTestNumber) {
+    function testLoadBogus(test) {
+        xcalarLoad(thriftHandle, "somejunk", "junk", DfFormatTypeT.DfFormatJson,
+                   0, loadArgs)
+        .then(function(bogusOutput) {
+            printResult(bogusOutput);
+            test.fail("load succeeded when it should have failed");
+        })
+        .fail(function() {
+            test.pass();
+        });
+    }
+
+    function testListDatasets(test) {
         xcalarListDatasets(thriftHandle)
-        .done(function(listDatasetsOutput) {
+        .then(function(listDatasetsOutput) {
             printResult(listDatasetsOutput);
 
             var foundLoadDs = false;
-            for (var i = 0, dataset = null; i < listDatasetsOutput.numDatasets; i ++) {
+            for (var i = 0, dataset = null; i < listDatasetsOutput.numDatasets;
+                 i ++) {
                 dataset = listDatasetsOutput.datasets[i];
 
-                console.log("\tdataset[" + i.toString() + "].url = " + dataset.url);
-                console.log("\tdataset[" + i.toString() + "].name = " + dataset.name);
+                console.log("\tdataset[" + i.toString() + "].url = " +
+                            dataset.url);
+                console.log("\tdataset[" + i.toString() + "].name = " +
+                            dataset.name);
                 console.log("\tdataset[" + i.toString() + "].datasetId = " +
                     dataset.datasetId.toString());
                 console.log("\tdataset[" + i.toString() + "].formatType = " +
                     DfFormatTypeTStr[dataset.formatType]);
-                console.log("\tdataset[" + i.toString() + "].loadIsComplete = " +
+                console.log("\tdataset[" + i.toString() + "].loadIsComplete = "+
                     dataset.loadIsComplete.toString());
                 console.log("\tdataset[" + i.toString() + "].refCount = " +
                     dataset.refCount.toString());
 
                 if (dataset.name === loadOutput.dataset.name) {
                     foundLoadDs = true;
+                    break;
                 }
             }
-            if (foundLoadDs) {
-                console.log("Found dataset \"" + loadOutput.dataset.name + "\"");
-                pass(deferred, testName, currentTestNumber);
-            } else {
-                fail(deferred, testName, currentTestNumber, "Could not find loaded dataset \"" + loadOutput.dataset.name + "\"");
-            }
+            test.assert(foundLoadDs,
+                        "Found dataset \"" + loadOutput.dataset.name + "\"",
+                        "Could not find loaded dataset \"" +
+                        loadOutput.dataset.name + "\"");
+            test.pass();
+
         })
-        .fail(function(reason) {
-            fail(deferred, testName, currentTestNumber, reason);
-        })
+        .fail(test.fail);
     }
 
-    function testRenameNode(deferred, testName, currentTestNumber) {
-        xcalarRenameNode(thriftHandle, origTable, "newName")
-        .done(function(status) {
-            printResult(status);
-
-            xcalarRenameNode(thriftHandle, "newName", origTable)
-            .done(function(status) {
-                printResult(status);
-                pass(deferred, testName, currentTestNumber);
-            })
-            .fail(function(status) {
-                fail(deferred, testName, currentTestNumber, StatusTStr[status]);
-            })
-
-        })
-        .fail(function(status) {
-            fail(deferred, testName, currentTestNumber, StatusTStr[status]);
-        })
+    function testIndexDatasetIntSync(test) {
+        test.trivial(xcalarIndexDataset(thriftHandle,
+                     loadOutput.dataset.name, "review_count",
+                     "yelp/user-review_count", "",
+                     XcalarOrderingT.XcalarOrderingUnordered));
     }
 
-    function testIndexDatasetIntSync(deferred, testName, currentTestNumber) {
-        xcalarIndexDataset(thriftHandle,
-                           loadOutput.dataset.name, "review_count",
-                           "yelp/user-review_count", "", XcalarOrderingT.XcalarOrderingUnordered)
-        .done(function(syncIndexOutput) {
-            printResult(syncIndexOutput);
-            pass(deferred, testName, currentTestNumber);
-        })
-        .fail(function(reason) {
-            fail(deferred, testName, currentTestNumber, reason);
-        })
-    }
-
-    function testIndexDatasetInt(deferred, testName, currentTestNumber) {
+    function testIndexDatasetInt(test) {
         xcalarIndexDataset(thriftHandle, loadOutput.dataset.name,
-                           "votes.funny", "yelp/user-votes.funny", "", XcalarOrderingT.XcalarOrderingUnordered)
+                           "votes.funny", "yelp/user-votes.funny", "",
+                           XcalarOrderingT.XcalarOrderingUnordered)
         .done(function(indexOutput) {
             printResult(indexOutput);
             origTable = indexOutput.tableName;
-            pass(deferred, testName, currentTestNumber);
+            test.pass();
         })
-        .fail(function(reason) {
-            fail(deferred, testName, currentTestNumber, reason);
-        })
+        .fail(test.fail);
     }
 
-    function testIndexDatasetStr(deferred, testName, currentTestNumber) {
+    function testIndexDatasetStr(test) {
         xcalarIndexDataset(thriftHandle, loadOutput.dataset.name,
-                           "user_id", "yelp/user-user_id", "", XcalarOrderingT.XcalarOrderingUnordered)
+                           "user_id", "yelp/user-user_id", "",
+                           XcalarOrderingT.XcalarOrderingUnordered)
         .done(function(indexStrOutput) {
             printResult(indexStrOutput);
             origStrTable = indexStrOutput.tableName;
-            pass(deferred, testName, currentTestNumber);
+            test.pass();
         })
-        .fail(function(reason) {
-            fail(deferred, testName, currentTestNumber, reason);
-        })
+        .fail(test.fail);
     }
 
-    function testIndexTable(deferred, testName, currentTestNumber) {
-        xcalarIndexTable(thriftHandle, origStrTable,
-                         "name", "yelp/user-name", "", XcalarOrderingT.XcalarOrderingUnordered)
-        .done(function(indexStrOutput) {
-            printResult(indexStrOutput);
-            pass(deferred, testName, currentTestNumber);
-        })
-        .fail(function(reason) {
-            fail(deferred, testName, currentTestNumber, reason);
-        })
+    function testIndexTable(test) {
+        test.trivial(xcalarIndexTable(thriftHandle, origStrTable,
+                         "name", "yelp/user-name", "",
+                         XcalarOrderingT.XcalarOrderingUnordered));
     }
 
-    function testGetQueryIndex(deferred, testName, currentTestNumber) {
+    function testRenameNode(test) {
+        xcalarRenameNode(thriftHandle, origTable, "newName")
+        .then(function(status) {
+            printResult(status);
+            return xcalarRenameNode(thriftHandle, "newName", origTable);
+        })
+        .then(function(status) {
+            printResult(status);
+            test.pass();
+        })
+        .fail(function(status) {
+            test.fail(StatusTStr[status]);
+        });
+    }
+
+    function testGetQueryIndex(test) {
         var workItem = new WorkItem();
         workItem.input = new XcalarApiInputT();
         workItem.input.indexInput = new XcalarApiIndexInputT();
@@ -394,16 +478,14 @@
         workItem.input.indexInput.ordering = XcalarOrderingT.XcalarOrderingUnordered;
 
         xcalarApiGetQuery(thriftHandle, workItem)
-        .done(function(getQueryOutput) {
+        .then(function(getQueryOutput) {
             console.log("\tquery =" + getQueryOutput.query.toString());
-            pass(deferred, testName, currentTestNumber);
+            test.pass();
         })
-        .fail(function(reason) {
-            fail(deferred, testName, currentTestNumber, reason);
-        })
+        .fail(test.fail);
     }
 
-    function testGetQueryLoad(deferred, testName, currentTestNumber) {
+    function testGetQueryLoad(test) {
         var workItem = new WorkItem();
         workItem.input = new XcalarApiInputT();
         workItem.input.loadInput = new XcalarApiBulkLoadInputT();
@@ -429,105 +511,100 @@
         xcalarApiGetQuery(thriftHandle, workItem)
         .done(function(getQueryOutput) {
             console.log("\tquery =" + getQueryOutput.query.toString());
-            pass(deferred, testName, currentTestNumber);
+            test.pass();
         })
-        .fail(function(reason) {
-            fail(deferred, testName, currentTestNumber, reason);
-        })
+        .fail(test.fail);
     }
 
-    function testIndexDatasetBogus(deferred, testName, currentTestNumber) {
-         xcalarIndexDataset(thriftHandle, loadOutput.dataset.name,
-                            "garbage", "yelp/user-garbage", "", XcalarOrderingT.XcalarOrderingUnordered)
-         .done(function(bogusIndexOutput) {
-             printResult(bogusIndexOutput);
-             pass(deferred, testName, currentTestNumber);
-         })
-         .fail(function(reason) {
-             fail(deferred, testName, currentTestNumber, reason);
-         })
+    function testIndexDatasetBogus(test) {
+         test.trivial(xcalarIndexDataset(thriftHandle, loadOutput.dataset.name,
+                      "garbage", "yelp/user-garbage", "",
+                      XcalarOrderingT.XcalarOrderingUnordered));
     }
 
-    function testIndexTable2(deferred, testName, currentTestNumber) {
-        xcalarIndexTable(thriftHandle, origStrTable,
-                         "yelping_since", "yelp/user-yelping_since", "", XcalarOrderingT.XcalarOrderingUnordered)
-        .done(function(indexStrOutput2) {
-            printResult(indexStrOutput2);
-            pass(deferred, testName, currentTestNumber);
-        })
-        .fail(function(reason) {
-            fail(deferred, testName, currentTestNumber, reason);
-        })
+    function testIndexTable2(test) {
+        test.trivial(xcalarIndexTable(thriftHandle, origStrTable,
+                     "yelping_since", "yelp/user-yelping_since", "",
+                     XcalarOrderingT.XcalarOrderingUnordered));
     }
 
-    function testIndexTableBogus(deferred, testName, currentTestNumber) {
-        xcalarIndexTable(thriftHandle, origTable,
-                         "garbage2", "yelp/user-garbage2", "", XcalarOrderingT.XcalarOrderingUnordered)
-        .done(function(bogusIndexOutput2) {
-            printResult(bogusIndexOutput2);
-            pass(deferred, testName, currentTestNumber);
-        })
-        .fail(function(reason) {
-            failed(deferred, testName, currentTestNumber, reason);
-        })
+    function testIndexTableBogus(test) {
+        test.trivial(xcalarIndexTable(thriftHandle, origTable,
+                     "garbage2", "yelp/user-garbage2", "",
+                     XcalarOrderingT.XcalarOrderingUnordered));
     }
 
-    function testGetTableRefCount(deferred, testName, currentTestNumber) {
-        xcalarGetTableRefCount(thriftHandle, origTable)
-        .done(function(refOutput) {
-            printResult(refOutput);
-            pass(deferred, testName, currentTestNumber);
-        })
-        .fail(function(reason) {
-            fail(deferred, testName, currentTestNumber, reason);
-        })
+    function testGetTableRefCount(test) {
+        test.trivial(xcalarGetTableRefCount(thriftHandle, origTable));
     }
 
-    function curryVerifyCountOutput(deferred, testName, currentTestNumber) {
-        function verifyCountOutput(countOutput) {
-            printResult(countOutput);
+    function testGetTableMeta(test) {
+        xcalarGetTableMeta(thriftHandle, origTable)
+        .done(function(metaOutput) {
+            printResult(metaOutput);
+
+            var pgCount1 = 0;
+            var pgCount2 = 0;
+            var rowCount1 = 0;
+            var rowCount2 = 0;
+
+            for (var i = 0; i < metaOutput.numMetas; i ++) {
+                rowCount1 += metaOutput.metas[i].numRows;
+                pgCount1 += metaOutput.metas[i].numPages;
+                for (var j = 0; j < metaOutput.metas[i].numSlots; j++) {
+                    rowCount2 += metaOutput.metas[i].numRowsPerSlot[j];
+                    pgCount2 += metaOutput.metas[i].numPagesPerSlot[j];
+                }
+            }
+
+            if (pgCount1 == pgCount2 && rowCount1 == rowCount2) {
+                test.pass();
+            } else {
+                var reason = "pgCount1: " + pgCount1 +
+                    " pgCount2: " + pgCount2 +
+                    " rowCount1: " + rowCount1 +
+                    " rowCount2: " + rowCount2;
+                test.fail(reason);
+            }
+        })
+        .fail(test.fail);
+    }
+
+    function curryVerifyCountOutput(test) {
+        function verifyCountOutput(metaOutput) {
+            printResult(metaOutput);
 
             var totalCount = 0;
-            for (var i = 0; i < countOutput.numCounts; i ++) {
-                totalCount += countOutput.counts[i];
-                console.log("Node " + i + ": " + countOutput.counts[i]);
+            for (var i = 0; i < metaOutput.numMetas; i ++) {
+                totalCount += metaOutput.metas[i].numRows;
+                console.log("Node " + i + ": " + metaOutput.metas[i].numRows);
             }
 
             console.log("\tcount: " + totalCount.toString());
-
-            if (totalCount === 70817) {
-                pass(deferred, testName, currentTestNumber);
-            } else {
-                var reason = "wrong count: " + totalCount + " expected: 70817";
-                fail(deferred, testName, currentTestNumber, reason);
-            }
+            test.assert(totalCount === 70817, undefined,
+                        "wrong count: " + totalCount + " expected: 70817");
+            test.pass();
         }
         return (verifyCountOutput);
     }
 
-    function testGetDatasetCount(deferred, testName, currentTestNumber) {
-        var verifyDatasetCount = curryVerifyCountOutput(deferred, testName,
-                                                        currentTestNumber);
-        xcalarGetDatasetCount(thriftHandle, yelpUserDataset)
+    function testGetDatasetCount(test) {
+        var verifyDatasetCount = curryVerifyCountOutput(test);
+        xcalarGetDatasetMeta(thriftHandle, yelpUserDataset)
         .done(verifyDatasetCount)
-        .fail(function(reason) {
-            fail(deferred, testName, currentTestNumber, reason);
-        })
+        .fail(test.fail);
     }
 
-    function testGetTableCount(deferred, testName, currentTestNumber) {
-        var verifyTableCount = curryVerifyCountOutput(deferred, testName,
-                                                      currentTestNumber);
-        xcalarGetTableCount(thriftHandle, origTable)
+    function testGetTableCount(test) {
+        var verifyTableCount = curryVerifyCountOutput(test);
+        xcalarGetTableMeta(thriftHandle, origTable)
         .done(verifyTableCount)
-        .fail(function(reason) {
-            fail(deferred, testName, currentTestNumber, reason);
-        })
+        .fail(test.fail);
     }
 
-    function testListTables(deferred, testName, currentTestNumber) {
+    function testListTables(test) {
         xcalarListTables(thriftHandle, "yelp*", SourceTypeT.SrcTable)
-        .done(function(listTablesOutput) {
+        .then(function(listTablesOutput) {
             printResult(listTablesOutput);
 
             var foundVotesFunny = false;
@@ -538,24 +615,18 @@
                     node.dagNodeId.toString());
                 console.log("\ttable[" + i.toString() + "].state = " +
                     node.state.toString());
-                if (node.name === origTable) {
+                if (node.name === origTable && node.size > 0) {
                     foundVotesFunny = true;
                 }
             }
-            if (foundVotesFunny) {
-                console.log("Found node \"" + origTable + "\"");
-                pass(deferred, testName, currentTestNumber);
-            } else {
-                var reason = "failed to find node \"" + origTable + "\"";
-                fail(deferred, testName, currentTestNumber, reason);
-            }
+            test.assert(foundVotesFunny, "Found node \"" + origTable + "\"",
+                        "failed to find node \"" + origTable + "\"");
+            test.pass();
         })
-        .fail(function(reason) {
-            fail(deferred, testName, currentTestNumber, reason);
-        })
+        .fail(test.fail);
     }
 
-    function indexAggregateRaceTest(deferred, testName, currentTestNumber) {
+    function indexAggregateRaceTest(test) {
         var pathToFlightDataset = qaTestDir + "/flight/airlines_2007.csv";
         var pathToAirportDataset = qaTestDir + "/flight/airports.csv";
         var datasetName = "MgmtTest/indexAggregateRaceTest/flightDataset";
@@ -599,14 +670,6 @@
             var totalCompleted = 0;
             indexAndAggDone = true;
 
-            function doneVerification() {
-                if (failed) {
-                    fail(deferred, testName, currentTestNumber, raceFailedReason);
-                } else {
-                    pass(deferred, testName, currentTestNumber);
-                }
-            }
-
             function makeGroupByDoneFn(ii) {
                 var groupByTableName = groupByTableNameTemplate + ii;
                 function groupByDoneFnInt(groupByOutput) {
@@ -616,22 +679,27 @@
                                     aggStr)
                     .done(function(aggregateOutput) {
                         console.log("aggStr: " + aggStr + ", tableName: \"" +
-                                    groupByTableName + "\", output: " + aggregateOutput);
+                                    groupByTableName + "\", output: " +
+                                    aggregateOutput);
                         var answer = JSON.parse(aggregateOutput);
                         if (answer.Value != expectedAggOutput["sum"]) {
                             failed = true;
-                            raceFailedReason += "Returned answer: " + answer.Value +
-                                                " Expected answer: " + expectedAggOutput["sum"];
+                            raceFailedReason += "Returned answer: " +
+                                                answer.Value +
+                                                " Expected answer: " +
+                                                expectedAggOutput["sum"];
                         }
                     })
                     .fail(function(reason) {
                         failed = true;
-                        raceFailedReason += "Aggregate failed. Server returned: " + StatusTStr[reason];
+                        raceFailedReason +="Aggregate failed. Server returned: "
+                                           + StatusTStr[reason];
                     })
                     .always(function() {
                         totalCompleted++;
                         if (totalCompleted == numIndexes) {
-                            doneVerification();
+                            test.assert(!failed, "", raceFailedReason);
+                            test.pass();
                         }
                     });
                 }
@@ -639,7 +707,7 @@
             }
 
             if (failed) {
-                fail(deferred, testName, currentTestNumber, raceFailedReason);
+                test.fail(raceFailedReason);
             } else {
                 // Now we verify that all the months are correct in dstTable
                 for (var ii = 0; ii < numIndexes; ii++) {
@@ -650,19 +718,22 @@
                     .done(makeGroupByDoneFn(ii))
                     .fail(function(reason) {
                         failed = true;
-                        raceFailedReason = "Group by failed. Server returned: " + StatusTStr[reason];
+                        raceFailedReason = "Group by failed. Server returned: "
+                                           + StatusTStr[reason];
                         totalCompleted++;
                         if (totalCompleted == numIndexes) {
-                            doneVerification();
+                            test.assert(!failed, "", raceFiledReason);
+                            test.pass();
                         }
-                    })
+                    });
                 }
             }
         }
 
         function aggDoneFn(aggOutput, aggOp) {
             if (aggOutput !== null) {
-                console.log("Aggregate on \"" + startTableName + "\" done. " + aggEvalStr[aggOp] + " = " + aggOutput);
+                console.log("Aggregate on \"" + startTableName + "\" done. " +
+                            aggEvalStr[aggOp] + " = " + aggOutput);
                 indexAndAggregateOutput["aggOutput" + aggOp] = aggOutput;
                 var answer = JSON.parse(aggOutput).Value;
                 if (answer !== expectedAggOutput[aggOp]) {
@@ -721,13 +792,19 @@
         function startRace() {
             // Now we start the race
             for (var aggOp in aggDone) {
-                xcalarAggregate(thriftHandle, startTableName, aggTableName[aggOp], aggEvalStr[aggOp])
-                .done((function(key) {
-                    return (function(aggOutput) { aggDoneFn(aggOutput, key); });
-                })(aggOp))
+                xcalarAggregate(thriftHandle, startTableName,
+                                aggTableName[aggOp], aggEvalStr[aggOp])
+                .done(
+                    (function(key) {
+                        return (function(aggOutput) {
+                                    aggDoneFn(aggOutput, key);
+                                });
+                    })(aggOp)
+                )
                 .fail((function(key) {
                     function anonymousFn(reason) {
-                        raceFailedReason += "Failed to aggregate. Server returned: " +
+                        raceFailedReason +=
+                                      "Failed to aggregate. Server returned: " +
                                              StatusTStr[reason];
                         failed = true;
                         aggDoneFn(null, key);
@@ -737,13 +814,19 @@
 
                 var dstTableName = dstTableNameTemplate + numIndexes;
 
-                xcalarIndexTable(thriftHandle, startTableName, keyName, dstTableName,
+                xcalarIndexTable(thriftHandle, startTableName, keyName,
+                                 dstTableName,
                                  "", XcalarOrderingT.XcalarOrderingUnordered)
-                .done((function(idx) {
-                    return (function(indexOutput) { indexDoneFn(indexOutput, idx); });
-                })(numIndexes))
+                .done(
+                    (function(idx) {
+                    return (function(indexOutput) {
+                            indexDoneFn(indexOutput, idx);
+                            });
+                    })(numIndexes)
+                )
                 .fail(function(reason) {
-                    raceFailedReason += "Failed to index. Server returned: " + StatusTStr[reason];
+                    raceFailedReason += "Failed to index. Server returned: " +
+                                        StatusTStr[reason];
                     failed = true;
                     indexDoneFn(null);
                 });
@@ -754,20 +837,23 @@
         }
 
         function joinDoneFn() {
-            xcalarIndexTable(thriftHandle, tmpTableName3, keyName2, tmpTableName4,
-                             "", XcalarOrderingT.XcalarOrderingUnordered)
+            xcalarIndexTable(thriftHandle, tmpTableName3, keyName2,
+                             tmpTableName4, "",
+                             XcalarOrderingT.XcalarOrderingUnordered)
             .done(function(indexOutput) {
                 xcalarApiMap(thriftHandle, keyName, "int(" + keyName2 + ")",
                              tmpTableName3, startTableName)
                 .done(startRace)
                 .fail(function(reason) {
-                    var reason = "Failed to cast. Server returned: " + StatusTStr[reason];
-                    fail(deferred, testName, currentTestNumber, reason);
+                    reason = "Failed to cast. Server returned: " +
+                                  StatusTStr[reason];
+                    test.fail(reason);
                 });
             })
             .fail(function(reason) {
-                var reason = "Index failed. Server returned: " + StatusTStr[reason];
-                fail(deferred, testName, currentTestNumber, reason);
+                reason = "Index failed. Server returned: " +
+                             StatusTStr[reason];
+                test.fail(reason);
             });
         }
 
@@ -775,8 +861,9 @@
             xcalarIndexDataset(thriftHandle, datasetName, "Dest", tmpTableName1,
                                "", XcalarOrderingT.XcalarOrderingUnordered)
             .done(function(indexOutput) {
-                xcalarIndexDataset(thriftHandle, datasetName2, "iata", tmpTableName2,
-                                   "", XcalarOrderingT.XcalarOrderingUnordered)
+                xcalarIndexDataset(thriftHandle, datasetName2, "iata",
+                                   tmpTableName2, "",
+                                   XcalarOrderingT.XcalarOrderingUnordered)
                 .done(function(indexOutput) {
                     // For some reason, the join is required to reproduce the bug
                     xcalarJoin(thriftHandle, tmpTableName1, tmpTableName2,
@@ -785,18 +872,21 @@
                         joinDoneFn();
                     })
                     .fail(function(reason) {
-                        var reason = "Failed to join. Server returned: " + StatusTStr[reason];
-                        fail(deferred, testName, currentTestNumber, reason);
+                        reason = "Failed to join. Server returned: " +
+                                     StatusTStr[reason];
+                        test.fail(reason);
                     });
                 })
                 .fail(function(reason) {
-                    var reason = "Failed to index. Server returned: " + StatusTStr[reason];
-                    fail(deferred, testName, currentTestNumber, reason);
+                    reason = "Failed to index. Server returned: " +
+                                 StatusTStr[reason];
+                    test.fail(reason);
                 });
             })
             .fail(function(reason) {
-                var reason = "Failed to index. Server returned: " + StatusTStr[reason];
-                fail(deferred, testName, currentTestNumber, reason);
+                reason = "Failed to index. Server returned: " +
+                             StatusTStr[reason];
+                test.fail(reason);
             });
         }
 
@@ -811,26 +901,28 @@
                    DfFormatTypeT.DfFormatCsv, 0, loadArgs)
         .done(function(loadOutput) {
             datasetName = loadOutput.dataset.name;
-            xcalarLoad(thriftHandle, "file://" + pathToAirportDataset, datasetName2,
+            xcalarLoad(thriftHandle, "file://" + pathToAirportDataset,
+                       datasetName2,
                        DfFormatTypeT.DfFormatCsv, 0, loadArgs)
             .done(function(loadOutput) {
                 datasetName2 = loadOutput.dataset.name;
                 loadDoneFn();
             })
             .fail(function(reason) {
-                reason = "Failed to load. Server returned: " + StatusTStr[reason];
-                fail(deferred, testName, currentTestNumber, reason);
+                reason = "Failed to load. Server returned: " +
+                         StatusTStr[reason];
+                test.fail(reason);
             });
         })
         .fail(function(reason) {
             reason = "Failed to load. Server returned: " + StatusTStr[reason];
-            fail(deferred, testName, currentTestNumber, reason);
+            test.fail(reason);
         });
     }
 
-    function testGetStats(deferred, testName, currentTestNumber) {
+    function testGetStats(test) {
         xcalarGetStats(thriftHandle, 0)
-        .done(function(statOutput) {
+        .then(function(statOutput) {
             printResult(statOutput);
 
             for (var i = 0, stat = null; i < statOutput.numStats; i ++) {
@@ -838,7 +930,8 @@
 
                 console.log("\tstat[" + i.toString() + "].threadName = " +
                         stat.threadName);
-                console.log("\tstat[" + i.toString() + "].statName = " + stat.statName);
+                console.log("\tstat[" + i.toString() + "].statName = " +
+                        stat.statName);
                 console.log("\tstat[" + i.toString() + "].statValue = " +
                         stat.statValue.toString());
                 console.log("\tstat[" + i.toString() + "].statType = " +
@@ -848,21 +941,15 @@
                 console.log("\tstat[" + i.toString() + "].groupId = " +
                         stat.groupId.toString());
             }
-            if (statOutput.numStats > 0) {
-                pass(deferred, testName, currentTestNumber);
-            } else {
-                var reason = "No stats returned";
-                fail(deferred, testName, currentTestNumber, reason);
-            }
+            test.assert(statOutput.numStats, undefined, "No stats returned");
+            test.pass();
         })
-        .fail(function(reason) {
-            fail(deferred, testName, currentTestNumber, reason);
-        })
+        .fail(test.fail);
     }
 
-    function testGetStatGroupIdMap(deferred, testName, currentTestNumber) {
+    function testGetStatGroupIdMap(test) {
         xcalarGetStatGroupIdMap(thriftHandle, 0, 5)
-        .done(function(groupMapOutput) {
+        .then(function(groupMapOutput) {
             printResult(groupMapOutput);
 
             if (groupMapOutput.numGroupNames !== 0) {
@@ -874,20 +961,18 @@
                         groupMapOutput.groupName[i]);
                 }
 
-                pass(deferred, testName, currentTestNumber);
+                test.pass();
             } else {
                 var reason = "numGroupNames == 0";
-                fail(deferred, testName, currentTestNumber, reason);
+                test.fail(reason);
             }
         })
-        .fail(function(reason) {
-            fail(deferred, testName, currentTestNumber, reason);
-        })
+        .fail(test.fail);
     }
 
-    function testGetStatsByGroupId(deferred, testName, currentTestNumber) {
+    function testGetStatsByGroupId(test) {
         xcalarGetStatsByGroupId(thriftHandle, 0, [1])
-        .done(function(statOutput) {
+        .then(function(statOutput) {
             printResult(statOutput);
 
             for (var i = 0, stat = null; i < statOutput.numStats; i ++) {
@@ -895,7 +980,8 @@
 
                 console.log("\tstat[" + i.toString() + "].threadName = " +
                         stat.threadName);
-                console.log("\tstat[" + i.toString() + "].statName = " + stat.statName);
+                console.log("\tstat[" + i.toString() + "].statName = " +
+                        stat.statName);
                 console.log("\tstat[" + i.toString() + "].statValue = " +
                         stat.statValue.toString());
                 console.log("\tstat[" + i.toString() + "].statType = " +
@@ -905,236 +991,166 @@
                 console.log("\tstat[" + i.toString() + "].groupId = " +
                         stat.groupId.toString());
             }
-            if (statOutput.numStats > 0) {
-                pass(deferred, testName, currentTestNumber);
-            } else {
-                var reason = "No stats returned";
-                fail(deferred, testName, currentTestNumber, reason);
-            }
+            test.assert(statOutput.numStats, undefined, "No stats returned");
+            test.pass();
         })
-        .fail(function(reason) {
-            fail(deferred, testName, currentTestNumber, reason);
-        })
+        .fail(test.fail);
     }
 
-    function testResetStats(deferred, testName, currentTestNumber) {
-        xcalarResetStats(thriftHandle, 0)
-        .done(function(status) {
-            printResult(status);
-            pass(deferred, testName, currentTestNumber);
-        })
-        .fail(function(reason) {
-            fail(deferred, testName, currentTestNumber, reason);
-        })
+    function testResetStats(test) {
+        test.trivial(xcalarResetStats(thriftHandle, 0));
     }
 
-    function testMakeResultSetFromDataset(deferred, testName, currentTestNumber) {
+    function testMakeResultSetFromDataset(test) {
         xcalarMakeResultSetFromDataset(thriftHandle,
                                        loadOutput.dataset.name)
-        .done(function(result) {
+        .then(function(result) {
             printResult(result);
             makeResultSetOutput1 = result;
-            pass(deferred, testName, currentTestNumber);
+            test.pass();
         })
-        .fail(function(reason) {
-            fail(deferred, testName, currentTestNumber, reason);
-        })
+        .fail(test.fail);
     }
 
-    function testMakeResultSetFromTable(deferred, testName, currentTestNumber) {
+    function testMakeResultSetFromTable(test) {
         xcalarMakeResultSetFromTable(thriftHandle,
                                      origTable)
-        .done(function(result) {
+        .then(function(result) {
             printResult(result);
             makeResultSetOutput2 = result;
-            pass(deferred, testName, currentTestNumber);
+            test.pass();
         })
-        .fail(function(reason) {
-            fail(deferred, testName, currentTestNumber, reason);
-        })
+        .fail(test.fail);
     }
 
-    function testMakeResultSetFromAggregate(deferred, testName, currentTestNumber) {
+    function testMakeResultSetFromAggregate(test) {
         xcalarMakeResultSetFromTable(thriftHandle, aggrTable)
-        .done(function(result) {
+        .then(function(result) {
             printResult(result);
             makeResultSetOutput3 = result;
-            pass(deferred, testName, currentTestNumber);
+            test.pass();
         })
-        .fail(function(reason) {
-            fail(deferred, testName, currentTestNumber, reason);
-        })
+        .fail(test.fail);
     }
 
-    function testResultSetNextDataset(deferred, testName, currentTestNumber) {
-            xcalarResultSetNext(thriftHandle,
-                                makeResultSetOutput1.resultSetId, 5)
-            .done(function(resultNextOutput1) {
-                printResult(resultNextOutput1);
+    function testResultSetNextDataset(test) {
+        xcalarResultSetNext(thriftHandle,
+                            makeResultSetOutput1.resultSetId, 5)
+        .then(function(resultNextOutput1) {
+            printResult(resultNextOutput1);
 
-                for (var i = 0, kvPair = null; i < resultNextOutput1.numEntries; i ++) {
-                    kvPair = resultNextOutput1.entries[i];
+            for (var i = 0, kvPair = null; i < resultNextOutput1.numEntries;
+                 i++) {
+                kvPair = resultNextOutput1.entries[i];
 
-                    console.log("\trecord[" + i.toString() + "].key = " +
-                                kvPair.key);
-                    console.log("\trecord[" + i.toString() + "].value = " +
-                                kvPair.value);
-                }
-                pass(deferred, testName, currentTestNumber);
-            })
-            .fail(function(reason) {
-                fail(deferred, testName, currentTestNumber, reason);
-            })
+                console.log("\trecord[" + i.toString() + "].key = " +
+                            kvPair.key);
+                console.log("\trecord[" + i.toString() + "].value = " +
+                            kvPair.value);
+            }
+            test.pass();
+        })
+        .fail(test.fail);
     }
 
-    function testResultSetAbsolute(deferred, testName, currentTestNumber) {
-            xcalarResultSetAbsolute(thriftHandle,
-                                    makeResultSetOutput2.resultSetId, 1000)
-            .done(function(status) {
-                printResult(status);
-                pass(deferred, testName, currentTestNumber);
-            })
-            .fail(function(reason) {
-                fail(deferred, testName, currentTestNumber, reason);
-            })
+    function testResultSetAbsolute(test) {
+        test.trivial(xcalarResultSetAbsolute(thriftHandle,
+                    makeResultSetOutput2.resultSetId, 1000));
     }
 
-    function testResultSetAbsoluteBogus(deferred, testName, currentTestNumber) {
-            xcalarResultSetAbsolute(thriftHandle,
-                                    makeResultSetOutput2.resultSetId,
-                                    281474976710655)
-            .done(function(status) {
-                fail(deferred, testName, currentTestNumber, reason);
-            })
-            .fail(function(reason) {
-                pass(deferred, testName, currentTestNumber);
-            })
+    function testResultSetAbsoluteBogus(test) {
+        xcalarResultSetAbsolute(thriftHandle,
+                                makeResultSetOutput2.resultSetId,
+                                281474976710655)
+        .then(test.fail)
+        .fail(function() {
+            test.pass();
+        });
     }
 
-    function testResultSetNextTable(deferred, testName, currentTestNumber) {
-            xcalarResultSetNext(thriftHandle,
-                                makeResultSetOutput2.resultSetId, 5)
-            .done(function(resultNextOutput2) {
-                printResult(resultNextOutput2);
+    function testResultSetNextTable(test) {
+        xcalarResultSetNext(thriftHandle,
+                            makeResultSetOutput2.resultSetId, 5)
+        .then(function(resultNextOutput2) {
+            printResult(resultNextOutput2);
 
-                for (var i = 0, kvPair = null; i < resultNextOutput2.numEntries; i ++) {
-                    kvPair = resultNextOutput2.entries[i];
-                    console.log("\trecord[" + i.toString() + "].key = " +
-                                kvPair.key);
-                    console.log("\trecord[" + i.toString() + "].value = " +
-                                kvPair.value);
-                }
-                pass(deferred, testName, currentTestNumber);
-            })
-            .fail(function(reason) {
-                fail(deferred, testName, currentTestNumber, reason);
-            })
+            for (var i = 0, kvPair = null; i < resultNextOutput2.numEntries;
+                 i ++) {
+                kvPair = resultNextOutput2.entries[i];
+                console.log("\trecord[" + i.toString() + "].key = " +
+                            kvPair.key);
+                console.log("\trecord[" + i.toString() + "].value = " +
+                            kvPair.value);
+            }
+            test.pass();
+        })
+        .fail(test.fail);
     }
 
-    function testResultSetNextAggregate(deferred, testName, currentTestNumber) {
-            xcalarResultSetNext(thriftHandle,
-                                makeResultSetOutput3.resultSetId, 5)
-            .done(function(resultNextOutput3) {
-                printResult(resultNextOutput3);
+    function testResultSetNextAggregate(test) {
+        xcalarResultSetNext(thriftHandle,
+                            makeResultSetOutput3.resultSetId, 5)
+        .then(function(resultNextOutput3) {
+            printResult(resultNextOutput3);
 
-                for (var i = 0, kvPair = null; i < resultNextOutput3.numEntries; i ++) {
-                    kvPair = resultNextOutput3.entries[i];
-                    console.log("\trecord[" + i.toString() + "].key = " +
-                                kvPair.key);
-                    console.log("\trecord[" + i.toString() + "].value = " +
-                                kvPair.value);
-                }
-                pass(deferred, testName, currentTestNumber);
-            })
-            .fail(function(reason) {
-                fail(deferred, testName, currentTestNumber, reason);
-            })
+            for (var i = 0, kvPair = null; i < resultNextOutput3.numEntries;
+                 i++) {
+                kvPair = resultNextOutput3.entries[i];
+                console.log("\trecord[" + i.toString() + "].key = " +
+                            kvPair.key);
+                console.log("\trecord[" + i.toString() + "].value = " +
+                            kvPair.value);
+            }
+            test.pass();
+        })
+        .fail(test.fail);
     }
 
-    function testFreeResultSetAggregate(deferred, testName, currentTestNumber) {
-        xcalarFreeResultSet(thriftHandle, makeResultSetOutput3.resultSetId)
-        .done(function(status) {
-            printResult(status);
-            pass(deferred, testName, currentTestNumber);
-        })
-        .fail(function(reason) {
-            fail(deferred, testName, currentTestNumber, reason);
-        })
+    function testFreeResultSetAggregate(test) {
+        test.trivial(xcalarFreeResultSet(thriftHandle,
+                                         makeResultSetOutput3.resultSetId));
     }
 
-    function testFreeResultSetDataset(deferred, testName, currentTestNumber) {
-        xcalarFreeResultSet(thriftHandle, makeResultSetOutput1.resultSetId)
-        .done(function(status) {
-            printResult(status);
-            pass(deferred, testName, currentTestNumber);
-        })
-        .fail(function(reason) {
-            fail(deferred, testName, currentTestNumber, reason);
-        })
+    function testFreeResultSetDataset(test) {
+        test.trivial(xcalarFreeResultSet(thriftHandle,
+                                         makeResultSetOutput1.resultSetId));
     }
 
-    function testFreeResultSetTable(deferred, testName, currentTestNumber) {
-        xcalarFreeResultSet(thriftHandle, makeResultSetOutput2.resultSetId)
-        .done(function(status) {
-            printResult(status);
-            pass(deferred, testName, currentTestNumber);
-        })
-        .fail(function(reason) {
-            fail(deferred, testName, currentTestNumber, reason);
-        })
+    function testFreeResultSetTable(test) {
+        test.trivial(xcalarFreeResultSet(thriftHandle,
+                                         makeResultSetOutput2.resultSetId));
     }
 
-    function testFilter(deferred, testName, currentTestNumber) {
-        xcalarFilter(thriftHandle, "gt(votes.funny, 900)", origTable,
-                     "yelp/user-votes.funny-gt900")
-        .done(function(filterOutput) {
-            printResult(filterOutput);
-            pass(deferred, testName, currentTestNumber);
-        })
-        .fail(function(reason) {
-            fail(deferred, testName, currentTestNumber, reason);
-        })
+    function testFilter(test) {
+        test.trivial(xcalarFilter(thriftHandle, "gt(votes.funny, 900)",
+                                  origTable, "yelp/user-votes.funny-gt900"));
     }
 
-    function testProject(deferred, testName, currentTestNumber) {
-        xcalarProject(thriftHandle, 2, ["votes.funny", "user_id"],
-                      origTable, "yelp/user-votes.funny-projected")
-        .done(function(projectOutput) {
-            printResult(projectOutput);
-            pass(deferred, testName, currentTestNumber);
-        })
-        .fail(function(reason) {
-            fail(deferred, testName, currentTestNumber, reason);
-        })
+    function testProject(test) {
+        test.trivial(xcalarProject(thriftHandle, 2, ["votes.funny", "user_id"],
+                     origTable, "yelp/user-votes.funny-projected"));
     }
 
-    function testJoin(deferred, testName, currentTestNumber) {
+    function testJoin(test) {
         xcalarJoin(thriftHandle, "yelp/user-votes.funny-gt900",
                    "yelp/user-votes.funny-gt900",
                    "yelp/user-dummyjoin",
                    JoinOperatorT.InnerJoin)
-        .done(function(result) {
+        .then(function(result) {
             printResult(result);
             newTableOutput = result;
-            pass(deferred, testName, currentTestNumber);
+            test.pass();
         })
         .fail(function(reason) {
-            fail(deferred, testName, currentTestNumber, reason);
-        })
+            test.fail(reason);
+        });
     }
 
-    function testGetOpStats(deferred, testName, currentTestNumber) {
-        xcalarApiGetOpStats(thriftHandle, "yelp/user-dummyjoin")
-        .done(function(result) {
-            printResult(result);
-            pass(deferred, testName, currentTestNumber);
-        })
-        .fail(function(reason) {
-            fail(deferred, testName, currentTestNumber, reason);
-        })
+    function testGetOpStats(test) {
+        test.trivial(xcalarApiGetOpStats(thriftHandle, "yelp/user-dummyjoin"));
     }
 
-    function testCancel(deferred, testName, currentTestNumber) {
+    function testCancel(test) {
         var query = "index --key votes.funny --dataset " + datasetPrefix +
                     "yelp" + " --dsttable cancelledTable ";
 
@@ -1154,58 +1170,59 @@
                         qrStateOutput.queryState === QueryStateT.qrNotStarted) {
                         return wait();
                     }
-                    if (qrStateOutput.failedSingleQueryArray.length === 0) {
-                        fail(deferred, testName, currentTestNumber, "no failed query. queryState: " + QueryStateTStr[qrStateOutput.queryState]);
+
+                    if (qrStateOutput.failedSingleQueryArray.length === 0 &&
+                        qrStateOutput.queryState != QueryStateT.qrFinished) {
+                        test.fail("no failed query. queryState: " +
+                                  QueryStateTStr[qrStateOutput.queryState]);
                     }
 
-                    if (qrStateOutput.failedSingleQueryArray[0].status != StatusT.StatusCanceled) {
-                        console.log("xxx" + JSON.stringify(qrStateOutput))
-                        console.log(qrStateOutput.failedSingleQueryArray[0].status)
-                            fail(deferred, testName, currentTestNumber, "not canceled");
+                    if (qrStateOutput.queryState != QueryStateT.qrFinished &&
+			            qrStateOutput.failedSingleQueryArray[0].status !=
+                        StatusT.StatusCanceled) {
+                        console.log("xxx" + JSON.stringify(qrStateOutput));
+                        console.log(qrStateOutput.failedSingleQueryArray[0]
+                                    .status);
+                            test.fail("not canceled");
                      }
 
-                    pass(deferred, testName, currentTestNumber);
+                    test.pass();
 
                  })
-                 .fail(function(reason) {
-                     fail(deferred, testName, currentTestNumber, reason);
-                 });
+                 .fail(test.fail);
              }, 1000);
          })();
-
         })
         .fail(function(reason) {
-            fail(deferred, testName, currentTestNumber, "status: " + StatusTStr[reason]);
-        })
+            test.fail("status: " + StatusTStr[reason]);
+        });
     }
 
-    function testQuery(deferred, testName, currentTestNumber) {
+    function testQuery(test) {
         var query = "index --key votes.funny --dataset " + datasetPrefix +
-                    "yelp" + " --dsttable yelp-votesFunnyTable; index --key review_count" +
-                    " --srctable yelp-votesFunnyTable --dsttable yelp-review_countTable;" +
-                    "  map --eval \"add(1,2)\"  --srctable yelp-votesFunnyTable" +
-                    " --fieldName newField --dsttable yelp-mapTable;" +
+                    "yelp" + " --dsttable yelp-votesFunnyTable; index --key " +
+                    "review_count" +
+                    " --srctable yelp-votesFunnyTable --dsttable " +
+                    "yelp-review_countTable;" +
+                    "  map --eval \"add(1,2)\"  --srctable yelp-votesFunnyTable"
+                    + " --fieldName newField --dsttable yelp-mapTable;" +
                     " filter yelp-mapTable \" sub(2,1)\" yelp-filterTable;" +
-                    " groupBy --srctable yelp-filterTable --eval \"avg(votes.cool)\" --fieldName avgCool --dsttable yelp-groupByTable;" +
+                    " groupBy --srctable yelp-filterTable --eval " +
+                    "\"avg(votes.cool)\" --fieldName avgCool --dsttable " +
+                    "yelp-groupByTable;" +
                     " join --leftTable yelp-review_countTable --rightTable" +
                     "  yelp-groupByTable --joinTable " + queryTableName;
 
         queryName = "testQuery";
 
-        xcalarQuery(thriftHandle, queryName, query, false)
-        .done(function(queryOutput) {
-            printResult(queryOutput);
-            pass(deferred, testName, currentTestNumber);
-        })
-        .fail(function(reason) {
-            fail(deferred, testName, currentTestNumber, reason);
-        })
+        test.trivial(xcalarQuery(thriftHandle, queryName, query, false));
     }
-    function testGetDagOnAggr(deferred, testName, currentTestNumber) {
+
+    function testGetDagOnAggr(test) {
         var query = "index --key recordNum --dataset " + origDataset +
                     " --dsttable yelpUsers#js0;" +
                     "aggregate --srctable yelpUsers#js0 --dsttable " +
-                    "yelpUsers-aggregate#js1 --eval \"count(review_count)\""
+                    "yelpUsers-aggregate#js1 --eval \"count(review_count)\"";
 
         var locaQueryName = "aggr query";
 
@@ -1215,60 +1232,40 @@
             printResult(queryOutput);
 
             (function wait() {
-            setTimeout(function() {
+              setTimeout(function() {
                 xcalarQueryState(thriftHandle, locaQueryName)
-                .done(function(result) {
+                .then(function(result) {
                     var qrStateOutput = result;
                     if (qrStateOutput.queryState === QueryStateT.qrProcssing) {
                         return wait();
                     }
 
                     if (qrStateOutput.queryState === QueryStateT.qrFinished) {
-                    console.log("call get dag on aggr");
-                    xcalarDag(thriftHandle,  "yelpUsers-aggregate#js1")
-                    .done(function(dagOutput) {
-                        console.log("dagOutput.numNodes = " + dagOutput.numNodes);
-                        if (dagOutput.numNodes != 3) {
-                            var reason = "the number of dag node returned is incorrect";
-                            fail(deferred, testName, currentTestNumber, reason);
-                        } else {
-                            pass(deferred, testName, currentTestNumber);
-                        }
-                    })
-                    .fail(function(reason) {
-                        fail(deferred, testName, currentTestNumber, reason);
-                    });
-
-                    } else {
-                        var reason = "qrStateOutput.queryState = " +
-                                    QueryStateTStr[qrStateOutput.queryState];
-                        fail(deferred, testName, currentTestNumber, reason);
+                        console.log("call get dag on aggr");
+                        return xcalarDag(thriftHandle,  "yelpUsers-aggregate#js1");
                     }
-                 })
-                 .fail(function(reason) {
-                     fail(deferred, testName, currentTestNumber, reason);
-                 });
-             }, 1000);
-         })();
+
+                    test.fail("qrStateOutput.queryState = " +
+                              QueryStateTStr[qrStateOutput.queryState]);
+                })
+                .then(function(dagOutput) {
+                    console.log("dagOutput.numNodes = " + dagOutput.numNodes);
+                    test.assert(dagOutput.numNodes === 3, undefined,
+                                "the number of dag node returned is incorrect");
+                })
+                .fail(test.fail);
+              }, 1000);
+            })();
 
         })
-        .fail(function(reason) {
-            fail(deferred, testName, currentTestNumber, reason);
-        })
+        .fail(test.fail);
     }
 
-    function testQueryState(deferred, testName, currentTestNumber) {
-        xcalarQueryState(thriftHandle, queryName)
-        .done(function(queryStateOutput) {
-            printResult(queryStateOutput);
-            pass(deferred, testName, currentTestNumber);
-        })
-        .fail(function(reason) {
-            fail(deferred, testName, currentTestNumber, reason);
-        })
+    function testQueryState(test) {
+        test.trivial(xcalarQueryState(thriftHandle, queryName));
     }
 
-    function waitForDag(deferred, testName, currentTestNumber) {
+    function waitForDag(test) {
         var queryStateOutput;
 
         (function wait() {
@@ -1283,110 +1280,80 @@
 
                     if (queryStateOutput.queryState ===
                                                        QueryStateT.qrFinished) {
-                        pass(deferred, testName, currentTestNumber);
+                        test.pass();
                     } else {
                         var reason = "queryStateOutput.queryState = " +
                                     QueryStateTStr[queryStateOutput.queryState];
-                        fail(deferred, testName, currentTestNumber, reason);
+                        test.fail(reason);
                     }
                  })
                  .fail(function(reason) {
-                     fail(deferred, testName, currentTestNumber, reason);
+                     test.fail(reason);
                  });
              }, 1000);
          })();
     }
 
-    function testDag(deferred, testName, currentTestNumber) {
+    function testDag(test) {
         xcalarDag(thriftHandle,  queryTableName)
         .done(function(dagOutput) {
             console.log("dagOutput.numNodes = " + dagOutput.numNodes);
-            if (dagOutput.numNodes != 9) {
-                var reason = "the number of dag node returned is incorrect";
-                fail(deferred, testName, currentTestNumber, reason);
-            } else {
-                pass(deferred, testName, currentTestNumber);
-            }
+            test.assert(dagOutput.numNodes === 9, undefined,
+                        "the number of dag node returned is incorrect");
+            test.pass();
         })
-        .fail(function(reason) {
-            fail(deferred, testName, currentTestNumber, reason);
-        });
+        .fail(test.fail);
     }
 
-    function testGroupBy(deferred, testName, currentTestNumber) {
-        xcalarGroupBy(thriftHandle, "yelp/user-votes.funny-gt900",
+    function testGroupBy(test) {
+        test.trivial(xcalarGroupBy(thriftHandle, "yelp/user-votes.funny-gt900",
                       "yelp/user-votes.funny-gt900-average",
-                      "avg(votes.funny)", "averageVotesFunny", true)
-        .done(function(groupByOutput) {
-            printResult(groupByOutput);
-            pass(deferred, testName, currentTestNumber);
-        })
-        .fail(function(reason) {
-            fail(deferred, testName, currentTestNumber, reason);
-        })
+                      "avg(votes.funny)", "averageVotesFunny", true));
     }
 
-    function testAggregate(deferred, testName, currentTestNumber) {
+    function testAggregate(test) {
         aggrTable = "aggrTable";
         xcalarAggregate(thriftHandle, origStrTable, aggrTable, "sum(fans)")
         .done(function(aggregateOutput) {
             console.log("jsonAnswer: " + aggregateOutput + "\n");
             var jsonAnswer = JSON.parse(aggregateOutput);
-            if (jsonAnswer.Value !== 114674) {
-                var reason = "jsonAnswer !== 114674";
-                fail(deferred, testName, currentTestNumber, reason);
-            } else {
-                pass(deferred, testName, currentTestNumber);
-            }
+            test.assert(jsonAnswer.Value === 114674, undefined,
+                        "jsonAnswer !== 114674");
+            test.pass();
         })
-        .fail(function(reason) {
-            fail(deferred, testName, currentTestNumber, reason);
-        })
+        .fail(test.fail);
     }
 
-    function testApiMap(deferred, testName, currentTestNumber) {
-        xcalarApiMap(thriftHandle, "votesFunnyPlusUseful",
+    function testApiMap(test) {
+        test.trivial(xcalarApiMap(thriftHandle, "votesFunnyPlusUseful",
                      "add(votes.funny, votes.useful)",
                      "yelp/user-votes.funny-gt900",
-                     "yelp/user-votes.funny-map")
-        .done(function(mapOutput) {
-            printResult(mapOutput);
-            pass(deferred, testName, currentTestNumber);
-        })
-        .fail(function(reason) {
-            fail(deferred, testName, currentTestNumber, reason);
-        })
+                     "yelp/user-votes.funny-map"));
     }
 
-    function testApiGetRowNum(deferred, testName, currentTestNumber) {
-        xcalarApiGetRowNum(thriftHandle, "rowNum",
+    function testApiGetRowNum(test) {
+        test.trivial(xcalarApiGetRowNum(thriftHandle, "rowNum",
                            "yelp/user-votes.funny-gt900",
-                           "yelp/user-votes.funny-rowNum")
-        .done(function(getRowNumOutput) {
-            printResult(getRowNumOutput);
-            pass(deferred, testName, currentTestNumber);
-        })
-        .fail(function(reason) {
-            fail(deferred, testName, currentTestNumber, reason);
-        })
+                           "yelp/user-votes.funny-rowNum"));
     }
 
-    function testDestroyDatasetInUse(deferred, testName, currentTestNumber) {
+    function testDestroyDatasetInUse(test) {
         xcalarDeleteDagNodes(thriftHandle, loadOutput.dataset.name, SourceTypeT.SrcDataset)
-        .done(function(status) {
-            var reason = "Destroyed dataset in use succeeded when it should have failed"
-            fail(deferred, testName, currentTestNumber, reason);
+        .then(function(status) {
+            var reason = "Destroyed dataset in use succeeded when "+
+                         "it should have failed";
+            test.fail(reason);
         })
         .fail(function(status) {
             if (status === StatusT.StatusDgNodeInUse) {
-                pass(deferred, testName, currentTestNumber);
+                test.pass();
             } else {
-                fail(deferred, testName, currentTestNumber, StatusTStr[status]);
+                test.fail(StatusTStr[status]);
             }
-        })
+        });
     }
 
-    function testAddExportTarget(deferred, testName, currentTestNumber) {
+    function testAddExportTarget(test) {
         var target = new ExExportTargetT();
         target.hdr = new ExExportTargetHdrT();
         target.hdr.name = "Mgmtd Export Target";
@@ -1397,25 +1364,18 @@
         xcalarAddExportTarget(thriftHandle, target)
         .done(function(status) {
             printResult(status);
-            pass(deferred, testName, currentTestNumber);
+            test.pass();
         })
         .fail(function(reason) {
-            fail(deferred, testName, currentTestNumber, StatusTStr[reason]);
-        })
+            test.fail(StatusTStr[reason]);
+        });
     }
 
-    function testListExportTargets(deferred, testName, currentTestNumber) {
-        xcalarListExportTargets(thriftHandle, "*", "*")
-        .done(function(listTargetsOutput) {
-            printResult(listTargetsOutput);
-            pass(deferred, testName, currentTestNumber);
-        })
-        .fail(function(reason) {
-            fail(deferred, testName, currentTestNumber, reason);
-        })
+    function testListExportTargets(test) {
+        test.trivial(xcalarListExportTargets(thriftHandle, "*", "*"));
     }
 
-    function testExportCSV(deferred, testName, currentTestNumber) {
+    function testExportCSV(test) {
         var specInput = new ExInitExportSpecificInputT();
         specInput.sfInput = new ExInitExportSFInputT();
         specInput.sfInput.fileName = "yelp-mgmtdTest" +
@@ -1447,16 +1407,16 @@
                      target, specInput,
                      ExExportCreateRuleT.ExExportDeleteAndReplace,
                      true, numColumns, columns)
-        .done(function(status) {
+        .then(function(status) {
             printResult(status);
-            pass(deferred, testName, currentTestNumber);
+            test.pass();
         })
         .fail(function(reason) {
-            fail(deferred, testName, currentTestNumber, StatusTStr[reason]);
-        })
+            test.fail(StatusTStr[reason]);
+        });
     }
 
-    function testExportSQL(deferred, testName, currentTestNumber) {
+    function testExportSQL(test) {
         var specInput = new ExInitExportSpecificInputT();
         specInput.sfInput = new ExInitExportSFInputT();
         specInput.sfInput.fileName = "yelp-mgmtdTest" +
@@ -1467,7 +1427,7 @@
         specInput.sfInput.format = DfFormatTypeT.DfFormatSql;
         specInput.sfInput.formatArgs = new ExInitExportFormatSpecificArgsT();
         specInput.sfInput.formatArgs.sql = new ExInitExportSQLArgsT();
-        specInput.sfInput.formatArgs.sql.tableName = "exportSqlTableName"
+        specInput.sfInput.formatArgs.sql.tableName = "exportSqlTableName";
         specInput.sfInput.formatArgs.sql.dropTable = true;
         specInput.sfInput.formatArgs.sql.createTable = true;
 
@@ -1489,16 +1449,16 @@
                      target, specInput,
                      ExExportCreateRuleT.ExExportCreateOnly,
                      true, numColumns, columns)
-        .done(function(status) {
+        .then(function(status) {
             printResult(status);
-            pass(deferred, testName, currentTestNumber);
+            test.pass();
         })
         .fail(function(reason) {
-            fail(deferred, testName, currentTestNumber, StatusTStr[reason]);
-        })
+            test.fail(StatusTStr[reason]);
+        });
     }
 
-    function testMakeRetina(deferred, testName, currentTestNumber) {
+    function testMakeRetina(test) {
         retinaName = "yelpRetina-1";
         var dstTable = new XcalarApiRetinaDstT();
         dstTable.numColumns = 3;
@@ -1515,19 +1475,19 @@
         dstTable.target.name = "yelp/user-votes.funny-gt900-average";
         dstTable.target.isTable = true;
         xcalarMakeRetina(thriftHandle, retinaName, [dstTable])
-        .done(function(status) {
+        .then(function(status) {
             printResult(status);
-            pass(deferred, testName, currentTestNumber);
+            test.pass();
         })
         .fail(function(reason) {
-            var reason = "makeRetina failed with status: " + StatusTStr[reason];
-            fail(deferred, testName, currentTestNumber, reason);
-        })
+            reason = "makeRetina failed with status: " + StatusTStr[reason];
+            test.fail(reason);
+        });
     }
 
-    function testListRetinas(deferred, testName, currentTestNumber) {
+    function testListRetinas(test) {
         xcalarListRetinas(thriftHandle)
-        .done(function(listRetinasOutput) {
+        .then(function(listRetinasOutput) {
             var foundRetina = false;
             printResult(listRetinasOutput);
             for (var i = 0; i < listRetinasOutput.numRetinas; i ++) {
@@ -1537,60 +1497,65 @@
                 console.log("\tretinaDescs[" + i + "].retinaName = " +
                             listRetinasOutput.retinaDescs[i].retinaName);
             }
-
-            if (foundRetina) {
-                pass(deferred, testName, currentTestNumber);
-            } else {
-                var reason = "Could not find retina \"" + retinaName + "\""
-                fail(deferred, testName, currentTestNumber, reason);
-            }
+            test.assert(foundRetina, undefined,
+                        "Could not find retina \"" + retinaName + "\"");
+            test.pass();
         })
         .fail(function(reason) {
-            fail(deferred, testName, currentTestNumber, reason);
-        })
+            test.fail(reason);
+        });
     }
 
-    function testGetRetina(iter, deferred, testName, currentTestNumber) {
+    function testGetRetina(iter, test) {
         xcalarGetRetina(thriftHandle, retinaName)
         .done(function(getRetinaOutput) {
             printResult(getRetinaOutput);
 
-            console.log("\tretinaName: " + getRetinaOutput.retina.retinaDesc.retinaName);
-            console.log("\tnumNodes: " + getRetinaOutput.retina.retinaDag.numNodes);
+            console.log("\tretinaName: " +
+                        getRetinaOutput.retina.retinaDesc.retinaName);
+            console.log("\tnumNodes: " +
+                        getRetinaOutput.retina.retinaDag.numNodes);
 
-            for (var ii = 0; ii < getRetinaOutput.retina.retinaDag.numNodes; ii ++) {
+            for (var ii = 0; ii < getRetinaOutput.retina.retinaDag.numNodes;
+                 ii++) {
                 console.log("\tnode[" + ii + "].dagNodeId = " +
                             getRetinaOutput.retina.retinaDag.node[ii].dagNodeId);
                 console.log("\tnode[" + ii + "].api = " +
-                            XcalarApisTStr[getRetinaOutput.retina.retinaDag.node[ii].api]);
+                            XcalarApisTStr[getRetinaOutput.retina.retinaDag.
+                            node[ii].api]);
                 console.log("\tnode[" + ii + "].apiInputSize = " +
                             getRetinaOutput.retina.retinaDag.node[ii].inputSize);
                 switch (getRetinaOutput.retina.retinaDag.node[ii].api) {
                 case XcalarApisT.XcalarApiExport:
-                    var exportInput = getRetinaOutput.retina.retinaDag.node[ii].input.exportInput;
+                    var exportInput = getRetinaOutput.retina.retinaDag.node[ii].
+                                      input.exportInput;
                     var exportTargetType = exportInput.meta.target.type;
                     console.log("\tnode[" + ii + "].meta.exportTarget = " +
-                                ExTargetTypeTStr[exportTargetType] + " (" + exportTargetType + ")");
+                                ExTargetTypeTStr[exportTargetType] + " (" +
+                                exportTargetType + ")");
                     console.log("\tnode[" + ii + "].meta.numColumns = " +
                                 exportInput.meta.numColumns);
                     console.log("\tnode[" + ii + "].meta.columns = " +
                                 JSON.stringify(exportInput.meta.columns));
                     switch (exportTargetType) {
                     case ExTargetTypeT.ExTargetODBCType:
-                        console.log("\tnode[" + ii + "].meta.specificInput.odbcInput.tableName = " +
-                                    exportInput.meta.specificInput.odbcInput.tableName);
+                        console.log("\tnode[" + ii +
+                                 "].meta.specificInput.odbcInput.tableName = " +
+                            exportInput.meta.specificInput.odbcInput.tableName);
                         break;
                     case ExTargetTypeT.ExTargetSFType:
-                        console.log("\tnode[" + ii + "].meta.specificInput.sfInput.fileName = " +
-                                    exportInput.meta.specificInput.sfInput.fileName);
+                        console.log("\tnode[" + ii +
+                                    "].meta.specificInput.sfInput.fileName = " +
+                               exportInput.meta.specificInput.sfInput.fileName);
                         if (iter == 2) {
-                            if (exportInput.meta.specificInput.sfInput.fileName != retinaExportParamStr) {
-                                var reason = "exportFileName does not match parameterized string";
-                                fail(deferred, testName, currentTestNumber, reason);
-                                return;
-                            }
+                            test.assert(
+                                exportInput.meta.specificInput.sfInput.fileName
+                                === retinaExportParamStr, undefined,
+                            "exportFileName does not match parameterized string"
+                            );
                         }
-                        retinaExportDagNodeId = getRetinaOutput.retina.retinaDag.node[ii].dagNodeId;
+                        retinaExportDagNodeId = getRetinaOutput.retina.retinaDag
+                                                .node[ii].dagNodeId;
                         break;
                     default:
                     break;
@@ -1598,42 +1563,42 @@
                     break;
                 case XcalarApisT.XcalarApiFilter:
                     console.log("\tnode[" + ii + "].filterStr = " +
-                                getRetinaOutput.retina.retinaDag.node[ii].input.filterInput.filterStr);
+                                getRetinaOutput.retina.retinaDag.node[ii].
+                                input.filterInput.filterStr);
                     if (iter == 2) {
-                        if (getRetinaOutput.retina.retinaDag.node[ii].input.filterInput.filterStr != retinaFilterParamStr) {
-                            var reason = "FilterStr does not match parameterized string";
-                            fail(deferred, testName, currentTestNumber, reason);
-                            return;
-                        }
+                        test.assert(getRetinaOutput.retina.retinaDag.node[ii].
+                                    input.filterInput.filterStr ===
+                                    retinaFilterParamStr, undefined,
+                               "FilterStr does not match parameterized string");
                     }
 
-                    retinaFilterDagNodeId = getRetinaOutput.retina.retinaDag.node[ii].dagNodeId;
+                    retinaFilterDagNodeId = getRetinaOutput.retina.retinaDag.
+                                            node[ii].dagNodeId;
                     break;
                 case XcalarApisT.XcalarApiBulkLoad:
                     console.log("\tnode[" + ii + "].datasetUrl = " +
-                                getRetinaOutput.retina.retinaDag.node[ii].input.loadInput.dataset.url);
+                                getRetinaOutput.retina.retinaDag.node[ii].input.
+                                loadInput.dataset.url);
                     break;
                 default:
                     break;
                 }
             }
 
-            pass(deferred, testName, currentTestNumber);
+            test.pass();
         })
-        .fail(function(reason) {
-            fail(deferred, testName, currentTestNumber, reason);
-        })
+        .fail(test.fail);
     }
 
-    function testGetRetina1(deferred, testName, currentTestNumber) {
-        return (testGetRetina(1, deferred, testName, currentTestNumber));
+    function testGetRetina1(test) {
+        return (testGetRetina(1, test));
     }
 
-    function testGetRetina2(deferred, testName, currentTestNumber) {
-        return (testGetRetina(2, deferred, testName, currentTestNumber));
+    function testGetRetina2(test) {
+        return (testGetRetina(2, test));
     }
 
-    function testUpdateRetina(deferred, testName, currentTestNumber) {
+    function testUpdateRetina(test) {
         xcalarUpdateRetina(thriftHandle, retinaName,
                            retinaFilterDagNodeId,
                            retinaFilterParamType,
@@ -1645,34 +1610,35 @@
                                        retinaExportParamType,
                                        retinaExportParamStr));
         })
-        .done(function(status) {
-            pass(deferred, testName, currentTestNumber);
+        .then(function(status) {
+            test.pass();
         })
-        .fail(function(reason) {
-            fail(deferred, testName, currentTestNumber, reason);
-        })
+        .fail(test.fail);
     }
 
-    function testExecuteRetina(deferred, testName, currentTestNumber) {
+    function testExecuteRetina(test) {
         var parameters = [];
-        parameters.push(new XcalarApiParameterT({ parameterName: "foo", parameterValue: "1000" }));
+        parameters.push(new XcalarApiParameterT({ parameterName: "foo",
+                                                  parameterValue: "1000" }));
 
         xcalarListExportTargets(thriftHandle, "*", "Default")
-        .done(function(listExportTargetsOutput) {
+        .then(function(listExportTargetsOutput) {
             if (listExportTargetsOutput.numTargets < 1) {
-                var reason = "No export target named Default"
-                fail(deferred, testName, currentTestNumber, reason);
+                var reason = "No export target named Default";
+                test.fail(reason);
                 return;
             }
 
             var exportTarget = listExportTargetsOutput.targets[0];
             if (exportTarget.hdr.type != ExTargetTypeT.ExTargetSFType) {
-                var reason = "Default export target not filesystem"
-                fail(deferred, testName, currentTestNumber, reason);
+                var reason = "Default export target not filesystem";
+                test.fail(reason);
                 return;
             }
 
-            var fullPath = exportTarget.specificInput.sfInput.url.substring("file://".length) + "/" + retinaExportParamStr
+            var fullPath = exportTarget.specificInput.sfInput.url.
+                           substring("file://".length) + "/" +
+                           retinaExportParamStr;
 
             // Take the .csv off
             fullPath = fullPath.slice(0, -".csv".length);
@@ -1684,58 +1650,61 @@
                 fs.removeTree(fullPath);
             }
 
-            xcalarExecuteRetina(thriftHandle, retinaName, parameters)
-            .done(function(status) {
-                pass(deferred, testName, currentTestNumber);
-            })
-            .fail(function(error) {
-                var reason = "xcalarExecuteRetina failed with reason: " + StatusTStr[error];
-                fail(deferred, testName, currentTestNumber, reason);
-            })
+            return (xcalarExecuteRetina(thriftHandle, retinaName, parameters));
+        }, test.fail)
+        .then(function(status) {
+            test.pass();
         })
-        .fail(function(reason) {
-            fail(deferred, testName, currentTestNumber, reason);
+        .fail(function(error) {
+            var reason = "xcalarExecuteRetina failed with reason: " +
+                         StatusTStr[error];
+            test.fail(reason);
         });
     }
 
-    function testListParametersInRetina(deferred, testName, currentTestNumber) {
+    function testListParametersInRetina(test) {
         xcalarListParametersInRetina(thriftHandle, retinaName)
         .done(function(listParametersInRetinaOutput) {
             printResult(listParametersInRetinaOutput);
 
-            console.log("\tnumParameters: " + listParametersInRetinaOutput.numParameters);
-            for (var i = 0; i < listParametersInRetinaOutput.numParameters; i ++) {
+            console.log("\tnumParameters: " +
+                        listParametersInRetinaOutput.numParameters);
+            for (var i = 0; i < listParametersInRetinaOutput.numParameters;
+                 i++) {
                 console.log("\tparameters[" + i + "].parameterName = " +
-                            listParametersInRetinaOutput.parameters[i].parameterName);
+                            listParametersInRetinaOutput.parameters[i].
+                            parameterName);
                 console.log("\tparameters[" + i + "].parameterValue = " +
-                            listParametersInRetinaOutput.parameters[i].parameterValue);
+                            listParametersInRetinaOutput.parameters[i].
+                            parameterValue);
             }
 
             if (listParametersInRetinaOutput.numParameters == 1 &&
-                listParametersInRetinaOutput.parameters[0].parameterName == "foo") {
-                pass(deferred, testName, currentTestNumber);
+                listParametersInRetinaOutput.parameters[0].parameterName ==
+                "foo") {
+                test.pass();
             } else {
                 var reason = "list Parameters seems wrong";
-                fail(deferred, testName, currentTestNumber, reason);
+                test.fail(reason);
             }
         })
         .fail(function(reason) {
-            fail(deferred, testName, currentTestNumber, reason);
-        })
-    }
-
-    function testDeleteRetina(deferred, testName, currentTestNumber) {
-        xcalarApiDeleteRetina(thriftHandle, retinaName)
-        .done(function(status) {
-            pass(deferred, testName, currentTestNumber);
-        })
-        .fail(function(reason) {
-            fail(deferred, testName, currentTestNumber, reason);
+            test.fail(reason);
         });
     }
 
-    function testListFiles(deferred, testName, currentTestNumber) {
-        xcalarListFiles(thriftHandle, "file:///")
+    function testDeleteRetina(test) {
+        xcalarApiDeleteRetina(thriftHandle, retinaName)
+        .done(function(status) {
+            test.pass();
+        })
+        .fail(function(reason) {
+            test.fail(reason);
+        });
+    }
+
+    function testListFiles(test) {
+        xcalarListFiles(thriftHandle, "file:///", false)
         .done(function(listFilesOutput) {
             printResult(listFilesOutput);
 
@@ -1749,30 +1718,26 @@
                     file.attr.isDirectory.toString());
             }
 
-            pass(deferred, testName, currentTestNumber);
+            test.pass();
         })
-        .fail(function(reason) {
-            fail(deferred, testName, currentTestNumber, reason);
-        })
+        .fail(test.fail);
     }
 
     // Witness to bug 2020
-    function testApiMapStringToString(deferred, testName, currentTestNumber) {
-        var evalString = "string(user_id)"
+    function testApiMapStringToString(test) {
+        var evalString = "string(user_id)";
 
         xcalarApiMap(thriftHandle, "castUserId", evalString, origTable,
                      "user_id2")
         .done(function(filterOutput) {
-            pass(deferred, testName, currentTestNumber);
+            test.pass();
         })
-        .fail(function(reason) {
-            fail(deferred, testName, currentTestNumber, reason);
-        });
+        .fail(test.fail);
     }
 
     // Witness to bug 238
-    function testApiMapLongEvalString(deferred, testName, currentTestNumber) {
-        var evalString = "add(votes.funny, 1)"
+    function testApiMapLongEvalString(test) {
+        var evalString = "add(votes.funny, 1)";
         while (evalString.length <= XcalarApisConstantsT.XcalarApiMaxEvalStringLen) {
             evalString = "add(1, " + evalString + ")";
         }
@@ -1782,19 +1747,19 @@
         .done(function(filterOutput) {
             returnValue = 1;
             var reason = "Map succeeded with long eval string when it should have failed";
-            fail(deferred, testName, currentTestNumber, reason);
+            test.fail(reason);
         })
         .fail(function(reason) {
             if (reason === StatusT.StatusEvalStringTooLong) {
-                pass(deferred, testName, currentTestNumber);
+                test.pass();
             } else {
-                fail(deferred, testName, currentTestNumber, reason);
+                test.fail(reason);
             }
         });
     }
 
-    function testApiFilterLongEvalString(deferred, testName, currentTestNumber) {
-        var evalString = "add(votes.funny, 1)"
+    function testApiFilterLongEvalString(test) {
+        var evalString = "add(votes.funny, 1)";
         while (evalString.length <= XcalarApisConstantsT.XcalarApiMaxEvalStringLen) {
             evalString = "add(1, " + evalString + ")";
         }
@@ -1803,68 +1768,66 @@
         .done(function(filterOutput) {
             returnValue = 1;
             var reason = "Map succeeded with long eval string when it should have failed";
-            fail(deferred, testName, currentTestNumber, reason);
+            test.fail(reason);
         })
         .fail(function(reason) {
             if (reason === StatusT.StatusEvalStringTooLong) {
-                pass(deferred, testName, currentTestNumber);
+                test.pass();
             } else {
-                fail(deferred, testName, currentTestNumber, reason);
+                test.fail(reason);
             }
         });
     }
 
-    function testApiKeyAddOrReplace(deferred, testName, currentTestNumber, keyName, keyValue) {
+    function testApiKeyAddOrReplace(test, keyName, keyValue) {
         xcalarKeyAddOrReplace(thriftHandle,
                               XcalarApiKeyScopeT.XcalarApiKeyScopeGlobal,
                               keyName, keyValue, true)
         .done(function(status) {
             printResult(status);
-            pass(deferred, testName, currentTestNumber);
+            test.pass();
         })
         .fail(function(reason) {
-            fail(deferred, testName, currentTestNumber, reason);
+            test.fail(reason);
         });
 
     }
 
-    function testApiKeyInvalidScope(deferred, testName, currentTestNumber) {
+    function testApiKeyInvalidScope(test) {
         // XXX Remove once XcalarApiKeyScopeUser is implemented.
         xcalarKeyAddOrReplace(thriftHandle,
                               XcalarApiKeyScopeT.XcalarApiKeyScopeUser,
                               "foo", "foobar", false)
         .done(function(status) {
-            fail(deferred, testName, currentTestNumber,
-                 "Expected failure with scope XcalarApiKeyScopeUser.");
+            test.fail("Expected failure with scope XcalarApiKeyScopeUser.");
         })
         .fail(function(reason) {
             if (reason != StatusT.StatusUnimpl) {
-                fail(deferred, testName, currentTestNumber, reason);
+                test.fail(reason);
             }
             xcalarKeyAddOrReplace(thriftHandle, 666, "foo", "foobar", false)
             .done(function(status) {
-                fail(deferred, testName, currentTestNumber,
-                     "Expected failure given invalid scope.");
+                test.fail("Expected failure given invalid scope.");
             })
             .fail(function(reason) {
                 if (reason == StatusT.StatusInval) {
-                    pass(deferred, testName, currentTestNumber);
+                    test.pass();
                 } else {
-                    fail(deferred, testName, currentTestNumber, reason);
+                    test.fail(reason);
                 }
             });
         });
     }
 
-    function testApiKeyAdd(deferred, testName, currentTestNumber) {
-        testApiKeyAddOrReplace(deferred, testName, currentTestNumber, "mykey", "myvalue1");
+    function testApiKeyAdd(test) {
+        testApiKeyAddOrReplace(test, "mykey", "myvalue1");
     }
 
-    function testApiKeyReplace(deferred, testName, currentTestNumber) {
-        testApiKeyAddOrReplace(deferred, testName, currentTestNumber, "mykey", "myvalue2");
+    function testApiKeyReplace(test) {
+        testApiKeyAddOrReplace(test, "mykey", "myvalue2");
     }
 
-    function testSchedTask(deferred, testName, currentTestNumber) {
+    function testSchedTask(test) {
         var dummyArg = new XcalarApiSchedArgTypeT();
         dummyArg.executeRetinaInput = new XcalarApiExecuteRetinaInputT();
 
@@ -1877,44 +1840,64 @@
             xcalarListSchedTask(thriftHandle, "sched task")
             .done(function(listSchedTaskOutput) {
                 if (listSchedTaskOutput.numSchedTask != 1) {
-                    var reason = "wrong number of task. got \"" + listSchedTaskOutput.numSchedTask + "\" instead of \"1\"";
-                    fail(deferred, testName, currentTestNumber, reason);
-                } else if (listSchedTaskOutput.schedTaskInfo[0].name != "sched task") {
-                    var reason = "wrong name of task. got \"" + listSchedTaskOutput.schedTaskInfo[0].name + "\" instead of \"sched task\"";
-                    fail(deferred, testName, currentTestNumber, reason);
+                    var reason = "wrong number of task. got \"" +
+                                 listSchedTaskOutput.numSchedTask +
+                                 "\" instead of \"1\"";
+                    test.fail(reason);
+                } else if (listSchedTaskOutput.schedTaskInfo[0].name !=
+                           "sched task") {
+                    var reason = "wrong name of task. got \"" +
+                                 listSchedTaskOutput.schedTaskInfo[0].name +
+                                 "\" instead of \"sched task\"";
+                    test.fail(reason);
                 } else if (listSchedTaskOutput.schedTaskInfo[0].numFailure != 0) {
-                    var reason = "wrong numFailure of task. got \"" + listSchedTaskOutput.schedTaskInfo[0].numFailure + "\" instead of \"0\"";
-                    fail(deferred, testName, currentTestNumber, reason);
-                } else if (listSchedTaskOutput.schedTaskInfo[0].scheduleInfo.schedTimeInSecond != 1000) {
-                    var reason = "wrong schedule time of task. got \"" + listSchedTaskOutput.schedTaskInfo[0].scheduleInfo.schedTimeInSecond + "\" instead of \"1000\"";
-                    fail(deferred, testName, currentTestNumber, reason);
-                } else if (listSchedTaskOutput.schedTaskInfo[0].type != SchedTaskTypeT.StQuery) {
-                    var reason = "wrong task type. got \"" + listSchedTaskOutput.schedTaskInfo[0].type + "\" instead of " + SchedTaskTypeT.StQuery;
-                    fail(deferred, testName, currentTestNumber, reason);
-                } else if (listSchedTaskOutput.schedTaskInfo[0].arg.executeRetinaInput.retinaName != dummyArg.executeRetinaInput.retinaName) {
-                    var reason = "wrong retina name got \"" + listSchedTaskOutput.schedTaskInfo[0].arg.executeRetinaInput.retinaName + "\" instead of " + dummyArg.executeRetinaInput.retinaName;
-                    fail(deferred, testName, currentTestNumber, reason);
+                    var reason = "wrong numFailure of task. got \"" +
+                                 listSchedTaskOutput.schedTaskInfo[0].numFailure +
+                                 "\" instead of \"0\"";
+                    test.fail(reason);
+                } else if (listSchedTaskOutput.schedTaskInfo[0].
+                           scheduleInfo.schedTimeInSecond != 1000) {
+                    var reason = "wrong schedule time of task. got \"" +
+                                 listSchedTaskOutput.schedTaskInfo[0].
+                                 scheduleInfo.schedTimeInSecond +
+                                 "\" instead of \"1000\"";
+                    test.fail(reason);
+                } else if (listSchedTaskOutput.schedTaskInfo[0].type !=
+                           SchedTaskTypeT.StQuery) {
+                    var reason = "wrong task type. got \"" +
+                                 listSchedTaskOutput.schedTaskInfo[0].type +
+                                 "\" instead of " + SchedTaskTypeT.StQuery;
+                    test.fail(reason);
+                } else if (listSchedTaskOutput.schedTaskInfo[0].arg.
+                           executeRetinaInput.retinaName !=
+                           dummyArg.executeRetinaInput.retinaName) {
+                    var reason = "wrong retina name got \"" +
+                                 listSchedTaskOutput.schedTaskInfo[0].arg.
+                                 executeRetinaInput.retinaName +
+                                 "\" instead of " +
+                                 dummyArg.executeRetinaInput.retinaName;
+                    test.fail(reason);
                 }
 
                 xcalarDeleteSchedTask(thriftHandle, "sched task")
                 .done(function(status) {
                   printResult(status);
-                  pass(deferred, testName, currentTestNumber);
+                  test.pass();
                 })
                 .fail(function(reason) {
-                    fail(deferred, testName, currentTestNumber, StatusTStr[reason]);
+                    test.fail(StatusTStr[reason]);
                 });
            })
            .fail(function(reason) {
-               fail(deferred, testName, currentTestNumber, StatusTStr[reason]);
+               test.fail(StatusTStr[reason]);
            });
         }, function(reason) {
-            fail(deferred, testName, currentTestNumber, StatusTStr[reason]);
+            test.fail(StatusTStr[reason]);
         }
         );
     }
 
-    function testApiKeyAppend(deferred, testName, currentTestNumber) {
+    function testApiKeyAppend(test) {
         // Insert original key
         xcalarKeyAddOrReplace(thriftHandle,
                               XcalarApiKeyScopeT.XcalarApiKeyScopeGlobal,
@@ -1940,17 +1923,17 @@
         .then(function(lookupOutput) {
             if (lookupOutput.value != "aaa") {
                 var reason = "wrong value. got \"" + lookupOutput.value + "\" instead of \"aaa\"";
-                fail(deferred, testName, currentTestNumber, reason);
+                test.fail(reason);
             } else {
-                pass(deferred, testName, currentTestNumber);
+                test.pass();
             }
         })
         .fail(function(reason) {
-            fail(deferred, testName, currentTestNumber, reason);
+            test.fail(reason);
         });
     }
 
-    function testApiKeySetIfEqual(deferred, testName, currentTestNumber) {
+    function testApiKeySetIfEqual(test) {
         // Insert original key
         xcalarKeyAddOrReplace(thriftHandle,
                               XcalarApiKeyScopeT.XcalarApiKeyScopeGlobal,
@@ -1961,8 +1944,8 @@
                                 XcalarApiKeyScopeT.XcalarApiKeyScopeGlobal,
                                 false, "yourkey", "wrongvalue", "x", "x", "x")
             .then(function() {
-                var reason = "Expected failure due to incorrect oldValue."
-                fail(deferred, testName, currentTestNumber, reason);
+                var reason = "Expected failure due to incorrect oldValue.";
+                test.fail(reason);
             })
             .fail(function(reason) {
                 // Try replacing with correct oldValue
@@ -1977,9 +1960,8 @@
                 })
                 .then(function(lookupOutput) {
                     if (lookupOutput.value != "c") {
-                        fail(deferred, testName, currentTestNumber,
-                             "Wrong value. Got '" + lookupOutput.value +
-                             "'. Expected 'c'.");
+                        test.fail("Wrong value. Got '" + lookupOutput.value +
+                                  "'. Expected 'c'.");
                     } else {
                         return xcalarKeyLookup(thriftHandle,
                                      XcalarApiKeyScopeT.XcalarApiKeyScopeGlobal,
@@ -1988,9 +1970,8 @@
                 })
                 .then(function(lookupOutput) {
                     if (lookupOutput.value != "y") {
-                        fail(deferred, testName, currentTestNumber,
-                             "Wrong value. Got '" + lookupOutput.value +
-                             "'. Expected 'y'.");
+                        test.fail("Wrong value. Got '" + lookupOutput.value +
+                                  "'. Expected 'y'.");
                     } else {
                         xcalarKeySetIfEqual(thriftHandle,
                                      XcalarApiKeyScopeT.XcalarApiKeyScopeGlobal,
@@ -2001,35 +1982,33 @@
                                      "x")
                             .then(function(lookupOutput) {
                                 if (lookupOutput.value != "z") {
-                                    fail(deferred, testName, currentTestNumber,
-                                         "Wrong value. Got '" +
+                                    test.fail("Wrong value. Got '" +
                                          lookupOutput.value +
                                          "'. Expected 'z'.");
                                 } else {
-                                    pass(deferred, testName, currentTestNumber);
+                                    test.pass();
                                 }
                             })
                             .fail(function(reason) {
-                                fail(deferred, testName, currentTestNumber,
-                                     reason);
+                                test.fail(reason);
                             });
                         })
                         .fail(function(reason) {
-                            fail(deferred, testName, currentTestNumber, reason);
+                            test.fail(reason);
                         });
                     }
                 })
                 .fail(function(reason) {
-                    fail(deferred, testName, currentTestNumber, reason);
+                    test.fail(reason);
                 });
             });
         })
         .fail(function(reason) {
-            fail(deferred, testName, currentTestNumber, reason);
+            test.fail(reason);
         });
     }
 
-    function testApiKeyLookup(deferred, testName, currentTestNumber) {
+    function testApiKeyLookup(test) {
         xcalarKeyLookup(thriftHandle,
                         XcalarApiKeyScopeT.XcalarApiKeyScopeGlobal,
                         "mykey")
@@ -2037,43 +2016,43 @@
             printResult(lookupOutput);
             if (lookupOutput.value != "myvalue2") {
                 var reason = "wrong value. got \"" + lookupOutput.value + "\" instead of \"myvalue2\"";
-                fail(deferred, testName, currentTestNumber, reason);
+                test.fail(reason);
             } else {
-                pass(deferred, testName, currentTestNumber);
+                test.pass();
             }
         })
         .fail(function(reason) {
-            fail(deferred, testName, currentTestNumber, reason);
+            test.fail(reason);
         });
     }
 
-    function testApiKeyDelete(deferred, testName, currentTestNumber) {
+    function testApiKeyDelete(test) {
         xcalarKeyDelete(thriftHandle,
                         XcalarApiKeyScopeT.XcalarApiKeyScopeGlobal, "mykey")
         .done(function(status) {
             printResult(status);
-            pass(deferred, testName, currentTestNumber);
+            test.pass();
         })
         .fail(function(reason) {
-            fail(deferred, testName, currentTestNumber, reason);
+            test.fail(reason);
         });
     }
 
-    function testApiKeyBogusLookup(deferred, testName, currentTestNumber) {
+    function testApiKeyBogusLookup(test) {
         xcalarKeyLookup(thriftHandle,
                         XcalarApiKeyScopeT.XcalarApiKeyScopeGlobal,
                         "mykey")
         .done(function(lookupOutput) {
             printResult(lookupOutput);
             var reason = "lookup did not fail";
-            fail(deferred, testName, currentTestNumber, reason);
+            test.fail(reason);
         })
         .fail(function(reason) {
-            pass(deferred, testName, currentTestNumber);
+            test.pass();
         });
     }
 
-    function testApiKeySessions(deferred, testName, currentTestNumber) {
+    function testApiKeySessions(test) {
         var session1 = "mgmtdTestApiKeySessions1" + (new Date().getTime());
         var session2 = "mgmtdTestApiKeySessions2" + (new Date().getTime());
 
@@ -2102,12 +2081,11 @@
                         // Create a new session and switch to it.
                         return xcalarApiSessionNew(thriftHandle, session2, false, "");
                     } else {
-                        fail(deferred, testName, currentTestNumber,
-                             "Failed lookup. Expected x got " + lookupOutput.value);
+                        test.fail("Failed lookup. Expected x got " + lookupOutput.value);
                     }
                 })
                 .then(function() {
-                    return xcalarApiSessionSwitch(thriftHandle, session2, session1);
+                    return xcalarApiSessionSwitch(thriftHandle, session2, session1, false);
                 })
                 .then (function() {
                     // Make sure the key we created in the other session doesn't turn up
@@ -2116,23 +2094,22 @@
                                     XcalarApiKeyScopeT.XcalarApiKeyScopeSession,
                                     keyName)
                     .then(function() {
-                        fail(deferred, testName, currentTestNumber,
-                             "Lookup in session2 should have failed.");
+                        test.fail("Lookup in session2 should have failed.");
                     })
                     .fail(function(reason) {
-                        pass(deferred, testName, currentTestNumber);
+                        test.pass();
                     });
                 })
                 .fail(function(reason) {
-                    fail(deferred, testName, currentTestNumber, StatusTStr[reason]);
+                    test.fail(StatusTStr[reason]);
                 });
             });
         }, function(reason) {
-            fail(deferred, testName, currentTestNumber, StatusTStr[reason]);
+            test.fail(StatusTStr[reason]);
         });
     }
 
-    function testTop(deferred, testName, currentTestNumber) {
+    function testTop(test) {
         xcalarApiTop(thriftHandle, XcalarApisConstantsT.XcalarApiDefaultTopIntervalInMs)
         .done(function(topOutput) {
             var ii;
@@ -2145,14 +2122,14 @@
                 console.log("\tMemAvailable: ", topOutput.topOutputPerNode[ii].totalAvailableMemInBytes);
                 console.log("\n\n");
             }
-            pass(deferred, testName, currentTestNumber);
+            test.pass();
         })
         .fail(function(reason) {
-            fail(deferred, testName, currentTestNumber, reason);
+            test.fail(reason);
         });
     }
 
-    function testMemory(deferred, testName, currentTestNumber) {
+    function testMemory(test) {
         xcalarApiMemory(thriftHandle, null)
         .done(function(memOutput) {
             var ii;
@@ -2167,14 +2144,14 @@
                 }
                 console.log("\n\n");
             }
-            pass(deferred, testName, currentTestNumber);
+            test.pass();
         })
         .fail(function(reason) {
-            fail(deferred, testName, currentTestNumber, reason);
+            test.fail(reason);
         });
     }
 
-    function testListXdfs(deferred, testName, currentTestNumber) {
+    function testListXdfs(test) {
         xcalarApiListXdfs(thriftHandle, "*", "*")
         .done(function(listXdfsOutput) {
             var ii;
@@ -2189,38 +2166,38 @@
                  }
                  console.log("\n\n");
              }
-             pass(deferred, testName, currentTestNumber);
+             test.pass();
         })
         .fail(function(reason) {
-            fail(deferred, testName, currentTestNumber, reason);
+            test.fail(reason);
         });
     }
 
-    function testCreateDht(deferred, testName, currentTestNumber) {
-        var dhtName = "mgmtTestCustomDht"
+    function testCreateDht(test) {
+        var dhtName = "mgmtTestCustomDht";
 
         function deleteTableSuccessFn(status) {
             xcalarApiDeleteDht(thriftHandle, dhtName)
             .done(function (status) {
-                pass(deferred, testName, currentTestNumber);
+                test.pass();
             })
             .fail(function(status) {
-                var reason = "deleteDht returned status: " + StatusTStr[status]
-                fail(deferred, testName, currentTestNumber, reason);
+                var reason = "deleteDht returned status: " + StatusTStr[status];
+                test.fail(reason);
             });
         }
 
         function indexDatasetSuccessFn(indexOutput) {
-            xcalarGetTableCount(thriftHandle, indexOutput.tableName)
-            .done(function(countOutput) {
+            xcalarGetTableMeta(thriftHandle, indexOutput.tableName)
+            .done(function(metaOutput) {
                 var totalCount = 0;
-                for (var ii = 0; ii < countOutput.numCounts; ii++) {
-                    console.log("Node " + ii + " - " + countOutput.counts[ii]);
-                    if (countOutput.counts[ii] == 0) {
-                        var reason = "Node " + ii + " has 0 entries"
-                        fail(deferred, testName, currentTestNumber, reason);
+                for (var ii = 0; ii < metaOutput.numMetas; ii++) {
+                    console.log("Node " + ii + " - " + metaOutput.metas[ii].numRows);
+                    if (metaOutput.metas[ii].numRows === 0) {
+                        var reason = "Node " + ii + " has 0 entries";
+                        test.fail(reason);
                     }
-                    totalCount += countOutput.counts[ii];
+                    totalCount += metaOutput.metas[ii].numRows;
                 }
 
                 if (totalCount === 70817) {
@@ -2228,36 +2205,38 @@
                     .done(deleteTableSuccessFn)
                     .fail(function(status) {
                         var reason = "deleteTable returned status: " + StatusTStr[status];
-                        fail(deferred, testName, currentTestNumber, reason);
+                        test.fail(reason);
                     });
                 } else {
                     var reason = "Total count " + totalCount + " != 70817";
-                    fail(deferred, testName, currentTestNumber, reason);
+                    test.fail(reason);
                 }
             })
             .fail(function(status) {
-                var reason = "getCount returned status: " + StatusTStr[status]
-                fail(deferred, testName, currentTestNumber, reason);
+                var reason = "getCount returned status: " + StatusTStr[status];
+                test.fail(reason);
             });
         }
 
         function createDhtSuccessFn(status) {
             xcalarIndexDataset(thriftHandle, yelpUserDataset,
-                               "average_stars", "yelp/user-average_stars", dhtName, XcalarOrderingT.XcalarOrderingInvalid)
+                               "average_stars", "yelp/user-average_stars",
+                               dhtName, XcalarOrderingT.XcalarOrderingInvalid)
             .done(indexDatasetSuccessFn)
             .fail(function(status) {
-                var reason = "Index dataset returned status: " + StatusTStr[status]
-                fail(deferred, testName, currentTestNumber, reason);
+                var reason = "Index dataset returned status: " + StatusTStr[status];
+                test.fail(reason);
             });
         }
 
         function startCreateDhtTest(status) {
             console.log("deleteDht returned status: " + StatusTStr[status]);
-            xcalarApiCreateDht(thriftHandle, dhtName, 5.0, 0.0, XcalarOrderingT.XcalarOrderingUnordered)
+            xcalarApiCreateDht(thriftHandle, dhtName, 5.0, 0.0,
+                               XcalarOrderingT.XcalarOrderingUnordered)
             .done(createDhtSuccessFn)
             .fail(function(status) {
-                var reason = "createDht returned status: " + StatusTStr[status]
-                fail(deferred, testName, currentTestNumber, reason);
+                var reason = "createDht returned status: " + StatusTStr[status];
+                test.fail(reason);
             });
 
         }
@@ -2266,9 +2245,10 @@
         .then(startCreateDhtTest, startCreateDhtTest);
     }
 
-    function testPyExecOnLoad(deferred, testName, currentTestNumber) {
+    function testPyExecOnLoad(test) {
 
-        var content = fs.read(system.env['MGMTDTEST_DIR'] + '/PyExecOnLoadTest.py');
+        var content = fs.read(system.env['MGMTDTEST_DIR'] +
+                      '/PyExecOnLoadTest.py');
 
         xcalarApiUdfDelete(thriftHandle, "PyExecOnLoadTest")
         .always(function() {
@@ -2296,114 +2276,114 @@
                         moviesDataset = loadOutput.dataset.name;
                         moviesDatasetSet = true;
                         origDataset = loadOutput.dataset.name;
-                        pass(deferred, testName, currentTestNumber);
+                        test.pass();
                     })
                     .fail(function(reason) {
-                        fail(deferred, testName, currentTestNumber,
-                             StatusTStr[reason]);
+                        test.fail(StatusTStr[reason]);
                     });
                 } else {
                     var reason = "status = " + status;
-                    fail(deferred, testName, currentTestNumber, reason);
+                    test.fail(reason);
                 }
             })
             .fail(function(reason) {
-                fail(deferred, testName, currentTestNumber, reason);
+                test.fail(reason);
             });
         });
     }
 
-    function testDeleteTable(deferred, testName, currentTestNumber) {
+    function testDeleteTable(test) {
         xcalarDeleteDagNodes(thriftHandle, "yelp/user-votes.funny-map", SourceTypeT.SrcTable)
         .done(function(status) {
             printResult(status);
-            pass(deferred, testName, currentTestNumber);
+            test.pass();
         })
         .fail(function(reason) {
-            fail(deferred, testName, currentTestNumber, StatusTStr[reason]);
+            test.fail(reason);
         });
     }
 
 /** None of these tests really work yet. It's just stubs for later
-    function testSessionNew(deferred, testName, currentTestNumber) {
+    function testSessionNew(test) {
         xcalarApiSessionNew(thriftHandle, "testSession", false, "")
         .done(function(status) {
             printResult(status);
-            pass(deferred, testName, currentTestNumber);
+            test.pass();
         })
         .fail(function(reason) {
-            fail(deferred, testName, currentTestNumber, reason);
+            test.fail(reason);
         });
     }
 
-    function testSessionDelete(deferred, testName, currentTestNumber) {
+    function testSessionDelete(test) {
         xcalarApiSessionDelete(thriftHandle, "*")
         .done(function(status) {
             printResult(status);
-            pass(deferred, testName, currentTestNumber);
+            test.pass();
         })
         .fail(function(reason) {
-            fail(deferred, testName, currentTestNumber, reason);
+            test.fail(reason);
         });
     }
 
-    function testSessionInact(deferred, testName, currentTestNumber) {
-        xcalarApiSessionInact(thriftHandle, "*")
+    function testSessionInact(test) {
+        xcalarApiSessionInact(thriftHandle, "*", false)
         .done(function(status) {
             printResult(status);
-            pass(deferred, testName, currentTestNumber);
+            test.pass();
         })
         .fail(function(reason) {
-            fail(deferred, testName, currentTestNumber, reason);
+            test.fail(reason);
         });
     }
 
-    function testSessionList(deferred, testName, currentTestNumber) {
+    function testSessionList(test) {
         xcalarApiSessionList(thriftHandle, "*")
         .done(function(sessionListOutput) {
             printResult(sessionListOutput);
-            pass(deferred, testName, currentTestNumber);
+            test.pass();
         })
         .fail(function(reason) {
-            fail(deferred, testName, currentTestNumber, reason);
+            test.fail(reason);
         });
     }
 
-    function testSessionRename(deferred, testName, currentTestNumber) {
+    function testSessionRename(test) {
         xcalarApiSessionRename(thriftHandle, "testSession", "testSession2")
         .done(function(status) {
             printResult(status);
-            pass(deferred, testName, currentTestNumber);
+            test.pass();
         })
         .fail(function(reason) {
-            fail(deferred, testName, currentTestNumber, reason);
+            test.fail(reason);
         });
     }
 
-    function testSessionSwitch(deferred, testName, currentTestNumber) {
-        xcalarApiSessionSwitch(thriftHandle, "testSession2", "testSession3")
+    function testSessionSwitch(test) {
+        xcalarApiSessionSwitch(thriftHandle, "testSession2", "testSession3",
+                               false)
         .done(function(status) {
             printResult(status);
-            pass(deferred, testName, currentTestNumber);
+            test.pass();
         })
         .fail(function(reason) {
-            fail(deferred, testName, currentTestNumber, reason);
+            test.fail(reason);
         });
     }
 
-    function testSessionPersist(deferred, testName, currentTestNumber) {
+    function testSessionPersist(test) {
         xcalarApiSessionPersist(thriftHandle, "*")
         .done(function(sessionListOutput) {
             printResult(sessionListOutput);
-            pass(deferred, testName, currentTestNumber);
+            test.pass();
         })
         .fail(function(reason) {
-            fail(deferred, testName, currentTestNumber, reason);
+            test.fail(reason);
         });
     }
 */
     // Witness to bug 103
-    function testBulkDeleteTables(deferred, testName, currentTestNumber) {
+    function testBulkDeleteTables(test) {
         xcalarDeleteDagNodes(thriftHandle, "*", SourceTypeT.SrcTable)
         .done(function(deleteTablesOutput) {
             printResult(deleteTablesOutput);
@@ -2413,15 +2393,12 @@
                 console.log("\t" + delTableStatus.table.tableName + ": " +
                             StatusTStr[delTableStatus.status]);
             }
-
-            pass(deferred, testName, currentTestNumber);
+            test.pass();
         })
-        .fail(function(reason) {
-            fail(deferred, testName, currentTestNumber, reason);
-        });
+        .fail(test.fail);
     }
 
-    function testBulkDeleteExport(deferred, testName, currentTestNumber) {
+    function testBulkDeleteExport(test) {
         xcalarDeleteDagNodes(thriftHandle, "*", SourceTypeT.SrcExport)
         .done(function(deleteDagNodesOutput) {
             printResult(deleteDagNodesOutput);
@@ -2432,14 +2409,12 @@
                             StatusTStr[delTableStatus.status]);
             }
 
-            pass(deferred, testName, currentTestNumber);
+            test.pass();
         })
-        .fail(function(reason) {
-            fail(deferred, testName, currentTestNumber, reason);
-        });
+        .fail(test.fail);
     }
 
-    function testBulkDeleteConstants(deferred, testName, currentTestNumber) {
+    function testBulkDeleteConstants(test) {
         xcalarDeleteDagNodes(thriftHandle, "*", SourceTypeT.SrcConstant)
         .done(function(deleteDagNodesOutput) {
             printResult(deleteDagNodesOutput);
@@ -2450,14 +2425,12 @@
                             StatusTStr[delTableStatus.status]);
             }
 
-            pass(deferred, testName, currentTestNumber);
+            test.pass();
         })
-        .fail(function(reason) {
-            fail(deferred, testName, currentTestNumber, reason);
-        });
+        .fail(test.fail);
     }
 
-    function testBulkDeleteDataset(deferred, testName, currentTestNumber) {
+    function testBulkDeleteDataset(test) {
         xcalarDeleteDagNodes(thriftHandle, "*", SourceTypeT.SrcDataset)
         .done(function(deleteDagNodesOutput) {
             printResult(deleteDagNodesOutput);
@@ -2468,60 +2441,55 @@
                             StatusTStr[delTableStatus.status]);
             }
 
-            pass(deferred, testName, currentTestNumber);
+            test.pass();
         })
-        .fail(function(reason) {
-            fail(deferred, testName, currentTestNumber, reason);
-        });
+        .fail(test.fail);
     }
 
-    function testDestroyDataset(deferred, testName, currentTestNumber) {
+    function testDestroyDataset(test) {
         if (moviesDatasetSet) {
             xcalarDeleteDagNodes(thriftHandle, moviesDataset, SourceTypeT.SrcDataset)
             .done(function(status) {
                 printResult(status);
-                pass(deferred, testName, currentTestNumber);
+                test.pass();
             })
             .fail(function(reason) {
-                fail(deferred, testName, currentTestNumber, StatusTStr[reason]);
+                test.fail(StatusTStr[reason]);
             });
         } else {
             console.log("Skipping test because this test depends on testPyExecOnLoad\n");
-            skip(deferred, testName, currentTestNumber);
+            skip(test);
         }
     }
 
     // Witness to bug 98
-    function testShutdown(deferred, testName, currentTestNumber) {
+    function testShutdown(test) {
         xcalarShutdown(thriftHandle)
         .done(function(status) {
             printResult(status);
-            pass(deferred, testName, currentTestNumber);
+            test.pass();
         })
-        .fail(function(reason) {
-            fail(deferred, testName, currentTestNumber, reason);
-        });
+        .fail(test.fail);
     }
 
-    function testSupportGenerate(deferred, testName, currentTestNumber) {
+    function testSupportGenerate(test) {
 
         xcalarApiSupportGenerate(thriftHandle)
         .done(function(output) {
             if (fs.exists(output.bundlePath)) {
                 fs.removeTree(output.bundlePath);
-                pass(deferred, testName, currentTestNumber);
+                test.pass();
             } else {
                 printResult(output);
-                fail(deferred, testName, currentTestNumber,
-                     "Failed to locate bundle path from output.");
+                test.fail("Failed to locate bundle path from output.");
             }
         })
-        .fail(function(reason){
-            fail(deferred, testName, currentTestNumber, StatusTStr[reason]);
+        .fail(function(reason) {
+            test.fail(StatusTStr[reason]);
         });
     }
 
-    function testUdf(deferred, testName, currentTestNumber)
+    function testUdf(test)
     {
         var source1 = "def foo():\n return 'foo'\n";
         var source2 = "def bar():\n return 'bar'\n";
@@ -2536,8 +2504,7 @@
             .then(function (output) {
                 if (output.source != source1) {
                     printResult(output);
-                    fail(deferred, testName, currentTestNumber,
-                         "Expected source '" + source1 + "' got '" + output.source + "'.");
+                    test.fail("Expected source '" + source1 + "' got '" + output.source + "'.");
                 } else {
                     return xcalarApiUdfUpdate(thriftHandle,
                                               UdfTypeT.UdfTypePython,
@@ -2550,27 +2517,27 @@
             .then(function (output) {
                 if (output.source != source2) {
                     printResult(output);
-                    fail(deferred, testName, currentTestNumber,
-                         "Expected source '" + source2 + "' got '" + output.source + "'.");
+                    test.fail("Expected source '" + source2 + "' got '" +
+                            output.source + "'.");
                 } else {
                     return xcalarApiUdfDelete(thriftHandle, "mgmttestfoo");
                 }
             })
             .then(function () {
-                pass(deferred, testName, currentTestNumber);
+                test.pass();
             })
             .fail(function(reason) {
-                fail(deferred, testName, currentTestNumber, StatusTStr[reason]);
+                test.fail(StatusTStr[reason]);
             });
         });
     }
 
     // XXX: Implement me
-    function testImportRetina(deferred, testName, currentTestNumber) {
+    function testImportRetina(test) {
 
         xcalarApiImportRetina(thriftHandle)
         .always(function() {
-            fail(deferred, testName, currentTestNumber, "Not implemented");
+            test.fail("Not implemented");
         });
     }
 
@@ -2609,139 +2576,142 @@
     retinaExportParamStr  = "retinaDstFile.csv";
 
     // Format
-    // addTestCase(testCases, testFn, testName, timeout, TestCaseEnabled, Witness)
-    addTestCase(testCases, testStartNodes, "startNodes", defaultTimeout, startNodesState, "");
-    addTestCase(testCases, testGetVersion, "getVersion", defaultTimeout, TestCaseEnabled, "");
+    // addTestCase(testFn, testName, timeout, TestCaseEnabled, Witness)
+    addTestCase(testStartNodes, "startNodes", defaultTimeout, startNodesState, "");
+    addTestCase(testGetNumNodes, "getNumNodes", defaultTimeout, TestCaseDisabled, "");
+    addTestCase(testGetVersion, "getVersion", defaultTimeout, TestCaseEnabled, "");
 
     // This actually starts our sessions, so run this before any test
     // that requires sessions
-    addTestCase(testCases, testApiKeySessions, "key sessions", defaultTimeout, TestCaseEnabled, "");
+    addTestCase(testApiKeySessions, "key sessions", defaultTimeout, TestCaseEnabled, "");
 
-    addTestCase(testCases, testBulkDestroyDs, "bulk destroy ds", defaultTimeout, TestCaseEnabled, "");
-    addTestCase(testCases, testSchedTask, "test schedtask", defaultTimeout, TestCaseEnabled, "");
-    addTestCase(testCases, testLoad, "load", defaultTimeout, TestCaseEnabled, "");
+    addTestCase(testBulkDestroyDs, "bulk destroy ds", defaultTimeout, TestCaseEnabled, "");
+    addTestCase(testSchedTask, "test schedtask", defaultTimeout, TestCaseEnabled, "");
+    addTestCase(testBadLoad, "bad load", defaultTimeout, TestCaseEnabled, "");
+    addTestCase(testLoad, "load", defaultTimeout, TestCaseEnabled, "");
+
+    addTestCase(testLoadEdgeCaseDos, "loadDos", defaultTimeout, TestCaseEnabled, "4415");
 
     // Xc-1981
-    addTestCase(testCases, testGetDagOnAggr, "get dag on aggregate", defaultTimeout, TestCaseDisabled, "1981");
+    addTestCase(testGetDagOnAggr, "get dag on aggregate", defaultTimeout, TestCaseDisabled, "1981");
 
-    addTestCase(testCases, testLoadBogus, "bogus load", defaultTimeout, TestCaseEnabled, "");
-    addTestCase(testCases, testListDatasets, "list datasets", defaultTimeout, TestCaseEnabled, "");
-    addTestCase(testCases, testGetQueryIndex, "test get query Index", defaultTimeout, TestCaseEnabled, "");
-    addTestCase(testCases, testGetQueryLoad, "test get query Load", defaultTimeout, TestCaseEnabled, "");
-    addTestCase(testCases, testIndexDatasetIntSync, "index dataset (int) Sync", defaultTimeout, TestCaseEnabled, "");
-    addTestCase(testCases, testIndexDatasetInt, "index dataset (int)", defaultTimeout, TestCaseEnabled, "");
-    addTestCase(testCases, testIndexDatasetStr, "index dataset (str)", defaultTimeout, TestCaseEnabled, "");
-    addTestCase(testCases, testIndexTable, "index table (str) Sync", defaultTimeout, TestCaseEnabled, "");
-    addTestCase(testCases, testIndexDatasetBogus, "bogus index dataset", defaultTimeout, TestCaseEnabled, "");
-    addTestCase(testCases, testIndexTable2, "index table (str) 2", defaultTimeout, TestCaseEnabled, "");
-    addTestCase(testCases, testIndexTableBogus, "bogus index table 2", defaultTimeout, TestCaseEnabled, "");
-    addTestCase(testCases, testGetTableRefCount, "table refCount", defaultTimeout, TestCaseEnabled, "");
-    addTestCase(testCases, testRenameNode, "rename node", defaultTimeout, TestCaseEnabled, "");
-    addTestCase(testCases, testGetDatasetCount, "dataset count", defaultTimeout, TestCaseEnabled, "");
-    addTestCase(testCases, testGetTableCount, "table count", defaultTimeout, TestCaseEnabled, "");
-    addTestCase(testCases, testListTables, "list tables", defaultTimeout, TestCaseEnabled, "");
-
-    // XXX Re-enable as soon as bug is fixed
-    addTestCase(testCases, testGetStats, "get stats", defaultTimeout, TestCaseEnabled, "");
+    addTestCase(testLoadBogus, "bogus load", defaultTimeout, TestCaseEnabled, "");
+    addTestCase(testListDatasets, "list datasets", defaultTimeout, TestCaseEnabled, "");
+    addTestCase(testGetQueryIndex, "test get query Index", defaultTimeout, TestCaseEnabled, "");
+    addTestCase(testGetQueryLoad, "test get query Load", defaultTimeout, TestCaseEnabled, "");
+    addTestCase(testIndexDatasetIntSync, "index dataset (int) Sync", defaultTimeout, TestCaseEnabled, "");
+    addTestCase(testIndexDatasetInt, "index dataset (int)", defaultTimeout, TestCaseEnabled, "");
+    addTestCase(testIndexDatasetStr, "index dataset (str)", defaultTimeout, TestCaseEnabled, "");
+    addTestCase(testIndexTable, "index table (str) Sync", defaultTimeout, TestCaseEnabled, "");
+    addTestCase(testIndexDatasetBogus, "bogus index dataset", defaultTimeout, TestCaseEnabled, "");
+    addTestCase(testIndexTable2, "index table (str) 2", defaultTimeout, TestCaseEnabled, "");
+    addTestCase(testIndexTableBogus, "bogus index table 2", defaultTimeout, TestCaseEnabled, "");
+    addTestCase(testGetTableRefCount, "table refCount", defaultTimeout, TestCaseEnabled, "");
+    addTestCase(testGetTableMeta, "table meta", defaultTimeout, TestCaseEnabled, "");
+    addTestCase(testRenameNode, "rename node", defaultTimeout, TestCaseEnabled, "");
+    addTestCase(testGetDatasetCount, "dataset count", defaultTimeout, TestCaseEnabled, "");
+    addTestCase(testGetTableCount, "table count", defaultTimeout, TestCaseEnabled, "");
+    addTestCase(testListTables, "list tables", defaultTimeout, TestCaseEnabled, "");
 
     // XXX Re-enable as soon as bug is fixed
-    addTestCase(testCases, testGetStatGroupIdMap, "get stats group id map", defaultTimeout, TestCaseEnabled, "");
+    addTestCase(testGetStats, "get stats", defaultTimeout, TestCaseEnabled, "");
 
-    addTestCase(testCases, testGetStatsByGroupId, "get stats group id", defaultTimeout, TestCaseEnabled, "");
-    addTestCase(testCases, testResetStats, "reset stats", defaultTimeout, TestCaseEnabled, "");
-    addTestCase(testCases, testMakeResultSetFromDataset, "result set (via dataset)", defaultTimeout, TestCaseEnabled, "");
-    addTestCase(testCases, testMakeResultSetFromTable, "result set (via tables)", defaultTimeout, TestCaseEnabled, "");
-    addTestCase(testCases, testResultSetNextDataset, "result set next (dataset)", defaultTimeout, TestCaseEnabled, "");
-    addTestCase(testCases, testResultSetAbsolute, "result set absolute", defaultTimeout, TestCaseEnabled, "");
-    addTestCase(testCases, testResultSetAbsoluteBogus, "result set absolute bogus", defaultTimeout, TestCaseEnabled, "95");
-    addTestCase(testCases, testResultSetNextTable, "result set next (table)", defaultTimeout, TestCaseEnabled, "");
-    addTestCase(testCases, testFreeResultSetDataset, "free result set (dataset)", defaultTimeout, TestCaseEnabled, "");
-    addTestCase(testCases, testFreeResultSetTable, "free result set (table)", defaultTimeout, TestCaseEnabled, "");
-    addTestCase(testCases, testFilter, "filter", defaultTimeout, TestCaseEnabled, "");
-    addTestCase(testCases, testProject, "project", defaultTimeout, TestCaseEnabled, "");
-    addTestCase(testCases, testJoin, "join", defaultTimeout, TestCaseEnabled, "");
-    addTestCase(testCases, testGetOpStats, "getOpStats", defaultTimeout, TestCaseEnabled, "");
+    // XXX Re-enable as soon as bug is fixed
+    addTestCase(testGetStatGroupIdMap, "get stats group id map", defaultTimeout, TestCaseEnabled, "");
+
+    addTestCase(testGetStatsByGroupId, "get stats group id", defaultTimeout, TestCaseEnabled, "");
+    addTestCase(testResetStats, "reset stats", defaultTimeout, TestCaseEnabled, "");
+    addTestCase(testMakeResultSetFromDataset, "result set (via dataset)", defaultTimeout, TestCaseEnabled, "");
+    addTestCase(testMakeResultSetFromTable, "result set (via tables)", defaultTimeout, TestCaseEnabled, "");
+    addTestCase(testResultSetNextDataset, "result set next (dataset)", defaultTimeout, TestCaseEnabled, "");
+    addTestCase(testResultSetAbsolute, "result set absolute", defaultTimeout, TestCaseEnabled, "");
+    addTestCase(testResultSetAbsoluteBogus, "result set absolute bogus", defaultTimeout, TestCaseEnabled, "95");
+    addTestCase(testResultSetNextTable, "result set next (table)", defaultTimeout, TestCaseEnabled, "");
+    addTestCase(testFreeResultSetDataset, "free result set (dataset)", defaultTimeout, TestCaseEnabled, "");
+    addTestCase(testFreeResultSetTable, "free result set (table)", defaultTimeout, TestCaseEnabled, "");
+    addTestCase(testFilter, "filter", defaultTimeout, TestCaseEnabled, "");
+    addTestCase(testProject, "project", defaultTimeout, TestCaseEnabled, "");
+    addTestCase(testJoin, "join", defaultTimeout, TestCaseEnabled, "");
+    addTestCase(testGetOpStats, "getOpStats", defaultTimeout, TestCaseEnabled, "");
 
     // XXX Re-enable when either the query-DAG bug is fixed or the test is changed to create a session and
     //     have the query run under the current session instead of creating its own.
-    addTestCase(testCases, testCancel, "test cancel", defaultTimeout, TestCaseEnabled, "");
-    addTestCase(testCases, testQuery, "Submit Query", defaultTimeout, TestCaseDisabled, "");
-    addTestCase(testCases, testQueryState, "Request query state of indexing dataset (int)", defaultTimeout, TestCaseDisabled, "");
-    addTestCase(testCases, waitForDag, "waitForDag", defaultTimeout, TestCaseDisabled, "");
-    addTestCase(testCases, testDag, "dag", defaultTimeout, TestCaseDisabled, "568");
-    addTestCase(testCases, testGroupBy, "groupBy", defaultTimeout, TestCaseEnabled, "");
-    addTestCase(testCases, testAggregate, "Aggregate", defaultTimeout, TestCaseEnabled, "");
-    addTestCase(testCases, testMakeResultSetFromAggregate, "result set of aggregate", defaultTimeout, TestCaseEnabled, "");
-    addTestCase(testCases, testResultSetNextAggregate, "result set next of aggregate", defaultTimeout, TestCaseEnabled, "");
-    addTestCase(testCases, testFreeResultSetAggregate, "result set free of aggregate", defaultTimeout, TestCaseEnabled, "");
-    addTestCase(testCases, testApiMap, "map", defaultTimeout, TestCaseDisabled, "");
-    addTestCase(testCases, testApiMap, "map", defaultTimeout, TestCaseDisabled, "");
-    addTestCase(testCases, testDestroyDatasetInUse, "destroy dataset in use", defaultTimeout, TestCaseDisabled, "");
-    addTestCase(testCases, testAddExportTarget, "add export target", defaultTimeout, TestCaseEnabled, "");
-    addTestCase(testCases, testListExportTargets, "list export targets", defaultTimeout, TestCaseEnabled, "");
-    addTestCase(testCases, testExportCSV, "export csv", defaultTimeout, TestCaseEnabled, "");
-    addTestCase(testCases, testExportSQL, "export sql", defaultTimeout, TestCaseEnabled, "");
+    addTestCase(testCancel, "test cancel", defaultTimeout, TestCaseEnabled, "");
+    addTestCase(testQuery, "Submit Query", defaultTimeout, TestCaseDisabled, "");
+    addTestCase(testQueryState, "Request query state of indexing dataset (int)", defaultTimeout, TestCaseDisabled, "");
+    addTestCase(waitForDag, "waitForDag", defaultTimeout, TestCaseDisabled, "");
+    addTestCase(testDag, "dag", defaultTimeout, TestCaseDisabled, "568");
+    addTestCase(testGroupBy, "groupBy", defaultTimeout, TestCaseEnabled, "");
+    addTestCase(testAggregate, "Aggregate", defaultTimeout, TestCaseEnabled, "");
+    addTestCase(testMakeResultSetFromAggregate, "result set of aggregate", defaultTimeout, TestCaseEnabled, "");
+    addTestCase(testResultSetNextAggregate, "result set next of aggregate", defaultTimeout, TestCaseEnabled, "");
+    addTestCase(testFreeResultSetAggregate, "result set free of aggregate", defaultTimeout, TestCaseEnabled, "");
+    addTestCase(testApiMap, "map", defaultTimeout, TestCaseEnabled, "");
+    addTestCase(testDestroyDatasetInUse, "destroy dataset in use", defaultTimeout, TestCaseDisabled, "");
+    addTestCase(testAddExportTarget, "add export target", defaultTimeout, TestCaseEnabled, "");
+    addTestCase(testListExportTargets, "list export targets", defaultTimeout, TestCaseEnabled, "");
+    addTestCase(testExportCSV, "export csv", defaultTimeout, TestCaseEnabled, "");
+    addTestCase(testExportSQL, "export sql", defaultTimeout, TestCaseEnabled, "");
 
     // Together, these set of test cases make up the retina sanity
-    addTestCase(testCases, testMakeRetina, "makeRetina", defaultTimeout, TestCaseEnabled, "");
-    addTestCase(testCases, testListRetinas, "listRetinas", defaultTimeout, TestCaseEnabled, "");
-    addTestCase(testCases, testGetRetina1, "getRetina - iter 1 / 2", defaultTimeout, TestCaseEnabled, "");
-    addTestCase(testCases, testUpdateRetina, "updateRetina", defaultTimeout, TestCaseEnabled, "");
-    addTestCase(testCases, testGetRetina2, "getRetina - iter 2 / 2", defaultTimeout, TestCaseEnabled, "");
-    addTestCase(testCases, testExecuteRetina, "executeRetina", defaultTimeout, TestCaseEnabled, "");
-    addTestCase(testCases, testListParametersInRetina, "listParametersInRetina", defaultTimeout, TestCaseEnabled, "");
-    addTestCase(testCases, testDeleteRetina, "deleteRetina", defaultTimeout, TestCaseEnabled, "");
+    addTestCase(testMakeRetina, "makeRetina", defaultTimeout, TestCaseEnabled, "");
+    addTestCase(testListRetinas, "listRetinas", defaultTimeout, TestCaseEnabled, "");
+    addTestCase(testGetRetina1, "getRetina - iter 1 / 2", defaultTimeout, TestCaseEnabled, "");
+    addTestCase(testUpdateRetina, "updateRetina", defaultTimeout, TestCaseEnabled, "");
+    addTestCase(testGetRetina2, "getRetina - iter 2 / 2", defaultTimeout, TestCaseEnabled, "");
+    addTestCase(testExecuteRetina, "executeRetina", defaultTimeout, TestCaseEnabled, "");
+    addTestCase(testListParametersInRetina, "listParametersInRetina", defaultTimeout, TestCaseEnabled, "");
+    addTestCase(testDeleteRetina, "deleteRetina", defaultTimeout, TestCaseEnabled, "");
 
     // XXX: Re-enable once implemented
-    addTestCase(testCases, testImportRetina, "importRetina", defaultTimeout, TestCaseDisabled, "");
+    addTestCase(testImportRetina, "importRetina", defaultTimeout, TestCaseDisabled, "");
 
-    addTestCase(testCases, testListFiles, "list files", defaultTimeout, TestCaseEnabled, "");
+    addTestCase(testListFiles, "list files", defaultTimeout, TestCaseEnabled, "");
 
     // This pair must go together
-    addTestCase(testCases, testPyExecOnLoad, "python during load", defaultTimeout, TestCaseEnabled, "");
-    addTestCase(testCases, testDestroyDataset, "destroy dataset", defaultTimeout, TestCaseEnabled, "");
+    addTestCase(testPyExecOnLoad, "python during load", defaultTimeout, TestCaseEnabled, "");
+    addTestCase(testDestroyDataset, "destroy dataset", defaultTimeout, TestCaseEnabled, "");
 
-    addTestCase(testCases, testUdf, "UDF test", defaultTimeout, TestCaseEnabled, "");
+    addTestCase(testUdf, "UDF test", defaultTimeout, TestCaseEnabled, "");
 
     // Witness to bug 238
-    addTestCase(testCases, testApiMapLongEvalString, "Map long eval string", defaultTimeout, TestCaseEnabled, "238");
-    addTestCase(testCases, testApiFilterLongEvalString, "Filter long eval string", defaultTimeout, TestCaseEnabled, "238");
+    addTestCase(testApiMapLongEvalString, "Map long eval string", defaultTimeout, TestCaseEnabled, "238");
+    addTestCase(testApiFilterLongEvalString, "Filter long eval string", defaultTimeout, TestCaseEnabled, "238");
 
     // Witness to bug 2020
-    addTestCase(testCases, testApiMapStringToString, "cast string to string", defaultTimeout, TestCaseEnabled, "2020");
+    addTestCase(testApiMapStringToString, "cast string to string", defaultTimeout, TestCaseEnabled, "2020");
 
-    addTestCase(testCases, testApiKeyAdd, "key add", defaultTimeout, TestCaseEnabled, "");
-    addTestCase(testCases, testApiKeyReplace, "key replace", defaultTimeout, TestCaseEnabled, "");
-    addTestCase(testCases, testApiKeyLookup, "key lookup", defaultTimeout, TestCaseEnabled, "");
-    addTestCase(testCases, testApiKeyDelete, "key delete", defaultTimeout, TestCaseEnabled, "");
-    addTestCase(testCases, testApiKeyBogusLookup, "bogus key lookup", defaultTimeout, TestCaseEnabled, "");
-    addTestCase(testCases, testApiKeyAppend, "key append", defaultTimeout, TestCaseEnabled, "");
-    addTestCase(testCases, testApiKeySetIfEqual, "key set if equal", defaultTimeout, TestCaseEnabled, "");
+    addTestCase(testApiKeyAdd, "key add", defaultTimeout, TestCaseEnabled, "");
+    addTestCase(testApiKeyReplace, "key replace", defaultTimeout, TestCaseEnabled, "");
+    addTestCase(testApiKeyLookup, "key lookup", defaultTimeout, TestCaseEnabled, "");
+    addTestCase(testApiKeyDelete, "key delete", defaultTimeout, TestCaseEnabled, "");
+    addTestCase(testApiKeyBogusLookup, "bogus key lookup", defaultTimeout, TestCaseEnabled, "");
+    addTestCase(testApiKeyAppend, "key append", defaultTimeout, TestCaseEnabled, "");
+    addTestCase(testApiKeySetIfEqual, "key set if equal", defaultTimeout, TestCaseEnabled, "");
 
-    addTestCase(testCases, testTop, "top test", defaultTimeout, TestCaseEnabled, "");
-    addTestCase(testCases, testMemory, "memory test", defaultTimeout, TestCaseEnabled, "");
-    addTestCase(testCases, testListXdfs, "listXdfs test", defaultTimeout, TestCaseEnabled, "");
+    addTestCase(testTop, "top test", defaultTimeout, TestCaseEnabled, "");
+    addTestCase(testMemory, "memory test", defaultTimeout, TestCaseEnabled, "");
+    addTestCase(testListXdfs, "listXdfs test", defaultTimeout, TestCaseEnabled, "");
 
     // Witness to bug Xc-2371
-    addTestCase(testCases, indexAggregateRaceTest, "index-aggregate race test", defaultTimeout, TestCaseEnabled, "2371")
+    addTestCase(indexAggregateRaceTest, "index-aggregate race test", defaultTimeout, TestCaseEnabled, "2371")
 
     // XXX Re-enable when waitpid bug is fixed
-    addTestCase(testCases, testSupportGenerate, "support generate", defaultTimeout, TestCaseDisabled, "");
+    addTestCase(testSupportGenerate, "support generate", defaultTimeout, TestCaseDisabled, "");
 
     // Re-enabled with delete DHT added
-    addTestCase(testCases, testCreateDht, "create DHT test", defaultTimeout, TestCaseEnabled, "");
+    addTestCase(testCreateDht, "create DHT test", defaultTimeout, TestCaseEnabled, "");
 
     // XXX re-enable when the query-DAG bug is fixed
-    addTestCase(testCases, testDeleteTable, "delete table", defaultTimeout, TestCaseDisabled, "");
+    addTestCase(testDeleteTable, "delete table", defaultTimeout, TestCaseDisabled, "");
 
-    addTestCase(testCases, testBulkDeleteTables, "bulk delete tables", defaultTimeout, TestCaseEnabled, "103");
-    addTestCase(testCases, testBulkDeleteExport, "bulk delete export node ", defaultTimeout, TestCaseEnabled, "");
-    addTestCase(testCases, testBulkDeleteConstants, "bulk delete constant node ", defaultTimeout, TestCaseEnabled, "");
-    addTestCase(testCases, testBulkDeleteDataset, "bulk delete constant node ", defaultTimeout, TestCaseEnabled, "2314");
+    addTestCase(testBulkDeleteTables, "bulk delete tables", defaultTimeout, TestCaseEnabled, "103");
+    addTestCase(testBulkDeleteExport, "bulk delete export node ", defaultTimeout, TestCaseEnabled, "");
+    addTestCase(testBulkDeleteConstants, "bulk delete constant node ", defaultTimeout, TestCaseEnabled, "");
+    addTestCase(testBulkDeleteDataset, "bulk delete constant node ", defaultTimeout, TestCaseEnabled, "2314");
     // temporarily disabled due to bug 973
     // temporarily disabled due to bug 973
-    addTestCase(testCases, testShutdown, "shutdown", defaultTimeout, TestCaseDisabled, "98");
-
+    addTestCase(testShutdown, "shutdown", defaultTimeout, TestCaseDisabled, "98");
 
     runTestSuite(testCases);
-}();
+})($, {});
