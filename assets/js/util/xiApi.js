@@ -418,7 +418,6 @@ window.XIApi = (function(XIApi, $) {
             });
         } else {
             // multi join
-
             // left cols
             var lTableId = xcHelper.getTableId(lTableName);
             var rTableId = xcHelper.getTableId(rTableName);
@@ -426,25 +425,14 @@ window.XIApi = (function(XIApi, $) {
             var rCols = gTables[rTableId].tableCols;
 
             var lNewName = getNewTableName(lTableName);
-            var lString  = 'default:multiJoin(';
             var lColName = xcHelper.randName("leftJoinCol");
-
-            for (var i = 0; i <= len - 2; i++) {
-                lString += lColNames[i] + ", ";
-            }
-            lString += lColNames[len - 1] + ")";
+            var lString = xcHelper.getMultiJoinMapString(lColNames);
 
             // right cols
             var rNewName = getNewTableName(rTableName);
 
-            var rString  = 'default:multiJoin(';
+            var rString  = xcHelper.getMultiJoinMapString(rColNames);
             var rColName = xcHelper.randName("rightJoinCol");
-
-            for (var i = 0; i <= len - 2; i++) {
-                rString += rColNames[i] + ", ";
-            }
-
-            rString += rColNames[len - 1] + ")";
 
             var deferred1 = XcalarMap(lColName, lString,
                                       lTableName, lNewName, txId);
@@ -604,7 +592,7 @@ window.XIApi = (function(XIApi, $) {
         var deferred = jQuery.Deferred();
 
         // From Jerene:
-        // 1. merge multi columns into one using udf multiJoinModule
+        // 1. merge multi columns into one using concat xdf
         // 2. sort this merged column
         var tableId = xcHelper.getTableId(tableName);
         var tableCols = null;
@@ -620,7 +608,7 @@ window.XIApi = (function(XIApi, $) {
         var mapTableName = getNewTableName(tableName);
         var indexedTableName;
 
-        var mapStr = "default:multiJoin(" + groupByCols.join(", ") + ")";
+        var mapStr = xcHelper.getMultiJoinMapString(groupByCols);
         var groupByField = xcHelper.randName("multiGroupBy");
 
         XcalarMap(groupByField, mapStr, tableName, mapTableName, txId)

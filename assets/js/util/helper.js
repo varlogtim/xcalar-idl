@@ -11,7 +11,7 @@ window.xcHelper = (function($, xcHelper) {
         var id;
         if (idOrEl instanceof jQuery) {
             id = idOrEl.attr('id');
-        } else if (typeof (idOrEl) == "object") {
+        } else if (typeof (idOrEl) === "object") {
             id = $(idOrEl).attr('id');
         } else {
             id = idOrEl;
@@ -135,6 +135,22 @@ window.xcHelper = (function($, xcHelper) {
         }
 
         return (type);
+    };
+
+    xcHelper.getMultiJoinMapString = function(args) {
+        var mapStr = "";
+        var len = args.length;
+        for (var i = 0; i < len - 1; i++) {
+            mapStr += 'concat(string(' + args[i] + '), concat(".Xc.", ';
+        }
+
+        mapStr += 'string(' + args[len - 1] + ')';
+
+        for (var i = 0; i < len; i++) {
+            mapStr += ')';
+        }
+
+        return mapStr;
     };
 
     xcHelper.getFilterOptions = function(operator, colName, uniqueVals, isExist) {
@@ -1261,7 +1277,7 @@ window.xcHelper = (function($, xcHelper) {
             selection.removeAllRanges();
             try {
                 selection.addRange(range);
-            } catch(error) {
+            } catch (error) {
                 console.warn(error);
             }
 
@@ -1464,7 +1480,7 @@ window.xcHelper = (function($, xcHelper) {
         for (var i = 0; i < val.length; i++) {
             if (inQuotes) {
                 if ((singleQuote && val[i] === "'") ||
-                    (!singleQuote && val[i] === '"'))  {
+                    (!singleQuote && val[i] === '"')) {
                     inQuotes = false;
                 } else if (val[i] === '\\') {
                     i++; // ignore next character
