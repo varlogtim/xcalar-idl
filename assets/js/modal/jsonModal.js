@@ -15,7 +15,6 @@ window.JSONModal = (function($, JSONModal) {
 
     // constant
     var jsonAreaMinWidth = 340;
-    window.gProjectOff = true;
 
     JSONModal.setup = function() {
         $jsonModal = $("#jsonModal");
@@ -803,10 +802,6 @@ window.JSONModal = (function($, JSONModal) {
         var tableName = gTables[tableId].tableName;
 
         $jsonArea.append(getJsonWrapHtml(prettyJson, tableName, rowNum));
-
-        if (window.gProjectOff) {
-            $jsonModal.find('.dropdownBox').hide();
-        }
 
         addDataToJsonWrap($jsonArea, $jsonTd, isArray);
     }
