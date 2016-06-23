@@ -879,8 +879,11 @@ DSObj.prototype = {
         if (self.fileSize != null) {
             deferred.resolve(self.fileSize);
             return (deferred.promise());
+        } else if (self.isRecur) {
+            self.fileSize = "N/A";
+            deferred.resolve(self.fileSize);
+            return (deferred.promise());
         }
-
 
         var loadURL = self.path;
         var slashIndex = loadURL.lastIndexOf('/');

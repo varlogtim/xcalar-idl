@@ -210,16 +210,22 @@ window.DS = (function ($, DS) {
             "path"      : loadURL,
             "fileSize"  : null,
             "numEntries": null,
-            "isRecur"   : isRecur,
+            "isRecur"   : isRecur
         });
 
         var $grid = DS.getGrid(dsObj.getId());
-        $grid.addClass('inactive');
-        $grid.append('<div class="waitingIcon"></div>');
-        $grid.find('.waitingIcon').fadeIn(200);
-
-        DS.focusOn($grid); // focus on grid before load
-        DataStore.update();
+        $grid.addClass('inactive').append('<div class="waitingIcon"></div>');
+        $grid.hide();
+        var timerFired = false;
+        var gridTimer;
+        // We give the backend 200ms to return an error
+        gridTimer = setTimeout(function() {
+            $grid.show();
+            $grid.find('.waitingIcon').fadeIn(200);
+            DS.focusOn($grid); // focus on grid before load
+            DataStore.update();
+            timerFired = true;
+        }, 200);
 
         var fullDSName = dsObj.getFullName();
 
@@ -259,7 +265,12 @@ window.DS = (function ($, DS) {
             // should release the ds pointer first
             DS.releaseWithResultSetId(dsResultSetId)
             .always(function() {
+                if (!timerFired) {
+                    clearTimeout(gridTimer);
+                    DS.focusOn($grid);
+                }
                 $grid.removeClass("inactive").find('.waitingIcon').remove();
+                $grid.show();
 
                 // display new dataset
                 refreshDS();
@@ -281,6 +292,7 @@ window.DS = (function ($, DS) {
             });
         })
         .fail(function(error) {
+            clearTimeout(gridTimer);
             removeDS($grid);
             DataStore.update();
 

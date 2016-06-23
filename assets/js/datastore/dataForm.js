@@ -189,30 +189,34 @@ window.DatastoreForm = (function($, DatastoreForm) {
 
         // validation check of loadURL
         var isRecur = $recurCheckbox.find(".checkbox").hasClass("checked");
-        XcalarListFiles(loadURL, isRecur)
-        .then(function() {
-            var msgId = StatusMessage.addMsg({
-                "msg"      : StatusMessageTStr.LoadingDataset + ": " + dsName,
-                "operation": SQLOps.DSLoad
-            });
 
-            DS.load(dsName, dsFormat, loadURL, fieldDelim, lineDelim,
-                    header, moduleName, funcName, isRecur)
-            .then(function(dsObj) {
-                StatusMessage.success(msgId, false, null, {
-                    "newDataSet": true,
-                    "dataSetId" : dsObj.getId()
-                });
-                deferred.resolve();
-            })
-            .fail(function(error) {
-                Alert.error(StatusMessageTStr.LoadFailed, error.error);
-                StatusMessage.fail(StatusMessageTStr.LoadFailed, msgId);
-                deferred.reject(error);
+
+        var msgId = StatusMessage.addMsg({
+            "msg"      : StatusMessageTStr.LoadingDataset + ": " + dsName,
+            "operation": SQLOps.DSLoad
+        });
+
+        DS.load(dsName, dsFormat, loadURL, fieldDelim, lineDelim,
+                header, moduleName, funcName, isRecur)
+        .then(function(dsObj) {
+            StatusMessage.success(msgId, false, null, {
+                "newDataSet": true,
+                "dataSetId" : dsObj.getId()
             });
+            deferred.resolve();
         })
         .fail(function(error) {
-            StatusBox.show(error.error, $filePath, true);
+            // show status box if input val is unchanged and visible
+            // and error is because of incorrect file name
+            if (error.status === StatusT.StatusNoEnt &&
+                loadURL.indexOf($filePath.val()) > -1 &&
+                $filePath.is(':visible')) {
+                StatusBox.show(error.error, $filePath, true);
+            } else {
+                Alert.error(StatusMessageTStr.LoadFailed, error.error);
+            }
+
+            StatusMessage.fail(StatusMessageTStr.LoadFailed, msgId);
             deferred.reject(error);
         });
 
