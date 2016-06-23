@@ -296,8 +296,7 @@ describe('Constructor Test', function() {
         .and.to.be.null;
         expect(userPref).to.have.property('activeWorksheet')
         .and.to.be.null;
-         expect(userPref).to.have.property('keepJoinTables')
-        .and.to.be.null;
+         expect(userPref).to.have.property('keepJoinTables');
 
         userPref.update();
         expect(userPref.activeWorksheet).not.to.be.null;

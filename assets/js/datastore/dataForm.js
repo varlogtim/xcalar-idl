@@ -479,13 +479,19 @@ window.DatastoreForm = (function($, DatastoreForm) {
     function isValidToPreview() {
         // We use the format to check instead of useing suffix of the file
         // this is in case user wrongly name the file and could not preview
-        var format = formatMap[$formatText.data("format")];
-        var options = {"type": "info"};
-
+        var format = $formatText.data("format");
+        // allow empty format
         if (!format) {
-            // StatusBox.show(ErrTStr.NoEmptyList, $filePath, false);
-            return (true);
+            return true;
         }
+
+        if (!formatMap.hasOwnProperty(format)) {
+            StatusBox.show(ErrTStr.NoEmptyList, $filePath, false);
+            return false;
+        }
+
+        format = formatMap[format];
+        var options = {"type": "info"};
 
         if (getFilePath() === "") {
             StatusBox.show(ErrTStr.NoEmpty, $filePath, false, options);

@@ -59,7 +59,7 @@ function dataFormModuleTest() {
             DatastoreForm.__testOnly__.resetForm();
             expect($filePath.val()).to.be.empty;
             expect($fileName.val()).to.be.empty;
-            expect($formatText.data('format')).to.equal('CSV');
+            expect($formatText.data('format')).to.equal('');
         });
     });
 
@@ -75,7 +75,7 @@ function dataFormModuleTest() {
             DatastoreForm.clear();
             expect($filePath.val()).to.be.empty;
             expect($fileName.val()).to.be.empty;
-            expect($formatText.data("format")).to.equal("CSV");
+            expect($formatText.data("format")).to.equal("");
         });
     });
 
@@ -227,6 +227,15 @@ function dataFormModuleTest() {
             // check status box
             assert.isTrue($statusBox.is(":visible"), "see statux box");
             assert.equal($statusBox.find(".message").text(), ErrTStr.NoPreviewExcel);
+        });
+
+        it("Should allow empty format", function() {
+            $formatText.data("format", "");
+            var isValid = DatastoreForm.__testOnly__.isValidToPreview();
+            expect(isValid).to.be.true;
+
+            // check status box
+            assert.isFalse($statusBox.is(":visible"), "no statux box");
         });
 
         it("Should allow other case", function() {
