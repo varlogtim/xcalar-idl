@@ -334,16 +334,20 @@ window.TestSuite = (function($, TestSuite) {
             $("#importDataSubmit").click();
 
             // import airports dataset
-            $("#importDataButton").click();
-            $("#fileBrowserModal .close").click();
-            $("#fileProtocol input").val(FileProtocol.nfs);
-            $("#filePath").val(testDataLoc + "flight" + "/airports.csv");
-            $("#fileName").val(dsName2);
-            $("#fileFormat .iconWrapper .icon").click();
-            $("#fileFormat li[name='CSV']").click();
-            $("#fieldDelim .icon").click();
-            $("#fieldDelim .list li[name='comma']").click();
-            $("#importDataSubmit").click();
+            setTimeout(function() {
+                // XXXX run it too quick will result in some werid bug
+                // who wants to fix it can remove the setTimeout and run on cantor
+                $("#importDataButton").click();
+                $("#fileBrowserModal .close").click();
+                $("#fileProtocol input").val(FileProtocol.nfs);
+                $("#filePath").val(testDataLoc + "flight" + "/airports.csv");
+                $("#fileName").val(dsName2);
+                $("#fileFormat .iconWrapper .icon").click();
+                $("#fileFormat li[name='CSV']").click();
+                $("#fieldDelim .icon").click();
+                $("#fieldDelim .list li[name='comma']").click();
+                $("#importDataSubmit").click();
+            }, 500);
 
             var ds1Icon = getDSIcon(dsName1);
             var ds2Icon = getDSIcon(dsName2);
