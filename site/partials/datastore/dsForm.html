@@ -36,46 +36,172 @@
                   <div class="arrow"></div>
                 </div>
               </div>
-          </div>
-          <!-- hint -->
-          <div class="rowContent hint"><%= dicts.ds.Protocol %></div>
-          <button id="fileBrowserBtn" class="btn btnMid rowContent" type="button" <%= (dicts.tutor.name == 'datastoreDemo1') ? 'data-introstep="2"' : '' %>><%= dicts.common.BROWSE %></button>
-        </div>
-        <!-- souce path -->
-        <div class="row filePathRow">
-          <input id="filePath" class="rowContent input" type="text" name="filePath" spellcheck="false" autocomplete="off" required <%= (dicts.tutor.name == 'datastoreDemo1') ? 'data-introstep="3"' : '' %>>
-          <div class="hint rowContent"><%= dicts.dsForm.filePath %></div>
-          <button id="previewBtn" class="btn btnMid rowContent" type="button"><%= dicts.common.PREVIEW %></button>
-        </div>
-        <!-- recursive load -->
-        <div class="row">
-          <label class="rowTitle"></label>
-            <div id="recurCheckbox" class="checkboxSection rowContent">
-            <div class="checkbox iconWrapper">
-              <span class="icon"></span>
             </div>
-            <div class="text"><%= dicts.dsForm.Recur %></div>
+            <!-- hint -->
+            <div class="rowContent hint"><%= dicts.ds.Protocol %></div>
+            <button id="fileBrowserBtn" class="btn btnMid rowContent" type="button" <%= (dicts.tutor.name == 'datastoreDemo1') ? 'data-introstep="2"' : '' %>><%= dicts.common.BROWSE %></button>
+          </div>
+          <!-- souce path -->
+          <div class="row">
+            <input id="filePath" class="rowContent input" type="text" name="filePath" spellcheck="false" autocomplete="off" required <%= (dicts.tutor.name == 'datastoreDemo1') ? 'data-introstep="3"' : '' %>>
+            <div class="hint rowContent"><%= dicts.dsForm.filePath %></div>
+            <button id="previewBtn" class="btn btnMid rowContent" type="button"><%= dicts.common.PREVIEW %></button>
+          </div>
+          <div class="row">
+            <!-- recursive load -->
+            <div id="recurCheckbox" class="checkboxSection rowContent">
+              <div class="checkbox iconWrapper">
+                <span class="icon"></span>
+              </div>
+              <div class="text"><%= dicts.dsForm.Recur %></div>
+            </div>
           </div>
         </div>
-      </div>
-    </section>
-    <!-- file type -->
-    <section class="formSection clearfix">
-      <div class="title"><%= dicts.dsForm.DSType %></div>
-      <div class="content">
-        <div class="row">
-          <div id="fileFormat" class="dropDownList rowContent" <%= (dicts.tutor.name == 'datastoreDemo1') ? 'data-introstep="5"' : '' %>>
+      </section>
+      <!-- udf -->
+      <section id="udfArgs" class="formSection udf clearfix">
+        <div class="title">UDF <span class="hint">(Optional)</span></div>
+        <div class="content">
+          <!-- udf checkbox -->
+          <div class="row">
+            <div id="udfCheckbox" class="rowContent checkboxSection">
+              <div class="checkbox iconWrapper">
+                <span class="icon"></span>
+              </div>
+              <div class="text"><%= dicts.dsForm.UDF %></div>
+            </div>
+          </div>
+          <div class="row default-hidden">
+            <div id="udfArgs-moduleList" class="rowContent dropDownList">
               <input class="text" type="text" spellcheck="false" disabled>
               <div class="iconWrapper">
                 <span class="icon"></span>
               </div>
-              <!-- Format Menu -->
-              <div id="fileFormatMenu" class="list">
+              <div class="list">
+                <ul></ul>
+                <div class="scrollArea top">
+                  <div class="arrow"></div>
+                </div>
+                <div class="scrollArea bottom">
+                  <div class="arrow"></div>
+                </div>
+              </div>
+            </div>
+            <div class="rowContent hint"><%= dicts.common.ModuleName %></div>
+          </div>
+          <div class="row default-hidden">
+            <div id="udfArgs-funcList" class="rowContent dropDownList disabled">
+              <input class="text" type="text" spellcheck="false" disabled>
+              <div class="iconWrapper">
+                <span class="icon"></span>
+              </div>
+              <div class="list">
+                <ul></ul>
+                <div class="scrollArea top">
+                  <div class="arrow"></div>
+                </div>
+                <div class="scrollArea bottom">
+                  <div class="arrow"></div>
+                </div>
+              </div>
+            </div>
+            <div class="rowContent hint"><%= dicts.common.FuncName %></div>
+          </div>
+        </div>
+      </section>
+      <!-- file type -->
+      <section class="formSection clearfix">
+        <div class="title"><%= dicts.dsForm.DSType %></div>
+        <div class="content">
+          <div class="row">
+            <div id="fileFormat" class="dropDownList rowContent" <%= (dicts.tutor.name == 'datastoreDemo1') ? 'data-introstep="5"' : '' %>>
+                <input class="text" type="text" spellcheck="false" disabled>
+                <div class="iconWrapper">
+                  <span class="icon"></span>
+                </div>
+                <!-- Format Menu -->
+                <div id="fileFormatMenu" class="list">
+                  <ul>
+                    <li name="CSV"><%= dicts.dsFormat.CSV %></li>
+                    <li name="JSON"><%= dicts.dsFormat.JSON %></li>
+                    <li name="EXCEL"><%= dicts.dsFormat.EXCEL %></li>
+                    <li name="TEXT"><%= dicts.dsFormat.TEXT %></li>
+                  </ul>
+                  <div class="scrollArea top">
+                    <div class="arrow"></div>
+                  </div>
+                  <div class="scrollArea bottom">
+                    <div class="arrow"></div>
+                  </div>
+                </div>
+            </div>
+          </div>
+          <div class="row">
+            <div id="promoteHeaderCheckbox" class="checkboxSection rowContent">
+              <div class="checkbox iconWrapper">
+                  <span class="icon"></span>
+              </div>
+              <div class="text"><%= dicts.dsForm.Header %></div>
+            </div>
+          </div>
+        </div>
+      </section>
+      <!-- delimiter -->
+      <section id="csvDelim" class="formSection delimiter clearfix">
+        <div class="title">
+          <%= dicts.dsForm.Delim %>
+          <div title="<%= dicts.dsForm.DelimHint %>" data-toggle="tooltip" data-container="body" class="qMark"></div>
+        </div>
+        <div class="content">
+          <div class="row">
+            <!-- Field Delimiter -->
+            <div id="fieldDelim" class="rowContent dropDownList">
+              <input id="fieldText" class="text" type="text" spellcheck="false" disabled>
+              <div class="iconWrapper">
+                <span class="icon"></span>
+              </div>
+              <!-- dropdown menu -->
+              <div class="list">
                 <ul>
-                  <li name="CSV"><%= dicts.dsFormat.CSV %></li>
-                  <li name="JSON"><%= dicts.dsFormat.JSON %></li>
-                  <li name="EXCEL"><%= dicts.dsFormat.EXCEL %></li>
-                  <li name="TEXT"><%= dicts.dsFormat.TEXT %></li>
+                  <li name="default"><%= dicts.common.Default %> (\t)</li>
+                  <li name="comma"><%= dicts.common.Comma %> (,)</li>
+                  <li name="null" class="nullVal"><%= dicts.common.Null %></li>
+                  <li name="other" class="other">
+                    <span><%= dicts.common.Other %></span>
+                    <div class="inputWrap">
+                      <input class="delimVal" type="text" spellcheck="false">
+                      <div class="inputAction">
+                        <span class="icon"></span>
+                      </div>
+                    </div>
+                  </li>
+                </ul>
+                <div class="scrollArea top"><div class="arrow"></div></div>
+                <div class="scrollArea bottom"><div class="arrow"></div></div>
+              </div>
+            </div>
+            <div class="rowContent hint"><%= dicts.dsForm.FieldDelim %></div>
+          </div>
+          <div class="row">
+            <div id="lineDelim" class="rowContent dropDownList">
+              <input id="lineText" class="text" type="text" spellcheck="false" disabled>
+              <div class="iconWrapper">
+                <span class="icon"></span>
+              </div>
+              <!-- dropdown menu -->
+              <div class="list">
+                <ul>
+                  <li name="default"><%= dicts.common.Default %> (\n)</li>
+                  <li name="null" class="nullVal"><%= dicts.common.Null %></li>
+                  <li name="other" class="other">
+                    <span><%= dicts.common.Other %></span>
+                    <div class="inputWrap">
+                      <input class="delimVal" type="text" spellcheck="false">
+                      <div class="inputAction">
+                        <span class="icon"></span>
+                      </div>
+                    </div>
+                  </li>
                 </ul>
                 <div class="scrollArea top">
                   <div class="arrow"></div>
@@ -84,150 +210,26 @@
                   <div class="arrow"></div>
                 </div>
               </div>
+            </div>
+            <div class="rowContent hint"><%= dicts.dsForm.LineDelim %></div>
           </div>
         </div>
-        <div class="row">
-          <div id="promoteHeaderCheckbox" class="checkboxSection rowContent">
-            <div class="checkbox iconWrapper">
-              <span class="icon"></span>
-            </div>
-            <div class="text"><%= dicts.dsForm.Header %></div>
+      </section>
+      <!-- file name -->
+      <section class="formSection fileName clearfix">
+        <div class="title"><%= dicts.dsForm.DSName %></div>
+        <div class="content">
+          <div class="row">
+            <input id="fileName" class="rowContent input" name="fileName" type="text" autocomplete="off" spellcheck="false" title="<%= dicts.dsForm.fileNameTitle %>" required <%= (dicts.tutor.name == 'datastoreDemo1') ? 'data-introstep="4"' : '' %>>
           </div>
         </div>
-      </div>
-    </section>
-    <!-- udf -->
-    <section id="udfArgs" class="formSection udf clearfix">
-      <!-- udf checkbox -->
-      <div id="udfCheckbox" class="checkboxSection title">
-        <div class="checkbox iconWrapper">
-          <span class="icon"></span>
-        </div>
-        <div class="text"><%= dicts.dsForm.UDF %></div>
-      </div>
-      <div class="content">
-        <div class="row">
-          <div id="udfArgs-moduleList" class="rowContent dropDownList">
-            <input class="text" type="text" spellcheck="false" disabled>
-            <div class="iconWrapper">
-              <span class="icon"></span>
-            </div>
-            <div class="list">
-              <ul></ul>
-              <div class="scrollArea top">
-                <div class="arrow"></div>
-              </div>
-              <div class="scrollArea bottom">
-                <div class="arrow"></div>
-              </div>
-            </div>
-          </div>
-          <div class="rowContent hint"><%= dicts.common.ModuleName %></div>
-        </div>
-        <div class="row">
-          <div id="udfArgs-funcList" class="rowContent dropDownList disabled">
-            <input class="text" type="text" spellcheck="false" disabled>
-            <div class="iconWrapper">
-              <span class="icon"></span>
-            </div>
-            <div class="list">
-              <ul></ul>
-              <div class="scrollArea top">
-                <div class="arrow"></div>
-              </div>
-              <div class="scrollArea bottom">
-                <div class="arrow"></div>
-              </div>
-            </div>
-          </div>
-          <div class="rowContent hint"><%= dicts.common.FuncName %></div>
-        </div>
-      </div>
-    </section>
-      <!-- delimiter -->
-    <section id="csvDelim" class="formSection delimiter clearfix">
-      <div class="title">
-        <%= dicts.dsForm.Delim %>
-        <div title="<%= dicts.dsForm.DelimHint %>" data-toggle="tooltip" data-container="body" class="qMark"></div>
-      </div>
-      <div class="content">
-        <div class="row">
-          <!-- Field Delimiter -->
-          <div id="fieldDelim" class="rowContent dropDownList">
-            <input id="fieldText" class="text" type="text" spellcheck="false" disabled>
-            <div class="iconWrapper">
-              <span class="icon"></span>
-            </div>
-            <!-- dropdown menu -->
-            <div class="list">
-              <ul>
-                <li name="default"><%= dicts.common.Default %> (\t)</li>
-                <li name="comma"><%= dicts.common.Comma %> (,)</li>
-                <li name="null" class="nullVal"><%= dicts.common.Null %></li>
-                <li name="other" class="other">
-                  <span><%= dicts.common.Other %></span>
-                  <div class="inputWrap">
-                    <input class="delimVal" type="text" spellcheck="false">
-                    <div class="inputAction">
-                      <span class="icon"></span>
-                    </div>
-                  </div>
-                </li>
-              </ul>
-              <div class="scrollArea top"><div class="arrow"></div></div>
-              <div class="scrollArea bottom"><div class="arrow"></div></div>
-            </div>
-          </div>
-          <div class="rowContent hint"><%= dicts.dsForm.FieldDelim %></div>
-        </div>
-        <div class="row">
-          <div id="lineDelim" class="rowContent dropDownList">
-            <input id="lineText" class="text" type="text" spellcheck="false" disabled>
-            <div class="iconWrapper">
-              <span class="icon"></span>
-            </div>
-            <!-- dropdown menu -->
-            <div class="list">
-              <ul>
-                <li name="default"><%= dicts.common.Default %> (\n)</li>
-                <li name="null" class="nullVal"><%= dicts.common.Null %></li>
-                <li name="other" class="other">
-                  <span><%= dicts.common.Other %></span>
-                  <div class="inputWrap">
-                    <input class="delimVal" type="text" spellcheck="false">
-                    <div class="inputAction">
-                      <span class="icon"></span>
-                    </div>
-                  </div>
-                </li>
-              </ul>
-              <div class="scrollArea top">
-                <div class="arrow"></div>
-              </div>
-              <div class="scrollArea bottom">
-                <div class="arrow"></div>
-              </div>
-            </div>
-          </div>
-          <div class="rowContent hint"><%= dicts.dsForm.LineDelim %></div>
-        </div>
-      </div>
-    </section>
-    <!-- file name -->
-    <section class="formSection fileName clearfix">
-      <div class="title"><%= dicts.dsForm.DSName %></div>
-      <div class="content">
-        <div class="row">
-          <input id="fileName" class="rowContent input" name="fileName" type="text" autocomplete="off" spellcheck="false" title="<%= dicts.dsForm.fileNameTitle %>" required <%= (dicts.tutor.name == 'datastoreDemo1') ? 'data-introstep="4"' : '' %>>
-        </div>
-      </div>
-    </section>
+      </section>
     </div>
   </div>
   <!-- Bottom Form -->
   <div id="importDataBottomForm"  class="dataStoreFormBottom no-selection">
     <div class="contentViewMidWrap">
-      <button id="importDataSubmit" class="btn btnMid" type="submit" <%= (dicts.tutor.name == 'datastoreDemo1') ? 'data-introstep="7"' : '' %>><%= dicts.dsForm.CONFIRM %></button>
+      <button id="importDataSubmit" class="rowContent btn btnMid" type="submit" <%= (dicts.tutor.name == 'datastoreDemo1') ? 'data-introstep="7"' : '' %>><%= dicts.dsForm.CONFIRM %></button>
       <button id="importDataReset" class="btn btnMid btn-cancel" type="reset"><%= dicts.common.CANCEL %></button>
     </div>
   </div>

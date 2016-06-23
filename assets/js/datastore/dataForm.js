@@ -350,14 +350,13 @@ window.DatastoreForm = (function($, DatastoreForm) {
     function resetForm() {
         var protocol = getProtocol() || FileProtocol.file;
         $form.find("input").val("");
-        $form.removeClass("previewMode");
-        $("#udfArgs .content").addClass("disabled");
+        $form.find(".default-hidden").addClass("hidden");
         // keep header to be checked
         $udfCheckbox.find(".checkbox").removeClass("checked");
         // keep the current protocol
         setProtocol(protocol);
         resetUdfSection();
-        toggleFormat("CSV");
+        toggleFormat();
     }
 
     function cacheUDF(moduleName, funcName) {
@@ -410,18 +409,25 @@ window.DatastoreForm = (function($, DatastoreForm) {
     }
 
     function toggleFormat(format, text) {
+        var $csvDelim = $("#csvDelim").show();
+        var $fieldDelim = $("#fieldDelim").parent().show();
+        var $udfArgs = $("#udfArgs").show();
+        var $headerRow = $headerCheckBox.parent().show();
+
+        if (format == null) {
+            // reset case
+            $csvDelim.hide();
+            $headerRow.hide();
+            $formatText.data("format", "").val("");
+            return;
+        }
+
         format = format.toUpperCase();
         if (text == null) {
             text = $('#fileFormatMenu li[name="' + format + '"]').text();
         }
 
-        $formatText.data("format", format)
-                   .val(text);
-
-        var $csvDelim = $("#csvDelim").show();
-        var $fieldDelim = $("#fieldDelim").parent().show();
-        var $udfArgs = $("#udfArgs").show();
-        var $headerRow = $headerCheckBox.parent().show();
+        $formatText.data("format", format).val(text);
 
         switch (format) {
             case "CSV":
@@ -689,12 +695,12 @@ window.DatastoreForm = (function($, DatastoreForm) {
             if ($checkbox.hasClass("checked")) {
                 // uncheck box
                 $checkbox.removeClass("checked");
-                $udfArgs.find(".content").addClass("disabled");
+                $udfArgs.find(".default-hidden").addClass("hidden");
             } else {
                 // check the box
                 // listUDFSection();
                 $checkbox.addClass("checked");
-                $udfArgs.find(".content").removeClass("disabled");
+                $udfArgs.find(".default-hidden").removeClass("hidden");
             }
         });
 

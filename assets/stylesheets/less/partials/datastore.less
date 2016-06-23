@@ -148,11 +148,10 @@ input {
 .dataStoreForm {
     height: ~"calc(100% - 93px)";
     overflow: auto;
-}
-// Top Form Section
-.dataStoreFormTop {
-    background-color: @color-background-topForm;
-    padding: 30px 20px 1px 20px;
+
+    .hidden {
+        display: none;
+    }
 
     .disabled {
         opacity: 0.7;
@@ -161,24 +160,41 @@ input {
         .checkbox, .text, label {
             opacity: 0.5;
         }
+    }
 
-        .disabled {
-            // otherwise another opacity change may make
-            // style look different from other disabled field
-            opacity: 1 !important;
-        }
+    .middleFieldSize() {
+        .size(@width: ~"calc(100% - 310px)", @min-width: 150px);
     }
 
     .formSection {
         .title {
             .font(@weight: bold, @line-height: 30px);
-            .size(@width: 180px, @height: 100%);
+            .size(@width: 180px, @height: 30px);
             float: left;
+
+            .hint {
+                font-size: 12px;
+            }
         }
 
         .content {
             .size(@width: ~"calc(100% - 180px)");
             float: left;
+        }
+
+        &.filePath {
+            margin-bottom: 10px;
+        }
+
+        &.navigation {
+            margin-bottom: 10px;
+            .row {
+                .middleFieldSize;
+            }
+
+            #dsForm-continue {
+                float: left;
+            }
         }
     }
 
@@ -201,24 +217,32 @@ input {
             }
 
             &.input {
+               .middleFieldSize;
                 box-shadow: inset 0 1px 2px rgba(0,0,0,0.3);
                 padding: 0 10px;
-            }
-
-            &.input, {
-                .size(@width: ~"calc(100% - 310px)", @min-width: 150px);
             }
 
             &.btn {
                 float: right;
                 margin: 0;
             }
+
+            .link {
+                line-height: 30px;
+                text-decoration: underline;
+                color: @color-text-blue;
+                cursor: pointer;
+
+                &:hover {
+                    color: @color-text-topAction;
+                }
+            }
         }
     }
 
     .dropDownList {
-        .styleDropDownList(~"calc(100% - 310px)", 30px, false);
-        min-width: 150px;
+        .styleDropDownList(~"calc(100% - 390px)", 30px, false);
+        .middleFieldSize;
     }
 
     .checkboxSection {
@@ -235,6 +259,21 @@ input {
             margin-left: 5px;
         }
     }
+}
+// Top Form Section
+.dataStoreFormTop {
+    background-color: @color-background-topForm;
+    padding: 30px 20px 1px 20px;
+}
+
+// Bottom Form Section
+.dataStoreFormBottom {
+    padding: 20px 20px 1px 20px;
+    height: 70px;
+}
+
+#previewBtn {
+    .linear-gradient(top, #90c591, #81af82);
 }
 
 #csvDelim, #udfArgs {
@@ -319,12 +358,6 @@ input {
     }
 }
 // End of Top Form Section
-
-// Bottom Form Section
-.dataStoreFormBottom {
-    padding: 20px 20px 1px 20px;
-    height: 70px;
-}
 
 @media screen and (max-width: 1300px) {
     #datastorePanel {

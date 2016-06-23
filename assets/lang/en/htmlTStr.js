@@ -394,7 +394,7 @@ module.exports = {
         'Header': 'Promote First Row As Header',
         'DSType': 'Format',
         'UDF': 'Parse Data With UDF',
-        'Recur': 'Point to Data Souce Recursively'
+        'Recur': 'Point to Data Source Recursively'
     },
 
     dsFormat: {
