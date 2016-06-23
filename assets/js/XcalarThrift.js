@@ -987,7 +987,7 @@ function XcalarSample(datasetName, numEntries) {
     return deferred.promise();
 }
 
-// Not being called. We just use make result set's output
+// XXX NOT TESTED
 function XcalarGetDatasetCount(dsName) {
     var deferred = jQuery.Deferred();
     if (insertError(arguments.callee, deferred)) {
@@ -997,12 +997,11 @@ function XcalarGetDatasetCount(dsName) {
     if (tHandle == null) {
         deferred.resolve(0);
     } else {
-        xcalarGetDatasetCount(tHandle, dsName)
-        .then(function(countOutput) {
+        xcalarGetDatasetMeta(tHandle, dsName)
+        .then(function(metaOut) {
             var totEntries = 0;
-            var numNodes = countOutput.numCounts;
-            for (var i = 0; i < numNodes; i++) {
-                totEntries += countOutput.counts[i];
+            for (var i = 0; i<metaOut.metas.length; i++) {
+                totEntries += metaOut.metas[i].numRows;
             }
             deferred.resolve(totEntries);
         })
@@ -1016,6 +1015,28 @@ function XcalarGetDatasetCount(dsName) {
     return (deferred.promise());
 }
 
+function XcalarGetTableMeta(tableName) {
+    var deferred = jQuery.Deferred();
+    if (insertError(arguments.callee, deferred)) {
+        return (deferred.promise());
+    }
+
+    if (tHandle == null) {
+        deferred.resolve(0);
+    } else {
+        xcalarGetTableMeta(tHandle, tableName)
+        .then(function(metaOutput) {
+            deferred.resolve(metaOutput);
+        })
+        .fail(function(error) {
+            var thriftError = thriftLog("XcalarGetTableMeta", error);
+            SQL.errorLog("Get Table Meta", null, null, thriftError);
+            deferred.reject(thriftError);
+        });
+    }
+    return (deferred.promise());
+}
+
 // Not being called. We just use make result set's output
 function XcalarGetTableCount(tableName) {
     var deferred = jQuery.Deferred();
@@ -1026,12 +1047,11 @@ function XcalarGetTableCount(tableName) {
     if (tHandle == null) {
         deferred.resolve(0);
     } else {
-        xcalarGetTableCount(tHandle, tableName)
-        .then(function(countOutput) {
+        xcalarGetTableMeta(tHandle, tableName)
+        .then(function(metaOut) {
             var totEntries = 0;
-            var numNodes = countOutput.numCounts;
-            for (var i = 0; i < numNodes; i++) {
-                totEntries += countOutput.counts[i];
+            for (var i = 0; i<metaOut.metas.length; i++) {
+                totEntries += metaOut.metas[i].numRows;
             }
             deferred.resolve(totEntries);
         })
@@ -2616,7 +2636,7 @@ function XcalarInActiveWorkbook(workbookName) {
     }
     var deferred = jQuery.Deferred();
 
-    xcalarApiSessionInact(tHandle, workbookName)
+    xcalarApiSessionInact(tHandle, workbookName, gSessionNoCleanup)
     .then(function(output) {
         deferred.resolve(output);
     })
@@ -2670,7 +2690,8 @@ function XcalarSwitchToWorkbook(toWhichWorkbook, fromWhichWorkbook) {
     }
     var deferred = jQuery.Deferred();
     // fromWhichWorkbook can be null
-    xcalarApiSessionSwitch(tHandle, toWhichWorkbook, fromWhichWorkbook)
+    xcalarApiSessionSwitch(tHandle, toWhichWorkbook, fromWhichWorkbook,
+                           gSessionNoCleanup)
     .then(function(output) {
         deferred.resolve(output);
     })
