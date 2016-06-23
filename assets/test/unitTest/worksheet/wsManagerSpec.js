@@ -147,7 +147,7 @@ function autoAddTable() {
         var $formatDropdown = $("#fileFormatMenu");
         $("#importDataButton").click();
         $("#fileBrowserModal .close").click();
-        $("#filePath").val('file:///var/tmp/qa/indexJoin/schedule');
+        $("#filePath").val('var/tmp/qa/indexJoin/schedule');
         $formatDropdown.find('li[name="JSON"]').click();
         $('#fileName').val(dsName);
         $("#importDataSubmit").click();
