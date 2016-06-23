@@ -917,7 +917,7 @@ window.SQL = (function($, SQL) {
             // case (SQLOps.DSToDir):
             // case (SQLOps.DSDropBack):
             // case (SQLOps.DelFolder):
-            case (SQLOps.AddOhterUserDS):
+            case (SQLOps.AddOtherUserDS):
             case (SQLOps.ChangeFormat):
             case (SQLOps.RoundToFixed):
             // case (SQLOps.AddOtherUserDS):

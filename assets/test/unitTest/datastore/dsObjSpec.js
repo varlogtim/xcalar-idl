@@ -132,7 +132,8 @@ function dsObjTest() {
 
             DS.load(name, dataset.format, dataset.url,
                     dataset.fieldDelim, dataset.lineDelim,
-                    dataset.hasHeader, dataset.moduleName, dataset.funcName)
+                    dataset.hasHeader, dataset.moduleName, dataset.funcName,
+                    false)
             .then(function(dsObj) {
                 testDS = dsObj;
 

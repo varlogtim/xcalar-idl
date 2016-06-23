@@ -192,7 +192,7 @@ window.DS = (function ($, DS) {
     // Load dataset
     // promise returns $grid element
     DS.load = function(dsName, dsFormat, loadURL, fieldDelim, lineDelim,
-                        hasHeader, moduleName, funcName) {
+                        hasHeader, moduleName, funcName, isRecur) {
         var deferred = jQuery.Deferred();
 
         // Here null means the attr is a placeholder, will
@@ -209,7 +209,8 @@ window.DS = (function ($, DS) {
             "format"    : dsFormat,
             "path"      : loadURL,
             "fileSize"  : null,
-            "numEntries": null
+            "numEntries": null,
+            "isRecur"   : isRecur,
         });
 
         var $grid = DS.getGrid(dsObj.getId());
@@ -231,7 +232,8 @@ window.DS = (function ($, DS) {
             "fieldDelim": fieldDelim,
             "lineDelim" : lineDelim,
             "moduleName": moduleName,
-            "funcName"  : funcName
+            "funcName"  : funcName,
+            "isRecur"   : isRecur
         };
         var txId = Transaction.start({
             "operation": SQLOps.DSLoad,
@@ -240,7 +242,7 @@ window.DS = (function ($, DS) {
 
         XcalarLoad(loadURL, dsFormat, fullDSName,
                    fieldDelim, lineDelim, hasHeader,
-                   moduleName, funcName, txId)
+                   moduleName, funcName, isRecur, txId)
         .then(function(ret) {
             // sample the dataset to see if it can be parsed
             return XcalarSample(fullDSName, 1);
@@ -497,7 +499,8 @@ window.DS = (function ($, DS) {
             "user"      : Support.getUser(),
             "parentId"  : DSObjTerm.homeParentId,
             "uneditable": false,
-            "isFolder"  : true
+            "isFolder"  : true,
+            "isRecur"   : false
         });
 
         dsLookUpTable[homeFolder.getId()] = homeFolder;
@@ -739,9 +742,9 @@ window.DS = (function ($, DS) {
         }
 
         // always create the other user's folder first
-        var ohterUserFolder = createDS({
+        var otherUserFolder = createDS({
             "id"        : DSObjTerm.OtherUserFolderId,
-            "name"      : DSObjTerm.OhterUserFolder,
+            "name"      : DSObjTerm.OtherUserFolder,
             "parentId"  : homeDirId,
             "isFolder"  : true,
             "uneditable": true
@@ -810,10 +813,10 @@ window.DS = (function ($, DS) {
             }
         }
 
-        if (!ohterUserFolder.beFolderWithDS()) {
+        if (!otherUserFolder.beFolderWithDS()) {
             // when the other user folder has no children
             // remove this folder
-            var otherUserFolderId = ohterUserFolder.getId();
+            var otherUserFolderId = otherUserFolder.getId();
             removeDS(DS.getGrid(otherUserFolderId));
         }
 

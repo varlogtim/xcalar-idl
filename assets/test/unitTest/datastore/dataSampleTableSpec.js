@@ -15,7 +15,7 @@ function dataSampleTableTest() {
 
         DS.load(testDS, dataset.format, dataset.url,
                 dataset.fieldDelim, dataset.lineDelim,
-                dataset.hasHeader, dataset.moduleName, dataset.funcName)
+                dataset.hasHeader, dataset.moduleName, dataset.funcName, false)
         .then(function(dsObj) {
             testDSObj = dsObj;
             testDSId = testDSObj.getId();

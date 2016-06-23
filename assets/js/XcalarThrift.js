@@ -400,7 +400,8 @@ function XcalarGetVersion(connectionCheck) {
 }
 
 function XcalarLoad(url, format, datasetName, fieldDelim, recordDelim,
-                    hasHeader, moduleName, funcName, txId) {
+                    hasHeader, moduleName, funcName, isRecur, txId) {
+
     function checkForDatasetLoad(def, sqlString, dsName, txId) {
         // Using setInterval will have issues because of the deferred
         // GetDatasets call inside here. Do not use it.
@@ -459,7 +460,8 @@ function XcalarLoad(url, format, datasetName, fieldDelim, recordDelim,
             break;
         case ("raw"):
             recordDelim = "\n";
-            fieldDelim = ""; // No Field delim
+            // No field delim
+            fieldDelim = ""; // jshint ignore:line
             // fallthrough
         case ("CSV"):
             formatType = DfFormatTypeT.DfFormatCsv;
@@ -481,6 +483,10 @@ function XcalarLoad(url, format, datasetName, fieldDelim, recordDelim,
     loadArgs.csv.recordDelim = recordDelim;
     loadArgs.csv.fieldDelim = fieldDelim;
     loadArgs.csv.isCRLF = true;
+    loadArgs.recursive = isRecur;
+    var fileNameArray = getNamePattern(url, isRecur);
+    loadArgs.fileNamePattern = fileNameArray[1];
+    url = fileNameArray[0];
     if (hasHeader) {
         loadArgs.csv.hasHeader = true;
     } else {
@@ -1806,7 +1812,29 @@ function XcalarGetDag(tableName) {
     return (deferred.promise());
 }
 
-function XcalarListFiles(url) {
+function getNamePattern(userUrl, isRecur) {
+    // XXX Test: folder loading ending with / and without
+    // XXX test: single file
+    // XXX test: folder with *, file with *
+    // Find location of first *
+    var star = userUrl.indexOf("*");
+    if (star === -1 && !isRecur) {
+        return [userUrl, ""];
+    }
+
+    if (star === -1) {
+        star = userUrl.length - 1;
+    }
+
+    for (var i = star; i>=0; i--) {
+        if (userUrl[i] == "/") {
+            return [userUrl.substring(0, i+1),
+                    userUrl.substring(i+1, userUrl.length)];
+        }
+    }
+}
+
+function XcalarListFiles(url, isRecur) {
     if (tHandle == null) {
         return PromiseHelper.resolve(null);
     }
@@ -1816,7 +1844,11 @@ function XcalarListFiles(url) {
         return (deferred.promise());
     }
 
-    xcalarListFiles(tHandle, url)
+    var namePatternArray = getNamePattern(url, isRecur);
+    url = namePatternArray[0];
+    var namePattern = namePatternArray[1];
+
+    xcalarListFiles(tHandle, url, isRecur, namePattern)
     .then(deferred.resolve)
     .fail(function(error) {
         var thriftError = thriftLog("XcalarListFiles", error);

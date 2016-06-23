@@ -261,7 +261,7 @@ window.Replay = (function($, Replay) {
         // DS.load()
         argsMap[SQLOps.DSLoad] = ["dsName", "dsFormat", "loadURL",
                                     "fieldDelim", "lineDelim", "hasHeader",
-                                    "moduleName", "funcName"];
+                                    "moduleName", "funcName", "isRecur"];
         argsMap[SQLOps.Sort] = ["colNum", "tableId", "order", "typeToCast"];
         argsMap[SQLOps.Filter] = ["colNum", "tableId", "fltOptions"];
         argsMap[SQLOps.Aggr] = ["colNum", "tableId", "aggrOp", "aggStr"];
@@ -303,7 +303,7 @@ window.Replay = (function($, Replay) {
         argsMap[SQLOps.Profile] = ["tableId", "colNum"];
         argsMap[SQLOps.QuickAgg] = ["tableId"];
         argsMap[SQLOps.Corr] = ["tableId"];
-        argsMap[SQLOps.AddOhterUserDS] = ["name", "format", "path"];
+        argsMap[SQLOps.AddOtherUserDS] = ["name", "format", "path"];
         argsMap[SQLOps.ExportTable] = ["tableName", "exportName", "targetName", "numCols", "columns"];
         argsMap[SQLOps.SplitCol] = ["colNum", "tableId",
                                     "delimiter", "numColToGet"];
@@ -324,7 +324,7 @@ window.Replay = (function($, Replay) {
         tabMap[SQLOps.DSToDir] = Tab.DS;
         tabMap[SQLOps.DSDropBack] = Tab.DS;
         tabMap[SQLOps.DelFolder] = Tab.DS;
-        tabMap[SQLOps.AddOhterUserDS] = Tab.DS;
+        tabMap[SQLOps.AddOtherUserDS] = Tab.DS;
     }
 
     function sqlFilter(sql) {

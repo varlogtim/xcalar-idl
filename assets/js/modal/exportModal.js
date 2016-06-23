@@ -371,7 +371,7 @@ window.ExportModal = (function($, ExportModal) {
         if (filePath === "") {
             deferred.resolve(false);
         } else {
-            XcalarListFiles(filePath)
+            XcalarListFiles(filePath, false)
             .then(function(result) {
                 // var dupFound = false;
                 for (var i = 0; i < result.numFiles; i++) {

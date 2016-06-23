@@ -185,7 +185,8 @@ window.DataPreview = (function($, DataPreview) {
         $("#preview-url").text(loadURL);
         $("#preview-dsName").val(dsName);
 
-        XcalarListFiles(loadURL)
+        var isRecur = $("#recurCheckbox").find(".checkbox").hasClass("checked");
+        XcalarListFiles(loadURL, isRecur)
         .then(function() {
             $waitSection = $previeWrap.find(".waitSection")
                                         .removeClass("hidden");
@@ -209,11 +210,14 @@ window.DataPreview = (function($, DataPreview) {
                 "operation": SQLOps.PreviewDS,
                 "sql"      : sql
             });
+            var isRecur = $("#recurCheckbox").find(".checkbox").
+                          hasClass("checked");
 
             showPreviewPanel()
             .then(function() {
                 return XcalarLoad(loadURL, "raw", tableName, "", "\n",
-                                    hasHeader, moduleName, funcName, txId);
+                                  hasHeader, moduleName, funcName, isRecur,
+                                  txId);
             })
             .then(DS.release)
             .then(function() {

@@ -768,6 +768,7 @@ function DSObj(options) {
     this.isFolder = options.isFolder;
     this.uneditable = options.uneditable;
     this.mDate = options.mDate;
+    this.isRecur = options.isRecur || false;
 
     // initially, dataset count itself as one child,
     // folder has no child;
@@ -846,31 +847,24 @@ DSObj.prototype = {
             slashIndex = loadURL.lastIndexOf('/');
         }
 
-        curFileName = loadURL.substr(slashIndex + 1);
-        loadURL = loadURL.substr(0, slashIndex + 1);
-
-        XcalarListFiles(loadURL)
+        XcalarListFiles(loadURL, self.isRecur)
         .then(function(res) {
-            var numFiles = res.numFiles;
-            var files = res.files;
-            for (var i = 0; i < numFiles; i++) {
-                var file = files[i];
-                if (file.name === curFileName) {
-                    self.mDate = xcHelper.timeStampTranslater(file.attr.mtime);
-                    if (self.mDate == null) {
-                        self.mDate = "N/A";
-                    }
-
-                    deferred.resolve(self.mDate);
-                    return;
+            if (res.numFiles >= 1) { // More than one just take the first
+                self.mDate = xcHelper.timeStampTranslater(
+                                                       res.files[0].attr.mtime);
+                if (self.mDate == null) {
+                    self.mDate = "N/A";
                 }
-            }
 
-            console.error("Cannot find the file!");
-            deferred.resolve("N/A");
+                deferred.resolve(self.mDate);
+                return;
+            } else {
+                console.error("Cannot find the file!");
+                deferred.resolve("N/A");
+            }
         })
         .fail(function(error) {
-            console.error("List file fails", error);
+            console.error("Cannot find file or list file failed", error);
             deferred.resolve("N/A");
         });
 
@@ -898,7 +892,7 @@ DSObj.prototype = {
             loadURL = loadURL.substr(0, slashIndex + 1);
         }
 
-        XcalarListFiles(loadURL)
+        XcalarListFiles(loadURL, self.isRecur)
         .then(function(files) {
             if (files.numFiles === 1 && files.files[0].name === "") {
                 // this is a special case that loadURL=file:///a/b
@@ -999,7 +993,7 @@ DSObj.prototype = {
                 "$selector": DS.getGrid(self.id),
                 "text"     : ErrTStr.PreservedName,
                 "check"    : function() {
-                    return newName === DSObjTerm.OhterUserFolder;
+                    return newName === DSObjTerm.OtherUserFolder;
                 }
             }
         ]);

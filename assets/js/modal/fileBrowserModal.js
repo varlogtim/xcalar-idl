@@ -743,7 +743,7 @@ window.FileBrowser = (function($, FileBrowser) {
             $loadSection.show();
         }, 500);
 
-        XcalarListFiles(path)
+        XcalarListFiles(path, false)
         .then(function(listFilesOutput) {
             if (curBrowserId === fileBrowserId) {
                 clear();
@@ -832,11 +832,13 @@ window.FileBrowser = (function($, FileBrowser) {
     function importDataset($ds) {
         var fileName = $fileName.val();
 
+        /**
         if (($ds == null || $ds.length === 0) && fileName !== "") {
             StatusBox.show(ErrTStr.InvalidFileName, $fileName, true);
             return;
         }
-
+        */
+        
         var $confirmBtn = $fileBrowser.find(".confirm");
         // in case the confirm is cliked multiple times
         xcHelper.disableSubmit($confirmBtn);

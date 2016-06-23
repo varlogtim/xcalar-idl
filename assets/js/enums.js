@@ -76,7 +76,7 @@ var DSObjTerm = {
     "homeDir": ".",
     "homeDirId": ".",
     "homeParentId": ".parent",
-    "OhterUserFolder": "Other Users",
+    "OtherUserFolder": "Other Users",
     "OtherUserFolderId": ".other"
 };
 

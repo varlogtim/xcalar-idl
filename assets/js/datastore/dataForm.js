@@ -188,7 +188,8 @@ window.DatastoreForm = (function($, DatastoreForm) {
         var deferred = jQuery.Deferred();
 
         // validation check of loadURL
-        XcalarListFiles(loadURL)
+        var isRecur = $recurCheckbox.find(".checkbox").hasClass("checked");
+        XcalarListFiles(loadURL, isRecur)
         .then(function() {
             var msgId = StatusMessage.addMsg({
                 "msg"      : StatusMessageTStr.LoadingDataset + ": " + dsName,
@@ -196,7 +197,7 @@ window.DatastoreForm = (function($, DatastoreForm) {
             });
 
             DS.load(dsName, dsFormat, loadURL, fieldDelim, lineDelim,
-                    header, moduleName, funcName)
+                    header, moduleName, funcName, isRecur)
             .then(function(dsObj) {
                 StatusMessage.success(msgId, false, null, {
                     "newDataSet": true,
@@ -767,18 +768,18 @@ window.DatastoreForm = (function($, DatastoreForm) {
                     var $input = $(this);
 
                     event.stopPropagation();
-                    applyOhterDelim($input);
+                    applyOtherDelim($input);
                 }
             }
         }, ".delimVal");
 
         $csvDelim.find(".inputAction").on("mousedown", function() {
             var $input = $(this).siblings(".delimVal");
-            applyOhterDelim($input);
+            applyOtherDelim($input);
         });
     }
 
-    function applyOhterDelim($input) {
+    function applyOtherDelim($input) {
         if ($input == null || $input.length === 0) {
             // invalid case
             return;
