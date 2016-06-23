@@ -467,7 +467,6 @@ window.JoinModal = (function($, JoinModal) {
         if (lCol.isNumberCol() && rCol.isNumberCol() ||
             lCol.getType() === rCol.getType()) {
             resetJoinTables();
-            // XXX to implement UI option to keep tables
             var options = {
                 keepTables: $joinModal.find('.keepTablesCBWrap')
                                       .find('.checkbox').hasClass('checked')
@@ -539,12 +538,12 @@ window.JoinModal = (function($, JoinModal) {
         }
 
         resetJoinTables();
-        // XXX to implement UI option to keep tables
-        // var options = {
-        //     keepTables: true
-        // };
+        var options = {
+            keepTables: $joinModal.find('.keepTablesCBWrap')
+                                  .find('.checkbox').hasClass('checked')
+        };
         xcFunction.join(lColNums, lTableId, rColNums, rTableId,
-                        joinType, newTableName);
+                        joinType, newTableName, options);
         return true;
     }
 
