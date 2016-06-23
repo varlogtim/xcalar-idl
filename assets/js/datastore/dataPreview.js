@@ -210,8 +210,6 @@ window.DataPreview = (function($, DataPreview) {
                 "operation": SQLOps.PreviewDS,
                 "sql"      : sql
             });
-            var isRecur = $("#recurCheckbox").find(".checkbox").
-                          hasClass("checked");
 
             showPreviewPanel()
             .then(function() {

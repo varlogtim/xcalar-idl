@@ -23,7 +23,7 @@ window.DataSampleTable = (function($, DataSampleTable) {
     DataSampleTable.show = function(dsId, isLoading) {
         var dsObj = DS.getDSObj(dsId);
 
-        if (dsObj === null) {
+        if (dsObj == null) {
             return PromiseHelper.reject("No DS");
         }
 
