@@ -482,9 +482,9 @@ window.DatastoreForm = (function($, DatastoreForm) {
         var format = formatMap[$formatText.data("format")];
         var options = {"type": "info"};
 
-        if (format == null) {
-            StatusBox.show(ErrTStr.NoEmptyList, $filePath, false);
-            return false;
+        if (!format) {
+            // StatusBox.show(ErrTStr.NoEmptyList, $filePath, false);
+            return (true);
         }
 
         if (getFilePath() === "") {
