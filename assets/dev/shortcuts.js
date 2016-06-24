@@ -92,9 +92,9 @@ window.Shortcuts = (function($, Shortcuts) {
 
         // to add file names to the menu edit this object
     var filePathMap = {
-        'YelpUsers': 'file:///var/tmp/yelp/user',
-        'Schedule': 'file:///var/tmp/qa/indexJoin/schedule',
-        'Test Yelp': 'file:///netstore/datasets/unittest/test_yelp.json'
+        'YelpUsers': 'var/tmp/yelp/user',
+        'Schedule': 'var/tmp/qa/indexJoin/schedule',
+        'Test Yelp': 'netstore/datasets/unittest/test_yelp.json'
     };
 
     function datastoreForm() {

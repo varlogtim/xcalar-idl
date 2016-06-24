@@ -65,6 +65,9 @@ TooltipTStr = {
     'ToListView': 'Switch to List View',
     'ClickCollapse': 'click to collapse',
     'CollapsedTable': '1 table is hidden',
+    'SelectAllColumns': 'select all columns',
+    'ViewColumnOptions': 'view column options',
+    'ViewTableOptions': 'view table options',
      // with replace
     'CollapsedTables': '<number> tables are hidden'
 };

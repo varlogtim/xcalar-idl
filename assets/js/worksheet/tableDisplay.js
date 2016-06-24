@@ -699,7 +699,8 @@ window.TblManager = (function($, TblManager) {
                                 'data-toggle="tooltip" ' +
                                 'data-placement="bottom" ' +
                                 'data-container="body" ' +
-                                'title="view column options">' +
+                                'title="' + TooltipTStr.ViewColumnOptions +
+                                '">' +
                                 '<div class="innerBox"></div>' +
                             '</div>' +
                         '</div>' +
@@ -721,21 +722,31 @@ window.TblManager = (function($, TblManager) {
     };
 
     TblManager.hideTable = function(tableId) {
-        $('#xcTableWrap-' + tableId).addClass('tableHidden');
+        var tableName = gTables[tableId].tableName;
+        $('#xcTableWrap-' + tableId).addClass('tableHidden')
+                                    .find('.tableTitle .dropdownBox').attr({
+                                            "title": "",
+                                            "data-original-title": tableName
+                                        });
+
         moveTableDropdownBoxes();
         moveFirstColumn();
         moveTableTitles();
 
         SQL.add("Hide Table", {
             "operation": SQLOps.HideTable,
-            "tableName": gTables[tableId].tableName,
+            "tableName": tableName,
             "tableId"  : tableId
         });
     };
 
     TblManager.unHideTable = function(tableId) {
         var $tableWrap = $('#xcTableWrap-' + tableId);
-        $tableWrap.removeClass('tableHidden');
+        $tableWrap.removeClass('tableHidden')
+                  .find('.tableTitle .dropdownBox').attr({
+                        "title": "",
+                        "data-original-title": TooltipTStr.ViewTableOptions
+                    });
         WSManager.focusOnWorksheet(WSManager.getActiveWS(), false, tableId);
         moveTableDropdownBoxes();
         moveFirstColumn();
@@ -1562,7 +1573,12 @@ window.TblManager = (function($, TblManager) {
                         '<div class="labelWrap">' +
                             '<label class="text" ></label>' +
                         '</div>' +
-                        '<div class="dropdownBox">' +
+                        '<div class="dropdownBox" ' +
+                            'data-toggle="tooltip" ' +
+                            'data-placement="bottom" ' +
+                            'data-container="body" ' +
+                            'title="' + TooltipTStr.ViewTableOptions +
+                            '" >' +
                             '<span class="innerBox"></span>' +
                         '</div>' +
                     '</div>';
@@ -2205,7 +2221,8 @@ window.TblManager = (function($, TblManager) {
             '<thead>' +
               '<tr>' +
                 '<th style="width: 50px;" class="col0 th rowNumHead"' +
-                    ' title="select all columns" data-toggle="tooltip"' +
+                    ' title="' + TooltipTStr.SelectAllColumns + '" ' +
+                    'data-toggle="tooltip"' +
                     ' data-placement="top" data-container="body">' +
                   '<div class="header">' +
                     '<input value="" spellcheck="false" disabled>' +

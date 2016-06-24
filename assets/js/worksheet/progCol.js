@@ -1400,12 +1400,13 @@ window.ColManager = (function($, ColManager) {
         var tableWidth = $table.width();
         var tdSelectors = "";
         var $ths = $();
+        var $th;
 
         for (var i = 0; i < numCols; i++) {
             var colNum = colNums[i];
             tdSelectors += "td.col" + colNum + ",";
             var col = tableCols[colNum - 1];
-            var $th = $table.find('th.col' + colNum);
+            $th = $table.find('th.col' + colNum);
             $ths = $ths.add($th);
             var $thWidth = $th.width() + 5;
             var originalColWidth = $thWidth;
@@ -1433,6 +1434,15 @@ window.ColManager = (function($, ColManager) {
             moveTableTitles();
         }
 
+        // change tooltip to show name
+        $ths.each(function(i) {
+            $th = $(this);
+            $th.find('.dropdownBox').attr({
+                "title": "",
+                "data-original-title": colNames[i]
+            });
+        });
+
         xcHelper.removeSelectionRange();
 
         SQL.add("Hide Columns", {
@@ -1452,12 +1462,13 @@ window.ColManager = (function($, ColManager) {
         var numCols    = colNums.length;
         var colNames   = [];
         var widthDiff = 0;
-        // var thSelectors = "";
-        // var tdSelectors = "";
+        var $ths = $();
         var promises = [];
+        var $th;
         for (var i = 0; i < numCols; i++) {
             var colNum = colNums[i];
-            var $th = $table.find(".th.col" + colNum);
+            $th = $table.find(".th.col" + colNum);
+            $ths = $ths.add($th);
 
             var col = tableCols[colNum - 1];
             var originalColWidth = col.width;
@@ -1488,6 +1499,15 @@ window.ColManager = (function($, ColManager) {
         } else {
             matchHeaderSizes($table);
         }
+
+
+        // change tooltip to show column options
+        $ths.each(function() {
+            $(this).find('.dropdownBox').attr({
+                "title": "",
+                "data-original-title": TooltipTStr.ViewColumnOptions
+            });
+        });
 
         SQL.add("Unhide Columns", {
             "operation": SQLOps.UnHideCols,
