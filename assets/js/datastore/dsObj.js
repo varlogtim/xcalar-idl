@@ -246,10 +246,13 @@ window.DS = (function ($, DS) {
             "sql"      : sql
         });
 
+        var loadError = null;
+
         XcalarLoad(loadURL, dsFormat, fullDSName,
                    fieldDelim, lineDelim, hasHeader,
                    moduleName, funcName, isRecur, txId)
-        .then(function(ret) {
+        .then(function(ret, error) {
+            loadError = error;
             // sample the dataset to see if it can be parsed
             return XcalarSample(fullDSName, 1);
         })
@@ -258,8 +261,13 @@ window.DS = (function ($, DS) {
                 // if dataset cannot be parsed produce a load fail
                 return PromiseHelper.reject({
                     "dsCreated": true,
-                    "error"    : DSTStr.NoRecords
+                    "error"    : DSTStr.NoRecords + '\n' + loadError
                 });
+            }
+
+            if (loadError) {
+                // XXX find a better way to handle it
+                console.warn(loadError);
             }
 
             // should release the ds pointer first
@@ -371,8 +379,7 @@ window.DS = (function ($, DS) {
         }
         // now only check dataset name conflict
         var user = Support.getUser();
-        var $ds = $explorePanel.find('.grid-unit[data-dsname="' +
-                    dsName + '"]').filter(function() {
+        var $ds = $explorePanel.find('.grid-unit[data-dsname="' + dsName + '"]').filter(function() {
             // only check the dataset in user's namespace
             return $(this).data("user") === user;
         });

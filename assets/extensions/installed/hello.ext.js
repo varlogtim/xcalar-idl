@@ -15,6 +15,7 @@ window.UExtHello = (function(UExtHello) {
      *      type: type of the arg, can be column, string, number or boolean
      *      name: the button name, which will dispaly on XI,
      *      fieldClass: Use this name to find the arg in ext obj
+     *      allowEmpty: allow the field to be empty
      *      tyepCheck: object to specify how to check the arg
      *          if type is column, columnType can strict the column's type,
      *          if type is number, min and max can strict the range

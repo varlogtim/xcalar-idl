@@ -512,8 +512,17 @@ function XcalarLoad(url, format, datasetName, fieldDelim, recordDelim,
     // we still want to use the return for def2.
     PromiseHelper.when(def1, def2)
     .then(function(ret1, ret2) {
+        var loadError = null;
+
+        if (ret1.errorString || ret1.errorFile) {
+            loadError = xcHelper.replaceMsg(DSTStr.LoadErr, {
+                "error": ret1.errorString,
+                "file" : ret1.errorFile
+            });
+        }
+
         Transaction.log(txId, ret2);
-        deferred.resolve(ret1);
+        deferred.resolve(ret1, loadError);
     })
     .fail(function(error1, error2) {
         if (error1 && error1.status === 502) {

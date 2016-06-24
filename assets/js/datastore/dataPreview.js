@@ -210,6 +210,7 @@ window.DataPreview = (function($, DataPreview) {
                 "operation": SQLOps.PreviewDS,
                 "sql"      : sql
             });
+            var loadError = null;
 
             showPreviewPanel()
             .then(function() {
@@ -217,7 +218,10 @@ window.DataPreview = (function($, DataPreview) {
                                   hasHeader, moduleName, funcName, isRecur,
                                   txId);
             })
-            .then(DS.release)
+            .then(function(ret, error) {
+                loadError = error;
+                return DS.release();
+            })
             .then(function() {
                 return XcalarSample(tableName, rowsToFetch);
             })
@@ -233,9 +237,15 @@ window.DataPreview = (function($, DataPreview) {
                 XcalarSetFree(refId);
 
                 if (!result) {
-                    cannotParseHandler(DSTStr.NoRecords);
-                    deferred.reject({"error": DSTStr.NoRecords});
+                    var error = DSTStr.NoRecords + '\n' + loadError;
+                    cannotParseHandler(error);
+                    deferred.reject({"error": error});
                     return PromiseHelper.resolve(null);
+                }
+
+                if (loadError) {
+                    // XXX find a better way to handle it
+                    console.warn(loadError);
                 }
 
                 rawData = [];
