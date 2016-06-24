@@ -353,6 +353,7 @@ window.DatastoreForm = (function($, DatastoreForm) {
         $form.find(".default-hidden").addClass("hidden");
         // keep header to be checked
         $udfCheckbox.find(".checkbox").removeClass("checked");
+        $recurCheckbox.find(".checkbox").removeClass("checked");
         // keep the current protocol
         setProtocol(protocol);
         resetUdfSection();
