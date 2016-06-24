@@ -861,6 +861,17 @@ describe('xcHelper Test', function() {
 
     });
 
+    it('xcHelper.getFormat should work', function() {
+        var getFormat = xcHelper.getFormat;
+        expect(getFormat("a.json")).to.equal("JSON");
+        expect(getFormat("b.csv")).to.equal("CSV");
+        expect(getFormat("c.tsv")).to.equal("CSV");
+        expect(getFormat("d.xlsx")).to.equal("Excel");
+        expect(getFormat("e.txt")).to.equal("TEXT");
+        expect(getFormat("f.test")).to.be.null;
+    });
+
+
     it('xcHelper.fillInputFromCell should work', function() {
         // case 1
         var $header = $('<div class="header">' +

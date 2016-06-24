@@ -54,6 +54,14 @@ window.DatastoreForm = (function($, DatastoreForm) {
             FileBrowser.show(protocol);
         });
 
+        $filePath.on('input', function() {
+            var fileName = $filePath.val().trim();
+            var ext = xcHelper.getFormat(fileName);
+            if (ext != null && $formatText.data('format') !== ext) {
+                toggleFormat(ext);
+            }
+        });
+
         // promote recur checkbox
         $recurCheckbox.click(function() {
             $recurCheckbox.find(".checkbox").toggleClass("checked");

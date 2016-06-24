@@ -16,11 +16,6 @@ window.FileBrowser = (function($, FileBrowser) {
 
     /* Contants */
     var defaultSortKey  = "type"; // default is sort by type;
-    var formatMap = {
-        "JSON": "JSON",
-        "CSV" : "CSV",
-        "XLSX": "Excel"
-    };
     var dsIconHeight = 72;
     var dsIconWidth = 59;
     var dsListHeight = 30;
@@ -507,22 +502,6 @@ window.FileBrowser = (function($, FileBrowser) {
         return String($grid.find('.label').data("name"));
     }
 
-    function getFormat(name) {
-        var index = name.lastIndexOf(".");
-
-        if (index < 0) {
-            return null;
-        }
-
-        var ext = name.substring(index + 1, name.length).toUpperCase();
-
-        if (formatMap.hasOwnProperty(ext)) {
-            return (formatMap[ext]);
-        } else {
-            return null;
-        }
-    }
-
     function getShortName(name) {
         var deferred = jQuery.Deferred();
         var index = name.lastIndexOf(".");
@@ -838,7 +817,7 @@ window.FileBrowser = (function($, FileBrowser) {
             return;
         }
         */
-        
+
         var $confirmBtn = $fileBrowser.find(".confirm");
         // in case the confirm is cliked multiple times
         xcHelper.disableSubmit($confirmBtn);
@@ -847,7 +826,7 @@ window.FileBrowser = (function($, FileBrowser) {
 
         // load dataset
         var curDir = getCurrentPath();
-        var ext = getFormat(fileName);
+        var ext = xcHelper.getFormat(fileName);
 
         historyPath = curDir;
 
@@ -1492,7 +1471,6 @@ window.FileBrowser = (function($, FileBrowser) {
         FileBrowser.__testOnly__.getCurrentPath = getCurrentPath;
         FileBrowser.__testOnly__.getShortPath = getShortPath;
         FileBrowser.__testOnly__.getGridUnitName = getGridUnitName;
-        FileBrowser.__testOnly__.getFormat = getFormat;
         FileBrowser.__testOnly__.getShortName = getShortName;
         FileBrowser.__testOnly__.appendPath = appendPath;
         FileBrowser.__testOnly__.updateFileName = updateFileName;

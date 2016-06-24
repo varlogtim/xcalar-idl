@@ -66,14 +66,6 @@ describe('FilebrowserModal', function() {
             expect(res).to.equal("test");
         });
 
-        it('Should get format', function() {
-            var getFormat = FileBrowser.__testOnly__.getFormat;
-            expect(getFormat("a.json")).to.equal("JSON");
-            expect(getFormat("b.csv")).to.equal("CSV");
-            expect(getFormat("c.xlsx")).to.equal("Excel");
-            expect(getFormat("d.test")).to.be.null;
-        });
-
         it('Should get short name', function(done) {
             var getShortName = FileBrowser.__testOnly__.getShortName;
             var testName = xcHelper.randName("testName");

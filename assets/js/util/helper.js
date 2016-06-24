@@ -1579,6 +1579,30 @@ window.xcHelper = (function($, xcHelper) {
                              }).trim());
     };
 
+    // a.json returns JSON
+    xcHelper.getFormat = function(name) {
+        var index = name.lastIndexOf(".");
+
+        if (index < 0) {
+            return null;
+        }
+
+        var ext = name.substring(index + 1, name.length).toUpperCase();
+        var formatMap = {
+            "JSON": "JSON",
+            "CSV" : "CSV",
+            "TSV" : "CSV",
+            "XLSX": "Excel",
+            "TXT" : "TEXT"
+        };
+
+        if (formatMap.hasOwnProperty(ext)) {
+            return (formatMap[ext]);
+        } else {
+            return null;
+        }
+    };
+
     /*
     options: {
         mouseCoors: {x: float, y: float},
