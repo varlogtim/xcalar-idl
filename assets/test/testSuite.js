@@ -347,7 +347,7 @@ window.TestSuite = (function($, TestSuite) {
                 $("#fieldDelim .icon").click();
                 $("#fieldDelim .list li[name='comma']").click();
                 $("#importDataSubmit").click();
-            }, 500);
+            }, 2000);
 
             var ds1Icon = getDSIcon(dsName1);
             var ds2Icon = getDSIcon(dsName2);
