@@ -214,7 +214,7 @@ window.DataSampleTable = (function($, DataSampleTable) {
 
             $("#worksheetTable").addClass("fetching");
 
-            scrollSampleAndParse(currentRow, numRowsToFetch, curDSId)
+            scrollSampleAndParse(currentRow, numRowsToFetch, curDSId, totalRows)
             .fail(function(error) {
                 if (error.status === StatusT.StatusInvalidResultSetId) {
                     var dsId = $("#worksheetTable").data("dsid");
@@ -228,7 +228,7 @@ window.DataSampleTable = (function($, DataSampleTable) {
                     XcalarMakeResultSetFromDataset(datasetName)
                     .then(function(result) {
                         gDatasetBrowserResultSetId = result.resultSetId;
-                        return scrollSampleAndParse(currentRow, numRowsToFetch, curDSId);
+                        return scrollSampleAndParse(currentRow, numRowsToFetch, curDSId, totalRows);
                     })
                     .fail(function(innerError) {
                         console.error("Scroll data sample table fails", innerError);
@@ -245,13 +245,10 @@ window.DataSampleTable = (function($, DataSampleTable) {
         }
     }
 
-    function scrollSampleAndParse(rowToGo, rowsToFetch, curDSId) {
+    function scrollSampleAndParse(rowToGo, rowsToFetch, curDSId, totalEntries) {
         var deferred = jQuery.Deferred();
 
-        XcalarSetAbsolute(gDatasetBrowserResultSetId, rowToGo)
-        .then(function() {
-            return XcalarGetNextPage(gDatasetBrowserResultSetId, rowsToFetch);
-        })
+        XcalarFetchData(gDatasetBrowserResultSetId, rowToGo, rowsToFetch, totalEntries, [])
         .then(parseSampleData)
         .then(function(jsonKeys, jsons) {
             var dsId = $("#worksheetTable").data("dsid");
