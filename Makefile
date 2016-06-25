@@ -39,7 +39,7 @@ build: $(DESTDIR) generateHtml
 	cd $(DESTDIR) && ./prod/assets/bin/MINIFY.sh
 	export GIT_DIR=`pwd`/.git && cd $(DESTDIR) && ./prod/assets/bin/autoGenFiles.sh
 	@echo "=== Running python build.py ==="
-	@cd $(DESTDIR) && python prod/assets/python/build.py
+	#@cd $(DESTDIR) && python prod/assets/python/build.py
 	cd $(DESTDIR) && chmod -R 777 $(DESTDIR)/prod/*
 	@echo "=== Done building ==="
 
