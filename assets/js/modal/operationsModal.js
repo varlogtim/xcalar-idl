@@ -2103,11 +2103,16 @@ window.OperationsModal = (function($, OperationsModal) {
                                 if (colTypes[i] != null) {
                                     if (types.indexOf(colTypes[i]) < 0) {
                                         isPassing = false;
-                                        errorText = xcHelper.replaceMsg(
-                                            ErrWRepTStr.InvalidOpsType, {
-                                            "type1": types.join("/"),
-                                            "type2": colTypes[i]
-                                        });
+                                        if (colTypes[i] === "newColumn") {
+                                            errorText = ErrTStr.InvalidOpNewColumn;
+                                        } else {
+                                            errorText = xcHelper.replaceMsg(
+                                                ErrWRepTStr.InvalidOpsType, {
+                                                "type1": types.join("/"),
+                                                "type2": colTypes[i]
+                                            });
+                                        }
+
                                         $errorInput = $input;
 
                                         errorType = "invalidColType";
@@ -2129,10 +2134,15 @@ window.OperationsModal = (function($, OperationsModal) {
                 if (checkRes != null && !invalidNonColumnType) {
                     isPassing = false;
                     invalidNonColumnType = true;
-                    errorText = xcHelper.replaceMsg(ErrWRepTStr.InvalidOpsType, {
-                        "type1": checkRes.validType.join("/"),
-                        "type2": checkRes.currentType
-                    });
+                    if (checkRes.currentType === "newColumn") {
+                        errorText = ErrTStr.InvalidOpNewColumn;
+                    } else {
+                        errorText = xcHelper.replaceMsg(ErrWRepTStr.InvalidOpsType, {
+                            "type1": checkRes.validType.join("/"),
+                            "type2": checkRes.currentType
+                        });
+                    }
+
                     $errorInput = $input;
                     errorType = "invalidType";
                 } else {

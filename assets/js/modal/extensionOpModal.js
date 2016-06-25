@@ -103,6 +103,12 @@ window.ExtensionOpModal = (function(ExtensionOpModal, $) {
             var $target = $(event.target);
             xcHelper.fillInputFromCell($target, $lastInputFocused, "$");
         });
+
+        $('#xcTheadWrap-' + tableId).on('click.tablePicker', function(event) {
+            var $target = $(event.target);
+            xcHelper.fillInputFromCell($target, $lastInputFocused, "", 'table');
+        });
+        $('#xcTheadWrap-' + tableId).on('mousedown', keepInputFocused);
         $('#xcTable-' + tableId).on('mousedown', '.header, td.clickable', keepInputFocused);
     };
 
@@ -302,6 +308,8 @@ window.ExtensionOpModal = (function(ExtensionOpModal, $) {
         }});
 
         $('#xcTable-' + exTableId).off('click.columnPicker');
+        $('#xcTheadWrap-' + exTableId).off('click.tablePicker');
+        $('#xcTheadWrap-' + exTableId).off('mousedown', keepInputFocused);
         $('#xcTable-' + exTableId).off('mousedown', '.header, td.clickable',
                                         keepInputFocused);
         $('#xcTable-' + exTableId).find('.col' + exColNum)

@@ -1515,7 +1515,8 @@ window.xcHelper = (function($, xcHelper) {
         }
     };
 
-    xcHelper.fillInputFromCell = function ($target, $input, prefix) {
+    xcHelper.fillInputFromCell = function ($target, $input, prefix, type) {
+        // if no prefix, must pass in "" instead of null
         // $input needs class "argument"
         if (!$input.hasClass('argument') ||
             $input.closest('.colNameSection').length !== 0 ||
@@ -1524,15 +1525,20 @@ window.xcHelper = (function($, xcHelper) {
             return;
         }
 
-        var $col;
-        if ($target.closest('.header').length) {
-            $col = $target.closest('.header').find('.editableHead');
+        if (type === "table") {
+            $target = $target.find('.text');
+            value = prefix + $target.data('title');
         } else {
-            var colNum = xcHelper.parseColNum($target.closest('td'));
-            $col = $target.closest('table')
-                            .find('.editableHead.col' + colNum);
+            if ($target.closest('.header').length) {
+                $target = $target.closest('.header').find('.editableHead');
+            } else {
+                var colNum = xcHelper.parseColNum($target.closest('td'));
+                $target = $target.closest('table')
+                                .find('.editableHead.col' + colNum);
+            }
+            value = prefix + $target.val();
         }
-        value = prefix + $col.val();
+
         xcHelper.insertText($input, value);
         gMouseEvents.setMouseDownTarget($input);
     };

@@ -231,6 +231,8 @@ ErrTStr = {
 
     'InvalidExtParam': 'Invalid Extension Parameters',
 
+    'InvalidOpNewColumn': 'Cannot perform this operation on a new column.'
+
 };
 
 ErrWRepTStr = {
