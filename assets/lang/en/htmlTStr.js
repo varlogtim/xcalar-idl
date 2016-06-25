@@ -462,7 +462,7 @@ module.exports = {
 
     "alertModal": {
         "optionHint": "click to see options",
-        "checkBox": "Don\"t show again"
+        "checkBox": "Don't show again"
     },
 
     "dataFlowModal": {
@@ -482,7 +482,7 @@ module.exports = {
         "ColumnsHint": "column1, column2 etc.",
         "CONFIRM": "EXPORT",
         "keepOrder": "Keep Order",
-        "orderHint": "Check to preserve table\"s row order",
+        "orderHint": "Check to preserve table's row order",
         "RecordDelim": "Record Delimiter",
         "AdvancedOpts": "Advanced Options",
         "OneFile": "One File",

@@ -1489,12 +1489,12 @@ window.Dag = (function($, Dag) {
             nodeX += horzShift;
             if (nodeInfo.isParentHidden) {
                 var $expandIcon = $dagWrap.find('.expandWrap[data-index=' + index + ']');
-                var expandIconRight = parseInt($expandIcon.css('right'));
+                var expandIconRight = parseFloat($expandIcon.css('right'));
                 $expandIcon.css('right', (expandIconRight + horzShift));
                 $expandIcon.data('depth', $expandIcon.data('depth') +
                                           (storedInfo.groupLen - 0.3));
                 var $groupOutline = $expandIcon.next();
-                var groupRight = parseInt($groupOutline.css('right'));
+                var groupRight = parseFloat($groupOutline.css('right'));
                 $groupOutline.css('right', (groupRight + horzShift));
             }
             nodeInfo.depth += (storedInfo.groupLen - 0.3);
@@ -1532,7 +1532,7 @@ window.Dag = (function($, Dag) {
 
         var newWidth = 0;
         $dagWrap.find('.dagTable.dataStore').each(function() {
-            var right = parseInt($(this).parent().css('right'));
+            var right = parseFloat($(this).parent().css('right'));
             newWidth = Math.max(newWidth, right + dataStoreWidth);
         });
 
@@ -1550,7 +1550,7 @@ window.Dag = (function($, Dag) {
         var groupIndex = group.indexOf(index);
         var nodeX = nodeInfo.x;
         var $dagTable = $dagWrap.find('.dagTable[data-index=' + index + ']');
-
+        // node is part of the collapsing group
         if (groupIndex > -1) {
             $dagTable.parent().addClass('hidden');
             nodeInfo.isHidden = true;
@@ -1567,12 +1567,12 @@ window.Dag = (function($, Dag) {
             nodeX += horzShift;
             if (nodeInfo.isParentHidden) {
                 var $expandIcon = $dagWrap.find('.expandWrap[data-index=' + index + ']');
-                var expandIconRight = parseInt($expandIcon.css('right'));
+                var expandIconRight = parseFloat($expandIcon.css('right'));
                 $expandIcon.css('right', (expandIconRight + horzShift));
                 $expandIcon.data('depth', $expandIcon.data('depth') -
                                           (storedInfo.groupLen - 0.3));
                 var $groupOutline = $dagWrap.find('.groupOutline[data-index=' + index + ']');
-                var groupRight = parseInt($groupOutline.css('right'));
+                var groupRight = parseFloat($groupOutline.css('right'));
                 $groupOutline.css('right', (groupRight + horzShift));
 
             }
@@ -1888,7 +1888,7 @@ window.Dag = (function($, Dag) {
                     // $expandIcon.remove();
                     $expandIcon.addClass('expanded');
                     $groupOutline.addClass('expanded');
-                    var expandIconRight = parseInt($expandIcon.css('right'));
+                    var expandIconRight = parseFloat($expandIcon.css('right'));
                     var newRight = expandIconRight +
                                              (group.length * dagTableWidth) - 24;
                     $expandIcon.css('right', newRight);
@@ -1899,7 +1899,7 @@ window.Dag = (function($, Dag) {
             } else {
                 $expandIcon.removeClass('expanded');
                 $groupOutline.removeClass('expanded');
-                var expandIconRight = parseInt($expandIcon.css('right'));
+                var expandIconRight = parseFloat($expandIcon.css('right'));
                 var newRight = expandIconRight -
                                              (group.length * dagTableWidth) +
                                              Math.round(0.11 * dagTableWidth);
