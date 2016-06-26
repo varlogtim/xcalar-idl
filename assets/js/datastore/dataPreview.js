@@ -186,8 +186,8 @@ window.DataPreview = (function($, DataPreview) {
         $("#preview-dsName").val(dsName);
 
         var isRecur = $("#recurCheckbox").find(".checkbox").hasClass("checked");
-        XcalarListFiles(loadURL, isRecur)
-        .then(function() {
+        // XcalarListFiles(loadURL, isRecur)
+        // .then(function() {
             $waitSection = $previeWrap.find(".waitSection")
                                         .removeClass("hidden");
             $errorSection = $previeWrap.find(".errorSection")
@@ -299,11 +299,11 @@ window.DataPreview = (function($, DataPreview) {
                 });
                 deferred.reject(error);
             });
-        })
-        .fail(function(error) {
-            StatusBox.show(error.error, $("#filePath"), true);
-            deferred.reject(error);
-        });
+        // })
+        // .fail(function(error) {
+        //     StatusBox.show(error.error, $("#filePath"), true);
+        //     deferred.reject(error);
+        // });
 
         return (deferred.promise());
 
