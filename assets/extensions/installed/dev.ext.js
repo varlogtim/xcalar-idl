@@ -86,6 +86,14 @@ window.UExtDev = (function(UExtDev) {
 
             var args = self.getArgs();
             var rColName = args.rCol;
+
+            // XXX We should allow clicking on tables other than the main table
+            // but since we don't, we will have to type. This means that the
+            // user will have to type the $. So we have to strip it if they did
+            if (rColName.trim().indexOf("$") === 0) {
+                rColName = rColName.trim().substring(1);
+            }
+
             var rTableName = args.rTable;
             var lColName = self.getTriggerCol().getName();
             var srcTableName = self.getTriggerTable().getName();
@@ -205,8 +213,6 @@ window.UExtDev = (function(UExtDev) {
                 console.log(leftError, rightError);
                 deferred.reject();
             });
-
-
 
             return deferred.promise();
         };
