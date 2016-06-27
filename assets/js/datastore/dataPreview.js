@@ -186,124 +186,118 @@ window.DataPreview = (function($, DataPreview) {
         $("#preview-dsName").val(dsName);
 
         var isRecur = $("#recurCheckbox").find(".checkbox").hasClass("checked");
-        // XcalarListFiles(loadURL, isRecur)
-        // .then(function() {
-            $waitSection = $previeWrap.find(".waitSection")
-                                        .removeClass("hidden");
-            $errorSection = $previeWrap.find(".errorSection")
-                                        .addClass("hidden");
 
-            tableName = getPreviewTableName(dsName);
+        $waitSection = $previeWrap.find(".waitSection")
+                                    .removeClass("hidden");
+        $errorSection = $previeWrap.find(".errorSection")
+                                    .addClass("hidden");
 
-            var sql = {
-                "operation" : SQLOps.PreviewDS,
-                "dsPath"    : loadURL,
-                "dsName"    : tableName,
-                "dsFormat"  : "raw",
-                "hasHeader" : hasHeader,
-                "fieldDelim": "Null",
-                "lineDelim" : "\n",
-                "moduleName": moduleName,
-                "funcName"  : funcName
-            };
-            var txId = Transaction.start({
-                "operation": SQLOps.PreviewDS,
-                "sql"      : sql
-            });
-            var loadError = null;
+        tableName = getPreviewTableName(dsName);
 
-            showPreviewPanel()
-            .then(function() {
-                return XcalarLoad(loadURL, "raw", tableName, "", "\n",
-                                  hasHeader, moduleName, funcName, isRecur,
-                                  txId);
-            })
-            .then(function(ret, error) {
-                loadError = error;
-                return DS.release();
-            })
-            .then(function() {
-                return XcalarSample(tableName, rowsToFetch);
-            })
-            .then(function(result) {
-                $waitSection.addClass("hidden");
+        var sql = {
+            "operation" : SQLOps.PreviewDS,
+            "dsPath"    : loadURL,
+            "dsName"    : tableName,
+            "dsFormat"  : "raw",
+            "hasHeader" : hasHeader,
+            "fieldDelim": "Null",
+            "lineDelim" : "\n",
+            "moduleName": moduleName,
+            "funcName"  : funcName
+        };
+        var txId = Transaction.start({
+            "operation": SQLOps.PreviewDS,
+            "sql"      : sql
+        });
+        var loadError = null;
 
-                refId = gDatasetBrowserResultSetId;
-                // set it to 0 because releaseDatasetPointer() use it to check
-                // if ds's ref count is cleard
-                // preiview table should use it's own clear method
-                gDatasetBrowserResultSetId = 0;
-                // no need for refId as we only need 40 samples
-                XcalarSetFree(refId);
+        showPreviewPanel()
+        .then(function() {
+            return XcalarLoad(loadURL, "raw", tableName, "", "\n",
+                              hasHeader, moduleName, funcName, isRecur,
+                              txId);
+        })
+        .then(function(ret, error) {
+            loadError = error;
+            return DS.release();
+        })
+        .then(function() {
+            return XcalarSample(tableName, rowsToFetch);
+        })
+        .then(function(result) {
+            $waitSection.addClass("hidden");
 
-                if (!result) {
-                    var error = DSTStr.NoRecords + '\n' + loadError;
-                    cannotParseHandler(error);
-                    deferred.reject({"error": error});
-                    return PromiseHelper.resolve(null);
-                }
+            refId = gDatasetBrowserResultSetId;
+            // set it to 0 because releaseDatasetPointer() use it to check
+            // if ds's ref count is cleard
+            // preiview table should use it's own clear method
+            gDatasetBrowserResultSetId = 0;
+            // no need for refId as we only need 40 samples
+            XcalarSetFree(refId);
 
-                if (loadError) {
-                    // XXX find a better way to handle it
-                    console.warn(loadError);
-                }
+            if (!result) {
+                var error = DSTStr.NoRecords + '\n' + loadError;
+                cannotParseHandler(error);
+                deferred.reject({"error": error});
+                return PromiseHelper.resolve(null);
+            }
 
-                rawData = [];
+            if (loadError) {
+                // XXX find a better way to handle it
+                console.warn(loadError);
+            }
 
-                var value;
-                var json;
+            rawData = [];
 
-                try {
-                    for (var i = 0, len = result.length; i < len; i++) {
-                        value = result[i].value;
-                        json = $.parseJSON(value);
-                        // get unique keys
-                        for (var key in json) {
-                            if (key === "recordNum") {
-                                continue;
-                            }
-                            rawData.push(json[key].split(""));
+            var value;
+            var json;
+
+            try {
+                for (var i = 0, len = result.length; i < len; i++) {
+                    value = result[i].value;
+                    json = $.parseJSON(value);
+                    // get unique keys
+                    for (var key in json) {
+                        if (key === "recordNum") {
+                            continue;
                         }
+                        rawData.push(json[key].split(""));
                     }
-
-                    if (gMinModeOn) {
-                        $loadHiddenSection.show();
-                    } else {
-                        $loadHiddenSection.fadeIn(500);
-                    }
-
-                    getPreviewTable();
-                    deferred.resolve();
-                } catch (err) {
-                    console.error(err, value);
-                    cannotParseHandler(DSTStr.NoParse);
-                    deferred.reject({"error": DSTStr.NoParse});
                 }
 
-                $(window).on("resize", resizePreivewTable);
+                if (gMinModeOn) {
+                    $loadHiddenSection.show();
+                } else {
+                    $loadHiddenSection.fadeIn(500);
+                }
 
-                // not cache to sql log, only show when fail
-                Transaction.done(txId, {
-                    "noCommit": true,
-                    "noSql"   : true
-                });
-            })
-            .fail(function(error) {
-                $waitSection.addClass("hidden");
-                clearAll();
-                StatusBox.show(error.error, $("#filePath"), true);
+                getPreviewTable();
+                deferred.resolve();
+            } catch (err) {
+                console.error(err, value);
+                cannotParseHandler(DSTStr.NoParse);
+                deferred.reject({"error": DSTStr.NoParse});
+            }
 
-                Transaction.fail(txId, {
-                    "error"  : error,
-                    "noAlert": true
-                });
-                deferred.reject(error);
+            $(window).on("resize", resizePreivewTable);
+
+            // not cache to sql log, only show when fail
+            Transaction.done(txId, {
+                "noCommit": true,
+                "noSql"   : true
             });
-        // })
-        // .fail(function(error) {
-        //     StatusBox.show(error.error, $("#filePath"), true);
-        //     deferred.reject(error);
-        // });
+        })
+        .fail(function(error) {
+            $waitSection.addClass("hidden");
+            clearAll();
+            StatusBox.show(error.error, $("#filePath"), true);
+
+            Transaction.fail(txId, {
+                "error"  : error,
+                "noAlert": true
+            });
+            deferred.reject(error);
+        });
 
         return (deferred.promise());
 
