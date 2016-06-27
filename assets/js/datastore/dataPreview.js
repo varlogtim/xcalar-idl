@@ -187,6 +187,11 @@ window.DataPreview = (function($, DataPreview) {
 
         var isRecur = $("#recurCheckbox").find(".checkbox").hasClass("checked");
 
+        if ($("#filePath").val().trim().length === 0) {
+            StatusBox.show(ErrTStr.NoEmpty, $("#filePath"), true);
+            deferred.reject(error);            
+        }
+
         $waitSection = $previeWrap.find(".waitSection")
                                     .removeClass("hidden");
         $errorSection = $previeWrap.find(".errorSection")
