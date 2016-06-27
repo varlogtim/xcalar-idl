@@ -258,10 +258,14 @@ window.DS = (function ($, DS) {
         })
         .then(function(result, totalEntries, dsResultSetId) {
             if (!result) {
+                var error = DSTStr.NoRecords;
+                if (loadError) {
+                    error += '\n' + loadError;
+                }
                 // if dataset cannot be parsed produce a load fail
                 return PromiseHelper.reject({
                     "dsCreated": true,
-                    "error"    : DSTStr.NoRecords + '\n' + loadError
+                    "error"    : error
                 });
             }
 

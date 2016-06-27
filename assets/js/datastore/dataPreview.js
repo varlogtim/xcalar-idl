@@ -189,7 +189,7 @@ window.DataPreview = (function($, DataPreview) {
 
         if ($("#filePath").val().trim().length === 0) {
             StatusBox.show(ErrTStr.NoEmpty, $("#filePath"), true);
-            deferred.reject(error);            
+            deferred.reject(error);
         }
 
         $waitSection = $previeWrap.find(".waitSection")
@@ -241,7 +241,11 @@ window.DataPreview = (function($, DataPreview) {
             XcalarSetFree(refId);
 
             if (!result) {
-                var error = DSTStr.NoRecords + '\n' + loadError;
+                var error = DSTStr.NoRecords;
+                if (loadError) {
+                    error += '\n' + loadError;
+                }
+
                 cannotParseHandler(error);
                 deferred.reject({"error": error});
                 return PromiseHelper.resolve(null);
@@ -294,8 +298,7 @@ window.DataPreview = (function($, DataPreview) {
         })
         .fail(function(error) {
             $waitSection.addClass("hidden");
-            clearAll();
-            StatusBox.show(error.error, $("#filePath"), true);
+            cannotParseHandler(error.error);
 
             Transaction.fail(txId, {
                 "error"  : error,
@@ -304,7 +307,7 @@ window.DataPreview = (function($, DataPreview) {
             deferred.reject(error);
         });
 
-        return (deferred.promise());
+        return deferred.promise();
 
         function cannotParseHandler(msg) {
             $errorSection.html(msg).removeClass("hidden");
