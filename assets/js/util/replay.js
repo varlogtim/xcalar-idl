@@ -352,7 +352,11 @@ window.Replay = (function($, Replay) {
             var deferred = jQuery.Deferred();
             // this is a UI simulation replay
             // var dsName     = options.dsName;
-            var dsId       = options.dsId;
+            var dsId = options.dsId;
+            // XXX TODO: fix this temporary fix
+            var index = dsId.indexOf(".");
+            dsId = Support.getUser() + dsId.substring(index);
+
             var columns    = options.columns;
             var tableName  = options.tableName;
             var $mainFrame = $("#mainFrame");
