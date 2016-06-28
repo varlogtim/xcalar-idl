@@ -146,8 +146,8 @@ window.xcHelper = (function($, xcHelper) {
 
         mapStr += 'string(' + args[len - 1] + ')';
 
-        for (var i = 0; i < len; i++) {
-            mapStr += ')';
+        for (var i = 0; i < len - 1; i++) {
+            mapStr += '))';
         }
 
         return mapStr;

@@ -113,7 +113,7 @@ module.exports = function(grunt) {
   grunt.renameTask('watch', 'customWatch');
   grunt.registerTask("watch", ['customWatch:normal']);
   grunt.registerTask("reload", ['concurrent:set1']);
-  grunt.registerTask("reloadCss", ['concurrent:set2']);
+  grunt.registerTask("reloadCSS", ['concurrent:set2']);
 
   // used for prod
   grunt.registerTask("render", ['html', 'template', 'clean', 'prettify']);
