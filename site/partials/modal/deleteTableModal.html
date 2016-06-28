@@ -1,0 +1,118 @@
+<!-- Delete Table Modal -->
+<div id="deleteTableModal" class="modalContainer">
+  <!-- Delete Table Header -->
+  <header class="modalHeader">
+    <span class="text"><%= dicts.deleteTable.header %></span>
+    <div class="close">
+      <span class="icon"></span>
+    </div>
+  </header>
+  <!-- Delete Table Instruction -->
+  <section class="modalInstruction">
+    <div class="icon"></div>
+    <div class="text"><%= dicts.deleteTable.instr %></div>
+  </section>
+  <section class="modalTopMain"></section>
+  <!-- Delete Table Main Section -->
+  <section class="modalMain">
+    <section class="loadingSection">
+      <div class="dialog">
+        <div class="animatedEllipsisWrapper">
+          <div class="text"></div>
+          <div class="animatedEllipsis">
+            <div>.</div>
+            <div>.</div>
+            <div>.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <!-- Orphan Section -->
+    <section id="deleteTableModal-orphan" class="section orphan">
+      <!-- title section -->
+      <div class="titleSection">
+        <!-- checkbox -->
+        <div class="title checkboxSection">
+          <div class="checkbox iconWrapper"></div>
+        </div>
+        <!-- category -->
+        <div class="title" data-sortkey="name">
+          <span class="label"><%= dicts.deleteTable.Orphan %></span>
+          <span class="icon"></span>
+        </div>
+        <!-- table size -->
+        <div class="title" data-sortkey="size">
+          <span class="label"><%= dicts.common.Size %></span>
+          <span class="icon"></span>
+        </div>
+        <!-- date modified-->
+        <div class="title" data-sortkey="date">
+          <span class="label"><%= dicts.common.DateModified %></span>
+          <span class="icon"></span>
+        </div>
+      </div>
+      <!-- orphan table list section -->
+      <div class="listSection"></div>
+    </section>
+    <!-- inactive list -->
+    <section id="deleteTableModal-archived" class="section inactive">
+      <!-- title section -->
+      <div class="titleSection">
+        <!-- checkbox -->
+        <div class="title checkboxSection">
+          <div class="checkbox iconWrapper"></div>
+        </div>
+        <!-- category -->
+        <div class="title" data-sortkey="name">
+          <span class="label"><%= dicts.deleteTable.Inactive %></span>
+          <span class="icon"></span>
+        </div>
+        <!-- table size -->
+        <div class="title" data-sortkey="size">
+          <span class="label"><%= dicts.common.Size %></span>
+          <span class="icon"></span>
+        </div>
+        <!-- date modified-->
+        <div class="title" data-sortkey="date">
+          <span class="label"><%= dicts.common.DateModified %></span>
+          <span class="icon"></span>
+        </div>
+      </div>
+      <!-- table list section -->
+      <div class="listSection"></div>
+    </section>
+    <!-- active list -->
+    <section id="deleteTableModal-active" class="section active">
+      <!-- title section -->
+      <div class="titleSection">
+        <!-- checkbox -->
+        <div class="title checkboxSection">
+          <div class="checkbox iconWrapper"></div>
+        </div>
+        <!-- category -->
+        <div class="title" data-sortkey="name">
+          <span class="label"><%= dicts.deleteTable.Active %></span>
+          <span class="icon"></span>
+        </div>
+        <!-- table size -->
+        <div class="title" data-sortkey="size">
+          <span class="label"><%= dicts.common.Size %></span>
+          <span class="icon"></span>
+        </div>
+        <!-- date modified-->
+        <div class="title" data-sortkey="date">
+          <span class="label"><%= dicts.common.DateModified %></span>
+          <span class="icon"></span>
+        </div>
+      </div>
+      <!-- table list section -->
+      <div class="listSection"></div>
+    </section>
+  </section>
+  <!-- Button Section -->
+  <section class="modalBottom">
+    <button type="button" class="btn btnMid cancel"><%= dicts.common.CANCEL %></button>
+    <button type="button" class="btn btnMid confirm"><%= dicts.deleteTable.CONFIRM %></button>
+  </section>
+</div>
+<!-- End of Workbook Modal -->

@@ -2370,6 +2370,156 @@ html.microsoft {
 }
 /* End of Dataflow Modal */
 
+/* Delete Table Modal */
+#deleteTableModal {
+    .size(@width: 600px, @height: 608px);
+
+    &.load {
+        .loadingSection {
+            display: block;
+        }
+
+        .section, .confirm {
+            opacity: 0.5;
+            pointer-events: none;
+        }
+    }
+
+    .loadingSection {
+        display: none;
+        .position(absolute, @top: 0, @left: 0);
+        .size(100%, 100%);
+        z-index: 10;
+
+        .dialog {
+            .size(@width: 200px, @height: 30px);
+            .horizontal-align;
+            top: 25%;
+
+            .animatedEllipsisWrapper {
+                .size(@width: 100%, @height: 30px);
+
+                .text {
+                    .font(@size: 12px, @weight: bold, @line-height: 30px);
+                    margin-right: 3px;
+                }
+
+                .animatedEllipsis {
+                    > div {
+                        .font(@size: 12px, @weight: bold, @line-height: 30px);
+                        margin-left: -1px;
+                    }
+                }
+            }
+        }
+    }
+
+    .modalTopMain {
+        // only show the box-shadow
+        .size(@height: 0px);
+    }
+
+    .modalMain {
+        .size(@height: ~"calc(100% - 144px)");
+        position: relative;
+        padding: 15px 8px 0 8px;
+
+        .section {
+            .size(@width: 100%, @height: ~"calc(33% - 10px)");
+            border: 1px solid  @color-border-topGrayMed;
+            background-color: @color-background-listSectionGray;
+            padding: 4px 8px;
+            margin-top: 10px;
+
+            &:first-child {
+                margin-top: 0;
+            }
+        }
+
+        .titleSection {
+            padding-right: 10px;
+
+            .title {
+                .gray-gradient;
+                .rounded;
+                color: @color-workbook-title-font;
+
+                .label {
+                    .size(@width: ~"calc(95% - 15px)");
+                    display: inline-block;
+                    white-space: nowrap;
+                    .textOverflow;
+                }
+
+                .icon {
+                    .position(absolute, @right: 2px);
+                    .size(@width: 20px, @height: 30px);
+                    .image("../../images/sort.png", 50%, 50%);
+                    background-size: 10px 20px;
+                }
+
+                &:hover {
+                    .gray-inverse-gradient;
+                }
+
+                &.active {
+                    .action-gradient;
+                    color: @color-white;
+                    &:hover {
+                        .action-inverse-gradient;
+                    }
+                }
+            }
+        }
+
+        .listSection {
+            .size(@width: 100%, @height: ~"calc(100% - 30px)");
+            overflow-y: scroll;
+
+            .grid-unit {
+                &:nth-child(even) > div {
+                    background-color: @color-workbook-grid-even;
+                }
+
+                &:nth-child(odd) > div {
+                    background-color: @color-background-darkGray;
+                }
+            }
+        }
+
+        .titleSection, .grid-unit {
+            .size(@width: 100%, @height: 30px);
+
+            > div {
+                display: inline-block;
+                .position(relative);
+                .size(@width: ~"calc(32% - 9px)", @height: 30px);
+                float: left;
+                cursor: default;
+                margin-left: 5px;
+                padding-left: 10px;
+                .font(@weight: bold, @size: 12px, @line-height: 30px);
+
+                &:first-child {
+                    margin-left: 0;
+                }
+
+                &.checkboxSection {
+                    background: transparent !important;
+                    .size(@width: 30px);
+                }
+            }
+        }
+    }
+
+    .modalBottom {
+        .btn {
+            margin: 0 20px 10px 0;
+        }
+    }
+}
+/* End of Delete Table Modal */
+
 /* File Browser Modal */
 #fileBrowserModal {
     .size(@width: 804px, @height: 670px, @max-width: none, @max-height: none);

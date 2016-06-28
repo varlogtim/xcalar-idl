@@ -2416,12 +2416,15 @@ function XcalarApiTop(measureIntervalInMs) {
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return PromiseHelper.resolve(null);
     }
+
+    measureIntervalInMs = measureIntervalInMs || XcalarApisConstantsT.XcalarApiDefaultTopIntervalInMs;
+
     var deferred = jQuery.Deferred();
     if (insertError(arguments.callee, deferred)) {
         return (deferred.promise());
     }
 
-    xcalarApiTop(tHandle, XcalarApisConstantsT.XcalarApiDefaultTopIntervalInMs)
+    xcalarApiTop(tHandle, measureIntervalInMs)
     .then(deferred.resolve)
     .fail(function(error) {
         var thriftError = thriftLog("XcalarApiTop", error);
@@ -2728,6 +2731,54 @@ function XcalarRenameWorkbook(newName, oldName) {
         deferred.reject(thriftError);
     });
     return (deferred.promise());
+}
+
+function XcalarGetStatGroupIdMap(nodeId, numGroupId) {
+    // nodeId is the node (be 0, 1, 2, 3, 4)
+    // numGroupId is the max number of statue you want to return
+    if (tHandle == null) {
+        return PromiseHelper.resovle();
+    }
+
+    var deferred = jQuery.Deferred();
+
+    if (insertError(arguments.callee, deferred)) {
+        return deferred.promise();
+    }
+
+    xcalarGetStatGroupIdMap(tHandle, nodeId, numGroupId)
+    .then(deferred.resolve)
+    .fail(function(error) {
+        var thriftError = thriftLog("XcalarGetStatGroupIdMap", error);
+        SQL.errorLog("Get StatGroupIdMap", null, null, thriftError);
+        deferred.reject(thriftError);
+    });
+
+    return deferred.promise();
+}
+
+function XcalarGetStatsByGroupId(nodeId, groupIdList) {
+    // nodeId is the node (be 0, 1, 2, 3, 4)
+    // groupIdList is an array of groupId return from XcalarGetStatGroupIdMap
+    if (tHandle == null) {
+        return PromiseHelper.resovle();
+    }
+
+    var deferred = jQuery.Deferred();
+
+    if (insertError(arguments.callee, deferred)) {
+        return deferred.promise();
+    }
+
+    xcalarGetStatsByGroupId(tHandle, nodeId, groupIdList)
+    .then(deferred.resolve)
+    .fail(function(error) {
+        var thriftError = thriftLog("XcalarGetStatsByGroupId", error);
+        SQL.errorLog("Get StatsByGroupId", null, null, thriftError);
+        deferred.reject(thriftError);
+    });
+
+    return deferred.promise();
 }
 
 // XXX Currently this function does nothing. Ask Ken for more details

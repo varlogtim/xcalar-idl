@@ -612,6 +612,15 @@ module.exports = {
         "CONFIRM": "CREATE"
     },
 
+    "deleteTable": {
+        "header": "Delete Forever",
+        "instr": "You are running low on space. To free space on this application please delete old or unnecessary tables",
+        "CONFIRM": "DELETE FOREVER",
+        "Orphan": "Orphaned Table",
+        "Inactive": "Archived Table",
+        "Active": "Active Table"
+    },
+
     "extension": {
         "XCEXT": "XCALAR EXTENSIONS",
         "CUSTOM": "CUSTOM",

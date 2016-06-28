@@ -4,9 +4,9 @@ window.Support = (function(Support, $) {
     var commitCheckTimer;
     var commitCheckInterval = 120000; // 2 mins each check
     var commitCheckError = "commit key not match";
-
     // constant
     var defaultCommitFlag = "commit-default";
+    var defaultMemoryLimit = 90;
 
     Support.setup = function() {
         try {
@@ -14,7 +14,7 @@ window.Support = (function(Support, $) {
             // set up session variables
             userIdName = username;
             userIdUnique = getUserIdUnique(username);
-        } catch(error) {
+        } catch (error) {
             console.error(error);
         }
     };
@@ -83,6 +83,25 @@ window.Support = (function(Support, $) {
         return (deferred.promise());
     };
 
+    Support.memoryCheck = function() {
+        var deferred = jQuery.Deferred();
+
+        XcalarApiTop()
+        .then(function(result) {
+            var tops = result.topOutputPerNode;
+            for (var i = 0, len = tops.length; i < len; i++) {
+                if (tops[i].memUsageInPercent > defaultMemoryLimit) {
+                    DeleteTableModal.show();
+                    return;
+                }
+            }
+        })
+        .then(deferred.resolve)
+        .fail(deferred.reject);
+
+        return deferred.promise();
+    };
+
     Support.heartbeatCheck = function() {
         if (commitCheckTimer != null) {
             clearInterval(commitCheckTimer);
@@ -96,7 +115,7 @@ window.Support = (function(Support, $) {
 
             Support.commitCheck()
             .then(function() {
-                // KVStore.commit();
+                return Support.memoryCheck();
             })
             .fail(function(error) {
                 console.error(error);
