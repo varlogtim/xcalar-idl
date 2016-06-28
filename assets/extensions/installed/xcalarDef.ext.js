@@ -316,6 +316,9 @@ window.UExtXcalarDef = (function(UExtXcalarDef, $) {
 
         ext.getRowNum(srcTable, newColName)
         .then(function(newTableName) {
+            return (ext.index(newColName, newTableName));
+        })
+        .then(function(newTableName) {
             deferred.resolve(newTableName, newColName);
         })
         .fail(deferred.reject);
