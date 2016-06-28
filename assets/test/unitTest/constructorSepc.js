@@ -302,6 +302,22 @@ describe('Constructor Test', function() {
         expect(userPref.activeWorksheet).not.to.be.null;
     });
 
+    describe('DSObj Constructor Test', function() {
+        // XXx TODO: add more to test basic attr
+        it('Should get and set error', function() {
+            var dsObj = new DSObj({"parentId": DSObjTerm.homeParentId});
+            expect(dsObj.getError()).to.be.null;
+            dsObj.setError("test");
+            expect(dsObj.getError()).to.equal("test");
+
+            dsObj = new DSObj({
+                "parentId": DSObjTerm.homeParentId,
+                "error"   : "test2"
+            });
+            expect(dsObj.getError()).to.equal("test2");
+        });
+    });
+
     describe('Cart Constructor Test', function() {
         it('CartItem should be a constructor', function() {
             var cartItem = new CartItem({

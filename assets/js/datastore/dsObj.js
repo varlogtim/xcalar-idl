@@ -216,7 +216,7 @@ window.DS = (function ($, DS) {
         var $grid = DS.getGrid(dsObj.getId());
         $grid.addClass('inactive').append('<div class="waitingIcon"></div>');
         $grid.hide();
-        var timerFired = false;
+
         var gridTimer;
         // We give the backend 200ms to return an error
         gridTimer = setTimeout(function() {
@@ -224,7 +224,6 @@ window.DS = (function ($, DS) {
             $grid.find('.waitingIcon').fadeIn(200);
             DS.focusOn($grid); // focus on grid before load
             DataStore.update();
-            timerFired = true;
         }, 200);
 
         var fullDSName = dsObj.getFullName();
@@ -246,62 +245,37 @@ window.DS = (function ($, DS) {
             "sql"      : sql
         });
 
-        var loadError = null;
-
         XcalarLoad(loadURL, dsFormat, fullDSName,
                    fieldDelim, lineDelim, hasHeader,
                    moduleName, funcName, isRecur, txId)
         .then(function(ret, error) {
-            loadError = error;
-            // sample the dataset to see if it can be parsed
-            return XcalarSample(fullDSName, 1);
-        })
-        .then(function(result, totalEntries, dsResultSetId) {
-            if (!result) {
-                var error = DSTStr.NoRecords;
-                if (loadError) {
-                    error += '\n' + loadError;
-                }
-                // if dataset cannot be parsed produce a load fail
-                return PromiseHelper.reject({
-                    "dsCreated": true,
-                    "error"    : error
-                });
+            if (error != null) {
+                dsObj.setError(error);
             }
 
-            if (loadError) {
-                // XXX find a better way to handle it
-                console.warn(loadError);
-            }
+            clearTimeout(gridTimer);
+            DS.focusOn($grid);
 
-            // should release the ds pointer first
-            DS.releaseWithResultSetId(dsResultSetId)
-            .always(function() {
-                if (!timerFired) {
-                    clearTimeout(gridTimer);
+            $grid.removeClass("inactive").find('.waitingIcon').remove();
+            $grid.show();
+
+            // display new dataset
+            refreshDS();
+            if ($grid.hasClass('active')) {
+                // re-focus to trigger DataSampleTable.show()
+                if (gMinModeOn) {
                     DS.focusOn($grid);
-                }
-                $grid.removeClass("inactive").find('.waitingIcon').remove();
-                $grid.show();
-
-                // display new dataset
-                refreshDS();
-                if ($grid.hasClass('active')) {
-                    // re-focus to trigger DataSampleTable.show()
-                    if (gMinModeOn) {
+                } else {
+                    $('#dataSetTableWrap').fadeOut(200, function() {
                         DS.focusOn($grid);
-                    } else {
-                        $('#dataSetTableWrap').fadeOut(200, function() {
-                            DS.focusOn($grid);
-                            $(this).fadeIn();
-                        });
-                    }
+                        $(this).fadeIn();
+                    });
                 }
+            }
 
-                UserSettings.logDSChange();
-                Transaction.done(txId);
-                deferred.resolve(dsObj);
-            });
+            UserSettings.logDSChange();
+            Transaction.done(txId);
+            deferred.resolve(dsObj);
         })
         .fail(function(error) {
             clearTimeout(gridTimer);
@@ -313,32 +287,15 @@ window.DS = (function ($, DS) {
                 DatastoreForm.show({"noReset": true});
             }
 
-            if (error.dsCreated) {
-                // if a dataset was loaded but cannot be parsed, destroy it
-                DS.release()
-                .then(function() {
-                    return XcalarDestroyDataset(fullDSName, txId);
-                })
-                .fail(function(deferredError) {
-                    console.error("delete dataset failed", deferredError);
-                })
-                .always(function() {
-                    Transaction.fail(txId, {
-                        "error"  : error,
-                        "noAlert": true
-                    });
-                });
-            } else {
-                Transaction.fail(txId, {
-                    "error"  : error,
-                    "noAlert": true
-                });
-            }
+            Transaction.fail(txId, {
+                "error"  : error,
+                "noAlert": true
+            });
 
             deferred.reject(error);
         });
 
-        return (deferred.promise());
+        return deferred.promise();
     };
 
     // Rename dsObj

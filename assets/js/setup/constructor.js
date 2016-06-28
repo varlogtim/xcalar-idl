@@ -769,6 +769,7 @@ function DSObj(options) {
     this.uneditable = options.uneditable;
     this.mDate = options.mDate;
     this.isRecur = options.isRecur || false;
+    this.error = options.error || null;
 
     // initially, dataset count itself as one child,
     // folder has no child;
@@ -944,6 +945,14 @@ DSObj.prototype = {
 
             return size;
         }
+    },
+
+    getError: function() {
+        return this.error;
+    },
+
+    setError: function(error) {
+        this.error = error;
     },
 
     beFolder: function() {

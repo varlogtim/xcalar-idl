@@ -98,6 +98,11 @@ window.DataSampleTable = (function($, DataSampleTable) {
             $dsColsBtn.hide();
             $datasetWrap.removeClass("loading").addClass("error");
             var errorText = StatusMessageTStr.LoadFailed + ". " + error.error;
+            var loadError = dsObj.getError();
+            if (loadError != null) {
+                errorText += "\n" + loadError;
+            }
+
             $datasetWrap.find(".errorSection").html(errorText);
             deferred.reject(error);
         });
@@ -322,7 +327,7 @@ window.DataSampleTable = (function($, DataSampleTable) {
 
             deferred.resolve(jsonKeys, jsons);
 
-        } catch(error) {
+        } catch (error) {
             console.error(error, value);
             deferred.reject(error);
         }
