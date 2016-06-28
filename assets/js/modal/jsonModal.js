@@ -12,6 +12,7 @@ window.JSONModal = (function($, JSONModal) {
     var modalHelper;
     var searchHelper;
     var notObject = false; // true if in preview mode due to truncated text
+    var lastModeIsProject = false; // saves project mode state when closing modal
 
     // constant
     var jsonAreaMinWidth = 340;
@@ -680,6 +681,16 @@ window.JSONModal = (function($, JSONModal) {
             $('.tooltip').hide();
         }});
 
+        lastModeIsProject = true;
+
+        $jsonArea.find('.jsonWrap').each(function() {
+            if (!$(this).hasClass('projectMode')) {
+                lastModeIsProject = false;
+                return false;
+            }
+        });
+
+
         $(document).off(".jsonModal");
         searchHelper.$matches = [];
         searchHelper.clearSearch(function() {
@@ -697,6 +708,8 @@ window.JSONModal = (function($, JSONModal) {
     function refreshJsonModal($jsonTd, isArray, isModalOpen, type) {
         var text = $jsonTd.find('.originalData').text();
         var jsonObj;
+        var allProjectMode = false; // used to see if new json column will
+        // come out in project mode
 
         if (type && (type !== "array" && type !== "object")) {
             jsonObj = text;
@@ -723,6 +736,12 @@ window.JSONModal = (function($, JSONModal) {
                 toggleModal($jsonTd, false, 0);
             } else {
                 toggleModal($jsonTd, false, 200);
+            }
+        } else {
+            if ($jsonArea.find('.jsonWrap.projectMode').length > 1 &&
+                ($jsonArea.find('.jsonWrap').length ===
+                $jsonArea.find('.jsonWrap.projectMode').length)) {
+                allProjectMode = true;
             }
         }
 
@@ -754,6 +773,13 @@ window.JSONModal = (function($, JSONModal) {
                     $compareIcon.attr('data-original-title', title);
                 }
             });
+            if (allProjectMode) {
+                $jsonArea.find('.jsonWrap').last().addClass('projectMode');
+            }
+        } else {
+            if (lastModeIsProject) {
+                $jsonArea.find('.jsonWrap').last().addClass('projectMode');
+            }
         }
     }
 
@@ -1443,15 +1469,44 @@ window.JSONModal = (function($, JSONModal) {
                 var tableCols = gTables[tableId].tableCols;
                 tableCols = xcHelper.deepCopy(tableCols);
                 var finalTableCols = [];
+                var dataCol;
+                var colNameIndex;
                 for (var i = 0; i < tableCols.length; i++) {
-                    if (colNames.indexOf(tableCols[i].backName) > -1) {
+                    colNameIndex = colNames.indexOf(tableCols[i].backName)
+                    if (colNameIndex > -1) {
                         finalTableCols.push(tableCols[i]);
+                        // empty out the colnames array
+                        colNames.splice(colNameIndex, 1);
                     } else if (tableCols[i].backName === "DATA") {
-                        var dataCol = ColManager.newDATACol();
-                        finalTableCols.push(dataCol);
+                        dataCol = ColManager.newDATACol();
                     }
                 }
-
+                // loop through colnames that weren't pulled out in table
+                var newProgCol;
+                var colName;
+                var width;
+                var widthOptions = {
+                    defaultHeaderStyle: true
+                };
+                var escapedName;
+                for (var i = 0; i < colNames.length; i++) {
+                    colName = colNames[i];
+                    escapedName = xcHelper.escapeColName(colName);
+                    width = getTextWidth($(), colName, widthOptions);
+                    newProgCol = ColManager.newCol({
+                        "backName": escapedName,
+                        "name"    : colName,
+                        "width"   : width,
+                        "isNewCol": false,
+                        "userStr" : '"' + colName + '" = pull(' + escapedName + ')',
+                        "func"    : {
+                            "name": "pull",
+                            "args": [escapedName]
+                        }
+                    });
+                    finalTableCols.push(newProgCol);
+                }
+                finalTableCols.push(dataCol);
                 // var dataCol = gTables[tableId].tableCols[dataColNum];
                 // var tableCols = [xcHelper.deepCopy(dataCol)];
 
