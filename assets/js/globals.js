@@ -51,6 +51,7 @@ var gMinModeOn = false;
 var gExportNoCheck = false;
 var gEnableCopyCols = false;
 var gEnableJoinKeyCheck = false;
+var gMutePromises = true; // mutes .when() console logs
 var gExportFDelim = "\t";
 var gExportRDelim = "\n";
 var gLongTestSuite = 1;

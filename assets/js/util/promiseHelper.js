@@ -1,5 +1,4 @@
 window.PromiseHelper = (function(PromiseHelper, $) {
-
     /**
     oneIter: Function that returns a promise. It represents one iteration of the
     loop.
@@ -61,12 +60,16 @@ window.PromiseHelper = (function(PromiseHelper, $) {
 
         function whenCall(i) {
             argument[i].then(function(ret) {
-                console.log("Promise", i, "done!");
+                if (!gMutePromises) {
+                   console.log("Promise", i, "done!");
+                }
                 numDone++;
                 returns[i] = ret;
 
                 if (numDone === numProm) {
-                    console.log("All done!");
+                    if (!gMutePromises) {
+                        console.log("All done!");
+                    }
                     if (hasFailures) {
                         mainDeferred.reject.apply($, returns);
                     } else {

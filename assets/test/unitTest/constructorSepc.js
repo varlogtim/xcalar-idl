@@ -806,20 +806,22 @@ describe('Constructor Test', function() {
         expect(corrector.suggest('t')).to.equal('test');
     });
 
+    // XX incomplete since the change where monitor query bars are working
     describe('XcQuery Constructor Test', function() {
         it('XcQuery should be a constructor', function() {
             var xcQuery = new XcQuery({
                 'name'    : 'test',
+                'fullName': 'full test',
                 'time'    : 123,
-                'query'   : 'fake query',
-                'fullName': 'full test'
+                'type'    : 'xcFunction',
+                'id'      : 1,
+                'numSteps': 2
             });
 
             expect(xcQuery).to.be.an('object');
-            expect(Object.keys(xcQuery).length).to.equal(5);
+            expect(Object.keys(xcQuery).length).to.equal(14);
             expect(xcQuery).to.have.property('name').and.to.equal('test');
             expect(xcQuery).to.have.property('time').and.to.equal(123);
-            expect(xcQuery).to.have.property('query').and.to.equal('fake query');
             expect(xcQuery).to.have.property('fullName').and.to.equal('full test');
             expect(xcQuery).to.have.property('state').and.to.equal(QueryStateT.qrNotStarted);
         });
@@ -827,16 +829,14 @@ describe('Constructor Test', function() {
         it('XcQuery OOP function should work', function() {
             var xcQuery = new XcQuery({
                 'name'    : 'test2',
-                'time'    : 456,
-                'query'   : 'fake query2',
                 'fullName': 'full test2',
+                'time'    : 456,
                 'state'   : QueryStateT.qrProcessing
             });
 
             expect(xcQuery.getName()).to.equal('test2');
             expect(xcQuery.getFullName()).to.equal('full test2');
             expect(xcQuery.getTime()).to.equal(456);
-            expect(xcQuery.getQuery()).to.equal('fake query2');
             expect(xcQuery.getState()).to.equal(QueryStateT.qrProcessing);
             expect(xcQuery.getStateString()).to.equal('qrProcessing');
         });

@@ -100,7 +100,9 @@ CommonTxtTstr = {
     'StartTime': 'Start Time',
     'CopyLog': 'Copy log',
     'LogOut': 'Log Out',
-    'Rename': 'Rename'
+    'Rename': 'Rename',
+    'InP': 'In progress',
+    'NA': 'N/A'
 };
 
 ErrTStr = {

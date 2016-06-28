@@ -234,6 +234,8 @@ function insertError(argCallee, deferred) {
 }
 
 // ========================== HELPER FUNCTIONS ============================= //
+
+// will only make a backend call if unsorted source table is found but is inactive
 function getUnsortedTableName(tableName, otherTableName) {
     var deferred = jQuery.Deferred();
     var deferred1 = XcalarGetDag(tableName);
@@ -804,6 +806,7 @@ function XcalarIndexFromDataset(datasetName, key, tablename, txId) {
                                   dhtName,
                                   XcalarOrderingT.XcalarOrderingUnordered);
     var def2 = XcalarGetQuery(workItem);
+
     jQuery.when(def1, def2)
     .then(function(ret1, ret2) {
         Transaction.log(txId, ret2);
@@ -842,11 +845,16 @@ function XcalarIndexFromTable(srcTablename, key, tablename, ordering,
         var def1 = xcalarIndexTable(tHandle, unsortedSrcTablename, key,
                                     tablename, dhtName, ordering);
         var def2 = XcalarGetQuery(workItem);
+        def2.then(function(query) {
+            if (!unsorted) {
+                QueryManager.addSubQuery(txId, 'index', tablename, query);
+            }
+        });
 
         jQuery.when(def1, def2)
         .then(function(ret1, ret2) {
             if (!unsorted) {
-                Transaction.log(txId, ret2);
+                Transaction.log(txId, ret2, tablename);
             }
             deferred.resolve(ret1);
         })
@@ -1440,9 +1448,13 @@ function XcalarFilter(evalStr, srcTablename, dstTablename, txId) {
         var def1 = xcalarFilter(tHandle, evalStr, unsortedSrcTablename,
                                 dstTablename);
         var def2 = XcalarGetQuery(workItem);
+        def2.then(function(query) {
+            QueryManager.addSubQuery(txId, 'filter', dstTablename, query);
+        });
+
         jQuery.when(def1, def2)
         .then(function(ret1, ret2) {
-            Transaction.log(txId, ret2);
+            Transaction.log(txId, ret2, dstTablename);
             deferred.resolve(ret1);
         })
         .fail(function(error1, error2) {
@@ -1485,9 +1497,13 @@ function XcalarMap(newFieldName, evalStr, srcTablename, dstTablename,
         var def1 = xcalarApiMap(tHandle, newFieldName, evalStr,
                                 unsortedSrcTablename, dstTablename);
         var def2 = XcalarGetQuery(workItem);
+        def2.then(function(query) {
+            QueryManager.addSubQuery(txId, 'map', dstTablename, query);
+        });
+
         jQuery.when(def1, def2)
         .then(function(ret1, ret2) {
-            Transaction.log(txId, ret2);
+            Transaction.log(txId, ret2, dstTablename);
             deferred.resolve(ret1);
         })
         .fail(function(error1, error2) {
@@ -1565,9 +1581,12 @@ function XcalarAggregate(evalStr, dstAggName, srcTablename, txId) {
         var def1 = xcalarAggregate(tHandle, unsortedSrcTablename, dstAggName,
                                    evalStr);
         var def2 = XcalarGetQuery(workItem);
+        def2.then(function(query) {
+            QueryManager.addSubQuery(txId, 'aggregate', dstAggName, query);
+        });
         jQuery.when(def1, def2)
         .then(function(ret1, ret2) {
-            Transaction.log(txId, ret2);
+            Transaction.log(txId, ret2, dstAggName);
             deferred.resolve(ret1, dstAggName);
         })
         .fail(function(error1, error2) {
@@ -1596,9 +1615,13 @@ function XcalarJoin(left, right, dst, joinType, txId) {
         var def1 = xcalarJoin(tHandle, unsortedLeft, unsortedRight, dst,
                               joinType);
         var def2 = XcalarGetQuery(workItem);
+        def2.then(function(query) {
+            QueryManager.addSubQuery(txId, 'join', dst, query)
+        });
+
         jQuery.when(def1, def2)
         .then(function(ret1, ret2) {
-            Transaction.log(txId, ret2);
+            Transaction.log(txId, ret2, dst);
             deferred.resolve(ret1);
         })
         .fail(function(error1, error2) {
@@ -1632,9 +1655,13 @@ function XcalarGroupBy(operator, newColName, oldColName, tableName,
         var def1 = xcalarGroupBy(tHandle, unsortedTableName, newTableName,
                                  evalStr, newColName, incSample);
         var def2 = XcalarGetQuery(workItem);
+        def2.then(function(query) {
+            QueryManager.addSubQuery(txId, 'groupBy', newTableName, query)
+        });
+
         jQuery.when(def1, def2)
         .then(function(ret1, ret2) {
-            Transaction.log(txId, ret2);
+            Transaction.log(txId, ret2, newTableName);
             deferred.resolve(ret1);
         })
         .fail(function(error1, error2) {

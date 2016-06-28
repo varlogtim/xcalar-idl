@@ -27,7 +27,8 @@ window.xcFunction = (function($, xcFunction) {
         var txId = Transaction.start({
             "msg"      : StatusMessageTStr.Filter + ': ' + frontColName,
             "operation": SQLOps.Filter,
-            "sql"      : sql
+            "sql"      : sql,
+            "steps"    : 1
         });
 
         var finalTableName;
@@ -120,7 +121,8 @@ window.xcFunction = (function($, xcFunction) {
         var txId = Transaction.start({
             "msg"      : msg,
             "operation": SQLOps.Aggr,
-            "sql"      : sql
+            "sql"      : sql,
+            "steps"    : 1
         });
 
         // XXX temp hack because backend doesn't but should take @ as first char
@@ -213,10 +215,12 @@ window.xcFunction = (function($, xcFunction) {
             "direction": direction,
             "sorted"   : true
         };
+        var steps = typeToCast ? 2 : 1;
         var txId = Transaction.start({
             "msg"      : StatusMessageTStr.Sort + " " + frontColName,
             "operation": SQLOps.Sort,
-            "sql"      : sql
+            "sql"      : sql,
+            "steps"    : steps
         });
 
         // user timeout because it may fail soon if table is already sorted
@@ -365,10 +369,23 @@ window.xcFunction = (function($, xcFunction) {
             "htmlExclude" : ["lTablePos", "rTablePos", "worksheet", "keepTables"]
         };
 
+        // regular join on unsorted cols = 3, 1 if sorted (through groupby)
+        // left table index (optional), right table index (optional), join
+
+        // multi join on unsorted cols = 5, 3 if sorted
+        // concat left, concat right, index left, index right, join
+        var steps;
+        if (lColNums.length > 1) {
+            steps = 5;
+        } else {
+            steps = 3;
+        }
+
         var txId = Transaction.start({
             "msg"      : StatusMessageTStr.Join,
             "operation": SQLOps.Join,
-            "sql"      : sql
+            "sql"      : sql,
+            "steps"    : steps
         });
 
         xcHelper.lockTable(lTableId);
@@ -477,9 +494,19 @@ window.xcFunction = (function($, xcFunction) {
 
         // current workshhet index
         var curWS = WSManager.getWSFromTable(tableId);
+        var steps;
+        if (groupByCols.length > 1) {
+            // concat, index(optional), groupby, [cuts]
+            steps = 3 + groupByCols.length;
+        } else {
+            // index(optional), groupby
+            steps = 2;
+        }
+
         var txId = Transaction.start({
             "msg"      : StatusMessageTStr.GroupBy + " " + operator,
-            "operation": SQLOps.GroupBy
+            "operation": SQLOps.GroupBy,
+            "steps": steps
         });
 
         xcHelper.lockTable(tableId);
@@ -573,7 +600,8 @@ window.xcFunction = (function($, xcFunction) {
         var txId = Transaction.start({
             "msg"      : StatusMessageTStr.Map + " " + fieldName,
             "operation": SQLOps.Map,
-            "sql"      : sql
+            "sql"      : sql,
+            "steps"    : 1
         });
         var finalTableName;
         var finalTableId;
@@ -651,7 +679,8 @@ window.xcFunction = (function($, xcFunction) {
         var txId = Transaction.start({
             "msg"      : StatusMessageTStr.ExportTable + ": " + tableName,
             "operation": SQLOps.ExportTable,
-            "sql"      : sql
+            "sql"      : sql,
+            "steps"    : 1
         });
 
         XcalarExport(tableName, exportName, targetName, numCols, backColumns,

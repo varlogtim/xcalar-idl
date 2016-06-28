@@ -509,7 +509,6 @@ window.XIApi = (function(XIApi, $) {
                 .then(function(resultSet) {
                     resultSet = resultSet || {};
                     var parentKey = resultSet.keyAttrHeader.name;
-
                     if (parentKey !== colToIndex) {
                         if (tableKey != null && parentKey !== tableKey) {
                             // if current is sorted, the parent should also
@@ -676,7 +675,6 @@ window.XIApi = (function(XIApi, $) {
                 // XXX In the future,we can check if there are other tables that
                 // are indexed on this key. But for now, we reindex a new table
                 var newTableName = getNewTableName(tableName, ".index");
-
                 XcalarIndexFromTable(unsortedTable, colName, newTableName,
                                      XcalarOrderingT.XcalarOrderingUnordered,
                                      txId)
@@ -727,7 +725,6 @@ window.XIApi = (function(XIApi, $) {
 
             // index the mapped table
             indexedTableName = getNewTableName(mapTableName);
-
             return XcalarIndexFromTable(mapTableName, groupByField,
                                         indexedTableName,
                                         XcalarOrderingT.XcalarOrderingUnordered,

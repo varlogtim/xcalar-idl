@@ -6,6 +6,7 @@ window.xcHelper = (function($, xcHelper) {
         }
     };
 
+    // looks for xcTable-AB12 or $('#xcTable-AB12')
     xcHelper.parseTableId = function(idOrEl) {
         // can pass in a string or jQuery element
         var id;
@@ -1105,6 +1106,8 @@ window.xcHelper = (function($, xcHelper) {
     };
 
     // animate: boolean indicating whether to animate the scrolling
+    // options:
+    //      onlyIfOffScreen: boolean, if true, will only animate table if visible
     xcHelper.centerFocusedTable = function($tableWrap, animate, options) {
         options = options || {};
         var windowWidth = $(window).width();

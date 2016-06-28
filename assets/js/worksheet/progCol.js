@@ -407,12 +407,13 @@ window.ColManager = (function($, ColManager) {
         var txId = Transaction.start({
             "msg"      : StatusMessageTStr.ChangeType,
             "operation": SQLOps.ChangeType,
-            "sql"      : sql
+            "sql"      : sql,
+            "steps"    : numColInfos
         });
 
         var promises = [];
         for (i = numColInfos - 1; i >= 0; i--) {
-            promises.push(chagneTypeHelper.bind(this, i));
+            promises.push(changeTypeHelper.bind(this, i));
         }
 
         PromiseHelper.chain(promises)
@@ -436,7 +437,7 @@ window.ColManager = (function($, ColManager) {
 
         return (deferred.promise());
 
-        function chagneTypeHelper(index) {
+        function changeTypeHelper(index) {
             var innerDeferred = jQuery.Deferred();
 
             var curTableName = newTableNames[index + 1];
@@ -664,7 +665,8 @@ window.ColManager = (function($, ColManager) {
 
         var txId = Transaction.start({
             "msg"      : StatusMessageTStr.SplitColumn,
-            "operation": SQLOps.SplitCol
+            "operation": SQLOps.SplitCol,
+            "steps"    : -1
         });
 
         getSplitNumHelper()

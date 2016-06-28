@@ -1815,12 +1815,23 @@ SearchBar.prototype = {
 /* End of SearchBar */
 
 /* Query */
+// expects the following options:
+// name, fullName, time, type, id, numSteps
 function XcQuery(options) {
     options = options || {};
     this.name = options.name;
     this.time = options.time;
-    this.query = options.query;
+    this.elapsedTime = 0;
     this.fullName = options.fullName; // real name for backend
+    this.type = options.type;
+    this.subQueries = [];
+    this.stagedQueries = [];
+    this.id = options.id;
+    this.numSteps = options.numSteps;
+    this.currStep = 0;
+    this.unknownSteps = (this.numSteps > 0);
+    this.outputTableName = "";
+    this.outputTableState = "";
 
     if (options.state == null) {
         this.state = QueryStateT.qrNotStarted;
@@ -1840,6 +1851,120 @@ XcQuery.prototype = {
         return this.fullName;
     },
 
+    "getId": function() {
+        return this.id;
+    },
+
+    "getTime": function() {
+        return this.time;
+    },
+
+    "getElapsedTime": function() {
+        return this.elapsedTime;
+    },
+
+    "setElapsedTime": function() {
+        this.elapsedTime = Date.now() - this.time;
+    },
+
+    "getQuery": function() {
+        // XXX XcalarQueryState also return the query,
+        // so maybe not store it into backend?
+        if (this.subQueries.length) {
+            var queries = "";
+            for (var i = 0; i < this.subQueries.length; i++) {
+                queries += this.subQueries[i].query + ";";
+            }
+            return queries;
+        } else {
+            return null;
+        }
+    },
+
+    "getOutputTableName": function() {
+        if (this.state === "done") {
+            return (this.subQueries[this.subQueries.length - 1].dstTable);
+        } else {
+            return null;
+        }
+    },
+
+    "getOutputTableState": function() {
+        if (this.state === "done") {
+            return this.outputTableState;
+        } else {
+            return null;
+        }
+    },
+
+    "addSubQuery": function(subQuery) {
+        this.subQueries.push(subQuery);
+    },
+
+    "getState": function() {
+        return this.state;
+    },
+
+    getStateString: function() {
+        return QueryStateTStr[this.state];
+    },
+
+    "check": function() {
+        var self = this;
+        var deferred = jQuery.Deferred();
+        if (this.type === "xcQuery") {
+            XcalarQueryState(self.fullName)
+            .then(function(res) {
+                // self.state = res.queryState;
+                deferred.resolve(res)
+            }).fail(deferred.reject);
+        } else {
+            deferred.resolve();
+        }
+        return deferred.promise()
+    },
+
+    "run": function() {
+        if (this.state === QueryStateT.qrNotStarted) {
+            return XcalarQuery(this.fullName, this.getQuery());
+        } else {
+            var error = "cannot run query that with state:" +
+                        this.getStateString();
+            return PromiseHelper.reject({
+                "error": error,
+                "state": this.state
+            });
+        }
+    },
+};
+
+function XcSubQuery(options) {
+    options = options || {};
+    this.name = options.name;
+    this.time = options.time;
+    this.query = options.query;
+    this.dstTable = options.dstTable;
+    this.id = options.id;
+    this.index = options.index;
+
+    if (options.state == null) {
+        this.state = QueryStateT.qrNotStarted;
+    } else {
+        this.state = options.state;
+    }
+
+    return this;
+}
+
+XcSubQuery.prototype = {
+    "getName": function() {
+        return this.name;
+    },
+
+    "getId": function() {
+        return this.id;
+    },
+
     "getTime": function() {
         return this.time;
     },
@@ -1854,32 +1979,23 @@ XcQuery.prototype = {
         return this.state;
     },
 
-    getStateString: function() {
-        return QueryStateTStr[this.state];
+    "setState": function(state) {
+        this.state = state;
     },
 
-    "run": function() {
-        if (this.state === QueryStateT.qrNotStarted) {
-            return XcalarQuery(this.fullName, this.query);
-        } else {
-            var error = "cannot run query that with state:" +
-                        this.getStateString();
-            return PromiseHelper.reject({
-                "error": error,
-                "state": this.state
-            });
-        }
+    getStateString: function() {
+        return QueryStateTStr[this.state];
     },
 
     "check": function() {
         var self = this;
         var deferred = jQuery.Deferred();
-        XcalarQueryState(self.fullName)
-        .then(function(res) {
-            self.state = res.queryState;
-            deferred.resolve(res);
-        })
-        .fail(deferred.reject);
+        XcalarGetOpStats(self.dstTable)
+        .then(function(ret) {
+            var stats = ret.opDetails;
+            deferred.resolve(parseFloat((100 * (stats.numWorkCompleted /
+                                         stats.numWorkTotal)).toFixed(2)));
+        });
 
         return deferred.promise();
     }

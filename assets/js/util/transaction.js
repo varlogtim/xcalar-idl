@@ -23,6 +23,16 @@ window.Transaction = (function(Transaction, $) {
 
         txCache[curId] = txLog;
 
+        var numSubQueries;
+        if (options.steps != null) {
+            if (!isNaN(options.steps) || options.steps < 1) {
+                numSubQueries = options.steps;
+            } else {
+                numSubQueries = -1;
+            }
+            QueryManager.addQuery(curId, operation, numSubQueries);
+        }
+
         txIdCount++;
         return curId;
     };
@@ -58,6 +68,8 @@ window.Transaction = (function(Transaction, $) {
 
             SQL.add(title, sql, cli, willCommit);
         }
+
+        QueryManager.queryDone(txId);
 
         // remove transaction
         removeTX(txId);
@@ -95,6 +107,7 @@ window.Transaction = (function(Transaction, $) {
         title = xcHelper.capitalize(title);
 
         SQL.errorLog(title, sql, cli, error);
+        QueryManager.fail(txId);
 
         // add alert(optional)
         if (!options.noAlert) {
@@ -130,15 +143,19 @@ window.Transaction = (function(Transaction, $) {
         }
 
         removeTX(txId);
+        QueryManager.removeQuery(txId);
     };
 
-    Transaction.log = function(txId, cli) {
+    Transaction.log = function(txId, cli, dstTableName) {
         if (!isValidTX(txId)) {
             return;
         }
 
         var tx = txCache[txId];
         tx.addCli(cli);
+        if (dstTableName) {
+            QueryManager.subQueryDone(txId, dstTableName);
+        }
     };
 
     // Transaction.errorLog = function(txId) {

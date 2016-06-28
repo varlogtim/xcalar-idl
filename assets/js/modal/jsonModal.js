@@ -1443,10 +1443,13 @@ window.JSONModal = (function($, JSONModal) {
 
             dstTableName = tableName.split("#")[0] + Authentication.getHashId();
             worksheet = WSManager.getWSFromTable(tableId);
+
             var txId = Transaction.start({
                 "msg"      : StatusMessageTStr.Project,
-                "operation": SQLOps.Project
+                "operation": SQLOps.Project,
+                "steps"    : 1
             });
+
             xcHelper.lockTable(tableId);
 
             closeJSONModal();
