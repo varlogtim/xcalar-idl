@@ -33,6 +33,10 @@ window.TblManager = (function($, TblManager) {
         var newTableName = newTableNames[0];
         var newTableId = xcHelper.getTableId(newTableName);
 
+        if (typeof(oldTableNames) === "string") {
+            oldTableNames = [oldTableNames];
+        }
+
         // must get worksheet to add before async call,
         // otherwise newTable may add to wrong worksheet
         if (worksheet != null) {

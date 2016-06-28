@@ -231,7 +231,9 @@ ErrTStr = {
 
     'InvalidExtParam': 'Invalid Extension Parameters',
 
-    'InvalidOpNewColumn': 'Cannot perform this operation on a new column.'
+    'InvalidOpNewColumn': 'Cannot perform this operation on a new column.',
+
+    'SuggestProject': 'Please project to reduce the number of columns and retry.'
 
 };
 

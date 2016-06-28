@@ -168,8 +168,13 @@ window.Undo = (function($, Undo) {
     };
 
     undoFuncs[SQLOps.Project] = function(options) {
-        var tableId = xcHelper.getTableId(options.newTableName);
-        return (TblManager.sendTableToOrphaned(tableId, {'remove': true}));
+        var worksheet = WSManager.getWSFromTable(options.tableId);
+        return (TblManager.refreshTable([options.tableName], null,
+                                        [options.newTableName],
+                                        worksheet, {
+                    isUndo: true,
+                    from  : "noSheet"
+                }));
     };
 
     undoFuncs[SQLOps.Ext] = function(options) {

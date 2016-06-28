@@ -97,8 +97,9 @@ window.Redo = (function($, Redo) {
 
     redoFuncs[SQLOps.Project] = function(options) {
         var worksheet = WSManager.getWSFromTable(options.tableId);
-        return (TblManager.refreshTable([options.newTableName], null, [],
-                                         worksheet));
+        return (TblManager.refreshTable([options.newTableName], null,
+                                        [options.tableName],
+                                        worksheet));
     };
 
     redoFuncs[SQLOps.Ext] = function(options) {

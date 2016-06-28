@@ -1511,7 +1511,7 @@ window.JSONModal = (function($, JSONModal) {
                 // var tableCols = [xcHelper.deepCopy(dataCol)];
 
                 return TblManager.refreshTable([dstTableName], finalTableCols,
-                                                null, worksheet, options);
+                                               [tableName], worksheet, options);
             })
             .then(function() {
                 xcHelper.unlockTable(tableId);

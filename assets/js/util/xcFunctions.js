@@ -400,10 +400,50 @@ window.xcFunction = (function($, xcFunction) {
             deferred.resolve();
         })
         .fail(function(error) {
-            Transaction.fail(txId, {
-                "failMsg": StatusMessageTStr.JoinFailed,
-                "error"  : error
-            });
+            if (error.status === StatusT.StatusMaxJoinFieldsExceeded) {
+                Transaction.fail(txId, {
+                    "failMsg": StatusMessageTStr.JoinFailed,
+                    "error"  : error
+                });
+                var origMsg = $("#alertContent .text").text();
+                $("#alertContent .text").text(origMsg + "\n" +
+                                              ErrTStr.SuggestProject);
+                var tables = [{"whichTable": "Right",
+                               "tableId": rTableId},
+                              {"whichTable": "Left",
+                               "tableId": lTableId}];
+                $btnSection = $("#alertActions");
+                $confirmBtn = $btnSection.find(".confirm").eq(0);
+                tables.forEach(function(obj) {
+                    var className = "funcBtn projectCols"+obj.whichTable;
+
+                    var $btn = $confirmBtn.clone();
+
+                    $btnSection.append($btn);
+
+                    $btn.show()
+                        .text("Project "+obj.whichTable+" Table")
+                        .addClass(className);
+                    $btn.click(function (event) {
+                        event.stopPropagation();
+                        $("#alertActions .cancel").click();
+                        var ws = WSManager.getWSFromTable(obj.tableId);
+                        WSManager.focusOnWorksheet(ws, false, obj.tableId);
+                        var rowNum =
+                                 RowScroller.getFirstVisibleRowNum(obj.tableId);
+                        $("#xcTable-" + obj.tableId + " .row" + rowNum +
+                          " .jsonElement").dblclick();
+                        $("#jsonModal .dropdownBox").click();
+                        $(".projectionOpt").click();
+                    });
+                });
+                
+            } else {
+                Transaction.fail(txId, {
+                    "failMsg": StatusMessageTStr.JoinFailed,
+                    "error"  : error
+                });
+            }
             deferred.reject(error);
         })
         .always(function() {

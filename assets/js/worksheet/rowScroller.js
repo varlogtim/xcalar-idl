@@ -328,6 +328,8 @@ window.RowScroller = (function($, RowScroller) {
         }
     };
 
+    RowScroller.getFirstVisibleRowNum = getFirstVisibleRowNum;
+
     function getFirstVisibleRowNum(tableId) {
         if (!document.elementFromPoint) {
             return null;
