@@ -323,6 +323,7 @@ module.exports = {
         "SETUP": "SETUP",
         "AUTOSUPPORT": "AUTO SUPPORT SETTINGS",
         "GENSUB": "GENERATE SUB",
+        "DelTable": "DELETE TABLES TO RELEASE MEMORY",
         "CPU": "CPU",
         "RAM": "RAM",
         "FLASH": "FLASH",

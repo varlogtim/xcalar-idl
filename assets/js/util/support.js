@@ -4,6 +4,7 @@ window.Support = (function(Support, $) {
     var commitCheckTimer;
     var commitCheckInterval = 120000; // 2 mins each check
     var commitCheckError = "commit key not match";
+    var memoryCheck = true;
     // constant
     var defaultCommitFlag = "commit-default";
     var defaultMemoryLimit = 90;
@@ -21,6 +22,12 @@ window.Support = (function(Support, $) {
 
     Support.getUser = function() {
         return username;
+    };
+
+    Support.config = function(options) {
+        if (options.memoryCheck != null) {
+            memoryCheck = options.memoryCheck;
+        }
     };
 
     Support.holdSession = function() {
@@ -84,6 +91,10 @@ window.Support = (function(Support, $) {
     };
 
     Support.memoryCheck = function() {
+        if (!memoryCheck) {
+            return PromiseHelper.resolve();
+        }
+
         var deferred = jQuery.Deferred();
 
         XcalarApiTop()

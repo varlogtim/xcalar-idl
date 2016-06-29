@@ -1,5 +1,6 @@
 window.DeleteTableModal = (function(DeleteTableModal, $) {
-    var $modal;  // $("#deleteTableModal")
+    var $modal;    // $("#deleteTableModal")
+    var $modalBg;  // $("#modalBackground")
     var modalHelper;
     var tableList = {};
     var sortKeyList = {};
@@ -9,6 +10,7 @@ window.DeleteTableModal = (function(DeleteTableModal, $) {
 
     DeleteTableModal.setup = function() {
         $modal = $("#deleteTableModal");
+        $modalBg = $("#modalBackground");
         reset();
 
         var minWidth  = 520;
@@ -44,6 +46,7 @@ window.DeleteTableModal = (function(DeleteTableModal, $) {
             $(this).find(".checkbox").toggleClass("checked");
         });
 
+        // click checkbox on title
         $modal.on("click", ".titleSection .checkboxSection", function() {
             var $checkboxSection = $(this);
             if ($checkboxSection.find(".checkbox").hasClass("checked")) {
@@ -72,6 +75,11 @@ window.DeleteTableModal = (function(DeleteTableModal, $) {
                 sortTableList(tableList[TableType.Active], TableType.Active, sortKey);
             }
         });
+
+        // click don't show
+        $("#deleteTableModal-dontShow").click(function() {
+            $(this).find(".checkbox").toggleClass("checked");
+        });
     };
 
     DeleteTableModal.show = function() {
@@ -81,7 +89,19 @@ window.DeleteTableModal = (function(DeleteTableModal, $) {
             return;
         }
 
-        modalHelper.setup();
+        modalHelper.setup({
+            "open": function() {
+                // instead of show modalBg, add locked class
+                // so it can overlap upon other modals
+                // and close without any problem
+                $modalBg.addClass("locked");
+                if (gMinModeOn) {
+                    $modal.show();
+                } else {
+                    $modal.fadeIn();
+                }
+            }
+        });
 
         // if it's too slow, show timer
         $modal.addClass("load");
@@ -95,8 +115,21 @@ window.DeleteTableModal = (function(DeleteTableModal, $) {
     };
 
     function closeModal() {
-        modalHelper.clear();
+        var memCheck = !$("#deleteTableModal-dontShow .checkbox").hasClass("checked");
+        modalHelper.clear({
+            "close": function() {
+                $modalBg.removeClass("locked");
+                if (gMinModeOn) {
+                    $modal.hide();
+                } else {
+                    $modal.fadeOut(180);
+                }
+            }
+        });
         reset();
+        Support.config({
+            "memoryCheck": memCheck
+        });
     }
 
     function reset() {

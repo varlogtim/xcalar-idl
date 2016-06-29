@@ -71,6 +71,10 @@ window.MonitorPanel = (function($, MonitorPanel) {
             });
         });
 
+        $("#monitor-delete").click(function() {
+            DeleteTableModal.show();
+        });
+
         $('.statsHeadingBar').click(function() {
             if ($(this).hasClass('open')) {
                 $(this).removeClass('open')
@@ -308,42 +312,42 @@ window.MonitorPanel = (function($, MonitorPanel) {
     }
 
     function updateDonutNums(selector, num, duration, index) {
-            var $sizeType = $(selector).next();
-            var type = $sizeType.text();
-            d3.select(selector)
-                .transition()
-                .duration(duration)
-                .tween("text", function() {
-                    var startNum = this.textContent;
-                    var size = xcHelper.sizeTranslator(num, true);
-                    var i;
+        var $sizeType = $(selector).next();
+        var type = $sizeType.text();
+        d3.select(selector)
+            .transition()
+            .duration(duration)
+            .tween("text", function() {
+                var startNum = this.textContent;
+                var size = xcHelper.sizeTranslator(num, true);
+                var i;
 
-                    if (index === 1 || index === 2) {
-                        startNum = xcHelper.textToBytesTranslator(startNum +
-                                                                  type);
-                        i = d3.interpolate(startNum, num);
-                    } else {
-                        i = d3.interpolate(startNum, size[0]);
+                if (index === 1 || index === 2) {
+                    startNum = xcHelper.textToBytesTranslator(startNum +
+                                                              type);
+                    i = d3.interpolate(startNum, num);
+                } else {
+                    i = d3.interpolate(startNum, size[0]);
+                }
+
+                return (function(t) {
+                    var size = xcHelper.sizeTranslator(i(t), true);
+                    num = parseFloat(size[0]).toFixed(1);
+                    if (num >= 10 || index === 0) {
+                        num = Math.round(num);
+                    }
+                    if (index === 0) {
+                        this.textContent = num;
+                        return;
+                    }
+                    if (index !== 3) {
+                        $sizeType.html(size[1]);
                     }
 
-                    return (function(t) {
-                        var size = xcHelper.sizeTranslator(i(t), true);
-                        num = parseFloat(size[0]).toFixed(1);
-                        if (num >= 10 || index === 0) {
-                            num = Math.round(num);
-                        }
-                        if (index === 0) {
-                            this.textContent = num;
-                            return;
-                        }
-                        if (index !== 3) {
-                            $sizeType.html(size[1]);
-                        }
-
-                        this.textContent = num;
-                    });
+                    this.textContent = num;
                 });
-        }
+            });
+    }
 
     function updateDonutStatsSection(el, index, stats) {
         //this is for the list of stats located below the donut

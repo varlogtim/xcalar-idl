@@ -323,6 +323,21 @@ body {
     }
 }
 
+.checkboxSection {
+    .size(@height: 30px);
+    .font(@weight: 700, @size: 13px, @line-height: 30px);
+    .noSelection;
+    cursor: pointer;
+
+    > div {
+        float: left;
+    }
+
+    .text {
+        margin-left: 8px;
+    }
+}
+
 .onOffBtn {
     .size(@width:86px, @height:27px);
     .position(relative);
