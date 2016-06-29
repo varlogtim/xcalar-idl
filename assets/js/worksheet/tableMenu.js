@@ -821,7 +821,7 @@ window.TblMenu = (function(TblMenu, $) {
                                 .hasClass('type-array');
             var colType = gTables[tableId].tableCols[colNum - 1].type;
 
-            JSONModal.show($td, isArray, colType);
+            JSONModal.show($td, isArray, {type: colType});
         });
 
         $cellMenu.on('mouseup', '.tdUnnest', function(event) {

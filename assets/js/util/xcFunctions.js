@@ -431,13 +431,16 @@ window.xcFunction = (function($, xcFunction) {
                         WSManager.focusOnWorksheet(ws, false, obj.tableId);
                         var rowNum =
                                  RowScroller.getFirstVisibleRowNum(obj.tableId);
-                        $("#xcTable-" + obj.tableId + " .row" + rowNum +
-                          " .jsonElement").dblclick();
+                        var $td  =  $("#xcTable-" + obj.tableId)
+                                                    .find(".row" + (rowNum - 1))
+                                                    .find('.jsonElement');
+
+                        JSONModal.show($td, false, {saveModeOff: true});
                         $("#jsonModal .dropdownBox").click();
                         $(".projectionOpt").click();
                     });
                 });
-                
+
             } else {
                 Transaction.fail(txId, {
                     "failMsg": StatusMessageTStr.JoinFailed,

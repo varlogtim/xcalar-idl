@@ -13,6 +13,7 @@ window.JSONModal = (function($, JSONModal) {
     var searchHelper;
     var notObject = false; // true if in preview mode due to truncated text
     var lastModeIsProject = false; // saves project mode state when closing modal
+    var isSaveModeOff = false;
 
     // constant
     var jsonAreaMinWidth = 340;
@@ -98,10 +99,16 @@ window.JSONModal = (function($, JSONModal) {
     };
 
     // type is only included if not a typical array or object
-    JSONModal.show = function ($jsonTd, isArray, type) {
+    // options:
+    //      type : string representing column data type
+    //      saveModeOff: boolean, if true, will not save projectState
+    JSONModal.show = function ($jsonTd, isArray, options) {
         if ($.trim($jsonTd.text()).length === 0) {
             return;
         }
+        options = options || {};
+        var type = options.type;
+        isSaveModeOff = options.saveModeOff;
 
         xcHelper.removeSelectionRange();
         var isModalOpen = $jsonModal.is(':visible');
@@ -681,15 +688,17 @@ window.JSONModal = (function($, JSONModal) {
             $('.tooltip').hide();
         }});
 
-        lastModeIsProject = true;
+        if (!isSaveModeOff) {
+            lastModeIsProject = true;
 
-        $jsonArea.find('.jsonWrap').each(function() {
-            if (!$(this).hasClass('projectMode')) {
-                lastModeIsProject = false;
-                return false;
-            }
-        });
-
+            $jsonArea.find('.jsonWrap').each(function() {
+                if (!$(this).hasClass('projectMode')) {
+                    lastModeIsProject = false;
+                    return false;
+                }
+            });
+        }
+        isSaveModeOff = false;
 
         $(document).off(".jsonModal");
         searchHelper.$matches = [];
@@ -776,10 +785,8 @@ window.JSONModal = (function($, JSONModal) {
             if (allProjectMode) {
                 $jsonArea.find('.jsonWrap').last().addClass('projectMode');
             }
-        } else {
-            if (lastModeIsProject) {
-                $jsonArea.find('.jsonWrap').last().addClass('projectMode');
-            }
+        } else if (lastModeIsProject) {
+            $jsonArea.find('.jsonWrap').last().addClass('projectMode');
         }
     }
 
