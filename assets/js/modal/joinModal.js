@@ -704,7 +704,7 @@ window.JoinModal = (function($, JoinModal) {
             $tbody.find(".tdText.clickable").removeClass("clickable");
             $tbody.find(".selectedCell").removeClass("selectedCell");
 
-            colHtml += $tbody.html();
+            colHtml += ($tbody.html() || "");
             colHtml += '</table>';
 
             $columnArea.append(colHtml);

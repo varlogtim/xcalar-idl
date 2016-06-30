@@ -170,18 +170,32 @@ window.XIApi = (function(XIApi, $) {
             return PromiseHelper.reject("Invalid args in join");
         }
 
+        var checkJoinKey = gEnableJoinKeyCheck;
         var deferred = jQuery.Deferred();
+        var lTable_index;
+        var rTable_index;
         // Step 1: check if it's a multi Join.
         // If yes, should do a map to concat all columns
         multiJoinCheck(lColNames, lTableName, rColNames, rTableName, txId)
         .then(function(res) {
-            var deferred1 = checkTableIndex(res.lColName, res.lTableName, txId);
-            var deferred2 = checkTableIndex(res.rColName, res.rTableName, txId);
+            var deferred1;
+            var deferred2;
+
+            if (checkJoinKey) {
+                // when it's self join or globally enabled
+                deferred1 = handleJoinKey(res.lColName, res.lTableName, txId, true);
+                deferred2 = handleJoinKey(res.rColName, res.rTableName, txId, false);
+            } else {
+                deferred1 = checkTableIndex(res.lColName, res.lTableName, txId);
+                deferred2 = checkTableIndex(res.rColName, res.rTableName, txId);
+            }
 
             // Step 2: index the left table and right table
             return PromiseHelper.when(deferred1, deferred2);
         })
         .then(function(lInexedTable, rIndexedTable) {
+            lTable_index = lInexedTable;
+            rTable_index = rIndexedTable;
             if (!isValidTableName(newTableName)) {
                 newTableName = getNewTableName(lTableName.substring(0, 5) + "-"+
                                                rTableName.substring(0, 5));
@@ -191,6 +205,12 @@ window.XIApi = (function(XIApi, $) {
                                 joinType, txId);
         })
         .then(function() {
+            if (checkJoinKey) {
+                // this is the table that has change all col name
+                lTableName = lTable_index;
+                rTableName = rTable_index;
+            }
+
             var lTableId = xcHelper.getTableId(lTableName);
             var rTableId = xcHelper.getTableId(rTableName);
             var joinedCols = createJoinedColumns(lTableId, rTableId);
@@ -539,6 +559,95 @@ window.XIApi = (function(XIApi, $) {
         });
 
         return deferred.promise();
+    }
+
+    function handleJoinKey(colToIndex, tableName, txId, isLeft) {
+        // XXX this is only a temp fix for join key collision
+        // XXX when backend handle it, this code should be removed
+        var deferred = jQuery.Deferred();
+        var suffix = isLeft ? "_left" : "_right";
+        var tableId = xcHelper.getTableId(tableName);
+        var tableCols = gTables[tableId].tableCols;
+
+        var tableNamePart = xcHelper.getTableName(tableName);
+        var colNums = [];
+        var mapStrings = [];
+        var newFieldNames = [];
+        var newTableNames = [];
+
+        var promises = [];
+
+        for (var i = 0, len = tableCols.length; i < len; i++) {
+            var progCol = tableCols[i];
+
+            if (progCol.isDATACol() || progCol.isNewCol) {
+                continue;
+            }
+
+            var type = progCol.getType();
+            if (type !== "string" && type !== "float" && type !== "integer") {
+                // don't cast array or object
+                continue;
+            }
+
+            if (type === "integer") {
+                // integer also cast to float since we cannot tell
+                type = "float";
+            }
+            var colName = progCol.getBackColName();
+            colNums.push(i + 1);
+            mapStrings.push(xcHelper.castStrHelper(colName, type));
+            newFieldNames.push(colName + suffix);
+            newTableNames.push(tableNamePart + Authentication.getHashId());
+
+            if (colName === colToIndex) {
+                // if colToIndex is pulled out, it's renamed
+                // otherwise, not renamed
+                colToIndex = colName + suffix;
+            }
+        }
+
+        // this makes it easy to get previous table name
+        newTableNames.push(tableName);
+
+        for (var i = colNums.length - 1; i >= 0; i--) {
+            promises.push(chagneTypeHelper.bind(this, i));
+        }
+
+        PromiseHelper.chain(promises)
+        .then(function(newTableName) {
+            return checkTableIndex(colToIndex, newTableName, txId);
+        })
+        .then(deferred.resolve)
+        .fail(deferred.reject);
+
+        return deferred.promise();
+
+        function chagneTypeHelper(index) {
+            var innerDeferred = jQuery.Deferred();
+
+            var curTableName = newTableNames[index + 1];
+            var newTableName = newTableNames[index];
+            var fieldName = newFieldNames[index];
+            var mapString = mapStrings[index];
+            var curColNum = colNums[index];
+
+            XIApi.map(txId, mapString, curTableName, fieldName, newTableName)
+            .then(function() {
+                var mapOptions = {"replaceColumn": true};
+                var curTableId = xcHelper.getTableId(curTableName);
+                var curTableCols = gTables[curTableId].tableCols;
+
+                var newTablCols = xcHelper.mapColGenerate(curColNum, fieldName,
+                                        mapString, curTableCols, mapOptions);
+
+                TblManager.setOrphanTableMeta(newTableName, newTablCols);
+                innerDeferred.resolve(newTableName);
+            })
+            .fail(innerDeferred.reject);
+
+            return innerDeferred.promise();
+        }
     }
 
     // check if table has correct index

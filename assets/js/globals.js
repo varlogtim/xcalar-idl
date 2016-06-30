@@ -50,6 +50,7 @@ var gIsTableScrolling = false;
 var gMinModeOn = false;
 var gExportNoCheck = false;
 var gEnableCopyCols = false;
+var gEnableJoinKeyCheck = false;
 var gExportFDelim = "\t";
 var gExportRDelim = "\n";
 var gLongTestSuite = 1;
