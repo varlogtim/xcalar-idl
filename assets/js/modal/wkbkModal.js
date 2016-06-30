@@ -57,7 +57,7 @@ window.WorkbookModal = (function($, WorkbookModal) {
     WorkbookModal.initialize = function() {
         try {
             getWorkbookInfo();
-        } catch(error) {
+        } catch (error) {
             console.error(error);
             Alert.error(ThriftTStr.SetupErr, error);
         }
@@ -134,7 +134,13 @@ window.WorkbookModal = (function($, WorkbookModal) {
             $titleSection.find(".title.active").removeClass("active");
             $title.addClass("active");
 
-            sortkey = $title.data("sortkey");
+            var key = $title.data("sortkey");
+            if (key === sortkey) {
+                reverseLookup[key] = !reverseLookup[key];
+            } else {
+                sortkey = key;
+                reverseLookup[key] = false;
+            }
             addWorkbooks();
         });
 
@@ -146,9 +152,9 @@ window.WorkbookModal = (function($, WorkbookModal) {
         });
 
         // deselect workbook
-        $workbookLists.click(function() {
-            $workbookLists.find(".active").removeClass("active");
-        });
+        // $workbookLists.click(function() {
+        //     $workbookLists.find(".active").removeClass("active");
+        // });
 
         // choose an option
         xcHelper.optionButtonEvent($optionSection, function(option) {
@@ -201,6 +207,17 @@ window.WorkbookModal = (function($, WorkbookModal) {
         $instr.html(html);
     }
 
+    function focusWorkbook(workbookName) {
+        $workbookLists.find(".grid-unit").each(function() {
+            var $grid = $(this);
+            if ($grid.find(".name").text() === workbookName) {
+                $grid.addClass("active");
+                // out of the loop
+                return false;
+            }
+        });
+    }
+
     // helper function for toggle in option section
     function switchAction(no) {
         xcHelper.assert((no >= 0 && no <= 3), "Invalid action");
@@ -210,9 +227,11 @@ window.WorkbookModal = (function($, WorkbookModal) {
 
         activeActionNo = no;
 
+        $workbookLists.find(".active").removeClass("active");
         $workbookModal.removeClass("no-0")
                     .removeClass("no-1")
                     .removeClass("no-2")
+                    .removeClass("no-3")
                     .addClass("no-" + no);
 
         switch (no) {
@@ -244,7 +263,7 @@ window.WorkbookModal = (function($, WorkbookModal) {
             case 3:
                 $inputSection.removeClass("unavailable");
                 $workbookInput.removeAttr("disabled"); // for tab key switch
-                $mainSection.addClass("unavailable");
+                $mainSection.removeClass("unavailable");
                 $workbookModal.find(".modalBottom .confirm")
                             .text(CommonTxtTstr.Rename.toUpperCase());
             default:
@@ -293,7 +312,7 @@ window.WorkbookModal = (function($, WorkbookModal) {
 
             html +=
                  '<div class="' + gridClass + '" data-wkbkid="' + wkbkId + '">' +
-                    '<div>' + workbook.name + '</div>' +
+                    '<div class="name">' + workbook.name + '</div>' +
                     '<div>' + createdTime + '</div>' +
                     '<div>' + modifiedTime + '</div>' +
                     '<div>' + (workbook.srcUser || "") + '</div>' +
@@ -326,6 +345,24 @@ window.WorkbookModal = (function($, WorkbookModal) {
         var workbookName = $workbookInput.val().trim();
 
         // Validation check
+        // continue workbook, copy workbook and rename workbook must select one wkbk
+        if (activeActionNo === 1 ||
+            activeActionNo === 2 ||
+            activeActionNo === 3)
+        {
+            isValid = xcHelper.validate({
+                "$selector": $workbookLists,
+                "text"     : ErrTStr.NoWKBKSelect,
+                "check"    : function() {
+                    return ($workbookLists.find(".active").length === 0);
+                }
+            });
+
+            if (!isValid) {
+                return;
+            }
+        }
+
         // new workbook and copy workbook must have new workbook name
         // and should not have duplicate name
         if (activeActionNo !== 1) {
@@ -352,21 +389,6 @@ window.WorkbookModal = (function($, WorkbookModal) {
                     }
                 }
             ]);
-
-            if (!isValid) {
-                return;
-            }
-        }
-
-        // continue workbook and copy workbook must select one wkbk
-        if (activeActionNo === 1 || activeActionNo === 2) {
-            isValid = xcHelper.validate({
-                "$selector": $workbookLists,
-                "text"     : ErrTStr.NoWKBKSelect,
-                "check"    : function() {
-                    return ($workbookLists.find(".active").length === 0);
-                }
-            });
 
             if (!isValid) {
                 return;
@@ -442,12 +464,18 @@ window.WorkbookModal = (function($, WorkbookModal) {
             });
         } else if (actionNo === 3) {
             goWaiting();
-            WKBKManager.renameWKBK(workbookName)
-            .then(deferred.resolve)
+            WKBKManager.renameWKBK(workbookId, workbookName)
+            .then(function() {
+                $workbookInput.val("");
+                getWorkbookInfo();
+                addWorkbooks();
+                focusWorkbook(workbookName);
+                deferred.resolve();
+            })
             .fail(function(error) {
-                cancelWaiting();
                 deferred.reject(error);
-            });
+            })
+            .always(cancelWaiting);
         } else {
             // code should not go here
             deferred.reject({"error": "Invalid WorkBook Option!"});
@@ -457,33 +485,21 @@ window.WorkbookModal = (function($, WorkbookModal) {
     }
 
     function sortObj(objs, key, isNum) {
-        var sorted  = [];
-        var results = [];
-
-        // first sort by name
-        objs.forEach(function(obj) {
-            sorted.push([obj, obj[key]]);
-        });
-
         if (isNum) {
-            sorted.sort(function(a, b) {
-                return (a[1] - b[1]);
+            objs.sort(function(a, b) {
+                return (a[key] - b[key]);
             });
         } else {
-            sorted.sort(function(a, b) {
-                return (a[1].localeCompare(b[1]));
+            objs.sort(function(a, b) {
+                return a[key].localeCompare(b[key]);
             });
         }
 
-        sorted.forEach(function(obj) {
-            results.push(obj[0]);
-        });
-
         if (reverseLookup[key] === true) {
-            results.reverse();
+            objs.reverse();
         }
-        reverseLookup[key] = !reverseLookup[key];
-        return (results);
+
+        return objs;
     }
 
     function goWaiting(hasIcon) {

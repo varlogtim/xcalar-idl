@@ -24,15 +24,8 @@ window.WKBKManager = (function($, WKBKManager) {
         .then(activeWKBk)
         .then(function(wkbkId) {
             activeWKBKId = wkbkId;
-            // console.log("Current Workbook Id is", wkbkId);
             // retive key from username and wkbkId
-            var gInfoKey    = generateKey(wkbkId, "gInfo");
-            var gEphInfoKey = generateKey(wkbkId, "gEphInfo");
-            var gLogKey     = generateKey(wkbkId, "gLog");
-            var gErrKey     = generateKey(wkbkId, "gErr");
-            var gUserKey    = generateKey(username, 'gUser');
-
-            KVStore.setup(gInfoKey, gEphInfoKey, gLogKey, gErrKey, gUserKey);
+            setupKVStore(wkbkId);
             deferred.resolve();
         })
         .fail(function(error) {
@@ -106,10 +99,10 @@ window.WKBKManager = (function($, WKBKManager) {
         XcalarNewWorkbook(wkbkName, isCopy, copySrcName)
         .then(function() {
             var options = {
-                "id"      : getWKBKId(wkbkName),
-                "name"    : wkbkName,
-                "srcUser" : username,
-                "curUser" : username
+                "id"     : getWKBKId(wkbkName),
+                "name"   : wkbkName,
+                "srcUser": username,
+                "curUser": username
             };
 
             wkbk = new WKBK(options);
@@ -260,7 +253,7 @@ window.WKBKManager = (function($, WKBKManager) {
         return deferred.promise();
     };
 
-    WKBKManager.renameWKBK = function(newName) {
+    WKBKManager.renameWKBK = function(srcWKBKId, newName) {
         var newWKBKId = getWKBKId(newName);
 
         if (wkbkSet.has(newWKBKId)) {
@@ -268,15 +261,19 @@ window.WKBKManager = (function($, WKBKManager) {
         }
 
         var deferred = jQuery.Deferred();
-        var srcWKBKId = activeWKBKId;
+        var isCurrentWKBK = (srcWKBKId === activeWKBKId);
         var srcWKBK = wkbkSet.get(srcWKBKId);
 
         // should follow theses order:
-        // 1. copy meta to new wkbkb,
-        // 2. rename wkbk
-        // 3. delete meta in current wkbk
-        // 3. update wkbkSet meta
-        // 4. change activity key
+        // 1. stop hear beat check (in case key is changed)
+        // 2. copy meta to new wkbkb,
+        // 3. rename wkbk
+        // 4. delete meta in current wkbk
+        // 5. update wkbkSet meta
+        // 6. reset KVStore and change active key if change current wkbk's name
+        // 7. restart heart beat check
+        Support.stopHeartbeatCheck();
+
         KVStore.commit()
         .then(function() {
             return copyHelper(srcWKBKId, newWKBKId);
@@ -293,11 +290,11 @@ window.WKBKManager = (function($, WKBKManager) {
         })
         .then(function() {
             var options = {
-                "id"      : newWKBKId,
-                "name"    : newName,
-                "created" : srcWKBK.created,
-                "srcUser" : srcWKBK.srcUser,
-                "curUser" : srcWKBK.curUser
+                "id"     : newWKBKId,
+                "name"   : newName,
+                "created": srcWKBK.created,
+                "srcUser": srcWKBK.srcUser,
+                "curUser": srcWKBK.curUser
             };
 
             var newWkbk = new WKBK(options);
@@ -306,14 +303,13 @@ window.WKBKManager = (function($, WKBKManager) {
             return KVStore.put(wkbkKey, wkbkSet.getWithStringify(), true, gKVScope.WKBK);
         })
         .then(function() {
-            activeWKBKId = newWKBKId;
-            return KVStore.put(activeWKBKKey, activeWKBKId, true, gKVScope.WKBK);
+            if (isCurrentWKBK) {
+                return resetActiveWKBK(newWKBKId);
+            }
         })
-        .then(function() {
-            deferred.resolve();
-            location.reload();
-        })
-        .fail(deferred.reject);
+        .then(deferred.resolve)
+        .fail(deferred.reject)
+        .always(Support.heartbeatCheck);
 
         return deferred.promise();
     };
@@ -347,6 +343,17 @@ window.WKBKManager = (function($, WKBKManager) {
 
         return deferred.promise();
     };
+
+    function setupKVStore(wkbkId) {
+        // retive key from username and wkbkId
+        var gInfoKey    = generateKey(wkbkId, "gInfo");
+        var gEphInfoKey = generateKey(wkbkId, "gEphInfo");
+        var gLogKey     = generateKey(wkbkId, "gLog");
+        var gErrKey     = generateKey(wkbkId, "gErr");
+        var gUserKey    = generateKey(username, 'gUser');
+
+        KVStore.setup(gInfoKey, gEphInfoKey, gLogKey, gErrKey, gUserKey);
+    }
 
     function syncSessionInfo(oldWorkbooks, sessionInfo) {
         var deferred = jQuery.Deferred();
@@ -395,7 +402,7 @@ window.WKBKManager = (function($, WKBKManager) {
                 })
                 .fail(deferred.reject);
             }
-        } catch(error) {
+        } catch (error) {
             console.error(error);
             deferred.reject(error);
         }
@@ -444,7 +451,7 @@ window.WKBKManager = (function($, WKBKManager) {
                     deferred.resolve(wkbkId);
                 }
             }
-        } catch(error) {
+        } catch (error) {
             console.error(error);
             deferred.reject(error);
         }
@@ -466,6 +473,22 @@ window.WKBKManager = (function($, WKBKManager) {
         }
 
         $("#autoSavedInfo").text("N/A");
+    }
+
+    function resetActiveWKBK(newWKBKId) {
+        var deferred = jQuery.Deferred();
+
+        setupKVStore(newWKBKId);
+        // rehold the session as KVStore's key changed
+        Support.holdSession()
+        .then(function() {
+            activeWKBKId = newWKBKId;
+            return KVStore.put(activeWKBKKey, activeWKBKId, true, gKVScope.WKBK);
+        })
+        .then(deferred.resolve)
+        .fail(deferred.reject);
+
+        return deferred.promise();
     }
 
     // helper for WKBKManager.copyWKBK

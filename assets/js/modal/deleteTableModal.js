@@ -189,7 +189,7 @@ window.DeleteTableModal = (function(DeleteTableModal, $) {
             var $grid = $(this);
             if ($grid.find(".checkbox").hasClass("checked")) {
                 if (isOrphan) {
-                    var tableName = $grid.find(".tableName").text();
+                    var tableName = $grid.find(".name").text();
                     tablesToDel.push(tableName);
                 } else {
                     var tableId = $grid.data("id");
@@ -312,7 +312,7 @@ window.DeleteTableModal = (function(DeleteTableModal, $) {
                         '<div class="checkboxSection">' +
                             '<div class="checkbox iconWrapper"></div>' +
                         '</div>' +
-                        '<div class="tableName">' + table.getName() + '</div>' +
+                        '<div class="name">' + table.getName() + '</div>' +
                         '<div>' + unknown + '</div>' +
                         '<div>' + date + '</div>' +
                     '</div>';

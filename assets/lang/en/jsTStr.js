@@ -173,7 +173,7 @@ ErrTStr = {
 
     'NoAllZeros': 'Values cannot all be zeros',
 
-    'NoWKBKSelect': 'No Workbook selected.',
+    'NoWKBKSelect': 'Please select a workbook',
 
     'NoGroupSelect': 'No group selected.',
 

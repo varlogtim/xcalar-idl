@@ -606,7 +606,7 @@ module.exports = {
         "newWKBK": "New Workbook",
         "continue": "Continue from Workbook",
         "copy": "Copy of Existing Workbook",
-        "rename": "Rename Current Workbook",
+        "rename": "Rename Workbook",
         "newName": "New Workbook Name",
         "CreateBy": "Created By",
         "ModifiedBy": "Last Modified By",
@@ -617,9 +617,9 @@ module.exports = {
         "header": "Delete Forever",
         "instr": "You are running low on space. To free space on this application please delete old or unnecessary tables",
         "CONFIRM": "DELETE FOREVER",
-        "Orphan": "Orphaned Table",
-        "Inactive": "Archived Table",
-        "Active": "Active Table"
+        "Orphan": "Orphaned Tables",
+        "Inactive": "Archived Tables",
+        "Active": "Active Tables"
     },
 
     "extension": {

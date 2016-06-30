@@ -1945,7 +1945,7 @@ html.microsoft {
         }
 
         .inputSection {
-            .input-box(@w: ~"calc(100% - 175px)", @h: 25px);
+            .input-box(@w: ~"calc(100% - 230px)", @h: 25px);
         }
     }
 
@@ -2393,9 +2393,8 @@ html.microsoft {
         z-index: 10;
 
         .dialog {
-            .size(@width: 200px, @height: 30px);
-            .horizontal-align;
-            top: 25%;
+            .size(@width: 110px, @height: 30px);
+            .center-align;
 
             .animatedEllipsisWrapper {
                 .size(@width: 100%, @height: 30px);
@@ -2494,12 +2493,13 @@ html.microsoft {
             > div {
                 display: inline-block;
                 .position(relative);
-                .size(@width: ~"calc(32% - 9px)", @height: 30px);
+                .size(@width: ~"calc(30% - 25px)", @height: 30px);
                 float: left;
                 cursor: default;
                 margin-left: 5px;
                 padding-left: 10px;
                 .font(@weight: bold, @size: 12px, @line-height: 30px);
+                .textOverflowOneLine;
 
                 &:first-child {
                     margin-left: 0;
@@ -2508,6 +2508,10 @@ html.microsoft {
                 &.checkboxSection {
                     background: transparent !important;
                     .size(@width: 30px);
+                }
+
+                &.name {
+                    .size(@width: 40%);
                 }
             }
         }
