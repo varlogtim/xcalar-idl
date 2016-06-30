@@ -14,7 +14,10 @@ window.UDF = (function($, UDF) {
     // constant
     var udfDefault = "# PLEASE TAKE NOTE: \n" +
                     "# UDFs can only support\n" +
-                    "# return values of type String\n\n";
+                    "# return values of type String\n\n"+
+                    "# Function names that start with __ are\n" +
+                    "# considered private functions and\n"+
+                    "# will not be directly invokable\n\n";
     var defaultModule = "default";
 
     UDF.setup = function() {
