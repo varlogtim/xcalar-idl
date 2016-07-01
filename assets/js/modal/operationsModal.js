@@ -1072,7 +1072,7 @@ window.OperationsModal = (function($, OperationsModal) {
         if ($target.val().trim() === "") {
             text = ErrTStr.NoEmpty;
         }
-        StatusBox.show(text, $target, false, {"offset": -5});
+        StatusBox.show(text, $target, false, {"offsetX": -5});
     }
 
     function updateFunctionsList() {

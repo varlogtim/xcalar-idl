@@ -5,6 +5,10 @@ window.StatusBox = (function($, StatusBox){
     var $targetInput;
     var open = false;
 
+    // options:
+    //      type: string, "error", "info"
+    //      offsetX: int
+    //      side: 'top', 'bottom', 'left', 'right'
     StatusBox.show = function(text, $target, isFormMode, options) {
         $statusBox = $("#statusBox");
         $doc = $(document);
@@ -18,6 +22,7 @@ window.StatusBox = (function($, StatusBox){
         var left = bound.left - 200;
         var side;
         var title;
+        var offsetLeft = 0;
 
         // add more title if msgType is extended
         if (msgType === "info") {
@@ -34,24 +39,34 @@ window.StatusBox = (function($, StatusBox){
             side = 'right';
         }
 
-        if (options.offset) {
+        if (options.offsetX) {
             if (side === 'right') {
                 right += options.offset;
             } else {
                 left += options.offset;
             }
+            offsetLeft = options.offsetX;
         }
 
         $statusBox.addClass(msgType + " active " + side);
         $statusBox.find('.titleText').text(title);
-        $statusBox.find('.message').text(text);
+        if (options.html) {
+            $statusBox.find('.message').html(text);
+        } else {
+            $statusBox.find('.message').text(text);
+        }
+
 
         if (side === 'left') {
             $statusBox.css({top: top, left: left, right: 'auto'});
         } else if (side === 'top') {
-            left = bound.left + ($target.width() / 2) - 100;
+            left = (bound.left + ($target.width() / 2) - 100) + offsetLeft;
             var statusBoxHeight = $statusBox.height();
             top = bound.top - statusBoxHeight - 15;
+            $statusBox.css({top: top, left: left, right: 'auto'});
+        } else if (side === "bottom") {
+            left = (bound.left + ($target.width() / 2) - 100) + offsetLeft;
+            top = bound.bottom;
             $statusBox.css({top: top, left: left, right: 'auto'});
         } else {
             $statusBox.css({top: top, right: right, left: 'auto'});

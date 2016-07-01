@@ -221,7 +221,7 @@ window.UDF = (function($, UDF) {
             var $uploadName = $("#udf-upload-name");
             var moduleName = $uploadName.val().trim();
             var $submitBtn = $(this);
-            var options = {"offset": 190};
+            var options = {"offsetX": 190};
 
             if (val === "") {
                 StatusBox.show(ErrTStr.NoEmpty, $filePath, true, options);
@@ -311,7 +311,7 @@ window.UDF = (function($, UDF) {
         $("#udf-fnUpload").click(function() {
             $(this).blur();
             var fileName = $fnName.val();
-            var options = {"offset": 50};
+            var options = {"offsetX": 50};
             if (fileName === "") {
                 StatusBox.show(ErrTStr.NoEmpty, $fnName, true, options);
                 return;
@@ -323,7 +323,7 @@ window.UDF = (function($, UDF) {
             // Get code written and call thrift call to upload
             var entireString = editor.getValue();
             options = {
-                "offset": 30,
+                "offsetX": 30,
                 "side"  : "left"
             };
             if (entireString.trim() === "" ||

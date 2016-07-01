@@ -5,6 +5,7 @@ window.FnBar = (function(FnBar, $) {
     var $lastColInput = null;
     var searchHelper;
     var editor;
+    var validOperators = ['pull', 'map', 'filter'];
 
     FnBar.setup = function() {
         $functionArea = $("#functionArea");
@@ -267,6 +268,38 @@ window.FnBar = (function(FnBar, $) {
                   .removeClass('unusedCell');
 
             var operation = getOperationFromFuncStr(newFuncStr);
+            if (validOperators.indexOf(operation) < 0) {
+                var text = "";
+                var endText = false;
+
+                if (operation.length) {
+                    text = "Invalid Operator: <b>" + operation + "</b>.<br/>";
+                } else {
+                    if (fnBarValTrim.indexOf("(") === -1) {
+                        text = "Operation must be preceeded by operator name " +
+                                "and arguments in parenthesis";
+                        endText = true;
+                    } else {
+                        text = "Invalid Operator.<br/>";
+                    }
+                }
+                if (!endText) {
+                   text += "Valid operators are: <b>pull, map, filter</b>.";
+                }
+
+
+                setTimeout(function() {
+                    StatusBox.show(text, $fnBar.prev().prev(), null, {
+                        offsetX: 50,
+                        side: "bottom",
+                        // type: "info",
+                        html: true
+                    });
+                }, 0); // gets closed immediately without timeout;
+
+                return;
+            }
+
 
             ColManager.execCol(operation, newFuncStr, tableId, colNum)
             .then(function(ret) {

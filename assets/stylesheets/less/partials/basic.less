@@ -2441,6 +2441,32 @@ ul.inputMenu {
             }
         }
     }
+    &.bottom {
+        .arrow {
+            .position(absolute, @left: 96px, @top: 0px);
+        }
+        .boxInnerWrap {
+            &:before, &:after {
+                .position(absolute, @left: 99px, @top: -18px);
+                border-left: 7px solid transparent;
+                border-right: 7px solid transparent;
+            }
+            &:before {
+                border-bottom: 10px solid @color-error-border;
+            }
+            &:after {
+                border-bottom: 9px solid @color-white;
+                margin-right: 2px;
+                bottom: 0px;
+                left: 97px;
+            }
+        }
+        &.info {
+            .boxInnerWrap:before {
+                border-bottom: 10px solid @color-border-topAction;
+            }
+        }
+    }
 }
 /* End Of Status Box */
 
