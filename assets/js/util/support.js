@@ -5,6 +5,9 @@ window.Support = (function(Support, $) {
     var commitCheckInterval = 120000; // 2 mins each check
     var commitCheckError = "commit key not match";
     var memoryCheck = true;
+
+    var numNodes;
+    var statsMap = null;
     // constant
     var defaultCommitFlag = "commit-default";
     var defaultMemoryLimit = 90;
@@ -139,6 +142,30 @@ window.Support = (function(Support, $) {
         clearInterval(commitCheckTimer);
     };
 
+    Support.checkStats = function(stats) {
+        var data = {};
+
+        getStatsMap()
+        .then(function() {
+            if (!statsMap.hasOwnProperty(stats)) {
+                console.error(stats, "not exsits");
+                console.info("check:", statsMap);
+                return;
+            }
+            var statsId = statsMap[stats];
+            var promises = [];
+
+            for (var node = 0; node < numNodes; node++) {
+                promises.push(getStat.bind(null, node, statsId, data));
+            }
+
+            return PromiseHelper.chain(promises);
+        })
+        .then(function() {
+            console.info(data);
+        });
+    };
+
     function sessionHoldCheck() {
         var deferred = jQuery.Deferred();
 
@@ -198,6 +225,45 @@ window.Support = (function(Support, $) {
 
     function randCommitFlag() {
         return "commit" + Math.floor((Math.random() * 10000) + 1);
+    }
+
+    function getStatsMap() {
+        if (statsMap != null) {
+            return PromiseHelper.resolve();
+        }
+        var deferred = jQuery.Deferred();
+
+        XcalarGetStatGroupIdMap(0, 100)
+        .then(function(res) {
+            statsMap = {};
+            var groups = res.groupName;
+            var numGroupNames = res.numGroupNames;
+            for (var i = 0; i < numGroupNames; i++) {
+                statsMap[groups[i]] = i;
+            }
+
+            return XcalarApiTop();
+        })
+        .then(function(res) {
+            numNodes = res.numNodes;
+            deferred.resolve();
+        })
+        .fail(deferred.reject);
+
+        return deferred.promise();
+    }
+
+    function getStat(nodeId, statsId, data) {
+        var deferred = jQuery.Deferred();
+
+        XcalarGetStatsByGroupId(nodeId, [statsId])
+        .then(function(res) {
+            data["node" + nodeId] = res;
+            deferred.resolve();
+        })
+        .fail(deferred.reject);
+
+        return deferred.promise();
     }
 
     function getUserIdUnique(name) {
