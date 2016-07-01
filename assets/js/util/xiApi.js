@@ -584,7 +584,9 @@ window.XIApi = (function(XIApi, $) {
             }
 
             var type = progCol.getType();
-            if (type !== "string" && type !== "float" && type !== "integer") {
+            if (type !== "string" && type !== "float" && type !== "integer" &&
+                type !== "boolean")
+            {
                 // don't cast array or object
                 continue;
             }
