@@ -581,5 +581,7 @@ JsonModalTStr = {
   'XcOriginated': 'Xcalar Originated',
   'SeeAllTip': 'View all fields',
   'OriginalTip': 'View the original data fields',
-  'XcOriginatedTip': 'View Xcalar generated fields'
+  'XcOriginatedTip': 'View Xcalar generated fields',
+  'SortAsc': 'Sort Ascending',
+  'SortDesc': 'Sort Descending',
 };

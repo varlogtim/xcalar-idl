@@ -271,6 +271,9 @@
             .menu {
                 right: 36px;
             }
+            .colsSelected {
+                max-width: ~"calc(100% - 164px)";
+            }
         }
 
         &:only-child {
@@ -306,6 +309,11 @@
             .secondary {
                 display: block;
             }
+            .sort {
+                opacity: 0.5;
+                pointer-events: none;
+            }
+
         }
 
         &.projectMode {
@@ -353,7 +361,7 @@
                     }
                 }
             }
-            .split, .pullAll, .btn.compareIcon {
+            .split, .pullAll, .btn.compareIcon, .sort {
                 opacity: 0.5;
                 pointer-events: none;
                 display: none;
@@ -362,6 +370,9 @@
                 .clearAll, .submitProject {
                     display: inline-block;
                 }
+            }
+            .colsSelected {
+                display: inline-block;
             }
         }
     }
@@ -423,6 +434,21 @@
                 opacity: 0.5;
             }
 
+            &.sort {
+                .icon {
+                    .image("../../images/dagIcons/dagTabArrow.png", 50%, 50%);
+                    .transform(rotate(180deg));
+                    opacity: 0.9; // looks too bright to be 1
+                }
+                &.desc {
+                    .icon {
+                        .transform(rotate(0deg));
+                        margin-top: 1px;
+                    }
+                }
+
+            }
+
             &.compareIcon .icon {
                 .image("../../images/checkmark-white.png", 50%, 60%);
             }
@@ -462,6 +488,14 @@
                     background-size: 90% 90%;
                 }
             }
+        }
+
+        .colsSelected {
+            display: none;
+            color: @color-text-blue;
+            margin-left: 4%;
+            max-width: ~"calc(100% - 130px)";
+            .textOverflowOneLine;
         }
 
         .tabWrap {

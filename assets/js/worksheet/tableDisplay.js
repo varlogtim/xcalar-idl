@@ -790,30 +790,10 @@ window.TblManager = (function($, TblManager) {
             tableCols[i - 1].index = i;
         }
 
-        tableCols.sort(function(a, b) {
-            a = a.name.toLowerCase();
-            b = b.name.toLowerCase();
-
-            // if a = "as1df12", return ["as1df12", "as1df", "12"]
-            // if a = "adfads", return null
-            var matchA = a.match(/(^.*?)([0-9]+$)/);
-            var matchB = b.match(/(^.*?)([0-9]+$)/);
-
-            if (matchA != null && matchB != null && matchA[1] === matchB[1]) {
-                // if the rest part that remove suffix number is same,
-                // compare the suffix number
-                a = parseInt(matchA[2]);
-                b = parseInt(matchB[2]);
-            }
-
-            if (a < b) {
-                return (order);
-            } else if (a > b) {
-                return (-order);
-            } else {
-                return (0);
-            }
-        });
+        tableCols.sort(sortFunc);
+        function sortFunc(a, b) {
+            return xcHelper.sortVals(a.name, b.name, order);
+        }
 
         var $table = $('#xcTable-' + tableId);
         var $rows = $table.find('tbody tr');

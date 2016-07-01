@@ -1612,6 +1612,32 @@ window.xcHelper = (function($, xcHelper) {
         }
     };
 
+    // XX unit test not written
+    xcHelper.sortVals = function(a, b, order) {
+        a = a.toLowerCase();
+        b = b.toLowerCase();
+
+        // if a = "as1df12", return ["as1df12", "as1df", "12"]
+        // if a = "adfads", return null
+        var matchA = a.match(/(^.*?)([0-9]+$)/);
+        var matchB = b.match(/(^.*?)([0-9]+$)/);
+
+        if (matchA != null && matchB != null && matchA[1] === matchB[1]) {
+            // if the rest part that remove suffix number is same,
+            // compare the suffix number
+            a = parseInt(matchA[2]);
+            b = parseInt(matchB[2]);
+        }
+
+        if (a < b) {
+            return (order);
+        } else if (a > b) {
+            return (-order);
+        } else {
+            return (0);
+        }
+    };
+
     /*
     options: {
         mouseCoors: {x: float, y: float},

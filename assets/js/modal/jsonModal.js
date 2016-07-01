@@ -180,6 +180,10 @@ window.JSONModal = (function($, JSONModal) {
             compareIconSelect($(this));
         });
 
+        $jsonArea.on("click", ".sort", function() {
+            sortData($(this));
+        });
+
         $jsonArea.on("click", ".split", function() {
             var $jsonWrap = $(this).closest('.jsonWrap');
             duplicateView($jsonWrap);
@@ -392,6 +396,8 @@ window.JSONModal = (function($, JSONModal) {
                  .removeClass('projectSelected');
         $jsonWrap.find('.submitProject').addClass('disabled');
         $jsonWrap.find('.clearAll').addClass('disabled');
+        var totalCols = $jsonWrap.find('.colsSelected').data('totalcols');
+        $jsonWrap.find('.colsSelected').text('0/' + totalCols + ' selected');
     }
 
     function selectJsonKey($el) {
@@ -420,6 +426,11 @@ window.JSONModal = (function($, JSONModal) {
                     $jsonWrap.find('.clearAll').removeClass('disabled');
                 }
             }
+            var numSelected = $jsonWrap.find('.projectSelected').length;
+            var totalCols = $jsonWrap.find('.colsSelected').data('totalcols');
+
+            $jsonWrap.find('.colsSelected').text(numSelected + '/' + totalCols +
+                                                 ' selected');
         } else {
             var nameInfo = createJsonSelectionExpression($el);
             var animation = gMinModeOn ? false : true;
@@ -518,6 +529,33 @@ window.JSONModal = (function($, JSONModal) {
 
         // reset some search variables to include new jsonWrap
         updateSearchResults();
+    }
+
+    function sortData($icon) {
+        var order;
+        if ($icon.hasClass('desc')) {
+            $icon.removeClass('desc');
+            $icon.attr('data-original-title', JsonModalTStr.SortAsc);
+            order = 1;
+        } else {
+            $icon.addClass('desc');
+            $icon.attr('data-original-title', JsonModalTStr.SortDesc);
+            order = -1;
+        }
+        $icon.attr('title', "");
+        $('.tooltip').hide();
+        var $jsonWrap = $icon.closest('.jsonWrap');
+        var $list = $jsonWrap.find('.primary').children().children().children();
+        $list.sort(sortList).prependTo($jsonWrap.find('.primary').children().children());
+
+        searchHelper.$matches = [];
+        searchHelper.clearSearch(function() {
+            clearSearch();
+        });
+
+        function sortList(a, b) {
+            return xcHelper.sortVals($(a).data('key'), $(b).data('key'), order);
+        }
     }
 
     function increaseModalSize() {
@@ -774,7 +812,7 @@ window.JSONModal = (function($, JSONModal) {
             var $compareIcons = $jsonArea.find('.compareIcon')
                                       .removeClass('single');
             var $compareIcon;
-            var title = "Click to select for comparison";
+            var title = JsonModalTStr.Compare;
             $compareIcons.each(function() {
                 $compareIcon = $(this);
                 if ($compareIcon.attr('title')) {
@@ -1026,17 +1064,27 @@ window.JSONModal = (function($, JSONModal) {
         if (isDataCol) {
             highlightCell($jsonTd, tableId, rowNum, colNum, false,
                             {jsonModal: true});
+            var numFields = $jsonWrap.find('.primary').children().children()
+                                                      .children().length;
+            $jsonWrap.find('.colsSelected').data('totalcols', numFields)
+                                           .text('0/' + numFields + ' selected');
         }
 
     }
 
     function getJsonWrapHtml(prettyJson, tableName, rowNum) {
         var html = '<div class="jsonWrap">';
+        console.log(prettyJson);
         if (isDataCol) {
             html +=
             '<div class="optionsBar bar">' +
                 '<div class="dragHandle jsonDragHandle"></div>' +
                 '<div class="vertLine"></div>' +
+                '<div class="btn btnDeselected sort single" ' +
+                    'data-toggle="tooltip" data-container="body" ' +
+                    'title="' + JsonModalTStr.SortAsc + '">' +
+                    '<div class="icon"></div>' +
+                '</div>' +
                 '<div class="btn btnDeselected compareIcon single" ' +
                     'data-toggle="tooltip" data-container="body" ' +
                     'title="' + JsonModalTStr.SelectOther + '">' +
@@ -1072,6 +1120,10 @@ window.JSONModal = (function($, JSONModal) {
                     'data-toggle="tooltip" data-container="body" ' +
                     'title="' + 'submit projection' + '">' +
                     '<div class="icon"></div>' +
+                '</div>' +
+                '<div class="text colsSelected disabled" ' +
+                    'data-toggle="tooltip" data-container="body" ' +
+                    'title="' + 'Number of fields selected to project' + '">' +
                 '</div>' +
                 '<div class="tabWrap">' +
                     '<div class="tabs">' +
