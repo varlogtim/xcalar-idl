@@ -1685,9 +1685,13 @@ function XcalarProject(columns, tableName, dstTableName, txId) {
         var def1 = xcalarProject(tHandle, columns.length, columns,
                                  unsortedTableName, dstTableName);
         var def2 = XcalarGetQuery(workItem); // XXX May not work? Have't tested
+        def2.then(function(query) {
+            QueryManager.addSubQuery(txId, 'project', dstTableName, query);
+        });
+
         jQuery.when(def1, def2)
         .then(function(ret1, ret2) {
-            Transaction.log(txId, ret2);
+            Transaction.log(txId, ret2, dstTableName);
             deferred.resolve(ret1);
         })
         .fail(function(error1, error2) {

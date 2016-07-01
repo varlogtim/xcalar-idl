@@ -1425,17 +1425,20 @@ window.JSONModal = (function($, JSONModal) {
     }
 
     function submitProject(index) {
-        var colNames = [];
+        var colNamesArray = []; // array used to send to backend
+        var colNames = []; // array used to distinguish between columns found
+        // or not found pulled out in the table
         var tableName;
         var tableId;
         var dstTableName;
         var worksheet;
         var $jsonWrap = $('.jsonWrap').eq(index);
         $jsonWrap.find('.projectSelected').each(function() {
-            colNames.push($(this).text());
+            colNamesArray.push($(this).text());
+            colNames.push({name: $(this).text(), found: false});
         });
 
-        if (colNames.length) {
+        if (colNamesArray.length) {
             // XX This code should probably go inside xcFunctions
 
             tableId = $jsonWrap.data('tableid');
@@ -1458,7 +1461,7 @@ window.JSONModal = (function($, JSONModal) {
             var focusOnTable = false;
             var startScrollPosition = $('#mainFrame').scrollLeft();
 
-            XcalarProject(colNames, tableName, dstTableName, txId)
+            XcalarProject(colNamesArray, tableName, dstTableName, txId)
             .then(function() {
                 var timeAllowed = 1000;
                 var endTime = Date.now();
@@ -1482,11 +1485,11 @@ window.JSONModal = (function($, JSONModal) {
                 var dataCol;
                 var colNameIndex;
                 for (var i = 0; i < tableCols.length; i++) {
-                    colNameIndex = colNames.indexOf(tableCols[i].backName)
+                    colNameIndex = colNamesArray.indexOf(tableCols[i].backName)
                     if (colNameIndex > -1) {
                         finalTableCols.push(tableCols[i]);
                         // empty out the colnames array
-                        colNames.splice(colNameIndex, 1);
+                        colNames[colNameIndex].found = true;
                     } else if (tableCols[i].backName === "DATA") {
                         dataCol = ColManager.newDATACol();
                     }
@@ -1499,8 +1502,12 @@ window.JSONModal = (function($, JSONModal) {
                     defaultHeaderStyle: true
                 };
                 var escapedName;
+                function filterColNames(colNameObj) {
+                    return (!colNameObj.found);
+                }
+                colNames = colNames.filter(filterColNames);
                 for (var i = 0; i < colNames.length; i++) {
-                    colName = colNames[i];
+                    colName = colNames[i].name;
                     escapedName = xcHelper.escapeColName(colName);
                     width = getTextWidth($(), colName, widthOptions);
                     newProgCol = ColManager.newCol({
