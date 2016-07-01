@@ -287,12 +287,10 @@ window.FnBar = (function(FnBar, $) {
                    text += "Valid operators are: <b>pull, map, filter</b>.";
                 }
 
-
                 setTimeout(function() {
                     StatusBox.show(text, $fnBar.prev().prev(), null, {
                         offsetX: 50,
                         side: "bottom",
-                        // type: "info",
                         html: true
                     });
                 }, 0); // gets closed immediately without timeout;

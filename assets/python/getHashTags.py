@@ -100,7 +100,7 @@ if __name__ == "__main__":
     hashTagTree.invertTags()
     # hashTagTree.prettyPrint()
     array = hashTagTree.convertHashTagsDict()
-    fout = open("../js/tutorial/tags.js", "wb")
+    fout = open("../js/tutorial/helpHashTags.js", "wb")
     fout.write("var helpHashTags = {\"pages\":")
     fout.write(json.dumps(array))
     fout.write("};")

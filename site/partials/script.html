@@ -41,12 +41,12 @@
 <script src="assets/js/enums.js" type="text/javascript"></script>
 <script src="assets/js/setup/constructorVersion.js" type="text/javascript"></script>
 <script src="assets/js/setup/constructor.js" type="text/javascript" <%= tag %>></script>
-<script src="assets/js/setup/version.js"></script>
+<script src="assets/js/setup/XVM.js"></script>
 <script src="assets/js/setup/compatible.js" type="text/javascript"></script>
 <script src="assets/js/resultSet.js" type="text/javascript" <%= tag %>></script>
 <script src="assets/js/globals.js" type="text/javascript"></script>
 <script src="assets/js/script.js" type="text/javascript" <%= tag %>></script>
-<script src="assets/js/workbook.js" type="text/javascript" <%= tag %>></script>
+<script src="assets/js/WKBKManager.js" type="text/javascript" <%= tag %>></script>
 
 <!-- worksheet file -->
 <script src="assets/js/worksheet/wsManager.js" type="text/javascript" <%= tag %>></script>
@@ -56,8 +56,8 @@
 <script src="assets/js/worksheet/tableAnim.js" type="text/javascript" <%= tag %>></script>
 <script src="assets/js/worksheet/tableFunctions.js" type="text/javascript" <%= tag %>></script>
 <script src="assets/js/worksheet/rowScroller.js" type="text/javascript" <%= tag %>></script>
-<script src="assets/js/worksheet/tableDisplay.js" type="text/javascript" <%= tag %>></script>
-<script src="assets/js/worksheet/progCol.js" type="text/javascript" <%= tag %>></script>
+<script src="assets/js/worksheet/tableManager.js" type="text/javascript" <%= tag %>></script>
+<script src="assets/js/worksheet/colManager.js" type="text/javascript" <%= tag %>></script>
 <script src="assets/js/worksheet/dag.js" type="text/javascript" <%= tag %>></script>
 <!-- end of worksheet file -->
 
@@ -65,22 +65,22 @@
 
 <!--rightside file -->
 <script src="assets/js/rightsidebar/tablelist.js" type="text/javascript" <%= tag %>></script>
-<script src="assets/js/rightsidebar/cli.js" type="text/javascript" <%= tag %>></script>
+<script src="assets/js/rightsidebar/cliBox.js" type="text/javascript" <%= tag %>></script>
 <script src="assets/js/rightsidebar/udf.js" type="text/javascript" <%= tag %>></script>
 <script src="assets/js/rightsidebar/help.js" type="text/javascript" <%= tag %>></script>
 <script src="assets/js/rightsidebar/helpSearch.js" type="text/javascript" <%= tag %>></script>
 <script src="assets/js/rightsidebar/sql.js" type="text/javascript" <%= tag %>></script>
-<script src="assets/js/rightsidebar/rightsideBarMain.js" type="text/javascript" <%= tag %>></script>
+<script src="assets/js/rightsidebar/rightsideBar.js" type="text/javascript" <%= tag %>></script>
 <!-- end of rightsideBar file -->
 
 <!-- datastore file -->
-<script src="assets/js/datastore/datastoreMain.js" type="text/javascript" <%= tag %>></script>
-<script src="assets/js/datastore/dataForm.js" type="text/javascript" <%= tag %>></script>
+<script src="assets/js/datastore/datastore.js" type="text/javascript" <%= tag %>></script>
+<script src="assets/js/datastore/datastoreForm.js" type="text/javascript" <%= tag %>></script>
 <script src="assets/js/datastore/dataSampleTable.js" type="text/javascript" <%= tag %>></script>
 <script src="assets/js/datastore/dataPreview.js" type="text/javascript" <%= tag %>></script>
 <script src="assets/js/datastore/datacart.js" type="text/javascript" <%= tag %>></script>
-<script src="assets/js/datastore/dsObj.js" type="text/javascript" <%= tag %>></script>
-<script src="assets/js/datastore/dataExport.js" type="text/javascript" <%= tag %>></script>
+<script src="assets/js/datastore/ds.js" type="text/javascript" <%= tag %>></script>
+<script src="assets/js/datastore/exportTarget.js" type="text/javascript" <%= tag %>></script>
 <!-- end of datastore file -->
 
 <!-- monitor file-->
@@ -93,11 +93,11 @@
 <!-- modal file -->
 <script src="assets/js/modal/joinModal.js" type="text/javascript" <%= tag %>></script>
 <script src="assets/js/modal/jsonModal.js" type="text/javascript" <%= tag %>></script>
-<script src="assets/js/modal/alertModal.js" type="text/javascript" <%= tag %>></script>
-<script src="assets/js/modal/wkbkModal.js" type="text/javascript" <%= tag %>></script>
+<script src="assets/js/modal/alert.js" type="text/javascript" <%= tag %>></script>
+<script src="assets/js/modal/workbookModal.js" type="text/javascript" <%= tag %>></script>
 <script src="assets/js/modal/fileBrowserModal.js" type="text/javascript" <%= tag %>></script>
 <script src="assets/js/modal/aggModal.js" type="text/javascript" <%= tag %>></script>
-<script src="assets/js/modal/profileModal.js" type="text/javascript" <%= tag %>></script>
+<script src="assets/js/modal/profile.js" type="text/javascript" <%= tag %>></script>
 <script src="assets/js/modal/operationsModal.js" type="text/javascript" <%= tag %>></script>
 <script src="assets/js/modal/exportModal.js" type="text/javascript" <%= tag %>></script>
 <script src="assets/js/modal/multiCastModal.js" type="text/javascript" <%= tag %>></script>
@@ -114,9 +114,9 @@
 <script src="assets/js/util/tips.js" type="text/javascript"></script>
 <script src="assets/js/util/statusMessage.js" type="text/javascript"></script>
 <script src="assets/js/util/statusBox.js" type="text/javascript"></script>
-<script src="assets/js/util/store.js" type="text/javascript"></script>
+<script src="assets/js/util/kvStore.js" type="text/javascript"></script>
 <script src="assets/js/util/xcFunctions.js" type="text/javascript"></script>
-<script src="assets/js/util/helper.js" type="text/javascript" <%= tag %>></script>
+<script src="assets/js/util/xcHelper.js" type="text/javascript" <%= tag %>></script>
 <script src="assets/js/util/replay.js" type="text/javascript"></script>
 <script src="assets/js/util/transaction.js" type="text/javascript"></script>
 <script src="assets/js/util/undo.js" type="text/javascript"></script>
@@ -140,11 +140,11 @@
 <script src="assets/js/setup/authentication.js" type="text/javascript"></script>
 <script src="assets/js/setup/userSettings.js" type="text/javascript"></script>
 <script src="assets/js/tutorial/intro.js" type="text/javascript"></script>
-<script src="assets/js/tutorial/tags.js" type="text/javascript"></script>
+<script src="assets/js/tutorial/helpHashTags.js" type="text/javascript"></script>
 
 <!-- schedule -->
 <script src="assets/js/schedule/scheduler.js" type="text/javascript" <%= tag %>></script>
-<script src="assets/js/schedule/dataflow.js" type="text/javascript" <%= tag %>></script>
+<script src="assets/js/schedule/dfg.js" type="text/javascript" <%= tag %>></script>
 <script src="assets/js/schedule/dfgPanel.js" type="text/javascript" <%= tag %>></script>
 <!-- end of schedule -->
 

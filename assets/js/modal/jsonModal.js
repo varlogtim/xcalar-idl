@@ -1074,7 +1074,6 @@ window.JSONModal = (function($, JSONModal) {
 
     function getJsonWrapHtml(prettyJson, tableName, rowNum) {
         var html = '<div class="jsonWrap">';
-        console.log(prettyJson);
         if (isDataCol) {
             html +=
             '<div class="optionsBar bar">' +
