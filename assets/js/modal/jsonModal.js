@@ -90,6 +90,7 @@ window.JSONModal = (function($, JSONModal) {
             },
             stop: function(event, ui) {
                 resortJsons(initialIndex, $(ui.item).index());
+                $(ui.item).css('top', 'auto');
             }
             // containment: "parent"
         });
