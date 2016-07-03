@@ -13,8 +13,6 @@ def catFilesTogether():
             print "Squashing all js files in: "+subFolder
             outFile = open(jsRoot+"/"+f+".js", "w")
             for file in os.listdir(subFolder):
-                if file == f+".js":
-                    continue
                 partialJsFile = subFolder+"/"+file
                 extension = file.split(".")[-1]
 
