@@ -573,6 +573,7 @@ window.XIApi = (function(XIApi, $) {
         var mapStrings = [];
         var newFieldNames = [];
         var newTableNames = [];
+        var newTypes = [];
 
         var promises = [];
 
@@ -600,6 +601,7 @@ window.XIApi = (function(XIApi, $) {
             mapStrings.push(xcHelper.castStrHelper(colName, type));
             newFieldNames.push(colName + suffix);
             newTableNames.push(tableNamePart + Authentication.getHashId());
+            newTypes.push(type);
 
             if (colName === colToIndex) {
                 // if colToIndex is pulled out, it's renamed
@@ -617,6 +619,10 @@ window.XIApi = (function(XIApi, $) {
 
         PromiseHelper.chain(promises)
         .then(function(newTableName) {
+            // when no column type change
+            if (newTableName == null) {
+                newTableName = tableName;
+            }
             return checkTableIndex(colToIndex, newTableName, txId);
         })
         .then(deferred.resolve)
@@ -635,7 +641,10 @@ window.XIApi = (function(XIApi, $) {
 
             XIApi.map(txId, mapString, curTableName, fieldName, newTableName)
             .then(function() {
-                var mapOptions = {"replaceColumn": true};
+                var mapOptions = {
+                    "replaceColumn": true,
+                    "type"         : newTypes[index]
+                };
                 var curTableId = xcHelper.getTableId(curTableName);
                 var curTableCols = gTables[curTableId].tableCols;
 

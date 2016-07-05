@@ -337,8 +337,7 @@ window.xcHelper = (function($, xcHelper) {
         }
     };
 
-    xcHelper.mapColGenerate = function(colNum, colName, mapStr, tableCols,
-                                       options) {
+    xcHelper.mapColGenerate = function(colNum, colName, mapStr, tableCols, options) {
         options = options || {};
         var copiedCols = xcHelper.deepCopy(tableCols);
 
@@ -369,6 +368,9 @@ window.xcHelper = (function($, xcHelper) {
                 "isNewCol": false
             });
 
+            if (options.type) {
+                newProgCol.type = options.type;
+            }
 
             // newProgCol.func.name = "map";
             // newProgCol.func.args = [];
