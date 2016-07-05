@@ -153,6 +153,7 @@ window.Transaction = (function(Transaction, $) {
 
         var tx = txCache[txId];
         tx.addCli(cli);
+
         if (dstTableName) {
             QueryManager.subQueryDone(txId, dstTableName);
         }

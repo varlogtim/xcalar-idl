@@ -831,10 +831,13 @@ function XcalarIndexFromDataset(datasetName, key, tablename, txId) {
                                   dhtName,
                                   XcalarOrderingT.XcalarOrderingUnordered);
     var def2 = XcalarGetQuery(workItem);
+    def2.then(function(query) {
+        QueryManager.addSubQuery(txId, 'index from DS', tablename, query);
+    });
 
     jQuery.when(def1, def2)
     .then(function(ret1, ret2) {
-        Transaction.log(txId, ret2);
+        Transaction.log(txId, ret2, tablename);
         deferred.resolve(ret1);
     })
     .fail(function(error1, error2) {

@@ -3,12 +3,20 @@
  */
 window.DataCart = (function($, DataCart) {
     var $cartArea; // $("#dataCart")
+    var $loadingBar; // $('#sendToWorksheetLoadBar .innerBar')
     var innerCarts = [];
+    var queryQueue = [];
+    var resetTimer;
+    var fadeOutTimer;
+    var queryInterval;
     // constant
     var animationLimit = 20;
+    var intervalTime = 2000;
+
 
     DataCart.setup = function() {
         $cartArea = $("#dataCart");
+        $loadingBar = $('#sendToWorksheetLoadBar .innerBar');
 
         // send to worksheet button
         $("#submitDSTablesBtn").click(function() {
@@ -18,16 +26,9 @@ window.DataCart = (function($, DataCart) {
                 return false;
             }
 
-            xcHelper.disableSubmit($submitBtn);
-
             // check valid characters & backend table name to see if has conflict
-            if(checkCartNames()) {
-                createWorksheet()
-                .then(function() {
-                    xcHelper.enableSubmit($submitBtn);
-                });
-            } else {
-                xcHelper.enableSubmit($submitBtn);
+            if (checkCartNames()) {
+                sendToWorksheet();
             }
         });
 
@@ -194,6 +195,158 @@ window.DataCart = (function($, DataCart) {
                                 .removeClass('cartOverflow');
         }
     };
+
+    DataCart.addQuery = function(mainQuery) {
+        var id = mainQuery.getId();
+        queryQueue.push(mainQuery);
+        if (queryQueue.length === 1 && !$loadingBar.hasClass('inProgress') &&
+            $('#dataStoresTab').hasClass('active')) {
+            endBarAnimation(0);
+            trackQueries();
+        }
+    };
+
+    // used for turning on/off checking when switching tabs
+    DataCart.checkQueries = function() {
+        if (!$('#dataStoresTab').hasClass('active')) {
+            clearInterval(queryInterval);
+        } else {
+            if (queryQueue.length) {
+                clearTimeout(resetTimer);
+                clearTimeout(fadeOutTimer);
+                interval();
+                queryInterval = setInterval(interval, intervalTime);
+            } else {
+                endBarAnimation(0, true);
+            }
+        }
+    };
+
+    DataCart.queryDone = function(id) {
+        for (var i = 0; i < queryQueue.length; i++) {
+            if (queryQueue[i].getId() === id) {
+                queryQueue[i].subQueries[0].state = "done";
+                queryQueue.splice(i, 1);
+                break;
+            }
+        }
+        if (queryQueue.length === 0) {
+            finishQueryBar();
+        }
+    };
+
+    function trackQueries() {
+        interval();
+        queryInterval = setInterval(interval, intervalTime);
+    }
+
+    function interval() {
+        if (!queryQueue.length) {
+            finishQueryBar();
+            return;
+        }
+        var mainQuery = queryQueue[0];
+        var subQuery = mainQuery.subQueries[0];
+        // if query is done, "pop" off from the beginning of the queue
+        while (queryQueue.length && subQuery.state === "done") {
+            queryQueue.shift();
+            if (queryQueue.length) {
+                mainQuery = queryQueue[0];
+                subQuery = mainQuery.subQueries[0];
+            } else {
+                finishQueryBar();
+                return;
+            }
+        }
+
+        subQuery.check()
+        .then(function(res) {
+            if (res === 100) {
+                mainQuery.subQueries[0].state = "done";
+                queryQueue.shift();
+            }
+            updateQueryBar(res);
+            mainQuery.setElapsedTime();
+        })
+        .fail(function(error) {
+            console.error("Check failed", error);
+            endBarAnimation(0, true);
+        });
+    }
+
+    function endBarAnimation(time, force) {
+        if (time == null) {
+            time = 3000;
+        }
+
+        clearInterval(queryInterval);
+        clearTimeout(resetTimer);
+        clearTimeout(fadeOutTimer);
+        if (time) {
+            if (time === 3000) {
+                fadeOutTimer = setTimeout(function() {
+                    $loadingBar.parent().fadeOut(1000);
+                }, intervalTime);
+            }
+            resetTimer = setTimeout(function() {
+                $loadingBar.stop().removeClass('full inProgress').width(0);
+            }, time);
+        } else {
+            $loadingBar.stop().removeClass('full inProgress').width(0);
+        }
+        if (force) {
+            $loadingBar.parent().hide();
+        }
+    }
+
+    // sets progress bar to 100%
+    function finishQueryBar() {
+        clearInterval(queryInterval);
+        clearTimeout(resetTimer);
+        clearTimeout(fadeOutTimer);
+        if ($loadingBar.hasClass('full')) {
+            return;
+        }
+        $loadingBar.addClass('inProgress goingToFull');
+        $loadingBar.stop().animate({"width": '100%'}, intervalTime, "linear",
+            function() {
+                $loadingBar.removeClass('inProgress goingToFull');
+                $loadingBar.addClass('full');
+                endBarAnimation();
+        });
+    }
+
+    // will not update if progress bar is already going to 100% (goingToFull)
+    function updateQueryBar(pct) {
+        clearTimeout(resetTimer);
+        clearTimeout(fadeOutTimer);
+        $loadingBar.parent().stop().fadeIn(500);
+        if ($loadingBar.hasClass('goingToFull')) {
+            return;
+        }
+        if (pct < 100 && $loadingBar.hasClass('full')) {
+            endBarAnimation(0);
+        } else if (pct === 100) {
+            $loadingBar.addClass('goingToFull');
+        }
+        $loadingBar.addClass('inProgress');
+
+        $loadingBar.stop().animate({"width": pct + '%'}, intervalTime, "linear",
+            function() {
+                $loadingBar.removeClass('inProgress');
+                if (pct === 100) {
+                    $loadingBar.addClass('full');
+                    $loadingBar.removeClass('goingToFull');
+
+                    if (queryQueue.length) {
+                        endBarAnimation(0);
+                        trackQueries();
+                    } else {
+                        endBarAnimation();
+                    }
+                }
+        });
+    }
 
     function filterCarts(dsId) {
         for (var i = 0, len = innerCarts.length; i < len; i++) {
@@ -535,7 +688,7 @@ window.DataCart = (function($, DataCart) {
         }
     }
 
-    function createWorksheet() {
+    function sendToWorksheet() {
         var deferred = jQuery.Deferred();
         var promises = [];
         var worksheet = WSManager.getActiveWS();
@@ -543,7 +696,7 @@ window.DataCart = (function($, DataCart) {
         // to be clear at end
         var carts = innerCarts;
         carts.forEach(function(cart) {
-            promises.push(createWorksheetHelper.bind(this, cart, worksheet));
+            promises.push(sendToWorksheetHelper.bind(this, cart, worksheet));
         });
 
         emptyAllCarts();
@@ -564,7 +717,7 @@ window.DataCart = (function($, DataCart) {
         return (deferred.promise());
     }
 
-    function createWorksheetHelper(cart, worksheet) {
+    function sendToWorksheetHelper(cart, worksheet) {
         var deferred = jQuery.Deferred();
         // store columns in localstorage using setgTable()
         var newTableCols = [];
@@ -615,16 +768,17 @@ window.DataCart = (function($, DataCart) {
         newTableCols[itemLen] = ColManager.newDATACol();
         sql.columns.push("DATA");
 
-
         var txId = Transaction.start({
             "msg"      : StatusMessageTStr.CreatingTable + ': ' + tableName,
             "operation": SQLOps.IndexDS,
-            "sql"      : sql
+            "sql"      : sql,
+            "steps"    : 1
         });
 
         XcalarIndexFromDataset(dsName, "recordNum", tableName, txId)
         .then(function() {
             var options = {"focusWorkspace": true};
+            // var options = {};
             return TblManager.refreshTable([tableName], newTableCols,
                                             [], worksheet, options);
         })
@@ -655,7 +809,7 @@ window.DataCart = (function($, DataCart) {
         DataCart.__testOnly__.filterCarts = filterCarts;
         DataCart.__testOnly__.getUnusedTableName = getUnusedTableName;
         DataCart.__testOnly__.isCartNameValid = isCartNameValid;
-        DataCart.__testOnly__.createWorksheet = createWorksheet;
+        DataCart.__testOnly__.createWorksheet = sendToWorksheet;
     }
     /* End Of Unit Test Only */
 

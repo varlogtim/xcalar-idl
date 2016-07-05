@@ -113,6 +113,11 @@ window.QueryManager = (function(QueryManager, $) {
             return;
         }
         var mainQuery = queryLists[id];
+        if (mainQuery.subQueries[0].getName() === "index from DS") {
+            DataCart.queryDone(mainQuery.getId());
+            return;
+        }
+
         if (mainQuery.type === "xcFunction") {
             for (var i = 0; i < mainQuery.subQueries.length; i++) {
                 var subQuery = mainQuery.subQueries[i];
@@ -516,6 +521,9 @@ window.QueryManager = (function(QueryManager, $) {
         } else if (!$("#monitor-queries").hasClass("active") ||
                     !$('#monitorTab').hasClass('active')) {
             // don't show if not on panel
+            if (subQuery.getName() === "index from DS") {
+                DataCart.addQuery(queryLists[id]);
+            }
             return;
         }
         clearInterval(queryCheckLists[id]);

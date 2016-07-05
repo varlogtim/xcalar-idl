@@ -307,6 +307,7 @@ window.StartManager = (function(StartManager, $) {
                 case ("dataStoresTab"):
                     $("#datastorePanel").addClass("active");
                     DataSampleTable.sizeTableWrapper();
+                    DataCart.checkQueries();
                     if ($curTab.hasClass("firstTouch")) {
                         $curTab.removeClass("firstTouch");
                         DS.setupView();
@@ -326,6 +327,8 @@ window.StartManager = (function(StartManager, $) {
             }
             if (lastTabId === "monitorTab") {
                 MonitorPanel.inActive();
+            } else if (lastTabId === "dataStoresTab") {
+                DataCart.checkQueries();
             }
             if (lastTabId === "workspaceTab") {
                 var $activeCompSwitch = $('.dagTab.active');

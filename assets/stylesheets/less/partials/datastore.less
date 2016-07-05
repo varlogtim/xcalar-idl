@@ -24,6 +24,23 @@ input {
     box-shadow: 0px 2px 11px 0px rgba(0,0,0, .5);
 }
 
+#sendToWorksheetLoadBar {
+    display: none;
+    width: 100%;
+    height: 5px;
+    background-color: #374750;
+    z-index: 21;
+    position: absolute;
+    top: 35px;
+    pointer-events: none;
+    .innerBar {
+        width: 0%;
+        height:100%;
+        background-color: #4CA5D9;
+    }
+}
+
+
 #contentHeaderLeft {
     .flex(0 0 255px);
     .flex-order(1);
