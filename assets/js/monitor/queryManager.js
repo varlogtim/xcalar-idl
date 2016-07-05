@@ -667,8 +667,9 @@ window.QueryManager = (function(QueryManager, $) {
 
             if ($clickTarget.hasClass('deleteIcon')) {
                 QueryManager.removeQuery(id);
+            } else {
+                focusOnQuery($(this));
             }
-            focusOnQuery($(this));
         });
 
         $("#monitor-inspect").on('click', function() {
