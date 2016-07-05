@@ -25,7 +25,6 @@ window.OperationsModal = (function($, OperationsModal) {
 
     var modalHelper;
     var corrector;
-    var aggNameCorrector;
     var aggNames = [];
     var suggestLists = [];
 
@@ -177,8 +176,7 @@ window.OperationsModal = (function($, OperationsModal) {
             }
         });
 
-        $operationsModal.find('.modalTopMain .dropdown').on('mousedown',
-            function() {
+        $operationsModal.find('.modalTopMain .dropdown').on('mousedown', function() {
             var $list = $(this).siblings('.list');
             if ($list.is(':visible')) {
                 allowInputChange = false;
@@ -390,8 +388,7 @@ window.OperationsModal = (function($, OperationsModal) {
 
         // focus on section's input if you click anywhere in the section except
         // for the actual input and dropdown
-        $operationsModal.find('.modalTopMain').on('mousedown', '.step',
-                                                            function(event) {
+        $operationsModal.find('.modalTopMain').on('mousedown', '.step', function(event) {
             var $section = $(this);
             if ($(event.target).closest('.dropDownList').length === 0) {
                 event.stopPropagation();
@@ -421,12 +418,12 @@ window.OperationsModal = (function($, OperationsModal) {
             cursor     : '-webkit-grabbing',
             cancel     : '.headerBtn, input',
             start      : function() {
-                            $operationsModal.find('.openList')
-                                             .removeClass("openList")
-                                             .hide()
-                                             .closest(".dropDownList")
-                                             .removeClass("open");
-                        }
+                $operationsModal.find('.openList')
+                                 .removeClass("openList")
+                                 .hide()
+                                 .closest(".dropDownList")
+                                 .removeClass("open");
+            }
 
         });
 
@@ -440,10 +437,10 @@ window.OperationsModal = (function($, OperationsModal) {
 
         $operationsModal.find('.hint').each(function() {
             var scroller = new MenuHelper($(this), {
-                                scrollerOnly : true,
-                                bounds       : '#operationsModal',
-                                bottomPadding: 5
-                            });
+                scrollerOnly : true,
+                bounds       : '#operationsModal',
+                bottomPadding: 5
+            });
             suggestLists.push(scroller);
         });
 
@@ -777,7 +774,6 @@ window.OperationsModal = (function($, OperationsModal) {
         if (shouldSuggest) {
             $ul.find('ul').empty();
             if (hasAggPrefix) {
-                var filteredNames = [];
                 var lis = "";
                 var count = 0;
                 aggNames.forEach(function(name) {
@@ -1382,38 +1378,38 @@ window.OperationsModal = (function($, OperationsModal) {
                 // focus, blur, keydown, input listeners ensures the aggPrefix
                 // is always the first chracter in the colname input
                 // and is only visible when focused or changed
-                $nameInput.on('focus.aggPrefix', function(event) {
+                $nameInput.on('focus.aggPrefix', function() {
                     var $input = $(this);
                     if ($input.val().trim() === "") {
                         $input.val(aggPrefix);
                     }
                 });
-                $nameInput.on('blur.aggPrefix', function(event) {
+                $nameInput.on('blur.aggPrefix', function() {
                     var $input = $(this);
                     if ($input.val().trim() === aggPrefix) {
                         $input.val("");
                     }
                 });
                 $nameInput.on('keydown.aggPrefix', function(event) {
-                        var $input = $(this);
-                        if ($input.caret() === 0 &&
-                            $input[0].selectionEnd === 0) {
-                            event.preventDefault();
-                            $input.caret(1);
-                            return false;
-                        }
+                    var $input = $(this);
+                    if ($input.caret() === 0 &&
+                        $input[0].selectionEnd === 0) {
+                        event.preventDefault();
+                        $input.caret(1);
+                        return false;
+                    }
                 });
-                $nameInput.on('input.aggPrefix', function(event) {
-                        var $input = $(this);
-                        var val = $input.val();
-                        var trimmedVal = $input.val().trim();
-                        if (trimmedVal[0] !== aggPrefix) {
-                            var caretPos = $input.caret();
-                            $input.val(aggPrefix + val);
-                            if (caretPos === 0) {
-                                $input.caret(1);
-                            }
+                $nameInput.on('input.aggPrefix', function() {
+                    var $input = $(this);
+                    var val = $input.val();
+                    var trimmedVal = $input.val().trim();
+                    if (trimmedVal[0] !== aggPrefix) {
+                        var caretPos = $input.caret();
+                        $input.val(aggPrefix + val);
+                        if (caretPos === 0) {
+                            $input.caret(1);
                         }
+                    }
                 });
                 ++numArgs;
             }
@@ -2106,8 +2102,7 @@ window.OperationsModal = (function($, OperationsModal) {
                                         if (colTypes[i] === "newColumn") {
                                             errorText = ErrTStr.InvalidOpNewColumn;
                                         } else {
-                                            errorText = xcHelper.replaceMsg(
-                                                ErrWRepTStr.InvalidOpsType, {
+                                            errorText = xcHelper.replaceMsg(ErrWRepTStr.InvalidOpsType, {
                                                 "type1": types.join("/"),
                                                 "type2": colTypes[i]
                                             });
@@ -2518,7 +2513,7 @@ window.OperationsModal = (function($, OperationsModal) {
                         var bracketIndex = colArg.indexOf("[");
                         if (bracketIndex > -1 &&
                             colArg[bracketIndex - 1] !== "\\") {
-                            colType = "Array Value";
+                            colType = CommonTxtTstr.ArrayVal;
                         }
                     }
                     types.push(colType);

@@ -374,6 +374,10 @@ ProgCol.prototype = {
         }
     },
 
+    "isEmptyCol": function() {
+        return this.isNewCol;
+    },
+
     "getFronColName": function() {
         return this.name;
     },
@@ -839,7 +843,7 @@ DSObj.prototype = {
 
         var loadURL = self.path;
         var slashIndex = loadURL.lastIndexOf('/');
-        var curFileName = null;
+        // var curFileName = null;
 
         if (slashIndex === loadURL.length - 1) {
             // when last char is '/', then the url is a folder
@@ -1738,7 +1742,7 @@ SearchBar.prototype = {
         }
         // secondaryEvent is the event passed in by codemirror
         $searchInput.on("keydown", function(event, secondaryEvent) {
-           handleKeyDownEvent(event, secondaryEvent);
+            handleKeyDownEvent(event, secondaryEvent);
         });
 
         searchBar.$downArrow.click(function() {
@@ -1921,12 +1925,13 @@ XcQuery.prototype = {
             XcalarQueryState(self.fullName)
             .then(function(res) {
                 // self.state = res.queryState;
-                deferred.resolve(res)
-            }).fail(deferred.reject);
+                deferred.resolve(res);
+            })
+            .fail(deferred.reject);
         } else {
             deferred.resolve();
         }
-        return deferred.promise()
+        return deferred.promise();
     },
 
     "run": function() {

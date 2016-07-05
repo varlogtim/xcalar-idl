@@ -102,7 +102,8 @@ CommonTxtTstr = {
     'LogOut': 'Log Out',
     'Rename': 'Rename',
     'InP': 'In progress',
-    'NA': 'N/A'
+    'NA': 'N/A',
+    'ArrayVal': 'Array Value'
 };
 
 ErrTStr = {

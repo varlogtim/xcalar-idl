@@ -1,6 +1,6 @@
 window.MultiCastModal = (function($, MultiCastModal) {
     var $modal; // $("#multiCastModal")
-    var $table; // $("#multiCast-table")
+    var $multiCastTable; // $("#multiCast-table")
 
     var modalHelper;
     var curTableId;
@@ -12,7 +12,7 @@ window.MultiCastModal = (function($, MultiCastModal) {
 
     MultiCastModal.setup = function() {
         $modal = $("#multiCastModal");
-        $table = $("#multiCast-table");
+        $multiCastTable = $("#multiCast-table");
 
         // constant
         var minHeight = 500;
@@ -55,7 +55,7 @@ window.MultiCastModal = (function($, MultiCastModal) {
         });
 
         $("#multiCast-clear").click(function() {
-            var $ths = $table.find("th.colSelected");
+            var $ths = $multiCastTable.find("th.colSelected");
             deSelectCols($ths);
         });
 
@@ -64,7 +64,7 @@ window.MultiCastModal = (function($, MultiCastModal) {
             smartSuggest();
         });
 
-        $table.on("click", ".columnTab", function(event) {
+        $multiCastTable.on("click", ".columnTab", function(event) {
             var $th = $(this).closest("th");
             if ($th.hasClass("unselectable")) {
                 return;
@@ -86,7 +86,7 @@ window.MultiCastModal = (function($, MultiCastModal) {
         $modal.on("click", ".row", function() {
             var colNum = $(this).data("col");
             if (colNum != null) {
-                scrollToColumn($table.find("th.col" + colNum));
+                scrollToColumn($multiCastTable.find("th.col" + colNum));
             }
         });
 
@@ -102,7 +102,7 @@ window.MultiCastModal = (function($, MultiCastModal) {
         smartSuggest();
         modalHelper.setup();
 
-        var $lists = $table.find("th:not(.unselectable) .dropDownList");
+        var $lists = $multiCastTable.find("th:not(.unselectable) .dropDownList");
         var list = new MenuHelper($lists, {
             "onSelect": function($li) {
                 var $list  = $li.closest(".list");
@@ -120,7 +120,7 @@ window.MultiCastModal = (function($, MultiCastModal) {
     function closeMultiCastModal() {
         modalHelper.clear();
 
-        $table.html("");
+        $multiCastTable.html("");
         $("#multiCast-result").html("");
         $(document).off(".multiCastModal");
 
@@ -156,25 +156,19 @@ window.MultiCastModal = (function($, MultiCastModal) {
     }
 
     function selectCols($ths) {
-        var colNum;
-        var $th;
-        var newColType;
-        var $input;
-
         $ths.each(function() {
-            $th = $(this);
-            colNum = parseInt($th.data("col"));
-
-            $input = $th.find(".dropDownList input");
-            newColType = $input.val();
+            var $th = $(this);
+            var colNum = parseInt($th.data("col"));
+            var $input = $th.find(".dropDownList input");
+            var newColType = $input.val();
 
             if (newColType === colTypes[colNum]) {
                 newColTypes[colNum] = null;
-                $table.find(".col" + colNum).removeClass("colSelected");
+                $multiCastTable.find(".col" + colNum).removeClass("colSelected");
                 $input.addClass("initialType");
             } else {
                 newColTypes[colNum] = newColType;
-                $table.find(".col" + colNum).addClass("colSelected");
+                $multiCastTable.find(".col" + colNum).addClass("colSelected");
                 $input.removeClass("initialType");
             }
 
@@ -184,13 +178,11 @@ window.MultiCastModal = (function($, MultiCastModal) {
     }
 
     function deSelectCols($ths) {
-        var colNum;
-        var $th;
-
         $ths.each(function() {
-            $th = $(this);
-            colNum = parseInt($th.data("col"));
-            $table.find(".col" + colNum).removeClass("colSelected");
+            var $th = $(this);
+            var colNum = parseInt($th.data("col"));
+
+            $multiCastTable.find(".col" + colNum).removeClass("colSelected");
             $th.find(".dropDownList input").val(colTypes[colNum])
                                         .addClass("initialType");
             newColTypes[colNum] = null;
@@ -210,16 +202,16 @@ window.MultiCastModal = (function($, MultiCastModal) {
                 continue; // unselectable case
             }
 
-            $th = $table.find("th.col" + colNum);
+            $th = $multiCastTable.find("th.col" + colNum);
             $input = $th.find(".dropDownList input").val(newType);
 
             if (newType === colTypes[colNum]) {
-                $table.find(".col" + colNum).removeClass("colSelected");
+                $multiCastTable.find(".col" + colNum).removeClass("colSelected");
                 $input.addClass("initialType");
                 newColTypes[colNum] = null;
                 suggColFlags[colNum] = false;
             } else {
-                $table.find(".col" + colNum).addClass("colSelected");
+                $multiCastTable.find(".col" + colNum).addClass("colSelected");
                 $input.removeClass("initialType");
                 newColTypes[colNum] = newType;
                 suggColFlags[colNum] = true;
@@ -248,10 +240,10 @@ window.MultiCastModal = (function($, MultiCastModal) {
 
             if (suggColFlags[colNum]) {
                 newTypeClass += " highlight";
-                $table.find("th.col" + colNum).addClass("highlight")
+                $multiCastTable.find("th.col" + colNum).addClass("highlight")
                         .find(".text").val(newType);
             } else {
-                $table.find("th.col" + colNum).removeClass("highlight");
+                $multiCastTable.find("th.col" + colNum).removeClass("highlight");
             }
 
             colName = colNames[colNum];
@@ -351,7 +343,8 @@ window.MultiCastModal = (function($, MultiCastModal) {
         var html = '<thead>' +
                         '<tr>';
 
-        var $tbody = $("#xcTable-" + tableId).find("tbody").clone(true);
+        var $table = $("#xcTable-" + tableId);
+        var $tbody = $table.find("tbody").clone(true);
         $tbody.find("tr:gt(17)").remove();
         $tbody.find(".col0").remove();
         $tbody.find(".jsonElement").remove();
@@ -359,24 +352,34 @@ window.MultiCastModal = (function($, MultiCastModal) {
         $tbody.find(".tdText.clickable").removeClass("clickable");
 
         for (var i = 0, len = tableCols.length; i < len; i++) {
-            var colName = tableCols[i].name;
+            var progCol = tableCols[i];
 
-
-            if (colName === "DATA") {
+            if (progCol.isDATACol()) {
                 continue;
             }
 
-            var type    = tableCols[i].type;
-            var colNum  = i + 1;
+            var colName = progCol.getFronColName();
+            var type = progCol.getType();
+            var colNum = i + 1;
             var thClass = "col" + colNum + " type-" + type;
+            var isChildOfArray = $table.find(".th.col" + colNum + " .header")
+                                        .hasClass("childOfArray");
 
-            colNames[colNum] = colName; // cache colNames
-            colTypes[colNum] = type;    // cache colTypes
+            if (isChildOfArray) {
+                type = CommonTxtTstr.ArrayVal;
+            }
+
+            // cache colNames
+            colNames[colNum] = colName;
+            // cache colTypes
+            colTypes[colNum] = type;
 
             if (type === "object" ||
                 type === "array" ||
                 type === "mixed" ||
-                type === "undefined")
+                type === "undefined" ||
+                progCol.isEmptyCol() ||
+                isChildOfArray)
             {
                 thClass += " unselectable";
                 recTypes[colNum] = null;
@@ -421,7 +424,7 @@ window.MultiCastModal = (function($, MultiCastModal) {
         html += '</tr></thead>';
         html += $tbody.html();
 
-        $table.html(html);
+        $multiCastTable.html(html);
     }
 
     /* Unit Test Only */
