@@ -555,8 +555,9 @@ window.WSManager = (function($, WSManager) {
                 // 2) Trigger Add from Orphan list
                 TableList.refreshOrphanList()
                 .then(function() {
-                    $("#orphanedTablesList span:contains(" + tableId + ")")
-                    .parent().find('.addTableBtn').click();
+                    $('#orphanedTablesList .tableInfo[data-id="' +
+                       tableId + '"]')
+                        .find('.addTableBtn').click();
                     innerDeferrd.resolve();
                 })
                 .fail(function(error) {
