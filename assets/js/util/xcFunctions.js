@@ -679,8 +679,7 @@ window.xcFunction = (function($, xcFunction) {
         var txId = Transaction.start({
             "msg"      : StatusMessageTStr.ExportTable + ": " + tableName,
             "operation": SQLOps.ExportTable,
-            "sql"      : sql,
-            "steps"    : 1
+            "sql"      : sql
         });
 
         XcalarExport(tableName, exportName, targetName, numCols, backColumns,

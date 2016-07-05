@@ -1883,6 +1883,11 @@ XcQuery.prototype = {
 
     "getOutputTableName": function() {
         if (this.state === "done") {
+            if (!this.subQueries.length) {
+                console.warn('no subQueries were added to the mainQuery: ' +
+                             this.name);
+                return null;
+            }
             return (this.subQueries[this.subQueries.length - 1].dstTable);
         } else {
             return null;
