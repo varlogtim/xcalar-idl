@@ -270,7 +270,7 @@ window.Replay = (function($, Replay) {
         argsMap[SQLOps.Join] = ["lColNums", "lTableId", "rColNums", "rTableId",
                                 "joinStr", "newTableName"];
         argsMap[SQLOps.GroupBy] = ["operator", "tableId", "indexedCols",
-                                    "aggColName", "isIncSample", "newColName"];
+                                    "aggColName", "newColName", "options"];
         argsMap[SQLOps.RenameTable] = ["tableId", "newTableName"];
         argsMap[SQLOps.HideTable] = ["tableId"];
         argsMap[SQLOps.UnhideTable] = ["tableId"];

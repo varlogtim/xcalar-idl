@@ -332,6 +332,18 @@ window.OperationsModal = (function($, OperationsModal) {
             checkIfStringReplaceNeeded();
         });
 
+        // incSample and keepInTable toggling
+        $operationsModal.on('change', 'input[type="checkbox"]', function() {
+            var $checkbox = $(this);
+            if ($checkbox.prop("checked")) {
+                if ($checkbox.attr('id') === "incSample") {
+                    $("#keepInTable").prop("checked", false);
+                } else if ($checkbox.attr('id') === "keepInTable") {
+                    $("#incSample").prop("checked", false);
+                }
+            }
+        });
+
         // toggle between mininizeTable and unMinimizeTable
         $operationsModal.on('click', '.argIconWrap', function() {
             var $input = $(this).siblings('input');
@@ -1142,7 +1154,7 @@ window.OperationsModal = (function($, OperationsModal) {
             var numRowsInTable = $tbody.find('tr').length;
             var numRowsNeeded;
             if (operatorName === "group by") {
-                numRowsNeeded = (numArgs + 3) - numRowsInTable;
+                numRowsNeeded = (numArgs + 4) - numRowsInTable;
             } else {
                 numRowsNeeded = (numArgs + 1) - numRowsInTable;
             }
@@ -1288,10 +1300,10 @@ window.OperationsModal = (function($, OperationsModal) {
                 ++numArgs;
 
                 // check box for include sample
-                description = 'If checked, a sample of all fields will be included';
+                description = OpModalTStr.IncSampleDesc;
                 var checkboxText =
                     '<label class="checkBoxText" for="incSample">' +
-                    'Include Sample</span>';
+                    OpModalTStr.IncSample + '</span>';
 
                 $rows.eq(numArgs).addClass('colNameRow')
                         .find('.dropDownList').addClass('checkboxSection')
@@ -1306,6 +1318,24 @@ window.OperationsModal = (function($, OperationsModal) {
                         .find('.checkboxWrap').addClass('hidden');
                 ++numArgs;
 
+                // check box for join group by table
+                description = OpModalTStr.KeepInTableDesc;
+                var checkboxText =
+                    '<label class="checkBoxText" for="keepInTable">' +
+                     OpModalTStr.KeepInTable + '</span>';
+
+                $rows.eq(numArgs).addClass('colNameRow')
+                        .find('.dropDownList').addClass('checkboxSection')
+                        .end()
+                        .find('.argument').val("").attr("type", "checkbox")
+                                                .attr("checked", false)
+                                                .attr("id", "keepInTable")
+                            .after(checkboxText)
+                        .end()
+                        .find('.description').text(description)
+                        .end()
+                        .find('.checkboxWrap').addClass('hidden');
+                ++numArgs;
 
                 despText = '<p>' + despText + '</p>' +
                             '<b>String Preview:</b>' +
@@ -1345,6 +1375,9 @@ window.OperationsModal = (function($, OperationsModal) {
                                         .removeAttr("data-original-title")
                                         .removeAttr("data-container");
                         $checkbox.prop("checked", prevCheck);
+                        if (prevCheck) {
+                            $('#keepInTable').prop("checked", false);
+                        }
                     }
                 });
 
@@ -2389,12 +2422,18 @@ window.OperationsModal = (function($, OperationsModal) {
 
         // var singleArg = true;
         var indexedColNames = args[1];
-
         var newColName  = args[2];
-        var isIncSample = $argInputs.eq(3).is(':checked');
+        var options = {
+            isIncSample: $argInputs.eq(3).is(':checked'),
+            isJoin: $argInputs.eq(4).is(':checked')
+        };
+        if (options.isIncSample && options.isJoin) {
+            console.warn('shouldnt be able to select incSample and join');
+            options.isIncSamples = false;
+        }
 
         xcFunction.groupBy(operator, tableId, indexedColNames, groupbyColName,
-                            isIncSample, newColName);
+                            newColName, options);
     }
 
     function groupByCheck(args) {

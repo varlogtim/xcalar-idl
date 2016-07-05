@@ -476,8 +476,10 @@ window.xcFunction = (function($, xcFunction) {
 
     xcFunction.groupBy = function(operator, tableId,
                                    indexedCols, aggColName,
-                                   isIncSample, newColName)
+                                   newColName, options)
     {
+        // indexedCols is the 2nd argument in the groupby modal
+        // aggColName is the 1st argument in the groupby modal
         var deferred = jQuery.Deferred();
 
         // Validation
@@ -485,6 +487,9 @@ window.xcFunction = (function($, xcFunction) {
             deferred.reject("Invalid Parameters!");
             return (deferred.promise());
         }
+        options = options || {};
+        var isIncSample = options.isIncSample || false;
+        var isJoin = options.isJoin || false;
 
         // extract groupByCols
         var groupByCols = indexedCols.split(",");
@@ -517,15 +522,29 @@ window.xcFunction = (function($, xcFunction) {
         XIApi.groupBy(txId, operator, groupByCols, aggColName,
                       isIncSample, tableName, newColName)
         .then(function(nTableName, nTableCols) {
+            if (isJoin) {
+                var dataColNum = gTables[tableId].getColNumByBackName("DATA");
+                return groupByJoinHelper(nTableName, nTableCols, dataColNum);
+            } else {
+                return PromiseHelper.resolve(nTableName, nTableCols);
+            }
+        })
+        .then(function(nTableName, nTableCols) {
             finalTableCols = nTableCols;
             finalTableName = nTableName;
 
             focusOnTable = checkIfShouldScrollNewTable(startTime,
                                                         startScrollPosition);
-            var options = {"focusWorkspace": focusOnTable};
+            var tableOptions = {"focusWorkspace": focusOnTable};
+            var tablesToReplace = null;
+            if (isJoin) {
+                tablesToReplace = [tableName];
+                tableOptions.selectCol = 1;
+            }
 
             return TblManager.refreshTable([finalTableName], finalTableCols,
-                                            null, curWS, options);
+                                            tablesToReplace, curWS,
+                                            tableOptions);
         })
         .then(function() {
             xcHelper.unlockTable(tableId);
@@ -538,8 +557,9 @@ window.xcFunction = (function($, xcFunction) {
                 "indexedCols" : indexedCols,
                 "aggColName"  : aggColName,
                 "newColName"  : newColName,
-                "isIncSample" : isIncSample,
-                "newTableName": finalTableName
+                "options"     : options,
+                "newTableName": finalTableName,
+                "htmlExclude" : ["options"]
             };
 
             var finalTableId = xcHelper.getTableId(finalTableName);
@@ -574,6 +594,45 @@ window.xcFunction = (function($, xcFunction) {
 
             deferred.reject(error);
         });
+
+        function groupByJoinHelper(nTableName, nTableCols, dataColNum) {
+            var innerDeferred = jQuery.Deferred();
+
+            var joinType = joinLookUp["Left Outer Join"];
+            var joinedTableId = Authentication.getHashId();
+            finalTableName = xcHelper.getTableName(nTableName) + joinedTableId;
+            var lTable     = gTables[tableId];
+            var lTableName = lTable.tableName;
+            var rTableId   = xcHelper.getTableId(nTableName);
+            var rTableName = nTableName;
+
+            var lColNames = groupByCols;
+            var rColNames = [];
+            for (var i = 0; i < lColNames.length; i++) {
+                rColNames.push(lColNames[i]);
+            }
+
+            TblManager.setOrphanTableMeta(nTableName, nTableCols);
+
+            XIApi.join(txId, joinType, lColNames, lTableName, rColNames, rTableName,
+                        finalTableName, options)
+            .then(function(finalTableName, finalTableCols) {
+                // remove the duplicated columns that were joined
+                finalTableCols.splice(finalTableCols.length -
+                                    (nTableCols.length), nTableCols.length - 1);
+                // put datacol back to where it was
+                finalTableCols.splice(dataColNum - 1, 0,
+                        finalTableCols.splice(finalTableCols.length - 1, 1)[0]);
+                // put the groupBy column in front
+                finalTableCols.unshift(nTableCols[0]);
+                innerDeferred.resolve(finalTableName, finalTableCols);
+            })
+            .fail(function(error) {
+                innerDeferred.reject(error);
+            });
+
+            return innerDeferred.promise();
+        }
 
         return deferred.promise();
     };

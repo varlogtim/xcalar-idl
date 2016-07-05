@@ -150,7 +150,15 @@ window.Undo = (function($, Undo) {
 
     undoFuncs[SQLOps.GroupBy] = function(options) {
         var tableId = xcHelper.getTableId(options.newTableName);
-        return (TblManager.sendTableToOrphaned(tableId, {'remove': true}));
+        if (options.options && options.options.isJoin) {
+            var worksheet = WSManager.getWSFromTable(tableId);
+            return (TblManager.refreshTable([options.tableName], null,
+                                       [options.newTableName],
+                                       worksheet, {isUndo: true}));
+        } else {
+           return (TblManager.sendTableToOrphaned(tableId, {'remove': true}));
+        }
+
     };
 
     undoFuncs[SQLOps.SplitCol] = function(options) {

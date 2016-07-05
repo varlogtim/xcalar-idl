@@ -77,7 +77,11 @@ window.Redo = (function($, Redo) {
 
     redoFuncs[SQLOps.GroupBy] = function(options) {
         var worksheet = WSManager.getWSFromTable(options.tableId);
-        return (TblManager.refreshTable([options.newTableName], null, [],
+        var oldTables = [];
+        if (options.options && options.options.isJoin) {
+            oldTables = [options.tableName];
+        }
+        return (TblManager.refreshTable([options.newTableName], null, oldTables,
                                          worksheet));
     };
 

@@ -568,7 +568,11 @@ DaysTStr = {
 OpModalTStr = {
     'EmptyHint': 'select to allow empty field',
     'ColNameDesc': 'New Resultant Column Name',
-    'AggNameDesc': 'New Resultant Aggregate Name (optional)'
+    'AggNameDesc': 'New Resultant Aggregate Name (optional)',
+    'IncSample': 'Include Sample',
+    'IncSampleDesc': 'If checked, a sample of all fields will be included',
+    'KeepInTable': 'Join Back',
+    'KeepInTableDesc': 'If checked, group by will augment original table',
 };
 
 JsonModalTStr = {
