@@ -111,6 +111,50 @@ function xcalarGetVersion(thriftHandle) {
     return (deferred.promise());
 }
 
+function xcalarPreviewWorkItem(url, fileNamePattern, recursive, numBytesRequested) {
+    var workItem = new WorkItem();
+    workItem.input = new XcalarApiInputT();
+
+    workItem.api = XcalarApisT.XcalarApiPreview
+    workItem.input.previewInput = new XcalarApiPreviewInputT();
+    workItem.input.previewInput.url = url;
+    workItem.input.previewInput.fileNamePattern = fileNamePattern;
+    workItem.input.previewInput.recursive = recursive;
+    workItem.input.previewInput.numBytesRequested = numBytesRequested;
+    return (workItem);
+}
+
+function xcalarPreview(thriftHandle, url, fileNamePattern, recursive, numBytesRequested) {
+    var deferred = jQuery.Deferred();
+    if (verbose) {
+        console.log("xcalarPreview(url = " + url +
+                    ", fileNamePattern = " + fileNamePattern +
+                    ", recursive = " + recursive +
+                    ", numBytesRequested = " + numBytesRequested);
+    }
+
+    var workItem = xcalarPreviewWorkItem(url, fileNamePattern, recursive, numBytesRequested);
+
+    thriftHandle.client.queueWorkAsync(workItem)
+    .then(function(result) {
+        var previewOutput = result.output.outputResult.previewOutput;
+        var status = result.output.hdr.status;
+        if (result.jobStatus != StatusT.StatusOk) {
+            status = result.jobStatus;
+        }
+        if (status != StatusT.StatusOk) {
+            deferred.reject(status);
+        }
+        deferred.resolve(previewOutput);
+    })
+    .fail(function(error) {
+        console.log("xcalarPreview() caught exception:", error);
+        deferred.reject(error);
+    });
+
+    return (deferred.promise());
+}
+
 function xcalarLoadWorkItem(url, name, format, maxSampleSize, loadArgs) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
@@ -139,6 +183,8 @@ function xcalarLoad(thriftHandle, url, name, format, maxSampleSize, loadArgs) {
         if (format === DfFormatTypeT.DfFormatCsv) {
             console.log("loadArgs.csv.recordDelim = " + loadArgs.csv.recordDelim + ", " +
                         "loadArgs.csv.fieldDelim = " + loadArgs.csv.fieldDelim + ", " +
+                        "loadArgs.csv.quoteDelim = " + loadArgs.csv.quoteDelim + ", " +
+                        "loadArgs.csv.linesToSkip = " + loadArgs.csv.linesToSkip + ", " +
                         "loadArgs.csv.isCRLF = " + loadArgs.csv.isCRLF + ", " +
                         "loadArgs.csv.hasHeader = " + loadArgs.csv.hasHeader)
         }

@@ -133,7 +133,9 @@ function xcalarLoad(thriftHandle, url, name, format, maxSampleSize, loadArgs) {
         console.log("xcalarLoad(url = " + url + ", name = " + name +
                     ", format = " +
                     DfFormatTypeTStr[format] + ", maxSampleSize = " +
-                    maxSampleSize.toString() + ")");
+                    maxSampleSize.toString() + "recursive = " +
+		    loadArgs.recursive + ", fileNamePattern = " +
+		    loadArgs.fileNamePattern + ")");
         if (format === DfFormatTypeT.DfFormatCsv) {
             console.log("loadArgs.csv.recordDelim = " + loadArgs.csv.recordDelim + ", " +
                         "loadArgs.csv.fieldDelim = " + loadArgs.csv.fieldDelim + ", " +
@@ -277,36 +279,36 @@ function xcalarIndexTable(thriftHandle, srcTableName, keyName, dstTableName,
     return (deferred.promise());
 }
 
-function xcalarGetCountWorkItem(datasetName, tableName) {
+function xcalarGetMetaWorkItem(datasetName, tableName) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
-    workItem.input.countInput = new XcalarApiNamedInputT();
+    workItem.input.getTableMetaInput = new XcalarApiNamedInputT();
 
-    workItem.api = XcalarApisT.XcalarApiCount;
+    workItem.api = XcalarApisT.XcalarApiGetTableMeta;
     if (tableName == "") {
-        workItem.input.countInput.isTable = false;
-        workItem.input.countInput.name = datasetName;
+        workItem.input.getTableMetaInput.isTable = false;
+        workItem.input.getTableMetaInput.name = datasetName;
     } else {
-        workItem.input.countInput.isTable = true;
-        workItem.input.countInput.name = tableName;
+        workItem.input.getTableMetaInput.isTable = true;
+        workItem.input.getTableMetaInput.name = tableName;
     }
-    workItem.input.countInput.xid = XcalarApiXidInvalidT;
+    workItem.input.getTableMetaInput.xid = XcalarApiXidInvalidT;
 
     return (workItem);
 }
 
-function xcalarGetCountInt(thriftHandle, datasetName, tableName) {
+function xcalarGetMetaInt(thriftHandle, datasetName, tableName) {
     var deferred = jQuery.Deferred();
     if (verbose) {
-        console.log("xcalarGetCount(tableName = " + tableName + ", " +
+        console.log("xcalarGetMeta(tableName = " + tableName + ", " +
                     "datasetName =" + datasetName + ")");
     }
 
-    var workItem = xcalarGetCountWorkItem(datasetName, tableName);
+    var workItem = xcalarGetMetaWorkItem(datasetName, tableName);
 
     thriftHandle.client.queueWorkAsync(workItem)
     .then(function(result) {
-        var countOutput = result.output.outputResult.countOutput;
+        var metaOutput = result.output.outputResult.getTableMetaOutput;
         var status = result.output.hdr.status;
 
         if (result.jobStatus != StatusT.StatusOk) {
@@ -315,22 +317,22 @@ function xcalarGetCountInt(thriftHandle, datasetName, tableName) {
         if (status != StatusT.StatusOk) {
             deferred.reject(status);
         }
-        deferred.resolve(countOutput);
+        deferred.resolve(metaOutput);
     })
     .fail(function(error) {
-        console.log("xcalarGetCount() caught exception:", error);
+        console.log("xcalarGetMeta() caught exception:", error);
         deferred.reject(error);
     });
 
     return (deferred.promise());
 }
 
-function xcalarGetDatasetCount(thriftHandle, datasetName) {
-    return (xcalarGetCountInt(thriftHandle, datasetName, ""));
+function xcalarGetDatasetMeta(thriftHandle, datasetName) {
+    return (xcalarGetMetaInt(thriftHandle, datasetName, ""));
 }
 
-function xcalarGetTableCount(thriftHandle, tableName) {
-    return (xcalarGetCountInt(thriftHandle, "", tableName));
+function xcalarGetTableMeta(thriftHandle, tableName) {
+    return (xcalarGetMetaInt(thriftHandle, "", tableName));
 }
 
 function xcalarShutdownWorkItem(force) {
@@ -1661,23 +1663,25 @@ function xcalarExport(thriftHandle, tableName, target, specInput, createRule,
     return (deferred.promise());
 }
 
-function xcalarListFilesWorkItem(url) {
+function xcalarListFilesWorkItem(url, recursive, fileNamePattern) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
     workItem.input.listFilesInput = new XcalarApiListFilesInputT();
 
     workItem.api = XcalarApisT.XcalarApiListFiles;
     workItem.input.listFilesInput.url = url;
+    workItem.input.listFilesInput.recursive = recursive;
+    workItem.input.listFilesInput.fileNamePattern = fileNamePattern;
     return (workItem);
 }
 
-function xcalarListFiles(thriftHandle, url) {
+function xcalarListFiles(thriftHandle, url, recursive, fileNamePattern) {
     var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarListFiles(url = " + url + ")");
     }
 
-    var workItem = xcalarListFilesWorkItem(url);
+    var workItem = xcalarListFilesWorkItem(url, recursive, fileNamePattern);
 
     thriftHandle.client.queueWorkAsync(workItem)
     .then(function(result) {
@@ -1859,7 +1863,7 @@ function xcalarUpdateRetinaWorkItem(retinaName, dagNodeId, paramType,
     case XcalarApisT.XcalarApiBulkLoad:
         workItem.input.updateRetinaInput.paramInput.paramInputArgs.paramLoad =
                                          new XcalarApiParamLoadT();
-        workItem.input.updateRetinaInput.paramInput.paramInputArgs.paramLoad.datasetUrl
+        workItem.input.updateRetinaInput.paramInput.paramInputArgs.paramLoad.datasetUrl =
                                          paramValue;
         break;
     case XcalarApisT.XcalarApiFilter:
@@ -2356,9 +2360,12 @@ function xcalarApiSessionNew(thriftHandle, sessionName, fork,
 function xcalarApiSessionDeleteWorkItem(pattern) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
+    workItem.input.sessionDeleteInput = new XcalarApiSessionDeleteInputT();
 
     workItem.api = XcalarApisT.XcalarApiSessionDelete;
-    workItem.input.sessionDeleteInput = pattern;
+    workItem.input.sessionDeleteInput.sessionName = pattern;
+      // not actually used by delete...
+    workItem.input.sessionDeleteInput.noCleanup = false;
     return (workItem);
 }
 
@@ -2392,18 +2399,22 @@ function xcalarApiSessionDelete(thriftHandle, pattern) {
 function xcalarApiSessionInactWorkItem(name) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
+    workItem.input.sessionDeleteInput = new XcalarApiSessionDeleteInputT();
 
     workItem.api = XcalarApisT.XcalarApiSessionInact;
-    workItem.input.sessionDeleteInput = name;
+    workItem.input.sessionDeleteInput.sessionName = name;
+    workItem.input.sessionDeleteInput.noCleanup = noCleanup;
     return (workItem);
 }
 
-function xcalarApiSessionInact(thriftHandle, name) {
+// noCleanup = true means that the datasets and tables belonging to the
+// session will not be dropped when the session is made inactive
+function xcalarApiSessionInact(thriftHandle, name, noCleanup) {
     var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarApiSessionInact(name = )", name);
     }
-    var workItem = xcalarApiSessionInactWorkItem(name);
+    var workItem = xcalarApiSessionInactWorkItem(name, noCleanup);
 
     thriftHandle.client.queueWorkAsync(workItem)
     .then(function(result) {
@@ -2462,9 +2473,12 @@ function xcalarApiSessionList(thriftHandle, pattern) {
 function xcalarApiSessionPersistWorkItem(pattern) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
+    workItem.input.sessionDeleteInput = new XcalarApiSessionDeleteInputT();
 
     workItem.api = XcalarApisT.XcalarApiSessionPersist;
-    workItem.input.sessionDeleteInput = pattern;
+    workItem.input.sessionDeleteInput.sessionName = pattern;
+     // not actually used by persist
+    workItem.input.sessionDeleteInput.noCleanup = false;
     return (workItem);
 }
 
@@ -2497,23 +2511,31 @@ function xcalarApiSessionPersist(thriftHandle, pattern) {
     return (deferred.promise());
 }
 
-function xcalarApiSessionSwitchWorkItem(sessionName, origSessionName) {
+// noCleanup = true means the tables and datasets will not be dropped
+// when the old session is made inactive
+function xcalarApiSessionSwitchWorkItem(sessionName, origSessionName,
+                                        noCleanup) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
     workItem.input.sessionSwitchInput = new XcalarApiSessionSwitchInputT();
+
     workItem.api = XcalarApisT.XcalarApiSessionSwitch;
     workItem.input.sessionSwitchInput.sessionName = sessionName;
     workItem.input.sessionSwitchInput.origSessionName = origSessionName;
+    workItem.input.sessionSwitchInput.noCleanup = noCleanup;
     return (workItem);
 }
 
-function xcalarApiSessionSwitch(thriftHandle, sessionName, origSessionName) {
+function xcalarApiSessionSwitch(thriftHandle, sessionName, origSessionName,
+                                noCleanup) {
     var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarApiSessionSwitch(sessionName = ", sessionName, ", ",
-                    "origSessionName = ", origSessionName, ")");
+                    "origSessionName = ", origSessionName,
+                    "bypass clean up = ", noCleanup, ")");
     }
-    var workItem = xcalarApiSessionSwitchWorkItem(sessionName, origSessionName);
+    var workItem = xcalarApiSessionSwitchWorkItem(sessionName, origSessionName,
+                                                  noCleanup);
 
     thriftHandle.client.queueWorkAsync(workItem)
     .then(function(result) {
@@ -3071,4 +3093,3 @@ function xcalarApiImportRetina(thriftHandle) {
     var deferred = jQuery.Deferred();
     return (deferred.promise());
 }
-
