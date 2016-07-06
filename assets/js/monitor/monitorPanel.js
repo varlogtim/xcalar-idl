@@ -72,6 +72,7 @@ window.MonitorPanel = (function($, MonitorPanel) {
         });
 
         $("#monitor-delete").click(function() {
+            $(this).blur();
             DeleteTableModal.show();
         });
 
