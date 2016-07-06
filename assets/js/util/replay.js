@@ -341,532 +341,611 @@ window.Replay = (function($, Replay) {
     }
 
     /* REPLAYFUNCS HOLDS ALL THE REPLAY FUNCTIONS */
+    replayFuncs = {};
 
-    replayFuncs = {
-        loadDataSet: function(options) {
-            var args = getArgs(options);
-            return (DS.load.apply(window, args));
-        },
+    replayFuncs[SQLOps.DSLoad] = function(options) {
+        var args = getArgs(options);
+        return DS.load.apply(window, args);
+    };
 
-        indexFromDataset: function(options) {
-            var deferred = jQuery.Deferred();
-            // this is a UI simulation replay
-            // var dsName     = options.dsName;
-            var dsId = options.dsId;
-            // XXX TODO: fix this temporary fix
-            var index = dsId.indexOf(".");
-            dsId = Support.getUser() + dsId.substring(index);
+    replayFuncs[SQLOps.IndexDS] = function(options) {
+        var deferred = jQuery.Deferred();
+        // this is a UI simulation replay
+        // var dsName     = options.dsName;
+        var dsId = options.dsId;
+        // XXX TODO: fix this temporary fix
+        var index = dsId.indexOf(".");
+        dsId = Support.getUser() + dsId.substring(index);
 
-            var columns    = options.columns;
-            var tableName  = options.tableName;
-            var $mainFrame = $("#mainFrame");
+        var columns = options.columns;
+        var tableName = options.tableName;
 
-            var $grid = DS.getGrid(dsId);
-            var originTableLen;
+        // keep idCount Sync Here!!!
+        var idCount = Number(xcHelper.getTableId(tableName).substring(2));
+        var authInfo = Authentication.getInfo();
+        if (authInfo.idCount !== idCount) {
+            authInfo.idCount = idCount;
+        }
 
-            $grid.click();
-            var chekFunc = function() {
-                return ($grid.find('.waitingIcon').length === 0);
-            };
+        var $mainFrame = $("#mainFrame");
 
-            checkHelper(chekFunc, "data sample table is ready")
-            .then(function() {
-                // when sample table is loaded
-                var $inputs = $("#worksheetTable .editableHead");
-                // make sure only have this cart
-                DataCart.clear();
+        var $grid = DS.getGrid(dsId);
+        var originTableLen;
 
-                // add to data cart
-                for (var i = 0, len = columns.length; i < len; i++) {
-                    var colName = columns[i];
-                    // skip DATA column
-                    if (colName === "DATA") {
-                        continue;
-                    }
+        $grid.click();
+        var chekFunc = function() {
+            return ($grid.find('.waitingIcon').length === 0);
+        };
 
-                    $inputs.filter(function() {
-                        return $(this).val() === colName;
-                    }).click();
+        checkHelper(chekFunc, "data sample table is ready")
+        .then(function() {
+            // when sample table is loaded
+            var $inputs = $("#worksheetTable .editableHead");
+            // make sure only have this cart
+            DataCart.clear();
+
+            // add to data cart
+            for (var i = 0, len = columns.length; i < len; i++) {
+                var colName = columns[i];
+                // skip DATA column
+                if (colName === "DATA") {
+                    continue;
                 }
 
-                var name = xcHelper.getTableName(tableName);
-                $("#DataCart .tableNameEdit").val(name);
-
-                originTableLen = $mainFrame.find(".xcTableWrap").length;
-
-                var callback = function() {
-                    $("#submitDSTablesBtn").click();
-                };
-                // delay 2 seconds to show UI
-                return delayAction(callback, "Show Data Cart", 2000);
-            })
-            .then(function() {
-                var checkFunc2 = function() {
-                    var tableLenDiff = $mainFrame.find(".xcTableWrap").length -
-                                        originTableLen;
-                    if (tableLenDiff === 1) {
-                        return true; // pass check
-                    } else if (tableLenDiff === 0) {
-                        return false; // keep checking
-                    } else {
-                        return null; // error case, fail check
-                    }
-                };
-                return checkHelper(checkFunc2, "xc table is ready");
-            })
-            .then(function() {
-                // table may not be completely finished
-                setTimeout(function() {
-                    deferred.resolve();
-                }, 500);
-            })
-            .fail(deferred.reject);
-
-            return (deferred.promise());
-        },
-
-        sort: function(options) {
-            var args = getArgs(options);
-            return (xcFunction.sort.apply(window, args));
-        },
-
-        filter: function(options) {
-            var args = getArgs(options);
-            return (xcFunction.filter.apply(window, args));
-        },
-
-        aggregate: function(options) {
-            var deferred = jQuery.Deferred();
-            var args = getArgs(options);
-            // this is a UI simulation replay
-            xcFunction.aggregate.apply(window, args)
-            .then(function() {
-                var callback = function() {
-                    $("#alertModal .close").click();
-                };
-                return (delayAction(callback, "Show alert modal"));
-            })
-            .then(deferred.resolve)
-            .fail(deferred.reject);
-
-            return (deferred.promise());
-        },
-
-        map: function(options) {
-            var args = getArgs(options);
-            return (xcFunction.map.apply(window, args));
-        },
-
-        join: function(options) {
-            // change tableId
-            options.lTableId = getTableId(options.lTableId);
-            options.rTableId = getTableId(options.rTableId);
-            // HACK: this is tricky that if we do not call Authentication.getHashId(),
-            // the id cursor cannot sync with the original one.
-            // Better way is to append hashId to newTableName in xcFunction.join()
-            options.newTableName = xcHelper.getTableName(options.newTableName) +
-                                    Authentication.getHashId();
-
-            var args = getArgs(options);
-            return (xcFunction.join.apply(window, args));
-        },
-
-        groupBy: function(options) {
-            var args = getArgs(options);
-            return (xcFunction.groupBy.apply(window, args));
-        },
-
-        renameTable: function(options) {
-            options.newTableName = changeTableName(options.newTableName);
-            var args = getArgs(options);
-            return (xcFunction.rename.apply(window, args));
-        },
-
-        deleteTable: function(options) {
-            // XXX TODO: test it when delete table is enabled
-            var tableType = options.tableType;
-
-            // XXX lack of delete some intermediate table (in stats modal)
-            // and delete unknown source table
-            if (tableType === TableType.Active) {
-                var args = getArgs(options);
-                return (deleteTable.apply(window, args));
-            } else if (tableType === TableType.Unknown){
-                // XXX not sure if it's good
-                // XXX not test yet
-                var deferred = jQuery.Deferred();
-                var tableName = changeTableName(tableName);
-
-                XcalarDeleteTable(tableName, options)
-                .then(function() {
-                    Dag.makeInactive(tableName, true);
-                    deferred.resolve();
-                })
-                .fail(deferred.reject);
-                return (deferred.promise());
-            } else {
-                return PromiseHelper.resolve(null);
+                $inputs.filter(function() {
+                    return $(this).val() === colName;
+                }).click();
             }
-        },
 
-        destroyDataSet: function(options) {
-            // UI simulation replay
-            var deferred = jQuery.Deferred();
-            var $gridView = $("#exploreView").find(".gridItems");
-            var $ds = DS.getGrid(options.dsId);
+            var name = xcHelper.getTableName(tableName);
+            $("#DataCart .tableNameEdit").val(name);
 
-            var dSLen = $gridView.find(".ds").length;
-
-            DS.remove($ds);
+            originTableLen = $mainFrame.find(".xcTableWrap").length;
 
             var callback = function() {
-                $("#alertModal .confirm").click();
+                $("#submitDSTablesBtn").click();
             };
-
-            delayAction(callback, "Show alert modal")
-            .then(function() {
-                var checkFunc = function() {
-                    var dsLenDiff = $gridView.find(".ds").length - dSLen;
-
-                    if (dsLenDiff === -1) {
-                        // when ds is deleted, pass check
-                        return true;
-                    } else if (dsLenDiff === 0) {
-                        // when table not craeted yet, keep checking
-                        return false;
-                    } else {
-                        // error case, fail check
-                        return null;
-                    }
-                };
-                return checkHelper(checkFunc, "DataSet is deleted");
-            })
-            .then(deferred.resolve)
-            .fail(deferred.reject);
-
-            return (deferred.promise());
-        },
-
-        exportTable: function(options) {
-            var deferred = jQuery.Deferred();
-
-            options.tableName = changeTableName(options.tableName);
-
-            var args = getArgs(options);
-            var callback = function() {
-                $("#alertHeader .close").click();
+            // delay 2 seconds to show UI
+            return delayAction(callback, "Show Data Cart", 2000);
+        })
+        .then(function() {
+            var checkFunc2 = function() {
+                var tableLenDiff = $mainFrame.find(".xcTableWrap").length -
+                                    originTableLen;
+                if (tableLenDiff === 1) {
+                    return true; // pass check
+                } else if (tableLenDiff === 0) {
+                    return false; // keep checking
+                } else {
+                    return null; // error case, fail check
+                }
             };
-
-            // XXX a potential issue here is that if exportName exists in
-            // backend, it fails to export because of name confilict
-            xcFunction.exportTable.apply(window, args)
-            .then(function() {
-                return delayAction(callback, "Show alert modal");
-            })
-            .then(deferred.resolve)
-            .fail(deferred.resolve); // still resolve even fail!
-
-            return (deferred.promise());
-        },
-
-        addNewCol: function(options) {
-            // UI simulation
-            var deferred  = jQuery.Deferred();
-            var tableId   = getTableId(options.tableId);
-            var $mainMenu = $("#colMenu .addColumn.parentMenu");
-            var $subMenu  = $("#colSubMenu");
-            var $li;
-
-            $("#xcTable-" + tableId + " .th.col" + options.siblColNum +
-                                                    " .dropdownBox").click();
-            if (options.direction === "L") {
-                $li = $subMenu.find(".addColumn .addColLeft");
-            } else {
-                $li = $subMenu.find(".addColumn .addColRight");
-            }
-
-            $mainMenu.trigger(fakeEvent.mouseenter);
-
-            var callback = function() {
-                $li.trigger(fakeEvent.mouseup);
-            };
-
-            delayAction(callback, "Show Col Menu", 1000)
-            .then(deferred.resolve)
-            .fail(deferred.reject);
-
-            return (deferred.promise());
-        },
-
-        deleteCol: function(options) {
-            var args = getArgs(options);
-            ColManager.delCol.apply(window, args);
-
-            return PromiseHelper.resolve(null);
-        },
-
-        hideCols: function(options) {
-            var args = getArgs(options);
-            ColManager.hideCols.apply(window, args);
-
-            return PromiseHelper.resolve(null);
-        },
-
-        unHideCols: function(options) {
-            var args = getArgs(options);
-            ColManager.unhideCols.apply(window, args);
-
-            return PromiseHelper.resolve(null);
-        },
-
-        duplicateCol: function(options) {
-            var args = getArgs(options);
-            return (ColManager.dupCol.apply(window, args));
-        },
-
-        delDupCol: function(options) {
-            var args = getArgs(options);
-            ColManager.delDupCols.apply(window, args);
-            return PromiseHelper.resolve(null);
-        },
-
-        delAllDupCols: function(options) {
-            var args = getArgs(options);
-            ColManager.delAllDupCols.apply(window, args);
-            return PromiseHelper.resolve(null);
-        },
-
-        textAlign: function(options) {
-            var args = getArgs(options);
-            ColManager.textAlign.apply(window, args);
-
-            return PromiseHelper.resolve(null);
-        },
-
-        reorderTable: function(options) {
-            var args = getArgs(options);
-
-            var tableId  = getTableId(options.tableId);
-            var srcIndex = options.srcIndex;
-            var desIndex = options.desIndex;
-
-            var wsIndex = WSManager.getWSFromTable(tableId);
-
-            var $tables = $(".xcTableWrap.worksheet-" + wsIndex);
-            var $table  = $tables.eq(srcIndex);
-            var $targetTable = $tables.eq(desIndex);
-
-            if (desIndex > srcIndex) {
-                $table.insertAfter($targetTable);
-            } else {
-                $table.insertBefore($targetTable);
-            }
-
-            reorderAfterTableDrop.apply(window, args);
-
-            return PromiseHelper.resolve(null);
-        },
-
-        reorderCol: function(options) {
-            var args = getArgs(options);
-
-            var tableId = getTableId(options.tableId);
-            var oldColNum = options.oldColNum;
-            var newColNum = options.newColNum;
-
-            var $table = $("#xcTable-" + tableId);
-
-            if (newColNum > oldColNum) {
-                $table.find('tr').each(function() {
-                    var $tr = $(this);
-                    $tr.children(':eq(' + oldColNum + ')').insertAfter(
-                        $tr.children(':eq(' + newColNum + ')')
-                    );
-                });
-            } else {
-                $table.find('tr').each(function() {
-                    var $tr = $(this);
-                    $tr.children(':eq(' + oldColNum + ')').insertBefore(
-                        $tr.children(':eq(' + newColNum + ')')
-                    );
-                });
-            }
-
-            // HACK: weird hack, otherwise .header won't reposition itself
-            $table.find('.header').css('height', '39px');
+            return checkHelper(checkFunc2, "xc table is ready");
+        })
+        .then(function() {
+            // table may not be completely finished
             setTimeout(function() {
-                $table.find('.header').css('height', '40px');
-            }, 0);
+                deferred.resolve();
+            }, 500);
+        })
+        .fail(deferred.reject);
 
-            ColManager.reorderCol.apply(window, args);
+        return deferred.promise();
+    };
 
-            return PromiseHelper.resolve(null);
-        },
+    replayFuncs[SQLOps.Sort] = function(options) {
+        var args = getArgs(options);
+        return xcFunction.sort.apply(window, args);
+    };
 
-        renameCol: function(options) {
-            var args = getArgs(options);
-            ColManager.renameCol.apply(window, args);
-            return PromiseHelper.resolve(null);
-        },
+    replayFuncs[SQLOps.Filter] = function(options) {
+        var args = getArgs(options);
+        return xcFunction.filter.apply(window, args);
+    };
 
-        pullCol: function(options) {
-            var args = getArgs(options);
-            if (options.pullColOptions &&
-                options.pullColOptions.source === "fnBar") {
-
-                return (ColManager("pull", options.usrStr, options.tableId,
-                                   options.colNum));
-            } else {
-                return (ColManager.pullCol.apply(window, args));
-            }
-
-        },
-
-        pullAllCols: function(options) {
-            var args = getArgs(options);
-            ColManager.unnest.apply(window, args);
-            return PromiseHelper.resolve(null);
-        },
-
-        archiveTable: function(options) {
-            // UI simulation
-            var deferred = jQuery.Deferred();
-            // XX will not work with multiple tables
-            var tableId = getTableId(options.tableIds[0]);
-            var $li = $("#tableMenu .archiveTable");
-
-            $("#xcTheadWrap-" + tableId + " .dropdownBox").click();
-
-            $li.mouseenter();
-
+    replayFuncs[SQLOps.Aggr] = function(options) {
+        var deferred = jQuery.Deferred();
+        var args = getArgs(options);
+        // this is a UI simulation replay
+        xcFunction.aggregate.apply(window, args)
+        .then(function() {
             var callback = function() {
-                $li.mouseleave();
-                $li.trigger(fakeEvent.mouseup);
+                $("#alertModal .close").click();
             };
-            delayAction(callback, "Show Table Menu", 2000)
-            .then(deferred.resolve)
-            .fail(deferred.reject);
+            return delayAction(callback, "Show alert modal");
+        })
+        .then(deferred.resolve)
+        .fail(deferred.reject);
 
-            return (deferred.promise());
-        },
+        return deferred.promise();
+    };
 
-        revertTable: function(options) {
+    replayFuncs[SQLOps.Map] = function(options) {
+        var args = getArgs(options);
+        return xcFunction.map.apply(window, args);
+    };
+
+    replayFuncs[SQLOps.Join] = function(options) {
+        // change tableId
+        options.lTableId = getTableId(options.lTableId);
+        options.rTableId = getTableId(options.rTableId);
+        // HACK: this is tricky that if we do not call Authentication.getHashId(),
+        // the id cursor cannot sync with the original one.
+        // Better way is to append hashId to newTableName in xcFunction.join()
+        options.newTableName = xcHelper.getTableName(options.newTableName) +
+                                Authentication.getHashId();
+
+        var args = getArgs(options);
+        return xcFunction.join.apply(window, args);
+    };
+
+    replayFuncs[SQLOps.GroupBy] = function(options) {
+        var args = getArgs(options);
+        return xcFunction.groupBy.apply(window, args);
+    };
+
+    replayFuncs[SQLOps.RenameTable] = function(options) {
+        options.newTableName = changeTableName(options.newTableName);
+        var args = getArgs(options);
+        return xcFunction.rename.apply(window, args);
+    };
+
+    replayFuncs[SQLOps.DeleteTable] = function(options) {
+        // XXX TODO: test it when delete table is enabled
+        var tableType = options.tableType;
+
+        // XXX lack of delete some intermediate table (in stats modal)
+        // and delete unknown source table
+        if (tableType === TableType.Active) {
+            var args = getArgs(options);
+            return deleteTable.apply(window, args);
+        } else if (tableType === TableType.Unknown){
+            // XXX not sure if it's good
+            // XXX not test yet
             var deferred = jQuery.Deferred();
-            var newTableId = getTableId(options.tableId);
-            var newTableName = gTables[newTableId].tableName;
-            var oldTableId = getTableId(options.oldTableId);
-            var oldTableName = gTables[oldTableId].tableName;
-            var wsIndex = options.worksheetIndex;
-            var wsId = WSManager.getOrders()[wsIndex];
+            var tableName = changeTableName(options.tableName);
 
-            TblManager.refreshTable([newTableName], null, [oldTableName],
-                                    wsId, {isUndo: true})
+            XcalarDeleteTable(tableName, options)
             .then(function() {
-                SQL.add("Revert Table", {
-                    "operation"     : SQLOps.RevertTable,
-                    "tableName"     : newTableName,
-                    "oldTableName"  : oldTableName,
-                    "tableId"       : newTableId,
-                    "oldTableId"    : oldTableId,
-                    "tableType"     : options.tableType,
-                    "worksheet"     : wsId,
-                    "worksheetIndex": options.worksheetIndex,
-                    "htmlExclude"   : ["tableType", "oldTableName"]
-                });
+                Dag.makeInactive(tableName, true);
                 deferred.resolve();
             })
-            .fail(function() {
-                deferred.reject();
-            });
+            .fail(deferred.reject);
             return (deferred.promise());
-        },
-
-        // tableBulkActions: function(options) {
-        //     var action = options.action;
-        //     var tableType = options.tableType;
-        //     var tableName = options.tableName;
-        //     var tableId;
-
-        //     if (tableType === TableType.Archived) {
-        //         tableId = getTableId(xcHelper.getTableId(tableName));
-        //         $('#inactiveTablesList .tableInfo[data-id="' +
-        //                 tableId + '"] .addTableBtn').click();
-        //     } else if (tableType === TableType.Orphan) {
-        //         $('#orphanedTableList .tableInfo[data-tablename="' +
-        //                 tableName + '"] .addTableBtn').click();
-        //     } else {
-        //         console.error("Invalid table bulk action");
-        //         return PromiseHelper.resolve(null);
-        //     }
-
-        //     return (TableList.tableBulkAction(action, tableType));
-        // },
-
-        sortTableCols: function(options) {
-            var args = getArgs(options);
-            TblManager.sortColumns.apply(window, args);
+        } else {
             return PromiseHelper.resolve(null);
-        },
+        }
+    };
 
-        resizeTableCols: function(options) {
-            var args = getArgs(options);
-            TblManager.resizeColumns.apply(window, args);
+    replayFuncs[SQLOps.DestroyDS] = function(options) {
+        // UI simulation replay
+        var deferred = jQuery.Deferred();
+        var $gridView = $("#exploreView").find(".gridItems");
+        var $ds = DS.getGrid(options.dsId);
 
-            return PromiseHelper.resolve(null);
-        },
+        var dSLen = $gridView.find(".ds").length;
 
-        dragResizeTableCol: function(options) {
-            var args = getArgs(options);
-            console.log('resized replay');
-            TblAnim.resizeColumn.apply(window, args);
+        DS.remove($ds);
 
-            return PromiseHelper.resolve(null);
-        },
+        var callback = function() {
+            $("#alertModal .confirm").click();
+        };
 
-        dragResizeRow: function(options) {
-            var args = getArgs(options);
-            TblAnim.resizeRow.apply(window, args);
-            return PromiseHelper.resolve(null);
-        },
+        delayAction(callback, "Show alert modal")
+        .then(function() {
+            var checkFunc = function() {
+                var dsLenDiff = $gridView.find(".ds").length - dSLen;
 
-        bookmarkRow: function(options) {
-            var args = getArgs(options);
-            bookmarkRow.apply(window, args);
-            return PromiseHelper.resolve(null);
-        },
+                if (dsLenDiff === -1) {
+                    // when ds is deleted, pass check
+                    return true;
+                } else if (dsLenDiff === 0) {
+                    // when table not craeted yet, keep checking
+                    return false;
+                } else {
+                    // error case, fail check
+                    return null;
+                }
+            };
+            return checkHelper(checkFunc, "DataSet is deleted");
+        })
+        .then(deferred.resolve)
+        .fail(deferred.reject);
 
-        removeBookmark: function(options) {
-            var args = getArgs(options);
-            unbookmarkRow.apply(window, args);
-            return PromiseHelper.resolve(null);
-        },
+        return deferred.promise();
+    };
 
-        hideTable: function(options) {
-            var args = getArgs(options);
-            TblManager.hideTable.apply(window, args);
-            return PromiseHelper.resolve(null);
-        },
+    replayFuncs[SQLOps.ExportTable] = function(options) {
+        var deferred = jQuery.Deferred();
 
-        unhideTable: function(options) {
-            var args = getArgs(options);
-            TblManager.unHideTable.apply(window, args);
-            return PromiseHelper.resolve(null);
-        },
+        options.tableName = changeTableName(options.tableName);
 
-        addWorksheet: function() {
-            // UI simulation
-            var deferred    = jQuery.Deferred();
-            var originWSLen = WSManager.getWSLen();
+        var args = getArgs(options);
+        var callback = function() {
+            $("#alertHeader .close").click();
+        };
 
-            $("#addWorksheet").click();
+        // XXX a potential issue here is that if exportName exists in
+        // backend, it fails to export because of name confilict
+        xcFunction.exportTable.apply(window, args)
+        .then(function() {
+            return delayAction(callback, "Show alert modal");
+        })
+        .then(deferred.resolve)
+        .fail(deferred.resolve); // still resolve even fail!
 
+        return deferred.promise();
+    };
+
+    replayFuncs[SQLOps.AddNewCol] = function(options) {
+        // UI simulation
+        var deferred  = jQuery.Deferred();
+        var tableId   = getTableId(options.tableId);
+        var $mainMenu = $("#colMenu .addColumn.parentMenu");
+        var $subMenu  = $("#colSubMenu");
+        var $li;
+
+        $("#xcTable-" + tableId + " .th.col" + options.siblColNum +
+                                                " .dropdownBox").click();
+        if (options.direction === "L") {
+            $li = $subMenu.find(".addColumn .addColLeft");
+        } else {
+            $li = $subMenu.find(".addColumn .addColRight");
+        }
+
+        $mainMenu.trigger(fakeEvent.mouseenter);
+
+        var callback = function() {
+            $li.trigger(fakeEvent.mouseup);
+        };
+
+        delayAction(callback, "Show Col Menu", 1000)
+        .then(deferred.resolve)
+        .fail(deferred.reject);
+
+        return deferred.promise();
+    };
+
+    replayFuncs[SQLOps.DeleteCol] = function(options) {
+        var args = getArgs(options);
+        ColManager.delCol.apply(window, args);
+
+        return PromiseHelper.resolve(null);
+    };
+
+    replayFuncs[SQLOps.HideCols] = function(options) {
+        var args = getArgs(options);
+        ColManager.hideCols.apply(window, args);
+
+        return PromiseHelper.resolve(null);
+    };
+
+    replayFuncs[SQLOps.UnHideCols] = function(options) {
+        var args = getArgs(options);
+        ColManager.unhideCols.apply(window, args);
+
+        return PromiseHelper.resolve(null);
+    };
+
+    replayFuncs[SQLOps.DupCol] = function(options) {
+        var args = getArgs(options);
+        return ColManager.dupCol.apply(window, args);
+    };
+
+    replayFuncs[SQLOps.DelDupCol] = function(options) {
+        var args = getArgs(options);
+        ColManager.delDupCols.apply(window, args);
+        return PromiseHelper.resolve(null);
+    };
+
+    replayFuncs[SQLOps.DelAllDupCols] = function(options) {
+        var args = getArgs(options);
+        ColManager.delAllDupCols.apply(window, args);
+        return PromiseHelper.resolve(null);
+    };
+
+    replayFuncs[SQLOps.TextAlign] = function(options) {
+        var args = getArgs(options);
+        ColManager.textAlign.apply(window, args);
+        return PromiseHelper.resolve(null);
+    };
+
+    replayFuncs[SQLOps.ReorderTable] = function(options) {
+        var args = getArgs(options);
+
+        var tableId  = getTableId(options.tableId);
+        var srcIndex = options.srcIndex;
+        var desIndex = options.desIndex;
+
+        var wsIndex = WSManager.getWSFromTable(tableId);
+
+        var $tables = $(".xcTableWrap.worksheet-" + wsIndex);
+        var $table  = $tables.eq(srcIndex);
+        var $targetTable = $tables.eq(desIndex);
+
+        if (desIndex > srcIndex) {
+            $table.insertAfter($targetTable);
+        } else {
+            $table.insertBefore($targetTable);
+        }
+
+        reorderAfterTableDrop.apply(window, args);
+
+        return PromiseHelper.resolve(null);
+    };
+
+    replayFuncs[SQLOps.ReorderCol] = function(options) {
+        var args = getArgs(options);
+
+        var tableId = getTableId(options.tableId);
+        var oldColNum = options.oldColNum;
+        var newColNum = options.newColNum;
+
+        var $table = $("#xcTable-" + tableId);
+
+        if (newColNum > oldColNum) {
+            $table.find('tr').each(function() {
+                var $tr = $(this);
+                $tr.children(':eq(' + oldColNum + ')').insertAfter(
+                    $tr.children(':eq(' + newColNum + ')')
+                );
+            });
+        } else {
+            $table.find('tr').each(function() {
+                var $tr = $(this);
+                $tr.children(':eq(' + oldColNum + ')').insertBefore(
+                    $tr.children(':eq(' + newColNum + ')')
+                );
+            });
+        }
+
+        // HACK: weird hack, otherwise .header won't reposition itself
+        $table.find('.header').css('height', '39px');
+        setTimeout(function() {
+            $table.find('.header').css('height', '40px');
+        }, 0);
+
+        ColManager.reorderCol.apply(window, args);
+        return PromiseHelper.resolve(null);
+    };
+
+    replayFuncs[SQLOps.RenameCol] = function(options) {
+        var args = getArgs(options);
+        ColManager.renameCol.apply(window, args);
+        return PromiseHelper.resolve(null);
+    };
+
+    replayFuncs[SQLOps.PullCol] = function(options) {
+        var args = getArgs(options);
+        if (options.pullColOptions &&
+            options.pullColOptions.source === "fnBar") {
+
+            return ColManager("pull", options.usrStr, options.tableId,
+                               options.colNum);
+        } else {
+            return ColManager.pullCol.apply(window, args);
+        }
+
+    };
+
+    replayFuncs[SQLOps.PullAllCols] = function(options) {
+        var args = getArgs(options);
+        ColManager.unnest.apply(window, args);
+        return PromiseHelper.resolve(null);
+    };
+
+    replayFuncs[SQLOps.ArchiveTable] = function(options) {
+        // UI simulation
+        var deferred = jQuery.Deferred();
+        // XX will not work with multiple tables
+        var tableId = getTableId(options.tableIds[0]);
+        var $li = $("#tableMenu .archiveTable");
+
+        $("#xcTheadWrap-" + tableId + " .dropdownBox").click();
+
+        $li.mouseenter();
+
+        var callback = function() {
+            $li.mouseleave();
+            $li.trigger(fakeEvent.mouseup);
+        };
+        delayAction(callback, "Show Table Menu", 2000)
+        .then(deferred.resolve)
+        .fail(deferred.reject);
+
+        return deferred.promise();
+    };
+
+    replayFuncs[SQLOps.RevertTable] = function(options) {
+        var deferred = jQuery.Deferred();
+        var newTableId = getTableId(options.tableId);
+        var newTableName = gTables[newTableId].tableName;
+        var oldTableId = getTableId(options.oldTableId);
+        var oldTableName = gTables[oldTableId].tableName;
+        var wsIndex = options.worksheetIndex;
+        var wsId = WSManager.getOrders()[wsIndex];
+
+        TblManager.refreshTable([newTableName], null, [oldTableName],
+                                wsId, {isUndo: true})
+        .then(function() {
+            SQL.add("Revert Table", {
+                "operation"     : SQLOps.RevertTable,
+                "tableName"     : newTableName,
+                "oldTableName"  : oldTableName,
+                "tableId"       : newTableId,
+                "oldTableId"    : oldTableId,
+                "tableType"     : options.tableType,
+                "worksheet"     : wsId,
+                "worksheetIndex": options.worksheetIndex,
+                "htmlExclude"   : ["tableType", "oldTableName"]
+            });
+            deferred.resolve();
+        })
+        .fail(function() {
+            deferred.reject();
+        });
+        return deferred.promise();
+    };
+
+    replayFuncs[SQLOps.SortTableCols] = function(options) {
+        var args = getArgs(options);
+        TblManager.sortColumns.apply(window, args);
+        return PromiseHelper.resolve(null);
+    };
+
+    replayFuncs[SQLOps.ResizeTableCols] = function(options) {
+        var args = getArgs(options);
+        TblManager.resizeColumns.apply(window, args);
+        return PromiseHelper.resolve(null);
+    };
+
+    replayFuncs[SQLOps.DragResizeTableCol] = function(options) {
+        var args = getArgs(options);
+        console.log('resized replay');
+        TblAnim.resizeColumn.apply(window, args);
+
+        return PromiseHelper.resolve(null);
+    };
+
+    replayFuncs[SQLOps.DragResizeRow] = function(options) {
+        var args = getArgs(options);
+        TblAnim.resizeRow.apply(window, args);
+        return PromiseHelper.resolve(null);
+    };
+
+    replayFuncs[SQLOps.BookmarkRow] = function(options) {
+        var args = getArgs(options);
+        bookmarkRow.apply(window, args);
+        return PromiseHelper.resolve(null);
+    };
+
+    replayFuncs[SQLOps.RemoveBookmark] = function(options) {
+        var args = getArgs(options);
+        unbookmarkRow.apply(window, args);
+        return PromiseHelper.resolve(null);
+    };
+
+    replayFuncs[SQLOps.HideTable] = function(options) {
+        var args = getArgs(options);
+        TblManager.hideTable.apply(window, args);
+        return PromiseHelper.resolve(null);
+    };
+
+    replayFuncs[SQLOps.UnhideTable] = function(options) {
+        var args = getArgs(options);
+        TblManager.unHideTable.apply(window, args);
+        return PromiseHelper.resolve(null);
+    };
+
+    replayFuncs[SQLOps.AddWS] = function() {
+        // UI simulation
+        var deferred    = jQuery.Deferred();
+        var originWSLen = WSManager.getWSLen();
+
+        $("#addWorksheet").click();
+
+        var checkFunc = function() {
+            var wsLenDiff = WSManager.getWSLen() - originWSLen;
+            if (wsLenDiff === 1) {
+                // when worksheet is added, pass check
+                return true;
+            } else if (wsLenDiff === 0) {
+                // when worksheet not craeted yet, keep checking
+                return false;
+            } else {
+                // invalid case, fail check
+                return null;
+            }
+        };
+
+        checkHelper(checkFunc, "Worksheet added")
+        .then(deferred.resolve)
+        .fail(deferred.reject);
+
+        return (deferred.promise());
+    };
+
+    replayFuncs[SQLOps.RenameWS] = function(options) {
+        var wsIndex = options.worksheetIndex;
+        var newName = options.newName;
+        var wsId = WSManager.getOrders()[wsIndex];
+        $("#worksheetTab-" + wsId + " .text").val(newName)
+                                            .trigger(fakeEvent.enter);
+        return PromiseHelper.resolve(null);
+    };
+
+    replayFuncs[SQLOps.SwitchWS] = function(options) {
+        // UI simulation
+        var deferred = jQuery.Deferred();
+        var wsIndex  = options.newWorksheetIndex;
+        var wsId = WSManager.getOrders()[wsIndex];
+
+        $("#worksheetTab-" + wsId).trigger(fakeEvent.mousedown);
+
+        delayAction(null, "Wait", 1000)
+        .then(deferred.resolve)
+        .fail(deferred.reject);
+
+        return deferred.promise();
+    };
+
+    replayFuncs[SQLOps.ReorderWS] = function(options) {
+        var oldWSIndex = options.oldWorksheetIndex;
+        var newWSIndex = options.newWorksheetIndex;
+
+        var $tabs = $("#worksheetTabs .worksheetTab");
+        var $dragTab = $tabs.eq(oldWSIndex);
+        var $targetTab = $tabs.eq(newWSIndex);
+
+        if (newWSIndex > oldWSIndex) {
+            $targetTab.after($dragTab);
+        } else if (newWSIndex < oldWSIndex) {
+            $targetTab.before($dragTab);
+        } else {
+            console.error("Reorder error, same worksheet index!");
+        }
+
+        WSManager.reorderWS(oldWSIndex, newWSIndex);
+
+        return PromiseHelper.resolve(null);
+    };
+
+    replayFuncs[SQLOps.DelWS] = function(options) {
+        // UI simulation
+        var deferred    = jQuery.Deferred();
+        var originWSLen = WSManager.getWSLen();
+        var wsIndex     = options.worksheetIndex;
+        var delType     = options.delType;
+        var wsId        = WSManager.getOrders()[wsIndex];
+
+        if (originWSLen === 1) {
+            // invalid deletion
+            console.error("This worksheet should not be deleted!");
+            deferred.reject("This worksheet should not be deleted!");
+        }
+
+        $("#worksheetTab-" + wsId + " .wsIconWrap").click();
+        $('#worksheetTabMenu').find('li.delete').click();
+
+        var callback = function() {
+            if ($("#alertModal").is(":visible")) {
+                if (delType === DelWSType.Del) {
+                    $("#alertActions .deleteTale").click();
+                } else if (delType === DelWSType.Archive) {
+                    $("#alertActions .archiveTable").click();
+                }
+            }
+        };
+
+        delayAction(callback, "Wait", 1000)
+        .then(function() {
             var checkFunc = function() {
                 var wsLenDiff = WSManager.getWSLen() - originWSLen;
-                if (wsLenDiff === 1) {
-                    // when worksheet is added, pass check
+                if (wsLenDiff === -1) {
+                    // when worksheet is deleted, pass check
                     return true;
                 } else if (wsLenDiff === 0) {
-                    // when worksheet not craeted yet, keep checking
+                    // when worksheet not delet yet, keep checking
                     return false;
                 } else {
                     // invalid case, fail check
@@ -874,500 +953,402 @@ window.Replay = (function($, Replay) {
                 }
             };
 
-            checkHelper(checkFunc, "Worksheet added")
-            .then(deferred.resolve)
-            .fail(deferred.reject);
+            return checkHelper(checkFunc, "Worksheet is deleted");
+        })
+        .then(deferred.resolve)
+        .fail(deferred.reject);
 
+        return deferred.promise();
+    };
 
-            return (deferred.promise());
-        },
+    replayFuncs[SQLOps.HideWS] = function(options) {
+        var wsIndex = options.worksheetIndex;
+        var wsId = WSManager.getOrders()[wsIndex];
+        WSManager.hideWS(wsId);
 
-        renameWorksheet: function(options) {
-            var wsIndex = options.worksheetIndex;
-            var newName = options.newName;
-            var wsId = WSManager.getOrders()[wsIndex];
-            $("#worksheetTab-" + wsId + " .text").val(newName)
-                                                .trigger(fakeEvent.enter);
-            return PromiseHelper.resolve(null);
-        },
+        return PromiseHelper.resolve(null);
+    };
 
-        switchWorksheet: function(options) {
-            // UI simulation
-            var deferred = jQuery.Deferred();
-            var wsIndex  = options.newWorksheetIndex;
-            var wsId = WSManager.getOrders()[wsIndex];
+    replayFuncs[SQLOps.UnHideWS] = function(options) {
+        var wsOrders = options.worksheetOrders;
+        var wsIds = [];
+        for (var i = 0; i < wsOrders.length; i++) {
+            wsIds.push(WSManager.getHiddenWS()[wsOrders[i]]);
+        }
+        return WSManager.unhideWS(wsIds);
+    };
 
-            $("#worksheetTab-" + wsId).trigger(fakeEvent.mousedown);
+    replayFuncs[SQLOps.MoveTableToWS] = function(options) {
+        var tableId = getTableId(options.tableId);
+        var wsIndex = options.newWorksheetIndex;
+        var wsId = WSManager.getOrders()[wsIndex];
 
-            delayAction(null, "Wait", 1000)
-            .then(deferred.resolve)
-            .fail(deferred.reject);
+        WSManager.moveTable(tableId, wsId);
+        return PromiseHelper.resolve(null);
+    };
 
-            return (deferred.promise());
-        },
+    replayFuncs[SQLOps.ActiveTables] = function(options) {
+         // redo sent to worksheet
+        var deferred = jQuery.Deferred();
 
-        reorderWorksheet: function(options) {
-            var oldWSIndex = options.oldWorksheetIndex;
-            var newWSIndex = options.newWorksheetIndex;
+        var tableNames = options.tableNames;
+        var tableIds = [];
+        var tableId;
+        for (var i = 0; i < tableNames.length; i++) {
+            tableId = xcHelper.getTableId(tableNames[i]);
+            tableIds.push(getTableId(tableId));
+        }
+        var $tableList;
+        var tableType = options.tableType;
 
-            var $tabs = $("#worksheetTabs .worksheetTab");
-            var $dragTab = $tabs.eq(oldWSIndex);
-            var $targetTab = $tabs.eq(newWSIndex);
-
-            if (newWSIndex > oldWSIndex) {
-                $targetTab.after($dragTab);
-            } else if (newWSIndex < oldWSIndex) {
-                $targetTab.before($dragTab);
+        TableList.refreshOrphanList()
+        .then(function() {
+            if (tableType === TableType.Archived) {
+                $tableList = $('#archivedTableList');
+            } else if (tableType === TableType.Orphan) {
+                $tableList = $('#orphanedTableList');
+            } else if (tableType === TableType.Agg) {
+                $tableList = $("#aggregateTableList");
             } else {
-                console.error("Reorder error, same worksheet index!");
+                console.error(tableType, "not support redo!");
             }
 
-            WSManager.reorderWS(oldWSIndex, newWSIndex);
-
-            return PromiseHelper.resolve(null);
-        },
-
-        deleteWorksheet: function(options) {
-            // UI simulation
-            var deferred    = jQuery.Deferred();
-            var originWSLen = WSManager.getWSLen();
-            var wsIndex     = options.worksheetIndex;
-            var delType     = options.delType;
-            var wsId        = WSManager.getOrders()[wsIndex];
-
-            if (originWSLen === 1) {
-                // invalid deletion
-                console.error("This worksheet should not be deleted!");
-                deferred.reject("This worksheet should not be deleted!");
-            }
-
-            $("#worksheetTab-" + wsId + " .wsIconWrap").click();
-            $('#worksheetTabMenu').find('li.delete').click();
-
-            var callback = function() {
-                if ($("#alertModal").is(":visible")) {
-                    if (delType === DelWSType.Del) {
-                        $("#alertActions .deleteTale").click();
-                    } else if (delType === DelWSType.Archive) {
-                        $("#alertActions .archiveTable").click();
-                    }
+            var $lis = [];
+            $tableList.find(".tableInfo").each(function() {
+                var $li = $(this);
+                var id = $li.data("id");
+                if (tableIds.indexOf(id) >= 0) {
+                    $li.find(".addTableBtn").click();
+                    $lis.push($li);
                 }
+            });
+
+            return TableList.activeTables(tableType, options.noSheetTables,
+                                        options.wsToSent);
+        })
+        .then(function() {
+            deferred.resolve();
+        })
+        .fail(function() {
+            deferred.reject();
+        });
+
+        return deferred.promise();
+    };
+
+    // addNoSheetTables: function(options) {
+    //     var tableIds = options.tableIds;
+    //     for (var i = 0, len = tableIds.length; i < len; i++) {
+    //         tableIds[i] = getTableId(tableIds[i]);
+    //     }
+
+    //     var wsIndex = options.worksheetIndex;
+    //     var wsId    = WSManager.getOrders()[wsIndex];
+
+    //     WSManager.addNoSheetTables(tableIds, wsId);
+    //     return PromiseHelper.resolve(null);
+    // },
+
+    // when adding inactive/orphaned table from dag
+    replayFuncs[SQLOps.MoveInactiveTableToWS] = function(options) {
+        var tableId = getTableId(options.tableId);
+        var wsIndex = options.newWorksheetIndex;
+        var wsId = WSManager.getOrders()[wsIndex];
+        return WSManager.moveInactiveTable(tableId, wsId,
+                                            options.tableType);
+    };
+
+    replayFuncs[SQLOps.CreateFolder] = function() {
+        DS.newFolder();
+        return PromiseHelper.resolve(null);
+    };
+
+    replayFuncs[SQLOps.DSRename] = function(options) {
+        var args = getArgs(options);
+        DS.rename.apply(window, args);
+        return PromiseHelper.resolve(null);
+    };
+
+    replayFuncs[SQLOps.DSDropIn] = function(options) {
+        var $grid   = DS.getGrid(options.dsId);
+        var $target = DS.getGrid(options.targetDSId);
+        DS.dropToFolder($grid, $target);
+        return PromiseHelper.resolve(null);
+    };
+
+    replayFuncs[SQLOps.DSInsert] = function(options) {
+        var $grid    = DS.getGrid(options.dsId);
+        var $sibling = DS.getGrid(options.siblingDSId);
+        var isBefore = options.isBefore;
+        DS.insert($grid, $sibling, isBefore);
+        return PromiseHelper.resolve(null);
+    };
+
+    replayFuncs[SQLOps.DSToDir] = function(options) {
+        var args = getArgs(options);
+        DS.goToDir.apply(window, args);
+        return PromiseHelper.resolve(null);
+    };
+
+    replayFuncs[SQLOps.DSDropBack] = function(options) {
+        var $grid = DS.getGrid(options.dsId);
+        DS.dropToParent($grid);
+        return PromiseHelper.resolve(null);
+    };
+
+    replayFuncs[SQLOps.DelFolder] = function(options) {
+        var $grid = DS.getGrid(options.dsId);
+        DS.remove($grid);
+        return PromiseHelper.resolve(null);
+    };
+
+    replayFuncs[SQLOps.Profile] = function(options, keepOpen) {
+        var deferred = jQuery.Deferred();
+        var tableId  = getTableId(options.tableId);
+        var colNum   = options.colNum;
+
+        if (!keepOpen) {
+            keepOpen = profileKeepOpenCheck(options);
+        }
+
+        Profile.show(tableId, colNum)
+        .then(function() {
+            var checkFunc = function() {
+                return ($("#profileModal .groupbyChart .barArea").length > 0);
             };
 
-            delayAction(callback, "Wait", 1000)
-            .then(function() {
-                var checkFunc = function() {
-                    var wsLenDiff = WSManager.getWSLen() - originWSLen;
-                    if (wsLenDiff === -1) {
-                        // when worksheet is deleted, pass check
-                        return true;
-                    } else if (wsLenDiff === 0) {
-                        // when worksheet not delet yet, keep checking
-                        return false;
-                    } else {
-                        // invalid case, fail check
-                        return null;
-                    }
-                };
-
-                return checkHelper(checkFunc, "Worksheet is deleted");
-            })
-            .then(deferred.resolve)
-            .fail(deferred.reject);
-
-            return (deferred.promise());
-        },
-
-        hideWorksheet: function(options) {
-            var wsIndex = options.worksheetIndex;
-            var wsId = WSManager.getOrders()[wsIndex];
-            WSManager.hideWS(wsId);
-
-            return PromiseHelper.resolve(null);
-        },
-
-        unhideWorksheet: function(options) {
-            var wsOrders = options.worksheetOrders;
-            var wsIds = [];
-            for (var i = 0; i < wsOrders.length; i++) {
-                wsIds.push(WSManager.getHiddenWS()[wsOrders[i]]);
-            }
-            return (WSManager.unhideWS(wsIds));
-        },
-
-        moveTableToWorkSheet: function(options) {
-            var tableId = getTableId(options.tableId);
-            var wsIndex = options.newWorksheetIndex;
-            var wsId    = WSManager.getOrders()[wsIndex];
-
-            WSManager.moveTable(tableId, wsId);
-            return PromiseHelper.resolve(null);
-        },
-
-        activeTables: function(options) {
-             // redo sent to worksheet
-            var deferred = jQuery.Deferred();
-
-            var tableNames = options.tableNames;
-            var tableIds = [];
-            var tableId;
-            for (var i = 0; i < tableNames.length; i++) {
-                tableId = xcHelper.getTableId(tableNames[i]);
-                tableIds.push(getTableId(tableId));
-            }
-            var $tableList;
-            var tableType = options.tableType;
-
-            TableList.refreshOrphanList()
-            .then(function() {
-                if (tableType === TableType.Archived) {
-                    $tableList = $('#archivedTableList');
-                } else if (tableType === TableType.Orphan) {
-                    $tableList = $('#orphanedTableList');
-                } else if (tableType === TableType.Agg) {
-                    $tableList = $("#aggregateTableList");
-                } else {
-                    console.error(tableType, "not support redo!");
-                }
-
-                var $lis = [];
-                $tableList.find(".tableInfo").each(function() {
-                    var $li = $(this);
-                    var id = $li.data("id");
-                    if (tableIds.indexOf(id) >= 0) {
-                        $li.find(".addTableBtn").click();
-                        $lis.push($li);
-                    }
-                });
-
-                return TableList.activeTables(tableType, options.noSheetTables,
-                                            options.wsToSent);
-            })
-            .then(function() {
-                deferred.resolve();
-            })
-            .fail(function() {
-                deferred.reject();
-            });
-
-            return (deferred.promise());
-            // return moveInactiveTableToWorksheet(options);
-        },
-
-        // addNoSheetTables: function(options) {
-        //     var tableIds = options.tableIds;
-        //     for (var i = 0, len = tableIds.length; i < len; i++) {
-        //         tableIds[i] = getTableId(tableIds[i]);
-        //     }
-
-        //     var wsIndex = options.worksheetIndex;
-        //     var wsId    = WSManager.getOrders()[wsIndex];
-
-        //     WSManager.addNoSheetTables(tableIds, wsId);
-        //     return PromiseHelper.resolve(null);
-        // },
-
-        // when adding inactive/orphaned table from dag
-        moveInactiveTableToWorksheet: function(options) {
-            var tableId = getTableId(options.tableId);
-            var wsIndex = options.newWorksheetIndex;
-            var wsId    = WSManager.getOrders()[wsIndex];
-            return (WSManager.moveInactiveTable(tableId, wsId,
-                                                options.tableType));
-        },
-
-        createFolder: function() {
-            DS.newFolder();
-            return PromiseHelper.resolve(null);
-        },
-
-        dsRename: function(options) {
-            var args = getArgs(options);
-            DS.rename.apply(window, args);
-            return PromiseHelper.resolve(null);
-        },
-
-        dsDropIn: function(options) {
-            var $grid   = DS.getGrid(options.dsId);
-            var $target = DS.getGrid(options.targetDSId);
-            DS.dropToFolder($grid, $target);
-            return PromiseHelper.resolve(null);
-        },
-
-        dsInsert: function(options) {
-            var $grid    = DS.getGrid(options.dsId);
-            var $sibling = DS.getGrid(options.siblingDSId);
-            var isBefore = options.isBefore;
-            DS.insert($grid, $sibling, isBefore);
-            return PromiseHelper.resolve(null);
-        },
-
-        goToDir: function(options) {
-            var args = getArgs(options);
-            DS.goToDir.apply(window, args);
-            return PromiseHelper.resolve(null);
-        },
-
-        dsBack: function(options) {
-            var $grid = DS.getGrid(options.dsId);
-            DS.dropToParent($grid);
-            return PromiseHelper.resolve(null);
-        },
-
-        deleteFolder: function(options) {
-            var $grid = DS.getGrid(options.dsId);
-            DS.remove($grid);
-            return PromiseHelper.resolve(null);
-        },
-
-        profile: function(options, keepOpen) {
-            var deferred = jQuery.Deferred();
-            var tableId  = getTableId(options.tableId);
-            var colNum   = options.colNum;
-
-            if (!keepOpen) {
-                keepOpen = profileKeepOpenCheck(options);
-            }
-
-            Profile.show(tableId, colNum)
-            .then(function() {
-                var checkFunc = function() {
-                    return ($("#profileModal .groupbyChart .barArea").length > 0);
-                };
-
-                return (checkHelper(checkFunc));
-            })
-            .then(function() {
-                if (keepOpen) {
-                    return PromiseHelper.resolve(null);
-                } else {
-                    var callback = function() {
-                        $("#profileModal .close").click();
-                    };
-                    return (delayAction(callback, "Show Profile"));
-                }
-            })
-            .then(deferred.resolve)
-            .fail(deferred.reject);
-
-            return (deferred.promise());
-        },
-
-        profileSort: function(options, keepOpen) {
-            // UI simulation
-            var deferred   = jQuery.Deferred();
-            var order      = options.order;
-            var bucketSize = options.bucketSize;
-
-            if (!keepOpen) {
-                keepOpen = profileKeepOpenCheck(options);
-            }
-
-            profileSortHelper()
-            .then(function() {
-                var $icon = $("#profileModal .sortSection ." + order + " .iconWrapper");
-                $icon.click();
-
-                var checkFunc = function() {
-                    return ($icon.hasClass("active"));
-                };
-
-                return (checkHelper(checkFunc));
-            })
-            .then(function() {
-                if (keepOpen) {
-                    return PromiseHelper.resolve(null);
-                } else {
-                    var callback = function() {
-                        $("#profileModal .close").click();
-                    };
-                    return delayAction(callback, "Show Profile Sort");
-                }
-            })
-            .then(deferred.resolve)
-            .fail(deferred.reject);
-
-            function profileSortHelper() {
-                if (bucketSize === 0) {
-                    options = $.extend(options, {
-                        "operation": SQLOps.Profile
-                    });
-                    return replayFuncs.profile(options, true);
-                } else {
-                    return replayFuncs.profileBucketing(options, true);
-                }
-            }
-
-            return (deferred.promise());
-        },
-
-        profileBucketing: function(options, keepOpen) {
-            var deferred = jQuery.Deferred();
-            var bucketSize = options.bucketSize;
-
-            options = $.extend(options, {
-                "operation": SQLOps.Profile
-            });
-
-            if (!keepOpen) {
-                keepOpen = profileKeepOpenCheck(options);
-            }
-
-            replayFuncs.profile(options, true)
-            .then(function() {
-                var $modal = $("#profileModal");
-                var $rangeSection = $modal.find(".rangeSection");
-                var $input = $("#stats-step");
-                $rangeSection.find(".text.range").click();
-                $input.val(bucketSize);
-                $input.trigger(fakeEvent.enter);
-
-                var checkFunc = function() {
-                    return ($modal.find(".loadingSection").hasClass("hidden"));
-                };
-
-                return (checkHelper(checkFunc));
-            })
-            .then(function() {
-                if (keepOpen) {
-                    return PromiseHelper.resolve(null);
-                } else {
-                    var callback = function() {
-                        $("#profileModal .close").click();
-                    };
-                    return delayAction(callback, "Show Profile Bucketing");
-                }
-            })
-            .then(deferred.resolve)
-            .fail(deferred.reject);
-
-            return (deferred.promise());
-        },
-
-        quickAgg: function(options) {
-            var deferred = jQuery.Deferred();
-            var args = getArgs(options);
-
-            AggModal.quickAgg.apply(window, args)
-            .then(function() {
+            return (checkHelper(checkFunc));
+        })
+        .then(function() {
+            if (keepOpen) {
+                return PromiseHelper.resolve(null);
+            } else {
                 var callback = function() {
-                    $("#aggModal .close").click();
+                    $("#profileModal .close").click();
                 };
-                return delayAction(callback, "Show Quick Agg");
-            })
-            .then(deferred.resolve)
-            .fail(deferred.reject);
+                return (delayAction(callback, "Show Profile"));
+            }
+        })
+        .then(deferred.resolve)
+        .fail(deferred.reject);
 
-            return (deferred.promise());
-        },
-
-        correlation: function(options) {
-            var deferred = jQuery.Deferred();
-            var args = getArgs(options);
-
-            AggModal.corr.apply(window, args)
-            .then(function() {
-                var callback = function() {
-                    $("#aggModal .close").click();
-                };
-                return delayAction(callback, "Show Correlation");
-            })
-            .then(deferred.resolve)
-            .fail(deferred.reject);
-
-            return (deferred.promise());
-        },
-
-        addOtherUserDS: function(options) {
-            var args = getArgs(options);
-            DS.addOtherUserDS.apply(window, args);
-            return PromiseHelper.resolve(null);
-        },
-
-        splitCol: function(options) {
-            var args = getArgs(options);
-            return (ColManager.splitCol.apply(window, args));
-        },
-
-        changeType: function(options) {
-            var args = getArgs(options);
-            return (ColManager.changeType.apply(window, args));
-        },
-
-        changeFormat: function(options) {
-            var args = getArgs(options);
-            ColManager.format.apply(window, args);
-            return PromiseHelper.resolve(null);
-        },
-
-        roundToFixed: function(options) {
-            var args = getArgs(options);
-            ColManager.roundToFixed.apply(window, args);
-            return PromiseHelper.resolve(null);
-        },
-
-        // correlationAction: function(options) {
-
-        // },
-
-        // groupByAction: function(options) {
-
-        // },
-
-        // renameOrphanTable: function(options) {
-
-        // },
-
-        // addDataset: function(options) {
-
-        // },
-        // horizontalPartitionAction: function(options) {
-
-        // },
-
-        // changeTypeMap: function(options) {
-
-        // },
-
-        // profileAction: function(options) {
-
-        // },
-        // spltColMap: function(options) {
-
-        // },
-
-        // previewDataSet: function(options) {
-
-        // },
-
-        // multiJoinMap: function(options) {
-
-        // },
-
-        // window: function(options) {
-
-        // },
-
-        // horizontalPartition: function(options) {
-
-        // },
-
-        // destroyPreviewDataSet: function(options) {
-
-        // },
-
-        // quickAggAction: function(options) {
-
-        // },
-
-        // checkIndex: function(options) {
-
-        // },
-
-        // windowAction: function(options) {
-
-        // },
+        return (deferred.promise());
     };
+
+    replayFuncs[SQLOps.ProfileSort] = function(options, keepOpen) {
+        // UI simulation
+        var deferred   = jQuery.Deferred();
+        var order      = options.order;
+        var bucketSize = options.bucketSize;
+
+        if (!keepOpen) {
+            keepOpen = profileKeepOpenCheck(options);
+        }
+
+        profileSortHelper()
+        .then(function() {
+            var $icon = $("#profileModal .sortSection ." + order + " .iconWrapper");
+            $icon.click();
+
+            var checkFunc = function() {
+                return ($icon.hasClass("active"));
+            };
+
+            return (checkHelper(checkFunc));
+        })
+        .then(function() {
+            if (keepOpen) {
+                return PromiseHelper.resolve(null);
+            } else {
+                var callback = function() {
+                    $("#profileModal .close").click();
+                };
+                return delayAction(callback, "Show Profile Sort");
+            }
+        })
+        .then(deferred.resolve)
+        .fail(deferred.reject);
+
+        function profileSortHelper() {
+            if (bucketSize === 0) {
+                options = $.extend(options, {
+                    "operation": SQLOps.Profile
+                });
+                return replayFuncs.profile(options, true);
+            } else {
+                return replayFuncs.profileBucketing(options, true);
+            }
+        }
+
+        return deferred.promise();
+    };
+
+    replayFuncs[SQLOps.ProfileBucketing] = function(options, keepOpen) {
+        var deferred = jQuery.Deferred();
+        var bucketSize = options.bucketSize;
+
+        options = $.extend(options, {
+            "operation": SQLOps.Profile
+        });
+
+        if (!keepOpen) {
+            keepOpen = profileKeepOpenCheck(options);
+        }
+
+        replayFuncs.profile(options, true)
+        .then(function() {
+            var $modal = $("#profileModal");
+            var $rangeSection = $modal.find(".rangeSection");
+            var $input = $("#stats-step");
+            $rangeSection.find(".text.range").click();
+            $input.val(bucketSize);
+            $input.trigger(fakeEvent.enter);
+
+            var checkFunc = function() {
+                return ($modal.find(".loadingSection").hasClass("hidden"));
+            };
+
+            return (checkHelper(checkFunc));
+        })
+        .then(function() {
+            if (keepOpen) {
+                return PromiseHelper.resolve(null);
+            } else {
+                var callback = function() {
+                    $("#profileModal .close").click();
+                };
+                return delayAction(callback, "Show Profile Bucketing");
+            }
+        })
+        .then(deferred.resolve)
+        .fail(deferred.reject);
+
+        return deferred.promise();
+    };
+
+    replayFuncs[SQLOps.QuickAgg] = function(options) {
+        var deferred = jQuery.Deferred();
+        var args = getArgs(options);
+
+        AggModal.quickAgg.apply(window, args)
+        .then(function() {
+            var callback = function() {
+                $("#aggModal .close").click();
+            };
+            return delayAction(callback, "Show Quick Agg");
+        })
+        .then(deferred.resolve)
+        .fail(deferred.reject);
+
+        return deferred.promise();
+    };
+
+    replayFuncs[SQLOps.Corr] = function(options) {
+        var deferred = jQuery.Deferred();
+        var args = getArgs(options);
+
+        AggModal.corr.apply(window, args)
+        .then(function() {
+            var callback = function() {
+                $("#aggModal .close").click();
+            };
+            return delayAction(callback, "Show Correlation");
+        })
+        .then(deferred.resolve)
+        .fail(deferred.reject);
+
+        return deferred.promise();
+    };
+
+    replayFuncs[SQLOps.AddOtherUserDS] = function(options) {
+        var args = getArgs(options);
+        DS.addOtherUserDS.apply(window, args);
+        return PromiseHelper.resolve(null);
+    };
+
+    replayFuncs[SQLOps.SplitCol] = function(options) {
+        var args = getArgs(options);
+        return ColManager.splitCol.apply(window, args);
+    };
+
+    replayFuncs[SQLOps.ChangeType] = function(options) {
+        var args = getArgs(options);
+        return ColManager.changeType.apply(window, args);
+    };
+
+    replayFuncs[SQLOps.ChangeFormat] = function(options) {
+        var args = getArgs(options);
+        ColManager.format.apply(window, args);
+        return PromiseHelper.resolve(null);
+    };
+
+    replayFuncs[SQLOps.RoundToFixed] = function(options) {
+        var args = getArgs(options);
+        ColManager.roundToFixed.apply(window, args);
+        return PromiseHelper.resolve(null);
+    };
+
+    // correlationAction: function(options) {
+
+    // },
+
+    // groupByAction: function(options) {
+
+    // },
+
+    // renameOrphanTable: function(options) {
+
+    // },
+
+    // addDataset: function(options) {
+
+    // },
+    // horizontalPartitionAction: function(options) {
+
+    // },
+
+    // changeTypeMap: function(options) {
+
+    // },
+
+    // profileAction: function(options) {
+
+    // },
+    // spltColMap: function(options) {
+
+    // },
+
+    // previewDataSet: function(options) {
+
+    // },
+
+    // multiJoinMap: function(options) {
+
+    // },
+
+    // window: function(options) {
+
+    // },
+
+    // horizontalPartition: function(options) {
+
+    // },
+
+    // destroyPreviewDataSet: function(options) {
+
+    // },
+
+    // quickAggAction: function(options) {
+
+    // },
+
+    // checkIndex: function(options) {
+
+    // },
+
+    // windowAction: function(options) {
+
+    // },
 
     function profileKeepOpenCheck(options) {
         var nextSql = options.nextReplay || {};
