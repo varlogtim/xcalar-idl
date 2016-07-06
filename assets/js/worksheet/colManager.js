@@ -1824,9 +1824,9 @@ window.ColManager = (function($, ColManager) {
                     }
 
                     tBodyHTML +=
-                        '<td class="col' + (col + 1) + ' jsonElement' +
+                        '<td class="col' + (col + 1) + ' clickable jsonElement' +
                             truncClass + '">' +
-                            '<div class="dataColText displayedData' +
+                            '<div class="dataColText clickable displayedData' +
                                 originalDataClass + truncClass +
                                 '" data-toggle="tooltip" ' +
                                 'data-placement="bottom" ' +

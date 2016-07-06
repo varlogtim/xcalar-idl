@@ -1653,7 +1653,8 @@ window.xcHelper = (function($, xcHelper) {
         shiftKey: boolean,
         ignoreSidebar: boolean, (ignore rightsidebar if in the way)
         floating: boolean (menu floats around and can pop up above user's mouse)
-        callback: function
+        callback: function,
+        isDataTd: boolean, true if clicking on the json td
     }
     */
     xcHelper.dropdownOpen = function($dropdownIcon, $menu, options) {
@@ -1923,7 +1924,12 @@ window.xcHelper = (function($, xcHelper) {
                 $menu.find(".tdUnnest").addClass("hidden");
             } else {
                 $menu.find(".tdJsonModal").removeClass("hidden");
-                $menu.find(".tdUnnest").removeClass("hidden");
+                // do not allow pullall from data cell
+                if (options.isDataTd) {
+                    $menu.find(".tdUnnest").addClass("hidden");
+                } else {
+                    $menu.find(".tdUnnest").removeClass("hidden");
+                }
             }
         } else {
             if ($div.parent().hasClass('truncated')) {

@@ -2003,7 +2003,9 @@ window.TblManager = (function($, TblManager) {
             if (event.which !== 1 || $el.length === 0) {
                 return;
             }
-
+            if ($td.hasClass('jsonElement')) {
+                return;
+            }
             var yCoor = Math.max(event.pageY, $el.offset().top + $el.height() - 10);
             var colNum = xcHelper.parseColNum($td);
             var rowNum = xcHelper.parseRowNum($td.closest("tr"));
@@ -2077,7 +2079,8 @@ window.TblManager = (function($, TblManager) {
                 "shiftKey"  : event.shiftKey,
                 "isMutiCol" : isMultiColumn(),
                 "isUnSelect": isUnSelect,
-                "floating"  : true
+                "floating"  : true,
+                "isDataTd"  : isDataTd
             });
 
             function singleSelection() {
@@ -2113,6 +2116,7 @@ window.TblManager = (function($, TblManager) {
             var $el = $(event.target);
             var $td = $el.closest("td");
             var $div = $td.children('.clickable');
+            var isDataTd = $td.hasClass('jsonElement');
             if ($div.length === 0) {
                 // when click sth like row marker cell, rowGrab
                 return false;
@@ -2140,7 +2144,8 @@ window.TblManager = (function($, TblManager) {
                 "rowNum"    : rowNum,
                 "classes"   : "tdMenu", // specify classes to update colmenu's class attr
                 "mouseCoors": {"x": event.pageX, "y": yCoor},
-                "isMutiCol" : isMultiColumn()
+                "isMutiCol" : isMultiColumn(),
+                "isDataTd"  : isDataTd
             });
 
             return false;
