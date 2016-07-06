@@ -401,6 +401,31 @@ function XcalarGetVersion(connectionCheck) {
     return (deferred.promise());
 }
 
+// Call this exactly with the url and isRecur that you 
+function XcalarPreview(url, isRecur, numBytesRequested) {
+    if ([null, undefined].indexOf(tHandle) !== -1) {
+        return PromiseHelper.resolve(null);
+    }
+
+    var deferred = jQuery.Deferred();
+    if (insertError(arguments.callee, deferred)) {
+        return (deferred.promise());
+    }
+    var fileNameArray = getNamePattern(url, isRecur);
+    var fileNamePattern = fileNameArray[1];
+    var urlPart = fileNameArray[0];
+
+    xcalarPreview(tHandle, urlPart, fileNamePattern, isRecur, numBytesRequested)
+    .then(deferred.resolve)
+    .fail(function(error) {
+        var thriftError = thriftLog("XcalarPreview", error);
+        deferred.reject(thriftError);
+    });
+
+    return (deferred.promise());
+
+}
+
 function XcalarLoad(url, format, datasetName, fieldDelim, recordDelim,
                     hasHeader, moduleName, funcName, isRecur, txId) {
 
