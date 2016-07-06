@@ -65,6 +65,16 @@ window.AggModal = (function($, AggModal) {
             scrollHelper($(this), $corr);
         });
 
+        $corr.on("mouseenter", ".aggTableFlex", function() {
+            var $cell = $(this);
+            highlightLabel($cell.data("row"), $cell.data("col"));
+        });
+
+        $corr.on("mouseleave", ".aggTableFlex", function() {
+            var $cell = $(this);
+            deHighlightLabel($cell.data("row"), $cell.data("col"));
+        });
+
         function scrollHelper($container, $mainAgg) {
             var scrollTop = $container.scrollTop();
             var scrollLeft = $container.scrollLeft();
@@ -185,10 +195,8 @@ window.AggModal = (function($, AggModal) {
         var tableCols = gTables[tableId].tableCols;
         for (var i = 0, colLen = tableCols.length; i < colLen; i++) {
             var progCol = tableCols[i];
-            // Skip DATA!
-            if (progCol.isDATACol()) {
-                continue;
-            } else {
+            // skip all columns that are not number
+            if (progCol.isNumberCol()) {
                 var colNum = i + 1;
                 var isChildOfArray = $table.find(".th.col" + colNum + " .header")
                                         .hasClass("childOfArray");
@@ -242,9 +250,6 @@ window.AggModal = (function($, AggModal) {
     function corrTableInitialize() {
         var colLen = aggCols.length;
         var wholeTable = '';
-        var blankCell = '<div class="aggTableField aggTableFlex blankSpace">';
-        var normalCell = '<div class="aggTableField aggTableFlex">';
-
 
         // column's order is column0, column1...columnX
         // row's order is columnX, column(X-1).....column1
@@ -256,34 +261,26 @@ window.AggModal = (function($, AggModal) {
             var isChildOfArray = aggCol.isChildOfArray;
 
             colLabels.push(progCol.getFronColName());
-
             wholeTable += '<div class="aggCol">';
 
             for (var row = 0; row < colLen; row++) {
-                var aggRow  = aggCols[colLen - row - 1];
-                var vertCol = aggRow.col;
+                var aggRow = aggCols[colLen - row - 1];
+                var cell = '<div class="aggTableField aggTableFlex" ' +
+                            'data-col=' + col + ' data-row=' + row + '>';
 
-                if (row + col + 1 >= colLen) {
-                    // blank case
-                    wholeTable += blankCell;
-                } else if (progCol.isNumberCol() && vertCol.isNumberCol()) {
+                if (isChildOfArray || aggRow.isChildOfArray) {
                     // XXX now agg on child of array is not supported
-                    if (isChildOfArray || aggRow.isChildOfArray) {
-                        wholeTable += normalCell + AggTStr.NoSupport;
-                    } else {
-                        wholeTable += normalCell +
-                                        '<div class="spinner">' +
-                                            '<div class="bounce1"></div>' +
-                                            '<div class="bounce2"></div>' +
-                                            '<div class="bounce3"></div>' +
-                                        '</div>';
-                    }
+                    wholeTable += cell + AggTStr.NoSupport;
                 } else {
-                    wholeTable += normalCell + 'N/A';
+                    wholeTable += cell +
+                                    '<div class="spinner">' +
+                                        '<div class="bounce1"></div>' +
+                                        '<div class="bounce2"></div>' +
+                                        '<div class="bounce3"></div>' +
+                                    '</div>';
                 }
                 wholeTable += "</div>";
             }
-
             wholeTable += "</div>";
         }
 
@@ -356,40 +353,40 @@ window.AggModal = (function($, AggModal) {
         for (var col = 0; col < colLen; col++) {
             var aggCol = aggCols[col];
             var progCol = aggCol.col;
+            // the diagonal is always 1
+            applyCorrResult(col, col, 1, []);
 
-            if (progCol.isNumberCol()) {
-                if (dupCols[col]) {
-                    // for duplicated columns, no need to trigger thrift call
-                    continue;
+            if (dupCols[col]) {
+                // for duplicated columns, no need to trigger thrift call
+                continue;
+            }
+
+            var dups = checkDupCols(col);
+            for (var t = 0; t < dups.length; t++) {
+                var dupColNum = dups[t];
+                dupCols[dupColNum] = true;
+
+                if (dupColNum > col) {
+                    applyCorrResult(col, dupColNum, 1, []);
                 }
+            }
 
-                var dups = checkDupCols(col);
-                for (var t = 0; t < dups.length; t++) {
-                    var dupColNum = dups[t];
-                    dupCols[dupColNum] = true;
-
-                    if (dupColNum > col) {
-                        applyCorrResult(col, dupColNum, 1, []);
+            // XXX now agg on child of array is not supported
+            if (!aggCol.isChildOfArray) {
+                for (var row = 0; row < col; row++) {
+                    var aggRow = aggCols[row];
+                    var vertCol = aggRow.col;
+                    if (aggRow.isChildOfArray) {
+                        continue;
                     }
-                }
-
-                // XXX now agg on child of array is not supported
-                if (!aggCol.isChildOfArray) {
-                    for (var row = 0; row < col; row++) {
-                        var aggRow = aggCols[row];
-                        var vertCol = aggRow.col;
-                        if (!vertCol.isNumberCol() || aggRow.isChildOfArray) {
-                            continue;
-                        }
-                        var sub = corrString.replace(/[$]arg1/g,
-                                                     progCol.getBackColName());
-                        sub = sub.replace(/[$]arg2/g,
-                                            vertCol.getBackColName());
-                        // Run correlation function
-                        var promise = runCorr(tableId, tableName,
-                                              sub, row, col, dups, txId);
-                        promises.push(promise);
-                    }
+                    var sub = corrString.replace(/[$]arg1/g,
+                                                 progCol.getBackColName());
+                    sub = sub.replace(/[$]arg2/g,
+                                        vertCol.getBackColName());
+                    // Run correlation function
+                    var promise = runCorr(tableId, tableName,
+                                          sub, row, col, dups, txId);
+                    promises.push(promise);
                 }
             }
         }
@@ -564,7 +561,7 @@ window.AggModal = (function($, AggModal) {
     function applyCorrResult(row, col, value, colDups, error) {
         var isNumeric = jQuery.isNumeric(value);
         var bg;
-        var $cell;
+        var $cells;
 
         var title = (error == null) ? value : error;
         // error case force to have tooltip
@@ -575,9 +572,9 @@ window.AggModal = (function($, AggModal) {
                     'data-container="body">' +
                         (isNumeric ? value.toFixed(3) : value) +
                     '</span>';
-
-        $cell = getCorrCell(row, col);
-        $cell.html(html);
+        $cells = getCorrCell(row, col);
+        $cells[0].html(html);
+        $cells[1].html(html);
 
         if (isNumeric) {
             value = parseFloat(value);
@@ -600,7 +597,8 @@ window.AggModal = (function($, AggModal) {
             }
 
             bg = "hsl(" + h + ", " + s + "%, " + l + "%)";
-            $cell.css("background-color", bg);
+            $cells[0].css("background-color", bg);
+            $cells[1].css("background-color", bg);
         }
 
         var rowDups = checkDupCols(row);
@@ -611,11 +609,13 @@ window.AggModal = (function($, AggModal) {
             newCol = rowNum;
 
             if (newCol > newRow) {
-                $cell = getCorrCell(newRow, newCol);
-                $cell.html(html);
+                $cells = getCorrCell(newRow, newCol);
+                $cells[0].html(html);
+                $cells[1].html(html);
 
                 if (isNumeric) {
-                    $cell.css("background-color", bg);
+                    $cells[0].css("background-color", bg);
+                    $cells[1].css("background-color", bg);
                 }
             }
         });
@@ -625,11 +625,13 @@ window.AggModal = (function($, AggModal) {
             newCol = colNum;
             for (var i = 0, len = allRows.length; i < len; i++) {
                 newRow = allRows[i];
-                $cell = getCorrCell(newRow, colNum);
-                $cell.html(html);
+                $cells = getCorrCell(newRow, colNum);
+                $cells[0].html(html);
+                $cells[1].html(html);
 
                 if (isNumeric) {
-                    $cell.css("background-color", bg);
+                    $cells[0].css("background-color", bg);
+                    $cells[1].css("background-color", bg);
                 }
             }
         });
@@ -639,10 +641,25 @@ window.AggModal = (function($, AggModal) {
         var colNum = row;
         var rowNum = aggCols.length - 1 - col;
 
-        return $corr.find(".aggCol:not(.labels)")
-                    .eq(colNum)
-                    .find(".aggTableField:not(.colLabel)")
-                    .eq(rowNum);
+        var diagColNum = col;
+        var digaRowNum = aggCols.length - 1 - row;
+        var $cell = $corr.find('.aggTableFlex[data-col=' + colNum + ']' +
+                                '[data-row=' + rowNum + ']');
+        // the diagonal one
+        var $cell2 = $corr.find('.aggTableFlex[data-col=' + diagColNum + ']' +
+                                '[data-row=' + digaRowNum + ']');
+
+        return [$cell, $cell2];
+    }
+
+    function highlightLabel(row, col) {
+        $corr.find(".rowLabel").eq(row).addClass("active");
+        $corr.find(".colLabel:not(.blankSpace)").eq(col).addClass("active");
+    }
+
+    function deHighlightLabel(row, col) {
+        $corr.find(".rowLabel").eq(row).removeClass("active");
+        $corr.find(".colLabel:not(.blankSpace)").eq(col).removeClass("active");
     }
 
     function closeAggModel() {

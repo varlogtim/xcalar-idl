@@ -925,10 +925,6 @@
                     line-height: 22px;
                     margin-top: 0 !important;
                     padding: 0px;
-
-                    // &.blankSpace {
-                    //     margin-right: 2px;
-                    // }
                 }
             }
 
@@ -987,15 +983,15 @@
                 &.aggTableFlex {
                     background-color: @color-modal-whiteGray;
                 }
-
-                &.blankSpace {
-                    background: @color-modal-whiteGray !important;
-                    border: none;
-                }
             }
 
             .rowLabel, .colLabel {
                 background-color: @color-modal-whiteGray !important;
+
+                &.active {
+                    background-color: @color-background-lightLightGray !important;
+                    color: @color-text-black;
+                }
             }
         }
 
