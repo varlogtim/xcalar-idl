@@ -2079,8 +2079,7 @@ window.TblManager = (function($, TblManager) {
                 "shiftKey"  : event.shiftKey,
                 "isMutiCol" : isMultiColumn(),
                 "isUnSelect": isUnSelect,
-                "floating"  : true,
-                "isDataTd"  : isDataTd
+                "floating"  : true
             });
 
             function singleSelection() {
