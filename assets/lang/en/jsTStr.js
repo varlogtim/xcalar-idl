@@ -57,6 +57,7 @@ TooltipTStr = {
     'LockedTableRedo': 'Cannot redo while table is locked',
     'CloseQG': 'click to hide query graph',
     'OpenQG': 'click to view query graph',
+    'AddDataflow': 'Add Dataflow',
     'Bookmark': 'click to add bookmark',
     'Bookmarked': 'bookmarked',
     'CopyLog': 'Copy the SQL log onto your clipboard',
@@ -157,7 +158,7 @@ ErrTStr = {
     'ColumnConfilct': 'Column with the same name already exists, ' +
                         'please choose another name.',
 
-    'DFGConflict': 'Data flow group with the same name already exists, ' +
+    'DFGConflict': 'Dataflow group with the same name already exists, ' +
                             'please choose another name.',
 
     'ScheduleConflict': 'Schedule with the same name already exists, ' +
@@ -409,13 +410,13 @@ SchedTStr = {
 };
 
 DFGTStr = {
-    'DFExists': 'data flow already exists',
-    'AddParamHint': 'Please create parameters in Data Flow Group Panel first.',
-    'DFCreateFail': 'Data Flow Creation Failed',
+    'DFExists': 'dataflow already exists',
+    'AddParamHint': 'Please create parameters in Dataflow Group Panel first.',
+    'DFCreateFail': 'Dataflow Creation Failed',
     'ParamModalFail': 'Parameter Modal Failed',
     'UpdateParamFail': 'Update Params Failed',
-    'NoDFG1': 'No data flow group added',
-    'NoDFG2': 'Add a data flow group in Query Graph.',
+    'NoDFG1': 'No dataflow group added',
+    'NoDFG2': 'Add a dataflow group in Query Graph.',
     'RunDone': 'Run Complete',
     'RunDoneMsg': 'Successfully ran DFG!',
     'RunFail': 'Run DFG Failed'

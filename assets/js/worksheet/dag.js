@@ -945,7 +945,8 @@ window.Dag = (function($, Dag) {
                     '<div class="retinaArea" data-tableid="' +
                         tableId + '">' +
                         '<div data-toggle="tooltip" data-container="body" ' +
-                        'data-placement="top" title="Add Data Flow" ' +
+                        'data-placement="top" title="' +
+                            TooltipTStr.AddDataflow + '" ' +
                         'class="btn btnSmall addDataFlow">' +
                             '<span class="icon"></span>' +
                         '</div>' +

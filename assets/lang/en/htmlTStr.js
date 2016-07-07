@@ -282,10 +282,10 @@ module.exports = {
     },
 
     "sched": {
-        "DFG": "DATA FLOW GRP",
+        "DFG": "DATAFLOW GRP",
         "SCHEDS": "SCHEDULES",
         "DETAIL": "DETAIL",
-        "dfgs": "Data Flow Groups",
+        "dfgs": "Dataflow Groups",
         "params": "Parameters",
         "inputNewParam": "Input New Parameter",
         "newParam": "CREATE NEW PARAMETER",
@@ -298,7 +298,7 @@ module.exports = {
         "modified": "Last modified",
         "freq": "Frequency",
         "recur": "Repeat Time",
-        "dfgName": "Data Flow Group Name",
+        "dfgName": "Dataflow Group Name",
         "initialRun": "Initial Run Time",
         "status": "Status",
         "lastRun": "Last Run",
@@ -448,7 +448,7 @@ module.exports = {
 
     "addSchedModal": {
         "header": "Add Schedule",
-        "instr": "Select a schedule to add to the Data Flow Group. Or you can also create a new schedule.",
+        "instr": "Select a schedule to add to the Dataflow Group. Or you can also create a new schedule.",
         "AttachedSched": "Attached schedules",
         "SelectSched": "Select a schedule",
         "CreateNew": "Create a new schedule",
@@ -468,10 +468,10 @@ module.exports = {
     },
 
     "dataFlowModal": {
-        "header": "Add To Data Flow Group",
-        "instr": "Add a data flow to a data flow group. Select the data flow group that you would like to add the current data flow to and click on the save button.",
-        "NewDFG": "New Data Flow Group",
-        "AppendDFG": "Append to Existing Data Flow",
+        "header": "Add To Dataflow Group",
+        "instr": "Add a dataflow to a dataflow group. Select the dataflow group that you would like to add the current dataflow to and click on the save button.",
+        "NewDFG": "New Dataflow Group",
+        "AppendDFG": "Append to Existing Dataflow",
         "NewGroupName": "New Group Name"
     },
 
