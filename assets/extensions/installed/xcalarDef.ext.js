@@ -22,7 +22,7 @@ window.UExtXcalarDef = (function(UExtXcalarDef, $) {
             "fieldClass": "winCol",
             "autofill"  : true,
             "typeCheck" : {
-                "columnType": ["number"]
+                "columnType": ["number", "string"]
             }
         },
         {
@@ -261,26 +261,30 @@ window.UExtXcalarDef = (function(UExtXcalarDef, $) {
                     var winColNames = self.getAttribute("winColNames");
                     var colType = sortCol.getType();
                     if (colType === "integer" || colType === "float") {
-                        // both integer and float cast to float
                         colType = "float";
                     }
+                    var winColType = winCol.getType();
+                    if (winColType === "integer" || winColType === "float") {
+                        winColType = "float";
+                    }
+
                     var col = new XcSDK.Column(newOrigSortedOnCol, colType);
                     table.addCol(col);
-                    
                     for (var i = lag - 1; i >= 0; i--) {
-                        col = new XcSDK.Column(winColNames.lag[i], "float");
+                        col = new XcSDK.Column(winColNames.lag[i], winColType);
                         table.addCol(col);
                     }
 
-                    col = new XcSDK.Column(winColNames.cur, "float");
+                    col = new XcSDK.Column(winColNames.cur, winColType);
                     table.addCol(col);
 
                     for (var i = 0; i < lead; i++) {
-                        col = new XcSDK.Column(winColNames.lead[i], "float");
+                        col = new XcSDK.Column(winColNames.lead[i], winColType);
                         table.addCol(col);
                     }
                     return table.addToWorksheet();
                 }
+
             })
             .then(deferred.resolve)
             .fail(deferred.reject);
@@ -384,11 +388,17 @@ window.UExtXcalarDef = (function(UExtXcalarDef, $) {
         var WinState = ext.getAttribute("WinState");
 
         var winColName = winCol.getName();
+        var winColType = winCol.getType();
         var newColName;
 
         var srcTable;
-        var mapStr = "float(" + winColName + ")";
         var suffix = (index + 1);
+        var mapStr = "(" + winColName + ")";
+        if (winColType === "string") {
+            mapStr = "string" + mapStr;
+        } else {
+            mapStr = "float" + mapStr;
+        }
 
         if (state === WinState.lag) {
             // lag
@@ -423,7 +433,7 @@ window.UExtXcalarDef = (function(UExtXcalarDef, $) {
                 // add the col to meta
                 var colNum = table.getColNum(winCol);
                 if (colNum > 0) {
-                    var col = new XcSDK.Column(newColName, "float");
+                    var col = new XcSDK.Column(newColName, winColType);
                     // inseart to col before winCol
                     table.addCol(col, colNum - 1);
                 }
