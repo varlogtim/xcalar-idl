@@ -246,14 +246,14 @@ window.UExtXcalarDef = (function(UExtXcalarDef, $) {
 
                 return XcSDK.Promise.chain(defChain);
             })
+            //.then(function() {
+            //    // Step 7: Sort ascending or descending by the cur order number
+            //    return self.sort(direction, newOrigSortedOnCol, finalTableName);
+            //})
             .then(function() {
-                // Step 7: Sort ascending or descending by the cur order number
-                return self.sort(direction, newOrigSortedOnCol, finalTableName);
-            })
-            .then(function(tableAfterSort) {
                 // Step 8: YAY WE ARE FINALLY DONE! Just start picking out all
                 // the columns now and do the sort and celebrate
-                var table = self.getTable(tableAfterSort);
+                var table = self.getTable(finalTableName);
                 if (table != null) {
                     table.deleteAllCols();
                     // Don't pull cur. Instead pull the original sorted col which
