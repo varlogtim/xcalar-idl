@@ -266,7 +266,7 @@ window.ExtensionManager = (function(ExtensionManager, $) {
         var colArray = $("#colMenu").data("columns");
         var colNames = [];
 
-        if (colArray.length > 1) {
+        if (colArray != null && colArray.length > 1) {
             colNum = colArray;
         }
         // argList.allMenus = $allMenus;
@@ -284,6 +284,8 @@ window.ExtensionManager = (function(ExtensionManager, $) {
 
             var hasStart = false;
             var txId;
+            // in case argList is changed by ext writer
+            var copyArgList = xcHelper.deepCopy(argList);
             var sql = {
                 "operation"   : SQLOps.Ext,
                 "tableName"   : tableName,
@@ -291,7 +293,7 @@ window.ExtensionManager = (function(ExtensionManager, $) {
                 "colNum"      : colNum,
                 "colName"     : colName,
                 "functionName": functionName,
-                "argList"     : argList,
+                "argList"     : copyArgList,
                 "htmlExclude" : ["argList"]
             };
 
@@ -396,13 +398,14 @@ window.ExtensionManager = (function(ExtensionManager, $) {
         }
 
         var table = gTables[tableId];
+        var copyArgList = xcHelper.deepCopy(argList);
         var sql = {
             "operation"   : SQLOps.Ext,
             "tableName"   : table.getName(),
             "tableId"     : tableId,
             "colNum"      : colNum,
             "functionName": functionName,
-            "argList"     : argList,
+            "argList"     : copyArgList,
             "htmlExclude" : ["argList"]
         };
 

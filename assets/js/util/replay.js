@@ -310,6 +310,7 @@ window.Replay = (function($, Replay) {
         argsMap[SQLOps.ChangeType] = ["colTypeInfos", "tableId"];
         argsMap[SQLOps.ChangeFormat] = ["colNums", "tableId", "formats"];
         argsMap[SQLOps.RoundToFixed] = ["colNums", "tableId", "decimals"];
+        argsMap[SQLOps.Ext] = ["colNum", "tableId", "functionName", "argList"];
     }
 
     function createTabMap() {
@@ -1288,13 +1289,18 @@ window.Replay = (function($, Replay) {
         return PromiseHelper.resolve(null);
     };
 
-    // correlationAction: function(options) {
+    replayFuncs[SQLOps.Ext] = function(options) {
+        var argList = options.argList;
+        for (var key in argList) {
+            var val = argList[key];
+            if (val instanceof Object) {
+                argList[key] = new XcSDK.Column(val.colName, val.colType);
+            }
+        }
+        var args = getArgs(options);
 
-    // },
-
-    // groupByAction: function(options) {
-
-    // },
+        return ExtensionManager.trigger.apply(window, args);
+    };
 
     // renameOrphanTable: function(options) {
 
@@ -1303,50 +1309,12 @@ window.Replay = (function($, Replay) {
     // addDataset: function(options) {
 
     // },
-    // horizontalPartitionAction: function(options) {
-
-    // },
-
-    // changeTypeMap: function(options) {
-
-    // },
-
-    // profileAction: function(options) {
-
-    // },
-    // spltColMap: function(options) {
-
-    // },
 
     // previewDataSet: function(options) {
 
     // },
 
-    // multiJoinMap: function(options) {
-
-    // },
-
-    // window: function(options) {
-
-    // },
-
-    // horizontalPartition: function(options) {
-
-    // },
-
     // destroyPreviewDataSet: function(options) {
-
-    // },
-
-    // quickAggAction: function(options) {
-
-    // },
-
-    // checkIndex: function(options) {
-
-    // },
-
-    // windowAction: function(options) {
 
     // },
 
