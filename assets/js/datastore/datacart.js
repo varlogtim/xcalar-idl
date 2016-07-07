@@ -289,10 +289,12 @@ window.DataCart = (function($, DataCart) {
                 }, intervalTime);
             }
             resetTimer = setTimeout(function() {
-                $loadingBar.stop().removeClass('full inProgress').width(0);
+                $loadingBar.stop().removeClass('full goingToFull inProgress')
+                                  .width(0);
             }, time);
         } else {
-            $loadingBar.stop().removeClass('full inProgress').width(0);
+            $loadingBar.stop().removeClass('full goingToFull inProgress')
+                              .width(0);
         }
         if (force) {
             $loadingBar.parent().hide();
