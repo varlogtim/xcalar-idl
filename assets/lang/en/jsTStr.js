@@ -438,6 +438,7 @@ DSTStr = {
                     ' to deletion.',
     'NoParse': 'Cannot parse the dataset.',
     'NoRecords': 'No records in dataset.',
+    'NoRecrodsHint': 'Please change the preview size and try to point again',
     // with replace
     'DelDSConfirm': 'Are you sure you want to delete dataset <ds> ?',
     'DelUneditable': 'This <ds> is uneditable, cannot delete',

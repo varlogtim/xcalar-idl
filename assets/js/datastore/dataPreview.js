@@ -216,11 +216,33 @@ window.DataPreview = (function($, DataPreview) {
         });
         var loadError = null;
 
+        // XXX temporary code, after change to XcalarPreview, remove it
+        var previewSize = $("#previewSize").val();
+        if (previewSize === "") {
+            previewSize = null;
+        } else {
+            previewSize = Number(previewSize);
+            var unit = $("#previewSizeUnit input").val();
+            switch (unit) {
+                case "KB":
+                    previewSize *= KB;
+                    break;
+                case "MB":
+                    previewSize *= MB;
+                    break;
+                case "GB":
+                    previewSize *= GB;
+                    break;
+                default:
+                    break;
+            }
+        }
+
         showPreviewPanel()
         .then(function() {
             return XcalarLoad(loadURL, "raw", tableName, "", "\n",
                               hasHeader, moduleName, funcName, isRecur,
-                              txId);
+                              previewSize, txId);
         })
         .then(function(ret, error) {
             loadError = error;
@@ -244,6 +266,9 @@ window.DataPreview = (function($, DataPreview) {
                 var error = DSTStr.NoRecords;
                 if (loadError) {
                     error += '\n' + loadError;
+                } else {
+                    // XXX temporary code, after change to XcalarPreview, remove it
+                    error += '\n' + DSTStr.NoRecrodsHint;
                 }
 
                 cannotParseHandler(error);

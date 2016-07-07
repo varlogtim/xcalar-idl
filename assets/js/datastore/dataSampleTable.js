@@ -98,8 +98,13 @@ window.DataSampleTable = (function($, DataSampleTable) {
             $dsColsBtn.hide();
             $datasetWrap.removeClass("loading").addClass("error");
             var errorText = StatusMessageTStr.LoadFailed + ". " + error.error;
+
             var loadError = dsObj.getError();
-            if (loadError != null) {
+            if (loadError == null) {
+                if (error.error === DSTStr.NoRecords) {
+                    errorText += "\n" + DSTStr.NoRecrodsHint;
+                }
+            } else {
                 errorText += "\n" + loadError;
             }
 

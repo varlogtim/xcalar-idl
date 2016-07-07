@@ -213,6 +213,22 @@ input {
                 float: left;
             }
         }
+
+        &.previewSize {
+            .row .rowContent {
+                &.input {
+                    .size(@width: ~"calc(100% - 410px)", @min-width: 75px);
+                }
+
+                &.dropDownList {
+                    .size(@width: 80px, @min-width: 80px);
+                }
+
+                &.qMark {
+                    .vertical-align;
+                }
+            }
+        }
     }
 
     .row {
@@ -262,6 +278,7 @@ input {
         .middleFieldSize;
     }
 }
+
 // Top Form Section
 .dataStoreFormTop {
     background-color: @color-background-topForm;

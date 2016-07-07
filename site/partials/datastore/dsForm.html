@@ -58,6 +58,36 @@
           </div>
         </div>
       </section>
+      <!-- preview size -->
+      <section class="formSection previewSize clearfix">
+        <div class="title"><%= dicts.dsForm.previewSize %> <span class="hint">(Optional)</span></div>
+        <div class="content">
+          <div class="row">
+            <input id="previewSize" class="input rowContent" type="number">
+            <div id="previewSizeUnit" class="rowContent dropDownList">
+              <input class="text" type="text" spellcheck="false" disabled>
+              <div class="iconWrapper">
+                <span class="icon"></span>
+              </div>
+              <div class="list">
+                <ul>
+                  <li>B</li>
+                  <li>KB</li>
+                  <li>MB</li>
+                  <li>GB</li>
+                </ul>
+                <div class="scrollArea top">
+                  <div class="arrow"></div>
+                </div>
+                <div class="scrollArea bottom">
+                  <div class="arrow"></div>
+                </div>
+              </div>
+            </div>
+            <div title="<%= dicts.dsForm.previewSizeHint %>" class="rowContent qMark" data-toggle="tooltip" data-container="body"></div>
+          </div>
+        </div>
+      </section>
       <!-- udf -->
       <section id="udfArgs" class="formSection udf clearfix">
         <div class="title">UDF <span class="hint">(Optional)</span></div>

@@ -192,7 +192,7 @@ window.DS = (function ($, DS) {
     // Load dataset
     // promise returns $grid element
     DS.load = function(dsName, dsFormat, loadURL, fieldDelim, lineDelim,
-                        hasHeader, moduleName, funcName, isRecur) {
+                        hasHeader, moduleName, funcName, isRecur, previewSize) {
         var deferred = jQuery.Deferred();
 
         // Here null means the attr is a placeholder, will
@@ -210,7 +210,7 @@ window.DS = (function ($, DS) {
             "path"      : loadURL,
             "fileSize"  : null,
             "numEntries": null,
-            "isRecur"   : isRecur
+            "isRecur"   : isRecur,
         });
 
         var $grid = DS.getGrid(dsObj.getId());
@@ -229,16 +229,17 @@ window.DS = (function ($, DS) {
         var fullDSName = dsObj.getFullName();
 
         var sql = {
-            "operation" : SQLOps.DSLoad,
-            "loadURL"   : loadURL,
-            "dsName"    : dsName,
-            "dsFormat"  : dsFormat,
-            "hasHeader" : hasHeader,
-            "fieldDelim": fieldDelim,
-            "lineDelim" : lineDelim,
-            "moduleName": moduleName,
-            "funcName"  : funcName,
-            "isRecur"   : isRecur
+            "operation"  : SQLOps.DSLoad,
+            "loadURL"    : loadURL,
+            "dsName"     : dsName,
+            "dsFormat"   : dsFormat,
+            "hasHeader"  : hasHeader,
+            "fieldDelim" : fieldDelim,
+            "lineDelim"  : lineDelim,
+            "moduleName" : moduleName,
+            "funcName"   : funcName,
+            "isRecur"    : isRecur,
+            "previewSize": previewSize
         };
         var txId = Transaction.start({
             "operation": SQLOps.DSLoad,
@@ -247,7 +248,7 @@ window.DS = (function ($, DS) {
 
         XcalarLoad(loadURL, dsFormat, fullDSName,
                    fieldDelim, lineDelim, hasHeader,
-                   moduleName, funcName, isRecur, txId)
+                   moduleName, funcName, isRecur, previewSize, txId)
         .then(function(ret, error) {
             if (error != null) {
                 dsObj.setError(error);

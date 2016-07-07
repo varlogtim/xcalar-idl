@@ -73,14 +73,22 @@ window.DatastoreForm = (function($, DatastoreForm) {
         });
 
         //set up dropdown list for protocol
-        var dropdownList = new MenuHelper($("#fileProtocol"), {
+        new MenuHelper($("#fileProtocol"), {
             "onSelect": function($li) {
                 setProtocol($li.text());
             },
             "container": "#importDataView",
             "bounds"   : "#importDataView"
-        });
-        dropdownList.setupListeners();
+        }).setupListeners();
+
+        //set up dropdown list preview size
+        new MenuHelper($("#previewSizeUnit"), {
+            "onSelect": function($li) {
+                $("#previewSizeUnit input").val($li.text());
+            },
+            "container": "#importDataView",
+            "bounds"   : "#importDataView"
+        }).setupListeners();
 
         // set up dropdown list for formats
         new MenuHelper($("#fileFormat"), {
@@ -204,8 +212,29 @@ window.DatastoreForm = (function($, DatastoreForm) {
             "operation": SQLOps.DSLoad
         });
 
+        var previewSize = $("#previewSize").val();
+        if (previewSize === "") {
+            previewSize = null;
+        } else {
+            previewSize = Number(previewSize);
+            var unit = $("#previewSizeUnit input").val();
+            switch (unit) {
+                case "KB":
+                    previewSize *= KB;
+                    break;
+                case "MB":
+                    previewSize *= MB;
+                    break;
+                case "GB":
+                    previewSize *= GB;
+                    break;
+                default:
+                    break;
+            }
+        }
+
         DS.load(dsName, dsFormat, loadURL, fieldDelim, lineDelim,
-                header, moduleName, funcName, isRecur)
+                header, moduleName, funcName, isRecur, previewSize)
         .then(function(dsObj) {
             StatusMessage.success(msgId, false, null, {
                 "newDataSet": true,
@@ -484,6 +513,12 @@ window.DatastoreForm = (function($, DatastoreForm) {
                 StatusBox.show(DSTStr.InvalidHDFS, $filePath, true);
                 return false;
             }
+        }
+        // also check preview size here(temporary for both preview and load)
+        if ($("#previewSize").val() !== "" &&
+            $("#previewSizeUnit input").val() === "") {
+            StatusBox.show(ErrTStr.NoEmptyList, $("#previewSizeUnit"), false);
+            return false;
         }
 
         return true;

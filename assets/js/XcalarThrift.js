@@ -427,7 +427,7 @@ function XcalarPreview(url, isRecur, numBytesRequested) {
 }
 
 function XcalarLoad(url, format, datasetName, fieldDelim, recordDelim,
-                    hasHeader, moduleName, funcName, isRecur, txId) {
+                    hasHeader, moduleName, funcName, isRecur, maxSampleSize, txId) {
 
     function checkForDatasetLoad(def, sqlString, dsName, txId) {
         // Using setInterval will have issues because of the deferred
@@ -524,9 +524,12 @@ function XcalarLoad(url, format, datasetName, fieldDelim, recordDelim,
         loadArgs.udfLoadArgs.fullyQualifiedFnName = moduleName + ":" + funcName;
     }
 
-    var maxSampleSize = gMaxSampleSize;
-    if (gMaxSampleSize > 0) {
-        console.log("Max sample size set to: "+maxSampleSize);
+    if (maxSampleSize == null) {
+        maxSampleSize = gMaxSampleSize;
+    }
+
+    if (maxSampleSize > 0) {
+        console.log("Max sample size set to: ", maxSampleSize);
     }
 
     var workItem = xcalarLoadWorkItem(url, datasetName, formatType,

@@ -383,6 +383,8 @@ module.exports = {
     },
 
     "dsForm": {
+        "previewSize": "Preview Size",
+        "previewSizeHint": "Change preview size if point to large datasource",
         "Instr": "INPUT DATA SOURCE PATH, SELECT FORMAT AND THEN INPUT DATASET NAME TO POINT TO DATA. POINTED DATA WILL BE LISTED ON THE LEFT.",
         "dsLocation": "Data Source",
         "filePath": "Data Source Path",
