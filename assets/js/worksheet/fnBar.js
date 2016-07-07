@@ -148,6 +148,7 @@ window.FnBar = (function(FnBar, $) {
 
             $functionArea.removeClass('searching');
         } else {
+            editor.getInputField().blur(); // hack to reset blur
             var userStr = progCol.userStr;
             userStr = userStr.substring(userStr.indexOf('='));
             editor.setValue(userStr);
@@ -276,15 +277,14 @@ window.FnBar = (function(FnBar, $) {
                     text = "Invalid Operator: <b>" + operation + "</b>.<br/>";
                 } else {
                     if (fnBarValTrim.indexOf("(") === -1) {
-                        text = "Operation must be preceeded by operator name " +
-                                "and arguments in parenthesis";
+                        text = FnBarTStr.InvalidOpParen;
                         endText = true;
                     } else {
                         text = "Invalid Operator.<br/>";
                     }
                 }
                 if (!endText) {
-                   text += "Valid operators are: <b>pull, map, filter</b>.";
+                   text += FnBarTStr.ValidOps;
                 }
 
                 setTimeout(function() {

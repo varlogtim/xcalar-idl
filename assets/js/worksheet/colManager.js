@@ -2426,6 +2426,7 @@ window.ColManager = (function($, ColManager) {
         if (key == null) {
             return ("");
         }
+        key += ""; // if number, convert to string
 
         // replace votes[funny] with votes.funny but votes\[funny\] will remain
         var isEscaped = false;
