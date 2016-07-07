@@ -914,8 +914,6 @@ window.TestSuite = (function($, TestSuite) {
         $("#tableSubMenu .aggregates").trigger(fakeEvent.mouseup);
         checkExists(".spinny", null, {notExist: true})
         .then(function() {
-            assert($(".aggTableField:contains('N/A')").not(".aggTableFlex").
-                    length === 145);
             assert($(".aggTableField:contains('4574')"));
             assert($(".aggTableField:contains('334')"));
             $("#aggModal .close").click();
