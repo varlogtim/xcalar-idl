@@ -266,12 +266,23 @@ window.DatastoreForm = (function($, DatastoreForm) {
     };
 
     DatastoreForm.update = function() {
-        // reset udf first as list xdf may slow
-        resetUdfSection();
+        var moduleName = $udfModuleList.find("input").val();
+        var funcName = $udfFuncList.find("input").val();
 
         listUDFSection()
         .always(function() {
-            resetUdfSection();
+            // reselect old udf
+            if (validateUDFModule(moduleName)) {
+                selectUDFModule(moduleName);
+                if (!validateUDFFunc(moduleName, funcName)) {
+                    funcName = "";
+                }
+                selectUDFFunc(funcName);
+            } else {
+                // if udf module not exists
+                selectUDFModule("");
+                selectUDFFunc("");
+            }
         });
     };
 
@@ -647,63 +658,75 @@ window.DatastoreForm = (function($, DatastoreForm) {
         // restet the udf lists, otherwise the if clause in
         // selectUDFModule() and selectUDFFunc() will
         // stop the reset from triggering
-        $udfModuleList.find("input").val("");
-        $udfFuncList.addClass("disabled")
-                    .find("input").val("");
-        $udfFuncList.parent().tooltip({
-            "title"    : TooltipTStr.ChooseUdfModule,
-            "placement": "top",
-            "container": "#importDataView"
-        });
 
         // only when cached moduleName and funcName is not null
         // we restore it
-        if (lastUDFModule != null && lastUDFFunc != null) {
-            var $li = $udfFuncList.find(".list li").filter(function() {
-                var $el = $(this);
-                return ($el.data("module") === lastUDFModule &&
-                        $el.text() === lastUDFFunc);
-            });
+        if (lastUDFModule != null && lastUDFFunc != null &&
+            validateUDFFunc(lastUDFModule, lastUDFFunc)) {
 
-            // verify that the func in the module is still there
-            // (might be deleted)
-            if ($li.length > 0) {
-                selectUDFModule(lastUDFModule);
-                selectUDFFunc(lastUDFFunc);
-                return;
-            }
+            selectUDFModule(lastUDFModule);
+            selectUDFFunc(lastUDFFunc);
+        } else {
+            // when cannot restore it
+            lastUDFModule = null;
+            lastUDFFunc = null;
+
+            selectUDFModule("");
+            selectUDFFunc("");
         }
+    }
 
-        // when cannot restore it
-        lastUDFModule = null;
-        lastUDFFunc = null;
+    function validateUDFModule(module) {
+        // check if udf module exists
+        var $li = $udfFuncList.find(".list li").filter(function() {
+            return ($(this).data("module") === module);
+        });
+        return ($li.length > 0);
+    }
+
+    function validateUDFFunc(module, func) {
+        // check if udf exists
+        var $li = $udfFuncList.find(".list li").filter(function() {
+            var $el = $(this);
+            return ($el.data("module") === module &&
+                    $el.text() === func);
+        });
+        return ($li.length > 0);
     }
 
     function selectUDFModule(module) {
-        var $input = $udfModuleList.find("input");
-        if (module === $input.val()) {
-            return;
+        if (module == null) {
+            module = "";
         }
 
-        $input.val(module);
+        $udfModuleList.find("input").val(module);
 
-        $udfFuncList.parent().tooltip("destroy");
-        $udfFuncList.removeClass("disabled")
-            .find("input").val("")
-            .end()
-            .find(".list li").addClass("hidden")
-            .filter(function() {
-                return $(this).data("module") === module;
-            }).removeClass("hidden");
+        if (module === "") {
+            $udfFuncList.addClass("disabled")
+                    .find("input").val("");
+            $udfFuncList.parent().tooltip({
+                "title"    : TooltipTStr.ChooseUdfModule,
+                "placement": "top",
+                "container": "#importDataView"
+            });
+        } else {
+            $udfFuncList.parent().tooltip("destroy");
+            $udfFuncList.removeClass("disabled")
+                .find("input").val("")
+                .end()
+                .find(".list li").addClass("hidden")
+                .filter(function() {
+                    return $(this).data("module") === module;
+                }).removeClass("hidden");
+        }
     }
 
     function selectUDFFunc(func) {
-        var $input = $udfFuncList.find("input");
-
-        if (func === $input.val()) {
-            return;
+        if (func == null) {
+            func = "";
         }
-        $input.val(func);
+
+        $udfFuncList.find("input").val(func);
     }
 
     function updateUDFList(listXdfsObj) {
