@@ -239,7 +239,8 @@ var SQLOps = {
     ChangeType: "changeType",
     ChangeFormat: "changeFormat",
     RoundToFixed: "roundToFixed",
-    Ext: "extension"
+    Ext: "extension",
+    Replay: "Replay"
 };
 
 var TooltipTemplate = {

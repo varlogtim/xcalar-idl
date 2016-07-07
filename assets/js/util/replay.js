@@ -14,6 +14,78 @@ window.Replay = (function($, Replay) {
     var outTime = 60000; // 1min for time out
     var checkTime = 500; // time interval of 500ms
 
+    Replay.runWithSql = function(sqls, noAlert) {
+        var deferred = jQuery.Deferred();
+        var isArray = (sqls instanceof Array);
+
+        if (typeof sqls === "object" && !isArray) {
+            // when pass in the whole sqls (logs + errors)
+            if (sqls.hasOwnProperty("logs")) {
+                sqls = sqls.logs;
+            } else {
+                alert("Cannot replay the arg passed in");
+                deferred.reject("Cannot replay the arg passed in");
+                return (deferred.promise());
+            }
+        } else if (!isArray) {
+            // when pass in logs array
+            alert("Wrong Type of args");
+            deferred.reject("Wrong Type of args");
+            return deferred.promise();
+        }
+
+        var mindModeCache = gMinModeOn;
+
+        gMinModeOn = true;
+
+        var cli = "";
+        var steps = 0;
+        sqls.forEach(function(sql) {
+            if (sql.hasOwnProperty("cli") && sql.cli != null) {
+                if (!sql.cli.endsWith(";")) {
+                    sql.cli += ";";
+                }
+                cli += sql.cli;
+                steps++;
+            }
+        });
+
+        var sql = {
+            "operation" : SQLOps.Replay,
+            "cli"       : cli
+        };
+        var txId = Transaction.start({
+            "operation": SQLOps.Replay,
+            "sql"      : sql,
+            "steps"    : steps
+        });
+
+        var queryName = xcHelper.randName("replay");
+        XcalarQueryWithCheck(queryName, cli, txId)
+        .then(function() {
+            $("#refreshDS").click();
+            TableList.refreshOrphanList(false);
+            if (!noAlert) {
+                alert("Replay Finished!");
+            }
+            Transaction.done(txId);
+            deferred.resolve();
+        })
+        .fail(function(error) {
+            console.error("Replay Fails!", error);
+            Transaction.fail(txId, {
+                "error"  : error
+            });
+
+            deferred.reject(error);
+        })
+        .always(function() {
+            gMinModeOn = mindModeCache;
+        });
+
+        return (deferred.promise());
+    }
+
     Replay.run = function(sqls, noAlert) {
         var deferred = jQuery.Deferred();
         var isArray = (sqls instanceof Array);
@@ -186,12 +258,28 @@ window.Replay = (function($, Replay) {
         var deferred = jQuery.Deferred();
 
         if (replayFuncs.hasOwnProperty(operation)) {
-            return (replayFuncs[operation](options));
+            replayFuncs[operation](options)
+            .then(function() {
+                // if (!options.hasOwnProperty("newTableName")) {
+                //     return;
+                // }
+                // var tableId = xcHelper.getTableId(options.newTableName);
+                // var curId = updateIdCount(tableId, true);
+
+                // if (curId != null) {
+                //     // need to rename the table
+                //     return renameTable(curId, options.newTableName);
+                // }
+            })
+            .then(deferred.resolve)
+            .fail(deferred.reject);
+
         } else {
             console.error("Unknown operation", operation);
             deferred.reject("Unknown operation");
-            return (deferred.promise());
         }
+
+        return deferred.promise();
     }
 
     // function clearTable() {
@@ -218,6 +306,22 @@ window.Replay = (function($, Replay) {
     //         return (deferred.promise());
     //     }
     // }
+
+    function updateIdCount(tableId, isAfterNewTable) {
+        var idCount = Number(tableId.substring(2));
+        var authInfo = Authentication.getInfo();
+        var diff = isAfterNewTable ? 1 : 0;
+
+        if (authInfo.idCount < idCount + diff) {
+            var curId = authInfo.hashTag + (authInfo.idCount - diff);
+            console.info("update id count to", idCount + diff);
+            
+            authInfo.idCount = idCount + diff;
+            return curId;
+        } else {
+            return null;
+        }
+    }
 
     function getArgs(options) {
         var neededArgs = argsMap[options.operation];
@@ -254,6 +358,39 @@ window.Replay = (function($, Replay) {
         var id = xcHelper.getTableId(tableName);
 
         return (name + "#" + getTableId(id));
+    }
+
+    function renameTable(tableId, newTableName) {
+        // XXX TODO: fix the idCount mismatch issue
+        return PromiseHelper.reject("Temporary not support");
+
+        var deferred = jQuery.Deferred();
+        var table = gTables[tableId];
+        var oldTableName = table.getName();
+
+        newTableName = changeTableName(newTableName);
+        var newId = xcHelper.getTableId(newTableName);
+
+        XcalarRenameTable(oldTableName, newTableName, null)
+        .then(function() {
+            // does renames for gTables, rightsidebar, dag
+            table.tableName = newTableName;
+
+            TableList.renameTable(tableId, newTableName);
+            Dag.renameAllOccurrences(oldTableName, newTableName);
+
+            updateTableHeader(tableId);
+
+            // XXX not finish yet
+            table.tableId = newId;
+            gTables[newId] = table;
+
+            console.info("Rename", oldTableName, "to", newTableName);
+            deferred.resolve(newTableName);
+        })
+        .fail(deferred.reject);
+
+        return deferred.promise();
     }
 
     function createFuncArgsMap() {
@@ -354,7 +491,6 @@ window.Replay = (function($, Replay) {
     replayFuncs[SQLOps.IndexDS] = function(options) {
         var deferred = jQuery.Deferred();
         // this is a UI simulation replay
-        // var dsName     = options.dsName;
         var dsId = options.dsId;
         // XXX TODO: fix this temporary fix
         var index = dsId.indexOf(".");
@@ -364,11 +500,7 @@ window.Replay = (function($, Replay) {
         var tableName = options.tableName;
 
         // keep idCount Sync Here!!!
-        var idCount = Number(xcHelper.getTableId(tableName).substring(2));
-        var authInfo = Authentication.getInfo();
-        if (authInfo.idCount !== idCount) {
-            authInfo.idCount = idCount;
-        }
+        updateIdCount(xcHelper.getTableId(tableName));
 
         var $mainFrame = $("#mainFrame");
 
