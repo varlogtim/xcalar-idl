@@ -271,6 +271,7 @@ window.Replay = (function($, Replay) {
                                 "joinStr", "newTableName"];
         argsMap[SQLOps.GroupBy] = ["operator", "tableId", "indexedCols",
                                     "aggColName", "newColName", "options"];
+        argsMap[SQLOps.Project] = ["colNames", "tableId"];
         argsMap[SQLOps.RenameTable] = ["tableId", "newTableName"];
         argsMap[SQLOps.HideTable] = ["tableId"];
         argsMap[SQLOps.UnhideTable] = ["tableId"];
@@ -483,6 +484,11 @@ window.Replay = (function($, Replay) {
     replayFuncs[SQLOps.GroupBy] = function(options) {
         var args = getArgs(options);
         return xcFunction.groupBy.apply(window, args);
+    };
+
+    replayFuncs[SQLOps.Project] = function(options) {
+        var args = getArgs(options);
+        return xcFunction.project.apply(window, args);
     };
 
     replayFuncs[SQLOps.RenameTable] = function(options) {

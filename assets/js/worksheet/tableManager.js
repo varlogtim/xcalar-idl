@@ -2004,6 +2004,9 @@ window.TblManager = (function($, TblManager) {
                 return;
             }
             if ($td.hasClass('jsonElement')) {
+                $('.menu').hide();
+                removeMenuKeyboardNavigation();
+                $('.highlightBox').remove();
                 return;
             }
             var yCoor = Math.max(event.pageY, $el.offset().top + $el.height() - 10);

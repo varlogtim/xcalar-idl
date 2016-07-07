@@ -1477,136 +1477,16 @@ window.JSONModal = (function($, JSONModal) {
     }
 
     function submitProject(index) {
-        var colNamesArray = []; // array used to send to backend
-        var colNames = []; // array used to distinguish between columns found
-        // or not found pulled out in the table
-        var tableName;
-        var tableId;
-        var dstTableName;
-        var worksheet;
+        var colNames = [];
         var $jsonWrap = $('.jsonWrap').eq(index);
         $jsonWrap.find('.projectSelected').each(function() {
-            colNamesArray.push($(this).text());
-            colNames.push({name: $(this).text(), found: false});
+            colNames.push($(this).text());
         });
 
-        if (colNamesArray.length) {
-            // XX This code should probably go inside xcFunctions
-
-            tableId = $jsonWrap.data('tableid');
-            tableName = gTables[tableId].tableName;
-
-            dstTableName = tableName.split("#")[0] + Authentication.getHashId();
-            worksheet = WSManager.getWSFromTable(tableId);
-
-            var txId = Transaction.start({
-                "msg"      : StatusMessageTStr.Project,
-                "operation": SQLOps.Project,
-                "steps"    : 1
-            });
-
-            xcHelper.lockTable(tableId);
-
+        if (colNames.length) {
+            var tableId = $jsonWrap.data('tableid');
+            xcFunction.project(colNames, tableId);
             closeJSONModal();
-
-            var startTime = Date.now();
-            var focusOnTable = false;
-            var startScrollPosition = $('#mainFrame').scrollLeft();
-
-            XcalarProject(colNamesArray, tableName, dstTableName, txId)
-            .then(function() {
-                var timeAllowed = 1000;
-                var endTime = Date.now();
-                var elapsedTime = endTime - startTime;
-                var timeSinceLastClick = endTime -
-                                         gMouseEvents.getLastMouseDownTime();
-                // we'll focus on table if its been less than timeAllowed OR
-                // if the user hasn't clicked or scrolled
-                if (elapsedTime < timeAllowed ||
-                    (timeSinceLastClick >= elapsedTime &&
-                        ($('#mainFrame').scrollLeft() === startScrollPosition))) {
-                    focusOnTable = true;
-                }
-                var options = {"focusWorkspace": focusOnTable};
-
-                // var $dataCol = $("#xcTable-" + tableId).find('th.dataCol');
-                // var dataColNum = xcHelper.parseColNum($dataCol) - 1;
-                var tableCols = gTables[tableId].tableCols;
-                tableCols = xcHelper.deepCopy(tableCols);
-                var finalTableCols = [];
-                var dataCol;
-                var colNameIndex;
-                for (var i = 0; i < tableCols.length; i++) {
-                    colNameIndex = colNamesArray.indexOf(tableCols[i].backName)
-                    if (colNameIndex > -1) {
-                        finalTableCols.push(tableCols[i]);
-                        // empty out the colnames array
-                        colNames[colNameIndex].found = true;
-                    } else if (tableCols[i].backName === "DATA") {
-                        dataCol = ColManager.newDATACol();
-                    }
-                }
-                // loop through colnames that weren't pulled out in table
-                var newProgCol;
-                var colName;
-                var width;
-                var widthOptions = {
-                    defaultHeaderStyle: true
-                };
-                var escapedName;
-                function filterColNames(colNameObj) {
-                    return (!colNameObj.found);
-                }
-                colNames = colNames.filter(filterColNames);
-                for (var i = 0; i < colNames.length; i++) {
-                    colName = colNames[i].name;
-                    escapedName = xcHelper.escapeColName(colName);
-                    width = getTextWidth($(), colName, widthOptions);
-                    newProgCol = ColManager.newCol({
-                        "backName": escapedName,
-                        "name"    : colName,
-                        "width"   : width,
-                        "isNewCol": false,
-                        "userStr" : '"' + colName + '" = pull(' + escapedName + ')',
-                        "func"    : {
-                            "name": "pull",
-                            "args": [escapedName]
-                        }
-                    });
-                    finalTableCols.push(newProgCol);
-                }
-                finalTableCols.push(dataCol);
-                // var dataCol = gTables[tableId].tableCols[dataColNum];
-                // var tableCols = [xcHelper.deepCopy(dataCol)];
-
-                return TblManager.refreshTable([dstTableName], finalTableCols,
-                                               [tableName], worksheet, options);
-            })
-            .then(function() {
-                xcHelper.unlockTable(tableId);
-                var sql = {
-                    "operation"   : SQLOps.Project,
-                    "tableName"   : tableName,
-                    "tableId"     : tableId,
-                    "colNames"    : colNames,
-                    "newTableName": dstTableName
-                };
-
-                var finalTableId = xcHelper.getTableId(dstTableName);
-
-                Transaction.done(txId, {
-                    "msgTable"      : finalTableId,
-                    "sql"           : sql,
-                    "noNotification": focusOnTable
-                });
-            })
-            .fail(function(error) {
-                xcHelper.unlockTable(tableId);
-                Transaction.fail(txId, {
-                    "failMsg": StatusMessageTStr.ProjectFailed,
-                    "error"  : error
-                });
-            });
         } else {
             // shouldn't have been able to submit anyways
             console.warn('no columns selected');
