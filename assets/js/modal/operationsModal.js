@@ -484,42 +484,48 @@ window.OperationsModal = (function($, OperationsModal) {
         }
     };
 
-    OperationsModal.show = function(currTableId, currColNum, operator) {
+    // restore: boolean, if true, will not clear the form from it's last state
+    OperationsModal.show = function(currTableId, currColNum, operator, restore) {
         var deferred = jQuery.Deferred();
 
-        tableId = currTableId;
-        var tableCols = gTables[tableId].tableCols;
-        currentCol = tableCols[currColNum - 1];
-        colNum = currColNum;
-        colName = currentCol.name;
-        isNewCol = currentCol.isNewCol;
+        if (!restore) {
+            resetForm();
+            tableId = currTableId;
+            var tableCols = gTables[tableId].tableCols;
+            currentCol = tableCols[currColNum - 1];
+            colNum = currColNum;
+            colName = currentCol.name;
+            isNewCol = currentCol.isNewCol;
+            $operationsModal.find('.operationsModalHeader .text')
+                        .text(operator);
+
+            // get modal's origin classes
+            var classes = $operationsModal.attr('class').split(' ');
+            for (var i = 0; i < classes.length; i++) {
+                if (classes[i].startsWith('numArgs')){
+                    classes.splice(i, 1);
+                    i--;
+                }
+            }
+
+            $operationsModal.attr('class', classes.join(' '));
+
+            operatorName = operator.toLowerCase().trim();
+            $operationsModal.removeClass('fewArgs numerousArgs');
+            if (operatorName === 'aggregate') {
+                $operationsModal.addClass('fewArgs');
+            } else if (operatorName === 'map') {
+                $operationsModal.addClass('numerousArgs');
+            } else if (operatorName === 'group by') {
+                $operationsModal.addClass('numerousArgs');
+            }
+        }
 
         $('#xcTable-' + tableId).find('.col' + colNum)
                                 .addClass('modalHighlighted');
 
-        $operationsModal.find('.operationsModalHeader .text')
-                        .text(operator);
 
-        // get modal's origin classes
-        var classes = $operationsModal.attr('class').split(' ');
-        for (var i = 0; i < classes.length; i++) {
-            if (classes[i].startsWith('numArgs')){
-                classes.splice(i, 1);
-                i--;
-            }
-        }
 
-        $operationsModal.attr('class', classes.join(' '));
-
-        operatorName = operator.toLowerCase().trim();
-        $operationsModal.removeClass('fewArgs numerousArgs');
-        if (operatorName === 'aggregate') {
-            $operationsModal.addClass('fewArgs');
-        } else if (operatorName === 'map') {
-            $operationsModal.addClass('numerousArgs');
-        } else if (operatorName === 'group by') {
-            $operationsModal.addClass('numerousArgs');
-        }
 
         // we want the modal to show up ~ below the first row
         var modalTop = $('#xcTable-' + tableId).find('tbody tr').eq(0)
@@ -532,6 +538,9 @@ window.OperationsModal = (function($, OperationsModal) {
             "open"  : function() {
                 // ops modal has its own opener
                 toggleModalDisplay(false);
+                if (!restore) {
+                    fillInputPlaceholder(0);
+                }
             }
         });
 
@@ -539,34 +548,37 @@ window.OperationsModal = (function($, OperationsModal) {
         .then(function(listXdfsObj) {
             udfUpdateOperatorsMap(listXdfsObj.fnDescs);
 
-            var colNames = [];
-            tableCols.forEach(function(col) {
-                // skip data column
-                if (col.name !== "DATA") {
-                    // Add $ since this is the current format of column
-                    colNames.push('$' + col.name);
-                }
-            });
-
-            corrector = new Corrector(colNames);
-
             var aggs = Aggregates.getAggs();
             aggNames = [];
             for (var i in aggs) {
                 aggNames.push(aggs[i].dagName);
             }
 
-            populateInitialCategoryField(operatorName);
-            fillInputPlaceholder(0);
+            if (!restore) {
+                var colNames = [];
+                tableCols.forEach(function(col) {
+                    // skip data column
+                    if (col.name !== "DATA") {
+                        // Add $ since this is the current format of column
+                        colNames.push('$' + col.name);
+                    }
+                });
 
-            $categoryInput.focus();
-            if ($categoryUl.find('li').length === 1) {
-                var val = $categoryUl.find('li').text();
-                $categoryInput.val(val).change();
-                enterInput(0);
-                $operationsModal.find('.circle1').addClass('filled');
-                $functionInput.focus();
+                corrector = new Corrector(colNames);
+
+                populateInitialCategoryField(operatorName);
+                fillInputPlaceholder(0);
+
+                $categoryInput.focus();
+                if ($categoryUl.find('li').length === 1) {
+                    var val = $categoryUl.find('li').text();
+                    $categoryInput.val(val).change();
+                    enterInput(0);
+                    $operationsModal.find('.circle1').addClass('filled');
+                    $functionInput.focus();
+                }
             }
+
             $operationsModal.find('.list').removeClass('hovering');
 
             modalHelper.removeWaitingBG();
@@ -581,14 +593,15 @@ window.OperationsModal = (function($, OperationsModal) {
     };
 
     function toggleModalDisplay(isHide, time) {
-        modalHelper.toggleBG(tableId, isHide, {"time": time});
+        // do not close background if alert is showing
+        if (!isHide || !$('#alertModal').is(":visible")) {
+            modalHelper.toggleBG(tableId, isHide, {"time": time});
+        }
 
         var $table = $("#xcTable-" + tableId);
         if (isHide) {
-            $functionInput.attr('placeholder', "");
             $table.off('mousedown', '.header, td.clickable', keepInputFocused);
             $table.off('click.columnPicker');
-
             $('body').off('keydown', listHighlightListener);
         } else {
             if (gMinModeOn) {
@@ -603,7 +616,6 @@ window.OperationsModal = (function($, OperationsModal) {
             });
             $table.on('mousedown', '.header, td.clickable', keepInputFocused);
             $('body').on('keydown', listHighlightListener);
-            fillInputPlaceholder(0);
         }
     }
 
@@ -2472,7 +2484,35 @@ window.OperationsModal = (function($, OperationsModal) {
             }
         }
 
-        xcFunction.map(colNum, tableId, newColName, mapStr, mapOptions);
+        var startTime = Date.now();
+
+        xcFunction.map(colNum, tableId, newColName, mapStr, mapOptions)
+        .fail(function(error) {
+            var endTime = Date.now();
+            var elapsedTime = endTime - startTime;
+            var timeSinceLastClick = endTime - gMouseEvents.getLastMouseDownTime();
+
+            if (timeSinceLastClick < elapsedTime) {
+                return;
+            }
+            // overwrite thriftlog alert modal if user has not clicked
+            var origMsg = $("#alertContent .text").text().trim();
+            if (origMsg[origMsg.length - 1] !== ".") {
+                origMsg += ".";
+            }
+            var newMsg = origMsg + "\n" + OpModalTStr.ModifyMapDesc;
+            Alert.error(StatusMessageTStr.MapFailed, newMsg,
+                {"buttons": [{
+                    "name": OpModalTStr.ModifyMap,
+                    "func": function() {
+                        OperationsModal.show(null, null, null, true);
+                    }
+                }],
+                "onCancel": function() {
+                    modalHelper.toggleBG(tableId, true, {"time": 300});
+                }
+            });
+        });
     }
 
     function formulateMapFilterString(operator, args, colTypeInfos) {
@@ -3103,24 +3143,27 @@ window.OperationsModal = (function($, OperationsModal) {
                                     .removeClass('modalHighlighted');
             $operationsModal.fadeOut(time, function() {
                 toggleModalDisplay(true, time);
-                clearInput(0);
-                $autocompleteInputs.each(function() {
-                    $(this).data('value', '');
-                });
-
-                $functionsMenu.data('category', 'null');
                 unminimizeTable();
-                $operationsModal.find('.checkbox').removeClass('checked');
                 $operationsModal.find('.minimize').hide();
-                $operationsModal.find('td.cast').find('.dropDownList')
-                                                .addClass('hidden');
-                hideCastColumn();
                 modalHelper.removeWaitingBG();
             });
         }});
 
         StatusBox.forceHide();// hides any error boxes;
         $('.tooltip').hide();
+    }
+
+    function resetForm() {
+        $functionInput.attr('placeholder', "");
+        clearInput(0);
+        $autocompleteInputs.each(function() {
+            $(this).data('value', '');
+        });
+        $functionsMenu.data('category', 'null');
+        $operationsModal.find('.checkbox').removeClass('checked');
+        $operationsModal.find('td.cast').find('.dropDownList')
+                                                .addClass('hidden');
+        hideCastColumn();
     }
 
     function getArgRowHtml() {

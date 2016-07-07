@@ -401,7 +401,7 @@ function XcalarGetVersion(connectionCheck) {
     return (deferred.promise());
 }
 
-// Call this exactly with the url and isRecur that you 
+// Call this exactly with the url and isRecur that you
 function XcalarPreview(url, isRecur, numBytesRequested) {
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return PromiseHelper.resolve(null);
@@ -1499,6 +1499,7 @@ function XcalarMap(newFieldName, evalStr, srcTablename, dstTablename,
     if (tHandle == null) {
         return PromiseHelper.resolve(null);
     }
+
 
     var deferred = jQuery.Deferred();
     if (insertError(arguments.callee, deferred)) {

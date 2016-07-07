@@ -573,6 +573,8 @@ OpModalTStr = {
     'IncSampleDesc': 'If checked, a sample of all fields will be included',
     'KeepInTable': 'Join Back',
     'KeepInTableDesc': 'If checked, group by will augment original table',
+    'ModifyMapDesc': 'Would you like to modify the map?',
+    'ModifyMap': 'Modify Map'
 };
 
 JsonModalTStr = {
