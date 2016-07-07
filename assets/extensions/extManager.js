@@ -329,7 +329,9 @@ window.ExtensionManager = (function(ExtensionManager, $) {
                     });
                     txId = Transaction.start({
                         "msg"      : msg,
-                        "operation": SQLOps.Ext
+                        "operation": SQLOps.Ext,
+                        "steps"    : -1,
+                        "functionName": functionName
                     });
 
                     return ext.run(txId);
@@ -416,7 +418,9 @@ window.ExtensionManager = (function(ExtensionManager, $) {
         });
         var txId = Transaction.start({
             "msg"      : msg,
-            "operation": SQLOps.Ext
+            "operation": SQLOps.Ext,
+            "steps"    : -1,
+            "functionName": functionName
         });
 
         try {

@@ -346,6 +346,7 @@ window.StartManager = (function(StartManager, $) {
                 }
             }
             StatusMessage.updateLocation();
+            $('.tableDonePopupWrap').remove();
         });
     }
 

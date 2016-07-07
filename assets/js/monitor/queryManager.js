@@ -36,7 +36,7 @@ window.QueryManager = (function(QueryManager, $) {
         var subQueries;
         if (query) {
             type = "xcQuery";
-            subQueries = parseQuery(query);
+            subQueries = xcHelper.parseQuery(query);
             numSteps = subQueries.length;
         } else {
             type = "xcFunction";
@@ -64,7 +64,8 @@ window.QueryManager = (function(QueryManager, $) {
         }
     };
 
-    QueryManager.addSubQuery = function(id, name, dstTable, query) {
+    // queryName will be empty if subquery doesn't belong to a xcalarQuery
+    QueryManager.addSubQuery = function(id, name, dstTable, query, queryName) {
         if (!queryLists[id]) {
             return;
         }
@@ -77,11 +78,16 @@ window.QueryManager = (function(QueryManager, $) {
             "query"   : query,
             "dstTable": dstTable,
             "id"      : id,
-            "index"   : mainQuery.subQueries.length
+            "index"   : mainQuery.subQueries.length,
+            "queryName": queryName
         });
         mainQuery.addSubQuery(subQuery);
         if (mainQuery.currStep === mainQuery.subQueries.length - 1) {
-            subQueryCheck(subQuery);
+            if (queryName) {
+                outerQueryCheck(id);
+            } else {
+                subQueryCheck(subQuery);
+            }
         }
         var $query = $queryList.find('.query[data-id="' + id + '"]');
         if ($query.hasClass('active')) {
@@ -138,7 +144,12 @@ window.QueryManager = (function(QueryManager, $) {
                             if (mainQuery.currStep === mainQuery.numSteps) {
                                 // query is done
                             } else if (subQuery) {
-                                subQueryCheck(subQuery);
+                                if (subQuery.queryName) {
+                                    outerQueryCheck(id);
+                                } else {
+                                    subQueryCheck(subQuery);
+                                }
+
                             }
                         }
 
@@ -190,7 +201,11 @@ window.QueryManager = (function(QueryManager, $) {
                     if (query.type === "xcFunction") {
                         for (var i = 0; i < query.subQueries.length; i++) {
                             if (query.subQueries[i].state !== "done") {
-                                subQueryCheck(query.subQueries[i]);
+                                if (query.subQueries[i].queryName) {
+                                    outerQueryCheck(query.getId());
+                                } else {
+                                    subQueryCheck(query.subQueries[i]);
+                                }
                                 break;
                             }
                         }
@@ -236,10 +251,9 @@ window.QueryManager = (function(QueryManager, $) {
 
     function mainQueryCheck(id) {
         var mainQuery = queryLists[id];
-        var lastStep = mainQuery.currStep;
         clearInterval(queryCheckLists[id]);
         check();
-        queryCheckLists[id] = setInterval(check, 500);
+        queryCheckLists[id] = setInterval(check, checkInterval);
 
         function check() {
             mainQuery.check()
@@ -268,150 +282,79 @@ window.QueryManager = (function(QueryManager, $) {
         }
     }
 
-    // used to split query into array of subqueries by semicolons
-    function parseQuery(query) {
-        var tempString = "";
-        var inQuotes = false;
-        var singleQuote = false;
-        var isEscaped = false;
-        var queries = [];
-        var subQuery;
-        var operationName;
-
-        for (var i = 0; i < query.length; i++) {
-            if (isEscaped) {
-                tempString += query[i];
-                isEscaped = false;
-                continue;
-            }
-
-            if (inQuotes) {
-                if ((query[i] === "\"" && !singleQuote) ||
-                    (query[i] === "'" && singleQuote)) {
-                    inQuotes = false;
-                }
-            } else {
-                if (query[i] === "\"") {
-                    inQuotes = true;
-                    singleQuote = false;
-                } else if (query[i] === "'") {
-                    inQuotes = true;
-                    singleQuote = true;
-                }
-            }
-
-            if (query[i] === "\\") {
-                isEscaped = true;
-                tempString += query[i];
-            } else if (inQuotes) {
-                tempString += query[i];
-            } else {
-                if (query[i] === ";") {
-                    tempString = tempString.trim();
-                    operationName = tempString.split(" ")[0];
-                    subQuery = {
-                        query: tempString,
-                        name: operationName,
-                        dstTable: getDstTableFromQuery(tempString, operationName)
-                    };
-                    queries.push(subQuery);
-                    tempString = "";
-                } else if (tempString === "" && query[i] === " ") {
-                    // a way of trimming the front of the string
-                    continue;
-                } else {
-                    tempString += query[i];
-                }
-            }
-        }
-        if (tempString.trim().length) {
-            tempString = tempString.trim();
-            operationName = tempString.split(" ")[0];
-            subQuery = {
-                query: tempString,
-                name: operationName,
-                dstTable: getDstTableFromQuery(tempString, operationName)
-            };
-            queries.push(subQuery);
-        }
-
-        return (queries);
-    }
-
-    function getDstTableFromQuery(query, type) {
-        var keyWord = "--dsttable";
-        if (type) {
-            if (type === "join") {
-                keyWord = "--joinTable";
-            }
-        }
-        var index = getKeyWordIndexFromQuery(query, keyWord);
-        var singleQuote;
-
-        index += keyWord.length;
-        query = query.slice(index).trim();
-        var quote = query[0];
-        if (quote !== "'" && quote !== '"') {
-            console.error('table name is not wrapped in quotes');
-            return null;
-        }
-        query = query.slice(1);
-
-        var isEscaped = false;
-        var tableName = "";
-        for (var i = 0; i < query.length; i++) {
-            if (isEscaped) {
-                isEscaped = false;
-                tableName += query[i];
-                continue;
-            }
-            if (query[i] === "\\") {
-                isEscaped = true;
-                tableName += query[i];
-            } else if (query[i] === quote) {
+    // get the first subquery index of a group of subqueries inside of a mainquery
+    function getFirstQueryPos(mainQuery) {
+        var currStep = mainQuery.currStep;
+        var subQueries = mainQuery.subQueries;
+        var queryName = subQueries[currStep].queryName;
+        var firstQueryPos = currStep;
+        for (var i = mainQuery.currStep; i >= 0; i--) {
+            if (subQueries[i].queryName !== queryName) {
+                firstQueryPos = i + 1;
                 break;
-            } else {
-                tableName += query[i];
             }
         }
-        return (tableName);
+        return (firstQueryPos);
     }
 
-    function getKeyWordIndexFromQuery(query, keyWord) {
-        var inQuotes = false;
-        var singleQuote = false;
-        var isEscaped = false;
-        var keyLen = ("" + keyWord).length;
-        for (var i = 0; i < query.length; i++) {
-            if (isEscaped) {
-                isEscaped = false;
-                continue;
-            }
-
-            if (inQuotes) {
-                if ((query[i] === "\"" && !singleQuote) ||
-                    (query[i] === "'" && singleQuote)) {
-                    inQuotes = false;
-                }
-            } else {
-                if (query[i] === "\"") {
-                    inQuotes = true;
-                    singleQuote = false;
-                } else if (query[i] === "'") {
-                    inQuotes = true;
-                    singleQuote = true;
-                }
-            }
-
-            if (query[i] === "\\") {
-                isEscaped = true;
-            } else if (!inQuotes) {
-                if (i >= keyLen && query.slice(i - keyLen, i) === keyWord) {
-                    return (i - keyLen);
-                }
-            }
+    function setQueriesDone(mainQuery, start, end) {
+        var subQueries = mainQuery.subQueries;
+        for (var i = start; i < end; i++) {
+            subQueries[i].state = "done";
         }
-        return -1;
+    }
+
+    // checks a group of subqueries by checking the single query name they're
+    // associated with
+    function outerQueryCheck(id) {
+        if (!queryLists[id]) {
+            console.error("error case");
+            return;
+        } else if (!$("#monitor-queries").hasClass("active") ||
+                    !$('#monitorTab').hasClass('active')) {
+            return;
+        }
+
+        var mainQuery = queryLists[id];
+        var firstQueryPos = getFirstQueryPos(mainQuery);
+        clearInterval(queryCheckLists[id]);
+        check();
+        queryCheckLists[id] = setInterval(check, checkInterval);
+
+        function check() {
+            var queryName = mainQuery.subQueries[mainQuery.currStep].queryName;
+
+            XcalarQueryState(queryName)
+            .then(function(res) {
+                var numCompleted = res.numCompletedWorkItem;
+                var currStep = numCompleted + firstQueryPos;
+                mainQuery.currStep = currStep;
+                setQueriesDone(mainQuery, firstQueryPos, currStep);
+                var state = res.queryState;
+                if (state === QueryStateT.qrFinished) {
+                    mainQuery.currStep++;
+                    clearInterval(queryCheckLists[id]);
+                    if (mainQuery.subQueries[mainQuery.currStep]) {
+                        if (mainQuery.subQueries[mainQuery.currStep].queryName) {
+                            outerQueryCheck(id);
+                        } else {
+                            subQueryCheck(mainQuery.subQueries[mainQuery.currStep]);
+                        }
+                    }
+                    return;
+                } else if (state === QueryStateT.qrError) {
+                    clearInterval(queryCheckLists[id]);
+                    updateQueryBar(id, res, true);
+                } else {
+                    subQueryCheckHelper(mainQuery.subQueries[currStep], id, currStep);
+                }
+            })
+            .fail(function(error) {
+                console.error("Check failed", error, queryName);
+                updateQueryBar(id, null, error);
+                clearInterval(queryCheckLists[id]);
+            });
+        }
     }
 
     function incrementStep(mainQuery) {
@@ -496,10 +439,11 @@ window.QueryManager = (function(QueryManager, $) {
         if (!$queryList.find('.query[data-id="' + id + '"]').hasClass('active')) {
             return;
         }
-        var mainQuery = queryLists[id]
+        var mainQuery = queryLists[id];
         var queryState = mainQuery.getState();
         var dstTableState = mainQuery.getOutputTableState();
-        if (queryState === "done" && dstTableState === "active") {
+        if (queryState === "done" && dstTableState === "active" &&
+            mainQuery.getOutputTableName()) {
             $("#monitor-inspect").removeClass('btnInactive');
             $("#monitor-export").removeClass('btnInactive');
             $queryDetail.find('.outputSection').find('.text')

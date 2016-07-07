@@ -1365,6 +1365,8 @@ window.ColManager = (function($, ColManager) {
         for (var i = 0; i < columns.length; i++) {
             colNumsList.push(i);
         }
+        // XX could change this to use a map to store duplicates and make this
+        // O(2n) instead of O(n^2)
         for (i = 0; i < columns.length; i++) {
             var backName = columns[i].backName;
             if (columns[i].func.func && columns[i].func.func === "raw") {
@@ -1384,6 +1386,7 @@ window.ColManager = (function($, ColManager) {
                 }
             }
         }
+
         var dataIndex = xcHelper.parseColNum($table.find('th.dataCol'));
         var newDataIndex;
         $table.find('th').each(function(i) {

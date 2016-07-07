@@ -180,7 +180,7 @@ window.UExtGLM = (function(UExtGLM, $) {
             // submit query here
             var queryStr = avgStr + BStr + lineStr + dropStr;
             XcalarQueryWithCheck("slr_" + tableNameRoot +"_query_" +
-                                 Authentication.getHashId(), queryStr)
+                                 Authentication.getHashId(), queryStr, txId)
             .then(function() {
                 // FINAL:
                 // Step 5: Display x, y, and the output from line function

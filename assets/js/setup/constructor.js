@@ -1979,8 +1979,9 @@ XcQuery.prototype = {
                 console.warn('no subQueries were added to the mainQuery: ' +
                              this.name);
                 return null;
+            } else {
+                return (this.subQueries[this.subQueries.length - 1].dstTable);
             }
-            return (this.subQueries[this.subQueries.length - 1].dstTable);
         } else {
             return null;
         }
@@ -2044,6 +2045,7 @@ function XcSubQuery(options) {
     this.dstTable = options.dstTable;
     this.id = options.id;
     this.index = options.index;
+    this.queryName = options.queryName;
 
     if (options.state == null) {
         this.state = QueryStateT.qrNotStarted;

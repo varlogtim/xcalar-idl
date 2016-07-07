@@ -173,7 +173,7 @@ window.UExtNN = (function(UExtNN, $) {
                     'drop table *' + tmpTableTag + '*;';
 
                 return (XcalarQueryWithCheck("nn_training_" + Authentication.getHashId(),
-                                             queryStr));
+                                             queryStr, txId));
             })
             .then(function () {
                 return (XcalarMakeResultSetFromTable(output));
@@ -366,7 +366,7 @@ window.UExtNN = (function(UExtNN, $) {
                 'filter ' + tableName + ' "eq(type,\\"ow\\")" ' + ow + ';';
 
             XcalarQueryWithCheck("nn_preProcess" + Authentication.getHashId(),
-                                 preProcessStr)
+                                 preProcessStr, txId)
             .then(function () {
                 return iterate(iteration);
             })
@@ -655,7 +655,7 @@ window.UExtNN = (function(UExtNN, $) {
                 var resultSet;
                 XcalarQueryWithCheck("nn_iteration_" + iteration
                                      + Authentication.getHashId(),
-                                     queryStr)
+                                     queryStr, txId)
                 .then(function () {
                     return (XcalarMakeResultSetFromTable(totalError));
                 })

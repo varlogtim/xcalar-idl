@@ -834,8 +834,9 @@ function XcalarIndexFromDataset(datasetName, key, tablename, txId) {
                                   dhtName,
                                   XcalarOrderingT.XcalarOrderingUnordered);
     var def2 = XcalarGetQuery(workItem);
+
     def2.then(function(query) {
-        QueryManager.addSubQuery(txId, 'index from DS', tablename, query);
+        Transaction.startSubQuery(txId, 'index from DS', tablename, query);
     });
 
     jQuery.when(def1, def2)
@@ -878,7 +879,7 @@ function XcalarIndexFromTable(srcTablename, key, tablename, ordering,
         var def2 = XcalarGetQuery(workItem);
         def2.then(function(query) {
             if (!unsorted) {
-                QueryManager.addSubQuery(txId, 'index', tablename, query);
+                Transaction.startSubQuery(txId, 'index', tablename, query);
             }
         });
 
@@ -1450,7 +1451,7 @@ function XcalarFilter(evalStr, srcTablename, dstTablename, txId) {
                                 dstTablename);
         var def2 = XcalarGetQuery(workItem);
         def2.then(function(query) {
-            QueryManager.addSubQuery(txId, 'filter', dstTablename, query);
+            Transaction.startSubQuery(txId, 'filter', dstTablename, query);
         });
 
         jQuery.when(def1, def2)
@@ -1500,7 +1501,7 @@ function XcalarMap(newFieldName, evalStr, srcTablename, dstTablename,
                                 unsortedSrcTablename, dstTablename);
         var def2 = XcalarGetQuery(workItem);
         def2.then(function(query) {
-            QueryManager.addSubQuery(txId, 'map', dstTablename, query);
+            Transaction.startSubQuery(txId, 'map', dstTablename, query);
         });
 
         jQuery.when(def1, def2)
@@ -1584,7 +1585,7 @@ function XcalarAggregate(evalStr, dstAggName, srcTablename, txId) {
                                    evalStr);
         var def2 = XcalarGetQuery(workItem);
         def2.then(function(query) {
-            QueryManager.addSubQuery(txId, 'aggregate', dstAggName, query);
+            Transaction.startSubQuery(txId, 'aggregate', dstAggName, query);
         });
         jQuery.when(def1, def2)
         .then(function(ret1, ret2) {
@@ -1618,7 +1619,7 @@ function XcalarJoin(left, right, dst, joinType, txId) {
                               joinType);
         var def2 = XcalarGetQuery(workItem);
         def2.then(function(query) {
-            QueryManager.addSubQuery(txId, 'join', dst, query);
+            Transaction.startSubQuery(txId, 'join', dst, query);
         });
 
         jQuery.when(def1, def2)
@@ -1688,7 +1689,7 @@ function XcalarProject(columns, tableName, dstTableName, txId) {
                                  unsortedTableName, dstTableName);
         var def2 = XcalarGetQuery(workItem); // XXX May not work? Have't tested
         def2.then(function(query) {
-            QueryManager.addSubQuery(txId, 'project', dstTableName, query);
+            Transaction.startSubQuery(txId, 'project', dstTableName, query);
         });
 
         jQuery.when(def1, def2)
@@ -1716,6 +1717,10 @@ function XcalarGenRowNum(srcTableName, dstTableName, newFieldName, txId) {
     var def1 = xcalarApiGetRowNum(tHandle, newFieldName, srcTableName,
                                   dstTableName);
     var def2 = XcalarGetQuery(workItem);
+    def2.then(function(query) {
+        Transaction.startSubQuery(txId, 'genRowNum', dstTableName, query);
+    });
+
     jQuery.when(def1, def2)
     .then(function(ret1, ret2) {
         // XXX This part doesn't work yet
@@ -1733,7 +1738,7 @@ function XcalarGenRowNum(srcTableName, dstTableName, newFieldName, txId) {
 // PSA!!! This place does not check for unsorted table. So the caller
 // must make sure that the first table that is being passed into XcalarQuery
 // is an unsorted table! Otherwise backend may crash
-function XcalarQuery(queryName, queryString) {
+function XcalarQuery(queryName, queryString, txId) {
     // XXX Now only have a simple output
     /* some test case :
         "load --url file:///var/tmp/gdelt --format csv --name test"
@@ -1750,7 +1755,10 @@ function XcalarQuery(queryName, queryString) {
     }
 
     xcalarQuery(tHandle, queryName, queryString, true)
-    .then(deferred.resolve)
+    .then(function() {
+        Transaction.startSubQuery(txId, queryName, null, queryString);
+        deferred.resolve();
+    })
     .fail(function(error) {
         var thriftError = thriftLog("XcalarQuery", error);
         SQL.errorLog("XcalarQuery", null, null, thriftError);
@@ -1815,13 +1823,13 @@ function XcalarQueryCheck(queryName) {
     return (deferred.promise());
 }
 
-function XcalarQueryWithCheck(queryName, queryString) {
+function XcalarQueryWithCheck(queryName, queryString, txId) {
     var deferred = jQuery.Deferred();
     if (insertError(arguments.callee, deferred)) {
         return (deferred.promise());
     }
 
-    XcalarQuery(queryName, queryString)
+    XcalarQuery(queryName, queryString, txId)
     .then(function() {
         return (XcalarQueryCheck(queryName));
     })

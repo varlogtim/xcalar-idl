@@ -1648,6 +1648,165 @@ window.xcHelper = (function($, xcHelper) {
         }
     };
 
+    // XX Not tested in unit test
+    // used to split query into array of subqueries by semicolons
+    // XX not checking for /n or /r delimiter, just semicolon
+    // returns array of objects, objects contain query, name, and dstTable
+    xcHelper.parseQuery =  function(query) {
+        var tempString = "";
+        var inQuotes = false;
+        var singleQuote = false;
+        var isEscaped = false;
+        var queries = [];
+        var subQuery;
+        var operationName;
+
+        for (var i = 0; i < query.length; i++) {
+            if (isEscaped) {
+                tempString += query[i];
+                isEscaped = false;
+                continue;
+            }
+
+            if (inQuotes) {
+                if ((query[i] === "\"" && !singleQuote) ||
+                    (query[i] === "'" && singleQuote)) {
+                    inQuotes = false;
+                }
+            } else {
+                if (query[i] === "\"") {
+                    inQuotes = true;
+                    singleQuote = false;
+                } else if (query[i] === "'") {
+                    inQuotes = true;
+                    singleQuote = true;
+                }
+            }
+
+            if (query[i] === "\\") {
+                isEscaped = true;
+                tempString += query[i];
+            } else if (inQuotes) {
+                tempString += query[i];
+            } else {
+                if (query[i] === ";") {
+                    tempString = tempString.trim();
+                    operationName = tempString.split(" ")[0];
+                    subQuery = {
+                        query: tempString,
+                        name: operationName,
+                        dstTable: getDstTableFromQuery(tempString, operationName)
+                    };
+                    queries.push(subQuery);
+                    tempString = "";
+                } else if (tempString === "" && query[i] === " ") {
+                    // a way of trimming the front of the string
+                    continue;
+                } else {
+                    tempString += query[i];
+                }
+            }
+        }
+        if (tempString.trim().length) {
+            tempString = tempString.trim();
+            operationName = tempString.split(" ")[0];
+            subQuery = {
+                query: tempString,
+                name: operationName,
+                dstTable: getDstTableFromQuery(tempString, operationName)
+            };
+            queries.push(subQuery);
+        }
+
+        return (queries);
+    };
+
+    function getDstTableFromQuery(query, type) {
+        var keyWord = "--dsttable";
+        if (type) {
+            if (type === "join") {
+                keyWord = "--joinTable";
+            }
+        }
+        var index = getKeyWordIndexFromQuery(query, keyWord);
+        var singleQuote;
+
+        index += keyWord.length;
+        query = query.slice(index).trim();
+        var quote = query[0];
+        var wrappedInQuotes = true;
+        if (quote !== "'" && quote !== '"') {
+            console.warn('table name is not wrapped in quotes');
+            wrappedInQuotes = false;
+        } else {
+            query = query.slice(1);
+        }
+
+        var isEscaped = false;
+        var tableName = "";
+        for (var i = 0; i < query.length; i++) {
+            if (isEscaped) {
+                isEscaped = false;
+                tableName += query[i];
+                continue;
+            }
+            if (query[i] === "\\") {
+                isEscaped = true;
+                tableName += query[i];
+            } else if (wrappedInQuotes) {
+                if (query[i] === quote) {
+                    break;
+                } else {
+                    tableName += query[i];
+                }
+            } else if (!wrappedInQuotes) {
+                if (query[i] === " " || query[i] === ";") {
+                    break;
+                } else {
+                    tableName += query[i];
+                }
+            }
+        }
+        return (tableName);
+    }
+
+    function getKeyWordIndexFromQuery(query, keyWord) {
+        var inQuotes = false;
+        var singleQuote = false;
+        var isEscaped = false;
+        var keyLen = ("" + keyWord).length;
+        for (var i = 0; i < query.length; i++) {
+            if (isEscaped) {
+                isEscaped = false;
+                continue;
+            }
+
+            if (inQuotes) {
+                if ((query[i] === "\"" && !singleQuote) ||
+                    (query[i] === "'" && singleQuote)) {
+                    inQuotes = false;
+                }
+            } else {
+                if (query[i] === "\"") {
+                    inQuotes = true;
+                    singleQuote = false;
+                } else if (query[i] === "'") {
+                    inQuotes = true;
+                    singleQuote = true;
+                }
+            }
+
+            if (query[i] === "\\") {
+                isEscaped = true;
+            } else if (!inQuotes) {
+                if (i >= keyLen && query.slice(i - keyLen, i) === keyWord) {
+                    return (i - keyLen);
+                }
+            }
+        }
+        return -1;
+    }
+
     /*
     options: {
         mouseCoors: {x: float, y: float},

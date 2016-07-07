@@ -229,7 +229,7 @@ window.UExtKMeans = (function(UExtKMeans, $) {
                 // submit query we created
                 return (XcalarQueryWithCheck("findCentroid_" + tmpTableTag +
                                              Authentication.getHashId(),
-                                             queryStr));
+                                             queryStr, txId));
             })
             .then(function() {
                 // CLUSTERING: this is a recursive do-while construct
@@ -425,7 +425,7 @@ window.UExtKMeans = (function(UExtKMeans, $) {
                 queryStr = startupStr + clusterStr + updateStr + compareStr;
                 XcalarQueryWithCheck("kMeans_" + tableNameRoot +"_iteration_" +
                                      iteration + Authentication.getHashId(),
-                                     queryStr)
+                                     queryStr, txId)
                 .then(function() {
                     return (XcalarMakeResultSetFromTable(distanceTableName));
                 })

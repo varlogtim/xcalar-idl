@@ -973,12 +973,13 @@
                 }
 
                 .content {
-                    .size(@width: 100%, @height: ~"calc(100% - 20px)");
+                    .size(@width: 100%, @height: ~"calc(100% - 30px)");
                     background-color: @color-white;
                     box-shadow: inset 0px 2px 2px 1px rgba(0,0,0,0.2);
                     padding: 10px;
-                    // white-space: pre-line;
                     .auto-selection;
+                    overflow: auto;
+                    word-break: break-word;
                     // .sqlWrap {
                     //     .size(@width: 100%, @height: 100%);
                     //     .position(relative, @top: 3px, @left: 2px);

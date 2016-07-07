@@ -30,6 +30,9 @@ window.Transaction = (function(Transaction, $) {
             } else {
                 numSubQueries = -1;
             }
+            if (options.functionName) {
+                operation += " " + options.functionName;
+            }
             QueryManager.addQuery(curId, operation, numSubQueries);
         }
 
@@ -156,6 +159,19 @@ window.Transaction = (function(Transaction, $) {
 
         if (dstTableName) {
             QueryManager.subQueryDone(txId, dstTableName);
+        }
+    };
+
+    Transaction.startSubQuery = function(txId, name, dstTable, query) {
+        var subQueries = xcHelper.parseQuery(query);
+        if (dstTable && subQueries.length === 1) {
+            QueryManager.addSubQuery(txId, name, dstTable, query);
+        } else if (subQueries.length) {
+            for (var i = 0; i < subQueries.length; i++) {
+                QueryManager.addSubQuery(txId, subQueries[i].name,
+                                            subQueries[i].dstTable,
+                                            subQueries[i].query, name);
+            }
         }
     };
 
