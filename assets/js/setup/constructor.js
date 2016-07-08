@@ -786,6 +786,7 @@ function DSObj(options) {
         this.path = options.path;
         this.fileSize = options.fileSize;
         this.numEntries = options.numEntries;
+        this.resultSetId = options.resultSetId;
     }
 
     if (this.parentId !== DSObjTerm.homeParentId) {
@@ -974,6 +975,83 @@ DSObj.prototype = {
     setNumEntries: function(num) {
         this.numEntries = num;
     },
+
+    makeResultSet: function() {
+        var self = this;
+        var deferred = jQuery.Deferred();
+
+        self.release()
+        .then(function() {
+            return XcalarMakeResultSetFromDataset(self.fullName);
+        })
+        .then(function(result) {
+            self.resultSetId = result.resultSetId;
+            self.numEntries = result.numEntries;
+            deferred.resolve();
+        })
+        .fail(deferred.reject);
+
+        return deferred.promise();
+    },
+
+    fetch: function(rowToGo, rowsToFetch) {
+        // rowToGo stats from 0
+        var self = this;
+        var deferred = jQuery.Deferred();
+
+        makeResultSetHelper()
+        .then(function() {
+            if (self.numEntries <= 0) {
+                return PromiseHelper.resolve(null);
+            }
+            return XcalarFetchData(self.resultSetId, rowToGo, rowsToFetch,
+                                    self.numEntries, []);
+        })
+        .then(deferred.resolve)
+        .fail(function(error) {
+            if (error.status === StatusT.StatusInvalidResultSetId) {
+                // when old result is invalid
+                self.makeResultSet()
+                .then(function() {
+                    return XcalarFetchData(self.resultSetId, rowToGo, rowsToFetch,
+                                self.numEntries, []);
+                })
+                .then(deferred.resolve)
+                .fail(deferred.reject);
+            } else {
+                deferred.reject(error);
+            }
+        });
+
+        function makeResultSetHelper() {
+            if (self.resultSetId != null) {
+                return PromiseHelper.resolve();
+            }
+
+            return self.makeResultSet();
+        }
+
+        return deferred.promise();
+    },
+
+    release: function() {
+        var self = this;
+        var resultSetId = self.resultSetId;
+        if (resultSetId == null) {
+            return PromiseHelper.resolve();
+        }
+
+        var deferred = jQuery.Deferred();
+        XcalarSetFree(resultSetId)
+        .then(function() {
+            self.resultSetId = null;
+            deferred.resolve();
+        })
+        .fail(deferred.reject);
+
+        return deferred.promise();
+    },
+
     // rename of dsObj
     rename: function(newName) {
         newName = newName.trim();

@@ -22,7 +22,6 @@ window.DataSampleTable = (function($, DataSampleTable) {
 
     DataSampleTable.show = function(dsId, isLoading) {
         var dsObj = DS.getDSObj(dsId);
-
         if (dsObj == null) {
             return PromiseHelper.reject("No DS");
         }
@@ -30,9 +29,10 @@ window.DataSampleTable = (function($, DataSampleTable) {
         // only show buttons(select all, clear all, etc) when table can be disablyed
         var $dsColsBtn = $("#dsColsBtn");
         var notLastDSError = "not last ds";
-        DatastoreForm.hide();
 
         $datasetWrap.removeClass("error");
+        beforeShowAction();
+
         // update date part of the table info first to make UI smooth
         var partialUpdate = true;
         updateTableInfo(dsObj, partialUpdate, isLoading);
@@ -40,8 +40,8 @@ window.DataSampleTable = (function($, DataSampleTable) {
         if (isLoading) {
             $datasetWrap.addClass("loading");
             $dsColsBtn.hide();
-
-            return beforeShowAction();
+            $tableWrap.html(""); // make html smaller
+            return PromiseHelper.resolve();
         }
 
         var deferred = jQuery.Deferred();
@@ -56,26 +56,22 @@ window.DataSampleTable = (function($, DataSampleTable) {
             timer = setTimeout(function() {
                 $datasetWrap.addClass("loading");
                 $dsColsBtn.hide();
+                $tableWrap.html(""); // make html smaller
             }, 300);
         }
 
         var datasetName = dsObj.getFullName();
         lastDSToSample = datasetName;
 
-        beforeShowAction()
-        .then(function() {
-            // XcalarSample sets gDatasetBrowserResultSetId
-            return XcalarSample(datasetName, initialNumRowsToFetch);
-        })
-        .then(function(result, totalEntries, dsResultSetId) {
+        dsObj.fetch(0, initialNumRowsToFetch)
+        .then(function(result) {
             if (lastDSToSample !== datasetName) {
                 // when network is slow and user trigger another get sample table
                 // code will goes here
-                return PromiseHelper.reject(notLastDSError, dsResultSetId);
+                return PromiseHelper.reject(notLastDSError);
             }
 
             // update info here
-            dsObj.setNumEntries(totalEntries);
             updateTableInfo(dsObj);
             return parseSampleData(result);
         })
@@ -85,13 +81,14 @@ window.DataSampleTable = (function($, DataSampleTable) {
             $datasetWrap.removeClass("loading");
             getSampleTable(dsObj, jsonKeys, jsons);
             $dsColsBtn.show();
+
             deferred.resolve();
         })
-        .fail(function(error, dsResultSetId) {
+        .fail(function(error) {
             clearTimeout(timer);
 
             if (error === notLastDSError) {
-                DS.releaseWithResultSetId(dsResultSetId);
+                dsObj.release();
                 return;
             }
 
@@ -133,14 +130,10 @@ window.DataSampleTable = (function($, DataSampleTable) {
     };
 
     function beforeShowAction() {
-        var deferred = jQuery.Deferred();
         // clear preview table and ref count,
         // always resolve it
-        DataPreview.clear()
-        .then(DS.release)
-        .always(deferred.resolve);
-
-        return deferred.promise();
+        DatastoreForm.hide();
+        DataPreview.clear();
     }
 
     function getSampleTable(dsObj, jsonKeys, jsons) {
@@ -202,7 +195,6 @@ window.DataSampleTable = (function($, DataSampleTable) {
 
     function dataStoreTableScroll($tableWrapper) {
         var numRowsToFetch = 20;
-        var curDSId = $("#worksheetTable").data("dsid");
 
         if (currentRow + initialNumRowsToFetch >= totalRows) {
             return;
@@ -223,29 +215,11 @@ window.DataSampleTable = (function($, DataSampleTable) {
             }
 
             $("#worksheetTable").addClass("fetching");
+            var dsId = $("#worksheetTable").data("dsid");
 
-            scrollSampleAndParse(currentRow, numRowsToFetch, curDSId, totalRows)
+            scrollSampleAndParse(dsId, currentRow, numRowsToFetch)
             .fail(function(error) {
-                if (error.status === StatusT.StatusInvalidResultSetId) {
-                    var dsId = $("#worksheetTable").data("dsid");
-                    if (curDSId !== dsId) {
-                        // when change ds
-                        console.warn("Sample table change to", dsId, "cancel fetch");
-                        return;
-                    }
-
-                    var datasetName = DS.getDSObj(dsId).getFullName();
-                    XcalarMakeResultSetFromDataset(datasetName)
-                    .then(function(result) {
-                        gDatasetBrowserResultSetId = result.resultSetId;
-                        return scrollSampleAndParse(currentRow, numRowsToFetch, curDSId, totalRows);
-                    })
-                    .fail(function(innerError) {
-                        console.error("Scroll data sample table fails", innerError);
-                    });
-                } else {
-                    console.error("Scroll data sample table fails", error);
-                }
+                console.error("Scroll data sample table fails", error);
             })
             .always(function() {
                 // when switch ds, #worksheetTable will be re-built
@@ -255,16 +229,21 @@ window.DataSampleTable = (function($, DataSampleTable) {
         }
     }
 
-    function scrollSampleAndParse(rowToGo, rowsToFetch, curDSId, totalEntries) {
+    function scrollSampleAndParse(dsId, rowToGo, rowsToFetch) {
+        var dsObj = DS.getDSObj(dsId);
+        if (dsObj == null) {
+            return PromiseHelper.reject("No DS");
+        }
+
         var deferred = jQuery.Deferred();
 
-        XcalarFetchData(gDatasetBrowserResultSetId, rowToGo, rowsToFetch, totalEntries, [])
+        dsObj.fetch(rowToGo, rowsToFetch)
         .then(parseSampleData)
         .then(function(jsonKeys, jsons) {
-            var dsId = $("#worksheetTable").data("dsid");
-            if (curDSId !== dsId) {
+            var curDSId = $("#worksheetTable").data("dsid");
+            if (dsId !== curDSId) {
                 // when change ds
-                console.warn("Sample table change to", dsId, "cancel fetch");
+                console.warn("Sample table change to", curDSId, "cancel fetch");
                 deferred.resolve();
                 return;
             }

@@ -386,36 +386,6 @@ function dataFormModuleTest() {
         });
     });
 
-    describe("Delimiter Func Test", function() {
-        var tests = [
-            {args: "\\t",  expected: "\t"},
-            {args: "\\n",  expected: "\n"},
-            {args: ",",    expected: ","}
-        ];
-
-        before(function() {
-            DatastoreForm.__testOnly__.toggleFormat("CSV");
-        });
-
-        tests.forEach(function(test) {
-            it(test.args + " should be translated", function() {
-              $fieldText.val(test.args);
-              var res =  DatastoreForm.__testOnly__.delimiterTranslate($fieldText);
-              expect(res).to.equal(test.expected);
-            });
-        });
-
-        it("Should reset to default delimiter", function() {
-            DatastoreForm.__testOnly__.resetDelimiter();
-            expect($fieldText.val()).to.equal("\\t");
-            expect($lineText.val()).to.equal("\\n");
-        })
-
-        after(function() {
-            DatastoreForm.__testOnly__.resetForm();
-        });
-    });
-
     describe("UDF Func Test", function() {
         before(function() {
             DatastoreForm.__testOnly__.toggleFormat("CSV");

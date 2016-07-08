@@ -296,7 +296,8 @@ window.StartManager = (function(StartManager, $) {
             $('.mainPanel').removeClass('active');
             $curTab.addClass("active");
 
-            switch ($curTab.attr("id")) {
+            var curTab = $curTab.attr("id");
+            switch (curTab) {
                 case ("workspaceTab"):
                     $("#workspacePanel").addClass("active");
                     WSManager.focusOnWorksheet();
@@ -312,6 +313,8 @@ window.StartManager = (function(StartManager, $) {
                         $curTab.removeClass("firstTouch");
                         DS.setupView();
                         DatastoreForm.initialize();
+                        // relese the old ref count if any
+                        DS.release();
                     }
                     break;
                 case ("monitorTab"):
@@ -325,6 +328,11 @@ window.StartManager = (function(StartManager, $) {
                 default:
                     $(".underConstruction").addClass("active");
             }
+            if (curTab !== "dataStoresTab") {
+                // when switch to other tab, release result set
+                DS.release();
+            }
+
             if (lastTabId === "monitorTab") {
                 MonitorPanel.inActive();
             } else if (lastTabId === "dataStoresTab") {

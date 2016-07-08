@@ -979,6 +979,7 @@ function XcalarFetchData(resultSetId, rowPosition, rowsToFetch, totalRows, data,
         });
 
         if (numStillNeeds > 0) {
+            console.info("fetch not finish", numStillNeeds);
             if (tryCnt >= 20) {
                 console.warn("Too may tries, stop");
                 return PromiseHelper.resolve();
@@ -1005,36 +1006,6 @@ function XcalarFetchData(resultSetId, rowPosition, rowsToFetch, totalRows, data,
     return deferred.promise();
 }
 
-function XcalarSample(datasetName, numEntries) {
-    var deferred = jQuery.Deferred();
-    if (insertError(arguments.callee, deferred)) {
-        return deferred.promise();
-    }
-    var totalEntries = 0;
-    XcalarMakeResultSetFromDataset(datasetName)
-    .then(function(result) {
-        // console.log(result);
-        var resultSetId = result.resultSetId;
-        totalEntries = result.numEntries;
-        gDatasetBrowserResultSetId = resultSetId;
-        if (totalEntries === 0) {
-            return deferred.resolve();
-        } else {
-            return XcalarFetchData(resultSetId, 0, numEntries, totalEntries, []);
-        }
-    })
-    .then(function(tableOfEntries) {
-        deferred.resolve(tableOfEntries, totalEntries, gDatasetBrowserResultSetId);
-    })
-    .fail(function(error) {
-        var thriftError = thriftLog("XcalarSample", error);
-        SQL.errorLog("Sample Table", null, null, thriftError);
-        deferred.reject(thriftError);
-    });
-
-    return deferred.promise();
-}
-
 // XXX NOT TESTED
 function XcalarGetDatasetCount(dsName) {
     var deferred = jQuery.Deferred();
@@ -1048,7 +1019,7 @@ function XcalarGetDatasetCount(dsName) {
         xcalarGetDatasetMeta(tHandle, dsName)
         .then(function(metaOut) {
             var totEntries = 0;
-            for (var i = 0; i<metaOut.metas.length; i++) {
+            for (var i = 0; i < metaOut.metas.length; i++) {
                 totEntries += metaOut.metas[i].numRows;
             }
             deferred.resolve(totEntries);

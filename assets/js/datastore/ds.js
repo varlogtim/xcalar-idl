@@ -215,16 +215,9 @@ window.DS = (function ($, DS) {
 
         var $grid = DS.getGrid(dsObj.getId());
         $grid.addClass('inactive').append('<div class="waitingIcon"></div>');
-        $grid.hide();
-
-        var gridTimer;
-        // We give the backend 200ms to return an error
-        gridTimer = setTimeout(function() {
-            $grid.show();
-            $grid.find('.waitingIcon').fadeIn(200);
-            DS.focusOn($grid); // focus on grid before load
-            DataStore.update();
-        }, 200);
+        $grid.find('.waitingIcon').fadeIn(200);
+        DS.focusOn($grid); // focus on grid before load
+        DataStore.update();
 
         var fullDSName = dsObj.getFullName();
 
@@ -254,9 +247,6 @@ window.DS = (function ($, DS) {
                 dsObj.setError(error);
             }
 
-            clearTimeout(gridTimer);
-            DS.focusOn($grid);
-
             $grid.removeClass("inactive").find('.waitingIcon').remove();
             $grid.show();
 
@@ -279,7 +269,6 @@ window.DS = (function ($, DS) {
             deferred.resolve(dsObj);
         })
         .fail(function(error) {
-            clearTimeout(gridTimer);
             removeDS($grid);
             DataStore.update();
 
@@ -432,35 +421,14 @@ window.DS = (function ($, DS) {
     };
 
     DS.release = function() {
-        var deferred = jQuery.Deferred();
+        var promises = [];
 
-        if (gDatasetBrowserResultSetId === 0) {
-            deferred.resolve();
-        } else {
-            XcalarSetFree(gDatasetBrowserResultSetId)
-            .then(function() {
-                gDatasetBrowserResultSetId = 0;
-                deferred.resolve();
-            })
-            .fail(deferred.reject);
-        }
-
-        return (deferred.promise());
-    };
-
-    DS.releaseWithResultSetId = function(dsResultSetId) {
-        var deferred = jQuery.Deferred();
-
-        XcalarSetFree(dsResultSetId)
-        .then(function() {
-            if (gDatasetBrowserResultSetId === dsResultSetId) {
-                gDatasetBrowserResultSetId = 0;
-            }
-            deferred.resolve();
-        })
-        .fail(deferred.reject);
-
-        return deferred.promise();
+        $gridView.find(".grid-unit.ds").each(function() {
+            var dsId = $(this).data("dsid");
+            var def = DS.getDSObj(dsId).release();
+            promises.push(def);
+        });
+        return PromiseHelper.when.apply(window, promises);
     };
 
     // Clear dataset/folder in gridView area
@@ -558,7 +526,7 @@ window.DS = (function ($, DS) {
             "sql"      : sql
         });
 
-        DS.release()
+        dsObj.release()
         .then(function() {
             return XcalarDestroyDataset(dsName, txId);
         })

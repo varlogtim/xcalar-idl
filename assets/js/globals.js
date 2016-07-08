@@ -45,7 +45,6 @@ var gTables = {}; // This is the main global array containing structures
 var gOrphanTables = [];
 var gActiveTableId = "";
 var gLastClickTarget = $(window); // track which element was last clicked
-var gDatasetBrowserResultSetId = 0; // resultSetId for currently viewed
 var gIsTableScrolling = false;
 var gMinModeOn = false;
 var gExportNoCheck = false;

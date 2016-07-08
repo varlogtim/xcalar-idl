@@ -152,7 +152,6 @@ window.DataPreview = (function($, DataPreview) {
         var protocol = $("#fileProtocol input").val();
         var loadURL = protocol + $("#filePath").val().trim();
         var dsName = $("#fileName").val();
-        var refId;
         var $waitSection;
         var $errorSection;
 
@@ -246,21 +245,12 @@ window.DataPreview = (function($, DataPreview) {
         })
         .then(function(ret, error) {
             loadError = error;
-            return DS.release();
         })
         .then(function() {
-            return XcalarSample(tableName, rowsToFetch);
+            return sampleData(tableName, rowsToFetch);
         })
         .then(function(result) {
             $waitSection.addClass("hidden");
-
-            refId = gDatasetBrowserResultSetId;
-            // set it to 0 because releaseDatasetPointer() use it to check
-            // if ds's ref count is cleard
-            // preiview table should use it's own clear method
-            gDatasetBrowserResultSetId = 0;
-            // no need for refId as we only need 40 samples
-            XcalarSetFree(refId);
 
             if (!result) {
                 var error = DSTStr.NoRecords;
@@ -429,6 +419,33 @@ window.DataPreview = (function($, DataPreview) {
         }
 
         return (deferred.promise());
+    }
+
+    // XXX temporary use before new preview api
+    function sampleData(datasetName, rowsToFetch) {
+        var deferred = jQuery.Deferred();
+        var resultSetId;
+
+        XcalarMakeResultSetFromDataset(datasetName)
+        .then(function(result) {
+            // console.log(result);
+            resultSetId = result.resultSetId;
+            var totalEntries = result.numEntries;
+            if (totalEntries === 0) {
+                return PromiseHelper.resolve(null);
+            } else {
+                return XcalarFetchData(resultSetId, 0, rowsToFetch,
+                                        totalEntries, []);
+            }
+        })
+        .then(function(result) {
+            // no need for resultSetId as we only need 40 samples
+            XcalarSetFree(resultSetId);
+            deferred.resolve(result);
+        })
+        .fail(deferred.reject);
+
+        return deferred.promise();
     }
 
     function showPreviewPanel() {
