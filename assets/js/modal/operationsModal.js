@@ -2436,8 +2436,8 @@ window.OperationsModal = (function($, OperationsModal) {
         var indexedColNames = args[1];
         var newColName  = args[2];
         var options = {
-            isIncSample: $argInputs.eq(3).is(':checked'),
-            isJoin: $argInputs.eq(4).is(':checked')
+            "isIncSample": $argInputs.eq(3).is(':checked'),
+            "isJoin"     : $argInputs.eq(4).is(':checked')
         };
         if (options.isIncSample && options.isJoin) {
             console.warn('shouldnt be able to select incSample and join');

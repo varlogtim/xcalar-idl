@@ -16,7 +16,7 @@ window.RightSideBar = (function($, RightSideBar) {
             TableList.initialize();
             UDF.initialize();
             setLastRightSidePanel();
-        } catch(error) {
+        } catch (error) {
             console.error(error);
             Alert.error(ThriftTStr.SetupErr, error);
         }

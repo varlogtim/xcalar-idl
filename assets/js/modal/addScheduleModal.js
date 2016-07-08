@@ -104,7 +104,7 @@ window.AddScheduleModal = (function($, AddScheduleModal) {
         if ($scheduleListInput.hasClass("hint")) {
             var options = {
                 "offsetX": -25,
-                "side"  : "right"
+                "side"   : "right"
             };
             StatusBox.show(ErrTStr.NoEmptyList, $scheduleListInput, false, options);
             return;

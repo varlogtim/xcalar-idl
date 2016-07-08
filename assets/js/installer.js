@@ -15,7 +15,7 @@ window.Installer = (function($, Installer) {
             var fqdn = $(allRows[i]).find(".fqdn input").val();
             var user = $(allRows[i]).find(".username input").val();
             var pass = $(allRows[i]).find(".password input").val();
-            if (fqdn && ((!user && !$("#sameuser")[0].checked) || 
+            if (fqdn && ((!user && !$("#sameuser")[0].checked) ||
                          (!pass && !$("#samepass")[0].checked))) {
                 return false;
             }

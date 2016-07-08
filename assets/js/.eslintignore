@@ -1,6 +1,5 @@
-./thrift
-./config.js
-./sample-config.js
-./enums.js
-./englishStrings.js
-./unused/*
+thrift/*
+config.js
+sample-config.js
+enums.js
+unused/*

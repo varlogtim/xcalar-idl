@@ -61,7 +61,7 @@ window.PromiseHelper = (function(PromiseHelper, $) {
         function whenCall(i) {
             argument[i].then(function(ret) {
                 if (!gMutePromises) {
-                   console.log("Promise", i, "done!");
+                    console.log("Promise", i, "done!");
                 }
                 numDone++;
                 returns[i] = ret;

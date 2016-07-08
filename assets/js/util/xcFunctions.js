@@ -139,11 +139,11 @@ window.xcFunction = (function($, xcFunction) {
                 dstDagName = "@" + dstDagName;
             }
             var aggRes = {
-                "value"  : value,
-                "dagName": dstDagName,
-                "tableId": tableId,
+                "value"      : value,
+                "dagName"    : dstDagName,
+                "tableId"    : tableId,
                 "backColName": backColName,
-                "op": aggrOp
+                "op"         : aggrOp
             };
 
             Aggregates.addAgg(tableId, backColName, aggrOp, aggRes);
@@ -412,8 +412,10 @@ window.xcFunction = (function($, xcFunction) {
                                         refreshOptions);
         })
         .then(function() {
-            Transaction.done(txId, {"msgTable": newTableId,
-                                    "noNotification": focusOnTable});
+            Transaction.done(txId, {
+                "msgTable"      : newTableId,
+                "noNotification": focusOnTable
+            });
             deferred.resolve();
         })
         .fail(function(error) {
@@ -425,10 +427,13 @@ window.xcFunction = (function($, xcFunction) {
                 var origMsg = $("#alertContent .text").text();
                 $("#alertContent .text").text(origMsg + "\n" +
                                               ErrTStr.SuggestProject);
-                var tables = [{"whichTable": "Right",
-                               "tableId": rTableId},
-                              {"whichTable": "Left",
-                               "tableId": lTableId}];
+                var tables = [{
+                    "whichTable": "Right",
+                    "tableId"   : rTableId
+                },{
+                    "whichTable": "Left",
+                    "tableId"   : lTableId
+                }];
                 $btnSection = $("#alertActions");
                 $confirmBtn = $btnSection.find(".confirm").eq(0);
                 tables.forEach(function(obj) {
@@ -511,7 +516,7 @@ window.xcFunction = (function($, xcFunction) {
         var txId = Transaction.start({
             "msg"      : StatusMessageTStr.GroupBy + " " + operator,
             "operation": SQLOps.GroupBy,
-            "steps": steps
+            "steps"    : steps
         });
 
         xcHelper.lockTable(tableId);
@@ -603,7 +608,7 @@ window.xcFunction = (function($, xcFunction) {
             finalTableName = xcHelper.getTableName(nTableName) + joinedTableId;
             var lTable     = gTables[tableId];
             var lTableName = lTable.tableName;
-            var rTableId   = xcHelper.getTableId(nTableName);
+            // var rTableId   = xcHelper.getTableId(nTableName);
             var rTableName = nTableName;
 
             var lColNames = groupByCols;
@@ -916,7 +921,7 @@ window.xcFunction = (function($, xcFunction) {
             var dataCol;
             var colNameIndex;
             for (var i = 0; i < tableCols.length; i++) {
-                colNameIndex = colNames.indexOf(tableCols[i].backName)
+                colNameIndex = colNames.indexOf(tableCols[i].backName);
                 if (colNameIndex > -1) {
                     finalTableCols.push(tableCols[i]);
                     // empty out the allColnames array

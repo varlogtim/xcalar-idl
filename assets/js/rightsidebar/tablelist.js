@@ -86,8 +86,7 @@ window.TableList = (function($, TableList) {
             return false;
         });
 
-        $('#tableListSections').find(".tableListSection").on("mouseenter",
-                                        ".tableName, .aggStrWrap", function(){
+        $('#tableListSections').find(".tableListSection").on("mouseenter", ".tableName, .aggStrWrap", function(){
             xcHelper.autoTooltip(this);
         });
 
@@ -264,7 +263,7 @@ window.TableList = (function($, TableList) {
                 $timeLine.remove();
                 $activeTableList.find('.selectAll, .clearAll').hide();
             } else if (!$activeTableList.find('.tableInfo:not(.hiddenWS)').length) {
-                 $activeTableList.find('.selectAll, .clearAll').hide();
+                $activeTableList.find('.selectAll, .clearAll').hide();
             }
         });
 
@@ -461,11 +460,11 @@ window.TableList = (function($, TableList) {
                             innerDeferred.resolve(error);
                         });
                     } else if (tableType === TableType.Agg) {
-                        var key = $li.data("key");
+                        // var key = $li.data("key");
 
                         addOrphanedTable(tableName)
                         .then(function(finalTableName){
-                            var finalTableId = xcHelper.getTableId(finalTableName);
+                            // var finalTableId = xcHelper.getTableId(finalTableName);
                             // TableList.refreshAggTables() is called after
                             // all promises done
                             innerDeferred.resolve();
@@ -1153,8 +1152,7 @@ window.TableList = (function($, TableList) {
             $tableList = $("#aggregateTableList");
         }
 
-        var $noSheetTables = $tableList.find(".addTableBtn.selected")
-                                .closest(".tableInfo").filter(function() {
+        var $noSheetTables = $tableList.find(".addTableBtn.selected").closest(".tableInfo").filter(function() {
             return $(this).find(".worksheetInfo").hasClass("inactive");
         });
 

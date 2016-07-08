@@ -12,8 +12,7 @@ window.StatusBox = (function($, StatusBox){
     StatusBox.show = function(text, $target, isFormMode, options) {
         $statusBox = $("#statusBox");
         $doc = $(document);
-
-        options =  options || {};
+        options = options || {};
         // position the message
         var msgType = options.type || "error";
         var bound = $target[0].getBoundingClientRect();

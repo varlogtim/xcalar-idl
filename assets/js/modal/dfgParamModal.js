@@ -519,8 +519,7 @@ window.DFGParamModal = (function($, DFGParamModal){
             tempParams = getParamsInInput($(this));
             params = params.concat(tempParams);
         });
-        $paramLists.find('tr:not(.unfilled)').find('.paramName')
-                                            .each(function() {
+        $paramLists.find('tr:not(.unfilled)').find('.paramName').each(function() {
             if (params.indexOf($(this).text()) === -1) {
                 $(this).closest('tr').remove();
             }
@@ -732,9 +731,7 @@ window.DFGParamModal = (function($, DFGParamModal){
         }
 
         // Check if filterParamText matches a filter type from dropdown list
-        var filterExists = $input.siblings('.list')
-                                  .find('li')
-                                  .filter(function() {
+        var filterExists = $input.siblings('.list').find('li').filter(function() {
             return ($(this).text() === filterParamText);
         }).length;
 

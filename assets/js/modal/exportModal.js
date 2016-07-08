@@ -117,8 +117,8 @@ window.ExportModal = (function($, ExportModal) {
                 selectColumnsOnKeyPress();
             } else {
                 keyupTimeout = setTimeout(function() {
-                                    selectColumnsOnKeyPress();
-                                }, 400);
+                    selectColumnsOnKeyPress();
+                }, 400);
             }
         });
         $exportColumns.on('change', function() {
@@ -281,13 +281,12 @@ window.ExportModal = (function($, ExportModal) {
             }
 
             xcHelper.validate([{
-                    "$selector": $exportColumns,
-                    "text"     : errorText,
-                    "check"    : function() {
-                        return (true);
-                    }
+                "$selector": $exportColumns,
+                "text"     : errorText,
+                "check"    : function() {
+                    return (true);
                 }
-            ]);
+            }]);
             isValid = false;
         }
 
@@ -300,13 +299,12 @@ window.ExportModal = (function($, ExportModal) {
         var advancedOptions = getAdvancedOptions();
         if (advancedOptions.error) {
             xcHelper.validate([{
-                    "$selector": advancedOptions.$target,
-                    "text"     : advancedOptions.errorMsg,
-                    "check"    : function() {
-                        return true;
-                    }
+                "$selector": advancedOptions.$target,
+                "text"     : advancedOptions.errorMsg,
+                "check"    : function() {
+                    return true;
                 }
-            ]);
+            }]);
             return (deferred.promise());
         }
 
@@ -314,13 +312,12 @@ window.ExportModal = (function($, ExportModal) {
         .then(function(hasDuplicate) {
             if (hasDuplicate) {
                 xcHelper.validate([{
-                        "$selector": $exportName,
-                        "text"     : ErrTStr.ExportConflict,
-                        "check"    : function() {
-                            return true;
-                        }
+                    "$selector": $exportName,
+                    "text"     : ErrTStr.ExportConflict,
+                    "check"    : function() {
+                        return true;
                     }
-                ]);
+                }]);
             } else {
                 var closeModal = true;
                 var modalClosed = false;
@@ -528,8 +525,7 @@ window.ExportModal = (function($, ExportModal) {
 
         $('.modalHighlighted').removeClass('modalHighlighted');
         for (var i = 0; i < numColNames; i++) {
-            var $colInput = $selectableThs.find('.editableHead')
-                                          .filter(function() {
+            var $colInput = $selectableThs.find('.editableHead').filter(function() {
                 return ($(this).val() === colNames[i]);
             });
             if ($colInput.length !== 0) {
@@ -606,8 +602,7 @@ window.ExportModal = (function($, ExportModal) {
             colNames[i] = jQuery.trim(val);
         });
         for (var i = 0; i < colNames.length; i++) {
-            var $colInput = $selectableThs.find('.editableHead')
-                                          .filter(function() {
+            var $colInput = $selectableThs.find('.editableHead').filter(function() {
                 return ($(this).val() === colNames[i]);
             });
             if ($colInput.length !== 0) {
@@ -854,33 +849,33 @@ window.ExportModal = (function($, ExportModal) {
         // setUp both line delimiter and field delimiter
         var delimLists = new MenuHelper(
             $exportModal.find('.csvRow').find(".dropDownList"), {
-            "onSelect": function($li) {
-                var $input = $li.closest(".dropDownList").find(".text");
-                switch ($li.attr("name")) {
-                    case "default":
-                        if ($input.hasClass("fieldDelim")) {
-                            $input.val("\\t");
-                        } else {
-                            $input.val("\\n");
-                        }
-                        $input.removeClass("nullVal");
-                        return false;
-                    case "comma":
-                        $input.val(",");
-                        $input.removeClass("nullVal");
-                        return false;
-                    case "null":
-                        $input.val("Null");
-                        $input.addClass("nullVal");
-                        return false;
-                    default:
-                        // keep list open
-                        return true;
+                "container": "#exportModal",
+                "bounds"   : "#exportModal",
+                "onSelect" : function($li) {
+                    var $input = $li.closest(".dropDownList").find(".text");
+                    switch ($li.attr("name")) {
+                        case "default":
+                            if ($input.hasClass("fieldDelim")) {
+                                $input.val("\\t");
+                            } else {
+                                $input.val("\\n");
+                            }
+                            $input.removeClass("nullVal");
+                            return false;
+                        case "comma":
+                            $input.val(",");
+                            $input.removeClass("nullVal");
+                            return false;
+                        case "null":
+                            $input.val("Null");
+                            $input.addClass("nullVal");
+                            return false;
+                        default:
+                            // keep list open
+                            return true;
+                    }
                 }
-            },
-            "container": "#exportModal",
-            "bounds"   : "#exportModal"
-        });
+            });
         delimLists.setupListeners();
 
         // Input event on csv args input box

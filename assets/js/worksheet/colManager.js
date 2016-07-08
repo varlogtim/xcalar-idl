@@ -158,10 +158,10 @@ window.ColManager = (function($, ColManager) {
             $th.width(10);
             if (!isHidden) {
                 $th.animate({width: width}, 300, function() {
-                        updateTableHeader(tableId);
-                        TableList.updateTableInfo(tableId);
-                        matchHeaderSizes($table);
-                    });
+                    updateTableHeader(tableId);
+                    TableList.updateTableInfo(tableId);
+                    matchHeaderSizes($table);
+                });
                 moveTableTitlesAnimated(tableId, $tableWrap.width(),
                                     10 - width, 300);
             } else {
@@ -1440,7 +1440,7 @@ window.ColManager = (function($, ColManager) {
         $ths.each(function(i) {
             $th = $(this);
             $th.find('.dropdownBox').attr({
-                "title": "",
+                "title"              : "",
                 "data-original-title": colNames[i]
             });
         });
@@ -1506,7 +1506,7 @@ window.ColManager = (function($, ColManager) {
         // change tooltip to show column options
         $ths.each(function() {
             $(this).find('.dropdownBox').attr({
-                "title": "",
+                "title"              : "",
                 "data-original-title": TooltipTStr.ViewColumnOptions
             });
         });

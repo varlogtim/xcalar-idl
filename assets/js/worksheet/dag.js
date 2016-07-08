@@ -1009,12 +1009,12 @@ window.Dag = (function($, Dag) {
     Dag.createDagImage = function(nodeArray, $container, options) {
         options = options || {};
         var storedInfo = {
-            x          : 0,
-            y          : 0,
-            height     : 0,
-            width     : 0,
+            x             : 0,
+            y             : 0,
+            height        : 0,
+            width         : 0,
             condensedWidth: 0,
-            groups: {}
+            groups        : {}
         };
 
         var numNodes = nodeArray.length;
@@ -1047,9 +1047,9 @@ window.Dag = (function($, Dag) {
         drawAllLines($container, dagInfo, numNodes, width, options);
 
         var allDagInfo = {
-            nodes: dagInfo,
-            depth: dagDepth,
-            groups: storedInfo.groups,
+            nodes         : dagInfo,
+            depth         : dagDepth,
+            groups        : storedInfo.groups,
             condensedWidth: width
         };
         $container.data('allDagInfo', allDagInfo);
@@ -1070,10 +1070,9 @@ window.Dag = (function($, Dag) {
                        .attr('title', newTableName);
 
         $dagTableTitles.parent().data('tablename', newTableName);
-        var $dagParentsTitles = $dagPanel.find('.parentsTitle')
-                                          .filter(function() {
-                                    return ($(this).text() === oldTableName);
-                                });
+        var $dagParentsTitles = $dagPanel.find('.parentsTitle').filter(function() {
+            return ($(this).text() === oldTableName);
+        });
 
         $dagParentsTitles.text(newTableName);
         var $actionTypes = $dagParentsTitles.closest('.actionType');
@@ -1347,7 +1346,7 @@ window.Dag = (function($, Dag) {
         var size;
         var right;
         var node;
-        var groupWidth;
+        // var groupWidth;
         var $groupOutline;
         var $expandWrap;
         var group;
@@ -1391,7 +1390,7 @@ window.Dag = (function($, Dag) {
             $expandWrap.attr('title', "");
 
             $groupOutline = $expandWrap.next();
-            groupWidth = size * dagTableWidth + 11;
+            // groupWidth = size * dagTableWidth + 11;
             $groupOutline.css('right', (right - groupOutlineOffset))
                          .addClass('expanded');
             for (var j = 0; j < group.length; j++) {
@@ -1522,8 +1521,8 @@ window.Dag = (function($, Dag) {
         var prevScrollLeft = $dagImage.parent().scrollLeft();
         var numGroupNodes = group.length;
         var storedInfo = {
-            width: 0,
-            groupLen: numGroupNodes
+            "width"   : 0,
+            "groupLen": numGroupNodes
         };
         var horzShift = (dagTableWidth * 0.3);
         var groupCopy = xcHelper.deepCopy(group);
@@ -1843,18 +1842,18 @@ window.Dag = (function($, Dag) {
         $dagWrap.on('mouseenter', '.dagTable.Ready', function() {
             var $dagTable = $(this);
             var timer = setTimeout(function(){
-                            var $dropdown = $('.menu:visible');
-                            if ($dropdown.length !== 0 &&
-                                $dropdown.data('tableelement') &&
-                                $dropdown.data('tableelement').is($dagTable))
-                            {
-                                return;
-                            } else {
-                                showDagSchema($dagTable);
-                                scrollPosition = $('.dagArea').scrollTop();
-                            }
+                var $dropdown = $('.menu:visible');
+                if ($dropdown.length !== 0 &&
+                    $dropdown.data('tableelement') &&
+                    $dropdown.data('tableelement').is($dagTable))
+                {
+                    return;
+                } else {
+                    showDagSchema($dagTable);
+                    scrollPosition = $('.dagArea').scrollTop();
+                }
 
-                        }, 200);
+            }, 200);
             $dagTable.data('hover', timer);
         });
 
@@ -2618,8 +2617,8 @@ window.Dag = (function($, Dag) {
                 groupCopy.push(group[i]);
             }
             groups[condensedId] = {
-                collapsed: true,
-                group: groupCopy
+                "collapsed": true,
+                "group"    : groupCopy
             };
             group.length = 0;
         }

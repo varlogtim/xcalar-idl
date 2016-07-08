@@ -68,8 +68,8 @@ window.Profile = (function($, Profile, d3) {
         var minWidth  = 750;
 
         modalHelper = new ModalHelper($modal, {
-           "minHeight": minHeight,
-           "minWidth" : minWidth
+            "minHeight": minHeight,
+            "minWidth" : minWidth
         });
 
         $modal.resizable({

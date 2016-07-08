@@ -45,7 +45,7 @@ window.KVStore = (function($, KVStore) {
                 try {
                     value = JSON.parse(value.value);
                     deferred.resolve(value);
-                } catch(err) {
+                } catch (err) {
                     console.error(err, value, key);
                     deferred.reject(err);
                 }
@@ -188,7 +188,7 @@ window.KVStore = (function($, KVStore) {
                     } else {
                         return SQL.restore();
                     }
-                } catch(error) {
+                } catch (error) {
                     console.error(error);
                     return PromiseHelper.reject(error);
                 }

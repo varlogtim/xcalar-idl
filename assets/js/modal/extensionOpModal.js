@@ -181,8 +181,8 @@ window.ExtensionOpModal = (function(ExtensionOpModal, $) {
         if (typeCheck.allowEmpty) {
             if (argType === "string") {
                 return ({
-                    "valid" : true,
-                    "arg"   : arg
+                    "valid": true,
+                    "arg"  : arg
                 });
             } else {
                 if (arg.length === 0) {

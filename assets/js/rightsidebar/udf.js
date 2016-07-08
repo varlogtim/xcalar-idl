@@ -324,7 +324,7 @@ window.UDF = (function($, UDF) {
             var entireString = editor.getValue();
             options = {
                 "offsetX": 30,
-                "side"  : "left"
+                "side"   : "left"
             };
             if (entireString.trim() === "" ||
                 entireString.trim() === udfDefault.trim())

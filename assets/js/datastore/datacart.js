@@ -310,11 +310,10 @@ window.DataCart = (function($, DataCart) {
             return;
         }
         $loadingBar.addClass('inProgress goingToFull');
-        $loadingBar.stop().animate({"width": '100%'}, intervalTime, "linear",
-            function() {
-                $loadingBar.removeClass('inProgress goingToFull');
-                $loadingBar.addClass('full');
-                endBarAnimation();
+        $loadingBar.stop().animate({"width": '100%'}, intervalTime, "linear", function() {
+            $loadingBar.removeClass('inProgress goingToFull');
+            $loadingBar.addClass('full');
+            endBarAnimation();
         });
     }
 
@@ -333,20 +332,19 @@ window.DataCart = (function($, DataCart) {
         }
         $loadingBar.addClass('inProgress');
 
-        $loadingBar.stop().animate({"width": pct + '%'}, intervalTime, "linear",
-            function() {
-                $loadingBar.removeClass('inProgress');
-                if (pct === 100) {
-                    $loadingBar.addClass('full');
-                    $loadingBar.removeClass('goingToFull');
+        $loadingBar.stop().animate({"width": pct + '%'}, intervalTime, "linear", function() {
+            $loadingBar.removeClass('inProgress');
+            if (pct === 100) {
+                $loadingBar.addClass('full');
+                $loadingBar.removeClass('goingToFull');
 
-                    if (queryQueue.length) {
-                        endBarAnimation(0);
-                        trackQueries();
-                    } else {
-                        endBarAnimation();
-                    }
+                if (queryQueue.length) {
+                    endBarAnimation(0);
+                    trackQueries();
+                } else {
+                    endBarAnimation();
                 }
+            }
         });
     }
 

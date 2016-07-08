@@ -11,11 +11,11 @@ window.FnBar = (function(FnBar, $) {
         $functionArea = $("#functionArea");
 
         editor = CodeMirror.fromTextArea($('#fnBar')[0], {
-            "mode": "spreadsheetCustom",
-            "indentWithTabs": true,
-            "indentUnit"    : 4,
-            "matchBrackets" : true,
-            "placeholder": WSTStr.SearchTableAndColumn,
+            "mode"             : "spreadsheetCustom",
+            "indentWithTabs"   : true,
+            "indentUnit"       : 4,
+            "matchBrackets"    : true,
+            "placeholder"      : WSTStr.SearchTableAndColumn,
             "autoCloseBrackets": true
         });
 
@@ -141,10 +141,10 @@ window.FnBar = (function(FnBar, $) {
             }
             editor.setValue(FnBarTStr.NewCol);
             $fnBar.addClass("disabled").removeClass('active');
-            var keepVal = false;
-            if ($lastColInput) {
-                keepVal = true;
-            }
+            // var keepVal = false;
+            // if ($lastColInput) {
+            //     keepVal = true;
+            // }
 
             $functionArea.removeClass('searching');
         } else {
@@ -284,14 +284,14 @@ window.FnBar = (function(FnBar, $) {
                     }
                 }
                 if (!endText) {
-                   text += FnBarTStr.ValidOps;
+                    text += FnBarTStr.ValidOps;
                 }
 
                 setTimeout(function() {
                     StatusBox.show(text, $fnBar.prev().prev(), null, {
-                        offsetX: 50,
-                        side: "bottom",
-                        html: true
+                        "offsetX": 50,
+                        "side"   : "bottom",
+                        "html"   : true
                     });
                 }, 0); // gets closed immediately without timeout;
 

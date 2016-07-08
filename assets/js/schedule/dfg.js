@@ -126,7 +126,7 @@ window.DFG = (function($, DFG) {
 
         var $expandIcons = $dagImage.find('.expandWrap');
         var numExpandIcons = $expandIcons.length;
-        for  (var i = 0; i < numExpandIcons; i++) {
+        for (var i = 0; i < numExpandIcons; i++) {
             var $expandIcon = $expandIcons.eq(i);
             var x, y, dist;
             if (isSchedulerPanel) {
@@ -169,13 +169,13 @@ window.DFG = (function($, DFG) {
             }
             tableName = $dagTable.find('.tableTitle').text();
             table = {
+                "title"   : tableName,
                 "index"   : $dagTable.data('index') + 1,
                 "children": children,
                 "type"    : $dagTable.data('type') || 'table',
-                "left"    : dagImageWidth -
-                            parseInt($dagTable.parent().css('right')) - 50,
                 "top"     : parseInt($dagTable.parent().css('top')),
-                "title"   : tableName
+                "left"    : dagImageWidth -
+                            parseInt($dagTable.parent().css('right')) - 50
             };
 
             if ($dagTable.data('index') === 0) {
@@ -235,19 +235,19 @@ window.DFG = (function($, DFG) {
             tooltip = tooltip.replace(/"/g, '&quot');
             expandIcon = {
                 "tooltip": tooltip,
-                "left": dagImageWidth - parseInt($expandIcon.css('right')) - 30,
-                "top": parseInt($expandIcon.css('top'))
+                "left"   : dagImageWidth - parseInt($expandIcon.css('right')) - 30,
+                "top"    : parseInt($expandIcon.css('top'))
             };
             expandIcons.push(expandIcon);
         });
 
         // insert new dfg into the main dfg object
         var canvasInfo = {
-            "tables"    : tables,
-            "operations": operations,
+            "tables"     : tables,
+            "operations" : operations,
             "expandIcons": expandIcons,
-            "height"    : dagImageHeight,
-            "width"     : dagImageWidth
+            "height"     : dagImageHeight,
+            "width"      : dagImageWidth
         };
         if (!withExport) {
             canvasInfo.width += 180;

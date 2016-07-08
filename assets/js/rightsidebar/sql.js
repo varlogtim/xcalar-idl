@@ -460,7 +460,7 @@ window.SQL = (function($, SQL) {
                     }
                     var sqlStr = "[" + value + "]";
                     oldLogs = JSON.parse(sqlStr);
-                } catch(err) {
+                } catch (err) {
                     console.error("restore logs failed!", err);
                     deferred.reject(sqlRestoreError);
                 }
@@ -494,7 +494,7 @@ window.SQL = (function($, SQL) {
                     }
                     var errStr = "[" + value + "]";
                     oldErrors = JSON.parse(errStr);
-                } catch(err) {
+                } catch (err) {
                     console.error("restore error logs failed!", err);
                     deferred.reject(sqlRestoreError);
                 }

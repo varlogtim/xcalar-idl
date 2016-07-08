@@ -728,10 +728,10 @@ window.TblManager = (function($, TblManager) {
     TblManager.hideTable = function(tableId) {
         var tableName = gTables[tableId].tableName;
         $('#xcTableWrap-' + tableId).addClass('tableHidden')
-                                    .find('.tableTitle .dropdownBox').attr({
-                                            "title": "",
-                                            "data-original-title": tableName
-                                        });
+        .find('.tableTitle .dropdownBox').attr({
+            "title"              : "",
+            "data-original-title": tableName
+        });
 
         moveTableDropdownBoxes();
         moveFirstColumn();
@@ -747,10 +747,10 @@ window.TblManager = (function($, TblManager) {
     TblManager.unHideTable = function(tableId) {
         var $tableWrap = $('#xcTableWrap-' + tableId);
         $tableWrap.removeClass('tableHidden')
-                  .find('.tableTitle .dropdownBox').attr({
-                        "title": "",
-                        "data-original-title": TooltipTStr.ViewTableOptions
-                    });
+        .find('.tableTitle .dropdownBox').attr({
+            "title"              : "",
+            "data-original-title": TooltipTStr.ViewTableOptions
+        });
         WSManager.focusOnWorksheet(WSManager.getActiveWS(), false, tableId);
         moveTableDropdownBoxes();
         moveFirstColumn();
@@ -1041,8 +1041,8 @@ window.TblManager = (function($, TblManager) {
                 tablesMsg = ErrTStr.TablesNotDeleted + " " + failedTables;
             } else {
                 tablesMsg = xcHelper.replaceMsg(ErrWRepTStr.TableNotDeleted, {
-                                                    "name": failedTables
-                                                });
+                    "name": failedTables
+                });
             }
         }
 
@@ -1702,13 +1702,13 @@ window.TblManager = (function($, TblManager) {
 
     function addRowListeners(newCells) {
         newCells.find('.jsonElement').dblclick(function() {
-                if ($('#mainFrame').hasClass('modalOpen') &&
-                    !$(this).closest('.xcTableWrap').hasClass('jsonModalOpen')) {
-                    return;
-                }
-                JSONModal.show($(this));
+            if ($('#mainFrame').hasClass('modalOpen') &&
+                !$(this).closest('.xcTableWrap').hasClass('jsonModalOpen'))
+            {
+                return;
             }
-        );
+            JSONModal.show($(this));
+        });
 
         newCells.find('.rowGrab').mousedown(function(event) {
             if (event.which === 1) {
@@ -2342,7 +2342,7 @@ window.TblManager = (function($, TblManager) {
         if (validName) {
             xcFunction.rename(tableId, newTableName)
             .then(function() {
-                 $div.blur();
+                $div.blur();
             })
             .fail(function(error) {
                 StatusBox.show(error, $div, false);

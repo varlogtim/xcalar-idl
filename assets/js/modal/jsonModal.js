@@ -1309,7 +1309,7 @@ window.JSONModal = (function($, JSONModal) {
     }
 
     function prettifyJson(obj, indent, options) {
-        if (typeof obj != "object") {
+        if (typeof obj !== "object") {
             return (JSON.stringify(obj));
         }
 

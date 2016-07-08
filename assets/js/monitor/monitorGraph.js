@@ -96,8 +96,8 @@ window.MonitorGraph = (function($, MonitorGraph) {
         gridRight = shiftWidth;
         $graphWrap = $('#graphWrap');
         svgWrap = svg.select(function() {
-                        return (this.parentNode);
-                    });
+            return (this.parentNode);
+        });
         firstTime = true;
 
         getStatsAndUpdateGraph();

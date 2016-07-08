@@ -9,7 +9,7 @@ window.CLIBox = (function($, CLIBox) {
     var lineUnit = "<div class='lineUnit'>" + nl + "</div>";
 
     CLIBox.setup = function() {
-        $cliBox  = $("#cliSection .cliArea");
+        $cliBox = $("#cliSection .cliArea");
         $lineBox = $("#cliSection .lineArea");
 
         addNl();

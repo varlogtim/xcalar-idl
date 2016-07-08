@@ -210,7 +210,7 @@ window.StartManager = (function(StartManager, $) {
         try {
             ExtensionManager.setup();
             ExtensionPanel.setup();
-        } catch(error) {
+        } catch (error) {
             console.error(error);
             Alert.error(ThriftTStr.SetupErr, error);
         }

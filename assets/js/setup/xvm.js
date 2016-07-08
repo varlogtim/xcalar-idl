@@ -32,7 +32,7 @@ window.XVM = (function(XVM) {
                 } else {
                     deferred.resolve();
                 }
-            } catch(error) {
+            } catch (error) {
                 // code may go here if thrift changes
                 console.error(error);
                 deferred.reject({error: ThriftTStr.Update});

@@ -127,7 +127,7 @@ window.ExtensionPanel = (function(ExtensionPanel, $) {
                 try {
                     var d = JSON.parse(data);
                     initializeExtCategory(d);
-                } catch(error) {
+                } catch (error) {
                     handleError(error);
                 }
             },

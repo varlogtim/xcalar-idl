@@ -1140,8 +1140,7 @@ window.WSManager = (function($, WSManager) {
                 var wsId = $li.data('ws');
                 if (wsId === "all") {
                     var wsIds = [];
-                    $('#hiddenWorksheetsTab').find('li:not(.unhideAll)')
-                                             .each(function() {
+                    $('#hiddenWorksheetsTab').find('li:not(.unhideAll)').each(function() {
                         wsId = $(this).data('ws');
                         wsIds.push(wsId);
                     });

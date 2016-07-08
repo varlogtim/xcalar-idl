@@ -6,8 +6,8 @@ window.HelpSearch = (function($, HelpSearch) {
         var $resultsArea = $('#helpResults').find('.resultsArea');
 
         $searchInput.tipuesearch({
-            newWindow: true,
-            showTitleCount: false
+            "newWindow"     : true,
+            "showTitleCount": false
             // debug: true
         });
 

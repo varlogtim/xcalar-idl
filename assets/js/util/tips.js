@@ -134,7 +134,7 @@ window.Tips = (function($, Tips) {
         setTooltip($wsIcon, {
             "title"    : TipsTStr.WSOpts,
             "container": "#worksheetTabs"
-       });
+        });
     }
 
     function addWorksheetTips() {

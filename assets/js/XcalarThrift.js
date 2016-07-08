@@ -23,7 +23,7 @@ function setupHostName() {
                 window.hostname = hnamePort[0];
                 window.portNumber = hnamePort[1];
             }
-        } catch(error) {
+        } catch (error) {
             console.error(error);
         }
     }
@@ -84,6 +84,7 @@ function thriftLog() {
         thriftError.error = "Error: " + error;
         console.error('(╯°□°）╯︵ ┻━┻ ' + msg);
         errorLists.push(thriftError);
+        var alertError;
 
         if (status === StatusT.StatusOk) {
             // if we get this status, there may not be a connection to the backend
@@ -100,7 +101,6 @@ function thriftLog() {
             });
             return thriftError;
         } else {
-            var alertError;
             // XXX We might need to include connection status 502 (Proxy error)
             if (status === StatusT.StatusConnReset ||
                 status === StatusT.StatusConnRefused) {
@@ -1126,8 +1126,7 @@ function XcalarGetDatasets() {
     xcalarListDatasets(tHandle)
     .then(function(listDatasetsOutput) {
         var prefixIndex = ".XcalarDS.".length;
-        listDatasetsOutput.datasets =
-            listDatasetsOutput.datasets.filter(function(d) {
+        listDatasetsOutput.datasets = listDatasetsOutput.datasets.filter(function(d) {
             if (d.name.indexOf(".XcalarLRQ.") === 0) {
                 return (false);
             }
@@ -1415,7 +1414,7 @@ function generateFilterString(operator, value1, value2, value3) {
             break;
         case ("Equals"):
             filterStr = "eq(" + value1 + ", " + value2 + ")";
-             break;
+            break;
         case ("Less Than"):
             filterStr = "lt(" + value1 + ", " + value2 + ")";
             break;
@@ -1648,7 +1647,7 @@ function XcalarJoin(left, right, dst, joinType, txId) {
                               joinType);
         var def2 = XcalarGetQuery(workItem);
         def2.then(function(query) {
-            QueryManager.addSubQuery(txId, 'join', dst, query)
+            QueryManager.addSubQuery(txId, 'join', dst, query);
         });
 
         jQuery.when(def1, def2)
@@ -1688,7 +1687,7 @@ function XcalarGroupBy(operator, newColName, oldColName, tableName,
                                  evalStr, newColName, incSample);
         var def2 = XcalarGetQuery(workItem);
         def2.then(function(query) {
-            QueryManager.addSubQuery(txId, 'groupBy', newTableName, query)
+            QueryManager.addSubQuery(txId, 'groupBy', newTableName, query);
         });
 
         jQuery.when(def1, def2)
@@ -1918,8 +1917,8 @@ function getNamePattern(userUrl, isRecur) {
         star = userUrl.length - 1;
     }
 
-    for (var i = star; i>=0; i--) {
-        if (userUrl[i] == "/") {
+    for (var i = star; i >= 0; i--) {
+        if (userUrl[i] === "/") {
             return [userUrl.substring(0, i+1),
                     userUrl.substring(i+1, userUrl.length)];
         }
@@ -2534,7 +2533,7 @@ function XcalarUploadPython(moduleName, pythonStr) {
                 .then(function() {
                     deferred.resolve();
                 })
-                .fail(function(error2, errorStuct2) {
+                .fail(function(error2, errorStruct2) {
                     if (errorStruct2 && errorStruct2.error &&
                         errorStruct2.error.message &&
                         errorStruct2.error.message.length > 0) {

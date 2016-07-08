@@ -6,7 +6,7 @@ window.TblMenu = (function(TblMenu, $) {
             addMenuBehaviors($('#cellMenu'));
             addTableMenuActions();
             addColMenuActions();
-        } catch(error) {
+        } catch (error) {
             console.error(error);
         }
     };
@@ -141,8 +141,7 @@ window.TblMenu = (function(TblMenu, $) {
             $list.empty().append(WSManager.getWSLists(true));
         });
 
-        var subMenuList = new MenuHelper(
-            $subMenu.find(".dropDownList"), {
+        var subMenuList = new MenuHelper($subMenu.find(".dropDownList"), {
             "onSelect": function($li) {
                 var $input = $li.closest(".dropDownList").find(".wsName");
                 $input.val($li.text()).focus();
@@ -837,8 +836,8 @@ window.TblMenu = (function(TblMenu, $) {
                                 .hasClass('type-array');
             $(".xcTable").find(".highlightBox").remove();
             setTimeout(function() {
-               ColManager.unnest(tableId, colNum, rowNum, isArray);
-           }, 0);
+                ColManager.unnest(tableId, colNum, rowNum, isArray);
+            }, 0);
         });
 
         $cellMenu.on('mouseup', '.tdCopy', function(event) {
