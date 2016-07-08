@@ -122,7 +122,9 @@ window.DatastoreForm = (function($, DatastoreForm) {
 
             var protocol = getProtocol();
             var path = getFilePath();
-            if (!isValidPathToBrowse(protocol, path)) {
+            if (!isValidPathToBrowse(protocol, path) ||
+                !isValidPreviewSize())
+            {
                 return;
             }
 
@@ -329,8 +331,6 @@ window.DatastoreForm = (function($, DatastoreForm) {
     };
 
     function submitForm() {
-        var deferred = jQuery.Deferred();
-
         var dsFormat = formatMap[$formatText.data("format")];
         var isValid = DatastoreForm.validate();
 
@@ -345,7 +345,7 @@ window.DatastoreForm = (function($, DatastoreForm) {
         }
 
         if (!isValid) {
-            return deferred.reject("Checking Invalid").promise();
+            return PromiseHelper.reject("Checking Invalid");
         }
 
         var $fileName = $("#fileName");
@@ -354,14 +354,15 @@ window.DatastoreForm = (function($, DatastoreForm) {
         var path = getFilePath();
         var loadURL = protocol + path;
 
-        if (!isValidPathToBrowse(protocol, path)) {
-            return deferred.reject("Checking Invalid").promise();
+        if (!isValidPathToBrowse(protocol, path) ||
+            !isValidPreviewSize())
+        {
+            return PromiseHelper.reject("Checking Invalid");
         }
 
         var udfCheckRes = checkUDF();
-
         if (!udfCheckRes.isValid) {
-            return deferred.reject("Checking Invalid").promise();
+            return PromiseHelper.reject("Checking Invalid");
         }
 
         var moduleName = udfCheckRes.moduleName;
@@ -377,9 +378,10 @@ window.DatastoreForm = (function($, DatastoreForm) {
             } else {
                 StatusBox.show(DSFormTStr.InvalidDelim, $lineText, true);
             }
-            return deferred.reject("invalid delimiter").promise();
+            return PromiseHelper.reject("Checking Invalid");
         }
 
+        var deferred = jQuery.Deferred();
         var header = $headerCheckBox.find(".checkbox").hasClass("checked");
 
         promoptHeaderAlert(dsFormat, header)
@@ -525,7 +527,12 @@ window.DatastoreForm = (function($, DatastoreForm) {
                 return false;
             }
         }
-        // also check preview size here(temporary for both preview and load)
+
+        return true;
+    }
+
+    function isValidPreviewSize() {
+        // check preview size here(temporary for both preview and load)
         if ($("#previewSize").val() !== "" &&
             $("#previewSizeUnit input").val() === "") {
             StatusBox.show(ErrTStr.NoEmptyList, $("#previewSizeUnit"), false);
@@ -593,32 +600,6 @@ window.DatastoreForm = (function($, DatastoreForm) {
         $("#importDataView .dropDownList").removeClass("open")
                             .find(".list").hide();
         $("#csvDelim").find(".delimVal").val("");
-    }
-
-    function delimiterTranslate($input) {
-        if ($input.hasClass("nullVal")) {
-            return "";
-        }
-
-        var delimiter = $input.val();
-        for (var i = 0; i < delimiter.length; i++) {
-            if (delimiter[i] === "\"" &&
-                !xcHelper.isCharEscaped(delimiter, i)) {
-                delimiter = delimiter.slice(0, i) + "\\" + delimiter.slice(i);
-                i++;
-            }
-        }
-
-        // hack to turn user's escaped string into its actual value
-        var obj = '{"val":"' + delimiter + '"}';
-        try {
-            delimiter = JSON.parse(obj).val;
-        } catch (err) {
-            delimiter = {fail: true, error: err};
-            console.error(err);
-        }
-
-        return delimiter;
     }
 
     function getProtocol() {
@@ -887,7 +868,6 @@ window.DatastoreForm = (function($, DatastoreForm) {
         DatastoreForm.__testOnly__.isValidPathToBrowse = isValidPathToBrowse;
         DatastoreForm.__testOnly__.isValidToPreview = isValidToPreview;
         DatastoreForm.__testOnly__.promoptHeaderAlert = promoptHeaderAlert;
-        DatastoreForm.__testOnly__.delimiterTranslate = delimiterTranslate;
         DatastoreForm.__testOnly__.resetDelimiter = resetDelimiter;
         DatastoreForm.__testOnly__.resetUdfSection = resetUdfSection;
         DatastoreForm.__testOnly__.selectUDFModule = selectUDFModule;

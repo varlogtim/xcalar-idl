@@ -20,8 +20,7 @@ window.DataCart = (function($, DataCart) {
 
         // send to worksheet button
         $("#submitDSTablesBtn").click(function() {
-            var $submitBtn = $(this).blur();
-
+            $(this).blur();
             if ($cartArea.find(".selectedTable").length === 0) {
                 return false;
             }
@@ -197,7 +196,7 @@ window.DataCart = (function($, DataCart) {
     };
 
     DataCart.addQuery = function(mainQuery) {
-        var id = mainQuery.getId();
+        // var id = mainQuery.getId();
         queryQueue.push(mainQuery);
         if (queryQueue.length === 1 && !$loadingBar.hasClass('inProgress') &&
             $('#dataStoresTab').hasClass('active')) {
@@ -616,7 +615,7 @@ window.DataCart = (function($, DataCart) {
     }
 
     function checkCartNames() {
-        var deferred = jQuery.Deferred();
+        // var deferred = jQuery.Deferred();
         var tableNames = {};
         var nameIsValid;
         var cart;
