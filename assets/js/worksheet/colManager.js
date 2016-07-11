@@ -1352,42 +1352,81 @@ window.ColManager = (function($, ColManager) {
     ColManager.delAllDupCols = function(tableId) {
         var table   = gTables[tableId];
         var columns = table.tableCols;
-        var forwardCheck = true;
         var $table = $('#xcTable-' + tableId);
-        var progCols = [];
-        var colNums = [];
-        var colInfo;
-        var allCols = [];
-        // var originalNumCols = columns.length - 1;
-        var numColsRemoved = 0;
+        var colNumsList = [];
+        var removedCols = [];
+        var removedColsWithIndex = [];
+        var removedColNums = [];
         for (var i = 0; i < columns.length; i++) {
+            colNumsList.push(i);
+        }
+        for (i = 0; i < columns.length; i++) {
+            var backName = columns[i].backName;
             if (columns[i].func.func && columns[i].func.func === "raw") {
                 continue;
             } else {
-                colInfo = null;
-                colInfo = delDupColHelper(i + 1, tableId, forwardCheck);
-                if (colInfo && colInfo.colNums.length) {
-                    colNums = colInfo.colNums;
-                    for (var j = 0; j < colNums.length; j++) {
-                        allCols.push(colNums[j] + numColsRemoved);
-                        progCols.push(colInfo.progCols[j]);
+                for (var j = i + 1; j < columns.length; j++) {
+                    if (backName === columns[j].backName) {
+                        var removedCol = removeColHelper(j, tableId);
+                        removedCols.push();
+                        var removedColNum = colNumsList.splice(j, 1)[0];
+                        removedColsWithIndex.push({removedCol: removedCol,
+                                                    index: removedColNum});
+                        removedColNums.push(removedColNum);
+                        $table.find('th.col' + (removedColNum + 1)).remove();
+                        j--;
                     }
-                    numColsRemoved += colNums.length;
                 }
             }
         }
+        var dataIndex = xcHelper.parseColNum($table.find('th.dataCol'));
+        var newDataIndex;
+        $table.find('th').each(function(i) {
+            if (!$(this).hasClass('rowNumHead') && !$(this).hasClass('dataCol')) {
+                var colNum = xcHelper.parseColNum($(this));
+                $(this).removeClass('col' + colNum).addClass('col' + i);
+                $(this).find('.col' + colNum).removeClass('col' + colNum)
+                                            .addClass('col' + i);
+            } else if ($(this).hasClass('dataCol')) {
+                var colNum = xcHelper.parseColNum($(this));
+                $(this).removeClass('col' + colNum).addClass('col' + i);
+                $(this).find('.col' + colNum).removeClass('col' + colNum)
+                                            .addClass('col' + i);
+                newDataIndex = i - 1;
+            }
+        });
+        var rowNum = xcHelper.parseRowNum($table.find('tbody').find('tr:eq(0)'));
 
-        matchHeaderSizes($table);
-        moveFirstColumn();
+        var jsonObj = {normal: []};
+        $table.find('tbody').find('.col' + dataIndex).each(function() {
+            jsonObj.normal.push($(this).find('.originalData').text());
+        });
+        $table.find('tbody').empty(); // remove tbody contents for pullrowsbulk
+
+        TblManager.pullRowsBulk(tableId, jsonObj, rowNum, newDataIndex,
+                                RowDirection.Bottom);
         updateTableHeader(tableId);
         TableList.updateTableInfo(tableId);
+        matchHeaderSizes($table);
+        moveFirstColumn();
+
+        // ordering the column nums improves the sql display and helps the undo
+        removedColsWithIndex.sort(function(a, b) {
+            return (a.index - b.index);
+        });
+        removedColNums.sort(function(a, b) {
+            return (a - b);
+        });
+        for (var i = 0; i < removedColsWithIndex.length; i++) {
+            removedCols.push(removedColsWithIndex[i].removedCol);
+        }
 
         SQL.add("Delete All Duplicate Columns", {
             "operation"  : SQLOps.DelAllDupCols,
             "tableName"  : table.tableName,
             "tableId"    : tableId,
-            "colNums"    : allCols,
-            "progCols"   : progCols,
+            "colNums"    : removedColNums,
+            "progCols"   : removedCols,
             "htmlExclude": ["progCols"]
         });
     };
@@ -2392,6 +2431,7 @@ window.ColManager = (function($, ColManager) {
             if (columns[i].backName === backName) {
                 delColAndAdjustLoop();
             }
+
             thNum++;
         }
 
