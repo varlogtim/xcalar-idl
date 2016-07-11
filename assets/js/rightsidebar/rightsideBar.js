@@ -30,7 +30,7 @@ window.RightSideBar = (function($, RightSideBar) {
     };
 
     function setLastRightSidePanel() {
-        var lastRightSideBar = UserSettings.getPreference().lastRightSideBar;
+        var lastRightSideBar = UserSettings.getPref('lastRightSideBar');
         if (lastRightSideBar &&
             !$('.rightBarSection').hasClass('lastOpen')) {
             $('#' + lastRightSideBar).addClass('lastOpen');

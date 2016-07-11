@@ -9,11 +9,6 @@
     box-shadow: -2px 0px 2px 3px rgba(0,0,0,0.1), inset 0px 3px 3px rgba(0,0,0,0.4);
     .transition (right 0.3s);
 
-    @media screen and (max-width: 1024px) {
-        .position(absolute, @right: -300px, @bottom: 74px);
-        .size(@width: 310px,  @height: ~"calc(100% - 152px)");
-    }
-
     &.open {
         right: 0px !important;
         .ui-resizable-handle {
@@ -205,37 +200,6 @@
         }
     }
 }
-
-@media screen and (max-width: 1300px) {
-    #rightSideBar:not(.poppedOut) .tableListSection:not(#aggregateTableList) {
-        .columnList {
-            width: ~"calc(86% - 26px)" !important;
-        }
-
-        .timeStampWrap {
-            width: 14% !important;
-            text-align: center;
-            span:first-child {
-                display: none !important;
-            }
-        }
-
-        .worksheetInfo {
-            display: none !important;
-        }
-
-        .tableListBox {
-            width: 86% !important;
-        }
-
-        &#orphanedTableList {
-            .searchArea {
-                width: 85% !important;
-            }
-        }
-    }
-}
-
 
 /* ========== Table List Section in Right Side Bar ========== */
 #tableListSection {

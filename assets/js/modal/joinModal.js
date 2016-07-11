@@ -306,7 +306,7 @@ window.JoinModal = (function($, JoinModal) {
     };
 
     JoinModal.restore = function() {
-        var keepJoinTables = UserSettings.getPreference().keepJoinTables;
+        var keepJoinTables = UserSettings.getPref('keepJoinTables');
         if (keepJoinTables) {
             $joinModal.find('.keepTablesCBWrap .checkbox').addClass('checked');
         }

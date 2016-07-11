@@ -36,8 +36,8 @@ window.DS = (function ($, DS) {
 
     DS.setupView = function() {
         // restore list view if saved and ellipsis the icon
-        var preference = UserSettings.getPreference();
-        toggleDSView(preference.datasetListView, true);
+        var preference = UserSettings.getPref('datasetListView');
+        toggleDSView(preference, true);
     };
 
     // Get home folder

@@ -104,6 +104,8 @@ window.Support = (function(Support, $) {
         .then(function(result) {
             var tops = result.topOutputPerNode;
             for (var i = 0, len = tops.length; i < len; i++) {
+                defaultMemoryLimit = UserSettings.getPref('memoryLimit')
+                                     || defaultMemoryLimit;
                 if (tops[i].memUsageInPercent > defaultMemoryLimit) {
                     DeleteTableModal.show();
                     return;

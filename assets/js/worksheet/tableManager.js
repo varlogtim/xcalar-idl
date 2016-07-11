@@ -648,7 +648,6 @@ window.TblManager = (function($, TblManager) {
 
         var columnName = option.name || "";
         var width      = option.width || 0;
-
         if (option.isHidden) {
             width = 15;
             columnClass += " userHidden";
@@ -2254,7 +2253,7 @@ window.TblManager = (function($, TblManager) {
                 } else {
                     width = columns[i].width;
                 }
-                if (width === 'auto') {
+                if (!columns[i].isHidden && width === 'auto') {
                     width = 400;
                 }
                 newTable += generateDataHeadHTML(newColid, thClass, width);
@@ -2438,10 +2437,15 @@ window.TblManager = (function($, TblManager) {
         if (dataCol.width === "auto") {
             var winWidth = $(window).width();
             var maxWidth = 400;
+            var minWidth = 200;
             if (winWidth > 1400) {
                 maxWidth = 600;
             } else if (winWidth > 1100) {
                 maxWidth = 500;
+            }
+            if (dataCol.isHidden) {
+                dataCol.width = minWidth;
+                return;
             }
             var $th = $('#xcTable-' + tableId).find('th.col' + dataColIndex);
             autosizeCol($th, {

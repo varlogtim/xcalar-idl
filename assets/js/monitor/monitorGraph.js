@@ -89,6 +89,12 @@ window.MonitorGraph = (function($, MonitorGraph) {
         clearInterval(graphCycle);
     };
 
+    MonitorGraph.updateInterval = function(time) {
+        interval = time;
+        clearInterval(graphCycle);
+        graphCycle = setInterval(getStatsAndUpdateGraph, interval);
+    };
+
     function startCycle() {
         count = 0;
         newWidth = xGridWidth + shiftWidth;
@@ -101,6 +107,7 @@ window.MonitorGraph = (function($, MonitorGraph) {
         firstTime = true;
 
         getStatsAndUpdateGraph();
+        var interval = (UserSettings.getPref('monitorGraphInterval') * 1000) || interval;
         graphCycle = setInterval(getStatsAndUpdateGraph, interval);
     }
 

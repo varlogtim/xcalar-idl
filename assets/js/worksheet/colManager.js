@@ -33,7 +33,8 @@ window.ColManager = (function($, ColManager) {
                 "name": "raw",
                 "args": []
             },
-            "isNewCol": false
+            "isNewCol": false,
+            "isHidden": UserSettings.getPref('hideDataCol')
         });
 
         return (progCol);
@@ -1456,7 +1457,7 @@ window.ColManager = (function($, ColManager) {
         });
     };
 
-    ColManager.unhideCols = function(colNums, tableId) {
+    ColManager.unhideCols = function(colNums, tableId, noAnim) {
         var $table     = $('#xcTable-' + tableId);
         var tableWidth = $table.width();
         var table      = gTables[tableId];
@@ -1478,7 +1479,7 @@ window.ColManager = (function($, ColManager) {
             col.isHidden = false;
             colNames.push(col.name);
 
-            if (!gMinModeOn) {
+            if (!gMinModeOn && !noAnim) {
                 promises.push(jQuery.Deferred());
                 var count = 0;
                 $th.animate({width: col.width}, 250, "linear", function() {
@@ -1493,7 +1494,7 @@ window.ColManager = (function($, ColManager) {
                   .removeClass("userHidden");
         }
 
-        if (!gMinModeOn) {
+        if (!gMinModeOn && !noAnim) {
             jQuery.when.apply($, promises).done(function() {
                 matchHeaderSizes($table);
             });
@@ -2363,6 +2364,7 @@ window.ColManager = (function($, ColManager) {
         }
 
         $table.find('th.col' + newColid).removeClass('newColumn');
+
         if (tableCol.isHidden) {
             $table.find('td.col' + newColid).addClass('userHidden');
         }

@@ -35,6 +35,9 @@ window.MonitorPanel = (function($, MonitorPanel) {
                 case ("setupButton"):
                     $("#monitor-setup").addClass("active");
                     break;
+                case ("settingsButton"):
+                    $("#monitor-settings").addClass("active");
+                    break;
                 default:
                     break;
             }

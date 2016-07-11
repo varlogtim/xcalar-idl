@@ -174,14 +174,33 @@ function dblClickResize($el, options) {
         unhideOffScreenTables();
         xcHelper.reenableTextSelection();
         $('.xcTableWrap').find('.dropdownBox').show();
+        $('#col-resizeCursor').remove();
+        clearTimeout(gRescol.timer);    //prevent single-click action
+        gRescol.clicks = 0;      //after action performed, reset counter
+
         options = options || {};
         var target = options.target;
         var tableId;
 
         var $th = $el.parent().parent();
         var $table = $th.closest('.dataTable');
+        $table.removeClass('resizingCol');
+
+        // check if unhiding
+        if (target !== "datastore" && $th.outerWidth() === 15) {
+            tableId = $table.data('id');
+            var index = xcHelper.parseColNum($th);
+            $th.addClass('userHidden');
+            $table.find('td.col' + index).addClass('userHidden');
+            gTables[tableId].tableCols[index - 1].isHidden = true;
+            ColManager.unhideCols([index], tableId, true)
+            return;
+        }
+
         var oldColumnWidths = [];
         var newColumnWidths = [];
+        var oldWidthStates = [];
+        var newWidthStates = [];
 
         $table.find('.colGrab')
               .removeAttr('data-toggle data-original-title title');
@@ -207,7 +226,6 @@ function dblClickResize($el, options) {
         var includeHeader = false;
 
         if (target === "datastore") {
-
             $selectedCols.find('.colGrab').each(function() {
                 if ($(this).data('sizetoheader')) {
                     includeHeader = true;
@@ -230,7 +248,9 @@ function dblClickResize($el, options) {
                 }
             }
             for (i = 0; i < numSelectedCols; i++) {
+                oldWidthStates.push(columns[indices[i]].sizeToHeader);
                 columns[indices[i]].sizeToHeader = !includeHeader;
+                newWidthStates.push(!includeHeader);
                 oldColumnWidths.push(columns[indices[i]].width);
             }
         }
@@ -242,7 +262,6 @@ function dblClickResize($el, options) {
             minWidth = 17;
         }
 
-
         $selectedCols.each(function() {
             newColumnWidths.push(autosizeCol($(this), {
                 "dblClick"      : true,
@@ -252,11 +271,6 @@ function dblClickResize($el, options) {
                 "datastore"     : target === "datastore"
             }));
         });
-
-        $('#col-resizeCursor').remove();
-        clearTimeout(gRescol.timer);    //prevent single-click action
-        gRescol.clicks = 0;      //after action performed, reset counter
-        $table.removeClass('resizingCol');
 
         if (target !== "datastore") {
             var table = gTables[tableId];
@@ -275,8 +289,11 @@ function dblClickResize($el, options) {
                 "columnNums"     : colNums,
                 "oldColumnWidths": oldColumnWidths,
                 "newColumnWidths": newColumnWidths,
+                "oldWidthStates" : oldWidthStates,
+                "newWidthStates" : newWidthStates,
                 "htmlExclude"    : ["columnNums", "oldColumnWidths",
-                                    "newColumnWidths"]
+                                    "newColumnWidths","oldWidthStates",
+                                    "newWidthStates"]
             });
         }
     }

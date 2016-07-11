@@ -1222,7 +1222,7 @@ window.WSManager = (function($, WSManager) {
             }
         }
         // focus on the saved or first worksheet
-        var storedWS = UserSettings.getPreference().activeWorksheet;
+        var storedWS = UserSettings.getPref('activeWorksheet');
         if (!clearing && wsOrder.indexOf(storedWS) > -1) {
             activeWorksheet = storedWS;
         } else {

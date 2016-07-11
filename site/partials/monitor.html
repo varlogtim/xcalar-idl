@@ -13,6 +13,10 @@
       <div class="icon"></div>
       <div class="text"><%= dicts.monitor.SETUP %></div>
     </div>
+    <div id="settingsButton" class="buttonArea">
+      <div class="icon"></div>
+      <div class="text"><%= dicts.monitor.SETTINGS %></div>
+    </div>
   </div>
   <!-- System Section -->
   <section id="monitor-system" class="monitorSection active">
@@ -426,5 +430,54 @@
     </div>
   </section>
   <!-- End of Setup Section -->
+  <!-- Settings Section -->
+  <section id="monitor-settings" class="monitorSection">
+    <div class="topSection"><%= dicts.monitor.UserSettings %></div>
+    <div class="mainSection no-selection">
+      <div class="heading"><%= dicts.monitor.GeneralSettings %></div>
+      <div class="optionsContainer">
+        <div class="optionSet">
+          <div class="label"><%= dicts.monitor.showDataCol %></div>
+          <div class="optionSelector">
+            <div class="onOffBtn">
+                <input type='checkbox' class="checkbox" id="showDataColBox" checked>
+                <label for="showDataColBox">
+                  <div class="slider"></div>
+                  <div class="text offText">OFF</div>
+                  <div class="text onText">ON</div>
+                </label>
+            </div>
+          </div>
+        </div>
+        <div class="optionSet">
+          <div class="label"><%= dicts.monitor.memThreshold %></div>
+          <div id="memLimitSlider" class="optionSelector rangeSliderWrap">
+            <div class="rangeSlider">
+              <div class="leftArea">
+                <div class="slider"></div>
+              </div>
+              <div class="rightArea"></div>
+            </div>
+            <input class="value" value="90" type="number" min="50" max="99">
+            <span>%</span>
+          </div>
+        </div>
+        <div class="optionSet">
+          <div class="label"><%= dicts.monitor.graphInterval %></div>
+          <div id="monitorIntervalSlider" class="optionSelector rangeSliderWrap">
+            <div class="rangeSlider">
+              <div class="leftArea">
+                <div class="slider"></div>
+              </div>
+              <div class="rightArea"></div>
+            </div>
+            <input class="value" value="3" type="number" min="1" max="60">
+            <span><%= dicts.common.seconds %></span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <!-- End of Settings Section -->
 </div>
 <!-- END OF MONITOR PANEL -->

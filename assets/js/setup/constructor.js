@@ -489,6 +489,16 @@ function UserPref(options) {
     this.lastRightSideBar = options.lastRightSideBar || null;
     this.activeWorksheet = options.activeWorksheet || null;
     this.keepJoinTables = options.keepJoinTables || false;
+    this.hideDataCol = options.hideDataCol || false;
+    this.memoryLimit = options.memoryLimit || 90;
+    this.monitorGraphInterval = options.monitorGraphInterval || 3;
+    this.mainTabs = options.mainTabs || {
+                                            monitor: 'systemButton',
+                                            dataStores: 'inButton',
+                                            scheduler: 'dataflowButton',
+                                            extensions: 'xcExtensionButton'
+                                        };
+    this.activeMainTab = options.activeMainTab || "workspaceTab";
 
     return this;
 }
@@ -1770,7 +1780,6 @@ SearchBar.prototype = {
                 e = event;
             }
 
-            // console.log(event, b);
             if (e.which === keyCode.Up ||
                 e.which === keyCode.Down ||
                 e.which === keyCode.Enter) {
@@ -2480,6 +2489,73 @@ ModalHelper.prototype = {
         }
     }
 };
+
+function RangeSlider($rangeSliderWrap, prefName, options) {
+    options = options || {};
+    var self = this;
+    this.minVal = options.minVal || 0;
+    this.maxVal = options.maxVal || 0;
+    this.minWidth = Math.round($rangeSliderWrap.find('.slider').width() / 2);
+    this.maxWidth = options.maxWidth || $rangeSliderWrap.find('.rangeSlider').width();
+    this.valRange = this.maxVal - this.minVal;
+    this.widthRange = this.maxWidth - this.minWidth;
+    this.$rangeSliderWrap = $rangeSliderWrap;
+    this.$rangeInput = $rangeSliderWrap.find('input');
+    this.prefName = prefName;
+
+    $rangeSliderWrap.find('.leftArea').resizable({
+        "handles"  : "e",
+        "minWidth" : self.minWidth,
+        "maxWidth" : self.maxWidth,
+        "stop": function(event, ui) {
+            var val = self.updateInput(ui.size.width);
+            UserSettings.setPref(prefName, val);
+            if (options.onChangeEnd) {
+                options.onChangeEnd(val);
+            }
+        },
+        "resize": function(event, ui) {
+            self.updateInput(ui.size.width);
+        }
+    });
+
+    $rangeSliderWrap.find('input').on('input', function() {
+        var val = $(this).val();
+        val = Math.min(self.maxVal, Math.max(val, self.minVal));
+        self.updateSlider(val);
+    });
+
+    $rangeSliderWrap.find('input').on('change', function() {
+        var val = $(this).val();
+        val = Math.min(self.maxVal, Math.max(val, self.minVal));
+        $(this).val(val);
+        UserSettings.setPref(self.prefName, val);
+        if (options.onChangeEnd) {
+            options.onChangeEnd(val);
+        }
+    });
+}
+
+RangeSlider.prototype = {
+    updateInput: function(uiWidth) {
+        var width = uiWidth - this.minWidth;
+        var val = (width / this.widthRange) * this.valRange + this.minVal;
+        val = Math.round(val);
+        this.$rangeInput.val(val);
+        return val;
+    },
+    updateSlider: function(val) {
+        var width = ((val - this.minVal) / this.valRange) * (this.maxWidth) +
+                    this.minWidth;
+        width = Math.min(this.maxWidth, width);
+        this.$rangeSliderWrap.find('.leftArea').width(width);
+    },
+    setSliderValue: function(val) {
+        this.updateSlider(val);
+        this.$rangeInput.val(val);
+    }
+};
+
 /* End of ModalHelper */
 
 /*

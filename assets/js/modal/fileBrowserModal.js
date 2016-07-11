@@ -295,8 +295,8 @@ window.FileBrowser = (function($, FileBrowser) {
 
     FileBrowser.restore = function() {
         // restore list view if saved
-        var preference = UserSettings.getPreference();
-        if (preference.browserListView) {
+        var isListView = UserSettings.getPref('browserListView');
+        if (isListView) {
             toggleView(true, true);
         }
     };

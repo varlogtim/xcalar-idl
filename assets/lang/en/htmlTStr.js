@@ -63,6 +63,7 @@ module.exports = {
         "SAVE": "SAVE",
         "SAVEEXIT": "SAVE & EXIT",
         "SearchKeyWord": "Search keyword",
+        "seconds": "seconds",
         "SelectAll": "Select All",
         "Service": "Service",
         "Size": "Size",
@@ -321,6 +322,7 @@ module.exports = {
         "SYS": "SYSTEM",
         "QUERIES": "QUERIES",
         "SETUP": "SETUP",
+        "SETTINGS": "SETTINGS",
         "AUTOSUPPORT": "AUTO SUPPORT SETTINGS",
         "GENSUB": "GENERATE SUB",
         "RELEASEMEM": "RELEASE MEMORY",
@@ -349,11 +351,16 @@ module.exports = {
         "VIEWOUTPUT": "VIEW OUTPUT",
         "EXPORT": "EXPORT OUTPUT TO WORKSHEET",
         "Config": "Configuration",
+        "UserSettings": "User Settings",
+        "GeneralSettings": "General Settings",
         "INSTALL": "INSTALL",
         "UNINSTALL": "UNINSTALL",
         "UPGRADE": "UPGRADE",
         "STARTNODE": "START NODES",
-        "STOPNODE": "STOP NODES"
+        "STOPNODE": "STOP NODES",
+        "showDataCol": "SHOW DATA COLUMN ON NEW TABLE CREATION",
+        "memThreshold": "MEMORY UTILIZATION THRESHOLD",
+        "graphInterval": "MONITOR GRAPH INTERVAL"
     },
 
     "ds": {
