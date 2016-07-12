@@ -186,7 +186,7 @@ describe('OperationsModal', function() {
             it('should detect if arg types are valid or invalid', function() {
                 columns = gTables[tableId].tableCols;
                 someColumns = [columns[0], columns[1], columns[2], columns[5], columns[7], columns[8], columns[9], columns[10]];
-                expect(columns).to.have.length(13);
+                expect(columns.length).to.equal(13);
                 var testArgs = [];
                 var args;
                 for (var i = 0; i < someColumns.length; i++) {

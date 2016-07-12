@@ -288,7 +288,7 @@ describe('Constructor Test', function() {
     it('UserPref should be a constructor', function() {
         var userPref = new UserPref();
         expect(userPref).to.be.an('object');
-        expect(Object.keys(userPref).length).to.equal(5);
+        expect(Object.keys(userPref).length).to.equal(10);
 
         expect(userPref).to.have.property('datasetListView');
         expect(userPref).to.have.property('browserListView');
@@ -297,6 +297,13 @@ describe('Constructor Test', function() {
         expect(userPref).to.have.property('activeWorksheet')
         .and.to.be.null;
         expect(userPref).to.have.property('keepJoinTables');
+        expect(userPref).to.have.property('hideDataCol')
+        .and.to.be.false;
+        expect(userPref).to.have.property('memoryLimit')
+        .and.to.equal(70);
+        expect(userPref).to.have.property('monitorGraphInterval')
+        .and.to.equal(3);
+        expect(userPref).to.have.property('mainTabs');
 
         userPref.update();
         expect(userPref.activeWorksheet).not.to.be.null;
