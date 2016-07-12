@@ -10,7 +10,7 @@ window.Support = (function(Support, $) {
     var statsMap = null;
     // constant
     var defaultCommitFlag = "commit-default";
-    var defaultMemoryLimit = 90;
+    var defaultMemoryLimit = 70;
 
     Support.setup = function() {
         try {

@@ -490,7 +490,7 @@ function UserPref(options) {
     this.activeWorksheet = options.activeWorksheet || null;
     this.keepJoinTables = options.keepJoinTables || false;
     this.hideDataCol = options.hideDataCol || false;
-    this.memoryLimit = options.memoryLimit || 90;
+    this.memoryLimit = options.memoryLimit || 70;
     this.monitorGraphInterval = options.monitorGraphInterval || 3;
     this.mainTabs = options.mainTabs || {
                                             monitor: 'systemButton',
