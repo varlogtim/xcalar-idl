@@ -396,9 +396,9 @@ WKBKTStr = {
     'NoOldWKBKMsg': 'Please Use new workbook or logout and try again!',
     'Expire': 'Please Log out',
     'ExpireMsg': 'You are logged in somewhere else!',
-    'Hold': 'Signed on elsewhere',
-    'HoldMsg': 'Please close your other session.',
-    'Release': 'Force Release',
+    'Hold': 'Login Warning',
+    'HoldMsg': 'You are logged in somewhere else. Continue to login may make you loose unsaved work.',
+    'Release': 'Continue login',
     'WKBKnotExists': 'No workbooks exist',
     'Conflict': 'Workbook "<name>" already exists, ' +
                     'please choose another name.',
