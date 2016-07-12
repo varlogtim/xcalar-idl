@@ -1270,6 +1270,8 @@ window.OperationsModal = (function($, OperationsModal) {
                     }
                 }
 
+                autoGenColName = xcHelper.stripeColName(autoGenColName);
+
                 $rows.eq(numArgs).addClass('colNameRow')
                                 .find('.dropDownList')
                                 .addClass('colNameSection')
@@ -1302,6 +1304,8 @@ window.OperationsModal = (function($, OperationsModal) {
                 description = 'New Column Name for the groupBy' +
                                 ' resultant column';
                 autoGenColName = getAutoGenColName(colName + "_" + func);
+                autoGenColName = xcHelper.stripeColName(autoGenColName);
+
                 $rows.eq(numArgs).addClass('colNameRow')
                                  .find('.dropDownList')
                                     .addClass('colNameSection')

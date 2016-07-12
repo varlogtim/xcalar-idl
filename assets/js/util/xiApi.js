@@ -811,7 +811,8 @@ window.XIApi = (function(XIApi, $) {
         var tableCols = table.tableCols;
 
         // xx kinda crazy but the backend returns a lot of \ slashes
-        var escapedName = xcHelper.escapeColName(newColName.replace(/\./g, "\\."));
+        // var escapedName = xcHelper.escapeColName(newColName.replace(/\./g, "\\."));
+        var escapedName = newColName;
         // front name of a.b turns into a\.b in the backend and then
         // we need to escape the \ and . in a\.b to access it so it becomes a\\\.b
         var width = getTextWidth($(), newColName, {
@@ -863,7 +864,10 @@ window.XIApi = (function(XIApi, $) {
                 var progCol = table.getColByBackName(backColName) || {};
                 // even though backColName may be escaped, the returned column
                 // from the backend will be escaped again
-                escapedName = xcHelper.escapeColName(backColName);
+                
+                // both "a\.b" and "a.b" will become "a\.b" after groupby
+                escapedName = xcHelper.unescapeColName(backColName);
+                escapedName = xcHelper.escapeColName(escapedName);
                 var colName = progCol.name || backColName;
 
                 finalCols[1 + i] = ColManager.newCol({

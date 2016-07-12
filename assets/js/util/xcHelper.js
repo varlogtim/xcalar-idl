@@ -358,7 +358,8 @@ window.xcHelper = (function($, xcHelper) {
 
             // backend will return an escaped name and then we'll have to use
             // an escaped version of that escaped name to access it =)
-            var escapedName = xcHelper.escapeColName(colName.replace(/\./g, "\\."));
+            // var escapedName = xcHelper.escapeColName(colName.replace(/\./g, "\\."));
+            var escapedName = colName;
 
             var newProgCol = ColManager.newCol({
                 "backName": escapedName,
@@ -1229,6 +1230,13 @@ window.xcHelper = (function($, xcHelper) {
         str = str.replace(/\\\[/g, "\[");
         str = str.replace(/\\\]/g, "\]");
         return (str);
+    };
+
+    xcHelper.stripeColName = function(colName) {
+        var res = colName.split(/[\[\]\.\\]/g).filter(function(str) {
+            return (str !== "");
+        }).join("_");
+        return res;
     };
 
     xcHelper.scrollToBottom = function($target) {

@@ -743,7 +743,8 @@ window.DataCart = (function($, DataCart) {
 
         for (var i = 0; i < itemLen; i++) {
             var colname = items[i].value;
-            var escapedName = xcHelper.escapeColName(colname);
+            // var escapedName = xcHelper.escapeColName(colname);
+            var escapedName = colname;
 
             width = getTextWidth($(), colname, widthOptions);
 

@@ -380,15 +380,14 @@ window.ColManager = (function($, ColManager) {
         var mapStrings = [];
 
         var i;
-        var colInfo;
-        var col;
         for (i = numColInfos - 1; i >= 0; i--) {
             newTableNames[i] = tableNamePart + Authentication.getHashId();
-            colInfo = colTypeInfos[i];
-            col = tableCols[colInfo.colNum - 1];
+            var colInfo = colTypeInfos[i];
+            var col = tableCols[colInfo.colNum - 1];
+            var colName = xcHelper.stripeColName(col.getFronColName()) +
+                            "_" + colInfo.type;
             // here use front col name to generate newColName
-            newFieldNames[i] = xcHelper.getUniqColName(tableId,
-                                        col.getFronColName() + "_" + colInfo.type);
+            newFieldNames[i] = xcHelper.getUniqColName(tableId, colName);
             mapStrings[i] = xcHelper.castStrHelper(col.getBackColName(), colInfo.type);
         }
 
@@ -2003,7 +2002,8 @@ window.ColManager = (function($, ColManager) {
         for (var arrayKey in jsonTdObj) {
             if (options.isDataTd) {
                 colName = arrayKey;
-                escapedColName = xcHelper.escapeColName(arrayKey);
+                // escapedColName = xcHelper.escapeColName(arrayKey);
+                escapedName = arrayKey;
             } else {
                 openSymbol = "";
                 closingSymbol = "";
@@ -2014,10 +2014,14 @@ window.ColManager = (function($, ColManager) {
                     closingSymbol = "]";
                 }
 
-                colName = cols[colNum - 1].getBackColName().replace(/\\./g, ".") +
+                // colName = cols[colNum - 1].getBackColName().replace(/\\./g, ".") +
+                //           openSymbol + arrayKey + closingSymbol;
+                colName = cols[colNum - 1].getBackColName() +
                           openSymbol + arrayKey + closingSymbol;
+                // escapedColName = cols[colNum - 1].getBackColName() + openSymbol +
+                //                 xcHelper.escapeColName(arrayKey) + closingSymbol;
                 escapedColName = cols[colNum - 1].getBackColName() + openSymbol +
-                                xcHelper.escapeColName(arrayKey) + closingSymbol;
+                                arrayKey + closingSymbol;
             }
 
             if (!table.hasColWithBackName(escapedColName)) {
@@ -2047,7 +2051,7 @@ window.ColManager = (function($, ColManager) {
             width = getTextWidth($(), key, widthOptions);
 
             var newCol = ColManager.newCol({
-                "backName": escapedKey,
+                "backName": key,
                 "name"    : key,
                 "width"   : width,
                 "userStr" : usrStr,
@@ -2466,11 +2470,13 @@ window.ColManager = (function($, ColManager) {
     // assumes legal syntax ie. votes[funny] and not votes[funny]blah
     function parseColFuncArgs(key) {
         if (key == null) {
-            return ("");
+            return "";
         }
         key += ""; // if number, convert to string
 
         // replace votes[funny] with votes.funny but votes\[funny\] will remain
+        // XXX this is waiting for backend to fix, after that
+        // we should not have votes\[fuuny\]
         var isEscaped = false;
         var bracketOpen = false;
         for (var i = 0; i < key.length; i++) {
@@ -2491,17 +2497,15 @@ window.ColManager = (function($, ColManager) {
                 }
             }
         }
-
         var nested = key.match(/([^\\.]|\\.)+/g);
 
         if (nested == null) {
-            return ("");
+            return "";
         }
-        for (var i = 0; i < nested.length; i++) {
-            nested[i] = xcHelper.unescapeColName(nested[i]);
-        }
-
-        return (nested);
+        // for (var i = 0; i < nested.length; i++) {
+        //     nested[i] = xcHelper.unescapeColName(nested[i]);
+        // }
+        return nested;
     }
 
     // function parseBracket(key) {

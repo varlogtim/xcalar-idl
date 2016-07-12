@@ -340,7 +340,8 @@ function ProgCol(options) {
 
     if (options.backName == null) {
         // xx kinda crazy but the backend returns a lot of \ slashes
-        this.backName = xcHelper.escapeColName(this.name.replace(/\./g, "\\."));
+        // this.backName = xcHelper.escapeColName(this.name.replace(/\./g, "\\."));
+        this.backName = this.name;
     } else {
         this.backName = options.backName;
     }

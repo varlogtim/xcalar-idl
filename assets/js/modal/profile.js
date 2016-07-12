@@ -840,8 +840,9 @@ window.Profile = (function($, Profile, d3) {
         })
         .then(function() {
             finalTable = getNewName(tableName, ".profile.final", true);
-            // escaping colName like votes.funny
-            var sortCol = xcHelper.escapeColName(colName);
+            // both "a\.b" and "a.b" will become "a\.b" after groupby
+            var sortCol = xcHelper.unescapeColName(colName);
+            sortCol = xcHelper.escapeColName(sortCol);
             return XcalarIndexFromTable(groupbyTable, sortCol, finalTable,
                                         XcalarOrderingT.XcalarOrderingAscending,
                                         txId);
@@ -984,8 +985,9 @@ window.Profile = (function($, Profile, d3) {
         var tableInfo = statsCol.groupByInfo.buckets[bucketNum];
         var noBucket  = (bucketNum === 0) ? 1 : 0;
         var noSort    = (order === sortMap.origin);
-
-        var xName = tableInfo.colName;
+        // both "a\.b" and "a.b" will become "a\.b" after groupby
+        var xName = xcHelper.unescapeColName(tableInfo.colName);
+        xName = xcHelper.escapeColName(xName);
         var yName = noBucket ? statsColName : bucketColName;
 
         var $section = $modal.find(".groubyInfoSection");
@@ -1851,7 +1853,8 @@ window.Profile = (function($, Profile, d3) {
         var finalTable;
 
         var colName = curStatsCol.colName;
-        // escaping colName like votes.funny
+        // both "a\.b" and "a.b" will become "a\.b" after groupby
+        colName = xcHelper.unescapeColName(colName);
         colName = xcHelper.escapeColName(colName);
         var mapCol = xcHelper.randName("bucketMap", 4);
 

@@ -300,7 +300,7 @@ window.xcFunction = (function($, xcFunction) {
 
             var innerDeferred = jQuery.Deferred();
             var mapString = xcHelper.castStrHelper(backColName, typeToCast);
-            var mapColName = backColName + "_" + typeToCast;
+            var mapColName = xcHelper.stripeColName(backColName) + "_" + typeToCast;
 
             mapColName = xcHelper.getUniqColName(tableId, mapColName);
 
@@ -944,7 +944,8 @@ window.xcFunction = (function($, xcFunction) {
             allColNames = allColNames.filter(filterColNames);
             for (var i = 0; i < allColNames.length; i++) {
                 colName = allColNames[i].name;
-                escapedName = xcHelper.escapeColName(colName);
+                // escapedName = xcHelper.escapeColName(colName);
+                escapedName = colName;
                 width = getTextWidth($(), colName, widthOptions);
                 newProgCol = ColManager.newCol({
                     "backName": escapedName,
