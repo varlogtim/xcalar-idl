@@ -864,7 +864,7 @@ window.XIApi = (function(XIApi, $) {
                 var progCol = table.getColByBackName(backColName) || {};
                 // even though backColName may be escaped, the returned column
                 // from the backend will be escaped again
-                
+
                 // both "a\.b" and "a.b" will become "a\.b" after groupby
                 escapedName = xcHelper.unescapeColName(backColName);
                 escapedName = xcHelper.escapeColName(escapedName);
