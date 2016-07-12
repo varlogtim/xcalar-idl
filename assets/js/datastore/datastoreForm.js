@@ -230,6 +230,9 @@ window.DatastoreForm = (function($, DatastoreForm) {
                 case "GB":
                     previewSize *= GB;
                     break;
+                case "TB":
+                    previewSize *= TB;
+                    break;
                 default:
                     break;
             }
