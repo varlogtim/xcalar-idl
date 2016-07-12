@@ -397,7 +397,7 @@ WKBKTStr = {
     'Expire': 'Please Log out',
     'ExpireMsg': 'You are logged in somewhere else!',
     'Hold': 'Login Warning',
-    'HoldMsg': 'You are logged in somewhere else. Continue to login may make you loose unsaved work.',
+    'HoldMsg': 'You are logged in somewhere else. Continuing to log in might cause you to lose unsaved work.',
     'Release': 'Continue login',
     'WKBKnotExists': 'No workbooks exist',
     'Conflict': 'Workbook "<name>" already exists, ' +
@@ -524,10 +524,9 @@ TblTStr = {
 
 ColTStr = {
     'SplitColWarn': 'Many Columns will generate',
-    'SplitColWarnMsg': 'About <num> columns will be generated, ' +
-                       'do you still want to continue the operation?',
-    'RenamSpecialChar': 'Invalid name, cannot contain ,\'()\" or ' +
-                        'starting or ending spaces'
+    'SplitColWarnMsg': 'About <num> columns will be generated, do you still want to continue the operation?',
+    'RenamSpecialChar': 'Invalid name, cannot contain \\,\.\'()[]\" or starting or ending spaces',
+    'RenamStartNum': 'Invalid name, cannot starts with number'
 };
 
 SideBarTStr = {
