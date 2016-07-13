@@ -440,14 +440,11 @@ function dataPreviewModuleTest() {
 
     describe("Preview API Test", function() {
         it("DataPreview.show() should work", function(done) {
-            $("#fileProtocol input").val(testDatasets.sp500.protocol);
-            $("#filePath").val(testDatasets.sp500.path);
-
-            DataPreview.show()
+            var loadUrl = testDatasets.sp500.protocol + testDatasets.sp500.path;
+            DataPreview.show(loadUrl)
             .then(function() {
                 // expect($previewTable.is(":visible")).to.be.true;
                 expect($previewTable.html()).not.to.equal("");
-                expect($previewTable.find(".has-tab").length).to.be.above(0);
                 done();
             })
             .fail(function() {

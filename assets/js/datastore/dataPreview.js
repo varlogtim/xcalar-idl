@@ -19,6 +19,7 @@ window.DataPreview = (function($, DataPreview) {
 
     // constant
     var rowsToFetch = 40;
+    var numBytesRequest = 15000;
 
     var promoteHeader =
             '<div class="header" ' +
@@ -147,178 +148,88 @@ window.DataPreview = (function($, DataPreview) {
         });
     };
 
-    DataPreview.show = function(udfModule, udfFunc) {
+    DataPreview.show = function(loadURL, dsName, udfModule, udfFunc, isRecur) {
         var deferred = jQuery.Deferred();
-        var protocol = $("#fileProtocol input").val();
-        var loadURL = protocol + $("#filePath").val().trim();
-        var dsName = $("#fileName").val();
-        var $waitSection;
-        var $errorSection;
+        var hasUDF = false;
 
-        if (udfModule != null && udfFunc != null &&
-            udfModule !== "" && udfFunc !== "") {
+        if (udfModule && udfFunc) {
             moduleName = udfModule;
             funcName = udfFunc;
-            $("#preview-udf").show()
-                             .find(".text").text(moduleName + ":" + funcName);
-        } else if (udfModule === "" && udfFunc === "" ||
-                   udfModule == null && udfFunc == null) {
+            hasUDF = true;
+        } else if (!udfModule && !udfFunc) {
             moduleName = "";
             funcName = "";
-            $("#preview-udf").hide()
-                             .find(".text").text("");
+            hasUDF = false;
         } else {
             // when udf module == null or udf func == null
             // it's an error case
-            return deferred.reject("Error Case!").promise();
+            return PromiseHelper.reject("Error Case!");
         }
-
-        $("#importDataForm").on("keypress.preview", function(event) {
-            if (event.which === keyCode.Enter) {
-                applyPreviewChange();
-                return false;
-            }
-        });
 
         var $loadHiddenSection = $previeWrap.find(".loadHidden").hide();
-        $("#preview-url").text(loadURL);
-        $("#preview-dsName").val(dsName);
-
-        var isRecur = $("#recurCheckbox").find(".checkbox").hasClass("checked");
-
-        if ($("#filePath").val().trim().length === 0) {
-            StatusBox.show(ErrTStr.NoEmpty, $("#filePath"), true);
-            deferred.reject(error);
-        }
-
-        $waitSection = $previeWrap.find(".waitSection")
+        var $waitSection = $previeWrap.find(".waitSection")
                                     .removeClass("hidden");
-        $errorSection = $previeWrap.find(".errorSection")
+        var $errorSection = $previeWrap.find(".errorSection")
                                     .addClass("hidden");
-
-        tableName = getPreviewTableName(dsName);
-
         var sql = {
             "operation" : SQLOps.PreviewDS,
             "dsPath"    : loadURL,
-            "dsName"    : tableName,
-            "dsFormat"  : "raw",
-            "hasHeader" : hasHeader,
-            "fieldDelim": "Null",
-            "lineDelim" : "\n",
+            "dsName"    : dsName,
             "moduleName": moduleName,
-            "funcName"  : funcName
+            "funcName"  : funcName,
+            "isRecur"   : isRecur
         };
+
         var txId = Transaction.start({
             "operation": SQLOps.PreviewDS,
             "sql"      : sql
         });
-        var loadError = null;
 
-        // XXX temporary code, after change to XcalarPreview, remove it
-        var previewSize = $("#previewSize").val();
-        if (previewSize === "") {
-            previewSize = null;
-        } else {
-            previewSize = Number(previewSize);
-            var unit = $("#previewSizeUnit input").val();
-            switch (unit) {
-                case "KB":
-                    previewSize *= KB;
-                    break;
-                case "MB":
-                    previewSize *= MB;
-                    break;
-                case "GB":
-                    previewSize *= GB;
-                    break;
-                default:
-                    break;
+        showPreviewPanel(loadURL, dsName, hasUDF)
+        .then(function() {
+            if (hasUDF) {
+                return loadDataWithUDF(txId, loadURL, dsName, isRecur);
+            } else {
+                return loadData(loadURL, isRecur);
             }
-        }
-
-        showPreviewPanel()
-        .then(function() {
-            return XcalarLoad(loadURL, "raw", tableName, "", "\n",
-                              hasHeader, moduleName, funcName, isRecur,
-                              previewSize, txId);
-        })
-        .then(function(ret, error) {
-            loadError = error;
-        })
-        .then(function() {
-            return sampleData(tableName, rowsToFetch);
         })
         .then(function(result) {
             $waitSection.addClass("hidden");
+            rawData = result;
 
-            if (!result) {
-                var error = DSTStr.NoRecords;
-                if (loadError) {
-                    error += '\n' + loadError;
-                } else {
-                    // XXX temporary code, after change to XcalarPreview, remove it
-                    error += '\n' + DSTStr.NoRecrodsHint;
-                }
-
-                cannotParseHandler(error);
-                deferred.reject({"error": error});
-                return PromiseHelper.resolve(null);
+            if (gMinModeOn) {
+                $loadHiddenSection.show();
+            } else {
+                $loadHiddenSection.fadeIn(500);
             }
 
-            if (loadError) {
-                // XXX find a better way to handle it
-                console.warn(loadError);
+            var strToDelimit = delimieterDeterct(rawData);
+            applyDelim(strToDelimit);
+
+            var $promote = $("#previewSugg .promote");
+            if (strToDelimit !== "" && $promote.length > 0) {
+                // promote the first row as header
+                $promote.click();
             }
 
-            rawData = [];
-
-            var value;
-            var json;
-
-            try {
-                for (var i = 0, len = result.length; i < len; i++) {
-                    value = result[i].value;
-                    json = $.parseJSON(value);
-                    // get unique keys
-                    for (var key in json) {
-                        if (key === "recordNum") {
-                            continue;
-                        }
-                        rawData.push(json[key].split(""));
-                    }
-                }
-
-                if (gMinModeOn) {
-                    $loadHiddenSection.show();
-                } else {
-                    $loadHiddenSection.fadeIn(500);
-                }
-
-                getPreviewTable();
-                deferred.resolve();
-            } catch (err) {
-                console.error(err, value);
-                cannotParseHandler(DSTStr.NoParse);
-                deferred.reject({"error": DSTStr.NoParse});
-            }
-
-            $(window).on("resize", resizePreivewTable);
+            addPreviewEvent();
 
             // not cache to sql log, only show when fail
             Transaction.done(txId, {
                 "noCommit": true,
                 "noSql"   : true
             });
+
+            deferred.resolve();
         })
         .fail(function(error) {
-            $waitSection.addClass("hidden");
-            cannotParseHandler(error.error);
-
             Transaction.fail(txId, {
                 "error"  : error,
                 "noAlert": true
             });
+
+            $waitSection.addClass("hidden");
+            cannotParseHandler(error.error);
             deferred.reject(error);
         });
 
@@ -376,6 +287,8 @@ window.DataPreview = (function($, DataPreview) {
 
         $previeWrap.addClass("hidden").removeClass("fullSize");
         $previewTable.removeClass("has-delimiter").empty();
+        $("#preview-review").find(".delimiter .text").text("Not Applied");
+        $("#preview-review").find(".header .text").text("No");
 
         $(window).off("resize", resizePreivewTable);
         $("#importDataForm").off("keypress.preview");
@@ -418,17 +331,15 @@ window.DataPreview = (function($, DataPreview) {
             deferred.resolve();
         }
 
-        return (deferred.promise());
+        return deferred.promise();
     }
 
-    // XXX temporary use before new preview api
     function sampleData(datasetName, rowsToFetch) {
         var deferred = jQuery.Deferred();
         var resultSetId;
 
         XcalarMakeResultSetFromDataset(datasetName)
         .then(function(result) {
-            // console.log(result);
             resultSetId = result.resultSetId;
             var totalEntries = result.numEntries;
             if (totalEntries === 0) {
@@ -448,8 +359,20 @@ window.DataPreview = (function($, DataPreview) {
         return deferred.promise();
     }
 
-    function showPreviewPanel() {
+    function showPreviewPanel(loadURL, dsName, hasUDF) {
         var deferred = jQuery.Deferred();
+
+        $("#preview-url").text(loadURL);
+        $("#preview-dsName").val(dsName);
+
+        if (hasUDF) {
+            $("#preview-udf").show()
+                             .find(".text").text(moduleName + ":" + funcName);
+        } else {
+            $("#preview-udf").hide()
+                             .find(".text").text("");
+        }
+
         // move the panel to bottom before display
         $previeWrap.removeClass("hidden");
         if (gMinModeOn) {
@@ -469,6 +392,108 @@ window.DataPreview = (function($, DataPreview) {
             }, 100);
         }
         return deferred.promise();
+    }
+
+    function loadData(loadURL, isRecur) {
+        var deferred = jQuery.Deferred();
+
+        XcalarPreview(loadURL, isRecur, numBytesRequest)
+        .then(function(res) {
+            var data = [];
+            var row = [];
+            var buffer = res.buffer;
+            for (var i = 0, len = buffer.length; i < len; i++) {
+                var c = buffer.charAt(i);
+                if (c === '\n') {
+                    data.push(row);
+                    row = [];
+                } else {
+                    row.push(c);
+                }
+            }
+            deferred.resolve(data);
+        })
+        .fail(deferred.reject);
+
+        return deferred.promise();
+    }
+
+    function loadDataWithUDF(txId, loadURL, dsName, isRecur) {
+        var deferred = jQuery.Deferred();
+        var loadError = null;
+
+        tableName = getPreviewTableName(dsName);
+
+        var previewSize = $("#previewSize").val();
+        var unit = $("#previewSizeUnit input").val();
+        previewSize = xcHelper.getPreviewSize(previewSize, unit);
+
+        XcalarLoad(loadURL, "raw", tableName, "", "\n",
+                    hasHeader, moduleName, funcName, isRecur,
+                    previewSize, txId)
+        .then(function(ret, error) {
+            loadError = error;
+        })
+        .then(function() {
+            return sampleData(tableName, rowsToFetch);
+        })
+        .then(function(result) {
+            if (!result) {
+                var error = DSTStr.NoRecords;
+                if (loadError) {
+                    error += '\n' + loadError;
+                } else {
+                    // XXX temporary code, after change to XcalarPreview, remove it
+                    error += '\n' + DSTStr.NoRecrodsHint;
+                }
+
+                deferred.reject({"error": error});
+                return PromiseHelper.resolve(null);
+            }
+
+            if (loadError) {
+                // XXX find a better way to handle it
+                console.warn(loadError);
+            }
+
+            var res = [];
+
+            var value;
+            var json;
+
+            try {
+                for (var i = 0, len = result.length; i < len; i++) {
+                    value = result[i].value;
+                    json = $.parseJSON(value);
+                    // get unique keys
+                    for (var key in json) {
+                        if (key === "recordNum") {
+                            continue;
+                        }
+                        res.push(json[key].split(""));
+                    }
+                }
+
+                deferred.resolve(res);
+            } catch (err) {
+                console.error(err, value);
+                deferred.reject({"error": DSTStr.NoParse});
+            }
+        })
+        .fail(deferred.reject);
+
+        return deferred.promise();
+    }
+
+    function addPreviewEvent() {
+        $("#importDataForm").on("keypress.preview", function(event) {
+            if (event.which === keyCode.Enter) {
+                applyPreviewChange();
+                return false;
+            }
+        });
+
+        $(window).on("resize", resizePreivewTable);
     }
 
     function applyPreviewChange() {
@@ -565,6 +590,8 @@ window.DataPreview = (function($, DataPreview) {
         $(".tooltip").hide();
         hasHeader = !hasHeader;
 
+        var text = hasHeader ? "Yes" : "No";
+        $("#preview-review").find(".header .text").text(text);
         var $trs = $previewTable.find("tbody tr");
         var $tds = $trs.eq(0).find("td"); // first row tds
         var $headers = $previewTable.find("thead tr .header");
@@ -611,6 +638,7 @@ window.DataPreview = (function($, DataPreview) {
     }
 
     function applyDelim(strToDelimit) {
+        var text;
         delimiter = strToDelimit;
         highlighter = "";
 
@@ -621,11 +649,15 @@ window.DataPreview = (function($, DataPreview) {
             $rmHightLightBtn.removeClass("active")
                         .attr("title", DSPreviewTStr.RMHighlights)
                         .attr("data-original-title", DSPreviewTStr.RMHighlights);
+            text = "Not Applied";
         } else {
             $rmHightLightBtn.addClass("active")
                         .attr("title", DSPreviewTStr.RMDelim)
                         .attr("data-original-title", DSPreviewTStr.RMDelim);
+            text = delimiter.replace(/\t/g, "\\t").replace(/\n/g, "\\n");
         }
+
+        $("#preview-review .delimiter .text").text(text);
         getPreviewTable();
     }
 
@@ -1020,6 +1052,36 @@ window.DataPreview = (function($, DataPreview) {
         }
 
         return html;
+    }
+
+    function delimieterDeterct(data) {
+        var commaCnt = 0;
+        var tabCnt = 0;
+        var pipeCnt = 0;
+
+        for (var i = 0, len = data.length; i < len; i++) {
+            var row = data[i];
+            for (var j = 0, rowLen = row.length; j < rowLen; j++) {
+                var c = row[i];
+                if (c === ',') {
+                    commaCnt++;
+                } else if (c === '\t') {
+                    tabCnt++;
+                } else if (c === '|') {
+                    pipeCnt++;
+                }
+            }
+        }
+
+        if (commaCnt !== 0 && commaCnt >= tabCnt && commaCnt >= pipeCnt) {
+            return ",";
+        } else if (tabCnt !== 0 && tabCnt >= pipeCnt) {
+            return "\t";
+        } else if (pipeCnt !== 0) {
+            return "|";
+        } else {
+            return "";
+        }
     }
 
     function hasSpecialChar() {

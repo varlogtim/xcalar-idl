@@ -138,6 +138,38 @@ window.xcHelper = (function($, xcHelper) {
         return (type);
     };
 
+    // XXX not test in unit test yet
+    xcHelper.getPreviewSize = function(previewSize, unit) {
+        if (previewSize === "") {
+            previewSize = null;
+        } else {
+            previewSize = Number(previewSize);
+            switch (unit) {
+                case "KB":
+                    previewSize *= KB;
+                    break;
+                case "MB":
+                    previewSize *= MB;
+                    break;
+                case "GB":
+                    previewSize *= GB;
+                    break;
+                case "TB":
+                    previewSize *= TB;
+                    break;
+                default:
+                    break;
+            }
+
+            if (isNaN(previewSize)) {
+                console.error("error size");
+                previewSize = gMaxSampleSize;
+            }
+        }
+
+        return previewSize;
+    };
+
     xcHelper.getMultiJoinMapString = function(args) {
         var mapStr = "";
         var len = args.length;
@@ -1652,7 +1684,7 @@ window.xcHelper = (function($, xcHelper) {
     // used to split query into array of subqueries by semicolons
     // XX not checking for /n or /r delimiter, just semicolon
     // returns array of objects, objects contain query, name, and dstTable
-    xcHelper.parseQuery =  function(query) {
+    xcHelper.parseQuery = function(query) {
         var tempString = "";
         var inQuotes = false;
         var singleQuote = false;
@@ -1693,9 +1725,9 @@ window.xcHelper = (function($, xcHelper) {
                     tempString = tempString.trim();
                     operationName = tempString.split(" ")[0];
                     subQuery = {
-                        query: tempString,
-                        name: operationName,
-                        dstTable: getDstTableFromQuery(tempString, operationName)
+                        "query"   : tempString,
+                        "name"    : operationName,
+                        "dstTable": getDstTableFromQuery(tempString, operationName)
                     };
                     queries.push(subQuery);
                     tempString = "";
@@ -1711,9 +1743,9 @@ window.xcHelper = (function($, xcHelper) {
             tempString = tempString.trim();
             operationName = tempString.split(" ")[0];
             subQuery = {
-                query: tempString,
-                name: operationName,
-                dstTable: getDstTableFromQuery(tempString, operationName)
+                "query"   : tempString,
+                "name"    : operationName,
+                "dstTable": getDstTableFromQuery(tempString, operationName)
             };
             queries.push(subQuery);
         }
@@ -1729,7 +1761,7 @@ window.xcHelper = (function($, xcHelper) {
             }
         }
         var index = getKeyWordIndexFromQuery(query, keyWord);
-        var singleQuote;
+        // var singleQuote;
 
         index += keyWord.length;
         query = query.slice(index).trim();

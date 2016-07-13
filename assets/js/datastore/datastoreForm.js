@@ -140,7 +140,11 @@ window.DatastoreForm = (function($, DatastoreForm) {
                         cacheUDF(udfModule, udfFunc);
                     }
 
-                    DataPreview.show(udfModule, udfFunc);
+                    var dsName = $("#fileName").val();
+                    var loadURL = protocol + path;
+                    var isRecur = $("#recurCheckbox").find(".checkbox")
+                                                    .hasClass("checked");
+                    DataPreview.show(loadURL, dsName, udfModule, udfFunc, isRecur);
                 }
             }
         });
@@ -215,28 +219,8 @@ window.DatastoreForm = (function($, DatastoreForm) {
         });
 
         var previewSize = $("#previewSize").val();
-        if (previewSize === "") {
-            previewSize = null;
-        } else {
-            previewSize = Number(previewSize);
-            var unit = $("#previewSizeUnit input").val();
-            switch (unit) {
-                case "KB":
-                    previewSize *= KB;
-                    break;
-                case "MB":
-                    previewSize *= MB;
-                    break;
-                case "GB":
-                    previewSize *= GB;
-                    break;
-                case "TB":
-                    previewSize *= TB;
-                    break;
-                default:
-                    break;
-            }
-        }
+        var unit = $("#previewSizeUnit input").val();
+        previewSize = xcHelper.getPreviewSize(previewSize, unit);
 
         DS.load(dsName, dsFormat, loadURL, fieldDelim, lineDelim,
                 header, moduleName, funcName, isRecur, previewSize)

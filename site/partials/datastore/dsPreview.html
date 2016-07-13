@@ -31,11 +31,16 @@
     </div>
     <!-- Error Message Part -->
     <div class="errorSection loadError hidden"></div>
-    <!-- Suggestion Section -->
-    <div class="suggestSection loadHidden no-selection">
-      <section id="previewSugg" class="suggestPart">
-        <div class="title"><%= dicts.common.Sugg %>:</div>
-        <div class="content"></div>
+    <div class="reviewSection loadHidden no-selection">
+      <section id="preview-review" class="previewPart">
+        <div class="delimiter">
+          <span class="title"><%= dicts.dsForm.Delim %>:</span>
+          <span class="text"></span>
+        </div>
+        <div class="header">
+          <span class="title"><%= dicts.dsForm.Header %>:</span>
+          <span class="text">No</span>
+        </div>
       </section>
       <!-- highlight icon -->
         <section class="iconPart">
@@ -48,6 +53,11 @@
             <span class="icon"></span>
           </div>
         </section>
+    </div>
+    <!-- Suggestion Section -->
+    <div id="previewSugg" class="suggestSection loadHidden no-selection">
+      <div class="title"><%= dicts.common.Sugg %>:</div>
+      <div class="content"></div>
     </div>
     <!-- Preview -->
     <div class="previewSection">

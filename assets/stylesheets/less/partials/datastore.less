@@ -525,46 +525,29 @@ input {
         color: @color-table-red;
     }
 
-    .suggestSection {
+    .reviewSection {
         .size(@height: 35px);
         padding-top: 10px;
         overflow: hidden;
         clear: both;
         .flex-display;
 
-        .suggestPart {
+        .previewPart {
             .flex(1 1 auto);
             .size(@height: 25px);
             .font(@size: 12px, @line-height: 25px);
 
-            .title {
+            > div {
                 float: left;
-                margin-right: 5px;
-                font-weight: 700;
+
+                &:first-child {
+                    margin-right: 20px;
+                }
             }
 
-            .action {
-                .size(@height: 25px);
-                .font(@line-height: 25px, @color: @color-white);
-                .rounded;
+            .title {
                 margin-right: 5px;
-                padding: 0 5px;
-                display: inline-block;
-                max-width: 55%;
-                .textOverflowOneLine;
-
-                &.hint {
-                    color: @color-text-midGray;
-                }
-
-                &.active {
-                    .action-gradient;
-                    cursor: pointer;
-
-                    &:hover {
-                        .action-inverse-gradient;
-                    }
-                }
+                font-weight: 700;
             }
         }
 
@@ -612,8 +595,46 @@ input {
         }
     }
 
+    .suggestSection {
+        .size(@height: 35px);
+        padding-top: 10px;
+        overflow: hidden;
+        clear: both;
+        .font(@size: 12px, @line-height: 25px);
+
+        .title {
+            float: left;
+            margin-right: 5px;
+            font-weight: 700;
+        }
+
+        .action {
+            .size(@height: 25px);
+            .font(@line-height: 25px, @color: @color-white);
+            .rounded;
+            margin-right: 5px;
+            padding: 0 5px;
+            display: inline-block;
+            max-width: 55%;
+            .textOverflowOneLine;
+
+            &.hint {
+                color: @color-text-midGray;
+            }
+
+            &.active {
+                .action-gradient;
+                cursor: pointer;
+
+                &:hover {
+                    .action-inverse-gradient;
+                }
+            }
+        }
+    }
+
     .previewSection {
-        .size(@width: 100%, @height: ~"calc(100% - 100px)");
+        .size(@width: 100%, @height: ~"calc(100% - 135px)");
         overflow-y: hidden;
         overflow-x: auto;
     }
@@ -636,43 +657,6 @@ input {
         margin: 5px;
     }
 }
-
-@media screen and (max-width: 1300px) {
-    #dsPreviewWrap {
-        .infoSection {
-            .titleSection .btn {
-                clear: both;
-                margin-left: 0;
-            }
-
-            .btnSection .buttonWrap {
-                left: 0;
-            }
-        }
-
-        .suggestSection {
-            .suggestPart {
-                .hint {
-                    display: none !important;
-                }
-            }
-        }
-    }
-}
-
-@media screen and (max-width: 900px) {
-    #dsPreviewWrap {
-        .suggestSection {
-            .suggestPart {
-                .action {
-                    max-width: 80px;
-                    display: inline-block;
-                }
-            }
-        }
-    }
-}
-
 
 #previewTable {
     width: 100%;

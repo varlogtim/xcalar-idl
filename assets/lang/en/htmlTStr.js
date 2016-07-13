@@ -405,7 +405,8 @@ module.exports = {
         "Header": "Promote First Row As Header",
         "DSType": "Format",
         "UDF": "Parse Data With UDF",
-        "Recur": "Point to Data Source Recursively"
+        "Recur": "Point to Data Source Recursively",
+        "PREVIEW": "SMART PREVIEW"
     },
 
     "dsFormat": {
