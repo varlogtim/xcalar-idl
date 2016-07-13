@@ -431,7 +431,8 @@ StatusT = {
   'StatusInvalidDatasetName' : 422,
   'StatusMaxStatsGroupExceeded' : 423,
   'StatusLrqDuplicateUserDefinedFields' : 424,
-  'StatusTypeConversionError' : 425
+  'StatusTypeConversionError' : 425,
+  'StatusAllFilesEmpty' : 426
 };
 StatusTStr = {0 : 'Success',
 1 : 'Operation not permitted',
@@ -858,5 +859,6 @@ StatusTStr = {0 : 'Success',
 422 : 'Invalid dataset name provided',
 423 : 'Max statistics group size was exceeded',
 424 : 'Duplicate user-defined field found',
-425 : 'Type conversion error'
+425 : 'Type conversion error',
+426 : 'All specified files empty'
 };

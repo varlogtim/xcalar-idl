@@ -246,6 +246,29 @@
         test.trivial(xcalarGetVersion(thriftHandle));
     }
 
+    function testPreview(test) {
+        var url = "nfs://" + qaTestDir + "/yelp/user";
+
+        xcalarPreview(thriftHandle, url, "*", false, 11)
+        .then(function(result) {
+            printResult(result);
+            var previewOutput = result;
+            var stringifiedBuffer = "";
+            for (var ii = 0; ii < previewOutput.buffer.length; ii++) {
+                stringifiedBuffer += String.fromCharCode(previewOutput.buffer[ii]);
+            }
+            console.log("\t stringifiedBuffer : " + stringifiedBuffer);
+            test.assert(stringifiedBuffer === "[\n{\"yelping");
+            test.assert(previewOutput.numBytes === 11);
+            test.assert(previewOutput.fileName ===
+                "yelp_academic_dataset_user_fixed.json");
+            test.pass();
+        })
+        .fail(function(reason) {
+            test.fail(StatusTStr[reason]);
+        });
+    }
+
     function testLoad(test) {
         loadArgs = new XcalarApiDfLoadArgsT();
         loadArgs.csv = new XcalarApiDfCsvLoadArgsT();
@@ -1760,7 +1783,8 @@
 
     function testApiFilterLongEvalString(test) {
         var evalString = "add(votes.funny, 1)";
-        while (evalString.length <= XcalarApisConstantsT.XcalarApiMaxEvalStringLen) {
+        while (evalString.length <=
+               XcalarApisConstantsT.XcalarApiMaxEvalStringLen) {
             evalString = "add(1, " + evalString + ")";
         }
 
@@ -2589,6 +2613,7 @@
     addTestCase(testSchedTask, "test schedtask", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testBadLoad, "bad load", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testLoad, "load", defaultTimeout, TestCaseEnabled, "");
+    addTestCase(testPreview, "preview", defaultTimeout, TestCaseEnabled, "");
 
     addTestCase(testLoadEdgeCaseDos, "loadDos", defaultTimeout, TestCaseEnabled, "4415");
 

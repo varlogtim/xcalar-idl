@@ -145,6 +145,9 @@ function xcalarPreview(thriftHandle, url, fileNamePattern, recursive, numBytesRe
         if (status != StatusT.StatusOk) {
             deferred.reject(status);
         }
+
+        previewOutput.buffer = atob(previewOutput.buffer);
+
         deferred.resolve(previewOutput);
     })
     .fail(function(error) {
