@@ -229,17 +229,22 @@ window.DataPreview = (function($, DataPreview) {
             });
 
             $waitSection.addClass("hidden");
-            cannotParseHandler(error.error);
+            // error handler
+            var sugg = null;
+            if (error.status === StatusT.StatusAllFilesEmpty ||
+                error.status === StatusT.StatusNoEnt)
+            {
+                sugg = DSPreviewTStr.UseValidPath;
+            }
+
+            $errorSection.html(error.error).removeClass("hidden");
+            errorSuggestHelper(loadURL, sugg);
+            $("#preview-close").show();
+
             deferred.reject(error);
         });
 
         return deferred.promise();
-
-        function cannotParseHandler(msg) {
-            $errorSection.html(msg).removeClass("hidden");
-            errorSuggestHelper(loadURL);
-            $("#preview-close").show();
-        }
     };
 
     // load a dataset
@@ -992,11 +997,15 @@ window.DataPreview = (function($, DataPreview) {
         $content.html(html);
     }
 
-    function errorSuggestHelper(loadURL) {
+    function errorSuggestHelper(loadURL, suggest) {
         var $suggSection = $("#previewSugg");
         var html = "";
 
-        if (loadURL.endsWith("xlsx")) {
+        if (suggest) {
+            html += '<span class="action hint">' +
+                        DSPreviewTStr.UseValidPath +
+                    '</span>';
+        } else if (loadURL.endsWith("xlsx")) {
             html += '<span class="action active excelLoad hasHeader">' +
                         DSPreviewTStr.LoadExcelWithHeader +
                     '</span>' +

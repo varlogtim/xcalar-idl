@@ -486,7 +486,8 @@ DSPreviewTStr = {
     'LoadUDF': 'Use UDF to parse the dataset',
     'NoDelim': 'You have not chosen a delimiter.',
     'NoHeader': 'You have not chosen a header row.',
-    'NoDelimAndHeader': 'You have not chosen a delimiter and header row.'
+    'NoDelimAndHeader': 'You have not chosen a delimiter and header row.',
+    'UseValidPath': 'Retry with a valid path'
 };
 
 DSExportTStr = {
