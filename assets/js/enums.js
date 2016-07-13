@@ -159,6 +159,12 @@ var AggrOp = {
     "ListAgg"   : "ListAgg"
 };
 
+var SetupStatus = {
+    "Success": "Success",
+    "Fail": "Fail",
+    "Setup": "Setup"
+};
+
 var SQLType = {
     Fail: "fail handler",
     Error: "error",

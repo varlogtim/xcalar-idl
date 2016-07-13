@@ -30,7 +30,7 @@ function unloadHandler(isAsync, doNotLogout) {
     } else {
         freeAllResultSetsSync()
         .then(function() {
-            return (Support.releaseSession());
+            return Support.releaseSession();
         })
         .fail(function(error) {
             console.error(error);
@@ -69,6 +69,7 @@ function documentReadyIndexFunction() {
 }
 
 window.StartManager = (function(StartManager, $) {
+    var setupStatus = SetupStatus.Setup;
 
     StartManager.setup = function() {
         // use promise for better unit test
@@ -112,6 +113,8 @@ window.StartManager = (function(StartManager, $) {
                 gMinModeOn = false; // turn off min mode
             }
 
+            setupStatus = SetupStatus.Success;
+
             console.log('%c ' + CommonTxtTstr.XcWelcome + ' ',
             'background: linear-gradient(to bottom, #378cb3, #5cb2e8); ' +
             'color: #ffffff; font-size:18px; font-family:Open Sans, Arial;');
@@ -122,6 +125,7 @@ window.StartManager = (function(StartManager, $) {
             deferred.resolve();
         })
         .fail(function(error) {
+            setupStatus = SetupStatus.Fail;
             if (error === WKBKTStr.NoWkbk){
                 // when it's new workbook
                 $('#initialLoadScreen').remove();
@@ -190,6 +194,10 @@ window.StartManager = (function(StartManager, $) {
         });
 
         return deferred.promise();
+    };
+
+    StartManager.getStatus = function() {
+        return setupStatus;
     };
 
     function setupSession() {

@@ -39,8 +39,17 @@ window.Support = (function(Support, $) {
 
     Support.releaseSession = function() {
         var deferred = jQuery.Deferred();
+        var promise;
 
-        KVStore.commit()
+        if (StartManager.getStatus() === SetupStatus.Fail) {
+            // when setup fails and logout, should not commit
+            // (the module even didn't setup yet)
+            promise = PromiseHelper.resolve();
+        } else {
+            promise = KVStore.commit();
+        }
+
+        promise
         .then(function() {
             return XcalarKeyPut(KVStore.commitKey, defaultCommitFlag, false, gKVScope.FLAG);
         })
@@ -50,7 +59,7 @@ window.Support = (function(Support, $) {
         })
         .fail(deferred.reject);
 
-        return (deferred.promise());
+        return deferred.promise();
     };
 
     // in case you are hold forever
