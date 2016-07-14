@@ -164,10 +164,10 @@ function autoAddTable() {
                                             dsId + '"]')
         .then(function() {
             $("#selectDSCols .icon").click();
-            // wait for datacart name to change
+            // wait for dscart name to change
             setTimeout(function() {
 
-                dsName = DataCart.getCartById(dsId).find('input').val();
+                dsName = DSCart.getCartById(dsId).find('input').val();
                 $("#submitDSTablesBtn").click();
                 TestSuite.__testOnly__.checkExists('.xcTableWrap' +
                                                    ' .tableName[value=' +

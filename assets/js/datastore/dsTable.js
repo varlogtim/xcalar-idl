@@ -1,7 +1,7 @@
 /*
- * Module for data sample table
+ * Module for dataset sample table
  */
-window.DataSampleTable = (function($, DataSampleTable) {
+window.DSTable = (function($, DSTable) {
     var $datasetWrap; // $("#datasetWrap")
     var $tableWrap;   // $("#dataSetTableWrap")
 
@@ -13,14 +13,14 @@ window.DataSampleTable = (function($, DataSampleTable) {
     // constant
     var initialNumRowsToFetch = 40;
 
-    DataSampleTable.setup = function() {
+    DSTable.setup = function() {
         $datasetWrap = $("#datasetWrap");
         $tableWrap = $("#dataSetTableWrap");
 
         setupSampleTable();
     };
 
-    DataSampleTable.show = function(dsId, isLoading) {
+    DSTable.show = function(dsId, isLoading) {
         var dsObj = DS.getDSObj(dsId);
         if (dsObj == null) {
             return PromiseHelper.reject("No DS");
@@ -112,14 +112,13 @@ window.DataSampleTable = (function($, DataSampleTable) {
         return deferred.promise();
     };
 
-    DataSampleTable.clear = function() {
+    DSTable.clear = function() {
         $tableWrap.html("");
     };
 
-    DataSampleTable.sizeTableWrapper = function() {
-        var $worksheetTable = $('#worksheetTable');
-
+    DSTable.refresh = function() {
         // size tableWrapper so borders fit table size
+        var $worksheetTable = $('#worksheetTable');
         var tableHeight = $worksheetTable.height();
         var scrollBarPadding = 0;
         $tableWrap.width($worksheetTable.width());
@@ -132,15 +131,15 @@ window.DataSampleTable = (function($, DataSampleTable) {
     function beforeShowAction() {
         // clear preview table and ref count,
         // always resolve it
-        DatastoreForm.hide();
-        DataPreview.clear();
+        DSForm.hide();
+        DSPreview.clear();
     }
 
     function getSampleTable(dsObj, jsonKeys, jsons) {
         var html = getSampleTableHTML(dsObj, jsonKeys, jsons);
         $tableWrap.html(html);
         restoreSelectedColumns();
-        DataSampleTable.sizeTableWrapper();
+        DSTable.refresh();
         var $worksheetTable = $('#worksheetTable');
         moveFirstColumn($worksheetTable);
 
@@ -328,7 +327,7 @@ window.DataSampleTable = (function($, DataSampleTable) {
             $table.find(".colAdded").removeClass("colAdded");
             $table.find(".selectedCol").removeClass("selectedCol");
 
-            DataCart.addItem(dsId, null);
+            DSCart.addItem(dsId, null);
         });
 
         // select all columns
@@ -342,7 +341,7 @@ window.DataSampleTable = (function($, DataSampleTable) {
             var dsId = $table.data("dsid");
             $table.find(".colAdded").removeClass("colAdded");
             $table.find(".selectedCol").removeClass("selectedCol");
-            DataCart.removeCart(dsId);
+            DSCart.removeCart(dsId);
         });
 
         // click to select a column
@@ -377,9 +376,6 @@ window.DataSampleTable = (function($, DataSampleTable) {
                 selectColumn($input, SelectUnit.Single);
             }
             previousColSelected = $input.closest('th');
-            setTimeout(function() { // delay check for shadow due to animation
-                DataCart.overflowShadow();
-            }, 105);
         });
 
         // select all columns when clicking on row num header
@@ -432,7 +428,7 @@ window.DataSampleTable = (function($, DataSampleTable) {
                 highlightColumn($input);
             }
         });
-        DataCart.addItem(dsId, items);
+        DSCart.addItem(dsId, items);
     }
 
     // select a column
@@ -443,10 +439,10 @@ window.DataSampleTable = (function($, DataSampleTable) {
         // unselect the column
         if ($header.hasClass("colAdded") && !selectAll) {
             highlightColumn($input, IsActive.Active);
-            DataCart.removeItem(dsId, colNum);
+            DSCart.removeItem(dsId, colNum);
         } else {
             highlightColumn($input);
-            DataCart.addItem(dsId, {
+            DSCart.addItem(dsId, {
                 "colNum": colNum,
                 "value" : $input.val()
             });
@@ -457,7 +453,7 @@ window.DataSampleTable = (function($, DataSampleTable) {
     function restoreSelectedColumns() {
         var $table = $("#worksheetTable");
         var dsId = $table.data("dsid");
-        var $cart = DataCart.getCartById(dsId);
+        var $cart = DSCart.getCartById(dsId);
 
         $cart.find("li").each(function() {
             var colNum = $(this).data("colnum");
@@ -619,5 +615,5 @@ window.DataSampleTable = (function($, DataSampleTable) {
         return (tr);
     }
 
-    return (DataSampleTable);
+    return (DSTable);
 }(jQuery, {}));

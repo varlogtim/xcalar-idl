@@ -1,4 +1,4 @@
-function dataPreviewModuleTest() {
+function dsPreviewModuleTest() {
     // Note that this function is called in very early time
     // so do not initialize any resuable varible here
     // instead, initialize in the it() function
@@ -14,7 +14,7 @@ function dataPreviewModuleTest() {
 
     describe("Basic Function Test", function() {
         it('parseTdHelper should work', function() {
-            var parseTdHelper = DataPreview.__testOnly__.parseTdHelper;
+            var parseTdHelper = DSPreview.__testOnly__.parseTdHelper;
             var testCases = [{
                 // test1: when not th, has delimiter
                 "delimiter": ",",
@@ -79,7 +79,7 @@ function dataPreviewModuleTest() {
         });
 
         it("getTbodyHTML() shoud work", function() {
-            var getTbodyHTML = DataPreview.__testOnly__.getTbodyHTML;
+            var getTbodyHTML = DSPreview.__testOnly__.getTbodyHTML;
 
             var testCases = [{
                 // test1: when no header
@@ -130,16 +130,16 @@ function dataPreviewModuleTest() {
                 var delimiter = testCase.delimiter
                 var hasHeader = testCase.hasHeader;
 
-                DataPreview.__testOnly__.set(delimiter, hasHeader, "");
+                DSPreview.__testOnly__.set(delimiter, hasHeader, "");
                 var tbody = getTbodyHTML(testCase.datas);
                 expect(tbody).to.equal(testCase.expectRes);
             });
 
-            DataPreview.__testOnly__.set("", false, "");
+            DSPreview.__testOnly__.set("", false, "");
         });
 
         it("getTheadHTML should work", function() {
-            var getTheadHTML = DataPreview.__testOnly__.getTheadHTML;
+            var getTheadHTML = DSPreview.__testOnly__.getTheadHTML;
 
             var testCases = [{
                 // test1: when no header
@@ -194,12 +194,12 @@ function dataPreviewModuleTest() {
                 var delimiter = testCase.delimiter
                 var hasHeader = testCase.hasHeader;
 
-                DataPreview.__testOnly__.set(delimiter, hasHeader, "");
+                DSPreview.__testOnly__.set(delimiter, hasHeader, "");
                 var tHead = getTheadHTML(testCase.datas, testCase.tdLen);
                 expect(tHead).to.equal(testCase.expectRes);
             });
 
-            DataPreview.__testOnly__.set("", false, "");
+            DSPreview.__testOnly__.set("", false, "");
         });
 
         it("highlightHelper() should work", function() {
@@ -208,7 +208,7 @@ function dataPreviewModuleTest() {
                             '<span class="td">,</span>' +
                             '<span class="td">i</span>' +
                         '</div>');
-            DataPreview.__testOnly__.highlightHelper($cell, ",");
+            DSPreview.__testOnly__.highlightHelper($cell, ",");
 
             expect($cell.html()).to.equal('<span class="td">h</span>' +
                                 '<span class="td highlight">,</span>' +
@@ -226,11 +226,11 @@ function dataPreviewModuleTest() {
         it("should suggest proper delimiter", function() {
             var $actions;
 
-            DataPreview.__testOnly__.set("", false, "");
+            DSPreview.__testOnly__.set("", false, "");
 
             // when nothing to delimit
             $previewTable.html('');
-            DataPreview.__testOnly__.suggestHelper();
+            DSPreview.__testOnly__.suggestHelper();
 
             $actions = $content.find(".action");
             expect($actions.length).to.equal(1);
@@ -240,7 +240,7 @@ function dataPreviewModuleTest() {
 
             // when delimiter on comma
             $previewTable.html('<span class="has-comma"></span>');
-            DataPreview.__testOnly__.suggestHelper();
+            DSPreview.__testOnly__.suggestHelper();
 
             $actions = $content.find(".action");
             expect($actions.length).to.equal(2);
@@ -251,7 +251,7 @@ function dataPreviewModuleTest() {
 
             // when delimiter on tab
             $previewTable.html('<span class="has-tab"></span>');
-            DataPreview.__testOnly__.suggestHelper();
+            DSPreview.__testOnly__.suggestHelper();
 
             $actions = $content.find(".action");
             expect($actions.length).to.equal(2);
@@ -262,8 +262,8 @@ function dataPreviewModuleTest() {
         });
 
         it("Should suggest about highlight when has highlighter", function() {
-            DataPreview.__testOnly__.set("", false, ",");
-            DataPreview.__testOnly__.suggestHelper();
+            DSPreview.__testOnly__.set("", false, ",");
+            DSPreview.__testOnly__.suggestHelper();
 
             var $actions = $content.find(".action");
             expect($actions.length).to.equal(2);
@@ -276,7 +276,7 @@ function dataPreviewModuleTest() {
         it("Should suggest in error url", function() {
             var $actions;
             // load execl error
-            DataPreview.__testOnly__.errorSuggestHelper("test.xlsx");
+            DSPreview.__testOnly__.errorSuggestHelper("test.xlsx");
 
             $actions = $content.find(".action");
             expect($actions.length).to.equal(2);
@@ -286,7 +286,7 @@ function dataPreviewModuleTest() {
             expect($actions.eq(1).text()).equal(DSPreviewTStr.LoadExcel);
 
             // load json error
-            DataPreview.__testOnly__.errorSuggestHelper("test.json");
+            DSPreview.__testOnly__.errorSuggestHelper("test.json");
 
             $actions = $content.find(".action");
             expect($actions.length).to.equal(1);
@@ -294,7 +294,7 @@ function dataPreviewModuleTest() {
             expect($actions.eq(0).text()).equal(DSPreviewTStr.LoadJSON);
 
             // other kind of error
-            DataPreview.__testOnly__.errorSuggestHelper("test");
+            DSPreview.__testOnly__.errorSuggestHelper("test");
 
             $actions = $content.find(".action");
             expect($actions.length).to.equal(1);
@@ -304,11 +304,11 @@ function dataPreviewModuleTest() {
 
         it("headerPromoteDetect() should work", function() {
             // when no delimiter
-            DataPreview.__testOnly__.set("", false, "");
-            expect(DataPreview.__testOnly__.headerPromoteDetect()).to.be.false;
+            DSPreview.__testOnly__.set("", false, "");
+            expect(DSPreview.__testOnly__.headerPromoteDetect()).to.be.false;
 
             // when has delimiter
-            DataPreview.__testOnly__.set(",", false, "");
+            DSPreview.__testOnly__.set(",", false, "");
             // case1
             $previewTable.html('<table><tbody>' +
                                     '<tr>' +
@@ -320,7 +320,7 @@ function dataPreviewModuleTest() {
                                         '<td>b</td>' +
                                     '<tr>' +
                                 '</tbody></table>');
-            expect(DataPreview.__testOnly__.headerPromoteDetect()).to.be.false;
+            expect(DSPreview.__testOnly__.headerPromoteDetect()).to.be.false;
 
             // case2
             $previewTable.html('<table><tbody>' +
@@ -335,11 +335,11 @@ function dataPreviewModuleTest() {
                                         '<td>3</td>' +
                                     '<tr>' +
                                 '</tbody></table>');
-            expect(DataPreview.__testOnly__.headerPromoteDetect()).to.be.true;
+            expect(DSPreview.__testOnly__.headerPromoteDetect()).to.be.true;
         });
 
         after(function() {
-            DataPreview.__testOnly__.set("", false, "");
+            DSPreview.__testOnly__.set("", false, "");
             $previewTable.empty();
             $content.empty();
         });
@@ -348,15 +348,15 @@ function dataPreviewModuleTest() {
     describe("Get Preview Table Test", function() {
         it ("Should get a table from raw data", function() {
             var data = [["h", ",", "i"], ["t", "e", "s", "t"]];
-            DataPreview.__testOnly__.set("", false, "", data);
-            DataPreview.__testOnly__.getPreviewTable();
+            DSPreview.__testOnly__.set("", false, "", data);
+            DSPreview.__testOnly__.getPreviewTable();
 
             // has 2 rows and 2 columns
             expect($previewTable.find("th").length).to.equal(2);
             expect($previewTable.find("tbody tr").length).to.equal(2);
 
-            DataPreview.__testOnly__.set(",", false, "", data);
-            DataPreview.__testOnly__.getPreviewTable();
+            DSPreview.__testOnly__.set(",", false, "", data);
+            DSPreview.__testOnly__.getPreviewTable();
 
             // has 2 rows and 3 columns
             expect($previewTable.find("th").length).to.equal(3);
@@ -365,19 +365,19 @@ function dataPreviewModuleTest() {
 
         it("Should highlight delimiter", function() {
             var data = [["h", ",", "i"]];
-            DataPreview.__testOnly__.set("", false, "", data);
-            DataPreview.__testOnly__.getPreviewTable();
+            DSPreview.__testOnly__.set("", false, "", data);
+            DSPreview.__testOnly__.getPreviewTable();
 
             // can highlight
-            DataPreview.__testOnly__.applyHighlight(",");
-            expect(DataPreview.__testOnly__.get().highlighter).to.equal(",");
+            DSPreview.__testOnly__.applyHighlight(",");
+            expect(DSPreview.__testOnly__.get().highlighter).to.equal(",");
             expect($previewTable.find(".highlight").length).to.equal(1);
             expect($highLightBtn.hasClass("active")).to.be.true;
             expect($rmHightLightBtn.hasClass("active")).to.be.true;
 
             // can remove highlight
-            DataPreview.__testOnly__.applyHighlight("");
-            expect(DataPreview.__testOnly__.get().highlighter).to.equal("");
+            DSPreview.__testOnly__.applyHighlight("");
+            expect(DSPreview.__testOnly__.get().highlighter).to.equal("");
             expect($previewTable.find(".highlight").length).to.equal(0);
             expect($highLightBtn.hasClass("active")).to.be.false;
             expect($rmHightLightBtn.hasClass("active")).to.be.false;
@@ -385,47 +385,47 @@ function dataPreviewModuleTest() {
 
         it("Should apply delimiter", function() {
             var data = [["h", ",", "i"]];
-            DataPreview.__testOnly__.set("", false, "", data);
-            DataPreview.__testOnly__.getPreviewTable();
+            DSPreview.__testOnly__.set("", false, "", data);
+            DSPreview.__testOnly__.getPreviewTable();
 
             // can apply delimiter
-            DataPreview.__testOnly__.applyDelim(",");
-            var res = DataPreview.__testOnly__.get();
+            DSPreview.__testOnly__.applyDelim(",");
+            var res = DSPreview.__testOnly__.get();
             expect(res.delimiter).to.equal(",");
             expect(res.highlighter).to.equal("");
             expect($rmHightLightBtn.hasClass("active")).to.be.true;
             expect($previewTable.find(".has-comma").length).to.equal(0);
 
             // can remove delimiter
-            DataPreview.__testOnly__.applyDelim("");
-            expect(DataPreview.__testOnly__.get().delimiter).to.equal("");
+            DSPreview.__testOnly__.applyDelim("");
+            expect(DSPreview.__testOnly__.get().delimiter).to.equal("");
             expect($rmHightLightBtn.hasClass("active")).to.be.false;
             expect($previewTable.find(".has-comma").length).to.equal(1);
         });
 
         it("Should toggle promote", function() {
             var data = [["h", ",", "i"]];
-            DataPreview.__testOnly__.set("", false, "", data);
-            DataPreview.__testOnly__.getPreviewTable();
+            DSPreview.__testOnly__.set("", false, "", data);
+            DSPreview.__testOnly__.getPreviewTable();
 
             // toggle to have header
-            DataPreview.__testOnly__.togglePromote();
-            expect(DataPreview.__testOnly__.get().hasHeader).to.be.true;
+            DSPreview.__testOnly__.togglePromote();
+            expect(DSPreview.__testOnly__.get().hasHeader).to.be.true;
             expect($previewTable.find(".undo-promote").length).to.equal(1);
 
             // toggle to remove header
-            DataPreview.__testOnly__.togglePromote();
-            expect(DataPreview.__testOnly__.get().hasHeader).to.be.false;
+            DSPreview.__testOnly__.togglePromote();
+            expect(DSPreview.__testOnly__.get().hasHeader).to.be.false;
             expect($previewTable.find(".undo-promote").length).to.equal(0);
         });
 
         it("Should clear preview table", function() {
             var data = [["h", ",", "i"]];
-            DataPreview.__testOnly__.set(",", true, "", data);
-            DataPreview.__testOnly__.getPreviewTable();
+            DSPreview.__testOnly__.set(",", true, "", data);
+            DSPreview.__testOnly__.getPreviewTable();
 
-            DataPreview.__testOnly__.clearAll();
-            var res = DataPreview.__testOnly__.get();
+            DSPreview.__testOnly__.clearAll();
+            var res = DSPreview.__testOnly__.get();
             expect(res.delimiter).to.equal("");
             expect(res.highlighter).to.equal("");
             expect(res.hasHeader).to.equal(false);
@@ -433,15 +433,15 @@ function dataPreviewModuleTest() {
         });
 
         after(function() {
-            DataPreview.__testOnly__.set("", false, "");
+            DSPreview.__testOnly__.set("", false, "");
             $previewTable.empty();
         });
     });
 
     describe("Preview API Test", function() {
-        it("DataPreview.show() should work", function(done) {
+        it("DSPreview.show() should work", function(done) {
             var loadUrl = testDatasets.sp500.protocol + testDatasets.sp500.path;
-            DataPreview.show(loadUrl)
+            DSPreview.show(loadUrl)
             .then(function() {
                 // expect($previewTable.is(":visible")).to.be.true;
                 expect($previewTable.html()).not.to.equal("");
@@ -452,10 +452,10 @@ function dataPreviewModuleTest() {
             });
         });
 
-        it("DataPreview.clear() should work", function(done) {
-            DataPreview.clear()
+        it("DSPreview.clear() should work", function(done) {
+            DSPreview.clear()
             .then(function() {
-                var res = DataPreview.__testOnly__.get();
+                var res = DSPreview.__testOnly__.get();
                 expect(res.delimiter).to.equal("");
                 expect(res.highlighter).to.equal("");
                 expect(res.hasHeader).to.equal(false);
@@ -467,9 +467,9 @@ function dataPreviewModuleTest() {
         });
 
         after(function() {
-            // DataPreview.clear() doesn't remove preview table's html,
+            // DSPreview.clear() doesn't remove preview table's html,
             // so call clearAll() to totally clear
-            DataPreview.__testOnly__.clearAll();
+            DSPreview.__testOnly__.clearAll();
         });
     });
 }

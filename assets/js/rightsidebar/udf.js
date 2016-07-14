@@ -439,7 +439,7 @@ window.UDF = (function($, UDF) {
                     $filePath.val("");
                 }
 
-                DatastoreForm.update();
+                DSForm.update();
                 deferred.resolve();
             })
             .fail(function(error) {

@@ -1,4 +1,4 @@
-function dataFormModuleTest() {
+function dsFormModuleTest() {
     var $filePath;
     var $fileName;
     var $formatText;
@@ -37,12 +37,12 @@ function dataFormModuleTest() {
 
     describe("Show Form Test", function() {
         it("Should not see form", function() {
-            DatastoreForm.hide();
+            DSForm.hide();
             assert.isFalse($("#importDataView").is(":visible"), "Should see form");
         });
 
         it("Should see form", function() {
-            DatastoreForm.show();
+            DSForm.show();
             assert.isTrue($("#importDataView").is(":visible"), "Should see form");
         });
     });
@@ -56,7 +56,7 @@ function dataFormModuleTest() {
         });
 
         it("Should Reset Form When call resetForm()", function() {
-            DatastoreForm.__testOnly__.resetForm();
+            DSForm.__testOnly__.resetForm();
             expect($filePath.val()).to.be.empty;
             expect($fileName.val()).to.be.empty;
             expect($formatText.data('format')).to.equal('');
@@ -71,8 +71,8 @@ function dataFormModuleTest() {
             $formatText.data("format", "test");
         });
 
-        it("Should Use DatastoreForm.clear() to reset", function() {
-            DatastoreForm.clear();
+        it("Should Use DSForm.clear() to reset", function() {
+            DSForm.clear();
             expect($filePath.val()).to.be.empty;
             expect($fileName.val()).to.be.empty;
             expect($formatText.data("format")).to.equal("");
@@ -81,11 +81,11 @@ function dataFormModuleTest() {
 
     describe("Format Change Test", function() {
         beforeEach(function() {
-            DatastoreForm.__testOnly__.resetForm();
+            DSForm.__testOnly__.resetForm();
         });
 
         it("Format Should be CSV", function() {
-            DatastoreForm.__testOnly__.toggleFormat("CSV");
+            DSForm.__testOnly__.toggleFormat("CSV");
             expect($formatText.data("format")).to.equal("CSV");
 
             // UI part
@@ -97,7 +97,7 @@ function dataFormModuleTest() {
         });
 
         it("Format Should be JSON", function() {
-            DatastoreForm.__testOnly__.toggleFormat("JSON");
+            DSForm.__testOnly__.toggleFormat("JSON");
             expect($formatText.data("format")).to.equal("JSON");
 
             // UI part
@@ -107,7 +107,7 @@ function dataFormModuleTest() {
         });
 
         it("Format Should be Text", function() {
-            DatastoreForm.__testOnly__.toggleFormat("Text");
+            DSForm.__testOnly__.toggleFormat("Text");
             expect($formatText.data("format")).to.equal("TEXT");
 
             // UI part
@@ -119,7 +119,7 @@ function dataFormModuleTest() {
         });
 
         it("Format Should be Excel", function() {
-            DatastoreForm.__testOnly__.toggleFormat("Excel");
+            DSForm.__testOnly__.toggleFormat("Excel");
             expect($formatText.data("format")).to.equal("EXCEL");
 
             // UI part
@@ -129,7 +129,7 @@ function dataFormModuleTest() {
         });
 
         after(function() {
-            DatastoreForm.__testOnly__.resetForm();
+            DSForm.__testOnly__.resetForm();
         });
     });
 
@@ -137,7 +137,7 @@ function dataFormModuleTest() {
         var isValidPathToBrowse;
 
         before(function() {
-            isValidPathToBrowse = DatastoreForm.__testOnly__.isValidPathToBrowse;
+            isValidPathToBrowse = DSForm.__testOnly__.isValidPathToBrowse;
         });
 
         it("Should allow browse invalid path", function() {
@@ -189,7 +189,7 @@ function dataFormModuleTest() {
         it("Should not allow preivew of empty path", function() {
             $filePath.val("");
             $formatText.data("format", "CSV");
-            var isValid = DatastoreForm.__testOnly__.isValidToPreview();
+            var isValid = DSForm.__testOnly__.isValidToPreview();
             expect(isValid).to.be.false;
 
             // check status box
@@ -200,7 +200,7 @@ function dataFormModuleTest() {
         it("Should not allow preivew of invalid format", function() {
             $filePath.val("test");
             $formatText.data("format", "wrongformat");
-            var isValid = DatastoreForm.__testOnly__.isValidToPreview();
+            var isValid = DSForm.__testOnly__.isValidToPreview();
             expect(isValid).to.be.false;
 
             // check status box
@@ -211,7 +211,7 @@ function dataFormModuleTest() {
         it("Should not allow preivew json", function() {
             $filePath.val("test");
             $formatText.data("format", "JSON");
-            var isValid = DatastoreForm.__testOnly__.isValidToPreview();
+            var isValid = DSForm.__testOnly__.isValidToPreview();
             expect(isValid).to.be.false;
 
             // check status box
@@ -221,7 +221,7 @@ function dataFormModuleTest() {
 
         it("Should not allow preivew excel", function() {
             $formatText.data("format", "EXCEL");
-            var isValid = DatastoreForm.__testOnly__.isValidToPreview();
+            var isValid = DSForm.__testOnly__.isValidToPreview();
             expect(isValid).to.be.false;
 
             // check status box
@@ -231,7 +231,7 @@ function dataFormModuleTest() {
 
         it("Should allow empty format", function() {
             $formatText.data("format", "");
-            var isValid = DatastoreForm.__testOnly__.isValidToPreview();
+            var isValid = DSForm.__testOnly__.isValidToPreview();
             expect(isValid).to.be.true;
 
             // check status box
@@ -240,7 +240,7 @@ function dataFormModuleTest() {
 
         it("Should allow other case", function() {
             $formatText.data("format", "CSV");
-            var isValid = DatastoreForm.__testOnly__.isValidToPreview();
+            var isValid = DSForm.__testOnly__.isValidToPreview();
             expect(isValid).to.be.true;
 
             // check status box
@@ -248,7 +248,7 @@ function dataFormModuleTest() {
         });
 
         after(function() {
-            DatastoreForm.__testOnly__.resetForm();
+            DSForm.__testOnly__.resetForm();
         });
     });
 
@@ -256,8 +256,8 @@ function dataFormModuleTest() {
         var checkUDF;
 
         before(function() {
-            checkUDF = DatastoreForm.__testOnly__.checkUDF;
-            DatastoreForm.__testOnly__.toggleFormat("CSV");
+            checkUDF = DSForm.__testOnly__.checkUDF;
+            DSForm.__testOnly__.toggleFormat("CSV");
         });
 
         it("Should be valid with no udf", function() {
@@ -306,7 +306,7 @@ function dataFormModuleTest() {
         });
 
         after(function() {
-            DatastoreForm.__testOnly__.resetForm();
+            DSForm.__testOnly__.resetForm();
         });
     });
 
@@ -317,7 +317,7 @@ function dataFormModuleTest() {
 
         before(function() {
             $alertModal = $("#alertModal");
-            promoptHeaderAlert = DatastoreForm.__testOnly__.promoptHeaderAlert;
+            promoptHeaderAlert = DSForm.__testOnly__.promoptHeaderAlert;
         });
 
         it("Should alert when CSV with no header", function(done) {
@@ -388,7 +388,7 @@ function dataFormModuleTest() {
 
     describe("UDF Func Test", function() {
         before(function() {
-            DatastoreForm.__testOnly__.toggleFormat("CSV");
+            DSForm.__testOnly__.toggleFormat("CSV");
             $udfCheckbox.find(".checkbox").click();
         });
 
@@ -403,25 +403,25 @@ function dataFormModuleTest() {
         });
 
         it("Should select a udf module", function() {
-            DatastoreForm.__testOnly__.selectUDFModule("default");
+            DSForm.__testOnly__.selectUDFModule("default");
             expect($udfModuleList.find("input").val()).to.equal("default");
             expect($udfFuncList.find("input").val()).to.be.empty;
         });
 
         it("Should select a udf func", function() {
-            DatastoreForm.__testOnly__.selectUDFFunc("openExcel");
+            DSForm.__testOnly__.selectUDFFunc("openExcel");
             expect($udfModuleList.find("input").val()).to.equal("default");
             expect($udfFuncList.find("input").val()).to.equal("openExcel");
         });
 
         it("Should reset udf", function() {
-            DatastoreForm.__testOnly__.resetUdfSection();
+            DSForm.__testOnly__.resetUdfSection();
             expect($udfModuleList.find("input").val()).to.be.empty;
             expect($udfFuncList.find("input").val()).to.be.empty;
         });
 
         after(function() {
-            DatastoreForm.__testOnly__.resetForm();
+            DSForm.__testOnly__.resetForm();
         });
     });
 
@@ -439,7 +439,7 @@ function dataFormModuleTest() {
 
         // no format is always not empty, default is CSV
         // it("Should not allow empty format", function(done) {
-        //     DatastoreForm.__testOnly__.submitForm()
+        //     DSForm.__testOnly__.submitForm()
         //     .then(function() {
         //         // Intentionally fail the test
         //         throw "Fail Case!";
@@ -451,10 +451,10 @@ function dataFormModuleTest() {
         // });
 
         it("Should not pass invalid url", function(done) {
-            DatastoreForm.__testOnly__.toggleFormat("CSV");
+            DSForm.__testOnly__.toggleFormat("CSV");
             $filePath.val("netstore/datasets/sp500-invalidurl");
 
-            DatastoreForm.__testOnly__.submitForm()
+            DSForm.__testOnly__.submitForm()
             .then(function() {
                 // Intentionally fail the test
                 throw "Fail Case!";
@@ -468,12 +468,12 @@ function dataFormModuleTest() {
         });
 
         it("Should load ds", function(done) {
-            DatastoreForm.__testOnly__.toggleFormat("CSV");
+            DSForm.__testOnly__.toggleFormat("CSV");
             $filePath.val("netstore/datasets/sp500.csv");
 
             var $grid;
 
-            DatastoreForm.__testOnly__.submitForm()
+            DSForm.__testOnly__.submitForm()
             .then(function() {
                 expect(DS.has(testDS)).to.be.true;
                 $grid = DS.getGridByName(testDS);

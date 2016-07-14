@@ -13,12 +13,12 @@ describe('Datastore Test', function() {
         gMinModeOn = true;
     });
 
-    describe('Datastore Module Test', datasetModuleTest);
+    describe('Datastore Module Test', datastoreModuleTest);
     describe('Dsobj Test', dsObjTest);
-    describe('Data Form Module Test', dataFormModuleTest);
-    describe('Data Preview Module Test', dataPreviewModuleTest);
-    describe('Data Cart Module Test', dataCartModuleTest);
-    describe('Data Sample Table Test', dataSampleTableTest);
+    describe('Dataset Form Module Test', dsFormModuleTest);
+    describe('Dataset Preview Module Test', dsPreviewModuleTest);
+    describe('Data Cart Module Test', dsCartModuleTest);
+    describe('Dataset Sample Table Test', dsTableTest);
 
     after(function() {
         // go back to previous tab
@@ -28,7 +28,7 @@ describe('Datastore Test', function() {
 });
 
 // test Datastore Module
-function datasetModuleTest() {
+function datastoreModuleTest() {
     it('Should update num of datasets', function() {
         expect('hello world').to.equal('hello world');
 

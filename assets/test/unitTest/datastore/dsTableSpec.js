@@ -1,4 +1,4 @@
-function dataSampleTableTest() {
+function dsTableTest() {
     var testDS;
     var testDSObj;
     var testDSId;
@@ -35,7 +35,7 @@ function dataSampleTableTest() {
     describe("Module API Test", function() {
         it("Should show datasample table in load status", function(done) {
             var isLoading = true;
-            DataSampleTable.show(testDSId, isLoading)
+            DSTable.show(testDSId, isLoading)
             .then(function() {
                 // XX loading icon during sample load breaks this test
 
@@ -54,7 +54,7 @@ function dataSampleTableTest() {
         it("Should not show datasample table when dsId is wrong", function(done) {
             var dsId = xcHelper.randName("tesst");
 
-            DataSampleTable.show(dsId)
+            DSTable.show(dsId)
             .then(function() {
                 throw "Error Case!";
             })
@@ -65,12 +65,12 @@ function dataSampleTableTest() {
         });
 
         it("Should clear the datasample table", function() {
-            DataSampleTable.clear();
+            DSTable.clear();
             expect($tableWrap.html()).to.equal("");
         });
 
         it("Should show data sample table", function(done) {
-            DataSampleTable.show(testDSId)
+            DSTable.show(testDSId)
             .then(function() {
                 assert.isTrue($datasetWrap.is(":visible"));
                 assert.isFalse($datasetWrap.hasClass("loading"));
@@ -120,7 +120,7 @@ function dataSampleTableTest() {
             $("#clearDataCart").click();
             $("#selectDSCols").click();
 
-            DataCart.__testOnly__.createWorksheet()
+            DSCart.__testOnly__.createWorksheet()
             .then(function(wholeTableName) {
                 // because we generate a unique ds name, so
                 // this table's name should equal to testDS

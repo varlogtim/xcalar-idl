@@ -1,14 +1,14 @@
-window.ExportTarget = (function($, ExportTarget) {
+window.DSExport = (function($, DSExport) {
     var $exportView; // $('#exportView')
     var exportTargets = [];
 
-    ExportTarget.setup = function() {
+    DSExport.setup = function() {
         $exportView = $('#exportView');
 
         var $targetTypeList = $('#targetTypeList');
         var $targetTypeInput = $targetTypeList.find('.text');
 
-        var targetList = new MenuHelper($targetTypeList, {
+        new MenuHelper($targetTypeList, {
             "onSelect": function($li) {
                 if ($li.hasClass("hint")) {
                     return false;
@@ -20,11 +20,10 @@ window.ExportTarget = (function($, ExportTarget) {
                 $targetTypeInput.val($li.text()).removeClass('hint');
             },
             "container": "#exportDataForm"
-        });
-        targetList.setupListeners();
+        }).setupListeners();
 
         $("#dsExport-refresh").click(function() {
-            ExportTarget.refresh();
+            DSExport.refresh();
         });
 
         var $gridView = $exportView.find('.gridItems');
@@ -47,13 +46,13 @@ window.ExportTarget = (function($, ExportTarget) {
             var targetType = $targetTypeInput.val();
             var name = $('#targetName').val().trim();
 
-            ExportTarget.submitForm(targetType, name)
+            submitForm(targetType, name)
             .then(function() {
                 KVStore.commit();
             })
             .fail(function(error) {
                 console.error(error);
-                // XX fail case being handled in ExportTarget.submitForm
+                // XX fail case being handled in submitForm
             })
             .always(function() {
                 xcHelper.enableSubmit($submitBtn);
@@ -73,7 +72,7 @@ window.ExportTarget = (function($, ExportTarget) {
         $('#targetTypeList').css('pointer-events', 'none');
     };
 
-    ExportTarget.refresh = function() {
+    DSExport.refresh = function() {
         xcHelper.showRefreshIcon($exportView.find('.gridViewWrapper'));
 
         XcalarListExportTargets("*", "*")
@@ -109,11 +108,11 @@ window.ExportTarget = (function($, ExportTarget) {
         });
     };
 
-    ExportTarget.getTargets = function() {
+    DSExport.getTargets = function() {
         return exportTargets;
     };
 
-    ExportTarget.submitForm = function(targetType, name) {
+    function submitForm(targetType, name) {
         var deferred = jQuery.Deferred();
         var $targetTypeInput = $('#targetTypeList').find('.text');
         var isValid = xcHelper.validate([
@@ -155,8 +154,8 @@ window.ExportTarget = (function($, ExportTarget) {
             deferred.reject(error);
         }
 
-        return (deferred.promise());
-    };
+        return deferred.promise();
+    }
 
     function restoreGrids() {
         // return;
@@ -184,7 +183,6 @@ window.ExportTarget = (function($, ExportTarget) {
         $exportView.find('.gridItems').html(gridHtml);
         numGrids = $exportView.find('.grid-unit').length;
         $exportView.find('.numExportTargets').html(numGrids);
-
     }
 
     function getGridHtml(name) {
@@ -235,6 +233,6 @@ window.ExportTarget = (function($, ExportTarget) {
         $exportView.find('.numExportTargets').html(numGrids);
     }
 
-    return (ExportTarget);
+    return (DSExport);
 
 }(jQuery, {}));

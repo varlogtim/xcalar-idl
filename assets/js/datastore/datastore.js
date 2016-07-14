@@ -5,11 +5,11 @@ window.DataStore = (function($, DataStore) {
     DataStore.setup = function() {
         DS.setup();
         setupViews();
-        DatastoreForm.setup();
-        DataPreview.setup();
-        DataSampleTable.setup();
-        DataCart.setup();
-        ExportTarget.setup();
+        DSForm.setup();
+        DSPreview.setup();
+        DSTable.setup();
+        DSCart.setup();
+        DSExport.setup();
     };
 
     DataStore.update = function(numDatasets) {
@@ -27,12 +27,12 @@ window.DataStore = (function($, DataStore) {
         var deferred = jQuery.Deferred();
 
         DS.clear();
-        DataSampleTable.clear();
-        DataCart.clear();
-        DatastoreForm.clear();
+        DSTable.clear();
+        DSCart.clear();
+        DSForm.clear();
         DataStore.update(0);
 
-        DataPreview.clear()
+        DSPreview.clear()
         .then(DS.release)
         .then(deferred.resolve)
         .then(deferred.reject);
@@ -58,7 +58,7 @@ window.DataStore = (function($, DataStore) {
                 $exportView.show();
                 $contentHeaderMidText.text(DSTStr.Export);
                 if ($exportView.hasClass("firstTouch")) {
-                    ExportTarget.refresh();
+                    DSExport.refresh();
                     $exportView.removeClass("firstTouch");
                 }
             } else {
@@ -66,7 +66,7 @@ window.DataStore = (function($, DataStore) {
                 $contentHeaderRight.show();
                 $exportView.hide();
                 $contentHeaderMidText.text(DSTStr.DS);
-                DataSampleTable.sizeTableWrapper();
+                DSTable.refresh();
             }
             $button.siblings().removeClass('active');
             $button.addClass('active');

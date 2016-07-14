@@ -176,7 +176,7 @@ window.KVStore = (function($, KVStore) {
                     WSManager.restore(gInfos[METAKeys.WS]);
                     Aggregates.restore(gInfos[METAKeys.AGGS]);
                     TblManager.restoreTableMeta(gInfos[METAKeys.TI]);
-                    DataCart.restore(gInfos[METAKeys.CART]);
+                    DSCart.restore(gInfos[METAKeys.CART]);
                     Profile.restore(gInfos[METAKeys.STATS]);
                     CLIBox.restore(gInfos[METAKeys.CLI]);
 

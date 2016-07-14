@@ -385,7 +385,7 @@ window.Replay = (function($, Replay) {
             // when sample table is loaded
             var $inputs = $("#worksheetTable .editableHead");
             // make sure only have this cart
-            DataCart.clear();
+            DSCart.clear();
 
             // add to data cart
             for (var i = 0, len = columns.length; i < len; i++) {
@@ -401,7 +401,7 @@ window.Replay = (function($, Replay) {
             }
 
             var name = xcHelper.getTableName(tableName);
-            $("#DataCart .tableNameEdit").val(name);
+            $("#dataCart .tableNameEdit").val(name);
 
             originTableLen = $mainFrame.find(".xcTableWrap").length;
 

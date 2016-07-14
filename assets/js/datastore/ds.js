@@ -174,7 +174,7 @@ window.DS = (function ($, DS) {
         }
 
         // when switch to a ds, should clear others' ref count first!!
-        DataSampleTable.show($grid.data("dsid"), isLoading)
+        DSTable.show($grid.data("dsid"), isLoading)
         .then(function() {
             if (!isLoading) {
                 Tips.refresh();
@@ -253,7 +253,7 @@ window.DS = (function ($, DS) {
             // display new dataset
             refreshDS();
             if ($grid.hasClass('active')) {
-                // re-focus to trigger DataSampleTable.show()
+                // re-focus to trigger DSTable.show()
                 if (gMinModeOn) {
                     DS.focusOn($grid);
                 } else {
@@ -274,7 +274,7 @@ window.DS = (function ($, DS) {
 
             if ($('#dsInfo-title').text() === dsName) {
                 // if loading page is showing, remove and go to import form
-                DatastoreForm.show({"noReset": true});
+                DSForm.show({"noReset": true});
             }
 
             Transaction.fail(txId, {
@@ -532,7 +532,7 @@ window.DS = (function ($, DS) {
         })
         .then(function() {
             //clear data cart
-            DataCart.removeCart(dsId);
+            DSCart.removeCart(dsId);
             // clear data table
             $("#dataSetTableWrap").empty();
             // remove ds obj
@@ -602,7 +602,7 @@ window.DS = (function ($, DS) {
         if ($datasets.length > 0) {
             DS.focusOn($datasets.eq(0));
         } else {
-            DatastoreForm.show();
+            DSForm.show();
         }
     }
 

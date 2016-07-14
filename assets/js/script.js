@@ -315,12 +315,12 @@ window.StartManager = (function(StartManager, $) {
                     break;
                 case ("dataStoresTab"):
                     $("#datastorePanel").addClass("active");
-                    DataSampleTable.sizeTableWrapper();
-                    DataCart.checkQueries();
+                    DSTable.refresh();
+                    DSCart.checkQueries();
                     if ($curTab.hasClass("firstTouch")) {
                         $curTab.removeClass("firstTouch");
                         DS.setupView();
-                        DatastoreForm.initialize();
+                        DSForm.initialize();
                         // relese the old ref count if any
                         DS.release();
                     }
@@ -344,7 +344,7 @@ window.StartManager = (function(StartManager, $) {
             if (lastTabId === "monitorTab") {
                 MonitorPanel.inActive();
             } else if (lastTabId === "dataStoresTab") {
-                DataCart.checkQueries();
+                DSCart.checkQueries();
             }
             if (lastTabId === "workspaceTab") {
                 var $activeCompSwitch = $('.dagTab.active');

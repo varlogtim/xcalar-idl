@@ -1,11 +1,11 @@
 /*
- * Module for the datastore form part
+ * Module for the dataset form part
  */
-window.DatastoreForm = (function($, DatastoreForm) {
-    var $filePath;     // $("#filePath")
+window.DSForm = (function($, DSForm) {
+    var $filePath;      // $("#filePath")
 
-    var $form;        // $("#importDataForm")
-    var $formatText;  // $("#fileFormat .text")
+    var $form;          // $("#importDataForm")
+    var $formatText;    // $("#fileFormat .text")
 
     var $udfModuleList; // $("#udfArgs-moduleList")
     var $udfFuncList;   // $("#udfArgs-funcList")
@@ -30,7 +30,7 @@ window.DatastoreForm = (function($, DatastoreForm) {
         "EXCEL" : "Excel"
     };
 
-    DatastoreForm.setup = function() {
+    DSForm.setup = function() {
         $filePath = $("#filePath");
 
         $form = $("#importDataForm");
@@ -49,7 +49,7 @@ window.DatastoreForm = (function($, DatastoreForm) {
         // click to go to form section
         $("#importDataButton").click(function() {
             $(this).blur();
-            DatastoreForm.show();
+            DSForm.show();
             var protocol = getProtocol();
             FileBrowser.show(protocol);
         });
@@ -144,7 +144,7 @@ window.DatastoreForm = (function($, DatastoreForm) {
                     var loadURL = protocol + path;
                     var isRecur = $("#recurCheckbox").find(".checkbox")
                                                     .hasClass("checked");
-                    DataPreview.show(loadURL, dsName, udfModule, udfFunc, isRecur);
+                    DSPreview.show(loadURL, dsName, udfModule, udfFunc, isRecur);
                 }
             }
         });
@@ -176,7 +176,12 @@ window.DatastoreForm = (function($, DatastoreForm) {
         });
     };
 
-    DatastoreForm.show = function(options) {
+    DSForm.initialize = function() {
+        resetForm();
+        DSForm.update();
+    };
+
+    DSForm.show = function(options) {
         options = options || {};
         var $importDataView = $("#importDataView");
         if (!$importDataView.is(":visible") || $form.hasClass("previewMode"))
@@ -198,17 +203,16 @@ window.DatastoreForm = (function($, DatastoreForm) {
         }
     };
 
-    DatastoreForm.hide = function() {
+    DSForm.hide = function() {
         $("#importDataView").hide();
         $("#exploreView").find(".contentViewMid").removeClass('hidden');
     };
 
-    DatastoreForm.load = function(dsName, dsFormat, loadURL,
-                                    fieldDelim, lineDelim, header,
-                                    moduleName, funcName)
+    DSForm.load = function(dsName, dsFormat, loadURL,
+                            fieldDelim, lineDelim, header,
+                            moduleName, funcName)
     {
         var deferred = jQuery.Deferred();
-
         // validation check of loadURL
         var isRecur = $recurCheckbox.find(".checkbox").hasClass("checked");
 
@@ -246,15 +250,10 @@ window.DatastoreForm = (function($, DatastoreForm) {
             deferred.reject(error);
         });
 
-        return (deferred.promise());
+        return deferred.promise();
     };
 
-    DatastoreForm.initialize = function() {
-        resetForm();
-        DatastoreForm.update();
-    };
-
-    DatastoreForm.update = function() {
+    DSForm.update = function() {
         var moduleName = $udfModuleList.find("input").val();
         var funcName = $udfFuncList.find("input").val();
 
@@ -275,12 +274,12 @@ window.DatastoreForm = (function($, DatastoreForm) {
         });
     };
 
-    DatastoreForm.clear = function() {
-        DatastoreForm.show();
+    DSForm.clear = function() {
+        DSForm.show();
         resetForm();
     };
 
-    DatastoreForm.validate = function($fileName) {
+    DSForm.validate = function($fileName) {
         $fileName = $fileName || $("#fileName");
         var fileName = $fileName.val().trim();
         // these are the ones that need to check
@@ -319,7 +318,7 @@ window.DatastoreForm = (function($, DatastoreForm) {
 
     function submitForm() {
         var dsFormat = formatMap[$formatText.data("format")];
-        var isValid = DatastoreForm.validate();
+        var isValid = DSForm.validate();
 
         if (isValid) {
             isValid = xcHelper.validate([{
@@ -373,9 +372,9 @@ window.DatastoreForm = (function($, DatastoreForm) {
 
         promoptHeaderAlert(dsFormat, header)
         .then(function() {
-            return DatastoreForm.load(dsName, dsFormat, loadURL,
-                            fieldDelim, lineDelim, header,
-                            moduleName, funcName);
+            return DSForm.load(dsName, dsFormat, loadURL,
+                               fieldDelim, lineDelim, header,
+                               moduleName, funcName);
         })
         .then(deferred.resolve)
         .fail(deferred.reject);
@@ -847,20 +846,20 @@ window.DatastoreForm = (function($, DatastoreForm) {
 
     /* Unit Test Only */
     if (window.unitTestMode) {
-        DatastoreForm.__testOnly__ = {};
-        DatastoreForm.__testOnly__.resetForm = resetForm;
-        DatastoreForm.__testOnly__.submitForm = submitForm;
-        DatastoreForm.__testOnly__.toggleFormat = toggleFormat;
-        DatastoreForm.__testOnly__.checkUDF = checkUDF;
-        DatastoreForm.__testOnly__.isValidPathToBrowse = isValidPathToBrowse;
-        DatastoreForm.__testOnly__.isValidToPreview = isValidToPreview;
-        DatastoreForm.__testOnly__.promoptHeaderAlert = promoptHeaderAlert;
-        DatastoreForm.__testOnly__.resetDelimiter = resetDelimiter;
-        DatastoreForm.__testOnly__.resetUdfSection = resetUdfSection;
-        DatastoreForm.__testOnly__.selectUDFModule = selectUDFModule;
-        DatastoreForm.__testOnly__.selectUDFFunc = selectUDFFunc;
+        DSForm.__testOnly__ = {};
+        DSForm.__testOnly__.resetForm = resetForm;
+        DSForm.__testOnly__.submitForm = submitForm;
+        DSForm.__testOnly__.toggleFormat = toggleFormat;
+        DSForm.__testOnly__.checkUDF = checkUDF;
+        DSForm.__testOnly__.isValidPathToBrowse = isValidPathToBrowse;
+        DSForm.__testOnly__.isValidToPreview = isValidToPreview;
+        DSForm.__testOnly__.promoptHeaderAlert = promoptHeaderAlert;
+        DSForm.__testOnly__.resetDelimiter = resetDelimiter;
+        DSForm.__testOnly__.resetUdfSection = resetUdfSection;
+        DSForm.__testOnly__.selectUDFModule = selectUDFModule;
+        DSForm.__testOnly__.selectUDFFunc = selectUDFFunc;
     }
     /* End Of Unit Test Only */
 
-    return (DatastoreForm);
+    return (DSForm);
 }(jQuery, {}));

@@ -29,12 +29,12 @@ describe('Mocha Setup Test', function() {
         });
     })
 
-    it('Should be able to test DataCart module', function() {
-        expect(DataCart.getCarts()).to.exist;
+    it('Should be able to test DSCart module', function() {
+        expect(DSCart.getCarts()).to.exist;
     });
 
     it('Should see private function in module', function() {
-        expect(DataCart.__testOnly__.filterCarts).to.be.a('function');
+        expect(DSCart.__testOnly__.filterCarts).to.be.a('function');
     });
 
     function simplePromiseTest() {

@@ -428,7 +428,7 @@ function METAConstructor(METAKeys) {
     this[METAKeys.WS] = WSManager.getAllMeta();
     this[METAKeys.AGGS] = Aggregates.getAggs();
     this[METAKeys.CLI] = CLIBox.getCli(); // string
-    this[METAKeys.CART] = DataCart.getCarts();
+    this[METAKeys.CART] = DSCart.getCarts();
     this[METAKeys.STATS] = Profile.getCache();
     // this[EMetaKeys.DFG] = DFG.getAllGroups(); // a set of DFGObj
     // this[EMetaKeys.SCHE] = Scheduler.getAllSchedules(); // list of SchedObj
@@ -523,7 +523,7 @@ function Cart(options) {
     options = options || {};
     this.dsId = options.dsId;
     this.tableName = options.tableName;
-    // items will be restored in DataCart.initialize
+    // items will be restored in DSCart.initialize
     this.items = [];
 
     return this;

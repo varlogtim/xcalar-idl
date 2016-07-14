@@ -1,7 +1,7 @@
 /*
- * Module for preview table
+ * Module for data preview
  */
-window.DataPreview = (function($, DataPreview) {
+window.DSPreview = (function($, DSPreview) {
     var $previeWrap;      // $("#dsPreviewWrap")
     var $previewTable;    // $("#previewTable")
     var $highLightBtn;    // $("#preview-highlight")
@@ -40,7 +40,7 @@ window.DataPreview = (function($, DataPreview) {
                 '</div>' +
             '</td>';
 
-    DataPreview.setup = function() {
+    DSPreview.setup = function() {
         $previeWrap = $("#dsPreviewWrap");
         $previewTable = $("#previewTable");
         $highLightBtn = $("#preview-highlight");
@@ -148,7 +148,7 @@ window.DataPreview = (function($, DataPreview) {
         });
     };
 
-    DataPreview.show = function(loadURL, dsName, udfModule, udfFunc, isRecur) {
+    DSPreview.show = function(loadURL, dsName, udfModule, udfFunc, isRecur) {
         var deferred = jQuery.Deferred();
         var hasUDF = false;
 
@@ -247,38 +247,7 @@ window.DataPreview = (function($, DataPreview) {
         return deferred.promise();
     };
 
-    // load a dataset
-    DataPreview.load = function() {
-        var loadURL = $("#preview-url").text().trim();
-        var dsName = $("#preview-dsName").val().trim();
-
-        loadHelper()
-        .then(function() {
-            clearAll();
-        })
-        .fail(function(error) {
-            if (error.status != null) {
-                clearAll();
-            }
-        });
-
-        function loadHelper() {
-            if (dsFormat === "JSON") {
-                return DatastoreForm.load(dsName, "JSON", loadURL,
-                                            "", "", false, "", "");
-            } else if (dsFormat === "Excel") {
-                return DatastoreForm.load(dsName, "Excel", loadURL,
-                                            "\t", "\n", hasHeader, "", "");
-            } else {
-                // only CSV should apply module and funcName
-                return DatastoreForm.load(dsName, "CSV", loadURL,
-                                          delimiter, "\n", hasHeader,
-                                          moduleName, funcName);
-            }
-        }
-    };
-
-    DataPreview.clear = function() {
+    DSPreview.clear = function() {
         if ($previeWrap.hasClass("hidden")) {
             // when preview table not shows up
             return PromiseHelper.resolve(null);
@@ -502,7 +471,7 @@ window.DataPreview = (function($, DataPreview) {
     }
 
     function applyPreviewChange() {
-        if (!DatastoreForm.validate($("#preview-dsName"))) {
+        if (!DSForm.validate($("#preview-dsName"))) {
             return;
         }
 
@@ -523,11 +492,41 @@ window.DataPreview = (function($, DataPreview) {
             Alert.show({
                 "title"    : DSFormTStr.LoadConfirm,
                 "msg"      : msg,
-                "onConfirm": function() { DataPreview.load(); }
+                "onConfirm": function() { loadDS(); }
             });
         } else {
-            DataPreview.load();
+            loadDS()();
         }
+    }
+
+    // load a dataset
+    function loadDS() {
+        var loadURL = $("#preview-url").text().trim();
+        var dsName = $("#preview-dsName").val().trim();
+        var promise;
+
+        if (dsFormat === "JSON") {
+            promise = DSForm.load(dsName, "JSON", loadURL,
+                                    "", "", false, "", "");
+        } else if (dsFormat === "Excel") {
+            promise = DSForm.load(dsName, "Excel", loadURL,
+                                  "\t", "\n", hasHeader, "", "");
+        } else {
+            // only CSV should apply module and funcName
+            promise = DSForm.load(dsName, "CSV", loadURL,
+                                delimiter, "\n", hasHeader,
+                                moduleName, funcName);
+        }
+
+        promise
+        .then(function() {
+            clearAll();
+        })
+        .fail(function(error) {
+            if (error.status != null) {
+                clearAll();
+            }
+        });
     }
 
     function getPreviewTable() {
@@ -1177,21 +1176,21 @@ window.DataPreview = (function($, DataPreview) {
 
     /* Unit Test Only */
     if (window.unitTestMode) {
-        DataPreview.__testOnly__ = {};
-        DataPreview.__testOnly__.getPreviewTable = getPreviewTable;
-        DataPreview.__testOnly__.parseTdHelper = parseTdHelper;
-        DataPreview.__testOnly__.getTbodyHTML = getTbodyHTML;
-        DataPreview.__testOnly__.getTheadHTML = getTheadHTML;
-        DataPreview.__testOnly__.highlightHelper = highlightHelper;
-        DataPreview.__testOnly__.suggestHelper = suggestHelper;
-        DataPreview.__testOnly__.errorSuggestHelper = errorSuggestHelper;
-        DataPreview.__testOnly__.headerPromoteDetect = headerPromoteDetect;
-        DataPreview.__testOnly__.applyHighlight = applyHighlight;
-        DataPreview.__testOnly__.applyDelim = applyDelim;
-        DataPreview.__testOnly__.togglePromote = togglePromote;
-        DataPreview.__testOnly__.clearAll = clearAll;
+        DSPreview.__testOnly__ = {};
+        DSPreview.__testOnly__.getPreviewTable = getPreviewTable;
+        DSPreview.__testOnly__.parseTdHelper = parseTdHelper;
+        DSPreview.__testOnly__.getTbodyHTML = getTbodyHTML;
+        DSPreview.__testOnly__.getTheadHTML = getTheadHTML;
+        DSPreview.__testOnly__.highlightHelper = highlightHelper;
+        DSPreview.__testOnly__.suggestHelper = suggestHelper;
+        DSPreview.__testOnly__.errorSuggestHelper = errorSuggestHelper;
+        DSPreview.__testOnly__.headerPromoteDetect = headerPromoteDetect;
+        DSPreview.__testOnly__.applyHighlight = applyHighlight;
+        DSPreview.__testOnly__.applyDelim = applyDelim;
+        DSPreview.__testOnly__.togglePromote = togglePromote;
+        DSPreview.__testOnly__.clearAll = clearAll;
 
-        DataPreview.__testOnly__.get = function() {
+        DSPreview.__testOnly__.get = function() {
             return {
                 "delimiter"  : delimiter,
                 "hasHeader"  : hasHeader,
@@ -1199,7 +1198,7 @@ window.DataPreview = (function($, DataPreview) {
             };
         };
 
-        DataPreview.__testOnly__.set = function(newDelim, newHeader, newHighlight, newData) {
+        DSPreview.__testOnly__.set = function(newDelim, newHeader, newHighlight, newData) {
             delimiter = newDelim || "";
             hasHeader = newHeader || false;
             highlighter = newHighlight || "";
@@ -1208,5 +1207,5 @@ window.DataPreview = (function($, DataPreview) {
     }
     /* End Of Unit Test Only */
 
-    return (DataPreview);
+    return (DSPreview);
 }(jQuery, {}));

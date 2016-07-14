@@ -282,9 +282,9 @@ TipsTStr = {
     'LineMarker': 'Click row number to add bookmark',
     'JSONEle': 'Double-click to view, then click on key names to pull columns',
     'DragGrid': 'You can drag datasets or folders around to reorder',
-    'DataSampleTable': 'Click table header to add/remove columns to/from ' +
+    'DSTable': 'Click table header to add/remove columns to/from ' +
         'data cart. Click on column headings to further modify the column.',
-    'Datacart': 'Datacart area, you can add columns from datasets into your ' +
+    'DSCart': 'Datacart area, you can add columns from datasets into your ' +
                 'cart. These columns will be used to create the table in your ' +
                 'active worksheet. You can also add columns in the worksheet ' +
                 'screen.',

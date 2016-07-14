@@ -120,7 +120,7 @@ window.QueryManager = (function(QueryManager, $) {
         }
         var mainQuery = queryLists[id];
         if (mainQuery.subQueries[0].getName() === "index from DS") {
-            DataCart.queryDone(mainQuery.getId());
+            DSCart.queryDone(mainQuery.getId());
             return;
         }
 
@@ -472,7 +472,7 @@ window.QueryManager = (function(QueryManager, $) {
                     !$('#monitorTab').hasClass('active')) {
             // don't show if not on panel
             if (subQuery.getName() === "index from DS") {
-                DataCart.addQuery(queryLists[id]);
+                DSCart.addQuery(queryLists[id]);
             }
             return;
         }

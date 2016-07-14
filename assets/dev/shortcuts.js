@@ -63,6 +63,7 @@ window.Shortcuts = (function($, Shortcuts) {
 
     Shortcuts.setup = function() {
         shortcutsOn = true;
+
         if (localStorage.autoLogin) {
             autoLogin = JSON.parse(localStorage.autoLogin);
         } else {
@@ -70,7 +71,7 @@ window.Shortcuts = (function($, Shortcuts) {
             localStorage.autoLogin = true;
         }
         
-        datastoreForm();
+        dsForm();
         mainMenu();
     };
 
@@ -122,7 +123,7 @@ window.Shortcuts = (function($, Shortcuts) {
         'Test Yelp': 'netstore/datasets/unittest/test_yelp.json'
     };
 
-    function datastoreForm() {
+    function dsForm() {
         var $filePath = $("#filePath");
         var $fileName = $("#fileName");
         var protocol = FileProtocol.file;

@@ -216,15 +216,15 @@ window.Tips = (function($, Tips) {
             "placement": "right"
         });
 
-        // data store table
+        // dataset table
         setTooltip($("#worksheetTable"), {
-            "title"    : TipsTStr.DataSampleTable,
+            "title"    : TipsTStr.DSTable,
             "container": "#exploreView .contentViewTable"
         });
 
         // data cart area
         setTooltip($("#dataCartWrap"), {
-            "title"    : TipsTStr.Datacart,
+            "title"    : TipsTStr.DSCart,
             "container": "#exploreView .contentViewRight",
             "template" : templateZ0,
             "placement": "left"
