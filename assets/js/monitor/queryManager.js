@@ -249,6 +249,7 @@ window.QueryManager = (function(QueryManager, $) {
         });
     }
 
+    // used for xcalarQuery
     function mainQueryCheck(id) {
         var mainQuery = queryLists[id];
         clearInterval(queryCheckLists[id]);
@@ -258,6 +259,9 @@ window.QueryManager = (function(QueryManager, $) {
         function check() {
             mainQuery.check()
             .then(function(res) {
+                if (!queryLists[id]) {
+                    return;
+                }
                 var state = res.queryState;
                 if (state === QueryStateT.qrFinished) {
                     clearInterval(queryCheckLists[id]);
@@ -297,6 +301,8 @@ window.QueryManager = (function(QueryManager, $) {
         return (firstQueryPos);
     }
 
+    // used for xcalarQuery subqueries since QueryManager.subQueryDone does not
+    // get called
     function setQueriesDone(mainQuery, start, end) {
         var subQueries = mainQuery.subQueries;
         for (var i = start; i < end; i++) {
@@ -485,6 +491,9 @@ window.QueryManager = (function(QueryManager, $) {
         }
         subQuery.check()
         .then(function(res) {
+            if (!queryLists[id]) {
+                return;
+            }
             var mainQuery = queryLists[id];
             var currStep = mainQuery.currStep;
             // check for edge case where percentage is old
@@ -535,6 +544,7 @@ window.QueryManager = (function(QueryManager, $) {
             (mainQuery.state === "done"))) {
             progress = "100%";
             newClass = "done";
+            $query.find('.cancelIcon').addClass('disabled');
         } else if (isError) {
             progress = progress + "%";
             newClass = "error";
@@ -560,8 +570,9 @@ window.QueryManager = (function(QueryManager, $) {
             }
         });
 
-        if (currStep < numSteps) {
-            $query.find('.querySteps').text('step ' + (currStep + 1) + ' of ' + numSteps);
+        if (currStep <= numSteps) {
+            var displayedStep = Math.min(currStep + 1, numSteps);
+            $query.find('.querySteps').text('step ' + displayedStep + ' of ' + numSteps);
         } else if (numSteps === -1) {
             $query.find('.querySteps').text('step ' + (currStep + 1));
         }
@@ -619,6 +630,8 @@ window.QueryManager = (function(QueryManager, $) {
 
             if ($clickTarget.hasClass('deleteIcon')) {
                 QueryManager.removeQuery(id);
+            } else if ($clickTarget.hasClass('cancelIcon')) {
+                cancelAttempt(id);
             } else {
                 focusOnQuery($(this));
             }
@@ -684,6 +697,49 @@ window.QueryManager = (function(QueryManager, $) {
                 });
             }
         }
+
+        function cancelAttempt(id) {
+            var mainQuery = queryLists[id];
+            if (mainQuery.state === "done") {
+                console.warn('operation is done, cannot cancel');
+                return;
+            }
+
+            var currStep = mainQuery.currStep;
+            var canceled = false;
+
+            // this is a xcalar query so we must cancel all future subqueries
+            if (mainQuery.subQueries[currStep].queryName) {
+                for (var i = currStep; i < mainQuery.subQueries.length; i++) {
+                    var subQuery = mainQuery.subQueries[i];
+                    var dstTable = subQuery.dstTable;
+                    var statusesToIgnore = [StatusT.StatusDagNodeNotFound,
+                                            StatusT.StatusOperationHasFinished];
+                    XcalarCancelOp(dstTable, statusesToIgnore)
+                    .then(function(ret) {
+                        // only cancel once
+                        if (!canceled) {
+                            Transaction.cancel(id);
+                            canceled = true;
+                            console.info('cancel submitted', ret);
+                        }
+                    })
+                    .fail(function(error) {
+                        // errors being handled inside XcalarCancelOp
+                    });
+                }
+            } else {
+                // canceling a regular operation
+                XcalarCancelOp(mainQuery.subQueries[currStep].dstTable)
+                .then(function(ret) {
+                    Transaction.cancel(id);
+                    console.info('cancel submitted', ret);
+                })
+                .fail(function(error) {
+                    // errors being handled inside XcalarCancelOp
+                });
+            }
+        }
     }
 
     function getQueryHTML(xcQuery) {
@@ -709,9 +765,14 @@ window.QueryManager = (function(QueryManager, $) {
                         '<div class="progressBar" style="width:0%" data-step="0"></div>' +
                     '</div>' +
                     '<div class="refreshIcon icon"></div>' +
-                    '<div class="deleteIcon icon"></div>' +
+                    '<div class="deleteIcon icon" data-container="body" ' +
+                        'data-toggle="tooltip" title="' +
+                        TooltipTStr.RemoveQuery + '"></div>' +
                     '<div class="divider"></div>' +
-                    '<div class="inspectIcon icon"></div>' +
+                    // '<div class="inspectIcon icon"></div>' +
+                    '<div class="cancelIcon icon" data-container="body" ' +
+                        'data-toggle="tooltip" title="' +
+                        TooltipTStr.CancelQuery + '"></div>' +
                 '</div>' +
                 '<div class="querySteps">' +
                 '</div>' +

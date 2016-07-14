@@ -1768,7 +1768,6 @@ window.xcHelper = (function($, xcHelper) {
         var quote = query[0];
         var wrappedInQuotes = true;
         if (quote !== "'" && quote !== '"') {
-            console.warn('table name is not wrapped in quotes');
             wrappedInQuotes = false;
         } else {
             query = query.slice(1);

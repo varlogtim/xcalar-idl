@@ -1,5 +1,6 @@
 window.Transaction = (function(Transaction, $) {
     var txCache = {};
+    var canceledTxCache = {};
     var txIdCount = 0;
 
     Transaction.start = function(options) {
@@ -44,6 +45,9 @@ window.Transaction = (function(Transaction, $) {
         if (!isValidTX(txId)) {
             return;
         }
+        if (canceledTxCache[txId]) {
+            return;
+        }
 
         options = options || {};
 
@@ -85,6 +89,9 @@ window.Transaction = (function(Transaction, $) {
 
     Transaction.fail = function(txId, options) {
         if (!isValidTX(txId)) {
+            return;
+        }
+        if (canceledTxCache[txId]) {
             return;
         }
 
@@ -145,12 +152,17 @@ window.Transaction = (function(Transaction, $) {
             SQL.errorLog(title, sql, cli, SQLType.Cancel);
         }
 
+        cancelTX(txId);
         removeTX(txId);
+
         QueryManager.removeQuery(txId);
     };
 
     Transaction.log = function(txId, cli, dstTableName) {
         if (!isValidTX(txId)) {
+            return;
+        }
+        if (canceledTxCache[txId]) {
             return;
         }
 
@@ -175,6 +187,14 @@ window.Transaction = (function(Transaction, $) {
         }
     };
 
+    Transaction.isCanceled = function(txId) {
+        if (canceledTxCache[txId]) {
+            return true;
+        } else {
+            return false;
+        }
+    };
+
     // Transaction.errorLog = function(txId) {
     //     if (!isValidTX(txId)) {
     //         console.warn("transaction does't exist!");
@@ -183,12 +203,21 @@ window.Transaction = (function(Transaction, $) {
     // };
 
     function isValidTX(txId) {
-        if (txId == null || !txCache.hasOwnProperty(txId)) {
+        if (txId == null) {
+            console.error("transaction does't exist!");
+            return false;
+        }
+        if (!txCache.hasOwnProperty(txId) &&
+            !canceledTxCache.hasOwnProperty(txId)) {
             console.error("transaction does't exist!");
             return false;
         }
 
         return true;
+    }
+
+    function cancelTX(txId) {
+        canceledTxCache[txId] = true;
     }
 
     function removeTX(txId) {

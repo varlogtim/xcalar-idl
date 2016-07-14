@@ -51,8 +51,10 @@ window.StatusMessage = (function($, StatusMessage) {
 
         if (messages.length === 1) {
             inScroll = scrollToMessage().then(function() {
-                $('#viewLocation').remove();
-                $statusText.scrollTop(0);
+                if (messages.length) {
+                    $('#viewLocation').remove();
+                    $statusText.scrollTop(0);
+                }
             }).promise();
         }
 
@@ -130,7 +132,22 @@ window.StatusMessage = (function($, StatusMessage) {
     };
 
     StatusMessage.cancel = function(msgId) {
-        removeFailedMsg($('#stsMsg-' + msgId));
+        var txt = msgObjs[msgId].operation[0].toUpperCase() +
+                  msgObjs[msgId].operation.slice(1) + " canceled";
+        var cancelHTML = '<span class="text fail">' + txt + '</span>' +
+                       '<span class="icon close"></span>';
+        var $statusSpan = $('#stsMsg-' + msgId);
+        $statusSpan.html(cancelHTML);
+        if (messages.indexOf(msgId) === 0) {
+            $statusText.find('span:last').html(cancelHTML);
+        }
+        if (messages.length <= $statusText.find('.fail').length) {
+            $waitingIcon.hide();
+        }
+        delete msgObjs[msgId];
+        setTimeout(function() {
+           removeFailedMsg($('#stsMsg-' + msgId));
+        }, 6000);
     };
 
     StatusMessage.reset = function() {

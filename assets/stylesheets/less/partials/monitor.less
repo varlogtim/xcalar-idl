@@ -808,7 +808,16 @@
                     }
 
                     .deleteIcon {
+                        .image("../../images/garbage-sm-blue.png", 50%, 50%);
+                    }
+
+                    .cancelIcon {
                         .image("../../images/monitor/queries/cross_red.png", 50%, 50%);
+                        margin-right: 0;
+                        &.disabled {
+                            opacity: 0.5;
+                            pointer-events: none;
+                        }
                     }
 
                     .inspectIcon {
@@ -874,6 +883,11 @@
                     .progressBar {
                         .image("../../images/monitor/queries/doneBarUnit.png");
                         .size(@width: 100%);
+                    }
+
+                    .cancelIcon {
+                       pointer-events: none;
+                       opacity: 0.5;
                     }
                 }
 

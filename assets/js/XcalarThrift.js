@@ -473,8 +473,8 @@ function XcalarLoad(url, format, datasetName, fieldDelim, recordDelim,
     }
 
     var deferred = jQuery.Deferred();
-    if (insertError(arguments.callee, deferred)) {
-        return (deferred.promise());
+    if (Transaction.isCanceled(txId)) {
+        return (deferred.reject().promise());
     }
 
     var formatType;
@@ -584,8 +584,8 @@ function XcalarAddODBCExportTarget(targetName, connStr, txId) {
     }
 
     var deferred = jQuery.Deferred();
-    if (insertError(arguments.callee, deferred)) {
-        return (deferred.promise());
+    if (Transaction.isCanceled(txId)) {
+        return (deferred.reject().promise());
     }
     var target = new ExExportTargetT();
     var specInput = new ExAddTargetSpecificInputT();
@@ -619,8 +619,8 @@ function XcalarAddLocalFSExportTarget(targetName, path, txId) {
     }
 
     var deferred = jQuery.Deferred();
-    if (insertError(arguments.callee, deferred)) {
-        return (deferred.promise());
+    if (Transaction.isCanceled(txId)) {
+        return (deferred.reject().promise());
     }
     var target = new ExExportTargetT();
     var specInput = new ExAddTargetSpecificInputT();
@@ -680,8 +680,8 @@ function XcalarExport(tableName, exportName, targetName, numColumns,
     }
 
     var deferred = jQuery.Deferred();
-    if (insertError(arguments.callee, deferred)) {
-        return (deferred.promise());
+    if (Transaction.isCanceled(txId)) {
+        return (deferred.reject().promise());
     }
 
     var target = new ExExportTargetHdrT();
@@ -791,8 +791,8 @@ function XcalarDestroyDataset(dsName, txId) {
     }
 
     var deferred = jQuery.Deferred();
-    if (insertError(arguments.callee, deferred)) {
-        return (deferred.promise());
+    if (Transaction.isCanceled(txId)) {
+        return (deferred.reject().promise());
     }
 
 
@@ -821,8 +821,8 @@ function XcalarIndexFromDataset(datasetName, key, tablename, txId) {
     }
 
     var deferred = jQuery.Deferred();
-    if (insertError(arguments.callee, deferred)) {
-        return (deferred.promise());
+    if (Transaction.isCanceled(txId)) {
+        return (deferred.reject().promise());
     }
     datasetName = parseDS(datasetName);
     var dhtName = ""; // XXX TODO fill in later
@@ -859,8 +859,8 @@ function XcalarIndexFromTable(srcTablename, key, tablename, ordering,
     }
 
     var deferred = jQuery.Deferred();
-    if (insertError(arguments.callee, deferred)) {
-        return (deferred.promise());
+    if (Transaction.isCanceled(txId)) {
+        return (deferred.reject().promise());
     }
     var dhtName = ""; // XXX TODO fill in later
     var promise;
@@ -871,6 +871,9 @@ function XcalarIndexFromTable(srcTablename, key, tablename, ordering,
     }
     promise
     .then(function(unsortedSrcTablename) {
+        if (Transaction.isCanceled(txId)) {
+            return (deferred.reject().promise());
+        }
         var workItem = xcalarIndexTableWorkItem(unsortedSrcTablename, tablename,
                                                 key, dhtName, ordering);
 
@@ -904,8 +907,8 @@ function XcalarDeleteTable(tableName, txId) {
     }
 
     var deferred = jQuery.Deferred();
-    if (insertError(arguments.callee, deferred)) {
-        return (deferred.promise());
+    if (Transaction.isCanceled(txId)) {
+        return (deferred.reject().promise());
     }
     var workItem = xcalarDeleteDagNodesWorkItem(tableName,
                                                 SourceTypeT.SrcTable);
@@ -932,8 +935,8 @@ function XcalarRenameTable(oldTableName, newTableName, txId) {
     }
 
     var deferred = jQuery.Deferred();
-    if (insertError(arguments.callee, deferred)) {
-        return (deferred.promise());
+    if (Transaction.isCanceled(txId)) {
+        return (deferred.reject().promise());
     }
     var workItem = xcalarRenameNodeWorkItem(oldTableName, newTableName);
     var def1 = xcalarRenameNode(tHandle, oldTableName, newTableName);
@@ -1429,8 +1432,8 @@ function XcalarFilter(evalStr, srcTablename, dstTablename, txId) {
     }
 
     var deferred = jQuery.Deferred();
-    if (insertError(arguments.callee, deferred)) {
-        return (deferred.promise());
+    if (Transaction.isCanceled(txId)) {
+        return (deferred.reject().promise());
     }
 
     if (evalStr === "") {
@@ -1444,6 +1447,9 @@ function XcalarFilter(evalStr, srcTablename, dstTablename, txId) {
     }
     getUnsortedTableName(srcTablename)
     .then(function(unsortedSrcTablename) {
+        if (Transaction.isCanceled(txId)) {
+            return (deferred.reject().promise());
+        }
         var workItem = xcalarFilterWorkItem(unsortedSrcTablename, dstTablename,
                                             evalStr);
 
@@ -1474,10 +1480,10 @@ function XcalarMap(newFieldName, evalStr, srcTablename, dstTablename,
         return PromiseHelper.resolve(null);
     }
 
-
     var deferred = jQuery.Deferred();
-    if (insertError(arguments.callee, deferred)) {
-        return (deferred.promise());
+
+    if (Transaction.isCanceled(txId)) {
+        return (deferred.reject().promise());
     }
 
     if (evalStr.length > XcalarApisConstantsT.XcalarApiMaxEvalStringLen) {
@@ -1494,6 +1500,9 @@ function XcalarMap(newFieldName, evalStr, srcTablename, dstTablename,
     }
     d
     .then(function(unsortedSrcTablename) {
+        if (Transaction.isCanceled(txId)) {
+            return (deferred.reject().promise());
+        }
         var workItem = xcalarApiMapWorkItem(evalStr, unsortedSrcTablename,
                                             dstTablename, newFieldName);
 
@@ -1564,8 +1573,8 @@ function XcalarAggregate(evalStr, dstAggName, srcTablename, txId) {
     }
 
     var deferred = jQuery.Deferred();
-    if (insertError(arguments.callee, deferred)) {
-        return (deferred.promise());
+    if (Transaction.isCanceled(txId)) {
+        return (deferred.reject().promise());
     }
 
     if (evalStr === "") {
@@ -1578,6 +1587,9 @@ function XcalarAggregate(evalStr, dstAggName, srcTablename, txId) {
 
     getUnsortedTableName(srcTablename)
     .then(function(unsortedSrcTablename) {
+        if (Transaction.isCanceled(txId)) {
+            return (deferred.reject().promise());
+        }
         var workItem = xcalarAggregateWorkItem(unsortedSrcTablename,
                                                dstAggName, evalStr);
 
@@ -1607,12 +1619,15 @@ function XcalarJoin(left, right, dst, joinType, txId) {
     }
 
     var deferred = jQuery.Deferred();
-    if (insertError(arguments.callee, deferred)) {
-        return (deferred.promise());
+    if (Transaction.isCanceled(txId)) {
+        return (deferred.reject().promise());
     }
 
     getUnsortedTableName(left, right)
     .then(function(unsortedLeft, unsortedRight) {
+        if (Transaction.isCanceled(txId)) {
+            return (deferred.reject().promise());
+        }
         var workItem = xcalarJoinWorkItem(unsortedLeft, unsortedRight, dst,
                                           joinType);
         var def1 = xcalarJoin(tHandle, unsortedLeft, unsortedRight, dst,
@@ -1639,8 +1654,8 @@ function XcalarJoin(left, right, dst, joinType, txId) {
 function XcalarGroupBy(operator, newColName, oldColName, tableName,
                        newTableName, incSample, txId) {
     var deferred = jQuery.Deferred();
-    if (insertError(arguments.callee, deferred)) {
-        return (deferred.promise());
+    if (Transaction.isCanceled(txId)) {
+        return (deferred.reject().promise());
     }
 
     var evalStr = generateAggregateString(oldColName, operator);
@@ -1653,6 +1668,9 @@ function XcalarGroupBy(operator, newColName, oldColName, tableName,
     }
     getUnsortedTableName(tableName)
     .then(function(unsortedTableName) {
+        if (Transaction.isCanceled(txId)) {
+            return (deferred.reject().promise());
+        }
         var workItem = xcalarGroupByWorkItem(unsortedTableName, newTableName,
                                              evalStr, newColName, incSample);
         var def1 = xcalarGroupBy(tHandle, unsortedTableName, newTableName,
@@ -1677,12 +1695,15 @@ function XcalarGroupBy(operator, newColName, oldColName, tableName,
 
 function XcalarProject(columns, tableName, dstTableName, txId) {
     var deferred = jQuery.Deferred();
-    if (insertError(arguments.callee, deferred)) {
-        return (deferred.promise());
+    if (Transaction.isCanceled(txId)) {
+        return (deferred.reject().promise());
     }
 
     getUnsortedTableName(tableName)
     .then(function(unsortedTableName) {
+        if (Transaction.isCanceled(txId)) {
+            return (deferred.reject().promise());
+        }
         var workItem = xcalarProjectWorkItem(columns.length, columns,
                                              unsortedTableName, dstTableName);
         var def1 = xcalarProject(tHandle, columns.length, columns,
@@ -1708,8 +1729,8 @@ function XcalarProject(columns, tableName, dstTableName, txId) {
 
 function XcalarGenRowNum(srcTableName, dstTableName, newFieldName, txId) {
     var deferred = jQuery.Deferred();
-    if (insertError(arguments.callee, deferred)) {
-        return (deferred.promise());
+    if (Transaction.isCanceled(txId)) {
+        return (deferred.reject().promise());
     }
     // DO NOT GET THE UNSORTED TABLE NAMEEE! We actually want the sorted order
     var workItem = xcalarApiGetRowNumWorkItem(srcTableName, dstTableName,
@@ -1750,8 +1771,9 @@ function XcalarQuery(queryName, queryString, txId) {
     }
 
     var deferred = jQuery.Deferred();
-    if (insertError(arguments.callee, deferred)) {
-        return (deferred.promise());
+    if (Transaction.isCanceled(txId)) {
+        console.info('cancelation detected');
+        return (deferred.reject().promise());
     }
 
     xcalarQuery(tHandle, queryName, queryString, true)
@@ -1825,8 +1847,8 @@ function XcalarQueryCheck(queryName) {
 
 function XcalarQueryWithCheck(queryName, queryString, txId) {
     var deferred = jQuery.Deferred();
-    if (insertError(arguments.callee, deferred)) {
-        return (deferred.promise());
+    if (Transaction.isCanceled(txId)) {
+        return (deferred.reject().promise());
     }
 
     XcalarQuery(queryName, queryString, txId)
@@ -1839,7 +1861,13 @@ function XcalarQueryWithCheck(queryName, queryString, txId) {
     return (deferred.promise());
 }
 
-function XcalarCancelOp(dstTableName) {
+/**
+ * XcalarCancelOp
+ * @param {Array} statusesToIgnore array of status numbers to ignore
+ *      (when attempting to cancel a query, we cancel all future subqueries 
+ *      even when the dstTableName doesn't exist yet -- this produces errors)
+ */
+function XcalarCancelOp(dstTableName, statusesToIgnore) {
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return PromiseHelper.resolve(null);
     }
@@ -1852,8 +1880,13 @@ function XcalarCancelOp(dstTableName) {
     xcalarApiCancelOp(tHandle, dstTableName)
     .then(deferred.resolve)
     .fail(function(error) {
-        var thriftError = thriftLog("XcalarCancelOp", error);
-        SQL.errorLog("Cancel Op", null, null, thriftError);
+        var thriftError;
+        if (statusesToIgnore && statusesToIgnore.indexOf(error) > -1) {
+            thriftError = {status: error, error: "Error:" + StatusTStr[error]};
+        } else {
+            thriftError = thriftLog("XcalarCancelOp", error);
+            SQL.errorLog("Cancel Op", null, null, thriftError); 
+        }
         deferred.reject(thriftError);
     });
 
@@ -1949,8 +1982,8 @@ function XcalarMakeRetina(retName, tableArray, txId) {
     }
 
     var deferred = jQuery.Deferred();
-    if (insertError(arguments.callee, deferred)) {
-        return (deferred.promise());
+    if (Transaction.isCanceled(txId)) {
+        return (deferred.reject().promise());
     }
     var workItem = xcalarMakeRetinaWorkItem(retName, tableArray);
     var def1 = xcalarMakeRetina(tHandle, retName, tableArray);
@@ -2032,8 +2065,8 @@ function XcalarUpdateRetina(retName, dagNodeId, paramType, paramValue, txId) {
     }
 
     var deferred = jQuery.Deferred();
-    if (insertError(arguments.callee, deferred)) {
-        return (deferred.promise());
+    if (Transaction.isCanceled(txId)) {
+        return (deferred.reject().promise());
     }
 
     var workItem = xcalarUpdateRetinaWorkItem(retName, dagNodeId, paramType,
@@ -2067,8 +2100,8 @@ function XcalarExecuteRetina(retName, params, txId) {
     }
 
     var deferred = jQuery.Deferred();
-    if (insertError(arguments.callee, deferred)) {
-        return (deferred.promise());
+    if (Transaction.isCanceled(txId)) {
+        return (deferred.reject().promise());
     }
 
     var workItem = xcalarExecuteRetinaWorkItem(retName, params);
@@ -2113,8 +2146,8 @@ function XcalarDeleteRetina(retName, txId) {
     }
 
     var deferred = jQuery.Deferred();
-    if (insertError(arguments.callee, deferred)) {
-        return (deferred.promise());
+    if (Transaction.isCanceled(txId)) {
+        return (deferred.reject().promise());
     }
     var workItem = xcalarApiDeleteRetinaWorkItem(retName);
     var def1 = xcalarApiDeleteRetina(tHandle, retName);
@@ -2139,8 +2172,8 @@ function XcalarDeleteSched(schedName, txId) {
     }
 
     var deferred = jQuery.Deferred();
-    if (insertError(arguments.callee, deferred)) {
-        return (deferred.promise());
+    if (Transaction.isCanceled(txId)) {
+        return (deferred.reject().promise());
     }
     var workItem = xcalarDeleteSchedTaskWorkItem(schedName);
     var def1 = xcalarDeleteSchedTask(tHandle, schedName);
@@ -2178,8 +2211,8 @@ function XcalarCreateSched(schedName, schedInSec, period, recurCount, type, arg,
     }
 
     var deferred = jQuery.Deferred();
-    if (insertError(arguments.callee, deferred)) {
-        return (deferred.promise());
+    if (Transaction.isCanceled(txId)) {
+        return (deferred.reject().promise());
     }
     var workItem = xcalarScheduleTaskWorkItem(schedName, schedInSec, period,
                                               recurCount, type, arg);

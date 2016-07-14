@@ -69,6 +69,9 @@ TooltipTStr = {
     'SelectAllColumns': 'select all columns',
     'ViewColumnOptions': 'view column options',
     'ViewTableOptions': 'view table options',
+    'RemoveQuery': 'remove query',
+    'CancelQuery': 'cancel query',
+
      // with replace
     'CollapsedTables': '<number> tables are hidden'
 };
@@ -237,7 +240,9 @@ ErrTStr = {
 
     'InvalidOpNewColumn': 'Cannot perform this operation on a new column.',
 
-    'SuggestProject': 'Please project to reduce the number of columns and retry.'
+    'SuggestProject': 'Please project to reduce the number of columns and retry.',
+
+    'UserCanceled': 'User Canceled'
 
 };
 

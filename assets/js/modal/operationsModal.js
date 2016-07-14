@@ -2492,6 +2492,7 @@ window.OperationsModal = (function($, OperationsModal) {
 
         xcFunction.map(colNum, tableId, newColName, mapStr, mapOptions)
         .fail(function(error) {
+            // show alert to go back to op modal
             var endTime = Date.now();
             var elapsedTime = endTime - startTime;
             var timeSinceLastClick = endTime - gMouseEvents.getLastMouseDownTime();
@@ -2501,10 +2502,14 @@ window.OperationsModal = (function($, OperationsModal) {
             }
             // overwrite thriftlog alert modal if user has not clicked
             var origMsg = $("#alertContent .text").text().trim();
-            if (origMsg[origMsg.length - 1] !== ".") {
+            if (origMsg.length && origMsg[origMsg.length - 1] !== ".") {
                 origMsg += ".";
             }
-            var newMsg = origMsg + "\n" + OpModalTStr.ModifyMapDesc;
+            var newMsg = origMsg;
+            if (origMsg.length) {
+                newMsg +=  "\n";
+            }
+            newMsg += OpModalTStr.ModifyMapDesc;
             Alert.error(StatusMessageTStr.MapFailed, newMsg,
                 {"buttons": [{
                     "name": OpModalTStr.ModifyMap,

@@ -25,6 +25,7 @@ if (localStorage.shortcuts) {
 
 window.Shortcuts = (function($, Shortcuts) {
     var shortcutsOn = false;
+    var autoLogin = true;
     Shortcuts.on = function(name, pass) {
         if (shortcutsOn) {
             return false;
@@ -35,6 +36,7 @@ window.Shortcuts = (function($, Shortcuts) {
         }
         localStorage.shortcutName = name;
         localStorage.xcPass = pass;
+        localStorage.autoLogin = true;
         Shortcuts.setup();
     };
 
@@ -42,13 +44,32 @@ window.Shortcuts = (function($, Shortcuts) {
         localStorage.removeItem('shortcuts');
         localStorage.removeItem('shortcutName');
         localStorage.removeItem('xcPass');
+        localStorage.removeItem('autoLogin');
         Shortcuts.remove();
         shortcutsOn = false;
+    };
+
+    Shortcuts.toggleAutoLogin = function(turnOn) {
+        if (turnOn) {
+            localStorage.autoLogin = true;
+            autoLogin = true;
+        } else {
+            localStorage.autoLogin = false; 
+            autoLogin = false;
+        }
+        toggleAutoLoginMenu(turnOn);
     };
 
 
     Shortcuts.setup = function() {
         shortcutsOn = true;
+        if (localStorage.autoLogin) {
+            autoLogin = JSON.parse(localStorage.autoLogin);
+        } else {
+            autoLogin = true;
+            localStorage.autoLogin = true;
+        }
+        
         datastoreForm();
         mainMenu();
     };
@@ -62,38 +83,42 @@ window.Shortcuts = (function($, Shortcuts) {
     };
 
     Shortcuts.login = function() {
-        var num = Math.ceil(Math.random() * 1000);
-        var name = localStorage.shortcutName + num;
-        var xcPass = localStorage.xcPass;
-        $('#loginNameBox').val(name);
-        $('#loginPasswordBox').val(xcPass);
-        if (xcPass) {
-            $('#loginButton').click();
+        if (!localStorage.autoLogin || JSON.parse(localStorage.autoLogin)) {
+            var num = Math.ceil(Math.random() * 1000);
+            var name = localStorage.shortcutName + num;
+            var xcPass = localStorage.xcPass;
+            $('#loginNameBox').val(name);
+            $('#loginPasswordBox').val(xcPass);
+            if (xcPass) {
+                $('#loginButton').click();
+            }
         }
     };
 
     Shortcuts.createWorkbook = function() {
-        var count = 0;
-        var wbInterval = setInterval(function() {
-            if ($('#workbookModal').is(':visible')) {
-                var num = Math.ceil(Math.random() * 1000);
-                var wbName = "WB" + num;
-                $('#workbookInput').val(wbName);
-                $('#workbookModal').find('.confirm').click();
-                clearInterval(wbInterval);
-            } else {
-                count++;
-                if (count > 10) {
+        if (!localStorage.autoLogin || JSON.parse(localStorage.autoLogin)) {
+            var count = 0;
+            var wbInterval = setInterval(function() {
+                if ($('#workbookModal').is(':visible')) {
+                    var num = Math.ceil(Math.random() * 1000);
+                    var wbName = "WB" + num;
+                    $('#workbookInput').val(wbName);
+                    $('#workbookModal').find('.confirm').click();
                     clearInterval(wbInterval);
+                } else {
+                    count++;
+                    if (count > 10) {
+                        clearInterval(wbInterval);
+                    }
                 }
-            }
-        }, 300);
+            }, 300);
+        }
     };
 
         // to add file names to the menu edit this object
     var filePathMap = {
-        'YelpUsers': 'var/tmp/yelp/user',
-        'Schedule': 'var/tmp/qa/indexJoin/schedule',
+        'YelpUsers': 'netstore/datasets/yelp/user',
+        'Schedule': 'netstore/datasets/indexJoin/schedule',
         'Test Yelp': 'netstore/datasets/unittest/test_yelp.json'
     };
 
@@ -123,27 +148,28 @@ window.Shortcuts = (function($, Shortcuts) {
                         break;
                     case ("zd"):
                         file = "sp500";
-                        filePath = "sp500";
+                        filePath = "sp500.csv";
                         break;
                     case ("ze"):
                         file = "classes";
-                        filePath = "qa/indexJoin/classes";
+                        filePath = "indexJoin/classes";
                         break;
                     case ("zf"):
                         file = "schedule";
-                        filePath = "qa/indexJoin/schedule";
+                        filePath = "indexJoin/schedule";
                         break;
                     case ("zg"):
                         file = "students";
-                        filePath = "qa/indexJoin/students";
+                        filePath = "indexJoin/students";
                         break;
                     case ("zh"):
                         file = "teachers";
-                        filePath = "qa/indexJoin/teachers";
+                        filePath = "indexJoin/teachers";
                         break;
                     case ("zi"):
                         file = "jsonGen";
-                        filePath = "jsonGen";
+                        filePath = "var/temp/jsonGen";
+                        filePathGiven = true;
                         break;
                     default:
                         break;
@@ -181,7 +207,8 @@ window.Shortcuts = (function($, Shortcuts) {
             if (file) {
                 var $formatDropdown = $("#fileFormatMenu");
                 if (!filePathGiven) {
-                    filePath = 'var/tmp/' + filePath;
+                    // filePath = 'var/tmp/' + filePath;
+                    filePath = 'netstore/datasets/' + filePath;
                 }
 
                 $("#fileProtocol input").val(protocol);
@@ -215,11 +242,11 @@ window.Shortcuts = (function($, Shortcuts) {
                 '<li class="tests parentMenu" data-submenu="tests">Tests ...</li>' +
                 '<li class="archiveAllTables">Archive All Tables</li>' +
                 '<li class="deleteAllTables">Delete All Tables</li>' +
+                '<li class="autoLoginOff">Turn Off AutoLogin</li>' +
+                '<li class="autoLoginOn">Turn On AutoLogin</li>' +
                 '<li class="shortcutsOff">Turn Off Shortcuts</li>' +
             '</ul>' +
         '</div>';
-
-
 
         var subMenu = '<div id="shortcutSubMenu" class="menu subMenu">' +
                         '<ul class="createTable">';
@@ -248,6 +275,8 @@ window.Shortcuts = (function($, Shortcuts) {
         $('#shortcutMenuIcon').click(function(){
             xcHelper.dropdownOpen($(this), $('#shortcutMenu'));
         });
+
+        toggleAutoLoginMenu(autoLogin);
     }
 
     function addMenuActions() {
@@ -264,6 +293,14 @@ window.Shortcuts = (function($, Shortcuts) {
 
         $menu.on('mouseup', '.shortcutsOff', function() {
             Shortcuts.off();
+        });
+
+        $menu.on('mouseup', '.autoLoginOff', function() {
+            Shortcuts.toggleAutoLogin();
+        });
+
+        $menu.on('mouseup', '.autoLoginOn', function() {
+            Shortcuts.toggleAutoLogin(true);
         });
 
         $subMenu.on('mouseup', '.createTable li', function(event) {
@@ -288,6 +325,17 @@ window.Shortcuts = (function($, Shortcuts) {
             }
             startTest(testName, option);
         });
+    }
+
+    function toggleAutoLoginMenu(turnOn) {
+        if (turnOn) {
+            $('#shortcutMenu').find('.autoLoginOff').show();
+            $('#shortcutMenu').find('.autoLoginOn').hide();
+        } else {
+            $('#shortcutMenu').find('.autoLoginOff').hide();
+            $('#shortcutMenu').find('.autoLoginOn').show();
+        }
+        // debugger;
     }
 
     function startTest(testName, option) {
