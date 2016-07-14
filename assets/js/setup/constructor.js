@@ -2498,13 +2498,15 @@ function RangeSlider($rangeSliderWrap, prefName, options) {
     var self = this;
     this.minVal = options.minVal || 0;
     this.maxVal = options.maxVal || 0;
-    this.minWidth = Math.round($rangeSliderWrap.find('.slider').width() / 2);
+    this.halfSliderWidth = Math.round($rangeSliderWrap.find('.slider').width() / 2);
+    this.minWidth = options.minWidth || this.halfSliderWidth;
     this.maxWidth = options.maxWidth || $rangeSliderWrap.find('.rangeSlider').width();
     this.valRange = this.maxVal - this.minVal;
     this.widthRange = this.maxWidth - this.minWidth;
     this.$rangeSliderWrap = $rangeSliderWrap;
     this.$rangeInput = $rangeSliderWrap.find('input');
     this.prefName = prefName;
+    this.options = options;
 
     $rangeSliderWrap.find('.leftArea').resizable({
         "handles"  : "e",
@@ -2520,6 +2522,20 @@ function RangeSlider($rangeSliderWrap, prefName, options) {
         "resize": function(event, ui) {
             self.updateInput(ui.size.width);
         }
+    });
+
+
+    $rangeSliderWrap.find('.leftArea').on('mousedown', function(event) {
+        if (!$(event.target).hasClass('leftArea')) {
+            // we don't want to respond to slider button being clicked
+            return;
+        }
+        self.handleClick(event);
+        
+    });
+
+    $rangeSliderWrap.find('.rightArea').on('mousedown', function(event) {
+        self.handleClick(event);
     });
 
     $rangeSliderWrap.find('input').on('input', function() {
@@ -2548,10 +2564,24 @@ RangeSlider.prototype = {
         return val;
     },
     updateSlider: function(val) {
-        var width = ((val - this.minVal) / this.valRange) * (this.maxWidth) +
+        var width = ((val - this.minVal) / this.valRange) * this.widthRange +
                     this.minWidth;
-        width = Math.min(this.maxWidth, width);
+   
+        width = Math.max(this.minWidth, Math.min(this.maxWidth, width));
         this.$rangeSliderWrap.find('.leftArea').width(width);
+    },
+    handleClick: function(event) {
+        var self = this;
+        var $rangeSlider = $(event.target).closest('.rangeSlider');
+        var mouseX = event.pageX - $rangeSlider.offset().left +
+                     self.halfSliderWidth;
+        mouseX = Math.min(self.maxWidth, Math.max(self.minWidth, mouseX));
+        var val = self.updateInput(mouseX);
+        self.updateSlider(val);
+        UserSettings.setPref(self.prefName, val);
+        if (self.options.onChangeEnd) {
+            self.options.onChangeEnd(val);
+        }
     },
     setSliderValue: function(val) {
         this.updateSlider(val);

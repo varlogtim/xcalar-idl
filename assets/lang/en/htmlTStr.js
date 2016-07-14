@@ -360,7 +360,8 @@ module.exports = {
         "STOPNODE": "STOP NODES",
         "showDataCol": "SHOW DATA COLUMN ON NEW TABLE CREATION",
         "memThreshold": "MEMORY UTILIZATION THRESHOLD",
-        "graphInterval": "MONITOR GRAPH INTERVAL"
+        "graphInterval": "MONITOR GRAPH INTERVAL",
+        "MemoryThresholdHint": "Percentage of memory used before warning to delete tables"
     },
 
     "ds": {
