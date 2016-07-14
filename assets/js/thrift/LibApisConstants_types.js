@@ -15,7 +15,9 @@ XcalarApisConstantsT = {
   'XcalarApiMaxTableNameLen' : 255,
   'XcalarApiMagic' : 37359285,
   'XcalarApiRetinaMaxNumTables' : 128,
-  'XcalarApiUuidStrLen' : 36
+  'XcalarApiUuidStrLen' : 36,
+  'XcalarApiMaxQuerySize' : 98304,
+  'XcalarApiMaxFileNameLen' : 255
 };
 XcalarApisConstantsTStr = {1024 : 'XcalarApiMaxEvalStringLen',
 20 : 'XcalarApiMaxNumParameters',
@@ -26,5 +28,7 @@ XcalarApisConstantsTStr = {1024 : 'XcalarApiMaxEvalStringLen',
 255 : 'XcalarApiMaxTableNameLen',
 37359285 : 'XcalarApiMagic',
 128 : 'XcalarApiRetinaMaxNumTables',
-36 : 'XcalarApiUuidStrLen'
+36 : 'XcalarApiUuidStrLen',
+98304 : 'XcalarApiMaxQuerySize',
+255 : 'XcalarApiMaxFileNameLen'
 };

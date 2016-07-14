@@ -253,13 +253,12 @@
         .then(function(result) {
             printResult(result);
             var previewOutput = result;
-            var stringifiedBuffer = "";
-            for (var ii = 0; ii < previewOutput.buffer.length; ii++) {
-                stringifiedBuffer += String.fromCharCode(previewOutput.buffer[ii]);
-            }
-            console.log("\t stringifiedBuffer : " + stringifiedBuffer);
-            test.assert(stringifiedBuffer === "[\n{\"yelping");
-            test.assert(previewOutput.numBytes === 11);
+            console.log("\t yelp/user preview : " + previewOutput.buffer);
+            var expectedStr = "[\n{\"yelping";
+            console.log("\t expected encoded: " + btoa(expectedStr))
+            console.log("\t expected len: " + btoa(expectedStr).length)
+            test.assert(previewOutput.buffer === expectedStr);
+            test.assert(previewOutput.bufferLen === btoa(expectedStr).length);
             test.assert(previewOutput.fileName ===
                 "yelp_academic_dataset_user_fixed.json");
             test.pass();

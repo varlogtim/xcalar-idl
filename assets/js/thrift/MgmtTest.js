@@ -47,7 +47,8 @@
     ,   retinaExportDagNodeId
     ,   retinaExportParamType
     ,   retinaExportParamStr
-    ,   paramInput;
+    ,   paramInput
+    ,   retinaImportName;
 
     testCases = [];
    // For start nodes test
@@ -1716,9 +1717,24 @@
     }
 
     function testDeleteRetina(test) {
-        xcalarApiDeleteRetina(thriftHandle, retinaName)
-        .done(function(status) {
-            test.pass();
+        xcalarListRetinas(thriftHandle)
+        .then(function(listRetinasOutput) {
+            function makeDeleteOneRetina(ii) {
+                return (function() {
+                    if (ii == listRetinasOutput.numRetinas) {
+                        test.pass();
+                    } else {
+                        console.log("Deleting ", listRetinasOutput.retinaDescs[ii].retinaName);
+                        xcalarApiDeleteRetina(thriftHandle, listRetinasOutput.retinaDescs[ii].retinaName)
+                        .done(makeDeleteOneRetina(ii + 1))
+                        .fail(function(reason) {
+                            test.fail("Error while deleting " + listRetinasOutput.retinaDescs[ii].retinaName + ": " + StatusTStr[reason] + " (" + reason + ")");
+                        });
+                    }
+                });
+            }
+
+            (makeDeleteOneRetina(0))();
         })
         .fail(function(reason) {
             test.fail(reason);
@@ -2555,12 +2571,80 @@
         });
     }
 
-    // XXX: Implement me
-    function testImportRetina(test) {
+    function doTestImportRetina(test, importRetinaName, retinaPath) {
+        var file = fs.open(retinaPath, 'rb');
+        var content = file.read();
 
-        xcalarApiImportRetina(thriftHandle)
-        .always(function() {
-            test.fail("Not implemented");
+        xcalarApiImportRetina(thriftHandle, importRetinaName, true, content)
+        .done(function(importRetinaOutput) {
+            console.log("numUdfs: " , importRetinaOutput.numUdfModules);
+            if (importRetinaOutput.numUdfModules != 2) {
+                test.fail("Number of Udf modules is wrong!");
+            } else {
+                var udfUploadFailed = false;
+                for (var ii = 0; ii < importRetinaOutput.numUdfModules; ii++) {
+                    console.log("udf[" + ii + "].moduleName = ",
+                                importRetinaOutput.udfModuleStatuses[ii].moduleName);
+                    console.log("udf[" + ii + "].status = ",
+                                StatusTStr[importRetinaOutput.udfModuleStatuses[ii].status],
+                                " (", importRetinaOutput.udfModuleStatuses[ii].status, ")");
+                    if (importRetinaOutput.udfModuleStatuses[ii].status != StatusT.StatusOk &&
+                        importRetinaOutput.udfModuleStatuses[ii].status != StatusT.StatusUdfModuleOverwrittenSuccessfully) {
+                        udfUploadFailed = true;
+                    }
+                    console.log("udf[" + ii + "].error.message = ",
+                                importRetinaOutput.udfModuleStatuses[ii].error.message);
+                    console.log("udf[" + ii + "].error.traceback = ",
+                                importRetinaOutput.udfModuleStatuses[ii].error.traceback);
+                }
+
+                if (udfUploadFailed) {
+                    test.fail("Udf import failed");
+                }
+            }
+
+            xcalarListRetinas(thriftHandle)
+            .then(function(listRetinasOutput) {
+                for (var ii = 0; ii < listRetinasOutput.numRetinas; ii++) {
+                    if (listRetinasOutput.retinaDescs[ii].retinaName == importRetinaName) {
+                        test.pass();
+                    }
+                }
+                test.fail("Could not find " + importRetinaName + " in listRetinas");
+            })
+            .fail(function(reason) {
+                test.fail(reason);
+            });
+        })
+        .fail(function(reason) {
+            test.fail("Import retina failed with status: " + StatusTStr[reason] +
+                      "(" + reason + ")");
+        });
+
+        file.close();
+    }
+
+    function testImportRetina(test) {
+        retinaImportName = "testImportRetina";
+        doTestImportRetina(test, retinaImportName,
+                           system.env['MGMTDTEST_DIR'] + "/testRetina.tar.gz");
+    }
+
+    // Needs to be after testImportRetina
+    function testExportRetina(test) {
+        var retinaPath = system.env['TMP_DIR'] + "/testRetina.tar.gz";
+        if (retinaImportName == "") {
+            test.fail("Needs to run after testImportRetina");
+        }
+
+        xcalarApiExportRetina(thriftHandle, retinaImportName)
+        .done(function(exportRetinaOutput) {
+            fs.write(retinaPath, exportRetinaOutput.retina, 'wb');
+            doTestImportRetina(test, "testExportRetina", retinaPath);
+        })
+        .fail(function(reason) {
+            test.fail("Export retina failed with status: " + StatusTStr[reason] +
+                      "(" + reason + ")");
         });
     }
 
@@ -2685,10 +2769,9 @@
     addTestCase(testGetRetina2, "getRetina - iter 2 / 2", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testExecuteRetina, "executeRetina", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testListParametersInRetina, "listParametersInRetina", defaultTimeout, TestCaseEnabled, "");
+    addTestCase(testImportRetina, "importRetina", defaultTimeout, TestCaseEnabled, "");
+    addTestCase(testExportRetina, "exportRetina", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testDeleteRetina, "deleteRetina", defaultTimeout, TestCaseEnabled, "");
-
-    // XXX: Re-enable once implemented
-    addTestCase(testImportRetina, "importRetina", defaultTimeout, TestCaseDisabled, "");
 
     addTestCase(testListFiles, "list files", defaultTimeout, TestCaseEnabled, "");
 
