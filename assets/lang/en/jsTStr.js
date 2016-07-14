@@ -383,6 +383,7 @@ ProfileTStr = {
 
 WKBKTStr = {
     'NoWkbk': 'No workbook for the user',
+    'NoMeta': 'No Meta',
     'Location': 'Workbook Browser',
     'NewWKBK': 'New Workbook',
     'NewWKBKInstr': 'Hello <b><user></b>, ' +

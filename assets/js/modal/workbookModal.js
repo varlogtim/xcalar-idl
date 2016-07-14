@@ -289,6 +289,7 @@ window.WorkbookModal = (function($, WorkbookModal) {
             var created   = workbook.created;
             var modified  = workbook.modified;
             var gridClass = "grid-unit";
+            var name = workbook.name;
 
             if (wkbkId === activeWKBKId) {
                 gridClass += " activeWKBK";
@@ -296,6 +297,7 @@ window.WorkbookModal = (function($, WorkbookModal) {
 
             if (workbook.noMeta) {
                 gridClass += " noMeta";
+                name += " (" + WKBKTStr.NoMeta + ")";
             }
 
             var createdTime = "";
@@ -312,7 +314,7 @@ window.WorkbookModal = (function($, WorkbookModal) {
 
             html +=
                  '<div class="' + gridClass + '" data-wkbkid="' + wkbkId + '">' +
-                    '<div class="name">' + workbook.name + '</div>' +
+                    '<div class="name">' + name + '</div>' +
                     '<div>' + createdTime + '</div>' +
                     '<div>' + modifiedTime + '</div>' +
                     '<div>' + (workbook.srcUser || "") + '</div>' +

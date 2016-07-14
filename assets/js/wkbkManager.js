@@ -146,7 +146,10 @@ window.WKBKManager = (function($, WKBKManager) {
         var toWkbkName;
 
         if (activeWKBKId == null) {
-            // case that creat a totaly new workbook
+            // case 1: creat a totaly new workbook
+            // case 2: continue a worbook that has no meta
+            // (in this case, when reload, will check the workbook is inactive
+            // and will active it)
             KVStore.put(activeWKBKKey, wkbkId, true, gKVScope.WKBK)
             .then(function() {
                 location.reload();
@@ -361,47 +364,53 @@ window.WKBKManager = (function($, WKBKManager) {
         try {
             var numSessions = sessionInfo.numSessions;
             var sessions = sessionInfo.sessions;
+            var wkbkName;
+            var wkbkId;
+            var wkbk;
+            var loseOldMeta = false;
 
             if (oldWorkbooks == null) {
-                for (var i = 0; i < numSessions; i++) {
-                    console.warn("Error!", sessions[i].name, "has no meta.");
-                }
-                deferred.resolve(null, sessionInfo);
-            } else {
-                for (var i = 0; i < numSessions; i++) {
-                    var wkbkName = sessions[i].name;
-                    var wkbkId = getWKBKId(wkbkName);
-                    var wkbk;
-
-                    if (oldWorkbooks.hasOwnProperty(wkbkId)) {
-                        wkbk = new WKBK(oldWorkbooks[wkbkId]);
-                        delete oldWorkbooks[wkbkId];
-                    } else {
-                        console.warn("Error!", wkbkName, "has no meta.");
-                        wkbk = new WKBK({
-                            "id"    : wkbkId,
-                            "name"  : wkbkName,
-                            "noMeta": true
-                        });
-                    }
-
-                    wkbkSet.put(wkbkId, wkbk);
-                }
-
-                for (var oldWkbkId in oldWorkbooks) {
-                    console.warn("Error!", oldWkbkId, "is missing.");
-                }
-
-                // refresh workbook info
-                KVStore.put(wkbkKey, wkbkSet.getWithStringify(), true, gKVScope.WKBK)
-                .then(function() {
-                    return KVStore.get(activeWKBKKey, gKVScope.WKBK);
-                })
-                .then(function(activeId) {
-                    deferred.resolve(activeId, sessionInfo);
-                })
-                .fail(deferred.reject);
+                oldWorkbooks = {};
+                loseOldMeta = true;
             }
+
+            for (var i = 0; i < numSessions; i++) {
+                wkbkName = sessions[i].name;
+                wkbkId = getWKBKId(wkbkName);
+
+                if (oldWorkbooks.hasOwnProperty(wkbkId)) {
+                    wkbk = new WKBK(oldWorkbooks[wkbkId]);
+                    delete oldWorkbooks[wkbkId];
+                } else {
+                    console.warn("Error!", wkbkName, "has no meta.");
+                    wkbk = new WKBK({
+                        "id"    : wkbkId,
+                        "name"  : wkbkName,
+                        "noMeta": true
+                    });
+                }
+
+                wkbkSet.put(wkbkId, wkbk);
+            }
+
+            for (var oldWkbkId in oldWorkbooks) {
+                console.warn("Error!", oldWkbkId, "is missing.");
+            }
+
+            // refresh workbook info
+            KVStore.put(wkbkKey, wkbkSet.getWithStringify(), true, gKVScope.WKBK)
+            .then(function() {
+                if (loseOldMeta) {
+                    // when loose the whole oldWorkbooks, make active key to be null
+                    return PromiseHelper.resolve(null);
+                } else {
+                    return KVStore.get(activeWKBKKey, gKVScope.WKBK);
+                }
+            })
+            .then(function(activeId) {
+                deferred.resolve(activeId, sessionInfo);
+            })
+            .fail(deferred.reject);
         } catch (error) {
             console.error(error);
             deferred.reject(error);
