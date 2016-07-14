@@ -357,6 +357,7 @@ function matchHeaderSizes($table) {
     moveTableDropdownBoxes();
     moveTableTitles();
     $table.find('.rowGrab').width(tableWidth);
+    $table.siblings('.rowGrab').width(tableWidth);
 }
 
 function highlightCell($td, tableId, rowNum, colNum, isShift, options) {

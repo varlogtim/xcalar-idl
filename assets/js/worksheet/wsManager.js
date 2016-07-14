@@ -897,7 +897,6 @@ window.WSManager = (function($, WSManager) {
                 var $table = $(this);
                 var $tableWrap = $table.closest('.xcTableWrap');
                 matchHeaderSizes($table);
-                $tableWrap.find('.rowGrab').width($table.width());
             });
 
             // if (!isFocus &&

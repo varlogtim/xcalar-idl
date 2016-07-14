@@ -1473,6 +1473,7 @@ window.ColManager = (function($, ColManager) {
             $ths.animate({width: 15}, 250, "linear", function() {
                 $ths.addClass("userHidden");
                 $tds.addClass("userHidden");
+                matchHeaderSizes($table); // needed to resize rowgrabs
             });
 
             moveTableTitlesAnimated(tableId, tableWidth, widthDiff, 250);
@@ -1481,7 +1482,6 @@ window.ColManager = (function($, ColManager) {
             $ths.addClass("userHidden");
             $tds.addClass("userHidden");
             matchHeaderSizes($table);
-            moveTableTitles();
         }
 
         // change tooltip to show name

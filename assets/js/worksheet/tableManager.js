@@ -639,7 +639,6 @@ window.TblManager = (function($, TblManager) {
         var padding = 12;
         $table.find('th:first-child').width(newWidth + padding);
         matchHeaderSizes($table);
-        $tableWrap.find('.rowGrab').width($table.width());
     };
 
     TblManager.generateColumnHeadHTML = function(columnClass, color, newColid,
@@ -725,16 +724,19 @@ window.TblManager = (function($, TblManager) {
     };
 
     TblManager.hideTable = function(tableId) {
-        var tableName = gTables[tableId].tableName;
+        var tableName = gTables[tableId].tableName; 
+        var $table = $('#xcTable-' + tableId)
+        var tableHeight = $table.height();
         $('#xcTableWrap-' + tableId).addClass('tableHidden')
         .find('.tableTitle .dropdownBox').attr({
             "title"              : "",
             "data-original-title": tableName
         });
 
-        moveTableDropdownBoxes();
+        var bottomBorderHeight = 5;
+        $table.height(tableHeight + bottomBorderHeight);
+        matchHeaderSizes($table);
         moveFirstColumn();
-        moveTableTitles();
 
         SQL.add("Hide Table", {
             "operation": SQLOps.HideTable,
@@ -751,12 +753,11 @@ window.TblManager = (function($, TblManager) {
             "data-original-title": TooltipTStr.ViewTableOptions
         });
         WSManager.focusOnWorksheet(WSManager.getActiveWS(), false, tableId);
-        moveTableDropdownBoxes();
-        moveFirstColumn();
-        moveTableTitles();
 
         var $table = $('#xcTable-' + tableId);
-        $tableWrap.find('.rowGrab').width($table.width());
+        $table.height('auto');
+        matchHeaderSizes($table);
+        moveFirstColumn();
 
         SQL.add("UnHide Table", {
             "operation": SQLOps.UnhideTable,

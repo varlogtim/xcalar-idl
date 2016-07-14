@@ -101,13 +101,7 @@
         }
     }
     &.userHidden {
-        .tdText {
-            padding-left: 10px;
-        }
-        .dataColText {
-            padding-left: 15px;
-        }
-        .dataCol .flex-mid {
+        .tdText, .dataColText, .dataCol .flex-mid {
             display: none;
         }
     }
@@ -701,6 +695,17 @@
                 }
             }
 
+            tbody {
+                display: none;
+            }
+
+            .xcTable {
+                background-color: @color-table-lightGray;
+                &:after {
+                    background-color: transparent;
+                }
+            }
+
             td, tr, .idWrap {
                 background-color: @color-table-lightGray !important;
                 border-color: @color-table-lightGray !important;
@@ -1144,12 +1149,10 @@
             right: -22px;
         }
 
-        .tdText {
-            padding-left: 10px;
+        .tdText, .dataColText {
+            display: none;
         }
-        .dataColText {
-            padding-left: 15px;
-        }
+        
         &.dataCol {
             input {
                 padding-left: 10px;
