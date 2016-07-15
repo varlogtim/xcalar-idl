@@ -243,7 +243,7 @@ window.Transaction = (function(Transaction, $) {
                 console.error("delete table failse", error);
             })
             .always(function() {
-                isDeleting = true;
+                isDeleting = false;
             });
         }
     }
