@@ -552,17 +552,18 @@ window.TblManager = (function($, TblManager) {
     //     return (deferred.promise());
     // }
 
-    TblManager.deleteTables = function(tables, tableType) {
+    TblManager.deleteTables = function(tables, tableType, noAlert) {
         // XXX not tested yet!!!
         var deferred = jQuery.Deferred();
 
         if (!(tables instanceof Array)) {
             tables = [tables];
         }
-
+        // tables is an array, it might be modifed
+        // example: pass in gOrphanTables
         var sql = {
             "operation": SQLOps.DeleteTable,
-            "tables"   : tables,
+            "tables"   : xcHelper.deepCopy(tables),
             "tableType": tableType
         };
         var txId = Transaction.start({
@@ -591,7 +592,7 @@ window.TblManager = (function($, TblManager) {
             deferred.resolve();
         })
         .fail(function() {
-            var success = tableDeleteFailHandler(arguments, tables, txId);
+            var success = tableDeleteFailHandler(arguments, tables, noAlert, txId);
             if (success) {
                 deferred.resolve(arguments);
             } else {
@@ -622,7 +623,7 @@ window.TblManager = (function($, TblManager) {
         // this function does some preparation for ColManager.pullAllCols()
         startIndex = startIndex || 0;
         var $table = $('#xcTable-' + tableId);
-        var $tableWrap = $table.closest('.xcTableWrap');
+        // var $tableWrap = $table.closest('.xcTableWrap');
         // get the column number of the datacolumn
         if (dataIndex == null) {
             dataIndex = xcHelper.parseColNum($table.find('tr:first .dataCol')) -
@@ -724,8 +725,8 @@ window.TblManager = (function($, TblManager) {
     };
 
     TblManager.hideTable = function(tableId) {
-        var tableName = gTables[tableId].tableName; 
-        var $table = $('#xcTable-' + tableId)
+        var tableName = gTables[tableId].tableName;
+        var $table = $('#xcTable-' + tableId);
         var tableHeight = $table.height();
         $('#xcTableWrap-' + tableId).addClass('tableHidden')
         .find('.tableTitle .dropdownBox').attr({
@@ -1019,7 +1020,7 @@ window.TblManager = (function($, TblManager) {
         gMaxEntriesPerPage = Math.ceil(gMaxEntriesPerPage / 10) * 10;
     };
 
-    function tableDeleteFailHandler(results, tables, txId) {
+    function tableDeleteFailHandler(results, tables, noAlert, txId) {
         var hasSuccess = false;
         var fails = [];
         var errorMsg = "";
@@ -1048,14 +1049,15 @@ window.TblManager = (function($, TblManager) {
 
         if (hasSuccess) {
             Transaction.done(txId);
-            if (numFails) {
+            if (numFails && !noAlert) {
                 errorMsg = fails[0].error + ". " + tablesMsg;
                 Alert.error(StatusMessageTStr.PartialDeleteTableFail, errorMsg);
             }
         } else {
             Transaction.fail(txId, {
                 "error"  : fails[0].error + ". " + ErrTStr.NoTablesDeleted,
-                "failMsg": StatusMessageTStr.DeleteTableFailed
+                "failMsg": StatusMessageTStr.DeleteTableFailed,
+                "noAlert": noAlert
             });
         }
         return (hasSuccess);

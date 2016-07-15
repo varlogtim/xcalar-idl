@@ -2,6 +2,7 @@ window.Transaction = (function(Transaction, $) {
     var txCache = {};
     var canceledTxCache = {};
     var txIdCount = 0;
+    var isDeleting = false;
 
     Transaction.start = function(options) {
         options = options || {};
@@ -85,6 +86,8 @@ window.Transaction = (function(Transaction, $) {
         if (willCommit) {
             KVStore.commit();
         }
+
+        transactionCleaner();
     };
 
     Transaction.fail = function(txId, options) {
@@ -124,6 +127,8 @@ window.Transaction = (function(Transaction, $) {
             var alertTitle = failMsg || CommonTxtTstr.OpFail;
             Alert.error(alertTitle, error);
         }
+
+        transactionCleaner();
     };
 
     Transaction.cancel = function(txId, options) {
@@ -156,6 +161,7 @@ window.Transaction = (function(Transaction, $) {
         removeTX(txId);
 
         QueryManager.removeQuery(txId);
+        transactionCleaner();
     };
 
     Transaction.log = function(txId, cli, dstTableName) {
@@ -222,6 +228,24 @@ window.Transaction = (function(Transaction, $) {
 
     function removeTX(txId) {
         delete txCache[txId];
+    }
+
+    function transactionCleaner() {
+        if (gAlwaysDelete && !isDeleting) {
+            isDeleting = true;
+
+            TableList.refreshOrphanList(false)
+            .then(function() {
+                console.info("delete", gOrphanTables);
+                return TblManager.deleteTables(gOrphanTables, TableType.Orphan, true);
+            })
+            .fail(function(error) {
+                console.error("delete table failse", error);
+            })
+            .always(function() {
+                isDeleting = true;
+            });
+        }
     }
 
     // tx is short for transaction
