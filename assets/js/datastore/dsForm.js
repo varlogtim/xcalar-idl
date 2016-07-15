@@ -162,10 +162,6 @@ window.DSForm = (function($, DSForm) {
         // submit the form
         $form.submit(function(event) {
             event.preventDefault();
-            if ($form.hasClass("previewMode")) {
-                return;
-            }
-
             var $submitBtn = $(this).blur();
             xcHelper.disableSubmit($submitBtn);
 
@@ -184,7 +180,7 @@ window.DSForm = (function($, DSForm) {
     DSForm.show = function(options) {
         options = options || {};
         var $importDataView = $("#importDataView");
-        if (!$importDataView.is(":visible") || $form.hasClass("previewMode"))
+        if (!$importDataView.is(":visible"))
         {
             if (!options.noReset) {
                 resetForm();

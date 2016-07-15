@@ -46,7 +46,7 @@ function setup() {
 
 function findTestTableId(tableName) {
     if (tableName == null) {
-        // this is generated in dataSampleTableSpec.js,
+        // this is generated in dsTableSpec.js,
         // which is the basic table we use
         tableName = 'unitTest-fakeYelp';
     }

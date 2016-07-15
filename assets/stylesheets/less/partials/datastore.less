@@ -92,7 +92,7 @@ input {
 /* End Of Content Header */
 
 /* Form Data View Section */
-.dataStoreFormView {
+.dsFormView {
     display: block;
     .position(absolute, @top: 37px, @left: 255px);
     .size(@width: ~"calc(100% - 510px)", @height: ~"calc(100% - 37px)", @min-width: 514px);
@@ -162,7 +162,7 @@ input {
 }
 
 // Data Form Section
-.dataStoreForm {
+.dsForm {
     height: ~"calc(100% - 93px)";
     overflow: auto;
 
@@ -280,13 +280,13 @@ input {
 }
 
 // Top Form Section
-.dataStoreFormTop {
+.dsFormTop {
     background-color: @color-background-topForm;
     padding: 30px 20px 1px 20px;
 }
 
 // Bottom Form Section
-.dataStoreFormBottom {
+.dsFormBottom {
     padding: 20px 20px 1px 20px;
     height: 70px;
 }
@@ -384,7 +384,7 @@ input {
 
 @media screen and (max-width: 1300px) {
     #datastorePanel {
-        .dataStoreFormView {
+        .dsFormView {
             .contentViewMidWrap {
                 .size(@width: 100%);
             }
@@ -1469,7 +1469,7 @@ input {
             margin-left: 4%;
         }
     }
-    .dataStoreForm {
+    .dsForm {
         height: ~"calc(100% - 93px)";
         overflow: auto;
         .contentViewMidWrap {
@@ -1510,7 +1510,7 @@ input {
             }
         }
     }
-    .dataStoreFormBottom {
+    .dsFormBottom {
         // padding-left: 10px;
         padding-top: 20px;
         h2 {

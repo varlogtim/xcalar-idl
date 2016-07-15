@@ -7,9 +7,9 @@
   </div>
 </div>
 <!-- Data Form -->
-<form id="importDataForm" class="dataStoreForm" target="_blank">
+<form id="importDataForm" class="dsForm" target="_blank">
   <!-- Top Form -->
-  <div id="importDataTopForm" class="dataStoreFormTop no-selection">
+  <div id="importDataTopForm" class="dsFormTop no-selection">
     <div class="contentViewMidWrap">
       <!-- file path -->
       <section class="formSection filePath clearfix">
@@ -258,7 +258,7 @@
     </div>
   </div>
   <!-- Bottom Form -->
-  <div id="importDataBottomForm"  class="dataStoreFormBottom no-selection">
+  <div id="importDataBottomForm"  class="dsFormBottom no-selection">
     <div class="contentViewMidWrap">
       <button id="importDataSubmit" class="rowContent btn btnMid" type="submit" <%= (dicts.tutor.name == 'datastoreDemo1') ? 'data-introstep="7"' : '' %>><%= dicts.dsForm.CONFIRM %></button>
       <button id="importDataReset" class="btn btnMid btn-cancel" type="reset"><%= dicts.common.CANCEL %></button>
