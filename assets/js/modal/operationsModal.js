@@ -1705,7 +1705,7 @@ window.OperationsModal = (function($, OperationsModal) {
             // ignore new colname input
             if ($input.closest(".dropDownList").hasClass("colNameSection")) {
                 return;
-            } else if (hasUnescapedParens(arg)) {
+            } else if (hasFuncFormat(arg)) {
                 // skip
             } else if (xcHelper.hasValidColPrefix(arg, colPrefix)) {
                 arg = parseColPrefixes(arg);
@@ -1741,7 +1741,7 @@ window.OperationsModal = (function($, OperationsModal) {
                 !xcHelper.hasValidColPrefix(arg, colPrefix) &&
                 arg[0] !== aggPrefix &&
                 parsedType.indexOf("string") !== -1 &&
-                !hasUnescapedParens(arg)) {
+                !hasFuncFormat(arg)) {
 
                 if (parsedType.length === 1) {
                     // if input only accepts strings
@@ -2075,15 +2075,8 @@ window.OperationsModal = (function($, OperationsModal) {
             // col name field, do not add quote
             if ($input.closest(".dropDownList").hasClass("colNameSection")) {
                 arg = parseColPrefixes(arg);
-            } else if (hasUnescapedParens(arg)) {
-                if (hasFuncFormat(arg)) {
-                    arg = parseColPrefixes(arg);
-                } else {
-                    errorText = ErrTStr.BracketsMis;
-                    $errorInput = $input;
-                    errorType = "unmatchedParens";
-                    isPassing = false;
-                }
+            } else if (hasFuncFormat(arg)) {
+                arg = parseColPrefixes(arg);
             } else if (arg[0] === aggPrefix) {
                 // leave it
             } else if (xcHelper.hasValidColPrefix(arg, colPrefix)) {
@@ -2150,6 +2143,11 @@ window.OperationsModal = (function($, OperationsModal) {
                                         isPassing = false;
                                         if (colTypes[i] === "newColumn") {
                                             errorText = ErrTStr.InvalidOpNewColumn;
+                                        } else if (colTypes[i] === "string" &&
+                                            hasUnescapedParens($input.val())) {
+                                            // function-like string found but
+                                            // invalid format
+                                             errorText = ErrTStr.InvalidFunction;
                                         } else {
                                             errorText = xcHelper.replaceMsg(ErrWRepTStr.InvalidOpsType, {
                                                 "type1": types.join("/"),
@@ -2158,7 +2156,6 @@ window.OperationsModal = (function($, OperationsModal) {
                                         }
 
                                         $errorInput = $input;
-
                                         errorType = "invalidColType";
                                     }
                                 } else {
@@ -2180,6 +2177,11 @@ window.OperationsModal = (function($, OperationsModal) {
                     invalidNonColumnType = true;
                     if (checkRes.currentType === "newColumn") {
                         errorText = ErrTStr.InvalidOpNewColumn;
+                    } else if (checkRes.currentType === "string" &&
+                        hasUnescapedParens($input.val())) {
+                        // function-like string found but
+                        // invalid format
+                        errorText = ErrTStr.InvalidFunction;
                     } else {
                         errorText = xcHelper.replaceMsg(ErrWRepTStr.InvalidOpsType, {
                             "type1": checkRes.validType.join("/"),
@@ -2383,7 +2385,7 @@ window.OperationsModal = (function($, OperationsModal) {
     }
 
     function filterCheck(operator, args) {
-        if (!hasUnescapedParens(args[0])) {
+        if (!hasFuncFormat(args[0])) {
             var filterColNum = getColNum(args[0]);
             if (filterColNum < 1) {
                 StatusBox.show(ErrTStr.InvalidColName, $argInputs.eq(0));
@@ -2399,7 +2401,7 @@ window.OperationsModal = (function($, OperationsModal) {
     function filter(operator, args, colTypeInfos) {
         var filterColNum;
         // var colName;
-        if (!hasUnescapedParens(args[0])) {
+        if (!hasFuncFormat(args[0])) {
             filterColNum = getColNum(args[0]);
         } else {
             filterColNum = colNum;

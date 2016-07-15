@@ -220,6 +220,8 @@ ErrTStr = {
 
     'BracketsMis': 'Your function string has mismatched brackets.',
 
+    'InvalidFunction': 'Invalid function',
+
     'TooLong': 'Please use fewer than 255 characters',
 
     'TablesNotDeleted': 'The following tables were not deleted:',
