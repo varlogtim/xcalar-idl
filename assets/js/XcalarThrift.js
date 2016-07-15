@@ -82,7 +82,10 @@ function thriftLog() {
         }
 
         thriftError.error = "Error: " + error;
-        console.error('(╯°□°）╯︵ ┻━┻ ' + msg);
+        if (status !== StatusT.StatusCanceled) {
+            console.error('(╯°□°）╯︵ ┻━┻ ' + msg);
+        }
+        
         errorLists.push(thriftError);
         var alertError;
 
@@ -1745,7 +1748,7 @@ function XcalarGenRowNum(srcTableName, dstTableName, newFieldName, txId) {
     jQuery.when(def1, def2)
     .then(function(ret1, ret2) {
         // XXX This part doesn't work yet
-        Transaction.log(txId, ret2);
+        Transaction.log(txId, ret2, dstTableName);
         deferred.resolve(ret1);
     })
     .fail(function(error1, error2) {

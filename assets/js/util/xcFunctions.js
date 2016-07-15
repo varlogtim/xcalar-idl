@@ -419,7 +419,8 @@ window.xcFunction = (function($, xcFunction) {
             deferred.resolve();
         })
         .fail(function(error) {
-            if (error.status === StatusT.StatusMaxJoinFieldsExceeded) {
+            if (typeof error === "object" && 
+                error.status === StatusT.StatusMaxJoinFieldsExceeded) {
                 Transaction.fail(txId, {
                     "failMsg": StatusMessageTStr.JoinFailed,
                     "error"  : error

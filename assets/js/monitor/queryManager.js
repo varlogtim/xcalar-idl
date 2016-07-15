@@ -131,6 +131,7 @@ window.QueryManager = (function(QueryManager, $) {
                     subQuery.state = "done";
                     if (mainQuery.currStep === i) {
                         incrementStep(mainQuery);
+                        subQuery = mainQuery.subQueries[mainQuery.currStep];
                         clearInterval(queryCheckLists[id]);
                         // queryCheckLists[id]
                         if (mainQuery.currStep === mainQuery.numSteps) {
@@ -181,6 +182,7 @@ window.QueryManager = (function(QueryManager, $) {
             updateOutputSection(id, true);
         }
         $query.remove();
+        $('.tooltip').hide();
     };
 
     QueryManager.fail = function(id) {
@@ -569,12 +571,14 @@ window.QueryManager = (function(QueryManager, $) {
                 }
             }
         });
-
-        if (currStep <= numSteps) {
-            var displayedStep = Math.min(currStep + 1, numSteps);
+        
+        var displayedStep;
+        if (currStep <= numSteps) {  
+            displayedStep = Math.min(currStep + 1, numSteps);
             $query.find('.querySteps').text('step ' + displayedStep + ' of ' + numSteps);
         } else if (numSteps === -1) {
-            $query.find('.querySteps').text('step ' + (currStep + 1));
+            displayedStep = Math.min(currStep + 1, mainQuery.subQueries.length);
+            $query.find('.querySteps').text('step ' + displayedStep);
         }
     }
 
@@ -709,6 +713,11 @@ window.QueryManager = (function(QueryManager, $) {
             var canceled = false;
 
             // this is a xcalar query so we must cancel all future subqueries
+            if (!mainQuery.subQueries[currStep]) {
+                Transaction.cancel(id);
+                console.warn('step vs query mismatch');
+                return;
+            }
             if (mainQuery.subQueries[currStep].queryName) {
                 for (var i = currStep; i < mainQuery.subQueries.length; i++) {
                     var subQuery = mainQuery.subQueries[i];
@@ -729,10 +738,16 @@ window.QueryManager = (function(QueryManager, $) {
                     });
                 }
             } else {
-                // canceling a regular operation
-                XcalarCancelOp(mainQuery.subQueries[currStep].dstTable)
+            // canceling a regular operation
+                Transaction.cancel(id); 
+                // cancel before xcalarcancelop returns
+                // so that if we miss the table, xcfunctions will stop further
+                // actions
+                var statusesToIgnore = [StatusT.StatusOperationHasFinished];
+                XcalarCancelOp(mainQuery.subQueries[currStep].dstTable, 
+                               statusesToIgnore)
                 .then(function(ret) {
-                    Transaction.cancel(id);
+                    
                     console.info('cancel submitted', ret);
                 })
                 .fail(function(error) {
