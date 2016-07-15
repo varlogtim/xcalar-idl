@@ -123,6 +123,10 @@ window.MonitorGraph = (function($, MonitorGraph) {
                 timeStamp = '<span>' + time + '</span>';
             }
         }
+        var d = new Date();
+        var date = xcHelper.getDate("-", d);
+        var donutTime = xcHelper.getTime(d);
+        $("#graphTime").text(date + " " + donutTime);
 
         var apiTopResult;
 
@@ -136,6 +140,7 @@ window.MonitorGraph = (function($, MonitorGraph) {
             var allStats = MonitorPanel.processNodeStats(nodes,
                                                     apiTopResult, numNodes);
             updateGraph(allStats, numNodes);
+            MonitorPanel.updateDonuts(allStats, numNodes);
             failCount = 0;
         })
         .fail(function(error) {
@@ -145,6 +150,8 @@ window.MonitorGraph = (function($, MonitorGraph) {
             if (failCount === 2) {
                 thriftLog('XcalarGetStats failed',
                           {status: StatusT.StatusConnRefused});
+                console.error('showing connection refused because monitor' +
+                                'failed to get stats twice in a row');
             }
         });
 

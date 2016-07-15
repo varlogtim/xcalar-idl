@@ -51,7 +51,7 @@
         }
     }
 
-    @media screen and (max-width: 925px) {
+    @media screen and (max-width: 945px) {
         #monitor-system {
             .asupSubSection {
                 > div {
@@ -61,6 +61,8 @@
                 .title {
                     height: 19px;
                     .position(relative, @left: 7px);
+                    display: block;
+                    width: 200px;
                 }
 
                 .btn, .onOffBtn  {
@@ -81,7 +83,7 @@
 
             > div {
                 .flex(1 1 auto);
-                .size(@max-width: 315px, @height: 50px);
+                .size(@max-width: 325px, @height: 50px);
                 float: left;
                 padding: 0 10px;
                 .font(@line-height: 50px);
@@ -140,7 +142,7 @@
 
                 .sideTab {
                     display: block;
-                    .size (@width: 65px, @height: 75px);
+                    .size (@width: 65px, @height: 150px);
                     text-align: center;
                     .linear-gradient(top, @color-background-columnList, #ACACAC);
                     border-right: 1px solid @color-table-borderGray;
@@ -160,33 +162,18 @@
 
                 .icon {
                     display: block;
-                    .size (@height: 50px, @width: 100%);
+                    .size (@height: 85px, @width: 100%);
                 }
 
                 #cpuTab {
                     .icon {
-                        .image("../../images/monitor/cpu-white.png", 50%, 60%);
+                        .image("../../images/monitor/cpu-white.png", 50%, 80%);
                     }
                 }
 
                 #ramTab {
                     .icon {
-                        .image("../../images/monitor/ram-white.png", 50%, 60%);
-                    }
-                }
-
-                #flashTab {
-                    .icon {
-                        .image("../../images/monitor/flash-white.png", 50%, 60%);
-                    }
-                }
-
-                #diskTab {
-                    .text {
-                        .font (@size: 12px);
-                    }
-                    .icon {
-                        .image("../../images/monitor/disk-white.png", 50%, 60%);
+                        .image("../../images/monitor/ram-white.png", 50%, 80%);
                     }
                 }
 
@@ -369,23 +356,10 @@
                         min-width: 50px;
                     }
 
-                    #refreshGraph {
-                        float: right;
-                        .size(@height: 100%);
-                        .font(@color: @color-text-blue);
-                        margin-left: 10px;
-                        cursor: pointer;
-                    }
-
-                    .onOffBtn {
-                        .vertical-align;
-                        float: right;
-                    }
-
                     #connectionInfo {
                         float: left;
                         .textOverflowOneLine;
-                        width: ~"calc(100% - 458px)";
+                        width: ~"calc(100% - 310px)";
                         #virNodeText {
                             padding-left: 10px;
                         }
@@ -423,9 +397,9 @@
         .bottomSection {
             .flex-display();
             .size(@height: ~"calc(100% - 351px)");
-            overflow-x: hidden;
-            overflow-y: scroll;
+            overflow: hidden;
             margin-right: 10px;
+            background-color: @color-monitor-whiteGray;
 
             .donutSection {
                 .flex(1 0 200px);
@@ -433,9 +407,11 @@
                 position: relative;
 
                 &:nth-child(even) {
-                    background-color: @color-monitor-whiteGray;
+                    // background-color: @color-monitor-whiteGray;
+                    background-color: @color-white;
                     .statsSection {
-                        background-color: @color-monitor-whiteGray;
+                        // background-color: @color-monitor-whiteGray;
+                        background-color: @color-white;
                     }
                 }
 
@@ -448,7 +424,7 @@
 
                 .donut {
                     .size (@height: 180px, @width: 180px);
-                    margin: 15px auto 5px;
+                    margin: 25px auto 5px;
                     position: relative;
 
                     .sampleText {
@@ -533,6 +509,18 @@
                     }
                 }
 
+                &.donutSection0 {
+                    .num {
+                        text-align: right;
+                        background-color: #97CFEA;
+                        width:50px;
+
+                    }
+                    .percent {
+                        background-color: #97CFEA;
+                    }
+                }
+
                 &#donut1 {
                     &> .icon {
                         .image("../../images/monitor/ram-gray.png", 50%, 19px);
@@ -543,39 +531,23 @@
                         }
                     }
 
-                    li .userSize, .statsHeadingBar .userSize {
+                    li .userSize {
                         background-color: #D6E6D6;
                     }
                 }
-                &#donut2 {
-                    &> .icon {
-                        .image("../../images/monitor/flash-gray.png", 60%, 19px);
-                    }
-                    .donut {
-                        .userSize {
-                            .font(@color: #bbae84);
-                        }
-                    }
 
-                    li .userSize, .statsHeadingBar .userSize {
-                        background-color: #E3DFD2;
-                    }
-                }
-                &#donut3 {
-                    &> .icon {
-                        .image("../../images/monitor/disk-gray.png", 55%, 13px);
-                    }
-                    .donut {
+                &.donutSection1 {
+                    .statsHeadingBar {
                         .userSize {
-                            .font(@color: #1193b8);
+                            background-color: #D6E6D6;
                         }
-                    }
-                    li .userSize, .statsHeadingBar .userSize {
-                        background-color: #AFD7E2;
                     }
                 }
 
                 .statsSection {
+
+                    margin-top: 24px;
+                    height: ~"calc(100% - 35px)";
 
                     .statsTopHeading {
                         .font(@weight: 600, @size: 11px, @color: @color-text-midlightGray);
@@ -655,7 +627,7 @@
                     .listWrap {
                         overflow-x: hidden;
                         overflow-y: auto;
-                        height: ~"calc(100% - 25px)";
+                        height: ~"calc(100% - 45px)";
                         width: 95%;
                         margin: 0 auto 5px auto;
                         ul {
@@ -672,6 +644,8 @@
                                 background-color: @color-background-lightLightGray;
                                 float: right;
                                 overflow: hidden;
+                                margin-left: 25px;
+                                width: ~"calc(100% - 25px)";
 
                                 .statsNum {
                                     float: right;
@@ -680,10 +654,7 @@
                             }
 
                             &.small {
-                                width: 210px;
-                                li {
-                                    width: 190px;
-                                }
+                                max-width: 210px;
                             }
                         }
                     }

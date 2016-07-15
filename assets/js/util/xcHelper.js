@@ -522,6 +522,10 @@ window.xcHelper = (function($, xcHelper) {
     };
 
     // assigned unit is a unit (MB, GB etc) that you want to convert to
+    /**
+     * @param  {boolean} unitSeparated true if want return an array of 
+     *                                 [int size, string unit]
+     */
     xcHelper.sizeTranslator = function(size, unitSeparated, convertTo) {
         var unit  = ["B", "KB", "MB", "GB", "TB", "PB"];
         var start = 0;
@@ -538,7 +542,7 @@ window.xcHelper = (function($, xcHelper) {
                 ++start;
             }
             if (size >= 10) {
-                size = Math.ceil(size);
+                size = Math.round(size);
             }
         }
 
@@ -557,7 +561,7 @@ window.xcHelper = (function($, xcHelper) {
         // and converts them to bytes
         var units  = ["B", "KB", "MB", "GB", "TB", "PB"];
         var num = parseFloat(numText);
-        var text = $.trim(numText.substr(("" + num).length)).toUpperCase();
+        var text = numText.match(/[a-zA-Z]+/)[0].toUpperCase();
         var index = units.indexOf(text);
         var bytes = num * Math.pow(1024, index);
         return (bytes);

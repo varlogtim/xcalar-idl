@@ -14,7 +14,7 @@ function XcAuth(options) {
     this.hashTag = options.hashTag;
 
     return this;
-}
+} 
 
 // global MouseEvents
 // useful to keep track of mousedown so when a blur happens, we know what
@@ -2552,6 +2552,12 @@ function RangeSlider($rangeSliderWrap, prefName, options) {
         if (options.onChangeEnd) {
             options.onChangeEnd(val);
         }
+    });
+
+    $rangeSliderWrap.find('input').on('keydown', function(event) {
+        if (event.which === keyCode.Enter) {
+            $(this).blur();
+        } 
     });
 }
 

@@ -45,14 +45,6 @@ window.MonitorPanel = (function($, MonitorPanel) {
             QueryManager.check();
         });
 
-        // text next to refreshBtn
-        $('#refreshGraph').click(function() {
-            toggleRefresh($('#refreshBtn'));
-        });
-
-        $('#refreshBtn').click(function() {
-            toggleRefresh($(this));
-        });
 
         $('#asupBtn').click(function() {
             var $target = $(this);
@@ -92,30 +84,9 @@ window.MonitorPanel = (function($, MonitorPanel) {
                        .addClass('open');
             }
         });
-
-        var graphInterval;
-        var refreshTime = 4000;
-
-        function toggleRefresh($target) {
-            if ($target.hasClass('off')) {
-                $target.removeClass('off');
-                turnOnAutoRefresh();
-            } else {
-                $target.addClass('off');
-                clearInterval(graphInterval);
-            }
-        }
-
-        function turnOnAutoRefresh() {
-            MonitorPanel.updateDonuts();
-            graphInterval = setInterval(function() {
-                MonitorPanel.updateDonuts();
-            }, refreshTime);
-        }
     };
 
     MonitorPanel.active = function() {
-        MonitorPanel.updateDonuts();
         MonitorGraph.start();
         QueryManager.check();
     };
@@ -123,40 +94,6 @@ window.MonitorPanel = (function($, MonitorPanel) {
     MonitorPanel.inActive = function() {
         MonitorGraph.clear();
         QueryManager.check(true);
-    };
-
-    MonitorPanel.updateDonuts = function() {
-        if (!$('#monitorTab').hasClass('active')) {
-            return;
-        }
-        var d = new Date();
-        var date = xcHelper.getDate("-", d);
-        var time = xcHelper.getTime(d);
-        $("#graphTime").text(date + " " + time);
-        var numNodes = 0;
-        var apiTopResult;
-
-        XcalarApiTop()
-        .then(function(result) {
-            apiTopResult = result;
-            numNodes = result.numNodes;
-            return (XcalarGetStats(numNodes));
-        })
-        .then(function(nodes) {
-            var allStats = MonitorPanel.processNodeStats(nodes, apiTopResult,
-                                                         numNodes);
-            updateDonutSection(allStats, numNodes);
-            failCount = 0;
-        })
-        .fail(function(error) {
-            console.error('XcalarGetStats failed', error);
-            failCount++;
-            // if it fails 2 times in a row, we show a connection error
-            if (failCount === 2) {
-                thriftLog('XcalarGetStats failed',
-                         {status: StatusT.StatusConnRefused});
-            }
-        });
     };
 
     MonitorPanel.processNodeStats = function(nodes, apiTopResult, numNodes) {
@@ -207,14 +144,31 @@ window.MonitorPanel = (function($, MonitorPanel) {
         return (allStats);
     };
 
+    MonitorPanel.updateDonuts = function(allStats, numNodes) {
+        $('.donut').each(function(index) {
+            var el = this;
+            var used;
+            var total;
+
+            if (index === 0) {
+                used = allStats[index].sumUsed / numNodes;
+                total = allStats[index].sumTot / numNodes;
+            } else {
+                used = allStats[index].sumUsed;
+                total = allStats[index].sumTot;
+            }
+
+            updateOneDonut(el, used, total);
+            updateDonutStatsSection(el, index, allStats[index]);
+        });
+    };
+
     function initializeDonuts() {
-        var numDonuts = 4;
+        var numDonuts = 2;
         var blueOuter = '#20a7eb';
         var greenOuter = '#90c591';
-        var brownOuter = '#bbae84';
-        var tealOuter = '#1193b8';
         var grayOuter = '#cecece';
-        var colors = [blueOuter, greenOuter, brownOuter, tealOuter];
+        var colors = [blueOuter, greenOuter];
         var diameter = 180;
         var radius = diameter / 2;
         var arc = d3.svg.arc()
@@ -257,27 +211,8 @@ window.MonitorPanel = (function($, MonitorPanel) {
         }
     }
 
-    function updateDonutSection(allStats, numNodes) {
-        $('.donut').each(function(index) {
-            var el = this;
-            var used;
-            var total;
-
-            if (index === 0) {
-                used = allStats[index].sumUsed / numNodes;
-                total = allStats[index].sumTot / numNodes;
-            } else {
-                used = allStats[index].sumUsed;
-                total = allStats[index].sumTot;
-            }
-
-            updateOneDonut(el, used, total);
-            updateDonutStatsSection(el, index, allStats[index]);
-        });
-    }
-
     function updateOneDonut(el, val, total) {
-        var duration = 750;
+        var duration = 800;
         var index = parseInt($(el).closest('.donutSection')
                                   .attr('id').substring(5));
         var pie = d3.layout.pie().sort(null);
@@ -301,11 +236,13 @@ window.MonitorPanel = (function($, MonitorPanel) {
              .duration(duration)
              .attrTween("d", arcTween);
 
-        updateDonutNums('#donut' + index + ' .userSize .num', userSize, duration,
-                        index);
-        updateDonutNums('#donut' + index + ' .totalSize .num', total, duration,
-                        index);
-
+        updateDonutNums('#donut' + index + ' .userSize .num', userSize,
+                        duration, index);
+        if (index !== 0) {
+            updateDonutNums('#donut' + index + ' .totalSize .num', total,
+                            duration, index);
+        }
+        
         function arcTween(a) {
             var i = d3.interpolate(this._current, a);
             this._current = i(0);
@@ -318,6 +255,7 @@ window.MonitorPanel = (function($, MonitorPanel) {
     function updateDonutNums(selector, num, duration, index) {
         var $sizeType = $(selector).next();
         var type = $sizeType.text();
+
         d3.select(selector)
             .transition()
             .duration(duration)
@@ -326,9 +264,8 @@ window.MonitorPanel = (function($, MonitorPanel) {
                 var size = xcHelper.sizeTranslator(num, true);
                 var i;
 
-                if (index === 1 || index === 2) {
-                    startNum = xcHelper.textToBytesTranslator(startNum +
-                                                              type);
+                if (index === 1) {
+                    startNum = xcHelper.textToBytesTranslator(startNum + type);
                     i = d3.interpolate(startNum, num);
                 } else {
                     i = d3.interpolate(startNum, size[0]);
@@ -340,14 +277,9 @@ window.MonitorPanel = (function($, MonitorPanel) {
                     if (num >= 10 || index === 0) {
                         num = Math.round(num);
                     }
-                    if (index === 0) {
-                        this.textContent = num;
-                        return;
-                    }
-                    if (index !== 3) {
+                    if (index !== 0) {
                         $sizeType.html(size[1]);
                     }
-
                     this.textContent = num;
                 });
             });
@@ -356,7 +288,7 @@ window.MonitorPanel = (function($, MonitorPanel) {
     function updateDonutStatsSection(el, index, stats) {
         //this is for the list of stats located below the donut
         var numNodes = stats.used.length;
-        var $statsSection = $(el).next();
+        var $statsSection = $(el).parent().next().find('.statsSection');
         var listHTML = "";
 
         if (index === 0) {
@@ -376,12 +308,10 @@ window.MonitorPanel = (function($, MonitorPanel) {
         } else {
             var sumTotal = xcHelper.sizeTranslator(stats.sumTot, true);
             var sumUsed = xcHelper.sizeTranslator(stats.sumUsed, true);
-            if (index !== 3) {
-                $statsSection.find('.statsHeadingBar .totNum')
-                             .text(sumTotal[0] + " " + sumTotal[1]);
-                $statsSection.find('.statsHeadingBar .avgNum')
-                             .text(sumUsed[0] + " " + sumUsed[1]);
-            }
+            $statsSection.find('.statsHeadingBar .totNum')
+                         .text(sumTotal[0] + " " + sumTotal[1]);
+            $statsSection.find('.statsHeadingBar .avgNum')
+                         .text(sumUsed[0] + " " + sumUsed[1]);
 
             for (var i = 0; i < numNodes; i++) {
                 var total = xcHelper.sizeTranslator(stats.tot[i], true);
@@ -389,12 +319,8 @@ window.MonitorPanel = (function($, MonitorPanel) {
                 var usedUnits;
                 var totalUnits;
 
-                if (index === 3) {
-                    usedUnits = totalUnits = "Mbps";
-                } else {
-                    usedUnits = used[1];
-                    totalUnits = total[1];
-                }
+                usedUnits = used[1];
+                totalUnits = total[1];
 
                 listHTML += '<li>' +
                                 '<span class="name">' +

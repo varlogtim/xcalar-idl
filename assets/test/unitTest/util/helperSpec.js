@@ -394,10 +394,17 @@ describe('xcHelper Test', function() {
         expect(res.length).to.equal(2);
         expect(res[0]).to.equal(1);
         expect(res[1]).to.equal('B');
+
+        // case 6 (rounding)
+        res = xcHelper.sizeTranslator(25.3);
+        expect(res).to.equal('25B');
     });
 
     it('xcHelper.textToBytesTranslator should work', function() {
         var res = xcHelper.textToBytesTranslator("1KB");
+        expect(res).to.equal(1024);
+
+        res = xcHelper.textToBytesTranslator("1.0KB");
         expect(res).to.equal(1024);
     });
 

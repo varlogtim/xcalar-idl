@@ -54,14 +54,6 @@
           <div class="icon"></div>
           <div class="text"><%= dicts.monitor.RAM %></div>
         </div>
-        <div id="flashTab" class="sideTab" data-toggle="tooltip" data-placement="bottom" data-container="body" title="<%= dicts.common.ComeSoon %>">
-            <div class="icon"></div>
-            <div class="text"><%= dicts.monitor.FLASH %></div>
-        </div>
-        <div id="diskTab" class="sideTab" data-toggle="tooltip" data-placement="bottom" data-container="body" title="<%= dicts.common.ComeSoon %>">
-            <div class="icon"></div>
-            <div class="text"><%= dicts.monitor.NETWORK %></div>
-        </div>
       </div>
       <div class="graphSection">
         <div class="graphTop">
@@ -70,15 +62,6 @@
             <span class="text" id="phyNode">localhost</span>
             <span class="text" id="virNodeText"><%= dicts.monitor.VirtualNode %>: </span>
             <span class="text" id="virNode">Node 0</span>
-          </div>
-          <div id="refreshGraph">
-            <span class="text"><%= dicts.monitor.AutoRefresh %></span>
-            <!-- <div class="icon"></div> -->
-          </div>
-          <div id="refreshBtn" class="onOffBtn off">
-            <div class="slider"></div>
-            <div class="text offText"><%= dicts.common.OFF %></div>
-            <div class="text onText"><%= dicts.common.ON %></div>
           </div>
           <div class="time">
             <span class="text"><%= dicts.monitor.LastCheckTime %>: </span>
@@ -129,6 +112,8 @@
             </span>
           </div>
         </div>
+      </div>
+      <div class="donutSection donutSection0">
         <div class="statsSection">
           <div class="statsTopHeading">
             <span class="global"></span>
@@ -141,10 +126,11 @@
             <span class="num avgNum">0</span>
           </div>
           <div class="listWrap open">
-            <ul class="small"></ul>
+            <ul class="small clearfix"></ul>
           </div>
         </div>
       </div>
+    
       <!-- donut1 -->
       <div id="donut1" class="donutSection">
         <div class="icon"></div>
@@ -152,16 +138,19 @@
           <div class="innerCircle"></div>
           <div class="donutInfo">
             <span class="userSize">
-              <span class="num">200</span>
+              <span class="num">1</span>
               <sup>GB</sup>
             </span>
             <hr/>
             <span class="totalSize">
-              <span class="num">293</span>
+              <span class="num">64</span>
               <sup>GB</sup>
             </span>
           </div>
         </div>
+      </div>
+      <!-- donut1 -->
+      <div class="donutSection donutSection1">
         <div class="statsSection">
           <div class="statsTopHeading">
               <span class="global"><%= dicts.monitor.GTotal %></span>
@@ -171,90 +160,14 @@
             <span class="arrow"></span>
             <span class="title"><%= dicts.monitor.RAM %></span>
             <span class="userSize">
-              <span class="avgNum">45 GB</span>
+              <span class="avgNum">2 GB</span>
             </span>
             <span class="totalSize">
-              <span class="totNum">128 GB</span>
+              <span class="totNum">64 GB</span>
             </span>
           </div>
           <div class="listWrap open">
-            <ul></ul>
-          </div>
-        </div>
-      </div>
-      <!-- donut2 -->
-      <div id="donut2" class="donutSection">
-        <div class="icon"></div>
-        <div class="donut">
-          <div class="sampleText"><%= dicts.monitor.SAMPLE %></div>
-          <div class="innerCircle"></div>
-          <div class="donutInfo">
-            <span class="userSize">
-              <span class="num">200</span>
-              <sup>GB</sup>
-            </span>
-            <hr/>
-            <span class="totalSize">
-              <span class="num">293</span>
-              <sup>GB</sup>
-            </span>
-          </div>
-        </div>
-        <div class="statsSection">
-          <div class="statsTopHeading">
-            <span class="global"><%= dicts.monitor.GTotal %></span>
-            <span class="user"><%= dicts.monitor.UTotal %></span>
-          </div>
-          <div class="statsHeadingBar open">
-            <span class="arrow"></span>
-            <span class="title"><%= dicts.monitor.FLASH %></span>
-            <span class="userSize">
-              <span class="avgNum">45 GB</span>
-            </span>
-            <span class="totalSize">
-              <span class="totNum">128 GB</span>
-            </span>
-          </div>
-          <div class="listWrap open">
-            <ul></ul>
-          </div>
-        </div>
-      </div>
-      <!-- dount3 -->
-      <div id="donut3" class="donutSection">
-        <div class="icon"></div>
-        <div class="donut">
-          <div class="sampleText"><%= dicts.monitor.SAMPLE %></div>
-          <div class="innerCircle"></div>
-          <div class="donutInfo">
-            <span class="userSize">
-              <span class="num">100</span>
-              <sup>Mbps</sup>
-            </span>
-            <hr/>
-            <span class="totalSize">
-              <span class="num">193</span>
-              <sup>Mbps</sup>
-            </span>
-          </div>
-        </div>
-        <div class="statsSection">
-          <div class="statsTopHeading">
-            <span class="global"><%= dicts.monitor.GTotal %></span>
-            <span class="user"><%= dicts.monitor.UTotal %></span>
-          </div>
-          <div class="statsHeadingBar open">
-            <span class="arrow"></span>
-            <span class="title"><%= dicts.monitor.NETWORK %></span>
-            <span class="userSize">
-              <span class="avgNum">45</span> Mbps
-            </span>
-            <span class="totalSize">
-              <span class="totNum">128</span> Mbps
-            </span>
-          </div>
-          <div class="listWrap open">
-            <ul></ul>
+            <ul class="clearfix"></ul>
           </div>
         </div>
       </div>

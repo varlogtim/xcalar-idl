@@ -324,7 +324,7 @@ module.exports = {
         "SETUP": "SETUP",
         "SETTINGS": "SETTINGS",
         "AUTOSUPPORT": "AUTO SUPPORT SETTINGS",
-        "GENSUB": "GENERATE SUB",
+        "GENSUB": "SUPPORT BUNDLE",
         "RELEASEMEM": "RELEASE MEMORY",
         "DelTables": "Delete Tables",
         "CPU": "CPU",
