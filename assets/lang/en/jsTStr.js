@@ -150,7 +150,7 @@ ErrTStr = {
 
     'NameInUse': 'Name is in use, please choose another name.',
 
-    'DSNameConfilct': 'Dataset with the same name already exits. ' +
+    'DSNameConfilct': 'Dataset reference with the same name already exits. ' +
                         'please choose another name.',
 
     'TableConflict': 'Table with the same name already exists, ' +
@@ -283,7 +283,7 @@ TipsTStr = {
     'DataType': 'Data Type',
     'LineMarker': 'Click row number to add bookmark',
     'JSONEle': 'Double-click to view, then click on key names to pull columns',
-    'DragGrid': 'You can drag datasets or folders around to reorder',
+    'DragGrid': 'You can drag dataset refs or folders around to reorder',
     'DSTable': 'Click table header to add/remove columns to/from ' +
         'data cart. Click on column headings to further modify the column.',
     'DSCart': 'Datacart area, you can add columns from datasets into your ' +
@@ -436,13 +436,13 @@ DSTStr = {
     'UnknownUser': 'Unknow User',
     'DS': 'DATASET',
     'Export': 'EXPORT FORM',
-    'DelDS': 'Delete Dataset',
-    'DelDSFail': 'Delete Dataset Failed',
+    'DelDS': 'Delete Dataset Reference',
+    'DelDSFail': 'Delete Dataset Reference Failed',
     'NewFolder': 'New Folder',
     'NoNewFolder': 'Cannot Create Folder',
     'NoNewFolderMsg': 'This folder is uneditable, cannot create new folder here',
     'DelFolder': 'Delete Folder',
-    'DelFolderInstr': 'Please remove all the datasets in the folder first.',
+    'DelFolderInstr': 'Please remove all the dataset references in the folder first.',
     'DelFolderMsg': 'Unable to delete non-empty folders. Please ensure\r\n' +
                     ' that all datasets have been removed from folders prior' +
                     ' to deletion.',
@@ -450,7 +450,7 @@ DSTStr = {
     'NoRecords': 'No records in dataset.',
     'NoRecrodsHint': 'Please change the preview size and try to point again',
     // with replace
-    'DelDSConfirm': 'Are you sure you want to delete dataset <ds> ?',
+    'DelDSConfirm': 'Are you sure you want to delete dataset reference <ds> ?',
     'DelUneditable': 'This <ds> is uneditable, cannot delete',
     'DSSourceHint': 'Please try another path or use another protocol',
     'FileOversize': 'Too many files in the folder, cannot read, please load with the url directly',
@@ -470,7 +470,7 @@ DataCartStr = {
     'NoCartTitle': 'No Tables Selected',
     'HaveCartTitle': 'Selected Tables',
     'NoColumns': 'No Columns Selected',
-    'HelpText': 'To add a column to the data cart, select a dataset on the left' +
+    'HelpText': 'To add a column to the data cart, select a dataset reference on the left' +
                 ' and click on the column names that you are interested' +
                 ' in inside the center panel.'
 };

@@ -77,7 +77,8 @@ module.exports = {
         "UserName": "User name",
         "Val": "Value",
         "WKBK": "Workbook",
-        "SaveWKBK": "Click to Save Now"
+        "SaveWKBK": "Click to Save Now",
+        "Loading": "Loading"
     },
 
     "paths": {
@@ -367,7 +368,7 @@ module.exports = {
     "ds": {
         "Point": "Point To New Dataset",
         "POINT": "POINT TO NEW DATASET",
-        "Datasets": "Datasets",
+        "Datasets": "Dataset Refs",
         "DATASET": "DATASET",
         "DATACART": "DATA CART",
         "IN": "IN",
@@ -384,19 +385,18 @@ module.exports = {
     },
 
     "dsView": {
-        "RefreshDS": "Refresh Datasets",
         "backFolderBtn": "See previous folders",
         "addFolderBtn": "Add New Folder",
-        "delDSBtn": "Delete folder or dataset"
+        "delDSBtn": "Delete folder or dataset reference"
     },
 
     "dsForm": {
         "previewSize": "Preview Size",
         "previewSizeHint": "Change preview size if point to large datasource",
-        "Instr": "INPUT DATA SOURCE PATH, SELECT FORMAT AND THEN INPUT DATASET NAME TO POINT TO DATA. POINTED DATA WILL BE LISTED ON THE LEFT.",
+        "Instr": "INPUT DATA SOURCE PATH, SELECT FORMAT AND THEN INPUT DATASET REFERENCE NAME TO POINT TO DATA. POINTED DATA WILL BE LISTED ON THE LEFT.",
         "dsLocation": "Data Source",
         "filePath": "Data Source Path",
-        "DSName": "New Dataset Name",
+        "DSName": "Dataset Reference Name",
         "fileNameTitle": "A valid name with no special characters",
         "DelimHint": "If you parse data with UDF, field and line delimiters are applied after data is parsed",
         "Delim": "Delimiter",
@@ -419,7 +419,7 @@ module.exports = {
 
     "dsTable": {
         "CreatedBy": "Created by",
-        "ModifiedDate": "Dataset Modified Date",
+        "ModifiedDate": "Modified Date",
         "Records": "Records",
         "Size": "Size",
         "Path": "Path",
@@ -433,12 +433,11 @@ module.exports = {
         "CLEARALL":  "CLEAR DATA CART",
         "NoCartsHint": "No Tables Selected",
         "HasCartsHint": "Selected Columns",
-        "NoCartInstr": "To add a column to the data cart, select a dataset on the left and click on the column names that you are interested in inside the center panel."
+        "NoCartInstr": "To add a column to the data cart, select a dataset reference on the left and click on the column names that you are interested in inside the center panel."
     },
 
     "dsPreview": {
         "Previewing": "Previewing",
-        "LOAD": "DATASET IS LOADING",
         "RmHighlight": "Remove highlights",
         "ApplyHighlight": "Apply highlighted characters as delimiter",
         "EndOfPreview": "End of Preview"
@@ -446,7 +445,6 @@ module.exports = {
 
     "dsExport": {
         "Targets": "Targets",
-        "RefreshTargets": "Refresh Targets",
         "createBtn": "CREATE EXPORT TARGET",
         "CreateTarget": "Create Export Target",
         "CreateTargetInstr": "SELECT A TARGET TYPE AND CHOOSE A NAME FOR YOUR EXPORT TARGET. PROVIDE ANY ADDITIONAL INFORMATION AS NEEDED.",
