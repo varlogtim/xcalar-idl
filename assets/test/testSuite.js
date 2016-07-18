@@ -523,9 +523,9 @@ window.TestSuite = (function($, TestSuite) {
                 $("#functionList .dropdown .icon").trigger(fakeEvent.click);
                 $("#functionsMenu li:contains('ymd:ymd')")
                     .trigger(fakeEvent.mouseup);
-                $($(".argumentTable .argument")[0]).val("$Year");
-                $($(".argumentTable .argument")[1]).val("$Month");
-                $($(".argumentTable .argument")[2]).val("$DayofMonth");
+                $($(".argumentTable .argument")[0]).val(gColPrefix + "Year");
+                $($(".argumentTable .argument")[1]).val(gColPrefix + "Month");
+                $($(".argumentTable .argument")[2]).val(gColPrefix + "DayofMonth");
                 $($(".argumentTable .argument")[3]).val("YearMonthDay");
                 $("#operationsModal .modalBottom .confirm").click();
 
@@ -586,8 +586,8 @@ window.TestSuite = (function($, TestSuite) {
             .then(function() {
                 $("#functionList .dropdown .icon").trigger(fakeEvent.click);
                 $($("#functionsMenu li")[0]).trigger(fakeEvent.mouseup);
-                $($(".argumentTable .argument")[0]).val("$ArrDelay_integer");
-                $($(".argumentTable .argument")[1]).val("$UniqueCarrier");
+                $($(".argumentTable .argument")[0]).val(gColPrefix + "ArrDelay_integer");
+                $($(".argumentTable .argument")[1]).val(gColPrefix + "UniqueCarrier");
                 $($(".argumentTable .argument")[2]).val("AvgDelay");
                 $("#operationsModal .modalBottom .confirm").click();
 
@@ -703,7 +703,8 @@ window.TestSuite = (function($, TestSuite) {
         trigOpModal(tableId, "ArrDelay_integer", "groupby")
         .then(function() {
             $("#functionsMenu li").eq(2).trigger(fakeEvent.mouseup);
-            $(".argumentTable .argument").eq(1).val("$Dest, $AirTime");
+            $(".argumentTable .argument").eq(1).val(gColPrefix + "Dest, " +
+                                                    gColPrefix + "AirTime");
             $("#operationsModal .modalBottom .confirm").click();
             return (checkExists(".xcTableWrap " +
                                 ".tableName[value*='GB']"));

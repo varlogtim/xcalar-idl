@@ -914,8 +914,8 @@ describe('xcHelper Test', function() {
                     '</div>');
 
         var $input = $('<input class="argument" type="text">');
-        xcHelper.fillInputFromCell($header.find(".test"), $input, "$");
-        expect($input.val()).to.equal("$test");
+        xcHelper.fillInputFromCell($header.find(".test"), $input, gColPrefix);
+        expect($input.val()).to.equal(gColPrefix + "test");
         // case 2
         var $table = $('<table>' +
                         '<td class="col1">' +
@@ -926,39 +926,47 @@ describe('xcHelper Test', function() {
                     '</table>');
 
         $input = $('<input class="argument" type="text">');
-        xcHelper.fillInputFromCell($table.find(".test"), $input, "$");
-        expect($input.val()).to.equal("$t2");
+        xcHelper.fillInputFromCell($table.find(".test"), $input, gColPrefix);
+        expect($input.val()).to.equal(gColPrefix + "t2");
         // case 3
         $input = $('<input>');
-        xcHelper.fillInputFromCell($header.find(".test"), $input, "$");
+        xcHelper.fillInputFromCell($header.find(".test"), $input, gColPrefix);
         expect($input.val()).to.equal("");
         // case 4
         $input = $('<input class="argument">');
-        xcHelper.fillInputFromCell($header.find(".test"), $input, "$");
+        xcHelper.fillInputFromCell($header.find(".test"), $input, gColPrefix);
         expect($input.val()).to.equal("");
         // case 5
         $input = $('<div class="colNameSection">' +
                     '<input class="argument" type="text">' +
                     '</div>').find('input');
-        xcHelper.fillInputFromCell($header.find(".test"), $input, "$");
+        xcHelper.fillInputFromCell($header.find(".test"), $input, gColPrefix);
         expect($input.val()).to.equal("");
     });
 
-    it('xcHelper.hasValidColPrefix should work', function() {
-        // case 1
-        var res = xcHelper.hasValidColPrefix(1, '$');
-        expect(res).to.be.false;
-        // case 2
-        res = xcHelper.hasValidColPrefix('test', '$');
-        expect(res).to.be.false;
-        // case 3
-        res = xcHelper.hasValidColPrefix('$test', '$');
-        expect(res).to.be.true;
-        // case 4
-        res = xcHelper.hasValidColPrefix('$test, $test2', '$');
-        expect(res).to.be.true;
-        // case 5
-        res = xcHelper.hasValidColPrefix('$test, $', '$');
-        expect(res).to.be.false;
+    it ('xcHelper.hasValidColPrefix(str) should work', function() {
+        var func = xcHelper.hasValidColPrefix;
+        expect(func(gColPrefix)).to.equal(false);
+        expect(func('\\' + gColPrefix)).to.equal(false);
+        expect(func('\\' + gColPrefix + 'blah')).to.equal(false);
+        expect(func('a\\' + gColPrefix + 'blah')).to.equal(false);
+        expect(func(',a\\' + gColPrefix + 'blah')).to.equal(false);
+        expect(func(gColPrefix+ 'blah,   \\' + gColPrefix + 'blah')).to.equal(false);
+        expect(func(gColPrefix + 'blah ' + gColPrefix + 'blah')).to.equal(false);
+        expect(func(gColPrefix + 'blah, a' + gColPrefix + 'blah')).to.equal(false);
+        expect(func(gColPrefix + 'blah, ' + gColPrefix + gColPrefix + 'blah')).to.equal(false);
+        expect(func(gColPrefix + 'blah, \\' + gColPrefix + 'blah')).to.equal(false);
+        expect(func(gColPrefix + 'blah, ' + gColPrefix + '\\' + gColPrefix + gColPrefix + 'blah')).to.equal(false);
+        expect(func(gColPrefix + 'blah, ' + gColPrefix + 'bl,ah')).to.equal(false);
+
+        expect(func(gColPrefix + 'a')).to.equal(true);
+        expect(func(gColPrefix + 'blah')).to.equal(true);
+        expect(func(gColPrefix + 'blah, ' + gColPrefix + 'blah')).to.equal(true);
+        expect(func(gColPrefix + 'blah,   ' + gColPrefix + 'blah')).to.equal(true);
+        expect(func(gColPrefix + 'blah, ' + gColPrefix + '\\' + gColPrefix + 'blah')).to.equal(true);
+        expect(func(gColPrefix + 'blah, ' + gColPrefix + 'bl\\,ah, ' + gColPrefix + 'blah')).to.equal(true);
+
     });
+
 });
+

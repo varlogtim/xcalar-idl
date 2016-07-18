@@ -1592,24 +1592,35 @@ window.xcHelper = (function($, xcHelper) {
         gMouseEvents.setMouseDownTarget($input);
     };
 
-    // not only looks for colPrefix but checks to make sure it's not preceded by
+    // not only looks for gColPrefix but checks to make sure it's not preceded by
     // anything other than a comma
-    xcHelper.hasValidColPrefix = function(str, colPrefix) {
+    xcHelper.hasValidColPrefix = function(str) {
         var hasPrefix = false;
         if (typeof str !== "string") {
             return false;
         }
-        str = str.replace(/\s/g, '');
+
+        str = str.trim();
 
         var colNames = [];
         var cursor = 0;
+        var prevCharIsComma = false;
         for (var i = 0; i < str.length; i++) {
-            if (str[i] === "," && !xcHelper.isCharEscaped(str, i)) {
-                colNames.push(str.slice(cursor, i));
-                cursor = i + 1;
+            if (!xcHelper.isCharEscaped(str, i)) {
+                if (!prevCharIsComma && str[i] === ",") {
+                    colNames.push(str.slice(cursor, i).trim());
+                    cursor = i + 1;
+                    prevCharIsComma = true;
+                } else if (!prevCharIsComma && str[i] === " ") {
+                    // "colname colname" instead of "colname, colname"
+                    return false;
+                } else if (str[i] !== " ") {
+                    prevCharIsComma = false;
+                }
             }
         }
-        colNames.push(str.slice(cursor, i));
+
+        colNames.push(str.slice(cursor, i).trim());
 
         var colName;
         for (var i = 0; i < colNames.length; i++) {
@@ -1617,7 +1628,14 @@ window.xcHelper = (function($, xcHelper) {
             if (colName.length < 2) {
                 return false;
             }
-            if (colName[0] === colPrefix) {
+            if (colName[0] === gColPrefix) {
+                for (var j = 1; j < colName.length; j++) {
+                    if (colName[j] === gColPrefix &&
+                        !xcHelper.isCharEscaped(colName, j)) {
+                        // shouldn't have non escaped colprefix in colname
+                        return false;
+                    }
+                }
                 hasPrefix = true;
             } else {
                 return false;

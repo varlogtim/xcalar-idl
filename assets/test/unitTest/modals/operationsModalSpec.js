@@ -50,37 +50,6 @@ describe('OperationsModal', function() {
         });
     });
 
-    // moved to helper.js
-    // describe('function hasValidColPrefix', function() {
-    //     var func;
-    //     before(function() {
-    //         func = OperationsModal.__testOnly__.hasValidColPrefix;
-    //     });
-
-    //     it ('hasValidColPrefix(str) should return correctly', function() {
-    //         expect(func('$')).to.equal(false);
-    //         expect(func('\\$')).to.equal(false);
-    //         expect(func('\\$blah')).to.equal(false);
-    //         expect(func('a\\$blah')).to.equal(false);
-    //         expect(func(',a\\$blah')).to.equal(false);
-    //         expect(func('$blah,   \\$blah')).to.equal(false);
-    //         expect(func('$blah $blah')).to.equal(false);
-    //         expect(func('$blah, a$blah')).to.equal(false);
-    //         expect(func('$blah, $$blah')).to.equal(false);
-    //         expect(func('$blah, \\$blah')).to.equal(false);
-    //         expect(func('$blah, $\\$$blah')).to.equal(false);
-    //         expect(func('$blah, $bl,ah')).to.equal(false);
-
-    //         expect(func('$a')).to.equal(true);
-    //         expect(func('$blah')).to.equal(true);
-    //         expect(func('$blah, $blah')).to.equal(true);
-    //         expect(func('$blah,   $blah')).to.equal(true);
-    //         expect(func('$blah, $\\$blah')).to.equal(true);
-    //         expect(func('$blah, $bl\\,ah, $blah')).to.equal(true);
-
-    //     });
-    // });
-
     describe('group by', function() {
         var tableId;
         var $operationsModal;
@@ -192,8 +161,8 @@ describe('OperationsModal', function() {
                 for (var i = 0; i < someColumns.length; i++) {
                     for (var j = 0; j < someColumns.length; j++) {
                         args = [];
-                        args.push('$' + someColumns[i].name);
-                        args.push('$' + someColumns[j].name);
+                        args.push(gColPrefix + someColumns[i].name);
+                        args.push(gColPrefix + someColumns[j].name);
                         args.push('new_column_name');
                         testArgs.push(args);
                     }
@@ -209,10 +178,10 @@ describe('OperationsModal', function() {
             });
 
             it('variety of different arguments should be formatted correctly', function() {
-                var testArgs1 = ["str", "null", "undefined", "sp aced", "com,ma", "d.ot", "$", "\\$", "$a", "\\$a", "a\\$", "5a", "a5", -5, 5, 3.2, 0];
+                var testArgs1 = ["str", "null", "undefined", "sp aced", "com,ma", "d.ot", gColPrefix, "\\" + gColPrefix, gColPrefix + "a", "\\" + gColPrefix + "a", "a\\" + gColPrefix, "5a", "a5", -5, 5, 3.2, 0];
                 var testArgs2 = [];
                 for (var i = 0; i < someColumnNames; i++) {
-                    testArgs2.push('$' + someColumnNames[i]);
+                    testArgs2.push(gColPrefix + someColumnNames[i]);
                 }
                 var arg1Types = [];
                 var arg2Types = [];

@@ -90,7 +90,7 @@ window.UExtDev = (function(UExtDev) {
             // XXX We should allow clicking on tables other than the main table
             // but since we don't, we will have to type. This means that the
             // user will have to type the $. So we have to strip it if they did
-            if (rColName.trim().indexOf("$") === 0) {
+            if (rColName.trim().indexOf(gColPrefix) === 0) {
                 rColName = rColName.trim().substring(1);
             }
 

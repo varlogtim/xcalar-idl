@@ -101,7 +101,7 @@ window.ExtensionOpModal = (function(ExtensionOpModal, $) {
 
         $('#xcTable-' + tableId).on('click.columnPicker', '.header, td.clickable', function(event) {
             var $target = $(event.target);
-            xcHelper.fillInputFromCell($target, $lastInputFocused, "$");
+            xcHelper.fillInputFromCell($target, $lastInputFocused, gColPrefix);
         });
 
         $('#xcTheadWrap-' + tableId).on('click.tablePicker', function(event) {
@@ -200,7 +200,7 @@ window.ExtensionOpModal = (function(ExtensionOpModal, $) {
         }
 
         if (argType === "column") {
-            if (!xcHelper.hasValidColPrefix(arg, "$")) {
+            if (!xcHelper.hasValidColPrefix(arg)) {
                 StatusBox.show(ErrTStr.ColInModal, $input);
                 return { "vaild": false };
             }
@@ -342,7 +342,7 @@ window.ExtensionOpModal = (function(ExtensionOpModal, $) {
                 if (argType === "column") {
                     hasColumnArg = true;
                     if (args[i].autofill) {
-                        inputVal = "$" + triggerCol;
+                        inputVal = gColPrefix + triggerCol;
                     }
                 } else {
                     if (args[i].autofill != null) {

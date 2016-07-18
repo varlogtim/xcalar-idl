@@ -20,9 +20,7 @@ window.OperationsModal = (function($, OperationsModal) {
     var categoryListScroller;
     var functionsListScroller;
     var quotesNeeded = [];
-    var colPrefix = '$';
     var aggPrefix = gAggVarPrefix;
-
     var modalHelper;
     var corrector;
     var aggNames = [];
@@ -612,7 +610,7 @@ window.OperationsModal = (function($, OperationsModal) {
 
             $table.on('click.columnPicker', '.header, td.clickable', function(event) {
                 var $target = $(event.target);
-                xcHelper.fillInputFromCell($target, $lastInputFocused, colPrefix);
+                xcHelper.fillInputFromCell($target, $lastInputFocused, gColPrefix);
             });
             $table.on('mousedown', '.header, td.clickable', keepInputFocused);
             $('body').on('keydown', listHighlightListener);
@@ -1148,7 +1146,7 @@ window.OperationsModal = (function($, OperationsModal) {
         }
 
         if (operObj != null) {
-            var defaultValue = colPrefix + colName;
+            var defaultValue = gColPrefix + colName;
 
             if (firstArgExceptions[category] &&
                 firstArgExceptions[category].indexOf(func) !== -1)
@@ -1707,7 +1705,7 @@ window.OperationsModal = (function($, OperationsModal) {
                 return;
             } else if (hasFuncFormat(arg)) {
                 // skip
-            } else if (xcHelper.hasValidColPrefix(arg, colPrefix)) {
+            } else if (xcHelper.hasValidColPrefix(arg)) {
                 arg = parseColPrefixes(arg);
                 if ($("#categoryList input").val().indexOf("user") !== 0) {
                     type = getColumnTypeFromArg(arg);
@@ -1738,7 +1736,7 @@ window.OperationsModal = (function($, OperationsModal) {
             var arg = $(this).val().trim();
             var parsedType = parseType(typeIds[i]);
             if (!$input.closest(".dropDownList").hasClass("colNameSection") &&
-                !xcHelper.hasValidColPrefix(arg, colPrefix) &&
+                !xcHelper.hasValidColPrefix(arg) &&
                 arg[0] !== aggPrefix &&
                 parsedType.indexOf("string") !== -1 &&
                 !hasFuncFormat(arg)) {
@@ -1838,7 +1836,7 @@ window.OperationsModal = (function($, OperationsModal) {
             if ($input.closest(".dropDownList").hasClass("colNameSection")) {
                 arg = parseColPrefixes(arg);
                 type = getColumnTypeFromArg(arg);
-            } else if (xcHelper.hasValidColPrefix(arg, colPrefix)) {
+            } else if (xcHelper.hasValidColPrefix(arg)) {
                 arg = parseColPrefixes(arg);
 
                 // Since there is currently no way for users to specify what
@@ -2079,7 +2077,7 @@ window.OperationsModal = (function($, OperationsModal) {
                 arg = parseColPrefixes(arg);
             } else if (arg[0] === aggPrefix) {
                 // leave it
-            } else if (xcHelper.hasValidColPrefix(arg, colPrefix)) {
+            } else if (xcHelper.hasValidColPrefix(arg)) {
                 // if it contains a column name
                 // note that field like pythonExc can have more than one $col
                 // containsColumn = true;
@@ -3102,7 +3100,7 @@ window.OperationsModal = (function($, OperationsModal) {
 
     function parseColPrefixes(str) {
         for (var i = 0; i < str.length; i++) {
-            if (str[i] === colPrefix) {
+            if (str[i] === gColPrefix) {
                 if (str[i - 1] === "\\") {
                     str = str.slice(0, i - 1) + str.slice(i);
                 } else if (isActualPrefix(str, i)) {
