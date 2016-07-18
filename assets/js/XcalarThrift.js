@@ -1772,7 +1772,7 @@ function XcalarGenRowNum(srcTableName, dstTableName, newFieldName, txId) {
 // PSA!!! This place does not check for unsorted table. So the caller
 // must make sure that the first table that is being passed into XcalarQuery
 // is an unsorted table! Otherwise backend may crash
-// txId only needs to be passed in if linked to a transaction
+// txId does not need to be passed in if xcalarquery not called inside a transaction
 function XcalarQuery(queryName, queryString, txId) {
     // XXX Now only have a simple output
     /* some test case :

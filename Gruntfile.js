@@ -78,13 +78,13 @@ module.exports = function(grunt) {
         options: {
           livereload: true
         },
-        files: ['assets/stylesheets/css/**/*.css', 'assets/js/**/*.js', 'index.html']
+        files: ['assets/stylesheets/css/**/*.css', 'assets/newStylesheets/css/**/*.css', 'assets/js/**/*.js', 'index.html', "assets/htmlFiles/login.html"]
       },
       withReloadCssOnly: {
         options: {
           livereload: true
         },
-        files: ['assets/stylesheets/css/**/*.css']
+        files: ['assets/stylesheets/css/**/*.css', 'assets/newStylesheets/css/**/*.css']
       }
     },
     concurrent: {
