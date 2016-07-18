@@ -21,7 +21,7 @@ window.OperationsModal = (function($, OperationsModal) {
     var functionsListScroller;
     var quotesNeeded = [];
     var colPrefix = '$';
-    var aggPrefix = "@";
+    var aggPrefix = gAggVarPrefix;
 
     var modalHelper;
     var corrector;
@@ -2685,7 +2685,7 @@ window.OperationsModal = (function($, OperationsModal) {
             deferred.resolve(false);
         } else {
             // check duplicates
-            // XXX temp fix for backend not wanting @
+            // XXX temp fix for backend not wanting gAggVarPrefix
             val = val.slice(1);
             XcalarGetConstants(val)
             .then(function(ret) {

@@ -608,7 +608,8 @@ window.UExtNN = (function(UExtNN, $) {
                     if (totalError == "") {
                         errorStr = 'map --eval "add(0,';
                     } else {
-                        errorStr = 'map --eval "add(@' + totalError + ',';
+                        errorStr = 'map --eval "add(' + gAggVarPrefix +
+                                    totalError + ',';
                     }
                     errorStr += 'mult(pow(' + odErrorData + ',2),0.5))"' +
                         ' --fieldName ' + outputErrorsCol +

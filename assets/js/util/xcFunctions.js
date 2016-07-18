@@ -86,7 +86,7 @@ window.xcFunction = (function($, xcFunction) {
         });
 
         var aggInfo = Aggregates.checkAgg(tableId, backColName, aggrOp);
-        if (aggInfo != null && (!aggName || aggName[0] !== "@")) {
+        if (aggInfo != null && (!aggName || aggName[0] !== gAggVarPrefix)) {
             xcHelper.unlockTable(tableId);
             setTimeout(function() {
                 var alertMsg = xcHelper.replaceMsg(AggTStr.AggMsg, {
@@ -125,10 +125,10 @@ window.xcFunction = (function($, xcFunction) {
             "steps"    : 1
         });
 
-        // XXX temp hack because backend doesn't but should take @ as first char
-        // for aggName
+        // XXX temp hack because backend doesn't but should take gAggVarPrefix
+        // as first char for aggName
         var hasPrefix = false;
-        if (aggName && aggName[0] === "@") {
+        if (aggName && aggName[0] === gAggVarPrefix) {
             aggName = aggName.slice(1);
             hasPrefix = true;
         }
@@ -136,7 +136,7 @@ window.xcFunction = (function($, xcFunction) {
         XIApi.aggregate(txId, aggrOp, aggStr, tableName, aggName)
         .then(function(value, dstDagName) {
             if (hasPrefix) {
-                dstDagName = "@" + dstDagName;
+                dstDagName = gAggVarPrefix + dstDagName;
             }
             var aggRes = {
                 "value"      : value,

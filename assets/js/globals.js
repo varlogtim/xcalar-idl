@@ -54,6 +54,7 @@ var gEnableJoinKeyCheck = false;
 var gMutePromises = true; // mutes .when() console logs
 var gExportFDelim = "\t";
 var gExportRDelim = "\n";
+var gAggVarPrefix = "^";
 var gLongTestSuite = 1;
 var gMaxSampleSize = 0; // Max Sample Size for datasets. If this is set, all
                         // datasets will abide by this limit. If you don't want

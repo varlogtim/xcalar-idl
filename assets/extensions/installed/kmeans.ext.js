@@ -335,7 +335,7 @@ window.UExtKMeans = (function(UExtKMeans, $) {
 
                 // Step 5d: Map each input vector to its closest cluster
                 'map --eval "int(kmeans:cluster(' + vectorColName +
-                    ',@' + clusterCentroids + '))"' +
+                    ',' + gAggVarPrefix + clusterCentroids + '))"' +
                     ' --fieldName ' + clusterColName +
                     ' --srctable ' + tableName +
                     ' --dsttable ' + clusterTableName + ';';

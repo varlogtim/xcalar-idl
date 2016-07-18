@@ -25,7 +25,7 @@ window.Aggregates = (function(Aggregates, $) {
         // extract tableId/colNam/aggOp to sort by one of them
         var key;
         var dagName = aggRes.dagName;
-        if (dagName[0] === "@") {
+        if (dagName[0] === gAggVarPrefix) {
             key = dagName;
         } else {
             key = tableId + "#" + colName + "#" + aggOp;

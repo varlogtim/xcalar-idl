@@ -121,7 +121,7 @@ window.UExtGLM = (function(UExtGLM, $) {
             var B = "B" + tableNameRoot + Authentication.getHashId();
             var BStr =
                 // Step 3a: Map each x point to its difference from avg(x)
-                "map --eval \"sub(" + xCol + ",@" + xAvg +")\"" +
+                "map --eval \"sub(" + xCol + "," + gAggVarPrefix + xAvg +")\"" +
                 " --fieldName " + xDiff +
                 " --srctable " + tableName +
                 " --dsttable " + xDiffTableName + ";" +
@@ -138,7 +138,7 @@ window.UExtGLM = (function(UExtGLM, $) {
                 " --dsttable " + variance + ";" +
 
                 // Step 3d: Map each y point to its difference from avg(y)
-                "map --eval \"sub(" + yCol + ",@" + yAvg +")\"" +
+                "map --eval \"sub(" + yCol + "," + gAggVarPrefix + yAvg +")\"" +
                 " --fieldName " + yDiff +
                 " --srctable " + xDiffTableName +
                 " --dsttable " + yDiffTableName + ";" +
@@ -150,7 +150,8 @@ window.UExtGLM = (function(UExtGLM, $) {
                 " --dsttable " + prodTableName + ";" +
 
                 // Step 3f: Map the product divided by variance
-                "map --eval \"div(" + prod + ",@" + variance +")\"" +
+                "map --eval \"div(" + prod + "," + gAggVarPrefix + variance +
+                    ")\"" +
                 " --fieldName " + div +
                 " --srctable " + prodTableName +
                 " --dsttable " + divTableName + ";" +
@@ -162,13 +163,15 @@ window.UExtGLM = (function(UExtGLM, $) {
 
             // Step 4: Plot the line
             // Step 4a: Assign a to its formula in eval string format
-            var aEval = "sub(@" + yAvg + ",mult(@" + B + ",@" + xAvg + "))";
+            var aEval = "sub(" + gAggVarPrefix + yAvg + ",mult(" +
+                        gAggVarPrefix +B + "," + gAggVarPrefix + xAvg + "))";
 
             // Step 4b: Map each x point to (y = a + Bx)
             var outputLine = "slr_output_line";
             var outputTableName = "slr_" + tableNameRoot + Authentication.getHashId();
             var lineStr =
-                "map --eval \"add(" + aEval + ",mult(@" + B + "," + xCol + "))\"" +
+                "map --eval \"add(" + aEval + ",mult(" + gAggVarPrefix + B +
+                    "," + xCol + "))\"" +
                 " --fieldName " + outputLine +
                 " --srctable " + tableName +
                 " --dsttable " + outputTableName + ";";

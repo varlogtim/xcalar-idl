@@ -1150,7 +1150,7 @@ function XcalarGetConstants(constantName) {
         deferred.resolve(ret.nodeInfo);
         // Return struct is an array of
         // {dagNodeId: integer, // Ignore
-        //  name: string,       // Name of constant. Will start with @
+        //  name: string,     // Name of constant. Will start with gAggVarPrefix
         //  state: integer}     // State of dag node.Read with DgDagStateTStr[x]
     })
     .fail(function(error) {

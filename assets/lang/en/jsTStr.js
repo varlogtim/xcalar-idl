@@ -124,10 +124,10 @@ ErrTStr = {
     'InvalidTableName': 'Table name cannot contain any of the ' +
                         'following characters: *#\'\"',
 
-    'InvalidAggName': 'Aggregate name must be prefixed with @',
+    'InvalidAggName': 'Aggregate name must be prefixed with ' + gAggVarPrefix,
 
-    'InvalidAggLength': 'Aggregate name must be prefixed with @ and ' +
-                        'followed by the name',
+    'InvalidAggLength': 'Aggregate name must be prefixed with ' + gAggVarPrefix
+                        + ' and followed by the name',
 
     'NoHashTag': 'Please input a valid name with no # symbols.',
 
@@ -271,7 +271,7 @@ ErrWRepTStr = {
 
     'TableNotDeleted': 'Table <name> was not deleted.',
 
-    'AggConflict': 'Aggregate "@<name>" already exists, ' +
+    'AggConflict': 'Aggregate "' + gAggVarPrefix + '<name>" already exists, ' +
                     'please choose another name.'
 };
 
