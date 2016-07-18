@@ -54,6 +54,10 @@
           <div class="icon"></div>
           <div class="text"><%= dicts.monitor.RAM %></div>
         </div>
+        <div id="diskTab" class="sideTab" data-toggle="tooltip" data-placement="bottom" data-container="body" title="<%= dicts.common.ComeSoon %>">
+          <div class="icon"></div>
+          <div class="text"><%= dicts.monitor.NETWORK %></div>
+        </div>
       </div>
       <div class="graphSection">
         <div class="graphTop">
@@ -112,8 +116,6 @@
             </span>
           </div>
         </div>
-      </div>
-      <div class="donutSection donutSection0">
         <div class="statsSection">
           <div class="statsTopHeading">
             <span class="global"></span>
@@ -126,11 +128,10 @@
             <span class="num avgNum">0</span>
           </div>
           <div class="listWrap open">
-            <ul class="small clearfix"></ul>
+            <ul class="small"></ul>
           </div>
         </div>
       </div>
-    
       <!-- donut1 -->
       <div id="donut1" class="donutSection">
         <div class="icon"></div>
@@ -148,9 +149,6 @@
             </span>
           </div>
         </div>
-      </div>
-      <!-- donut1 -->
-      <div class="donutSection donutSection1">
         <div class="statsSection">
           <div class="statsTopHeading">
               <span class="global"><%= dicts.monitor.GTotal %></span>
@@ -167,7 +165,45 @@
             </span>
           </div>
           <div class="listWrap open">
-            <ul class="clearfix"></ul>
+            <ul></ul>
+          </div>
+        </div>
+      </div>
+      <!-- donut2 -->
+      <div id="donut2" class="donutSection">
+        <div class="icon"></div>
+        <div class="donut">
+          <div class="sampleText"><%= dicts.monitor.SAMPLE %></div>
+          <div class="innerCircle"></div>
+          <div class="donutInfo">
+            <span class="userSize">
+              <span class="num">100</span>
+              <sup>Mbps</sup>
+            </span>
+            <hr/>
+            <span class="totalSize">
+              <span class="num">193</span>
+              <sup>Mbps</sup>
+            </span>
+          </div>
+        </div>
+        <div class="statsSection">
+          <div class="statsTopHeading">
+            <span class="global"><%= dicts.monitor.GTotal %></span>
+            <span class="user"><%= dicts.monitor.UTotal %></span>
+          </div>
+          <div class="statsHeadingBar open">
+            <span class="arrow"></span>
+            <span class="title"><%= dicts.monitor.NETWORK %></span>
+            <span class="userSize">
+              <span class="avgNum">45</span> Mbps
+             </span>
+             <span class="totalSize">
+              <span class="totNum">128</span> Mbps
+             </span>
+          </div>
+          <div class="listWrap open">
+            <ul></ul>
           </div>
         </div>
       </div>

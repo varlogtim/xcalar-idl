@@ -139,7 +139,7 @@ window.MonitorPanel = (function($, MonitorPanel) {
             disk.sumUsed += diskUsed;
             disk.sumTot += diskTot;
         }
-        var allStats = [cpu, ram, flash, disk];
+        var allStats = [cpu, ram, disk, flash];
 
         return (allStats);
     };
@@ -164,11 +164,12 @@ window.MonitorPanel = (function($, MonitorPanel) {
     };
 
     function initializeDonuts() {
-        var numDonuts = 2;
+        var numDonuts = 3;
         var blueOuter = '#20a7eb';
         var greenOuter = '#90c591';
+        var brownOuter = '#bbae84';
         var grayOuter = '#cecece';
-        var colors = [blueOuter, greenOuter];
+        var colors = [blueOuter, greenOuter, brownOuter];
         var diameter = 180;
         var radius = diameter / 2;
         var arc = d3.svg.arc()
@@ -277,7 +278,7 @@ window.MonitorPanel = (function($, MonitorPanel) {
                     if (num >= 10 || index === 0) {
                         num = Math.round(num);
                     }
-                    if (index !== 0) {
+                    if (index === 1) {
                         $sizeType.html(size[1]);
                     }
                     this.textContent = num;
@@ -288,7 +289,7 @@ window.MonitorPanel = (function($, MonitorPanel) {
     function updateDonutStatsSection(el, index, stats) {
         //this is for the list of stats located below the donut
         var numNodes = stats.used.length;
-        var $statsSection = $(el).parent().next().find('.statsSection');
+        var $statsSection = $(el).next();
         var listHTML = "";
 
         if (index === 0) {
@@ -308,10 +309,13 @@ window.MonitorPanel = (function($, MonitorPanel) {
         } else {
             var sumTotal = xcHelper.sizeTranslator(stats.sumTot, true);
             var sumUsed = xcHelper.sizeTranslator(stats.sumUsed, true);
-            $statsSection.find('.statsHeadingBar .totNum')
+            if (index !== 2) {
+                $statsSection.find('.statsHeadingBar .totNum')
                          .text(sumTotal[0] + " " + sumTotal[1]);
-            $statsSection.find('.statsHeadingBar .avgNum')
+                $statsSection.find('.statsHeadingBar .avgNum')
                          .text(sumUsed[0] + " " + sumUsed[1]);
+            }
+            
 
             for (var i = 0; i < numNodes; i++) {
                 var total = xcHelper.sizeTranslator(stats.tot[i], true);
@@ -319,8 +323,12 @@ window.MonitorPanel = (function($, MonitorPanel) {
                 var usedUnits;
                 var totalUnits;
 
-                usedUnits = used[1];
-                totalUnits = total[1];
+                if (index === 2) {
+                    usedUnits = totalUnits = "Mbps";
+                } else {
+                    usedUnits = used[1];
+                    totalUnits = total[1];
+                }
 
                 listHTML += '<li>' +
                                 '<span class="name">' +
