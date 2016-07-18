@@ -636,7 +636,7 @@ window.UDF = (function($, UDF) {
                 '\t\tstri = stri + str(a) + ".Xc."\n' +
             '\treturn stri\n' +
         'def convertNewLineJsonToArrayJson(instring, inpath):\n' +
-            '\treturn "["+",".join(filter(None, instring.split("\\n")))+"]"\n';
+            '\treturn "["+",".join(filter(None, re.split("\\n|,\\n", instring)))+"]"\n';
 
         XcalarUploadPython(moduleName, entireString)
         .then(function() {
