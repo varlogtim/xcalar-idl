@@ -43,7 +43,7 @@ function dsTableTest() {
                 assert.isTrue($datasetWrap.hasClass("loading"));
 
                 var loadText = $datasetWrap.find(".loadSection .text").text();
-                expect(loadText).to.equal("Dataset is loading");
+                expect(loadText).to.equal("Loading");
                 done();
             })
             .fail(function() {
@@ -52,7 +52,7 @@ function dsTableTest() {
         });
 
         it("Should not show datasample table when dsId is wrong", function(done) {
-            var dsId = xcHelper.randName("tesst");
+            var dsId = xcHelper.randName("test");
 
             DSTable.show(dsId)
             .then(function() {

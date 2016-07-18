@@ -559,6 +559,7 @@ window.UDF = (function($, UDF) {
         'import datetime\n' +
         'import time\n' +
         'import pytz\n' +
+        'import re\n' +
         '\n' +
         "# %a    Locale's abbreviated weekday name.\n" +
         "# %A    Locale's full weekday name.\n" +
@@ -636,7 +637,7 @@ window.UDF = (function($, UDF) {
                 '\t\tstri = stri + str(a) + ".Xc."\n' +
             '\treturn stri\n' +
         'def convertNewLineJsonToArrayJson(instring, inpath):\n' +
-            '\treturn "["+",".join(filter(None, re.split("\\n|,\\n", instring)))+"]"\n';
+            '\treturn "["+",".join(filter(None, re.split("\\n|,\\s*\\n", instring)))+"]"\n';
 
         XcalarUploadPython(moduleName, entireString)
         .then(function() {

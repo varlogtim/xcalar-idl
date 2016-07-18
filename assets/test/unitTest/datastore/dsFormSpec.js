@@ -208,15 +208,14 @@ function dsFormModuleTest() {
             assert.equal($statusBox.find(".message").text(), ErrTStr.NoEmptyList);
         });
 
-        it("Should not allow preivew json", function() {
+        it("Should allow preivew json", function() {
             $filePath.val("test");
             $formatText.data("format", "JSON");
             var isValid = DSForm.__testOnly__.isValidToPreview();
-            expect(isValid).to.be.false;
+            expect(isValid).to.be.true;
 
             // check status box
-            assert.isTrue($statusBox.is(":visible"), "see statux box");
-            assert.equal($statusBox.find(".message").text(), ErrTStr.NoPreviewJSON);
+            assert.isFalse($statusBox.is(":visible"), "see statux box");
         });
 
         it("Should not allow preivew excel", function() {

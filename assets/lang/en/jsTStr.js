@@ -194,9 +194,6 @@ ErrTStr = {
 
     'ParamInUse': 'Cannot delete, this parameter is in use.',
 
-    'NoPreviewJSON': 'JSON files are not previewable, ' +
-                     'please point to data directly without previewing.',
-
     'NoPreviewExcel': 'Excel files are not previewable, ' +
                       'please point to data directly without previewing.',
 
@@ -488,6 +485,7 @@ DSPreviewTStr = {
     'HighlightDelimHint': 'Highlight a character as delimiter',
     'Or': 'or',
     'HighlightAnyDelimHint': 'Highlight another character as delimiter',
+    'LoadJSONWithUDF': 'Speical JSON format: parse with UDF',
     'LoadJSON': 'Format as JSON',
     'LoadExcel': 'Format as EXCEL',
     'LoadExcelWithHeader': 'Format as EXCEL and promote header',

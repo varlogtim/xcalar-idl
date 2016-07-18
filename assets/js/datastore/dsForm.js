@@ -544,10 +544,6 @@ window.DSForm = (function($, DSForm) {
         if (getFilePath() === "") {
             StatusBox.show(ErrTStr.NoEmpty, $filePath, false, options);
             return false;
-        } else if (format === "JSON") {
-            // Invalid json preview
-            StatusBox.show(ErrTStr.NoPreviewJSON, $filePath, false, options);
-            return false;
         } else if (format === "Excel") {
             StatusBox.show(ErrTStr.NoPreviewExcel, $filePath, false, options);
             return false;

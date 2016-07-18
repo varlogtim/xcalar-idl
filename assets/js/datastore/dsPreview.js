@@ -131,6 +131,15 @@ window.DSPreview = (function($, DSPreview) {
 
         $suggSection.on("click", ".jsonLoad", function() {
             dsFormat = "JSON";
+            moduleName = "";
+            funcName = "";
+            applyPreviewChange();
+        });
+
+        $suggSection.on("click", ".jsonLoadWithUDF", function() {
+            dsFormat = "JSON";
+            moduleName = "default";
+            funcName = "convertNewLineJsonToArrayJson";
             applyPreviewChange();
         });
 
@@ -203,13 +212,17 @@ window.DSPreview = (function($, DSPreview) {
                 $loadHiddenSection.fadeIn(500);
             }
 
-            var strToDelimit = delimieterDeterct(rawData);
-            applyDelim(strToDelimit);
+            getPreviewTable();
+            // auto apply some suggestion if possible
+            var $firstSugg = $("#previewSugg .action:first-child");
+            if ($firstSugg.hasClass("delim")) {
+                $firstSugg.click();
 
-            var $promote = $("#previewSugg .promote");
-            if (strToDelimit !== "" && $promote.length > 0) {
-                // promote the first row as header
-                $promote.click();
+                var $promote = $("#previewSugg .promote");
+                if ($promote.length > 0) {
+                    // promote the first row as header
+                    $promote.click();
+                }
             }
 
             addPreviewEvent();
@@ -495,7 +508,7 @@ window.DSPreview = (function($, DSPreview) {
                 "onConfirm": function() { loadDS(); }
             });
         } else {
-            loadDS()();
+            loadDS();
         }
     }
 
@@ -507,7 +520,7 @@ window.DSPreview = (function($, DSPreview) {
 
         if (dsFormat === "JSON") {
             promise = DSForm.load(dsName, "JSON", loadURL,
-                                    "", "", false, "", "");
+                                  "", "", false, moduleName, funcName);
         } else if (dsFormat === "Excel") {
             promise = DSForm.load(dsName, "Excel", loadURL,
                                   "\t", "\n", hasHeader, "", "");
@@ -909,6 +922,14 @@ window.DSPreview = (function($, DSPreview) {
         var $content = $suggSection.find(".content");
         var html = "";
 
+        if (sepicalJSONDetect()) {
+            html = '<span class="action active jsonLoadWithUDF">' +
+                        DSPreviewTStr.LoadJSONWithUDF +
+                    '</span>';
+            $content.html(html);
+            return;
+        }
+
         if (delimiter === "") {
             if (highlighter === "") {
                 var $cells = $previewTable.find("tbody tr:first-child .td");
@@ -919,15 +940,16 @@ window.DSPreview = (function($, DSPreview) {
                     $content.html(html);
                     return;
                 }
+
                 // case to choose a highlighter
                 var commaLen = $previewTable.find(".has-comma").length;
                 var tabLen = $previewTable.find(".has-tab").length;
                 var commaHtml =
-                    '<span class="action active commaDelim">' +
+                    '<span class="action active delim commaDelim">' +
                         DSPreviewTStr.CommaAsDelim +
                     '</span>';
                 var tabHtml =
-                    '<span class="action active tabDelim">' +
+                    '<span class="action active delim tabDelim">' +
                         DSPreviewTStr.TabAsDelim +
                     '</span>';
 
@@ -949,7 +971,7 @@ window.DSPreview = (function($, DSPreview) {
                 // when has pip
                 var pipLen = $previewTable.find(".has-pipe").length;
                 if (pipLen >= rowsToFetch) {
-                    var pipHtml = '<span class="action active pipeDelim">' +
+                    var pipHtml = '<span class="action active delim pipeDelim">' +
                                     DSPreviewTStr.PipeAsDelim +
                                   '</span>';
 
@@ -1062,34 +1084,27 @@ window.DSPreview = (function($, DSPreview) {
         return html;
     }
 
-    function delimieterDeterct(data) {
-        var commaCnt = 0;
-        var tabCnt = 0;
-        var pipeCnt = 0;
-
-        for (var i = 0, len = data.length; i < len; i++) {
-            var row = data[i];
-            for (var j = 0, rowLen = row.length; j < rowLen; j++) {
-                var c = row[i];
-                if (c === ',') {
-                    commaCnt++;
-                } else if (c === '\t') {
-                    tabCnt++;
-                } else if (c === '|') {
-                    pipeCnt++;
+    function sepicalJSONDetect() {
+        var isSpecialJSON = false;
+        // format is {"test": ...},\n{"test2": ...}
+        $previewTable.find("tbody tr").each(function() {
+            var $cell = $(this).find(".cell");
+            // should only have one row
+            if ($cell.length === 1) {
+                var text = $cell.text().trim();
+                if (/{.+:.+},?/.test(text)) {
+                    // continue the loop
+                    // only when it has at least one valid case
+                    // we make it true
+                    isSpecialJSON = true;
+                    return true;
                 }
             }
-        }
-
-        if (commaCnt !== 0 && commaCnt >= tabCnt && commaCnt >= pipeCnt) {
-            return ",";
-        } else if (tabCnt !== 0 && tabCnt >= pipeCnt) {
-            return "\t";
-        } else if (pipeCnt !== 0) {
-            return "|";
-        } else {
-            return "";
-        }
+            // not qualified, end loop
+            isSpecialJSON = false;
+            return false;
+        });
+        return isSpecialJSON;
     }
 
     function hasSpecialChar() {
