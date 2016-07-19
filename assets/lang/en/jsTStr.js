@@ -485,7 +485,7 @@ DSPreviewTStr = {
     'HighlightDelimHint': 'Highlight a character as delimiter',
     'Or': 'or',
     'HighlightAnyDelimHint': 'Highlight another character as delimiter',
-    'LoadJSONWithUDF': 'Speical JSON format: parse with UDF',
+    'LoadJSONWithUDF': 'New Line Delimited JSON',
     'LoadJSON': 'Format as JSON',
     'LoadExcel': 'Format as EXCEL',
     'LoadExcelWithHeader': 'Format as EXCEL and promote header',
