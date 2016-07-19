@@ -64,7 +64,7 @@ window.DSForm = (function($, DSForm) {
             }
         });
 
-        // promote recur checkbox
+        //recur checkbox
         $recurCheckbox.click(function() {
             var $checkbox = $recurCheckbox.find(".checkbox");
             var toRecursive = false;
@@ -75,6 +75,20 @@ window.DSForm = (function($, DSForm) {
                 toRecursive = true;
             }
             toggleRecursivePoint(toRecursive);
+        });
+
+        // regex checkbox
+        $("#regExCheckbox").click(function() {
+            var $checkbox = $("#regExCheckbox").find(".checkbox");
+            if ($checkbox.hasClass("checked")) {
+                // uncheck
+                $checkbox.removeClass("checked");
+                console.log("unchecked");
+            } else {
+                // check
+                $checkbox.addClass("checked");
+                console.log("checked");
+            }
         });
 
         // csv promote checkbox
@@ -399,6 +413,7 @@ window.DSForm = (function($, DSForm) {
         // keep header to be checked
         $udfCheckbox.find(".checkbox").removeClass("checked");
         $recurCheckbox.find(".checkbox").removeClass("checked");
+        $("#regExCheckbox").find(".checkbox").removeClass("checked");
         // keep the current protocol
         setProtocol(protocol);
         resetUdfSection();
@@ -617,7 +632,7 @@ window.DSForm = (function($, DSForm) {
             $filePathPattern.parent().addClass("hidden");
             pattern = $filePathPattern.val();
             if (pattern.indexOf("*") < 0) {
-                if (!path.endsWith("/")) {
+                if (!path.endsWith("/") && path !== "") {
                     path += "/";
                 }
                 path += pattern;
