@@ -460,7 +460,9 @@ DSFormTStr = {
     'NoHeader': 'You have not checked the Header option to promote the first'+
                 ' row to the table header. You will not be able to change the '+
                 'table header from the default after this.',
-    'InvalidDelim': 'Invalid delimiter.'
+    'InvalidDelim': 'Invalid delimiter.',
+    'InvalidRecursivePath': 'Invalid path, please specify a directory when point to data resursively',
+
 };
 
 DataCartStr = {

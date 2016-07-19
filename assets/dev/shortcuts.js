@@ -137,15 +137,15 @@ window.Shortcuts = (function($, Shortcuts) {
                 switch (val) {
                     case ("za"):
                         file = "yelpUsers";
-                        filePath = "yelp/user";
+                        filePath = "yelp/user/";
                         break;
                     case ("zb"):
                         file = "yelpReviews";
-                        filePath = "yelp/reviews";
+                        filePath = "yelp/reviews/";
                         break;
                     case ("zc"):
                         file = "gdelt";
-                        filePath = "gdelt";
+                        filePath = "gdelt/";
                         break;
                     case ("zd"):
                         file = "sp500";
@@ -153,23 +153,23 @@ window.Shortcuts = (function($, Shortcuts) {
                         break;
                     case ("ze"):
                         file = "classes";
-                        filePath = "indexJoin/classes";
+                        filePath = "indexJoin/classes/";
                         break;
                     case ("zf"):
                         file = "schedule";
-                        filePath = "indexJoin/schedule";
+                        filePath = "indexJoin/schedule/";
                         break;
                     case ("zg"):
                         file = "students";
-                        filePath = "indexJoin/students";
+                        filePath = "indexJoin/students/";
                         break;
                     case ("zh"):
                         file = "teachers";
-                        filePath = "indexJoin/teachers";
+                        filePath = "indexJoin/teachers/";
                         break;
                     case ("zi"):
                         file = "jsonGen";
-                        filePath = "var/temp/jsonGen";
+                        filePath = "var/temp/jsonGen/";
                         filePathGiven = true;
                         break;
                     default:

@@ -396,6 +396,7 @@ module.exports = {
         "Instr": "INPUT DATA SOURCE PATH, SELECT FORMAT AND THEN INPUT DATASET REFERENCE NAME TO POINT TO DATA. POINTED DATA WILL BE LISTED ON THE LEFT.",
         "dsLocation": "Data Source",
         "filePath": "Data Source Path",
+        "filePattern": "Recursive Pattern",
         "DSName": "Dataset Reference Name",
         "fileNameTitle": "A valid name with no special characters",
         "DelimHint": "If you parse data with UDF, field and line delimiters are applied after data is parsed",

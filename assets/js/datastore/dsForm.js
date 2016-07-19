@@ -2,7 +2,8 @@
  * Module for the dataset form part
  */
 window.DSForm = (function($, DSForm) {
-    var $filePath;      // $("#filePath")
+    var $filePath;        // $("#filePath")
+    var $filePathPattern; // $("#filePath-pattern")
 
     var $form;          // $("#importDataForm")
     var $formatText;    // $("#fileFormat .text")
@@ -32,6 +33,7 @@ window.DSForm = (function($, DSForm) {
 
     DSForm.setup = function() {
         $filePath = $("#filePath");
+        $filePathPattern = $("#filePath-pattern");
 
         $form = $("#importDataForm");
         $formatText = $("#fileFormat .text");
@@ -64,7 +66,15 @@ window.DSForm = (function($, DSForm) {
 
         // promote recur checkbox
         $recurCheckbox.click(function() {
-            $recurCheckbox.find(".checkbox").toggleClass("checked");
+            var $checkbox = $recurCheckbox.find(".checkbox");
+            var toRecursive = false;
+            if ($checkbox.hasClass("checked")) {
+                $checkbox.removeClass("checked");
+            } else {
+                $checkbox.addClass("checked");
+                toRecursive = true;
+            }
+            toggleRecursivePoint(toRecursive);
         });
 
         // csv promote checkbox
@@ -122,7 +132,8 @@ window.DSForm = (function($, DSForm) {
 
             var protocol = getProtocol();
             var path = getFilePath();
-            if (!isValidPathToBrowse(protocol, path) ||
+            if (!isValidPathToRecusrivePoint() ||
+                !isValidPathToBrowse(protocol, path) ||
                 !isValidPreviewSize())
             {
                 return;
@@ -142,8 +153,7 @@ window.DSForm = (function($, DSForm) {
 
                     var dsName = $("#fileName").val();
                     var loadURL = protocol + path;
-                    var isRecur = $("#recurCheckbox").find(".checkbox")
-                                                    .hasClass("checked");
+                    var isRecur = isResursivePoint();
                     DSPreview.show(loadURL, dsName, udfModule, udfFunc, isRecur);
                 }
             }
@@ -210,8 +220,7 @@ window.DSForm = (function($, DSForm) {
     {
         var deferred = jQuery.Deferred();
         // validation check of loadURL
-        var isRecur = $recurCheckbox.find(".checkbox").hasClass("checked");
-
+        var isRecur = isResursivePoint();
 
         var msgId = StatusMessage.addMsg({
             "msg"      : StatusMessageTStr.LoadingDataset + ": " + dsName,
@@ -314,7 +323,7 @@ window.DSForm = (function($, DSForm) {
 
     function submitForm() {
         var dsFormat = formatMap[$formatText.data("format")];
-        var isValid = DSForm.validate();
+        var isValid = DSForm.validate() && isValidPathToRecusrivePoint();
 
         if (isValid) {
             isValid = xcHelper.validate([{
@@ -496,6 +505,20 @@ window.DSForm = (function($, DSForm) {
         }
     }
 
+    function isValidPathToRecusrivePoint() {
+        if (!isResursivePoint()) {
+            return true;
+        }
+
+        var path = $filePath.val().trim();
+        if (!path.endsWith("/")) {
+            StatusBox.show(DSFormTStr.InvalidRecursivePath, $filePath, true);
+            return false;
+        }
+
+        return true;
+    }
+
     function isValidPathToBrowse(protocol, path) {
         path = path.trim();
 
@@ -580,6 +603,32 @@ window.DSForm = (function($, DSForm) {
         $("#csvDelim").find(".delimVal").val("");
     }
 
+    function toggleRecursivePoint(toRecursive) {
+        var pattern;
+        var path = $filePath.val().trim();
+
+        if (toRecursive) {
+            // use recursive point to data
+            $filePathPattern.parent().removeClass("hidden");
+            var lastSlash = path.lastIndexOf("/");
+            pattern = path.substring(lastSlash + 1);
+            path = path.substring(0, lastSlash + 1);
+        } else {
+            $filePathPattern.parent().addClass("hidden");
+            pattern = $filePathPattern.val();
+            if (pattern.indexOf("*") < 0) {
+                if (!path.endsWith("/")) {
+                    path += "/";
+                }
+                path += pattern;
+            }
+            pattern = "";
+        }
+
+        $filePath.val(path);
+        $filePathPattern.val(pattern);
+    }
+
     function getProtocol() {
         return $("#fileProtocol input").val();
     }
@@ -589,7 +638,16 @@ window.DSForm = (function($, DSForm) {
     }
 
     function getFilePath() {
-        return $filePath.val().trim();
+        var path = $filePath.val().trim();
+        if (isResursivePoint()) {
+            path += $filePathPattern.val().trim();
+        }
+
+        return path;
+    }
+
+    function isResursivePoint() {
+        return $recurCheckbox.find(".checkbox").hasClass("checked");
     }
 
     function resetDelimiter() {
