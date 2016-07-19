@@ -289,18 +289,19 @@ window.DSPreview = (function($, DSPreview) {
         applyHighlight(""); // remove highlighter
 
         if (tableName != null) {
+            var dsName = tableName;
+            tableName = null;
             var sql = {
                 "operation": SQLOps.DestroyPreviewDS,
-                "dsName"   : tableName
+                "dsName"   : dsName
             };
             var txId = Transaction.start({
                 "operation": SQLOps.DestroyPreviewDS,
                 "sql"      : sql
             });
 
-            XcalarDestroyDataset(tableName, txId)
+            XcalarDestroyDataset(dsName, txId)
             .then(function() {
-                tableName = null;
                 Transaction.done(txId, {
                     "noCommit": true,
                     "noSql"   : true
@@ -409,20 +410,21 @@ window.DSPreview = (function($, DSPreview) {
         var deferred = jQuery.Deferred();
         var loadError = null;
 
-        tableName = getPreviewTableName(dsName);
+        var tempDSName = getPreviewTableName(dsName);
+        tableName = tempDSName;
 
         var previewSize = $("#previewSize").val();
         var unit = $("#previewSizeUnit input").val();
         previewSize = xcHelper.getPreviewSize(previewSize, unit);
 
-        XcalarLoad(loadURL, "raw", tableName, "", "\n",
+        XcalarLoad(loadURL, "raw", tempDSName, "", "\n",
                     hasHeader, moduleName, funcName, isRecur,
                     previewSize, txId)
         .then(function(ret, error) {
             loadError = error;
         })
         .then(function() {
-            return sampleData(tableName, rowsToFetch);
+            return sampleData(tempDSName, rowsToFetch);
         })
         .then(function(result) {
             if (!result) {
