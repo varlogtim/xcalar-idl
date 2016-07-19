@@ -168,7 +168,7 @@ function sleep(val) {
 }
 
 function parseDS(dsName) {
-    return (".XcalarDS." + dsName);
+    return (gDSPrefix + dsName);
 }
 
 // Should check if the function returns a promise
@@ -431,7 +431,6 @@ function XcalarPreview(url, isRecur, numBytesRequested) {
 
 function XcalarLoad(url, format, datasetName, fieldDelim, recordDelim,
                     hasHeader, moduleName, funcName, isRecur, maxSampleSize, txId) {
-
     function checkForDatasetLoad(def, sqlString, dsName, txId) {
         // Using setInterval will have issues because of the deferred
         // GetDatasets call inside here. Do not use it.
@@ -541,6 +540,11 @@ function XcalarLoad(url, format, datasetName, fieldDelim, recordDelim,
     var def1 = xcalarLoad(tHandle, url, datasetName, formatType, maxSampleSize,
                           loadArgs);
     var def2 = XcalarGetQuery(workItem);
+
+    def2.then(function(query) {
+        Transaction.startSubQuery(txId, 'Point to Dataset',
+                                  parseDS(datasetName), query);
+    });
     // We are using our .when instead of jQuery's because if load times out,
     // we still want to use the return for def2.
     PromiseHelper.when(def1, def2)
@@ -554,7 +558,7 @@ function XcalarLoad(url, format, datasetName, fieldDelim, recordDelim,
             });
         }
 
-        Transaction.log(txId, ret2);
+        Transaction.log(txId, ret2, parseDS(datasetName));
         deferred.resolve(ret1, loadError);
     })
     .fail(function(error1, error2) {
@@ -767,14 +771,20 @@ function XcalarExport(tableName, exportName, targetName, numColumns,
             columns.push(colNameObj);
         }
 
-        var workItem = xcalarExportWorkItem(tableName, target, specInput,
+    var workItem = xcalarExportWorkItem(tableName, target, specInput,
                                   options.createRule, keepOrder, numColumns,
                                   columns);
         var def1 = xcalarExport(tHandle, tableName, target, specInput,
                                 options.createRule, keepOrder, numColumns,
                                 columns);
-        // var def2 = XcalarGetQuery(workItem);
-        var def2 = jQuery.Deferred().resolve().promise();
+
+     
+        var def2 = XcalarGetQuery(workItem);
+        // XX query status not yet available for export
+        // def2.then(function(ret) {
+        //     console.log(ret);
+        //     Transaction.startSubQuery(txId, 'Export', null, ret);
+        // });
         jQuery.when(def1, def2)
         .then(function(ret1, ret2) {
             Transaction.log(txId, ret2);
@@ -1103,7 +1113,7 @@ function XcalarGetDatasets() {
 
     xcalarListDatasets(tHandle)
     .then(function(listDatasetsOutput) {
-        var prefixIndex = ".XcalarDS.".length;
+        var prefixIndex = gDSPrefix.length;
         listDatasetsOutput.datasets = listDatasetsOutput.datasets.filter(function(d) {
             if (d.name.indexOf(".XcalarLRQ.") === 0) {
                 return (false);

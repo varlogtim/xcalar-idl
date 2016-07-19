@@ -235,8 +235,10 @@ window.DS = (function ($, DS) {
             "previewSize": previewSize
         };
         var txId = Transaction.start({
-            "operation": SQLOps.DSLoad,
-            "sql"      : sql
+            "operation" : SQLOps.DSLoad,
+            "sql"       : sql,
+            "steps"     : 1,
+            "cancelable": false
         });
 
         XcalarLoad(loadURL, dsFormat, fullDSName,

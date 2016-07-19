@@ -826,7 +826,7 @@ describe('Constructor Test', function() {
             });
 
             expect(xcQuery).to.be.an('object');
-            expect(Object.keys(xcQuery).length).to.equal(14);
+            expect(Object.keys(xcQuery).length).to.equal(13);
             expect(xcQuery).to.have.property('name').and.to.equal('test');
             expect(xcQuery).to.have.property('time').and.to.equal(123);
             expect(xcQuery).to.have.property('fullName').and.to.equal('full test');

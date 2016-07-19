@@ -272,7 +272,11 @@ ErrWRepTStr = {
     'TableNotDeleted': 'Table <name> was not deleted.',
 
     'AggConflict': 'Aggregate "' + gAggVarPrefix + '<name>" already exists, ' +
-                    'please choose another name.'
+                    'please choose another name.',
+
+    'OutputNotFound': '<name> Not Found',
+
+    'OutputNotExists': '<name> no longer exists.'
 };
 
 TipsTStr = {

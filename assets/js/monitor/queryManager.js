@@ -4,6 +4,7 @@ window.QueryManager = (function(QueryManager, $) {
     var $statusDetail; // $queryDetail.find('.statusSection')
     var queryLists = {}; // will be populated by xcQuery objs with transaction id as key
     var queryCheckLists = {}; // setInterval timers
+    var notCancelableList = ['load']; // list of nonCancelable operations
 
     // constant
     var checkInterval = 2000; // check query every 2s
@@ -24,19 +25,22 @@ window.QueryManager = (function(QueryManager, $) {
                     '--format json --size 0B --name "' + ds1 + '";' +
                     'load --url "file:///var/tmp/yelp/reviews" ' +
                     '--format json --size 0B --name "' + ds2 + '";';
-        QueryManager.addQuery(0, "test", -1, query);
+        QueryManager.addQuery(0, "test", {query: query});
     };
 
     // if numSteps is unknown, should take in -1
     // query is only passed in if this is an actual xcalarQuery (not xcFunction)
-    QueryManager.addQuery = function(id, name, numSteps, query) {
+    QueryManager.addQuery = function(id, name, options) {
+        options = options || {};
         var time = new Date().getTime();
         var fullName = name + "-" + time;
         var type;
         var subQueries;
-        if (query) {
+        var numSteps = options.numSteps || -1;
+
+        if (options.query) {
             type = "xcQuery";
-            subQueries = xcHelper.parseQuery(query);
+            subQueries = xcHelper.parseQuery(options.query);
             numSteps = subQueries.length;
         } else {
             type = "xcFunction";
@@ -48,7 +52,8 @@ window.QueryManager = (function(QueryManager, $) {
             "time"    : time,
             "type"    : type,
             "id"      : id,
-            "numSteps": numSteps
+            "numSteps": numSteps,
+            "cancelable": options.cancelable
         });
 
         queryLists[id] = mainQuery;
@@ -452,17 +457,24 @@ window.QueryManager = (function(QueryManager, $) {
         var dstTableState = mainQuery.getOutputTableState();
         if (queryState === "done" && dstTableState === "active" &&
             mainQuery.getOutputTableName()) {
+            var dstTableName = mainQuery.getOutputTableName();
             $("#monitor-inspect").removeClass('btnInactive');
-            $("#monitor-export").removeClass('btnInactive');
-            $queryDetail.find('.outputSection').find('.text')
-                         .text(mainQuery.getOutputTableName());
+            
+            if (dstTableName.indexOf(gDSPrefix) < 0) {
+                $("#monitor-export").removeClass('btnInactive');
+                $queryDetail.find('.outputSection').find('.text')
+                                               .text(dstTableName);
+            } else {
+                $queryDetail.find('.outputSection').find('.text')
+                            .text(dstTableName.slice(gDSPrefix.length));
+                $("#monitor-export").addClass('btnInactive');
+            }
         } else {
             $("#monitor-inspect").addClass('btnInactive');
             $("#monitor-export").addClass('btnInactive');
             $queryDetail.find('.outputSection').find('.text')
                          .text(CommonTxtTstr.NA);
         }
-
     }
 
     function subQueryCheck(subQuery) {
@@ -642,17 +654,34 @@ window.QueryManager = (function(QueryManager, $) {
         });
 
         $("#monitor-inspect").on('click', function() {
-            focusOnTable();
+            focusOnOutput();
         });
 
         $("#monitor-export").on('click', function() {
-            focusOnTable();
+            focusOnOutput();
         });
 
-        function focusOnTable() {
+        function focusOnOutput() {
             var queryId = parseInt($queryList.find('.query.active').data('id'));
             var mainQuery = queryLists[queryId];
             var tableName = mainQuery.getOutputTableName();
+
+            if (tableName.indexOf(gDSPrefix) > -1) {
+                var dsId = tableName.slice(gDSPrefix.length);
+                var $grid = DS.getGrid(dsId);
+                if ($grid.length) {
+                    // switch to correct panels
+                    $('#dataStoresTab').click();
+                    $('#inButton').click();
+                    var folderId = DS.getDSObj(dsId).parentId;
+                    DS.goToDir(folderId);
+                    DS.focusOn($grid);
+                } else {
+                    focusOutputErrorHandler('dataset', mainQuery);
+                }
+                return;
+            }
+
             var tableId = xcHelper.getTableId(tableName);
             var wsId;
             var tableType;
@@ -691,15 +720,27 @@ window.QueryManager = (function(QueryManager, $) {
                         wsId = WSManager.getActiveWS();
                         WSManager.moveInactiveTable(tableId, wsId, TableType.Orphan);
                     } else {
-                        Alert.error("Table Not Found", "Table no longer exists.");
-                        mainQuery.outputTableState = 'deleted';
-                        $('#monitor-inspect').addClass('btnInactive');
-                        $("#monitor-export").addClass('btnInactive');
-                        $queryDetail.find('.outputSection').find('.text')
-                                     .text(CommonTxtTstr.NA);
+                        focusOutputErrorHandler('table', mainQuery);
                     }
                 });
             }
+        }
+
+        function focusOutputErrorHandler(type, mainQuery) {
+            var typeUpper = type[0].toUpperCase() + type.slice(1);
+            var title = xcHelper.replaceMsg(ErrWRepTStr.OutputNotFound, {
+               "name": typeUpper 
+            });
+            var desc = xcHelper.replaceMsg(ErrWRepTStr.OutputNotExists, {
+               "name": typeUpper 
+            });
+
+            Alert.error(title, desc);
+            mainQuery.outputTableState = 'deleted';
+            $('#monitor-inspect').addClass('btnInactive');
+            $("#monitor-export").addClass('btnInactive');
+            $queryDetail.find('.outputSection').find('.text')
+                                               .text(CommonTxtTstr.NA);
         }
 
         function cancelAttempt(id) {
@@ -718,13 +759,20 @@ window.QueryManager = (function(QueryManager, $) {
                 console.warn('step vs query mismatch');
                 return;
             }
+            
             if (mainQuery.subQueries[currStep].queryName) {
+                var subQuery;
+                var subQueryName;
+                var statusesToIgnore;
                 for (var i = currStep; i < mainQuery.subQueries.length; i++) {
-                    var subQuery = mainQuery.subQueries[i];
-                    var dstTable = subQuery.dstTable;
-                    var statusesToIgnore = [StatusT.StatusDagNodeNotFound,
+                    subQuery = mainQuery.subQueries[i];
+                    if (notCancelableList.indexOf(subQuery.dstTable) < 0) {
+                        continue;
+                    }
+                    
+                    statusesToIgnore = [StatusT.StatusDagNodeNotFound,
                                             StatusT.StatusOperationHasFinished];
-                    XcalarCancelOp(dstTable, statusesToIgnore)
+                    XcalarCancelOp(subQuery.dstTable, statusesToIgnore)
                     .then(function(ret) {
                         // only cancel once
                         if (!canceled) {
@@ -762,6 +810,7 @@ window.QueryManager = (function(QueryManager, $) {
         var time = xcQuery.getTime();
         var date = getQueryTime(time);
         var queryName = xcQuery.getFullName();
+        var cancelClass = xcQuery.cancelable ? "" : " disabled";
         var html =
             '<div class="query processing" data-id="' + id +
                 '" data-query="' + queryName + '">' +
@@ -785,7 +834,8 @@ window.QueryManager = (function(QueryManager, $) {
                         TooltipTStr.RemoveQuery + '"></div>' +
                     '<div class="divider"></div>' +
                     // '<div class="inspectIcon icon"></div>' +
-                    '<div class="cancelIcon icon" data-container="body" ' +
+                    '<div class="cancelIcon icon ' + cancelClass +
+                        '" data-container="body" ' +
                         'data-toggle="tooltip" title="' +
                         TooltipTStr.CancelQuery + '"></div>' +
                 '</div>' +

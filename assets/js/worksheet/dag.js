@@ -2266,7 +2266,7 @@ window.Dag = (function($, Dag) {
             var table;
             parentTable = parentTables[i];
             var parentIsDataSet = false;
-            if (parentTable.indexOf('.XcalarDS.') === 0) {
+            if (parentTable.indexOf(gDSPrefix) === 0) {
                 table = false;
                 parentIsDataSet = true;
             } else {
@@ -2532,8 +2532,8 @@ window.Dag = (function($, Dag) {
             var url = dagInfo.url;
             var id = dagInfo.id;
             var originalTableName = tableName;
-            if (tableName.indexOf('.XcalarDS.') === 0) {
-                tableName = tableName.substr('.XcalarDS.'.length);
+            if (tableName.indexOf(gDSPrefix) === 0) {
+                tableName = tableName.substr(gDSPrefix.length);
             }
 
             html += '<div class="dagTable dataStore" ' +
@@ -2666,7 +2666,7 @@ window.Dag = (function($, Dag) {
                 originHTML += '<div class="icon icon2 ' + info.type + '">' +
                               '</div>';
             }
-            if (firstParent.indexOf('.XcalarDS.') === 0) {
+            if (firstParent.indexOf(gDSPrefix) === 0) {
                 firstParent = info.column;
             }
             if (operation !== 'join') {

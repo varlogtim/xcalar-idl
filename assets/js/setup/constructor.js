@@ -1917,11 +1917,9 @@ function XcQuery(options) {
     this.fullName = options.fullName; // real name for backend
     this.type = options.type;
     this.subQueries = [];
-    this.stagedQueries = [];
     this.id = options.id;
     this.numSteps = options.numSteps;
     this.currStep = 0;
-    this.unknownSteps = (this.numSteps > 0);
     this.outputTableName = "";
     this.outputTableState = "";
 
@@ -1929,6 +1927,11 @@ function XcQuery(options) {
         this.state = QueryStateT.qrNotStarted;
     } else {
         this.state = options.state;
+    }
+    if (options.cancelable == null) {
+        this.cancelable = true;
+    } else {
+        this.cancelable = options.cancelable;
     }
 
     return this;

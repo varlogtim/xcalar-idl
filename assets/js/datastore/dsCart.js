@@ -707,7 +707,11 @@ window.DSCart = (function($, DSCart) {
             deferred.resolve(lastTableName);
         })
         .fail(function(error) {
-            Alert.error(StatusMessageTStr.TableCreationFailed, error);
+            if (typeof error !== "object" ||
+                error.status !== StatusT.StatusCanceled) {
+                Alert.error(StatusMessageTStr.TableCreationFailed, error);
+            }
+            
             deferred.reject(error);
         })
         .always(removeWaitCursor);
@@ -791,6 +795,7 @@ window.DSCart = (function($, DSCart) {
             deferred.resolve(tableName);
         })
         .fail(function(error) {
+
             Transaction.fail(txId, {
                 "failMsg": StatusMessageTStr.TableCreationFailed,
                 "error"  : error,

@@ -1780,9 +1780,14 @@ window.xcHelper = (function($, xcHelper) {
         if (type) {
             if (type === "join") {
                 keyWord = "--joinTable";
+            } else if (type === "load") {
+                keyWord = "--name";
             }
         }
         var index = getKeyWordIndexFromQuery(query, keyWord);
+        if (index === -1) {
+            return null;
+        }
         // var singleQuote;
 
         index += keyWord.length;
