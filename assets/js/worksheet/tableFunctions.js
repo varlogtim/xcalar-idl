@@ -970,7 +970,9 @@ function moveTableTitlesAnimated(tableId, oldWidth, widthChange, speed) {
     if (isBrowserMicrosoft) {
         return;
     }
-    var duration = speed || 250;
+    if (speed == null) {
+        speed = 250;
+    }
     var viewWidth = $('#mainFrame').width();
     var $table = $('#xcTableWrap-' + tableId);
     var $thead = $table.find('.xcTheadWrap');
@@ -1018,7 +1020,7 @@ function moveTableTitlesAnimated(tableId, oldWidth, widthChange, speed) {
             }
         }
         center = Math.floor(center);
-        $tableTitle.animate({left: center}, duration, "linear", function() {
+        $tableTitle.animate({left: center}, speed, "linear", function() {
             moveTableDropdownBoxes();
         });
     }

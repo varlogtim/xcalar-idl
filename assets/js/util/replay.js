@@ -1370,8 +1370,9 @@ window.Replay = (function($, Replay) {
 
     function delayAction(callback, msg, time) {
         var deferred = jQuery.Deferred();
-
-        time = time || 5000;
+        if (time === null) {
+            time = 5000;
+        }
 
         if (msg != null) {
             console.log(msg, "dealy time:", time, "ms");
