@@ -591,10 +591,7 @@ window.OperationsModal = (function($, OperationsModal) {
     };
 
     function toggleModalDisplay(isHide, time) {
-        // do not close background if alert is showing
-        if (!isHide || !$('#alertModal').is(":visible")) {
-            modalHelper.toggleBG(tableId, isHide, {"time": time});
-        }
+        modalHelper.toggleBG(tableId, isHide, {"time": time});
 
         var $table = $("#xcTable-" + tableId);
         if (isHide) {
@@ -3150,8 +3147,8 @@ window.OperationsModal = (function($, OperationsModal) {
             // highlighted column sticks out if we don't close it early
             $("#xcTable-" + tableId).find('.modalHighlighted')
                                     .removeClass('modalHighlighted');
+            toggleModalDisplay(true, time);
             $operationsModal.fadeOut(time, function() {
-                toggleModalDisplay(true, time);
                 unminimizeTable();
                 $operationsModal.find('.minimize').hide();
                 modalHelper.removeWaitingBG();

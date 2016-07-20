@@ -2342,7 +2342,13 @@ ModalHelper.prototype = {
         options = options || {};
 
         if (isHide) {
-            var fadeOutTime = options.time || 150;
+            var fadeOutTime;
+            if (options.time == null) {
+                fadeOutTime = 150;
+            } else {
+                fadeOutTime = options.time;
+            }
+            
             // when close the modal
             $modalBg.fadeOut(fadeOutTime, function() {
                 $modalBg.removeClass('light');
@@ -2368,7 +2374,12 @@ ModalHelper.prototype = {
 
             $rightSideBar.addClass('modalOpen');
             $mainFrame.addClass('modalOpen');
-            var fadeInTime = options.time || 150;
+            var fadeInTime;
+            if (options.time == null) {
+                fadeInTime = 150;
+            } else {
+                fadeInTime = options.time;
+            }
             $sideBarModal.addClass('light').fadeIn(fadeInTime);
             $modalBg.addClass('light').fadeIn(fadeInTime);
         }
