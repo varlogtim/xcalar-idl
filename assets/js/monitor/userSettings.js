@@ -23,8 +23,8 @@ window.UserSettings = (function($, UserSettings) {
             }
             restoreSettingsPanel();
             restoreMainTabs();
-
-            return DS.restore(result);
+            var atStartup = true;
+            return DS.restore(result, atStartup);
         })
         .then(deferred.resolve)
         .fail(function(error) {

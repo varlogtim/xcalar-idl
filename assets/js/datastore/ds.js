@@ -30,8 +30,8 @@ window.DS = (function ($, DS) {
     };
 
     // Restore dsObj
-    DS.restore = function(oldHomeFolder) {
-        return restoreDS(oldHomeFolder, true);
+    DS.restore = function(oldHomeFolder, atStartUp) {
+        return restoreDS(oldHomeFolder, atStartUp);
     };
 
     DS.setupView = function() {

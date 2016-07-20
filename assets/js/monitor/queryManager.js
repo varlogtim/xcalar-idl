@@ -17,7 +17,7 @@ window.QueryManager = (function(QueryManager, $) {
         addEventHandlers();
     };
 
-    // XX don't use this, we don't handle queries that don't output tables
+
     QueryManager.test = function() {
         var ds1 = "cheng." + xcHelper.randName("yelpUser");
         var ds2 = "cheng." + xcHelper.randName("yelpReviews");
@@ -670,14 +670,20 @@ window.QueryManager = (function(QueryManager, $) {
                 var dsId = tableName.slice(gDSPrefix.length);
                 var $grid = DS.getGrid(dsId);
                 if ($grid.length) {
-                    // switch to correct panels
-                    $('#dataStoresTab').click();
-                    $('#inButton').click();
-                    var folderId = DS.getDSObj(dsId).parentId;
-                    DS.goToDir(folderId);
-                    DS.focusOn($grid);
+                    focusOnDSGrid($grid, dsId);
                 } else {
-                    focusOutputErrorHandler('dataset', mainQuery);
+                    DS.restore(DS.getHomeDir())
+                    .then(function() {
+                        $grid = DS.getGrid(dsId);
+                        if ($grid.length) {
+                            focusOnDSGrid($grid, dsId);
+                        } else {
+                            focusOutputErrorHandler('dataset', mainQuery);
+                        }
+                    })
+                    .fail(function() {
+                        focusOutputErrorHandler('dataset', mainQuery);
+                    });
                 }
                 return;
             }
@@ -724,6 +730,16 @@ window.QueryManager = (function(QueryManager, $) {
                     }
                 });
             }
+        }
+
+        function focusOnDSGrid($grid, dsId) {
+            // switch to correct panels
+            $('#dataStoresTab').click();
+            $('#inButton').click();
+
+            var folderId = DS.getDSObj(dsId).parentId;
+            DS.goToDir(folderId);
+            DS.focusOn($grid);
         }
 
         function focusOutputErrorHandler(type, mainQuery) {

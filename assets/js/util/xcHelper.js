@@ -1777,13 +1777,13 @@ window.xcHelper = (function($, xcHelper) {
 
     function getDstTableFromQuery(query, type) {
         var keyWord = "--dsttable";
-        if (type) {
-            if (type === "join") {
-                keyWord = "--joinTable";
-            } else if (type === "load") {
-                keyWord = "--name";
-            }
+        
+        if (type === "join") {
+            keyWord = "--joinTable";
+        } else if (type === "load") {
+            keyWord = "--name";
         }
+
         var index = getKeyWordIndexFromQuery(query, keyWord);
         if (index === -1) {
             return null;
@@ -1824,6 +1824,9 @@ window.xcHelper = (function($, xcHelper) {
                     tableName += query[i];
                 }
             }
+        }
+        if (type === "load" && tableName.indexOf(gDSPrefix) === -1) {
+            tableName = gDSPrefix + tableName;
         }
         return (tableName);
     }

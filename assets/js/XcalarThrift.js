@@ -1772,6 +1772,7 @@ function XcalarGenRowNum(srcTableName, dstTableName, newFieldName, txId) {
 // PSA!!! This place does not check for unsorted table. So the caller
 // must make sure that the first table that is being passed into XcalarQuery
 // is an unsorted table! Otherwise backend may crash
+// txId only needs to be passed in if linked to a transaction
 function XcalarQuery(queryName, queryString, txId) {
     // XXX Now only have a simple output
     /* some test case :
@@ -1791,7 +1792,9 @@ function XcalarQuery(queryName, queryString, txId) {
 
     xcalarQuery(tHandle, queryName, queryString, true)
     .then(function() {
-        Transaction.startSubQuery(txId, queryName, null, queryString);
+        if (txId != null) {
+            Transaction.startSubQuery(txId, queryName, null, queryString);
+        }
         deferred.resolve();
     })
     .fail(function(error) {
