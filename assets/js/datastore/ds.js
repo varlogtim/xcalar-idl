@@ -1065,7 +1065,7 @@ window.DS = (function ($, DS) {
             '<div class="folder display collapse grid-unit" draggable="true"' +
                 ' ondragstart="DS.onDragStart(event)"' +
                 ' ondragend="DS.onDragEnd(event)"' +
-                ' data-dsId=' + id +
+                ' data-dsId="' + id + '"' +
                 ' data-dsParentId=' + parentId + '>' +
                 '<div id=' + (id + "leftWarp") +
                     ' class="dragWrap leftTopDragWrap"' +
@@ -1143,7 +1143,7 @@ window.DS = (function ($, DS) {
             // when it's a folder
             html =
             '<div class="folder display collapse grid-unit"' +
-                ' data-dsId=' + id +
+                ' data-dsId="' + id + '"' +
                 ' data-dsParentId=' + parentId + '>' +
                 '<div class="gridIcon"></div>' +
                 '<div class="listIcon">' +
