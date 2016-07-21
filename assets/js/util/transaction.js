@@ -148,7 +148,6 @@ window.Transaction = (function(Transaction, $) {
         if (!isValidTX(txId)) {
             return;
         }
-        debugger;
         options = options || {};
 
         var txLog = txCache[txId];
