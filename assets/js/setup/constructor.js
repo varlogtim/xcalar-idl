@@ -2098,6 +2098,9 @@ XcSubQuery.prototype = {
             var stats = ret.opDetails;
             deferred.resolve(parseFloat((100 * (stats.numWorkCompleted /
                                          stats.numWorkTotal)).toFixed(2)));
+        })
+        .fail(function(error) {
+            
         });
 
         return deferred.promise();

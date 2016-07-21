@@ -503,6 +503,7 @@ window.QueryManager = (function(QueryManager, $) {
         if (subQuery.state === "done") {
             return;
         }
+   
         subQuery.check()
         .then(function(res) {
             if (!queryLists[id]) {
@@ -783,10 +784,11 @@ window.QueryManager = (function(QueryManager, $) {
                 var cancelSent = false;
                 for (var i = currStep; i < mainQuery.subQueries.length; i++) {
                     subQuery = mainQuery.subQueries[i];
-                    if (notCancelableList.indexOf(subQuery.dstTable) < 0) {
+                    if (notCancelableList.indexOf(subQuery.name) !== -1) {
                         continue;
                     }
                     // only set pending cancel once
+                 
                     if (!cancelSent) {
                         Transaction.pendingCancel(id);
                         $query.find('.cancelIcon').addClass('disabled');

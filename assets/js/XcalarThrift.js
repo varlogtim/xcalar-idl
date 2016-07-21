@@ -1690,7 +1690,7 @@ function XcalarGroupBy(operator, newColName, oldColName, tableName,
                                  evalStr, newColName, incSample);
         var def2 = XcalarGetQuery(workItem);
         def2.then(function(query) {
-            QueryManager.addSubQuery(txId, 'groupBy', newTableName, query);
+            Transaction.startSubQuery(txId, 'groupBy', newTableName, query);
         });
 
         jQuery.when(def1, def2)
@@ -2484,6 +2484,9 @@ function XcalarGetStats(numNodes) {
 }
 
 function XcalarGetOpStats(dstTableName) {
+    if (!dstTableName) {
+        console.warn('no dsttablename');
+    }
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return PromiseHelper.resolve(null);
     }
@@ -2888,4 +2891,3 @@ function XcalarSupportGenerate() {
     });
     return (deferred.promise());
 }
-
