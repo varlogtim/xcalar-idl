@@ -927,6 +927,9 @@ window.DSPreview = (function($, DSPreview) {
         if (sepicalJSONDetect()) {
             html = '<span class="action active jsonLoadWithUDF">' +
                         DSPreviewTStr.LoadJSONWithUDF +
+                    '</span>' +
+                    '<span class="action active jsonLoad">' +
+                        DSPreviewTStr.LoadJSON +
                     '</span>';
             $content.html(html);
             return;
@@ -935,9 +938,12 @@ window.DSPreview = (function($, DSPreview) {
         if (delimiter === "") {
             if (highlighter === "") {
                 var $cells = $previewTable.find("tbody tr:first-child .td");
-                if ($cells.length === 1 && $cells.text() === "[") {
+                if (/\[{?/.test($cells.text())) {
                     html = '<span class="action active jsonLoad">' +
                                 DSPreviewTStr.LoadJSON +
+                            '</span>' +
+                            '<span class="action active jsonLoadWithUDF">' +
+                                DSPreviewTStr.LoadJSONWithUDF +
                             '</span>';
                     $content.html(html);
                     return;
@@ -1094,7 +1100,7 @@ window.DSPreview = (function($, DSPreview) {
             // should only have one row
             if ($cell.length === 1) {
                 var text = $cell.text().trim();
-                if (/{.+:.+},?/.test(text)) {
+                if (text.startsWith("{") && /{.+:.+},?/.test(text)) {
                     // continue the loop
                     // only when it has at least one valid case
                     // we make it true
