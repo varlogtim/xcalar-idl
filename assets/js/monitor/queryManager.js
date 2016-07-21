@@ -765,7 +765,7 @@ window.QueryManager = (function(QueryManager, $) {
                 console.warn('operation is done, cannot cancel');
                 return;
             }
-
+            var $query = $queryList.find('.query[data-id="' + id + '"]');
             var currStep = mainQuery.currStep;
             var canceled = false;
 
@@ -780,10 +780,17 @@ window.QueryManager = (function(QueryManager, $) {
                 var subQuery;
                 var subQueryName;
                 var statusesToIgnore;
+                var cancelSent = false;
                 for (var i = currStep; i < mainQuery.subQueries.length; i++) {
                     subQuery = mainQuery.subQueries[i];
                     if (notCancelableList.indexOf(subQuery.dstTable) < 0) {
                         continue;
+                    }
+                    // only set pending cancel once
+                    if (!cancelSent) {
+                        Transaction.pendingCancel(id);
+                        $query.find('.cancelIcon').addClass('disabled');
+                        cancelSent = true;
                     }
                     
                     statusesToIgnore = [StatusT.StatusDagNodeNotFound,
@@ -792,7 +799,7 @@ window.QueryManager = (function(QueryManager, $) {
                     .then(function(ret) {
                         // only cancel once
                         if (!canceled) {
-                            Transaction.cancel(id);
+                            Transaction.isCanceled(id);
                             canceled = true;
                             console.info('cancel submitted', ret);
                         }
@@ -803,15 +810,16 @@ window.QueryManager = (function(QueryManager, $) {
                 }
             } else {
             // canceling a regular operation
-                Transaction.cancel(id); 
-                // cancel before xcalarcancelop returns
+                Transaction.pendingCancel(id);
+                $query.find('.cancelIcon').addClass('disabled');
+                // start cancel before xcalarcancelop returns
                 // so that if we miss the table, xcfunctions will stop further
                 // actions
                 var statusesToIgnore = [StatusT.StatusOperationHasFinished];
                 XcalarCancelOp(mainQuery.subQueries[currStep].dstTable, 
                                statusesToIgnore)
                 .then(function(ret) {
-                    
+                    Transaction.isCanceled(id);
                     console.info('cancel submitted', ret);
                 })
                 .fail(function(error) {

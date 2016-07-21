@@ -1,6 +1,7 @@
 window.Transaction = (function(Transaction, $) {
     var txCache = {};
     var canceledTxCache = {};
+    var pendingCancelTxCache = {};
     var txIdCount = 0;
     var isDeleting = false;
 
@@ -99,7 +100,7 @@ window.Transaction = (function(Transaction, $) {
         if (!isValidTX(txId)) {
             return;
         }
-        if (canceledTxCache[txId]) {
+        if (canceledTxCache[txId] || pendingCancelTxCache[txId]) {
             return;
         }
 
@@ -136,11 +137,18 @@ window.Transaction = (function(Transaction, $) {
         transactionCleaner();
     };
 
+    Transaction.pendingCancel = function(txId) {
+        if (!isValidTX(txId)) {
+            return;
+        }
+        pendingCancelTX(txId);
+    };
+
     Transaction.cancel = function(txId, options) {
         if (!isValidTX(txId)) {
             return;
         }
-
+        debugger;
         options = options || {};
 
         var txLog = txCache[txId];
@@ -201,6 +209,10 @@ window.Transaction = (function(Transaction, $) {
     Transaction.isCanceled = function(txId) {
         if (canceledTxCache[txId]) {
             return true;
+        } else if (pendingCancelTxCache[txId]) {
+            // if we're checking then cancel must have worked so we process it
+            Transaction.cancel(txId);
+            return true;
         } else {
             return false;
         }
@@ -231,7 +243,12 @@ window.Transaction = (function(Transaction, $) {
         canceledTxCache[txId] = true;
     }
 
+    function pendingCancelTX(txId) {
+        pendingCancelTxCache[txId] = true;
+    }
+
     function removeTX(txId) {
+        delete pendingCancelTxCache[txId];
         delete txCache[txId];
     }
 
