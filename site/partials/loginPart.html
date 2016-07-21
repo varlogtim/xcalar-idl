@@ -19,45 +19,45 @@
       <div id="formArea">
         <form id="loginForm" method="POST">
           <div class="section">
-            <input id="loginNameBox" class="input" name="httpd_username" autofocus required>
+            <input id="loginNameBox" type="text" class="input" autofocus required autocomplete="off">
             <div class="label">USERNAME</div>
           </div>
           <div class="section">
-            <input id="loginPasswordBox" class="input" name="httpd_password" type="password">
+            <input id="loginPasswordBox" class="input" type="password" autocomplete="off">
             <div class="label">PASSWORD</div>
           </div>
           <!-- <div class="passwordForgot">Forgot your password?</div> -->
-          <input id="loginButton" class="btn login" type="submit" name="login" value="LOG IN">
+          <input id="loginButton" class="btn login" type="submit" value="LOG IN">
           <!-- XX SIGN UP TEMPORARILY HIDDEN -->
           <!-- <input id="signupButton" class="btn signup" type="button" name="signup" value="SIGN UP"> -->
         </form>
         <form id="signupForm" method="POST">
           <div class="nameSection section">
-            <input id="signup-firstName" class="input" required>
+            <input id="signup-firstName" class="input" required autocomplete="off">
             <div class="label">First Name</div>
           </div>
           <div class="nameSection section">
-            <input id="signup-lastName" class="input" required>
+            <input id="signup-lastName" class="input" required autocomplete="off">
             <div class="label">Last name</div>
           </div>
           <div class="section">
-            <input id="signup-userName" class="input" required>
+            <input id="signup-userName" class="input" required autocomplete="off">
             <div class="label">Username</div>
           </div>
           <div class="section">
-            <input id="signup-email" class="input" type="email" required>
+            <input id="signup-email" class="input" type="email" required autocomplete="off">
             <div class="label">Email</div>
           </div>
           <div class="section confirmSection">
-            <input id="signup-confirmEmail" class="input" type="email" required>
+            <input id="signup-confirmEmail" class="input" type="email" required autocomplete="off">
             <div class="label">Confirm Email</div>
           </div>
           <div class="section">
-            <input id="signup-password" class="input" type="password" required>
+            <input id="signup-password" class="input" type="password" required autocomplete="off">
             <div class="label">Password</div>
           </div>
           <div class="section confirmSection">
-            <input id="signup-confirmPassword" class="input" type="password" required>
+            <input id="signup-confirmPassword" class="input" type="password" required autocomplete="off">
             <div class="label">Confirm password</div>
           </div>
           <div class="section submitSection clearfix">
@@ -68,7 +68,7 @@
               <input id="signup-termCheck" type="checkbox" class="checkbox" required>
             </div>
             <div class="part clearfix">
-              <input id="signup-submit" class="btn signup" type="submit" name="signup" value="SIGN UP">
+              <input id="signup-submit" class="btn signup" type="submit" value="SIGN UP">
             </div>
           </div>
           <div class="loginSection text">

@@ -6,7 +6,7 @@ html, body {
     margin: 0;
     padding: 0;
     min-height: 500px;
-    min-width: 700px; 
+    min-width: 780px; 
     font: 13px @font-base;
     font-weight: 600;
     .box-sizing;
@@ -170,6 +170,7 @@ header {
 
         &:focus {
             .font(@color: @color-white);
+            outline: none;
 
             &::after {
                 background-color: @color-white;
@@ -184,6 +185,9 @@ header {
                     height: 2px;
                 }
             }
+        }
+        &:active {
+            outline: none;
         }
     } 
 }
