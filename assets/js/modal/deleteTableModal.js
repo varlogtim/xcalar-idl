@@ -3,6 +3,7 @@ window.DeleteTableModal = (function(DeleteTableModal, $) {
     var $modalBg;  // $("#modalBackground")
     var modalHelper;
     var tableList = {};
+    var tableSizeMap = {};
     var sortKeyList = {};
     var reverseList = {};
     // constant
@@ -109,6 +110,9 @@ window.DeleteTableModal = (function(DeleteTableModal, $) {
 
         TableList.refreshOrphanList(false)
         .always(function() {
+            return getTableSizeMap();
+        })
+        .always(function() {
             $modal.removeClass("load");
             populateTableLists();
         });
@@ -203,6 +207,24 @@ window.DeleteTableModal = (function(DeleteTableModal, $) {
         }
 
         return TblManager.deleteTables(tablesToDel, type);
+    }
+
+    function getTableSizeMap() {
+        var deferred = jQuery.Deferred();
+        XcalarGetTables("*")
+        .then(function(result) {
+            tableSizeMap = {};
+            var numNodes = result.numNodes;
+            var nodeInfo = result.nodeInfo;
+            for (var i = 0; i < numNodes; i++) {
+                var node = nodeInfo[i];
+                tableSizeMap[node.name] = node.size;
+            }
+            deferred.resolve();
+        })
+        .fail(deferred.reject);
+
+        return deferred.promise();
     }
 
     function populateTableLists() {
@@ -303,17 +325,22 @@ window.DeleteTableModal = (function(DeleteTableModal, $) {
         for (var i = 0, len = tables.length; i < len; i++) {
             var table = tables[i];
             var date = table.getTimeStamp();
+            var tableName = table.getName();
             var tableId = table.getId() || "";
             if (date !== unknown) {
                 date = xcHelper.getTime(null, date);
+            }
+            var size = unknown;
+            if (tableSizeMap.hasOwnProperty(tableName)) {
+                size = xcHelper.sizeTranslator(tableSizeMap[tableName]);
             }
 
             html += '<div class="grid-unit" data-id="' + tableId + '">' +
                         '<div class="checkboxSection">' +
                             '<div class="checkbox iconWrapper"></div>' +
                         '</div>' +
-                        '<div class="name">' + table.getName() + '</div>' +
-                        '<div>' + unknown + '</div>' +
+                        '<div class="name">' + tableName + '</div>' +
+                        '<div>' + size + '</div>' +
                         '<div>' + date + '</div>' +
                     '</div>';
         }
