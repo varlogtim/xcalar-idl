@@ -1874,12 +1874,9 @@ window.ColManager = (function($, ColManager) {
                     tBodyHTML +=
                         '<td class="col' + (col + 1) + ' clickable jsonElement' +
                             truncClass + '">' +
+                            '<div class="icon"></div>' +
                             '<div class="dataColText clickable displayedData' +
-                                originalDataClass + truncClass +
-                                '" data-toggle="tooltip" ' +
-                                'data-placement="bottom" ' +
-                                'data-container="body" ' +
-                                'title="double-click to view">' +
+                                originalDataClass + truncClass + '">' +
                                     displayedVal +
                             '</div>';
                     if (jsonTdTruncated) {

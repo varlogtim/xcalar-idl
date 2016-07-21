@@ -1,0 +1,1077 @@
+html.microsoft {
+    .xcTableWrap .text {
+        position: relative !important;
+    }
+}
+
+html.firefox, html.microsoft {
+    .xcTable {
+        margin-right: -12px;
+    }
+}
+
+/* Currently used for worksheet table, dataset preview, join modal, smartcast */
+.dataTable {
+    .size(@width: 0px);
+    border-collapse: separate;
+    border-spacing: 0px;
+    margin-right: 5px;
+    table-layout: fixed;
+    cursor: default;
+
+    thead {
+        background-color: @color-table-header-gray;
+        box-shadow: inset 0px -1px 0 0 rgba(0, 0, 0, 0.2);
+
+        .selectedCell, .selectedCol, .colSelected {
+            .flexContainer, .columnTab {
+                background-color: @color-bg-select-blue;
+                .editableHead {
+                    color: @color-white !important;
+                    text-overflow: clip;
+                }
+            }
+        }
+    }
+
+    th {
+        .size(@height: @height-colHeaderOuter);
+        background-color: @color-background-darkGray;
+        border: 5px solid @color-border-darkGray;
+        border-left: none;
+        padding: 0px;
+        .font(@weight: 600, @size: 13px);
+
+        &.rowNumHead {
+            // style for rowNum
+            .header {
+                z-index: 3;
+                border-left: 5px solid @color-table-header-gray;
+
+                &::before {
+                    .transition(opacity 0.3s);
+                    content: "";
+                    opacity: 0;
+                }
+
+                &::after {
+                    width: ~"calc(100% + 10px)";
+                    left: -5px;
+                    z-index: 3;
+                }
+            }
+
+            input {
+                .position(absolute, @left: 0);
+                .size(@width: ~"calc(100% + 10px)", @height: @height-colHeaderOuter);
+                border: @width-tableCellPadding solid @color-table-header-gray;
+                background: @color-table-header-darkGray;
+                margin-left: -5px;
+                margin-top: -5px;
+                z-index: 3;
+                border-radius: 0;
+                .transition(border-color 0s);
+            }
+        }
+    }
+
+    td {
+        .size(@height: @height-tableCell);
+        .font(@size: 11px, @line-height: 15px, @family: @font-code);
+        overflow: hidden;
+        padding: 2px;
+        vertical-align: middle;
+        text-align: center;
+
+        &:last-child {
+            border-right: 5px solid @color-white !important;
+        }
+    }
+
+    tbody tr {
+        background-color: @color-white;
+        td {
+           border-right: 5px solid @color-white; 
+        }
+
+        &:nth-child(odd) {
+            td {
+                background-color: @color-table-oddRow-gray;
+
+                &.indexedColumn {
+                    background-color: @color-table-indexed-blue !important;
+                }
+                &.selectedCell, &.selectedCol, &.colSelected {
+                    background-color: @color-table-oddSelectedCell-blue !important;
+                }
+                &.jsonElement, &.dataCol {
+                    background-color: @color-table-oddRow-green !important;
+                }
+            }
+
+            .idSpan {
+                background-color: @color-table-oddRowMarker-gray;
+            }
+        }
+        &:nth-child(even) {
+            td {
+                background-color: @color-table-evenRow-gray;
+
+                &.indexedColumn {
+                    background-color: @color-table-indexed-lightBlue !important;
+                }
+                &.selectedCell, &.selectedCol, &.colSelected {
+                    background-color: @color-table-evenSelectedCell-blue !important;
+                }
+                &.jsonElement, &.dataCol {
+                    background-color: @color-table-evenRow-green !important;
+                }
+            }
+
+            .idSpan {
+                background-color: @color-table-evenRowMarker-gray;
+            }
+        }
+    }
+
+    &:not(.tableLocked) tbody tr:not(.notDragging):hover, tbody tr.dragging {
+        td {
+            border-right: 5px solid @color-table-hoverBorder-gray;
+            background-color: @color-table-hoverBg-gray;
+
+            &.indexedColumn {
+                background-color: @color-iron !important;
+            }
+            &.selectedCell, &.colSelected, &.selectedCol {
+                background-color: @color-heather !important;
+            }
+            &.jsonElement, &.dataCol {
+                background-color: @color-tasman !important;
+            }
+
+            .idSpan {
+                background-color: @color-table-hoverBg-gray;
+                border-right-color: @color-table-hoverBorder-gray;
+            }
+        }
+    }
+
+    tbody tr.dragging {
+        td:first-child:not(.rowBookmarked) .idSpan {
+            background-color: @color-silver !important;
+        }
+        td:first-child .idSpan {
+            border-right-color: @color-text-placeholder !important;
+        }
+    }
+    th.unusedCell {
+        background-color: @colorOpaque-blankGrayDark;
+        .editableHead {
+            color: @color-text-black;
+        }
+    }
+
+    tbody .unusedCell {
+        &:nth-child(odd) {
+            background-color: @colorOpaque-blankGrayDark;
+        }
+        &:nth-child(even) {
+            background-color: @colorOpaque-blankGrayDark;
+        }
+    }
+
+    .idSpan {
+        .position(relative);
+        .size(@width: ~"calc(100% + 10px)", @height: 100%);
+        margin-left: -5px;
+        border-right: 5px solid @color-white;
+        border-left: 5px solid @color-white;
+        .flex-display;
+        .justify-content (center);
+        .align-items (center);
+
+        &::after {
+            content: "";
+            opacity: 0;
+            .transition(opacity 0.3s);
+        }
+    }
+
+    .header {
+        .position(relative);
+        .rounded;
+        .noSelection;
+
+        &::after {
+            .position(absolute, @top: @height-colHeader + 4px, @left: 0);
+            .size(@width: ~"calc(100% + 5px)", @height: 1px);
+            content: "";
+            display: block;
+            border-bottom: 1px solid rgba(0,0,0,0.15);
+            box-shadow: 0px 1px 0px 0px rgba(0, 0, 0, 0.08);
+        }
+        &::before {
+            .transition(opacity 0.3s);
+            content: "";
+            opacity: 0;
+        }
+
+        .flexContainer {
+            overflow: hidden;
+            background-color: @color-table-header-darkGray;
+
+            .flexWrap {
+                &.flex-left {
+                    .position(relative);
+                    .size(@height: @height-colHeader);
+                    .flex(0 1 20px);
+                    white-space: normal;
+                    margin: 0;
+                    overflow: hidden;
+
+                    .iconHidden {
+                        .size(@width: 1px, @height: @height-colHeader);
+                        display: inline-block;
+                    }
+
+                    .icon {
+                        margin-left: 2px;
+                    }
+                }
+
+                &.flex-mid {
+                    .flex(1 0 0px);
+                    position: relative;
+                    z-index: 2;
+                    height: 18px;
+                    margin-top: 4px;
+
+                    &.editable {
+                        .editableHead {
+                            pointer-events: initial;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    input {
+        font: 13px @font-base;
+        background-color: transparent;
+
+        &[disabled] {
+            .size(@width: 100%);
+            text-align: center;
+            outline: none;
+            cursor: default;
+            .font(@weight: 600);
+        }
+
+        &:focus {
+            outline-offset: -1px;
+        }
+    }
+
+    .editableHead {
+        .position(relative);
+        .size(@width: ~"calc(100% + 2px)", @height: 18px);
+        padding: 0px 0px 0px 3px;
+        background-color: transparent;
+        border: none;
+        display: block;
+        text-align: center;
+        overflow: hidden;
+        .font(@weight: 600, @size: 13px, @family: @font-base);
+        z-index: 2;
+        margin-left: -2px;
+        pointer-events: none;
+    }
+
+    .textAlignLeft {
+        text-align: left !important;
+        .dataColText {
+            text-align: left;
+        }
+        .flexContainer {
+            .justify-content(flex-start);
+        }
+
+    }
+
+    .textAlignRight {
+        text-align: right !important;
+        .dataColText {
+            text-align: right;
+        }
+        .flexContainer {
+            .justify-content(flex-end);
+        }
+    }
+
+    .textAlignCenter {
+        text-align: center !important;
+        .dataColText {
+            text-align: center;
+        }
+        .flexContainer {
+            .justify-content(center);
+        }
+    }
+
+    .textAlignWrap {
+        .textAlignLeft;
+        white-space: normal !important;
+        overflow-wrap: break-word !important;
+    }
+
+    .jsonElement {
+        cursor: pointer;
+        .position(relative);
+
+        &:hover {
+            .icon {
+                display: block;
+            }
+        }
+
+        .icon {
+            display: none;
+            cursor: pointer;
+            .vertical-align;
+            .position(absolute, @left: 2px);
+            .size(20px, 20px);
+            .image("../../images/worksheet/data-pop.png");
+            background-size: 20px 20px;
+            opacity: 0.7;
+
+            &:hover {
+                opacity: 1;
+            }
+        }
+    }
+
+    .originalData {
+        display: none;
+    }
+
+    .displayedData {
+        display: block;
+    }
+
+    .dataColText {
+        cursor: pointer;
+        text-align: center;
+        white-space: pre;
+    }
+
+    .indexedColumn {
+       background-color: @colorOpaque-blue !important;
+    }
+
+    span.undefined, span.null {
+        font-style: italic;
+        color: @color-defaultGray;
+        width: 100%;
+        display: block;
+    }
+
+    .rowBookmarked {
+        background-color: @color-background-topAction !important;
+        .idSpan {
+            background-color: @color-background-topAction !important;
+        }
+    }
+}
+
+.multiCastTable, .joinTable, .dataFlowTable {
+    td:first-child {
+        border-left: 5px solid @color-white;
+    }
+
+    .colSelected .columnTab {
+        background-color: @color-bg-select-blue;
+        color: @color-white !important;
+    }
+
+    .columnTab {
+        background-color: @color-table-header-darkGray;
+    }
+}
+
+.xcTableWrap {
+    .position(relative);
+    .size(@width: auto, @height: 100%);
+    margin-bottom: 0px;
+    overflow: hidden;
+    padding: 0;
+    display: inline-block;
+
+    &:only-child, &.noDrag {
+        .tableGrab {
+            cursor: pointer !important;
+        }
+    }
+
+    &.inActive {
+        display: none;
+    }
+
+    .unhideTable {
+        display: none;
+    }
+
+    &.tableHidden {
+        .unhideTable {
+            display: block !important;
+        }
+
+        .hideTable {
+            display: none !important;
+        }
+
+        .lockedIcon {
+            display: none !important;
+        }
+
+        .xcTheadWrap {
+            width: 30px !important;
+
+            .tableTitle > .labelWrap {
+                width: 30px !important;
+                .textOverflow;
+                visibility: hidden;
+            }
+            .dropdownBox {
+                width: 24px;
+            }
+        }
+
+        .xcTbodyWrap {
+            width: 30px !important;
+            pointer-events: none;
+            cursor: default;
+
+            thead {
+                .header {
+                    width: 30px !important;
+                }
+
+                th {
+                    display: none;
+
+                    &:first-child {
+                        display: table-cell;
+
+                        .header {
+                            width: 30px;
+                            height: @height-colHeaderOuter;
+                            border-left: none;
+                        }
+
+                        input {
+                            background: @color-input-active !important;
+                            left: 0px !important;
+                        }
+                    }
+                    &:not(:first-child) {
+                        display: none;
+                    }
+                }
+            }
+
+            tbody {
+                display: none;
+            }
+
+            .xcTable {
+                background-color: @color-table-lightGray;
+                &:after {
+                    background-color: transparent;
+                }
+            }
+
+            td, tr, .idWrap {
+                background-color: @color-table-lightGray !important;
+                border-color: @color-table-lightGray !important;
+            }
+
+            td:not(:first-child) {
+                display: none;
+            }
+
+            .idWrap {
+                overflow: hidden;
+                pointer-events: none;
+                cursor: default;
+
+                &::after {
+                    .size(@width: 31px, @height: 105%);
+                    .position(absolute, @top: -2px, @left: -5px);
+                    content: "";
+                    z-index: 0;
+                    background-color: @color-table-lightGray;
+                }
+
+                .idSpan {
+                    z-index: 0;
+                    visibility: hidden;
+                }
+            }
+        }
+    }
+
+    &.modalOpen {
+
+        .dropdownBox {
+            display: none !important;
+        }
+
+        th:first-child {
+            pointer-events: none;
+        }
+
+        td:first-child {
+            .rowGrab {
+                pointer-events: none;
+            }
+        }
+
+        .dragArea {
+            display: none;
+        }
+
+        .tableTitle {
+            pointer-events: none;
+        }
+
+        th {
+            .noSelection;
+        }
+
+        th.modalHighlighted {
+            .header {
+                z-index: 40;
+            }
+            .flexContainer{
+                background-color: @color-bg-select-blue;
+                input {
+                    color: @color-white !important;
+                }
+            }
+            .type-boolean .flex-left::after {
+                border-top: @height-colHeader solid @color-border-colIconBlue;
+            }
+        }
+
+
+
+        tbody tr {
+            &:nth-child(odd) {
+                td.modalHighlighted {
+                    background-color: @color-selectedCell-dark;
+                }
+            }
+            &:nth-child(even) {
+                td.modalHighlighted {
+                    background-color: @color-selectedCell-light;
+                }
+            }
+            &:hover {
+                td.modalHighlighted {
+                    background-color: @color-heather !important;
+                }
+            }
+        }
+    }
+
+    &.exportModalOpen {
+        td.col0 {
+            position: relative;
+            z-index: 37;
+        }
+        th.col0 {
+            pointer-events: initial !important;
+            .header {
+                z-index: 41;
+            }
+        }
+    }
+
+    &.tableDarkened, &.tableLocked, &.jsonModalOpen {
+        &::before {
+            content: "";
+            .position(absolute);
+            .size(100%, 100%);
+            display: block;
+            z-index: 21;
+        }
+
+        .xcTheadWrap {
+            background-color: black;
+
+            .tableTitle, thead {
+                opacity: 0.7;
+            }
+        }
+
+        .xcTable {
+            background-color: black;
+
+            &::after {
+                background-color: @color-table-after-gray;
+            }
+
+            th {
+                &:first-child {
+                    .header::before {
+                        display: block;
+                        position: absolute;
+                        background-color: rgba(0,0,0,1);
+                        z-index: 40;
+                        opacity: 0.3;
+                        width: ~"calc(100% + 10px)";
+                        height: @height-colHeaderOuter;
+                        left: -5px;
+                        top: -5px;
+                    }
+                }
+
+                .header {
+                    &::before {
+                        content: "";
+                        .position(absolute, @top: -5px, @left: 0px);
+                        .size(@width: ~"calc(100% + 5px)", @height: @height-colHeaderOuter);
+                        z-index: 21;
+                        background-color: rgba(0, 0, 0, 1);
+                        opacity: 0.3;
+                    }
+                }
+            }
+
+            tbody {
+                opacity: 0.7;
+            }
+        }
+        &.tableHidden {
+            th:first-child input {
+                background: @color-background-colIcon-gray !important;
+            }
+        }
+    }
+
+    &.tableLocked, &.jsonModalOpen {
+        &:before {
+            display: none;
+        }
+        .tableTitle, .header, td {
+            pointer-events: none;
+        }
+        .tableTitle .dropdownBox {
+            pointer-events: auto;
+        }
+        .xcTbodyWrap {
+            pointer-events: none;
+            overflow: hidden; // prevents scrolling
+        }
+        .lockedIcon {
+            .position(absolute, @top: 40%, @left: 50%);
+            display: inline-block;
+            z-index: 9;
+            height: 60px;
+            width: 40px;
+            .transform(translateX(-50%));
+
+                img {
+                    height: 100%;
+                }
+        }
+
+        .tableCover {
+            .position(absolute, @top: @height-colHeaderOuter + 35px);
+            .size(@width: ~"calc(100% - 5px)", @height: auto);
+            background-color: @color-table-cover;
+            z-index: 5;
+            .transition(opacity 0.3s);
+            &.visible {
+                opacity: 1 !important;
+            }
+        }
+        tbody {
+            opacity: 1 !important;
+        }
+
+        th:first-child input {
+            box-shadow: none !important;
+        }
+    }
+
+    .tableCoverWaiting {
+        position: absolute;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 10;
+        cursor: progress;
+    }
+
+    &.jsonModalOpen {
+
+        td.modalHighlighted {
+            pointer-events: all;
+            border-color: @color-table-border-darkened !important;
+        }
+
+        .header {
+            z-index: 37;
+        }
+
+        th:first-child .header {
+            z-index: 38;
+        }
+
+        .idWrap {
+            z-index: 37;
+            pointer-events: none;
+            .idSpan::after {
+                display: block;
+                position: absolute;
+                background-color: black;
+                width: ~"calc(100% + 10px)";
+                height: 100%;
+                left: -5px;
+                top: 0px;
+                opacity: 0.3;
+            }
+        }
+        .darkenedCell {
+            .size(@width: ~"calc(100% + 10px)", @height: 100%);
+            .position(absolute, @top: 0, @left: -5px);
+            display: block;
+            content: "";
+            background-color: rgb(0,0,0);
+            z-index: 36;
+            opacity: 0.3;
+            display: none;
+            // jquery fades in display
+        }
+    }
+    &.tableDarkened {
+        pointer-events: none;
+        .dropdownBox {
+            display: none !important;
+        }
+    }
+    &.hollowed {
+        .xcTheadWrap, .xcTbodyWrap {
+            display: none;
+        }
+    }
+}
+
+.xcTheadWrap {
+    .position(relative, @left: 0%);
+    top: 0px !important;
+    width: ~"calc(100% - 5px)" !important;
+    z-index: 9;
+    display: inline-block;
+
+    .tableTitle {
+        .position(relative);
+        .size(@width: 100%, @height: 35px);
+        .noSelection;
+        text-align: center;
+        display: block;
+        background: @color-bg-unselect-gray;
+        overflow: hidden;
+        .transition(opacity 0.3s);
+
+        .tableGrab {
+            .position(absolute, @top: 0);
+            .size(@width: 100%, @height: 35px);
+            z-index: 2;
+            .cursor-move;
+        }
+
+        &.tblTitleSelected {
+            background: @color-bg-select-blue;
+            .text {
+                color: @color-white;
+            }
+
+            .tableName {
+                color: @color-white;
+            }
+        }
+
+        &:hover {
+            .dropdownBox {
+                opacity: 1;
+            }
+        }
+
+        .dropdownBox {
+            .position(absolute, @right: -3px, @bottom: 0px);
+            .size(25px, 36px);
+            z-index: 6;
+            border: none;
+            opacity: 0.4;
+
+            .innerBox {
+                display: block;
+                .position(absolute, @right: 6px, @bottom: 4px);
+                .size(@width: 15px, @height: 11px);
+                border-top: 10px solid transparent;
+                border-right: 10px solid @color-bg-dropdown-black;
+            }
+        }
+
+        .labelWrap {
+            .textOverflowOneLine;
+            position: absolute;
+            width: ~"calc(100% - 10px)";
+            height: 100%;
+            left: 0px;
+        }
+
+        .text {
+            .position(absolute, @top: 0);
+            .size(@width: auto, @max-width: ~"calc(100% - 10px)", @height: 25px);
+            .font(@weight: 600, @size: 15px, @line-height: 22px, @family: @font-base);
+            .rounded;
+            text-align: center;
+            background-color: transparent;
+            padding: 0 4px;
+            z-index: 2;
+            white-space: nowrap;
+            margin-top: 5px;
+            display: inline-block;
+
+            .hashName {
+                opacity: 0.7;
+                .noSelection;
+                font-weight: 200;
+            }
+        }
+
+        .tableName {
+            .font(@weight: 600, @size: 15px, @line-height: 22px, @family: @font-base);
+            .rounded;
+            height: 24px;
+            padding: 1px 0px;
+            margin: 1px 0px;
+            min-width: 15px !important;
+
+            &:focus {
+                background-color: @color-white;
+                color: @color-text-darkGray !important;
+                padding: 1px 4px;
+                margin: 1px 0px;
+                outline: none;
+                .rounded;
+            }
+        }
+    }
+}
+
+.xcTbodyWrap {
+    .position(@right: -17px);
+    .size(@width: ~"calc(100% + 17px)", @max-height: ~"calc(100% - 31px)");
+    .font(@size: 11px);
+    margin-bottom: 0;
+    margin-top: -3px;
+    padding: 0;
+    overflow-x: hidden;
+    // overflow-y: auto;
+    overflow-y: scroll;
+
+    &::-webkit-scrollbar {
+        display: none;
+    }
+
+    &::after {
+        content: "";
+        display: block;
+        .transition(background-color 0.2s);
+    }
+
+    .userHidden {
+        .editableHead {
+            padding-left: 6px;
+        }
+
+        .flex-left {
+            display: none;
+        }
+
+        .flex-right > .dropdownBox .innerBox {
+            right: 3px !important;
+            bottom: 5px !important;
+        }
+
+        .colGrab {
+            right: -22px;
+        }
+
+        .tdText, .dataColText {
+            display: none;
+        }
+        
+        &.dataCol {
+            input {
+                padding-left: 10px;
+            }
+        }
+    }
+
+    td.modalHighlighted {
+        position: relative;
+        z-index:36;
+        .transition(border-color 0.3s);
+        &.jsonModalOpen {
+            border-color: @color-table-border-gray !important;
+        }
+    }
+    .dataCol {
+        .flexWrap.flex-left {
+           display: none;
+        }
+        input {
+            padding-right: 3px !important;
+            text-overflow: ellipsis;
+        }
+    }
+}
+
+.xcTable, .datasetTable {
+    tbody {
+        td:first-child {
+            padding: 0;
+            .noSelection;
+            overflow: visible;
+            border-left: 5px solid @color-white;
+        }
+    }
+
+    .header {
+        border: 5px solid @color-table-header-gray;
+        background-color: @color-table-header-darkGray;
+        border-left: none;
+        border-radius: 0px;
+        .typeIcon(true);
+        .dropDown;
+        .editableHead {
+            width: 100%;
+            outline: none;
+            text-overflow: ellipsis;
+            padding-bottom: 2px;
+        }
+        input {
+            height: @height-colInput;
+        }
+    }
+
+    .selectedCell, .selectedCol {
+        .header {
+            .typeIcon(false);
+        }
+    }
+}
+
+.xcTable, .joinTable {
+    thead {
+        // .header:hover > .dropdownBox {
+        //     opacity: 0.6;
+        // }
+
+        .colGrab:hover ~ .flexContainer .dropdownBox {
+            opacity: 0 !important;
+        }
+
+        th {
+            &:last-child .colGrab {
+                .position(@right: -10px, @top: -40px);
+                width: 12px !important;
+                height: 82px !important;
+            }
+
+            &.selectedCell {
+                .type-boolean .flexWrap.flex-left {
+                    &::after {
+                        border-top: @height-colHeader solid @color-border-colIconBlue;
+                    }
+                }
+            }
+        }
+    }
+
+    &::after {
+        content: "";
+        .size(@width: ~"calc(100% - 5px)", @height: 5px);
+        position: absolute;
+        background-color: white;
+    }
+
+    tbody tr {
+        td {
+            .idWrap {
+                .position(relative);
+                .size(100%, 100%);
+                display: table;
+            }
+        }
+
+        &.changedHeight {
+            white-space: normal;
+            overflow-wrap: break-word;
+            .dataColText {
+                white-space: normal;
+            }
+        }
+    }
+
+    &.resizingCol {
+        .dropdownBox {
+            opacity: 0 !important;
+        }
+    }
+}
+
+.xcTable {
+    tbody tr td:first-child {
+        cursor: pointer; // for bookmark
+    }
+
+    .header {
+        .position(absolute, @top: 35px);
+        z-index: 2;
+        width: inherit;
+
+        .flexContainer {
+            .position(relative);
+
+            .flexWrap.flex-mid {
+                .editableHead, input.dataCol {
+                    padding-right: 18px;
+                    .noSelection;
+                }
+            }
+
+            .flexWrap.flex-right {
+                .flex(0 1 0px);
+                height: @height-colHeader;
+            }
+
+        }
+
+        &:hover {
+            .flexWrap.flex-right > .dropdownBox {
+                opacity: 1.0;
+            }
+        }
+
+        &.type-data .flexWrap.flex-left {
+            background: transparent;
+        }
+    }
+}

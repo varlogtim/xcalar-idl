@@ -686,8 +686,7 @@ window.TblManager = (function($, TblManager) {
                     '</div>' +
                     '<div class="flexContainer flexRow">' +
                         '<div class="flexWrap flex-left">' +
-                        // keep a space for hiding the icon in hide
-                            '<div class="iconHidden"></div> ' +
+                            '<div class="iconHidden"></div>' +
                             '<span class="type icon"></span>' +
                         '</div>' +
                         '<div class="flexWrap flex-mid' + disabledClass +
@@ -1703,14 +1702,9 @@ window.TblManager = (function($, TblManager) {
     }
 
     function addRowListeners(newCells) {
-        newCells.find('.jsonElement').dblclick(function() {
-            if ($('#mainFrame').hasClass('modalOpen') &&
-                !$(this).closest('.xcTableWrap').hasClass('jsonModalOpen'))
-            {
-                return;
-            }
-            JSONModal.show($(this));
-        });
+        var $jsonEle = newCells.find('.jsonElement');
+        $jsonEle.dblclick(showJSONMoal);
+        $jsonEle.on("click", ".icon", showJSONMoal);
 
         newCells.find('.rowGrab').mousedown(function(event) {
             if (event.which === 1) {
@@ -1727,6 +1721,15 @@ window.TblManager = (function($, TblManager) {
                 unbookmarkRow(rowNum, tableId);
             }
         });
+
+        function showJSONMoal() {
+            if ($('#mainFrame').hasClass('modalOpen') &&
+                !$(this).closest('.xcTableWrap').hasClass('jsonModalOpen'))
+            {
+                return;
+            }
+            JSONModal.show($(this).closest(".jsonElement"));
+        }
     }
 
     function adjustRowHeights(newCells, rowIndex, tableId) {

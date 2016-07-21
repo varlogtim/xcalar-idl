@@ -757,7 +757,7 @@ window.DSPreview = (function($, DSPreview) {
                 parseTdHelper(datas[0], delimiter, true);
         } else {
             thead +=
-               '<th>' +
+               '<th class="rowNumHead">' +
                     '<div class="header"></div>' +
                 '</th>';
 

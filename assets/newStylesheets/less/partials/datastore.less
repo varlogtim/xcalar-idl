@@ -1,0 +1,1807 @@
+ // DataStore CSS
+#datastorePanel {
+    .position(relative, @top: 0);
+    white-space: nowrap;
+    overflow-x: auto;
+    overflow-y: hidden;
+}
+
+input {
+    &.error {
+        background-color: @color-input-error !important;
+        &:focus {
+            outline: 1px solid @color-input-error-border !important;
+        }
+    }
+}
+
+/* Content Header */
+ #contentHeader {
+    .flex-display;
+    .flex-flow(row);
+    .position(absolute, @top: -1px);
+    z-index: 6;
+    box-shadow: 0px 2px 11px 0px rgba(0,0,0, .5);
+}
+
+#sendToWorksheetLoadBar {
+    display: none;
+    width: 100%;
+    height: 5px;
+    background-color: #374750;
+    z-index: 21;
+    position: absolute;
+    top: 35px;
+    pointer-events: none;
+    .innerBar {
+        width: 0%;
+        height:100%;
+        background-color: #4CA5D9;
+    }
+}
+
+
+#contentHeaderLeft {
+    .flex(0 0 255px);
+    .flex-order(1);
+    background-color: @color-white;
+
+    .flex-display;
+    .flex-flow(row);
+
+    .buttonArea {
+        .flex(1 1 127px);
+    }
+}
+
+// two icons in #contentHeaderLeft
+#inButton .icon {
+    margin: 0px 5px 0 8px;
+    .image("../../images/datastore/import-single.png", 50%, 50%);
+    .size(30px, 36px);
+
+}
+
+#outButton .icon {
+    margin: 0px 5px 0 8px;
+    .image("../../images/datastore/export-single.png", 50%, 50%);
+    .size(30px, 36px);
+}
+
+#contentHeaderMid {
+    .flex(1 1 auto);
+    .flex-order(2);
+    background-repeat: no-repeat;
+    background-position: 19px 12px;
+}
+
+#contentHeaderRight {
+    .flex(0 0 255px);
+    .flex-order(3);
+    background: linear-gradient(@color-bar-darkGray-top, @color-bar-darkGray-bot);
+    border-left: 1px solid black;
+
+    .icon {
+        margin: 9px 0 0 8px;
+        .background("../../images/datastore/db-sm.png", 19px, 19px);
+        float: left;
+    }
+
+    color: @color-white;
+}
+/* End Of Content Header */
+
+/* Form Data View Section */
+.dsFormView {
+    display: block;
+    .position(absolute, @top: 37px, @left: 255px);
+    .size(@width: ~"calc(100% - 510px)", @height: ~"calc(100% - 37px)", @min-width: 514px);
+    background-color: @color-background-white;
+    font-size: 13px;
+    overflow: hidden;
+
+    .contentViewMidWrap {
+        .size(@height: 100%, @width: 90%, @min-width: 470px, @max-width: 960px);
+        margin: 0 auto;
+        padding: 0 0px;
+    }
+
+    .label {
+        display: inline-block;
+        float: left;
+        .size(@width: 100px, @height: 30px);
+        .font(@weight: 700, @line-height: 30px);
+        cursor: default;
+    }
+
+    .btn {
+        margin-left: 20px;
+        padding: 0;
+        float: right;
+        text-shadow: 1px 1px rgba(0,0,0,.2);
+        // .flex(1 5 120px);
+        // max-width: 150px;
+    }
+}
+
+.formHelp {
+    .position(relative);
+    .size(@height: 93px);
+    padding: 15px 10px 5px 10px;
+    font-weight: 700;
+    box-shadow: 0px 3px 2px rgba(0,0,0,0.2);
+    text-align: left;
+   .textOverflow;
+
+    .contentViewMidWrap {
+        .size (@width: 90%, @max-width: 960px);
+    }
+
+    h2 {
+        .font(@size: 18px, @color: @color-text-blue);
+        display: block;
+        margin-bottom: 10px;
+        .textOverflow;
+    }
+
+    p {
+        .size(@width: ~"calc(100% - 50px)", @height: 30px);
+        .font(@weight: 700, @size: 12px, @color: @color-text-lightGray);
+        overflow: hidden;
+        display: inline-block;
+        white-space: normal;
+        float: left;
+    }
+
+    .icon {
+        .background("../../images/info-icon-large.png", 28px, 28px);
+        display: inline-block;
+        float: left;
+        margin-right: 10px;
+    }
+}
+
+// Data Form Section
+.dsForm {
+    height: ~"calc(100% - 93px)";
+    overflow: auto;
+
+    .hidden {
+        display: none;
+    }
+
+    .disabled {
+        opacity: 0.7;
+        pointer-events: none;
+
+        .checkbox, .text, label {
+            opacity: 0.5;
+        }
+    }
+
+    .middleFieldSize() {
+        .size(@width: ~"calc(100% - 310px)", @min-width: 150px);
+    }
+
+    .formSection {
+        .title {
+            .font(@weight: bold, @line-height: 30px);
+            .size(@width: 185px, @height: 30px);
+            float: left;
+
+            .hint {
+                font-size: 12px;
+            }
+        }
+
+        .content {
+            .size(@width: ~"calc(100% - 185px)");
+            float: left;
+        }
+
+        &.filePath {
+            margin-bottom: 10px;
+        }
+
+        &.previewSize {
+            .row .rowContent {
+                &.input {
+                    .size(@width: ~"calc(100% - 410px)", @min-width: 75px);
+                }
+
+                &.dropDownList {
+                    .size(@width: 80px, @min-width: 80px);
+                }
+
+                &.qMark {
+                    .vertical-align;
+                }
+            }
+        }
+    }
+
+    .row {
+        .size(@height: 30px);
+        .input-placeholder(@color-text-instructions);
+        margin-bottom: 20px;
+
+        .rowContent {
+            margin-right: 20px;
+            float: left;
+
+            &:last-child {
+                margin-right: 0;
+            }
+
+            &.hint {
+                .size(@width: 130px, @height: 20px, @max-width: 15%);
+                .font(@size: 12px, @line-height: 30px, @weight: bold, @color: @color-text-lightGray);
+            }
+
+            &.input {
+               .middleFieldSize;
+                box-shadow: inset 0 1px 2px rgba(0,0,0,0.3);
+                padding: 0 10px;
+            }
+
+            &.btn {
+                float: right;
+                margin: 0;
+            }
+
+            .link {
+                line-height: 30px;
+                text-decoration: underline;
+                color: @color-text-blue;
+                cursor: pointer;
+
+                &:hover {
+                    color: @color-text-topAction;
+                }
+            }
+        }
+    }
+
+    .dropDownList {
+        .styleDropDownList(~"calc(100% - 390px)", 30px, false);
+        .middleFieldSize;
+    }
+}
+
+// Top Form Section
+.dsFormTop {
+    background-color: @color-background-topForm;
+    padding: 30px 20px 1px 20px;
+}
+
+// Bottom Form Section
+.dsFormBottom {
+    padding: 20px 20px 1px 20px;
+    height: 70px;
+}
+
+#previewBtn {
+    .green-gradient;
+
+    &:hover, &:focus {
+        .green-inverse-gradient;
+    }
+}
+
+#csvDelim, #udfArgs {
+    .dropDownList {
+        &.disabled {
+            opacity: 0.7;
+            pointer-events: none;
+        }
+
+        .list {
+            .font(@weight: 600);
+
+            li {
+                padding: 0 7px;
+
+                &.hidden {
+                    display: none;
+                }
+
+                &:hover {
+                    background-color: @color-white;
+                }
+
+                // this use js to make hover status's color
+                &.hover {
+                    background-color: @color-selectedCell-light;
+                }
+            }
+
+            .other {
+                .size(@height: 60px);
+                .position(relative);
+
+                span {
+                    display: block;
+                }
+
+                .inputWrap {
+                    .position(relative);
+                    .size(@width: 100%, @height: 20px);
+                    .font(@line-height: 20px);
+
+                    input {
+                        padding-right: 22px;
+                        .size(@width: 100%, @height: 20px);
+                        .font(@line-height: 20px);
+                        box-shadow: 0px 0px 0px 1px @color-selectedCell-dark;
+                        .rounded;
+                        outline: none;
+                        .textOverflow;
+                    }
+
+                    .inputAction {
+                        .size(@width: 18px, @height: 18px);
+                        .position(absolute, @top: 1px, @right: 0);
+                        .gray-gradient;
+                        .rounded;
+
+                        &:hover {
+                            .gray-inverse-gradient;
+                        }
+
+                        .icon {
+                            .size(100%, 100%);
+                            .image("../../images/checkmark.png", 50%, 50%);
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+#csvDelim {
+    .position(relative);
+    .nullVal {
+        font-style: italic;
+    }
+
+    .qMark {
+        .position(absolute, @top: 9px, @left: 80px);
+    }
+}
+// End of Top Form Section
+
+@media screen and (max-width: 1300px) {
+    #datastorePanel {
+        .dsFormView {
+            .contentViewMidWrap {
+                .size(@width: 100%);
+            }
+        }
+
+        .btnMid {
+            width: 120px;
+        }
+    }
+}
+// End of Bottom Form Section
+// End of Data Form Section
+
+// Preview Table Section
+#dsPreviewWrap {
+    padding: 10px 10px 0 10px;
+    background-color: @color-background-topForm;
+    .size(@width: 100%, @height: 0, @min-width: 600px);
+    .position(absolute, @top: 100%);
+    .transition(~"top 1s, height 1s");
+
+    &.fullSize {
+        .size(@height: ~"calc(100% - 7px)");
+        .position(absolute, @top: 7px);
+        padding: 0px 10px 0 10px;
+    }
+
+    &.hidden {
+        display: none;
+    }
+
+    .hidden {
+        display: none;
+    }
+
+    .container {
+        .size(@height: 100%);
+        white-space: nowrap;
+        background-color: @color-white;
+        padding-bottom: 10px;
+        box-shadow: 0px 1px 1px 2px rgba(0, 0, 0, 0.2);
+
+        > div {
+            padding-left: 10px;
+            padding-right: 10px;
+        }
+    }
+
+    .infoSection {
+        .size(@height: 70px);
+        padding-top: 5px;
+        padding-bottom: 5px;
+        background-color: @color-background-topForm;
+        box-shadow: 0px 3px 0px 0px rgba(0, 0, 0, 0.3);
+
+        .infoPart {
+            .size(@height: 25px);
+            margin-top: 5px;
+
+            &:first-child {
+                margin-top: 0;
+            }
+        }
+
+        .title {
+            .font(@size: 14px, @weight: bold);
+        }
+
+        .titleSection {
+            .size(@height: 22px);
+            float: left;
+            line-height: 22px;
+
+            #preview-udf {
+                margin-left: 5px;
+            }
+
+            .text {
+                margin-left: 5px;
+                .font(@color: @color-text-midGray, @weight: 600);
+            }
+        }
+
+        .inputSection {
+            .size(@width: ~"calc(100% - 180px)", @height: 25px);
+            float: left;
+            .input-box(@w: ~"calc(100% - 150px)", @h: 25px);
+
+            input {
+                .size(@max-width: 350px);
+                margin-left: 5px;
+            }
+        }
+
+        .btnSection {
+            .size(@width: 180px, @height: 100%);
+            float: right;
+
+            .btn {
+                .size(@height: 25px);
+                line-height: 25px;
+                float: right;
+                margin-left: 0;
+            }
+
+            .save {
+                .size(@width: 100px);
+                margin-right: 10px;
+            }
+
+            .close {
+                .size(@width: 55px);
+            }
+        }
+    }
+
+    .waitSection {
+        padding-top: 25px;
+        .size(@width: 200px, @height: 110px);
+        margin: 0 auto;
+
+        .icon {
+            .size(@width: 50px, @height: 50px);
+            .image("../../images/waiting-1.gif");
+            .horizontal-align;
+        }
+
+        .text {
+            .font(@size: 13px, @color: @color-text-midGray);
+            text-align: center;
+        }
+    }
+
+    .errorSection {
+        // color please check .loadError
+        height: 35px;
+        padding-top: 10px;
+        color: @color-table-red;
+    }
+
+    .reviewSection {
+        .size(@height: 35px);
+        padding-top: 10px;
+        overflow: hidden;
+        clear: both;
+        .flex-display;
+
+        .previewPart {
+            .flex(1 1 auto);
+            .size(@height: 25px);
+            .font(@size: 12px, @line-height: 25px);
+
+            > div {
+                float: left;
+
+                &:first-child {
+                    margin-right: 20px;
+                }
+            }
+
+            .title {
+                margin-right: 5px;
+                font-weight: 700;
+            }
+        }
+
+        .iconPart {
+            .size(@width: 60px, @height: 25px);
+            .flex(0 0 60px);
+
+            .iconWrapper {
+                .size(@width: 25px, @height: 25px);
+                .rounded;
+                cursor: pointer;
+                float: right;
+                pointer-events: none;
+                .gray-gradient;
+                opacity: 0.7;
+
+                &.active {
+                    pointer-events: all;
+                    .action-gradient;
+                    opacity: 1;
+
+                    &:hover {
+                        .action-inverse-gradient;
+                    }
+                }
+
+                .icon {
+                    .size(100%, 100%);
+                }
+
+                &.highlight {
+                    margin-right: 5px;
+
+                    .icon {
+                        .image("../../images/datastore/preview-highlight.png", 50%, 50%);
+                    }
+                }
+
+                &.rmHightLight {
+                    .icon {
+                        .image("../../images/datastore/preview-rmHeightLight.png", 50%, 50%);
+                    }
+                }
+            }
+        }
+    }
+
+    .suggestSection {
+        .size(@height: 35px);
+        padding-top: 10px;
+        overflow: hidden;
+        clear: both;
+        .font(@size: 12px, @line-height: 25px);
+
+        .title {
+            float: left;
+            margin-right: 5px;
+            font-weight: 700;
+        }
+
+        .action {
+            .size(@height: 25px);
+            .font(@line-height: 25px, @color: @color-white);
+            .rounded;
+            margin-right: 5px;
+            padding: 0 5px;
+            display: inline-block;
+            max-width: 55%;
+            .textOverflowOneLine;
+
+            &.hint {
+                color: @color-text-midGray;
+            }
+
+            &.active {
+                .action-gradient;
+                cursor: pointer;
+
+                &:hover {
+                    .action-inverse-gradient;
+                }
+            }
+        }
+    }
+
+    .previewSection {
+        .size(@width: 100%, @height: ~"calc(100% - 135px)");
+        overflow-y: hidden;
+        overflow-x: auto;
+    }
+}
+
+#dsPreviewTableWrap {
+    margin-top: 10px;
+    height: ~"calc(100% - 10px)";
+    z-index: 0; // child element with z-index 10 causing problems
+    .datasetTbodyWrap {
+        width: ~"calc(100% + 17px)";
+        overflow-x: hidden;
+    }
+    .datasetTbodyWrap:not(*:root) { // selecting Chrome browsers
+        width: ~"calc(100% + 5px)";
+    }
+
+    .previewBottom {
+        .font(@size: 12px, @weight: 700);
+        margin: 5px;
+    }
+}
+
+#previewTable {
+    width: 100%;
+    white-space: pre-wrap;
+
+    // for both th and td
+    .td {
+        display: inline-block;
+
+        &.has-tab {
+            width: 26px;
+            tab-size: 4;
+            -moz-tab-size: 4;
+        }
+
+        &.has-margin {
+            margin-right: 1px;
+        }
+
+        &.highlight {
+            background: @color-table-preview-highlight;
+        }
+
+        &::selection, &::-moz-selection {
+            color: @color-table-preview-highlight;
+        }
+    }
+
+    .truncMessage {
+        .no-selection;
+    }
+
+    th {
+        cursor: default;
+        &:not(:first-child) {
+            width: auto;
+
+            .header {
+                width: ~"calc(100% - 40px)";
+                cursor: default;
+
+                .text {
+                    .size(@height: 100%);
+                    .font(@weight: 600);
+                    line-height: @height-tableCell;
+                    padding: 0 3px;
+                    .textOverflow;
+                }
+            }
+        }
+
+        .header {
+            z-index: 10;
+            // Chrome on retina has bug not showing the div
+            // this CSS fix it altought I do not know whyT__T
+            -webkit-transform:translateZ(0);
+        }
+    }
+
+    td {
+        text-align: left;
+
+        &.cell {
+            cursor: text;
+        }
+
+        &.lineMarker {
+            text-align: center;
+        }
+    }
+
+    &.has-delimiter {
+        .size(@width: 0);
+        white-space: nowrap;
+
+        th:not(:first-child) {
+            .size(@width: 130px);
+            .header {
+                width: inherit;
+            }
+        }
+
+        td {
+            text-align: center;
+        }
+    }
+
+    .undo-promote {
+        pointer-events: all;
+
+        .header {
+            background: @color-table-promote;
+            cursor: pointer;
+
+            .icon {
+                .size(@width: 100%, @height: 100%);
+                .image("../../images/datastore/preview-unpromote.png", 50%, 50%);
+            }
+        }
+    }
+
+    .promote {
+        background: @color-table-promote;
+        cursor: pointer;
+
+        .promoteWrap {
+            .size(@height: 100%);
+            .position(relative);
+        }
+
+        .divider {
+            .size(@width: 9999px, @height: 2px);
+            background-color: @color-table-promote;
+        }
+
+        .iconWrapper {
+            .size(@height: ~"calc(100% - 2px)");
+            .icon {
+                .size(@width: 100%, @height: 100%);
+                .image("../../images/datastore/preview-promote.png", 50%, 50%);
+            }
+        }
+    }
+}
+
+.firefox #previewTable:not(.has-delimiter) .divider {
+    display: none;
+}
+// End Of Preview Table Section
+
+/* End Of Import Data View Section */
+
+/* Main Content */
+#mainContent {
+    height: 100%;
+    padding-top: 37px;
+
+    #exploreView {
+        height: 100%;
+    }
+
+    #exportView {
+        display: none;
+        height: 100%;
+    }
+
+    .contentView {
+        height: 100%;
+        background-color: @color-background-white;
+        overflow: hidden;
+    }
+}
+
+/* Content Left */
+#datastorePanel {
+    .contentViewLeft {
+        .size(@width: 255px, @height: 100%);
+        .flex-display;
+        float: left;
+        .flex-flow(column);
+        box-shadow: inset -2px 2px 6px 0 rgba(0,0,0,.3);
+        background-color: @color-background-darkGray;
+
+        .headingArea {
+            height: 35px;
+            .flex(0 0 35px);
+            .gray-gradient;
+            text-align: center;
+            padding-top: 6px;
+            position: relative;
+            .font(@weight: 700, @size: 15px, @color: @color-text-darkdarkGray);
+            box-shadow: inset -10px 0px 10px -10px rgba(0, 0, 0, 0.3);
+
+            span {
+                line-height: 22px;
+            }
+
+            .buttonGroup {
+                .position(absolute, @right: 7px);
+                display: inline-block;
+                .noSelection;
+                cursor: default;
+
+                .btn {
+                    .size(23px, 23px);
+                    margin-left: 2px;
+                }
+            }
+        }
+
+        .mainButtonArea {
+            border-bottom: 1px solid rgba(0,0,0,0.25);
+            height: 59px;
+            .flex(0 0 59px);
+
+            .btn {
+                .vertical-align;
+                display: block;
+                margin: 0 auto;
+
+                .icon {
+                    .image("../../images/datastore/db-sm.png", 50%, 50%);
+                }
+            }
+        }
+
+        .gridViewButtonArea {
+            .flex(0 0 31px);
+            .flex-display;
+            height: 31px;
+            position: relative;
+            background-color: @color-background-bottomGrayMed;
+            cursor: default;
+
+            .gridViewBtn {
+                .flex(1 1 auto);
+                height: 100%;
+                cursor: pointer;
+                .gray-gradient;
+                &:hover {
+                    .gray-inverse-gradient;
+                }
+
+                &.disabled {
+                    opacity: 0.3;
+                    background: @color-background-darkGray;
+                    cursor: default;
+                    pointer-events: none;
+                }
+                .icon {
+                    .size(25px, 25px);
+                    margin: 3px 5px 3px 8px;
+                    float: left;
+                }
+
+                .label {
+                    display: inline-block;
+                    .transition (opacity 0.6s);
+                    .font(@size: 11px, @line-height: 32px, @color: @color-text-black);
+                    text-align: center;
+                    float: left;
+                }
+            }
+
+            .backBtn {
+                .label {
+                    font-size: 12px;
+                }
+                &.active {
+                    .gray-inverse-gradient;
+                    opacity: 1.0;
+                }
+
+                .icon {
+                    .image("../../images/datastore/upFolder.png");
+                }
+            }
+            .addBtn {
+                border-left: 1px solid rgba(118, 118, 118, 0.5);
+                border-right: 1px solid rgba(118, 118, 118, 0.5);
+                .icon {
+                    .image("../../images/datastore/addFolder.png");
+                }
+            }
+
+            .deleteBtn {
+                box-shadow: inset -11px 0px 8px -10px rgba(0, 0, 0, 0.3);
+                border-right: none;
+                .icon {
+                    .image("../../images/datastore/deleteFolder.png");
+                }
+
+                &.disabled {
+                    box-shadow: inset -11px 0px 8px -10px rgba(0, 0, 0, 0.8);
+                }
+            }
+        }
+    }
+    .gridViewWrapper {
+        .flex(1 1 auto);
+        padding: 9px 5px;
+        padding-left: 8px;
+        position: relative;
+        overflow-x: hidden;
+        overflow-y: auto;
+        border-top: 1px solid rgba(154,154,154,1);
+
+        .gridItems {
+            .size(@width: 240px);
+
+            .grid-unit.display {
+                > .label {
+                   textarea {
+                        background: @color-background-white;
+                        outline: none;
+                        resize: none;
+                    }
+                }
+            }
+
+            &.gridView {
+                overflow: visible;
+                padding-bottom: 2px;
+                .grid-unit.hidden {
+                    > .gridIcon, > .listIcon, > .label, > .dsCount,
+                    > .dragWrap {
+                        display: none !important;
+                    }
+                }
+
+                .grid-unit:first-of-type {
+                    clear: left;
+                }
+
+                .grid-unit.display {
+                    .gridViewForGrid;
+
+                    > .label {
+                        display: block;
+                        padding: 0;
+                        background-color: transparent;
+                        text-align: center;
+                    }
+                    .waitingIcon {
+                        left: 8px;
+                    }
+                }
+
+                .grid-unit.ds.display > .dragWrap {
+                    .size(@width: ~"calc(50% + 7px)", @height: 100%);
+                    position: absolute;
+                    background: transparent;
+
+                    &.leftTopDragWrap {
+                        // background-color: blue;
+                        left: -7px;
+                        &.active {
+                            box-shadow: inset 2px 0px 0px @color-shadow-topAction;
+                        }
+                    }
+
+                    &.rightBottomDragWrap {
+                        // background-color: green;
+                        left: 50%;
+                        &.active {
+                            box-shadow: 2px 0px 0px @color-shadow-topAction;
+                        }
+                    }
+                }
+
+                .grid-unit.folder.display {
+                    > .label {
+                        .position(relative);
+
+                        &.focused {
+                            overflow: visible;
+                        }
+
+                        textarea {
+                            .size(@width: 130%, @height: 15px, @min-height: 15px, @max-height: 30px);
+                            .position(absolute, @left: -7px);
+                            box-shadow: inset 0px 0px 3px black;
+                            padding: 1px 1px;
+                            .font(@size: 9px);
+                            text-align: center;
+                        }
+                    }
+
+                    .dsCount {
+                        .position(absolute, 12px, 0, 0, 2px);
+                        .size(@width: 50px, @height: 20px);
+                        .font(@weight: 700, @color: @color-text-blue);
+                    }
+
+                    > .dragWrap {
+                        height: 100%;
+                        position: absolute;
+                        background: transparent;
+
+                        &.leftTopDragWrap {
+                            left: -7px;
+                            width: ~"calc(16.5% + 7px)";
+
+                            &.active {
+                                box-shadow: inset 2px 0px 0px @color-shadow-topAction;
+                            }
+                        }
+
+                        &.rightBottomDragWrap {
+                            left: 82.5%;
+                            width: ~"calc(16.5% + 7px)";
+
+                            &.active {
+                                box-shadow: 2px 0px 0px @color-shadow-topAction;
+                            }
+                        }
+
+                        &.midDragWrap {
+                            width: 66%;
+                            left: 16.5%;
+                        }
+                    }
+                }
+            }
+
+            &.listView {
+                padding: 4px 5px;
+                padding-left: 2px;
+
+                .grid-unit {
+                    .listViewForGrid;
+
+                    > .label {
+                        width: ~"calc(100% - 25px)";
+                        padding-right: 30px;
+                        white-space: nowrap;
+                        overflow: hidden;
+                        line-height: 25px;
+                    }
+                }
+
+                .grid-unit.ds > .dragWrap {
+                    .position(absolute);
+                    .size(@width: 100%, @height: 17.5px);
+                    background: transparent;
+
+                    &.leftTopDragWrap {
+                        top: -5px;
+
+                        &.active {
+                            box-shadow: inset 0px 2px 0px @color-shadow-topAction;
+                        }
+                    }
+
+                    &.rightBottomDragWrap {
+                        top: 12.5px;
+
+                        &.active {
+                            box-shadow: 0px 2px 0px @color-shadow-topAction;
+                        }
+                    }
+                }
+
+                .grid-unit.folder {
+                    .grid-unit {
+                        .size(@width: 95%, @max-width: 230px);
+                        margin-left: 5%;
+                        display: block;
+                    }
+
+                    > .label {
+                        textarea {
+                            .size(100%, 100%);
+                            .font(@size: 11px, @line-height: 25px);
+                            white-space: nowrap;
+                            overflow: hidden;
+                        }
+                    }
+
+                    .dsCount {
+                        .position(absolute, @top: 3px, @right: 8px, @bottom: 0);
+                        .size(@width: 45px, @height: 25px);
+                        .font(@weight: 900, @color: @color-text-blue);
+                        text-align: right;
+                    }
+
+                    > .dragWrap {
+                        width: 100%;
+                        position: absolute;
+                        background: transparent;
+
+                        &.leftTopDragWrap {
+                            top: -5px;
+                            height: 9.17px;
+
+                            &.active {
+                                box-shadow: inset 0px 2px 0px @color-shadow-topAction;
+                            }
+                        }
+
+                        &.rightBottomDragWrap {
+                            top: 20.84px;
+                            height: 9.16px;
+
+                            &.active {
+                                box-shadow: 0px 2px 0px @color-shadow-topAction;
+                            }
+                        }
+
+                        &.midDragWrap {
+                            height: 16.67px;
+                            top: 4.17px;
+                        }
+                    }
+                }
+
+                .grid-unit.collapse {
+                    .grid-unit {
+                        display: none !important;
+                    }
+                    &.folder > .listIcon .icon {
+                        .image("../../images/datastore/folder-sm.png", 50%, 50%)
+                    }
+                }
+            }
+
+            & .dragWrap {
+                z-index: -1;
+            }
+
+            &.drag .dragWrap {
+                z-index: 99;
+            }
+
+            .waitingIcon {
+                z-index: 20;
+            }
+            .hidden .waitingIcon {
+                display: none !important;
+            }
+        }
+    }
+    /* End Of Content Left */
+
+    /* Content Mid */
+    .contentViewMid {
+        .size(@width: ~"calc(100% - 510px)", @height: 100%);
+        .flex-display;
+        .flex-flow(column);
+        float: left;
+
+        &.hidden {
+            visibility: hidden;
+        }
+
+        .contentViewHeader {
+            height: 93px;
+            .flex-order(1);
+            box-shadow: 0 3px 2px rgba(0,0,0,.2);
+            padding: 10px 25px 0px;
+
+            .dbText {
+                display: inline-block;
+                float: left;
+                width: 100%;
+                overflow: hidden;
+
+                h2, p {
+                    .textOverflow;
+                }
+            }
+
+            h2 {
+                display: block;
+                height: 26px;
+                .font(@size: 19px, @line-height: 25px, @color: @color-text-blue);
+            }
+
+            p {
+                display: block;
+                font-size: 13px;
+                margin: 2px 0 5px 0;
+            }
+        }
+
+        /* START DATASET TABLE */
+        .contentViewTable {
+            height: ~"calc(100% - 93px)";
+            .flex-order(2);
+            background-repeat: no-repeat;
+            background-position: center;
+            position: relative;
+
+            /* dataset title wrap */
+            .datasetTitleWrap {
+                .size(@height: 60px);
+                margin-top: 15px;
+                padding-left: 25px;
+
+
+                .titleInfo {
+                    .size(@height: 60px);
+                    float: left;
+
+                    .heading {
+                        .size(@height: 20px);
+                        margin-bottom: 10px;
+                        .font(@size: 14px);
+                    }
+
+                    .dsInfo {
+                        .size(@height: 20px);
+                        .font(@size: 13px);
+                    }
+                }
+
+                .buttonGroup {
+                    .size(@height: 60px);
+                    overflow: hidden;
+                    float: right;
+                    .font(@weight: 600, @color: @color-text-blue);
+                    padding-right: 17px;
+
+                    .buttonWrap {
+                        .size(@height: 20px);
+
+                        > div {
+                            float: left;
+                        }
+
+                        &:first-child {
+                            margin-bottom: 10px;
+                        }
+                    }
+
+                    .qMark {
+                        .vertical-align;
+                        margin-left: 5px;
+                    }
+
+                    .modifyDSButton {
+                        .size(@height: 20px);
+                        cursor: pointer;
+
+                        span {
+                           float: left;
+                           line-height: 20px;
+                        }
+
+                        .icon {
+                            margin-right: 8px;
+                            .size(@width: 20px, @height: 20px);
+                        }
+
+                         &.noCols .icon {
+                            .image("../../images/datastore/dsNoCol.png", 50%, 50%);
+                        }
+
+                        &.selectAll .icon {
+                            .image("../../images/select-all.png", 50%, 50%);
+                        }
+
+                        &.clear .icon {
+                            .image("../../images/select-none.png", 50%, 50%);
+                        }
+                    }
+
+                    .divider {
+                        .size(@width: 1px, @height: 20px);
+                        margin: 0 10px;
+                        background-color: @color-background-topGrayMed;
+                    }
+                }
+            }
+            /* End of dataset title wrap */
+        }
+        /* END OF DATASET TABLE */
+    }
+    /* End of Content Mid */
+
+    /* Content Right */
+    .contentViewRight {
+        .size(@width: 255px, @height: 100%);
+        background-color: @color-background-darkGray;
+        box-shadow: inset 2px 2px 6px 0 rgba(0,0,0,.3);
+        border-left: 1px solid rgba(0, 0, 0, 0.25);
+        float: right;
+
+        .buttonArea {
+            margin-top: 4px;
+            padding-bottom: 0px;
+            padding-left: 12px;
+            position: relative;
+            cursor: default;
+
+            &.cartOverflow {
+                box-shadow: 2px 2px 5px rgba(0,0,0,0.4);
+                .border {
+                    display: none;
+                }
+            }
+            .title {
+                font-size: 16px;
+                padding-left: 5px;
+                padding-top: 15px;
+                .size(@width:225px, @height: 45px);
+                text-align: center;
+            }
+            .border {
+                border-top: 1px solid @color-border-joinGray;
+                border-bottom: 1px solid @color-white;
+                width: 225px;
+            }
+        }
+
+        .btnLarge {
+            margin-top: 10px;
+            padding-right: 5px;
+            width: 225px;
+            font-size: 11px;
+            display: block;
+            text-align: left !important;
+            text-indent: 4px;
+
+            .icon {
+                left: -2px !important;
+            }
+
+            &#submitDSTablesBtn .icon {
+                .image("../../images/datastore/send-single.png", 0, 50%);
+            }
+            &#submitMultipleDBTablesBtn .icon {
+                .image("../../images/datastore/send-multiple.png", 0, 50%);
+            }
+            &#clearDataCart .icon {
+                .image("../../images/garbage.png", 0, 50%);
+            }
+        }
+    }
+}
+
+#gridViewMenu {
+    box-shadow: 1px 1px 1px 3px rgba(0, 0, 0, 0.1);
+    li {
+        display: none;
+    }
+    &.dsOpts {
+        .dsOpt {
+            display: block;
+        }
+    }
+    &.folderOpts {
+        .folderOpt {
+            display: block;
+        }
+    }
+    &.bgOpts {
+        .bgOpt {
+            display: block;
+        }
+    }
+
+    .disabled {
+        opacity: 0.7;
+        pointer-events: none;
+    }
+
+    &.listView {
+        .back, .moveUp, .open {
+            // these options are weird in list view, so not show them
+            display: none;
+        }
+    }
+
+    &.uneditable {
+        .moveUp, .rename, .delete {
+            opacity: 0.7;
+            pointer-events: none;
+        }
+    }
+}
+
+#exportView {
+    .gridViewWrapper {
+        border-top: none;
+    }
+
+    .gridItems {
+        overflow: visible !important;
+        .divider {
+            border-top: 1px solid @color-export-divider;
+            border-bottom: 1px solid @color-white;
+            margin: -5px 35px 7px 4px;
+            height: 0px;
+        }
+        .title {
+            margin-left: 9px;
+            height: 15px;
+            color: @color-export-title;
+            font-weight: bold;
+        }
+        &.gridView {
+            .grid-unit {
+                height: 62px !important;
+                margin-bottom: 10px !important;
+            }
+        }
+        &.listView {
+            padding: 0px 0px 4px !important;
+            .divider {
+                margin: 10px 45px 7px 0px;
+            }
+        }
+    }
+
+    .contentViewMid {
+        visibility: visible;
+        width: ~"calc(100% - 255px)";
+        min-width: 640px;
+        height: ~"calc(100% - 37px)";
+    }
+
+    .formHelp {
+        .contentViewMidWrap {
+
+            margin-left: 4%;
+        }
+    }
+    .dsForm {
+        height: ~"calc(100% - 93px)";
+        overflow: auto;
+        .contentViewMidWrap {
+            margin-left: 5%;
+            max-width: 750px;
+        }
+    }
+
+    .importFormRow {
+        .flex-display();
+        height: 25px;
+        line-height: 25px;
+        margin-bottom: 25px;
+
+        label {
+            width: 100px;
+            font-weight: bold;
+        }
+        input {
+            width: ~"calc(100% - 100px)";
+            min-width: ~"calc(100% - 100px)";
+            box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.3);
+            float: left;
+            height: 25px;
+            line-height: 25px;
+        }
+        .dropDownList {
+            .styleDropDownList(320px, 25px, true);
+            .list li {
+                font-size: 14px;
+                &.unavailable {
+                    opacity: 0.5;
+                    // pointer-events: none;
+                }
+            }
+            .text {
+                font-size: 14px;
+            }
+        }
+    }
+    .dsFormBottom {
+        // padding-left: 10px;
+        padding-top: 20px;
+        h2 {
+            display: block;
+            margin-left: ~"calc(4% - 7px)";
+            margin-bottom: 20px;
+            width: 90%;
+        }
+        input {
+            background-color: @color-background-topForm;
+        }
+        .inputSet {
+            label {
+                float: left;
+            }
+            &:first-child {
+                width: 68%;
+            }
+
+            &:last-child {
+                width: 32%;
+                margin-left: 10%;
+                label {
+                    width: 50px;
+                }
+                input {
+                    width: ~"calc(100% - 50px)";
+                }
+            }
+        }
+        .radioButtonGroup {
+            .justify-content(space-between);
+            margin-top: 45px;
+
+            .label {
+                line-height: 20px;
+            }
+
+            .windowsAuth {
+                .flex(1 1 60%);
+            }
+        }
+
+        button {
+            margin-bottom: 40px;
+        }
+    }
+}
+
+
+#datasetWrap {
+    .size(@max-width: ~"calc(100% - 20px)", @max-height: ~"calc(100% - 88px)");
+    white-space: nowrap;
+    overflow: hidden;
+    float: left;
+    position: absolute;
+    margin-left: 10px;
+    overflow-x: auto;
+    border: 1px solid @color-border-lightLightGray;
+    margin-top: 10px;
+
+    &.loading {
+        border: none;
+        height: 40px !important;
+        .errorSection, .datasetTableWrap {
+            display: none !important;
+        }
+
+        .loadSection {
+            display: block;
+        }
+    }
+
+    &.error {
+        border: none;
+        height: 40px !important;
+        .datasetTableWrap, .loadSection {
+            display: none !important;
+        }
+
+        .errorSection {
+            display: block;
+        }
+    }
+
+    .loadSection {
+        display: none;
+        margin-left: 15px;
+
+        .animatedEllipsis {
+            margin-left: 5px;
+
+            > div {
+                margin-left: -1px;
+            }
+        }
+    }
+
+    .errorSection {
+        display: none;
+        color: @color-table-red;
+        margin-left: 15px;
+    }
+}
+
+.datasetTbodyWrap {
+    .size( @max-height: 100%);
+    overflow-x: visible;
+    overflow-y: scroll;
+    display: inline-block;
+    outline: 1px solid @color-white; // ie bug if we dont use this outline
+    outline-offset: -1px;
+    margin-top: -1px;
+
+    &::-webkit-scrollbar {
+        display: none;
+    }
+}
+
+table.datasetTable {
+    margin: 0;
+}
+
+.datasetTableWrap {
+    height: 100%;
+    margin: 0;
+    position: relative;
+    display: inline-block;
+    overflow: hidden;
+
+    .header {
+        .position(absolute, @top: 0);
+        .size(@width: inherit, @height: @height-colHeaderOuter);
+        cursor: pointer;
+
+        .flexWrap.flex-right {
+            .flex(0 0 20px);
+            position: relative;
+
+            .tick.icon {
+                .size(@width: 15px, @height: 22px);
+                .image("../../images/tick.png", 50%, 70%);
+                opacity: 0.5;
+            }
+        }
+
+        &:hover {
+            .flexWrap.flex-right {
+                > .tick.icon {
+                    opacity: 1.0;
+                }
+            }
+        }
+
+        &::before {
+            display: none;
+        }
+    }
+
+    th {
+        width: 130px;
+
+        &.rowNumHead {
+            width: 40px;
+            cursor: default;
+
+            .header {
+                width: 40px;
+                cursor: default;
+            }
+        }
+    }
+    .selectedCol {
+        .header {
+            .editableHead {
+                color: @color-white;
+            }
+            .tick.icon {
+                opacity: 1.0;
+            }
+        }
+
+        .flexContainer {
+            .type-boolean .flexWrap.flex-left {
+                &:after {
+                    border-top: 30px solid @color-border-colIconBlue;
+                }
+            }
+        }
+        
+    }
+}
+/* End Of Content Mid */
+
+// Data Cart Section
+#dataCartWrap {
+    .size(@width: ~"calc(100% - 10px)", @height: ~"calc(100% - 125px)");
+    overflow: auto;
+    float: left;
+}
+
+#dataCart {
+    margin-left: 12px;
+    background-color: @color-background-darkGray;
+    backface-visibility: hidden;
+
+    .helpText {
+        white-space: normal;
+        display: block;
+        margin-top: 10px;
+        margin-right: 15px;
+        color: @color-text-darkdarkGray;
+    }
+
+    .selectedTable {
+        .size(@width: 215px);
+        margin: 10px 0 20px 0;
+
+        .cartTitleArea {
+            .position(relative);
+            .size(@width: 100%, @height: 30px);
+
+             .tableNameEdit {
+                .size(100%, 100%);
+                .font(@size: 15px, @weight: bold, @line-height: 30px);
+                padding-right: 30px;
+                padding-left: 5px;
+                display: inline-block;
+                text-align: center;
+                box-shadow: inset 0px 1px 1px rgba(0, 0, 0, 0.5);
+                background-color: @color-background-topGrayMed;
+            }
+
+            .iconWrapper {
+                .position(absolute, @top: 5px, @right: 5px);
+                .size(20px, 20px);
+                background-color: @color-icon-gray-flat;
+                box-shadow: -1px 1px 0px 1px rgba(0, 0, 0, 0.2);
+                .rounded;
+                cursor: pointer;
+
+                &:hover {
+                    .action-gradient;
+                }
+
+                .icon {
+                    .size(100%, 100%);
+                    .image("../../images/datastore/tableEdit.png", 50%, 50%);
+                }
+            }
+
+            &.focus {
+                .iconWrapper {
+                    display: none;
+                }
+            }
+        }
+
+        .cartEmptyHint {
+            margin-top: 10px;
+            text-align: center;
+            .font(@weight: bold, @color: @color-text-midGray);
+        }
+
+        li {
+            .size(@height: 25px);
+            .font(@weight: 700, @size: 12px, @line-height: 25px);
+            background-color: @color-background-white;
+            .rounded;
+            box-shadow: -1px 1px 1px rgba(0,0,0,.2);
+            overflow: hidden;
+            margin-top: 6px;
+
+            &.colSelected {
+                background-color: @color-selectedCell-light;
+            }
+
+            &.keySelected {
+                box-shadow: 0px 0px 0px 2px @color-shadow-bottomAction;
+            }
+
+            .colName {
+                .size(@width: 190px, @height: 100%);
+                padding-left: 10px;
+                float: left;
+                display: inline-block;
+                cursor: default;
+            }
+
+            .removeCol {
+                .size(@width: 25px, @height: 100%);
+                float: left;
+                display: inline-block;
+                .gray-gradient;
+                cursor: pointer;
+                &:hover {
+                    .red-gradient;
+                }
+                .closeIcon {
+                    display: inline-block;
+                    .size(100%, 100%);
+                    .image("../../images/close-sm.png", 50%, 50%);
+                }
+            }
+        }
+    }
+}
+// End of Data Cart Section
+

@@ -1,0 +1,762 @@
+#watermark {
+    .position(absolute, @bottom: 100px, @left: 15px);
+    .size(@width: 579px, @height: 253px);
+    .image("../../images/logo/xcalar-white-lg.png", 0, -70px);
+    background-size: 100%;
+    z-index: -1;
+    opacity: 0.05;
+}
+
+#insight {
+    .position(absolute, @bottom: 89px, @left: 238px);
+    .size(243px, 79px);
+    .image("../../images/logo/insight-lg.png");
+    background-size: 100%;
+    z-index: -1;
+    opacity: 0.15;
+}
+
+/* DRAG AND DROP TABLES */
+.tableDragging {
+    position: absolute !important;
+    opacity: 0.7;
+    z-index: 10;
+    .innerBox {
+        display: none !important;
+    }
+    .idSpan {
+        left: 0 !important;
+    }
+    .th.rowNumHead .header {
+        left: 0 !important;
+    }
+}
+
+#shadowTable {
+    .position(relative, @top: 0, @left: 0);
+    background-color: @color-shadow-darkGray;
+    display: inline-block;
+    opacity: 1;
+    margin-right: 5px;
+    overflow: hidden;
+    white-space: normal;
+    z-index: 0;
+    vertical-align: top;
+}
+
+/* DRAG AND DROP COLUMNS styling */
+#shadowDiv {
+    .position(absolute);
+    background-color: @color-table-midGray;
+    z-index: 11;
+    opacity: 1;
+    margin-top: 5px;
+}
+
+#fauxCol{
+    .position(absolute, @top: 114px);
+    background-color: @color-white;
+    z-index: 12;
+    opacity: 0.7;
+    pointer-events: none;
+    overflow: hidden;
+    box-shadow: 1px 0px 1px 1px @color-fauxCol-shadow;
+    white-space: nowrap;
+}
+
+#fauxTable {
+    background-color: @color-white;
+    z-index: 12;
+    margin-left: 0 !important;
+    margin-top: 5px;
+    th {
+        outline: 1px solid @color-fauxTable-outline;
+    }
+    tr:first-child {
+        position: absolute;
+        background-color: @color-background-white !important;
+    }
+    .header {
+        border-left: none !important;
+        border-right: none !important;
+    }
+    &.selectedCol {
+        .header .flexContainer{
+            .action-gradient;
+
+            .editableHead {
+                color: @color-white !important;
+                text-overflow: clip;
+            }
+
+            .flexWrap.flex-left {
+                .colIcon-active-gradient();
+            }
+        }
+
+        .type-boolean .flexWrap.flex-left {
+            &:after {
+                border-top: @height-colHeader solid @color-border-colIconBlue;
+            }
+        }
+    }
+    &.userHidden {
+        .tdText, .dataColText, .dataCol .flex-mid {
+            display: none;
+        }
+    }
+    .dataCol {
+        .flexWrap.flex-left {
+           display: none;
+        }
+        input {
+            padding-right: 3px !important;
+            text-overflow: ellipsis;
+        }
+    }
+}
+
+#fauxTable {
+    th, td {
+        border-right: none !important;
+        border-left: none;
+    }
+
+    td {
+        padding: 2px !important;
+        overflow: hidden;
+    }
+
+    tr {
+        &:nth-child(odd) {
+            td {
+                &.indexedColumn {
+                    background-color: @color-table-indexed-lightBlue !important;
+                }
+                &.jsonElement, &.dataCol {
+                    background-color: @color-table-col-lightGreen !important;
+                }
+            }
+
+        }
+        &:nth-child(even) {
+            td {
+                &.indexedColumn {
+                    background-color: @color-table-indexed-blue !important;
+                }
+                &.jsonElement, &.dataCol {
+                    background-color: @color-table-col-green !important;
+                }
+            }
+        }
+    }
+}
+
+.dragArea {
+    .position(absolute, @top: -5px, @left: 0);
+    .size(@width: 100%, @height: 45px);
+    .cursor-move;
+    z-index: 2;
+    .iconHelper {
+        .position(absolute, @top: 8px, @left: 2px);
+        .size(20px, @height-colHeader);
+    }
+}
+
+#moveCursor { // element that takes up the entire screen and applies a cursor
+    .position(absolute, @top: 0, @left: 0);
+    z-index: 22;
+    .cursor-grabbing();
+    width: 100%;
+    height: 100%;
+}
+
+#dropTargets {
+    .position(absolute, @top: 0, @left: 0);
+    .cursor-grabbing();
+}
+
+.dropTarget {
+    .position(absolute, @top: 0);
+    z-index: 23;
+    background-color: rgba(0,0,50,0.2); // only used in testing
+    font-size: 50px;
+    opacity: 0;
+}
+/* END DRAG AND DROP STYLING */
+
+/* RESIZE CURSOR */
+#resizeCursor, #rowResizeCursor {
+    .position(absolute, @top: 0, @left: 0);
+    z-index: 22;
+    width: 100%;
+    height: 100%;
+}
+#resizeCursor {
+    .cursor-resize();
+}
+#rowResizeCursor {
+    .cursor-rowResize();
+}
+/* END RESIZE CURSOR */
+
+/* ========== Work Sheet Bar ========== */
+#workspaceBar {
+    .position(relative, @top: -1px);
+    .flex-display;
+    z-index: 13;
+
+    .workspaceArea {
+        .flex-shrink(0);
+        &:first-child {
+            border-right: none;
+            min-width: 53px;
+        }
+    }
+}
+
+    #undoRedoArea {
+        padding: 0px;
+        height: 100%;
+        margin-top: 0px;
+
+        > div {
+            height: 100%;
+            width: 25px;
+            float: left;
+            cursor: pointer;
+            margin-right: 1px;
+
+            &.disabled {
+                opacity: 0.3;
+                cursor: not-allowed;
+            }
+        }
+    }
+
+    #undo {
+         .image("../../images/undo-bright.png", 50%, 50%);
+    }
+    #redo {
+         .image("../../images/redo-bright.png", 50%, 50%);
+    }
+
+    #functionArea {
+        .flex(4 1 380px);
+        .flex-display;
+        max-width: ~"calc(100% - 400px)";
+        position: relative;
+        padding-left: 4px;
+        height: 37px;
+        padding-top: 5px;
+        margin-top: 0px;
+        border-right: none;
+
+        .label {
+            pointer-events: none;
+        }
+
+        &.searching {
+            .closeBox, .counter, .arrows {
+                display: inline-block;
+            }
+            #fnBar, .fnBarClone, .CodeMirror {
+                padding-right: 90px;
+            }
+            .fnbarPre {
+                span {
+                    color: @color-text-fnBar-blue;
+                }
+            }
+        }
+        .counter {
+            .position(absolute, @top: 5px, @right: 68px);
+            .size (@height: 30px);
+            .font(@color: @color-text-graySoft, @size: 14px);
+            pointer-events: none;
+        }
+
+        .arrows {
+            right: 16px;
+            top: 3px;
+            z-index: 3; // codeMirror has z-index of 2
+        }
+
+        .closeBox, .counter, .arrows {
+            display: none;
+        }
+
+        .CodeMirror {
+            .size(@width: ~"calc(100% - 28px)") !important;
+            margin-left: 4px;
+            height: 25px !important;
+            padding: 0 4px;
+            font-weight: bold;
+            line-height: 25px;
+            font-size: 14px;
+            .rounded;
+            font-family: @font-base;
+            background-color: @color-input-background;
+            color: @color-text-darkGray;
+
+            &.active, &.inFocus {
+                background-color: @color-background-darkGray;
+                box-shadow: 0px 2px 2px 0 @color-defaultGray inset;
+            }
+
+            &.CodeMirror-focused {
+                background-color: @color-input-active;
+                color: @color-text-fnBar-blue;
+                box-shadow: 0px 2px 2px 0 @color-defaultGray inset;
+            }
+
+            &.disabled {
+                opacity: 0.7;
+                pointer-events: none;
+                background-color: @color-input-background;
+                .fnbarPre {
+                    color: @color-text-darkGray;
+                    span {
+                        color: @color-text-darkGray;
+                    }
+                }
+            }
+
+            pre {
+                padding-left: 0px;
+            }
+        }
+        .CodeMirror-gutter-wrapper {
+            display: none;
+        }
+        .CodeMirror-sizer {
+            border-width: 0px !important;
+            overflow: hidden;
+        }
+        .CodeMirror-scroll {
+            overflow: hidden !important;
+            margin-right: 0px;
+            margin-bottom: 0px;
+            padding-bottom:0px;
+        }
+        .CodeMirror-hscrollbar, .CodeMirror-vscrollbar {
+            display: none !important;
+        }
+        .CodeMirror-gutters {
+            display: none;
+        }
+        .CodeMirror-cursor {
+            height: 19px !important;
+            top: 3px !important;
+        }
+        .CodeMirror-lines {
+            height: 25px;
+            padding: 0px;
+        }
+        .CodeMirror-selected {
+            height: 18px !important;
+            top: 4px !important;
+        }
+        .CodeMirror-selected { background:  @color-table-preview-highlight;}
+        .CodeMirror-focused .CodeMirror-selected { background:  @color-table-preview-highlight;}
+        .CodeMirror ::selection { background:  @color-table-preview-highlight;}
+        .CodeMirror ::-moz-selection { background:  @color-table-preview-highlight;}
+        .CodeMirror-placeholder {
+            pointer-events: none;
+            color: @color-lightSilverChalice;
+            display: none;
+        }
+
+        .fnbarPre {
+            color: @color-text-fnBar-blue;
+            &.CodeMirror-placeholder {
+                color: @color-lightSilverChalice;
+            }
+        }
+
+        &:not(.searching) {
+            .CodeMirror:not(.disabled) {
+                .cm-keyword {
+                    color: @color-text-fnBar-blue;
+                }
+                .cm-xckeyword {
+                    // color: orange;
+                }
+                .cm-xcspecial { // booleans and null
+                    color: @color-json-num;
+                }
+                .cm-string {
+                    color: @color-json-string;
+                }
+                .cm-backslash { // not actually a string
+                    color: @color-text-blue;
+                     &+ .cm-operator {
+                       color: @color-text-blue;
+                    }
+                }
+                .cm-number {
+                    color: @color-json-num;
+                }
+                .cm-bracket {
+                    color: @color-text-fnBar-blue;
+                }
+                .CodeMirror-nonmatchingbracket {
+                    color: red;
+                }
+                .cm-variable-2, .cm-error {
+                    color: @color-text-blue;
+                    &+ .cm-operator, &+ .cm-atom, &+ .cm-unknown {
+                       color: @color-text-blue;
+                    }
+                }
+                .cm-atom {
+                    color: @color-text-fnBar-blue;
+                }
+                .cm-comma {
+                    color: @color-text-darkGray !important;
+                }
+
+            }
+
+        }
+    }
+
+    #fnBar, .fnBarClone {
+        .size(@width: ~"calc(100% - 28px)");
+        margin-left: 4px;
+        &.active, &.inFocus {
+            background-color: @color-background-darkGray;
+            box-shadow: 0px 2px 2px 0 @color-defaultGray inset;
+        }
+
+        &.disabled {
+            opacity: 0.7;
+            pointer-events: none;
+        }
+    }
+
+    .fnBarClone {
+        background-color: transparent;
+        color: transparent;
+        pointer-events: none;
+        z-index:1;
+        position: absolute;
+        left: 25.5px; // 0.5 actually works in this case
+        height: 25px;
+        padding: 0 4px;
+        font-weight: bold;
+        line-height: 25px;
+        font-size: 14px;
+        width: ~"calc(100% - 50px)";
+        .textOverflowOneLine;
+        span {
+            color: red;
+        }
+    }
+
+    #searchBar {
+        .size(@width: 180px);
+    }
+
+    #rowInputArea {
+        border-left: 1px solid @color-tab-divider;
+    }
+
+    #rowInput {
+        .size(@width: 60px);
+        &::-webkit-outer-spin-button, &::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+        }
+    }
+
+    #rowScrollerArea {
+        .size(@width: 200px, @height: 35px);
+        .flex(2 0 200px);
+        cursor: default;
+        margin: 0 4px;
+        overflow: hidden;
+
+        .rowScroller {
+            .position(relative);
+            .size(@width: 100%, @height: 11px);
+            margin: 12px 0 25px 0;
+            background-color: @color-bar-border;
+            box-shadow: inset 0px 1px @color-rowScroller-shadow-dark, 0px 1px @color-rowScroller-shadow-light;
+
+            .bookmark {
+                .position(absolute, @bottom: 0);
+                .size(@width: 2px, @height: 11px);
+                background-color: @color-background-bookmark;
+                margin-left: -1px;
+                z-index: 2;
+            }
+
+            .rowMarker {
+                .position(absolute, @top: -11px, @left: 0px);
+                .size(@width: 100%, @height: 35px);
+                display: inline-block;
+                .transition (transform 0.13s);
+                &.scrolling {
+                    .transition (transform 0s);
+                }
+                z-index: 1;
+                pointer-events: none;
+            }
+
+            .tooltipHelper {
+                width: 100%;
+                height: 20px;
+                top: -5px;
+                left: 0px;
+                position: absolute;
+            }
+
+            .rangeWrapper {
+                .position(absolute, @top: 11px, @left: 0px);
+                top: 5px;
+                min-width: 3px !important;
+                z-index: 1;
+                pointer-events: initial;
+                cursor: pointer;
+                height: 20px;
+
+                .arrow {
+                    width: 15px;
+                    height: 20px;
+                }
+
+                .rangeBar {
+                    height: 11px;
+                    width: 100%;
+                    background-color: @color-rowScroller-range;
+                    border-left: 2px solid white;
+                    border-right: 2px solid white;
+                    position: absolute;
+                    top: 6px;
+                }
+
+                .bar {
+                    width: 2px;
+                    height: 11px;
+                    position: absolute;
+                    left: 7px;
+                    z-index: 1;
+                }
+
+                .top {
+                    position: absolute;
+                    top: -3px;
+                    left: -7px;
+                    .triangle {
+                        width: 0;
+                        height: 0;
+                        border-left: 8px solid transparent;
+                        border-right: 8px solid transparent;
+                        border-top: 8px solid white;
+                        position: absolute;
+                        top:1px;
+                    }
+                    .bar {
+                        top: 9px;
+                    }
+                }
+                .bottom {
+                    position: absolute;
+                    top: 6px;
+                    right: -7px;
+                    .triangle {
+                        width: 0;
+                        height: 0;
+                        border-left: 8px solid transparent;
+                        border-right: 8px solid transparent;
+
+                        border-bottom: 8px solid white;
+                        position: absolute;
+                        top: 11px;
+                        left: -1px;
+                    }
+                    .bar {
+                        top: 0px;
+                        left: 6px;
+                    }
+                }
+            }
+
+            &.hidden {
+                display: none !important;
+            }
+        }
+    }
+/* ========== End Of Work Sheet Bar ========== */
+
+/* ========== Main Frame ========== */
+#mainFrame {
+    .size(@width: ~"calc(100% - 5px)", @height: ~"calc(100% - 38px)");
+    white-space: nowrap;
+    overflow-x: auto;
+    overflow-y: hidden;
+    // XXX not using position relative for the sake of
+    // the scrolling when drag/dropping a table or column
+    // .transition-delay(0s);
+    // .transition(height 0.3s);
+
+    &.midway {
+        .size(@height:  ~"calc(50% - 20px)");
+        .transition(height 0s);
+        .transition-delay(0.3s);
+    }
+}
+
+.menu {
+    display: none;
+    .parentMenu {
+        &::after {
+            content: "";
+            width: 0px;
+            height: 0px;
+            position: absolute;
+            vertical-align: middle;
+            right: 3px;
+            bottom: 3px;
+            cursor: pointer;
+            opacity: 0;
+            border-top: 11px solid transparent;
+            border-right: 11px solid @color-dropBox;
+            opacity: 0.3;
+            border-right-color: @color-border-lightGray;
+            pointer-events: none;
+        }
+        &.selected {
+            &::after {
+                opacity: 1;
+                border-right-color: @color-dropBox-secondary;
+            }
+        }
+    }
+}
+
+#colMenu {
+    overflow: hidden;
+}
+
+#colSubMenu {
+    max-height: none;
+
+    & > ul {
+        display: none;
+        visibility: visible;
+        left: 0px;
+        margin-top: 0px;
+        position: static;
+    }
+
+    li.selected {
+        background-color: @color-selectedCell-green;
+    }
+
+    .sectionLabel {
+        text-align: center;
+    }
+
+}
+
+#tableMenu {
+    overflow: hidden;
+
+    .unhideTable {
+        display: none;
+    }
+
+    &.tableHidden {
+        .hideTable {
+            display: none;
+        }
+        .unhideTable {
+            display: block;
+        }
+    }
+}
+
+#tableSubMenu {
+    & > ul {
+        display: none;
+        visibility: visible;
+        left: 0px;
+        margin-top: 0px;
+        position: static;
+    }
+
+    li.selected {
+        background-color: @color-selectedCell-green;
+    }
+}
+
+.menu.locked {
+    cursor: auto;
+
+    li {
+        opacity: 0.4;
+        cursor: default;
+        pointer-events: none;
+    }
+    li.hideTable, li.unhideTable  {
+        opacity: 1;
+        cursor: pointer;
+        pointer-events: auto;
+    }
+}
+
+
+/* Row and Column Resizing*/
+.colGrab {
+    .position(absolute, @top: -5px, @right: -14px);
+    .size(@width: 22px);
+    display: inline-block;
+    cursor: col-resize;
+    z-index: 2;
+    background-color: @color-black-invisible; //ie hack
+    border-left: 6px solid @color-black-invisible !important;
+    height: @height-colHeaderOuter + 2px !important;
+    .noSelection;
+}
+
+.rowGrab {
+    .position(absolute, @top: -3px, @left: -2px);
+    .size(@width: 1000px, @height: 8px);
+    z-index: 3;
+    cursor: row-resize;
+    visibility: hidden;
+    .transition(0s visibility 0.25s);
+    &.last {
+        top: auto;
+        visibility: visible;
+    }
+}
+
+tr:hover .rowGrab, tr:hover + tr .rowGrab {
+    visibility: visible;
+}
+
+tbody tr:first-child .rowGrab {
+    display: none;
+}
+
+td.col0:hover {
+    .rowGrab {
+        .transition(0s visibility 0.25s);
+    }
+}
+
+.highlightBox, .jsonModalHighlightBox {
+    position: absolute;
+    z-index: 1;
+    .rounded(2px);
+    box-shadow: inset 0px 0px 0px 2px @color-shadow-topAction;
+}
+
+.jsonModalHighlightBox {
+    top: 0px !important;
+    left: 0px !important;
+}
+
+/* ========== End Of Main Frame ========== */

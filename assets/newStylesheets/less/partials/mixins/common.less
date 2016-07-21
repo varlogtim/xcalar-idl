@@ -282,9 +282,9 @@
         z-index: 6;
         opacity: 0;
         .transition (opacity 0.02s linear);
-        .transition-delay (0.08s);
+        .transition-delay (0.05s);
         border-top: 11px solid transparent;
-        border-right: 11px solid @color-dropBox;
+        border-right: 11px solid @color-bg-dropdown-black;
         &:hover {
             opacity: 1 !important;
         }
@@ -299,15 +299,13 @@
         height: 34px;
         width: 26px;
         border: none;
+        opacity: 0.4;
 
         .innerBox {
-            position: absolute;
-            width: 16px;
-            height: 12px;
-            right: 6px;
-            bottom: 7px;
-            border-top: 11px solid transparent;
-            border-right: 11px solid @color-dropBox;
+            .size(@width: 12px, @height: 7px);
+            .position(absolute, @right: 6px, @bottom: 7px);
+            border-top: 6px solid transparent;
+            border-right: 6px solid @color-bg-dropdown-black;
         }
     }
 }
@@ -546,9 +544,16 @@
     }
 }
 
-.typeList(@w, @h) {
-    .typeIconCSS(@type: "Unknown", @width: @w, @height: @h) {
+.typeList(@w, @h, @isGray:false) {
+    .typeIconCSS(@type: "Unknown", @width: @w, @height: @h) when (@isGray=false){
         @url: "../../images/columnIcons/type-@{type}.png";
+        .icon {
+            .image(@url, 50%, 50%);
+        }
+    }
+
+    .typeIconCSS(@type: "Unknown", @width: @w, @height: @h) when (@isGray=true){
+        @url: "../../images/columnIcons/type-@{type}_gray.png";
         .icon {
             .image(@url, 50%, 50%);
         }
@@ -590,9 +595,18 @@
 }
 
 // used for datasetTableWrap in datastore.less
-.typeIcon() {
-    .typeIconCSS(@type: "Unknown", @width: 9px, @height: 13px, @x: 2px, @y: 0) {
+.typeIcon(@isGray: false) {
+    .typeIconCSS(@type: "Unknown", @width: 9px, @height: 13px, @x: 2px, @y: 0) when (@isGray=false){
         @url: "../../images/columnIcons/type-@{type}.png";
+        .type.icon {
+            .background(@url, @width, @height, @pX: @x, @pY: @y);
+            .position(relative, @left: -2px, @top: 2px);
+            .size(15px, 22px);
+        }
+    }
+
+    .typeIconCSS(@type: "Unknown", @width: 9px, @height: 13px, @x: 2px, @y: 0) when (@isGray=true){
+        @url: "../../images/columnIcons/type-@{type}_gray.png";
         .type.icon {
             .background(@url, @width, @height, @pX: @x, @pY: @y);
             .position(relative, @left: -2px, @top: 2px);
@@ -650,26 +664,6 @@
     }
     &.type-unknown, &.type-undefined, &.newColumn {
         .typeIconCSS("Unknown", 9px, 13px, 2px, 0px);
-    }
-}
-
-.dataTableHeader() {
-    border: 5px solid @color-border-darkGray;
-    background-color: @color-background-darkGray;
-    border-left: none;
-    // z-index: 9;
-    border-radius: 0px;
-    // box-shadow: 0px 1px  1px @color-shadow-black;
-    .typeIcon;
-    .dropDown;
-    .editableHead {
-        width: 100%;
-        outline: none;
-        text-overflow: ellipsis;
-        padding-bottom: 2px;
-    }
-    input {
-        height: @height-colInput;
     }
 }
 
