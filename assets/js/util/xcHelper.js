@@ -510,6 +510,20 @@ window.xcHelper = (function($, xcHelper) {
         return new Date().getTime();
     };
 
+    xcHelper.downloadAsFile = function(fileName, fileContents) {
+        // XXX FIXME fix it if you can find a way to download it as .py file
+        var element = document.createElement('a');
+        element.setAttribute('href', 'data:text/plain;charset=utf-8,' +
+                                encodeURIComponent(fileContents));
+        element.setAttribute('download', fileName);
+        element.style.display = 'none';
+        document.body.appendChild(element);
+
+        element.click();
+
+        document.body.removeChild(element);
+    };
+
     xcHelper.timeStampTranslater = function(unixTime) {
         if (unixTime == null) {
             return null;

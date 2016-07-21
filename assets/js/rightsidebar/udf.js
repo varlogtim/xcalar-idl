@@ -360,18 +360,7 @@ window.UDF = (function($, UDF) {
                 Alert.error(SideBarTStr.DownloadError, SideBarTStr.DownoladMsg);
                 return;
             }
-
-            // XXX FIXME fix it if you can find a way to download it as .py file
-            var element = document.createElement('a');
-            element.setAttribute('href', 'data:text/plain;charset=utf-8,' +
-                                    encodeURIComponent(entireString));
-            element.setAttribute('download', moduleName);
-            element.style.display = 'none';
-            document.body.appendChild(element);
-
-            element.click();
-
-            document.body.removeChild(element);
+            xcHelper.downloadAsFile(moduleName, entireString);
         })
         .fail(function(error) {
             Alert.error(SideBarTStr.DownloadError, error);

@@ -12,6 +12,8 @@ window.Support = (function(Support, $) {
     var defaultCommitFlag = "commit-default";
     var defaultMemoryLimit = 70;
 
+    var statsCache = {}; // Store temporary version of the Stats
+
     Support.setup = function() {
         try {
             username = sessionStorage.getItem("xcalar-username");
@@ -155,25 +157,110 @@ window.Support = (function(Support, $) {
 
     Support.checkStats = function(stats) {
         var data = {};
-
+        var deferred = jQuery.Deferred();
         getStatsMap()
         .then(function() {
-            if (!statsMap.hasOwnProperty(stats)) {
-                console.error(stats, "not exsits");
+            var statsMapArray = [];
+            if (!stats) {
+                for (var statKey in statsMap) {
+                    statsMapArray.push(statsMap[statKey]);
+                }
+
+            } else if (!statsMap.hasOwnProperty(stats)) {
+                console.error(stats, "doesn't exist");
                 console.info("check:", statsMap);
+                deferred.reject();
                 return;
+            } else {
+                statsMapArray.push(statsMap[stats]);
             }
-            var statsId = statsMap[stats];
+
             var promises = [];
 
             for (var node = 0; node < numNodes; node++) {
-                promises.push(getStat.bind(null, node, statsId, data));
+                for (var sid = 0; sid < statsMapArray.length; sid++) {
+                    var statsId = statsMapArray[sid];
+                    promises.push(getStat.bind(null, node, statsId, data));
+                }
             }
 
             return PromiseHelper.chain(promises);
         })
         .then(function() {
+            statsCache = data;
+            console.log(statsMap);
+            var file = "";
+            for (var groupId in data) {
+                var oneRow = {};
+                var notFound = false;
+                for (var j = 0; j < data[groupId]["node0"]["stats"].length; j++) {
+                    oneRow.groupName = groupId;
+                    for (var gName in statsMap) {
+                        if (statsMap[gName] == groupId) {
+                            oneRow.groupName = gName;
+                            break;
+                        }
+                    }
+
+                    oneRow.name = data[groupId]["node0"]["stats"][j]["statName"];
+                    for (var i = 0; i<numNodes; i++) {
+                        stat = data[groupId]["node"+i]["stats"][j];
+                        oneRow["node"+i] = stat["statValue"];
+                    }
+                    var outRow = ("                                         " +
+                                  oneRow.groupName).slice(-40);
+                    outRow += ("                                         " +
+                               oneRow.name).slice(-40);
+                    for (var i = 0; i < numNodes; i++) {
+                        outRow += ("                                         " +
+                                   oneRow["node"+i]).slice(-20);
+                    }
+                    outRow += "\n";
+                    file += outRow;
+                }
+            }
+
+            var header = ("                                    GroupName")
+                          .slice(-40);
+            header += ("                                         StatName")
+                       .slice(-40);
+            for (var i = 0; i < numNodes; i++) {
+                header += ("                                         Node"+i)
+                           .slice(-20);
+            }
+            header += "\n";
+            statsCache = header + file;
             console.info(data);
+            deferred.resolve(header + file);
+        });
+        return deferred.promise();
+    };
+
+    Support.downloadLog = function(targetUsername, targetWorkbookName) {
+        var log;
+        var errLog;
+        XcalarKeyLookup(targetUsername+"-wkbk-"+targetWorkbookName+"-gLog", 1)
+        .then(function(l) {
+            log = l;
+            return (XcalarKeyLookup(targetUsername + "-wkbk-" +
+                                   targetWorkbookName + "-gErr", 1));
+        })
+        .then(function(e) {
+            errLog = e;
+            var overall = {};
+            overall.log = log;
+            overall.err = errLog;
+            xcHelper.downloadAsFile(targetUsername + "-" + targetWorkbookName +
+                                    ".txt", JSON.stringify(overall));
+        });
+    };
+
+    Support.downloadStats = function(stats) {
+        Support.checkStats(stats)
+        .then(function(f) {
+            xcHelper.downloadAsFile(userIdName + "-stats-" +
+                                    xcHelper.getCurrentTimeStamp() + ".txt", f);
+            console.log(f);
         });
     };
 
@@ -269,7 +356,10 @@ window.Support = (function(Support, $) {
 
         XcalarGetStatsByGroupId(nodeId, [statsId])
         .then(function(res) {
-            data["node" + nodeId] = res;
+            if (!data[statsId]) {
+                data[statsId] = {};
+            }
+            data[statsId]["node" + nodeId] = res;
             deferred.resolve();
         })
         .fail(deferred.reject);
