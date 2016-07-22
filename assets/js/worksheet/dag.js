@@ -1216,13 +1216,16 @@ window.Dag = (function($, Dag) {
         .then(function() {
 
             var tableImage = new Image();
+            var tableGrayImage = new Image();
             var dbImage = new Image();
             var expandImage = new Image();
             tableImage.src = paths.dTable;
+            tableGrayImage.src = paths.dTableGray;
             dbImage.src = paths.dbDiamond;
             expandImage.src = paths.expandIcon;
 
             PromiseHelper.when.apply(window, [loadImage(tableImage),
+                                    loadImage(tableGrayImage), 
                                     loadImage(dbImage), loadImage(expandImage)])
             .then(function() {
                 $dagWrap.find('.dagTable').each(function() {
@@ -1232,7 +1235,8 @@ window.Dag = (function($, Dag) {
                         var left = Math.floor($dagTable.parent().position().left +
                                           $dagTable.position().left);
                         drawDagTableToCanvas($dagTable, ctx, top, left,
-                                             tableImage, dbImage);
+                                             tableImage, tableGrayImage,
+                                             dbImage);
                     }
                 });
 
@@ -1677,7 +1681,8 @@ window.Dag = (function($, Dag) {
         return (deferred.promise());
     }
 
-    function drawDagTableToCanvas($dagTable, ctx, top, left, tImage, dImage) {
+    function drawDagTableToCanvas($dagTable, ctx, top, left, tImage, tGrayImage, 
+                                  dImage) {
         left += 40;
         top += 50;
         var iconLeft = left;
@@ -1693,7 +1698,11 @@ window.Dag = (function($, Dag) {
             maxWidth = 120;
             x = left - 42;
         } else {
-            tableImage = tImage;
+            if ($dagTable.hasClass('Dropped')) {
+                tableImage = tGrayImage;
+            } else {
+                tableImage = tImage;
+            }
             x = left - 79;
         }
 
