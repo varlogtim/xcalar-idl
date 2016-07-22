@@ -816,6 +816,7 @@ html.firefox, html.microsoft {
             z-index: 6;
             border: none;
             opacity: 0.4;
+            cursor: pointer;
 
             .innerBox {
                 display: block;
@@ -984,10 +985,6 @@ html.firefox, html.microsoft {
         //     opacity: 0.6;
         // }
 
-        .colGrab:hover ~ .flexContainer .dropdownBox {
-            opacity: 0 !important;
-        }
-
         th {
             &:last-child .colGrab {
                 .position(@right: -10px, @top: -40px);
@@ -1027,12 +1024,6 @@ html.firefox, html.microsoft {
             .dataColText {
                 white-space: normal;
             }
-        }
-    }
-
-    &.resizingCol {
-        .dropdownBox {
-            opacity: 0 !important;
         }
     }
 }

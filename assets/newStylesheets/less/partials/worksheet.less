@@ -54,7 +54,7 @@
 }
 
 #fauxCol{
-    .position(absolute, @top: @height-homeBtn + 35px);
+    .position(absolute, @top: @height-homeBtn + 40px);
     background-color: @color-white;
     z-index: 12;
     opacity: 0.7;
@@ -208,6 +208,7 @@
 
     .workspaceArea {
         .flex-shrink(0);
+
         &:first-child {
             border-right: none;
             min-width: 53px;
@@ -218,7 +219,7 @@
     #undoRedoArea {
         padding: 0px;
         height: 100%;
-        margin-top: 0px;
+        margin-top: -2px;
 
         > div {
             height: 100%;
@@ -235,10 +236,10 @@
     }
 
     #undo {
-         .image("../../images/undo-bright.png", 50%, 50%);
+         .image("../../images/new/workspace/undo.png", 50%, 50%);
     }
     #redo {
-         .image("../../images/redo-bright.png", 50%, 50%);
+         .image("../../images/new/workspace/redo.png", 50%, 50%);
     }
 
     #functionArea {
@@ -248,12 +249,16 @@
         position: relative;
         padding-left: 4px;
         height: 37px;
-        padding-top: 5px;
+        padding-top: 7px;
         margin-top: 0px;
         border-right: none;
 
-        .label {
+        label {
             pointer-events: none;
+            position: absolute;
+            z-index: 1;
+            left: 16px;
+            line-height: 32px;
         }
 
         &.searching {
@@ -261,7 +266,7 @@
                 display: inline-block;
             }
             #fnBar, .fnBarClone, .CodeMirror {
-                padding-right: 90px;
+                padding-right: 100px;
             }
             .fnbarPre {
                 span {
@@ -270,15 +275,15 @@
             }
         }
         .counter {
-            .position(absolute, @top: 5px, @right: 68px);
+            .position(absolute, @top: 9px, @right: 94px);
             .size (@height: 30px);
             .font(@color: @color-text-graySoft, @size: 14px);
             pointer-events: none;
         }
 
         .arrows {
-            right: 16px;
-            top: 3px;
+            right: 40px;
+            top: 7px;
             z-index: 3; // codeMirror has z-index of 2
         }
 
@@ -289,25 +294,24 @@
         .CodeMirror {
             .size(@width: ~"calc(100% - 28px)") !important;
             margin-left: 4px;
-            height: 25px !important;
-            padding: 0 4px;
+            height: 32px;
+            padding: 0px 4px 0px 36px;
             font-weight: bold;
-            line-height: 25px;
+            line-height: 32px;
             font-size: 14px;
-            .rounded;
             font-family: @font-base;
             background-color: @color-input-background;
             color: @color-text-darkGray;
 
             &.active, &.inFocus {
-                background-color: @color-background-darkGray;
-                box-shadow: 0px 2px 2px 0 @color-defaultGray inset;
+                background-color: @color-white;
+                // box-shadow: 0px 2px 2px 0 @color-defaultGray inset;
             }
 
             &.CodeMirror-focused {
-                background-color: @color-input-active;
+                background-color: @color-white;
                 color: @color-text-fnBar-blue;
-                box-shadow: 0px 2px 2px 0 @color-defaultGray inset;
+                // box-shadow: 0px 2px 2px 0 @color-defaultGray inset;
             }
 
             &.disabled {
@@ -347,15 +351,15 @@
         }
         .CodeMirror-cursor {
             height: 19px !important;
-            top: 3px !important;
+            top: 5px !important;
         }
         .CodeMirror-lines {
-            height: 25px;
+            height: 32px;
             padding: 0px;
         }
         .CodeMirror-selected {
             height: 18px !important;
-            top: 4px !important;
+            top: 6px !important;
         }
         .CodeMirror-selected { background:  @color-table-preview-highlight;}
         .CodeMirror-focused .CodeMirror-selected { background:  @color-table-preview-highlight;}
@@ -460,12 +464,20 @@
 
     #rowInputArea {
         border-left: 1px solid @color-tab-divider;
+        margin-top: 11px;
     }
 
     #rowInput {
-        .size(@width: 60px);
+        .size(@width: 60px, @height: 32px);
+        position:relative;
+        top: -1px;
+        margin-top: -3px;
+        background-color: @color-input-background;
         &::-webkit-outer-spin-button, &::-webkit-inner-spin-button {
             -webkit-appearance: none;
+        }
+        &:focus {
+            background-color: @color-white;
         }
     }
 
@@ -473,20 +485,22 @@
         .size(@width: 200px, @height: 35px);
         .flex(2 0 200px);
         cursor: default;
-        margin: 0 4px;
+        margin: 4px 4px 0px;
         overflow: hidden;
+
+        @height-innerScroller: 20px;
 
         .rowScroller {
             .position(relative);
-            .size(@width: 100%, @height: 11px);
-            margin: 12px 0 25px 0;
-            background-color: @color-bar-border;
-            box-shadow: inset 0px 1px @color-rowScroller-shadow-dark, 0px 1px @color-rowScroller-shadow-light;
+            .size(@width: 100%, @height: @height-innerScroller);
+            margin: 8px 0 25px 0;
+            background-color: @color-bg-white-nine;
+            border: 1px solid @color-border-pinkish-grey2;
 
             .bookmark {
-                .position(absolute, @bottom: 0);
-                .size(@width: 2px, @height: 11px);
-                background-color: @color-background-bookmark;
+                .position(absolute, @bottom: -2px);
+                .size(@width: 2px, @height: @height-innerScroller);
+                background-color: @color-bg-bright-light-blue;
                 margin-left: -1px;
                 z-index: 2;
             }
@@ -524,11 +538,14 @@
                     width: 15px;
                     height: 20px;
                 }
+                .triangle {
+                    display: none;// xi2 change
+                }
 
                 .rangeBar {
-                    height: 11px;
+                    height: @height-innerScroller;
                     width: 100%;
-                    background-color: @color-rowScroller-range;
+                    background-color: @color-white;
                     border-left: 2px solid white;
                     border-right: 2px solid white;
                     position: absolute;
@@ -555,6 +572,7 @@
                         border-top: 8px solid white;
                         position: absolute;
                         top:1px;
+                        display: none;
                     }
                     .bar {
                         top: 9px;
@@ -592,6 +610,7 @@
 /* ========== Main Frame ========== */
 #mainFrame {
     .size(@width: ~"calc(100% - 5px)", @height: ~"calc(100% - 89px)");
+    padding: 5px 5px 0px 5px;
     white-space: nowrap;
     overflow-x: auto;
     overflow-y: hidden;

@@ -379,6 +379,9 @@
 @color-bg-boston-blue: #3C8DB1;
 @color-bg-pinkish-grey: #BEBEBE;
 @color-bg-softBlue: #5CB2E8;
+@color-bg-white-nine: #DDDDDD;
+@color-bg-bright-light-blue: #38cbff; // bookmark tick
+
 /* Borders */
 @color-border-warmGray: #979797;
 @color-border-softBlue: #5CB2E8;
@@ -389,6 +392,7 @@
 @color-border-subTab-active: #02161f;
 @color-border-tiber-blue: #062330; // table list tab
 @color-border-pinkish-grey: #BEBEBE;
+@color-border-pinkish-grey2: #CCCCCC; // fnbar border
 
 /* Table Color */
 @color-table-header-gray: #F8F8F8;
@@ -430,12 +434,19 @@
 
 
 @width-mainMenu: 50px;
-@width-mainPanel: ~"calc(100% - 50px)"; // subtract main menu height
+
 @width-userBox: 50px;
 @width-topBar: 100%;
+@width-sideMenuMinimized: 10px;
+@width-homeBtn: @width-sideMenuMinimized + @width-mainMenu;
+@width-mainPanel: ~"calc(100% - 60px)"; // subtract main menu width + 10px margin
 
 @height-homeBtn: 50px;
 @height-mainTab: @width-mainMenu;
 @height-subTab: 34px;
 @height-bottomBar: @height-subTab;
 @height-mainPanel: ~"calc(100% - 34px)"; // subtract bottom bar h eight
+
+@z-index-menuBar: 40;
+@z-index-homeBtn: @z-index-menuBar + 1;
+@z-index-bottomMenu: 20;

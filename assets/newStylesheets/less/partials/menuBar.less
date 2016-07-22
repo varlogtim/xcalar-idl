@@ -17,9 +17,13 @@
 }
 
 #homeBtn {
-    .size(@width: 100%, @height: @height-homeBtn);
+    .size(@width: @width-homeBtn, @height: @height-homeBtn);
     display: inline-block;
-    position: relative;
+    position: fixed;
+    top: 0px;
+    left: 0px;
+    background-color: @color-bg-select-blue;
+    z-index: @z-index-homeBtn;
 
     &::after {
         content: "";
@@ -28,7 +32,7 @@
         bottom: 0px;
         width: 100%;
         height: 4px;
-        z-index: 1234;
+        z-index: @z-index-homeBtn;
         box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.2);
         pointer-events: none;
     }
@@ -36,7 +40,7 @@
     @width-logo: 40px;
     @height-logo: 41px;
     @top-logo: (@height-homeBtn - @height-logo) / 2;
-    @left-logo: (@width-mainMenu - @width-logo) / 2;
+    @left-logo: (@width-homeBtn - @width-logo) / 2;
     .logo {
         .position(absolute, @top: @top-logo, @left: @left-logo);
         .size(@width: @width-logo, @height: @height-logo);
@@ -51,8 +55,11 @@
     position: relative;
     background-color: @color-bg-select-blue;
     line-height: 0px;
-    z-index: 40;
+    z-index: @z-index-menuBar;
+    margin-right: @width-sideMenuMinimized;
+    padding-top: @height-homeBtn;
 }
+
 
 .mainMenuTab, .bottomMenuTab {
     .position(relative);
@@ -210,7 +217,7 @@
 #bottomMenu {
     .position(absolute, @left: -395px, @bottom: 0px);
     .size(@width: 395px,  @height: ~"calc(100% - @{height-homeBtn})");
-    z-index: 20;
+    z-index: @z-index-bottomMenu;
     .transition(left 0.3s);
 
     &.open {
