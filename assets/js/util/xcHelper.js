@@ -1403,8 +1403,12 @@ window.xcHelper = (function($, xcHelper) {
                 break;
         }
 
-        mapStr += colName + ")";
-
+        if (colType == "integer") {
+            mapStr += colName + ", 10)";
+        } else {
+            mapStr += colName + ")";
+        }
+        
         return mapStr;
     };
 
