@@ -232,8 +232,8 @@ module.exports = {
 
     "rightsideBar": {
         "popOutBtn": "undock",
-        "toggleSqlBtn": "toggle machine/human SQL",
-        "copySqlBtn": "Copy SQL",
+        "toggleSqlBtn": "toggle machine/human Log",
+        "copySqlBtn": "Copy Log",
         "Tables": "Tables",
         "ActiveList": "Active",
         "InActiveList": "Archived",

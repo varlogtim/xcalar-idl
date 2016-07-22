@@ -49,6 +49,27 @@ body {
     display: none;
 }
 
+.clearfix:after {
+   content: ".";
+   visibility: hidden;
+   display: block;
+   height: 0;
+   clear: both;
+}
+.clearfix() {
+    &:after {
+        content: ".";
+        visibility: hidden;
+        display: block;
+        height: 0;
+        clear: both;
+    }
+}
+
+.xc-hidden {
+    display: none !important;
+}
+
 &::-webkit-scrollbar {
     .size(11px, 11px);
     background: transparent;

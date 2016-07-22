@@ -36,6 +36,15 @@
     user-select: none;
 }
 
+.text-selection {
+  -webkit-touch-callout: default;
+  -webkit-user-select: text;
+  -moz-user-select: text;
+  -ms-user-select: text;
+  user-select: text;
+  cursor: auto;
+}
+
 .clearfix:after {
    content: ".";
    visibility: hidden;
@@ -998,18 +1007,18 @@
 }
 /* ========== End Of Table Color Theme ========== */
 
-.keyframe(@name, @args) {
-    @-moz-keyframes @name { @args(); }
-    @-ms-keyframes @name { @args(); }
-    @-webkit-keyframes @name { @args(); }
-    @-o-keyframes @name { @args(); }
-    @keyframes @name { @args(); }
+.keyframe(@name, @arguments) {
+    @-moz-keyframes @name { @arguments(); }
+    @-ms-keyframes @name { @arguments(); }
+    @-webkit-keyframes @name { @arguments(); }
+    @-o-keyframes @name { @arguments(); }
+    @keyframes @name { @arguments(); }
 }
 
-.keyframeAnim(@args) {
-    -webkit-animation: @args;
-    -moz-animation: @args;
-    -ms-animation: @args;
-    -o-animation: @args;
-    animation: @args;
+.keyframeAnim(@arguments) {
+    -webkit-animation: @arguments;
+    -moz-animation: @arguments;
+    -ms-animation: @arguments;
+    -o-animation: @arguments;
+    animation: @arguments;
 }

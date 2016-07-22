@@ -7,7 +7,7 @@ window.RightSideBar = (function($, RightSideBar) {
         SQL.setup();
         TableList.setup();
         UDF.setup();
-        CLIBox.setup();
+        // CLIBox.setup();
         Help.setup();
     };
 
@@ -26,7 +26,7 @@ window.RightSideBar = (function($, RightSideBar) {
         TableList.clear();
         UDF.clear();
         SQL.clear();
-        CLIBox.clear();
+        // CLIBox.clear();
     };
 
     function setLastRightSidePanel() {
@@ -176,9 +176,9 @@ window.RightSideBar = (function($, RightSideBar) {
             // containment: "document"
         });
 
-        $rightSideBar.on("resize", function() {
-            CLIBox.realignNl();
-        });
+        // $rightSideBar.on("resize", function() {
+        //     CLIBox.realignNl();
+        // });
 
         $("#bottomMenuTabs").on("click", ".sliderBtn", function() {
             if (!clickable) {
@@ -251,13 +251,13 @@ window.RightSideBar = (function($, RightSideBar) {
 
             if ($section.attr("id") === "sqlSection") {
                 SQL.scrollToBottom();
-                $("#sqlButtonWrap").show();
+                $("#sqlButtonWrap").removeClass("xc-hidden");
             } else {
-                $("#sqlButtonWrap").hide();
+                $("#sqlButtonWrap").addClass("xc-hidden");
             }
-            if ($section.attr("id") === "cliSection") {
-                CLIBox.realignNl();
-            }
+            // if ($section.attr("id") === "cliSection") {
+            //     CLIBox.realignNl();
+            // }
         }
 
         // dealay the next click as the rightsidebar open/close has animation
@@ -291,7 +291,7 @@ window.RightSideBar = (function($, RightSideBar) {
         $rightSideBar.find('.popOut')
                      .attr('data-original-title', SideBarTStr.PopOut);
         $('.tooltip').hide();
-        CLIBox.realignNl();
+        // CLIBox.realignNl();
     }
 
     return (RightSideBar);

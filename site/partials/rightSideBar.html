@@ -2,19 +2,11 @@
 <div id="rightSideBar" class="small">
   <!-- Top Buttons -->
   <div class="sideBarTopButtons">
-    <div class="btn btnDeselected">
-      <span class="icon close"></span>
-    </div>
-    <div class="btn btnDeselected">
-      <span class="icon popOut" data-toggle="tooltip" data-placement="top" data-container="body" title="<%= dicts.rightsideBar.popOutBtn %>"></span>
-    </div>
-    <div id="sqlButtonWrap">
-      <div class="btn btnDeselected">
-        <span class="icon humanSQL" data-toggle="tooltip" data-placement="top" data-container="body" title="<%= dicts.rightsideBar.toggleSqlBtn %>"></span>
-      </div>
-      <div class="btn btnDeselected">
-        <span class="icon copySQL" data-toggle="tooltip" data-placement="top" data-container="body" title="<%= dicts.rightsideBar.copySqlBtn %>"></span>
-      </div>
+    <div class="icon close"></div>
+    <div class="icon popOut" data-toggle="tooltip" data-placement="top" data-container="body" title="<%= dicts.rightsideBar.popOutBtn %>"></div>
+    <div id="sqlButtonWrap" class="xc-hidden">
+      <div class="icon humanLog" data-toggle="tooltip" data-placement="top" data-container="body" title="<%= dicts.rightsideBar.toggleSqlBtn %>"></div>
+      <div class="icon copyLog" data-toggle="tooltip" data-placement="top" data-container="body" title="<%= dicts.rightsideBar.copySqlBtn %>"></div>
     </div>
   </div>
   <!-- End Of Top Buttons -->
@@ -155,7 +147,7 @@
         <h2>SQL</h2>
       </header>
       <div class="rightBarContent">
-        <div id="sql-TextScrollWrap">
+        <div class="container">
           <div id="sql-TextArea" class="sqlTextArea"></div>
           <div id="sql-MachineTextArea" class="sqlTextArea"></div>
         </div>
@@ -288,7 +280,7 @@
     </section>
 
     <!-- CLI Section -->
-    <section id="cliSection" class="rightBarSection">
+    <!-- <section id="cliSection" class="rightBarSection">
       <header class="heading draggable">
         <h2>CLI</h2>
       </header>
@@ -296,20 +288,6 @@
         <div class="textBoxContainer">
           <div spellcheck="false" class="lineArea"></div>
           <div class="cliArea"></div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Scratch Pad Section -->
-   <!--  <section id="scratchPadSection" class="rightBarSection">
-      <header class="heading">
-        <h2>ScratchPad</h2>
-      </header>
-      <div class="rightBarContent">
-        <div class="textBoxContainer">
-          <div spellcheck="false" class="lineArea"></div>
-          <div class="cliArea">
-          </div>
         </div>
       </div>
     </section> -->

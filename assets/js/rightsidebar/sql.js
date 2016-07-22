@@ -42,21 +42,21 @@ window.SQL = (function($, SQL) {
         $machineTextarea.hide();
 
         // set up the sql section
-        $sqlButtons.on("click", ".machineSQL", function() {
-            $(this).removeClass("machineSQL")
-                    .addClass("humanSQL");
+        $sqlButtons.on("click", ".machineLog", function() {
+            $(this).removeClass("machineLog")
+                    .addClass("humanLog");
             $machineTextarea.hide();
             $textarea.show();
         });
 
-        $sqlButtons.on("click", ".humanSQL", function() {
-            $(this).removeClass("humanSQL")
-                    .addClass("machineSQL");
+        $sqlButtons.on("click", ".humanLog", function() {
+            $(this).removeClass("humanLog")
+                    .addClass("machineLog");
             $machineTextarea.show();
             $textarea.hide();
         });
 
-        $sqlButtons.on("click", ".copySQL", function() {
+        $sqlButtons.on("click", ".copyLog", function() {
             var $hiddenInput = $("<input>");
             $("body").append($hiddenInput);
             var value;
@@ -75,6 +75,7 @@ window.SQL = (function($, SQL) {
             $hiddenInput.val(value).select();
             document.execCommand("copy");
             $hiddenInput.remove();
+            xcHelper.showSuccess();
         });
 
         $undo.click(function() {

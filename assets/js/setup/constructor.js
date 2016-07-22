@@ -413,7 +413,7 @@ function getMETAKeys() {
         "TI"   : "TILookup",
         "WS"   : "worksheets",
         "AGGS" : 'aggregates',
-        "CLI"  : "scratchPad",
+        // "CLI"  : "scratchPad",
         "CART" : "datacarts",
         "STATS": "statsCols"
         //"DFG"  : "DFG",
@@ -427,11 +427,9 @@ function METAConstructor(METAKeys) {
     this[METAKeys.TI] = savegTables();
     this[METAKeys.WS] = WSManager.getAllMeta();
     this[METAKeys.AGGS] = Aggregates.getAggs();
-    this[METAKeys.CLI] = CLIBox.getCli(); // string
+    // this[METAKeys.CLI] = CLIBox.getCli(); // string
     this[METAKeys.CART] = DSCart.getCarts();
     this[METAKeys.STATS] = Profile.getCache();
-    // this[EMetaKeys.DFG] = DFG.getAllGroups(); // a set of DFGObj
-    // this[EMetaKeys.SCHE] = Scheduler.getAllSchedules(); // list of SchedObj
     return this;
 
     function savegTables() {

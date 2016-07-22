@@ -143,57 +143,64 @@
         }
     }
     .sideBarTopButtons {
-        position: relative;
+        .position(relative);
+        .size(@height: 35px);
         z-index: 1;
         .noSelection;
 
-        .btn {
-            .size(@width: 19px, @height: 19px);
+        .icon {
+            .size(@width: 20px, @height: 20px);
+            margin-top: 8px;
             float: right;
-            margin-right: 6px;
-            margin-top: 7px;
+            margin-right: 5px;
+            opacity: 0.4;
+
+            &:hover {
+                opacity: 1;
+            }
 
             &:first-of-type {
-                right: 0px;
+                margin-right: 10px;
             }
         }
         .popOut {
-            background-image: url(../../images/sidebar/popout.png);
+            .image("../../images/sidebar/popout.png", 50%, 50%);
         }
         .close {
-            background-image: url(../../images/close-icon.png);
+            .image("../../images/sidebar/close.png", 50%, 50%);
         }
-        .machineSQL {
-            background-image: url(../../images/sidebar/machine.png);
+        .machineLog {
+            .image("../../images/sidebar/machine.png", 50%, 50%);
         }
-        .copySQL {
-            background-image: url(../../images/sidebar/copy.png);
+        .copyLog {
+            .image("../../images/sidebar/copy.png", 50%, 50%);
         }
-        .humanSQL {
-            background-image: url(../../images/sidebar/human.png);
+        .humanLog {
+            .image("../../images/sidebar/human.png", 50%, 50%);
         }
 
         #sqlButtonWrap {
-            display: none;
+            .icon {
+                margin-top: 7px;
+            }
         }
     }
 
     .heading {
         .size(@width: 100%, @height: 35px);
-        text-align: center;
+        text-align: left;
         padding-top: 2px;
+        padding-left: 15px;
         overflow: hidden;
         pointer-events: none;
         cursor: default;
         .noSelection;
 
         h2 {
-            .size (@width: ~"calc(100% - 118px)");
-            .font(@line-height: 35px, @color: @color-text-darkGray);
-            margin-left: 10px;
+            .size(@width: ~"calc(100% - 118px)");
+            .font(@line-height: 35px,  @weight: bold, @color: @color-white);
             display: inline-block;
-            white-space: nowrap;
-            .textOverflow;
+            .textOverflowOneLine;
         }
     }
 
@@ -696,10 +703,10 @@
 #sqlSection {
     .size(@height: ~"calc(100% - 10px)");
 
-    #sql-TextScrollWrap {
+    .container {
         .size(@height: 100%);
         .position(relative);
-        background-color: @color-background-white;
+        background-color: @color-sql-bg-blue;
         overflow: hidden;
 
         .sqlTextArea {
@@ -709,10 +716,13 @@
             background-color: transparent;
             padding-bottom: 20px;
 
+            .sqlContentWrap, .cliWrap {
+                .size(@width: 100%);
+                .font(@size: 13px, @color: @color-white);
+            }
+
             .sqlContentWrap {
                 padding: 2px;
-                .size(@width: 100%);
-                .font(@size: 13px, @color: @color-sql-black);
             }
         }
     }
@@ -725,12 +735,14 @@
 
 #sql-TextArea {
     .sqlContentWrap {
-        .sqlKey {
-            color: @color-sql-lightGray;
+        div, span {
+            &::selection {
+                background-color: @color-sql-select;
+            }
         }
 
-        .sqlColon {
-            margin: 0 2px;
+        .sqlKey {
+            color: @color-sql-lightGray;
         }
 
         .title {
@@ -743,13 +755,13 @@
                     color: @color-sql-brown;
                 }
                 .sqlVal {
-                    color: @color-sql-darkGreen;
+                    color: @color-sql-lightGreen;
                 }
             }
 
             .tableName, .leftTable, .rightTable, .dsName {
                 .sqlKey {
-                    color: @color-sql-darkGray;
+                    color: @color-sql-darkGreen;
                 }
                 .sqlVal {
                     color: @color-sql-orange;
@@ -758,7 +770,7 @@
 
             .key {
                 .sqlKey {
-                    color: @color-sql-lightGreen;
+                    color: @color-sql-pink;
                 }
             }
         }
