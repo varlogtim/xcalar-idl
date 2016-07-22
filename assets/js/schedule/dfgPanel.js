@@ -265,8 +265,8 @@ window.DFGPanel = (function($, DFGPanel) {
 
     function setupViewToggling() {
         var $schedulesView = $('#schedulesView');
-
-        $('#schedulerTopBar').find('.buttonArea').click(function() {
+        // main menu
+        $('#schedulerTab').find('.subTab').click(function() {
             var $button = $(this);
             if ($button.hasClass('active')) {
                 return;
@@ -284,7 +284,7 @@ window.DFGPanel = (function($, DFGPanel) {
                                                             {show: true});
                 }
             }
-            $button.siblings().removeClass('active');
+            $button.siblings('.subTab').removeClass('active');
             $button.addClass('active');
         });
     }

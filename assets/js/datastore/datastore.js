@@ -41,7 +41,8 @@ window.DataStore = (function($, DataStore) {
     };
 
     function setupViews() {
-        $('#contentHeaderLeft').find('.buttonArea').click(function() {
+        // main menu
+        $('#dataStoresTab').find('.subTab').click(function() {
             var $button = $(this);
             if ($button.hasClass('active')) {
                 return;

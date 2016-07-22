@@ -173,15 +173,17 @@ window.UserSettings = (function($, UserSettings) {
         for (var tab in userPrefs.mainTabs) {
             $('#' + userPrefs.mainTabs[tab]).click();
         }
+        // XX xi2 hack for making worksheet initial screen
+        $("#workspaceTab").click();
     }
 
     function updateMainTabs() {
         userPrefs.mainTabs.monitor = $('#monitorTopBar')
                                         .find('.buttonArea.active').attr('id');
-        userPrefs.mainTabs.dataStores = $('#contentHeaderLeft')
-                                        .find('.buttonArea.active').attr('id');
-        userPrefs.mainTabs.scheduler = $('#schedulerTopBar')
-                                        .find('.buttonArea.active').attr('id');
+        userPrefs.mainTabs.dataStores = $('#dataStoresTab')
+                                        .find('.subTab.active').attr('id');
+        userPrefs.mainTabs.scheduler = $('#schedulerTab')
+                                        .find('.subTab.active').attr('id');
         userPrefs.mainTabs.extensions = $('#extensionPanel')
                                         .find('.topBar .buttonArea.active')
                                         .attr('id');

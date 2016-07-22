@@ -263,7 +263,7 @@ window.StartManager = (function(StartManager, $) {
             "selector": '[data-toggle="tooltip"]',
             "html"    : true,
             "delay"   : {
-                "show": 150,
+                "show": 250,
                 "hide": 100
             }
         });

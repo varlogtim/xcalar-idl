@@ -54,7 +54,7 @@
 }
 
 #fauxCol{
-    .position(absolute, @top: 114px);
+    .position(absolute, @top: @height-homeBtn + 35px);
     background-color: @color-white;
     z-index: 12;
     opacity: 0.7;
@@ -202,9 +202,9 @@
 
 /* ========== Work Sheet Bar ========== */
 #workspaceBar {
-    .position(relative, @top: -1px);
+    .position(relative);
     .flex-display;
-    z-index: 13;
+    width: @width-topBar;
 
     .workspaceArea {
         .flex-shrink(0);
@@ -591,7 +591,7 @@
 
 /* ========== Main Frame ========== */
 #mainFrame {
-    .size(@width: ~"calc(100% - 5px)", @height: ~"calc(100% - 38px)");
+    .size(@width: ~"calc(100% - 5px)", @height: ~"calc(100% - 89px)");
     white-space: nowrap;
     overflow-x: auto;
     overflow-y: hidden;
@@ -606,6 +606,352 @@
         .transition-delay(0.3s);
     }
 }
+
+/* ========== End Of Main Frame ========== */
+
+/* === WORKSHEET TABS (TO BE REMOVED IN 2.0) ==== */
+
+#bottomTabArea {
+    .size(@height: 39px);
+    background: @color-limedSpruce url("../../images/bg_page.png") repeat right top;
+}
+
+#addWorksheet {
+    display: inline-block;
+    margin: 8px 8px 0px 9px;
+    cursor: pointer;
+    float: left;
+
+    span {
+        .size(100%, 100%);
+        .image("../../images/plus-sign.png", 55%, 45%);
+        display: block;
+    }
+}
+
+#worksheetTabs {
+    .position(relative, @top: -1px);
+    .size(@width: ~"calc(100% - 40px)", @height: 36px);
+    .flex-display;
+    float: left;
+
+    .worksheetTab {
+        .size(@width: 201px, @height: 35px);
+        .position(relative, @top: ~"0px !important");
+        float: left;
+        .flex(0 0 201px);
+        margin-right: 10px;
+
+        &.transition {
+            display: block;
+            .flex(0 0 auto);
+        }
+
+        &.dragging {
+            pointer-events: none;
+            .label {
+                cursor: default;
+            }
+        }
+        .draggableArea {
+            float: left;
+            height: @height-colHeader;
+            width: ~"calc(100% - 28px)";
+            position: absolute;
+            left: 27px;
+            overflow: hidden;
+        }
+
+        .label {
+            .size(@width: ~"calc(100% - 30px)", @height: 100%);
+            .position(relative);
+            .darkGray-gradient;
+            display: inline-block;
+            float: left;
+            text-align: left;
+            border: 1px solid @color-bar-border;
+            border-top: none;
+            .rounded(0 0 0 3px);
+            .cursor-move;
+
+            .wsIconWrap {
+                .position(relative);
+                .size(@width: 25px, @height: 18px);
+                margin-left: 2px;
+                padding-right: 2px;
+                border-right: 1px solid @color-tab-divider;
+                display: inline-block;
+                float: left;
+                cursor: pointer;
+                .vertical-align;
+            }
+
+            .wsIcon {
+                .size(@width: 18px, @height: 23px);
+                margin-left: 2px;
+                margin-top: -3px;
+                .image("../../images/worksheet/wsMenu.png", 50%, 50%);
+                float: left;
+            }
+
+            .tooltip { // tooltip for worksheet name
+                top: -35px !important;
+                left: 50% !important;
+                .transform(translateX(-50%));
+                white-space: nowrap;
+            }
+
+            .text {
+                .size(@height: 21px);
+                .font(@weight: 700, @size: 14px, @line-height: 20px);
+                outline: none;
+                margin: 2px 2px;
+                padding: 0 3px;
+                white-space: nowrap;
+                line-height: 20px;
+                border: 1px solid transparent;
+                cursor: text;
+                background-color: transparent;
+
+                &:focus {
+                    border: 1px solid @color-malibu;
+                    box-shadow: inset 0 1px 2px 1px @color-shadow-medium;
+                    text-overflow: clip;
+                    width: ~"calc(100% - 6px)" !important;
+                }
+            }
+        }
+
+        &.focus {
+            .label {
+                cursor: initial;
+            }
+        }
+
+        .dagTab {
+            .size(@width: 30px, @height: 34px);
+            float: left;
+            display: inline-block;
+            margin-top: 1px;
+            cursor: pointer;
+            .noSelection;
+            border-bottom: 1px solid @color-bar-border;
+            border-right: 1px solid @color-bar-border;
+            .rounded(0 0 3px 0);
+            .linear-gradient(top, @color-background-sidebar, @color-background-darkdarkGray);
+
+            .icon {
+                .size(100%, 100%);
+                .image("../../images/dagIcons/comp-icon.png", 50%, 50%);
+            }
+
+            &:hover {
+                .linear-gradient(top, @color-background-topGrayMed, @color-boulder);
+            }
+
+            &:active {
+                 box-shadow: inset 0px 1px 1px 0px @color-shadow-stronger;
+            }
+
+            &.active {
+                .action-gradient;
+                &:hover {
+                    .action-inverse-gradient;
+                }
+            }
+
+            & + .tooltip {
+                white-space: nowrap;
+            }
+
+            &.active + .tooltip {
+                display: none !important;
+            }
+        }
+
+        &.inActive {
+            .size (@width: 172px, @height: 28px);
+            .position(@top: ~"6px !important");
+            .noSelection;
+            .flex(0 1 auto);
+
+            .label {
+                background: rgba(0,0,0, .15);
+                border: 1px solid @color-tab-border;
+                color: @color-text-tab;
+                .size(@width: ~"calc(100% - 2px)");
+                .rounded;
+                cursor: pointer;
+                .transition(~"background 0.15s, border 0.15s");
+
+                .wsIconWrap {
+                    opacity: 0;
+                    .transition(opacity 0.15s);
+                }
+
+                .text {
+                    .size(@width: ~"calc(100% - 27px)") !important;
+                    min-width: 30px;
+                    text-align: center;
+                    pointer-events: none;
+                    margin: 2px 0;
+                    color: @color-text-tab;
+                    .transition(color 0.15s);
+                }
+            }
+
+            .dagTab {
+                display: none;
+            }
+
+            &:hover {
+                .label {
+                    // hover vs regular color scheme needs to be adjusted
+                    background-color: rgba(255,255,255,.15);
+                    border: 1px solid @color-table-borderGray;
+                    .wsIconWrap {
+                        opacity: 1 !important;
+                    }
+                    .text {
+                        color: @color-white;
+                    }
+                }
+            }
+            .label.hover {
+                background-color: rgba(255,255,255,.15);
+                color: @color-white;
+                border: 1px solid @color-table-borderGray;
+                .wsIconWrap {
+                    visibility: visible;
+                }
+                .text {
+                    color: @color-white;
+                }
+            }
+        }
+
+        &:not(.inActive) {
+            .label {
+                .tooltip {
+                    display: none !important;
+                }
+                .text {
+                    line-height: 20px;
+                    margin-top: 7px;
+                }
+            }
+            .draggableArea {
+                height: 100%;
+            }
+        }
+
+        &.locked {
+            .wsIconWrap {
+                pointer-events: none !important;
+                cursor: auto !important;
+                opacity: 0.5;
+            }
+        }
+    }
+}
+
+#hiddenWorksheetsTab {
+    display: none;
+    .size(@width: 60px, @height: 28px);
+    .position(absolute, @bottom: 6px, @right: 4px);
+    box-shadow: none;
+    background-color: transparent;
+
+    &:hover {
+        .mainTab {
+            // hover vs regular color scheme needs to be adjusted
+            background-color: rgba(255,255,255,.15);
+            color: @color-white;
+            border: 1px solid @color-table-borderGray;
+        }
+    }
+
+    .mainTab {
+        .size(@width: 60px, @height: 28px);
+        background: rgba(0,0,0, .15);
+        border: 1px solid @color-tab-border;
+        color: @color-text-tab;
+        .rounded;
+        text-align: center;
+        .textOverflowOneLine;
+    }
+
+    .list {
+        bottom: 28px;
+        right: 0px;
+        width: 180px;
+        left: auto;
+        display: block;
+        font-size: 13px;
+        border-radius: 3px 3px 0 3px;
+        display: none;
+    }
+    li {
+        height: 25px;
+        line-height: 25px;
+        padding: 0px 5px;
+    }
+    .divider {
+        border-top: 1px solid @color-border-lightLightGray;
+    }
+    .icon {
+        .image("../../images/worksheet/hidden-ws.png", 2px, 6px);
+        .size(@width:20px, @height:100%);
+        float: left;
+    }
+    .unhideAll {
+        position: relative;
+        .icon:last-child {
+            position: absolute;
+            left: 7px;
+            top: 2px;
+        }
+    }
+}
+
+#bottomTabArea.hasHiddenWS {
+    #worksheetTabs {
+        width: ~"calc(100% - 110px)";
+    }
+    #hiddenWorksheetsTab {
+        display: inline-block;
+    }
+}
+
+#worksheetTabMenu {
+    width: 130px;
+    border-radius: 3px;
+    overflow: visible;
+    ul {
+        overflow: hidden;
+        .rounded;
+    }
+    li {
+        height: 25px;
+        line-height: 25px;
+        padding: 0 6px;
+    }
+    &:after {
+        top: 100%;
+        left: 8px;
+        border: solid transparent;
+        content: " ";
+        height: 0;
+        width: 0;
+        position: absolute;
+        border-top-color: @color-white;
+        border-width: 5px;
+    }
+}
+
+
+
+/* === END WORKSHEET TABS ==== */
 
 .menu {
     display: none;
@@ -758,5 +1104,3 @@ td.col0:hover {
     top: 0px !important;
     left: 0px !important;
 }
-
-/* ========== End Of Main Frame ========== */

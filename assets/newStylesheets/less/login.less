@@ -5,7 +5,7 @@ html, body {
     height: 100%;
     margin: 0;
     padding: 0;
-    min-height: 500px;
+    min-height: 600px;
     min-width: 780px; 
     font: 13px @font-base;
     font-weight: 600;
@@ -27,7 +27,6 @@ body {
     color: @color-white;
     // font-size: 0; /* Need to use this to get rid of stupid white space */
     .linear-gradient(top, @color-bg-select-blue, @color-bg-marine);
-    overflow: hidden;
 }
 
 form {
@@ -59,7 +58,8 @@ header {
     width: 650px;
     overflow: hidden;
     position: relative;
-    margin: 10px auto 30px;
+    top: 10px;
+    margin: 0px auto 30px;
     height: 50px;
 }
 
@@ -89,13 +89,14 @@ header {
         left: -200px;
         // XX need to add this to mixin
         background: linear-gradient(to right, @color-border-softBlue, #d6e4ec, @color-border-softBlue);
-        -webkit-animation-name: slideRight;
-        -webkit-animation-duration: 0.7s;
-        -webkit-animation-timing-function: linear;
-        -webkit-animation-fill-mode: forwards;   
-        -webkit-animation-delay: 0.3s;
+        .keyframe(slideRight, {
+            0%   {left: -200px;}
+            100% {left: 100%;}
+        });
+        .keyframeAnim(slideRight 0.7s linear forwards 0.3s);
+
         &.immediateAnimation {
-           -webkit-animation-delay: 0s;
+           .keyframeAnim(slideRight 0.7s linear forwards 0s);
         }
     }
 }
@@ -251,32 +252,10 @@ header {
 .loginSection {
     text-align: right;
     margin-top: 26px;
+    font-weight: 500;
 }
    
 #loginButton, #signup-submit {
     border: 1px solid @color-white;
     .font(@color: @color-white);
-}
-
-// loading bar animation
-// XX create mixin
-@keyframes slideRight {
-    0%   {left: -200px;}
-    100% {left: 100%;}
-}
-@-webkit-keyframes slideRight {
-    0%   {left: -200px;}
-    100% {left: 100%;}
-}
-@-moz-keyframes slideRight {
-    0%   {left: -200px;}
-    100% {left: 100%;}
-}
-@-ms-keyframes slideRight {
-    0%   {left: -200px;}
-    100% {left: 100%;}
-}
-@-o-keyframes slideRight {
-    0%   {left: -200px;}
-    100% {left: 100%;}
 }

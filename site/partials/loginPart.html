@@ -17,7 +17,7 @@
     </div>
     <div class="outerWrap">
       <div id="formArea">
-        <form id="loginForm" method="POST">
+        <form id="loginForm" autocomplete="off">
           <div class="section">
             <input id="loginNameBox" type="text" class="input" autofocus required autocomplete="off">
             <div class="label">USERNAME</div>
@@ -29,9 +29,9 @@
           <!-- <div class="passwordForgot">Forgot your password?</div> -->
           <input id="loginButton" class="btn login" type="submit" value="LOG IN">
           <!-- XX SIGN UP TEMPORARILY HIDDEN -->
-          <!-- <input id="signupButton" class="btn signup" type="button" name="signup" value="SIGN UP"> -->
+          <input id="signupButton" class="btn signup" type="button" name="signup" value="SIGN UP">
         </form>
-        <form id="signupForm" method="POST">
+        <form id="signupForm" autocomplete="off">
           <div class="nameSection section">
             <input id="signup-firstName" class="input" required autocomplete="off">
             <div class="label">First Name</div>
@@ -77,12 +77,11 @@
         </form>
       </div>
     </div>
-    
   </div>
     <!-- <div id="insightVersion">Version: Current</div> -->
   <script src="../../3rd/bower_components/jquery/dist/jquery.min.js"></script>
-	<script src="../js/thrift/XcalarApiVersionSignature_types.js"></script>
-	<script src="../js/setup/XVM.js"></script>
-	<script src="../js/setup/paths.js"></script>
-	<script src="../js/login.js"></script>
+  <script src="../js/thrift/XcalarApiVersionSignature_types.js"></script>
+  <script src="../js/setup/XVM.js"></script>
+  <script src="../js/setup/paths.js"></script>
+  <script src="../js/login.js"></script>
 </body>

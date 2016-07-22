@@ -43,27 +43,10 @@ body {
 
 .mainContainer {
     .position(relative);
-    .size(@height: 100vh, @min-height: 260px, @min-width: 824px);
+    .size(@height: 100vh, @min-height: 560px, @min-width: 824px);
     font-size: 14px;
     overflow: hidden;
     display: none;
-}
-
-.clearfix:after {
-   content: ".";
-   visibility: hidden;
-   display: block;
-   height: 0;
-   clear: both;
-}
-.clearfix() {
-    &:after {
-        content: ".";
-        visibility: hidden;
-        display: block;
-        height: 0;
-        clear: both;
-    }
 }
 
 &::-webkit-scrollbar {
@@ -134,17 +117,15 @@ body {
 /* For Both worksheet menu bar and bottom area bar */
 .workspaceBar, .topBar {
     .position(relative);
-    .size(@width: 100%, @height: 38px);
+    .size(@width: 100%, @height: @height-homeBtn);
     color: @color-text-darkGray;
-    border-top: 1px solid @color-bar-border;
-    border-bottom: 1px solid @color-bar-border;
-    .darkGray-gradient;
+    background-color: @color-bg-topBarGray;
+    box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.2);
+    padding-right: @width-userBox;
     display: block;
-    box-shadow: 0px 3px 3px 0px rgba(0, 0, 0, 0.3);
 }
 
 .topBar {
-    top: -1px;
     overflow: hidden;
 
     .buttonArea {
@@ -176,7 +157,361 @@ body {
     }
 }
 
-/* For Both worksheet menu bar and bottom area bar */
+.mainPanel {
+    display: none;
+    .size(@width: @width-mainPanel, @height: @height-mainPanel);
+    float: left;
+
+    &.active {
+        display: block;
+    }
+}
+
+/* For Scoll bar in worksheet and datastore */
+#mainFrame, .datasetTableWrap {
+    &::-webkit-scrollbar:vertical {
+        .size(@width: 0, @height: 11px);
+        background: transparent;
+    }
+}
+
+
+ /* Top Menu Bar  */
+#menuBar {
+    .size(@width: @width-mainMenu, @height: 100%);
+    overflow: hidden;
+    float: left;
+    position: relative;
+    background-color: @color-bg-select-blue;
+    line-height: 0px;
+}
+
+#workbookBtn {
+    //XX 2.0 temp hidden
+    display: none;
+
+    .position(relative, @top: 30%);
+    float: left;
+    margin-left: 10px;
+    box-shadow: -2px 2px 0px 0px @color-shadow-strong;
+    .rounded;
+
+    .icon {
+        .size(100%, 100%);
+        .image("../../images/workbookBtn.png", 50%, 50%);
+        background-size: 18px 17px;
+    }
+}
+
+#homeBtn {
+    .size(@width: 100%, @height: @height-homeBtn);
+    display: inline-block;
+    position: relative;
+
+    &::after {
+        content: "";
+        display: block;
+        position: absolute;
+        bottom: 0px;
+        width: 100%;
+        height: 4px;
+        z-index: 1234;
+        box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.2);
+        pointer-events: none;
+    }
+
+    @width-logo: 40px;
+    @height-logo: 41px;
+    @top-logo: (@height-homeBtn - @height-logo) / 2;
+    @left-logo: (@width-mainMenu - @width-logo) / 2;
+    .logo {
+        .position(absolute, @top: @top-logo, @left: @left-logo);
+        .size(@width: @width-logo, @height: @height-logo);
+        .image("../../images/new/logo/xi-logo.png");
+    }
+}
+
+#menuBar {
+
+    .mainMenuTab, .bottomMenuTab {
+        .position(relative);
+        .size(@width: 100%);
+        border-bottom: 1px solid @color-bg-dusk-blue;
+        float: left;
+        cursor: pointer;
+        .noSelection;
+        .transition(background-color 0.1s);
+
+        .mainTab {
+            .size(@width: 100%, @height: @height-mainTab);
+            opacity: 0.6;
+            .transition(opacty 0.1s);
+        }
+        .subTab {
+            .size(@width: 100%, @height: @height-subTab);
+            background-color: @color-bg-light-navy;
+            position: relative;
+            display: none;
+            &.active {
+                background-color: @color-bg-marine;
+                .icon {
+                    opacity: 1;
+                }
+            }
+            .icon {
+                opacity: 0.6;
+                .size(@width: 100%, @height: 100%);
+            }
+        }
+
+        &:hover, &.hover {
+            background-color: @color-bg-dusk-blue;
+            color: @color-white;
+            .mainTab {
+                opacity: 1;
+            }
+        }
+
+        &.active {
+            background-color: @color-bg-dusk-blue;
+
+            .transition(all 0s);
+            .mainTab {
+                opacity: 1;
+            }
+            .subTab {
+                display: block;
+            }
+        }
+    }
+    .mainMenuTab.active::after {
+        content: "";
+        display: block;
+        .position(absolute, @top: 0, @left: 0);
+        height: 100%;
+        width: 5px;
+        background-color: @color-border-mainTab-active;
+        top: 0;
+        left: 0;
+    }
+    .subTab.active::after {
+        content: "";
+        display: block;
+        .position(absolute, @top: 0, @left: 0);
+        position: absolute;
+        height: 100%;
+        width: 5px;
+        background-color: @color-border-subTab-active;
+        z-index: 1;
+    }
+}
+
+    #workspaceTab {
+        .mainTab {
+            .image("../../images/new/menu/worksheet-main.png", 50%, 50%);
+        }
+    }
+    #dataStoresTab {
+        .mainTab {
+            .image("../../images/new/menu/datastore-main.png", 50%, 50%);
+        }
+        // two icons in #contentHeaderLeft
+        #inButton .icon {
+            .image("../../images/new/menu/datastore-in.png", 50%, 50%);
+        }
+
+        #outButton .icon {
+            .image("../../images/new/menu/datastore-out.png", 50%, 50%);
+        }
+    }
+    #monitorTab {
+        .mainTab {
+            .image("../../images/new/menu/monitor-main.png", 50%, 50%);
+        }
+    }
+    #schedulerTab {
+        .mainTab {
+            .image("../../images/new/menu/scheduler-main.png", 50%, 50%);
+        }
+        #dataflowButton .icon {
+            .image("../../images/new/menu/scheduler-dfg.png", 50%, 50%);
+        }
+
+        #schedulesButton .icon {
+            .image("../../images/new/menu/scheduler-sub.png", 50%, 50%);
+        }
+    }
+    #extensionTab {
+        .mainTab {
+            .image("../../images/new/menu/extension-main.png", 50%, 50%);
+        }
+    }
+
+#bottomMenuTabs {
+    width: 100%;
+    .position(absolute, @bottom: 0px);
+    .bottomMenuTab:first-child {
+        border-top: 1px solid @color-bg-dusk-blue;
+    }
+    .bottomMenuTab {
+        line-height: 15px;
+        .size(@width: 100%, @height: @height-mainTab);
+    }
+}
+
+    #tableListTab {
+        .image("../../images/new/menu/tableList-main-white.png", 50%, 50%);
+        &.active {
+            .image("../../images/new/menu/tableList-main-blue.png", 50%, 50%);
+        }
+    }
+    #sqlTab {
+        .image("../../images/new/menu/sql-main-white.png", 50%, 50%);
+        &.active {
+            .image("../../images/new/menu/sql-main-blue.png", 50%, 50%);
+        }
+    }
+    #udfTab {
+        .image("../../images/new/menu/udf-main-white.png", 50%, 50%);
+        &.active {
+            // .image("../../images/new/menu/udf-main-blue.png", 50%, 50%);
+        }
+    }
+    #helpTab {
+        
+        .image("../../images/new/menu/info-main-white.png", 50%, 50%);
+        &.active {
+            // .image("../../images/new/menu/info-main-blue.png", 50%, 50%);
+        }
+    }
+
+/* =========== TOP RIGHT CORNER =========== */
+#userBox {
+    width: @width-userBox;
+    height: @height-homeBtn;
+    background-color: @color-bg-topBarGray;
+    .position(fixed, @top: 0, @right: 0);
+    z-index: 1;
+}
+
+
+#userNameArea {
+    .font(@weight: 400, @color: @color-text-white);
+    float: right;
+    margin: 10px 25px 0 0;
+    display: inline-block;
+    max-width: ~"calc(100% - 860px)";
+    overflow: hidden;
+    white-space: nowrap;
+
+
+    .text {
+        color: @color-text-topAction;
+        .textOverflowOneLine;
+        display: inline-block;
+        vertical-align: bottom;
+        max-width: ~"calc(100% - 65px)";
+    }
+
+    #signout {
+        display: inline-block;
+        width: 55px;
+        color: @color-text-signout-blue;
+        cursor: pointer;
+        .textOverflowOneLine
+    }
+}
+/* =========== END TOP RIGHT CORNER =========== */
+
+/* Bottom Section */
+
+#statusBar {
+    .position(absolute, @bottom: 0);
+    .size(@width: @width-mainPanel, @height: @height-bottomBar);
+    margin-left: @width-mainMenu;
+    overflow: hidden;
+    background-color: @color-bg-topBarGray;
+    .noSelection;
+
+    .workspaceArea {
+        .size(@height: 15px);
+        .font(@size: 13px, @line-height: 13px);
+        margin-top: (@height-bottomBar - 15px) / 2;
+        overflow: hidden;
+        cursor: default;
+        .flex(0 0 auto);
+
+        &:last-child {
+            .flex-display;
+            .flex(1 2 0px);
+            padding-right: 2px;
+        }
+
+        #autoSaveBtn {
+            margin-left: 5px;
+            font-style: italic;
+            cursor: pointer;
+        }
+    }
+
+    #pageStatusText {
+        float: left;
+        overflow: hidden;
+        display: inline-block;
+        .size(@height: 20px);
+        .font(@line-height: 20px);
+        margin-top: -4px;
+        white-space: nowrap;
+
+        span {
+            display: block;
+            .size(@height: 20px);
+            position: relative;
+            .textOverflow;
+        }
+
+        .text {
+            float: left;
+        }
+
+        .fail {
+            font-weight: bold;
+        }
+
+        .icon {
+            float: left;
+            .size(@width: 20px);
+            .image("../../images/close-icon.png", 50%, 50%);
+            cursor: pointer;
+            margin-left: 4px;
+        }
+    }
+
+    #loadingIconWrap {
+        position: relative;
+        display: inline-block;
+        .size(@width: 30px, @height: 100%);
+        margin-left: 12px;
+        float: left;
+        display: none;
+
+        .spinner {
+            width: 30px;
+
+        }
+    }
+}
+
+#worksheetInfo {
+    .size(@width: 1100%, @height: 100%);
+    float: left;
+    display: inline-block;
+    white-space: nowrap;
+    overflow: hidden;
+    .flex-display;
+}
+
+/* For Both worksheet menu bar and status bar */
 .workspaceArea {
     .size(@height: 25px);
     display: inline-block;
@@ -205,13 +540,41 @@ body {
     }
 }
 
-.mainPanel {
-    display: none;
-    .size(@width: 100%, @height: ~"calc(100% - 115px)");
+/* End Of Bottom Section */
 
-    &.active {
-        display: block;
+
+.unavailable {
+    // For features that haven't been implemented yet
+    opacity: 0.4;
+}
+
+/* Flex Styling */
+.flexContainer {
+    .flex-display;
+
+    &.flexRow {
+        .flex-flow(row);
     }
+
+    .flexWrap {
+        &.flex-left {
+            .flex-order(1);
+        }
+        &.flex-mid {
+            .flex-order(2);
+        }
+        &.flex-right {
+            .flex-order(3);
+        }
+    }
+}
+
+.fullOpacity {
+    opacity: 1.0 !important;
+}
+
+.visible {
+    visibility: visible;
 }
 
 .btn {
@@ -482,954 +845,6 @@ input {
     }
 }
 
-/* For Scoll bar in worksheet and datastore */
-#mainFrame, .datasetTableWrap {
-    &::-webkit-scrollbar:vertical {
-        .size(@width: 0, @height: 11px);
-        background: transparent;
-    }
-}
-
-.unavailable {
-    // For features that haven't been implemented yet
-    opacity: 0.4;
-}
-
-/* Flex Styling */
-.flexContainer {
-    .flex-display;
-
-    &.flexRow {
-        .flex-flow(row);
-    }
-
-    .flexWrap {
-        &.flex-left {
-            .flex-order(1);
-        }
-        &.flex-mid {
-            .flex-order(2);
-        }
-        &.flex-right {
-            .flex-order(3);
-        }
-    }
-}
-
-.fullOpacity {
-    opacity: 1.0 !important;
-}
-
-.visible {
-    visibility: visible;
-}
-
-.menu {
-    .position(fixed);
-    .size(@width: 170px);
-    list-style: none;
-    padding: 0px;
-    box-shadow: 0px 0px 1px 3px rgba(0,0,0,.05);
-    display:none;
-    background-color: @color-white;
-    z-index: 22; // higher than bottom area's z-index of 21
-    cursor: pointer;
-    .dropDown;
-
-    > ul {
-        overflow: auto;
-    }
-
-    // XXX temporary fix
-    &.subMenu.tableMenu {
-        overflow: visible !important;
-
-        ul.moveToWorksheet, .dupToWorksheet {
-            overflow: visible !important;
-
-            .wsList {
-                overflow: visible !important;
-            }
-        }
-    }
-
-    li {
-        .position(relative);
-        .size(@height: 30px);
-        padding: 6px 6px 6px 8px;
-        background-color: @color-white;
-        .font(@weight: 700, @size: 12px, @color: @color-text-dropMenu);
-        .noSelection;
-        text-align: left;
-
-        &.selected {
-            cursor: pointer;
-            background-color: @color-selectedCell-dark;
-            > .dropdownBox {
-                opacity: 1;
-                border-right-color: @color-dropBox-secondary;
-            }
-        }
-
-        .dropdownBox {
-            opacity: 0.3;
-            z-index: 0;
-            border-right-color: @color-border-lightGray;
-            .transition-delay (.0s);
-            pointer-events: none;
-        }
-
-        &.subSelected {
-            background-color: @color-selectedCell-lightGreen !important;
-        }
-
-        &.clickable {
-            .size(@height: 60px);
-            span {
-                display: block;
-                float: none;
-            }
-
-            > div {
-                height: 20px;
-                line-height: 20px;
-                margin-top: 2px;
-                text-align: center;
-            }
-
-            > input {
-                margin-top: 2px;
-            }
-        }
-
-        &.clickable.extensions {
-            .size(@height: auto);
-        }
-
-        input[type='number'] {
-            &::-webkit-outer-spin-button, &::-webkit-inner-spin-button {
-                 -webkit-appearance: none;
-            }
-        }
-
-        .inputWrap {
-            .position(relative);
-
-            input {
-                padding: 0 22px;
-
-                // &:focus {
-                //     & ~ .iconWrapper {
-                //         visibility: visible;
-                //         opacity: 1;
-                //     }
-                // }
-            }
-
-            .iconWrapper {
-                .size(@width: 18px, @height: 18px);
-                .position(absolute, @top: 1px, @right: 0);
-                .gray-gradient;
-                .rounded;
-                // visibility: hidden;
-                // opacity: 0;
-                // .transition(~"visibility 0s, opacity 0.5s");
-
-                &:hover {
-                    .gray-inverse-gradient;
-                }
-
-                .icon {
-                    .size(100%, 100%);
-                    .image("../../images/checkmark.png", 50%, 50%);
-                }
-            }
-        }
-    }
-
-    input {
-        .size(@width: 160px, @height: 20px);
-        .font(@size: 12px, @line-height: 20px);
-        margin-left: -3px;
-        padding: 0 2px;
-        text-align: center;
-        box-shadow: 0px 0px 0px 1px @color-selectedCell-dark;
-        background-color: @color-white;
-
-        &:focus {
-            outline: none;
-        }
-    }
-
-    .splitCol li, .window li {
-        .size(@height: 105px);
-    }
-
-    .divider {
-        border-top: 1px solid @color-border-lightLightGray;
-    }
-
-    .visible {
-        visibility: visible !important;
-    }
-
-    .hidden {
-        display: none !important;
-    }
-
-    > .inputSelected {
-        background-color: @color-selectedCell-dark !important;
-    }
-
-    .inputSelected {
-        visibility: visible !important;
-        background-color: @color-selectedCell-green;
-    }
-
-    .filter ul {
-        .size(@width: 170px);
-        cursor: text;
-    }
-
-    .subMenu li.selected {
-        background-color: @color-selectedCell-green;
-    }
-
-    .changeDataType, .multiChangeDataType {
-        li.flexContainer {
-            height: 30px;
-            padding: 0;
-            // see common.less
-            .typeIcon;
-
-            .flexWrap.flex-left {
-                .flex(0 0 24px);
-                padding: 6px 5px;
-                position: relative;
-                height: 30px;
-                .gray-gradient;
-                overflow: hidden;
-
-            }
-            .flexWrap.flex-right {
-                .flex(1 1 auto);
-                padding: 6px 8px;
-            }
-        }
-    }
-
-    .sort, .aggregate, .groupBy, .filter {
-        span {
-            .size(@width: 24px, @height: 16px);
-            float: left;
-            display: inline-block;
-        }
-    }
-
-    .sort {
-        // indexed column cannot sort
-        .indexedColumn & {
-            display: none;
-        }
-        .sortUp {
-            .image("../../images/arrowUp.png", 0, 50%);
-        }
-        .sortDown {
-            .image("../../images/arrowDown.png", 0, 50%);
-        }
-        .tooltip {
-            display: none !important;
-        }
-    }
-
-    .multiColumn {
-        display: none;
-    }
-
-    .unhide {
-        display: none;
-    }
-
-    .roundToFixed {
-        display: none;
-    }
-
-    .splitCol {
-        display: none;
-    }
-
-    .window {
-        display: none;
-    }
-
-    .unavailable {
-        // pointer-events: none;
-        cursor: default !important;
-        .dropdownBox {
-            opacity: 0 !important;
-        }
-        ul {
-            display: none !important;
-        }
-        &.moveToWorksheet {
-            &+ .tooltip {
-                display: block !important;
-            }
-        }
-    }
-
-    .moveToWorksheet {
-        &+ .tooltip {
-            display: none !important;
-        }
-    }
-
-    &.type-integer, &.type-float, &.type-boolean {
-        .window {
-            display: block;
-        }
-    }
-
-    &.type-string {
-        .splitCol {
-            display: block;
-        }
-    }
-
-    &.type-multiColumn:not(.subMenu) {
-        li {
-            display: none !important;
-        }
-    }
-
-    &.type-multiColumn {
-        .multiColumn {
-            &.deleteColumns, &.hideColumns, &.textAlignColumns, &.multiChangeDataType,
-            &.resizeColumns, &.extensions {
-                display: list-item !important;
-                li {
-                    display: list-item !important;
-                }
-            }
-
-        }
-
-        .multiTextAlign {
-            li {
-                display: list-item !important;
-                &.flexContainer {
-                    .flex-display !important;
-                }
-            }
-        }
-
-        &.type-hidden {
-            .unhideColumns {
-                display: list-item !important;
-            }
-            .hideColumns {
-                display: none !important;
-            }
-        }
-
-        &.type-object, &.type-array, &.type-undefined {
-            .multiColumn {
-                &.multiChangeDataType {
-                    display: none !important;
-                }
-            }
-        }
-
-        &.type-string.type-integer.type-float.type-boolean {
-            // case that no type to change
-            .multiColumn {
-                &.multiChangeDataType {
-                    display: none !important;
-                }
-            }
-        }
-
-        .multiColumn.roundToFixed, .multiColumn.format {
-            display: none;
-        }
-
-        &.type-integer, &.type-float {
-            .multiColumn.format {
-                display: list-item !important;
-            }
-        }
-        &.type-float {
-            .multiColumn.roundToFixed {
-                display: list-item !important;
-            }
-        }
-    }
-
-    &.type-string, &.type-array {
-        .aggregate {
-            display: none;
-        }
-        .type-string {
-            display: none;
-        }
-
-        .format {
-            display: none;
-        }
-    }
-
-    &.type-float {
-        .roundToFixed {
-            display: list-item;
-        }
-        .multiColumn.roundToFixed {
-            display: none;
-        }
-    }
-
-    &.type-emptyTable .map {
-        display: none !important;
-    }
-
-    &.type-object, &.type-newColumn, &.type-mixed,
-    &.recordNum, &.childOfArray, &.sortedArray {
-        .sort, .aggregate, .groupby, .filter, .joinList, .map, .operations,
-        .profile
-        {
-            display: none;
-        }
-    }
-
-    &.type-untitled { // when column head is editable for rename
-        .duplicate {
-            display: none;
-        }
-    }
-
-    &.type-undefined {
-        .sort, .aggregate, .groupby, .joinList, .operations,
-        .profile
-        {
-            display: none;
-        }
-    }
-
-    &.type-newColumn, &.type-undefined {
-        .operations, .map {
-            display: list-item;
-        }
-    }
-
-    &.type-object, &.type-array, &.type-newColumn, &.type-undefined,
-    &.recordNum {
-        .changeDataType, .hPartition, .format, .roundToFixed, .extensions {
-            display: none;
-        }
-    }
-
-    &.childOfArray, &.sortedArray {
-        .changeDataType, .hPartition, .window, .splitCol , .extensions {
-            display: none;
-        }
-    }
-
-    &.type-object, &.childOfArray, &.sortedArray {
-        .functionsDivider {
-            display: none;
-        }
-    }
-
-    &.type-boolean {
-        .type-boolean {
-            display: none;
-        }
-    }
-
-    &.type-data {
-        .sort, .aggregate, .groupby, .filter, .joinList, .deleteColumn,
-        .deleteDuplicates, .duplicate, .rename, .map, .operations,
-        .changeDataType, .profile, .divider, .format, .roundToFixed ,
-        .extensions {
-            display: none;
-        }
-    }
-
-    &.type-hidden {
-        .hide {
-            display: none;
-        }
-        .unhide {
-            display: list-item;
-        }
-    }
-
-    .tdDropdown {
-        display: none;
-    }
-
-    &.tdMenu {
-        &.long {
-            width: 195px;
-        }
-
-        .thDropdown {
-            display: none !important;
-        }
-
-        .tdDropdown {
-            display: list-item;
-        }
-    }
-}
-
-//scrollable list styling
-.menu, .list {
-    overflow: hidden;
-    ul {
-       overflow: auto;
-       &::-webkit-scrollbar {
-            display: none;
-       }
-    }
-    .scrollArea {
-        position: absolute;
-        width: 100%;
-        height: 14px;
-        background-color: rgba(100,100,100,0.1);
-        opacity: 0;
-        z-index: 1;
-        left: 0;
-        .transition(opacity 0.4s ease-in-out 0s);
-
-        &.active {
-            opacity: 1;
-            .transition(opacity 0.4s ease-in-out 0s);
-        }
-
-        &.mouseover {
-            opacity: 1;
-            .arrow {
-                opacity: 1;
-            }
-        }
-
-        &.stopped {
-            display: none !important;
-        }
-
-        .arrow {
-            width: 20px;
-            margin: 0 auto;
-            height: 14px;
-            pointer-events: initial;
-            opacity: 0.4;
-        }
-
-        &.top {
-            top: 0;
-            .arrow {
-                .image("../../images/arrow-up-gray-flat.png", 50%, 40%);
-            }
-
-        }
-        &.bottom {
-            bottom: 0;
-            .arrow {
-                .image("../../images/arrow-down-gray-flat.png", 50%, 60%);
-            }
-        }
-    }
-}
-
-// styling common to menus and lists
-.menu, .list {
-    .sectionLabel {
-        height: 16px;
-        line-height: 14px;
-        font-weight: 600;
-        font-size: 11px;
-        padding-left: 8px;
-        padding-right: 8px;
-        border-bottom: 1px solid @color-border-lightLightGray;
-        border-top: 1px solid @color-border-lightLightGray;
-        background-color: @color-background-listSectionGray !important;
-        color: @color-text-softGray;
-        .textOverflowOneLine;
-    }
-
-    li {
-        .textOverflowOneLine;
-    }
-}
-
-.subMenu {
-    &.left {
-        margin-left: -325px;
-
-        .subMenuArea {
-            right: 0;
-            left: auto;
-        }
-    }
-}
-
-.moveToWorksheet, .dupToWorksheet {
-    li {
-       overflow: visible;
-    }
-    .dropDownList {
-        .size(@width: 100%, @height: 30px);
-        .position(relative);
-        box-shadow: none;
-        background-color: transparent;
-
-        .list {
-            .size(@width: 160px, @height: 20px);
-            .position(absolute, @top: 20px, @left: -3px);
-            margin: 0;
-            visibility: visible !important;
-            display: none;
-        }
-    }
-}
-
-ul.menu.leftColMenu::before {
-    border-color: @color-selectedCell-dark @color-selectedCell-dark;
-}
-
-.subMenu li {
-    &.subColUnselected {
-        background-color: @color-white;
-    }
-    &.subColSelected {
-        background-color: @color-selectedCell-dark;
-    }
-}
-
-.subMenuArea {
-    .position(absolute, @top: -30px, @left: 14px);
-    .size(@width: ~"calc(100% + 30px)", @height: ~"calc(100% + 60px)");
-    z-index: -1;
-    cursor: default;
-}
-
-.leftColMenu .subMenuArea {
-    .position(@right: 0, @left: auto);
-}
-
-ul.leftColMenu {
-    .position(@right: 0);
-    box-shadow: -1px 1px @color-menu-shadow;
-
-    .dropdownBox {
-        display: none !important;
-    }
-}
-
-ul.subMenu.leftColMenu {
-    .position(@left: -170px);
-    margin-top: 0px;
-    box-shadow: -1px 1px @color-menu-shadow;
-}
-
-
-ul.inputMenu {
-    > li {
-        .size(@height: auto, @min-height: 30px);
-        overflow: hidden;
-        padding: 0px;
-        margin: 0px;
-
-        span {
-            .position(relative);
-            .size(@height: 30px);
-            .box-sizing;
-            display: block;
-            padding: 8px 6px 6px 6px;
-            background-color: @color-white;
-            z-index: 1;
-            .transition (margin-bottom .3s);
-
-            &.openMenuInput {
-                margin-bottom: 30px;
-            }
-        }
-
-        .dropdownBox {
-            .position(@top: 15px);
-            z-index: 1;
-        }
-    }
-
-    &:hover ul {
-        visibility: visible;
-    }
-
-    input[type=text] {
-        .position(absolute, @top: 31px, @left: 0);
-        .size(@width: 160px, @height: 24px);
-        margin: 0px 5px;
-        z-index: 0;
-
-        &:focus {
-            outline: none;
-        }
-    }
-}
-/* END DROPDOWN STYLING */
-
- /* ========== Menu Related CSS ========== */
-
- /* Top Menu Bar  */
-#menuBar {
-    .size(@width: 100%, @height: 41px);
-    background: @color-limedSpruce url("../../images/bg_page.png") repeat right top;
-    position: relative;
-    // z-index: 14; // removed because necessary for intro and doesnt seem to be needed
-}
-
-#workbookBtn {
-    .position(relative, @top: 30%);
-    float: left;
-    margin-left: 10px;
-    box-shadow: -2px 2px 0px 0px @color-shadow-strong;
-    .rounded;
-
-    .icon {
-        .size(100%, 100%);
-        .image("../../images/workbookBtn.png", 50%, 50%);
-        background-size: 18px 17px;
-    }
-}
-
-#mainMenu {
-    .size(@height: 41px);
-    float: left;
-    margin-left: 10px;
-    display: inline-block;
-
-    .mainMenuTab {
-        .position(relative);
-        .size(@height: 32px);
-        margin: 4px 10px 0px 0px;
-        padding: 5px 25px 0px 34px;
-        border: 1px solid @color-tab-border;
-        .rounded;
-        display: inline-block;
-        background-color: @color-tab-shadow;
-        .font(@size: 14px, @family: @font-base, @color: @color-text-tab);
-        float: left;
-        cursor: default;
-        white-space: nowrap;
-        .noSelection;
-        .transition(~"background-color 0.1s, color 0.1s, border-color 0.1s");
-
-        &:hover, &.hover {
-            background-color: @color-tab-hover;
-            color: @color-white;
-            border: 1px solid @color-table-borderGray;
-            .icon {
-                opacity: 1;
-            }
-        }
-
-        &.active {
-            .position(relative);
-            .size(@height: 35px);
-            margin-top: 6px;
-            color: @color-text-darkGray;
-            .lightGray-gradient;
-            border: 1px solid @color-bar-border;
-            border-bottom: none;
-            border-bottom-left-radius: 0px;
-            border-bottom-right-radius: 0px;
-            z-index: 14;
-            .transition(all 0s);
-            .icon {
-                opacity: 1;
-            }
-        }
-
-        &#monitorTab {
-            padding-left: 31px;
-        }
-
-        .icon {
-            .position(absolute);
-            .size(24px, 24px);
-            margin: 1px 0 0 -27px;
-            display: inline-block;
-            .transition(opacity 0.1s);
-            opacity: 0.4;
-        }
-
-        .mountain-icon {
-            .image("../../images/mainMenuTab/mountain.png");
-        }
-
-        .page-icon {
-            .image("../../images/mainMenuTab/page.png");
-            margin-top: 0px;
-        }
-
-        .db-icon {
-            .image("../../images/mainMenuTab/db-icon.png");
-        }
-
-        .monitor-icon {
-            .image("../../images/mainMenuTab/monitor.png");
-            margin-left: -24px;
-        }
-
-        .scheduler-icon {
-            .image("../../images/mainMenuTab/scheduler-icon.png");
-            margin-top: 0px;
-        }
-
-        .extension-icon {
-            .image("../../images/mainMenuTab/extension.png");
-            margin-top: -1px;
-        }
-    }
-
-    @media screen and (max-width: 1024px) {
-        .mainMenuTab {
-            padding: 5px 10px 0px 30px;
-            margin-right: 7px;
-            #monitorTab {
-                padding-left: 27px;
-            }
-        }
-    }
-}
-
-#logo {
-    .size(@width: 74px, @height: 34px);
-    margin: 5px 10px 0 0;
-    .image("../../images/logo/xcalar-white-sm.png");
-    float: right;
-    display: inline-block;
-    @media screen and (max-width: 1024px) {
-        margin-right: 0px;
-    }
-}
-
-#userNameArea {
-    .font(@weight: 400, @color: @color-text-white);
-    float: right;
-    margin: 10px 25px 0 0;
-    display: inline-block;
-    max-width: ~"calc(100% - 860px)";
-    overflow: hidden;
-    white-space: nowrap;
-
-    @media screen and (max-width: 1024px) {
-        max-width: ~"calc(100% - 725px)";
-        margin-right: 16px;
-    }
-
-    .text {
-        color: @color-text-topAction;
-        .textOverflowOneLine;
-        display: inline-block;
-        vertical-align: bottom;
-        max-width: ~"calc(100% - 65px)";
-    }
-
-    #signout {
-        display: inline-block;
-        width: 55px;
-        color: @color-text-signout-blue;
-        cursor: pointer;
-        .textOverflowOneLine
-    }
-}
- /* End Of Top Menu Bar  */
-
-/* Bottom Section */
-#bottomArea {
-    .position(absolute, @bottom: 0);
-    .size(@width: 100%);
-    z-index: 21; // in front of right side bar
-    .noSelection;
-}
-
-#worksheetBar {
-    .size(@height: 35px);
-    border-top: 2px solid @color-bar-border;
-    box-shadow: 0px 1px 1px 0px @color-bar-shadowDark;
-    overflow: hidden;
-    .lightGray-gradient;
-
-    .workspaceArea {
-        .size(@height: 15px);
-        .font(@size: 13px, @line-height: 13px);
-        margin-top: 8px;
-        overflow: hidden;
-        cursor: default;
-        .flex(0 0 auto);
-
-        &:last-child {
-            .flex-display;
-            .flex(1 2 0px);
-            padding-right: 2px;
-        }
-
-        #autoSaveBtn {
-            margin-left: 5px;
-            font-style: italic;
-            cursor: pointer;
-        }
-    }
-
-    #pageStatusText {
-        float: left;
-        overflow: hidden;
-        display: inline-block;
-        .size(@height: 20px);
-        .font(@line-height: 20px);
-        margin-top: -4px;
-        white-space: nowrap;
-
-        span {
-            display: block;
-            .size(@height: 20px);
-            position: relative;
-            .textOverflow;
-        }
-
-        .text {
-            float: left;
-        }
-
-        .fail {
-            font-weight: bold;
-        }
-
-        .icon {
-            float: left;
-            .size(@width: 20px);
-            .image("../../images/close-icon.png", 50%, 50%);
-            cursor: pointer;
-            margin-left: 4px;
-        }
-    }
-
-    #loadingIconWrap {
-        position: relative;
-        display: inline-block;
-        .size(@width: 30px, @height: 100%);
-        margin-left: 12px;
-        float: left;
-        display: none;
-
-        .spinner {
-            width: 30px;
-
-        }
-    }
-}
-
 .spinner {
     width: 70px;
     text-align: center;
@@ -1510,397 +925,6 @@ ul.inputMenu {
         width: 20px;
     }
 }
-
-#worksheetInfo {
-    .size(@width: ~"calc(100% - 180px)", @height: 100%);
-    float: left;
-    display: inline-block;
-    white-space: nowrap;
-    overflow: hidden;
-    .flex-display;
-}
-
-.bottomButtonsArea {
-    float: right;
-    cursor: default;
-
-    .sliderBtn {
-        margin: 5px;
-
-        &.active {
-            .action-inverse-gradient;
-        }
-    }
-}
-
-#tableListBtn {
-    background-image: url(../../images/sidebar/tableList.png);
-}
-
-#sqlBtn {
-    background-image: url(../../images/sidebar/sql.png);
-}
-
-#udfBtn {
-    background-image: url(../../images/sidebar/udf.png);
-}
-
-#cliBtn {
-    background-image: url(../../images/sidebar/cli.png);
-}
-
-#scratchpadBtn {
-    background-image: url(../../images/pencil.png);
-}
-
-#infoBtn {
-    background-image: url(../../images/sidebar/help.png);
-}
-
-#bottomTabArea {
-    .size(@height: 39px);
-    background: @color-limedSpruce url("../../images/bg_page.png") repeat right top;
-    // &:hover {
-    //     .inActive .wsIconWrap {
-    //         .transition(opacity 0.15s);
-    //         opacity: 0.1 !important;
-    //     }
-    // }
-}
-
-#addWorksheet {
-    display: inline-block;
-    margin: 8px 8px 0px 9px;
-    cursor: pointer;
-    float: left;
-
-    span {
-        .size(100%, 100%);
-        .image("../../images/plus-sign.png", 55%, 45%);
-        display: block;
-    }
-}
-
-#worksheetTabs {
-    .position(relative, @top: -1px);
-    .size(@width: ~"calc(100% - 40px)", @height: 36px);
-    .flex-display;
-    float: left;
-
-    .worksheetTab {
-        .size(@width: 201px, @height: 35px);
-        .position(relative, @top: ~"0px !important");
-        float: left;
-        .flex(0 0 201px);
-        margin-right: 10px;
-
-        &.transition {
-            display: block;
-            .flex(0 0 auto);
-        }
-
-        &.dragging {
-            pointer-events: none;
-            .label {
-                cursor: default;
-            }
-        }
-        .draggableArea {
-            float: left;
-            height: @height-colHeader;
-            width: ~"calc(100% - 28px)";
-            position: absolute;
-            left: 27px;
-            overflow: hidden;
-        }
-
-        .label {
-            .size(@width: ~"calc(100% - 30px)", @height: 100%);
-            .position(relative);
-            .darkGray-gradient;
-            display: inline-block;
-            float: left;
-            text-align: left;
-            border: 1px solid @color-bar-border;
-            border-top: none;
-            .rounded(0 0 0 3px);
-            .cursor-move;
-
-            .wsIconWrap {
-                .position(relative);
-                .size(@width: 25px, @height: 18px);
-                margin-left: 2px;
-                padding-right: 2px;
-                border-right: 1px solid @color-tab-divider;
-                display: inline-block;
-                float: left;
-                cursor: pointer;
-                .vertical-align;
-            }
-
-            .wsIcon {
-                .size(@width: 18px, @height: 23px);
-                margin-left: 2px;
-                margin-top: -3px;
-                .image("../../images/worksheet/wsMenu.png", 50%, 50%);
-                float: left;
-            }
-
-            .tooltip { // tooltip for worksheet name
-                top: -35px !important;
-                left: 50% !important;
-                .transform(translateX(-50%));
-                white-space: nowrap;
-            }
-
-            .text {
-                .size(@height: 21px);
-                .font(@weight: 700, @size: 14px, @line-height: 20px);
-                outline: none;
-                margin: 2px 2px;
-                padding: 0 3px;
-                white-space: nowrap;
-                line-height: 20px;
-                border: 1px solid transparent;
-                cursor: text;
-                background-color: transparent;
-
-                &:focus {
-                    border: 1px solid @color-malibu;
-                    box-shadow: inset 0 1px 2px 1px @color-shadow-medium;
-                    text-overflow: clip;
-                    width: ~"calc(100% - 6px)" !important;
-                }
-            }
-        }
-
-        &.focus {
-            .label {
-                cursor: initial;
-            }
-        }
-
-        .dagTab {
-            .size(@width: 30px, @height: 34px);
-            float: left;
-            display: inline-block;
-            margin-top: 1px;
-            cursor: pointer;
-            .noSelection;
-            border-bottom: 1px solid @color-bar-border;
-            border-right: 1px solid @color-bar-border;
-            .rounded(0 0 3px 0);
-            .linear-gradient(top, @color-background-sidebar, @color-background-darkdarkGray);
-
-            .icon {
-                .size(100%, 100%);
-                .image("../../images/dagIcons/comp-icon.png", 50%, 50%);
-            }
-
-            &:hover {
-                .linear-gradient(top, @color-background-topGrayMed, @color-boulder);
-            }
-
-            &:active {
-                 box-shadow: inset 0px 1px 1px 0px @color-shadow-stronger;
-            }
-
-            &.active {
-                .action-gradient;
-                &:hover {
-                    .action-inverse-gradient;
-                }
-            }
-
-            & + .tooltip {
-                white-space: nowrap;
-            }
-
-            &.active + .tooltip {
-                display: none !important;
-            }
-        }
-
-        &.inActive {
-            .size (@width: 172px, @height: 28px);
-            .position(@top: ~"6px !important");
-            .noSelection;
-            .flex(0 1 auto);
-
-            .label {
-                background: rgba(0,0,0, .15);
-                border: 1px solid @color-tab-border;
-                color: @color-text-tab;
-                .size(@width: ~"calc(100% - 2px)");
-                .rounded;
-                cursor: pointer;
-                .transition(~"background 0.15s, border 0.15s");
-
-                .wsIconWrap {
-                    opacity: 0;
-                    .transition(opacity 0.15s);
-                }
-
-                .text {
-                    .size(@width: ~"calc(100% - 27px)") !important;
-                    min-width: 30px;
-                    text-align: center;
-                    pointer-events: none;
-                    margin: 2px 0;
-                    color: @color-text-tab;
-                    .transition(color 0.15s);
-                }
-            }
-
-            .dagTab {
-                display: none;
-            }
-
-            &:hover {
-                .label {
-                    // hover vs regular color scheme needs to be adjusted
-                    background-color: rgba(255,255,255,.15);
-                    border: 1px solid @color-table-borderGray;
-                    .wsIconWrap {
-                        opacity: 1 !important;
-                    }
-                    .text {
-                        color: @color-white;
-                    }
-                }
-            }
-            .label.hover {
-                background-color: rgba(255,255,255,.15);
-                color: @color-white;
-                border: 1px solid @color-table-borderGray;
-                .wsIconWrap {
-                    visibility: visible;
-                }
-                .text {
-                    color: @color-white;
-                }
-            }
-        }
-
-        &:not(.inActive) {
-            .label {
-                .tooltip {
-                    display: none !important;
-                }
-                .text {
-                    line-height: 20px;
-                    margin-top: 7px;
-                }
-            }
-            .draggableArea {
-                height: 100%;
-            }
-        }
-
-        &.locked {
-            .wsIconWrap {
-                pointer-events: none !important;
-                cursor: auto !important;
-                opacity: 0.5;
-            }
-        }
-    }
-}
-
-#hiddenWorksheetsTab {
-    display: none;
-    .size(@width: 60px, @height: 28px);
-    .position(absolute, @bottom: 6px, @right: 4px);
-    box-shadow: none;
-    background-color: transparent;
-
-    &:hover {
-        .mainTab {
-            // hover vs regular color scheme needs to be adjusted
-            background-color: rgba(255,255,255,.15);
-            color: @color-white;
-            border: 1px solid @color-table-borderGray;
-        }
-    }
-
-    .mainTab {
-        .size(@width: 60px, @height: 28px);
-        background: rgba(0,0,0, .15);
-        border: 1px solid @color-tab-border;
-        color: @color-text-tab;
-        .rounded;
-        text-align: center;
-        .textOverflowOneLine;
-    }
-
-    .list {
-        bottom: 28px;
-        right: 0px;
-        width: 180px;
-        left: auto;
-        display: block;
-        font-size: 13px;
-        border-radius: 3px 3px 0 3px;
-        display: none;
-    }
-    li {
-        height: 25px;
-        line-height: 25px;
-        padding: 0px 5px;
-    }
-    .divider {
-        border-top: 1px solid @color-border-lightLightGray;
-    }
-    .icon {
-        .image("../../images/worksheet/hidden-ws.png", 2px, 6px);
-        .size(@width:20px, @height:100%);
-        float: left;
-    }
-    .unhideAll {
-        position: relative;
-        .icon:last-child {
-            position: absolute;
-            left: 7px;
-            top: 2px;
-        }
-    }
-}
-
-#bottomTabArea.hasHiddenWS {
-    #worksheetTabs {
-        width: ~"calc(100% - 110px)";
-    }
-    #hiddenWorksheetsTab {
-        display: inline-block;
-    }
-}
-
-#worksheetTabMenu {
-    width: 130px;
-    border-radius: 3px;
-    overflow: visible;
-    ul {
-        overflow: hidden;
-        .rounded;
-    }
-    li {
-        height: 25px;
-        line-height: 25px;
-        padding: 0 6px;
-    }
-    &:after {
-        top: 100%;
-        left: 8px;
-        border: solid transparent;
-        content: " ";
-        height: 0;
-        width: 0;
-        position: absolute;
-        border-top-color: @color-white;
-        border-width: 5px;
-    }
-}
-/* End Of Bottom Section */
 
 /* Search Inputs */
 
@@ -2874,7 +1898,7 @@ body.tooltipOff {
 
 // styling for small screen sizes below 1024px
 @media screen and (max-width: 1024px) {
-    #worksheetBar .workspaceArea:first-child {
+    #statusBar .workspaceArea:first-child {
         display: none;
     }
     #datastorePanel {

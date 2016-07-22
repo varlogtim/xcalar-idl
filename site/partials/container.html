@@ -6,12 +6,14 @@
   </script>
 
   include "menuBar.html"
+  include "userBox.html"
   <!-- WORK SPACE PANEL -->
   <div id="workspacePanel" class="mainPanel no-selection active">
     include "workspaceBar.html"
     <div id="watermark"></div>
     <div id="insight"></div>
     <div id="mainFrame"></div>
+    include "worksheetTabs.html"
 
     include "dag.html"
     include "modal/dataFlowModal.html"
@@ -33,7 +35,7 @@
   </div>
 
   include "rightSideBar.html"
-  include "bottomBar.html"
+  include "statusBar.html"
 
   <!-- Fixed positioned StatusBox -->
   <div id="statusBox">

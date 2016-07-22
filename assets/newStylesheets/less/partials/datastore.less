@@ -19,8 +19,6 @@ input {
  #contentHeader {
     .flex-display;
     .flex-flow(row);
-    .position(absolute, @top: -1px);
-    z-index: 6;
     box-shadow: 0px 2px 11px 0px rgba(0,0,0, .5);
 }
 
@@ -54,20 +52,6 @@ input {
     }
 }
 
-// two icons in #contentHeaderLeft
-#inButton .icon {
-    margin: 0px 5px 0 8px;
-    .image("../../images/datastore/import-single.png", 50%, 50%);
-    .size(30px, 36px);
-
-}
-
-#outButton .icon {
-    margin: 0px 5px 0 8px;
-    .image("../../images/datastore/export-single.png", 50%, 50%);
-    .size(30px, 36px);
-}
-
 #contentHeaderMid {
     .flex(1 1 auto);
     .flex-order(2);
@@ -94,7 +78,7 @@ input {
 /* Form Data View Section */
 .dsFormView {
     display: block;
-    .position(absolute, @top: 37px, @left: 255px);
+    .position(absolute, @top: @height-homeBtn, @left: 255px);
     .size(@width: ~"calc(100% - 510px)", @height: ~"calc(100% - 37px)", @min-width: 514px);
     background-color: @color-background-white;
     font-size: 13px;
@@ -781,7 +765,6 @@ input {
 /* Main Content */
 #mainContent {
     height: 100%;
-    padding-top: 37px;
 
     #exploreView {
         height: 100%;

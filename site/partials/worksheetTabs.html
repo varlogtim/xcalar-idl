@@ -1,0 +1,84 @@
+<!-- Bottom Worksheet Tabs -->
+  <div id="bottomTabArea">
+    <!-- addWorkhseet btn -->
+    <% if (dicts.tutor.name == "workbookDemo") { %>
+    <div id="addWorksheet" class="btn btnSmall" data-introstep="7">
+      <span class="icon"></span>
+    </div>
+    <% } else { %>
+    <div id="addWorksheet" class="btn btnSmall" title="<%= dicts.ws.add %>" data-toggle="tooltip" data-placement="top" data-container="body">
+      <span class="icon"></span>
+    </div>
+    <% } %>
+    <!-- Worksheet Tabs -->
+    <div id="worksheetTabs">
+      <% if (dicts.tutor.name == "workbookDemo") { %>
+      <section class="worksheetTab inActive">
+        <div class="label" data-introstep="6">
+          <div class="iconWrapper wsIconWrap">
+            <span class="wsIcon"></span>
+          </div>
+          <div class="draggableArea">
+            <input type="text" class="text textOverflow" spellcheck="false" value="<%= dicts.ws.sheet %> 1" style="width: 63px;">
+          </div>
+        </div>
+        <!-- dag tab -->
+        <div class="dagTab">
+          <span class="icon"></span>
+        </div>
+      </section>
+      <section class="worksheetTab">
+          <div class="label" data-introstep="5">
+            <div class="iconWrapper wsIconWrap">
+              <span class="wsIcon"></span>
+            </div>
+            <div class="draggableArea">
+              <input type="text" class="text textOverflow" spellcheck="false" value="<%= dicts.ws.sheet %> 2">
+            </div>
+          </div>
+          <div class="dagTab">
+            <span class="icon"></span>
+          </div>
+        </section>
+      <% } else { %>
+      <!-- Placeholder, Keep it so user don't see difference when loading -->
+      <section class="worksheetTab">
+        <div class="label">
+          <div class="iconWrapper wsIconWrap">
+            <span class="wsIcon"></span>
+          </div>
+          <div class="draggableArea">
+            <input type="text" class="text textOverflow" spellcheck="false" value="<%= dicts.ws.sheet %> 1">
+          </div>
+        </div>
+        <!-- dag tab -->
+        <div id="compSwitch" class="dagTab">
+          <span class="icon"></span>
+        </div>
+      </section>
+      <% } %>
+    </div>
+    <div id="hiddenWorksheetsTab" class="dropDownList">
+      <div class="mainTab" title="hidden worksheets" data-toggle="tooltip" data-placement="top" data-container="body">
+        ...(0)
+      </div>
+      <div class="list">
+        <ul>
+          <div class="divider"></div>
+          <li class="unhideAll" data-ws="all">
+            <span class="icon"></span>
+            <span class="icon"></span>
+            <%= dicts.ws.unHideAll %>
+          </li>
+        </ul>
+      </div>
+    </div>
+    <div id="worksheetTabMenu" class="menu">
+      <ul>
+        <li class="rename"><%= dicts.common.Rename %></li>
+        <li class="hide"><%= dicts.ws.hide %></li>
+        <li class="delete"><%= dicts.ws.del %></li>
+      </ul>
+      <div class="arrow"></div>
+    </div>
+  </div>

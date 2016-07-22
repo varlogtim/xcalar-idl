@@ -173,7 +173,7 @@ function dblClickResize($el, options) {
         $(document).off('mouseup.endColResize');
         unhideOffScreenTables();
         xcHelper.reenableTextSelection();
-        $('.xcTableWrap').find('.dropdownBox').show();
+        $('.xcTheadWrap').find('.dropdownBox').show();
         $('#col-resizeCursor').remove();
         clearTimeout(gRescol.timer);    //prevent single-click action
         gRescol.clicks = 0;      //after action performed, reset counter

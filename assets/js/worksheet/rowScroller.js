@@ -347,7 +347,7 @@ window.RowScroller = (function($, RowScroller) {
         }
         var tableLeft = $table.offset().left;
         var tdXCoor = Math.max(0, tableLeft);
-        var tdYCoor = 162; //top rows's distance from top of window
+        var tdYCoor = 130; //top rows's distance from top of window
         var firstEl = document.elementFromPoint(tdXCoor, tdYCoor);
         var firstId = $(firstEl).closest('tr').attr('class');
 

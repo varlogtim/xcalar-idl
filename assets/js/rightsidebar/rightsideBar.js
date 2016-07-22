@@ -180,7 +180,7 @@ window.RightSideBar = (function($, RightSideBar) {
             CLIBox.realignNl();
         });
 
-        $("#rightSideBarBtns").on("click", ".sliderBtn", function() {
+        $("#bottomMenuTabs").on("click", ".sliderBtn", function() {
             if (!clickable) {
                 return;
             }
@@ -201,7 +201,7 @@ window.RightSideBar = (function($, RightSideBar) {
         var $rightSideBar = $("#rightSideBar");
         $rightSideBar.removeClass("open");
         $rightSideBar.css('right', -($rightSideBar.width() - 10));
-        $("#rightSideBarBtns .sliderBtn.active").removeClass("active");
+        $("#bottomMenuTabs .sliderBtn.active").removeClass("active");
         // since close right side bar has slider animition,
         // delay the close of section
         setTimeout(function() {
@@ -213,7 +213,7 @@ window.RightSideBar = (function($, RightSideBar) {
     function toggleRightSection(sectionIndex) {
         var $rightSideBar = $("#rightSideBar");
         var $rightBarSections = $rightSideBar.find(".rightBarSection");
-        var $sliderBtns = $("#rightSideBarBtns .sliderBtn");
+        var $sliderBtns = $("#bottomMenuTabs .sliderBtn");
         var $section;
 
         if (sectionIndex == null) {
@@ -272,7 +272,7 @@ window.RightSideBar = (function($, RightSideBar) {
         var offset = $rightSideBar.offset();
 
         $rightSideBar.addClass('poppedOut');
-        $('#rightSideBarBtns').appendTo($rightSideBar);
+        $('#bottomMenuTabs').appendTo($rightSideBar);
         $rightSideBar.find('.popOut')
                      .attr('data-original-title', SideBarTStr.PopBack);
         $('.tooltip').hide();
@@ -286,7 +286,7 @@ window.RightSideBar = (function($, RightSideBar) {
         var $rightSideBar = $("#rightSideBar");
 
         $rightSideBar.removeClass('poppedOut');
-        $('#rightSideBarBtns').appendTo('#worksheetBar');
+        $('#bottomMenuTabs').appendTo('#menuBar');
         $rightSideBar.attr('style', "");
         $rightSideBar.find('.popOut')
                      .attr('data-original-title', SideBarTStr.PopOut);

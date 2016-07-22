@@ -1,0 +1,36 @@
+<div id="statusBar" class="workspaceBar clearfix">
+  <section id="worksheetInfo" class="clearfix">
+    <div class="workspaceArea"><%= dicts.common.XI %></div>
+    <div class="workspaceArea">
+      <span><%= dicts.common.WKBK %>: </span>
+      <span class="wkbkName">
+        <%= dicts.isTutor ? dicts.tutor.wkbk : "" %>
+      </span>
+    </div>
+    <div id="workspaceDate" class="workspaceArea">
+      <span><%= dicts.ws.create %>: </span>
+      <span class="date">
+        <%= dicts.isTutor ? dicts.tutor.wkbkDate : "" %>
+      </span>
+    </div>
+    <div class="workspaceArea">
+      <span><%= dicts.ws.save %>:</span>
+      <span id="autoSavedInfo">
+        <%= dicts.isTutor ? dicts.tutor.wkbkSaveDate : "" %>
+      </span>
+      <span id="autoSaveBtn"><%= dicts.common.SaveWKBK %></span>
+    </div>
+    <div class="workspaceArea">
+      <span id="pageStatusText">
+        <%= dicts.isTutor ? dicts.tutor.meta.tab : dicts.bottomBar.EC %>
+      </span>
+      <div id="loadingIconWrap">
+        <div class="spinner">
+          <div class="bounce1"></div>
+          <div class="bounce2"></div>
+          <div class="bounce3"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>

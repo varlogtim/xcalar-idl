@@ -12,67 +12,117 @@
     <span class="icon"></span>
   </div>
   <% } %>
-
+  <div id="homeBtn">
+    <div class="logo"></div>
+  </div>
   <!-- maiu menu-->
   <div id="mainMenu" class="clearfix">
     <!-- workspance tab -->
     <% if (!dicts.isTutor) { %>
     <div id="workspaceTab" class="mainMenuTab active">
-      <span class="icon mountain-icon"></span><%= dicts.menuBar.ws %>
+      <div class="mainTab"></div>
+      <div class="subTab"></div>
     </div>
     <% } else if (dicts.tutor.name == "workbookDemo") { %>
     <div id="workspaceTab" class="mainMenuTab active" data-introstep="2">
-      <span class="icon mountain-icon"></span><%= dicts.menuBar.ws %>
+      <div class="mainTab"></div>
+      <div class="subTab"></div>
     </div>
     <% } else { %>
     <div id="workspaceTab" class="mainMenuTab">
-      <span class="icon mountain-icon"></span><%= dicts.menuBar.ws %>
-    </div>
-    <% } %>
-
-    <!-- monitor tab -->
-    <% if (dicts.tutor.name == "workbookDemo") { %>
-    <div id="monitorTab" class="mainMenuTab" data-introstep="3">
-      <span class="icon monitor-icon"></span><%= dicts.menuBar.monitor %>
-    </div>
-    <% } else { %>
-    <div id="monitorTab" class="mainMenuTab">
-      <span class="icon monitor-icon"></span><%= dicts.menuBar.monitor %>
+      <div class="mainTab"></div>
+      <div class="subTab"></div>
     </div>
     <% } %>
 
     <!-- data store tab -->
     <% if (!dicts.isTutor) { %>
     <div id="dataStoresTab" class="mainMenuTab firstTouch">
-      <span class="icon db-icon"></span><%= dicts.menuBar.ds %>
+      <div class="mainTab"></div>
+      <div id="inButton" class="subTab active">
+        <div class="icon"></div>
+      </div>
+      <div id="outButton" class="subTab">
+        <div class="icon"></div>
+      </div>
     </div>
     <% } else if (dicts.tutor.name == "workbookDemo") { %>
     <div id="dataStoresTab" class="mainMenuTab" data-introstep="4">
-      <span class="icon db-icon"></span><%= dicts.menuBar.ds %>
+      <div class="mainTab"></div>
+      <div id="inButton" class="subTab active">
+        <div class="icon"></div>
+      </div>
+      <div id="outButton" class="subTab">
+        <div class="icon"></div>
+      </div>
     </div>
     <% } else { %>
     <div id="dataStoresTab" class="mainMenuTab active">
-      <span class="icon db-icon"></span><%= dicts.menuBar.ds %>
+      <div class="mainTab"></div>
+      <div id="inButton" class="subTab active">
+        <div class="icon"></div>
+      </div>
+      <div id="outButton" class="subTab">
+        <div class="icon"></div>
+      </div>
+    </div>
+    <% } %>
+
+    <!-- monitor tab -->
+    <% if (dicts.tutor.name == "workbookDemo") { %>
+    <div id="monitorTab" class="mainMenuTab" data-introstep="3">
+      <div class="mainTab"></div>
+      <div class="subTab"></div>
+    </div>
+    <% } else { %>
+    <div id="monitorTab" class="mainMenuTab">
+      <div class="mainTab"></div>
+      <div class="subTab"></div>
     </div>
     <% } %>
 
     <!-- scheduler tab -->
     <div id="schedulerTab" class="mainMenuTab">
-      <span class="icon scheduler-icon"></span><%= dicts.menuBar.schde %>
+      <div class="mainTab"></div>
+      <div id="dataflowButton" class="subTab active">
+        <div class="icon"></div>
+      </div>
+      <div id="schedulesButton" class="subTab">
+        <div class="icon"></div>
+      </div>
     </div>
     <!-- extension tab -->
     <div id="extensionTab" class="mainMenuTab">
-      <span class="icon extension-icon"></span><%= dicts.menuBar.exts %>
+      <div class="mainTab"></div>
+      <div class="subTab"></div>
     </div>
   </div>
-  <div id="logo"></div>
-  <div id="userNameArea" <%= userNameAttr %>>
-    <span><%= dicts.menuBar.welcome %>: </span>
-    <span id="userName" class="text">
-      <%= dicts.isTutor ? dicts.tutor.user : dicts.menuBar.user %>
-    </span>
-    <span>|</span>
-    <span id="signout" class="text"><%= dicts.menuBar.signOut %></span>
-  </div>
+  <!-- end main menu -->
+
+  <!-- start bottom menu -->
+  <div id="bottomMenuTabs" class="bottomButtonsArea no-selection clearfix">
+      <!-- tablelist -->
+      <div id="tableListTab" class="sliderBtn bottomMenuTab" data-toggle="tooltip" data-placement="right" data-container="body" title="<%= dicts.bottomBar.tblList %>"></div>
+    
+    <!-- sql -->
+
+      <div id="sqlTab" class="sliderBtn bottomMenuTab" data-toggle="tooltip" data-placement="right" data-container="body" title="SQL"></div>
+    
+    <!-- udf -->
+
+      <div id="udfTab" class="sliderBtn bottomMenuTab" data-toggle="tooltip" data-placement="right" data-container="body" title="UDF"></div>
+  
+    
+    <!-- help section -->
+    <% if (dicts.tutor.name == "workbookDemo") { %>
+
+      <div id="helpTab" class="sliderBtn bottomMenuTab"> </div>
+    
+    <% } else { %>
+
+      <div id="helpTab" class="sliderBtn bottomMenuTab" data-toggle="tooltip" data-placement="right" data-container="body" title="<%= dicts.bottomBar.help %>"></div>
+      
+      <% } %>
+    </div>
 </div>
 <!-- End of Menu Bar -->
