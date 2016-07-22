@@ -51,6 +51,7 @@ var gExportNoCheck = false;
 var gAlwaysDelete = false;
 var gEnableCopyCols = false;
 var gEnableJoinKeyCheck = false;
+var gShowDroppedTablesImage = false;
 var gMutePromises = true; // mutes .when() console logs
 var gExportFDelim = "\t";
 var gExportRDelim = "\n";

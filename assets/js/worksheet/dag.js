@@ -1698,7 +1698,7 @@ window.Dag = (function($, Dag) {
             maxWidth = 120;
             x = left - 42;
         } else {
-            if ($dagTable.hasClass('Dropped')) {
+            if (gShowDroppedTablesImage && $dagTable.hasClass('Dropped')) {
                 tableImage = tGrayImage;
             } else {
                 tableImage = tImage;
