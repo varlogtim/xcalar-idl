@@ -264,6 +264,15 @@ window.Support = (function(Support, $) {
         });
     };
 
+    Support.downloadLRQ = function(lrqName) {
+        xcalarApiExportRetina(tHandle, lrqName)
+        .then(function(a) {
+            xcHelper.downloadAsFile("retina-yay.tar.gz", a.retina, true);
+        });
+    };
+
+    //Support.uploadLRQ = function(lrqName, overwriteUDF, )
+
     function sessionHoldCheck() {
         var deferred = jQuery.Deferred();
 

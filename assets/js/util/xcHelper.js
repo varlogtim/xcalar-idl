@@ -510,11 +510,17 @@ window.xcHelper = (function($, xcHelper) {
         return new Date().getTime();
     };
 
-    xcHelper.downloadAsFile = function(fileName, fileContents) {
+    xcHelper.downloadAsFile = function(fileName, fileContents, raw) {
         // XXX FIXME fix it if you can find a way to download it as .py file
         var element = document.createElement('a');
-        element.setAttribute('href', 'data:text/plain;charset=utf-8,' +
-                                encodeURIComponent(fileContents));
+        var contents = fileContents;
+        if (!raw) {
+            contents = 'data:text/plain;charset=utf-8,' +
+                       encodeURIComponent(fileContents);
+        } else {
+            contents =  'data:text/plain;base64,' + btoa(fileContents);
+        }
+        element.setAttribute('href', contents);
         element.setAttribute('download', fileName);
         element.style.display = 'none';
         document.body.appendChild(element);
@@ -523,6 +529,7 @@ window.xcHelper = (function($, xcHelper) {
 
         document.body.removeChild(element);
     };
+
 
     xcHelper.timeStampTranslater = function(unixTime) {
         if (unixTime == null) {
