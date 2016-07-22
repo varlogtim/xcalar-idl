@@ -63,6 +63,16 @@ module.exports = function(grunt) {
         }
       }
     },
+    less: {
+      dev: {
+        files: {
+          'assets/stylesheets/css/style.css': 'assets/stylesheets/less/style.less',
+          'assets/stylesheets/css/login.css': 'assets/stylesheets/less/login.less',
+          'assets/newStylesheets/css/login.css': 'assets/newStylesheets/less/login.less',
+          'assets/newStylesheets/css/style.css': 'assets/newStylesheets/less/style.less'
+        }
+      }
+    },
 
     prettify: prettifyOptions,
 
@@ -74,6 +84,7 @@ module.exports = function(grunt) {
           atBegin: true,
         }
       },
+
       withReload: {
         options: {
           livereload: true
@@ -85,7 +96,14 @@ module.exports = function(grunt) {
           livereload: true
         },
         files: ['assets/stylesheets/css/**/*.css', 'assets/newStylesheets/css/**/*.css']
-      }
+      },
+      less: {
+        files: ['assets/stylesheets/less/**/*.less', 'assets/newStylesheets/less/**/*.less'],
+        tasks: ['less'],
+        options: {
+          atBegin: true,
+        }
+      },
     },
     concurrent: {
             options: {
@@ -93,6 +111,9 @@ module.exports = function(grunt) {
             },
             set1: ['customWatch:withReload', 'customWatch:normal'],
             set2: ['customWatch:withReloadCssOnly', 'customWatch:normal'],
+            set3: [ 'customWatch:normal', 'customWatch:less'],
+            set4: ['customWatch:withReload', 'customWatch:normal', 'customWatch:less'],
+            set5: ['customWatch:withReloadCssOnly', 'customWatch:normal','customWatch:less'],
         },
 
   });
@@ -104,6 +125,7 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-clean');
   grunt.loadNpmTasks('grunt-prettify');
   grunt.loadNpmTasks('grunt-concurrent');
+   grunt.loadNpmTasks('grunt-contrib-less');
 
   grunt.registerTask('html', ['includes']);
   grunt.registerTask('template', function() {
@@ -114,6 +136,9 @@ module.exports = function(grunt) {
   grunt.registerTask("watch", ['customWatch:normal']);
   grunt.registerTask("reload", ['concurrent:set1']);
   grunt.registerTask("reloadCSS", ['concurrent:set2']);
+  grunt.registerTask("watchLess", ['concurrent:set3']);
+  grunt.registerTask("reloadLess", ['concurrent:set4']);
+  grunt.registerTask("reloadCSSLess", ['concurrent:set5']);
 
   // used for prod
   grunt.registerTask("render", ['html', 'template', 'clean', 'prettify']);
