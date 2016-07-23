@@ -292,8 +292,6 @@ describe('Constructor Test', function() {
 
         expect(userPref).to.have.property('datasetListView');
         expect(userPref).to.have.property('browserListView');
-        expect(userPref).to.have.property('lastRightSideBar')
-        .and.to.be.null;
         expect(userPref).to.have.property('activeWorksheet')
         .and.to.be.null;
         expect(userPref).to.have.property('keepJoinTables');

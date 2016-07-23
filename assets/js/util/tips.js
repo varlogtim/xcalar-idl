@@ -65,7 +65,7 @@ window.Tips = (function($, Tips) {
         } else {
             addTopMenuBarTips();
             addBottomAreaTips();
-            addRightSideBarTips();
+            addBottomMenuTips();
             addDatastoreTips();
 
             if ($("#dagPanel").hasClass("hidden") ||
@@ -231,16 +231,7 @@ window.Tips = (function($, Tips) {
         });
     }
 
-    function addRightSideBarTips() {
-        var $rightSideBar = $("#rightSideBar");
-
-        // pull out icon
-        setTooltip($("#pulloutTab"), {
-            "title"    : TipsTStr.PullRightsidebar,
-            "placement": "left",
-            "container": getIdStr($rightSideBar)
-        });
-
+    function addBottomMenuTips() {
         // tablelist in activeTableList
         var $tableList = $("#activeTableList").find(".tableListBox").eq(0);
         setTooltip($tableList, {

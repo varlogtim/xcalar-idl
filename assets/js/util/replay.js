@@ -373,7 +373,6 @@ window.Replay = (function($, Replay) {
 
         XcalarRenameTable(oldTableName, newTableName, null)
         .then(function() {
-            // does renames for gTables, rightsidebar, dag
             table.tableName = newTableName;
 
             TableList.renameTable(tableId, newTableName);
@@ -1147,8 +1146,6 @@ window.Replay = (function($, Replay) {
                 $tableList = $('#archivedTableList');
             } else if (tableType === TableType.Orphan) {
                 $tableList = $('#orphanedTableList');
-            } else if (tableType === TableType.Agg) {
-                $tableList = $("#aggregateTableList");
             } else {
                 console.error(tableType, "not support redo!");
             }

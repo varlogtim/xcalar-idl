@@ -2387,10 +2387,6 @@ window.TblManager = (function($, TblManager) {
                         RowScroller.genFirstVisibleRowNum();
                     }
                 }, 300);
-            } else if (tableType === TableType.Agg) {
-                // XXX as delete table is temporarily disabled
-                // this case is not tested yet!
-                TableList.removeAggTable(tableId);
             } else if (tableType === TableType.Archived) {
                 TableList.removeTable(tableId);
             }

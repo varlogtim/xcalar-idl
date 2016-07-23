@@ -894,7 +894,7 @@ window.ColManager = (function($, ColManager) {
         $editableHead.val(newName).attr("value", newName);
 
 
-        // adjust rightsidebar column name
+        // adjust tablelist column name
         TableList.updateColName(tableId, colNum, newName);
 
         SQL.add("Rename Column", {

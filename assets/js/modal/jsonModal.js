@@ -722,7 +722,7 @@ window.JSONModal = (function($, JSONModal) {
             $modalBg.hide().removeClass('light');
 
             $('#sideBarModal').hide();
-            $('#rightSideBar').removeClass('modalOpen');
+            $('#bottomMenu').removeClass('modalOpen');
             $("body").removeClass("hideScroll");
             $('.tooltip').hide();
         }});
@@ -1294,7 +1294,7 @@ window.JSONModal = (function($, JSONModal) {
                     longTimer = 0;
                 }
                 $('#sideBarModal').fadeIn(longTimer);
-                $('#rightSideBar').addClass('modalOpen');
+                $('#bottomMenu').addClass('modalOpen');
                 $modalBg.addClass('light').fadeIn(longTimer);
                 setTimeout(function() {
                     $jsonModal.fadeIn(shortTimer);

@@ -318,8 +318,6 @@ window.Redo = (function($, Redo) {
                 $tableList = $('#archivedTableList');
             } else if (tableType === TableType.Orphan) {
                 $tableList = $('#orphanedTableList');
-            } else if (tableType === TableType.Agg) {
-                $tableList = $("#aggregateTableList");
             } else {
                 console.error(tableType, "not support redo!");
             }

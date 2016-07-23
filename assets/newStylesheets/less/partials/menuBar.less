@@ -1,42 +1,228 @@
-// ========== Right Side Bar ==========
-#rightSideBar {
-    position: absolute !important;
-    .position(@right: -385px, @bottom: 74px);
-    .size(@width: 395px,  @height: ~"calc(100% - 152px)");
-    border-left: 1px solid @color-bar-border;
-    background-color: @color-background-sidebar;
+ /* Menu Bar  */
+#workbookBtn {
+    //XX 2.0 temp hidden
+    display: none;
+
+    .position(relative, @top: 30%);
+    float: left;
+    margin-left: 10px;
+    box-shadow: -2px 2px 0px 0px @color-shadow-strong;
+    .rounded;
+
+    .icon {
+        .size(100%, 100%);
+        .image("../../images/workbookBtn.png", 50%, 50%);
+        background-size: 18px 17px;
+    }
+}
+
+#homeBtn {
+    .size(@width: 100%, @height: @height-homeBtn);
+    display: inline-block;
+    position: relative;
+
+    &::after {
+        content: "";
+        display: block;
+        position: absolute;
+        bottom: 0px;
+        width: 100%;
+        height: 4px;
+        z-index: 1234;
+        box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.2);
+        pointer-events: none;
+    }
+
+    @width-logo: 40px;
+    @height-logo: 41px;
+    @top-logo: (@height-homeBtn - @height-logo) / 2;
+    @left-logo: (@width-mainMenu - @width-logo) / 2;
+    .logo {
+        .position(absolute, @top: @top-logo, @left: @left-logo);
+        .size(@width: @width-logo, @height: @height-logo);
+        .image("../../images/new/logo/xi-logo.png");
+    }
+}
+
+#menuBar {
+    .size(@width: @width-mainMenu, @height: 100%);
+    overflow: hidden;
+    float: left;
+    position: relative;
+    background-color: @color-bg-select-blue;
+    line-height: 0px;
+    z-index: 40;
+}
+
+.mainMenuTab, .bottomMenuTab {
+    .position(relative);
+    .size(@width: 100%);
+    border-bottom: 1px solid @color-bg-dusk-blue;
+    float: left;
+    cursor: pointer;
+    .noSelection;
+    .transition(background-color 0.1s);
+
+    .mainTab {
+        .size(@width: 100%, @height: @height-mainTab);
+        opacity: 0.6;
+        .transition(opacty 0.1s);
+    }
+    .subTab {
+        .size(@width: 100%, @height: @height-subTab);
+        background-color: @color-bg-light-navy;
+        position: relative;
+        display: none;
+        &.active {
+            background-color: @color-bg-marine;
+            .icon {
+                opacity: 1;
+            }
+        }
+        .icon {
+            opacity: 0.6;
+            .size(@width: 100%, @height: 100%);
+        }
+    }
+
+    &:hover, &.hover {
+        background-color: @color-bg-dusk-blue;
+        color: @color-white;
+        .mainTab {
+            opacity: 1;
+        }
+    }
+
+    &.active {
+        background-color: @color-bg-dusk-blue !important;
+
+        .transition(all 0s);
+        .mainTab {
+            opacity: 1;
+        }
+        .subTab {
+            display: block;
+        }
+    }
+}
+.mainMenuTab.active::after {
+    content: "";
+    display: block;
+    .position(absolute, @top: 0, @left: 0);
+    height: 100%;
+    width: 5px;
+    background-color: @color-border-mainTab-active;
+    top: 0;
+    left: 0;
+}
+.subTab.active::after {
+    content: "";
+    display: block;
+    .position(absolute, @top: 0, @left: 0);
+    position: absolute;
+    height: 100%;
+    width: 5px;
+    background-color: @color-border-subTab-active;
+    z-index: 1;
+}
+
+#workspaceTab {
+    .mainTab {
+        .image("../../images/new/menu/worksheet-main.png", 50%, 50%);
+    }
+}
+#dataStoresTab {
+    .mainTab {
+        .image("../../images/new/menu/datastore-main.png", 50%, 50%);
+    }
+    // two icons in #contentHeaderLeft
+    #inButton .icon {
+        .image("../../images/new/menu/datastore-in.png", 50%, 50%);
+    }
+
+    #outButton .icon {
+        .image("../../images/new/menu/datastore-out.png", 50%, 50%);
+    }
+}
+#monitorTab {
+    .mainTab {
+        .image("../../images/new/menu/monitor-main.png", 50%, 50%);
+    }
+}
+#schedulerTab {
+    .mainTab {
+        .image("../../images/new/menu/scheduler-main.png", 50%, 50%);
+    }
+    #dataflowButton .icon {
+        .image("../../images/new/menu/scheduler-dfg.png", 50%, 50%);
+    }
+
+    #schedulesButton .icon {
+        .image("../../images/new/menu/scheduler-sub.png", 50%, 50%);
+    }
+}
+#extensionTab {
+    .mainTab {
+        .image("../../images/new/menu/extension-main.png", 50%, 50%);
+    }
+}
+
+#bottomMenuTabs {
+    .size(@width: 100%);
+    .position(absolute, @bottom: 0px);
+
+    .bottomMenuTab {
+        line-height: 15px;
+        .size(@width: 100%, @height: @height-mainTab);
+    
+        &:first-child {
+            border-top: 1px solid @color-bg-dusk-blue;
+        }
+    }
+}
+
+#tableListTab {
+    .image("../../images/new/menu/tableList-main-white.png", 50%, 50%);
+    &.active {
+        .image("../../images/new/menu/tableList-main-blue.png", 50%, 50%);
+    }
+}
+#sqlTab {
+    .image("../../images/new/menu/sql-main-white.png", 50%, 50%);
+    &.active {
+        .image("../../images/new/menu/sql-main-blue.png", 50%, 50%);
+    }
+}
+#udfTab {
+    .image("../../images/new/menu/udf-main-white.png", 50%, 50%);
+    &.active {
+        // .image("../../images/new/menu/udf-main-blue.png", 50%, 50%);
+    }
+}
+#helpTab {
+    .image("../../images/new/menu/info-main-white.png", 50%, 50%);
+    &.active {
+        // .image("../../images/new/menu/info-main-blue.png", 50%, 50%);
+    }
+}
+
+// ========== Bottom Menu ==========
+#bottomMenu {
+    .position(absolute, @left: -395px, @bottom: 0px);
+    .size(@width: 395px,  @height: ~"calc(100% - @{height-homeBtn})");
     z-index: 20;
-    box-shadow: -2px 0px 2px 3px rgba(0,0,0,0.1), inset 0px 3px 3px rgba(0,0,0,0.4);
-    .transition (right 0.3s);
+    .transition(left 0.3s);
 
     &.open {
-        right: 0px !important;
+        .position(@left: @width-mainMenu);
         .ui-resizable-handle {
-            &.ui-resizable-w {
+            &.ui-resizable-e {
                 display: block !important;
             }
         }
     }
 
     &.small {
-        #archivedTableList, #orphanedTableList {
-            .buttonWrap {
-                height: 78px !important;
-                .btnLarge {
-                    min-width: 200px;
-                }
-            }
-        }
-
-        #orphanedTablesList {
-            height: ~"calc(100% - 145px)" !important;
-        }
-        #archivedTableList {
-            .tableLists {
-                height: ~"calc(100% - 110px)" !important;
-            }
-        }
-
         .henpGenSubPart {
             .wrap {
                 left: 0px;
@@ -74,9 +260,20 @@
         }
 
         #bottomMenuTabs {
-            .position(absolute, @right: 12px, @bottom: -3px);
-            padding: 0;
-            white-space: nowrap;
+            .size(@height: 36px);
+            background-color: @color-bg-select-blue;
+        
+            .bottomMenuTab {
+                .size(@width: @height-mainTab, @height: 100%);
+                float: left;
+                border-top: none;
+                border-bottom: none;
+                border-right: 1px solid @color-bg-dusk-blue;
+
+                &:first-child {
+                    border-left: 1px solid @color-bg-dusk-blue;
+                }
+            }
         }
 
         .heading {
@@ -84,32 +281,19 @@
             .cursor-move;
         }
 
-        .rightBarContent {
-            margin-right: 10px;
-        }
-
-        .rightBarSection {
+        .menuSection {
             .size(@height: ~"calc(100% - 33px)");
         }
 
         #tableListSection {
-
-            .rightBarContent {
+            .content {
                 .size(@height: ~"calc(100% - 35px)");
             }
-        }
-
-        #pulloutTab, .topBorder {
-            display: none;
         }
 
         .ui-resizable-handle {
             display: block !important;
         }
-    }
-
-    &:not(.poppedOut) {
-        left: auto !important;
     }
 
     &.modalOpen {
@@ -118,7 +302,7 @@
             display: none !important;
         }
         &.open {
-           .ui-resizable-handle.ui-resizable-w {
+           .ui-resizable-handle.ui-resizable-e {
                 display: none !important;
                 z-index: -1;
            }
@@ -129,22 +313,17 @@
                 display: none;
             }
         }
-
-        #pulloutTab {
-            z-index: 10;
-        }
     }
 
     .ui-resizable-handle {
         display: none !important;
         z-index: 20 !important;
-        &.ui-resizable-w {
-           left: -9px;
+        &.ui-resizable-e {
+           right: 0px;
         }
     }
     .sideBarTopButtons {
         .position(relative);
-        .size(@height: 35px);
         z-index: 1;
         .noSelection;
 
@@ -186,40 +365,7 @@
         }
     }
 
-    .heading {
-        .size(@width: 100%, @height: 35px);
-        text-align: left;
-        padding-top: 2px;
-        padding-left: 15px;
-        overflow: hidden;
-        pointer-events: none;
-        cursor: default;
-        .noSelection;
-
-        h2 {
-            .size(@width: ~"calc(100% - 118px)");
-            .font(@line-height: 35px,  @weight: bold, @color: @color-white);
-            display: inline-block;
-            .textOverflowOneLine;
-        }
-    }
-
-    .rightBarContent {
-        .position(relative);
-        .size(@width: auto, @height: ~"calc(100% - 35px)");
-        margin-left: 10px;
-        background-color: @color-background-darkGray;
-    }
-
-    .topBorder {
-        .position(absolute, @bottom: 60px, @left: -7px);
-        .size(@width: 7px, @height: 1px);
-        background-color: @color-bar-border;
-        z-index: 20;
-        box-shadow: -1px -2px 5px rgba(0,0,0,.3);
-    }
-
-    .rightBarSection {
+    .menuSection {
         .position(absolute, @top: 0, @left: 0);
         .size(@width: 100%, @height: 100%);
         display: none;
@@ -229,46 +375,62 @@
             display: block;
         }
     }
-}
 
-/* ========== Table List Section in Right Side Bar ========== */
-#tableListSection {
-    .rightBarContent {
-        .size(@width: ~"calc(100% - 20px)", @height: ~"calc(100% - 45px)");
+    .heading {
+        .size(@width: 100%, @height: 35px);
+        text-align: left;
+        padding-top: 2px;
+        padding-left: 15px;
+        overflow: hidden;
+        pointer-events: none;
+        cursor: default;
+        .noSelection;
+        background-color: @color-bg-marine-transparent;
+
+        h2 {
+            .size(@width: ~"calc(100% - 118px)");
+            .font(@line-height: 35px,  @weight: bold, @color: @color-white);
+            display: inline-block;
+            .textOverflowOneLine;
+        }
+    }
+
+    .menuContent {
+        .position(relative);
+        .size(@width: auto, @height: ~"calc(100% - 35px)");
+        background-color: @color-bg-marine;
     }
 }
 
+/* ========== Table List Section ========== */
 #tableListSectionTabs {
-    .size(@width: ~"calc(100% + 2px)", @height: 35px);
-    border-top: 1px solid @color-table-borderGray;
-    border-left: 1px solid @color-table-borderGray;
-    margin-left: -1px;
+    .size(@width: 100%, @height: 35px);
     .flex-display;
 
     .tableListSectionTab {
         .flex(1 1 33%);
         .size(@height: 100%);
-        // float: left;
         display: inline-block;
-        .font(@weight: 700, @line-height: 35px, @size: 13px, @color: @color-text-darkGray);
+        .font(@weight: bold, @line-height: 35px, @size: 13px, @color: @color-white);
         text-align: center;
-        border-right: 1px solid @color-table-borderGray;
-        border-bottom: 1px solid @color-table-borderGray;
+        border-right: 1px solid @color-border-tiber-blue;
+        background-color: @color-bg-light-navy;
         padding: 0 5px;
-        .gray-gradient;
         .noSelection;
         .textOverflow;
         cursor: pointer;
 
+        &:last-child {
+            border-right: none;
+        }
+
         &:hover {
-            .gray-inverse-gradient;
+            box-shadow: inset 0 2px 0 0 @color-bg-dusk-blue;
         }
 
         &.active {
-            .font(@size: 14px, @color: @color-white);
-            border-bottom: 1px solid @color-tab-borderBlue;
-            .action-gradient;
-            text-shadow: 2px 2px rgba(0,0,0,.3);
+            .font(@color: @color-font-bright-light-blue);
+            background-color: @color-bg-tiber-blue;
         }
     }
 }
@@ -281,8 +443,7 @@
 
     .tableListSection {
         display: none;
-        width: 100%;
-        height: ~"calc(100% - 10px)";
+        .size(@width: 100%, @height: 100%);
         margin: 0 auto;
 
         &:first-child {
@@ -295,88 +456,100 @@
         margin: 0 10px;
     }
 
-    .buttonWrap {
-        .flex-display;
-        .flex-wrap(wrap);
-        .justify-content(space-between);
-        margin: 10px 5px 0px;
-        height: 39px;
+    .buttonSection {
+        .size(@height: 50px);
+        background-color: @color-bg-tiber-blue;
+        padding: 0 15px;
 
-        .btnLarge {
-            margin: 0px 5px 9px;
-            .flex(1 0 181px);
-            white-space: nowrap;
-            text-indent: 2px;
+        > div {
+            .vertical-align;
+            opacity: 0.5;
 
-            .icon {
-                .size(@width: 25px, @height: 100%);
+            &:hover {
+                opacity: 1;
+            }
+        }
+
+        .submit {
+            float: left;
+            .size(@width: 30px, @height: 30px);
+            margin-right: 10px;
+
+            &.archive {
+                .image("../../images/sidebar/archive.png", 50%, 50%);
             }
 
-            &.submitBtn {
-                .icon {
-                    .image("../../images/datastore/send-single.png", 50%, 50%);
-                }
+            &.active {
+                .image("../../images/sidebar/active.png", 50%, 50%);
             }
 
-            &.deleteBtn {
+            &.delete {
+                background-color: @color-bg-boston-blue;
                 .icon {
-                    .image("../../images/garbageThick.png", 50%, 50%);
+                    .size(100%, 100%);
+                    .image("../../images/sidebar/trash.png", 50%, 50%);
                 }
             }
         }
-    }
 
-    #archiveTablesBtn {
-        .icon {
-            .image("../../images/datastore/export-single.png", 50%, 50%);
+        .divider {
+            .size(@width: 1px, @height: 36px);
+            opacity: 1;
+            background-color: @color-bg-light-navy;
+            float: right;
+            margin: 0 10px;
         }
-    }
 
-    .secondButtonWrap {
-        margin-right: 21px;
-        margin-top: 4px;
-        height: 24px;
-        float: right;
-        position: relative;
-        z-index: 2;
+        .refresh {
+            .size(@width: 22px, @height: 22px);
+            float: right;
+            .image("../../images/refresh-blue.png", 50%, 50%);
+        }
 
-        .btn {
-            .size (23px, 23px);
+        .select {
+            .size (22px, 22px);
             float: right;
             margin: 0 4px;
-            box-shadow: -1px 1px 1px 0px rgba(0, 0, 0, 0.3);
-            border-bottom: 1px solid rgba(0,0,0,0.3);
-            border-left: 1px solid rgba(0,0,0,0.3);
+            opacity: 0.5;
+            .vertical-align;
 
-            &:active {
-                box-shadow: inset 0px 1px 1px 0px rgba(0, 0, 0, 0.5),
-                            0px 1px 1px 0 rgba(255, 255, 255, 0.3);
+            &:hover {
+                opacity: 1;
             }
-        }
-        .selectAll .icon {
-            margin-left: 1px;
-            width: 20px;
-            .image("../../images/select-all-white.png", 50%, 50%);
-        }
-        .clearAll .icon {
-            margin-left: 1px;
-            width: 20px;
-            .image("../../images/select-none-white.png", 50%, 50%);
+
+            &.selectAll {
+                .image("../../images/select-all-white.png", 50%, 50%);
+            }
+
+            &.clearAll {
+                .image("../../images/select-none-white.png", 50%, 50%);
+            }
         }
     }
 
     .tableLists {
+        // .position(relative);
+        .size(@height: ~"calc(100% - 50px)", @max-width: 490px);
+        overflow: hidden;
+        overflow-y: auto;
+        color: @color-white;
+
         .timeLine {
             .size(@width: 100%);
             margin-top: -1px;
-            .font(@line-height: 25px, @size: 13px, @color: @color-text-darkGray);
+            .font(@line-height: 25px, @size: 13px);
             padding-top: 4px;
         }
 
         .tableInfo {
             .size(@width: 100%, @min-height: 38px);
             padding: 5px 5px 0 0;
-            .font(@line-height: 25px, @size: 13px, @color: @color-text-darkGray);
+            .font(@line-height: 25px, @size: 13px);
+            opacity: 0.7;
+
+            &:hover {
+                opacity: 1;
+            }
 
             &.hiddenWS {
                 opacity: 0.6;
@@ -385,20 +558,6 @@
             &.transition {
                 min-height: 0;
                 height: 38px;
-            }
-
-            &:hover .tableListBox .iconWrap {
-                .action-gradient;
-            }
-
-            .active {
-                .tableListBox .iconWrap {
-                   .lightGray-gradient;
-                }
-
-                &:hover .tableListBox .iconWrap {
-                    .action-gradient;
-                }
             }
 
             &.highlight {
@@ -439,58 +598,64 @@
 
         .tableListBox {
             .size(@width: 76%, @height: 25px);
-            .rounded;
-            background-color: @color-white;
-            .flex-display;
-            box-shadow: 1px 2px 1px rgba(0,0,0,.2);
-            cursor: pointer;
+            .font(@color: @color-font-pinkish-grey);
             white-space: nowrap;
             overflow: hidden;
 
-            .iconWrap {
-                display: inline-block;
-                .size(@height: 100%);
-                .gray-gradient;
-                float: left;
-                margin-right: 10px;
-                .rounded(3px 0 0 3px);
+            &.active {
+                color: @color-font-bright-light-blue;
+                
+                .expand { 
+                    .image("../../images/arrow-down-blue-sm.png", 50%, 50%);
+                }
 
-                .icon {
-                    .size(25px, 25px);
-                    .image("../../images/dagIcons/table-icon.png", 50%, 50%);
+                .addTableBtn {
+                    .image("../../images/sidebar/table_blue.png", 50%, 50%);
+                    background-size: 16px 16px;
+                    &:hover {
+                        border: 1px solid @color-border-softBlue;
+                    }
+                }
+            }
+
+            > span {
+                display: inline-block;
+                float: left;
+            }
+
+            .expand {
+                .size(10px, 25px);
+                .image("../../images/arrow-right-gray-sm.png", 50%, 50%);
+                margin-right: 5px;
+            }
+
+            .addTableBtn {
+                .size(16px, 16px);
+                .image("../../images/sidebar/table.png", 50%, 50%);
+                margin-right: 5px;
+                background-size: 16px 16px;
+                .vertical-align;
+                cursor: pointer;
+
+                &:hover {
+                    background-image: none;
+                    border: 1px solid @color-border-pinkish-grey;
+                }
+
+                &.selected {
+                    .image("../../images/sidebar/checkbox-selected.png", 50%, 50%);
+                    border: none;
+
+                    ~ .tableName, ~ .numCols {
+                        color: @color-font-bright-light-blue;
+                    }
                 }
             }
 
             .tableName {
-                display: inline-block;
-                white-space: nowrap;
-                .flex(1 0 0px);
-            }
-
-            .numCols {
-                float: right;
-                color: @color-text-topAction;
-                margin-right: 10px;
-                margin-left: 2px;
-            }
-
-            .addTableBtn {
-                .size(@width: 24px, @height: 100%);
-                display: inline-block;
-                float: right;
-                border-left: 1px solid @color-border-bottomGrayMed;
-                background: url(../../images/checkmark-inactive.png) 50% 50% no-repeat,
-                            linear-gradient(@color-background-topGrayMed, @color-background-bottomGrayMed);
-
-                &:hover {
-                    background: url(../../images/checkmark-inactive.png) 50% 50% no-repeat,
-                                linear-gradient(@color-background-topGrayMed, @color-background-midGrayMed);
-                }
-
-                &.selected {
-                    background: url(../../images/checkmark-inactive.png) 50% 50% no-repeat,
-                                linear-gradient(@color-background-topAction, @color-background-bottomAction);
-                }
+                max-width: 200px;
+                .textOverflowOneLine;
+                margin-right: 2px;
             }
         }
 
@@ -505,18 +670,17 @@
             li {
                 .size(@height: 20px);
                 margin-top: 5px;
-                .rounded;
-                .font(@size: 11px, @line-height: 20px, @color: @color-text-columnList);
-                background-color: @color-background-columnList;
+                .font(@size: 11px, @line-height: 20px, @color: @color-white);
+                background-color: transparent;
+                border: 1px solid @color-border-pinkish-grey;
 
-                .typeList(@w: 22px, @h: 20px);
+                .typeList(@w: 20px, @h: 20px);
 
                 .iconWrap {
-                    .size(@width: 22px, @height: 20px);
-                    .rounded(3px 0 0 3px);
+                    .size(@width: 22px, @height: 100%);
                     display: inline-block;
                     float: left;
-                    background-color: #bbbbbb;
+                    background-color: @color-bg-pinkish-grey;
                 }
 
                 .text {
@@ -529,10 +693,10 @@
 
 
                 &:hover {
-                    background-color: #B5B5B5;
-
+                    border: 1px solid @color-border-softBlue;
+                    color: @color-font-softBlue;
                     .iconWrap {
-                        background-color: #a5a5a5;
+                        background-color: @color-bg-softBlue;
                     }
                 }
             }
@@ -540,113 +704,10 @@
     }
 }
 
-#activeTableList, #archivedTableList, #orphanedTableList {
-    max-width: 490px;
-}
-
-#aggregateTableList {
-    .tableNameWrap {
-        .size(@width: 25%, @height: 25px);
-        float: left;
-        font-size: 12px;
-        padding-left: 10px;
-        white-space: nowrap;
-        text-align: right;
-        padding-right: 10px;
-    }
-
-    .aggStrWrap {
-        .size(@width: 34%, @height: 25px);
-        float: left;
-        .rounded(3px 0 0 3px);
-        .gray-gradient;
-        padding: 0 10px;
-        box-shadow: 0px 2px 1px rgba(0,0,0,.2);
-        text-align: center;
-    }
-
-    .tableListBox {
-        .size(@width: 39%, @height: 25px);
-        .rounded(0 3px 3px 0);
-        cursor: default;
-        padding-left: 10px;
-
-        .aggVal {
-            .size(@width: ~"calc(100% - 24px)");
-            .textOverflowOneLine;
-        }
-
-        .addTableBtn {
-            cursor: pointer;
-            // XXX temporary disable it
-            display: none;
-        }
-
-        .worksheetInfo {
-            .size(@width: 100px);
-            text-align: right;
-            float: right;
-            padding-right: 10px;
-            .font(@size: 11px, @color: @color-text-darkGray);
-            .textOverflow;
-
-            &.inactive {
-                display: none;
-            }
-        }
-    }
-
-    .tableInfo:first-child {
-        padding-top: 34px;
-        margin-top: -1px;
-        min-height: 67px;
-    }
-}
-
-#activeTableList, #archivedTableList {
-    position: relative;
-    .secondButtonWrap {
-        position: absolute;
-        right: 0px;
-        .selectAll ,.clearAll{
-            display: none;
-        }
-    }
-    .tableLists {
-        overflow: hidden;
-        overflow-y: auto;
-        height: ~"calc(100% - 70px)";
-        margin-top: 30px;
-        .timeLine:first-child {
-            padding-top: 0px;
-        }
-    }
-}
-#activeTableList {
-    .buttonWrap {
-        .justify-content(flex-end);
-        .btnLarge {
-            max-width: 338px;
-            margin-right: 20px;
-            margin-left: 20px;
-        }
-    }
-}
-
 #orphanedTableList {
-    .divider {
-        height: 1px;
-        background-color: @color-background-sidebar;
-        margin: 0 10px;
-    }
-
-    .secondButtonWrap {
-        margin-right: 6px;
-        height: 30px;
-    }
-
     .searchbarArea {
         margin-left: 12%;
+        margin-top: 10px;
         clear: both;
         .size(@width: 75%, @height: 25px);
         .position(relative);
@@ -678,10 +739,7 @@
 
     .tableLists {
         margin: 5px 0 0 0;
-        overflow: hidden;
-        overflow-y: auto;
-        height: ~"calc(100% - 105px)";
-        position: relative;
+        height: ~"calc(100% - 90px)";
 
         .tableListBox {
             margin-left: 12%;
@@ -697,24 +755,22 @@
 }
 
 
-/* ========== End Of Table List Section in Right Side Bar ========== */
+/* ========== End Of Table List Section ========== */
 
-/* ========== SQL Section in Right Side Bar ========== */
+/* ========== SQL Section ========== */
 #sqlSection {
     .size(@height: ~"calc(100% - 10px)");
 
     .container {
         .size(@height: 100%);
         .position(relative);
-        background-color: @color-sql-bg-blue;
         overflow: hidden;
 
         .sqlTextArea {
             .position(absolute, @top: 0);
             .size(@width: 100%, @height: 100%);
             overflow-y: scroll;
-            background-color: transparent;
-            padding-bottom: 20px;
+            padding-bottom: 10px;
 
             .sqlContentWrap, .cliWrap {
                 .size(@width: 100%);
@@ -722,7 +778,7 @@
             }
 
             .sqlContentWrap {
-                padding: 2px;
+                padding: 2px 2px 2px 10px;
             }
         }
     }
@@ -780,100 +836,56 @@
         }
     }
 }
-/* ========== End Of SQL Section in Right Side Bar ========== */
+/* ========== End Of SQL Section ========== */
 
-/* ========== CLI Section in Right Side Bar ========== */
-#cliSection {
-    .textBoxContainer {
-        .size(@width: 100%, @height: 100%);
-        overflow-y: scroll !important;
-        overflow-x: hidden !important;
-        .position(relative);
+// /* ========== CLI Section ========== */
+// #cliSection {
+//     .textBoxContainer {
+//         .size(@width: 100%, @height: 100%);
+//         overflow-y: scroll !important;
+//         overflow-x: hidden !important;
+//         .position(relative);
 
-        .lineArea {
-            .size(@width: 20px, @height: 100%);
-            padding-left: 10px;
-            padding-bottom: 10px;
-            background: transparent;
-            outline: none;
-            float: left;
-            .noSelection;
-            .lineUnit {
-                .size(@width: 100%, @height: auto);
-                padding: 0px;
-                background: transparent;
-                outline: none;
-            }
-        }
+//         .lineArea {
+//             .size(@width: 20px, @height: 100%);
+//             padding-left: 10px;
+//             padding-bottom: 10px;
+//             background: transparent;
+//             outline: none;
+//             float: left;
+//             .noSelection;
+//             .lineUnit {
+//                 .size(@width: 100%, @height: auto);
+//                 padding: 0px;
+//                 background: transparent;
+//                 outline: none;
+//             }
+//         }
 
-        .cliArea {
-            .size(@width: ~"calc(100% - 20px)", @height: 100%);
-            background: @color-sql-hover;
-            outline: none;
-            float: left;
-            .cliDisabled {
-                background: @color-sql-hover !important;
-                color: black !important;
-            }
-            .cliUnit {
-                .size(@width: 100%, @height: auto, @min-height: 20px);
-                .font(@size: 13px, @color: @color-white);
-                padding: 0 0 0 2px;
-                background: @color-sql-blue;
-                outline: none;
-                .wordwrap;
-            }
-        }
-    }
+//         .cliArea {
+//             .size(@width: ~"calc(100% - 20px)", @height: 100%);
+//             background: @color-sql-hover;
+//             outline: none;
+//             float: left;
+//             .cliDisabled {
+//                 background: @color-sql-hover !important;
+//                 color: black !important;
+//             }
+//             .cliUnit {
+//                 .size(@width: 100%, @height: auto, @min-height: 20px);
+//                 .font(@size: 13px, @color: @color-white);
+//                 padding: 0 0 0 2px;
+//                 background: @color-sql-blue;
+//                 outline: none;
+//                 .wordwrap;
+//             }
+//         }
+//     }
 
-}
-/* ========== End Of CLI in Right Side Bar ========== */
+// }
+// /* ========== End Of CLI ========== */
 
-/* ========== Scratch Pad Section in Right Side Bar ========== */
-#scratchPadSection {
-    .textBoxContainer {
-        .size(@width: 100%, @height: 100%);
-        overflow: scroll !important;
-        .position(relative);
-
-        .lineArea {
-            .size(@width: 20px, @height: 100%);
-            padding-left: 10px;
-            padding-bottom: 10px;
-            background: transparent;
-            outline: none;
-            float: left;
-            .lineUnit {
-                .size(@width: 100%, @height: auto);
-                padding: 0px;
-                background: transparent;
-                outline: none;
-            }
-        }
-
-        .cliArea {
-            .size(@width: ~"calc(100% - 20px)", @height: 100%);
-            background: @color-sql-hover;
-            outline: none;
-            float: left;
-            .cliDisabled {
-                background: @color-sql-hover !important;
-                color: black !important;
-            }
-            .cliUnit {
-                .size(@width: 100%, @height: auto, @min-height: 20px);
-                padding: 0px;
-                background: @color-sql-blue;
-                outline: none;
-                color: white;
-                .wordwrap;
-            }
-        }
-    }
-}
-/* ========== End Of Scratch Pad Section in Right Side Bar ========== */
-
-/* ========== UDF Section in Right Side Bar ========== */
+/* ========== UDF Section ========== */
 #udfSection {
     overflow: visible !important;
     .tabSectionContainer {
@@ -1134,9 +1146,9 @@
     }
 }
 
-/* ========== End Of UDF Section in Right Side Bar ========== */
+/* ========== End Of UDF Section========== */
 
-/* ========== Help Section in Right Side Bar ========== */
+/* ========== Help Section========== */
 #helpSection {
     .border {
         .size(@width: 100%, @height: 1px);
@@ -1307,7 +1319,7 @@
     }
 }
 
-#rightSideBar.small #helpResults .categoryArea {
+#bottomMenu.small #helpResults .categoryArea {
     .linkWrap {
         width: 100%;
         padding-right: 4px;
@@ -1447,16 +1459,5 @@
             margin-left: 20px;
         }
     }
-}
-
-#pulloutTab {
-    .position(absolute, @bottom: 0, @left: -9px);
-    .size(@width: 18px, @height: 60px);
-    border-left: 1px solid @color-bar-border;
-    border-top-left-radius: 3px;
-    box-shadow: -1px 0px 0px rgba(0,0,0,0.3);
-    .image("../../images/sidebar/pullout.png", 4px, 11px);
-    background-color: inherit;
-    z-index: 21;
 }
 // ========== End Of Help Section in Right Side Bar ==========

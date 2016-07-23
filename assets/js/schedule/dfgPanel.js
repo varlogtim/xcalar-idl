@@ -492,8 +492,9 @@ window.DFGPanel = (function($, DFGPanel) {
             $menu.css({'top': top, 'left': left});
             $menu.show();
 
+            // XXX GUI-4745 Need to fix!
             //positioning if dropdown menu is on the right side of screen
-            var leftBoundary = $('#rightSideBar')[0].getBoundingClientRect()
+            var leftBoundary = $('#bottomMenu')[0].getBoundingClientRect()
                                                     .left;
             if ($menu[0].getBoundingClientRect().right > leftBoundary) {
                 left = el[0].getBoundingClientRect().right - $menu.width();

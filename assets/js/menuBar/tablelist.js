@@ -2,29 +2,24 @@ window.TableList = (function($, TableList) {
     var searchHelper;
     TableList.setup = function() {
         // setup table list section listeners
-        var $tabsSection       = $("#tableListSectionTabs");
-        var $tableListSections = $("#tableListSections .tableListSection");
-        var $selectBtns        = $('#activeTableList .secondButtonWrap,' +
-                                   '#archivedTableList .secondButtonWrap,' +
-                                   '#orphanedTableList .secondButtonWrap,' +
-                                   '#aggregateTableList .secondButtonWrap');
+        var $tableListSections = $("#tableListSections");
 
+        // toggle table sections
+        $("#tableListSectionTabs").on("click", ".tableListSectionTab", function() {
+            var $tab = $(this);
+            var index = $tab.index();
 
-        $tabsSection.on("click", ".tableListSectionTab", function() {
-            var $tab  = $(this);
-            var index = $(this).index();
+            $("#tableListSectionTabs .active").removeClass("active");
+            $tab.addClass("active");
 
-            $tabsSection.find(".active").removeClass("active");
-            $tab.addClass('active');
-
-            $tableListSections.hide();
-            $tableListSections.eq(index).show();
+            var $sections = $("#tableListSections .tableListSection").hide();
+            $sections.eq(index).show();
         });
 
         // toggle table list box
-        $("#tableListSections").on("click", ".tableListBox", function() {
+        $tableListSections.on("click", ".tableListBox", function() {
             var $box = $(this);
-            var $ol  = $box.next();
+            var $ol = $box.next();
 
             if ($ol.hasClass("open") && $box.hasClass("active")) {
                 $box.removeClass("active");
@@ -38,89 +33,86 @@ window.TableList = (function($, TableList) {
             }
         });
 
-        $selectBtns.find('.selectAll').click(function() {
-            var $tableListSection = $(this).closest('.tableListSection');
-            var $listBtns = $tableListSection.find('.buttonWrap')
-                                             .find('.btnLarge');
-            $listBtns.removeClass('btnInactive');
-            var $tables = $tableListSection.find('.tableInfo:not(.hiddenWS)')
-                                           .find('.addTableBtn');
-            $tables.addClass('selected');
+        // select a table list
+        $tableListSections.on("click", ".addTableBtn", function() {
+            var $btn = $(this);
+
+            if ($btn.closest(".tableInfo").hasClass("hiddenWS")) {
+                return true;
+            }
+
+            $btn.toggleClass("selected");
+            var $section = $btn.closest(".tableListSection");
+            var $submitBtns = $section.find(".submit");
+
+            if ($section.find(".addTableBtn.selected").length === 0) {
+                $submitBtns.addClass("xc-hidden");
+            } else {
+                $submitBtns.removeClass("xc-hidden");
+            }
+            // stop propogation
+            return false;
         });
 
-        $selectBtns.find('.clearAll').click(function() {
-            var $tableListSection = $(this).closest('.tableListSection');
-            var $listBtns = $tableListSection.find('.buttonWrap')
-                                             .find('.btnLarge');
-            $listBtns.addClass('btnInactive');
-            $tableListSection.find('.addTableBtn').removeClass("selected");
+        $tableListSections.on("click", ".selectAll", function() {
+            var $section = $(this).closest(".tableListSection");
+            $section.find(".submit").removeClass("xc-hidden")
+                    .end()
+                    .find(".tableInfo:not(.hiddenWS) .addTableBtn")
+                    .addClass("selected");
         });
 
-        $selectBtns.find('.refresh').click(function() {
+        $tableListSections.on("click", ".clearAll", function() {
+            var $section = $(this).closest(".tableListSection");
+            $section.find(".submit").addClass("xc-hidden")
+                    .end()
+                    .find(".addTableBtn").removeClass("selected");
+        });
+
+        $("#orphanedTableList .refresh").click(function() {
             searchHelper.clearSearch(function() {
                 clearTableListFilter($("#orphanedTableList"), null);
             });
             TableList.refreshOrphanList(true);
         });
 
-        $("#activeTablesList, #inactiveTablesList, #orphanedTablesList," +
-            "#aggregateTableList")
-        .on("click", ".addTableBtn", function() {
-            var $btn = $(this);
-
-            if ($btn.closest('.tableInfo').hasClass('hiddenWS')) {
-                return true;
-            }
-
-            $btn.toggleClass("selected");
-            var $tableListSection = $btn.closest('.tableListSection');
-            var $listBtns = $tableListSection.find('.buttonWrap')
-                                             .find('.btnLarge');
-
-            if ($tableListSection.find(".addTableBtn.selected").length === 0) {
-                $listBtns.addClass('btnInactive');
-            } else {
-                $listBtns.removeClass('btnInactive');
-            }
-            // stop propogation
-            return false;
-        });
-
-        $('#tableListSections').find(".tableListSection").on("mouseenter", ".tableName, .aggStrWrap", function(){
+        $tableListSections.on("mouseenter", ".tableName", function(){
             xcHelper.autoTooltip(this);
         });
 
-        $('#archiveTablesBtn').click(function() {
+        $tableListSections.on("click", ".submit.archive", function() {
             var tableIds = [];
-            $('#activeTableList').find('.addTableBtn.selected').each(function() {
-                tableIds.push($(this).closest('.tableInfo').data('id'));
+            $("#activeTableList").find(".addTableBtn.selected").each(function() {
+                tableIds.push($(this).closest('.tableInfo').data("id"));
             });
             if (tableIds.length) {
                 TblManager.archiveTables(tableIds);
             }
         });
 
-        $("#submitTablesBtn").click(function() {
-            activeTableAlert(TableType.Archived);
-        });
-
-        $('#submitOrphanedTablesBtn').click(function() {
-            TableList.activeTables(TableType.Orphan);
-            searchHelper.clearSearch(function() {
-                clearTableListFilter($("#orphanedTableList"), null);
-            });
-        });
-
-        $("#submitAggTablesBtn").click(function() {
-            activeTableAlert(TableType.Agg);
-        });
-
-        $("#deleteTablesBtn, #deleteOrphanedTablesBtn").click(function() {
-            var tableType;
-            if ($(this).is('#deleteTablesBtn')) {
-                tableType = TableType.Archived;
+        $tableListSections.on("click", ".submit.active", function() {
+            var $section = $(this).closest(".tableListSection");
+            if ($section.is("#archivedTableList")) {
+                activeTableAlert(TableType.Archived);
+            } else if ($section.is("#orphanedTableList")) {
+                TableList.activeTables(TableType.Orphan);
+                searchHelper.clearSearch(function() {
+                    clearTableListFilter($("#orphanedTableList"), null);
+                });
             } else {
+                console.error("Error Case!");
+            }
+        });
+
+        $tableListSections.on("click", ".submit.delete", function() {
+            var $section = $(this).closest(".tableListSection");
+            var tableType;
+            if ($section.is("#archivedTableList")) {
+                tableType = TableType.Archived;
+            } else if ($section.is("#orphanedTableList")) {
                 tableType = TableType.Orphan;
+            } else {
+                console.error("Error Case!");
             }
 
             Alert.show({
@@ -137,20 +129,21 @@ window.TableList = (function($, TableList) {
             });
         });
 
-        $('#activeTablesList').on("click", ".column", function() {
-            if ($(this).closest('.tableInfo').hasClass('hiddenWS')) {
+        $("#activeTablesList").on("click", ".column", function() {
+            var $col = $(this);
+            if ($(this).closest(".tableInfo").hasClass("hiddenWS")) {
                 return;
             }
-            focusOnTableColumn($(this));
+            focusOnTableColumn($col);
         });
 
 
         searchHelper = new SearchBar($("#orphanedTableList-search"), {
             "removeSelected": function() {
-                $("#orphanedTableList").find('.selected').removeClass('selected');
+                $("#orphanedTableList").find(".selected").removeClass('selected');
             },
             "highlightSelected": function($match) {
-                $match.addClass('selected');
+                $match.addClass("selected");
             },
             "scrollMatchIntoView": function($match) {
                 scrollMatchIntoView($("#orphanedTableList"), $match);
@@ -178,66 +171,14 @@ window.TableList = (function($, TableList) {
     };
 
     TableList.clear = function() {
-        $("#activeTablesList").empty();
-        $("#submitTablesBtn").addClass('btnInactive');
-        $("#deleteTablesBtn").addClass('btnInactive');
-        // $('#archivedTableList .secondButtonWrap').hide();
-        $('#inactiveTablesList').empty();
-        $("#aggTablesList").empty();
-        $("#orphanedTablesList").empty();
-        $('#tableListSections').find('.clearAll, .selectAll').hide();
+        $("tableListSections").find(".submit").addClass("xc-hidden")
+                            .end()
+                            .find(".tableLists").empty();
     };
 
     TableList.addTables = function(tables, active, options) {
         // tables is an array of metaTables;
         generateTableLists(tables, active, options);
-
-        if (!active) {
-            $('#archivedTableList').find('.btnLarge').show();
-        }
-    };
-
-    TableList.refreshAggTables = function() {
-        // XX temporarily disable until we have aggs stored as variables;
-
-        // var aggInfo = Aggregates.getAggs();
-        // var tables = [];
-
-        // for (var key in aggInfo) {
-        //     // extract tableId, colName, and aggOps from key
-        //     var keySplits = key.split("#");
-        //     var tableId = keySplits[0];
-        //     var aggStr  = generateAggregateString(keySplits[1], keySplits[2]);
-
-        //     tables.push({
-        //         "key"      : key,
-        //         "tableName": gTables[tableId].tableName,
-        //         "aggStr"   : aggStr,
-        //         "value"    : aggInfo[key]
-        //     });
-        // }
-
-        // // sort by table Name
-        // tables.sort(function(a, b) {
-        //     var compareRes = a.tableName.localeCompare(b.tableName);
-        //     if (compareRes === 0) {
-        //         // if table name is the same, compare aggStr
-        //         return (a.aggStr.localeCompare(b.aggStr));
-        //     } else {
-        //         return compareRes;
-        //     }
-        // });
-
-        // generateAggTableList(tables);
-    };
-
-    TableList.removeAggTable = function(tableId) {
-        var $list = $('#aggTablesList .tableInfo[data-id="' + tableId + '"]');
-        if ($list.length > 0) {
-            var key = $list.data("key");
-            Aggregates.removeAgg(key);
-            $list.remove();
-        }
     };
 
     // move table to inactive list
@@ -261,25 +202,18 @@ window.TableList = (function($, TableList) {
             // clear time line & select boxes
             if ($timeLine.find(".tableInfo").length === 0) {
                 $timeLine.remove();
-                $activeTableList.find('.selectAll, .clearAll').hide();
-            } else if (!$activeTableList.find('.tableInfo:not(.hiddenWS)').length) {
-                $activeTableList.find('.selectAll, .clearAll').hide();
             }
         });
 
-        $activeTableList.find('.btnLarge').addClass('btnInactive');
-        $activeTableList.find('.addTableBtn').removeClass('selected');
-
-
+        $activeTableList.find(".submit").addClass("xc-hidden")
+                        .end()
+                        .find(".addTableBtn").removeClass("selected");
     };
 
     TableList.renameTable = function(tableId, newTableName) {
         var $tableList = $('#activeTablesList .tableInfo[data-id="' +
                             tableId + '"]');
         $tableList.find(".tableName").text(newTableName);
-
-        // refresh agg list
-        TableList.refreshAggTables();
     };
 
     TableList.updateColName = function(tableId, colNum, newColName) {
@@ -362,7 +296,7 @@ window.TableList = (function($, TableList) {
     };
 
     TableList.tableBulkAction = function(action, tableType, wsId) {
-        var deferred    = jQuery.Deferred();
+        var deferred = jQuery.Deferred();
         var validAction = ["add", "delete"];
 
         // validation check
@@ -378,8 +312,6 @@ window.TableList = (function($, TableList) {
             hiddenWS = true;
         } else if (tableType === TableType.Orphan) {
             $tableList = $('#orphanedTableList');
-        } else if (tableType === TableType.Agg) {
-            $tableList = $("#aggregateTableList");
         }
 
         var $tablesSelected;
@@ -399,12 +331,11 @@ window.TableList = (function($, TableList) {
                                         .closest(".tableInfo");
         }
 
-        var $buttons = $tableList.find('.btnLarge');
         var promises = [];
         var failures = [];
         var tables = [];
 
-        $buttons.addClass('btnInactive');
+        $tableList.find(".submit").addClass("xc-hidden");
 
         $tablesSelected.each(function(index, ele) {
             if (action === "delete") {
@@ -432,9 +363,7 @@ window.TableList = (function($, TableList) {
                     var table = gTables[tableId];
                     var tableName;
 
-                    if (tableType === TableType.Orphan ||
-                        tableType === TableType.Agg)
-                    {
+                    if (tableType === TableType.Orphan){
                         tableName = $li.data("tablename");
                     } else {
                         if (table == null) {
@@ -453,20 +382,6 @@ window.TableList = (function($, TableList) {
                             doneHandler($li, tableName);
                             var tableIndex = gOrphanTables.indexOf(tableName);
                             gOrphanTables.splice(tableIndex, 1);
-                            innerDeferred.resolve();
-                        })
-                        .fail(function(error) {
-                            failHandler($li, tableName, error);
-                            innerDeferred.resolve(error);
-                        });
-                    } else if (tableType === TableType.Agg) {
-                        // var key = $li.data("key");
-
-                        addOrphanedTable(tableName)
-                        .then(function(finalTableName){
-                            // var finalTableId = xcHelper.getTableId(finalTableName);
-                            // TableList.refreshAggTables() is called after
-                            // all promises done
                             innerDeferred.resolve();
                         })
                         .fail(function(error) {
@@ -503,10 +418,6 @@ window.TableList = (function($, TableList) {
                 } else {
                     deferred.resolve(tables);
                 }
-            })
-            .always(function() {
-                // update
-                TableList.refreshAggTables();
             });
         } else if (action === "delete") {
             TblManager.deleteTables(tables, tableType)
@@ -521,24 +432,12 @@ window.TableList = (function($, TableList) {
 
         function doneHandler($li, tableName, isHiddenWS) {
             var $timeLine = $li.closest(".timeLine");
-
-            if (isHiddenWS) {
-                var $archivedList = $('#archivedTableList');
-                if ($archivedList.find('.tableInfo:not(.hiddenWS)').length === 0) {
-                    // $archivedList.find('.secondButtonWrap').hide();
-                    $archivedList.find('.clearAll, .selectAll').hide();
-                } else {
-                    // $archivedList.find('.secondButtonWrap').show();
-                    $archivedList.find('.clearAll, .selectAll').show();
-                }
+            if (gMinModeOn) {
+                handlerCallback();
             } else {
-                if (gMinModeOn) {
+                $li.addClass("transition").slideUp(150, function() {
                     handlerCallback();
-                } else {
-                    $li.addClass("transition").slideUp(150, function() {
-                        handlerCallback();
-                    });
-                }
+                });
             }
 
             function handlerCallback() {
@@ -547,22 +446,15 @@ window.TableList = (function($, TableList) {
                     $timeLine.remove();
                     if ($tableList.find('.tableInfo:not(.hiddenWS)').length === 0 ) {
                         if ($tableList.closest('#orphanedTableList').length !== 0) {
-                            $tableList.find('.selectAll, .clearAll').hide();
                             $("#orphanedTableList-search").hide();
-                        } else {
-                            $tableList.find('.clearAll, .selectAll').hide();
                         }
-                    } else {
-                        $tableList.siblings('.secondButtonWrap')
-                                  .find('.clearAll, .selectAll').show();
                     }
                 }
             }
         }
 
         function failHandler($li, tableName, error) {
-            $li.find(".addTableBtn.selected")
-                    .removeClass("selected");
+            $li.find(".addTableBtn.selected").removeClass("selected");
             failures.push(tableName + ": {" + error.error + "}");
         }
     };
@@ -588,13 +480,11 @@ window.TableList = (function($, TableList) {
 
         $bothLists.each(function() {
             var $list = $(this);
-            if ($list.find('.tableInfo:not(.hiddenWS)').length === 0) {
-                $list.find('.clearAll, .selectAll').hide();
-                $list.find('.btnLarge').addClass('btnInactive');
+            if ($list.find(".tableInfo:not(.hiddenWS)").length === 0) {
+                $list.find(".submit").addClass("xc-hidden");
             } else {
-                $list.find('.clearAll, .selectAll').show();
-                if (!$list.find('.addTableBtn.selected').length) {
-                    $list.find('.btnLarge').addClass('btnInactive');
+                if (!$list.find(".addTableBtn.selected").length) {
+                    $list.find(".submit").addClass("xc-hidde");
                 }
             }
         });
@@ -677,14 +567,9 @@ window.TableList = (function($, TableList) {
         }
         if (tableType === TableType.Orphan) {
             if ($tableList.find('li').length === 0) {
-                $tableList.siblings('.secondButtonWrap')
-                          .find('.btn:not(.refresh)')
-                          .hide();
                 $listWrap.find('.searchbarArea').hide();
             }
         } else if ($tableList.find('ul').length === 0) {
-            $tableList.siblings('.secondButtonWrap')
-                      .find('.clearAll, .selectAll').hide();
             $listWrap.find('.searchbarArea').hide();
         }
 
@@ -878,8 +763,6 @@ window.TableList = (function($, TableList) {
                         '</div>';
             }
 
-            var addTableBtn = '<span class="addTableBtn" title="' +
-                              SideBarTStr.SelectTable + '"></span>';
             var html =
                 '<li class="clearfix tableInfo" ' +
                     'data-id="' + tableId + '">' +
@@ -890,18 +773,16 @@ window.TableList = (function($, TableList) {
                         wsInfo +
                     '</div>' +
                     '<div class="tableListBox">' +
-                        '<div class="iconWrap">' +
-                            '<span class="icon"></span>' +
-                        '</div>' +
+                        '<span class="expand"></span>' +
+                        '<span class="addTableBtn"></span>' +
                         '<span class="tableName textOverflowOneLine" title="' +
                             tableName + '">' +
                             tableName +
                         '</span>' +
                         '<span class="numCols" data-toggle="tooltip" ' +
                         'data-container="body" title="' + CommonTxtTstr.NumCol + '">' +
-                             (numCols - 1) + // skip DATA col
+                            '(' + (numCols - 1) + ')' +// skip DATA col
                         '</span>' +
-                        addTableBtn +
                     '</div>' +
                     generateColumnList(table.tableCols, numCols) +
                 '</li>';
@@ -938,10 +819,6 @@ window.TableList = (function($, TableList) {
         // set hiddenWS class to tables belonging to hidden worksheets
         var hiddenWS = WSManager.getHiddenWS();
         TableList.tablesToHiddenWS(hiddenWS);
-        if (tables.length &&
-            $tableList.find('.tableInfo:not(.hiddenWS)').length) {
-            $tableList.parent().find('.selectAll, .clearAll').show();
-        }
     }
 
     function generateColumnList(tableCols, numCols) {
@@ -968,115 +845,31 @@ window.TableList = (function($, TableList) {
         return html;
     }
 
-    function generateAggTableList(tables) {
-        var numTables = tables.length;
-        var html = "";
-
-        for (var i = 0; i < numTables; i++) {
-            var table      = tables[i];
-            var tableName  = table.getName();
-            var aggStr     = table.aggStr;
-            var aggVal     = table.value.value;
-            var isActive   = table.value.isActive;
-            var dstTable   = table.value.dagName;
-            var dstTableId = xcHelper.getTableId(dstTable);
-            var wsInfo;
-            var addTableBtn;
-
-            if (isActive) {
-                var wsId = WSManager.getWSFromTable(dstTableId);
-
-                if (wsId == null) {
-                    // case that worksheet is deleted
-                    wsInfo =
-                        '<div class="worksheetInfo" data-toggle="tooltip" ' +
-                        'data-placement="top" data-container="body" ' +
-                        'title="' + dstTable + '">' +
-                            SideBarTStr.NoSheet +
-                        '</div>';
-                } else {
-                    wsInfo =
-                        '<div class="worksheetInfo worksheet-' + wsId +
-                        '" data-toggle="tooltip" ' +
-                        'data-placement="top" data-container="body" ' +
-                        'title="' + dstTable + '">' +
-                            WSManager.getWSName(wsId) +
-                        '</div>';
-                }
-
-                addTableBtn = "";
-            } else {
-                wsInfo = '<div class="worksheetInfo inactive"></div>';
-                addTableBtn = '<span class="addTableBtn"></span>';
-                // XXX temporary disable it
-                addTableBtn = '';
-            }
-
-            html += '<li class="clearfix tableInfo" ' +
-                     'data-id="' + dstTableId + '"' +
-                     'data-tablename="' + dstTable + '"' +
-                     'data-key="' + table.key + '">' +
-                        '<span class="tableNameWrap textOverflow" ' +
-                        'data-toggle="tooltip" ' +
-                        'data-placement="top" data-container="body" ' +
-                        'title="' + tableName + '">' +
-                            tableName +
-                        '</span>' +
-                        '<span class="aggStrWrap textOverflow" ' +
-                        'data-toggle="tooltip" ' +
-                        'data-placement="top" data-container="body" ' +
-                        'title="' + aggStr + '">' +
-                            aggStr +
-                        '</span>' +
-                        '<div class="tableListBox">' +
-                            '<span class="aggVal">' + aggVal + '</span>' +
-                            wsInfo +
-                            addTableBtn +
-                        '</div>' +
-                     '</li>';
-        }
-
-        var $aggregateTableList = $('#aggregateTableList');
-        $('#aggTablesList').html(html);
-
-        if (numTables > 0) {
-            $aggregateTableList.find('.btnLarge').show();
-            $aggregateTableList.find('.selectAll, .clearAll').show();
-        }
-        $aggregateTableList.find('.secondButtonWrap').show();
-    }
-
     function generateOrphanList(tables) {
         var numTables = tables.length;
         var html = "";
         for (var i = 0; i < numTables; i++) {
             var tableName = tables[i];
-            var tableId   = xcHelper.getTableId(tableName);
+            var tableId = xcHelper.getTableId(tableName);
             html += '<li class="clearfix tableInfo" ' +
                     'data-id="' + tableId + '"' +
                     'data-tablename="' + tableName + '">' +
                         '<div class="tableListBox">' +
-                            '<div class="iconWrap">' +
-                                '<span class="icon"></span>' +
-                            '</div>' +
+                            '<span class="addTableBtn"></span>' +
                             '<span title="' + tableName + '" ' +
                                 'data-toggle="tooltip" ' +
                                 'data-placement="top" data-container="body" ' +
                                 'class="tableName textOverflow">' +
                                 tableName +
                             '</span>' +
-                            '<span class="addTableBtn"></span>' +
                         '</div>' +
                      '</li>';
         }
-        var $orphanedTableList = $('#orphanedTableList');
-        $('#orphanedTablesList').html(html);
+        var $orphanedTableList = $("#orphanedTableList");
+        $("#orphanedTablesList").html(html);
         if (numTables > 0) {
-            $orphanedTableList.find('.btnLarge').show();
-            $orphanedTableList.find('.selectAll, .clearAll').show();
             $("#orphanedTableList-search").show();
         } else {
-            $orphanedTableList.find('.selectAll, .clearAll').hide();
             $("#orphanedTableList-search").hide();
         }
     }
@@ -1148,8 +941,6 @@ window.TableList = (function($, TableList) {
 
         if (tableType === TableType.Archived) {
             $tableList = $('#archivedTableList');
-        } else if (tableType === TableType.Agg) {
-            $tableList = $("#aggregateTableList");
         }
 
         var $noSheetTables = $tableList.find(".addTableBtn.selected").closest(".tableInfo").filter(function() {
@@ -1159,7 +950,7 @@ window.TableList = (function($, TableList) {
         if ($noSheetTables.length > 0) {
             $noSheetTables.addClass("highlight");
             // must get highlight class from source
-            var $clone = $("#rightSideBar").clone();
+            var $clone = $("#bottomMenu").clone();
             var noSheetTables = [];
             var wsToSent;
 
@@ -1177,7 +968,7 @@ window.TableList = (function($, TableList) {
                 },
                 "onConfirm": function() {
                     $noSheetTables.removeClass("highlight");
-                    $("#rightSideBar.faux").remove();
+                    $("#bottomMenu.faux").remove();
 
                     var wsName = Alert.getOptionVal();
                     var wsId = WSManager.getWSIdByName(wsName);
@@ -1196,7 +987,7 @@ window.TableList = (function($, TableList) {
                 },
                 "cancel": function() {
                     $noSheetTables.removeClass("highlight");
-                    $("#rightSideBar.faux").remove();
+                    $("#bottomMenu.faux").remove();
                 }
             });
         } else {
@@ -1272,7 +1063,6 @@ window.TableList = (function($, TableList) {
         TableList.addTables(archivedTables, IsActive.Inactive);
 
         generateOrphanList(gOrphanTables);
-        TableList.refreshAggTables();
     }
 
     function checkIfTablesInActiveWS(tableNames) {

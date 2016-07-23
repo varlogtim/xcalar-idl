@@ -2050,14 +2050,15 @@ window.xcHelper = (function($, xcHelper) {
         $menu.find('.scrollArea.top').addClass('stopped');
         $menu.find('.scrollArea.bottom').removeClass('stopped');
 
+        // XXX GUI-4745 need to fix!
         //positioning if dropdown menu is on the right side of screen
-        if (!options.ignoreSideBar) {
-            var leftBoundary = $('#rightSideBar')[0].getBoundingClientRect().left;
-            if ($menu[0].getBoundingClientRect().right > leftBoundary) {
-                left = leftBoundary - $menu.width();
-                $menu.css('left', left).addClass('leftColMenu');
-            }
-        }
+        // if (!options.ignoreSideBar) {
+        //     var leftBoundary = $('#bottomMenu')[0].getBoundingClientRect().left;
+        //     if ($menu[0].getBoundingClientRect().right > leftBoundary) {
+        //         left = leftBoundary - $menu.width();
+        //         $menu.css('left', left).addClass('leftColMenu');
+        //     }
+        // }
 
         //positioning if td menu is below the screen and floating option is allowed
         if (options.floating) {

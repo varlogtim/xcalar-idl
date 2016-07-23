@@ -218,7 +218,7 @@ window.KVStore = (function($, KVStore) {
         Aggregates.clear();
         DataStore.clear();
         UserSettings.clear();
-        RightSideBar.clear();
+        BottomMenu.clear();
         DagPanel.clear();
         // clear all table
         $("#mainFrame").find('.xcTableWrap').remove();

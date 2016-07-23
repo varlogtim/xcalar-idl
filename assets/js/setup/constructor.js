@@ -485,7 +485,6 @@ function UserPref(options) {
     options = options || {};
     this.datasetListView = options.datasetListView || false;
     this.browserListView = options.browserListView || false;
-    this.lastRightSideBar = options.lastRightSideBar || null;
     this.activeWorksheet = options.activeWorksheet || null;
     this.keepJoinTables = options.keepJoinTables || false;
     this.hideDataCol = options.hideDataCol || false;
@@ -506,8 +505,6 @@ UserPref.prototype = {
     'update': function() {
         this.datasetListView = $('#dataViewBtn').hasClass('listView');
         this.browserListView = $('#fileBrowserGridView').hasClass('listView');
-        this.lastRightSideBar = $('#rightSideBar .rightBarSection.lastOpen')
-                                .attr('id');
         this.activeWorksheet = WSManager.getActiveWS();
         this.keepJoinTables = $('#joinModal').find('.keepTablesCBWrap')
                                              .find('.checkbox')
@@ -2331,7 +2328,7 @@ ModalHelper.prototype = {
         var $modalBg = $("#modalBackground");
         var $mainFrame = $("#mainFrame");
         var $sideBarModal = $("#sideBarModal");
-        var $rightSideBar = $("#rightSideBar");
+        var $menuPanel = $("#bottomMenu");
         var $tableWrap;
 
         if (tableId === "all") {
@@ -2358,7 +2355,7 @@ ModalHelper.prototype = {
 
             $sideBarModal.fadeOut(fadeOutTime, function() {
                 $(this).removeClass('light');
-                $rightSideBar.removeClass('modalOpen');
+                $menuPanel.removeClass('modalOpen');
             });
 
             $('.xcTableWrap').not('#xcTableWrap-' + tableId)
@@ -2373,7 +2370,7 @@ ModalHelper.prototype = {
                                  .addClass('tableDarkened');
             }
 
-            $rightSideBar.addClass('modalOpen');
+            $menuPanel.addClass('modalOpen');
             $mainFrame.addClass('modalOpen');
             var fadeInTime;
             if (options.time == null) {

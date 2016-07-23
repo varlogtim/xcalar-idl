@@ -1,4 +1,4 @@
-// this is a sub module of rightSideBar
+// this is a sub module of bottomMenu
 window.UDF = (function($, UDF) {
     var $fnName;       // $("#udf-fnName");
     var $template;     // $("#udf-fnTemplate");

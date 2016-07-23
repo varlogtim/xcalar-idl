@@ -291,7 +291,6 @@ TipsTStr = {
                 'cart. These columns will be used to create the table in your ' +
                 'active worksheet. You can also add columns in the worksheet ' +
                 'screen.',
-    'PullRightsidebar': 'Click to open and close side bar',
     'TablList': 'Click to see details',
     'PullColumn': 'Click key to add the column to your table'
 };

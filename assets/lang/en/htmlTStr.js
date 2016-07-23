@@ -230,17 +230,16 @@ module.exports = {
         "rowInput": "Skip to row"
     },
 
-    "rightsideBar": {
+    "bottomMenu": {
         "popOutBtn": "undock",
         "toggleSqlBtn": "toggle machine/human Log",
         "copySqlBtn": "Copy Log",
         "Tables": "Tables",
         "ActiveList": "Active",
         "InActiveList": "Archived",
-        "AggList": "Aggregates",
         "OrphanList": "Orphaned",
-        "activeBtn": "ADD TO WORKSHEET",
-        "archiveBtn": "ARCHIVE TABLES",
+        "active": "Add To Worksheet",
+        "archive": "Archive Tables",
         "selectAll": "select all",
         "deselectAll": "deselect all",
         "refresh": "refresh tables",

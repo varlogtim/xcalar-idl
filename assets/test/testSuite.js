@@ -662,7 +662,7 @@ window.TestSuite = (function($, TestSuite) {
             }
             $li.find(".addTableBtn").click();
 
-            $("#submitOrphanedTablesBtn").click();
+            $("#orphanedTableList .sumbit.active").click();
             $("#rightSideBar .close").click();
             $("#worksheetTabs .worksheetTab:first-child")
                                                 .trigger(fakeEvent.mousedown);

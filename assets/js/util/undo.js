@@ -477,9 +477,6 @@ window.Undo = (function($, Undo) {
                                                      "keepInWS": true});
             });
             return TableList.refreshOrphanList();
-        } else if (tableType === TableType.Agg) {
-            console.error("Not support agg table undo!");
-            return PromiseHelper.resolve(null);
         } else {
             console.error(tableType, "not support undo!");
             return PromiseHelper.resolve(null);

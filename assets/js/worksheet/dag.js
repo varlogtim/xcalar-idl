@@ -584,8 +584,8 @@ window.DagPanel = (function($, DagPanel) {
         $menu.find('.selected').removeClass('selected');
         $menu.css({'top': top, 'left': left});
         $menu.show();
-
-        var leftBoundary = $('#rightSideBar')[0].getBoundingClientRect()
+        // XXX GUI-4745 Fix it!!
+        var leftBoundary = $('#bottomMenu')[0].getBoundingClientRect()
                                                 .left;
 
         if ($menu[0].getBoundingClientRect().right > leftBoundary) {
@@ -623,8 +623,8 @@ window.DagPanel = (function($, DagPanel) {
         $menu.find('.selected').removeClass('selected');
         $menu.css({'top': top, 'left': left});
         $menu.show();
-
-        var leftBoundary = $('#rightSideBar')[0].getBoundingClientRect()
+        // XXX GUI-4745 Fix it!!
+        var leftBoundary = $('#bottomMenu')[0].getBoundingClientRect()
                                                 .left;
 
         if ($menu[0].getBoundingClientRect().right > leftBoundary) {
@@ -797,7 +797,7 @@ window.DagPanel = (function($, DagPanel) {
                         var $li = $(this);
                         if ($li.data('tablename') === tableName) {
                             $li.find('.addTableBtn').click();
-                            $('#deleteOrphanedTablesBtn').click();
+                            $('#orphanedTableList .sumbit.delete').click();
                             return (false);
                         }
                     });
@@ -807,7 +807,7 @@ window.DagPanel = (function($, DagPanel) {
                     var $li = $(this);
                     if ($li.data('id') === tableId) {
                         $li.find('.addTableBtn').click();
-                        $('#deleteTablesBtn').click();
+                        $('#archivedTableList .sumbit.delete').click();
                         return (false);
                     }
                 });
@@ -818,7 +818,7 @@ window.DagPanel = (function($, DagPanel) {
                 var $li = $(this);
                 if ($li.data('tablename') === tableName) {
                     $li.find('.addTableBtn').click();
-                    $('#deleteOrphanedTablesBtn').click();
+                    $('#orphanedTableList .sumbit.delete').click();
                     orphanFound = true;
                     return (false);
                 }
@@ -2129,10 +2129,11 @@ window.Dag = (function($, Dag) {
 
         var tableLeft = $dagTable[0].getBoundingClientRect().left + 10;
         var schemaLeft;
-        if ($('#rightSideBar').hasClass('poppedOut')) {
+        // XXX GUI-4745 Fix it!!
+        if ($('#bottomMenu').hasClass('poppedOut')) {
             schemaLeft = $(window).width() - $schema.width() - 5;
         } else {
-            schemaLeft = $('#rightSideBar').offset().left - $schema.width() - 5;
+            schemaLeft = $('#bottomMenu').offset().left - $schema.width() - 5;
         }
 
         var left;

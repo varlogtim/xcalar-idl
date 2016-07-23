@@ -101,28 +101,26 @@
 
   <!-- start bottom menu -->
   <div id="bottomMenuTabs" class="bottomButtonsArea no-selection clearfix">
-      <!-- tablelist -->
-      <div id="tableListTab" class="sliderBtn bottomMenuTab" data-toggle="tooltip" data-placement="right" data-container="body" title="<%= dicts.bottomBar.tblList %>"></div>
+    <!-- tablelist -->
+    <div id="tableListTab" class="sliderBtn bottomMenuTab" data-toggle="tooltip" data-placement="right" data-container="body" title="<%= dicts.bottomBar.tblList %>"></div>
     
     <!-- sql -->
-
-      <div id="sqlTab" class="sliderBtn bottomMenuTab" data-toggle="tooltip" data-placement="right" data-container="body" title="SQL"></div>
+    <div id="sqlTab" class="sliderBtn bottomMenuTab" data-toggle="tooltip" data-placement="right" data-container="body" title="SQL"></div>
     
     <!-- udf -->
-
-      <div id="udfTab" class="sliderBtn bottomMenuTab" data-toggle="tooltip" data-placement="right" data-container="body" title="UDF"></div>
+    <div id="udfTab" class="sliderBtn bottomMenuTab" data-toggle="tooltip" data-placement="right" data-container="body" title="UDF"></div>
   
-    
     <!-- help section -->
     <% if (dicts.tutor.name == "workbookDemo") { %>
 
-      <div id="helpTab" class="sliderBtn bottomMenuTab"> </div>
+    <div id="helpTab" class="sliderBtn bottomMenuTab"> </div>
     
     <% } else { %>
 
-      <div id="helpTab" class="sliderBtn bottomMenuTab" data-toggle="tooltip" data-placement="right" data-container="body" title="<%= dicts.bottomBar.help %>"></div>
+    <div id="helpTab" class="sliderBtn bottomMenuTab" data-toggle="tooltip" data-placement="right" data-container="body" title="<%= dicts.bottomBar.help %>"></div>
       
-      <% } %>
-    </div>
+    <% } %>
+  </div>
 </div>
 <!-- End of Menu Bar -->
+include "bottomMenu.html"

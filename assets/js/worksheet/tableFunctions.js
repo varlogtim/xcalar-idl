@@ -595,9 +595,10 @@ function addMenuBehaviors($mainMenu) {
 
             // move submenu to left if overflowing to the right
             var viewportRight;
-            var $rightSideBar = $('#rightSideBar');
-            if (!$rightSideBar.hasClass('poppedOut')) {
-                viewportRight = $rightSideBar.offset().left;
+            // XXX GUI-4745 Fix it!!
+            var $menuPanel = $('#bottomMenu');
+            if (!$menuPanel.hasClass('poppedOut')) {
+                viewportRight = $menuPanel.offset().left;
             } else {
                 viewportRight = $(window).width();
             }
@@ -889,11 +890,11 @@ function moveTableDropdownBoxes() {
         tablesAreVisible = false;
     }
 
-    var rightSideBarWidth = 10;
+    // var rightSideBarWidth = 10;
     var windowWidth = $(window).width();
-    if (windowWidth === $('#container').width()) {
-        windowWidth -= rightSideBarWidth;
-    }
+    // if (windowWidth === $('#container').width()) {
+    //     windowWidth -= rightSideBarWidth;
+    // }
     while (tablesAreVisible) {
         var tableRight = $startingTableHead[0].getBoundingClientRect().right;
         if (tableRight > windowWidth) {

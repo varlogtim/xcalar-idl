@@ -553,7 +553,8 @@ window.StatusMessage = (function($, StatusMessage) {
         }
         var $table = $("#xcTable-" + tableId);
         var rect = $table[0].getBoundingClientRect();
-        var windowWidth = $('#rightSideBar').offset().left - 10;
+        // XXX GUI-4745 Fix it!!
+        var windowWidth = $('#bottomMenu').offset().left - 10;
         var position;
         if (rect.left < 40) {
             if (rect.right > 40) {

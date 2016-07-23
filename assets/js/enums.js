@@ -65,7 +65,6 @@ var DelWSType = {
 var TableType = {
     "Active"  : "active",
     "Archived": "archived",
-    "Agg"     : "aggregate",
     "Orphan"  : "orphaned",
     "WSHidden": "hidden",
     "Unknown" : "unknown source",

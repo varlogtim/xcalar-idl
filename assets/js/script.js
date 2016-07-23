@@ -86,7 +86,7 @@ window.StartManager = (function(StartManager, $) {
         setupTooltips();
         setupMenuBar();
         StatusMessage.setup();
-        RightSideBar.setup();
+        BottomMenu.setup();
         DataStore.setup();
         TblMenu.setup();
         WSManager.setup();
@@ -99,7 +99,7 @@ window.StartManager = (function(StartManager, $) {
         .then(setupSession)
         .then(function() {
             documentReadyGeneralFunction();
-            RightSideBar.initialize();
+            BottomMenu.initialize();
             WorkbookModal.initialize();
             // restore user settings
             JoinModal.restore();

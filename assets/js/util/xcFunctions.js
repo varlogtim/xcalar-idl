@@ -147,8 +147,6 @@ window.xcFunction = (function($, xcFunction) {
             };
 
             Aggregates.addAgg(tableId, backColName, aggrOp, aggRes);
-            TableList.refreshAggTables();
-
             Transaction.done(txId, {"msgTable": tableId});
 
             // show result in alert modal
@@ -846,7 +844,7 @@ window.xcFunction = (function($, xcFunction) {
 
         XcalarRenameTable(oldTableName, newTableName, txId)
         .then(function() {
-            // does renames for gTables, rightsidebar, dag
+            // does renames for gTables, tabelist, dag
             table.tableName = newTableName;
 
             TableList.renameTable(tableId, newTableName);

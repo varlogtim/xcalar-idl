@@ -35,7 +35,7 @@ window.CLIBox = (function($, CLIBox) {
 
     CLIBox.realignNl = function() {
         // This function must be called everytime the user resizes his
-        // rightSideBar
+        // menu
         // Find out how many cliUnits there are
         // Add this number of lineUnits to the left
         var lineHTML = "";
