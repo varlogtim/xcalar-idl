@@ -1351,7 +1351,6 @@ input {
 }
 
 #gridViewMenu {
-    box-shadow: 1px 1px 1px 3px rgba(0, 0, 0, 0.1);
     li {
         display: none;
     }
@@ -1372,7 +1371,7 @@ input {
     }
 
     .disabled {
-        opacity: 0.7;
+        opacity: @opacity-disabled;
         pointer-events: none;
     }
 
@@ -1385,7 +1384,7 @@ input {
 
     &.uneditable {
         .moveUp, .rename, .delete {
-            opacity: 0.7;
+            opacity: @opacity-disabled;
             pointer-events: none;
         }
     }

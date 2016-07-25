@@ -1,17 +1,101 @@
+#colMenu {
+    overflow: hidden;
+}
+
+#colSubMenu {
+    max-height: none;
+
+    & > ul {
+        display: none;
+        visibility: visible;
+        left: 0px;
+        margin-top: 0px;
+        position: static;
+    }
+
+    .sectionLabel {
+        text-align: center;
+    }
+
+}
+
+#tableMenu {
+    overflow: hidden;
+
+    .unhideTable {
+        display: none;
+    }
+
+    &.tableHidden {
+        .hideTable {
+            display: none;
+        }
+        .unhideTable {
+            display: block;
+        }
+    }
+}
+
+#tableSubMenu {
+    & > ul {
+        display: none;
+        visibility: visible;
+        left: 0px;
+        margin-top: 0px;
+        position: static;
+    }
+}
+
 .menu {
     .position(fixed);
     .size(@width: 170px);
     list-style: none;
     padding: 0px;
-    box-shadow: 0px 0px 1px 3px rgba(0,0,0,.05);
     display:none;
-    background-color: @color-white;
+    background-color: @color-bg-dusk-blue;
     z-index: 22; // higher than bottom area's z-index of 21
     cursor: pointer;
+    box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.2);
     .dropDown;
+    // display: block !important;
+
+    &.locked {
+        cursor: auto;
+
+        li {
+            opacity: 0.4;
+            cursor: default;
+            pointer-events: none;
+
+            &.hideTable, &.unhideTable {
+                opacity: 1;
+                cursor: pointer;
+                pointer-events: auto;
+            }
+        }
+    }
 
     > ul {
         overflow: auto;
+    }
+
+    .parentMenu {
+        &::after {
+            content: "";
+            .size(0, 0);
+            .position(absolute, @right: 3px, @bottom: 3px);
+            vertical-align: middle;
+            cursor: pointer;
+            opacity: @opacity-unhover;
+            border-top: 6px solid transparent;
+            border-right: 6px solid @color-white;
+            pointer-events: none;
+        }
+        &.selected {
+            &::after {
+                opacity: @opacity-hover;
+            }
+        }
     }
 
     // XXX temporary fix
@@ -31,41 +115,29 @@
         .position(relative);
         .size(@height: 30px);
         padding: 6px 6px 6px 8px;
-        background-color: @color-white;
-        .font(@weight: 700, @size: 12px, @color: @color-text-dropMenu);
+        background-color: @color-bg-dusk-blue;
+        .font(@weight: 600, @size: 12px, @color: @color-white);
         .noSelection;
         text-align: left;
 
         &.selected {
-            cursor: pointer;
-            background-color: @color-selectedCell-dark;
-            > .dropdownBox {
-                opacity: 1;
-                border-right-color: @color-dropBox-secondary;
-            }
-        }
-
-        .dropdownBox {
-            opacity: 0.3;
-            z-index: 0;
-            border-right-color: @color-border-lightGray;
-            .transition-delay (.0s);
-            pointer-events: none;
-        }
-
-        &.subSelected {
-            background-color: @color-selectedCell-lightGreen !important;
+            background-color: @color-bg-light-navy;
         }
 
         &.clickable {
             .size(@height: 60px);
+
+            &.extensions {
+                .size(@height: auto);
+            }
+
             span {
                 display: block;
                 float: none;
             }
 
             > div {
-                height: 20px;
+                .size(@height: 20px);
                 line-height: 20px;
                 margin-top: 2px;
                 text-align: center;
@@ -74,10 +146,8 @@
             > input {
                 margin-top: 2px;
             }
-        }
 
-        &.clickable.extensions {
-            .size(@height: auto);
+
         }
 
         input[type='number'] {
@@ -91,31 +161,17 @@
 
             input {
                 padding: 0 22px;
-
-                // &:focus {
-                //     & ~ .iconWrapper {
-                //         visibility: visible;
-                //         opacity: 1;
-                //     }
-                // }
             }
 
-            .iconWrapper {
+            .icon {
                 .size(@width: 18px, @height: 18px);
                 .position(absolute, @top: 1px, @right: 0);
-                .gray-gradient;
-                .rounded;
-                // visibility: hidden;
-                // opacity: 0;
-                // .transition(~"visibility 0s, opacity 0.5s");
+                .image("../../images/checkbox-selected.png", 50%, 50%);
+                background-size: 18px 18px;
+                opacity: @opacity-unhover;
 
                 &:hover {
-                    .gray-inverse-gradient;
-                }
-
-                .icon {
-                    .size(100%, 100%);
-                    .image("../../images/checkmark.png", 50%, 50%);
+                    opacity: @opacity-hover;
                 }
             }
         }
@@ -123,15 +179,17 @@
 
     input {
         .size(@width: 160px, @height: 20px);
-        .font(@size: 12px, @line-height: 20px);
+        .font(@size: 12px, @line-height: 20px, @color: @color-white);
         margin-left: -3px;
         padding: 0 2px;
         text-align: center;
-        box-shadow: 0px 0px 0px 1px @color-selectedCell-dark;
-        background-color: @color-white;
+        background-color: @color-bg-limedSpruce;
+        border: 1px solid @color-border-softBlue;
+        opacity: @opacity-unhover;
 
         &:focus {
             outline: none;
+            opacity: @opacity-hover;
         }
     }
 
@@ -140,7 +198,7 @@
     }
 
     .divider {
-        border-top: 1px solid @color-border-lightLightGray;
+        border-top: 1px solid @color-bg-select-blue;
     }
 
     .visible {
@@ -151,22 +209,13 @@
         display: none !important;
     }
 
-    > .inputSelected {
-        background-color: @color-selectedCell-dark !important;
-    }
-
     .inputSelected {
         visibility: visible !important;
-        background-color: @color-selectedCell-green;
     }
 
     .filter ul {
         .size(@width: 170px);
         cursor: text;
-    }
-
-    .subMenu li.selected {
-        background-color: @color-selectedCell-green;
     }
 
     .changeDataType, .multiChangeDataType {
@@ -176,14 +225,16 @@
             // see common.less
             .typeIcon;
 
+            &.type-boolean .flex-left::after {
+                border-top: @height-colHeader solid @color-border-colIconBlue;
+            }
+
             .flexWrap.flex-left {
                 .flex(0 0 24px);
                 padding: 6px 5px;
                 position: relative;
                 height: 30px;
-                .gray-gradient;
                 overflow: hidden;
-
             }
             .flexWrap.flex-right {
                 .flex(1 1 auto);
@@ -476,14 +527,14 @@
         .transition(opacity 0.4s ease-in-out 0s);
 
         &.active {
-            opacity: 1;
+            opacity: @opacity-hover;
             .transition(opacity 0.4s ease-in-out 0s);
         }
 
         &.mouseover {
-            opacity: 1;
+            opacity: @opacity-hover;
             .arrow {
-                opacity: 1;
+                opacity: @opacity-hover;
             }
         }
 
@@ -496,20 +547,20 @@
             margin: 0 auto;
             height: 14px;
             pointer-events: initial;
-            opacity: 0.4;
+            opacity: @opacity-unhover;
         }
 
         &.top {
             top: 0;
             .arrow {
-                .image("../../images/arrow-up-gray-flat.png", 50%, 40%);
+                .image("../../images/arrow-up-white.png", 50%, 40%);
             }
 
         }
         &.bottom {
             bottom: 0;
             .arrow {
-                .image("../../images/arrow-down-gray-flat.png", 50%, 60%);
+                .image("../../images/arrow-down-white.png", 50%, 60%);
             }
         }
     }
