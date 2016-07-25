@@ -2009,7 +2009,7 @@ window.ColManager = (function($, ColManager) {
             if (options.isDataTd) {
                 colName = arrayKey;
                 // escapedColName = xcHelper.escapeColName(arrayKey);
-                escapedName = arrayKey;
+                escapedColName = arrayKey;
             } else {
                 openSymbol = "";
                 closingSymbol = "";
