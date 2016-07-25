@@ -235,9 +235,8 @@ window.BottomMenu = (function($, BottomMenu) {
         var offset = $menuPanel.offset();
 
         $menuPanel.addClass('poppedOut');
-        $('#bottomMenuTabs').appendTo($menuPanel);
         $menuPanel.find('.popOut')
-                     .attr('data-original-title', SideBarTStr.PopBack);
+                .attr('data-original-title', SideBarTStr.PopBack);
         $('.tooltip').hide();
         $menuPanel.css({
             "left": offset.left - 5,
@@ -248,10 +247,9 @@ window.BottomMenu = (function($, BottomMenu) {
     function popInModal() {
         var $menuPanel = $("#bottomMenu");
         $menuPanel.removeClass('poppedOut');
-        $('#bottomMenuTabs').appendTo('#menuBar');
         $menuPanel.attr('style', "");
         $menuPanel.find('.popOut')
-                    .attr('data-original-title', SideBarTStr.PopOut);
+                .attr('data-original-title', SideBarTStr.PopOut);
         $('.tooltip').hide();
         // CLIBox.realignNl();
     }

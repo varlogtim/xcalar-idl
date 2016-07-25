@@ -259,36 +259,9 @@
             .transform (rotate(180deg));
         }
 
-        #bottomMenuTabs {
-            .size(@height: 36px);
-            background-color: @color-bg-select-blue;
-        
-            .bottomMenuTab {
-                .size(@width: @height-mainTab, @height: 100%);
-                float: left;
-                border-top: none;
-                border-bottom: none;
-                border-right: 1px solid @color-bg-dusk-blue;
-
-                &:first-child {
-                    border-left: 1px solid @color-bg-dusk-blue;
-                }
-            }
-        }
-
         .heading {
             pointer-events: auto;
             .cursor-move;
-        }
-
-        .menuSection {
-            .size(@height: ~"calc(100% - 33px)");
-        }
-
-        #tableListSection {
-            .content {
-                .size(@height: ~"calc(100% - 35px)");
-            }
         }
 
         .ui-resizable-handle {
