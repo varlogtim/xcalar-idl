@@ -35,7 +35,7 @@ body {
     overflow: hidden !important;
 
     &.xc-setup {
-        #workbookBtn, #mainMenu {
+        #workbookBtn, #topMenuBarTabs {
             pointer-events: none;
         }
     }
@@ -186,6 +186,30 @@ body {
     &.active {
         display: block;
     }
+    & > .mainContent {
+        .size(@width: 100%, @height: ~"calc(100% - @{height-topBar})");
+        padding: @padding-mainContent @padding-mainContent 0 @padding-mainContent;
+        .transition(all 0.2s);
+    }
+}
+
+// subpanel width changes when bottommenu open
+#container {
+    &.bottomMenuOpen:not(.bottomMenuOut), &.mainMenuOpen {
+        @menuWidth: @width-bottomMenu - @width-sideMenuMinimized;
+        .mainPanel > .mainContent {
+            
+            .size(@width: ~"calc(100% - @{menuWidth})");
+            margin-left: @menuWidth;
+        }
+
+        // XI2 temporarily, importdata view should be redone & this removed
+        #importDataView {
+            @formWidth: @menuWidth + 510px;
+            width: ~"calc(100% - @{formWidth})";
+            left: 255px + @menuWidth;
+        }
+    }
 }
 
 /* For Scoll bar in worksheet and datastore */
@@ -239,7 +263,7 @@ body {
 #statusBar {
     .position(absolute, @bottom: 0);
     .size(@width: @width-mainPanel, @height: @height-bottomBar);
-    margin-left:  @width-sideMenuMinimized + @width-mainMenu;
+    margin-left:  @width-sideMenuMinimized + @width-menuBar;
     overflow: hidden;
     background-color: @color-bg-topBarGray;
     .noSelection;

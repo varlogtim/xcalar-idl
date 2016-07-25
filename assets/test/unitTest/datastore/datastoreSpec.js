@@ -5,7 +5,7 @@ describe('Datastore Test', function() {
 
     before(function() {
         // go to the data store tab, or some UI effect like :visible cannot test
-        $mainTabCache = $(".mainMenuTab.active");
+        $mainTabCache = $(".topMenuBarTab.active");
         $('#dataStoresTab').click();
 
         // turn off min mode, as it affectes DOM test

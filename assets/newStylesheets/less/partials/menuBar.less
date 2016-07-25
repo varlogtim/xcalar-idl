@@ -49,7 +49,7 @@
 }
 
 #menuBar {
-    .size(@width: @width-mainMenu, @height: 100%);
+    .size(@width: @width-menuBar, @height: 100%);
     overflow: hidden;
     float: left;
     position: relative;
@@ -61,7 +61,7 @@
 }
 
 
-.mainMenuTab, .bottomMenuTab {
+.topMenuBarTab, .bottomMenuBarTab {
     .position(relative);
     .size(@width: 100%);
     border-bottom: 1px solid @color-bg-dusk-blue;
@@ -84,6 +84,11 @@
             background-color: @color-bg-marine;
             .icon {
                 opacity: 1;
+            }
+
+            // XX temp styling if subTab is the only subtab and is active
+            &:nth-child(2):nth-last-child(1) {
+                background-color: @color-bg-light-navy;
             }
         }
         .icon {
@@ -112,7 +117,7 @@
         }
     }
 }
-.mainMenuTab.active::after {
+.topMenuBarTab.active::after {
     content: "";
     display: block;
     .position(absolute, @top: 0, @left: 0);
@@ -174,11 +179,11 @@
     }
 }
 
-#bottomMenuTabs {
+#bottomMenuBarTabs {
     .size(@width: 100%);
     .position(absolute, @bottom: 0px);
 
-    .bottomMenuTab {
+    .bottomMenuBarTab {
         line-height: 15px;
         .size(@width: 100%, @height: @height-mainTab);
     
@@ -213,15 +218,68 @@
     }
 }
 
-// ========== Bottom Menu ==========
-#bottomMenu {
-    .position(absolute, @left: -395px, @bottom: 0px);
-    .size(@width: 395px,  @height: ~"calc(100% - @{height-homeBtn})");
-    z-index: @z-index-bottomMenu;
-    .transition(left 0.3s);
+// ========== start Top / Main Menu ======= 
+#mainMenu {
+    .position(absolute, @left: @width-menuBar - @width-topMenu + 10, @bottom: 0px);
+    .size(@width: @width-topMenu,  @height: ~"calc(100% - @{height-homeBtn})");
+    z-index: @z-index-topMenu;
+    .transition(left 0.2s);
+    background-color: @color-bg-dusk-blue;
+    color: @color-white;
+
+    &.noAnim {
+        .transition(left 0s);
+    }
 
     &.open {
-        .position(@left: @width-mainMenu);
+        .position(@left: @width-menuBar);
+    }
+    &.closed {
+        .mainContent {
+            display: none;
+        }
+        .minimizedContent {
+            display: block;
+        }
+    }
+
+    .minimizeBtn {
+        float: right;
+        height: 20px;
+        width: 20px;
+        font-size: 30px;
+        line-height: 10px;
+        background: black;
+        border-radius: 100%;
+        text-align: center;
+        margin: 5px;
+        cursor: pointer;
+    }
+
+    .minimizedContent {
+        .position(absolute, @right: 0px);
+        height: 100%;
+        color: @color-white;
+        cursor: pointer;
+        display: none;
+    }
+}
+  
+// ==========  end Top / Main Menu ======= 
+
+// ========== Bottom Menu ==========
+#bottomMenu {
+    .position(absolute, @left: -@width-bottomMenu, @bottom: 0px);
+    .size(@width: @width-bottomMenu,  @height: ~"calc(100% - @{height-homeBtn})");
+    z-index: @z-index-bottomMenu;
+    .transition(left 0.2s);
+
+    &.noAnim {
+        .transition(left 0s);
+    }
+
+    &.open {
+        .position(@left: @width-menuBar);
         .ui-resizable-handle {
             &.ui-resizable-e {
                 display: block !important;

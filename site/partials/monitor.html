@@ -18,416 +18,419 @@
       <div class="text"><%= dicts.monitor.SETTINGS %></div>
     </div>
   </div>
-  <!-- System Section -->
-  <section id="monitor-system" class="monitorSection active">
-  <!-- <div class="monitorSubPanel" id="systemPanel"> -->
-    <!-- asupSub section -->
-    <div class="asupSubSection">
-      <div class="asupSection">
-        <div class="icon"></div>
-        <div class="title"><%= dicts.monitor.AUTOSUPPORT %></div>
-        <div id="asupBtn" class="onOffBtn off">
-          <div class="slider"></div>
-          <div class="text offText"><%= dicts.common.OFF %></div>
-          <div class="text onText"><%= dicts.common.ON %></div>
-        </div>
-      </div>
-      <div class="subSection">
+  <div class="mainContent">
+    <!-- System Section -->
+    <section id="monitor-system" class="subPanel monitorSection active">
+    <!-- <div class="monitorSubPanel" id="systemPanel"> -->
+      <!-- asupSub section -->
+      <div class="asupSubSection">
+        <div class="asupSection">
           <div class="icon"></div>
-          <div class="title"><%= dicts.monitor.GENSUB %></div>
-          <button id="subBtn" class="btn btnMid"><%= dicts.common.GEN %></button>
-      </div>
-      <div class="delSection">
-        <div class="title"><%= dicts.monitor.RELEASEMEM %></div>
-        <button id="monitor-delete" class="btn btnMid"><%= dicts.monitor.DelTables %></button>
-      </div>
-    </div>
-    <!-- end of asupsub section -->
-    <!-- top section -->
-    <div class="topSection clearfix">
-      <div class="sideTabs">
-        <div id="cpuTab" class="sideTab active">
-          <div class="icon"></div>
-          <div class="text"><%= dicts.monitor.CPU %></div>
-        </div>
-        <div id="ramTab" class="sideTab">
-          <div class="icon"></div>
-          <div class="text"><%= dicts.monitor.RAM %></div>
-        </div>
-        <div id="diskTab" class="sideTab" data-toggle="tooltip" data-placement="bottom" data-container="body" title="<%= dicts.common.ComeSoon %>">
-          <div class="icon"></div>
-          <div class="text"><%= dicts.monitor.NETWORK %></div>
-        </div>
-      </div>
-      <div class="graphSection">
-        <div class="graphTop">
-          <div id="connectionInfo">
-            <span class="text" id="phyNodeText"><%= dicts.monitor.PhysicalNode %>: </span>
-            <span class="text" id="phyNode">localhost</span>
-            <span class="text" id="virNodeText"><%= dicts.monitor.VirtualNode %>: </span>
-            <span class="text" id="virNode">Node 0</span>
+          <div class="title"><%= dicts.monitor.AUTOSUPPORT %></div>
+          <div id="asupBtn" class="onOffBtn off">
+            <div class="slider"></div>
+            <div class="text offText"><%= dicts.common.OFF %></div>
+            <div class="text onText"><%= dicts.common.ON %></div>
           </div>
-          <div class="time">
-            <span class="text"><%= dicts.monitor.LastCheckTime %>: </span>
-            <span id="graphTime"></span>
+        </div>
+        <div class="subSection">
+            <div class="icon"></div>
+            <div class="title"><%= dicts.monitor.GENSUB %></div>
+            <button id="subBtn" class="btn btnMid"><%= dicts.common.GEN %></button>
+        </div>
+        <div class="delSection">
+          <div class="title"><%= dicts.monitor.RELEASEMEM %></div>
+          <button id="monitor-delete" class="btn btnMid"><%= dicts.monitor.DelTables %></button>
+        </div>
+      </div>
+      <!-- end of asupsub section -->
+      <!-- top section -->
+      <div class="topSection clearfix">
+        <div class="sideTabs">
+          <div id="cpuTab" class="sideTab active">
+            <div class="icon"></div>
+            <div class="text"><%= dicts.monitor.CPU %></div>
           </div>
-       </div>
-      <!--<div class="graphText">
-              <div class="sampleText">SAMPLE</div>
-          </div> -->
-        <div id="graphWrap">
-          <div id="graph">
-            <div id="grids"></div>
-            <div class="svgWrap"></div>
-            <div class="separator"></div>
-            <div class="xLabelsWrap">
-              <div class="spacer"></div>
-              <div class="xLabels"></div>
+          <div id="ramTab" class="sideTab">
+            <div class="icon"></div>
+            <div class="text"><%= dicts.monitor.RAM %></div>
+          </div>
+          <div id="diskTab" class="sideTab" data-toggle="tooltip" data-placement="bottom" data-container="body" title="<%= dicts.common.ComeSoon %>">
+            <div class="icon"></div>
+            <div class="text"><%= dicts.monitor.NETWORK %></div>
+          </div>
+        </div>
+        <div class="graphSection">
+          <div class="graphTop">
+            <div id="connectionInfo">
+              <span class="text" id="phyNodeText"><%= dicts.monitor.PhysicalNode %>: </span>
+              <span class="text" id="phyNode">localhost</span>
+              <span class="text" id="virNodeText"><%= dicts.monitor.VirtualNode %>: </span>
+              <span class="text" id="virNode">Node 0</span>
+            </div>
+            <div class="time">
+              <span class="text"><%= dicts.monitor.LastCheckTime %>: </span>
+              <span id="graphTime"></span>
+            </div>
+         </div>
+        <!--<div class="graphText">
+                <div class="sampleText">SAMPLE</div>
+            </div> -->
+          <div id="graphWrap">
+            <div id="graph">
+              <div id="grids"></div>
+              <div class="svgWrap"></div>
+              <div class="separator"></div>
+              <div class="xLabelsWrap">
+                <div class="spacer"></div>
+                <div class="xLabels"></div>
+              </div>
+            </div>
+          </div>
+          <div id="graphParts">
+            <div class="yAxis left">
+              <span>100</span>
+              <span>80</span>
+              <span>60</span>
+              <span>40</span>
+              <span>20</span>
+              <span>0 (%)</span>
+            </div>
+            <div class="graphBackground"></div>
+            <div id="rightYAxis" class="yAxis right">
             </div>
           </div>
         </div>
-        <div id="graphParts">
-          <div class="yAxis left">
-            <span>100</span>
-            <span>80</span>
-            <span>60</span>
-            <span>40</span>
-            <span>20</span>
-            <span>0 (%)</span>
-          </div>
-          <div class="graphBackground"></div>
-          <div id="rightYAxis" class="yAxis right">
-          </div>
-        </div>
       </div>
-    </div>
-    <!-- end of top sectoin -->
-    <!-- bottom section -->
-    <div class="bottomSection flex-container flex-row">
-      <!-- donut0 -->
-      <div id="donut0" class="donutSection">
-        <div class="icon"></div>
-        <div class="donut">
-          <div class="innerCircle"></div>
-          <div class="donutInfo first">
-            <span class="percent userSize">
-              <span class="num">0</span>
-              <sup>%</sup>
-            </span>
+      <!-- end of top sectoin -->
+      <!-- bottom section -->
+      <div class="bottomSection flex-container flex-row">
+        <!-- donut0 -->
+        <div id="donut0" class="donutSection">
+          <div class="icon"></div>
+          <div class="donut">
+            <div class="innerCircle"></div>
+            <div class="donutInfo first">
+              <span class="percent userSize">
+                <span class="num">0</span>
+                <sup>%</sup>
+              </span>
+            </div>
+          </div>
+          <div class="statsSection">
+            <div class="statsTopHeading">
+              <span class="global"></span>
+              <span class="user"></span>
+            </div>
+            <div class="statsHeadingBar small open">
+              <span class="arrow"></span>
+              <span class="title"><%= dicts.monitor.CPU %></span>
+              <span class="percent">%</span>
+              <span class="num avgNum">0</span>
+            </div>
+            <div class="listWrap open">
+              <ul class="small"></ul>
+            </div>
           </div>
         </div>
-        <div class="statsSection">
-          <div class="statsTopHeading">
-            <span class="global"></span>
-            <span class="user"></span>
+        <!-- donut1 -->
+        <div id="donut1" class="donutSection">
+          <div class="icon"></div>
+          <div class="donut">
+            <div class="innerCircle"></div>
+            <div class="donutInfo">
+              <span class="userSize">
+                <span class="num">1</span>
+                <sup>GB</sup>
+              </span>
+              <hr/>
+              <span class="totalSize">
+                <span class="num">64</span>
+                <sup>GB</sup>
+              </span>
+            </div>
           </div>
-          <div class="statsHeadingBar small open">
-            <span class="arrow"></span>
-            <span class="title"><%= dicts.monitor.CPU %></span>
-            <span class="percent">%</span>
-            <span class="num avgNum">0</span>
-          </div>
-          <div class="listWrap open">
-            <ul class="small"></ul>
+          <div class="statsSection">
+            <div class="statsTopHeading">
+                <span class="global"><%= dicts.monitor.GTotal %></span>
+                <span class="user"><%= dicts.monitor.UTotal %></span>
+            </div>
+            <div class="statsHeadingBar open">
+              <span class="arrow"></span>
+              <span class="title"><%= dicts.monitor.RAM %></span>
+              <span class="userSize">
+                <span class="avgNum">2 GB</span>
+              </span>
+              <span class="totalSize">
+                <span class="totNum">64 GB</span>
+              </span>
+            </div>
+            <div class="listWrap open">
+              <ul></ul>
+            </div>
           </div>
         </div>
-      </div>
-      <!-- donut1 -->
-      <div id="donut1" class="donutSection">
-        <div class="icon"></div>
-        <div class="donut">
-          <div class="innerCircle"></div>
-          <div class="donutInfo">
-            <span class="userSize">
-              <span class="num">1</span>
-              <sup>GB</sup>
-            </span>
-            <hr/>
-            <span class="totalSize">
-              <span class="num">64</span>
-              <sup>GB</sup>
-            </span>
+        <!-- donut2 -->
+        <div id="donut2" class="donutSection">
+          <div class="icon"></div>
+          <div class="donut">
+            <div class="sampleText"><%= dicts.monitor.SAMPLE %></div>
+            <div class="innerCircle"></div>
+            <div class="donutInfo">
+              <span class="userSize">
+                <span class="num">100</span>
+                <sup>Mbps</sup>
+              </span>
+              <hr/>
+              <span class="totalSize">
+                <span class="num">193</span>
+                <sup>Mbps</sup>
+              </span>
+            </div>
           </div>
-        </div>
-        <div class="statsSection">
-          <div class="statsTopHeading">
+          <div class="statsSection">
+            <div class="statsTopHeading">
               <span class="global"><%= dicts.monitor.GTotal %></span>
               <span class="user"><%= dicts.monitor.UTotal %></span>
-          </div>
-          <div class="statsHeadingBar open">
-            <span class="arrow"></span>
-            <span class="title"><%= dicts.monitor.RAM %></span>
-            <span class="userSize">
-              <span class="avgNum">2 GB</span>
-            </span>
-            <span class="totalSize">
-              <span class="totNum">64 GB</span>
-            </span>
-          </div>
-          <div class="listWrap open">
-            <ul></ul>
-          </div>
-        </div>
-      </div>
-      <!-- donut2 -->
-      <div id="donut2" class="donutSection">
-        <div class="icon"></div>
-        <div class="donut">
-          <div class="sampleText"><%= dicts.monitor.SAMPLE %></div>
-          <div class="innerCircle"></div>
-          <div class="donutInfo">
-            <span class="userSize">
-              <span class="num">100</span>
-              <sup>Mbps</sup>
-            </span>
-            <hr/>
-            <span class="totalSize">
-              <span class="num">193</span>
-              <sup>Mbps</sup>
-            </span>
-          </div>
-        </div>
-        <div class="statsSection">
-          <div class="statsTopHeading">
-            <span class="global"><%= dicts.monitor.GTotal %></span>
-            <span class="user"><%= dicts.monitor.UTotal %></span>
-          </div>
-          <div class="statsHeadingBar open">
-            <span class="arrow"></span>
-            <span class="title"><%= dicts.monitor.NETWORK %></span>
-            <span class="userSize">
-              <span class="avgNum">45</span> Mbps
-             </span>
-             <span class="totalSize">
-              <span class="totNum">128</span> Mbps
-             </span>
-          </div>
-          <div class="listWrap open">
-            <ul></ul>
+            </div>
+            <div class="statsHeadingBar open">
+              <span class="arrow"></span>
+              <span class="title"><%= dicts.monitor.NETWORK %></span>
+              <span class="userSize">
+                <span class="avgNum">45</span> Mbps
+               </span>
+               <span class="totalSize">
+                <span class="totNum">128</span> Mbps
+               </span>
+            </div>
+            <div class="listWrap open">
+              <ul></ul>
+            </div>
           </div>
         </div>
       </div>
-    </div>
-    <!-- end of bottom section -->
-  </section>
-  <!-- End Of System Section -->
-  <!-- Queries Section -->
-  <section id="monitor-queries" class="monitorSection">
-    <!-- Left Section, list of queries -->
-    <div class="leftSection">
-      <section class="titleSection">
-        <h1><%= dicts.monitor.RecentQueries %></h1>
-      </section>
-      <!-- Queery list Section -->
-      <section id="monitor-queryList" class="queryListSection">
-        <div class="hint no-selection"><%= dicts.monitor.QueryHint %></div>
-      </section>
-    </div>
-    <!-- Right section, queries detatils -->
-    <div id="monitor-queryDetail" class="rightSection">
-      <section class="titleSection">
-        <h1><%= dicts.monitor.DetailQuery %></h1>
-      </section>
-      <!-- Status Part -->
-      <section class="statusSection">
-        <div class="title">
-          <h2><%= dicts.monitor.STATUS %></h2>
-        </div>
-        <div class="conent">
-          <div class="status start">
-            <span class="name"><%= dicts.monitor.StartedTime %>:</span>
-            <span class="text">N/A</span>
+      <!-- end of bottom section -->
+    </section>
+    <!-- End Of System Section -->
+    <!-- Queries Section -->
+    <section id="monitor-queries" class="subPanel monitorSection">
+      <!-- Left Section, list of queries -->
+      <div class="leftSection">
+        <section class="titleSection">
+          <h1><%= dicts.monitor.RecentQueries %></h1>
+        </section>
+        <!-- Queery list Section -->
+        <section id="monitor-queryList" class="queryListSection">
+          <div class="hint no-selection"><%= dicts.monitor.QueryHint %></div>
+        </section>
+      </div>
+      <!-- Right section, queries detatils -->
+      <div id="monitor-queryDetail" class="rightSection">
+        <section class="titleSection">
+          <h1><%= dicts.monitor.DetailQuery %></h1>
+        </section>
+        <!-- Status Part -->
+        <section class="statusSection">
+          <div class="title">
+            <h2><%= dicts.monitor.STATUS %></h2>
           </div>
-          <div class="status elapsed">
-            <span class="name"><%= dicts.monitor.ElaspedTime %>:</span>
-            <span class="text">N/A</span>
+          <div class="conent">
+            <div class="status start">
+              <span class="name"><%= dicts.monitor.StartedTime %>:</span>
+              <span class="text">N/A</span>
+            </div>
+            <div class="status elapsed">
+              <span class="name"><%= dicts.monitor.ElaspedTime %>:</span>
+              <span class="text">N/A</span>
+            </div>
+            <div class="status remaining">
+              <span class="name"><%= dicts.monitor.RemainTime %>:</span>
+              <span class="text">N/A</span>
+            </div>
+            <div class="status total">
+              <span class="name"><%= dicts.monitor.TotalTime %>:</span>
+              <span class="text">N/A</span>
+            </div>
           </div>
-          <div class="status remaining">
-            <span class="name"><%= dicts.monitor.RemainTime %>:</span>
-            <span class="text">N/A</span>
+        </section>
+        <div class="divider"></div>
+        <!-- Output Detail -->
+        <section class="outputSection">
+          <div class="title">
+            <h2><%= dicts.monitor.OUTPUT %></h2>
           </div>
-          <div class="status total">
-            <span class="name"><%= dicts.monitor.TotalTime %>:</span>
-            <span class="text">N/A</span>
+          <div class="content">
+            <span class="text"><%= dicts.monitor.ip %>...</span>
           </div>
-        </div>
-      </section>
-      <div class="divider"></div>
-      <!-- Output Detail -->
-      <section class="outputSection">
-        <div class="title">
-          <h2><%= dicts.monitor.OUTPUT %></h2>
-        </div>
-        <div class="content">
-          <span class="text"><%= dicts.monitor.ip %>...</span>
-        </div>
-        <div class="buttonArea">
-          <button id="monitor-inspect" class="btn btnLarge iconBtn btnInactive">
-            <span class="icon"></span><%= dicts.monitor.VIEWOUTPUT %>
+          <div class="buttonArea">
+            <button id="monitor-inspect" class="btn btnLarge iconBtn btnInactive">
+              <span class="icon"></span><%= dicts.monitor.VIEWOUTPUT %>
+            </button>
+            <button id="monitor-export" class="btn btnLarge iconBtn btnInactive">
+              <span class="icon"></span><%= dicts.monitor.EXPORT %>
+            </button>
+          </div>
+        </section>
+        <div class="divider"></div>
+        <!-- SQL Part -->
+        <section class="operationSection">
+          <div class="title">
+            <h2><%= dicts.common.OP %></h2>
+          </div>
+          <div class="content"></div>
+        </section>
+      </div>
+    </section>
+    <!-- End Of Queries Section -->
+    <!-- Setup Section -->
+    <section id="monitor-setup" class="subPanel monitorSection">
+      <div class="topSection"><%= dicts.monitor.Config %></div>
+      <div class="leftSection no-selection">
+        <div class="buttonSection">
+          <button id="configInstall" class="btn btnLarge iconBtn"><span class="icon"></span>
+            <%= dicts.monitor.INSTALL %>
           </button>
-          <button id="monitor-export" class="btn btnLarge iconBtn btnInactive">
-            <span class="icon"></span><%= dicts.monitor.EXPORT %>
+          <button id="configUninstall" class="btn btnLarge iconBtn"><span class="icon"></span>
+            <%= dicts.monitor.UNINSTALL %>
+          </button>
+          <button id="configUpgrade" class="btn btnLarge iconBtn"><span class="icon"></span>
+            <%= dicts.monitor.UPGRADE %>
+          </button>
+          <button id="configStartNode" class="btn btnLarge iconBtn"><span class="icon"></span>
+            <%= dicts.monitor.STARTNODE %>
+          </button>
+          <button id="configStopNode" class="btn btnLarge iconBtn"><span class="icon"></span>
+            <%= dicts.monitor.STOPNODE %>
           </button>
         </div>
-      </section>
-      <div class="divider"></div>
-      <!-- SQL Part -->
-      <section class="operationSection">
-        <div class="title">
-          <h2><%= dicts.common.OP %></h2>
-        </div>
-        <div class="content"></div>
-      </section>
-    </div>
-  </section>
-  <!-- End Of Queries Section -->
-  <!-- Setup Section -->
-  <section id="monitor-setup" class="monitorSection">
-    <div class="topSection"><%= dicts.monitor.Config %></div>
-    <div class="leftSection no-selection">
-      <div class="buttonSection">
-        <button id="configInstall" class="btn btnLarge iconBtn"><span class="icon"></span>
-          <%= dicts.monitor.INSTALL %>
-        </button>
-        <button id="configUninstall" class="btn btnLarge iconBtn"><span class="icon"></span>
-          <%= dicts.monitor.UNINSTALL %>
-        </button>
-        <button id="configUpgrade" class="btn btnLarge iconBtn"><span class="icon"></span>
-          <%= dicts.monitor.UPGRADE %>
-        </button>
-        <button id="configStartNode" class="btn btnLarge iconBtn"><span class="icon"></span>
-          <%= dicts.monitor.STARTNODE %>
-        </button>
-        <button id="configStopNode" class="btn btnLarge iconBtn"><span class="icon"></span>
-          <%= dicts.monitor.STOPNODE %>
-        </button>
       </div>
-    </div>
-    <div class="midSection">
-      <div class="visualArea">
-        <div class="clusterIcon">
-          <div class="icon"></div>
+      <div class="midSection">
+        <div class="visualArea">
+          <div class="clusterIcon">
+            <div class="icon"></div>
+          </div>
+          <div class="nodeIcon">
+            <div class="icon"></div>
+          </div>
         </div>
-        <div class="nodeIcon">
-          <div class="icon"></div>
-        </div>
-      </div>
-      <div class="optionsArea">
-      <% var names = ['DsDefaultSampleSize', 'StatTurnOnDiffStats', 'DsMaxUncompressedFileSize',
-      'XcalarRootCompletePath', 'XcalarRootCompletePath', 'DfMaxRecords', 'ConfigUiKvStorePath',
-      'StatTurnOnDiffStats', 'StatTurnOnDiffStats', 'DsMaxUncompressedFileSize',
-      'XcalarRootCompletePath', 'XcalarRootCompletePath', 'DfMaxRecords', 'ConfigUiKvStorePath',
-      'StatTurnOnDiffStats']; %>
-      <% var inputValues = [524280000, false, 1073741824, '//var//tmp/xcalar//1073741824',
-      '//var//tmp//UI.kvStore', false, 1073741824, 1073741824, 1073741824, 1073741824,
-      1073741824, 1073741824, 1073741824, 1073741824]; %>
-      <% _.each(names, function(name, i) { %>
+        <div class="optionsArea">
+        <% var names = ['DsDefaultSampleSize', 'StatTurnOnDiffStats', 'DsMaxUncompressedFileSize',
+        'XcalarRootCompletePath', 'XcalarRootCompletePath', 'DfMaxRecords', 'ConfigUiKvStorePath',
+        'StatTurnOnDiffStats', 'StatTurnOnDiffStats', 'DsMaxUncompressedFileSize',
+        'XcalarRootCompletePath', 'XcalarRootCompletePath', 'DfMaxRecords', 'ConfigUiKvStorePath',
+        'StatTurnOnDiffStats']; %>
+        <% var inputValues = [524280000, false, 1073741824, '//var//tmp/xcalar//1073741824',
+        '//var//tmp//UI.kvStore', false, 1073741824, 1073741824, 1073741824, 1073741824,
+        1073741824, 1073741824, 1073741824, 1073741824]; %>
+        <% _.each(names, function(name, i) { %>
 
-        <div class="optionRow">
-          <div class="nameArea">
-            <span class="label"><%= dicts.common.Name %>: </span>
-            <span class="name"><%= name %></span>
+          <div class="optionRow">
+            <div class="nameArea">
+              <span class="label"><%= dicts.common.Name %>: </span>
+              <span class="name"><%= name %></span>
+            </div>
+            <div class="valueArea">
+              <span class="label"><%= dicts.common.Val %>: </span>
+              <input type="text" value="<%= inputValues[i] %>">
+            </div>
+            <div class="buttonArea">
+              <button class="btn btnMid"><%= dicts.common.BROWSE %></button>
+            </div>
           </div>
-          <div class="valueArea">
-            <span class="label"><%= dicts.common.Val %>: </span>
-            <input type="text" value="<%= inputValues[i] %>">
+         <% }) %>
+          <div class="optionRow">
+            <div class="nameArea">
+              <span class="label"><%= dicts.common.Name %>: </span>
+              <span class="name">DsDefaultSampleSize</span>
+            </div>
+            <div class="valueArea">
+              <span class="label"><%= dicts.common.Val %>: </span>
+              <input type="text">
+            </div>
+            <div class="buttonArea">
+              <button class="btn btnMid"><%= dicts.common.BROWSE %></button>
+            </div>
           </div>
-          <div class="buttonArea">
-            <button class="btn btnMid"><%= dicts.common.BROWSE %></button>
-          </div>
+          <div class="optionRow"></div>
+          <div class="optionRow"></div>
+          <div class="optionRow"></div>
+          <div class="optionRow"></div>
+          <div class="optionRow"></div>
+          <div class="optionRow"></div>
+          <div class="optionRow"></div>
+          <div class="optionRow"></div>
+          <div class="optionRow"></div>
+          <div class="optionRow"></div>
+          <div class="optionRow"></div>
+          <div class="optionRow"></div>
+          <div class="optionRow"></div>
+          <div class="optionRow"></div>
+          <div class="optionRow"></div>
+          <div class="optionRow"></div>
+          <div class="optionRow"></div>
+          <div class="optionRow"></div>
+          <div class="optionRow"></div>
+          <div class="optionRow"></div>
         </div>
-       <% }) %>
-        <div class="optionRow">
-          <div class="nameArea">
-            <span class="label"><%= dicts.common.Name %>: </span>
-            <span class="name">DsDefaultSampleSize</span>
-          </div>
-          <div class="valueArea">
-            <span class="label"><%= dicts.common.Val %>: </span>
-            <input type="text">
-          </div>
-          <div class="buttonArea">
-            <button class="btn btnMid"><%= dicts.common.BROWSE %></button>
-          </div>
-        </div>
-        <div class="optionRow"></div>
-        <div class="optionRow"></div>
-        <div class="optionRow"></div>
-        <div class="optionRow"></div>
-        <div class="optionRow"></div>
-        <div class="optionRow"></div>
-        <div class="optionRow"></div>
-        <div class="optionRow"></div>
-        <div class="optionRow"></div>
-        <div class="optionRow"></div>
-        <div class="optionRow"></div>
-        <div class="optionRow"></div>
-        <div class="optionRow"></div>
-        <div class="optionRow"></div>
-        <div class="optionRow"></div>
-        <div class="optionRow"></div>
-        <div class="optionRow"></div>
-        <div class="optionRow"></div>
-        <div class="optionRow"></div>
-        <div class="optionRow"></div>
       </div>
-    </div>
-    <div class="bottomSection">
-      <button class="btn btnMid"><%= dicts.common.CONFIRMSAVE %></button>
-      <button class="btn btnMid"><%= dicts.common.CONFIRMRESTART %></button>
-      <button class="btn btnMid cancel"><%= dicts.common.CANCEL %></button>
-    </div>
-  </section>
-  <!-- End of Setup Section -->
-  <!-- Settings Section -->
-  <section id="monitor-settings" class="monitorSection">
-    <div class="topSection"><%= dicts.monitor.UserSettings %></div>
-    <div class="mainSection no-selection">
-      <div class="heading"><%= dicts.monitor.GeneralSettings %></div>
-      <div class="optionsContainer">
-        <div class="optionSet">
-          <div class="label"><%= dicts.monitor.showDataCol %></div>
-          <div class="optionSelector">
-            <div class="onOffBtn">
-                <input type='checkbox' class="checkbox" id="showDataColBox" checked>
-                <label for="showDataColBox">
+      <div class="bottomSection">
+        <button class="btn btnMid"><%= dicts.common.CONFIRMSAVE %></button>
+        <button class="btn btnMid"><%= dicts.common.CONFIRMRESTART %></button>
+        <button class="btn btnMid cancel"><%= dicts.common.CANCEL %></button>
+      </div>
+    </section>
+    <!-- End of Setup Section -->
+    <!-- Settings Section -->
+    <section id="monitor-settings" class="subPanel monitorSection">
+      <div class="topSection"><%= dicts.monitor.UserSettings %></div>
+      <div class="mainSection no-selection">
+        <div class="heading"><%= dicts.monitor.GeneralSettings %></div>
+        <div class="optionsContainer">
+          <div class="optionSet">
+            <div class="label"><%= dicts.monitor.showDataCol %></div>
+            <div class="optionSelector">
+              <div class="onOffBtn">
+                  <input type='checkbox' class="checkbox" id="showDataColBox" checked>
+                  <label for="showDataColBox">
+                    <div class="slider"></div>
+                    <div class="text offText">OFF</div>
+                    <div class="text onText">ON</div>
+                  </label>
+              </div>
+            </div>
+          </div>
+          <div class="optionSet">
+            <div class="label"><%= dicts.monitor.memThreshold %></div>
+            <div title="<%= dicts.monitor.MemoryThresholdHint %>" class="qMark" data-toggle="tooltip" data-container="body"></div>
+            <div id="memLimitSlider" class="optionSelector rangeSliderWrap">
+              <div class="rangeSlider">
+                <div class="leftArea">
                   <div class="slider"></div>
-                  <div class="text offText">OFF</div>
-                  <div class="text onText">ON</div>
-                </label>
+                </div>
+                <div class="rightArea"></div>
+              </div>
+              <input class="value" value="90" type="number" min="50" max="99">
+              <span>%</span>
             </div>
           </div>
-        </div>
-        <div class="optionSet">
-          <div class="label"><%= dicts.monitor.memThreshold %></div>
-          <div title="<%= dicts.monitor.MemoryThresholdHint %>" class="qMark" data-toggle="tooltip" data-container="body"></div>
-          <div id="memLimitSlider" class="optionSelector rangeSliderWrap">
-            <div class="rangeSlider">
-              <div class="leftArea">
-                <div class="slider"></div>
+          <div class="optionSet">
+            <div class="label"><%= dicts.monitor.graphInterval %></div>
+            <div id="monitorIntervalSlider" class="optionSelector rangeSliderWrap">
+              <div class="rangeSlider">
+                <div class="leftArea">
+                  <div class="slider"></div>
+                </div>
+                <div class="rightArea"></div>
               </div>
-              <div class="rightArea"></div>
+              <input class="value" value="3" type="number" min="1" max="60">
+              <span><%= dicts.common.seconds %></span>
             </div>
-            <input class="value" value="90" type="number" min="50" max="99">
-            <span>%</span>
-          </div>
-        </div>
-        <div class="optionSet">
-          <div class="label"><%= dicts.monitor.graphInterval %></div>
-          <div id="monitorIntervalSlider" class="optionSelector rangeSliderWrap">
-            <div class="rangeSlider">
-              <div class="leftArea">
-                <div class="slider"></div>
-              </div>
-              <div class="rightArea"></div>
-            </div>
-            <input class="value" value="3" type="number" min="1" max="60">
-            <span><%= dicts.common.seconds %></span>
           </div>
         </div>
       </div>
-    </div>
-  </section>
-  <!-- End of Settings Section -->
+    </section>
+    <!-- End of Settings Section -->
+  </div>
+  
 </div>
 <!-- END OF MONITOR PANEL -->

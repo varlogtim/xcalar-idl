@@ -13,20 +13,20 @@
   </div>
   <% } %>
   <!-- maiu menu-->
-  <div id="mainMenu" class="clearfix">
+  <div id="topMenuBarTabs" class="clearfix">
     <!-- workspance tab -->
     <% if (!dicts.isTutor) { %>
-    <div id="workspaceTab" class="mainMenuTab active">
+    <div id="workspaceTab" class="topMenuBarTab active">
       <div class="mainTab"></div>
       <div class="subTab"></div>
     </div>
     <% } else if (dicts.tutor.name == "workbookDemo") { %>
-    <div id="workspaceTab" class="mainMenuTab active" data-introstep="2">
+    <div id="workspaceTab" class="topMenuBarTab active" data-introstep="2">
       <div class="mainTab"></div>
       <div class="subTab"></div>
     </div>
     <% } else { %>
-    <div id="workspaceTab" class="mainMenuTab">
+    <div id="workspaceTab" class="topMenuBarTab">
       <div class="mainTab"></div>
       <div class="subTab"></div>
     </div>
@@ -34,7 +34,7 @@
 
     <!-- data store tab -->
     <% if (!dicts.isTutor) { %>
-    <div id="dataStoresTab" class="mainMenuTab firstTouch">
+    <div id="dataStoresTab" class="topMenuBarTab firstTouch mainMenuOpen">
       <div class="mainTab"></div>
       <div id="inButton" class="subTab active">
         <div class="icon"></div>
@@ -44,7 +44,7 @@
       </div>
     </div>
     <% } else if (dicts.tutor.name == "workbookDemo") { %>
-    <div id="dataStoresTab" class="mainMenuTab" data-introstep="4">
+    <div id="dataStoresTab" class="topMenuBarTab mainMenuOpen" data-introstep="4">
       <div class="mainTab"></div>
       <div id="inButton" class="subTab active">
         <div class="icon"></div>
@@ -54,7 +54,7 @@
       </div>
     </div>
     <% } else { %>
-    <div id="dataStoresTab" class="mainMenuTab active">
+    <div id="dataStoresTab" class="topMenuBarTab active mainMenuOpen">
       <div class="mainTab"></div>
       <div id="inButton" class="subTab active">
         <div class="icon"></div>
@@ -67,19 +67,19 @@
 
     <!-- monitor tab -->
     <% if (dicts.tutor.name == "workbookDemo") { %>
-    <div id="monitorTab" class="mainMenuTab" data-introstep="3">
+    <div id="monitorTab" class="topMenuBarTab mainMenuOpen" data-introstep="3">
       <div class="mainTab"></div>
       <div class="subTab"></div>
     </div>
     <% } else { %>
-    <div id="monitorTab" class="mainMenuTab">
+    <div id="monitorTab" class="topMenuBarTab mainMenuOpen">
       <div class="mainTab"></div>
       <div class="subTab"></div>
     </div>
     <% } %>
 
     <!-- scheduler tab -->
-    <div id="schedulerTab" class="mainMenuTab">
+    <div id="schedulerTab" class="topMenuBarTab mainMenuOpen">
       <div class="mainTab"></div>
       <div id="dataflowButton" class="subTab active">
         <div class="icon"></div>
@@ -89,7 +89,7 @@
       </div>
     </div>
     <!-- extension tab -->
-    <div id="extensionTab" class="mainMenuTab">
+    <div id="extensionTab" class="topMenuBarTab mainMenuOpen">
       <div class="mainTab"></div>
       <div class="subTab"></div>
     </div>
@@ -97,27 +97,28 @@
   <!-- end main menu -->
 
   <!-- start bottom menu -->
-  <div id="bottomMenuTabs" class="bottomButtonsArea no-selection clearfix">
+  <div id="bottomMenuBarTabs" class="bottomButtonsArea no-selection clearfix">
     <!-- tablelist -->
-    <div id="tableListTab" class="sliderBtn bottomMenuTab" data-toggle="tooltip" data-placement="right" data-container="body" title="<%= dicts.bottomBar.tblList %>"></div>
+    <div id="tableListTab" class="sliderBtn bottomMenuBarTab" data-toggle="tooltip" data-placement="right" data-container="body" title="<%= dicts.bottomBar.tblList %>"></div>
     
     <!-- sql -->
-    <div id="sqlTab" class="sliderBtn bottomMenuTab" data-toggle="tooltip" data-placement="right" data-container="body" title="SQL"></div>
+    <div id="sqlTab" class="sliderBtn bottomMenuBarTab" data-toggle="tooltip" data-placement="right" data-container="body" title="SQL"></div>
     
     <!-- udf -->
-    <div id="udfTab" class="sliderBtn bottomMenuTab" data-toggle="tooltip" data-placement="right" data-container="body" title="UDF"></div>
+    <div id="udfTab" class="sliderBtn bottomMenuBarTab" data-toggle="tooltip" data-placement="right" data-container="body" title="UDF"></div>
   
     <!-- help section -->
     <% if (dicts.tutor.name == "workbookDemo") { %>
 
-    <div id="helpTab" class="sliderBtn bottomMenuTab"> </div>
+    <div id="helpTab" class="sliderBtn bottomMenuBarTab"> </div>
     
     <% } else { %>
 
-    <div id="helpTab" class="sliderBtn bottomMenuTab" data-toggle="tooltip" data-placement="right" data-container="body" title="<%= dicts.bottomBar.help %>"></div>
+    <div id="helpTab" class="sliderBtn bottomMenuBarTab" data-toggle="tooltip" data-placement="right" data-container="body" title="<%= dicts.bottomBar.help %>"></div>
       
     <% } %>
   </div>
 </div>
 <!-- End of Menu Bar -->
+include "mainMenu.html"
 include "bottomMenu.html"

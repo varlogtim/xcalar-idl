@@ -284,8 +284,7 @@ window.DFGPanel = (function($, DFGPanel) {
                                                             {show: true});
                 }
             }
-            $button.siblings('.subTab').removeClass('active');
-            $button.addClass('active');
+             // button switch styling handled in mainMenu.js
         });
     }
 

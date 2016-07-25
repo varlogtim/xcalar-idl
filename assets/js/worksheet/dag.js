@@ -2428,14 +2428,14 @@ window.Dag = (function($, Dag) {
         }
         var isHidden = false;
         var newCondensedDepth = condensedDepth;
+        // condense if not a join, not a leaf, and not the root
         if (options.condensed && !nodeInfo.joined &&
             nodeInfo.numParents === 1 && nodeInfo.child !== -1) {
             isHidden = true;
             nodeInfo.isHidden = true;
             if (!isPrevHidden) {
                 newCondensedDepth = condensedDepth + 0.3;
-                var child = nodeInfo.child;
-                parentChildMap[child].isParentHidden = true;
+                parentChildMap[nodeInfo.child].isParentHidden = true;
             }
         } else {
             newCondensedDepth = condensedDepth + 1;
@@ -2467,16 +2467,16 @@ window.Dag = (function($, Dag) {
         }
 
         var yPos;
-        if (numParents === 0) {
+        if (numParents === 0) { // leaf
             coor.y = storedInfo.height;
             yPos = storedInfo.height;
             storedInfo.lower = storedInfo.height;
             storedInfo.upper = storedInfo.height;
             storedInfo.height++;
-        } else if (numParents === 1) {
+        } else if (numParents === 1) { // set coordinates to draw table
             coor.y = lower;
             yPos = lower;
-        } else {
+        } else { // a joined table, y coordinate is average of 
             coor.y = (lower + upper) / 2;
             yPos = ((lower + upper) / 2);
         }

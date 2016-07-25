@@ -166,7 +166,7 @@ window.StatusMessage = (function($, StatusMessage) {
 
     StatusMessage.updateLocation = function(force, text) {
         if (!isLoading || force) {
-            var currentPanel = $('.mainMenuTab.active').text().trim();
+            var currentPanel = $('.topMenuBarTab.active').text().trim();
             text = text || StatusMessageTStr.Viewing + " " + currentPanel;
             var locationHTML =
                 '<span id="viewLocation">' +

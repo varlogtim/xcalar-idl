@@ -1,8 +1,11 @@
 window.BottomMenu = (function($, BottomMenu) {
-    var delay = 300;
+    var delay = 200;
     var clickable = true;
+    var $menuPanel //$("#bottomMenu");
+    var slideTimeout;
 
     BottomMenu.setup = function() {
+        $menuPanel = $("#bottomMenu");
         setupButtons();
         SQL.setup();
         TableList.setup();
@@ -28,9 +31,19 @@ window.BottomMenu = (function($, BottomMenu) {
         // CLIBox.clear();
     };
 
+    BottomMenu.close = function(topMenuOpening) {
+        if ($menuPanel.hasClass('poppedOut')) {
+            setTimeout(function() {
+                closeMenu(topMenuOpening);
+            }, 100);
+        } else {
+            closeMenu(topMenuOpening);
+        }
+        popInModal();
+    };
+
     // setup buttons to open bottom menu
     function setupButtons() {
-        var $menuPanel = $("#bottomMenu");
         $menuPanel.on("click", ".close", function() {
             if ($menuPanel.hasClass('poppedOut')) {
                 setTimeout(function() {
@@ -171,7 +184,7 @@ window.BottomMenu = (function($, BottomMenu) {
         //     CLIBox.realignNl();
         // });
 
-        $("#bottomMenuTabs").on("click", ".sliderBtn", function() {
+        $("#bottomMenuBarTabs").on("click", ".sliderBtn", function() {
             if (!clickable) {
                 return;
             }
@@ -179,9 +192,13 @@ window.BottomMenu = (function($, BottomMenu) {
         });
     }
 
-    function closeMenu() {
+    function closeMenu(topMenuOpening) {
         $("#bottomMenu").removeClass("open");
-        $("#bottomMenuTabs .sliderBtn.active").removeClass("active");
+        $('#container').removeClass('bottomMenuOpen');
+        $("#bottomMenuBarTabs .sliderBtn.active").removeClass("active");
+        if (topMenuOpening) {
+            noAnim();
+        }
     }
 
     function toggleSection(sectionIndex) {
@@ -189,9 +206,8 @@ window.BottomMenu = (function($, BottomMenu) {
             sectionIndex = 0;
         }
 
-        var $menuPanel = $("#bottomMenu");
         var $menuSections = $menuPanel.find(".menuSection");
-        var $sliderBtns = $("#bottomMenuTabs .sliderBtn");
+        var $sliderBtns = $("#bottomMenuBarTabs .sliderBtn");
         var $section = $menuSections.eq(sectionIndex);
 
         if ($menuPanel.hasClass("open") && $section.hasClass("active")) {
@@ -210,7 +226,15 @@ window.BottomMenu = (function($, BottomMenu) {
             // mark the section and open the menu
             $section.addClass("active");
 
+            if ($('#mainMenu').hasClass('open')) {
+                var isBottomMenuOpening = true;
+                MainMenu.close(isBottomMenuOpening);
+                noAnim();
+            }
+
             $menuPanel.addClass("open");
+            $('#container').addClass('bottomMenuOpen');
+
 
             if ($section.attr("id") === "sqlSection") {
                 SQL.scrollToBottom();
@@ -221,6 +245,8 @@ window.BottomMenu = (function($, BottomMenu) {
             // if ($section.attr("id") === "cliSection") {
             //     CLIBox.realignNl();
             // }
+            
+
         }
 
         // dealay the next click as the menu open/close has animation
@@ -230,8 +256,14 @@ window.BottomMenu = (function($, BottomMenu) {
         }, delay);
     }
 
+    function noAnim() {
+        $menuPanel.addClass('noAnim');
+        setTimeout(function() {
+            $menuPanel.removeClass('noAnim');
+        }, delay);
+    }
+
     function popOutModal() {
-        var $menuPanel = $("#bottomMenu");
         var offset = $menuPanel.offset();
 
         $menuPanel.addClass('poppedOut');
@@ -242,16 +274,17 @@ window.BottomMenu = (function($, BottomMenu) {
             "left": offset.left - 5,
             "top" : offset.top - 5
         });
+        $('#container').addClass('bottomMenuOut');
     }
 
     function popInModal() {
-        var $menuPanel = $("#bottomMenu");
         $menuPanel.removeClass('poppedOut');
         $menuPanel.attr('style', "");
         $menuPanel.find('.popOut')
                 .attr('data-original-title', SideBarTStr.PopOut);
         $('.tooltip').hide();
         // CLIBox.realignNl();
+        $('#container').removeClass('bottomMenuOut');
     }
 
     return (BottomMenu);

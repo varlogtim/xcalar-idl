@@ -36,10 +36,11 @@
         }
     }
 
-    .monitorSection {
+    .subPanel {
         display: none;
         // exclude height of #statusBar
-        .size(@width: 100%, @height: ~"calc(100% - 35px)");
+        // .size(@width: 100%, @height: ~"calc(100% - 35px)");
+        .size(@height: ~"calc(100% - 35px)");
         margin-top: -1px;
 
         &.active {

@@ -372,7 +372,7 @@
 @color-bg-select-blue: #378CB3;
 @color-bg-unselect-gray: #9F9F9F;
 @color-bg-dropdown-black: #000000;
-@color-bg-dusk-blue: #1E6688;
+@color-bg-dusk-blue: #1E6688; // active main tab & mainmenu background
 @color-bg-topBarGray: #EAEAEA;
 @color-bg-light-navy: #154f69; // inactive sub tab
 @color-bg-tiber-blue: #062330; // table list tab
@@ -434,24 +434,29 @@
 @font-gotham: "Gotham", "Open Sans", "Trebuchet MS", Arial, sans-serif;
 
 
-@width-mainMenu: 50px;
-
+@width-menuBar: 50px;
 @width-userBox: 50px;
 @width-topBar: 100%;
 @width-sideMenuMinimized: 10px;
-@width-homeBtn: @width-sideMenuMinimized + @width-mainMenu;
-@width-mainPanel: ~"calc(100% - 60px)"; // subtract main menu width + 10px margin
+@width-homeBtn: @width-sideMenuMinimized + @width-menuBar;
+@width-mainPanel: ~"calc(100% - @{width-homeBtn})";
+@width-topMenu: 295px;
+@width-bottomMenu: 295px;
 
 @height-homeBtn: 50px;
-@height-mainTab: @width-mainMenu;
+@height-topBar: @height-homeBtn;
+@height-mainTab: @width-menuBar;
 @height-subTab: 34px;
 @height-bottomBar: @height-subTab;
-@height-mainPanel: ~"calc(100% - 34px)"; // subtract bottom bar h eight
+@height-mainPanel: ~"calc(100% - @{height-bottomBar})"; 
 
 @z-index-menuBar: 40;
 @z-index-homeBtn: @z-index-menuBar + 1;
+@z-index-topMenu: 20;
 @z-index-bottomMenu: 20;
 
 @opacity-unhover: 0.8;
 @opacity-disabled: 0.3;
 @opacity-hover: 1;
+
+@padding-mainContent: 5px;

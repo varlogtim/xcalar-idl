@@ -275,87 +275,8 @@ window.StartManager = (function(StartManager, $) {
 
     function setupMenuBar() {
         RowScroller.setup();
-        setupMainPanelsTab();
+        MainMenu.setup();
         FnBar.setup();
-    }
-
-    function setupMainPanelsTab() {
-        var $tabs = $(".mainMenuTab");
-
-        $tabs.click(function() {
-            var $curTab = $(this);
-
-            if ($curTab.hasClass("active")) {
-                return;
-            }
-            var $lastActiveTab = $tabs.filter(".active");
-            var lastTabId = $lastActiveTab.attr("id");
-            $lastActiveTab.addClass('noTransition')
-                          .find('.icon')
-                          .addClass('noTransition');
-            // we dont want transition when active tab goes to inactive
-            setTimeout(function() {
-                $tabs.removeClass('noTransition')
-                     .find('.icon')
-                     .removeClass('noTransition');
-            }, 100);
-
-            $tabs.removeClass("active");
-            $('.mainPanel').removeClass('active');
-            $curTab.addClass("active");
-
-            var curTab = $curTab.attr("id");
-            switch (curTab) {
-                case ("workspaceTab"):
-                    $("#workspacePanel").addClass("active");
-                    WSManager.focusOnWorksheet();
-                    break;
-                case ("schedulerTab"):
-                    $('#schedulerPanel').addClass("active");
-                    break;
-                case ("dataStoresTab"):
-                    $("#datastorePanel").addClass("active");
-                    DSTable.refresh();
-                    DSCart.checkQueries();
-                    if ($curTab.hasClass("firstTouch")) {
-                        $curTab.removeClass("firstTouch");
-                        DS.setupView();
-                        DSForm.initialize();
-                        // relese the old ref count if any
-                        DS.release();
-                    }
-                    break;
-                case ("monitorTab"):
-                    $('#monitorPanel').addClass("active");
-                    MonitorPanel.active();
-                    break;
-                case ("extensionTab"):
-                    $('#extensionPanel').addClass("active");
-                    ExtensionPanel.active();
-                    break;
-                default:
-                    $(".underConstruction").addClass("active");
-            }
-            if (curTab !== "dataStoresTab") {
-                // when switch to other tab, release result set
-                DS.release();
-            }
-
-            if (lastTabId === "monitorTab") {
-                MonitorPanel.inActive();
-            } else if (lastTabId === "dataStoresTab") {
-                DSCart.checkQueries();
-            }
-            if (lastTabId === "workspaceTab") {
-                var $activeCompSwitch = $('.dagTab.active');
-                if ($activeCompSwitch.length) {
-                    $activeCompSwitch.attr('data-original-title',
-                                            TooltipTStr.OpenQG);
-                }
-            }
-            StatusMessage.updateLocation();
-            $('.tableDonePopupWrap').remove();
-        });
     }
 
     function restoreActiveTable(tableId, failures) {

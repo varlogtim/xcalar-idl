@@ -69,8 +69,7 @@ window.DataStore = (function($, DataStore) {
                 $contentHeaderMidText.text(DSTStr.DS);
                 DSTable.refresh();
             }
-            $button.siblings().removeClass('active');
-            $button.addClass('active');
+            // button switch styling handled in mainMenu.js
         });
     }
 

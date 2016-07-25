@@ -9,25 +9,14 @@
   </div>
   include "menuBar/menuBar.html"
   include "userBox.html"
-  <!-- WORK SPACE PANEL -->
-  <div id="workspacePanel" class="mainPanel no-selection active">
-    include "workspaceBar.html"
-    <div id="watermark"></div>
-    <div id="insight"></div>
-    <div id="mainFrame"></div>
-    include "worksheetTabs.html"
 
-    include "dag.html"
-    include "modal/dataFlowModal.html"
-    include "modal/operationsModal.html"
-    include "modal/extensionOpModal.html"
-    include "tableMenus.html"
-  </div>
-  <!-- END WORKSPACE PANEL -->
+  <!-- START MAIN PANELS -->
+  include "workspace.html"
   include "monitor.html"
   include "extension.html"
   include "datastore/datastore.html"
   include "scheduler.html"
+  <!-- END MAIN PANELS -->
 
   <div class="underConstruction mainPanel">
     <div class="topBar"></div>
@@ -60,28 +49,13 @@
       </div>
     </div>
   </div>
-
+ 
+  <!-- Modal Background -->
+  <div id="modalBackground"></div>
   include "modal/aggModal.html"
   include "modal/dfgParameterModal.html"
   include "modal/joinModal.html"
-  <!-- Modal Background -->
-  <div id="modalBackground"></div>
-
   include "modal/jsonModal.html"
-  <!-- ScratchPad -->
-  <!-- <div id="scratchpadArea">
-    <table class="scratchpad">
-      <thead>
-        <tr>
-          <td id="scratchpadTitle">Xcalar Scratchpad</td>
-        </tr>
-      <thead>
-      <tbody>
-      </tbody>
-    </table>
-  </div> -->
-  <!-- End of ScratchPad -->
-
   include "modal/addScheduleModal.html"
   include "modal/alertModal.html"
   include "modal/workbook.html"

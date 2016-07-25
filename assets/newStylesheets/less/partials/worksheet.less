@@ -543,7 +543,7 @@
                 }
 
                 .rangeBar {
-                    height: @height-innerScroller;
+                    height: @height-innerScroller - 2px;
                     width: 100%;
                     background-color: @color-white;
                     border-left: 2px solid white;
@@ -609,8 +609,7 @@
 
 /* ========== Main Frame ========== */
 #mainFrame {
-    .size(@width: ~"calc(100% - 5px)", @height: ~"calc(100% - 89px)");
-    padding: 5px 5px 0px 5px;
+    .size(@width: 100%, @height: ~"calc(100% - 39px)");
     white-space: nowrap;
     overflow-x: auto;
     overflow-y: hidden;
