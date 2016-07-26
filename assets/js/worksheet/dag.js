@@ -2,11 +2,16 @@ window.DagPanel = (function($, DagPanel) {
     var $dagPanel; // $('#dagPanel');
     var $dagArea;  // $dagPanel.find('.dagArea');
     var $scrollBarWrap; // $('#dagScrollBarWrap');
+    var $panelSwitch; // $('#dfgPanelSwitch');
+    var dagPanelLeft; // $('#dagPanelContainer').offset().left;
 
     DagPanel.setup = function() {
         $dagPanel = $('#dagPanel');
         $dagArea = $dagPanel.find('.dagArea');
         $scrollBarWrap = $('#dagScrollBarWrap');
+        $panelSwitch = $('#dfgPanelSwitch');
+        dagPanelLeft = $('#dagPanelContainer').offset().left || 65;
+        // dagPanelLeft shouldn't be zero but will result in false zero if not visible
 
         setupDagPanelSliding();
         setupDagTableDropdown();
@@ -21,13 +26,13 @@ window.DagPanel = (function($, DagPanel) {
     };
 
     DagPanel.setScrollBarId = function(winHeight) {
-        // 76 or 89 depends on if scrollbar is showing
-        var el = document.elementFromPoint(10, winHeight - 89);
+        // 34 or 47 depends on if scrollbar is showing
+        var el = document.elementFromPoint(400, winHeight - 47);
         var $dagImageWrap = $(el).closest('.dagImageWrap');
         if ($dagImageWrap.length) {
             var dagImageWrapHeight = $dagImageWrap.height();
             var offsetTop = $dagImageWrap.offset().top;
-            if ((winHeight - 76) < offsetTop + dagImageWrapHeight) {
+            if ((winHeight - 34) < offsetTop + dagImageWrapHeight) {
                 var id = $dagImageWrap.closest('.dagWrap').data('id');
                 $scrollBarWrap.data('id', id);
             } else {
@@ -63,11 +68,10 @@ window.DagPanel = (function($, DagPanel) {
     // opening and closing of dag is temporarily disabled during animation
 
     function setupDagPanelSliding() {
-        $("#worksheetTabs").on("click", ".dagTab", function(event) {
+        $panelSwitch.click(function(event) {
             if (clickDisabled) {
                 return;
             }
-            var $compSwitch = $("#worksheetTabs .dagTab");
             var $workspacePanel = $('#workspacePanel');
             event.stopPropagation();
 
@@ -79,7 +83,7 @@ window.DagPanel = (function($, DagPanel) {
             if ($dagPanel.hasClass('hidden')) {
                 // open dag panel
                 $dagPanel.removeClass('invisible');
-                $compSwitch.attr('data-original-title', TooltipTStr.CloseQG);
+                $panelSwitch.attr('data-original-title', TooltipTStr.CloseQG);
                 $('.tooltip').hide();
 
                 // without set timeout, animation would not work because
@@ -87,16 +91,18 @@ window.DagPanel = (function($, DagPanel) {
                 setTimeout(function() {
                     $dagPanel.removeClass('hidden');
                     setDagTranslate(dagTopPct);
-                    $dagArea.css('height', (100 - dagTopPct) + '%');
-                    $compSwitch.addClass('active');
+                    // $dagArea.css('height', (100 - dagTopPct) + '%');
+                    $dagArea.css('height', 'calc(' + (100 - dagTopPct) + '% - 5px)');
+                    $panelSwitch.addClass('active');
 
 
                     Dag.focusDagForActiveTable();
                     clickDisabled = true;
                     setTimeout(function() {
                         var px = 38 * (dagTopPct / 100);
-                        $('#mainFrame').height('calc(' + dagTopPct + '% - ' +
-                                               px + 'px)');
+                        // $('#mainFrame').height('calc(' + dagTopPct + '% - ' +
+                        //                        px + 'px)');
+                        $('#mainFrame').height(dagTopPct + '%');
                         $dagPanel.addClass('noTransform');
                         $dagPanel.css('top', dagTopPct + '%');
                         clickDisabled = false;
@@ -110,12 +116,12 @@ window.DagPanel = (function($, DagPanel) {
 
             } else if (wasOnWorksheetPanel) {
                 // hide dag panel
-                closePanel($compSwitch);
+                closePanel();
             }
 
             if (!wasOnWorksheetPanel) {
-                $('#workspaceTab').trigger('click');
-                $compSwitch.attr('data-original-title', TooltipTStr.CloseQG);
+                $panelSwitch.trigger('click');
+                $panelSwitch.attr('data-original-title', TooltipTStr.CloseQG);
                 $('.tooltip').hide();
             }
 
@@ -125,7 +131,7 @@ window.DagPanel = (function($, DagPanel) {
 
         $('#closeDag').click(function() {
             // only triiger the first dagTab is enough
-            $('.dagTab').eq(0).trigger('click');
+            $panelSwitch.trigger('click');
         });
 
         $('#maximizeDag').click(function() {
@@ -133,7 +139,7 @@ window.DagPanel = (function($, DagPanel) {
                 return;
             }
             $dagPanel.removeClass('noTransform');
-            $('#mainFrame').height('calc(100% - 38px)');
+            $('#mainFrame').height('100%');
             $dagArea.css('height', '100%');
             if (dagTopPct === undefined) {
                 setDagTranslate(0);
@@ -171,7 +177,7 @@ window.DagPanel = (function($, DagPanel) {
                 $dagPanel.css('top', dagPanelTop);
                 ui.originalPosition.top = dagPanelTop;
                 ui.position.top = dagPanelTop;
-                $('#mainFrame').height('calc(100% - 38px)');
+                $('#mainFrame').height('100%');
                 $dagArea.css('height', '100%');
                 if (window.isBrowserMicrosoft) {
                     $xcTables = $('.xcTable');
@@ -216,7 +222,7 @@ window.DagPanel = (function($, DagPanel) {
                 }
                 if (dagPanelTop + 30 > containerHeight) {
                     // close the dag panel
-                    closePanel($('#worksheetTabs').find('.dagTab.active'));
+                    closePanel();
                     RowScroller.updateViewRange(gActiveTableId);
                     return;
                 }
@@ -224,8 +230,10 @@ window.DagPanel = (function($, DagPanel) {
 
                 var px = 38 * (dagTopPct / 100);
                 $dagPanel.css('top', dagTopPct + '%');
-                $('#mainFrame').height('calc(' + dagTopPct + '% - ' + px + 'px)');
-                $dagArea.css('height', (100 - dagTopPct) + '%');
+                // $('#mainFrame').height('calc(' + dagTopPct + '% - ' + px + 'px)');
+                $('#mainFrame').height(dagTopPct + '%');
+                // $dagArea.css('height', (100 - dagTopPct) + '%');
+                $dagArea.css('height', 'calc(' + (100 - dagTopPct) + '% - 5px)');
                 RowScroller.updateViewRange(gActiveTableId);
                 if (window.isBrowserMicrosoft) {
                     // hack because rows become invisible in IE/EDGE
@@ -242,13 +250,14 @@ window.DagPanel = (function($, DagPanel) {
         });
     }
 
-    function closePanel($compSwitch) {
-        $compSwitch.removeClass('active');
-        $compSwitch.attr('data-original-title', TooltipTStr.OpenQG);
+    function closePanel() {
+        $panelSwitch.removeClass('active');
+        $panelSwitch.attr('data-original-title', TooltipTStr.OpenQG);
         $('.tooltip').hide();
         $dagPanel.removeClass('noTransform');
-        $('#mainFrame').height('calc(100% - 38px)');
-        $dagArea.css('height', (100 - dagTopPct) + '%');
+        $('#mainFrame').height('100%');
+        // $dagArea.css('height', (100 - dagTopPct) + '%');
+        $dagArea.css('height', 'calc(' + (100 - dagTopPct) + '% - 5px)');
         $dagPanel.addClass('hidden');
         $('#dagScrollBarWrap').hide();
         clickDisabled = true;
@@ -404,6 +413,46 @@ window.DagPanel = (function($, DagPanel) {
         $dagPanel.on('click', '.addDataFlow', function() {
             DataFlowModal.show($(this).closest('.dagWrap'));
         });
+
+        $dagPanel.on('click', '.saveImageBtn', function() {
+            var $dagWrap = $(this).closest('.dagWrap');
+            var tableName = $dagWrap.find('.dagTable[data-index="0"]')
+                                        .data('tablename');
+            Dag.createSavableCanvas($dagWrap)
+            .then(function() {
+                var canvas = $dagWrap.find('canvas').eq(1)[0];
+                if ($('html').hasClass('microsoft')) { // for IE
+                    var blob = canvas.msToBlob();
+                    var name = tableName + '.png';
+                    window.navigator.msSaveBlob(blob, name);
+                } else {
+                    downloadImage(canvas, tableName);
+                }
+                $dagWrap.find('canvas').eq(1).remove();
+            });
+        });
+
+        $dagPanel.on('click', '.newTabImageBtn', function() {
+            var $dagWrap = $(this).closest('.dagWrap');
+            Dag.createSavableCanvas($dagWrap)
+            .then(function() {
+                var canvas = $dagWrap.find('canvas').eq(1)[0];
+                var lnk = canvas.toDataURL("image/png");
+                if (lnk.length < 8) {
+                    // was not able to make url because image is
+                    //probably too large
+                    Alert.show({
+                        "title"  : ErrTStr.LargeImgTab,
+                        "msg"    : ErrTStr.LargeImgText,
+                        "isAlert": true
+                    });
+                    $dagWrap.find('.dagImage').addClass('unsavable');
+                } else {
+                    window.open(lnk);
+                }
+                $dagWrap.find('canvas').eq(1).remove();
+            });
+        })
     }
 
     function addRightClickActions($menu) {
@@ -531,10 +580,15 @@ window.DagPanel = (function($, DagPanel) {
 
     function positionAndShowRightClickDropdown(e, $menu) {
         var topMargin = 3;
-        var leftMargin = 7;
+        var leftMargin = dagPanelLeft - 7;
+        var menuWidth = 0;
+        if (MainMenu.isMenuOpen()) {
+            menuWidth = 285;
+        }
+        leftMargin += menuWidth;
 
         var top = e.pageY + topMargin;
-        var left = e.pageX + leftMargin;
+        var left = e.pageX - leftMargin;
 
         if (!window.isBrowserMicrosoft) {
             // if dagpanel is open halfway we have to change the top position
@@ -584,12 +638,11 @@ window.DagPanel = (function($, DagPanel) {
         $menu.find('.selected').removeClass('selected');
         $menu.css({'top': top, 'left': left});
         $menu.show();
-        // XXX GUI-4745 Fix it!!
-        var leftBoundary = $('#bottomMenu')[0].getBoundingClientRect()
-                                                .left;
 
-        if ($menu[0].getBoundingClientRect().right > leftBoundary) {
-            left = leftBoundary - $menu.width() - 10;
+        var rightBoundary = $(window).width() - 5;
+
+        if ($menu[0].getBoundingClientRect().right > rightBoundary) {
+            left = rightBoundary - (menuWidth + dagPanelLeft + $menu.width());
             $menu.css('left', left).addClass('leftColMenu');
         }
 
@@ -604,9 +657,14 @@ window.DagPanel = (function($, DagPanel) {
 
     function positionAndShowDagTableDropdown($dagTable, $menu, $target) {
         var topMargin = -3;
-        var leftMargin = 0;
+        var leftMargin = dagPanelLeft;
         var top = $dagTable[0].getBoundingClientRect().bottom + topMargin;
-        var left = $dagTable[0].getBoundingClientRect().left + leftMargin;
+        var left = $dagTable[0].getBoundingClientRect().left - leftMargin;
+        var menuWidth = 0;
+        if (MainMenu.isMenuOpen()) {
+            menuWidth = 285;
+        }
+        left -= menuWidth;
         if ($target.is('.tableTitle')) {
             top = $target[0].getBoundingClientRect().bottom + topMargin;
         }
@@ -623,12 +681,10 @@ window.DagPanel = (function($, DagPanel) {
         $menu.find('.selected').removeClass('selected');
         $menu.css({'top': top, 'left': left});
         $menu.show();
-        // XXX GUI-4745 Fix it!!
-        var leftBoundary = $('#bottomMenu')[0].getBoundingClientRect()
-                                                .left;
+        var rightBoundary = $(window).width() - 5;
 
-        if ($menu[0].getBoundingClientRect().right > leftBoundary) {
-            left = $dagTable[0].getBoundingClientRect().right - $menu.width();
+        if ($menu[0].getBoundingClientRect().right > rightBoundary) {
+            left = rightBoundary - (menuWidth + dagPanelLeft + $menu.width());
             $menu.css('left', left).addClass('leftColMenu');
         }
 
@@ -894,8 +950,16 @@ window.Dag = (function($, Dag) {
     var dagTableWidth = 214; // includes the blue table and gray operation icon
     var dataStoreWidth = 64;
     var groupOutlineOffset = 20;
+    var condenseLimit = 3; // number of tables wide before we allow condensing
     var canvasLimit = 32767;
     var canvasAreaLimit = 268435456;
+    var dagPanelLeft = $('#dagPanelContainer').offset().left || 65;
+    // dagPanelLeft shouldn't be zero but will result in false zero if not visible
+    var lineColor = '#111111';
+    var tableTitleColor = "#555555";
+    var titleBorderColor = '#A5A5A5';
+    var tableFontColor = '#6E6E6E';
+    var operationFontColor = '#4D4D4D';
 
     Dag.construct = function(tableId, tablesToRemove) {
         var deferred = jQuery.Deferred();
@@ -934,7 +998,7 @@ window.Dag = (function($, Dag) {
                     tableId + '" data-id="' + tableId + '">' +
                 '<div class="header clearfix">' +
                     '<div class="btn btnSmall infoIcon">' +
-                        '<div class="icon"></div>' +
+                        '<i class="icon xi-info-rectangle"></i>' +
                     '</div>' +
                     '<div class="tableTitleArea">' +
                         '<span>Table: </span>' +
@@ -948,7 +1012,19 @@ window.Dag = (function($, Dag) {
                         'data-placement="top" title="' +
                             TooltipTStr.AddDataflow + '" ' +
                         'class="btn btnSmall addDataFlow">' +
-                            '<span class="icon"></span>' +
+                            '<i class="icon xi-add-dataflow"></i>' +
+                        '</div>' +
+                        '<div data-toggle="tooltip" data-container="body" ' +
+                        'data-placement="top" title="' +
+                            TooltipTStr.NewTabQG + '" ' +
+                        'class="btn btnSmall newTabImageBtn">' +
+                            '<i class="icon xi-open-img-newtab"></i>' +
+                        '</div>' +
+                        '<div data-toggle="tooltip" data-container="body" ' +
+                        'data-placement="top" title="' +
+                            TooltipTStr.SaveQG + '" ' +
+                        'class="btn btnSmall saveImageBtn">' +
+                            '<i class="icon xi-save_img"></i>' +
                         '</div>' +
                     '</div>' +
                 '</div>' +
@@ -1026,7 +1102,7 @@ window.Dag = (function($, Dag) {
 
         var dagInfo = Dag.getParentChildDagMap(nodeArray);
         var dagDepth = getDagDepth(dagInfo);
-        var condensed = dagDepth > 15 ? true : false;
+        var condensed = dagDepth > condenseLimit;
         var dagOptions = {condensed: condensed};
         var isPrevHidden = false; // is parent node in a collapsed state
         var group = [];
@@ -1211,7 +1287,7 @@ window.Dag = (function($, Dag) {
         var canvasClone = $dagWrap.find('canvas')[0];
         var canvas = createCanvas($dagWrap, fullCanvas);
         var ctx = canvas.getContext('2d');
-        ctx.strokeStyle = '#999999';
+        ctx.strokeStyle = lineColor;
         drawSavableCanvasBackground(canvas, ctx, $dagWrap, canvasClone)
         .then(function() {
 
@@ -1350,7 +1426,6 @@ window.Dag = (function($, Dag) {
         var size;
         var right;
         var node;
-        // var groupWidth;
         var $groupOutline;
         var $expandWrap;
         var group;
@@ -1394,7 +1469,6 @@ window.Dag = (function($, Dag) {
             $expandWrap.attr('title', "");
 
             $groupOutline = $expandWrap.next();
-            // groupWidth = size * dagTableWidth + 11;
             $groupOutline.css('right', (right - groupOutlineOffset))
                          .addClass('expanded');
             for (var j = 0; j < group.length; j++) {
@@ -1603,7 +1677,7 @@ window.Dag = (function($, Dag) {
 
         var canvas = createCanvas($dagWrap);
         var ctx = canvas.getContext('2d');
-        ctx.strokeStyle = '#999999';
+        ctx.strokeStyle = lineColor;
         ctx.beginPath();
 
         if (collapse) {
@@ -1666,14 +1740,14 @@ window.Dag = (function($, Dag) {
             var tableTitleText = $dagWrap.find('.tableTitleArea')
                                          .text();
             ctx.font = '600 15px Open Sans';
-            ctx.fillStyle = '#555555';
+            ctx.fillStyle = tableTitleColor;
             ctx.fillText(tableTitleText, 30, 22);
             ctx.restore();
 
             ctx.beginPath();
             ctx.moveTo(20, 33);
             ctx.lineTo(canvas.width - 40, 33);
-            ctx.strokeStyle = '#A5A5A5';
+            ctx.strokeStyle = titleBorderColor;
             ctx.stroke();
             deferred.resolve();
         };
@@ -1718,7 +1792,7 @@ window.Dag = (function($, Dag) {
         ctx.rect(x, y, maxWidth, 26);
         ctx.clip();
         ctx.font = 'bold 10px Open Sans';
-        ctx.fillStyle = '#6e6e6e';
+        ctx.fillStyle = tableFontColor;
         ctx.textAlign = 'center';
 
         wrapText(ctx, text, x + (maxWidth / 2), y + 10, maxWidth, lineHeight);
@@ -1765,7 +1839,7 @@ window.Dag = (function($, Dag) {
             ctx.rect(x - 3, y - 6, 76, 10);
             ctx.clip();
             ctx.font = 'bold 8px Open Sans';
-            ctx.fillStyle = '#4D4D4D';
+            ctx.fillStyle = operationFontColor;
 
             wrapText(ctx, text, x, y, maxWidth, lineHeight);
 
@@ -1777,7 +1851,7 @@ window.Dag = (function($, Dag) {
             ctx.rect(x - 3, y - 6, 76, 20);
             ctx.clip();
             ctx.font = 'bold 8px Open Sans';
-            ctx.fillStyle = '#4D4D4D';
+            ctx.fillStyle = operationFontColor;
 
             wrapText(ctx, text, x, y, maxWidth, lineHeight);
             if (iconSource === "none") {
@@ -1788,10 +1862,10 @@ window.Dag = (function($, Dag) {
     }
 
     function drawExpandIconToCanvas($expandIcon, ctx, top, left, img) {
-        ctx.drawImage(img, left + 35, top + 56);
+        ctx.drawImage(img, left + 35, top + 53);
         ctx.beginPath();
         ctx.lineWidth = 1;
-        ctx.strokeStyle = '#999999';
+        ctx.strokeStyle = lineColor;
         ctx.stroke();
     }
 
@@ -2112,37 +2186,30 @@ window.Dag = (function($, Dag) {
         var $schema = $(html);
         $dagTable.append($schema);
         var height = $schema.height();
+        var xOffset = 10;
         var tableTop = $dagTable[0].getBoundingClientRect().top;
         var top = tableTop;
+
         // ie and edge sets position of fixed elements relative to window
         // whereas chrome and firefox position relative to closest container
         if (window.isBrowserMicrosoft) {
             top = tableTop - height;
             top = Math.max(2, top);
         } else {
-            top = top - height;
-            top = Math.max(2, top);
-            if ($('#dagPanel').hasClass('midway')) {
-                top -= $('#dagPanel').offset().top;
-            }
+            top = Math.max(2, top - height); // at least 2px from the top
+            top -= $('#dagPanel').offset().top;
         }
 
-        var tableLeft = $dagTable[0].getBoundingClientRect().left + 10;
-        var schemaLeft;
-        // XXX GUI-4745 Fix it!!
-        if ($('#bottomMenu').hasClass('poppedOut')) {
-            schemaLeft = $(window).width() - $schema.width() - 5;
-        } else {
-            schemaLeft = $('#bottomMenu').offset().left - $schema.width() - 5;
-        }
-
-        var left;
+        var tableLeft = $dagTable[0].getBoundingClientRect().left + xOffset -
+                        dagPanelLeft;
+        var schemaLeft = $(window).width() - $schema.width() - 5;
+        var left = tableLeft;
         if (tableLeft > schemaLeft) {
             left = schemaLeft;
             $schema.addClass('shiftLeft');
         } else {
             left = tableLeft;
-        }
+        };
 
         $schema.css('top', top);
         $schema.css('left', left);
@@ -2555,7 +2622,7 @@ window.Dag = (function($, Dag) {
                         'data-id="' + id + '" ' +
                         'data-url="' + url + '">' +
                             '<div class="dataStoreIcon"></div>' +
-                            '<div class="icon"></div>' +
+                            '<i class="icon xi_data"></i>' +
                             '<span class="tableTitle" ' +
                             'data-toggle="tooltip" ' +
                             'data-placement="bottom" ' +
@@ -2575,14 +2642,14 @@ window.Dag = (function($, Dag) {
                             '<div class="dagTableIcon"></div>';
             var dagDroppedState = DgDagStateT.DgDagStateDropped;
             if (dagInfo.state === DgDagStateTStr[dagDroppedState]) {
-                html += '<div class="icon" ' +
+                html += '<i class="icon xi_table" ' +
                             'data-toggle="tooltip" ' +
                             'data-placement="top" ' +
                             'data-container="body" ' +
                             'title="Table \'' + tableName +
-                            '\' has been dropped"></div>';
+                            '\' has been dropped"></i>';
             } else {
-                html += '<div class="icon"></div>';
+                html += '<i class="icon xi_table"></i>';
             }
             html += '<span class="tableTitle" ' +
                             'data-toggle="tooltip" ' +
@@ -2935,7 +3002,7 @@ window.Dag = (function($, Dag) {
         var $dagImage = $container.find('.dagImage');
         var canvas = createCanvas($container);
         var ctx = canvas.getContext('2d');
-        ctx.strokeStyle = '#999999';
+        ctx.strokeStyle = lineColor;
         ctx.beginPath();
 
         for (var node in dagInfo) {

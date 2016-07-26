@@ -87,7 +87,7 @@ window.DFG = (function($, DFG) {
                 } else {
                     top1 = parseInt($dagTable.parent().css('top')) + dagMidHeight;
                     left1 = dagImageWidth -
-                            parseInt($dagTable.parent().css('right')) - 32;
+                            parseInt($dagTable.parent().css('right')) - 42;
                     top2 = parseInt(child.parent().css('top')) + dagMidHeight;
                     left2 = dagImageWidth -
                             parseInt(child.parent().css('right')) - 42;
@@ -132,14 +132,18 @@ window.DFG = (function($, DFG) {
             if (isSchedulerPanel) {
                 x = parseInt($expandIcon.css('left')) + 200;
                 y = parseInt($expandIcon.css('top')) + 15;
-                dist = 250;
+                dist = 260;
             } else {
-                x = dagImageWidth - parseInt($expandIcon.css('right')) - 33;
-                y = parseInt($expandIcon.css('top')) + 16;
-                dist = 8;
+                // x = dagImageWidth - parseInt($expandIcon.css('right')) - 33;
+                // y = parseInt($expandIcon.css('top')) + 16;
+                // dist = 8;
             }
-            ctx.moveTo(x, y);
-            ctx.lineTo(x - dist, y);
+            if (isSchedulerPanel) {
+                ctx.moveTo(x, y);
+                ctx.lineTo(x - dist, y);
+            }
+            // ctx.moveTo(x, y);
+            // ctx.lineTo(x - dist, y);
         }
         ctx.stroke();
     };

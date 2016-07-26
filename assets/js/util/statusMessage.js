@@ -166,8 +166,29 @@ window.StatusMessage = (function($, StatusMessage) {
 
     StatusMessage.updateLocation = function(force, text) {
         if (!isLoading || force) {
-            var currentPanel = $('.topMenuBarTab.active').text().trim();
-            text = text || StatusMessageTStr.Viewing + " " + currentPanel;
+            var curTab = $('.topMenuBarTab.active').attr('id');
+            var panelName = "";
+            switch (curTab) {
+                case ("workspaceTab"):
+                    panelName = "Worksheet";
+                    break;
+                case ("schedulerTab"):
+                    panelName = "Scheduler";
+                    break;
+                case ("dataStoresTab"):
+                    panelName = "Data Stores";
+                    break;
+                case ("monitorTab"):
+                    panelName = "Monitor";
+                    break;
+                case ("extensionTab"):
+                    panelName = "Extensions";
+                    break;
+                default:
+                    break;
+            }
+
+            text = text || StatusMessageTStr.Viewing + " " + panelName;
             var locationHTML =
                 '<span id="viewLocation">' +
                     text +

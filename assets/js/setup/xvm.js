@@ -27,7 +27,6 @@ window.XVM = (function(XVM) {
                 var versionNum = result.output.outputResult.getVersionOutput
                                                        .apiVersionSignatureShort;
                 if (versionNum !== XcalarApiVersionT.XcalarApiVersionSignature) {
-
                     console.log("Thrift version mismatch! Backend's thrift "+
                       "version is:"+
                       XcalarApiVersionT.XcalarApiVersionSignature);

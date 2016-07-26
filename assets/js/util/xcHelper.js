@@ -1246,13 +1246,19 @@ window.xcHelper = (function($, xcHelper) {
         }
     };
 
-    xcHelper.isTableInScreen = function(tableId) {
-        var windowWidth = $(window).width();
+    xcHelper.isTableInScreen = function(tableId, winWidth) {
+        var windowWidth = winWidth || $(window).width();
         var $tableWrap = $("#xcTableWrap-" + tableId);
         var tableLeft = $tableWrap.offset().left;
         var tableRight = tableLeft + $tableWrap.width();
+        var mainFrameOffsetLeft;
+        if (MainMenu.isMenuOpen) {
+            mainFrameOffsetLeft = 350;
+        } else {
+            mainFrameOffsetLeft = 65
+        }
 
-        return (tableRight >= 0) && (tableLeft <= windowWidth);
+        return (tableRight >= mainFrameOffsetLeft) && (tableLeft <= windowWidth);
     };
 
     xcHelper.hasSpecialChar = function(str, allowSpace) {
@@ -2059,6 +2065,13 @@ window.xcHelper = (function($, xcHelper) {
         //         $menu.css('left', left).addClass('leftColMenu');
         //     }
         // }
+        // positioning if dropdown is on the right side of screen
+        var leftBoundary = $('#bottomMenu')[0].getBoundingClientRect().left;
+        var rightBoundary = $(window).width() - 5;
+        if ($menu[0].getBoundingClientRect().right > rightBoundary) {
+            left = rightBoundary - $menu.width();
+            $menu.css('left', left).addClass('leftColMenu');
+        }
 
         //positioning if td menu is below the screen and floating option is allowed
         if (options.floating) {

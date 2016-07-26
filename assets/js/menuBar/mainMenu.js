@@ -3,7 +3,7 @@ window.MainMenu = (function($, MainMenu) {
     var $menuBar; // $('#menuBar');
     var $mainMenu; // $('#mainMenu');
     var slideTimeout; // setTimeout for setting closed state after animation finishes
-
+    var isMenuOpen = false;
     MainMenu.setup = function() {
         $menuBar = $('#menuBar');
         $mainMenu = $('#mainMenu');
@@ -31,6 +31,12 @@ window.MainMenu = (function($, MainMenu) {
     MainMenu.switchSubTab = function(newTab) {
         
     };
+
+    // checks main menu and bottom menu
+    // xx add option to check which menu is open
+    MainMenu.isMenuOpen = function() {
+        return (isMenuOpen || BottomMenu.isMenuOpen());
+    }
 
     function setupBtns() {
         $mainMenu.find('.minimizeBtn').click(function() {
@@ -159,8 +165,14 @@ window.MainMenu = (function($, MainMenu) {
         var mainMenuOpening = true;
         BottomMenu.close(mainMenuOpening);
         $('#container').addClass('mainMenuOpen');
+        isMenuOpen = true;
         $curTab.addClass('mainMenuOpen');
         clearTimeout(slideTimeout);
+
+        // recenter table titles if on workspace panel
+        if (!noAnim && $('#workspacePanel').hasClass('active')) {
+            moveTableTitles(null, {offset: 285, menuAnimating: true, animSpeed: delay});
+        }
     }
 
     function closeMenu($curTab, noAnim) {
@@ -168,17 +180,25 @@ window.MainMenu = (function($, MainMenu) {
         $mainMenu.find(".commonSection").removeClass("active");
         checkAnim(noAnim);
         $('#container').removeClass('mainMenuOpen');
+        isMenuOpen = false;
         $curTab.removeClass('mainMenuOpen');
         setCloseTimer(noAnim);
+        // recenter table titles if on workspace panel
+        if (!noAnim && $('#workspacePanel').hasClass('active')) {
+            moveTableTitles(null, {offset: -285, menuAnimating: true, animSpeed: delay});
+        }
     }
 
     // turns off animation during open or close
     function checkAnim(noAnim, isOpening) {
         $mainMenu.removeClass('noAnim');
+        $('#container').removeClass('noMenuAnim');
         if (noAnim) {
             $mainMenu.addClass('noAnim');
+            $('#container').addClass('noMenuAnim')
             setTimeout(function() {
                 $mainMenu.removeClass('noAnim');
+                $('#container').removeClass('noMenuAnim');
             }, delay);
         }
     }

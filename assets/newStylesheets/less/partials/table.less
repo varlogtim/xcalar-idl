@@ -68,7 +68,6 @@ html.firefox, html.microsoft {
                 background: @color-table-header-darkGray;
                 margin-left: -5px;
                 margin-top: -5px;
-                z-index: 3;
                 border-radius: 0;
                 .transition(border-color 0s);
             }
@@ -189,6 +188,7 @@ html.firefox, html.microsoft {
         .flex-display;
         .justify-content (center);
         .align-items (center);
+        z-index: 1;
 
         &::after {
             content: "";
@@ -242,9 +242,9 @@ html.firefox, html.microsoft {
                 &.flex-mid {
                     .flex(1 0 0px);
                     position: relative;
-                    z-index: 2;
                     height: 18px;
                     margin-top: 4px;
+                    z-index: @z-index-tableHeaderInput;
 
                     &.editable {
                         .editableHead {
@@ -283,9 +283,9 @@ html.firefox, html.microsoft {
         text-align: center;
         overflow: hidden;
         .font(@weight: 600, @size: 13px, @family: @font-base);
-        z-index: 2;
         margin-left: -2px;
         pointer-events: none;
+        z-index: @z-index-tableHeaderInput;
     }
 
     .textAlignLeft {
@@ -773,7 +773,7 @@ html.firefox, html.microsoft {
     .position(relative, @left: 0%);
     top: 0px !important;
     width: ~"calc(100% - 5px)" !important;
-    z-index: 9;
+    // z-index: 9; xi2 change
     display: inline-block;
 
     .tableTitle {
@@ -813,7 +813,7 @@ html.firefox, html.microsoft {
         .dropdownBox {
             .position(absolute, @right: -3px, @bottom: 0px);
             .size(25px, 36px);
-            z-index: 6;
+            z-index: @z-index-tableHeaderGrab;
             border: none;
             opacity: 0.4;
             cursor: pointer;
@@ -843,10 +843,10 @@ html.firefox, html.microsoft {
             text-align: center;
             background-color: transparent;
             padding: 0 4px;
-            z-index: 2;
             white-space: nowrap;
             margin-top: 5px;
             display: inline-block;
+            z-index: @z-index-tableHeaderInput;
 
             .hashName {
                 opacity: 0.7;
@@ -1035,7 +1035,6 @@ html.firefox, html.microsoft {
 
     .header {
         .position(absolute, @top: 35px);
-        z-index: 2;
         width: inherit;
 
         .flexContainer {

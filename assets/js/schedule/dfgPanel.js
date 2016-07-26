@@ -375,7 +375,8 @@ window.DFGPanel = (function($, DFGPanel) {
     }
 
     function getTableHtml(table, hasParam) {
-        var icon = "dagTableIcon";
+        var iconClass = "dagTableIcon";
+        var icon = "xi_table"
         var paramClass = "";
         if (hasParam) {
             paramClass = " hasParam";
@@ -388,15 +389,16 @@ window.DFGPanel = (function($, DFGPanel) {
         if (table.type === 'dataStore') {
             html += ' data-url="' + table.url + '"' +
                     ' data-table="' + table.table + '"';
-            icon = 'dataStoreIcon';
+            iconClass = 'dataStoreIcon';
+            icon = "xi_data";
         } else if (table.type === "export") {
             html += ' data-url="' + table.url + '"' +
                     ' data-table="' + table.table + '"';
         }
         html += ' style="top: ' + table.top + 'px; left: ' + table.left +
         'px; position: absolute;">' +
-            '<div class="' + icon + '"></div>' +
-            '<div class="icon"></div>' +
+            '<div class="' + iconClass + '"></div>' +
+            '<i class="icon ' + icon + '"></i>' +
             '<span class="tableTitle" data-toggle="tooltip" ' +
                 'data-placement="bottom" data-container="body"' +
                 'title="' + table.title + '">' + table.title +

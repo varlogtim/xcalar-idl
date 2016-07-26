@@ -937,8 +937,17 @@
 
             .dagTable {
                 cursor: auto;
+                .tableTitle {
+                    width: 180px;
+                }
                 &.dataStore, &.export {
                     cursor: pointer;
+                }
+                &.dataStore .tableTitle {
+                    width: 130px;
+                }
+                &.export .tableTitle {
+                    width: 120px;
                 }
                 &.hasParam {
                     .dataStoreIcon, .dagTableIcon {

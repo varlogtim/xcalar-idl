@@ -209,6 +209,24 @@ body {
             width: ~"calc(100% - @{formWidth})";
             left: 255px + @menuWidth;
         }
+
+        #dagPanelContainer {
+            @panelLeft: @width-fullMenu + @padding-mainContent;
+            @extraWidth: @panelLeft + @padding-mainContent;
+            left: @panelLeft;
+            width: ~"calc(100% - @{extraWidth})";
+        }
+
+        #statusBar {
+            margin-left: @width-fullMenu;
+            width: ~"calc(100% - @{width-fullMenu})";
+        }
+    }
+
+    &.noMenuAnim {
+        #statusBar {
+            .transition(0s all);
+        }
     }
 }
 
@@ -267,6 +285,8 @@ body {
     overflow: hidden;
     background-color: @color-bg-topBarGray;
     .noSelection;
+    z-index: @z-index-statusBar;
+    .transition(0.2s all); // for main menu animation
 
     .workspaceArea {
         .size(@height: 15px);
@@ -338,7 +358,7 @@ body {
 }
 
 #worksheetInfo {
-    .size(@width: 1100%, @height: 100%);
+    .size(@width: 100%, @height: 100%);
     float: left;
     display: inline-block;
     white-space: nowrap;
@@ -403,21 +423,10 @@ body {
     display: inline-block;
     border: 0;
     outline: 0;
-    .rounded(2px);
-    .action-gradient;
-    box-shadow: 0px 1px 1px 0 rgba(0, 0, 0, 0.7);
     .font(@family: @font-base, @color: @color-text-transparentWhite);
     .textOverflowOneLine;
     letter-spacing: 0.5px;
-
-    &:hover, &:focus {
-       .action-inverse-gradient;
-    }
-
-    &:active {
-        box-shadow: inset 0px 1px 1px 0px rgba(0, 0, 0, 0.5),
-                    0px 1px 1px 0 rgba(255, 255, 255, 0.3);
-    }
+    text-align: center;
 
     span {
         .size(100%, 100%);
@@ -429,7 +438,6 @@ body {
 
 .btnSmall {
     .size(22px, 22px);
-    .rounded(2px);
 }
 
 .btnMid {
@@ -500,11 +508,7 @@ body {
 }
 
 .btnDeselected {
-    .gray-gradient;
-
-    &:hover, &:active {
-        .gray-gradient;
-    }
+    opacity: @opacity-disabled;
 }
 
 .checkboxSection {

@@ -3,6 +3,7 @@ window.BottomMenu = (function($, BottomMenu) {
     var clickable = true;
     var $menuPanel //$("#bottomMenu");
     var slideTimeout;
+    var isMenuOpen;
 
     BottomMenu.setup = function() {
         $menuPanel = $("#bottomMenu");
@@ -38,6 +39,10 @@ window.BottomMenu = (function($, BottomMenu) {
         }
         popInModal();
     };
+
+    BottomMenu.isMenuOpen = function() {
+        return (isMenuOpen);
+    }
 
     // setup buttons to open bottom menu
     function setupButtons() {
@@ -192,9 +197,15 @@ window.BottomMenu = (function($, BottomMenu) {
     function closeMenu(topMenuOpening) {
         $("#bottomMenu").removeClass("open");
         $('#container').removeClass('bottomMenuOpen');
+        isMenuOpen = false;
+        // recenter table titles if on workspace panel
+        
         $("#bottomMenuBarTabs .sliderBtn.active").removeClass("active");
         if (topMenuOpening) {
             noAnim();
+        } else if ($('#workspacePanel').hasClass('active')) {
+            moveTableTitles(null, {offset: -285, menuAnimating: true,
+                                    animSpeed: delay});
         }
     }
 
@@ -214,24 +225,38 @@ window.BottomMenu = (function($, BottomMenu) {
                 closeMenu();
             }
         } else {
-            // right side bar is closed or
-            // switch to this section
+            // bottom menu was closed or it was open and we're switching to 
+            // this section
+            var wasOpen = $menuPanel.hasClass('open');
             $sliderBtns.removeClass("active");
             $sliderBtns.eq(sectionIndex).addClass("active");
 
             $menuSections.removeClass("active");
             // mark the section and open the menu
             $section.addClass("active");
-
+            var isBottomMenuOpening = false;
             if ($('#mainMenu').hasClass('open')) {
-                var isBottomMenuOpening = true;
+                isBottomMenuOpening = true;
                 MainMenu.close(isBottomMenuOpening);
                 noAnim();
             }
 
             $menuPanel.addClass("open");
             $('#container').addClass('bottomMenuOpen');
-
+            isMenuOpen = true;
+            // recenter table titles only if: on workspace panel,
+            // main menu was not open && bottom menu was not open
+            if (!isBottomMenuOpening && !wasOpen) {
+                if ($('#workspacePanel').hasClass('active')) {
+                    moveTableTitles(null, {offset: 285, menuAnimating: true,
+                                animSpeed: delay});
+                }
+            } else {
+                $('#container').addClass('noMenuAnim');
+                setTimeout(function() {
+                    $('#container').removeClass('noMenuAnim');
+                }, delay);
+            }
 
             if ($section.attr("id") === "sqlSection") {
                 SQL.scrollToBottom();

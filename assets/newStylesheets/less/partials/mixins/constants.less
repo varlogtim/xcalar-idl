@@ -366,32 +366,37 @@
  * ---------------------- NEW 2.0 COLORS ----------------------------------
  */
 /* Backgrounds */
+// whites and grays
 @color-bg-body-gray: #D6DCDF;
+@color-bg-white-five: #E6E6E6;
+@color-bg-white-nine: #DDDDDD;
+@color-bg-pinkish-grey: #BEBEBE;
+@color-bg-topBarGray: #EAEAEA;
+@color-bg-unselect-gray: #9F9F9F;
+
+// blues
 @color-bg-marine: #0A3549;
 @color-bg-marine-transparent: fadeout(@color-bg-marine, 20%);
 @color-bg-select-blue: #378CB3;
-@color-bg-unselect-gray: #9F9F9F;
-@color-bg-dropdown-black: #000000;
 @color-bg-dusk-blue: #1E6688; // active main tab & mainmenu background
-@color-bg-topBarGray: #EAEAEA;
 @color-bg-light-navy: #154f69; // inactive sub tab
 @color-bg-tiber-blue: #062330; // table list tab
 @color-bg-boston-blue: #3C8DB1;
-@color-bg-pinkish-grey: #BEBEBE;
 @color-bg-softBlue: #5CB2E8;
-@color-bg-white-nine: #DDDDDD;
 @color-bg-bright-light-blue: #38cbff; // bookmark tick
 @color-bg-limedSpruce: #36444d;
 
+@color-bg-dropdown-black: #000000;
+
 /* Borders */
-@color-border-warmGray: #979797;
 @color-border-softBlue: #5CB2E8;
 @color-border-searchBlue: #378CB3;
 @color-border-activeBlue: #0A3549;
-@color-border-tableGray: #F8F8F8;
 @color-border-mainTab-active: #0b2f40;
 @color-border-subTab-active: #02161f;
 @color-border-tiber-blue: #062330; // table list tab
+@color-border-warmGray: #979797;
+@color-border-tableGray: #F8F8F8;
 @color-border-pinkish-grey: #BEBEBE;
 @color-border-pinkish-grey2: #CCCCCC; // fnbar border
 @color-border-light-navy: #154f69;
@@ -424,9 +429,11 @@
 
 /* Fonts Color */
 @color-font-softBlue: #5CB2E8;
+@color-font-select-blue: #378CB3;
 @color-font-softGrayBlue: #ABC1CC;
 @color-font-bright-light-blue: #38CBFF;
 @color-font-pinkish-grey: #BEBEBE;
+@color-font-greyish-brown: #4A4A4A;
 
 /* Fonts */
 @font-base: "Open Sans", "Trebuchet MS", Arial, sans-serif;
@@ -443,6 +450,7 @@
 @width-mainPanel: ~"calc(100% - @{width-homeBtn})";
 @width-topMenu: 295px;
 @width-bottomMenu: 295px;
+@width-fullMenu: 345px;
 
 @height-homeBtn: 50px;
 @height-topBar: @height-homeBtn;
@@ -455,6 +463,11 @@
 @z-index-homeBtn: @z-index-menuBar + 1;
 @z-index-topMenu: 20;
 @z-index-bottomMenu: 20;
+@z-index-statusBar: 10;
+@z-index-dfgPanel: 5;
+@z-index-tableHeaderInput: 2;
+@z-index-tableHeaderGrab: 2;
+
 
 @opacity-unhover: 0.8;
 @opacity-disabled: 0.3;

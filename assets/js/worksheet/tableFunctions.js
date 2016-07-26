@@ -875,9 +875,15 @@ function unhighlightColumn($el) {
 
 function moveTableDropdownBoxes() {
     var $startingTableHead;
+    var mainFrameOffsetLeft;
 
+    if (MainMenu.isMenuOpen()) {
+        mainFrameOffsetLeft = 350;
+    } else {
+        mainFrameOffsetLeft = 65;
+    }
     $('.xcTableWrap:not(".inActive")').each(function() {
-        if ($(this)[0].getBoundingClientRect().right > 0) {
+        if ($(this)[0].getBoundingClientRect().right > mainFrameOffsetLeft) {
             $startingTableHead = $(this).find('.xcTheadWrap');
             return false;
         }
@@ -890,19 +896,16 @@ function moveTableDropdownBoxes() {
         tablesAreVisible = false;
     }
 
-    // var rightSideBarWidth = 10;
     var windowWidth = $(window).width();
-    // if (windowWidth === $('#container').width()) {
-    //     windowWidth -= rightSideBarWidth;
-    // }
+
     while (tablesAreVisible) {
         var tableRight = $startingTableHead[0].getBoundingClientRect().right;
-        if (tableRight > windowWidth) {
-            var position = tableRight - windowWidth - 3;
+        if (tableRight > windowWidth) { // right side of table is offscreen to the right
+            var position = tableRight - windowWidth + 3;
             $startingTableHead.find('.dropdownBox')
                                 .css('right', position + 'px');
             tablesAreVisible = false;
-        } else {
+        } else { // right side of table is visible
             $startingTableHead.find('.dropdownBox').css('right', -3 + 'px');
             $startingTableHead = $startingTableHead.closest('.xcTableWrap')
                                                    .next()
@@ -914,14 +917,28 @@ function moveTableDropdownBoxes() {
     }
 }
 
-function moveTableTitles($tableWraps) {
+// options used to animate table titles when main menu opening or closing
+function moveTableTitles($tableWraps, options) {
     if (isBrowserMicrosoft) {
         return;
     }
+    options = options || {};
+    var modifiedOffset = options.offset || 0;
+    var menuAnimating = options.menuAnimating;
+    var animSpeed = options.animSpeed;
 
     $tableWraps = $tableWraps ||
                   $('.xcTableWrap:not(.inActive):not(.tableHidden)');
-    var viewWidth = $('#mainFrame').width();
+    
+    var mainFrameOffsetLeft;
+    var mainFrameWidth = $('#mainFrame').width() - modifiedOffset;
+    if (MainMenu.isMenuOpen()) {
+        mainFrameOffsetLeft = 350;
+    } else {
+        mainFrameOffsetLeft = 65;
+    }
+    var viewWidth = mainFrameWidth + mainFrameOffsetLeft;
+
     $tableWraps.each(function() {
         var $table = $(this);
         var $thead = $table.find('.xcTheadWrap');
@@ -933,31 +950,44 @@ function moveTableTitles($tableWraps) {
         }
 
         var rect = $thead[0].getBoundingClientRect();
-        if (rect.right > 0) {
-            if (rect.left < viewWidth) {
+        var rectRight = rect.right + modifiedOffset;
+        var rectLeft = rect.left + modifiedOffset;
+
+        if (rectRight > mainFrameOffsetLeft) {
+            if (rectLeft < viewWidth) {
                 var $tableTitle = $table.find('.tableTitle .text');
                 var titleWidth = $tableTitle.outerWidth();
                 var tableWidth = $thead.width();
                 var center;
-                if (rect.left < 0) {
+                if (rectLeft < mainFrameOffsetLeft) {
                     // left side of table is offscreen to the left
-                    if (rect.right > viewWidth) { // table spans the whole screen
-                        center = -rect.left + ((viewWidth - titleWidth) / 2);
+                    if (rectRight > viewWidth) { // table spans the whole screen
+                        center = ((mainFrameWidth - titleWidth) / 2) + mainFrameOffsetLeft - rectLeft;
                     } else { // right side of table is visible
-                        center = tableWidth - ((rect.right + titleWidth) / 2);
+                        center = tableWidth - ((rectRight + titleWidth - mainFrameOffsetLeft) / 2);
+                        // prevents title from going off the right side of table
                         center = Math.min(center, tableWidth - titleWidth - 6);
                     }
                 } else { // the left side of the table is visible
-                    if (rect.right < viewWidth) {
+                    if (rectRight < viewWidth) {
                         // the right side of the table is visible
                         center = (tableWidth - titleWidth) / 2;
                     } else { // the right side of the table isn't visible
-                        center = (viewWidth - rect.left - titleWidth) / 2;
+                        center = (viewWidth - rectLeft - titleWidth) / 2;
                         center = Math.max(10, center);
                     }
                 }
                 center = Math.floor(center);
-                $tableTitle.css('left', center);
+                if (menuAnimating) {
+                    $thead.find('.dropdownBox').hide();
+                    $tableTitle.animate({left: center}, animSpeed, function() {
+                        $thead.find('.dropdownBox').show();
+                        moveTableDropdownBoxes();
+                    });
+                } else {
+                    $tableTitle.css('left', center);
+                }
+                
                 $table.find('.lockedIcon')
                       .css('left', center + titleWidth / 2 + 5);
             } else {
@@ -971,17 +1001,23 @@ function moveTableTitlesAnimated(tableId, oldWidth, widthChange, speed) {
     if (isBrowserMicrosoft) {
         return;
     }
-    if (speed == null) {
+    if (speed == null) { // lets speed 0 be 0
         speed = 250;
     }
-    var viewWidth = $('#mainFrame').width();
+    
     var $table = $('#xcTableWrap-' + tableId);
     var $thead = $table.find('.xcTheadWrap');
     var rect = $thead[0].getBoundingClientRect();
     var right = rect.right - widthChange;
+    var mainFrameWidth = $('#mainFrame').width();
+    if (MainMenu.isMenuOpen()) {
+        mainFrameOffsetLeft = 350;
+    } else {
+        mainFrameOffsetLeft = 65;
+    }
+    var viewWidth = $('#mainFrame').width() + mainFrameOffsetLeft;
 
-
-    if (right > 0 && rect.left < viewWidth) {
+    if (right > mainFrameOffsetLeft && rect.left < viewWidth) {
         var $tableTitle = $table.find('.tableTitle .text');
         var $input = $tableTitle.find('input');
         var inputTextWidth = getTextWidth($input, $input.val()) + 1;
@@ -1003,17 +1039,17 @@ function moveTableTitlesAnimated(tableId, oldWidth, widthChange, speed) {
         titleWidth = expectedTitleWidth;
         var tableWidth = oldWidth - widthChange - 5;
         var center;
-        if (rect.left < 0) {
+        if (rect.left < mainFrameOffsetLeft) {
             // left side of table is offscreen to the left
             if (right > viewWidth) { // table spans the whole screen
-                center = -rect.left + ((viewWidth - titleWidth) / 2);
+                center = ((mainFrameWidth - titleWidth) / 2) +
+                         mainFrameOffsetLeft - rect.left;
             } else { // right side of table is visible
-                center = tableWidth - ((right + titleWidth) / 2);
+                center = tableWidth - ((right + titleWidth - mainFrameOffsetLeft) / 2);
                 center = Math.min(center, tableWidth - titleWidth - 6);
             }
         } else { // the left side of the table is visible
-            if (right < viewWidth) {
-                // the right side of the table is visible
+            if (right < viewWidth) { // the right side of the table is visible
                 center = (tableWidth - titleWidth) / 2;
             } else { // the right side of the table isn't visible
                 center = (viewWidth - rect.left - titleWidth) / 2;
@@ -1021,10 +1057,22 @@ function moveTableTitlesAnimated(tableId, oldWidth, widthChange, speed) {
             }
         }
         center = Math.floor(center);
+        $thead.find('.dropdownBox').hide();
         $tableTitle.animate({left: center}, speed, "linear", function() {
+            $thead.find('.dropdownBox').show();
             moveTableDropdownBoxes();
         });
     }
+}
+
+function moveTableTitlesAnimated2($tableWraps) {
+    if (isBrowserMicrosoft) {
+        return;
+    }
+
+    $tableWraps = $tableWraps ||
+                  $('.xcTableWrap:not(.inActive):not(.tableHidden)');
+
 }
 
 function focusTable(tableId, focusDag) {
@@ -1144,21 +1192,30 @@ function unbookmarkRow(rowNum, tableId) {
 function moveFirstColumn($targetTable) {
     var rightOffset;
     var datasetPreview;
+    var tableOffsetLeft;
     if (isBrowserMicrosoft) {
         return;
     }
 
     if (!$targetTable) {
         datasetPreview = false;
+        if (MainMenu.isMenuOpen()) {
+            tableOffsetLeft = 350;
+        } else {
+            tableOffsetLeft = 65;
+        }
+        
         $('.xcTableWrap:not(".inActive")').each(function() {
             rightOffset = $(this)[0].getBoundingClientRect().right;
-            if (rightOffset > 0) {
+            if (rightOffset > tableOffsetLeft) {
                 $targetTable = $(this);
                 return false;
             }
         });
+        
     } else {
         datasetPreview = true;
+        tableOffsetLeft = 0;
     }
 
     if ($targetTable && $targetTable.length > 0) {
@@ -1170,13 +1227,15 @@ function moveFirstColumn($targetTable) {
             scrollLeft = -($targetTable.offset().left -
                               $('#datasetWrap').offset().left);
         } else {
-            scrollLeft = -$targetTable.offset().left;
+            scrollLeft = -$targetTable.offset().left + tableOffsetLeft;
         }
 
         var rightDiff = rightOffset - (cellWidth + 15);
-        if (rightDiff < 0) {
-            scrollLeft += rightDiff;
+
+        if (rightDiff < tableOffsetLeft) {
+            scrollLeft += rightDiff - tableOffsetLeft;
         }
+
         scrollLeft = Math.max(0, scrollLeft);
         $idCol.css('left', scrollLeft);
         $targetTable.find('th.rowNumHead > div').css('left', scrollLeft);

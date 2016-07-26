@@ -2,31 +2,32 @@
 <div id="dagPanelContainer">
   <div id="dagPanel" class="hidden midway no-selection invisible">
     <div class="topBorder">
-      <div class="pulloutTabWrap">
-        <div id="dagPulloutTab"></div>
+      <div id="dagPulloutTab">
+        <div class="border"></div>
+        <div class="border"></div>
       </div>
-      <div class="tabShadow"></div>
     </div>
     <div class="topButtons">
-      <div id="maximizeDag" class="btn btnSmall btnDeselected"
+      <i id="maximizeDag" class="icon xi-fullscreen fa-18 btnDeselected"
       data-container="body" data-toggle="tooltip" title="<%= dicts.common.maximize %>">
-        <span class="icon iconMaximize"></span>
-      </div>
-      <div id="closeDag" class="btn btnSmall btnDeselected"
+      </i>
+      <i id="closeDag" class="icon xi-close fa-15 btnDeselected"
       data-container="body" data-toggle="tooltip" title="<%= dicts.common.close %>">
-        <span class="icon iconClose"></span>
-      </div>
+      </i>
     </div>
     <div class="dagArea">
       <div class="legendArea">
+        <div class="infoBox">
+          <i class="icon xi-info-circle-outline"></i>
+        </div>
         <div class="datasetArea descriptionArea">
           <div class="dataStoreIcon legendIcon"></div>
-          <div class="icon"></div>
+          <i class="icon xi_data"></i>
           <span class="text"><%= dicts.common.DS %></span>
         </div>
         <div class="tableArea descriptionArea">
           <div class="dagTableIcon legendIcon"></div>
-          <div class="icon"></div>
+          <i class="icon xi_table"></i>
           <span class="text"><%= dicts.common.Table %></span>
         </div>
         <div class="operationArea descriptionArea">
@@ -104,3 +105,4 @@
   </div>
 </div>
 <!-- End Of Dag Panel -->
+<div id="dfgPanelSwitch"><i class="icon">DFG</i></div>
