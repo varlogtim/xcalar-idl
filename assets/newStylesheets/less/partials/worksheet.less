@@ -982,6 +982,16 @@
     border-left: 6px solid @color-black-invisible !important;
     height: @height-colHeaderOuter + 2px !important;
     .noSelection;
+
+    &:hover, &:active {
+        // active is for when it's click down
+        &::after {
+            content: "";
+            .position(absolute, @top: 5px, @right: 10px);
+            .size(@width: 4px, @height: @height-colHeader);
+            background-color: @color-bg-softBlue;
+        }
+    }
 }
 
 .rowGrab {

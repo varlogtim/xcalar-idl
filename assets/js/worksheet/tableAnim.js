@@ -6,9 +6,10 @@ window.TblAnim = (function($, TblAnim) {
 
     /* START COLUMN RESIZING */
     TblAnim.startColResize = function(el, event, options) {
-        var rescol   = gRescol;
-        var $table   = el.closest('.dataTable');
-        var colNum   = xcHelper.parseColNum(el.parent().parent());
+        var rescol = gRescol;
+        var $table = el.closest('.dataTable');
+        var colNum = xcHelper.parseColNum(el.parent().parent());
+        var $th = el.closest('th');
         if (!options || options.target !== "datastore") {
             rescol.tableId = xcHelper.parseTableId($table);
         }
@@ -17,7 +18,7 @@ window.TblAnim = (function($, TblAnim) {
             rescol.$tableWrap = $('#dataSetTableWrap');
             rescol.$worksheetTable = $('#worksheetTable');
             rescol.$previewTable = $('#previewTable');
-        } else if (el.closest('th').hasClass("userHidden")) {
+        } else if ($th.hasClass("userHidden")) {
             // This is a hidden column! we need to unhide it
             // return;
             $table.find("th.col" + colNum + ",td.col" + colNum)
@@ -121,10 +122,6 @@ window.TblAnim = (function($, TblAnim) {
                 rescol.grabbedCell.find('.colGrab').data('sizetoheader', true);
             }
         }
-        // tooltip will show if we don't delay the reenabling of text selection
-        setTimeout(function() {
-            xcHelper.reenableTextSelection();
-        }, 500);
 
         // set timeout because unhiding is slow
         setTimeout(function() {

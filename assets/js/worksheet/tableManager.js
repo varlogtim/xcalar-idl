@@ -678,12 +678,7 @@ window.TblManager = (function($, TblManager) {
                             'data-container="body">' +
                         '</div>' +
                     '</div>' +
-                    '<div class="colGrab" ' +
-                         'title="Double click to <br />auto resize" ' +
-                         'data-toggle="tooltip" ' +
-                         'data-container="body" ' +
-                         'data-placement="left">' +
-                    '</div>' +
+                    '<div class="colGrab"></div>' +
                     '<div class="flexContainer flexRow">' +
                         '<div class="flexWrap flex-left">' +
                             '<div class="iconHidden"></div>' +
