@@ -268,7 +268,8 @@ window.BottomMenu = (function($, BottomMenu) {
 
         $menuPanel.addClass('poppedOut');
         $menuPanel.find('.popOut')
-                .attr('data-original-title', SideBarTStr.PopBack);
+                .attr('data-original-title', SideBarTStr.PopBack)
+                .removeClass("xi_popout").addClass("xi_popin");
         $('.tooltip').hide();
         $menuPanel.css({
             "left": offset.left - 5,
@@ -281,7 +282,8 @@ window.BottomMenu = (function($, BottomMenu) {
         $menuPanel.removeClass('poppedOut');
         $menuPanel.attr('style', "");
         $menuPanel.find('.popOut')
-                .attr('data-original-title', SideBarTStr.PopOut);
+                .attr('data-original-title', SideBarTStr.PopOut)
+                .removeClass("xi_popin").addClass("xi_popout");
         $('.tooltip').hide();
         // CLIBox.realignNl();
         $('#container').removeClass('bottomMenuOut');

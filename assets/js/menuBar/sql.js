@@ -43,15 +43,15 @@ window.SQL = (function($, SQL) {
 
         // set up the sql section
         $sqlButtons.on("click", ".machineLog", function() {
-            $(this).removeClass("machineLog")
-                    .addClass("humanLog");
+            $(this).removeClass("machineLog xi-android-dot")
+                    .addClass("humanLog xi-human-dot");
             $machineTextarea.hide();
             $textarea.show();
         });
 
         $sqlButtons.on("click", ".humanLog", function() {
-            $(this).removeClass("humanLog")
-                    .addClass("machineLog");
+            $(this).removeClass("humanLog xi-human-dot")
+                    .addClass("machineLog xi-android-dot");
             $machineTextarea.show();
             $textarea.hide();
         });
