@@ -31,35 +31,38 @@
           <div id="activeTableList" class="tableListSection">
             <div class="buttonSection">
               <div class="submit archive xc-hidden" title="<%= dicts.bottomMenu.archive %>" data-toggle="tooltip" data-placement="top" data-container="body"></div>
-              <div class="select clearAll" data-toggle="tooltip" data-placement="top" data-container="body" title="<%= dicts.bottomMenu.deselectAll %>"></div>
-              <div class="select selectAll" data-toggle="tooltip" data-placement="top" data-container="body" title="<%= dicts.bottomMenu.selectAll %>"></div>
+              <i class="icon xi-select-none select clearAll" data-toggle="tooltip" data-placement="top" data-container="body" title="<%= dicts.bottomMenu.deselectAll %>"></i>
+              <i class="icon xi-select-all select selectAll" data-toggle="tooltip" data-placement="top" data-container="body" title="<%= dicts.bottomMenu.selectAll %>"></i>
             </div>
             <ul id="activeTablesList" class="tableLists"></ul>
           </div>
           <!-- archived list -->
           <div id="archivedTableList" class="tableListSection">
             <div class="buttonSection">
-              <div id="submitTablesBtn" class="submit active xc-hidden" title="<%= dicts.bottomMenu.active %>" data-toggle="tooltip" data-placement="top" data-container="body"></div>
-              <div class="submit delete xc-hidden">
-                <span class="icon"></span>
+              <div id="submitTablesBtn" class="submit active xc-hidden" title="<%= dicts.bottomMenu.active %>" data-toggle="tooltip" data-placement="top" data-container="body">
+                 <i class="icon xi-back-to-worksheet fa-17"></i>
               </div>
-              <div class="select clearAll" data-toggle="tooltip" data-placement="top" data-container="body" title="<%= dicts.bottomMenu.deselectAll %>"></div>
-              <div class="select selectAll" data-toggle="tooltip" data-placement="top" data-container="body" title="<%= dicts.bottomMenu.selectAll %>"></div>
+              <div class="submit delete xc-hidden">
+                <i class="icon xi-trash fa-17"></i>
+              </div>
+              <i class="icon xi-select-none select clearAll" data-toggle="tooltip" data-placement="top" data-container="body" title="<%= dicts.bottomMenu.deselectAll %>"></i>
+              <i class="icon xi-select-all select selectAll" data-toggle="tooltip" data-placement="top" data-container="body" title="<%= dicts.bottomMenu.selectAll %>"></i>
             </div>
             <ul id="inactiveTablesList" class="tableLists"></ul>
           </div>
           <!-- orphaned table list -->
           <div id="orphanedTableList" class="tableListSection">
             <div class="buttonSection">
-              <div class="submit active xc-hidden" title="<%= dicts.bottomMenu.active %>" data-toggle="tooltip" data-placement="top" data-container="body"></div>
+              <div class="submit active xc-hidden" title="<%= dicts.bottomMenu.active %>" data-toggle="tooltip" data-placement="top" data-container="body">
+                <i class="icon xi-back-to-worksheet fa-17"></i>
+              </div>
               <div class="submit delete xc-hidden">
-                <span class="icon"></spa>
+                <i class="icon xi-trash fa-17"></i>
               </div>
-              <div class="select clearAll" data-toggle="tooltip" data-placement="top" data-container="body" title="<%= dicts.bottomMenu.deselectAll %>"></div>
-              <div class="select selectAll" data-toggle="tooltip" data-placement="top" data-container="body" title="<%= dicts.bottomMenu.selectAll %>"></div>
+              <i class="icon xi-select-none select clearAll" data-toggle="tooltip" data-placement="top" data-container="body" title="<%= dicts.bottomMenu.deselectAll %>"></i>
+              <i class="icon xi-select-all select selectAll" data-toggle="tooltip" data-placement="top" data-container="body" title="<%= dicts.bottomMenu.selectAll %>"></i>
               <div class="divider"></div>
-              <div class="refresh" data-toggle="tooltip" data-placement="top" data-container="body" title="" data-original-title="<%= dicts.bottomMenu.refresh %>">
-              </div>
+              <i class="icon xi-refresh refresh blue" data-toggle="tooltip" data-placement="top" data-container="body" title="" data-original-title="<%= dicts.bottomMenu.refresh %>"></i>
             </div>
             <div id="orphanedTableList-search" class="searchbarArea">
                 <input type="text" placeholder="<%= dicts.bottomMenu.filterOrphan %>"

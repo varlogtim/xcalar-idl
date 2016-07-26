@@ -70,20 +70,42 @@
     .noSelection;
     .transition(background-color 0.1s);
 
+    &.active {
+        background-color: @color-bg-dusk-blue !important;
+
+        .transition(all 0s);
+        .mainTab {
+            opacity: 1;
+
+            .icon {
+                color: @color-font-softBlue;
+            }
+        }
+        .subTab {
+            display: block;
+        }
+    }
+
     .mainTab {
         .size(@width: 100%, @height: @height-mainTab);
         opacity: 0.6;
         .transition(opacty 0.1s);
+
+        .icon {
+            .center-align;
+        }
     }
     .subTab {
         .size(@width: 100%, @height: @height-subTab);
         background-color: @color-bg-light-navy;
         position: relative;
         display: none;
+        opacity: 0.6;
+
         &.active {
             background-color: @color-bg-marine;
             .icon {
-                opacity: 1;
+                color: @color-font-softBlue;
             }
 
             // XX temp styling if subTab is the only subtab and is active
@@ -92,8 +114,11 @@
             }
         }
         .icon {
-            opacity: 0.6;
-            .size(@width: 100%, @height: 100%);
+            .center-align;
+        }
+
+        &:hover {
+            opacity: 1;
         }
     }
 
@@ -102,18 +127,6 @@
         color: @color-white;
         .mainTab {
             opacity: 1;
-        }
-    }
-
-    &.active {
-        background-color: @color-bg-dusk-blue !important;
-
-        .transition(all 0s);
-        .mainTab {
-            opacity: 1;
-        }
-        .subTab {
-            display: block;
         }
     }
 }
@@ -138,46 +151,6 @@
     z-index: 1;
 }
 
-#workspaceTab {
-    .mainTab {
-        .image("../../images/new/menu/worksheet-main.png", 50%, 50%);
-    }
-}
-#dataStoresTab {
-    .mainTab {
-        .image("../../images/new/menu/datastore-main.png", 50%, 50%);
-    }
-    // two icons in #contentHeaderLeft
-    #inButton .icon {
-        .image("../../images/new/menu/datastore-in.png", 50%, 50%);
-    }
-
-    #outButton .icon {
-        .image("../../images/new/menu/datastore-out.png", 50%, 50%);
-    }
-}
-#monitorTab {
-    .mainTab {
-        .image("../../images/new/menu/monitor-main.png", 50%, 50%);
-    }
-}
-#schedulerTab {
-    .mainTab {
-        .image("../../images/new/menu/scheduler-main.png", 50%, 50%);
-    }
-    #dataflowButton .icon {
-        .image("../../images/new/menu/scheduler-dfg.png", 50%, 50%);
-    }
-
-    #schedulesButton .icon {
-        .image("../../images/new/menu/scheduler-sub.png", 50%, 50%);
-    }
-}
-#extensionTab {
-    .mainTab {
-        .image("../../images/new/menu/extension-main.png", 50%, 50%);
-    }
-}
 
 #bottomMenuBarTabs {
     .size(@width: 100%);
@@ -190,31 +163,6 @@
         &:first-child {
             border-top: 1px solid @color-bg-dusk-blue;
         }
-    }
-}
-
-#tableListTab {
-    .image("../../images/new/menu/tableList-main-white.png", 50%, 50%);
-    &.active {
-        .image("../../images/new/menu/tableList-main-blue.png", 50%, 50%);
-    }
-}
-#sqlTab {
-    .image("../../images/new/menu/sql-main-white.png", 50%, 50%);
-    &.active {
-        .image("../../images/new/menu/sql-main-blue.png", 50%, 50%);
-    }
-}
-#udfTab {
-    .image("../../images/new/menu/udf-main-white.png", 50%, 50%);
-    &.active {
-        // .image("../../images/new/menu/udf-main-blue.png", 50%, 50%);
-    }
-}
-#helpTab {
-    .image("../../images/new/menu/info-main-white.png", 50%, 50%);
-    &.active {
-        // .image("../../images/new/menu/info-main-blue.png", 50%, 50%);
     }
 }
 
@@ -478,7 +426,7 @@
         background-color: @color-bg-tiber-blue;
         padding: 0 15px;
 
-        > div {
+        > div, > i {
             .vertical-align;
             opacity: @opacity-unhover;
 
@@ -492,20 +440,19 @@
             .size(@width: 30px, @height: 30px);
             margin-right: 10px;
 
+            background-color: @color-bg-boston-blue;
+
+            .icon {
+                .center-align;
+            }
+            // XXX temporary use it until aerrie give the icon
             &.archive {
                 .image("../../images/sidebar/archive.png", 50%, 50%);
             }
 
-            &.active {
-                .image("../../images/sidebar/active.png", 50%, 50%);
-            }
-
-            &.delete {
-                background-color: @color-bg-boston-blue;
-                .icon {
-                    .size(100%, 100%);
-                    .image("../../images/sidebar/trash.png", 50%, 50%);
-                }
+            &:active {
+                border: 1px solid @color-white;
+                opacity: @opacity-hover;
             }
         }
 
@@ -520,7 +467,6 @@
         .refresh {
             .size(@width: 22px, @height: 22px);
             float: right;
-            .image("../../images/refresh-blue.png", 50%, 50%);
         }
 
         .select {
@@ -528,14 +474,6 @@
             float: right;
             margin: 0 4px;
             .vertical-align;
-
-            &.selectAll {
-                .image("../../images/select-all-white.png", 50%, 50%);
-            }
-
-            &.clearAll {
-                .image("../../images/select-none-white.png", 50%, 50%);
-            }
         }
     }
 
@@ -558,7 +496,7 @@
 
         .tableInfo {
             .size(@width: 100%, @min-height: 38px);
-            padding: 5px 15px 0 0;
+            padding: 5px 15px 0 10px;
             .font(@line-height: 25px, @size: 13px);
 
             &:hover {
@@ -582,7 +520,7 @@
         }
 
         .timeStampWrap {
-            .position(relative, @top: 1px, @left: -1%);
+            .position(relative, @top: 1px);
             .size(@width: 24%, @height: 25px);
             display: inline-block;
             float: left;
@@ -618,13 +556,18 @@
 
             &.active {
                 color: @color-font-bright-light-blue;
-                
+
+                .icon {
+                    color: @color-font-bright-light-blue;
+                }
+
                 .expand { 
-                    .image("../../images/arrow-down-blue-sm.png", 50%, 50%);
+                    .icon {
+                        .transform(~"rotate(0deg)");
+                    }
                 }
 
                 .addTableBtn {
-                    .image("../../images/sidebar/table_blue.png", 50%, 50%);
                     &:hover {
                         border: 1px solid @color-border-softBlue;
                     }
@@ -638,25 +581,40 @@
 
             .expand {
                 .size(10px, 25px);
-                .image("../../images/arrow-right-gray-sm.png", 50%, 50%);
                 margin-right: 5px;
+
+                .icon {
+                    .position(relative);
+                    .transform(~"rotate(270deg)");
+                }
             }
 
             .addTableBtn {
                 .size(18px, 18px);
-                .image("../../images/sidebar/table.png", 50%, 50%);
                 margin-right: 5px;
                 .vertical-align;
                 cursor: pointer;
+                font-size: 18px;
+
+                .icon {
+                    .position(relative, @top: -2px);
+                }
 
                 &:hover {
-                    background-image: none;
                     border: 1px solid @color-border-pinkish-grey;
+                
+                    .icon:before {
+                        content: "";
+                    }
                 }
 
                 &.selected {
                     .image("../../images/checkbox-selected.png", 50%, 50%);
                     border: none;
+
+                    .icon:before {
+                        content: "";
+                    }
 
                     ~ .tableName, ~ .numCols {
                         color: @color-font-bright-light-blue;

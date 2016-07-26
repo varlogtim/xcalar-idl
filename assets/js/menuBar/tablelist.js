@@ -773,8 +773,12 @@ window.TableList = (function($, TableList) {
                         wsInfo +
                     '</div>' +
                     '<div class="tableListBox">' +
-                        '<span class="expand"></span>' +
-                        '<span class="addTableBtn"></span>' +
+                        '<span class="expand">' +
+                            '<i class="icon xi-arrow-down fa-7"></i>' +
+                        '</span>' +
+                        '<span class="addTableBtn">' +
+                            '<i class="icon xi_table fa-18"></i>' +
+                        '</span>' +
                         '<span class="tableName textOverflowOneLine" title="' +
                             tableName + '">' +
                             tableName +
@@ -855,7 +859,9 @@ window.TableList = (function($, TableList) {
                     'data-id="' + tableId + '"' +
                     'data-tablename="' + tableName + '">' +
                         '<div class="tableListBox">' +
-                            '<span class="addTableBtn"></span>' +
+                            '<span class="addTableBtn">' +
+                                '<i class="icon xi_table fa-18"></i>' +
+                            '</span>' +
                             '<span title="' + tableName + '" ' +
                                 'data-toggle="tooltip" ' +
                                 'data-placement="top" data-container="body" ' +
