@@ -28,6 +28,18 @@ window.WSManager = (function($, WSManager) {
         $tabMenu = $("#worksheetTabMenu");
         $hiddenWorksheetTabs = $("#hiddenWorksheetTabs");
         addEventListeners();
+        TableList.setup();
+    };
+
+    WSManager.initialize = function() {
+        try {
+            initializeWorksheet();
+            initializeHiddenWorksheets();
+            TableList.initialize();
+        } catch (error) {
+            console.error(error);
+            Alert.error(ThriftTStr.SetupErr, error);
+        }
     };
 
     // Restore worksheet structure from backend
@@ -65,9 +77,6 @@ window.WSManager = (function($, WSManager) {
                 tableIdToWSIdMap[orphanedTables[i]] = wsId;
             }
         }
-
-        initializeWorksheet();
-        initializeHiddenWorksheets();
     };
 
     // Clear all data in WSManager
@@ -81,6 +90,7 @@ window.WSManager = (function($, WSManager) {
         nameSuffix = 1;
         initializeWorksheet(true);
         initializeHiddenWorksheets();
+        TableList.clear();
     };
 
     WSManager.getAllMeta = function() {
@@ -942,6 +952,24 @@ window.WSManager = (function($, WSManager) {
 
     // Add worksheet events, helper function for WSManager.setup()
     function addEventListeners() {
+        // switch to table list
+        $("#tableListTab").click(function() {
+            $("#workspaceMenu").find(".menuSection.worksheets")
+                            .addClass("xc-hidden")
+                            .end()
+                            .find(".menuSection.tables")
+                            .removeClass("xc-hidden");
+        });
+
+        // switch to worksheet list
+        $("#worksheetListTab").click(function() {
+            $("#workspaceMenu").find(".menuSection.tables")
+                            .addClass("xc-hidden")
+                            .end()
+                            .find(".menuSection.worksheets")
+                            .removeClass("xc-hidden");
+        });
+
         // click to add new worksheet
         $("#addWorksheet").click(function() {
             if (wsOrder.length >= maxWSLen) {

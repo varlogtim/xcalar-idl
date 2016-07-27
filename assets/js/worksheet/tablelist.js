@@ -428,9 +428,9 @@ window.TableList = (function($, TableList) {
             });
         }
 
-        return (deferred.promise());
+        return deferred.promise();
 
-        function doneHandler($li, tableName, isHiddenWS) {
+        function doneHandler($li) {
             var $timeLine = $li.closest(".timeLine");
             if (gMinModeOn) {
                 handlerCallback();
@@ -871,7 +871,6 @@ window.TableList = (function($, TableList) {
                         '</div>' +
                      '</li>';
         }
-        var $orphanedTableList = $("#orphanedTableList");
         $("#orphanedTablesList").html(html);
         if (numTables > 0) {
             $("#orphanedTableList-search").show();

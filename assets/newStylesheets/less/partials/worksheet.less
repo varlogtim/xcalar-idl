@@ -807,6 +807,369 @@
 }
 /* === END WORKSHEET TABS ==== */
 
+/* ========== Table List Section ========== */
+#tableListSection {
+    padding-top: 0 !important;
+}
+
+#tableListTab {
+    float: right;
+}
+
+#tableListSectionTabs {
+    .size(@width: 100%, @height: 35px);
+    .flex-display;
+
+    .tableListSectionTab {
+        .flex(1 1 33%);
+        .size(@height: 100%);
+        display: inline-block;
+        .font(@weight: bold, @line-height: 35px, @size: 13px, @color: @color-white);
+        text-align: center;
+        border-right: 1px solid @color-border-tiber-blue;
+        background-color: @color-bg-light-navy;
+        padding: 0 5px;
+        .noSelection;
+        .textOverflow;
+        cursor: pointer;
+
+        &:last-child {
+            border-right: none;
+        }
+
+        &:hover {
+            box-shadow: inset 0 2px 0 0 @color-bg-dusk-blue;
+        }
+
+        &.active {
+            .font(@color: @color-font-bright-light-blue);
+            background-color: @color-bg-tiber-blue;
+        }
+    }
+}
+
+#tableListSections {
+    overflow-x: hidden;
+    overflow-y: auto;
+    height: ~"calc(100% - 35px)";
+    margin: 0 auto;
+
+    .tableListSection {
+        display: none;
+        .size(@width: 100%, @height: 100%);
+        margin: 0 auto;
+
+        &:first-child {
+            display: block;
+        }
+    }
+
+    .buttonSection {
+        .size(@height: 50px);
+        background-color: @color-bg-tiber-blue;
+        padding: 0 15px;
+
+        > div, > i {
+            .vertical-align;
+            opacity: @opacity-unhover;
+
+            &:hover {
+                opacity: @opacity-hover;
+            }
+        }
+
+        .submit {
+            float: left;
+            .size(@width: 30px, @height: 30px);
+            margin-right: 10px;
+
+            background-color: @color-bg-boston-blue;
+
+            .icon {
+                .center-align;
+            }
+
+            &:active {
+                border: 1px solid @color-white;
+                opacity: @opacity-hover;
+            }
+        }
+
+        .divider {
+            .size(@width: 1px, @height: 36px);
+            opacity: 1;
+            background-color: @color-bg-light-navy;
+            float: right;
+            margin: 0 10px;
+        }
+
+        .refresh {
+            .size(@width: 22px, @height: 22px);
+            float: right;
+        }
+
+        .select {
+            .size (22px, 22px);
+            float: right;
+            margin: 0 4px;
+            .vertical-align;
+        }
+    }
+
+    .tableLists {
+        .size(@height: ~"calc(100% - 50px)", @max-width: 490px);
+        overflow: hidden;
+        overflow-y: auto;
+        color: @color-white;
+
+        .timeLine {
+            .size(@width: 100%);
+            margin-top: -1px;
+            .font(@line-height: 25px, @size: 13px);
+            padding-top: 4px;
+
+            > .timeStamp {
+                padding: 0 10px;
+            }
+        }
+
+        .tableInfo {
+            .size(@width: 100%, @min-height: 38px);
+            padding: 5px 15px 0 10px;
+            .font(@line-height: 25px, @size: 13px);
+
+            &:hover {
+                background-color: rgba(0, 0, 0, 0.3);
+            }
+
+            &.hiddenWS {
+                opacity: 0.6;
+            }
+
+            &.transition {
+                min-height: 0;
+                height: 38px;
+            }
+
+            &.highlight {
+                background: @color-white;
+                z-index: 100 !important;
+
+            }
+        }
+
+        .timeStampWrap {
+            .position(relative, @top: 1px);
+            .size(@width: 24%, @height: 25px);
+            display: inline-block;
+            float: left;
+            .font(@line-height: 12px, @size: 10px);
+            overflow: hidden;
+
+            .timeStamp {
+                .size(@width: ~"calc(100% - 7px)", @height: 12px);
+                text-align: right;
+                overflow: hidden;
+            }
+
+            .time {
+                white-space: nowrap;
+            }
+
+            .worksheetInfo {
+                .size(@width: ~"calc(100% - 7px)", @height: 12px);
+                text-align: right;
+                .textOverflow;
+
+                &.inactive {
+                    opacity: 0.5;
+                }
+            }
+        }
+
+        .tableListBox {
+            .size(@width: 76%, @height: 25px);
+            .font(@color: @color-font-pinkish-grey);
+            white-space: nowrap;
+            overflow: hidden;
+
+            &.active {
+                color: @color-font-bright-light-blue;
+
+                .icon {
+                    color: @color-font-bright-light-blue;
+                }
+
+                .expand { 
+                    .icon {
+                        .transform(~"rotate(0deg)");
+                    }
+                }
+
+                .addTableBtn {
+                    &:hover {
+                        border: 1px solid @color-border-softBlue;
+                    }
+                }
+            }
+
+            > span {
+                display: inline-block;
+                float: left;
+            }
+
+            .expand {
+                .size(10px, 25px);
+                margin-right: 5px;
+
+                .icon {
+                    .position(relative);
+                    .transform(~"rotate(270deg)");
+                }
+            }
+
+            .addTableBtn {
+                .size(18px, 18px);
+                margin-right: 5px;
+                .vertical-align;
+                cursor: pointer;
+                font-size: 18px;
+
+                .icon {
+                    .position(relative, @top: -2px);
+                }
+
+                &:hover {
+                    border: 1px solid @color-border-pinkish-grey;
+                
+                    .icon:before {
+                        content: "";
+                    }
+                }
+
+                &.selected {
+                    border: none;
+                    background-color: @color-bg-softBlue;
+
+                    .icon {
+                        font-size: 11px;
+                        &:before {
+                            .position(relative, @top: -3px, @left: 2px);
+                            content: "\e95d";
+                        }
+                    }
+
+                    ~ .tableName, ~ .numCols {
+                        color: @color-font-bright-light-blue;
+                    }
+                }
+            }
+
+            .tableName {
+                max-width: 200px;
+                .textOverflowOneLine;
+                margin-right: 2px;
+            }
+        }
+
+        .columnList {
+            display: none;
+            .position(relative);
+            .size(@width: ~"calc(76% - 26px)");
+            margin: 0px 0 10px 22px;
+            padding: 2px 0 0 0;
+            float: right;
+
+            li {
+                .size(@height: 20px);
+                margin-top: 5px;
+                .font(@size: 11px, @line-height: 20px, @color: @color-white);
+                background-color: transparent;
+                border: 1px solid @color-border-pinkish-grey;
+
+                .typeList(@w: 20px, @h: 20px);
+
+                .iconWrap {
+                    .size(@width: 22px, @height: 100%);
+                    display: inline-block;
+                    float: left;
+                    background-color: @color-bg-pinkish-grey;
+                }
+
+                .text {
+                    display: inline-block;
+                    float: left;
+                    padding-left: 5px;
+                    .size(@width: ~"calc(100% - 30px)");
+                    .textOverflowOneLine;
+                }
+
+
+                &:hover {
+                    border: 1px solid @color-border-softBlue;
+                    color: @color-font-softBlue;
+                    .iconWrap {
+                        background-color: @color-bg-softBlue;
+                    }
+                }
+            }
+        }
+    }
+}
+
+#orphanedTableList {
+    .searchbarArea {
+        margin-left: 12%;
+        margin-top: 10px;
+        clear: both;
+        .size(@width: 75%, @height: 25px);
+        .position(relative);
+
+        .input-box(@w: 100%, @h: 25px);
+        .input-placeholder(@color-text-midGray);
+        .closeIcon(@topOff: 3px, @rightOff: 4px);
+
+        input {
+            .font(@weight: bold, @color: @color-text-midGray);
+            padding-right: 30px;
+        }
+        .counter {
+            top: 4px;
+            right: 30px;
+        }
+        .arrows {
+            top: -3px;
+            right: -51px;
+        }
+        .iconWrap {
+            .size(@width: 20px, @height: 20px);
+            .icon {
+                .size(@width: 20px, @height: 20px);
+            }
+        }
+
+    }
+
+    .tableLists {
+        margin: 5px 0 0 0;
+        height: ~"calc(100% - 90px)";
+
+        .tableListBox {
+            margin-left: 12%;
+        }
+
+        .highlightedText {
+            background-color: yellow;
+            &.selected {
+                background-color: orange;
+            }
+        }
+    }
+}
+
+
+/* ========== End Of Table List ========== */
+
 /* Row and Column Resizing*/
 .colGrab {
     .position(absolute, @top: -5px, @right: -14px);

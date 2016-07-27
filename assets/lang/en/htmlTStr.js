@@ -208,10 +208,21 @@ module.exports = {
     },
 
     "WSTStr" : {
+        "TblList": "Tables List",
+        "WSList": "Worksheet List",
         "WSName": "Worksheet Name",
         "ActiveWS": "Active Worksheet List",
         "HiddenWS": "Hidden Worksheet List",
         'NoHiddenWS': 'No Hidden Worksheets',
+        "Tables": "Tables",
+        "ActiveList": "Active",
+        "InActiveList": "Archived",
+        "OrphanList": "Orphaned",
+        "active": "Add To Worksheet",
+        "archive": "Archive Tables",
+        "selectAll": "select all",
+        "deselectAll": "deselect all",
+        "filterOrphan": "Filter Orphaned Table",
     },
 
     "CommonTxtTstr" : {
@@ -237,16 +248,6 @@ module.exports = {
         "popOutBtn": "undock",
         "toggleSqlBtn": "toggle machine/human Log",
         "copySqlBtn": "Copy Log",
-        "Tables": "Tables",
-        "ActiveList": "Active",
-        "InActiveList": "Archived",
-        "OrphanList": "Orphaned",
-        "active": "Add To Worksheet",
-        "archive": "Archive Tables",
-        "selectAll": "select all",
-        "deselectAll": "deselect all",
-        "refresh": "refresh tables",
-        "filterOrphan": "Filter Orphaned Table",
         "ChooseFile": "Choose File",
         "UDF": "User Defined Function",
         "udfWrite": "Write your function",
@@ -271,7 +272,6 @@ module.exports = {
 
     "bottomBar": {
         "EC": "Establishing Connection",
-        "tblList": "tables list",
         "help": "help"
     },
 

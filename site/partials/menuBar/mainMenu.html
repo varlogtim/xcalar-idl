@@ -2,23 +2,12 @@
 	<div class="mainContent">
 		<!-- content common to all inner sections -->
 		<div id="workspaceMenu" class="commonSection" data-tab="workspaceTab">
-			<div class="iconSection">
-				<!-- addWorkhseet btn -->
-			    <% if (dicts.tutor.name == "workbookDemo") { %>
-			    <div id="addWorksheet" class="btn" data-introstep="7">
-			      <i class="icon"></i>
-			    </div>
-			    <% } else { %>
-			    <div id="addWorksheet" class="action" title="<%= dicts.ws.add %>" data-toggle="tooltip" data-placement="top" data-container="body">
-			      <i class="icon xi-add-worksheet"></i>
-			    </div>
-			    <% } %>
-			    <i class="minimizeBtn icon xi-close fa-15"></i>
-			</div>
-			<header class="titleSection"><%= dicts.menuBar.ws %></header>
-			<div id="worksheetListSection" class="mainSection">
-				  include "../worksheetTabs.html"
-			</div>
+			<section class="menuSection worksheets">
+				include "../worksheet/worksheetTabs.html"
+			</section>
+			<section class="menuSection tables xc-hidden">
+				include "../worksheet/tableList.html"
+			</section>
 		</div>
 		<div id="datastoreMenu" class="commonSection" data-tab="dataStoresTab">
 			<div class="minimizeBtn">-</div>

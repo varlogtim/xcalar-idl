@@ -8,7 +8,6 @@ window.BottomMenu = (function($, BottomMenu) {
         $menuPanel = $("#bottomMenu");
         setupButtons();
         SQL.setup();
-        TableList.setup();
         UDF.setup();
         // CLIBox.setup();
         Help.setup();
@@ -16,7 +15,6 @@ window.BottomMenu = (function($, BottomMenu) {
 
     BottomMenu.initialize = function() {
         try {
-            TableList.initialize();
             UDF.initialize();
         } catch (error) {
             console.error(error);
@@ -25,7 +23,6 @@ window.BottomMenu = (function($, BottomMenu) {
     };
 
     BottomMenu.clear = function() {
-        TableList.clear();
         UDF.clear();
         SQL.clear();
         // CLIBox.clear();

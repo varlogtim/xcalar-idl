@@ -1,0 +1,74 @@
+<!-- Worksheet Tabs -->
+<div class="iconSection">
+  <!-- addWorkhseet btn -->
+    <% if (dicts.tutor.name == "workbookDemo") { %>
+    <div id="addWorksheet" class="btn" data-introstep="7">
+      <i class="icon"></i>
+    </div>
+    <% } else { %>
+    <div id="addWorksheet" class="action" title="<%= dicts.ws.add %>" data-toggle="tooltip" data-placement="top" data-container="body">
+      <i class="icon xi-add-worksheet"></i>
+    </div>
+    <% } %>
+    </i>
+    <i class="minimizeBtn icon xi-close fa-15"></i>
+    <!-- switch to table list -->
+    <i id="tableListTab" class="right icon xi-menu-table-list fa-20" data-toggle="tooltip" data-placement="top" data-container="body" title="<%= dicts.WSTStr.TblList %>"></i>
+</div>
+<header class="titleSection"><%= dicts.menuBar.ws %></header>
+<div id="worksheetListSection" class="mainSection">
+  <div class="list active">
+    <div class="listInfo no-selection">
+      <span class="expand">
+        <i class="icon xi-arrow-down fa-7"></i>
+      </span>
+      <span class="text"><%= dicts.WSTStr.ActiveWS %></span>
+    </div>
+    <ul id="worksheetTabs">
+      <% if (dicts.tutor.name == "workbookDemo") { %>
+      <li class="worksheetTab" data-introstep="6">
+        <span class="draggableArea"></span>
+        <i class="eye icon xi-show fa-15"></i>
+        <input type="text" class="text textOverflow" spellcheck="false" value="<%= dicts.ws.sheet %> 1">
+        <i class="wsMenu clickable icon xi-worksheet fa-15"></i>
+      </li>
+      <li class="worksheetTab active" data-introstep="5">
+        <span class="draggableArea"></span>
+        <i class="eye icon xi-show fa-15"></i>
+        <input type="text" class="text textOverflow" spellcheck="false" value="<%= dicts.ws.sheet %> 2">
+        <i class="wsMenu clickable icon xi-worksheet fa-15"></i>
+      </li>
+      <% } else { %>
+      <!-- Placeholder, Keep it so user don't see difference when loading -->
+      <li class="worksheetTab">
+        <span class="draggableArea"></span>
+        <i class="eye icon xi-show fa-15"></i>
+        <input type="text" class="text textOverflow" spellcheck="false" value="<%= dicts.ws.sheet %> 1">
+        <i class="wsMenu icon xi-worksheet fa-15"></i>
+      </li>
+      <% } %>
+    </ul>
+  </div>
+  <div class="list active">
+    <div class="listInfo no-selection">
+      <span class="expand">
+        <i class="icon xi-arrow-down fa-7"></i>
+      </span>
+      <span class="text"><%= dicts.WSTStr.HiddenWS %></span>
+    </div>
+    <ul id="hiddenWorksheetTabs">
+      <li class="hint no-selection"><%= dicts.WSTStr.NoHiddenWS %></li>
+      <li class="worksheetTab hiddenTab">
+        <input type="text" class="text textOverflow" spellcheck="false" value="<%= dicts.ws.sheet %> 1" disabled>
+        <i class="unhide icon xi-monitor fa-15"></i>
+      </li>
+    </ul>
+  </div>
+  <div id="worksheetTabMenu" class="menu">
+    <ul>
+      <li class="rename"><%= dicts.common.Rename %></li>
+      <li class="hide"><%= dicts.ws.hide %></li>
+      <li class="delete"><%= dicts.ws.del %></li>
+    </ul>
+  </div>
+</div>

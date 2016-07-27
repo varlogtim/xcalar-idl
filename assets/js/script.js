@@ -99,6 +99,7 @@ window.StartManager = (function(StartManager, $) {
         .then(setupSession)
         .then(function() {
             documentReadyGeneralFunction();
+            WSManager.initialize();
             BottomMenu.initialize();
             WorkbookModal.initialize();
             // restore user settings
