@@ -165,9 +165,17 @@ window.DSForm = (function($, DSForm) {
                         cacheUDF(udfModule, udfFunc);
                     }
 
+                    var format = $formatText.data("format");
+                    // Deliberately do not cache this UDF
+                    if (format === DSTStr.Excel) {
+                        udfModule = "default";
+                        udfFunc = "openExcel";
+                    }
+
                     var dsName = $("#fileName").val();
                     var loadURL = protocol + path;
-                    var isRecur = isResursivePoint();
+                    var isRecur = isRecursivePoint();
+
                     DSPreview.show(loadURL, dsName, udfModule, udfFunc, isRecur);
                 }
             }
@@ -234,7 +242,7 @@ window.DSForm = (function($, DSForm) {
     {
         var deferred = jQuery.Deferred();
         // validation check of loadURL
-        var isRecur = isResursivePoint();
+        var isRecur = isRecursivePoint();
 
         var msgId = StatusMessage.addMsg({
             "msg"      : StatusMessageTStr.LoadingDataset + ": " + dsName,
@@ -521,7 +529,7 @@ window.DSForm = (function($, DSForm) {
     }
 
     function isValidPathToRecusrivePoint() {
-        if (!isResursivePoint()) {
+        if (!isRecursivePoint()) {
             return true;
         }
 
@@ -581,9 +589,6 @@ window.DSForm = (function($, DSForm) {
 
         if (getFilePath() === "") {
             StatusBox.show(ErrTStr.NoEmpty, $filePath, false, options);
-            return false;
-        } else if (format === "Excel") {
-            StatusBox.show(ErrTStr.NoPreviewExcel, $filePath, false, options);
             return false;
         }
 
@@ -654,14 +659,14 @@ window.DSForm = (function($, DSForm) {
 
     function getFilePath() {
         var path = $filePath.val().trim();
-        if (isResursivePoint()) {
+        if (isRecursivePoint()) {
             path += $filePathPattern.val().trim();
         }
 
         return path;
     }
 
-    function isResursivePoint() {
+    function isRecursivePoint() {
         return $recurCheckbox.find(".checkbox").hasClass("checked");
     }
 
