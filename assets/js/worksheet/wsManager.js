@@ -1,6 +1,7 @@
 window.WSManager = (function($, WSManager) {
-    var $workSheetTabSection; // $("#worksheetTabs");
-    var $tabMenu;             // $('#worksheetTabMenu');
+    var $workSheetTabs; // $("#worksheetTabs");
+    var $hiddenWorksheetTabs;  // $("#hiddenWorksheetTabs");
+    var $tabMenu;       // $('#worksheetTabMenu');
 
     var wsLookUp = {}; // {id, date, tables, archivedTables}
     var wsOrder = [];
@@ -14,16 +15,19 @@ window.WSManager = (function($, WSManager) {
     var wsNameToIdMap  = {};  // find wsId by wsName
 
     var activeWorksheet = null;
-    // var for naming worksheet automatically
+    
+    // constant
     var defaultName = "Sheet ";
     var nameSuffix = 1;
     var maxWSLen = 260; // 26 letters * 10 nums
+    var slideTime = 180;
 
     // Setup function for WSManager Module
     WSManager.setup = function() {
-        $workSheetTabSection = $("#worksheetTabs");
-        $tabMenu = $('#worksheetTabMenu');
-        addWSEvents();
+        $workSheetTabs = $("#worksheetTabs");
+        $tabMenu = $("#worksheetTabMenu");
+        $hiddenWorksheetTabs = $("#hiddenWorksheetTabs");
+        addEventListeners();
     };
 
     // Restore worksheet structure from backend
@@ -34,8 +38,7 @@ window.WSManager = (function($, WSManager) {
         wsLookUp = sheetInfos.wsInfos || {};
         noSheetTables = sheetInfos.noSheetTables || [];
 
-        var wsId;
-        for (wsId in wsLookUp) {
+        for (var wsId in wsLookUp) {
             // remove the deleted worksheets
             var ws = wsLookUp[wsId];
 
@@ -189,17 +192,22 @@ window.WSManager = (function($, WSManager) {
     // Rename a worksheet
     WSManager.renameWS = function(wsId, name) {
         var $tab = $("#worksheetTab-" + wsId);
-        var $label = $tab.find(".label");
-        var $text = $label.find(".text");
+        var $text = $tab.find(".text");
         var ws = wsLookUp[wsId];
         var oldName = ws.name;
+
+        if (name === "" || wsNameToIdMap.hasOwnProperty(name)) {
+            $text.val(oldName);
+            return;
+        }
 
         delete wsNameToIdMap[oldName];
         ws.name = name;
         wsNameToIdMap[name] = wsId;
 
-        $label.attr("data-original-title", name);
-        $text.data("title", name).blur();
+        $text.val(name)
+            .attr("title", name)
+            .attr("data-original-title", name);
         // use worksheet class to find table lists in right side bar
         $("#tableListSections .worksheetInfo.worksheet-" + wsId).text(name);
 
@@ -603,14 +611,8 @@ window.WSManager = (function($, WSManager) {
         var index = wsOrder.indexOf(wsId);
         wsOrder.splice(index, 1);
         hiddenWS.push(wsId);
-        $('#bottomTabArea').addClass('hasHiddenWS');
 
-        var hiddenWSHTML = getHiddenWSHTML(wsId);
-        var $hiddenWorksheetsTab = $('#hiddenWorksheetsTab');
-        $hiddenWorksheetsTab.find('ul').prepend(hiddenWSHTML);
-        $hiddenWorksheetsTab.find('.mainTab')
-                            .html('...(' + hiddenWS.length + ')');
-
+        var $hiddenTab = $(getHiddenWSHTML(wsId));
         var tableIds = [];
         var ws = wsLookUp[wsId];
         var tables = ws.tables;
@@ -631,14 +633,19 @@ window.WSManager = (function($, WSManager) {
 
         TableList.tablesToHiddenWS([wsId]);
 
+        $hiddenWorksheetTabs.removeClass("hint");
+
+        var $tab = $workSheetTabs.find("#worksheetTab-" + wsId);
         if (gMinModeOn) {
-            $("#worksheetTab-" + wsId).remove();
+            $hiddenWorksheetTabs.append($hiddenTab);
+            $tab.remove();
             rmHandler(wsId, index);
         } else {
-            $("#worksheetTab-" + wsId).addClass("transition").animate({
-                "width": 0
-            }, 180, function() {
-                $("#worksheetTab-" + wsId).remove();
+            $hiddenTab.appendTo($hiddenWorksheetTabs)
+                    .hide().slideDown(slideTime);
+
+            $tab.slideUp(slideTime, function() {
+                $tab.remove();
                 rmHandler(wsId, index);
             });
         }
@@ -658,11 +665,12 @@ window.WSManager = (function($, WSManager) {
             wsIds = [wsIds];
         }
 
+        $(".tooltip").hide();
         var wsNames = [];
         var curWSId;
         var hiddenWSOrder = [];
         var hiddenWSCopy = xcHelper.deepCopy(hiddenWS);
-        var tableBulkActionPromises = [];
+        var promises = [];
         wsIds.forEach(function(wsId) {
             curWSId = wsId;
 
@@ -695,20 +703,25 @@ window.WSManager = (function($, WSManager) {
                 toggleTableArchive(tableId, tempHiddenTables, tables);
             }
 
-            $('#hiddenWorksheetsTab').find('#worksheetTab-' + wsId).remove();
+            var $tab = $hiddenWorksheetTabs.find('#worksheetTab-' + wsId);
+            if (gMinModeOn) {
+                $tab.remove();
+            } else {
+                $tab.slideUp(slideTime, function() {
+                    $tab.remove();
+                });
+            }
 
-            makeWorksheet(wsId, true);
-            tableBulkActionPromises.push(TableList.tableBulkAction.bind(this,
+            makeWorksheet(wsId);
+            promises.push(TableList.tableBulkAction.bind(this,
                                          "add", TableType.WSHidden, wsId));
         });
 
-        var len = hiddenWS.length;
-        $('#hiddenWorksheetsTab').find('.mainTab').html('...(' + len + ')');
-        if (len === 0) {
-            $('#bottomTabArea').removeClass('hasHiddenWS');
+        if (hiddenWS.length === 0) {
+            $hiddenWorksheetTabs.addClass("hint");
         }
 
-        PromiseHelper.chain(tableBulkActionPromises)
+        PromiseHelper.chain(promises)
         .then(function() {
             // focus on last that unhide
             WSManager.focusOnWorksheet(curWSId);
@@ -725,7 +738,7 @@ window.WSManager = (function($, WSManager) {
             deferred.reject();
         });
 
-        return (deferred.promise());
+        return deferred.promise();
     };
 
     // Remove table that are not in any worksheet
@@ -739,39 +752,6 @@ window.WSManager = (function($, WSManager) {
 
         noSheetTables.splice(index, 1);
     };
-
-    // Copy one table to a worksheet
-
-     // XX THIS IS CURRENTLY DISABLED , tablename/tableId needs to be fixed
-    // WSManager.copyTable = function(srcTableName, newTableName, wsIndex) {
-    //     var tableNum   = gTables.length;
-    //     var tableId = xcHelper.getTableId(srcTableName);
-    //     // do a deep copy
-    //     var srcTable   = gTables[tableId];
-    //     var tableCopy  = xcHelper.deepCopy(srcTable);
-    //     var newTableId = xcHelper.getTableId(newTableName);
-
-    //     activeWorksheet = wsIndex;
-    //     gTables[newTableId] = tableCopy;
-    //     // XXX for sample table, should sync frontName with backName since
-    //     // there both src sample and the copied can change to real table using
-    //     // its backTableName
-    //     // if (!tableCopy.isTable) {
-    //     //     tableCopy.tableName = newTableName;
-    //     // }
-
-    //     addTable(tableCopy.tableName, tableNum,
-    //              AfterStartup.After, null, newTableName)
-    //     .then(function() {
-    //         WSManager.focusOnWorksheet(wsIndex, false, tableNum);
-    //         // xx focusonworksheet expects tableid
-    //     })
-    //     .fail(function(error) {
-    //         var newTableId =
-    //         delete gTables[newTableId];
-    //         Alert.error(error);
-    //     });
-    // };
 
     // Remove table from worksheet
     // finds table where ever it is and leaves no trace of it
@@ -824,39 +804,20 @@ window.WSManager = (function($, WSManager) {
         }
         activeWorksheet = wsId;
 
-        var $tabs   = $workSheetTabSection.find(".worksheetTab");
+        var $tabs = $workSheetTabs.find(".worksheetTab");
         var $tables = $("#mainFrame .xcTableWrap");
-        var $dags   = $("#dagPanel .dagWrap");
 
         // refresh worksheet tab
         xcHelper.removeSelectionRange();
-        var $prevActiveTab = $tabs.find('.label:not(.inActive)');
-        $prevActiveTab.addClass('noTransition')
-                      .find('.wsIconWrap')
-                      .addClass('noTransition');
-        // we dont want transition when active tab goes to inactive
-        setTimeout(function() {
-            $tabs.find('.label')
-                 .removeClass('noTransition')
-                 .find('.wsIconWrap')
-                 .removeClass('noTransition');
-        }, 150);
-
-        $tabs.addClass("inActive")
-             .find('.text').blur();
+        $tabs.removeClass("active");
 
         var $activeTab = $("#worksheetTab-" + wsId);
-        $activeTab.removeClass("inActive");
-        sizeTabInput($activeTab.find('input'));
+        $activeTab.addClass("active");
 
         // refresh mainFrame
         $tables.addClass("inActive");
         var $curActiveTables = $tables.filter(".worksheet-" + wsId);
         $curActiveTables.removeClass("inActive");
-
-        // refresh dag
-        $dags.addClass("inActive");
-        $dags.filter(".worksheet-" + wsId).removeClass("inActive");
 
         // position sticky row column on visible tables
         moveFirstColumn();
@@ -895,23 +856,9 @@ window.WSManager = (function($, WSManager) {
             }
             $curActiveTables.find('.xcTable').each(function() {
                 var $table = $(this);
-                var $tableWrap = $table.closest('.xcTableWrap');
                 matchHeaderSizes($table);
             });
 
-            // if (!isFocus &&
-            //     $curActiveTables.find('.tableTitle.tblTitleSelected')
-            //                     .length === 0) {
-            //     var tableId = $curActiveTables.eq(0).data('id');
-            //     focusTable(tableId);
-            // } else {
-            //     var $focusedTable = $curActiveTables
-            //                        .find('.tableTitle.tblTitleSelected')
-            //                        .closest('.xcTableWrap');
-            //     var focusedTableId = $focusedTable.data('id');
-            //     gActiveTableId = focusedTableId;
-            //     // focusTable(tableId);
-            // }
             if (!isFocus) {
                 var tableIdToFocus;
                 if ($curActiveTables.find('.tblTitleSelected').length === 0) {
@@ -994,7 +941,7 @@ window.WSManager = (function($, WSManager) {
     };
 
     // Add worksheet events, helper function for WSManager.setup()
-    function addWSEvents() {
+    function addEventListeners() {
         // click to add new worksheet
         $("#addWorksheet").click(function() {
             if (wsOrder.length >= maxWSLen) {
@@ -1005,77 +952,65 @@ window.WSManager = (function($, WSManager) {
             WSManager.addWS();
         });
 
-        $workSheetTabSection.on({
-            "focus": function() {
-                var $text = $(this);
-                var $tab = $text.closest(".worksheetTab");
+        var $section = $("#worksheetListSection");
+        $("#worksheetListSection").on("click", ".listInfo", function() {
+            $(this).closest(".list").toggleClass("active");
+        });
 
-                $tab.addClass("focus");
-                $workSheetTabSection.sortable( "disable" );
+        $section.on("mouseenter", ".tooltipOverflow", function() {
+            xcHelper.autoTooltip(this);
+        });
+
+        // rename
+        $workSheetTabs.on({
+            "focus": function() {
+                $workSheetTabs.sortable("disable");
             },
             "blur": function() {
                 var $text = $(this);
+                var newName = $text.val().trim();
+                var wsId = $text.closest(".worksheetTab").data("ws");
 
-                $text.val($text.data("title"));
+                WSManager.renameWS(wsId, newName);
+
+                $text.prop("disabled", true);
                 $text.scrollLeft(0);
-                $text.closest(".worksheetTab").removeClass("focus");
-                $workSheetTabSection.sortable( "enable" );
-                sizeTabInput($text);
+                $workSheetTabs.sortable("enable");
             },
             "keypress": function(event) {
                 if (event.which === keyCode.Enter) {
                     event.preventDefault();
-
-                    var $text = $(this);
-                    var name = $text.val().trim();
-                    // name empty or confilct
-                    if (name === "" || wsNameToIdMap.hasOwnProperty(name)) {
-                        $text.blur();
-                        return;
-                    }
-
-                    var wsId = $text.closest(".worksheetTab").data("ws");
-                    WSManager.renameWS(wsId, name);
+                    $(this).blur();
                 }
             },
-            "click": function() {
-                $(this).focus();
+            "dblclick": function() {
+                $(this).prop("disabled", false).focus();
             }
         }, ".worksheetTab .text");
 
-        // switch worksheet
-        $workSheetTabSection.on("mousedown", ".worksheetTab", function(event) {
-            if (event.which !== 1) {
-                return;
-            }
-            if ($(event.target).hasClass('wsIconWrap') ||
-                $(event.target).parent('.wsIconWrap').length) {
-                return;
-            }
-            var $tab = $(this);
-
-            if ($tab.hasClass("inActive")) {
-                var wsId = $tab.data("ws");
-                switchWSHelper(wsId);
-            }
-        });
-
-        $workSheetTabSection[0].oncontextmenu = function(event) {
-            var $target = $(event.target).closest('.wsIconWrap');
+        $workSheetTabs[0].oncontextmenu = function(event) {
+            var $target = $(event.target).closest('.wsMenu');
             if ($target.length) {
                 $target.trigger('click');
                 event.preventDefault();
             }
         };
 
-        $workSheetTabSection.on("click", ".wsIconWrap", function() {
-            var wsId = $(this).closest(".worksheetTab").data("ws");
-            var numTabs = $workSheetTabSection.find('.worksheetTab').length;
-            var $wsIconWrap = $(this);
+        $workSheetTabs.on("click", ".wsMenu", function() {
+            var $tab = $(this).closest(".worksheetTab");
+            var wsId = $tab.data("ws");
+            var numTabs = $workSheetTabs.find('.worksheetTab').length;
+            var $wsMenu = $(this);
             if ($tabMenu.is(':visible') && $tabMenu.data('ws') === wsId) {
                 $tabMenu.hide();
+                return;
             }
-            xcHelper.dropdownOpen($wsIconWrap, $tabMenu, {
+
+            // switch to that worksheet first
+            if (!$tab.hasClass("active")) {
+                switchWSHelper(wsId);
+            }
+            xcHelper.dropdownOpen($wsMenu, $tabMenu, {
                 "offsetX"      : -7,
                 "ignoreSideBar": true,
                 "floating"     : true,
@@ -1087,30 +1022,39 @@ window.WSManager = (function($, WSManager) {
                         $tabMenu.find('.delete').removeClass('unavailable');
                         $tabMenu.find('.hide').removeClass('unavailable');
                     }
-                    // Note: if we don't want to show rename option on inactive
-                    // worksheet tabs
-
-                    // if ($wsIconWrap.closest('.worksheetTab')
-                    //                .hasClass('inActive')) {
-                    //     $tabMenu.find('.rename').addClass('unavailable');
-                    // } else {
-                    //     $tabMenu.find('.rename').removeClass('unavailable');
-                    // }
                     $tabMenu.data('ws', wsId);
                 }
             });
         });
 
+        // switch worksheet
+        $workSheetTabs.on("mousedown", ".worksheetTab", function(event) {
+            if (event.which !== 1) {
+                return;
+            }
+
+            var $target = $(event.target);
+            if ($target.hasClass('wsMenu') ||
+                $target.parent('.wsMenu').length) {
+                return;
+            }
+            var $tab = $(this);
+
+            if (!$tab.hasClass("active")) {
+                var wsId = $tab.data("ws");
+                switchWSHelper(wsId);
+            }
+        });
+
         var initialIndex;
 
-        $workSheetTabSection.sortable({
+        $workSheetTabs.sortable({
             "revert"  : 200,
-            "axis"    : "x",
+            "axis"    : "y",
             "distance": 2,
             "handle"  : ".draggableArea",
             "start"   : function(event, ui) {
                 var $tab = $(ui.item).addClass('dragging');
-                $tab.click();
                 initialIndex = $tab.index();
                 var cursorStyle =
                 '<style id="moveCursor" type="text/css">*' +
@@ -1131,36 +1075,6 @@ window.WSManager = (function($, WSManager) {
             }
         });
 
-        var $hiddenWorksheetsTab = $('#hiddenWorksheetsTab');
-
-        var wslist = new MenuHelper($hiddenWorksheetsTab, {
-            "onSelect": function($li) {
-                // var module = $li.text();
-                var wsId = $li.data('ws');
-                if (wsId === "all") {
-                    var wsIds = [];
-                    $('#hiddenWorksheetsTab').find('li:not(.unhideAll)').each(function() {
-                        wsId = $(this).data('ws');
-                        wsIds.push(wsId);
-                    });
-                    wsIds = wsIds.reverse();
-                    WSManager.unhideWS(wsIds);
-                } else {
-                    WSManager.unhideWS(wsId);
-                }
-            },
-            "container": "#bottomTabArea"
-        });
-        wslist.setupListeners();
-
-        $hiddenWorksheetsTab[0].oncontextmenu = function(e) {
-            var $target = $(e.target).closest('.mainTab');
-            if ($target.length) {
-                $target.trigger('click');
-                e.preventDefault();
-            }
-        };
-
         addMenuBehaviors($tabMenu);
 
         $tabMenu.find('li').click(function() {
@@ -1169,20 +1083,19 @@ window.WSManager = (function($, WSManager) {
             if ($li.hasClass('unavailable')) {
                 return;
             } else if ($li.hasClass('rename')) {
-                if ($('#worksheetTab-' + wsId).hasClass("inActive")) {
-                    switchWSHelper(wsId);
-                }
-                focusOnTabRename(wsId);
+                $('#worksheetTab-' + wsId).find(".text").trigger("dblclick");
             } else if ($li.hasClass('hide')) {
                 WSManager.hideWS(wsId);
             } else if ($li.hasClass('delete')) {
                 delWSCheck(wsId);
             }
         });
-    }
 
-    function focusOnTabRename(wsId) {
-        $("#worksheetTab-" + wsId).find('.text').focus();
+        $hiddenWorksheetTabs.on("click", ".unhide", function() {
+            var $tab = $(this).blur();
+            var wsId = $tab .closest(".worksheetTab").data('ws');
+            WSManager.unhideWS(wsId);
+        });
     }
 
     function renderWSId() {
@@ -1209,7 +1122,7 @@ window.WSManager = (function($, WSManager) {
 
     function initializeWorksheet(clearing) {
         // remove the placeholder in html
-        $workSheetTabSection.empty();
+        $workSheetTabs.empty();
 
         var len = wsOrder.length;
         if (len === 0) {
@@ -1217,7 +1130,7 @@ window.WSManager = (function($, WSManager) {
         } else {
             for (var i = 0; i < len; i++) {
                 // true meanse no animation
-                makeWorksheet(wsOrder[i], true);
+                makeWorksheet(wsOrder[i]);
             }
         }
         // focus on the saved or first worksheet
@@ -1232,22 +1145,19 @@ window.WSManager = (function($, WSManager) {
     }
 
     function initializeHiddenWorksheets() {
-        var $hiddenWorksheetsTab = $('#hiddenWorksheetsTab');
-        $hiddenWorksheetsTab.find('li:not(.unhideAll)').remove();
+        $hiddenWorksheetTabs.find(":not(.hint)").remove();
 
         var len = hiddenWS.length;
-        if (len === 0) {
-            $('#bottomTabArea').removeClass('hasHiddenWS');
-        } else {
-            var listHtml = "";
+        if (len !== 0) {
+            var html = "";
             var wsId;
             for (var i = 0; i < len; i++) {
                 wsId = hiddenWS[i];
-                listHtml += getHiddenWSHTML(wsId);
+                html += getHiddenWSHTML(wsId);
             }
-            $hiddenWorksheetsTab.find('ul').prepend(listHtml);
-            $hiddenWorksheetsTab.find('.mainTab').html('...(' + len + ')');
-            $('#bottomTabArea').addClass('hasHiddenWS');
+            $hiddenWorksheetTabs.removeClass("hint").append(html);
+        } else {
+            $hiddenWorksheetTabs.addClass("hint");
         }
     }
 
@@ -1282,19 +1192,14 @@ window.WSManager = (function($, WSManager) {
     }
 
     // Make a worksheet
-    function makeWorksheet(wsId, noAnimation) {
+    function makeWorksheet(wsId) {
         var $tab = $(getWSTabHTML(wsId));
-
-        if (noAnimation) {
-            $tab.appendTo($workSheetTabSection);
+        if (gMinModeOn) {
+            $workSheetTabs.append($tab);
         } else {
-            if (gMinModeOn) {
-                $tab.appendTo($workSheetTabSection);
-            } else {
-                $tab.hide().appendTo($workSheetTabSection).slideDown(180);
-            }
+            $tab.appendTo($workSheetTabs)
+                .hide().slideDown(slideTime);
         }
-        sizeTabInput($tab.find('input'));
     }
 
     function reorderWSHelper(oldWSIndex, newWSIndex) {
@@ -1307,16 +1212,6 @@ window.WSManager = (function($, WSManager) {
             "oldWorksheetIndex": oldWSIndex,
             "newWorksheetIndex": newWSIndex
         });
-    }
-
-    // size the input in the worksheet tab to fit the input's text
-    function sizeTabInput($input) {
-        var maxSize = $input.closest('.draggableArea').width() - 6;
-        var minSize = 30;
-        var textWidth = getTextWidth($input, $input.val()) + 12;
-        var newWidth = Math.min(maxSize, textWidth);
-        newWidth = Math.max(newWidth, minSize);
-        $input.outerWidth(newWidth); // .width() assigns incorrect value
     }
 
     // Remove worksheet
@@ -1341,14 +1236,13 @@ window.WSManager = (function($, WSManager) {
         var index = WSManager.getWSOrder(wsId);
         wsOrder.splice(index, 1);
 
+        var $tab = $("#worksheetTab-" + wsId);
         if (gMinModeOn) {
-            $("#worksheetTab-" + wsId).remove();
+            $tab.remove();
             rmHandler(wsId, index);
         } else {
-            $("#worksheetTab-" + wsId).addClass("transition").animate({
-                "width": 0
-            }, 180, function() {
-                $("#worksheetTab-" + wsId).remove();
+            $tab.slideUp(slideTime, function() {
+                $tab.remove();
                 rmHandler(wsId, index);
             });
         }
@@ -1449,19 +1343,9 @@ window.WSManager = (function($, WSManager) {
         }
     }
 
-    function getHiddenWSHTML(wsId) {
-        var name = wsLookUp[wsId].name;
-        var id = "worksheetTab-" + wsId;
-        var li = '<li id="' + id + '" data-ws="' + wsId + '">' +
-                 '<span class="icon"></span>' +
-                 name + '</li>';
-        return (li);
-    }
-
     // Helper function to delete tables in a worksheet
     function delTableHelper(wsId) {
-        var deferred    = jQuery.Deferred();
-        // var promises    = [];
+        var deferred = jQuery.Deferred();
         var $tableLists = $("#inactiveTablesList");
 
         // click all inactive table in this worksheet
@@ -1473,12 +1357,7 @@ window.WSManager = (function($, WSManager) {
 
         // for active table, use this to delete
         var activeTables = wsLookUp[wsId].tables;
-        // for (var i = 0, len = activeTables.length; i < len; i++) {
-        //     var tableId = activeTables[i];
-        //     promises.push(deleteTable.bind(this, tableId, TableType.Active));
-        // }
 
-        // PromiseHelper.chain(promises)
         TblManager.deleteTables(activeTables, TableType.Active)
         .then(function() {
             return (TableList.tableBulkAction("delete", TableType.Archived));
@@ -1490,25 +1369,8 @@ window.WSManager = (function($, WSManager) {
             Alert.error("Delete Table Fails", error);
             deferred.reject(error);
         });
-        // var options = {"remove": true};
-        // var ws = wsLookUp[wsId];
-        // var tableIds = [];
 
-        // TblManager.sendTableToOrphaned will change ws structure
-        // so need tableIds to cahce first
-        // ws.tables.forEach(function(tableId) {
-        //     tableIds.push(tableId);
-        // });
-
-        // ws.archivedTables.forEach(function(tableId) {
-        //     tableIds.push(tableId);
-        // });
-
-        // tableIds.forEach(function(tableId) {
-        //     TblManager.sendTableToOrphaned(tableId, options);
-        // });
         TableList.refreshOrphanList();
-        // return (deferred.promise());
     }
 
     // Helper function to archive tables in a worksheet
@@ -1541,10 +1403,7 @@ window.WSManager = (function($, WSManager) {
         });
 
         $("#inactiveTablesList").find(".worksheetInfo.worksheet-" + wsId)
-                .addClass("inactive").text(SideBarTStr.NoSheet);
-
-        $("#aggTablesList").find(".worksheetInfo.worksheet-" + wsId)
-                .removeClass("worksheet-" + wsId).text(SideBarTStr.NoSheet);
+                .removeClass("active").text(SideBarTStr.NoSheet);
     }
 
     function toggleTableArchive(tableId, srcTables, desTables, index) {
@@ -1576,56 +1435,44 @@ window.WSManager = (function($, WSManager) {
         if (leftPos != null) {
             $mainFrame.scrollLeft(leftPos);
         }
-
-        // SQL.add("Switch Worksheet", {
-        //     "operation"        : SQLOps.SwitchWS,
-        //     "oldWorksheetIndex": WSManager.getWSOrder(curWS),
-        //     "oldWoksheetId"    : curWS,
-        //     "oldWorksheetName" : WSManager.getWSName(curWS),
-        //     "newWorksheetIndex": WSManager.getWSOrder(wsId),
-        //     "newWorksheetName" : WSManager.getWSName(wsId),
-        //     "newWorksheetId"   : wsId
-        // });
     }
 
-    // HTML of worksheet tab, helper function for makeWorksheet()
+    // html of worksheet tab, helper function for makeWorksheet()
     function getWSTabHTML(wsId) {
         var name = wsLookUp[wsId].name;
-        var id   = "worksheetTab-" + wsId;
-        var dagTabId = (wsOrder[0] === wsId) ? "compSwitch" :
-                                                "compSwitch-" + wsId;
-        var tabTooltip =
-            'data-original-title="' + name + '"' +
-            'data-toggle="tooltip" data-placement="top"' +
-            'data-container="#' + id + ':not(.focus) .label"';
-
-        var dagTooltip =
-            'data-toggle="tooltip" ' +
-            'data-placement="top" ' +
-            'data-title="click to view query graph" data-container="body"';
-
+        var id = "worksheetTab-" + wsId;
+        // need clickable class for .wsMenu to not trigger $(".menu").hide()
         var html =
-            '<section id="' + id + '"class="worksheetTab inActive" ' +
-                'data-ws="' + wsId + '">' +
-                '<div class="label">' +
-                    '<div class="iconWrapper wsIconWrap" ' +
-                    'data-title="worksheet options" data-toggle="tooltip" ' +
-                    'data-container="body">' +
-                        '<span class="wsIcon"></span>' +
-                    '</div>' +
-                    '<div class="draggableArea" ' + tabTooltip + '>' +
-                        '<input type="text" class="text textOverflow" ' +
-                        'spellcheck="false" value="' + name + '" ' +
-                        'data-title="' + name + '">' +
-                        '</div>' +
-                    '</div>' +
-                '</div>' +
-                '<div id="' + dagTabId + '"class="dagTab"' + dagTooltip + '>' +
-                    '<span class="icon"></span>' +
-                '</div>' +
-            '</section>';
+            '<li id="' + id + '"class="worksheetTab"' +
+            ' data-ws="' + wsId + '">' +
+                '<span class="draggableArea"></span>' +
+                '<i class="eye icon xi-show fa-15"></i>' +
+                '<input title="' + name + '" data-container="body"' +
+                ' data-toggle="tooltip" data-placement="top"' +
+                ' type="text" class="text textOverflow tooltipOverflow"' +
+                ' spellcheck="false" value="' + name + '" disabled>' +
+                '<i class="wsMenu clickable icon xi-worksheet fa-15"></i>' +
+            '</li>';
 
-        return (html);
+        return html;
+    }
+
+    function getHiddenWSHTML(wsId) {
+        var name = wsLookUp[wsId].name;
+        var id = "worksheetTab-" + wsId;
+        var html =
+            '<li id="' + id + '"class="worksheetTab hiddenTab"' +
+            ' data-ws="' + wsId + '">' +
+                '<input title="' + name + '" data-container="body"' +
+                ' data-toggle="tooltip" data-placement="top"' +
+                ' type="text" class="text textOverflow tooltipOverflow"' +
+                ' spellcheck="false" value="' + name + '" disabled>' +
+                '<i title="' + TooltipTStr.Unhide + '" data-container="body"' +
+                ' data-toggle="tooltip" data-placement="top"' +
+                ' class="unhide icon xi-monitor fa-15"></i>' +
+            '</li>';
+
+        return html;
     }
 
     /* Unit Test Only */

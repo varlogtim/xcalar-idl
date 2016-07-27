@@ -136,7 +136,7 @@ window.MainMenu = (function($, MainMenu) {
             MonitorPanel.inActive();
         } else if (lastTabId === "dataStoresTab") {
             DSCart.checkQueries();
-        }else if (lastTabId === "workspaceTab") {
+        } else if (lastTabId === "workspaceTab") {
             var $activeCompSwitch = $('.dagTab.active');
             if ($activeCompSwitch.length) {
                 $activeCompSwitch.attr('data-original-title',
@@ -147,6 +147,11 @@ window.MainMenu = (function($, MainMenu) {
 
     function openMenu($curTab, noAnim) {
         $mainMenu.addClass('open').removeClass('closed');
+
+        var id = $curTab.attr("id");
+        $mainMenu.find(".commonSection").removeClass("active").filter(function() {
+            return $(this).data("tab") === id;
+        }).addClass("active");
         if ($('#bottomMenu').hasClass('open')) {
             noAnim = true;
         }
@@ -160,6 +165,7 @@ window.MainMenu = (function($, MainMenu) {
 
     function closeMenu($curTab, noAnim) {
         $mainMenu.removeClass("open");
+        $mainMenu.find(".commonSection").removeClass("active");
         checkAnim(noAnim);
         $('#container').removeClass('mainMenuOpen');
         $curTab.removeClass('mainMenuOpen');

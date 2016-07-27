@@ -64,7 +64,7 @@ window.Tips = (function($, Tips) {
             addJSONModalTips();
         } else {
             addTopMenuBarTips();
-            addBottomAreaTips();
+            addWorksheetListTips();
             addBottomMenuTips();
             addDatastoreTips();
 
@@ -128,9 +128,9 @@ window.Tips = (function($, Tips) {
         // });
     }
 
-    function addBottomAreaTips() {
+    function addWorksheetListTips() {
         // tips for add worksheet tab
-        var $wsIcon = $(".worksheetTab:not(.inActive) .wsIconWrap");
+        var $wsIcon = $(".worksheetTab.active .wsMenu");
         setTooltip($wsIcon, {
             "title"    : TipsTStr.WSOpts,
             "container": "#worksheetTabs"

@@ -208,7 +208,10 @@ module.exports = {
     },
 
     "WSTStr" : {
-        "WSName": "Worksheet Name"
+        "WSName": "Worksheet Name",
+        "ActiveWS": "Active Worksheet List",
+        "HiddenWS": "Hidden Worksheet List",
+        'NoHiddenWS': 'No Hidden Worksheets',
     },
 
     "CommonTxtTstr" : {

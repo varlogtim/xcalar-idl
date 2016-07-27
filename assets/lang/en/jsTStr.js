@@ -53,6 +53,7 @@ TooltipTStr = {
     'NoUndoNoOp': 'No operation to undo',
     'Redo': 'Redo: <op>',
     'NoRedo': 'No operation to redo',
+    'Unhide': 'Unhide',
     'LockedTableUndo': 'Cannot undo while table is locked',
     'LockedTableRedo': 'Cannot redo while table is locked',
     'CloseQG': 'click to hide query graph',

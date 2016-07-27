@@ -1063,7 +1063,7 @@ window.Replay = (function($, Replay) {
             deferred.reject("This worksheet should not be deleted!");
         }
 
-        $("#worksheetTab-" + wsId + " .wsIconWrap").click();
+        $("#worksheetTab-" + wsId + " .wsMenu").click();
         $('#worksheetTabMenu').find('li.delete').click();
 
         var callback = function() {
