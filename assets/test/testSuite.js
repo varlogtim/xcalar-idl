@@ -1136,9 +1136,9 @@ window.TestSuite = (function($, TestSuite) {
     TestSuite.add(dfgTest, "DFGTest",
                   defaultTimeout, TestCaseEnabled);
     TestSuite.add(retinaTest, "RetinaTest",
-                  defaultTimeout, TestCaseDisabled);
+                  defaultTimeout, TestCaseEnabled);
     TestSuite.add(addDFGToSchedTest, "AddDFGToScheduleTest",
-                  defaultTimeout, TestCaseDisabled);
+                  defaultTimeout, TestCaseEnabled);
     TestSuite.add(jsonModalTest, "JsonModalTest",
                   defaultTimeout, TestCaseEnabled);
 // =========== TO RUN, OPEN UP CONSOLE AND TYPE TestSuite.run() ============ //
