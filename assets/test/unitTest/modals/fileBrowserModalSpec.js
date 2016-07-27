@@ -56,7 +56,7 @@ describe('FilebrowserModal', function() {
         });
 
         it('Should get short path', function() {
-            var testPath = "file:///abc.test";
+            var testPath = "nfs:///abc.test";
             var res = FileBrowser.__testOnly__.getShortPath(testPath);
             expect(res).to.equal("abc.test");
         });
@@ -104,7 +104,7 @@ describe('FilebrowserModal', function() {
         });
 
         it('Should append path', function() {
-            var testPath = "file:///test";
+            var testPath = "nfs:///test";
             FileBrowser.__testOnly__.appendPath(testPath);
             var $li = $pathLists.find("li:first-of-type");
             var $pathText = $("#fileBrowserPath .text");
@@ -174,7 +174,7 @@ describe('FilebrowserModal', function() {
             FileBrowser.show()
             .then(function() {
                 var $li = $pathLists.find("li:first-of-type");
-                expect($li.text()).to.equal("file:///");
+                expect($li.text()).to.equal("nfs:///");
                 assert.isTrue($fileBrowser.is(":visible"));
                 done();
             })
@@ -202,7 +202,7 @@ describe('FilebrowserModal', function() {
         });
 
         it('Should go to path', function(done) {
-            var path = "file:///netstore/datasets/";
+            var path = "nfs:///netstore/datasets/";
             var $li = $('<li>' + path + '</li>');
             $pathLists.prepend($li);
             FileBrowser.__testOnly__.goToPath($li)

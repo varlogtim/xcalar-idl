@@ -80,7 +80,6 @@ var DSObjTerm = {
 };
 
 var FileProtocol = {
-    "file": "file:///",
     "nfs": "nfs:///",
     "hdfs": "hdfs://"
 };

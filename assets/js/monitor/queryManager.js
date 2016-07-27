@@ -21,9 +21,9 @@ window.QueryManager = (function(QueryManager, $) {
     QueryManager.test = function() {
         var ds1 = "cheng." + xcHelper.randName("yelpUser");
         var ds2 = "cheng." + xcHelper.randName("yelpReviews");
-        var query = 'load --url "file:///var/tmp/yelp/user" ' +
+        var query = 'load --url "nfs:///var/tmp/yelp/user" ' +
                     '--format json --size 0B --name "' + ds1 + '";' +
-                    'load --url "file:///var/tmp/yelp/reviews" ' +
+                    'load --url "nfs:///var/tmp/yelp/reviews" ' +
                     '--format json --size 0B --name "' + ds2 + '";';
         QueryManager.addQuery(0, "test", {query: query});
     };

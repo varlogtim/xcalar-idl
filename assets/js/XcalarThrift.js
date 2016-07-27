@@ -1777,7 +1777,7 @@ function XcalarGenRowNum(srcTableName, dstTableName, newFieldName, txId) {
 function XcalarQuery(queryName, queryString, txId) {
     // XXX Now only have a simple output
     /* some test case :
-        "load --url file:///var/tmp/gdelt --format csv --name test"
+        "load --url nfs:///var/tmp/gdelt --format csv --name test"
         "filter yelpUsers 'regex(user_id,\"--O\")'"
 
     */
@@ -1937,6 +1937,11 @@ function getNamePattern(userUrl, isRecur) {
     // XXX test: single file
     // XXX test: folder with *, file with *
     // Find location of first *
+
+    if (gChangeNfsToFile) {
+        userUrl = userUrl.replace("nfs:///", "file:///");
+    }
+
     var star = userUrl.indexOf("*");
     if (star === -1 && !isRecur) {
         return [userUrl, ""];
@@ -2071,7 +2076,7 @@ function XcalarGetRetina(retName) {
 
 // paramValue is what the parameterized part is called
 // For example, in load, the datasetUrl is parameterizable, and your url can
-// be something like "file:///<directory>/<subDir>/file<number>.csv" <- paramValue
+// be something like "nfs:///<directory>/<subDir>/file<number>.csv" <- paramValue
 // For eval string, you will pass in something like "filter(gt(column1, \"hello\""))"
 // replaced with "filter(<opera>(<colName>, <val>))"
 // val = \"hello\"

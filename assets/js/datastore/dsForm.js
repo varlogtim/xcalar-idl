@@ -407,7 +407,7 @@ window.DSForm = (function($, DSForm) {
     }
 
     function resetForm() {
-        var protocol = getProtocol() || FileProtocol.file;
+        var protocol = getProtocol() || FileProtocol.nfs;
         $form.find("input").val("");
         $form.find(".default-hidden").addClass("hidden");
         // keep header to be checked

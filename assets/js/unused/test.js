@@ -127,7 +127,7 @@ function testLoadHelper() {
         }
     }
 
-    $("#fileBrowser").val("file:///var/tmp/yelp/user");
+    $("#fileBrowser").val("nfs:///var/tmp/yelp/user");
     $("#selectFile").click();
 
     if ($("#filePathBox").width() <= $("#filePathSelector").width() ||

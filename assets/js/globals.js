@@ -47,24 +47,28 @@ var gActiveTableId = "";
 var gLastClickTarget = $(window); // track which element was last clicked
 var gIsTableScrolling = false;
 var gMinModeOn = false;
+var gMutePromises = true; // mutes .when() console logs
+var gAggVarPrefix = "^";
+var gColPrefix = '$';
+var gDSPrefix = '.XcalarDS.';
+// ======== Support Parameters ======== //
 var gExportNoCheck = false;
 var gAlwaysDelete = false;
 var gEnableCopyCols = false;
 var gEnableJoinKeyCheck = false;
 var gShowDroppedTablesImage = false;
-var gMutePromises = true; // mutes .when() console logs
+var gChangeNfsToFile = false;
 var gExportFDelim = "\t";
 var gExportRDelim = "\n";
 var gExportQDelim = '"';
-var gAggVarPrefix = "^";
-var gColPrefix = '$';
-var gDSPrefix = '.XcalarDS.';
 var gLongTestSuite = 1;
 var gMaxSampleSize = 0; // Max Sample Size for datasets. If this is set, all
                         // datasets will abide by this limit. If you don't want
                         // to use it anymore, just set it back to 0
 var gUdfDefaultNoCheck = false; // when set true, allow update default udf
 var gSessionNoCleanup = true;
+// ==================================== //
+
 var KB = 1024;
 var MB = 1024 * KB;
 var GB = 1024 * MB;

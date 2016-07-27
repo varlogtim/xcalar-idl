@@ -5,7 +5,6 @@ module.exports = {
         "Optional": "可选的"
     },
     "FileProtocol": {
-        "file": "file:///",
         "hdfs": "hdfs://",
         "nfs": "nfs:///"
     },

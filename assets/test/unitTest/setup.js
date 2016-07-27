@@ -69,8 +69,8 @@ function findTestTableId(tableName) {
 
 var testDatasets = {
     "sp500": {
-        url: "file:///netstore/datasets/sp500.csv",
-        protocol: "file:///",
+        url: "nfs:///netstore/datasets/sp500.csv",
+        protocol: "nfs:///",
         path: "netstore/datasets/sp500.csv",
         format: "CSV",
         fieldDelim: "\t",
@@ -81,8 +81,8 @@ var testDatasets = {
     },
 
     "schedule": {
-        url: "file:///var/tmp/qa/indexJoin/schedule/",
-        protocol: "file:///",
+        url: "nfs:///var/tmp/qa/indexJoin/schedule/",
+        protocol: "nfs:///",
         path: "var/tmp/qa/indexJoin/schedule/",
         format: "JSON",
         moduleName: "",
@@ -90,8 +90,8 @@ var testDatasets = {
     },
 
     "fakeYelp": {
-        url: "file:///netstore/datasets/unittest/test_yelp.json",
-        protocol: "file:///",
+        url: "nfs:///netstore/datasets/unittest/test_yelp.json",
+        protocol: "nfs:///",
         path: "netstore/datasets/unittest/test_yelp.json",
         format: "JSON",
         moduleName: "",

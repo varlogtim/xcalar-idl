@@ -910,7 +910,7 @@ DSObj.prototype = {
         XcalarListFiles(loadURL, self.isRecur)
         .then(function(files) {
             if (files.numFiles === 1 && files.files[0].name === "") {
-                // this is a special case that loadURL=file:///a/b
+                // this is a special case that loadURL=nfs:///a/b
                 // and b is a file, not a folder
                 slashIndex = loadURL.lastIndexOf('/');
                 curFileName = loadURL.substr(slashIndex + 1);

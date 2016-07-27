@@ -25,7 +25,7 @@ window.FileBrowser = (function($, FileBrowser) {
     var oldBrowserError = "Deferred From Old Browser";
     /* End Of Contants */
 
-    var defaultPath = FileProtocol.file;
+    var defaultPath = FileProtocol.nfs;
     var historyPath;
     var curFiles = [];
     var allFiles = [];
@@ -241,7 +241,7 @@ window.FileBrowser = (function($, FileBrowser) {
                 if (key === keyCode.Enter) {
                     var $grid = $container.find('.grid-unit.active');
                     if ($grid.length > 0) {
-                        // this is the case that user input file:///var/tmp,
+                        // this is the case that user input nfs:///var/tmp,
                         // it focus on tmp and then press enter
                         $grid.trigger("dblclick");
                     }
@@ -396,7 +396,7 @@ window.FileBrowser = (function($, FileBrowser) {
         if (protocol == null) {
             // this is an error case
             console.error("No protocol!!");
-            protocol = FileProtocol.file;
+            protocol = FileProtocol.nfs;
         }
 
         protocol = changeProtocol(protocol);
@@ -493,7 +493,7 @@ window.FileBrowser = (function($, FileBrowser) {
     }
 
     function getShortPath(path) {
-        // for example: file:///var/ will return var/
+        // for example: nfs:///var/ will return var/
         return path.split(defaultPath)[1];
     }
 
@@ -681,8 +681,8 @@ window.FileBrowser = (function($, FileBrowser) {
         }
         if (!isValidProtocol) {
             // for any edage case, use default file protocol
-            console.warn("Unsupported file path extension? Defaulting to", FileProtocol.file);
-            protocol = FileProtocol.file;
+            console.warn("Unsupported file path extension? Defaulting to", FileProtocol.nfs);
+            protocol = FileProtocol.nfs;
         }
 
         $pathSection.find(".defaultPath").text(protocol);

@@ -758,7 +758,7 @@ describe('xcHelper Test', function() {
         expect(res).to.equal('float(test)');
         // case 3
         res = xcHelper.castStrHelper("test", "integer");
-        expect(res).to.equal('int(test)');
+        expect(res).to.equal('int(test, 10)');
         // case 4
         res = xcHelper.castStrHelper("test", "string");
         expect(res).to.equal('string(test)');

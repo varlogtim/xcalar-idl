@@ -126,7 +126,7 @@ window.Shortcuts = (function($, Shortcuts) {
     function dsForm() {
         var $filePath = $("#filePath");
         var $fileName = $("#fileName");
-        var protocol = FileProtocol.file;
+        var protocol = FileProtocol.nfs;
         var filePath = "";
         $filePath.on('keyup.shortcut', function() {
             var val = $(this).val();

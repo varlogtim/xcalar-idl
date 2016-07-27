@@ -141,10 +141,7 @@ function dsFormModuleTest() {
         });
 
         it("Should allow browse invalid path", function() {
-            var paths = [{
-                "protocol": "file:///",
-                "path"    : ""
-            },
+            var paths = [
             {
                 "protocol": "nfs:///",
                 "path"    : ""
