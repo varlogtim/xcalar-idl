@@ -9929,7 +9929,7 @@ XcalarApiImportRetinaInputT.prototype.read = function(input) {
       break;
       case 4:
       if (ftype == Thrift.Type.STRING) {
-        this.retina = input.readBinary().value;
+        this.retina = input.readString().value;
       } else {
         input.skip(ftype);
       }
@@ -9962,7 +9962,105 @@ XcalarApiImportRetinaInputT.prototype.write = function(output) {
   }
   if (this.retina !== null && this.retina !== undefined) {
     output.writeFieldBegin('retina', Thrift.Type.STRING, 4);
-    output.writeBinary(this.retina);
+    output.writeString(this.retina);
+    output.writeFieldEnd();
+  }
+  output.writeFieldStop();
+  output.writeStructEnd();
+  return;
+};
+
+XcalarApiExportRetinaInputT = function(args) {
+  this.retinaName = null;
+  this.writeToFile = null;
+  this.retinaFilePath = null;
+  this.overwriteIfExists = null;
+  if (args) {
+    if (args.retinaName !== undefined) {
+      this.retinaName = args.retinaName;
+    }
+    if (args.writeToFile !== undefined) {
+      this.writeToFile = args.writeToFile;
+    }
+    if (args.retinaFilePath !== undefined) {
+      this.retinaFilePath = args.retinaFilePath;
+    }
+    if (args.overwriteIfExists !== undefined) {
+      this.overwriteIfExists = args.overwriteIfExists;
+    }
+  }
+};
+XcalarApiExportRetinaInputT.prototype = {};
+XcalarApiExportRetinaInputT.prototype.read = function(input) {
+  input.readStructBegin();
+  while (true)
+  {
+    var ret = input.readFieldBegin();
+    var fname = ret.fname;
+    var ftype = ret.ftype;
+    var fid = ret.fid;
+    if (ftype == Thrift.Type.STOP) {
+      break;
+    }
+    switch (fid)
+    {
+      case 1:
+      if (ftype == Thrift.Type.STRING) {
+        this.retinaName = input.readString().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 2:
+      if (ftype == Thrift.Type.BOOL) {
+        this.writeToFile = input.readBool().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 3:
+      if (ftype == Thrift.Type.STRING) {
+        this.retinaFilePath = input.readString().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 4:
+      if (ftype == Thrift.Type.BOOL) {
+        this.overwriteIfExists = input.readBool().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      default:
+        input.skip(ftype);
+    }
+    input.readFieldEnd();
+  }
+  input.readStructEnd();
+  return;
+};
+
+XcalarApiExportRetinaInputT.prototype.write = function(output) {
+  output.writeStructBegin('XcalarApiExportRetinaInputT');
+  if (this.retinaName !== null && this.retinaName !== undefined) {
+    output.writeFieldBegin('retinaName', Thrift.Type.STRING, 1);
+    output.writeString(this.retinaName);
+    output.writeFieldEnd();
+  }
+  if (this.writeToFile !== null && this.writeToFile !== undefined) {
+    output.writeFieldBegin('writeToFile', Thrift.Type.BOOL, 2);
+    output.writeBool(this.writeToFile);
+    output.writeFieldEnd();
+  }
+  if (this.retinaFilePath !== null && this.retinaFilePath !== undefined) {
+    output.writeFieldBegin('retinaFilePath', Thrift.Type.STRING, 3);
+    output.writeString(this.retinaFilePath);
+    output.writeFieldEnd();
+  }
+  if (this.overwriteIfExists !== null && this.overwriteIfExists !== undefined) {
+    output.writeFieldBegin('overwriteIfExists', Thrift.Type.BOOL, 4);
+    output.writeBool(this.overwriteIfExists);
     output.writeFieldEnd();
   }
   output.writeFieldStop();
@@ -10030,6 +10128,8 @@ XcalarApiInputT = function(args) {
   this.udfGetInput = null;
   this.udfDeleteInput = null;
   this.previewInput = null;
+  this.importRetinaInput = null;
+  this.exportRetinaInput = null;
   if (args) {
     if (args.loadInput !== undefined) {
       this.loadInput = args.loadInput;
@@ -10207,6 +10307,12 @@ XcalarApiInputT = function(args) {
     }
     if (args.previewInput !== undefined) {
       this.previewInput = args.previewInput;
+    }
+    if (args.importRetinaInput !== undefined) {
+      this.importRetinaInput = args.importRetinaInput;
+    }
+    if (args.exportRetinaInput !== undefined) {
+      this.exportRetinaInput = args.exportRetinaInput;
     }
   }
 };
@@ -10689,6 +10795,22 @@ XcalarApiInputT.prototype.read = function(input) {
         input.skip(ftype);
       }
       break;
+      case 60:
+      if (ftype == Thrift.Type.STRUCT) {
+        this.importRetinaInput = new XcalarApiImportRetinaInputT();
+        this.importRetinaInput.read(input);
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 61:
+      if (ftype == Thrift.Type.STRUCT) {
+        this.exportRetinaInput = new XcalarApiExportRetinaInputT();
+        this.exportRetinaInput.read(input);
+      } else {
+        input.skip(ftype);
+      }
+      break;
       default:
         input.skip(ftype);
     }
@@ -10995,6 +11117,16 @@ XcalarApiInputT.prototype.write = function(output) {
     this.previewInput.write(output);
     output.writeFieldEnd();
   }
+  if (this.importRetinaInput !== null && this.importRetinaInput !== undefined) {
+    output.writeFieldBegin('importRetinaInput', Thrift.Type.STRUCT, 60);
+    this.importRetinaInput.write(output);
+    output.writeFieldEnd();
+  }
+  if (this.exportRetinaInput !== null && this.exportRetinaInput !== undefined) {
+    output.writeFieldBegin('exportRetinaInput', Thrift.Type.STRUCT, 61);
+    this.exportRetinaInput.write(output);
+    output.writeFieldEnd();
+  }
   output.writeFieldStop();
   output.writeStructEnd();
   return;
@@ -11002,6 +11134,7 @@ XcalarApiInputT.prototype.write = function(output) {
 
 XcalarApiDagNodeT = function(args) {
   this.name = null;
+  this.numParent = null;
   this.dagNodeId = null;
   this.api = null;
   this.state = null;
@@ -11010,6 +11143,9 @@ XcalarApiDagNodeT = function(args) {
   if (args) {
     if (args.name !== undefined) {
       this.name = args.name;
+    }
+    if (args.numParent !== undefined) {
+      this.numParent = args.numParent;
     }
     if (args.dagNodeId !== undefined) {
       this.dagNodeId = args.dagNodeId;
@@ -11052,33 +11188,40 @@ XcalarApiDagNodeT.prototype.read = function(input) {
       break;
       case 2:
       if (ftype == Thrift.Type.I64) {
-        this.dagNodeId = input.readI64().value;
+        this.numParent = input.readI64().value;
       } else {
         input.skip(ftype);
       }
       break;
       case 3:
-      if (ftype == Thrift.Type.I32) {
-        this.api = input.readI32().value;
+      if (ftype == Thrift.Type.I64) {
+        this.dagNodeId = input.readI64().value;
       } else {
         input.skip(ftype);
       }
       break;
       case 4:
       if (ftype == Thrift.Type.I32) {
-        this.state = input.readI32().value;
+        this.api = input.readI32().value;
       } else {
         input.skip(ftype);
       }
       break;
       case 5:
+      if (ftype == Thrift.Type.I32) {
+        this.state = input.readI32().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 6:
       if (ftype == Thrift.Type.I64) {
         this.inputSize = input.readI64().value;
       } else {
         input.skip(ftype);
       }
       break;
-      case 6:
+      case 7:
       if (ftype == Thrift.Type.STRUCT) {
         this.input = new XcalarApiInputT();
         this.input.read(input);
@@ -11102,28 +11245,33 @@ XcalarApiDagNodeT.prototype.write = function(output) {
     this.name.write(output);
     output.writeFieldEnd();
   }
+  if (this.numParent !== null && this.numParent !== undefined) {
+    output.writeFieldBegin('numParent', Thrift.Type.I64, 2);
+    output.writeI64(this.numParent);
+    output.writeFieldEnd();
+  }
   if (this.dagNodeId !== null && this.dagNodeId !== undefined) {
-    output.writeFieldBegin('dagNodeId', Thrift.Type.I64, 2);
+    output.writeFieldBegin('dagNodeId', Thrift.Type.I64, 3);
     output.writeI64(this.dagNodeId);
     output.writeFieldEnd();
   }
   if (this.api !== null && this.api !== undefined) {
-    output.writeFieldBegin('api', Thrift.Type.I32, 3);
+    output.writeFieldBegin('api', Thrift.Type.I32, 4);
     output.writeI32(this.api);
     output.writeFieldEnd();
   }
   if (this.state !== null && this.state !== undefined) {
-    output.writeFieldBegin('state', Thrift.Type.I32, 4);
+    output.writeFieldBegin('state', Thrift.Type.I32, 5);
     output.writeI32(this.state);
     output.writeFieldEnd();
   }
   if (this.inputSize !== null && this.inputSize !== undefined) {
-    output.writeFieldBegin('inputSize', Thrift.Type.I64, 5);
+    output.writeFieldBegin('inputSize', Thrift.Type.I64, 6);
     output.writeI64(this.inputSize);
     output.writeFieldEnd();
   }
   if (this.input !== null && this.input !== undefined) {
-    output.writeFieldBegin('input', Thrift.Type.STRUCT, 6);
+    output.writeFieldBegin('input', Thrift.Type.STRUCT, 7);
     this.input.write(output);
     output.writeFieldEnd();
   }
@@ -11729,6 +11877,120 @@ XcalarApiImportRetinaOutputT.prototype.write = function(output) {
   return;
 };
 
+XcalarApiExportRetinaOutputT = function(args) {
+  this.writtenToFile = null;
+  this.retinaFilePath = null;
+  this.writeToFileStatus = null;
+  this.retinaSize = null;
+  this.retina = null;
+  if (args) {
+    if (args.writtenToFile !== undefined) {
+      this.writtenToFile = args.writtenToFile;
+    }
+    if (args.retinaFilePath !== undefined) {
+      this.retinaFilePath = args.retinaFilePath;
+    }
+    if (args.writeToFileStatus !== undefined) {
+      this.writeToFileStatus = args.writeToFileStatus;
+    }
+    if (args.retinaSize !== undefined) {
+      this.retinaSize = args.retinaSize;
+    }
+    if (args.retina !== undefined) {
+      this.retina = args.retina;
+    }
+  }
+};
+XcalarApiExportRetinaOutputT.prototype = {};
+XcalarApiExportRetinaOutputT.prototype.read = function(input) {
+  input.readStructBegin();
+  while (true)
+  {
+    var ret = input.readFieldBegin();
+    var fname = ret.fname;
+    var ftype = ret.ftype;
+    var fid = ret.fid;
+    if (ftype == Thrift.Type.STOP) {
+      break;
+    }
+    switch (fid)
+    {
+      case 1:
+      if (ftype == Thrift.Type.BOOL) {
+        this.writtenToFile = input.readBool().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 2:
+      if (ftype == Thrift.Type.STRING) {
+        this.retinaFilePath = input.readString().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 3:
+      if (ftype == Thrift.Type.I32) {
+        this.writeToFileStatus = input.readI32().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 4:
+      if (ftype == Thrift.Type.I64) {
+        this.retinaSize = input.readI64().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 5:
+      if (ftype == Thrift.Type.STRING) {
+        this.retina = input.readString().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      default:
+        input.skip(ftype);
+    }
+    input.readFieldEnd();
+  }
+  input.readStructEnd();
+  return;
+};
+
+XcalarApiExportRetinaOutputT.prototype.write = function(output) {
+  output.writeStructBegin('XcalarApiExportRetinaOutputT');
+  if (this.writtenToFile !== null && this.writtenToFile !== undefined) {
+    output.writeFieldBegin('writtenToFile', Thrift.Type.BOOL, 1);
+    output.writeBool(this.writtenToFile);
+    output.writeFieldEnd();
+  }
+  if (this.retinaFilePath !== null && this.retinaFilePath !== undefined) {
+    output.writeFieldBegin('retinaFilePath', Thrift.Type.STRING, 2);
+    output.writeString(this.retinaFilePath);
+    output.writeFieldEnd();
+  }
+  if (this.writeToFileStatus !== null && this.writeToFileStatus !== undefined) {
+    output.writeFieldBegin('writeToFileStatus', Thrift.Type.I32, 3);
+    output.writeI32(this.writeToFileStatus);
+    output.writeFieldEnd();
+  }
+  if (this.retinaSize !== null && this.retinaSize !== undefined) {
+    output.writeFieldBegin('retinaSize', Thrift.Type.I64, 4);
+    output.writeI64(this.retinaSize);
+    output.writeFieldEnd();
+  }
+  if (this.retina !== null && this.retina !== undefined) {
+    output.writeFieldBegin('retina', Thrift.Type.STRING, 5);
+    output.writeString(this.retina);
+    output.writeFieldEnd();
+  }
+  output.writeFieldStop();
+  output.writeStructEnd();
+  return;
+};
+
 XcalarApiOutputResultT = function(args) {
   this.getVersionOutput = null;
   this.statusOutput = null;
@@ -11772,6 +12034,7 @@ XcalarApiOutputResultT = function(args) {
   this.opStatsOutput = null;
   this.importRetinaOutput = null;
   this.previewOutput = null;
+  this.exportRetinaOutput = null;
   if (args) {
     if (args.getVersionOutput !== undefined) {
       this.getVersionOutput = args.getVersionOutput;
@@ -11898,6 +12161,9 @@ XcalarApiOutputResultT = function(args) {
     }
     if (args.previewOutput !== undefined) {
       this.previewOutput = args.previewOutput;
+    }
+    if (args.exportRetinaOutput !== undefined) {
+      this.exportRetinaOutput = args.exportRetinaOutput;
     }
   }
 };
@@ -12250,6 +12516,14 @@ XcalarApiOutputResultT.prototype.read = function(input) {
         input.skip(ftype);
       }
       break;
+      case 43:
+      if (ftype == Thrift.Type.STRUCT) {
+        this.exportRetinaOutput = new XcalarApiExportRetinaOutputT();
+        this.exportRetinaOutput.read(input);
+      } else {
+        input.skip(ftype);
+      }
+      break;
       default:
         input.skip(ftype);
     }
@@ -12469,6 +12743,11 @@ XcalarApiOutputResultT.prototype.write = function(output) {
   if (this.previewOutput !== null && this.previewOutput !== undefined) {
     output.writeFieldBegin('previewOutput', Thrift.Type.STRUCT, 42);
     this.previewOutput.write(output);
+    output.writeFieldEnd();
+  }
+  if (this.exportRetinaOutput !== null && this.exportRetinaOutput !== undefined) {
+    output.writeFieldBegin('exportRetinaOutput', Thrift.Type.STRUCT, 43);
+    this.exportRetinaOutput.write(output);
     output.writeFieldEnd();
   }
   output.writeFieldStop();

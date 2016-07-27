@@ -742,6 +742,7 @@ function XcalarExport(tableName, exportName, targetName, numColumns,
                                                     options.csvArgs.fieldDelim;
                     specInput.sfInput.formatArgs.csv.recordDelim =
                                                     options.csvArgs.recordDelim;
+                    specInput.sfInput.formatArgs.csv.quoteDelim = gExportQDelim;
                 } else if (options.format === DfFormatTypeT.DfFormatSql) {
                     exportName += ".sql";
                     specInput.sfInput.fileName = exportName;

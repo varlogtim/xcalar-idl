@@ -1175,7 +1175,7 @@
 
     function testCancel(test) {
         var query = "index --key votes.funny --dataset " + datasetPrefix +
-                    "yelp" + " --dsttable cancelledTable ";
+                    "yelp" + " --dsttable cancelledTable --sorted";
 
         queryName = "testQuery";
 
@@ -1411,6 +1411,7 @@
         specInput.sfInput.formatArgs.csv = new ExInitExportCSVArgsT();
         specInput.sfInput.formatArgs.csv.fieldDelim = ",";
         specInput.sfInput.formatArgs.csv.recordDelim = "\n";
+        specInput.sfInput.formatArgs.csv.quoteDelim = "\"";
 
         console.log("\texport file name = " + specInput.sfInput.fileName);
         var target = new ExExportTargetHdrT();

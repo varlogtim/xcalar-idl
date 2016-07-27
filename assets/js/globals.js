@@ -55,6 +55,7 @@ var gShowDroppedTablesImage = false;
 var gMutePromises = true; // mutes .when() console logs
 var gExportFDelim = "\t";
 var gExportRDelim = "\n";
+var gExportQDelim = '"';
 var gAggVarPrefix = "^";
 var gColPrefix = '$';
 var gDSPrefix = '.XcalarDS.';

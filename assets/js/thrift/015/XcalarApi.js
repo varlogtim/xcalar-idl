@@ -447,6 +447,7 @@ function xcalarStartNodes(thriftHandle, numNodes) {
         deferred.resolve(status);
     })
     .fail(function(error) {
+        console.log(JSON.stringify(error))
         console.log("xcalarStartNodes() caught exception: "+error);
         deferred.reject(error);
     });
@@ -3128,17 +3129,102 @@ function xcalarListSchedTask(thriftHandle, namePattern) {
     return (deferred.promise());
 }
 
-// XXX: Implement me
-function xcalarApiImportRetinaWorkItem() {
+function xcalarApiImportRetinaWorkItem(retinaName, overwrite, retina) {
     var workItem = new WorkItem();
+    var encodedRetina = btoa(retina);
     workItem.input = new XcalarApiInputT();
 
     workItem.api = XcalarApisT.XcalarApiImportRetina;
+    workItem.input.importRetinaInput = new XcalarApiImportRetinaInputT(); 
+    workItem.input.importRetinaInput.retinaName = retinaName;
+    workItem.input.importRetinaInput.overwriteExistingUdf = overwrite;
+    workItem.input.importRetinaInput.retinaSize = encodedRetina.length;
+    workItem.input.importRetinaInput.retina = encodedRetina;
+
     return (workItem);
 }
 
-// XXX: Implement me
-function xcalarApiImportRetina(thriftHandle) {
+function xcalarApiImportRetina(thriftHandle, retinaName, overwrite, retina) {
     var deferred = jQuery.Deferred();
+
+    if (verbose) {
+        console.log("xcalarApiImportRetina(retinaName = " + retinaName +
+                    ", overwrite = " + overwrite + ")") 
+    }
+
+    var workItem = xcalarApiImportRetinaWorkItem(retinaName, overwrite, retina);
+
+    thriftHandle.client.queueWorkAsync(workItem)
+    .then(function(result) {
+        var importRetinaOutput = result.output.outputResult.importRetinaOutput;
+        var status = result.output.hdr.status;
+
+        if (result.jobStatus != StatusT.StatusOk) {
+            status = result.jobStatus;
+        }
+
+        if (status != StatusT.StatusOk) {
+            deferred.reject(status);
+        }
+
+        deferred.resolve(importRetinaOutput);
+    })
+    .fail(function (error) {
+        console.log("xcalarApiImportRetina() caught exception: ", error);
+        deferred.reject(error);
+    });
     return (deferred.promise());
 }
+
+function xcalarApiExportRetinaWorkItem(retinaName) {
+    var workItem = new WorkItem();
+    workItem.input = new XcalarApiInputT();
+
+    workItem.api = XcalarApisT.XcalarApiExportRetina;
+    workItem.input.exportRetinaInput = new XcalarApiExportRetinaInputT();
+    workItem.input.exportRetinaInput.retinaName = retinaName;
+
+    // Undocumented feature. Please don't use this yet. Not tested
+    workItem.input.exportRetinaInput.writeToFile = false;
+    workItem.input.exportRetinaInput.retinaFilePath = "";
+    workItem.input.exportRetinaInput.overwriteIfExists = false;
+
+    return (workItem);
+}
+
+function xcalarApiExportRetina(thriftHandle, retinaName) {
+    var deferred = jQuery.Deferred();
+
+    if (verbose) {
+        console.log("xcalarApiExportRetina(retinaName = " + retinaName + ")");
+    }
+
+    var workItem = xcalarApiExportRetinaWorkItem(retinaName);
+
+    thriftHandle.client.queueWorkAsync(workItem)
+    .then(function(result) {
+        var exportRetinaOutput = result.output.outputResult.exportRetinaOutput;
+        var status = result.output.hdr.status;
+
+        if (result.jobStatus != StatusT.StatusOk) {
+            status = result.jobStatus;
+        }
+
+        if (status != StatusT.StatusOk) {
+            deferred.reject(status);
+        }
+
+        exportRetinaOutput.retina = atob(exportRetinaOutput.retina);
+        exportRetinaOutput.retinaSize = exportRetinaOutput.retina.length;
+
+        deferred.resolve(exportRetinaOutput);
+    })
+    .fail(function (error) {
+        console.log("xcalarApiExportRetina() caught exception: ", error);
+        deferred.reject(error);
+    });
+
+    return (deferred.promise());
+}
+
+
