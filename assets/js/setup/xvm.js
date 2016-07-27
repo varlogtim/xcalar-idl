@@ -28,6 +28,11 @@ window.XVM = (function(XVM) {
                                                        .apiVersionSignatureShort;
                 if (versionNum !== XcalarApiVersionT.XcalarApiVersionSignature) {
 
+                    console.log("Thrift version mismatch! Backend's thrift "+
+                      "version is: "+result.output.outputResult.getVersionOutput
+                                                      .apiVersionSignatureFull);
+                    console.log("Frontend's thrift version is: "+versionNum);
+                    console.log("Frontend's git SHA is: "+gGitVersion);
                     deferred.reject({error: ThriftTStr.Update});
                 } else {
                     deferred.resolve();
