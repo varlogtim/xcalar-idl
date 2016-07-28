@@ -1843,6 +1843,17 @@ window.OperationsModal = (function($, OperationsModal) {
                 if ($("#categoryList input").val().indexOf("user") !== 0) {
                     type = getColumnTypeFromArg(arg);
                 }
+            } else {
+                var parsedType = parseType($input.data('typeid'));
+                if (parsedType.length === 6) {
+                    type = null;
+                } else {
+                    var isString = formatArgumentInput(arg, $input.data('typeid'),
+                                                   existingTypes).isString;
+                    if (isString) {
+                        type = "string";
+                    }
+                }
             }
 
             if (type != null) {
@@ -2038,6 +2049,7 @@ window.OperationsModal = (function($, OperationsModal) {
     }
 
     function argumentFormatHelper(existingTypes) {
+        console.log(arguments);
         var args = [];
         var isPassing = true;
         var colTypes;
