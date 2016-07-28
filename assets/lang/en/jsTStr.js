@@ -74,6 +74,7 @@ TooltipTStr = {
     'ViewTableOptions': 'view table options',
     'RemoveQuery': 'remove query',
     'CancelQuery': 'cancel query',
+    'NeedCreateSchedule': 'Click on the schedule icon to attach a schedule',
 
      // with replace
     'CollapsedTables': '<number> tables are hidden'
@@ -419,7 +420,10 @@ SchedTStr = {
     'SelectSched': 'Select a schedule',
     'NoScheds': 'No available schedules',
     'AddSchedFail': 'Add schedule failed',
-    'UpdateFail': 'Update Schedule Failed'
+    'UpdateFail': 'Update Schedule Failed',
+    'NotScheduled': 'not scheduled',
+    'Scheduled': 'scheduled',
+    'Schedules': 'Schedules'
 };
 
 DFGTStr = {
@@ -432,7 +436,8 @@ DFGTStr = {
     'NoDFG2': 'Add a dataflow group in Query Graph.',
     'RunDone': 'Run Complete',
     'RunDoneMsg': 'Successfully ran DFG!',
-    'RunFail': 'Run DFG Failed'
+    'RunFail': 'Run DFG Failed',
+    'DFG': 'Dataflow Groups'
 };
 
 DSTStr = {

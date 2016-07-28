@@ -534,10 +534,10 @@ window.Scheduler = (function(Scheduler, $) {
 
     function triggerAddScheModal(dfgName, scheduleName) {
         $("#dataflowButton").click();
-        $("#dataflowView .listSection .listBox").filter(function() {
+        $("#dfgMenu .dfgList .listBox").filter(function() {
             return $(this).find(".label").text() === dfgName;
         }).click();
-        AddScheduleModal.show(dfgName, scheduleName);
+        AddScheduleCard.show(dfgName, scheduleName);
     }
 
     function updateScheduleInfo() {

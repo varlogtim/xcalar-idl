@@ -4681,63 +4681,6 @@ html.microsoft {
     }
 }
 
-#addScheduleModal {
-    .size(@width: 550px, @height: auto);
-    bottom: auto;
-    right: auto;
-    overflow: visible;
-
-    .modalTopMain {
-        margin-bottom: 20px;
-        padding: 15px 20px;
-        .flex-display;
-        .flex-flow(column);
-
-        > div {
-            .flex(0 0 30px);
-            margin-bottom: 8px;
-
-            &:last-child {
-                margin-bottom: 0;
-            }
-
-            &.scheInfoSection {
-                .flex(1 1 auto);
-                .text {
-                    .size(@max-width: ~"calc(100% - 180px)");
-                    .position(relative, @top: 5px);
-                        max-height: 77px;
-                        text-overflow: ellipsis;
-                        overflow: hidden;
-                }
-            }
-
-            > div {
-                float: left;
-            }
-        }
-
-        h3 {
-            .size(@width: 175px);
-            .font(@size: 14px, @line-height: 30px);
-            float: left;
-        }
-
-        .dropDownList {
-            .styleDropDownList(200px, 25px);
-        }
-    }
-
-    .modalBottom {
-        .btn {
-            margin-right: 20px;
-            &.unavailable {
-                pointer-events: none;
-            }
-        }
-    }
-}
-
 #extensionInfoModal {
     .size(@width: 800px, @height: 500px);
 

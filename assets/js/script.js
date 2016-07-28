@@ -92,7 +92,7 @@ window.StartManager = (function(StartManager, $) {
         WSManager.setup();
         MonitorPanel.setup();
         DagPanel.setup();
-        DFGPanel.setup();
+        SchedulerPanel.setup();
         setupModals();
 
         XVM.checkVersionMatch()
@@ -238,7 +238,6 @@ window.StartManager = (function(StartManager, $) {
         WorkbookModal.setup();
         DataFlowModal.setup();
         DFGParamModal.setup();
-        AddScheduleModal.setup();
         MultiCastModal.setup();
         DeleteTableModal.setup();
         ExtensionInfoModal.setup();

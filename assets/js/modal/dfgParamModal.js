@@ -95,7 +95,7 @@ window.DFGParamModal = (function($, DFGParamModal){
     DFGParamModal.show = function($currentIcon) {
         var type = $currentIcon.data('type');
         var tableName = $currentIcon.data('table');
-        var dfgName = DFGPanel.getCurrentDFG();
+        var dfgName = DFGCard.getCurrentDFG();
         var dfg = DFG.getGroup(dfgName);
         var id = dfg.nodeIds[tableName];
 
@@ -633,7 +633,7 @@ window.DFGParamModal = (function($, DFGParamModal){
             // store meta
             dfg.updateParameters(params);
 
-            DFGPanel.updateRetinaTab(retName);
+            DFGCard.updateRetinaTab(retName);
 
             return dfg.updateSchedule();
         })

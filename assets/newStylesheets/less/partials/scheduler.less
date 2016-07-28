@@ -1,6 +1,5 @@
 #schedulerPanel {
     position: relative;
-    background-color: white;
 
     .topBar {
         .buttonArea {
@@ -14,121 +13,12 @@
         }
     }
 
-    .subPanel {
-        height: ~"calc(100% - 37px)";
+    .mainContent {
+        overflow: auto;
     }
 
     #schedulesView, #dataflowView {
         height: 100%;
-    }
-
-    .leftContent {
-        width: 314px;
-        height: 100%;
-        border-right: 1px solid @color-border-sidebar;
-        background-color: @color-background-darkGray;
-        float: left;
-
-        .headingArea {
-            height: 35px;
-            .gray-gradient;
-            text-align: center;
-            padding-top: 6px;
-            .font(@weight: 700, @size: 15px, @color: @color-text-darkdarkGray);
-        }
-
-        .mainButtonArea {
-            border-bottom: 1px solid rgba(0,0,0,0.25);
-
-            .btn {
-                display: block;
-                margin: 0 auto;
-                width: 266px;
-            }
-        }
-
-        .scheduleListArea {
-            .size(@height: ~"calc(100% - 120px)");
-            padding: 9px;
-            .position(relative);
-            overflow: hidden;
-
-            .scrollbarWrapper {
-                .size(@width: ~"calc(100% + 20px)", @height: 100%);
-                .position(absolute);
-                overflow-x: hidden;
-                overflow-y: scroll;
-            }
-
-            .scheduleLists {
-                .position(relative, @left: -13px);
-            }
-
-            .scheduleList {
-                line-height: 25px;
-                margin-top: 10px;
-                cursor: default;
-                .noSelection;
-
-                &.active {
-                    .listBox {
-                        background-color: #c5e1f1;
-                    }
-
-                    .iconWrap {
-                        .action-gradient;
-                    }
-
-                    .deleteSchedule {
-                        opacity: 0.6;
-                        .image("../../images/garbage-sm-blue.png", 50%, 50%);
-                    }
-                }
-            }
-
-            .listBox {
-                .size(@width: 266px, @height: 25px);
-                .rounded;
-                margin: 0 auto;
-                background-color: @color-white;
-                box-shadow: 1px 2px 1px rgba(0,0,0,.2);
-                overflow: hidden;
-                cursor: pointer;
-
-                .iconWrap {
-                    .size(@width: 25px, @height: 100%);
-                    .gray-gradient;
-                    float: left;
-                    border-top-left-radius: 3px;
-                    border-bottom-left-radius: 3px;
-
-                    .icon {
-                        .size(100%, 100%);
-                        .image("../../images/schedule/schedule_calendar.png", 50%, 50%);
-                    }
-                }
-
-                .scheduleName {
-                    .size(@width: ~"calc(100% - 55px)");
-                    float: left;
-                    padding: 0 10px;
-                    margin: 5px 0;
-                    border-right: 1px solid #A2C2D4;
-                    white-space: nowrap;
-                    text-align: left;
-                    line-height: 15px;
-                    .textOverflow;
-                    .font(@size: 13px, @color: @color-text-darkGray);
-                }
-
-                .deleteSchedule {
-                    margin-top: 5px;
-                    .size(@width: 26px, @height: 15px);
-                    .image("../../images/garbage-sm.png", 50%, 50%);
-                    opacity: 0.8;
-                }
-            }
-        }
     }
 
     .midContent {
@@ -530,477 +420,394 @@
     }
 }
 
-#dataflowView {
-    .listSection {
-        .position(relative);
-        .size(@width: 100%);
-        padding: 10px 0px 2px;
-        margin-top: 5px;
-        max-height: ~"calc(100% - 41px)";
-        overflow: auto;
+#dfgViz {
 
-        .listBox {
-            .size(@width: 100%, @height: 25px);
-            .rounded;
-            background: @color-white;
-            box-shadow: 1px 2px 1px rgba(0,0,0,.3);
-            cursor: pointer;
-            white-space: nowrap;
-            overflow: hidden;
-            .flex-display;
-            .flex-flow(row);
+    
+    .image("../../images/dagIcons/dag-background.png", right, top, repeat);
 
-            &:hover {
-                background: @color-dataflow-list-hover;
-                .label {
-                    border-color: #A2C2D4;
-                }
-                .addGroup, .deleteGroup {
-                    opacity: 0.6;
-                }
-                .addGroup {
-                    .image("../../images/schedule/addschedule-blue.png", 80%, 50%);
-                }
-                .deleteGroup {
-                    .image("../../images/garbage-sm-blue.png", 50%, 50%);
-                }
-            }
-            &.selected {
-                background: @color-dataflow-list-selected;
-
-                .checkmark {
-                    .image("../../images/checkmark-white.png", 40%, 50%);
-                }
-
-                .iconWrap {
-                    .linear-gradient(top, #60B3E6, #3C8DB2);
-                }
-                .label {
-                    border-color: #7FB7D3;
-                }
-                .addGroup,.deleteGroup {
-
-                }
-                .addGroup {
-                    opacity: 1 !important;
-                    .image("../../images/schedule/addschedule-blue.png", 80%, 50%);
-                }
-                .deleteGroup {
-                    opacity: 0.6;
-                    .image("../../images/garbage-sm-blue.png", 50%, 50%);
-                }
-
-            }
-
-            .iconWrap {
-                width: 25px;
-                .gray-gradient;
-                .rounded(3px 0 0 3px);
-
-                .icon {
-                    .position(relative, @top: 3px, @left: 3px);
-                    .size(@width: 20px, @height: 19px);
-                    .image("../../images/schedule/dfg-icon.png", 40%, 50%);
-                }
-            }
-
-            &.active .iconWrap {
-                .action-gradient;
-            }
-
-            .label {
-                width: ~"calc(100% - 77px)";
-                padding-left: 8px;
-                padding-right: 2px;
-                .textOverflowOneLine;
-                margin: 5px 0px;
-                border-right: 1px solid @color-border-inputMidGray;
-                .font(@line-height: 15px, @size: 13px, @color: @color-text-darkGray);
-            }
-
-            .addGroup, .deleteGroup {
-                float: left;
-            }
-            .addGroup {
-                margin-top: 4px;
-                .size(26px, 16px);
-                .image("../../images/schedule/addschedule-gray.png", 80%, 50%);
-            }
-            .deleteGroup {
-                margin-top: 5px;
-                .size(26px, 15px);
-                .image("../../images/garbage-sm.png", 50%, 50%);
-                opacity: 0.8;
-            }
+    .cardHeader {
+        color: @color-white;
+        .leftSection {
+            float: left;
+            height: 48px;
+            .textOverflowOneLine;
         }
 
-        .list {
-            .position(relative);
-            .size(@width: ~"calc(100% - 8px)");
-            margin: 0 0 0 8px;
-            display: none;
+        .retTabSection {
+            .position(relative, @top: 3px);
+            display: inline-block;
+            float: right;
 
-            li {
-                .size(@height: 22px);
-                .rounded;
-                list-style: none;
-                margin-top: 5px;
-                padding-left: 8px;
-                .font(@line-height: 22px, @size: 12px, @color: @color-text-columnList);
-                background: @color-background-columnList;
-                overflow: hidden;
-                text-overflow: ellipsis;
-                white-space: nowrap;
-                cursor: default;
+            &.hidden {
+                display: none;
+            }
+
+            input:focus {
+                outline: none;
+            }
+
+            .retTab {
+                .position(relative);
+                .size(@width: 135px, @height: 30px);
+                display: inline-block;
+                float: right;
+                margin-right: 8px;
+
+                .tabWrap {
+                    .position(relative);
+                    .size(@width: 100%, @height: 30px);
+                    line-height: 30px;
+                    .rounded;
+                    border: 1px solid #979797;
+                    background: rgba(219, 219, 219, 1);
+                    cursor: pointer;
+
+                    .retTitle {
+                        .size(@width: ~"calc(100% - 20px)");
+                        display: inline-block;
+                        .font(@weight: bold, @size: 14px);
+                        float: left;
+                        background: transparent;
+                        text-align: left;
+                        padding-left: 10px;
+                        color: #989898;
+                        cursor: pointer;
+                    }
+
+                    .caret {
+                        display: inline-block;
+                        .size(@width: 20px, @height: 30px);
+                        cursor: pointer;
+                        .icon {
+                            .background("../../images/retina/retDown.png", 13px, 8px);
+                        }
+                    }
+                }
 
                 &.active {
-                    background: @color-dataflow-list-active;
-                    color: @color-white;
+                    .tabWrap {
+                        background: @color-table-inactive-darkGray;
+                        .rounded(3px 3px 0 0);
+                        border-bottom: none;
+                        .retTitle {
+                            color: @color-text-darkGray;
+                        }
+                        .caret .icon {
+                            background-image: url(../../images/retina/retDownActive.png);
+                        }
+                    }
+                    .retPopUp {
+                        display: block;
+                        z-index: 10;
+                    }
+                }
+
+                .retPopUp {
+                    .position(absolute, @top: 30px, @left: -305px);
+                    .size(@width: 440px, @height: 298px);
+                    display: none;
+                    background: @color-white;
+                    .rounded(0 0 3px 3px);
+                    box-shadow: 0px 3px 6px 0 rgba(0, 0, 0, 0.3);
+
+                    .divider {
+                        .size(@width: 100%, @height: 4px);
+                        background: #979797;
+                    }
+                    .inputSection {
+                        .size(@width: 100%, @height: 45px);
+                        background: @color-dag-TopGray;
+                        box-shadow: 0px 3px 3px 0 rgba(0, 0, 0, 0.4);
+                        padding: 7px 10px;
+
+                        .newParam {
+                            .size(@width: 194px);
+                            display: inline-block;
+                            float: left;
+                            padding-left: 9px;
+                            box-shadow: inset -2px 0px 2px 0 rgba(0, 0, 0, 0.3);
+                            .font(@weight: bold, @size: 13px, @color: @color-text-darkGray);
+                            .input-placeholder(@color-text-topGrayMed);
+                        }
+                        .addParam {
+                            .size(@width: 214px, @height: 30px);
+                            display: inline-block;
+                            margin-left: 12px;
+                            .rounded;
+                            box-shadow: 1px 1px 4px 0 rgba(0, 0, 0, 0.8);
+                            padding-top: 5px;
+                            .icon {
+                                float: left;
+                                margin: 0px 8px 0 6px;
+                                .background("../../images/retina/retNewParam.png", 24px, 23px);
+                            }
+                            .label {
+                                .size(@width: 170px);
+                                .font(@weight: bold, @size: 12px);
+                                color: @color-text-cyan;
+                            }
+                        }
+                    }
+
+                    .parameterTable;
+                    .tableHeader {
+                        .size(@height: 30px);
+                        margin: 0 10px;
+                        overflow: hidden;
+
+                        .thWrap {
+                            .size(@height: 30px);
+                            .font(@weight: bold, @size: 13px, @line-height: 30px, @color: @color-white);
+                            float: left;
+                            background-color: @color-background-joinGray;
+                            text-align: center;
+
+                            &.paramName {
+                                .size(@width: 175px);
+                            }
+
+                            &.paramVal {
+                                .size(@width: 174px);
+                            }
+
+                            &.paramAction {
+                                .size(@width: 71px);
+                            }
+
+                            &:not(:first-child) {
+                                border-left: 1px solid @color-white;
+                            }
+                        }
+                    }
+
+                    .tableContainer {
+                        height: 210px;
+                        overflow: hidden;
+                        overflow-y: auto;
+
+                        .tableWrapper {
+                            width: 420px;
+                            overflow-y: hidden;
+                            height: auto;
+                        }
+
+                        table {
+                            td {
+                                border-right: 1px solid @color-border-joinGray;
+                                width: 70px;
+                            }
+
+                            .paramNameWrap {
+                                .size(@width: 175px);
+                                padding-right: 10px;
+
+                                .paramName {
+                                    .size(@width: 140px);
+                                }
+                            }
+
+                            .paramValWrap {
+                                .size(@width: 174px);
+                                padding-right: 10px;
+
+                                .paramVal {
+                                    .size(@width: 139px);
+                                }
+                            }
+
+                            .paramDelete {
+                                .position(absolute, @top: 50%, @left: 50%);
+                                .size(15px, 15px);
+                                cursor: pointer;
+                                transform: translate(-50%, -50%);
+                                .image("../../images/close-darkgray.png", 50%, 50%);
+                            }
+                        }
+                    }
+
+                    ::-webkit-scrollbar-track {
+                        background: transparent;
+                    }
                 }
             }
         }
-
-        .dataFlowGroup {
-            width: 265px;
-            margin: 0px 0px 6px 25px;
+        .title {
+            padding-right: 2px;
         }
-        .checkmark {
-            .flex(0 0 20px);
-            .image("../../images/checkmark-light.png", 40%, 50%);
-            margin-right: 3px;
+
+        .schedulesList {
+            display: inline-block;
+            margin-right: 40px;
+            text-transform: none;
+            vertical-align: top;
+            font-size: 18px;
+            cursor: default; 
         }
     }
 
-    .midContent {
-        .image("../../images/dagIcons/dag-background.png", right, top, repeat);
+    .cardMain {
+        padding-bottom: 20px;
+        
+        .runNowBtn {
+            .size(@width: 95px, @height: 25px);
+            float: right;
+            .font(@size: 12px, @weight: bold, @line-height: 25px);
+            padding: 0 10px;
+            background-color: @color-bg-select-blue;
 
-        .midContentHeader {
-            height: 55px;
-            overflow: visible;
+            &.inActive {
+                opacity: 0.7;
+                pointer-events: none;
+                cursor: default;
 
-            .leftSection {
-                float: left;
-                height: 48px;
-                .textOverflowOneLine;
-            }
-
-            .retTabSection {
-                .position(relative, @top: -5px);
-                display: inline-block;
-                float: right;
-
-                &.hidden {
+                .icon {
                     display: none;
                 }
-
-                input:focus {
-                    outline: none;
-                }
-
-                .retTab {
-                    .position(relative, @top: 14px);
-                    .size(@width: 135px, @height: 30px);
-                    display: inline-block;
-                    float: right;
-                    margin-right: 8px;
-
-                    .tabWrap {
-                        .position(relative);
-                        .size(@width: 100%, @height: 30px);
-                        line-height: 30px;
-                        .rounded;
-                        border: 1px solid #979797;
-                        background: rgba(219, 219, 219, 1);
-                        cursor: pointer;
-
-                        .retTitle {
-                            .size(@width: ~"calc(100% - 20px)");
-                            display: inline-block;
-                            .font(@weight: bold, @size: 14px);
-                            float: left;
-                            background: transparent;
-                            text-align: left;
-                            padding-left: 10px;
-                            color: #989898;
-                            cursor: pointer;
-                        }
-
-                        .caret {
-                            display: inline-block;
-                            .size(@width: 20px, @height: 30px);
-                            cursor: pointer;
-                            .icon {
-                                .background("../../images/retina/retDown.png", 13px, 8px);
-                            }
-                        }
-                    }
-
-                    &.active {
-                        .tabWrap {
-                            background: @color-table-inactive-darkGray;
-                            .rounded(3px 3px 0 0);
-                            border-bottom: none;
-                            .retTitle {
-                                color: @color-text-darkGray;
-                            }
-                            .caret .icon {
-                                background-image: url(../../images/retina/retDownActive.png);
-                            }
-                        }
-                        .retPopUp {
-                            display: block;
-                            z-index: 10;
-                        }
-                    }
-
-                    .retPopUp {
-                        .position(absolute, @top: 30px, @left: -305px);
-                        .size(@width: 440px, @height: 298px);
-                        display: none;
-                        background: @color-white;
-                        .rounded(0 0 3px 3px);
-                        box-shadow: 0px 3px 6px 0 rgba(0, 0, 0, 0.3);
-
-                        .divider {
-                            .size(@width: 100%, @height: 4px);
-                            background: #979797;
-                        }
-                        .inputSection {
-                            .size(@width: 100%, @height: 45px);
-                            background: @color-dag-TopGray;
-                            box-shadow: 0px 3px 3px 0 rgba(0, 0, 0, 0.4);
-                            padding: 7px 10px;
-
-                            .newParam {
-                                .size(@width: 194px);
-                                display: inline-block;
-                                float: left;
-                                padding-left: 9px;
-                                box-shadow: inset -2px 0px 2px 0 rgba(0, 0, 0, 0.3);
-                                .font(@weight: bold, @size: 13px, @color: @color-text-darkGray);
-                                .input-placeholder(@color-text-topGrayMed);
-                            }
-                            .addParam {
-                                .size(@width: 214px, @height: 30px);
-                                display: inline-block;
-                                margin-left: 12px;
-                                .rounded;
-                                box-shadow: 1px 1px 4px 0 rgba(0, 0, 0, 0.8);
-                                padding-top: 5px;
-                                .icon {
-                                    float: left;
-                                    margin: 0px 8px 0 6px;
-                                    .background("../../images/retina/retNewParam.png", 24px, 23px);
-                                }
-                                .label {
-                                    .size(@width: 170px);
-                                    .font(@weight: bold, @size: 12px);
-                                    color: @color-text-cyan;
-                                }
-                            }
-                        }
-
-                        .parameterTable;
-                        .tableHeader {
-                            .size(@height: 30px);
-                            margin: 0 10px;
-                            overflow: hidden;
-
-                            .thWrap {
-                                .size(@height: 30px);
-                                .font(@weight: bold, @size: 13px, @line-height: 30px, @color: @color-white);
-                                float: left;
-                                background-color: @color-background-joinGray;
-                                text-align: center;
-
-                                &.paramName {
-                                    .size(@width: 175px);
-                                }
-
-                                &.paramVal {
-                                    .size(@width: 174px);
-                                }
-
-                                &.paramAction {
-                                    .size(@width: 71px);
-                                }
-
-                                &:not(:first-child) {
-                                    border-left: 1px solid @color-white;
-                                }
-                            }
-                        }
-
-                        .tableContainer {
-                            height: 210px;
-                            overflow: hidden;
-                            overflow-y: auto;
-
-                            .tableWrapper {
-                                width: 420px;
-                                overflow-y: hidden;
-                                height: auto;
-                            }
-
-                            table {
-                                td {
-                                    border-right: 1px solid @color-border-joinGray;
-                                    width: 70px;
-                                }
-
-                                .paramNameWrap {
-                                    .size(@width: 175px);
-                                    padding-right: 10px;
-
-                                    .paramName {
-                                        .size(@width: 140px);
-                                    }
-                                }
-
-                                .paramValWrap {
-                                    .size(@width: 174px);
-                                    padding-right: 10px;
-
-                                    .paramVal {
-                                        .size(@width: 139px);
-                                    }
-                                }
-
-                                .paramDelete {
-                                    .position(absolute, @top: 50%, @left: 50%);
-                                    .size(15px, 15px);
-                                    cursor: pointer;
-                                    transform: translate(-50%, -50%);
-                                    .image("../../images/close-darkgray.png", 50%, 50%);
-                                }
-                            }
-                        }
-
-                        ::-webkit-scrollbar-track {
-                            background: transparent;
-                        }
-                    }
-                }
             }
 
-            h2 {
-                display: block;
+            .icon {
+                width: 16px;
+                .image("../../images/schedule/run.png", 0, 50%);
             }
 
-            .schedulesList {
-                display: inline-block;
-                line-height: 26px;
-                margin-right: 40px;
-                li {
-                    display: inline-block;
-                    float: left;
-                    margin: 0 5px;
-                    border-radius:5px;
-                    border: 1px solid gray;
+            .text {
+                width: 60px;
+            }
+        }
+
+        .dagImage {
+            margin-bottom: 4px; // otherwise theres weird vertical scrolling
+        }
+
+        .dagTable {
+            cursor: auto;
+            .tableTitle {
+                width: 180px;
+            }
+            &.dataStore, &.export {
+                cursor: pointer;
+            }
+            &.dataStore .tableTitle {
+                width: 130px;
+            }
+            &.export .tableTitle {
+                width: 120px;
+            }
+            &.hasParam {
+                .dataStoreIcon, .dagTableIcon {
+                    .linear-gradient(~"top left", #7DAF66, #477D2E);
+
+
                 }
             }
         }
 
-        .midContentMain {
-            overflow: auto;
-            height: ~"calc(100% - 35px)";
+        .actionType {
+            &.filter {
+                cursor: pointer;
+            }
+            &.hasParam {
 
-            .runNowBtn {
-                .size(@width: 95px, @height: 25px);
-                float: right;
-                .font(@size: 12px, @weight: bold, @line-height: 25px);
-                padding: 0 10px;
+                .actionTypeWrap {
+                    border: 1px solid #699669;
 
-                &.inActive {
-                    opacity: 0.7;
-                    pointer-events: none;
-                    cursor: default;
-
-                    .icon {
-                        display: none;
-                    }
                 }
-
-                .icon {
-                    width: 16px;
-                    .image("../../images/schedule/run.png", 0, 50%);
+                .dagIcon {
+                    .linear-gradient(top,#7DAF66, #477D2E);
                 }
+            }
+        }
 
+        canvas {
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .hint {
+            .size(@width: 320px, @height: 60px);
+            .horizontal-align;
+            top: 30%;
+            .rounded;
+            border: 1px solid @color-white;
+            padding: 10px 0;
+            background-color: rgba(249, 249, 249, 0.8);
+
+            > div {
+                float: left;
+            }
+
+            .icon {
+                .size(@width: 60px, @height: 100%);
+                .image("../../images/exclamation_gray.png", 50%, 50%);
+            }
+
+            .text {
+                .size(@width: ~"calc(100% - 60px)", @height: 100%);
+                .font(@color: #838383, @size: 13px, @weight: bold);
+            }
+        }
+    }
+    
+}
+
+#addScheduleCard {
+    display: none;
+
+    .cardTopMain {
+        max-width: 700px;
+        margin: 0 auto;
+        padding: 40px;
+        padding-bottom: 0px;
+        .flex-display;
+        .flex-flow(column);
+
+        > div {
+            .flex(0 0 30px);
+            margin-bottom: 12px;
+
+            &:last-child {
+                margin-bottom: 0;
+            }
+
+            &.scheInfoSection {
+                .flex(1 1 auto);
                 .text {
-                    width: 60px;
+                    .size(@max-width: ~"calc(100% - 180px)");
+                    .position(relative, @top: 5px);
+                    max-height: 77px;
+                    text-overflow: ellipsis;
+                    overflow: hidden;
                 }
             }
 
-            .dagImage {
-                margin-bottom: 4px; // otherwise theres weird vertical scrolling
+            > div {
+                float: left;
             }
+        }
 
-            .dagTable {
-                cursor: auto;
-                .tableTitle {
-                    width: 180px;
-                }
-                &.dataStore, &.export {
-                    cursor: pointer;
-                }
-                &.dataStore .tableTitle {
-                    width: 130px;
-                }
-                &.export .tableTitle {
-                    width: 120px;
-                }
-                &.hasParam {
-                    .dataStoreIcon, .dagTableIcon {
-                        .linear-gradient(~"top left", #7DAF66, #477D2E);
+        @label-width: 175px;
 
+        h3 {
+            .size(@width: @label-width);
+            .font(@weight: 600, @size: 14px, @line-height: 30px);
+            float: left;
+        }
 
-                    }
-                }
-            }
+        .dropDownList {
+            .styleDropDownList(~"calc(100% - @{label-width})", 25px);
+        }
 
-            .actionType {
-                &.filter {
-                    cursor: pointer;
-                }
-                &.hasParam {
+        .btn {
+            width: 160px;
+        }
+    }
 
-                    .actionTypeWrap {
-                        border: 1px solid #699669;
-
-                    }
-                    .dagIcon {
-                        .linear-gradient(top,#7DAF66, #477D2E);
-                    }
-                }
-            }
-
-            canvas {
+    .cardBottom {
+        padding-right: 40px;
+        padding-bottom: 20px;
+        .btn {
+            &.unavailable {
                 pointer-events: none;
-                z-index: 0;
-            }
-
-            .hint {
-                .size(@width: 320px, @height: 60px);
-                .horizontal-align;
-                top: 30%;
-                .rounded;
-                border: 1px solid @color-white;
-                padding: 10px 0;
-                background-color: rgba(249, 249, 249, 0.8);
-
-                > div {
-                    float: left;
-                }
-
-                .icon {
-                    .size(@width: 60px, @height: 100%);
-                    .image("../../images/exclamation_gray.png", 50%, 50%);
-                }
-
-                .text {
-                    .size(@width: ~"calc(100% - 60px)", @height: 100%);
-                    .font(@color: #838383, @size: 13px, @weight: bold);
-                }
             }
         }
     }

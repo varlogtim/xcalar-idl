@@ -1,8 +1,10 @@
-window.DFGPanel = (function($, DFGPanel) {
+window.DFGCard = (function($, DFGCard) {
     var $dfgView;       // $('#dataflowView');
-    var $listSection;   // $dfgView.find('.listSection');
-    var $header;        // $dfgView.find('.midContentHeader h2');
-    var $retTabSection; // $dfgView.find('.retTabSection');
+    var $dfgCard;       // $('#dfgViz');
+    var $menu;          // $('#dfgMenu').find('.dfgList');
+    var $listSection;   // $dfgMenu.find('.listSection');
+    var $header;        // $dfgCard.find('.cardHeader h2');
+    var $retTabSection; // $dfgCard.find('.retTabSection');
 
     var retinaTrLen = 7;
     var retinaTr = '<tr class="unfilled">' +
@@ -20,47 +22,59 @@ window.DFGPanel = (function($, DFGPanel) {
 
     var currentDFG = null;
 
-    DFGPanel.setup = function() {
+    DFGCard.setup = function() {
         $dfgView = $('#dataflowView');
-        $listSection = $dfgView.find('.listSection');
-        $header = $dfgView.find('.midContentHeader h2');
-        $retTabSection = $dfgView.find('.retTabSection');
+        $dfgCard = $('#dfgViz');
+        $dfgMenu = $('#dfgMenu').find('.dfgList');
+        $listSection = $dfgMenu.find('.listSection');
+        $header = $dfgCard.find('.cardHeader h2');
+        $retTabSection = $dfgCard.find('.retTabSection');
 
         addListeners();
-        setupViewToggling();
         setupDagDropdown();
         setupRetinaTab();
-        Scheduler.setup();
     };
 
-    DFGPanel.updateDFG = function() {
+    DFGCard.updateDFG = function() {
         updateList();
     };
 
-    DFGPanel.getCurrentDFG = function() {
+    DFGCard.getCurrentDFG = function() {
         return (currentDFG);
     };
 
-    DFGPanel.listSchedulesInHeader = function(groupName) {
+    DFGCard.listSchedulesInHeader = function(groupName) {
         var group = DFG.getAllGroups()[groupName];
         var schedules = group.schedules;
         var numSchedules = schedules.length;
         // var lis = "";
-        var list = "schedules: ";
-        for (var i = 0; i < numSchedules; i++) {
-            // lis += "<li>" + schedules[i] + "</li>";
-            if (i !== 0) {
-                list += ", ";
-            }
-            list += schedules[i];
-        }
+        var tooltip = "";
+        var text = "";
+        var $scheduleList = $dfgCard.find('.cardHeader .schedulesList');
+        var html = "";
+        
         if (numSchedules === 0) {
-            list += "none";
+            tooltip += TooltipTStr.NeedCreateSchedule;
+            $scheduleList.html('- not scheduled');
+            html += '<span data-toggle="tooltip" ' +
+                    'data-container="body" title="' + tooltip + '">- ' +
+                     SchedTStr.NotScheduled + '</span>';
+        } else {
+            for (var i = 0; i < numSchedules; i++) {
+                // lis += "<li>" + schedules[i] + "</li>";
+                if (i !== 0) {
+                    tooltip += ", ";
+                }
+                tooltip += schedules[i];
+            }
+            html += '<span data-toggle="tooltip" ' + 'data-container="body" ' +
+                     'title="' + tooltip + '">- ' + SchedTStr.Scheduled   +
+                     ' (' + numSchedules + ')</span>';
         }
-        $dfgView.find('.midContentHeader .schedulesList').html(list);
+        $scheduleList.html(html);
     };
 
-    DFGPanel.updateRetinaTab = function(retName) {
+    DFGCard.updateRetinaTab = function(retName) {
         var html = "";
         for (var i = 0; i < retinaTrLen; i++) {
             html += retinaTr;
@@ -226,8 +240,9 @@ window.DFGPanel = (function($, DFGPanel) {
             currentDFG = groupName;
             $header.text(groupName);
             drawDags(groupName);
-            DFGPanel.listSchedulesInHeader(groupName);
-            DFGPanel.updateRetinaTab(groupName);
+            DFGCard.listSchedulesInHeader(groupName);
+            DFGCard.updateRetinaTab(groupName);
+            AddScheduleCard.update(groupName);
 
             $listSection.find('.listBox').removeClass('selected');
             $groupLi.addClass('selected');
@@ -239,15 +254,22 @@ window.DFGPanel = (function($, DFGPanel) {
                 $listSection.find('.list').slideUp(200);
                 $dfg.find('.list').slideDown(200);
             }
-
         });
 
         $listSection.on('click', '.addGroup', function() {
             var groupName = $(this).siblings('.label').text();
-            AddScheduleModal.show(groupName);
+            AddScheduleCard.show(groupName);
         });
 
-        $dfgView.find('.midContent').on("click", ".runNowBtn", function() {
+        $('#addScheduleButton').click(function() {
+            var groupName = $dfgMenu.find('.listBox.selected .label').text();
+            // xx get groupname a better way
+            if (groupName) {
+                AddScheduleCard.show(groupName);
+            }
+        });
+
+        $dfgCard.on("click", ".runNowBtn", function() {
             var $btn = $(this);
             var retName = $("#dataflowView .listSection").find(".selected .label")
                                                     .text();
@@ -260,31 +282,6 @@ window.DFGPanel = (function($, DFGPanel) {
                 $btn.removeClass("inActive")
                     .find(".text").text("Run Now");
             });
-        });
-    }
-
-    function setupViewToggling() {
-        var $schedulesView = $('#schedulesView');
-        // main menu
-        $('#schedulerTab').find('.subTab').click(function() {
-            var $button = $(this);
-            if ($button.hasClass('active')) {
-                return;
-            }
-
-            if ($button.attr('id') === "schedulesButton") {
-                $dfgView.hide();
-                $schedulesView.show();
-                Scheduler.refresh();
-            } else {
-                $dfgView.show();
-                $schedulesView.hide();
-                if ($dfgView.find('.listBox.selected').length === 0) {
-                    $dfgView.find('.listBox').eq(0).trigger('click',
-                                                            {show: true});
-                }
-            }
-             // button switch styling handled in mainMenu.js
         });
     }
 
@@ -301,7 +298,7 @@ window.DFGPanel = (function($, DFGPanel) {
 
             if (i === 0) {
                 runNowBtn = '<button class="runNowBtn btn iconBtn">' +
-                                '<span class="icon"></span>' +
+                                '<i class="icon xi-arrow-right"></i>' +
                                 '<span class="text">Run Now</span>' +
                             '</button>';
             }
@@ -309,7 +306,7 @@ window.DFGPanel = (function($, DFGPanel) {
             html += '<div class="dagWrap clearfix">' +
                         '<div class="header clearfix">' +
                             '<div class="btn btnSmall infoIcon">' +
-                                '<div class="icon"></div>' +
+                                '<i class="icon xi-info-rectangle"></i>' +
                             '</div>' +
                             '<div class="tableTitleArea">' +
                                 '<span>Table: </span>' +
@@ -360,8 +357,8 @@ window.DFGPanel = (function($, DFGPanel) {
             html += '</div></div></div>';
         }
 
-        $dfgView.find('.midContentMain').html(html);
-        $dfgView.find('.dagImage').each(function() {
+        $dfgCard.find('.cardMain').html(html);
+        $dfgCard.find('.dagImage').each(function() {
             DFG.drawCanvas($(this), true);
         });
     }
@@ -448,8 +445,8 @@ window.DFGPanel = (function($, DFGPanel) {
 
     function setupDagDropdown() {
         var dropdownHtml = getDagDropDownHTML();
-        var $dagArea = $dfgView.find('.midContent');
-        $dfgView.find('.midContent').append(dropdownHtml);
+        var $dagArea = $dfgCard;
+        $dfgCard.append(dropdownHtml);
 
         var $currentIcon;
 
@@ -520,7 +517,7 @@ window.DFGPanel = (function($, DFGPanel) {
     function updateList() {
         // resetDFGView();
         var groups = DFG.getAllGroups();
-        var $activeGroup = $dfgView.find('.listBox.selected');
+        var $activeGroup = $dfgMenu.find('.listBox.selected');
         var activeGroupName;
 
         if ($activeGroup.length) {
@@ -535,30 +532,30 @@ window.DFGPanel = (function($, DFGPanel) {
             html += '<div class="dataFlowGroup">' +
                       '<div class="listBox">' +
                         '<div class="iconWrap">' +
-                          '<span class="icon"></span>' +
+                          '<i class="icon xi-dataflowgroup"></i>' +
                         '</div>' +
                         '<div class="label">' + group + '</div>' +
-                        '<div class="icon addGroup" ' +
+                        '<i class="icon xi-add-schedule addGroup" ' +
                             'title="add a group to schedule" ' +
                             'data-toggle="tooltip" data-placement="top" ' +
                             'data-container="body">' +
-                        '</div>' +
-                        '<div class="icon deleteGroup" ' +
+                        '</i>' +
+                        '<i class="icon xi-trash deleteGroup" ' +
                             'title="coming soon" data-toggle="tooltip" ' +
                             'data-placement="top" data-container="body">' +
-                        '</div>' +
+                        '</i>' +
                         // '<div class="checkmark"></div>' +
                       '</div>' +
                       '<ul class="sublist list">';
             for (var i = 0; i < listLen; i++) {
-                html += '<li>' + list[i].name + '</li>';
+                html += '<li><i class="icon xi-dataflowgroup"></i>' + list[i].name + '</li>';
             }
 
             html += '</ul></div>';
         }
 
-        $dfgView.find('.listSection').html(html);
-        $dfgView.find('.numGroups').text(numGroups);
+        $dfgMenu.find('.listSection').html(html);
+        $dfgMenu.find('.numGroups').text(numGroups);
 
         if (numGroups === 0) {
             var hint = '<div class="hint no-selection">' +
@@ -569,15 +566,15 @@ window.DFGPanel = (function($, DFGPanel) {
                             DFGTStr.NoDFG2 +
                         '</div>' +
                        '</div>';
-            $dfgView.find(".midContentMain").html(hint);
+            $dfgCard.find(".cardMain").html(hint);
         } else {
-            $dfgView.find(".midContentMain").html("");
+            $dfgCard.find(".cardMain").html("");
             if (activeGroupName) {
-                $dfgView.find('.listBox').filter(function() {
+                $dfgMenu.find('.listBox').filter(function() {
                     return ($(this).find('.label').text() === activeGroupName);
                 }).closest('.listBox').trigger('click', {show: true});
             } else {
-                $dfgView.find('.listBox').eq(0).trigger('click', {show: true});
+                $dfgMenu.find('.listBox').eq(0).trigger('click', {show: true});
             }
         }
     }
@@ -612,6 +609,6 @@ window.DFGPanel = (function($, DFGPanel) {
         return (deferred.promise());
     }
 
-    return (DFGPanel);
+    return (DFGCard);
 
 }(jQuery, {}));

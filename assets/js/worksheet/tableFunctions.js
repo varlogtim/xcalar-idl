@@ -594,14 +594,7 @@ function addMenuBehaviors($mainMenu) {
             var shiftedLeft = false;
 
             // move submenu to left if overflowing to the right
-            var viewportRight;
-            // XXX GUI-4745 Fix it!!
-            var $menuPanel = $('#bottomMenu');
-            if (!$menuPanel.hasClass('poppedOut')) {
-                viewportRight = $menuPanel.offset().left;
-            } else {
-                viewportRight = $(window).width();
-            }
+            var viewportRight = $(window).width() - 5;
             if (left + $subMenu.width() > viewportRight) {
                 $subMenu.addClass('left');
                 shiftedLeft = true;

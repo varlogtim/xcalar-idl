@@ -9,7 +9,7 @@ window.DFG = (function($, DFG) {
             dfGroups[name] = new DFGObj(name, groups[name]);
         }
 
-        DFGPanel.updateDFG();
+        DFGCard.updateDFG();
     };
 
     DFG.getAllGroups = function() {
@@ -31,7 +31,7 @@ window.DFG = (function($, DFG) {
         .then(function(retInfo) {
             updateDFGInfo(retInfo);
             // XXX TODO add sql
-            DFGPanel.updateDFG();
+            DFGCard.updateDFG();
             KVStore.commit();
             deferred.resolve();
         })

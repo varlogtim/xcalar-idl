@@ -1,44 +1,31 @@
-window.AddScheduleModal = (function($, AddScheduleModal) {
-    var $modal;             // $('#addScheduleModal')
-    var $scheduleListInput; // $modal.find('.scheduleListInput')
+window.AddScheduleCard = (function($, AddScheduleCard) {
+    var $card;             // $('#addScheduleCard')
+    var $scheduleListInput; // $card.find('.scheduleListInput')
 
     var groupName;
-    var modalHelper;
 
-    AddScheduleModal.setup = function() {
-        $modal = $('#addScheduleModal');
-        $scheduleListInput = $modal.find('.scheduleListInput');
-
-        modalHelper = new ModalHelper($modal, {
-            "focusOnOpen": true,
-            "center"     : {"verticalQuartile": true}
-        });
-
-        $modal.draggable({
-            "handle"     : ".modalHeader",
-            "cursor"     : "-webkit-grabbing",
-            "containment": 'window'
-        });
-
-        addModalEvents();
+    AddScheduleCard.setup = function() {
+        $card = $('#addScheduleCard');
+        $scheduleListInput = $card.find('.scheduleListInput');
+        addCardEvents();
     };
 
-    AddScheduleModal.show = function(curentGroup, schedule) {
+    AddScheduleCard.show = function(curentGroup, schedule) {
         groupName = curentGroup;
-        updateModalList(schedule);
-
-        $(document).on("keypress.addScheduleModal", function(e) {
-            if (e.which === keyCode.Enter) {
-                if (!$modal.find('.confirm').hasClass('unavailable')) {
-                    submitForm();
-                }
-            }
-        });
-
-        modalHelper.setup();
+        $card.show();
+        updateScheduleList(schedule); 
     };
 
-    function updateModalList(selectedSchedule) {
+    AddScheduleCard.update = function(currentGroup) {
+        if (!$card.is(":visible")) {
+            // update function will get called when not visible, just return
+            return;
+        }
+        groupName = currentGroup;
+        updateScheduleList();  
+    };
+
+    function updateScheduleList(selectedSchedule) {
         var schedules = Scheduler.getAllSchedules();
         var hasValidSchedule = false;
         var hasSelectedSchedule = false;
@@ -58,15 +45,15 @@ window.AddScheduleModal = (function($, AddScheduleModal) {
                     attachedSched += ", " + scheduleName;
                 }
                 continue;
+            } else {
+                hasValidSchedule = true;
             }
 
             lis += '<li>' + scheduleName + '</li>';
 
-            if (!hasValidSchedule) {
-                hasValidSchedule = true;
-            }
+            
 
-            // this check avoids malicious trigger of AddScheduleModal.show()
+            // this check avoids malicious trigger of AddScheduleCard.show()
             if (!hasSelectedSchedule && scheduleName === selectedSchedule) {
                 hasSelectedSchedule = true;
             }
@@ -77,7 +64,7 @@ window.AddScheduleModal = (function($, AddScheduleModal) {
                                 .val(SchedTStr.NoScheds)
                                 .attr('value', SchedTStr.NoScheds);
             lis = '<li class="hint">' + SchedTStr.NoScheds + '</li>';
-            $modal.find('.confirm').addClass('unavailable');
+            $card.find('.confirm').addClass('unavailable');
         } else {
             if (hasSelectedSchedule) {
                 $scheduleListInput.removeClass("hint")
@@ -88,15 +75,15 @@ window.AddScheduleModal = (function($, AddScheduleModal) {
                                     .val(hintText)
                                     .attr('value', hintText);
             }
-            $modal.find('.confirm').removeClass('unavailable');
+            $card.find('.confirm').removeClass('unavailable');
         }
 
-        $modal.find('.scheduleList ul').html(lis);
+        $card.find('.scheduleList ul').html(lis);
 
         if (attachedSched == null) {
             attachedSched = "N/A";
         }
-        $modal.find('.scheInfoSection .text').text(attachedSched);
+        $card.find('.scheInfoSection .text').text(attachedSched);
     }
 
     function submitForm() {
@@ -112,7 +99,7 @@ window.AddScheduleModal = (function($, AddScheduleModal) {
 
         var selectedSchedule = $scheduleListInput.val();
         var currentGroup = groupName;
-        // close modal will set group name to null
+        // close card will set group name to null
         Scheduler.addDFG(selectedSchedule, currentGroup)
         .then(function() {
             xcHelper.showSuccess();
@@ -121,11 +108,11 @@ window.AddScheduleModal = (function($, AddScheduleModal) {
             Alert.error(SchedTStr.AddSchedFail, error);
         });
 
-        closeModal();
+        closeCard();
     }
 
-    function addModalEvents() {
-        var schedList = new MenuHelper($modal.find('.scheduleList'), {
+    function addCardEvents() {
+        var schedList = new MenuHelper($card.find('.scheduleList'), {
             "onSelect": function($li) {
                 if ($li.hasClass("hint")) {
                     return false;
@@ -141,31 +128,30 @@ window.AddScheduleModal = (function($, AddScheduleModal) {
         schedList.setupListeners();
 
         // click cancel or close button
-        $modal.on("click", ".close, .cancel", function(event) {
+        $card.on("click", ".close, .cancel", function(event) {
             event.stopPropagation();
-            closeModal();
+            closeCard();
         });
 
         // click confirm button
-        $modal.on("click", ".confirm", function() {
+        $card.on("click", ".confirm", function() {
             submitForm();
         });
 
-        $modal.on("click", ".createNewSchedule", function() {
-            closeModal();
+        $card.on("click", ".createNewSchedule", function() {
+            closeCard();
             $('#schedulesButton').click();
             Scheduler.refresh(groupName);
         });
 
     }
 
-    function closeModal() {
-        modalHelper.clear();
-        $(document).off(".addScheduleModal");
-        $modal.find('.scheInfoSection .text').text("N/A");
+    function closeCard() {
+        $card.find('.scheInfoSection .text').text("N/A");
         groupName = null;
+        $card.hide();
     }
 
-    return (AddScheduleModal);
+    return (AddScheduleCard);
 
 }(jQuery, {}));

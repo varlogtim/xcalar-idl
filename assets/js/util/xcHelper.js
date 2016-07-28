@@ -2069,7 +2069,6 @@ window.xcHelper = (function($, xcHelper) {
         //     }
         // }
         // positioning if dropdown is on the right side of screen
-        var leftBoundary = $('#bottomMenu')[0].getBoundingClientRect().left;
         var rightBoundary = $(window).width() - 5;
         if ($menu[0].getBoundingClientRect().right > rightBoundary) {
             left = rightBoundary - $menu.width();

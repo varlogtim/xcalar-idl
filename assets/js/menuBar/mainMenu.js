@@ -120,6 +120,7 @@ window.MainMenu = (function($, MainMenu) {
                 break;
             case ("schedulerTab"):
                 $('#schedulerPanel').addClass("active");
+                SchedulerPanel.active();
                 break;
             case ("dataStoresTab"):
                 $("#datastorePanel").addClass("active");
