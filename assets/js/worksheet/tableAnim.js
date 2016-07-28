@@ -31,7 +31,7 @@ window.TblAnim = (function($, TblAnim) {
         rescol.startWidth = rescol.grabbedCell.outerWidth();
 
         hideOffScreenTables({
-            marginLeft : rescol.startWidth,
+            marginLeft : 0,
             marginRight: rescol.startWidth
         });
 
@@ -408,6 +408,7 @@ window.TblAnim = (function($, TblAnim) {
             gMouseStatus = "dragging";
             var el = dragInfo.$el;
             var pageX = event.pageX;
+            var $mainFrame = $('#mainFrame');
             dragInfo.colNum = xcHelper.parseColNum(el);
             var $tableWrap = dragInfo.$tableWrap;
 
@@ -433,6 +434,7 @@ window.TblAnim = (function($, TblAnim) {
             dragInfo.isHidden = el.hasClass('userHidden');
             dragInfo.colWidth = el.width();
             dragInfo.windowWidth = $(window).width();
+            dragInfo.mainFrameLeft = $mainFrame[0].getBoundingClientRect().left;
 
             var timer;
             if (gTables[dragInfo.tableId].tableCols.length > 50) {
@@ -445,11 +447,10 @@ window.TblAnim = (function($, TblAnim) {
             // the following code deals with hiding non visible tables and locking the
             // scrolling when we reach the left or right side of the table
 
-            var $mainFrame = $('#mainFrame');
             var mfWidth = $mainFrame.width();
 
             var mfScrollLeft = $mainFrame.scrollLeft();
-            var tableLeft = dragInfo.$table.offset().left;
+            var tableLeft = dragInfo.$table.offset().left - MainMenu.getOffset();
             $mainFrame.addClass('scrollLocked');
 
             var leftLimit = mfScrollLeft + tableLeft;
@@ -467,6 +468,7 @@ window.TblAnim = (function($, TblAnim) {
             var scrollLeft;
             $mainFrame.on('scroll.draglocked', function() {
                 scrollLeft = $mainFrame.scrollLeft();
+                
                 if (scrollLeft <= leftLimit) {
                     $mainFrame.scrollLeft(leftLimit);
                 } else if (scrollLeft >= rightLimit) {
@@ -569,12 +571,11 @@ window.TblAnim = (function($, TblAnim) {
         if ($(obj).hasClass('changedHeight')) {
             trClass = 'changedHeight';
         }
-        var td = $(obj).children();
+        var td = $(obj).children().eq(dragInfo.colIndex);
 
-        var clone = td.eq(dragInfo.colIndex).clone();
-        var cloneHeight = td.eq(dragInfo.colIndex).outerHeight();
-        var cloneColor = td.eq(dragInfo.colIndex).css('background-color');
-        // row.css('background-color', rowColor);
+        var clone = td.clone();
+        var cloneHeight = td.outerHeight();
+        var cloneColor = td.css('background-color');
         clone.css('height', cloneHeight + 'px');
         clone.outerWidth(dragInfo.colWidth);
         clone.css('background-color', cloneColor);
@@ -807,6 +808,7 @@ window.TblAnim = (function($, TblAnim) {
             dragInfo.$table.addClass('tableDragging');
             dragInfo.$table.css('left', dragInfo.offsetLeft + 'px');
             dragInfo.windowWidth = $(window).width();
+            dragInfo.mainFrameLeft = dragInfo.mainFrame[0].getBoundingClientRect().left;
             dragInfo.$table.scrollTop(dragInfo.tableScrollTop);
             createTableDropTargets();
             dragdropMoveMainFrame(dragInfo, 50);
@@ -984,11 +986,9 @@ window.TblAnim = (function($, TblAnim) {
             if (dragInfo.pageX > dragInfo.windowWidth - 30) { // scroll right
                 left = $mainFrame.scrollLeft() + 40;
                 $mainFrame.scrollLeft(left);
-            } else if (dragInfo.pageX < 30) { // scroll left;
-
+            } else if (dragInfo.pageX < dragInfo.mainFrameLeft + 30) { // scroll left;
                 left = $mainFrame.scrollLeft() - 40;
                 $mainFrame.scrollLeft(left);
-
             }
 
             setTimeout(function() {

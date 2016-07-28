@@ -33,8 +33,6 @@ window.WSManager = (function($, WSManager) {
 
     WSManager.initialize = function() {
         try {
-            initializeWorksheet();
-            initializeHiddenWorksheets();
             TableList.initialize();
         } catch (error) {
             console.error(error);
@@ -43,6 +41,7 @@ window.WSManager = (function($, WSManager) {
     };
 
     // Restore worksheet structure from backend
+    // should be called before drawing xcTables and data flow graphs
     WSManager.restore = function(sheetInfos) {
         sheetInfos = sheetInfos || {};
         wsOrder = sheetInfos.wsOrder || [];
@@ -77,6 +76,8 @@ window.WSManager = (function($, WSManager) {
                 tableIdToWSIdMap[orphanedTables[i]] = wsId;
             }
         }
+        initializeWorksheet();
+        initializeHiddenWorksheets();
     };
 
     // Clear all data in WSManager

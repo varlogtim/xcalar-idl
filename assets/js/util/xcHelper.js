@@ -1040,7 +1040,7 @@ window.xcHelper = (function($, xcHelper) {
             var $lockedIcon = $('<div class="lockedIcon">' +
                                 '<img src="' + paths.hourglass + '" /></div>');
             var tableHeight = $tableWrap.find('.xcTbodyWrap').height();
-            var tbodyHeight = $tableWrap.find('tbody').height();
+            var tbodyHeight = $tableWrap.find('tbody').height() + 1;
             var mainFrameHeight = $('#mainFrame').height();
             var topPos = 100 * ((tableHeight / mainFrameHeight) / 2);
 

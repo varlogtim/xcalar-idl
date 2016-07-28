@@ -875,13 +875,8 @@ function unhighlightColumn($el) {
 
 function moveTableDropdownBoxes() {
     var $startingTableHead;
-    var mainFrameOffsetLeft;
+    var mainFrameOffsetLeft = MainMenu.getOffset();
 
-    if (MainMenu.isMenuOpen()) {
-        mainFrameOffsetLeft = 350;
-    } else {
-        mainFrameOffsetLeft = 65;
-    }
     $('.xcTableWrap:not(".inActive")').each(function() {
         if ($(this)[0].getBoundingClientRect().right > mainFrameOffsetLeft) {
             $startingTableHead = $(this).find('.xcTheadWrap');
@@ -929,14 +924,10 @@ function moveTableTitles($tableWraps, options) {
 
     $tableWraps = $tableWraps ||
                   $('.xcTableWrap:not(.inActive):not(.tableHidden)');
-    
-    var mainFrameOffsetLeft;
+
     var mainFrameWidth = $('#mainFrame').width() - modifiedOffset;
-    if (MainMenu.isMenuOpen()) {
-        mainFrameOffsetLeft = 350;
-    } else {
-        mainFrameOffsetLeft = 65;
-    }
+    var mainFrameOffsetLeft = MainMenu.getOffset();
+
     var viewWidth = mainFrameWidth + mainFrameOffsetLeft;
 
     $tableWraps.each(function() {
@@ -1010,11 +1001,8 @@ function moveTableTitlesAnimated(tableId, oldWidth, widthChange, speed) {
     var rect = $thead[0].getBoundingClientRect();
     var right = rect.right - widthChange;
     var mainFrameWidth = $('#mainFrame').width();
-    if (MainMenu.isMenuOpen()) {
-        mainFrameOffsetLeft = 350;
-    } else {
-        mainFrameOffsetLeft = 65;
-    }
+    var mainFrameOffsetLeft = MainMenu.getOffset();
+
     var viewWidth = $('#mainFrame').width() + mainFrameOffsetLeft;
 
     if (right > mainFrameOffsetLeft && rect.left < viewWidth) {
@@ -1063,16 +1051,6 @@ function moveTableTitlesAnimated(tableId, oldWidth, widthChange, speed) {
             moveTableDropdownBoxes();
         });
     }
-}
-
-function moveTableTitlesAnimated2($tableWraps) {
-    if (isBrowserMicrosoft) {
-        return;
-    }
-
-    $tableWraps = $tableWraps ||
-                  $('.xcTableWrap:not(.inActive):not(.tableHidden)');
-
 }
 
 function focusTable(tableId, focusDag) {
@@ -1199,11 +1177,7 @@ function moveFirstColumn($targetTable) {
 
     if (!$targetTable) {
         datasetPreview = false;
-        if (MainMenu.isMenuOpen()) {
-            tableOffsetLeft = 350;
-        } else {
-            tableOffsetLeft = 65;
-        }
+        tableOffsetLeft = MainMenu.getOffset();
         
         $('.xcTableWrap:not(".inActive")').each(function() {
             rightOffset = $(this)[0].getBoundingClientRect().right;
@@ -1325,7 +1299,9 @@ function hideOffScreenTables(options) {
     var leftLimit = -options.marginLeft || 0;
     var marginRight = options.marginRight || 0;
     var $tableWraps = $('.xcTableWrap:not(.inActive)');
-    var viewWidth = $('#mainFrame').width() + marginRight;
+    var mainFrameRect = $('#mainFrame')[0].getBoundingClientRect();
+    var viewWidth =  mainFrameRect.right + marginRight;
+    leftLimit += mainFrameRect.left;
 
     $tableWraps.each(function() {
         var $table = $(this);

@@ -237,7 +237,8 @@ module.exports = {
         "ToggleAdvanced": "toggle advanced options",
         "AllowDelete": "allow table to be deleted",
         "LockTable": "prevents table from being deleted",
-        "SwitchToListView": "Switch to List view"
+        "SwitchToListView": "Switch to List view",
+        "OpenDFGP": "click to view data flow graph",
     },
 
     "workspaceBar": {

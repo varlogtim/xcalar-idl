@@ -459,14 +459,21 @@
 @height-bottomBar: @height-subTab;
 @height-mainPanel: ~"calc(100% - @{height-bottomBar})"; 
 
-@z-index-menuBar: 40;
-@z-index-homeBtn: @z-index-menuBar + 1;
+
+@z-index-tableHeaderGrab: 2;
+@z-index-tableHeaderInput: 2;
+@z-index-firstColumn: 3;
+@z-index-firstHeader: 4;
+@z-index-dfgPanel: 5;
+@z-index-statusBar: 10;
 @z-index-topMenu: 20;
 @z-index-bottomMenu: 20;
-@z-index-statusBar: 10;
-@z-index-dfgPanel: 5;
-@z-index-tableHeaderInput: 2;
-@z-index-tableHeaderGrab: 2;
+@z-index-menuBar: 30;
+@z-index-homeBtn: @z-index-menuBar + 1;
+@z-index-modalBackground: 35;
+@z-index-modal: 40;
+
+// see note on z-indexes
 
 
 @opacity-unhover: 0.8;
@@ -475,3 +482,26 @@
 @opacity-hover: 1;
 
 @padding-mainContent: 5px;
+
+
+
+
+/* z-indexes 
+
+- table header input needs to go on top of table header grab so that you can
+  click on the input
+- firstHeader needs to be higher than the header input when it's sticky positioned
+  and also needs to be higher than the cell of the first column when you scroll down
+- rowGrab needs to be equal or higher than first column cells or else it wont
+  be grabbable on the first column
+- rowGrab needs to be less than the header grab used to drag and drop columns
+- header grab needs to be less than table header input ... infinite cycle??
+
+- dfgPanel needs to be higher than all table headers
+- status bar needs to be higher than dfg panel to cover the bottom of it
+- top and bottom menu needs to be higher than the status bar so it covers it
+- menubar needs to be higher than top and bottom menu so they can hide behind it
+- home btn needs to be higher than menubar so it casts a shadow on it
+- modalbackground needs to be higher than all elements except for modals
+
+*/

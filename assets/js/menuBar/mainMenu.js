@@ -4,6 +4,9 @@ window.MainMenu = (function($, MainMenu) {
     var $mainMenu; // $('#mainMenu');
     var slideTimeout; // setTimeout for setting closed state after animation finishes
     var isMenuOpen = false;
+    var closedOffset = 65; // in pixels, how much the panels are horizonally 
+    // offset when a menu is closed
+    var openOffset = 350; // when the menu is open
     MainMenu.setup = function() {
         $menuBar = $('#menuBar');
         $mainMenu = $('#mainMenu');
@@ -36,7 +39,15 @@ window.MainMenu = (function($, MainMenu) {
     // xx add option to check which menu is open
     MainMenu.isMenuOpen = function() {
         return (isMenuOpen || BottomMenu.isMenuOpen());
-    }
+    };
+
+    MainMenu.getOffset = function() {
+        if (isMenuOpen || BottomMenu.isMenuOpen()) {
+            return (openOffset);
+        } else {
+            return (closedOffset);
+        }
+    };
 
     function setupBtns() {
         $mainMenu.find('.minimizeBtn').click(function() {

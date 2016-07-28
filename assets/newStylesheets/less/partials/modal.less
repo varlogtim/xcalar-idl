@@ -4,7 +4,7 @@
     .position(absolute, 0, 0, 0, 0);
     .size(@max-width: 99%, @max-height: 99%);
     .rounded(5px 5px 4px 4px);
-    z-index: 40;
+    z-index: @z-index-modal;
     box-shadow: 0px 0px 10px 3px rgba(0,0,0, .4);
     background-color: @color-white;
     // .auto-selection;
@@ -130,7 +130,7 @@
     background-color: @color-black;
     opacity: 0.6;
     display: none;
-    z-index: 35;
+    z-index: @z-index-modalBackground;
 
     &.light {
         opacity: 0.4;

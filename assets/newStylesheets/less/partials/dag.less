@@ -1,15 +1,10 @@
-// xx xi2 temp
-#mainFrame ~ #bottomTabArea {
-    display: none;
-}
-#mainFrame {
-    height: 100%;
-}
-
 #dfgPanelSwitch {
-    .position(absolute, @right: 0px, @bottom: 0px);
+    .position(absolute, @right: 5px, @bottom: 2px);
+    .size(29px, 29px);
     z-index: @z-index-statusBar + 1;
     background-color: @color-bg-select-blue;
+    text-align: center;
+    padding-top: 4px;
 }
 
 /* ========== Dag ========== */
@@ -91,6 +86,7 @@ html.firefox, html.microsoft {
     .ui-resizable-n {
         top: 0px;
         left: 0px;
+        z-index: @z-index-dfgPanel !important;
         &:after {
             content: " ";
             width: @tabWidth;
@@ -177,7 +173,7 @@ html.firefox, html.microsoft {
 
     .legendArea {
         display: inline-block;
-        .size(100%, 65px);
+        .size(355px, 35px);
         background-color: rgba(255,255,255, 0.6);
         padding: 3px 0px 0px 24px;
         font-size: 11px;
