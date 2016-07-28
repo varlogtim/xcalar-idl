@@ -959,6 +959,7 @@ describe('xcHelper Test', function() {
         expect(func(gColPrefix + 'blah, ' + gColPrefix + '\\' + gColPrefix + gColPrefix + 'blah')).to.equal(false);
         expect(func(gColPrefix + 'blah, ' + gColPrefix + 'bl,ah')).to.equal(false);
 
+        expect(func(gColPrefix + 'blah blah')).to.equal(true); // allow column names with spaces
         expect(func(gColPrefix + 'a')).to.equal(true);
         expect(func(gColPrefix + 'blah')).to.equal(true);
         expect(func(gColPrefix + 'blah, ' + gColPrefix + 'blah')).to.equal(true);

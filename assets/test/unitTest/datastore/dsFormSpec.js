@@ -215,14 +215,13 @@ function dsFormModuleTest() {
             assert.isFalse($statusBox.is(":visible"), "see statux box");
         });
 
-        it("Should not allow preivew excel", function() {
+        it("Should allow preivew excel", function() {
             $formatText.data("format", "EXCEL");
             var isValid = DSForm.__testOnly__.isValidToPreview();
-            expect(isValid).to.be.false;
+            expect(isValid).to.be.true;
 
             // check status box
-            assert.isTrue($statusBox.is(":visible"), "see statux box");
-            assert.equal($statusBox.find(".message").text(), ErrTStr.NoPreviewExcel);
+            assert.isFalse($statusBox.is(":visible"), "see statux box");
         });
 
         it("Should allow empty format", function() {

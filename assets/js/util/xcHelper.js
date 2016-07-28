@@ -1644,7 +1644,7 @@ window.xcHelper = (function($, xcHelper) {
                     prevCharIsComma = true;
                 } else if (!prevCharIsComma && str[i] === " ") {
                     // "colname colname" instead of "colname, colname"
-                    return false;
+                    // we will assume "colname colname" is one column with spaces
                 } else if (str[i] !== " ") {
                     prevCharIsComma = false;
                 }
@@ -1656,7 +1656,8 @@ window.xcHelper = (function($, xcHelper) {
         var colName;
         for (var i = 0; i < colNames.length; i++) {
             colName = colNames[i];
-            if (colName.length < 2) {
+            if (colName.length < 2) { 
+            // colName must be at least 2 characters long including the colPrefix
                 return false;
             }
             if (colName[0] === gColPrefix) {
