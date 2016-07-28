@@ -4,6 +4,64 @@
     white-space: nowrap;
     overflow-x: auto;
     overflow-y: hidden;
+
+     &.in {
+        .subPanel {
+            &.in {
+                display: block;
+            }
+
+            &.out {
+                display: none;
+            }
+        }
+    }
+
+    &.out {
+        .topBar {
+            .cart {
+                display: none;
+            }
+        }
+
+        .subPanel {
+            &.in {
+                display: none;
+            }
+
+            &.out {
+                display: block;
+            }
+        }
+    }
+
+    .topBar {
+        // the data cart icon
+        .cart {
+            .size(24px, 100%);
+            .position(relative);
+            margin-right: 10px;
+
+            &.empty {
+                .text {
+                    display: none;
+                }
+            }
+
+            .icon {
+               color: @color-border-pinkish-grey; 
+            }
+            
+            .text {
+                .size(@min-width: 24px, @height: 12px);
+                .position(absolute, @top: -13px, @left: -15px);
+                .rounded(6px);
+                background-color: @color-bg-softBlue;
+                .font(@size: 9px, @weight: 700, @color: @color-white);
+                text-align: center;
+            }
+        }
+    }
 }
 
 input {
@@ -13,13 +71,6 @@ input {
             outline: 1px solid @color-input-error-border !important;
         }
     }
-}
-
-/* Content Header */
- #contentHeader {
-    .flex-display;
-    .flex-flow(row);
-    box-shadow: 0px 2px 11px 0px rgba(0,0,0, .5);
 }
 
 #sendToWorksheetLoadBar {
@@ -37,43 +88,6 @@ input {
         background-color: #4CA5D9;
     }
 }
-
-
-#contentHeaderLeft {
-    .flex(0 0 255px);
-    .flex-order(1);
-    background-color: @color-white;
-
-    .flex-display;
-    .flex-flow(row);
-
-    .buttonArea {
-        .flex(1 1 127px);
-    }
-}
-
-#contentHeaderMid {
-    .flex(1 1 auto);
-    .flex-order(2);
-    background-repeat: no-repeat;
-    background-position: 19px 12px;
-}
-
-#contentHeaderRight {
-    .flex(0 0 255px);
-    .flex-order(3);
-    background: linear-gradient(@color-bar-darkGray-top, @color-bar-darkGray-bot);
-    border-left: 1px solid black;
-
-    .icon {
-        margin: 9px 0 0 8px;
-        .background("../../images/datastore/db-sm.png", 19px, 19px);
-        float: left;
-    }
-
-    color: @color-white;
-}
-/* End Of Content Header */
 
 /* Form Data View Section */
 .dsFormView {

@@ -154,45 +154,27 @@ body {
 }
 
 /* For Both worksheet menu bar and bottom area bar */
-.workspaceBar, .topBar {
-    .position(relative);
+.topBar {
     .size(@width: 100%, @height: @height-homeBtn);
     color: @color-text-darkGray;
     background-color: @color-bg-topBarGray;
     box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.2);
+    padding-left: 20px;
     padding-right: @width-userBox;
-    display: block;
-}
-
-.topBar {
     overflow: hidden;
 
-    .buttonArea {
-        .size(@width: 127px, @height: 100%);
-        .darkDarkGray-gradient;
-        border-right: 1px solid @color-bar-border;
+    .title {
+        .font(@size: 20px, @weight: 700, @color: @color-bg-unselect-gray);
         float: left;
-        cursor: pointer;
-
-        &.active {
-            .action-gradient;
-        }
-
-        .icon {
-            float: left;
-        }
+        line-height: @height-homeBtn;
     }
 
-    .rightHeaderArea {
+    .rightArea {
+        .size(@height: 30px);
         padding-left: 20px;
-        float: left;
-    }
-
-    .text {
-        .font(@size: 14px, @color: @color-white);
-        float: left;
-        margin: 8px 0 0 3px;
-        text-shadow: 1px 1px @color-text-signout-lightGray;
+        float: right;
+        border-right: 1px solid @color-border-pinkish-grey;
+        .vertical-align;
     }
 }
 
@@ -1744,17 +1726,6 @@ body.tooltipOff {
         display: none;
     }
     #datastorePanel {
-        #contentHeaderLeft {
-            .flex(0 0 200px);
-            .buttonArea {
-                .flex(1 1 100px);
-                width: 100%;
-            }
-        }
-        #contentHeaderRight {
-            .flex(0 0 25%);
-        }
-
         .contentViewLeft {
             width: 200px !important;
             .mainButtonArea .btn {

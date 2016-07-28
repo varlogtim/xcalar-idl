@@ -373,6 +373,7 @@ module.exports = {
         "POINT": "POINT TO NEW DATASET",
         "Datasets": "Dataset Refs",
         "DATASET": "DATASET",
+        "DSIn": "DATASTORE/IN",
         "DATACART": "DATA CART",
         "IN": "IN",
         "OUT": "OUT",

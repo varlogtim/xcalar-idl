@@ -37,36 +37,31 @@ window.DataStore = (function($, DataStore) {
         .then(deferred.resolve)
         .then(deferred.reject);
 
-        return (deferred.promise());
+        return deferred.promise();
     };
 
     function setupViews() {
         // main menu
-        $('#dataStoresTab').find('.subTab').click(function() {
+        $("#dataStoresTab").find(".subTab").click(function() {
             var $button = $(this);
-            if ($button.hasClass('active')) {
+            if ($button.hasClass("active")) {
                 return;
             }
 
-            var $exploreView = $('#exploreView');
-            var $exportView = $('#exportView');
-            var $contentHeaderRight = $('#contentHeaderRight');
-            var $contentHeaderMidText = $('#contentHeaderMid').find('.text');
+            var $panel = $("#datastorePanel");
+            var $title = $panel.find(".title");
 
-            if ($button.attr('id') === "outButton") {
-                $exploreView.hide();
-                $contentHeaderRight.hide();
-                $exportView.show();
-                $contentHeaderMidText.text(DSTStr.Export);
+            if ($button.attr("id") === "outButton") {
+                var $exportView = $("#exportView");
+                $panel.removeClass("in").addClass("out");
+                $title.text(DSTStr.IN);
                 if ($exportView.hasClass("firstTouch")) {
                     DSExport.refresh();
                     $exportView.removeClass("firstTouch");
                 }
             } else {
-                $exploreView.show();
-                $contentHeaderRight.show();
-                $exportView.hide();
-                $contentHeaderMidText.text(DSTStr.DS);
+                $panel.removeClass("out").addClass("in");
+                $title.text(DSTStr.OUT);
                 DSTable.refresh();
             }
             // button switch styling handled in mainMenu.js
