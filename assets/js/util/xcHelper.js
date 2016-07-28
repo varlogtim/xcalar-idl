@@ -672,12 +672,14 @@ window.xcHelper = (function($, xcHelper) {
     xcHelper.toggleListGridBtn = function($btn, ToListView, noRefresh) {
         if (ToListView) {
             // toggle to list view
-            $btn.removeClass("gridView").addClass("listView");
+            $btn.removeClass("gridView").addClass("listView")
+                .removeClass("xi-list-view").addClass("xi-grid-view");
             // suggest become 'to grid view'
             $btn.attr("data-original-title", TooltipTStr.ToGridView);
         } else {
             // toggle to grid view
-            $btn.removeClass("listView").addClass("gridView");
+            $btn.removeClass("listView").addClass("gridView")
+                .removeClass("xi-grid-view").addClass("xi-list-view");
             $btn.attr("data-original-title", TooltipTStr.ToListView);
         }
         // refresh tooltip

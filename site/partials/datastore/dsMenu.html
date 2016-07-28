@@ -1,0 +1,51 @@
+<!-- dataset menu -->
+<div class="iconSection">
+  <!-- point to data button -->
+  <% if (dicts.tutor.name !== "datastoreDemo1") { %>
+  <div id="importDataButton" class="action" title="<%= dicts.ds.Point %>" data-toggle="tooltip" data-placement="top" data-container="body">
+    <i class="icon xi-add-data"></i>
+  </div>
+  <% } else { %>
+  <div id="importDataButton" class="action" title="<%= dicts.ds.Point %>" data-toggle="tooltip" data-placement="top" data-container="body" data-introstep="1">
+    <i class="icon xi-add-data"></i>
+  </div>
+  <% } %>
+  <!-- add folder button -->
+  <% if (dicts.tutor.name !== "datastoreDemo2") { %>
+  <div id="addFolderBtn" class="action" title="<%= dicts.dsView.addFolderBtn %>" data-container="body" data-toggle="tooltip" data-placement="top">
+    <i class="icon xi-add-folder"></i>
+  </div>
+  <% } else { %>
+  <div id="addFolderBtn" class="action" data-introstep="10">
+    <i class="icon xi-add-folder"></i>
+  </div>
+  <% } %>
+  <i class="minimizeBtn icon xi-close fa-17"></i>
+  <!-- switch data store view -->
+  <% if (dicts.tutor.name !== "datastoreDemo2") { %>
+  <i id="dataViewBtn" class="right icon xi-list-view fa-17 gridView" data-toggle="tooltip" data-placement="top" data-original-title="<%= dicts.TooltipTStr.SwitchToListView %>" data-container="body"></i>
+  <% } else { %>
+  <i id="dataViewBtn" class="right icon xi-list-view fa-17 gridView" data-introstep="13"></i>
+  <% } %>
+  <!-- refresh icon -->
+  <i id="refreshDS" class="refresh right icon xi-refresh fa-17" data-toggle="tooltip" data-placement="top" data-container="body" title="" data-original-title="<%= dicts.common.Refresh %>"></i>
+</div>
+<div class="titleSection no-selection">
+  <header>
+    <span><%= dicts.ds.Datasets %> (<span class="numDataStores">0</span>)</span>
+  </header>
+  <div id="forwardFolderBtn" class="xc-action xc-disabled" title="<%= dicts.dsView.Forward %>" data-container="body" data-toggle="tooltip" data-placement="top">
+    <i class="icon xi-next fa-12"></i>
+  </div>
+    <div id="backFolderBtn" class="xc-action xc-disabled" title="<%= dicts.dsView.Back %>" data-container="body" data-toggle="tooltip" data-placement="top">
+    <i class="icon xi-previous fa-12"></i>
+  </div>
+</div>
+<div id="dsListSection" class="mainSection">
+  <div class="pathSection"></div>
+  <!-- Grid View -->
+  <div class="gridViewWrapper">
+    <div class="gridView gridItems"></div>
+  </div>
+</div>
+include "gridViewMenu.html"

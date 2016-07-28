@@ -459,7 +459,8 @@ DSTStr = {
     'FileOversize': 'Too many files in the folder, cannot read, please load with the url directly',
     'InvalidHDFS': 'Invalid HDFS path, valid format is: "hostname/pathToFile"',
     'LoadErr': 'Error: <error>, Error File: <file>',
-    'Excel': "EXCEL"
+    'Excel': "EXCEL",
+    'Home': 'Home'
 };
 
 DSFormTStr = {

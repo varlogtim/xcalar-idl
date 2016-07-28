@@ -78,8 +78,8 @@ input {
 /* Form Data View Section */
 .dsFormView {
     display: block;
-    .position(absolute, @top: @height-homeBtn, @left: 255px);
-    .size(@width: ~"calc(100% - 510px)", @height: ~"calc(100% - 37px)", @min-width: 514px);
+    .position(absolute, @top: @height-homeBtn);
+    .size(@width: ~"calc(100% - 255px)", @height: ~"calc(100% - 37px)", @min-width: 514px);
     background-color: @color-background-white;
     font-size: 13px;
     overflow: hidden;
@@ -780,149 +780,76 @@ input {
     }
 }
 
-/* Content Left */
-#datastorePanel {
-    .contentViewLeft {
-        .size(@width: 255px, @height: 100%);
-        .flex-display;
-        float: left;
-        .flex-flow(column);
-        box-shadow: inset -2px 2px 6px 0 rgba(0,0,0,.3);
-        background-color: @color-background-darkGray;
-
-        .headingArea {
-            height: 35px;
-            .flex(0 0 35px);
-            .gray-gradient;
-            text-align: center;
-            padding-top: 6px;
-            position: relative;
-            .font(@weight: 700, @size: 15px, @color: @color-text-darkdarkGray);
-            box-shadow: inset -10px 0px 10px -10px rgba(0, 0, 0, 0.3);
-
-            span {
-                line-height: 22px;
-            }
-
-            .buttonGroup {
-                .position(absolute, @right: 7px);
-                display: inline-block;
-                .noSelection;
-                cursor: default;
-
-                .btn {
-                    .size(23px, 23px);
-                    margin-left: 2px;
-                }
-            }
-        }
-
-        .mainButtonArea {
-            border-bottom: 1px solid rgba(0,0,0,0.25);
-            height: 59px;
-            .flex(0 0 59px);
-
-            .btn {
-                .vertical-align;
-                display: block;
-                margin: 0 auto;
-
-                .icon {
-                    .image("../../images/datastore/db-sm.png", 50%, 50%);
-                }
-            }
-        }
-
-        .gridViewButtonArea {
-            .flex(0 0 31px);
-            .flex-display;
-            height: 31px;
-            position: relative;
-            background-color: @color-background-bottomGrayMed;
-            cursor: default;
-
-            .gridViewBtn {
-                .flex(1 1 auto);
-                height: 100%;
-                cursor: pointer;
-                .gray-gradient;
-                &:hover {
-                    .gray-inverse-gradient;
-                }
-
-                &.disabled {
-                    opacity: 0.3;
-                    background: @color-background-darkGray;
-                    cursor: default;
-                    pointer-events: none;
-                }
-                .icon {
-                    .size(25px, 25px);
-                    margin: 3px 5px 3px 8px;
-                    float: left;
-                }
-
-                .label {
-                    display: inline-block;
-                    .transition (opacity 0.6s);
-                    .font(@size: 11px, @line-height: 32px, @color: @color-text-black);
-                    text-align: center;
-                    float: left;
-                }
-            }
-
-            .backBtn {
-                .label {
-                    font-size: 12px;
-                }
-                &.active {
-                    .gray-inverse-gradient;
-                    opacity: 1.0;
-                }
-
-                .icon {
-                    .image("../../images/datastore/upFolder.png");
-                }
-            }
-            .addBtn {
-                border-left: 1px solid rgba(118, 118, 118, 0.5);
-                border-right: 1px solid rgba(118, 118, 118, 0.5);
-                .icon {
-                    .image("../../images/datastore/addFolder.png");
-                }
-            }
-
-            .deleteBtn {
-                box-shadow: inset -11px 0px 8px -10px rgba(0, 0, 0, 0.3);
-                border-right: none;
-                .icon {
-                    .image("../../images/datastore/deleteFolder.png");
-                }
-
-                &.disabled {
-                    box-shadow: inset -11px 0px 8px -10px rgba(0, 0, 0, 0.8);
-                }
-            }
-        }
+#dsListSection {
+    .pathSection {
+        .size(@height: 20px);
+        margin-bottom: 5px;
+        padding: 0 15px;
+        font-size: 12px;
+        .textOverflowOneLine;
     }
+
     .gridViewWrapper {
-        .flex(1 1 auto);
-        padding: 9px 5px;
-        padding-left: 8px;
-        position: relative;
+        .size(@height: ~"calc(100% - 25px)");
+        .position(relative);
         overflow-x: hidden;
         overflow-y: auto;
-        border-top: 1px solid rgba(154,154,154,1);
 
         .gridItems {
-            .size(@width: 240px);
+            .size(@width: 100%);
 
-            .grid-unit.display {
+            &.drag {
+                .dragWrap {
+                  display: block;
+                  z-index: 99;
+                }
+            }
+
+            .dragWrap {
+                display: none;
+            }
+
+            .waitingIcon {
+                z-index: 20;
+            }
+
+            .xc-hidden .waitingIcon {
+              display: none !important;
+            }
+
+            .grid-unit {
+                opacity: 0.8;
+
+                &:hover {
+                    opacity: 1;
+                }
+
+                &.active {
+                    background-color: @color-bg-light-navy;
+                }
+
                 > .label {
-                   textarea {
-                        background: @color-background-white;
+                    textarea {
+                        background-color: transparent;
+                        color: @color-white;
                         outline: none;
                         resize: none;
+                    }
+                }
+
+                .dsCount {
+                    .font(@weight: 700, @color: @color-font-dusk-blue);
+                }
+
+                .edit, .delete {
+                    display: none;
+                    .size(@width: 25px, @height: 100%);
+                    float: right;
+                    cursor: pointer;
+
+                    &:before {
+                        display: inline-block;
+                        .vertical-align;
                     }
                 }
             }
@@ -930,32 +857,22 @@ input {
             &.gridView {
                 overflow: visible;
                 padding-bottom: 2px;
-                .grid-unit.hidden {
-                    > .gridIcon, > .listIcon, > .label, > .dsCount,
-                    > .dragWrap {
-                        display: none !important;
-                    }
-                }
 
-                .grid-unit:first-of-type {
-                    clear: left;
-                }
-
-                .grid-unit.display {
+                .grid-unit {
                     .gridViewForGrid;
 
                     > .label {
                         display: block;
-                        padding: 0;
                         background-color: transparent;
                         text-align: center;
                     }
+
                     .waitingIcon {
                         left: 8px;
                     }
                 }
 
-                .grid-unit.ds.display > .dragWrap {
+                .grid-unit.ds > .dragWrap {
                     .size(@width: ~"calc(50% + 7px)", @height: 100%);
                     position: absolute;
                     background: transparent;
@@ -964,7 +881,7 @@ input {
                         // background-color: blue;
                         left: -7px;
                         &.active {
-                            box-shadow: inset 2px 0px 0px @color-shadow-topAction;
+                             box-shadow: inset 2px 0px 0px @color-shadow-topAction;
                         }
                     }
 
@@ -977,10 +894,8 @@ input {
                     }
                 }
 
-                .grid-unit.folder.display {
+                .grid-unit.folder {
                     > .label {
-                        .position(relative);
-
                         &.focused {
                             overflow: visible;
                         }
@@ -988,7 +903,7 @@ input {
                         textarea {
                             .size(@width: 130%, @height: 15px, @min-height: 15px, @max-height: 30px);
                             .position(absolute, @left: -7px);
-                            box-shadow: inset 0px 0px 3px black;
+                            box-shadow: inset 0px 0px 3px @color-white;
                             padding: 1px 1px;
                             .font(@size: 9px);
                             text-align: center;
@@ -996,9 +911,9 @@ input {
                     }
 
                     .dsCount {
-                        .position(absolute, 12px, 0, 0, 2px);
-                        .size(@width: 50px, @height: 20px);
-                        .font(@weight: 700, @color: @color-text-blue);
+                        .position(absolute, @top: 13px);
+                        .size(@width: @width-grid, @height: 20px);
+                        .font(@size: 13px);
                     }
 
                     > .dragWrap {
@@ -1033,18 +948,26 @@ input {
             }
 
             &.listView {
-                padding: 4px 5px;
-                padding-left: 2px;
-
                 .grid-unit {
+                    .size(@height: @height-grid-list);
+                    box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.2), inset 0 -1px 0 0 rgba(0, 0, 0, 0.2);
                     .listViewForGrid;
 
+                    .gridIcon {
+                        margin-left: 5px;
+                    }
+
+                    &:hover {
+                        .edit, .delete {
+                            display: inline-block;
+                        }
+                    }
+
                     > .label {
-                        width: ~"calc(100% - 25px)";
-                        padding-right: 30px;
-                        white-space: nowrap;
-                        overflow: hidden;
-                        line-height: 25px;
+                        .size(@max-width: ~"calc(100% - 75px)", @height: @height-grid-list);
+                        .font(@size: 11px, @line-height: @height-grid-list);
+                        .textOverflowOneLine;
+                        float: left;
                     }
                 }
 
@@ -1054,16 +977,13 @@ input {
                     background: transparent;
 
                     &.leftTopDragWrap {
-                        top: -5px;
-
                         &.active {
                             box-shadow: inset 0px 2px 0px @color-shadow-topAction;
                         }
                     }
 
                     &.rightBottomDragWrap {
-                        top: 12.5px;
-
+                        top: 17.5px;
                         &.active {
                             box-shadow: 0px 2px 0px @color-shadow-topAction;
                         }
@@ -1071,26 +991,21 @@ input {
                 }
 
                 .grid-unit.folder {
-                    .grid-unit {
-                        .size(@width: 95%, @max-width: 230px);
-                        margin-left: 5%;
-                        display: block;
-                    }
-
                     > .label {
                         textarea {
-                            .size(100%, 100%);
-                            .font(@size: 11px, @line-height: 25px);
-                            white-space: nowrap;
-                            overflow: hidden;
+                            width: 100%;
+                            height: @height-grid-list !important;
+                            .font(@size: 11px, @line-height: @height-grid-list);
+                            .textOverflowOneLine;
+                            background: transparent;
                         }
                     }
 
-                    .dsCount {
-                        .position(absolute, @top: 3px, @right: 8px, @bottom: 0);
-                        .size(@width: 45px, @height: 25px);
-                        .font(@weight: 900, @color: @color-text-blue);
-                        text-align: right;
+                    > .dsCount {
+                        .size(@width: 25px, @height: 25px);
+                        .position(absolute, @top: 11px, @left: 14px);
+                        .font(@size: 11px);
+                        text-align: left;
                     }
 
                     > .dragWrap {
@@ -1099,8 +1014,7 @@ input {
                         background: transparent;
 
                         &.leftTopDragWrap {
-                            top: -5px;
-                            height: 9.17px;
+                            height: 10px;
 
                             &.active {
                                 box-shadow: inset 0px 2px 0px @color-shadow-topAction;
@@ -1108,8 +1022,8 @@ input {
                         }
 
                         &.rightBottomDragWrap {
-                            top: 20.84px;
-                            height: 9.16px;
+                            top: 25px;
+                            height: 10px;
 
                             &.active {
                                 box-shadow: 0px 2px 0px @color-shadow-topAction;
@@ -1117,43 +1031,22 @@ input {
                         }
 
                         &.midDragWrap {
-                            height: 16.67px;
-                            top: 4.17px;
+                            height: 15px;
+                            top: 10px;
                         }
                     }
                 }
-
-                .grid-unit.collapse {
-                    .grid-unit {
-                        display: none !important;
-                    }
-                    &.folder > .listIcon .icon {
-                        .image("../../images/datastore/folder-sm.png", 50%, 50%)
-                    }
-                }
-            }
-
-            & .dragWrap {
-                z-index: -1;
-            }
-
-            &.drag .dragWrap {
-                z-index: 99;
-            }
-
-            .waitingIcon {
-                z-index: 20;
-            }
-            .hidden .waitingIcon {
-                display: none !important;
             }
         }
     }
-    /* End Of Content Left */
+  /* End Of Content Left */
+}
 
+/* Content Left */
+#datastorePanel {
     /* Content Mid */
     .contentViewMid {
-        .size(@width: ~"calc(100% - 510px)", @height: 100%);
+        .size(@width: ~"calc(100% - 255px)", @height: 100%);
         .flex-display;
         .flex-flow(column);
         float: left;
@@ -1371,13 +1264,6 @@ input {
     .disabled {
         opacity: @opacity-disabled;
         pointer-events: none;
-    }
-
-    &.listView {
-        .back, .moveUp, .open {
-            // these options are weird in list view, so not show them
-            display: none;
-        }
     }
 
     &.uneditable {

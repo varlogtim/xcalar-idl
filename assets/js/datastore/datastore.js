@@ -18,7 +18,7 @@ window.DataStore = (function($, DataStore) {
         if (numDatasets != null) {
             $numDataStores.text(numDatasets);
         } else {
-            var numDS = $("#exploreView .gridItems .ds").length;
+            var numDS = $("#dsListSection .gridItems .ds").length;
             $numDataStores.text(numDS);
         }
     };

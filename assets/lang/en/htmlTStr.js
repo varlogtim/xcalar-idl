@@ -387,7 +387,8 @@ module.exports = {
     },
 
     "dsView": {
-        "backFolderBtn": "See previous folders",
+        "Back": "Click to go back",
+        "Forward": "Click to go Forward",
         "addFolderBtn": "Add New Folder",
         "delDSBtn": "Delete folder or dataset reference"
     },

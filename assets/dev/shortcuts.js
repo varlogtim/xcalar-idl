@@ -361,10 +361,10 @@ window.Shortcuts = (function($, Shortcuts) {
         name = name.trim();
         var ds1Icon;
         var dsName1;
-        var exists = $('#exploreView .gridItems')
+        var exists = $('#dsListSection .gridItems')
                     .find('[data-dsname*="'+ name + '"]').length;
         if (exists) {
-            ds1Icon = '#exploreView .gridItems ' +
+            ds1Icon = '#dsListSection .gridItems ' +
                  '[data-dsname*="' + name + '"]:eq(0)';
         } else {
             dsName1 = name.replace(/\s+/g, "") + Math.floor(Math.random() * 10000);

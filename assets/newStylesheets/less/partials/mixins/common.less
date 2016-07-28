@@ -678,61 +678,44 @@
 
 // grid-unit
 .gridViewForGrid() {
-    .size(@width: 53px, @height: 65px);
+    .size(@width: @width-grid, @height: @width-grid);
     .position(relative);
-    margin: 3px;
-    margin-top: 7px;
-    margin-bottom: 0px;
     text-align: center;
     float: left;
     display: inline-block;
 
     > .gridIcon {
         display: inline-block;
-        .size(@width: 50px, @height: 40px);
+        .size(@width: 35px, @height: @width-grid - 25px);
     }
 
     &.ds > .gridIcon {
-        .image("../../images/datastore/db-lg.png", 7px, 3px);
+        .image("../../images/datastore/db-lg.png", 50%, 50%);
     }
 
     &.folder > .gridIcon {
-        .image("../../images/datastore/folder-lg.png", 6px, 3px);
-        background-size: 39px 33px;
+        .image("../../images/datastore/folder-lg.png", 50%, 50%);
     }
 
     &.target > .gridIcon {
-        .image("../../images/datastore/target-lg.png", 6px, 3px);
+        .image("../../images/datastore/target-lg.png", 50%, 50%);
         background-size: 45px 35px;
     }
 
-    > .listIcon {
-        display: none;
-    }
-
     > .label {
+        .position(relavite, @top: -2px);
+        .size(@width: @width-grid, @height: 20px);
         .font(@size: 9px, @weight: 600);
-        .transition (opacity 0.6s);
-        // .size(@width: 45px, @height: 20px);
-        .size(@width: 53px, @height: 20px);
         line-height: 10px;
         white-space: normal;
         word-break: break-word;
         overflow: hidden;
+        padding: 0 5px;
     }
 
     &.inactive {
         .icon, .label {
             opacity: 0.5;
-            .transition (opacity 0.6s);
-        }
-    }
-
-    &.active {
-        background: @color-background-lightLightGray;
-        box-shadow: 0px 0px 0px 2px @color-shadow-topAction;
-        .label {
-            color: @color-mineShaft;
         }
     }
 }
@@ -742,58 +725,38 @@
     display: block;
     clear: both;
     float: none;
-    width: 230px;
+    .size(@width: 100%);
     text-align: left;
-    margin: 10px 0px 0px 0px;
-    background-color: transparent;
 
-     > .label {
-        .size(@height: 25px);
-        .font(@size: 11px, @line-height: 24px);
-        .rounded(0 3px 3px 0);
+    > .label {
+        .font(@size: 11px);
         padding: 0 10px;
-        background-color: @color-background-white;
-        box-shadow: 1px 1px 1px 1px rgba(0,0,0,.2);
     }
 
     > .gridIcon {
-        display: none;
-    }
-
-    > .listIcon {
-        .size(@width: 25px, @height: 25px);
         display: inline-block;
-        .gray-gradient;
+        .size(@width: 25px, @height: 100%);
+        .font(@size: 17px);
         float: left;
-        .rounded(3px 0 0 3px);
-        box-shadow: -1px 1px 1px 1px rgba(0,0,0,.2);
 
-        .icon {
-            .size(25px, 25px);
+        &:before {
             display: inline-block;
+            .center-align;
         }
     }
 
-    &.ds > .listIcon .icon {
-        .image("../../images/datastore/db-sm.png", 50%, 50%);
+    &.ds > .gridIcon {
+        .image("../../images/datastore/db-lg.png", 50%, 50%);
+        background-size: 15px 15px;
     }
 
-    &.folder > .listIcon .icon {
-        .image("../../images/datastore/folder-sm-open.png", 50%, 50%);
+    &.folder > .gridIcon {
+        .image("../../images/datastore/folder-lg.png", 50%, 50%);
+        background-size: 15px 15px;
     }
 
-    &.target > .listIcon .icon {
+    &.target > .gridIcon {
         .image("../../images/datastore/target-sm.png", 50%, 50%);
-    }
-
-    &.active {
-        > .label {
-            box-shadow: 1px 0px 1px 1px @color-shadow-topAction;
-        }
-        > .listIcon {
-            .action-gradient !important;
-            box-shadow: 0px 0px 0px 1px @color-shadow-topAction;
-        }
     }
 
     > .waitingIcon {

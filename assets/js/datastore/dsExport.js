@@ -188,9 +188,6 @@ window.DSExport = (function($, DSExport) {
     function getGridHtml(name) {
         var gridHtml = '<div class="target grid-unit display">' +
                             '<div class="gridIcon"></div>' +
-                            '<div class="listIcon">' +
-                                '<span class="icon"></span>' +
-                            '</div>' +
                             '<div class="label" data-dsname="' + name +
                             '" data-toggle="tooltip" data-container="body"' +
                             ' data-placement="right" title="' + name + '">' +

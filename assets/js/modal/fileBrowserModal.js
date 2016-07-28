@@ -1174,9 +1174,6 @@ window.FileBrowser = (function($, FileBrowser) {
                 '<div title="' + name + '" class="' +
                     gridClass + visibilityClass + ' grid-unit">' +
                     '<div class="gridIcon"></div>' +
-                    '<div class="listIcon">' +
-                        '<span class="icon"></span>' +
-                    '</div>' +
                     '<div class="label" data-name="' + name + '">' +
                         name +
                     '</div>' +

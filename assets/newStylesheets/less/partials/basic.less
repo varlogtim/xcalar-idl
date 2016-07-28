@@ -70,6 +70,24 @@ body {
     display: none !important;
 }
 
+.xc-disabled {
+    opacity: @opacity-disabled !important;
+    pointer-events: none;
+}
+
+.xc-action {
+    cursor: pointer;
+    .xc-hover;
+}
+
+.xc-hover {
+    opacity: @opacity-unhover;
+
+    &:hover {
+        opacity: @opacity-hover;
+    }
+}
+
 &::-webkit-scrollbar {
     .size(11px, 11px);
     background: transparent;
@@ -205,9 +223,9 @@ body {
 
         // XI2 temporarily, importdata view should be redone & this removed
         #importDataView {
-            @formWidth: @menuWidth + 510px;
+            @formWidth: @menuWidth + 255px;
             width: ~"calc(100% - @{formWidth})";
-            left: 255px + @menuWidth;
+            left: @menuWidth;
         }
 
         #dagPanelContainer {

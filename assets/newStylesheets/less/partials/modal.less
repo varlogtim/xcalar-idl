@@ -2954,11 +2954,8 @@ html.microsoft {
                 .fileSize {
                     .size(@width: ~"calc(25% - 16px)");
                 }
-                .gridIcon {
-                    display: none;
-                }
 
-                .listIcon {
+                .gridIcon {
                     margin-left: 10px;
                     .size(@width: 25px, @height: 30px);
                     .icon {
@@ -2979,17 +2976,17 @@ html.microsoft {
                         background: @colorOpaque-blue;
                         color: @color-text-blue;
                     }
-                    .listIcon {
+                    .gridIcon {
                         border-right: none;
                         .action-gradient;
                     }
                 }
-                &.ds > .listIcon .icon {
-                    .image("../../images/datastore/db-sm.png", 50%, 40%);
-                }
-                &.folder > .listIcon .icon {
-                    .image("../../images/datastore/folder-sm.png", 50%, 50%);
-                }
+                // &.ds > .listIcon .icon {
+                //     .image("../../images/datastore/db-sm.png", 50%, 40%);
+                // }
+                // &.folder > .listIcon .icon {
+                //     .image("../../images/datastore/folder-sm.png", 50%, 50%);
+                // }
             }
         }
     }

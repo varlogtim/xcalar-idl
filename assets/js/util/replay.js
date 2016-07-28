@@ -659,7 +659,7 @@ window.Replay = (function($, Replay) {
     replayFuncs[SQLOps.DestroyDS] = function(options) {
         // UI simulation replay
         var deferred = jQuery.Deferred();
-        var $gridView = $("#exploreView").find(".gridItems");
+        var $gridView = $("#dsListSection").find(".gridItems");
         var $ds = DS.getGrid(options.dsId);
 
         var dSLen = $gridView.find(".ds").length;

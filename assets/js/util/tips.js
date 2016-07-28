@@ -210,7 +210,7 @@ window.Tips = (function($, Tips) {
     function addDatastoreTips() {
         var dataView = "#datastorePanel";
         // grid view section
-        setTooltip($("#exploreView .gridView > .grid-unit:last-child"), {
+        setTooltip($("#dsListSection .gridItems > .grid-unit:last-child"), {
             "title"    : TipsTStr.DragGrid,
             "container": dataView,
             "placement": "right"
