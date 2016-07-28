@@ -190,8 +190,8 @@ window.DagFunction = (function($, DagFunction) {
 
         if (rightOrigin) {
             if (rightOrigin in alreadySeen) {
-                rightTree.descendents.push(treeNode);
                 rightTree = alreadySeen[rightOrigin];
+                rightTree.descendents.push(treeNode);
             } else {
                 rightNode = findNodeInValArray(rightOrigin, valArray);
                 rightTree = constructTree(rightNode, valArray, alreadySeen,

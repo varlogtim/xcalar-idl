@@ -425,7 +425,10 @@ window.QueryManager = (function(QueryManager, $) {
     }
 
     function updateQueryTextDisplay(query) {
-        $queryDetail.find(".operationSection .content").text(query);
+        if (query) {
+            query = query.replace(/;/g, ";<br>");
+        }
+        $queryDetail.find(".operationSection .content").html(query);
     }
 
     function updateStatusDetail(info, id) {
