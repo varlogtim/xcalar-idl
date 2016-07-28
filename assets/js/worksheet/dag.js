@@ -969,6 +969,7 @@ window.Dag = (function($, Dag) {
 
         XcalarGetDag(tableName)
         .then(function(dagObj) {
+            DagFunction.construct(dagObj, tableId);
             if (tablesToRemove) {
                 for (var i = 0, len = tablesToRemove.length; i < len; i++) {
                     var tblId = tablesToRemove[i];
@@ -1080,6 +1081,11 @@ window.Dag = (function($, Dag) {
         });
 
         return (deferred.promise());
+    };
+
+    Dag.destruct = function(tableId) {
+        $('#dagWrap-' + tableId).remove();
+        DagFunction.destruct(tableId);
     };
 
     Dag.createDagImage = function(nodeArray, $container, options) {
@@ -2459,27 +2465,6 @@ window.Dag = (function($, Dag) {
         // }
     }
 
-    function getInputType(api) {
-        var val = api.substr('XcalarApi'.length);
-        var inputVal = "";
-        switch (val) {
-            case ('BulkLoad'):
-                inputVal = 'load';
-                break;
-            case ('GetStat'):
-                inputVal = 'stat';
-                break;
-            case ('GetStatByGroupId'):
-                inputVal = 'statByGroupId';
-                break;
-            default:
-                inputVal = val[0].toLowerCase() + val.substr(1);
-                break;
-        }
-        inputVal += 'Input';
-        return (inputVal);
-    }
-
     function drawDagNode(dagNode, storedInfo, dagArray, index,
                          parentChildMap, children, depth, condensedDepth,
                          isPrevHidden, group, options) {
@@ -2598,7 +2583,7 @@ window.Dag = (function($, Dag) {
                         'style="top:' + top + 'px;right: ' +
                         tableWrapRight + 'px;">' + dagOrigin;
 
-        var key = getInputType(XcalarApisTStr[dagNode.api]);
+        var key = DagFunction.getInputType(XcalarApisTStr[dagNode.api]);
         var parents = Dag.getDagSourceNames(parentChildMap, index, dagArray);
         var dagInfo = getDagNodeInfo(dagNode, key, parents);
         var state = dagInfo.state;
@@ -2713,7 +2698,7 @@ window.Dag = (function($, Dag) {
             if (numParents === 2) {
                 additionalInfo += " & " + parents[1];
             }
-            var key = getInputType(XcalarApisTStr[dagNode.api]);
+            var key = DagFunction.getInputType(XcalarApisTStr[dagNode.api]);
             var operation = key.substring(0, key.length - 5);
             var info = getDagNodeInfo(dagNode, key, parents);
             var resultTableName = getDagName(dagNode);

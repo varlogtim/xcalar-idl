@@ -355,7 +355,7 @@ window.TblManager = (function($, TblManager) {
         } else {
             $("#xcTableWrap-" + tableId).remove();
             $("#rowScroller-" + tableId).remove();
-            $('#dagWrap-' + tableId).remove();
+            Dag.destruct(tableId);
             if (gActiveTableId === tableId) {
                 $('#rowInput').val("").data("val", "");
                 $('#numPages').empty();
@@ -443,7 +443,7 @@ window.TblManager = (function($, TblManager) {
         if (options.remove) {
             $("#xcTableWrap-" + tableId).remove();
             $("#rowScroller-" + tableId).remove();
-            $("#dagWrap-" + tableId).remove();
+            Dag.destruct(tableId);
         } else {
             $("#xcTableWrap-" + tableId).addClass('tableToRemove');
             $("#rowScroller-" + tableId).addClass('rowScrollerToRemove');
@@ -711,7 +711,7 @@ window.TblManager = (function($, TblManager) {
     TblManager.hideWorksheetTable = function(tableId) {
         $("#xcTableWrap-" + tableId).remove();
         $("#rowScroller-" + tableId).remove();
-        $('#dagWrap-' + tableId).remove();
+        Dag.destruct(tableId);
 
         if (gActiveTableId === tableId) {
             gActiveTableId = null;
