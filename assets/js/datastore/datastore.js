@@ -49,19 +49,19 @@ window.DataStore = (function($, DataStore) {
             }
 
             var $panel = $("#datastorePanel");
-            var $title = $panel.find(".title");
+            var $title = $panel.find(".topBar .title");
 
             if ($button.attr("id") === "outButton") {
                 var $exportView = $("#exportView");
                 $panel.removeClass("in").addClass("out");
-                $title.text(DSTStr.IN);
+                $title.text(DSTStr.OUT);
                 if ($exportView.hasClass("firstTouch")) {
                     DSExport.refresh();
                     $exportView.removeClass("firstTouch");
                 }
             } else {
                 $panel.removeClass("out").addClass("in");
-                $title.text(DSTStr.OUT);
+                $title.text(DSTStr.IN);
                 DSTable.refresh();
             }
             // button switch styling handled in mainMenu.js

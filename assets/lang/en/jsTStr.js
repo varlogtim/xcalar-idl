@@ -438,6 +438,8 @@ DFGTStr = {
 DSTStr = {
     'UnknownUser': 'Unknow User',
     'DS': 'DATASET',
+    'IN': 'DATASTORE/IN',
+    'OUT': 'DATASTORE/OUT',
     'Export': 'EXPORT FORM',
     'DelDS': 'Delete Dataset Reference',
     'DelDSFail': 'Delete Dataset Reference Failed',
