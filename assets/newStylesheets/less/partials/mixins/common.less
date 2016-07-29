@@ -278,6 +278,48 @@
     word-wrap: break-word;
 }
 
+/* BUTTON STYLING */
+.btn {
+    .noSelection;
+    display: inline-block;
+    border: 0;
+    outline: 0;
+    .font(@family: @font-base, @color: @color-white, @weight: 600, @size: 14px, @line-height: 30px);
+    letter-spacing: 0.5px;
+    .textOverflowOneLine;
+    text-align: center;
+    .size(150px, 36px);
+    background-color: @color-bg-select-blue;
+
+    &:hover, &:focus {
+        // xi2 to do
+    }
+}
+
+.btn-small {
+    .size(30px, 30px);
+    line-height: 30px;
+    i.icon {
+        line-height: 30px;
+    } 
+}
+
+.btn-large {
+    .size(@width: 230px);
+}
+
+.btn-cancel {
+    background-color: @color-bg-pinkish-grey;
+    &:hover, &:focus {
+        // xi2 to do
+    }
+}
+
+.btn-disabled {
+    opacity: @opacity-disabled;
+    pointer-events: none;
+}
+
 /* DROP DOWN COLUMN STYLING */
 .dropDown() {
     .dropdownBox {

@@ -411,40 +411,6 @@ body {
     visibility: visible;
 }
 
-.btn {
-    .noSelection;
-    display: inline-block;
-    border: 0;
-    outline: 0;
-    .font(@family: @font-base, @color: @color-text-transparentWhite);
-    .textOverflowOneLine;
-    letter-spacing: 0.5px;
-    text-align: center;
-
-    span {
-        .size(100%, 100%);
-        display: inline-block;
-        background-repeat: no-repeat;
-        background-position: 50% 50%;
-    }
-}
-
-.btnSmall {
-    .size(22px, 22px);
-}
-
-.btnMid {
-    .size(@width: 150px, @height: 36px);
-    .font(@weight: 600, @size: 14px, @line-height: 30px);
-    text-align: center;
-    padding: 0;
-}
-
-.btnLarge {
-    .size(@width: 230px, @height: 30px);
-    .font(@size: 14px, @line-height: 30px, @color: @color-text-transparentWhite);
-}
-
 .iconBtn {
     .position(relative);
     // padding-right = padding-left + icon width
@@ -459,14 +425,6 @@ body {
     }
 }
 
-.btn-cancel {
-    color: @color-text-white;
-    .gray-gradient;
-
-    &:hover, &:focus {
-        .gray-inverse-gradient;
-    }
-}
 
 .btnInProgress {
     opacity: 0.7;
@@ -485,19 +443,6 @@ body {
             margin-left: 1px;
         }
     }
-}
-
-.btnInactive {
-    .gray-gradient;
-    pointer-events: none;
-
-    &:hover, &:focus {
-        .gray-gradient;
-    }
-}
-
-.btnDeselected {
-    opacity: @opacity-disabled;
 }
 
 .checkboxSection {

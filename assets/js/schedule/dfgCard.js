@@ -305,7 +305,7 @@ window.DFGCard = (function($, DFGCard) {
 
             html += '<div class="dagWrap clearfix">' +
                         '<div class="header clearfix">' +
-                            '<div class="btn btnSmall infoIcon">' +
+                            '<div class="btn btn-small infoIcon">' +
                                 '<i class="icon xi-info-rectangle"></i>' +
                             '</div>' +
                             '<div class="tableTitleArea">' +

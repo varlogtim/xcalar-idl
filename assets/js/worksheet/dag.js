@@ -998,7 +998,7 @@ window.Dag = (function($, Dag) {
                 '<div class="dagWrap clearfix" id="dagWrap-' +
                     tableId + '" data-id="' + tableId + '">' +
                 '<div class="header clearfix">' +
-                    '<div class="btn btnSmall infoIcon">' +
+                    '<div class="btn infoIcon">' +
                         '<i class="icon xi-info-rectangle"></i>' +
                     '</div>' +
                     '<div class="tableTitleArea">' +
@@ -1012,19 +1012,19 @@ window.Dag = (function($, Dag) {
                         '<div data-toggle="tooltip" data-container="body" ' +
                         'data-placement="top" title="' +
                             TooltipTStr.AddDataflow + '" ' +
-                        'class="btn btnSmall addDataFlow">' +
+                        'class="btn btn-small addDataFlow">' +
                             '<i class="icon xi-add-dataflow"></i>' +
                         '</div>' +
                         '<div data-toggle="tooltip" data-container="body" ' +
                         'data-placement="top" title="' +
                             TooltipTStr.NewTabQG + '" ' +
-                        'class="btn btnSmall newTabImageBtn">' +
+                        'class="btn btn-small newTabImageBtn">' +
                             '<i class="icon xi-open-img-newtab"></i>' +
                         '</div>' +
                         '<div data-toggle="tooltip" data-container="body" ' +
                         'data-placement="top" title="' +
                             TooltipTStr.SaveQG + '" ' +
-                        'class="btn btnSmall saveImageBtn">' +
+                        'class="btn btn-small saveImageBtn">' +
                             '<i class="icon xi-save_img"></i>' +
                         '</div>' +
                     '</div>' +
