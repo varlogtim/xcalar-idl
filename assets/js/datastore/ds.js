@@ -961,7 +961,7 @@ window.DS = (function ($, DS) {
     }
 
     function refreshHelper() {
-        xcHelper.showRefreshIcon($("#dsListSection .gridViewWrapper"));
+        xcHelper.showRefreshIcon($gridView);
         restoreDS(DS.getHomeDir())
         .then(KVStore.commit);
     }
@@ -1039,7 +1039,7 @@ window.DS = (function ($, DS) {
     // toggle between list view and grid view
     function toggleDSView(isListView, noRefreshTooltip) {
         var $btn = $("#dataViewBtn, #exportViewBtn");
-        var $allGrids = $gridView.add($('#exportView').find('.gridItems'));
+        var $allGrids = $gridView.add($("#dsExportListSection .gridItems"));
         // includes import and export grids
         xcHelper.toggleListGridBtn($btn, isListView, noRefreshTooltip);
 

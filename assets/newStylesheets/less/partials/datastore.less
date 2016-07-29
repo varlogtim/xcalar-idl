@@ -5,6 +5,11 @@
     overflow-x: auto;
     overflow-y: hidden;
 
+    .subPanel {
+        .size(100%, 100%);
+        overflow: hidden;
+    }
+
      &.in {
         .subPanel {
             &.in {
@@ -89,12 +94,75 @@ input {
     }
 }
 
+#datastore-in-view {
+    .leftSection {
+        .size(@width: ~"calc(100% - 300px)", @height: 100%);
+        float: left;
+
+        > .section {
+            .size(100%, 100%);
+        }
+    }
+
+    .rightSection {
+        .size(@width: 300px, @height: 100%);
+        float: left;
+
+        .buttonArea {
+            margin-top: 4px;
+            padding-bottom: 0px;
+            padding-left: 12px;
+            position: relative;
+            cursor: default;
+
+            &.cartOverflow {
+                box-shadow: 2px 2px 5px rgba(0,0,0,0.4);
+                .border {
+                    display: none;
+                }
+            }
+            .title {
+                font-size: 16px;
+                padding-left: 5px;
+                padding-top: 15px;
+                .size(@width:225px, @height: 45px);
+                text-align: center;
+            }
+            .border {
+                border-top: 1px solid @color-border-joinGray;
+                border-bottom: 1px solid @color-white;
+                width: 225px;
+            }
+        }
+
+        .btnLarge {
+            margin-top: 10px;
+            padding-right: 5px;
+            width: 225px;
+            font-size: 11px;
+            display: block;
+            text-align: left !important;
+            text-indent: 4px;
+
+            .icon {
+                left: -2px !important;
+            }
+
+            &#submitDSTablesBtn .icon {
+                .image("../../images/datastore/send-single.png", 0, 50%);
+            }
+            &#submitMultipleDBTablesBtn .icon {
+                .image("../../images/datastore/send-multiple.png", 0, 50%);
+            }
+            &#clearDataCart .icon {
+                .image("../../images/garbage.png", 0, 50%);
+            }
+        }
+    }
+}
+
 /* Form Data View Section */
-.dsFormView {
-    display: block;
-    .position(absolute, @top: @height-homeBtn);
-    .size(@width: ~"calc(100% - 255px)", @height: ~"calc(100% - 37px)", @min-width: 514px);
-    background-color: @color-background-white;
+#dsFormView {
     font-size: 13px;
     overflow: hidden;
 
@@ -117,9 +185,132 @@ input {
         padding: 0;
         float: right;
         text-shadow: 1px 1px rgba(0,0,0,.2);
-        // .flex(1 5 120px);
-        // max-width: 150px;
     }
+}
+
+#dsTableView {
+    .contentViewHeader {
+        height: 93px;
+        .flex-order(1);
+        box-shadow: 0 3px 2px rgba(0,0,0,.2);
+        padding: 10px 25px 0px;
+
+        .dbText {
+            display: inline-block;
+            float: left;
+            width: 100%;
+            overflow: hidden;
+
+            h2, p {
+                .textOverflow;
+            }
+        }
+
+        h2 {
+            display: block;
+            height: 26px;
+            .font(@size: 19px, @line-height: 25px, @color: @color-text-blue);
+        }
+
+        p {
+            display: block;
+            font-size: 13px;
+            margin: 2px 0 5px 0;
+        }
+    }
+
+    /* START DATASET TABLE */
+    .contentViewTable {
+        height: ~"calc(100% - 93px)";
+        .flex-order(2);
+        background-repeat: no-repeat;
+        background-position: center;
+        position: relative;
+
+        /* dataset title wrap */
+        .datasetTitleWrap {
+            .size(@height: 60px);
+            margin-top: 15px;
+            padding-left: 25px;
+
+
+            .titleInfo {
+                .size(@height: 60px);
+                float: left;
+
+                .heading {
+                    .size(@height: 20px);
+                    margin-bottom: 10px;
+                    .font(@size: 14px);
+                }
+
+                .dsInfo {
+                    .size(@height: 20px);
+                    .font(@size: 13px);
+                }
+            }
+
+            .buttonGroup {
+                .size(@height: 60px);
+                overflow: hidden;
+                float: right;
+                .font(@weight: 600, @color: @color-text-blue);
+                padding-right: 17px;
+
+                .buttonWrap {
+                    .size(@height: 20px);
+
+                    > div {
+                        float: left;
+                    }
+
+                    &:first-child {
+                        margin-bottom: 10px;
+                    }
+                }
+
+                .qMark {
+                    .vertical-align;
+                    margin-left: 5px;
+                }
+
+                .modifyDSButton {
+                    .size(@height: 20px);
+                    cursor: pointer;
+
+                    span {
+                       float: left;
+                       line-height: 20px;
+                    }
+
+                    .icon {
+                        margin-right: 8px;
+                        .size(@width: 20px, @height: 20px);
+                    }
+
+                     &.noCols .icon {
+                        .image("../../images/datastore/dsNoCol.png", 50%, 50%);
+                    }
+
+                    &.selectAll .icon {
+                        .image("../../images/select-all.png", 50%, 50%);
+                    }
+
+                    &.clear .icon {
+                        .image("../../images/select-none.png", 50%, 50%);
+                    }
+                }
+
+                .divider {
+                    .size(@width: 1px, @height: 20px);
+                    margin: 0 10px;
+                    background-color: @color-background-topGrayMed;
+                }
+            }
+        }
+        /* End of dataset title wrap */
+    }
+    /* END OF DATASET TABLE */
 }
 
 .formHelp {
@@ -369,19 +560,6 @@ input {
 }
 // End of Top Form Section
 
-@media screen and (max-width: 1300px) {
-    #datastorePanel {
-        .dsFormView {
-            .contentViewMidWrap {
-                .size(@width: 100%);
-            }
-        }
-
-        .btnMid {
-            width: 120px;
-        }
-    }
-}
 // End of Bottom Form Section
 // End of Data Form Section
 
@@ -776,24 +954,6 @@ input {
 
 /* End Of Import Data View Section */
 
-/* Main Content */
-#mainContent {
-    #exploreView {
-        height: 100%;
-    }
-
-    #exportView {
-        display: none;
-        height: 100%;
-    }
-
-    .contentView {
-        height: 100%;
-        background-color: @color-background-white;
-        overflow: hidden;
-    }
-}
-
 #dsListSection {
     .pathSection {
         .size(@height: 20px);
@@ -873,8 +1033,6 @@ input {
                 padding-bottom: 2px;
 
                 .grid-unit {
-                    .gridViewForGrid;
-
                     > .label {
                         display: block;
                         background-color: transparent;
@@ -962,26 +1120,17 @@ input {
             }
 
             &.listView {
+                > .waitingIcon {
+                    left: 98px;
+                    top: -1px;
+                    background-size: 24px 25px;
+                }
+
                 .grid-unit {
-                    .size(@height: @height-grid-list);
-                    box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.2), inset 0 -1px 0 0 rgba(0, 0, 0, 0.2);
-                    .listViewForGrid;
-
-                    .gridIcon {
-                        margin-left: 5px;
-                    }
-
                     &:hover {
                         .edit, .delete {
                             display: inline-block;
                         }
-                    }
-
-                    > .label {
-                        .size(@max-width: ~"calc(100% - 75px)", @height: @height-grid-list);
-                        .font(@size: 11px, @line-height: @height-grid-list);
-                        .textOverflowOneLine;
-                        float: left;
                     }
                 }
 
@@ -1053,208 +1202,55 @@ input {
             }
         }
     }
-  /* End Of Content Left */
 }
 
-/* Content Left */
-#datastorePanel {
-    /* Content Mid */
-    .contentViewMid {
-        .size(@width: ~"calc(100% - 255px)", @height: 100%);
-        .flex-display;
-        .flex-flow(column);
-        float: left;
+#dsExportListSection {
+    .targetSection {
+        margin-top: 10px;
 
-        &.hidden {
-            visibility: hidden;
+        &:first-child {
+            margin-top: 0;
         }
 
-        .contentViewHeader {
-            height: 93px;
-            .flex-order(1);
-            box-shadow: 0 3px 2px rgba(0,0,0,.2);
-            padding: 10px 25px 0px;
+        .targetInfo {
+            .size(@height: 30px);
+            line-height: 30px;
+            padding: 0 15px;
+            .font(@weight: 700);
 
-            .dbText {
+            > span {
                 display: inline-block;
-                float: left;
-                width: 100%;
-                overflow: hidden;
-
-                h2, p {
-                    .textOverflow;
-                }
             }
 
-            h2 {
-                display: block;
-                height: 26px;
-                .font(@size: 19px, @line-height: 25px, @color: @color-text-blue);
-            }
-
-            p {
-                display: block;
-                font-size: 13px;
-                margin: 2px 0 5px 0;
+            .expand {
+                .size(@width: 10px, @height: 100%);
             }
         }
-
-        /* START DATASET TABLE */
-        .contentViewTable {
-            height: ~"calc(100% - 93px)";
-            .flex-order(2);
-            background-repeat: no-repeat;
-            background-position: center;
-            position: relative;
-
-            /* dataset title wrap */
-            .datasetTitleWrap {
-                .size(@height: 60px);
-                margin-top: 15px;
-                padding-left: 25px;
-
-
-                .titleInfo {
-                    .size(@height: 60px);
-                    float: left;
-
-                    .heading {
-                        .size(@height: 20px);
-                        margin-bottom: 10px;
-                        .font(@size: 14px);
-                    }
-
-                    .dsInfo {
-                        .size(@height: 20px);
-                        .font(@size: 13px);
-                    }
-                }
-
-                .buttonGroup {
-                    .size(@height: 60px);
-                    overflow: hidden;
-                    float: right;
-                    .font(@weight: 600, @color: @color-text-blue);
-                    padding-right: 17px;
-
-                    .buttonWrap {
-                        .size(@height: 20px);
-
-                        > div {
-                            float: left;
-                        }
-
-                        &:first-child {
-                            margin-bottom: 10px;
-                        }
-                    }
-
-                    .qMark {
-                        .vertical-align;
-                        margin-left: 5px;
-                    }
-
-                    .modifyDSButton {
-                        .size(@height: 20px);
-                        cursor: pointer;
-
-                        span {
-                           float: left;
-                           line-height: 20px;
-                        }
-
-                        .icon {
-                            margin-right: 8px;
-                            .size(@width: 20px, @height: 20px);
-                        }
-
-                         &.noCols .icon {
-                            .image("../../images/datastore/dsNoCol.png", 50%, 50%);
-                        }
-
-                        &.selectAll .icon {
-                            .image("../../images/select-all.png", 50%, 50%);
-                        }
-
-                        &.clear .icon {
-                            .image("../../images/select-none.png", 50%, 50%);
-                        }
-                    }
-
-                    .divider {
-                        .size(@width: 1px, @height: 20px);
-                        margin: 0 10px;
-                        background-color: @color-background-topGrayMed;
-                    }
-                }
-            }
-            /* End of dataset title wrap */
-        }
-        /* END OF DATASET TABLE */
     }
-    /* End of Content Mid */
 
-    /* Content Right */
-    .contentViewRight {
-        .size(@width: 255px, @height: 100%);
-        background-color: @color-background-darkGray;
-        box-shadow: inset 2px 2px 6px 0 rgba(0,0,0,.3);
-        border-left: 1px solid rgba(0, 0, 0, 0.25);
-        float: right;
+    .xc-grid {
+        .gridIcon .icon {
+            .vertical-align;
+        }
+        
 
-        .buttonArea {
-            margin-top: 4px;
-            padding-bottom: 0px;
-            padding-left: 12px;
-            position: relative;
-            cursor: default;
-
-            &.cartOverflow {
-                box-shadow: 2px 2px 5px rgba(0,0,0,0.4);
-                .border {
-                    display: none;
-                }
-            }
-            .title {
-                font-size: 16px;
-                padding-left: 5px;
-                padding-top: 15px;
-                .size(@width:225px, @height: 45px);
-                text-align: center;
-            }
-            .border {
-                border-top: 1px solid @color-border-joinGray;
-                border-bottom: 1px solid @color-white;
-                width: 225px;
+        &.gridView {
+            .gridIcon .icon {
+                font-size: 28px;
             }
         }
 
-        .btnLarge {
-            margin-top: 10px;
-            padding-right: 5px;
-            width: 225px;
-            font-size: 11px;
-            display: block;
-            text-align: left !important;
-            text-indent: 4px;
-
-            .icon {
-                left: -2px !important;
+        &.listView {
+            .grid-unit {
+                padding: 0 10px;
             }
 
-            &#submitDSTablesBtn .icon {
-                .image("../../images/datastore/send-single.png", 0, 50%);
-            }
-            &#submitMultipleDBTablesBtn .icon {
-                .image("../../images/datastore/send-multiple.png", 0, 50%);
-            }
-            &#clearDataCart .icon {
-                .image("../../images/garbage.png", 0, 50%);
+            .gridIcon .icon {
+                font-size: 18px;
             }
         }
     }
 }
-
 #gridViewMenu {
     li {
         display: none;
@@ -1288,7 +1284,7 @@ input {
     }
 }
 
-#exportView {
+#datastore-out-view {
     .gridViewWrapper {
         border-top: none;
     }

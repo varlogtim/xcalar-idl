@@ -219,13 +219,13 @@ window.Tips = (function($, Tips) {
         // dataset table
         setTooltip($("#worksheetTable"), {
             "title"    : TipsTStr.DSTable,
-            "container": "#exploreView .contentViewTable"
+            "container": "#datastore-in-view .contentViewTable"
         });
 
         // data cart area
         setTooltip($("#dataCartWrap"), {
             "title"    : TipsTStr.DSCart,
-            "container": "#exploreView .contentViewRight",
+            "container": "#datastore-in-view .contentViewRight",
             "template" : templateZ0,
             "placement": "left"
         });

@@ -291,7 +291,7 @@ window.TestSuite = (function($, TestSuite) {
     }
 // ======================== TEST DEFINITIONS GO HERE ======================= //
     function getDSIcon(dsName) {
-        return '#exploreView .grid-unit[data-dsname="' +
+        return '#dsListSection .grid-unit[data-dsname="' +
                             dsName + '"]:not(.inactive)';
     }
 

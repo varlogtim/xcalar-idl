@@ -631,10 +631,6 @@
 #worksheetListSection {
     .list {
         &.active {
-            .expand .icon {
-                .transform(rotate(0deg));
-            }
-
             ul {
                 display: block;
             }
@@ -643,14 +639,6 @@
         > span {
             display: inline-block;
             .size(@height: 20px);
-        }
-
-        .expand {
-            margin-right: 5px;
-            cursor: pointer;
-            .icon {
-                .transform(rotate(270deg));
-            }
         }
 
         .listInfo {
@@ -992,12 +980,6 @@
                     color: @color-font-bright-light-blue;
                 }
 
-                .expand { 
-                    .icon {
-                        .transform(~"rotate(0deg)");
-                    }
-                }
-
                 .addTableBtn {
                     &:hover {
                         border: 1px solid @color-border-softBlue;
@@ -1012,12 +994,6 @@
 
             .expand {
                 .size(10px, 25px);
-                margin-right: 5px;
-
-                .icon {
-                    .position(relative);
-                    .transform(~"rotate(270deg)");
-                }
             }
 
             .addTableBtn {

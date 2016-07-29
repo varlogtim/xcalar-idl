@@ -37,21 +37,21 @@ function datastoreModuleTest() {
     });
 
     it('Should update num of datasets to right num', function() {
-        var originNum = $("#exploreView .gridItems .ds").length;
+        var originNum = $("#dsListSection .gridItems .ds").length;
         DataStore.update();
         verifyCurrentNum(originNum);
     });
 
     it("Should go to export view", function() {
         $("#outButton").click();
-        assert.isTrue($("#exportView").is(":visible"), "see export view");
-        assert.isFalse($("#exploreView").is(":visible"), "not see explore view");
+        assert.isTrue($("#datastore-out-view").is(":visible"));
+        assert.isFalse($("#datastore-in-view").is(":visible"));
     });
 
-    it("Should go to explore view", function() {
+    it("Should go to import view", function() {
         $("#inButton").click();
-        assert.isTrue($("#exploreView").is(":visible"), "see export view");
-        assert.isFalse($("#exportView").is(":visible"), "not see explore view");
+        assert.isTrue($("#datastore-in-view").is(":visible"));
+        assert.isFalse($("#datastore-out-view").is(":visible"));
     });
 
     function verifyCurrentNum(testNum) {

@@ -7,7 +7,7 @@ function dsObjTest() {
     var user;
 
     before(function(){
-        $gridView = $("#exploreView").find(".gridItems");
+        $gridView = $("#dsListSection").find(".gridItems");
         $statusBox = $("#statusBox");
         user = Support.getUser();
     });

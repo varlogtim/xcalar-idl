@@ -138,7 +138,7 @@ function autoAddTable() {
     var datasetExists = doesDatasetExist("testsuiteschedule");
     // $('#dataStoresTab').click();
     if (datasetExists) {
-        dsIcon = '#exploreView .gridItems ' +
+        dsIcon = '#dsListSection .gridItems ' +
                  '.grid-unit:contains(testsuiteschedule):eq(0)';
         var $dsIcon = $(dsIcon);
         dsName = $dsIcon.text();
@@ -151,7 +151,7 @@ function autoAddTable() {
         $formatDropdown.find('li[name="JSON"]').click();
         $('#fileName').val(dsName);
         $("#importDataSubmit").click();
-        dsIcon = '#exploreView .grid-unit[data-dsname="' +
+        dsIcon = '#dsListSection .grid-unit[data-dsname="' +
                   dsName + '"]:not(.inactive)';
     }
 
@@ -183,7 +183,7 @@ function autoAddTable() {
 }
 
 function doesDatasetExist(dsName) {
-    var numDS = $('#exploreView .gridItems')
+    var numDS = $('#dsListSection .gridItems')
                     .find('.grid-unit:contains(' + dsName + ')').length;
     return (numDS > 0);
 }

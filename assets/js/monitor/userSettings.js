@@ -171,7 +171,10 @@ window.UserSettings = (function($, UserSettings) {
 
     function restoreMainTabs() {
         for (var tab in userPrefs.mainTabs) {
-            $('#' + userPrefs.mainTabs[tab]).click();
+            var $button = $('#' + userPrefs.mainTabs[tab]).click();
+            // need to mannually do this <->
+            $button.siblings().removeClass("active");
+            $button.addClass("active");
         }
         // XX xi2 hack for making worksheet initial screen
         $("#workspaceTab").click();

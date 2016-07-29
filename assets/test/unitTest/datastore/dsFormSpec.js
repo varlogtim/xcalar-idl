@@ -38,12 +38,12 @@ function dsFormModuleTest() {
     describe("Show Form Test", function() {
         it("Should not see form", function() {
             DSForm.hide();
-            assert.isFalse($("#importDataView").is(":visible"), "Should see form");
+            assert.isFalse($("#dsFormView").is(":visible"), "Should see form");
         });
 
         it("Should see form", function() {
             DSForm.show();
-            assert.isTrue($("#importDataView").is(":visible"), "Should see form");
+            assert.isTrue($("#dsFormView").is(":visible"), "Should see form");
         });
     });
 

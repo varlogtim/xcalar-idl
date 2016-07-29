@@ -772,7 +772,7 @@ window.TableList = (function($, TableList) {
                         '</div>' +
                         wsInfo +
                     '</div>' +
-                    '<div class="tableListBox">' +
+                    '<div class="tableListBox xc-expand-list">' +
                         '<span class="expand">' +
                             '<i class="icon xi-arrow-down fa-7"></i>' +
                         '</span>' +
@@ -858,7 +858,7 @@ window.TableList = (function($, TableList) {
             html += '<li class="clearfix tableInfo" ' +
                     'data-id="' + tableId + '"' +
                     'data-tablename="' + tableName + '">' +
-                        '<div class="tableListBox">' +
+                        '<div class="tableListBox xc-expand-list">' +
                             '<span class="addTableBtn">' +
                                 '<i class="icon xi_table fa-18"></i>' +
                             '</span>' +

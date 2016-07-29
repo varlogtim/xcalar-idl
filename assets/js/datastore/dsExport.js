@@ -1,9 +1,9 @@
 window.DSExport = (function($, DSExport) {
-    var $exportView; // $('#exportView')
     var exportTargets = [];
+    var $gridView;  // $("#dsExportListSection .gridItems");
 
     DSExport.setup = function() {
-        $exportView = $('#exportView');
+        $gridView = $("#dsExportListSection .gridItems");
 
         var $targetTypeList = $('#targetTypeList');
         var $targetTypeInput = $targetTypeList.find('.text');
@@ -26,7 +26,6 @@ window.DSExport = (function($, DSExport) {
             DSExport.refresh();
         });
 
-        var $gridView = $exportView.find('.gridItems');
         $gridView.on("click", ".grid-unit", function(event) {
             event.stopPropagation(); // stop event bubbling
             var $grid = $(this);
@@ -73,7 +72,7 @@ window.DSExport = (function($, DSExport) {
     };
 
     DSExport.refresh = function() {
-        xcHelper.showRefreshIcon($exportView.find('.gridViewWrapper'));
+        xcHelper.showRefreshIcon($gridView);
 
         XcalarListExportTargets("*", "*")
         .then(function(targs) {
@@ -158,47 +157,49 @@ window.DSExport = (function($, DSExport) {
     }
 
     function restoreGrids() {
-        // return;
         var numTypes = exportTargets.length;
-        var gridHtml = "";
-        var numGrids;
+        var html = "";
+
         for (var i = 0; i < numTypes; i++) {
             var name = exportTargets[i].name;
             var targetTypeId = name.replace(/\s/g, '');
-            gridHtml += '<div class="gridIconSection clearfix"' +
-                            'id="gridTarget-' + targetTypeId + '">';
-            if (i > 0) {
-                gridHtml += '<div class="divider clearfix"></div>';
-            }
-            gridHtml += '<div class="title">' + name +
-                            '</div>' +
-                            '<div class="gridArea">';
-            numGrids = exportTargets[i].targets.length;
+            html += '<div id="gridTarget-' + targetTypeId + '"' +
+                        ' class="targetSection xc-expand-list clearfix">' +
+                        '<div class="targetInfo">' +
+                            '<span class="expand">' +
+                                '<i class="icon xi-arrow-down fa-7"></i>' +
+                            '</span>' +
+                            '<span class="text">' + name + '</span>' +
+                        '</div>' +
+                        '<div class="gridArea">';
+            var targets = exportTargets[i].targets;
+            var numGrids = targets.length;
             for (var j = 0; j < numGrids; j++) {
-                gridHtml += getGridHtml(exportTargets[i].targets[j]);
+                html += getGridHtml(targets[j]);
             }
-            gridHtml += '</div>' +
-                        '</div>';
+            html += '</div>' +
+                    '</div>';
         }
-        $exportView.find('.gridItems').html(gridHtml);
-        numGrids = $exportView.find('.grid-unit').length;
-        $exportView.find('.numExportTargets').html(numGrids);
+
+        $gridView.html(html);
+        updateNumGrids();
     }
 
     function getGridHtml(name) {
-        var gridHtml = '<div class="target grid-unit display">' +
-                            '<div class="gridIcon"></div>' +
-                            '<div class="label" data-dsname="' + name +
-                            '" data-toggle="tooltip" data-container="body"' +
-                            ' data-placement="right" title="' + name + '">' +
-                                name +
-                            '</div>' +
-                        '</div>';
-        return (gridHtml);
+        var html = '<div class="target grid-unit">' +
+                        '<div class="gridIcon">' +
+                            '<i class="icon xi-data-target"></i>' +
+                        '</div>' +
+                        '<div class="label" data-dsname="' + name +
+                        '" data-toggle="tooltip" data-container="body"' +
+                        ' data-placement="right" title="' + name + '">' +
+                            name +
+                        '</div>' +
+                    '</div>';
+        return html;
     }
 
     function addGridIcon(targetType, name) {
-        var $gridItems = $exportView.find('.gridItems');
         var $grid = $(getGridHtml(name));
         var targetTypeId = targetType.replace(/\s/g, '');
         // $grid.append('<div class="waitingIcon"></div>');
@@ -207,7 +208,7 @@ window.DSExport = (function($, DSExport) {
             var gridSectionHtml = '<div class="gridIconSection clearfix"' +
                                       'id="gridTarget-' + targetTypeId + '">';
 
-            if ($gridItems.children().length > 0) {
+            if ($gridView.children().length > 0) {
                 gridSectionHtml += '<div class="divider clearfix"></div>';
             }
 
@@ -215,9 +216,9 @@ window.DSExport = (function($, DSExport) {
                                       '</div>' +
                                       '<div class="gridArea"></div>' +
                                   '</div>';
-            $gridItems.append(gridSectionHtml);
+            $gridView.append(gridSectionHtml);
 
-            var targetGroup = {name: targetType, targets: []};
+            var targetGroup = {"name": targetType, "targets": []};
             exportTargets.push(targetGroup);
         }
 
@@ -226,8 +227,12 @@ window.DSExport = (function($, DSExport) {
         var groupIndex = $gridTarget.parent().index();
         exportTargets[groupIndex].targets.push(name);
 
-        var numGrids = $exportView.find('.grid-unit').length;
-        $exportView.find('.numExportTargets').html(numGrids);
+        updateNumGrids();
+    }
+
+    function updateNumGrids() {
+        var numGrids = $gridView.find(".grid-unit").length;
+        $(".numExportTargets").html(numGrids);
     }
 
     return (DSExport);

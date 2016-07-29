@@ -101,8 +101,8 @@ window.DSForm = (function($, DSForm) {
             "onSelect": function($li) {
                 setProtocol($li.text());
             },
-            "container": "#importDataView",
-            "bounds"   : "#importDataView"
+            "container": "#dsFormView",
+            "bounds"   : "#dsFormView"
         }).setupListeners();
 
         //set up dropdown list preview size
@@ -110,8 +110,8 @@ window.DSForm = (function($, DSForm) {
             "onSelect": function($li) {
                 $("#previewSizeUnit input").val($li.text());
             },
-            "container": "#importDataView",
-            "bounds"   : "#importDataView"
+            "container": "#dsFormView",
+            "bounds"   : "#dsFormView"
         }).setupListeners();
 
         // set up dropdown list for formats
@@ -125,8 +125,8 @@ window.DSForm = (function($, DSForm) {
 
                 toggleFormat(format, text);
             },
-            "container": "#importDataView",
-            "bounds"   : "#importDataView"
+            "container": "#dsFormView",
+            "bounds"   : "#dsFormView"
         }).setupListeners();
 
         // open file browser
@@ -211,19 +211,19 @@ window.DSForm = (function($, DSForm) {
 
     DSForm.show = function(options) {
         options = options || {};
-        var $importDataView = $("#importDataView");
-        if (!$importDataView.is(":visible"))
+        var $dsFormView = $("#dsFormView");
+        if (!$dsFormView.is(":visible"))
         {
             if (!options.noReset) {
                 resetForm();
             }
 
-            $importDataView.show();
+            $dsFormView.removeClass("xc-hidden");
+            $("#dsTableView").addClass("xc-hidden");
             $("#dataSetTableWrap").empty();
-            $("#exploreView").find(".contentViewMid").addClass("hidden")
-                            .end()
-                            .find(".gridItems .grid-unit.active")
-                            .removeClass("active");
+
+            $("#dsListSection").find(".gridItems .grid-unit.active")
+                                .removeClass("active");
             // when switch from data sample table to data form
             // preview table may still open, so close it
             $("#preview-close").click();
@@ -232,8 +232,8 @@ window.DSForm = (function($, DSForm) {
     };
 
     DSForm.hide = function() {
-        $("#importDataView").hide();
-        $("#exploreView").find(".contentViewMid").removeClass('hidden');
+        $("#dsFormView").addClass("xc-hidden");
+        $("#dsTableView").removeClass("xc-hidden");
     };
 
     DSForm.load = function(dsName, dsFormat, loadURL,
@@ -618,7 +618,7 @@ window.DSForm = (function($, DSForm) {
     }
 
     function hideDropdownMenu() {
-        $("#importDataView .dropDownList").removeClass("open")
+        $("#dsFormView .dropDownList").removeClass("open")
                             .find(".list").hide();
         $("#csvDelim").find(".delimVal").val("");
     }
@@ -744,7 +744,7 @@ window.DSForm = (function($, DSForm) {
             $udfFuncList.parent().tooltip({
                 "title"    : TooltipTStr.ChooseUdfModule,
                 "placement": "top",
-                "container": "#importDataView"
+                "container": "#dsFormView"
             });
         } else {
             $udfFuncList.parent().tooltip("destroy");
@@ -824,8 +824,8 @@ window.DSForm = (function($, DSForm) {
                 var module = $li.text();
                 selectUDFModule(module);
             },
-            "container": "#importDataView",
-            "bounds"   : "#importDataView"
+            "container": "#dsFormView",
+            "bounds"   : "#dsFormView"
         });
         moduleList.setupListeners();
 
@@ -834,8 +834,8 @@ window.DSForm = (function($, DSForm) {
                 var func = $li.text();
                 selectUDFFunc(func);
             },
-            "container": "#importDataView",
-            "bounds"   : "#importDataView"
+            "container": "#dsFormView",
+            "bounds"   : "#dsFormView"
         });
         functionList.setupListeners();
     }
@@ -869,8 +869,8 @@ window.DSForm = (function($, DSForm) {
                         return true;
                 }
             },
-            "container": "#importDataView",
-            "bounds"   : "#importDataView"
+            "container": "#dsFormView",
+            "bounds"   : "#dsFormView"
         });
         csvList.setupListeners();
 

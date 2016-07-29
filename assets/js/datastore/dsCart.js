@@ -540,12 +540,12 @@ window.DSCart = (function($, DSCart) {
     }
 
     function overflowShadow() {
-        var $explorePanel = $("#exploreView");
+        var $panel = $("#datastore-in-view");
         if ($cartArea.height() > $('#dataCartWrap').height()) {
-            $explorePanel.find('.contentViewRight').find('.buttonArea')
+            $panel.find('.contentViewRight').find('.buttonArea')
                                 .addClass('cartOverflow');
         } else {
-            $explorePanel.find('.contentViewRight').find('.buttonArea')
+            $panel.find('.contentViewRight').find('.buttonArea')
                                 .removeClass('cartOverflow');
         }
     }
@@ -602,7 +602,7 @@ window.DSCart = (function($, DSCart) {
                     "title"    : TooltipTStr.FocusColumn,
                     "placement": "top",
                     "trigger"  : "manual",
-                    "container": "#exploreView"
+                    "container": "#datastore-in-view"
                 });
                 $header.tooltip("show");
 

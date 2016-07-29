@@ -203,13 +203,6 @@ body {
             margin-left: @menuWidth;
         }
 
-        // XI2 temporarily, importdata view should be redone & this removed
-        #importDataView {
-            @formWidth: @menuWidth + 255px;
-            width: ~"calc(100% - @{formWidth})";
-            left: @menuWidth;
-        }
-
         #dagPanelContainer {
             @panelLeft: @width-fullMenu + @padding-mainContent;
             @extraWidth: @panelLeft + @padding-mainContent;
@@ -1777,7 +1770,7 @@ body.tooltipOff {
             }
         }
 
-        #exportView  {
+        #datastore-out-view  {
             .contentViewMid {
                 width: ~"calc(100% - 200px)" !important;
                 min-width: 0px;
