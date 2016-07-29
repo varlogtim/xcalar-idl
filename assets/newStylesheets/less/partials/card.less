@@ -7,15 +7,15 @@
 }
 
 .cardHeader {
-    .size(@width: 100%, @height: 36px);
+    .size(@width: 100%, @height: @height-card-header);
     .noSelection;
-    line-height: 36px;
+    line-height: @height-card-header;
     text-align: left;
     text-transform: capitalize;
     background-color: @color-bg-select-blue;
 
     .title {
-        .font(@weight: 600, @size: 18px, @color: @color-text-white);
+        .font(@weight: 700, @size: 18px, @color: @color-text-white);
         display: inline-block;
         padding-left: 20px;
         padding-right: 20px;
@@ -45,7 +45,7 @@
 }
 
 .cardInstruction {
-    .size(@width: 100%);
+    .size(@width: 100%, @height: @height-card-instr);
     background-color: @color-white;
     overflow: hidden;
     padding: 15px 20px 15px 20px;

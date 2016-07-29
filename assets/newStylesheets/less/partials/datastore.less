@@ -457,17 +457,6 @@ input {
     }
 }
 
-// Top Form Section
-.dsFormTop {
-    background-color: @color-background-topForm;
-    padding: 30px 20px 1px 20px;
-}
-
-// Bottom Form Section
-.dsFormBottom {
-    padding: 20px 20px 1px 20px;
-    height: 70px;
-}
 
 #previewBtn {
     .green-gradient;
@@ -1285,57 +1274,110 @@ input {
 }
 
 #datastore-out-view {
-    .gridViewWrapper {
-        border-top: none;
+    .cardContainer {
+        .size(@height: 100%);
     }
 
-    .gridItems {
-        overflow: visible !important;
-        .divider {
-            border-top: 1px solid @color-export-divider;
-            border-bottom: 1px solid @color-white;
-            margin: -5px 35px 7px 4px;
-            height: 0px;
+    .cardInstruction {
+        .icon {
+            .size(@width: 25px, @height: 25px);
         }
-        .title {
-            margin-left: 9px;
-            height: 15px;
-            color: @color-export-title;
-            font-weight: bold;
+    }
+
+    @minusHeight: @height-card-instr + @height-card-header;
+
+    .cardMain {
+        .size(@height: ~"calc(100% - @{minusHeight})");
+    }
+
+    .divider {
+        .size(@width: 100%, @height: 1px);
+        background-color: @color-border-pinkish-grey2;
+    }
+
+    .formSection {
+        padding-bottom: 20px;
+
+        .formTitle {
+            .size(@height: 20px);
+            .font(@weight: 700, @color: @color-font-select-blue);
+            margin: 18px 0 18px 5%;
         }
-        &.gridView {
-            .grid-unit {
-                height: 62px !important;
-                margin-bottom: 10px !important;
+
+        .formRow {
+            .size(@width: 80%);
+            margin: 0 10%;
+            .flex-display;
+            .size(@height: 30px);
+            line-height: 30px;
+            margin-bottom: 10px;
+
+            label {
+                .flex(0 0 150px);
+                .font(@size: 14px, @weight: 600, @color: @color-font-greyish-brown);
+            }
+
+            input {
+                .size(@height: 30px);
+                .flex(1 1 auto);
+                background-color: @color-bg-white-three;
+                border: 1px solid @color-bg-white-five;
+            }
+
+            .inputSet {
+                .flex(0 0 50%);
+                .flex-display;
+                padding-right: 30px;
+
+                &:last-child {
+                    padding-right: 0;
+
+                    label {
+                        .flex(0 0 50px);
+                    }
+                }
             }
         }
-        &.listView {
-            padding: 0px 0px 4px !important;
-            .divider {
-                margin: 10px 45px 7px 0px;
+
+        .formButton {
+            .size(@width: 80%, @height: 30px);
+            margin: 30px 10%;
+            line-height: 30px;
+
+            .btn {
+                float: right;
+                &:last-child {
+                    margin-right: 10px;
+                }
             }
         }
-    }
 
-    .contentViewMid {
-        visibility: visible;
-        width: ~"calc(100% - 255px)";
-        min-width: 640px;
-        height: ~"calc(100% - 37px)";
-    }
-
-    .formHelp {
-        .contentViewMidWrap {
-
-            margin-left: 4%;
+        .dropDownList {
+            .styleDropDownList(~"calc(100% - 150px)", 30px, true);
+            .list li {
+                font-size: 14px;
+                &.unavailable {
+                    opacity: 0.5;
+                    // pointer-events: none;
+                }
+            }
+            .text {
+                font-size: 14px;
+            }
         }
-    }
-    .dsForm {
-        height: ~"calc(100% - 93px)";
-        overflow: auto;
-        .contentViewMidWrap {
-            margin-left: 5%;
-            max-width: 750px;
+
+        .radioButtonGroup {
+            margin-top: 30px;
+            padding-left: 150px;
+
+            .label {
+                line-height: 20px;
+            }
+
+            .windowsAuth {
+                .flex(0 0 auto);
+                margin-right: 50px;
+            }
         }
     }
 
@@ -1383,25 +1425,7 @@ input {
         input {
             background-color: @color-background-topForm;
         }
-        .inputSet {
-            label {
-                float: left;
-            }
-            &:first-child {
-                width: 68%;
-            }
-
-            &:last-child {
-                width: 32%;
-                margin-left: 10%;
-                label {
-                    width: 50px;
-                }
-                input {
-                    width: ~"calc(100% - 50px)";
-                }
-            }
-        }
+        
         .radioButtonGroup {
             .justify-content(space-between);
             margin-top: 45px;

@@ -1,86 +1,87 @@
-<div class="contentView">
-  <!-- content mid -->
-  <div class="contentViewMid dsFormView">
-    <div class="formHelp no-selection">
-      <div class="contentViewMidWrap">
-        <h2><%= dicts.dsExport.CreateTarget %></h2>
-        <span class="icon"></span>
-        <p><%= dicts.dsExport.CreateTargetInstr %></p>
-      </div>
-    </div>
-    <!-- Data Form -->
-    <form id="exportDataForm" class="dsForm" target="_blank">
+<div class="cardContainer">
+  <!-- header -->
+  <div class="cardHeader">
+    <header class="title"><%= dicts.dsExport.CreateTarget %></header>
+  </div>
+  <!-- instuction -->
+  <div class="cardInstruction">
+    <i class="icon xi-info-circle"></i>
+    <span class="text"><%= dicts.dsExport.CreateTargetInstr %></span>
+  </div>
+  <!-- cardMain -->
+  <div class="cardMain">
+    <form id="exportDataForm" target="_blank">
       <!-- Top Form -->
-      <div id="exportDataTopForm" class="dsFormTop no-selection">
-        <div class="contentViewMidWrap">
-          <!-- file path -->
-          <div id="targetTypeSelector" class="importFormRow">
-            <label for="targetTypeList"><%= dicts.dsExport.TargetType %>:</label>
-            <div id="targetTypeList" class="dropDownList">
-              <input class="text hint" type="text" value="" spellcheck="false" disabled>
-              <div class="iconWrapper">
-                <span class="icon"></span>
-              </div>
-              <ul id="fileFormatMenu" class="list">
-                <li class="hint"></li>
-                <li name="LocalFilesystem">
-                  <%= dicts.dsExport.LocalFS %>
-                </li>
-                <li name="ODBC" class="unavailable">ODBC</li>
-              </ul>
+      <div id="exportDataTopForm" class="formSection no-selection">
+        <!-- file path -->
+        <div id="targetTypeSelector" class="formRow">
+          <label for="targetTypeList"><%= dicts.dsExport.TargetType %>:</label>
+          <div id="targetTypeList" class="dropDownList">
+            <input class="text hint" type="text" value="" spellcheck="false" disabled>
+            <div class="iconWrapper">
+              <i class="icon"></i>
             </div>
+            <ul id="fileFormatMenu" class="list">
+              <li class="hint"></li>
+              <li name="LocalFilesystem">
+                <%= dicts.dsExport.LocalFS %>
+              </li>
+              <li name="ODBC" class="unavailable">ODBC</li>
+            </ul>
           </div>
-          <div id="targetNameSelector" class="importFormRow">
-            <label for="targetName"><%= dicts.common.Name %>:</label>
-            <input id="targetName" name="targetName" type="text" placeholder="" autocomplete="off" pattern="^\w+$" spellcheck="false" title="<%= dicts.dsForm.fileNameTitle %>" required>
-          </div>
-          <!-- file name -->
         </div>
+        <div id="targetNameSelector" class="formRow">
+          <label for="targetName"><%= dicts.common.Name %>:</label>
+          <input id="targetName" name="targetName" type="text" placeholder="" autocomplete="off" pattern="^\w+$" spellcheck="false" title="<%= dicts.dsForm.fileNameTitle %>" required>
+        </div>
+        <!-- file name -->
       </div>
+      <div class="divider"></div>
       <!-- Bottom Form -->
-      <div id="exportDataBottomForm" class="dsFormBottom no-selection">
-        <h2><%= dicts.dsExport.AddConnector %></h2>
-        <div class="contentViewMidWrap">
-          <div class="importFormRow">
-            <label for="exportURL"><%= dicts.common.URL %>:</label>
-            <input type="url" id="exportURL" spellcheck="false">
+      <div id="exportDataBottomForm" class="formSection no-selection">
+        <header class="formTitle"><%= dicts.dsExport.AddConnector %></header>
+        <div class="formRow">
+          <label for="exportURL"><%= dicts.common.URL %>:</label>
+          <input type="url" id="exportURL" spellcheck="false">
+        </div>
+        <div class="formRow">
+          <div class="inputSet">
+            <label for="exportService"><%= dicts.common.Service %>:</label>
+            <input type="text" id="exportService" spellcheck="false">
           </div>
-          <div class="importFormRow">
-            <div class="inputSet">
-              <label for="exportService"><%= dicts.common.Service %>:</label>
-              <input type="text" id="exportService" spellcheck="false">
+          <div class="inputSet">
+            <label for="exportPort"><%= dicts.common.Port %>:</label>
+            <input type="text" id="exportPort" spellcheck="false">
+          </div>
+        </div>
+        <div class="formRow radioButtonGroup">
+          <div class="radioButton windowsAuth">
+            <div class="radio">
+              <i class="icon"></i>
             </div>
-            <div class="inputSet">
-              <label for="exportPort"><%= dicts.common.Port %>:</label>
-              <input type="text" id="exportPort" spellcheck="false">
+            <div class="label"><%= dicts.dsExport.windowsAuth %></div>
+          </div>
+          <div class="radioButton usernameAuth">
+            <div class="radio">
+              <i class="icon"></i>
             </div>
+            <div class="label"><%= dicts.dsExport.usernameAuth %></div>
           </div>
-          <div class="importFormRow radioButtonGroup">
-            <div class="radioButton windowsAuth">
-              <div class="radio">
-                <span class="dot"></span>
-              </div>
-              <div class="label"><%= dicts.dsExport.windowsAuth %></div>
-            </div>
-            <div class="radioButton usernameAuth">
-              <div class="radio">
-                <span class="dot"></span>
-              </div>
-              <div class="label"><%= dicts.dsExport.usernameAuth %></div>
-            </div>
-          </div>
-          <div class="importFormRow">
-            <label for="userNameExport"><%= dicts.common.UserName %>:</label>
-            <input type="text" id="userNameExport" spellcheck="false">
-          </div>
-          <div class="importFormRow">
-            <label for="passwordExport"><%= dicts.common.Password %>:</label>
-            <input type="password" id="passwordExport" spellcheck="false">
-          </div>
-          <button id="exportFormSubmit" class="btn btnMid" type="submit"><%= dicts.common.ADD %></button>
-          <button id="exportFormReset" class="btn btnMid btn-cancel" type="reset"><%= dicts.common.CLEAR %></button>
+        </div>
+        <div class="formRow">
+          <label for="userNameExport"><%= dicts.common.UserName %>:</label>
+          <input type="text" id="userNameExport" spellcheck="false">
+        </div>
+        <div class="formRow">
+          <label for="passwordExport"><%= dicts.common.Password %>:</label>
+          <input type="password" id="passwordExport" spellcheck="false">
+        </div>
+        <div class="formButton">
+          <button id="exportFormSubmit" class="btn" type="submit"><%= dicts.common.ADD %></button>
+          <button id="exportFormReset" class="btn btn-cancel" type="reset"><%= dicts.common.CLEAR %></button>
         </div>
       </div>
     </form>
   </div>
+  <!-- end card main -->
 </div>
