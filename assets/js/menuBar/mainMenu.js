@@ -63,9 +63,9 @@ window.MainMenu = (function($, MainMenu) {
 
         $tabs.click(function(event) {
             var $curTab = $(this);
+            var $target = $(event.target);
 
             if ($curTab.hasClass("active")) {
-                var $target = $(event.target);
                 if ($target.closest('.mainTab').length) {
                     toggleMenu($curTab);
                 } else if ($target.closest('.subTab').length) {

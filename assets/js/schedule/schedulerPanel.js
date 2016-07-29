@@ -21,17 +21,28 @@ window.SchedulerPanel = (function($, SchedulerPanel) {
                 return;
             }
 
-            if ($button.attr('id') === "schedulesButton") {
-                $dfgView.hide();
-                $schedulesView.show();
-                Scheduler.refresh();
-            } else {
+            var $title = $('#schedulerTopBar').find(".title");
+            if ($button.attr('id') === "dataflowButton") {
                 $dfgView.show();
                 $schedulesView.hide();
                 if ($dfgView.find('.listBox.selected').length === 0) {
                     $dfgView.find('.listBox').eq(0).trigger('click',
                                                             {show: true});
                 }
+                $title.text(DFGTStr.DFGTitle);
+                $("#dfgMenu").find(".schedulesMenu")
+                            .addClass("xc-hidden")
+                            .prev()
+                            .removeClass("xc-hidden");
+            } else {
+                $dfgView.hide();
+                $schedulesView.show();
+                Scheduler.refresh();
+                $title.text(SchedTStr.SchedTitle);
+                $("#dfgMenu").find(".dfgList")
+                            .addClass("xc-hidden")
+                            .next()
+                            .removeClass("xc-hidden");
             }
              // button switch styling handled in mainMenu.js
         });

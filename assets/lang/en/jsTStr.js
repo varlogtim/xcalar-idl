@@ -423,7 +423,7 @@ SchedTStr = {
     'UpdateFail': 'Update Schedule Failed',
     'NotScheduled': 'not scheduled',
     'Scheduled': 'scheduled',
-    'Schedules': 'Schedules'
+    "SchedTitle": "SCHEDULER/SCHEDULES"
 };
 
 DFGTStr = {
@@ -437,7 +437,7 @@ DFGTStr = {
     'RunDone': 'Run Complete',
     'RunDoneMsg': 'Successfully ran DFG!',
     'RunFail': 'Run DFG Failed',
-    'DFG': 'Dataflow Groups'
+    "DFGTitle": "SCHEDULER/DATAFLOW GROUPS"
 };
 
 DSTStr = {

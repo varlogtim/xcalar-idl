@@ -484,7 +484,7 @@ window.TableList = (function($, TableList) {
                 $list.find(".submit").addClass("xc-hidden");
             } else {
                 if (!$list.find(".addTableBtn.selected").length) {
-                    $list.find(".submit").addClass("xc-hidde");
+                    $list.find(".submit").addClass("xc-hidden");
                 }
             }
         });

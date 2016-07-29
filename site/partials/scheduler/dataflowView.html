@@ -1,0 +1,103 @@
+<div id="dataflowView" class="subPanel">
+  <!-- AddSchedule Card -->
+  <div id="addScheduleCard" class="cardContainer">
+    <!-- AddSchedule  Header -->
+    <header class="cardHeader">
+      <span class="title"><%= dicts.addSchedModal.header %></span>
+      <div class="close"><i class="icon xi-close fa-15"></i></div>
+    </header>
+    <!-- AddSchedule Instruction -->
+    <section class="cardInstruction">
+      <i class="icon xi-warning"></i>
+      <div class="text"><%= dicts.addSchedModal.instr %></div>
+    </section>
+    <!-- AddSchedule Main Section -->
+    <section class="cardMain">
+      <!-- schedule info section -->
+      <div class="scheInfoSection">
+        <h3 class="label"><%= dicts.addSchedModal.AttachedSched %>:</h3>
+        <div class="text">N/A</div>
+      </div>
+      <!-- select schedule section -->
+      <div class="selectScheSection">
+        <h3 class="label"><%= dicts.addSchedModal.SelectSched %>:</h3>
+        <div class="dropDownList scheduleList">
+          <input class="text focusable scheduleListInput" type="text" value="" spellcheck="false" disabled>
+          <div class="iconWrapper">
+              <span class="icon"></span>
+          </div>
+          <div class="list" style="display: none;">
+            <ul></ul>
+            <div class="scrollArea top">
+              <div class="arrow"></div>
+            </div>
+            <div class="scrollArea bottom">
+              <div class="arrow"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- create new schedule section -->
+      <div class="newScheSection">
+        <h3 class="label"><%= dicts.addSchedModal.CreateNew %>:</h3>
+        <div>
+          <button type="button" class="btn btnMid createNewSchedule"><%= dicts.addSchedModal.CreateNewBtn %></button>
+        </div>
+      </div>
+    </section>
+    <!-- Button Section -->
+    <section class="cardBottom">
+      <button type="button" class="btn btnMid confirm"><%= dicts.common.SAVE %></button>
+      <button type="button" class="btn btn-cancel cancel"><%= dicts.common.CANCEL %></button>
+    </section>
+  </div>
+  <!-- End of AddSchedule Card -->
+
+  <div id="dfgViz" class="cardContainer">
+    <!-- cardHeader -->
+    <header class="cardHeader">
+      <div class="leftSection">
+        <h2 class="title"></h2>
+        <div class="schedulesList"></div>
+      </div>
+      <!-- Retina Tab Section -->
+      <div class="retTabSection no-selection hidden">
+        <div class="retTab">
+          <div class="tabWrap">
+            <span class="retTitle"><%= dicts.sched.params %></span>
+            <div class="caret">
+              <span class="icon"></span>
+            </div>
+          </div>
+          <!-- retPopUp -->
+          <div class="retPopUp">
+            <div class="divider"></div>
+            <div class="inputSection">
+              <input class="newParam" type="text" placeholder="<%= dicts.sched.inputNewParam %>" spellcheck="false">
+              <div class="btn addParam">
+                <span class="icon"></span>
+                <span class="label"><%= dicts.sched.newParam %></span>
+              </div>
+            </div>
+            <div class="tableHeader">
+              <div class="thWrap paramName"><%= dicts.sched.param %></div>
+              <div class="thWrap paramVal"><%= dicts.sched.val %></div>
+              <div class="thWrap paramAction"><%= dicts.sched.action %></div>
+            </div>
+            <div class="tableContainer">
+              <div class="tableWrapper">
+                <table>
+                  <tbody></tbody>
+                </table>
+              </div>
+            </div>
+          </div> 
+          <!-- End of retPopUp -->
+        </div>
+      </div>
+      <!-- End Of Retina Tab Section -->
+    </header>
+    <!-- End of cardHeader -->
+    <div class="cardMain"></div>
+  </div>
+</div>

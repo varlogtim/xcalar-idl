@@ -84,7 +84,8 @@ window.StartManager = (function(StartManager, $) {
         Support.setup();
 
         setupTooltips();
-        setupMenuBar();
+        MainMenu.setup();
+        setupWorkspaceBar();
         StatusMessage.setup();
         BottomMenu.setup();
         DataStore.setup();
@@ -273,9 +274,8 @@ window.StartManager = (function(StartManager, $) {
         });
     }
 
-    function setupMenuBar() {
+    function setupWorkspaceBar() {
         RowScroller.setup();
-        MainMenu.setup();
         FnBar.setup();
     }
 

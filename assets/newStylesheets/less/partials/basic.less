@@ -140,6 +140,8 @@ body {
     padding-left: 20px;
     padding-right: @width-userBox;
     overflow: hidden;
+    position: relative;
+    z-index: @z-index-topBar;
 
     .title {
         .font(@size: 20px, @weight: 700, @color: @color-bg-unselect-gray);
@@ -215,7 +217,7 @@ body {
     height: @height-homeBtn;
     background-color: @color-bg-topBarGray;
     .position(fixed, @top: 0, @right: 0);
-    z-index: 1;
+    z-index: @z-index-topBar + 1;
 }
 
 
@@ -1540,7 +1542,7 @@ body.tooltipOff {
         .font(@line-height: 30px);
 
         .ui-datepicker-prev, .ui-datepicker-next {
-            .position(absolute, @top: 7px);
+            .position(absolute, @top: 0px);
             cursor: pointer;
 
             span {
@@ -1549,34 +1551,54 @@ body.tooltipOff {
 
             &.ui-state-disabled {
                 pointer-events: none;
-                opacity: 0.5;
+                opacity: @opacity-disabled;
+            }
+        }
+
+        .ui-datepicker-prev, .ui-datepicker-next {
+            font-family: 'icomoon' !important;
+            speak: none;
+            font-style: normal;
+            font-weight: normal;
+            text-transform: normal;
+            font-variant: normal;
+            line-height: 1;
+            font-size: 12px;
+            line-height: 18px;
+            /* Better Font Rendering =========== */
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            color: @color-white;
+            opacity: @opacity-unhover;
+            .size(30px, 30px);
+            text-align: center;
+            padding-top: 7px;
+            .box-sizing;
+
+            &:hover {
+                opacity: @opacity-hover
             }
         }
 
         .ui-datepicker-prev {
-            .position(@left: 20px);
-            .size(0, 0);
-            // trick to make left arrow
-            border-top: 8px solid transparent;
-            border-bottom: 8px solid transparent;
-            border-right: 11px solid @color-bostonBlue;
-            .rounded;
+            .position(@left: 10px);
+            &:before {
+              content: "\e927";
+            }
         }
 
         .ui-datepicker-next {
-            .position(@right: 20px);
-            .size(0, 0);
-            // trick to make right arrow
-            border-top: 8px solid transparent;
-            border-bottom: 8px solid transparent;
-            border-left: 11px solid @color-bostonBlue;
-            .rounded;
+            .position(@right: 10px);
+            &:before {
+              content: "\e926";
+            }
         }
 
         .ui-datepicker-title {
             // .size(@width: 70%);
             text-align: center;
-            .font(@size: 13px, @weight: bold, @color: @color-text-blue);
+            .font(@size: 13px, @weight: bold, @color: white);
+            background-color: @color-bg-select-blue;
             text-transform: uppercase;
         }
     }

@@ -983,7 +983,7 @@ window.WSManager = (function($, WSManager) {
 
         var $section = $("#worksheetListSection");
         $("#worksheetListSection").on("click", ".listInfo", function() {
-            $(this).closest(".list").toggleClass("active");
+            $(this).closest(".listWrap").toggleClass("active");
         });
 
         $section.on("mouseenter", ".tooltipOverflow", function() {

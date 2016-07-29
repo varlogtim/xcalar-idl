@@ -1,7 +1,7 @@
 window.DFGCard = (function($, DFGCard) {
     var $dfgView;       // $('#dataflowView');
     var $dfgCard;       // $('#dfgViz');
-    var $menu;          // $('#dfgMenu').find('.dfgList');
+    var $dfgMenu;          // $('#dfgMenu').find('.dfgList');
     var $listSection;   // $dfgMenu.find('.listSection');
     var $header;        // $dfgCard.find('.cardHeader h2');
     var $retTabSection; // $dfgCard.find('.retTabSection');
@@ -236,7 +236,7 @@ window.DFGCard = (function($, DFGCard) {
                 return;
             }
 
-            var groupName = $groupLi.find('.label').text();
+            var groupName = $groupLi.find('.groupName').text();
             currentDFG = groupName;
             $header.text(groupName);
             drawDags(groupName);
@@ -248,21 +248,21 @@ window.DFGCard = (function($, DFGCard) {
             $groupLi.addClass('selected');
 
             if (gMinModeOn || options.show) {
-                $listSection.find('.list').hide();
-                $dfg.find('.list').show();
+                $listSection.find('.subList').hide();
+                $dfg.find('.subList').show();
             } else {
-                $listSection.find('.list').slideUp(200);
-                $dfg.find('.list').slideDown(200);
+                $listSection.find('.subList').slideUp(200);
+                $dfg.find('.subList').slideDown(200);
             }
         });
 
         $listSection.on('click', '.addGroup', function() {
-            var groupName = $(this).siblings('.label').text();
+            var groupName = $(this).siblings('.groupName').text();
             AddScheduleCard.show(groupName);
         });
 
         $('#addScheduleButton').click(function() {
-            var groupName = $dfgMenu.find('.listBox.selected .label').text();
+            var groupName = $dfgMenu.find('.listBox.selected .groupName').text();
             // xx get groupname a better way
             if (groupName) {
                 AddScheduleCard.show(groupName);
@@ -271,7 +271,7 @@ window.DFGCard = (function($, DFGCard) {
 
         $dfgCard.on("click", ".runNowBtn", function() {
             var $btn = $(this);
-            var retName = $("#dataflowView .listSection").find(".selected .label")
+            var retName = $("#dataflowView .listSection").find(".selected .groupName")
                                                     .text();
 
             $btn.addClass("inActive")
@@ -521,7 +521,7 @@ window.DFGCard = (function($, DFGCard) {
         var activeGroupName;
 
         if ($activeGroup.length) {
-            activeGroupName = $activeGroup.find('.label').text();
+            activeGroupName = $activeGroup.find('.groupName').text();
         }
         var html = "";
         var numGroups = 0;
@@ -529,24 +529,24 @@ window.DFGCard = (function($, DFGCard) {
             numGroups++;
             var list = groups[group].dataFlows;
             var listLen = list.length;
-            html += '<div class="dataFlowGroup">' +
-                      '<div class="listBox">' +
-                        '<div class="iconWrap">' +
+            html += '<div class="dataFlowGroup listWrap xc-expand-list">' +
+                      '<div class="listBox listInfo">' +
+                        '<div class="iconWrap expand">' +
                           '<i class="icon xi-dataflowgroup"></i>' +
                         '</div>' +
-                        '<div class="label">' + group + '</div>' +
+                        '<span class="groupName">' + group + '</span>' +
+                        '<i class="icon xi-trash deleteGroup" ' +
+                            'title="coming soon" data-toggle="tooltip" ' +
+                            'data-placement="top" data-container="body">' +
+                        '</i>' +
                         '<i class="icon xi-add-schedule addGroup" ' +
                             'title="add a group to schedule" ' +
                             'data-toggle="tooltip" data-placement="top" ' +
                             'data-container="body">' +
                         '</i>' +
-                        '<i class="icon xi-trash deleteGroup" ' +
-                            'title="coming soon" data-toggle="tooltip" ' +
-                            'data-placement="top" data-container="body">' +
-                        '</i>' +
                         // '<div class="checkmark"></div>' +
                       '</div>' +
-                      '<ul class="sublist list">';
+                      '<ul class="subList">';
             for (var i = 0; i < listLen; i++) {
                 html += '<li><i class="icon xi-dataflowgroup"></i>' + list[i].name + '</li>';
             }
@@ -571,7 +571,7 @@ window.DFGCard = (function($, DFGCard) {
             $dfgCard.find(".cardMain").html("");
             if (activeGroupName) {
                 $dfgMenu.find('.listBox').filter(function() {
-                    return ($(this).find('.label').text() === activeGroupName);
+                    return ($(this).find('.groupName').text() === activeGroupName);
                 }).closest('.listBox').trigger('click', {show: true});
             } else {
                 $dfgMenu.find('.listBox').eq(0).trigger('click', {show: true});

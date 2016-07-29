@@ -20,409 +20,10 @@
     #schedulesView, #dataflowView {
         height: 100%;
     }
-
-    .midContent {
-        .size(@width: ~"calc(100% - 314px);", @height: 100%);
-        float: left;
-
-        .midContentHeader {
-            box-shadow: 0 3px 2px rgba(0,0,0,.2);
-            padding: 6px 20px 0px;
-            overflow: hidden;
-            background-color: @color-background-darkGray;
-
-            h2 {
-                display: block;
-                height: 25px;
-                .font(@size: 19px, @line-height: 25px, @weight: bold, @color: @color-text-blue);
-            }
-
-            .scheduleInfoSection {
-                margin-top: 5px;
-
-                .scheduleInfo {
-                    .size(@width: 250px, @height: 20px);
-                    .font(@size: 13px, @weight: bold, @color: @color-text-signout-lightGray);
-                    float: left;
-
-                    .name {
-                        display: inline-block;
-                    }
-
-                    .text {
-                        text-transform: capitalize;
-                    }
-
-                    &:nth-child(odd) {
-                        clear: both;
-
-                        .name {
-                            .size(@width: 80px);
-                        }
-                    }
-
-                    &:nth-child(even) {
-                        .name {
-                            .size(@width: 100px);
-                        }
-                    }
-                }
-            }
-        }
-
-        .midContentTable {
-            .position(relative, @top: 3px);
-            .flex(0 0 auto);
-            background-color: @color-white;
-            z-index: 2;
-
-            .titleSection {
-                .size(@height: 40px);
-                padding: 5px 0 5px 15px;
-                background: @color-background-darkGray;
-                box-shadow: 0px 2px 1px rgba(0,0,0,0.3);
-
-                .titleWrapper {
-                    .size(@width: ~"calc(100% - 22px)");
-                }
-
-                .title {
-                    float: left;
-                    .position(relative);
-                    .size(@width: ~"calc(25% - 10px)", @height: 30px, @max-width: 250px);
-                    .font(@weight: bold, @size: 12px, @line-height: 30px);
-                    margin-left: 10px;
-                    padding-left: 15px;
-                    .gray-gradient;
-                    .rounded;
-                    color: #5e5e5e;
-                    cursor: default;
-                    text-align: center;
-                    .textOverflowOneLine;
-                }
-            }
-
-            .mainSection {
-                .size(@width: ~"calc(100% - 22px)", @min-height: 20px, @height: ~"calc(100% - 110px)");
-                .position(relative, @top: 0);
-                overflow-y: auto;
-                padding-left: 15px;
-                z-index: -1;
-
-                .grid-unit {
-                    .size(@height: 30px);
-                    margin: 0 auto;
-                    display: block;
-                    cursor: default;
-
-                    > div {
-                        .size(@width: ~"calc(25% - 10px)", @height: 30px, @max-width: 250px);
-                        margin-left: 10px;
-                        padding: 0 20px;
-                        float: left;
-                        .font(@weight: bold, @size: 12px, @line-height: 30px, @color: #8b8b8b);
-                        .textOverflow;
-
-                        &.status {
-                            text-transform: capitalize;
-                        }
-                    }
-
-                    &:nth-child(even) > div {
-                        background-color: #f4f4f4;
-                    }
-
-                    &:nth-child(odd) > div {
-                        background-color: @color-background-darkGray;
-                    }
-                }
-            }
-
-            .bottomSection {
-                .size(@height: 30px);
-                .font(@line-height: 30px, @weight: bold);
-                margin: 20px 0;
-                padding-left: 45px;
-
-                > div {
-                    float: left;
-                    .size(@width: 19%, @min-width: 230px);
-                }
-
-                .text {
-                    color: @color-text-blue;
-                }
-
-                .btn {
-                    .size(@width: 160px);
-                    padding: 0 5px;
-                    .icon {
-                        .image("../../images/schedule/edit_schedule.png", 50%, 50%);
-                    }
-                }
-
-            }
-        }
-
-        .midContentForm {
-            .flex(0 0 295px);
-            background-color: @color-background-topForm;
-            overflow: visible;
-
-            &.new {
-                .content .nameSection {
-                    pointer-events: auto !important;
-                    opacity: 1.0 !important;
-                }
-            }
-
-            &.inActive {
-                .content, .buttonArea .btn {
-                    pointer-events: none;
-                    opacity: 0.3;
-                }
-            }
-
-            .content {
-                .size(@width: 88%, @height: 245px);
-                margin: 0 auto;
-
-                .divider {
-                    .size(@width: 100%, @height: 2px);
-                    background-color: @color-modal-dividerGray;
-                    border-bottom: 1px solid @color-white;
-                }
-
-                .nameSection, .timeSection, .recurSection {
-                    .size(@height: 55px);
-                    .input-box(@w: 210px, @h: 25px);
-                    padding: 15px;
-                    line-height: 25px;
-
-                    input {
-                        padding: 0 10px;
-                        .font(@weight: bold, @color: #858585);
-                    }
-
-                    > div {
-                        float: left;
-                    }
-
-                    .text {
-                        display: inline-block;
-                        .size(@width: 120px);
-                    }
-                }
-
-                .nameSection {
-                    pointer-events: none;
-                    opacity: 0.7;
-                }
-
-                .timeSection {
-                    .position(relative);
-
-                    > div {
-                        &.datePickerPart {
-                            position: relative;
-                            margin-right: 20px;
-
-                            &.inActive {
-                                pointer-events: none;
-                                opacity: 0.7;
-                            }
-                        }
-
-                        &.timePickerPart {
-                            position: relative;
-                        }
-                    }
-
-                    .timePicker {
-                        display: none;
-                        .size(@width: 208px, @height: 120px);
-                        .position(absolute, @top: 26px, @left: 1px);
-                        background-color: @color-white;
-                        box-shadow: 0px 1px 1px 2px rgba(0,0,0,.1);
-                        z-index: 41;
-                        .rounded(0 3px 3px 0);
-                        padding: 5px 11px;
-
-                        > div {
-                            margin: 4px 0;
-                            .size(@width: 100%, @height: 20px);
-
-                            span, button, input {
-                                .size(@width: 60px, @height: 20px);
-                                margin: 0 1px;
-                                display: inline-block;
-                                float: left;
-                                text-align: center;
-                                line-height: 20px;
-                            }
-                        }
-
-                        .textSection {
-                            .font(@size: 10px, @color: @color-text-topGrayMed);
-                        }
-
-                        .inputSection {
-                            .font(@size: 12px, @color: @color-darkSilverChalice, @weight: bold);
-                            text-shadow: 0px 0px rgba(0, 0, 0, 0.2);
-
-                            input {
-                                background-color: @color-background-topForm;
-                                padding-top: 2px;
-                            }
-                        }
-
-                        .buttonSection {
-                            .btn {
-                                position: relative;
-
-                            }
-
-                            .hour {
-                                .rounded(3px 0 0 3px);
-                            }
-
-                            .minute {
-                                .rounded(0);
-                            }
-
-                            .cycle {
-                                .rounded(0 3px 3px 0);
-                            }
-
-                            .bar {
-                                .size(@width: 14px, @height: 3px);
-                                .position(absolute, @left: 50%);
-                                .transform(translate(-50%, -30%));
-                                background-color: @color-white;
-                                opacity: 0.9;
-                                box-shadow: 0 1px 1px 1px rgba(0, 0, 0, .1);
-                                .rounded(1px);
-
-                                &.vertical {
-                                    .transform(translate(-50%, -30%) rotate(90deg));
-                                }
-                            }
-                        }
-                    }
-                }
-
-                .frequencySection {
-                    padding-top: 10px;
-                    padding-left: 15px;
-                    height: 55px;
-
-                    .title {
-                        .size(@width: 120px);
-                    }
-
-                    // for radio part
-                    .radioButtonGroup {
-                        .size(@width: 515px, @height: 30px, @max-width: ~"calc(100% - 120px)");
-                    }
-
-                    // for dropdown list
-                    .dropDownList {
-                        .styleDropDownList(150px, 30px);
-                        box-shadow: 0px 0px 2px 1px rgba(0, 0, 0, 0.2);
-                        font-weight: 600;
-
-                        &.day {
-                            margin-left: 10px;
-                        }
-                    }
-
-                    // for input section in .freq2 and .freq3
-                    .textSection {
-                        margin: 0 10px;
-                    }
-
-                    // .freq1, .freq2 {
-                    .freq1 {
-                        .size(@width: 100%, @height: 30px);
-                        line-height: 30px;
-
-                        > div {
-                            float: left;
-                        }
-                    }
-                    /**
-                    .freq2 {
-                        padding-left: 120px;
-                        margin-top: 20px;
-
-                        &.inActive {
-                            .textSection, .dropDownList {
-                                pointer-events: none;
-                                opacity: 0.7;
-                            }
-                        }
-                    }
-                    */
-                }
-            }
-
-            .buttonArea {
-                .size(@height: 50px);
-                background-color: @color-white;
-                padding-top: 10px;
-                padding-left: 29%;
-
-                .btn {
-                    float: left;
-                    margin-right: 20px;
-
-                    &.cancel {
-                        .gray-gradient;
-
-                        &:hover, &:focus {
-                            .gray-inverse-gradient;
-                        }
-                    }
-                }
-            }
-        }
-
-        .midContentBottom {
-            .flex(1 1 auto);
-            background-color: @color-white;
-            z-index: 2;
-        }
-    }
-}
-#schedulesView {
-    display: none;
-    min-width: 1000px;
-    .leftContent {
-        .mainButtonArea {
-            height: 59px;
-            padding: 5px 0;
-
-            .btn {
-                margin-top: 8px;
-                .icon {
-                    .image("../../images/schedule/schedule_calendar.png", 50%, 50%);
-                }
-            }
-        }
-    }
-    .midContent {
-        .flex-display;
-        .flex-flow(column);
-
-        .midContentHeader {
-            .flex(0 0 93px);
-        }
-    }
 }
 
 #dfgViz {
 
-    
     .image("../../images/dagIcons/dag-background.png", right, top, repeat);
 
     .cardHeader {
@@ -431,6 +32,10 @@
             float: left;
             height: 48px;
             .textOverflowOneLine;
+            width: ~"calc(100% - 160px)";
+            h2 {
+                max-width: ~"calc(100% - 200px)";
+            }
         }
 
         .retTabSection {
@@ -646,8 +251,10 @@
     }
 
     .cardMain {
-        padding-bottom: 20px;
-        
+        padding-top: 5px;
+        padding-bottom: 0px;
+        min-height: 160px;
+
         .runNowBtn {
             .size(@width: 95px, @height: 25px);
             float: right;
@@ -726,11 +333,11 @@
         .hint {
             .size(@width: 320px, @height: 60px);
             .horizontal-align;
-            top: 30%;
+            top: 40px;
             .rounded;
             border: 1px solid @color-white;
             padding: 10px 0;
-            background-color: rgba(249, 249, 249, 0.8);
+            background-color: rgba(255, 255, 255, 0.7);
 
             > div {
                 float: left;
@@ -753,7 +360,7 @@
 #addScheduleCard {
     display: none;
 
-    .cardTopMain {
+    .cardMain {
         max-width: 700px;
         margin: 0 auto;
         padding: 40px;
@@ -787,7 +394,7 @@
 
         @label-width: 175px;
 
-        h3 {
+        .label {
             .size(@width: @label-width);
             .font(@weight: 600, @size: 14px, @line-height: 30px);
             float: left;
@@ -815,4 +422,435 @@
 
 #dataFlowModal {
     // display: none !important;
+}
+
+#schedulesView {
+    display: none;
+
+    .scheduleForm {
+
+        .cardMain {
+            padding: 40px;
+            padding-bottom: 0px;
+            .flex-display;
+
+            .formWrap {
+                > div {
+                    margin-bottom: 12px;
+                    .clearfix;
+                }
+            }
+            
+            // hack to create left margin that doesn't go negative when too small
+            &:before {
+                content: '';
+                display: inline-block;
+                width: ~"calc(50% - 335px)";
+            }
+        }
+
+        @label-width: 130px;
+
+        .label {
+            .size(@width: @label-width);
+            .font(@weight: 600, @size: 14px, @line-height: 30px);
+            float: left;
+        }
+
+        .nameSection input {
+            width: ~"calc(100% - @{label-width})";
+        }
+
+        input {
+            background-color: @color-bg-white-three;
+            border: 1px solid@color-bg-white-five;
+            width: 208px;
+        }
+
+        .nameSection, .timeSection, .recurSection {
+            > div {
+                float: left;
+            }
+        }
+
+        .timeWrapper {
+            width: ~"calc(100% - @{label-width})";
+        }
+
+        .timeSection {
+            .position(relative);
+            margin-bottom: 0px !important;
+
+            .timeWrapper > div {
+                float: left;
+                margin-bottom: 12px;
+
+                &.datePickerPart {
+                    position: relative;
+                    margin-right: 20px;
+
+                    &.inActive {
+                        pointer-events: none;
+                        opacity: @opacity-unhover;
+                    }
+                }
+
+                &.timePickerPart {
+                    position: relative;
+                }
+            }
+
+            .timePicker {
+                display: none;
+                .size(@width: 208px, @height: 120px);
+                .position(absolute, @top: 30px, @left: 1px);
+                background-color: @color-white;
+                box-shadow: 0px 1px 1px 2px rgba(0,0,0,.1);
+                z-index: 41;
+                .rounded(0 3px 3px 0);
+                padding: 5px 11px;
+
+                > div {
+                    margin: 4px 0;
+                    .size(@width: 100%, @height: 20px);
+
+                    span, button, input {
+                        .size(@width: 60px, @height: 20px);
+                        margin: 0 1px;
+                        display: inline-block;
+                        float: left;
+                        text-align: center;
+                        line-height: 20px;
+                    }
+                }
+
+                .textSection {
+                    .font(@size: 10px, @color: @color-text-topGrayMed);
+                }
+
+                .inputSection {
+                    .font(@size: 12px, @color: @color-darkSilverChalice, @weight: bold);
+                    text-shadow: 0px 0px rgba(0, 0, 0, 0.2);
+
+                    input {
+                        background-color: @color-background-topForm;
+                        padding-top: 2px;
+                    }
+                }
+
+                .buttonSection {
+                    .btn {
+                        position: relative;
+
+                    }
+
+                    .hour {
+                        .rounded(3px 0 0 3px);
+                    }
+
+                    .minute {
+                        .rounded(0);
+                    }
+
+                    .cycle {
+                        .rounded(0 3px 3px 0);
+                    }
+
+                    .bar {
+                        .size(@width: 14px, @height: 3px);
+                        .position(absolute, @left: 50%);
+                        .transform(translate(-50%, -30%));
+                        background-color: @color-white;
+                        opacity: 0.9;
+                        box-shadow: 0 1px 1px 1px rgba(0, 0, 0, .1);
+                        .rounded(1px);
+
+                        &.vertical {
+                            .transform(translate(-50%, -30%) rotate(90deg));
+                        }
+                    }
+                }
+            }
+        }
+
+        .frequencySection {
+
+            // for radio part
+            .radioButtonGroup {
+                .size(@width: ~"calc(100% - @{label-width})", @height: auto);
+                display: block;
+                .radioButton {
+                    display: inline-block;
+                    height: 30px;
+                    float: left;
+                    &:last-child {
+                        .label {
+                            margin-right: 0px;
+                        }
+                    }
+                }
+                .radio {
+                    line-height: 30px;
+                }
+                .label {
+                    width: auto;
+                    margin-right: 30px;
+                }
+            }
+
+            // for dropdown list
+            .dropDownList {
+                .styleDropDownList(150px, 30px);
+                box-shadow: 0px 0px 2px 1px rgba(0, 0, 0, 0.2);
+                font-weight: 600;
+
+                &.day {
+                    margin-left: 10px;
+                }
+            }
+
+            // for input section in .freq2 and .freq3
+            .textSection {
+                margin: 0 10px;
+            }
+
+            // .freq1, .freq2 {
+            .freq1 {
+                .size(@width: 100%);
+                line-height: 30px;
+
+                > div {
+                    float: left;
+                }
+            }
+            /**
+            .freq2 {
+                padding-left: 120px;
+                margin-top: 20px;
+
+                &.inActive {
+                    .textSection, .dropDownList {
+                        pointer-events: none;
+                        opacity: 0.7;
+                    }
+                }
+            }
+            */
+        }
+
+        #ui-datepicker-div.schedulerDatePicker {
+            margin-top: 2px;
+            top: 28px !important;
+            left: 0 !important;
+            z-index: 3 !important;
+        }
+    }
+
+
+    #scheduleInfos {
+        .flex-display;
+        padding-top: 0px;
+        border-bottom: 1px solid @color-border-pinkish-grey2;
+
+        .tabArea {
+            @tabSize: 40px;
+            width: @tabSize;
+            background-color: @color-bg-white-three;
+            border-right: 1px solid @color-border-pinkish-grey2;
+            .tab {
+                width: 100%;
+                height: @tabSize;
+                border-bottom: 1px solid @color-border-pinkish-grey2;
+                text-align: center;
+                float: left;
+
+                .iconWrap {
+                    background-color: @color-bg-pinkish-grey;
+                }
+
+                &.active {
+                    background-color: @color-white;
+                    border-right-width: 0px;
+                    width: @tabSize + 1px;
+                    border-bottom-width: 0px;
+
+                    .iconWrap {
+                        background-color: @color-bg-select-blue;
+                    }
+                    + .tab {
+                         border-top: 1px solid @color-border-pinkish-grey2;
+                    }
+                    .xi-info-rectangle {
+                        color: @color-bg-select-blue;
+                    }
+
+                }
+
+                &.default {
+                    .iconWrap {
+                        background-color: @color-white;
+                    }
+                }
+
+                &:not(.default) {
+                    .icon {
+                        font-size: 14px;
+                    }
+                }
+
+                &:last-child {
+                    position: relative;
+                    top: 1px;
+                }
+
+                &.xc-disabled {
+                    .icon {
+                        font-size: 20px;
+                        background-color: @color-white;
+                        color: @color-bg-pinkish-grey;
+                    }
+                }
+            }
+
+            .iconWrap {
+                .size(20px, 20px);
+                margin-top: 10px;
+                margin-left: 10px;
+            }
+
+            .xi-info-rectangle {
+                color: @color-bg-pinkish-grey;
+            }
+
+            // .icon {
+            //     line-height: @tabSize;
+            // }
+        }
+
+        .mainArea {
+            padding: 20px 16px 0px 40px;
+            overflow: hidden;
+            .flex(1 0 200px);
+
+            h2 {
+                display: block;
+                height: 25px;
+                .font(@size: 19px, @line-height: 25px, @weight: bold, @color: @color-text-blue);
+                margin-bottom: 12px;
+                .textOverflowOneLine;
+                width: ~"calc(100% - 70px)";
+            }
+
+            .xi-edit {
+                font-size: 18px;
+            }
+
+            .defaultSection {
+                position: relative;
+                #modScheduleForm-edit {
+                    position: absolute;
+                    right: 24px;
+                    top: -41px;
+                }
+            }
+
+            .infoSection {
+                margin-top: 10px;
+                
+                .group {
+                    max-width: 600px; 
+                    margin-right: 24px;
+                    margin-bottom: 20px;
+                    border: 0 solid @color-border-white-two;
+                    border-width: 0 0 0px 1px;
+                    .flex-display;
+                    flex-wrap: wrap;
+                    float: left;
+                }
+                
+                .column {
+                    max-width: 340px;
+                    float: left;
+                    flex: 2 1 340px;
+                    border-bottom: 1px solid @color-border-white-two;
+
+                    &:last-child {
+                        flex: 1 1 230px;
+                    }
+                    .row {
+                        .size(@width: 100%, @height: 40px);
+                        .font(@size: 14px, @line-height: 40px, @weight: 600, @color: @color-font-greyish-brown);
+                        float: left;
+                        border: 0 solid @color-border-white-two;
+                        border-width: 1px 1px 0 0;
+                        background-color: @color-bg-white-seven;
+                        overflow: hidden;
+                    }
+
+                    .name, .text {
+                        padding: 0 8px;
+                    }
+                    .name {
+                        display: inline-block;
+                        width: 116px;
+                        border-right: 1px solid @color-border-white-two;
+                        background-color: @color-white;
+                    }
+
+                    .text {
+                        text-transform: capitalize;
+                        color: @color-font-select-blue;
+
+                    }
+
+                    &.runInfo {
+                        border: 0 solid @color-border-white-two;
+                        border-width: 0 0 1px 1px;
+                        overflow: hidden;
+                        margin-bottom: 20px;
+                        margin-right: 24px;
+                    }
+                }
+            }
+        }
+    }
+
+    #modifyScheduleForm {
+        padding-top: 0px;
+        &.inActive {
+            pointer-events: none;
+            opacity: @opacity-disabled;
+        }
+        .nameSection {
+            pointer-events: none;
+            opacity: @opacity-unhover;
+        }
+    }
+
+    #scheduleTable {
+        margin-right: 24px;
+        
+        @rowHeight: 30px;
+        .titleWrapper {
+            border: 1px solid @color-border-white-two;
+            background-color: @color-bg-white-seven;
+        }
+        .title, .grid-unit > div {
+            width: 33%;
+            border-left: 1px solid @color-border-white-two;
+            display: inline-block;
+            float: left;
+            height: @rowHeight;
+            line-height: @rowHeight;
+            text-align: center;
+
+            &:first-child {
+                border-left: none;
+            }        
+        }
+        .grid-unit {
+            border: 1px solid @color-border-white-two;
+            border-top: none;
+        }
+    }
 }

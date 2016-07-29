@@ -935,7 +935,7 @@ window.TestSuite = (function($, TestSuite) {
 
         $("#addSchedule").click();
 
-        var $form = $("#scheduleForm");
+        var $form = $("#newScheduleForm");
         $form.find(".name").val(schedName)
             .end()
             .find(".datePickerPart input").focus().focus().click()

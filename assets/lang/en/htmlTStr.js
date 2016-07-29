@@ -287,6 +287,7 @@ module.exports = {
     },
 
     "sched": {
+        "SchedTitle": "SCHEDULER/DATAFLOW GROUPS",
         "DFG": "DATAFLOW GRP",
         "SCHEDS": "SCHEDULES",
         "DETAIL": "DETAIL",
@@ -298,7 +299,7 @@ module.exports = {
         "val": "Value",
         "action": "Action",
         "scheds": "Schedules",
-        "newSched": "CREATE NEW SCHEDULE",
+        "newSched": "Create New Schedule",
         "created": "Created",
         "modified": "Last modified",
         "freq": "Frequency",

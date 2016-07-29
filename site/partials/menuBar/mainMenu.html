@@ -18,24 +18,8 @@
 			</section>
 		</div>
 		<div id="dfgMenu" class="commonSection" data-tab="schedulerTab">
-			<section class="menuSection dfgList">
-				<div class="iconSection">
-	                <!-- point to data button -->
-	                <div id="addScheduleButton" class="action" title="" data-toggle="tooltip" data-placement="top" data-container="body" title="Add Schedule">
-	                  <i class="icon xi-add-schedule"></i>
-	                </div>
-	                <i class="minimizeBtn icon xi-close fa-17"></i>
-	            </div>
-		        <div class="titleSection no-selection">
-  				  <header>
-  				    <span><%= dicts.sched.dfgs %> (<span class="numGroups">0</span>)</span>
-  				  </header>
-  				</div>
-	        	<div class="listSection mainSection"></div>
-			</section>
-
-
-
+			include "../scheduler/dfgList.html"
+			include "../scheduler/schedulesMenu.html"
 		</div>
 	</div>
 	<div class="minimizedContent">
