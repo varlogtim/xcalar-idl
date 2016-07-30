@@ -3,12 +3,12 @@ function dsTableTest() {
     var testDSObj;
     var testDSId;
 
-    var $datasetWrap;
+    var $dsTableContainer;
     var $tableWrap;
 
     before(function(done){
-        $datasetWrap = $("#datasetWrap");
-        $tableWrap = $("#dataSetTableWrap");
+        $dsTableContainer = $("#dsTableContainer");
+        $tableWrap = $("#dsTableWrap");
 
         testDS = xcHelper.uniqueRandName("unitTest-fakeYelp", DS.has, 10);
         var dataset = testDatasets.fakeYelp;
@@ -39,10 +39,10 @@ function dsTableTest() {
             .then(function() {
                 // XX loading icon during sample load breaks this test
 
-                assert.isTrue($datasetWrap.is(":visible"));
-                assert.isTrue($datasetWrap.hasClass("loading"));
+                assert.isTrue($dsTableContainer.is(":visible"));
+                assert.isTrue($dsTableContainer.hasClass("loading"));
 
-                var loadText = $datasetWrap.find(".loadSection .text").text();
+                var loadText = $dsTableContainer.find(".loadSection .text").text();
                 expect(loadText).to.equal("Loading");
                 done();
             })
@@ -72,9 +72,9 @@ function dsTableTest() {
         it("Should show data sample table", function(done) {
             DSTable.show(testDSId)
             .then(function() {
-                assert.isTrue($datasetWrap.is(":visible"));
-                assert.isFalse($datasetWrap.hasClass("loading"));
-                expect($("#worksheetTable").data("dsid")).to.equal(testDSId);
+                assert.isTrue($dsTableContainer.is(":visible"));
+                assert.isFalse($dsTableContainer.hasClass("loading"));
+                expect($("#dsTable").data("dsid")).to.equal(testDSId);
 
                 // ds name matches
                 expect($("#dsInfo-title").text()).to.equal(testDS);
@@ -92,23 +92,23 @@ function dsTableTest() {
         it("Should select all columns", function() {
             $("#selectDSCols").click();
             // all columns(11 cols) all selected
-            expect($("#worksheetTable th.selectedCol").length).to.equal(12);
+            expect($("#dsTable th.selectedCol").length).to.equal(12);
         });
 
         it("Should select no columns", function() {
             $("#noDScols").click();
-            expect($("#worksheetTable th.selectedCol").length).to.equal(0);
+            expect($("#dsTable th.selectedCol").length).to.equal(0);
         });
 
         it("Should select one column", function() {
-            var $input = $("#worksheetTable .editableHead").eq(0).click();
-            expect($("#worksheetTable th.selectedCol").length).to.equal(1);
+            var $input = $("#dsTable .editableHead").eq(0).click();
+            expect($("#dsTable th.selectedCol").length).to.equal(1);
             assert.isTrue($input.closest("th").hasClass("selectedCol"));
         });
 
         it("Should clear all selection", function() {
             $("#clearDsCols").click();
-            expect($("#worksheetTable th.selectedCol").length).to.equal(0);
+            expect($("#dsTable th.selectedCol").length).to.equal(0);
         });
     });
 

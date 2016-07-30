@@ -370,18 +370,18 @@ window.TestSuite = (function($, TestSuite) {
             var dsId2  = $grid2.data("dsid");
 
             $grid2.find(".gridIcon").click();
-            checkExists('#worksheetTable[data-dsid="' + dsId2 + '"]')
+            checkExists('#dsTable[data-dsid="' + dsId2 + '"]')
             .then(function() {
-                $("#selectDSCols .icon").click();
+                $("#selectDSCols").click();
                 $grid1.find(".gridIcon").click();
-                return (checkExists('#worksheetTable[data-dsid="' +
+                return (checkExists('#dsTable[data-dsid="' +
                                     dsId1 + '"]'));
             })
             .then(function() {
-                $("#selectDSCols .icon").click();
+                $("#selectDSCols").click();
                 // click on closeIcon on datacart not work
                 // since it has animation that dealy the display
-                $("#worksheetTable th .header .editableHead").slice(0, 5)
+                $("#dsTable th .header .editableHead").slice(0, 5)
                                                              .click();
                 $("#submitDSTablesBtn").click();
 
@@ -736,9 +736,9 @@ window.TestSuite = (function($, TestSuite) {
         .then(function() {
             var $grid = $(dsIcon);
             var dsId = $grid.data("dsid");
-            return (checkExists('#worksheetTable[data-dsid="' + dsId + '"]'));
+            return (checkExists('#dsTable[data-dsid="' + dsId + '"]'));
         }).then(function(){
-            $("#worksheetTable .header .flexContainer").each(function() {
+            $("#dsTable .header .flexContainer").each(function() {
                 var $ele = $(this);
                 var val = $ele.find(".editableHead").val();
                 if (val === "class_id" || val === "teacher_id") {

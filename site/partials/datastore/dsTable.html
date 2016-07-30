@@ -1,66 +1,56 @@
-<div class="contentViewHeader">
-  <div class="dbText">
-    <h2 id="dsInfo-title"><%= dicts.ds.Datasets %></h2>
-    <p>
-      <%= dicts.dsTable.CreatedBy %>: <span id="dsInfo-author"></span> |
-      <%= dicts.dsTable.ModifiedDate %>: <span id="dsInfo-modifyDate"></span>
-    </p>
-    <p>
-      <%= dicts.dsTable.Records %>: <span id="dsInfo-records">N/A</span> |
-      <%= dicts.dsTable.Size %>: <span id="dsInfo-size">N/A</span> |
-      <%= dicts.dsTable.Path %>: <span id="dsInfo-path">N/A</span>
-    </p>
+<div class="cardContainer">
+  <div class="cardHeader">
+    <header class="title"><%= dicts.dsTable.DSPreview %></header>
+  </div>
+  <!-- cardTop -->
+  <div class="cardTopMain no-selection">
+    <div class="titleSection">
+      <header id="dsInfo-title" class="title">
+        <%= dicts.ds.Datasets %>
+      </header>
+      <!-- Button Group -->
+      <div id="dsColsBtn" class="buttonGroup">
+        <i id="selectDSCols" title="<%= dicts.common.SelectAll %>" data-toggle="tooltip" data-container="body" class="selectAll icon xi-select-all xc-action"></i>
+        <i id="clearDsCols" title="<%= dicts.common.ClearAll %>" data-toggle="tooltip" data-container="body" class="clear icon xi-select-none xc-action"></i>
+        <i id="noDScols" title="<%= dicts.dsTable.SelectLater %>"
+          data-toggle="tooltip" data-container="body" class="noCols icon xi-select-later xc-action"></i>
+      </div>
+    </div>
+    <div class="contentSection">
+      <span><%= dicts.dsTable.CreatedBy %>:</span>
+      <span id="dsInfo-author"></span>
+      <span class="divider">|</span>
+      <span><%= dicts.dsTable.ModifiedDate %>:</span>
+      <span id="dsInfo-modifyDate"></span>
+      <span class="divider">|</span>
+      <span><%= dicts.dsTable.Records %>:</span>
+      <span id="dsInfo-records">N/A</span>
+      <span class="divider">|</span>
+      <span><%= dicts.dsTable.Size %>:</span>
+      <span id="dsInfo-size">N/A</span>
+    </div>
+    <div class="contentSection">
+      <span><%= dicts.ds.Format %>:</span>
+      <span id="schema-format"></span>
+      <span class="divider">|</span>
+      <span><%= dicts.dsTable.Path %>:</span>
+      <span id="dsInfo-path">N/A</span>
+    </div>
+  </div>
+  <!-- cardMain -->
+  <div class="cardMain">
+    <!-- Datastore Table -->
+    <div id="dsTableContainer">
+      <div class="loadSection animatedEllipsisWrapper">
+        <div class="text"><%= dicts.common.Loading %></div>
+        <div class="animatedEllipsis">
+          <div>.</div>
+          <div>.</div>
+          <div>.</div>
+        </div>
+      </div>
+      <div class="errorSection"></div>
+      <div id="dsTableWrap" class="datasetTableWrap"></div>
+    </div>
   </div>
 </div>
-<!-- Datastore Table -->
-<div class="contentViewTable">
-  <!-- Title Wrap -->
-  <div class="datasetTitleWrap no-selection">
-    <!-- Title Info -->
-    <div class="titleInfo">
-      <div class="heading">
-         <h2><%= dicts.dsTable.DSPreview %></h2>
-      </div>
-      <div class="dsInfo">
-        <span><%= dicts.ds.Format %>:</span>
-        <span id="schema-format"></span>
-      </div>
-    </div>
-    <!-- Button Group -->
-    <div id="dsColsBtn" class="buttonGroup">
-      <div class="buttonWrap">
-        <div id="noDScols" class="noCols modifyDSButton">
-          <span class="icon"></span>
-          <span class="text"><%= dicts.dsTable.SelectLater %></span>
-        </div>
-        <div title="<%= dicts.dsTable.SelectLaterHint %>"
-        data-toggle="tooltip" data-container="body" class="qMark"></div>
-      </div>
-      <div class="buttonWrap">
-        <div id="selectDSCols" class="selectAll modifyDSButton">
-          <span class="icon"></span>
-          <span class="text"><%= dicts.common.SelectAll %></span>
-        </div>
-        <div class="divider"></div>
-        <div id="clearDsCols" class="clear modifyDSButton">
-          <span class="icon"></span>
-          <span class="text"><%= dicts.common.ClearAll %></span>
-        </div>
-      </div>
-    </div>
-  </div>
-  <!-- Dataset Wrap -->
-  <div id="datasetWrap">
-    <div class="loadSection animatedEllipsisWrapper">
-      <div class="text"><%= dicts.common.Loading %></div>
-      <div class="animatedEllipsis">
-        <div>.</div>
-        <div>.</div>
-        <div>.</div>
-      </div>
-    </div>
-    <div class="errorSection"></div>
-    <div id="dataSetTableWrap" class="datasetTableWrap"></div>
-  </div>
-</div>
-<!-- End Datastore Table -->

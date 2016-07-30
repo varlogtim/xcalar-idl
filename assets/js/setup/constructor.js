@@ -567,6 +567,7 @@ function CartItem(options) {
     options = options || {};
     this.colNum = options.colNum;
     this.value = options.value;
+    this.type = options.type;
 
     return this;
 }

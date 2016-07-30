@@ -15,8 +15,8 @@ window.TblAnim = (function($, TblAnim) {
         }
         if (options && options.target === "datastore") {
             rescol.isDatastore = true;
-            rescol.$tableWrap = $('#dataSetTableWrap');
-            rescol.$worksheetTable = $('#worksheetTable');
+            rescol.$tableWrap = $('#dsTableWrap');
+            rescol.$dsTable = $('#dsTable');
             rescol.$previewTable = $('#previewTable');
         } else if ($th.hasClass("userHidden")) {
             // This is a hidden column! we need to unhide it
@@ -73,7 +73,7 @@ window.TblAnim = (function($, TblAnim) {
 
         moveTableTitles();
         if (rescol.isDatastore) {
-            rescol.$tableWrap.width(rescol.$worksheetTable.width());
+            rescol.$tableWrap.width(rescol.$dsTable.width());
                // size line divider to fit table
             var tableWidth = rescol.$previewTable.width();
             rescol.$previewTable.find('.divider').width(tableWidth - 10);

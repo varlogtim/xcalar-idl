@@ -66,28 +66,6 @@ body {
     }
 }
 
-.xc-hidden {
-    display: none !important;
-}
-
-.xc-disabled {
-    opacity: @opacity-disabled !important;
-    pointer-events: none;
-}
-
-.xc-action {
-    cursor: pointer;
-    .xc-hover;
-}
-
-.xc-hover {
-    opacity: @opacity-unhover;
-
-    &:hover {
-        opacity: @opacity-hover;
-    }
-}
-
 &::-webkit-scrollbar {
     .size(11px, 11px);
     background: transparent;

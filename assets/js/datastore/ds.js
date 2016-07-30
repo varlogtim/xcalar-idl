@@ -259,7 +259,7 @@ window.DS = (function ($, DS) {
                 if (gMinModeOn) {
                     DS.focusOn($grid);
                 } else {
-                    $('#dataSetTableWrap').fadeOut(200, function() {
+                    $('#dsTableWrap').fadeOut(200, function() {
                         DS.focusOn($grid);
                         $(this).fadeIn();
                     });
@@ -519,7 +519,7 @@ window.DS = (function ($, DS) {
             //clear data cart
             DSCart.removeCart(dsId);
             // clear data table
-            $("#dataSetTableWrap").empty();
+            $("#dsTableWrap").empty();
             // remove ds obj
             removeDS($grid);
             DataStore.update();

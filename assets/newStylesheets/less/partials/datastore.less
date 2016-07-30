@@ -96,8 +96,9 @@ input {
 
 #datastore-in-view {
     .leftSection {
-        .size(@width: ~"calc(100% - 300px)", @height: 100%);
+        .size(@width: ~"calc(100% - 306px)", @height: 100%);
         float: left;
+        margin-right: 6px;
 
         > .section {
             .size(100%, 100%);
@@ -107,57 +108,6 @@ input {
     .rightSection {
         .size(@width: 300px, @height: 100%);
         float: left;
-
-        .buttonArea {
-            margin-top: 4px;
-            padding-bottom: 0px;
-            padding-left: 12px;
-            position: relative;
-            cursor: default;
-
-            &.cartOverflow {
-                box-shadow: 2px 2px 5px rgba(0,0,0,0.4);
-                .border {
-                    display: none;
-                }
-            }
-            .title {
-                font-size: 16px;
-                padding-left: 5px;
-                padding-top: 15px;
-                .size(@width:225px, @height: 45px);
-                text-align: center;
-            }
-            .border {
-                border-top: 1px solid @color-border-joinGray;
-                border-bottom: 1px solid @color-white;
-                width: 225px;
-            }
-        }
-
-        .btnLarge {
-            margin-top: 10px;
-            padding-right: 5px;
-            width: 225px;
-            font-size: 11px;
-            display: block;
-            text-align: left !important;
-            text-indent: 4px;
-
-            .icon {
-                left: -2px !important;
-            }
-
-            &#submitDSTablesBtn .icon {
-                .image("../../images/datastore/send-single.png", 0, 50%);
-            }
-            &#submitMultipleDBTablesBtn .icon {
-                .image("../../images/datastore/send-multiple.png", 0, 50%);
-            }
-            &#clearDataCart .icon {
-                .image("../../images/garbage.png", 0, 50%);
-            }
-        }
     }
 }
 
@@ -189,129 +139,365 @@ input {
 }
 
 #dsTableView {
-    .contentViewHeader {
-        height: 93px;
-        .flex-order(1);
-        box-shadow: 0 3px 2px rgba(0,0,0,.2);
-        padding: 10px 25px 0px;
-
-        .dbText {
-            display: inline-block;
-            float: left;
-            width: 100%;
-            overflow: hidden;
-
-            h2, p {
-                .textOverflow;
-            }
-        }
-
-        h2 {
-            display: block;
-            height: 26px;
-            .font(@size: 19px, @line-height: 25px, @color: @color-text-blue);
-        }
-
-        p {
-            display: block;
-            font-size: 13px;
-            margin: 2px 0 5px 0;
-        }
+    .cardContainer {
+        .size(100%, 100%);
     }
 
-    /* START DATASET TABLE */
-    .contentViewTable {
-        height: ~"calc(100% - 93px)";
-        .flex-order(2);
-        background-repeat: no-repeat;
-        background-position: center;
-        position: relative;
+    .cardTopMain {
+        .size(@height: 116px);
+        padding: 15px;
 
-        /* dataset title wrap */
-        .datasetTitleWrap {
-            .size(@height: 60px);
-            margin-top: 15px;
-            padding-left: 25px;
+        .titleSection {
+            .size(@height: 25px);
+            line-height: 25px;
 
-
-            .titleInfo {
-                .size(@height: 60px);
+            .title {
+                .size(@width: auto);
+                .font(@size: 18px, @weight: 700);
+                color: @color-font-select-blue;
                 float: left;
-
-                .heading {
-                    .size(@height: 20px);
-                    margin-bottom: 10px;
-                    .font(@size: 14px);
-                }
-
-                .dsInfo {
-                    .size(@height: 20px);
-                    .font(@size: 13px);
-                }
             }
 
             .buttonGroup {
-                .size(@height: 60px);
-                overflow: hidden;
                 float: right;
-                .font(@weight: 600, @color: @color-text-blue);
-                padding-right: 17px;
 
-                .buttonWrap {
-                    .size(@height: 20px);
+                .icon {
+                    color: @color-font-select-blue;
+                    margin-right: 5px;
 
-                    > div {
-                        float: left;
+                    &:last-child {
+                        margin-right: 0;
                     }
-
-                    &:first-child {
-                        margin-bottom: 10px;
-                    }
-                }
-
-                .qMark {
-                    .vertical-align;
-                    margin-left: 5px;
-                }
-
-                .modifyDSButton {
-                    .size(@height: 20px);
-                    cursor: pointer;
-
-                    span {
-                       float: left;
-                       line-height: 20px;
-                    }
-
-                    .icon {
-                        margin-right: 8px;
-                        .size(@width: 20px, @height: 20px);
-                    }
-
-                     &.noCols .icon {
-                        .image("../../images/datastore/dsNoCol.png", 50%, 50%);
-                    }
-
-                    &.selectAll .icon {
-                        .image("../../images/select-all.png", 50%, 50%);
-                    }
-
-                    &.clear .icon {
-                        .image("../../images/select-none.png", 50%, 50%);
-                    }
-                }
-
-                .divider {
-                    .size(@width: 1px, @height: 20px);
-                    margin: 0 10px;
-                    background-color: @color-background-topGrayMed;
                 }
             }
         }
-        /* End of dataset title wrap */
+
+        .contentSection {
+            .size(@height: 20px);
+            font-size: 14px;
+            margin-top: 10px;
+            .textOverflowOneLine;
+        }
     }
-    /* END OF DATASET TABLE */
+
+    .cardMain {
+        .size(@width: 100%, @height: ~"calc(100% - 152px)");
+        padding: 0;
+    }
 }
+
+#dsTableContainer {
+    .size(@max-width: 100%, @max-height: 100%);
+    white-space: nowrap;
+    overflow: hidden;
+    float: left;
+    overflow-x: auto;
+
+    &.loading {
+        border: none;
+        height: 40px !important;
+        .errorSection, .datasetTableWrap {
+            display: none !important;
+        }
+
+        .loadSection {
+            display: block;
+        }
+    }
+
+    &.error {
+        border: none;
+        height: 40px !important;
+        .datasetTableWrap, .loadSection {
+            display: none !important;
+        }
+
+        .errorSection {
+            display: block;
+        }
+    }
+
+    .loadSection {
+        display: none;
+        margin-left: 15px;
+
+        .animatedEllipsis {
+            margin-left: 5px;
+
+            > div {
+                margin-left: -1px;
+            }
+        }
+    }
+
+    .errorSection {
+        display: none;
+        color: @color-table-red;
+        margin-left: 15px;
+    }
+}
+
+.datasetTbodyWrap {
+    .size( @max-height: 100%);
+    overflow-x: visible;
+    overflow-y: scroll;
+    display: inline-block;
+    outline: 1px solid @color-white; // ie bug if we dont use this outline
+    outline-offset: -1px;
+    margin-top: -1px;
+
+    &::-webkit-scrollbar {
+        display: none;
+    }
+}
+
+table.datasetTable {
+    margin: 0;
+}
+
+.datasetTableWrap {
+    height: 100%;
+    margin: 0;
+    position: relative;
+    display: inline-block;
+    overflow: hidden;
+
+    .header {
+        .position(absolute, @top: 0);
+        .size(@width: inherit, @height: @height-colHeaderOuter);
+        cursor: pointer;
+
+        .editableHead {
+            .no-selection;
+        }
+
+        .flexWrap.flex-right {
+            .flex(0 0 20px);
+            position: relative;
+
+            .icon {
+                .position(relative, @top: 1px);
+                opacity: @opacity-unhover;
+            }
+        }
+
+        &:hover {
+            .flexWrap.flex-right {
+                > .icon {
+                    opacity: @opacity-hover;
+                }
+            }
+        }
+
+        &::before {
+            display: none;
+        }
+    }
+
+    th {
+        width: 130px;
+
+        &.rowNumHead {
+            width: 40px;
+            cursor: default;
+
+            .header {
+                width: 40px;
+                cursor: default;
+            }
+        }
+    }
+    .selectedCol {
+        .header {
+            .editableHead {
+                color: @color-white;
+            }
+            .tick.icon {
+                opacity: 1.0;
+            }
+        }
+
+        .flexContainer {
+            .type-boolean .flexWrap.flex-left {
+                &:after {
+                    border-top: 30px solid @color-border-colIconBlue;
+                }
+            }
+        }
+        
+    }
+}
+
+// Data Cart Section
+#dataCartContainer {
+    .size(100%, 100%);
+    background-color: @color-bg-white-seven;
+    box-shadow: -1px 0 0 0 rgba(255, 255, 255, 0.5), inset 1px 0 0 0 rgba(0, 0, 0, 0.2);
+
+    &.cartOverflow {
+        .buttonSection {
+            box-shadow: 2px 2px 5px rgba(0,0,0,0.4);
+        }
+    }
+
+    @height-title: 40;
+    @height-button: 140px;
+    @height-main: @height-title + @height-button;
+
+    .titleSection {
+        .size(@height: @height-title);
+        background-color: @color-bg-topBarGray;
+        padding-left: 20px;
+        .font(@size: 20px, @weight: 700, @line-height: 40px, @color: @color-font-gray36);
+    }
+
+    .buttonSection {
+        .size(@height: @height-button);
+        background-color: @color-bg-white-nine;
+        padding: 15px 20px;
+
+        .dropDownList {
+            .styleDropDownList(@w: 100%, @h: 30px);
+            margin-bottom: 10px;
+        }
+
+        .btn {
+            margin-top: 10px;
+            .size(@width: 100%, @height: 30px);
+            display: block;
+            .font(@weight: 700);
+
+            .icon {
+                top: 5px;
+            }
+        }
+
+        #clearDataCart {
+            background-color: @color-white;
+            color: @color-font-warm-grey-two;
+
+            .icon {
+                color: @color-font-warm-grey-two;
+            }
+        }
+
+    }
+
+    .mainSection {
+        .size(@width: 100%, @height: ~"calc(100% - @{height-button})");
+        padding: 10px 10px 10px 20px;
+
+        &.noCart {
+            .hint {
+                display: block;
+            }
+        }
+
+        .hint {
+            display: none;
+            white-space: normal;
+            margin-top: 10px;
+            margin-right: 10px;
+            color: @color-text-darkdarkGray;
+        }
+    }
+}
+
+#dataCart {
+    .size(@width: 100%, @height: 100%);
+    backface-visibility: hidden;
+
+    .selectedTable {
+        .size(@width: 100%);
+        margin: 10px 0 20px 0;
+        color: @color-font-greyish-brown;
+
+        .xc-action {
+            color: @color-font-greyish-brown;
+            .vertical-align;
+            top: 45%;
+            margin-left: 8px;
+            opacity: @opacity-hint;
+
+            &:hover {
+                opacity: @opacity-hover;
+            }
+        }
+
+        .cartTitleArea {
+            .size(@width: 100%, @height: 30px);
+
+             .tableNameEdit {
+                .size(@width: 220px, 100%);
+                .font(@size: 14px, @weight: 600, @line-height: 30px);
+                border: solid 1px @color-border-white-five;
+                display: inline-block;
+                padding: 0 10px;
+                text-align: left;
+                background-color: @color-bg-white-three;
+                float: left;
+                opacity: @opacity-unhover;
+
+                &:focus {
+                    outline: none;
+                    opacity: @opacity-hover;
+                }
+            }
+        }
+
+        .cartEmptyHint {
+            margin-top: 10px;
+            text-align: center;
+            .font(@weight: bold, @color: @color-text-midGray);
+        }
+
+        li {
+            .size(@height: 24px);
+            overflow: hidden;
+            margin-top: 12px;
+            padding-left: 10px;
+
+            &.colSelected {
+                .itemWrap {
+                    color: @color-font-select-blue;
+                    border-color: @color-border-select-blue;
+                
+                    .iconWrap {
+                        background-color: @color-bg-select-blue;
+                    }
+                }
+            }
+
+            .itemWrap {
+                .size(@width: 210px, @height: 100%);
+                border: solid 1px @color-border-warm-grey-two;
+                float: left;
+                display: inline-block;
+                cursor: default;
+
+                > span {
+                    display: inline-block;
+                    float: left;
+                }
+
+                .iconWrap {
+                    .size(@width: 24px, @height: 22px);
+                    background-color: @color-bg-unselect-gray;
+                
+                    .icon {
+                        left: 45%;
+                    }
+                }
+
+                .colName {
+                    .size(@width: 184px, @height: 100%);
+                    padding-left: 6px;
+                }
+            }
+        }
+    }
+}
+// End of Data Cart Section
 
 .formHelp {
     .position(relative);
@@ -1444,264 +1630,3 @@ input {
         }
     }
 }
-
-
-#datasetWrap {
-    .size(@max-width: ~"calc(100% - 20px)", @max-height: ~"calc(100% - 88px)");
-    white-space: nowrap;
-    overflow: hidden;
-    float: left;
-    position: absolute;
-    margin-left: 10px;
-    overflow-x: auto;
-    border: 1px solid @color-border-lightLightGray;
-    margin-top: 10px;
-
-    &.loading {
-        border: none;
-        height: 40px !important;
-        .errorSection, .datasetTableWrap {
-            display: none !important;
-        }
-
-        .loadSection {
-            display: block;
-        }
-    }
-
-    &.error {
-        border: none;
-        height: 40px !important;
-        .datasetTableWrap, .loadSection {
-            display: none !important;
-        }
-
-        .errorSection {
-            display: block;
-        }
-    }
-
-    .loadSection {
-        display: none;
-        margin-left: 15px;
-
-        .animatedEllipsis {
-            margin-left: 5px;
-
-            > div {
-                margin-left: -1px;
-            }
-        }
-    }
-
-    .errorSection {
-        display: none;
-        color: @color-table-red;
-        margin-left: 15px;
-    }
-}
-
-.datasetTbodyWrap {
-    .size( @max-height: 100%);
-    overflow-x: visible;
-    overflow-y: scroll;
-    display: inline-block;
-    outline: 1px solid @color-white; // ie bug if we dont use this outline
-    outline-offset: -1px;
-    margin-top: -1px;
-
-    &::-webkit-scrollbar {
-        display: none;
-    }
-}
-
-table.datasetTable {
-    margin: 0;
-}
-
-.datasetTableWrap {
-    height: 100%;
-    margin: 0;
-    position: relative;
-    display: inline-block;
-    overflow: hidden;
-
-    .header {
-        .position(absolute, @top: 0);
-        .size(@width: inherit, @height: @height-colHeaderOuter);
-        cursor: pointer;
-
-        .flexWrap.flex-right {
-            .flex(0 0 20px);
-            position: relative;
-
-            .tick.icon {
-                .size(@width: 15px, @height: 22px);
-                .image("../../images/tick.png", 50%, 70%);
-                opacity: 0.5;
-            }
-        }
-
-        &:hover {
-            .flexWrap.flex-right {
-                > .tick.icon {
-                    opacity: 1.0;
-                }
-            }
-        }
-
-        &::before {
-            display: none;
-        }
-    }
-
-    th {
-        width: 130px;
-
-        &.rowNumHead {
-            width: 40px;
-            cursor: default;
-
-            .header {
-                width: 40px;
-                cursor: default;
-            }
-        }
-    }
-    .selectedCol {
-        .header {
-            .editableHead {
-                color: @color-white;
-            }
-            .tick.icon {
-                opacity: 1.0;
-            }
-        }
-
-        .flexContainer {
-            .type-boolean .flexWrap.flex-left {
-                &:after {
-                    border-top: 30px solid @color-border-colIconBlue;
-                }
-            }
-        }
-        
-    }
-}
-/* End Of Content Mid */
-
-// Data Cart Section
-#dataCartWrap {
-    .size(@width: ~"calc(100% - 10px)", @height: ~"calc(100% - 125px)");
-    overflow: auto;
-    float: left;
-}
-
-#dataCart {
-    margin-left: 12px;
-    background-color: @color-background-darkGray;
-    backface-visibility: hidden;
-
-    .helpText {
-        white-space: normal;
-        display: block;
-        margin-top: 10px;
-        margin-right: 15px;
-        color: @color-text-darkdarkGray;
-    }
-
-    .selectedTable {
-        .size(@width: 215px);
-        margin: 10px 0 20px 0;
-
-        .cartTitleArea {
-            .position(relative);
-            .size(@width: 100%, @height: 30px);
-
-             .tableNameEdit {
-                .size(100%, 100%);
-                .font(@size: 15px, @weight: bold, @line-height: 30px);
-                padding-right: 30px;
-                padding-left: 5px;
-                display: inline-block;
-                text-align: center;
-                box-shadow: inset 0px 1px 1px rgba(0, 0, 0, 0.5);
-                background-color: @color-background-topGrayMed;
-            }
-
-            .iconWrapper {
-                .position(absolute, @top: 5px, @right: 5px);
-                .size(20px, 20px);
-                background-color: @color-icon-gray-flat;
-                box-shadow: -1px 1px 0px 1px rgba(0, 0, 0, 0.2);
-                .rounded;
-                cursor: pointer;
-
-                &:hover {
-                    .action-gradient;
-                }
-
-                .icon {
-                    .size(100%, 100%);
-                    .image("../../images/datastore/tableEdit.png", 50%, 50%);
-                }
-            }
-
-            &.focus {
-                .iconWrapper {
-                    display: none;
-                }
-            }
-        }
-
-        .cartEmptyHint {
-            margin-top: 10px;
-            text-align: center;
-            .font(@weight: bold, @color: @color-text-midGray);
-        }
-
-        li {
-            .size(@height: 25px);
-            .font(@weight: 700, @size: 12px, @line-height: 25px);
-            background-color: @color-background-white;
-            .rounded;
-            box-shadow: -1px 1px 1px rgba(0,0,0,.2);
-            overflow: hidden;
-            margin-top: 6px;
-
-            &.colSelected {
-                background-color: @color-selectedCell-light;
-            }
-
-            &.keySelected {
-                box-shadow: 0px 0px 0px 2px @color-shadow-bottomAction;
-            }
-
-            .colName {
-                .size(@width: 190px, @height: 100%);
-                padding-left: 10px;
-                float: left;
-                display: inline-block;
-                cursor: default;
-            }
-
-            .removeCol {
-                .size(@width: 25px, @height: 100%);
-                float: left;
-                display: inline-block;
-                .gray-gradient;
-                cursor: pointer;
-                &:hover {
-                    .red-gradient;
-                }
-                .closeIcon {
-                    display: inline-block;
-                    .size(100%, 100%);
-                    .image("../../images/close-sm.png", 50%, 50%);
-                }
-            }
-        }
-    }
-}
-// End of Data Cart Section
-

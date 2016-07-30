@@ -514,7 +514,7 @@ window.Replay = (function($, Replay) {
         checkHelper(chekFunc, "data sample table is ready")
         .then(function() {
             // when sample table is loaded
-            var $inputs = $("#worksheetTable .editableHead");
+            var $inputs = $("#dsTable .editableHead");
             // make sure only have this cart
             DSCart.clear();
 

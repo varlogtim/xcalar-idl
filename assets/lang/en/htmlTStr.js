@@ -429,15 +429,14 @@ module.exports = {
         "Size": "Size",
         "Path": "Path",
         "DSPreview": "Dataset Preview",
-        "SelectLater": "Select Columns Later",
-        "SelectLaterHint": "Create A Table Without Picking Any Column"
+        "SelectLater": "Create A Table Without Picking Any Column"
     },
 
     "dsCart": {
-        "SENDTOACTIVEWS": "SEND TO ACTIVE WORKSHEET",
-        "CLEARALL":  "CLEAR DATA CART",
-        "NoCartsHint": "No Tables Selected",
-        "HasCartsHint": "Selected Columns",
+        "Title": "Data Cart",
+        "SelectWS": "Select Worksheet",
+        "SENDTOWS": "SEND TO WORKSHEET",
+        "CLEARALL":  "EMPTY DATA CART",
         "NoCartInstr": "To add a column to the data cart, select a dataset reference on the left and click on the column names that you are interested in inside the center panel."
     },
 

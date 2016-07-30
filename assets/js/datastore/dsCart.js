@@ -39,7 +39,7 @@ window.DSCart = (function($, DSCart) {
 
         // click on data cart item to focus on the related column
         $cartArea.on("click", ".colName", function() {
-            var $li = $(this).parent();
+            var $li = $(this).closest("li");
             $cartArea.find(".colSelected").removeClass("colSelected");
             $li.addClass("colSelected");
             scrollToDatasetColumn($li);
@@ -47,7 +47,7 @@ window.DSCart = (function($, DSCart) {
 
         // remove selected key
         $cartArea.on("click", ".removeCol", function() {
-            var $li = $(this).closest(".colWrap");
+            var $li = $(this).closest("li");
             var dsId = $li.closest(".selectedTable").data("dsid");
             removeCartItem(dsId, $li);
         });
@@ -66,17 +66,11 @@ window.DSCart = (function($, DSCart) {
                 // update
                 var cart = filterCarts(dsId);
                 cart.updateTableName(tableName);
-            },
-            "focus": function() {
-                $(this).closest(".cartTitleArea").addClass("focus");
-            },
-            "blur": function() {
-                $(this).closest(".cartTitleArea").removeClass("focus");
             }
         }, ".tableNameEdit");
 
         // click edit icon to edit table
-        $cartArea.on("click", ".cartTitleArea .iconWrapper", function() {
+        $cartArea.on("click", ".cartTitleArea .icon", function() {
             $(this).siblings(".tableNameEdit").focus();
         });
     };
@@ -332,9 +326,7 @@ window.DSCart = (function($, DSCart) {
                 '<div class="cartTitleArea">' +
                     '<input class="tableNameEdit textOverflow" type="text" ' +
                         'spellcheck="false" value="' + tableName + '">' +
-                    '<div class="iconWrapper">' +
-                        '<span class="icon"></span>' +
-                    '</div>' +
+                    '<i class="icon xi-edit fa-15 xc-action"></i>' +
                 '</div>' +
                 '<div class="cartEmptyHint">' +
                     DataCartStr.NoColumns +
@@ -371,19 +363,27 @@ window.DSCart = (function($, DSCart) {
             var item = items[i];
             var colNum = item.colNum;
             var value = item.value;
+            var type = item.type;
 
             if (colNum == null || value == null) {
                 throw "Invalid Case!";
             }
 
+            if (type == null) {
+                type = "unknown";
+            }
+
             var escapedVal = xcHelper.escapeHTMlSepcialChar(value);
-            li += '<li class="colWrap" data-colnum="' + colNum + '">' +
-                    '<span class="colName textOverflow">' +
-                        escapedVal +
-                    '</span>' +
-                    '<div class="removeCol">' +
-                    '<span class="closeIcon"></span>' +
+            li += '<li data-colnum="' + colNum + '">' +
+                    '<div class="itemWrap type-' + type + '">' +
+                        '<span class="iconWrap">' +
+                            '<i class="center icon fa-16 xi-' + type + '"></i>' +
+                        '</span>' +
+                        '<span class="colName textOverflow">' +
+                            escapedVal +
+                        '</span>' +
                     '</div>' +
+                    '<i class="removeCol icon xi-trash xc-action fa-15"></i>' +
                 '</li>';
             cart.addItem(item);
         }
@@ -461,7 +461,7 @@ window.DSCart = (function($, DSCart) {
 
     function removeCartItem(dsId, $li) {
         var colNum = $li.data("colnum");
-        var $table = $("#worksheetTable");
+        var $table = $("#dsTable");
         // if the table is displayed
         if ($table.data("dsid") === dsId) {
             $table.find("th.col" + colNum + " .header")
@@ -489,7 +489,7 @@ window.DSCart = (function($, DSCart) {
     }
 
     function emptyAllCarts() {
-        var $table = $("#worksheetTable");
+        var $table = $("#dsTable");
 
         $table.find('.colAdded').removeClass("colAdded");
         $table.find('.selectedCol').removeClass("selectedCol");
@@ -515,21 +515,21 @@ window.DSCart = (function($, DSCart) {
         var cartNum = innerCarts.length;
 
         if (cartNum === 0) {
-            $submitBtn.addClass("btnInactive");
-            $clearBtn.addClass("btnInactive");
-            $cartTitle.html("<b>" + DataCartStr.NoCartTitle + "</b>");
-            $dataCart.html('<span class="helpText">' +
-                            DataCartStr.HelpText + '</span>');
+            // $submitBtn.addClass("btnInactive");
+            // $clearBtn.addClass("btnInactive");
+            $cartTitle.find(".num").addClass("xc-hidden");
+             $("#dataCartWrap").addClass("noCart");
         } else {
-            $submitBtn.removeClass("btnInactive");
-            $clearBtn.removeClass("btnInactive");
-            $cartTitle.html('<b>' + DataCartStr.HaveCartTitle +
-                            ' <span title="Number of tables to create" ' +
-                            'data-toggle="tooltip" data-container="body" ' +
-                            'data-placement="top">' +
-                            '(' + cartNum + ')' +
-                            '</span></b>');
-            $dataCart.find('.helpText').remove();
+            // $submitBtn.removeClass("btnInactive");
+            // $clearBtn.removeClass("btnInactive");
+            // $cartTitle.html('<b>' + DataCartStr.HaveCartTitle +
+            //                 ' <span title="Number of tables to create" ' +
+            //                 'data-toggle="tooltip" data-container="body" ' +
+            //                 'data-placement="top">' +
+            //                 '(' + cartNum + ')' +
+            //                 '</span></b>');
+            $cartTitle.find(".num").removeClass("xc-hidden")
+            $("#dataCartWrap").removeClass("noCart");
         }
 
         if (delay) {
@@ -540,13 +540,10 @@ window.DSCart = (function($, DSCart) {
     }
 
     function overflowShadow() {
-        var $panel = $("#datastore-in-view");
-        if ($cartArea.height() > $('#dataCartWrap').height()) {
-            $panel.find('.contentViewRight').find('.buttonArea')
-                                .addClass('cartOverflow');
+        if ($cartArea.height() > $("#dataCartWrap").height()) {
+            $("#dataCartContainer").addClass("cartOverflow");
         } else {
-            $panel.find('.contentViewRight').find('.buttonArea')
-                                .removeClass('cartOverflow');
+            $("#dataCartContainer").removeClass("cartOverflow");
         }
     }
 
@@ -584,16 +581,16 @@ window.DSCart = (function($, DSCart) {
         }
 
         function scrollHelper(showToolTip) {
-            var $table = $("#worksheetTable");
-            var $datasetWrap = $('#datasetWrap');
+            var $table = $("#dsTable");
+            var $dsTableContainer = $('#dsTableContainer');
             var colNum = $cartArea.find(".colSelected").data("colnum");
             var $column = $table.find("th.col" + colNum);
             var position = $column.position().left;
             var columnWidth = $column.width();
-            var dataWrapWidth = $datasetWrap.width();
+            var dataWrapWidth = $dsTableContainer.width();
 
-            $datasetWrap.scrollLeft(position - (dataWrapWidth / 2) +
-                                    (columnWidth / 2));
+            $dsTableContainer.scrollLeft(position - (dataWrapWidth / 2) +
+                                        (columnWidth / 2));
 
             if (showToolTip) {
                 $column.parent().find(".header").tooltip("destroy");

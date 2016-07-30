@@ -233,10 +233,6 @@ html.firefox, html.microsoft {
                         .size(@width: 1px, @height: @height-colHeader);
                         display: inline-block;
                     }
-
-                    .icon {
-                        margin-left: 2px;
-                    }
                 }
 
                 &.flex-mid {
@@ -958,7 +954,12 @@ html.firefox, html.microsoft {
         background-color: @color-table-header-darkGray;
         border-left: none;
         border-radius: 0px;
-        .typeIcon(true);
+        .typeIcon;
+        
+        .type.icon {
+            color: @color-font-greyish-brown;
+        }
+
         .dropDown;
         .editableHead {
             width: 100%;
@@ -973,7 +974,9 @@ html.firefox, html.microsoft {
 
     .selectedCell, .selectedCol {
         .header {
-            .typeIcon(false);
+            .type.icon {
+                color: @color-white;
+            }
         }
     }    
 }

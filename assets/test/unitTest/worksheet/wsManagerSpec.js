@@ -160,10 +160,10 @@ function autoAddTable() {
     .then(function() {
         var $grid = $(dsIcon).click();
         var dsId = $grid.data("dsid");
-        TestSuite.__testOnly__.checkExists('#worksheetTable[data-dsid="' +
+        TestSuite.__testOnly__.checkExists('#dsTable[data-dsid="' +
                                             dsId + '"]')
         .then(function() {
-            $("#selectDSCols .icon").click();
+            $("#selectDSCols").click();
             // wait for dscart name to change
             setTimeout(function() {
 

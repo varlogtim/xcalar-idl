@@ -217,7 +217,7 @@ window.Tips = (function($, Tips) {
         });
 
         // dataset table
-        setTooltip($("#worksheetTable"), {
+        setTooltip($("#dsTable"), {
             "title"    : TipsTStr.DSTable,
             "container": "#datastore-in-view .contentViewTable"
         });

@@ -220,7 +220,7 @@ window.DSForm = (function($, DSForm) {
 
             $dsFormView.removeClass("xc-hidden");
             $("#dsTableView").addClass("xc-hidden");
-            $("#dataSetTableWrap").empty();
+            $("#dsTableWrap").empty();
 
             $("#dsListSection").find(".gridItems .grid-unit.active")
                                 .removeClass("active");

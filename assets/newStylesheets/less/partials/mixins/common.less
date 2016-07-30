@@ -640,75 +640,73 @@
 }
 
 // used for datasetTableWrap in datastore.less
-.typeIcon(@isGray: false) {
-    .typeIconCSS(@type: "Unknown", @width: 9px, @height: 13px, @x: 2px, @y: 0) when (@isGray=false){
-        @url: "../../images/columnIcons/type-@{type}.png";
-        .type.icon {
-            .background(@url, @width, @height, @pX: @x, @pY: @y);
-            .position(relative, @left: -2px, @top: 2px);
-            .size(15px, 22px);
-        }
+.typeIcon() {
+    .type.icon {
+        font-family: 'icomoon' !important;
+        speak: none;
+        font-style: normal;
+        font-weight: normal;
+        text-transform: normal;
+        font-variant: normal;
+        line-height: 1;
+        font-size: 14px;
+        /* Better Font Rendering =========== */
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        color: @color-white;
+
+        display: inline-block;
+        float: left;
+        .center-align;
     }
 
-    .typeIconCSS(@type: "Unknown", @width: 9px, @height: 13px, @x: 2px, @y: 0) when (@isGray=true){
-        @url: "../../images/columnIcons/type-@{type}_gray.png";
-        .type.icon {
-            .background(@url, @width, @height, @pX: @x, @pY: @y);
-            .position(relative, @left: -2px, @top: 2px);
-            .size(15px, 22px);
-        }
+    // default value is Unknown
+    .type.icon:before {
+      content: "\e947";
     }
 
-    .typeIconCSS(); // default value is Unknown
+    &.type-object .type.icon:before {
+      content: "\e941";
+    }
+    &.type-array .type.icon:before {
+      content: "\e942";
+    }
+    &.type-interger .type.icon:before {
+      content: "\e943";
+    }
+    &.type-float .type.icon:before {
+      content: "\e943";
+    }
+    &.type-boolean .type.icon:before {
+      content: "\e944";
+    }
+    &.type-string .type.icon:before {
+      content: "\e945";
+    }
+    &.type-mixed .type.icon:before {
+      content: "\e946";
+    }
+}
 
-    &.type-array {
-        .typeIconCSS("Array", 11px, 13px, 1px, 0);
-    }
-    &.type-boolean {
-        .typeIconCSS("Boolean", 16px, 17px, 0px);
-        .icon {
-            left: -1px !important;
-            top: 0px !important;
-            z-index: 1;
-            width: 16px !important;
-            margin-left: -3px;
-        }
+.xc-hidden {
+    display: none !important;
+}
 
-        .flex-left {
-            &:after {
-                content: "";
-                display: block;
-                position: absolute;
-                width: 0;
-                height: 0;
-                border-top: @height-colHeader solid @color-border-lightGray;
-                border-right: 20px solid transparent;
-                top: 0;
-                left: 0;
-            }
-        }
-    }
-    &.type-mixed {
-        .typeIconCSS("Mixed", 14px, 14px, 0px);
-    }
-    &.type-integer {
-        .typeIconCSS("Number", 9px, 11px, 3px, 1px);
-    }
-    &.type-float {
-        .typeIconCSS("Number", 9px, 11px, 3px, 1px);
-    }
-    &.type-object {
-        .typeIconCSS("Object", 13px, 13px, 0px);
-    }
-    &.type-string {
-        .typeIconCSS("String", 15px, 9px, 1px, 2px);
-        .icon {
-            margin-left: -2px;
-            width: 17px !important;
-        }
-    }
-    &.type-unknown, &.type-undefined, &.newColumn {
-        .typeIconCSS("Unknown", 9px, 13px, 2px, 0px);
+.xc-disabled {
+    opacity: @opacity-disabled !important;
+    pointer-events: none;
+}
+
+.xc-action {
+    cursor: pointer;
+    .xc-hover;
+}
+
+.xc-hover {
+    opacity: @opacity-unhover;
+
+    &:hover {
+        opacity: @opacity-hover;
     }
 }
 

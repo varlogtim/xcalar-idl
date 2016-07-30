@@ -832,11 +832,11 @@ window.TableList = (function($, TableList) {
             if (progCol.isDATACol()) {
                 continue; // skip DATA col
             }
-            var typeClass = "typeList type-" + progCol.getType();
+            var typeClass = "xi-" + progCol.getType();
 
-            html += '<li class="column ' + typeClass + '">' +
+            html += '<li class="column">' +
                         '<div class="iconWrap">' +
-                            '<span class="type icon"></span>' +
+                            '<i class="icon center fa-16 ' + typeClass + '"></i>' +
                         '</div>' +
                         '<span class="text">' +
                             no + ". " + progCol.getFronColName() +

@@ -2,8 +2,8 @@
  * Module for dataset sample table
  */
 window.DSTable = (function($, DSTable) {
-    var $datasetWrap; // $("#datasetWrap")
-    var $tableWrap;   // $("#dataSetTableWrap")
+    var $dsTableContainer; // $("#dsTableContainer")
+    var $tableWrap;   // $("#dsTableWrap")
 
     var currentRow = 0;
     var totalRows = 0;
@@ -14,8 +14,8 @@ window.DSTable = (function($, DSTable) {
     var initialNumRowsToFetch = 40;
 
     DSTable.setup = function() {
-        $datasetWrap = $("#datasetWrap");
-        $tableWrap = $("#dataSetTableWrap");
+        $dsTableContainer = $("#dsTableContainer");
+        $tableWrap = $("#dsTableWrap");
 
         setupSampleTable();
     };
@@ -30,7 +30,7 @@ window.DSTable = (function($, DSTable) {
         var $dsColsBtn = $("#dsColsBtn");
         var notLastDSError = "not last ds";
 
-        $datasetWrap.removeClass("error");
+        $dsTableContainer.removeClass("error");
         beforeShowAction();
 
         // update date part of the table info first to make UI smooth
@@ -38,24 +38,24 @@ window.DSTable = (function($, DSTable) {
         updateTableInfo(dsObj, partialUpdate, isLoading);
 
         if (isLoading) {
-            $datasetWrap.addClass("loading");
-            $dsColsBtn.hide();
+            $dsTableContainer.addClass("loading");
+            $dsColsBtn.addClass("xc-hidden");
             $tableWrap.html(""); // make html smaller
             return PromiseHelper.resolve();
         }
 
         var deferred = jQuery.Deferred();
         var timer;
-        var $worksheetTable = $('#worksheetTable');
+        var $dsTable = $("#dsTable");
 
-        if ($worksheetTable.length === 0 ||
-            $worksheetTable.data("dsid") !== dsObj.getId()) {
+        if ($dsTable.length === 0 ||
+            $dsTable.data("dsid") !== dsObj.getId()) {
             // when not the case of already focus on this ds and refresh again
 
             // only when the loading is slow, show load section
             timer = setTimeout(function() {
-                $datasetWrap.addClass("loading");
-                $dsColsBtn.hide();
+                $dsTableContainer.addClass("loading");
+                $dsColsBtn.addClass("xc-hidden");
                 $tableWrap.html(""); // make html smaller
             }, 300);
         }
@@ -78,9 +78,9 @@ window.DSTable = (function($, DSTable) {
         .then(function(jsonKeys, jsons) {
             clearTimeout(timer);
 
-            $datasetWrap.removeClass("loading");
+            $dsTableContainer.removeClass("loading");
             getSampleTable(dsObj, jsonKeys, jsons);
-            $dsColsBtn.show();
+            $dsColsBtn.removeClass("xc-hidden");
 
             deferred.resolve();
         })
@@ -92,8 +92,8 @@ window.DSTable = (function($, DSTable) {
                 return;
             }
 
-            $dsColsBtn.hide();
-            $datasetWrap.removeClass("loading").addClass("error");
+            $dsColsBtn.addClass("xc-hidden");
+            $dsTableContainer.removeClass("loading").addClass("error");
             var errorText = StatusMessageTStr.LoadFailed + ". " + error.error;
 
             var loadError = dsObj.getError();
@@ -105,7 +105,7 @@ window.DSTable = (function($, DSTable) {
                 errorText += "\n" + loadError;
             }
 
-            $datasetWrap.find(".errorSection").html(errorText);
+            $dsTableContainer.find(".errorSection").html(errorText);
             deferred.reject(error);
         });
 
@@ -118,14 +118,14 @@ window.DSTable = (function($, DSTable) {
 
     DSTable.refresh = function() {
         // size tableWrapper so borders fit table size
-        var $worksheetTable = $('#worksheetTable');
-        var tableHeight = $worksheetTable.height();
+        var $dsTable = $("#dsTable");
+        var tableHeight = $dsTable.height();
         var scrollBarPadding = 0;
-        $tableWrap.width($worksheetTable.width());
-        if ($worksheetTable.width() > $datasetWrap.width()) {
+        $tableWrap.width($dsTable.width());
+        if ($dsTable.width() > $dsTableContainer.width()) {
             scrollBarPadding = 10;
         }
-        $datasetWrap.height(tableHeight + scrollBarPadding);
+        $dsTableContainer.height(tableHeight + scrollBarPadding);
     };
 
     function beforeShowAction() {
@@ -140,11 +140,10 @@ window.DSTable = (function($, DSTable) {
         $tableWrap.html(html);
         restoreSelectedColumns();
         DSTable.refresh();
-        var $worksheetTable = $('#worksheetTable');
-        moveFirstColumn($worksheetTable);
+        moveFirstColumn($("#dsTable"));
 
         // scroll cannot use event bubble
-        $("#dataSetTableWrap .datasetTbodyWrap").scroll(function() {
+        $("#dsTableWrap .datasetTbodyWrap").scroll(function() {
             dataStoreTableScroll($(this));
         });
     }
@@ -199,7 +198,7 @@ window.DSTable = (function($, DSTable) {
             return;
         }
 
-        if ($("#worksheetTable").hasClass("fetching")) {
+        if ($("#dsTable").hasClass("fetching")) {
             // when still fetch the data, no new trigger
             console.info("Still fetching previous data!");
             return;
@@ -213,17 +212,17 @@ window.DSTable = (function($, DSTable) {
                 currentRow += numRowsToFetch;
             }
 
-            $("#worksheetTable").addClass("fetching");
-            var dsId = $("#worksheetTable").data("dsid");
+            $("#dsTable").addClass("fetching");
+            var dsId = $("#dsTable").data("dsid");
 
             scrollSampleAndParse(dsId, currentRow, numRowsToFetch)
             .fail(function(error) {
                 console.error("Scroll data sample table fails", error);
             })
             .always(function() {
-                // when switch ds, #worksheetTable will be re-built
+                // when switch ds, #dsTable will be re-built
                 // so this is the only place the needs to remove class
-                $("#worksheetTable").removeClass("fetching");
+                $("#dsTable").removeClass("fetching");
             });
         }
     }
@@ -239,7 +238,7 @@ window.DSTable = (function($, DSTable) {
         dsObj.fetch(rowToGo, rowsToFetch)
         .then(parseSampleData)
         .then(function(jsonKeys, jsons) {
-            var curDSId = $("#worksheetTable").data("dsid");
+            var curDSId = $("#dsTable").data("dsid");
             if (dsId !== curDSId) {
                 // when change ds
                 console.warn("Sample table change to", curDSId, "cancel fetch");
@@ -248,10 +247,10 @@ window.DSTable = (function($, DSTable) {
             }
 
             var selectedCols = {};
-            var $worksheetTable = $("#worksheetTable");
+            var $dsTable = $("#dsTable");
             var realJsonKeys = [];
 
-            $worksheetTable.find("th.th").each(function(index) {
+            $dsTable.find("th.th").each(function(index) {
                 var $th = $(this);
                 if ($th.hasClass("selectedCol")) {
                     // the first column is column 1
@@ -264,8 +263,8 @@ window.DSTable = (function($, DSTable) {
             });
 
             var tr = getTableRowsHTML(realJsonKeys, jsons, false, selectedCols);
-            $worksheetTable.append(tr);
-            moveFirstColumn($('#worksheetTable'));
+            $dsTable.append(tr);
+            moveFirstColumn($dsTable);
 
             deferred.resolve();
         })
@@ -322,7 +321,7 @@ window.DSTable = (function($, DSTable) {
     function setupSampleTable() {
         // select table witout picking columns
         $("#noDScols").click(function() {
-            var $table = $("#worksheetTable");
+            var $table = $("#dsTable");
             var dsId = $table.data("dsid");
             $table.find(".colAdded").removeClass("colAdded");
             $table.find(".selectedCol").removeClass("selectedCol");
@@ -337,7 +336,7 @@ window.DSTable = (function($, DSTable) {
 
         // clear all columns
         $("#clearDsCols").click(function() {
-            var $table = $("#worksheetTable");
+            var $table = $("#dsTable");
             var dsId = $table.data("dsid");
             $table.find(".colAdded").removeClass("colAdded");
             $table.find(".selectedCol").removeClass("selectedCol");
@@ -347,7 +346,7 @@ window.DSTable = (function($, DSTable) {
         // click to select a column
         $tableWrap.on("click", ".header > .flexContainer", function(event) {
             var $input = $(this).find('.editableHead');
-            var $table = $("#worksheetTable");
+            var $table = $("#dsTable");
 
             if (event.shiftKey && previousColSelected) {
 
@@ -392,20 +391,20 @@ window.DSTable = (function($, DSTable) {
             dblClickResize($(this), {minWidth: 25, target: "datastore"});
         });
 
-        $datasetWrap.scroll(function(){
-            var $worksheetTable = $('#worksheetTable');
+        $dsTableContainer.scroll(function(){
+            var $dsTable = $("#dsTable");
             $(this).scrollTop(0);
-            moveFirstColumn($worksheetTable);
+            moveFirstColumn($dsTable);
 
             if ($(this).scrollLeft() === 0) {
-                $worksheetTable.find('.rowNumHead .header')
+                $dsTable.find('.rowNumHead .header')
                                .css('margin-left', 0);
-                $worksheetTable.find('.idSpan')
+                $dsTable.find('.idSpan')
                                .css('margin-left', -5);
             } else {
-                $worksheetTable.find('.rowNumHead .header')
+                $dsTable.find('.rowNumHead .header')
                                .css('margin-left', 1);
-                $worksheetTable.find('.idSpan')
+                $dsTable.find('.idSpan')
                                .css('margin-left', -4);
             }
         });
@@ -414,16 +413,19 @@ window.DSTable = (function($, DSTable) {
     // select all columns
     function selectAllDSCols() {
         var items = [];
-        var dsId = $("#worksheetTable").data("dsid");
+        var dsId = $("#dsTable").data("dsid");
 
-        $("#worksheetTable .editableHead").each(function() {
+        $("#dsTable .editableHead").each(function() {
             var $input = $(this);
-            if (!$input.closest(".header").hasClass("colAdded")) {
+            var $header = $input.closest(".header");
+            if (!$header.hasClass("colAdded")) {
                 var colNum = xcHelper.parseColNum($input);
                 var val = $input.val();
+                var type = $header.data("type");
                 items.push({
                     "colNum": colNum,
-                    "value" : val
+                    "value" : val,
+                    "type"  : type
                 });
                 highlightColumn($input);
             }
@@ -433,7 +435,7 @@ window.DSTable = (function($, DSTable) {
 
     // select a column
     function selectColumn($input, selectAll) {
-        var dsId = $("#worksheetTable").data("dsid");
+        var dsId = $("#dsTable").data("dsid");
         var $header = $input.closest(".header");
         var colNum = xcHelper.parseColNum($input);
         // unselect the column
@@ -444,14 +446,15 @@ window.DSTable = (function($, DSTable) {
             highlightColumn($input);
             DSCart.addItem(dsId, {
                 "colNum": colNum,
-                "value" : $input.val()
+                "value" : $input.val(),
+                "type"  : $header.data("type")
             });
         }
     }
 
     // re-selecte columns that are in data carts
     function restoreSelectedColumns() {
-        var $table = $("#worksheetTable");
+        var $table = $("#dsTable");
         var dsId = $table.data("dsid");
         var $cart = DSCart.getCartById(dsId);
 
@@ -510,9 +513,9 @@ window.DSTable = (function($, DSTable) {
         }
         // table header
         for (var i = 0; i < numKeys; i++) {
-            var key     = jsonKeys[i].replace(/\'/g, '&#39');
+            var key = jsonKeys[i].replace(/\'/g, '&#39');
             var thClass = "th col" + (i + 1);
-            var type    = columnsType[i];
+            var type = columnsType[i];
             th +=
                 '<th title=\'' + key + '\' class="' + thClass + '">' +
                     '<div class="header type-' + type + '" ' +
@@ -534,7 +537,7 @@ window.DSTable = (function($, DSTable) {
                                     'disabled>' +
                             '</div>' +
                             '<div class="flexWrap flex-right">' +
-                                '<span class="tick icon"></span>' +
+                                '<i class="icon xi-tick fa-8"></i>' +
                             '</div>' +
                         '</div>' +
                     '</div>' +
@@ -543,7 +546,7 @@ window.DSTable = (function($, DSTable) {
 
         var html =
             '<div class="datasetTbodyWrap">' +
-                '<table id="worksheetTable" class="datasetTable dataTable" ' +
+                '<table id="dsTable" class="datasetTable dataTable" ' +
                         'data-dsid="' + dsObj.getId() + '">' +
                     '<thead>' +
                         '<tr>' + th + '</tr>' +

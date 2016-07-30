@@ -385,7 +385,7 @@ window.Shortcuts = (function($, Shortcuts) {
                 if (noCols) {
                     $('#noDScols').click();
                 } else {
-                    $("#selectDSCols .icon").click();
+                    $("#selectDSCols").click();
                 }
 
                 setTimeout(function() {

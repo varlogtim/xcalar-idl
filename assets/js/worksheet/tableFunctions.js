@@ -94,8 +94,8 @@ function autosizeCol($th, options) {
     $th.outerWidth(newWidth);
     if ($table.attr('id').indexOf('xc') > -1) {
         table.tableCols[index - 1].width = newWidth;
-    } else if ($table.attr('id') === 'worksheetTable') {
-        $("#dataSetTableWrap").width($('#worksheetTable').width());
+    } else if ($table.attr('id') === 'dsTable') {
+        $("#dsTableWrap").width($('#dsTable').width());
     }
     if (!options.multipleCols) {
         matchHeaderSizes($table);
@@ -1192,7 +1192,7 @@ function moveFirstColumn($targetTable) {
 
         if (datasetPreview) {
             scrollLeft = -($targetTable.offset().left -
-                              $('#datasetWrap').offset().left);
+                              $('#dsTableContainer').offset().left);
         } else {
             scrollLeft = -$targetTable.offset().left + tableOffsetLeft;
         }
