@@ -433,7 +433,9 @@ StatusT = {
   'StatusLrqDuplicateUserDefinedFields' : 424,
   'StatusTypeConversionError' : 425,
   'StatusAllFilesEmpty' : 426,
-  'StatusNoMatchingFiles' : 427
+  'StatusNoMatchingFiles' : 427,
+  'StatusListFilesNotSupported' : 428,
+  'StatusRebuildDagFailed' : 429
 };
 StatusTStr = {0 : 'Success',
 1 : 'Operation not permitted',
@@ -862,5 +864,7 @@ StatusTStr = {0 : 'Success',
 424 : 'Duplicate user-defined field found',
 425 : 'Type conversion error',
 426 : 'All specified files empty',
-427 : 'No files matching name pattern'
+427 : 'No files matching name pattern',
+428 : 'List files is not supported for this source type',
+429 : 'Replay session failed'
 };

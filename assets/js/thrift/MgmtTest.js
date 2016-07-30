@@ -1792,6 +1792,7 @@
             if (reason === StatusT.StatusEvalStringTooLong) {
                 test.pass();
             } else {
+                reason = "Map returned status " + StatusTStr[reason] + " (" + reason + ")"
                 test.fail(reason);
             }
         });

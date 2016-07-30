@@ -369,12 +369,16 @@ ExInitExportODBCInputT.prototype.write = function(output) {
 ExInitExportCSVArgsT = function(args) {
   this.fieldDelim = null;
   this.recordDelim = null;
+  this.quoteDelim = null;
   if (args) {
     if (args.fieldDelim !== undefined) {
       this.fieldDelim = args.fieldDelim;
     }
     if (args.recordDelim !== undefined) {
       this.recordDelim = args.recordDelim;
+    }
+    if (args.quoteDelim !== undefined) {
+      this.quoteDelim = args.quoteDelim;
     }
   }
 };
@@ -406,6 +410,13 @@ ExInitExportCSVArgsT.prototype.read = function(input) {
         input.skip(ftype);
       }
       break;
+      case 3:
+      if (ftype == Thrift.Type.STRING) {
+        this.quoteDelim = input.readString().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
       default:
         input.skip(ftype);
     }
@@ -425,6 +436,11 @@ ExInitExportCSVArgsT.prototype.write = function(output) {
   if (this.recordDelim !== null && this.recordDelim !== undefined) {
     output.writeFieldBegin('recordDelim', Thrift.Type.STRING, 2);
     output.writeString(this.recordDelim);
+    output.writeFieldEnd();
+  }
+  if (this.quoteDelim !== null && this.quoteDelim !== undefined) {
+    output.writeFieldBegin('quoteDelim', Thrift.Type.STRING, 3);
+    output.writeString(this.quoteDelim);
     output.writeFieldEnd();
   }
   output.writeFieldStop();
