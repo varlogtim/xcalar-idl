@@ -59,6 +59,7 @@ window.DSTable = (function($, DSTable) {
                 $tableWrap.html(""); // make html smaller
             }, 300);
         }
+        DSCart.refresh(dsId);
 
         var datasetName = dsObj.getFullName();
         lastDSToSample = datasetName;
@@ -110,6 +111,16 @@ window.DSTable = (function($, DSTable) {
         });
 
         return deferred.promise();
+    };
+
+    DSTable.getId = function() {
+        var $table = $("#dsTable");
+        if ($table.is(":visible")) {
+            return $table.data("dsid");
+        } else {
+            // when not visible
+            return null;
+        }
     };
 
     DSTable.clear = function() {

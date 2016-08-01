@@ -38,33 +38,9 @@
                 display: block;
             }
         }
-    }
 
-    .topBar {
-        // the data cart icon
-        .cart {
-            .size(24px, 100%);
-            .position(relative);
-            margin-right: 10px;
-
-            &.empty {
-                .text {
-                    display: none;
-                }
-            }
-
-            .icon {
-               color: @color-border-pinkish-grey; 
-            }
-            
-            .text {
-                .size(@min-width: 24px, @height: 12px);
-                .position(absolute, @top: -13px, @left: -15px);
-                .rounded(6px);
-                background-color: @color-bg-softBlue;
-                .font(@size: 9px, @weight: 700, @color: @color-white);
-                text-align: center;
-            }
+        #dataCartBtn {
+            display: none;
         }
     }
 }
@@ -95,19 +71,8 @@ input {
 }
 
 #datastore-in-view {
-    .leftSection {
-        .size(@width: ~"calc(100% - 306px)", @height: 100%);
-        float: left;
-        margin-right: 6px;
-
-        > .section {
-            .size(100%, 100%);
-        }
-    }
-
-    .rightSection {
-        .size(@width: 300px, @height: 100%);
-        float: left;
+    .viewSection {
+        .size(100%, 100%);
     }
 }
 
@@ -138,7 +103,34 @@ input {
     }
 }
 
-#dsTableView {
+#dsTableView {    
+    &.fullSize {
+        .leftSection {
+            .size(@width: ~"calc(100% - 6px)");
+        }
+
+        .rightSection {
+            display: none;
+        }
+    }
+
+    .leftSection {
+        .size(@width: ~"calc(100% - 306px)", @height: 100%);
+        float: left;
+        margin-right: 6px;
+        .transition(width 0.2s);
+
+        > .section {
+            .size(100%, 100%);
+        }
+    }
+
+    .rightSection {
+        .size(@width: 300px, @height: 100%);
+        float: left;
+        .transition(left 0.2s);
+    }
+
     .cardContainer {
         .size(100%, 100%);
     }
@@ -183,6 +175,37 @@ input {
     .cardMain {
         .size(@width: 100%, @height: ~"calc(100% - 152px)");
         padding: 0;
+    }
+}
+
+// the data cart icon
+#dataCartBtn {
+    .size(30px, 100%);
+    .position(relative);
+    margin-right: 10px;
+
+    &.active {
+        background-color: @color-bg-white-two;
+        border: 1px solid @color-border-pinkish-grey2;
+    }
+
+    &.noCart {
+        .text {
+            display: none;
+        }
+    }
+
+    .icon {
+       color: @color-font-warm-grey-two; 
+    }
+    
+    .text {
+        .size(@min-width: 24px, @height: 12px);
+        .position(absolute, @top: -2px, @left: -15px);
+        .rounded(6px);
+        background-color: @color-bg-softBlue;
+        .font(@size: 9px, @weight: 700, @color: @color-white);
+        text-align: center;
     }
 }
 
@@ -335,9 +358,29 @@ table.datasetTable {
     box-shadow: -1px 0 0 0 rgba(255, 255, 255, 0.5), inset 1px 0 0 0 rgba(0, 0, 0, 0.2);
 
     &.cartOverflow {
-        .buttonSection {
-            box-shadow: 2px 2px 5px rgba(0,0,0,0.4);
+        .mainSection {
+            box-shadow: inset 0px 3px 2px 1px rgba(0, 0, 0, 0.2);        }
+    }
+
+    &.noCart {
+        .titleSection {
+            .numWrap {
+                display: none;
+            }
         }
+
+        .buttonSection {
+            .dropDownList, .btn {
+                pointer-events: none;
+                opacity: @opacity-hint;
+            }
+        }
+
+        .mainSection {
+            .hint {
+                display: block;
+            }
+        }        
     }
 
     @height-title: 40;
@@ -359,6 +402,11 @@ table.datasetTable {
         .dropDownList {
             .styleDropDownList(@w: 100%, @h: 30px);
             margin-bottom: 10px;
+
+            li.new {
+                color: @color-font-gray36;
+                border-bottom: 1px solid @color-border-pinkish-grey2;
+            }
         }
 
         .btn {
@@ -372,7 +420,7 @@ table.datasetTable {
             }
         }
 
-        #clearDataCart {
+        #dataCart-clear {
             background-color: @color-white;
             color: @color-font-warm-grey-two;
 
@@ -384,14 +432,9 @@ table.datasetTable {
     }
 
     .mainSection {
-        .size(@width: 100%, @height: ~"calc(100% - @{height-button})");
+        .size(@width: 100%, @height: ~"calc(100% - @{height-main})");
         padding: 10px 10px 10px 20px;
-
-        &.noCart {
-            .hint {
-                display: block;
-            }
-        }
+        overflow-y: scroll;
 
         .hint {
             display: none;
@@ -404,7 +447,7 @@ table.datasetTable {
 }
 
 #dataCart {
-    .size(@width: 100%, @height: 100%);
+    .size(@width: 100%);
     backface-visibility: hidden;
 
     .selectedTable {

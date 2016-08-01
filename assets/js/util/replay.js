@@ -537,7 +537,7 @@ window.Replay = (function($, Replay) {
             originTableLen = $mainFrame.find(".xcTableWrap").length;
 
             var callback = function() {
-                $("#submitDSTablesBtn").click();
+                $("#dataCart-submit").click();
             };
             // delay 2 seconds to show UI
             return delayAction(callback, "Show Data Cart", 2000);

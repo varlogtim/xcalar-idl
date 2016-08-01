@@ -186,6 +186,10 @@ ErrTStr = {
 
     'NoWKBKSelect': 'Please select a workbook',
 
+    'NoWS': 'This worksheet is deleted, please choose another worksheet',
+
+    'NoSelect': 'Please select an option from the dropdown list',
+
     'NoGroupSelect': 'No group selected.',
 
     'InvalidColName': 'Invalid column name.',
@@ -529,6 +533,7 @@ WSTStr = {
     'AddOrphanFail': 'Add Orphaned Table Failed',
     'AddWSFail': 'Cannot Create Worksheet',
     'AddWSFailMsg': 'There are too many worksheets in the panel',
+    'NewWS': 'New Worksheet',
     'DelWS': 'Delete Worksheet',
     'DelWSMsg': 'There are active tables in this worksheet. ' +
                 'How would you like to handle them?',

@@ -4,7 +4,9 @@
 window.DSCart = (function($, DSCart) {
     var $cartArea; // $("#dataCart")
     var $loadingBar; // $('#sendToWorksheetLoadBar .innerBar')
-    var innerCarts = [];
+    var $cartList; // $("#dataCartWSList");
+
+    var innerCarts = {};
     var queryQueue = [];
     var resetTimer;
     var fadeOutTimer;
@@ -16,25 +18,31 @@ window.DSCart = (function($, DSCart) {
 
     DSCart.setup = function() {
         $cartArea = $("#dataCart");
+        $cartList = $("#dataCartWSList");
         $loadingBar = $('#sendToWorksheetLoadBar .innerBar');
 
+        $("#dataCartBtn").click(function() {
+            $(this).toggleClass("active");
+            $("#dsTableView").toggleClass("fullSize");
+        });
+
         // send to worksheet button
-        $("#submitDSTablesBtn").click(function() {
+        $("#dataCart-submit").click(function() {
             $(this).blur();
-            if ($cartArea.find(".selectedTable").length === 0) {
+            var dsId = DSTable.getId();
+            if (dsId == null || filterCarts(dsId) == null) {
                 return false;
             }
 
-            // check valid characters & backend table name to see if has conflict
-            if (checkCartNames()) {
-                sendToWorksheet();
-            }
+            var cart = filterCarts(dsId);
+            sendToWorksheet(cart);
         });
 
         // clear cart
-        $("#clearDataCart").click(function() {
+        $("#dataCart-clear").click(function() {
             $(this).blur();
-            emptyAllCarts();
+            var dsId = DSTable.getId();
+            DSCart.removeCart(dsId);
         });
 
         // click on data cart item to focus on the related column
@@ -73,36 +81,65 @@ window.DSCart = (function($, DSCart) {
         $cartArea.on("click", ".cartTitleArea .icon", function() {
             $(this).siblings(".tableNameEdit").focus();
         });
+
+        //set up dropdown for worksheet list
+        new MenuHelper($cartList, {
+            "onSelect": function($li) {
+                var ws = $li.data("ws");
+                $cartList.data("ws", ws)
+                    .find(".text").val($li.text());
+            },
+            "container": "#dataCartContainer",
+            "bounds"   : "#dataCartContainer"
+        }).setupListeners();
+    };
+
+    DSCart.refresh = function(dsId) {
+        if (dsId != null) {
+            $cartArea.find(".selectedTable").addClass("xc-hidden");
+            DSCart.getCartById(dsId).removeClass("xc-hidden");
+
+            refreshCart(dsId);
+        }
+        
+
+        var li = '<li class="new" data-ws="xc-new">' + WSTStr.NewWS + '</li>' +
+                WSManager.getWSLists(true);
+        $cartList.removeData("ws")
+            .find(".text").val("")
+            .end()
+            .find(".list").html(li);
     };
 
     // restore the cart
     DSCart.restore = function(carts) {
-        carts = carts || [];
-        var noNameCheck = true;
-        var len = carts.length;
-        for (var i = len - 1; i >= 0; i--) {
+        carts = carts || {};
+        var isRestore = true;
+        for (var dsId in carts) {
             // add cart use Array.unshift, so here should restore from end to 0
-            var cart = carts[i];
-            var resotredCart = addCart(cart.dsId, cart.tableName, noNameCheck);
+            var cart = carts[dsId];
+            var resotredCart = addCart(cart.dsId, cart.tableName, isRestore);
             appendCartItem(resotredCart, cart.items);
-        }
-
-        if (len > 0) {
-            refreshCart();
         }
     };
 
     // get information about carts
     DSCart.getCarts = function() {
-        return (innerCarts);
+        return innerCarts;
     };
 
     DSCart.getCartById = function(dsId) {
+        if (dsId == null) {
+            return null;
+        }
         return $cartArea.find('.selectedTable[data-dsid="' + dsId + '"]');
     };
 
     // add column to cart
     DSCart.addItem = function(dsId, items) {
+        if (dsId == null) {
+            return null;
+        }
         var cart = filterCarts(dsId);
         if (cart == null) {
             cart = addCart(dsId);
@@ -116,13 +153,16 @@ window.DSCart = (function($, DSCart) {
             }
 
             appendCartItem(cart, items);
-            var delay = true;
-            refreshCart(delay);
+            refreshCart(dsId);
         }
     };
 
     // remove one column from cart
     DSCart.removeItem = function(dsId, colNum) {
+        if (dsId == null) {
+            return;
+        }
+
         var $cart = DSCart.getCartById(dsId);
         var $li = $cart.find("li[data-colnum=" + colNum + "]");
         removeCartItem(dsId, $li);
@@ -130,23 +170,34 @@ window.DSCart = (function($, DSCart) {
 
     // remove one cart
     DSCart.removeCart = function(dsId) {
-        var $cart = DSCart.getCartById(dsId);
+        if (dsId == null) {
+            return;
+        }
 
+        var $cart = DSCart.getCartById(dsId);
         if (gMinModeOn) {
             $cart.remove();
-            refreshCart();
+            refreshCart(dsId);
         } else {
             $cart.find("ul").slideUp(80, function() {
                 $cart.remove();
-                refreshCart();
+                refreshCart(dsId);
             });
         }
 
-        removeCart(dsId);    // remove the cart
+        // remove cart
+        delete innerCarts[dsId];
+        clearHighlightCol();
+        $cartList.removeData("ws")
+                .find(".text").val("");
     };
 
     DSCart.clear = function() {
-        emptyAllCarts();
+        clearHighlightCol();
+        innerCarts = {};
+
+        $cartArea.empty();
+        $container.addClass("noCart");
     };
 
     DSCart.addQuery = function(mainQuery) {
@@ -302,16 +353,13 @@ window.DSCart = (function($, DSCart) {
     }
 
     function filterCarts(dsId) {
-        for (var i = 0, len = innerCarts.length; i < len; i++) {
-            if (innerCarts[i].dsId === dsId) {
-                return (innerCarts[i]);
-            }
+        if (dsId == null) {
+            return null;
         }
-
-        return (null);
+        return innerCarts[dsId];
     }
 
-    function addCart(dsId, tableName, noNameCheck) {
+    function addCart(dsId, tableName, isRestore) {
         tableName = tableName || DS.getDSObj(dsId).getName();
         var cart = new Cart({
             "dsId"     : dsId,
@@ -319,16 +367,16 @@ window.DSCart = (function($, DSCart) {
         });
 
         // new cart should be prepended, sync with UI
-        innerCarts.unshift(cart);
-
+        innerCarts[dsId] = cart;
+        var cartClasss = isRestore ? "selectedTable xc-hidden" : "selectedTable";
         var cartHtml =
-            '<div class="selectedTable" data-dsid="' + dsId + '">' +
+            '<div class="' + cartClasss + '" data-dsid="' + dsId + '">' +
                 '<div class="cartTitleArea">' +
                     '<input class="tableNameEdit textOverflow" type="text" ' +
                         'spellcheck="false" value="' + tableName + '">' +
                     '<i class="icon xi-edit fa-15 xc-action"></i>' +
                 '</div>' +
-                '<div class="cartEmptyHint">' +
+                '<div class="cartEmptyHint xc-hidden">' +
                     DataCartStr.NoColumns +
                 '</div>' +
                 '<ul></ul>' +
@@ -337,26 +385,26 @@ window.DSCart = (function($, DSCart) {
         var $cart = $(cartHtml);
         $cartArea.prepend($cart);
 
-        if (!noNameCheck) {
+        if (!isRestore) {
+            var $tableNameEdit = $cart.find('.tableNameEdit').focus();
+            xcHelper.createSelection($tableNameEdit[0], true);
+
             getUnusedTableName(tableName)
             .then(function(newTableName) {
-                $cart.find('.tableNameEdit').val(newTableName);
+                $tableNameEdit.val(newTableName);
                 cart.tableName = newTableName;
             })
             .fail(function() {
                 // keep the current name
             });
-
-            var $tableNameEdit = $cart.find('.tableNameEdit').focus();
-            xcHelper.createSelection($tableNameEdit[0], true);
         }
 
-        return (cart);
+        return cart;
     }
 
     function appendCartItem(cart, items) {
         var $cart = DSCart.getCartById(cart.dsId);
-        var li = "";
+        var html = "";
         var len = items.length;
 
         for (var i = 0; i < len; i++) {
@@ -374,7 +422,8 @@ window.DSCart = (function($, DSCart) {
             }
 
             var escapedVal = xcHelper.escapeHTMlSepcialChar(value);
-            li += '<li data-colnum="' + colNum + '">' +
+            html +=
+                '<li data-colnum="' + colNum + '">' +
                     '<div class="itemWrap type-' + type + '">' +
                         '<span class="iconWrap">' +
                             '<i class="center icon fa-16 xi-' + type + '"></i>' +
@@ -388,15 +437,21 @@ window.DSCart = (function($, DSCart) {
             cart.addItem(item);
         }
 
-        var $lis = $(li);
+        var $lis = $(html);
 
         // remove "No Column Selected" hint
-        $cart .find(".cartEmptyHint").hide();
+        $cart.find(".cartEmptyHint").addClass("xc-hidden");
         $cart.find("ul").append($lis);
 
         if (!gMinModeOn && len < animationLimit) {
             $lis.hide().slideDown(100);
         }
+    }
+
+    function clearHighlightCol() {
+        var $table = $("#dsTable");
+        $table.find(".colAdded").removeClass("colAdded");
+        $table.find(".selectedCol").removeClass("selectedCol");
     }
 
     function getUnusedTableName(datasetName) {
@@ -444,19 +499,11 @@ window.DSCart = (function($, DSCart) {
 
     function emptyCart(cart) {
         var $cart = DSCart.getCartById(cart.dsId);
-        $cart.find("ul").empty();
-        $cart.find(".cartEmptyHint").show();
+        $cart.find("ul").empty()
+            .end()
+            .find(".cartEmptyHint").removeClass("xc-hidden");
         cart.emptyItem();
-        refreshCart();
-    }
-
-    function removeCart(dsId) {
-        for (var i = 0, len = innerCarts.length; i < len; i++) {
-            if (innerCarts[i].dsId === dsId) {
-                innerCarts.splice(i, 1);
-                break;
-            }
-        }
+        refreshCart(cart.dsId);
     }
 
     function removeCartItem(dsId, $li) {
@@ -466,13 +513,12 @@ window.DSCart = (function($, DSCart) {
         if ($table.data("dsid") === dsId) {
             $table.find("th.col" + colNum + " .header")
                         .removeClass('colAdded');
-            $table.find(".col" + colNum).removeClass('selectedCol');
+            $table.find(".col" + colNum).removeClass("selectedCol");
         }
 
         if ($li.siblings().length === 0) {
             // empty this cart
-            $li.closest(".selectedTable").remove();
-            removeCart(dsId);
+            DSCart.removeCart(dsId);
         } else {
             if (gMinModeOn) {
                 $li.remove();
@@ -483,60 +529,27 @@ window.DSCart = (function($, DSCart) {
             }
             var cart = filterCarts(dsId);
             cart.removeItem(colNum);
-        }
-
-        refreshCart();
-    }
-
-    function emptyAllCarts() {
-        var $table = $("#dsTable");
-
-        $table.find('.colAdded').removeClass("colAdded");
-        $table.find('.selectedCol').removeClass("selectedCol");
-
-        innerCarts = [];
-
-        if (gMinModeOn) {
-            $cartArea.empty();
-            refreshCart();
-        } else {
-            $cartArea.slideUp(100, function() {
-                $cartArea.empty().show();
-                refreshCart();
-            });
+            refreshCart(dsId);
         }
     }
 
-    function refreshCart(delay) {
-        var $submitBtn = $("#submitDSTablesBtn");
-        var $clearBtn  = $("#clearDataCart");
-        var $cartTitle = $("#dataCartTitle");
-        var $dataCart  = $('#dataCart');
-        var cartNum = innerCarts.length;
+    function refreshCart(dsId) {
+        var cart = filterCarts(dsId);
+        var $container = $("#dataCartContainer");
+        var $cartBtn = $("#dataCartBtn");
 
-        if (cartNum === 0) {
-            // $submitBtn.addClass("btnInactive");
-            // $clearBtn.addClass("btnInactive");
-            $cartTitle.find(".num").addClass("xc-hidden");
-             $("#dataCartWrap").addClass("noCart");
+        if (cart == null) {
+            $container.addClass("noCart");
+            $cartBtn.addClass("noCart");
         } else {
-            // $submitBtn.removeClass("btnInactive");
-            // $clearBtn.removeClass("btnInactive");
-            // $cartTitle.html('<b>' + DataCartStr.HaveCartTitle +
-            //                 ' <span title="Number of tables to create" ' +
-            //                 'data-toggle="tooltip" data-container="body" ' +
-            //                 'data-placement="top">' +
-            //                 '(' + cartNum + ')' +
-            //                 '</span></b>');
-            $cartTitle.find(".num").removeClass("xc-hidden")
-            $("#dataCartWrap").removeClass("noCart");
+            var numCol = cart.items.length;
+            $container.removeClass("noCart");
+            $cartBtn.removeClass("noCart");
+            $(".dataCartNum").text(numCol);
+            DSCart.getCartById(dsId).removeClass("xc-hidden");
         }
 
-        if (delay) {
-            setTimeout(overflowShadow, 10);
-        } else {
-            overflowShadow();
-        }
+        overflowShadow();
     }
 
     function overflowShadow() {
@@ -574,10 +587,12 @@ window.DSCart = (function($, DSCart) {
         if ($ds.hasClass("active")) {
             scrollHelper(true);
         } else {
-            DS.focusOn($ds)
-            .then(function() {
-                scrollHelper(true);
-            });
+            // for current behavior, it's an error case
+            console.error("Error Case!");
+            // DS.focusOn($ds)
+            // .then(function() {
+            //     scrollHelper(true);
+            // });
         }
 
         function scrollHelper(showToolTip) {
@@ -610,119 +625,68 @@ window.DSCart = (function($, DSCart) {
         }
     }
 
-    function checkCartNames() {
-        // var deferred = jQuery.Deferred();
-        var tableNames = {};
-        var nameIsValid;
-        var cart;
-
-
-        for (var i = 0; i < innerCarts.length; i++) {
-            cart = innerCarts[i];
-            nameIsValid = doesCartNameHaveValidChars(cart);
-            if (!nameIsValid) {
-                return false;
-            }
-        }
-
-        // we will only check against active and archived list
-        var name;
-        for (var tableId in gTables) {
-            if (gTables[tableId].status === TableType.Active ||
-                gTables[tableId].status === TableType.Archived) {
-                name = xcHelper.getTableName(gTables[tableId].tableName);
-                tableNames[name] = true;
-            }
-        }
-
-        for (var i = 0, len = innerCarts.length; i < len; i++) {
-            cart = innerCarts[i];
-            nameIsValid = isCartNameValid(cart, tableNames);
-            if (!nameIsValid) {
-                return (false);
-            }
-        }
-
-        return (true);
-    }
-
-    function isCartNameValid(cart, nameMap) {
-        var tableName = cart.tableName;
+    function checkCartArgs(cart) {
+        var tableName = cart.getTableName();
         var error = null;
 
-        if (tableName === "") {
+        var $listInput = $cartList.find(".text");
+        var wsId = $cartList.data("ws");
+        if (!$listInput.val().trim()) {
+            error = ErrTStr.NoSelect;
+            StatusBox.show(error, $listInput, false, {"side": 'left'});
+            return false;
+        } else if (wsId !== "xc-new" && WSManager.getWSById(wsId) == null) {
+            error = ErrTStr.NoWS;
+            StatusBox.show(error, $listInput, false, {"side": 'left'});
+            return false;
+        } else if (tableName === "") {
             error = ErrTStr.NoEmpty;
-        } else if (nameMap.hasOwnProperty(tableName)) {
-            error = ErrTStr.TableConflict;
         } else if (tableName.length >=
                     XcalarApisConstantsT.XcalarApiMaxTableNameLen) {
             error = ErrTStr.TooLong;
+        } else if (/^ | $|[*#'"]/.test(tableName) === true) {
+            error = ErrTStr.InvalidTableName;
         } else {
+            // we will only check name conflict against active and archived list
+            for (var tableId in gTables) {
+                var table = gTables[tableId];
+                var tableType = table.getType();
+                if (tableType === TableType.Active ||
+                    tableType === TableType.Archived) {
+                    var name = xcHelper.getTableName(table.getName());
+                    if (tableName === name) {
+                        error = ErrTStr.TableConflict;
+                    }
+                    break;
+                }
+            }
+        }
+
+        if (error == null) {
             return true;
         }
 
         var $cart = DSCart.getCartById(cart.getId());
-        var $input = $cart.find(' .tableNameEdit');
+        var $input = $cart.find(".tableNameEdit");
         scrollToTableName($input);
-        StatusBox.show(error, $input, true, {'side': 'left'});
+        StatusBox.show(error, $input, true, {"side": 'left'});
 
         return false;
     }
 
-    function doesCartNameHaveValidChars(cart) {
-        var tableName = cart.tableName;
-        if (tableName && /^ | $|[*#'"]/.test(tableName) === true) {
-            var $cart = DSCart.getCartById(cart.getId());
-            var $input = $cart.find(' .tableNameEdit');
-            scrollToTableName($input);
-            StatusBox.show(ErrTStr.InvalidTableName, $input, true,
-                            {'side': 'left'});
-            return false;
-        } else {
-            return true;
+    function sendToWorksheet(cart) {
+        if (cart == null || !checkCartArgs(cart)) {
+            return;
         }
-    }
 
-    function sendToWorksheet() {
         var deferred = jQuery.Deferred();
-        var promises = [];
-        var worksheet = WSManager.getActiveWS();
-        // reference innerCarts here since innerCarts needs
-        // to be clear at end
-        var carts = innerCarts;
-        carts.forEach(function(cart) {
-            promises.push(sendToWorksheetHelper.bind(this, cart, worksheet));
-        });
 
-        emptyAllCarts();
-
-        PromiseHelper.chain(promises)
-        .then(function(lastTableName) {
-            KVStore.commit();
-
-            // resolve lastTableName for unit test
-            deferred.resolve(lastTableName);
-        })
-        .fail(function(error) {
-            if (typeof error !== "object" ||
-                error.status !== StatusT.StatusCanceled) {
-                Alert.error(StatusMessageTStr.TableCreationFailed, error);
-            }
-            
-            deferred.reject(error);
-        })
-        .always(removeWaitCursor);
-
-        return (deferred.promise());
-    }
-
-    function sendToWorksheetHelper(cart, worksheet) {
-        var deferred = jQuery.Deferred();
-        // store columns in localstorage using setgTable()
         var newTableCols = [];
         var dsName = cart.getDSName();
-        var tableName = cart.getTableName() + Authentication.getHashId();
+        var srcName = cart.getTableName();
+        var tableName = srcName + Authentication.getHashId();
 
+        var worksheet = $cartList.data("ws");
         // add sql
         var sql = {
             "operation"  : SQLOps.IndexDS,
@@ -730,44 +694,46 @@ window.DSCart = (function($, DSCart) {
             "dsId"       : cart.getId(),
             "tableName"  : tableName,
             "columns"    : [],
-            "worksheet"  : WSManager.getActiveWS(),
+            "worksheet"  : worksheet,
             "htmlExclude": ["worksheet"]
         };
 
+        // this should happen after sql(or the worksheet attr is wrong)
+        if (worksheet === "xc-new") {
+            worksheet = WSManager.addWS(null, srcName);
+        }
+
         var items = cart.items;
-        var itemLen = items.length;
-        var width;
-        var widthOptions = {
-            defaultHeaderStyle: true
-        };
+        var widthOptions = {"defaultHeaderStyle": true};
 
-        for (var i = 0; i < itemLen; i++) {
-            var colname = items[i].value;
-            // var escapedName = xcHelper.escapeColName(colname);
-            var escapedName = colname;
-
-            width = getTextWidth($(), colname, widthOptions);
+        for (var i = 0, len = items.length; i < len; i++) {
+            var colName = items[i].value;
+            // var escapedName = xcHelper.escapeColName(colName);
+            var escapedName = colName;
+            var width = getTextWidth($(), colName, widthOptions);
 
             var progCol = ColManager.newCol({
                 "backName": escapedName,
-                "name"    : colname,
+                "name"    : colName,
                 "width"   : width,
                 "isNewCol": false,
-                "userStr" : '"' + colname + '" = pull(' + escapedName + ')',
+                "userStr" : '"' + colName + '" = pull(' + escapedName + ')',
                 "func"    : {
                     "name": "pull",
                     "args": [escapedName]
                 }
             });
 
-            newTableCols[i] = progCol;
-            sql.columns.push(colname);
+            newTableCols.push(progCol);
+            sql.columns.push(colName);
         }
 
         // new "DATA" column
-        newTableCols[itemLen] = ColManager.newDATACol();
+        newTableCols.push(ColManager.newDATACol());
         sql.columns.push("DATA");
 
+        DSCart.removeCart(cart.getId());
+        DSCart.refresh();
         var txId = Transaction.start({
             "msg"      : StatusMessageTStr.CreatingTable + ': ' + tableName,
             "operation": SQLOps.IndexDS,
@@ -778,7 +744,6 @@ window.DSCart = (function($, DSCart) {
         XcalarIndexFromDataset(dsName, "recordNum", tableName, txId)
         .then(function() {
             var options = {"focusWorkspace": true};
-            // var options = {};
             return TblManager.refreshTable([tableName], newTableCols,
                                             [], worksheet, options);
         })
@@ -786,22 +751,29 @@ window.DSCart = (function($, DSCart) {
             // this will be saved later
             Transaction.done(txId, {
                 "msgTable": xcHelper.getTableId(tableName),
-                "title"   : TblTStr.Create,
-                "noCommit": true
+                "title"   : TblTStr.Create
             });
+            // resolve tableName for unit test
             deferred.resolve(tableName);
         })
         .fail(function(error) {
-
             Transaction.fail(txId, {
                 "failMsg": StatusMessageTStr.TableCreationFailed,
                 "error"  : error,
                 "noAlert": true,
                 "title"  : TblTStr.Create
             });
+
+            if (typeof error !== "object" ||
+                error.status !== StatusT.StatusCanceled) {
+                Alert.error(StatusMessageTStr.TableCreationFailed, error);
+            }
+
             deferred.reject(error);
-        });
-        return (deferred.promise());
+        })
+        .always(removeWaitCursor);
+
+        return deferred.promise();
     }
 
     /* Unit Test Only */
@@ -809,7 +781,6 @@ window.DSCart = (function($, DSCart) {
         DSCart.__testOnly__ = {};
         DSCart.__testOnly__.filterCarts = filterCarts;
         DSCart.__testOnly__.getUnusedTableName = getUnusedTableName;
-        DSCart.__testOnly__.isCartNameValid = isCartNameValid;
         DSCart.__testOnly__.createWorksheet = sendToWorksheet;
     }
     /* End Of Unit Test Only */

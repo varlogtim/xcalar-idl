@@ -1,9 +1,9 @@
 <!-- Datastore Cart -->
-<div id="dataCartContainer">
+<div id="dataCartContainer" class="noCart">
   <div class="titleSection">
-    <header id="dataCartTitle" class="title">
+    <header class="title">
       <span><%= dicts.dsCart.Title %></span>
-      <span class="num xc-hidden"></span>
+      <span class="numWrap">(<span class="dataCartNum"></span>)</span>
     </header>
   </div>
   <div class="buttonSection">
@@ -20,20 +20,20 @@
     </div>
     <!-- buttons -->
     <% if (dicts.tutor.name !== "datastoreDemo2") { %>
-    <button id="submitDSTablesBtn" class="btn btnLarge iconBtn btnInactive">
+    <button id="dataCart-submit" class="btn btnLarge iconBtn btnInactive">
       <i class="icon xi-back-to-worksheet"></i><%= dicts.dsCart.SENDTOWS %>
     </button>
     <% } else { %>
-    <button id="submitDSTablesBtn" class="btn btnLarge iconBtn" data-introstep="9" data-introposition="left">
+    <button id="dataCart-submit" class="btn btnLarge iconBtn" data-introstep="9" data-introposition="left">
       <i class="icon xi-back-to-worksheet"></i><%= dicts.dsCart.SENDTOWS %>
     </button>
     <% }%>
     <% if (dicts.tutor.name !== "datastoreDemo2") { %>
-    <button id="clearDataCart" class="btn btnLarge iconBtn btnInactive">
+    <button id="dataCart-clear" class="btn btnLarge iconBtn btnInactive">
       <i class="icon xi-trash"></i><%= dicts.dsCart.CLEARALL %>
     </button>
     <% } else { %>
-    <button id="clearDataCart" class="btn btnLarge iconBtn" data-introstep="8" data-introposition="left">
+    <button id="dataCart-clear" class="btn btnLarge iconBtn" data-introstep="8" data-introposition="left">
       <i class="icon xi-trash"></i><%= dicts.dsCart.CLEARALL %>
     </button>
     <% }%>

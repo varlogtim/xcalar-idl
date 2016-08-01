@@ -389,7 +389,7 @@ window.Shortcuts = (function($, Shortcuts) {
                 }
 
                 setTimeout(function() {
-                    $("#submitDSTablesBtn").click();
+                    $("#dataCart-submit").click();
                 }, 400);
             }, 400);
         });

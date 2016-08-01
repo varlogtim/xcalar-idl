@@ -5,17 +5,17 @@
   <div class="mainContent">
     <!-- Imporat View -->
     <div id="datastore-in-view" class="subPanel in">
-      <div class="leftSection">
-        <div id="dsFormView" class="section">
-          include "dsForm.html"
-          include "dsPreview.html"
-        </div>
-        <div id="dsTableView" class="section xc-hidden">
+      <div id="dsFormView" class="viewSection">
+        include "dsForm.html"
+        include "dsPreview.html"
+      </div>
+      <div id="dsTableView" class="viewSection xc-hidden">
+        <div class="leftSection">
           include "dsTable.html"
         </div>
-      </div>
-      <div class="rightSection no-selection">
-        include "dsCart.html"
+        <div class="rightSection no-selection">
+          include "dsCart.html"
+        </div>
       </div>
     </div>
     <!-- Export View -->

@@ -221,6 +221,7 @@ window.DSForm = (function($, DSForm) {
             $dsFormView.removeClass("xc-hidden");
             $("#dsTableView").addClass("xc-hidden");
             $("#dsTableWrap").empty();
+            $("#dataCartBtn").addClass("xc-hidden");
 
             $("#dsListSection").find(".gridItems .grid-unit.active")
                                 .removeClass("active");
@@ -234,6 +235,7 @@ window.DSForm = (function($, DSForm) {
     DSForm.hide = function() {
         $("#dsFormView").addClass("xc-hidden");
         $("#dsTableView").removeClass("xc-hidden");
+        $("#dataCartBtn").removeClass("xc-hidden");
     };
 
     DSForm.load = function(dsName, dsFormat, loadURL,

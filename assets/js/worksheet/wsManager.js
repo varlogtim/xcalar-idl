@@ -146,7 +146,7 @@ window.WSManager = (function($, WSManager) {
             }
             wsId = newWorksheet(wsId, wsName, wsIndex);
         } else {
-            wsId = newWorksheet();
+            wsId = newWorksheet(wsId, wsName);
         }
 
         // after newWoksheet() called, activeWorksheet will change
@@ -156,6 +156,8 @@ window.WSManager = (function($, WSManager) {
             "worksheetId"     : wsId,
             "currentWorksheet": currentWorksheet
         });
+
+        return wsId;
     };
 
     // delete worksheet
@@ -1200,6 +1202,17 @@ window.WSManager = (function($, WSManager) {
             wsName = defaultName + (nameSuffix++);
             while (wsNameToIdMap[wsName] != null) {
                 wsName = defaultName + (nameSuffix++);
+            }
+        } else {
+            var tryCnt = 1;
+            var temp = wsName;
+            while (wsNameToIdMap[wsName] != null && tryCnt < 50) {
+                wsName = temp + (tryCnt++);
+            }
+
+            if (tryCnt >= 50) {
+                console.error("Too many tries");
+                wsName = xcHelper.randName(temp);
             }
         }
 

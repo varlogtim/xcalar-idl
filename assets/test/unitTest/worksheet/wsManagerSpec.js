@@ -168,7 +168,7 @@ function autoAddTable() {
             setTimeout(function() {
 
                 dsName = DSCart.getCartById(dsId).find('input').val();
-                $("#submitDSTablesBtn").click();
+                $("#dataCart-submit").click();
                 TestSuite.__testOnly__.checkExists('.xcTableWrap' +
                                                    ' .tableName[value=' +
                                                     dsName+ ']')

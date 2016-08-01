@@ -125,6 +125,7 @@ window.MainMenu = (function($, MainMenu) {
             case ("dataStoresTab"):
                 $("#datastorePanel").addClass("active");
                 DSTable.refresh();
+                DSCart.refresh();
                 DSCart.checkQueries();
                 if ($curTab.hasClass("firstTouch")) {
                     $curTab.removeClass("firstTouch");

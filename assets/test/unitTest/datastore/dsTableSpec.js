@@ -117,7 +117,7 @@ function dsTableTest() {
             // this is for the preparation of table and worksheet test
 
             // clear first in case we have otehr data cart
-            $("#clearDataCart").click();
+            $("#dataCart-clear").click();
             $("#selectDSCols").click();
 
             DSCart.__testOnly__.createWorksheet()

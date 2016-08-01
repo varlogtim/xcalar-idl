@@ -14,7 +14,7 @@ function XcAuth(options) {
     this.hashTag = options.hashTag;
 
     return this;
-} 
+}
 
 // global MouseEvents
 // useful to keep track of mousedown so when a blur happens, we know what
@@ -491,11 +491,11 @@ function UserPref(options) {
     this.memoryLimit = options.memoryLimit || 70;
     this.monitorGraphInterval = options.monitorGraphInterval || 3;
     this.mainTabs = options.mainTabs || {
-                                            monitor: 'systemButton',
-                                            dataStores: 'inButton',
-                                            scheduler: 'dataflowButton',
-                                            extensions: 'xcExtensionButton'
-                                        };
+        monitor   : 'systemButton',
+        dataStores: 'inButton',
+        scheduler : 'dataflowButton',
+        extensions: 'xcExtensionButton'
+    };
     this.activeMainTab = options.activeMainTab || "workspaceTab";
 
     return this;
@@ -520,6 +520,13 @@ function Cart(options) {
     this.tableName = options.tableName;
     // items will be restored in DSCart.initialize
     this.items = [];
+
+    var items = options.items;
+    if (items != null) {
+        for (var i = 0, len = items.length; i < len; i++) {
+            this.items[i] = new CartItem(items[i]);
+        }
+    }
 
     return this;
 }
@@ -2522,10 +2529,10 @@ function RangeSlider($rangeSliderWrap, prefName, options) {
     this.options = options;
 
     $rangeSliderWrap.find('.leftArea').resizable({
-        "handles"  : "e",
-        "minWidth" : self.minWidth,
-        "maxWidth" : self.maxWidth,
-        "stop": function(event, ui) {
+        "handles" : "e",
+        "minWidth": self.minWidth,
+        "maxWidth": self.maxWidth,
+        "stop"    : function(event, ui) {
             var val = self.updateInput(ui.size.width);
             UserSettings.setPref(prefName, val);
             if (options.onChangeEnd) {
@@ -2570,7 +2577,7 @@ function RangeSlider($rangeSliderWrap, prefName, options) {
     $rangeSliderWrap.find('input').on('keydown', function(event) {
         if (event.which === keyCode.Enter) {
             $(this).blur();
-        } 
+        }
     });
 }
 
@@ -2680,6 +2687,9 @@ MenuHelper.prototype = {
         if (options.onlyClickIcon) {
             $dropDownList.on("click", ".icon", function(event) {
                 event.stopPropagation();
+                if (options.onOpen) {
+                    options.onOpen();
+                }
                 self.toggleList($(this).closest(".dropDownList"));
             });
         } else {
@@ -2689,6 +2699,9 @@ MenuHelper.prototype = {
                     return;
                 }
                 event.stopPropagation();
+                if (options.onOpen) {
+                    options.onOpen();
+                }
                 self.toggleList($(this));
             });
         }

@@ -383,7 +383,7 @@ window.TestSuite = (function($, TestSuite) {
                 // since it has animation that dealy the display
                 $("#dsTable th .header .editableHead").slice(0, 5)
                                                              .click();
-                $("#submitDSTablesBtn").click();
+                $("#dataCart-submit").click();
 
                 var header = ".xcTable .flexWrap.flex-mid" +
                              " input[value='ArrDelay']:eq(0)";
@@ -745,7 +745,7 @@ window.TestSuite = (function($, TestSuite) {
                     $ele.click();
                 }
             });
-            $("#submitDSTablesBtn").click();
+            $("#dataCart-submit").click();
             return (checkExists(".xcTable .flexWrap.flex-mid input[value=" +
                                 "'class_id']:eq(0)"));
         }).then(function() {

@@ -70,6 +70,7 @@ window.DataStore = (function($, DataStore) {
                     .end()
                     .find(".out").addClass("xc-hidden");
                 DSTable.refresh();
+                DSCart.refresh();
             }
             // button switch styling handled in mainMenu.js
         });
