@@ -172,7 +172,7 @@ window.Transaction = (function(Transaction, $) {
         cancelTX(txId);
         removeTX(txId);
 
-        QueryManager.removeQuery(txId);
+        QueryManager.cancelQuery(txId);
         transactionCleaner();
     };
 

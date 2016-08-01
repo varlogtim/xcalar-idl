@@ -190,6 +190,29 @@ window.QueryManager = (function(QueryManager, $) {
         $('.tooltip').hide();
     };
 
+    QueryManager.cancelQuery = function(id) {
+        if (!queryLists[id]) {
+            return;
+        }
+        clearInterval(queryCheckLists[id]);
+        
+
+        var mainQuery = queryLists[id];
+        mainQuery.state = "canceled";
+        mainQuery.outputTableState = "deleted";
+        mainQuery.setElapsedTime();
+        updateQueryBar(id, null, false, true);
+        updateStatusDetail({
+            start: getQueryTime(mainQuery.getTime()),
+            elapsed: getElapsedTimeStr(mainQuery.getElapsedTime()),
+            remaining: CommonTxtTstr.NA,
+            total: getElapsedTimeStr(mainQuery.getElapsedTime())
+        }, id);
+        updateOutputSection(id, true);
+        $('.query[data-id="' + id + '"]').addClass('canceled')
+                                         .find('.querySteps').text('canceled');
+    };
+
     QueryManager.fail = function(id) {
         QueryManager.removeQuery(id);
     };
@@ -543,9 +566,9 @@ window.QueryManager = (function(QueryManager, $) {
         });
     }
 
-    function updateQueryBar(id, progress, isError) {
+    function updateQueryBar(id, progress, isError, isCanceled) {
         var $query = $queryList.find('.query[data-id="' + id + '"]');
-        if (progress == null) {
+        if (progress == null && !isCanceled) {
             if (isError) {
                 $query.removeClass("processing").addClass("error");
             }
@@ -566,6 +589,9 @@ window.QueryManager = (function(QueryManager, $) {
         } else if (isError) {
             progress = progress + "%";
             newClass = "error";
+        } else if (isCanceled) {
+            progress = "0 %";
+            newClass = "canceled";
         } else {
             progress = progress + "%";
         }
