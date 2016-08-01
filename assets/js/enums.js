@@ -187,6 +187,7 @@ var SQLOps = {
     DestroyPreviewDS: "destroyPreviewDataSet",
     DestroyDS: "destroyDataSet",
     ExportTable: "exportTable",
+    Query: "xcalarQuery",
     // XI operation
     AddNewCol: "addNewCol",
     DeleteCol: "deleteCol",
