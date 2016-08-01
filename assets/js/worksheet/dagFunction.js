@@ -90,9 +90,10 @@ window.DagFunction = (function($, DagFunction) {
 
     function handleFullQuery() {
         console.log(globalArray.join(";\n"));
-    }
+    }    
 
     function printArray(orderedArray) {
+        console.log(orderedArray);
         var promiseArray = [];
         globalArray = [];
         for (var i = 0; i<orderedArray.length; i++) {
